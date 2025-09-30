@@ -10,7 +10,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-COMPILER="./nanoc"
+COMPILER="./bin/nanoc"
 TEST_DIR="examples"
 TESTS_PASSED=0
 TESTS_FAILED=0
