@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "0.1.0",
+  "types": {
+    "primitives": [
+      {
+        "name": "i32",
+        "size": 4,
+        "signed": true,
+        "description": "32-bit signed integer"
+      },
+      {
+        "name": "i64",
+        "size": 8,
+        "signed": true,
+        "description": "64-bit signed integer"
+      },
+      {
+        "name": "bool",
+        "size": 1,
+        "signed": false,
+        "description": "Boolean value"
+      }
+    ],
+    "composite": {
+      "array": {
+        "kind": "array",
+        "element_type": "any",
+        "description": "Dynamic array type"
+      },
+      "function": {
+        "kind": "function",
+        "parameter_types": [],
+        "return_type": "any",
+        "description": "Function type"
+      }
+    }
+  },
+  "operations": {
+    "add": {
+      "input_types": ["i32", "i32"],
+      "output_type": "i32",
+      "pure": true,
+      "description": "Integer addition"
+    },
+    "sub": {
+      "input_types": ["i32", "i32"],
+      "output_type": "i32",
+      "pure": true,
+      "description": "Integer subtraction"
+    },
+    "mul": {
+      "input_types": ["i32", "i32"],
+      "output_type": "i32",
+      "pure": true,
+      "description": "Integer multiplication"
+    },
+    "div": {
+      "input_types": ["i32", "i32"],
+      "output_type": "i32",
+      "pure": true,
+      "description": "Integer division",
+      "preconditions": ["divisor != 0"]
+    },
+    "eq": {
+      "input_types": ["any", "any"],
+      "output_type": "bool",
+      "pure": true,
+      "description": "Equality comparison"
+    },
+    "lt": {
+      "input_types": ["i32", "i32"],
+      "output_type": "bool",
+      "pure": true,
+      "description": "Less than comparison"
+    },
+    "gt": {
+      "input_types": ["i32", "i32"],
+      "output_type": "bool",
+      "pure": true,
+      "description": "Greater than comparison"
+    }
+  },
+  "runtime_functions": {
+    "print": {
+      "signature": "print(any) -> void",
+      "description": "Print value to stdout",
+      "side_effects": ["IO"]
+    },
+    "input": {
+      "signature": "input() -> i32",
+      "description": "Read integer from stdin",
+      "side_effects": ["IO"]
+    }
+  }
+}
