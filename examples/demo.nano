@@ -1,0 +1,21 @@
+// Demo program showcasing NanoLang features
+print 2024;
+
+let x = 10;
+let y = 20;
+print x + y;
+
+let result = x * y - 50;
+print result;
+
+if (result > 100) {
+  print 1;
+}
+
+let factorial = 1;
+let i = 1;
+while (i < 6) {
+  factorial = factorial * i;
+  i = i + 1;
+}
+print factorial;

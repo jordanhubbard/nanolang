@@ -1,0 +1,16 @@
+// Fibonacci sequence generator
+let n = 10;
+let a = 0;
+let b = 1;
+let i = 0;
+
+print a;
+print b;
+
+while (i < n) {
+    let temp = a + b;
+    a = b;
+    b = temp;
+    print temp;
+    i = i + 1;
+}

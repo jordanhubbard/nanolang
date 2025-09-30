@@ -1,0 +1,11 @@
+// Factorial calculation
+let n = 5;
+let factorial = 1;
+let i = 1;
+
+while (i < n + 1) {
+    factorial = factorial * i;
+    i = i + 1;
+}
+
+print factorial;  // Should print 120
