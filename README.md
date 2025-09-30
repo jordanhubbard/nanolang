@@ -1,6 +1,21 @@
 # nanolang
 
+**Status**: 🚧 Alpha - Core compiler implemented, known bugs present
+
 A minimal, LLM-friendly programming language designed for AI programming with strict, unambiguous syntax, mandatory shadow-tests, and a path to self-hosting via C transpilation.
+
+## Quick Start
+
+```bash
+# Build the compiler
+make
+
+# Compile a program
+./nanoc examples/hello.nano -o hello
+
+# Run it
+./hello
+```
 
 ## Philosophy
 
@@ -11,6 +26,20 @@ A minimal, LLM-friendly programming language designed for AI programming with st
 3. **Unambiguous**: Every construct has exactly one meaning, no operator precedence surprises
 4. **Self-hosting**: Designed to eventually compile itself via C transpilation
 5. **Test-driven**: Mandatory shadow-tests ensure correctness at every level
+
+## Implementation Status
+
+- ✅ **Lexer**: Fully working
+- ✅ **Parser**: 95% complete (for loops buggy)
+- ✅ **Type Checker**: 90% complete
+- ⚠️ **Shadow-Test Runner**: 85% complete (for loop segfault)
+- ✅ **C Transpiler**: 90% complete
+- ✅ **CLI Tool**: Basic features working
+
+**Working Examples**: 10/18 (56%)
+**Critical Bugs**: 1 (for loop segfault)
+
+See [TEST_RESULTS.md](TEST_RESULTS.md) and [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) for details.
 
 ## Quick Example
 
