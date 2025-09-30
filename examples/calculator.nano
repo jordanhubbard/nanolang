@@ -1,0 +1,143 @@
+# Calculator with basic arithmetic operations
+# Demonstrates function composition and prefix notation
+
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+    assert (== (add 0 0) 0)
+    assert (== (add -5 3) -2)
+    assert (== (add 100 200) 300)
+}
+
+fn subtract(a: int, b: int) -> int {
+    return (- a b)
+}
+
+shadow subtract {
+    assert (== (subtract 5 3) 2)
+    assert (== (subtract 3 5) -2)
+    assert (== (subtract 0 0) 0)
+    assert (== (subtract 100 50) 50)
+}
+
+fn multiply(a: int, b: int) -> int {
+    return (* a b)
+}
+
+shadow multiply {
+    assert (== (multiply 2 3) 6)
+    assert (== (multiply 0 5) 0)
+    assert (== (multiply -2 3) -6)
+    assert (== (multiply 10 10) 100)
+}
+
+fn divide(a: int, b: int) -> int {
+    return (/ a b)
+}
+
+shadow divide {
+    assert (== (divide 6 2) 3)
+    assert (== (divide 10 3) 3)
+    assert (== (divide 100 10) 10)
+    assert (== (divide 7 2) 3)
+}
+
+fn modulo(a: int, b: int) -> int {
+    return (% a b)
+}
+
+shadow modulo {
+    assert (== (modulo 7 3) 1)
+    assert (== (modulo 10 5) 0)
+    assert (== (modulo 15 7) 1)
+    assert (== (modulo 100 30) 10)
+}
+
+fn abs(n: int) -> int {
+    if (< n 0) {
+        return (- 0 n)
+    } else {
+        return n
+    }
+}
+
+shadow abs {
+    assert (== (abs 5) 5)
+    assert (== (abs -5) 5)
+    assert (== (abs 0) 0)
+    assert (== (abs -100) 100)
+}
+
+fn max(a: int, b: int) -> int {
+    if (> a b) {
+        return a
+    } else {
+        return b
+    }
+}
+
+shadow max {
+    assert (== (max 5 3) 5)
+    assert (== (max 3 5) 5)
+    assert (== (max 10 10) 10)
+    assert (== (max -5 -10) -5)
+}
+
+fn min(a: int, b: int) -> int {
+    if (< a b) {
+        return a
+    } else {
+        return b
+    }
+}
+
+shadow min {
+    assert (== (min 5 3) 3)
+    assert (== (min 3 5) 3)
+    assert (== (min 10 10) 10)
+    assert (== (min -5 -10) -10)
+}
+
+fn main() -> int {
+    print "Calculator Demo"
+    print ""
+    
+    let a: int = 15
+    let b: int = 4
+    
+    print "a = 15, b = 4"
+    print ""
+    
+    print "add(a, b) = "
+    print (add a b)
+    
+    print "subtract(a, b) = "
+    print (subtract a b)
+    
+    print "multiply(a, b) = "
+    print (multiply a b)
+    
+    print "divide(a, b) = "
+    print (divide a b)
+    
+    print "modulo(a, b) = "
+    print (modulo a b)
+    
+    print "abs(-42) = "
+    print (abs -42)
+    
+    print "max(a, b) = "
+    print (max a b)
+    
+    print "min(a, b) = "
+    print (min a b)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
