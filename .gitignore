@@ -30,6 +30,7 @@ a.out
 *.test
 test_output/
 .test/
+.test_output/
 
 # Compiler cache
 .cache/
