@@ -4,25 +4,25 @@
 fn is_prime(n: int) -> bool {
     if (< n 2) {
         return false
-    }
-    
-    if (== n 2) {
-        return true
-    }
-    
-    if (== (% n 2) 0) {
-        return false
-    }
-    
-    let mut i: int = 3
-    while (<= (* i i) n) {
-        if (== (% n i) 0) {
-            return false
+    } else {
+        if (== n 2) {
+            return true
+        } else {
+            if (== (% n 2) 0) {
+                return false
+            } else {
+                let mut i: int = 3
+                while (<= (* i i) n) {
+                    if (== (% n i) 0) {
+                        return false
+                    } else {
+                        set i (+ i 2)
+                    }
+                }
+                return true
+            }
         }
-        set i (+ i 2)
     }
-    
-    return true
 }
 
 shadow is_prime {
@@ -55,14 +55,16 @@ shadow is_prime {
 fn count_primes(limit: int) -> int {
     let mut count: int = 0
     let mut i: int = 2
-    
+
     while (< i limit) {
         if (is_prime i) {
             set count (+ count 1)
+            set i (+ i 1)
+        } else {
+            set i (+ i 1)
         }
-        set i (+ i 1)
     }
-    
+
     return count
 }
 
@@ -76,17 +78,21 @@ shadow count_primes {
 
 fn main() -> int {
     print "Prime numbers up to 50:"
-    
-    for n in (range 2 51) {
+
+    let mut n: int = 2
+    while (< n 51) {
         if (is_prime n) {
             print n
+            set n (+ n 1)
+        } else {
+            set n (+ n 1)
         }
     }
-    
+
     print ""
     print "Total primes up to 100:"
     print (count_primes 100)
-    
+
     return 0
 }
 

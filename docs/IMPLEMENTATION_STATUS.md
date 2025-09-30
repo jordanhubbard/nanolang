@@ -21,20 +21,22 @@ This document tracks the implementation status of nanolang components.
 - ✅ [ROADMAP.md](ROADMAP.md) - Development roadmap
 - ✅ [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Quick syntax reference
 
-#### Examples (18 total, 10 working)
+#### Examples (18 total, 13 working)
 - ✅ [examples/hello.nano](examples/hello.nano) - Hello world
 - ✅ [examples/calculator.nano](examples/calculator.nano) - Basic arithmetic
 - ✅ [examples/factorial.nano](examples/factorial.nano) - Recursion and while loops
 - ❌ [examples/fibonacci.nano](examples/fibonacci.nano) - SEGFAULT (for loop bug)
-- ❌ [examples/primes.nano](examples/primes.nano) - Parse errors (missing else)
+- ✅ [examples/primes.nano](examples/primes.nano) - Prime numbers (fixed: while loops, else branches)
 - ✅ [examples/01_operators.nano](examples/01_operators.nano) - All arithmetic operators
 - ✅ [examples/02_strings.nano](examples/02_strings.nano) - String operations
 - ✅ [examples/03_floats.nano](examples/03_floats.nano) - Float arithmetic
 - ❌ [examples/04_loops.nano](examples/04_loops.nano) - SEGFAULT (for loop bug)
+- ✅ [examples/04_loops_working.nano](examples/04_loops_working.nano) - While loops (workaround)
 - ✅ [examples/05_mutable.nano](examples/05_mutable.nano) - Mutable variables
 - ✅ [examples/06_logical.nano](examples/06_logical.nano) - Logical operators
 - ✅ [examples/07_comparisons.nano](examples/07_comparisons.nano) - Comparison operators
 - ✅ [examples/08_types.nano](examples/08_types.nano) - All data types
+- ✅ [examples/09_math.nano](examples/09_math.nano) - Math library functions
 - ✅ [examples/README.md](examples/README.md) - Example guide
 
 #### Project Files (100% Complete)
@@ -133,15 +135,15 @@ This document tracks the implementation status of nanolang components.
 - ⚠️ For loop transpilation (needs testing after eval fix)
 - **Status**: Works for tested features
 
-#### Phase 6.5: CLI Tool (80% ⚠️)
-- ✅ Basic command-line interface (main.c - 4KB, ~144 lines)
+#### Phase 6.5: CLI Tool (100% ✅)
+- ✅ Basic command-line interface (main.c - 5KB, ~190 lines)
 - ✅ File input handling
 - ✅ Output file specification (-o flag)
 - ✅ Compilation pipeline integration
 - ✅ Error reporting
-- ❌ --version, --help, --verbose flags
-- ❌ --keep-c flag (keeps generated C code)
-- **Status**: Basic functionality works
+- ✅ --version, --help, --verbose flags
+- ✅ --keep-c flag (keeps generated C code)
+- **Status**: Fully working
 
 #### Phase 6: Environment/Runtime (100% ✅)
 - ✅ Symbol table (env.c - 3KB, ~120 lines)
@@ -151,9 +153,9 @@ This document tracks the implementation status of nanolang components.
 - **Status**: Fully working
 
 ## Total Implementation
-- **Lines of Code**: ~2,618 across 7 C files + 1 header
-- **Core Compiler**: ~85% complete
-- **Working Features**: ~70%
+- **Lines of Code**: ~2,650 across 7 C files + 1 header
+- **Core Compiler**: ~90% complete
+- **Working Features**: ~75%
 - **Critical Bugs**: 1 (for loop segfault)
 
 ## Known Issues and Bugs 🐛
@@ -213,43 +215,40 @@ This document tracks the implementation status of nanolang components.
 
 ## Test Results Summary
 
-**Last Test Run**: September 29, 2025
+**Last Test Run**: September 30, 2025
 
 | Category | Count | Percentage |
 |----------|-------|------------|
 | Total Examples | 18 | 100% |
-| Working | 10 | 56% |
+| Working | 13 | 72% |
 | Segfault | 2 | 11% |
-| Parse Error | 1 | 6% |
-| Not Tested | 5 | 28% |
+| Not Tested | 3 | 17% |
 
 ### Examples by Status
 
-**✅ Working (10)**:
+**✅ Working (13)**:
 - hello.nano
 - calculator.nano
 - factorial.nano
+- primes.nano (fixed)
 - 01_operators.nano
 - 02_strings.nano
 - 03_floats.nano
+- 04_loops_working.nano (workaround)
 - 05_mutable.nano
 - 06_logical.nano
 - 07_comparisons.nano
 - 08_types.nano
+- 09_math.nano
 
 **❌ Segfault (2)**:
 - 04_loops.nano (for loop)
 - fibonacci.nano (for loop)
 
-**⚠️ Parse Error (1)**:
-- primes.nano (missing else branches)
-
-**📝 Not Tested (5)**:
+**📝 Not Tested (3)**:
 - demo.nano
 - comprehensive.nano
 - conditionals.nano
-- variables.nano
-- prime.nano
 
 ### Not Yet Started ⏳
 
@@ -375,6 +374,6 @@ The project is ready to move to implementation phase.
 
 ---
 
-**Last Updated**: September 30, 2025  
-**Current Phase**: Specification Complete  
-**Next Phase**: Lexer Implementation
+**Last Updated**: September 30, 2025
+**Current Phase**: Core Compiler - Alpha
+**Next Phase**: Standard Library Implementation
