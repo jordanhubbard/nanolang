@@ -1,13 +1,54 @@
 # Build artifacts
 *.o
-nano
+*.a
+*.so
+*.dylib
+*.exe
+*.out
+a.out
 
-# IDE and editor files
+# Compiled binaries
+/bin/
+/build/
+/dist/
+/target/
+
+# C intermediate files
+*.c.tmp
+*.h.tmp
+
+# Editor files
 .vscode/
 .idea/
 *.swp
+*.swo
 *~
-
-# OS files
 .DS_Store
+
+# Test outputs
+*.test
+test_output/
+.test/
+
+# Compiler cache
+.cache/
+__pycache__/
+*.pyc
+
+# Dependency directories
+node_modules/
+vendor/
+
+# Debug files
+*.dSYM/
+*.pdb
+
+# Temporary files
+/tmp/
+*.tmp
+*.bak
+
+# OS-specific
 Thumbs.db
+.Spotlight-V100
+.Trashes

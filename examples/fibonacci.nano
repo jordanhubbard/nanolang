@@ -1,16 +1,41 @@
-// Fibonacci sequence generator
-let n = 10;
-let a = 0;
-let b = 1;
-let i = 0;
+# Fibonacci sequence calculator
+# Demonstrates recursion and shadow-tests
 
-print a;
-print b;
+fn fib(n: int) -> int {
+    if (<= n 1) {
+        return n
+    } else {
+        return (+ (fib (- n 1)) (fib (- n 2)))
+    }
+}
 
-while (i < n) {
-    let temp = a + b;
-    a = b;
-    b = temp;
-    print temp;
-    i = i + 1;
+shadow fib {
+    # Test base cases
+    assert (== (fib 0) 0)
+    assert (== (fib 1) 1)
+    
+    # Test sequence: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55
+    assert (== (fib 2) 1)
+    assert (== (fib 3) 2)
+    assert (== (fib 4) 3)
+    assert (== (fib 5) 5)
+    assert (== (fib 6) 8)
+    assert (== (fib 7) 13)
+    assert (== (fib 8) 21)
+    assert (== (fib 9) 34)
+    assert (== (fib 10) 55)
+}
+
+fn main() -> int {
+    print "Fibonacci sequence (first 15 numbers):"
+    
+    for i in (range 0 15) {
+        print (fib i)
+    }
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }
