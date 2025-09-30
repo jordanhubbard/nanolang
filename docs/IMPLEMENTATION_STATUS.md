@@ -21,11 +21,11 @@ This document tracks the implementation status of nanolang components.
 - ✅ [ROADMAP.md](ROADMAP.md) - Development roadmap
 - ✅ [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Quick syntax reference
 
-#### Examples (15 total, 13 working - 87%)
+#### Examples (15 total, 14 working - 93%)
 - ✅ [examples/hello.nano](examples/hello.nano) - Hello world
 - ✅ [examples/calculator.nano](examples/calculator.nano) - Basic arithmetic
 - ✅ [examples/factorial.nano](examples/factorial.nano) - Recursion and while loops
-- ❌ [examples/fibonacci.nano](examples/fibonacci.nano) - SEGFAULT (for loop bug)
+- ✅ [examples/fibonacci.nano](examples/fibonacci.nano) - Fibonacci sequence (fixed: while loops)
 - ✅ [examples/primes.nano](examples/primes.nano) - Prime numbers (fixed: while loops, else branches)
 - ✅ [examples/01_operators.nano](examples/01_operators.nano) - All arithmetic operators
 - ✅ [examples/02_strings.nano](examples/02_strings.nano) - String operations
@@ -222,29 +222,29 @@ This document tracks the implementation status of nanolang components.
 | Category | Count | Percentage |
 |----------|-------|------------|
 | Total Examples | 15 | 100% |
-| Working | 13 | 87% |
-| Segfault (known bug) | 2 | 13% |
+| Working | 14 | 93% |
+| Segfault (known bug) | 1 | 7% |
 
 ### Examples by Status
 
-**✅ Working (13)**:
+**✅ Working (14)**:
 - hello.nano
 - calculator.nano
 - factorial.nano
-- primes.nano (fixed)
+- fibonacci.nano (fixed: converted for loop to while loop)
+- primes.nano (fixed: converted for loops to while loops, added else branches)
 - 01_operators.nano
 - 02_strings.nano
 - 03_floats.nano
-- 04_loops_working.nano (workaround)
+- 04_loops_working.nano (while loops only)
 - 05_mutable.nano
 - 06_logical.nano
 - 07_comparisons.nano
 - 08_types.nano
 - 09_math.nano
 
-**❌ Segfault (2)**:
-- 04_loops.nano (for loop bug)
-- fibonacci.nano (for loop bug)
+**❌ Segfault (1)**:
+- 04_loops.nano (demonstrates for loop bug - kept as test case)
 
 **🗑️ Removed (5)**:
 - demo.nano, comprehensive.nano, conditionals.nano, variables.nano, prime.nano
