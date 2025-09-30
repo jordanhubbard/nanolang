@@ -1,5 +1,50 @@
 #include "nanolang.h"
 
+/* Built-in function metadata */
+typedef struct {
+    const char *name;
+    int param_count;
+    Type param_types[3];  /* Max 3 params for now */
+    Type return_type;
+} BuiltinFuncInfo;
+
+/* Built-in function definitions */
+static BuiltinFuncInfo builtin_functions[] = {
+    /* Core functions */
+    {"range", 2, {TYPE_INT, TYPE_INT, TYPE_UNKNOWN}, TYPE_INT},
+
+    /* File operations */
+    {"file_read", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+    {"file_write", 2, {TYPE_STRING, TYPE_STRING, TYPE_UNKNOWN}, TYPE_INT},
+    {"file_append", 2, {TYPE_STRING, TYPE_STRING, TYPE_UNKNOWN}, TYPE_INT},
+    {"file_remove", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+    {"file_rename", 2, {TYPE_STRING, TYPE_STRING, TYPE_UNKNOWN}, TYPE_INT},
+    {"file_exists", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_BOOL},
+    {"file_size", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+
+    /* Directory operations */
+    {"dir_create", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+    {"dir_remove", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+    {"dir_list", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+    {"dir_exists", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_BOOL},
+    {"getcwd", 0, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+    {"chdir", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+
+    /* Path operations */
+    {"path_isfile", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_BOOL},
+    {"path_isdir", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_BOOL},
+    {"path_join", 2, {TYPE_STRING, TYPE_STRING, TYPE_UNKNOWN}, TYPE_STRING},
+    {"path_basename", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+    {"path_dirname", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+
+    /* Process operations */
+    {"system", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+    {"exit", 1, {TYPE_INT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_VOID},
+    {"getenv", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+};
+
+static const int builtin_function_count = sizeof(builtin_functions) / sizeof(BuiltinFuncInfo);
+
 /* Create environment */
 Environment *create_environment(void) {
     Environment *env = malloc(sizeof(Environment));
@@ -83,24 +128,35 @@ Function *env_get_function(Environment *env, const char *name) {
     if (!name) {
         return NULL;
     }
+
     /* Check built-in functions first */
-    if (strcmp(name, "range") == 0) {
-        static Function range_func = {
-            .name = "range",
-            .params = NULL,
-            .param_count = 2,
-            .return_type = TYPE_INT,  /* Special: returns iterator */
-            .body = NULL,
-            .shadow_test = NULL
-        };
-        return &range_func;
+    for (int i = 0; i < builtin_function_count; i++) {
+        if (strcmp(builtin_functions[i].name, name) == 0) {
+            /* Create static function objects for built-ins */
+            static Function func_cache[64];  /* Should match builtin_function_count */
+            static bool initialized[64] = {false};
+
+            if (!initialized[i]) {
+                func_cache[i].name = (char *)builtin_functions[i].name;
+                func_cache[i].param_count = builtin_functions[i].param_count;
+                func_cache[i].return_type = builtin_functions[i].return_type;
+                func_cache[i].params = NULL;  /* Built-ins don't need param names */
+                func_cache[i].body = NULL;
+                func_cache[i].shadow_test = NULL;
+                initialized[i] = true;
+            }
+
+            return &func_cache[i];
+        }
     }
 
+    /* Check user-defined functions */
     for (int i = 0; i < env->function_count; i++) {
         if (strcmp(env->functions[i].name, name) == 0) {
             return &env->functions[i];
         }
     }
+
     return NULL;
 }
 

@@ -1,8 +1,207 @@
 #include "nanolang.h"
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <libgen.h>
 
 /* Forward declarations */
 static Value eval_expression(ASTNode *expr, Environment *env);
 static Value eval_statement(ASTNode *stmt, Environment *env);
+
+/* ==========================================================================
+ * Built-in OS Functions Implementation
+ * ========================================================================== */
+
+/* File Operations */
+static Value builtin_file_read(Value *args) {
+    const char *path = args[0].as.string_val;
+    FILE *f = fopen(path, "r");
+    if (!f) return create_string("");
+
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    char *buffer = malloc(size + 1);
+    fread(buffer, 1, size, f);
+    buffer[size] = '\0';
+    fclose(f);
+
+    Value result = create_string(buffer);
+    free(buffer);
+    return result;
+}
+
+static Value builtin_file_write(Value *args) {
+    const char *path = args[0].as.string_val;
+    const char *content = args[1].as.string_val;
+    FILE *f = fopen(path, "w");
+    if (!f) return create_int(-1);
+
+    fputs(content, f);
+    fclose(f);
+    return create_int(0);
+}
+
+static Value builtin_file_append(Value *args) {
+    const char *path = args[0].as.string_val;
+    const char *content = args[1].as.string_val;
+    FILE *f = fopen(path, "a");
+    if (!f) return create_int(-1);
+
+    fputs(content, f);
+    fclose(f);
+    return create_int(0);
+}
+
+static Value builtin_file_remove(Value *args) {
+    const char *path = args[0].as.string_val;
+    return create_int(remove(path) == 0 ? 0 : -1);
+}
+
+static Value builtin_file_rename(Value *args) {
+    const char *old_path = args[0].as.string_val;
+    const char *new_path = args[1].as.string_val;
+    return create_int(rename(old_path, new_path) == 0 ? 0 : -1);
+}
+
+static Value builtin_file_exists(Value *args) {
+    const char *path = args[0].as.string_val;
+    return create_bool(access(path, F_OK) == 0);
+}
+
+static Value builtin_file_size(Value *args) {
+    const char *path = args[0].as.string_val;
+    struct stat st;
+    if (stat(path, &st) != 0) return create_int(-1);
+    return create_int(st.st_size);
+}
+
+/* Directory Operations */
+static Value builtin_dir_create(Value *args) {
+    const char *path = args[0].as.string_val;
+    return create_int(mkdir(path, 0755) == 0 ? 0 : -1);
+}
+
+static Value builtin_dir_remove(Value *args) {
+    const char *path = args[0].as.string_val;
+    return create_int(rmdir(path) == 0 ? 0 : -1);
+}
+
+static Value builtin_dir_list(Value *args) {
+    const char *path = args[0].as.string_val;
+    DIR *dir = opendir(path);
+    if (!dir) return create_string("");
+
+    /* Build newline-separated list */
+    char buffer[4096] = "";
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        /* Skip . and .. */
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+        strcat(buffer, entry->d_name);
+        strcat(buffer, "\n");
+    }
+    closedir(dir);
+
+    return create_string(buffer);
+}
+
+static Value builtin_dir_exists(Value *args) {
+    const char *path = args[0].as.string_val;
+    struct stat st;
+    if (stat(path, &st) != 0) return create_bool(false);
+    return create_bool(S_ISDIR(st.st_mode));
+}
+
+static Value builtin_getcwd(Value *args) {
+    (void)args;  /* Unused */
+    char buffer[1024];
+    if (getcwd(buffer, sizeof(buffer)) == NULL) {
+        return create_string("");
+    }
+    return create_string(buffer);
+}
+
+static Value builtin_chdir(Value *args) {
+    const char *path = args[0].as.string_val;
+    return create_int(chdir(path) == 0 ? 0 : -1);
+}
+
+/* Path Operations */
+static Value builtin_path_isfile(Value *args) {
+    const char *path = args[0].as.string_val;
+    struct stat st;
+    if (stat(path, &st) != 0) return create_bool(false);
+    return create_bool(S_ISREG(st.st_mode));
+}
+
+static Value builtin_path_isdir(Value *args) {
+    const char *path = args[0].as.string_val;
+    struct stat st;
+    if (stat(path, &st) != 0) return create_bool(false);
+    return create_bool(S_ISDIR(st.st_mode));
+}
+
+static Value builtin_path_join(Value *args) {
+    const char *a = args[0].as.string_val;
+    const char *b = args[1].as.string_val;
+    char buffer[2048];
+
+    /* Handle various cases */
+    if (strlen(a) == 0) {
+        snprintf(buffer, sizeof(buffer), "%s", b);
+    } else if (a[strlen(a) - 1] == '/') {
+        snprintf(buffer, sizeof(buffer), "%s%s", a, b);
+    } else {
+        snprintf(buffer, sizeof(buffer), "%s/%s", a, b);
+    }
+
+    return create_string(buffer);
+}
+
+static Value builtin_path_basename(Value *args) {
+    const char *path = args[0].as.string_val;
+    char *path_copy = strdup(path);
+    char *base = basename(path_copy);
+    Value result = create_string(base);
+    free(path_copy);
+    return result;
+}
+
+static Value builtin_path_dirname(Value *args) {
+    const char *path = args[0].as.string_val;
+    char *path_copy = strdup(path);
+    char *dir = dirname(path_copy);
+    Value result = create_string(dir);
+    free(path_copy);
+    return result;
+}
+
+/* Process Operations */
+static Value builtin_system(Value *args) {
+    const char *command = args[0].as.string_val;
+    return create_int(system(command));
+}
+
+static Value builtin_exit(Value *args) {
+    int code = (int)args[0].as.int_val;
+    exit(code);
+    return create_void();  /* Never reached */
+}
+
+static Value builtin_getenv(Value *args) {
+    const char *name = args[0].as.string_val;
+    const char *value = getenv(name);
+    return create_string(value ? value : "");
+}
+
+/* ==========================================================================
+ * End of Built-in OS Functions
+ * ========================================================================== */
 
 /* Print a value */
 static void print_value(Value val) {
@@ -176,27 +375,76 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
 
 /* Evaluate function call */
 static Value eval_call(ASTNode *node, Environment *env) {
-    /* Special built-in: range */
-    if (strcmp(node->as.call.name, "range") == 0) {
-        /* This should not be called directly in shadow tests */
-        /* Just return a placeholder */
+    const char *name = node->as.call.name;
+
+    /* Special built-in: range (used in for loops only) */
+    if (strcmp(name, "range") == 0) {
+        /* This should not be called directly */
         return create_void();
     }
 
-    /* Get function */
-    Function *func = env_get_function(env, node->as.call.name);
+    /* Check for built-in OS functions */
+    /* Evaluate arguments first */
+    Value args[16];  /* Max args for function calls */
+    for (int i = 0; i < node->as.call.arg_count; i++) {
+        args[i] = eval_expression(node->as.call.args[i], env);
+    }
+
+    /* File operations */
+    if (strcmp(name, "file_read") == 0) return builtin_file_read(args);
+    if (strcmp(name, "file_write") == 0) return builtin_file_write(args);
+    if (strcmp(name, "file_append") == 0) return builtin_file_append(args);
+    if (strcmp(name, "file_remove") == 0) return builtin_file_remove(args);
+    if (strcmp(name, "file_rename") == 0) return builtin_file_rename(args);
+    if (strcmp(name, "file_exists") == 0) return builtin_file_exists(args);
+    if (strcmp(name, "file_size") == 0) return builtin_file_size(args);
+
+    /* Directory operations */
+    if (strcmp(name, "dir_create") == 0) return builtin_dir_create(args);
+    if (strcmp(name, "dir_remove") == 0) return builtin_dir_remove(args);
+    if (strcmp(name, "dir_list") == 0) return builtin_dir_list(args);
+    if (strcmp(name, "dir_exists") == 0) return builtin_dir_exists(args);
+    if (strcmp(name, "getcwd") == 0) return builtin_getcwd(args);
+    if (strcmp(name, "chdir") == 0) return builtin_chdir(args);
+
+    /* Path operations */
+    if (strcmp(name, "path_isfile") == 0) return builtin_path_isfile(args);
+    if (strcmp(name, "path_isdir") == 0) return builtin_path_isdir(args);
+    if (strcmp(name, "path_join") == 0) return builtin_path_join(args);
+    if (strcmp(name, "path_basename") == 0) return builtin_path_basename(args);
+    if (strcmp(name, "path_dirname") == 0) return builtin_path_dirname(args);
+
+    /* Process operations */
+    if (strcmp(name, "system") == 0) return builtin_system(args);
+    if (strcmp(name, "exit") == 0) return builtin_exit(args);
+    if (strcmp(name, "getenv") == 0) return builtin_getenv(args);
+
+    /* Get user-defined function */
+    Function *func = env_get_function(env, name);
     if (!func) {
-        fprintf(stderr, "Error: Undefined function '%s'\n", node->as.call.name);
+        fprintf(stderr, "Error: Undefined function '%s'\n", name);
+        return create_void();
+    }
+
+    /* If built-in with no body, already handled above */
+    if (func->body == NULL) {
+        fprintf(stderr, "Error: Built-in function '%s' not implemented in interpreter\n", name);
         return create_void();
     }
 
     /* Create new environment for function */
     int old_symbol_count = env->symbol_count;
 
-    /* Bind parameters */
+    /* Bind parameters with copies of string values */
     for (int i = 0; i < func->param_count; i++) {
-        Value arg = eval_expression(node->as.call.args[i], env);
-        env_define_var(env, func->params[i].name, func->params[i].type, false, arg);
+        Value param_value = args[i];
+
+        /* Make a deep copy of string values to avoid memory corruption */
+        if (param_value.type == VAL_STRING) {
+            param_value = create_string(args[i].as.string_val);
+        }
+
+        env_define_var(env, func->params[i].name, func->params[i].type, false, param_value);
     }
 
     /* Execute function body */
@@ -212,10 +460,22 @@ static Value eval_call(ASTNode *node, Environment *env) {
         result = eval_statement(stmt, env);
     }
 
-    /* Restore environment (pop function scope) */
+    /* Make a copy of the result if it's a string BEFORE cleaning up parameters */
+    Value return_value = result;
+    if (result.type == VAL_STRING) {
+        return_value = create_string(result.as.string_val);
+    }
+
+    /* Clean up parameter strings and restore environment */
+    for (int i = old_symbol_count; i < env->symbol_count; i++) {
+        free(env->symbols[i].name);
+        if (env->symbols[i].value.type == VAL_STRING) {
+            free(env->symbols[i].value.as.string_val);
+        }
+    }
     env->symbol_count = old_symbol_count;
 
-    return result;
+    return return_value;
 }
 
 /* Evaluate expression */
@@ -438,15 +698,38 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
         return create_void();
     }
 
-    /* Create a new environment for the function call */
-    /* Note: In a full implementation, we'd need proper scoping */
-    /* For now, we'll add arguments to the existing environment */
+    /* Save original symbol count to restore environment after function call */
+    int original_symbol_count = env->symbol_count;
+
+    /* Add function parameters to environment with copies of string values */
     for (int i = 0; i < arg_count; i++) {
-        env_define_var(env, func->params[i].name, func->params[i].type, false, args[i]);
+        Value param_value = args[i];
+
+        /* Make a deep copy of string values to avoid memory corruption */
+        if (param_value.type == VAL_STRING) {
+            param_value = create_string(args[i].as.string_val);
+        }
+
+        env_define_var(env, func->params[i].name, func->params[i].type, false, param_value);
     }
 
     /* Execute the function body */
     Value result = eval_statement(func->body, env);
 
-    return result;
+    /* Make a copy of the result if it's a string BEFORE cleaning up parameters */
+    Value return_value = result;
+    if (result.type == VAL_STRING) {
+        return_value = create_string(result.as.string_val);
+    }
+
+    /* Clean up parameter strings and restore environment */
+    for (int i = original_symbol_count; i < env->symbol_count; i++) {
+        free(env->symbols[i].name);
+        if (env->symbols[i].value.type == VAL_STRING) {
+            free(env->symbols[i].value.as.string_val);
+        }
+    }
+    env->symbol_count = original_symbol_count;
+
+    return return_value;
 }
