@@ -313,11 +313,21 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             long long start = start_val.as.int_val;
             long long end = end_val.as.int_val;
 
+            /* Define loop variable before the loop */
+            int loop_var_index = env->symbol_count;
+            env_define_var(env, stmt->as.for_stmt.var_name, TYPE_INT, false, create_int(start));
+
             Value result = create_void();
             for (long long i = start; i < end; i++) {
-                env_define_var(env, stmt->as.for_stmt.var_name, TYPE_INT, false, create_int(i));
+                /* Update loop variable value */
+                env->symbols[loop_var_index].value = create_int(i);
+
+                /* Execute loop body */
                 result = eval_statement(stmt->as.for_stmt.body, env);
             }
+
+            /* Remove loop variable from scope */
+            env->symbol_count = loop_var_index;
 
             return result;
         }

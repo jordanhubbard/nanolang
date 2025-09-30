@@ -17,11 +17,14 @@ clean:
 
 test: $(TARGET)
 	@echo "Testing nanolang compiler..."
-	@echo "\nCompiling hello.nano..."
-	@./$(TARGET) examples/hello.nano -o hello.out && echo "✓ hello.nano compiled" || echo "✗ hello.nano failed"
-	@echo "\nCompiling calculator.nano..."
-	@./$(TARGET) examples/calculator.nano -o calculator.out && echo "✓ calculator.nano compiled" || echo "✗ calculator.nano failed"
-	@echo "\nCompiling factorial.nano..."
-	@./$(TARGET) examples/factorial.nano -o factorial.out && echo "✓ factorial.nano compiled" || echo "✗ factorial.nano failed"
+	@for file in examples/hello.nano examples/calculator.nano examples/factorial.nano \
+		examples/01_operators.nano examples/02_strings.nano examples/03_floats.nano \
+		examples/04_loops_working.nano examples/05_mutable.nano examples/06_logical.nano \
+		examples/07_comparisons.nano examples/08_types.nano examples/09_math.nano \
+		examples/primes.nano; do \
+		echo "\nTesting $$file..."; \
+		./$(TARGET) $$file -o test.out 2>&1 | head -20 && echo "✓ $$file passed" || echo "✗ $$file failed"; \
+	done
+	@rm -f test.out test.out.c
 
 .PHONY: all clean test

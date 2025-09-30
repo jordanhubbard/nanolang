@@ -1,0 +1,145 @@
+# Math Functions
+# Common mathematical operations and algorithms
+
+fn absolute(n: int) -> int {
+    if (< n 0) {
+        return (- 0 n)
+    } else {
+        return n
+    }
+}
+
+shadow absolute {
+    assert (== (absolute 5) 5)
+    assert (== (absolute (- 0 5)) 5)
+    assert (== (absolute 0) 0)
+    assert (== (absolute (- 0 100)) 100)
+}
+
+fn maximum(a: int, b: int) -> int {
+    if (> a b) {
+        return a
+    } else {
+        return b
+    }
+}
+
+shadow maximum {
+    assert (== (maximum 10 5) 10)
+    assert (== (maximum 5 10) 10)
+    assert (== (maximum 7 7) 7)
+    assert (== (maximum (- 0 3) (- 0 5)) (- 0 3))
+}
+
+fn minimum(a: int, b: int) -> int {
+    if (< a b) {
+        return a
+    } else {
+        return b
+    }
+}
+
+shadow minimum {
+    assert (== (minimum 10 5) 5)
+    assert (== (minimum 5 10) 5)
+    assert (== (minimum 7 7) 7)
+    assert (== (minimum (- 0 3) (- 0 5)) (- 0 5))
+}
+
+fn power(base: int, exp: int) -> int {
+    if (== exp 0) {
+        return 1
+    } else {
+        let mut result: int = 1
+        let mut i: int = 0
+        while (< i exp) {
+            set result (* result base)
+            set i (+ i 1)
+        }
+        return result
+    }
+}
+
+shadow power {
+    assert (== (power 2 0) 1)
+    assert (== (power 2 1) 2)
+    assert (== (power 2 3) 8)
+    assert (== (power 5 2) 25)
+    assert (== (power 10 3) 1000)
+}
+
+fn gcd(a: int, b: int) -> int {
+    let mut x: int = a
+    let mut y: int = b
+    while (!= y 0) {
+        let temp: int = y
+        set y (% x y)
+        set x temp
+    }
+    return x
+}
+
+shadow gcd {
+    assert (== (gcd 10 5) 5)
+    assert (== (gcd 100 10) 10)
+    assert (== (gcd 21 14) 7)
+}
+
+fn is_even(n: int) -> bool {
+    return (== (% n 2) 0)
+}
+
+shadow is_even {
+    assert (== (is_even 0) true)
+    assert (== (is_even 2) true)
+    assert (== (is_even 4) true)
+    assert (== (is_even 1) false)
+    assert (== (is_even 3) false)
+}
+
+fn is_odd(n: int) -> bool {
+    return (!= (% n 2) 0)
+}
+
+shadow is_odd {
+    assert (== (is_odd 1) true)
+    assert (== (is_odd 3) true)
+    assert (== (is_odd 5) true)
+    assert (== (is_odd 0) false)
+    assert (== (is_odd 2) false)
+}
+
+fn clamp(value: int, min_val: int, max_val: int) -> int {
+    if (< value min_val) {
+        return min_val
+    } else {
+        if (> value max_val) {
+            return max_val
+        } else {
+            return value
+        }
+    }
+}
+
+shadow clamp {
+    assert (== (clamp 5 0 10) 5)
+    assert (== (clamp (- 0 5) 0 10) 0)
+    assert (== (clamp 15 0 10) 10)
+    assert (== (clamp 7 5 8) 7)
+}
+
+fn main() -> int {
+    print "Math Library Examples:"
+    print (absolute (- 0 42))
+    print (maximum 10 20)
+    print (minimum 10 20)
+    print (power 2 10)
+    print (gcd 48 18)
+    print (is_even 10)
+    print (clamp 15 0 10)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
