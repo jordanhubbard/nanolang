@@ -422,7 +422,19 @@ static ASTNode *parse_statement(Parser *p) {
             }
 
             ASTNode *range_expr = parse_expression(p);
+            if (!range_expr) {
+                fprintf(stderr, "Error at line %d: Invalid range expression in for loop\n", line);
+                free(var_name);
+                return NULL;
+            }
+
             ASTNode *body = parse_block(p);
+            if (!body) {
+                fprintf(stderr, "Error at line %d: Invalid body in for loop\n", line);
+                free(var_name);
+                free_ast(range_expr);
+                return NULL;
+            }
 
             node = create_node(AST_FOR, line);
             node->as.for_stmt.var_name = var_name;

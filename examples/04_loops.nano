@@ -1,5 +1,5 @@
-// Loops and Ranges
-// This example demonstrates while loops and for loops with ranges
+# Loops and Ranges
+# This example demonstrates while loops and for loops with ranges
 
 fn sum_while(n: int) -> int {
     let mut sum: int = 0
