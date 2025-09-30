@@ -79,10 +79,10 @@ shadow process_string {
 }
 
 fn mixed_types(i: int, f: float, b: bool, s: string) -> int {
-    return if b {
-        i
+    if b {
+        return i
     } else {
-        0
+        return 0
     }
 }
 

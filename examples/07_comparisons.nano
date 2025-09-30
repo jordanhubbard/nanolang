@@ -62,7 +62,11 @@ shadow greater_or_equal {
 }
 
 fn max(a: int, b: int) -> int {
-    return if (> a b) { a } else { b }
+    if (> a b) {
+        return a
+    } else {
+        return b
+    }
 }
 
 shadow max {
@@ -72,7 +76,11 @@ shadow max {
 }
 
 fn min(a: int, b: int) -> int {
-    return if (< a b) { a } else { b }
+    if (< a b) {
+        return a
+    } else {
+        return b
+    }
 }
 
 shadow min {
@@ -82,7 +90,11 @@ shadow min {
 }
 
 fn abs(n: int) -> int {
-    return if (< n 0) { (- 0 n) } else { n }
+    if (< n 0) {
+        return (- 0 n)
+    } else {
+        return n
+    }
 }
 
 shadow abs {
