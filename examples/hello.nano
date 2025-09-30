@@ -1,0 +1,12 @@
+# Hello World in nanolang
+# The simplest possible program
+
+fn main() -> int {
+    print "Hello, World!"
+    return 0
+}
+
+shadow main {
+    # For simple functions like main, we just verify it returns correctly
+    assert (== (main) 0)
+}
