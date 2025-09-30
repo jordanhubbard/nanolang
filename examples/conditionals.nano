@@ -1,0 +1,18 @@
+// Conditional statements
+let x = 15;
+
+if (x > 10) {
+    print 1;  // true
+}
+
+if (x < 10) {
+    print 0;  // should not execute
+} else {
+    print 2;  // should execute
+}
+
+let result = 0;
+if (x == 15) {
+    result = 100;
+}
+print result;
