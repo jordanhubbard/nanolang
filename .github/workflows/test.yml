@@ -1,0 +1,35 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc make
+
+    - name: Build compiler
+      run: make
+
+    - name: Run test suite
+      run: make test
+
+    - name: Upload test logs on failure
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-logs
+        path: .test_output/
+        retention-days: 7
