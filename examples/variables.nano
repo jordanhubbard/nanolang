@@ -1,0 +1,14 @@
+// Basic variable assignment and arithmetic
+let x = 10;
+let y = 20;
+let sum = x + y;
+print sum;
+
+let difference = y - x;
+print difference;
+
+let product = x * y;
+print product;
+
+let quotient = y / x;
+print quotient;
