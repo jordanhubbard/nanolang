@@ -12,6 +12,7 @@ a.out
 /build/
 /dist/
 /target/
+/nanoc
 
 # C intermediate files
 *.c.tmp
