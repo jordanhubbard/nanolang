@@ -399,3 +399,54 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
 
     return all_passed;
 }
+
+/* Run the entire program (interpreter mode) */
+bool run_program(ASTNode *program, Environment *env) {
+    if (!program || program->type != AST_PROGRAM) {
+        fprintf(stderr, "Error: Invalid program\n");
+        return false;
+    }
+
+    /* Execute all top-level items (functions, statements, etc.) */
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+
+        /* Skip shadow tests in interpreter mode - they're for compiler validation */
+        if (item->type == AST_SHADOW) {
+            continue;
+        }
+
+        /* Execute the item */
+        eval_statement(item, env);
+    }
+
+    return true;
+}
+
+/* Call a function by name with arguments */
+Value call_function(const char *name, Value *args, int arg_count, Environment *env) {
+    Function *func = env_get_function(env, name);
+    if (!func) {
+        fprintf(stderr, "Error: Function '%s' not found\n", name);
+        return create_void();
+    }
+
+    /* Check argument count */
+    if (arg_count != func->param_count) {
+        fprintf(stderr, "Error: Function '%s' expects %d arguments, got %d\n",
+                name, func->param_count, arg_count);
+        return create_void();
+    }
+
+    /* Create a new environment for the function call */
+    /* Note: In a full implementation, we'd need proper scoping */
+    /* For now, we'll add arguments to the existing environment */
+    for (int i = 0; i < arg_count; i++) {
+        env_define_var(env, func->params[i].name, func->params[i].type, false, args[i]);
+    }
+
+    /* Execute the function body */
+    Value result = eval_statement(func->body, env);
+
+    return result;
+}
