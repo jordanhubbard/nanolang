@@ -70,7 +70,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (opts->verbose) printf("✓ Shadow tests passed\n");
 
     /* Phase 5: C Transpilation */
-    char *c_code = transpile_to_c(program);
+    char *c_code = transpile_to_c(program, env);
     if (!c_code) {
         fprintf(stderr, "Transpilation failed\n");
         free_ast(program);

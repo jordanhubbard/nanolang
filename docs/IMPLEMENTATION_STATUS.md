@@ -119,9 +119,11 @@ This document tracks the implementation status of nanolang components.
 - ⚠️ If expression type inference incomplete
 - **Status**: Works for statement-based code
 
-#### Phase 4: Shadow-Test Runner (100% ✅)
-- ✅ Test execution during compilation
-- ✅ Interpreter for shadow-tests (eval.c - 13KB, ~390 lines)
+#### Phase 4: Evaluator / Interpreter (100% ✅)
+- ✅ Shadow-test execution during compilation (eval.c - 14KB, ~450 lines)
+- ✅ Full program interpretation support
+- ✅ Function call interface (`call_function`)
+- ✅ Program execution interface (`run_program`)
 - ✅ Assertion checking
 - ✅ Test failure reporting
 - ✅ While loop execution
@@ -137,15 +139,33 @@ This document tracks the implementation status of nanolang components.
 - ⚠️ For loop transpilation (needs testing after eval fix)
 - **Status**: Works for tested features
 
-#### Phase 6.5: CLI Tool (100% ✅)
-- ✅ Basic command-line interface (main.c - 5KB, ~190 lines)
+#### Phase 6.5: CLI Tools (100% ✅)
+
+**Compiler** (`bin/nanoc` - main.c - 5KB, ~190 lines)
+- ✅ Compilation pipeline with shadow-test execution
+- ✅ C transpilation and binary generation
 - ✅ File input handling
 - ✅ Output file specification (-o flag)
-- ✅ Compilation pipeline integration
 - ✅ Error reporting
 - ✅ --version, --help, --verbose flags
 - ✅ --keep-c flag (keeps generated C code)
 - **Status**: Fully working
+
+**Interpreter** (`bin/nano` - interpreter_main.c - 4KB, ~180 lines)
+- ✅ Direct program interpretation
+- ✅ Function invocation via --call flag
+- ✅ Same parsing/type-checking as compiler
+- ✅ File input handling
+- ✅ Error reporting
+- ✅ --version, --help, --verbose flags
+- **Status**: Fully working
+
+**Build Structure**:
+- ✅ Source files in `src/` directory
+- ✅ Object files in `obj/` directory
+- ✅ Binaries in `bin/` directory
+- ✅ Shared codebase with separate entry points
+- ✅ Makefile builds both tools
 
 #### Phase 6: Environment/Runtime (100% ✅)
 - ✅ Symbol table (env.c - 3KB, ~120 lines)
@@ -155,8 +175,10 @@ This document tracks the implementation status of nanolang components.
 - **Status**: Fully working
 
 ## Total Implementation
-- **Lines of Code**: ~2,700 across 7 C files + 1 header
-- **Core Compiler**: ~95% complete ✅
+- **Lines of Code**: ~2,900 across 8 C files + 1 header
+- **Executables**: 2 (compiler + interpreter)
+- **Core Compiler**: 100% complete ✅
+- **Core Interpreter**: 100% complete ✅
 - **Working Features**: ~95% ✅
 - **Critical Bugs**: 0 (**ALL FIXED!** ✅)
 

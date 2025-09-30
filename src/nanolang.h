@@ -264,7 +264,7 @@ bool run_program(ASTNode *program, Environment *env);
 Value call_function(const char *name, Value *args, int arg_count, Environment *env);
 
 /* C Transpiler */
-char *transpile_to_c(ASTNode *program);
+char *transpile_to_c(ASTNode *program, Environment *env);
 
 /* Environment */
 Environment *create_environment(void);
