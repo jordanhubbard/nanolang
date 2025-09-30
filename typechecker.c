@@ -163,12 +163,19 @@ Type check_expression(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
 
-            /* Check argument types */
-            for (int i = 0; i < expr->as.call.arg_count; i++) {
-                Type arg_type = check_expression(expr->as.call.args[i], env);
-                if (!types_match(arg_type, func->params[i].type)) {
-                    fprintf(stderr, "Error at line %d: Argument %d type mismatch in call to '%s'\n",
-                            expr->line, i + 1, expr->as.call.name);
+            /* Check argument types (skip for built-ins with NULL params like range) */
+            if (func->params) {
+                for (int i = 0; i < expr->as.call.arg_count; i++) {
+                    Type arg_type = check_expression(expr->as.call.args[i], env);
+                    if (!types_match(arg_type, func->params[i].type)) {
+                        fprintf(stderr, "Error at line %d: Argument %d type mismatch in call to '%s'\n",
+                                expr->line, i + 1, expr->as.call.name);
+                    }
+                }
+            } else {
+                /* For built-ins without param info, just check that arguments are valid expressions */
+                for (int i = 0; i < expr->as.call.arg_count; i++) {
+                    check_expression(expr->as.call.args[i], env);
                 }
             }
 
@@ -247,14 +254,29 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
         }
 
         case AST_FOR: {
+            /* Save current symbol count to restore after loop */
+            int old_symbol_count = tc->env->symbol_count;
+
             /* For loop variable has type int */
             Value val = create_void();
             env_define_var(tc->env, stmt->as.for_stmt.var_name, TYPE_INT, false, val);
 
-            /* Range expression should return a range (we'll treat as special) */
+            /* Range expression should return a range */
             check_expression(stmt->as.for_stmt.range_expr, tc->env);
 
+            /* Check the loop body */
             check_statement(tc, stmt->as.for_stmt.body);
+
+            /* Restore symbol count (remove loop variable and any vars declared in body) */
+            /* Free the names that were allocated */
+            for (int i = old_symbol_count; i < tc->env->symbol_count; i++) {
+                free(tc->env->symbols[i].name);
+                if (tc->env->symbols[i].value.type == VAL_STRING) {
+                    free(tc->env->symbols[i].value.as.string_val);
+                }
+            }
+            tc->env->symbol_count = old_symbol_count;
+
             return TYPE_VOID;
         }
 

@@ -80,6 +80,9 @@ void env_define_function(Environment *env, Function func) {
 
 /* Get function */
 Function *env_get_function(Environment *env, const char *name) {
+    if (!name) {
+        return NULL;
+    }
     /* Check built-in functions first */
     if (strcmp(name, "range") == 0) {
         static Function range_func = {
