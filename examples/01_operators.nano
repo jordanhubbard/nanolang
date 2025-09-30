@@ -1,0 +1,75 @@
+// Basic Arithmetic Operators
+// This example demonstrates all arithmetic operations in prefix notation
+
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+    assert (== (add 0 0) 0)
+    assert (== (add (- 0 5) 5) 0)
+}
+
+fn subtract(a: int, b: int) -> int {
+    return (- a b)
+}
+
+shadow subtract {
+    assert (== (subtract 10 3) 7)
+    assert (== (subtract 5 5) 0)
+    assert (== (subtract 0 10) (- 0 10))
+}
+
+fn multiply(a: int, b: int) -> int {
+    return (* a b)
+}
+
+shadow multiply {
+    assert (== (multiply 4 5) 20)
+    assert (== (multiply 0 100) 0)
+    assert (== (multiply (- 0 3) 4) (- 0 12))
+}
+
+fn divide(a: int, b: int) -> int {
+    return (/ a b)
+}
+
+shadow divide {
+    assert (== (divide 20 4) 5)
+    assert (== (divide 7 2) 3)
+    assert (== (divide 100 10) 10)
+}
+
+fn modulo(a: int, b: int) -> int {
+    return (% a b)
+}
+
+shadow modulo {
+    assert (== (modulo 10 3) 1)
+    assert (== (modulo 20 5) 0)
+    assert (== (modulo 7 2) 1)
+}
+
+fn complex_expr(x: int, y: int, z: int) -> int {
+    return (+ (* x y) (/ z 2))
+}
+
+shadow complex_expr {
+    assert (== (complex_expr 2 3 10) 11)
+    assert (== (complex_expr 5 5 20) 35)
+}
+
+fn main() -> int {
+    print (add 10 20)
+    print (subtract 50 15)
+    print (multiply 7 8)
+    print (divide 100 4)
+    print (modulo 17 5)
+    print (complex_expr 3 4 8)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

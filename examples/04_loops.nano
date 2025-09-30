@@ -1,0 +1,76 @@
+// Loops and Ranges
+// This example demonstrates while loops and for loops with ranges
+
+fn sum_while(n: int) -> int {
+    let mut sum: int = 0
+    let mut i: int = 1
+    while (<= i n) {
+        set sum (+ sum i)
+        set i (+ i 1)
+    }
+    return sum
+}
+
+shadow sum_while {
+    assert (== (sum_while 5) 15)
+    assert (== (sum_while 10) 55)
+    assert (== (sum_while 1) 1)
+    assert (== (sum_while 0) 0)
+}
+
+fn sum_for(n: int) -> int {
+    let mut sum: int = 0
+    for i in (range 1 (+ n 1)) {
+        set sum (+ sum i)
+    }
+    return sum
+}
+
+shadow sum_for {
+    assert (== (sum_for 5) 15)
+    assert (== (sum_for 10) 55)
+    assert (== (sum_for 1) 1)
+}
+
+fn count_up(limit: int) -> int {
+    let mut count: int = 0
+    for i in (range 0 limit) {
+        set count (+ count 1)
+    }
+    return count
+}
+
+shadow count_up {
+    assert (== (count_up 10) 10)
+    assert (== (count_up 5) 5)
+    assert (== (count_up 1) 1)
+}
+
+fn factorial_while(n: int) -> int {
+    let mut result: int = 1
+    let mut i: int = 1
+    while (<= i n) {
+        set result (* result i)
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow factorial_while {
+    assert (== (factorial_while 5) 120)
+    assert (== (factorial_while 3) 6)
+    assert (== (factorial_while 1) 1)
+    assert (== (factorial_while 0) 1)
+}
+
+fn main() -> int {
+    print (sum_while 10)
+    print (sum_for 10)
+    print (count_up 7)
+    print (factorial_while 6)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
