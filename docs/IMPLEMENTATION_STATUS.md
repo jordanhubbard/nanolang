@@ -21,7 +21,7 @@ This document tracks the implementation status of nanolang components.
 - ✅ [ROADMAP.md](ROADMAP.md) - Development roadmap
 - ✅ [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Quick syntax reference
 
-#### Examples (18 total, 13 working)
+#### Examples (15 total, 13 working - 87%)
 - ✅ [examples/hello.nano](examples/hello.nano) - Hello world
 - ✅ [examples/calculator.nano](examples/calculator.nano) - Basic arithmetic
 - ✅ [examples/factorial.nano](examples/factorial.nano) - Recursion and while loops
@@ -38,6 +38,8 @@ This document tracks the implementation status of nanolang components.
 - ✅ [examples/08_types.nano](examples/08_types.nano) - All data types
 - ✅ [examples/09_math.nano](examples/09_math.nano) - Math library functions
 - ✅ [examples/README.md](examples/README.md) - Example guide
+
+**Note**: Removed 5 outdated examples (demo, comprehensive, conditionals, variables, prime) that used old syntax incompatible with current spec (infix notation, semicolons, // comments).
 
 #### Project Files (100% Complete)
 - ✅ [.gitignore](.gitignore) - Git exclusions
@@ -219,10 +221,9 @@ This document tracks the implementation status of nanolang components.
 
 | Category | Count | Percentage |
 |----------|-------|------------|
-| Total Examples | 18 | 100% |
-| Working | 13 | 72% |
-| Segfault | 2 | 11% |
-| Not Tested | 3 | 17% |
+| Total Examples | 15 | 100% |
+| Working | 13 | 87% |
+| Segfault (known bug) | 2 | 13% |
 
 ### Examples by Status
 
@@ -242,13 +243,12 @@ This document tracks the implementation status of nanolang components.
 - 09_math.nano
 
 **❌ Segfault (2)**:
-- 04_loops.nano (for loop)
-- fibonacci.nano (for loop)
+- 04_loops.nano (for loop bug)
+- fibonacci.nano (for loop bug)
 
-**📝 Not Tested (3)**:
-- demo.nano
-- comprehensive.nano
-- conditionals.nano
+**🗑️ Removed (5)**:
+- demo.nano, comprehensive.nano, conditionals.nano, variables.nano, prime.nano
+- Reason: Used old syntax incompatible with current spec (infix notation, semicolons, `//` comments instead of `#`)
 
 ### Not Yet Started ⏳
 
