@@ -1,0 +1,21 @@
+// Prime number checker (for small numbers)
+// Check if n is prime using trial division
+
+let n = 17;
+let isPrime = 1;  // true
+let i = 2;
+
+if (n < 2) {
+    isPrime = 0;
+}
+
+while (i < n) {
+    let remainder = n - (n / i * i);  // Manual modulo
+    if (remainder == 0) {
+        isPrime = 0;
+        i = n;  // Break out of loop
+    }
+    i = i + 1;
+}
+
+print isPrime;  // Should print 1 (true) for 17
