@@ -1,0 +1,13 @@
+# Build artifacts
+*.o
+nano
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
