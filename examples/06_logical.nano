@@ -1,5 +1,5 @@
-// Logical Operators
-// This example demonstrates and, or, and not operators
+# Logical Operators
+# This example demonstrates and, or, and not operators
 
 fn and_op(a: bool, b: bool) -> bool {
     return (and a b)

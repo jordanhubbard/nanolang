@@ -1,5 +1,5 @@
-// All Types
-// This example demonstrates all data types in nanolang
+# All Types
+# This example demonstrates all data types in nanolang
 
 fn return_int() -> int {
     return 42

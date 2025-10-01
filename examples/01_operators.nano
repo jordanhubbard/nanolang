@@ -1,5 +1,5 @@
-// Basic Arithmetic Operators
-// This example demonstrates all arithmetic operations in prefix notation
+# Basic Arithmetic Operators
+# This example demonstrates all arithmetic operations in prefix notation
 
 fn add(a: int, b: int) -> int {
     return (+ a b)

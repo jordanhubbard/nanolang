@@ -1,5 +1,5 @@
-// Float Operations
-// This example demonstrates working with floating-point numbers
+# Float Operations
+# This example demonstrates working with floating-point numbers
 
 fn add_floats(a: float, b: float) -> float {
     return (+ a b)
