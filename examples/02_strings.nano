@@ -1,5 +1,5 @@
-// String Operations
-// This example demonstrates working with strings
+# String Operations
+# This example demonstrates working with strings
 
 fn greet(name: string) -> string {
     return name

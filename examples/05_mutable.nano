@@ -1,5 +1,5 @@
-// Mutable vs Immutable Variables
-// This example demonstrates the difference between let and let mut
+# Mutable vs Immutable Variables
+# This example demonstrates the difference between let and let mut
 
 fn immutable_example() -> int {
     let x: int = 10
