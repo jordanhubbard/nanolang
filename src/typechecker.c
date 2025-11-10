@@ -5,7 +5,24 @@ typedef struct {
     Environment *env;
     Type current_function_return_type;
     bool has_error;
+    bool warnings_enabled;
 } TypeChecker;
+
+/* Check for unused variables in current scope and emit warnings */
+static void check_unused_variables(TypeChecker *tc, int start_index) {
+    if (!tc->warnings_enabled) return;
+    
+    for (int i = start_index; i < tc->env->symbol_count; i++) {
+        Symbol *sym = &tc->env->symbols[i];
+        if (!sym->is_used && sym->def_line > 0) {
+            /* Skip loop variables (they start with underscores by convention) */
+            if (sym->name[0] == '_') continue;
+            
+            fprintf(stderr, "Warning at line %d, column %d: Unused variable '%s'\n",
+                    sym->def_line, sym->def_column, sym->name);
+        }
+    }
+}
 
 /* Utility functions */
 Type token_to_type(TokenType token) {
@@ -59,10 +76,11 @@ Type check_expression(ASTNode *expr, Environment *env) {
         case AST_IDENTIFIER: {
             Symbol *sym = env_get_var(env, expr->as.identifier);
             if (!sym) {
-                fprintf(stderr, "Error at line %d: Undefined variable '%s'\n",
-                        expr->line, expr->as.identifier);
+                fprintf(stderr, "Error at line %d, column %d: Undefined variable '%s'\n",
+                        expr->line, expr->column, expr->as.identifier);
                 return TYPE_UNKNOWN;
             }
+            sym->is_used = true;  /* Mark variable as used */
             return sym->type;
         }
 
@@ -74,7 +92,7 @@ Type check_expression(ASTNode *expr, Environment *env) {
             if (op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_STAR ||
                 op == TOKEN_SLASH || op == TOKEN_PERCENT) {
                 if (arg_count != 2) {
-                    fprintf(stderr, "Error at line %d: Arithmetic operators require 2 arguments\n", expr->line);
+                    fprintf(stderr, "Error at line %d, column %d: Arithmetic operators require 2 arguments\n", expr->line, expr->column);
                     return TYPE_UNKNOWN;
                 }
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
@@ -83,21 +101,21 @@ Type check_expression(ASTNode *expr, Environment *env) {
                 if (left == TYPE_INT && right == TYPE_INT) return TYPE_INT;
                 if (left == TYPE_FLOAT && right == TYPE_FLOAT) return TYPE_FLOAT;
 
-                fprintf(stderr, "Error at line %d: Type mismatch in arithmetic operation\n", expr->line);
+                fprintf(stderr, "Error at line %d, column %d: Type mismatch in arithmetic operation\n", expr->line, expr->column);
                 return TYPE_UNKNOWN;
             }
 
             /* Comparison operators */
             if (op == TOKEN_LT || op == TOKEN_LE || op == TOKEN_GT || op == TOKEN_GE) {
                 if (arg_count != 2) {
-                    fprintf(stderr, "Error at line %d: Comparison operators require 2 arguments\n", expr->line);
+                    fprintf(stderr, "Error at line %d, column %d: Comparison operators require 2 arguments\n", expr->line, expr->column);
                     return TYPE_UNKNOWN;
                 }
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
                 Type right = check_expression(expr->as.prefix_op.args[1], env);
 
                 if (!types_match(left, right)) {
-                    fprintf(stderr, "Error at line %d: Type mismatch in comparison\n", expr->line);
+                    fprintf(stderr, "Error at line %d, column %d: Type mismatch in comparison\n", expr->line, expr->column);
                 }
                 return TYPE_BOOL;
             }
@@ -105,14 +123,14 @@ Type check_expression(ASTNode *expr, Environment *env) {
             /* Equality operators */
             if (op == TOKEN_EQ || op == TOKEN_NE) {
                 if (arg_count != 2) {
-                    fprintf(stderr, "Error at line %d: Equality operators require 2 arguments\n", expr->line);
+                    fprintf(stderr, "Error at line %d, column %d: Equality operators require 2 arguments\n", expr->line, expr->column);
                     return TYPE_UNKNOWN;
                 }
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
                 Type right = check_expression(expr->as.prefix_op.args[1], env);
 
                 if (!types_match(left, right)) {
-                    fprintf(stderr, "Error at line %d: Type mismatch in equality check\n", expr->line);
+                    fprintf(stderr, "Error at line %d, column %d: Type mismatch in equality check\n", expr->line, expr->column);
                 }
                 return TYPE_BOOL;
             }
@@ -120,26 +138,26 @@ Type check_expression(ASTNode *expr, Environment *env) {
             /* Logical operators */
             if (op == TOKEN_AND || op == TOKEN_OR) {
                 if (arg_count != 2) {
-                    fprintf(stderr, "Error at line %d: Logical operators require 2 arguments\n", expr->line);
+                    fprintf(stderr, "Error at line %d, column %d: Logical operators require 2 arguments\n", expr->line, expr->column);
                     return TYPE_UNKNOWN;
                 }
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
                 Type right = check_expression(expr->as.prefix_op.args[1], env);
 
                 if (left != TYPE_BOOL || right != TYPE_BOOL) {
-                    fprintf(stderr, "Error at line %d: Logical operators require bool operands\n", expr->line);
+                    fprintf(stderr, "Error at line %d, column %d: Logical operators require bool operands\n", expr->line, expr->column);
                 }
                 return TYPE_BOOL;
             }
 
             if (op == TOKEN_NOT) {
                 if (arg_count != 1) {
-                    fprintf(stderr, "Error at line %d: 'not' requires 1 argument\n", expr->line);
+                    fprintf(stderr, "Error at line %d, column %d: 'not' requires 1 argument\n", expr->line, expr->column);
                     return TYPE_UNKNOWN;
                 }
                 Type arg = check_expression(expr->as.prefix_op.args[0], env);
                 if (arg != TYPE_BOOL) {
-                    fprintf(stderr, "Error at line %d: 'not' requires bool operand\n", expr->line);
+                    fprintf(stderr, "Error at line %d, column %d: 'not' requires bool operand\n", expr->line, expr->column);
                 }
                 return TYPE_BOOL;
             }
@@ -151,15 +169,15 @@ Type check_expression(ASTNode *expr, Environment *env) {
             /* Check if function exists */
             Function *func = env_get_function(env, expr->as.call.name);
             if (!func) {
-                fprintf(stderr, "Error at line %d: Undefined function '%s'\n",
-                        expr->line, expr->as.call.name);
+                fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
+                        expr->line, expr->column, expr->as.call.name);
                 return TYPE_UNKNOWN;
             }
 
             /* Check argument count */
             if (expr->as.call.arg_count != func->param_count) {
-                fprintf(stderr, "Error at line %d: Function '%s' expects %d arguments, got %d\n",
-                        expr->line, expr->as.call.name, func->param_count, expr->as.call.arg_count);
+                fprintf(stderr, "Error at line %d, column %d: Function '%s' expects %d arguments, got %d\n",
+                        expr->line, expr->column, expr->as.call.name, func->param_count, expr->as.call.arg_count);
                 return TYPE_UNKNOWN;
             }
 
@@ -168,8 +186,8 @@ Type check_expression(ASTNode *expr, Environment *env) {
                 for (int i = 0; i < expr->as.call.arg_count; i++) {
                     Type arg_type = check_expression(expr->as.call.args[i], env);
                     if (!types_match(arg_type, func->params[i].type)) {
-                        fprintf(stderr, "Error at line %d: Argument %d type mismatch in call to '%s'\n",
-                                expr->line, i + 1, expr->as.call.name);
+                        fprintf(stderr, "Error at line %d, column %d: Argument %d type mismatch in call to '%s'\n",
+                                expr->line, expr->column, i + 1, expr->as.call.name);
                     }
                 }
             } else {
@@ -185,7 +203,7 @@ Type check_expression(ASTNode *expr, Environment *env) {
         case AST_IF: {
             Type cond_type = check_expression(expr->as.if_stmt.condition, env);
             if (cond_type != TYPE_BOOL) {
-                fprintf(stderr, "Error at line %d: If condition must be bool\n", expr->line);
+                fprintf(stderr, "Error at line %d, column %d: If condition must be bool\n", expr->line, expr->column);
             }
 
             /* For if expressions, we need to infer the type from the blocks */
@@ -195,7 +213,7 @@ Type check_expression(ASTNode *expr, Environment *env) {
         }
 
         default:
-            fprintf(stderr, "Error at line %d: Invalid expression type\n", expr->line);
+            fprintf(stderr, "Error at line %d, column %d: Invalid expression type\n", expr->line, expr->column);
             return TYPE_UNKNOWN;
     }
 }
@@ -208,34 +226,42 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
         case AST_LET: {
             Type value_type = check_expression(stmt->as.let.value, tc->env);
             if (!types_match(value_type, stmt->as.let.var_type)) {
-                fprintf(stderr, "Error at line %d: Type mismatch in let statement\n", stmt->line);
+                fprintf(stderr, "Error at line %d, column %d: Type mismatch in let statement\n", stmt->line, stmt->column);
                 tc->has_error = true;
             }
 
             /* Add to environment */
             Value val = create_void(); /* Placeholder */
             env_define_var(tc->env, stmt->as.let.name, stmt->as.let.var_type, stmt->as.let.is_mut, val);
+            
+            /* Store definition location for unused variable warnings */
+            Symbol *sym = env_get_var(tc->env, stmt->as.let.name);
+            if (sym) {
+                sym->def_line = stmt->line;
+                sym->def_column = stmt->column;
+            }
+            
             return TYPE_VOID;
         }
 
         case AST_SET: {
             Symbol *sym = env_get_var(tc->env, stmt->as.set.name);
             if (!sym) {
-                fprintf(stderr, "Error at line %d: Undefined variable '%s'\n",
-                        stmt->line, stmt->as.set.name);
+                fprintf(stderr, "Error at line %d, column %d: Undefined variable '%s'\n",
+                        stmt->line, stmt->column, stmt->as.set.name);
                 tc->has_error = true;
                 return TYPE_VOID;
             }
 
             if (!sym->is_mut) {
-                fprintf(stderr, "Error at line %d: Cannot assign to immutable variable '%s'\n",
-                        stmt->line, stmt->as.set.name);
+                fprintf(stderr, "Error at line %d, column %d: Cannot assign to immutable variable '%s'\n",
+                        stmt->line, stmt->column, stmt->as.set.name);
                 tc->has_error = true;
             }
 
             Type value_type = check_expression(stmt->as.set.value, tc->env);
             if (!types_match(value_type, sym->type)) {
-                fprintf(stderr, "Error at line %d: Type mismatch in assignment\n", stmt->line);
+                fprintf(stderr, "Error at line %d, column %d: Type mismatch in assignment\n", stmt->line, stmt->column);
                 tc->has_error = true;
             }
 
@@ -245,7 +271,7 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
         case AST_WHILE: {
             Type cond_type = check_expression(stmt->as.while_stmt.condition, tc->env);
             if (cond_type != TYPE_BOOL) {
-                fprintf(stderr, "Error at line %d: While condition must be bool\n", stmt->line);
+                fprintf(stderr, "Error at line %d, column %d: While condition must be bool\n", stmt->line, stmt->column);
                 tc->has_error = true;
             }
 
@@ -284,12 +310,12 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
             if (stmt->as.return_stmt.value) {
                 Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
                 if (!types_match(return_type, tc->current_function_return_type)) {
-                    fprintf(stderr, "Error at line %d: Return type mismatch\n", stmt->line);
+                    fprintf(stderr, "Error at line %d, column %d: Return type mismatch\n", stmt->line, stmt->column);
                     tc->has_error = true;
                 }
             } else {
                 if (tc->current_function_return_type != TYPE_VOID) {
-                    fprintf(stderr, "Error at line %d: Function must return a value\n", stmt->line);
+                    fprintf(stderr, "Error at line %d, column %d: Function must return a value\n", stmt->line, stmt->column);
                     tc->has_error = true;
                 }
             }
@@ -312,7 +338,7 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
         case AST_ASSERT: {
             Type cond_type = check_expression(stmt->as.assert.condition, tc->env);
             if (cond_type != TYPE_BOOL) {
-                fprintf(stderr, "Error at line %d: Assert condition must be bool\n", stmt->line);
+                fprintf(stderr, "Error at line %d, column %d: Assert condition must be bool\n", stmt->line, stmt->column);
                 tc->has_error = true;
             }
             return TYPE_VOID;
@@ -333,6 +359,193 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
 }
 
 /* Check program */
+/* Register built-in functions in environment */
+static void register_builtin_functions(Environment *env) {
+    Function func;
+    
+    /* range(start: int, end: int) -> void (special - only for for-loops) */
+    func.name = "range";
+    func.params = NULL;  /* Special handling */
+    func.param_count = 2;
+    func.return_type = TYPE_VOID;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* abs(x: int|float) -> int|float */
+    func.name = "abs";
+    func.params = NULL;  /* Accept int or float */
+    func.param_count = 1;
+    func.return_type = TYPE_INT;  /* Can also be float */
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* min(a: int|float, b: int|float) -> int|float */
+    func.name = "min";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_INT;  /* Can also be float */
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* max(a: int|float, b: int|float) -> int|float */
+    func.name = "max";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_INT;  /* Can also be float */
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* println(x: any) -> void */
+    func.name = "println";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_VOID;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* Advanced math functions */
+    /* sqrt(x: int|float) -> float */
+    func.name = "sqrt";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_FLOAT;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* pow(base: int|float, exponent: int|float) -> float */
+    func.name = "pow";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_FLOAT;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* floor(x: int|float) -> float */
+    func.name = "floor";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_FLOAT;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* ceil(x: int|float) -> float */
+    func.name = "ceil";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_FLOAT;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* round(x: int|float) -> float */
+    func.name = "round";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_FLOAT;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* Trigonometric functions */
+    /* sin(x: int|float) -> float */
+    func.name = "sin";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_FLOAT;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* cos(x: int|float) -> float */
+    func.name = "cos";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_FLOAT;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* tan(x: int|float) -> float */
+    func.name = "tan";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_FLOAT;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* String operations */
+    /* str_length(s: string) -> int */
+    func.name = "str_length";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_INT;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* str_concat(s1: string, s2: string) -> string */
+    func.name = "str_concat";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_STRING;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* str_substring(s: string, start: int, length: int) -> string */
+    func.name = "str_substring";
+    func.params = NULL;
+    func.param_count = 3;
+    func.return_type = TYPE_STRING;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* str_contains(s: string, substr: string) -> bool */
+    func.name = "str_contains";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_BOOL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* str_equals(s1: string, s2: string) -> bool */
+    func.name = "str_equals";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_BOOL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* OS built-ins */
+    func.name = "getcwd";
+    func.params = NULL;
+    func.param_count = 0;
+    func.return_type = TYPE_STRING;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    func.name = "getenv";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_STRING;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+}
+
 bool type_check(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
@@ -342,6 +555,10 @@ bool type_check(ASTNode *program, Environment *env) {
     TypeChecker tc;
     tc.env = env;
     tc.has_error = false;
+    tc.warnings_enabled = true;  /* Enable unused variable warnings */
+
+    /* Register built-in functions */
+    register_builtin_functions(env);
 
     /* First pass: collect all function definitions */
     for (int i = 0; i < program->as.program.count; i++) {
@@ -365,8 +582,8 @@ bool type_check(ASTNode *program, Environment *env) {
         if (item->type == AST_SHADOW) {
             Function *func = env_get_function(env, item->as.shadow.function_name);
             if (!func) {
-                fprintf(stderr, "Error at line %d: Shadow test for undefined function '%s'\n",
-                        item->line, item->as.shadow.function_name);
+                fprintf(stderr, "Error at line %d, column %d: Shadow test for undefined function '%s'\n",
+                        item->line, item->column, item->as.shadow.function_name);
                 tc.has_error = true;
             } else {
                 func->shadow_test = item->as.shadow.body;
@@ -392,6 +609,9 @@ bool type_check(ASTNode *program, Environment *env) {
 
             /* Check function body */
             check_statement(&tc, item->as.function.body);
+
+            /* Check for unused variables before leaving scope */
+            check_unused_variables(&tc, saved_symbol_count);
 
             /* Restore environment (remove parameters) */
             env->symbol_count = saved_symbol_count;

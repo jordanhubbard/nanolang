@@ -2,34 +2,107 @@ name: Test Suite
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
   test:
     name: Build and Test
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+      fail-fast: false
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
-    - name: Install dependencies
+    - name: Install dependencies (Ubuntu)
+      if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc make
+        sudo apt-get install -y build-essential valgrind
 
-    - name: Build compiler
+    - name: Install dependencies (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install gcc
+
+    - name: Build compiler and interpreter
       run: make
 
     - name: Run test suite
       run: make test
 
-    - name: Upload test logs on failure
-      if: failure()
+    - name: Check for memory leaks (Linux only)
+      if: runner.os == 'Linux'
+      run: make valgrind || true
+
+  sanitizers:
+    name: Memory Sanitizers
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+
+    - name: Build with AddressSanitizer
+      run: make sanitize
+
+    - name: Run tests with sanitizers
+      run: make test
+
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential gcov lcov
+
+    - name: Build with coverage
+      run: make coverage
+
+    - name: Run tests
+      run: make test
+
+    - name: Generate coverage report
+      run: |
+        lcov --capture --directory . --output-file coverage.info
+        lcov --remove coverage.info '/usr/*' --output-file coverage.info
+        lcov --list coverage.info
+
+    - name: Upload coverage to artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: test-logs
-        path: .test_output/
-        retention-days: 7
+        name: coverage-report
+        path: coverage.info
+
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install clang-tidy
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-tidy
+
+    - name: Run clang-tidy
+      run: |
+        clang-tidy src/*.c -- -Isrc || true

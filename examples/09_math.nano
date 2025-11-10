@@ -129,14 +129,33 @@ shadow clamp {
 }
 
 fn main() -> int {
-    print "Math Library Examples:"
-    print (absolute (- 0 42))
-    print (maximum 10 20)
-    print (minimum 10 20)
-    print (power 2 10)
-    print (gcd 48 18)
-    print (is_even 10)
-    print (clamp 15 0 10)
+    (println "=== User-Defined Math Functions ===")
+    (println "absolute(-42):")
+    (println (absolute (- 0 42)))
+    (println "maximum(10, 20):")
+    (println (maximum 10 20))
+    (println "minimum(10, 20):")
+    (println (minimum 10 20))
+    (println "power(2, 10):")
+    (println (power 2 10))
+    (println "gcd(48, 18):")
+    (println (gcd 48 18))
+    (println "is_even(10):")
+    (println (is_even 10))
+    (println "clamp(15, 0, 10):")
+    (println (clamp 15 0 10))
+    
+    (println "")
+    (println "=== Built-in Stdlib Functions ===")
+    (println "abs(-42):")
+    (println (abs (- 0 42)))
+    (println "min(10, 20):")
+    (println (min 10 20))
+    (println "max(10, 20):")
+    (println (max 10 20))
+    (println "abs(-3.14):")
+    (println (abs -3.14))
+    
     return 0
 }
 

@@ -1,0 +1,21 @@
+# Expected error: Undefined variable
+# Variable used before declaration
+
+fn test() -> int {
+    let y: int = x
+    let x: int = 42
+    return y
+}
+
+shadow test {
+    assert (== (test) 42)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

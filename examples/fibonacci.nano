@@ -27,11 +27,11 @@ shadow fib {
 }
 
 fn main() -> int {
-    print "Fibonacci sequence (first 15 numbers):"
+    (println "Fibonacci sequence (first 15 numbers):")
 
     let mut i: int = 0
     while (< i 15) {
-        print (fib i)
+        (println (fib i))
         set i (+ i 1)
     }
 

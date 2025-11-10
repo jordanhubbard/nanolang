@@ -37,7 +37,7 @@ static void sb_appendf(StringBuilder *sb, const char *fmt, ...) {
 }
 
 /* Forward declarations */
-static void transpile_expression(StringBuilder *sb, ASTNode *expr);
+static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *env);
 static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, Environment *env);
 
 /* Generate indentation */
@@ -73,7 +73,7 @@ static const char *get_c_func_name(const char *nano_name) {
 }
 
 /* Transpile expression to C */
-static void transpile_expression(StringBuilder *sb, ASTNode *expr) {
+static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *env) {
     if (!expr) return;
 
     switch (expr->type) {
@@ -104,7 +104,7 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr) {
             sb_append(sb, "(");
 
             if (arg_count == 2) {
-                transpile_expression(sb, expr->as.prefix_op.args[0]);
+                transpile_expression(sb, expr->as.prefix_op.args[0], env);
                 switch (op) {
                     case TOKEN_PLUS: sb_append(sb, " + "); break;
                     case TOKEN_MINUS: sb_append(sb, " - "); break;
@@ -121,10 +121,10 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr) {
                     case TOKEN_OR: sb_append(sb, " || "); break;
                     default: sb_append(sb, " OP "); break;
                 }
-                transpile_expression(sb, expr->as.prefix_op.args[1]);
+                transpile_expression(sb, expr->as.prefix_op.args[1], env);
             } else if (arg_count == 1 && op == TOKEN_NOT) {
                 sb_append(sb, "!");
-                transpile_expression(sb, expr->as.prefix_op.args[0]);
+                transpile_expression(sb, expr->as.prefix_op.args[0], env);
             }
 
             sb_append(sb, ")");
@@ -186,6 +186,62 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr) {
                 func_name = "nl_os_exit";
             } else if (strcmp(func_name, "getenv") == 0) {
                 func_name = "nl_os_getenv";
+
+            /* Math and utility functions */
+            } else if (strcmp(func_name, "abs") == 0) {
+                func_name = "nl_abs";
+            } else if (strcmp(func_name, "min") == 0) {
+                func_name = "nl_min";
+            } else if (strcmp(func_name, "max") == 0) {
+                func_name = "nl_max";
+            } else if (strcmp(func_name, "sqrt") == 0) {
+                func_name = "sqrt";  /* Use C math library directly */
+            } else if (strcmp(func_name, "pow") == 0) {
+                func_name = "pow";  /* Use C math library directly */
+            } else if (strcmp(func_name, "floor") == 0) {
+                func_name = "floor";  /* Use C math library directly */
+            } else if (strcmp(func_name, "ceil") == 0) {
+                func_name = "ceil";  /* Use C math library directly */
+            } else if (strcmp(func_name, "round") == 0) {
+                func_name = "round";  /* Use C math library directly */
+            } else if (strcmp(func_name, "sin") == 0) {
+                func_name = "sin";  /* Use C math library directly */
+            } else if (strcmp(func_name, "cos") == 0) {
+                func_name = "cos";  /* Use C math library directly */
+            } else if (strcmp(func_name, "tan") == 0) {
+                func_name = "tan";  /* Use C math library directly */
+            
+            /* String operations */
+            } else if (strcmp(func_name, "str_length") == 0) {
+                func_name = "strlen";  /* Use C string library directly */
+            } else if (strcmp(func_name, "str_concat") == 0) {
+                func_name = "nl_str_concat";
+            } else if (strcmp(func_name, "str_substring") == 0) {
+                func_name = "nl_str_substring";
+            } else if (strcmp(func_name, "str_contains") == 0) {
+                func_name = "nl_str_contains";
+            } else if (strcmp(func_name, "str_equals") == 0) {
+                func_name = "nl_str_equals";
+            } else if (strcmp(func_name, "println") == 0) {
+                /* Special handling for println - dispatch based on argument type */
+                Type arg_type = check_expression(expr->as.call.args[0], env);
+                switch (arg_type) {
+                    case TYPE_INT:
+                        func_name = "nl_println_int";
+                        break;
+                    case TYPE_FLOAT:
+                        func_name = "nl_println_float";
+                        break;
+                    case TYPE_STRING:
+                        func_name = "nl_println_string";
+                        break;
+                    case TYPE_BOOL:
+                        func_name = "nl_println_bool";
+                        break;
+                    default:
+                        func_name = "nl_println_int";  /* Fallback */
+                        break;
+                }
             } else {
                 /* User-defined functions get nl_ prefix to avoid C stdlib conflicts */
                 func_name = get_c_func_name(func_name);
@@ -194,7 +250,7 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr) {
             sb_appendf(sb, "%s(", func_name);
             for (int i = 0; i < expr->as.call.arg_count; i++) {
                 if (i > 0) sb_append(sb, ", ");
-                transpile_expression(sb, expr->as.call.args[i]);
+                transpile_expression(sb, expr->as.call.args[i], env);
             }
             sb_append(sb, ")");
             break;
@@ -202,20 +258,20 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr) {
 
         case AST_IF:
             sb_append(sb, "(");
-            transpile_expression(sb, expr->as.if_stmt.condition);
+            transpile_expression(sb, expr->as.if_stmt.condition, env);
             sb_append(sb, " ? ");
             /* For if expressions, we need to handle block expressions */
             /* Simplified: just handle single expressions */
             if (expr->as.if_stmt.then_branch->type == AST_BLOCK) {
                 sb_append(sb, "/* block */ 0");
             } else {
-                transpile_expression(sb, expr->as.if_stmt.then_branch);
+                transpile_expression(sb, expr->as.if_stmt.then_branch, env);
             }
             sb_append(sb, " : ");
             if (expr->as.if_stmt.else_branch->type == AST_BLOCK) {
                 sb_append(sb, "/* block */ 0");
             } else {
-                transpile_expression(sb, expr->as.if_stmt.else_branch);
+                transpile_expression(sb, expr->as.if_stmt.else_branch, env);
             }
             sb_append(sb, ")");
             break;
@@ -234,7 +290,7 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
         case AST_LET:
             emit_indent(sb, indent);
             sb_appendf(sb, "%s %s = ", type_to_c(stmt->as.let.var_type), stmt->as.let.name);
-            transpile_expression(sb, stmt->as.let.value);
+            transpile_expression(sb, stmt->as.let.value, env);
             sb_append(sb, ";\n");
             /* Register variable in environment for type tracking during transpilation */
             env_define_var(env, stmt->as.let.name, stmt->as.let.var_type, stmt->as.let.is_mut, create_void());
@@ -243,14 +299,14 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
         case AST_SET:
             emit_indent(sb, indent);
             sb_appendf(sb, "%s = ", stmt->as.set.name);
-            transpile_expression(sb, stmt->as.set.value);
+            transpile_expression(sb, stmt->as.set.value, env);
             sb_append(sb, ";\n");
             break;
 
         case AST_WHILE:
             emit_indent(sb, indent);
             sb_append(sb, "while (");
-            transpile_expression(sb, stmt->as.while_stmt.condition);
+            transpile_expression(sb, stmt->as.while_stmt.condition, env);
             sb_append(sb, ") ");
             transpile_statement(sb, stmt->as.while_stmt.body, indent, env);
             break;
@@ -261,9 +317,9 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
             ASTNode *range = stmt->as.for_stmt.range_expr;
             sb_appendf(sb, "for (int64_t %s = ", stmt->as.for_stmt.var_name);
             if (range && range->type == AST_CALL && range->as.call.arg_count == 2) {
-                transpile_expression(sb, range->as.call.args[0]);
+                transpile_expression(sb, range->as.call.args[0], env);
                 sb_appendf(sb, "; %s < ", stmt->as.for_stmt.var_name);
-                transpile_expression(sb, range->as.call.args[1]);
+                transpile_expression(sb, range->as.call.args[1], env);
                 sb_appendf(sb, "; %s++) ", stmt->as.for_stmt.var_name);
             } else {
                 sb_append(sb, "0; 0; ) ");
@@ -277,7 +333,7 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
             sb_append(sb, "return");
             if (stmt->as.return_stmt.value) {
                 sb_append(sb, " ");
-                transpile_expression(sb, stmt->as.return_stmt.value);
+                transpile_expression(sb, stmt->as.return_stmt.value, env);
             }
             sb_append(sb, ";\n");
             break;
@@ -297,19 +353,19 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
             Type expr_type = check_expression(stmt->as.print.expr, env);
             if (expr_type == TYPE_STRING) {
                 sb_append(sb, "printf(\"%s\\n\", ");
-                transpile_expression(sb, stmt->as.print.expr);
+                transpile_expression(sb, stmt->as.print.expr, env);
                 sb_append(sb, ");\n");
             } else if (expr_type == TYPE_BOOL) {
                 sb_append(sb, "printf(\"%s\\n\", ");
-                transpile_expression(sb, stmt->as.print.expr);
+                transpile_expression(sb, stmt->as.print.expr, env);
                 sb_append(sb, " ? \"true\" : \"false\");\n");
             } else if (expr_type == TYPE_FLOAT) {
                 sb_append(sb, "printf(\"%g\\n\", ");
-                transpile_expression(sb, stmt->as.print.expr);
+                transpile_expression(sb, stmt->as.print.expr, env);
                 sb_append(sb, ");\n");
             } else {
                 sb_append(sb, "printf(\"%lld\\n\", (long long)");
-                transpile_expression(sb, stmt->as.print.expr);
+                transpile_expression(sb, stmt->as.print.expr, env);
                 sb_append(sb, ");\n");
             }
             break;
@@ -317,7 +373,7 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
         case AST_IF:
             emit_indent(sb, indent);
             sb_append(sb, "if (");
-            transpile_expression(sb, stmt->as.if_stmt.condition);
+            transpile_expression(sb, stmt->as.if_stmt.condition, env);
             sb_append(sb, ") ");
             transpile_statement(sb, stmt->as.if_stmt.then_branch, indent, env);
             if (stmt->as.if_stmt.else_branch) {
@@ -330,7 +386,7 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
         default:
             /* Expression statements */
             emit_indent(sb, indent);
-            transpile_expression(sb, stmt);
+            transpile_expression(sb, stmt, env);
             sb_append(sb, ";\n");
             break;
     }
@@ -350,6 +406,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "#include <stdbool.h>\n");
     sb_append(sb, "#include <string.h>\n");
     sb_append(sb, "#include <stdlib.h>\n");
+    sb_append(sb, "#include <math.h>\n");
     sb_append(sb, "#include <sys/stat.h>\n");
     sb_append(sb, "#include <sys/types.h>\n");
     sb_append(sb, "#include <dirent.h>\n");
@@ -507,6 +564,81 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     sb_append(sb, "/* ========== End OS Standard Library ========== */\n\n");
 
+    sb_append(sb, "/* ========== Math and Utility Built-in Functions ========== */\n\n");
+
+    /* abs function - works with int and float via macro */
+    sb_append(sb, "#define nl_abs(x) _Generic((x), \\\n");
+    sb_append(sb, "    int64_t: (int64_t)((x) < 0 ? -(x) : (x)), \\\n");
+    sb_append(sb, "    double: (double)((x) < 0.0 ? -(x) : (x)))\n\n");
+
+    /* min function */
+    sb_append(sb, "#define nl_min(a, b) _Generic((a), \\\n");
+    sb_append(sb, "    int64_t: (int64_t)((a) < (b) ? (a) : (b)), \\\n");
+    sb_append(sb, "    double: (double)((a) < (b) ? (a) : (b)))\n\n");
+
+    /* max function */
+    sb_append(sb, "#define nl_max(a, b) _Generic((a), \\\n");
+    sb_append(sb, "    int64_t: (int64_t)((a) > (b) ? (a) : (b)), \\\n");
+    sb_append(sb, "    double: (double)((a) > (b) ? (a) : (b)))\n\n");
+
+    /* println function - uses _Generic for type dispatch */
+    sb_append(sb, "static void nl_println(void* value_ptr) {\n");
+    sb_append(sb, "    /* This is a placeholder - actual implementation uses type info from checker */\n");
+    sb_append(sb, "}\n\n");
+
+    /* Specialized println functions for each type */
+    sb_append(sb, "static void nl_println_int(int64_t value) {\n");
+    sb_append(sb, "    printf(\"%lld\\n\", value);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static void nl_println_float(double value) {\n");
+    sb_append(sb, "    printf(\"%g\\n\", value);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static void nl_println_string(const char* value) {\n");
+    sb_append(sb, "    printf(\"%s\\n\", value);\n");
+    sb_append(sb, "}\n\n");
+    
+    /* String operations */
+    sb_append(sb, "/* String concatenation */\n");
+    sb_append(sb, "static const char* nl_str_concat(const char* s1, const char* s2) {\n");
+    sb_append(sb, "    size_t len1 = strlen(s1);\n");
+    sb_append(sb, "    size_t len2 = strlen(s2);\n");
+    sb_append(sb, "    char* result = malloc(len1 + len2 + 1);\n");
+    sb_append(sb, "    if (!result) return \"\";\n");
+    sb_append(sb, "    strcpy(result, s1);\n");
+    sb_append(sb, "    strcat(result, s2);\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "/* String substring */\n");
+    sb_append(sb, "static const char* nl_str_substring(const char* str, int64_t start, int64_t length) {\n");
+    sb_append(sb, "    int64_t str_len = strlen(str);\n");
+    sb_append(sb, "    if (start < 0 || start >= str_len || length < 0) return \"\";\n");
+    sb_append(sb, "    if (start + length > str_len) length = str_len - start;\n");
+    sb_append(sb, "    char* result = malloc(length + 1);\n");
+    sb_append(sb, "    if (!result) return \"\";\n");
+    sb_append(sb, "    strncpy(result, str + start, length);\n");
+    sb_append(sb, "    result[length] = '\\0';\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "/* String contains */\n");
+    sb_append(sb, "static bool nl_str_contains(const char* str, const char* substr) {\n");
+    sb_append(sb, "    return strstr(str, substr) != NULL;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "/* String equals */\n");
+    sb_append(sb, "static bool nl_str_equals(const char* s1, const char* s2) {\n");
+    sb_append(sb, "    return strcmp(s1, s2) == 0;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static void nl_println_bool(bool value) {\n");
+    sb_append(sb, "    printf(\"%s\\n\", value ? \"true\" : \"false\");\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* ========== End Math and Utility Built-in Functions ========== */\n\n");
+
     /* Forward declare all functions */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -542,9 +674,20 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             }
             sb_append(sb, ") ");
 
+            /* Add parameters to environment for type checking during transpilation */
+            int saved_symbol_count = env->symbol_count;
+            for (int j = 0; j < item->as.function.param_count; j++) {
+                Value dummy_val = create_void();
+                env_define_var(env, item->as.function.params[j].name,
+                             item->as.function.params[j].type, false, dummy_val);
+            }
+
             /* Function body */
             transpile_statement(sb, item->as.function.body, 0, env);
             sb_append(sb, "\n");
+
+            /* Restore environment (remove parameters) */
+            env->symbol_count = saved_symbol_count;
         }
     }
 

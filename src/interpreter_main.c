@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "version.h"
 
 /* Interpreter options */
 typedef struct {
@@ -114,8 +115,9 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts) {
 int main(int argc, char *argv[]) {
     /* Handle --version */
     if (argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)) {
-        printf("nano 0.1.0-alpha\n");
-        printf("nanolang interpreter - https://github.com/jordanhubbard/nanolang\n");
+        printf("nano %s\n", NANOLANG_VERSION);
+        printf("nanolang interpreter\n");
+        printf("Built: %s %s\n", NANOLANG_BUILD_DATE, NANOLANG_BUILD_TIME);
         return 0;
     }
 

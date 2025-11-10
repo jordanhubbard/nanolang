@@ -1,0 +1,21 @@
+# Expected error: Cannot assign to immutable variable
+# Variable declared without 'mut' cannot be changed
+
+fn test() -> int {
+    let x: int = 10
+    set x 20
+    return x
+}
+
+shadow test {
+    assert (== (test) 20)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

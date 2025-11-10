@@ -1,0 +1,19 @@
+# Expected error: Undefined function
+# Calling function that doesn't exist
+
+fn test() -> int {
+    return (undefined_func 42)
+}
+
+shadow test {
+    assert (== (test) 42)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

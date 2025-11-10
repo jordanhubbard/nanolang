@@ -2,7 +2,8 @@
 # The simplest possible program
 
 fn main() -> int {
-    print "Hello, World!"
+    (println "Hello, World!")
+    (println "Welcome to nanolang!")
     return 0
 }
 

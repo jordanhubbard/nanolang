@@ -43,6 +43,9 @@ EXAMPLES=(
     "07_comparisons.nano"
     "08_types.nano"
     "09_math.nano"
+    "11_stdlib_test.nano"
+    "12_advanced_math.nano"
+    "13_string_ops.nano"
 )
 
 echo "========================================"
