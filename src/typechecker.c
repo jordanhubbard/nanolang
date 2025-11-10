@@ -197,6 +197,36 @@ Type check_expression(ASTNode *expr, Environment *env) {
                 }
             }
 
+            /* Special handling for array operations that need element type inference */
+            if (strcmp(expr->as.call.name, "at") == 0) {
+                /* at(array, index) returns the element type of the array */
+                if (expr->as.call.arg_count >= 1) {
+                    ASTNode *array_arg = expr->as.call.args[0];
+                    
+                    /* Check if it's an array literal - get element type from it */
+                    if (array_arg->type == AST_ARRAY_LITERAL && array_arg->as.array_literal.element_count > 0) {
+                        Type elem_type = check_expression(array_arg->as.array_literal.elements[0], env);
+                        return elem_type;
+                    }
+                    
+                    /* Check if it's a variable - look up its element type */
+                    if (array_arg->type == AST_IDENTIFIER) {
+                        Symbol *sym = env_get_var(env, array_arg->as.identifier);
+                        if (sym && sym->type == TYPE_ARRAY) {
+                            /* We need to track element types in variables */
+                            /* For now, check if we stored it in the array literal */
+                            /* This is a limitation - we'd need extended type info */
+                        }
+                    }
+                    
+                    /* Fallback: try to infer from the array_literal's stored element_type */
+                    Type array_type = check_expression(array_arg, env);
+                    if (array_type == TYPE_ARRAY && array_arg->type == AST_ARRAY_LITERAL) {
+                        return array_arg->as.array_literal.element_type;
+                    }
+                }
+            }
+
             return func->return_type;
         }
 
