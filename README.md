@@ -1,6 +1,6 @@
 # nanolang
 
-**Status**: ✅ Production Ready - 17/17 tests passing, 20 stdlib functions, zero bugs
+**Status**: ✅ Production Ready - 17/17 tests passing, 24 stdlib functions, arrays with bounds checking, zero bugs
 
 A minimal, LLM-friendly programming language designed for AI programming with strict, unambiguous syntax, mandatory shadow-tests, and a path to self-hosting via C transpilation.
 
@@ -38,7 +38,8 @@ make
 
 **Working Examples**: 17/17 (100%) ⭐  
 **Critical Bugs**: 0  
-**Standard Library**: 20 functions (11 math, 5 string, 3 I/O, 3 OS)  
+**Standard Library**: 24 functions (11 math, 5 string, 4 arrays, 3 I/O, 3 OS)  
+**Arrays**: Safe, bounds-checked, type-safe ✅  
 **Quality**: CI/CD, sanitizers, coverage, linting
 
 See [VISION_PROGRESS.md](VISION_PROGRESS.md) and [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) for details.
