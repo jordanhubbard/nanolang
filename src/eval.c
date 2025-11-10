@@ -1074,6 +1074,10 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             Value result = create_void();
             while (is_truthy(eval_expression(stmt->as.while_stmt.condition, env))) {
                 result = eval_statement(stmt->as.while_stmt.body, env);
+                /* If body returned a value, propagate it immediately */
+                if (result.is_return) {
+                    return result;
+                }
             }
             return result;
         }
@@ -1113,6 +1117,12 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
                 /* Execute loop body */
                 result = eval_statement(stmt->as.for_stmt.body, env);
+                
+                /* If body returned a value, propagate it immediately */
+                if (result.is_return) {
+                    env->symbol_count = loop_var_index;  /* Clean up before return */
+                    return result;
+                }
             }
 
             /* Remove loop variable from scope */
@@ -1121,16 +1131,25 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             return result;
         }
 
-        case AST_RETURN:
+        case AST_RETURN: {
+            Value result;
             if (stmt->as.return_stmt.value) {
-                return eval_expression(stmt->as.return_stmt.value, env);
+                result = eval_expression(stmt->as.return_stmt.value, env);
+            } else {
+                result = create_void();
             }
-            return create_void();
+            result.is_return = true;  /* Mark as return value */
+            return result;
+        }
 
         case AST_BLOCK: {
             Value result = create_void();
             for (int i = 0; i < stmt->as.block.count; i++) {
                 result = eval_statement(stmt->as.block.statements[i], env);
+                /* If statement returned a value, propagate it immediately */
+                if (result.is_return) {
+                    return result;
+                }
             }
             return result;
         }
@@ -1250,6 +1269,9 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
     if (result.type == VAL_STRING) {
         return_value = create_string(result.as.string_val);
     }
+    
+    /* Clear is_return flag - we've exited the function */
+    return_value.is_return = false;
 
     /* Clean up parameter strings and restore environment */
     for (int i = original_symbol_count; i < env->symbol_count; i++) {
