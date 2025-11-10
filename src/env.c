@@ -167,6 +167,7 @@ Function *env_get_function(Environment *env, const char *name) {
 Value create_int(long long val) {
     Value v;
     v.type = VAL_INT;
+    v.is_return = false;
     v.as.int_val = val;
     return v;
 }
@@ -174,6 +175,7 @@ Value create_int(long long val) {
 Value create_float(double val) {
     Value v;
     v.type = VAL_FLOAT;
+    v.is_return = false;
     v.as.float_val = val;
     return v;
 }
@@ -181,6 +183,7 @@ Value create_float(double val) {
 Value create_bool(bool val) {
     Value v;
     v.type = VAL_BOOL;
+    v.is_return = false;
     v.as.bool_val = val;
     return v;
 }
@@ -188,6 +191,7 @@ Value create_bool(bool val) {
 Value create_string(const char *val) {
     Value v;
     v.type = VAL_STRING;
+    v.is_return = false;
     v.as.string_val = strdup(val);
     return v;
 }
@@ -195,12 +199,14 @@ Value create_string(const char *val) {
 Value create_void(void) {
     Value v;
     v.type = VAL_VOID;
+    v.is_return = false;
     return v;
 }
 
 Value create_array(ValueType elem_type, int length, int capacity) {
     Value v;
     v.type = VAL_ARRAY;
+    v.is_return = false;
     v.as.array_val = malloc(sizeof(Array));
     v.as.array_val->element_type = elem_type;
     v.as.array_val->length = length;

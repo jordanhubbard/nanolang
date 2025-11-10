@@ -118,6 +118,7 @@ typedef struct TypeInfo {
 /* Value structure */
 typedef struct {
     ValueType type;
+    bool is_return;  /* Flag to propagate return statements through control flow */
     union {
         long long int_val;
         double float_val;
