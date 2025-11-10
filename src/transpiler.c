@@ -222,6 +222,16 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 func_name = "nl_str_contains";
             } else if (strcmp(func_name, "str_equals") == 0) {
                 func_name = "nl_str_equals";
+            
+            /* Array operations */
+            } else if (strcmp(func_name, "at") == 0) {
+                func_name = "nl_array_at_int";  /* For now, assume int arrays */
+            } else if (strcmp(func_name, "array_length") == 0) {
+                func_name = "nl_array_length";
+            } else if (strcmp(func_name, "array_new") == 0) {
+                func_name = "nl_array_new_int";  /* For now, assume int arrays */
+            } else if (strcmp(func_name, "array_set") == 0) {
+                func_name = "nl_array_set_int";  /* For now, assume int arrays */
             } else if (strcmp(func_name, "println") == 0) {
                 /* Special handling for println - dispatch based on argument type */
                 Type arg_type = check_expression(expr->as.call.args[0], env);
@@ -251,6 +261,18 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             for (int i = 0; i < expr->as.call.arg_count; i++) {
                 if (i > 0) sb_append(sb, ", ");
                 transpile_expression(sb, expr->as.call.args[i], env);
+            }
+            sb_append(sb, ")");
+            break;
+        }
+
+        case AST_ARRAY_LITERAL: {
+            /* Transpile array literal: [1, 2, 3] -> nl_array_literal_int(3, 1, 2, 3) */
+            int count = expr->as.array_literal.element_count;
+            sb_appendf(sb, "nl_array_literal_int(%d", count);
+            for (int i = 0; i < count; i++) {
+                sb_append(sb, ", ");
+                transpile_expression(sb, expr->as.array_literal.elements[i], env);
             }
             sb_append(sb, ")");
             break;
@@ -406,6 +428,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "#include <stdbool.h>\n");
     sb_append(sb, "#include <string.h>\n");
     sb_append(sb, "#include <stdlib.h>\n");
+    sb_append(sb, "#include <stdarg.h>\n");
     sb_append(sb, "#include <math.h>\n");
     sb_append(sb, "#include <sys/stat.h>\n");
     sb_append(sb, "#include <sys/types.h>\n");
@@ -636,6 +659,84 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "static void nl_println_bool(bool value) {\n");
     sb_append(sb, "    printf(\"%s\\n\", value ? \"true\" : \"false\");\n");
     sb_append(sb, "}\n\n");
+
+    /* Array operations */
+    sb_append(sb, "/* ========== Array Operations (With Bounds Checking!) ========== */\n\n");
+    
+    sb_append(sb, "/* Array struct */\n");
+    sb_append(sb, "typedef struct {\n");
+    sb_append(sb, "    int64_t length;\n");
+    sb_append(sb, "    void* data;\n");
+    sb_append(sb, "    size_t element_size;\n");
+    sb_append(sb, "} nl_array;\n\n");
+    
+    sb_append(sb, "/* Array access - BOUNDS CHECKED! */\n");
+    sb_append(sb, "static int64_t nl_array_at_int(nl_array* arr, int64_t index) {\n");
+    sb_append(sb, "    if (index < 0 || index >= arr->length) {\n");
+    sb_append(sb, "        fprintf(stderr, \"Runtime Error: Array index %lld out of bounds [0..%lld)\\n\", index, arr->length);\n");
+    sb_append(sb, "        exit(1);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return ((int64_t*)arr->data)[index];\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static double nl_array_at_float(nl_array* arr, int64_t index) {\n");
+    sb_append(sb, "    if (index < 0 || index >= arr->length) {\n");
+    sb_append(sb, "        fprintf(stderr, \"Runtime Error: Array index %lld out of bounds [0..%lld)\\n\", index, arr->length);\n");
+    sb_append(sb, "        exit(1);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return ((double*)arr->data)[index];\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static const char* nl_array_at_string(nl_array* arr, int64_t index) {\n");
+    sb_append(sb, "    if (index < 0 || index >= arr->length) {\n");
+    sb_append(sb, "        fprintf(stderr, \"Runtime Error: Array index %lld out of bounds [0..%lld)\\n\", index, arr->length);\n");
+    sb_append(sb, "        exit(1);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return ((const char**)arr->data)[index];\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "/* Array length */\n");
+    sb_append(sb, "static int64_t nl_array_length(nl_array* arr) {\n");
+    sb_append(sb, "    return arr->length;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "/* Array creation */\n");
+    sb_append(sb, "static nl_array* nl_array_new_int(int64_t size, int64_t default_val) {\n");
+    sb_append(sb, "    nl_array* arr = malloc(sizeof(nl_array));\n");
+    sb_append(sb, "    arr->length = size;\n");
+    sb_append(sb, "    arr->element_size = sizeof(int64_t);\n");
+    sb_append(sb, "    arr->data = malloc(size * sizeof(int64_t));\n");
+    sb_append(sb, "    for (int64_t i = 0; i < size; i++) {\n");
+    sb_append(sb, "        ((int64_t*)arr->data)[i] = default_val;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return arr;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "/* Array set - BOUNDS CHECKED! */\n");
+    sb_append(sb, "static void nl_array_set_int(nl_array* arr, int64_t index, int64_t value) {\n");
+    sb_append(sb, "    if (index < 0 || index >= arr->length) {\n");
+    sb_append(sb, "        fprintf(stderr, \"Runtime Error: Array index %lld out of bounds [0..%lld)\\n\", index, arr->length);\n");
+    sb_append(sb, "        exit(1);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    ((int64_t*)arr->data)[index] = value;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "/* Array literal creation helper */\n");
+    sb_append(sb, "static nl_array* nl_array_literal_int(int64_t count, ...) {\n");
+    sb_append(sb, "    nl_array* arr = malloc(sizeof(nl_array));\n");
+    sb_append(sb, "    arr->length = count;\n");
+    sb_append(sb, "    arr->element_size = sizeof(int64_t);\n");
+    sb_append(sb, "    arr->data = malloc(count * sizeof(int64_t));\n");
+    sb_append(sb, "    va_list args;\n");
+    sb_append(sb, "    va_start(args, count);\n");
+    sb_append(sb, "    for (int64_t i = 0; i < count; i++) {\n");
+    sb_append(sb, "        ((int64_t*)arr->data)[i] = va_arg(args, int64_t);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    va_end(args);\n");
+    sb_append(sb, "    return arr;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "/* ========== End Array Operations ========== */\n\n");
 
     sb_append(sb, "/* ========== End Math and Utility Built-in Functions ========== */\n\n");
 
