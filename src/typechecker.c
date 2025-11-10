@@ -200,6 +200,37 @@ Type check_expression(ASTNode *expr, Environment *env) {
             return func->return_type;
         }
 
+        case AST_ARRAY_LITERAL: {
+            /* Type check array literal */
+            int element_count = expr->as.array_literal.element_count;
+            
+            /* Empty array - type will be inferred from context */
+            if (element_count == 0) {
+                return TYPE_ARRAY;
+            }
+            
+            /* Check first element to determine array type */
+            Type first_type = check_expression(expr->as.array_literal.elements[0], env);
+            if (first_type == TYPE_UNKNOWN) {
+                return TYPE_UNKNOWN;
+            }
+            
+            /* Check all remaining elements match first element's type */
+            for (int i = 1; i < element_count; i++) {
+                Type elem_type = check_expression(expr->as.array_literal.elements[i], env);
+                if (elem_type != first_type) {
+                    fprintf(stderr, "Error at line %d, column %d: Array elements must all have the same type. Expected %d, got %d\n",
+                            expr->line, expr->column, first_type, elem_type);
+                    return TYPE_UNKNOWN;
+                }
+            }
+            
+            /* Store the element type in the AST for later use */
+            expr->as.array_literal.element_type = first_type;
+            
+            return TYPE_ARRAY;
+        }
+
         case AST_IF: {
             Type cond_type = check_expression(expr->as.if_stmt.condition, env);
             if (cond_type != TYPE_BOOL) {
@@ -524,6 +555,43 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_BOOL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* Array operations */
+    /* at(arr: array<T>, index: int) -> T */
+    func.name = "at";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_UNKNOWN;  /* Will be determined by array element type */
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* array_length(arr: array<T>) -> int */
+    func.name = "array_length";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_INT;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* array_new(size: int, default: T) -> array<T> */
+    func.name = "array_new";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_ARRAY;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    env_define_function(env, func);
+    
+    /* array_set(arr: mut array<T>, index: int, value: T) -> void */
+    func.name = "array_set";
+    func.params = NULL;
+    func.param_count = 3;
+    func.return_type = TYPE_VOID;
     func.body = NULL;
     func.shadow_test = NULL;
     env_define_function(env, func);
