@@ -314,5 +314,6 @@ Value create_float(double val);
 Value create_bool(bool val);
 Value create_string(const char *val);
 Value create_void(void);
+Value create_array(ValueType elem_type, int length, int capacity);
 
 #endif /* NANOLANG_H */

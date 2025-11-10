@@ -197,3 +197,25 @@ Value create_void(void) {
     v.type = VAL_VOID;
     return v;
 }
+
+Value create_array(ValueType elem_type, int length, int capacity) {
+    Value v;
+    v.type = VAL_ARRAY;
+    v.as.array_val = malloc(sizeof(Array));
+    v.as.array_val->element_type = elem_type;
+    v.as.array_val->length = length;
+    v.as.array_val->capacity = capacity > length ? capacity : length;
+    
+    /* Allocate data based on element type */
+    size_t elem_size;
+    switch (elem_type) {
+        case VAL_INT:    elem_size = sizeof(long long); break;
+        case VAL_FLOAT:  elem_size = sizeof(double); break;
+        case VAL_BOOL:   elem_size = sizeof(bool); break;
+        case VAL_STRING: elem_size = sizeof(char*); break;
+        default:         elem_size = sizeof(void*); break;
+    }
+    v.as.array_val->data = calloc(v.as.array_val->capacity, elem_size);
+    
+    return v;
+}

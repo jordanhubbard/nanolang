@@ -219,6 +219,32 @@ static void print_value(Value val) {
         case VAL_STRING:
             printf("%s", val.as.string_val);
             break;
+        case VAL_ARRAY: {
+            /* Print array as [elem1, elem2, ...] */
+            Array *arr = val.as.array_val;
+            printf("[");
+            for (int i = 0; i < arr->length; i++) {
+                if (i > 0) printf(", ");
+                switch (arr->element_type) {
+                    case VAL_INT:
+                        printf("%lld", ((long long*)arr->data)[i]);
+                        break;
+                    case VAL_FLOAT:
+                        printf("%g", ((double*)arr->data)[i]);
+                        break;
+                    case VAL_BOOL:
+                        printf("%s", ((bool*)arr->data)[i] ? "true" : "false");
+                        break;
+                    case VAL_STRING:
+                        printf("\"%s\"", ((char**)arr->data)[i]);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            printf("]");
+            break;
+        }
         case VAL_VOID:
             printf("void");
             break;
@@ -466,6 +492,159 @@ static Value builtin_str_equals(Value *args) {
 }
 
 /* ==========================================================================
+ * Array Built-in Functions (With Bounds Checking!)
+ * ========================================================================== */
+
+static Value builtin_at(Value *args) {
+    /* at(array, index) -> element */
+    if (args[0].type != VAL_ARRAY) {
+        fprintf(stderr, "Error: at() requires an array as first argument\n");
+        return create_void();
+    }
+    if (args[1].type != VAL_INT) {
+        fprintf(stderr, "Error: at() requires an integer index\n");
+        return create_void();
+    }
+    
+    Array *arr = args[0].as.array_val;
+    long long index = args[1].as.int_val;
+    
+    /* BOUNDS CHECKING - This is the safety guarantee! */
+    if (index < 0 || index >= arr->length) {
+        fprintf(stderr, "Runtime Error: Array index %lld out of bounds [0..%d)\n",
+                index, arr->length);
+        exit(1);  /* Fail fast - no undefined behavior! */
+    }
+    
+    /* Return element based on type */
+    switch (arr->element_type) {
+        case VAL_INT:
+            return create_int(((long long*)arr->data)[index]);
+        case VAL_FLOAT:
+            return create_float(((double*)arr->data)[index]);
+        case VAL_BOOL:
+            return create_bool(((bool*)arr->data)[index]);
+        case VAL_STRING:
+            return create_string(((char**)arr->data)[index]);
+        default:
+            fprintf(stderr, "Error: Unsupported array element type\n");
+            return create_void();
+    }
+}
+
+static Value builtin_array_length(Value *args) {
+    /* array_length(array) -> int */
+    if (args[0].type != VAL_ARRAY) {
+        fprintf(stderr, "Error: array_length() requires an array argument\n");
+        return create_void();
+    }
+    
+    return create_int(args[0].as.array_val->length);
+}
+
+static Value builtin_array_new(Value *args) {
+    /* array_new(size, default_value) -> array */
+    if (args[0].type != VAL_INT) {
+        fprintf(stderr, "Error: array_new() requires an integer size\n");
+        return create_void();
+    }
+    
+    long long size = args[0].as.int_val;
+    if (size < 0) {
+        fprintf(stderr, "Error: array_new() size must be non-negative\n");
+        return create_void();
+    }
+    
+    ValueType elem_type = args[1].type;
+    Value arr = create_array(elem_type, size, size);
+    
+    /* Initialize all elements with default value */
+    for (long long i = 0; i < size; i++) {
+        switch (elem_type) {
+            case VAL_INT:
+                ((long long*)arr.as.array_val->data)[i] = args[1].as.int_val;
+                break;
+            case VAL_FLOAT:
+                ((double*)arr.as.array_val->data)[i] = args[1].as.float_val;
+                break;
+            case VAL_BOOL:
+                ((bool*)arr.as.array_val->data)[i] = args[1].as.bool_val;
+                break;
+            case VAL_STRING:
+                ((char**)arr.as.array_val->data)[i] = strdup(args[1].as.string_val);
+                break;
+            default:
+                break;
+        }
+    }
+    
+    return arr;
+}
+
+static Value builtin_array_set(Value *args) {
+    /* array_set(array, index, value) -> void */
+    if (args[0].type != VAL_ARRAY) {
+        fprintf(stderr, "Error: array_set() requires an array as first argument\n");
+        return create_void();
+    }
+    if (args[1].type != VAL_INT) {
+        fprintf(stderr, "Error: array_set() requires an integer index\n");
+        return create_void();
+    }
+    
+    Array *arr = args[0].as.array_val;
+    long long index = args[1].as.int_val;
+    
+    /* BOUNDS CHECKING */
+    if (index < 0 || index >= arr->length) {
+        fprintf(stderr, "Runtime Error: Array index %lld out of bounds [0..%d)\n",
+                index, arr->length);
+        exit(1);  /* Fail fast! */
+    }
+    
+    /* Set element based on type */
+    switch (arr->element_type) {
+        case VAL_INT:
+            if (args[2].type != VAL_INT) {
+                fprintf(stderr, "Error: Type mismatch in array_set\n");
+                return create_void();
+            }
+            ((long long*)arr->data)[index] = args[2].as.int_val;
+            break;
+        case VAL_FLOAT:
+            if (args[2].type != VAL_FLOAT) {
+                fprintf(stderr, "Error: Type mismatch in array_set\n");
+                return create_void();
+            }
+            ((double*)arr->data)[index] = args[2].as.float_val;
+            break;
+        case VAL_BOOL:
+            if (args[2].type != VAL_BOOL) {
+                fprintf(stderr, "Error: Type mismatch in array_set\n");
+                return create_void();
+            }
+            ((bool*)arr->data)[index] = args[2].as.bool_val;
+            break;
+        case VAL_STRING:
+            if (args[2].type != VAL_STRING) {
+                fprintf(stderr, "Error: Type mismatch in array_set\n");
+                return create_void();
+            }
+            /* Free old string if exists */
+            if (((char**)arr->data)[index]) {
+                free(((char**)arr->data)[index]);
+            }
+            ((char**)arr->data)[index] = strdup(args[2].as.string_val);
+            break;
+        default:
+            fprintf(stderr, "Error: Unsupported array element type\n");
+            break;
+    }
+    
+    return create_void();
+}
+
+/* ==========================================================================
  * End of Math and Utility Built-in Functions
  * ========================================================================== */
 
@@ -580,6 +759,36 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 case VAL_FLOAT: equal = left.as.float_val == right.as.float_val; break;
                 case VAL_BOOL: equal = left.as.bool_val == right.as.bool_val; break;
                 case VAL_STRING: equal = strcmp(left.as.string_val, right.as.string_val) == 0; break;
+                case VAL_ARRAY: {
+                    /* Arrays are equal if they have same length and all elements equal */
+                    Array *left_arr = left.as.array_val;
+                    Array *right_arr = right.as.array_val;
+                    if (left_arr->length != right_arr->length) {
+                        equal = false;
+                    } else {
+                        equal = true;
+                        for (int i = 0; i < left_arr->length && equal; i++) {
+                            switch (left_arr->element_type) {
+                                case VAL_INT:
+                                    equal = ((long long*)left_arr->data)[i] == ((long long*)right_arr->data)[i];
+                                    break;
+                                case VAL_FLOAT:
+                                    equal = ((double*)left_arr->data)[i] == ((double*)right_arr->data)[i];
+                                    break;
+                                case VAL_BOOL:
+                                    equal = ((bool*)left_arr->data)[i] == ((bool*)right_arr->data)[i];
+                                    break;
+                                case VAL_STRING:
+                                    equal = strcmp(((char**)left_arr->data)[i], ((char**)right_arr->data)[i]) == 0;
+                                    break;
+                                default:
+                                    equal = false;
+                                    break;
+                            }
+                        }
+                    }
+                    break;
+                }
                 case VAL_VOID: equal = true; break;
             }
         }
@@ -688,6 +897,12 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "str_substring") == 0) return builtin_str_substring(args);
     if (strcmp(name, "str_contains") == 0) return builtin_str_contains(args);
     if (strcmp(name, "str_equals") == 0) return builtin_str_equals(args);
+    
+    /* Array operations */
+    if (strcmp(name, "at") == 0) return builtin_at(args);
+    if (strcmp(name, "array_length") == 0) return builtin_array_length(args);
+    if (strcmp(name, "array_new") == 0) return builtin_array_new(args);
+    if (strcmp(name, "array_set") == 0) return builtin_array_set(args);
 
     /* Get user-defined function */
     Function *func = env_get_function(env, name);
@@ -779,6 +994,50 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 
         case AST_CALL:
             return eval_call(expr, env);
+
+        case AST_ARRAY_LITERAL: {
+            /* Evaluate array literal: [1, 2, 3] */
+            int count = expr->as.array_literal.element_count;
+            
+            /* Empty array */
+            if (count == 0) {
+                /* Create empty array - type will be determined by context */
+                return create_array(VAL_INT, 0, 0);  /* Default to int for now */
+            }
+            
+            /* Evaluate first element to determine type */
+            Value first = eval_expression(expr->as.array_literal.elements[0], env);
+            ValueType elem_type = first.type;
+            
+            /* Create array */
+            Value arr = create_array(elem_type, count, count);
+            
+            /* Set elements */
+            for (int i = 0; i < count; i++) {
+                Value elem = eval_expression(expr->as.array_literal.elements[i], env);
+                
+                /* Store element in array data */
+                switch (elem_type) {
+                    case VAL_INT:
+                        ((long long*)arr.as.array_val->data)[i] = elem.as.int_val;
+                        break;
+                    case VAL_FLOAT:
+                        ((double*)arr.as.array_val->data)[i] = elem.as.float_val;
+                        break;
+                    case VAL_BOOL:
+                        ((bool*)arr.as.array_val->data)[i] = elem.as.bool_val;
+                        break;
+                    case VAL_STRING:
+                        ((char**)arr.as.array_val->data)[i] = strdup(elem.as.string_val);
+                        break;
+                    default:
+                        fprintf(stderr, "Error: Unsupported array element type\n");
+                        break;
+                }
+            }
+            
+            return arr;
+        }
 
         case AST_IF: {
             Value cond = eval_expression(expr->as.if_stmt.condition, env);
