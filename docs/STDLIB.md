@@ -1,6 +1,6 @@
 # nanolang Standard Library Reference
 
-Complete reference for all 20 built-in functions in nanolang.
+Complete reference for all 24 built-in functions in nanolang.
 
 ---
 
@@ -195,6 +195,67 @@ let s3: string = "World"
 
 ---
 
+## Array Operations (4)
+
+### `at(arr: array<T>, index: int) -> T`
+Returns the element at the specified index. **Bounds-checked** - terminates with error if index is out of bounds.
+
+```nano
+let nums: array<int> = [1, 2, 3, 4, 5]
+let first: int = (at nums 0)   # Returns 1
+let last: int = (at nums 4)    # Returns 5
+# (at nums 10)                  # ERROR: index out of bounds!
+```
+
+**Safety:** This function includes runtime bounds checking to prevent memory corruption and security vulnerabilities.
+
+### `array_length(arr: array<T>) -> int`
+Returns the length (number of elements) of an array.
+
+```nano
+let nums: array<int> = [10, 20, 30]
+let len: int = (array_length nums)  # Returns 3
+
+let empty: array<int> = []
+let zero: int = (array_length empty)  # Returns 0
+```
+
+### `array_new(size: int, default: T) -> array<T>`
+Creates a new array with the specified size, filled with the default value.
+
+```nano
+# Create array of 5 zeros
+let zeros: array<int> = (array_new 5 0)
+# [0, 0, 0, 0, 0]
+
+# Create array of 3 empty strings
+let strings: array<string> = (array_new 3 "")
+# ["", "", ""]
+```
+
+**Note:** Size must be non-negative. Negative sizes will cause an error.
+
+### `array_set(arr: mut array<T>, index: int, value: T) -> void`
+Sets the element at the specified index. **Bounds-checked** - terminates with error if index is out of bounds. Requires a **mutable** array.
+
+```nano
+let mut nums: array<int> = [1, 2, 3]
+(array_set nums 1 42)  # nums is now [1, 42, 3]
+
+# Type checking enforced
+# (array_set nums 0 "hello")  # ERROR: type mismatch!
+
+# Bounds checking enforced
+# (array_set nums 10 99)      # ERROR: index out of bounds!
+```
+
+**Safety:** 
+- Requires array to be declared `mut`
+- Runtime bounds checking prevents buffer overflows
+- Type checking ensures homogeneous arrays
+
+---
+
 ## OS/System Functions (3)
 
 ### `getcwd() -> string`
@@ -265,7 +326,49 @@ shadow process_name {
 }
 ```
 
-### Example 3: Trigonometric Calculation
+### Example 3: Array Processing
+
+```nano
+fn sum_array(arr: array<int>) -> int {
+    let mut total: int = 0
+    let mut i: int = 0
+    let len: int = (array_length arr)
+    
+    while (< i len) {
+        set total (+ total (at arr i))
+        set i (+ i 1)
+    }
+    
+    return total
+}
+
+shadow sum_array {
+    let nums: array<int> = [1, 2, 3, 4, 5]
+    assert (== (sum_array nums) 15)
+    
+    let empty: array<int> = []
+    assert (== (sum_array empty) 0)
+}
+
+fn main() -> int {
+    # Create and manipulate arrays
+    let mut data: array<int> = (array_new 5 0)
+    
+    # Fill with values
+    (array_set data 0 10)
+    (array_set data 1 20)
+    (array_set data 2 30)
+    (array_set data 3 40)
+    (array_set data 4 50)
+    
+    let total: int = (sum_array data)
+    (println total)  # Prints 150
+    
+    return 0
+}
+```
+
+### Example 4: Trigonometric Calculation
 
 ```nano
 fn calculate_angle(opposite: float, adjacent: float) -> float {
@@ -344,9 +447,7 @@ Planned for future releases:
 - **String:** `str_uppercase`, `str_lowercase`, `str_split`, `str_join`
 - **Math:** `log`, `exp`, `atan`, `atan2`, `asin`, `acos`
 - **File I/O:** `file_read`, `file_write`, `file_exists`
-- **Collections:** Array operations (designed, not yet implemented)
-
-See `docs/ARRAY_DESIGN.md` for planned array functionality.
+- **Arrays:** `array_map`, `array_filter`, `array_reduce`, `array_slice`
 
 ---
 
@@ -358,7 +459,7 @@ See `docs/ARRAY_DESIGN.md` for planned array functionality.
 - Type checking happens at compile time
 - Shadow tests execute during compilation to verify stdlib correctness
 
-**Total Functions:** 20  
+**Total Functions:** 24 (3 I/O + 11 Math + 5 String + 4 Array + 3 OS)  
 **Test Coverage:** 100%  
 **Documentation:** Complete
 

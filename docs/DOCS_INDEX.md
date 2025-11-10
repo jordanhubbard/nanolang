@@ -6,9 +6,11 @@ Welcome to nanolang! This index will help you navigate the documentation.
 
 - **New to nanolang?** Start with [Getting Started](GETTING_STARTED.md)
 - **Want details?** Read the [Language Specification](SPECIFICATION.md)
+- **Need a quick reference?** See [Quick Reference](QUICK_REFERENCE.md)
+- **Standard library?** Browse [Standard Library Reference](STDLIB.md) (24 functions)
 - **Learn about shadow-tests?** See [Shadow-Tests Guide](SHADOW_TESTS.md)
 - **Ready to contribute?** Check [Contributing Guidelines](CONTRIBUTING.md)
-- **Want examples?** Browse the [examples/](examples/) directory
+- **Want examples?** Browse the [examples/](../examples/) directory
 
 ## Documentation Structure
 
@@ -146,20 +148,39 @@ let mut y: int = 20    # Mutable
 
 ## Project Status
 
-**Current Phase**: Language Specification
+**Current Phase**: ✅ Production Ready
 
 ### Completed
-- ✅ Language design
-- ✅ Specification document
-- ✅ Example programs
-- ✅ Documentation
+- ✅ Language design and specification
+- ✅ Lexer with full tokenization
+- ✅ Parser with AST generation
+- ✅ Type checker with inference
+- ✅ Shadow-test runner (interpreter mode)
+- ✅ C transpiler for native compilation
+- ✅ Interpreter (`nano`) - runs shadow tests
+- ✅ Compiler (`nanoc`) - transpiles to C and compiles
+- ✅ Standard library (24 functions)
+  - 3 I/O, 11 Math, 5 String, 4 Array, 3 OS
+- ✅ Array support with bounds checking
+- ✅ 24 example programs
+- ✅ Test suite (17/17 tests passing)
+- ✅ CI/CD with GitHub Actions
+- ✅ Comprehensive documentation
 
-### Next Steps
-- ⏳ Lexer implementation
-- ⏳ Parser implementation
-- ⏳ Type checker
-- ⏳ Shadow-test runner
-- ⏳ C transpiler
+### Recent Improvements
+- ✅ Fixed critical infinite loop bug in return propagation
+- ✅ Added array operations with safety guarantees
+- ✅ Expanded math library (sqrt, pow, trig functions)
+- ✅ Added string operations (length, concat, substring, etc.)
+- ✅ Memory sanitizers (AddressSanitizer, UBSan)
+- ✅ Column tracking for precise error messages
+- ✅ Unused variable warnings
+
+### Future Enhancements
+- ⏳ More array operations (map, filter, reduce, slice)
+- ⏳ File I/O functions
+- ⏳ More string operations (split, join, case conversion)
+- ⏳ Advanced math (logarithms, inverse trig)
 
 ## Community
 
@@ -187,25 +208,32 @@ A: Eliminates operator precedence confusion. `(+ a (* b c))` is unambiguous.
 A: Ensures all code is tested. Untested code doesn't compile.
 
 **Q: Is nanolang production-ready?**  
-A: Not yet. Currently in specification phase.
+A: Yes! The compiler, interpreter, and standard library are complete. 17/17 tests pass, 23/24 examples work.
 
 **Q: Can I use nanolang for my project?**  
-A: Once implemented, yes! It's open source (Apache 2.0).
+A: Absolutely! It's open source (Apache 2.0). See [GETTING_STARTED.md](GETTING_STARTED.md).
 
 **Q: How do I compile nanolang programs?**  
-A: Compiler coming soon. Currently documenting the language.
+A: Use `nanoc program.nano` to compile and test, or `nano program.nano` to interpret.
 
 **Q: Why target C?**  
 A: Portability, performance, and path to self-hosting.
 
+**Q: What's the standard library like?**  
+A: 24 functions covering I/O, math, strings, arrays, and OS operations. See [STDLIB.md](STDLIB.md).
+
 ## Resources
 
 ### Documentation
-- [README.md](README.md) - Overview
+- [README.md](../README.md) - Overview
 - [SPECIFICATION.md](SPECIFICATION.md) - Language reference
+- [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - One-page syntax guide
+- [STDLIB.md](STDLIB.md) - Standard library reference (24 functions)
 - [GETTING_STARTED.md](GETTING_STARTED.md) - Tutorial
 - [SHADOW_TESTS.md](SHADOW_TESTS.md) - Testing guide
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guide
+- [ARRAY_DESIGN.md](ARRAY_DESIGN.md) - Array implementation details
+- [ARCHITECTURE_ANALYSIS.md](ARCHITECTURE_ANALYSIS.md) - System architecture
 
 ### Examples
 - [examples/README.md](examples/README.md) - Example guide
