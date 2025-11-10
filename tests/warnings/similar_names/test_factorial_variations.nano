@@ -1,0 +1,36 @@
+# Test: Similar function names with small differences
+# Expected warnings for similar names
+
+fn factorial(n: int) -> int {
+    if (<= n 1) {
+        return 1
+    } else {
+        return (* n (factorial (- n 1)))
+    }
+}
+
+shadow factorial {
+    assert (== (factorial 5) 120)
+}
+
+# Very similar name - only 1 character different
+fn factorail(n: int) -> int {
+    if (<= n 1) {
+        return 1
+    } else {
+        return (* n (factorail (- n 1)))
+    }
+}
+
+shadow factorail {
+    assert (== (factorail 5) 120)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

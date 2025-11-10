@@ -234,6 +234,9 @@ A: 24 functions covering I/O, math, strings, arrays, and OS operations. See [STD
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guide
 - [ARRAY_DESIGN.md](ARRAY_DESIGN.md) - Array implementation details
 - [ARCHITECTURE_ANALYSIS.md](ARCHITECTURE_ANALYSIS.md) - System architecture
+- [LANGUAGE_DESIGN_REVIEW.md](LANGUAGE_DESIGN_REVIEW.md) - **NEW:** Comprehensive design review (8.5/10)
+- [REVIEW_SUMMARY.md](REVIEW_SUMMARY.md) - **NEW:** Executive summary of review findings
+- [NAMESPACE_FIXES.md](NAMESPACE_FIXES.md) - **NEW:** Namespace management bug fixes ✅
 
 ### Examples
 - [examples/README.md](examples/README.md) - Example guide

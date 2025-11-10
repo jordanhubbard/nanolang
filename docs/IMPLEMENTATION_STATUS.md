@@ -175,18 +175,60 @@ This document tracks the implementation status of nanolang components.
 - **Status**: Fully working
 
 ## Total Implementation
-- **Lines of Code**: ~2,900 across 8 C files + 1 header
+- **Lines of Code**: ~3,040 across 8 C files + 1 header (+140 lines for namespace fixes)
 - **Executables**: 2 (compiler + interpreter)
 - **Core Compiler**: 100% complete ✅
 - **Core Interpreter**: 100% complete ✅
-- **Working Features**: ~95% ✅
+- **Working Features**: ~98% ✅
 - **Critical Bugs**: 0 (**ALL FIXED!** ✅)
+- **Namespace Safety**: ✅ **EXCELLENT** (duplicate detection + built-in shadowing + similarity warnings)
+
+## Recent Fixes (November 10, 2025) 🎉
+
+### ✅ Namespace Management Fixes (CRITICAL)
+
+Three critical namespace bugs identified in design review and **FIXED**:
+
+#### 1. ✅ Duplicate Function Detection (FIXED)
+- **Problem**: Could define same function twice, second silently overwrote first
+- **Impact**: Lost code, broken shadow tests, confusing behavior
+- **Fix**: Added duplicate checking in type checker (lines 757-765 in typechecker.c)
+- **Test**: `tests/negative/duplicate_functions/duplicate_function.nano`
+- **Result**: Clear error message with both definition locations
+
+#### 2. ✅ Built-in Function Shadowing Prevention (FIXED)
+- **Problem**: Could redefine built-in functions (abs, min, max, sqrt, etc.)
+- **Impact**: Override stdlib, confusing behavior, portability issues
+- **Fix**: Added comprehensive built-in function name list and checking (lines 424-457, 783-790)
+- **Protected**: 44 built-in functions (math, string, array, file I/O, OS)
+- **Tests**: `tests/negative/builtin_collision/*.nano`
+- **Result**: Clear error message preventing shadowing
+
+#### 3. ✅ Similar Function Name Warnings (ADDED)
+- **Problem**: Typos in function names created duplicates (e.g., `calcuate_sum` vs `calculate_sum`)
+- **Impact**: Copy-paste errors, duplicate functionality
+- **Fix**: Added Levenshtein distance checking (lines 647-724)
+- **Algorithm**: Dynamic programming, warns if edit distance ≤ 2
+- **Tests**: `tests/warnings/similar_names/*.nano`
+- **Result**: Helpful warning with locations, compilation continues
+
+**Total Changes**: +140 lines of code  
+**Test Coverage**: 5 new tests (all passing ✅)  
+**Documentation**: See [NAMESPACE_FIXES.md](NAMESPACE_FIXES.md) for full details
+
+---
 
 ## Known Issues and Bugs 🐛
 
 ### ~~Critical Issues (Blocking)~~ - ALL FIXED! ✅
 
-#### ~~1. For Loop Segmentation Fault~~ ✅ **FIXED!**
+#### ~~1. Namespace Management~~ ✅ **FIXED!** (November 10, 2025)
+- **Severity**: ~~CRITICAL~~ **RESOLVED**
+- **Issues**: Duplicate detection, built-in shadowing, similar names
+- **Status**: ✅ **FIXED** - See above
+- **Documentation**: [NAMESPACE_FIXES.md](NAMESPACE_FIXES.md)
+
+#### ~~2. For Loop Segmentation Fault~~ ✅ **FIXED!** (September 30, 2025)
 - **Severity**: ~~CRITICAL~~ **RESOLVED**
 - **Status**: ✅ **FIXED** (September 30, 2025)
 - **Description**: ~~Any program using `for` loops caused a segmentation fault~~ Now working perfectly!
