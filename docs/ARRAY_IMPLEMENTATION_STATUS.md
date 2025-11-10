@@ -57,7 +57,9 @@
 
 ## What's In Progress 🚧
 
-### 6. Parser Implementation (NEXT)
+### 7. Type Checker (NEXT)
+
+### 6. Parser Implementation (DONE ✅)
 
 **Need to implement:**
 

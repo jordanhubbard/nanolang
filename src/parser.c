@@ -68,8 +68,35 @@ static Type parse_type(Parser *p) {
         case TOKEN_TYPE_BOOL: type = TYPE_BOOL; break;
         case TOKEN_TYPE_STRING: type = TYPE_STRING; break;
         case TOKEN_TYPE_VOID: type = TYPE_VOID; break;
+        case TOKEN_ARRAY:
+            /* Parse array<element_type> */
+            advance(p);  /* consume 'array' */
+            if (current_token(p)->type != TOKEN_LT) {
+                fprintf(stderr, "Error at line %d, column %d: Expected '<' after 'array'\n", 
+                        current_token(p)->line, current_token(p)->column);
+                return TYPE_UNKNOWN;
+            }
+            advance(p);  /* consume '<' */
+            
+            /* Parse element type */
+            Type element_type = parse_type(p);
+            if (element_type == TYPE_UNKNOWN) {
+                return TYPE_UNKNOWN;
+            }
+            
+            if (current_token(p)->type != TOKEN_GT) {
+                fprintf(stderr, "Error at line %d, column %d: Expected '>' after array element type\n", 
+                        current_token(p)->line, current_token(p)->column);
+                return TYPE_UNKNOWN;
+            }
+            advance(p);  /* consume '>' */
+            
+            /* TODO: Store element_type somewhere - for now just return TYPE_ARRAY */
+            (void)element_type;  /* Suppress unused warning for now */
+            type = TYPE_ARRAY;
+            return type;
         default:
-            fprintf(stderr, "Error at line %d, column %d: Expected type annotation\n", tok->line);
+            fprintf(stderr, "Error at line %d, column %d: Expected type annotation\n", tok->line, tok->column);
             return TYPE_UNKNOWN;
     }
 
@@ -239,6 +266,47 @@ static ASTNode *parse_primary(Parser *p) {
             node->as.bool_val = false;
             advance(p);
             return node;
+
+        case TOKEN_LBRACKET: {
+            /* Array literal: [1, 2, 3] */
+            int line = tok->line;
+            int column = tok->column;
+            advance(p);  /* consume '[' */
+            
+            int capacity = 4;
+            int count = 0;
+            ASTNode **elements = malloc(sizeof(ASTNode*) * capacity);
+            
+            /* Parse array elements */
+            while (!match(p, TOKEN_RBRACKET) && !match(p, TOKEN_EOF)) {
+                if (count >= capacity) {
+                    capacity *= 2;
+                    elements = realloc(elements, sizeof(ASTNode*) * capacity);
+                }
+                elements[count++] = parse_expression(p);
+                
+                /* Check for comma or end of array */
+                if (match(p, TOKEN_COMMA)) {
+                    advance(p);
+                } else if (!match(p, TOKEN_RBRACKET)) {
+                    fprintf(stderr, "Error at line %d, column %d: Expected ',' or ']' in array literal\n",
+                            current_token(p)->line, current_token(p)->column);
+                    free(elements);
+                    return NULL;
+                }
+            }
+            
+            if (!expect(p, TOKEN_RBRACKET, "Expected ']' at end of array literal")) {
+                free(elements);
+                return NULL;
+            }
+            
+            node = create_node(AST_ARRAY_LITERAL, line, column);
+            node->as.array_literal.elements = elements;
+            node->as.array_literal.element_count = count;
+            node->as.array_literal.element_type = TYPE_UNKNOWN;  /* Will be inferred by type checker */
+            return node;
+        }
 
         case TOKEN_IDENTIFIER:
             node = create_node(AST_IDENTIFIER, tok->line, tok->column);
