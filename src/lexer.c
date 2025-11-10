@@ -35,6 +35,7 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "assert") == 0) return TOKEN_ASSERT;
     if (strcmp(str, "shadow") == 0) return TOKEN_SHADOW;
     if (strcmp(str, "print") == 0) return TOKEN_PRINT;
+    if (strcmp(str, "array") == 0) return TOKEN_ARRAY;
 
     /* Boolean literals */
     if (strcmp(str, "true") == 0) return TOKEN_TRUE;
@@ -199,6 +200,8 @@ Token *tokenize(const char *source, int *token_count) {
             case ')': tokens[count++] = create_token(TOKEN_RPAREN, NULL, line, column); i++; break;
             case '{': tokens[count++] = create_token(TOKEN_LBRACE, NULL, line, column); i++; break;
             case '}': tokens[count++] = create_token(TOKEN_RBRACE, NULL, line, column); i++; break;
+            case '[': tokens[count++] = create_token(TOKEN_LBRACKET, NULL, line, column); i++; break;
+            case ']': tokens[count++] = create_token(TOKEN_RBRACKET, NULL, line, column); i++; break;
             case ',': tokens[count++] = create_token(TOKEN_COMMA, NULL, line, column); i++; break;
             case ':': tokens[count++] = create_token(TOKEN_COLON, NULL, line, column); i++; break;
             case '+': tokens[count++] = create_token(TOKEN_PLUS, NULL, line, column); i++; break;
