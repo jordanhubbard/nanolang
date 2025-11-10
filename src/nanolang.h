@@ -24,6 +24,8 @@ typedef enum {
     TOKEN_RPAREN,
     TOKEN_LBRACE,
     TOKEN_RBRACE,
+    TOKEN_LBRACKET,
+    TOKEN_RBRACKET,
     TOKEN_COMMA,
     TOKEN_COLON,
     TOKEN_ARROW,
@@ -43,6 +45,7 @@ typedef enum {
     TOKEN_ASSERT,
     TOKEN_SHADOW,
     TOKEN_PRINT,
+    TOKEN_ARRAY,
 
     /* Types */
     TOKEN_TYPE_INT,
@@ -83,8 +86,17 @@ typedef enum {
     VAL_FLOAT,
     VAL_BOOL,
     VAL_STRING,
+    VAL_ARRAY,
     VAL_VOID
 } ValueType;
+
+/* Array structure */
+typedef struct {
+    ValueType element_type;  /* Type of elements in the array */
+    int length;              /* Number of elements */
+    int capacity;            /* Allocated capacity */
+    void *data;              /* Pointer to array data */
+} Array;
 
 /* Type information */
 typedef enum {
@@ -93,8 +105,15 @@ typedef enum {
     TYPE_BOOL,
     TYPE_STRING,
     TYPE_VOID,
+    TYPE_ARRAY,
     TYPE_UNKNOWN
 } Type;
+
+/* Extended type information for arrays */
+typedef struct TypeInfo {
+    Type base_type;
+    struct TypeInfo *element_type;  /* For arrays: array<int> has element_type = int */
+} TypeInfo;
 
 /* Value structure */
 typedef struct {
@@ -104,6 +123,7 @@ typedef struct {
         double float_val;
         bool bool_val;
         char *string_val;
+        Array *array_val;
     } as;
 } Value;
 
@@ -116,6 +136,7 @@ typedef enum {
     AST_IDENTIFIER,
     AST_PREFIX_OP,
     AST_CALL,
+    AST_ARRAY_LITERAL,
     AST_LET,
     AST_SET,
     AST_IF,
@@ -160,6 +181,11 @@ struct ASTNode {
             ASTNode **args;
             int arg_count;
         } call;
+        struct {
+            ASTNode **elements;
+            int element_count;
+            Type element_type;  /* Type of array elements */
+        } array_literal;
         struct {
             char *name;
             Type var_type;
