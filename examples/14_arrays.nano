@@ -1,0 +1,144 @@
+# Arrays in nanolang
+# Demonstrates safe, bounds-checked arrays
+
+# Array creation and access
+fn test_array_basics() -> int {
+    let nums: array<int> = [1, 2, 3, 4, 5]
+    
+    # Get length
+    let len: int = (array_length nums)
+    
+    # Access elements (bounds-checked!)
+    let first: int = (at nums 0)
+    let last: int = (at nums 4)
+    
+    return (+ first last)
+}
+
+shadow test_array_basics {
+    assert (== (test_array_basics) 6)
+}
+
+# Array operations
+fn sum_array(arr: array<int>) -> int {
+    let mut total: int = 0
+    let mut i: int = 0
+    let len: int = (array_length arr)
+    
+    while (< i len) {
+        set total (+ total (at arr i))
+        set i (+ i 1)
+    }
+    
+    return total
+}
+
+shadow sum_array {
+    assert (== (sum_array [1, 2, 3, 4, 5]) 15)
+    assert (== (sum_array [10, 20, 30]) 60)
+    assert (== (sum_array [0]) 0)
+}
+
+# Array with array_new
+fn test_array_new() -> int {
+    # Create array of 5 zeros
+    let zeros: array<int> = (array_new 5 0)
+    let len: int = (array_length zeros)
+    let first: int = (at zeros 0)
+    
+    return (+ len first)
+}
+
+shadow test_array_new {
+    assert (== (test_array_new) 5)
+}
+
+# Mutable arrays
+fn test_array_mut() -> int {
+    let mut nums: array<int> = [1, 2, 3]
+    
+    # Modify array
+    (array_set nums 0 99)
+    (array_set nums 1 88)
+    (array_set nums 2 77)
+    
+    let sum: int = (+ (+ (at nums 0) (at nums 1)) (at nums 2))
+    return sum
+}
+
+shadow test_array_mut {
+    assert (== (test_array_mut) 264)
+}
+
+# String arrays
+fn test_string_arrays() -> int {
+    let names: array<string> = ["Alice", "Bob", "Carol"]
+    let len: int = (array_length names)
+    
+    return len
+}
+
+shadow test_string_arrays {
+    assert (== (test_string_arrays) 3)
+}
+
+# Array equality
+fn test_array_equality() -> bool {
+    let arr1: array<int> = [1, 2, 3]
+    let arr2: array<int> = [1, 2, 3]
+    let arr3: array<int> = [1, 2, 4]
+    
+    let eq1: bool = (== arr1 arr2)
+    let eq2: bool = (== arr1 arr3)
+    
+    return (and eq1 (not eq2))
+}
+
+shadow test_array_equality {
+    assert (== (test_array_equality) true)
+}
+
+# Main function
+fn main() -> int {
+    (println "Array Tests")
+    (println "===========")
+    
+    # Test 1
+    let result1: int = (test_array_basics)
+    (println "test_array_basics:")
+    (println result1)
+    
+    # Test 2  
+    let arr: array<int> = [10, 20, 30, 40]
+    let sum: int = (sum_array arr)
+    (println "sum_array [10,20,30,40]:")
+    (println sum)
+    
+    # Test 3
+    let result3: int = (test_array_new)
+    (println "test_array_new:")
+    (println result3)
+    
+    # Test 4
+    let result4: int = (test_array_mut)
+    (println "test_array_mut:")
+    (println result4)
+    
+    # Test 5
+    let result5: int = (test_string_arrays)
+    (println "test_string_arrays:")
+    (println result5)
+    
+    # Test 6
+    let result6: bool = (test_array_equality)
+    (println "test_array_equality:")
+    (println result6)
+    
+    (println "All tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
