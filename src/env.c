@@ -116,6 +116,16 @@ void env_set_var(Environment *env, const char *name, Value value) {
     }
 }
 
+/* Check if a name is a built-in function */
+bool is_builtin_function(const char *name) {
+    for (int i = 0; i < builtin_function_count; i++) {
+        if (strcmp(builtin_functions[i].name, name) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /* Define function */
 void env_define_function(Environment *env, Function func) {
     if (env->function_count >= env->function_capacity) {

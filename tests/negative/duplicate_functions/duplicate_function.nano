@@ -1,0 +1,28 @@
+# Test: Duplicate function definition (should fail with error)
+# Expected error: Function 'add' is already defined
+
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+}
+
+# This should cause an error - duplicate definition
+fn add(x: int, y: int) -> int {
+    return (+ x y)
+}
+
+shadow add {
+    assert (== (add 1 1) 2)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

@@ -306,6 +306,7 @@ Symbol *env_get_var(Environment *env, const char *name);
 void env_set_var(Environment *env, const char *name, Value value);
 void env_define_function(Environment *env, Function func);
 Function *env_get_function(Environment *env, const char *name);
+bool is_builtin_function(const char *name);
 
 /* Utilities */
 Type token_to_type(TokenType token);

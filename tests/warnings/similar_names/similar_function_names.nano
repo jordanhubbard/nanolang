@@ -1,0 +1,30 @@
+# Test: Similar function names (should compile with warning)
+# Expected warning: Functions 'calculate_sum' and 'calcuate_sum' are very similar
+
+fn calculate_sum(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow calculate_sum {
+    assert (== (calculate_sum 2 3) 5)
+}
+
+# Typo - missing 'l' in "calculate"
+fn calcuate_sum(x: int, y: int) -> int {
+    return (+ x y)
+}
+
+shadow calcuate_sum {
+    assert (== (calcuate_sum 1 1) 2)
+}
+
+fn main() -> int {
+    let result1: int = (calculate_sum 10 20)
+    let result2: int = (calcuate_sum 5 15)
+    return (+ result1 result2)
+}
+
+shadow main {
+    assert (== (main) 50)
+}
+

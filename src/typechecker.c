@@ -420,6 +420,42 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
 }
 
 /* Check program */
+/* List of all built-in function names */
+static const char *builtin_function_names[] = {
+    /* Core */
+    "range", "print", "println", "assert",
+    /* Math */
+    "abs", "min", "max", "sqrt", "pow", "floor", "ceil", "round",
+    "sin", "cos", "tan",
+    /* String */
+    "str_length", "str_concat", "str_substring", "str_contains", "str_equals",
+    /* Array */
+    "at", "array_length", "array_new", "array_set",
+    /* OS */
+    "getcwd", "getenv", "exit",
+    /* File I/O (stdlib functions) */
+    "file_read", "file_write", "file_append", "file_remove", "file_rename",
+    "file_exists", "file_size",
+    /* Directory operations */
+    "dir_create", "dir_remove", "dir_list", "dir_exists", "chdir",
+    /* Path operations */
+    "path_isfile", "path_isdir", "path_join", "path_basename", "path_dirname",
+    /* Process operations */
+    "system"
+};
+
+static const int builtin_function_name_count = sizeof(builtin_function_names) / sizeof(char*);
+
+/* Check if a function name is a built-in */
+static bool is_builtin_name(const char *name) {
+    for (int i = 0; i < builtin_function_name_count; i++) {
+        if (strcmp(builtin_function_names[i], name) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /* Register built-in functions in environment */
 static void register_builtin_functions(Environment *env) {
     Function func;
@@ -644,6 +680,85 @@ static void register_builtin_functions(Environment *env) {
     env_define_function(env, func);
 }
 
+/* Compute Levenshtein distance between two strings */
+static int levenshtein_distance(const char *s1, const char *s2) {
+    int len1 = strlen(s1);
+    int len2 = strlen(s2);
+    
+    /* Create distance matrix */
+    int **d = malloc((len1 + 1) * sizeof(int *));
+    for (int i = 0; i <= len1; i++) {
+        d[i] = malloc((len2 + 1) * sizeof(int));
+    }
+    
+    /* Initialize first column and row */
+    for (int i = 0; i <= len1; i++) {
+        d[i][0] = i;
+    }
+    for (int j = 0; j <= len2; j++) {
+        d[0][j] = j;
+    }
+    
+    /* Compute distance */
+    for (int i = 1; i <= len1; i++) {
+        for (int j = 1; j <= len2; j++) {
+            int cost = (s1[i-1] == s2[j-1]) ? 0 : 1;
+            
+            int deletion = d[i-1][j] + 1;
+            int insertion = d[i][j-1] + 1;
+            int substitution = d[i-1][j-1] + cost;
+            
+            d[i][j] = deletion;
+            if (insertion < d[i][j]) d[i][j] = insertion;
+            if (substitution < d[i][j]) d[i][j] = substitution;
+        }
+    }
+    
+    int result = d[len1][len2];
+    
+    /* Free matrix */
+    for (int i = 0; i <= len1; i++) {
+        free(d[i]);
+    }
+    free(d);
+    
+    return result;
+}
+
+/* Check for similar function names and warn */
+static void warn_similar_function_names(Environment *env) {
+    for (int i = 0; i < env->function_count; i++) {
+        for (int j = i + 1; j < env->function_count; j++) {
+            /* Skip if either function doesn't have a body (shouldn't happen for user functions) */
+            if (!env->functions[i].body || !env->functions[j].body) {
+                continue;
+            }
+            
+            int dist = levenshtein_distance(
+                env->functions[i].name,
+                env->functions[j].name
+            );
+            
+            /* Warn if edit distance is small (1-2 characters) */
+            if (dist > 0 && dist <= 2) {
+                fprintf(stderr, "\nWarning: Function names '%s' and '%s' are very similar (edit distance: %d)\n",
+                        env->functions[i].name,
+                        env->functions[j].name,
+                        dist);
+                fprintf(stderr, "  '%s' defined at line %d, column %d\n",
+                        env->functions[i].name,
+                        env->functions[i].body->line,
+                        env->functions[i].body->column);
+                fprintf(stderr, "  '%s' defined at line %d, column %d\n",
+                        env->functions[j].name,
+                        env->functions[j].body->line,
+                        env->functions[j].body->column);
+                fprintf(stderr, "  Did you mean to define the same function twice?\n");
+            }
+        }
+    }
+}
+
 bool type_check(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
@@ -658,12 +773,36 @@ bool type_check(ASTNode *program, Environment *env) {
     /* Register built-in functions */
     register_builtin_functions(env);
 
-    /* First pass: collect all function definitions */
+    /* First pass: collect all function definitions with duplicate checking */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_FUNCTION) {
+            const char *func_name = item->as.function.name;
+            
+            /* Check if function name collides with built-in */
+            if (is_builtin_name(func_name)) {
+                fprintf(stderr, "Error at line %d, column %d: Cannot redefine built-in function '%s'\n",
+                        item->line, item->column, func_name);
+                fprintf(stderr, "  Built-in functions cannot be shadowed\n");
+                fprintf(stderr, "  Choose a different function name\n");
+                tc.has_error = true;
+                continue;  /* Skip this function */
+            }
+            
+            /* Check if function is already defined */
+            Function *existing = env_get_function(env, func_name);
+            if (existing && existing->body != NULL) {
+                fprintf(stderr, "Error at line %d, column %d: Function '%s' is already defined\n",
+                        item->line, item->column, func_name);
+                fprintf(stderr, "  Previous definition at line %d, column %d\n",
+                        existing->body->line, existing->body->column);
+                tc.has_error = true;
+                continue;  /* Skip this duplicate function */
+            }
+            
+            /* Define the function */
             Function func;
-            func.name = item->as.function.name;
+            func.name = func_name;
             func.params = item->as.function.params;
             func.param_count = item->as.function.param_count;
             func.return_type = item->as.function.return_type;
@@ -688,6 +827,9 @@ bool type_check(ASTNode *program, Environment *env) {
             }
         }
     }
+    
+    /* Check for similar function names (warnings only) */
+    warn_similar_function_names(env);
 
     /* Third pass: type check all functions */
     for (int i = 0; i < program->as.program.count; i++) {
