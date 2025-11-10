@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "version.h"
 
 /* Compilation options */
 typedef struct {
@@ -103,9 +104,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     /* Compile C code with gcc */
     char compile_cmd[512];
     if (opts->verbose) {
-        snprintf(compile_cmd, sizeof(compile_cmd), "gcc -std=c99 -o %s %s", output_file, temp_c_file);
+        snprintf(compile_cmd, sizeof(compile_cmd), "gcc -std=c99 -o %s %s -lm", output_file, temp_c_file);
     } else {
-        snprintf(compile_cmd, sizeof(compile_cmd), "gcc -std=c99 -o %s %s 2>/dev/null", output_file, temp_c_file);
+        snprintf(compile_cmd, sizeof(compile_cmd), "gcc -std=c99 -o %s %s -lm 2>/dev/null", output_file, temp_c_file);
     }
 
     if (opts->verbose) printf("Compiling C code: %s\n", compile_cmd);
@@ -135,8 +136,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 int main(int argc, char *argv[]) {
     /* Handle --version */
     if (argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)) {
-        printf("nanoc 0.1.0-alpha\n");
-        printf("nanolang compiler - https://github.com/jordanhubbard/nanolang\n");
+        printf("nanoc %s\n", NANOLANG_VERSION);
+        printf("nanolang compiler\n");
+        printf("Built: %s %s\n", NANOLANG_BUILD_DATE, NANOLANG_BUILD_TIME);
         return 0;
     }
 

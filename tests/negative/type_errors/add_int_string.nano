@@ -1,0 +1,19 @@
+# Expected error: Type mismatch
+# Cannot add int and string
+
+fn bad_add(x: int, y: string) -> int {
+    return (+ x y)
+}
+
+shadow bad_add {
+    assert (== (bad_add 5 "hello") 5)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

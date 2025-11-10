@@ -1,0 +1,127 @@
+fn test_str_length() -> int {
+    let hello: string = "Hello"
+    let world: string = "World!"
+    let empty: string = ""
+    
+    (println "Length of 'Hello':")
+    (println (str_length hello))
+    
+    (println "Length of 'World!':")
+    (println (str_length world))
+    
+    (println "Length of empty string:")
+    (println (str_length empty))
+    
+    assert (== (str_length hello) 5)
+    assert (== (str_length world) 6)
+    assert (== (str_length empty) 0)
+    
+    return 0
+}
+shadow test_str_length { assert (== (test_str_length) 0) }
+
+fn test_str_concat() -> int {
+    let hello: string = "Hello"
+    let world: string = " World"
+    let result: string = (str_concat hello world)
+    
+    (println "Concatenating 'Hello' + ' World':")
+    (println result)
+    
+    assert (str_equals result "Hello World")
+    
+    return 0
+}
+shadow test_str_concat { assert (== (test_str_concat) 0) }
+
+fn test_str_substring() -> int {
+    let text: string = "Hello, World!"
+    
+    (println "Original: 'Hello, World!'")
+    
+    let hello: string = (str_substring text 0 5)
+    (println "Substring(0, 5): 'Hello'")
+    (println hello)
+    
+    let world: string = (str_substring text 7 5)
+    (println "Substring(7, 5): 'World'")
+    (println world)
+    
+    assert (str_equals hello "Hello")
+    assert (str_equals world "World")
+    
+    return 0
+}
+shadow test_str_substring { assert (== (test_str_substring) 0) }
+
+fn test_str_contains() -> int {
+    let text: string = "The quick brown fox"
+    
+    (println "Text: 'The quick brown fox'")
+    
+    (println "Contains 'quick':")
+    (println (str_contains text "quick"))
+    
+    (println "Contains 'slow':")
+    (println (str_contains text "slow"))
+    
+    assert (str_contains text "quick")
+    assert (str_contains text "brown")
+    assert (str_contains text "fox")
+    # Note: nanolang doesn't have 'not' operator yet, so we test positives only
+    
+    return 0
+}
+shadow test_str_contains { assert (== (test_str_contains) 0) }
+
+fn test_str_equals() -> int {
+    let str1: string = "Hello"
+    let str2: string = "Hello"
+    let str3: string = "World"
+    
+    (println "Comparing strings:")
+    (println "'Hello' == 'Hello':")
+    (println (str_equals str1 str2))
+    
+    (println "'Hello' == 'World':")
+    (println (str_equals str1 str3))
+    
+    assert (str_equals str1 str2)
+    # We test only the positive case since 'not' operator doesn't exist yet
+    
+    return 0
+}
+shadow test_str_equals { assert (== (test_str_equals) 0) }
+
+fn main() -> int {
+    (println "=== String Operations ===")
+    (println "")
+    
+    (println "--- String Length ---")
+    (test_str_length)
+    (println "")
+    
+    (println "--- String Concatenation ---")
+    (test_str_concat)
+    (println "")
+    
+    (println "--- String Substring ---")
+    (test_str_substring)
+    (println "")
+    
+    (println "--- String Contains ---")
+    (test_str_contains)
+    (println "")
+    
+    (println "--- String Equals ---")
+    (test_str_equals)
+    (println "")
+    
+    (println "All string operation tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

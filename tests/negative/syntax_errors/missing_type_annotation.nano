@@ -1,0 +1,20 @@
+# Expected error: Syntax error
+# Missing type annotation on variable
+
+fn test() -> int {
+    let x = 42
+    return x
+}
+
+shadow test {
+    assert (== (test) 42)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

@@ -74,6 +74,7 @@ typedef struct {
     TokenType type;
     char *value;
     int line;
+    int column;
 } Token;
 
 /* Value types */
@@ -142,6 +143,7 @@ typedef struct {
 struct ASTNode {
     ASTNodeType type;
     int line;
+    int column;
     union {
         long long number;
         double float_val;
@@ -219,6 +221,9 @@ typedef struct {
     Type type;
     bool is_mut;
     Value value;
+    bool is_used;  /* Track if variable is ever used */
+    int def_line;   /* Line where variable was defined */
+    int def_column; /* Column where variable was defined */
 } Symbol;
 
 /* Function table entry */

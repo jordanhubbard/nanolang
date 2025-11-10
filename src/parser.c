@@ -35,7 +35,7 @@ static bool match(Parser *p, TokenType type) {
 
 static bool expect(Parser *p, TokenType type, const char *msg) {
     if (!match(p, type)) {
-        fprintf(stderr, "Error at line %d: %s (got %s)\n",
+        fprintf(stderr, "Error at line %d, column %d: %s (got %s)\n",
                 current_token(p)->line, msg, token_type_name(current_token(p)->type));
         return false;
     }
@@ -49,10 +49,11 @@ static ASTNode *parse_expression(Parser *p);
 static ASTNode *parse_block(Parser *p);
 
 /* Create AST nodes */
-static ASTNode *create_node(ASTNodeType type, int line) {
+static ASTNode *create_node(ASTNodeType type, int line, int column) {
     ASTNode *node = malloc(sizeof(ASTNode));
     node->type = type;
     node->line = line;
+    node->column = column;
     return node;
 }
 
@@ -68,7 +69,7 @@ static Type parse_type(Parser *p) {
         case TOKEN_TYPE_STRING: type = TYPE_STRING; break;
         case TOKEN_TYPE_VOID: type = TYPE_VOID; break;
         default:
-            fprintf(stderr, "Error at line %d: Expected type annotation\n", tok->line);
+            fprintf(stderr, "Error at line %d, column %d: Expected type annotation\n", tok->line);
             return TYPE_UNKNOWN;
     }
 
@@ -91,7 +92,7 @@ static bool parse_parameters(Parser *p, Parameter **params, int *param_count) {
 
             /* Parameter name */
             if (!match(p, TOKEN_IDENTIFIER)) {
-                fprintf(stderr, "Error at line %d: Expected parameter name\n", current_token(p)->line);
+                fprintf(stderr, "Error at line %d, column %d: Expected parameter name\n", current_token(p)->line);
                 free(param_list);
                 return false;
             }
@@ -125,6 +126,7 @@ static bool parse_parameters(Parser *p, Parameter **params, int *param_count) {
 static ASTNode *parse_prefix_op(Parser *p) {
     Token *tok = current_token(p);
     int line = tok->line;
+    int column = tok->column;
 
     if (!expect(p, TOKEN_LPAREN, "Expected '('")) {
         return NULL;
@@ -163,7 +165,7 @@ static ASTNode *parse_prefix_op(Parser *p) {
             return NULL;
         }
 
-        ASTNode *node = create_node(AST_PREFIX_OP, line);
+        ASTNode *node = create_node(AST_PREFIX_OP, line, column);
         node->as.prefix_op.op = op;
         node->as.prefix_op.args = args;
         node->as.prefix_op.arg_count = count;
@@ -191,13 +193,13 @@ static ASTNode *parse_prefix_op(Parser *p) {
             return NULL;
         }
 
-        ASTNode *node = create_node(AST_CALL, line);
+        ASTNode *node = create_node(AST_CALL, line, column);
         node->as.call.name = func_name;
         node->as.call.args = args;
         node->as.call.arg_count = count;
         return node;
     } else {
-        fprintf(stderr, "Error at line %d: Invalid prefix operation\n", line);
+        fprintf(stderr, "Error at line %d, column %d: Invalid prefix operation\n", line);
         return NULL;
     }
 }
@@ -209,37 +211,37 @@ static ASTNode *parse_primary(Parser *p) {
 
     switch (tok->type) {
         case TOKEN_NUMBER:
-            node = create_node(AST_NUMBER, tok->line);
+            node = create_node(AST_NUMBER, tok->line, tok->column);
             node->as.number = atoll(tok->value);
             advance(p);
             return node;
 
         case TOKEN_FLOAT:
-            node = create_node(AST_FLOAT, tok->line);
+            node = create_node(AST_FLOAT, tok->line, tok->column);
             node->as.float_val = atof(tok->value);
             advance(p);
             return node;
 
         case TOKEN_STRING:
-            node = create_node(AST_STRING, tok->line);
+            node = create_node(AST_STRING, tok->line, tok->column);
             node->as.string_val = strdup(tok->value);
             advance(p);
             return node;
 
         case TOKEN_TRUE:
-            node = create_node(AST_BOOL, tok->line);
+            node = create_node(AST_BOOL, tok->line, tok->column);
             node->as.bool_val = true;
             advance(p);
             return node;
 
         case TOKEN_FALSE:
-            node = create_node(AST_BOOL, tok->line);
+            node = create_node(AST_BOOL, tok->line, tok->column);
             node->as.bool_val = false;
             advance(p);
             return node;
 
         case TOKEN_IDENTIFIER:
-            node = create_node(AST_IDENTIFIER, tok->line);
+            node = create_node(AST_IDENTIFIER, tok->line, tok->column);
             node->as.identifier = strdup(tok->value);
             advance(p);
             return node;
@@ -251,7 +253,7 @@ static ASTNode *parse_primary(Parser *p) {
             return parse_expression(p);
 
         default:
-            fprintf(stderr, "Error at line %d: Unexpected token in expression: %s\n",
+            fprintf(stderr, "Error at line %d, column %d: Unexpected token in expression: %s\n",
                     tok->line, token_type_name(tok->type));
             return NULL;
     }
@@ -260,6 +262,7 @@ static ASTNode *parse_primary(Parser *p) {
 /* Parse if expression */
 static ASTNode *parse_if_expression(Parser *p) {
     int line = current_token(p)->line;
+    int column = current_token(p)->column;
 
     if (!expect(p, TOKEN_IF, "Expected 'if'")) {
         return NULL;
@@ -278,7 +281,7 @@ static ASTNode *parse_if_expression(Parser *p) {
     ASTNode *else_branch = parse_block(p);
     if (!else_branch) return NULL;
 
-    ASTNode *node = create_node(AST_IF, line);
+    ASTNode *node = create_node(AST_IF, line, column);
     node->as.if_stmt.condition = condition;
     node->as.if_stmt.then_branch = then_branch;
     node->as.if_stmt.else_branch = else_branch;
@@ -296,6 +299,7 @@ static ASTNode *parse_expression(Parser *p) {
 /* Parse block */
 static ASTNode *parse_block(Parser *p) {
     int line = current_token(p)->line;
+    int column = current_token(p)->column;
 
     if (!expect(p, TOKEN_LBRACE, "Expected '{'")) {
         return NULL;
@@ -322,7 +326,7 @@ static ASTNode *parse_block(Parser *p) {
         return NULL;
     }
 
-    ASTNode *node = create_node(AST_BLOCK, line);
+    ASTNode *node = create_node(AST_BLOCK, line, column);
     node->as.block.statements = statements;
     node->as.block.count = count;
     return node;
@@ -336,6 +340,7 @@ static ASTNode *parse_statement(Parser *p) {
     switch (tok->type) {
         case TOKEN_LET: {
             int line = tok->line;
+            int column = tok->column;
             advance(p);
 
             bool is_mut = false;
@@ -345,7 +350,7 @@ static ASTNode *parse_statement(Parser *p) {
             }
 
             if (!match(p, TOKEN_IDENTIFIER)) {
-                fprintf(stderr, "Error at line %d: Expected variable name\n", line);
+                fprintf(stderr, "Error at line %d, column %d: Expected variable name\n", line);
                 return NULL;
             }
             char *name = strdup(current_token(p)->value);
@@ -365,7 +370,7 @@ static ASTNode *parse_statement(Parser *p) {
 
             ASTNode *value = parse_expression(p);
 
-            node = create_node(AST_LET, line);
+            node = create_node(AST_LET, line, column);
             node->as.let.name = name;
             node->as.let.var_type = type;
             node->as.let.is_mut = is_mut;
@@ -375,10 +380,11 @@ static ASTNode *parse_statement(Parser *p) {
 
         case TOKEN_SET: {
             int line = tok->line;
+            int column = tok->column;
             advance(p);
 
             if (!match(p, TOKEN_IDENTIFIER)) {
-                fprintf(stderr, "Error at line %d: Expected variable name\n", line);
+                fprintf(stderr, "Error at line %d, column %d: Expected variable name\n", line);
                 return NULL;
             }
             char *name = strdup(current_token(p)->value);
@@ -386,7 +392,7 @@ static ASTNode *parse_statement(Parser *p) {
 
             ASTNode *value = parse_expression(p);
 
-            node = create_node(AST_SET, line);
+            node = create_node(AST_SET, line, column);
             node->as.set.name = name;
             node->as.set.value = value;
             return node;
@@ -394,12 +400,13 @@ static ASTNode *parse_statement(Parser *p) {
 
         case TOKEN_WHILE: {
             int line = tok->line;
+            int column = tok->column;
             advance(p);
 
             ASTNode *condition = parse_expression(p);
             ASTNode *body = parse_block(p);
 
-            node = create_node(AST_WHILE, line);
+            node = create_node(AST_WHILE, line, column);
             node->as.while_stmt.condition = condition;
             node->as.while_stmt.body = body;
             return node;
@@ -407,10 +414,11 @@ static ASTNode *parse_statement(Parser *p) {
 
         case TOKEN_FOR: {
             int line = tok->line;
+            int column = tok->column;
             advance(p);
 
             if (!match(p, TOKEN_IDENTIFIER)) {
-                fprintf(stderr, "Error at line %d: Expected loop variable\n", line);
+                fprintf(stderr, "Error at line %d, column %d: Expected loop variable\n", line);
                 return NULL;
             }
             char *var_name = strdup(current_token(p)->value);
@@ -423,20 +431,20 @@ static ASTNode *parse_statement(Parser *p) {
 
             ASTNode *range_expr = parse_expression(p);
             if (!range_expr) {
-                fprintf(stderr, "Error at line %d: Invalid range expression in for loop\n", line);
+                fprintf(stderr, "Error at line %d, column %d: Invalid range expression in for loop\n", line);
                 free(var_name);
                 return NULL;
             }
 
             ASTNode *body = parse_block(p);
             if (!body) {
-                fprintf(stderr, "Error at line %d: Invalid body in for loop\n", line);
+                fprintf(stderr, "Error at line %d, column %d: Invalid body in for loop\n", line);
                 free(var_name);
                 free_ast(range_expr);
                 return NULL;
             }
 
-            node = create_node(AST_FOR, line);
+            node = create_node(AST_FOR, line, column);
             node->as.for_stmt.var_name = var_name;
             node->as.for_stmt.range_expr = range_expr;
             node->as.for_stmt.body = body;
@@ -445,6 +453,7 @@ static ASTNode *parse_statement(Parser *p) {
 
         case TOKEN_RETURN: {
             int line = tok->line;
+            int column = tok->column;
             advance(p);
 
             ASTNode *value = NULL;
@@ -452,29 +461,31 @@ static ASTNode *parse_statement(Parser *p) {
                 value = parse_expression(p);
             }
 
-            node = create_node(AST_RETURN, line);
+            node = create_node(AST_RETURN, line, column);
             node->as.return_stmt.value = value;
             return node;
         }
 
         case TOKEN_PRINT: {
             int line = tok->line;
+            int column = tok->column;
             advance(p);
 
             ASTNode *expr = parse_expression(p);
 
-            node = create_node(AST_PRINT, line);
+            node = create_node(AST_PRINT, line, column);
             node->as.print.expr = expr;
             return node;
         }
 
         case TOKEN_ASSERT: {
             int line = tok->line;
+            int column = tok->column;
             advance(p);
 
             ASTNode *condition = parse_expression(p);
 
-            node = create_node(AST_ASSERT, line);
+            node = create_node(AST_ASSERT, line, column);
             node->as.assert.condition = condition;
             return node;
         }
@@ -488,13 +499,14 @@ static ASTNode *parse_statement(Parser *p) {
 /* Parse function definition */
 static ASTNode *parse_function(Parser *p) {
     int line = current_token(p)->line;
+    int column = current_token(p)->column;
 
     if (!expect(p, TOKEN_FN, "Expected 'fn'")) {
         return NULL;
     }
 
     if (!match(p, TOKEN_IDENTIFIER)) {
-        fprintf(stderr, "Error at line %d: Expected function name\n", line);
+        fprintf(stderr, "Error at line %d, column %d: Expected function name\n", line);
         return NULL;
     }
     char *name = strdup(current_token(p)->value);
@@ -533,7 +545,7 @@ static ASTNode *parse_function(Parser *p) {
         return NULL;
     }
 
-    ASTNode *node = create_node(AST_FUNCTION, line);
+    ASTNode *node = create_node(AST_FUNCTION, line, column);
     node->as.function.name = name;
     node->as.function.params = params;
     node->as.function.param_count = param_count;
@@ -545,13 +557,14 @@ static ASTNode *parse_function(Parser *p) {
 /* Parse shadow-test block */
 static ASTNode *parse_shadow(Parser *p) {
     int line = current_token(p)->line;
+    int column = current_token(p)->column;
 
     if (!expect(p, TOKEN_SHADOW, "Expected 'shadow'")) {
         return NULL;
     }
 
     if (!match(p, TOKEN_IDENTIFIER)) {
-        fprintf(stderr, "Error at line %d: Expected function name after 'shadow'\n", line);
+        fprintf(stderr, "Error at line %d, column %d: Expected function name after 'shadow'\n", line);
         return NULL;
     }
     char *func_name = strdup(current_token(p)->value);
@@ -563,7 +576,7 @@ static ASTNode *parse_shadow(Parser *p) {
         return NULL;
     }
 
-    ASTNode *node = create_node(AST_SHADOW, line);
+    ASTNode *node = create_node(AST_SHADOW, line, column);
     node->as.shadow.function_name = func_name;
     node->as.shadow.body = body;
     return node;
@@ -591,13 +604,13 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         } else if (match(&parser, TOKEN_SHADOW)) {
             items[count++] = parse_shadow(&parser);
         } else {
-            fprintf(stderr, "Error at line %d: Expected function or shadow-test definition\n",
+            fprintf(stderr, "Error at line %d, column %d: Expected function or shadow-test definition\n",
                     current_token(&parser)->line);
             advance(&parser);
         }
     }
 
-    ASTNode *program = create_node(AST_PROGRAM, 1);
+    ASTNode *program = create_node(AST_PROGRAM, 1, 1);
     program->as.program.items = items;
     program->as.program.count = count;
     return program;

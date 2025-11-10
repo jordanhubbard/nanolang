@@ -1,0 +1,17 @@
+# Expected error: Missing shadow test
+# Every function must have a shadow test
+
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+# Missing shadow test for add!
+
+fn main() -> int {
+    return (add 2 3)
+}
+
+shadow main {
+    assert (== (main) 5)
+}
+

@@ -1,11 +1,12 @@
 #include "nanolang.h"
 
 /* Helper function to create a token */
-static Token create_token(TokenType type, const char *value, int line) {
+static Token create_token(TokenType type, const char *value, int line, int column) {
     Token token;
     token.type = type;
     token.value = value ? strdup(value) : NULL;
     token.line = line;
+    token.column = column;
     return token;
 }
 
@@ -61,12 +62,18 @@ Token *tokenize(const char *source, int *token_count) {
     int count = 0;
     Token *tokens = malloc(sizeof(Token) * capacity);
     int line = 1;
+    int column = 1;
+    int line_start = 0;  /* Track start of current line for column calculation */
     int i = 0;
 
     while (source[i] != '\0') {
         /* Skip whitespace */
         if (isspace(source[i])) {
-            if (source[i] == '\n') line++;
+            if (source[i] == '\n') {
+                line++;
+                line_start = i + 1;
+                column = 1;
+            }
             i++;
             continue;
         }
@@ -76,6 +83,9 @@ Token *tokenize(const char *source, int *token_count) {
             while (source[i] != '\0' && source[i] != '\n') i++;
             continue;
         }
+
+        /* Update column for this token */
+        column = i - line_start + 1;
 
         /* Resize if needed */
         if (count >= capacity - 1) {
@@ -103,7 +113,7 @@ Token *tokenize(const char *source, int *token_count) {
             char *str = malloc(len + 1);
             strncpy(str, source + start, len);
             str[len] = '\0';
-            tokens[count++] = create_token(TOKEN_STRING, str, line);
+            tokens[count++] = create_token(TOKEN_STRING, str, line, column);
             free(str);
             i++; /* Skip closing quote */
             continue;
@@ -123,14 +133,14 @@ Token *tokenize(const char *source, int *token_count) {
                 char *num_str = malloc(len + 1);
                 strncpy(num_str, source + start, len);
                 num_str[len] = '\0';
-                tokens[count++] = create_token(TOKEN_FLOAT, num_str, line);
+                tokens[count++] = create_token(TOKEN_FLOAT, num_str, line, column);
                 free(num_str);
             } else {
                 int len = i - start;
                 char *num_str = malloc(len + 1);
                 strncpy(num_str, source + start, len);
                 num_str[len] = '\0';
-                tokens[count++] = create_token(TOKEN_NUMBER, num_str, line);
+                tokens[count++] = create_token(TOKEN_NUMBER, num_str, line, column);
                 free(num_str);
             }
             continue;
@@ -146,58 +156,58 @@ Token *tokenize(const char *source, int *token_count) {
             id_str[len] = '\0';
 
             TokenType type = keyword_or_identifier(id_str);
-            tokens[count++] = create_token(type, id_str, line);
+            tokens[count++] = create_token(type, id_str, line, column);
             free(id_str);
             continue;
         }
 
         /* Two-character operators */
         if (source[i] == '-' && source[i + 1] == '>') {
-            tokens[count++] = create_token(TOKEN_ARROW, NULL, line);
+            tokens[count++] = create_token(TOKEN_ARROW, NULL, line, column);
             i += 2;
             continue;
         }
         if (source[i] == '=' && source[i + 1] == '=') {
-            tokens[count++] = create_token(TOKEN_EQ, NULL, line);
+            tokens[count++] = create_token(TOKEN_EQ, NULL, line, column);
             i += 2;
             continue;
         }
         if (source[i] == '=' && source[i + 1] != '=') {
-            tokens[count++] = create_token(TOKEN_ASSIGN, NULL, line);
+            tokens[count++] = create_token(TOKEN_ASSIGN, NULL, line, column);
             i++;
             continue;
         }
         if (source[i] == '!' && source[i + 1] == '=') {
-            tokens[count++] = create_token(TOKEN_NE, NULL, line);
+            tokens[count++] = create_token(TOKEN_NE, NULL, line, column);
             i += 2;
             continue;
         }
         if (source[i] == '<' && source[i + 1] == '=') {
-            tokens[count++] = create_token(TOKEN_LE, NULL, line);
+            tokens[count++] = create_token(TOKEN_LE, NULL, line, column);
             i += 2;
             continue;
         }
         if (source[i] == '>' && source[i + 1] == '=') {
-            tokens[count++] = create_token(TOKEN_GE, NULL, line);
+            tokens[count++] = create_token(TOKEN_GE, NULL, line, column);
             i += 2;
             continue;
         }
 
         /* Single-character tokens */
         switch (source[i]) {
-            case '(': tokens[count++] = create_token(TOKEN_LPAREN, NULL, line); i++; break;
-            case ')': tokens[count++] = create_token(TOKEN_RPAREN, NULL, line); i++; break;
-            case '{': tokens[count++] = create_token(TOKEN_LBRACE, NULL, line); i++; break;
-            case '}': tokens[count++] = create_token(TOKEN_RBRACE, NULL, line); i++; break;
-            case ',': tokens[count++] = create_token(TOKEN_COMMA, NULL, line); i++; break;
-            case ':': tokens[count++] = create_token(TOKEN_COLON, NULL, line); i++; break;
-            case '+': tokens[count++] = create_token(TOKEN_PLUS, NULL, line); i++; break;
-            case '-': tokens[count++] = create_token(TOKEN_MINUS, NULL, line); i++; break;
-            case '*': tokens[count++] = create_token(TOKEN_STAR, NULL, line); i++; break;
-            case '/': tokens[count++] = create_token(TOKEN_SLASH, NULL, line); i++; break;
-            case '%': tokens[count++] = create_token(TOKEN_PERCENT, NULL, line); i++; break;
-            case '<': tokens[count++] = create_token(TOKEN_LT, NULL, line); i++; break;
-            case '>': tokens[count++] = create_token(TOKEN_GT, NULL, line); i++; break;
+            case '(': tokens[count++] = create_token(TOKEN_LPAREN, NULL, line, column); i++; break;
+            case ')': tokens[count++] = create_token(TOKEN_RPAREN, NULL, line, column); i++; break;
+            case '{': tokens[count++] = create_token(TOKEN_LBRACE, NULL, line, column); i++; break;
+            case '}': tokens[count++] = create_token(TOKEN_RBRACE, NULL, line, column); i++; break;
+            case ',': tokens[count++] = create_token(TOKEN_COMMA, NULL, line, column); i++; break;
+            case ':': tokens[count++] = create_token(TOKEN_COLON, NULL, line, column); i++; break;
+            case '+': tokens[count++] = create_token(TOKEN_PLUS, NULL, line, column); i++; break;
+            case '-': tokens[count++] = create_token(TOKEN_MINUS, NULL, line, column); i++; break;
+            case '*': tokens[count++] = create_token(TOKEN_STAR, NULL, line, column); i++; break;
+            case '/': tokens[count++] = create_token(TOKEN_SLASH, NULL, line, column); i++; break;
+            case '%': tokens[count++] = create_token(TOKEN_PERCENT, NULL, line, column); i++; break;
+            case '<': tokens[count++] = create_token(TOKEN_LT, NULL, line, column); i++; break;
+            case '>': tokens[count++] = create_token(TOKEN_GT, NULL, line, column); i++; break;
             default:
                 fprintf(stderr, "Error: Unknown character '%c' at line %d\n", source[i], line);
                 i++;
@@ -205,7 +215,7 @@ Token *tokenize(const char *source, int *token_count) {
         }
     }
 
-    tokens[count++] = create_token(TOKEN_EOF, NULL, line);
+    tokens[count++] = create_token(TOKEN_EOF, NULL, line, column);
     *token_count = count;
     return tokens;
 }

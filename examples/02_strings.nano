@@ -20,7 +20,7 @@ shadow get_message {
 }
 
 fn print_greeting(name: string) -> int {
-    print name
+    (println name)
     return 0
 }
 
@@ -29,13 +29,16 @@ shadow print_greeting {
 }
 
 fn main() -> int {
+    (println "=== String Operations ===")
     let msg: string = "Hello, World!"
-    print msg
+    (println msg)
 
     let name: string = "nanolang"
-    print (greet name)
+    (println (greet name))
 
-    print (get_message)
+    (println (get_message))
+    
+    (println "Printing with println is cleaner!")
 
     return 0
 }

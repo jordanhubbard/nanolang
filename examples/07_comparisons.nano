@@ -61,56 +61,25 @@ shadow greater_or_equal {
     assert (== (greater_or_equal 5 5) true)
 }
 
-fn max(a: int, b: int) -> int {
-    if (> a b) {
-        return a
-    } else {
-        return b
-    }
-}
-
-shadow max {
-    assert (== (max 10 5) 10)
-    assert (== (max 5 10) 10)
-    assert (== (max 7 7) 7)
-}
-
-fn min(a: int, b: int) -> int {
-    if (< a b) {
-        return a
-    } else {
-        return b
-    }
-}
-
-shadow min {
-    assert (== (min 10 5) 5)
-    assert (== (min 5 10) 5)
-    assert (== (min 7 7) 7)
-}
-
-fn abs(n: int) -> int {
-    if (< n 0) {
-        return (- 0 n)
-    } else {
-        return n
-    }
-}
-
-shadow abs {
-    assert (== (abs 5) 5)
-    assert (== (abs (- 0 5)) 5)
-    assert (== (abs 0) 0)
-}
+# Note: abs, min, and max are now built-in stdlib functions!
+# No need to define them - just use them directly.
 
 fn main() -> int {
-    print (equals 10 10)
-    print (not_equals 5 7)
-    print (less_than 3 8)
-    print (greater_than 15 10)
-    print (max 20 30)
-    print (min 20 30)
-    print (abs (- 0 42))
+    (println "=== Comparison Operations ===")
+    (println "equals(10, 10):")
+    (println (equals 10 10))
+    (println "not_equals(5, 7):")
+    (println (not_equals 5 7))
+    (println "less_than(3, 8):")
+    (println (less_than 3 8))
+    (println "greater_than(15, 10):")
+    (println (greater_than 15 10))
+    (println "max(20, 30):")
+    (println (max 20 30))
+    (println "min(20, 30):")
+    (println (min 20 30))
+    (println "abs(-42):")
+    (println (abs (- 0 42)))
     return 0
 }
 

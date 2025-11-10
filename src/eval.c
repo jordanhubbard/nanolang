@@ -4,6 +4,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <libgen.h>
+#include <math.h>
 
 /* Forward declarations */
 static Value eval_expression(ASTNode *expr, Environment *env);
@@ -203,7 +204,7 @@ static Value builtin_getenv(Value *args) {
  * End of Built-in OS Functions
  * ========================================================================== */
 
-/* Print a value */
+/* Print a value (used by println and eval) */
 static void print_value(Value val) {
     switch (val.type) {
         case VAL_INT:
@@ -223,6 +224,250 @@ static void print_value(Value val) {
             break;
     }
 }
+
+/* ==========================================================================
+ * Math and Utility Built-in Functions
+ * ========================================================================== */
+
+static Value builtin_abs(Value *args) {
+    if (args[0].type == VAL_INT) {
+        long long val = args[0].as.int_val;
+        return create_int(val < 0 ? -val : val);
+    } else if (args[0].type == VAL_FLOAT) {
+        double val = args[0].as.float_val;
+        return create_float(val < 0 ? -val : val);
+    }
+    fprintf(stderr, "Error: abs requires int or float argument\n");
+    return create_void();
+}
+
+static Value builtin_min(Value *args) {
+    if (args[0].type == VAL_INT && args[1].type == VAL_INT) {
+        long long a = args[0].as.int_val;
+        long long b = args[1].as.int_val;
+        return create_int(a < b ? a : b);
+    } else if (args[0].type == VAL_FLOAT && args[1].type == VAL_FLOAT) {
+        double a = args[0].as.float_val;
+        double b = args[1].as.float_val;
+        return create_float(a < b ? a : b);
+    }
+    fprintf(stderr, "Error: min requires two arguments of same type (int or float)\n");
+    return create_void();
+}
+
+static Value builtin_max(Value *args) {
+    if (args[0].type == VAL_INT && args[1].type == VAL_INT) {
+        long long a = args[0].as.int_val;
+        long long b = args[1].as.int_val;
+        return create_int(a > b ? a : b);
+    } else if (args[0].type == VAL_FLOAT && args[1].type == VAL_FLOAT) {
+        double a = args[0].as.float_val;
+        double b = args[1].as.float_val;
+        return create_float(a > b ? a : b);
+    }
+    fprintf(stderr, "Error: max requires two arguments of same type (int or float)\n");
+    return create_void();
+}
+
+/* Advanced Math Functions */
+static Value builtin_sqrt(Value *args) {
+    if (args[0].type == VAL_FLOAT) {
+        return create_float(sqrt(args[0].as.float_val));
+    } else if (args[0].type == VAL_INT) {
+        return create_float(sqrt((double)args[0].as.int_val));
+    }
+    fprintf(stderr, "Error: sqrt requires numeric argument\n");
+    return create_void();
+}
+
+static Value builtin_pow(Value *args) {
+    double base, exponent;
+    if (args[0].type == VAL_FLOAT) {
+        base = args[0].as.float_val;
+    } else if (args[0].type == VAL_INT) {
+        base = (double)args[0].as.int_val;
+    } else {
+        fprintf(stderr, "Error: pow requires numeric arguments\n");
+        return create_void();
+    }
+    
+    if (args[1].type == VAL_FLOAT) {
+        exponent = args[1].as.float_val;
+    } else if (args[1].type == VAL_INT) {
+        exponent = (double)args[1].as.int_val;
+    } else {
+        fprintf(stderr, "Error: pow requires numeric arguments\n");
+        return create_void();
+    }
+    
+    return create_float(pow(base, exponent));
+}
+
+static Value builtin_floor(Value *args) {
+    if (args[0].type == VAL_FLOAT) {
+        return create_float(floor(args[0].as.float_val));
+    } else if (args[0].type == VAL_INT) {
+        return create_int(args[0].as.int_val);  /* Already an integer */
+    }
+    fprintf(stderr, "Error: floor requires numeric argument\n");
+    return create_void();
+}
+
+static Value builtin_ceil(Value *args) {
+    if (args[0].type == VAL_FLOAT) {
+        return create_float(ceil(args[0].as.float_val));
+    } else if (args[0].type == VAL_INT) {
+        return create_int(args[0].as.int_val);  /* Already an integer */
+    }
+    fprintf(stderr, "Error: ceil requires numeric argument\n");
+    return create_void();
+}
+
+static Value builtin_round(Value *args) {
+    if (args[0].type == VAL_FLOAT) {
+        return create_float(round(args[0].as.float_val));
+    } else if (args[0].type == VAL_INT) {
+        return create_int(args[0].as.int_val);  /* Already an integer */
+    }
+    fprintf(stderr, "Error: round requires numeric argument\n");
+    return create_void();
+}
+
+/* Trigonometric Functions */
+static Value builtin_sin(Value *args) {
+    if (args[0].type == VAL_FLOAT) {
+        return create_float(sin(args[0].as.float_val));
+    } else if (args[0].type == VAL_INT) {
+        return create_float(sin((double)args[0].as.int_val));
+    }
+    fprintf(stderr, "Error: sin requires numeric argument\n");
+    return create_void();
+}
+
+static Value builtin_cos(Value *args) {
+    if (args[0].type == VAL_FLOAT) {
+        return create_float(cos(args[0].as.float_val));
+    } else if (args[0].type == VAL_INT) {
+        return create_float(cos((double)args[0].as.int_val));
+    }
+    fprintf(stderr, "Error: cos requires numeric argument\n");
+    return create_void();
+}
+
+static Value builtin_tan(Value *args) {
+    if (args[0].type == VAL_FLOAT) {
+        return create_float(tan(args[0].as.float_val));
+    } else if (args[0].type == VAL_INT) {
+        return create_float(tan((double)args[0].as.int_val));
+    }
+    fprintf(stderr, "Error: tan requires numeric argument\n");
+    return create_void();
+}
+
+static Value builtin_println(Value *args) {
+    print_value(args[0]);
+    printf("\n");
+    return create_void();
+}
+
+/* ============================================================================
+ * String Operations
+ * ========================================================================== */
+
+static Value builtin_str_length(Value *args) {
+    if (args[0].type != VAL_STRING) {
+        fprintf(stderr, "Error: str_length requires string argument\n");
+        return create_void();
+    }
+    return create_int(strlen(args[0].as.string_val));
+}
+
+static Value builtin_str_concat(Value *args) {
+    if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
+        fprintf(stderr, "Error: str_concat requires two string arguments\n");
+        return create_void();
+    }
+    
+    size_t len1 = strlen(args[0].as.string_val);
+    size_t len2 = strlen(args[1].as.string_val);
+    char *result = malloc(len1 + len2 + 1);
+    if (!result) {
+        fprintf(stderr, "Error: Memory allocation failed in str_concat\n");
+        return create_void();
+    }
+    
+    strcpy(result, args[0].as.string_val);
+    strcat(result, args[1].as.string_val);
+    
+    return create_string(result);
+}
+
+static Value builtin_str_substring(Value *args) {
+    if (args[0].type != VAL_STRING) {
+        fprintf(stderr, "Error: str_substring requires string as first argument\n");
+        return create_void();
+    }
+    if (args[1].type != VAL_INT || args[2].type != VAL_INT) {
+        fprintf(stderr, "Error: str_substring requires integer start and length\n");
+        return create_void();
+    }
+    
+    const char *str = args[0].as.string_val;
+    long long start = args[1].as.int_val;
+    long long length = args[2].as.int_val;
+    long long str_len = strlen(str);
+    
+    if (start < 0 || start >= str_len) {
+        fprintf(stderr, "Error: str_substring start index out of bounds\n");
+        return create_void();
+    }
+    
+    if (length < 0) {
+        fprintf(stderr, "Error: str_substring length cannot be negative\n");
+        return create_void();
+    }
+    
+    /* Adjust length if it exceeds string bounds */
+    if (start + length > str_len) {
+        length = str_len - start;
+    }
+    
+    char *result = malloc(length + 1);
+    if (!result) {
+        fprintf(stderr, "Error: Memory allocation failed in str_substring\n");
+        return create_void();
+    }
+    
+    strncpy(result, str + start, length);
+    result[length] = '\0';
+    
+    return create_string(result);
+}
+
+static Value builtin_str_contains(Value *args) {
+    if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
+        fprintf(stderr, "Error: str_contains requires two string arguments\n");
+        return create_void();
+    }
+    
+    const char *str = args[0].as.string_val;
+    const char *substr = args[1].as.string_val;
+    
+    return create_bool(strstr(str, substr) != NULL);
+}
+
+static Value builtin_str_equals(Value *args) {
+    if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
+        fprintf(stderr, "Error: str_equals requires two string arguments\n");
+        return create_void();
+    }
+    
+    return create_bool(strcmp(args[0].as.string_val, args[1].as.string_val) == 0);
+}
+
+/* ==========================================================================
+ * End of Math and Utility Built-in Functions
+ * ========================================================================== */
 
 /* Helper to convert value to boolean */
 static bool is_truthy(Value val) {
@@ -418,6 +663,31 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "system") == 0) return builtin_system(args);
     if (strcmp(name, "exit") == 0) return builtin_exit(args);
     if (strcmp(name, "getenv") == 0) return builtin_getenv(args);
+
+    /* Math and utility functions */
+    if (strcmp(name, "abs") == 0) return builtin_abs(args);
+    if (strcmp(name, "min") == 0) return builtin_min(args);
+    if (strcmp(name, "max") == 0) return builtin_max(args);
+    if (strcmp(name, "println") == 0) return builtin_println(args);
+    
+    /* Advanced math functions */
+    if (strcmp(name, "sqrt") == 0) return builtin_sqrt(args);
+    if (strcmp(name, "pow") == 0) return builtin_pow(args);
+    if (strcmp(name, "floor") == 0) return builtin_floor(args);
+    if (strcmp(name, "ceil") == 0) return builtin_ceil(args);
+    if (strcmp(name, "round") == 0) return builtin_round(args);
+    
+    /* Trigonometric functions */
+    if (strcmp(name, "sin") == 0) return builtin_sin(args);
+    if (strcmp(name, "cos") == 0) return builtin_cos(args);
+    if (strcmp(name, "tan") == 0) return builtin_tan(args);
+    
+    /* String operations */
+    if (strcmp(name, "str_length") == 0) return builtin_str_length(args);
+    if (strcmp(name, "str_concat") == 0) return builtin_str_concat(args);
+    if (strcmp(name, "str_substring") == 0) return builtin_str_substring(args);
+    if (strcmp(name, "str_contains") == 0) return builtin_str_contains(args);
+    if (strcmp(name, "str_equals") == 0) return builtin_str_equals(args);
 
     /* Get user-defined function */
     Function *func = env_get_function(env, name);
@@ -616,7 +886,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
         case AST_ASSERT: {
             Value cond = eval_expression(stmt->as.assert.condition, env);
             if (!is_truthy(cond)) {
-                fprintf(stderr, "Assertion failed at line %d\n", stmt->line);
+                fprintf(stderr, "Assertion failed at line %d, column %d\n", stmt->line, stmt->column);
                 exit(1);
             }
             return create_void();

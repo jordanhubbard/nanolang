@@ -1,0 +1,20 @@
+# Expected error: Missing return statement
+# Non-void function must return a value
+
+fn get_value() -> int {
+    let x: int = 42
+    # Missing return statement
+}
+
+shadow get_value {
+    assert (== (get_value) 42)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
