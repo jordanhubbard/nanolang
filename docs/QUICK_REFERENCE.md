@@ -100,13 +100,55 @@ for var in (range start end) {
 return expression
 ```
 
-## Built-in Functions
+## Standard Library (24 Functions)
 
+### Core I/O (3)
 ```nano
-print value        # Print to stdout
-assert condition   # Assert (for shadow-tests)
-range start end    # Generate range [start, end)
+(print value)      # Print without newline
+(println value)    # Print with newline
+(assert condition) # Runtime assertion
 ```
+
+### Math Operations (11)
+```nano
+(abs x)            # Absolute value
+(min a b)          # Minimum of two values
+(max a b)          # Maximum of two values
+(sqrt x)           # Square root
+(pow base exp)     # Power function
+(floor x)          # Round down
+(ceil x)           # Round up
+(round x)          # Round to nearest
+(sin x)            # Sine (radians)
+(cos x)            # Cosine (radians)
+(tan x)            # Tangent (radians)
+```
+
+### String Operations (5)
+```nano
+(str_length s)           # Get string length
+(str_concat s1 s2)       # Concatenate strings
+(str_substring s pos len)# Extract substring
+(str_contains s sub)     # Check if contains substring
+(str_equals s1 s2)       # String equality
+```
+
+### Array Operations (4)
+```nano
+(at arr index)           # Get element (bounds-checked)
+(array_length arr)       # Get array length
+(array_new size default) # Create new array
+(array_set arr idx val)  # Set element (bounds-checked)
+```
+
+### OS/System (3)
+```nano
+(getcwd)           # Get current directory
+(getenv name)      # Get environment variable
+(range start end)  # Range iterator (for loops only)
+```
+
+📖 **Full documentation:** See [`docs/STDLIB.md`](STDLIB.md) for complete reference with examples and type signatures.
 
 ## Shadow-Tests
 
