@@ -92,14 +92,89 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
 
         if (opts->verbose) printf("Calling function '%s'...\n", opts->call_function);
 
-        /* For now, we only support calling functions with no arguments */
-        /* TODO: Parse and convert call_args to proper argument values */
+        /* Parse and convert call_args to proper argument values */
+        Value *args = NULL;
+        int arg_count = 0;
+        
         if (opts->call_arg_count > 0) {
-            fprintf(stderr, "Warning: Function arguments not yet implemented, calling with no args\n");
+            /* Check argument count matches function signature */
+            if (opts->call_arg_count != func->param_count) {
+                fprintf(stderr, "Error: Function '%s' expects %d arguments, got %d\n",
+                        opts->call_function, func->param_count, opts->call_arg_count);
+                free_ast(program);
+                free_tokens(tokens, token_count);
+                free_environment(env);
+                free(source);
+                tracing_cleanup();
+                return 1;
+            }
+            
+            /* Allocate argument array */
+            args = malloc(sizeof(Value) * opts->call_arg_count);
+            arg_count = opts->call_arg_count;
+            
+            /* Convert string arguments to Value types based on parameter types */
+            for (int i = 0; i < opts->call_arg_count; i++) {
+                Type param_type = func->params[i].type;
+                const char *arg_str = opts->call_args[i];
+                
+                switch (param_type) {
+                    case TYPE_INT: {
+                        long long val = strtoll(arg_str, NULL, 10);
+                        args[i] = create_int(val);
+                        break;
+                    }
+                    case TYPE_FLOAT: {
+                        double val = strtod(arg_str, NULL);
+                        args[i] = create_float(val);
+                        break;
+                    }
+                    case TYPE_BOOL: {
+                        bool val = (strcmp(arg_str, "true") == 0 || 
+                                   strcmp(arg_str, "1") == 0 ||
+                                   strcmp(arg_str, "True") == 0);
+                        args[i] = create_bool(val);
+                        break;
+                    }
+                    case TYPE_STRING: {
+                        args[i] = create_string(strdup(arg_str));
+                        break;
+                    }
+                    case TYPE_ARRAY:
+                        /* Arrays from command line not supported yet */
+                        fprintf(stderr, "Error: Array arguments from command line not supported\n");
+                        free(args);
+                        free_ast(program);
+                        free_tokens(tokens, token_count);
+                        free_environment(env);
+                        free(source);
+                        tracing_cleanup();
+                        return 1;
+                    default:
+                        fprintf(stderr, "Error: Unsupported parameter type for argument %d\n", i + 1);
+                        free(args);
+                        free_ast(program);
+                        free_tokens(tokens, token_count);
+                        free_environment(env);
+                        free(source);
+                        tracing_cleanup();
+                        return 1;
+                }
+            }
         }
 
         /* Call the function */
-        Value result = call_function(opts->call_function, NULL, 0, env);
+        Value result = call_function(opts->call_function, args, arg_count, env);
+        
+        /* Free argument strings if allocated */
+        if (args) {
+            for (int i = 0; i < arg_count; i++) {
+                if (func->params[i].type == TYPE_STRING && args[i].type == VAL_STRING) {
+                    free(args[i].as.string_val);
+                }
+            }
+            free(args);
+        }
 
         /* If the function returns an int, use it as exit code */
         if (result.type == VAL_INT) {
@@ -173,7 +248,21 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "--call") == 0 && i + 1 < argc) {
             opts.call_function = argv[i + 1];
             i++;
-            /* TODO: Parse additional arguments after function name */
+            /* Parse additional arguments after function name */
+            int arg_start = i + 1;
+            int arg_end = argc;
+            /* Find where arguments end (next option or end of argv) */
+            for (int j = arg_start; j < argc; j++) {
+                if (argv[j][0] == '-' && strncmp(argv[j], "--trace", 7) != 0) {
+                    arg_end = j;
+                    break;
+                }
+            }
+            opts.call_arg_count = arg_end - arg_start;
+            if (opts.call_arg_count > 0) {
+                opts.call_args = &argv[arg_start];
+            }
+            i = arg_end - 1;  /* Skip processed arguments */
         } else if (strcmp(argv[i], "-o") == 0) {
             fprintf(stderr, "Error: Interpreter does not support -o flag (use nanoc compiler instead)\n");
             return 1;
