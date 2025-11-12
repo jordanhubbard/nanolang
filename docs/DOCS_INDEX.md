@@ -13,7 +13,7 @@ Welcome to nanolang! This index will help you navigate the documentation.
 - **Want examples?** Browse the [examples/](../examples/) directory
 - **Using C FFI?** See [External C Function Interface](EXTERN_FFI.md) and [Safe C FFI Functions Reference](SAFE_C_FFI_FUNCTIONS.md)
 - **Variable mutability?** See [Mutability Guide](MUTABILITY_GUIDE.md)
-- **Debugging with tracing?** See [Tracing System](TRACING_IMPLEMENTATION.md)
+- **Debugging code?** See [Tracing System for Debugging](TRACING_IMPLEMENTATION.md) - LLM-friendly runtime tracing
 
 ## Documentation Structure
 

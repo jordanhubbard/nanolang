@@ -97,3 +97,466 @@ nanolang/
 - `test_debug.nano` in root - Temporary, should be removed
 - `docs/EXTERN_FFI.md` and `docs/SAFE_C_FFI_FUNCTIONS.md` with duplicate content - Should be consolidated
 
+---
+
+## LLM Code Generation Guidelines
+
+When generating nanolang code, follow these guidelines to ensure correctness and debuggability.
+
+### 1. Understanding nanolang Syntax
+
+nanolang uses **prefix notation** (S-expressions) for all operations. This eliminates ambiguity and operator precedence issues.
+
+#### Core Syntax Rules:
+
+**Prefix Notation (Required)**:
+```nano
+# Arithmetic: Always use prefix
+(+ 2 3)              # 2 + 3
+(* (+ 2 3) 4)        # (2 + 3) * 4
+(- a b)              # a - b
+
+# Comparisons: Always use prefix
+(== x 5)             # x == 5
+(> a b)              # a > b
+(<= x 10)            # x <= 10
+
+# Logical: Always use prefix
+(and (> x 0) (< x 10))  # x > 0 && x < 10
+(or (== x 0) (== x 1))  # x == 0 || x == 1
+(not flag)           # !flag
+```
+
+**Type Annotations (Required)**:
+```nano
+# Variables must have explicit types
+let x: int = 42
+let name: string = "hello"
+let mut counter: int = 0  # Use 'mut' for mutable variables
+
+# Function parameters must have types
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+```
+
+**Function Calls (Prefix)**:
+```nano
+# Function calls use prefix notation
+(add 2 3)
+(str_length "hello")
+(array_length my_array)
+```
+
+**Control Flow**:
+```nano
+# If/else (both branches required)
+if (> x 0) {
+    return 1
+} else {
+    return 0
+}
+
+# While loop
+let mut i: int = 0
+while (< i 10) {
+    set i (+ i 1)
+}
+
+# For loop
+for i in (range 0 10) {
+    print i
+}
+```
+
+**Variable Mutability**:
+```nano
+# Immutable by default
+let x: int = 10
+# set x 20  # ERROR: x is immutable
+
+# Mutable with 'mut' keyword
+let mut y: int = 10
+set y 20  # OK: y is mutable
+```
+
+#### Common Mistakes to Avoid:
+
+❌ **Infix notation** (WRONG):
+```nano
+let sum: int = a + b
+if (x > 0 && y < 10) { ... }
+```
+
+✅ **Prefix notation** (CORRECT):
+```nano
+let sum: int = (+ a b)
+if (and (> x 0) (< y 10)) { ... }
+```
+
+❌ **Missing type annotation** (WRONG):
+```nano
+let x = 42
+```
+
+✅ **Explicit type** (CORRECT):
+```nano
+let x: int = 42
+```
+
+❌ **Missing shadow-test** (WRONG):
+```nano
+fn double(x: int) -> int {
+    return (* x 2)
+}
+```
+
+✅ **With shadow-test** (CORRECT):
+```nano
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+shadow double {
+    assert (== (double 5) 10)
+}
+```
+
+#### Reference Documentation:
+- **Quick syntax**: See `docs/QUICK_REFERENCE.md`
+- **Full specification**: See `docs/SPECIFICATION.md`
+- **Getting started**: See `docs/GETTING_STARTED.md`
+- **Examples**: See `examples/` directory
+
+### 2. Debugging Workflow: Interpreter First, Then Compile
+
+**ALWAYS debug with the interpreter before compiling.** The interpreter provides detailed error messages and tracing capabilities.
+
+#### Step 1: Write Code with Shadow-Tests
+
+```nano
+fn calculate_sum(numbers: array<int>) -> int {
+    let mut sum: int = 0
+    let mut i: int = 0
+    while (< i (array_length numbers)) {
+        let value: int = (at numbers i)
+        set sum (+ sum value)
+        set i (+ i 1)
+    }
+    return sum
+}
+
+shadow calculate_sum {
+    assert (== (calculate_sum [1, 2, 3]) 6)
+    assert (== (calculate_sum []) 0)
+}
+```
+
+#### Step 2: Run in Interpreter with Tracing
+
+**Basic execution**:
+```bash
+./bin/nano program.nano
+```
+
+**With tracing (for debugging)**:
+```bash
+# Trace everything
+./bin/nano program.nano --trace-all
+
+# Trace specific function
+./bin/nano program.nano --trace-function=calculate_sum
+
+# Trace specific variable
+./bin/nano program.nano --trace-var=sum
+
+# Trace everything inside a function's scope
+./bin/nano program.nano --trace-scope=main
+
+# Save trace output for analysis
+./bin/nano program.nano --trace-all > trace_output.txt
+```
+
+**Tracing Options**:
+- `--trace-all` or `--trace`: Trace everything (functions, variables, definitions)
+- `--trace-function=<name>`: Trace specific function calls
+- `--trace-var=<name>`: Trace specific variable operations
+- `--trace-scope=<name>`: Trace everything inside a function's scope
+- `--trace-regex=<pattern>`: Trace anything matching a regex pattern
+
+#### Step 3: Analyze Trace Output
+
+Trace output shows:
+- **FUNCTION_CALL**: When functions are called with arguments
+- **FUNCTION_DEF**: When functions are defined with signatures
+- **VAR_DECL**: When variables are declared with initial values
+- **VAR_SET**: When variables are assigned (shows old → new value)
+- **VAR_READ**: When variables are read
+
+Example trace output:
+```
+[TRACE] 2025-01-15T10:30:45 FUNCTION_CALL calculate_sum:19:13
+  function: "calculate_sum"
+  call_stack: ["main"]
+  arguments:
+    - name: "numbers", type: "array<int>", value: [1, 2, 3]
+
+[TRACE] 2025-01-15T10:30:45 VAR_DECL sum:20:5
+  variable: "sum"
+  type: "int"
+  mutable: true
+  initial_value: 0
+  scope: "calculate_sum"
+
+[TRACE] 2025-01-15T10:30:45 VAR_SET sum:24:9
+  variable: "sum"
+  old_value: 0
+  new_value: 1
+  scope: "calculate_sum"
+```
+
+**Use trace output to**:
+- Verify function arguments are correct
+- Check variable values at each step
+- Understand control flow and call stack
+- Identify where bugs occur
+- Verify program behavior matches expectations
+
+#### Step 4: Fix Issues Based on Trace Output
+
+If trace output shows unexpected behavior:
+1. Identify the first point where values diverge from expected
+2. Check variable assignments leading up to that point
+3. Verify function arguments and return values
+4. Fix the code and re-run with tracing
+
+#### Step 5: Compile Only After Interpreter Passes
+
+Once the interpreter runs successfully and trace output looks correct:
+
+```bash
+# Compile to C and then to binary
+./bin/nanoc program.nano -o program
+
+# Or compile and keep C code for inspection
+./bin/nanoc program.nano -o program --keep-c
+```
+
+**Why this workflow?**
+- Interpreter provides immediate feedback
+- Tracing shows exact runtime behavior
+- Shadow-tests run automatically during compilation
+- Compiler is for production builds, not debugging
+
+#### Reference Documentation:
+- **Tracing guide**: See `docs/TRACING_IMPLEMENTATION.md`
+- **Interpreter usage**: See `docs/GETTING_STARTED.md`
+
+### 3. Shadow-Test Methodology
+
+**Every function MUST have a shadow-test.** Shadow-tests run at compile time and ensure correctness.
+
+#### Shadow-Test Syntax
+
+```nano
+fn function_name(params) -> return_type {
+    # implementation
+}
+
+shadow function_name {
+    # test assertions using assert
+    assert (== (function_name arg1 arg2) expected_result)
+    assert (== (function_name edge_case) expected_result)
+}
+```
+
+#### Writing Effective Shadow-Tests
+
+**1. Test Normal Cases**:
+```nano
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+    assert (== (add 0 0) 0)
+    assert (== (add -1 1) 0)
+}
+```
+
+**2. Test Edge Cases**:
+```nano
+fn max(a: int, b: int) -> int {
+    if (> a b) {
+        return a
+    } else {
+        return b
+    }
+}
+
+shadow max {
+    assert (== (max 5 3) 5)      # Normal case
+    assert (== (max 3 5) 5)      # Reversed arguments
+    assert (== (max 5 5) 5)      # Equal values
+    assert (== (max -5 -3) -3)   # Negative numbers
+    assert (== (max 0 -1) 0)     # Zero and negative
+}
+```
+
+**3. Test Boolean Functions**:
+```nano
+fn is_even(n: int) -> bool {
+    return (== (% n 2) 0)
+}
+
+shadow is_even {
+    assert (== (is_even 4) true)
+    assert (== (is_even 5) false)
+    assert (== (is_even 0) true)
+    assert (== (is_even -2) true)
+}
+```
+
+**4. Test Array Functions**:
+```nano
+fn sum_array(arr: array<int>) -> int {
+    let mut sum: int = 0
+    let mut i: int = 0
+    while (< i (array_length arr)) {
+        set sum (+ sum (at arr i))
+        set i (+ i 1)
+    }
+    return sum
+}
+
+shadow sum_array {
+    assert (== (sum_array [1, 2, 3]) 6)
+    assert (== (sum_array []) 0)
+    assert (== (sum_array [42]) 42)
+    assert (== (sum_array [-1, 0, 1]) 0)
+}
+```
+
+**5. Test String Functions**:
+```nano
+fn reverse_string(s: string) -> string {
+    let mut result: string = ""
+    let mut i: int = (- (str_length s) 1)
+    while (>= i 0) {
+        let char_code: int = (char_at s i)
+        set result (str_concat result (string_from_char char_code))
+        set i (- i 1)
+    }
+    return result
+}
+
+shadow reverse_string {
+    assert (== (reverse_string "hello") "olleh")
+    assert (== (reverse_string "a") "a")
+    assert (== (reverse_string "") "")
+}
+```
+
+**6. Test Main Function**:
+```nano
+fn main() -> int {
+    (println "Hello, World!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+```
+
+#### Shadow-Test Best Practices
+
+1. **Cover normal cases**: Test typical usage patterns
+2. **Cover edge cases**: Test boundaries, empty inputs, zero, negatives
+3. **Test return values**: Use `assert` with `==` to verify results
+4. **Test multiple scenarios**: Include 3-5 test cases per function
+5. **Document behavior**: Tests serve as documentation
+6. **Test error conditions**: If function handles errors, test those paths
+
+#### Shadow-Test Rules
+
+- **Mandatory**: Every function must have a shadow-test
+- **Compile-time**: Tests run during compilation, not at runtime
+- **Fail-fast**: Failed test = failed compilation
+- **No overhead**: Tests are stripped from production builds
+- **Self-documenting**: Tests show how functions should be used
+
+#### Reference Documentation:
+- **Shadow-test guide**: See `docs/SHADOW_TESTS.md`
+- **Examples**: See `examples/` directory for real shadow-test examples
+
+### 4. Complete Workflow Example
+
+**Step 1: Write function with shadow-test**
+```nano
+fn factorial(n: int) -> int {
+    if (<= n 1) {
+        return 1
+    } else {
+        return (* n (factorial (- n 1)))
+    }
+}
+
+shadow factorial {
+    assert (== (factorial 0) 1)
+    assert (== (factorial 1) 1)
+    assert (== (factorial 5) 120)
+    assert (== (factorial 10) 3628800)
+}
+```
+
+**Step 2: Debug with interpreter and tracing**
+```bash
+# Run with tracing to see execution
+./bin/nano program.nano --trace-function=factorial
+
+# Check trace output to verify:
+# - Function is called with correct arguments
+# - Recursive calls happen correctly
+# - Return values are correct
+```
+
+**Step 3: Fix any issues found in trace output**
+
+**Step 4: Compile once interpreter passes**
+```bash
+./bin/nanoc program.nano -o program
+```
+
+**Step 5: Run compiled binary**
+```bash
+./program
+```
+
+### 5. Quick Reference for LLMs
+
+**When generating nanolang code, remember**:
+
+1. ✅ **Use prefix notation** for all operations: `(+ a b)`, `(== x 5)`, `(and p q)`
+2. ✅ **Explicit types** required: `let x: int = 42`
+3. ✅ **Shadow-tests** required for every function
+4. ✅ **Debug with interpreter** first: `./bin/nano program.nano --trace-all`
+5. ✅ **Compile second**: `./bin/nanoc program.nano -o program`
+6. ✅ **Use `mut`** for mutable variables: `let mut x: int = 0`
+7. ✅ **Both branches** required for `if/else`
+8. ✅ **Function calls** use prefix: `(function_name arg1 arg2)`
+
+**Common stdlib functions**:
+- `(print value)` - Print without newline
+- `(println value)` - Print with newline
+- `(str_length s)` - String length
+- `(str_concat s1 s2)` - Concatenate strings
+- `(array_length arr)` - Array length
+- `(at arr index)` - Get array element
+- `(abs x)` - Absolute value
+- `(min a b)` - Minimum of two values
+- `(max a b)` - Maximum of two values
+
+**See `docs/STDLIB.md` for complete standard library reference.**
+
