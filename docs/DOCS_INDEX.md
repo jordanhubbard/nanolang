@@ -11,6 +11,9 @@ Welcome to nanolang! This index will help you navigate the documentation.
 - **Learn about shadow-tests?** See [Shadow-Tests Guide](SHADOW_TESTS.md)
 - **Ready to contribute?** Check [Contributing Guidelines](CONTRIBUTING.md)
 - **Want examples?** Browse the [examples/](../examples/) directory
+- **Using C FFI?** See [External C Function Interface](EXTERN_FFI.md) and [Safe C FFI Functions Reference](SAFE_C_FFI_FUNCTIONS.md)
+- **Variable mutability?** See [Mutability Guide](MUTABILITY_GUIDE.md)
+- **Debugging with tracing?** See [Tracing System](TRACING_IMPLEMENTATION.md)
 
 ## Documentation Structure
 
@@ -234,9 +237,24 @@ A: 24 functions covering I/O, math, strings, arrays, and OS operations. See [STD
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guide
 - [ARRAY_DESIGN.md](ARRAY_DESIGN.md) - Array implementation details
 - [ARCHITECTURE_ANALYSIS.md](ARCHITECTURE_ANALYSIS.md) - System architecture
-- [LANGUAGE_DESIGN_REVIEW.md](LANGUAGE_DESIGN_REVIEW.md) - **NEW:** Comprehensive design review (8.5/10)
-- [REVIEW_SUMMARY.md](REVIEW_SUMMARY.md) - **NEW:** Executive summary of review findings
-- [NAMESPACE_FIXES.md](NAMESPACE_FIXES.md) - **NEW:** Namespace management bug fixes ✅
+- [LANGUAGE_DESIGN_REVIEW.md](LANGUAGE_DESIGN_REVIEW.md) - Comprehensive design review (8.5/10)
+- [REVIEW_SUMMARY.md](REVIEW_SUMMARY.md) - Executive summary of review findings
+- [NAMESPACE_FIXES.md](NAMESPACE_FIXES.md) - Namespace management bug fixes ✅
+- [SELF_HOSTING_REQUIREMENTS.md](SELF_HOSTING_REQUIREMENTS.md) - Features needed for self-hosting (detailed)
+- [SELF_HOSTING_FEATURE_GAP.md](SELF_HOSTING_FEATURE_GAP.md) - Gap analysis with visuals
+- [SELF_HOSTING_CHECKLIST.md](SELF_HOSTING_CHECKLIST.md) - Implementation tracking
+
+**User Guides:**
+- [MUTABILITY_GUIDE.md](MUTABILITY_GUIDE.md) - Complete guide to variable mutability (`let` vs `let mut`)
+- [TRACING_IMPLEMENTATION.md](TRACING_IMPLEMENTATION.md) - Debugging with the interpreter tracing system
+- [EXTERN_FFI.md](EXTERN_FFI.md) - How to use external C functions
+- [SAFE_C_FFI_FUNCTIONS.md](SAFE_C_FFI_FUNCTIONS.md) - Reference of safe C functions for FFI
+
+**Feature Designs (Ready to Implement):**
+- [STRUCTS_DESIGN.md](STRUCTS_DESIGN.md) - Complete struct design (Priority #1)
+- [ENUMS_DESIGN.md](ENUMS_DESIGN.md) - Complete enum design (Priority #2)
+- [LISTS_DESIGN.md](LISTS_DESIGN.md) - Complete dynamic list design (Priority #3)
+- [STDLIB_ADDITIONS_DESIGN.md](STDLIB_ADDITIONS_DESIGN.md) - File I/O, string ops, system execution
 
 ### Examples
 - [examples/README.md](examples/README.md) - Example guide

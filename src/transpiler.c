@@ -55,8 +55,30 @@ static const char *type_to_c(Type type) {
         case TYPE_BOOL: return "bool";
         case TYPE_STRING: return "const char*";
         case TYPE_VOID: return "void";
+        case TYPE_ARRAY: return "int64_t*";  /* Arrays are int64_t* for array<int> */
+        case TYPE_STRUCT: return "struct"; /* Will be extended with struct name */
+        case TYPE_LIST_INT: return "List_int*";
+        case TYPE_LIST_STRING: return "List_string*";
         default: return "void";
     }
+}
+
+/* Get C type for struct (returns "struct StructName") */
+static void type_to_c_struct(StringBuilder *sb, const char *struct_name) {
+    sb_appendf(sb, "struct %s", struct_name);
+}
+
+/* Extract struct type name from an expression (returns NULL if not a struct) */
+static const char *get_struct_type_from_expr(ASTNode *expr) {
+    if (!expr) return NULL;
+    
+    if (expr->type == AST_STRUCT_LITERAL) {
+        return expr->as.struct_literal.struct_name;
+    }
+    
+    /* For identifiers, calls, field access - would need type environment lookup */
+    /* For now, return NULL and let caller handle it */
+    return NULL;
 }
 
 /* Get C function name with prefix to avoid conflicts with standard library */
@@ -64,6 +86,29 @@ static const char *get_c_func_name(const char *nano_name) {
     /* Don't prefix main */
     if (strcmp(nano_name, "main") == 0) {
         return "main";
+    }
+    
+    /* Don't prefix list runtime functions */
+    if (strncmp(nano_name, "list_int_", 9) == 0 || 
+        strncmp(nano_name, "list_string_", 12) == 0) {
+        return nano_name;
+    }
+    
+    /* Don't prefix advanced string operations (generated inline) */
+    if (strcmp(nano_name, "char_at") == 0 ||
+        strcmp(nano_name, "string_from_char") == 0 ||
+        strcmp(nano_name, "is_digit") == 0 ||
+        strcmp(nano_name, "is_alpha") == 0 ||
+        strcmp(nano_name, "is_alnum") == 0 ||
+        strcmp(nano_name, "is_whitespace") == 0 ||
+        strcmp(nano_name, "is_upper") == 0 ||
+        strcmp(nano_name, "is_lower") == 0 ||
+        strcmp(nano_name, "int_to_string") == 0 ||
+        strcmp(nano_name, "string_to_int") == 0 ||
+        strcmp(nano_name, "digit_value") == 0 ||
+        strcmp(nano_name, "char_to_lower") == 0 ||
+        strcmp(nano_name, "char_to_upper") == 0) {
+        return nano_name;
     }
 
     /* Prefix user functions to avoid conflicts with C stdlib (abs, min, max, etc.) */
@@ -232,6 +277,26 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 func_name = "nl_array_new_int";  /* For now, assume int arrays */
             } else if (strcmp(func_name, "array_set") == 0) {
                 func_name = "nl_array_set_int";  /* For now, assume int arrays */
+            } else if (strcmp(func_name, "print") == 0) {
+                /* Special handling for print - dispatch based on argument type */
+                Type arg_type = check_expression(expr->as.call.args[0], env);
+                switch (arg_type) {
+                    case TYPE_INT:
+                        func_name = "nl_print_int";
+                        break;
+                    case TYPE_FLOAT:
+                        func_name = "nl_print_float";
+                        break;
+                    case TYPE_STRING:
+                        func_name = "nl_print_string";
+                        break;
+                    case TYPE_BOOL:
+                        func_name = "nl_print_bool";
+                        break;
+                    default:
+                        func_name = "nl_print_int";  /* Fallback */
+                        break;
+                }
             } else if (strcmp(func_name, "println") == 0) {
                 /* Special handling for println - dispatch based on argument type */
                 Type arg_type = check_expression(expr->as.call.args[0], env);
@@ -253,8 +318,14 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                         break;
                 }
             } else {
-                /* User-defined functions get nl_ prefix to avoid C stdlib conflicts */
-                func_name = get_c_func_name(func_name);
+                /* Check if this is an extern function */
+                Function *func_def = env_get_function(env, func_name);
+                if (func_def && func_def->is_extern) {
+                    /* Extern functions - call directly with original name (no change) */
+                } else {
+                    /* User-defined functions get nl_ prefix to avoid C stdlib conflicts */
+                    func_name = get_c_func_name(func_name);
+                }
             }
 
             sb_appendf(sb, "%s(", func_name);
@@ -298,6 +369,42 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             sb_append(sb, ")");
             break;
 
+        case AST_STRUCT_LITERAL: {
+            /* Transpile struct literal: Point { x: 10, y: 20 } -> (struct Point){.x = 10, .y = 20} */
+            sb_append(sb, "(struct ");
+            sb_append(sb, expr->as.struct_literal.struct_name);
+            sb_append(sb, "){");
+            for (int i = 0; i < expr->as.struct_literal.field_count; i++) {
+                if (i > 0) sb_append(sb, ", ");
+                sb_append(sb, ".");
+                sb_append(sb, expr->as.struct_literal.field_names[i]);
+                sb_append(sb, " = ");
+                transpile_expression(sb, expr->as.struct_literal.field_values[i], env);
+            }
+            sb_append(sb, "}");
+            break;
+        }
+
+        case AST_FIELD_ACCESS: {
+            /* Check if this is an enum variant access */
+            if (expr->as.field_access.object->type == AST_IDENTIFIER) {
+                const char *enum_name = expr->as.field_access.object->as.identifier;
+                if (env_get_enum(env, enum_name)) {
+                    /* Transpile as: EnumName_VariantName */
+                    sb_appendf(sb, "%s_%s",
+                              enum_name,
+                              expr->as.field_access.field_name);
+                    break;
+                }
+            }
+            
+            /* Regular struct field access: point.x -> point.x */
+            transpile_expression(sb, expr->as.field_access.object, env);
+            sb_append(sb, ".");
+            sb_append(sb, expr->as.field_access.field_name);
+            break;
+        }
+
         default:
             sb_append(sb, "/* unknown expr */");
             break;
@@ -309,14 +416,44 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
     if (!stmt) return;
 
     switch (stmt->type) {
-        case AST_LET:
+        case AST_LET: {
             emit_indent(sb, indent);
-            sb_appendf(sb, "%s %s = ", type_to_c(stmt->as.let.var_type), stmt->as.let.name);
+            
+            /* For struct types, check if it's actually an enum (enums are ints) */
+            if (stmt->as.let.var_type == TYPE_STRUCT) {
+                /* Check if value is an enum variant access */
+                bool is_enum = false;
+                if (stmt->as.let.value->type == AST_FIELD_ACCESS &&
+                    stmt->as.let.value->as.field_access.object->type == AST_IDENTIFIER) {
+                    const char *enum_name = stmt->as.let.value->as.field_access.object->as.identifier;
+                    if (env_get_enum(env, enum_name)) {
+                        is_enum = true;
+                    }
+                }
+                
+                if (is_enum) {
+                    /* This is an enum, use int64_t */
+                    sb_appendf(sb, "%s %s = ", type_to_c(TYPE_INT), stmt->as.let.name);
+                } else {
+                    /* Regular struct type */
+                    const char *struct_name = get_struct_type_from_expr(stmt->as.let.value);
+                    if (struct_name) {
+                        sb_appendf(sb, "struct %s %s = ", struct_name, stmt->as.let.name);
+                    } else {
+                        /* Fallback if we can't determine struct type */
+                        sb_appendf(sb, "/* struct */ void* %s = ", stmt->as.let.name);
+                    }
+                }
+            } else {
+                sb_appendf(sb, "%s %s = ", type_to_c(stmt->as.let.var_type), stmt->as.let.name);
+            }
+            
             transpile_expression(sb, stmt->as.let.value, env);
             sb_append(sb, ";\n");
             /* Register variable in environment for type tracking during transpilation */
             env_define_var(env, stmt->as.let.name, stmt->as.let.var_type, stmt->as.let.is_mut, create_void());
             break;
+        }
 
         case AST_SET:
             emit_indent(sb, indent);
@@ -428,8 +565,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "#include <stdbool.h>\n");
     sb_append(sb, "#include <string.h>\n");
     sb_append(sb, "#include <stdlib.h>\n");
+    sb_append(sb, "#include <time.h>\n");
     sb_append(sb, "#include <stdarg.h>\n");
     sb_append(sb, "#include <math.h>\n");
+    sb_append(sb, "\n/* nanolang runtime */\n");
+    sb_append(sb, "#include \"runtime/list_int.h\"\n");
+    sb_append(sb, "#include \"runtime/list_string.h\"\n");
     sb_append(sb, "#include <sys/stat.h>\n");
     sb_append(sb, "#include <sys/types.h>\n");
     sb_append(sb, "#include <dirent.h>\n");
@@ -587,6 +728,85 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     sb_append(sb, "/* ========== End OS Standard Library ========== */\n\n");
 
+    sb_append(sb, "/* ========== Advanced String Operations ========== */\n\n");
+    
+    /* char_at */
+    sb_append(sb, "static int64_t char_at(const char* s, int64_t index) {\n");
+    sb_append(sb, "    int len = strlen(s);\n");
+    sb_append(sb, "    if (index < 0 || index >= len) {\n");
+    sb_append(sb, "        fprintf(stderr, \"Error: Index %lld out of bounds (string length %d)\\n\", index, len);\n");
+    sb_append(sb, "        return 0;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return (unsigned char)s[index];\n");
+    sb_append(sb, "}\n\n");
+    
+    /* string_from_char */
+    sb_append(sb, "static char* string_from_char(int64_t c) {\n");
+    sb_append(sb, "    char* buffer = malloc(2);\n");
+    sb_append(sb, "    buffer[0] = (char)c;\n");
+    sb_append(sb, "    buffer[1] = '\\0';\n");
+    sb_append(sb, "    return buffer;\n");
+    sb_append(sb, "}\n\n");
+    
+    /* Character classification */
+    sb_append(sb, "static bool is_digit(int64_t c) {\n");
+    sb_append(sb, "    return c >= '0' && c <= '9';\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static bool is_alpha(int64_t c) {\n");
+    sb_append(sb, "    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static bool is_alnum(int64_t c) {\n");
+    sb_append(sb, "    return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static bool is_whitespace(int64_t c) {\n");
+    sb_append(sb, "    return c == ' ' || c == '\\t' || c == '\\n' || c == '\\r';\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static bool is_upper(int64_t c) {\n");
+    sb_append(sb, "    return c >= 'A' && c <= 'Z';\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static bool is_lower(int64_t c) {\n");
+    sb_append(sb, "    return c >= 'a' && c <= 'z';\n");
+    sb_append(sb, "}\n\n");
+    
+    /* Type conversions */
+    sb_append(sb, "static char* int_to_string(int64_t n) {\n");
+    sb_append(sb, "    char* buffer = malloc(32);\n");
+    sb_append(sb, "    snprintf(buffer, 32, \"%lld\", n);\n");
+    sb_append(sb, "    return buffer;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static int64_t string_to_int(const char* s) {\n");
+    sb_append(sb, "    return strtoll(s, NULL, 10);\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static int64_t digit_value(int64_t c) {\n");
+    sb_append(sb, "    if (c >= '0' && c <= '9') {\n");
+    sb_append(sb, "        return c - '0';\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return -1;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static int64_t char_to_lower(int64_t c) {\n");
+    sb_append(sb, "    if (c >= 'A' && c <= 'Z') {\n");
+    sb_append(sb, "        return c + 32;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return c;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static int64_t char_to_upper(int64_t c) {\n");
+    sb_append(sb, "    if (c >= 'a' && c <= 'z') {\n");
+    sb_append(sb, "        return c - 32;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return c;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "/* ========== End Advanced String Operations ========== */\n\n");
+
     sb_append(sb, "/* ========== Math and Utility Built-in Functions ========== */\n\n");
 
     /* abs function - works with int and float via macro */
@@ -607,6 +827,23 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     /* println function - uses _Generic for type dispatch */
     sb_append(sb, "static void nl_println(void* value_ptr) {\n");
     sb_append(sb, "    /* This is a placeholder - actual implementation uses type info from checker */\n");
+    sb_append(sb, "}\n\n");
+
+    /* Specialized print functions for each type (no newline) */
+    sb_append(sb, "static void nl_print_int(int64_t value) {\n");
+    sb_append(sb, "    printf(\"%lld\", value);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static void nl_print_float(double value) {\n");
+    sb_append(sb, "    printf(\"%g\", value);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static void nl_print_string(const char* value) {\n");
+    sb_append(sb, "    printf(\"%s\", value);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static void nl_print_bool(bool value) {\n");
+    sb_append(sb, "    printf(value ? \"true\" : \"false\");\n");
     sb_append(sb, "}\n\n");
 
     /* Specialized println functions for each type */
@@ -740,38 +977,117 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     sb_append(sb, "/* ========== End Math and Utility Built-in Functions ========== */\n\n");
 
+    /* Generate struct typedefs */
+    sb_append(sb, "/* ========== Struct Definitions ========== */\n\n");
+    for (int i = 0; i < env->struct_count; i++) {
+        StructDef *sdef = &env->structs[i];
+        sb_appendf(sb, "struct %s {\n", sdef->name);
+        for (int j = 0; j < sdef->field_count; j++) {
+            sb_append(sb, "    ");
+            if (sdef->field_types[j] == TYPE_STRUCT) {
+                /* For struct fields, we'd need the struct type name - for now use void* */
+                sb_append(sb, "void* /* struct field */");
+            } else {
+                sb_append(sb, type_to_c(sdef->field_types[j]));
+            }
+            sb_appendf(sb, " %s;\n", sdef->field_names[j]);
+        }
+        sb_append(sb, "};\n\n");
+    }
+    sb_append(sb, "/* ========== End Struct Definitions ========== */\n\n");
+
+    /* Generate enum typedefs */
+    sb_append(sb, "/* ========== Enum Definitions ========== */\n\n");
+    for (int i = 0; i < env->enum_count; i++) {
+        EnumDef *edef = &env->enums[i];
+        sb_appendf(sb, "typedef enum {\n");
+        for (int j = 0; j < edef->variant_count; j++) {
+            sb_appendf(sb, "    %s_%s = %d",
+                      edef->name,
+                      edef->variant_names[j],
+                      edef->variant_values[j]);
+            if (j < edef->variant_count - 1) sb_append(sb, ",\n");
+            else sb_append(sb, "\n");
+        }
+        sb_appendf(sb, "} %s;\n\n", edef->name);
+    }
+    sb_append(sb, "/* ========== End Enum Definitions ========== */\n\n");
+
     /* Forward declare all functions */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_FUNCTION) {
-            /* Special case for main - must return int in C */
-            const char *ret_type = strcmp(item->as.function.name, "main") == 0 ? "int" : type_to_c(item->as.function.return_type);
+            /* Skip extern functions - they're declared in C headers */
+            if (item->as.function.is_extern) {
+                continue;
+            }
+            
+            /* Regular functions - forward declare with nl_ prefix */
+            /* Function return type */
+            if (strcmp(item->as.function.name, "main") == 0) {
+                sb_append(sb, "int");
+            } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
+                sb_appendf(sb, "struct %s", item->as.function.return_struct_type_name);
+            } else {
+                sb_append(sb, type_to_c(item->as.function.return_type));
+            }
+            
             const char *c_func_name = get_c_func_name(item->as.function.name);
-            sb_appendf(sb, "%s %s(", ret_type, c_func_name);
+            sb_appendf(sb, " %s(", c_func_name);
+            
+            /* Function parameters */
             for (int j = 0; j < item->as.function.param_count; j++) {
                 if (j > 0) sb_append(sb, ", ");
-                sb_appendf(sb, "%s %s",
-                          type_to_c(item->as.function.params[j].type),
-                          item->as.function.params[j].name);
+                
+                if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
+                    sb_appendf(sb, "struct %s %s",
+                              item->as.function.params[j].struct_type_name,
+                              item->as.function.params[j].name);
+                } else {
+                    sb_appendf(sb, "%s %s",
+                              type_to_c(item->as.function.params[j].type),
+                              item->as.function.params[j].name);
+                }
             }
             sb_append(sb, ");\n");
         }
     }
     sb_append(sb, "\n");
 
-    /* Transpile all functions (skip shadow tests) */
+    /* Transpile all functions (skip shadow tests and extern functions) */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_FUNCTION) {
-            /* Function signature */
-            const char *ret_type = strcmp(item->as.function.name, "main") == 0 ? "int" : type_to_c(item->as.function.return_type);
+            /* Skip extern functions - they're declared only, no implementation */
+            if (item->as.function.is_extern) {
+                continue;
+            }
+            
+            /* Function return type */
+            if (strcmp(item->as.function.name, "main") == 0) {
+                sb_append(sb, "int");
+            } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
+                sb_appendf(sb, "struct %s", item->as.function.return_struct_type_name);
+            } else {
+                sb_append(sb, type_to_c(item->as.function.return_type));
+            }
+            
             const char *c_func_name = get_c_func_name(item->as.function.name);
-            sb_appendf(sb, "%s %s(", ret_type, c_func_name);
+            sb_appendf(sb, " %s(", c_func_name);
+            
+            /* Function parameters */
             for (int j = 0; j < item->as.function.param_count; j++) {
                 if (j > 0) sb_append(sb, ", ");
-                sb_appendf(sb, "%s %s",
-                          type_to_c(item->as.function.params[j].type),
-                          item->as.function.params[j].name);
+                
+                if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
+                    sb_appendf(sb, "struct %s %s",
+                              item->as.function.params[j].struct_type_name,
+                              item->as.function.params[j].name);
+                } else {
+                    sb_appendf(sb, "%s %s",
+                              type_to_c(item->as.function.params[j].type),
+                              item->as.function.params[j].name);
+                }
             }
             sb_append(sb, ") ");
 

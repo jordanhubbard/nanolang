@@ -1,0 +1,197 @@
+# Test dynamic list_int functionality
+# This is a major milestone toward self-hosting!
+
+fn test_basic_operations() -> int {
+    let mut nums: list_int = (list_int_new)
+    
+    # Test empty list
+    assert (== (list_int_is_empty nums) true)
+    assert (== (list_int_length nums) 0)
+    
+    # Test push
+    (list_int_push nums 10)
+    (list_int_push nums 20)
+    (list_int_push nums 30)
+    
+    assert (== (list_int_is_empty nums) false)
+    assert (== (list_int_length nums) 3)
+    
+    # Test get
+    assert (== (list_int_get nums 0) 10)
+    assert (== (list_int_get nums 1) 20)
+    assert (== (list_int_get nums 2) 30)
+    
+    # Test pop
+    let last: int = (list_int_pop nums)
+    assert (== last 30)
+    assert (== (list_int_length nums) 2)
+    
+    (list_int_free nums)
+    return 0
+}
+
+shadow test_basic_operations {
+    assert (== (test_basic_operations) 0)
+}
+
+fn test_set_and_modify() -> int {
+    let mut nums: list_int = (list_int_new)
+    
+    (list_int_push nums 1)
+    (list_int_push nums 2)
+    (list_int_push nums 3)
+    
+    # Test set
+    (list_int_set nums 1 99)
+    assert (== (list_int_get nums 1) 99)
+    
+    # Verify other elements unchanged
+    assert (== (list_int_get nums 0) 1)
+    assert (== (list_int_get nums 2) 3)
+    
+    (list_int_free nums)
+    return 0
+}
+
+shadow test_set_and_modify {
+    assert (== (test_set_and_modify) 0)
+}
+
+fn test_insert_and_remove() -> int {
+    let mut nums: list_int = (list_int_new)
+    
+    (list_int_push nums 1)
+    (list_int_push nums 3)
+    
+    # Insert at index 1
+    (list_int_insert nums 1 2)
+    assert (== (list_int_length nums) 3)
+    assert (== (list_int_get nums 0) 1)
+    assert (== (list_int_get nums 1) 2)
+    assert (== (list_int_get nums 2) 3)
+    
+    # Remove from middle
+    let removed: int = (list_int_remove nums 1)
+    assert (== removed 2)
+    assert (== (list_int_length nums) 2)
+    assert (== (list_int_get nums 0) 1)
+    assert (== (list_int_get nums 1) 3)
+    
+    (list_int_free nums)
+    return 0
+}
+
+shadow test_insert_and_remove {
+    assert (== (test_insert_and_remove) 0)
+}
+
+fn test_growth() -> int {
+    let mut nums: list_int = (list_int_new)
+    
+    # Push many elements to trigger growth
+    let mut i: int = 0
+    while (< i 20) {
+        (list_int_push nums i)
+        set i (+ i 1)
+    }
+    
+    assert (== (list_int_length nums) 20)
+    
+    # Verify all values
+    set i 0
+    while (< i 20) {
+        assert (== (list_int_get nums i) i)
+        set i (+ i 1)
+    }
+    
+    (list_int_free nums)
+    return 0
+}
+
+shadow test_growth {
+    assert (== (test_growth) 0)
+}
+
+fn test_clear() -> int {
+    let mut nums: list_int = (list_int_new)
+    
+    (list_int_push nums 1)
+    (list_int_push nums 2)
+    (list_int_push nums 3)
+    
+    assert (== (list_int_length nums) 3)
+    
+    (list_int_clear nums)
+    assert (== (list_int_length nums) 0)
+    assert (== (list_int_is_empty nums) true)
+    
+    # Can still push after clear
+    (list_int_push nums 100)
+    assert (== (list_int_length nums) 1)
+    assert (== (list_int_get nums 0) 100)
+    
+    (list_int_free nums)
+    return 0
+}
+
+shadow test_clear {
+    assert (== (test_clear) 0)
+}
+
+fn sum_list(nums: list_int) -> int {
+    let mut total: int = 0
+    let mut i: int = 0
+    let len: int = (list_int_length nums)
+    
+    while (< i len) {
+        set total (+ total (list_int_get nums i))
+        set i (+ i 1)
+    }
+    
+    return total
+}
+
+shadow sum_list {
+    let mut nums: list_int = (list_int_new)
+    (list_int_push nums 10)
+    (list_int_push nums 20)
+    (list_int_push nums 30)
+    assert (== (sum_list nums) 60)
+    (list_int_free nums)
+}
+
+fn main() -> int {
+    print "Testing list_int..."
+    
+    (test_basic_operations)
+    print "✓ Basic operations"
+    
+    (test_set_and_modify)
+    print "✓ Set and modify"
+    
+    (test_insert_and_remove)
+    print "✓ Insert and remove"
+    
+    (test_growth)
+    print "✓ Automatic growth"
+    
+    (test_clear)
+    print "✓ Clear"
+    
+    let mut nums: list_int = (list_int_new)
+    (list_int_push nums 5)
+    (list_int_push nums 10)
+    (list_int_push nums 15)
+    let total: int = (sum_list nums)
+    print "Sum of [5, 10, 15]:"
+    print total
+    (list_int_free nums)
+    
+    print "All list_int tests passed!"
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

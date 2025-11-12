@@ -1,5 +1,6 @@
 #include "nanolang.h"
 #include "version.h"
+#include "tracing.h"
 
 /* Interpreter options */
 typedef struct {
@@ -10,7 +11,11 @@ typedef struct {
 } InterpreterOptions;
 
 /* Run nanolang source with interpreter */
-static int interpret_file(const char *input_file, InterpreterOptions *opts) {
+static int interpret_file(const char *input_file, InterpreterOptions *opts, int argc, char **argv) {
+    /* Initialize tracing */
+    tracing_init();
+    tracing_configure(argc, argv);
+    
     /* Read source file */
     FILE *file = fopen(input_file, "r");
     if (!file) {
@@ -107,6 +112,7 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts) {
     free_tokens(tokens, token_count);
     free_environment(env);
     free(source);
+    tracing_cleanup();
 
     return exit_code;
 }
@@ -130,9 +136,19 @@ int main(int argc, char *argv[]) {
         printf("  --verbose      Show detailed interpretation steps\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
+        printf("\nTracing Options:\n");
+        printf("  --trace, --trace-all          Enable tracing for all functions and variables\n");
+        printf("  --trace-function=<name>       Trace specific function (can be used multiple times)\n");
+        printf("  --trace-var=<name>           Trace specific variable (can be used multiple times)\n");
+        printf("  --trace-scope=<func>         Trace everything inside specific function (can be used multiple times)\n");
+        printf("  --trace-regex=<pattern>      Trace anything matching regex pattern (can be used multiple times)\n");
         printf("\nExamples:\n");
         printf("  %s hello.nano --call main\n", argv[0]);
-        printf("  %s program.nano --verbose\n\n", argv[0]);
+        printf("  %s program.nano --verbose\n", argv[0]);
+        printf("  %s program.nano --trace-all\n", argv[0]);
+        printf("  %s program.nano --trace-function=calculate_sum\n", argv[0]);
+        printf("  %s program.nano --trace-scope=main\n", argv[0]);
+        printf("  %s program.nano --trace-regex='^test.*'\n\n", argv[0]);
         return 0;
     }
 
@@ -161,6 +177,9 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "-o") == 0) {
             fprintf(stderr, "Error: Interpreter does not support -o flag (use nanoc compiler instead)\n");
             return 1;
+        } else if (strncmp(argv[i], "--trace", 7) == 0) {
+            /* Tracing options are handled by tracing_configure */
+            continue;
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
@@ -168,5 +187,5 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    return interpret_file(input_file, &opts);
+    return interpret_file(input_file, &opts, argc, argv);
 }

@@ -22,6 +22,7 @@ static bool is_identifier_char(char c) {
 /* Check if string is a keyword and return appropriate token type */
 static TokenType keyword_or_identifier(const char *str) {
     /* Keywords */
+    if (strcmp(str, "extern") == 0) return TOKEN_EXTERN;
     if (strcmp(str, "fn") == 0) return TOKEN_FN;
     if (strcmp(str, "let") == 0) return TOKEN_LET;
     if (strcmp(str, "mut") == 0) return TOKEN_MUT;
@@ -36,6 +37,8 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "shadow") == 0) return TOKEN_SHADOW;
     if (strcmp(str, "print") == 0) return TOKEN_PRINT;
     if (strcmp(str, "array") == 0) return TOKEN_ARRAY;
+    if (strcmp(str, "struct") == 0) return TOKEN_STRUCT;
+    if (strcmp(str, "enum") == 0) return TOKEN_ENUM;
 
     /* Boolean literals */
     if (strcmp(str, "true") == 0) return TOKEN_TRUE;
@@ -204,6 +207,7 @@ Token *tokenize(const char *source, int *token_count) {
             case ']': tokens[count++] = create_token(TOKEN_RBRACKET, NULL, line, column); i++; break;
             case ',': tokens[count++] = create_token(TOKEN_COMMA, NULL, line, column); i++; break;
             case ':': tokens[count++] = create_token(TOKEN_COLON, NULL, line, column); i++; break;
+            case '.': tokens[count++] = create_token(TOKEN_DOT, NULL, line, column); i++; break;
             case '+': tokens[count++] = create_token(TOKEN_PLUS, NULL, line, column); i++; break;
             case '-': tokens[count++] = create_token(TOKEN_MINUS, NULL, line, column); i++; break;
             case '*': tokens[count++] = create_token(TOKEN_STAR, NULL, line, column); i++; break;
@@ -245,10 +249,13 @@ const char *token_type_name(TokenType type) {
         case TOKEN_RPAREN: return "RPAREN";
         case TOKEN_LBRACE: return "LBRACE";
         case TOKEN_RBRACE: return "RBRACE";
+        case TOKEN_LBRACKET: return "LBRACKET";
+        case TOKEN_RBRACKET: return "RBRACKET";
         case TOKEN_COMMA: return "COMMA";
         case TOKEN_COLON: return "COLON";
         case TOKEN_ARROW: return "ARROW";
         case TOKEN_ASSIGN: return "ASSIGN";
+        case TOKEN_DOT: return "DOT";
         case TOKEN_FN: return "FN";
         case TOKEN_LET: return "LET";
         case TOKEN_MUT: return "MUT";
@@ -262,6 +269,10 @@ const char *token_type_name(TokenType type) {
         case TOKEN_ASSERT: return "ASSERT";
         case TOKEN_SHADOW: return "SHADOW";
         case TOKEN_PRINT: return "PRINT";
+        case TOKEN_EXTERN: return "EXTERN";
+        case TOKEN_ARRAY: return "ARRAY";
+        case TOKEN_STRUCT: return "STRUCT";
+        case TOKEN_ENUM: return "ENUM";
         case TOKEN_TYPE_INT: return "TYPE_INT";
         case TOKEN_TYPE_FLOAT: return "TYPE_FLOAT";
         case TOKEN_TYPE_BOOL: return "TYPE_BOOL";

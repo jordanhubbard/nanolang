@@ -101,12 +101,16 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     fclose(c_file);
     if (opts->verbose) printf("✓ Generated C code: %s\n", temp_c_file);
 
-    /* Compile C code with gcc */
-    char compile_cmd[512];
+    /* Compile C code with gcc (include runtime) */
+    char compile_cmd[1024];
     if (opts->verbose) {
-        snprintf(compile_cmd, sizeof(compile_cmd), "gcc -std=c99 -o %s %s -lm", output_file, temp_c_file);
+        snprintf(compile_cmd, sizeof(compile_cmd), 
+                "gcc -std=c99 -Isrc -o %s %s src/runtime/list_int.c src/runtime/list_string.c -lm", 
+                output_file, temp_c_file);
     } else {
-        snprintf(compile_cmd, sizeof(compile_cmd), "gcc -std=c99 -o %s %s -lm 2>/dev/null", output_file, temp_c_file);
+        snprintf(compile_cmd, sizeof(compile_cmd), 
+                "gcc -std=c99 -Isrc -o %s %s src/runtime/list_int.c src/runtime/list_string.c -lm 2>/dev/null", 
+                output_file, temp_c_file);
     }
 
     if (opts->verbose) printf("Compiling C code: %s\n", compile_cmd);

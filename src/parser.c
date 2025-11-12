@@ -9,10 +9,18 @@ typedef struct {
 
 /* Helper functions */
 static Token *current_token(Parser *p) {
-    if (p->pos < p->count) {
-        return &p->tokens[p->pos];
+    if (!p || !p->tokens || p->count <= 0) {
+        return NULL;
     }
-    return &p->tokens[p->count - 1]; /* Return EOF */
+    /* Ensure pos is within bounds */
+    int safe_pos = p->pos;
+    if (safe_pos < 0) {
+        safe_pos = 0;
+    }
+    if (safe_pos >= p->count) {
+        safe_pos = p->count - 1;
+    }
+    return &p->tokens[safe_pos];
 }
 
 static Token *peek_token(Parser *p, int offset) {
@@ -30,13 +38,25 @@ static void advance(Parser *p) {
 }
 
 static bool match(Parser *p, TokenType type) {
-    return current_token(p)->type == type;
+    Token *tok = current_token(p);
+    if (!tok) {
+        return false;
+    }
+    return tok->type == type;
 }
 
 static bool expect(Parser *p, TokenType type, const char *msg) {
     if (!match(p, type)) {
+        Token *tok = current_token(p);
+        if (!tok || !p || p->count == 0) {
+            fprintf(stderr, "Error: Parser state invalid\n");
+            return false;
+        }
+        const char *msg_safe = msg ? msg : "(null message)";
+        const char *token_name = token_type_name(tok->type);
+        const char *token_name_safe = token_name ? token_name : "UNKNOWN";
         fprintf(stderr, "Error at line %d, column %d: %s (got %s)\n",
-                current_token(p)->line, msg, token_type_name(current_token(p)->type));
+                tok->line, msg_safe, token_name_safe);
         return false;
     }
     advance(p);
@@ -47,6 +67,8 @@ static bool expect(Parser *p, TokenType type, const char *msg) {
 static ASTNode *parse_statement(Parser *p);
 static ASTNode *parse_expression(Parser *p);
 static ASTNode *parse_block(Parser *p);
+static ASTNode *parse_struct_def(Parser *p);
+static ASTNode *parse_enum_def(Parser *p);
 
 /* Create AST nodes */
 static ASTNode *create_node(ASTNodeType type, int line, int column) {
@@ -68,6 +90,21 @@ static Type parse_type(Parser *p) {
         case TOKEN_TYPE_BOOL: type = TYPE_BOOL; break;
         case TOKEN_TYPE_STRING: type = TYPE_STRING; break;
         case TOKEN_TYPE_VOID: type = TYPE_VOID; break;
+        case TOKEN_IDENTIFIER:
+            /* Check for list types */
+            if (strcmp(tok->value, "list_int") == 0) {
+                type = TYPE_LIST_INT;
+                advance(p);
+                return type;
+            } else if (strcmp(tok->value, "list_string") == 0) {
+                type = TYPE_LIST_STRING;
+                advance(p);
+                return type;
+            }
+            /* Could be a struct type */
+            type = TYPE_STRUCT;
+            advance(p);
+            return type;
         case TOKEN_ARRAY:
             /* Parse array<element_type> */
             advance(p);  /* consume 'array' */
@@ -132,8 +169,23 @@ static bool parse_parameters(Parser *p, Parameter **params, int *param_count) {
                 return false;
             }
 
-            /* Type */
+            /* Type - check if it's a struct type (identifier) */
+            Token *type_token = current_token(p);
+            char *struct_name = NULL;
+            if (type_token->type == TOKEN_IDENTIFIER) {
+                struct_name = strdup(type_token->value);
+            }
+            
             param_list[count].type = parse_type(p);
+            param_list[count].struct_type_name = NULL;
+            
+            /* If it's a struct type, save the struct name */
+            if (param_list[count].type == TYPE_STRUCT && struct_name) {
+                param_list[count].struct_type_name = struct_name;
+            } else if (struct_name) {
+                free(struct_name);
+            }
+            
             count++;
 
             if (match(p, TOKEN_COMMA)) {
@@ -197,10 +249,16 @@ static ASTNode *parse_prefix_op(Parser *p) {
         node->as.prefix_op.args = args;
         node->as.prefix_op.arg_count = count;
         return node;
-    } else if (match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_RANGE)) {
-        /* Function call */
-        char *func_name = strdup(tok->value ? tok->value : "range");
-        advance(p);
+    } else if (match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_RANGE) || match(p, TOKEN_PRINT)) {
+        /* Function call - allow print as function name */
+        char *func_name;
+        if (tok->type == TOKEN_PRINT) {
+            func_name = strdup("print");
+            advance(p);
+        } else {
+            func_name = strdup(tok->value ? tok->value : "range");
+            advance(p);
+        }
 
         int capacity = 4;
         int count = 0;
@@ -308,11 +366,80 @@ static ASTNode *parse_primary(Parser *p) {
             return node;
         }
 
-        case TOKEN_IDENTIFIER:
-            node = create_node(AST_IDENTIFIER, tok->line, tok->column);
-            node->as.identifier = strdup(tok->value);
-            advance(p);
-            return node;
+        case TOKEN_IDENTIFIER: {
+            /* Check if this is a struct literal: StructName { ... } */
+            /* Only parse as struct literal if identifier starts with uppercase (type convention) */
+            Token *next = peek_token(p, 1);
+            bool looks_like_struct = tok->value && tok->value[0] >= 'A' && tok->value[0] <= 'Z';
+            if (next && next->type == TOKEN_LBRACE && looks_like_struct) {
+                /* Parse struct literal */
+                int line = tok->line;
+                int column = tok->column;
+                char *struct_name = strdup(tok->value);
+                advance(p);  /* consume struct name */
+                advance(p);  /* consume '{' */
+                
+                int capacity = 4;
+                int count = 0;
+                char **field_names = malloc(sizeof(char*) * capacity);
+                ASTNode **field_values = malloc(sizeof(ASTNode*) * capacity);
+                
+                while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+                    if (count >= capacity) {
+                        capacity *= 2;
+                        field_names = realloc(field_names, sizeof(char*) * capacity);
+                        field_values = realloc(field_values, sizeof(ASTNode*) * capacity);
+                    }
+                    
+                    /* Parse field name */
+                    if (!match(p, TOKEN_IDENTIFIER)) {
+                        fprintf(stderr, "Error at line %d, column %d: Expected field name in struct literal\n",
+                                current_token(p)->line, current_token(p)->column);
+                        break;
+                    }
+                    field_names[count] = strdup(current_token(p)->value);
+                    advance(p);
+                    
+                    /* Expect colon */
+                    if (!expect(p, TOKEN_COLON, "Expected ':' after field name")) {
+                        break;
+                    }
+                    
+                    /* Parse field value */
+                    field_values[count] = parse_expression(p);
+                    count++;
+                    
+                    /* Optional comma */
+                    if (match(p, TOKEN_COMMA)) {
+                        advance(p);
+                    }
+                }
+                
+                if (!expect(p, TOKEN_RBRACE, "Expected '}' at end of struct literal")) {
+                    free(struct_name);
+                    for (int i = 0; i < count; i++) {
+                        free(field_names[i]);
+                        free_ast(field_values[i]);
+                    }
+                    free(field_names);
+                    free(field_values);
+                    return NULL;
+                }
+                
+                node = create_node(AST_STRUCT_LITERAL, line, column);
+                node->as.struct_literal.struct_name = struct_name;
+                node->as.struct_literal.field_names = field_names;
+                node->as.struct_literal.field_values = field_values;
+                node->as.struct_literal.field_count = count;
+                return node;
+            } else {
+                /* Regular identifier */
+                node = create_node(AST_IDENTIFIER, tok->line, tok->column);
+                node->as.identifier = strdup(tok->value);
+                advance(p);
+                return node;
+            }
+        }
 
         case TOKEN_LPAREN:
             return parse_prefix_op(p);
@@ -361,7 +488,32 @@ static ASTNode *parse_expression(Parser *p) {
     if (match(p, TOKEN_IF)) {
         return parse_if_expression(p);
     }
-    return parse_primary(p);
+    
+    /* Parse primary expression */
+    ASTNode *expr = parse_primary(p);
+    
+    /* Handle field access: obj.field or obj.field1.field2 */
+    while (match(p, TOKEN_DOT)) {
+        int line = current_token(p)->line;
+        int column = current_token(p)->column;
+        advance(p);  /* consume '.' */
+        
+        if (!match(p, TOKEN_IDENTIFIER)) {
+            fprintf(stderr, "Error at line %d, column %d: Expected field name after '.'\n",
+                    current_token(p)->line, current_token(p)->column);
+            return expr;
+        }
+        
+        char *field_name = strdup(current_token(p)->value);
+        advance(p);
+        
+        ASTNode *field_access = create_node(AST_FIELD_ACCESS, line, column);
+        field_access->as.field_access.object = expr;
+        field_access->as.field_access.field_name = field_name;
+        expr = field_access;
+    }
+    
+    return expr;
 }
 
 /* Parse block */
@@ -411,6 +563,11 @@ static ASTNode *parse_statement(Parser *p) {
             int column = tok->column;
             advance(p);
 
+            /* Check if variable should be mutable
+             * Syntax: let x = ... (immutable by default, safe)
+             *         let mut x = ... (explicitly mutable)
+             * For practical algorithms, most variables need to be mutable,
+             * so we encourage using 'mut' explicitly for clarity. */
             bool is_mut = false;
             if (match(p, TOKEN_MUT)) {
                 is_mut = true;
@@ -564,8 +721,182 @@ static ASTNode *parse_statement(Parser *p) {
     }
 }
 
+/* Parse struct definition */
+static ASTNode *parse_struct_def(Parser *p) {
+    int line = current_token(p)->line;
+    int column = current_token(p)->column;
+    
+    if (!expect(p, TOKEN_STRUCT, "Expected 'struct'")) {
+        return NULL;
+    }
+    
+    /* Get struct name */
+    if (!match(p, TOKEN_IDENTIFIER)) {
+        fprintf(stderr, "Error at line %d, column %d: Expected struct name\n", 
+                current_token(p)->line, current_token(p)->column);
+        return NULL;
+    }
+    char *struct_name = strdup(current_token(p)->value);
+    advance(p);
+    
+    /* Expect opening brace */
+    if (!expect(p, TOKEN_LBRACE, "Expected '{' after struct name")) {
+        free(struct_name);
+        return NULL;
+    }
+    
+    /* Parse fields */
+    int capacity = 8;
+    int count = 0;
+    char **field_names = malloc(sizeof(char*) * capacity);
+    Type *field_types = malloc(sizeof(Type) * capacity);
+    
+    while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+        if (count >= capacity) {
+            capacity *= 2;
+            field_names = realloc(field_names, sizeof(char*) * capacity);
+            field_types = realloc(field_types, sizeof(Type) * capacity);
+        }
+        
+        /* Parse field name */
+        if (!match(p, TOKEN_IDENTIFIER)) {
+            fprintf(stderr, "Error at line %d, column %d: Expected field name\n",
+                    current_token(p)->line, current_token(p)->column);
+            break;
+        }
+        field_names[count] = strdup(current_token(p)->value);
+        advance(p);
+        
+        /* Expect colon */
+        if (!expect(p, TOKEN_COLON, "Expected ':' after field name")) {
+            break;
+        }
+        
+        /* Parse field type */
+        field_types[count] = parse_type(p);
+        count++;
+        
+        /* Optional comma */
+        if (match(p, TOKEN_COMMA)) {
+            advance(p);
+        }
+    }
+    
+    /* Expect closing brace */
+    if (!expect(p, TOKEN_RBRACE, "Expected '}' after struct fields")) {
+        free(struct_name);
+        for (int i = 0; i < count; i++) {
+            free(field_names[i]);
+        }
+        free(field_names);
+        free(field_types);
+        return NULL;
+    }
+    
+    /* Create AST node */
+    ASTNode *node = create_node(AST_STRUCT_DEF, line, column);
+    node->as.struct_def.name = struct_name;
+    node->as.struct_def.field_names = field_names;
+    node->as.struct_def.field_types = field_types;
+    node->as.struct_def.field_count = count;
+    
+    return node;
+}
+
+/* Parse enum definition */
+static ASTNode *parse_enum_def(Parser *p) {
+    int line = current_token(p)->line;
+    int column = current_token(p)->column;
+    
+    if (!expect(p, TOKEN_ENUM, "Expected 'enum'")) {
+        return NULL;
+    }
+    
+    /* Get enum name */
+    if (!match(p, TOKEN_IDENTIFIER)) {
+        fprintf(stderr, "Error at line %d, column %d: Expected enum name\n",
+                current_token(p)->line, current_token(p)->column);
+        return NULL;
+    }
+    char *enum_name = strdup(current_token(p)->value);
+    advance(p);
+    
+    /* Expect opening brace */
+    if (!expect(p, TOKEN_LBRACE, "Expected '{' after enum name")) {
+        free(enum_name);
+        return NULL;
+    }
+    
+    /* Parse variants */
+    int capacity = 8;
+    int count = 0;
+    char **variant_names = malloc(sizeof(char*) * capacity);
+    int *variant_values = malloc(sizeof(int) * capacity);
+    int next_auto_value = 0;
+    
+    while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+        if (count >= capacity) {
+            capacity *= 2;
+            variant_names = realloc(variant_names, sizeof(char*) * capacity);
+            variant_values = realloc(variant_values, sizeof(int) * capacity);
+        }
+        
+        /* Parse variant name */
+        if (!match(p, TOKEN_IDENTIFIER)) {
+            fprintf(stderr, "Error at line %d, column %d: Expected variant name\n",
+                    current_token(p)->line, current_token(p)->column);
+            break;
+        }
+        variant_names[count] = strdup(current_token(p)->value);
+        advance(p);
+        
+        /* Check for explicit value */
+        if (match(p, TOKEN_ASSIGN)) {
+            advance(p);
+            if (!match(p, TOKEN_NUMBER)) {
+                fprintf(stderr, "Error at line %d, column %d: Expected number after '='\n",
+                        current_token(p)->line, current_token(p)->column);
+                variant_values[count] = next_auto_value++;
+            } else {
+                variant_values[count] = current_token(p)->value ? atoi(current_token(p)->value) : 0;
+                next_auto_value = variant_values[count] + 1;
+                advance(p);
+            }
+        } else {
+            variant_values[count] = next_auto_value++;
+        }
+        
+        count++;
+        
+        /* Optional comma */
+        if (match(p, TOKEN_COMMA)) {
+            advance(p);
+        }
+    }
+    
+    /* Expect closing brace */
+    if (!expect(p, TOKEN_RBRACE, "Expected '}' after enum variants")) {
+        free(enum_name);
+        for (int i = 0; i < count; i++) {
+            free(variant_names[i]);
+        }
+        free(variant_names);
+        free(variant_values);
+        return NULL;
+    }
+    
+    /* Create AST node */
+    ASTNode *node = create_node(AST_ENUM_DEF, line, column);
+    node->as.enum_def.name = enum_name;
+    node->as.enum_def.variant_names = variant_names;
+    node->as.enum_def.variant_values = variant_values;
+    node->as.enum_def.variant_count = count;
+    
+    return node;
+}
+
 /* Parse function definition */
-static ASTNode *parse_function(Parser *p) {
+static ASTNode *parse_function(Parser *p, bool is_extern) {
     int line = current_token(p)->line;
     int column = current_token(p)->column;
 
@@ -604,21 +935,36 @@ static ASTNode *parse_function(Parser *p) {
         return NULL;
     }
 
+    /* Capture return struct type name if it's a struct */
+    Token *return_type_token = current_token(p);
+    char *return_struct_name = NULL;
+    if (return_type_token->type == TOKEN_IDENTIFIER) {
+        return_struct_name = strdup(return_type_token->value);
+    }
+    
     Type return_type = parse_type(p);
 
-    ASTNode *body = parse_block(p);
-    if (!body) {
-        free(name);
-        free(params);
-        return NULL;
+    ASTNode *body = NULL;
+    if (!is_extern) {
+        /* Regular functions must have a body */
+        body = parse_block(p);
+        if (!body) {
+            free(name);
+            free(params);
+            if (return_struct_name) free(return_struct_name);
+            return NULL;
+        }
     }
+    /* Extern functions have no body - declaration only */
 
     ASTNode *node = create_node(AST_FUNCTION, line, column);
     node->as.function.name = name;
     node->as.function.params = params;
     node->as.function.param_count = param_count;
     node->as.function.return_type = return_type;
+    node->as.function.return_struct_type_name = return_struct_name;  /* May be NULL */
     node->as.function.body = body;
+    node->as.function.is_extern = is_extern;
     return node;
 }
 
@@ -652,6 +998,11 @@ static ASTNode *parse_shadow(Parser *p) {
 
 /* Parse top-level program */
 ASTNode *parse_program(Token *tokens, int token_count) {
+    if (!tokens || token_count <= 0) {
+        fprintf(stderr, "Error: Invalid token array\n");
+        return NULL;
+    }
+    
     Parser parser;
     parser.tokens = tokens;
     parser.count = token_count;
@@ -662,17 +1013,31 @@ ASTNode *parse_program(Token *tokens, int token_count) {
     ASTNode **items = malloc(sizeof(ASTNode*) * capacity);
 
     while (!match(&parser, TOKEN_EOF)) {
+        /* Safety check: if current_token returns NULL, we've hit an error */
+        Token *tok = current_token(&parser);
+        if (!tok) {
+            fprintf(stderr, "Error: Parser reached invalid state\n");
+            break;
+        }
         if (count >= capacity) {
             capacity *= 2;
             items = realloc(items, sizeof(ASTNode*) * capacity);
         }
 
-        if (match(&parser, TOKEN_FN)) {
-            items[count++] = parse_function(&parser);
+        if (match(&parser, TOKEN_STRUCT)) {
+            items[count++] = parse_struct_def(&parser);
+        } else if (match(&parser, TOKEN_ENUM)) {
+            items[count++] = parse_enum_def(&parser);
+        } else if (match(&parser, TOKEN_EXTERN)) {
+            /* extern fn declarations */
+            advance(&parser);  /* Skip 'extern' token */
+            items[count++] = parse_function(&parser, true);
+        } else if (match(&parser, TOKEN_FN)) {
+            items[count++] = parse_function(&parser, false);
         } else if (match(&parser, TOKEN_SHADOW)) {
             items[count++] = parse_shadow(&parser);
         } else {
-            fprintf(stderr, "Error at line %d, column %d: Expected function or shadow-test definition\n",
+            fprintf(stderr, "Error at line %d, column %d: Expected struct, enum, extern, function or shadow-test definition\n",
                     current_token(&parser)->line);
             advance(&parser);
         }
@@ -745,7 +1110,9 @@ void free_ast(ASTNode *node) {
                 free(node->as.function.params[i].name);
             }
             free(node->as.function.params);
-            free_ast(node->as.function.body);
+            if (node->as.function.body) {  /* Extern functions have no body */
+                free_ast(node->as.function.body);
+            }
             break;
         case AST_SHADOW:
             free(node->as.shadow.function_name);
@@ -762,6 +1129,35 @@ void free_ast(ASTNode *node) {
             break;
         case AST_ASSERT:
             free_ast(node->as.assert.condition);
+            break;
+        case AST_STRUCT_DEF:
+            free(node->as.struct_def.name);
+            for (int i = 0; i < node->as.struct_def.field_count; i++) {
+                free(node->as.struct_def.field_names[i]);
+            }
+            free(node->as.struct_def.field_names);
+            free(node->as.struct_def.field_types);
+            break;
+        case AST_STRUCT_LITERAL:
+            free(node->as.struct_literal.struct_name);
+            for (int i = 0; i < node->as.struct_literal.field_count; i++) {
+                free(node->as.struct_literal.field_names[i]);
+                free_ast(node->as.struct_literal.field_values[i]);
+            }
+            free(node->as.struct_literal.field_names);
+            free(node->as.struct_literal.field_values);
+            break;
+        case AST_FIELD_ACCESS:
+            free_ast(node->as.field_access.object);
+            free(node->as.field_access.field_name);
+            break;
+        case AST_ENUM_DEF:
+            free(node->as.enum_def.name);
+            for (int i = 0; i < node->as.enum_def.variant_count; i++) {
+                free(node->as.enum_def.variant_names[i]);
+            }
+            free(node->as.enum_def.variant_names);
+            free(node->as.enum_def.variant_values);
             break;
         default:
             break;

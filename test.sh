@@ -46,6 +46,9 @@ EXAMPLES=(
     "11_stdlib_test.nano"
     "12_advanced_math.nano"
     "13_string_ops.nano"
+    "24_random_simple.nano"
+    "25_pi_simple.nano"
+    "26_tictactoe_simple.nano"
 )
 
 echo "========================================"

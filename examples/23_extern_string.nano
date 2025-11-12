@@ -1,0 +1,220 @@
+# Test 23: External C Functions - String Operations (Safe)
+# This test demonstrates calling safe C string functions via extern declarations
+
+# Declare external C string functions (read-only, safe)
+extern fn strlen(s: string) -> int
+extern fn strcmp(s1: string, s2: string) -> int
+extern fn strncmp(s1: string, s2: string, n: int) -> int
+
+# Test string length
+fn test_strlen() -> int {
+    (println "String Length Test:")
+    
+    let str1: string = "Hello"
+    let str2: string = "World!"
+    let str3: string = ""
+    
+    let len1: int = (strlen str1)
+    let len2: int = (strlen str2)
+    let len3: int = (strlen str3)
+    
+    (println "Length of 'Hello':")
+    (println len1)  # Should be 5
+    
+    (println "Length of 'World!':")
+    (println len2)  # Should be 6
+    
+    (println "Length of empty string:")
+    (println len3)  # Should be 0
+    
+    return 0
+}
+
+shadow test_strlen {
+    assert (== (test_strlen) 0)
+}
+
+# Test string comparison
+fn test_strcmp() -> int {
+    (println "String Comparison Test:")
+    
+    let str1: string = "apple"
+    let str2: string = "apple"
+    let str3: string = "banana"
+    let str4: string = "aardvark"
+    
+    # Compare equal strings
+    let cmp1: int = (strcmp str1 str2)
+    (println "Compare 'apple' with 'apple':")
+    (println cmp1)  # Should be 0 (equal)
+    
+    # Compare different strings
+    let cmp2: int = (strcmp str1 str3)
+    (println "Compare 'apple' with 'banana':")
+    (println cmp2)  # Should be negative (apple < banana)
+    
+    let cmp3: int = (strcmp str1 str4)
+    (println "Compare 'apple' with 'aardvark':")
+    (println cmp3)  # Should be positive (apple > aardvark)
+    
+    return 0
+}
+
+shadow test_strcmp {
+    assert (== (test_strcmp) 0)
+}
+
+# Test bounded string comparison
+fn test_strncmp() -> int {
+    (println "Bounded String Comparison Test:")
+    
+    let str1: string = "Hello World"
+    let str2: string = "Hello There"
+    let str3: string = "Hello World!"
+    
+    # Compare first 5 characters
+    let cmp1: int = (strncmp str1 str2 5)
+    (println "Compare first 5 chars of 'Hello World' and 'Hello There':")
+    (println cmp1)  # Should be 0 (equal in first 5 chars)
+    
+    # Compare first 6 characters
+    let cmp2: int = (strncmp str1 str2 6)
+    (println "Compare first 6 chars of 'Hello World' and 'Hello There':")
+    (println cmp2)  # Should be non-zero (different at char 6)
+    
+    # Compare full strings
+    let cmp3: int = (strncmp str1 str3 11)
+    (println "Compare first 11 chars of 'Hello World' and 'Hello World!':")
+    (println cmp3)  # Should be 0 (equal in first 11 chars)
+    
+    let cmp4: int = (strncmp str1 str3 12)
+    (println "Compare first 12 chars of 'Hello World' and 'Hello World!':")
+    (println cmp4)  # Should be negative (shorter string)
+    
+    return 0
+}
+
+shadow test_strncmp {
+    assert (== (test_strncmp) 0)
+}
+
+# Test combined string operations
+fn test_combined_operations() -> int {
+    (println "Combined String Operations:")
+    
+    let name1: string = "Alice"
+    let name2: string = "Bob"
+    let name3: string = "Alice"
+    
+    # Get lengths
+    let len1: int = (strlen name1)
+    let len2: int = (strlen name2)
+    
+    (println "Length of 'Alice':")
+    (println len1)
+    (println "Length of 'Bob':")
+    (println len2)
+    
+    # Compare names
+    let cmp1: int = (strcmp name1 name2)
+    let cmp2: int = (strcmp name1 name3)
+    
+    (println "Compare 'Alice' with 'Bob':")
+    (println cmp1)
+    (println "Compare 'Alice' with 'Alice':")
+    (println cmp2)
+    
+    # Use comparison result for logic
+    if (== cmp2 0) {
+        (println "Names are identical!")
+    } else {
+        (println "Names are different!")
+    }
+    
+    return 0
+}
+
+shadow test_combined_operations {
+    assert (== (test_combined_operations) 0)
+}
+
+# Test edge cases
+fn test_edge_cases() -> int {
+    (println "Edge Cases Test:")
+    
+    # Empty strings
+    let empty1: string = ""
+    let empty2: string = ""
+    let nonempty: string = "a"
+    
+    let len_empty: int = (strlen empty1)
+    (println "Length of empty string:")
+    (println len_empty)  # Should be 0
+    
+    let cmp_empty: int = (strcmp empty1 empty2)
+    (println "Compare two empty strings:")
+    (println cmp_empty)  # Should be 0
+    
+    let cmp_empty_nonempty: int = (strcmp empty1 nonempty)
+    (println "Compare empty with non-empty:")
+    (println cmp_empty_nonempty)  # Should be negative
+    
+    # Single character strings
+    let single1: string = "x"
+    let single2: string = "y"
+    let single3: string = "x"
+    
+    let cmp_single: int = (strcmp single1 single2)
+    (println "Compare 'x' with 'y':")
+    (println cmp_single)  # Should be negative
+    
+    let cmp_single_same: int = (strcmp single1 single3)
+    (println "Compare 'x' with 'x':")
+    (println cmp_single_same)  # Should be 0
+    
+    return 0
+}
+
+shadow test_edge_cases {
+    assert (== (test_edge_cases) 0)
+}
+
+# Main function to run all tests
+fn main() -> int {
+    (println "==========================================")
+    (println "External C Functions - String Library Test")
+    (println "==========================================")
+    
+    (println "")
+    (println "Test 1: String Length (strlen)")
+    let r1: int = (test_strlen)
+    
+    (println "")
+    (println "Test 2: String Comparison (strcmp)")
+    let r2: int = (test_strcmp)
+    
+    (println "")
+    (println "Test 3: Bounded String Comparison (strncmp)")
+    let r3: int = (test_strncmp)
+    
+    (println "")
+    (println "Test 4: Combined Operations")
+    let r4: int = (test_combined_operations)
+    
+    (println "")
+    (println "Test 5: Edge Cases")
+    let r5: int = (test_edge_cases)
+    
+    (println "")
+    (println "==========================================")
+    (println "All extern string tests completed!")
+    (println "Note: Only SAFE read-only functions used")
+    (println "==========================================")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

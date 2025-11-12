@@ -1,0 +1,81 @@
+# Test struct functionality
+
+struct Point {
+    x: int,
+    y: int
+}
+
+struct Color {
+    r: int,
+    g: int,
+    b: int
+}
+
+fn create_point(x: int, y: int) -> Point {
+    return Point { x: x, y: y }
+}
+
+shadow create_point {
+    let p: Point = (create_point 5 10)
+    assert (== p.x 5)
+    assert (== p.y 10)
+}
+
+fn get_x(p: Point) -> int {
+    return p.x
+}
+
+shadow get_x {
+    let p: Point = Point { x: 42, y: 100 }
+    assert (== (get_x p) 42)
+}
+
+fn get_y(p: Point) -> int {
+    return p.y
+}
+
+shadow get_y {
+    let p: Point = Point { x: 42, y: 100 }
+    assert (== (get_y p) 100)
+}
+
+fn add_points(p1: Point, p2: Point) -> Point {
+    let new_x: int = (+ p1.x p2.x)
+    let new_y: int = (+ p1.y p2.y)
+    return Point { x: new_x, y: new_y }
+}
+
+shadow add_points {
+    let p1: Point = Point { x: 1, y: 2 }
+    let p2: Point = Point { x: 3, y: 4 }
+    let p3: Point = (add_points p1 p2)
+    assert (== p3.x 4)
+    assert (== p3.y 6)
+}
+
+fn main() -> int {
+    let origin: Point = Point { x: 0, y: 0 }
+    let p: Point = Point { x: 10, y: 20 }
+    
+    print "Point x:"
+    print p.x
+    print "Point y:"
+    print p.y
+    
+    let red: Color = Color { r: 255, g: 0, b: 0 }
+    print "Red value:"
+    print red.r
+    
+    let sum: Point = (add_points origin p)
+    print "Sum x:"
+    print sum.x
+    print "Sum y:"
+    print sum.y
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

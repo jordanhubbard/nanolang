@@ -100,7 +100,7 @@ for var in (range start end) {
 return expression
 ```
 
-## Standard Library (24 Functions)
+## Standard Library (37 Functions)
 
 ### Core I/O (3)
 ```nano
@@ -124,13 +124,40 @@ return expression
 (tan x)            # Tangent (radians)
 ```
 
-### String Operations (5)
+### String Operations (18)
+
+**Basic String Operations (5):**
 ```nano
 (str_length s)           # Get string length
 (str_concat s1 s2)       # Concatenate strings
 (str_substring s pos len)# Extract substring
 (str_contains s sub)     # Check if contains substring
 (str_equals s1 s2)       # String equality
+```
+
+**Character Access (2):**
+```nano
+(char_at s index)        # Get ASCII value at index (0-based)
+(string_from_char code)  # Create string from ASCII value
+```
+
+**Character Classification (6):**
+```nano
+(is_digit c)             # Check if '0'-'9'
+(is_alpha c)             # Check if a-z, A-Z
+(is_alnum c)             # Check if digit or letter
+(is_whitespace c)        # Check if space/tab/newline
+(is_upper c)             # Check if A-Z
+(is_lower c)             # Check if a-z
+```
+
+**Type Conversions (5):**
+```nano
+(int_to_string n)        # Convert int to string
+(string_to_int s)        # Parse string to int
+(digit_value c)          # Convert '5' -> 5
+(char_to_lower c)        # Convert 'A' -> 'a'
+(char_to_upper c)        # Convert 'a' -> 'A'
 ```
 
 ### Array Operations (4)
