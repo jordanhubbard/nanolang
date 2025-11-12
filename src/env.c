@@ -54,6 +54,12 @@ Environment *create_environment(void) {
     env->functions = malloc(sizeof(Function) * 8);
     env->function_count = 0;
     env->function_capacity = 8;
+    env->structs = malloc(sizeof(StructDef) * 8);
+    env->struct_count = 0;
+    env->struct_capacity = 8;
+    env->enums = malloc(sizeof(EnumDef) * 8);
+    env->enum_count = 0;
+    env->enum_capacity = 8;
     return env;
 }
 
@@ -61,8 +67,21 @@ Environment *create_environment(void) {
 void free_environment(Environment *env) {
     for (int i = 0; i < env->symbol_count; i++) {
         free(env->symbols[i].name);
+        if (env->symbols[i].struct_type_name) {
+            free(env->symbols[i].struct_type_name);
+        }
         if (env->symbols[i].value.type == VAL_STRING) {
             free(env->symbols[i].value.as.string_val);
+        }
+        if (env->symbols[i].value.type == VAL_STRUCT) {
+            StructValue *sv = env->symbols[i].value.as.struct_val;
+            free(sv->struct_name);
+            for (int j = 0; j < sv->field_count; j++) {
+                free(sv->field_names[j]);
+            }
+            free(sv->field_names);
+            free(sv->field_values);
+            free(sv);
         }
     }
     free(env->symbols);
@@ -71,12 +90,36 @@ void free_environment(Environment *env) {
         /* Note: function names are not owned by environment */
     }
     free(env->functions);
+    
+    for (int i = 0; i < env->struct_count; i++) {
+        free(env->structs[i].name);
+        for (int j = 0; j < env->structs[i].field_count; j++) {
+            free(env->structs[i].field_names[j]);
+        }
+        free(env->structs[i].field_names);
+        free(env->structs[i].field_types);
+    }
+    free(env->structs);
+    
+    for (int i = 0; i < env->enum_count; i++) {
+        free(env->enums[i].name);
+        for (int j = 0; j < env->enums[i].variant_count; j++) {
+            free(env->enums[i].variant_names[j]);
+        }
+        free(env->enums[i].variant_names);
+        free(env->enums[i].variant_values);
+    }
+    free(env->enums);
 
     free(env);
 }
 
 /* Define variable */
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value) {
+    env_define_var_with_element_type(env, name, type, TYPE_UNKNOWN, is_mut, value);
+}
+
+void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value) {
     if (env->symbol_count >= env->symbol_capacity) {
         env->symbol_capacity *= 2;
         env->symbols = realloc(env->symbols, sizeof(Symbol) * env->symbol_capacity);
@@ -85,6 +128,8 @@ void env_define_var(Environment *env, const char *name, Type type, bool is_mut, 
     Symbol sym;
     sym.name = strdup(name);
     sym.type = type;
+    sym.struct_type_name = NULL;  /* Initialize to NULL (set later for struct types) */
+    sym.element_type = element_type;  /* Store element type for arrays */
     sym.is_mut = is_mut;
     sym.value = value;
     sym.is_used = false;  /* Initialize as unused */
@@ -97,6 +142,10 @@ void env_define_var(Environment *env, const char *name, Type type, bool is_mut, 
 /* Get variable */
 Symbol *env_get_var(Environment *env, const char *name) {
     for (int i = env->symbol_count - 1; i >= 0; i--) {
+        /* Skip symbols with NULL names */
+        if (!env->symbols[i].name) {
+            continue;
+        }
         if (strcmp(env->symbols[i].name, name) == 0) {
             return &env->symbols[i];
         }
@@ -118,8 +167,11 @@ void env_set_var(Environment *env, const char *name, Value value) {
 
 /* Check if a name is a built-in function */
 bool is_builtin_function(const char *name) {
+    if (!name) {
+        return false;
+    }
     for (int i = 0; i < builtin_function_count; i++) {
-        if (strcmp(builtin_functions[i].name, name) == 0) {
+        if (builtin_functions[i].name && strcmp(builtin_functions[i].name, name) == 0) {
             return true;
         }
     }
@@ -165,6 +217,10 @@ Function *env_get_function(Environment *env, const char *name) {
 
     /* Check user-defined functions */
     for (int i = 0; i < env->function_count; i++) {
+        /* Skip functions with NULL names */
+        if (!env->functions[i].name) {
+            continue;
+        }
         if (strcmp(env->functions[i].name, name) == 0) {
             return &env->functions[i];
         }
@@ -234,4 +290,77 @@ Value create_array(ValueType elem_type, int length, int capacity) {
     v.as.array_val->data = calloc(v.as.array_val->capacity, elem_size);
     
     return v;
+}
+
+Value create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count) {
+    Value v;
+    v.type = VAL_STRUCT;
+    v.is_return = false;
+    v.as.struct_val = malloc(sizeof(StructValue));
+    v.as.struct_val->struct_name = strdup(struct_name);
+    v.as.struct_val->field_count = field_count;
+    
+    /* Allocate and copy field names */
+    v.as.struct_val->field_names = malloc(sizeof(char*) * field_count);
+    for (int i = 0; i < field_count; i++) {
+        v.as.struct_val->field_names[i] = strdup(field_names[i]);
+    }
+    
+    /* Allocate and copy field values */
+    v.as.struct_val->field_values = malloc(sizeof(Value) * field_count);
+    for (int i = 0; i < field_count; i++) {
+        v.as.struct_val->field_values[i] = field_values[i];
+    }
+    
+    return v;
+}
+
+/* Define struct */
+void env_define_struct(Environment *env, StructDef struct_def) {
+    if (env->struct_count >= env->struct_capacity) {
+        env->struct_capacity *= 2;
+        env->structs = realloc(env->structs, sizeof(StructDef) * env->struct_capacity);
+    }
+    env->structs[env->struct_count++] = struct_def;
+}
+
+/* Get struct definition */
+StructDef *env_get_struct(Environment *env, const char *name) {
+    for (int i = 0; i < env->struct_count; i++) {
+        if (strcmp(env->structs[i].name, name) == 0) {
+            return &env->structs[i];
+        }
+    }
+    return NULL;
+}
+
+/* Define enum */
+void env_define_enum(Environment *env, EnumDef enum_def) {
+    if (env->enum_count >= env->enum_capacity) {
+        env->enum_capacity *= 2;
+        env->enums = realloc(env->enums, sizeof(EnumDef) * env->enum_capacity);
+    }
+    env->enums[env->enum_count++] = enum_def;
+}
+
+/* Get enum definition */
+EnumDef *env_get_enum(Environment *env, const char *name) {
+    for (int i = 0; i < env->enum_count; i++) {
+        if (strcmp(env->enums[i].name, name) == 0) {
+            return &env->enums[i];
+        }
+    }
+    return NULL;
+}
+
+/* Get enum variant value */
+int env_get_enum_variant(Environment *env, const char *variant_name) {
+    for (int i = 0; i < env->enum_count; i++) {
+        for (int j = 0; j < env->enums[i].variant_count; j++) {
+            if (strcmp(env->enums[i].variant_names[j], variant_name) == 0) {
+                return env->enums[i].variant_values[j];
+            }
+        }
+    }
+    return -1;  /* Not found */
 }

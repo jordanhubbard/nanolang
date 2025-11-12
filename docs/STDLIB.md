@@ -1,6 +1,6 @@
 # nanolang Standard Library Reference
 
-Complete reference for all 24 built-in functions in nanolang.
+Complete reference for all 37 built-in functions in nanolang.
 
 ---
 
@@ -142,7 +142,7 @@ Returns the tangent of x (in radians).
 
 ---
 
-## String Operations (5)
+## String Operations (18)
 
 ### `str_length(s: string) -> int`
 Returns the length of a string in bytes.
@@ -191,6 +191,217 @@ let s2: string = "Hello"
 let s3: string = "World"
 (str_equals s1 s2)   # Returns true
 (str_equals s1 s3)   # Returns false
+```
+
+---
+
+## Advanced String Operations (13)
+
+### Character Access (2)
+
+#### `char_at(s: string, index: int) -> int`
+Returns the ASCII value of the character at the specified index.
+- Index is 0-based
+- Returns integer ASCII value (0-255)
+- **Bounds-checked** - terminates with error if index is out of bounds
+
+```nano
+let text: string = "Hello"
+let h: int = (char_at text 0)  # Returns 72 (ASCII 'H')
+let e: int = (char_at text 1)  # Returns 101 (ASCII 'e')
+let o: int = (char_at text 4)  # Returns 111 (ASCII 'o')
+```
+
+**Use Case:** Essential for lexical analysis and character-by-character parsing.
+
+#### `string_from_char(c: int) -> string`
+Creates a single-character string from an ASCII value.
+
+```nano
+let a: string = (string_from_char 65)   # Returns "A"
+let z: string = (string_from_char 90)   # Returns "Z"
+let zero: string = (string_from_char 48)  # Returns "0"
+let space: string = (string_from_char 32)  # Returns " "
+```
+
+**Use Case:** Building strings character-by-character, useful for code generation.
+
+### Character Classification (6)
+
+#### `is_digit(c: int) -> bool`
+Returns true if the character is a digit ('0'-'9').
+
+```nano
+(is_digit 48)   # Returns true  ('0')
+(is_digit 53)   # Returns true  ('5')
+(is_digit 57)   # Returns true  ('9')
+(is_digit 65)   # Returns false ('A')
+(is_digit 97)   # Returns false ('a')
+```
+
+**Use Case:** Token classification in lexical analysis.
+
+#### `is_alpha(c: int) -> bool`
+Returns true if the character is a letter (a-z, A-Z).
+
+```nano
+(is_alpha 65)   # Returns true  ('A')
+(is_alpha 90)   # Returns true  ('Z')
+(is_alpha 97)   # Returns true  ('a')
+(is_alpha 122)  # Returns true  ('z')
+(is_alpha 48)   # Returns false ('0')
+(is_alpha 32)   # Returns false (' ')
+```
+
+**Use Case:** Identifier validation in parsers.
+
+#### `is_alnum(c: int) -> bool`
+Returns true if the character is alphanumeric (digit or letter).
+
+```nano
+(is_alnum 48)   # Returns true  ('0')
+(is_alnum 65)   # Returns true  ('A')
+(is_alnum 97)   # Returns true  ('a')
+(is_alnum 32)   # Returns false (' ')
+(is_alnum 33)   # Returns false ('!')
+```
+
+**Use Case:** Checking if character is valid in an identifier.
+
+#### `is_whitespace(c: int) -> bool`
+Returns true if the character is whitespace (space, tab, newline, carriage return).
+
+```nano
+(is_whitespace 32)  # Returns true  (' ')
+(is_whitespace 9)   # Returns true  ('\t')
+(is_whitespace 10)  # Returns true  ('\n')
+(is_whitespace 13)  # Returns true  ('\r')
+(is_whitespace 65)  # Returns false ('A')
+```
+
+**Use Case:** Skipping whitespace during tokenization.
+
+#### `is_upper(c: int) -> bool`
+Returns true if the character is an uppercase letter (A-Z).
+
+```nano
+(is_upper 65)   # Returns true  ('A')
+(is_upper 90)   # Returns true  ('Z')
+(is_upper 77)   # Returns true  ('M')
+(is_upper 97)   # Returns false ('a')
+(is_upper 48)   # Returns false ('0')
+```
+
+#### `is_lower(c: int) -> bool`
+Returns true if the character is a lowercase letter (a-z).
+
+```nano
+(is_lower 97)   # Returns true  ('a')
+(is_lower 122)  # Returns true  ('z')
+(is_lower 109)  # Returns true  ('m')
+(is_lower 65)   # Returns false ('A')
+(is_lower 48)   # Returns false ('0')
+```
+
+### Type Conversions (5)
+
+#### `int_to_string(n: int) -> string`
+Converts an integer to its string representation.
+
+```nano
+let s1: string = (int_to_string 42)    # Returns "42"
+let s2: string = (int_to_string 0)     # Returns "0"
+let s3: string = (int_to_string -100)  # Returns "-100"
+let s4: string = (int_to_string 999)   # Returns "999"
+```
+
+**Use Case:** Formatting numbers for output, error messages, code generation.
+
+#### `string_to_int(s: string) -> int`
+Parses a string to an integer. Returns 0 if string cannot be parsed.
+
+```nano
+let n1: int = (string_to_int "42")     # Returns 42
+let n2: int = (string_to_int "0")      # Returns 0
+let n3: int = (string_to_int "-100")   # Returns -100
+let n4: int = (string_to_int "12345")  # Returns 12345
+```
+
+**Use Case:** Parsing numeric literals during compilation.
+
+#### `digit_value(c: int) -> int`
+Converts a digit character to its numeric value. Returns -1 if not a digit.
+
+```nano
+(digit_value 48)  # Returns 0  ('0' -> 0)
+(digit_value 49)  # Returns 1  ('1' -> 1)
+(digit_value 53)  # Returns 5  ('5' -> 5)
+(digit_value 57)  # Returns 9  ('9' -> 9)
+(digit_value 65)  # Returns -1 ('A' is not a digit)
+```
+
+**Use Case:** Parsing multi-digit numbers character-by-character.
+
+#### `char_to_lower(c: int) -> int`
+Converts an uppercase letter to lowercase. Non-letters are unchanged.
+
+```nano
+(char_to_lower 65)   # Returns 97  ('A' -> 'a')
+(char_to_lower 90)   # Returns 122 ('Z' -> 'z')
+(char_to_lower 77)   # Returns 109 ('M' -> 'm')
+(char_to_lower 97)   # Returns 97  ('a' -> 'a', already lowercase)
+(char_to_lower 48)   # Returns 48  ('0' -> '0', not a letter)
+```
+
+**Use Case:** Case-insensitive comparisons, keyword normalization.
+
+#### `char_to_upper(c: int) -> int`
+Converts a lowercase letter to uppercase. Non-letters are unchanged.
+
+```nano
+(char_to_upper 97)   # Returns 65  ('a' -> 'A')
+(char_to_upper 122)  # Returns 90  ('z' -> 'Z')
+(char_to_upper 109)  # Returns 77  ('m' -> 'M')
+(char_to_upper 65)   # Returns 65  ('A' -> 'A', already uppercase)
+(char_to_upper 48)   # Returns 48  ('0' -> '0', not a letter)
+```
+
+**Use Case:** Normalizing identifiers, formatting output.
+
+### Practical Example: Simple Lexer
+
+```nano
+fn classify_char(c: int) -> string {
+    if (is_whitespace c) {
+        return "WHITESPACE"
+    }
+    if (is_digit c) {
+        return "DIGIT"
+    }
+    if (is_alpha c) {
+        return "LETTER"
+    }
+    return "SYMBOL"
+}
+
+fn parse_number(source: string, start: int) -> int {
+    let mut result: int = 0
+    let mut pos: int = start
+    let len: int = (str_length source)
+    
+    while (< pos len) {
+        let c: int = (char_at source pos)
+        if (is_digit c) {
+            let digit: int = (digit_value c)
+            set result (+ (* result 10) digit)
+            set pos (+ pos 1)
+        } else {
+            return result
+        }
+    }
+    
+    return result
+}
 ```
 
 ---

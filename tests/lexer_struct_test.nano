@@ -1,0 +1,17 @@
+# Test struct tokenization
+struct Point {
+    x: int,
+    y: int
+}
+
+enum TokenType {
+    TOKEN_NUMBER,
+    TOKEN_STRING
+}
+
+fn main() -> int {
+    let p: Point = Point { x: 1, y: 2 }
+    let t: int = p.x
+    return 0
+}
+

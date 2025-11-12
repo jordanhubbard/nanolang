@@ -1,0 +1,168 @@
+# Test 21: External C Functions - Math Library
+# This test demonstrates calling safe C math functions via extern declarations
+
+# Declare external C math functions (safe - no buffer operations)
+extern fn asin(x: float) -> float
+extern fn acos(x: float) -> float
+extern fn atan(x: float) -> float
+extern fn atan2(y: float, x: float) -> float
+
+extern fn exp(x: float) -> float
+extern fn exp2(x: float) -> float
+extern fn log(x: float) -> float
+extern fn log10(x: float) -> float
+extern fn log2(x: float) -> float
+
+extern fn cbrt(x: float) -> float
+extern fn hypot(x: float, y: float) -> float
+
+extern fn trunc(x: float) -> float
+extern fn rint(x: float) -> float
+extern fn nearbyint(x: float) -> float
+
+extern fn fmod(x: float, y: float) -> float
+extern fn remainder(x: float, y: float) -> float
+
+# Test inverse trigonometric functions
+fn test_inverse_trig() -> int {
+    let half: float = 0.5
+    let result_asin: float = (asin half)
+    let result_acos: float = (acos half)
+    let result_atan: float = (atan 1.0)
+    let result_atan2: float = (atan2 1.0 1.0)
+    
+    (println "Inverse Trig Results:")
+    (println result_asin)
+    (println result_acos)
+    (println result_atan)
+    (println result_atan2)
+    
+    return 0
+}
+
+shadow test_inverse_trig {
+    assert (== (test_inverse_trig) 0)
+}
+
+# Test exponential functions
+fn test_exponential() -> int {
+    let x: float = 2.0
+    let result_exp: float = (exp x)
+    let result_exp2: float = (exp2 x)
+    let result_log: float = (log result_exp)
+    let result_log10: float = (log10 100.0)
+    let result_log2: float = (log2 8.0)
+    
+    (println "Exponential Results:")
+    (println result_exp)
+    (println result_exp2)
+    (println result_log)
+    (println result_log10)
+    (println result_log2)
+    
+    return 0
+}
+
+shadow test_exponential {
+    assert (== (test_exponential) 0)
+}
+
+# Test power functions
+fn test_power() -> int {
+    let x: float = 8.0
+    let y: float = 27.0
+    
+    let result_cbrt: float = (cbrt y)  # Cube root of 27 = 3
+    let result_hypot: float = (hypot 3.0 4.0)  # Hypotenuse of 3-4-5 triangle = 5
+    
+    (println "Power Results:")
+    (println result_cbrt)
+    (println result_hypot)
+    
+    return 0
+}
+
+shadow test_power {
+    assert (== (test_power) 0)
+}
+
+# Test rounding functions
+fn test_rounding() -> int {
+    let x: float = 3.7
+    let y: float = -2.3
+    
+    let result_trunc_pos: float = (trunc x)  # 3.0
+    let result_trunc_neg: float = (trunc y)  # -2.0
+    let result_rint: float = (rint x)  # 4.0 (nearest)
+    let result_nearbyint: float = (nearbyint y)  # -2.0 (nearest)
+    
+    (println "Rounding Results:")
+    (println result_trunc_pos)
+    (println result_trunc_neg)
+    (println result_rint)
+    (println result_nearbyint)
+    
+    return 0
+}
+
+shadow test_rounding {
+    assert (== (test_rounding) 0)
+}
+
+# Test remainder functions
+fn test_remainder() -> int {
+    let x: float = 7.5
+    let y: float = 2.0
+    
+    let result_fmod: float = (fmod x y)  # 1.5
+    let result_remainder: float = (remainder x y)  # -0.5 (signed remainder)
+    
+    (println "Remainder Results:")
+    (println result_fmod)
+    (println result_remainder)
+    
+    return 0
+}
+
+shadow test_remainder {
+    assert (== (test_remainder) 0)
+}
+
+# Main function to run all tests
+fn main() -> int {
+    (println "========================================")
+    (println "External C Functions - Math Library Test")
+    (println "========================================")
+    
+    (println "")
+    (println "Test 1: Inverse Trigonometric Functions")
+    let r1: int = (test_inverse_trig)
+    
+    (println "")
+    (println "Test 2: Exponential Functions")
+    let r2: int = (test_exponential)
+    
+    (println "")
+    (println "Test 3: Power Functions")
+    let r3: int = (test_power)
+    
+    (println "")
+    (println "Test 4: Rounding Functions")
+    let r4: int = (test_rounding)
+    
+    (println "")
+    (println "Test 5: Remainder Functions")
+    let r5: int = (test_remainder)
+    
+    (println "")
+    (println "========================================")
+    (println "All extern math tests completed!")
+    (println "========================================")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

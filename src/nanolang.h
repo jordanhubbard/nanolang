@@ -30,8 +30,10 @@ typedef enum {
     TOKEN_COLON,
     TOKEN_ARROW,
     TOKEN_ASSIGN,
+    TOKEN_DOT,
 
     /* Keywords */
+    TOKEN_EXTERN,
     TOKEN_FN,
     TOKEN_LET,
     TOKEN_MUT,
@@ -46,6 +48,8 @@ typedef enum {
     TOKEN_SHADOW,
     TOKEN_PRINT,
     TOKEN_ARRAY,
+    TOKEN_STRUCT,
+    TOKEN_ENUM,
 
     /* Types */
     TOKEN_TYPE_INT,
@@ -80,6 +84,9 @@ typedef struct {
     int column;
 } Token;
 
+/* Forward declarations */
+typedef struct Value Value;
+
 /* Value types */
 typedef enum {
     VAL_INT,
@@ -87,6 +94,7 @@ typedef enum {
     VAL_BOOL,
     VAL_STRING,
     VAL_ARRAY,
+    VAL_STRUCT,  /* NEW: Struct values */
     VAL_VOID
 } ValueType;
 
@@ -98,6 +106,14 @@ typedef struct {
     void *data;              /* Pointer to array data */
 } Array;
 
+/* Struct value structure */
+typedef struct {
+    char *struct_name;       /* Name of struct type (e.g., "Point") */
+    char **field_names;      /* Array of field names */
+    Value *field_values;     /* Array of field values */
+    int field_count;         /* Number of fields */
+} StructValue;
+
 /* Type information */
 typedef enum {
     TYPE_INT,
@@ -106,6 +122,10 @@ typedef enum {
     TYPE_STRING,
     TYPE_VOID,
     TYPE_ARRAY,
+    TYPE_STRUCT,
+    TYPE_ENUM,
+    TYPE_LIST_INT,
+    TYPE_LIST_STRING,
     TYPE_UNKNOWN
 } Type;
 
@@ -116,7 +136,7 @@ typedef struct TypeInfo {
 } TypeInfo;
 
 /* Value structure */
-typedef struct {
+struct Value {
     ValueType type;
     bool is_return;  /* Flag to propagate return statements through control flow */
     union {
@@ -125,8 +145,9 @@ typedef struct {
         bool bool_val;
         char *string_val;
         Array *array_val;
+        StructValue *struct_val;  /* NEW: Struct values */
     } as;
-} Value;
+};
 
 /* AST node types */
 typedef enum {
@@ -149,7 +170,11 @@ typedef enum {
     AST_SHADOW,
     AST_PROGRAM,
     AST_PRINT,
-    AST_ASSERT
+    AST_ASSERT,
+    AST_STRUCT_DEF,
+    AST_STRUCT_LITERAL,
+    AST_FIELD_ACCESS,
+    AST_ENUM_DEF
 } ASTNodeType;
 
 /* Forward declaration */
@@ -159,6 +184,7 @@ typedef struct ASTNode ASTNode;
 typedef struct {
     char *name;
     Type type;
+    char *struct_type_name;  /* For TYPE_STRUCT: which struct (e.g., "Point") */
 } Parameter;
 
 /* AST node structure */
@@ -223,7 +249,9 @@ struct ASTNode {
             Parameter *params;
             int param_count;
             Type return_type;
+            char *return_struct_type_name;  /* For TYPE_STRUCT returns */
             ASTNode *body;
+            bool is_extern;  /* NEW: Mark external C functions */
         } function;
         struct {
             char *function_name;
@@ -239,6 +267,28 @@ struct ASTNode {
         struct {
             ASTNode *condition;
         } assert;
+        struct {
+            char *name;               // Struct name
+            char **field_names;       // Array of field names
+            Type *field_types;        // Array of field types
+            int field_count;          // Number of fields
+        } struct_def;
+        struct {
+            char *struct_name;        // Name of struct type
+            char **field_names;       // Array of field names (for initialization)
+            ASTNode **field_values;   // Array of field value expressions
+            int field_count;          // Number of fields
+        } struct_literal;
+        struct {
+            ASTNode *object;          // The struct instance expression
+            char *field_name;         // The field being accessed
+        } field_access;
+        struct {
+            char *name;               // Enum name
+            char **variant_names;     // Array of variant names
+            int *variant_values;      // Array of variant values (or NULL for auto)
+            int variant_count;        // Number of variants
+        } enum_def;
     } as;
 };
 
@@ -246,6 +296,8 @@ struct ASTNode {
 typedef struct {
     char *name;
     Type type;
+    char *struct_type_name;  /* For TYPE_STRUCT: which struct (e.g., "Point", "Color") */
+    Type element_type;       /* For TYPE_ARRAY: element type (e.g., TYPE_INT for array<int>) */
     bool is_mut;
     Value value;
     bool is_used;  /* Track if variable is ever used */
@@ -259,9 +311,27 @@ typedef struct {
     Parameter *params;
     int param_count;
     Type return_type;
+    char *return_struct_type_name;  /* For TYPE_STRUCT returns: which struct */
     ASTNode *body;
     ASTNode *shadow_test;
+    bool is_extern;  /* NEW: Mark external C functions */
 } Function;
+
+/* Struct definition entry */
+typedef struct {
+    char *name;
+    char **field_names;
+    Type *field_types;
+    int field_count;
+} StructDef;
+
+/* Enum definition entry */
+typedef struct {
+    char *name;
+    char **variant_names;
+    int *variant_values;
+    int variant_count;
+} EnumDef;
 
 /* Environment for variable and function storage */
 typedef struct {
@@ -271,6 +341,12 @@ typedef struct {
     Function *functions;
     int function_count;
     int function_capacity;
+    StructDef *structs;
+    int struct_count;
+    int struct_capacity;
+    EnumDef *enums;
+    int enum_count;
+    int enum_capacity;
 } Environment;
 
 /* Function declarations */
@@ -302,11 +378,17 @@ char *transpile_to_c(ASTNode *program, Environment *env);
 Environment *create_environment(void);
 void free_environment(Environment *env);
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value);
+void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value);
 Symbol *env_get_var(Environment *env, const char *name);
 void env_set_var(Environment *env, const char *name, Value value);
 void env_define_function(Environment *env, Function func);
 Function *env_get_function(Environment *env, const char *name);
 bool is_builtin_function(const char *name);
+void env_define_struct(Environment *env, StructDef struct_def);
+StructDef *env_get_struct(Environment *env, const char *name);
+void env_define_enum(Environment *env, EnumDef enum_def);
+EnumDef *env_get_enum(Environment *env, const char *name);
+int env_get_enum_variant(Environment *env, const char *variant_name);
 
 /* Utilities */
 Type token_to_type(TokenType token);
@@ -317,5 +399,6 @@ Value create_bool(bool val);
 Value create_string(const char *val);
 Value create_void(void);
 Value create_array(ValueType elem_type, int length, int capacity);
+Value create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count);
 
 #endif /* NANOLANG_H */

@@ -1,0 +1,99 @@
+# nanolang Project Rules
+
+## Documentation Policy
+
+### 1. Obsolete Files
+- **All .md files which are already implemented and are now obsolete should be deleted from the top level directory.**
+- This includes:
+  - Implementation completion summaries (e.g., `*_COMPLETE.md`, `*_IMPLEMENTATION_COMPLETE.md`)
+  - Session summaries (e.g., `SESSION_SUMMARY_*.md`, `*_SESSION_SUMMARY.md`)
+  - Status files for completed work (e.g., `*_STATUS.md`, `*_PROGRESS.md`)
+  - Bug fix summaries (e.g., `*_FIX.md`, `*_BUGS_FIXED.md`)
+  - Test result files (e.g., `TEST_RESULTS.md`, `TEST_STATUS.md`)
+
+### 2. Planning Documents
+- **All .md files which represent work to be done should be moved into a directory called `planning/`.**
+- This includes:
+  - Implementation plans (e.g., `*_PLAN.md`, `*_IMPLEMENTATION_PLAN.md`)
+  - Proposals (e.g., `*_PROPOSAL.md`)
+  - Design documents for future features (e.g., `*_DESIGN.md` if not user-facing)
+  - Roadmaps and timelines (e.g., `*_ROADMAP.md`)
+
+### 3. User-Facing Documentation
+- **All .md files which represent user-facing documentation should be consolidated into `docs/` directory.**
+- **Every time you add a file in the `docs/` directory, you must review all existing `docs/` entries to see if there is any overlap or duplication.**
+- User-facing documentation includes:
+  - Language guides (e.g., `MUTABILITY_GUIDE.md`, `TRACING_IMPLEMENTATION.md`)
+  - API references (e.g., `SAFE_C_FFI_FUNCTIONS.md`)
+  - Tutorials and getting started guides
+  - Feature documentation
+- When consolidating:
+  - Merge duplicate content into a single authoritative document
+  - Update cross-references between documents
+  - Update `docs/DOCS_INDEX.md` to reflect changes
+  - Remove obsolete sections
+
+### 4. Test Files
+- **All test files that are durable tests, not just temporary test files, should be in `tests/`.**
+- Durable tests include:
+  - Unit tests
+  - Integration tests
+  - Regression tests
+  - Negative tests (tests that should fail)
+  - Performance tests
+- Temporary test files should be removed after we are done with them.
+
+### 5. Temporary Files
+- **Any temporary test files should be removed after we are done.**
+- Temporary files include:
+  - `test_*.nano` files in the root directory (unless they're examples)
+  - `test_*.c` files in the root directory
+  - Debug build artifacts (`.dSYM` directories, etc.)
+  - One-off test scripts that aren't part of the test suite
+
+## File Organization Summary
+
+```
+nanolang/
+├── README.md                    # Main project README (keep in root)
+├── docs/                        # User-facing documentation
+│   ├── DOCS_INDEX.md           # Must be updated when docs change
+│   ├── GETTING_STARTED.md
+│   ├── SPECIFICATION.md
+│   └── ...
+├── planning/                    # Future work and plans
+│   ├── ENUM_IMPLEMENTATION_PLAN.md
+│   ├── TRACING_DESIGN.md
+│   └── ...
+├── tests/                       # Durable test files
+│   ├── unit/
+│   ├── integration/
+│   ├── negative/
+│   └── ...
+├── examples/                    # Example programs
+└── src/                        # Source code
+```
+
+## Enforcement
+
+- Before committing changes, verify:
+  1. No obsolete .md files in root directory
+  2. Planning documents are in `planning/`
+  3. User-facing docs are in `docs/` and consolidated
+  4. Durable tests are in `tests/`
+  5. Temporary test files are removed
+  6. `docs/DOCS_INDEX.md` is updated if docs changed
+
+## Examples
+
+### ✅ Good
+- `docs/MUTABILITY_GUIDE.md` - User-facing guide
+- `planning/SELF_HOSTING_IMPLEMENTATION_PLAN.md` - Future work
+- `tests/unit/calculator_test.c` - Durable test
+
+### ❌ Bad
+- `MUTABILITY_GUIDE.md` in root - Should be in `docs/`
+- `ENUM_IMPLEMENTATION_COMPLETE.md` in root - Obsolete, should be deleted
+- `test_debug.nano` in root - Temporary, should be removed
+- `docs/EXTERN_FFI.md` and `docs/SAFE_C_FFI_FUNCTIONS.md` with duplicate content - Should be consolidated
+

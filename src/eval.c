@@ -1,4 +1,9 @@
 #include "nanolang.h"
+#include "runtime/list_int.h"
+#include "runtime/list_string.h"
+#include "tracing.h"
+#include <stdlib.h>
+#include <time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -245,6 +250,18 @@ static void print_value(Value val) {
             printf("]");
             break;
         }
+        case VAL_STRUCT: {
+            /* Print struct as StructName { field1: value1, field2: value2 } */
+            StructValue *sv = val.as.struct_val;
+            printf("%s { ", sv->struct_name);
+            for (int i = 0; i < sv->field_count; i++) {
+                if (i > 0) printf(", ");
+                printf("%s: ", sv->field_names[i]);
+                print_value(sv->field_values[i]);
+            }
+            printf(" }");
+            break;
+        }
         case VAL_VOID:
             printf("void");
             break;
@@ -387,6 +404,11 @@ static Value builtin_tan(Value *args) {
         return create_float(tan((double)args[0].as.int_val));
     }
     fprintf(stderr, "Error: tan requires numeric argument\n");
+    return create_void();
+}
+
+static Value builtin_print(Value *args) {
+    print_value(args[0]);
     return create_void();
 }
 
@@ -669,6 +691,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
     TokenType op = node->as.prefix_op.op;
     int arg_count = node->as.prefix_op.arg_count;
 
+
     /* Arithmetic operators */
     if (op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_STAR ||
         op == TOKEN_SLASH || op == TOKEN_PERCENT) {
@@ -759,6 +782,35 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 case VAL_FLOAT: equal = left.as.float_val == right.as.float_val; break;
                 case VAL_BOOL: equal = left.as.bool_val == right.as.bool_val; break;
                 case VAL_STRING: equal = strcmp(left.as.string_val, right.as.string_val) == 0; break;
+                case VAL_STRUCT: {
+                    /* Structs are equal if they're the same type and all fields are equal */
+                    StructValue *left_sv = left.as.struct_val;
+                    StructValue *right_sv = right.as.struct_val;
+                    if (strcmp(left_sv->struct_name, right_sv->struct_name) != 0 ||
+                        left_sv->field_count != right_sv->field_count) {
+                        equal = false;
+                    } else {
+                        equal = true;
+                        for (int i = 0; i < left_sv->field_count && equal; i++) {
+                            Value left_field = left_sv->field_values[i];
+                            Value right_field = right_sv->field_values[i];
+                            /* Recursively compare field values (simplified - only int/float/bool/string) */
+                            if (left_field.type != right_field.type) {
+                                equal = false;
+                            } else if (left_field.type == VAL_INT) {
+                                equal = left_field.as.int_val == right_field.as.int_val;
+                            } else if (left_field.type == VAL_FLOAT) {
+                                equal = left_field.as.float_val == right_field.as.float_val;
+                            } else if (left_field.type == VAL_BOOL) {
+                                equal = left_field.as.bool_val == right_field.as.bool_val;
+                            } else if (left_field.type == VAL_STRING) {
+                                equal = strcmp(left_field.as.string_val, right_field.as.string_val) == 0;
+                            }
+                        }
+                    }
+                    break;
+                }
+                case VAL_VOID: equal = true; break;  /* void == void */
                 case VAL_ARRAY: {
                     /* Arrays are equal if they have same length and all elements equal */
                     Array *left_arr = left.as.array_val;
@@ -789,7 +841,6 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                     }
                     break;
                 }
-                case VAL_VOID: equal = true; break;
             }
         }
 
@@ -830,6 +881,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
 /* Evaluate function call */
 static Value eval_call(ASTNode *node, Environment *env) {
     const char *name = node->as.call.name;
+
 
     /* Special built-in: range (used in for loops only) */
     if (strcmp(name, "range") == 0) {
@@ -877,6 +929,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "abs") == 0) return builtin_abs(args);
     if (strcmp(name, "min") == 0) return builtin_min(args);
     if (strcmp(name, "max") == 0) return builtin_max(args);
+    if (strcmp(name, "print") == 0) return builtin_print(args);
     if (strcmp(name, "println") == 0) return builtin_println(args);
     
     /* Advanced math functions */
@@ -898,11 +951,199 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "str_contains") == 0) return builtin_str_contains(args);
     if (strcmp(name, "str_equals") == 0) return builtin_str_equals(args);
     
+    /* Advanced string operations */
+    if (strcmp(name, "char_at") == 0) {
+        if (args[0].type != VAL_STRING || args[1].type != VAL_INT) {
+            fprintf(stderr, "Error: char_at requires string and int\n");
+            return create_void();
+        }
+        const char *str = args[0].as.string_val;
+        long long index = args[1].as.int_val;
+        int len = strlen(str);
+        if (index < 0 || index >= len) {
+            fprintf(stderr, "Error: Index %lld out of bounds (string length %d)\n", index, len);
+            return create_void();
+        }
+        return create_int((unsigned char)str[index]);
+    }
+    
+    if (strcmp(name, "string_from_char") == 0) {
+        if (args[0].type != VAL_INT) {
+            fprintf(stderr, "Error: string_from_char requires int\n");
+            return create_void();
+        }
+        char buffer[2];
+        buffer[0] = (char)args[0].as.int_val;
+        buffer[1] = '\0';
+        return create_string(buffer);
+    }
+    
+    /* Character classification */
+    if (strcmp(name, "is_digit") == 0) {
+        if (args[0].type != VAL_INT) return create_bool(false);
+        int c = (int)args[0].as.int_val;
+        return create_bool(c >= '0' && c <= '9');
+    }
+    
+    if (strcmp(name, "is_alpha") == 0) {
+        if (args[0].type != VAL_INT) return create_bool(false);
+        int c = (int)args[0].as.int_val;
+        return create_bool((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+    }
+    
+    if (strcmp(name, "is_alnum") == 0) {
+        if (args[0].type != VAL_INT) return create_bool(false);
+        int c = (int)args[0].as.int_val;
+        return create_bool((c >= '0' && c <= '9') || 
+                           (c >= 'a' && c <= 'z') || 
+                           (c >= 'A' && c <= 'Z'));
+    }
+    
+    if (strcmp(name, "is_whitespace") == 0) {
+        if (args[0].type != VAL_INT) return create_bool(false);
+        int c = (int)args[0].as.int_val;
+        return create_bool(c == ' ' || c == '\t' || c == '\n' || c == '\r');
+    }
+    
+    if (strcmp(name, "is_upper") == 0) {
+        if (args[0].type != VAL_INT) return create_bool(false);
+        int c = (int)args[0].as.int_val;
+        return create_bool(c >= 'A' && c <= 'Z');
+    }
+    
+    if (strcmp(name, "is_lower") == 0) {
+        if (args[0].type != VAL_INT) return create_bool(false);
+        int c = (int)args[0].as.int_val;
+        return create_bool(c >= 'a' && c <= 'z');
+    }
+    
+    /* Type conversions */
+    if (strcmp(name, "int_to_string") == 0) {
+        if (args[0].type != VAL_INT) {
+            return create_string("0");
+        }
+        char buffer[32];
+        snprintf(buffer, sizeof(buffer), "%lld", args[0].as.int_val);
+        return create_string(buffer);
+    }
+    
+    if (strcmp(name, "string_to_int") == 0) {
+        if (args[0].type != VAL_STRING) {
+            return create_int(0);
+        }
+        long long result = strtoll(args[0].as.string_val, NULL, 10);
+        return create_int(result);
+    }
+    
+    if (strcmp(name, "digit_value") == 0) {
+        if (args[0].type != VAL_INT) return create_int(-1);
+        int c = (int)args[0].as.int_val;
+        if (c >= '0' && c <= '9') {
+            return create_int(c - '0');
+        }
+        return create_int(-1);
+    }
+    
+    if (strcmp(name, "char_to_lower") == 0) {
+        if (args[0].type != VAL_INT) return create_int(args[0].as.int_val);
+        int c = (int)args[0].as.int_val;
+        if (c >= 'A' && c <= 'Z') {
+            return create_int(c + 32);
+        }
+        return create_int(c);
+    }
+    
+    if (strcmp(name, "char_to_upper") == 0) {
+        if (args[0].type != VAL_INT) return create_int(args[0].as.int_val);
+        int c = (int)args[0].as.int_val;
+        if (c >= 'a' && c <= 'z') {
+            return create_int(c - 32);
+        }
+        return create_int(c);
+    }
+    
     /* Array operations */
     if (strcmp(name, "at") == 0) return builtin_at(args);
     if (strcmp(name, "array_length") == 0) return builtin_array_length(args);
     if (strcmp(name, "array_new") == 0) return builtin_array_new(args);
     if (strcmp(name, "array_set") == 0) return builtin_array_set(args);
+    
+    /* list_int operations - delegate to C runtime */
+    if (strcmp(name, "list_int_new") == 0) {
+        List_int *list = list_int_new();
+        Value result = create_int((long long)list);
+        return result;
+    }
+    if (strcmp(name, "list_int_with_capacity") == 0) {
+        List_int *list = list_int_with_capacity(args[0].as.int_val);
+        return create_int((long long)list);
+    }
+    if (strcmp(name, "list_int_push") == 0) {
+        List_int *list = (List_int*)args[0].as.int_val;
+        list_int_push(list, args[1].as.int_val);
+        return create_void();
+    }
+    if (strcmp(name, "list_int_pop") == 0) {
+        List_int *list = (List_int*)args[0].as.int_val;
+        return create_int(list_int_pop(list));
+    }
+    if (strcmp(name, "list_int_get") == 0) {
+        List_int *list = (List_int*)args[0].as.int_val;
+        return create_int(list_int_get(list, args[1].as.int_val));
+    }
+    if (strcmp(name, "list_int_set") == 0) {
+        List_int *list = (List_int*)args[0].as.int_val;
+        list_int_set(list, args[1].as.int_val, args[2].as.int_val);
+        return create_void();
+    }
+    if (strcmp(name, "list_int_insert") == 0) {
+        List_int *list = (List_int*)args[0].as.int_val;
+        list_int_insert(list, args[1].as.int_val, args[2].as.int_val);
+        return create_void();
+    }
+    if (strcmp(name, "list_int_remove") == 0) {
+        List_int *list = (List_int*)args[0].as.int_val;
+        return create_int(list_int_remove(list, args[1].as.int_val));
+    }
+    if (strcmp(name, "list_int_length") == 0) {
+        List_int *list = (List_int*)args[0].as.int_val;
+        return create_int(list_int_length(list));
+    }
+    if (strcmp(name, "list_int_capacity") == 0) {
+        List_int *list = (List_int*)args[0].as.int_val;
+        return create_int(list_int_capacity(list));
+    }
+    if (strcmp(name, "list_int_is_empty") == 0) {
+        List_int *list = (List_int*)args[0].as.int_val;
+        return create_bool(list_int_is_empty(list));
+    }
+    if (strcmp(name, "list_int_clear") == 0) {
+        List_int *list = (List_int*)args[0].as.int_val;
+        list_int_clear(list);
+        return create_void();
+    }
+    if (strcmp(name, "list_int_free") == 0) {
+        List_int *list = (List_int*)args[0].as.int_val;
+        list_int_free(list);
+        return create_void();
+    }
+
+    /* External C library functions */
+    if (strcmp(name, "rand") == 0) {
+        return create_int(rand());
+    }
+    if (strcmp(name, "srand") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
+            fprintf(stderr, "Error: srand expects 1 int argument\n");
+            return create_void();
+        }
+        srand((unsigned int)args[0].as.int_val);
+        return create_void();
+    }
+    if (strcmp(name, "time") == 0) {
+        /* Simplified: ignore the argument, just return current time */
+        return create_int((long long)time(NULL));
+    }
 
     /* Get user-defined function */
     Function *func = env_get_function(env, name);
@@ -916,6 +1157,19 @@ static Value eval_call(ASTNode *node, Environment *env) {
         fprintf(stderr, "Error: Built-in function '%s' not implemented in interpreter\n", name);
         return create_void();
     }
+
+    /* Trace function call */
+    const char **param_names = NULL;
+    if (func->params) {
+        param_names = malloc(sizeof(char*) * func->param_count);
+        for (int i = 0; i < func->param_count; i++) {
+            param_names[i] = func->params[i].name;
+        }
+    }
+    tracing_push_call(name);
+    trace_function_call(name, args, node->as.call.arg_count, param_names, 
+                        node->line, node->column);
+    if (param_names) free(param_names);
 
     /* Create new environment for function */
     int old_symbol_count = env->symbol_count;
@@ -945,6 +1199,9 @@ static Value eval_call(ASTNode *node, Environment *env) {
         result = eval_statement(stmt, env);
     }
 
+    /* Pop call stack */
+    tracing_pop_call();
+
     /* Make a copy of the result if it's a string BEFORE cleaning up parameters */
     Value return_value = result;
     if (result.type == VAL_STRING) {
@@ -967,6 +1224,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
 static Value eval_expression(ASTNode *expr, Environment *env) {
     if (!expr) return create_void();
 
+
     switch (expr->type) {
         case AST_NUMBER:
             return create_int(expr->as.number);
@@ -986,6 +1244,16 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 fprintf(stderr, "Error: Undefined variable '%s'\n", expr->as.identifier);
                 return create_void();
             }
+            
+            /* Trace variable read */
+#ifdef TRACING_ENABLED
+            const char *scope = (g_tracing_config.call_stack_size > 0) ?
+                g_tracing_config.call_stack[g_tracing_config.call_stack_size - 1] : NULL;
+            trace_var_read(expr->as.identifier, sym->value, expr->line, expr->column, scope);
+#else
+            trace_var_read(expr->as.identifier, sym->value, expr->line, expr->column, NULL);
+#endif
+            
             return sym->value;
         }
 
@@ -1048,6 +1316,92 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             }
         }
 
+        case AST_STRUCT_LITERAL: {
+            /* Evaluate struct literal: Point { x: 10, y: 20 } */
+            
+            const char *struct_name = expr->as.struct_literal.struct_name;
+            int field_count = expr->as.struct_literal.field_count;
+            
+            
+            /* Get struct definition to verify field order */
+            StructDef *struct_def = env_get_struct(env, struct_name);
+            if (!struct_def) {
+                fprintf(stderr, "Error: Undefined struct '%s'\n", struct_name);
+                return create_void();
+            }
+            
+            
+            /* Allocate arrays for field names and values */
+            char **field_names = malloc(sizeof(char*) * field_count);
+            Value *field_values = malloc(sizeof(Value) * field_count);
+            
+            
+            /* Evaluate each field value */
+            for (int i = 0; i < field_count; i++) {
+                field_names[i] = expr->as.struct_literal.field_names[i];
+                field_values[i] = eval_expression(expr->as.struct_literal.field_values[i], env);
+            }
+            
+            
+            /* Create struct value */
+            Value result = create_struct(struct_name, field_names, field_values, field_count);
+            
+            
+            /* Free temporary arrays (create_struct makes copies) */
+            free(field_names);
+            free(field_values);
+            
+            
+            return result;
+        }
+
+        case AST_FIELD_ACCESS: {
+            /* Special case: Check if this is an enum variant access */
+            if (expr->as.field_access.object->type == AST_IDENTIFIER) {
+                const char *enum_name = expr->as.field_access.object->as.identifier;
+                EnumDef *enum_def = env_get_enum(env, enum_name);
+                
+                if (enum_def) {
+                    /* This is an enum variant access (e.g., Color.Red) */
+                    const char *variant_name = expr->as.field_access.field_name;
+                    
+                    /* Lookup variant value */
+                    for (int i = 0; i < enum_def->variant_count; i++) {
+                        if (strcmp(enum_def->variant_names[i], variant_name) == 0) {
+                            return create_int(enum_def->variant_values[i]);
+                        }
+                    }
+                    
+                    fprintf(stderr, "Error: Enum '%s' has no variant '%s'\n",
+                            enum_name, variant_name);
+                    return create_void();
+                }
+            }
+            
+            /* Regular struct field access */
+            /* Evaluate field access: point.x */
+            Value obj = eval_expression(expr->as.field_access.object, env);
+            
+            if (obj.type != VAL_STRUCT) {
+                fprintf(stderr, "Error: Cannot access field on non-struct value\n");
+                return create_void();
+            }
+            
+            const char *field_name = expr->as.field_access.field_name;
+            StructValue *sv = obj.as.struct_val;
+            
+            /* Find field in struct */
+            for (int i = 0; i < sv->field_count; i++) {
+                if (strcmp(sv->field_names[i], field_name) == 0) {
+                    return sv->field_values[i];
+                }
+            }
+            
+            fprintf(stderr, "Error: Struct '%s' has no field '%s'\n", 
+                    sv->struct_name, field_name);
+            return create_void();
+        }
+
         default:
             return create_void();
     }
@@ -1057,16 +1411,45 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 static Value eval_statement(ASTNode *stmt, Environment *env) {
     if (!stmt) return create_void();
 
+
     switch (stmt->type) {
         case AST_LET: {
             Value value = eval_expression(stmt->as.let.value, env);
             env_define_var(env, stmt->as.let.name, stmt->as.let.var_type, stmt->as.let.is_mut, value);
+            
+            /* Trace variable declaration */
+#ifdef TRACING_ENABLED
+            const char *scope = (g_tracing_config.call_stack_size > 0) ?
+                g_tracing_config.call_stack[g_tracing_config.call_stack_size - 1] : NULL;
+            trace_var_decl(stmt->as.let.name, stmt->as.let.var_type, value, 
+                          stmt->as.let.is_mut, stmt->line, stmt->column, scope);
+#else
+            trace_var_decl(stmt->as.let.name, stmt->as.let.var_type, value, 
+                          stmt->as.let.is_mut, stmt->line, stmt->column, NULL);
+#endif
+            
             return create_void();
         }
 
         case AST_SET: {
+            /* Get old value before setting */
+            Symbol *sym = env_get_var(env, stmt->as.set.name);
+            Value old_value = sym ? sym->value : create_void();
+            
             Value value = eval_expression(stmt->as.set.value, env);
             env_set_var(env, stmt->as.set.name, value);
+            
+            /* Trace variable assignment */
+#ifdef TRACING_ENABLED
+            const char *scope = (g_tracing_config.call_stack_size > 0) ?
+                g_tracing_config.call_stack[g_tracing_config.call_stack_size - 1] : NULL;
+            trace_var_set(stmt->as.set.name, old_value, value, 
+                         stmt->line, stmt->column, scope);
+#else
+            trace_var_set(stmt->as.set.name, old_value, value, 
+                         stmt->line, stmt->column, NULL);
+#endif
+            
             return create_void();
         }
 
@@ -1170,6 +1553,14 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             return create_void();
         }
 
+        case AST_STRUCT_DEF:
+        case AST_ENUM_DEF:
+        case AST_FUNCTION:
+        case AST_SHADOW:
+            /* Struct, enum, function, and shadow definitions are handled at program level */
+            /* Just return void if encountered during execution */
+            return create_void();
+
         default:
             /* Expression statements */
             return eval_expression(stmt, env);
@@ -1190,14 +1581,17 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
     /* Run each shadow test */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
+        
         if (item->type == AST_SHADOW) {
             printf("Testing %s... ", item->as.shadow.function_name);
-            fflush(stdout);
 
+            
             /* Execute shadow test */
             eval_statement(item->as.shadow.body, env);
 
             printf("PASSED\n");
+        } else {
+            eval_statement(item, env);
         }
     }
 

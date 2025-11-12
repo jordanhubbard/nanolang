@@ -47,7 +47,7 @@ Reserved keywords that cannot be used as identifiers:
 ```
 fn       let      mut      set      if       else
 while    for      in       return   assert   shadow
-int      float    bool     string   void     
+extern   int      float    bool     string   void     
 true     false    print    and      or       not
 ```
 
@@ -357,6 +357,51 @@ fn greet() -> void {
 }
 ```
 
+### 6.4 External Functions (FFI)
+
+External functions allow calling C standard library functions:
+
+```nano
+extern fn function_name(param: type) -> return_type
+```
+
+**Key Properties:**
+- No function body - declaration only
+- No shadow-test required
+- Called directly with original C name
+- Must be safe (no buffer overflows, bounds-checked)
+
+**Example:**
+
+```nano
+# Declare external C functions
+extern fn sqrt(x: float) -> float
+extern fn pow(x: float, y: float) -> float
+extern fn isdigit(c: int) -> int
+extern fn strlen(s: string) -> int
+
+# Use them in nanolang
+fn hypotenuse(a: float, b: float) -> float {
+    let a_sq: float = (pow a 2.0)
+    let b_sq: float = (pow b 2.0)
+    return (sqrt (+ a_sq b_sq))
+}
+
+shadow hypotenuse {
+    assert (== (hypotenuse 3.0 4.0) 5.0)
+}
+```
+
+**Safety Requirements:**
+
+Only expose safe C functions that:
+- Take explicit length parameters (e.g., `strncmp`, not `strcpy`)
+- Cannot cause buffer overflows
+- Have no pointer arithmetic
+- Are well-documented standard functions
+
+See `docs/EXTERN_FFI.md` for complete documentation.
+
 ## 7. Shadow-Tests
 
 ### 7.1 Purpose
@@ -535,11 +580,36 @@ shadow main {
 
 ### 9.5 Built-in Functions
 
-Built-in functions are provided by the runtime:
+Built-in functions are provided by the runtime. The standard library includes 37 built-in functions across multiple categories:
 
-- `print`: Output to stdout (polymorphic over printable types)
+**Core I/O (3):**
+- `print`, `println`: Output to stdout (polymorphic over printable types)
 - `assert`: Runtime assertion (used in shadow-tests)
-- `range`: Generate integer range for iteration
+
+**Math Operations (11):**
+- Basic: `abs`, `min`, `max`
+- Advanced: `sqrt`, `pow`, `floor`, `ceil`, `round`
+- Trigonometric: `sin`, `cos`, `tan`
+
+**String Operations (18):**
+- Basic: `str_length`, `str_concat`, `str_substring`, `str_contains`, `str_equals`
+- Character Access: `char_at`, `string_from_char`
+- Classification: `is_digit`, `is_alpha`, `is_alnum`, `is_whitespace`, `is_upper`, `is_lower`
+- Conversions: `int_to_string`, `string_to_int`, `digit_value`, `char_to_lower`, `char_to_upper`
+
+**Array Operations (4):**
+- `at`, `array_length`, `array_new`, `array_set`
+
+**List Operations (13):**
+- `list_int_*`: Dynamic integer list operations (new, push, pop, get, set, etc.)
+
+**OS Operations (17):**
+- File I/O, directory management, path operations, system commands
+
+**Iteration:**
+- `range`: Generate integer range for for-loops
+
+See [STDLIB.md](STDLIB.md) for complete documentation of all built-in functions.
 
 ## 10. Example Programs
 
