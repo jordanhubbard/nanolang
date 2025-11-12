@@ -43,7 +43,7 @@ make
 **Self-Hosting Foundation**: **100% Complete** (6/6 features) 🎉  
 **Quality**: CI/CD, sanitizers, coverage, linting
 
-See [VISION_PROGRESS.md](VISION_PROGRESS.md) and [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) for details.
+See [docs/ROADMAP.md](docs/ROADMAP.md) and [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) for details.
 
 ## Quick Example
 
@@ -395,9 +395,7 @@ See [Namespace Fixes Document](docs/NAMESPACE_FIXES.md) for details.
 - ✅ No pointers, immutability by default maintained
 - ✅ Can write a compiler in ~5,000 lines
 
-📊 **See [Elegance Scorecard](ELEGANCE_SCORECARD.md)** for visual summary (1 min)  
-🏛️ **See [Elegance Summary](ELEGANCE_SUMMARY.md)** for quick assessment (5 min)  
-📐 **See [Full Architectural Review](ARCHITECTURAL_ELEGANCE_REVIEW.md)** for detailed analysis (30 min)
+📊 **See [Architecture Analysis](docs/ARCHITECTURE_ANALYSIS.md)** for detailed architecture review
 
 ## Design Rationale
 
@@ -486,11 +484,12 @@ Hello, World
 - [x] C transpiler
 - [x] Standard library (24 functions)
 - [x] Command-line tools (nanoc + nano)
-- [ ] **Self-hosting compiler** - [Analysis Complete](SELF_HOSTING_SUMMARY.md)
+- [x] **Self-hosting foundation** - ✅ 6/6 essential features complete
+- [ ] **Self-hosting compiler** - Phase 2: Rewrite compiler components in nanolang
 
-**Next major milestone:** Self-hosting (estimated 6-12 months)
+**Next major milestone:** Self-hosting Phase 2 (estimated 13-18 weeks)
 
-See [SELF_HOSTING_SUMMARY.md](SELF_HOSTING_SUMMARY.md) for the roadmap to implementing nanolang in nanolang itself. We've identified the 6 essential features needed: structs, enums, dynamic lists, file I/O, advanced string operations, and system execution.
+See [planning/SELF_HOSTING_IMPLEMENTATION_PLAN.md](planning/SELF_HOSTING_IMPLEMENTATION_PLAN.md) for the roadmap to implementing nanolang in nanolang itself. All 6 essential features are complete: structs, enums, dynamic lists, file I/O, advanced string operations, and system execution. See [docs/SELF_HOSTING_CHECKLIST.md](docs/SELF_HOSTING_CHECKLIST.md) for status details.
 
 ## Contributing
 
