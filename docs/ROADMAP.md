@@ -188,10 +188,10 @@ Build a minimal, LLM-friendly programming language that:
 **Deliverables**:
 - [x] ✅ Implement structs (November 2025)
 - [x] ✅ Implement enums (November 2025)
+- [x] ✅ Implement dynamic lists/collections (November 2025 - list_int, list_string)
 - [x] ✅ Implement file I/O operations (stdlib complete)
+- [x] ✅ Implement advanced string operations (November 2025 - 13+ functions)
 - [x] ✅ Implement system execution (stdlib complete)
-- [ ] Implement dynamic lists/collections
-- [ ] Implement advanced string operations
 - [ ] Rewrite lexer in nanolang
 - [ ] Rewrite parser in nanolang
 - [ ] Rewrite type checker in nanolang

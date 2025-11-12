@@ -7,6 +7,9 @@ typedef struct {
     int pos;
 } Parser;
 
+/* Forward declarations */
+static Type parse_type_with_element(Parser *p, Type *element_type_out);
+
 /* Helper functions */
 static Token *current_token(Parser *p) {
     if (!p || !p->tokens || p->count <= 0) {
@@ -81,6 +84,11 @@ static ASTNode *create_node(ASTNodeType type, int line, int column) {
 
 /* Parse type annotation */
 static Type parse_type(Parser *p) {
+    return parse_type_with_element(p, NULL);
+}
+
+/* Parse type annotation with optional element_type output (for arrays) */
+static Type parse_type_with_element(Parser *p, Type *element_type_out) {
     Type type = TYPE_UNKNOWN;
     Token *tok = current_token(p);
 
@@ -128,8 +136,10 @@ static Type parse_type(Parser *p) {
             }
             advance(p);  /* consume '>' */
             
-            /* TODO: Store element_type somewhere - for now just return TYPE_ARRAY */
-            (void)element_type;  /* Suppress unused warning for now */
+            /* Store element_type if output parameter provided */
+            if (element_type_out) {
+                *element_type_out = element_type;
+            }
             type = TYPE_ARRAY;
             return type;
         default:
@@ -176,8 +186,11 @@ static bool parse_parameters(Parser *p, Parameter **params, int *param_count) {
                 struct_name = strdup(type_token->value);
             }
             
-            param_list[count].type = parse_type(p);
+            /* Parse type with element_type support for arrays */
+            Type element_type = TYPE_UNKNOWN;
+            param_list[count].type = parse_type_with_element(p, &element_type);
             param_list[count].struct_type_name = NULL;
+            param_list[count].element_type = element_type;
             
             /* If it's a struct type, save the struct name */
             if (param_list[count].type == TYPE_STRUCT && struct_name) {
@@ -586,7 +599,9 @@ static ASTNode *parse_statement(Parser *p) {
                 return NULL;
             }
 
-            Type type = parse_type(p);
+            /* Parse type with element_type support for arrays */
+            Type element_type = TYPE_UNKNOWN;
+            Type type = parse_type_with_element(p, &element_type);
 
             if (!expect(p, TOKEN_ASSIGN, "Expected '=' in let statement")) {
                 free(name);
@@ -598,6 +613,7 @@ static ASTNode *parse_statement(Parser *p) {
             node = create_node(AST_LET, line, column);
             node->as.let.name = name;
             node->as.let.var_type = type;
+            node->as.let.element_type = element_type;
             node->as.let.is_mut = is_mut;
             node->as.let.value = value;
             return node;
@@ -905,7 +921,7 @@ static ASTNode *parse_function(Parser *p, bool is_extern) {
     }
 
     if (!match(p, TOKEN_IDENTIFIER)) {
-        fprintf(stderr, "Error at line %d, column %d: Expected function name\n", line);
+        fprintf(stderr, "Error at line %d, column %d: Expected function name\n", line, column);
         return NULL;
     }
     char *name = strdup(current_token(p)->value);
@@ -978,7 +994,7 @@ static ASTNode *parse_shadow(Parser *p) {
     }
 
     if (!match(p, TOKEN_IDENTIFIER)) {
-        fprintf(stderr, "Error at line %d, column %d: Expected function name after 'shadow'\n", line);
+        fprintf(stderr, "Error at line %d, column %d: Expected function name after 'shadow'\n", line, column);
         return NULL;
     }
     char *func_name = strdup(current_token(p)->value);
@@ -1038,7 +1054,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             items[count++] = parse_shadow(&parser);
         } else {
             fprintf(stderr, "Error at line %d, column %d: Expected struct, enum, extern, function or shadow-test definition\n",
-                    current_token(&parser)->line);
+                    current_token(&parser)->line, current_token(&parser)->column);
             advance(&parser);
         }
     }

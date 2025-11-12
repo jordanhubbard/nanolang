@@ -484,13 +484,16 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
             }
 
             /* Extract element type if this is an array */
-            Type element_type = TYPE_UNKNOWN;
-            if (declared_type == TYPE_ARRAY && stmt->as.let.value->type == AST_ARRAY_LITERAL) {
-                ASTNode *array_lit = stmt->as.let.value;
-                if (array_lit->as.array_literal.element_count > 0) {
-                    element_type = check_expression(array_lit->as.array_literal.elements[0], tc->env);
-                } else if (array_lit->as.array_literal.element_type != TYPE_UNKNOWN) {
-                    element_type = array_lit->as.array_literal.element_type;
+            Type element_type = stmt->as.let.element_type;  /* Get from type annotation if available */
+            if (declared_type == TYPE_ARRAY && element_type == TYPE_UNKNOWN) {
+                /* Fallback: infer from array literal if not specified in type annotation */
+                if (stmt->as.let.value->type == AST_ARRAY_LITERAL) {
+                    ASTNode *array_lit = stmt->as.let.value;
+                    if (array_lit->as.array_literal.element_count > 0) {
+                        element_type = check_expression(array_lit->as.array_literal.elements[0], tc->env);
+                    } else if (array_lit->as.array_literal.element_type != TYPE_UNKNOWN) {
+                        element_type = array_lit->as.array_literal.element_type;
+                    }
                 }
             }
             
