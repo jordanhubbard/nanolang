@@ -47,6 +47,7 @@ const char *type_to_string(Type type) {
         case TYPE_ARRAY: return "array";
         case TYPE_STRUCT: return "struct";
         case TYPE_ENUM: return "enum";
+        case TYPE_UNION: return "union";
         case TYPE_LIST_INT: return "list_int";
         case TYPE_LIST_STRING: return "list_string";
         case TYPE_UNKNOWN: return "unknown";
@@ -449,6 +450,114 @@ Type check_expression(ASTNode *expr, Environment *env) {
             fprintf(stderr, "Error at line %d, column %d: Struct '%s' has no field '%s'\n",
                     expr->line, expr->column, struct_name, field_name);
             return TYPE_UNKNOWN;
+        }
+
+        case AST_UNION_CONSTRUCT: {
+            /* Check that union is defined */
+            UnionDef *udef = env_get_union(env, expr->as.union_construct.union_name);
+            if (!udef) {
+                fprintf(stderr, "Error at line %d, column %d: Undefined union '%s'\n",
+                        expr->line, expr->column, expr->as.union_construct.union_name);
+                return TYPE_UNKNOWN;
+            }
+            
+            /* Check that variant exists */
+            int variant_idx = env_get_union_variant_index(env, 
+                expr->as.union_construct.union_name, 
+                expr->as.union_construct.variant_name);
+            if (variant_idx < 0) {
+                fprintf(stderr, "Error at line %d, column %d: Unknown variant '%s' in union '%s'\n",
+                        expr->line, expr->column, 
+                        expr->as.union_construct.variant_name,
+                        expr->as.union_construct.union_name);
+                return TYPE_UNKNOWN;
+            }
+            
+            /* Check that field count matches */
+            int expected_field_count = udef->variant_field_counts[variant_idx];
+            if (expr->as.union_construct.field_count != expected_field_count) {
+                fprintf(stderr, "Error at line %d, column %d: Variant '%s' expects %d fields, got %d\n",
+                        expr->line, expr->column,
+                        expr->as.union_construct.variant_name,
+                        expected_field_count,
+                        expr->as.union_construct.field_count);
+                return TYPE_UNKNOWN;
+            }
+            
+            /* Check each field type */
+            for (int i = 0; i < expr->as.union_construct.field_count; i++) {
+                const char *field_name = expr->as.union_construct.field_names[i];
+                
+                /* Find matching field in variant definition */
+                int field_index = -1;
+                for (int j = 0; j < expected_field_count; j++) {
+                    if (strcmp(udef->variant_field_names[variant_idx][j], field_name) == 0) {
+                        field_index = j;
+                        break;
+                    }
+                }
+                
+                if (field_index < 0) {
+                    fprintf(stderr, "Error at line %d, column %d: Unknown field '%s' in variant '%s'\n",
+                            expr->line, expr->column, field_name,
+                            expr->as.union_construct.variant_name);
+                    return TYPE_UNKNOWN;
+                }
+                
+                /* Check field type */
+                Type expected_type = udef->variant_field_types[variant_idx][field_index];
+                Type actual_type = check_expression(expr->as.union_construct.field_values[i], env);
+                
+                if (actual_type != expected_type) {
+                    fprintf(stderr, "Error at line %d, column %d: Field '%s' expects type '%s', got '%s'\n",
+                            expr->line, expr->column, field_name,
+                            type_to_string(expected_type),
+                            type_to_string(actual_type));
+                    return TYPE_UNKNOWN;
+                }
+            }
+            
+            return TYPE_UNION;
+        }
+
+        case AST_MATCH: {
+            /* Check the expression being matched */
+            Type match_type = check_expression(expr->as.match_expr.expr, env);
+            if (match_type != TYPE_UNION) {
+                fprintf(stderr, "Error at line %d, column %d: Match expression must be a union type\n",
+                        expr->line, expr->column);
+                return TYPE_UNKNOWN;
+            }
+            
+            /* Check each arm and infer return type from first arm */
+            Type return_type = TYPE_UNKNOWN;
+            for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                /* Save symbol count for scope */
+                int saved_symbol_count = env->symbol_count;
+                
+                /* Add pattern binding to environment */
+                Value binding_val = create_void();
+                env_define_var_with_element_type(env, 
+                    expr->as.match_expr.pattern_bindings[i],
+                    TYPE_UNION, TYPE_UNKNOWN, false, binding_val);
+                
+                /* Type check arm body */
+                TypeChecker tc = {env, TYPE_VOID, false, false};
+                Type arm_type = check_statement(&tc, expr->as.match_expr.arm_bodies[i]);
+                
+                /* Restore scope */
+                env->symbol_count = saved_symbol_count;
+                
+                /* First arm determines return type */
+                if (i == 0) {
+                    return_type = arm_type;
+                } else if (arm_type != return_type && arm_type != TYPE_VOID) {
+                    fprintf(stderr, "Error at line %d, column %d: Match arms must all return the same type\n",
+                            expr->line, expr->column);
+                }
+            }
+            
+            return return_type;
         }
 
         default:
@@ -1563,6 +1672,56 @@ bool type_check(ASTNode *program, Environment *env) {
             }
             
             env_define_struct(env, sdef);
+            
+        } else if (item->type == AST_UNION_DEF) {
+            const char *union_name = item->as.union_def.name;
+            
+            /* Check if union already defined */
+            if (env_get_union(env, union_name)) {
+                fprintf(stderr, "Error at line %d, column %d: Union '%s' is already defined\n",
+                        item->line, item->column, union_name);
+                tc.has_error = true;
+                continue;
+            }
+            
+            /* Register the union */
+            UnionDef udef;
+            udef.name = strdup(union_name);
+            udef.variant_count = item->as.union_def.variant_count;
+            
+            /* Duplicate variant names */
+            udef.variant_names = malloc(sizeof(char*) * udef.variant_count);
+            for (int j = 0; j < udef.variant_count; j++) {
+                udef.variant_names[j] = strdup(item->as.union_def.variant_names[j]);
+            }
+            
+            /* Duplicate variant field counts */
+            udef.variant_field_counts = malloc(sizeof(int) * udef.variant_count);
+            for (int j = 0; j < udef.variant_count; j++) {
+                udef.variant_field_counts[j] = item->as.union_def.variant_field_counts[j];
+            }
+            
+            /* Duplicate variant field names */
+            udef.variant_field_names = malloc(sizeof(char**) * udef.variant_count);
+            for (int j = 0; j < udef.variant_count; j++) {
+                int field_count = udef.variant_field_counts[j];
+                udef.variant_field_names[j] = malloc(sizeof(char*) * field_count);
+                for (int k = 0; k < field_count; k++) {
+                    udef.variant_field_names[j][k] = strdup(item->as.union_def.variant_field_names[j][k]);
+                }
+            }
+            
+            /* Duplicate variant field types */
+            udef.variant_field_types = malloc(sizeof(Type*) * udef.variant_count);
+            for (int j = 0; j < udef.variant_count; j++) {
+                int field_count = udef.variant_field_counts[j];
+                udef.variant_field_types[j] = malloc(sizeof(Type) * field_count);
+                for (int k = 0; k < field_count; k++) {
+                    udef.variant_field_types[j][k] = item->as.union_def.variant_field_types[j][k];
+                }
+            }
+            
+            env_define_union(env, udef);
             
         } else if (item->type == AST_ENUM_DEF) {
             const char *enum_name = item->as.enum_def.name;
