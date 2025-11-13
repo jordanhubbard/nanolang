@@ -1,0 +1,15 @@
+/* Test 3: Union variant with multiple fields */
+union Point {
+    Origin {},
+    TwoD { x: int, y: int },
+    ThreeD { x: int, y: int, z: int }
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
