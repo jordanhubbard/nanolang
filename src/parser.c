@@ -72,6 +72,8 @@ static ASTNode *parse_expression(Parser *p);
 static ASTNode *parse_block(Parser *p);
 static ASTNode *parse_struct_def(Parser *p);
 static ASTNode *parse_enum_def(Parser *p);
+static ASTNode *parse_union_def(Parser *p);
+static ASTNode *parse_match_expr(Parser *p);
 
 /* Create AST nodes */
 static ASTNode *create_node(ASTNodeType type, int line, int column) {
@@ -915,6 +917,157 @@ static ASTNode *parse_enum_def(Parser *p) {
     return node;
 }
 
+/* Parse union definition */
+static ASTNode *parse_union_def(Parser *p) {
+    int line = current_token(p)->line;
+    int column = current_token(p)->column;
+    
+    if (!expect(p, TOKEN_UNION, "Expected 'union'")) {
+        return NULL;
+    }
+    
+    /* Get union name */
+    if (!match(p, TOKEN_IDENTIFIER)) {
+        fprintf(stderr, "Error at line %d, column %d: Expected union name\n",
+                current_token(p)->line, current_token(p)->column);
+        return NULL;
+    }
+    char *union_name = strdup(current_token(p)->value);
+    advance(p);
+    
+    /* Expect opening brace */
+    if (!expect(p, TOKEN_LBRACE, "Expected '{' after union name")) {
+        free(union_name);
+        return NULL;
+    }
+    
+    /* Parse variants */
+    int capacity = 8;
+    int count = 0;
+    char **variant_names = malloc(sizeof(char*) * capacity);
+    int *variant_field_counts = malloc(sizeof(int) * capacity);
+    char ***variant_field_names = malloc(sizeof(char**) * capacity);
+    Type **variant_field_types = malloc(sizeof(Type*) * capacity);
+    
+    while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+        if (count >= capacity) {
+            capacity *= 2;
+            variant_names = realloc(variant_names, sizeof(char*) * capacity);
+            variant_field_counts = realloc(variant_field_counts, sizeof(int) * capacity);
+            variant_field_names = realloc(variant_field_names, sizeof(char**) * capacity);
+            variant_field_types = realloc(variant_field_types, sizeof(Type*) * capacity);
+        }
+        
+        /* Parse variant name */
+        if (!match(p, TOKEN_IDENTIFIER)) {
+            fprintf(stderr, "Error at line %d, column %d: Expected variant name\n",
+                    current_token(p)->line, current_token(p)->column);
+            break;
+        }
+        variant_names[count] = strdup(current_token(p)->value);
+        advance(p);
+        
+        /* Expect opening brace for variant fields */
+        if (!expect(p, TOKEN_LBRACE, "Expected '{' after variant name")) {
+            free(variant_names[count]);
+            break;
+        }
+        
+        /* Parse variant fields (like struct fields) */
+        int field_capacity = 4;
+        int field_count = 0;
+        char **field_names = malloc(sizeof(char*) * field_capacity);
+        Type *field_types = malloc(sizeof(Type) * field_capacity);
+        
+        while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+            if (field_count >= field_capacity) {
+                field_capacity *= 2;
+                field_names = realloc(field_names, sizeof(char*) * field_capacity);
+                field_types = realloc(field_types, sizeof(Type) * field_capacity);
+            }
+            
+            /* Parse field name */
+            if (!match(p, TOKEN_IDENTIFIER)) {
+                fprintf(stderr, "Error at line %d, column %d: Expected field name\n",
+                        current_token(p)->line, current_token(p)->column);
+                break;
+            }
+            field_names[field_count] = strdup(current_token(p)->value);
+            advance(p);
+            
+            /* Expect colon */
+            if (!expect(p, TOKEN_COLON, "Expected ':' after field name")) {
+                free(field_names[field_count]);
+                break;
+            }
+            
+            /* Parse field type */
+            field_types[field_count] = parse_type(p);
+            if (field_types[field_count] == TYPE_UNKNOWN) {
+                free(field_names[field_count]);
+                break;
+            }
+            
+            field_count++;
+            
+            /* Optional comma between fields */
+            if (match(p, TOKEN_COMMA)) {
+                advance(p);
+            }
+        }
+        
+        /* Close variant fields */
+        if (!expect(p, TOKEN_RBRACE, "Expected '}' after variant fields")) {
+            for (int i = 0; i < field_count; i++) {
+                free(field_names[i]);
+            }
+            free(field_names);
+            free(field_types);
+            free(variant_names[count]);
+            break;
+        }
+        
+        variant_field_counts[count] = field_count;
+        variant_field_names[count] = field_names;
+        variant_field_types[count] = field_types;
+        count++;
+        
+        /* Optional comma between variants */
+        if (match(p, TOKEN_COMMA)) {
+            advance(p);
+        }
+    }
+    
+    /* Close union definition */
+    if (!expect(p, TOKEN_RBRACE, "Expected '}' after union variants")) {
+        free(union_name);
+        for (int i = 0; i < count; i++) {
+            free(variant_names[i]);
+            for (int j = 0; j < variant_field_counts[i]; j++) {
+                free(variant_field_names[i][j]);
+            }
+            free(variant_field_names[i]);
+            free(variant_field_types[i]);
+        }
+        free(variant_names);
+        free(variant_field_counts);
+        free(variant_field_names);
+        free(variant_field_types);
+        return NULL;
+    }
+    
+    /* Create AST node */
+    ASTNode *node = create_node(AST_UNION_DEF, line, column);
+    node->as.union_def.name = union_name;
+    node->as.union_def.variant_names = variant_names;
+    node->as.union_def.variant_field_counts = variant_field_counts;
+    node->as.union_def.variant_field_names = variant_field_names;
+    node->as.union_def.variant_field_types = variant_field_types;
+    node->as.union_def.variant_count = count;
+    
+    return node;
+}
+
 /* Parse function definition */
 static ASTNode *parse_function(Parser *p, bool is_extern) {
     int line = current_token(p)->line;
@@ -1048,6 +1201,8 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             items[count++] = parse_struct_def(&parser);
         } else if (match(&parser, TOKEN_ENUM)) {
             items[count++] = parse_enum_def(&parser);
+        } else if (match(&parser, TOKEN_UNION)) {
+            items[count++] = parse_union_def(&parser);
         } else if (match(&parser, TOKEN_EXTERN)) {
             /* extern fn declarations */
             advance(&parser);  /* Skip 'extern' token */
@@ -1057,7 +1212,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         } else if (match(&parser, TOKEN_SHADOW)) {
             items[count++] = parse_shadow(&parser);
         } else {
-            fprintf(stderr, "Error at line %d, column %d: Expected struct, enum, extern, function or shadow-test definition\n",
+            fprintf(stderr, "Error at line %d, column %d: Expected struct, enum, union, extern, function or shadow-test definition\n",
                     current_token(&parser)->line, current_token(&parser)->column);
             advance(&parser);
         }
