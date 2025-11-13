@@ -508,28 +508,106 @@ static ASTNode *parse_expression(Parser *p) {
         return parse_if_expression(p);
     }
     
+    if (match(p, TOKEN_MATCH)) {
+        return parse_match_expr(p);
+    }
+    
     /* Parse primary expression */
     ASTNode *expr = parse_primary(p);
     
-    /* Handle field access: obj.field or obj.field1.field2 */
+    /* Handle field access or union construction:
+     * - obj.field -> field access
+     * - UnionName.Variant { ... } -> union construction
+     */
     while (match(p, TOKEN_DOT)) {
         int line = current_token(p)->line;
         int column = current_token(p)->column;
         advance(p);  /* consume '.' */
         
         if (!match(p, TOKEN_IDENTIFIER)) {
-            fprintf(stderr, "Error at line %d, column %d: Expected field name after '.'\n",
+            fprintf(stderr, "Error at line %d, column %d: Expected field or variant name after '.'\n",
                     current_token(p)->line, current_token(p)->column);
             return expr;
         }
         
-        char *field_name = strdup(current_token(p)->value);
+        char *field_or_variant = strdup(current_token(p)->value);
         advance(p);
         
-        ASTNode *field_access = create_node(AST_FIELD_ACCESS, line, column);
-        field_access->as.field_access.object = expr;
-        field_access->as.field_access.field_name = field_name;
-        expr = field_access;
+        /* Check if this is union construction: UnionName.Variant { ... } */
+        if (match(p, TOKEN_LBRACE) && expr->type == AST_IDENTIFIER) {
+            /* This is union construction */
+            char *union_name = expr->as.identifier;
+            char *variant_name = field_or_variant;
+            
+            advance(p);  /* consume '{' */
+            
+            /* Parse variant fields */
+            int capacity = 4;
+            int count = 0;
+            char **field_names = malloc(sizeof(char*) * capacity);
+            ASTNode **field_values = malloc(sizeof(ASTNode*) * capacity);
+            
+            while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+                if (count >= capacity) {
+                    capacity *= 2;
+                    field_names = realloc(field_names, sizeof(char*) * capacity);
+                    field_values = realloc(field_values, sizeof(ASTNode*) * capacity);
+                }
+                
+                /* Parse field name */
+                if (!match(p, TOKEN_IDENTIFIER)) {
+                    fprintf(stderr, "Error at line %d, column %d: Expected field name in union construction\n",
+                            current_token(p)->line, current_token(p)->column);
+                    break;
+                }
+                field_names[count] = strdup(current_token(p)->value);
+                advance(p);
+                
+                /* Expect colon */
+                if (!expect(p, TOKEN_COLON, "Expected ':' after field name")) {
+                    break;
+                }
+                
+                /* Parse field value */
+                field_values[count] = parse_expression(p);
+                count++;
+                
+                /* Optional comma */
+                if (match(p, TOKEN_COMMA)) {
+                    advance(p);
+                }
+            }
+            
+            if (!expect(p, TOKEN_RBRACE, "Expected '}' after union fields")) {
+                free(union_name);
+                free(variant_name);
+                for (int i = 0; i < count; i++) {
+                    free(field_names[i]);
+                    free_ast(field_values[i]);
+                }
+                free(field_names);
+                free(field_values);
+                return NULL;
+            }
+            
+            /* Create union construction node */
+            ASTNode *union_construct = create_node(AST_UNION_CONSTRUCT, line, column);
+            union_construct->as.union_construct.union_name = strdup(union_name);
+            union_construct->as.union_construct.variant_name = variant_name;
+            union_construct->as.union_construct.field_names = field_names;
+            union_construct->as.union_construct.field_values = field_values;
+            union_construct->as.union_construct.field_count = count;
+            
+            /* Free the original identifier node */
+            free_ast(expr);
+            expr = union_construct;
+        } else {
+            /* Regular field access */
+            ASTNode *field_access = create_node(AST_FIELD_ACCESS, line, column);
+            field_access->as.field_access.object = expr;
+            field_access->as.field_access.field_name = field_or_variant;
+            expr = field_access;
+        }
     }
     
     return expr;
@@ -1066,6 +1144,129 @@ static ASTNode *parse_union_def(Parser *p) {
     node->as.union_def.variant_count = count;
     
     return node;
+}
+
+/* Parse match expression */
+static ASTNode *parse_match_expr(Parser *p) {
+    int line = current_token(p)->line;
+    int column = current_token(p)->column;
+    
+    if (!expect(p, TOKEN_MATCH, "Expected 'match'")) {
+        return NULL;
+    }
+    
+    /* Parse expression to match on */
+    ASTNode *expr = parse_expression(p);
+    if (!expr) {
+        fprintf(stderr, "Error at line %d, column %d: Expected expression after 'match'\n",
+                current_token(p)->line, current_token(p)->column);
+        return NULL;
+    }
+    
+    /* Expect opening brace */
+    if (!expect(p, TOKEN_LBRACE, "Expected '{' after match expression")) {
+        free_ast(expr);
+        return NULL;
+    }
+    
+    /* Parse match arms */
+    int capacity = 4;
+    int count = 0;
+    char **pattern_variants = malloc(sizeof(char*) * capacity);
+    char **pattern_bindings = malloc(sizeof(char*) * capacity);
+    ASTNode **arm_bodies = malloc(sizeof(ASTNode*) * capacity);
+    
+    while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+        if (count >= capacity) {
+            capacity *= 2;
+            pattern_variants = realloc(pattern_variants, sizeof(char*) * capacity);
+            pattern_bindings = realloc(pattern_bindings, sizeof(char*) * capacity);
+            arm_bodies = realloc(arm_bodies, sizeof(ASTNode*) * capacity);
+        }
+        
+        /* Parse pattern: VariantName(binding) */
+        if (!match(p, TOKEN_IDENTIFIER)) {
+            fprintf(stderr, "Error at line %d, column %d: Expected variant name in match pattern\n",
+                    current_token(p)->line, current_token(p)->column);
+            break;
+        }
+        pattern_variants[count] = strdup(current_token(p)->value);
+        advance(p);
+        
+        /* Expect opening paren for binding */
+        if (!expect(p, TOKEN_LPAREN, "Expected '(' after variant name in match")) {
+            free(pattern_variants[count]);
+            break;
+        }
+        
+        /* Parse binding variable */
+        if (!match(p, TOKEN_IDENTIFIER)) {
+            fprintf(stderr, "Error at line %d, column %d: Expected binding variable in match pattern\n",
+                    current_token(p)->line, current_token(p)->column);
+            free(pattern_variants[count]);
+            break;
+        }
+        pattern_bindings[count] = strdup(current_token(p)->value);
+        advance(p);
+        
+        /* Expect closing paren */
+        if (!expect(p, TOKEN_RPAREN, "Expected ')' after binding variable")) {
+            free(pattern_variants[count]);
+            free(pattern_bindings[count]);
+            break;
+        }
+        
+        /* Expect arrow */
+        if (!expect(p, TOKEN_ARROW, "Expected '=>' after match pattern")) {
+            free(pattern_variants[count]);
+            free(pattern_bindings[count]);
+            break;
+        }
+        
+        /* Parse arm body - can be a statement or block */
+        if (match(p, TOKEN_LBRACE)) {
+            arm_bodies[count] = parse_block(p);
+        } else {
+            arm_bodies[count] = parse_statement(p);
+        }
+        
+        if (!arm_bodies[count]) {
+            free(pattern_variants[count]);
+            free(pattern_bindings[count]);
+            break;
+        }
+        
+        count++;
+        
+        /* Optional comma between arms */
+        if (match(p, TOKEN_COMMA)) {
+            advance(p);
+        }
+    }
+    
+    /* Close match expression */
+    if (!expect(p, TOKEN_RBRACE, "Expected '}' after match arms")) {
+        free_ast(expr);
+        for (int i = 0; i < count; i++) {
+            free(pattern_variants[i]);
+            free(pattern_bindings[i]);
+            free_ast(arm_bodies[i]);
+        }
+        free(pattern_variants);
+        free(pattern_bindings);
+        free(arm_bodies);
+        return NULL;
+    }
+    
+    /* Create match expression node */
+    ASTNode *match_node = create_node(AST_MATCH, line, column);
+    match_node->as.match_expr.expr = expr;
+    match_node->as.match_expr.arm_count = count;
+    match_node->as.match_expr.pattern_variants = pattern_variants;
+    match_node->as.match_expr.pattern_bindings = pattern_bindings;
+    match_node->as.match_expr.arm_bodies = arm_bodies;
+    
+    return match_node;
 }
 
 /* Parse function definition */
