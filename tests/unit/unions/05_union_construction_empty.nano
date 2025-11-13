@@ -1,0 +1,19 @@
+/* Test 5: Union construction with no fields */
+union Status {
+    Ok {},
+    Error {}
+}
+
+fn test_ok() -> int {
+    let s: Status = Status.Ok {}
+    return 1
+}
+
+fn main() -> int {
+    return (test_ok)
+}
+
+shadow main {
+    assert (== (main) 1)
+}
+
