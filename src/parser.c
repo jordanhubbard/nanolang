@@ -1535,6 +1535,42 @@ void free_ast(ASTNode *node) {
             free(node->as.enum_def.variant_names);
             free(node->as.enum_def.variant_values);
             break;
+        case AST_UNION_DEF:
+            free(node->as.union_def.name);
+            for (int i = 0; i < node->as.union_def.variant_count; i++) {
+                free(node->as.union_def.variant_names[i]);
+                for (int j = 0; j < node->as.union_def.variant_field_counts[i]; j++) {
+                    free(node->as.union_def.variant_field_names[i][j]);
+                }
+                free(node->as.union_def.variant_field_names[i]);
+                free(node->as.union_def.variant_field_types[i]);
+            }
+            free(node->as.union_def.variant_names);
+            free(node->as.union_def.variant_field_counts);
+            free(node->as.union_def.variant_field_names);
+            free(node->as.union_def.variant_field_types);
+            break;
+        case AST_UNION_CONSTRUCT:
+            free(node->as.union_construct.union_name);
+            free(node->as.union_construct.variant_name);
+            for (int i = 0; i < node->as.union_construct.field_count; i++) {
+                free(node->as.union_construct.field_names[i]);
+                free_ast(node->as.union_construct.field_values[i]);
+            }
+            free(node->as.union_construct.field_names);
+            free(node->as.union_construct.field_values);
+            break;
+        case AST_MATCH:
+            free_ast(node->as.match_expr.expr);
+            for (int i = 0; i < node->as.match_expr.arm_count; i++) {
+                free(node->as.match_expr.pattern_variants[i]);
+                free(node->as.match_expr.pattern_bindings[i]);
+                free_ast(node->as.match_expr.arm_bodies[i]);
+            }
+            free(node->as.match_expr.pattern_variants);
+            free(node->as.match_expr.pattern_bindings);
+            free(node->as.match_expr.arm_bodies);
+            break;
         default:
             break;
     }
