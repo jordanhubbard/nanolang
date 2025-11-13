@@ -1,6 +1,7 @@
 #include "nanolang.h"
 #include "runtime/list_int.h"
 #include "runtime/list_string.h"
+#include "runtime/list_token.h"
 #include "tracing.h"
 #include <stdlib.h>
 #include <time.h>
@@ -1125,6 +1126,156 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "list_int_free") == 0) {
         List_int *list = (List_int*)args[0].as.int_val;
         list_int_free(list);
+        return create_void();
+    }
+
+    /* list_string operations - delegate to C runtime */
+    if (strcmp(name, "list_string_new") == 0) {
+        List_string *list = list_string_new();
+        Value result = create_int((long long)list);
+        return result;
+    }
+    if (strcmp(name, "list_string_with_capacity") == 0) {
+        List_string *list = list_string_with_capacity(args[0].as.int_val);
+        return create_int((long long)list);
+    }
+    if (strcmp(name, "list_string_push") == 0) {
+        List_string *list = (List_string*)args[0].as.int_val;
+        list_string_push(list, args[1].as.string_val);
+        return create_void();
+    }
+    if (strcmp(name, "list_string_pop") == 0) {
+        List_string *list = (List_string*)args[0].as.int_val;
+        char *str = list_string_pop(list);
+        Value result = create_string(str);
+        free(str);  /* list_string_pop returns strdup'd string */
+        return result;
+    }
+    if (strcmp(name, "list_string_get") == 0) {
+        List_string *list = (List_string*)args[0].as.int_val;
+        char *str = list_string_get(list, args[1].as.int_val);
+        return create_string(str);
+    }
+    if (strcmp(name, "list_string_set") == 0) {
+        List_string *list = (List_string*)args[0].as.int_val;
+        list_string_set(list, args[1].as.int_val, args[2].as.string_val);
+        return create_void();
+    }
+    if (strcmp(name, "list_string_insert") == 0) {
+        List_string *list = (List_string*)args[0].as.int_val;
+        list_string_insert(list, args[1].as.int_val, args[2].as.string_val);
+        return create_void();
+    }
+    if (strcmp(name, "list_string_remove") == 0) {
+        List_string *list = (List_string*)args[0].as.int_val;
+        char *str = list_string_remove(list, args[1].as.int_val);
+        Value result = create_string(str);
+        free(str);  /* list_string_remove returns strdup'd string */
+        return result;
+    }
+    if (strcmp(name, "list_string_length") == 0) {
+        List_string *list = (List_string*)args[0].as.int_val;
+        return create_int(list_string_length(list));
+    }
+    if (strcmp(name, "list_string_capacity") == 0) {
+        List_string *list = (List_string*)args[0].as.int_val;
+        return create_int(list_string_capacity(list));
+    }
+    if (strcmp(name, "list_string_is_empty") == 0) {
+        List_string *list = (List_string*)args[0].as.int_val;
+        return create_bool(list_string_is_empty(list));
+    }
+    if (strcmp(name, "list_string_clear") == 0) {
+        List_string *list = (List_string*)args[0].as.int_val;
+        list_string_clear(list);
+        return create_void();
+    }
+    if (strcmp(name, "list_string_free") == 0) {
+        List_string *list = (List_string*)args[0].as.int_val;
+        list_string_free(list);
+        return create_void();
+    }
+
+    /* list_token operations - delegate to C runtime */
+    /* Note: Token structs are stored as pointers for now */
+    /* When we rewrite lexer in nanolang, we'll use proper Token struct values */
+    if (strcmp(name, "list_token_new") == 0) {
+        List_token *list = list_token_new();
+        Value result = create_int((long long)list);
+        return result;
+    }
+    if (strcmp(name, "list_token_with_capacity") == 0) {
+        List_token *list = list_token_with_capacity(args[0].as.int_val);
+        return create_int((long long)list);
+    }
+    if (strcmp(name, "list_token_push") == 0) {
+        List_token *list = (List_token*)args[0].as.int_val;
+        /* For now, args[1] should be a Token struct pointer */
+        /* When we have proper Token struct support, this will change */
+        Token *token = (Token*)args[1].as.int_val;
+        if (token) {
+            list_token_push(list, *token);
+        }
+        return create_void();
+    }
+    if (strcmp(name, "list_token_pop") == 0) {
+        List_token *list = (List_token*)args[0].as.int_val;
+        Token token = list_token_pop(list);
+        /* Return token as struct value - for now return pointer */
+        /* TODO: Convert Token to proper struct value when we have Token struct support */
+        Token *token_ptr = malloc(sizeof(Token));
+        *token_ptr = token;
+        return create_int((long long)token_ptr);
+    }
+    if (strcmp(name, "list_token_get") == 0) {
+        List_token *list = (List_token*)args[0].as.int_val;
+        Token *token = list_token_get(list, args[1].as.int_val);
+        /* Return token pointer for now */
+        return create_int((long long)token);
+    }
+    if (strcmp(name, "list_token_set") == 0) {
+        List_token *list = (List_token*)args[0].as.int_val;
+        Token *token = (Token*)args[2].as.int_val;
+        if (token) {
+            list_token_set(list, args[1].as.int_val, *token);
+        }
+        return create_void();
+    }
+    if (strcmp(name, "list_token_insert") == 0) {
+        List_token *list = (List_token*)args[0].as.int_val;
+        Token *token = (Token*)args[2].as.int_val;
+        if (token) {
+            list_token_insert(list, args[1].as.int_val, *token);
+        }
+        return create_void();
+    }
+    if (strcmp(name, "list_token_remove") == 0) {
+        List_token *list = (List_token*)args[0].as.int_val;
+        Token token = list_token_remove(list, args[1].as.int_val);
+        Token *token_ptr = malloc(sizeof(Token));
+        *token_ptr = token;
+        return create_int((long long)token_ptr);
+    }
+    if (strcmp(name, "list_token_length") == 0) {
+        List_token *list = (List_token*)args[0].as.int_val;
+        return create_int(list_token_length(list));
+    }
+    if (strcmp(name, "list_token_capacity") == 0) {
+        List_token *list = (List_token*)args[0].as.int_val;
+        return create_int(list_token_capacity(list));
+    }
+    if (strcmp(name, "list_token_is_empty") == 0) {
+        List_token *list = (List_token*)args[0].as.int_val;
+        return create_bool(list_token_is_empty(list));
+    }
+    if (strcmp(name, "list_token_clear") == 0) {
+        List_token *list = (List_token*)args[0].as.int_val;
+        list_token_clear(list);
+        return create_void();
+    }
+    if (strcmp(name, "list_token_free") == 0) {
+        List_token *list = (List_token*)args[0].as.int_val;
+        list_token_free(list);
         return create_void();
     }
 

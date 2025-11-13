@@ -1,0 +1,612 @@
+# Main lexer implementation - combines all helper functions
+# This file implements the complete tokenize function
+
+# Include all definitions (in a real implementation, these would be imports)
+# For now, we'll copy the essential parts
+
+enum TokenType {
+    TOKEN_EOF,
+    TOKEN_NUMBER,
+    TOKEN_FLOAT,
+    TOKEN_STRING,
+    TOKEN_IDENTIFIER,
+    TOKEN_TRUE,
+    TOKEN_FALSE,
+    TOKEN_LPAREN,
+    TOKEN_RPAREN,
+    TOKEN_LBRACE,
+    TOKEN_RBRACE,
+    TOKEN_LBRACKET,
+    TOKEN_RBRACKET,
+    TOKEN_COMMA,
+    TOKEN_COLON,
+    TOKEN_ARROW,
+    TOKEN_ASSIGN,
+    TOKEN_DOT,
+    TOKEN_EXTERN,
+    TOKEN_FN,
+    TOKEN_LET,
+    TOKEN_MUT,
+    TOKEN_SET,
+    TOKEN_IF,
+    TOKEN_ELSE,
+    TOKEN_WHILE,
+    TOKEN_FOR,
+    TOKEN_IN,
+    TOKEN_RETURN,
+    TOKEN_ASSERT,
+    TOKEN_SHADOW,
+    TOKEN_PRINT,
+    TOKEN_ARRAY,
+    TOKEN_STRUCT,
+    TOKEN_ENUM,
+    TOKEN_TYPE_INT,
+    TOKEN_TYPE_FLOAT,
+    TOKEN_TYPE_BOOL,
+    TOKEN_TYPE_STRING,
+    TOKEN_TYPE_VOID,
+    TOKEN_PLUS,
+    TOKEN_MINUS,
+    TOKEN_STAR,
+    TOKEN_SLASH,
+    TOKEN_PERCENT,
+    TOKEN_EQ,
+    TOKEN_NE,
+    TOKEN_LT,
+    TOKEN_LE,
+    TOKEN_GT,
+    TOKEN_GE,
+    TOKEN_AND,
+    TOKEN_OR,
+    TOKEN_NOT,
+    TOKEN_RANGE
+}
+
+struct Token {
+    type: int,
+    value: string,
+    line: int,
+    column: int
+}
+
+fn is_identifier_start(c: int) -> bool {
+    return (or (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122))) (== c 95))
+}
+
+shadow is_identifier_start {
+    assert (== (is_identifier_start 65) true)
+    assert (== (is_identifier_start 97) true)
+    assert (== (is_identifier_start 95) true)
+    assert (== (is_identifier_start 48) false)
+}
+
+fn is_identifier_char(c: int) -> bool {
+    return (or (is_identifier_start c) (and (>= c 48) (<= c 57)))
+}
+
+shadow is_identifier_char {
+    assert (== (is_identifier_char 65) true)
+    assert (== (is_identifier_char 97) true)
+    assert (== (is_identifier_char 48) true)
+    assert (== (is_identifier_char 32) false)
+}
+
+fn is_whitespace_char(c: int) -> bool {
+    return (or (or (or (== c 32) (== c 9)) (== c 10)) (== c 13))
+}
+
+shadow is_whitespace_char {
+    assert (== (is_whitespace_char 32) true)
+    assert (== (is_whitespace_char 9) true)
+    assert (== (is_whitespace_char 10) true)
+    assert (== (is_whitespace_char 65) false)
+}
+
+fn is_digit_char(c: int) -> bool {
+    return (and (>= c 48) (<= c 57))
+}
+
+shadow is_digit_char {
+    assert (== (is_digit_char 48) true)
+    assert (== (is_digit_char 57) true)
+    assert (== (is_digit_char 65) false)
+}
+
+fn check_keyword_group1(s: string) -> int {
+    if (== s "extern") { return TokenType.TOKEN_EXTERN } else {
+        if (== s "fn") { return TokenType.TOKEN_FN } else {
+            if (== s "let") { return TokenType.TOKEN_LET } else {
+                if (== s "mut") { return TokenType.TOKEN_MUT } else {
+                    if (== s "set") { return TokenType.TOKEN_SET } else {
+                        return -1
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow check_keyword_group1 {
+    assert (== (check_keyword_group1 "extern") TokenType.TOKEN_EXTERN)
+    assert (== (check_keyword_group1 "fn") TokenType.TOKEN_FN)
+    assert (== (check_keyword_group1 "x") -1)
+}
+
+fn check_keyword_group2(s: string) -> int {
+    if (== s "if") { return TokenType.TOKEN_IF } else {
+        if (== s "else") { return TokenType.TOKEN_ELSE } else {
+            if (== s "while") { return TokenType.TOKEN_WHILE } else {
+                if (== s "for") { return TokenType.TOKEN_FOR } else {
+                    if (== s "in") { return TokenType.TOKEN_IN } else {
+                        return -1
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow check_keyword_group2 {
+    assert (== (check_keyword_group2 "if") TokenType.TOKEN_IF)
+    assert (== (check_keyword_group2 "x") -1)
+}
+
+fn check_keyword_group3(s: string) -> int {
+    if (== s "return") { return TokenType.TOKEN_RETURN } else {
+        if (== s "assert") { return TokenType.TOKEN_ASSERT } else {
+            if (== s "shadow") { return TokenType.TOKEN_SHADOW } else {
+                if (== s "print") { return TokenType.TOKEN_PRINT } else {
+                    if (== s "array") { return TokenType.TOKEN_ARRAY } else {
+                        return -1
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow check_keyword_group3 {
+    assert (== (check_keyword_group3 "return") TokenType.TOKEN_RETURN)
+    assert (== (check_keyword_group3 "x") -1)
+}
+
+fn check_keyword_group4(s: string) -> int {
+    if (== s "struct") { return TokenType.TOKEN_STRUCT } else {
+        if (== s "enum") { return TokenType.TOKEN_ENUM } else {
+            if (== s "true") { return TokenType.TOKEN_TRUE } else {
+                if (== s "false") { return TokenType.TOKEN_FALSE } else {
+                    return -1
+                }
+            }
+        }
+    }
+}
+
+shadow check_keyword_group4 {
+    assert (== (check_keyword_group4 "struct") TokenType.TOKEN_STRUCT)
+    assert (== (check_keyword_group4 "x") -1)
+}
+
+fn check_keyword_group5(s: string) -> int {
+    if (== s "int") { return TokenType.TOKEN_TYPE_INT } else {
+        if (== s "float") { return TokenType.TOKEN_TYPE_FLOAT } else {
+            if (== s "bool") { return TokenType.TOKEN_TYPE_BOOL } else {
+                if (== s "string") { return TokenType.TOKEN_TYPE_STRING } else {
+                    if (== s "void") { return TokenType.TOKEN_TYPE_VOID } else {
+                        return -1
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow check_keyword_group5 {
+    assert (== (check_keyword_group5 "int") TokenType.TOKEN_TYPE_INT)
+    assert (== (check_keyword_group5 "x") -1)
+}
+
+fn check_keyword_group6(s: string) -> int {
+    if (== s "and") { return TokenType.TOKEN_AND } else {
+        if (== s "or") { return TokenType.TOKEN_OR } else {
+            if (== s "not") { return TokenType.TOKEN_NOT } else {
+                if (== s "range") { return TokenType.TOKEN_RANGE } else {
+                    return -1
+                }
+            }
+        }
+    }
+}
+
+shadow check_keyword_group6 {
+    assert (== (check_keyword_group6 "and") TokenType.TOKEN_AND)
+    assert (== (check_keyword_group6 "x") -1)
+}
+
+fn keyword_or_identifier(s: string) -> int {
+    let g1: int = (check_keyword_group1 s)
+    if (!= g1 -1) {
+        return g1
+    } else {
+        let g2: int = (check_keyword_group2 s)
+        if (!= g2 -1) {
+            return g2
+        } else {
+            let g3: int = (check_keyword_group3 s)
+            if (!= g3 -1) {
+                return g3
+            } else {
+                let g4: int = (check_keyword_group4 s)
+                if (!= g4 -1) {
+                    return g4
+                } else {
+                    let g5: int = (check_keyword_group5 s)
+                    if (!= g5 -1) {
+                        return g5
+                    } else {
+                        let g6: int = (check_keyword_group6 s)
+                        if (!= g6 -1) {
+                            return g6
+                        } else {
+                            return TokenType.TOKEN_IDENTIFIER
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow keyword_or_identifier {
+    assert (== (keyword_or_identifier "fn") TokenType.TOKEN_FN)
+    assert (== (keyword_or_identifier "let") TokenType.TOKEN_LET)
+    assert (== (keyword_or_identifier "if") TokenType.TOKEN_IF)
+    assert (== (keyword_or_identifier "my_var") TokenType.TOKEN_IDENTIFIER)
+    assert (== (keyword_or_identifier "int") TokenType.TOKEN_TYPE_INT)
+}
+
+# Process string literal - returns new position or -1 on error
+fn process_string(source: string, i: int, len: int, tokens: list_token, line: int, column: int) -> int {
+    let mut pos: int = (+ i 1)
+    let start: int = pos
+    while (and (< pos len) (!= (char_at source pos) 34)) {
+        if (and (== (char_at source pos) 92) (< (+ pos 1) len)) {
+            set pos (+ pos 2)
+        } else {
+            set pos (+ pos 1)
+        }
+    }
+    if (>= pos len) {
+        return -1
+    } else {
+        let str_value: string = (str_substring source start pos)
+        let tok: Token = Token { type: TokenType.TOKEN_STRING, value: str_value, line: line, column: column }
+        (list_token_push tokens tok)
+        return (+ pos 1)
+    }
+}
+
+shadow process_string {
+    let mut tokens: list_token = (list_token_new)
+    let result: int = (process_string "\"hello\"" 0 7 tokens 1 1)
+    assert (> result 0)
+    assert (> (list_token_length tokens) 0)
+}
+
+# Process number - returns new position
+fn process_number(source: string, i: int, len: int, tokens: list_token, line: int, column: int) -> int {
+    let mut pos: int = i
+    let start: int = pos
+    let c: int = (char_at source pos)
+    if (== c 45) {
+        set pos (+ pos 1)
+    } else {
+        # Not a minus sign, continue
+    }
+    while (and (< pos len) (is_digit_char (char_at source pos))) {
+        set pos (+ pos 1)
+    }
+    
+    if (and (and (< pos len) (== (char_at source pos) 46)) (and (< (+ pos 1) len) (is_digit_char (char_at source (+ pos 1))))) {
+        set pos (+ pos 1)
+        while (and (< pos len) (is_digit_char (char_at source pos))) {
+            set pos (+ pos 1)
+        }
+        let float_value: string = (str_substring source start pos)
+        let tok: Token = Token { type: TokenType.TOKEN_FLOAT, value: float_value, line: line, column: column }
+        (list_token_push tokens tok)
+        return pos
+    } else {
+        let num_value: string = (str_substring source start pos)
+        let tok: Token = Token { type: TokenType.TOKEN_NUMBER, value: num_value, line: line, column: column }
+        (list_token_push tokens tok)
+        return pos
+    }
+}
+
+shadow process_number {
+    let mut tokens: list_token = (list_token_new)
+    let result: int = (process_number "42" 0 2 tokens 1 1)
+    assert (> result 0)
+    assert (> (list_token_length tokens) 0)
+}
+
+# Process identifier/keyword - returns new position
+fn process_identifier(source: string, i: int, len: int, tokens: list_token, line: int, column: int) -> int {
+    let mut pos: int = i
+    let start: int = pos
+    while (and (< pos len) (is_identifier_char (char_at source pos))) {
+        set pos (+ pos 1)
+    }
+    let id_value: string = (str_substring source start pos)
+    let token_type: int = (keyword_or_identifier id_value)
+    let tok: Token = Token { type: token_type, value: id_value, line: line, column: column }
+    (list_token_push tokens tok)
+    return pos
+}
+
+shadow process_identifier {
+    let mut tokens: list_token = (list_token_new)
+    let result: int = (process_identifier "fn" 0 2 tokens 1 1)
+    assert (> result 0)
+    assert (> (list_token_length tokens) 0)
+}
+
+# Process single character token - returns new position
+fn process_single_char(c: int, tokens: list_token, line: int, column: int, i: int) -> int {
+    if (== c 40) {
+        let tok: Token = Token { type: TokenType.TOKEN_LPAREN, value: "", line: line, column: column }
+        (list_token_push tokens tok)
+        return (+ i 1)
+    } else {
+        if (== c 41) {
+            let tok: Token = Token { type: TokenType.TOKEN_RPAREN, value: "", line: line, column: column }
+            (list_token_push tokens tok)
+            return (+ i 1)
+        } else {
+            if (== c 123) {
+                let tok: Token = Token { type: TokenType.TOKEN_LBRACE, value: "", line: line, column: column }
+                (list_token_push tokens tok)
+                return (+ i 1)
+            } else {
+                if (== c 125) {
+                    let tok: Token = Token { type: TokenType.TOKEN_RBRACE, value: "", line: line, column: column }
+                    (list_token_push tokens tok)
+                    return (+ i 1)
+                } else {
+                    if (== c 91) {
+                        let tok: Token = Token { type: TokenType.TOKEN_LBRACKET, value: "", line: line, column: column }
+                        (list_token_push tokens tok)
+                        return (+ i 1)
+                    } else {
+                        if (== c 93) {
+                            let tok: Token = Token { type: TokenType.TOKEN_RBRACKET, value: "", line: line, column: column }
+                            (list_token_push tokens tok)
+                            return (+ i 1)
+                        } else {
+                            if (== c 44) {
+                                let tok: Token = Token { type: TokenType.TOKEN_COMMA, value: "", line: line, column: column }
+                                (list_token_push tokens tok)
+                                return (+ i 1)
+                            } else {
+                                if (== c 58) {
+                                    let tok: Token = Token { type: TokenType.TOKEN_COLON, value: "", line: line, column: column }
+                                    (list_token_push tokens tok)
+                                    return (+ i 1)
+                                } else {
+                                    if (== c 46) {
+                                        let tok: Token = Token { type: TokenType.TOKEN_DOT, value: "", line: line, column: column }
+                                        (list_token_push tokens tok)
+                                        return (+ i 1)
+                                    } else {
+                                        if (== c 43) {
+                                            let tok: Token = Token { type: TokenType.TOKEN_PLUS, value: "", line: line, column: column }
+                                            (list_token_push tokens tok)
+                                            return (+ i 1)
+                                        } else {
+                                            if (== c 45) {
+                                                let tok: Token = Token { type: TokenType.TOKEN_MINUS, value: "", line: line, column: column }
+                                                (list_token_push tokens tok)
+                                                return (+ i 1)
+                                            } else {
+                                                if (== c 42) {
+                                                    let tok: Token = Token { type: TokenType.TOKEN_STAR, value: "", line: line, column: column }
+                                                    (list_token_push tokens tok)
+                                                    return (+ i 1)
+                                                } else {
+                                                    if (== c 47) {
+                                                        let tok: Token = Token { type: TokenType.TOKEN_SLASH, value: "", line: line, column: column }
+                                                        (list_token_push tokens tok)
+                                                        return (+ i 1)
+                                                    } else {
+                                                        if (== c 37) {
+                                                            let tok: Token = Token { type: TokenType.TOKEN_PERCENT, value: "", line: line, column: column }
+                                                            (list_token_push tokens tok)
+                                                            return (+ i 1)
+                                                        } else {
+                                                            if (== c 60) {
+                                                                let tok: Token = Token { type: TokenType.TOKEN_LT, value: "", line: line, column: column }
+                                                                (list_token_push tokens tok)
+                                                                return (+ i 1)
+                                                            } else {
+                                                                if (== c 62) {
+                                                                    let tok: Token = Token { type: TokenType.TOKEN_GT, value: "", line: line, column: column }
+                                                                    (list_token_push tokens tok)
+                                                                    return (+ i 1)
+                                                                } else {
+                                                                    return (+ i 1)
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow process_single_char {
+    let mut tokens: list_token = (list_token_new)
+    let result: int = (process_single_char 40 tokens 1 1 0)
+    assert (> result 0)
+    assert (> (list_token_length tokens) 0)
+}
+
+# Process two-character operators - returns new position or -1
+fn process_two_char(source: string, i: int, len: int, tokens: list_token, line: int, column: int) -> int {
+    if (>= (+ i 1) len) {
+        return -1
+    } else {
+        # Continue processing
+    }
+    let c: int = (char_at source i)
+    let next: int = (char_at source (+ i 1))
+    
+    if (and (== c 45) (== next 62)) {
+        let tok: Token = Token { type: TokenType.TOKEN_ARROW, value: "", line: line, column: column }
+        (list_token_push tokens tok)
+        return (+ i 2)
+    } else {
+        if (and (== c 61) (== next 61)) {
+            let tok: Token = Token { type: TokenType.TOKEN_EQ, value: "", line: line, column: column }
+            (list_token_push tokens tok)
+            return (+ i 2)
+        } else {
+            if (and (== c 33) (== next 61)) {
+                let tok: Token = Token { type: TokenType.TOKEN_NE, value: "", line: line, column: column }
+                (list_token_push tokens tok)
+                return (+ i 2)
+            } else {
+                if (and (== c 60) (== next 61)) {
+                    let tok: Token = Token { type: TokenType.TOKEN_LE, value: "", line: line, column: column }
+                    (list_token_push tokens tok)
+                    return (+ i 2)
+                } else {
+                    if (and (== c 62) (== next 61)) {
+                        let tok: Token = Token { type: TokenType.TOKEN_GE, value: "", line: line, column: column }
+                        (list_token_push tokens tok)
+                        return (+ i 2)
+                    } else {
+                        return -1
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow process_two_char {
+    let mut tokens: list_token = (list_token_new)
+    let result: int = (process_two_char "->" 0 2 tokens 1 1)
+    assert (> result 0)
+    assert (> (list_token_length tokens) 0)
+}
+
+# Main tokenization function
+fn tokenize(source: string) -> list_token {
+    let mut tokens: list_token = (list_token_new)
+    let mut i: int = 0
+    let len: int = (str_length source)
+    let mut line: int = 1
+    let mut column: int = 1
+    let mut line_start: int = 0
+    
+    while (< i len) {
+        let c: int = (char_at source i)
+        let mut new_pos: int = -1
+        
+        # Skip whitespace
+        if (is_whitespace_char c) {
+            if (== c 10) {
+                set line (+ line 1)
+                set line_start (+ i 1)
+                set column 1
+            } else {
+                set column (+ column 1)
+            }
+            set i (+ i 1)
+        } else {
+            # Skip comments
+            if (== c 35) {
+                while (and (< i len) (!= (char_at source i) 10)) {
+                    set i (+ i 1)
+                }
+            } else {
+                # Not a comment, process token
+                # Update column
+                set column (- (+ i 1) line_start)
+                
+                # Try two-character operators
+                set new_pos (process_two_char source i len tokens line column)
+                
+                # Try assignment operator
+                if (and (== new_pos -1) (== c 61)) {
+                    let tok: Token = Token { type: TokenType.TOKEN_ASSIGN, value: "", line: line, column: column }
+                    (list_token_push tokens tok)
+                    set new_pos (+ i 1)
+                } else {
+                    # Not assignment operator, continue
+                }
+                
+                # Try other token types
+                if (== new_pos -1) {
+                    if (== c 34) {
+                        set new_pos (process_string source i len tokens line column)
+                        if (== new_pos -1) {
+                            break
+                        } else {
+                            # String processed successfully
+                        }
+                    } else {
+                        if (or (is_digit_char c) (and (and (== c 45) (< (+ i 1) len)) (is_digit_char (char_at source (+ i 1))))) {
+                            set new_pos (process_number source i len tokens line column)
+                        } else {
+                            if (is_identifier_start c) {
+                                set new_pos (process_identifier source i len tokens line column)
+                            } else {
+                                set new_pos (process_single_char c tokens line column i)
+                            }
+                        }
+                    }
+                } else {
+                    # Two-char operator or assignment processed
+                }
+                
+                set i new_pos
+            }
+        }
+    }
+    
+    # Add EOF token
+    let eof_tok: Token = Token { type: TokenType.TOKEN_EOF, value: "", line: line, column: column }
+    (list_token_push tokens eof_tok)
+    return tokens
+}
+
+shadow tokenize {
+    let source1: string = "fn main() -> int { return 0 }"
+    let tokens1: list_token = (tokenize source1)
+    assert (> (list_token_length tokens1) 0)
+    
+    let source2: string = "42 3.14"
+    let tokens2: list_token = (tokenize source2)
+    assert (> (list_token_length tokens2) 0)
+}
+
+# Dummy main for compilation - Stage 1.5 uses C main instead
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

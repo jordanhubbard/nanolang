@@ -671,7 +671,12 @@ static const char *builtin_function_names[] = {
     "list_string_new", "list_string_with_capacity", "list_string_push", "list_string_pop",
     "list_string_get", "list_string_set", "list_string_insert", "list_string_remove",
     "list_string_length", "list_string_capacity", "list_string_is_empty", "list_string_clear",
-    "list_string_free"
+    "list_string_free",
+    /* List operations - list_token */
+    "list_token_new", "list_token_with_capacity", "list_token_push", "list_token_pop",
+    "list_token_get", "list_token_set", "list_token_insert", "list_token_remove",
+    "list_token_length", "list_token_capacity", "list_token_is_empty", "list_token_clear",
+    "list_token_free"
 };
 
 static const int builtin_function_name_count = sizeof(builtin_function_names) / sizeof(char*);
@@ -1173,6 +1178,242 @@ static void register_builtin_functions(Environment *env) {
     env_define_function(env, func);
     
     func.name = "list_int_free";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_VOID;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    /* list_string operations */
+    func.name = "list_string_new";
+    func.params = NULL;
+    func.param_count = 0;
+    func.return_type = TYPE_LIST_STRING;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_string_with_capacity";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_LIST_STRING;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_string_push";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_VOID;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_string_pop";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_STRING;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_string_get";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_STRING;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_string_set";
+    func.params = NULL;
+    func.param_count = 3;
+    func.return_type = TYPE_VOID;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_string_insert";
+    func.params = NULL;
+    func.param_count = 3;
+    func.return_type = TYPE_VOID;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_string_remove";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_STRING;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_string_length";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_INT;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_string_capacity";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_INT;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_string_is_empty";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_BOOL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_string_clear";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_VOID;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_string_free";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_VOID;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    /* list_token operations */
+    func.name = "list_token_new";
+    func.params = NULL;
+    func.param_count = 0;
+    func.return_type = TYPE_LIST_TOKEN;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_token_with_capacity";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_LIST_TOKEN;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_token_push";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_VOID;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_token_pop";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_STRUCT;  /* Returns Token struct */
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_token_get";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_STRUCT;  /* Returns Token struct */
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_token_set";
+    func.params = NULL;
+    func.param_count = 3;
+    func.return_type = TYPE_VOID;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_token_insert";
+    func.params = NULL;
+    func.param_count = 3;
+    func.return_type = TYPE_VOID;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_token_remove";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_STRUCT;  /* Returns Token struct */
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_token_length";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_INT;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_token_capacity";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_INT;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_token_is_empty";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_BOOL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_token_clear";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_VOID;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    func.name = "list_token_free";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_VOID;

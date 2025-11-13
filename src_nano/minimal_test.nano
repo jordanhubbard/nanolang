@@ -1,0 +1,23 @@
+# Minimal test - just enum and struct
+
+enum TokenType {
+    TOKEN_EOF,
+    TOKEN_NUMBER,
+    TOKEN_STRING
+}
+
+struct Token {
+    type: int,
+    value: string,
+    line: int,
+    column: int
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
