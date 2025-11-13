@@ -126,6 +126,7 @@ typedef enum {
     TYPE_ARRAY,
     TYPE_STRUCT,
     TYPE_ENUM,
+    TYPE_UNION,
     TYPE_LIST_INT,
     TYPE_LIST_STRING,
     TYPE_LIST_TOKEN,
@@ -177,7 +178,10 @@ typedef enum {
     AST_STRUCT_DEF,
     AST_STRUCT_LITERAL,
     AST_FIELD_ACCESS,
-    AST_ENUM_DEF
+    AST_ENUM_DEF,
+    AST_UNION_DEF,
+    AST_UNION_CONSTRUCT,
+    AST_MATCH
 } ASTNodeType;
 
 /* Forward declaration */
@@ -294,6 +298,34 @@ struct ASTNode {
             int *variant_values;      // Array of variant values (or NULL for auto)
             int variant_count;        // Number of variants
         } enum_def;
+        
+        /* Union definition: union Color { Red {}, Blue { intensity: int } } */
+        struct {
+            char *name;
+            int variant_count;
+            char **variant_names;
+            int *variant_field_counts;
+            char ***variant_field_names;
+            Type **variant_field_types;
+        } union_def;
+        
+        /* Union construction: Color.Red {} or Color.Blue { intensity: 5 } */
+        struct {
+            char *union_name;
+            char *variant_name;
+            int field_count;
+            char **field_names;
+            ASTNode **field_values;
+        } union_construct;
+        
+        /* Match expression: match c { Red(r) => ..., Blue(b) => ... } */
+        struct {
+            ASTNode *expr;
+            int arm_count;
+            char **pattern_variants;
+            char **pattern_bindings;
+            ASTNode **arm_bodies;
+        } match_expr;
     } as;
 };
 
@@ -338,6 +370,16 @@ typedef struct {
     int variant_count;
 } EnumDef;
 
+/* Union definition entry */
+typedef struct {
+    char *name;
+    int variant_count;
+    char **variant_names;
+    int *variant_field_counts;
+    char ***variant_field_names;
+    Type **variant_field_types;
+} UnionDef;
+
 /* Environment for variable and function storage */
 typedef struct {
     Symbol *symbols;
@@ -352,6 +394,9 @@ typedef struct {
     EnumDef *enums;
     int enum_count;
     int enum_capacity;
+    UnionDef *unions;
+    int union_count;
+    int union_capacity;
 } Environment;
 
 /* Function declarations */
