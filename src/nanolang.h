@@ -439,6 +439,9 @@ StructDef *env_get_struct(Environment *env, const char *name);
 void env_define_enum(Environment *env, EnumDef enum_def);
 EnumDef *env_get_enum(Environment *env, const char *name);
 int env_get_enum_variant(Environment *env, const char *variant_name);
+void env_define_union(Environment *env, UnionDef union_def);
+UnionDef *env_get_union(Environment *env, const char *name);
+int env_get_union_variant_index(Environment *env, const char *union_name, const char *variant_name);
 
 /* Utilities */
 Type token_to_type(TokenType token);
