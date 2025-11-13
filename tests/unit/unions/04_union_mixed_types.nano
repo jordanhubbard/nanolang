@@ -1,0 +1,16 @@
+/* Test 4: Union with mixed field types */
+union Data {
+    Empty {},
+    Integer { value: int },
+    Text { message: string },
+    Flag { enabled: bool }
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

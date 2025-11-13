@@ -1,0 +1,17 @@
+/* Negative Test: Duplicate union name should fail */
+union Status {
+    Ok {}
+}
+
+union Status {
+    Error {}
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
