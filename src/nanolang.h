@@ -50,6 +50,8 @@ typedef enum {
     TOKEN_ARRAY,
     TOKEN_STRUCT,
     TOKEN_ENUM,
+    TOKEN_UNION,
+    TOKEN_MATCH,
 
     /* Types */
     TOKEN_TYPE_INT,
