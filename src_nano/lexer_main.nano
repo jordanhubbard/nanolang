@@ -279,7 +279,8 @@ fn process_string(source: string, i: int, len: int, tokens: list_token, line: in
     if (>= pos len) {
         return -1
     } else {
-        let str_value: string = (str_substring source start pos)
+        let str_length: int = (- pos start)
+        let str_value: string = (str_substring source start str_length)
         let tok: Token = Token { type: TokenType.TOKEN_STRING, value: str_value, line: line, column: column }
         (list_token_push tokens tok)
         return (+ pos 1)
@@ -312,12 +313,14 @@ fn process_number(source: string, i: int, len: int, tokens: list_token, line: in
         while (and (< pos len) (is_digit_char (char_at source pos))) {
             set pos (+ pos 1)
         }
-        let float_value: string = (str_substring source start pos)
+        let float_length: int = (- pos start)
+        let float_value: string = (str_substring source start float_length)
         let tok: Token = Token { type: TokenType.TOKEN_FLOAT, value: float_value, line: line, column: column }
         (list_token_push tokens tok)
         return pos
     } else {
-        let num_value: string = (str_substring source start pos)
+        let num_length: int = (- pos start)
+        let num_value: string = (str_substring source start num_length)
         let tok: Token = Token { type: TokenType.TOKEN_NUMBER, value: num_value, line: line, column: column }
         (list_token_push tokens tok)
         return pos
@@ -338,7 +341,8 @@ fn process_identifier(source: string, i: int, len: int, tokens: list_token, line
     while (and (< pos len) (is_identifier_char (char_at source pos))) {
         set pos (+ pos 1)
     }
-    let id_value: string = (str_substring source start pos)
+    let id_length: int = (- pos start)
+    let id_value: string = (str_substring source start id_length)
     let token_type: int = (keyword_or_identifier id_value)
     let tok: Token = Token { type: token_type, value: id_value, line: line, column: column }
     (list_token_push tokens tok)
