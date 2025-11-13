@@ -1,0 +1,25 @@
+# Stage 2: Full Nanolang Compiler
+# This file contains the complete compiler written in nanolang
+# It will be compiled by the C compiler (Stage 0) to create Stage 2 compiler
+
+# TODO: This is a placeholder structure
+# We'll build this incrementally:
+# 1. Start with lexer (already done in lexer_main.nano)
+# 2. Add parser
+# 3. Add type checker
+# 4. Add transpiler
+# 5. Add main driver
+
+# For now, this file imports/uses lexer_main.nano
+# In a real implementation, we'd have a module system or combine everything
+
+fn main() -> int {
+    (println "Stage 2 compiler - placeholder")
+    (println "This will be the full nanolang compiler")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

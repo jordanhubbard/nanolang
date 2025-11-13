@@ -47,6 +47,13 @@ static void emit_indent(StringBuilder *sb, int indent) {
     }
 }
 
+/* Check if a struct/enum name is a runtime-provided typedef (not a user-defined type) */
+static bool is_runtime_typedef(const char *name) {
+    /* Runtime typedefs that don't use 'struct' keyword */
+    return (strcmp(name, "Token") == 0) ||
+           (strcmp(name, "TokenType") == 0);
+}
+
 /* Transpile type to C type */
 static const char *type_to_c(Type type) {
     switch (type) {
@@ -59,6 +66,7 @@ static const char *type_to_c(Type type) {
         case TYPE_STRUCT: return "struct"; /* Will be extended with struct name */
         case TYPE_LIST_INT: return "List_int*";
         case TYPE_LIST_STRING: return "List_string*";
+        case TYPE_LIST_TOKEN: return "List_token*";
         default: return "void";
     }
 }
@@ -83,14 +91,13 @@ static const char *get_struct_type_from_expr(ASTNode *expr) {
 
 /* Get C function name with prefix to avoid conflicts with standard library */
 static const char *get_c_func_name(const char *nano_name) {
-    /* Don't prefix main */
-    if (strcmp(nano_name, "main") == 0) {
-        return "main";
-    }
+    /* Note: main() now gets nl_ prefix to support library mode (Stage 1.5+) */
+    /* Standalone programs use --entry-point to call nl_main() */
     
     /* Don't prefix list runtime functions */
     if (strncmp(nano_name, "list_int_", 9) == 0 || 
-        strncmp(nano_name, "list_string_", 12) == 0) {
+        strncmp(nano_name, "list_string_", 12) == 0 ||
+        strncmp(nano_name, "list_token_", 11) == 0) {
         return nano_name;
     }
     
@@ -146,33 +153,59 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             TokenType op = expr->as.prefix_op.op;
             int arg_count = expr->as.prefix_op.arg_count;
 
-            sb_append(sb, "(");
-
             if (arg_count == 2) {
-                transpile_expression(sb, expr->as.prefix_op.args[0], env);
-                switch (op) {
-                    case TOKEN_PLUS: sb_append(sb, " + "); break;
-                    case TOKEN_MINUS: sb_append(sb, " - "); break;
-                    case TOKEN_STAR: sb_append(sb, " * "); break;
-                    case TOKEN_SLASH: sb_append(sb, " / "); break;
-                    case TOKEN_PERCENT: sb_append(sb, " % "); break;
-                    case TOKEN_EQ: sb_append(sb, " == "); break;
-                    case TOKEN_NE: sb_append(sb, " != "); break;
-                    case TOKEN_LT: sb_append(sb, " < "); break;
-                    case TOKEN_LE: sb_append(sb, " <= "); break;
-                    case TOKEN_GT: sb_append(sb, " > "); break;
-                    case TOKEN_GE: sb_append(sb, " >= "); break;
-                    case TOKEN_AND: sb_append(sb, " && "); break;
-                    case TOKEN_OR: sb_append(sb, " || "); break;
-                    default: sb_append(sb, " OP "); break;
+                /* Check if this is a string comparison - use strcmp instead of == */
+                bool is_string_comparison = false;
+                if (op == TOKEN_EQ || op == TOKEN_NE) {
+                    Type arg1_type = check_expression(expr->as.prefix_op.args[0], env);
+                    Type arg2_type = check_expression(expr->as.prefix_op.args[1], env);
+                    if (arg1_type == TYPE_STRING && arg2_type == TYPE_STRING) {
+                        is_string_comparison = true;
+                    }
                 }
-                transpile_expression(sb, expr->as.prefix_op.args[1], env);
+
+                if (is_string_comparison) {
+                    /* String comparison: use strcmp */
+                    sb_append(sb, "(strcmp(");
+                    transpile_expression(sb, expr->as.prefix_op.args[0], env);
+                    sb_append(sb, ", ");
+                    transpile_expression(sb, expr->as.prefix_op.args[1], env);
+                    if (op == TOKEN_EQ) {
+                        sb_append(sb, ") == 0)");
+                    } else {  /* TOKEN_NE */
+                        sb_append(sb, ") != 0)");
+                    }
+                } else {
+                    /* Regular comparison */
+                    sb_append(sb, "(");
+                    transpile_expression(sb, expr->as.prefix_op.args[0], env);
+                    switch (op) {
+                        case TOKEN_PLUS: sb_append(sb, " + "); break;
+                        case TOKEN_MINUS: sb_append(sb, " - "); break;
+                        case TOKEN_STAR: sb_append(sb, " * "); break;
+                        case TOKEN_SLASH: sb_append(sb, " / "); break;
+                        case TOKEN_PERCENT: sb_append(sb, " % "); break;
+                        case TOKEN_EQ: sb_append(sb, " == "); break;
+                        case TOKEN_NE: sb_append(sb, " != "); break;
+                        case TOKEN_LT: sb_append(sb, " < "); break;
+                        case TOKEN_LE: sb_append(sb, " <= "); break;
+                        case TOKEN_GT: sb_append(sb, " > "); break;
+                        case TOKEN_GE: sb_append(sb, " >= "); break;
+                        case TOKEN_AND: sb_append(sb, " && "); break;
+                        case TOKEN_OR: sb_append(sb, " || "); break;
+                        default: sb_append(sb, " OP "); break;
+                    }
+                    transpile_expression(sb, expr->as.prefix_op.args[1], env);
+                    sb_append(sb, ")");
+                }
             } else if (arg_count == 1 && op == TOKEN_NOT) {
-                sb_append(sb, "!");
+                sb_append(sb, "(!");
                 transpile_expression(sb, expr->as.prefix_op.args[0], env);
+                sb_append(sb, ")");
+            } else {
+                sb_append(sb, "(/* unknown op */)");
             }
 
-            sb_append(sb, ")");
             break;
         }
 
@@ -370,10 +403,14 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             break;
 
         case AST_STRUCT_LITERAL: {
-            /* Transpile struct literal: Point { x: 10, y: 20 } -> (struct Point){.x = 10, .y = 20} */
-            sb_append(sb, "(struct ");
-            sb_append(sb, expr->as.struct_literal.struct_name);
-            sb_append(sb, "){");
+            /* Transpile struct literal: Point { x: 10, y: 20 } -> (struct Point){.x = 10, .y = 20} 
+             * or for runtime typedefs: Token { ... } -> (Token){...} */
+            const char *struct_name = expr->as.struct_literal.struct_name;
+            if (is_runtime_typedef(struct_name)) {
+                sb_appendf(sb, "(%s){", struct_name);
+            } else {
+                sb_appendf(sb, "(struct %s){", struct_name);
+            }
             for (int i = 0; i < expr->as.struct_literal.field_count; i++) {
                 if (i > 0) sb_append(sb, ", ");
                 sb_append(sb, ".");
@@ -390,10 +427,15 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             if (expr->as.field_access.object->type == AST_IDENTIFIER) {
                 const char *enum_name = expr->as.field_access.object->as.identifier;
                 if (env_get_enum(env, enum_name)) {
-                    /* Transpile as: EnumName_VariantName */
-                    sb_appendf(sb, "%s_%s",
-                              enum_name,
-                              expr->as.field_access.field_name);
+                    /* For runtime enums, just use variant name (e.g., TOKEN_RETURN)
+                     * For user enums, use EnumName_VariantName */
+                    if (is_runtime_typedef(enum_name)) {
+                        sb_append(sb, expr->as.field_access.field_name);
+                    } else {
+                        sb_appendf(sb, "%s_%s",
+                                  enum_name,
+                                  expr->as.field_access.field_name);
+                    }
                     break;
                 }
             }
@@ -438,7 +480,11 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
                     /* Regular struct type */
                     const char *struct_name = get_struct_type_from_expr(stmt->as.let.value);
                     if (struct_name) {
-                        sb_appendf(sb, "struct %s %s = ", struct_name, stmt->as.let.name);
+                        if (is_runtime_typedef(struct_name)) {
+                            sb_appendf(sb, "%s %s = ", struct_name, stmt->as.let.name);
+                        } else {
+                            sb_appendf(sb, "struct %s %s = ", struct_name, stmt->as.let.name);
+                        }
                     } else {
                         /* Fallback if we can't determine struct type */
                         sb_appendf(sb, "/* struct */ void* %s = ", stmt->as.let.name);
@@ -571,6 +617,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "\n/* nanolang runtime */\n");
     sb_append(sb, "#include \"runtime/list_int.h\"\n");
     sb_append(sb, "#include \"runtime/list_string.h\"\n");
+    sb_append(sb, "#include \"runtime/list_token.h\"\n");
     sb_append(sb, "#include <sys/stat.h>\n");
     sb_append(sb, "#include <sys/types.h>\n");
     sb_append(sb, "#include <dirent.h>\n");
@@ -1000,6 +1047,10 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "/* ========== Enum Definitions ========== */\n\n");
     for (int i = 0; i < env->enum_count; i++) {
         EnumDef *edef = &env->enums[i];
+        /* Skip runtime-provided enums - they're already defined in nanolang.h */
+        if (is_runtime_typedef(edef->name)) {
+            continue;
+        }
         sb_appendf(sb, "typedef enum {\n");
         for (int j = 0; j < edef->variant_count; j++) {
             sb_appendf(sb, "    %s_%s = %d",
@@ -1024,10 +1075,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             
             /* Regular functions - forward declare with nl_ prefix */
             /* Function return type */
-            if (strcmp(item->as.function.name, "main") == 0) {
-                sb_append(sb, "int");
-            } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
-                sb_appendf(sb, "struct %s", item->as.function.return_struct_type_name);
+            if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
+                if (is_runtime_typedef(item->as.function.return_struct_type_name)) {
+                    sb_append(sb, item->as.function.return_struct_type_name);
+                } else {
+                    sb_appendf(sb, "struct %s", item->as.function.return_struct_type_name);
+                }
             } else {
                 sb_append(sb, type_to_c(item->as.function.return_type));
             }
@@ -1040,9 +1093,15 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                 if (j > 0) sb_append(sb, ", ");
                 
                 if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
-                    sb_appendf(sb, "struct %s %s",
-                              item->as.function.params[j].struct_type_name,
-                              item->as.function.params[j].name);
+                    if (is_runtime_typedef(item->as.function.params[j].struct_type_name)) {
+                        sb_appendf(sb, "%s %s",
+                                  item->as.function.params[j].struct_type_name,
+                                  item->as.function.params[j].name);
+                    } else {
+                        sb_appendf(sb, "struct %s %s",
+                                  item->as.function.params[j].struct_type_name,
+                                  item->as.function.params[j].name);
+                    }
                 } else {
                     sb_appendf(sb, "%s %s",
                               type_to_c(item->as.function.params[j].type),
@@ -1064,10 +1123,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             }
             
             /* Function return type */
-            if (strcmp(item->as.function.name, "main") == 0) {
-                sb_append(sb, "int");
-            } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
-                sb_appendf(sb, "struct %s", item->as.function.return_struct_type_name);
+            if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
+                if (is_runtime_typedef(item->as.function.return_struct_type_name)) {
+                    sb_append(sb, item->as.function.return_struct_type_name);
+                } else {
+                    sb_appendf(sb, "struct %s", item->as.function.return_struct_type_name);
+                }
             } else {
                 sb_append(sb, type_to_c(item->as.function.return_type));
             }
@@ -1080,9 +1141,15 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                 if (j > 0) sb_append(sb, ", ");
                 
                 if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
-                    sb_appendf(sb, "struct %s %s",
-                              item->as.function.params[j].struct_type_name,
-                              item->as.function.params[j].name);
+                    if (is_runtime_typedef(item->as.function.params[j].struct_type_name)) {
+                        sb_appendf(sb, "%s %s",
+                                  item->as.function.params[j].struct_type_name,
+                                  item->as.function.params[j].name);
+                    } else {
+                        sb_appendf(sb, "struct %s %s",
+                                  item->as.function.params[j].struct_type_name,
+                                  item->as.function.params[j].name);
+                    }
                 } else {
                     sb_appendf(sb, "%s %s",
                               type_to_c(item->as.function.params[j].type),
@@ -1107,6 +1174,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             env->symbol_count = saved_symbol_count;
         }
     }
+
+    /* Add C main() wrapper that calls nl_main() for standalone executables */
+    sb_append(sb, "\n/* C main() entry point - calls nanolang main (nl_main) */\n");
+    sb_append(sb, "int main() {\n");
+    sb_append(sb, "    return (int)nl_main();\n");
+    sb_append(sb, "}\n");
 
     char *result = sb->buffer;
     free(sb);

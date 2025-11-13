@@ -1,0 +1,30 @@
+# Token struct definition
+# Represents a single token produced by the lexer
+
+struct Token {
+    type: int,      # TokenType enum value
+    value: string,  # Token text value (or empty string for tokens without values)
+    line: int,      # Line number where token appears
+    column: int     # Column number where token appears
+}
+
+fn create_token(token_type: int, token_value: string, token_line: int, token_column: int) -> Token {
+    return Token { type: token_type, value: token_value, line: token_line, column: token_column }
+}
+
+shadow create_token {
+    let tok: Token = (create_token TOKEN_NUMBER "42" 1 1)
+    assert (== tok.type TOKEN_NUMBER)
+    assert (== tok.value "42")
+    assert (== tok.line 1)
+    assert (== tok.column 1)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

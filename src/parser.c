@@ -59,7 +59,7 @@ static bool expect(Parser *p, TokenType type, const char *msg) {
         const char *token_name = token_type_name(tok->type);
         const char *token_name_safe = token_name ? token_name : "UNKNOWN";
         fprintf(stderr, "Error at line %d, column %d: %s (got %s)\n",
-                tok->line, msg_safe, token_name_safe);
+                tok->line, tok->column, msg_safe, token_name_safe);
         return false;
     }
     advance(p);
@@ -106,6 +106,10 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out) {
                 return type;
             } else if (strcmp(tok->value, "list_string") == 0) {
                 type = TYPE_LIST_STRING;
+                advance(p);
+                return type;
+            } else if (strcmp(tok->value, "list_token") == 0) {
+                type = TYPE_LIST_TOKEN;
                 advance(p);
                 return type;
             }

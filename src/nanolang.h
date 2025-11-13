@@ -126,6 +126,7 @@ typedef enum {
     TYPE_ENUM,
     TYPE_LIST_INT,
     TYPE_LIST_STRING,
+    TYPE_LIST_TOKEN,
     TYPE_UNKNOWN
 } Type;
 

@@ -1,0 +1,132 @@
+# Keyword recognition for lexer - using nested if/else only
+
+fn keyword_or_identifier(s: string) -> int {
+    let g1: int = (check_keyword_group1 s)
+    if (!= g1 -1) {
+        return g1
+    } else {
+        let g2: int = (check_keyword_group2 s)
+        if (!= g2 -1) {
+            return g2
+        } else {
+            let g3: int = (check_keyword_group3 s)
+            if (!= g3 -1) {
+                return g3
+            } else {
+                let g4: int = (check_keyword_group4 s)
+                if (!= g4 -1) {
+                    return g4
+                } else {
+                    let g5: int = (check_keyword_group5 s)
+                    if (!= g5 -1) {
+                        return g5
+                    } else {
+                        let g6: int = (check_keyword_group6 s)
+                        if (!= g6 -1) {
+                            return g6
+                        } else {
+                            return TokenType.TOKEN_IDENTIFIER
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+# Keep the helper functions from before
+fn check_keyword_group1(s: string) -> int {
+    if (== s "extern") { return TokenType.TOKEN_EXTERN } else {
+        if (== s "fn") { return TokenType.TOKEN_FN } else {
+            if (== s "let") { return TokenType.TOKEN_LET } else {
+                if (== s "mut") { return TokenType.TOKEN_MUT } else {
+                    if (== s "set") { return TokenType.TOKEN_SET } else {
+                        return -1
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn check_keyword_group2(s: string) -> int {
+    if (== s "if") { return TokenType.TOKEN_IF } else {
+        if (== s "else") { return TokenType.TOKEN_ELSE } else {
+            if (== s "while") { return TokenType.TOKEN_WHILE } else {
+                if (== s "for") { return TokenType.TOKEN_FOR } else {
+                    if (== s "in") { return TokenType.TOKEN_IN } else {
+                        return -1
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn check_keyword_group3(s: string) -> int {
+    if (== s "return") { return TokenType.TOKEN_RETURN } else {
+        if (== s "assert") { return TokenType.TOKEN_ASSERT } else {
+            if (== s "shadow") { return TokenType.TOKEN_SHADOW } else {
+                if (== s "print") { return TokenType.TOKEN_PRINT } else {
+                    if (== s "array") { return TokenType.TOKEN_ARRAY } else {
+                        return -1
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn check_keyword_group4(s: string) -> int {
+    if (== s "struct") { return TokenType.TOKEN_STRUCT } else {
+        if (== s "enum") { return TokenType.TOKEN_ENUM } else {
+            if (== s "true") { return TokenType.TOKEN_TRUE } else {
+                if (== s "false") { return TokenType.TOKEN_FALSE } else {
+                    return -1
+                }
+            }
+        }
+    }
+}
+
+fn check_keyword_group5(s: string) -> int {
+    if (== s "int") { return TokenType.TOKEN_TYPE_INT } else {
+        if (== s "float") { return TokenType.TOKEN_TYPE_FLOAT } else {
+            if (== s "bool") { return TokenType.TOKEN_TYPE_BOOL } else {
+                if (== s "string") { return TokenType.TOKEN_TYPE_STRING } else {
+                    if (== s "void") { return TokenType.TOKEN_TYPE_VOID } else {
+                        return -1
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn check_keyword_group6(s: string) -> int {
+    if (== s "and") { return TokenType.TOKEN_AND } else {
+        if (== s "or") { return TokenType.TOKEN_OR } else {
+            if (== s "not") { return TokenType.TOKEN_NOT } else {
+                if (== s "range") { return TokenType.TOKEN_RANGE } else {
+                    return -1
+                }
+            }
+        }
+    }
+}
+
+shadow keyword_or_identifier {
+    assert (== (keyword_or_identifier "fn") TokenType.TOKEN_FN)
+    assert (== (keyword_or_identifier "let") TokenType.TOKEN_LET)
+    assert (== (keyword_or_identifier "if") TokenType.TOKEN_IF)
+    assert (== (keyword_or_identifier "my_var") TokenType.TOKEN_IDENTIFIER)
+    assert (== (keyword_or_identifier "int") TokenType.TOKEN_TYPE_INT)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
