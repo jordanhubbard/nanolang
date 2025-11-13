@@ -60,6 +60,9 @@ Environment *create_environment(void) {
     env->enums = malloc(sizeof(EnumDef) * 8);
     env->enum_count = 0;
     env->enum_capacity = 8;
+    env->unions = malloc(sizeof(UnionDef) * 8);
+    env->union_count = 0;
+    env->union_capacity = 8;
     return env;
 }
 
@@ -363,4 +366,36 @@ int env_get_enum_variant(Environment *env, const char *variant_name) {
         }
     }
     return -1;  /* Not found */
+}
+
+/* Define union */
+void env_define_union(Environment *env, UnionDef union_def) {
+    if (env->union_count >= env->union_capacity) {
+        env->union_capacity *= 2;
+        env->unions = realloc(env->unions, sizeof(UnionDef) * env->union_capacity);
+    }
+    env->unions[env->union_count++] = union_def;
+}
+
+/* Get union definition */
+UnionDef *env_get_union(Environment *env, const char *name) {
+    for (int i = 0; i < env->union_count; i++) {
+        if (strcmp(env->unions[i].name, name) == 0) {
+            return &env->unions[i];
+        }
+    }
+    return NULL;
+}
+
+/* Get variant index in union (returns -1 if not found) */
+int env_get_union_variant_index(Environment *env, const char *union_name, const char *variant_name) {
+    UnionDef *udef = env_get_union(env, union_name);
+    if (!udef) return -1;
+    
+    for (int i = 0; i < udef->variant_count; i++) {
+        if (strcmp(udef->variant_names[i], variant_name) == 0) {
+            return i;
+        }
+    }
+    return -1;
 }
