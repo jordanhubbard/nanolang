@@ -37,8 +37,10 @@ $(HYBRID_COMPILER): $(HYBRID_OBJECTS) | $(BIN_DIR)
 $(OBJ_DIR)/lexer_nano.o: src_nano/lexer_main.nano $(COMPILER) | $(OBJ_DIR)
 	@echo "Compiling nanolang lexer..."
 	$(COMPILER) src_nano/lexer_main.nano -o $(OBJ_DIR)/lexer_nano.tmp --keep-c
-	$(CC) $(CFLAGS) -c $(OBJ_DIR)/lexer_nano.tmp.c -o $@
-	@rm -f $(OBJ_DIR)/lexer_nano.tmp $(OBJ_DIR)/lexer_nano.tmp.c
+	@# Remove main() wrapper from generated C (sed -i works differently on macOS)
+	sed -e '/\/\* C main() entry point/,/^}/d' $(OBJ_DIR)/lexer_nano.tmp.c > $(OBJ_DIR)/lexer_nano_noMain.c
+	$(CC) $(CFLAGS) -c $(OBJ_DIR)/lexer_nano_noMain.c -o $@
+	@rm -f $(OBJ_DIR)/lexer_nano.tmp $(OBJ_DIR)/lexer_nano.tmp.c $(OBJ_DIR)/lexer_nano_noMain.c
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(SRC_DIR)/nanolang.h | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
