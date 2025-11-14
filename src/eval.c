@@ -1348,6 +1348,10 @@ static Value eval_call(ASTNode *node, Environment *env) {
             break;
         }
         result = eval_statement(stmt, env);
+        /* If statement returned a value (e.g., from if block with return), propagate it */
+        if (result.is_return) {
+            break;
+        }
     }
 
     /* Pop call stack */
@@ -1784,11 +1788,34 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
         }
 
         case AST_STRUCT_DEF:
-        case AST_ENUM_DEF:
+            /* Struct definitions are handled at program level (typechecker) */
+            return create_void();
+        
+        case AST_ENUM_DEF: {
+            /* Register enum in interpreter environment for enum variant access */
+            EnumDef edef;
+            edef.name = strdup(stmt->as.enum_def.name);
+            edef.variant_count = stmt->as.enum_def.variant_count;
+            
+            /* Duplicate variant names */
+            edef.variant_names = malloc(sizeof(char*) * edef.variant_count);
+            for (int j = 0; j < edef.variant_count; j++) {
+                edef.variant_names[j] = strdup(stmt->as.enum_def.variant_names[j]);
+            }
+            
+            /* Duplicate variant values */
+            edef.variant_values = malloc(sizeof(int) * edef.variant_count);
+            for (int j = 0; j < edef.variant_count; j++) {
+                edef.variant_values[j] = stmt->as.enum_def.variant_values[j];
+            }
+            
+            env_define_enum(env, edef);
+            return create_void();
+        }
+        
         case AST_FUNCTION:
         case AST_SHADOW:
-            /* Struct, enum, function, and shadow definitions are handled at program level */
-            /* Just return void if encountered during execution */
+            /* Function and shadow definitions are handled at program level */
             return create_void();
 
         default:
@@ -1808,7 +1835,16 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
 
     bool all_passed = true;
 
-    /* Run each shadow test */
+    /* First pass: Register all enum definitions so they're available in shadow tests */
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        
+        if (item->type == AST_ENUM_DEF) {
+            eval_statement(item, env);  /* This will register the enum */
+        }
+    }
+
+    /* Second pass: Run each shadow test */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         
