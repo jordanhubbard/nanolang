@@ -6,7 +6,8 @@ A one-page reference for nanolang syntax and features.
 
 ### Comments
 ```nano
-# Single-line comment only
+# Single-line comment
+/* Multi-line comment */
 ```
 
 ### Function Definition
@@ -40,6 +41,36 @@ set variable_name new_value
 | `bool`   | Boolean               | `true`, `false`|
 | `string` | UTF-8 text            | `"hello"`      |
 | `void`   | No value (return only)| -              |
+
+### Composite Types
+
+**Structs:**
+```nano
+struct Point { x: int, y: int }
+let p: Point = Point { x: 10, y: 20 }
+let x: int = p.x
+```
+
+**Enums:**
+```nano
+enum Status { Pending = 0, Active = 1 }
+let s: int = Status.Active
+```
+
+**Unions (Tagged Unions):**
+```nano
+union Result {
+    Ok { value: int },
+    Error { code: int }
+}
+
+let r: Result = Result.Ok { value: 42 }
+
+match r {
+    Ok(v) => (println "Success"),
+    Error(e) => (println "Failed")
+}
+```
 
 ## Operators (Prefix Notation)
 

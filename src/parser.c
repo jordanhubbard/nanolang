@@ -683,12 +683,20 @@ static ASTNode *parse_statement(Parser *p) {
                 return NULL;
             }
 
+            /* Capture type name if it's a struct/union type (identifier) */
+            Token *type_token = current_token(p);
+            char *type_name = NULL;
+            if (type_token->type == TOKEN_IDENTIFIER) {
+                type_name = strdup(type_token->value);
+            }
+            
             /* Parse type with element_type support for arrays */
             Type element_type = TYPE_UNKNOWN;
             Type type = parse_type_with_element(p, &element_type);
 
             if (!expect(p, TOKEN_ASSIGN, "Expected '=' in let statement")) {
                 free(name);
+                if (type_name) free(type_name);
                 return NULL;
             }
 
@@ -697,6 +705,7 @@ static ASTNode *parse_statement(Parser *p) {
             node = create_node(AST_LET, line, column);
             node->as.let.name = name;
             node->as.let.var_type = type;
+            node->as.let.type_name = type_name;  /* May be NULL for primitive types */
             node->as.let.element_type = element_type;
             node->as.let.is_mut = is_mut;
             node->as.let.value = value;
@@ -1451,6 +1460,9 @@ void free_ast(ASTNode *node) {
             break;
         case AST_LET:
             free(node->as.let.name);
+            if (node->as.let.type_name) {
+                free(node->as.let.type_name);
+            }
             free_ast(node->as.let.value);
             break;
         case AST_SET:

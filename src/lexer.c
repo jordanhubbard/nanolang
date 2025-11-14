@@ -39,6 +39,8 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "array") == 0) return TOKEN_ARRAY;
     if (strcmp(str, "struct") == 0) return TOKEN_STRUCT;
     if (strcmp(str, "enum") == 0) return TOKEN_ENUM;
+    if (strcmp(str, "union") == 0) return TOKEN_UNION;
+    if (strcmp(str, "match") == 0) return TOKEN_MATCH;
 
     /* Boolean literals */
     if (strcmp(str, "true") == 0) return TOKEN_TRUE;
@@ -85,6 +87,23 @@ Token *tokenize(const char *source, int *token_count) {
         /* Skip comments (# to end of line) */
         if (source[i] == '#') {
             while (source[i] != '\0' && source[i] != '\n') i++;
+            continue;
+        }
+        
+        /* Skip C-style comments (slash-star ... star-slash) */
+        if (source[i] == '/' && source[i+1] == '*') {
+            i += 2;  /* Skip opening delimiter */
+            while (source[i] != '\0') {
+                if (source[i] == '*' && source[i+1] == '/') {
+                    i += 2;  /* Skip closing delimiter */
+                    break;
+                }
+                if (source[i] == '\n') {
+                    line++;
+                    line_start = i + 1;
+                }
+                i++;
+            }
             continue;
         }
 
@@ -273,6 +292,8 @@ const char *token_type_name(TokenType type) {
         case TOKEN_ARRAY: return "ARRAY";
         case TOKEN_STRUCT: return "STRUCT";
         case TOKEN_ENUM: return "ENUM";
+        case TOKEN_UNION: return "UNION";
+        case TOKEN_MATCH: return "MATCH";
         case TOKEN_TYPE_INT: return "TYPE_INT";
         case TOKEN_TYPE_FLOAT: return "TYPE_FLOAT";
         case TOKEN_TYPE_BOOL: return "TYPE_BOOL";
