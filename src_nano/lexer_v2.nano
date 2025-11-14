@@ -199,6 +199,7 @@ fn classify_keyword(word: string) -> int {
 }
 
 shadow classify_keyword {
+    /* Note: Using literals in shadow tests because TokenType conflicts with runtime */
     assert (== (classify_keyword "fn") 19)  /* TokenType.FN */
     assert (== (classify_keyword "let") 20)  /* TokenType.LET */
     assert (== (classify_keyword "hello") 4)  /* TokenType.IDENTIFIER */
@@ -215,13 +216,17 @@ fn new_token(token_type: int, value: string, line: int, column: int) -> Token {
 }
 
 shadow new_token {
-    let t: Token = (new_token 1 "42" 1 1)  /* TokenType.NUMBER = 1 */
+    /* Note: Using literals in shadow tests because TokenType conflicts with runtime */
+    let t: Token = (new_token 1 "42" 1 1)  /* TokenType.NUMBER */
     assert (== t.token_type 1)  /* TokenType.NUMBER */
     assert (== (str_equals t.value "42") true)
 }
 
 /* Main tokenization - returns array of tokens 
  * Note: We build a fixed-size array since we don't have dynamic arrays yet
+ * 
+ * TODO: When List<Token> is fully integrated with runtime, use:
+ *   fn lex(source: string) -> List<Token>
  */
 fn lex(source: string) -> array<Token> {
     let source_len: int = (str_length source)
