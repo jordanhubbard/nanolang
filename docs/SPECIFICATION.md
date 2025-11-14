@@ -26,8 +26,8 @@ nanolang is a minimal, statically-typed programming language designed for clarit
 ### 2.1 Comments
 
 ```nano
-# This is a single-line comment
-# There are no multi-line comments
+# Single-line comment
+/* Multi-line comment */
 ```
 
 ### 2.2 Identifiers
@@ -49,6 +49,7 @@ fn       let      mut      set      if       else
 while    for      in       return   assert   shadow
 extern   int      float    bool     string   void     
 true     false    print    and      or       not
+array    struct   enum     union    match
 ```
 
 ### 2.4 Literals
@@ -124,6 +125,74 @@ let x: int = 42
 let y: string = "hello"
 # let z: int = y        # ERROR: Type mismatch
 # let w: int = (+ x y)  # ERROR: Cannot add int and string
+```
+
+### 3.4 Composite Types
+
+#### 3.4.1 Structs
+
+Structs group related data together:
+
+```nano
+struct Point {
+    x: int,
+    y: int
+}
+
+let p: Point = Point { x: 10, y: 20 }
+let x_coord: int = p.x
+```
+
+#### 3.4.2 Enums
+
+Enums define a type with a fixed set of named constants:
+
+```nano
+enum Status {
+    Pending = 0,
+    Active = 1,
+    Complete = 2
+}
+
+let s: int = Status.Active  # Enums are treated as integers
+```
+
+#### 3.4.3 Union Types
+
+Union types (tagged unions/sum types) represent a value that can be one of several variants:
+
+```nano
+union Result {
+    Ok { value: int },
+    Error { code: int, message: string }
+}
+
+fn divide(a: int, b: int) -> Result {
+    if (== b 0) {
+        return Result.Error { code: 1, message: "Division by zero" }
+    } else {
+        return Result.Ok { value: (/ a b) }
+    }
+}
+```
+
+**Union Construction:**
+
+```nano
+# Empty variant
+let status: Status = Status.Ok {}
+
+# Variant with fields
+let result: Result = Result.Error { code: 1, message: "Failed" }
+```
+
+**Pattern Matching:**
+
+```nano
+match result {
+    Ok(r) => (println "Success"),
+    Error(e) => (println "Error")
+}
 ```
 
 ## 4. Expressions

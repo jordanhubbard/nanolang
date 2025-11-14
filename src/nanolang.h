@@ -224,7 +224,8 @@ struct ASTNode {
         struct {
             char *name;
             Type var_type;
-            Type element_type;  /* For TYPE_ARRAY: element type (e.g., TYPE_INT for array<int>) */
+            char *type_name;         /* For TYPE_STRUCT/TYPE_UNION: actual type name (e.g., "Status", "Point") */
+            Type element_type;       /* For TYPE_ARRAY: element type (e.g., TYPE_INT for array<int>) */
             bool is_mut;
             ASTNode *value;
         } let;

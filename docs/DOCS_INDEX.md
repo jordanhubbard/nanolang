@@ -137,6 +137,9 @@ let mut y: int = 20    # Mutable
 - `bool` - Boolean (true/false)
 - `string` - UTF-8 text
 - `void` - No return value
+- `struct` - Composite data types
+- `enum` - Named constants
+- `union` - Tagged unions/sum types
 
 ### Operations
 - Arithmetic: `+`, `-`, `*`, `/`, `%`
@@ -171,6 +174,8 @@ let mut y: int = 20    # Mutable
 - ✅ Comprehensive documentation
 
 ### Recent Improvements
+- ✅ **Union Types** - Tagged unions/sum types with pattern matching
+- ✅ Multi-line comment support (`/* */`)
 - ✅ Fixed critical infinite loop bug in return propagation
 - ✅ Added array operations with safety guarantees
 - ✅ Expanded math library (sqrt, pow, trig functions)

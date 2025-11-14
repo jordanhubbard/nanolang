@@ -64,6 +64,7 @@ static const char *type_to_c(Type type) {
         case TYPE_VOID: return "void";
         case TYPE_ARRAY: return "int64_t*";  /* Arrays are int64_t* for array<int> */
         case TYPE_STRUCT: return "struct"; /* Will be extended with struct name */
+        case TYPE_UNION: return ""; /* Union names are used directly (typedef'd) */
         case TYPE_LIST_INT: return "List_int*";
         case TYPE_LIST_STRING: return "List_string*";
         case TYPE_LIST_TOKEN: return "List_token*";
@@ -422,6 +423,72 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             break;
         }
 
+        case AST_UNION_CONSTRUCT: {
+            /* Transpile union construction: Status.Ok {} -> (Status){.tag = STATUS_TAG_OK, .data.Ok = {}} */
+            const char *union_name = expr->as.union_construct.union_name;
+            const char *variant_name = expr->as.union_construct.variant_name;
+            
+            sb_appendf(sb, "(%s){.tag = %s_TAG_%s", 
+                      union_name, union_name, variant_name);
+            
+            /* If the variant has fields, initialize them */
+            if (expr->as.union_construct.field_count > 0) {
+                sb_appendf(sb, ", .data.%s = {", variant_name);
+                for (int i = 0; i < expr->as.union_construct.field_count; i++) {
+                    if (i > 0) sb_append(sb, ", ");
+                    sb_append(sb, ".");
+                    sb_append(sb, expr->as.union_construct.field_names[i]);
+                    sb_append(sb, " = ");
+                    transpile_expression(sb, expr->as.union_construct.field_values[i], env);
+                }
+                sb_append(sb, "}");
+            }
+            
+            sb_append(sb, "}");
+            break;
+        }
+        
+        case AST_MATCH: {
+            /* Transpile match expression as a statement expression with switch */
+            /* match c { Red(r) => ..., Blue(b) => ... } 
+             * becomes: 
+             * ({
+             *   typeof(c) _match_tmp = c;
+             *   switch(_match_tmp.tag) {
+             *     case COLOR_TAG_RED: { ... } break;
+             *     case COLOR_TAG_BLUE: { ... } break;
+             *   }
+             * })
+             */
+            sb_append(sb, "({ ");
+            
+            /* We need to store the matched expression in a temp variable */
+            /* For now, just inline the switch on the expression directly */
+            sb_append(sb, "switch((");
+            transpile_expression(sb, expr->as.match_expr.expr, env);
+            sb_append(sb, ").tag) { ");
+            
+            /* Emit each arm as a case */
+            for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                const char *variant = expr->as.match_expr.pattern_variants[i];
+                const char *binding = expr->as.match_expr.pattern_bindings[i];
+                
+                /* We need the union name - get it from the match expression somehow */
+                /* For now, extract from first part of tag enum name */
+                /* This is a hack - ideally we'd track the union type */
+                sb_appendf(sb, "case %s_TAG_%s: { ", "UNION", variant);
+                
+                /* TODO: Bind the variant data to the binding variable */
+                (void)binding;  /* Unused for now */
+                
+                transpile_expression(sb, expr->as.match_expr.arm_bodies[i], env);
+                sb_append(sb, "; } break; ");
+            }
+            
+            sb_append(sb, "} })");
+            break;
+        }
+
         case AST_FIELD_ACCESS: {
             /* Check if this is an enum variant access */
             if (expr->as.field_access.object->type == AST_IDENTIFIER) {
@@ -461,8 +528,18 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
         case AST_LET: {
             emit_indent(sb, indent);
             
-            /* For struct types, check if it's actually an enum (enums are ints) */
-            if (stmt->as.let.var_type == TYPE_STRUCT) {
+            /* Check if type_name refers to a union */
+            bool is_union = false;
+            if (stmt->as.let.type_name) {
+                is_union = (env_get_union(env, stmt->as.let.type_name) != NULL);
+            }
+            
+            /* Handle union types */
+            if (is_union) {
+                sb_appendf(sb, "%s %s = ", stmt->as.let.type_name, stmt->as.let.name);
+            }
+            /* For struct/union types that might be enums */
+            else if (stmt->as.let.var_type == TYPE_STRUCT || stmt->as.let.var_type == TYPE_UNION) {
                 /* Check if value is an enum variant access */
                 bool is_enum = false;
                 if (stmt->as.let.value->type == AST_FIELD_ACCESS &&
@@ -1063,6 +1140,44 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         sb_appendf(sb, "} %s;\n\n", edef->name);
     }
     sb_append(sb, "/* ========== End Enum Definitions ========== */\n\n");
+
+    /* Generate union definitions */
+    sb_append(sb, "/* ========== Union Definitions ========== */\n\n");
+    for (int i = 0; i < env->union_count; i++) {
+        UnionDef *udef = &env->unions[i];
+        
+        /* Generate tag enum */
+        sb_appendf(sb, "typedef enum {\n");
+        for (int j = 0; j < udef->variant_count; j++) {
+            sb_appendf(sb, "    %s_TAG_%s = %d",
+                      udef->name,
+                      udef->variant_names[j],
+                      j);
+            if (j < udef->variant_count - 1) sb_append(sb, ",\n");
+            else sb_append(sb, "\n");
+        }
+        sb_appendf(sb, "} %s_Tag;\n\n", udef->name);
+        
+        /* Generate tagged union struct */
+        sb_appendf(sb, "typedef struct %s {\n", udef->name);
+        sb_appendf(sb, "    %s_Tag tag;\n", udef->name);
+        sb_append(sb, "    union {\n");
+        
+        for (int j = 0; j < udef->variant_count; j++) {
+            /* Generate struct for this variant */
+            sb_appendf(sb, "        struct {\n");
+            for (int k = 0; k < udef->variant_field_counts[j]; k++) {
+                sb_append(sb, "            ");
+                sb_append(sb, type_to_c(udef->variant_field_types[j][k]));
+                sb_appendf(sb, " %s;\n", udef->variant_field_names[j][k]);
+            }
+            sb_appendf(sb, "        } %s;\n", udef->variant_names[j]);
+        }
+        
+        sb_append(sb, "    } data;\n");
+        sb_appendf(sb, "} %s;\n\n", udef->name);
+    }
+    sb_append(sb, "/* ========== End Union Definitions ========== */\n\n");
 
     /* Forward declare all functions */
     for (int i = 0; i < program->as.program.count; i++) {

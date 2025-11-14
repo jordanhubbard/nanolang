@@ -575,16 +575,21 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
             Type value_type = check_expression(stmt->as.let.value, tc->env);
             Type declared_type = stmt->as.let.var_type;
             
-            /* If declared type is STRUCT, check if it's actually an enum (treat enums as int) */
-            if (declared_type == TYPE_STRUCT) {
-                /* The parser stores the type name in the value's struct_type_name if known,
-                   but for enum types we need to treat them as int */
-                /* For now, enums are just ints, so we allow int values for "struct" types
-                   that are actually enums */
-                if (value_type == TYPE_INT) {
-                    /* This is okay - enums are represented as ints */
+            /* If declared type is STRUCT, check if it's actually an enum or union */
+            if (declared_type == TYPE_STRUCT && stmt->as.let.type_name) {
+                /* Check if this is actually a union */
+                if (env_get_union(tc->env, stmt->as.let.type_name)) {
+                    declared_type = TYPE_UNION;
+                }
+                /* Check if this is actually an enum (treat enums as int) */
+                else if (env_get_enum(tc->env, stmt->as.let.type_name)) {
                     declared_type = TYPE_INT;
                 }
+            }
+            /* Legacy handling for enums without type_name */
+            else if (declared_type == TYPE_STRUCT && value_type == TYPE_INT) {
+                /* This is okay - enums are represented as ints */
+                declared_type = TYPE_INT;
             }
             
             if (!types_match(value_type, declared_type)) {
@@ -1778,16 +1783,32 @@ bool type_check(ASTNode *program, Environment *env) {
             }
             
             /* Define the function */
-            /* First, convert enum parameter types to int */
+            /* First, resolve parameter types (enum -> int, union -> TYPE_UNION) */
             for (int j = 0; j < item->as.function.param_count; j++) {
                 if (item->as.function.params[j].type == TYPE_STRUCT &&
                     item->as.function.params[j].struct_type_name) {
+                    /* Check if this is actually a union */
+                    if (env_get_union(env, item->as.function.params[j].struct_type_name)) {
+                        item->as.function.params[j].type = TYPE_UNION;
+                    }
                     /* Check if this is actually an enum */
-                    EnumDef *edef = env_get_enum(env, item->as.function.params[j].struct_type_name);
-                    if (edef) {
+                    else if (env_get_enum(env, item->as.function.params[j].struct_type_name)) {
                         /* This is an enum, treat as int */
                         item->as.function.params[j].type = TYPE_INT;
                     }
+                }
+            }
+            
+            /* Resolve return type */
+            Type return_type = item->as.function.return_type;
+            if (return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
+                /* Check if this is actually a union */
+                if (env_get_union(env, item->as.function.return_struct_type_name)) {
+                    return_type = TYPE_UNION;
+                }
+                /* Check if this is actually an enum */
+                else if (env_get_enum(env, item->as.function.return_struct_type_name)) {
+                    return_type = TYPE_INT;
                 }
             }
             
@@ -1795,7 +1816,7 @@ bool type_check(ASTNode *program, Environment *env) {
             func.name = func_name;
             func.params = item->as.function.params;
             func.param_count = item->as.function.param_count;
-            func.return_type = item->as.function.return_type;
+            func.return_type = return_type;
             func.return_struct_type_name = item->as.function.return_struct_type_name;
             func.body = item->as.function.body;
             func.shadow_test = NULL;
@@ -1838,7 +1859,9 @@ bool type_check(ASTNode *program, Environment *env) {
                 continue;
             }
             
-            tc.current_function_return_type = item->as.function.return_type;
+            /* Get the resolved return type from the function definition in env */
+            Function *func_def = env_get_function(env, item->as.function.name);
+            tc.current_function_return_type = func_def ? func_def->return_type : item->as.function.return_type;
 
             /* Save current symbol count for scope restoration */
             int saved_symbol_count = env->symbol_count;

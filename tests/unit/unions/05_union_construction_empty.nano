@@ -9,6 +9,10 @@ fn test_ok() -> int {
     return 1
 }
 
+shadow test_ok {
+    assert (== (test_ok) 1)
+}
+
 fn main() -> int {
     return (test_ok)
 }
