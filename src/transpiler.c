@@ -50,8 +50,16 @@ static void emit_indent(StringBuilder *sb, int indent) {
 /* Check if a struct/enum name is a runtime-provided typedef (not a user-defined type) */
 static bool is_runtime_typedef(const char *name) {
     /* Runtime typedefs that don't use 'struct' keyword */
-    return (strcmp(name, "Token") == 0) ||
-           (strcmp(name, "TokenType") == 0);
+    return strcmp(name, "List_int") == 0 ||
+           strcmp(name, "List_string") == 0 ||
+           strcmp(name, "List_token") == 0;
+}
+
+/* Check if an enum/struct name would conflict with C runtime types */
+static bool conflicts_with_runtime(const char *name) {
+    /* These are defined in nanolang.h and would cause conflicts */
+    return strcmp(name, "TokenType") == 0 ||
+           strcmp(name, "Token") == 0;
 }
 
 /* Transpile type to C type */
@@ -405,11 +413,13 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
 
         case AST_STRUCT_LITERAL: {
             /* Transpile struct literal: Point { x: 10, y: 20 } -> (struct Point){.x = 10, .y = 20} 
-             * or for runtime typedefs: Token { ... } -> (Token){...} */
+             * or for runtime types: Token { ... } -> (Token){...} */
             const char *struct_name = expr->as.struct_literal.struct_name;
-            if (is_runtime_typedef(struct_name)) {
+            if (is_runtime_typedef(struct_name) || conflicts_with_runtime(struct_name)) {
+                /* Runtime types or types that conflict with runtime - use bare typename */
                 sb_appendf(sb, "(%s){", struct_name);
             } else {
+                /* User-defined struct - use 'struct' keyword */
                 sb_appendf(sb, "(struct %s){", struct_name);
             }
             for (int i = 0; i < expr->as.struct_literal.field_count; i++) {
@@ -449,43 +459,79 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
         }
         
         case AST_MATCH: {
-            /* Transpile match expression as a statement expression with switch */
-            /* match c { Red(r) => ..., Blue(b) => ... } 
-             * becomes: 
+            /* Transpile match expression as a statement expression with switch
+             * match status { Ok(x) => x, Error(msg) => ... }
+             * becomes:
              * ({
-             *   typeof(c) _match_tmp = c;
+             *   Status _match_tmp = status;
+             *   __typeof__(_match_tmp) _match_result;
              *   switch(_match_tmp.tag) {
-             *     case COLOR_TAG_RED: { ... } break;
-             *     case COLOR_TAG_BLUE: { ... } break;
+             *     case Status_TAG_Ok: {
+             *       int x = _match_tmp.data.Ok.value;  // bind pattern variables
+             *       _match_result = x;
+             *     } break;
+             *     case Status_TAG_Error: {
+             *       int msg = _match_tmp.data.Error.code;
+             *       _match_result = ...;
+             *     } break;
              *   }
+             *   _match_result;
              * })
              */
-            sb_append(sb, "({ ");
             
-            /* We need to store the matched expression in a temp variable */
-            /* For now, just inline the switch on the expression directly */
-            sb_append(sb, "switch((");
+            /* Get union name from AST (filled during typechecking) */
+            const char *union_name = expr->as.match_expr.union_type_name;
+            
+            if (!union_name) {
+                fprintf(stderr, "Error: Union type name not set for match expression at line %d\n", expr->line);
+                union_name = "UnknownUnion";
+            }
+            
+            /* Get union definition for field information */
+            UnionDef *udef = env_get_union(env, union_name);
+            
+            /* Generate statement expression with temp variable */
+            sb_append(sb, "({ ");
+            sb_appendf(sb, "%s _match_tmp = ", union_name);
             transpile_expression(sb, expr->as.match_expr.expr, env);
-            sb_append(sb, ").tag) { ");
+            sb_append(sb, "; ");
+            
+            /* Determine result type from first arm (simplification: assume int for now) */
+            sb_append(sb, "int _match_result; ");
+            
+            /* Generate switch on tag */
+            sb_append(sb, "switch(_match_tmp.tag) { ");
             
             /* Emit each arm as a case */
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                 const char *variant = expr->as.match_expr.pattern_variants[i];
                 const char *binding = expr->as.match_expr.pattern_bindings[i];
                 
-                /* We need the union name - get it from the match expression somehow */
-                /* For now, extract from first part of tag enum name */
-                /* This is a hack - ideally we'd track the union type */
-                sb_appendf(sb, "case %s_TAG_%s: { ", "UNION", variant);
+                sb_appendf(sb, "case %s_TAG_%s: { ", union_name, variant);
                 
-                /* TODO: Bind the variant data to the binding variable */
-                (void)binding;  /* Unused for now */
+                /* Bind pattern variable to the variant data
+                 * For a variant with fields: Type binding = _match_tmp.data.VariantName;
+                 * For a variant without fields: just create a dummy binding
+                 */
+                if (udef) {
+                    int variant_idx = env_get_union_variant_index(env, union_name, variant);
+                    if (variant_idx >= 0 && udef->variant_field_counts[variant_idx] > 0) {
+                        /* Variant has fields - bind the entire struct */
+                        sb_appendf(sb, "typeof(_match_tmp.data.%s) %s = _match_tmp.data.%s; ",
+                                  variant, binding, variant);
+                    } else {
+                        /* Variant has no fields - create a dummy int binding */
+                        sb_appendf(sb, "int %s __attribute__((unused)) = 0; ", binding);
+                    }
+                }
                 
+                /* Transpile arm body */
+                sb_append(sb, "_match_result = ");
                 transpile_expression(sb, expr->as.match_expr.arm_bodies[i], env);
                 sb_append(sb, "; } break; ");
             }
             
-            sb_append(sb, "} })");
+            sb_append(sb, "} _match_result; })");
             break;
         }
 
@@ -495,10 +541,15 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 const char *enum_name = expr->as.field_access.object->as.identifier;
                 if (env_get_enum(env, enum_name)) {
                     /* For runtime enums, just use variant name (e.g., TOKEN_RETURN)
+                     * For enums that conflict with runtime types, use TOKEN_ prefix
                      * For user enums, use EnumName_VariantName */
                     if (is_runtime_typedef(enum_name)) {
                         sb_append(sb, expr->as.field_access.field_name);
+                    } else if (conflicts_with_runtime(enum_name)) {
+                        /* Use runtime enum variant naming (TOKEN_ prefix) */
+                        sb_appendf(sb, "TOKEN_%s", expr->as.field_access.field_name);
                     } else {
+                        /* User-defined enum */
                         sb_appendf(sb, "%s_%s",
                                   enum_name,
                                   expr->as.field_access.field_name);
@@ -557,9 +608,11 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
                     /* Regular struct type */
                     const char *struct_name = get_struct_type_from_expr(stmt->as.let.value);
                     if (struct_name) {
-                        if (is_runtime_typedef(struct_name)) {
+                        if (is_runtime_typedef(struct_name) || conflicts_with_runtime(struct_name)) {
+                            /* Runtime types or types that conflict with runtime - use bare typename */
                             sb_appendf(sb, "%s %s = ", struct_name, stmt->as.let.name);
                         } else {
+                            /* User-defined struct - use 'struct' keyword */
                             sb_appendf(sb, "struct %s %s = ", struct_name, stmt->as.let.name);
                         }
                     } else {
@@ -1105,6 +1158,14 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "/* ========== Struct Definitions ========== */\n\n");
     for (int i = 0; i < env->struct_count; i++) {
         StructDef *sdef = &env->structs[i];
+        
+        /* Skip structs that conflict with runtime types */
+        if (conflicts_with_runtime(sdef->name)) {
+            sb_appendf(sb, "/* Skipping struct '%s' - conflicts with runtime type */\n", sdef->name);
+            sb_appendf(sb, "/* Use the runtime Token from nanolang.h instead */\n\n");
+            continue;
+        }
+        
         sb_appendf(sb, "struct %s {\n", sdef->name);
         for (int j = 0; j < sdef->field_count; j++) {
             sb_append(sb, "    ");
@@ -1126,6 +1187,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         EnumDef *edef = &env->enums[i];
         /* Skip runtime-provided enums - they're already defined in nanolang.h */
         if (is_runtime_typedef(edef->name)) {
+            continue;
+        }
+        /* Skip enums that conflict with C runtime types */
+        if (conflicts_with_runtime(edef->name)) {
+            sb_appendf(sb, "/* Skipping enum '%s' - conflicts with runtime type */\n", edef->name);
+            sb_appendf(sb, "/* Use the runtime TokenType from nanolang.h instead */\n\n");
             continue;
         }
         sb_appendf(sb, "typedef enum {\n");

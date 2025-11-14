@@ -96,7 +96,8 @@ typedef enum {
     VAL_BOOL,
     VAL_STRING,
     VAL_ARRAY,
-    VAL_STRUCT,  /* NEW: Struct values */
+    VAL_STRUCT,  /* Struct values */
+    VAL_UNION,   /* Union values (tagged unions) */
     VAL_VOID
 } ValueType;
 
@@ -116,6 +117,16 @@ typedef struct {
     int field_count;         /* Number of fields */
 } StructValue;
 
+/* Union value (tagged union) */
+typedef struct {
+    char *union_name;        /* Name of union type (e.g., "Status", "Result") */
+    int variant_index;       /* Index of the active variant */
+    char *variant_name;      /* Name of the active variant (e.g., "Ok", "Error") */
+    char **field_names;      /* Array of field names for this variant */
+    Value *field_values;     /* Array of field values for this variant */
+    int field_count;         /* Number of fields in this variant */
+} UnionValue;
+
 /* Type information */
 typedef enum {
     TYPE_INT,
@@ -127,16 +138,22 @@ typedef enum {
     TYPE_STRUCT,
     TYPE_ENUM,
     TYPE_UNION,
+    TYPE_GENERIC,      /* Generic type (e.g., List<T> before instantiation) */
     TYPE_LIST_INT,
     TYPE_LIST_STRING,
     TYPE_LIST_TOKEN,
     TYPE_UNKNOWN
 } Type;
 
-/* Extended type information for arrays */
+/* Extended type information for arrays and generics */
 typedef struct TypeInfo {
     Type base_type;
     struct TypeInfo *element_type;  /* For arrays: array<int> has element_type = int */
+    
+    /* For generic types: List<int> */
+    char *generic_name;              /* e.g., "List" */
+    struct TypeInfo **type_params;   /* e.g., [TypeInfo{TYPE_INT}] */
+    int type_param_count;            /* Number of type parameters */
 } TypeInfo;
 
 /* Value structure */
@@ -149,7 +166,8 @@ struct Value {
         bool bool_val;
         char *string_val;
         Array *array_val;
-        StructValue *struct_val;  /* NEW: Struct values */
+        StructValue *struct_val;  /* Struct values */
+        UnionValue *union_val;    /* Union values (tagged unions) */
     } as;
 };
 
@@ -326,6 +344,7 @@ struct ASTNode {
             char **pattern_variants;
             char **pattern_bindings;
             ASTNode **arm_bodies;
+            char *union_type_name;  /* Filled during typechecking */
         } match_expr;
     } as;
 };
@@ -381,6 +400,14 @@ typedef struct {
     Type **variant_field_types;
 } UnionDef;
 
+/* Generic type instantiation (for monomorphization) */
+typedef struct {
+    char *generic_name;        /* e.g., "List" */
+    Type *type_args;           /* e.g., [TYPE_INT] */
+    int type_arg_count;        /* Number of type arguments */
+    char *concrete_name;       /* e.g., "List_int" (generated name) */
+} GenericInstantiation;
+
 /* Environment for variable and function storage */
 typedef struct {
     Symbol *symbols;
@@ -398,6 +425,9 @@ typedef struct {
     UnionDef *unions;
     int union_count;
     int union_capacity;
+    GenericInstantiation *generic_instances;
+    int generic_instance_count;
+    int generic_instance_capacity;
 } Environment;
 
 /* Function declarations */
@@ -454,5 +484,7 @@ Value create_string(const char *val);
 Value create_void(void);
 Value create_array(ValueType elem_type, int length, int capacity);
 Value create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count);
+Value create_union(const char *union_name, int variant_index, const char *variant_name, 
+                   char **field_names, Value *field_values, int field_count);
 
 #endif /* NANOLANG_H */

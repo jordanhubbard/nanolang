@@ -1,156 +1,430 @@
-# Lexer implementation in nanolang
-# This file contains the tokenization logic for nanolang source code
-# Refactored to use helper functions to reduce nesting depth
+/* =============================================================================
+ * nanolang Lexer (Self-Hosted)
+ * =============================================================================
+ * This is the lexer implementation written in nanolang itself.
+ * It tokenizes nanolang source code into a stream of tokens.
+ */
 
-# Token struct definition
-struct Token {
-    type: int,      # TokenType enum value
-    value: string,  # Token text value (or empty string for tokens without values)
-    line: int,      # Line number where token appears
-    column: int     # Column number where token appears
-}
-
-# TokenType enum - must match C enum exactly
+/* Token types as an enum */
 enum TokenType {
-    TOKEN_EOF,
-    TOKEN_NUMBER,
-    TOKEN_FLOAT,
-    TOKEN_STRING,
-    TOKEN_IDENTIFIER,
-    TOKEN_TRUE,
-    TOKEN_FALSE,
-    TOKEN_LPAREN,
-    TOKEN_RPAREN,
-    TOKEN_LBRACE,
-    TOKEN_RBRACE,
-    TOKEN_LBRACKET,
-    TOKEN_RBRACKET,
-    TOKEN_COMMA,
-    TOKEN_COLON,
-    TOKEN_ARROW,
-    TOKEN_ASSIGN,
-    TOKEN_DOT,
-    TOKEN_EXTERN,
-    TOKEN_FN,
-    TOKEN_LET,
-    TOKEN_MUT,
-    TOKEN_SET,
-    TOKEN_IF,
-    TOKEN_ELSE,
-    TOKEN_WHILE,
-    TOKEN_FOR,
-    TOKEN_IN,
-    TOKEN_RETURN,
-    TOKEN_ASSERT,
-    TOKEN_SHADOW,
-    TOKEN_PRINT,
-    TOKEN_ARRAY,
-    TOKEN_STRUCT,
-    TOKEN_ENUM,
-    TOKEN_TYPE_INT,
-    TOKEN_TYPE_FLOAT,
-    TOKEN_TYPE_BOOL,
-    TOKEN_TYPE_STRING,
-    TOKEN_TYPE_VOID,
-    TOKEN_PLUS,
-    TOKEN_MINUS,
-    TOKEN_STAR,
-    TOKEN_SLASH,
-    TOKEN_PERCENT,
-    TOKEN_EQ,
-    TOKEN_NE,
-    TOKEN_LT,
-    TOKEN_LE,
-    TOKEN_GT,
-    TOKEN_GE,
-    TOKEN_AND,
-    TOKEN_OR,
-    TOKEN_NOT,
-    TOKEN_RANGE
+    TOKEN_EOF = 0,
+    TOKEN_NUMBER = 1,
+    TOKEN_FLOAT = 2,
+    TOKEN_STRING = 3,
+    TOKEN_IDENTIFIER = 4,
+    TOKEN_TRUE = 5,
+    TOKEN_FALSE = 6,
+    
+    /* Delimiters */
+    TOKEN_LPAREN = 7,
+    TOKEN_RPAREN = 8,
+    TOKEN_LBRACE = 9,
+    TOKEN_RBRACE = 10,
+    TOKEN_LBRACKET = 11,
+    TOKEN_RBRACKET = 12,
+    TOKEN_COMMA = 13,
+    TOKEN_COLON = 14,
+    TOKEN_ARROW = 15,
+    TOKEN_ASSIGN = 16,
+    TOKEN_DOT = 17,
+    
+    /* Keywords */
+    TOKEN_EXTERN = 18,
+    TOKEN_FN = 19,
+    TOKEN_LET = 20,
+    TOKEN_MUT = 21,
+    TOKEN_SET = 22,
+    TOKEN_IF = 23,
+    TOKEN_ELSE = 24,
+    TOKEN_WHILE = 25,
+    TOKEN_FOR = 26,
+    TOKEN_IN = 27,
+    TOKEN_RETURN = 28,
+    TOKEN_ASSERT = 29,
+    TOKEN_SHADOW = 30,
+    TOKEN_PRINT = 31,
+    TOKEN_ARRAY = 32,
+    TOKEN_STRUCT = 33,
+    TOKEN_ENUM = 34,
+    TOKEN_UNION = 35,
+    TOKEN_MATCH = 36,
+    
+    /* Type keywords */
+    TOKEN_TYPE_INT = 37,
+    TOKEN_TYPE_FLOAT = 38,
+    TOKEN_TYPE_BOOL = 39,
+    TOKEN_TYPE_STRING = 40,
+    TOKEN_TYPE_VOID = 41,
+    
+    /* Operators */
+    TOKEN_PLUS = 42,
+    TOKEN_MINUS = 43,
+    TOKEN_STAR = 44,
+    TOKEN_SLASH = 45,
+    TOKEN_PERCENT = 46,
+    TOKEN_EQ = 47,
+    TOKEN_NE = 48,
+    TOKEN_LT = 49,
+    TOKEN_LE = 50,
+    TOKEN_GT = 51,
+    TOKEN_GE = 52,
+    TOKEN_AND = 53,
+    TOKEN_OR = 54,
+    TOKEN_NOT = 55,
+    TOKEN_RANGE = 56
 }
 
-# Helper function to check if a character is the start of an identifier
+/* Token structure */
+struct Token {
+    token_type: int,      /* TokenType enum value */
+    value: string,        /* Token value (for identifiers, numbers, strings) */
+    line: int,            /* Line number */
+    column: int           /* Column number */
+}
+
+/* Character classification helpers */
+fn is_whitespace(c: int) -> bool {
+    return (or 
+        (== c 32)   /* space */
+        (or (== c 9)    /* tab */
+        (or (== c 10)   /* newline */
+        (== c 13))))    /* carriage return */
+}
+
+fn is_digit(c: int) -> bool {
+    return (and (>= c 48) (<= c 57))  /* '0' to '9' */
+}
+
+fn is_alpha(c: int) -> bool {
+    return (or
+        (and (>= c 65) (<= c 90))   /* 'A' to 'Z' */
+        (and (>= c 97) (<= c 122))) /* 'a' to 'z' */
+}
+
 fn is_identifier_start(c: int) -> bool {
-    return (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122)) (== c 95))
+    return (or (is_alpha c) (== c 95))  /* alphanumeric or '_' */
 }
 
-shadow is_identifier_start {
-    assert (== (is_identifier_start 65) true)   # 'A'
-    assert (== (is_identifier_start 97) true)  # 'a'
-    assert (== (is_identifier_start 95) true)  # '_'
-    assert (== (is_identifier_start 48) false) # '0'
-}
-
-# Helper function to check if a character is part of an identifier
 fn is_identifier_char(c: int) -> bool {
-    return (or (is_identifier_start c) (and (>= c 48) (<= c 57)))
+    return (or (is_alpha c) (or (is_digit c) (== c 95)))  /* alphanumeric or '_' */
 }
 
-shadow is_identifier_char {
-    assert (== (is_identifier_char 65) true)   # 'A'
-    assert (== (is_identifier_char 97) true)  # 'a'
-    assert (== (is_identifier_char 48) true) # '0'
-    assert (== (is_identifier_char 32) false) # ' '
+/* String comparison */
+fn str_equals(s1: string, s2: string) -> bool {
+    let len1: int = (str_length s1)
+    let len2: int = (str_length s2)
+    
+    if (!= len1 len2) {
+        return false
+    } else {}
+    
+    let mut i: int = 0
+    while (< i len1) {
+        if (!= (char_at s1 i) (char_at s2 i)) {
+            return false
+        } else {}
+        set i (+ i 1)
+    }
+    
+    return true
 }
 
-# Helper function to check if a character is whitespace
-fn is_whitespace_char(c: int) -> bool {
-    return (or (== c 32) (== c 9) (== c 10) (== c 13))
+/* Extract substring */
+fn substring(s: string, start: int, length: int) -> string {
+    let mut result: string = ""
+    let mut i: int = 0
+    while (< i length) {
+        let c: int = (char_at s (+ start i))
+        set result (str_concat result (string_from_char c))
+        set i (+ i 1)
+    }
+    return result
 }
 
-shadow is_whitespace_char {
-    assert (== (is_whitespace_char 32) true)  # ' '
-    assert (== (is_whitespace_char 9) true)   # '\t'
-    assert (== (is_whitespace_char 10) true)  # '\n'
-    assert (== (is_whitespace_char 65) false) # 'A'
+/* Keyword classification */
+fn keyword_or_identifier(word: string) -> int {
+    /* Keywords */
+    if (str_equals word "extern") { return TokenType.EXTERN } else {}
+    if (str_equals word "fn") { return TokenType.FN } else {}
+    if (str_equals word "let") { return TokenType.LET } else {}
+    if (str_equals word "mut") { return TokenType.MUT } else {}
+    if (str_equals word "set") { return TokenType.SET } else {}
+    if (str_equals word "if") { return TokenType.IF } else {}
+    if (str_equals word "else") { return TokenType.ELSE } else {}
+    if (str_equals word "while") { return TokenType.WHILE } else {}
+    if (str_equals word "for") { return TokenType.FOR } else {}
+    if (str_equals word "in") { return TokenType.IN } else {}
+    if (str_equals word "return") { return TokenType.RETURN } else {}
+    if (str_equals word "assert") { return TokenType.ASSERT } else {}
+    if (str_equals word "shadow") { return TokenType.SHADOW } else {}
+    if (str_equals word "print") { return TokenType.PRINT } else {}
+    if (str_equals word "array") { return TokenType.ARRAY } else {}
+    if (str_equals word "struct") { return TokenType.STRUCT } else {}
+    if (str_equals word "enum") { return TokenType.ENUM } else {}
+    if (str_equals word "union") { return TokenType.UNION } else {}
+    if (str_equals word "match") { return TokenType.MATCH } else {}
+    
+    /* Boolean literals */
+    if (str_equals word "true") { return TokenType.TRUE } else {}
+    if (str_equals word "false") { return TokenType.FALSE } else {}
+    
+    /* Types */
+    if (str_equals word "int") { return TokenType.TYPE_INT } else {}
+    if (str_equals word "float") { return TokenType.TYPE_FLOAT } else {}
+    if (str_equals word "bool") { return TokenType.TYPE_BOOL } else {}
+    if (str_equals word "string") { return TokenType.TYPE_STRING } else {}
+    if (str_equals word "void") { return TokenType.TYPE_VOID } else {}
+    
+    /* Operators */
+    if (str_equals word "and") { return TokenType.AND } else {}
+    if (str_equals word "or") { return TokenType.OR } else {}
+    if (str_equals word "not") { return TokenType.NOT } else {}
+    if (str_equals word "range") { return TokenType.RANGE } else {}
+    
+    return TokenType.IDENTIFIER
 }
 
-# Helper function to check if a character is a digit
-fn is_digit_char(c: int) -> bool {
-    return (and (>= c 48) (<= c 57))
+/* Create a token */
+fn create_token(token_type: int, value: string, line: int, column: int) -> Token {
+    return Token {
+        token_type: token_type,
+        value: value,
+        line: line,
+        column: column
+    }
 }
 
-shadow is_digit_char {
-    assert (== (is_digit_char 48) true)  # '0'
-    assert (== (is_digit_char 57) true)  # '9'
-    assert (== (is_digit_char 65) false) # 'A'
-}
-
-# Check if string is a keyword and return appropriate token type
-fn keyword_or_identifier(s: string) -> int {
-    # Keywords
-    if (== s "extern") { return TOKEN_EXTERN } else {
-        if (== s "fn") { return TOKEN_FN } else {
-            if (== s "let") { return TOKEN_LET } else {
-                if (== s "mut") { return TOKEN_MUT } else {
-                    if (== s "set") { return TOKEN_SET } else {
-                        if (== s "if") { return TOKEN_IF } else {
-                            if (== s "else") { return TOKEN_ELSE } else {
-                                if (== s "while") { return TOKEN_WHILE } else {
-                                    if (== s "for") { return TOKEN_FOR } else {
-                                        if (== s "in") { return TOKEN_IN } else {
-                                            if (== s "return") { return TOKEN_RETURN } else {
-                                                if (== s "assert") { return TOKEN_ASSERT } else {
-                                                    if (== s "shadow") { return TOKEN_SHADOW } else {
-                                                        if (== s "print") { return TOKEN_PRINT } else {
-                                                            if (== s "array") { return TOKEN_ARRAY } else {
-                                                                if (== s "struct") { return TOKEN_STRUCT } else {
-                                                                    if (== s "enum") { return TOKEN_ENUM } else {
-                                                                        # Boolean literals
-                                                                        if (== s "true") { return TOKEN_TRUE } else {
-                                                                            if (== s "false") { return TOKEN_FALSE } else {
-                                                                                # Types
-                                                                                if (== s "int") { return TOKEN_TYPE_INT } else {
-                                                                                    if (== s "float") { return TOKEN_TYPE_FLOAT } else {
-                                                                                        if (== s "bool") { return TOKEN_TYPE_BOOL } else {
-                                                                                            if (== s "string") { return TOKEN_TYPE_STRING } else {
-                                                                                                if (== s "void") { return TOKEN_TYPE_VOID } else {
-                                                                                                    # Operators
-                                                                                                    if (== s "and") { return TOKEN_AND } else {
-                                                                                                        if (== s "or") { return TOKEN_OR } else {
-                                                                                                            if (== s "not") { return TOKEN_NOT } else {
-                                                                                                                if (== s "range") { return TOKEN_RANGE } else {
-                                                                                                                    return TOKEN_IDENTIFIER
+/* Main tokenization function */
+fn tokenize(source: string) -> array<Token> {
+    let source_len: int = (str_length source)
+    let mut tokens: array<Token> = []
+    let mut i: int = 0
+    let mut line: int = 1
+    let mut column: int = 1
+    let mut line_start: int = 0
+    
+    while (< i source_len) {
+        let c: int = (char_at source i)
+        
+        /* Skip whitespace */
+        if (is_whitespace c) {
+            if (== c 10) {  /* newline */
+                set line (+ line 1)
+                set line_start (+ i 1)
+                set column 1
+            } else {}
+            set i (+ i 1)
+        } else {
+            /* Skip line comments (# to end of line) */
+            if (== c 35) {  /* '#' */
+                while (and (< i source_len) (!= (char_at source i) 10)) {
+                    set i (+ i 1)
+                }
+            } else {
+                /* Skip C-style comments (slash-star ... star-slash) */
+                if (and (== c 47) (and (< (+ i 1) source_len) (== (char_at source (+ i 1)) 42))) {  /* '/' and '*' */
+                    set i (+ i 2)
+                    while (< i source_len) {
+                        if (and (== (char_at source i) 42) 
+                               (and (< (+ i 1) source_len) 
+                                    (== (char_at source (+ i 1)) 47))) {  /* '*' and '/' */
+                            set i (+ i 2)
+                            break
+                        } else {}
+                        if (== (char_at source i) 10) {  /* newline */
+                            set line (+ line 1)
+                            set line_start (+ i 1)
+                        } else {}
+                        set i (+ i 1)
+                    }
+                } else {
+                    /* Update column for this token */
+                    set column (+ (- i line_start) 1)
+                    
+                    /* String literals */
+                    if (== c 34) {  /* '"' */
+                        set i (+ i 1)
+                        let start: int = i
+                        while (and (< i source_len) (!= (char_at source i) 34)) {
+                            if (and (== (char_at source i) 92)  /* '\\' */
+                                   (< (+ i 1) source_len)) {
+                                set i (+ i 2)
+                            } else {
+                                set i (+ i 1)
+                            }
+                        }
+                        
+                        let str_value: string = (substring source start (- i start))
+                        let token: Token = (create_token TokenType.STRING str_value line column)
+                        set tokens (array_push tokens token)
+                        
+                        if (< i source_len) {
+                            set i (+ i 1)  /* Skip closing quote */
+                        } else {}
+                    } else {
+                        /* Numbers (integers and floats) */
+                        if (or (is_digit c) 
+                              (and (== c 45) 
+                                   (and (< (+ i 1) source_len) 
+                                        (is_digit (char_at source (+ i 1)))))) {  /* '-' followed by digit */
+                            let start: int = i
+                            if (== c 45) { set i (+ i 1) } else {}  /* Skip minus */
+                            
+                            while (and (< i source_len) (is_digit (char_at source i))) {
+                                set i (+ i 1)
+                            }
+                            
+                            /* Check for float */
+                            if (and (< i source_len) 
+                                   (and (== (char_at source i) 46)  /* '.' */
+                                        (and (< (+ i 1) source_len) 
+                                             (is_digit (char_at source (+ i 1)))))) {
+                                set i (+ i 1)
+                                while (and (< i source_len) (is_digit (char_at source i))) {
+                                    set i (+ i 1)
+                                }
+                                let num_str: string = (substring source start (- i start))
+                                let token: Token = (create_token TokenType.FLOAT num_str line column)
+                                set tokens (array_push tokens token)
+                            } else {
+                                let num_str: string = (substring source start (- i start))
+                                let token: Token = (create_token TokenType.NUMBER num_str line column)
+                                set tokens (array_push tokens token)
+                            }
+                        } else {
+                            /* Identifiers and keywords */
+                            if (is_identifier_start c) {
+                                let start: int = i
+                                while (and (< i source_len) (is_identifier_char (char_at source i))) {
+                                    set i (+ i 1)
+                                }
+                                let id_str: string = (substring source start (- i start))
+                                let token_type: int = (keyword_or_identifier id_str)
+                                let token: Token = (create_token token_type id_str line column)
+                                set tokens (array_push tokens token)
+                            } else {
+                                /* Two-character operators */
+                                if (and (== c 45) (and (< (+ i 1) source_len) (== (char_at source (+ i 1)) 62))) {  /* '->' */
+                                    let token: Token = (create_token TokenType.ARROW "" line column)
+                                    set tokens (array_push tokens token)
+                                    set i (+ i 2)
+                                } else {
+                                    if (and (== c 61) (and (< (+ i 1) source_len) (== (char_at source (+ i 1)) 62))) {  /* '=>' */
+                                        let token: Token = (create_token TokenType.ARROW "" line column)
+                                        set tokens (array_push tokens token)
+                                        set i (+ i 2)
+                                    } else {
+                                        if (and (== c 61) (and (< (+ i 1) source_len) (== (char_at source (+ i 1)) 61))) {  /* '==' */
+                                            let token: Token = (create_token TokenType.EQ "" line column)
+                                            set tokens (array_push tokens token)
+                                            set i (+ i 2)
+                                        } else {
+                                            if (and (== c 33) (and (< (+ i 1) source_len) (== (char_at source (+ i 1)) 61))) {  /* '!=' */
+                                                let token: Token = (create_token TokenType.NE "" line column)
+                                                set tokens (array_push tokens token)
+                                                set i (+ i 2)
+                                            } else {
+                                                if (and (== c 60) (and (< (+ i 1) source_len) (== (char_at source (+ i 1)) 61))) {  /* '<=' */
+                                                    let token: Token = (create_token TokenType.LE "" line column)
+                                                    set tokens (array_push tokens token)
+                                                    set i (+ i 2)
+                                                } else {
+                                                    if (and (== c 62) (and (< (+ i 1) source_len) (== (char_at source (+ i 1)) 61))) {  /* '>=' */
+                                                        let token: Token = (create_token TokenType.GE "" line column)
+                                                        set tokens (array_push tokens token)
+                                                        set i (+ i 2)
+                                                    } else {
+                                                        /* Single '=' (must check it's not '==' or '=>') */
+                                                        if (== c 61) {
+                                                            let token: Token = (create_token TokenType.ASSIGN "" line column)
+                                                            set tokens (array_push tokens token)
+                                                            set i (+ i 1)
+                                                        } else {
+                                                            /* Single-character tokens */
+                                                            if (== c 40) { /* '(' */
+                                                                let token: Token = (create_token TokenType.LPAREN "" line column)
+                                                                set tokens (array_push tokens token)
+                                                                set i (+ i 1)
+                                                            } else {
+                                                                if (== c 41) { /* ')' */
+                                                                    let token: Token = (create_token TokenType.RPAREN "" line column)
+                                                                    set tokens (array_push tokens token)
+                                                                    set i (+ i 1)
+                                                                } else {
+                                                                    if (== c 123) { /* '{' */
+                                                                        let token: Token = (create_token TokenType.LBRACE "" line column)
+                                                                        set tokens (array_push tokens token)
+                                                                        set i (+ i 1)
+                                                                    } else {
+                                                                        if (== c 125) { /* '}' */
+                                                                            let token: Token = (create_token TokenType.RBRACE "" line column)
+                                                                            set tokens (array_push tokens token)
+                                                                            set i (+ i 1)
+                                                                        } else {
+                                                                            if (== c 91) { /* '[' */
+                                                                                let token: Token = (create_token TokenType.LBRACKET "" line column)
+                                                                                set tokens (array_push tokens token)
+                                                                                set i (+ i 1)
+                                                                            } else {
+                                                                                if (== c 93) { /* ']' */
+                                                                                    let token: Token = (create_token TokenType.RBRACKET "" line column)
+                                                                                    set tokens (array_push tokens token)
+                                                                                    set i (+ i 1)
+                                                                                } else {
+                                                                                    if (== c 44) { /* ',' */
+                                                                                        let token: Token = (create_token TokenType.COMMA "" line column)
+                                                                                        set tokens (array_push tokens token)
+                                                                                        set i (+ i 1)
+                                                                                    } else {
+                                                                                        if (== c 58) { /* ':' */
+                                                                                            let token: Token = (create_token TokenType.COLON "" line column)
+                                                                                            set tokens (array_push tokens token)
+                                                                                            set i (+ i 1)
+                                                                                        } else {
+                                                                                            if (== c 46) { /* '.' */
+                                                                                                let token: Token = (create_token TokenType.DOT "" line column)
+                                                                                                set tokens (array_push tokens token)
+                                                                                                set i (+ i 1)
+                                                                                            } else {
+                                                                                                if (== c 43) { /* '+' */
+                                                                                                    let token: Token = (create_token TokenType.PLUS "" line column)
+                                                                                                    set tokens (array_push tokens token)
+                                                                                                    set i (+ i 1)
+                                                                                                } else {
+                                                                                                    if (== c 45) { /* '-' */
+                                                                                                        let token: Token = (create_token TokenType.MINUS "" line column)
+                                                                                                        set tokens (array_push tokens token)
+                                                                                                        set i (+ i 1)
+                                                                                                    } else {
+                                                                                                        if (== c 42) { /* '*' */
+                                                                                                            let token: Token = (create_token TokenType.STAR "" line column)
+                                                                                                            set tokens (array_push tokens token)
+                                                                                                            set i (+ i 1)
+                                                                                                        } else {
+                                                                                                            if (== c 47) { /* '/' */
+                                                                                                                let token: Token = (create_token TokenType.SLASH "" line column)
+                                                                                                                set tokens (array_push tokens token)
+                                                                                                                set i (+ i 1)
+                                                                                                            } else {
+                                                                                                                if (== c 37) { /* '%' */
+                                                                                                                    let token: Token = (create_token TokenType.PERCENT "" line column)
+                                                                                                                    set tokens (array_push tokens token)
+                                                                                                                    set i (+ i 1)
+                                                                                                                } else {
+                                                                                                                    if (== c 60) { /* '<' */
+                                                                                                                        let token: Token = (create_token TokenType.LT "" line column)
+                                                                                                                        set tokens (array_push tokens token)
+                                                                                                                        set i (+ i 1)
+                                                                                                                    } else {
+                                                                                                                        if (== c 62) { /* '>' */
+                                                                                                                            let token: Token = (create_token TokenType.GT "" line column)
+                                                                                                                            set tokens (array_push tokens token)
+                                                                                                                            set i (+ i 1)
+                                                                                                                        } else {
+                                                                                                                            /* Unknown character, skip it */
+                                                                                                                            set i (+ i 1)
+                                                                                                                        }
+                                                                                                                    }
                                                                                                                 }
                                                                                                             }
                                                                                                         }
@@ -179,317 +453,66 @@ fn keyword_or_identifier(s: string) -> int {
             }
         }
     }
-}
-
-shadow keyword_or_identifier {
-    assert (== (keyword_or_identifier "fn") TOKEN_FN)
-    assert (== (keyword_or_identifier "let") TOKEN_LET)
-    assert (== (keyword_or_identifier "if") TOKEN_IF)
-    assert (== (keyword_or_identifier "my_var") TOKEN_IDENTIFIER)
-    assert (== (keyword_or_identifier "int") TOKEN_TYPE_INT)
-}
-
-# Process a single-character token and return new position
-fn process_single_char_token(c: int, tokens: list_token, line: int, column: int, i: int) -> int {
-    if (== c 40) {
-        let tok: Token = Token { type: TOKEN_LPAREN, value: "", line: line, column: column }
-        (list_token_push tokens tok)
-        return (+ i 1)
-    } else {
-        if (== c 41) {
-            let tok: Token = Token { type: TOKEN_RPAREN, value: "", line: line, column: column }
-            (list_token_push tokens tok)
-            return (+ i 1)
-        } else {
-            if (== c 123) {
-                let tok: Token = Token { type: TOKEN_LBRACE, value: "", line: line, column: column }
-                (list_token_push tokens tok)
-                return (+ i 1)
-            } else {
-                if (== c 125) {
-                    let tok: Token = Token { type: TOKEN_RBRACE, value: "", line: line, column: column }
-                    (list_token_push tokens tok)
-                    return (+ i 1)
-                } else {
-                    if (== c 91) {
-                        let tok: Token = Token { type: TOKEN_LBRACKET, value: "", line: line, column: column }
-                        (list_token_push tokens tok)
-                        return (+ i 1)
-                    } else {
-                        if (== c 93) {
-                            let tok: Token = Token { type: TOKEN_RBRACKET, value: "", line: line, column: column }
-                            (list_token_push tokens tok)
-                            return (+ i 1)
-                        } else {
-                            if (== c 44) {
-                                let tok: Token = Token { type: TOKEN_COMMA, value: "", line: line, column: column }
-                                (list_token_push tokens tok)
-                                return (+ i 1)
-                            } else {
-                                if (== c 58) {
-                                    let tok: Token = Token { type: TOKEN_COLON, value: "", line: line, column: column }
-                                    (list_token_push tokens tok)
-                                    return (+ i 1)
-                                } else {
-                                    if (== c 46) {
-                                        let tok: Token = Token { type: TOKEN_DOT, value: "", line: line, column: column }
-                                        (list_token_push tokens tok)
-                                        return (+ i 1)
-                                    } else {
-                                        if (== c 43) {
-                                            let tok: Token = Token { type: TOKEN_PLUS, value: "", line: line, column: column }
-                                            (list_token_push tokens tok)
-                                            return (+ i 1)
-                                        } else {
-                                            if (== c 45) {
-                                                let tok: Token = Token { type: TOKEN_MINUS, value: "", line: line, column: column }
-                                                (list_token_push tokens tok)
-                                                return (+ i 1)
-                                            } else {
-                                                if (== c 42) {
-                                                    let tok: Token = Token { type: TOKEN_STAR, value: "", line: line, column: column }
-                                                    (list_token_push tokens tok)
-                                                    return (+ i 1)
-                                                } else {
-                                                    if (== c 47) {
-                                                        let tok: Token = Token { type: TOKEN_SLASH, value: "", line: line, column: column }
-                                                        (list_token_push tokens tok)
-                                                        return (+ i 1)
-                                                    } else {
-                                                        if (== c 37) {
-                                                            let tok: Token = Token { type: TOKEN_PERCENT, value: "", line: line, column: column }
-                                                            (list_token_push tokens tok)
-                                                            return (+ i 1)
-                                                        } else {
-                                                            if (== c 60) {
-                                                                let tok: Token = Token { type: TOKEN_LT, value: "", line: line, column: column }
-                                                                (list_token_push tokens tok)
-                                                                return (+ i 1)
-                                                            } else {
-                                                                if (== c 62) {
-                                                                    let tok: Token = Token { type: TOKEN_GT, value: "", line: line, column: column }
-                                                                    (list_token_push tokens tok)
-                                                                    return (+ i 1)
-                                                                } else {
-                                                                    # Unknown character - skip it
-                                                                    return (+ i 1)
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-# Process two-character operators and return new position (or -1 if not matched)
-fn process_two_char_operator(source: string, i: int, len: int, tokens: list_token, line: int, column: int) -> int {
-    if (>= (+ i 1) len) {
-        return -1
-    }
-    let c: int = (char_at source i)
-    let next: int = (char_at source (+ i 1))
     
-    if (and (== c 45) (== next 62)) {
-        let tok: Token = Token { type: TOKEN_ARROW, value: "", line: line, column: column }
-        (list_token_push tokens tok)
-        return (+ i 2)
-    } else {
-        if (and (== c 61) (== next 61)) {
-            let tok: Token = Token { type: TOKEN_EQ, value: "", line: line, column: column }
-            (list_token_push tokens tok)
-            return (+ i 2)
-        } else {
-            if (and (== c 33) (== next 61)) {
-                let tok: Token = Token { type: TOKEN_NE, value: "", line: line, column: column }
-                (list_token_push tokens tok)
-                return (+ i 2)
-            } else {
-                if (and (== c 60) (== next 61)) {
-                    let tok: Token = Token { type: TOKEN_LE, value: "", line: line, column: column }
-                    (list_token_push tokens tok)
-                    return (+ i 2)
-                } else {
-                    if (and (== c 62) (== next 61)) {
-                        let tok: Token = Token { type: TOKEN_GE, value: "", line: line, column: column }
-                        (list_token_push tokens tok)
-                        return (+ i 2)
-                    } else {
-                        return -1
-                    }
-                }
-            }
-        }
-    }
-}
-
-# Process string literal and return new position (or -1 on error)
-fn process_string_literal(source: string, i: int, len: int, tokens: list_token, line: int, column: int) -> int {
-    set i (+ i 1)
-    let start: int = i
-    while (and (< i len) (!= (char_at source i) 34)) {
-        if (and (== (char_at source i) 92) (< (+ i 1) len)) {
-            set i (+ i 2)
-        } else {
-            set i (+ i 1)
-        }
-    }
-    if (>= i len) {
-        return -1
-    }
-    let str_value: string = (str_substring source start i)
-    let tok: Token = Token { type: TOKEN_STRING, value: str_value, line: line, column: column }
-    (list_token_push tokens tok)
-    return (+ i 1)
-}
-
-# Process number (integer or float) and return new position
-fn process_number(source: string, i: int, len: int, tokens: list_token, line: int, column: int) -> int {
-    let start: int = i
-    let c: int = (char_at source i)
-    if (== c 45) {
-        set i (+ i 1)
-    }
-    while (and (< i len) (is_digit_char (char_at source i))) {
-        set i (+ i 1)
-    }
-    
-    # Check for float
-    if (and (< i len) (== (char_at source i) 46) (< (+ i 1) len) (is_digit_char (char_at source (+ i 1)))) {
-        set i (+ i 1)
-        while (and (< i len) (is_digit_char (char_at source i))) {
-            set i (+ i 1)
-        }
-        let float_value: string = (str_substring source start i)
-        let tok: Token = Token { type: TOKEN_FLOAT, value: float_value, line: line, column: column }
-        (list_token_push tokens tok)
-        return i
-    } else {
-        let num_value: string = (str_substring source start i)
-        let tok: Token = Token { type: TOKEN_NUMBER, value: num_value, line: line, column: column }
-        (list_token_push tokens tok)
-        return i
-    }
-}
-
-# Process identifier or keyword and return new position
-fn process_identifier(source: string, i: int, len: int, tokens: list_token, line: int, column: int) -> int {
-    let start: int = i
-    while (and (< i len) (is_identifier_char (char_at source i))) {
-        set i (+ i 1)
-    }
-    let id_value: string = (str_substring source start i)
-    let token_type: int = (keyword_or_identifier id_value)
-    let tok: Token = Token { type: token_type, value: id_value, line: line, column: column }
-    (list_token_push tokens tok)
-    return i
-}
-
-# Main tokenization function
-fn tokenize(source: string) -> list_token {
-    let mut tokens: list_token = (list_token_new)
-    let mut i: int = 0
-    let len: int = (str_length source)
-    let mut line: int = 1
-    let mut column: int = 1
-    let mut line_start: int = 0
-    
-    while (< i len) {
-        let c: int = (char_at source i)
-        let mut new_pos: int = -1
-        
-        # Skip whitespace
-        if (is_whitespace_char c) {
-            if (== c 10) {
-                set line (+ line 1)
-                set line_start (+ i 1)
-                set column 1
-            } else {
-                set column (+ column 1)
-            }
-            set i (+ i 1)
-        } else {
-            # Skip comments (# to end of line)
-            if (== c 35) {
-                while (and (< i len) (!= (char_at source i) 10)) {
-                    set i (+ i 1)
-                }
-            } else {
-                # Update column for this token
-                set column (- (+ i 1) line_start)
-                
-                # Try two-character operators first
-                set new_pos (process_two_char_operator source i len tokens line column)
-                
-                # If not a two-char operator, try single-character assignment
-                if (== new_pos -1) {
-                    if (== c 61) {
-                        let tok: Token = Token { type: TOKEN_ASSIGN, value: "", line: line, column: column }
-                        (list_token_push tokens tok)
-                        set new_pos (+ i 1)
-                    }
-                }
-                
-                # If still not processed, try other token types
-                if (== new_pos -1) {
-                    # String literals
-                    if (== c 34) {
-                        set new_pos (process_string_literal source i len tokens line column)
-                        if (== new_pos -1) {
-                            # Error: Unterminated string
-                            break
-                        }
-                    } else {
-                        # Numbers
-                        if (or (is_digit_char c) (and (== c 45) (< (+ i 1) len) (is_digit_char (char_at source (+ i 1))))) {
-                            set new_pos (process_number source i len tokens line column)
-                        } else {
-                            # Identifiers and keywords
-                            if (is_identifier_start c) {
-                                set new_pos (process_identifier source i len tokens line column)
-                            } else {
-                                # Single-character tokens
-                                set new_pos (process_single_char_token c tokens line column i)
-                            }
-                        }
-                    }
-                }
-                
-                set i new_pos
-            }
-        }
-    }
-    
-    # Add EOF token
-    let eof_tok: Token = Token { type: TOKEN_EOF, value: "", line: line, column: column }
-    (list_token_push tokens eof_tok)
+    /* Add EOF token */
+    let eof_token: Token = (create_token TokenType.EOF "" line column)
+    set tokens (array_push tokens eof_token)
     
     return tokens
 }
 
-shadow tokenize {
-    # Test with simple input
-    let source1: string = "fn main() -> int { return 0 }"
-    let tokens1: list_token = (tokenize source1)
-    assert (> (list_token_length tokens1) 0)
+/* Test helper: print token type name */
+fn token_type_name(t: int) -> string {
+    if (== t TokenType.EOF) { return "EOF" } else {}
+    if (== t TokenType.NUMBER) { return "NUMBER" } else {}
+    if (== t TokenType.FLOAT) { return "FLOAT" } else {}
+    if (== t TokenType.STRING) { return "STRING" } else {}
+    if (== t TokenType.IDENTIFIER) { return "IDENTIFIER" } else {}
+    if (== t TokenType.TRUE) { return "TRUE" } else {}
+    if (== t TokenType.FALSE) { return "FALSE" } else {}
+    if (== t TokenType.LPAREN) { return "LPAREN" } else {}
+    if (== t TokenType.RPAREN) { return "RPAREN" } else {}
+    if (== t TokenType.LBRACE) { return "LBRACE" } else {}
+    if (== t TokenType.RBRACE) { return "RBRACE" } else {}
+    if (== t TokenType.LBRACKET) { return "LBRACKET" } else {}
+    if (== t TokenType.RBRACKET) { return "RBRACKET" } else {}
+    if (== t TokenType.FN) { return "FN" } else {}
+    if (== t TokenType.LET) { return "LET" } else {}
+    if (== t TokenType.RETURN) { return "RETURN" } else {}
+    if (== t TokenType.PLUS) { return "PLUS" } else {}
+    if (== t TokenType.MINUS) { return "MINUS" } else {}
+    if (== t TokenType.STAR) { return "STAR" } else {}
+    if (== t TokenType.EQ) { return "EQ" } else {}
+    if (== t TokenType.ARROW) { return "ARROW" } else {}
+    if (== t TokenType.COLON) { return "COLON" } else {}
+    return "UNKNOWN"
+}
+
+/* Simple test function */
+fn test_lexer() -> int {
+    let source: string = "fn add(x: int, y: int) -> int { return (+ x y) }"
+    let tokens: array<Token> = (tokenize source)
+    let count: int = (array_length tokens)
     
-    # Test with numbers
-    let source2: string = "42 3.14"
-    let tokens2: list_token = (tokenize source2)
-    assert (> (list_token_length tokens2) 0)
+    (println "Lexer test: tokenizing simple function")
+    (print "Token count: ")
+    (println count)
+    
+    /* Expected: fn, add, (, x, :, int, ..., ) */
+    if (< count 10) {
+        (println "ERROR: Too few tokens!")
+        return 1
+    } else {}
+    
+    return 0
 }
 
 fn main() -> int {
-    return 0
+    return (test_lexer)
+}
+
+shadow test_lexer {
+    assert (== (test_lexer) 0)
 }
 
 shadow main {

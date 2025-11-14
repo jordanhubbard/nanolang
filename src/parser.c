@@ -101,7 +101,7 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out) {
         case TOKEN_TYPE_STRING: type = TYPE_STRING; break;
         case TOKEN_TYPE_VOID: type = TYPE_VOID; break;
         case TOKEN_IDENTIFIER:
-            /* Check for list types */
+            /* Check for list types (legacy names) */
             if (strcmp(tok->value, "list_int") == 0) {
                 type = TYPE_LIST_INT;
                 advance(p);
@@ -115,6 +115,47 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out) {
                 advance(p);
                 return type;
             }
+            
+            /* Check for generic type syntax: List<T> */
+            if (strcmp(tok->value, "List") == 0) {
+                advance(p);  /* consume 'List' */
+                if (current_token(p)->type == TOKEN_LT) {
+                    advance(p);  /* consume '<' */
+                    
+                    /* Parse type parameter */
+                    Token *type_param_tok = current_token(p);
+                    if (type_param_tok->type == TOKEN_TYPE_INT) {
+                        type = TYPE_LIST_INT;
+                        advance(p);
+                    } else if (type_param_tok->type == TOKEN_TYPE_STRING) {
+                        type = TYPE_LIST_STRING;
+                        advance(p);
+                    } else if (type_param_tok->type == TOKEN_IDENTIFIER) {
+                        /* Check for Token or other struct types */
+                        if (strcmp(type_param_tok->value, "Token") == 0) {
+                            type = TYPE_LIST_TOKEN;
+                            advance(p);
+                        } else {
+                            fprintf(stderr, "Error at line %d, column %d: Unsupported generic type parameter '%s' for List\n",
+                                    type_param_tok->line, type_param_tok->column, type_param_tok->value);
+                            return TYPE_UNKNOWN;
+                        }
+                    } else {
+                        fprintf(stderr, "Error at line %d, column %d: Expected type parameter after 'List<'\n",
+                                type_param_tok->line, type_param_tok->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    
+                    if (current_token(p)->type != TOKEN_GT) {
+                        fprintf(stderr, "Error at line %d, column %d: Expected '>' after List type parameter\n",
+                                current_token(p)->line, current_token(p)->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    advance(p);  /* consume '>' */
+                    return type;
+                }
+            }
+            
             /* Could be a struct type */
             type = TYPE_STRUCT;
             advance(p);
@@ -1232,11 +1273,11 @@ static ASTNode *parse_match_expr(Parser *p) {
             break;
         }
         
-        /* Parse arm body - can be a statement or block */
+        /* Parse arm body - should be an expression or block */
         if (match(p, TOKEN_LBRACE)) {
             arm_bodies[count] = parse_block(p);
         } else {
-            arm_bodies[count] = parse_statement(p);
+            arm_bodies[count] = parse_expression(p);
         }
         
         if (!arm_bodies[count]) {
@@ -1274,6 +1315,7 @@ static ASTNode *parse_match_expr(Parser *p) {
     match_node->as.match_expr.pattern_variants = pattern_variants;
     match_node->as.match_expr.pattern_bindings = pattern_bindings;
     match_node->as.match_expr.arm_bodies = arm_bodies;
+    match_node->as.match_expr.union_type_name = NULL;  /* Will be filled during typechecking */
     
     return match_node;
 }
@@ -1582,6 +1624,9 @@ void free_ast(ASTNode *node) {
             free(node->as.match_expr.pattern_variants);
             free(node->as.match_expr.pattern_bindings);
             free(node->as.match_expr.arm_bodies);
+            if (node->as.match_expr.union_type_name) {
+                free(node->as.match_expr.union_type_name);
+            }
             break;
         default:
             break;
