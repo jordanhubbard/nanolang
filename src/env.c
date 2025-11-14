@@ -63,6 +63,9 @@ Environment *create_environment(void) {
     env->unions = malloc(sizeof(UnionDef) * 8);
     env->union_count = 0;
     env->union_capacity = 8;
+    env->generic_instances = malloc(sizeof(GenericInstantiation) * 8);
+    env->generic_instance_count = 0;
+    env->generic_instance_capacity = 8;
     return env;
 }
 
@@ -113,6 +116,14 @@ void free_environment(Environment *env) {
         free(env->enums[i].variant_values);
     }
     free(env->enums);
+    
+    /* Free generic instantiations */
+    for (int i = 0; i < env->generic_instance_count; i++) {
+        free(env->generic_instances[i].generic_name);
+        free(env->generic_instances[i].type_args);
+        free(env->generic_instances[i].concrete_name);
+    }
+    free(env->generic_instances);
 
     free(env);
 }
@@ -313,6 +324,37 @@ Value create_struct(const char *struct_name, char **field_names, Value *field_va
     v.as.struct_val->field_values = malloc(sizeof(Value) * field_count);
     for (int i = 0; i < field_count; i++) {
         v.as.struct_val->field_values[i] = field_values[i];
+    }
+    
+    return v;
+}
+
+Value create_union(const char *union_name, int variant_index, const char *variant_name, 
+                   char **field_names, Value *field_values, int field_count) {
+    Value v;
+    v.type = VAL_UNION;
+    v.is_return = false;
+    v.as.union_val = malloc(sizeof(UnionValue));
+    v.as.union_val->union_name = strdup(union_name);
+    v.as.union_val->variant_index = variant_index;
+    v.as.union_val->variant_name = strdup(variant_name);
+    v.as.union_val->field_count = field_count;
+    
+    /* Allocate and copy field names */
+    if (field_count > 0) {
+        v.as.union_val->field_names = malloc(sizeof(char*) * field_count);
+        for (int i = 0; i < field_count; i++) {
+            v.as.union_val->field_names[i] = strdup(field_names[i]);
+        }
+        
+        /* Allocate and copy field values */
+        v.as.union_val->field_values = malloc(sizeof(Value) * field_count);
+        for (int i = 0; i < field_count; i++) {
+            v.as.union_val->field_values[i] = field_values[i];
+        }
+    } else {
+        v.as.union_val->field_names = NULL;
+        v.as.union_val->field_values = NULL;
     }
     
     return v;

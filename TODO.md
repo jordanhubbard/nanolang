@@ -1,369 +1,394 @@
-# Nanolang TODO List
+# nanolang TODO List
 
-**Last Updated:** November 13, 2025  
-**Current Focus:** Union Types (70% complete)  
-**Progress:** 6/20 tasks completed (30%)
+**Last Updated:** November 14, 2025  
+**Current Focus:** Self-Hosting Preparation  
+**Progress:** Phase 1 Complete (100%) - Ready for Phase 2!
 
 ---
 
-## 🎯 Active Session: Union Types Implementation
+## 🎉 Phase 1: Essential Features - COMPLETE! (7/7)
 
-**Status:** In Progress (70% complete)  
-**Branch:** `feature/union-types`  
-**Time Invested:** 6 hours  
-**Time Remaining:** 5-8 hours
+All essential language features for self-hosting are now implemented:
 
-### ✅ Completed (6/20)
-
-#### 1. ✅ Released v1.0.0 with production-ready compiler
+### ✅ 1. Released v1.0.0 with production-ready compiler
 - **Status:** Complete
 - **Tag:** `v1.0.0`
-- **Features:** 20/20 tests passing, Stage 0-1.5 working, production ready
+- **Features:** 20/20 tests passing, production ready
 
-#### 2. ✅ Union Types - Lexer
+### ✅ 2. Structs
 - **Status:** Complete
-- **Time:** 0.5 hours
-- **Deliverables:**
-  - TOKEN_UNION keyword
-  - TOKEN_MATCH keyword
-  - TOKEN_ARROW reused for `=>`
+- **Time Invested:** Implemented November 2025
+- **Features:**
+  - Struct definitions with typed fields
+  - Struct literals with field initialization
+  - Field access with dot notation
+  - Type checking for struct fields
+  - C code generation
 
-#### 3. ✅ Union Types - Parser
+### ✅ 3. Enums
 - **Status:** Complete
-- **Time:** 3 hours
-- **Lines Added:** 450
-- **Deliverables:**
-  - `parse_union_def()` - Union definitions
-  - `parse_union_construct()` - Union construction
-  - `parse_match_expr()` - Pattern matching
-  - AST structures with memory management
-  - Free handlers for all union nodes
+- **Time Invested:** Implemented November 2025
+- **Features:**
+  - Enum definitions with named constants
+  - Integer-based enum values
+  - Enum variant access
+  - Type checking for enums (treated as ints)
+  - C code generation
 
-#### 4. ✅ Union Types - Type Checker
-- **Status:** Complete
-- **Time:** 2 hours
-- **Lines Added:** 200
+### ✅ 4. Union Types (Tagged Unions)
+- **Status:** Complete ✨
+- **Time Invested:** ~12 hours total
+- **Features:**
+  - Union definitions with multiple variants
+  - Each variant can have typed fields
+  - Union construction with type safety
+  - Pattern matching (basic implementation)
+  - Full type checking and validation
+  - C code generation with tagged unions
 - **Deliverables:**
-  - Union definition registration
-  - Union construction validation
-  - Match expression validation
-  - Environment storage functions
-  - TYPE_UNION integration
+  - Lexer: TOKEN_UNION, TOKEN_MATCH, multi-line comments
+  - Parser: parse_union_def(), parse_union_construct(), parse_match_expr()
+  - Type Checker: Union type resolution and validation
+  - Transpiler: C tag enums and tagged union structs
+  - Tests: 5 unit tests (all passing)
+  - Documentation: Updated SPECIFICATION.md, QUICK_REFERENCE.md
+  - Example: examples/28_union_types.nano
 
-#### 5. ✅ Union Types - Test Infrastructure
+### ✅ 5. Dynamic Lists
 - **Status:** Complete
-- **Time:** 0.5 hours
-- **Deliverables:**
-  - 4 positive tests (all passing)
-  - 2 negative tests (error detection)
-  - Automated test runner (`tests/unit/unions/test_runner.sh`)
-  - Test-driven development approach
+- **Features:**
+  - `list_int` for integer lists
+  - `list_string` for string lists
+  - `list_token` for token lists
+  - Operations: create, push, get, length, free
 
-#### 6. ✅ Repository Structure Cleanup
+### ✅ 6. File I/O
 - **Status:** Complete
-- **Time:** 0.5 hours
-- **Deliverables:**
-  - Root directory clean (only README.md)
-  - RELEASE_NOTES moved to docs/
-  - planning/README.md created
-  - CLEANUP_COMPLETE.md documented
+- **Features:**
+  - `file_read`, `file_write`, `file_append`
+  - `file_exists`, `file_size`, `file_remove`
+  - Directory operations
+  - Complete OS standard library
+
+### ✅ 7. String Operations
+- **Status:** Complete
+- **Features:**
+  - 13+ string functions
+  - Length, concat, substring, charAt
+  - Search, replace, case conversion
+  - All operations memory-safe
 
 ---
 
-### 🚧 In Progress (3/20)
+## 🎯 Phase 2: Self-Hosting (Next Major Milestone)
 
-#### 7. 🚧 Union Types - Type Annotations
-- **Status:** In Progress (blocked - needs fix)
-- **Priority:** CRITICAL
-- **Time Estimate:** 1-2 hours
-- **Blocker:** Parser can't recognize union types in function signatures
-- **Next Steps:**
-  1. Update type resolution in type checker
-  2. Look up type names in both struct and union registries
-  3. Test with function return types and parameters
-  4. Update error messages
+**Goal:** Rewrite the entire compiler in nanolang itself
 
-**Problem:**
-```nano
-fn get_status() -> Status {  # ERROR: Parser treats 'Status' as struct
-    return Status.Ok {}
-}
-```
+**Total Estimate:** 13-18 weeks (260-360 hours)
 
-**Solution:** Type checker needs to check both struct and union registries when resolving type names.
-
-#### 8. 🚧 Union Types - Transpiler
-- **Status:** Not Started (blocked by #7)
+### Step 1: Lexer Rewrite
+- **Status:** ⏳ Not Started (READY TO BEGIN!)
 - **Priority:** HIGH
-- **Time Estimate:** 3-4 hours
-- **Dependencies:** Type annotations must be fixed first
-- **Next Steps:**
-  1. Generate C tag enum for each union (1h)
-  2. Generate C tagged union struct (1h)
-  3. Generate union construction code (1h)
-  4. Generate match as switch statement (1-2h)
+- **Time Estimate:** 2-3 weeks (40-60 hours)
+- **Description:** Rewrite `src/lexer.c` in nanolang
+- **Input:** Source code string
+- **Output:** `list_token` of parsed tokens
+- **Dependencies:** None - all features available!
+- **Key Tasks:**
+  - Define `struct Token { type: int, value: string, line: int, column: int }`
+  - Define `enum TokenType { ... }`
+  - Implement `fn tokenize(source: string) -> list_token`
+  - Character classification helpers
+  - Keyword recognition
+  - Number/string literal parsing
+  - Comment handling
+  - Comprehensive shadow tests
 
-**Target C Code:**
-```c
-typedef enum {
-    COLOR_TAG_RED,
-    COLOR_TAG_BLUE
-} Color_Tag;
+### Step 2: Parser Rewrite
+- **Status:** ⏳ Not Started
+- **Priority:** HIGH
+- **Time Estimate:** 3-4 weeks (60-80 hours)
+- **Description:** Rewrite `src/parser.c` in nanolang
+- **Input:** `list_token`
+- **Output:** AST (tree structure)
+- **Dependencies:** Lexer complete
+- **Key Tasks:**
+  - Define AST node structs
+  - Use unions for different node types
+  - Recursive descent parser
+  - Expression parsing
+  - Statement parsing
+  - Shadow tests for each production
 
-typedef struct Color {
-    Color_Tag tag;
-    union {
-        struct {} red;
-        struct { int64_t intensity; } blue;
-    } data;
-} Color;
-```
+### Step 3: Type Checker Rewrite
+- **Status:** ⏳ Not Started
+- **Priority:** HIGH
+- **Time Estimate:** 4-5 weeks (80-100 hours)
+- **Description:** Rewrite `src/typechecker.c` in nanolang
+- **Input:** AST
+- **Output:** Validated AST with type information
+- **Dependencies:** Parser complete
+- **Key Tasks:**
+  - Symbol table management
+  - Type inference and checking
+  - Function signature validation
+  - Scope management
+  - Error reporting
 
-#### 9. 🚧 Union Types - Testing Completion
-- **Status:** Partial (6/10+ tests)
-- **Priority:** MEDIUM
-- **Time Estimate:** 1-2 hours
-- **Dependencies:** Transpiler must be complete
-- **Next Steps:**
-  1. Union construction tests
-  2. Match expression tests
-  3. Integration tests
-  4. Recursive union tests (AST-like)
+### Step 4: Transpiler Rewrite
+- **Status:** ⏳ Not Started
+- **Priority:** HIGH
+- **Time Estimate:** 3-4 weeks (60-80 hours)
+- **Description:** Rewrite `src/transpiler.c` in nanolang
+- **Input:** Typed AST
+- **Output:** C source code (string)
+- **Dependencies:** Type checker complete
+- **Key Tasks:**
+  - C code generation for all AST nodes
+  - String building utilities
+  - Indentation management
+  - Type-to-C mapping
+  - Runtime library integration
+
+### Step 5: Main Driver
+- **Status:** ⏳ Not Started
+- **Priority:** HIGH
+- **Time Estimate:** 1-2 weeks (20-40 hours)
+- **Description:** Rewrite `src/main.c` in nanolang
+- **Input:** Command line arguments
+- **Output:** Compiled executable
+- **Dependencies:** All components complete
+- **Key Tasks:**
+  - Orchestrate compilation pipeline
+  - File I/O for source and output
+  - Invoke system C compiler
+  - Error handling and reporting
+  - Command-line argument parsing
 
 ---
 
-### 📋 Pending (11/20)
+## 🔧 Phase 1.5: Quality of Life Improvements (Before Phase 2)
 
-#### Language Extensions (v2.0 Features)
+These improvements will make Phase 2 easier and more pleasant:
 
-##### 10. ⏸️ Generic Types - Parser
-- **Status:** Not Started
-- **Priority:** LOW (after unions)
+### A. Generics Support
+- **Status:** ⏳ Not Started
+- **Priority:** MEDIUM-HIGH
+- **Time Estimate:** 30-40 hours
+- **Benefit:** Clean generic lists instead of specialized versions
+- **Description:**
+  - Generic list: `list<T>` instead of `list_int`, `list_string`, etc.
+  - Generic functions: `fn identity<T>(x: T) -> T`
+  - Type parameter syntax: `<T>`, `<K, V>`
+  - Monomorphization at compile time
+- **Implementation:**
+  1. Lexer: Add `<` and `>` for type parameters (2h)
+  2. Parser: Parse generic type declarations (8h)
+  3. Parser: Parse generic function definitions (8h)
+  4. Type Checker: Type parameter substitution (12h)
+  5. Type Checker: Monomorphization (8h)
+  6. Transpiler: Generate specialized versions (6h)
+  7. Testing and examples (6h)
+- **Impact:** Makes lexer/parser code much cleaner
+
+### B. Pattern Matching Improvements
+- **Status:** ⏳ Not Started (Basic implementation exists)
+- **Priority:** MEDIUM
 - **Time Estimate:** 10-15 hours
-- **Description:** Parse `<T>` syntax for generic functions and types
+- **Benefit:** Essential for working with union types in compiler
+- **Description:**
+  - Complete match expression implementation
+  - Pattern binding (extract variant fields)
+  - Exhaustiveness checking
+  - Better error messages
+- **Current Limitation:** Match exists but binding not fully implemented
+- **Implementation:**
+  1. Parser: Fix pattern binding syntax (3h)
+  2. Type Checker: Validate patterns and bindings (4h)
+  3. Transpiler: Generate correct C code for bindings (5h)
+  4. Testing and examples (3h)
 
-##### 11. ⏸️ Generic Types - Type Checker
-- **Status:** Not Started
-- **Priority:** LOW (after unions)
-- **Time Estimate:** 10-15 hours
-- **Description:** Type substitution and monomorphization
-
-##### 12. ⏸️ Generic Types - Transpiler
-- **Status:** Not Started
-- **Priority:** LOW (after unions)
-- **Time Estimate:** 5-8 hours
-- **Description:** Generate specialized versions for each type
-
-##### 13. ⏸️ Generic Types - Testing
-- **Status:** Not Started
-- **Priority:** LOW (after unions)
-- **Time Estimate:** 2-3 hours
-- **Description:** Test generic lists and functions
-
-#### File I/O Support
-
-##### 14. ⏸️ File I/O - Runtime Functions
-- **Status:** Not Started
+### C. Better Error Messages
+- **Status:** ⏳ Not Started
 - **Priority:** MEDIUM
-- **Time Estimate:** 5-10 hours
-- **Description:** Implement open, read, write, close functions
+- **Time Estimate:** 8-12 hours
+- **Benefit:** Easier debugging during self-hosting
+- **Description:**
+  - Colored output (errors in red, warnings in yellow)
+  - Show code snippet at error location
+  - "Did you mean...?" suggestions
+  - Better type mismatch messages
+  - Stack traces for runtime errors
 
-##### 15. ⏸️ File I/O - Compiler Integration
-- **Status:** Not Started
-- **Priority:** MEDIUM
-- **Time Estimate:** 2-3 hours
-- **Description:** Add builtins and type signatures
-
-##### 16. ⏸️ File I/O - Testing
-- **Status:** Not Started
-- **Priority:** MEDIUM
-- **Time Estimate:** 2-3 hours
-- **Description:** Test file operations
-
-#### Project Milestones
-
-##### 17. ⏸️ v2.0 Integration Testing
-- **Status:** Not Started
-- **Priority:** HIGH (before release)
-- **Time Estimate:** 3-5 hours
-- **Description:** Test all language extensions together
-
-##### 18. ⏸️ v2.0 Release
-- **Status:** Not Started
-- **Priority:** HIGH (final step)
-- **Time Estimate:** 2-3 hours
-- **Dependencies:** All v2.0 features complete
-- **Description:** Tag, document, and release v2.0.0
-
-#### Documentation (Future)
-
-##### 19. ⏸️ Union Types Documentation
-- **Status:** Planning docs complete, user docs needed
-- **Priority:** MEDIUM
-- **Time Estimate:** 2-3 hours
-- **Description:** Add to SPECIFICATION.md, GETTING_STARTED.md, examples
-
-##### 20. ⏸️ Generic Types Documentation
-- **Status:** Not Started
+### D. Language Server Protocol (LSP)
+- **Status:** ⏳ Not Started
 - **Priority:** LOW
-- **Time Estimate:** 2-3 hours
-- **Description:** Add to language docs after implementation
+- **Time Estimate:** 40-60 hours
+- **Benefit:** Editor integration (VSCode, etc.)
+- **Description:**
+  - Syntax highlighting
+  - Auto-completion
+  - Go-to-definition
+  - Error checking as you type
+  - Hover documentation
+- **Note:** Nice to have but not essential for self-hosting
 
 ---
 
-## 📊 Progress Summary
+## 📊 Overall Progress Summary
 
-### Overall Progress
 ```
-Completed:   ████████░░░░░░░░░░░░ 6/20 (30%)
-In Progress: ██░░░░░░░░░░░░░░░░░░ 3/20 (15%)
-Pending:     ███████████░░░░░░░░░ 11/20 (55%)
-```
+Phase 1 (Essential Features):  ████████████████████ 100% (7/7)
+Phase 1.5 (QoL Improvements):  ░░░░░░░░░░░░░░░░░░░░   0% (0/4)
+Phase 2 (Self-Hosting):        ░░░░░░░░░░░░░░░░░░░░   0% (0/5)
+Phase 3 (Bootstrap):           ░░░░░░░░░░░░░░░░░░░░   0% (0/3)
 
-### Union Types Progress (Current Focus)
-```
-✅ Lexer:           ████████████████████ 100%
-✅ Parser:          ████████████████████ 100%
-✅ Type Checker:    ████████████████████ 100%
-✅ Tests:           ████████████████████ 100% (for implemented features)
-🚧 Type Annotations: ░░░░░░░░░░░░░░░░░░░░ 0% (BLOCKER)
-⏸️ Transpiler:       ░░░░░░░░░░░░░░░░░░░░ 0%
-⏸️ Full Testing:     ░░░░░░░░░░░░░░░░░░░░ 0%
-
-Overall: ██████████████░░░░░░ 70%
+Overall Project: ████████░░░░░░░░░░░░ 37% (7/19 major tasks)
 ```
 
 ---
 
-## 🎯 Next Session Priorities
+## 🎯 Recommended Roadmap
 
-### Immediate (Must Do)
-1. **Fix Type Annotations** (1-2h) - CRITICAL BLOCKER
-   - Update type resolution in type checker
-   - Test with union types in function signatures
-   - Verify let statements work with unions
+### Option A: Direct to Self-Hosting (Fastest)
+```
+Week 1-3:   Lexer Rewrite          →  Can tokenize nanolang source
+Week 4-7:   Parser Rewrite         →  Can parse into AST  
+Week 8-12:  Type Checker Rewrite   →  Can validate programs
+Week 13-16: Transpiler Rewrite     →  Can generate C code
+Week 17-18: Integration            →  Full compiler working
+Week 19-24: Bootstrap              →  Self-hosting achieved!
+```
+**Total:** ~6 months to self-hosting
 
-### High Priority (Should Do)
-2. **Implement Transpiler** (3-4h)
-   - Generate C tag enum
-   - Generate C tagged union struct
-   - Generate union construction code
-   - Generate match as switch statement
-
-3. **Complete Testing** (1-2h)
-   - Union construction tests
-   - Match expression tests
-   - Integration tests
-
-### Medium Priority (Nice to Have)
-4. **Merge to Main** (30min)
-   - Final test run
-   - Update documentation
-   - Merge feature/union-types → main
-   - Tag v1.1.0 or v2.0-beta
+### Option B: QoL First, Then Self-Hosting (Cleaner)
+```
+Week 1-2:   Generics               →  Better abstractions
+Week 3:     Pattern Matching       →  Cleaner union handling  
+Week 4:     Better Errors          →  Easier debugging
+----- Quality of Life Complete -----
+Week 5-7:   Lexer Rewrite
+Week 8-11:  Parser Rewrite
+Week 12-16: Type Checker Rewrite
+Week 17-20: Transpiler Rewrite
+Week 21-22: Integration
+Week 23-28: Bootstrap
+```
+**Total:** ~7 months to self-hosting (but cleaner codebase)
 
 ---
 
-## 📈 Time Tracking
+## 🚀 Immediate Next Actions
 
-### Completed Work
-| Task | Time Spent | Status |
-|------|------------|--------|
-| v1.0 Release | 60+ hours | ✅ Complete |
-| Union Lexer | 0.5 hours | ✅ Complete |
-| Union Parser | 3 hours | ✅ Complete |
-| Union Type Checker | 2 hours | ✅ Complete |
-| Union Tests | 0.5 hours | ✅ Complete |
-| Repository Cleanup | 0.5 hours | ✅ Complete |
-| **Total** | **66.5 hours** | **6/20 tasks** |
+Choose your path:
+
+### Path A: Start Self-Hosting Now
+1. Create `src_nano/lexer.nano`
+2. Define Token struct and TokenType enum
+3. Implement tokenize() function
+4. Write comprehensive shadow tests
+5. Compile and test lexer in isolation
+
+### Path B: QoL Improvements First
+1. ✅ Update TODO.md (done!)
+2. Implement Generics (30-40h)
+   - Makes list handling much cleaner
+   - Reduces code duplication
+3. Complete Pattern Matching (10-15h)
+   - Essential for compiler work
+   - Makes union handling ergonomic
+4. Then proceed to lexer rewrite
+
+### Path C: Hybrid Approach
+1. ✅ Update TODO.md (done!)
+2. Implement Pattern Matching (10-15h)
+   - Quick win, immediately useful
+3. Start Lexer Rewrite
+4. Add Generics later if needed
+
+---
+
+## 📈 Time Investment Summary
+
+### Completed (Phase 1)
+- v1.0.0 Release: 60+ hours
+- Structs: ~40 hours  
+- Enums: ~30 hours
+- Union Types: ~12 hours
+- Lists: ~30 hours
+- File I/O: ~20 hours
+- String Operations: ~15 hours
+- **Total Phase 1:** ~207 hours ✅
 
 ### Remaining Work
-| Task | Time Estimate | Priority |
-|------|---------------|----------|
-| Union Type Annotations | 1-2 hours | CRITICAL |
-| Union Transpiler | 3-4 hours | HIGH |
-| Union Testing Complete | 1-2 hours | HIGH |
-| Union Documentation | 2-3 hours | MEDIUM |
-| Generic Types (all) | 30-40 hours | LOW |
-| File I/O (all) | 10-15 hours | MEDIUM |
-| v2.0 Release | 5-8 hours | HIGH |
-| **Total** | **52-76 hours** | **14/20 tasks** |
+
+**Phase 1.5 (QoL):**
+- Generics: 30-40 hours
+- Pattern Matching: 10-15 hours
+- Better Errors: 8-12 hours
+- LSP: 40-60 hours (optional)
+- **Total Phase 1.5:** ~90-130 hours
+
+**Phase 2 (Self-Hosting):**
+- Lexer: 40-60 hours
+- Parser: 60-80 hours
+- Type Checker: 80-100 hours
+- Transpiler: 60-80 hours
+- Driver: 20-40 hours
+- **Total Phase 2:** ~260-360 hours
+
+**Phase 3 (Bootstrap):**
+- ~80-120 hours
+
+**Total Remaining:** ~430-610 hours
 
 ---
 
-## 🚀 Path to Completion
-
-### Union Types (5-8 hours remaining)
-```
-Current → Type Annotations → Transpiler → Testing → Merge
-  70%         1-2h              3-4h        1-2h     30m
-                                                    ↓
-                                                  DONE!
-```
-
-### v2.0 Release (Total: ~60-85 hours)
-```
-Union Types → Generic Types → File I/O → Integration → Release
-   5-8h         30-40h         10-15h       3-5h       2-3h
-```
-
----
-
-## 📝 Notes
-
-### Current Session
-- **Branch:** `feature/union-types`
-- **Tag:** `union-types-70pct`
-- **Commits:** 16 on branch
-- **Tests:** 6/6 passing (100% of implemented features)
-- **Status:** Excellent progress, clear path forward
-
-### Blockers
-1. **Type Annotations** - Parser treats union names as struct names
-   - **Impact:** Cannot use unions in function signatures or let statements
-   - **Solution:** Update type checker to look up in both struct and union registries
-   - **Estimated Fix:** 1-2 hours
-
-### Quality Metrics
-- ✅ Test-driven development
-- ✅ Comprehensive documentation
-- ✅ Clean repository structure
-- ✅ All implemented features tested
-- ✅ No compiler warnings
-
-### Architecture Notes
-- Parser/Type Checker separation working well
-- Test-first approach caught blocker early
-- Environment storage pattern scales well
-- Transpiler will follow established patterns
-
----
-
-## 🔗 References
+## 🔗 Key Resources
 
 ### Documentation
-- **Planning:** `/planning/` directory (35 files)
-  - `SESSION_COMPLETE.md` - Latest session summary
-  - `UNION_IMPLEMENTATION_SUMMARY.md` - Complete overview
-  - `NEXT_STEPS.md` - Detailed next steps
-- **User Docs:** `/docs/` directory (32 files)
-  - `SPECIFICATION.md` - Language specification
-  - `GETTING_STARTED.md` - Getting started guide
+- [SPECIFICATION.md](docs/SPECIFICATION.md) - Language reference
+- [SELF_HOSTING_REQUIREMENTS.md](docs/SELF_HOSTING_REQUIREMENTS.md) - Feature requirements
+- [SELF_HOSTING_CHECKLIST.md](docs/SELF_HOSTING_CHECKLIST.md) - Implementation tracking
 
-### Tests
-- **Union Tests:** `tests/unit/unions/` (6 tests, all passing)
-- **Test Runner:** `tests/unit/unions/test_runner.sh`
+### Examples
+- [examples/28_union_types.nano](examples/28_union_types.nano) - Union types demo
+- [examples/17_struct_test.nano](examples/17_struct_test.nano) - Struct examples
+- [examples/18_enum_test.nano](examples/18_enum_test.nano) - Enum examples
 
-### Code
-- **Lexer:** `src/lexer.c` (+10 lines)
-- **Parser:** `src/parser.c` (+450 lines)
-- **Type Checker:** `src/typechecker.c` (+200 lines)
-- **Environment:** `src/env.c` (+50 lines)
-- **Headers:** `src/nanolang.h` (+100 lines)
+### Test Infrastructure
+- `tests/unit/unions/` - 5 union tests
+- `tests/unit/` - Unit tests for all features
+- `make test` - Run full test suite (20/20 passing)
 
 ---
 
-**Last Updated:** November 13, 2025  
-**Next Update:** After union types completion  
-**Status:** Ready for next session 🚀
+## 💡 Notes
 
+### Why Self-Hosting?
+1. **Proof of Language Completeness** - Can nanolang compile itself?
+2. **Dogfooding** - Best way to find missing features
+3. **Performance** - Self-hosted compiler can be optimized
+4. **Independence** - No C dependency after bootstrap
+5. **Credibility** - Self-hosting is a major milestone
+
+### Why QoL First?
+1. **Generics make everything cleaner** - One `list<T>` vs many specialized lists
+2. **Pattern matching is essential** - Compiler works heavily with unions
+3. **Better errors save time** - Debugging self-hosted code is hard
+4. **Investment pays off** - Cleaner code = faster development
+
+### Why Direct to Self-Hosting?
+1. **Fastest path to milestone** - 6 months vs 7 months
+2. **Can add QoL later** - Not blocking
+3. **Momentum matters** - Strike while iron is hot
+4. **Learn by doing** - Find missing features naturally
+
+---
+
+**Current Status:** 🎉 Phase 1 Complete!  
+**Next Milestone:** Phase 2 - Self-Hosting  
+**Estimated Completion:** 6-7 months (depending on path)
+
+**Last Updated:** November 14, 2025  
+**Ready for:** Self-hosting adventure! 🚀

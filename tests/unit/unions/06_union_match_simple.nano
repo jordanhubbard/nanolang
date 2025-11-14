@@ -1,0 +1,50 @@
+/* Test 06: Simple match expression on union without fields */
+
+union Status {
+    Ok {},
+    Error {}
+}
+
+fn test_match_ok() -> int {
+    let s: Status = Status.Ok {}
+    return match s {
+        Ok(x) => 1,
+        Error(e) => 0
+    }
+}
+
+fn test_match_error() -> int {
+    let s: Status = Status.Error {}
+    return match s {
+        Ok(x) => 0,
+        Error(e) => 1
+    }
+}
+
+fn main() -> int {
+    let ok_result: int = (test_match_ok)
+    let error_result: int = (test_match_error)
+    
+    if (!= ok_result 1) {
+        return 1
+    } else {}
+    
+    if (!= error_result 1) {
+        return 2
+    } else {}
+    
+    return 0
+}
+
+shadow test_match_ok {
+    assert (== (test_match_ok) 1)
+}
+
+shadow test_match_error {
+    assert (== (test_match_error) 1)
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

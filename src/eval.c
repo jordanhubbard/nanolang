@@ -1553,6 +1553,85 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             return create_void();
         }
 
+        case AST_UNION_CONSTRUCT: {
+            /* Evaluate union construction: Status.Ok {} or Result.Error { code: 404 } */
+            const char *union_name = expr->as.union_construct.union_name;
+            const char *variant_name = expr->as.union_construct.variant_name;
+            
+            /* Get variant index */
+            int variant_idx = env_get_union_variant_index(env, union_name, variant_name);
+            if (variant_idx < 0) {
+                fprintf(stderr, "Error: Unknown variant '%s' for union '%s'\n", variant_name, union_name);
+                return create_void();
+            }
+            
+            /* Evaluate field values */
+            int field_count = expr->as.union_construct.field_count;
+            char **field_names = NULL;
+            Value *field_values = NULL;
+            
+            if (field_count > 0) {
+                field_names = malloc(sizeof(char*) * field_count);
+                field_values = malloc(sizeof(Value) * field_count);
+                
+                for (int i = 0; i < field_count; i++) {
+                    field_names[i] = expr->as.union_construct.field_names[i];
+                    field_values[i] = eval_expression(expr->as.union_construct.field_values[i], env);
+                }
+            }
+            
+            Value result = create_union(union_name, variant_idx, variant_name, 
+                                       field_names, field_values, field_count);
+            
+            /* Free temporary arrays (create_union makes copies) */
+            if (field_count > 0) {
+                free(field_names);
+                free(field_values);
+            }
+            
+            return result;
+        }
+
+        case AST_MATCH: {
+            /* Evaluate match expression: match status { Ok(x) => 1, Error(e) => 0 } */
+            Value match_val = eval_expression(expr->as.match_expr.expr, env);
+            
+            if (match_val.type != VAL_UNION) {
+                fprintf(stderr, "Error: Match expression requires a union value\n");
+                return create_void();
+            }
+            
+            UnionValue *uval = match_val.as.union_val;
+            
+            /* Find matching arm by comparing variant names */
+            for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                const char *pattern_variant = expr->as.match_expr.pattern_variants[i];
+                
+                if (strcmp(uval->variant_name, pattern_variant) == 0) {
+                    /* This arm matches! */
+                    const char *binding = expr->as.match_expr.pattern_bindings[i];
+                    
+                    /* Save environment state for scope */
+                    int saved_symbol_count = env->symbol_count;
+                    
+                    /* Bind the pattern variable to the union value (or a placeholder) */
+                    env_define_var(env, binding, TYPE_UNION, false, match_val);
+                    
+                    /* Evaluate arm body */
+                    Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
+                    
+                    /* Restore environment */
+                    env->symbol_count = saved_symbol_count;
+                    
+                    return result;
+                }
+            }
+            
+            /* No matching arm found - this should be caught by typechecker */
+            fprintf(stderr, "Error: No matching arm for variant '%s'\n", uval->variant_name);
+            return create_void();
+        }
+
         default:
             return create_void();
     }

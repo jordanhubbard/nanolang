@@ -190,12 +190,17 @@ Token *tokenize(const char *source, int *token_count) {
             i += 2;
             continue;
         }
+        if (source[i] == '=' && source[i + 1] == '>') {
+            tokens[count++] = create_token(TOKEN_ARROW, NULL, line, column);
+            i += 2;
+            continue;
+        }
         if (source[i] == '=' && source[i + 1] == '=') {
             tokens[count++] = create_token(TOKEN_EQ, NULL, line, column);
             i += 2;
             continue;
         }
-        if (source[i] == '=' && source[i + 1] != '=') {
+        if (source[i] == '=' && source[i + 1] != '=' && source[i + 1] != '>') {
             tokens[count++] = create_token(TOKEN_ASSIGN, NULL, line, column);
             i++;
             continue;

@@ -529,6 +529,28 @@ Type check_expression(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
             
+            /* Infer and store union type name for transpiler */
+            const char *union_type_name = NULL;
+            ASTNode *match_expr_node = expr->as.match_expr.expr;
+            
+            if (match_expr_node->type == AST_IDENTIFIER) {
+                Symbol *sym = env_get_var(env, match_expr_node->as.identifier);
+                if (sym && sym->struct_type_name) {
+                    union_type_name = sym->struct_type_name;
+                }
+            } else if (match_expr_node->type == AST_UNION_CONSTRUCT) {
+                union_type_name = match_expr_node->as.union_construct.union_name;
+            } else if (match_expr_node->type == AST_CALL) {
+                Function *func = env_get_function(env, match_expr_node->as.call.name);
+                if (func && func->return_struct_type_name) {
+                    union_type_name = func->return_struct_type_name;
+                }
+            }
+            
+            if (union_type_name) {
+                expr->as.match_expr.union_type_name = strdup(union_type_name);
+            }
+            
             /* Check each arm and infer return type from first arm */
             Type return_type = TYPE_UNKNOWN;
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
@@ -541,9 +563,8 @@ Type check_expression(ASTNode *expr, Environment *env) {
                     expr->as.match_expr.pattern_bindings[i],
                     TYPE_UNION, TYPE_UNKNOWN, false, binding_val);
                 
-                /* Type check arm body */
-                TypeChecker tc = {env, TYPE_VOID, false, false};
-                Type arm_type = check_statement(&tc, expr->as.match_expr.arm_bodies[i]);
+                /* Type check arm body (which is now an expression) */
+                Type arm_type = check_expression(expr->as.match_expr.arm_bodies[i], env);
                 
                 /* Restore scope */
                 env->symbol_count = saved_symbol_count;
@@ -627,6 +648,11 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
                     if (struct_name) {
                         sym->struct_type_name = strdup(struct_name);
                     }
+                }
+                
+                /* If this is a union, store the union type name */
+                if (declared_type == TYPE_UNION && stmt->as.let.type_name) {
+                    sym->struct_type_name = strdup(stmt->as.let.type_name);
                 }
             }
             

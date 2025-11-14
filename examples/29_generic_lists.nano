@@ -1,0 +1,185 @@
+/* Example 29: Generic List Types
+ * Demonstrates the new List<T> generic syntax
+ */
+
+/* Define Token struct for List<Token> example */
+struct Token {
+    type: int,
+    value: string,
+    line: int,
+    column: int
+}
+
+/* List runtime functions */
+extern fn list_int_new() -> int
+extern fn list_int_push(list: int, value: int) -> void
+extern fn list_int_get(list: int, index: int) -> int
+extern fn list_int_length(list: int) -> int
+
+extern fn list_string_new() -> int
+extern fn list_string_push(list: int, value: string) -> void
+extern fn list_string_get(list: int, index: int) -> string
+extern fn list_string_length(list: int) -> int
+
+extern fn list_token_new() -> int
+extern fn list_token_push(list: int, tok: Token) -> void
+extern fn list_token_get(list: int, index: int) -> Token
+extern fn list_token_length(list: int) -> int
+
+/* Example 1: List<int> for numbers */
+fn demo_list_int() -> int {
+    (println "=== List<int> Demo ===")
+    
+    /* Create list with clean generic syntax */
+    let numbers: List<int> = (list_int_new)
+    
+    /* Add some numbers */
+    (list_int_push numbers 10)
+    (list_int_push numbers 20)
+    (list_int_push numbers 30)
+    (list_int_push numbers 40)
+    
+    /* Get and print values */
+    let len: int = (list_int_length numbers)
+    (print "Length: ")
+    (println len)
+    
+    let first: int = (list_int_get numbers 0)
+    (print "First: ")
+    (println first)
+    
+    let last: int = (list_int_get numbers (- len 1))
+    (print "Last: ")
+    (println last)
+    
+    return 0
+}
+
+shadow demo_list_int {
+    assert (== (demo_list_int) 0)
+}
+
+/* Example 2: List<string> for text */
+fn demo_list_string() -> int {
+    (println "=== List<string> Demo ===")
+    
+    /* Create list with generic syntax */
+    let words: List<string> = (list_string_new)
+    
+    /* Add words */
+    (list_string_push words "Hello")
+    (list_string_push words "from")
+    (list_string_push words "nanolang")
+    (list_string_push words "generics!")
+    
+    /* Print all words */
+    let len: int = (list_string_length words)
+    let mut i: int = 0
+    while (< i len) {
+        let word: string = (list_string_get words i)
+        (print word)
+        (print " ")
+        set i (+ i 1)
+    }
+    (println "")
+    
+    return 0
+}
+
+shadow demo_list_string {
+    assert (== (demo_list_string) 0)
+}
+
+/* Example 3: List<Token> for custom structs */
+fn demo_list_token() -> int {
+    (println "=== List<Token> Demo ===")
+    
+    /* Create list with generic syntax */
+    let tokens: List<Token> = (list_token_new)
+    
+    /* Create and add tokens */
+    let tok1: Token = Token { type: 1, value: "fn", line: 1, column: 1 }
+    let tok2: Token = Token { type: 2, value: "main", line: 1, column: 4 }
+    let tok3: Token = Token { type: 3, value: "(", line: 1, column: 8 }
+    
+    (list_token_push tokens tok1)
+    (list_token_push tokens tok2)
+    (list_token_push tokens tok3)
+    
+    /* Print tokens */
+    let len: int = (list_token_length tokens)
+    (print "Token count: ")
+    (println len)
+    
+    let mut i: int = 0
+    while (< i len) {
+        let tok: Token = (list_token_get tokens i)
+        (print "Token: ")
+        (print tok.value)
+        (print " (line ")
+        (print tok.line)
+        (println ")")
+        set i (+ i 1)
+    }
+    
+    return 0
+}
+
+shadow demo_list_token {
+    assert (== (demo_list_token) 0)
+}
+
+/* Example 4: Type checking works */
+fn type_safety_demo() -> int {
+    /* These type annotations ensure type safety */
+    let numbers: List<int> = (list_int_new)
+    let words: List<string> = (list_string_new)
+    let tokens: List<Token> = (list_token_new)
+    
+    /* The compiler knows the types */
+    (list_int_push numbers 42)       /* ✓ Correct */
+    (list_string_push words "test")  /* ✓ Correct */
+    
+    /* These would be type errors (if uncommented): */
+    /* (list_int_push numbers "wrong")  -- ✗ Type error */
+    /* (list_string_push words 123)     -- ✗ Type error */
+    
+    return 0
+}
+
+shadow type_safety_demo {
+    assert (== (type_safety_demo) 0)
+}
+
+/* Main function */
+fn main() -> int {
+    (println "")
+    (println "======================================")
+    (println "  Nanolang Generic Lists Demo")
+    (println "======================================")
+    (println "")
+    
+    (demo_list_int)
+    (println "")
+    
+    (demo_list_string)
+    (println "")
+    
+    (demo_list_token)
+    (println "")
+    
+    (type_safety_demo)
+    (println "")
+    
+    (println "======================================")
+    (println "  All demos completed successfully!")
+    (println "======================================")
+    (println "")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
