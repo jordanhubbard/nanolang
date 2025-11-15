@@ -234,7 +234,21 @@ Type check_expression(ASTNode *expr, Environment *env) {
         case AST_CALL: {
             /* Check if function exists */
             Function *func = env_get_function(env, expr->as.call.name);
+            
+            /* If not a function, check if it's a function-typed variable (parameter) */
             if (!func) {
+                Symbol *sym = env_get_var(env, expr->as.call.name);
+                if (sym && sym->type == TYPE_FUNCTION) {
+                    /* This is a call to a function parameter - we can't fully type check it */
+                    /* Just check that arguments are valid expressions */
+                    for (int i = 0; i < expr->as.call.arg_count; i++) {
+                        check_expression(expr->as.call.args[i], env);
+                    }
+                    /* Return type is unknown - function signatures don't store this info yet */
+                    /* TODO: Store full function signature in Symbol for better type checking */
+                    return TYPE_INT;  /* Assume int for now */
+                }
+                
                 fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
                         expr->line, expr->column, expr->as.call.name);
                 return TYPE_UNKNOWN;
