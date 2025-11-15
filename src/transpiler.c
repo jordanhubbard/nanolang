@@ -76,6 +76,7 @@ static const char *type_to_c(Type type) {
         case TYPE_LIST_INT: return "List_int*";
         case TYPE_LIST_STRING: return "List_string*";
         case TYPE_LIST_TOKEN: return "List_token*";
+        case TYPE_LIST_GENERIC: return ""; /* Will be handled specially with type_name */
         default: return "void";
     }
 }
@@ -588,6 +589,11 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
             /* Handle union types */
             if (is_union) {
                 sb_appendf(sb, "%s %s = ", stmt->as.let.type_name, stmt->as.let.name);
+            }
+            /* Handle generic lists: List<UserType> */
+            else if (stmt->as.let.var_type == TYPE_LIST_GENERIC && stmt->as.let.type_name) {
+                /* Generate specialized list pointer type: List_Point* */
+                sb_appendf(sb, "List_%s* %s = ", stmt->as.let.type_name, stmt->as.let.name);
             }
             /* For struct/union types that might be enums */
             else if (stmt->as.let.var_type == TYPE_STRUCT || stmt->as.let.var_type == TYPE_UNION) {
@@ -1207,6 +1213,55 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         sb_appendf(sb, "} %s;\n\n", edef->name);
     }
     sb_append(sb, "/* ========== End Enum Definitions ========== */\n\n");
+
+    /* Generate specialized generic list types */
+    sb_append(sb, "/* ========== Generic List Specializations ========== */\n\n");
+    for (int i = 0; i < env->generic_instance_count; i++) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        if (strcmp(inst->generic_name, "List") == 0 && inst->type_arg_names) {
+            const char *elem_type = inst->type_arg_names[0];
+            const char *specialized_name = inst->concrete_name;
+            
+            /* Generate struct definition */
+            sb_appendf(sb, "typedef struct {\n");
+            sb_appendf(sb, "    struct %s *data;\n", elem_type);
+            sb_appendf(sb, "    int count;\n");
+            sb_appendf(sb, "    int capacity;\n");
+            sb_appendf(sb, "} %s;\n\n", specialized_name);
+            
+            /* Generate constructor */
+            sb_appendf(sb, "%s* %s_new() {\n", specialized_name, specialized_name);
+            sb_appendf(sb, "    %s *list = malloc(sizeof(%s));\n", specialized_name, specialized_name);
+            sb_appendf(sb, "    list->data = malloc(sizeof(struct %s) * 4);\n", elem_type);
+            sb_appendf(sb, "    list->count = 0;\n");
+            sb_appendf(sb, "    list->capacity = 4;\n");
+            sb_appendf(sb, "    return list;\n");
+            sb_appendf(sb, "}\n\n");
+            
+            /* Generate push function */
+            sb_appendf(sb, "void %s_push(%s *list, struct %s value) {\n",
+                      specialized_name, specialized_name, elem_type);
+            sb_appendf(sb, "    if (list->count >= list->capacity) {\n");
+            sb_appendf(sb, "        list->capacity *= 2;\n");
+            sb_appendf(sb, "        list->data = realloc(list->data, sizeof(struct %s) * list->capacity);\n",
+                      elem_type);
+            sb_appendf(sb, "    }\n");
+            sb_appendf(sb, "    list->data[list->count++] = value;\n");
+            sb_appendf(sb, "}\n\n");
+            
+            /* Generate get function */
+            sb_appendf(sb, "struct %s %s_get(%s *list, int index) {\n",
+                      elem_type, specialized_name, specialized_name);
+            sb_appendf(sb, "    return list->data[index];\n");
+            sb_appendf(sb, "}\n\n");
+            
+            /* Generate length function */
+            sb_appendf(sb, "int %s_length(%s *list) {\n", specialized_name, specialized_name);
+            sb_appendf(sb, "    return list->count;\n");
+            sb_appendf(sb, "}\n\n");
+        }
+    }
+    sb_append(sb, "/* ========== End Generic List Specializations ========== */\n\n");
 
     /* Generate union definitions */
     sb_append(sb, "/* ========== Union Definitions ========== */\n\n");

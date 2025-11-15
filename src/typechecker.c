@@ -60,7 +60,15 @@ static Type check_statement(TypeChecker *tc, ASTNode *node);
 
 /* Check if types are compatible */
 static bool types_match(Type t1, Type t2) {
-    return t1 == t2;
+    if (t1 == t2) return true;
+    
+    /* Generic lists match with int (list functions return int handles) */
+    if ((t1 == TYPE_LIST_GENERIC && t2 == TYPE_INT) ||
+        (t1 == TYPE_INT && t2 == TYPE_LIST_GENERIC)) {
+        return true;
+    }
+    
+    return false;
 }
 
 /* Helper: Get the struct type name from an expression (returns NULL if not a struct) */
@@ -593,8 +601,25 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
 
     switch (stmt->type) {
         case AST_LET: {
-            Type value_type = check_expression(stmt->as.let.value, tc->env);
             Type declared_type = stmt->as.let.var_type;
+            
+            /* Handle generic lists: List<UserType> - Register BEFORE checking expression */
+            if (declared_type == TYPE_LIST_GENERIC && stmt->as.let.type_name) {
+                const char *element_type = stmt->as.let.type_name;
+                
+                /* Verify element type exists (struct must be defined) */
+                if (!env_get_struct(tc->env, element_type)) {
+                    fprintf(stderr, "Error at line %d, column %d: Unknown type '%s' in List<%s>\n",
+                            stmt->line, stmt->column, element_type, element_type);
+                    tc->has_error = true;
+                } else {
+                    /* Register this instantiation for code generation */
+                    env_register_list_instantiation(tc->env, element_type);
+                }
+            }
+            
+            /* Now check the expression - the specialized functions are registered */
+            Type value_type = check_expression(stmt->as.let.value, tc->env);
             
             /* If declared type is STRUCT, check if it's actually an enum or union */
             if (declared_type == TYPE_STRUCT && stmt->as.let.type_name) {
