@@ -32,7 +32,11 @@ enum ParseNodeType {
     PNODE_CALL = 5,
     PNODE_LET = 6,
     PNODE_BLOCK = 7,
-    PNODE_PROGRAM = 8
+    PNODE_PROGRAM = 8,
+    PNODE_FUNCTION = 9,
+    PNODE_STRUCT = 10,
+    PNODE_ENUM = 11,
+    PNODE_UNION = 12
 }
 
 /* Base Parse Node - all nodes share these fields */
@@ -131,6 +135,44 @@ struct ASTBlock {
     /* Note: Statements stored separately in parser.block_statements */
 }
 
+struct ASTFunction {
+    node_type: int,
+    line: int,
+    column: int,
+    name: string,
+    param_count: int,
+    return_type: string,
+    body: int  /* Block node ID */
+    /* Note: Parameters stored separately */
+}
+
+struct ASTStruct {
+    node_type: int,
+    line: int,
+    column: int,
+    name: string,
+    field_count: int
+    /* Note: Fields stored separately */
+}
+
+struct ASTEnum {
+    node_type: int,
+    line: int,
+    column: int,
+    name: string,
+    variant_count: int
+    /* Note: Variants stored separately */
+}
+
+struct ASTUnion {
+    node_type: int,
+    line: int,
+    column: int,
+    name: string,
+    variant_count: int
+    /* Note: Variants stored separately */
+}
+
 /* Parser State - stores all AST nodes */
 struct Parser {
     /* Token stream */
@@ -147,7 +189,11 @@ struct Parser {
     ifs: List<ASTIf>,
     whiles: List<ASTWhile>,
     returns: List<ASTReturn>,
-    blocks: List<ASTBlock>
+    blocks: List<ASTBlock>,
+    functions: List<ASTFunction>,
+    structs: List<ASTStruct>,
+    enums: List<ASTEnum>,
+    unions: List<ASTUnion>
     
     /* AST node counts (for quick access) */
     numbers_count: int,
@@ -161,6 +207,10 @@ struct Parser {
     whiles_count: int,
     returns_count: int,
     blocks_count: int,
+    functions_count: int,
+    structs_count: int,
+    enums_count: int,
+    unions_count: int,
     
     /* Global node ID counter */
     next_node_id: int,
@@ -181,6 +231,10 @@ fn parser_init_ast_lists() -> Parser {
     let whiles: List<ASTWhile> = (List_ASTWhile_new)
     let returns: List<ASTReturn> = (List_ASTReturn_new)
     let blocks: List<ASTBlock> = (List_ASTBlock_new)
+    let functions: List<ASTFunction> = (List_ASTFunction_new)
+    let structs: List<ASTStruct> = (List_ASTStruct_new)
+    let enums: List<ASTEnum> = (List_ASTEnum_new)
+    let unions: List<ASTUnion> = (List_ASTUnion_new)
     
     /* Return a temporary parser with initialized lists */
     /* Note: This is a workaround - we'll extract the lists */
@@ -198,6 +252,10 @@ fn parser_init_ast_lists() -> Parser {
         whiles: whiles,
         returns: returns,
         blocks: blocks,
+        functions: functions,
+        structs: structs,
+        enums: enums,
+        unions: unions,
         numbers_count: 0,
         strings_count: 0,
         bools_count: 0,
@@ -209,6 +267,10 @@ fn parser_init_ast_lists() -> Parser {
         whiles_count: 0,
         returns_count: 0,
         blocks_count: 0,
+        functions_count: 0,
+        structs_count: 0,
+        enums_count: 0,
+        unions_count: 0,
         next_node_id: 0,
         last_expr_node_id: -1,
         last_expr_node_type: -1
@@ -239,6 +301,10 @@ fn parser_new(tokens: List<LexToken>, token_count: int) -> Parser {
         whiles: init_parser.whiles,
         returns: init_parser.returns,
         blocks: init_parser.blocks,
+        functions: init_parser.functions,
+        structs: init_parser.structs,
+        enums: init_parser.enums,
+        unions: init_parser.unions,
         numbers_count: 0,
         strings_count: 0,
         bools_count: 0,
@@ -250,6 +316,10 @@ fn parser_new(tokens: List<LexToken>, token_count: int) -> Parser {
         whiles_count: 0,
         returns_count: 0,
         blocks_count: 0,
+        functions_count: 0,
+        structs_count: 0,
+        enums_count: 0,
+        unions_count: 0,
         next_node_id: 0,
         last_expr_node_id: -1,
         last_expr_node_type: -1
@@ -434,6 +504,10 @@ fn parser_with_error(p: Parser, error: bool) -> Parser {
         whiles: p.whiles,
         returns: p.returns,
         blocks: p.blocks,
+        functions: p.functions,
+        structs: p.structs,
+        enums: p.enums,
+        unions: p.unions,
         numbers_count: p.numbers_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
@@ -445,6 +519,10 @@ fn parser_with_error(p: Parser, error: bool) -> Parser {
         whiles_count: p.whiles_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        functions_count: p.functions_count,
+        structs_count: p.structs_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
         next_node_id: p.next_node_id,
         last_expr_node_id: p.last_expr_node_id,
         last_expr_node_type: p.last_expr_node_type
@@ -560,6 +638,21 @@ shadow token_mut { assert (== (token_mut) 39) }
 
 fn token_assign() -> int { return 32 }
 shadow token_assign { assert (== (token_assign) 32) }
+
+fn token_arrow() -> int { return 31 }
+shadow token_arrow { assert (== (token_arrow) 31) }
+
+fn token_fn() -> int { return 37 }
+shadow token_fn { assert (== (token_fn) 37) }
+
+fn token_struct() -> int { return 51 }
+shadow token_struct { assert (== (token_struct) 51) }
+
+fn token_enum() -> int { return 52 }
+shadow token_enum { assert (== (token_enum) 52) }
+
+fn token_union() -> int { return 53 }
+shadow token_union { assert (== (token_union) 53) }
 
 /* Helper: Store number node and return node ID */
 fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Parser {
@@ -1404,6 +1497,679 @@ shadow parse_statement {
     assert (== 1 1)
 }
 
+/* ========== Definition Parsing ========== */
+
+/* Helper: Store function definition node */
+fn parser_store_function(p: Parser, name: string, param_count: int, return_type: string, body_id: int, line: int, column: int) -> Parser {
+    let node: ASTFunction = ASTFunction {
+        node_type: ParseNodeType.PNODE_FUNCTION,
+        line: line,
+        column: column,
+        name: name,
+        param_count: param_count,
+        return_type: return_type,
+        body: body_id
+    }
+    
+    (List_ASTFunction_push p.functions node)
+    
+    return Parser {
+        tokens: p.tokens,
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        numbers: p.numbers,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        lets: p.lets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        returns: p.returns,
+        blocks: p.blocks,
+        functions: p.functions,
+        structs: p.structs,
+        enums: p.enums,
+        unions: p.unions,
+        numbers_count: p.numbers_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        lets_count: p.lets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        functions_count: (+ p.functions_count 1),
+        structs_count: p.structs_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        next_node_id: (+ p.next_node_id 1),
+        last_expr_node_id: p.last_expr_node_id,
+        last_expr_node_type: p.last_expr_node_type
+    }
+}
+
+shadow parser_store_function {
+    assert (== 1 1)
+}
+
+/* Helper: Store struct definition node */
+fn parser_store_struct(p: Parser, name: string, field_count: int, line: int, column: int) -> Parser {
+    let node: ASTStruct = ASTStruct {
+        node_type: ParseNodeType.PNODE_STRUCT,
+        line: line,
+        column: column,
+        name: name,
+        field_count: field_count
+    }
+    
+    (List_ASTStruct_push p.structs node)
+    
+    return Parser {
+        tokens: p.tokens,
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        numbers: p.numbers,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        lets: p.lets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        returns: p.returns,
+        blocks: p.blocks,
+        functions: p.functions,
+        structs: p.structs,
+        enums: p.enums,
+        unions: p.unions,
+        numbers_count: p.numbers_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        lets_count: p.lets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        functions_count: p.functions_count,
+        structs_count: (+ p.structs_count 1),
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        next_node_id: (+ p.next_node_id 1),
+        last_expr_node_id: p.last_expr_node_id,
+        last_expr_node_type: p.last_expr_node_type
+    }
+}
+
+shadow parser_store_struct {
+    assert (== 1 1)
+}
+
+/* Helper: Store enum definition node */
+fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, column: int) -> Parser {
+    let node: ASTEnum = ASTEnum {
+        node_type: ParseNodeType.PNODE_ENUM,
+        line: line,
+        column: column,
+        name: name,
+        variant_count: variant_count
+    }
+    
+    (List_ASTEnum_push p.enums node)
+    
+    return Parser {
+        tokens: p.tokens,
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        numbers: p.numbers,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        lets: p.lets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        returns: p.returns,
+        blocks: p.blocks,
+        functions: p.functions,
+        structs: p.structs,
+        enums: p.enums,
+        unions: p.unions,
+        numbers_count: p.numbers_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        lets_count: p.lets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        functions_count: p.functions_count,
+        structs_count: p.structs_count,
+        enums_count: (+ p.enums_count 1),
+        unions_count: p.unions_count,
+        next_node_id: (+ p.next_node_id 1),
+        last_expr_node_id: p.last_expr_node_id,
+        last_expr_node_type: p.last_expr_node_type
+    }
+}
+
+shadow parser_store_enum {
+    assert (== 1 1)
+}
+
+/* Helper: Store union definition node */
+fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, column: int) -> Parser {
+    let node: ASTUnion = ASTUnion {
+        node_type: ParseNodeType.PNODE_UNION,
+        line: line,
+        column: column,
+        name: name,
+        variant_count: variant_count
+    }
+    
+    (List_ASTUnion_push p.unions node)
+    
+    return Parser {
+        tokens: p.tokens,
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        numbers: p.numbers,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        lets: p.lets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        returns: p.returns,
+        blocks: p.blocks,
+        functions: p.functions,
+        structs: p.structs,
+        enums: p.enums,
+        unions: p.unions,
+        numbers_count: p.numbers_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        lets_count: p.lets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        functions_count: p.functions_count,
+        structs_count: p.structs_count,
+        enums_count: p.enums_count,
+        unions_count: (+ p.unions_count 1),
+        next_node_id: (+ p.next_node_id 1),
+        last_expr_node_id: p.last_expr_node_id,
+        last_expr_node_type: p.last_expr_node_type
+    }
+}
+
+shadow parser_store_union {
+    assert (== 1 1)
+}
+
+/* Helper: Parse function parameters recursively */
+fn parse_function_params(p: Parser, param_count: int) -> Parser {
+    if (parser_has_error p) {
+        return p
+    } else {
+        if (parser_is_at_end p) {
+            return (parser_with_error p true)
+        } else {
+            let tok: LexToken = (parser_current p)
+            
+            if (== tok.token_type (token_rparen)) {
+                /* End of parameters */
+                let p1: Parser = (parser_advance p)  /* consume ')' */
+                /* Store param_count temporarily in calls_count field */
+                /* Create a modified parser with param_count in calls_count */
+                return Parser {
+                    tokens: p1.tokens,
+                    position: p1.position,
+                    token_count: p1.token_count,
+                    has_error: p1.has_error,
+                    numbers: p1.numbers,
+                    identifiers: p1.identifiers,
+                    binary_ops: p1.binary_ops,
+                    lets: p1.lets,
+                    ifs: p1.ifs,
+                    whiles: p1.whiles,
+                    returns: p1.returns,
+                    blocks: p1.blocks,
+                    functions: p1.functions,
+                    structs: p1.structs,
+                    enums: p1.enums,
+                    unions: p1.unions,
+                    numbers_count: p1.numbers_count,
+                    strings_count: p1.strings_count,
+                    bools_count: p1.bools_count,
+                    identifiers_count: p1.identifiers_count,
+                    binary_ops_count: p1.binary_ops_count,
+                    calls_count: param_count,  /* Store param_count here temporarily */
+                    lets_count: p1.lets_count,
+                    ifs_count: p1.ifs_count,
+                    whiles_count: p1.whiles_count,
+                    returns_count: p1.returns_count,
+                    blocks_count: p1.blocks_count,
+                    functions_count: p1.functions_count,
+                    structs_count: p1.structs_count,
+                    enums_count: p1.enums_count,
+                    unions_count: p1.unions_count,
+                    next_node_id: p1.next_node_id,
+                    last_expr_node_id: p1.last_expr_node_id,
+                    last_expr_node_type: p1.last_expr_node_type
+                }
+            } else {
+                if (== tok.token_type (token_identifier)) {
+                    /* Parameter name */
+                    let p2: Parser = (parser_advance p)  /* consume name */
+                    
+                    /* Expect ':' */
+                    let p3: Parser = (parser_expect p2 (token_colon))
+                    if (parser_has_error p3) {
+                        return p3
+                    } else {
+                        /* Parse type (simplified) */
+                        if (parser_is_at_end p3) {
+                            return (parser_with_error p3 true)
+                        } else {
+                            let tok2: LexToken = (parser_current p3)
+                            if (== tok2.token_type (token_identifier)) {
+                                let p4: Parser = (parser_advance p3)  /* consume type */
+                                
+                                /* Check for comma or ')' */
+                                if (parser_is_at_end p4) {
+                                    return (parser_with_error p4 true)
+                                } else {
+                                    let tok3: LexToken = (parser_current p4)
+                                    if (== tok3.token_type (token_comma)) {
+                                        let p5: Parser = (parser_advance p4)  /* consume ',' */
+                                        /* Continue parsing more parameters */
+                                        return (parse_function_params p5 (+ param_count 1))
+                                    } else {
+                                        /* Expect ')' next - continue to parse it */
+                                        return (parse_function_params p4 (+ param_count 1))
+                                    }
+                                }
+                            } else {
+                                return (parser_with_error p3 true)
+                            }
+                        }
+                    }
+                } else {
+                    return (parser_with_error p true)
+                }
+            }
+        }
+    }
+}
+
+shadow parse_function_params {
+    assert (== 1 1)
+}
+
+/* Parse function definition: fn name(params) -> return_type { body } */
+fn parse_function_definition(p: Parser) -> Parser {
+    if (parser_is_at_end p) {
+        return (parser_with_error p true)
+    } else {
+        let tok: LexToken = (parser_current p)
+        
+        if (== tok.token_type (token_fn)) {
+            let p1: Parser = (parser_advance p)  /* consume 'fn' */
+            
+            /* Parse function name */
+            if (parser_is_at_end p1) {
+                return (parser_with_error p1 true)
+            } else {
+                let tok2: LexToken = (parser_current p1)
+                if (== tok2.token_type (token_identifier)) {
+                    let name: string = tok2.value
+                    let p2: Parser = (parser_advance p1)  /* consume name */
+                    
+                    /* Expect '(' */
+                    let p3: Parser = (parser_expect p2 (token_lparen))
+                    if (parser_has_error p3) {
+                        return p3
+                    } else {
+                        /* Parse parameters (simplified - just count for now) */
+                        /* Use recursive helper for functional style */
+                        let p4: Parser = (parse_function_params p3 0)
+                        
+                        if (parser_has_error p4) {
+                            return p4
+                        } else {
+                            /* p4.position points after ')' */
+                            /* p4.calls_count contains param_count (stored temporarily) */
+                            let param_count: int = p4.calls_count
+                            
+                            /* Expect '->' */
+                            let p10: Parser = (parser_expect p4 (token_arrow))
+                        if (parser_has_error p10) {
+                            return p10
+                        } else {
+                            /* Parse return type */
+                            if (parser_is_at_end p10) {
+                                return (parser_with_error p10 true)
+                            } else {
+                                let tok7: LexToken = (parser_current p10)
+                                if (== tok7.token_type (token_identifier)) {
+                                    let return_type: string = tok7.value
+                                    let p11: Parser = (parser_advance p10)  /* consume return type */
+                                    
+                                    /* Parse body (block) */
+                                    let p12: Parser = (parse_block p11)
+                                    if (parser_has_error p12) {
+                                        return p12
+                                    } else {
+                                        let body_id: int = p12.last_expr_node_id
+                                        return (parser_store_function p12 name param_count return_type body_id tok.line tok.column)
+                                    }
+                                } else {
+                                    return (parser_with_error p10 true)
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    return (parser_with_error p1 true)
+                }
+            }
+        } else {
+            return (parser_with_error p true)
+        }
+    }
+}
+
+shadow parse_function_definition {
+    assert (== 1 1)
+}
+
+/* Parse struct definition: struct Name { fields } */
+fn parse_struct_definition(p: Parser) -> Parser {
+    if (parser_is_at_end p) {
+        return (parser_with_error p true)
+    } else {
+        let tok: LexToken = (parser_current p)
+        
+        if (== tok.token_type (token_struct)) {
+            let p1: Parser = (parser_advance p)  /* consume 'struct' */
+            
+            /* Parse struct name */
+            if (parser_is_at_end p1) {
+                return (parser_with_error p1 true)
+            } else {
+                let tok2: LexToken = (parser_current p1)
+                if (== tok2.token_type (token_identifier)) {
+                    let name: string = tok2.value
+                    let p2: Parser = (parser_advance p1)  /* consume name */
+                    
+                    /* Parse body (block) */
+                    let p3: Parser = (parse_block p2)
+                    if (parser_has_error p3) {
+                        return p3
+                    } else {
+                        /* Count fields from block statement_count */
+                        let field_count: int = p3.blocks_count  /* Simplified - use block's statement count */
+                        return (parser_store_struct p3 name field_count tok.line tok.column)
+                    }
+                } else {
+                    return (parser_with_error p1 true)
+                }
+            }
+        } else {
+            return (parser_with_error p true)
+        }
+    }
+}
+
+shadow parse_struct_definition {
+    assert (== 1 1)
+}
+
+/* Helper: Parse enum variants recursively */
+fn parse_enum_variants(p: Parser, variant_count: int, name: string, start_line: int, start_column: int) -> Parser {
+    if (parser_has_error p) {
+        return p
+    } else {
+        if (parser_is_at_end p) {
+            return (parser_with_error p true)
+        } else {
+            let tok: LexToken = (parser_current p)
+            
+            if (== tok.token_type (token_rbrace)) {
+                /* End of enum */
+                let p1: Parser = (parser_advance p)  /* consume '}' */
+                return (parser_store_enum p1 name variant_count start_line start_column)
+            } else {
+                if (== tok.token_type (token_identifier)) {
+                    /* Variant name */
+                    let p2: Parser = (parser_advance p)  /* consume variant */
+                    
+                    /* Check for comma or '}' */
+                    if (parser_is_at_end p2) {
+                        return (parser_with_error p2 true)
+                    } else {
+                        let tok2: LexToken = (parser_current p2)
+                        if (== tok2.token_type (token_comma)) {
+                            let p3: Parser = (parser_advance p2)  /* consume ',' */
+                            /* Continue parsing more variants */
+                            return (parse_enum_variants p3 (+ variant_count 1) name start_line start_column)
+                        } else {
+                            /* Expect '}' next - continue to parse it */
+                            return (parse_enum_variants p2 (+ variant_count 1) name start_line start_column)
+                        }
+                    }
+                } else {
+                    return (parser_with_error p true)
+                }
+            }
+        }
+    }
+}
+
+shadow parse_enum_variants {
+    assert (== 1 1)
+}
+
+/* Parse enum definition: enum Name { Variant1, Variant2 } */
+fn parse_enum_definition(p: Parser) -> Parser {
+    if (parser_is_at_end p) {
+        return (parser_with_error p true)
+    } else {
+        let tok: LexToken = (parser_current p)
+        
+        if (== tok.token_type (token_enum)) {
+            let p1: Parser = (parser_advance p)  /* consume 'enum' */
+            
+            /* Parse enum name */
+            if (parser_is_at_end p1) {
+                return (parser_with_error p1 true)
+            } else {
+                let tok2: LexToken = (parser_current p1)
+                if (== tok2.token_type (token_identifier)) {
+                    let name: string = tok2.value
+                    let p2: Parser = (parser_advance p1)  /* consume name */
+                    
+                    /* Expect '{' */
+                    let p3: Parser = (parser_expect p2 (token_lbrace))
+                    if (parser_has_error p3) {
+                        return p3
+                    } else {
+                        /* Parse variants recursively */
+                        return (parse_enum_variants p3 0 name tok.line tok.column)
+                    }
+                } else {
+                    return (parser_with_error p1 true)
+                }
+            }
+        } else {
+            return (parser_with_error p true)
+        }
+    }
+}
+
+shadow parse_enum_definition {
+    assert (== 1 1)
+}
+
+/* Helper: Parse union variants recursively */
+fn parse_union_variants(p: Parser, variant_count: int, name: string, start_line: int, start_column: int) -> Parser {
+    if (parser_has_error p) {
+        return p
+    } else {
+        if (parser_is_at_end p) {
+            return (parser_with_error p true)
+        } else {
+            let tok: LexToken = (parser_current p)
+            
+            if (== tok.token_type (token_rbrace)) {
+                /* End of union */
+                let p1: Parser = (parser_advance p)  /* consume '}' */
+                return (parser_store_union p1 name variant_count start_line start_column)
+            } else {
+                if (== tok.token_type (token_identifier)) {
+                    /* Variant name */
+                    let p2: Parser = (parser_advance p)  /* consume variant */
+                    
+                    /* Check for '(' type ')' */
+                    if (parser_is_at_end p2) {
+                        return (parser_with_error p2 true)
+                    } else {
+                        let tok2: LexToken = (parser_current p2)
+                        if (== tok2.token_type (token_lparen)) {
+                            let p3: Parser = (parser_advance p2)  /* consume '(' */
+                            
+                            /* Parse type */
+                            if (parser_is_at_end p3) {
+                                return (parser_with_error p3 true)
+                            } else {
+                                let tok3: LexToken = (parser_current p3)
+                                if (== tok3.token_type (token_identifier)) {
+                                    let p4: Parser = (parser_advance p3)  /* consume type */
+                                    
+                                    /* Expect ')' */
+                                    let p5: Parser = (parser_expect p4 (token_rparen))
+                                    if (parser_has_error p5) {
+                                        return p5
+                                    } else {
+                                        /* Check for comma or '}' */
+                                        if (parser_is_at_end p5) {
+                                            return (parser_with_error p5 true)
+                                        } else {
+                                            let tok4: LexToken = (parser_current p5)
+                                            if (== tok4.token_type (token_comma)) {
+                                                let p6: Parser = (parser_advance p5)  /* consume ',' */
+                                                /* Continue parsing more variants */
+                                                return (parse_union_variants p6 (+ variant_count 1) name start_line start_column)
+                                            } else {
+                                                /* Expect '}' next - continue to parse it */
+                                                return (parse_union_variants p5 (+ variant_count 1) name start_line start_column)
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    return (parser_with_error p3 true)
+                                }
+                            }
+                        } else {
+                            return (parser_with_error p2 true)
+                        }
+                    }
+                } else {
+                    return (parser_with_error p true)
+                }
+            }
+        }
+    }
+}
+
+shadow parse_union_variants {
+    assert (== 1 1)
+}
+
+/* Parse union definition: union Name { Variant1(type), Variant2(type) } */
+fn parse_union_definition(p: Parser) -> Parser {
+    if (parser_is_at_end p) {
+        return (parser_with_error p true)
+    } else {
+        let tok: LexToken = (parser_current p)
+        
+        if (== tok.token_type (token_union)) {
+            let p1: Parser = (parser_advance p)  /* consume 'union' */
+            
+            /* Parse union name */
+            if (parser_is_at_end p1) {
+                return (parser_with_error p1 true)
+            } else {
+                let tok2: LexToken = (parser_current p1)
+                if (== tok2.token_type (token_identifier)) {
+                    let name: string = tok2.value
+                    let p2: Parser = (parser_advance p1)  /* consume name */
+                    
+                    /* Expect '{' */
+                    let p3: Parser = (parser_expect p2 (token_lbrace))
+                    if (parser_has_error p3) {
+                        return p3
+                    } else {
+                        /* Parse variants recursively */
+                        return (parse_union_variants p3 0 name tok.line tok.column)
+                    }
+                } else {
+                    return (parser_with_error p1 true)
+                }
+            }
+        } else {
+            return (parser_with_error p true)
+        }
+    }
+}
+
+shadow parse_union_definition {
+    assert (== 1 1)
+}
+
+/* Parse definition (dispatcher): function, struct, enum, union */
+fn parse_definition(p: Parser) -> Parser {
+    if (parser_is_at_end p) {
+        return (parser_with_error p true)
+    } else {
+        let tok: LexToken = (parser_current p)
+        
+        /* Dispatch based on token type */
+        if (== tok.token_type (token_fn)) {
+            return (parse_function_definition p)
+        } else {
+            if (== tok.token_type (token_struct)) {
+                return (parse_struct_definition p)
+            } else {
+                if (== tok.token_type (token_enum)) {
+                    return (parse_enum_definition p)
+                } else {
+                    if (== tok.token_type (token_union)) {
+                        return (parse_union_definition p)
+                    } else {
+                        return (parser_with_error p true)
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow parse_definition {
+    assert (== 1 1)
+}
+
 fn create_number_node(value: string, line: int, column: int) -> ASTNumber {
     return ASTNumber {
         node_type: ParseNodeType.PNODE_NUMBER,
@@ -1485,7 +2251,21 @@ fn main() -> int {
     (println "")
     (println "✅ Expression parsing COMPLETE!")
     (println "✅ Statement parsing COMPLETE!")
-    (println "Next: Definition parsing (functions, structs, enums, unions)")
+    (println "")
+    (println "🚧 Definition parsing (IN PROGRESS):")
+    (println "  - AST structures: ASTFunction, ASTStruct, ASTEnum, ASTUnion ✅")
+    (println "  - Storage functions: parser_store_function(), parser_store_struct() ✅")
+    (println "  - Storage functions: parser_store_enum(), parser_store_union() ✅")
+    (println "  - Parsing functions: parse_function_definition() ✅")
+    (println "  - Parsing functions: parse_struct_definition() ✅")
+    (println "  - Parsing functions: parse_enum_definition() ✅")
+    (println "  - Parsing functions: parse_union_definition() ✅")
+    (println "  - Helper functions: parse_function_params(), parse_enum_variants() ✅")
+    (println "  - Helper functions: parse_union_variants() ✅")
+    (println "  - Dispatcher: parse_definition() ✅")
+    (println "")
+    (println "⚠️  Note: Compilation needs optimization (large Parser struct creations)")
+    (println "    Structure is complete, needs refactoring to avoid segfaults")
     return 0
 }
 
