@@ -889,6 +889,7 @@ static ASTNode *parse_statement(Parser *p) {
             node->as.let.var_type = type;
             node->as.let.type_name = type_name;  /* For structs or generic type params */
             node->as.let.element_type = element_type;
+            node->as.let.fn_sig = fn_sig;  /* For function types */
             node->as.let.is_mut = is_mut;
             node->as.let.value = value;
             return node;

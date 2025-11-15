@@ -262,6 +262,7 @@ struct ASTNode {
             Type var_type;
             char *type_name;         /* For TYPE_STRUCT/TYPE_UNION: actual type name (e.g., "Status", "Point") */
             Type element_type;       /* For TYPE_ARRAY: element type (e.g., TYPE_INT for array<int>) */
+            FunctionSignature *fn_sig;  /* For TYPE_FUNCTION: function signature */
             bool is_mut;
             ASTNode *value;
         } let;

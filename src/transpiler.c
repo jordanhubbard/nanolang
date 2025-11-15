@@ -38,7 +38,6 @@ static void sb_appendf(StringBuilder *sb, const char *fmt, ...) {
 
 /* Forward declarations */
 static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *env);
-static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, Environment *env);
 static const char *type_to_c(Type type);
 
 /* Generate indentation */
@@ -70,6 +69,9 @@ typedef struct {
     int count;
     int capacity;
 } FunctionTypeRegistry;
+
+/* Forward declaration for transpile_statement (needs FunctionTypeRegistry defined first) */
+static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, Environment *env, FunctionTypeRegistry *fn_registry);
 
 static FunctionTypeRegistry *create_fn_type_registry(void) {
     FunctionTypeRegistry *reg = malloc(sizeof(FunctionTypeRegistry));
@@ -697,7 +699,7 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
 }
 
 /* Transpile statement to C */
-static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, Environment *env) {
+static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, Environment *env, FunctionTypeRegistry *fn_registry) {
     if (!stmt) return;
 
     switch (stmt->type) {
@@ -750,6 +752,12 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
                         sb_appendf(sb, "/* struct */ void* %s = ", stmt->as.let.name);
                     }
                 }
+            }
+            /* Handle function types */
+            else if (stmt->as.let.var_type == TYPE_FUNCTION && stmt->as.let.fn_sig) {
+                /* Get or register the typedef for this function signature */
+                const char *typedef_name = register_function_signature(fn_registry, stmt->as.let.fn_sig);
+                sb_appendf(sb, "%s %s = ", typedef_name, stmt->as.let.name);
             } else {
                 sb_appendf(sb, "%s %s = ", type_to_c(stmt->as.let.var_type), stmt->as.let.name);
             }
@@ -773,7 +781,7 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
             sb_append(sb, "while (");
             transpile_expression(sb, stmt->as.while_stmt.condition, env);
             sb_append(sb, ") ");
-            transpile_statement(sb, stmt->as.while_stmt.body, indent, env);
+            transpile_statement(sb, stmt->as.while_stmt.body, indent, env, fn_registry);
             break;
 
         case AST_FOR: {
@@ -789,7 +797,7 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
             } else {
                 sb_append(sb, "0; 0; ) ");
             }
-            transpile_statement(sb, stmt->as.for_stmt.body, indent, env);
+            transpile_statement(sb, stmt->as.for_stmt.body, indent, env, fn_registry);
             break;
         }
 
@@ -806,7 +814,7 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
         case AST_BLOCK:
             sb_append(sb, "{\n");
             for (int i = 0; i < stmt->as.block.count; i++) {
-                transpile_statement(sb, stmt->as.block.statements[i], indent + 1, env);
+                transpile_statement(sb, stmt->as.block.statements[i], indent + 1, env, fn_registry);
             }
             emit_indent(sb, indent);
             sb_append(sb, "}\n");
@@ -840,11 +848,11 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
             sb_append(sb, "if (");
             transpile_expression(sb, stmt->as.if_stmt.condition, env);
             sb_append(sb, ") ");
-            transpile_statement(sb, stmt->as.if_stmt.then_branch, indent, env);
+            transpile_statement(sb, stmt->as.if_stmt.then_branch, indent, env, fn_registry);
             if (stmt->as.if_stmt.else_branch) {
                 emit_indent(sb, indent);
                 sb_append(sb, "else ");
-                transpile_statement(sb, stmt->as.if_stmt.else_branch, indent, env);
+                transpile_statement(sb, stmt->as.if_stmt.else_branch, indent, env, fn_registry);
             }
             break;
 
@@ -853,6 +861,36 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
             emit_indent(sb, indent);
             transpile_expression(sb, stmt, env);
             sb_append(sb, ";\n");
+            break;
+    }
+}
+
+/* Helper to recursively collect function signatures from statements */
+static void collect_fn_sigs(ASTNode *stmt, FunctionTypeRegistry *reg) {
+    if (!stmt) return;
+    
+    switch (stmt->type) {
+        case AST_LET:
+            if (stmt->as.let.var_type == TYPE_FUNCTION && stmt->as.let.fn_sig) {
+                register_function_signature(reg, stmt->as.let.fn_sig);
+            }
+            break;
+        case AST_BLOCK:
+            for (int i = 0; i < stmt->as.block.count; i++) {
+                collect_fn_sigs(stmt->as.block.statements[i], reg);
+            }
+            break;
+        case AST_IF:
+            collect_fn_sigs(stmt->as.if_stmt.then_branch, reg);
+            collect_fn_sigs(stmt->as.if_stmt.else_branch, reg);
+            break;
+        case AST_WHILE:
+            collect_fn_sigs(stmt->as.while_stmt.body, reg);
+            break;
+        case AST_FOR:
+            collect_fn_sigs(stmt->as.for_stmt.body, reg);
+            break;
+        default:
             break;
     }
 }
@@ -1446,6 +1484,9 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                 item->as.function.return_fn_sig) {
                 register_function_signature(fn_registry, item->as.function.return_fn_sig);
             }
+            
+            /* Collect from function body */
+            collect_fn_sigs(item->as.function.body, fn_registry);
         }
     }
     
@@ -1598,7 +1639,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             }
 
             /* Function body */
-            transpile_statement(sb, item->as.function.body, 0, env);
+            transpile_statement(sb, item->as.function.body, 0, env, fn_registry);
             sb_append(sb, "\n");
 
             /* Restore environment (remove parameters) */
