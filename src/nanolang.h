@@ -142,6 +142,7 @@ typedef enum {
     TYPE_LIST_INT,
     TYPE_LIST_STRING,
     TYPE_LIST_TOKEN,
+    TYPE_LIST_GENERIC, /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
     TYPE_UNKNOWN
 } Type;
 
@@ -403,9 +404,10 @@ typedef struct {
 /* Generic type instantiation (for monomorphization) */
 typedef struct {
     char *generic_name;        /* e.g., "List" */
-    Type *type_args;           /* e.g., [TYPE_INT] */
+    Type *type_args;           /* e.g., [TYPE_INT] or [TYPE_LIST_GENERIC] */
     int type_arg_count;        /* Number of type arguments */
-    char *concrete_name;       /* e.g., "List_int" (generated name) */
+    char **type_arg_names;     /* e.g., ["Point"] for user types, NULL for primitives */
+    char *concrete_name;       /* e.g., "List_int" or "List_Point" (generated name) */
 } GenericInstantiation;
 
 /* Environment for variable and function storage */
