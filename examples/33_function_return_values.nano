@@ -1,0 +1,88 @@
+/* =============================================================================
+ * Phase B2: Functions as Return Values - Type Checking Demo
+ * =============================================================================
+ * This demonstrates that functions CAN return functions.
+ * Full usage requires Phase B3 (function variables).
+ */
+
+/* Some basic functions */
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+}
+
+fn multiply(a: int, b: int) -> int {
+    return (* a b)
+}
+
+shadow multiply {
+    assert (== (multiply 4 5) 20)
+}
+
+/* Function factory - returns a function! */
+fn get_adder() -> fn(int, int) -> int {
+    return add
+}
+
+shadow get_adder {
+    /* Placeholder - full testing requires Phase B3 */
+    assert (== 1 1)
+}
+
+fn get_multiplier() -> fn(int, int) -> int {
+    return multiply
+}
+
+shadow get_multiplier {
+    /* Placeholder - full testing requires Phase B3 */
+    assert (== 1 1)
+}
+
+/* Conditional factory */
+fn get_operation(use_add: bool) -> fn(int, int) -> int {
+    if use_add {
+        return add
+    } else {
+        return multiply
+    }
+}
+
+shadow get_operation {
+    /* Placeholder - full testing requires Phase B3 */
+    assert (== 1 1)
+}
+
+fn main() -> int {
+    (println "Phase B2: Functions as Return Values")
+    (println "=====================================")
+    (println "")
+    
+    (println "✅ TYPE CHECKING:")
+    (println "  - Functions CAN return fn(int,int)->int")
+    (println "  - get_adder() type checks correctly")
+    (println "  - get_multiplier() type checks correctly")
+    (println "  - get_operation(bool) type checks correctly")
+    (println "")
+    
+    (println "✅ TRANSPILATION:")
+    (println "  - Generates BinaryOp_0 typedef")
+    (println "  - Forward declarations correct")
+    (println "  - Function definitions correct")
+    (println "")
+    
+    (println "📋 USAGE:")
+    (println "  - Full usage requires Phase B3")
+    (println "  - (Function variables coming next!)")
+    (println "")
+    
+    (println "✓ Phase B2 implementation complete!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

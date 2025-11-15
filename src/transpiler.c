@@ -1470,7 +1470,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             
             /* Regular functions - forward declare with nl_ prefix */
             /* Function return type */
-            if (item->as.function.return_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
+            if (item->as.function.return_type == TYPE_FUNCTION && item->as.function.return_fn_sig) {
+                /* Function return type: use typedef */
+                const char *typedef_name = register_function_signature(fn_registry, 
+                                                                      item->as.function.return_fn_sig);
+                sb_append(sb, typedef_name);
+            } else if (item->as.function.return_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
                 /* Generic list return type: List<ElementType> -> List_ElementType* */
                 sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
             } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
@@ -1531,7 +1536,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             }
             
             /* Function return type */
-            if (item->as.function.return_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
+            if (item->as.function.return_type == TYPE_FUNCTION && item->as.function.return_fn_sig) {
+                /* Function return type: use typedef */
+                const char *typedef_name = register_function_signature(fn_registry, 
+                                                                      item->as.function.return_fn_sig);
+                sb_append(sb, typedef_name);
+            } else if (item->as.function.return_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
                 /* Generic list return type: List<ElementType> -> List_ElementType* */
                 sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
             } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
