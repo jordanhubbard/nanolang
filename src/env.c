@@ -122,6 +122,14 @@ void free_environment(Environment *env) {
         free(env->generic_instances[i].generic_name);
         free(env->generic_instances[i].type_args);
         free(env->generic_instances[i].concrete_name);
+        if (env->generic_instances[i].type_arg_names) {
+            for (int j = 0; j < env->generic_instances[i].type_arg_count; j++) {
+                if (env->generic_instances[i].type_arg_names[j]) {
+                    free(env->generic_instances[i].type_arg_names[j]);
+                }
+            }
+            free(env->generic_instances[i].type_arg_names);
+        }
     }
     free(env->generic_instances);
 
@@ -440,4 +448,114 @@ int env_get_union_variant_index(Environment *env, const char *union_name, const 
         }
     }
     return -1;
+}
+/* Register a list instantiation for code generation */
+void env_register_list_instantiation(Environment *env, const char *element_type) {
+    /* Check if already registered */
+    for (int i = 0; i < env->generic_instance_count; i++) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        if (strcmp(inst->generic_name, "List") == 0 &&
+            inst->type_arg_names && 
+            strcmp(inst->type_arg_names[0], element_type) == 0) {
+            return;  /* Already registered */
+        }
+    }
+    
+    /* Add new instantiation */
+    if (env->generic_instance_count >= env->generic_instance_capacity) {
+        env->generic_instance_capacity *= 2;
+        env->generic_instances = realloc(env->generic_instances,
+            sizeof(GenericInstantiation) * env->generic_instance_capacity);
+    }
+    
+    GenericInstantiation inst;
+    inst.generic_name = strdup("List");
+    inst.type_arg_count = 1;
+    inst.type_args = malloc(sizeof(Type));
+    inst.type_args[0] = TYPE_LIST_GENERIC;
+    inst.type_arg_names = malloc(sizeof(char*));
+    inst.type_arg_names[0] = strdup(element_type);
+    
+    /* Generate specialized name: List<Point> -> List_Point */
+    char specialized[256];
+    snprintf(specialized, sizeof(specialized), "List_%s", element_type);
+    inst.concrete_name = strdup(specialized);
+    
+    env->generic_instances[env->generic_instance_count++] = inst;
+    
+    /* Register specialized functions in environment for type checking */
+    char func_name[256];
+    Function func;
+    Parameter *params;
+    
+    /* List_T_new() -> List<T>* */
+    snprintf(func_name, sizeof(func_name), "%s_new", specialized);
+    func.name = strdup(func_name);
+    func.param_count = 0;
+    func.params = NULL;
+    func.return_type = TYPE_LIST_GENERIC;
+    func.return_struct_type_name = NULL;
+    func.body = NULL;  /* Built-in */
+    func.shadow_test = NULL;
+    func.is_extern = true;
+    env_define_function(env, func);
+    
+    /* List_T_push(list: List<T>*, value: T) -> void */
+    snprintf(func_name, sizeof(func_name), "%s_push", specialized);
+    func.name = strdup(func_name);
+    func.param_count = 2;
+    params = malloc(sizeof(Parameter) * 2);
+    params[0].name = strdup("list");
+    params[0].type = TYPE_LIST_GENERIC;
+    params[0].struct_type_name = NULL;
+    params[0].element_type = TYPE_UNKNOWN;
+    params[1].name = strdup("value");
+    params[1].type = TYPE_STRUCT;
+    params[1].struct_type_name = strdup(element_type);
+    params[1].element_type = TYPE_UNKNOWN;
+    func.params = params;
+    func.return_type = TYPE_VOID;
+    func.return_struct_type_name = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = true;
+    env_define_function(env, func);
+    
+    /* List_T_get(list: List<T>*, index: int) -> T */
+    snprintf(func_name, sizeof(func_name), "%s_get", specialized);
+    func.name = strdup(func_name);
+    func.param_count = 2;
+    params = malloc(sizeof(Parameter) * 2);
+    params[0].name = strdup("list");
+    params[0].type = TYPE_LIST_GENERIC;
+    params[0].struct_type_name = NULL;
+    params[0].element_type = TYPE_UNKNOWN;
+    params[1].name = strdup("index");
+    params[1].type = TYPE_INT;
+    params[1].struct_type_name = NULL;
+    params[1].element_type = TYPE_UNKNOWN;
+    func.params = params;
+    func.return_type = TYPE_STRUCT;
+    func.return_struct_type_name = strdup(element_type);
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = true;
+    env_define_function(env, func);
+    
+    /* List_T_length(list: List<T>*) -> int */
+    snprintf(func_name, sizeof(func_name), "%s_length", specialized);
+    func.name = strdup(func_name);
+    func.param_count = 1;
+    params = malloc(sizeof(Parameter));
+    params[0].name = strdup("list");
+    params[0].type = TYPE_LIST_GENERIC;
+    params[0].struct_type_name = NULL;
+    params[0].element_type = TYPE_UNKNOWN;
+    func.params = params;
+    func.return_type = TYPE_INT;
+    func.return_struct_type_name = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = true;
+    env_define_function(env, func);
 }
