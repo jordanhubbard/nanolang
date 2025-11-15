@@ -48,6 +48,7 @@ const char *type_to_string(Type type) {
         case TYPE_STRUCT: return "struct";
         case TYPE_ENUM: return "enum";
         case TYPE_UNION: return "union";
+        case TYPE_FUNCTION: return "function";
         case TYPE_LIST_INT: return "list_int";
         case TYPE_LIST_STRING: return "list_string";
         case TYPE_UNKNOWN: return "unknown";
@@ -249,10 +250,57 @@ Type check_expression(ASTNode *expr, Environment *env) {
             /* Check argument types (skip for built-ins with NULL params like range) */
             if (func->params) {
                 for (int i = 0; i < expr->as.call.arg_count; i++) {
-                    Type arg_type = check_expression(expr->as.call.args[i], env);
-                    if (!types_match(arg_type, func->params[i].type)) {
-                        fprintf(stderr, "Error at line %d, column %d: Argument %d type mismatch in call to '%s'\n",
-                                expr->line, expr->column, i + 1, expr->as.call.name);
+                    ASTNode *arg = expr->as.call.args[i];
+                    
+                    /* Special handling for function-typed parameters */
+                    if (func->params[i].type == TYPE_FUNCTION) {
+                        /* Argument must be an identifier (function name) */
+                        if (arg->type != AST_IDENTIFIER) {
+                            fprintf(stderr, "Error at line %d, column %d: Function parameter expects a function name\n",
+                                    arg->line, arg->column);
+                            return TYPE_UNKNOWN;
+                        }
+                        
+                        /* Look up the function */
+                        Function *passed_func = env_get_function(env, arg->as.identifier);
+                        if (!passed_func) {
+                            fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
+                                    arg->line, arg->column, arg->as.identifier);
+                            return TYPE_UNKNOWN;
+                        }
+                        
+                        /* Create signature from passed function */
+                        FunctionSignature passed_sig;
+                        passed_sig.param_count = passed_func->param_count;
+                        passed_sig.param_types = malloc(sizeof(Type) * passed_func->param_count);
+                        passed_sig.param_struct_names = malloc(sizeof(char*) * passed_func->param_count);
+                        for (int j = 0; j < passed_func->param_count; j++) {
+                            passed_sig.param_types[j] = passed_func->params[j].type;
+                            passed_sig.param_struct_names[j] = passed_func->params[j].struct_type_name;
+                        }
+                        passed_sig.return_type = passed_func->return_type;
+                        passed_sig.return_struct_name = passed_func->return_struct_type_name;
+                        
+                        /* Compare signatures */
+                        if (!function_signatures_equal(func->params[i].fn_sig, &passed_sig)) {
+                            fprintf(stderr, "Error at line %d, column %d: Function signature mismatch for argument %d in call to '%s'\n",
+                                    arg->line, arg->column, i + 1, expr->as.call.name);
+                            fprintf(stderr, "  Expected function with different signature\n");
+                            free(passed_sig.param_types);
+                            free(passed_sig.param_struct_names);
+                            return TYPE_UNKNOWN;
+                        }
+                        
+                        /* Clean up temporary signature */
+                        free(passed_sig.param_types);
+                        free(passed_sig.param_struct_names);
+                    } else {
+                        /* Regular argument type checking */
+                        Type arg_type = check_expression(arg, env);
+                        if (!types_match(arg_type, func->params[i].type)) {
+                            fprintf(stderr, "Error at line %d, column %d: Argument %d type mismatch in call to '%s'\n",
+                                    expr->line, expr->column, i + 1, expr->as.call.name);
+                        }
                     }
                 }
             } else {
@@ -1869,6 +1917,7 @@ bool type_check(ASTNode *program, Environment *env) {
             func.param_count = item->as.function.param_count;
             func.return_type = return_type;
             func.return_struct_type_name = item->as.function.return_struct_type_name;
+            func.return_fn_sig = item->as.function.return_fn_sig;  /* Store function signature for TYPE_FUNCTION returns */
             func.body = item->as.function.body;
             func.shadow_test = NULL;
             func.is_extern = item->as.function.is_extern;
