@@ -261,9 +261,18 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             sb_append(sb, expr->as.bool_val ? "true" : "false");
             break;
 
-        case AST_IDENTIFIER:
-            sb_append(sb, expr->as.identifier);
+        case AST_IDENTIFIER: {
+            /* Check if this identifier is a function name */
+            Function *func_def = env_get_function(env, expr->as.identifier);
+            if (func_def && !func_def->is_extern) {
+                /* User-defined function - add nl_ prefix */
+                sb_append(sb, get_c_func_name(expr->as.identifier));
+            } else {
+                /* Variable or extern function - use as-is */
+                sb_append(sb, expr->as.identifier);
+            }
             break;
+        }
 
         case AST_PREFIX_OP: {
             TokenType op = expr->as.prefix_op.op;
@@ -471,6 +480,15 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 Function *func_def = env_get_function(env, func_name);
                 if (func_def && func_def->is_extern) {
                     /* Extern functions - call directly with original name (no change) */
+                } else if (!func_def) {
+                    /* Not a function definition - check if it's a function parameter */
+                    Symbol *sym = env_get_var(env, func_name);
+                    if (sym && sym->type == TYPE_FUNCTION) {
+                        /* Function parameter - use as-is (no nl_ prefix) */
+                    } else {
+                        /* Unknown - add prefix anyway (will fail at C compilation) */
+                        func_name = get_c_func_name(func_name);
+                    }
                 } else {
                     /* User-defined functions get nl_ prefix to avoid C stdlib conflicts */
                     func_name = get_c_func_name(func_name);
