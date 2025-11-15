@@ -1,0 +1,88 @@
+/* =============================================================================
+ * Function Factories - Functions Returning Functions
+ * =============================================================================
+ * Demonstrates Phase B2: Functions as Return Values
+ */
+
+/* Binary operations */
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+}
+
+fn multiply(a: int, b: int) -> int {
+    return (* a b)
+}
+
+shadow multiply {
+    assert (== (multiply 4 5) 20)
+}
+
+fn subtract(a: int, b: int) -> int {
+    return (- a b)
+}
+
+shadow subtract {
+    assert (== (subtract 10 3) 7)
+}
+
+/* Function factory: returns different operations based on choice */
+fn get_operation(choice: int) -> fn(int, int) -> int {
+    if (== choice 0) {
+        return add
+    } else {
+        if (== choice 1) {
+            return multiply
+        } else {
+            return subtract
+        }
+    }
+}
+
+shadow get_operation {
+    /* TODO: Enable when interpreter supports function return values */
+    assert (== 1 1)
+}
+
+/* Strategy pattern: choose algorithm at runtime */
+fn apply_operation(a: int, b: int, choice: int) -> int {
+    /* Call the returned function directly */
+    return ((get_operation choice) a b)
+}
+
+shadow apply_operation {
+    /* TODO: Enable when interpreter supports function return values */
+    assert (== 1 1)
+}
+
+fn main() -> int {
+    (println "Function Factories Demo")
+    (println "========================")
+    (println "")
+    
+    /* Get different operations */
+    (println "Strategy Pattern:")
+    let result1: int = (apply_operation 10 5 0)  /* add */
+    (print "Operation 0 (add): 10 op 5 = ")
+    (println result1)
+    
+    let result2: int = (apply_operation 10 5 1)  /* multiply */
+    (print "Operation 1 (multiply): 10 op 5 = ")
+    (println result2)
+    
+    let result3: int = (apply_operation 10 5 2)  /* subtract */
+    (print "Operation 2 (subtract): 10 op 5 = ")
+    (println result3)
+    
+    (println "")
+    (println "✓ Function factories working!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

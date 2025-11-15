@@ -415,61 +415,19 @@ static nl_array* nl_array_literal_int(int64_t count, ...) {
 
 /* ========== End Union Definitions ========== */
 
-/* Function Type Typedefs */
-typedef int64_t (*BinaryOp_0)(int64_t, int64_t);
-
 int64_t nl_add(int64_t a, int64_t b);
-int64_t nl_multiply(int64_t a, int64_t b);
-BinaryOp_0 nl_get_adder();
-BinaryOp_0 nl_get_multiplier();
-BinaryOp_0 nl_get_operation(bool use_add);
 int64_t nl_main();
 
 int64_t nl_add(int64_t a, int64_t b) {
     return (a + b);
 }
 
-int64_t nl_multiply(int64_t a, int64_t b) {
-    return (a * b);
-}
-
-BinaryOp_0 nl_get_adder() {
-    return nl_add;
-}
-
-BinaryOp_0 nl_get_multiplier() {
-    return nl_multiply;
-}
-
-BinaryOp_0 nl_get_operation(bool use_add) {
-    if (use_add) {
-        return nl_add;
-    }
-    else {
-        return nl_multiply;
-    }
-}
-
 int64_t nl_main() {
-    nl_println_string("Phase B2: Functions as Return Values");
-    nl_println_string("=====================================");
-    nl_println_string("");
-    nl_println_string("✅ TYPE CHECKING:");
-    nl_println_string("  - Functions CAN return fn(int,int)->int");
-    nl_println_string("  - get_adder() type checks correctly");
-    nl_println_string("  - get_multiplier() type checks correctly");
-    nl_println_string("  - get_operation(bool) type checks correctly");
-    nl_println_string("");
-    nl_println_string("✅ TRANSPILATION:");
-    nl_println_string("  - Generates BinaryOp_0 typedef");
-    nl_println_string("  - Forward declarations correct");
-    nl_println_string("  - Function definitions correct");
-    nl_println_string("");
-    nl_println_string("📋 USAGE:");
-    nl_println_string("  - Full usage requires Phase B3");
-    nl_println_string("  - (Function variables coming next!)");
-    nl_println_string("");
-    nl_println_string("✓ Phase B2 implementation complete!");
+    nl_println_string("Simple function variable test");
+    BinaryOp_0 my_func = nl_add;
+    int64_t result = my_func(10LL, 20LL);
+    nl_print_string("Result: ");
+    nl_println_int(result);
     return 0LL;
 }
 
