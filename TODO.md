@@ -194,9 +194,10 @@ These improvements will make Phase 2 easier and more pleasant:
 - **Impact:** Self-hosted compiler can now use clean `List<Token>`, `List<ASTNode>` syntax!
 
 ### B. First-Class Functions (Without User-Visible Pointers)
-- **Status:** ⏳ Not Started
+- **Status:** ✅ Phase B1 COMPLETE! (B2/B3 pending)
 - **Priority:** HIGH (Required before self-hosting)
-- **Time Estimate:** 20-30 hours total
+- **Time Invested:** 6 hours (B1)
+- **Time Remaining:** 10-18 hours (B2/B3)
 - **Benefit:** Enables functional programming patterns without pointers in user code!
 - **Philosophy:** Functions as values WITHOUT exposing pointers - clean syntax, C implementation
 - **Description:**
@@ -211,25 +212,37 @@ These improvements will make Phase 2 easier and more pleasant:
 
 **Implementation Plan (3 Phases):**
 
-#### B1. Functions as Parameters (10-12 hours)
+#### B1. Functions as Parameters - ✅ COMPLETE! (6 hours actual vs 10-12 estimated)
+- **Status:** ✅ 100% Complete - All working in compiled mode!
 - **Priority:** CRITICAL
 - **Benefit:** Enables map, filter, fold patterns
-- **Tasks:**
-  1. Lexer/Parser: Recognize `fn(type1, type2) -> return_type` syntax (2h)
-  2. Type System: Add `TYPE_FUNCTION` with signature info (3h)
-  3. Type Checker: Validate function signature compatibility (2h)
-  4. Transpiler: Generate C function pointer typedefs (2h)
-  5. Transpiler: Convert function names to pointers at call sites (1h)
-  6. Testing: map, filter, fold examples (2h)
+- **Deliverables:**
+  ✅ 1. Lexer/Parser: Parse `fn(type1, type2) -> return_type` syntax
+  ✅ 2. Type System: Added `TYPE_FUNCTION` with `FunctionSignature` struct
+  ✅ 3. Type Checker: Validate function signature compatibility at call sites
+  ✅ 4. Transpiler: Generate C function pointer typedefs (e.g., `typedef int64_t (*Predicate_0)(int64_t);`)
+  ✅ 5. Transpiler: Correct function name handling (add nl_ prefix when passing, not when calling params)
+  ✅ 6. Testing: Working examples demonstrating all patterns
   
-**Example:**
+**Working Examples:**
+1. `examples/31_first_class_functions.nano` - apply_twice, combine
+2. `examples/32_filter_map_fold.nano` - count_matching, apply_first, fold
+
 ```nano
-fn filter(numbers: array<int>, predicate: fn(int) -> bool) -> array<int> {
-    /* predicate is just called like any function */
+/* Example: Higher-order function working perfectly! */
+fn apply_twice(x: int, f: fn(int) -> int) -> int {
+    return (f (f x))
 }
 
-fn is_positive(x: int) -> bool { return (> x 0) }
-let positives: array<int> = (filter numbers is_positive)
+fn double(x: int) -> int { return (* x 2) }
+
+/* Compiles to clean C with typedef: */
+/* typedef int64_t (*FnType_0)(int64_t); */
+/* int64_t nl_apply_twice(int64_t x, FnType_0 f) { */
+/*     return f(f(x));  // Direct call, no nl_ prefix! */
+/* } */
+
+let result: int = (apply_twice 5 double)  /* = 20 */
 ```
 
 #### B2. Functions as Return Values (5-8 hours)
