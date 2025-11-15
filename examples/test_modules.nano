@@ -1,0 +1,20 @@
+# Test module system
+
+import "math_utils.nano"
+
+fn main() -> int {
+    let sum: int = (add 5 3)
+    let product: int = (multiply 4 7)
+    
+    (println "Sum: 5 + 3 =")
+    (println sum)
+    (println "Product: 4 * 7 =")
+    (println product)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

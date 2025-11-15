@@ -6,7 +6,6 @@
 #include <time.h>
 #include <stdarg.h>
 #include <math.h>
-#include <SDL.h>
 
 /* nanolang runtime */
 #include "runtime/list_int.h"
@@ -417,56 +416,16 @@ static nl_array* nl_array_literal_int(int64_t count, ...) {
 /* ========== End Union Definitions ========== */
 
 /* External C function declarations */
-extern int SDL_Init(Uint32 flags);
-extern void SDL_Quit();
-extern const char* SDL_GetError();
-extern void SDL_Delay(Uint32 ms);
-extern SDL_Window* SDL_CreateWindow(const char* title, int x, int y, int w, int h, Uint32 flags);
-extern void SDL_DestroyWindow(SDL_Window* window);
-extern SDL_Renderer* SDL_CreateRenderer(SDL_Window* window, int index, Uint32 flags);
-extern void SDL_DestroyRenderer(SDL_Renderer* renderer);
-extern int SDL_RenderClear(SDL_Renderer* renderer);
-extern void SDL_RenderPresent(SDL_Renderer* renderer);
-extern int SDL_SetRenderDrawColor(SDL_Renderer* renderer, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-
 int64_t nl_main();
 
 int64_t nl_main() {
-    int64_t init_video = 32LL;
-    int64_t window_pos_undef = 536805376LL;
-    int64_t window_shown = 4LL;
-    int64_t renderer_accel = 2LL;
-    int64_t result = SDL_Init((Uint32)init_video);
-    if ((result < 0LL)) {
-        const char* error = SDL_GetError();
-        return 1LL;
-    }
-    else {
-        int64_t window = (int64_t)SDL_CreateWindow("Checkers Test", (int)window_pos_undef, (int)window_pos_undef, (int)640LL, (int)480LL, (Uint32)window_shown);
-        if ((window == 0LL)) {
-            const char* error = SDL_GetError();
-            SDL_Quit();
-            return 1LL;
-        }
-        else {
-            int64_t renderer = (int64_t)SDL_CreateRenderer((SDL_Window*)window, (int)-1LL, (Uint32)renderer_accel);
-            if ((renderer == 0LL)) {
-                SDL_DestroyWindow((SDL_Window*)window);
-                SDL_Quit();
-                return 1LL;
-            }
-            else {
-                SDL_SetRenderDrawColor((SDL_Renderer*)renderer, (Uint8)255LL, (Uint8)0LL, (Uint8)0LL, (Uint8)255LL);
-                SDL_RenderClear((SDL_Renderer*)renderer);
-                SDL_RenderPresent((SDL_Renderer*)renderer);
-                SDL_Delay((Uint32)2000LL);
-                SDL_DestroyRenderer((SDL_Renderer*)renderer);
-                SDL_DestroyWindow((SDL_Window*)window);
-                SDL_Quit();
-                return 0LL;
-            }
-        }
-    }
+    int64_t sum = nl_add(5LL, 3LL);
+    int64_t product = nl_multiply(4LL, 7LL);
+    nl_println_string("Sum: 5 + 3 =");
+    nl_println_int(sum);
+    nl_println_string("Product: 4 * 7 =");
+    nl_println_int(product);
+    return 0LL;
 }
 
 
