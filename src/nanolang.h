@@ -537,5 +537,7 @@ void module_list_add(ModuleList *list, const char *module_path);
 char *resolve_module_path(const char *module_path, const char *current_file);
 ASTNode *load_module(const char *module_path, Environment *env);
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
+bool compile_module_to_object(const char *module_path, const char *output_obj, Environment *env, bool verbose);
+bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_buffer, size_t buffer_size, bool verbose);
 
 #endif /* NANOLANG_H */

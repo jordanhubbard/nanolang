@@ -1,5 +1,5 @@
 # Simple SDL2 Test - nanolang
-# Creates a window and renders a simple colored rectangle
+# Creates a window and renders a simple colored rectangle with event loop
 
 # SDL2 Core Functions
 extern fn SDL_Init(flags: int) -> int
@@ -18,12 +18,17 @@ extern fn SDL_RenderClear(renderer: int) -> int
 extern fn SDL_RenderPresent(renderer: int) -> void
 extern fn SDL_SetRenderDrawColor(renderer: int, r: int, g: int, b: int, a: int) -> int
 
+# SDL2 Helper Functions (wrappers for struct operations)
+extern fn nl_sdl_render_fill_rect(renderer: int, x: int, y: int, w: int, h: int) -> int
+extern fn nl_sdl_poll_event_quit() -> int
+
 fn main() -> int {
     # SDL Constants (using different names to avoid conflicts with SDL macros)
     let init_video: int = 32
     let window_pos_undef: int = 536805376
     let window_shown: int = 4
     let renderer_accel: int = 2
+    let sdl_quit: int = 256
     
     # Initialize SDL
     let result: int = (SDL_Init init_video)
@@ -47,14 +52,30 @@ fn main() -> int {
                 (SDL_Quit)
                 return 1
             } else {
-    
-                # Render loop - draw a red rectangle
-                (SDL_SetRenderDrawColor renderer 255 0 0 255)
-                (SDL_RenderClear renderer)
-                (SDL_RenderPresent renderer)
+                # Main event loop
+                let mut running: bool = true
                 
-                # Wait a bit
-                (SDL_Delay 2000)
+                while running {
+                    # Poll events using helper function
+                    let quit_pressed: int = (nl_sdl_poll_event_quit)
+                    if (== quit_pressed 1) {
+                        set running false
+                    } else {
+                        # Draw background
+                        (SDL_SetRenderDrawColor renderer 240 240 240 255)
+                        (SDL_RenderClear renderer)
+                        
+                        # Draw a red rectangle in the center (200x200)
+                        (SDL_SetRenderDrawColor renderer 255 0 0 255)
+                        (nl_sdl_render_fill_rect renderer 220 140 200 200)
+                        
+                        # Present the frame
+                        (SDL_RenderPresent renderer)
+                        
+                        # Small delay to prevent 100% CPU usage
+                        (SDL_Delay 16)
+                    }
+                }
                 
                 # Cleanup
                 (SDL_DestroyRenderer renderer)
