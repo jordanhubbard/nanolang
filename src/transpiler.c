@@ -1744,14 +1744,15 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             if (func->is_extern) continue;
             
             /* Skip functions that are in the current program (they'll be declared below) */
-            if (program_functions && i < env->function_count && program_functions[i]) {
+            bool is_program_function = false;
+            if (program_functions && i < env->function_count) {
+                is_program_function = program_functions[i];
+            }
+            if (is_program_function) {
                 continue;
             }
             
             /* Simple forward declaration - just basic types for now */
-            if (func->return_type < TYPE_UNKNOWN || func->return_type > TYPE_UNION) {
-                continue;  /* Invalid return type */
-            }
             sb_append(sb, type_to_c(func->return_type));
             sb_appendf(sb, " nl_%s(", func->name);
             
@@ -1759,11 +1760,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             if (func->params && func->param_count > 0 && func->param_count <= 16) {
                 for (int j = 0; j < func->param_count; j++) {
                     if (j > 0) sb_append(sb, ", ");
-                    if (func->params[j].type < TYPE_UNKNOWN || func->params[j].type > TYPE_UNION) {
-                        sb_append(sb, "int64_t");  /* Default to int64_t if invalid */
-                    } else {
-                        sb_append(sb, type_to_c(func->params[j].type));
-                    }
+                    sb_append(sb, type_to_c(func->params[j].type));
                     if (func->params[j].name) {
                         sb_appendf(sb, " %s", func->params[j].name);
                     } else {

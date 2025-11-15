@@ -110,6 +110,20 @@ static char *next_token(CTokenizer *t) {
     return token;
 }
 
+/* Check if token is a C type keyword */
+static bool is_c_type_keyword(const char *tok) {
+    static const char *type_keywords[] = {
+        "unsigned", "signed", "const", "volatile",
+        "char", "int", "long", "short", "float", "double", "void", "bool",
+        "struct", "union", "enum", "static", "extern", "inline"
+    };
+    static int num_keywords = sizeof(type_keywords) / sizeof(type_keywords[0]);
+    for (int i = 0; i < num_keywords; i++) {
+        if (strcmp(tok, type_keywords[i]) == 0) return true;
+    }
+    return false;
+}
+
 /* Map C types to nanolang types */
 static const char *map_c_type_to_nano(const char *c_type) {
     if (strcmp(c_type, "int") == 0 || strcmp(c_type, "int32_t") == 0) return "int";
@@ -130,21 +144,172 @@ static const char *map_c_type_to_nano(const char *c_type) {
 
 /* Parse a C function declaration and generate nanolang extern declaration */
 static bool parse_function_declaration(CTokenizer *t, FILE *out) {
-    /* Look for function name pattern: type name(params) */
-    /* This is simplified - real C parsing is more complex */
+    /* Save position to restore if this isn't a function */
+    int saved_pos = t->pos;
+    int saved_line = t->line;
     
-    /* Skip until we find something that looks like a function */
+    /* Look for pattern: [static|extern|inline]* type function_name(params) [;|{] */
+    /* Skip storage class specifiers */
     char *token = next_token(t);
-    if (!token) return false;
+    while (token && (strcmp(token, "static") == 0 || strcmp(token, "extern") == 0 || 
+                     strcmp(token, "inline") == 0 || strcmp(token, "_inline") == 0)) {
+        free(token);
+        token = next_token(t);
+    }
     
-    /* Check if this looks like a function declaration */
-    /* We'll look for patterns like: return_type function_name( */
+    if (!token) {
+        t->pos = saved_pos;
+        t->line = saved_line;
+        return false;
+    }
     
-    /* For now, we'll use a simpler approach: generate extern declarations manually */
-    /* This is a placeholder - full C parsing would require a proper parser */
-    
+    /* Try to parse return type */
+    char return_type[256] = "";
+    strncpy(return_type, token, sizeof(return_type) - 1);
     free(token);
-    return false;
+    
+    /* Collect return type (may be multiple tokens: "unsigned", "long", "int") */
+    token = next_token(t);
+    while (token && (strcmp(token, "unsigned") == 0 || strcmp(token, "signed") == 0 ||
+                     strcmp(token, "long") == 0 || strcmp(token, "short") == 0 ||
+                     strcmp(token, "const") == 0)) {
+        char temp[512];
+        snprintf(temp, sizeof(temp), "%s %s", return_type, token);
+        strncpy(return_type, temp, sizeof(return_type) - 1);
+        free(token);
+        token = next_token(t);
+    }
+    
+    /* Now we should have the function name */
+    if (!token) {
+        t->pos = saved_pos;
+        t->line = saved_line;
+        return false;
+    }
+    
+    char *func_name = token;
+    
+    /* Check if next token is '(' - if not, this isn't a function */
+    token = next_token(t);
+    if (!token || strcmp(token, "(") != 0) {
+        free(func_name);
+        if (token) free(token);
+        t->pos = saved_pos;
+        t->line = saved_line;
+        return false;
+    }
+    free(token);
+    
+    /* Parse parameters */
+    fprintf(out, "extern fn %s(", func_name);
+    bool first_param = true;
+    
+    token = next_token(t);
+    while (token && strcmp(token, ")") != 0) {
+        if (strcmp(token, ",") == 0) {
+            free(token);
+            token = next_token(t);
+            continue;
+        }
+        
+        if (!first_param) {
+            fprintf(out, ", ");
+        }
+        first_param = false;
+        
+        /* Parse parameter type */
+        char param_type[256] = "";
+        strncpy(param_type, token, sizeof(param_type) - 1);
+        free(token);
+        
+        /* Collect type modifiers and base type */
+        token = next_token(t);
+        char param_name[128] = "";
+        
+        while (token && strcmp(token, ",") != 0 && strcmp(token, ")") != 0) {
+            /* Check if this is a type keyword or modifier */
+            if (is_c_type_keyword(token) || strcmp(token, "*") == 0 || strcmp(token, "**") == 0) {
+                /* This is part of the type */
+                char temp[512];
+                if (strcmp(token, "*") == 0 || strcmp(token, "**") == 0) {
+                    snprintf(temp, sizeof(temp), "%s%s", param_type, token);
+                } else {
+                    snprintf(temp, sizeof(temp), "%s %s", param_type, token);
+                }
+                strncpy(param_type, temp, sizeof(param_type) - 1);
+                free(token);
+                token = next_token(t);
+            } else if ((isalpha(token[0]) || token[0] == '_') && strlen(param_type) > 0) {
+                /* If we already have a type, this is likely the parameter name */
+                /* But check if it might be a struct/enum name first */
+                /* For now, assume it's the parameter name if we have a base type */
+                snprintf(param_name, sizeof(param_name), "%s", token);
+                free(token);
+                token = next_token(t);
+                break;  /* Parameter name found, stop collecting type */
+            } else {
+                /* Unknown - might be struct name or parameter name */
+                /* If it looks like an identifier and we don't have a type yet, it might be a struct name */
+                if (isalpha(token[0]) || token[0] == '_') {
+                    char temp[512];
+                    snprintf(temp, sizeof(temp), "%s %s", param_type, token);
+                    strncpy(param_type, temp, sizeof(param_type) - 1);
+                    free(token);
+                    token = next_token(t);
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        /* Skip array brackets */
+        while (token && strcmp(token, "[") == 0) {
+            free(token);
+            token = next_token(t);  /* Skip '[' */
+            if (token) {
+                free(token);
+                token = next_token(t);  /* Skip size or ']' */
+            }
+            if (token && strcmp(token, "]") != 0) {
+                free(token);
+                token = next_token(t);  /* Skip ']' */
+            } else if (token) {
+                free(token);
+            }
+            if (token) {
+                free(token);
+                token = next_token(t);
+            }
+        }
+        
+        /* Map C type to nanolang type */
+        const char *nano_type = map_c_type_to_nano(param_type);
+        if (param_name[0] != '\0') {
+            fprintf(out, "%s: %s", param_name, nano_type);
+        } else {
+            static int param_num = 0;
+            fprintf(out, "param%d: %s", param_num++, nano_type);
+        }
+        
+        if (token && strcmp(token, ",") == 0) {
+            free(token);
+            token = next_token(t);
+        }
+    }
+    
+    if (token) free(token);
+    
+    fprintf(out, ") -> %s\n", map_c_type_to_nano(return_type));
+    
+    /* Skip to semicolon or opening brace */
+    token = next_token(t);
+    while (token && strcmp(token, ";") != 0 && strcmp(token, "{") != 0) {
+        free(token);
+        token = next_token(t);
+    }
+    if (token) free(token);
+    
+    return true;
 }
 
 /* Generate nanolang module from C header */
@@ -203,14 +368,34 @@ static bool generate_module(const char *header_file, FFIOptions *opts) {
     }
     
     /* Parse header and generate extern declarations */
-    /* For now, we'll generate a template that users can fill in */
-    fprintf(out, "# TODO: Add extern function declarations here\n");
-    fprintf(out, "# Example:\n");
-    fprintf(out, "# extern fn function_name(param1: int, param2: string) -> int\n\n");
+    CTokenizer tokenizer;
+    tokenizer.source = source;
+    tokenizer.pos = 0;
+    tokenizer.line = 1;
     
-    fprintf(out, "# Note: This is a template module.\n");
-    fprintf(out, "# You need to manually add extern declarations based on the C header.\n");
-    fprintf(out, "# Future versions will auto-generate these from the header file.\n");
+    fprintf(out, "# Extern function declarations (auto-generated)\n\n");
+    
+    int function_count = 0;
+    size_t source_len = strlen(source);
+    while ((size_t)tokenizer.pos < source_len) {
+        if (parse_function_declaration(&tokenizer, out)) {
+            function_count++;
+        } else {
+            /* Skip one token and try again */
+            char *token = next_token(&tokenizer);
+            if (!token) break;
+            free(token);
+        }
+    }
+    
+    if (function_count == 0) {
+        fprintf(out, "# No function declarations found in header.\n");
+        fprintf(out, "# You may need to manually add extern declarations.\n");
+        fprintf(out, "# Example:\n");
+        fprintf(out, "# extern fn function_name(param1: int, param2: string) -> int\n");
+    }
+    
+    fprintf(out, "\n");
     
     free(source);
     fclose(out);

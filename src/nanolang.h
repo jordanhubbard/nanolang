@@ -540,4 +540,24 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
 bool compile_module_to_object(const char *module_path, const char *output_obj, Environment *env, bool verbose);
 bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_buffer, size_t buffer_size, bool verbose);
 
+/* Module metadata for serialization */
+typedef struct {
+    char *module_name;
+    int function_count;
+    Function *functions;  /* Array of function signatures */
+    int struct_count;
+    StructDef *structs;
+    int enum_count;
+    EnumDef *enums;
+    int union_count;
+    UnionDef *unions;
+} ModuleMetadata;
+
+/* Module metadata serialization */
+ModuleMetadata *extract_module_metadata(Environment *env, const char *module_name);
+void free_module_metadata(ModuleMetadata *meta);
+char *serialize_module_metadata_to_c(ModuleMetadata *meta);
+bool deserialize_module_metadata_from_c(const char *c_code, ModuleMetadata **meta_out);
+bool embed_metadata_in_module_c(char *c_code, ModuleMetadata *meta, size_t buffer_size);
+
 #endif /* NANOLANG_H */
