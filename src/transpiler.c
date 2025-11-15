@@ -611,8 +611,8 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
                     /* This is an enum, use int64_t */
                     sb_appendf(sb, "%s %s = ", type_to_c(TYPE_INT), stmt->as.let.name);
                 } else {
-                    /* Regular struct type */
-                    const char *struct_name = get_struct_type_from_expr(stmt->as.let.value);
+                    /* Regular struct type - prefer explicit type_name over inferred type */
+                    const char *struct_name = stmt->as.let.type_name ? stmt->as.let.type_name : get_struct_type_from_expr(stmt->as.let.value);
                     if (struct_name) {
                         if (is_runtime_typedef(struct_name) || conflicts_with_runtime(struct_name)) {
                             /* Runtime types or types that conflict with runtime - use bare typename */
@@ -1312,7 +1312,10 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             
             /* Regular functions - forward declare with nl_ prefix */
             /* Function return type */
-            if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
+            if (item->as.function.return_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
+                /* Generic list return type: List<ElementType> -> List_ElementType* */
+                sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
+            } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
                 if (is_runtime_typedef(item->as.function.return_struct_type_name)) {
                     sb_append(sb, item->as.function.return_struct_type_name);
                 } else {
@@ -1329,7 +1332,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             for (int j = 0; j < item->as.function.param_count; j++) {
                 if (j > 0) sb_append(sb, ", ");
                 
-                if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
+                if (item->as.function.params[j].type == TYPE_LIST_GENERIC && item->as.function.params[j].struct_type_name) {
+                    /* Generic list parameter: List<ElementType> -> List_ElementType* */
+                    sb_appendf(sb, "List_%s* %s",
+                              item->as.function.params[j].struct_type_name,
+                              item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
                     if (is_runtime_typedef(item->as.function.params[j].struct_type_name)) {
                         sb_appendf(sb, "%s %s",
                                   item->as.function.params[j].struct_type_name,
@@ -1360,7 +1368,10 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             }
             
             /* Function return type */
-            if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
+            if (item->as.function.return_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
+                /* Generic list return type: List<ElementType> -> List_ElementType* */
+                sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
+            } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
                 if (is_runtime_typedef(item->as.function.return_struct_type_name)) {
                     sb_append(sb, item->as.function.return_struct_type_name);
                 } else {
@@ -1377,7 +1388,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             for (int j = 0; j < item->as.function.param_count; j++) {
                 if (j > 0) sb_append(sb, ", ");
                 
-                if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
+                if (item->as.function.params[j].type == TYPE_LIST_GENERIC && item->as.function.params[j].struct_type_name) {
+                    /* Generic list parameter: List<ElementType> -> List_ElementType* */
+                    sb_appendf(sb, "List_%s* %s",
+                              item->as.function.params[j].struct_type_name,
+                              item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
                     if (is_runtime_typedef(item->as.function.params[j].struct_type_name)) {
                         sb_appendf(sb, "%s %s",
                                   item->as.function.params[j].struct_type_name,
