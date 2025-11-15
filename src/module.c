@@ -196,3 +196,143 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
     return true;
 }
 
+/* Compile a single module to an object file */
+bool compile_module_to_object(const char *module_path, const char *output_obj, Environment *env_unused, bool verbose) {
+    (void)env_unused;  /* Not used - we create our own environment */
+    if (!module_path || !output_obj) return false;
+    
+    /* Create a separate environment for module compilation to avoid symbol conflicts */
+    Environment *module_env = create_environment();
+    
+    /* Load and type-check the module */
+    ASTNode *module_ast = load_module(module_path, module_env);
+    if (!module_ast) {
+        fprintf(stderr, "Error: Failed to load module '%s' for compilation\n", module_path);
+        free_environment(module_env);
+        return false;
+    }
+    
+    /* Transpile module to C */
+    char *c_code = transpile_to_c(module_ast, module_env);
+    if (!c_code) {
+        fprintf(stderr, "Error: Failed to transpile module '%s'\n", module_path);
+        free_ast(module_ast);
+        free_environment(module_env);
+        return false;
+    }
+    
+    /* Write C code to temporary file */
+    char temp_c_file[512];
+    snprintf(temp_c_file, sizeof(temp_c_file), "%s.c", output_obj);
+    
+    FILE *c_file = fopen(temp_c_file, "w");
+    if (!c_file) {
+        fprintf(stderr, "Error: Could not create C file '%s'\n", temp_c_file);
+        free(c_code);
+        free_ast(module_ast);
+        return false;
+    }
+    
+    fprintf(c_file, "%s", c_code);
+    fclose(c_file);
+    
+    if (verbose) {
+        printf("✓ Generated module C code: %s\n", temp_c_file);
+    }
+    
+    /* Compile C code to object file */
+    /* Note: Runtime files are linked separately, not compiled into module objects */
+    char compile_cmd[1024];
+    if (verbose) {
+        snprintf(compile_cmd, sizeof(compile_cmd),
+                "gcc -std=c99 -Isrc -c -o %s %s",
+                output_obj, temp_c_file);
+    } else {
+        snprintf(compile_cmd, sizeof(compile_cmd),
+                "gcc -std=c99 -Isrc -c -o %s %s 2>/dev/null",
+                output_obj, temp_c_file);
+    }
+    
+    if (verbose) {
+        printf("Compiling module: %s\n", compile_cmd);
+    }
+    
+    int result = system(compile_cmd);
+    
+    /* Clean up temporary C file */
+    remove(temp_c_file);
+    
+    if (result != 0) {
+        fprintf(stderr, "Error: Failed to compile module '%s' to object file\n", module_path);
+        free(c_code);
+        free_ast(module_ast);
+        free_environment(module_env);
+        return false;
+    }
+    
+    if (verbose) {
+        printf("✓ Compiled module to object file: %s\n", output_obj);
+    }
+    
+    free(c_code);
+    free_ast(module_ast);
+    free_environment(module_env);
+    return true;
+}
+
+/* Compile all modules in the list to object files */
+bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_buffer, size_t buffer_size, bool verbose) {
+    if (!modules || !module_objs_buffer || buffer_size == 0) {
+        return false;
+    }
+    
+    module_objs_buffer[0] = '\0';
+    
+    if (modules->count == 0) {
+        return true;  /* No modules to compile */
+    }
+    
+    if (verbose) {
+        printf("Compiling %d module(s) to object files...\n", modules->count);
+    }
+    
+    for (int i = 0; i < modules->count; i++) {
+        const char *module_path = modules->module_paths[i];
+        
+        /* Generate object file name from module path */
+        char obj_file[512];
+        const char *last_slash = strrchr(module_path, '/');
+        const char *base_name = last_slash ? last_slash + 1 : module_path;
+        
+        /* Remove .nano extension */
+        char base_without_ext[256];
+        snprintf(base_without_ext, sizeof(base_without_ext), "%s", base_name);
+        char *dot = strrchr(base_without_ext, '.');
+        if (dot && strcmp(dot, ".nano") == 0) {
+            *dot = '\0';
+        }
+        
+        /* Generate object file path */
+        snprintf(obj_file, sizeof(obj_file), "obj/%s.o", base_without_ext);
+        
+        /* Ensure obj directory exists */
+        system("mkdir -p obj 2>/dev/null");
+        
+        /* Compile module to object file */
+        if (!compile_module_to_object(module_path, obj_file, env, verbose)) {
+            fprintf(stderr, "Error: Failed to compile module '%s'\n", module_path);
+            return false;
+        }
+        
+        /* Add to module_objs buffer */
+        if (strlen(module_objs_buffer) + strlen(obj_file) + 1 < buffer_size) {
+            if (module_objs_buffer[0] != '\0') {
+                strcat(module_objs_buffer, " ");
+            }
+            strcat(module_objs_buffer, obj_file);
+        }
+    }
+    
+    return true;
+}
+

@@ -126,16 +126,22 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     fclose(c_file);
     if (opts->verbose) printf("✓ Generated C code: %s\n", temp_c_file);
 
-    /* Compile modules to object files if needed */
-    /* For now, modules are loaded at compile time and their symbols are available */
-    /* Future: compile each module to .o and link statically */
-    
-    /* Build gcc command with module object files */
+    /* Compile modules to object files */
     char compile_cmd[4096];
-    char module_objs[1024] = "";
+    char module_objs[2048] = "";
     
-    /* TODO: Compile modules to .o files and add to module_objs */
-    /* For now, modules are handled by loading them during compilation */
+    if (modules->count > 0) {
+        if (!compile_modules(modules, env, module_objs, sizeof(module_objs), opts->verbose)) {
+            fprintf(stderr, "Error: Failed to compile modules\n");
+            free(c_code);
+            free_ast(program);
+            free_tokens(tokens, token_count);
+            free_environment(env);
+            free_module_list(modules);
+            free(source);
+            return 1;
+        }
+    }
     
     /* Build include flags */
     char include_flags[2048] = "-Isrc";
@@ -161,14 +167,33 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         strncat(lib_flags, temp, sizeof(lib_flags) - strlen(lib_flags) - 1);
     }
     
+    /* Check if SDL helpers are needed */
+    bool needs_sdl_helpers = false;
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_FUNCTION && item->as.function.is_extern) {
+            const char *func_name = item->as.function.name;
+            if (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "nl_sdl_", 7) == 0) {
+                needs_sdl_helpers = true;
+                break;
+            }
+        }
+    }
+    
+    /* Build runtime files string */
+    char runtime_files[512] = "src/runtime/list_int.c src/runtime/list_string.c";
+    if (needs_sdl_helpers) {
+        strncat(runtime_files, " src/runtime/sdl_helpers.c", sizeof(runtime_files) - strlen(runtime_files) - 1);
+    }
+    
     if (opts->verbose) {
         snprintf(compile_cmd, sizeof(compile_cmd), 
-                "gcc -std=c99 %s -o %s %s %s src/runtime/list_int.c src/runtime/list_string.c %s %s", 
-                include_flags, output_file, temp_c_file, module_objs, lib_path_flags, lib_flags);
+                "gcc -std=c99 %s -o %s %s %s %s %s %s", 
+                include_flags, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
     } else {
         snprintf(compile_cmd, sizeof(compile_cmd), 
-                "gcc -std=c99 %s -o %s %s %s src/runtime/list_int.c src/runtime/list_string.c %s %s 2>/dev/null", 
-                include_flags, output_file, temp_c_file, module_objs, lib_path_flags, lib_flags);
+                "gcc -std=c99 %s -o %s %s %s %s %s %s 2>/dev/null", 
+                include_flags, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
     }
 
     if (opts->verbose) printf("Compiling C code: %s\n", compile_cmd);

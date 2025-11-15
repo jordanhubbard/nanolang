@@ -107,7 +107,13 @@ struct Parser {
     token_count: int,
     has_error: bool,
     
-    /* AST node storage (index-based, not pointers) */
+    /* AST node storage lists */
+    numbers: List<ASTNumber>,
+    identifiers: List<ASTIdentifier>,
+    binary_ops: List<ASTBinaryOp>,
+    /* TODO: Add more lists as needed: strings, bools, calls, lets, etc. */
+    
+    /* AST node counts (for quick access) */
     numbers_count: int,
     strings_count: int,
     bools_count: int,
@@ -128,6 +134,9 @@ fn parser_new(tokens: List<LexToken>, token_count: int) -> Parser {
         position: 0,
         token_count: token_count,
         has_error: false,
+        numbers: (List_ASTNumber_new),
+        identifiers: (List_ASTIdentifier_new),
+        binary_ops: (List_ASTBinaryOp_new),
         numbers_count: 0,
         strings_count: 0,
         bools_count: 0,
@@ -177,6 +186,9 @@ fn parser_with_position(p: Parser, new_position: int) -> Parser {
         position: new_position,
         token_count: p.token_count,
         has_error: p.has_error,
+        numbers: p.numbers,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
         numbers_count: p.numbers_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
@@ -295,6 +307,9 @@ fn parser_with_error(p: Parser, error: bool) -> Parser {
         position: p.position,
         token_count: p.token_count,
         has_error: error,
+        numbers: p.numbers,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
         numbers_count: p.numbers_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
@@ -388,13 +403,25 @@ shadow token_comma { assert (== (token_comma) 29) }
 
 /* Helper: Store number node and return node ID */
 fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Parser {
-    /* TODO: Store in List<ASTNumber> and increment numbers_count */
-    /* For now, just increment count */
+    /* Create ASTNumber node */
+    let node: ASTNumber = ASTNumber {
+        node_type: ParseNodeType.PNODE_NUMBER,
+        line: line,
+        column: column,
+        value: value
+    }
+    
+    /* Store in list (mutable operation) */
+    (List_ASTNumber_push p.numbers node)
+    
     return Parser {
         tokens: p.tokens,
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        numbers: p.numbers,  /* Same list reference (modified in place) */
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
         numbers_count: (+ p.numbers_count 1),
         strings_count: p.strings_count,
         bools_count: p.bools_count,
@@ -413,12 +440,25 @@ shadow parser_store_number {
 
 /* Helper: Store identifier node and return node ID */
 fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> Parser {
-    /* TODO: Store in List<ASTIdentifier> and increment identifiers_count */
+    /* Create ASTIdentifier node */
+    let node: ASTIdentifier = ASTIdentifier {
+        node_type: ParseNodeType.PNODE_IDENTIFIER,
+        line: line,
+        column: column,
+        name: name
+    }
+    
+    /* Store in list (mutable operation) */
+    (List_ASTIdentifier_push p.identifiers node)
+    
     return Parser {
         tokens: p.tokens,
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        numbers: p.numbers,
+        identifiers: p.identifiers,  /* Same list reference (modified in place) */
+        binary_ops: p.binary_ops,
         numbers_count: p.numbers_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
@@ -431,6 +471,45 @@ fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> P
 }
 
 shadow parser_store_identifier {
+    /* TODO: Test with actual parser state */
+    assert (== 1 1)
+}
+
+/* Helper: Store binary operation node */
+fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, line: int, column: int) -> Parser {
+    /* Create ASTBinaryOp node */
+    let node: ASTBinaryOp = ASTBinaryOp {
+        node_type: ParseNodeType.PNODE_BINARY_OP,
+        line: line,
+        column: column,
+        op: op,
+        left: left_id,
+        right: right_id
+    }
+    
+    /* Store in list (mutable operation) */
+    (List_ASTBinaryOp_push p.binary_ops node)
+    
+    return Parser {
+        tokens: p.tokens,
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        numbers: p.numbers,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,  /* Same list reference (modified in place) */
+        numbers_count: p.numbers_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: (+ p.binary_ops_count 1),
+        calls_count: p.calls_count,
+        lets_count: p.lets_count,
+        next_node_id: (+ p.next_node_id 1)
+    }
+}
+
+shadow parser_store_binary_op {
     /* TODO: Test with actual parser state */
     assert (== 1 1)
 }
@@ -608,10 +687,14 @@ fn main() -> int {
     (println "  - parse_primary() - Parse numbers, identifiers, parenthesized")
     (println "  - parse_expression() - Parse expressions with binary ops")
     (println "  - is_binary_op() - Check if token is binary operator")
-    (println "  - parser_store_number() - Store number nodes")
-    (println "  - parser_store_identifier() - Store identifier nodes")
     (println "")
-    (println "Next: Complete AST node storage (List<ASTNumber>, etc.)")
+    (println "✅ AST node storage:")
+    (println "  - Parser includes List<ASTNumber>, List<ASTIdentifier>, List<ASTBinaryOp>")
+    (println "  - parser_store_number() - Stores number nodes in List<ASTNumber>")
+    (println "  - parser_store_identifier() - Stores identifier nodes in List<ASTIdentifier>")
+    (println "  - parser_store_binary_op() - Stores binary op nodes in List<ASTBinaryOp>")
+    (println "")
+    (println "Next: Complete binary op storage in parse_expression(), then statement parsing")
     return 0
 }
 

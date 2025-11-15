@@ -593,6 +593,8 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             Function *func_def = env_get_function(env, func_name);
             bool is_sdl_func = func_def && func_def->is_extern && 
                               (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "TTF_", 4) == 0);
+            bool is_nl_sdl_helper = func_def && func_def->is_extern && 
+                                   strncmp(func_name, "nl_sdl_", 7) == 0;
             
             for (int i = 0; i < expr->as.call.arg_count; i++) {
                 if (i > 0) sb_append(sb, ", ");
@@ -604,6 +606,9 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                         /* Cast int to pointer type */
                         sb_appendf(sb, "(%s)", sdl_param_type);
                     }
+                } else if (is_nl_sdl_helper && func_def && i < func_def->param_count) {
+                    /* nl_sdl_ helpers: first param is SDL_Renderer* passed as int64_t */
+                    /* Don't cast - the helper function accepts int64_t and casts internally */
                 }
                 
                 transpile_expression(sb, expr->as.call.args[i], env);
@@ -1698,16 +1703,38 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         sb_append(sb, "\n");
     }
     
-    /* Forward declare all functions */
+    /* Forward declare all functions (including module functions) */
+    /* First, collect function names from current program AST */
+    bool *program_functions = calloc(env->function_count, sizeof(bool));
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_FUNCTION) {
-            /* Skip extern functions - they're declared above */
-            if (item->as.function.is_extern) {
-                continue;
+            /* Find function in environment and mark it */
+            for (int j = 0; j < env->function_count; j++) {
+                if (strcmp(env->functions[j].name, item->as.function.name) == 0) {
+                    program_functions[j] = true;
+                    break;
+                }
             }
-            
-            /* Regular functions - forward declare with nl_ prefix */
+        }
+    }
+    
+    /* Forward declare module functions (functions in env but not in program AST) */
+    sb_append(sb, "/* Forward declarations for module functions */\n");
+    for (int i = 0; i < env->function_count; i++) {
+        Function *func = &env->functions[i];
+        
+        /* Skip extern functions - they're declared above */
+        if (func->is_extern) {
+            continue;
+        }
+        
+        /* Skip functions that are in the current program (they'll be declared below) */
+        if (program_functions[i]) {
+            continue;
+        }
+        
+        /* Module function - forward declare with nl_ prefix */
             /* Function return type */
             if (item->as.function.return_type == TYPE_FUNCTION && item->as.function.return_fn_sig) {
                 /* Function return type: use typedef */
@@ -1846,10 +1873,14 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     }
 
     /* Add C main() wrapper that calls nl_main() for standalone executables */
-    sb_append(sb, "\n/* C main() entry point - calls nanolang main (nl_main) */\n");
-    sb_append(sb, "int main() {\n");
-    sb_append(sb, "    return (int)nl_main();\n");
-    sb_append(sb, "}\n");
+    /* Only add if there's a main function (modules don't have main) */
+    Function *main_func = env_get_function(env, "main");
+    if (main_func && !main_func->is_extern) {
+        sb_append(sb, "\n/* C main() entry point - calls nanolang main (nl_main) */\n");
+        sb_append(sb, "int main() {\n");
+        sb_append(sb, "    return (int)nl_main();\n");
+        sb_append(sb, "}\n");
+    }
 
     /* Cleanup */
     free_fn_type_registry(fn_registry);
