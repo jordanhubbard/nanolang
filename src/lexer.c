@@ -41,6 +41,7 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "enum") == 0) return TOKEN_ENUM;
     if (strcmp(str, "union") == 0) return TOKEN_UNION;
     if (strcmp(str, "match") == 0) return TOKEN_MATCH;
+    if (strcmp(str, "import") == 0) return TOKEN_IMPORT;
 
     /* Boolean literals */
     if (strcmp(str, "true") == 0) return TOKEN_TRUE;

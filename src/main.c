@@ -47,36 +47,54 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     }
     if (opts->verbose) printf("✓ Parsing complete\n");
 
-    /* Phase 3: Type Checking */
+    /* Phase 3: Create environment and process imports */
     Environment *env = create_environment();
+    ModuleList *modules = create_module_list();
+    if (!process_imports(program, env, modules, input_file)) {
+        fprintf(stderr, "Module loading failed\n");
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        free(source);
+        return 1;
+    }
+    if (opts->verbose && modules->count > 0) {
+        printf("✓ Loaded %d module(s)\n", modules->count);
+    }
+
+    /* Phase 4: Type Checking */
     if (!type_check(program, env)) {
         fprintf(stderr, "Type checking failed\n");
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
+        free_module_list(modules);
         free(source);
         return 1;
     }
     if (opts->verbose) printf("✓ Type checking complete\n");
 
-    /* Phase 4: Shadow-Test Execution */
+    /* Phase 5: Shadow-Test Execution */
     if (!run_shadow_tests(program, env)) {
         fprintf(stderr, "Shadow tests failed\n");
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
+        free_module_list(modules);
         free(source);
         return 1;
     }
     if (opts->verbose) printf("✓ Shadow tests passed\n");
 
-    /* Phase 5: C Transpilation */
+    /* Phase 6: C Transpilation */
     char *c_code = transpile_to_c(program, env);
     if (!c_code) {
         fprintf(stderr, "Transpilation failed\n");
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
+        free_module_list(modules);
         free(source);
         return 1;
     }
@@ -93,6 +111,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
+        free_module_list(modules);
         free(source);
         return 1;
     }
@@ -101,16 +120,25 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     fclose(c_file);
     if (opts->verbose) printf("✓ Generated C code: %s\n", temp_c_file);
 
-    /* Compile C code with gcc (include runtime) */
-    char compile_cmd[1024];
+    /* Compile modules to object files if needed */
+    /* For now, modules are loaded at compile time and their symbols are available */
+    /* Future: compile each module to .o and link statically */
+    
+    /* Build gcc command with module object files */
+    char compile_cmd[2048];
+    char module_objs[1024] = "";
+    
+    /* TODO: Compile modules to .o files and add to module_objs */
+    /* For now, modules are handled by loading them during compilation */
+    
     if (opts->verbose) {
         snprintf(compile_cmd, sizeof(compile_cmd), 
-                "gcc -std=c99 -Isrc -o %s %s src/runtime/list_int.c src/runtime/list_string.c -lm", 
-                output_file, temp_c_file);
+                "gcc -std=c99 -Isrc -o %s %s %s src/runtime/list_int.c src/runtime/list_string.c -lm", 
+                output_file, temp_c_file, module_objs);
     } else {
         snprintf(compile_cmd, sizeof(compile_cmd), 
-                "gcc -std=c99 -Isrc -o %s %s src/runtime/list_int.c src/runtime/list_string.c -lm 2>/dev/null", 
-                output_file, temp_c_file);
+                "gcc -std=c99 -Isrc -o %s %s %s src/runtime/list_int.c src/runtime/list_string.c -lm 2>/dev/null", 
+                output_file, temp_c_file, module_objs);
     }
 
     if (opts->verbose) printf("Compiling C code: %s\n", compile_cmd);
@@ -131,6 +159,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     free_ast(program);
     free_tokens(tokens, token_count);
     free_environment(env);
+    free_module_list(modules);
     free(source);
 
     return result;

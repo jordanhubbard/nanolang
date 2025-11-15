@@ -190,6 +190,58 @@ static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
     sb_append(sb, ");\n");
 }
 
+/* Get SDL C type for a function parameter/return based on function name and position */
+static const char *get_sdl_c_type(const char *func_name, int param_index, bool is_return) {
+    if (!func_name || strncmp(func_name, "SDL_", 4) != 0) {
+        if (func_name && strncmp(func_name, "TTF_", 4) == 0) {
+            /* TTF functions */
+            if (is_return) {
+                if (strstr(func_name, "OpenFont")) return "TTF_Font*";
+                if (strstr(func_name, "RenderText")) return "SDL_Surface*";
+            }
+            if (param_index == 0 && strstr(func_name, "CloseFont")) return "TTF_Font*";
+            if (param_index == 0 && strstr(func_name, "RenderText")) return "TTF_Font*";
+        }
+        return NULL;
+    }
+    
+    if (is_return) {
+        /* Return types */
+        if (strstr(func_name, "CreateWindow")) return "SDL_Window*";
+        if (strstr(func_name, "CreateRenderer")) return "SDL_Renderer*";
+        if (strstr(func_name, "CreateTexture")) return "SDL_Texture*";
+        if (strstr(func_name, "GetError")) return "const char*";
+        if (strstr(func_name, "GetTicks")) return "Uint32";
+        if (strstr(func_name, "PollEvent")) return "int";
+        return NULL;
+    } else {
+        /* Parameter types */
+        if (param_index == 0) {
+            /* First parameter */
+            if (strstr(func_name, "DestroyWindow")) return "SDL_Window*";
+            if (strstr(func_name, "DestroyRenderer")) return "SDL_Renderer*";
+            if (strstr(func_name, "DestroyTexture")) return "SDL_Texture*";
+            if (strstr(func_name, "CreateRenderer")) return "SDL_Window*";
+            if (strstr(func_name, "RenderClear") || strstr(func_name, "RenderPresent") ||
+                strstr(func_name, "SetRenderDrawColor") || strstr(func_name, "RenderFillRect") ||
+                strstr(func_name, "RenderDrawPoint") || strstr(func_name, "RenderDrawLine") ||
+                strstr(func_name, "SetRenderDrawBlendMode") || strstr(func_name, "RenderCopy") ||
+                strstr(func_name, "CreateTextureFromSurface")) return "SDL_Renderer*";
+            if (strstr(func_name, "QueryTexture")) return "SDL_Texture*";
+            if (strstr(func_name, "PollEvent")) return "SDL_Event*";
+            if (strstr(func_name, "FreeSurface")) return "SDL_Surface*";
+        }
+        if (strstr(func_name, "RenderFillRect") && param_index == 1) return "const SDL_Rect*";
+        if (strstr(func_name, "RenderCopy")) {
+            if (param_index == 2) return "const SDL_Rect*";
+            if (param_index == 3) return "const SDL_Rect*";
+        }
+        if (strstr(func_name, "QueryTexture") && param_index >= 2) return "int*";
+        if (strstr(func_name, "RenderText_Solid") && param_index == 2) return "SDL_Color";
+    }
+    return NULL;
+}
+
 /* Transpile type to C type */
 static const char *type_to_c(Type type) {
     switch (type) {
@@ -519,8 +571,24 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             }
 
             sb_appendf(sb, "%s(", func_name);
+            
+            /* Check if this is an SDL function that needs pointer casts */
+            Function *func_def = env_get_function(env, func_name);
+            bool is_sdl_func = func_def && func_def->is_extern && 
+                              (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "TTF_", 4) == 0);
+            
             for (int i = 0; i < expr->as.call.arg_count; i++) {
                 if (i > 0) sb_append(sb, ", ");
+                
+                /* Check if this parameter needs a cast for SDL functions */
+                if (is_sdl_func && func_def && i < func_def->param_count) {
+                    const char *sdl_param_type = get_sdl_c_type(func_name, i, false);
+                    if (sdl_param_type && func_def->params[i].type == TYPE_INT) {
+                        /* Cast int to pointer type */
+                        sb_appendf(sb, "(%s)", sdl_param_type);
+                    }
+                }
+                
                 transpile_expression(sb, expr->as.call.args[i], env);
             }
             sb_append(sb, ")");
@@ -930,6 +998,33 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "#include <time.h>\n");
     sb_append(sb, "#include <stdarg.h>\n");
     sb_append(sb, "#include <math.h>\n");
+    
+    /* Check for SDL extern functions and add includes */
+    bool has_sdl = false;
+    bool has_sdl_ttf = false;
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_FUNCTION && item->as.function.is_extern) {
+            const char *func_name = item->as.function.name;
+            if (strncmp(func_name, "SDL_", 4) == 0 || 
+                strncmp(func_name, "TTF_", 4) == 0) {
+                has_sdl = true;
+                if (strncmp(func_name, "TTF_", 4) == 0) {
+                    has_sdl_ttf = true;
+                }
+            }
+        }
+    }
+    
+    if (has_sdl) {
+        sb_append(sb, "#include <SDL.h>\n");
+    }
+    if (has_sdl_ttf) {
+        sb_append(sb, "#ifdef HAVE_SDL_TTF\n");
+        sb_append(sb, "#include <SDL_ttf.h>\n");
+        sb_append(sb, "#endif\n");
+    }
+    
     sb_append(sb, "\n/* nanolang runtime */\n");
     sb_append(sb, "#include \"runtime/list_int.h\"\n");
     sb_append(sb, "#include \"runtime/list_string.h\"\n");
@@ -1520,11 +1615,59 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         sb_append(sb, "\n");
     }
 
+    /* Generate extern function declarations */
+    sb_append(sb, "/* External C function declarations */\n");
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_FUNCTION && item->as.function.is_extern) {
+            /* Generate extern declaration with proper SDL types */
+            sb_append(sb, "extern ");
+            
+            const char *func_name = item->as.function.name;
+            const char *ret_type_c = type_to_c(item->as.function.return_type);
+            
+            /* Check for SDL-specific types */
+            const char *sdl_ret_type = get_sdl_c_type(func_name, -1, true);
+            if (sdl_ret_type) {
+                ret_type_c = sdl_ret_type;
+            } else if (item->as.function.return_type == TYPE_INT && 
+                      (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "TTF_", 4) == 0)) {
+                /* For SDL functions returning int that might be Uint32, check */
+                if (strstr(func_name, "GetTicks")) {
+                    ret_type_c = "Uint32";
+                }
+            }
+            
+            sb_append(sb, ret_type_c);
+            sb_appendf(sb, " %s(", func_name);
+            
+            for (int j = 0; j < item->as.function.param_count; j++) {
+                if (j > 0) sb_append(sb, ", ");
+                const char *param_type_c = type_to_c(item->as.function.params[j].type);
+                
+                /* Check for SDL-specific parameter types */
+                const char *sdl_param_type = get_sdl_c_type(func_name, j, false);
+                if (sdl_param_type) {
+                    param_type_c = sdl_param_type;
+                } else if (item->as.function.params[j].type == TYPE_INT && 
+                          (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "TTF_", 4) == 0)) {
+                    /* Keep as int64_t for non-pointer int parameters */
+                }
+                
+                sb_appendf(sb, "%s %s", param_type_c, item->as.function.params[j].name);
+            }
+            sb_append(sb, ");\n");
+        }
+    }
+    if (has_sdl || has_sdl_ttf) {
+        sb_append(sb, "\n");
+    }
+    
     /* Forward declare all functions */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_FUNCTION) {
-            /* Skip extern functions - they're declared in C headers */
+            /* Skip extern functions - they're declared above */
             if (item->as.function.is_extern) {
                 continue;
             }

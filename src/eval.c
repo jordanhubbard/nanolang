@@ -1884,6 +1884,11 @@ bool run_program(ASTNode *program, Environment *env) {
             continue;
         }
 
+        /* Skip imports - they're handled separately before execution */
+        if (item->type == AST_IMPORT) {
+            continue;
+        }
+
         /* Execute the item */
         eval_statement(item, env);
     }

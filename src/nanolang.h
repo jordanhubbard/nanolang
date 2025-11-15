@@ -52,6 +52,7 @@ typedef enum {
     TOKEN_ENUM,
     TOKEN_UNION,
     TOKEN_MATCH,
+    TOKEN_IMPORT,
 
     /* Types */
     TOKEN_TYPE_INT,
@@ -207,7 +208,8 @@ typedef enum {
     AST_ENUM_DEF,
     AST_UNION_DEF,
     AST_UNION_CONSTRUCT,
-    AST_MATCH
+    AST_MATCH,
+    AST_IMPORT
 } ASTNodeType;
 
 /* Forward declaration */
@@ -366,6 +368,11 @@ struct ASTNode {
             ASTNode **arm_bodies;
             char *union_type_name;  /* Filled during typechecking */
         } match_expr;
+        /* Import statement: import "module.nano" or import module */
+        struct {
+            char *module_path;  /* Path to module file (e.g., "math.nano" or "utils/math.nano") */
+            char *module_name;  /* Optional module name/alias */
+        } import_stmt;
     } as;
 };
 
@@ -465,6 +472,7 @@ void free_ast(ASTNode *node);
 
 /* Type Checker */
 bool type_check(ASTNode *program, Environment *env);
+bool type_check_module(ASTNode *program, Environment *env);  /* Type check without requiring main */
 Type check_expression(ASTNode *expr, Environment *env);
 
 /* Shadow-Test Runner */
@@ -515,5 +523,19 @@ Value create_function(const char *function_name, FunctionSignature *signature);
 FunctionSignature *create_function_signature(Type *param_types, int param_count, Type return_type);
 void free_function_signature(FunctionSignature *sig);
 bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2);
+
+/* Module loading */
+typedef struct {
+    char **module_paths;
+    int count;
+    int capacity;
+} ModuleList;
+
+ModuleList *create_module_list(void);
+void free_module_list(ModuleList *list);
+void module_list_add(ModuleList *list, const char *module_path);
+char *resolve_module_path(const char *module_path, const char *current_file);
+ASTNode *load_module(const char *module_path, Environment *env);
+bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
 
 #endif /* NANOLANG_H */

@@ -1767,6 +1767,11 @@ bool type_check(ASTNode *program, Environment *env) {
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         
+        /* Skip imports - they're handled separately */
+        if (item->type == AST_IMPORT) {
+            continue;
+        }
+        
         if (item->type == AST_STRUCT_DEF) {
             const char *struct_name = item->as.struct_def.name;
             
@@ -1955,6 +1960,12 @@ bool type_check(ASTNode *program, Environment *env) {
     /* Second pass: link shadow tests to functions */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
+        
+        /* Skip imports - they're handled separately */
+        if (item->type == AST_IMPORT) {
+            continue;
+        }
+        
         if (item->type == AST_SHADOW) {
             Function *func = env_get_function(env, item->as.shadow.function_name);
             if (!func) {
@@ -2038,6 +2049,274 @@ bool type_check(ASTNode *program, Environment *env) {
         fprintf(stderr, "Error: 'main' function must return int\n");
         tc.has_error = true;
     }
+
+    return !tc.has_error;
+}
+
+/* Type check a module (without requiring main function) */
+bool type_check_module(ASTNode *program, Environment *env) {
+    if (!program || program->type != AST_PROGRAM) {
+        fprintf(stderr, "Error: Invalid program AST\n");
+        return false;
+    }
+
+    TypeChecker tc;
+    tc.env = env;
+    tc.has_error = false;
+    tc.warnings_enabled = true;
+
+    /* Register built-in functions */
+    register_builtin_functions(env);
+
+    /* First pass: collect all struct, enum, and function definitions */
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        
+        /* Skip imports - they're handled separately */
+        if (item->type == AST_IMPORT) {
+            continue;
+        }
+        
+        if (item->type == AST_STRUCT_DEF) {
+            const char *struct_name = item->as.struct_def.name;
+            
+            /* Check if struct already defined */
+            if (env_get_struct(env, struct_name)) {
+                fprintf(stderr, "Error at line %d, column %d: Struct '%s' is already defined\n",
+                        item->line, item->column, struct_name);
+                tc.has_error = true;
+                continue;
+            }
+            
+            /* Register the struct */
+            StructDef sdef;
+            sdef.name = strdup(struct_name);
+            sdef.field_count = item->as.struct_def.field_count;
+            
+            /* Duplicate field names (AST will be freed) */
+            sdef.field_names = malloc(sizeof(char*) * sdef.field_count);
+            for (int j = 0; j < sdef.field_count; j++) {
+                sdef.field_names[j] = strdup(item->as.struct_def.field_names[j]);
+            }
+            
+            /* Duplicate field types */
+            sdef.field_types = malloc(sizeof(Type) * sdef.field_count);
+            for (int j = 0; j < sdef.field_count; j++) {
+                sdef.field_types[j] = item->as.struct_def.field_types[j];
+            }
+            
+            env_define_struct(env, sdef);
+            
+        } else if (item->type == AST_UNION_DEF) {
+            const char *union_name = item->as.union_def.name;
+            
+            /* Check if union already defined */
+            if (env_get_union(env, union_name)) {
+                fprintf(stderr, "Error at line %d, column %d: Union '%s' is already defined\n",
+                        item->line, item->column, union_name);
+                tc.has_error = true;
+                continue;
+            }
+            
+            /* Register the union */
+            UnionDef udef;
+            udef.name = strdup(union_name);
+            udef.variant_count = item->as.union_def.variant_count;
+            
+            /* Allocate variant names */
+            udef.variant_names = malloc(sizeof(char*) * udef.variant_count);
+            for (int j = 0; j < udef.variant_count; j++) {
+                udef.variant_names[j] = strdup(item->as.union_def.variant_names[j]);
+            }
+            
+            /* Allocate field counts */
+            udef.variant_field_counts = malloc(sizeof(int) * udef.variant_count);
+            for (int j = 0; j < udef.variant_count; j++) {
+                udef.variant_field_counts[j] = item->as.union_def.variant_field_counts[j];
+            }
+            
+            /* Allocate field names */
+            udef.variant_field_names = malloc(sizeof(char**) * udef.variant_count);
+            for (int j = 0; j < udef.variant_count; j++) {
+                int field_count = udef.variant_field_counts[j];
+                udef.variant_field_names[j] = malloc(sizeof(char*) * field_count);
+                for (int k = 0; k < field_count; k++) {
+                    udef.variant_field_names[j][k] = strdup(item->as.union_def.variant_field_names[j][k]);
+                }
+            }
+            
+            /* Allocate field types */
+            udef.variant_field_types = malloc(sizeof(Type*) * udef.variant_count);
+            for (int j = 0; j < udef.variant_count; j++) {
+                int field_count = udef.variant_field_counts[j];
+                udef.variant_field_types[j] = malloc(sizeof(Type) * field_count);
+                for (int k = 0; k < field_count; k++) {
+                    udef.variant_field_types[j][k] = item->as.union_def.variant_field_types[j][k];
+                }
+            }
+            
+            env_define_union(env, udef);
+            
+        } else if (item->type == AST_ENUM_DEF) {
+            const char *enum_name = item->as.enum_def.name;
+            
+            /* Check if enum already defined */
+            if (env_get_enum(env, enum_name)) {
+                fprintf(stderr, "Error at line %d, column %d: Enum '%s' is already defined\n",
+                        item->line, item->column, enum_name);
+                tc.has_error = true;
+                continue;
+            }
+            
+            /* Register the enum */
+            EnumDef edef;
+            edef.name = strdup(enum_name);
+            edef.variant_count = item->as.enum_def.variant_count;
+            edef.variant_names = malloc(sizeof(char*) * edef.variant_count);
+            edef.variant_values = malloc(sizeof(int) * edef.variant_count);
+            
+            for (int j = 0; j < edef.variant_count; j++) {
+                edef.variant_names[j] = strdup(item->as.enum_def.variant_names[j]);
+                edef.variant_values[j] = item->as.enum_def.variant_values ? 
+                    item->as.enum_def.variant_values[j] : j;
+            }
+            
+            env_define_enum(env, edef);
+            
+        } else if (item->type == AST_FUNCTION) {
+            const char *func_name = item->as.function.name;
+            
+            /* Check for duplicate function definitions */
+            Function *existing = env_get_function(env, func_name);
+            if (existing) {
+                fprintf(stderr, "Error at line %d, column %d: Function '%s' is already defined\n",
+                        item->line, item->column, func_name);
+                tc.has_error = true;
+                continue;
+            }
+            
+            /* Check if function name shadows a built-in */
+            if (is_builtin_function(func_name)) {
+                fprintf(stderr, "Error at line %d, column %d: Function '%s' shadows a built-in function\n",
+                        item->line, item->column, func_name);
+                tc.has_error = true;
+                continue;
+            }
+            
+            /* Register function signature */
+            Function f;
+            f.name = strdup(func_name);
+            f.param_count = item->as.function.param_count;
+            f.params = malloc(sizeof(Parameter) * f.param_count);
+            for (int j = 0; j < f.param_count; j++) {
+                f.params[j].name = strdup(item->as.function.params[j].name);
+                f.params[j].type = item->as.function.params[j].type;
+                f.params[j].struct_type_name = item->as.function.params[j].struct_type_name ? 
+                    strdup(item->as.function.params[j].struct_type_name) : NULL;
+                f.params[j].element_type = item->as.function.params[j].element_type;
+                f.params[j].fn_sig = item->as.function.params[j].fn_sig;
+            }
+            f.return_type = item->as.function.return_type;
+            f.return_struct_type_name = item->as.function.return_struct_type_name ? 
+                strdup(item->as.function.return_struct_type_name) : NULL;
+            f.return_fn_sig = item->as.function.return_fn_sig;
+            f.body = item->as.function.body;
+            f.shadow_test = NULL;  /* Will be linked in second pass */
+            f.is_extern = item->as.function.is_extern;
+            
+            env_define_function(env, f);
+        }
+    }
+
+    /* Second pass: link shadow tests to functions */
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        
+        /* Skip imports - they're handled separately */
+        if (item->type == AST_IMPORT) {
+            continue;
+        }
+        
+        if (item->type == AST_SHADOW) {
+            Function *func = env_get_function(env, item->as.shadow.function_name);
+            if (!func) {
+                fprintf(stderr, "Error at line %d, column %d: Shadow test for undefined function '%s'\n",
+                        item->line, item->column, item->as.shadow.function_name);
+                tc.has_error = true;
+                continue;
+            }
+            
+            func->shadow_test = item->as.shadow.body;
+        }
+    }
+
+    /* Third pass: type check all statements and expressions */
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        
+        /* Skip imports, struct/enum/union definitions, and shadow tests */
+        if (item->type == AST_IMPORT || 
+            item->type == AST_STRUCT_DEF ||
+            item->type == AST_ENUM_DEF ||
+            item->type == AST_UNION_DEF ||
+            item->type == AST_SHADOW) {
+            continue;
+        }
+        
+        if (item->type == AST_FUNCTION) {
+            /* Save current symbol count */
+            int saved_symbol_count = env->symbol_count;
+            
+            /* Set current function return type for return statement checking */
+            tc.current_function_return_type = item->as.function.return_type;
+            
+            /* Add function parameters to environment */
+            for (int j = 0; j < item->as.function.param_count; j++) {
+                Type param_type = item->as.function.params[j].type;
+                Value val;
+                if (param_type == TYPE_INT) val = create_int(0);
+                else if (param_type == TYPE_FLOAT) val = create_float(0.0);
+                else if (param_type == TYPE_BOOL) val = create_bool(false);
+                else if (param_type == TYPE_STRING) val = create_string("");
+                else if (param_type == TYPE_ARRAY) {
+                    val = create_array((ValueType)item->as.function.params[j].element_type, 0, 0);
+                } else if (param_type == TYPE_STRUCT) {
+                    val = create_struct(item->as.function.params[j].struct_type_name, NULL, NULL, 0);
+                } else val = create_void();
+                
+                env_define_var(env, item->as.function.params[j].name, param_type, false, val);
+                
+                /* If parameter is a struct, store the struct type name */
+                if (param_type == TYPE_STRUCT && 
+                    item->as.function.params[j].struct_type_name) {
+                    Symbol *param_sym = env_get_var(env, item->as.function.params[j].name);
+                    if (param_sym) {
+                        param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
+                    }
+                }
+            }
+
+            /* Check function body */
+            check_statement(&tc, item->as.function.body);
+
+            /* Check for unused variables before leaving scope */
+            check_unused_variables(&tc, saved_symbol_count);
+
+            /* Restore environment (remove parameters) */
+            env->symbol_count = saved_symbol_count;
+
+            /* Verify function has shadow test */
+            Function *func = env_get_function(env, item->as.function.name);
+            if (!func->shadow_test) {
+                fprintf(stderr, "Error: Function '%s' is missing a shadow test\n",
+                        item->as.function.name);
+                tc.has_error = true;
+            }
+        }
+    }
+
+    /* Note: Modules don't require a main function */
+    /* Main function check is skipped for modules */
 
     return !tc.has_error;
 }
