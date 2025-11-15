@@ -212,13 +212,41 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
         return false;
     }
     
+    /* Extract module metadata before transpiling */
+    const char *last_slash = strrchr(module_path, '/');
+    const char *base_name = last_slash ? last_slash + 1 : module_path;
+    char module_name[256];
+    snprintf(module_name, sizeof(module_name), "%s", base_name);
+    char *dot = strrchr(module_name, '.');
+    if (dot) *dot = '\0';
+    
+    /* Extract module metadata - TODO: Fix bus error in extract_module_metadata */
+    ModuleMetadata *meta = NULL;  // extract_module_metadata(module_env, module_name);
+    
     /* Transpile module to C */
     char *c_code = transpile_to_c(module_ast, module_env);
     if (!c_code) {
         fprintf(stderr, "Error: Failed to transpile module '%s'\n", module_path);
         free_ast(module_ast);
         free_environment(module_env);
+        if (meta) free_module_metadata(meta);
         return false;
+    }
+    
+    /* Embed metadata in C code */
+    /* TODO: Fix metadata embedding - currently disabled due to bus error */
+    /* if (meta) {
+        size_t c_code_len = strlen(c_code);
+        size_t buffer_size = c_code_len * 2;
+        char *c_code_with_meta = realloc(c_code, buffer_size);
+        if (c_code_with_meta) {
+            if (embed_metadata_in_module_c(c_code_with_meta, meta, buffer_size)) {
+                c_code = c_code_with_meta;
+            }
+        }
+    } */
+    if (meta) {
+        free_module_metadata(meta);
     }
     
     /* Write C code to temporary file */
@@ -336,3 +364,213 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
     return true;
 }
 
+
+/* Extract module metadata from environment */
+ModuleMetadata *extract_module_metadata(Environment *env, const char *module_name) {
+    if (!env) return NULL;
+    
+    ModuleMetadata *meta = malloc(sizeof(ModuleMetadata));
+    meta->module_name = module_name ? strdup(module_name) : strdup("unknown");
+    
+    /* Extract functions */
+    meta->function_count = env->function_count;
+    if (meta->function_count > 0) {
+        meta->functions = malloc(sizeof(Function) * meta->function_count);
+        for (int i = 0; i < meta->function_count; i++) {
+            /* Copy function - note: we copy pointers, not deep copy */
+            meta->functions[i] = env->functions[i];
+            /* Deep copy name and params */
+            if (env->functions[i].name) {
+                meta->functions[i].name = strdup(env->functions[i].name);
+            }
+            if (env->functions[i].param_count > 0 && env->functions[i].params) {
+                meta->functions[i].params = malloc(sizeof(Parameter) * env->functions[i].param_count);
+                for (int j = 0; j < env->functions[i].param_count; j++) {
+                    meta->functions[i].params[j] = env->functions[i].params[j];
+                    if (env->functions[i].params[j].name) {
+                        meta->functions[i].params[j].name = strdup(env->functions[i].params[j].name);
+                    }
+                    if (env->functions[i].params[j].struct_type_name) {
+                        meta->functions[i].params[j].struct_type_name = strdup(env->functions[i].params[j].struct_type_name);
+                    }
+                    /* Note: fn_sig pointers are not deep copied - would need recursive copy */
+                }
+            }
+            if (env->functions[i].return_struct_type_name) {
+                meta->functions[i].return_struct_type_name = strdup(env->functions[i].return_struct_type_name);
+            }
+            /* Clear body and shadow_test - not needed in metadata */
+            meta->functions[i].body = NULL;
+            meta->functions[i].shadow_test = NULL;
+        }
+    } else {
+        meta->functions = NULL;
+    }
+    
+    /* Extract structs */
+    meta->struct_count = env->struct_count;
+    if (meta->struct_count > 0) {
+        meta->structs = malloc(sizeof(StructDef) * meta->struct_count);
+        for (int i = 0; i < meta->struct_count; i++) {
+            meta->structs[i] = env->structs[i];
+            if (env->structs[i].name) {
+                meta->structs[i].name = strdup(env->structs[i].name);
+            }
+            if (env->structs[i].field_count > 0) {
+                meta->structs[i].field_names = malloc(sizeof(char*) * env->structs[i].field_count);
+                meta->structs[i].field_types = malloc(sizeof(Type) * env->structs[i].field_count);
+                for (int j = 0; j < env->structs[i].field_count; j++) {
+                    if (env->structs[i].field_names[j]) {
+                        meta->structs[i].field_names[j] = strdup(env->structs[i].field_names[j]);
+                    }
+                    meta->structs[i].field_types[j] = env->structs[i].field_types[j];
+                }
+            }
+        }
+    } else {
+        meta->structs = NULL;
+    }
+    
+    /* Extract enums */
+    meta->enum_count = env->enum_count;
+    if (meta->enum_count > 0) {
+        meta->enums = malloc(sizeof(EnumDef) * meta->enum_count);
+        for (int i = 0; i < meta->enum_count; i++) {
+            meta->enums[i] = env->enums[i];
+            if (env->enums[i].name) {
+                meta->enums[i].name = strdup(env->enums[i].name);
+            }
+            if (env->enums[i].variant_count > 0) {
+                meta->enums[i].variant_names = malloc(sizeof(char*) * env->enums[i].variant_count);
+                meta->enums[i].variant_values = malloc(sizeof(int) * env->enums[i].variant_count);
+                for (int j = 0; j < env->enums[i].variant_count; j++) {
+                    if (env->enums[i].variant_names[j]) {
+                        meta->enums[i].variant_names[j] = strdup(env->enums[i].variant_names[j]);
+                    }
+                    meta->enums[i].variant_values[j] = env->enums[i].variant_values[j];
+                }
+            }
+        }
+    } else {
+        meta->enums = NULL;
+    }
+    
+    /* Extract unions */
+    meta->union_count = env->union_count;
+    if (meta->union_count > 0) {
+        meta->unions = malloc(sizeof(UnionDef) * meta->union_count);
+        for (int i = 0; i < meta->union_count; i++) {
+            meta->unions[i] = env->unions[i];
+            if (env->unions[i].name) {
+                meta->unions[i].name = strdup(env->unions[i].name);
+            }
+            if (env->unions[i].variant_count > 0) {
+                meta->unions[i].variant_names = malloc(sizeof(char*) * env->unions[i].variant_count);
+                meta->unions[i].variant_field_counts = malloc(sizeof(int) * env->unions[i].variant_count);
+                meta->unions[i].variant_field_names = malloc(sizeof(char**) * env->unions[i].variant_count);
+                meta->unions[i].variant_field_types = malloc(sizeof(Type*) * env->unions[i].variant_count);
+                for (int j = 0; j < env->unions[i].variant_count; j++) {
+                    if (env->unions[i].variant_names[j]) {
+                        meta->unions[i].variant_names[j] = strdup(env->unions[i].variant_names[j]);
+                    }
+                    meta->unions[i].variant_field_counts[j] = env->unions[i].variant_field_counts[j];
+                    if (env->unions[i].variant_field_counts[j] > 0) {
+                        meta->unions[i].variant_field_names[j] = malloc(sizeof(char*) * env->unions[i].variant_field_counts[j]);
+                        meta->unions[i].variant_field_types[j] = malloc(sizeof(Type) * env->unions[i].variant_field_counts[j]);
+                        for (int k = 0; k < env->unions[i].variant_field_counts[j]; k++) {
+                            if (env->unions[i].variant_field_names[j][k]) {
+                                meta->unions[i].variant_field_names[j][k] = strdup(env->unions[i].variant_field_names[j][k]);
+                            }
+                            meta->unions[i].variant_field_types[j][k] = env->unions[i].variant_field_types[j][k];
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        meta->unions = NULL;
+    }
+    
+    return meta;
+}
+
+/* Free module metadata */
+void free_module_metadata(ModuleMetadata *meta) {
+    if (!meta) return;
+    
+    if (meta->module_name) free(meta->module_name);
+    
+    /* Free functions */
+    if (meta->functions) {
+        for (int i = 0; i < meta->function_count; i++) {
+            if (meta->functions[i].name) free(meta->functions[i].name);
+            if (meta->functions[i].params) {
+                for (int j = 0; j < meta->functions[i].param_count; j++) {
+                    if (meta->functions[i].params[j].name) free(meta->functions[i].params[j].name);
+                    if (meta->functions[i].params[j].struct_type_name) free(meta->functions[i].params[j].struct_type_name);
+                }
+                free(meta->functions[i].params);
+            }
+            if (meta->functions[i].return_struct_type_name) free(meta->functions[i].return_struct_type_name);
+        }
+        free(meta->functions);
+    }
+    
+    /* Free structs */
+    if (meta->structs) {
+        for (int i = 0; i < meta->struct_count; i++) {
+            if (meta->structs[i].name) free(meta->structs[i].name);
+            if (meta->structs[i].field_names) {
+                for (int j = 0; j < meta->structs[i].field_count; j++) {
+                    if (meta->structs[i].field_names[j]) free(meta->structs[i].field_names[j]);
+                }
+                free(meta->structs[i].field_names);
+            }
+            if (meta->structs[i].field_types) free(meta->structs[i].field_types);
+        }
+        free(meta->structs);
+    }
+    
+    /* Free enums */
+    if (meta->enums) {
+        for (int i = 0; i < meta->enum_count; i++) {
+            if (meta->enums[i].name) free(meta->enums[i].name);
+            if (meta->enums[i].variant_names) {
+                for (int j = 0; j < meta->enums[i].variant_count; j++) {
+                    if (meta->enums[i].variant_names[j]) free(meta->enums[i].variant_names[j]);
+                }
+                free(meta->enums[i].variant_names);
+            }
+            if (meta->enums[i].variant_values) free(meta->enums[i].variant_values);
+        }
+        free(meta->enums);
+    }
+    
+    /* Free unions */
+    if (meta->unions) {
+        for (int i = 0; i < meta->union_count; i++) {
+            if (meta->unions[i].name) free(meta->unions[i].name);
+            if (meta->unions[i].variant_names) {
+                for (int j = 0; j < meta->unions[i].variant_count; j++) {
+                    if (meta->unions[i].variant_names[j]) free(meta->unions[i].variant_names[j]);
+                    if (meta->unions[i].variant_field_names && meta->unions[i].variant_field_names[j]) {
+                        for (int k = 0; k < meta->unions[i].variant_field_counts[j]; k++) {
+                            if (meta->unions[i].variant_field_names[j][k]) free(meta->unions[i].variant_field_names[j][k]);
+                        }
+                        free(meta->unions[i].variant_field_names[j]);
+                    }
+                    if (meta->unions[i].variant_field_types && meta->unions[i].variant_field_types[j]) {
+                        free(meta->unions[i].variant_field_types[j]);
+                    }
+                }
+                free(meta->unions[i].variant_names);
+                free(meta->unions[i].variant_field_counts);
+                free(meta->unions[i].variant_field_names);
+                free(meta->unions[i].variant_field_types);
+            }
+        }
+        free(meta->unions);
+    }
+    
+    free(meta);
+}
