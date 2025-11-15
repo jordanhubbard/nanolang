@@ -1,0 +1,72 @@
+# Simple SDL2 Test - nanolang
+# Creates a window and renders a simple colored rectangle
+
+# SDL2 Core Functions
+extern fn SDL_Init(flags: int) -> int
+extern fn SDL_Quit() -> void
+extern fn SDL_GetError() -> string
+extern fn SDL_Delay(ms: int) -> void
+
+# SDL2 Window Functions
+extern fn SDL_CreateWindow(title: string, x: int, y: int, w: int, h: int, flags: int) -> int
+extern fn SDL_DestroyWindow(window: int) -> void
+
+# SDL2 Renderer Functions  
+extern fn SDL_CreateRenderer(window: int, index: int, flags: int) -> int
+extern fn SDL_DestroyRenderer(renderer: int) -> void
+extern fn SDL_RenderClear(renderer: int) -> int
+extern fn SDL_RenderPresent(renderer: int) -> void
+extern fn SDL_SetRenderDrawColor(renderer: int, r: int, g: int, b: int, a: int) -> int
+
+# SDL Constants
+let SDL_INIT_VIDEO: int = 32
+let SDL_WINDOWPOS_UNDEFINED: int = 536805376
+let SDL_WINDOW_SHOWN: int = 4
+let SDL_RENDERER_ACCELERATED: int = 2
+
+fn main() -> int {
+    # Initialize SDL
+    let result: int = (SDL_Init SDL_INIT_VIDEO)
+    if (< result 0) {
+        let error: string = (SDL_GetError)
+        # TODO: print error
+        return 1
+    }
+    
+    # Create window
+    let window: int = (SDL_CreateWindow "Checkers Test" SDL_WINDOWPOS_UNDEFINED SDL_WINDOWPOS_UNDEFINED 640 480 SDL_WINDOW_SHOWN)
+    if (== window 0) {
+        let error: string = (SDL_GetError)
+        # TODO: print error
+        (SDL_Quit)
+        return 1
+    }
+    
+    # Create renderer
+    let renderer: int = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
+    if (== renderer 0) {
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
+        return 1
+    }
+    
+    # Render loop - draw a red rectangle
+    (SDL_SetRenderDrawColor renderer 255 0 0 255)
+    (SDL_RenderClear renderer)
+    (SDL_RenderPresent renderer)
+    
+    # Wait a bit
+    (SDL_Delay 2000)
+    
+    # Cleanup
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

@@ -1,0 +1,210 @@
+# Checkers Game - nanolang/SDL2 Implementation
+# A simple checkers game that runs as an X11 client
+
+# SDL2 Core Functions
+extern fn SDL_Init(flags: int) -> int
+extern fn SDL_Quit() -> void
+extern fn SDL_GetError() -> string
+extern fn SDL_GetTicks() -> int
+extern fn SDL_Delay(ms: int) -> void
+
+# SDL2 Window Functions
+extern fn SDL_CreateWindow(title: string, x: int, y: int, w: int, h: int, flags: int) -> int
+extern fn SDL_DestroyWindow(window: int) -> void
+
+# SDL2 Renderer Functions  
+extern fn SDL_CreateRenderer(window: int, index: int, flags: int) -> int
+extern fn SDL_DestroyRenderer(renderer: int) -> void
+extern fn SDL_RenderClear(renderer: int) -> int
+extern fn SDL_RenderPresent(renderer: int) -> void
+extern fn SDL_SetRenderDrawColor(renderer: int, r: int, g: int, b: int, a: int) -> int
+extern fn SDL_RenderFillRect(renderer: int, rect: int) -> int
+extern fn SDL_RenderDrawPoint(renderer: int, x: int, y: int) -> int
+extern fn SDL_RenderDrawLine(renderer: int, x1: int, y1: int, x2: int, y2: int) -> int
+extern fn SDL_SetRenderDrawBlendMode(renderer: int, mode: int) -> int
+extern fn SDL_RenderCopy(renderer: int, texture: int, srcrect: int, dstrect: int) -> int
+extern fn SDL_QueryTexture(texture: int, format: int, access: int, w: int, h: int) -> int
+extern fn SDL_CreateTextureFromSurface(renderer: int, surface: int) -> int
+extern fn SDL_DestroyTexture(texture: int) -> void
+extern fn SDL_FreeSurface(surface: int) -> void
+
+# SDL2 Event Functions
+extern fn SDL_PollEvent(event: int) -> int
+
+# SDL2 TTF Functions (optional)
+extern fn TTF_Init() -> int
+extern fn TTF_Quit() -> void
+extern fn TTF_GetError() -> string
+extern fn TTF_OpenFont(file: string, ptsize: int) -> int
+extern fn TTF_CloseFont(font: int) -> void
+extern fn TTF_RenderText_Solid(font: int, text: string, color: int) -> int
+
+# SDL Constants
+let SDL_INIT_VIDEO: int = 32
+let SDL_WINDOWPOS_UNDEFINED: int = 536805376
+let SDL_WINDOW_SHOWN: int = 4
+let SDL_RENDERER_ACCELERATED: int = 2
+let SDL_BUTTON_LEFT: int = 1
+let SDL_QUIT: int = 256
+let SDL_MOUSEBUTTONDOWN: int = 1025
+let SDL_BLENDMODE_BLEND: int = 1
+let SDL_BLENDMODE_NONE: int = 0
+
+# Board constants
+let BOARD_SIZE: int = 8
+let SQUARE_SIZE: int = 80
+let WINDOW_WIDTH: int = (* BOARD_SIZE SQUARE_SIZE)
+let WINDOW_HEIGHT: int = (+ (* BOARD_SIZE SQUARE_SIZE) 60)
+
+# Piece types enum
+enum PieceType {
+    EMPTY = 0
+    RED_PIECE = 1
+    RED_KING = 2
+    BLACK_PIECE = 3
+    BLACK_KING = 4
+}
+
+# Game state enum
+enum GameState {
+    PLAYER_TURN = 0
+    AI_TURN = 1
+    GAME_OVER = 2
+}
+
+# CheckersGame struct
+struct CheckersGame {
+    board: array<int>
+    state: int
+    selected_row: int
+    selected_col: int
+    has_selection: bool
+    player_pieces: int
+    ai_pieces: int
+    blink_row: int
+    blink_col: int
+    pending_from_row: int
+    pending_from_col: int
+    pending_to_row: int
+    pending_to_col: int
+    blink_start_time: int
+    is_blinking: bool
+    blink_before_move: bool
+}
+
+# Initialize the board with starting positions
+fn init_board(game: CheckersGame) -> void {
+    # Clear board
+    let mut i: int = 0
+    while (< i BOARD_SIZE) {
+        let mut j: int = 0
+        while (< j BOARD_SIZE) {
+            # Set board[i][j] = EMPTY
+            # Note: arrays are 1D, so we need to calculate index
+            let idx: int = (+ (* i BOARD_SIZE) j)
+            # TODO: Need array set operation
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    
+    # Place red pieces (top 3 rows)
+    set i 0
+    while (< i 3) {
+        set j 0
+        while (< j BOARD_SIZE) {
+            if (== (% (+ i j) 2) 1) {
+                let idx: int = (+ (* i BOARD_SIZE) j)
+                # TODO: Set board[idx] = RED_PIECE
+            }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    
+    # Place black pieces (bottom 3 rows)
+    set i 5
+    while (< i BOARD_SIZE) {
+        set j 0
+        while (< j BOARD_SIZE) {
+            if (== (% (+ i j) 2) 1) {
+                let idx: int = (+ (* i BOARD_SIZE) j)
+                # TODO: Set board[idx] = BLACK_PIECE
+            }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    
+    # Initialize game state
+    # TODO: Set game fields
+}
+
+# Check if coordinates are valid
+fn is_valid_pos(row: int, col: int) -> bool {
+    return (and (>= row 0) (and (< row BOARD_SIZE) (and (>= col 0) (< col BOARD_SIZE))))
+}
+
+shadow is_valid_pos {
+    assert (== (is_valid_pos 0 0) true)
+    assert (== (is_valid_pos 7 7) true)
+    assert (== (is_valid_pos -1 0) false)
+    assert (== (is_valid_pos 0 8) false)
+}
+
+# Check if a square is dark (playable)
+fn is_dark_square(row: int, col: int) -> bool {
+    return (== (% (+ row col) 2) 1)
+}
+
+shadow is_dark_square {
+    assert (== (is_dark_square 0 1) true)
+    assert (== (is_dark_square 0 0) false)
+    assert (== (is_dark_square 1 0) true)
+}
+
+# Check if a piece belongs to player
+fn is_player_piece(piece: int) -> bool {
+    return (or (== piece RED_PIECE) (== piece RED_KING))
+}
+
+shadow is_player_piece {
+    assert (== (is_player_piece RED_PIECE) true)
+    assert (== (is_player_piece RED_KING) true)
+    assert (== (is_player_piece BLACK_PIECE) false)
+    assert (== (is_player_piece BLACK_KING) false)
+}
+
+# Check if a piece belongs to AI
+fn is_ai_piece(piece: int) -> bool {
+    return (or (== piece BLACK_PIECE) (== piece BLACK_KING))
+}
+
+shadow is_ai_piece {
+    assert (== (is_ai_piece BLACK_PIECE) true)
+    assert (== (is_ai_piece BLACK_KING) true)
+    assert (== (is_ai_piece RED_PIECE) false)
+    assert (== (is_ai_piece RED_KING) false)
+}
+
+# Check if a piece is a king
+fn is_king(piece: int) -> bool {
+    return (or (== piece RED_KING) (== piece BLACK_KING))
+}
+
+shadow is_king {
+    assert (== (is_king RED_KING) true)
+    assert (== (is_king BLACK_KING) true)
+    assert (== (is_king RED_PIECE) false)
+    assert (== (is_king BLACK_PIECE) false)
+}
+
+# Main function
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

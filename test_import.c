@@ -405,11 +405,6 @@ static nl_array* nl_array_literal_int(int64_t count, ...) {
 
 /* ========== Enum Definitions ========== */
 
-typedef enum {
-    nl_Status_OK = 0,
-    nl_Status_ERROR = 1
-} nl_Status;
-
 /* ========== End Enum Definitions ========== */
 
 /* ========== Generic List Specializations ========== */
@@ -423,7 +418,10 @@ typedef enum {
 int64_t nl_main();
 
 int64_t nl_main() {
-    nl_Status s = nl_Status_OK;
+    int64_t result1 = nl_add(10LL, 20LL);
+    int64_t result2 = nl_multiply(5LL, 6LL);
+    nl_println_int(result1);
+    nl_println_int(result2);
     return 0LL;
 }
 

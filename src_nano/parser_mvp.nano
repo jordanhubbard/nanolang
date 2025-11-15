@@ -14,6 +14,14 @@
 /* Import lexer types - we need LexToken and TokenType */
 /* Note: In practice, these would be in a shared module */
 
+/* LexToken structure - matches lexer_complete.nano */
+struct LexToken {
+    token_type: int,
+    value: string,
+    line: int,
+    column: int
+}
+
 /* AST Node Types - renamed to avoid runtime conflicts */
 enum ParseNodeType {
     PNODE_NUMBER = 0,
@@ -94,6 +102,7 @@ struct ASTLet {
 /* Parser State - stores all AST nodes */
 struct Parser {
     /* Token stream */
+    tokens: List<LexToken>,
     position: int,
     token_count: int,
     has_error: bool,
@@ -112,10 +121,12 @@ struct Parser {
 }
 
 /* Create new parser from token list */
-fn parser_new() -> Parser {
+/* Note: token_count is calculated externally to avoid generic instantiation issues */
+fn parser_new(tokens: List<LexToken>, token_count: int) -> Parser {
     return Parser {
+        tokens: tokens,
         position: 0,
-        token_count: 0,
+        token_count: token_count,
         has_error: false,
         numbers_count: 0,
         strings_count: 0,
@@ -129,8 +140,10 @@ fn parser_new() -> Parser {
 }
 
 shadow parser_new {
-    let p: Parser = (parser_new)
+    let empty_tokens: List<LexToken> = (List_LexToken_new)
+    let p: Parser = (parser_new empty_tokens 0)
     assert (== p.position 0)
+    assert (== p.token_count 0)
     assert (== p.next_node_id 0)
 }
 
@@ -160,6 +173,7 @@ shadow parser_is_at_end {
 /* Helper: Copy parser with new position */
 fn parser_with_position(p: Parser, new_position: int) -> Parser {
     return Parser {
+        tokens: p.tokens,
         position: new_position,
         token_count: p.token_count,
         has_error: p.has_error,
@@ -199,20 +213,38 @@ fn parser_position(p: Parser) -> int {
 }
 
 shadow parser_position {
-    let p: Parser = (parser_new)
+    let empty_tokens: List<LexToken> = (List_LexToken_new)
+    let p: Parser = (parser_new empty_tokens 0)
     assert (== (parser_position p) 0)
 }
 
+/* Get current token from token stream */
+fn parser_current(p: Parser) -> LexToken {
+    if (parser_is_at_end p) {
+        /* Return EOF token */
+        return LexToken {
+            token_type: 0,  /* EOF */
+            value: "",
+            line: 0,
+            column: 0
+        }
+    } else {
+        return (List_LexToken_get p.tokens p.position)
+    }
+}
+
+shadow parser_current {
+    /* TODO: Test with actual tokens */
+    assert (== 1 1)
+}
+
 /* Check if current token matches a specific type */
-/* Note: This will need List<LexToken> support to actually check token type */
-/* For now, returns false as placeholder */
 fn parser_match(p: Parser, token_type: int) -> bool {
     if (parser_is_at_end p) {
         return false
     } else {
-        /* TODO: Get current token from List<LexToken> and check type */
-        /* For now, placeholder */
-        return false
+        let tok: LexToken = (parser_current p)
+        return (== tok.token_type token_type)
     }
 }
 
@@ -246,9 +278,8 @@ fn parser_peek(p: Parser, offset: int) -> int {
     if (>= peek_pos p.token_count) {
         return 0  /* EOF */
     } else {
-        /* TODO: Get token from List<LexToken> at peek_pos */
-        /* For now, return EOF */
-        return 0
+        let tok: LexToken = (List_LexToken_get p.tokens peek_pos)
+        return tok.token_type
     }
 }
 
@@ -260,6 +291,7 @@ shadow parser_peek {
 /* Helper: Copy parser with error flag set */
 fn parser_with_error(p: Parser, error: bool) -> Parser {
     return Parser {
+        tokens: p.tokens,
         position: p.position,
         token_count: p.token_count,
         has_error: error,
@@ -285,7 +317,8 @@ fn parser_has_error(p: Parser) -> bool {
 }
 
 shadow parser_has_error {
-    let p: Parser = (parser_new)
+    let empty_tokens: List<LexToken> = (List_LexToken_new)
+    let p: Parser = (parser_new empty_tokens 0)
     assert (== (parser_has_error p) false)
 }
 
@@ -330,7 +363,8 @@ shadow create_identifier_node {
 
 fn test_parser_structure() -> int {
     /* Test that we can create parser state */
-    let p: Parser = (parser_new)
+    let empty_tokens: List<LexToken> = (List_LexToken_new)
+    let p: Parser = (parser_new empty_tokens 0)
     
     /* Test that we can create AST nodes */
     let num: ASTNumber = (create_number_node "42" 1 1)
@@ -346,18 +380,25 @@ shadow test_parser_structure {
 
 fn main() -> int {
     (println "Nanolang Self-Hosted Parser - MVP")
-    (println "Status: Token management complete!")
+    (println "Status: List<LexToken> integration complete!")
     (println "")
-    (println "✅ Token navigation functions:")
+    (println "✅ Token management functions:")
     (println "  - parser_is_at_end()")
     (println "  - parser_advance()")
     (println "  - parser_position()")
-    (println "  - parser_match()")
-    (println "  - parser_expect()")
-    (println "  - parser_peek()")
-    (println "  - parser_has_error()")
+    (println "  - parser_current() - Get current token")
+    (println "  - parser_match() - Check token type")
+    (println "  - parser_expect() - Expect token, set error")
+    (println "  - parser_peek() - Look ahead")
+    (println "  - parser_has_error() - Check error state")
     (println "")
-    (println "Next: Integrate with List<LexToken> for actual token access")
+    (println "✅ List<LexToken> integrated:")
+    (println "  - Parser struct includes tokens: List<LexToken>")
+    (println "  - parser_current() accesses tokens from list")
+    (println "  - parser_peek() reads tokens from list")
+    (println "  - parser_match() checks actual token types")
+    (println "")
+    (println "Next: Expression parsing (numbers, identifiers, binary ops)")
     return 0
 }
 

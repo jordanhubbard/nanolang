@@ -1542,6 +1542,52 @@ static ASTNode *parse_function(Parser *p, bool is_extern) {
 }
 
 /* Parse shadow-test block */
+static ASTNode *parse_import(Parser *p) {
+    int line = current_token(p)->line;
+    int column = current_token(p)->column;
+
+    if (!expect(p, TOKEN_IMPORT, "Expected 'import'")) {
+        return NULL;
+    }
+
+    /* Parse import path: import "module.nano" or import module */
+    char *module_path = NULL;
+    char *module_name = NULL;
+
+    if (match(p, TOKEN_STRING)) {
+        /* import "module.nano" */
+        module_path = strdup(current_token(p)->value);
+        advance(p);
+    } else if (match(p, TOKEN_IDENTIFIER)) {
+        /* import module (treat as "module.nano") */
+        char *ident = current_token(p)->value;
+        char *path = malloc(strlen(ident) + 6);  /* +6 for ".nano\0" */
+        snprintf(path, strlen(ident) + 6, "%s.nano", ident);
+        module_path = path;
+        advance(p);
+    } else {
+        fprintf(stderr, "Error at line %d, column %d: Expected string or identifier after 'import'\n", line, column);
+        return NULL;
+    }
+
+    /* Optional: import "module.nano" as alias */
+    if (match(p, TOKEN_IDENTIFIER) && strcmp(current_token(p)->value, "as") == 0) {
+        advance(p);  /* consume "as" */
+        if (!match(p, TOKEN_IDENTIFIER)) {
+            fprintf(stderr, "Error at line %d, column %d: Expected module alias name after 'as'\n", line, column);
+            free(module_path);
+            return NULL;
+        }
+        module_name = strdup(current_token(p)->value);
+        advance(p);
+    }
+
+    ASTNode *node = create_node(AST_IMPORT, line, column);
+    node->as.import_stmt.module_path = module_path;
+    node->as.import_stmt.module_name = module_name;
+    return node;
+}
+
 static ASTNode *parse_shadow(Parser *p) {
     int line = current_token(p)->line;
     int column = current_token(p)->column;
@@ -1597,7 +1643,9 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             items = realloc(items, sizeof(ASTNode*) * capacity);
         }
 
-        if (match(&parser, TOKEN_STRUCT)) {
+        if (match(&parser, TOKEN_IMPORT)) {
+            items[count++] = parse_import(&parser);
+        } else if (match(&parser, TOKEN_STRUCT)) {
             items[count++] = parse_struct_def(&parser);
         } else if (match(&parser, TOKEN_ENUM)) {
             items[count++] = parse_enum_def(&parser);
@@ -1612,7 +1660,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         } else if (match(&parser, TOKEN_SHADOW)) {
             items[count++] = parse_shadow(&parser);
         } else {
-            fprintf(stderr, "Error at line %d, column %d: Expected struct, enum, union, extern, function or shadow-test definition\n",
+            fprintf(stderr, "Error at line %d, column %d: Expected import, struct, enum, union, extern, function or shadow-test definition\n",
                     current_token(&parser)->line, current_token(&parser)->column);
             advance(&parser);
         }
@@ -1695,6 +1743,14 @@ void free_ast(ASTNode *node) {
         case AST_SHADOW:
             free(node->as.shadow.function_name);
             free_ast(node->as.shadow.body);
+            break;
+        case AST_IMPORT:
+            if (node->as.import_stmt.module_path) {
+                free(node->as.import_stmt.module_path);
+            }
+            if (node->as.import_stmt.module_name) {
+                free(node->as.import_stmt.module_name);
+            }
             break;
         case AST_PROGRAM:
             for (int i = 0; i < node->as.program.count; i++) {

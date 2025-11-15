@@ -54,24 +54,41 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
     }
     if (opts->verbose) printf("✓ Parsing complete\n");
 
-    /* Phase 3: Type Checking */
+    /* Phase 3: Create environment and process imports */
     Environment *env = create_environment();
+    ModuleList *modules = create_module_list();
+    if (!process_imports(program, env, modules, input_file)) {
+        fprintf(stderr, "Module loading failed\n");
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        free(source);
+        return 1;
+    }
+    if (opts->verbose && modules->count > 0) {
+        printf("✓ Loaded %d module(s)\n", modules->count);
+    }
+
+    /* Phase 4: Type Checking */
     if (!type_check(program, env)) {
         fprintf(stderr, "Type checking failed\n");
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
+        free_module_list(modules);
         free(source);
         return 1;
     }
     if (opts->verbose) printf("✓ Type checking complete\n");
 
-    /* Phase 4: Interpret */
+    /* Phase 5: Interpret */
     if (!run_program(program, env)) {
         fprintf(stderr, "Interpretation failed\n");
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
+        free_module_list(modules);
         free(source);
         return 1;
     }
@@ -91,6 +108,9 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
         }
 
         if (opts->verbose) printf("Calling function '%s'...\n", opts->call_function);
+
+        /* Cleanup before function call */
+        free_module_list(modules);
 
         /* Parse and convert call_args to proper argument values */
         Value *args = NULL;
@@ -186,6 +206,7 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
     free_ast(program);
     free_tokens(tokens, token_count);
     free_environment(env);
+    free_module_list(modules);
     free(source);
     tracing_cleanup();
 
