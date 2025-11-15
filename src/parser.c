@@ -8,7 +8,7 @@ typedef struct {
 } Parser;
 
 /* Forward declarations */
-static Type parse_type_with_element(Parser *p, Type *element_type_out);
+static Type parse_type_with_element(Parser *p, Type *element_type_out, char **type_param_name_out);
 
 /* Helper functions */
 static Token *current_token(Parser *p) {
@@ -86,11 +86,11 @@ static ASTNode *create_node(ASTNodeType type, int line, int column) {
 
 /* Parse type annotation */
 static Type parse_type(Parser *p) {
-    return parse_type_with_element(p, NULL);
+    return parse_type_with_element(p, NULL, NULL);
 }
 
-/* Parse type annotation with optional element_type output (for arrays) */
-static Type parse_type_with_element(Parser *p, Type *element_type_out) {
+/* Parse type annotation with optional element_type output (for arrays) and type_param_name for generics */
+static Type parse_type_with_element(Parser *p, Type *element_type_out, char **type_param_name_out) {
     Type type = TYPE_UNKNOWN;
     Token *tok = current_token(p);
 
@@ -131,14 +131,18 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out) {
                         type = TYPE_LIST_STRING;
                         advance(p);
                     } else if (type_param_tok->type == TOKEN_IDENTIFIER) {
-                        /* Check for Token or other struct types */
+                        /* Handle Token specially for backwards compatibility */
                         if (strcmp(type_param_tok->value, "Token") == 0) {
                             type = TYPE_LIST_TOKEN;
                             advance(p);
                         } else {
-                            fprintf(stderr, "Error at line %d, column %d: Unsupported generic type parameter '%s' for List\n",
-                                    type_param_tok->line, type_param_tok->column, type_param_tok->value);
-                            return TYPE_UNKNOWN;
+                            /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
+                            type = TYPE_LIST_GENERIC;
+                            /* Store type parameter name for later use */
+                            if (type_param_name_out) {
+                                *type_param_name_out = strdup(type_param_tok->value);
+                            }
+                            advance(p);
                         }
                     } else {
                         fprintf(stderr, "Error at line %d, column %d: Expected type parameter after 'List<'\n",
@@ -170,8 +174,8 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out) {
             }
             advance(p);  /* consume '<' */
             
-            /* Parse element type */
-            Type element_type = parse_type(p);
+            /* Parse element type (no need for type_param_name in arrays for now) */
+            Type element_type = parse_type_with_element(p, NULL, NULL);
             if (element_type == TYPE_UNKNOWN) {
                 return TYPE_UNKNOWN;
             }
@@ -233,10 +237,11 @@ static bool parse_parameters(Parser *p, Parameter **params, int *param_count) {
                 struct_name = strdup(type_token->value);
             }
             
-            /* Parse type with element_type support for arrays */
+            /* Parse type with element_type support for arrays and generics */
             Type element_type = TYPE_UNKNOWN;
-            param_list[count].type = parse_type_with_element(p, &element_type);
-            param_list[count].struct_type_name = NULL;
+            char *type_param_name = NULL;
+            param_list[count].type = parse_type_with_element(p, &element_type, &type_param_name);
+            param_list[count].struct_type_name = type_param_name;  /* Store generic type param here */
             param_list[count].element_type = element_type;
             
             /* If it's a struct type, save the struct name */
@@ -731,9 +736,18 @@ static ASTNode *parse_statement(Parser *p) {
                 type_name = strdup(type_token->value);
             }
             
-            /* Parse type with element_type support for arrays */
+            /* Parse type with element_type support for arrays and generics */
             Type element_type = TYPE_UNKNOWN;
-            Type type = parse_type_with_element(p, &element_type);
+            char *type_param_name = NULL;  /* For generic types like List<Point> */
+            Type type = parse_type_with_element(p, &element_type, &type_param_name);
+
+            /* For generic lists, type_param_name contains the element type (e.g., "Point") */
+            /* For structs, type_name contains the struct name */
+            if (type == TYPE_LIST_GENERIC && type_param_name) {
+                /* Replace type_name with the generic parameter name */
+                if (type_name) free(type_name);
+                type_name = type_param_name;
+            }
 
             if (!expect(p, TOKEN_ASSIGN, "Expected '=' in let statement")) {
                 free(name);
@@ -746,7 +760,7 @@ static ASTNode *parse_statement(Parser *p) {
             node = create_node(AST_LET, line, column);
             node->as.let.name = name;
             node->as.let.var_type = type;
-            node->as.let.type_name = type_name;  /* May be NULL for primitive types */
+            node->as.let.type_name = type_name;  /* For structs or generic type params */
             node->as.let.element_type = element_type;
             node->as.let.is_mut = is_mut;
             node->as.let.value = value;
