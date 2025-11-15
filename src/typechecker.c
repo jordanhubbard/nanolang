@@ -142,6 +142,12 @@ Type check_expression(ASTNode *expr, Environment *env) {
         case AST_IDENTIFIER: {
             Symbol *sym = env_get_var(env, expr->as.identifier);
             if (!sym) {
+                /* Not a variable - check if it's a function name */
+                Function *func = env_get_function(env, expr->as.identifier);
+                if (func) {
+                    /* Function name used as value (for passing/returning) */
+                    return TYPE_FUNCTION;
+                }
                 fprintf(stderr, "Error at line %d, column %d: Undefined variable '%s'\n",
                         expr->line, expr->column, expr->as.identifier);
                 return TYPE_UNKNOWN;
