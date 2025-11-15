@@ -213,6 +213,9 @@ static const char *get_sdl_c_type(const char *func_name, int param_index, bool i
         if (strstr(func_name, "GetError")) return "const char*";
         if (strstr(func_name, "GetTicks")) return "Uint32";
         if (strstr(func_name, "PollEvent")) return "int";
+        if (strstr(func_name, "Init")) return "int";
+        if (strstr(func_name, "RenderClear")) return "int";
+        if (strstr(func_name, "SetRenderDrawColor")) return "int";
         return NULL;
     } else {
         /* Parameter types */
@@ -238,6 +241,20 @@ static const char *get_sdl_c_type(const char *func_name, int param_index, bool i
         }
         if (strstr(func_name, "QueryTexture") && param_index >= 2) return "int*";
         if (strstr(func_name, "RenderText_Solid") && param_index == 2) return "SDL_Color";
+        /* SDL functions that take Uint32 for flags/delays */
+        if (strstr(func_name, "Init") && param_index == 0) return "Uint32";
+        if (strstr(func_name, "Delay") && param_index == 0) return "Uint32";
+        if (strstr(func_name, "CreateWindow")) {
+            if (param_index == 1 || param_index == 2 || param_index == 3 || param_index == 4) return "int";
+            if (param_index == 5) return "Uint32";
+        }
+        if (strstr(func_name, "CreateRenderer")) {
+            if (param_index == 1) return "int";
+            if (param_index == 2) return "Uint32";
+        }
+        if (strstr(func_name, "SetRenderDrawColor")) {
+            if (param_index >= 1 && param_index <= 4) return "Uint8";
+        }
     }
     return NULL;
 }
@@ -848,6 +865,24 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
                 sb_appendf(sb, "%s %s = ", type_to_c(stmt->as.let.var_type), stmt->as.let.name);
             }
             
+            /* Check if we need to cast pointer return values to int64_t */
+            bool needs_cast = false;
+            if (stmt->as.let.var_type == TYPE_INT && stmt->as.let.value->type == AST_CALL) {
+                const char *func_name = stmt->as.let.value->as.call.name;
+                Function *func_def = env_get_function(env, func_name);
+                if (func_def && func_def->is_extern && 
+                    (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "TTF_", 4) == 0)) {
+                    const char *sdl_ret_type = get_sdl_c_type(func_name, -1, true);
+                    if (sdl_ret_type && strstr(sdl_ret_type, "*")) {
+                        /* Function returns a pointer, but we're assigning to int64_t */
+                        needs_cast = true;
+                    }
+                }
+            }
+            
+            if (needs_cast) {
+                sb_append(sb, "(int64_t)");
+            }
             transpile_expression(sb, stmt->as.let.value, env);
             sb_append(sb, ";\n");
             /* Register variable in environment for type tracking during transpilation */

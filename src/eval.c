@@ -1824,6 +1824,65 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
     }
 }
 
+/* Check if an AST node contains calls to extern functions */
+static bool contains_extern_calls(ASTNode *node, Environment *env) {
+    if (!node) return false;
+    
+    switch (node->type) {
+        case AST_CALL: {
+            const char *func_name = node->as.call.name;
+            Function *func = env_get_function(env, func_name);
+            if (func && func->is_extern) {
+                return true;
+            }
+            /* Check arguments recursively */
+            for (int i = 0; i < node->as.call.arg_count; i++) {
+                if (contains_extern_calls(node->as.call.args[i], env)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        case AST_BLOCK:
+            for (int i = 0; i < node->as.block.count; i++) {
+                if (contains_extern_calls(node->as.block.statements[i], env)) {
+                    return true;
+                }
+            }
+            return false;
+        case AST_IF:
+            if (contains_extern_calls(node->as.if_stmt.condition, env)) return true;
+            if (contains_extern_calls(node->as.if_stmt.then_branch, env)) return true;
+            if (node->as.if_stmt.else_branch && contains_extern_calls(node->as.if_stmt.else_branch, env)) return true;
+            return false;
+        case AST_WHILE:
+            if (contains_extern_calls(node->as.while_stmt.condition, env)) return true;
+            if (contains_extern_calls(node->as.while_stmt.body, env)) return true;
+            return false;
+        case AST_RETURN:
+            if (node->as.return_stmt.value && contains_extern_calls(node->as.return_stmt.value, env)) return true;
+            return false;
+        case AST_PREFIX_OP:
+            for (int i = 0; i < node->as.prefix_op.arg_count; i++) {
+                if (contains_extern_calls(node->as.prefix_op.args[i], env)) return true;
+            }
+            return false;
+        case AST_ARRAY_LITERAL:
+            for (int i = 0; i < node->as.array_literal.element_count; i++) {
+                if (contains_extern_calls(node->as.array_literal.elements[i], env)) return true;
+            }
+            return false;
+        case AST_FIELD_ACCESS:
+            return contains_extern_calls(node->as.field_access.object, env);
+        case AST_LET:
+            return contains_extern_calls(node->as.let.value, env);
+        case AST_SET:
+            return contains_extern_calls(node->as.set.value, env);
+        default:
+            return false;
+    }
+}
+
 /* Run shadow tests */
 bool run_shadow_tests(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) {
@@ -1849,8 +1908,24 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
         ASTNode *item = program->as.program.items[i];
         
         if (item->type == AST_SHADOW) {
-            printf("Testing %s... ", item->as.shadow.function_name);
-
+            const char *func_name = item->as.shadow.function_name;
+            Function *func = env_get_function(env, func_name);
+            
+            /* Check if shadow test or function body uses extern functions */
+            bool uses_extern = false;
+            if (func && func->body && contains_extern_calls(func->body, env)) {
+                uses_extern = true;
+            }
+            if (contains_extern_calls(item->as.shadow.body, env)) {
+                uses_extern = true;
+            }
+            
+            if (uses_extern) {
+                printf("Testing %s... SKIPPED (uses extern functions - not supported in interpreter)\n", func_name);
+                continue;
+            }
+            
+            printf("Testing %s... ", func_name);
             
             /* Execute shadow test */
             eval_statement(item->as.shadow.body, env);

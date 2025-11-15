@@ -5,6 +5,12 @@
 typedef struct {
     bool verbose;
     bool keep_c;
+    char **include_paths;      /* -I flags */
+    int include_count;
+    char **library_paths;     /* -L flags */
+    int library_path_count;
+    char **libraries;         /* -l flags */
+    int library_count;
 } CompilerOptions;
 
 /* Compile nanolang source to executable */
@@ -125,20 +131,44 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     /* Future: compile each module to .o and link statically */
     
     /* Build gcc command with module object files */
-    char compile_cmd[2048];
+    char compile_cmd[4096];
     char module_objs[1024] = "";
     
     /* TODO: Compile modules to .o files and add to module_objs */
     /* For now, modules are handled by loading them during compilation */
     
+    /* Build include flags */
+    char include_flags[2048] = "-Isrc";
+    for (int i = 0; i < opts->include_count; i++) {
+        char temp[512];
+        snprintf(temp, sizeof(temp), " -I%s", opts->include_paths[i]);
+        strncat(include_flags, temp, sizeof(include_flags) - strlen(include_flags) - 1);
+    }
+    
+    /* Build library path flags */
+    char lib_path_flags[2048] = "";
+    for (int i = 0; i < opts->library_path_count; i++) {
+        char temp[512];
+        snprintf(temp, sizeof(temp), " -L%s", opts->library_paths[i]);
+        strncat(lib_path_flags, temp, sizeof(lib_path_flags) - strlen(lib_path_flags) - 1);
+    }
+    
+    /* Build library flags */
+    char lib_flags[2048] = "-lm";
+    for (int i = 0; i < opts->library_count; i++) {
+        char temp[512];
+        snprintf(temp, sizeof(temp), " -l%s", opts->libraries[i]);
+        strncat(lib_flags, temp, sizeof(lib_flags) - strlen(lib_flags) - 1);
+    }
+    
     if (opts->verbose) {
         snprintf(compile_cmd, sizeof(compile_cmd), 
-                "gcc -std=c99 -Isrc -o %s %s %s src/runtime/list_int.c src/runtime/list_string.c -lm", 
-                output_file, temp_c_file, module_objs);
+                "gcc -std=c99 %s -o %s %s %s src/runtime/list_int.c src/runtime/list_string.c %s %s", 
+                include_flags, output_file, temp_c_file, module_objs, lib_path_flags, lib_flags);
     } else {
         snprintf(compile_cmd, sizeof(compile_cmd), 
-                "gcc -std=c99 -Isrc -o %s %s %s src/runtime/list_int.c src/runtime/list_string.c -lm 2>/dev/null", 
-                output_file, temp_c_file, module_objs);
+                "gcc -std=c99 %s -o %s %s %s src/runtime/list_int.c src/runtime/list_string.c %s %s 2>/dev/null", 
+                include_flags, output_file, temp_c_file, module_objs, lib_path_flags, lib_flags);
     }
 
     if (opts->verbose) printf("Compiling C code: %s\n", compile_cmd);
@@ -183,12 +213,16 @@ int main(int argc, char *argv[]) {
         printf("  -o <file>      Specify output file (default: a.out)\n");
         printf("  --verbose      Show detailed compilation steps\n");
         printf("  --keep-c       Keep generated C file\n");
+        printf("  -I <path>      Add include path for C compilation\n");
+        printf("  -L <path>      Add library path for C linking\n");
+        printf("  -l <lib>       Link against library (e.g., -lSDL2)\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
         printf("\nExamples:\n");
         printf("  %s hello.nano -o hello\n", argv[0]);
         printf("  %s program.nano --verbose --keep-c\n", argv[0]);
-        printf("  %s example.nano -o example --verbose\n\n", argv[0]);
+        printf("  %s example.nano -o example --verbose\n", argv[0]);
+        printf("  %s sdl_app.nano -o app -I/opt/homebrew/include/SDL2 -L/opt/homebrew/lib -lSDL2\n\n", argv[0]);
         return 0;
     }
 
@@ -202,8 +236,22 @@ int main(int argc, char *argv[]) {
     const char *output_file = "a.out";
     CompilerOptions opts = {
         .verbose = false,
-        .keep_c = false
+        .keep_c = false,
+        .include_paths = NULL,
+        .include_count = 0,
+        .library_paths = NULL,
+        .library_path_count = 0,
+        .libraries = NULL,
+        .library_count = 0
     };
+    
+    /* Allocate arrays for flags */
+    char **include_paths = malloc(sizeof(char*) * 32);
+    char **library_paths = malloc(sizeof(char*) * 32);
+    char **libraries = malloc(sizeof(char*) * 32);
+    int include_count = 0;
+    int library_path_count = 0;
+    int library_count = 0;
 
     /* Parse command-line options */
     for (int i = 2; i < argc; i++) {
@@ -214,12 +262,60 @@ int main(int argc, char *argv[]) {
             opts.verbose = true;
         } else if (strcmp(argv[i], "--keep-c") == 0) {
             opts.keep_c = true;
+        } else if (strcmp(argv[i], "-I") == 0 && i + 1 < argc) {
+            if (include_count < 32) {
+                include_paths[include_count++] = argv[i + 1];
+            }
+            i++;
+        } else if (strncmp(argv[i], "-I", 2) == 0) {
+            /* Handle -I/path form */
+            if (include_count < 32) {
+                include_paths[include_count++] = argv[i] + 2;
+            }
+        } else if (strcmp(argv[i], "-L") == 0 && i + 1 < argc) {
+            if (library_path_count < 32) {
+                library_paths[library_path_count++] = argv[i + 1];
+            }
+            i++;
+        } else if (strncmp(argv[i], "-L", 2) == 0) {
+            /* Handle -L/path form */
+            if (library_path_count < 32) {
+                library_paths[library_path_count++] = argv[i] + 2;
+            }
+        } else if (strcmp(argv[i], "-l") == 0 && i + 1 < argc) {
+            if (library_count < 32) {
+                libraries[library_count++] = argv[i + 1];
+            }
+            i++;
+        } else if (strncmp(argv[i], "-l", 2) == 0) {
+            /* Handle -llibname form */
+            if (library_count < 32) {
+                libraries[library_count++] = argv[i] + 2;
+            }
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
+            free(include_paths);
+            free(library_paths);
+            free(libraries);
             return 1;
         }
     }
-
-    return compile_file(input_file, output_file, &opts);
+    
+    /* Set parsed flags in options */
+    opts.include_paths = include_paths;
+    opts.include_count = include_count;
+    opts.library_paths = library_paths;
+    opts.library_path_count = library_path_count;
+    opts.libraries = libraries;
+    opts.library_count = library_count;
+    
+    int result = compile_file(input_file, output_file, &opts);
+    
+    /* Cleanup */
+    free(include_paths);
+    free(library_paths);
+    free(libraries);
+    
+    return result;
 }

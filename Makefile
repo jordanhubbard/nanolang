@@ -10,6 +10,7 @@ RUNTIME_DIR = $(SRC_DIR)/runtime
 COMPILER = $(BIN_DIR)/nanoc
 INTERPRETER = $(BIN_DIR)/nano
 HYBRID_COMPILER = $(BIN_DIR)/nanoc_stage1_5
+FFI_BINDGEN = $(BIN_DIR)/nanoc-ffi
 COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/eval.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/env.c $(SRC_DIR)/module.c
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
 RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c $(RUNTIME_DIR)/list_token.c
@@ -21,7 +22,7 @@ INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/tracing.o 
 HYBRID_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/lexer_bridge.o $(OBJ_DIR)/lexer_nano.o $(OBJ_DIR)/main_stage1_5.o
 PREFIX ?= /usr/local
 
-all: $(COMPILER) $(INTERPRETER)
+all: $(COMPILER) $(INTERPRETER) $(FFI_BINDGEN)
 
 $(COMPILER): $(COMPILER_OBJECTS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(COMPILER) $(COMPILER_OBJECTS)
@@ -29,11 +30,17 @@ $(COMPILER): $(COMPILER_OBJECTS) | $(BIN_DIR)
 $(INTERPRETER): $(INTERPRETER_OBJECTS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -DNANO_INTERPRETER -o $(INTERPRETER) $(INTERPRETER_OBJECTS)
 
+$(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o
+
 # Stage 1.5: Hybrid compiler with nanolang lexer
 $(HYBRID_COMPILER): $(HYBRID_OBJECTS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(HYBRID_COMPILER) $(HYBRID_OBJECTS)
 
 # Compile nanolang lexer to object file (lexer_main.nano -> lexer_nano.o)
+$(OBJ_DIR)/ffi_bindgen.o: src/ffi_bindgen.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c src/ffi_bindgen.c -o $(OBJ_DIR)/ffi_bindgen.o
+
 $(OBJ_DIR)/lexer_nano.o: src_nano/lexer_main.nano $(COMPILER) | $(OBJ_DIR)
 	@echo "Compiling nanolang lexer..."
 	$(COMPILER) src_nano/lexer_main.nano -o $(OBJ_DIR)/lexer_nano.tmp --keep-c
@@ -154,12 +161,24 @@ $(CHECKERS): checkers.c | $(BIN_DIR)
 	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -o $(CHECKERS) checkers.c $(SDL2_LDFLAGS)
 	@echo "✓ Checkers built: $(CHECKERS)"
 
+# Build nanolang checkers example
+CHECKERS_NANO = $(BIN_DIR)/checkers_simple
+
+checkers-nano: examples/checkers_simple.nano $(COMPILER) | $(BIN_DIR)
+	@echo "Building nanolang checkers example..."
+	$(COMPILER) examples/checkers_simple.nano -o $(CHECKERS_NANO) \
+		-I/opt/homebrew/include/SDL2 -I/usr/local/include/SDL2 \
+		-L/opt/homebrew/lib -L/usr/local/lib \
+		-lSDL2
+	@echo "✓ nanolang checkers built: $(CHECKERS_NANO)"
+
 # Show help
 help:
 	@echo "nanolang Makefile targets:"
 	@echo "  make              - Build compiler and interpreter"
 	@echo "  make stage1.5     - Build Stage 1.5 hybrid compiler (nanolang lexer + C)"
 	@echo "  make checkers     - Build checkers game (requires SDL2)"
+	@echo "  make checkers-nano - Build nanolang checkers example (requires SDL2)"
 	@echo "  make test         - Run test suite"
 	@echo "  make sanitize     - Build with memory sanitizers"
 	@echo "  make coverage     - Build with coverage instrumentation"

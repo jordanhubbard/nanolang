@@ -1,24 +1,24 @@
 # External C Function Interface (FFI)
 
-**Version:** 1.0  
-**Date:** November 12, 2025  
-**Status:** ✅ Implemented
+**Version:** 2.0  
+**Date:** November 15, 2025  
+**Status:** ✅ First-Class Feature
 
 ---
 
 ## Overview
 
-nanolang supports calling external C functions through the `extern` keyword. This allows you to leverage existing C standard library functions directly from nanolang code without reimplementing them.
+nanolang supports calling external C functions through the `extern` keyword. This is a **first-class feature** that allows nanolang to seamlessly integrate with the C ecosystem, enabling hybrid C/nanolang applications.
 
-**Key Principle: Safety First**
+**Key Principle: First-Class Integration**
 
-We only expose **safe** C functions that:
-- Take explicit length parameters for buffers
-- Have no side effects on global state (except math errno)
-- Cannot cause buffer overflows
-- Are well-documented and standardized
+Extern functions are treated as first-class citizens in nanolang:
+- **Cannot be shadowed or redefined** - Extern functions are immutable declarations
+- **Cannot have shadow tests** - They are C functions, not nanolang functions
+- **Type-checked at compile time** - Full type safety for extern function calls
+- **Seamless integration** - Use C libraries directly without wrappers
 
-> **Note:** For a detailed reference of safe C functions, see [Safe C FFI Functions Reference](SAFE_C_FFI_FUNCTIONS.md).
+This design allows nanolang to work cooperatively with the C ecosystem without attempting to wrap everything. You can use any C library (SDL2, OpenGL, system libraries, etc.) directly from nanolang.
 
 ---
 
@@ -32,9 +32,10 @@ extern fn function_name(param1: type1, param2: type2) -> return_type
 
 **Key Points:**
 - Use the `extern` keyword before `fn`
-- Provide the exact C function signature
+- Provide the exact C function signature matching the C library
 - No function body - just the declaration
-- No shadow test required for extern functions
+- **No shadow test required** - Extern functions cannot have shadow tests
+- **Cannot be redefined** - Extern functions are immutable
 
 ### Example
 
@@ -50,6 +51,82 @@ fn calculate_hypotenuse(a: float, b: float) -> float {
     let b_squared: float = (pow b 2.0)
     let sum: float = (+ a_squared b_squared)
     return (sqrt sum)
+}
+```
+
+---
+
+## First-Class Extern Function Rules
+
+### 1. Extern Functions Cannot Be Shadowed
+
+Extern functions are **immutable declarations** that cannot be redefined or shadowed by regular nanolang functions:
+
+```nano
+extern fn SDL_Init(flags: int) -> int
+
+# ERROR: Cannot shadow extern function
+fn SDL_Init(flags: int) -> int {
+    return 0
+}
+```
+
+**Error Message:**
+```
+Error: Function 'SDL_Init' cannot shadow extern function
+  Extern functions are first-class and cannot be shadowed
+  Choose a different function name
+```
+
+### 2. Extern Functions Cannot Have Shadow Tests
+
+Extern functions are C functions that cannot be tested in the nanolang interpreter:
+
+```nano
+extern fn SDL_Init(flags: int) -> int
+
+# ERROR: Shadow test cannot be attached to extern function
+shadow SDL_Init {
+    assert (== (SDL_Init 0) 0)
+}
+```
+
+**Error Message:**
+```
+Error: Shadow test cannot be attached to extern function 'SDL_Init'
+  Extern functions are C functions and cannot be tested in the interpreter
+  Remove the shadow test or test a wrapper function instead
+```
+
+### 3. Functions Using Extern Functions Don't Require Shadow Tests
+
+Regular nanolang functions that call extern functions don't require shadow tests (they're automatically skipped):
+
+```nano
+extern fn SDL_Init(flags: int) -> int
+
+fn main() -> int {
+    let result: int = (SDL_Init 32)
+    return result
+}
+
+# Shadow test is optional - will be skipped if present
+shadow main {
+    assert (== (main) 0)  # Skipped at runtime (uses extern functions)
+}
+```
+
+### 4. Extern Functions Are Type-Checked
+
+All extern function calls are fully type-checked at compile time:
+
+```nano
+extern fn SDL_Init(flags: int) -> int
+
+fn main() -> int {
+    # ERROR: Wrong argument type
+    let result: int = (SDL_Init "invalid")
+    return result
 }
 ```
 
@@ -71,6 +148,7 @@ fn calculate_hypotenuse(a: float, b: float) -> float {
 - nanolang `int` is always 64-bit, C `int` is platform-dependent
 - nanolang `float` is always double precision
 - Strings are immutable in nanolang, passed as `const char*` to C
+- **Pointer types** (like `SDL_Window*`) are represented as `int` in nanolang and cast appropriately by the transpiler
 
 ---
 
@@ -447,9 +525,63 @@ Create a safe wrapper in the nanolang runtime instead.
 
 ---
 
+## Hybrid C/nanolang Applications
+
+nanolang is designed to work seamlessly with C libraries. This enables **hybrid applications** where:
+
+- **Core logic** is written in nanolang (type-safe, shadow-tested)
+- **System integration** uses C libraries (SDL2, OpenGL, system APIs)
+- **No wrappers needed** - call C functions directly
+
+### Example: SDL2 Application
+
+```nano
+# Declare SDL2 extern functions
+extern fn SDL_Init(flags: int) -> int
+extern fn SDL_CreateWindow(title: string, x: int, y: int, w: int, h: int, flags: int) -> int
+extern fn SDL_Quit() -> void
+
+fn main() -> int {
+    let result: int = (SDL_Init 32)
+    if (< result 0) {
+        return 1
+    } else {
+        let window: int = (SDL_CreateWindow "My App" 0 0 640 480 4)
+        if (== window 0) {
+            (SDL_Quit)
+            return 1
+        } else {
+            # ... application logic ...
+            (SDL_Quit)
+            return 0
+        }
+    }
+}
+```
+
+**Compilation:**
+```bash
+./bin/nanoc app.nano -o app \
+    -I/opt/homebrew/include/SDL2 \
+    -L/opt/homebrew/lib \
+    -lSDL2
+```
+
+See [Building Hybrid Apps](BUILDING_HYBRID_APPS.md) for complete details.
+
+---
+
 ## Conclusion
 
-The extern FFI provides safe, efficient access to C standard library functions while maintaining nanolang's safety guarantees. By carefully selecting only safe functions and following best practices, you can leverage decades of C library development without compromising security.
+**Extern functions are a first-class feature** that enables nanolang to seamlessly integrate with the C ecosystem:
+
+✅ **Cannot be shadowed** - Immutable declarations  
+✅ **Cannot have shadow tests** - C functions, not nanolang  
+✅ **Fully type-checked** - Type safety at compile time  
+✅ **No wrappers needed** - Direct C library integration  
+✅ **Hybrid applications** - Mix nanolang and C libraries  
+
+This design allows nanolang to work cooperatively with C without attempting to wrap everything. Use any C library directly from nanolang code.
 
 **Remember:** When in doubt, create a safe wrapper!
 

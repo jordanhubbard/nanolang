@@ -59,6 +59,65 @@ const char *type_to_string(Type type) {
 /* Forward declarations */
 static Type check_statement(TypeChecker *tc, ASTNode *node);
 
+/* Check if an AST node contains calls to extern functions */
+static bool contains_extern_calls(ASTNode *node, Environment *env) {
+    if (!node) return false;
+    
+    switch (node->type) {
+        case AST_CALL: {
+            const char *func_name = node->as.call.name;
+            Function *func = env_get_function(env, func_name);
+            if (func && func->is_extern) {
+                return true;
+            }
+            /* Check arguments recursively */
+            for (int i = 0; i < node->as.call.arg_count; i++) {
+                if (contains_extern_calls(node->as.call.args[i], env)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        case AST_BLOCK:
+            for (int i = 0; i < node->as.block.count; i++) {
+                if (contains_extern_calls(node->as.block.statements[i], env)) {
+                    return true;
+                }
+            }
+            return false;
+        case AST_IF:
+            if (contains_extern_calls(node->as.if_stmt.condition, env)) return true;
+            if (contains_extern_calls(node->as.if_stmt.then_branch, env)) return true;
+            if (node->as.if_stmt.else_branch && contains_extern_calls(node->as.if_stmt.else_branch, env)) return true;
+            return false;
+        case AST_WHILE:
+            if (contains_extern_calls(node->as.while_stmt.condition, env)) return true;
+            if (contains_extern_calls(node->as.while_stmt.body, env)) return true;
+            return false;
+        case AST_RETURN:
+            if (node->as.return_stmt.value && contains_extern_calls(node->as.return_stmt.value, env)) return true;
+            return false;
+        case AST_PREFIX_OP:
+            for (int i = 0; i < node->as.prefix_op.arg_count; i++) {
+                if (contains_extern_calls(node->as.prefix_op.args[i], env)) return true;
+            }
+            return false;
+        case AST_ARRAY_LITERAL:
+            for (int i = 0; i < node->as.array_literal.element_count; i++) {
+                if (contains_extern_calls(node->as.array_literal.elements[i], env)) return true;
+            }
+            return false;
+        case AST_FIELD_ACCESS:
+            return contains_extern_calls(node->as.field_access.object, env);
+        case AST_LET:
+            return contains_extern_calls(node->as.let.value, env);
+        case AST_SET:
+            return contains_extern_calls(node->as.set.value, env);
+        default:
+            return false;
+    }
+}
+
 /* Check if types are compatible */
 static bool types_match(Type t1, Type t2) {
     if (t1 == t2) return true;
@@ -1897,13 +1956,35 @@ bool type_check(ASTNode *program, Environment *env) {
             
             /* Check if function is already defined */
             Function *existing = env_get_function(env, func_name);
-            if (existing && existing->body != NULL) {
-                fprintf(stderr, "Error at line %d, column %d: Function '%s' is already defined\n",
-                        item->line, item->column, func_name);
-                fprintf(stderr, "  Previous definition at line %d, column %d\n",
-                        existing->body->line, existing->body->column);
-                tc.has_error = true;
-                continue;  /* Skip this duplicate function */
+            if (existing) {
+                /* Extern functions cannot be redefined or shadowed */
+                if (existing->is_extern) {
+                    fprintf(stderr, "Error at line %d, column %d: Extern function '%s' cannot be redefined\n",
+                            item->line, item->column, func_name);
+                    fprintf(stderr, "  Extern functions are first-class and cannot be shadowed\n");
+                    fprintf(stderr, "  Previous extern declaration at line %d, column %d\n",
+                            item->line, item->column);  /* Note: we don't track extern line numbers well */
+                    tc.has_error = true;
+                    continue;
+                }
+                /* Regular functions cannot be redefined */
+                if (existing->body != NULL) {
+                    fprintf(stderr, "Error at line %d, column %d: Function '%s' is already defined\n",
+                            item->line, item->column, func_name);
+                    fprintf(stderr, "  Previous definition at line %d, column %d\n",
+                            existing->body->line, existing->body->column);
+                    tc.has_error = true;
+                    continue;
+                }
+                /* Regular functions cannot shadow extern functions */
+                if (!item->as.function.is_extern && existing->is_extern) {
+                    fprintf(stderr, "Error at line %d, column %d: Function '%s' cannot shadow extern function\n",
+                            item->line, item->column, func_name);
+                    fprintf(stderr, "  Extern functions are first-class and cannot be shadowed\n");
+                    fprintf(stderr, "  Choose a different function name\n");
+                    tc.has_error = true;
+                    continue;
+                }
             }
             
             /* Define the function */
@@ -1972,6 +2053,13 @@ bool type_check(ASTNode *program, Environment *env) {
                 fprintf(stderr, "Error at line %d, column %d: Shadow test for undefined function '%s'\n",
                         item->line, item->column, item->as.shadow.function_name);
                 tc.has_error = true;
+            } else if (func->is_extern) {
+                /* Extern functions cannot have shadow tests - they're C functions */
+                fprintf(stderr, "Error at line %d, column %d: Shadow test cannot be attached to extern function '%s'\n",
+                        item->line, item->column, item->as.shadow.function_name);
+                fprintf(stderr, "  Extern functions are C functions and cannot be tested in the interpreter\n");
+                fprintf(stderr, "  Remove the shadow test or test a wrapper function instead\n");
+                tc.has_error = true;
             } else {
                 func->shadow_test = item->as.shadow.body;
             }
@@ -2030,12 +2118,17 @@ bool type_check(ASTNode *program, Environment *env) {
             /* Restore environment (remove parameters) */
             env->symbol_count = saved_symbol_count;
 
-            /* Verify function has shadow test */
+            /* Verify function has shadow test (skip for extern functions and functions that use extern functions) */
             Function *func = env_get_function(env, item->as.function.name);
-            if (!func->shadow_test) {
-                fprintf(stderr, "Error: Function '%s' is missing a shadow test\n",
-                        item->as.function.name);
-                tc.has_error = true;
+            if (!func->is_extern && !func->shadow_test) {
+                /* Check if function body uses extern functions - if so, shadow test is optional */
+                bool uses_extern = func->body && contains_extern_calls(func->body, env);
+                if (!uses_extern) {
+                    fprintf(stderr, "Error: Function '%s' is missing a shadow test\n",
+                            item->as.function.name);
+                    fprintf(stderr, "  Note: Extern functions and functions that use extern functions do not require shadow tests\n");
+                    tc.has_error = true;
+                }
             }
         }
     }
@@ -2189,11 +2282,24 @@ bool type_check_module(ASTNode *program, Environment *env) {
             /* Check for duplicate function definitions */
             Function *existing = env_get_function(env, func_name);
             if (existing) {
+                /* Extern functions cannot be redefined or shadowed */
+                if (existing->is_extern) {
+                    fprintf(stderr, "Error at line %d, column %d: Extern function '%s' cannot be redefined\n",
+                            item->line, item->column, func_name);
+                    fprintf(stderr, "  Extern functions are first-class and cannot be shadowed\n");
+                    tc.has_error = true;
+                    continue;
+                }
+                /* Regular functions cannot be redefined */
                 fprintf(stderr, "Error at line %d, column %d: Function '%s' is already defined\n",
                         item->line, item->column, func_name);
                 tc.has_error = true;
                 continue;
             }
+            
+            /* Regular functions cannot shadow extern functions */
+            /* Note: This check happens after we've registered extern functions */
+            /* We check this in the first pass, but also here for module type checking */
             
             /* Check if function name shadows a built-in */
             if (is_builtin_function(func_name)) {
@@ -2242,6 +2348,14 @@ bool type_check_module(ASTNode *program, Environment *env) {
             if (!func) {
                 fprintf(stderr, "Error at line %d, column %d: Shadow test for undefined function '%s'\n",
                         item->line, item->column, item->as.shadow.function_name);
+                tc.has_error = true;
+                continue;
+            } else if (func->is_extern) {
+                /* Extern functions cannot have shadow tests - they're C functions */
+                fprintf(stderr, "Error at line %d, column %d: Shadow test cannot be attached to extern function '%s'\n",
+                        item->line, item->column, item->as.shadow.function_name);
+                fprintf(stderr, "  Extern functions are C functions and cannot be tested in the interpreter\n");
+                fprintf(stderr, "  Remove the shadow test or test a wrapper function instead\n");
                 tc.has_error = true;
                 continue;
             }
@@ -2305,12 +2419,17 @@ bool type_check_module(ASTNode *program, Environment *env) {
             /* Restore environment (remove parameters) */
             env->symbol_count = saved_symbol_count;
 
-            /* Verify function has shadow test */
+            /* Verify function has shadow test (skip for extern functions and functions that use extern functions) */
             Function *func = env_get_function(env, item->as.function.name);
-            if (!func->shadow_test) {
-                fprintf(stderr, "Error: Function '%s' is missing a shadow test\n",
-                        item->as.function.name);
-                tc.has_error = true;
+            if (!func->is_extern && !func->shadow_test) {
+                /* Check if function body uses extern functions - if so, shadow test is optional */
+                bool uses_extern = func->body && contains_extern_calls(func->body, env);
+                if (!uses_extern) {
+                    fprintf(stderr, "Error: Function '%s' is missing a shadow test\n",
+                            item->as.function.name);
+                    fprintf(stderr, "  Note: Extern functions and functions that use extern functions do not require shadow tests\n");
+                    tc.has_error = true;
+                }
             }
         }
     }
