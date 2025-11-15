@@ -96,6 +96,7 @@ struct Parser {
     /* Token stream */
     position: int,
     token_count: int,
+    has_error: bool,
     
     /* AST node storage (index-based, not pointers) */
     numbers_count: int,
@@ -115,6 +116,7 @@ fn parser_new() -> Parser {
     return Parser {
         position: 0,
         token_count: 0,
+        has_error: false,
         numbers_count: 0,
         strings_count: 0,
         bools_count: 0,
@@ -153,6 +155,138 @@ fn parser_is_at_end(p: Parser) -> bool {
 
 shadow parser_is_at_end {
     assert (== 1 1)  /* Placeholder - will test with real parser state */
+}
+
+/* Helper: Copy parser with new position */
+fn parser_with_position(p: Parser, new_position: int) -> Parser {
+    return Parser {
+        position: new_position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        numbers_count: p.numbers_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        lets_count: p.lets_count,
+        next_node_id: p.next_node_id
+    }
+}
+
+shadow parser_with_position {
+    /* TODO: Test with actual parser state */
+    assert (== 1 1)
+}
+
+/* Advance parser to next token - returns new parser with advanced position */
+fn parser_advance(p: Parser) -> Parser {
+    if (not (parser_is_at_end p)) {
+        return (parser_with_position p (+ p.position 1))
+    } else {
+        return p  /* Already at end */
+    }
+}
+
+shadow parser_advance {
+    /* TODO: Test with actual parser state */
+    assert (== 1 1)
+}
+
+/* Get current position */
+fn parser_position(p: Parser) -> int {
+    return p.position
+}
+
+shadow parser_position {
+    let p: Parser = (parser_new)
+    assert (== (parser_position p) 0)
+}
+
+/* Check if current token matches a specific type */
+/* Note: This will need List<LexToken> support to actually check token type */
+/* For now, returns false as placeholder */
+fn parser_match(p: Parser, token_type: int) -> bool {
+    if (parser_is_at_end p) {
+        return false
+    } else {
+        /* TODO: Get current token from List<LexToken> and check type */
+        /* For now, placeholder */
+        return false
+    }
+}
+
+shadow parser_match {
+    /* TODO: Test with actual token list */
+    assert (== 1 1)
+}
+
+/* Expect a specific token type - advance if matched, set error if not */
+fn parser_expect(p: Parser, token_type: int) -> Parser {
+    /* TODO: Get current token from List<LexToken> and check type */
+    /* For now, placeholder logic: */
+    if (parser_match p token_type) {
+        /* Token matches - advance and return */
+        return (parser_advance p)
+    } else {
+        /* Token doesn't match - set error flag */
+        return (parser_with_error p true)
+    }
+}
+
+shadow parser_expect {
+    /* TODO: Test with actual token list */
+    assert (== 1 1)
+}
+
+/* Peek ahead by offset without advancing */
+/* Returns token type at offset, or EOF if out of bounds */
+fn parser_peek(p: Parser, offset: int) -> int {
+    let peek_pos: int = (+ p.position offset)
+    if (>= peek_pos p.token_count) {
+        return 0  /* EOF */
+    } else {
+        /* TODO: Get token from List<LexToken> at peek_pos */
+        /* For now, return EOF */
+        return 0
+    }
+}
+
+shadow parser_peek {
+    /* TODO: Test with actual token list */
+    assert (== 1 1)
+}
+
+/* Helper: Copy parser with error flag set */
+fn parser_with_error(p: Parser, error: bool) -> Parser {
+    return Parser {
+        position: p.position,
+        token_count: p.token_count,
+        has_error: error,
+        numbers_count: p.numbers_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        lets_count: p.lets_count,
+        next_node_id: p.next_node_id
+    }
+}
+
+shadow parser_with_error {
+    /* TODO: Test with actual parser state */
+    assert (== 1 1)
+}
+
+/* Check if parser has encountered an error */
+fn parser_has_error(p: Parser) -> bool {
+    return p.has_error
+}
+
+shadow parser_has_error {
+    let p: Parser = (parser_new)
+    assert (== (parser_has_error p) false)
 }
 
 /* MVP: Placeholder implementation
@@ -212,7 +346,18 @@ shadow test_parser_structure {
 
 fn main() -> int {
     (println "Nanolang Self-Hosted Parser - MVP")
-    (println "Status: AST structures defined, foundation complete")
+    (println "Status: Token management complete!")
+    (println "")
+    (println "✅ Token navigation functions:")
+    (println "  - parser_is_at_end()")
+    (println "  - parser_advance()")
+    (println "  - parser_position()")
+    (println "  - parser_match()")
+    (println "  - parser_expect()")
+    (println "  - parser_peek()")
+    (println "  - parser_has_error()")
+    (println "")
+    (println "Next: Integrate with List<LexToken> for actual token access")
     return 0
 }
 

@@ -131,6 +131,21 @@ CHECKERS = $(BIN_DIR)/checkers
 # Try multiple common locations for SDL2 headers
 SDL2_CFLAGS := -I/opt/homebrew/include/SDL2 -I/usr/local/include/SDL2 -I/usr/include/SDL2
 SDL2_LDFLAGS := -L/opt/homebrew/lib -L/usr/local/lib -L/usr/lib -lSDL2
+# Check if SDL2_ttf is available
+SDL2_TTF_AVAILABLE := $(shell pkg-config --exists sdl2_ttf 2>/dev/null && echo "yes" || echo "no")
+ifeq ($(SDL2_TTF_AVAILABLE),yes)
+    SDL2_CFLAGS += -DHAVE_SDL_TTF $(shell pkg-config --cflags sdl2_ttf)
+    SDL2_LDFLAGS += $(shell pkg-config --libs sdl2_ttf)
+else
+    # Try common locations
+    ifneq ($(wildcard /opt/homebrew/include/SDL2/SDL_ttf.h),)
+        SDL2_CFLAGS += -DHAVE_SDL_TTF -I/opt/homebrew/include/SDL2
+        SDL2_LDFLAGS += -L/opt/homebrew/lib -lSDL2_ttf
+    else ifneq ($(wildcard /usr/local/include/SDL2/SDL_ttf.h),)
+        SDL2_CFLAGS += -DHAVE_SDL_TTF -I/usr/local/include/SDL2
+        SDL2_LDFLAGS += -L/usr/local/lib -lSDL2_ttf
+    endif
+endif
 
 checkers: $(CHECKERS)
 

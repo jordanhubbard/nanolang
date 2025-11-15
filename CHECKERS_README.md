@@ -4,7 +4,8 @@ A simple checkers game implemented in C using SDL2, designed to run as an X11 cl
 
 ## Requirements
 
-- SDL2 development libraries
+- SDL2 development libraries (required)
+- SDL2_ttf development libraries (optional - for nicer text rendering)
 - C compiler (gcc or clang)
 - X11 server (for running the game)
 
@@ -14,22 +15,25 @@ A simple checkers game implemented in C using SDL2, designed to run as an X11 cl
 
 ```bash
 brew install sdl2
+brew install sdl2_ttf  # Optional but recommended for better text rendering
 make checkers
 ```
 
 ### Linux (Ubuntu/Debian)
 
 ```bash
-sudo apt-get install libsdl2-dev
+sudo apt-get install libsdl2-dev libsdl2-ttf-dev
 make checkers
 ```
 
 ### Linux (Fedora/RHEL)
 
 ```bash
-sudo dnf install SDL2-devel
+sudo dnf install SDL2-devel SDL2_ttf-devel
 make checkers
 ```
+
+**Note:** If SDL2_ttf is not installed, the game will use a simple bitmap font renderer for the game over message. The game will still work, but the text will be simpler.
 
 ## Building
 
