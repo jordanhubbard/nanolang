@@ -416,6 +416,9 @@ static nl_array* nl_array_literal_int(int64_t count, ...) {
 /* ========== End Union Definitions ========== */
 
 /* External C function declarations */
+/* Forward declarations for module functions */
+
+/* Forward declarations for program functions */
 int64_t nl_main();
 
 int64_t nl_main() {

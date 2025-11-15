@@ -1026,6 +1026,11 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) {
         return NULL;
     }
+    
+    if (!env) {
+        fprintf(stderr, "Error: Environment is NULL in transpile_to_c\n");
+        return NULL;
+    }
 
     StringBuilder *sb = sb_create();
 
@@ -1705,36 +1710,87 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     
     /* Forward declare all functions (including module functions) */
     /* First, collect function names from current program AST */
-    bool *program_functions = calloc(env->function_count, sizeof(bool));
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_FUNCTION) {
-            /* Find function in environment and mark it */
-            for (int j = 0; j < env->function_count; j++) {
-                if (strcmp(env->functions[j].name, item->as.function.name) == 0) {
-                    program_functions[j] = true;
-                    break;
+    bool *program_functions = NULL;
+    if (env && env->functions && env->function_count > 0) {
+        program_functions = calloc(env->function_count, sizeof(bool));
+        if (!program_functions) {
+            /* Out of memory - skip module function declarations */
+            program_functions = NULL;
+        } else {
+            for (int i = 0; i < program->as.program.count; i++) {
+                ASTNode *item = program->as.program.items[i];
+                if (item && item->type == AST_FUNCTION) {
+                    /* Find function in environment and mark it */
+                    for (int j = 0; j < env->function_count; j++) {
+                        if (env->functions[j].name && 
+                            strcmp(env->functions[j].name, item->as.function.name) == 0) {
+                            program_functions[j] = true;
+                            break;
+                        }
+                    }
                 }
             }
         }
     }
     
     /* Forward declare module functions (functions in env but not in program AST) */
-    sb_append(sb, "/* Forward declarations for module functions */\n");
-    for (int i = 0; i < env->function_count; i++) {
-        Function *func = &env->functions[i];
-        
-        /* Skip extern functions - they're declared above */
-        if (func->is_extern) {
-            continue;
+    if (env && env->functions && env->function_count > 0) {
+        sb_append(sb, "/* Forward declarations for module functions */\n");
+        for (int i = 0; i < env->function_count; i++) {
+            Function *func = &env->functions[i];
+            if (!func || !func->name) continue;
+            
+            /* Skip extern functions - they're declared above */
+            if (func->is_extern) continue;
+            
+            /* Skip functions that are in the current program (they'll be declared below) */
+            if (program_functions && i < env->function_count && program_functions[i]) {
+                continue;
+            }
+            
+            /* Simple forward declaration - just basic types for now */
+            if (func->return_type < TYPE_UNKNOWN || func->return_type > TYPE_UNION) {
+                continue;  /* Invalid return type */
+            }
+            sb_append(sb, type_to_c(func->return_type));
+            sb_appendf(sb, " nl_%s(", func->name);
+            
+            /* Function parameters */
+            if (func->params && func->param_count > 0 && func->param_count <= 16) {
+                for (int j = 0; j < func->param_count; j++) {
+                    if (j > 0) sb_append(sb, ", ");
+                    if (func->params[j].type < TYPE_UNKNOWN || func->params[j].type > TYPE_UNION) {
+                        sb_append(sb, "int64_t");  /* Default to int64_t if invalid */
+                    } else {
+                        sb_append(sb, type_to_c(func->params[j].type));
+                    }
+                    if (func->params[j].name) {
+                        sb_appendf(sb, " %s", func->params[j].name);
+                    } else {
+                        sb_appendf(sb, " param%d", j);
+                    }
+                }
+            }
+            sb_append(sb, ");\n");
         }
-        
-        /* Skip functions that are in the current program (they'll be declared below) */
-        if (program_functions[i]) {
-            continue;
-        }
-        
-        /* Module function - forward declare with nl_ prefix */
+        sb_append(sb, "\n");
+    }
+    
+    if (program_functions) {
+        free(program_functions);
+    }
+    
+    /* Forward declare functions from current program */
+    sb_append(sb, "/* Forward declarations for program functions */\n");
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_FUNCTION) {
+            /* Skip extern functions - they're declared above */
+            if (item->as.function.is_extern) {
+                continue;
+            }
+            
+            /* Regular functions - forward declare with nl_ prefix */
             /* Function return type */
             if (item->as.function.return_type == TYPE_FUNCTION && item->as.function.return_fn_sig) {
                 /* Function return type: use typedef */
