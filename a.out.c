@@ -410,16 +410,6 @@ typedef enum {
     nl_Status_ERROR = 1
 } nl_Status;
 
-typedef enum {
-    nl_Status_OK = 0,
-    nl_Status_ERROR = 1
-} nl_Status;
-
-typedef enum {
-    nl_Status_OK = 0,
-    nl_Status_ERROR = 1
-} nl_Status;
-
 /* ========== End Enum Definitions ========== */
 
 /* ========== Generic List Specializations ========== */

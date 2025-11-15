@@ -1368,6 +1368,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "/* ========== Enum Definitions ========== */\n\n");
     for (int i = 0; i < env->enum_count; i++) {
         EnumDef *edef = &env->enums[i];
+        
         /* Skip runtime-provided enums - they're already defined in nanolang.h */
         if (is_runtime_typedef(edef->name)) {
             continue;
@@ -1539,11 +1540,13 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                 /* Generic list return type: List<ElementType> -> List_ElementType* */
                 sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
             } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
-                if (is_runtime_typedef(item->as.function.return_struct_type_name)) {
-                    sb_append(sb, item->as.function.return_struct_type_name);
-                } else {
-                    sb_appendf(sb, "struct %s", item->as.function.return_struct_type_name);
-                }
+                /* Use prefixed type name */
+                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                sb_append(sb, prefixed_name);
+            } else if (item->as.function.return_type == TYPE_UNION && item->as.function.return_struct_type_name) {
+                /* Use prefixed union name */
+                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                sb_append(sb, prefixed_name);
             } else {
                 sb_append(sb, type_to_c(item->as.function.return_type));
             }
@@ -1566,15 +1569,13 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                               item->as.function.params[j].struct_type_name,
                               item->as.function.params[j].name);
                 } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
-                    if (is_runtime_typedef(item->as.function.params[j].struct_type_name)) {
-                        sb_appendf(sb, "%s %s",
-                                  item->as.function.params[j].struct_type_name,
-                                  item->as.function.params[j].name);
-                    } else {
-                        sb_appendf(sb, "struct %s %s",
-                                  item->as.function.params[j].struct_type_name,
-                                  item->as.function.params[j].name);
-                    }
+                    /* Use prefixed type name */
+                    const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
+                    sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
+                    /* Use prefixed union name */
+                    const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
+                    sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
                 } else {
                     sb_appendf(sb, "%s %s",
                               type_to_c(item->as.function.params[j].type),
@@ -1605,11 +1606,13 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                 /* Generic list return type: List<ElementType> -> List_ElementType* */
                 sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
             } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
-                if (is_runtime_typedef(item->as.function.return_struct_type_name)) {
-                    sb_append(sb, item->as.function.return_struct_type_name);
-                } else {
-                    sb_appendf(sb, "struct %s", item->as.function.return_struct_type_name);
-                }
+                /* Use prefixed type name */
+                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                sb_append(sb, prefixed_name);
+            } else if (item->as.function.return_type == TYPE_UNION && item->as.function.return_struct_type_name) {
+                /* Use prefixed union name */
+                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                sb_append(sb, prefixed_name);
             } else {
                 sb_append(sb, type_to_c(item->as.function.return_type));
             }
@@ -1632,15 +1635,13 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                               item->as.function.params[j].struct_type_name,
                               item->as.function.params[j].name);
                 } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
-                    if (is_runtime_typedef(item->as.function.params[j].struct_type_name)) {
-                        sb_appendf(sb, "%s %s",
-                                  item->as.function.params[j].struct_type_name,
-                                  item->as.function.params[j].name);
-                    } else {
-                        sb_appendf(sb, "struct %s %s",
-                                  item->as.function.params[j].struct_type_name,
-                                  item->as.function.params[j].name);
-                    }
+                    /* Use prefixed type name */
+                    const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
+                    sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
+                    /* Use prefixed union name */
+                    const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
+                    sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
                 } else {
                     sb_appendf(sb, "%s %s",
                               type_to_c(item->as.function.params[j].type),
