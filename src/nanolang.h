@@ -296,6 +296,7 @@ struct ASTNode {
             int param_count;
             Type return_type;
             char *return_struct_type_name;  /* For TYPE_STRUCT returns */
+            FunctionSignature *return_fn_sig;  /* For TYPE_FUNCTION returns */
             ASTNode *body;
             bool is_extern;  /* NEW: Mark external C functions */
         } function;

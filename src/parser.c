@@ -8,7 +8,7 @@ typedef struct {
 } Parser;
 
 /* Forward declarations */
-static Type parse_type_with_element(Parser *p, Type *element_type_out, char **type_param_name_out);
+static Type parse_type_with_element(Parser *p, Type *element_type_out, char **type_param_name_out, FunctionSignature **fn_sig_out);
 
 /* Helper functions */
 static Token *current_token(Parser *p) {
@@ -84,13 +84,125 @@ static ASTNode *create_node(ASTNodeType type, int line, int column) {
     return node;
 }
 
+/* Forward declaration for function signature parsing */
+static FunctionSignature *parse_function_signature(Parser *p);
+
+/* Parse function signature: fn(int, string) -> bool */
+static FunctionSignature *parse_function_signature(Parser *p) {
+    /* Expect 'fn' */
+    if (current_token(p)->type != TOKEN_FN) {
+        fprintf(stderr, "Error at line %d, column %d: Expected 'fn' for function type\n",
+                current_token(p)->line, current_token(p)->column);
+        return NULL;
+    }
+    advance(p);  /* consume 'fn' */
+    
+    /* Expect '(' */
+    if (current_token(p)->type != TOKEN_LPAREN) {
+        fprintf(stderr, "Error at line %d, column %d: Expected '(' after 'fn'\n",
+                current_token(p)->line, current_token(p)->column);
+        return NULL;
+    }
+    advance(p);  /* consume '(' */
+    
+    /* Allocate signature */
+    FunctionSignature *sig = malloc(sizeof(FunctionSignature));
+    sig->param_count = 0;
+    sig->param_types = NULL;
+    sig->param_struct_names = NULL;
+    sig->return_type = TYPE_UNKNOWN;
+    sig->return_struct_name = NULL;
+    
+    /* Parse parameter types */
+    if (current_token(p)->type != TOKEN_RPAREN) {
+        /* Parse comma-separated types */
+        while (1) {
+            char *struct_name = NULL;
+            FunctionSignature *nested_fn_sig = NULL;
+            Type param_type = parse_type_with_element(p, NULL, &struct_name, &nested_fn_sig);
+            
+            if (param_type == TYPE_UNKNOWN) {
+                /* Error already reported */
+                free_function_signature(sig);
+                return NULL;
+            }
+            
+            /* Grow arrays */
+            sig->param_count++;
+            sig->param_types = realloc(sig->param_types, 
+                                      sizeof(Type) * sig->param_count);
+            sig->param_struct_names = realloc(sig->param_struct_names,
+                                             sizeof(char*) * sig->param_count);
+            
+            sig->param_types[sig->param_count - 1] = param_type;
+            sig->param_struct_names[sig->param_count - 1] = struct_name;  /* May be NULL */
+            
+            /* TODO: Handle nested function signatures in function parameters */
+            /* For now, we don't support fn(fn(int)->int)->int */
+            if (nested_fn_sig) {
+                fprintf(stderr, "Error: Nested function types not yet supported\n");
+                free_function_signature(nested_fn_sig);
+                free_function_signature(sig);
+                return NULL;
+            }
+            
+            if (current_token(p)->type == TOKEN_COMMA) {
+                advance(p);  /* consume ',' */
+            } else {
+                break;
+            }
+        }
+    }
+    
+    /* Expect ')' */
+    if (current_token(p)->type != TOKEN_RPAREN) {
+        fprintf(stderr, "Error at line %d, column %d: Expected ')' in function type\n",
+                current_token(p)->line, current_token(p)->column);
+        free_function_signature(sig);
+        return NULL;
+    }
+    advance(p);  /* consume ')' */
+    
+    /* Expect '->' */
+    if (current_token(p)->type != TOKEN_ARROW) {
+        fprintf(stderr, "Error at line %d, column %d: Expected '->' in function type\n",
+                current_token(p)->line, current_token(p)->column);
+        free_function_signature(sig);
+        return NULL;
+    }
+    advance(p);  /* consume '->' */
+    
+    /* Parse return type */
+    char *return_struct_name = NULL;
+    FunctionSignature *return_fn_sig = NULL;
+    sig->return_type = parse_type_with_element(p, NULL, &return_struct_name, &return_fn_sig);
+    sig->return_struct_name = return_struct_name;  /* May be NULL */
+    
+    /* TODO: Handle function types as return types */
+    /* For now, we don't support fn() -> fn()->int */
+    if (return_fn_sig) {
+        fprintf(stderr, "Error: Function types as return values not yet supported in function type signatures\n");
+        free_function_signature(return_fn_sig);
+        free_function_signature(sig);
+        return NULL;
+    }
+    
+    if (sig->return_type == TYPE_UNKNOWN) {
+        /* Error already reported */
+        free_function_signature(sig);
+        return NULL;
+    }
+    
+    return sig;
+}
+
 /* Parse type annotation */
 static Type parse_type(Parser *p) {
-    return parse_type_with_element(p, NULL, NULL);
+    return parse_type_with_element(p, NULL, NULL, NULL);
 }
 
 /* Parse type annotation with optional element_type output (for arrays) and type_param_name for generics */
-static Type parse_type_with_element(Parser *p, Type *element_type_out, char **type_param_name_out) {
+static Type parse_type_with_element(Parser *p, Type *element_type_out, char **type_param_name_out, FunctionSignature **fn_sig_out) {
     Type type = TYPE_UNKNOWN;
     Token *tok = current_token(p);
 
@@ -100,6 +212,18 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
         case TOKEN_TYPE_BOOL: type = TYPE_BOOL; break;
         case TOKEN_TYPE_STRING: type = TYPE_STRING; break;
         case TOKEN_TYPE_VOID: type = TYPE_VOID; break;
+        
+        case TOKEN_FN: {
+            /* Function type: fn(type1, type2) -> return_type */
+            FunctionSignature *sig = parse_function_signature(p);
+            if (sig) {
+                if (fn_sig_out) {
+                    *fn_sig_out = sig;
+                }
+                return TYPE_FUNCTION;
+            }
+            return TYPE_UNKNOWN;
+        }
         case TOKEN_IDENTIFIER:
             /* Check for list types (legacy names) */
             if (strcmp(tok->value, "list_int") == 0) {
@@ -175,7 +299,7 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
             advance(p);  /* consume '<' */
             
             /* Parse element type (no need for type_param_name in arrays for now) */
-            Type element_type = parse_type_with_element(p, NULL, NULL);
+            Type element_type = parse_type_with_element(p, NULL, NULL, NULL);
             if (element_type == TYPE_UNKNOWN) {
                 return TYPE_UNKNOWN;
             }
@@ -240,9 +364,11 @@ static bool parse_parameters(Parser *p, Parameter **params, int *param_count) {
             /* Parse type with element_type support for arrays and generics */
             Type element_type = TYPE_UNKNOWN;
             char *type_param_name = NULL;
-            param_list[count].type = parse_type_with_element(p, &element_type, &type_param_name);
+            FunctionSignature *fn_sig = NULL;
+            param_list[count].type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig);
             param_list[count].struct_type_name = type_param_name;  /* Store generic type param here */
             param_list[count].element_type = element_type;
+            param_list[count].fn_sig = fn_sig;  /* Store function signature if it's a function type */
             
             /* If it's a struct type, save the struct name */
             if (param_list[count].type == TYPE_STRUCT && struct_name) {
@@ -739,7 +865,8 @@ static ASTNode *parse_statement(Parser *p) {
             /* Parse type with element_type support for arrays and generics */
             Type element_type = TYPE_UNKNOWN;
             char *type_param_name = NULL;  /* For generic types like List<Point> */
-            Type type = parse_type_with_element(p, &element_type, &type_param_name);
+            FunctionSignature *fn_sig = NULL;  /* For function types */
+            Type type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig);
 
             /* For generic lists, type_param_name contains the element type (e.g., "Point") */
             /* For structs, type_name contains the struct name */
@@ -1376,7 +1503,8 @@ static ASTNode *parse_function(Parser *p, bool is_extern) {
 
     /* Parse return type and capture struct/generic type name if applicable */
     char *return_struct_name = NULL;
-    Type return_type = parse_type_with_element(p, NULL, &return_struct_name);
+    FunctionSignature *return_fn_sig = NULL;
+    Type return_type = parse_type_with_element(p, NULL, &return_struct_name, &return_fn_sig);
     
     /* For non-generic structs, we still need to capture the name */
     if (return_type == TYPE_STRUCT && !return_struct_name) {
@@ -1406,6 +1534,7 @@ static ASTNode *parse_function(Parser *p, bool is_extern) {
     node->as.function.param_count = param_count;
     node->as.function.return_type = return_type;
     node->as.function.return_struct_type_name = return_struct_name;  /* May be NULL */
+    node->as.function.return_fn_sig = return_fn_sig;  /* May be NULL */
     node->as.function.body = body;
     node->as.function.is_extern = is_extern;
     return node;
