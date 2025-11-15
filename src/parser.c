@@ -1374,14 +1374,18 @@ static ASTNode *parse_function(Parser *p, bool is_extern) {
         return NULL;
     }
 
-    /* Capture return struct type name if it's a struct */
-    Token *return_type_token = current_token(p);
+    /* Parse return type and capture struct/generic type name if applicable */
     char *return_struct_name = NULL;
-    if (return_type_token->type == TOKEN_IDENTIFIER) {
-        return_struct_name = strdup(return_type_token->value);
-    }
+    Type return_type = parse_type_with_element(p, NULL, &return_struct_name);
     
-    Type return_type = parse_type(p);
+    /* For non-generic structs, we still need to capture the name */
+    if (return_type == TYPE_STRUCT && !return_struct_name) {
+        /* Go back one token to get the struct name */
+        Token *prev_token = &p->tokens[p->pos - 1];
+        if (prev_token && prev_token->type == TOKEN_IDENTIFIER) {
+            return_struct_name = strdup(prev_token->value);
+        }
+    }
 
     ASTNode *body = NULL;
     if (!is_extern) {

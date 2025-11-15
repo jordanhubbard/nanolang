@@ -42,7 +42,7 @@ enum TokenType {
     ASSERT = 29,
     SHADOW = 30,
     PRINT = 31,
-    ARRAY_KW = 32,
+    ARRAY = 32,
     STRUCT = 33,
     ENUM = 34,
     UNION = 35,
@@ -67,9 +67,9 @@ enum TokenType {
     LE = 50,
     GT = 51,
     GE = 52,
-    AND_KW = 53,
-    OR_KW = 54,
-    NOT_KW = 55,
+    AND = 53,
+    OR = 54,
+    NOT = 55,
     RANGE = 56
 }
 
@@ -188,7 +188,7 @@ fn classify_keyword(word: string) -> int {
     if (strings_equal word "assert") { return TokenType.ASSERT } else {}
     if (strings_equal word "shadow") { return TokenType.SHADOW } else {}
     if (strings_equal word "print") { return TokenType.PRINT } else {}
-    if (strings_equal word "array") { return TokenType.ARRAY_KW } else {}
+    if (strings_equal word "array") { return TokenType.ARRAY } else {}
     if (strings_equal word "struct") { return TokenType.STRUCT } else {}
     if (strings_equal word "enum") { return TokenType.ENUM } else {}
     if (strings_equal word "union") { return TokenType.UNION } else {}
@@ -206,9 +206,9 @@ fn classify_keyword(word: string) -> int {
     if (strings_equal word "void") { return TokenType.TYPE_VOID } else {}
     
     /* Operators as keywords */
-    if (strings_equal word "and") { return TokenType.AND_KW } else {}
-    if (strings_equal word "or") { return TokenType.OR_KW } else {}
-    if (strings_equal word "not") { return TokenType.NOT_KW } else {}
+    if (strings_equal word "and") { return TokenType.AND } else {}
+    if (strings_equal word "or") { return TokenType.OR } else {}
+    if (strings_equal word "not") { return TokenType.NOT } else {}
     if (strings_equal word "range") { return TokenType.RANGE } else {}
     
     return TokenType.IDENTIFIER
