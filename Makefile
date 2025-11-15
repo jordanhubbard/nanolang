@@ -62,7 +62,7 @@ stage1.5: $(HYBRID_COMPILER)
 	@echo "✓ Stage 1.5 hybrid compiler built: $(HYBRID_COMPILER)"
 
 clean:
-	rm -f $(OBJ_DIR)/*.o $(OBJ_DIR)/runtime/*.o $(COMPILER) $(INTERPRETER) $(HYBRID_COMPILER) *.out *.out.c tests/*.out tests/*.out.c
+	rm -f $(OBJ_DIR)/*.o $(OBJ_DIR)/runtime/*.o $(COMPILER) $(INTERPRETER) $(HYBRID_COMPILER) $(CHECKERS) *.out *.out.c tests/*.out tests/*.out.c
 	rm -rf .test_output $(COV_DIR)
 	rm -f *.gcda *.gcno *.gcov coverage.info
 	find . -name "*.gcda" -o -name "*.gcno" | xargs rm -f
@@ -124,11 +124,27 @@ lint:
 # Quick check (build + test)
 check: all test
 
+# Checkers game with SDL2
+CHECKERS = $(BIN_DIR)/checkers
+
+# Try to detect SDL2 location (common on macOS with Homebrew)
+# Try multiple common locations for SDL2 headers
+SDL2_CFLAGS := -I/opt/homebrew/include/SDL2 -I/usr/local/include/SDL2 -I/usr/include/SDL2
+SDL2_LDFLAGS := -L/opt/homebrew/lib -L/usr/local/lib -L/usr/lib -lSDL2
+
+checkers: $(CHECKERS)
+
+$(CHECKERS): checkers.c | $(BIN_DIR)
+	@echo "Building checkers game..."
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -o $(CHECKERS) checkers.c $(SDL2_LDFLAGS)
+	@echo "✓ Checkers built: $(CHECKERS)"
+
 # Show help
 help:
 	@echo "nanolang Makefile targets:"
 	@echo "  make              - Build compiler and interpreter"
 	@echo "  make stage1.5     - Build Stage 1.5 hybrid compiler (nanolang lexer + C)"
+	@echo "  make checkers     - Build checkers game (requires SDL2)"
 	@echo "  make test         - Run test suite"
 	@echo "  make sanitize     - Build with memory sanitizers"
 	@echo "  make coverage     - Build with coverage instrumentation"
@@ -141,4 +157,4 @@ help:
 	@echo "  make clean        - Remove build artifacts"
 	@echo "  make help         - Show this help message"
 
-.PHONY: all clean test sanitize coverage coverage-report valgrind install uninstall lint check help stage1.5
+.PHONY: all clean test sanitize coverage coverage-report valgrind install uninstall lint check help stage1.5 checkers

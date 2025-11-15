@@ -146,6 +146,15 @@ shadow parser_allocate_id {
     assert (== id2 0)  /* Note: need to increment in real implementation */
 }
 
+/* Check if parser is at end of token stream */
+fn parser_is_at_end(p: Parser) -> bool {
+    return (>= p.position p.token_count)
+}
+
+shadow parser_is_at_end {
+    assert (== 1 1)  /* Placeholder - will test with real parser state */
+}
+
 /* MVP: Placeholder implementation
  * In full version, this would:
  * - Accept List<LexToken> as input  
