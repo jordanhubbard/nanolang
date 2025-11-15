@@ -1,0 +1,16 @@
+/* Simple namespacing test */
+
+enum Status {
+    OK = 0,
+    ERROR = 1
+}
+
+fn main() -> int {
+    let s: Status = Status.OK
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

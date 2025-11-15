@@ -62,6 +62,27 @@ static bool conflicts_with_runtime(const char *name) {
            strcmp(name, "Token") == 0;
 }
 
+/* Get prefixed type name for user-defined types */
+static const char *get_prefixed_type_name(const char *name) {
+    static char buffer[512];
+    
+    /* Runtime types: no prefix */
+    if (is_runtime_typedef(name) || conflicts_with_runtime(name)) {
+        return name;
+    }
+    
+    /* User types: add nl_ prefix */
+    snprintf(buffer, sizeof(buffer), "nl_%s", name);
+    return buffer;
+}
+
+/* Get prefixed enum variant name */
+static const char *get_prefixed_variant_name(const char *enum_name, const char *variant_name) {
+    static char buffer[512];
+    snprintf(buffer, sizeof(buffer), "nl_%s_%s", enum_name, variant_name);
+    return buffer;
+}
+
 /* Function type registry for generating function pointer typedefs */
 typedef struct {
     FunctionSignature **signatures;
@@ -539,16 +560,12 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             break;
 
         case AST_STRUCT_LITERAL: {
-            /* Transpile struct literal: Point { x: 10, y: 20 } -> (struct Point){.x = 10, .y = 20} 
-             * or for runtime types: Token { ... } -> (Token){...} */
+            /* Transpile struct literal: Point { x: 10, y: 20 } -> (nl_Point){.x = 10, .y = 20} */
             const char *struct_name = expr->as.struct_literal.struct_name;
-            if (is_runtime_typedef(struct_name) || conflicts_with_runtime(struct_name)) {
-                /* Runtime types or types that conflict with runtime - use bare typename */
-                sb_appendf(sb, "(%s){", struct_name);
-            } else {
-                /* User-defined struct - use 'struct' keyword */
-                sb_appendf(sb, "(struct %s){", struct_name);
-            }
+            const char *prefixed_name = get_prefixed_type_name(struct_name);
+            
+            /* Use prefixed type name */
+            sb_appendf(sb, "(%s){", prefixed_name);
             for (int i = 0; i < expr->as.struct_literal.field_count; i++) {
                 if (i > 0) sb_append(sb, ", ");
                 sb_append(sb, ".");
@@ -561,12 +578,14 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
         }
 
         case AST_UNION_CONSTRUCT: {
-            /* Transpile union construction: Status.Ok {} -> (Status){.tag = STATUS_TAG_OK, .data.Ok = {}} */
+            /* Transpile union construction: Status.Ok {} -> (nl_Status){.tag = nl_Status_TAG_Ok, .data.Ok = {}} */
             const char *union_name = expr->as.union_construct.union_name;
             const char *variant_name = expr->as.union_construct.variant_name;
+            const char *prefixed_union = get_prefixed_type_name(union_name);
             
-            sb_appendf(sb, "(%s){.tag = %s_TAG_%s", 
-                      union_name, union_name, variant_name);
+            /* Use prefixed union name and tag */
+            sb_appendf(sb, "(%s){.tag = nl_%s_TAG_%s", 
+                      prefixed_union, union_name, variant_name);
             
             /* If the variant has fields, initialize them */
             if (expr->as.union_construct.field_count > 0) {
@@ -616,10 +635,11 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             
             /* Get union definition for field information */
             UnionDef *udef = env_get_union(env, union_name);
+            const char *prefixed_union = get_prefixed_type_name(union_name);
             
-            /* Generate statement expression with temp variable */
+            /* Generate statement expression with temp variable using prefixed name */
             sb_append(sb, "({ ");
-            sb_appendf(sb, "%s _match_tmp = ", union_name);
+            sb_appendf(sb, "%s _match_tmp = ", prefixed_union);
             transpile_expression(sb, expr->as.match_expr.expr, env);
             sb_append(sb, "; ");
             
@@ -634,7 +654,8 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 const char *variant = expr->as.match_expr.pattern_variants[i];
                 const char *binding = expr->as.match_expr.pattern_bindings[i];
                 
-                sb_appendf(sb, "case %s_TAG_%s: { ", union_name, variant);
+                /* Use prefixed tag name */
+                sb_appendf(sb, "case nl_%s_TAG_%s: { ", union_name, variant);
                 
                 /* Bind pattern variable to the variant data
                  * For a variant with fields: Type binding = _match_tmp.data.VariantName;
@@ -669,17 +690,16 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 if (env_get_enum(env, enum_name)) {
                     /* For runtime enums, just use variant name (e.g., TOKEN_RETURN)
                      * For enums that conflict with runtime types, use TOKEN_ prefix
-                     * For user enums, use EnumName_VariantName */
+                     * For user enums, use prefixed nl_EnumName_VARIANT */
                     if (is_runtime_typedef(enum_name)) {
                         sb_append(sb, expr->as.field_access.field_name);
                     } else if (conflicts_with_runtime(enum_name)) {
                         /* Use runtime enum variant naming (TOKEN_ prefix) */
                         sb_appendf(sb, "TOKEN_%s", expr->as.field_access.field_name);
                     } else {
-                        /* User-defined enum */
-                        sb_appendf(sb, "%s_%s",
-                                  enum_name,
-                                  expr->as.field_access.field_name);
+                        /* User-defined enum - use prefixed variant name */
+                        const char *prefixed_variant = get_prefixed_variant_name(enum_name, expr->as.field_access.field_name);
+                        sb_append(sb, prefixed_variant);
                     }
                     break;
                 }
@@ -714,7 +734,8 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
             
             /* Handle union types */
             if (is_union) {
-                sb_appendf(sb, "%s %s = ", stmt->as.let.type_name, stmt->as.let.name);
+                const char *prefixed_name = get_prefixed_type_name(stmt->as.let.type_name);
+                sb_appendf(sb, "%s %s = ", prefixed_name, stmt->as.let.name);
             }
             /* Handle generic lists: List<UserType> */
             else if (stmt->as.let.var_type == TYPE_LIST_GENERIC && stmt->as.let.type_name) {
@@ -734,19 +755,16 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
                 }
                 
                 if (is_enum) {
-                    /* This is an enum, use int64_t */
-                    sb_appendf(sb, "%s %s = ", type_to_c(TYPE_INT), stmt->as.let.name);
+                    /* This is an enum, use prefixed enum type */
+                    const char *enum_name = stmt->as.let.value->as.field_access.object->as.identifier;
+                    const char *prefixed_enum = get_prefixed_type_name(enum_name);
+                    sb_appendf(sb, "%s %s = ", prefixed_enum, stmt->as.let.name);
                 } else {
-                    /* Regular struct type - prefer explicit type_name over inferred type */
-                    const char *struct_name = stmt->as.let.type_name ? stmt->as.let.type_name : get_struct_type_from_expr(stmt->as.let.value);
-                    if (struct_name) {
-                        if (is_runtime_typedef(struct_name) || conflicts_with_runtime(struct_name)) {
-                            /* Runtime types or types that conflict with runtime - use bare typename */
-                            sb_appendf(sb, "%s %s = ", struct_name, stmt->as.let.name);
-                        } else {
-                            /* User-defined struct - use 'struct' keyword */
-                            sb_appendf(sb, "struct %s %s = ", struct_name, stmt->as.let.name);
-                        }
+                    /* Regular struct/union type - use prefixed name */
+                    const char *type_name = stmt->as.let.type_name ? stmt->as.let.type_name : get_struct_type_from_expr(stmt->as.let.value);
+                    if (type_name) {
+                        const char *prefixed_name = get_prefixed_type_name(type_name);
+                        sb_appendf(sb, "%s %s = ", prefixed_name, stmt->as.let.name);
                     } else {
                         /* Fallback if we can't determine struct type */
                         sb_appendf(sb, "/* struct */ void* %s = ", stmt->as.let.name);
@@ -1327,14 +1345,11 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     for (int i = 0; i < env->struct_count; i++) {
         StructDef *sdef = &env->structs[i];
         
-        /* Skip structs that conflict with runtime types */
-        if (conflicts_with_runtime(sdef->name)) {
-            sb_appendf(sb, "/* Skipping struct '%s' - conflicts with runtime type */\n", sdef->name);
-            sb_appendf(sb, "/* Use the runtime Token from nanolang.h instead */\n\n");
-            continue;
-        }
+        /* Get prefixed name (adds nl_ for user types, keeps runtime types as-is) */
+        const char *prefixed_name = get_prefixed_type_name(sdef->name);
         
-        sb_appendf(sb, "struct %s {\n", sdef->name);
+        /* Generate typedef struct */
+        sb_appendf(sb, "typedef struct %s {\n", prefixed_name);
         for (int j = 0; j < sdef->field_count; j++) {
             sb_append(sb, "    ");
             if (sdef->field_types[j] == TYPE_STRUCT) {
@@ -1345,7 +1360,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             }
             sb_appendf(sb, " %s;\n", sdef->field_names[j]);
         }
-        sb_append(sb, "};\n\n");
+        sb_appendf(sb, "} %s;\n\n", prefixed_name);
     }
     sb_append(sb, "/* ========== End Struct Definitions ========== */\n\n");
 
@@ -1357,22 +1372,22 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         if (is_runtime_typedef(edef->name)) {
             continue;
         }
-        /* Skip enums that conflict with C runtime types */
-        if (conflicts_with_runtime(edef->name)) {
-            sb_appendf(sb, "/* Skipping enum '%s' - conflicts with runtime type */\n", edef->name);
-            sb_appendf(sb, "/* Use the runtime TokenType from nanolang.h instead */\n\n");
-            continue;
-        }
+        
+        /* Get prefixed enum name */
+        const char *prefixed_enum = get_prefixed_type_name(edef->name);
+        
+        /* Generate typedef enum with prefixed variants */
         sb_appendf(sb, "typedef enum {\n");
         for (int j = 0; j < edef->variant_count; j++) {
-            sb_appendf(sb, "    %s_%s = %d",
-                      edef->name,
-                      edef->variant_names[j],
+            /* Prefix variants: nl_EnumName_VARIANT */
+            const char *prefixed_variant = get_prefixed_variant_name(edef->name, edef->variant_names[j]);
+            sb_appendf(sb, "    %s = %d",
+                      prefixed_variant,
                       edef->variant_values[j]);
             if (j < edef->variant_count - 1) sb_append(sb, ",\n");
             else sb_append(sb, "\n");
         }
-        sb_appendf(sb, "} %s;\n\n", edef->name);
+        sb_appendf(sb, "} %s;\n\n", prefixed_enum);
     }
     sb_append(sb, "/* ========== End Enum Definitions ========== */\n\n");
 
@@ -1430,21 +1445,25 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     for (int i = 0; i < env->union_count; i++) {
         UnionDef *udef = &env->unions[i];
         
-        /* Generate tag enum */
+        /* Get prefixed union name */
+        const char *prefixed_union = get_prefixed_type_name(udef->name);
+        
+        /* Generate tag enum with prefixed name */
         sb_appendf(sb, "typedef enum {\n");
         for (int j = 0; j < udef->variant_count; j++) {
-            sb_appendf(sb, "    %s_TAG_%s = %d",
+            /* Prefix tag enum variants: nl_UnionName_TAG_VARIANT */
+            sb_appendf(sb, "    nl_%s_TAG_%s = %d",
                       udef->name,
                       udef->variant_names[j],
                       j);
             if (j < udef->variant_count - 1) sb_append(sb, ",\n");
             else sb_append(sb, "\n");
         }
-        sb_appendf(sb, "} %s_Tag;\n\n", udef->name);
+        sb_appendf(sb, "} %s_Tag;\n\n", prefixed_union);
         
-        /* Generate tagged union struct */
-        sb_appendf(sb, "typedef struct %s {\n", udef->name);
-        sb_appendf(sb, "    %s_Tag tag;\n", udef->name);
+        /* Generate tagged union struct with prefixed name */
+        sb_appendf(sb, "typedef struct %s {\n", prefixed_union);
+        sb_appendf(sb, "    %s_Tag tag;\n", prefixed_union);
         sb_append(sb, "    union {\n");
         
         for (int j = 0; j < udef->variant_count; j++) {
@@ -1459,7 +1478,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         }
         
         sb_append(sb, "    } data;\n");
-        sb_appendf(sb, "} %s;\n\n", udef->name);
+        sb_appendf(sb, "} %s;\n\n", prefixed_union);
     }
     sb_append(sb, "/* ========== End Union Definitions ========== */\n\n");
 
