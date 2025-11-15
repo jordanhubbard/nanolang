@@ -39,6 +39,7 @@ static void sb_appendf(StringBuilder *sb, const char *fmt, ...) {
 /* Forward declarations */
 static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *env);
 static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, Environment *env);
+static const char *type_to_c(Type type);
 
 /* Generate indentation */
 static void emit_indent(StringBuilder *sb, int indent) {
@@ -62,6 +63,110 @@ static bool conflicts_with_runtime(const char *name) {
            strcmp(name, "Token") == 0;
 }
 
+/* Function type registry for generating function pointer typedefs */
+typedef struct {
+    FunctionSignature **signatures;
+    char **typedef_names;
+    int count;
+    int capacity;
+} FunctionTypeRegistry;
+
+static FunctionTypeRegistry *create_fn_type_registry(void) {
+    FunctionTypeRegistry *reg = malloc(sizeof(FunctionTypeRegistry));
+    reg->signatures = malloc(sizeof(FunctionSignature*) * 16);
+    reg->typedef_names = malloc(sizeof(char*) * 16);
+    reg->count = 0;
+    reg->capacity = 16;
+    return reg;
+}
+
+static void free_fn_type_registry(FunctionTypeRegistry *reg) {
+    if (!reg) return;
+    if (reg->typedef_names) {
+        for (int i = 0; i < reg->count; i++) {
+            free(reg->typedef_names[i]);
+        }
+        free(reg->typedef_names);
+    }
+    free(reg->signatures);
+    free(reg);
+}
+
+/* Generate unique typedef name for a function signature */
+static char *get_function_typedef_name(FunctionSignature *sig, int index) {
+    char *name = malloc(64);
+    
+    /* Generate descriptive name based on signature pattern */
+    if (sig->param_count == 1 && sig->return_type == TYPE_BOOL) {
+        /* Predicate: fn(T) -> bool */
+        snprintf(name, 64, "Predicate_%d", index);
+    } else if (sig->param_count == 2 && 
+               sig->param_types[0] == sig->param_types[1] &&
+               sig->return_type == sig->param_types[0]) {
+        /* Binary op: fn(T, T) -> T */
+        snprintf(name, 64, "BinaryOp_%d", index);
+    } else {
+        /* Generic: FnType_N */
+        snprintf(name, 64, "FnType_%d", index);
+    }
+    
+    return name;
+}
+
+/* Register a function signature and get its typedef name */
+static const char *register_function_signature(FunctionTypeRegistry *reg, FunctionSignature *sig) {
+    /* Check if already registered */
+    for (int i = 0; i < reg->count; i++) {
+        if (function_signatures_equal(reg->signatures[i], sig)) {
+            return reg->typedef_names[i];
+        }
+    }
+    
+    /* Register new signature */
+    if (reg->count >= reg->capacity) {
+        reg->capacity *= 2;
+        reg->signatures = realloc(reg->signatures,
+                                 sizeof(FunctionSignature*) * reg->capacity);
+        reg->typedef_names = realloc(reg->typedef_names,
+                                    sizeof(char*) * reg->capacity);
+    }
+    
+    reg->signatures[reg->count] = sig;
+    reg->typedef_names[reg->count] = get_function_typedef_name(sig, reg->count);
+    reg->count++;
+    
+    return reg->typedef_names[reg->count - 1];
+}
+
+/* Generate C typedef for a function signature */
+static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
+                                     const char *typedef_name) {
+    sb_append(sb, "typedef ");
+    
+    /* Return type */
+    if (sig->return_type == TYPE_STRUCT && sig->return_struct_name) {
+        sb_appendf(sb, "struct %s ", sig->return_struct_name);
+    } else {
+        sb_appendf(sb, "%s ", type_to_c(sig->return_type));
+    }
+    
+    /* Function pointer syntax: (*typedef_name) */
+    sb_appendf(sb, "(*%s)", typedef_name);
+    
+    /* Parameters */
+    sb_append(sb, "(");
+    for (int i = 0; i < sig->param_count; i++) {
+        if (i > 0) sb_append(sb, ", ");
+        
+        if (sig->param_types[i] == TYPE_STRUCT && sig->param_struct_names[i]) {
+            sb_appendf(sb, "struct %s", sig->param_struct_names[i]);
+        } else {
+            sb_append(sb, type_to_c(sig->param_types[i]));
+        }
+    }
+    sb_append(sb, ");\n");
+}
+
 /* Transpile type to C type */
 static const char *type_to_c(Type type) {
     switch (type) {
@@ -73,6 +178,7 @@ static const char *type_to_c(Type type) {
         case TYPE_ARRAY: return "int64_t*";  /* Arrays are int64_t* for array<int> */
         case TYPE_STRUCT: return "struct"; /* Will be extended with struct name */
         case TYPE_UNION: return ""; /* Union names are used directly (typedef'd) */
+        case TYPE_FUNCTION: return ""; /* Will be handled with typedef */
         case TYPE_LIST_INT: return "List_int*";
         case TYPE_LIST_STRING: return "List_string*";
         case TYPE_LIST_TOKEN: return "List_token*";
@@ -1301,6 +1407,40 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     }
     sb_append(sb, "/* ========== End Union Definitions ========== */\n\n");
 
+    /* ========== Function Type Typedefs ========== */
+    /* Collect all function signatures used in the program */
+    FunctionTypeRegistry *fn_registry = create_fn_type_registry();
+    
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        
+        if (item->type == AST_FUNCTION) {
+            /* Check parameters for function types */
+            for (int j = 0; j < item->as.function.param_count; j++) {
+                if (item->as.function.params[j].type == TYPE_FUNCTION && 
+                    item->as.function.params[j].fn_sig) {
+                    register_function_signature(fn_registry, item->as.function.params[j].fn_sig);
+                }
+            }
+            
+            /* Check return type for function type */
+            if (item->as.function.return_type == TYPE_FUNCTION && 
+                item->as.function.return_fn_sig) {
+                register_function_signature(fn_registry, item->as.function.return_fn_sig);
+            }
+        }
+    }
+    
+    /* Generate typedef declarations */
+    if (fn_registry->count > 0) {
+        sb_append(sb, "/* Function Type Typedefs */\n");
+        for (int i = 0; i < fn_registry->count; i++) {
+            generate_function_typedef(sb, fn_registry->signatures[i],
+                                    fn_registry->typedef_names[i]);
+        }
+        sb_append(sb, "\n");
+    }
+
     /* Forward declare all functions */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -1332,7 +1472,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             for (int j = 0; j < item->as.function.param_count; j++) {
                 if (j > 0) sb_append(sb, ", ");
                 
-                if (item->as.function.params[j].type == TYPE_LIST_GENERIC && item->as.function.params[j].struct_type_name) {
+                if (item->as.function.params[j].type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
+                    /* Function parameter: use typedef */
+                    const char *typedef_name = register_function_signature(fn_registry, 
+                                                                          item->as.function.params[j].fn_sig);
+                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_LIST_GENERIC && item->as.function.params[j].struct_type_name) {
                     /* Generic list parameter: List<ElementType> -> List_ElementType* */
                     sb_appendf(sb, "List_%s* %s",
                               item->as.function.params[j].struct_type_name,
@@ -1388,7 +1533,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             for (int j = 0; j < item->as.function.param_count; j++) {
                 if (j > 0) sb_append(sb, ", ");
                 
-                if (item->as.function.params[j].type == TYPE_LIST_GENERIC && item->as.function.params[j].struct_type_name) {
+                if (item->as.function.params[j].type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
+                    /* Function parameter: use typedef */
+                    const char *typedef_name = register_function_signature(fn_registry, 
+                                                                          item->as.function.params[j].fn_sig);
+                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_LIST_GENERIC && item->as.function.params[j].struct_type_name) {
                     /* Generic list parameter: List<ElementType> -> List_ElementType* */
                     sb_appendf(sb, "List_%s* %s",
                               item->as.function.params[j].struct_type_name,
@@ -1433,6 +1583,9 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "int main() {\n");
     sb_append(sb, "    return (int)nl_main();\n");
     sb_append(sb, "}\n");
+
+    /* Cleanup */
+    free_fn_type_registry(fn_registry);
 
     char *result = sb->buffer;
     free(sb);
