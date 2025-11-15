@@ -88,6 +88,7 @@ typedef struct {
 
 /* Forward declarations */
 typedef struct Value Value;
+typedef struct FunctionSignature FunctionSignature;
 
 /* Value types */
 typedef enum {
@@ -96,8 +97,9 @@ typedef enum {
     VAL_BOOL,
     VAL_STRING,
     VAL_ARRAY,
-    VAL_STRUCT,  /* Struct values */
-    VAL_UNION,   /* Union values (tagged unions) */
+    VAL_STRUCT,    /* Struct values */
+    VAL_UNION,     /* Union values (tagged unions) */
+    VAL_FUNCTION,  /* Function values (for first-class functions) */
     VAL_VOID
 } ValueType;
 
@@ -143,6 +145,7 @@ typedef enum {
     TYPE_LIST_STRING,
     TYPE_LIST_TOKEN,
     TYPE_LIST_GENERIC, /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
+    TYPE_FUNCTION,     /* Function type: fn(int, int) -> int */
     TYPE_UNKNOWN
 } Type;
 
@@ -169,6 +172,10 @@ struct Value {
         Array *array_val;
         StructValue *struct_val;  /* Struct values */
         UnionValue *union_val;    /* Union values (tagged unions) */
+        struct {
+            char *function_name;       /* Name of the function */
+            FunctionSignature *signature;  /* Function signature */
+        } function_val;  /* Function values */
     } as;
 };
 
@@ -206,12 +213,22 @@ typedef enum {
 /* Forward declaration */
 typedef struct ASTNode ASTNode;
 
+/* Function signature for function types: fn(int, string) -> bool */
+typedef struct FunctionSignature {
+    Type *param_types;           /* Array of parameter types */
+    int param_count;             /* Number of parameters */
+    char **param_struct_names;   /* For struct/enum/union parameters */
+    Type return_type;            /* Return type */
+    char *return_struct_name;    /* For struct/enum/union return */
+} FunctionSignature;
+
 /* Parameter structure */
 typedef struct {
     char *name;
     Type type;
     char *struct_type_name;  /* For TYPE_STRUCT: which struct (e.g., "Point") */
     Type element_type;       /* For TYPE_ARRAY: element type (e.g., TYPE_INT for array<int>) */
+    FunctionSignature *fn_sig;   /* For TYPE_FUNCTION: function signature */
 } Parameter;
 
 /* AST node structure */
@@ -370,6 +387,7 @@ typedef struct {
     int param_count;
     Type return_type;
     char *return_struct_type_name;  /* For TYPE_STRUCT returns: which struct */
+    FunctionSignature *return_fn_sig;  /* For TYPE_FUNCTION returns: function signature */
     ASTNode *body;
     ASTNode *shadow_test;
     bool is_extern;  /* NEW: Mark external C functions */
@@ -489,5 +507,11 @@ Value create_array(ValueType elem_type, int length, int capacity);
 Value create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count);
 Value create_union(const char *union_name, int variant_index, const char *variant_name, 
                    char **field_names, Value *field_values, int field_count);
+Value create_function(const char *function_name, FunctionSignature *signature);
+
+/* Function signature helpers */
+FunctionSignature *create_function_signature(Type *param_types, int param_count, Type return_type);
+void free_function_signature(FunctionSignature *sig);
+bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2);
 
 #endif /* NANOLANG_H */

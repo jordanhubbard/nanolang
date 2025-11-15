@@ -559,3 +559,107 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.is_extern = true;
     env_define_function(env, func);
 }
+
+/* ============================================================================
+ * Function Signature Helpers (for first-class functions)
+ * ============================================================================
+ */
+
+/* Create a function signature */
+FunctionSignature *create_function_signature(Type *param_types, int param_count, Type return_type) {
+    FunctionSignature *sig = malloc(sizeof(FunctionSignature));
+    sig->param_count = param_count;
+    sig->return_type = return_type;
+    sig->return_struct_name = NULL;
+    
+    if (param_count > 0) {
+        sig->param_types = malloc(sizeof(Type) * param_count);
+        sig->param_struct_names = malloc(sizeof(char*) * param_count);
+        
+        for (int i = 0; i < param_count; i++) {
+            sig->param_types[i] = param_types[i];
+            sig->param_struct_names[i] = NULL;
+        }
+    } else {
+        sig->param_types = NULL;
+        sig->param_struct_names = NULL;
+    }
+    
+    return sig;
+}
+
+/* Free a function signature */
+void free_function_signature(FunctionSignature *sig) {
+    if (!sig) return;
+    
+    if (sig->param_types) {
+        free(sig->param_types);
+    }
+    
+    if (sig->param_struct_names) {
+        for (int i = 0; i < sig->param_count; i++) {
+            if (sig->param_struct_names[i]) {
+                free(sig->param_struct_names[i]);
+            }
+        }
+        free(sig->param_struct_names);
+    }
+    
+    if (sig->return_struct_name) {
+        free(sig->return_struct_name);
+    }
+    
+    free(sig);
+}
+
+/* Check if two function signatures are equal */
+bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2) {
+    if (!sig1 || !sig2) return false;
+    
+    /* Check parameter count */
+    if (sig1->param_count != sig2->param_count) return false;
+    
+    /* Check each parameter type */
+    for (int i = 0; i < sig1->param_count; i++) {
+        if (sig1->param_types[i] != sig2->param_types[i]) return false;
+        
+        /* For struct/enum parameters, check names match */
+        if (sig1->param_types[i] == TYPE_STRUCT || 
+            sig1->param_types[i] == TYPE_ENUM ||
+            sig1->param_types[i] == TYPE_UNION) {
+            
+            const char *name1 = sig1->param_struct_names[i];
+            const char *name2 = sig2->param_struct_names[i];
+            
+            if ((name1 == NULL) != (name2 == NULL)) return false;
+            if (name1 && name2 && strcmp(name1, name2) != 0) return false;
+        }
+    }
+    
+    /* Check return type */
+    if (sig1->return_type != sig2->return_type) return false;
+    
+    /* For struct/enum returns, check names match */
+    if (sig1->return_type == TYPE_STRUCT || 
+        sig1->return_type == TYPE_ENUM ||
+        sig1->return_type == TYPE_UNION) {
+        
+        const char *name1 = sig1->return_struct_name;
+        const char *name2 = sig2->return_struct_name;
+        
+        if ((name1 == NULL) != (name2 == NULL)) return false;
+        if (name1 && name2 && strcmp(name1, name2) != 0) return false;
+    }
+    
+    return true;
+}
+
+/* Create a function value */
+Value create_function(const char *function_name, FunctionSignature *signature) {
+    Value val;
+    val.type = VAL_FUNCTION;
+    val.is_return = false;
+    val.as.function_val.function_name = strdup(function_name);
+    val.as.function_val.signature = signature;
+    return val;
+}
