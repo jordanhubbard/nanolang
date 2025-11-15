@@ -29,14 +29,14 @@ enum ParseNodeType {
 
 /* Base Parse Node - all nodes share these fields */
 struct ParseNode {
-    node_type: int,
+    node_type: int,  /* ParseNodeType - stored as int to avoid transpiler enum issues */
     line: int,
     column: int
 }
 
 /* Specific AST Node Types */
 struct ASTNumber {
-    node_type: int,
+    node_type: int,  /* ParseNodeType.PNODE_NUMBER */
     line: int,
     column: int,
     value: string
