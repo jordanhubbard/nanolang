@@ -1,0 +1,32 @@
+/* Test nanolang namespacing */
+
+struct Point {
+    x: int,
+    y: int
+}
+
+enum Color {
+    RED = 0,
+    GREEN = 1,
+    BLUE = 2
+}
+
+fn main() -> int {
+    let p: Point = Point{x: 10, y: 20}
+    let c: Color = Color.RED
+    
+    (print "Point: x=")
+    (print p.x)
+    (print ", y=")
+    (println p.y)
+    
+    (print "Color: ")
+    (println c)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

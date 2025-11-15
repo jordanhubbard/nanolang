@@ -405,6 +405,21 @@ static nl_array* nl_array_literal_int(int64_t count, ...) {
 
 /* ========== Enum Definitions ========== */
 
+typedef enum {
+    nl_Status_OK = 0,
+    nl_Status_ERROR = 1
+} nl_Status;
+
+typedef enum {
+    nl_Status_OK = 0,
+    nl_Status_ERROR = 1
+} nl_Status;
+
+typedef enum {
+    nl_Status_OK = 0,
+    nl_Status_ERROR = 1
+} nl_Status;
+
 /* ========== End Enum Definitions ========== */
 
 /* ========== Generic List Specializations ========== */
@@ -415,19 +430,10 @@ static nl_array* nl_array_literal_int(int64_t count, ...) {
 
 /* ========== End Union Definitions ========== */
 
-int64_t nl_add(int64_t a, int64_t b);
 int64_t nl_main();
 
-int64_t nl_add(int64_t a, int64_t b) {
-    return (a + b);
-}
-
 int64_t nl_main() {
-    nl_println_string("Simple function variable test");
-    BinaryOp_0 my_func = nl_add;
-    int64_t result = my_func(10LL, 20LL);
-    nl_print_string("Result: ");
-    nl_println_int(result);
+    nl_Status s = nl_Status_OK;
     return 0LL;
 }
 
