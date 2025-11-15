@@ -192,7 +192,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                 include_flags, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
     } else {
         snprintf(compile_cmd, sizeof(compile_cmd), 
-                "gcc -std=c99 %s -o %s %s %s %s %s %s 2>/dev/null", 
+                "gcc -std=c99 %s -o %s %s %s %s %s %s", 
                 include_flags, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
     }
 

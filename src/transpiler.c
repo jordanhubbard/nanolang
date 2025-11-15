@@ -1734,14 +1734,23 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     }
     
     /* Forward declare module functions (functions in env but not in program AST) */
-    if (env && env->functions && env->function_count > 0) {
+    if (env && env->functions && env->function_count > 0 && env->function_count < 10000) {
         sb_append(sb, "/* Forward declarations for module functions */\n");
         for (int i = 0; i < env->function_count; i++) {
+            /* Bounds check */
+            if (i >= env->function_capacity) break;
+            
             Function *func = &env->functions[i];
-            if (!func || !func->name) continue;
+            if (!func) continue;
+            if (!func->name) continue;
             
             /* Skip extern functions - they're declared above */
             if (func->is_extern) continue;
+            
+            /* Skip built-in functions - they're macros or already declared */
+            if (is_builtin_function(func->name)) {
+                continue;
+            }
             
             /* Skip functions that are in the current program (they'll be declared below) */
             bool is_program_function = false;
@@ -1752,7 +1761,13 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                 continue;
             }
             
-            /* Simple forward declaration - just basic types for now */
+            /* Skip complex return types for now to avoid bus errors */
+            /* TODO: Fix struct/union return type handling */
+            if (func->return_type == TYPE_STRUCT || func->return_type == TYPE_UNION || func->return_type == TYPE_LIST_GENERIC || func->return_type == TYPE_FUNCTION) {
+                continue;  /* Skip complex types for now */
+            }
+            
+            /* Simple forward declaration for basic types only */
             sb_append(sb, type_to_c(func->return_type));
             sb_appendf(sb, " nl_%s(", func->name);
             
@@ -1760,7 +1775,19 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             if (func->params && func->param_count > 0 && func->param_count <= 16) {
                 for (int j = 0; j < func->param_count; j++) {
                     if (j > 0) sb_append(sb, ", ");
-                    sb_append(sb, type_to_c(func->params[j].type));
+                    /* Handle struct parameter types */
+                    if (func->params[j].type == TYPE_STRUCT && func->params[j].struct_type_name) {
+                        const char *prefixed_name = get_prefixed_type_name(func->params[j].struct_type_name);
+                        if (prefixed_name) {
+                            sb_append(sb, prefixed_name);
+                        } else {
+                            sb_append(sb, type_to_c(func->params[j].type));
+                        }
+                    } else if (func->params[j].type == TYPE_LIST_GENERIC && func->params[j].struct_type_name) {
+                        sb_appendf(sb, "List_%s*", func->params[j].struct_type_name);
+                    } else {
+                        sb_append(sb, type_to_c(func->params[j].type));
+                    }
                     if (func->params[j].name) {
                         sb_appendf(sb, " %s", func->params[j].name);
                     } else {
@@ -1929,10 +1956,10 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     /* Only add if there's a main function (modules don't have main) */
     Function *main_func = env_get_function(env, "main");
     if (main_func && !main_func->is_extern) {
-        sb_append(sb, "\n/* C main() entry point - calls nanolang main (nl_main) */\n");
-        sb_append(sb, "int main() {\n");
-        sb_append(sb, "    return (int)nl_main();\n");
-        sb_append(sb, "}\n");
+    sb_append(sb, "\n/* C main() entry point - calls nanolang main (nl_main) */\n");
+    sb_append(sb, "int main() {\n");
+    sb_append(sb, "    return (int)nl_main();\n");
+    sb_append(sb, "}\n");
     }
 
     /* Cleanup */

@@ -271,32 +271,42 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     /* Compile C code to object file */
     /* Note: Runtime files are linked separately, not compiled into module objects */
     char compile_cmd[1024];
-    if (verbose) {
-        snprintf(compile_cmd, sizeof(compile_cmd),
-                "gcc -std=c99 -Isrc -c -o %s %s",
-                output_obj, temp_c_file);
-    } else {
-        snprintf(compile_cmd, sizeof(compile_cmd),
-                "gcc -std=c99 -Isrc -c -o %s %s 2>/dev/null",
-                output_obj, temp_c_file);
-    }
+    snprintf(compile_cmd, sizeof(compile_cmd),
+            "gcc -std=c99 -Isrc -c -o %s %s",
+            output_obj, temp_c_file);
     
     if (verbose) {
         printf("Compiling module: %s\n", compile_cmd);
     }
     
-    int result = system(compile_cmd);
+    /* Compile and capture errors */
+    char error_cmd[1152];
+    snprintf(error_cmd, sizeof(error_cmd), "%s 2>&1", compile_cmd);
+    FILE *pipe = popen(error_cmd, "r");
+    char error_output[4096] = {0};
+    if (pipe) {
+        size_t bytes_read = fread(error_output, 1, sizeof(error_output) - 1, pipe);
+        error_output[bytes_read] = '\0';
+        pclose(pipe);
+    }
     
-    /* Clean up temporary C file */
-    remove(temp_c_file);
+    int result = system(compile_cmd);
     
     if (result != 0) {
         fprintf(stderr, "Error: Failed to compile module '%s' to object file\n", module_path);
+        if (strlen(error_output) > 0) {
+            fprintf(stderr, "Compilation errors:\n%s\n", error_output);
+        }
+        /* Keep C file for debugging */
+        fprintf(stderr, "C file kept at: %s\n", temp_c_file);
         free(c_code);
         free_ast(module_ast);
         free_environment(module_env);
         return false;
     }
+    
+    /* Clean up temporary C file */
+    remove(temp_c_file);
     
     if (verbose) {
         printf("✓ Compiled module to object file: %s\n", output_obj);

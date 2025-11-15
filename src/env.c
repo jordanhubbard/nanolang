@@ -12,6 +12,34 @@ typedef struct {
 static BuiltinFuncInfo builtin_functions[] = {
     /* Core functions */
     {"range", 2, {TYPE_INT, TYPE_INT, TYPE_UNKNOWN}, TYPE_INT},
+    
+    /* Math and utility functions */
+    {"abs", 1, {TYPE_INT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+    {"min", 2, {TYPE_INT, TYPE_INT, TYPE_UNKNOWN}, TYPE_INT},
+    {"max", 2, {TYPE_INT, TYPE_INT, TYPE_UNKNOWN}, TYPE_INT},
+    {"print", 1, {TYPE_INT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_VOID},
+    {"println", 1, {TYPE_INT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_VOID},
+    {"sqrt", 1, {TYPE_FLOAT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
+    {"pow", 2, {TYPE_FLOAT, TYPE_FLOAT, TYPE_UNKNOWN}, TYPE_FLOAT},
+    {"floor", 1, {TYPE_FLOAT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
+    {"ceil", 1, {TYPE_FLOAT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
+    {"round", 1, {TYPE_FLOAT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
+    {"sin", 1, {TYPE_FLOAT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
+    {"cos", 1, {TYPE_FLOAT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
+    {"tan", 1, {TYPE_FLOAT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
+    
+    /* String operations */
+    {"str_length", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+    {"str_concat", 2, {TYPE_STRING, TYPE_STRING, TYPE_UNKNOWN}, TYPE_STRING},
+    {"str_substring", 3, {TYPE_STRING, TYPE_INT, TYPE_INT}, TYPE_STRING},
+    {"str_contains", 2, {TYPE_STRING, TYPE_STRING, TYPE_UNKNOWN}, TYPE_BOOL},
+    {"str_equals", 2, {TYPE_STRING, TYPE_STRING, TYPE_UNKNOWN}, TYPE_BOOL},
+    
+    /* Array operations */
+    {"array_length", 1, {TYPE_ARRAY, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+    {"array_new", 1, {TYPE_INT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_ARRAY},
+    {"array_set", 3, {TYPE_ARRAY, TYPE_INT, TYPE_INT}, TYPE_VOID},
+    {"at", 2, {TYPE_ARRAY, TYPE_INT, TYPE_UNKNOWN}, TYPE_INT},
 
     /* File operations */
     {"file_read", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
