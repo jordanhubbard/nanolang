@@ -193,7 +193,97 @@ These improvements will make Phase 2 easier and more pleasant:
 - **Documentation:** `planning/PHASE3_EXTENDED_GENERICS_COMPLETE.md`
 - **Impact:** Self-hosted compiler can now use clean `List<Token>`, `List<ASTNode>` syntax!
 
-### B. Pattern Matching Improvements
+### B. First-Class Functions (Without User-Visible Pointers)
+- **Status:** ⏳ Not Started
+- **Priority:** HIGH (Required before self-hosting)
+- **Time Estimate:** 20-30 hours total
+- **Benefit:** Enables functional programming patterns without pointers in user code!
+- **Philosophy:** Functions as values WITHOUT exposing pointers - clean syntax, C implementation
+- **Description:**
+  - Pass functions to functions: `fn filter(items: array<int>, test: fn(int) -> bool) -> array<int>`
+  - Return functions from functions: `fn get_op(choice: int) -> fn(int, int) -> int`
+  - Store functions in variables: `let my_func: fn(int) -> int = double`
+  - Call without dereferencing (transpiler handles pointer mechanics)
+  - No `fn*` syntax - user writes `fn(int) -> bool`, transpiler generates function pointers
+  - All types known at compile time (no dynamic dispatch)
+  
+- **Key Innovation:** User never sees pointers, but gets full higher-order function capabilities!
+
+**Implementation Plan (3 Phases):**
+
+#### B1. Functions as Parameters (10-12 hours)
+- **Priority:** CRITICAL
+- **Benefit:** Enables map, filter, fold patterns
+- **Tasks:**
+  1. Lexer/Parser: Recognize `fn(type1, type2) -> return_type` syntax (2h)
+  2. Type System: Add `TYPE_FUNCTION` with signature info (3h)
+  3. Type Checker: Validate function signature compatibility (2h)
+  4. Transpiler: Generate C function pointer typedefs (2h)
+  5. Transpiler: Convert function names to pointers at call sites (1h)
+  6. Testing: map, filter, fold examples (2h)
+  
+**Example:**
+```nano
+fn filter(numbers: array<int>, predicate: fn(int) -> bool) -> array<int> {
+    /* predicate is just called like any function */
+}
+
+fn is_positive(x: int) -> bool { return (> x 0) }
+let positives: array<int> = (filter numbers is_positive)
+```
+
+#### B2. Functions as Return Values (5-8 hours)
+- **Priority:** HIGH
+- **Benefit:** Function factories, strategy pattern
+- **Tasks:**
+  1. Parser: Handle function types in return position (1h)
+  2. Type Checker: Validate returned function signatures (2h)
+  3. Transpiler: Generate correct return type (function pointer) (2h)
+  4. Testing: Function factory examples (2h)
+  
+**Example:**
+```nano
+fn get_operation(choice: int) -> fn(int, int) -> int {
+    if (== choice 0) { return add } else { return multiply }
+}
+let op: fn(int, int) -> int = (get_operation 1)
+let result: int = (op 5 3)  /* Calls multiply */
+```
+
+#### B3. Function Variables (5-10 hours)
+- **Priority:** MEDIUM-HIGH
+- **Benefit:** Function dispatch tables, cleaner code organization
+- **Tasks:**
+  1. Type Checker: Allow function type in let statements (2h)
+  2. Transpiler: Generate function pointer variables (2h)
+  3. Integration: Works with generics (future: `fn map<T,U>(f: fn(T)->U)`) (3h)
+  4. Testing: Comprehensive examples (3h)
+  
+**Example:**
+```nano
+let my_filter: fn(int) -> bool = is_positive
+let result: array<int> = (filter numbers my_filter)
+```
+
+**Post-Implementation:**
+
+#### B4. Documentation (3-5 hours)
+- **Tasks:**
+  1. `docs/FIRST_CLASS_FUNCTIONS.md` - User guide (2h)
+  2. Update `docs/SPECIFICATION.md` - Syntax reference (1h)
+  3. `examples/31_higher_order_functions.nano` - Comprehensive examples (2h)
+  
+#### B5. Code Audit for Optimization (5-8 hours)
+- **Tasks:**
+  1. Audit `src_nano/lexer_complete.nano` line by line (1h)
+  2. Audit `src_nano/parser_*.nano` line by line (2h)
+  3. Identify opportunities for map/filter/fold patterns (1h)
+  4. Refactor using first-class functions (3h)
+  5. Verify all shadow tests still pass (1h)
+
+**Total Time:** 30-40 hours (including audit and documentation)
+
+### C. Pattern Matching Improvements
 - **Status:** ⏳ Not Started (Basic implementation exists)
 - **Priority:** MEDIUM
 - **Time Estimate:** 10-15 hours
@@ -210,7 +300,7 @@ These improvements will make Phase 2 easier and more pleasant:
   3. Transpiler: Generate correct C code for bindings (5h)
   4. Testing and examples (3h)
 
-### C. Better Error Messages
+### D. Better Error Messages
 - **Status:** ⏳ Not Started
 - **Priority:** MEDIUM
 - **Time Estimate:** 8-12 hours
