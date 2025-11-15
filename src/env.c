@@ -370,6 +370,12 @@ Value create_union(const char *union_name, int variant_index, const char *varian
 
 /* Define struct */
 void env_define_struct(Environment *env, StructDef struct_def) {
+    /* Check if struct already exists - prevent duplicates */
+    if (env_get_struct(env, struct_def.name) != NULL) {
+        /* Struct already defined - skip duplicate registration */
+        return;
+    }
+    
     if (env->struct_count >= env->struct_capacity) {
         env->struct_capacity *= 2;
         env->structs = realloc(env->structs, sizeof(StructDef) * env->struct_capacity);
@@ -389,6 +395,12 @@ StructDef *env_get_struct(Environment *env, const char *name) {
 
 /* Define enum */
 void env_define_enum(Environment *env, EnumDef enum_def) {
+    /* Check if enum already exists - prevent duplicates */
+    if (env_get_enum(env, enum_def.name) != NULL) {
+        /* Enum already defined - skip duplicate registration */
+        return;
+    }
+    
     if (env->enum_count >= env->enum_capacity) {
         env->enum_capacity *= 2;
         env->enums = realloc(env->enums, sizeof(EnumDef) * env->enum_capacity);
@@ -420,6 +432,12 @@ int env_get_enum_variant(Environment *env, const char *variant_name) {
 
 /* Define union */
 void env_define_union(Environment *env, UnionDef union_def) {
+    /* Check if union already exists - prevent duplicates */
+    if (env_get_union(env, union_def.name) != NULL) {
+        /* Union already defined - skip duplicate registration */
+        return;
+    }
+    
     if (env->union_count >= env->union_capacity) {
         env->union_capacity *= 2;
         env->unions = realloc(env->unions, sizeof(UnionDef) * env->union_capacity);
