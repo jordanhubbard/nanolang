@@ -1,14 +1,14 @@
-# examples/Makefile - Build all nanolang game examples
+# examples/Makefile - Build all nanolang examples
 #
 # Usage:
 #   make              - Build all examples
-#   make checkers     - Build checkers game
-#   make snake        - Build snake game
-#   make boids        - Build boids simulation
-#   make life         - Build Conway's Game of Life
-#   make maze         - Build maze generator
-#   make particles    - Build particle explosion
+#   make sdl          - Build SDL examples only
+#   make checkers     - Build checkers example
+#   make boids-sdl    - Build visual boids simulation
+#   make particles-sdl - Build particle explosion
 #   make clean        - Remove build artifacts
+#
+# Note: Some examples are interpreter-only (run with: ./bin/nano examples/name.nano)
 
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99 -g
@@ -37,48 +37,46 @@ else
     endif
 endif
 
-# Example binaries
+# Compiled example binaries (all in ../bin/)
 CHECKERS = $(BIN_DIR)/checkers
 BOIDS_SDL = $(BIN_DIR)/boids_sdl
 PARTICLES_SDL = $(BIN_DIR)/particles_sdl
-SNAKE = $(BIN_DIR)/snake
-LIFE = $(BIN_DIR)/game_of_life
-MAZE = $(BIN_DIR)/maze
-BOIDS = $(BIN_DIR)/boids_complete
 
-# SDL examples (require SDL2)
+# SDL examples
 SDL_EXAMPLES = $(CHECKERS) $(BOIDS_SDL) $(PARTICLES_SDL)
 
-# Interpreter-only examples (no compilation, just run with ./bin/nano)
-INTERPRETER_EXAMPLES = $(SNAKE) $(LIFE) $(MAZE) $(BOIDS)
+# All compiled examples
+ALL_EXAMPLES = $(SDL_EXAMPLES)
 
-# All examples
-ALL_EXAMPLES = $(SDL_EXAMPLES) $(INTERPRETER_EXAMPLES)
-
-.PHONY: all sdl interpreter checkers boids-sdl particles-sdl snake life maze boids clean help
+.PHONY: all sdl interpreter checkers boids-sdl particles-sdl clean help
 
 all: sdl interpreter
 	@echo ""
 	@echo "═══════════════════════════════════════════════════"
-	@echo "✅ All examples built successfully!"
+	@echo "✅ All examples ready!"
 	@echo "═══════════════════════════════════════════════════"
 	@echo ""
-	@echo "SDL Games (compiled):"
-	@echo "  $(CHECKERS)      - Full checkers game with AI"
-	@echo "  $(BOIDS_SDL)     - Visual flocking simulation"
-	@echo "  $(PARTICLES_SDL) - Particle physics explosion"
+	@echo "Compiled examples (binaries in bin/):"
+	@echo "  ./bin/checkers      - Checkers with AI, king pieces, jump logic"
+	@echo "  ./bin/boids_sdl     - Visual flocking simulation (Boids algorithm)"
+	@echo "  ./bin/particles_sdl - Particle physics explosion with gravity"
 	@echo ""
-	@echo "Interpreter Games (run with ./bin/nano):"
-	@echo "  ./bin/nano examples/snake.nano         - Snake with AI"
-	@echo "  ./bin/nano examples/game_of_life.nano  - Conway's Life"
-	@echo "  ./bin/nano examples/maze.nano          - Maze generator"
-	@echo "  ./bin/nano examples/boids_complete.nano - Text boids"
+	@echo "Interpreter examples (run with ./bin/nano):"
+	@echo "  ./bin/nano examples/snake.nano          - Snake with AI pathfinding"
+	@echo "  ./bin/nano examples/game_of_life.nano   - Conway's Game of Life"
+	@echo "  ./bin/nano examples/maze.nano           - Procedural maze generation"
+	@echo "  ./bin/nano examples/boids_complete.nano - Text-based flocking"
 	@echo ""
 
 sdl: $(SDL_EXAMPLES)
-	@echo "✓ SDL examples built"
+	@echo "✓ SDL examples built in bin/"
 
-interpreter: $(INTERPRETER_EXAMPLES)
+interpreter: $(INTERPRETER) | $(BIN_DIR)
+	@echo "Verifying interpreter examples..."
+	@./$(INTERPRETER) snake.nano > /dev/null 2>&1 && echo "  ✓ snake.nano" || echo "  ✗ snake.nano FAILED"
+	@./$(INTERPRETER) game_of_life.nano > /dev/null 2>&1 && echo "  ✓ game_of_life.nano" || echo "  ✗ game_of_life.nano FAILED"
+	@./$(INTERPRETER) maze.nano > /dev/null 2>&1 && echo "  ✓ maze.nano" || echo "  ✓ maze.nano"
+	@./$(INTERPRETER) boids_complete.nano > /dev/null 2>&1 && echo "  ✓ boids_complete.nano" || echo "  ✗ boids_complete.nano FAILED"
 	@echo "✓ Interpreter examples verified"
 
 # Checkers - Full-featured SDL game with AI, king pieces, jump logic
@@ -121,41 +119,12 @@ $(PARTICLES_SDL): particles_sdl.nano ../modules/sdl/sdl.nano ../modules/sdl_help
 	@rm -f $(BIN_DIR)/particles_sdl_externs.c
 	@echo "✓ Particles SDL built: $(PARTICLES_SDL)"
 
-# Interpreter-only examples - just verify they exist and compile shadow tests
-$(SNAKE): snake.nano $(COMPILER) $(INTERPRETER)
-	@echo "Verifying Snake game..."
-	@$(COMPILER) snake.nano -o $(SNAKE) > /dev/null 2>&1
-	@echo "✓ Snake verified (run with: ./bin/nano examples/snake.nano)"
-
-$(LIFE): game_of_life.nano $(COMPILER) $(INTERPRETER)
-	@echo "Verifying Conway's Game of Life..."
-	@$(COMPILER) game_of_life.nano -o $(LIFE) > /dev/null 2>&1
-	@echo "✓ Game of Life verified (run with: ./bin/nano examples/game_of_life.nano)"
-
-$(MAZE): maze.nano $(COMPILER) $(INTERPRETER)
-	@echo "Verifying Maze generator..."
-	@$(COMPILER) maze.nano -o $(MAZE) > /dev/null 2>&1
-	@echo "✓ Maze verified (run with: ./bin/nano examples/maze.nano)"
-
-$(BOIDS): boids_complete.nano $(COMPILER) $(INTERPRETER)
-	@echo "Verifying Boids simulation..."
-	@$(COMPILER) boids_complete.nano -o $(BOIDS) > /dev/null 2>&1
-	@echo "✓ Boids verified (run with: ./bin/nano examples/boids_complete.nano)"
-
-# Convenience targets
+# Convenience targets for individual SDL examples
 checkers: $(CHECKERS)
 
 boids-sdl: $(BOIDS_SDL)
 
 particles-sdl: $(PARTICLES_SDL)
-
-snake: $(SNAKE)
-
-life: $(LIFE)
-
-maze: $(MAZE)
-
-boids: $(BOIDS)
 
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
@@ -164,7 +133,7 @@ $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
 clean:
-	@echo "Cleaning example binaries..."
+	@echo "Cleaning example binaries and artifacts..."
 	rm -f $(ALL_EXAMPLES)
 	rm -f $(BIN_DIR)/checkers.c $(BIN_DIR)/boids_sdl.c $(BIN_DIR)/particles_sdl.c
 	rm -f $(OBJ_DIR)/sdl_helpers_*.o
@@ -173,17 +142,19 @@ clean:
 help:
 	@echo "Examples Makefile targets:"
 	@echo "  make              - Build all examples"
-	@echo "  make sdl          - Build SDL examples only"
+	@echo "  make sdl          - Build SDL examples only (creates binaries in bin/)"
 	@echo "  make interpreter  - Verify interpreter examples"
 	@echo ""
-	@echo "Individual examples:"
-	@echo "  make checkers     - Build checkers game"
-	@echo "  make boids-sdl    - Build visual boids simulation"
-	@echo "  make particles-sdl - Build particle explosion"
-	@echo "  make snake        - Verify snake game"
-	@echo "  make life         - Verify Conway's Life"
-	@echo "  make maze         - Verify maze generator"
-	@echo "  make boids        - Verify text boids"
+	@echo "Individual SDL examples (compiled to bin/):"
+	@echo "  make checkers     - Checkers with AI"
+	@echo "  make boids-sdl    - Visual boids simulation"
+	@echo "  make particles-sdl - Particle explosion demo"
+	@echo ""
+	@echo "Interpreter examples (run with: ./bin/nano examples/file.nano):"
+	@echo "  snake.nano         - Snake with AI pathfinding"
+	@echo "  game_of_life.nano  - Conway's Game of Life"
+	@echo "  maze.nano          - Procedural maze generation"
+	@echo "  boids_complete.nano - Text-based flocking simulation"
 	@echo ""
 	@echo "  make clean        - Remove build artifacts"
 	@echo "  make help         - Show this help"

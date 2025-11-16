@@ -132,30 +132,16 @@ lint:
 # Quick check (build + test)
 check: all test
 
-# Build all game examples (delegates to examples/Makefile)
+# Build all examples (delegates to examples/Makefile)
 examples: $(COMPILER) $(INTERPRETER) | $(BIN_DIR)
-	@echo "Building all game examples..."
 	@$(MAKE) -C examples all
-	@echo "✓ All examples ready!"
-	@echo ""
-	@echo "Run examples:"
-	@echo "  SDL games (compiled):"
-	@echo "    ./bin/checkers      - Checkers with AI"
-	@echo "    ./bin/boids_sdl     - Visual boids"
-	@echo "    ./bin/particles_sdl - Particle physics"
-	@echo ""
-	@echo "  Interpreter games:"
-	@echo "    ./bin/nano examples/snake.nano         - Snake with AI"
-	@echo "    ./bin/nano examples/game_of_life.nano  - Conway's Life"
-	@echo "    ./bin/nano examples/maze.nano          - Maze generator"
-	@echo "    ./bin/nano examples/boids_complete.nano - Text boids"
 
 # Show help
 help:
 	@echo "nanolang Makefile targets:"
 	@echo "  make              - Build compiler and interpreter"
 	@echo "  make stage1.5     - Build Stage 1.5 hybrid compiler (nanolang lexer + C)"
-	@echo "  make examples     - Build all game examples (see examples/Makefile)"
+	@echo "  make examples     - Build all examples (see examples/Makefile for details)"
 	@echo "  make test         - Run test suite"
 	@echo "  make sanitize     - Build with memory sanitizers"
 	@echo "  make coverage     - Build with coverage instrumentation"
