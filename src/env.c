@@ -85,7 +85,7 @@ Environment *create_environment(void) {
     env->structs = malloc(sizeof(StructDef) * 8);
     env->struct_count = 0;
     env->struct_capacity = 8;
-    env->enums = malloc(sizeof(EnumDef) * 8);
+    env->enums = calloc(8, sizeof(EnumDef));  /* Use calloc to zero-initialize */
     env->enum_count = 0;
     env->enum_capacity = 8;
     env->unions = malloc(sizeof(UnionDef) * 8);
@@ -196,7 +196,7 @@ Symbol *env_get_var(Environment *env, const char *name) {
         if (!env->symbols[i].name) {
             continue;
         }
-        if (strcmp(env->symbols[i].name, name) == 0) {
+        if (safe_strcmp(env->symbols[i].name, name) == 0) {
             return &env->symbols[i];
         }
     }
@@ -221,7 +221,7 @@ bool is_builtin_function(const char *name) {
         return false;
     }
     for (int i = 0; i < builtin_function_count; i++) {
-        if (builtin_functions[i].name && strcmp(builtin_functions[i].name, name) == 0) {
+        if (safe_strcmp(builtin_functions[i].name, name) == 0) {
             return true;
         }
     }
@@ -246,7 +246,7 @@ Function *env_get_function(Environment *env, const char *name) {
 
     /* Check built-in functions first */
     for (int i = 0; i < builtin_function_count; i++) {
-        if (strcmp(builtin_functions[i].name, name) == 0) {
+        if (safe_strcmp(builtin_functions[i].name, name) == 0) {
             /* Create static function objects for built-ins */
             static Function func_cache[64];  /* Should match builtin_function_count */
             static bool initialized[64] = {false};
@@ -271,7 +271,7 @@ Function *env_get_function(Environment *env, const char *name) {
         if (!env->functions[i].name) {
             continue;
         }
-        if (strcmp(env->functions[i].name, name) == 0) {
+        if (safe_strcmp(env->functions[i].name, name) == 0) {
             return &env->functions[i];
         }
     }
@@ -414,7 +414,7 @@ void env_define_struct(Environment *env, StructDef struct_def) {
 /* Get struct definition */
 StructDef *env_get_struct(Environment *env, const char *name) {
     for (int i = 0; i < env->struct_count; i++) {
-        if (strcmp(env->structs[i].name, name) == 0) {
+        if (safe_strcmp(env->structs[i].name, name) == 0) {
             return &env->structs[i];
         }
     }
@@ -434,8 +434,16 @@ void env_define_enum(Environment *env, EnumDef enum_def) {
     }
     
     if (env->enum_count >= env->enum_capacity) {
+        int old_capacity = env->enum_capacity;
         env->enum_capacity *= 2;
-        env->enums = realloc(env->enums, sizeof(EnumDef) * env->enum_capacity);
+        EnumDef *new_enums = realloc(env->enums, sizeof(EnumDef) * env->enum_capacity);
+        if (!new_enums) {
+            fprintf(stderr, "Error: Failed to reallocate memory for enums\n");
+            return;
+        }
+        env->enums = new_enums;
+        /* Zero-initialize the newly allocated memory */
+        memset(&env->enums[old_capacity], 0, sizeof(EnumDef) * (env->enum_capacity - old_capacity));
     }
     env->enums[env->enum_count++] = enum_def;
 }
@@ -444,8 +452,16 @@ void env_define_enum(Environment *env, EnumDef enum_def) {
 EnumDef *env_get_enum(Environment *env, const char *name) {
     if (!env || !name) return NULL;
     
+    if (!env->enums) return NULL;
+    
+    /* Defensive check: ensure enum_count is valid */
+    if (env->enum_count < 0 || env->enum_count > env->enum_capacity) {
+        return NULL;
+    }
+    
     for (int i = 0; i < env->enum_count; i++) {
-        if (env->enums[i].name && strcmp(env->enums[i].name, name) == 0) {
+        /* Use safe_strcmp which handles NULL pointers */
+        if (safe_strcmp(env->enums[i].name, name) == 0) {
             return &env->enums[i];
         }
     }
@@ -459,7 +475,7 @@ int env_get_enum_variant(Environment *env, const char *variant_name) {
     for (int i = 0; i < env->enum_count; i++) {
         if (!env->enums[i].variant_names) continue;
         for (int j = 0; j < env->enums[i].variant_count; j++) {
-            if (env->enums[i].variant_names[j] && strcmp(env->enums[i].variant_names[j], variant_name) == 0) {
+            if (safe_strcmp(env->enums[i].variant_names[j], variant_name) == 0) {
                 return (env->enums[i].variant_values && j < env->enums[i].variant_count) ? 
                     env->enums[i].variant_values[j] : j;
             }
@@ -486,7 +502,7 @@ void env_define_union(Environment *env, UnionDef union_def) {
 /* Get union definition */
 UnionDef *env_get_union(Environment *env, const char *name) {
     for (int i = 0; i < env->union_count; i++) {
-        if (strcmp(env->unions[i].name, name) == 0) {
+        if (safe_strcmp(env->unions[i].name, name) == 0) {
             return &env->unions[i];
         }
     }
@@ -499,7 +515,7 @@ int env_get_union_variant_index(Environment *env, const char *union_name, const 
     if (!udef) return -1;
     
     for (int i = 0; i < udef->variant_count; i++) {
-        if (strcmp(udef->variant_names[i], variant_name) == 0) {
+        if (safe_strcmp(udef->variant_names[i], variant_name) == 0) {
             return i;
         }
     }
@@ -510,9 +526,9 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     /* Check if already registered */
     for (int i = 0; i < env->generic_instance_count; i++) {
         GenericInstantiation *inst = &env->generic_instances[i];
-        if (strcmp(inst->generic_name, "List") == 0 &&
+        if (safe_strcmp(inst->generic_name, "List") == 0 &&
             inst->type_arg_names && 
-            strcmp(inst->type_arg_names[0], element_type) == 0) {
+            safe_strcmp(inst->type_arg_names[0], element_type) == 0) {
             return;  /* Already registered */
         }
     }
@@ -688,7 +704,7 @@ bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2)
             const char *name2 = sig2->param_struct_names[i];
             
             if ((name1 == NULL) != (name2 == NULL)) return false;
-            if (name1 && name2 && strcmp(name1, name2) != 0) return false;
+            if (safe_strcmp(name1, name2) != 0) return false;
         }
     }
     

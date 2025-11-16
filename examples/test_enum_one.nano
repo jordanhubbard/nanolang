@@ -1,0 +1,11 @@
+enum TestEnum {
+    VALUE1 = 0
+}
+
+fn main() -> int {
+    return (TestEnum.VALUE1)
+}
+
+shadow main {
+    assert (== (main) 0)
+}

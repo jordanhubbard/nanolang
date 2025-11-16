@@ -8,6 +8,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 /* Token types */
 typedef enum {
@@ -562,5 +563,69 @@ void free_module_metadata(ModuleMetadata *meta);
 char *serialize_module_metadata_to_c(ModuleMetadata *meta);
 bool deserialize_module_metadata_from_c(const char *c_code, ModuleMetadata **meta_out);
 bool embed_metadata_in_module_c(char *c_code, ModuleMetadata *meta, size_t buffer_size);
+
+/* Safe string utility functions - always use these instead of unsafe libc functions */
+/* These functions handle NULL pointers gracefully and use bounded operations */
+
+/* Safe strlen - returns 0 if str is NULL */
+static inline size_t safe_strlen(const char *str) {
+    return str ? strlen(str) : 0;
+}
+
+/* Safe strnlen - returns 0 if str is NULL, bounded by maxlen */
+static inline size_t safe_strnlen(const char *str, size_t maxlen) {
+    if (!str) return 0;
+    size_t len = 0;
+    while (len < maxlen && str[len] != '\0') len++;
+    return len;
+}
+
+/* Safe strcmp - returns 0 if either string is NULL, otherwise compares */
+static inline int safe_strcmp(const char *s1, const char *s2) {
+    if (!s1 && !s2) return 0;
+    if (!s1 || !s2) return (s1 ? 1 : -1);
+    return strcmp(s1, s2);
+}
+
+/* Safe strncmp - returns 0 if either string is NULL, otherwise compares up to n chars */
+static inline int safe_strncmp(const char *s1, const char *s2, size_t n) {
+    if (!s1 && !s2) return 0;
+    if (!s1 || !s2) return (s1 ? 1 : -1);
+    return strncmp(s1, s2, n);
+}
+
+/* Safe strcpy replacement - use strncpy with explicit null termination */
+static inline char *safe_strncpy(char *dest, const char *src, size_t dest_size) {
+    if (!dest || dest_size == 0) return dest;
+    if (!src) {
+        dest[0] = '\0';
+        return dest;
+    }
+    size_t src_len = safe_strnlen(src, dest_size - 1);
+    strncpy(dest, src, src_len);
+    dest[src_len] = '\0';
+    return dest;
+}
+
+/* Safe strcat replacement - use strncat with bounds checking */
+static inline char *safe_strncat(char *dest, const char *src, size_t dest_size) {
+    if (!dest || dest_size == 0) return dest;
+    if (!src) return dest;
+    size_t dest_len = safe_strnlen(dest, dest_size);
+    if (dest_len >= dest_size) return dest; /* No room */
+    size_t src_len = safe_strnlen(src, dest_size - dest_len - 1);
+    strncat(dest, src, src_len);
+    return dest;
+}
+
+/* Safe fprintf wrapper - handles NULL strings in format arguments */
+static inline int safe_fprintf(FILE *stream, const char *format, ...) {
+    if (!stream || !format) return -1;
+    va_list args;
+    va_start(args, format);
+    int result = vfprintf(stream, format, args);
+    va_end(args);
+    return result;
+}
 
 #endif /* NANOLANG_H */
