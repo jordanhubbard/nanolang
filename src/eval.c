@@ -106,11 +106,12 @@ static Value builtin_dir_list(Value *args) {
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL) {
         /* Skip . and .. */
-        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+        assert(entry->d_name != NULL);
+        if (safe_strcmp(entry->d_name, ".") == 0 || safe_strcmp(entry->d_name, "..") == 0) {
             continue;
         }
-        strcat(buffer, entry->d_name);
-        strcat(buffer, "\n");
+        safe_strncat(buffer, entry->d_name, sizeof(buffer));
+        safe_strncat(buffer, "\n", sizeof(buffer));
     }
     closedir(dir);
 
@@ -159,9 +160,11 @@ static Value builtin_path_join(Value *args) {
     char buffer[2048];
 
     /* Handle various cases */
-    if (strlen(a) == 0) {
+    assert(a != NULL);
+    assert(b != NULL);
+    if (safe_strlen(a) == 0) {
         snprintf(buffer, sizeof(buffer), "%s", b);
-    } else if (a[strlen(a) - 1] == '/') {
+    } else if (a[safe_strlen(a) - 1] == '/') {
         snprintf(buffer, sizeof(buffer), "%s%s", a, b);
     } else {
         snprintf(buffer, sizeof(buffer), "%s/%s", a, b);
@@ -428,7 +431,8 @@ static Value builtin_str_length(Value *args) {
         fprintf(stderr, "Error: str_length requires string argument\n");
         return create_void();
     }
-    return create_int(strlen(args[0].as.string_val));
+    assert(args[0].as.string_val != NULL);
+    return create_int(safe_strlen(args[0].as.string_val));
 }
 
 static Value builtin_str_concat(Value *args) {
@@ -437,16 +441,18 @@ static Value builtin_str_concat(Value *args) {
         return create_void();
     }
     
-    size_t len1 = strlen(args[0].as.string_val);
-    size_t len2 = strlen(args[1].as.string_val);
+    assert(args[0].as.string_val != NULL);
+    assert(args[1].as.string_val != NULL);
+    size_t len1 = safe_strlen(args[0].as.string_val);
+    size_t len2 = safe_strlen(args[1].as.string_val);
     char *result = malloc(len1 + len2 + 1);
     if (!result) {
-        fprintf(stderr, "Error: Memory allocation failed in str_concat\n");
+        safe_fprintf(stderr, "Error: Memory allocation failed in str_concat\n");
         return create_void();
     }
     
-    strcpy(result, args[0].as.string_val);
-    strcat(result, args[1].as.string_val);
+    safe_strncpy(result, args[0].as.string_val, len1 + len2 + 1);
+    safe_strncat(result, args[1].as.string_val, len1 + len2 + 1);
     
     return create_string(result);
 }
@@ -462,9 +468,10 @@ static Value builtin_str_substring(Value *args) {
     }
     
     const char *str = args[0].as.string_val;
+    assert(str != NULL);
     long long start = args[1].as.int_val;
     long long length = args[2].as.int_val;
-    long long str_len = strlen(str);
+    long long str_len = safe_strlen(str);
     
     if (start < 0 || start >= str_len) {
         fprintf(stderr, "Error: str_substring start index out of bounds\n");
@@ -1520,8 +1527,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Special case: Check if this is an enum variant access */
             if (expr->as.field_access.object->type == AST_IDENTIFIER) {
                 const char *enum_name = expr->as.field_access.object->as.identifier;
+                assert(enum_name != NULL);
                 if (!enum_name) {
-                    fprintf(stderr, "Error: NULL enum name in field access\n");
+                    safe_fprintf(stderr, "Error: NULL enum name in field access\n");
                     return create_void();
                 }
                 EnumDef *enum_def = env_get_enum(env, enum_name);
@@ -1530,20 +1538,21 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     /* This is an enum variant access (e.g., Color.Red) */
                     const char *variant_name = expr->as.field_access.field_name;
                     
+                    assert(variant_name != NULL);
                     if (!variant_name) {
-                        fprintf(stderr, "Error: NULL variant name in enum access\n");
+                        safe_fprintf(stderr, "Error: NULL variant name in enum access\n");
                         return create_void();
                     }
                     
                     /* Lookup variant value */
                     for (int i = 0; i < enum_def->variant_count; i++) {
-                        if (enum_def->variant_names[i] && strcmp(enum_def->variant_names[i], variant_name) == 0) {
+                        if (safe_strcmp(enum_def->variant_names[i], variant_name) == 0) {
                             return create_int(enum_def->variant_values ? enum_def->variant_values[i] : i);
                         }
                     }
                     
-                    fprintf(stderr, "Error: Enum '%s' has no variant '%s'\n",
-                            enum_name, variant_name);
+                    safe_fprintf(stderr, "Error: Enum '%s' has no variant '%s'\n",
+                            safe_format_string(enum_name), safe_format_string(variant_name));
                     return create_void();
                 }
             }

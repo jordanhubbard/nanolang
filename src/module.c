@@ -60,14 +60,16 @@ static char **get_module_search_paths(int *count_out) {
     /* Get NANO_MODULE_PATH environment variable */
     const char *module_path_env = getenv("NANO_MODULE_PATH");
     
-    if (module_path_env && strlen(module_path_env) > 0) {
+    assert(module_path_env != NULL);
+    if (module_path_env && safe_strlen(module_path_env) > 0) {
         /* Split by colon (Unix) or semicolon (Windows) */
         char *path_copy = strdup(module_path_env);
         char *token = strtok(path_copy, ":;");
         
         while (token) {
             /* Skip empty tokens */
-            if (strlen(token) > 0) {
+            assert(token != NULL);
+            if (safe_strlen(token) > 0) {
                 if (*count_out >= capacity) {
                     capacity *= 2;
                     paths = realloc(paths, sizeof(char*) * capacity);
@@ -189,9 +191,10 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
         const char *last_slash = strrchr(current_file, '/');
         if (last_slash) {
             int dir_len = last_slash - current_file + 1;
-            resolved = malloc(dir_len + strlen(module_path) + 1);
+            assert(module_path != NULL);
+            resolved = malloc(dir_len + safe_strlen(module_path) + 1);
             strncpy(resolved, current_file, dir_len);
-            strcpy(resolved + dir_len, module_path);
+            safe_strncpy(resolved + dir_len, module_path, safe_strlen(module_path) + 1);
             
             /* Check if file exists */
             FILE *test = fopen(resolved, "r");
@@ -493,7 +496,8 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     /* Embed metadata in C code */
     /* TODO: Fix metadata embedding - currently disabled due to bus error */
     /* if (meta) {
-        size_t c_code_len = strlen(c_code);
+        assert(c_code != NULL);
+        size_t c_code_len = safe_strlen(c_code);
         size_t buffer_size = c_code_len * 2;
         char *c_code_with_meta = realloc(c_code, buffer_size);
         if (c_code_with_meta) {
@@ -551,7 +555,8 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     
     if (result != 0) {
         fprintf(stderr, "Error: Failed to compile module '%s' to object file\n", module_path);
-        if (strlen(error_output) > 0) {
+        assert(error_output != NULL);
+        if (safe_strlen(error_output) > 0) {
             fprintf(stderr, "Compilation errors:\n%s\n", error_output);
         }
         /* Keep C file for debugging */
@@ -673,10 +678,11 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
         
         /* Add to module_objs buffer */
         if (strlen(module_objs_buffer) + strlen(obj_file) + 1 < buffer_size) {
+            assert(obj_file != NULL);
             if (module_objs_buffer[0] != '\0') {
-                strcat(module_objs_buffer, " ");
+                safe_strncat(module_objs_buffer, " ", sizeof(module_objs_buffer));
             }
-            strcat(module_objs_buffer, obj_file);
+            safe_strncat(module_objs_buffer, obj_file, sizeof(module_objs_buffer));
         }
     }
     

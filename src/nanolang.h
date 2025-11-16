@@ -9,6 +9,15 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdarg.h>
+#include <assert.h>
+
+/* Backtrace support for assertions */
+#ifdef __APPLE__
+#include <execinfo.h>
+#include <unistd.h>
+#elif defined(__linux__)
+#include <execinfo.h>
+#endif
 
 /* Token types */
 typedef enum {
@@ -618,14 +627,122 @@ static inline char *safe_strncat(char *dest, const char *src, size_t dest_size) 
     return dest;
 }
 
-/* Safe fprintf wrapper - handles NULL strings in format arguments */
+/* Helper to sanitize string arguments for format strings - replaces NULL with "(NULL)" */
+static inline const char *safe_format_string(const char *str) {
+    return str ? str : "(NULL)";
+}
+
+/* Safe fprintf wrapper - uses vsnprintf with buffer and NULL checks */
+/* NOTE: For %s format specifiers, use safe_format_string() on string arguments */
 static inline int safe_fprintf(FILE *stream, const char *format, ...) {
+    assert(stream != NULL);
+    assert(format != NULL);
     if (!stream || !format) return -1;
+    
+    char buffer[4096];
     va_list args;
     va_start(args, format);
-    int result = vfprintf(stream, format, args);
+    int result = vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
+    
+    if (result < 0) return -1;
+    if (result >= (int)sizeof(buffer)) {
+        /* Truncated - use a larger buffer */
+        char *large_buffer = malloc(result + 1);
+        if (!large_buffer) return -1;
+        va_start(args, format);
+        vsnprintf(large_buffer, result + 1, format, args);
+        va_end(args);
+        fputs(large_buffer, stream);
+        free(large_buffer);
+        return result;
+    }
+    
+    fputs(buffer, stream);
     return result;
 }
+
+/* Safe sprintf replacement - always use snprintf with explicit size */
+static inline int safe_snprintf(char *dest, size_t dest_size, const char *format, ...) {
+    assert(dest != NULL);
+    assert(format != NULL);
+    if (!dest || dest_size == 0 || !format) return -1;
+    
+    va_list args;
+    va_start(args, format);
+    int result = vsnprintf(dest, dest_size, format, args);
+    va_end(args);
+    
+    if (result >= (int)dest_size) {
+        dest[dest_size - 1] = '\0'; /* Ensure null termination */
+    }
+    return result;
+}
+
+/* Safe printf wrapper */
+static inline int safe_printf(const char *format, ...) {
+    assert(format != NULL);
+    if (!format) return -1;
+    
+    char buffer[4096];
+    va_list args;
+    va_start(args, format);
+    int result = vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+    
+    if (result < 0) return -1;
+    if (result >= (int)sizeof(buffer)) {
+        char *large_buffer = malloc(result + 1);
+        if (!large_buffer) return -1;
+        va_start(args, format);
+        vsnprintf(large_buffer, result + 1, format, args);
+        va_end(args);
+        fputs(large_buffer, stdout);
+        free(large_buffer);
+        return result;
+    }
+    
+    fputs(buffer, stdout);
+    return result;
+}
+
+/* Print backtrace to stderr */
+static inline void print_backtrace(void) {
+#if defined(__APPLE__) || defined(__linux__)
+    void *array[64];
+    int size = backtrace(array, 64);
+    char **symbols = backtrace_symbols(array, size);
+    
+    if (symbols) {
+        safe_fprintf(stderr, "\n=== Backtrace ===\n");
+        for (int i = 0; i < size; i++) {
+            safe_fprintf(stderr, "  [%d] %s\n", i, safe_format_string(symbols[i]));
+        }
+        safe_fprintf(stderr, "==================\n\n");
+        free(symbols);
+    } else {
+        safe_fprintf(stderr, "\n=== Backtrace (symbols unavailable) ===\n");
+        safe_fprintf(stderr, "  %d stack frames\n", size);
+        safe_fprintf(stderr, "========================================\n\n");
+    }
+#else
+    safe_fprintf(stderr, "\n=== Backtrace not available on this platform ===\n\n");
+#endif
+}
+
+/* Enhanced assert macro with backtrace */
+#ifdef NDEBUG
+#define assert(expr) ((void)0)
+#else
+#define assert(expr) \
+    do { \
+        if (!(expr)) { \
+            safe_fprintf(stderr, "\nAssertion failed: %s\n", #expr); \
+            safe_fprintf(stderr, "File: %s, Line: %d\n", __FILE__, __LINE__); \
+            print_backtrace(); \
+            abort(); \
+        } \
+    } while(0)
+#endif
 
 #endif /* NANOLANG_H */

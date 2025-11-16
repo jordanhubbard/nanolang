@@ -1,0 +1,17 @@
+fn test_assert() -> int {
+    let x: int = 0
+    return x
+}
+
+shadow test_assert {
+    assert (== (test_assert) 0)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
