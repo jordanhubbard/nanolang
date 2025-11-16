@@ -14,6 +14,8 @@ Welcome to nanolang! This index will help you navigate the documentation.
 - **Using C FFI?** See [External C Function Interface](EXTERN_FFI.md) and [Safe C FFI Functions Reference](SAFE_C_FFI_FUNCTIONS.md)
 - **Variable mutability?** See [Mutability Guide](MUTABILITY_GUIDE.md)
 - **Debugging code?** See [Tracing System for Debugging](TRACING_IMPLEMENTATION.md) - LLM-friendly runtime tracing
+- **Garbage collection?** See [GC Features Guide](GC_FEATURES.md) - Dynamic arrays and automatic memory management
+- **Game development?** Check [Game Examples](../examples/) - 6 working games (Life, Snake, Boids, Maze, Particles, Checkers)
 
 ## Documentation Structure
 
@@ -115,13 +117,25 @@ let mut y: int = 20    # Mutable
 
 ## Example Programs
 
+### Tutorial Examples
 | Example | Difficulty | Demonstrates |
 |---------|-----------|--------------|
-| [hello.nano](examples/hello.nano) | Beginner | Basic structure |
-| [calculator.nano](examples/calculator.nano) | Beginner | Prefix notation |
-| [factorial.nano](examples/factorial.nano) | Intermediate | Recursion, loops |
-| [fibonacci.nano](examples/fibonacci.nano) | Intermediate | Multiple recursion |
-| [primes.nano](examples/primes.nano) | Advanced | Complex logic |
+| [hello.nano](../examples/hello.nano) | Beginner | Basic structure |
+| [calculator.nano](../examples/calculator.nano) | Beginner | Prefix notation |
+| [factorial.nano](../examples/factorial.nano) | Intermediate | Recursion, loops |
+| [fibonacci.nano](../examples/fibonacci.nano) | Intermediate | Multiple recursion |
+| [primes.nano](../examples/primes.nano) | Advanced | Complex logic |
+
+### Game Examples (NEW!)
+| Game | Features | Status |
+|------|----------|--------|
+| [game_of_life.nano](../examples/game_of_life.nano) | Cellular automata, 40x20 grid | ✅ Working |
+| [snake.nano](../examples/snake.nano) | AI pathfinding, collision detection | ✅ Working |
+| [boids_complete.nano](../examples/boids_complete.nano) | Flocking simulation, vector math | ✅ Working |
+| [maze.nano](../examples/maze.nano) | Procedural generation, pathfinding | ✅ Working |
+| [particles_sdl.nano](../examples/particles_sdl.nano) | Physics, gravity, SDL rendering | ✅ Working |
+| [checkers.nano](../examples/checkers.nano) | Full SDL game, AI, king pieces | ✅ Working |
+| [boids_sdl.nano](../examples/boids_sdl.nano) | Visual flocking with SDL | ✅ Working |
 
 ## Key Concepts
 
@@ -173,7 +187,16 @@ let mut y: int = 20    # Mutable
 - ✅ CI/CD with GitHub Actions
 - ✅ Comprehensive documentation
 
-### Recent Improvements
+### Recent Improvements (November 2025)
+- ✅ **Garbage Collection** - Universal GC with reference counting and cycle detection
+- ✅ **Dynamic Arrays** - `array_push`, `array_pop`, `array_remove_at` with automatic memory management
+- ✅ **Type Casting** - Explicit type conversions: `cast_int()`, `cast_float()`, `cast_bool()`, `cast_string()`
+- ✅ **Top-Level Constants** - Global immutable constants at module scope
+- ✅ **Unary Operators** - Unary minus and logical not
+- ✅ **Float Comparison Fix** - Critical bug fixed: float comparisons now return bool (was returning void)
+- ✅ **6 Game Examples** - Conway's Life, Snake, Boids, Maze, Particles, Checkers
+- ✅ **Vector Math Module** - 2D vector operations for game development
+- ✅ **SDL Integration** - Full SDL2 support with text rendering (SDL_ttf)
 - ✅ **Union Types** - Tagged unions/sum types with pattern matching
 - ✅ Multi-line comment support (`/* */`)
 - ✅ Fixed critical infinite loop bug in return propagation
@@ -252,6 +275,8 @@ A: 24 functions covering I/O, math, strings, arrays, and OS operations. See [STD
 **User Guides:**
 - [MUTABILITY_GUIDE.md](MUTABILITY_GUIDE.md) - Complete guide to variable mutability (`let` vs `let mut`)
 - [TRACING_IMPLEMENTATION.md](TRACING_IMPLEMENTATION.md) - Debugging with the interpreter tracing system
+- [GC_FEATURES.md](GC_FEATURES.md) - Garbage collection and dynamic arrays guide
+- [FEATURE_TESTING_SUMMARY.md](FEATURE_TESTING_SUMMARY.md) - Summary of tested features and capabilities
 - [EXTERN_FFI.md](EXTERN_FFI.md) - How to use external C functions
 - [SAFE_C_FFI_FUNCTIONS.md](SAFE_C_FFI_FUNCTIONS.md) - Reference of safe C functions for FFI
 - [MODULES.md](MODULES.md) - Module system guide (importing, packaging, distribution)
