@@ -1,7 +1,9 @@
-import "modules/sdl/sdl.nano"
+enum TestEnum {
+    VALUE1 = 0
+    VALUE2 = 1
+}
 
 fn main() -> int {
-    (println "Testing SDL module import")
     return 0
 }
 

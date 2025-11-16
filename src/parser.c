@@ -702,7 +702,17 @@ static ASTNode *parse_expression(Parser *p) {
             return expr;
         }
         
-        char *field_or_variant = strdup(current_token(p)->value);
+        Token *field_tok = current_token(p);
+        if (!field_tok || !field_tok->value) {
+            fprintf(stderr, "Error at line %d, column %d: Invalid field/variant token\n",
+                    field_tok ? field_tok->line : 0, field_tok ? field_tok->column : 0);
+            return expr;
+        }
+        char *field_or_variant = strdup(field_tok->value);
+        if (!field_or_variant) {
+            fprintf(stderr, "Error: Failed to allocate memory for field/variant name\n");
+            return expr;
+        }
         advance(p);
         
         /* Check if this is union construction: UnionName.Variant { ... } */
@@ -1139,7 +1149,23 @@ static ASTNode *parse_enum_def(Parser *p) {
                     current_token(p)->line, current_token(p)->column);
             break;
         }
-        variant_names[count] = strdup(current_token(p)->value);
+        Token *tok = current_token(p);
+        if (!tok || !tok->value) {
+            fprintf(stderr, "Error at line %d, column %d: Invalid token (NULL value)\n",
+                    tok ? tok->line : 0, tok ? tok->column : 0);
+            break;
+        }
+        variant_names[count] = strdup(tok->value);
+        if (!variant_names[count]) {
+            fprintf(stderr, "Error: Failed to allocate memory for variant name\n");
+            free(enum_name);
+            for (int i = 0; i < count; i++) {
+                free(variant_names[i]);
+            }
+            free(variant_names);
+            free(variant_values);
+            return NULL;
+        }
         advance(p);
         
         /* Check for explicit value */
@@ -1150,7 +1176,8 @@ static ASTNode *parse_enum_def(Parser *p) {
                         current_token(p)->line, current_token(p)->column);
                 variant_values[count] = next_auto_value++;
             } else {
-                variant_values[count] = current_token(p)->value ? atoi(current_token(p)->value) : 0;
+                Token *num_tok = current_token(p);
+                variant_values[count] = (num_tok && num_tok->value) ? atoi(num_tok->value) : 0;
                 next_auto_value = variant_values[count] + 1;
                 advance(p);
             }

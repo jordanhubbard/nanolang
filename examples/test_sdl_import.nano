@@ -1,7 +1,7 @@
-import "modules/sdl/sdl.nano"
+import "sdl.nano"
 
 fn main() -> int {
-    (println "Testing SDL module import")
+    (println "SDL module imported successfully")
     return 0
 }
 

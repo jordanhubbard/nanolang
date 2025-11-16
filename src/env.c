@@ -423,6 +423,10 @@ StructDef *env_get_struct(Environment *env, const char *name) {
 
 /* Define enum */
 void env_define_enum(Environment *env, EnumDef enum_def) {
+    if (!env || !enum_def.name) {
+        return;  /* Invalid enum definition */
+    }
+    
     /* Check if enum already exists - prevent duplicates */
     if (env_get_enum(env, enum_def.name) != NULL) {
         /* Enum already defined - skip duplicate registration */
@@ -438,8 +442,10 @@ void env_define_enum(Environment *env, EnumDef enum_def) {
 
 /* Get enum definition */
 EnumDef *env_get_enum(Environment *env, const char *name) {
+    if (!env || !name) return NULL;
+    
     for (int i = 0; i < env->enum_count; i++) {
-        if (strcmp(env->enums[i].name, name) == 0) {
+        if (env->enums[i].name && strcmp(env->enums[i].name, name) == 0) {
             return &env->enums[i];
         }
     }
@@ -448,10 +454,14 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
 
 /* Get enum variant value */
 int env_get_enum_variant(Environment *env, const char *variant_name) {
+    if (!env || !variant_name) return -1;
+    
     for (int i = 0; i < env->enum_count; i++) {
+        if (!env->enums[i].variant_names) continue;
         for (int j = 0; j < env->enums[i].variant_count; j++) {
-            if (strcmp(env->enums[i].variant_names[j], variant_name) == 0) {
-                return env->enums[i].variant_values[j];
+            if (env->enums[i].variant_names[j] && strcmp(env->enums[i].variant_names[j], variant_name) == 0) {
+                return (env->enums[i].variant_values && j < env->enums[i].variant_count) ? 
+                    env->enums[i].variant_values[j] : j;
             }
         }
     }

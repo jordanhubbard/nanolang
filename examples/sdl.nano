@@ -1,14 +1,11 @@
 # SDL2 FFI Module
 # Provides bindings to SDL2 library functions
 # 
-# Compilation requirements:
-#   -I/opt/homebrew/include/SDL2 (or -I/usr/local/include/SDL2 on Linux)
-#   -L/opt/homebrew/lib (or -L/usr/local/lib on Linux)
-#   -lSDL2
+# This is an FFI-only module (no implementations, only extern declarations)
+# Compilation requirements are specified in module.json
 #
-# This module declares SDL2 functions as extern, allowing nanolang programs
-# to call SDL2 functions directly. The transpiler handles SDL-specific type
-# mappings (SDL_Window*, SDL_Renderer*, Uint32, Uint8, etc.) automatically.
+# The transpiler handles SDL-specific type mappings (SDL_Window*, SDL_Renderer*, 
+# Uint32, Uint8, etc.) automatically via get_sdl_c_type() function.
 
 # SDL2 Core Functions
 extern fn SDL_Init(flags: int) -> int
@@ -31,16 +28,19 @@ extern fn SDL_RenderFillRect(renderer: int, rect_ptr: int) -> int
 extern fn SDL_RenderDrawPoint(renderer: int, x: int, y: int) -> int
 extern fn SDL_RenderDrawLine(renderer: int, x1: int, y1: int, x2: int, y2: int) -> int
 extern fn SDL_SetRenderDrawBlendMode(renderer: int, mode: int) -> int
+extern fn SDL_RenderCopy(renderer: int, texture: int, srcrect: int, dstrect: int) -> int
+extern fn SDL_QueryTexture(texture: int, format: int, access: int, w: int, h: int) -> int
+extern fn SDL_CreateTextureFromSurface(renderer: int, surface: int) -> int
+extern fn SDL_DestroyTexture(texture: int) -> void
+extern fn SDL_FreeSurface(surface: int) -> void
 
 # SDL2 Event Functions
 extern fn SDL_PollEvent(event_ptr: int) -> int
 
-# SDL2 Constants (as module-level documentation - actual values come from SDL headers)
-# SDL_INIT_VIDEO = 32
-# SDL_WINDOWPOS_UNDEFINED = 536805376
-# SDL_WINDOW_SHOWN = 4
-# SDL_RENDERER_ACCELERATED = 2
-# SDL_QUIT = 256
-# SDL_MOUSEBUTTONDOWN = 1025
-# SDL_BUTTON_LEFT = 1
-
+# SDL2 TTF Functions (optional)
+extern fn TTF_Init() -> int
+extern fn TTF_Quit() -> void
+extern fn TTF_GetError() -> string
+extern fn TTF_OpenFont(file: string, ptsize: int) -> int
+extern fn TTF_CloseFont(font: int) -> void
+extern fn TTF_RenderText_Solid(font: int, text: string, color: int) -> int

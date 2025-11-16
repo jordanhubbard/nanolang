@@ -1511,19 +1511,34 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         }
 
         case AST_FIELD_ACCESS: {
+            /* Check object is not NULL */
+            if (!expr->as.field_access.object) {
+                fprintf(stderr, "Error: NULL object in field access\n");
+                return create_void();
+            }
+            
             /* Special case: Check if this is an enum variant access */
             if (expr->as.field_access.object->type == AST_IDENTIFIER) {
                 const char *enum_name = expr->as.field_access.object->as.identifier;
+                if (!enum_name) {
+                    fprintf(stderr, "Error: NULL enum name in field access\n");
+                    return create_void();
+                }
                 EnumDef *enum_def = env_get_enum(env, enum_name);
                 
-                if (enum_def) {
+                if (enum_def && enum_def->variant_names) {
                     /* This is an enum variant access (e.g., Color.Red) */
                     const char *variant_name = expr->as.field_access.field_name;
                     
+                    if (!variant_name) {
+                        fprintf(stderr, "Error: NULL variant name in enum access\n");
+                        return create_void();
+                    }
+                    
                     /* Lookup variant value */
                     for (int i = 0; i < enum_def->variant_count; i++) {
-                        if (strcmp(enum_def->variant_names[i], variant_name) == 0) {
-                            return create_int(enum_def->variant_values[i]);
+                        if (enum_def->variant_names[i] && strcmp(enum_def->variant_names[i], variant_name) == 0) {
+                            return create_int(enum_def->variant_values ? enum_def->variant_values[i] : i);
                         }
                     }
                     
@@ -1793,20 +1808,63 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
         
         case AST_ENUM_DEF: {
             /* Register enum in interpreter environment for enum variant access */
+            if (!stmt->as.enum_def.name) {
+                fprintf(stderr, "Error: Enum definition has NULL name\n");
+                return create_void();
+            }
+            
             EnumDef edef;
             edef.name = strdup(stmt->as.enum_def.name);
             edef.variant_count = stmt->as.enum_def.variant_count;
             
+            if (edef.variant_count <= 0) {
+                fprintf(stderr, "Error: Enum '%s' has invalid variant count: %d\n", edef.name, edef.variant_count);
+                free(edef.name);
+                return create_void();
+            }
+            
             /* Duplicate variant names */
             edef.variant_names = malloc(sizeof(char*) * edef.variant_count);
+            if (!edef.variant_names) {
+                fprintf(stderr, "Error: Failed to allocate memory for enum variant names\n");
+                free(edef.name);
+                return create_void();
+            }
+            
             for (int j = 0; j < edef.variant_count; j++) {
-                edef.variant_names[j] = strdup(stmt->as.enum_def.variant_names[j]);
+                if (stmt->as.enum_def.variant_names && stmt->as.enum_def.variant_names[j]) {
+                    edef.variant_names[j] = strdup(stmt->as.enum_def.variant_names[j]);
+                    if (!edef.variant_names[j]) {
+                        fprintf(stderr, "Error: Failed to duplicate variant name at index %d\n", j);
+                        edef.variant_names[j] = NULL;
+                    }
+                } else {
+                    fprintf(stderr, "Warning: Enum '%s' has NULL variant name at index %d\n", edef.name, j);
+                    edef.variant_names[j] = NULL;
+                }
             }
             
             /* Duplicate variant values */
             edef.variant_values = malloc(sizeof(int) * edef.variant_count);
-            for (int j = 0; j < edef.variant_count; j++) {
-                edef.variant_values[j] = stmt->as.enum_def.variant_values[j];
+            if (!edef.variant_values) {
+                fprintf(stderr, "Error: Failed to allocate memory for enum variant values\n");
+                free(edef.name);
+                for (int j = 0; j < edef.variant_count; j++) {
+                    free(edef.variant_names[j]);
+                }
+                free(edef.variant_names);
+                return create_void();
+            }
+            
+            if (stmt->as.enum_def.variant_values) {
+                for (int j = 0; j < edef.variant_count; j++) {
+                    edef.variant_values[j] = stmt->as.enum_def.variant_values[j];
+                }
+            } else {
+                /* No explicit values - use index as value */
+                for (int j = 0; j < edef.variant_count; j++) {
+                    edef.variant_values[j] = j;
+                }
             }
             
             env_define_enum(env, edef);

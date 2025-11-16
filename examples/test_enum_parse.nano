@@ -1,0 +1,3 @@
+enum TestEnum {
+    VALUE1 = 0
+}
