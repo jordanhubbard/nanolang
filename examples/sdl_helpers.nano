@@ -13,3 +13,7 @@ extern fn nl_sdl_render_fill_rect(renderer: int, x: int, y: int, w: int, h: int)
 # Helper to poll SDL events and return 1 if quit event, 0 otherwise
 extern fn nl_sdl_poll_event_quit() -> int
 
+# Helper to poll for mouse button down events
+# Returns encoded position: x * 10000 + y if left button clicked, -1 otherwise
+extern fn nl_sdl_poll_mouse_click() -> int
+

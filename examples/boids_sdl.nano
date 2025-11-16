@@ -1,0 +1,202 @@
+# BOIDS - Visual Flocking Simulation with SDL
+# Demonstrates: Vector math, steering behaviors, emergent behavior, SDL graphics
+
+import "modules/sdl/sdl.nano"
+import "sdl_helpers.nano"
+
+# === CONSTANTS ===
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+let NUM_BOIDS: int = 50
+let BOID_SIZE: int = 3
+let MAX_SPEED: float = 100.0
+let PERCEPTION_RADIUS: float = 50.0
+let FPS: int = 60
+
+# === VECTOR MATH ===
+
+fn vec_length(dx: float, dy: float) -> float {
+    return (sqrt (+ (* dx dx) (* dy dy)))
+}
+
+shadow vec_length {
+    assert (== (vec_length 3.0 4.0) 5.0)
+}
+
+fn vec_normalize(dx: float, dy: float, length: float) -> float {
+    if (> length 0.0) {
+        return (/ dx length)
+    } else {
+        return 0.0
+    }
+}
+
+shadow vec_normalize {
+    let nx: float = (vec_normalize 3.0 4.0 5.0)
+    assert (> nx 0.59)
+    assert (< nx 0.61)
+}
+
+fn limit_speed(vx: float, vy: float, max_speed: float) -> float {
+    let speed: float = (vec_length vx vy)
+    if (> speed max_speed) {
+        let scale: float = (/ max_speed speed)
+        return (* vx scale)
+    } else {
+        return vx
+    }
+}
+
+shadow limit_speed {
+    let limited: float = (limit_speed 100.0 100.0 50.0)
+    assert (< limited 50.0)
+}
+
+# === SIMPLIFIED BOID UPDATE (JUST WRAPPING FOR NOW) ===
+
+fn wrap_coord(val: float, max: float) -> float {
+    if (> val max) {
+        return 0.0
+    } else {
+        if (< val 0.0) {
+            return max
+        } else {
+            return val
+        }
+    }
+}
+
+shadow wrap_coord {
+    assert (== (wrap_coord 50.0 100.0) 50.0)
+    let wrapped: float = (wrap_coord 150.0 100.0)
+    assert (< wrapped 1.0)
+}
+
+# === MAIN ===
+
+fn main() -> int {
+    (println "")
+    (println "🐕 BOIDS - Flocking Simulation")
+    (println "")
+    
+    # Initialize SDL
+    (SDL_Init 32)
+    
+    let window: int = (SDL_CreateWindow "Nanolang Boids" 100 100 WINDOW_WIDTH WINDOW_HEIGHT 4)
+    let renderer: int = (SDL_CreateRenderer window -1 2)
+    
+    if (== renderer 0) {
+        (println "Failed to create renderer")
+        return 1
+    } else {
+        (println "✓ SDL initialized")
+    }
+    
+    # Initialize boids with random-ish positions
+    let mut boid_x: array<float> = []
+    let mut boid_y: array<float> = []
+    let mut boid_vx: array<float> = []
+    let mut boid_vy: array<float> = []
+    
+    (print "Spawning ")
+    (print NUM_BOIDS)
+    (println " boids...")
+    
+    let mut i: int = 0
+    while (< i NUM_BOIDS) {
+        let i_f: float = (cast_float i)
+        let x: float = (+ 100.0 (* 10.0 i_f))
+        let y: float = (+ 100.0 (* 8.0 i_f))
+        
+        # Pseudo-random velocities
+        let mod5: float = (cast_float (% i 5))
+        let mod3: float = (cast_float (% i 3))
+        let vx: float = (- (* 20.0 mod5) 40.0)
+        let vy: float = (- (* 20.0 mod3) 30.0)
+        
+        set boid_x (array_push boid_x x)
+        set boid_y (array_push boid_y y)
+        set boid_vx (array_push boid_vx vx)
+        set boid_vy (array_push boid_vy vy)
+        
+        set i (+ i 1)
+    }
+    
+    (println "✓ Boids spawned")
+    (println "")
+    (println "Running simulation (5 seconds)...")
+    
+    # Main loop
+    let dt: float = 0.016
+    let max_frames: int = (* FPS 5)
+    let mut frame: int = 0
+    let mut running: bool = true
+    
+    while (and running (< frame max_frames)) {
+        # For now: velocities stay constant (simplified demo)
+        
+        # Update positions
+        let mut new_x: array<float> = []
+        let mut new_y: array<float> = []
+        
+        set i 0
+        while (< i NUM_BOIDS) {
+            let x: float = (at boid_x i)
+            let y: float = (at boid_y i)
+            let vx: float = (at boid_vx i)
+            let vy: float = (at boid_vy i)
+            
+            let mut new_x_val: float = (+ x (* vx dt))
+            let mut new_y_val: float = (+ y (* vy dt))
+            
+            # Wrap around screen
+            set new_x_val (wrap_coord new_x_val (cast_float WINDOW_WIDTH))
+            set new_y_val (wrap_coord new_y_val (cast_float WINDOW_HEIGHT))
+            
+            set new_x (array_push new_x new_x_val)
+            set new_y (array_push new_y new_y_val)
+            
+            set i (+ i 1)
+        }
+        
+        set boid_x new_x
+        set boid_y new_y
+        
+        # Render
+        (SDL_SetRenderDrawColor renderer 10 10 30 255)
+        (SDL_RenderClear renderer)
+        
+        # Draw boids
+        (SDL_SetRenderDrawColor renderer 100 200 255 255)
+        set i 0
+        while (< i NUM_BOIDS) {
+            let bx: int = (cast_int (at boid_x i))
+            let by: int = (cast_int (at boid_y i))
+            
+            (nl_sdl_render_fill_rect renderer bx by BOID_SIZE BOID_SIZE)
+            
+            set i (+ i 1)
+        }
+        
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
+        
+        set frame (+ frame 1)
+    }
+    
+    (println "")
+    (println "✅ Simulation complete!")
+    (print "Total frames: ")
+    (println frame)
+    
+    # Cleanup
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

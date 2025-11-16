@@ -1,0 +1,197 @@
+# NANOLANG LANGUAGE FEATURES DEMO
+# Showcasing: Unary operators, Top-level constants, Dynamic arrays, GC
+
+# === TOP-LEVEL CONSTANTS ===
+let MAX_ITEMS: int = 10
+let MAGIC_NUMBER: int = 42
+let PI: float = 3.14159
+let APP_NAME: string = "Feature Demo"
+
+# === UNARY OPERATORS ===
+
+fn negate_int(x: int) -> int {
+    return (- x)  # Unary negation!
+}
+
+shadow negate_int {
+    assert (== (negate_int 5) -5)
+    assert (== (negate_int -3) 3)
+}
+
+fn negate_float(x: float) -> float {
+    return (- x)  # Works on floats too!
+}
+
+shadow negate_float {
+    let result: float = (negate_float 3.14)
+    assert (< result -3.13)
+    assert (> result -3.15)
+}
+
+fn logical_not(b: bool) -> bool {
+    return (not b)
+}
+
+shadow logical_not {
+    assert (== (logical_not true) false)
+    assert (== (logical_not false) true)
+}
+
+# === USING CONSTANTS ===
+
+fn get_max_items() -> int {
+    return MAX_ITEMS  # Access constant directly!
+}
+
+shadow get_max_items {
+    assert (== (get_max_items) 10)
+}
+
+fn circle_area(radius: float) -> float {
+    return (* PI (* radius radius))  # Use PI constant
+}
+
+shadow circle_area {
+    let area: float = (circle_area 1.0)
+    assert (> area 3.14)
+    assert (< area 3.15)
+}
+
+# === DYNAMIC ARRAYS + GC ===
+
+fn create_and_grow() -> int {
+    let mut arr: array<int> = []
+    
+    # Grow array dynamically
+    let mut i: int = 0
+    while (< i MAX_ITEMS) {  # Using constant!
+        set arr (array_push arr i)
+        set i (+ i 1)
+    }
+    
+    return (array_length arr)
+}
+
+shadow create_and_grow {
+    assert (== (create_and_grow) 10)
+}
+
+fn sum_array() -> int {
+    let mut arr: array<int> = []
+    let mut i: int = 0
+    
+    # Build array
+    while (< i 5) {
+        set arr (array_push arr i)
+        set i (+ i 1)
+    }
+    
+    # Sum elements
+    let mut sum: int = 0
+    set i 0
+    while (< i (array_length arr)) {
+        set sum (+ sum (at arr i))
+        set i (+ i 1)
+    }
+    
+    return sum
+}
+
+shadow sum_array {
+    assert (== (sum_array) 10)  # 0+1+2+3+4 = 10
+}
+
+fn array_with_negatives() -> int {
+    let mut arr: array<int> = []
+    
+    # Use unary negation to add negative numbers
+    set arr (array_push arr 5)
+    set arr (array_push arr (- 3))  # Unary operator!
+    set arr (array_push arr 2)
+    set arr (array_push arr (- 1))  # Unary operator!
+    
+    # Sum
+    let mut sum: int = 0
+    let mut i: int = 0
+    while (< i (array_length arr)) {
+        set sum (+ sum (at arr i))
+        set i (+ i 1)
+    }
+    
+    return sum
+}
+
+shadow array_with_negatives {
+    assert (== (array_with_negatives) 3)  # 5-3+2-1 = 3
+}
+
+# === MAIN DEMO ===
+
+fn main() -> int {
+    (println "")
+    (println "╔══════════════════════════════════════╗")
+    (println "║  NANOLANG LANGUAGE FEATURES DEMO    ║")
+    (println "╚══════════════════════════════════════╝")
+    (println "")
+    
+    # Top-level constants
+    (println "=== Top-Level Constants ===")
+    (print "APP_NAME: ")
+    (println APP_NAME)
+    (print "MAX_ITEMS: ")
+    (println MAX_ITEMS)
+    (print "MAGIC_NUMBER: ")
+    (println MAGIC_NUMBER)
+    (print "PI: ")
+    (println PI)
+    (println "")
+    
+    # Unary operators
+    (println "=== Unary Operators ===")
+    (print "Negate 5: ")
+    (println (negate_int 5))
+    (print "Negate -3: ")
+    (println (negate_int -3))
+    (print "Negate 3.14: ")
+    (println (negate_float 3.14))
+    (print "Not true: ")
+    (println (logical_not true))
+    (println "")
+    
+    # Constants in functions
+    (println "=== Using Constants ===")
+    (print "get_max_items(): ")
+    (println (get_max_items))
+    (print "circle_area(1.0): ")
+    (println (circle_area 1.0))
+    (println "")
+    
+    # Dynamic arrays
+    (println "=== Dynamic Arrays + GC ===")
+    (print "create_and_grow(): ")
+    (println (create_and_grow))
+    (print "sum_array() [0-4]: ")
+    (println (sum_array))
+    (print "array_with_negatives(): ")
+    (println (array_with_negatives))
+    (println "")
+    
+    # Summary
+    (println "╔══════════════════════════════════════╗")
+    (println "║          FEATURES SHOWCASED          ║")
+    (println "╚══════════════════════════════════════╝")
+    (println "✅ Top-level immutable constants")
+    (println "✅ Unary operators (-, not)")
+    (println "✅ Dynamic arrays (array_push, array_pop)")
+    (println "✅ Automatic garbage collection")
+    (println "✅ Clean, readable syntax")
+    (println "")
+    (println "🚀 Nanolang: Modern language features!")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

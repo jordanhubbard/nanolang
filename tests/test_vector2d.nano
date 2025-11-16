@@ -1,0 +1,52 @@
+import "modules/vector2d/vector2d.nano"
+
+fn main() -> int {
+    (println "Testing Vector2D module...")
+    
+    # Test basic creation
+    let v1: Vector2D = (vec_new 3.0 4.0)
+    (print "v1 = (")
+    (print v1.x)
+    (print ", ")
+    (print v1.y)
+    (println ")")
+    
+    # Test length
+    let len: float = (vec_length v1)
+    (print "Length: ")
+    (println len)
+    
+    # Test addition
+    let v2: Vector2D = (vec_new 1.0 2.0)
+    let v3: Vector2D = (vec_add v1 v2)
+    (print "v1 + v2 = (")
+    (print v3.x)
+    (print ", ")
+    (print v3.y)
+    (println ")")
+    
+    # Test normalization
+    let norm: Vector2D = (vec_normalize v1)
+    (print "Normalized = (")
+    (print norm.x)
+    (print ", ")
+    (print norm.y)
+    (println ")")
+    
+    # Test rotation
+    let pi_over_2: float = 1.5708
+    let rotated: Vector2D = (vec_rotate (vec_new 1.0 0.0) pi_over_2)
+    (print "Rotated 90° = (")
+    (print rotated.x)
+    (print ", ")
+    (print rotated.y)
+    (println ")")
+    
+    (println "✓ All vector2d tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

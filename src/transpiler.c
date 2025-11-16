@@ -1339,6 +1339,14 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "    int64_t: (int64_t)((a) > (b) ? (a) : (b)), \\\n");
     sb_append(sb, "    double: (double)((a) > (b) ? (a) : (b)))\n\n");
 
+    /* Type casting functions */
+    sb_append(sb, "static int64_t nl_cast_int(double x) { return (int64_t)x; }\n");
+    sb_append(sb, "static int64_t nl_cast_int_from_int(int64_t x) { return x; }\n");
+    sb_append(sb, "static double nl_cast_float(int64_t x) { return (double)x; }\n");
+    sb_append(sb, "static double nl_cast_float_from_float(double x) { return x; }\n");
+    sb_append(sb, "static int64_t nl_cast_bool_to_int(bool x) { return x ? 1 : 0; }\n");
+    sb_append(sb, "static bool nl_cast_bool(int64_t x) { return x != 0; }\n\n");
+
     /* println function - uses _Generic for type dispatch */
     sb_append(sb, "static void nl_println(void* value_ptr) {\n");
     sb_append(sb, "    /* This is a placeholder - actual implementation uses type info from checker */\n");
@@ -1372,6 +1380,57 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     sb_append(sb, "static void nl_println_string(const char* value) {\n");
     sb_append(sb, "    printf(\"%s\\n\", value);\n");
+    sb_append(sb, "}\n\n");
+    
+    /* Dynamic array runtime */
+    sb_append(sb, "/* Dynamic array runtime (using GC) */\n");
+    sb_append(sb, "#include \"runtime/gc.h\"\n");
+    sb_append(sb, "#include \"runtime/dyn_array.h\"\n\n");
+    
+    /* Array literals create dynamic arrays */
+    sb_append(sb, "static DynArray* nl_array_literal_int(int count, ...) {\n");
+    sb_append(sb, "    DynArray* arr = dyn_array_new(ELEM_INT);\n");
+    sb_append(sb, "    va_list args;\n");
+    sb_append(sb, "    va_start(args, count);\n");
+    sb_append(sb, "    for (int i = 0; i < count; i++) {\n");
+    sb_append(sb, "        int64_t val = va_arg(args, int64_t);\n");
+    sb_append(sb, "        dyn_array_push_int(arr, val);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    va_end(args);\n");
+    sb_append(sb, "    return arr;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static DynArray* nl_array_literal_float(int count, ...) {\n");
+    sb_append(sb, "    DynArray* arr = dyn_array_new(ELEM_FLOAT);\n");
+    sb_append(sb, "    va_list args;\n");
+    sb_append(sb, "    va_start(args, count);\n");
+    sb_append(sb, "    for (int i = 0; i < count; i++) {\n");
+    sb_append(sb, "        double val = va_arg(args, double);\n");
+    sb_append(sb, "        dyn_array_push_float(arr, val);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    va_end(args);\n");
+    sb_append(sb, "    return arr;\n");
+    sb_append(sb, "}\n\n");
+    
+    /* Array operations */
+    sb_append(sb, "static DynArray* nl_array_push(DynArray* arr, double val) {\n");
+    sb_append(sb, "    if (arr->elem_type == ELEM_INT) {\n");
+    sb_append(sb, "        return dyn_array_push_int(arr, (int64_t)val);\n");
+    sb_append(sb, "    } else {\n");
+    sb_append(sb, "        return dyn_array_push_float(arr, val);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static int64_t nl_array_length(DynArray* arr) {\n");
+    sb_append(sb, "    return dyn_array_length(arr);\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static double nl_array_at_for_transpiler(DynArray* arr, int64_t idx) {\n");
+    sb_append(sb, "    if (arr->elem_type == ELEM_INT) {\n");
+    sb_append(sb, "        return (double)dyn_array_get_int(arr, idx);\n");
+    sb_append(sb, "    } else {\n");
+    sb_append(sb, "        return dyn_array_get_float(arr, idx);\n");
+    sb_append(sb, "    }\n");
     sb_append(sb, "}\n\n");
     
     /* String operations */
@@ -1815,6 +1874,21 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     if (program_functions) {
         free(program_functions);
     }
+    
+    /* Emit top-level constants */
+    sb_append(sb, "/* Top-level constants */\n");
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_LET && !item->as.let.is_mut) {
+            /* Emit as C constant */
+            sb_append(sb, "static const ");
+            sb_append(sb, type_to_c(item->as.let.var_type));
+            sb_appendf(sb, " %s = ", item->as.let.name);
+            transpile_expression(sb, item->as.let.value, env);
+            sb_append(sb, ";\n");
+        }
+    }
+    sb_append(sb, "\n");
     
     /* Forward declare functions from current program */
     sb_append(sb, "/* Forward declarations for program functions */\n");

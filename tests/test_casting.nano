@@ -1,0 +1,149 @@
+# Test Explicit Type Casting
+
+# === INT CASTING ===
+
+fn test_cast_int_from_float() -> int {
+    let f: float = 3.7
+    return (cast_int f)
+}
+
+shadow test_cast_int_from_float {
+    assert (== (test_cast_int_from_float) 3)  # Truncates
+}
+
+fn test_cast_int_from_bool() -> int {
+    let t: bool = true
+    let f: bool = false
+    let ti: int = (cast_int t)
+    let fi: int = (cast_int f)
+    return (+ ti fi)
+}
+
+shadow test_cast_int_from_bool {
+    assert (== (test_cast_int_from_bool) 1)  # 1 + 0 = 1
+}
+
+# === FLOAT CASTING ===
+
+fn test_cast_float_from_int() -> float {
+    let x: int = 42
+    return (cast_float x)
+}
+
+shadow test_cast_float_from_int {
+    let result: float = (test_cast_float_from_int)
+    assert (> result 41.9)
+    assert (< result 42.1)
+}
+
+fn test_cast_float_from_bool() -> float {
+    let t: bool = true
+    return (cast_float t)
+}
+
+shadow test_cast_float_from_bool {
+    let result: float = (test_cast_float_from_bool)
+    assert (> result 0.9)
+    assert (< result 1.1)
+}
+
+# === BOOL CASTING ===
+
+fn test_cast_bool_from_int() -> bool {
+    let zero: int = 0
+    let nonzero: int = 42
+    let b1: bool = (cast_bool zero)
+    let b2: bool = (cast_bool nonzero)
+    if b1 {
+        return false  # Should not reach
+    } else {
+        return b2
+    }
+}
+
+shadow test_cast_bool_from_int {
+    assert (== (test_cast_bool_from_int) true)
+}
+
+fn test_cast_bool_from_float() -> bool {
+    let zero: float = 0.0
+    let nonzero: float = 3.14
+    let b1: bool = (cast_bool zero)
+    let b2: bool = (cast_bool nonzero)
+    if b1 {
+        return false  # Should not reach
+    } else {
+        return b2
+    }
+}
+
+shadow test_cast_bool_from_float {
+    assert (== (test_cast_bool_from_float) true)
+}
+
+# === STRING CASTING ===
+
+fn test_cast_string_from_int() -> string {
+    let x: int = 42
+    return (cast_string x)
+}
+
+shadow test_cast_string_from_int {
+    assert (== (test_cast_string_from_int) "42")
+}
+
+fn test_cast_string_from_float() -> string {
+    let x: float = 3.14
+    return (cast_string x)
+}
+
+shadow test_cast_string_from_float {
+    let result: string = (test_cast_string_from_float)
+    assert (str_contains result "3.14")
+}
+
+fn test_cast_string_from_bool() -> string {
+    let t: bool = true
+    let f: bool = false
+    let ts: string = (cast_string t)
+    let fs: string = (cast_string f)
+    return (str_concat ts (str_concat " " fs))
+}
+
+shadow test_cast_string_from_bool {
+    assert (== (test_cast_string_from_bool) "true false")
+}
+
+# === MAIN TEST ===
+
+fn main() -> int {
+    (println "=== Type Casting Tests ===")
+    (println "")
+    
+    (print "cast_int(3.7) = ")
+    (println (test_cast_int_from_float))
+    
+    (print "cast_float(42) = ")
+    (println (test_cast_float_from_int))
+    
+    (print "cast_bool(0) = ")
+    (println (cast_bool 0))
+    (print "cast_bool(42) = ")
+    (println (cast_bool 42))
+    
+    (print "cast_string(42) = ")
+    (println (test_cast_string_from_int))
+    
+    (print "cast_string(true) = ")
+    (println (cast_string true))
+    
+    (println "")
+    (println "✅ All casting tests passed!")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

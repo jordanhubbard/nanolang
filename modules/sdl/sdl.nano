@@ -37,10 +37,11 @@ extern fn SDL_FreeSurface(surface: int) -> void
 # SDL2 Event Functions
 extern fn SDL_PollEvent(event_ptr: int) -> int
 
-# SDL2 TTF Functions (optional)
+# SDL2 TTF Functions
 extern fn TTF_Init() -> int
 extern fn TTF_Quit() -> void
 extern fn TTF_GetError() -> string
 extern fn TTF_OpenFont(file: string, ptsize: int) -> int
 extern fn TTF_CloseFont(font: int) -> void
-extern fn TTF_RenderText_Solid(font: int, text: string, color: int) -> int
+extern fn TTF_RenderText_Solid(font: int, text: string, r: int, g: int, b: int, a: int) -> int
+extern fn TTF_RenderText_Blended(font: int, text: string, r: int, g: int, b: int, a: int) -> int

@@ -1,0 +1,22 @@
+# Simple test for top-level constants
+
+let MAX_VALUE: int = 42
+
+fn get_max() -> int {
+    return MAX_VALUE
+}
+
+shadow get_max {
+    assert (== (get_max) 42)
+}
+
+fn main() -> int {
+    (print "MAX_VALUE = ")
+    (println MAX_VALUE)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

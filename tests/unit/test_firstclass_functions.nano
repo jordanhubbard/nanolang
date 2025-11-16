@@ -1,0 +1,268 @@
+/* Comprehensive First-Class Functions Test
+ * Tests all aspects of first-class functions in nanolang
+ */
+
+/* Test 1: Functions as parameters - simple case */
+fn apply_twice(f: fn(int) -> int, x: int) -> int {
+    let result1: int = (f x)
+    let result2: int = (f result1)
+    return result2
+}
+
+fn increment(n: int) -> int {
+    return (+ n 1)
+}
+
+shadow increment {
+    assert (== (increment 5) 6)
+}
+
+fn test_function_param() -> bool {
+    let result: int = (apply_twice increment 10)
+    /* increment(10) = 11, increment(11) = 12 */
+    return (== result 12)
+}
+
+shadow test_function_param {
+    assert (== (test_function_param) true)
+}
+
+/* Test 2: Functions returning functions */
+fn make_adder(n: int) -> fn(int) -> int {
+    fn add_n(x: int) -> int {
+        return (+ x n)
+    }
+    return add_n
+}
+
+shadow make_adder {
+    let add5: fn(int) -> int = (make_adder 5)
+    assert (== (add5 10) 15)
+}
+
+fn test_function_return() -> bool {
+    let add10: fn(int) -> int = (make_adder 10)
+    let result: int = (add10 20)
+    return (== result 30)
+}
+
+shadow test_function_return {
+    assert (== (test_function_return) true)
+}
+
+/* Test 3: Functions in variables */
+fn double(n: int) -> int {
+    return (* n 2)
+}
+
+shadow double {
+    assert (== (double 7) 14)
+}
+
+fn test_function_variable() -> bool {
+    let f: fn(int) -> int = double
+    let result: int = (f 21)
+    return (== result 42)
+}
+
+shadow test_function_variable {
+    assert (== (test_function_variable) true)
+}
+
+/* Test 4: Multiple parameters */
+fn binary_op(f: fn(int, int) -> int, a: int, b: int) -> int {
+    return (f a b)
+}
+
+fn add(x: int, y: int) -> int {
+    return (+ x y)
+}
+
+shadow add {
+    assert (== (add 3 4) 7)
+}
+
+fn multiply(x: int, y: int) -> int {
+    return (* x y)
+}
+
+shadow multiply {
+    assert (== (multiply 3 4) 12)
+}
+
+fn test_binary_function() -> bool {
+    let sum: int = (binary_op add 10 20)
+    let product: int = (binary_op multiply 10 20)
+    return (and (== sum 30) (== product 200))
+}
+
+shadow test_binary_function {
+    assert (== (test_binary_function) true)
+}
+
+/* Test 5: Functions returning bool */
+fn is_positive(n: int) -> bool {
+    return (> n 0)
+}
+
+shadow is_positive {
+    assert (== (is_positive 5) true)
+    assert (== (is_positive -5) false)
+}
+
+fn filter_check(predicate: fn(int) -> bool, n: int) -> bool {
+    return (predicate n)
+}
+
+fn test_bool_function() -> bool {
+    let check1: bool = (filter_check is_positive 10)
+    let check2: bool = (filter_check is_positive -10)
+    return (and (== check1 true) (== check2 false))
+}
+
+shadow test_bool_function {
+    assert (== (test_bool_function) true)
+}
+
+/* Test 6: Chain of function applications */
+fn compose(f: fn(int) -> int, g: fn(int) -> int, x: int) -> int {
+    let temp: int = (g x)
+    return (f temp)
+}
+
+fn square(n: int) -> int {
+    return (* n n)
+}
+
+shadow square {
+    assert (== (square 5) 25)
+}
+
+fn test_compose() -> bool {
+    /* compose(increment, square, 5) = increment(square(5)) = increment(25) = 26 */
+    let result: int = (compose increment square 5)
+    return (== result 26)
+}
+
+shadow test_compose {
+    assert (== (test_compose) true)
+}
+
+/* Test 7: Function with string parameter */
+fn process_string(f: fn(string) -> int, s: string) -> int {
+    return (f s)
+}
+
+fn string_to_length(s: string) -> int {
+    return (str_length s)
+}
+
+shadow string_to_length {
+    assert (== (string_to_length "hello") 5)
+}
+
+fn test_string_function() -> bool {
+    let len: int = (process_string string_to_length "testing")
+    return (== len 7)
+}
+
+shadow test_string_function {
+    assert (== (test_string_function) true)
+}
+
+/* Test 8: Conditional function selection */
+fn select_operation(use_add: bool) -> fn(int, int) -> int {
+    if use_add {
+        return add
+    } else {
+        return multiply
+    }
+}
+
+shadow select_operation {
+    let op_add: fn(int, int) -> int = (select_operation true)
+    let op_mul: fn(int, int) -> int = (select_operation false)
+    assert (== (op_add 3 4) 7)
+    assert (== (op_mul 3 4) 12)
+}
+
+fn test_conditional_function() -> bool {
+    let op1: fn(int, int) -> int = (select_operation true)
+    let op2: fn(int, int) -> int = (select_operation false)
+    let result1: int = (op1 5 6)
+    let result2: int = (op2 5 6)
+    return (and (== result1 11) (== result2 30))
+}
+
+shadow test_conditional_function {
+    assert (== (test_conditional_function) true)
+}
+
+/* Main test runner */
+fn main() -> int {
+    (println "Testing First-Class Functions...")
+    
+    if (test_function_param) {
+        (println "✓ Functions as parameters work")
+    } else {
+        (println "✗ Functions as parameters failed")
+        return 1
+    }
+    
+    if (test_function_return) {
+        (println "✓ Functions as return values work")
+    } else {
+        (println "✗ Functions as return values failed")
+        return 1
+    }
+    
+    if (test_function_variable) {
+        (println "✓ Functions in variables work")
+    } else {
+        (println "✗ Functions in variables failed")
+        return 1
+    }
+    
+    if (test_binary_function) {
+        (println "✓ Binary functions work")
+    } else {
+        (println "✗ Binary functions failed")
+        return 1
+    }
+    
+    if (test_bool_function) {
+        (println "✓ Bool-returning functions work")
+    } else {
+        (println "✗ Bool-returning functions failed")
+        return 1
+    }
+    
+    if (test_compose) {
+        (println "✓ Function composition works")
+    } else {
+        (println "✗ Function composition failed")
+        return 1
+    }
+    
+    if (test_string_function) {
+        (println "✓ String functions work")
+    } else {
+        (println "✗ String functions failed")
+        return 1
+    }
+    
+    if (test_conditional_function) {
+        (println "✓ Conditional function selection works")
+    } else {
+        (println "✗ Conditional function selection failed")
+        return 1
+    }
+    
+    (println "All first-class function tests passed! ✅")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

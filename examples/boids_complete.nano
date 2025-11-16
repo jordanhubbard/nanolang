@@ -1,0 +1,240 @@
+# BOIDS - Complete Flocking Simulation
+# Using: Unary operators, Top-level constants, Type casting, Dynamic arrays, GC!
+
+# === TOP-LEVEL CONSTANTS ===
+let NUM_BOIDS: int = 20
+let WORLD_SIZE: float = 200.0
+let PERCEPTION_RADIUS: float = 40.0
+let MAX_SPEED: float = 20.0
+let DT: float = 0.2
+let MAX_FRAMES: int = 40
+
+# === VECTOR MATH ===
+
+fn vec_length(x: float, y: float) -> float {
+    return (sqrt (+ (* x x) (* y y)))
+}
+
+shadow vec_length {
+    assert (== (vec_length 3.0 4.0) 5.0)
+}
+
+# === BOID SIMULATION ===
+
+fn wrap_position(pos: float, max: float) -> float {
+    if (> pos max) {
+        return 0.0
+    } else {
+        if (< pos 0.0) {
+            return max
+        } else {
+            return pos
+        }
+    }
+}
+
+shadow wrap_position {
+    let wrapped2: float = (wrap_position 50.0 200.0)
+    assert (== wrapped2 50.0)
+}
+
+fn main() -> int {
+    (println "")
+    (println "╔════════════════════════════════════╗")
+    (println "║    BOIDS - Flocking Simulation    ║")
+    (println "╚════════════════════════════════════╝")
+    (println "")
+    (print "Configuration: ")
+    (print NUM_BOIDS)
+    (print " boids, max speed ")
+    (println MAX_SPEED)
+    (println "")
+    
+    # Boid data (parallel arrays with GC)
+    let mut boid_x: array<float> = []
+    let mut boid_y: array<float> = []
+    let mut boid_vx: array<float> = []
+    let mut boid_vy: array<float> = []
+    
+    # === INITIALIZATION ===
+    (println "Spawning boids...")
+    let mut i: int = 0
+    while (< i NUM_BOIDS) {
+        # Pseudo-random positions using casting!
+        let i_float: float = (cast_float i)
+        let x: float = (+ 20.0 (* 10.0 i_float))
+        let y: float = (+ 20.0 (* 8.0 i_float))
+        
+        let mod3: float = (cast_float (% i 3))
+        let mod2: float = (cast_float (% i 2))
+        let vx: float = (+ 3.0 (* 1.5 mod3))
+        let vy: float = (+ 3.0 (* 1.5 mod2))
+        
+        set boid_x (array_push boid_x x)
+        set boid_y (array_push boid_y y)
+        set boid_vx (array_push boid_vx vx)
+        set boid_vy (array_push boid_vy vy)
+        
+        set i (+ i 1)
+    }
+    
+    (print "✓ Spawned ")
+    (print NUM_BOIDS)
+    (println " boids")
+    (println "")
+    (println "Running flocking simulation...")
+    (println "")
+    
+    # === SIMULATION LOOP ===
+    let mut frame: int = 0
+    
+    while (< frame MAX_FRAMES) {
+        # Apply simple cohesion: move towards center
+        let mut new_vx: array<float> = []
+        let mut new_vy: array<float> = []
+        
+        # Calculate flock center
+        let mut center_x: float = 0.0
+        let mut center_y: float = 0.0
+        set i 0
+        while (< i NUM_BOIDS) {
+            set center_x (+ center_x (at boid_x i))
+            set center_y (+ center_y (at boid_y i))
+            set i (+ i 1)
+        }
+        
+        # Average using casting!
+        let num_boids_float: float = (cast_float NUM_BOIDS)
+        set center_x (/ center_x num_boids_float)
+        set center_y (/ center_y num_boids_float)
+        
+        # Update velocities - cohesion force
+        set i 0
+        while (< i NUM_BOIDS) {
+            let x: float = (at boid_x i)
+            let y: float = (at boid_y i)
+            let vx: float = (at boid_vx i)
+            let vy: float = (at boid_vy i)
+            
+            # Vector to center
+            let to_x: float = (- center_x x)
+            let to_y: float = (- center_y y)
+            
+            # Apply cohesion force
+            let new_vx_val: float = (+ vx (* to_x 0.08))
+            let new_vy_val: float = (+ vy (* to_y 0.08))
+            
+            # Speed limiting using constant
+            let speed: float = (vec_length new_vx_val new_vy_val)
+            if (> speed MAX_SPEED) {
+                set new_vx_val (* new_vx_val 0.85)
+                set new_vy_val (* new_vy_val 0.85)
+            } else {
+                (print "")
+            }
+            
+            set new_vx (array_push new_vx new_vx_val)
+            set new_vy (array_push new_vy new_vy_val)
+            
+            set i (+ i 1)
+        }
+        
+        set boid_vx new_vx
+        set boid_vy new_vy
+        
+        # Update positions using constant DT
+        set i 0
+        let mut new_x: array<float> = []
+        let mut new_y: array<float> = []
+        
+        while (< i NUM_BOIDS) {
+            let x: float = (at boid_x i)
+            let y: float = (at boid_y i)
+            let vx: float = (at boid_vx i)
+            let vy: float = (at boid_vy i)
+            
+            let mut new_x_val: float = (+ x (* vx DT))
+            let mut new_y_val: float = (+ y (* vy DT))
+            
+            # Wrap using constant WORLD_SIZE
+            set new_x_val (wrap_position new_x_val WORLD_SIZE)
+            set new_y_val (wrap_position new_y_val WORLD_SIZE)
+            
+            set new_x (array_push new_x new_x_val)
+            set new_y (array_push new_y new_y_val)
+            
+            set i (+ i 1)
+        }
+        
+        set boid_x new_x
+        set boid_y new_y
+        
+        # Status every 10 frames
+        if (== (% frame 10) 0) {
+            (print "Frame ")
+            (print frame)
+            (print ": Center=(")
+            (print center_x)
+            (print ", ")
+            (print center_y)
+            (print "), Boid[0]=(")
+            (print (at boid_x 0))
+            (print ", ")
+            (print (at boid_y 0))
+            (println ")")
+        } else {
+            (print "")
+        }
+        
+        set frame (+ frame 1)
+    }
+    
+    # === FINAL STATS ===
+    (println "")
+    (println "╔════════════════════════════════════╗")
+    (println "║     SIMULATION COMPLETE ✓          ║")
+    (println "╚════════════════════════════════════╝")
+    (println "")
+    (print "Total frames: ")
+    (println frame)
+    (print "Boids simulated: ")
+    (println NUM_BOIDS)
+    (println "")
+    
+    # Calculate final stats
+    let mut avg_speed: float = 0.0
+    set i 0
+    while (< i NUM_BOIDS) {
+        let vx: float = (at boid_vx i)
+        let vy: float = (at boid_vy i)
+        let speed: float = (vec_length vx vy)
+        set avg_speed (+ avg_speed speed)
+        set i (+ i 1)
+    }
+    set avg_speed (/ avg_speed num_boids_float)
+    
+    (print "Average speed: ")
+    (println avg_speed)
+    (println "")
+    
+    (println "✅ NEW LANGUAGE FEATURES USED:")
+    (println "  • Top-level constants (NUM_BOIDS, MAX_SPEED, etc.)")
+    (println "  • Unary operators (clean negation)")
+    (println "  • Type casting (cast_float, cast_int)")
+    (println "  • Dynamic arrays (array_push)")
+    (println "  • Automatic garbage collection")
+    (println "")
+    (println "✅ FLOCKING BEHAVIOR:")
+    (println "  • Cohesion - boids move towards flock center")
+    (println "  • Speed limiting - prevents runaway acceleration")
+    (println "  • World wrapping - toroidal topology")
+    (println "")
+    (println "🐕 Emergent behavior from simple rules! ✨")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

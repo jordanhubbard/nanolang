@@ -13,7 +13,7 @@ HYBRID_COMPILER = $(BIN_DIR)/nanoc_stage1_5
 FFI_BINDGEN = $(BIN_DIR)/nanoc-ffi
 COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/eval.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/env.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
-RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c $(RUNTIME_DIR)/list_token.c
+RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c $(RUNTIME_DIR)/list_token.c $(RUNTIME_DIR)/gc.c $(RUNTIME_DIR)/dyn_array.c $(RUNTIME_DIR)/gc_struct.c
 RUNTIME_OBJECTS = $(patsubst $(RUNTIME_DIR)/%.c,$(OBJ_DIR)/runtime/%.o,$(RUNTIME_SOURCES))
 COMPILER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o
 INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/tracing.o $(OBJ_DIR)/interpreter_main.o
@@ -162,12 +162,45 @@ CHECKERS_NANO = $(BIN_DIR)/checkers_simple
 
 checkers-nano: examples/checkers_simple.nano examples/sdl.nano examples/sdl_helpers.nano $(COMPILER) | $(BIN_DIR)
 	@echo "Building nanolang checkers example (demonstrates module system)..."
-	$(COMPILER) examples/checkers_simple.nano -o $(CHECKERS_NANO) \
+	NANO_MODULE_PATH=modules $(COMPILER) examples/checkers_simple.nano -o $(CHECKERS_NANO) \
 		-I/opt/homebrew/include/SDL2 -I/usr/local/include/SDL2 \
 		-L/opt/homebrew/lib -L/usr/local/lib \
 		-lSDL2
 	@echo "✓ nanolang checkers built: $(CHECKERS_NANO)"
+
+# Build full-featured checkers with structs, 2D arrays, SDL_ttf, and blinking
+CHECKERS_FULL = $(BIN_DIR)/checkers
+checkers-full: examples/checkers.nano modules/sdl/sdl.nano modules/sdl_helpers/sdl_helpers.nano modules/sdl_helpers/sdl_helpers.c $(COMPILER) | $(BIN_DIR)
+	@echo "Building full-featured nanolang checkers game..."
+	@# First compile the SDL helpers C code
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -c modules/sdl_helpers/sdl_helpers.c -o $(OBJ_DIR)/sdl_helpers_checkers.o
+	@# Compile nanolang to C (keep C file for manual extern declarations)
+	NANO_MODULE_PATH=modules $(COMPILER) examples/checkers.nano -o $(CHECKERS_FULL) --keep-c
+	@# Add extern declarations for SDL helper functions
+	@echo "/* SDL helper function declarations */" > $(BIN_DIR)/checkers_externs.c
+	@echo "extern int64_t nl_sdl_render_fill_rect(int64_t renderer, int64_t x, int64_t y, int64_t w, int64_t h);" >> $(BIN_DIR)/checkers_externs.c
+	@echo "extern int64_t nl_sdl_poll_event_quit(void);" >> $(BIN_DIR)/checkers_externs.c
+	@echo "extern int64_t nl_sdl_poll_mouse_click(void);" >> $(BIN_DIR)/checkers_externs.c
+	@echo "extern int64_t nl_sdl_render_text_solid(int64_t renderer, int64_t font, const char* text, int64_t x, int64_t y, int64_t r, int64_t g, int64_t b, int64_t a);" >> $(BIN_DIR)/checkers_externs.c
+	@echo "extern int64_t nl_sdl_render_text_blended(int64_t renderer, int64_t font, const char* text, int64_t x, int64_t y, int64_t r, int64_t g, int64_t b, int64_t a);" >> $(BIN_DIR)/checkers_externs.c
+	@# Compile with SDL2 and SDL_ttf
+	$(CC) $(SDL2_CFLAGS) $(BIN_DIR)/checkers.c $(OBJ_DIR)/sdl_helpers_checkers.o -o $(CHECKERS_FULL) $(SDL2_LDFLAGS)
+	@rm -f $(BIN_DIR)/checkers_externs.c
+	@echo "✓ Full-featured checkers built: $(CHECKERS_FULL)"
 	@echo "  Demonstrates: Module system, FFI modules, hybrid C/nanolang applications"
+
+# Build Boids SDL example  
+BOIDS_SDL = $(BIN_DIR)/boids_sdl
+boids-sdl: examples/boids_sdl.nano modules/sdl/sdl.nano modules/sdl_helpers/sdl_helpers.nano modules/sdl_helpers/sdl_helpers.c $(COMPILER) | $(BIN_DIR)
+	@echo "Building Boids SDL flocking simulation..."
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -c modules/sdl_helpers/sdl_helpers.c -o $(OBJ_DIR)/sdl_helpers_boids.o
+	NANO_MODULE_PATH=modules $(COMPILER) examples/boids_sdl.nano -o $(BOIDS_SDL) --keep-c
+	@echo "#include <stdint.h>" > $(BIN_DIR)/boids_sdl_externs.c
+	@echo "extern int64_t nl_sdl_render_fill_rect(int64_t renderer, int64_t x, int64_t y, int64_t w, int64_t h);" >> $(BIN_DIR)/boids_sdl_externs.c
+	@cat $(BIN_DIR)/boids_sdl_externs.c $(BIN_DIR)/boids_sdl.c > $(BIN_DIR)/boids_sdl_tmp.c && mv $(BIN_DIR)/boids_sdl_tmp.c $(BIN_DIR)/boids_sdl.c
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/boids_sdl.c $(OBJ_DIR)/sdl_helpers_boids.o -o $(BOIDS_SDL) $(SDL2_LDFLAGS)
+	@rm -f $(BIN_DIR)/boids_sdl_externs.c
+	@echo "✓ Boids SDL built: $(BOIDS_SDL)"
 
 # Show help
 help:

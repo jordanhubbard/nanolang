@@ -1,0 +1,294 @@
+/* Comprehensive Enum Test
+ * Tests all aspects of enums in nanolang
+ */
+
+/* Test 1: Simple enum definition */
+enum Color {
+    RED = 0,
+    GREEN = 1,
+    BLUE = 2
+}
+
+fn test_simple_enum() -> bool {
+    let c: Color = Color.RED
+    return (== c Color.RED)
+}
+
+shadow test_simple_enum {
+    assert (== (test_simple_enum) true)
+}
+
+/* Test 2: Enum values */
+fn test_enum_values() -> bool {
+    let r: Color = Color.RED
+    let g: Color = Color.GREEN
+    let b: Color = Color.BLUE
+    
+    return (and (and (== r 0) (== g 1)) (== b 2))
+}
+
+shadow test_enum_values {
+    assert (== (test_enum_values) true)
+}
+
+/* Test 3: Enum comparison */
+fn color_to_int(c: Color) -> int {
+    if (== c Color.RED) {
+        return 10
+    } else {
+        if (== c Color.GREEN) {
+            return 20
+        } else {
+            return 30
+        }
+    }
+}
+
+shadow color_to_int {
+    assert (== (color_to_int Color.RED) 10)
+    assert (== (color_to_int Color.GREEN) 20)
+    assert (== (color_to_int Color.BLUE) 30)
+}
+
+fn test_enum_comparison() -> bool {
+    let result: int = (color_to_int Color.GREEN)
+    return (== result 20)
+}
+
+shadow test_enum_comparison {
+    assert (== (test_enum_comparison) true)
+}
+
+/* Test 4: Enum in struct */
+struct Pixel {
+    color: Color,
+    x: int,
+    y: int
+}
+
+fn test_enum_in_struct() -> bool {
+    let p: Pixel = Pixel {
+        color: Color.BLUE,
+        x: 100,
+        y: 200
+    }
+    
+    return (and (== p.color Color.BLUE) (and (== p.x 100) (== p.y 200)))
+}
+
+shadow test_enum_in_struct {
+    assert (== (test_enum_in_struct) true)
+}
+
+/* Test 5: Enum as function parameter */
+fn is_primary_color(c: Color) -> bool {
+    if (== c Color.RED) {
+        return true
+    } else {
+        if (== c Color.GREEN) {
+            return true
+        } else {
+            if (== c Color.BLUE) {
+                return true
+            } else {
+                return false
+            }
+        }
+    }
+}
+
+shadow is_primary_color {
+    assert (== (is_primary_color Color.RED) true)
+    assert (== (is_primary_color Color.GREEN) true)
+    assert (== (is_primary_color Color.BLUE) true)
+}
+
+fn test_enum_param() -> bool {
+    return (is_primary_color Color.RED)
+}
+
+shadow test_enum_param {
+    assert (== (test_enum_param) true)
+}
+
+/* Test 6: Enum as function return */
+fn get_next_color(c: Color) -> Color {
+    if (== c Color.RED) {
+        return Color.GREEN
+    } else {
+        if (== c Color.GREEN) {
+            return Color.BLUE
+        } else {
+            return Color.RED
+        }
+    }
+}
+
+shadow get_next_color {
+    assert (== (get_next_color Color.RED) Color.GREEN)
+    assert (== (get_next_color Color.GREEN) Color.BLUE)
+    assert (== (get_next_color Color.BLUE) Color.RED)
+}
+
+fn test_enum_return() -> bool {
+    let next: Color = (get_next_color Color.RED)
+    return (== next Color.GREEN)
+}
+
+shadow test_enum_return {
+    assert (== (test_enum_return) true)
+}
+
+/* Test 7: Multiple enums */
+enum Direction {
+    NORTH = 0,
+    SOUTH = 1,
+    EAST = 2,
+    WEST = 3
+}
+
+fn test_multiple_enums() -> bool {
+    let c: Color = Color.RED
+    let d: Direction = Direction.NORTH
+    
+    /* Colors and directions are different types */
+    return (and (== c 0) (== d 0))
+}
+
+shadow test_multiple_enums {
+    assert (== (test_multiple_enums) true)
+}
+
+/* Test 8: Enum in List */
+fn test_enum_in_list() -> bool {
+    let colors: List<Color> = (list_Color_new)
+    (list_Color_push colors Color.RED)
+    (list_Color_push colors Color.GREEN)
+    (list_Color_push colors Color.BLUE)
+    
+    let len: int = (list_Color_length colors)
+    let first: Color = (list_Color_get colors 0)
+    let second: Color = (list_Color_get colors 1)
+    
+    return (and (== len 3) (and (== first Color.RED) (== second Color.GREEN)))
+}
+
+shadow test_enum_in_list {
+    assert (== (test_enum_in_list) true)
+}
+
+/* Test 9: Enum with explicit values */
+enum StatusCode {
+    OK = 200,
+    NOT_FOUND = 404,
+    SERVER_ERROR = 500
+}
+
+fn test_explicit_values() -> bool {
+    let ok: StatusCode = StatusCode.OK
+    let notfound: StatusCode = StatusCode.NOT_FOUND
+    let error: StatusCode = StatusCode.SERVER_ERROR
+    
+    return (and (== ok 200) (and (== notfound 404) (== error 500)))
+}
+
+shadow test_explicit_values {
+    assert (== (test_explicit_values) true)
+}
+
+/* Test 10: Enum arithmetic */
+fn test_enum_arithmetic() -> bool {
+    let c1: Color = Color.RED
+    let c2: Color = Color.BLUE
+    
+    /* Can do arithmetic with enum values */
+    let sum: int = (+ c1 c2)  /* 0 + 2 = 2 */
+    return (== sum 2)
+}
+
+shadow test_enum_arithmetic {
+    assert (== (test_enum_arithmetic) true)
+}
+
+/* Main test runner */
+fn main() -> int {
+    (println "Testing Enums...")
+    
+    if (test_simple_enum) {
+        (println "✓ Simple enum works")
+    } else {
+        (println "✗ Simple enum failed")
+        return 1
+    }
+    
+    if (test_enum_values) {
+        (println "✓ Enum values work")
+    } else {
+        (println "✗ Enum values failed")
+        return 1
+    }
+    
+    if (test_enum_comparison) {
+        (println "✓ Enum comparison works")
+    } else {
+        (println "✗ Enum comparison failed")
+        return 1
+    }
+    
+    if (test_enum_in_struct) {
+        (println "✓ Enum in struct works")
+    } else {
+        (println "✗ Enum in struct failed")
+        return 1
+    }
+    
+    if (test_enum_param) {
+        (println "✓ Enum as parameter works")
+    } else {
+        (println "✗ Enum as parameter failed")
+        return 1
+    }
+    
+    if (test_enum_return) {
+        (println "✓ Enum as return value works")
+    } else {
+        (println "✗ Enum as return value failed")
+        return 1
+    }
+    
+    if (test_multiple_enums) {
+        (println "✓ Multiple enums work")
+    } else {
+        (println "✗ Multiple enums failed")
+        return 1
+    }
+    
+    if (test_enum_in_list) {
+        (println "✓ Enum in List works")
+    } else {
+        (println "✗ Enum in List failed")
+        return 1
+    }
+    
+    if (test_explicit_values) {
+        (println "✓ Explicit enum values work")
+    } else {
+        (println "✗ Explicit enum values failed")
+        return 1
+    }
+    
+    if (test_enum_arithmetic) {
+        (println "✓ Enum arithmetic works")
+    } else {
+        (println "✗ Enum arithmetic failed")
+        return 1
+    }
+    
+    (println "All enum tests passed! ✅")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

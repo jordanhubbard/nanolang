@@ -1,0 +1,20 @@
+# Test without shadow tests
+
+let MAX_VALUE: int = 42
+
+fn get_max() -> int {
+    return MAX_VALUE
+}
+
+fn main() -> int {
+    (print "get_max() = ")
+    (println (get_max))
+    (print "MAX_VALUE = ")
+    (println MAX_VALUE)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

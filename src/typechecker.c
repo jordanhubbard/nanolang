@@ -222,8 +222,19 @@ Type check_expression(ASTNode *expr, Environment *env) {
             /* Arithmetic operators */
             if (op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_STAR ||
                 op == TOKEN_SLASH || op == TOKEN_PERCENT) {
+                
+                /* Handle unary minus: (- x) */
+                if (op == TOKEN_MINUS && arg_count == 1) {
+                    Type arg_type = check_expression(expr->as.prefix_op.args[0], env);
+                    if (arg_type == TYPE_INT) return TYPE_INT;
+                    if (arg_type == TYPE_FLOAT) return TYPE_FLOAT;
+                    fprintf(stderr, "Error at line %d, column %d: Unary minus requires numeric type\n", expr->line, expr->column);
+                    return TYPE_UNKNOWN;
+                }
+                
+                /* Binary arithmetic operations */
                 if (arg_count != 2) {
-                    fprintf(stderr, "Error at line %d, column %d: Arithmetic operators require 2 arguments\n", expr->line, expr->column);
+                    fprintf(stderr, "Error at line %d, column %d: Binary arithmetic operators require 2 arguments\n", expr->line, expr->column);
                     return TYPE_UNKNOWN;
                 }
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
@@ -312,6 +323,46 @@ Type check_expression(ASTNode *expr, Environment *env) {
                     /* Return type is unknown - function signatures don't store this info yet */
                     /* TODO: Store full function signature in Symbol for better type checking */
                     return TYPE_INT;  /* Assume int for now */
+                }
+                
+                /* Special handling for dynamic array builtins */
+                if (strcmp(expr->as.call.name, "array_push") == 0) {
+                    /* array_push(array, value) -> array */
+                    if (expr->as.call.arg_count >= 1) {
+                        check_expression(expr->as.call.args[0], env);
+                        if (expr->as.call.arg_count >= 2) {
+                            check_expression(expr->as.call.args[1], env);
+                        }
+                    }
+                    return TYPE_ARRAY;
+                }
+                
+                if (strcmp(expr->as.call.name, "array_pop") == 0) {
+                    /* array_pop(array) -> element type (infer from array) */
+                    if (expr->as.call.arg_count >= 1) {
+                        ASTNode *array_arg = expr->as.call.args[0];
+                        check_expression(array_arg, env);
+                        
+                        /* Try to infer element type from array */
+                        if (array_arg->type == AST_IDENTIFIER) {
+                            Symbol *sym = env_get_var(env, array_arg->as.identifier);
+                            if (sym && sym->element_type != TYPE_UNKNOWN) {
+                                return sym->element_type;
+                            }
+                        }
+                    }
+                    return TYPE_INT;  /* Default fallback */
+                }
+                
+                if (strcmp(expr->as.call.name, "array_remove_at") == 0) {
+                    /* array_remove_at(array, index) -> array */
+                    if (expr->as.call.arg_count >= 1) {
+                        check_expression(expr->as.call.args[0], env);
+                        if (expr->as.call.arg_count >= 2) {
+                            check_expression(expr->as.call.args[1], env);
+                        }
+                    }
+                    return TYPE_ARRAY;
                 }
                 
                 safe_fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
@@ -953,7 +1004,9 @@ static const char *builtin_function_names[] = {
     "range", "print", "println", "assert",
     /* Math */
     "abs", "min", "max", "sqrt", "pow", "floor", "ceil", "round",
-    "sin", "cos", "tan",
+    "sin", "cos", "tan", "atan2",
+    /* Type casting */
+    "cast_int", "cast_float", "cast_bool", "cast_string",
     /* String */
     "str_length", "str_concat", "str_substring", "str_contains", "str_equals",
     /* Advanced string operations */
@@ -2164,6 +2217,30 @@ bool type_check(ASTNode *program, Environment *env) {
     /* Check for similar function names (warnings only) */
     warn_similar_function_names(env);
 
+    /* Process top-level constants (before type checking functions) */
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_LET) {
+            /* Type check the constant's initial value */
+            Type value_type = check_expression(item->as.let.value, env);
+            
+            /* Verify it matches the declared type */
+            if (item->as.let.var_type != value_type) {
+                fprintf(stderr, "Error at line %d, column %d: Constant '%s' type mismatch (declared %s, got %s)\n",
+                        item->line, item->column,
+                        item->as.let.name,
+                        type_to_string(item->as.let.var_type),
+                        type_to_string(value_type));
+                tc.has_error = true;
+                continue;
+            }
+            
+            /* Add constant to environment */
+            Value val = create_void();  /* Placeholder value for type checking */
+            env_define_var(env, item->as.let.name, item->as.let.var_type, false, val);
+        }
+    }
+
     /* Third pass: type check all functions */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -2523,6 +2600,30 @@ bool type_check_module(ASTNode *program, Environment *env) {
             }
             
             func->shadow_test = item->as.shadow.body;
+        }
+    }
+
+    /* Process top-level constants (before type checking functions) */
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_LET) {
+            /* Type check the constant's initial value */
+            Type value_type = check_expression(item->as.let.value, env);
+            
+            /* Verify it matches the declared type */
+            if (item->as.let.var_type != value_type) {
+                fprintf(stderr, "Error at line %d, column %d: Constant '%s' type mismatch (declared %s, got %s)\n",
+                        item->line, item->column,
+                        item->as.let.name,
+                        type_to_string(item->as.let.var_type),
+                        type_to_string(value_type));
+                tc.has_error = true;
+                continue;
+            }
+            
+            /* Add constant to environment */
+            Value val = create_void();  /* Placeholder value for type checking */
+            env_define_var(env, item->as.let.name, item->as.let.var_type, false, val);
         }
     }
 

@@ -13,3 +13,13 @@ extern fn nl_sdl_render_fill_rect(renderer: int, x: int, y: int, w: int, h: int)
 # Helper to poll SDL events and return 1 if quit event, 0 otherwise
 extern fn nl_sdl_poll_event_quit() -> int
 
+# Helper to poll for mouse button clicks
+# Returns x * 10000 + y if left button clicked, -1 otherwise
+extern fn nl_sdl_poll_mouse_click() -> int
+
+# Helper to render text using SDL_ttf (solid rendering - faster, no anti-aliasing)
+extern fn nl_sdl_render_text_solid(renderer: int, font: int, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int
+
+# Helper to render text using SDL_ttf (blended rendering - slower, anti-aliased)
+extern fn nl_sdl_render_text_blended(renderer: int, font: int, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int
+

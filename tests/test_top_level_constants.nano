@@ -1,0 +1,86 @@
+# Test Top-Level Constants
+
+# Define constants at top level
+let PI: float = 3.14159
+let MAX_SCORE: int = 100
+let GAME_TITLE: string = "Nanolang Game"
+let DEBUG_MODE: bool = false
+
+# Use constants in functions
+fn calculate_circle_area(radius: float) -> float {
+    return (* PI (* radius radius))
+}
+
+shadow calculate_circle_area {
+    let area: float = (calculate_circle_area 10.0)
+    assert (> area 314.0)
+    assert (< area 315.0)
+}
+
+fn get_max_score() -> int {
+    return MAX_SCORE
+}
+
+shadow get_max_score {
+    assert (== (get_max_score) 100)
+}
+
+fn get_title() -> string {
+    return GAME_TITLE
+}
+
+shadow get_title {
+    assert (== (get_title) "Nanolang Game")
+}
+
+fn is_debug() -> bool {
+    return DEBUG_MODE
+}
+
+shadow is_debug {
+    assert (== (is_debug) false)
+}
+
+fn use_multiple_constants() -> int {
+    let area: float = (* PI 2.0)
+    if DEBUG_MODE {
+        return MAX_SCORE
+    } else {
+        return 42
+    }
+}
+
+shadow use_multiple_constants {
+    assert (== (use_multiple_constants) 42)
+}
+
+fn main() -> int {
+    (println "=== Testing Top-Level Constants ===")
+    (println "")
+    
+    (print "PI = ")
+    (println PI)
+    
+    (print "MAX_SCORE = ")
+    (println MAX_SCORE)
+    
+    (print "GAME_TITLE = ")
+    (println GAME_TITLE)
+    
+    (print "DEBUG_MODE = ")
+    (println DEBUG_MODE)
+    
+    (println "")
+    (print "Circle area (radius=10): ")
+    (println (calculate_circle_area 10.0))
+    
+    (println "")
+    (println "✅ All top-level constant tests passed!")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

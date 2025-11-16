@@ -1,0 +1,25 @@
+{
+  "name": "math_ext",
+  "version": "1.0.0",
+  "description": "Extended math functions for nanolang (inverse trig, logarithms, etc.)",
+  "type": "ffi",
+  "source_files": [],
+  "compile_flags": [],
+  "link_flags": ["-lm"],
+  "dependencies": [],
+  "exports": [
+    "asin",
+    "acos",
+    "atan",
+    "atan2",
+    "log",
+    "log10",
+    "exp",
+    "sinh",
+    "cosh",
+    "tanh",
+    "fmod",
+    "fabs"
+  ]
+}
+

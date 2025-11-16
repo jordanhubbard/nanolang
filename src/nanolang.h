@@ -101,6 +101,10 @@ typedef struct {
 typedef struct Value Value;
 struct FunctionSignature;  /* Forward declaration - typedef defined with struct */
 
+/* Include dynamic array and GC struct for GC support - needs to be after Value forward declaration */
+#include "runtime/dyn_array.h"
+#include "runtime/gc_struct.h"
+
 /* Value types */
 typedef enum {
     VAL_INT,
@@ -108,9 +112,11 @@ typedef enum {
     VAL_BOOL,
     VAL_STRING,
     VAL_ARRAY,
-    VAL_STRUCT,    /* Struct values */
-    VAL_UNION,     /* Union values (tagged unions) */
-    VAL_FUNCTION,  /* Function values (for first-class functions) */
+    VAL_DYN_ARRAY,  /* Dynamic arrays (GC-managed) */
+    VAL_STRUCT,     /* Struct values (stack-allocated) */
+    VAL_GC_STRUCT,  /* GC-managed struct (heap-allocated) */
+    VAL_UNION,      /* Union values (tagged unions) */
+    VAL_FUNCTION,   /* Function values (for first-class functions) */
     VAL_VOID
 } ValueType;
 
@@ -181,8 +187,10 @@ struct Value {
         bool bool_val;
         char *string_val;
         Array *array_val;
-        StructValue *struct_val;  /* Struct values */
-        UnionValue *union_val;    /* Union values (tagged unions) */
+        DynArray *dyn_array_val;    /* Dynamic array (GC-managed) */
+        StructValue *struct_val;    /* Struct values (stack) */
+        GCStruct *gc_struct_val;    /* GC-managed struct (heap) */
+        UnionValue *union_val;      /* Union values (tagged unions) */
         struct {
             char *function_name;       /* Name of the function */
             struct FunctionSignature *signature;  /* Function signature */

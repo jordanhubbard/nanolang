@@ -1,0 +1,83 @@
+# Test Unary Operators
+
+fn test_unary_minus_int() -> int {
+    let x: int = 5
+    let neg_x: int = (- x)
+    return neg_x
+}
+
+shadow test_unary_minus_int {
+    assert (== (test_unary_minus_int) -5)
+}
+
+fn test_unary_minus_float() -> float {
+    let y: float = 3.14
+    let neg_y: float = (- y)
+    return neg_y
+}
+
+shadow test_unary_minus_float {
+    let result: float = (test_unary_minus_float)
+    assert (< result -3.13)
+    assert (> result -3.15)
+}
+
+fn test_unary_minus_expression() -> int {
+    let a: int = 10
+    let b: int = 3
+    let result: int = (+ (- a) b)
+    return result
+}
+
+shadow test_unary_minus_expression {
+    assert (== (test_unary_minus_expression) -7)
+}
+
+fn test_not_operator() -> bool {
+    let flag: bool = true
+    let neg_flag: bool = (not flag)
+    return neg_flag
+}
+
+shadow test_not_operator {
+    assert (== (test_not_operator) false)
+}
+
+fn test_not_expression() -> bool {
+    let x: int = 5
+    return (not (> x 10))
+}
+
+shadow test_not_expression {
+    assert (== (test_not_expression) true)
+}
+
+fn main() -> int {
+    (println "=== Testing Unary Operators ===")
+    (println "")
+    
+    (print "Unary minus (int): ")
+    (println (test_unary_minus_int))
+    
+    (print "Unary minus (float): ")
+    (println (test_unary_minus_float))
+    
+    (print "Unary minus expression: ")
+    (println (test_unary_minus_expression))
+    
+    (print "Not operator: ")
+    (println (test_not_operator))
+    
+    (print "Not expression: ")
+    (println (test_not_expression))
+    
+    (println "")
+    (println "✅ All unary operator tests passed!")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
