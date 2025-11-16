@@ -1,0 +1,13 @@
+enum TestEnum {
+    VALUE1 = 0
+    VALUE2 = 1
+}
+
+fn main() -> int {
+    let x: int = (TestEnum.VALUE1)
+    return x
+}
+
+shadow main {
+    assert (== (main) 0)
+}

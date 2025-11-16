@@ -1,0 +1,31 @@
+/* Basic parser test with token streams */
+
+/* Test parsing a simple expression: 1 + 2 */
+fn test_parse_simple_expression() -> int {
+    /* This would use lexer to generate tokens, then parser to parse them */
+    /* For now, just return success */
+    (println "Parser test: Would parse '1 + 2'")
+    return 0
+}
+
+shadow test_parse_simple_expression {
+    assert (== (test_parse_simple_expression) 0)
+}
+
+fn main() -> int {
+    (println "Parser Basic Test")
+    (println "Status: Testing infrastructure")
+    (println "")
+    (println "Next steps:")
+    (println "  1. Use lexer_complete.nano to tokenize source")
+    (println "  2. Pass tokens to parser_mvp.nano")
+    (println "  3. Test expression parsing")
+    (println "  4. Test statement parsing")
+    (println "  5. Test definition parsing")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

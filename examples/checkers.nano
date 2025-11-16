@@ -1,0 +1,224 @@
+# Checkers Game - nanolang/SDL2 Implementation
+# A simple checkers game that runs as an X11 client
+#
+# This example demonstrates:
+# - Module imports (SDL2 bindings)
+# - SDL2 window and rendering
+# - Game logic implementation
+# - Event handling
+
+import "sdl.nano"
+
+# SDL Constants (defined as functions that return constant values)
+fn SDL_INIT_VIDEO() -> int { return 32 }
+shadow SDL_INIT_VIDEO { assert (== (SDL_INIT_VIDEO) 32) }
+
+fn SDL_WINDOWPOS_UNDEFINED() -> int { return 536805376 }
+shadow SDL_WINDOWPOS_UNDEFINED { assert (== (SDL_WINDOWPOS_UNDEFINED) 536805376) }
+
+fn SDL_WINDOW_SHOWN() -> int { return 4 }
+shadow SDL_WINDOW_SHOWN { assert (== (SDL_WINDOW_SHOWN) 4) }
+
+fn SDL_RENDERER_ACCELERATED() -> int { return 2 }
+shadow SDL_RENDERER_ACCELERATED { assert (== (SDL_RENDERER_ACCELERATED) 2) }
+
+fn SDL_BUTTON_LEFT() -> int { return 1 }
+shadow SDL_BUTTON_LEFT { assert (== (SDL_BUTTON_LEFT) 1) }
+
+fn SDL_QUIT() -> int { return 256 }
+shadow SDL_QUIT { assert (== (SDL_QUIT) 256) }
+
+fn SDL_MOUSEBUTTONDOWN() -> int { return 1025 }
+shadow SDL_MOUSEBUTTONDOWN { assert (== (SDL_MOUSEBUTTONDOWN) 1025) }
+
+fn SDL_BLENDMODE_BLEND() -> int { return 1 }
+shadow SDL_BLENDMODE_BLEND { assert (== (SDL_BLENDMODE_BLEND) 1) }
+
+fn SDL_BLENDMODE_NONE() -> int { return 0 }
+shadow SDL_BLENDMODE_NONE { assert (== (SDL_BLENDMODE_NONE) 0) }
+
+# Board constants
+fn BOARD_SIZE() -> int { return 8 }
+shadow BOARD_SIZE { assert (== (BOARD_SIZE) 8) }
+
+fn SQUARE_SIZE() -> int { return 80 }
+shadow SQUARE_SIZE { assert (== (SQUARE_SIZE) 80) }
+
+fn WINDOW_WIDTH() -> int { return (* (BOARD_SIZE) (SQUARE_SIZE)) }
+shadow WINDOW_WIDTH { assert (== (WINDOW_WIDTH) 640) }
+
+fn WINDOW_HEIGHT() -> int { return (+ (* (BOARD_SIZE) (SQUARE_SIZE)) 60) }
+shadow WINDOW_HEIGHT { assert (== (WINDOW_HEIGHT) 700) }
+
+# Piece types enum
+enum PieceType {
+    EMPTY = 0
+    RED_PIECE = 1
+    RED_KING = 2
+    BLACK_PIECE = 3
+    BLACK_KING = 4
+}
+
+# Game state enum
+enum GameState {
+    PLAYER_TURN = 0
+    AI_TURN = 1
+    GAME_OVER = 2
+}
+
+# CheckersGame struct
+struct CheckersGame {
+    board: array<int>
+    state: int
+    selected_row: int
+    selected_col: int
+    has_selection: bool
+    player_pieces: int
+    ai_pieces: int
+}
+
+# Initialize the board with starting positions
+fn init_board(game: CheckersGame) -> void {
+    # TODO: Initialize board array
+    # For now, this is a placeholder
+    # Full implementation would set up the 8x8 board with pieces
+}
+
+shadow init_board {
+    # Placeholder shadow test - function doesn't do anything yet
+    # TODO: Add proper test when implementation is complete
+}
+
+# Check if coordinates are valid
+fn is_valid_pos(row: int, col: int) -> bool {
+    return (and (>= row 0) (and (< row (BOARD_SIZE)) (and (>= col 0) (< col (BOARD_SIZE)))))
+}
+
+shadow is_valid_pos {
+    assert (== (is_valid_pos 0 0) true)
+    assert (== (is_valid_pos 7 7) true)
+    assert (== (is_valid_pos -1 0) false)
+    assert (== (is_valid_pos 0 8) false)
+}
+
+# Check if a square is dark (playable)
+fn is_dark_square(row: int, col: int) -> bool {
+    return (== (% (+ row col) 2) 1)
+}
+
+shadow is_dark_square {
+    assert (== (is_dark_square 0 1) true)
+    assert (== (is_dark_square 0 0) false)
+    assert (== (is_dark_square 1 0) true)
+}
+
+# Check if a piece belongs to player
+fn is_player_piece(piece: int) -> bool {
+    return (or (== piece (PieceType.RED_PIECE)) (== piece (PieceType.RED_KING)))
+}
+
+shadow is_player_piece {
+    assert (== (is_player_piece (PieceType.RED_PIECE)) true)
+    assert (== (is_player_piece (PieceType.RED_KING)) true)
+    assert (== (is_player_piece (PieceType.BLACK_PIECE)) false)
+    assert (== (is_player_piece (PieceType.BLACK_KING)) false)
+}
+
+# Check if a piece belongs to AI
+fn is_ai_piece(piece: int) -> bool {
+    return (or (== piece (PieceType.BLACK_PIECE)) (== piece (PieceType.BLACK_KING)))
+}
+
+shadow is_ai_piece {
+    assert (== (is_ai_piece (PieceType.BLACK_PIECE)) true)
+    assert (== (is_ai_piece (PieceType.BLACK_KING)) true)
+    assert (== (is_ai_piece (PieceType.RED_PIECE)) false)
+    assert (== (is_ai_piece (PieceType.RED_KING)) false)
+}
+
+# Check if a piece is a king
+fn is_king(piece: int) -> bool {
+    return (or (== piece (PieceType.RED_KING)) (== piece (PieceType.BLACK_KING)))
+}
+
+shadow is_king {
+    assert (== (is_king (PieceType.RED_KING)) true)
+    assert (== (is_king (PieceType.BLACK_KING)) true)
+    assert (== (is_king (PieceType.RED_PIECE)) false)
+    assert (== (is_king (PieceType.BLACK_PIECE)) false)
+}
+
+# Main function - simplified version that initializes SDL and creates window
+fn main() -> int {
+    # Initialize SDL
+    let result: int = (SDL_Init (SDL_INIT_VIDEO))
+    if (< result 0) {
+        let error: string = (SDL_GetError)
+        (println "SDL initialization failed:")
+        (println error)
+        return 1
+    } else {
+        # Create window
+        let window: int = (SDL_CreateWindow "Checkers" (SDL_WINDOWPOS_UNDEFINED) (SDL_WINDOWPOS_UNDEFINED) (WINDOW_WIDTH) (WINDOW_HEIGHT) (SDL_WINDOW_SHOWN))
+        if (== window 0) {
+            let error: string = (SDL_GetError)
+            (println "Window creation failed:")
+            (println error)
+            (SDL_Quit)
+            return 1
+        } else {
+            # Create renderer
+            let renderer: int = (SDL_CreateRenderer window -1 (SDL_RENDERER_ACCELERATED))
+            if (== renderer 0) {
+                let error: string = (SDL_GetError)
+                (println "Renderer creation failed:")
+                (println error)
+                (SDL_DestroyWindow window)
+                (SDL_Quit)
+                return 1
+            } else {
+                # Simple rendering loop - clear screen and draw a test pattern
+                (SDL_SetRenderDrawColor renderer 240 240 240 255)
+                (SDL_RenderClear renderer)
+                
+                # Draw a simple checkered pattern
+                let mut i: int = 0
+                while (< i (BOARD_SIZE)) {
+                    let mut j: int = 0
+                    while (< j (BOARD_SIZE)) {
+                        if (is_dark_square i j) {
+                            (SDL_SetRenderDrawColor renderer 139 69 19 255)
+                        } else {
+                            (SDL_SetRenderDrawColor renderer 255 248 220 255)
+                        }
+                        # TODO: Draw rectangle using SDL_RenderFillRect
+                        # This requires SDL_Rect struct support
+                        set j (+ j 1)
+                    }
+                    set i (+ i 1)
+                }
+                
+                (SDL_RenderPresent renderer)
+                
+                # Wait a bit
+                (SDL_Delay 2000)
+                
+                # Cleanup
+                (SDL_DestroyRenderer renderer)
+                (SDL_DestroyWindow window)
+                (SDL_Quit)
+                
+                (println "Checkers game initialized successfully!")
+                (println "Note: Full game logic implementation is in progress")
+                
+                return 0
+            }
+        }
+    }
+}
+
+shadow main {
+    # Shadow test verifies SDL initialization works
+    assert (== (main) 0)
+}
+

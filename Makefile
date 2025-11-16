@@ -154,12 +154,8 @@ else
     endif
 endif
 
-checkers: $(CHECKERS)
-
-$(CHECKERS): checkers.c | $(BIN_DIR)
-	@echo "Building checkers game..."
-	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -o $(CHECKERS) checkers.c $(SDL2_LDFLAGS)
-	@echo "✓ Checkers built: $(CHECKERS)"
+# Checkers game moved to C-samples/
+# Build with: cd C-samples && make checkers
 
 # Build nanolang checkers example
 CHECKERS_NANO = $(BIN_DIR)/checkers_simple
@@ -178,7 +174,7 @@ help:
 	@echo "nanolang Makefile targets:"
 	@echo "  make              - Build compiler and interpreter"
 	@echo "  make stage1.5     - Build Stage 1.5 hybrid compiler (nanolang lexer + C)"
-	@echo "  make checkers     - Build checkers game (requires SDL2)"
+	@echo "  (checkers moved to C-samples/ - build with: cd C-samples && make checkers)"
 	@echo "  make checkers-nano - Build nanolang checkers example (requires SDL2)"
 	@echo "  make test         - Run test suite"
 	@echo "  make sanitize     - Build with memory sanitizers"

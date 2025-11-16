@@ -89,7 +89,7 @@ typedef struct {
 
 /* Forward declarations */
 typedef struct Value Value;
-typedef struct FunctionSignature FunctionSignature;
+struct FunctionSignature;  /* Forward declaration - typedef defined with struct */
 
 /* Value types */
 typedef enum {
@@ -175,7 +175,7 @@ struct Value {
         UnionValue *union_val;    /* Union values (tagged unions) */
         struct {
             char *function_name;       /* Name of the function */
-            FunctionSignature *signature;  /* Function signature */
+            struct FunctionSignature *signature;  /* Function signature */
         } function_val;  /* Function values */
     } as;
 };
