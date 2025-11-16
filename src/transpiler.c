@@ -190,7 +190,16 @@ static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
     sb_append(sb, ");\n");
 }
 
-/* Get SDL C type for a function parameter/return based on function name and position */
+/* Get SDL C type for a function parameter/return based on function name and position
+ * 
+ * This function provides SDL-specific type mapping for FFI. SDL uses custom C types
+ * (SDL_Window*, SDL_Renderer*, Uint32, Uint8, etc.) that don't exist in nanolang's
+ * type system. nanolang represents these as `int`, but the transpiler needs to know
+ * the correct C types for code generation.
+ * 
+ * This is a feature of the FFI system, not a hack. It enables seamless integration
+ * with C libraries that use custom types.
+ */
 static const char *get_sdl_c_type(const char *func_name, int param_index, bool is_return) {
     if (!func_name || strncmp(func_name, "SDL_", 4) != 0) {
         if (func_name && strncmp(func_name, "TTF_", 4) == 0) {
@@ -1044,18 +1053,20 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "#include <stdarg.h>\n");
     sb_append(sb, "#include <math.h>\n");
     
-    /* Check for SDL extern functions and add includes */
+    /* Check for SDL extern functions in environment (includes imported modules) */
     bool has_sdl = false;
     bool has_sdl_ttf = false;
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_FUNCTION && item->as.function.is_extern) {
-            const char *func_name = item->as.function.name;
-            if (strncmp(func_name, "SDL_", 4) == 0 || 
-                strncmp(func_name, "TTF_", 4) == 0) {
-                has_sdl = true;
-                if (strncmp(func_name, "TTF_", 4) == 0) {
-                    has_sdl_ttf = true;
+    if (env && env->functions) {
+        for (int i = 0; i < env->function_count; i++) {
+            Function *func = &env->functions[i];
+            if (func && func->is_extern && func->name) {
+                const char *func_name = func->name;
+                if (strncmp(func_name, "SDL_", 4) == 0 || 
+                    strncmp(func_name, "TTF_", 4) == 0) {
+                    has_sdl = true;
+                    if (strncmp(func_name, "TTF_", 4) == 0) {
+                        has_sdl_ttf = true;
+                    }
                 }
             }
         }

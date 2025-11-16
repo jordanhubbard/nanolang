@@ -1,0 +1,46 @@
+# SDL2 FFI Module
+# Provides bindings to SDL2 library functions
+# 
+# Compilation requirements:
+#   -I/opt/homebrew/include/SDL2 (or -I/usr/local/include/SDL2 on Linux)
+#   -L/opt/homebrew/lib (or -L/usr/local/lib on Linux)
+#   -lSDL2
+#
+# This module declares SDL2 functions as extern, allowing nanolang programs
+# to call SDL2 functions directly. The transpiler handles SDL-specific type
+# mappings (SDL_Window*, SDL_Renderer*, Uint32, Uint8, etc.) automatically.
+
+# SDL2 Core Functions
+extern fn SDL_Init(flags: int) -> int
+extern fn SDL_Quit() -> void
+extern fn SDL_GetError() -> string
+extern fn SDL_GetTicks() -> int
+extern fn SDL_Delay(ms: int) -> void
+
+# SDL2 Window Functions
+extern fn SDL_CreateWindow(title: string, x: int, y: int, w: int, h: int, flags: int) -> int
+extern fn SDL_DestroyWindow(window: int) -> void
+
+# SDL2 Renderer Functions  
+extern fn SDL_CreateRenderer(window: int, index: int, flags: int) -> int
+extern fn SDL_DestroyRenderer(renderer: int) -> void
+extern fn SDL_RenderClear(renderer: int) -> int
+extern fn SDL_RenderPresent(renderer: int) -> void
+extern fn SDL_SetRenderDrawColor(renderer: int, r: int, g: int, b: int, a: int) -> int
+extern fn SDL_RenderFillRect(renderer: int, rect_ptr: int) -> int
+extern fn SDL_RenderDrawPoint(renderer: int, x: int, y: int) -> int
+extern fn SDL_RenderDrawLine(renderer: int, x1: int, y1: int, x2: int, y2: int) -> int
+extern fn SDL_SetRenderDrawBlendMode(renderer: int, mode: int) -> int
+
+# SDL2 Event Functions
+extern fn SDL_PollEvent(event_ptr: int) -> int
+
+# SDL2 Constants (as module-level documentation - actual values come from SDL headers)
+# SDL_INIT_VIDEO = 32
+# SDL_WINDOWPOS_UNDEFINED = 536805376
+# SDL_WINDOW_SHOWN = 4
+# SDL_RENDERER_ACCELERATED = 2
+# SDL_QUIT = 256
+# SDL_MOUSEBUTTONDOWN = 1025
+# SDL_BUTTON_LEFT = 1
+
