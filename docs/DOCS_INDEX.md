@@ -254,12 +254,15 @@ A: 24 functions covering I/O, math, strings, arrays, and OS operations. See [STD
 - [TRACING_IMPLEMENTATION.md](TRACING_IMPLEMENTATION.md) - Debugging with the interpreter tracing system
 - [EXTERN_FFI.md](EXTERN_FFI.md) - How to use external C functions
 - [SAFE_C_FFI_FUNCTIONS.md](SAFE_C_FFI_FUNCTIONS.md) - Reference of safe C functions for FFI
+- [MODULES.md](MODULES.md) - Module system guide (importing, packaging, distribution)
+- [BUILDING_HYBRID_APPS.md](BUILDING_HYBRID_APPS.md) - Building hybrid C/nanolang applications
 
-**Feature Designs (Ready to Implement):**
-- [STRUCTS_DESIGN.md](STRUCTS_DESIGN.md) - Complete struct design (Priority #1)
-- [ENUMS_DESIGN.md](ENUMS_DESIGN.md) - Complete enum design (Priority #2)
-- [LISTS_DESIGN.md](LISTS_DESIGN.md) - Complete dynamic list design (Priority #3)
-- [STDLIB_ADDITIONS_DESIGN.md](STDLIB_ADDITIONS_DESIGN.md) - File I/O, string ops, system execution
+**Feature Designs (Historical Reference):**
+- [STRUCTS_DESIGN.md](STRUCTS_DESIGN.md) - Struct design documentation (✅ Implemented)
+- [ENUMS_DESIGN.md](ENUMS_DESIGN.md) - Enum design documentation (✅ Implemented)
+- [LISTS_DESIGN.md](LISTS_DESIGN.md) - Dynamic list design documentation (✅ Implemented)
+- [ARRAY_DESIGN.md](ARRAY_DESIGN.md) - Array design documentation (✅ Implemented)
+- [STDLIB_ADDITIONS_DESIGN.md](STDLIB_ADDITIONS_DESIGN.md) - Standard library additions design (✅ Implemented)
 
 ### Examples
 - [examples/README.md](examples/README.md) - Example guide
