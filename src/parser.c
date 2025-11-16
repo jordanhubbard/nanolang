@@ -5,7 +5,11 @@ typedef struct {
     Token *tokens;
     int count;
     int pos;
+    int recursion_depth;  /* Track recursion depth to prevent stack overflow */
 } Parser;
+
+/* Maximum recursion depth to prevent stack overflow */
+#define MAX_RECURSION_DEPTH 1000
 
 /* Forward declarations */
 static Type parse_type_with_element(Parser *p, Type *element_type_out, char **type_param_name_out, FunctionSignature **fn_sig_out);
@@ -96,18 +100,29 @@ static FunctionSignature *parse_function_signature(Parser *p);
 
 /* Parse function signature: fn(int, string) -> bool */
 static FunctionSignature *parse_function_signature(Parser *p) {
+    Token *tok = current_token(p);
+    if (!tok) {
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) in function signature\n");
+        return NULL;
+    }
+    
     /* Expect 'fn' */
-    if (current_token(p)->type != TOKEN_FN) {
+    if (tok->type != TOKEN_FN) {
         fprintf(stderr, "Error at line %d, column %d: Expected 'fn' for function type\n",
-                current_token(p)->line, current_token(p)->column);
+                tok->line, tok->column);
         return NULL;
     }
     advance(p);  /* consume 'fn' */
     
     /* Expect '(' */
-    if (current_token(p)->type != TOKEN_LPAREN) {
+    tok = current_token(p);
+    if (!tok) {
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) after 'fn'\n");
+        return NULL;
+    }
+    if (tok->type != TOKEN_LPAREN) {
         fprintf(stderr, "Error at line %d, column %d: Expected '(' after 'fn'\n",
-                current_token(p)->line, current_token(p)->column);
+                tok->line, tok->column);
         return NULL;
     }
     advance(p);  /* consume '(' */
@@ -121,7 +136,14 @@ static FunctionSignature *parse_function_signature(Parser *p) {
     sig->return_struct_name = NULL;
     
     /* Parse parameter types */
-    if (current_token(p)->type != TOKEN_RPAREN) {
+    tok = current_token(p);
+    if (!tok) {
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) before parameter types\n");
+        free_function_signature(sig);
+        return NULL;
+    }
+    
+    if (tok->type != TOKEN_RPAREN) {
         /* Parse comma-separated types */
         while (1) {
             char *struct_name = NULL;
@@ -153,7 +175,14 @@ static FunctionSignature *parse_function_signature(Parser *p) {
                 return NULL;
             }
             
-            if (current_token(p)->type == TOKEN_COMMA) {
+            tok = current_token(p);
+            if (!tok) {
+                fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parameter list\n");
+                free_function_signature(sig);
+                return NULL;
+            }
+            
+            if (tok->type == TOKEN_COMMA) {
                 advance(p);  /* consume ',' */
             } else {
                 break;
@@ -162,18 +191,30 @@ static FunctionSignature *parse_function_signature(Parser *p) {
     }
     
     /* Expect ')' */
-    if (current_token(p)->type != TOKEN_RPAREN) {
+    tok = current_token(p);
+    if (!tok) {
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) before ')'\n");
+        free_function_signature(sig);
+        return NULL;
+    }
+    if (tok->type != TOKEN_RPAREN) {
         fprintf(stderr, "Error at line %d, column %d: Expected ')' in function type\n",
-                current_token(p)->line, current_token(p)->column);
+                tok->line, tok->column);
         free_function_signature(sig);
         return NULL;
     }
     advance(p);  /* consume ')' */
     
     /* Expect '->' */
-    if (current_token(p)->type != TOKEN_ARROW) {
+    tok = current_token(p);
+    if (!tok) {
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) before '->'\n");
+        free_function_signature(sig);
+        return NULL;
+    }
+    if (tok->type != TOKEN_ARROW) {
         fprintf(stderr, "Error at line %d, column %d: Expected '->' in function type\n",
-                current_token(p)->line, current_token(p)->column);
+                tok->line, tok->column);
         free_function_signature(sig);
         return NULL;
     }
@@ -649,10 +690,25 @@ static ASTNode *parse_primary(Parser *p) {
         case TOKEN_IF:
             return parse_expression(p);
 
-        default:
+        default: {
+            /* Re-read token to ensure it's still valid (might have been corrupted during recursion) */
+            Token *current_tok = current_token(p);
+            if (!current_tok) {
+                fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parse_primary default case\n");
+                return NULL;
+            }
+            /* Safety check: validate token values are reasonable */
+            if (current_tok->line < 0 || current_tok->line > 1000000 || 
+                current_tok->column < 0 || current_tok->column > 1000000) {
+                fprintf(stderr, "Error: Invalid token state in parse_primary (possible memory corruption at line %d, column %d)\n",
+                        current_tok->line, current_tok->column);
+                return NULL;
+            }
+            const char *type_name = token_type_name(current_tok->type);
             fprintf(stderr, "Error at line %d, column %d: Unexpected token in expression: %s\n",
-                    tok->line, token_type_name(tok->type));
+                    current_tok->line, current_tok->column, type_name ? type_name : "UNKNOWN");
             return NULL;
+        }
     }
 }
 
@@ -687,16 +743,34 @@ static ASTNode *parse_if_expression(Parser *p) {
 
 /* Parse expression */
 static ASTNode *parse_expression(Parser *p) {
+    /* Recursion depth guard */
+    p->recursion_depth++;
+    if (p->recursion_depth > MAX_RECURSION_DEPTH) {
+        Token *tok = current_token(p);
+        fprintf(stderr, "Error at line %d, column %d: Expression recursion depth exceeded maximum (%d). Possible infinite recursion or extremely nested expression.\n",
+                tok ? tok->line : 0, tok ? tok->column : 0, MAX_RECURSION_DEPTH);
+        p->recursion_depth--;
+        return NULL;
+    }
+    
     if (match(p, TOKEN_IF)) {
-        return parse_if_expression(p);
+        ASTNode *result = parse_if_expression(p);
+        p->recursion_depth--;
+        return result;
     }
     
     if (match(p, TOKEN_MATCH)) {
-        return parse_match_expr(p);
+        ASTNode *result = parse_match_expr(p);
+        p->recursion_depth--;
+        return result;
     }
     
     /* Parse primary expression */
     ASTNode *expr = parse_primary(p);
+    if (!expr) {
+        p->recursion_depth--;
+        return NULL;
+    }
     
     /* Handle field access or union construction:
      * - obj.field -> field access
@@ -803,15 +877,27 @@ static ASTNode *parse_expression(Parser *p) {
         }
     }
     
+    p->recursion_depth--;
     return expr;
 }
 
 /* Parse block */
 static ASTNode *parse_block(Parser *p) {
+    /* Recursion depth guard */
+    p->recursion_depth++;
+    if (p->recursion_depth > MAX_RECURSION_DEPTH) {
+        Token *tok = current_token(p);
+        fprintf(stderr, "Error at line %d, column %d: Block recursion depth exceeded maximum (%d). Possible infinite recursion or extremely nested blocks.\n",
+                tok ? tok->line : 0, tok ? tok->column : 0, MAX_RECURSION_DEPTH);
+        p->recursion_depth--;
+        return NULL;
+    }
+    
     int line = current_token(p)->line;
     int column = current_token(p)->column;
 
     if (!expect(p, TOKEN_LBRACE, "Expected '{'")) {
+        p->recursion_depth--;
         return NULL;
     }
 
@@ -833,12 +919,14 @@ static ASTNode *parse_block(Parser *p) {
 
     if (!expect(p, TOKEN_RBRACE, "Expected '}'")) {
         free(statements);
+        p->recursion_depth--;
         return NULL;
     }
 
     ASTNode *node = create_node(AST_BLOCK, line, column);
     node->as.block.statements = statements;
     node->as.block.count = count;
+    p->recursion_depth--;
     return node;
 }
 
@@ -1548,9 +1636,11 @@ static ASTNode *parse_function(Parser *p, bool is_extern) {
     /* For non-generic structs, we still need to capture the name */
     if (return_type == TYPE_STRUCT && !return_struct_name) {
         /* Go back one token to get the struct name */
-        Token *prev_token = &p->tokens[p->pos - 1];
-        if (prev_token && prev_token->type == TOKEN_IDENTIFIER) {
-            return_struct_name = strdup(prev_token->value);
+        if (p->pos > 0 && p->pos <= p->count) {
+            Token *prev_token = &p->tokens[p->pos - 1];
+            if (prev_token && prev_token->type == TOKEN_IDENTIFIER) {
+                return_struct_name = strdup(prev_token->value);
+            }
         }
     }
 
@@ -1664,6 +1754,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
     parser.tokens = tokens;
     parser.count = token_count;
     parser.pos = 0;
+    parser.recursion_depth = 0;
 
     int capacity = 16;
     int count = 0;

@@ -19,7 +19,7 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
             capacity *= 2; \
             buffer = realloc(buffer, capacity); \
         } \
-        strcpy(buffer + pos, str); \
+        safe_strncpy(buffer + pos, str, capacity - pos); \
         pos += len; \
     } while(0)
     
@@ -123,8 +123,10 @@ bool embed_metadata_in_module_c(char *c_code, ModuleMetadata *meta, size_t buffe
     if (!metadata_c) return false;
     
     /* Find insertion point - before the last closing brace or at end */
-    size_t code_len = strlen(c_code);
-    size_t meta_len = strlen(metadata_c);
+    assert(c_code != NULL);
+    assert(metadata_c != NULL);
+    size_t code_len = safe_strlen(c_code);
+    size_t meta_len = safe_strlen(metadata_c);
     
     if (code_len + meta_len + 100 >= buffer_size) {
         free(metadata_c);

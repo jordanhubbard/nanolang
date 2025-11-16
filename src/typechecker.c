@@ -314,15 +314,15 @@ Type check_expression(ASTNode *expr, Environment *env) {
                     return TYPE_INT;  /* Assume int for now */
                 }
                 
-                fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
-                        expr->line, expr->column, expr->as.call.name);
+                safe_fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
+                        expr->line, expr->column, safe_format_string(expr->as.call.name));
                 return TYPE_UNKNOWN;
             }
 
             /* Check argument count */
             if (expr->as.call.arg_count != func->param_count) {
-                fprintf(stderr, "Error at line %d, column %d: Function '%s' expects %d arguments, got %d\n",
-                        expr->line, expr->column, expr->as.call.name, func->param_count, expr->as.call.arg_count);
+                safe_fprintf(stderr, "Error at line %d, column %d: Function '%s' expects %d arguments, got %d\n",
+                        expr->line, expr->column, safe_format_string(expr->as.call.name), func->param_count, expr->as.call.arg_count);
                 return TYPE_UNKNOWN;
             }
 
@@ -527,8 +527,9 @@ Type check_expression(ASTNode *expr, Environment *env) {
 
         case AST_FIELD_ACCESS: {
             /* Check object is not NULL */
+            assert(expr->as.field_access.object != NULL);
             if (!expr->as.field_access.object) {
-                fprintf(stderr, "Error at line %d, column %d: NULL object in field access\n",
+                safe_fprintf(stderr, "Error at line %d, column %d: NULL object in field access\n",
                         expr->line, expr->column);
                 return TYPE_UNKNOWN;
             }
@@ -536,8 +537,9 @@ Type check_expression(ASTNode *expr, Environment *env) {
             /* Special case: Check if this is an enum variant access */
             if (expr->as.field_access.object->type == AST_IDENTIFIER) {
                 const char *enum_name = expr->as.field_access.object->as.identifier;
+                assert(enum_name != NULL);
                 if (!enum_name) {
-                    fprintf(stderr, "Error at line %d, column %d: NULL enum name in field access\n",
+                    safe_fprintf(stderr, "Error at line %d, column %d: NULL enum name in field access\n",
                             expr->line, expr->column);
                     return TYPE_UNKNOWN;
                 }
@@ -546,9 +548,10 @@ Type check_expression(ASTNode *expr, Environment *env) {
                 if (enum_def && enum_def->variant_names) {
                     /* This is an enum variant access (e.g., Color.Red) */
                     const char *variant_name = expr->as.field_access.field_name;
+                    assert(variant_name != NULL);
                     
                     if (!variant_name) {
-                        fprintf(stderr, "Error at line %d, column %d: NULL variant name in enum access\n",
+                        safe_fprintf(stderr, "Error at line %d, column %d: NULL variant name in enum access\n",
                                 expr->line, expr->column);
                         return TYPE_UNKNOWN;
                     }
@@ -560,8 +563,8 @@ Type check_expression(ASTNode *expr, Environment *env) {
                         }
                     }
                     
-                    fprintf(stderr, "Error at line %d, column %d: Enum '%s' has no variant '%s'\n",
-                            expr->line, expr->column, enum_name ? enum_name : "(NULL)", variant_name ? variant_name : "(NULL)");
+                    safe_fprintf(stderr, "Error at line %d, column %d: Enum '%s' has no variant '%s'\n",
+                            expr->line, expr->column, safe_format_string(enum_name), safe_format_string(variant_name));
                     return TYPE_UNKNOWN;
                 }
             }
@@ -570,7 +573,7 @@ Type check_expression(ASTNode *expr, Environment *env) {
             /* Check the object type */
             Type object_type = check_expression(expr->as.field_access.object, env);
             if (object_type != TYPE_STRUCT) {
-                fprintf(stderr, "Error at line %d, column %d: Field access requires a struct\n",
+                safe_fprintf(stderr, "Error at line %d, column %d: Field access requires a struct\n",
                         expr->line, expr->column);
                 return TYPE_UNKNOWN;
             }
@@ -1744,8 +1747,8 @@ static int levenshtein_distance(const char *s1, const char *s2) {
         return 999;
     }
     
-    int len1 = strlen(s1);
-    int len2 = strlen(s2);
+    int len1 = safe_strlen(s1);
+    int len2 = safe_strlen(s2);
     
     /* Create distance matrix */
     int **d = malloc((len1 + 1) * sizeof(int *));
@@ -1930,10 +1933,18 @@ bool type_check(ASTNode *program, Environment *env) {
             env_define_union(env, udef);
             
         } else if (item->type == AST_ENUM_DEF) {
+            /* Defensive check: ensure item and enum_def fields are valid */
+            if (!item) {
+                fprintf(stderr, "Error: NULL AST item in enum processing\n");
+                tc.has_error = true;
+                continue;
+            }
+            
             const char *enum_name = item->as.enum_def.name;
+            assert(enum_name != NULL); /* Parser should never create enum with NULL name */
             
             if (!enum_name) {
-                fprintf(stderr, "Error at line %d, column %d: Enum definition has NULL name\n",
+                safe_fprintf(stderr, "Error at line %d, column %d: Enum definition has NULL name\n",
                         item->line, item->column);
                 tc.has_error = true;
                 continue;
@@ -1941,8 +1952,8 @@ bool type_check(ASTNode *program, Environment *env) {
             
             /* Check if enum already defined - defensive check for NULL name */
             if (enum_name && env_get_enum(env, enum_name)) {
-                fprintf(stderr, "Error at line %d, column %d: Enum '%s' is already defined\n",
-                        item->line, item->column, enum_name ? enum_name : "(NULL)");
+                safe_fprintf(stderr, "Error at line %d, column %d: Enum '%s' is already defined\n",
+                        item->line, item->column, safe_format_string(enum_name));
                 tc.has_error = true;
                 continue;
             }
@@ -1957,7 +1968,7 @@ bool type_check(ASTNode *program, Environment *env) {
             }
             edef.variant_count = item->as.enum_def.variant_count;
             if (edef.variant_count <= 0) {
-                fprintf(stderr, "Error: Enum '%s' has invalid variant count: %d\n", enum_name ? enum_name : "(NULL)", edef.variant_count);
+                safe_fprintf(stderr, "Error: Enum '%s' has invalid variant count: %d\n", safe_format_string(enum_name), edef.variant_count);
                 free(edef.name);
                 tc.has_error = true;
                 continue;
@@ -1965,7 +1976,7 @@ bool type_check(ASTNode *program, Environment *env) {
             
             /* Check if variant_names array exists in AST */
             if (!item->as.enum_def.variant_names) {
-                fprintf(stderr, "Error: Enum '%s' has NULL variant_names array\n", enum_name ? enum_name : "(NULL)");
+                safe_fprintf(stderr, "Error: Enum '%s' has NULL variant_names array\n", safe_format_string(enum_name));
                 free(edef.name);
                 tc.has_error = true;
                 continue;
@@ -1991,11 +2002,11 @@ bool type_check(ASTNode *program, Environment *env) {
                             edef.variant_names[j] = NULL;
                         }
                     } else {
-                        fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", enum_name ? enum_name : "(NULL)", j);
+                        safe_fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", safe_format_string(enum_name), j);
                         edef.variant_names[j] = NULL;
                     }
                 } else {
-                    fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", enum_name ? enum_name : "(NULL)", j);
+                    safe_fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", safe_format_string(enum_name), j);
                     edef.variant_names[j] = NULL;
                 }
             }
@@ -2335,10 +2346,18 @@ bool type_check_module(ASTNode *program, Environment *env) {
             env_define_union(env, udef);
             
         } else if (item->type == AST_ENUM_DEF) {
+            /* Defensive check: ensure item and enum_def fields are valid */
+            if (!item) {
+                fprintf(stderr, "Error: NULL AST item in enum processing\n");
+                tc.has_error = true;
+                continue;
+            }
+            
             const char *enum_name = item->as.enum_def.name;
+            assert(enum_name != NULL); /* Parser should never create enum with NULL name */
             
             if (!enum_name) {
-                fprintf(stderr, "Error at line %d, column %d: Enum definition has NULL name\n",
+                safe_fprintf(stderr, "Error at line %d, column %d: Enum definition has NULL name\n",
                         item->line, item->column);
                 tc.has_error = true;
                 continue;
@@ -2346,8 +2365,8 @@ bool type_check_module(ASTNode *program, Environment *env) {
             
             /* Check if enum already defined - defensive check for NULL name */
             if (enum_name && env_get_enum(env, enum_name)) {
-                fprintf(stderr, "Error at line %d, column %d: Enum '%s' is already defined\n",
-                        item->line, item->column, enum_name ? enum_name : "(NULL)");
+                safe_fprintf(stderr, "Error at line %d, column %d: Enum '%s' is already defined\n",
+                        item->line, item->column, safe_format_string(enum_name));
                 tc.has_error = true;
                 continue;
             }
@@ -2362,7 +2381,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
             }
             edef.variant_count = item->as.enum_def.variant_count;
             if (edef.variant_count <= 0) {
-                fprintf(stderr, "Error: Enum '%s' has invalid variant count: %d\n", enum_name, edef.variant_count);
+                safe_fprintf(stderr, "Error: Enum '%s' has invalid variant count: %d\n", safe_format_string(enum_name), edef.variant_count);
                 free(edef.name);
                 tc.has_error = true;
                 continue;
@@ -2395,11 +2414,11 @@ bool type_check_module(ASTNode *program, Environment *env) {
                             edef.variant_names[j] = NULL;
                         }
                     } else {
-                        fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", enum_name ? enum_name : "(NULL)", j);
+                        safe_fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", safe_format_string(enum_name), j);
                         edef.variant_names[j] = NULL;
                     }
                 } else {
-                    fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", enum_name ? enum_name : "(NULL)", j);
+                    safe_fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", safe_format_string(enum_name), j);
                     edef.variant_names[j] = NULL;
                 }
             }

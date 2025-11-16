@@ -18,12 +18,13 @@ static StringBuilder *sb_create(void) {
 }
 
 static void sb_append(StringBuilder *sb, const char *str) {
-    int len = strlen(str);
+    assert(str != NULL);
+    int len = safe_strlen(str);
     while (sb->length + len >= sb->capacity) {
         sb->capacity *= 2;
         sb->buffer = realloc(sb->buffer, sb->capacity);
     }
-    strcpy(sb->buffer + sb->length, str);
+    safe_strncpy(sb->buffer + sb->length, str, sb->capacity - sb->length);
     sb->length += len;
 }
 
