@@ -1,0 +1,382 @@
+# Dependency Locator - nanolang
+# Locates C/C++ libraries on macOS and Linux
+# Outputs JSON describing found libraries
+#
+# Usage: Set DEP_LOCATOR_NAME environment variable, or defaults to "SDL2"
+# Example: DEP_LOCATOR_NAME=SDL2 ./dep_locator.nano
+
+# Helper: Check if command exists by trying to run it
+fn command_exists(cmd: string) -> bool {
+    # Try to run command with --version (safe check)
+    let test_cmd: string = (str_concat cmd " --version >/dev/null 2>&1")
+    let result: int = (system test_cmd)
+    return (== result 0)
+}
+
+# Helper: Run pkg-config command and get output
+fn run_pkg_config(name: string, flag: string) -> string {
+    # Run command and capture to temp file
+    let temp_file: string = (str_concat "/tmp/nano_pkg_" flag ".txt")
+    let cmd: string = (str_concat "pkg-config " flag " " name " > " temp_file " 2>&1")
+    let result: int = (system cmd)
+    
+    if (== result 0) {
+        return (file_read temp_file)
+    } else {
+        return ""
+    }
+}
+
+# Parse flags string into include dirs, library dirs, and libraries
+fn parse_flags(flags: string) -> array<string> {
+    # Returns array with: [include_dir_count, library_dir_count, library_count, ...dirs..., ...libs...]
+    # Simplified parsing - split by spaces and extract -I, -L, -l flags
+    let mut result: array<string> = []
+    let mut include_count: int = 0
+    let mut lib_dir_count: int = 0
+    let mut lib_count: int = 0
+    
+    # TODO: Proper string parsing - for now return empty
+    # Would need string splitting functionality
+    return result
+}
+
+# Try pkg-config for a library
+fn try_pkg_config(name: string) -> array<string> {
+    let mut result: array<string> = []
+    
+    # Check if pkg-config exists
+    if (not (command_exists "pkg-config")) {
+        return result
+    }
+    
+    # Try pkg-config --cflags
+    let cflags: string = (run_pkg_config name "--cflags")
+    
+    # Try pkg-config --libs
+    let libs: string = (run_pkg_config name "--libs")
+    
+    # If both succeeded, we found it via pkg-config
+    if (and (!= (str_length cflags) 0) (!= (str_length libs) 0)) {
+        set result (array_push result "found")
+        set result (array_push result "pkg-config")
+        set result (array_push result cflags)
+        set result (array_push result libs)
+    }
+    
+    return result
+}
+
+# Get default search prefixes based on platform
+fn get_default_prefixes() -> array<string> {
+    let mut prefixes: array<string> = []
+    
+    # Common Unix prefixes
+    set prefixes (array_push prefixes "/usr")
+    set prefixes (array_push prefixes "/usr/local")
+    
+    # macOS Homebrew paths
+    if (file_exists "/opt/homebrew") {
+        set prefixes (array_push prefixes "/opt/homebrew")
+    }
+    if (file_exists "/usr/local/opt") {
+        set prefixes (array_push prefixes "/usr/local/opt")
+    }
+    if (file_exists "/opt/local") {
+        set prefixes (array_push prefixes "/opt/local")
+    }
+    
+    # Check DEP_LOCATOR_PREFIXES environment variable
+    let extra: string = (getenv "DEP_LOCATOR_PREFIXES")
+    if (!= (str_length extra) 0) {
+        # TODO: Split by colon and add each prefix
+        # For now, just add as single prefix if it exists
+        if (file_exists extra) {
+            set prefixes (array_push prefixes extra)
+        }
+    }
+    
+    return prefixes
+}
+
+# Find header in prefixes
+fn find_header(prefixes: array<string>, header_name: string, name_hint: string) -> array<string> {
+    let mut results: array<string> = []
+    let mut i: int = 0
+    
+    while (< i (array_length prefixes)) {
+        let prefix: string = (at prefixes i)
+        
+        # Try include/
+        let include_path: string = (path_join prefix "include")
+        let header_path: string = (path_join include_path header_name)
+        if (path_isfile header_path) {
+            set results (array_push results include_path)
+        } else {
+            # Try include/<name_hint>/
+            let include_sub: string = (path_join include_path name_hint)
+            set header_path (path_join include_sub header_name)
+            if (path_isfile header_path) {
+                set results (array_push results include_sub)
+            }
+        }
+        
+        set i (+ i 1)
+    }
+    
+    return results
+}
+
+# Find library in prefixes
+fn find_lib(prefixes: array<string>, lib_basename: string) -> array<string> {
+    let mut results: array<string> = []
+    let mut i: int = 0
+    
+    while (< i (array_length prefixes)) {
+        let prefix: string = (at prefixes i)
+        
+        # Try lib/
+        let lib_path: string = (path_join prefix "lib")
+        if (path_isdir lib_path) {
+            # Check for .so, .dylib, .a
+            let lib_so_name: string = (str_concat "lib" lib_basename ".so")
+            let lib_dylib_name: string = (str_concat "lib" lib_basename ".dylib")
+            let lib_a_name: string = (str_concat "lib" lib_basename ".a")
+            
+            let lib_so: string = (path_join lib_path lib_so_name)
+            let lib_dylib: string = (path_join lib_path lib_dylib_name)
+            let lib_a: string = (path_join lib_path lib_a_name)
+            
+            if (or (path_isfile lib_so) (or (path_isfile lib_dylib) (path_isfile lib_a))) {
+                set results (array_push results lib_path)
+            }
+        }
+        
+        # Try lib64/
+        let lib64_path: string = (path_join prefix "lib64")
+        if (path_isdir lib64_path) {
+            let lib_so_name: string = (str_concat "lib" lib_basename ".so")
+            let lib_dylib_name: string = (str_concat "lib" lib_basename ".dylib")
+            let lib_a_name: string = (str_concat "lib" lib_basename ".a")
+            
+            let lib_so: string = (path_join lib64_path lib_so_name)
+            let lib_dylib: string = (path_join lib64_path lib_dylib_name)
+            let lib_a: string = (path_join lib64_path lib_a_name)
+            
+            if (or (path_isfile lib_so) (or (path_isfile lib_dylib) (path_isfile lib_a))) {
+                set results (array_push results lib64_path)
+            }
+        }
+        
+        set i (+ i 1)
+    }
+    
+    return results
+}
+
+# Heuristic search for headers and libraries
+fn heuristic_search(name: string, header_name: string, lib_name: string) -> array<string> {
+    let mut result: array<string> = []
+    let prefixes: array<string> = (get_default_prefixes)
+    
+    # Search for header
+    let include_dirs: array<string> = (find_header prefixes header_name name)
+    
+    # Search for library
+    let library_dirs: array<string> = (find_lib prefixes lib_name)
+    
+    # Build result array: [found, origin, INCLUDE_START, include_dirs..., LIB_START, library_dirs..., libraries...]
+    if (or (> (array_length include_dirs) 0) (> (array_length library_dirs) 0)) {
+        set result (array_push result "found")
+        set result (array_push result "heuristic")
+        
+        # Add include dirs with marker
+        set result (array_push result "INCLUDE_START")
+        let mut i: int = 0
+        while (< i (array_length include_dirs)) {
+            set result (array_push result (at include_dirs i))
+            set i (+ i 1)
+        }
+        
+        # Add library dirs with marker
+        set result (array_push result "LIB_START")
+        set i 0
+        while (< i (array_length library_dirs)) {
+            set result (array_push result (at library_dirs i))
+            set i (+ i 1)
+        }
+        
+        # Add library name if we found library dirs
+        if (> (array_length library_dirs) 0) {
+            set result (array_push result lib_name)
+        }
+    }
+    
+    return result
+}
+
+# Output JSON result
+fn output_json(name: string, found: bool, origin: string, include_dirs: array<string>, library_dirs: array<string>, libraries: array<string>) -> void {
+    (println "{")
+    (print "  \"name\": \"")
+    (print name)
+    (println "\",")
+    (print "  \"found\": ")
+    if found {
+        (print "true")
+    } else {
+        (print "false")
+    }
+    (println ",")
+    (print "  \"origin\": \"")
+    (print origin)
+    (println "\",")
+    
+    # Output include_dirs array
+    (println "  \"include_dirs\": [")
+    let mut i: int = 0
+    while (< i (array_length include_dirs)) {
+        let dir: string = (at include_dirs i)
+        (print "    \"")
+        (print dir)
+        if (< i (- (array_length include_dirs) 1)) {
+            (println "\",")
+        } else {
+            (println "\"")
+        }
+        set i (+ i 1)
+    }
+    (println "  ],")
+    
+    # Output library_dirs array
+    (println "  \"library_dirs\": [")
+    set i 0
+    while (< i (array_length library_dirs)) {
+        let dir: string = (at library_dirs i)
+        (print "    \"")
+        (print dir)
+        if (< i (- (array_length library_dirs) 1)) {
+            (println "\",")
+        } else {
+            (println "\"")
+        }
+        set i (+ i 1)
+    }
+    (println "  ],")
+    
+    # Output libraries array
+    (println "  \"libraries\": [")
+    set i 0
+    while (< i (array_length libraries)) {
+        let lib: string = (at libraries i)
+        (print "    \"")
+        (print lib)
+        if (< i (- (array_length libraries) 1)) {
+            (println "\",")
+        } else {
+            (println "\"")
+        }
+        set i (+ i 1)
+    }
+    (println "  ]")
+    (println "}")
+}
+
+# Main function
+fn main() -> int {
+    # Get library name from environment variable or use default
+    let name_env: string = (getenv "DEP_LOCATOR_NAME")
+    let name: string = ""
+    if (!= (str_length name_env) 0) {
+        set name name_env
+    } else {
+        set name "SDL2"
+    }
+    
+    # Derive header and library names from library name
+    let mut header_name: string = (str_concat name ".h")
+    let mut lib_name: string = name
+    
+    # Special cases for common libraries
+    if (str_equals name "SDL2") {
+        set header_name "SDL.h"
+        set lib_name "SDL2"
+    }
+    
+    # Try pkg-config first
+    let pkg_result: array<string> = (try_pkg_config name)
+    let mut pkg_found: bool = false
+    let mut pkg_include_dirs: array<string> = []
+    let mut pkg_library_dirs: array<string> = []
+    let mut pkg_libraries: array<string> = []
+    
+    if (> (array_length pkg_result) 0) {
+        set pkg_found true
+        # TODO: Parse pkg-config output to extract dirs and libs
+        # For now, use heuristic as fallback
+    }
+    
+    # If not found via pkg-config, try heuristic search
+    if (not pkg_found) {
+        let heuristic_result: array<string> = (heuristic_search name header_name lib_name)
+        if (> (array_length heuristic_result) 0) {
+            # Parse result array
+            # Format: [found, origin, include_dirs..., library_dirs..., libraries...]
+            let origin: string = (at heuristic_result 1)
+            let mut include_dirs: array<string> = []
+            let mut library_dirs: array<string> = []
+            let mut libraries: array<string> = []
+            
+            # Extract results using markers
+            # Format: [found, origin, INCLUDE_START, include_dirs..., LIB_START, library_dirs..., libraries...]
+            # Start from index 2 (after "found" and "origin")
+            let mut i: int = 2
+            let mut collecting_include: bool = false
+            let mut collecting_lib: bool = false
+            
+            while (< i (array_length heuristic_result)) {
+                let item: string = (at heuristic_result i)
+                
+                if (str_equals item "INCLUDE_START") {
+                    set collecting_include true
+                    set collecting_lib false
+                } else {
+                    if (str_equals item "LIB_START") {
+                        set collecting_include false
+                        set collecting_lib true
+                    } else {
+                        if collecting_include {
+                            set include_dirs (array_push include_dirs item)
+                        } else {
+                            if collecting_lib {
+                                # Check if this is a directory or library name
+                                if (path_isdir item) {
+                                    set library_dirs (array_push library_dirs item)
+                                } else {
+                                    set libraries (array_push libraries item)
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                set i (+ i 1)
+            }
+            
+            # If we found library dirs but no library name, add default
+            if (and (> (array_length library_dirs) 0) (== (array_length libraries) 0)) {
+                set libraries (array_push libraries lib_name)
+            }
+            
+            (output_json name true origin include_dirs library_dirs libraries)
+        } else {
+            # Not found
+            (output_json name false "none" [] [] [])
+        }
+    } else {
+        # Found via pkg-config
+        (output_json name true "pkg-config" pkg_include_dirs pkg_library_dirs pkg_libraries)
+    }
+    
+    return 0
+}

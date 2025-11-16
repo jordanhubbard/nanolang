@@ -167,13 +167,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         strncat(lib_flags, temp, sizeof(lib_flags) - strlen(lib_flags) - 1);
     }
     
-    /* Check if SDL helpers are needed */
+    /* Check if SDL helpers runtime is needed by checking if sdl_helpers module is imported */
+    /* This is cleaner than checking function names - modules explicitly declare dependencies */
     bool needs_sdl_helpers = false;
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_FUNCTION && item->as.function.is_extern) {
-            const char *func_name = item->as.function.name;
-            if (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "nl_sdl_", 7) == 0) {
+    if (modules) {
+        for (int i = 0; i < modules->count; i++) {
+            const char *module_path = modules->module_paths[i];
+            if (module_path && strstr(module_path, "sdl_helpers.nano") != NULL) {
                 needs_sdl_helpers = true;
                 break;
             }

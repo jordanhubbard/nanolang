@@ -164,13 +164,14 @@ $(CHECKERS): checkers.c | $(BIN_DIR)
 # Build nanolang checkers example
 CHECKERS_NANO = $(BIN_DIR)/checkers_simple
 
-checkers-nano: examples/checkers_simple.nano $(COMPILER) | $(BIN_DIR)
-	@echo "Building nanolang checkers example..."
+checkers-nano: examples/checkers_simple.nano examples/sdl.nano examples/sdl_helpers.nano $(COMPILER) | $(BIN_DIR)
+	@echo "Building nanolang checkers example (demonstrates module system)..."
 	$(COMPILER) examples/checkers_simple.nano -o $(CHECKERS_NANO) \
 		-I/opt/homebrew/include/SDL2 -I/usr/local/include/SDL2 \
 		-L/opt/homebrew/lib -L/usr/local/lib \
 		-lSDL2
 	@echo "✓ nanolang checkers built: $(CHECKERS_NANO)"
+	@echo "  Demonstrates: Module system, FFI modules, hybrid C/nanolang applications"
 
 # Show help
 help:

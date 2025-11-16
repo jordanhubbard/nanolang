@@ -1,0 +1,52 @@
+{
+  "name": "sdl",
+  "version": "1.0.0",
+  "description": "SDL2 library bindings for nanolang",
+  "type": "ffi",
+  "source_file": "sdl.nano",
+  "dependencies": {
+    "system": {
+      "macos": {
+        "brew": ["sdl2"]
+      },
+      "linux": {
+        "apt": ["libsdl2-dev"]
+      }
+    },
+    "nanolang": []
+  },
+  "compilation": {
+    "library_name": "SDL2",
+    "include_paths": {
+      "macos": ["/opt/homebrew/include/SDL2", "/usr/local/include/SDL2"],
+      "linux": ["/usr/include/SDL2"]
+    },
+    "library_paths": {
+      "macos": ["/opt/homebrew/lib", "/usr/local/lib"],
+      "linux": ["/usr/lib/x86_64-linux-gnu"]
+    },
+    "libraries": ["SDL2"]
+  },
+  "exports": {
+    "functions": [
+      "SDL_Init",
+      "SDL_Quit",
+      "SDL_GetError",
+      "SDL_GetTicks",
+      "SDL_Delay",
+      "SDL_CreateWindow",
+      "SDL_DestroyWindow",
+      "SDL_CreateRenderer",
+      "SDL_DestroyRenderer",
+      "SDL_RenderClear",
+      "SDL_RenderPresent",
+      "SDL_SetRenderDrawColor",
+      "SDL_RenderFillRect",
+      "SDL_RenderDrawPoint",
+      "SDL_RenderDrawLine",
+      "SDL_SetRenderDrawBlendMode",
+      "SDL_PollEvent"
+    ]
+  }
+}
+

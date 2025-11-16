@@ -1,6 +1,16 @@
+#define _POSIX_C_SOURCE 200809L  /* For mkdtemp */
 #include "nanolang.h"
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
+#include <errno.h>
+
+/* mkdtemp declaration (if not available via headers) */
+#ifndef _DARWIN_C_SOURCE
+char *mkdtemp(char *template);
+#endif
 
 /* Create a new module list */
 ModuleList *create_module_list(void) {
@@ -40,7 +50,130 @@ void module_list_add(ModuleList *list, const char *module_path) {
     list->module_paths[list->count++] = strdup(module_path);
 }
 
-/* Resolve module path relative to current file */
+/* Get module search paths from NANO_MODULE_PATH environment variable */
+static char **get_module_search_paths(int *count_out) {
+    *count_out = 0;
+    char **paths = NULL;
+    int capacity = 4;
+    paths = malloc(sizeof(char*) * capacity);
+    
+    /* Get NANO_MODULE_PATH environment variable */
+    const char *module_path_env = getenv("NANO_MODULE_PATH");
+    
+    if (module_path_env && strlen(module_path_env) > 0) {
+        /* Split by colon (Unix) or semicolon (Windows) */
+        char *path_copy = strdup(module_path_env);
+        char *token = strtok(path_copy, ":;");
+        
+        while (token) {
+            /* Skip empty tokens */
+            if (strlen(token) > 0) {
+                if (*count_out >= capacity) {
+                    capacity *= 2;
+                    paths = realloc(paths, sizeof(char*) * capacity);
+                }
+                paths[*count_out] = strdup(token);
+                (*count_out)++;
+            }
+            token = strtok(NULL, ":;");
+        }
+        
+        free(path_copy);
+    }
+    
+    /* Add default path: ~/.nanolang/modules */
+    const char *home = getenv("HOME");
+    if (home) {
+        char default_path[512];
+        snprintf(default_path, sizeof(default_path), "%s/.nanolang/modules", home);
+        
+        if (*count_out >= capacity) {
+            capacity *= 2;
+            paths = realloc(paths, sizeof(char*) * capacity);
+        }
+        paths[*count_out] = strdup(default_path);
+        (*count_out)++;
+    }
+    
+    return paths;
+}
+
+/* Free module search paths array */
+static void free_module_search_paths(char **paths, int count) {
+    if (!paths) return;
+    for (int i = 0; i < count; i++) {
+        free(paths[i]);
+    }
+    free(paths);
+}
+
+/* Find a module in NANO_MODULE_PATH directories
+ * Returns path to module package (.nano.tar.zst) or NULL if not found
+ */
+char *find_module_in_paths(const char *module_name) {
+    if (!module_name) return NULL;
+    
+    int path_count = 0;
+    char **search_paths = get_module_search_paths(&path_count);
+    
+    char package_name[512];
+    snprintf(package_name, sizeof(package_name), "%s.nano.tar.zst", module_name);
+    
+    for (int i = 0; i < path_count; i++) {
+        char package_path[1024];
+        snprintf(package_path, sizeof(package_path), "%s/%s", search_paths[i], package_name);
+        
+        FILE *test = fopen(package_path, "r");
+        if (test) {
+            fclose(test);
+            char *result = strdup(package_path);
+            free_module_search_paths(search_paths, path_count);
+            return result;
+        }
+    }
+    
+    free_module_search_paths(search_paths, path_count);
+    return NULL;
+}
+
+/* Unpack a module package to a temporary directory
+ * Returns allocated string with temp directory path, or NULL on error
+ * temp_dir_out must be at least 512 bytes (output parameter)
+ */
+char *unpack_module_package(const char *package_path, char *temp_dir_out, size_t temp_dir_size) {
+    if (!package_path || !temp_dir_out || temp_dir_size < 512) {
+        return NULL;
+    }
+    
+    /* Create temporary directory */
+    char temp_template[] = "/tmp/nanolang_module_XXXXXX";
+    char *temp_dir = mkdtemp(temp_template);
+    if (temp_dir == NULL || temp_dir != temp_template) {
+        fprintf(stderr, "Error: Failed to create temporary directory\n");
+        return NULL;
+    }
+    
+    /* Extract package using tar with zstd */
+    char extract_cmd[2048];
+    snprintf(extract_cmd, sizeof(extract_cmd),
+            "tar -I zstd -xf '%s' -C '%s' 2>/dev/null",
+            package_path, temp_dir);
+    
+    int result = system(extract_cmd);
+    if (result != 0) {
+        fprintf(stderr, "Error: Failed to extract module package '%s'\n", package_path);
+        rmdir(temp_dir);
+        return NULL;
+    }
+    
+    /* Copy temp directory path to output */
+    strncpy(temp_dir_out, temp_dir, temp_dir_size - 1);
+    temp_dir_out[temp_dir_size - 1] = '\0';
+    
+    return strdup(temp_dir);
+}
+
+/* Resolve module path relative to current file or in module search paths */
 char *resolve_module_path(const char *module_path, const char *current_file) {
     if (!module_path) return NULL;
     
@@ -49,7 +182,7 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
         return strdup(module_path);
     }
     
-    /* Extract directory from current_file */
+    /* First, try relative to current file */
     char *resolved = NULL;
     if (current_file) {
         /* Find last '/' in current_file */
@@ -59,16 +192,38 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
             resolved = malloc(dir_len + strlen(module_path) + 1);
             strncpy(resolved, current_file, dir_len);
             strcpy(resolved + dir_len, module_path);
-        } else {
-            /* No directory, use module_path as-is */
-            resolved = strdup(module_path);
+            
+            /* Check if file exists */
+            FILE *test = fopen(resolved, "r");
+            if (test) {
+                fclose(test);
+                return resolved;
+            }
+            free(resolved);
+            resolved = NULL;
         }
-    } else {
-        /* No current file, use module_path as-is */
-        resolved = strdup(module_path);
     }
     
-    return resolved;
+    /* If not found relative to current file, try module search paths */
+    /* Extract module name (remove .nano extension if present) */
+    char module_name[256];
+    strncpy(module_name, module_path, sizeof(module_name) - 1);
+    module_name[sizeof(module_name) - 1] = '\0';
+    
+    char *dot = strrchr(module_name, '.');
+    if (dot && strcmp(dot, ".nano") == 0) {
+        *dot = '\0';
+    }
+    
+    /* Look for package in module paths */
+    char *package_path = find_module_in_paths(module_name);
+    if (package_path) {
+        /* Found package - will be unpacked by caller */
+        return package_path;
+    }
+    
+    /* Fallback: return module_path as-is (will fail if not found) */
+    return strdup(module_path);
 }
 
 /* Load and parse a module file */
@@ -123,11 +278,66 @@ ASTNode *load_module(const char *module_path, Environment *env) {
     return module_ast;
 }
 
+/* Load module from a package file */
+ASTNode *load_module_from_package(const char *package_path, Environment *env, char *temp_dir_out, size_t temp_dir_size) {
+    if (!package_path || !env) return NULL;
+    
+    /* Unpack package to temporary directory */
+    char temp_dir[512];
+    char *unpacked_dir = unpack_module_package(package_path, temp_dir, sizeof(temp_dir));
+    if (!unpacked_dir) {
+        return NULL;
+    }
+    
+    /* Copy temp directory to output if provided */
+    if (temp_dir_out && temp_dir_size > 0) {
+        strncpy(temp_dir_out, unpacked_dir, temp_dir_size - 1);
+        temp_dir_out[temp_dir_size - 1] = '\0';
+    }
+    
+    /* Find module.nano file in unpacked directory */
+    char module_nano_path[1024];
+    snprintf(module_nano_path, sizeof(module_nano_path), "%s/module.nano", unpacked_dir);
+    
+    /* Try alternative: look for any .nano file */
+    FILE *test = fopen(module_nano_path, "r");
+    if (!test) {
+        /* Try to find any .nano file */
+        DIR *dir = opendir(unpacked_dir);
+        if (dir) {
+            struct dirent *entry;
+            while ((entry = readdir(dir)) != NULL) {
+                if (strstr(entry->d_name, ".nano") != NULL) {
+                    snprintf(module_nano_path, sizeof(module_nano_path), "%s/%s", unpacked_dir, entry->d_name);
+                    break;
+                }
+            }
+            closedir(dir);
+        }
+    } else {
+        fclose(test);
+    }
+    
+    /* Load the module */
+    ASTNode *module_ast = load_module(module_nano_path, env);
+    
+    /* Note: We don't free unpacked_dir here - caller is responsible for cleanup */
+    /* The temp directory will be cleaned up by the caller */
+    
+    return module_ast;
+}
+
 /* Process imports in a program */
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
     if (!program || program->type != AST_PROGRAM) {
         return false;
     }
+    
+    /* Track unpacked package directories for cleanup */
+    char **unpacked_dirs = NULL;
+    int unpacked_count = 0;
+    int unpacked_capacity = 4;
+    unpacked_dirs = malloc(sizeof(char*) * unpacked_capacity);
     
     /* First pass: collect all imports and resolve paths */
     for (int i = 0; i < program->as.program.count; i++) {
@@ -138,31 +348,72 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
             if (!module_path) {
                 fprintf(stderr, "Error at line %d, column %d: Failed to resolve module path '%s'\n",
                         item->line, item->column, item->as.import_stmt.module_path);
+                /* Cleanup unpacked directories */
+                for (int j = 0; j < unpacked_count; j++) {
+                    free(unpacked_dirs[j]);
+                }
+                free(unpacked_dirs);
                 return false;
             }
             
-            /* Check if file exists */
-            FILE *test = fopen(module_path, "r");
-            if (!test) {
-                fprintf(stderr, "Error at line %d, column %d: Module file '%s' not found\n",
-                        item->line, item->column, module_path);
-                free(module_path);
-                return false;
-            }
-            fclose(test);
+            ASTNode *module_ast = NULL;
+            char temp_dir[512] = {0};
             
-            /* Add to module list */
-            if (modules) {
-                module_list_add(modules, module_path);
+            /* Check if this is a package file (.nano.tar.zst) */
+            if (strstr(module_path, ".nano.tar.zst") != NULL) {
+                /* Load from package */
+                module_ast = load_module_from_package(module_path, env, temp_dir, sizeof(temp_dir));
+                
+                /* Track unpacked directory for cleanup */
+                if (temp_dir[0] != '\0') {
+                    if (unpacked_count >= unpacked_capacity) {
+                        unpacked_capacity *= 2;
+                        unpacked_dirs = realloc(unpacked_dirs, sizeof(char*) * unpacked_capacity);
+                    }
+                    unpacked_dirs[unpacked_count++] = strdup(temp_dir);
+                }
+                
+                /* Use the unpacked .nano file path for module list */
+                if (temp_dir[0] != '\0') {
+                    char unpacked_nano[1024];
+                    snprintf(unpacked_nano, sizeof(unpacked_nano), "%s/module.nano", temp_dir);
+                    free(module_path);
+                    module_path = strdup(unpacked_nano);
+                }
+            } else {
+                /* Regular .nano file */
+                FILE *test = fopen(module_path, "r");
+                if (!test) {
+                    fprintf(stderr, "Error at line %d, column %d: Module file '%s' not found\n",
+                            item->line, item->column, module_path);
+                    free(module_path);
+                    /* Cleanup unpacked directories */
+                    for (int j = 0; j < unpacked_count; j++) {
+                        free(unpacked_dirs[j]);
+                    }
+                    free(unpacked_dirs);
+                    return false;
+                }
+                fclose(test);
+                
+                module_ast = load_module(module_path, env);
             }
             
-            /* Load the module */
-            ASTNode *module_ast = load_module(module_path, env);
             if (!module_ast) {
                 fprintf(stderr, "Error at line %d, column %d: Failed to load module '%s'\n",
                         item->line, item->column, module_path);
                 free(module_path);
+                /* Cleanup unpacked directories */
+                for (int j = 0; j < unpacked_count; j++) {
+                    free(unpacked_dirs[j]);
+                }
+                free(unpacked_dirs);
                 return false;
+            }
+            
+            /* Add to module list */
+            if (modules) {
+                module_list_add(modules, module_path);
             }
             
             /* Execute module definitions (functions, structs, etc.) */
@@ -192,6 +443,12 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
             /* For compiler, we'll track modules separately */
         }
     }
+    
+    /* Note: Unpacked directories are tracked but not cleaned up here */
+    /* They will be cleaned up when the program exits or by the caller */
+    /* For interpreter: cleaned up at end of session */
+    /* For compiler: cleaned up after compilation */
+    free(unpacked_dirs);
     
     return true;
 }
@@ -318,6 +575,47 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     return true;
 }
 
+/* Check if a module is FFI-only (only extern declarations, no implementation) */
+static bool is_ffi_only_module(const char *module_path) {
+    FILE *file = fopen(module_path, "r");
+    if (!file) return false;
+    
+    char line[1024];
+    bool has_extern = false;
+    bool has_implementation = false;
+    
+    while (fgets(line, sizeof(line), file)) {
+        /* Skip comments and empty lines */
+        char *trimmed = line;
+        while (*trimmed == ' ' || *trimmed == '\t') trimmed++;
+        if (*trimmed == '#' || *trimmed == '\n' || *trimmed == '\0') continue;
+        
+        /* Check for extern declarations */
+        if (strstr(trimmed, "extern fn") != NULL) {
+            has_extern = true;
+        }
+        
+        /* Check for function implementations (non-extern functions) */
+        if (strstr(trimmed, "fn ") != NULL && strstr(trimmed, "extern") == NULL) {
+            has_implementation = true;
+            break;
+        }
+        
+        /* Check for struct/enum/union definitions */
+        if (strstr(trimmed, "struct ") != NULL || 
+            strstr(trimmed, "enum ") != NULL || 
+            strstr(trimmed, "union ") != NULL) {
+            has_implementation = true;
+            break;
+        }
+    }
+    
+    fclose(file);
+    
+    /* FFI-only if it has extern declarations but no implementations */
+    return has_extern && !has_implementation;
+}
+
 /* Compile all modules in the list to object files */
 bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_buffer, size_t buffer_size, bool verbose) {
     if (!modules || !module_objs_buffer || buffer_size == 0) {
@@ -334,8 +632,17 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
         printf("Compiling %d module(s) to object files...\n", modules->count);
     }
     
+    int compiled_count = 0;
     for (int i = 0; i < modules->count; i++) {
         const char *module_path = modules->module_paths[i];
+        
+        /* Skip FFI-only modules (they're just extern declarations, no code to compile) */
+        if (is_ffi_only_module(module_path)) {
+            if (verbose) {
+                printf("Skipping FFI-only module '%s' (no implementation to compile)\n", module_path);
+            }
+            continue;
+        }
         
         /* Generate object file name from module path */
         char obj_file[512];
@@ -362,6 +669,8 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
             return false;
         }
         
+        compiled_count++;
+        
         /* Add to module_objs buffer */
         if (strlen(module_objs_buffer) + strlen(obj_file) + 1 < buffer_size) {
             if (module_objs_buffer[0] != '\0') {
@@ -369,6 +678,10 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
             }
             strcat(module_objs_buffer, obj_file);
         }
+    }
+    
+    if (verbose && compiled_count == 0) {
+        printf("No modules with implementations to compile (all are FFI-only)\n");
     }
     
     return true;

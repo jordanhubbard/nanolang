@@ -1,26 +1,12 @@
 # Simple SDL2 Test - nanolang
+# Demonstrates the module system by importing SDL2 bindings
 # Creates a window and renders a simple colored rectangle with event loop
 
-# SDL2 Core Functions
-extern fn SDL_Init(flags: int) -> int
-extern fn SDL_Quit() -> void
-extern fn SDL_GetError() -> string
-extern fn SDL_Delay(ms: int) -> void
+# Import SDL2 module (contains all SDL extern declarations)
+import "sdl.nano"
 
-# SDL2 Window Functions
-extern fn SDL_CreateWindow(title: string, x: int, y: int, w: int, h: int, flags: int) -> int
-extern fn SDL_DestroyWindow(window: int) -> void
-
-# SDL2 Renderer Functions  
-extern fn SDL_CreateRenderer(window: int, index: int, flags: int) -> int
-extern fn SDL_DestroyRenderer(renderer: int) -> void
-extern fn SDL_RenderClear(renderer: int) -> int
-extern fn SDL_RenderPresent(renderer: int) -> void
-extern fn SDL_SetRenderDrawColor(renderer: int, r: int, g: int, b: int, a: int) -> int
-
-# SDL2 Helper Functions (wrappers for struct operations)
-extern fn nl_sdl_render_fill_rect(renderer: int, x: int, y: int, w: int, h: int) -> int
-extern fn nl_sdl_poll_event_quit() -> int
+# Import SDL helpers module (wrappers for SDL struct operations)
+import "sdl_helpers.nano"
 
 fn main() -> int {
     # SDL Constants (using different names to avoid conflicts with SDL macros)
