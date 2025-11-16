@@ -517,7 +517,21 @@ static ASTNode *parse_prefix_op(Parser *p) {
         node->as.prefix_op.arg_count = count;
         return node;
     } else if (match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_RANGE) || match(p, TOKEN_PRINT)) {
-        /* Function call - allow print as function name */
+        /* Check if this is union construction (Identifier.Variant) or function call */
+        /* Peek ahead to see if next token is DOT - if so, it's union construction not a function call */
+        Token *next_tok = peek_token(p, 1);
+        if (next_tok && next_tok->type == TOKEN_DOT) {
+            /* This is union construction like (Result.Ok {...}), not a function call */
+            /* Parse it as a parenthesized expression */
+            ASTNode *expr = parse_expression(p);
+            if (!expect(p, TOKEN_RPAREN, "Expected ')' after expression")) {
+                if (expr) free_ast(expr);
+                return NULL;
+            }
+            return expr;
+        }
+        
+        /* It's a function call - allow print as function name */
         char *func_name;
         if (tok->type == TOKEN_PRINT) {
             func_name = strdup("print");

@@ -2036,7 +2036,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             Value match_val = eval_expression(expr->as.match_expr.expr, env);
             
             if (match_val.type != VAL_UNION) {
-                fprintf(stderr, "Error: Match expression requires a union value\n");
+                fprintf(stderr, "Error: Match expression requires a union value (got type %d)\n", match_val.type);
                 return create_void();
             }
             
@@ -2053,8 +2053,31 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     /* Save environment state for scope */
                     int saved_symbol_count = env->symbol_count;
                     
-                    /* Bind the pattern variable to the union value (or a placeholder) */
-                    env_define_var(env, binding, TYPE_UNION, false, match_val);
+                    /* Bind the pattern variable to a struct value representing the variant's fields
+                     * This allows field access like binding.field_name in the match arm body
+                     */
+                    Value binding_val;
+                    if (uval->field_count > 0) {
+                        /* Create a struct-like value with the variant's fields
+                         * We need to duplicate the field names and values for the struct
+                         */
+                        char **field_names_copy = malloc(sizeof(char*) * uval->field_count);
+                        Value *field_values_copy = malloc(sizeof(Value) * uval->field_count);
+                        
+                        for (int j = 0; j < uval->field_count; j++) {
+                            field_names_copy[j] = uval->field_names[j];  /* Share string pointers */
+                            field_values_copy[j] = uval->field_values[j];  /* Copy values */
+                        }
+                        
+                        binding_val = create_struct(uval->union_name, 
+                                                   field_names_copy, 
+                                                   field_values_copy, 
+                                                   uval->field_count);
+                    } else {
+                        /* Variant has no fields - create a placeholder */
+                        binding_val = create_void();
+                    }
+                    env_define_var(env, binding, TYPE_STRUCT, false, binding_val);
                     
                     /* Evaluate arm body */
                     Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
@@ -2069,6 +2092,35 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* No matching arm found - this should be caught by typechecker */
             fprintf(stderr, "Error: No matching arm for variant '%s'\n", uval->variant_name);
             return create_void();
+        }
+
+        case AST_BLOCK: {
+            /* Blocks can be used as expressions in match arms
+             * Execute statements and return the last return value
+             */
+            Value result = create_void();
+            for (int i = 0; i < expr->as.block.count; i++) {
+                result = eval_statement(expr->as.block.statements[i], env);
+                /* If statement returned a value, propagate it immediately */
+                if (result.is_return) {
+                    /* Clear the return flag since we're handling it */
+                    result.is_return = false;
+                    return result;
+                }
+            }
+            return result;
+        }
+
+        case AST_RETURN: {
+            /* Return statements can appear in blocks that are used as expressions */
+            Value result;
+            if (expr->as.return_stmt.value) {
+                result = eval_expression(expr->as.return_stmt.value, env);
+            } else {
+                result = create_void();
+            }
+            /* Don't set is_return flag here - let the block handler deal with it */
+            return result;
         }
 
         default:
@@ -2291,6 +2343,53 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             return create_void();
         }
         
+        case AST_UNION_DEF: {
+            /* Register union in interpreter environment for union construction */
+            if (!stmt->as.union_def.name) {
+                fprintf(stderr, "Error: Union definition has NULL name\n");
+                return create_void();
+            }
+            
+            UnionDef udef;
+            udef.name = strdup(stmt->as.union_def.name);
+            udef.variant_count = stmt->as.union_def.variant_count;
+            
+            if (udef.variant_count <= 0) {
+                fprintf(stderr, "Error: Union '%s' has invalid variant count: %d\n", udef.name, udef.variant_count);
+                free(udef.name);
+                return create_void();
+            }
+            
+            /* Duplicate variant names */
+            udef.variant_names = malloc(sizeof(char*) * udef.variant_count);
+            udef.variant_field_counts = malloc(sizeof(int) * udef.variant_count);
+            udef.variant_field_names = malloc(sizeof(char**) * udef.variant_count);
+            udef.variant_field_types = malloc(sizeof(Type*) * udef.variant_count);
+            
+            for (int j = 0; j < udef.variant_count; j++) {
+                udef.variant_names[j] = strdup(stmt->as.union_def.variant_names[j]);
+                udef.variant_field_counts[j] = stmt->as.union_def.variant_field_counts[j];
+                
+                /* Duplicate field names and types for this variant */
+                int field_count = udef.variant_field_counts[j];
+                if (field_count > 0) {
+                    udef.variant_field_names[j] = malloc(sizeof(char*) * field_count);
+                    udef.variant_field_types[j] = malloc(sizeof(Type) * field_count);
+                    
+                    for (int k = 0; k < field_count; k++) {
+                        udef.variant_field_names[j][k] = strdup(stmt->as.union_def.variant_field_names[j][k]);
+                        udef.variant_field_types[j][k] = stmt->as.union_def.variant_field_types[j][k];
+                    }
+                } else {
+                    udef.variant_field_names[j] = NULL;
+                    udef.variant_field_types[j] = NULL;
+                }
+            }
+            
+            env_define_union(env, udef);
+            return create_void();
+        }
+        
         case AST_FUNCTION:
         case AST_SHADOW:
             /* Function and shadow definitions are handled at program level */
@@ -2390,7 +2489,16 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
         }
     }
 
-    /* Third pass: Run each shadow test */
+    /* Third pass: Register all union definitions so they're available in shadow tests */
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        
+        if (item->type == AST_UNION_DEF) {
+            eval_statement(item, env);  /* This will register the union */
+        }
+    }
+
+    /* Fourth pass: Run each shadow test */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         

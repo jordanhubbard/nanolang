@@ -637,6 +637,51 @@ Type check_expression(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
             
+            /* Check if this is a union variant (format: "UnionName.VariantName") */
+            const char *dot = strchr(struct_name, '.');
+            if (dot) {
+                /* This is a union variant field access */
+                int union_name_len = dot - struct_name;
+                char *union_name = malloc(union_name_len + 1);
+                strncpy(union_name, struct_name, union_name_len);
+                union_name[union_name_len] = '\0';
+                const char *variant_name = dot + 1;
+                
+                /* Look up the union definition */
+                UnionDef *udef = env_get_union(env, union_name);
+                if (!udef) {
+                    fprintf(stderr, "Error at line %d, column %d: Undefined union '%s'\n",
+                            expr->line, expr->column, union_name);
+                    free(union_name);
+                    return TYPE_UNKNOWN;
+                }
+                
+                /* Find the variant */
+                int variant_idx = env_get_union_variant_index(env, union_name, variant_name);
+                if (variant_idx < 0) {
+                    fprintf(stderr, "Error at line %d, column %d: Unknown variant '%s' in union '%s'\n",
+                            expr->line, expr->column, variant_name, union_name);
+                    free(union_name);
+                    return TYPE_UNKNOWN;
+                }
+                
+                /* Find the field in the variant */
+                const char *field_name = expr->as.field_access.field_name;
+                for (int i = 0; i < udef->variant_field_counts[variant_idx]; i++) {
+                    if (strcmp(udef->variant_field_names[variant_idx][i], field_name) == 0) {
+                        Type field_type = udef->variant_field_types[variant_idx][i];
+                        free(union_name);
+                        return field_type;
+                    }
+                }
+                
+                /* Field not found */
+                fprintf(stderr, "Error at line %d, column %d: Variant '%s' of union '%s' has no field '%s'\n",
+                        expr->line, expr->column, variant_name, union_name, field_name);
+                free(union_name);
+                return TYPE_UNKNOWN;
+            }
+            
             /* Look up the struct definition */
             StructDef *sdef = env_get_struct(env, struct_name);
             if (!sdef) {
@@ -764,11 +809,25 @@ Type check_expression(ASTNode *expr, Environment *env) {
                 /* Save symbol count for scope */
                 int saved_symbol_count = env->symbol_count;
                 
-                /* Add pattern binding to environment */
+                /* Add pattern binding to environment - bind as STRUCT type with "UnionName.VariantName"
+                 * This allows us to distinguish union variant fields from regular struct fields
+                 */
                 Value binding_val = create_void();
                 env_define_var_with_element_type(env, 
                     expr->as.match_expr.pattern_bindings[i],
-                    TYPE_UNION, TYPE_UNKNOWN, false, binding_val);
+                    TYPE_STRUCT, TYPE_UNKNOWN, false, binding_val);
+                
+                /* Store "UnionName.VariantName" as the struct type name for the binding
+                 * This will be used by field access type checking to look up variant fields
+                 */
+                if (union_type_name && env->symbol_count > 0) {
+                    Symbol *binding_sym = &env->symbols[env->symbol_count - 1];
+                    const char *variant_name = expr->as.match_expr.pattern_variants[i];
+                    /* Format: "UnionName.VariantName" */
+                    char *type_name = malloc(strlen(union_type_name) + strlen(variant_name) + 2);
+                    sprintf(type_name, "%s.%s", union_type_name, variant_name);
+                    binding_sym->struct_type_name = type_name;
+                }
                 
                 /* Type check arm body (which is now an expression) */
                 Type arm_type = check_expression(expr->as.match_expr.arm_bodies[i], env);
@@ -786,6 +845,35 @@ Type check_expression(ASTNode *expr, Environment *env) {
             }
             
             return return_type;
+        }
+
+        case AST_BLOCK: {
+            /* Blocks can be used as expressions in match arms
+             * Type check all statements and return the type of the last expression/return
+             */
+            Type block_type = TYPE_VOID;
+            for (int i = 0; i < expr->as.block.count; i++) {
+                ASTNode *stmt = expr->as.block.statements[i];
+                if (stmt->type == AST_RETURN && stmt->as.return_stmt.value) {
+                    block_type = check_expression(stmt->as.return_stmt.value, env);
+                } else {
+                    /* Type check the statement (for side effects) */
+                    Type stmt_type = check_statement(NULL, stmt);
+                    /* If it's the last statement and not a return, use its type */
+                    if (i == expr->as.block.count - 1 && stmt_type != TYPE_VOID) {
+                        block_type = stmt_type;
+                    }
+                }
+            }
+            return block_type;
+        }
+
+        case AST_RETURN: {
+            /* Return statements can appear in blocks that are used as expressions */
+            if (expr->as.return_stmt.value) {
+                return check_expression(expr->as.return_stmt.value, env);
+            }
+            return TYPE_VOID;
         }
 
         default:
@@ -2271,8 +2359,8 @@ bool type_check(ASTNode *program, Environment *env) {
                 env_define_var_with_element_type(env, item->as.function.params[j].name,
                              param_type, element_type, false, val);
                 
-                /* If parameter is a struct, store the struct type name */
-                if (param_type == TYPE_STRUCT && 
+                /* If parameter is a struct or union, store the type name */
+                if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION) && 
                     item->as.function.params[j].struct_type_name) {
                     Symbol *param_sym = env_get_var(env, item->as.function.params[j].name);
                     if (param_sym) {
@@ -2663,8 +2751,8 @@ bool type_check_module(ASTNode *program, Environment *env) {
                 
                 env_define_var(env, item->as.function.params[j].name, param_type, false, val);
                 
-                /* If parameter is a struct, store the struct type name */
-                if (param_type == TYPE_STRUCT && 
+                /* If parameter is a struct or union, store the type name */
+                if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION) && 
                     item->as.function.params[j].struct_type_name) {
                     Symbol *param_sym = env_get_var(env, item->as.function.params[j].name);
                     if (param_sym) {

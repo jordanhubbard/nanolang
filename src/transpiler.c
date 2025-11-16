@@ -84,6 +84,13 @@ static const char *get_prefixed_variant_name(const char *enum_name, const char *
     return buffer;
 }
 
+/* Get prefixed variant struct name for unions: UnionName.Variant -> nl_UnionName_Variant */
+static const char *get_prefixed_variant_struct_name(const char *union_name, const char *variant_name) {
+    static char buffer[512];
+    snprintf(buffer, sizeof(buffer), "nl_%s_%s", union_name, variant_name);
+    return buffer;
+}
+
 /* Function type registry for generating function pointer typedefs */
 typedef struct {
     FunctionSignature **signatures;
@@ -764,9 +771,12 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 if (udef) {
                     int variant_idx = env_get_union_variant_index(env, union_name, variant);
                     if (variant_idx >= 0 && udef->variant_field_counts[variant_idx] > 0) {
-                        /* Variant has fields - bind the entire struct */
-                        sb_appendf(sb, "typeof(_match_tmp.data.%s) %s = _match_tmp.data.%s; ",
-                                  variant, binding, variant);
+                        /* Variant has fields - bind the entire struct
+                         * Use the variant struct type name directly instead of typeof
+                         */
+                        const char *variant_type = get_prefixed_variant_struct_name(union_name, variant);
+                        sb_appendf(sb, "%s %s = _match_tmp.data.%s; ",
+                                  variant_type, binding, variant);
                     } else {
                         /* Variant has no fields - create a dummy int binding */
                         sb_appendf(sb, "int %s __attribute__((unused)) = 0; ", binding);
@@ -809,6 +819,38 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             transpile_expression(sb, expr->as.field_access.object, env);
             sb_append(sb, ".");
             sb_append(sb, expr->as.field_access.field_name);
+            break;
+        }
+
+        case AST_BLOCK: {
+            /* Blocks can be used as expressions in match arms
+             * Transpile as a statement expression: ({ statements... last_value })
+             */
+            sb_append(sb, "({ ");
+            for (int i = 0; i < expr->as.block.count; i++) {
+                ASTNode *stmt = expr->as.block.statements[i];
+                if (stmt->type == AST_RETURN && stmt->as.return_stmt.value) {
+                    /* For return statements in blocks-as-expressions,
+                     * just evaluate the return value without the return keyword
+                     */
+                    transpile_expression(sb, stmt->as.return_stmt.value, env);
+                    sb_append(sb, "; ");
+                } else {
+                    /* Regular statement - transpile normally */
+                    transpile_statement(sb, stmt, 0, env, NULL);
+                }
+            }
+            sb_append(sb, "})");
+            break;
+        }
+
+        case AST_RETURN: {
+            /* Return statements can appear in blocks that are used as expressions
+             * Just transpile the value being returned
+             */
+            if (expr->as.return_stmt.value) {
+                transpile_expression(sb, expr->as.return_stmt.value, env);
+            }
             break;
         }
 
@@ -1382,13 +1424,13 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "    printf(\"%s\\n\", value);\n");
     sb_append(sb, "}\n\n");
     
-    /* Dynamic array runtime */
-    sb_append(sb, "/* Dynamic array runtime (using GC) */\n");
+    /* Dynamic array runtime - LEGACY (for old array<T> type) */
+    sb_append(sb, "/* Dynamic array runtime (using GC) - LEGACY */\n");
     sb_append(sb, "#include \"runtime/gc.h\"\n");
     sb_append(sb, "#include \"runtime/dyn_array.h\"\n\n");
     
-    /* Array literals create dynamic arrays */
-    sb_append(sb, "static DynArray* nl_array_literal_int(int count, ...) {\n");
+    /* Array literals create dynamic arrays - renamed to avoid conflicts */
+    sb_append(sb, "static DynArray* dynarray_literal_int(int count, ...) {\n");
     sb_append(sb, "    DynArray* arr = dyn_array_new(ELEM_INT);\n");
     sb_append(sb, "    va_list args;\n");
     sb_append(sb, "    va_start(args, count);\n");
@@ -1400,7 +1442,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "    return arr;\n");
     sb_append(sb, "}\n\n");
     
-    sb_append(sb, "static DynArray* nl_array_literal_float(int count, ...) {\n");
+    sb_append(sb, "static DynArray* dynarray_literal_float(int count, ...) {\n");
     sb_append(sb, "    DynArray* arr = dyn_array_new(ELEM_FLOAT);\n");
     sb_append(sb, "    va_list args;\n");
     sb_append(sb, "    va_start(args, count);\n");
@@ -1412,8 +1454,8 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "    return arr;\n");
     sb_append(sb, "}\n\n");
     
-    /* Array operations */
-    sb_append(sb, "static DynArray* nl_array_push(DynArray* arr, double val) {\n");
+    /* Array operations - renamed to avoid conflicts */
+    sb_append(sb, "static DynArray* dynarray_push(DynArray* arr, double val) {\n");
     sb_append(sb, "    if (arr->elem_type == ELEM_INT) {\n");
     sb_append(sb, "        return dyn_array_push_int(arr, (int64_t)val);\n");
     sb_append(sb, "    } else {\n");
@@ -1421,11 +1463,11 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "    }\n");
     sb_append(sb, "}\n\n");
     
-    sb_append(sb, "static int64_t nl_array_length(DynArray* arr) {\n");
+    sb_append(sb, "static int64_t dynarray_length(DynArray* arr) {\n");
     sb_append(sb, "    return dyn_array_length(arr);\n");
     sb_append(sb, "}\n\n");
     
-    sb_append(sb, "static double nl_array_at_for_transpiler(DynArray* arr, int64_t idx) {\n");
+    sb_append(sb, "static double dynarray_at_for_transpiler(DynArray* arr, int64_t idx) {\n");
     sb_append(sb, "    if (arr->elem_type == ELEM_INT) {\n");
     sb_append(sb, "        return (double)dyn_array_get_int(arr, idx);\n");
     sb_append(sb, "    } else {\n");
@@ -1660,6 +1702,21 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         /* Get prefixed union name */
         const char *prefixed_union = get_prefixed_type_name(udef->name);
         
+        /* First, generate typedef struct for each variant (so they can be used as types in match) */
+        for (int j = 0; j < udef->variant_count; j++) {
+            if (udef->variant_field_counts[j] > 0) {
+                /* Variant has fields - create typedef struct */
+                const char *variant_struct = get_prefixed_variant_struct_name(udef->name, udef->variant_names[j]);
+                sb_appendf(sb, "typedef struct {\n");
+                for (int k = 0; k < udef->variant_field_counts[j]; k++) {
+                    sb_append(sb, "    ");
+                    sb_append(sb, type_to_c(udef->variant_field_types[j][k]));
+                    sb_appendf(sb, " %s;\n", udef->variant_field_names[j][k]);
+                }
+                sb_appendf(sb, "} %s;\n\n", variant_struct);
+            }
+        }
+        
         /* Generate tag enum with prefixed name */
         sb_appendf(sb, "typedef enum {\n");
         for (int j = 0; j < udef->variant_count; j++) {
@@ -1679,14 +1736,14 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         sb_append(sb, "    union {\n");
         
         for (int j = 0; j < udef->variant_count; j++) {
-            /* Generate struct for this variant */
-            sb_appendf(sb, "        struct {\n");
-            for (int k = 0; k < udef->variant_field_counts[j]; k++) {
-                sb_append(sb, "            ");
-                sb_append(sb, type_to_c(udef->variant_field_types[j][k]));
-                sb_appendf(sb, " %s;\n", udef->variant_field_names[j][k]);
+            if (udef->variant_field_counts[j] > 0) {
+                /* Use the typedef'd variant struct */
+                const char *variant_struct = get_prefixed_variant_struct_name(udef->name, udef->variant_names[j]);
+                sb_appendf(sb, "        %s %s;\n", variant_struct, udef->variant_names[j]);
+            } else {
+                /* Variant has no fields - use dummy int */
+                sb_appendf(sb, "        int %s; /* empty variant */\n", udef->variant_names[j]);
             }
-            sb_appendf(sb, "        } %s;\n", udef->variant_names[j]);
         }
         
         sb_append(sb, "    } data;\n");
