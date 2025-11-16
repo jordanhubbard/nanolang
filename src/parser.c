@@ -27,10 +27,17 @@ static Token *current_token(Parser *p) {
 }
 
 static Token *peek_token(Parser *p, int offset) {
+    if (!p || !p->tokens || p->count <= 0) {
+        return NULL;
+    }
     int pos = p->pos + offset;
+    if (pos < 0) {
+        pos = 0;
+    }
     if (pos < p->count) {
         return &p->tokens[pos];
     }
+    /* Return last token (EOF) if out of bounds */
     return &p->tokens[p->count - 1];
 }
 
@@ -77,7 +84,7 @@ static ASTNode *parse_match_expr(Parser *p);
 
 /* Create AST nodes */
 static ASTNode *create_node(ASTNodeType type, int line, int column) {
-    ASTNode *node = malloc(sizeof(ASTNode));
+    ASTNode *node = calloc(1, sizeof(ASTNode));  /* Use calloc to zero-initialize */
     node->type = type;
     node->line = line;
     node->column = column;
@@ -483,6 +490,10 @@ static ASTNode *parse_prefix_op(Parser *p) {
 /* Parse primary expression */
 static ASTNode *parse_primary(Parser *p) {
     Token *tok = current_token(p);
+    if (!tok) {
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token)\n");
+        return NULL;
+    }
     ASTNode *node;
 
     switch (tok->type) {

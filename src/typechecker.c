@@ -555,13 +555,13 @@ Type check_expression(ASTNode *expr, Environment *env) {
                     
                     /* Verify variant exists */
                     for (int i = 0; i < enum_def->variant_count; i++) {
-                        if (enum_def->variant_names[i] && strcmp(enum_def->variant_names[i], variant_name) == 0) {
+                        if (safe_strcmp(enum_def->variant_names[i], variant_name) == 0) {
                             return TYPE_INT;  /* Enums are represented as integers */
                         }
                     }
                     
                     fprintf(stderr, "Error at line %d, column %d: Enum '%s' has no variant '%s'\n",
-                            expr->line, expr->column, enum_name, variant_name);
+                            expr->line, expr->column, enum_name ? enum_name : "(NULL)", variant_name ? variant_name : "(NULL)");
                     return TYPE_UNKNOWN;
                 }
             }
@@ -1939,17 +1939,17 @@ bool type_check(ASTNode *program, Environment *env) {
                 continue;
             }
             
-            /* Check if enum already defined */
-            if (env_get_enum(env, enum_name)) {
+            /* Check if enum already defined - defensive check for NULL name */
+            if (enum_name && env_get_enum(env, enum_name)) {
                 fprintf(stderr, "Error at line %d, column %d: Enum '%s' is already defined\n",
-                        item->line, item->column, enum_name);
+                        item->line, item->column, enum_name ? enum_name : "(NULL)");
                 tc.has_error = true;
                 continue;
             }
             
             /* Register the enum */
             EnumDef edef;
-            edef.name = strdup(enum_name);
+            edef.name = enum_name ? strdup(enum_name) : NULL;
             if (!edef.name) {
                 fprintf(stderr, "Error: Failed to allocate memory for enum name\n");
                 tc.has_error = true;
@@ -1957,7 +1957,7 @@ bool type_check(ASTNode *program, Environment *env) {
             }
             edef.variant_count = item->as.enum_def.variant_count;
             if (edef.variant_count <= 0) {
-                fprintf(stderr, "Error: Enum '%s' has invalid variant count: %d\n", enum_name, edef.variant_count);
+                fprintf(stderr, "Error: Enum '%s' has invalid variant count: %d\n", enum_name ? enum_name : "(NULL)", edef.variant_count);
                 free(edef.name);
                 tc.has_error = true;
                 continue;
@@ -1965,7 +1965,7 @@ bool type_check(ASTNode *program, Environment *env) {
             
             /* Check if variant_names array exists in AST */
             if (!item->as.enum_def.variant_names) {
-                fprintf(stderr, "Error: Enum '%s' has NULL variant_names array\n", enum_name);
+                fprintf(stderr, "Error: Enum '%s' has NULL variant_names array\n", enum_name ? enum_name : "(NULL)");
                 free(edef.name);
                 tc.has_error = true;
                 continue;
@@ -1980,7 +1980,9 @@ bool type_check(ASTNode *program, Environment *env) {
                 continue;
             }
             for (int j = 0; j < edef.variant_count; j++) {
-                if (j < item->as.enum_def.variant_count && item->as.enum_def.variant_names[j]) {
+                if (j < item->as.enum_def.variant_count && 
+                    item->as.enum_def.variant_names && 
+                    item->as.enum_def.variant_names[j]) {
                     const char *src_name = item->as.enum_def.variant_names[j];
                     if (src_name) {
                         edef.variant_names[j] = strdup(src_name);
@@ -1989,11 +1991,11 @@ bool type_check(ASTNode *program, Environment *env) {
                             edef.variant_names[j] = NULL;
                         }
                     } else {
-                        fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", enum_name, j);
+                        fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", enum_name ? enum_name : "(NULL)", j);
                         edef.variant_names[j] = NULL;
                     }
                 } else {
-                    fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", enum_name, j);
+                    fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", enum_name ? enum_name : "(NULL)", j);
                     edef.variant_names[j] = NULL;
                 }
             }
@@ -2342,17 +2344,17 @@ bool type_check_module(ASTNode *program, Environment *env) {
                 continue;
             }
             
-            /* Check if enum already defined */
-            if (env_get_enum(env, enum_name)) {
+            /* Check if enum already defined - defensive check for NULL name */
+            if (enum_name && env_get_enum(env, enum_name)) {
                 fprintf(stderr, "Error at line %d, column %d: Enum '%s' is already defined\n",
-                        item->line, item->column, enum_name);
+                        item->line, item->column, enum_name ? enum_name : "(NULL)");
                 tc.has_error = true;
                 continue;
             }
             
             /* Register the enum */
             EnumDef edef;
-            edef.name = strdup(enum_name);
+            edef.name = enum_name ? strdup(enum_name) : NULL;
             if (!edef.name) {
                 fprintf(stderr, "Error: Failed to allocate memory for enum name\n");
                 tc.has_error = true;
@@ -2386,13 +2388,18 @@ bool type_check_module(ASTNode *program, Environment *env) {
                     j < item->as.enum_def.variant_count && 
                     item->as.enum_def.variant_names[j]) {
                     const char *src_name = item->as.enum_def.variant_names[j];
-                    edef.variant_names[j] = strdup(src_name);
-                    if (!edef.variant_names[j]) {
-                        fprintf(stderr, "Error: Failed to duplicate variant name at index %d\n", j);
+                    if (src_name) {
+                        edef.variant_names[j] = strdup(src_name);
+                        if (!edef.variant_names[j]) {
+                            fprintf(stderr, "Error: Failed to duplicate variant name at index %d\n", j);
+                            edef.variant_names[j] = NULL;
+                        }
+                    } else {
+                        fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", enum_name ? enum_name : "(NULL)", j);
                         edef.variant_names[j] = NULL;
                     }
                 } else {
-                    fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", enum_name, j);
+                    fprintf(stderr, "Error: Enum '%s' has NULL variant name at index %d\n", enum_name ? enum_name : "(NULL)", j);
                     edef.variant_names[j] = NULL;
                 }
             }

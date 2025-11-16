@@ -1989,9 +1989,9 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
             eval_statement(item->as.shadow.body, env);
 
             printf("PASSED\n");
-        } else {
-            eval_statement(item, env);
         }
+        /* Note: We do NOT execute non-shadow items here - they're already registered
+         * in the environment by the type checker. Only shadow test bodies need execution. */
     }
 
     if (all_passed) {
