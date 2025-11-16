@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include <stdint.h>
 
 /* Parser state */
 typedef struct {
@@ -16,9 +17,28 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
 
 /* Helper functions */
 static Token *current_token(Parser *p) {
-    if (!p || !p->tokens || p->count <= 0) {
+    if (!p) {
         return NULL;
     }
+    
+    /* Validate parser state - check for corruption */
+    if (!p->tokens) {
+        return NULL;
+    }
+    
+    if (p->count <= 0 || p->count > 1000000) {  /* Sanity check: reasonable token count */
+        return NULL;
+    }
+    
+    if (p->pos < 0 || p->pos > p->count) {
+        /* Invalid position - clamp it */
+        if (p->pos < 0) {
+            p->pos = 0;
+        } else {
+            p->pos = p->count - 1;
+        }
+    }
+    
     /* Ensure pos is within bounds */
     int safe_pos = p->pos;
     if (safe_pos < 0) {
@@ -27,7 +47,15 @@ static Token *current_token(Parser *p) {
     if (safe_pos >= p->count) {
         safe_pos = p->count - 1;
     }
-    return &p->tokens[safe_pos];
+    
+    /* Validate token pointer is within reasonable bounds */
+    Token *tok = &p->tokens[safe_pos];
+    if ((uintptr_t)tok < 0x1000 || (uintptr_t)tok > 0x7fffffffffff) {
+        /* Token pointer is in invalid memory range (zero page or way out of bounds) */
+        return NULL;
+    }
+    
+    return tok;
 }
 
 static Token *peek_token(Parser *p, int offset) {
@@ -714,8 +742,13 @@ static ASTNode *parse_primary(Parser *p) {
 
 /* Parse if expression */
 static ASTNode *parse_if_expression(Parser *p) {
-    int line = current_token(p)->line;
-    int column = current_token(p)->column;
+    Token *tok = current_token(p);
+    if (!tok) {
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parse_if_expression\n");
+        return NULL;
+    }
+    int line = tok->line;
+    int column = tok->column;
 
     if (!expect(p, TOKEN_IF, "Expected 'if'")) {
         return NULL;
@@ -777,13 +810,25 @@ static ASTNode *parse_expression(Parser *p) {
      * - UnionName.Variant { ... } -> union construction
      */
     while (match(p, TOKEN_DOT)) {
-        int line = current_token(p)->line;
-        int column = current_token(p)->column;
+        Token *dot_tok = current_token(p);
+        if (!dot_tok) {
+            fprintf(stderr, "Error: Parser reached invalid state (NULL token) in field access\n");
+            p->recursion_depth--;
+            return expr;
+        }
+        int line = dot_tok->line;
+        int column = dot_tok->column;
         advance(p);  /* consume '.' */
         
         if (!match(p, TOKEN_IDENTIFIER)) {
-            fprintf(stderr, "Error at line %d, column %d: Expected field or variant name after '.'\n",
-                    current_token(p)->line, current_token(p)->column);
+            Token *err_tok = current_token(p);
+            if (err_tok) {
+                fprintf(stderr, "Error at line %d, column %d: Expected field or variant name after '.'\n",
+                        err_tok->line, err_tok->column);
+            } else {
+                fprintf(stderr, "Error: Parser reached invalid state (NULL token) after '.'\n");
+            }
+            p->recursion_depth--;
             return expr;
         }
         
@@ -893,8 +938,14 @@ static ASTNode *parse_block(Parser *p) {
         return NULL;
     }
     
-    int line = current_token(p)->line;
-    int column = current_token(p)->column;
+    Token *tok = current_token(p);
+    if (!tok) {
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parse_block\n");
+        p->recursion_depth--;
+        return NULL;
+    }
+    int line = tok->line;
+    int column = tok->column;
 
     if (!expect(p, TOKEN_LBRACE, "Expected '{'")) {
         p->recursion_depth--;
@@ -1466,8 +1517,13 @@ static ASTNode *parse_union_def(Parser *p) {
 
 /* Parse match expression */
 static ASTNode *parse_match_expr(Parser *p) {
-    int line = current_token(p)->line;
-    int column = current_token(p)->column;
+    Token *tok = current_token(p);
+    if (!tok) {
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parse_match_expr\n");
+        return NULL;
+    }
+    int line = tok->line;
+    int column = tok->column;
     
     if (!expect(p, TOKEN_MATCH, "Expected 'match'")) {
         return NULL;
@@ -1590,8 +1646,13 @@ static ASTNode *parse_match_expr(Parser *p) {
 
 /* Parse function definition */
 static ASTNode *parse_function(Parser *p, bool is_extern) {
-    int line = current_token(p)->line;
-    int column = current_token(p)->column;
+    Token *tok = current_token(p);
+    if (!tok) {
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parse_function\n");
+        return NULL;
+    }
+    int line = tok->line;
+    int column = tok->column;
 
     if (!expect(p, TOKEN_FN, "Expected 'fn'")) {
         return NULL;
@@ -1760,6 +1821,9 @@ ASTNode *parse_program(Token *tokens, int token_count) {
     int count = 0;
     ASTNode **items = malloc(sizeof(ASTNode*) * capacity);
 
+    int consecutive_failures = 0;
+    int last_pos = -1;
+    
     while (!match(&parser, TOKEN_EOF)) {
         /* Safety check: if current_token returns NULL, we've hit an error */
         Token *tok = current_token(&parser);
@@ -1767,30 +1831,58 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             fprintf(stderr, "Error: Parser reached invalid state\n");
             break;
         }
+        
+        /* Check for infinite loop: if parser position hasn't advanced, we're stuck */
+        if (parser.pos == last_pos) {
+            consecutive_failures++;
+            if (consecutive_failures > 10) {
+                fprintf(stderr, "Error: Parser stuck in infinite loop at line %d, column %d. Aborting.\n",
+                        tok->line, tok->column);
+                break;
+            }
+        } else {
+            consecutive_failures = 0;
+            last_pos = parser.pos;
+        }
+        
         if (count >= capacity) {
             capacity *= 2;
             items = realloc(items, sizeof(ASTNode*) * capacity);
         }
 
+        ASTNode *parsed = NULL;
         if (match(&parser, TOKEN_IMPORT)) {
-            items[count++] = parse_import(&parser);
+            parsed = parse_import(&parser);
         } else if (match(&parser, TOKEN_STRUCT)) {
-            items[count++] = parse_struct_def(&parser);
+            parsed = parse_struct_def(&parser);
         } else if (match(&parser, TOKEN_ENUM)) {
-            items[count++] = parse_enum_def(&parser);
+            parsed = parse_enum_def(&parser);
         } else if (match(&parser, TOKEN_UNION)) {
-            items[count++] = parse_union_def(&parser);
+            parsed = parse_union_def(&parser);
         } else if (match(&parser, TOKEN_EXTERN)) {
             /* extern fn declarations */
             advance(&parser);  /* Skip 'extern' token */
-            items[count++] = parse_function(&parser, true);
+            parsed = parse_function(&parser, true);
         } else if (match(&parser, TOKEN_FN)) {
-            items[count++] = parse_function(&parser, false);
+            parsed = parse_function(&parser, false);
         } else if (match(&parser, TOKEN_SHADOW)) {
-            items[count++] = parse_shadow(&parser);
+            parsed = parse_shadow(&parser);
         } else {
-            fprintf(stderr, "Error at line %d, column %d: Expected import, struct, enum, union, extern, function or shadow-test definition\n",
-                    current_token(&parser)->line, current_token(&parser)->column);
+            Token *err_tok = current_token(&parser);
+            if (err_tok) {
+                fprintf(stderr, "Error at line %d, column %d: Expected import, struct, enum, union, extern, function or shadow-test definition\n",
+                        err_tok->line, err_tok->column);
+            } else {
+                fprintf(stderr, "Error: Parser reached invalid state\n");
+            }
+            advance(&parser);  /* Skip invalid token to avoid infinite loop */
+            continue;
+        }
+        
+        if (parsed) {
+            items[count++] = parsed;
+        } else {
+            /* Parsing failed - advance to avoid infinite loop */
             advance(&parser);
         }
     }
