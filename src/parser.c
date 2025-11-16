@@ -1971,10 +1971,38 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             parsed = parse_function(&parser, false);
         } else if (match(&parser, TOKEN_SHADOW)) {
             parsed = parse_shadow(&parser);
+        } else if (match(&parser, TOKEN_LET)) {
+            /* Top-level constants (immutable only) */
+            int line = current_token(&parser)->line;
+            int column = current_token(&parser)->column;
+            advance(&parser);  /* Skip 'let' */
+            
+            /* Check for 'mut' - not allowed at top level */
+            if (match(&parser, TOKEN_MUT)) {
+                fprintf(stderr, "Error at line %d, column %d: Mutable variables not allowed at top level (use 'let' without 'mut' for constants)\n",
+                        line, column);
+                advance(&parser);  /* Skip 'mut' */
+                continue;
+            }
+            
+            /* Go back one token so parse_statement can handle it properly */
+            parser.pos--;
+            parsed = parse_statement(&parser);
+            
+            /* Mark as top-level constant and enforce immutability */
+            if (parsed && parsed->type == AST_LET) {
+                if (parsed->as.let.is_mut) {
+                    fprintf(stderr, "Error at line %d, column %d: Mutable variables not allowed at top level\n",
+                            line, column);
+                    free_ast(parsed);
+                    parsed = NULL;
+                    continue;
+                }
+            }
         } else {
             Token *err_tok = current_token(&parser);
             if (err_tok) {
-                fprintf(stderr, "Error at line %d, column %d: Expected import, struct, enum, union, extern, function or shadow-test definition\n",
+                fprintf(stderr, "Error at line %d, column %d: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\n",
                         err_tok->line, err_tok->column);
             } else {
                 fprintf(stderr, "Error: Parser reached invalid state\n");

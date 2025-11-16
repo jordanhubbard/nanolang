@@ -1,0 +1,193 @@
+/* Comprehensive Generics Test
+ * Tests all aspects of generic types in nanolang
+ */
+
+/* Test 1: Basic List<int> */
+fn test_list_int() -> bool {
+    let numbers: List<int> = (list_int_new)
+    (list_int_push numbers 10)
+    (list_int_push numbers 20)
+    (list_int_push numbers 30)
+    
+    let len: int = (list_int_length numbers)
+    let first: int = (list_int_get numbers 0)
+    let last: int = (list_int_get numbers 2)
+    
+    return (and (and (== len 3) (== first 10)) (== last 30))
+}
+
+shadow test_list_int {
+    assert (== (test_list_int) true)
+}
+
+/* Test 2: List<string> */
+fn test_list_string() -> bool {
+    let names: List<string> = (list_string_new)
+    (list_string_push names "Alice")
+    (list_string_push names "Bob")
+    (list_string_push names "Charlie")
+    
+    let len: int = (list_string_length names)
+    let first: string = (list_string_get names 0)
+    
+    return (and (== len 3) (== first "Alice"))
+}
+
+shadow test_list_string {
+    assert (== (test_list_string) true)
+}
+
+/* Test 3: List with boolean logic */
+fn test_list_boolean() -> bool {
+    let nums1: List<int> = (list_int_new)
+    let nums2: List<int> = (list_int_new)
+    
+    (list_int_push nums1 1)
+    (list_int_push nums1 2)
+    
+    (list_int_push nums2 3)
+    (list_int_push nums2 4)
+    (list_int_push nums2 5)
+    
+    let len1: int = (list_int_length nums1)
+    let len2: int = (list_int_length nums2)
+    
+    return (and (== len1 2) (== len2 3))
+}
+
+shadow test_list_boolean {
+    assert (== (test_list_boolean) true)
+}
+
+/* Test 4: Multiple generic types in same function */
+fn test_multiple_generics() -> bool {
+    let ints: List<int> = (list_int_new)
+    let strs: List<string> = (list_string_new)
+    
+    (list_int_push ints 42)
+    (list_string_push strs "test")
+    
+    let int_len: int = (list_int_length ints)
+    let str_len: int = (list_string_length strs)
+    
+    return (and (== int_len 1) (== str_len 1))
+}
+
+shadow test_multiple_generics {
+    assert (== (test_multiple_generics) true)
+}
+
+/* Test 5: Generic list operations */
+fn test_list_operations() -> bool {
+    let nums: List<int> = (list_int_new)
+    
+    /* Push multiple elements */
+    (list_int_push nums 1)
+    (list_int_push nums 2)
+    (list_int_push nums 3)
+    (list_int_push nums 4)
+    (list_int_push nums 5)
+    
+    /* Check length */
+    let len: int = (list_int_length nums)
+    if (!= len 5) {
+        return false
+    } else {
+        /* Verify all elements */
+        let sum: int = 0
+        let mut i: int = 0
+        while (< i len) {
+            let val: int = (list_int_get nums i)
+            set sum (+ sum val)
+            set i (+ i 1)
+        }
+        
+        /* Sum should be 1+2+3+4+5 = 15 */
+        return (== sum 15)
+    }
+}
+
+shadow test_list_operations {
+    assert (== (test_list_operations) true)
+}
+
+/* Test 6: List iteration */
+fn test_list_iteration() -> bool {
+    let numbers: List<int> = (list_int_new)
+    (list_int_push numbers 10)
+    (list_int_push numbers 20)
+    (list_int_push numbers 30)
+    (list_int_push numbers 40)
+    
+    let mut sum: int = 0
+    let len: int = (list_int_length numbers)
+    let mut i: int = 0
+    
+    while (< i len) {
+        let val: int = (list_int_get numbers i)
+        set sum (+ sum val)
+        set i (+ i 1)
+    }
+    
+    /* 10 + 20 + 30 + 40 = 100 */
+    return (== sum 100)
+}
+
+shadow test_list_iteration {
+    assert (== (test_list_iteration) true)
+}
+
+/* Main test runner */
+fn main() -> int {
+    (println "Testing Generics...")
+    
+    if (test_list_int) {
+        (println "✓ List<int> works")
+    } else {
+        (println "✗ List<int> failed")
+        return 1
+    }
+    
+    if (test_list_string) {
+        (println "✓ List<string> works")
+    } else {
+        (println "✗ List<string> failed")
+        return 1
+    }
+    
+    if (test_list_boolean) {
+        (println "✓ Multiple lists work")
+    } else {
+        (println "✗ Multiple lists failed")
+        return 1
+    }
+    
+    if (test_multiple_generics) {
+        (println "✓ Multiple generics work")
+    } else {
+        (println "✗ Multiple generics failed")
+        return 1
+    }
+    
+    if (test_list_operations) {
+        (println "✓ List operations work")
+    } else {
+        (println "✗ List operations failed")
+        return 1
+    }
+    
+    if (test_list_iteration) {
+        (println "✓ List iteration works")
+    } else {
+        (println "✗ List iteration failed")
+        return 1
+    }
+    
+    (println "All generics tests passed! ✅")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

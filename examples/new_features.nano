@@ -1,0 +1,62 @@
+# NANOLANG NEW FEATURES DEMO
+# Shows: Unary operators & Top-level constants working together!
+
+# Top-level constants - now supported!
+let MAX_SIZE: int = 10
+let MAGIC: int = 42
+
+# Unary negation - clean syntax!
+fn neg(x: int) -> int {
+    return (- x)
+}
+
+shadow neg {
+    assert (== (neg 5) -5)
+    assert (== (neg -2) 2)
+}
+
+# Using constants
+fn get_max() -> int {
+    return MAX_SIZE
+}
+
+shadow get_max {
+    assert (== (get_max) 10)
+}
+
+# Dynamic arrays
+fn build_array() -> int {
+    let mut arr: array<int> = []
+    set arr (array_push arr 1)
+    set arr (array_push arr (- 2))  # Unary neg!
+    set arr (array_push arr 3)
+    return (array_length arr)
+}
+
+shadow build_array {
+    assert (== (build_array) 3)
+}
+
+fn main() -> int {
+    (println "=== NEW FEATURES DEMO ===")
+    (println "")
+    (print "MAX_SIZE constant: ")
+    (println MAX_SIZE)
+    (print "MAGIC constant: ")
+    (println MAGIC)
+    (println "")
+    (print "Negate 5: ")
+    (println (neg 5))
+    (print "Build array length: ")
+    (println (build_array))
+    (println "")
+    (println "✅ Unary operators")
+    (println "✅ Top-level constants")
+    (println "✅ Dynamic arrays + GC")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

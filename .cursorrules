@@ -560,3 +560,219 @@ shadow factorial {
 
 **See `docs/STDLIB.md` for complete standard library reference.**
 
+---
+
+## Language Evolution and Self-Hosting Requirements
+
+### Language Feature Documentation Requirements
+
+**All changes to the language feature set or syntax MUST be documented in BOTH:**
+
+1. **User-facing documentation** (`docs/`)
+   - Update relevant guides (`SPECIFICATION.md`, `QUICK_REFERENCE.md`, `GETTING_STARTED.md`)
+   - Add examples demonstrating the new feature
+   - Update `docs/DOCS_INDEX.md` to reflect changes
+   - If a feature is deprecated, remove or clearly mark it as deprecated
+
+2. **LLM-readable language specification** (`docs/SPECIFICATION.md`)
+   - This specification is used for:
+     - Language validation by AI assistants
+     - Self-hosting bootstrap process
+     - Ensuring C implementation and nanolang-in-nanolang stay synchronized
+
+**Why this matters:**
+- The self-hosted nanolang compiler (nanolang-in-nanolang) must track all lexer, parser, and runtime changes
+- The bootstrap process requires both implementations (C and nanolang) to track one another
+- Without synchronized documentation, the self-hosting effort will fail
+
+### File Structure Enforcement
+
+These rules ensure consistency and maintainability across the entire codebase.
+
+#### 1. Unit Tests (`tests/`)
+
+**All unit tests MUST live in `tests/`.**
+
+- **Every language feature MUST have a unit test**
+- Unit tests validate that features work as documented
+- When a feature changes, update the corresponding test
+- When a feature is removed, delete or modify its test
+
+**Test organization:**
+```
+tests/
+├── unit/              # Feature-specific tests
+├── integration/       # Multi-feature tests
+├── negative/          # Tests that should fail
+├── regression/        # Bug fix tests
+├── performance/       # Performance benchmarks
+└── warnings/          # Warning condition tests
+```
+
+**Enforcement:**
+- Before adding a language feature, add its test
+- Before removing a language feature, remove/update its test
+- All tests must pass before committing
+
+#### 2. Examples (`examples/`)
+
+**All examples MUST live in `examples/` and be fully functional.**
+
+- **Every example MUST be buildable and runnable from the top-level Makefile**
+- Examples serve as living documentation
+- All paths and environment variables must be set correctly
+- Users should be able to build all examples with `make examples`
+- Users should be able to run any example by name: `make run-example EXAMPLE=filename`
+
+**Requirements for examples:**
+- Must demonstrate real, practical use cases
+- Must follow current language best practices
+- Must include shadow-tests where appropriate
+- Must use the latest, most powerful language features
+- Must not demonstrate deprecated features
+
+**Enforcement:**
+- Test all examples can be built: `make examples`
+- Test example can be run: `make run-example EXAMPLE=name`
+- Remove retired/obsolete examples immediately
+- When new features are added, audit examples for improvements
+
+#### 3. User-Facing Documentation (`docs/`)
+
+**All user-facing documentation MUST live in `docs/`.**
+
+**After any significant language change:**
+1. **Audit ALL documentation files** for obsolete content
+2. **Review for clarity** - does it reflect current best practices?
+3. **Remove deprecated features** - documentation should only show current, recommended approaches
+4. **Update cross-references** - ensure all links between docs are valid
+5. **Update `docs/DOCS_INDEX.md`** - reflect all changes
+
+**What triggers a documentation audit:**
+- New language feature added
+- Syntax change
+- Feature deprecated or removed
+- Standard library changes
+- Runtime behavior changes
+- Breaking changes
+
+**Documentation must include:**
+- Clear examples using current syntax
+- Best practices guidance
+- Migration guide if features are deprecated
+- Links to related documentation
+
+#### 4. Test Maintenance
+
+**Tests MUST track language features.**
+
+When a language feature changes:
+- **Add tests** for new features
+- **Update tests** for modified features
+- **Remove tests** for retired features that are no longer relevant
+- **Modify tests** if the feature is replaced by something better
+
+**Test retirement criteria:**
+- Feature is completely removed from the language
+- Feature has been entirely subsumed by another feature
+- Test no longer validates anything useful
+
+**Do NOT:**
+- Keep tests for deprecated features
+- Keep tests that test obsolete syntax
+- Keep tests that no longer compile
+
+#### 5. Example Retirement
+
+**Retired examples MUST be removed.**
+
+An example is "retired" when:
+- It demonstrates a feature that is obsolete
+- It demonstrates a feature that has been entirely subsumed by another, more powerful feature
+- It uses deprecated syntax or patterns
+- It no longer follows language best practices
+
+**When retiring examples:**
+1. Check if the example is referenced in documentation
+2. Update or remove those references
+3. Delete the example file
+4. Update the Makefile to remove build/run rules
+5. Consider if a replacement example is needed
+
+#### 6. Example Improvement Audits
+
+**New, more powerful language features should trigger an audit of ALL existing examples.**
+
+When a significant new feature is added:
+1. **Review all examples** in `examples/`
+2. **Identify opportunities** to make examples more concise
+3. **Leverage new features** to demonstrate best practices
+4. **Update examples** to use the most elegant solutions
+5. **Ensure examples** showcase the language's strengths
+
+**Goals of improvement audits:**
+- Keep examples modern and idiomatic
+- Demonstrate the language's evolution
+- Show users the best way to solve problems
+- Make examples as concise and clear as possible
+
+#### 7. Planning Files (`planning/`)
+
+**All AI planning files MUST be in `planning/`, not the top level.**
+
+**When starting a new session:**
+1. **Search the `planning/` directory** for in-progress tasks
+2. **Review any active planning documents** before starting new work
+3. **Check for TODO items** that need completion
+
+**Planning document lifecycle:**
+1. Create planning doc in `planning/`
+2. Work through implementation
+3. Check off TODOs as completed
+4. **DELETE the planning file** when fully implemented
+5. Move any permanent documentation to `docs/`
+
+**Planning document categories:**
+- Implementation plans (e.g., `*_IMPLEMENTATION_PLAN.md`)
+- Design documents (e.g., `*_DESIGN.md`)
+- Proposals (e.g., `*_PROPOSAL.md`)
+- Roadmaps (e.g., `*_ROADMAP.md`)
+
+**Enforcement:**
+- Completed planning docs MUST be deleted
+- Do NOT keep "COMPLETE" versions in `planning/`
+- Move useful insights to permanent docs
+- Keep `planning/` directory clean and current
+
+### Summary Checklist
+
+Before committing changes, verify:
+
+**Language Changes:**
+- [ ] User-facing docs updated (`docs/`)
+- [ ] LLM-readable spec updated (`docs/SPECIFICATION.md`)
+- [ ] Changes documented for self-hosting bootstrap
+
+**Tests:**
+- [ ] Unit tests added for new features
+- [ ] Tests updated for modified features
+- [ ] Tests removed for retired features
+- [ ] All tests pass
+
+**Examples:**
+- [ ] Examples buildable from Makefile
+- [ ] Examples runnable from Makefile
+- [ ] Retired examples removed
+- [ ] Examples audited for improvements (if applicable)
+
+**Documentation:**
+- [ ] All docs audited for obsolete content
+- [ ] Deprecated features removed from docs
+- [ ] `docs/DOCS_INDEX.md` updated
+- [ ] Cross-references validated
+
+**Planning:**
+- [ ] Completed planning docs deleted
+- [ ] Active planning docs in `planning/`
+- [ ] Planning directory searched at session start
+

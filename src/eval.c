@@ -2,6 +2,8 @@
 #include "runtime/list_int.h"
 #include "runtime/list_string.h"
 #include "runtime/list_token.h"
+#include "runtime/gc.h"
+#include "runtime/dyn_array.h"
 #include "tracing.h"
 #include <stdlib.h>
 #include <time.h>
@@ -254,6 +256,35 @@ static void print_value(Value val) {
             printf("]");
             break;
         }
+        case VAL_DYN_ARRAY: {
+            /* Print dynamic array as [elem1, elem2, ...] */
+            DynArray *arr = val.as.dyn_array_val;
+            printf("[");
+            int64_t len = dyn_array_length(arr);
+            ElementType elem_type = dyn_array_get_elem_type(arr);
+            for (int64_t i = 0; i < len; i++) {
+                if (i > 0) printf(", ");
+                switch (elem_type) {
+                    case ELEM_INT:
+                        printf("%lld", dyn_array_get_int(arr, i));
+                        break;
+                    case ELEM_FLOAT:
+                        printf("%g", dyn_array_get_float(arr, i));
+                        break;
+                    case ELEM_BOOL:
+                        printf("%s", dyn_array_get_bool(arr, i) ? "true" : "false");
+                        break;
+                    case ELEM_STRING:
+                        printf("\"%s\"", dyn_array_get_string(arr, i));
+                        break;
+                    default:
+                        printf("?");
+                        break;
+                }
+            }
+            printf("]");
+            break;
+        }
         case VAL_STRUCT: {
             /* Print struct as StructName { field1: value1, field2: value2 } */
             StructValue *sv = val.as.struct_val;
@@ -411,6 +442,126 @@ static Value builtin_tan(Value *args) {
     return create_void();
 }
 
+static Value builtin_atan2(Value *args) {
+    double y = 0.0, x = 0.0;
+    
+    /* Get y value */
+    if (args[0].type == VAL_FLOAT) {
+        y = args[0].as.float_val;
+    } else if (args[0].type == VAL_INT) {
+        y = (double)args[0].as.int_val;
+    } else {
+        fprintf(stderr, "Error: atan2 requires numeric arguments\n");
+        return create_void();
+    }
+    
+    /* Get x value */
+    if (args[1].type == VAL_FLOAT) {
+        x = args[1].as.float_val;
+    } else if (args[1].type == VAL_INT) {
+        x = (double)args[1].as.int_val;
+    } else {
+        fprintf(stderr, "Error: atan2 requires numeric arguments\n");
+        return create_void();
+    }
+    
+    return create_float(atan2(y, x));
+}
+
+/* ============================================================================
+ * Type Casting Functions
+ * ========================================================================== */
+
+static Value builtin_cast_int(Value *args) {
+    Value arg = args[0];
+    
+    if (arg.type == VAL_INT) {
+        return arg;  /* Already an int */
+    } else if (arg.type == VAL_FLOAT) {
+        return create_int((long long)arg.as.float_val);  /* Truncate */
+    } else if (arg.type == VAL_BOOL) {
+        return create_int(arg.as.bool_val ? 1 : 0);
+    } else if (arg.type == VAL_STRING) {
+        /* Parse string to int */
+        char *endptr;
+        long long val = strtoll(arg.as.string_val, &endptr, 10);
+        if (endptr == arg.as.string_val || *endptr != '\0') {
+            fprintf(stderr, "Error: cast_int cannot parse '%s' as integer\n", arg.as.string_val);
+            return create_int(0);
+        }
+        return create_int(val);
+    } else {
+        fprintf(stderr, "Error: cast_int cannot convert type to int\n");
+        return create_void();
+    }
+}
+
+static Value builtin_cast_float(Value *args) {
+    Value arg = args[0];
+    
+    if (arg.type == VAL_FLOAT) {
+        return arg;  /* Already a float */
+    } else if (arg.type == VAL_INT) {
+        return create_float((double)arg.as.int_val);
+    } else if (arg.type == VAL_BOOL) {
+        return create_float(arg.as.bool_val ? 1.0 : 0.0);
+    } else if (arg.type == VAL_STRING) {
+        /* Parse string to float */
+        char *endptr;
+        double val = strtod(arg.as.string_val, &endptr);
+        if (endptr == arg.as.string_val || *endptr != '\0') {
+            fprintf(stderr, "Error: cast_float cannot parse '%s' as float\n", arg.as.string_val);
+            return create_float(0.0);
+        }
+        return create_float(val);
+    } else {
+        fprintf(stderr, "Error: cast_float cannot convert type to float\n");
+        return create_void();
+    }
+}
+
+static Value builtin_cast_bool(Value *args) {
+    Value arg = args[0];
+    
+    if (arg.type == VAL_BOOL) {
+        return arg;  /* Already a bool */
+    } else if (arg.type == VAL_INT) {
+        return create_bool(arg.as.int_val != 0);
+    } else if (arg.type == VAL_FLOAT) {
+        return create_bool(arg.as.float_val != 0.0);
+    } else if (arg.type == VAL_STRING) {
+        /* Parse string to bool */
+        if (strcmp(arg.as.string_val, "true") == 0 || strcmp(arg.as.string_val, "1") == 0) {
+            return create_bool(true);
+        } else {
+            return create_bool(false);
+        }
+    } else {
+        fprintf(stderr, "Error: cast_bool cannot convert type to bool\n");
+        return create_void();
+    }
+}
+
+static Value builtin_cast_string(Value *args) {
+    Value arg = args[0];
+    char buffer[128];
+    
+    if (arg.type == VAL_STRING) {
+        return arg;  /* Already a string */
+    } else if (arg.type == VAL_INT) {
+        snprintf(buffer, sizeof(buffer), "%lld", arg.as.int_val);
+        return create_string(buffer);
+    } else if (arg.type == VAL_FLOAT) {
+        snprintf(buffer, sizeof(buffer), "%g", arg.as.float_val);
+        return create_string(buffer);
+    } else if (arg.type == VAL_BOOL) {
+        return create_string(arg.as.bool_val ? "true" : "false");
+    } else {
+        fprintf(stderr, "Error: cast_string cannot convert type to string\n");
+        return create_void();
+    }
+}
+
 static Value builtin_print(Value *args) {
     print_value(args[0]);
     return create_void();
@@ -527,49 +678,84 @@ static Value builtin_str_equals(Value *args) {
 
 static Value builtin_at(Value *args) {
     /* at(array, index) -> element */
-    if (args[0].type != VAL_ARRAY) {
-        fprintf(stderr, "Error: at() requires an array as first argument\n");
-        return create_void();
-    }
     if (args[1].type != VAL_INT) {
         fprintf(stderr, "Error: at() requires an integer index\n");
         return create_void();
     }
     
-    Array *arr = args[0].as.array_val;
     long long index = args[1].as.int_val;
     
-    /* BOUNDS CHECKING - This is the safety guarantee! */
-    if (index < 0 || index >= arr->length) {
-        fprintf(stderr, "Runtime Error: Array index %lld out of bounds [0..%d)\n",
-                index, arr->length);
-        exit(1);  /* Fail fast - no undefined behavior! */
+    /* Handle static arrays */
+    if (args[0].type == VAL_ARRAY) {
+        Array *arr = args[0].as.array_val;
+        
+        /* BOUNDS CHECKING - This is the safety guarantee! */
+        if (index < 0 || index >= arr->length) {
+            fprintf(stderr, "Runtime Error: Array index %lld out of bounds [0..%d)\n",
+                    index, arr->length);
+            exit(1);  /* Fail fast - no undefined behavior! */
+        }
+        
+        /* Return element based on type */
+        switch (arr->element_type) {
+            case VAL_INT:
+                return create_int(((long long*)arr->data)[index]);
+            case VAL_FLOAT:
+                return create_float(((double*)arr->data)[index]);
+            case VAL_BOOL:
+                return create_bool(((bool*)arr->data)[index]);
+            case VAL_STRING:
+                return create_string(((char**)arr->data)[index]);
+            default:
+                fprintf(stderr, "Error: Unsupported array element type\n");
+                return create_void();
+        }
     }
     
-    /* Return element based on type */
-    switch (arr->element_type) {
-        case VAL_INT:
-            return create_int(((long long*)arr->data)[index]);
-        case VAL_FLOAT:
-            return create_float(((double*)arr->data)[index]);
-        case VAL_BOOL:
-            return create_bool(((bool*)arr->data)[index]);
-        case VAL_STRING:
-            return create_string(((char**)arr->data)[index]);
-        default:
-            fprintf(stderr, "Error: Unsupported array element type\n");
-            return create_void();
+    /* Handle dynamic arrays */
+    if (args[0].type == VAL_DYN_ARRAY) {
+        DynArray *arr = args[0].as.dyn_array_val;
+        int64_t len = dyn_array_length(arr);
+        
+        /* BOUNDS CHECKING */
+        if (index < 0 || index >= len) {
+            fprintf(stderr, "Runtime Error: Array index %lld out of bounds [0..%lld)\n",
+                    index, len);
+            exit(1);
+        }
+        
+        /* Return element based on type */
+        ElementType elem_type = dyn_array_get_elem_type(arr);
+        switch (elem_type) {
+            case ELEM_INT:
+                return create_int(dyn_array_get_int(arr, index));
+            case ELEM_FLOAT:
+                return create_float(dyn_array_get_float(arr, index));
+            case ELEM_BOOL:
+                return create_bool(dyn_array_get_bool(arr, index));
+            case ELEM_STRING:
+                return create_string(dyn_array_get_string(arr, index));
+            default:
+                fprintf(stderr, "Error: Unsupported array element type\n");
+                return create_void();
+        }
     }
+    
+    fprintf(stderr, "Error: at() requires an array as first argument\n");
+    return create_void();
 }
 
 static Value builtin_array_length(Value *args) {
     /* array_length(array) -> int */
-    if (args[0].type != VAL_ARRAY) {
-        fprintf(stderr, "Error: array_length() requires an array argument\n");
-        return create_void();
+    if (args[0].type == VAL_ARRAY) {
+        return create_int(args[0].as.array_val->length);
+    }
+    if (args[0].type == VAL_DYN_ARRAY) {
+        return create_int(dyn_array_length(args[0].as.dyn_array_val));
     }
     
-    return create_int(args[0].as.array_val->length);
+    fprintf(stderr, "Error: array_length() requires an array argument\n");
+    return create_void();
 }
 
 static Value builtin_array_new(Value *args) {
@@ -675,6 +861,170 @@ static Value builtin_array_set(Value *args) {
 }
 
 /* ==========================================================================
+ * Dynamic Array Operations (GC-Managed)
+ * ========================================================================== */
+
+/* Helper to create a dynamic array Value */
+static Value create_dyn_array(DynArray *arr) {
+    Value val;
+    val.type = VAL_DYN_ARRAY;
+    val.is_return = false;
+    val.as.dyn_array_val = arr;
+    return val;
+}
+
+/* Helper to map ValueType to ElementType */
+static ElementType value_type_to_elem_type(ValueType vtype) {
+    switch (vtype) {
+        case VAL_INT: return ELEM_INT;
+        case VAL_FLOAT: return ELEM_FLOAT;
+        case VAL_BOOL: return ELEM_BOOL;
+        case VAL_STRING: return ELEM_STRING;
+        default: return ELEM_INT; /* Default */
+    }
+}
+
+static Value builtin_array_push(Value *args) {
+    /* array_push(array, value) -> array
+     * For empty array literal [], infers type from first push
+     * For dynamic arrays, appends element
+     */
+    
+    /* If arg[0] is an empty static array, convert to dynamic */
+    if (args[0].type == VAL_ARRAY && args[0].as.array_val->length == 0) {
+        /* Create new dynamic array with element type from value */
+        ElementType elem_type = value_type_to_elem_type(args[1].type);
+        DynArray *arr = dyn_array_new(elem_type);
+        
+        /* Push the first element */
+        switch (args[1].type) {
+            case VAL_INT:
+                dyn_array_push_int(arr, args[1].as.int_val);
+                break;
+            case VAL_FLOAT:
+                dyn_array_push_float(arr, args[1].as.float_val);
+                break;
+            case VAL_BOOL:
+                dyn_array_push_bool(arr, args[1].as.bool_val);
+                break;
+            case VAL_STRING:
+                dyn_array_push_string(arr, args[1].as.string_val);
+                break;
+            default:
+                fprintf(stderr, "Error: Unsupported array element type\n");
+                gc_release(arr);
+                return create_void();
+        }
+        
+        return create_dyn_array(arr);
+    }
+    
+    /* Must be a dynamic array */
+    if (args[0].type != VAL_DYN_ARRAY) {
+        fprintf(stderr, "Error: array_push() requires a dynamic array (use [] to create one)\n");
+        return create_void();
+    }
+    
+    DynArray *arr = args[0].as.dyn_array_val;
+    
+    /* Type check */
+    ElementType expected_type = dyn_array_get_elem_type(arr);
+    ValueType value_type = args[1].type;
+    
+    if (value_type_to_elem_type(value_type) != expected_type) {
+        fprintf(stderr, "Error: Type mismatch in array_push\n");
+        return create_void();
+    }
+    
+    /* Push element */
+    switch (value_type) {
+        case VAL_INT:
+            dyn_array_push_int(arr, args[1].as.int_val);
+            break;
+        case VAL_FLOAT:
+            dyn_array_push_float(arr, args[1].as.float_val);
+            break;
+        case VAL_BOOL:
+            dyn_array_push_bool(arr, args[1].as.bool_val);
+            break;
+        case VAL_STRING:
+            dyn_array_push_string(arr, args[1].as.string_val);
+            break;
+        default:
+            fprintf(stderr, "Error: Unsupported array element type\n");
+            return create_void();
+    }
+    
+    /* Return the same array (it's mutated in-place) */
+    return args[0];
+}
+
+static Value builtin_array_pop(Value *args) {
+    /* array_pop(array) -> value */
+    if (args[0].type != VAL_DYN_ARRAY) {
+        fprintf(stderr, "Error: array_pop() requires a dynamic array\n");
+        return create_void();
+    }
+    
+    DynArray *arr = args[0].as.dyn_array_val;
+    
+    if (dyn_array_length(arr) == 0) {
+        fprintf(stderr, "Error: array_pop() on empty array\n");
+        return create_void();
+    }
+    
+    /* Pop element based on type */
+    bool success = false;
+    ElementType elem_type = dyn_array_get_elem_type(arr);
+    switch (elem_type) {
+        case ELEM_INT: {
+            int64_t val = dyn_array_pop_int(arr, &success);
+            return success ? create_int(val) : create_void();
+        }
+        case ELEM_FLOAT: {
+            double val = dyn_array_pop_float(arr, &success);
+            return success ? create_float(val) : create_void();
+        }
+        case ELEM_BOOL: {
+            bool val = dyn_array_pop_bool(arr, &success);
+            return success ? create_bool(val) : create_void();
+        }
+        case ELEM_STRING: {
+            const char *val = dyn_array_pop_string(arr, &success);
+            return success ? create_string(val) : create_void();
+        }
+        default:
+            fprintf(stderr, "Error: Unsupported array element type\n");
+            return create_void();
+    }
+}
+
+static Value builtin_array_remove_at(Value *args) {
+    /* array_remove_at(array, index) -> array */
+    if (args[0].type != VAL_DYN_ARRAY) {
+        fprintf(stderr, "Error: array_remove_at() requires a dynamic array\n");
+        return create_void();
+    }
+    if (args[1].type != VAL_INT) {
+        fprintf(stderr, "Error: array_remove_at() requires an integer index\n");
+        return create_void();
+    }
+    
+    DynArray *arr = args[0].as.dyn_array_val;
+    int64_t index = args[1].as.int_val;
+    
+    if (index < 0 || index >= dyn_array_length(arr)) {
+        fprintf(stderr, "Runtime Error: Array index %lld out of bounds\n", index);
+        exit(1);
+    }
+    
+    dyn_array_remove_at(arr, index);
+    
+    /* Return the modified array */
+    return args[0];
+}
+
+/* ==========================================================================
  * End of Math and Utility Built-in Functions
  * ========================================================================== */
 
@@ -703,8 +1053,23 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
     /* Arithmetic operators */
     if (op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_STAR ||
         op == TOKEN_SLASH || op == TOKEN_PERCENT) {
+        
+        /* Handle unary minus: (- x) */
+        if (op == TOKEN_MINUS && arg_count == 1) {
+            Value arg = eval_expression(node->as.prefix_op.args[0], env);
+            if (arg.type == VAL_INT) {
+                return create_int(-arg.as.int_val);
+            } else if (arg.type == VAL_FLOAT) {
+                return create_float(-arg.as.float_val);
+            } else {
+                fprintf(stderr, "Error: Unary minus requires numeric argument\n");
+                return create_void();
+            }
+        }
+        
+        /* Binary arithmetic operations */
         if (arg_count != 2) {
-            fprintf(stderr, "Error: Arithmetic operators require 2 arguments\n");
+            fprintf(stderr, "Error: Binary arithmetic operators require 2 arguments\n");
             return create_void();
         }
         Value left = eval_expression(node->as.prefix_op.args[0], env);
@@ -768,6 +1133,40 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 case TOKEN_LE: result = left.as.int_val <= right.as.int_val; break;
                 case TOKEN_GT: result = left.as.int_val > right.as.int_val; break;
                 case TOKEN_GE: result = left.as.int_val >= right.as.int_val; break;
+                default: result = false;
+            }
+            return create_bool(result);
+        } else if (left.type == VAL_FLOAT && right.type == VAL_FLOAT) {
+            bool result;
+            switch (op) {
+                case TOKEN_LT: result = left.as.float_val < right.as.float_val; break;
+                case TOKEN_LE: result = left.as.float_val <= right.as.float_val; break;
+                case TOKEN_GT: result = left.as.float_val > right.as.float_val; break;
+                case TOKEN_GE: result = left.as.float_val >= right.as.float_val; break;
+                default: result = false;
+            }
+            return create_bool(result);
+        } else if (left.type == VAL_INT && right.type == VAL_FLOAT) {
+            /* Mixed int/float comparison: convert int to float */
+            bool result;
+            double left_f = (double)left.as.int_val;
+            switch (op) {
+                case TOKEN_LT: result = left_f < right.as.float_val; break;
+                case TOKEN_LE: result = left_f <= right.as.float_val; break;
+                case TOKEN_GT: result = left_f > right.as.float_val; break;
+                case TOKEN_GE: result = left_f >= right.as.float_val; break;
+                default: result = false;
+            }
+            return create_bool(result);
+        } else if (left.type == VAL_FLOAT && right.type == VAL_INT) {
+            /* Mixed float/int comparison: convert int to float */
+            bool result;
+            double right_f = (double)right.as.int_val;
+            switch (op) {
+                case TOKEN_LT: result = left.as.float_val < right_f; break;
+                case TOKEN_LE: result = left.as.float_val <= right_f; break;
+                case TOKEN_GT: result = left.as.float_val > right_f; break;
+                case TOKEN_GE: result = left.as.float_val >= right_f; break;
                 default: result = false;
             }
             return create_bool(result);
@@ -951,6 +1350,13 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "sin") == 0) return builtin_sin(args);
     if (strcmp(name, "cos") == 0) return builtin_cos(args);
     if (strcmp(name, "tan") == 0) return builtin_tan(args);
+    if (strcmp(name, "atan2") == 0) return builtin_atan2(args);
+    
+    /* Type casting functions */
+    if (strcmp(name, "cast_int") == 0) return builtin_cast_int(args);
+    if (strcmp(name, "cast_float") == 0) return builtin_cast_float(args);
+    if (strcmp(name, "cast_bool") == 0) return builtin_cast_bool(args);
+    if (strcmp(name, "cast_string") == 0) return builtin_cast_string(args);
     
     /* String operations */
     if (strcmp(name, "str_length") == 0) return builtin_str_length(args);
@@ -1075,6 +1481,11 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "array_length") == 0) return builtin_array_length(args);
     if (strcmp(name, "array_new") == 0) return builtin_array_new(args);
     if (strcmp(name, "array_set") == 0) return builtin_array_set(args);
+    
+    /* Dynamic array operations (GC-managed) */
+    if (strcmp(name, "array_push") == 0) return builtin_array_push(args);
+    if (strcmp(name, "array_pop") == 0) return builtin_array_pop(args);
+    if (strcmp(name, "array_remove_at") == 0) return builtin_array_remove_at(args);
     
     /* list_int operations - delegate to C runtime */
     if (strcmp(name, "list_int_new") == 0) {
@@ -1961,7 +2372,16 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
 
     bool all_passed = true;
 
-    /* First pass: Register all enum definitions so they're available in shadow tests */
+    /* First pass: Evaluate top-level constants */
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        
+        if (item->type == AST_LET) {
+            eval_statement(item, env);  /* Evaluate the constant */
+        }
+    }
+
+    /* Second pass: Register all enum definitions so they're available in shadow tests */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         
@@ -1970,7 +2390,7 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
         }
     }
 
-    /* Second pass: Run each shadow test */
+    /* Third pass: Run each shadow test */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         
@@ -2017,9 +2437,24 @@ bool run_program(ASTNode *program, Environment *env) {
         return false;
     }
 
-    /* Execute all top-level items (functions, statements, etc.) */
+    /* First pass: evaluate top-level constants before functions */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
+
+        /* Evaluate top-level constants */
+        if (item->type == AST_LET) {
+            eval_statement(item, env);
+        }
+    }
+
+    /* Second pass: execute all other top-level items (functions, statements, etc.) */
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+
+        /* Skip constants - already processed */
+        if (item->type == AST_LET) {
+            continue;
+        }
 
         /* Skip shadow tests in interpreter mode - they're for compiler validation */
         if (item->type == AST_SHADOW) {

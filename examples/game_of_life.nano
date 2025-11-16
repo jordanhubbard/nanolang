@@ -1,0 +1,286 @@
+# CONWAY'S GAME OF LIFE - Cellular Automata Simulation
+# Pure computation - tests arrays, logic, neighbor counting
+
+# === CONSTANTS ===
+let GRID_WIDTH: int = 40
+let GRID_HEIGHT: int = 20
+let GENERATIONS: int = 10
+
+# === GRID OPERATIONS ===
+
+fn grid_index(x: int, y: int, width: int) -> int {
+    return (+ (* y width) x)
+}
+
+shadow grid_index {
+    assert (== (grid_index 0 0 10) 0)
+    assert (== (grid_index 5 2 10) 25)
+    assert (== (grid_index 9 9 10) 99)
+}
+
+fn grid_get(grid: array<int>, x: int, y: int, width: int, height: int) -> int {
+    if (< x 0) {
+        return 0
+    } else {
+        if (>= x width) {
+            return 0
+        } else {
+            if (< y 0) {
+                return 0
+            } else {
+                if (>= y height) {
+                    return 0
+                } else {
+                    let idx: int = (grid_index x y width)
+                    return (at grid idx)
+                }
+            }
+        }
+    }
+}
+
+shadow grid_get {
+    let grid: array<int> = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+    assert (== (grid_get grid 4 0 10 1) 1)
+    assert (== (grid_get grid 0 0 10 1) 0)
+    assert (== (grid_get grid -1 0 10 1) 0)
+    assert (== (grid_get grid 10 0 10 1) 0)
+}
+
+fn count_neighbors(grid: array<int>, x: int, y: int, width: int, height: int) -> int {
+    let mut count: int = 0
+    
+    # Top-left
+    set count (+ count (grid_get grid (- x 1) (- y 1) width height))
+    # Top
+    set count (+ count (grid_get grid x (- y 1) width height))
+    # Top-right
+    set count (+ count (grid_get grid (+ x 1) (- y 1) width height))
+    # Left
+    set count (+ count (grid_get grid (- x 1) y width height))
+    # Right
+    set count (+ count (grid_get grid (+ x 1) y width height))
+    # Bottom-left
+    set count (+ count (grid_get grid (- x 1) (+ y 1) width height))
+    # Bottom
+    set count (+ count (grid_get grid x (+ y 1) width height))
+    # Bottom-right
+    set count (+ count (grid_get grid (+ x 1) (+ y 1) width height))
+    
+    return count
+}
+
+shadow count_neighbors {
+    # Grid:  010
+    #        010
+    #        010
+    let grid: array<int> = [0, 1, 0,
+                             0, 1, 0,
+                             0, 1, 0]
+    assert (== (count_neighbors grid 1 1 3 3) 2)  # Center has 2 neighbors
+    assert (== (count_neighbors grid 0 0 3 3) 2)  # Corner has 2 neighbors
+}
+
+fn apply_rules(alive: int, neighbors: int) -> int {
+    if (== alive 1) {
+        # Cell is alive
+        if (< neighbors 2) {
+            return 0  # Dies from underpopulation
+        } else {
+            if (> neighbors 3) {
+                return 0  # Dies from overpopulation
+            } else {
+                return 1  # Survives
+            }
+        }
+    } else {
+        # Cell is dead
+        if (== neighbors 3) {
+            return 1  # Becomes alive (reproduction)
+        } else {
+            return 0  # Stays dead
+        }
+    }
+}
+
+shadow apply_rules {
+    assert (== (apply_rules 1 1) 0)  # Dies (underpopulation)
+    assert (== (apply_rules 1 2) 1)  # Survives
+    assert (== (apply_rules 1 3) 1)  # Survives
+    assert (== (apply_rules 1 4) 0)  # Dies (overpopulation)
+    assert (== (apply_rules 0 3) 1)  # Born
+    assert (== (apply_rules 0 2) 0)  # Stays dead
+}
+
+fn print_grid(grid: array<int>, width: int, height: int) -> int {
+    let mut y: int = 0
+    while (< y height) {
+        let mut x: int = 0
+        while (< x width) {
+            let cell: int = (grid_get grid x y width height)
+            if (== cell 1) {
+                (print "█")
+            } else {
+                (print " ")
+            }
+            set x (+ x 1)
+        }
+        (println "")
+        set y (+ y 1)
+    }
+    return 0
+}
+
+shadow print_grid {
+    let grid: array<int> = [1, 0, 1,
+                             0, 1, 0,
+                             1, 0, 1]
+    assert (== (print_grid grid 3 3) 0)
+}
+
+# === MAIN ===
+
+fn main() -> int {
+    (println "")
+    (println "╔════════════════════════════════════════════╗")
+    (println "║  CONWAY'S GAME OF LIFE                    ║")
+    (println "╚════════════════════════════════════════════╝")
+    (println "")
+    
+    let grid_size: int = (* GRID_WIDTH GRID_HEIGHT)
+    (print "Grid: ")
+    (print GRID_WIDTH)
+    (print "x")
+    (print GRID_HEIGHT)
+    (print " = ")
+    (print grid_size)
+    (println " cells")
+    (println "")
+    
+    # Initialize grid with glider pattern
+    let mut grid: array<int> = []
+    let mut i: int = 0
+    
+    while (< i grid_size) {
+        set grid (array_push grid 0)
+        set i (+ i 1)
+    }
+    
+    # Place glider at position (10, 5)
+    # Pattern:  0 1 0
+    #           0 0 1
+    #           1 1 1
+    let glider_x: int = 10
+    let glider_y: int = 5
+    
+    let mut new_grid: array<int> = []
+    set i 0
+    while (< i grid_size) {
+        let x: int = (% i GRID_WIDTH)
+        let y: int = (/ i GRID_WIDTH)
+        
+        # Check if this is part of the glider
+        let mut cell: int = 0
+        
+        # Row 0:  0 1 0
+        if (== y glider_y) {
+            if (== x (+ glider_x 1)) {
+                set cell 1
+            } else {
+                (print "")
+            }
+        } else {
+            (print "")
+        }
+        
+        # Row 1:  0 0 1
+        if (== y (+ glider_y 1)) {
+            if (== x (+ glider_x 2)) {
+                set cell 1
+            } else {
+                (print "")
+            }
+        } else {
+            (print "")
+        }
+        
+        # Row 2:  1 1 1
+        if (== y (+ glider_y 2)) {
+            if (== x glider_x) {
+                set cell 1
+            } else {
+                if (== x (+ glider_x 1)) {
+                    set cell 1
+                } else {
+                    if (== x (+ glider_x 2)) {
+                        set cell 1
+                    } else {
+                        (print "")
+                    }
+                }
+            }
+        } else {
+            (print "")
+        }
+        
+        set new_grid (array_push new_grid cell)
+        set i (+ i 1)
+    }
+    
+    set grid new_grid
+    
+    (println "✓ Grid initialized with glider pattern")
+    (println "")
+    (println "Generation 0:")
+    (print_grid grid GRID_WIDTH GRID_HEIGHT)
+    (println "")
+    
+    # Simulate generations
+    let mut gen: int = 0
+    while (< gen GENERATIONS) {
+        # Compute next generation
+        set new_grid []
+        set i 0
+        
+        while (< i grid_size) {
+            let x: int = (% i GRID_WIDTH)
+            let y: int = (/ i GRID_WIDTH)
+            let alive: int = (grid_get grid x y GRID_WIDTH GRID_HEIGHT)
+            let neighbors: int = (count_neighbors grid x y GRID_WIDTH GRID_HEIGHT)
+            let new_cell: int = (apply_rules alive neighbors)
+            
+            set new_grid (array_push new_grid new_cell)
+            set i (+ i 1)
+        }
+        
+        set grid new_grid
+        set gen (+ gen 1)
+        
+        (print "Generation ")
+        (print gen)
+        (println ":")
+        (print_grid grid GRID_WIDTH GRID_HEIGHT)
+        (println "")
+    }
+    
+    (println "╔════════════════════════════════════════════╗")
+    (println "║        SIMULATION COMPLETE ✓               ║")
+    (println "╚════════════════════════════════════════════╝")
+    (println "")
+    (println "✅ FEATURES DEMONSTRATED:")
+    (println "  • 2D grid operations via 1D array")
+    (println "  • Neighbor counting algorithm")
+    (println "  • Cellular automata rules")
+    (println "  • Dynamic array construction")
+    (println "  • Boundary checking")
+    (println "  • Complex nested conditionals")
+    (println "")
+    (println "🔬 Life emerged from simple rules!")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

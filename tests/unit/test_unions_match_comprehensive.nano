@@ -1,0 +1,437 @@
+/* Comprehensive Union and Pattern Matching Test
+ * Tests all aspects of unions and match expressions in nanolang
+ */
+
+/* Test 1: Simple union with match */
+union Result {
+    Ok { value: int },
+    Error { message: string }
+}
+
+fn test_simple_match() -> bool {
+    let r: Result = Result.Ok { value: 42 }
+    
+    match r {
+        Ok(val) => {
+            return (== val.value 42)
+        }
+        Error(err) => {
+            return false
+        }
+    }
+}
+
+shadow test_simple_match {
+    assert (== (test_simple_match) true)
+}
+
+/* Test 2: Match with error variant */
+fn test_match_error() -> bool {
+    let r: Result = Result.Error { message: "failed" }
+    
+    match r {
+        Ok(val) => {
+            return false
+        }
+        Error(err) => {
+            return (== (str_length err.message) 6)
+        }
+    }
+}
+
+shadow test_match_error {
+    assert (== (test_match_error) true)
+}
+
+/* Test 3: Function returning union */
+fn divide(a: int, b: int) -> Result {
+    if (== b 0) {
+        return Result.Error { message: "division by zero" }
+    } else {
+        let quotient: int = (/ a b)
+        return Result.Ok { value: quotient }
+    }
+}
+
+shadow divide {
+    let r1: Result = (divide 10 2)
+    match r1 {
+        Ok(val) => {
+            assert (== val.value 5)
+        }
+        Error(err) => {
+            assert false
+        }
+    }
+    
+    let r2: Result = (divide 10 0)
+    match r2 {
+        Ok(val) => {
+            assert false
+        }
+        Error(err) => {
+            assert (== (str_length err.message) 17)
+        }
+    }
+}
+
+fn test_function_union() -> bool {
+    let r: Result = (divide 20 4)
+    match r {
+        Ok(val) => {
+            return (== val.value 5)
+        }
+        Error(err) => {
+            return false
+        }
+    }
+}
+
+shadow test_function_union {
+    assert (== (test_function_union) true)
+}
+
+/* Test 4: Union with multiple fields */
+union Shape {
+    Circle { radius: int },
+    Rectangle { width: int, height: int }
+}
+
+fn area(s: Shape) -> int {
+    match s {
+        Circle(c) => {
+            /* area = π * r^2, approximating π as 3 */
+            return (* 3 (* c.radius c.radius))
+        }
+        Rectangle(r) => {
+            return (* r.width r.height)
+        }
+    }
+}
+
+shadow area {
+    let circle: Shape = Shape.Circle { radius: 10 }
+    assert (== (area circle) 300)
+    
+    let rect: Shape = Shape.Rectangle { width: 5, height: 10 }
+    assert (== (area rect) 50)
+}
+
+fn test_multi_field_union() -> bool {
+    let s: Shape = Shape.Rectangle { width: 10, height: 20 }
+    let a: int = (area s)
+    return (== a 200)
+}
+
+shadow test_multi_field_union {
+    assert (== (test_multi_field_union) true)
+}
+
+/* Test 5: Nested match expressions */
+union Option {
+    Some { value: int },
+    None {}
+}
+
+fn unwrap_or(opt: Option, default: int) -> int {
+    match opt {
+        Some(val) => {
+            return val.value
+        }
+        None(empty) => {
+            return default
+        }
+    }
+}
+
+shadow unwrap_or {
+    let some: Option = Option.Some { value: 42 }
+    assert (== (unwrap_or some 0) 42)
+    
+    let none: Option = Option.None {}
+    assert (== (unwrap_or none 99) 99)
+}
+
+fn test_option_type() -> bool {
+    let some: Option = Option.Some { value: 123 }
+    let result: int = (unwrap_or some 0)
+    return (== result 123)
+}
+
+shadow test_option_type {
+    assert (== (test_option_type) true)
+}
+
+/* Test 6: Union in struct */
+struct Response {
+    status: Result,
+    timestamp: int
+}
+
+fn test_union_in_struct() -> bool {
+    let resp: Response = Response {
+        status: Result.Ok { value: 200 },
+        timestamp: 1234567890
+    }
+    
+    match resp.status {
+        Ok(val) => {
+            return (== val.value 200)
+        }
+        Error(err) => {
+            return false
+        }
+    }
+}
+
+shadow test_union_in_struct {
+    assert (== (test_union_in_struct) true)
+}
+
+/* Test 7: Multiple unions */
+union Animal {
+    Dog { name: string },
+    Cat { name: string }
+}
+
+fn speak(a: Animal) -> string {
+    match a {
+        Dog(d) => {
+            return "woof"
+        }
+        Cat(c) => {
+            return "meow"
+        }
+    }
+}
+
+shadow speak {
+    let dog: Animal = Animal.Dog { name: "Rex" }
+    assert (== (speak dog) "woof")
+    
+    let cat: Animal = Animal.Cat { name: "Whiskers" }
+    assert (== (speak cat) "meow")
+}
+
+fn test_multiple_unions() -> bool {
+    let result1: Result = Result.Ok { value: 1 }
+    let animal1: Animal = Animal.Dog { name: "Buddy" }
+    
+    let ok: bool = false
+    match result1 {
+        Ok(val) => {
+            set ok true
+        }
+        Error(err) => {
+            set ok false
+        }
+    }
+    
+    let sound: string = (speak animal1)
+    return (and ok (== sound "woof"))
+}
+
+shadow test_multiple_unions {
+    assert (== (test_multiple_unions) true)
+}
+
+/* Test 8: Union with mixed types */
+union Value {
+    Integer { num: int },
+    String { text: string },
+    Boolean { flag: bool }
+}
+
+fn value_to_string(v: Value) -> string {
+    match v {
+        Integer(i) => {
+            return "int"
+        }
+        String(s) => {
+            return "string"
+        }
+        Boolean(b) => {
+            return "bool"
+        }
+    }
+}
+
+shadow value_to_string {
+    let int_val: Value = Value.Integer { num: 42 }
+    assert (== (value_to_string int_val) "int")
+    
+    let str_val: Value = Value.String { text: "hello" }
+    assert (== (value_to_string str_val) "string")
+    
+    let bool_val: Value = Value.Boolean { flag: true }
+    assert (== (value_to_string bool_val) "bool")
+}
+
+fn test_mixed_types() -> bool {
+    let v: Value = Value.String { text: "test" }
+    let type_str: string = (value_to_string v)
+    return (== type_str "string")
+}
+
+shadow test_mixed_types {
+    assert (== (test_mixed_types) true)
+}
+
+/* Test 9: Empty variant */
+union Status {
+    Ready {},
+    Processing {},
+    Done { result: int }
+}
+
+fn is_ready(s: Status) -> bool {
+    match s {
+        Ready(r) => {
+            return true
+        }
+        Processing(p) => {
+            return false
+        }
+        Done(d) => {
+            return false
+        }
+    }
+}
+
+shadow is_ready {
+    let ready: Status = Status.Ready {}
+    assert (== (is_ready ready) true)
+    
+    let processing: Status = Status.Processing {}
+    assert (== (is_ready processing) false)
+    
+    let done: Status = Status.Done { result: 100 }
+    assert (== (is_ready done) false)
+}
+
+fn test_empty_variant() -> bool {
+    let s: Status = Status.Ready {}
+    return (is_ready s)
+}
+
+shadow test_empty_variant {
+    assert (== (test_empty_variant) true)
+}
+
+/* Test 10: Complex pattern matching */
+union Tree {
+    Leaf { value: int },
+    Node { left: int, right: int }  /* Simplified for testing */
+}
+
+fn sum_tree(t: Tree) -> int {
+    match t {
+        Leaf(l) => {
+            return l.value
+        }
+        Node(n) => {
+            return (+ n.left n.right)
+        }
+    }
+}
+
+shadow sum_tree {
+    let leaf: Tree = Tree.Leaf { value: 42 }
+    assert (== (sum_tree leaf) 42)
+    
+    let node: Tree = Tree.Node { left: 10, right: 20 }
+    assert (== (sum_tree node) 30)
+}
+
+fn test_complex_match() -> bool {
+    let t: Tree = Tree.Node { left: 15, right: 25 }
+    let sum: int = (sum_tree t)
+    return (== sum 40)
+}
+
+shadow test_complex_match {
+    assert (== (test_complex_match) true)
+}
+
+/* Main test runner */
+fn main() -> int {
+    (println "Testing Unions and Pattern Matching...")
+    
+    if (test_simple_match) {
+        (println "✓ Simple match works")
+    } else {
+        (println "✗ Simple match failed")
+        return 1
+    }
+    
+    if (test_match_error) {
+        (println "✓ Match error variant works")
+    } else {
+        (println "✗ Match error variant failed")
+        return 1
+    }
+    
+    if (test_function_union) {
+        (println "✓ Function returning union works")
+    } else {
+        (println "✗ Function returning union failed")
+        return 1
+    }
+    
+    if (test_multi_field_union) {
+        (println "✓ Multi-field union works")
+    } else {
+        (println "✗ Multi-field union failed")
+        return 1
+    }
+    
+    if (test_option_type) {
+        (println "✓ Option type works")
+    } else {
+        (println "✗ Option type failed")
+        return 1
+    }
+    
+    if (test_union_in_struct) {
+        (println "✓ Union in struct works")
+    } else {
+        (println "✗ Union in struct failed")
+        return 1
+    }
+    
+    if (test_multiple_unions) {
+        (println "✓ Multiple unions work")
+    } else {
+        (println "✗ Multiple unions failed")
+        return 1
+    }
+    
+    if (test_mixed_types) {
+        (println "✓ Mixed type union works")
+    } else {
+        (println "✗ Mixed type union failed")
+        return 1
+    }
+    
+    if (test_empty_variant) {
+        (println "✓ Empty variant works")
+    } else {
+        (println "✗ Empty variant failed")
+        return 1
+    }
+    
+    if (test_complex_match) {
+        (println "✓ Complex pattern matching works")
+    } else {
+        (println "✗ Complex pattern matching failed")
+        return 1
+    }
+    
+    (println "All union and pattern matching tests passed! ✅")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

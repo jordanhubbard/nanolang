@@ -1,6 +1,7 @@
 #include "nanolang.h"
 #include "version.h"
 #include "tracing.h"
+#include "runtime/gc.h"
 
 /* Interpreter options */
 typedef struct {
@@ -12,6 +13,9 @@ typedef struct {
 
 /* Run nanolang source with interpreter */
 static int interpret_file(const char *input_file, InterpreterOptions *opts, int argc, char **argv) {
+    /* Initialize GC */
+    gc_init();
+    
     /* Initialize tracing */
     tracing_init();
     tracing_configure(argc, argv);
@@ -20,6 +24,7 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
     FILE *file = fopen(input_file, "r");
     if (!file) {
         fprintf(stderr, "Error: Could not open file '%s'\n", input_file);
+        gc_shutdown();
         return 1;
     }
 
@@ -40,6 +45,7 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
     if (!tokens) {
         fprintf(stderr, "Lexing failed\n");
         free(source);
+        gc_shutdown();
         return 1;
     }
     if (opts->verbose) printf("✓ Lexing complete (%d tokens)\n", token_count);
@@ -50,6 +56,7 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
         fprintf(stderr, "Parsing failed\n");
         free_tokens(tokens, token_count);
         free(source);
+        gc_shutdown();
         return 1;
     }
     if (opts->verbose) printf("✓ Parsing complete\n");
@@ -64,6 +71,7 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
         free_environment(env);
         free_module_list(modules);
         free(source);
+        gc_shutdown();
         return 1;
     }
     if (opts->verbose && modules->count > 0) {
@@ -78,6 +86,7 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
         free_environment(env);
         free_module_list(modules);
         free(source);
+        gc_shutdown();
         return 1;
     }
     if (opts->verbose) printf("✓ Type checking complete\n");
@@ -90,6 +99,7 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
         free_environment(env);
         free_module_list(modules);
         free(source);
+        gc_shutdown();
         return 1;
     }
     if (opts->verbose) printf("✓ Interpretation complete\n");
@@ -126,6 +136,7 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
                 free_environment(env);
                 free(source);
                 tracing_cleanup();
+                gc_shutdown();
                 return 1;
             }
             
@@ -169,6 +180,7 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
                         free_environment(env);
                         free(source);
                         tracing_cleanup();
+                        gc_shutdown();
                         return 1;
                     default:
                         fprintf(stderr, "Error: Unsupported parameter type for argument %d\n", i + 1);
@@ -178,6 +190,7 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
                         free_environment(env);
                         free(source);
                         tracing_cleanup();
+                        gc_shutdown();
                         return 1;
                 }
             }
@@ -209,6 +222,7 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
     free_module_list(modules);
     free(source);
     tracing_cleanup();
+    gc_shutdown();
 
     return exit_code;
 }

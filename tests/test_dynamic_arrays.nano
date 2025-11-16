@@ -1,0 +1,256 @@
+# Dynamic Array Tests
+# Test the new GC-managed dynamic arrays
+
+fn test_push_pop_int() -> int {
+    # Test basic push and pop with integers
+    let mut arr: array<int> = []
+    set arr (array_push arr 42)
+    set arr (array_push arr 43)
+    set arr (array_push arr 44)
+    
+    # Length should be 3
+    if (!= (array_length arr) 3) {
+        (println "FAIL: Expected length 3")
+        return 1
+    }
+    
+    # Pop should return 44
+    let val: int = (array_pop arr)
+    if (!= val 44) {
+        (println "FAIL: Expected pop to return 44")
+        return 1
+    }
+    
+    # Length should be 2
+    if (!= (array_length arr) 2) {
+        (println "FAIL: Expected length 2 after pop")
+        return 1
+    }
+    
+    # First element should be 42
+    if (!= (at arr 0) 42) {
+        (println "FAIL: Expected first element to be 42")
+        return 1
+    }
+    
+    (println "✓ test_push_pop_int passed")
+    return 0
+}
+
+shadow test_push_pop_int {
+    assert (== (test_push_pop_int) 0)
+}
+
+fn test_remove_at() -> int {
+    # Test removing elements at specific indices
+    let mut arr: array<int> = []
+    set arr (array_push arr 10)
+    set arr (array_push arr 20)
+    set arr (array_push arr 30)
+    set arr (array_push arr 40)
+    
+    # Remove element at index 1 (20)
+    set arr (array_remove_at arr 1)
+    
+    # Length should be 3
+    if (!= (array_length arr) 3) {
+        (println "FAIL: Expected length 3 after remove")
+        return 1
+    }
+    
+    # Elements should be [10, 30, 40]
+    if (!= (at arr 0) 10) {
+        (println "FAIL: Element 0 should be 10")
+        return 1
+    }
+    if (!= (at arr 1) 30) {
+        (println "FAIL: Element 1 should be 30")
+        return 1
+    }
+    if (!= (at arr 2) 40) {
+        (println "FAIL: Element 2 should be 40")
+        return 1
+    }
+    
+    (println "✓ test_remove_at passed")
+    return 0
+}
+
+shadow test_remove_at {
+    assert (== (test_remove_at) 0)
+}
+
+fn test_float_array() -> int {
+    # Test dynamic arrays with floats
+    let mut arr: array<float> = []
+    set arr (array_push arr 3.14)
+    set arr (array_push arr 2.71)
+    set arr (array_push arr 1.41)
+    
+    # Check length
+    if (!= (array_length arr) 3) {
+        (println "FAIL: Float array length should be 3")
+        return 1
+    }
+    
+    # Check values (approximately)
+    let val0: float = (at arr 0)
+    if (or (< val0 3.13) (> val0 3.15)) {
+        (println "FAIL: First element should be ~3.14")
+        return 1
+    }
+    
+    # Pop and check
+    let popped: float = (array_pop arr)
+    if (or (< popped 1.40) (> popped 1.42)) {
+        (println "FAIL: Popped value should be ~1.41")
+        return 1
+    }
+    
+    (println "✓ test_float_array passed")
+    return 0
+}
+
+shadow test_float_array {
+    assert (== (test_float_array) 0)
+}
+
+fn test_string_array() -> int {
+    # Test dynamic arrays with strings
+    let mut arr: array<string> = []
+    set arr (array_push arr "hello")
+    set arr (array_push arr "world")
+    set arr (array_push arr "!")
+    
+    # Check length
+    if (!= (array_length arr) 3) {
+        (println "FAIL: String array length should be 3")
+        return 1
+    }
+    
+    # Check values
+    if (!= (at arr 0) "hello") {
+        (println "FAIL: First element should be 'hello'")
+        return 1
+    }
+    if (!= (at arr 1) "world") {
+        (println "FAIL: Second element should be 'world'")
+        return 1
+    }
+    
+    # Remove middle element
+    set arr (array_remove_at arr 1)
+    if (!= (array_length arr) 2) {
+        (println "FAIL: Length should be 2 after remove")
+        return 1
+    }
+    if (!= (at arr 1) "!") {
+        (println "FAIL: Second element should now be '!'")
+        return 1
+    }
+    
+    (println "✓ test_string_array passed")
+    return 0
+}
+
+shadow test_string_array {
+    assert (== (test_string_array) 0)
+}
+
+fn test_bool_array() -> int {
+    # Test dynamic arrays with booleans
+    let mut arr: array<bool> = []
+    set arr (array_push arr true)
+    set arr (array_push arr false)
+    set arr (array_push arr true)
+    
+    # Check length
+    if (!= (array_length arr) 3) {
+        (println "FAIL: Bool array length should be 3")
+        return 1
+    }
+    
+    # Check values
+    if (!= (at arr 0) true) {
+        (println "FAIL: Element 0 should be true")
+        return 1
+    }
+    if (!= (at arr 1) false) {
+        (println "FAIL: Element 1 should be false")
+        return 1
+    }
+    
+    (println "✓ test_bool_array passed")
+    return 0
+}
+
+shadow test_bool_array {
+    assert (== (test_bool_array) 0)
+}
+
+fn test_large_array() -> int {
+    # Test with many elements to verify growth
+    let mut arr: array<int> = []
+    let mut i: int = 0
+    
+    # Push 100 elements
+    while (< i 100) {
+        set arr (array_push arr i)
+        set i (+ i 1)
+    }
+    
+    # Check length
+    if (!= (array_length arr) 100) {
+        (println "FAIL: Large array should have 100 elements")
+        return 1
+    }
+    
+    # Check some values
+    if (!= (at arr 0) 0) {
+        (println "FAIL: First element should be 0")
+        return 1
+    }
+    if (!= (at arr 50) 50) {
+        (println "FAIL: Element 50 should be 50")
+        return 1
+    }
+    if (!= (at arr 99) 99) {
+        (println "FAIL: Last element should be 99")
+        return 1
+    }
+    
+    (println "✓ test_large_array passed")
+    return 0
+}
+
+shadow test_large_array {
+    assert (== (test_large_array) 0)
+}
+
+fn main() -> int {
+    (println "=== Dynamic Array Tests ===")
+    (println "")
+    
+    let result1: int = (test_push_pop_int)
+    let result2: int = (test_remove_at)
+    let result3: int = (test_float_array)
+    let result4: int = (test_string_array)
+    let result5: int = (test_bool_array)
+    let result6: int = (test_large_array)
+    
+    let total: int = (+ result1 (+ result2 (+ result3 (+ result4 (+ result5 result6)))))
+    
+    (println "")
+    if (== total 0) {
+        (println "=== All tests passed! ===")
+    } else {
+        (println "=== Some tests failed ===")
+    }
+    
+    return total
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
