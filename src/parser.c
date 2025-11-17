@@ -1034,18 +1034,18 @@ static ASTNode *parse_if_expression(Parser *p) {
     int line = tok->line;
     int column = tok->column;
     
-    static int if_depth = 0;  /* Track nesting depth for debug */
-    if_depth++;
+    // static int if_depth = 0;  /* Track nesting depth for debug */
+    // if_depth++;
 
     if (!expect(p, TOKEN_IF, "Expected 'if'")) {
-        if_depth--;
+        // if_depth--;
         return NULL;
     }
 
     ASTNode *condition = parse_expression(p);
     if (!condition) {
         // fprintf(stderr, "DEBUG [if_depth=%d]: Failed to parse condition at line %d\n", if_depth, line);
-        if_depth--;
+        // if_depth--;
         return NULL;
     }
 
@@ -1058,26 +1058,26 @@ static ASTNode *parse_if_expression(Parser *p) {
             advance(p);  /* consume ELSE */
             parse_block(p);  /* consume else_branch (ignore result) */
         }
-        if_depth--;
+        // if_depth--;
         return NULL;
     }
     
     /* Debug: Check current token after then_branch */
-    Token *after_then = current_token(p);
+    // Token *after_then = current_token(p);
     // fprintf(stderr, "DEBUG [if_depth=%d]: After then_branch, current token is %s at line %d, column %d\n",
     //         if_depth, after_then ? token_type_name(after_then->type) : "NULL",
     //         after_then ? after_then->line : 0, after_then ? after_then->column : 0);
 
     if (!expect(p, TOKEN_ELSE, "Expected 'else' after 'if' block")) {
         // fprintf(stderr, "DEBUG [if_depth=%d]: Failed to find ELSE after then_branch at line %d\n", if_depth, line);
-        if_depth--;
+        // if_depth--;
         return NULL;
     }
 
     ASTNode *else_branch = parse_block(p);
     if (!else_branch) {
         // fprintf(stderr, "DEBUG [if_depth=%d]: Failed to parse else_branch at line %d\n", if_depth, line);
-        if_depth--;
+        // if_depth--;
         return NULL;
     }
 
@@ -1085,7 +1085,7 @@ static ASTNode *parse_if_expression(Parser *p) {
     node->as.if_stmt.condition = condition;
     node->as.if_stmt.then_branch = then_branch;
     node->as.if_stmt.else_branch = else_branch;
-    if_depth--;
+    // if_depth--;
     return node;
 }
 
@@ -1283,8 +1283,8 @@ static ASTNode *parse_block(Parser *p) {
     }
     
     /* Debug: Track block boundaries */
-    static int block_count = 0;
-    int my_block_id = ++block_count;
+    // static int block_count = 0;
+    // int my_block_id = ++block_count;
     // fprintf(stderr, "DEBUG: [block_%d depth=%d] Started parsing block at line %d\n", 
     //         my_block_id, p->recursion_depth, line);
 
@@ -1333,7 +1333,7 @@ static ASTNode *parse_block(Parser *p) {
         }
     }
 
-    Token *end_tok = current_token(p);
+    // Token *end_tok = current_token(p);
     // fprintf(stderr, "DEBUG: [block_%d depth=%d] Expecting closing '}' at line %d\n",
     //         my_block_id, p->recursion_depth, end_tok ? end_tok->line : 0);
     
