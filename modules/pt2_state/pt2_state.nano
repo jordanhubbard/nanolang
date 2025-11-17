@@ -1,0 +1,43 @@
+# ProTracker State Management Module
+# Provides mutable state storage for replayer
+# Workaround for nanolang limitation: no mutable variables at module level
+
+# Initialization
+extern fn pt2_init_state() -> int
+
+# Playback control
+extern fn pt2_start_playback() -> int
+extern fn pt2_stop_playback() -> int
+extern fn pt2_is_playing() -> int
+
+# State getters
+extern fn pt2_get_current_row() -> int
+extern fn pt2_get_current_pattern() -> int
+extern fn pt2_get_speed() -> int
+extern fn pt2_get_bpm() -> int
+extern fn pt2_get_tick() -> int
+extern fn pt2_get_song_pos() -> int
+
+# State setters
+extern fn pt2_set_current_row(row: int) -> int
+extern fn pt2_set_current_pattern(pattern: int) -> int
+extern fn pt2_set_speed(speed: int) -> int
+extern fn pt2_set_bpm(bpm: int) -> int
+extern fn pt2_set_tick(tick: int) -> int
+extern fn pt2_set_song_pos(pos: int) -> int
+
+# Channel state
+extern fn pt2_set_channel_period(channel: int, period: int) -> int
+extern fn pt2_get_channel_period(channel: int) -> int
+extern fn pt2_set_channel_volume(channel: int, volume: int) -> int
+extern fn pt2_get_channel_volume(channel: int) -> int
+extern fn pt2_set_channel_sample(channel: int, sample: int) -> int
+extern fn pt2_get_channel_sample(channel: int) -> int
+extern fn pt2_set_channel_note(channel: int, note: int) -> int
+extern fn pt2_get_channel_note(channel: int) -> int
+
+# Pattern table
+extern fn pt2_set_pattern_table_entry(pos: int, pattern: int) -> int
+extern fn pt2_get_pattern_table_entry(pos: int) -> int
+extern fn pt2_set_song_length(length: int) -> int
+extern fn pt2_get_song_length() -> int

@@ -1,0 +1,19 @@
+{
+  "name": "glew",
+  "version": "1.0.0",
+  "description": "GLEW - OpenGL Extension Wrangler for loading OpenGL functions and extensions",
+  "headers": ["GL/glew.h"],
+  "pkg_config": ["glew"],
+  "install": {
+    "macos": {
+      "brew": "glew",
+      "command": "brew install glew"
+    },
+    "linux": {
+      "apt": "libglew-dev",
+      "command": "sudo apt install libglew-dev"
+    }
+  },
+  "dependencies": ["glfw"]
+}
+

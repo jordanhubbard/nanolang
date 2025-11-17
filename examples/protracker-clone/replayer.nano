@@ -1,90 +1,18 @@
 # ProTracker Replayer Engine
 # Core playback and effect processing
 # Based on pt2_replayer.c from pt2-clone by Olav Sørensen
+#
+# NOTE: Uses extern C functions for state storage because nanolang
+# doesn't allow mutable variables at top level
 
 import "examples/protracker-clone/types.nano"
 import "examples/protracker-clone/pattern.nano"
-
-# === MODULE STATE ===
-
-# Global playback state
-let mut g_playing: int = 0           # 0 = stopped, 1 = playing
-let mut g_current_pattern: int = 0  # Current pattern index
-let mut g_current_row: int = 0      # Current row in pattern (0-63)
-let mut g_song_pos: int = 0         # Position in song (order list)
-let mut g_speed: int = 6            # Ticks per row (default 6)
-let mut g_bpm: int = 125            # Beats per minute (default 125)
-let mut g_tick: int = 0             # Current tick (0 to speed-1)
-
-# Pattern order list (which patterns play in which order)
-let mut g_pattern_table: array<int> = []  # Max 128 entries
-let mut g_song_length: int = 1            # Number of patterns in song
-
-# === CHANNEL STATE ===
-# Each of 4 channels has its own state
-
-# Channel periods (Amiga frequency values)
-let mut g_ch0_period: int = 0
-let mut g_ch1_period: int = 0
-let mut g_ch2_period: int = 0
-let mut g_ch3_period: int = 0
-
-# Channel volumes (0-64)
-let mut g_ch0_volume: int = 0
-let mut g_ch1_volume: int = 0
-let mut g_ch2_volume: int = 0
-let mut g_ch3_volume: int = 0
-
-# Channel samples (1-31, 0 = none)
-let mut g_ch0_sample: int = 0
-let mut g_ch1_sample: int = 0
-let mut g_ch2_sample: int = 0
-let mut g_ch3_sample: int = 0
-
-# Channel note (for display)
-let mut g_ch0_note: int = 0
-let mut g_ch1_note: int = 0
-let mut g_ch2_note: int = 0
-let mut g_ch3_note: int = 0
+import "modules/pt2_state/pt2_state.nano"
 
 # === INITIALIZATION ===
 
 fn init_replayer() -> int {
-    set g_playing 0
-    set g_current_pattern 0
-    set g_current_row 0
-    set g_song_pos 0
-    set g_speed 6
-    set g_bpm 125
-    set g_tick 0
-    
-    # Initialize pattern table with default (pattern 0)
-    set g_pattern_table []
-    set g_pattern_table (array_push g_pattern_table 0)
-    set g_song_length 1
-    
-    # Clear all channels
-    set g_ch0_period 0
-    set g_ch1_period 0
-    set g_ch2_period 0
-    set g_ch3_period 0
-    
-    set g_ch0_volume 0
-    set g_ch1_volume 0
-    set g_ch2_volume 0
-    set g_ch3_volume 0
-    
-    set g_ch0_sample 0
-    set g_ch1_sample 0
-    set g_ch2_sample 0
-    set g_ch3_sample 0
-    
-    set g_ch0_note 0
-    set g_ch1_note 0
-    set g_ch2_note 0
-    set g_ch3_note 0
-    
-    return 0
+    return (pt2_init_state)
 }
 
 shadow init_replayer {
@@ -95,19 +23,15 @@ shadow init_replayer {
 # === PLAYBACK CONTROL ===
 
 fn start_playback() -> int {
-    set g_playing 1
-    set g_tick 0
-    return 0
+    return (pt2_start_playback)
 }
 
 fn stop_playback() -> int {
-    set g_playing 0
-    set g_tick 0
-    return 0
+    return (pt2_stop_playback)
 }
 
 fn is_playing() -> int {
-    return g_playing
+    return (pt2_is_playing)
 }
 
 shadow is_playing {
@@ -121,38 +45,54 @@ shadow is_playing {
 # === PATTERN NAVIGATION ===
 
 fn set_pattern(pattern: int) -> int {
+    let mut result: int = pattern
+    
     if (< pattern 0) {
-        set g_current_pattern 0
+        set result 0
     } else {
         if (>= pattern PT_PATTERNS) {
-            set g_current_pattern (- PT_PATTERNS 1)
-        } else {
-            set g_current_pattern pattern
-        }
+            set result (- PT_PATTERNS 1)
+        } else {}
     }
-    set g_current_row 0
-    return g_current_pattern
+    
+    (pt2_set_current_pattern result)
+    (pt2_set_current_row 0)
+    return result
+}
+
+shadow set_pattern {
+    (init_replayer)
+    let result: int = (set_pattern 0)
+    assert (== result 0)
 }
 
 fn next_row() -> int {
-    set g_current_row (+ g_current_row 1)
+    let mut row: int = (pt2_get_current_row)
+    set row (+ row 1)
     
     # Check if we reached end of pattern
-    if (>= g_current_row PT_ROWS) {
-        set g_current_row 0
+    if (>= row PT_ROWS) {
+        set row 0
+        (pt2_set_current_row row)
         
         # Advance to next pattern in song
-        set g_song_pos (+ g_song_pos 1)
-        if (>= g_song_pos g_song_length) {
-            set g_song_pos 0  # Loop back to start
-        }
+        let mut pos: int = (pt2_get_song_pos)
+        set pos (+ pos 1)
+        
+        let song_length: int = (pt2_get_song_length)
+        if (>= pos song_length) {
+            set pos 0  # Loop back to start
+        } else {}
+        (pt2_set_song_pos pos)
         
         # Get pattern from order table
-        let next_pattern: int = (at g_pattern_table g_song_pos)
-        set g_current_pattern next_pattern
-    } else {}
+        let next_pattern: int = (pt2_get_pattern_table_entry pos)
+        (pt2_set_current_pattern next_pattern)
+    } else {
+        (pt2_set_current_row row)
+    }
     
-    return g_current_row
+    return row
 }
 
 shadow next_row {
@@ -168,50 +108,26 @@ fn trigger_note(channel: int, note: int, sample: int, volume: int) -> int {
     # Set period from note
     let period: int = (note_to_period note)
     
-    # Update channel state based on channel number
-    if (== channel 0) {
-        set g_ch0_note note
-        set g_ch0_period period
-        set g_ch0_sample sample
-        if (> volume 0) {
-            set g_ch0_volume volume
-        } else {}
-    } else {
-    if (== channel 1) {
-        set g_ch1_note note
-        set g_ch1_period period
-        set g_ch1_sample sample
-        if (> volume 0) {
-            set g_ch1_volume volume
-        } else {}
-    } else {
-    if (== channel 2) {
-        set g_ch2_note note
-        set g_ch2_period period
-        set g_ch2_sample sample
-        if (> volume 0) {
-            set g_ch2_volume volume
-        } else {}
-    } else {
-    if (== channel 3) {
-        set g_ch3_note note
-        set g_ch3_period period
-        set g_ch3_sample sample
-        if (> volume 0) {
-            set g_ch3_volume volume
-        } else {}
-    } else {}}}}
+    # Update channel state
+    (pt2_set_channel_note channel note)
+    (pt2_set_channel_period channel period)
+    (pt2_set_channel_sample channel sample)
+    
+    if (> volume 0) {
+        (pt2_set_channel_volume channel volume)
+    } else {}
     
     return period
 }
 
 shadow trigger_note {
     (init_replayer)
-    (trigger_note 0 1 1 64)  # Channel 0, C-1, sample 1, volume 64
-    assert (== g_ch0_note 1)
-    assert (== g_ch0_period 856)  # C-1 period
-    assert (== g_ch0_sample 1)
-    assert (== g_ch0_volume 64)
+    let period: int = (trigger_note 0 1 1 64)  # Channel 0, C-1, sample 1, volume 64
+    assert (== period 856)  # C-1 period
+    let note: int = (pt2_get_channel_note 0)
+    assert (== note 1)
+    let vol: int = (pt2_get_channel_volume 0)
+    assert (== vol 64)
 }
 
 # === EFFECT PROCESSING ===
@@ -221,23 +137,37 @@ fn process_effect_speed(param: int) -> int {
     if (<= param 32) {
         # 1-32: Set speed (ticks per row)
         if (> param 0) {
-            set g_speed param
+            (pt2_set_speed param)
         } else {}
     } else {
         # 33+: Set BPM
-        set g_bpm param
+        (pt2_set_bpm param)
     }
-    return g_speed
+    return (pt2_get_speed)
 }
 
-fn process_effect_volume(param: int) -> int {
+shadow process_effect_speed {
+    (init_replayer)
+    (process_effect_speed 8)  # Set speed to 8
+    assert (== (pt2_get_speed) 8)
+}
+
+fn process_effect_volume(channel: int, param: int) -> int {
     # Effect 0xC - Set volume
     # param is 0-64 (0x00-0x40)
-    if (> param 64) {
-        return 64
-    } else {
-        return param
-    }
+    let mut vol: int = param
+    if (> vol 64) {
+        set vol 64
+    } else {}
+    
+    (pt2_set_channel_volume channel vol)
+    return vol
+}
+
+shadow process_effect_volume {
+    (init_replayer)
+    (process_effect_volume 0 48)
+    assert (== (pt2_get_channel_volume 0) 48)
 }
 
 # === TICK HANDLER ===
@@ -245,20 +175,26 @@ fn process_effect_volume(param: int) -> int {
 fn process_tick(pattern_data: array<int>) -> int {
     # Main replayer tick - called once per tick
     
-    if (== g_playing 0) {
+    let playing: int = (pt2_is_playing)
+    if (== playing 0) {
         return 0
     } else {}
     
+    let tick: int = (pt2_get_tick)
+    let speed: int = (pt2_get_speed)
+    let current_pattern: int = (pt2_get_current_pattern)
+    let current_row: int = (pt2_get_current_row)
+    
     # On tick 0, process new notes
-    if (== g_tick 0) {
+    if (== tick 0) {
         # Process all 4 channels
         let mut ch: int = 0
         while (< ch PT_CHANNELS) {
             # Get note data for this channel
-            let note: int = (get_note pattern_data g_current_pattern ch g_current_row)
-            let sample: int = (get_sample pattern_data g_current_pattern ch g_current_row)
-            let effect: int = (get_effect pattern_data g_current_pattern ch g_current_row)
-            let param: int = (get_param pattern_data g_current_pattern ch g_current_row)
+            let note: int = (get_note pattern_data current_pattern ch current_row)
+            let sample: int = (get_sample pattern_data current_pattern ch current_row)
+            let effect: int = (get_effect pattern_data current_pattern ch current_row)
+            let param: int = (get_param pattern_data current_pattern ch current_row)
             
             # Trigger note if present
             if (> note 0) {
@@ -270,8 +206,7 @@ fn process_tick(pattern_data: array<int>) -> int {
                 (process_effect_speed param)
             } else {
             if (== effect EffectType.VOLUME) {
-                let vol: int = (process_effect_volume param)
-                # Apply volume to channel (simplified)
+                (process_effect_volume ch param)
             } else {}}
             
             set ch (+ ch 1)
@@ -279,15 +214,18 @@ fn process_tick(pattern_data: array<int>) -> int {
     } else {}
     
     # Advance tick
-    set g_tick (+ g_tick 1)
+    let mut new_tick: int = (+ tick 1)
     
     # Check if we should advance to next row
-    if (>= g_tick g_speed) {
-        set g_tick 0
+    if (>= new_tick speed) {
+        set new_tick 0
+        (pt2_set_tick new_tick)
         (next_row)
-    } else {}
+    } else {
+        (pt2_set_tick new_tick)
+    }
     
-    return g_tick
+    return new_tick
 }
 
 shadow process_tick {
@@ -303,14 +241,14 @@ shadow process_tick {
     }
     
     # Should have advanced to row 1
-    assert (== g_current_row 1)
+    let row: int = (pt2_get_current_row)
+    assert (== row 1)
 }
 
 # === PLAYBACK INFO GETTERS ===
 
 fn get_current_row() -> int {
-    let row: int = g_current_row
-    return row
+    return (pt2_get_current_row)
 }
 
 shadow get_current_row {
@@ -319,8 +257,7 @@ shadow get_current_row {
 }
 
 fn get_current_pattern() -> int {
-    let pattern: int = g_current_pattern
-    return pattern
+    return (pt2_get_current_pattern)
 }
 
 shadow get_current_pattern {
@@ -329,8 +266,7 @@ shadow get_current_pattern {
 }
 
 fn get_current_speed() -> int {
-    let speed: int = g_speed
-    return speed
+    return (pt2_get_speed)
 }
 
 shadow get_current_speed {
@@ -339,8 +275,7 @@ shadow get_current_speed {
 }
 
 fn get_current_bpm() -> int {
-    let bpm: int = g_bpm
-    return bpm
+    return (pt2_get_bpm)
 }
 
 shadow get_current_bpm {
@@ -349,12 +284,7 @@ shadow get_current_bpm {
 }
 
 fn get_channel_note(channel: int) -> int {
-    let note: int = 0
-    if (== channel 0) { set note g_ch0_note } else {
-    if (== channel 1) { set note g_ch1_note } else {
-    if (== channel 2) { set note g_ch2_note } else {
-    if (== channel 3) { set note g_ch3_note } else {}}}
-    return note
+    return (pt2_get_channel_note channel)
 }
 
 shadow get_channel_note {
@@ -364,12 +294,7 @@ shadow get_channel_note {
 }
 
 fn get_channel_volume(channel: int) -> int {
-    let volume: int = 0
-    if (== channel 0) { set volume g_ch0_volume } else {
-    if (== channel 1) { set volume g_ch1_volume } else {
-    if (== channel 2) { set volume g_ch2_volume } else {
-    if (== channel 3) { set volume g_ch3_volume } else {}}}
-    return volume
+    return (pt2_get_channel_volume channel)
 }
 
 shadow get_channel_volume {
