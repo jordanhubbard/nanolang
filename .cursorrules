@@ -630,10 +630,16 @@ tests/
 - Must include shadow-tests where appropriate
 - Must use the latest, most powerful language features
 - Must not demonstrate deprecated features
+- **Must compile (or interpret) without warnings or errors**
+  - Transpiled examples: `nanoc example.nano -o output` must produce no warnings
+  - Interpreter examples: `nano example.nano` must run without warnings
+  - Zero tolerance for compilation/interpretation warnings in examples
+  - Examples are living documentation and must represent clean, idiomatic code
 
 **Enforcement:**
 - Test all examples can be built: `make examples`
 - Test example can be run: `make run-example EXAMPLE=name`
+- Verify zero warnings during compilation/interpretation
 - Remove retired/obsolete examples immediately
 - When new features are added, audit examples for improvements
 
