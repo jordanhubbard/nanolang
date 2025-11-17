@@ -8,6 +8,10 @@
 #include <stdio.h>
 #include <assert.h>
 
+/* Dynamic array configuration */
+#define INITIAL_CAPACITY 8
+#define GROWTH_FACTOR 2
+
 /* Get element size for type */
 static size_t get_element_size(ElementType type) {
     switch (type) {
@@ -27,7 +31,7 @@ DynArray* dyn_array_new(ElementType elem_type) {
     }
     
     arr->length = 0;
-    arr->capacity = 8;  /* Initial capacity */
+    arr->capacity = INITIAL_CAPACITY;
     arr->elem_type = elem_type;
     arr->elem_size = get_element_size(elem_type);
     
@@ -46,9 +50,9 @@ DynArray* dyn_array_new(ElementType elem_type) {
     return arr;
 }
 
-/* Grow array capacity (2x growth strategy) */
+/* Grow array capacity */
 static void dyn_array_grow(DynArray* arr) {
-    int64_t new_capacity = arr->capacity * 2;
+    int64_t new_capacity = arr->capacity * GROWTH_FACTOR;
     void* new_data = realloc(arr->data, new_capacity * arr->elem_size);
     
     if (new_data == NULL) {
