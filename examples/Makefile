@@ -23,7 +23,7 @@ export NANO_MODULE_PATH=../modules
 
 # SDL examples that compile successfully
 SDL_EXAMPLES = \
-	$(BIN_DIR)/checkers \
+	$(BIN_DIR)/checkers_sdl \
 	$(BIN_DIR)/boids_sdl \
 	$(BIN_DIR)/particles_sdl \
 	$(BIN_DIR)/falling_sand_sdl \
@@ -49,7 +49,7 @@ all: $(COMPILER) $(SDL_EXAMPLES)
 	@echo "✓ All compiled examples built successfully!"
 	@echo ""
 	@echo "Run examples:"
-	@echo "  ./bin/checkers"
+	@echo "  ./bin/checkers_sdl"
 	@echo "  ./bin/boids_sdl"
 	@echo "  ./bin/particles_sdl"
 	@echo "  ./bin/falling_sand_sdl"
@@ -77,7 +77,7 @@ $(COMPILER):
 # 5. Links everything automatically!
 
 # Individual target aliases
-checkers: $(BIN_DIR)/checkers
+checkers-sdl: $(BIN_DIR)/checkers_sdl
 boids-sdl: $(BIN_DIR)/boids_sdl
 particles-sdl: $(BIN_DIR)/particles_sdl
 falling-sand-sdl: $(BIN_DIR)/falling_sand_sdl
@@ -87,10 +87,10 @@ terrain-explorer-sdl: $(BIN_DIR)/terrain_explorer_sdl
 
 # === Binary Build Rules ===
 
-$(BIN_DIR)/checkers: checkers.nano $(COMPILER)
-	@echo "Building Checkers (with automatic module building)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/checkers.nano -o bin/checkers
-	@echo "✓ Checkers built: $@"
+$(BIN_DIR)/checkers_sdl: checkers.nano $(COMPILER)
+	@echo "Building Checkers SDL (with automatic module building)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/checkers.nano -o bin/checkers_sdl
+	@echo "✓ Checkers SDL built: $@"
 
 $(BIN_DIR)/boids_sdl: boids_sdl.nano $(COMPILER)
 	@echo "Building Boids SDL (with automatic module building)..."
@@ -160,12 +160,12 @@ help:
 	@echo "  make              - Build all compiled examples (default)"
 	@echo "  make sdl          - Build SDL examples only"
 	@echo "  make interpreter  - Run all interpreter-only examples"
-	@echo "  make checkers     - Build checkers"
+	@echo "  make checkers-sdl - Build checkers"
 	@echo "  make run-life_sdl - Run life_sdl with interpreter"
 	@echo "  make clean        - Remove build artifacts"
 	@echo ""
 	@echo "Compiled examples (transpiler):"
-	@echo "  checkers          - Full checkers game with AI"
+	@echo "  checkers_sdl      - Full checkers game with AI"
 	@echo "  boids_sdl         - Flocking simulation"
 	@echo "  particles_sdl     - Particle explosion"
 	@echo "  falling_sand_sdl  - Cellular automata sandbox"
