@@ -388,12 +388,12 @@ fn render_grid(renderer: int, grid: array<int>) -> void {
         let mut x: int = 0
         while (< x GRID_WIDTH) {
             let mat: Material = (get_material grid x y)
-            let color: int = (get_material_color mat)
             
-            # Set color based on material
-            if (== color 0) {
-                (SDL_SetRenderDrawColor renderer 0 0 0 255)  # Black
-            } else {
+            # Only render non-empty cells for performance
+            if (!= mat Material.EMPTY) {
+                let color: int = (get_material_color mat)
+                
+                # Set color based on material
                 if (== color 1) {
                     (SDL_SetRenderDrawColor renderer 194 178 128 255)  # Sand
                 } else {
@@ -411,20 +411,18 @@ fn render_grid(renderer: int, grid: array<int>) -> void {
                                 } else {
                                     if (== color 6) {
                                         (SDL_SetRenderDrawColor renderer 64 64 64 255)  # Smoke
-                                    } else {
-                                        (SDL_SetRenderDrawColor renderer 0 0 0 255)
-                                    }
+                                    } else {}
                                 }
                             }
                         }
                     }
                 }
-            }
-            
-            # Draw cell
-            let pixel_x: int = (* x CELL_SIZE)
-            let pixel_y: int = (* y CELL_SIZE)
-            (nl_sdl_render_fill_rect renderer pixel_x pixel_y CELL_SIZE CELL_SIZE)
+                
+                # Draw cell
+                let pixel_x: int = (* x CELL_SIZE)
+                let pixel_y: int = (* y CELL_SIZE)
+                (nl_sdl_render_fill_rect renderer pixel_x pixel_y CELL_SIZE CELL_SIZE)
+            } else {}
             
             set x (+ x 1)
         }
@@ -599,17 +597,13 @@ fn main() -> int {
                     if (== current_material Material.FIRE) {
                         let idx: int = (grid_index (+ grid_x dx) (+ grid_y dy))
                         (array_set fire_life idx FIRE_LIFETIME)
-                    } else {
-                        (print "")
-                    }
+                    } else {}
                     
                     set dx (+ dx 1)
                 }
                 set dy (+ dy 1)
             }
-        } else {
-            (print "")
-        }
+        } else {}
         
         # Update simulation (if not paused)
         if (not paused) {
@@ -620,31 +614,30 @@ fn main() -> int {
                 while (< x GRID_WIDTH) {
                     let mat: Material = (get_material grid x y)
                     
-                    if (== mat Material.SAND) {
-                        (update_sand grid x y)
-                    } else {
-                        if (== mat Material.WATER) {
-                            (update_water grid x y)
+                    # Skip empty cells for performance
+                    if (!= mat Material.EMPTY) {
+                        if (== mat Material.SAND) {
+                            (update_sand grid x y)
                         } else {
-                            if (== mat Material.FIRE) {
-                                (update_fire grid x y fire_life)
+                            if (== mat Material.WATER) {
+                                (update_water grid x y)
                             } else {
-                                if (== mat Material.SMOKE) {
-                                    (update_smoke grid x y)
+                                if (== mat Material.FIRE) {
+                                    (update_fire grid x y fire_life)
                                 } else {
-                                    (print "")
+                                    if (== mat Material.SMOKE) {
+                                        (update_smoke grid x y)
+                                    } else {}
                                 }
                             }
                         }
-                    }
+                    } else {}
                     
                     set x (+ x 1)
                 }
                 set y (- y 1)
             }
-        } else {
-            (print "")
-        }
+        } else {}
         
         # Render
         (SDL_SetRenderDrawColor renderer 0 0 0 255)
