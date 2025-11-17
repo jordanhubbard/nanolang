@@ -1,0 +1,96 @@
+# GLEW - OpenGL Extension Wrangler
+# Loads OpenGL functions and manages extensions
+#
+# Installation:
+#   macOS:  brew install glew
+#   Linux:  sudo apt install libglew-dev
+#
+# GLEW handles:
+# - Loading OpenGL function pointers
+# - Checking for extension support
+# - Version detection
+#
+# IMPORTANT: Call glewInit() AFTER creating OpenGL context with GLFW!
+
+# === Initialization ===
+
+# Initialize GLEW - must be called after creating OpenGL context
+# Returns GLEW_OK (0) on success, error code otherwise
+extern fn glewInit() -> int
+
+# === Extension Queries ===
+
+# Check if an OpenGL extension is supported
+# Returns 1 if supported, 0 otherwise
+extern fn glewIsSupported(extension: string) -> int
+
+# Get GLEW version string
+extern fn glewGetString(name: int) -> string
+
+# Get OpenGL error string from error code
+extern fn glewGetErrorString(error: int) -> string
+
+# === Constants ===
+# Define as let constants in your code:
+#
+# GLEW status codes:
+# let GLEW_OK: int = 0
+# let GLEW_NO_ERROR: int = 0
+# let GLEW_ERROR_NO_GL_VERSION: int = 1
+# let GLEW_ERROR_GL_VERSION_10_ONLY: int = 2
+# let GLEW_ERROR_GLX_VERSION_11_ONLY: int = 3
+#
+# Get string names:
+# let GLEW_VERSION: int = 1
+# let GLEW_VERSION_MAJOR: int = 2  
+# let GLEW_VERSION_MINOR: int = 3
+# let GLEW_VERSION_MICRO: int = 4
+#
+# Note: After glewInit(), all OpenGL functions are available!
+# Example: glClear, glClearColor, glDrawArrays, etc.
+# These functions are loaded dynamically and available as externs.
+
+# === Common OpenGL Functions ===
+# (Available after glewInit())
+
+extern fn glClear(mask: int) -> void
+extern fn glClearColor(r: float, g: float, b: float, a: float) -> void
+extern fn glViewport(x: int, y: int, width: int, height: int) -> void
+extern fn glFlush() -> void
+extern fn glFinish() -> void
+
+# OpenGL drawing
+extern fn glBegin(mode: int) -> void
+extern fn glEnd() -> void
+extern fn glVertex2f(x: float, y: float) -> void
+extern fn glVertex3f(x: float, y: float, z: float) -> void
+extern fn glColor3f(r: float, g: float, b: float) -> void
+extern fn glColor4f(r: float, g: float, b: float, a: float) -> void
+
+# Matrix operations
+extern fn glMatrixMode(mode: int) -> void
+extern fn glLoadIdentity() -> void
+extern fn glOrtho(left: float, right: float, bottom: float, top: float, near: float, far: float) -> void
+
+# === OpenGL Constants ===
+# Define in your program:
+#
+# Clear bits:
+# let GL_COLOR_BUFFER_BIT: int = 0x00004000
+# let GL_DEPTH_BUFFER_BIT: int = 0x00000100
+# let GL_STENCIL_BUFFER_BIT: int = 0x00000400
+#
+# Drawing modes:
+# let GL_POINTS: int = 0x0000
+# let GL_LINES: int = 0x0001
+# let GL_LINE_LOOP: int = 0x0002
+# let GL_LINE_STRIP: int = 0x0003
+# let GL_TRIANGLES: int = 0x0004
+# let GL_TRIANGLE_STRIP: int = 0x0005
+# let GL_TRIANGLE_FAN: int = 0x0006
+# let GL_QUADS: int = 0x0007
+#
+# Matrix modes:
+# let GL_MODELVIEW: int = 0x1700
+# let GL_PROJECTION: int = 0x1701
+

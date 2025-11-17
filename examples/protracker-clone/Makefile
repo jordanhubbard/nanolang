@@ -17,6 +17,7 @@ OUTPUT = ../../bin/$(PROJECT_NAME)
 # Source files (all .nano files in project)
 SOURCES = types.nano \
           pattern.nano \
+          replayer.nano \
           ui.nano \
           main.nano
 

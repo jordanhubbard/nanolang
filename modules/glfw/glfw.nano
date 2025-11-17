@@ -1,0 +1,106 @@
+# GLFW - OpenGL Window and Input Library
+# Modern cross-platform library for creating windows with OpenGL contexts
+#
+# Installation:
+#   macOS:  brew install glfw
+#   Linux:  sudo apt install libglfw3-dev
+#
+# GLFW provides:
+# - Window creation and management
+# - OpenGL context creation
+# - Input handling (keyboard, mouse, joystick)
+# - Monitor and video mode queries
+# - Cross-platform window system abstraction
+
+# === Window Management ===
+
+# Initialize GLFW - must be called before any other GLFW functions
+# Returns 1 on success, 0 on failure
+extern fn glfwInit() -> int
+
+# Terminate GLFW and destroy all windows
+extern fn glfwTerminate() -> void
+
+# Create a window with OpenGL context
+# Returns window handle as int (pointer cast)
+# width, height: window dimensions in screen coordinates
+# title: window title string
+# monitor, share: usually 0 (NULL) for windowed mode
+extern fn glfwCreateWindow(width: int, height: int, title: string, monitor: int, share: int) -> int
+
+# Destroy a window and its context
+extern fn glfwDestroyWindow(window: int) -> void
+
+# Check if window should close (user clicked X button)
+# Returns 1 if should close, 0 otherwise
+extern fn glfwWindowShouldClose(window: int) -> int
+
+# Set window should close flag
+extern fn glfwSetWindowShouldClose(window: int, value: int) -> void
+
+# Swap front and back buffers (display rendered frame)
+extern fn glfwSwapBuffers(window: int) -> void
+
+# Process events (mouse, keyboard, window resize, etc.)
+extern fn glfwPollEvents() -> void
+
+# Make the OpenGL context of the window current
+extern fn glfwMakeContextCurrent(window: int) -> void
+
+# === Window Attributes ===
+
+# Set window hint before creating window
+# hint: GLFW_CONTEXT_VERSION_MAJOR, GLFW_CONTEXT_VERSION_MINOR, etc.
+extern fn glfwWindowHint(hint: int, value: int) -> void
+
+# Get framebuffer size (actual pixel size, may differ from window size on hi-DPI)
+# width_out, height_out: pointers to receive the dimensions
+extern fn glfwGetFramebufferSize(window: int, width_out: int, height_out: int) -> void
+
+# === Input ===
+
+# Get key state (GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT)
+extern fn glfwGetKey(window: int, key: int) -> int
+
+# Get mouse button state
+extern fn glfwGetMouseButton(window: int, button: int) -> int
+
+# Get cursor position in screen coordinates
+extern fn glfwGetCursorPos(window: int, xpos_out: int, ypos_out: int) -> void
+
+# === Timing ===
+
+# Get time in seconds since glfwInit()
+extern fn glfwGetTime() -> float
+
+# Set time counter (in seconds)
+extern fn glfwSetTime(time: float) -> void
+
+# === Constants (commonly used) ===
+# Note: These would be defined as let constants in nanolang code:
+#
+# Window hints:
+# let GLFW_CONTEXT_VERSION_MAJOR: int = 0x00022002
+# let GLFW_CONTEXT_VERSION_MINOR: int = 0x00022003
+# let GLFW_OPENGL_PROFILE: int = 0x00022008
+# let GLFW_OPENGL_CORE_PROFILE: int = 0x00032001
+# let GLFW_RESIZABLE: int = 0x00020003
+#
+# Input constants:
+# let GLFW_PRESS: int = 1
+# let GLFW_RELEASE: int = 0
+# let GLFW_REPEAT: int = 2
+#
+# Keys:
+# let GLFW_KEY_ESCAPE: int = 256
+# let GLFW_KEY_SPACE: int = 32
+# let GLFW_KEY_W: int = 87
+# let GLFW_KEY_A: int = 65
+# let GLFW_KEY_S: int = 83
+# let GLFW_KEY_D: int = 68
+#
+# Mouse buttons:
+# let GLFW_MOUSE_BUTTON_LEFT: int = 0
+# let GLFW_MOUSE_BUTTON_RIGHT: int = 1
+# let GLFW_MOUSE_BUTTON_MIDDLE: int = 2
+

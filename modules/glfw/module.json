@@ -1,0 +1,18 @@
+{
+  "name": "glfw",
+  "version": "1.0.0",
+  "description": "GLFW - Modern OpenGL window and input library for creating windows with OpenGL contexts",
+  "headers": ["GLFW/glfw3.h"],
+  "pkg_config": ["glfw3"],
+  "install": {
+    "macos": {
+      "brew": "glfw",
+      "command": "brew install glfw"
+    },
+    "linux": {
+      "apt": "libglfw3-dev",
+      "command": "sudo apt install libglfw3-dev"
+    }
+  }
+}
+
