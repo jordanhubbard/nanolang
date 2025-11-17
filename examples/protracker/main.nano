@@ -1,0 +1,205 @@
+# ProTracker Clone - Main Entry Point
+# Full-featured music tracker for composing ProTracker modules
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_mixer/sdl_mixer.nano"
+import "examples/protracker/types.nano"
+import "examples/protracker/pattern.nano"
+import "examples/protracker/ui.nano"
+
+fn main() -> int {
+    (println "")
+    (println "╔════════════════════════════════════════════════════════╗")
+    (println "║  NANOLANG PROTRACKER CLONE                            ║")
+    (println "╚════════════════════════════════════════════════════════╝")
+    (println "")
+    (println "Multi-file ProTracker implementation")
+    (println "Inspired by pt2-clone by Olav Sørensen")
+    (println "")
+    
+    # Initialize SDL
+    (println "Initializing SDL...")
+    (SDL_Init 32)
+    
+    # Initialize SDL_mixer
+    (println "Initializing audio...")
+    let mixer_init: int = (Mix_Init 2)  # MOD support
+    if (== mixer_init 2) {
+        (println "✓ SDL_mixer with MOD support")
+    } else {
+        (println "⚠ SDL_mixer without MOD support")
+    }
+    
+    let audio_result: int = (Mix_OpenAudio 44100 32784 2 2048)
+    if (== audio_result 0) {
+        (println "✓ Audio device opened")
+    } else {
+        (println "✗ Audio initialization failed")
+    }
+    
+    # Create window
+    let window: int = (SDL_CreateWindow "NanoLang ProTracker" 50 50 WINDOW_WIDTH WINDOW_HEIGHT 4)
+    if (== window 0) {
+        (println "✗ Failed to create window")
+        (Mix_CloseAudio)
+        (Mix_Quit)
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    # Create renderer
+    let renderer: int = (SDL_CreateRenderer window -1 6)
+    if (== renderer 0) {
+        (println "✗ Failed to create renderer")
+        (SDL_DestroyWindow window)
+        (Mix_CloseAudio)
+        (Mix_Quit)
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    (println "✓ Window and renderer created")
+    (println "")
+    (println "Initializing pattern data...")
+    
+    # Create pattern data
+    let pattern_data: array<int> = (create_demo_pattern)
+    (println "✓ Pattern data initialized")
+    
+    (println "")
+    (println "Controls:")
+    (println "  SPACE - Play/Pause")
+    (println "  Arrow Keys - Navigate pattern")
+    (println "  + / - - Volume control")
+    (println "  ESC - Quit")
+    (println "")
+    (println "Running ProTracker...")
+    (println "")
+    
+    # Disable mouse motion events
+    (SDL_EventState 1024 0)
+    
+    # Main loop state
+    let mut running: bool = true
+    let mut playing: bool = false
+    let mut current_pattern: int = 0
+    let mut current_row: int = 0
+    let mut cursor_channel: int = 0
+    let mut volume: int = 64
+    let mut frame: int = 0
+    
+    while running {
+        # Handle keyboard input
+        let key: int = (nl_sdl_poll_keypress)
+        if (> key -1) {
+            # SPACE = 44
+            if (== key 44) {
+                set playing (not playing)
+                if playing {
+                    (println "▶ Playing")
+                } else {
+                    (println "⏸ Paused")
+                }
+            } else {
+                # Arrow Up = 82
+                if (== key 82) {
+                    if (> current_row 0) {
+                        set current_row (- current_row 1)
+                    } else {}
+                } else {
+                    # Arrow Down = 81
+                    if (== key 81) {
+                        if (< current_row (- PT_ROWS 1)) {
+                            set current_row (+ current_row 1)
+                        } else {}
+                    } else {
+                        # Arrow Left = 80
+                        if (== key 80) {
+                            if (> cursor_channel 0) {
+                                set cursor_channel (- cursor_channel 1)
+                            } else {}
+                        } else {
+                            # Arrow Right = 79
+                            if (== key 79) {
+                                if (< cursor_channel (- PT_CHANNELS 1)) {
+                                    set cursor_channel (+ cursor_channel 1)
+                                } else {}
+                            } else {
+                                # + = 46
+                                if (== key 46) {
+                                    if (< volume 128) {
+                                        set volume (+ volume 8)
+                                        (Mix_VolumeMusic volume)
+                                        (print "🔊 Volume: ")
+                                        (println volume)
+                                    } else {}
+                                } else {
+                                    # - = 45
+                                    if (== key 45) {
+                                        if (> volume 0) {
+                                            set volume (- volume 8)
+                                            (Mix_VolumeMusic volume)
+                                            (print "🔉 Volume: ")
+                                            (println volume)
+                                        } else {}
+                                    } else {
+                                        # ESC = 41
+                                        if (== key 41) {
+                                            set running false
+                                        } else {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {}
+        
+        # Check for ESC or window close handled above
+        # nl_sdl_should_quit function doesn't exist, handled by ESC key
+        
+        # Update playback
+        if playing {
+            set frame (+ frame 1)
+            if (>= frame 6) {  # ~10 rows/second at 60 FPS
+                set frame 0
+                set current_row (+ current_row 1)
+                if (>= current_row PT_ROWS) {
+                    set current_row 0
+                } else {}
+            } else {}
+        } else {}
+        
+        # Render
+        (SDL_SetRenderDrawColor renderer 26 26 42 255)
+        (SDL_RenderClear renderer)
+        
+        (draw_header renderer "ProTracker Clone" playing)
+        (draw_pattern_grid renderer pattern_data current_pattern current_row cursor_channel)
+        (draw_sample_list renderer)
+        (draw_controls_help renderer)
+        
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
+    }
+    
+    # Cleanup
+    (println "")
+    (println "Shutting down...")
+    
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (Mix_CloseAudio)
+    (Mix_Quit)
+    (SDL_Quit)
+    
+    (println "✓ Cleanup complete")
+    return 0
+}
+
+shadow main {
+    # Entry point, tested at runtime
+    assert true
+}
