@@ -2,8 +2,9 @@
   "name": "sdl_ttf",
   "version": "1.0.0",
   "description": "TrueType font rendering for SDL - professional text rendering",
+  "headers": ["SDL_ttf.h"],
   "c_sources": ["sdl_ttf_helpers.c"],
-  "pkg_config": ["sdl2_ttf"],
+  "pkg_config": ["SDL2_ttf"],
   "dependencies": ["sdl"]
 }
 
