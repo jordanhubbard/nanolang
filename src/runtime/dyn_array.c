@@ -30,11 +30,17 @@ DynArray* dyn_array_new(ElementType elem_type) {
     arr->capacity = 8;  /* Initial capacity */
     arr->elem_type = elem_type;
     arr->elem_size = get_element_size(elem_type);
-    arr->data = malloc(arr->capacity * arr->elem_size);
     
-    if (arr->data == NULL) {
-        gc_release(arr);
-        return NULL;
+    /* For structs, we don't know the size yet - delay allocation */
+    if (elem_type == ELEM_STRUCT) {
+        arr->elem_size = 0;  /* Will be set on first push */
+        arr->data = NULL;     /* Allocate on first push */
+    } else {
+        arr->data = malloc(arr->capacity * arr->elem_size);
+        if (arr->data == NULL) {
+            gc_release(arr);
+            return NULL;
+        }
     }
     
     return arr;
@@ -331,9 +337,14 @@ DynArray* dyn_array_push_struct(DynArray* arr, const void* struct_ptr, size_t st
     assert(struct_ptr != NULL && "DynArray: NULL struct pointer");
     assert(arr->elem_type == ELEM_STRUCT && "DynArray: Type mismatch");
     
-    /* Set struct size on first push if not already set */
-    if (arr->elem_size == 0 || arr->elem_size == sizeof(void*)) {
+    /* Set struct size and allocate on first push */
+    if (arr->elem_size == 0) {
         arr->elem_size = struct_size;
+        arr->data = malloc(arr->capacity * arr->elem_size);
+        if (arr->data == NULL) {
+            fprintf(stderr, "DynArray: Out of memory allocating struct array\n");
+            return arr;
+        }
     }
     
     assert(arr->elem_size == struct_size && "DynArray: Struct size mismatch");

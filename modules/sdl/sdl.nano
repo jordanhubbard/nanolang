@@ -55,6 +55,7 @@ extern fn SDL_FreeSurface(surface: int) -> void
 
 # SDL2 Event Functions
 extern fn SDL_PollEvent(event_ptr: int) -> int
+extern fn SDL_EventState(type: int, state: int) -> int
 
 # SDL2 TTF Functions
 extern fn TTF_Init() -> int
