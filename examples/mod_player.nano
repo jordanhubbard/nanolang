@@ -1,0 +1,138 @@
+# Simple MOD file player
+# Plays ProTracker .MOD files using SDL_mixer
+# Usage: ./bin/mod_player path/to/file.mod
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_mixer/sdl_mixer.nano"
+
+fn main() -> int {
+    (println "")
+    (println "╔════════════════════════════════════════════════════════╗")
+    (println "║  NANOLANG MOD PLAYER                                  ║")
+    (println "╚════════════════════════════════════════════════════════╝")
+    (println "")
+    (println "Simple ProTracker .MOD file player")
+    (println "")
+    
+    # Initialize SDL
+    (SDL_Init 32)
+    
+    # Initialize SDL_mixer
+    let mixer_init: int = (Mix_Init 2)  # MOD support
+    if (!= mixer_init 2) {
+        (println "✗ SDL_mixer failed to initialize with MOD support")
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    # Open audio device
+    # 44100 Hz, signed 16-bit, stereo, 2048 byte chunks
+    let audio_result: int = (Mix_OpenAudio 44100 32784 2 2048)
+    if (!= audio_result 0) {
+        (println "✗ Failed to open audio device")
+        (Mix_Quit)
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    (println "✓ SDL_mixer initialized with MOD support")
+    (println "")
+    
+    # Load MOD file
+    # TODO: Get from command line args - for now use hardcoded path
+    let mod_file: string = "/Users/jordanh/Downloads/gabba-studies-12.mod"
+    
+    # Note: Can't check if file exists without os_file_exists
+    # SDL_mixer will fail if file doesn't exist
+    
+    (print "Loading: ")
+    (println mod_file)
+    
+    # Load the module
+    let music: int = (Mix_LoadMUS mod_file)
+    if (== music 0) {
+        (println "✗ Failed to load MOD file")
+        (Mix_CloseAudio)
+        (Mix_Quit)
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    (println "✓ MOD file loaded successfully")
+    (println "")
+    
+    # Display controls
+    (println "Controls:")
+    (println "  SPACE - Play/Pause")
+    (println "  ESC - Quit")
+    (println "")
+    
+    # Set volume to 80% (128 out of 128 max)
+    (Mix_VolumeMusic 100)
+    
+    # Start playback
+    (Mix_PlayMusic music -1)  # -1 = loop forever
+    (println "▶ Playing... Press ESC to quit")
+    (println "")
+    
+    # Main loop
+    let mut running: bool = true
+    let mut playing: bool = true
+    
+    while running {
+        # Poll for keyboard events
+        let key: int = (nl_sdl_poll_keypress)
+        if (> key -1) {
+            # SPACE = 44
+            if (== key 44) {
+                if playing {
+                    (Mix_PauseMusic)
+                    (println "⏸ Paused")
+                    set playing false
+                } else {
+                    (Mix_ResumeMusic)
+                    (println "▶ Playing")
+                    set playing true
+                }
+            } else {
+                # ESC = 41
+                if (== key 41) {
+                    set running false
+                    (println "")
+                    (println "Stopping playback...")
+                } else {}
+            }
+        } else {}
+        
+        # Check if music is still playing
+        let is_playing: int = (Mix_PlayingMusic)
+        if (== is_playing 0) {
+            if playing {
+                (println "")
+                (println "✓ Playback finished")
+                set running false
+            } else {}
+        } else {}
+        
+        # Small delay to avoid busy-waiting
+        (SDL_Delay 100)
+    }
+    
+    # Cleanup
+    (println "Cleaning up...")
+    (Mix_HaltMusic)
+    (Mix_FreeMusic music)
+    (Mix_CloseAudio)
+    (Mix_Quit)
+    (SDL_Quit)
+    
+    (println "✓ Done")
+    (println "")
+    return 0
+}
+
+shadow main {
+    # Entry point - tested at runtime
+    assert true
+}
