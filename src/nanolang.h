@@ -431,9 +431,10 @@ typedef struct {
     TypeInfo *type_info;     /* For complex types (tuples, generics, etc.) - full type information */
     bool is_mut;
     Value value;
-    bool is_used;  /* Track if variable is ever used */
-    int def_line;   /* Line where variable was defined */
-    int def_column; /* Column where variable was defined */
+    bool is_used;        /* Track if variable is ever used */
+    bool from_c_header;  /* True if this constant was loaded from a C header #define */
+    int def_line;        /* Line where variable was defined */
+    int def_column;      /* Column where variable was defined */
 } Symbol;
 
 /* Function table entry */
@@ -474,6 +475,13 @@ typedef struct {
     char ***variant_field_names;
     Type **variant_field_types;
 } UnionDef;
+
+/* Constant definition entry (from C headers or nanolang) */
+typedef struct {
+    char *name;
+    int64_t value;      /* Integer constant value */
+    Type type;          /* TYPE_INT for now, could expand to TYPE_FLOAT, TYPE_STRING later */
+} ConstantDef;
 
 /* Generic type instantiation (for monomorphization) */
 typedef struct {
@@ -607,6 +615,8 @@ typedef struct {
     EnumDef *enums;
     int union_count;
     UnionDef *unions;
+    int constant_count;
+    ConstantDef *constants;  /* Constants from C headers (#define) or nanolang (let) */
 } ModuleMetadata;
 
 /* Module metadata serialization */

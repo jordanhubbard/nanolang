@@ -7,6 +7,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <errno.h>
+#include <libgen.h>
 
 /* mkdtemp declaration (if not available via headers) */
 #ifndef _DARWIN_C_SOURCE
@@ -402,6 +403,97 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
         free(source);
         return NULL;
     }
+    
+    /* Load constants from C headers if module has module.json */
+    char *module_dir_copy = strdup(module_path);
+    char *dir_result = dirname(module_dir_copy);
+    ModuleBuildMetadata *meta = module_load_metadata(dir_result);
+    if (meta && meta->headers_count > 0) {
+        /* Try to find and parse C headers for constants */
+        for (size_t i = 0; i < meta->headers_count; i++) {
+            /* Try to locate the header - check system include paths */
+            char header_path[1024];
+            
+            /* Try common locations */
+            const char *search_paths[] = {
+                "/opt/homebrew/include",  /* macOS homebrew */
+                "/usr/local/include",      /* Linux/macOS local */
+                "/usr/include",            /* Linux system */
+                NULL
+            };
+            
+            bool found = false;
+            for (int j = 0; search_paths[j] != NULL; j++) {
+                snprintf(header_path, sizeof(header_path), "%s/%s", search_paths[j], meta->headers[i]);
+                FILE *test = fopen(header_path, "r");
+                if (test) {
+                    fclose(test);
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (found) {
+                int const_count = 0;
+                ConstantDef *constants = parse_c_header_constants(header_path, &const_count);
+                
+                if (constants && const_count > 0) {
+                    /* Add constants to environment as immutable symbols */
+                    for (int j = 0; j < const_count; j++) {
+                        /* Check if symbol already exists (from manual declarations) */
+                        bool exists = false;
+                        for (int k = 0; k < env->symbol_count; k++) {
+                            if (strcmp(env->symbols[k].name, constants[j].name) == 0) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!exists) {
+                            /* Add as new symbol */
+                            if (env->symbol_count >= env->symbol_capacity) {
+                                env->symbol_capacity = env->symbol_capacity == 0 ? 16 : env->symbol_capacity * 2;
+                                env->symbols = realloc(env->symbols, sizeof(Symbol) * env->symbol_capacity);
+                            }
+                            
+                            Symbol *sym = &env->symbols[env->symbol_count++];
+                            sym->name = strdup(constants[j].name);
+                            sym->type = constants[j].type;
+                            sym->struct_type_name = NULL;
+                            sym->element_type = TYPE_UNKNOWN;
+                            sym->type_info = NULL;
+                            sym->is_mut = false;  /* Constants are immutable */
+                            sym->is_used = true;   /* Assume used (from header) */
+                            sym->from_c_header = true;  /* Mark as from C header */
+                            sym->def_line = 0;
+                            sym->def_column = 0;
+                            
+                            /* Set value */
+                            if (constants[j].type == TYPE_INT) {
+                                sym->value.type = VAL_INT;
+                                sym->value.as.int_val = constants[j].value;
+                            } else if (constants[j].type == TYPE_FLOAT) {
+                                sym->value.type = VAL_FLOAT;
+                                union { double d; int64_t i; } u;
+                                u.i = constants[j].value;
+                                sym->value.as.float_val = u.d;
+                            }
+                        }
+                    }
+                    
+                    /* Free constants array */
+                    for (int j = 0; j < const_count; j++) {
+                        free(constants[j].name);
+                    }
+                    free(constants);
+                }
+            }
+        }
+    }
+    if (meta) {
+        module_metadata_free(meta);
+    }
+    free(module_dir_copy);
     
     free_tokens(tokens, token_count);
     free(source);
@@ -1140,6 +1232,42 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
         meta->unions = NULL;
     }
     
+    /* Extract constants from symbols (global let statements with constant values) */
+    meta->constant_count = 0;
+    meta->constants = NULL;
+    
+    /* Count global constants (immutable symbols with constant values at file scope) */
+    int const_count = 0;
+    for (int i = 0; i < env->symbol_count; i++) {
+        Symbol *sym = &env->symbols[i];
+        /* Only extract immutable int/float constants */
+        if (!sym->is_mut && (sym->type == TYPE_INT || sym->type == TYPE_FLOAT)) {
+            const_count++;
+        }
+    }
+    
+    if (const_count > 0) {
+        meta->constants = malloc(sizeof(ConstantDef) * const_count);
+        int const_idx = 0;
+        for (int i = 0; i < env->symbol_count; i++) {
+            Symbol *sym = &env->symbols[i];
+            if (!sym->is_mut && (sym->type == TYPE_INT || sym->type == TYPE_FLOAT)) {
+                meta->constants[const_idx].name = sym->name ? strdup(sym->name) : NULL;
+                meta->constants[const_idx].type = sym->type;
+                if (sym->type == TYPE_INT) {
+                    meta->constants[const_idx].value = sym->value.as.int_val;
+                } else if (sym->type == TYPE_FLOAT) {
+                    /* Store float as int64 bit pattern - will need special handling */
+                    union { double d; int64_t i; } u;
+                    u.d = sym->value.as.float_val;
+                    meta->constants[const_idx].value = u.i;
+                }
+                const_idx++;
+            }
+        }
+        meta->constant_count = const_idx;
+    }
+    
     return meta;
 }
 
@@ -1219,6 +1347,14 @@ void free_module_metadata(ModuleMetadata *meta) {
             }
         }
         free(meta->unions);
+    }
+    
+    /* Free constants */
+    if (meta->constants) {
+        for (int i = 0; i < meta->constant_count; i++) {
+            if (meta->constants[i].name) free(meta->constants[i].name);
+        }
+        free(meta->constants);
     }
     
     free(meta);

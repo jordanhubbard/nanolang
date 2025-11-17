@@ -107,7 +107,29 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     snprintf(temp, sizeof(temp), "    .union_count = %d,\n", meta->union_count);
     APPEND(temp);
     APPEND("    .unions = NULL  /* TODO: serialize unions */\n");
-    APPEND("};\n");
+    APPEND("};\n\n");
+    
+    /* Serialize constants */
+    if (meta->constant_count > 0) {
+        snprintf(temp, sizeof(temp), "/* Constants from module */\n");
+        APPEND(temp);
+        for (int i = 0; i < meta->constant_count; i++) {
+            ConstantDef *c = &meta->constants[i];
+            if (c->type == TYPE_INT) {
+                snprintf(temp, sizeof(temp), "static const int64_t %s = %lldLL;\n", 
+                         c->name, (long long)c->value);
+                APPEND(temp);
+            } else if (c->type == TYPE_FLOAT) {
+                /* Reconstruct float from int64 bit pattern */
+                union { double d; int64_t i; } u;
+                u.i = c->value;
+                snprintf(temp, sizeof(temp), "static const double %s = %g;\n", 
+                         c->name, u.d);
+                APPEND(temp);
+            }
+        }
+        APPEND("\n");
+    }
     
     #undef APPEND
     

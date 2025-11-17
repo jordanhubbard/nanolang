@@ -117,6 +117,78 @@ static char* get_pkg_config_flags(const char *package, const char *flag_type) {
     return run_command(cmd);
 }
 
+// Simple C header parser to extract #define constants
+// Returns array of ConstantDef, or NULL if parsing fails
+// Note: This is a basic parser - it handles simple integer #define patterns only
+#include "nanolang.h"
+
+struct ConstantDef* parse_c_header_constants(const char *header_path, int *count_out) {
+    *count_out = 0;
+    
+    FILE *fp = fopen(header_path, "r");
+    if (!fp) {
+        return NULL;  /* Header not found - not an error, just skip */
+    }
+    
+    /* First pass: count #define integer constants */
+    char line[1024];
+    int const_count = 0;
+    while (fgets(line, sizeof(line), fp)) {
+        /* Look for #define NAME VALUE patterns */
+        char name[256];
+        long long value;
+        char *trimmed = line;
+        while (*trimmed == ' ' || *trimmed == '\t') trimmed++;
+        
+        /* Try hex format: #define NAME 0x1234 */
+        if (sscanf(trimmed, "#define %255s 0x%llx", name, (unsigned long long *)&value) == 2) {
+            const_count++;
+        }
+        /* Try decimal format: #define NAME 1234 */
+        else if (sscanf(trimmed, "#define %255s %lld", name, &value) == 2) {
+            const_count++;
+        }
+    }
+    
+    if (const_count == 0) {
+        fclose(fp);
+        return NULL;
+    }
+    
+    /* Second pass: extract constants */
+    ConstantDef *constants = malloc(sizeof(ConstantDef) * const_count);
+    rewind(fp);
+    
+    int idx = 0;
+    while (fgets(line, sizeof(line), fp) && idx < const_count) {
+        char name[256];
+        long long value;
+        char *trimmed = line;
+        while (*trimmed == ' ' || *trimmed == '\t') trimmed++;
+        
+        bool parsed = false;
+        /* Try hex format */
+        if (sscanf(trimmed, "#define %255s 0x%llx", name, (unsigned long long *)&value) == 2) {
+            parsed = true;
+        }
+        /* Try decimal format */
+        else if (sscanf(trimmed, "#define %255s %lld", name, &value) == 2) {
+            parsed = true;
+        }
+        
+        if (parsed) {
+            constants[idx].name = strdup(name);
+            constants[idx].value = value;
+            constants[idx].type = TYPE_INT;
+            idx++;
+        }
+    }
+    
+    fclose(fp);
+    *count_out = idx;
+    return constants;
+}
+
 // Module metadata functions
 
 ModuleBuildMetadata* module_load_metadata(const char *module_dir) {

@@ -37,14 +37,26 @@ OPENGL_EXAMPLES = \
 # All graphics examples
 GRAPHICS_EXAMPLES = $(SDL_EXAMPLES) $(OPENGL_EXAMPLES)
 
-# === Interpreter-Only Examples ===
-# These use features the transpiler doesn't support yet
+# === Interpreter Demo Examples ===
+# Simple examples perfect for demonstrating the interpreter
 # Run with: ../bin/nano examples/name.nano
+# Note: Some of these can also be compiled, but are great for interpreter demos
 
-INTERPRETER_EXAMPLES = \
-	life_sdl.nano \
-	snake_sdl.nano \
-	maze_sdl.nano
+INTERPRETER_DEMO_EXAMPLES = \
+	hello.nano \
+	calculator.nano \
+	factorial.nano \
+	fibonacci.nano \
+	primes.nano \
+	game_of_life.nano \
+	snake.nano \
+	maze.nano
+
+# Interpreter-only examples (use features transpiler doesn't support yet)
+INTERPRETER_ONLY_EXAMPLES = \
+	game_of_life.nano \
+	snake.nano \
+	maze.nano
 
 # === Targets ===
 
@@ -66,8 +78,15 @@ all: $(COMPILER) $(GRAPHICS_EXAMPLES)
 	@echo "  ./bin/opengl_cube    (requires: brew install glfw glew)"
 	@echo "  ./bin/opengl_teapot  (rotating teapot with texture cycling)"
 	@echo ""
-	@echo "Interpreter-only examples (run with: ./bin/nano examples/name.nano):"
-	@echo "  $(INTERPRETER_EXAMPLES)"
+	@echo "Interpreter demo examples (run with: ./bin/nano examples/name.nano):"
+	@echo "  hello.nano"
+	@echo "  calculator.nano"
+	@echo "  factorial.nano"
+	@echo "  fibonacci.nano"
+	@echo "  primes.nano"
+	@echo "  game_of_life.nano"
+	@echo "  snake.nano"
+	@echo "  maze.nano"
 	@echo ""
 
 # SDL examples only
@@ -139,22 +158,34 @@ $(BIN_DIR)/opengl_teapot: opengl_teapot/teapot.nano $(COMPILER)
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_teapot/teapot.nano -o bin/opengl_teapot
 	@echo "✓ OpenGL Teapot built: $@"
 
-# === Interpreter-Only Examples ===
+# === Interpreter Demo Examples ===
 
 interpreter:
-	@echo "Running interpreter-only examples..."
+	@echo "Running interpreter demo examples..."
+	@echo ""
+	@echo "=== Hello World ==="
+	@$(INTERPRETER) hello.nano
+	@echo ""
+	@echo "=== Calculator ==="
+	@$(INTERPRETER) calculator.nano
+	@echo ""
+	@echo "=== Factorial ==="
+	@$(INTERPRETER) factorial.nano
+	@echo ""
+	@echo "=== Fibonacci ==="
+	@$(INTERPRETER) fibonacci.nano
+	@echo ""
+	@echo "=== Primes ==="
+	@$(INTERPRETER) primes.nano
 	@echo ""
 	@echo "=== Conway's Game of Life ==="
-	@$(INTERPRETER) life_sdl.nano
+	@$(INTERPRETER) game_of_life.nano
 	@echo ""
 	@echo "=== Snake with AI ==="
-	@$(INTERPRETER) snake_sdl.nano
+	@$(INTERPRETER) snake.nano
 	@echo ""
 	@echo "=== Maze Generator ==="
-	@$(INTERPRETER) maze_sdl.nano
-	@echo ""
-	@echo "=== Terrain Explorer (uses struct arrays - not yet supported in transpiler) ==="
-	@$(INTERPRETER) terrain_explorer_sdl.nano
+	@$(INTERPRETER) maze.nano
 	@echo ""
 	@echo "✓ All interpreter examples completed!"
 
@@ -182,9 +213,11 @@ help:
 	@echo "Targets:"
 	@echo "  make              - Build all compiled examples (default)"
 	@echo "  make sdl          - Build SDL examples only"
-	@echo "  make interpreter  - Run all interpreter-only examples"
+	@echo "  make interpreter  - Run all interpreter demo examples"
 	@echo "  make checkers-sdl - Build checkers"
-	@echo "  make run-life_sdl - Run life_sdl with interpreter"
+	@echo "  make run-hello        - Run hello with interpreter"
+	@echo "  make run-calculator   - Run calculator with interpreter"
+	@echo "  make run-factorial    - Run factorial with interpreter"
 	@echo "  make clean        - Remove build artifacts"
 	@echo ""
 	@echo "Compiled examples (transpiler):"
@@ -193,11 +226,15 @@ help:
 	@echo "  particles_sdl     - Particle explosion"
 	@echo "  falling_sand_sdl  - Cellular automata sandbox"
 	@echo ""
-	@echo "Interpreter-only examples:"
-	@echo "  life_sdl          - Conway's Game of Life"
-	@echo "  snake_sdl         - Snake game with AI"
-	@echo "  maze_sdl          - Maze generation"
-	@echo "  terrain_explorer_sdl - Procedural terrain (uses struct arrays)"
+	@echo "Interpreter demo examples:"
+	@echo "  hello             - Hello World (simplest example)"
+	@echo "  calculator        - Basic arithmetic operations"
+	@echo "  factorial         - Recursive factorial calculation"
+	@echo "  fibonacci         - Fibonacci sequence"
+	@echo "  primes            - Prime number checker"
+	@echo "  game_of_life      - Conway's Game of Life"
+	@echo "  snake             - Snake game with AI"
+	@echo "  maze              - Maze generation"
 	@echo ""
 	@echo "Note: Automatic module building handles all C compilation!"
 	@echo "      Just 'make' and everything is built automatically."

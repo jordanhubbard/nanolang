@@ -8,25 +8,8 @@
 import "modules/glfw/glfw.nano"
 import "modules/glew/glew.nano"
 
-# === OpenGL Constants ===
-let GL_COLOR_BUFFER_BIT: int = 16384      # 0x00004000
-let GL_DEPTH_BUFFER_BIT: int = 256        # 0x00000100  
-let GL_DEPTH_TEST: int = 2929             # 0x0B71
-let GL_QUADS: int = 7                     # 0x0007
-let GL_MODELVIEW: int = 5888              # 0x1700
-let GL_PROJECTION: int = 5889             # 0x1701
-let GL_NO_ERROR: int = 0
-let GL_VERSION: int = 7938                # 0x1F02
-let GL_RENDERER: int = 7937               # 0x1F01
-let GL_VENDOR: int = 7936                 # 0x1F00
-let GLEW_OK: int = 0
-
-# GLFW constants
-let GLFW_CONTEXT_VERSION_MAJOR: int = 139266  # 0x00022002
-let GLFW_CONTEXT_VERSION_MINOR: int = 139267  # 0x00022003
-let GLFW_OPENGL_PROFILE: int = 139272          # 0x00022008
-let GLFW_OPENGL_CORE_PROFILE: int = 204801     # 0x00032001
-let GLFW_KEY_ESCAPE: int = 256
+# Note: All OpenGL and GLFW constants are now automatically loaded from C headers
+# No manual declarations needed!
 
 # Window dimensions
 let WINDOW_WIDTH: int = 800
