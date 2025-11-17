@@ -50,6 +50,8 @@ typedef struct {
     char *object_file;      // Path to compiled .o file
     char **link_flags;      // All flags needed for linking
     size_t link_flags_count;
+    char **compile_flags;   // Compile flags (include paths, defines)
+    size_t compile_flags_count;
     bool needs_rebuild;     // Whether C sources need recompilation
 } ModuleBuildInfo;
 
@@ -78,6 +80,9 @@ void module_build_info_free(ModuleBuildInfo *info);
 
 // Get all link flags for a set of modules
 char** module_get_link_flags(ModuleBuildInfo **modules, size_t count, size_t *out_count);
+
+// Get all compile flags for a set of modules
+char** module_get_compile_flags(ModuleBuildInfo **modules, size_t count, size_t *out_count);
 
 // Check if module needs rebuild
 bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta);

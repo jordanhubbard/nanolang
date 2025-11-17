@@ -511,6 +511,11 @@ void module_build_info_free(ModuleBuildInfo *info) {
     }
     free(info->link_flags);
 
+    for (size_t i = 0; i < info->compile_flags_count; i++) {
+        free(info->compile_flags[i]);
+    }
+    free(info->compile_flags);
+
     free(info);
 }
 
@@ -536,6 +541,36 @@ char** module_get_link_flags(ModuleBuildInfo **modules, size_t count, size_t *ou
         if (modules[i]) {
             for (size_t j = 0; j < modules[i]->link_flags_count; j++) {
                 all_flags[pos++] = strdup(modules[i]->link_flags[j]);
+            }
+        }
+    }
+
+    *out_count = pos;
+    return all_flags;
+}
+
+// Get all compile flags from multiple modules
+char** module_get_compile_flags(ModuleBuildInfo **modules, size_t count, size_t *out_count) {
+    size_t total = 0;
+    
+    // Count total flags
+    for (size_t i = 0; i < count; i++) {
+        if (modules[i]) {
+            total += modules[i]->compile_flags_count;
+        }
+    }
+
+    char **all_flags = calloc(total + 1, sizeof(char*));
+    if (!all_flags) {
+        *out_count = 0;
+        return NULL;
+    }
+
+    size_t pos = 0;
+    for (size_t i = 0; i < count; i++) {
+        if (modules[i]) {
+            for (size_t j = 0; j < modules[i]->compile_flags_count; j++) {
+                all_flags[pos++] = strdup(modules[i]->compile_flags[j]);
             }
         }
     }
