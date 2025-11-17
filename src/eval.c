@@ -297,6 +297,39 @@ static void print_value(Value val) {
             printf(" }");
             break;
         }
+        case VAL_FUNCTION: {
+            /* Print function value */
+            printf("<function %s>", val.as.function_val.function_name);
+            break;
+        }
+        case VAL_GC_STRUCT: {
+            /* Print GC struct */
+            printf("<gc_struct>");
+            break;
+        }
+        case VAL_UNION: {
+            /* Print union value */
+            UnionValue *uv = val.as.union_val;
+            printf("%s.%s { ", uv->union_name, uv->variant_name);
+            for (int i = 0; i < uv->field_count; i++) {
+                if (i > 0) printf(", ");
+                printf("%s: ", uv->field_names[i]);
+                print_value(uv->field_values[i]);
+            }
+            printf(" }");
+            break;
+        }
+        case VAL_TUPLE: {
+            /* Print tuple value */
+            TupleValue *tv = val.as.tuple_val;
+            printf("(");
+            for (int i = 0; i < tv->element_count; i++) {
+                if (i > 0) printf(", ");
+                print_value(tv->elements[i]);
+            }
+            printf(")");
+            break;
+        }
         case VAL_VOID:
             printf("void");
             break;
@@ -1248,6 +1281,14 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                     }
                     break;
                 }
+                case VAL_DYN_ARRAY:
+                case VAL_GC_STRUCT:
+                case VAL_UNION:
+                case VAL_TUPLE:
+                case VAL_FUNCTION:
+                    /* These types don't support equality comparison yet */
+                    equal = false;
+                    break;
             }
         }
 
@@ -1289,6 +1330,12 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
 static Value eval_call(ASTNode *node, Environment *env) {
     const char *name = node->as.call.name;
 
+    /* Check if the name refers to a function variable (for first-class functions) */
+    Symbol *func_var = env_get_var(env, name);
+    if (func_var && func_var->value.type == VAL_FUNCTION) {
+        /* This is a function value stored in a variable - use its actual function name */
+        name = func_var->value.as.function_val.function_name;
+    }
 
     /* Special built-in: range (used in for loops only) */
     if (strcmp(name, "range") == 0) {
@@ -1812,22 +1859,42 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             return create_bool(expr->as.bool_val);
 
         case AST_IDENTIFIER: {
+            /* First check if it's a variable */
             Symbol *sym = env_get_var(env, expr->as.identifier);
-            if (!sym) {
-                fprintf(stderr, "Error: Undefined variable '%s'\n", expr->as.identifier);
-                return create_void();
+            if (sym) {
+                /* Trace variable read */
+#ifdef TRACING_ENABLED
+                const char *scope = (g_tracing_config.call_stack_size > 0) ?
+                    g_tracing_config.call_stack[g_tracing_config.call_stack_size - 1] : NULL;
+                trace_var_read(expr->as.identifier, sym->value, expr->line, expr->column, scope);
+#else
+                trace_var_read(expr->as.identifier, sym->value, expr->line, expr->column, NULL);
+#endif
+                return sym->value;
             }
             
-            /* Trace variable read */
-#ifdef TRACING_ENABLED
-            const char *scope = (g_tracing_config.call_stack_size > 0) ?
-                g_tracing_config.call_stack[g_tracing_config.call_stack_size - 1] : NULL;
-            trace_var_read(expr->as.identifier, sym->value, expr->line, expr->column, scope);
-#else
-            trace_var_read(expr->as.identifier, sym->value, expr->line, expr->column, NULL);
-#endif
+            /* If not a variable, check if it's a function (for first-class function support) */
+            Function *func = env_get_function(env, expr->as.identifier);
+            if (func) {
+                /* Return a function value - create signature from function's parameters */
+                Type *param_types = NULL;
+                if (func->param_count > 0 && func->params) {
+                    param_types = malloc(sizeof(Type) * func->param_count);
+                    for (int i = 0; i < func->param_count; i++) {
+                        param_types[i] = func->params[i].type;
+                    }
+                }
+                FunctionSignature *sig = create_function_signature(
+                    param_types,
+                    func->param_count,
+                    func->return_type
+                );
+                return create_function(expr->as.identifier, sig);
+            }
             
-            return sym->value;
+            /* Neither variable nor function */
+            fprintf(stderr, "Error: Undefined variable or function '%s'\n", expr->as.identifier);
+            return create_void();
         }
 
         case AST_PREFIX_OP:
@@ -2153,10 +2220,6 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
         }
 
         case AST_SET: {
-            /* Get old value before setting */
-            Symbol *sym = env_get_var(env, stmt->as.set.name);
-            Value old_value = sym ? sym->value : create_void();
-            
             Value value = eval_expression(stmt->as.set.value, env);
             env_set_var(env, stmt->as.set.name, value);
             

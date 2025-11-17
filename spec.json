@@ -1,96 +1,352 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha",
+  "language": "nanolang",
+  "description": "nanolang language specification - A minimal, statically-typed, LLM-friendly language with mandatory shadow-tests",
+  
   "types": {
     "primitives": [
       {
-        "name": "i32",
-        "size": 4,
-        "signed": true,
-        "description": "32-bit signed integer"
-      },
-      {
-        "name": "i64",
+        "name": "int",
+        "c_type": "int64_t",
         "size": 8,
         "signed": true,
         "description": "64-bit signed integer"
       },
       {
+        "name": "float",
+        "c_type": "double",
+        "size": 8,
+        "signed": true,
+        "description": "64-bit floating point (IEEE 754)"
+      },
+      {
         "name": "bool",
+        "c_type": "bool",
         "size": 1,
         "signed": false,
-        "description": "Boolean value"
+        "description": "Boolean value (true or false)"
+      },
+      {
+        "name": "string",
+        "c_type": "char*",
+        "size": 8,
+        "description": "UTF-8 text (heap-allocated, null-terminated)"
+      },
+      {
+        "name": "void",
+        "c_type": "void",
+        "size": 0,
+        "description": "No value (return type only)"
       }
     ],
+    
     "composite": {
       "array": {
         "kind": "array",
+        "syntax": "array<element_type>",
         "element_type": "any",
-        "description": "Dynamic array type"
+        "dynamic": true,
+        "description": "Static array type with fixed element type"
+      },
+      "struct": {
+        "kind": "struct",
+        "syntax": "struct Name { field1: type1, field2: type2 }",
+        "description": "Product type with named fields",
+        "c_transpilation": "typedef struct nl_Name { type1 field1; type2 field2; } nl_Name;"
+      },
+      "enum": {
+        "kind": "enum",
+        "syntax": "enum Name { Variant1 = value1, Variant2 = value2 }",
+        "description": "Enumeration with integer values",
+        "c_transpilation": "typedef enum { nl_Name_Variant1 = value1, nl_Name_Variant2 = value2 } nl_Name;"
+      },
+      "union": {
+        "kind": "union",
+        "syntax": "union Name { Variant1 { fields }, Variant2 { fields } }",
+        "description": "Tagged union (sum type) with variants",
+        "pattern_matching": "match expression { Variant(binding) => body }",
+        "c_transpilation": "typedef struct with tag and union of variant structs"
+      },
+      "generic": {
+        "kind": "generic",
+        "syntax": "List<T>",
+        "description": "Generic types with type parameters (monomorphized at compile time)",
+        "examples": ["List<int>", "List<string>", "List<Point>"],
+        "built_in_generics": ["List<T>"]
       },
       "function": {
         "kind": "function",
-        "parameter_types": [],
-        "return_type": "any",
-        "description": "Function type"
+        "syntax": "fn(param_type1, param_type2) -> return_type",
+        "description": "First-class function type",
+        "examples": [
+          "fn(int, int) -> int",
+          "fn(string) -> bool",
+          "fn() -> void"
+        ]
+      },
+      "tuple": {
+        "kind": "tuple",
+        "syntax": "(type1, type2, type3)",
+        "description": "Tuple type with multiple values (type system complete, parser pending)",
+        "status": "in_development",
+        "examples": ["(int, int)", "(string, int, bool)"]
       }
     }
   },
-  "operations": {
-    "add": {
-      "input_types": ["i32", "i32"],
-      "output_type": "i32",
-      "pure": true,
-      "description": "Integer addition"
-    },
-    "sub": {
-      "input_types": ["i32", "i32"],
-      "output_type": "i32",
-      "pure": true,
-      "description": "Integer subtraction"
-    },
-    "mul": {
-      "input_types": ["i32", "i32"],
-      "output_type": "i32",
-      "pure": true,
-      "description": "Integer multiplication"
-    },
-    "div": {
-      "input_types": ["i32", "i32"],
-      "output_type": "i32",
-      "pure": true,
-      "description": "Integer division",
-      "preconditions": ["divisor != 0"]
-    },
-    "eq": {
-      "input_types": ["any", "any"],
-      "output_type": "bool",
-      "pure": true,
-      "description": "Equality comparison"
-    },
-    "lt": {
-      "input_types": ["i32", "i32"],
-      "output_type": "bool",
-      "pure": true,
-      "description": "Less than comparison"
-    },
-    "gt": {
-      "input_types": ["i32", "i32"],
-      "output_type": "bool",
-      "pure": true,
-      "description": "Greater than comparison"
+  
+  "syntax": {
+    "notation": "prefix",
+    "description": "S-expression style prefix notation for all operations",
+    "examples": {
+      "arithmetic": "(+ a b) instead of a + b",
+      "comparison": "(== x 5) instead of x == 5",
+      "logical": "(and p q) instead of p && q",
+      "function_call": "(function_name arg1 arg2) instead of function_name(arg1, arg2)"
     }
   },
-  "runtime_functions": {
-    "print": {
-      "signature": "print(any) -> void",
-      "description": "Print value to stdout",
-      "side_effects": ["IO"]
+  
+  "operations": {
+    "arithmetic": {
+      "add": { "operator": "+", "types": ["int", "float"], "arity": 2, "pure": true },
+      "sub": { "operator": "-", "types": ["int", "float"], "arity": 2, "pure": true },
+      "mul": { "operator": "*", "types": ["int", "float"], "arity": 2, "pure": true },
+      "div": { "operator": "/", "types": ["int", "float"], "arity": 2, "pure": true, "preconditions": ["divisor != 0"] },
+      "mod": { "operator": "%", "types": ["int"], "arity": 2, "pure": true, "preconditions": ["divisor != 0"] }
     },
-    "input": {
-      "signature": "input() -> i32",
-      "description": "Read integer from stdin",
-      "side_effects": ["IO"]
+    "comparison": {
+      "eq": { "operator": "==", "types": ["int", "float", "bool", "string"], "arity": 2, "pure": true },
+      "ne": { "operator": "!=", "types": ["int", "float", "bool", "string"], "arity": 2, "pure": true },
+      "lt": { "operator": "<", "types": ["int", "float"], "arity": 2, "pure": true },
+      "le": { "operator": "<=", "types": ["int", "float"], "arity": 2, "pure": true },
+      "gt": { "operator": ">", "types": ["int", "float"], "arity": 2, "pure": true },
+      "ge": { "operator": ">=", "types": ["int", "float"], "arity": 2, "pure": true }
+    },
+    "logical": {
+      "and": { "operator": "and", "types": ["bool"], "arity": 2, "pure": true, "short_circuit": true },
+      "or": { "operator": "or", "types": ["bool"], "arity": 2, "pure": true, "short_circuit": true },
+      "not": { "operator": "not", "types": ["bool"], "arity": 1, "pure": true }
     }
+  },
+  
+  "statements": {
+    "let": {
+      "syntax": "let [mut] name: type = expression",
+      "description": "Variable declaration (immutable by default)",
+      "mutability": "Optional 'mut' keyword for mutable variables"
+    },
+    "set": {
+      "syntax": "set variable_name expression",
+      "description": "Variable assignment (variable must be declared as mutable)"
+    },
+    "if": {
+      "syntax": "if condition { then_branch } else { else_branch }",
+      "description": "Conditional expression (both branches required)"
+    },
+    "while": {
+      "syntax": "while condition { body }",
+      "description": "While loop"
+    },
+    "for": {
+      "syntax": "for var in (range start end) { body }",
+      "description": "For loop with range iterator"
+    },
+    "return": {
+      "syntax": "return expression",
+      "description": "Return statement"
+    },
+    "match": {
+      "syntax": "match expression { Variant(binding) => body, ... }",
+      "description": "Pattern matching on union types"
+    }
+  },
+  
+  "features": {
+    "shadow_tests": {
+      "mandatory": true,
+      "description": "Every function must have a shadow-test block with assertions",
+      "syntax": "shadow function_name { assert ... }",
+      "execution": "Compile-time (during transpilation and type checking)"
+    },
+    "static_typing": {
+      "mandatory": true,
+      "description": "All variables and parameters must have explicit type annotations",
+      "no_inference": true,
+      "no_implicit_conversions": true
+    },
+    "generics": {
+      "strategy": "monomorphization",
+      "description": "Generic types are specialized at compile time for each concrete type used",
+      "supported": ["List<T>", "user-defined generics"],
+      "examples": [
+        "List<int>",
+        "List<string>",
+        "List<Point>"
+      ]
+    },
+    "first_class_functions": {
+      "description": "Functions can be passed as parameters, returned, and assigned to variables",
+      "syntax": "fn(param_type) -> return_type",
+      "no_pointers": "Function types don't expose underlying C function pointers",
+      "examples": [
+        "let f: fn(int) -> int = double",
+        "fn apply(op: fn(int) -> int, x: int) -> int",
+        "fn get_function() -> fn(int) -> int"
+      ]
+    },
+    "unions": {
+      "description": "Tagged unions (sum types) with pattern matching",
+      "variants": "Each variant can have named fields",
+      "pattern_matching": "match expression destructures unions safely"
+    },
+    "namespacing": {
+      "description": "All user-defined types are prefixed with nl_ in generated C code",
+      "prefix": "nl_",
+      "examples": {
+        "struct": "Point -> nl_Point",
+        "enum": "Status -> nl_Status, Status.Active -> nl_Status_Active",
+        "union": "Result -> nl_Result"
+      },
+      "purpose": "Prevent name collisions with C runtime and enable clean C interop"
+    }
+  },
+  
+  "stdlib": {
+    "io": {
+      "print": { "signature": "print(any) -> void", "description": "Print value to stdout" },
+      "println": { "signature": "println(any) -> void", "description": "Print value with newline" },
+      "assert": { "signature": "assert(bool) -> void", "description": "Runtime assertion" }
+    },
+    "math": {
+      "abs": { "signature": "abs(int|float) -> int|float", "description": "Absolute value" },
+      "min": { "signature": "min(int|float, int|float) -> int|float", "description": "Minimum of two values" },
+      "max": { "signature": "max(int|float, int|float) -> int|float", "description": "Maximum of two values" },
+      "sqrt": { "signature": "sqrt(float) -> float", "description": "Square root" },
+      "pow": { "signature": "pow(float, float) -> float", "description": "Power" },
+      "floor": { "signature": "floor(float) -> float", "description": "Round down" },
+      "ceil": { "signature": "ceil(float) -> float", "description": "Round up" },
+      "round": { "signature": "round(float) -> float", "description": "Round to nearest" },
+      "sin": { "signature": "sin(float) -> float", "description": "Sine (radians)" },
+      "cos": { "signature": "cos(float) -> float", "description": "Cosine (radians)" },
+      "tan": { "signature": "tan(float) -> float", "description": "Tangent (radians)" }
+    },
+    "string": {
+      "str_length": { "signature": "str_length(string) -> int", "description": "String length" },
+      "str_concat": { "signature": "str_concat(string, string) -> string", "description": "Concatenate strings" },
+      "str_substring": { "signature": "str_substring(string, int, int) -> string", "description": "Extract substring" },
+      "str_contains": { "signature": "str_contains(string, string) -> bool", "description": "Check substring" },
+      "str_equals": { "signature": "str_equals(string, string) -> bool", "description": "String equality" },
+      "char_at": { "signature": "char_at(string, int) -> int", "description": "Get ASCII value at index" },
+      "string_from_char": { "signature": "string_from_char(int) -> string", "description": "Create string from ASCII" },
+      "is_digit": { "signature": "is_digit(int) -> bool", "description": "Check if character is digit" },
+      "is_alpha": { "signature": "is_alpha(int) -> bool", "description": "Check if character is letter" },
+      "is_alnum": { "signature": "is_alnum(int) -> bool", "description": "Check if alphanumeric" },
+      "is_whitespace": { "signature": "is_whitespace(int) -> bool", "description": "Check if whitespace" },
+      "is_upper": { "signature": "is_upper(int) -> bool", "description": "Check if uppercase" },
+      "is_lower": { "signature": "is_lower(int) -> bool", "description": "Check if lowercase" },
+      "int_to_string": { "signature": "int_to_string(int) -> string", "description": "Convert int to string" },
+      "string_to_int": { "signature": "string_to_int(string) -> int", "description": "Parse string to int" },
+      "digit_value": { "signature": "digit_value(int) -> int", "description": "Convert '5' -> 5" },
+      "char_to_lower": { "signature": "char_to_lower(int) -> int", "description": "Convert to lowercase" },
+      "char_to_upper": { "signature": "char_to_upper(int) -> int", "description": "Convert to uppercase" }
+    },
+    "array": {
+      "at": { "signature": "at(array<T>, int) -> T", "description": "Get element (bounds-checked)" },
+      "array_length": { "signature": "array_length(array<T>) -> int", "description": "Get array length" },
+      "array_new": { "signature": "array_new(int, T) -> array<T>", "description": "Create new array" },
+      "array_set": { "signature": "array_set(array<T>, int, T) -> void", "description": "Set element (bounds-checked)" }
+    },
+    "os": {
+      "getcwd": { "signature": "getcwd() -> string", "description": "Get current directory" },
+      "getenv": { "signature": "getenv(string) -> string", "description": "Get environment variable" },
+      "range": { "signature": "range(int, int) -> iterator", "description": "Range iterator (for loops only)" }
+    },
+    "generics": {
+      "List_new": { "signature": "List_<T>_new() -> List<T>", "description": "Create empty list (monomorphized)" },
+      "List_push": { "signature": "List_<T>_push(List<T>, T) -> void", "description": "Push element to list" },
+      "List_length": { "signature": "List_<T>_length(List<T>) -> int", "description": "Get list length" },
+      "List_get": { "signature": "List_<T>_get(List<T>, int) -> T", "description": "Get list element" }
+    }
+  },
+  
+  "compilation": {
+    "target": "C",
+    "c_standard": "C99",
+    "strategy": "transpilation",
+    "phases": [
+      "Lexical analysis (tokenization)",
+      "Parsing (AST generation)",
+      "Type checking (static analysis)",
+      "Shadow-test execution (compile-time testing)",
+      "C code generation (transpilation)",
+      "C compilation (gcc/clang)"
+    ],
+    "output": {
+      "executable": "Compiled binary from generated C code",
+      "intermediate": "Optional .c file output with --keep-c flag"
+    },
+    "optimization": "Relies on C compiler optimizations"
+  },
+  
+  "tooling": {
+    "compiler": {
+      "name": "nanoc",
+      "version": "0.1.0-alpha",
+      "usage": "nanoc <input.nano> -o <output>",
+      "flags": [
+        "--keep-c: Keep generated C file",
+        "--verbose: Verbose output",
+        "-o: Output binary name"
+      ]
+    },
+    "interpreter": {
+      "name": "nano",
+      "version": "0.1.0-alpha",
+      "usage": "nano <input.nano> [OPTIONS]",
+      "flags": [
+        "--trace-all: Trace all execution",
+        "--trace-function=<name>: Trace specific function",
+        "--trace-var=<name>: Trace variable operations",
+        "--trace-scope=<name>: Trace function scope",
+        "--call <function>: Call specific function"
+      ]
+    }
+  },
+  
+  "examples": {
+    "hello_world": "fn main() -> int { (println \"Hello, World!\"); return 0 }",
+    "fibonacci": "See docs/SPECIFICATION.md section 10.1",
+    "prime_checker": "See docs/SPECIFICATION.md section 10.2",
+    "unions": "See docs/QUICK_REFERENCE.md union examples",
+    "generics": "See examples/lists/ directory",
+    "first_class_functions": "See examples/34_function_types.nano"
+  },
+  
+  "status": {
+    "version": "0.1.0-alpha",
+    "stability": "alpha",
+    "production_ready": false,
+    "features_complete": [
+      "Basic types (int, float, bool, string, void)",
+      "Prefix notation",
+      "Static typing",
+      "Shadow-tests (mandatory)",
+      "Structs",
+      "Enums",
+      "Unions with pattern matching",
+      "Generics (List<T>) with monomorphization",
+      "First-class functions",
+      "Mutability tracking (mut keyword)",
+      "Standard library (37 functions)",
+      "C transpilation with namespacing"
+    ],
+    "features_in_development": [
+      "Tuple types (type system complete, parser pending)"
+    ],
+    "future_features": [
+      "Module system",
+      "More generic types",
+      "Self-hosted compiler"
+    ]
   }
 }

@@ -297,10 +297,6 @@ static const char *type_to_c(Type type) {
 }
 
 /* Get C type for struct (returns "struct StructName") */
-static void type_to_c_struct(StringBuilder *sb, const char *struct_name) {
-    sb_appendf(sb, "struct %s", struct_name);
-}
-
 /* Extract struct type name from an expression (returns NULL if not a struct) */
 static const char *get_struct_type_from_expr(ASTNode *expr) {
     if (!expr) return NULL;

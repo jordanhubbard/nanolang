@@ -5,12 +5,24 @@
 1. [Introduction](#introduction)
 2. [Lexical Structure](#lexical-structure)
 3. [Types](#types)
+   - 3.1 [Built-in Types](#31-built-in-types)
+   - 3.2 [Type Annotations](#32-type-annotations)
+   - 3.3 [Type Checking](#33-type-checking)
+   - 3.4 [Composite Types](#34-composite-types)
+     - 3.4.1 [Structs](#341-structs)
+     - 3.4.2 [Enums](#342-enums)
+     - 3.4.3 [Union Types](#343-union-types)
+     - 3.4.4 [Generic Types](#344-generic-types)
+     - 3.4.5 [First-Class Function Types](#345-first-class-function-types)
 4. [Expressions](#expressions)
 5. [Statements](#statements)
 6. [Functions](#functions)
 7. [Shadow-Tests](#shadow-tests)
 8. [Semantics](#semantics)
 9. [Compilation Model](#compilation-model)
+10. [Example Programs](#example-programs)
+11. [Design Rationale](#design-rationale)
+12. [Future Extensions](#future-extensions)
 
 ## 1. Introduction
 
@@ -194,6 +206,106 @@ match result {
     Error(e) => (println "Error")
 }
 ```
+
+#### 3.4.4 Generic Types
+
+Generic types allow parameterization over types, enabling reusable code. nanolang uses **monomorphization** - generic types are specialized at compile time for each concrete type used.
+
+**Built-in Generic: List<T>**
+
+```nano
+# Create typed lists
+let numbers: List<int> = (List_int_new)
+(List_int_push numbers 1)
+(List_int_push numbers 2)
+(List_int_push numbers 3)
+
+let names: List<string> = (List_string_new)
+(List_string_push names "Alice")
+(List_string_push names "Bob")
+
+# Lists with user-defined types
+struct Point { x: int, y: int }
+let points: List<Point> = (List_Point_new)
+```
+
+**Generic Instantiation:**
+
+When you use a generic type like `List<int>`, the compiler generates specialized functions:
+- `List_int_new()` → creates empty list
+- `List_int_push(list, value)` → pushes int to list
+- `List_int_length(list)` → returns length
+- `List_int_get(list, index)` → gets element
+
+**Monomorphization:**
+
+Each concrete type used with a generic generates a separate implementation:
+
+```nano
+let integers: List<int> = (List_int_new)     # Generates List_int functions
+let strings: List<string> = (List_string_new) # Generates List_string functions
+```
+
+The compiler generates specialized C code for each instantiation, eliminating runtime overhead.
+
+#### 3.4.5 First-Class Function Types
+
+Functions are first-class values that can be passed as parameters, returned from functions, and assigned to variables.
+
+**Function Type Syntax:**
+
+```nano
+fn(param_type1, param_type2) -> return_type
+```
+
+**Function Variables:**
+
+```nano
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+shadow double {
+    assert (== (double 5) 10)
+}
+
+# Assign function to variable
+let f: fn(int) -> int = double
+
+# Call through variable
+let result: int = (f 7)  # result = 14
+```
+
+**Functions as Parameters:**
+
+```nano
+fn apply_twice(op: fn(int) -> int, x: int) -> int {
+    return (op (op x))
+}
+
+shadow apply_twice {
+    assert (== (apply_twice double 5) 20)
+}
+```
+
+**Functions as Return Values:**
+
+```nano
+fn get_operation(choice: int) -> fn(int) -> int {
+    if (== choice 0) {
+        return double
+    } else {
+        return triple
+    }
+}
+
+shadow get_operation {
+    let op: fn(int) -> int = (get_operation 0)
+    assert (== (op 5) 10)
+}
+```
+
+**Important:** Function types do not expose underlying C function pointers. They are treated as opaque values that can only be called.
 
 ## 4. Expressions
 
@@ -794,14 +906,28 @@ Static typing catches errors at compile time:
 
 ## 12. Future Extensions
 
-Potential future additions (not in v0.1):
+**Implemented in v0.1:**
+- ✅ Arrays (static and dynamic)
+- ✅ Structs (product types)
+- ✅ Enums (enumerated types)
+- ✅ Unions (tagged unions/sum types)
+- ✅ Generics (List<T> with monomorphization)
+- ✅ First-class functions
+- ✅ Pattern matching (match expressions)
+- ✅ Comprehensive standard library (37 functions)
+- ✅ C transpilation with namespacing
 
-- Arrays/lists
-- Structs/records
-- Generics/templates
-- Modules/imports
-- Error handling
-- Memory management primitives
+**In Development:**
+- ⏳ Tuple types (type system complete, parser pending)
+- ⏳ Self-hosted compiler (nanolang-in-nanolang)
+
+**Potential Future Additions:**
+- Module system (import/export)
+- More generic types (Map<K,V>, Set<T>, etc.)
+- Async/await primitives
+- Memory management hints
+- Debugging annotations
+- Package manager
 - Standard library expansion
 
 All extensions must maintain the core principles: minimal, unambiguous, LLM-friendly, and test-driven.
