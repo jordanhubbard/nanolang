@@ -41,7 +41,7 @@ INTERPRETER_EXAMPLES = \
 
 # === Targets ===
 
-.PHONY: all sdl interpreter clean help checkers boids-sdl particles-sdl falling-sand-sdl music-sequencer-sdl terrain-explorer-sdl
+.PHONY: all sdl interpreter clean help checkers-sdl boids-sdl particles-sdl falling-sand-sdl music-sequencer-sdl terrain-explorer-sdl run-% force-rebuild
 
 # Default: build all compiled examples
 all: $(COMPILER) $(SDL_EXAMPLES)
@@ -63,10 +63,12 @@ all: $(COMPILER) $(SDL_EXAMPLES)
 # SDL examples only
 sdl: $(SDL_EXAMPLES)
 
-# Ensure compiler exists
+# Ensure compiler and interpreter exist by always checking parent Makefile
 $(COMPILER):
-	@echo "Building nanolang compiler..."
 	@cd .. && $(MAKE) bin/nanoc
+
+$(INTERPRETER):
+	@cd .. && $(MAKE) bin/nano
 
 # === Automatic Module Building ===
 # With the new module system, just invoke nanoc and it:
@@ -144,14 +146,13 @@ run-%: %.nano $(INTERPRETER)
 # === Clean ===
 
 clean:
-	@echo "Cleaning example binaries..."
+	@echo "Cleaning example binaries and build artifacts..."
 	rm -f $(SDL_EXAMPLES)
-	rm -rf $(BIN_DIR)/*_sdl.dSYM
-	rm -rf $(BIN_DIR)/checkers.dSYM
+	rm -rf $(BIN_DIR)/*.dSYM
 	rm -f $(BIN_DIR)/*.c
 	rm -f ../obj/sdl_helpers_*.o
 	rm -rf ../modules/*/.build/
-	@echo "✓ Examples cleaned"
+	@echo "✓ Example binaries and artifacts cleaned"
 
 # === Help ===
 
