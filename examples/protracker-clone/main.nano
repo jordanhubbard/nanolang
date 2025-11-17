@@ -6,6 +6,7 @@ import "modules/sdl_helpers/sdl_helpers.nano"
 import "modules/sdl_mixer/sdl_mixer.nano"
 import "examples/protracker-clone/types.nano"
 import "examples/protracker-clone/pattern.nano"
+import "examples/protracker-clone/replayer.nano"
 import "examples/protracker-clone/ui.nano"
 
 fn main() -> int {
