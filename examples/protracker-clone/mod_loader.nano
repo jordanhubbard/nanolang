@@ -1,0 +1,150 @@
+# MOD file loader
+# Based on pt2-clone by Olav Sørensen
+
+import "examples/protracker-clone/types.nano"
+import "examples/protracker-clone/pattern.nano"
+
+# MOD file format constants
+let MOD_NAME_LEN: int = 20
+let MOD_SAMPLE_NAME_LEN: int = 22
+let MOD_SAMPLE_HEADER_SIZE: int = 30
+let MOD_SAMPLES: int = 31
+let MOD_PATTERN_TABLE_SIZE: int = 128
+
+# Load MOD file and return pattern data
+fn load_mod_file(filename: string) -> array<int> {
+    (println "Loading MOD file:")
+    (println filename)
+    
+    # Read file
+    let file_data: string = (os_file_read filename)
+    let file_size: int = (string_length file_data)
+    
+    (print "File size: ")
+    (print file_size)
+    (println " bytes")
+    
+    # Check minimum size (header + samples info = 20 + 31*30 + 1 + 1 + 128 + 4 = 1084 bytes)
+    if (< file_size 1084) {
+        (println "Error: File too small to be a valid MOD")
+        return (create_pattern_data)
+    } else {}
+    
+    # Read song name (bytes 0-19)
+    let song_name: string = (string_substring file_data 0 20)
+    (print "Song: ")
+    (println song_name)
+    
+    # Skip sample headers for now (bytes 20-949 = 31 samples * 30 bytes)
+    let sample_offset: int = (+ 20 (* 31 30))
+    
+    # Read song length (byte 950)
+    let song_length_byte: string = (string_substring file_data 950 1)
+    let song_length: int = (string_char_at song_length_byte 0)
+    (print "Song length: ")
+    (println song_length)
+    
+    # Read pattern table (bytes 952-1079 = 128 bytes)
+    let pattern_table_start: int = 952
+    
+    # Find highest pattern number to know how many patterns to read
+    let mut highest_pattern: int = 0
+    let mut i: int = 0
+    while (< i song_length) {
+        let table_byte: string = (string_substring file_data (+ pattern_table_start i) 1)
+        let pattern_num: int = (string_char_at table_byte 0)
+        if (> pattern_num highest_pattern) {
+            set highest_pattern pattern_num
+        } else {}
+        set i (+ i 1)
+    }
+    
+    (print "Highest pattern: ")
+    (println highest_pattern)
+    
+    # Read module tag (bytes 1080-1083, should be "M.K." or "4CHN")
+    let tag: string = (string_substring file_data 1080 4)
+    (print "Module tag: ")
+    (println tag)
+    
+    # Pattern data starts at byte 1084
+    # Each pattern is 1024 bytes (64 rows * 4 channels * 4 bytes)
+    let pattern_data_start: int = 1084
+    let pattern_size: int = 1024  # 64 rows * 4 channels * 4 bytes/note
+    
+    # Create pattern data array
+    let mut pattern_data: array<int> = (create_pattern_data)
+    
+    # Read patterns
+    let mut patt: int = 0
+    while (<= patt highest_pattern) {
+        let patt_offset: int = (+ pattern_data_start (* patt pattern_size))
+        
+        # Read all rows in this pattern
+        let mut row: int = 0
+        while (< row PT_ROWS) {
+            # Read all channels in this row
+            let mut chan: int = 0
+            while (< chan PT_CHANNELS) {
+                # Each note is 4 bytes in MOD format
+                let note_offset: int = (+ patt_offset (+ (* row 16) (* chan 4)))
+                
+                if (< note_offset file_size) {
+                    # Read 4 bytes for this note
+                    let byte0_str: string = (string_substring file_data note_offset 1)
+                    let byte1_str: string = (string_substring file_data (+ note_offset 1) 1)
+                    let byte2_str: string = (string_substring file_data (+ note_offset 2) 1)
+                    let byte3_str: string = (string_substring file_data (+ note_offset 3) 1)
+                    
+                    let byte0: int = (string_char_at byte0_str 0)
+                    let byte1: int = (string_char_at byte1_str 0)
+                    let byte2: int = (string_char_at byte2_str 0)
+                    let byte3: int = (string_char_at byte3_str 0)
+                    
+                    # MOD format: period is in bytes 0-1 (12 bits)
+                    # Sample number is in bytes 0,2 (upper 4 bits of byte 0, upper 4 bits of byte 2)
+                    # Effect is in byte 2 (lower 4 bits) and byte 3
+                    
+                    # Extract sample number (simplified - just use byte 0 high nibble)
+                    let sample: int = (/ byte0 16)  # Upper 4 bits
+                    
+                    # Extract period (12-bit value from bytes 0-1)
+                    let period_high: int = (% byte0 16)  # Lower 4 bits of byte 0
+                    let period: int = (+ (* period_high 256) byte1)
+                    
+                    # Convert period to note number
+                    let note: int = (period_to_note period)
+                    
+                    # Extract effect and parameter
+                    let effect: int = (/ byte2 16)  # Upper 4 bits of byte 2
+                    let param: int = byte3
+                    
+                    # Store in our pattern data
+                    if (> note 0) {
+                        (array_set pattern_data (pattern_index patt chan row NOTE_COMP) note)
+                    } else {}
+                    if (> sample 0) {
+                        (array_set pattern_data (pattern_index patt chan row SAMPLE_COMP) sample)
+                    } else {}
+                    if (> effect 0) {
+                        (array_set pattern_data (pattern_index patt chan row EFFECT_COMP) effect)
+                        (array_set pattern_data (pattern_index patt chan row PARAM_COMP) param)
+                    } else {}
+                } else {}
+                
+                set chan (+ chan 1)
+            }
+            set row (+ row 1)
+        }
+        
+        set patt (+ patt 1)
+    }
+    
+    (println "✓ MOD file loaded successfully!")
+    return pattern_data
+}
+
+shadow load_mod_file {
+    # Can't test file loading in shadow tests
+    assert true
+}

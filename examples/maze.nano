@@ -109,7 +109,6 @@ fn generate_maze(width: int, height: int) -> array<int> {
     let mut i: int = 0
     while (< i size) {
         let x: int = (% i width)
-        let y: int = (/ i width)
         
         # Create border walls and some interior walls
         let mut cell_val: CellState = CellState.PATH
@@ -121,6 +120,7 @@ fn generate_maze(width: int, height: int) -> array<int> {
             if (== x (- width 1)) {
                 set cell_val CellState.WALL
             } else {
+                let y: int = (/ i width)
                 if (== y 0) {
                     set cell_val CellState.WALL
                 } else {

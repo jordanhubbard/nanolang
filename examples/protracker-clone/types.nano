@@ -212,3 +212,37 @@ shadow effect_name {
     assert (== (effect_name 0) "---")
     assert (== (effect_name EffectType.ARPEGGIO) "ARP")
 }
+
+# Convert Amiga period to note number (inverse of note_to_period)
+fn period_to_note(period: int) -> int {
+    # Return 0 for no note
+    if (<= period 0) {
+        return 0
+    } else {}
+    
+    # Find closest matching period in table
+    let mut closest_note: int = 0
+    let mut closest_diff: int = 10000
+    
+    let mut note: int = 1
+    while (<= note 36) {
+        let note_period: int = (note_to_period note)
+        let diff: int = (abs (- period note_period))
+        
+        if (< diff closest_diff) {
+            set closest_diff diff
+            set closest_note note
+        } else {}
+        
+        set note (+ note 1)
+    }
+    
+    return closest_note
+}
+
+shadow period_to_note {
+    assert (== (period_to_note 856) 1)   # C-1
+    assert (== (period_to_note 428) 13)  # C-2
+    assert (== (period_to_note 214) 25)  # C-3
+    assert (== (period_to_note 0) 0)     # No note
+}
