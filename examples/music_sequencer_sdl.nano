@@ -575,6 +575,10 @@ fn main() -> int {
         return 1
     } else {}
     
+    # Disable mouse motion events to prevent event queue flooding
+    # SDL_MOUSEMOTION = 0x400 = 1024
+    (SDL_EventState 1024 0)
+    
     # Initialize tracker state
     let mut pattern_data: array<int> = (init_pattern_data)
     let mut channel_waves: array<int> = (init_channel_waves)
@@ -583,27 +587,61 @@ fn main() -> int {
     let mut current_pattern: int = 0
     let mut cursor_channel: int = 0
     let mut cursor_step: int = 0
-    let mut play_state: int = PlayState.STOPPED
+    let mut play_state: int = PlayState.PLAYING
     let mut playing_step: int = 0
     let mut frame_count: int = 0
     
-    (println "NanoTracker initialized!")
+    (println "")
+    (println "═══════════════════════════════════════════════════════════")
+    (println "  NanoTracker - ProTracker Style Music Sequencer (Visual Demo)")
+    (println "═══════════════════════════════════════════════════════════")
+    (println "")
+    (println "NOTE: This is a visual mockup only - no audio playback")
+    (println "      Audio would require SDL_mixer integration")
+    (println "")
     (println "Controls:")
-    (println "  Arrow Keys: Navigate")
-    (println "  Space: Play/Stop")
-    (println "  1-8: Set note C4-C5 at cursor")
-    (println "  M: Mute/unmute channel")
-    (println "  W: Cycle waveform")
-    (println "  ESC: Quit")
+    (println "  SPACE = Play/Pause")
+    (println "  ESC   = Quit")
+    (println "")
+    (println "Features demonstrated:")
+    (println "  • ProTracker-style pattern grid UI")
+    (println "  • 8-channel sequencing")
+    (println "  • Playback cursor animation")
+    (println "  • Channel indicators and waveform visualization")
+    (println "")
     
     # Main loop
     let mut running: bool = true
     while running {
-        # Event handling
+        # Handle keyboard input
+        let key: int = (nl_sdl_poll_keypress)
+        if (> key -1) {
+            if (== key 41) {
+                # ESC = quit
+                set running false
+            } else {
+                if (== key 44) {
+                    # SPACE = toggle play/pause
+                    if (== play_state PlayState.PLAYING) {
+                        set play_state PlayState.STOPPED
+                    } else {
+                        set play_state PlayState.PLAYING
+                    }
+                } else {
+                    (print "")
+                }
+            }
+        } else {
+            (print "")
+        }
+        
+        # Check for quit event (window close)
         let quit: int = (nl_sdl_poll_event_quit)
         if (== quit 1) {
             set running false
-        } else {}
+        } else {
+            (print "")
+        }
         
         # Update playback
         if (== play_state PlayState.PLAYING) {
