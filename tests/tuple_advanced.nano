@@ -1,0 +1,178 @@
+/* Advanced tuple tests */
+
+/* Test 1: Swap function using tuples */
+fn swap(a: int, b: int) -> (int, int) {
+    return (b, a)
+}
+
+shadow swap {
+    let result: (int, int) = (swap 5 10)
+    assert (== result.0 10)
+    assert (== result.1 5)
+}
+
+/* Test 2: Min and max using tuples */
+fn min_max(a: int, b: int) -> (int, int) {
+    if (< a b) {
+        return (a, b)
+    } else {
+        return (b, a)
+    }
+}
+
+shadow min_max {
+    let result1: (int, int) = (min_max 10 5)
+    assert (== result1.0 5)
+    assert (== result1.1 10)
+    
+    let result2: (int, int) = (min_max 3 7)
+    assert (== result2.0 3)
+    assert (== result2.1 7)
+}
+
+/* Test 3: Coordinate distance (returning intermediate values) */
+fn get_distance_info(x1: int, y1: int, x2: int, y2: int) -> (int, int, int) {
+    let dx: int = (- x2 x1)
+    let dy: int = (- y2 y1)
+    let manhattan: int = (+ (abs dx) (abs dy))
+    return (dx, dy, manhattan)
+}
+
+shadow get_distance_info {
+    let info: (int, int, int) = (get_distance_info 0 0 3 4)
+    assert (== info.0 3)
+    assert (== info.1 4)
+    assert (== info.2 7)
+}
+
+/* Test 4: String and int tuple */
+fn get_user_info() -> (string, int, bool) {
+    return ("Alice", 30, true)
+}
+
+shadow get_user_info {
+    let user: (string, int, bool) = (get_user_info)
+    assert (== user.0 "Alice")
+    assert (== user.1 30)
+    assert (== user.2 true)
+}
+
+/* Test 5: Fibonacci pair */
+fn fib_pair(n: int) -> (int, int) {
+    if (<= n 1) {
+        return (0, 1)
+    } else {
+        let prev: (int, int) = (fib_pair (- n 1))
+        let a: int = prev.0
+        let b: int = prev.1
+        return (b, (+ a b))
+    }
+}
+
+shadow fib_pair {
+    let result: (int, int) = (fib_pair 6)
+    assert (== result.0 8)
+    assert (== result.1 13)
+}
+
+/* Test 6: Multiple tuple returns in one function */
+fn classify_number(n: int) -> (bool, bool, bool) {
+    let is_positive: bool = (> n 0)
+    let is_even: bool = (== (% n 2) 0)
+    let is_big: bool = (> n 100)
+    return (is_positive, is_even, is_big)
+}
+
+shadow classify_number {
+    let result1: (bool, bool, bool) = (classify_number 50)
+    assert (== result1.0 true)
+    assert (== result1.1 true)
+    assert (== result1.2 false)
+    
+    let result2: (bool, bool, bool) = (classify_number 150)
+    assert (== result2.0 true)
+    assert (== result2.1 true)
+    assert (== result2.2 true)
+}
+
+/* Test 7: Tuple in loop */
+fn sum_tuple_loop() -> int {
+    let mut sum: int = 0
+    let mut i: int = 0
+    
+    while (< i 5) {
+        let pair: (int, int) = (i, (* i 2))
+        set sum (+ sum (+ pair.0 pair.1))
+        set i (+ i 1)
+    }
+    
+    return sum
+}
+
+shadow sum_tuple_loop {
+    assert (== (sum_tuple_loop) 30)
+}
+
+/* Test 8: Boolean tuples */
+fn test_bool_tuple() -> int {
+    let flags: (bool, bool, bool) = (true, false, true)
+    let mut count: int = 0
+    
+    if flags.0 {
+        set count (+ count 1)
+    } else {
+        set count (+ count 0)
+    }
+    
+    if flags.1 {
+        set count (+ count 1)
+    } else {
+        set count (+ count 0)
+    }
+    
+    if flags.2 {
+        set count (+ count 1)
+    } else {
+        set count (+ count 0)
+    }
+    
+    return count
+}
+
+shadow test_bool_tuple {
+    assert (== (test_bool_tuple) 2)
+}
+
+/* Test 9: Five element tuple */
+fn test_five_tuple() -> int {
+    let t: (int, int, int, int, int) = (10, 20, 30, 40, 50)
+    return (+ (+ (+ (+ t.0 t.1) t.2) t.3) t.4)
+}
+
+shadow test_five_tuple {
+    assert (== (test_five_tuple) 150)
+}
+
+/* Test 10: Using tuple values multiple times */
+fn test_tuple_reuse() -> int {
+    let data: (int, int) = (7, 3)
+    let sum: int = (+ data.0 data.1)
+    let diff: int = (- data.0 data.1)
+    let product: int = (* data.0 data.1)
+    
+    return (+ (+ sum diff) product)
+}
+
+shadow test_tuple_reuse {
+    assert (== (test_tuple_reuse) 31)
+}
+
+fn main() -> int {
+    (println "All advanced tuple tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

@@ -1,0 +1,134 @@
+/* Basic tuple tests */
+
+/* Test 1: Simple tuple literal and index access */
+fn test_basic_tuple() -> int {
+    let t: (int, int) = (10, 20)
+    let a: int = t.0
+    let b: int = t.1
+    return (+ a b)
+}
+
+shadow test_basic_tuple {
+    assert (== (test_basic_tuple) 30)
+}
+
+/* Test 2: Tuple with mixed types */
+fn test_mixed_tuple() -> int {
+    let t: (int, bool, int) = (42, true, 7)
+    let x: int = t.0
+    let flag: bool = t.1
+    if flag {
+        return x
+    } else {
+        return 0
+    }
+}
+
+shadow test_mixed_tuple {
+    assert (== (test_mixed_tuple) 42)
+}
+
+/* Test 3: Tuple return value */
+fn get_pair() -> (int, int) {
+    return (100, 200)
+}
+
+shadow get_pair {
+    let result: (int, int) = (get_pair)
+    assert (== result.0 100)
+    assert (== result.1 200)
+}
+
+/* Test 4: Division with quotient and remainder */
+fn divide_with_remainder(a: int, b: int) -> (int, int) {
+    let quotient: int = (/ a b)
+    let remainder: int = (% a b)
+    return (quotient, remainder)
+}
+
+shadow divide_with_remainder {
+    let result: (int, int) = (divide_with_remainder 10 3)
+    assert (== result.0 3)
+    assert (== result.1 1)
+}
+
+/* Test 5: Tuple with string */
+fn test_string_tuple() -> int {
+    let t: (int, string, int) = (5, "test", 10)
+    return (+ t.0 t.2)
+}
+
+shadow test_string_tuple {
+    assert (== (test_string_tuple) 15)
+}
+
+/* Test 6: Nested tuple access */
+fn test_tuple_in_arithmetic() -> int {
+    let coords: (int, int) = (3, 4)
+    let sum: int = (+ coords.0 coords.1)
+    let product: int = (* coords.0 coords.1)
+    return (+ sum product)
+}
+
+shadow test_tuple_in_arithmetic {
+    assert (== (test_tuple_in_arithmetic) 19)
+}
+
+/* Test 7: Three element tuple */
+fn test_three_tuple() -> int {
+    let t: (int, int, int) = (1, 2, 3)
+    return (+ (+ t.0 t.1) t.2)
+}
+
+shadow test_three_tuple {
+    assert (== (test_three_tuple) 6)
+}
+
+/* Test 8: Tuple assignment to variables */
+fn test_tuple_variables() -> int {
+    let pair: (int, int) = (50, 30)
+    let first: int = pair.0
+    let second: int = pair.1
+    return (- first second)
+}
+
+shadow test_tuple_variables {
+    assert (== (test_tuple_variables) 20)
+}
+
+/* Test 9: Using tuples in conditions */
+fn test_tuple_condition() -> int {
+    let data: (bool, int, int) = (true, 100, 999)
+    let flag: bool = data.0
+    
+    if flag {
+        return data.1
+    } else {
+        return data.2
+    }
+}
+
+shadow test_tuple_condition {
+    assert (== (test_tuple_condition) 100)
+}
+
+/* Test 10: Four element tuple */
+fn test_four_tuple() -> bool {
+    let t: (int, int, int, int) = (1, 2, 3, 4)
+    let sum: int = (+ (+ t.0 t.1) (+ t.2 t.3))
+    return (== sum 10)
+}
+
+shadow test_four_tuple {
+    assert (== (test_four_tuple) true)
+}
+
+fn main() -> int {
+    (println "All tuple tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

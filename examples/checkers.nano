@@ -10,7 +10,7 @@
 # MODERNIZED: Uses enums, structs, top-level constants!
 
 import "modules/sdl/sdl.nano"
-import "sdl_helpers.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
 
 # === ENUMS ===
 enum PieceType {
@@ -37,10 +37,7 @@ struct Position {
 let BOARD_SIZE: int = 8
 let SQUARE_SIZE: int = 80
 let STATUS_HEIGHT: int = 60
-let SDL_INIT_VIDEO: int = 32
-let SDL_WINDOWPOS_UNDEFINED: int = 536805376
-let SDL_WINDOW_SHOWN: int = 4
-let SDL_RENDERER_ACCELERATED: int = 2
+# SDL constants - now using values directly to avoid conflicts with SDL.h
 
 # Helper Functions for Board Access
 fn board_index(row: int, col: int) -> int {
@@ -912,11 +909,7 @@ shadow make_move {
 fn main() -> int {
     (println "Starting Checkers - Full Version...")
     
-    # SDL constants
-    let sdl_init_video: int = SDL_INIT_VIDEO
-    let sdl_windowpos_undefined: int = SDL_WINDOWPOS_UNDEFINED
-    let sdl_window_shown: int = SDL_WINDOW_SHOWN
-    let sdl_renderer_accelerated: int = SDL_RENDERER_ACCELERATED
+    # SDL constants come from the imported SDL module
     
     # Window dimensions
     let board_size: int = BOARD_SIZE
@@ -925,13 +918,13 @@ fn main() -> int {
     let window_height: int = (+ (* board_size square_size) 60)
     
     # Initialize SDL
-    if (< (SDL_Init sdl_init_video) 0) {
+    if (< (SDL_Init SDL_INIT_VIDEO) 0) {
         (println "SDL initialization failed")
         return 1
     } else {}
     
     # Create window
-    let window: int = (SDL_CreateWindow "Checkers" sdl_windowpos_undefined sdl_windowpos_undefined window_width window_height sdl_window_shown)
+    let window: int = (SDL_CreateWindow "Checkers" SDL_WINDOWPOS_UNDEFINED SDL_WINDOWPOS_UNDEFINED window_width window_height SDL_WINDOW_SHOWN)
     if (== window 0) {
         (println "Window creation failed")
         (SDL_Quit)
@@ -939,7 +932,7 @@ fn main() -> int {
     } else {}
     
     # Create renderer
-    let renderer: int = (SDL_CreateRenderer window -1 sdl_renderer_accelerated)
+    let renderer: int = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
     if (== renderer 0) {
         (println "Renderer creation failed")
         (SDL_DestroyWindow window)

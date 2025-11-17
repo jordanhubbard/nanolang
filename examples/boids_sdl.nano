@@ -3,7 +3,7 @@
 # MODERNIZED: Added Boid struct for cleaner data organization
 
 import "modules/sdl/sdl.nano"
-import "sdl_helpers.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
 
 # === STRUCTS ===
 struct Boid {
@@ -133,15 +133,21 @@ fn main() -> int {
     
     (println "✓ Boids spawned")
     (println "")
-    (println "Running simulation (5 seconds)...")
+    (println "Press ESC or close window to quit...")
     
     # Main loop
     let dt: float = 0.016
-    let max_frames: int = (* FPS 5)
     let mut frame: int = 0
     let mut running: bool = true
     
-    while (and running (< frame max_frames)) {
+    while running {
+        # Check for quit event
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) {
+            set running false
+        } else {}
+        
+        # Continue with simulation
         # For now: velocities stay constant (simplified demo)
         
         # Update positions

@@ -1,4 +1,4 @@
-import "modules/sdl/sdl.nano"
+import "sdl/sdl.nano"
 
 fn main() -> int {
     (println "Testing SDL module import")

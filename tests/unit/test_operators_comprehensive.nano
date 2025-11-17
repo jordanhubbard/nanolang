@@ -1,0 +1,252 @@
+/* Comprehensive test for all nanolang operators */
+
+/* ===== ARITHMETIC OPERATORS ===== */
+
+fn test_addition() -> int {
+    let a: int = (+ 5 3)
+    let b: int = (+ -2 7)
+    let c: int = (+ 0 0)
+    return (+ a (+ b c))
+}
+
+shadow test_addition {
+    assert (== (test_addition) 13)
+    assert (== (+ 10 5) 15)
+    assert (== (+ -5 5) 0)
+}
+
+fn test_subtraction() -> int {
+    let a: int = (- 10 3)
+    let b: int = (- 0 5)
+    let c: int = (- -3 -8)
+    return (+ a (+ b c))
+}
+
+shadow test_subtraction {
+    assert (== (test_subtraction) 7)
+    assert (== (- 10 5) 5)
+    assert (== (- 5 10) -5)
+}
+
+fn test_multiplication() -> int {
+    let a: int = (* 5 3)
+    let b: int = (* -2 4)
+    let c: int = (* 0 100)
+    return (+ a (+ b c))
+}
+
+shadow test_multiplication {
+    assert (== (test_multiplication) 7)
+    assert (== (* 6 7) 42)
+    assert (== (* -3 3) -9)
+}
+
+fn test_division() -> int {
+    let a: int = (/ 20 4)
+    let b: int = (/ 15 3)
+    let c: int = (/ -8 2)
+    return (+ a (+ b c))
+}
+
+shadow test_division {
+    assert (== (test_division) 6)
+    assert (== (/ 10 2) 5)
+    assert (== (/ 9 3) 3)
+}
+
+fn test_modulo() -> int {
+    let a: int = (% 10 3)
+    let b: int = (% 15 4)
+    let c: int = (% 7 2)
+    return (+ a (+ b c))
+}
+
+shadow test_modulo {
+    assert (== (test_modulo) 5)
+    assert (== (% 10 3) 1)
+    assert (== (% 15 4) 3)
+    assert (== (% 8 2) 0)
+}
+
+fn test_float_arithmetic() -> float {
+    let a: float = (+ 2.5 3.5)
+    let b: float = (- 10.0 2.5)
+    let c: float = (* 2.0 3.0)
+    let d: float = (/ 9.0 3.0)
+    return (+ a (+ b (+ c d)))
+}
+
+shadow test_float_arithmetic {
+    let result: float = (test_float_arithmetic)
+    assert (== result 22.5)
+}
+
+/* ===== COMPARISON OPERATORS ===== */
+
+fn test_equality() -> bool {
+    let a: bool = (== 5 5)
+    let b: bool = (== 10 15)
+    let c: bool = (== "hello" "hello")
+    let d: bool = (== true true)
+    return (and a (and (not b) (and c d)))
+}
+
+shadow test_equality {
+    assert (== (test_equality) true)
+    assert (== (== 42 42) true)
+    assert (== (== 5 10) false)
+}
+
+fn test_inequality() -> bool {
+    let a: bool = (!= 5 3)
+    let b: bool = (!= 10 10)
+    let c: bool = (!= "hello" "world")
+    return (and a (and (not b) c))
+}
+
+shadow test_inequality {
+    assert (== (test_inequality) true)
+    assert (== (!= 5 3) true)
+    assert (== (!= 10 10) false)
+}
+
+fn test_less_than() -> bool {
+    let a: bool = (< 3 5)
+    let b: bool = (< 10 5)
+    let c: bool = (< 5 5)
+    return (and a (and (not b) (not c)))
+}
+
+shadow test_less_than {
+    assert (== (test_less_than) true)
+    assert (== (< 3 7) true)
+    assert (== (< 10 5) false)
+    assert (== (< 5 5) false)
+}
+
+fn test_less_equal() -> bool {
+    let a: bool = (<= 3 5)
+    let b: bool = (<= 5 5)
+    let c: bool = (<= 10 5)
+    return (and a (and b (not c)))
+}
+
+shadow test_less_equal {
+    assert (== (test_less_equal) true)
+    assert (== (<= 3 5) true)
+    assert (== (<= 5 5) true)
+    assert (== (<= 10 5) false)
+}
+
+fn test_greater_than() -> bool {
+    let a: bool = (> 5 3)
+    let b: bool = (> 5 10)
+    let c: bool = (> 5 5)
+    return (and a (and (not b) (not c)))
+}
+
+shadow test_greater_than {
+    assert (== (test_greater_than) true)
+    assert (== (> 10 5) true)
+    assert (== (> 3 7) false)
+    assert (== (> 5 5) false)
+}
+
+fn test_greater_equal() -> bool {
+    let a: bool = (>= 5 3)
+    let b: bool = (>= 5 5)
+    let c: bool = (>= 3 5)
+    return (and a (and b (not c)))
+}
+
+shadow test_greater_equal {
+    assert (== (test_greater_equal) true)
+    assert (== (>= 5 3) true)
+    assert (== (>= 5 5) true)
+    assert (== (>= 3 5) false)
+}
+
+/* ===== LOGICAL OPERATORS ===== */
+
+fn test_and_operator() -> bool {
+    let a: bool = (and true true)
+    let b: bool = (and true false)
+    let c: bool = (and false true)
+    let d: bool = (and false false)
+    return (and a (and (not b) (and (not c) (not d))))
+}
+
+shadow test_and_operator {
+    assert (== (test_and_operator) true)
+    assert (== (and true true) true)
+    assert (== (and true false) false)
+    assert (== (and false true) false)
+    assert (== (and false false) false)
+}
+
+fn test_or_operator() -> bool {
+    let a: bool = (or true true)
+    let b: bool = (or true false)
+    let c: bool = (or false true)
+    let d: bool = (or false false)
+    return (and a (and b (and c (not d))))
+}
+
+shadow test_or_operator {
+    assert (== (test_or_operator) true)
+    assert (== (or true true) true)
+    assert (== (or true false) true)
+    assert (== (or false true) true)
+    assert (== (or false false) false)
+}
+
+fn test_not_operator() -> bool {
+    let a: bool = (not false)
+    let b: bool = (not true)
+    return (and a (not b))
+}
+
+shadow test_not_operator {
+    assert (== (test_not_operator) true)
+    assert (== (not true) false)
+    assert (== (not false) true)
+}
+
+/* ===== COMPLEX EXPRESSIONS ===== */
+
+fn test_complex_arithmetic() -> int {
+    /* ((5 + 3) * 2 - 10) / 2 = (16 - 10) / 2 = 3 */
+    return (/ (- (* (+ 5 3) 2) 10) 2)
+}
+
+shadow test_complex_arithmetic {
+    assert (== (test_complex_arithmetic) 3)
+}
+
+fn test_complex_logic() -> bool {
+    /* (true AND (false OR true)) AND NOT(false AND true) */
+    return (and (and true (or false true)) (not (and false true)))
+}
+
+shadow test_complex_logic {
+    assert (== (test_complex_logic) true)
+}
+
+fn test_mixed_comparison() -> bool {
+    /* (5 < 10) AND (10 > 3) AND (7 == 7) AND (5 != 3) */
+    return (and (< 5 10) (and (> 10 3) (and (== 7 7) (!= 5 3))))
+}
+
+shadow test_mixed_comparison {
+    assert (== (test_mixed_comparison) true)
+}
+
+fn main() -> int {
+    (println "All operator tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

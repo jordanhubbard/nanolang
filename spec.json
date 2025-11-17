@@ -88,9 +88,15 @@
       "tuple": {
         "kind": "tuple",
         "syntax": "(type1, type2, type3)",
-        "description": "Tuple type with multiple values (type system complete, parser pending)",
-        "status": "in_development",
-        "examples": ["(int, int)", "(string, int, bool)"]
+        "description": "Tuple type with multiple values - COMPLETE",
+        "status": "complete",
+        "examples": ["(int, int)", "(string, int, bool)"],
+        "usage": [
+          "Type annotation: let t: (int, string) = (10, \"hello\")",
+          "Tuple literal: (value1, value2, value3)",
+          "Index access: tuple.0, tuple.1, tuple.2",
+          "Function returns: fn divide(a: int, b: int) -> (int, int)"
+        ]
       }
     }
   },
@@ -334,6 +340,7 @@
       "Structs",
       "Enums",
       "Unions with pattern matching",
+      "Tuples (complete)",
       "Generics (List<T>) with monomorphization",
       "First-class functions",
       "Mutability tracking (mut keyword)",
@@ -341,7 +348,6 @@
       "C transpilation with namespacing"
     ],
     "features_in_development": [
-      "Tuple types (type system complete, parser pending)"
     ],
     "future_features": [
       "Module system",

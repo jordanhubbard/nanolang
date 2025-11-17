@@ -1,11 +1,28 @@
 # SDL2 FFI Module
 # Provides bindings to SDL2 library functions
 # 
-# This is an FFI-only module (no implementations, only extern declarations)
+# This module provides both extern function declarations and SDL constants
 # Compilation requirements are specified in module.json
 #
 # The transpiler handles SDL-specific type mappings (SDL_Window*, SDL_Renderer*, 
 # Uint32, Uint8, etc.) automatically via get_sdl_c_type() function.
+
+# SDL2 Constants
+# Note: These values must match SDL2's actual definitions
+let SDL_INIT_VIDEO: int = 32
+let SDL_INIT_AUDIO: int = 16
+let SDL_WINDOWPOS_UNDEFINED: int = 536805376
+let SDL_WINDOWPOS_CENTERED: int = 805240832
+let SDL_WINDOW_SHOWN: int = 4
+let SDL_WINDOW_FULLSCREEN: int = 1
+let SDL_WINDOW_FULLSCREEN_DESKTOP: int = 4097
+let SDL_WINDOW_RESIZABLE: int = 32
+let SDL_RENDERER_ACCELERATED: int = 2
+let SDL_RENDERER_PRESENTVSYNC: int = 4
+let SDL_BLENDMODE_NONE: int = 0
+let SDL_BLENDMODE_BLEND: int = 1
+let SDL_BLENDMODE_ADD: int = 2
+let SDL_BLENDMODE_MOD: int = 4
 
 # SDL2 Core Functions
 extern fn SDL_Init(flags: int) -> int

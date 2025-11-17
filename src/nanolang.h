@@ -56,7 +56,7 @@ typedef enum {
     TOKEN_RETURN,
     TOKEN_ASSERT,
     TOKEN_SHADOW,
-    TOKEN_PRINT,
+    /* TOKEN_PRINT removed - print/println are regular built-in functions */
     TOKEN_ARRAY,
     TOKEN_STRUCT,
     TOKEN_ENUM,
@@ -85,8 +85,8 @@ typedef enum {
     TOKEN_GE,
     TOKEN_AND,
     TOKEN_OR,
-    TOKEN_NOT,
-    TOKEN_RANGE
+    TOKEN_NOT
+    /* TOKEN_RANGE removed - range is a regular built-in function */
 } TokenType;
 
 /* Token structure */
@@ -334,6 +334,7 @@ struct ASTNode {
             Type return_type;
             char *return_struct_type_name;  /* For TYPE_STRUCT returns */
             FunctionSignature *return_fn_sig;  /* For TYPE_FUNCTION returns */
+            TypeInfo *return_type_info;  /* For TYPE_TUPLE returns: stores element types */
             ASTNode *body;
             bool is_extern;  /* NEW: Mark external C functions */
         } function;
@@ -427,6 +428,7 @@ typedef struct {
     Type type;
     char *struct_type_name;  /* For TYPE_STRUCT: which struct (e.g., "Point", "Color") */
     Type element_type;       /* For TYPE_ARRAY: element type (e.g., TYPE_INT for array<int>) */
+    TypeInfo *type_info;     /* For complex types (tuples, generics, etc.) - full type information */
     bool is_mut;
     Value value;
     bool is_used;  /* Track if variable is ever used */
@@ -535,6 +537,7 @@ Environment *create_environment(void);
 void free_environment(Environment *env);
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value);
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value);
+void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value);
 Symbol *env_get_var(Environment *env, const char *name);
 void env_set_var(Environment *env, const char *name, Value value);
 void env_define_function(Environment *env, Function func);

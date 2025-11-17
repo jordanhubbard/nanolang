@@ -13,7 +13,7 @@ typedef struct {
 #define MAX_RECURSION_DEPTH 1000
 
 /* Forward declarations */
-static Type parse_type_with_element(Parser *p, Type *element_type_out, char **type_param_name_out, FunctionSignature **fn_sig_out);
+static Type parse_type_with_element(Parser *p, Type *element_type_out, char **type_param_name_out, FunctionSignature **fn_sig_out, TypeInfo **type_info_out);
 
 /* Helper functions */
 static Token *current_token(Parser *p) {
@@ -176,7 +176,7 @@ static FunctionSignature *parse_function_signature(Parser *p) {
         while (1) {
             char *struct_name = NULL;
             FunctionSignature *nested_fn_sig = NULL;
-            Type param_type = parse_type_with_element(p, NULL, &struct_name, &nested_fn_sig);
+            Type param_type = parse_type_with_element(p, NULL, &struct_name, &nested_fn_sig, NULL);
             
             if (param_type == TYPE_UNKNOWN) {
                 /* Error already reported */
@@ -251,7 +251,7 @@ static FunctionSignature *parse_function_signature(Parser *p) {
     /* Parse return type */
     char *return_struct_name = NULL;
     FunctionSignature *return_fn_sig = NULL;
-    sig->return_type = parse_type_with_element(p, NULL, &return_struct_name, &return_fn_sig);
+    sig->return_type = parse_type_with_element(p, NULL, &return_struct_name, &return_fn_sig, NULL);
     sig->return_struct_name = return_struct_name;  /* May be NULL */
     
     /* TODO: Handle function types as return types */
@@ -274,11 +274,11 @@ static FunctionSignature *parse_function_signature(Parser *p) {
 
 /* Parse type annotation */
 static Type parse_type(Parser *p) {
-    return parse_type_with_element(p, NULL, NULL, NULL);
+    return parse_type_with_element(p, NULL, NULL, NULL, NULL);
 }
 
 /* Parse type annotation with optional element_type output (for arrays) and type_param_name for generics */
-static Type parse_type_with_element(Parser *p, Type *element_type_out, char **type_param_name_out, FunctionSignature **fn_sig_out) {
+static Type parse_type_with_element(Parser *p, Type *element_type_out, char **type_param_name_out, FunctionSignature **fn_sig_out, TypeInfo **type_info_out) {
     Type type = TYPE_UNKNOWN;
     Token *tok = current_token(p);
 
@@ -375,7 +375,7 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
             advance(p);  /* consume '<' */
             
             /* Parse element type (no need for type_param_name in arrays for now) */
-            Type element_type = parse_type_with_element(p, NULL, NULL, NULL);
+            Type element_type = parse_type_with_element(p, NULL, NULL, NULL, NULL);
             if (element_type == TYPE_UNKNOWN) {
                 return TYPE_UNKNOWN;
             }
@@ -393,6 +393,77 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
             }
             type = TYPE_ARRAY;
             return type;
+        case TOKEN_LPAREN: {
+            /* Parse tuple type: (Type1, Type2, Type3) */
+            advance(p);  /* consume '(' */
+            
+            /* Parse tuple element types */
+            int capacity = 4;
+            int count = 0;
+            Type *tuple_types = malloc(sizeof(Type) * capacity);
+            char **tuple_type_names = malloc(sizeof(char*) * capacity);
+            
+            /* Parse first type */
+            if (!match(p, TOKEN_RPAREN)) {
+                do {
+                    if (count >= capacity) {
+                        capacity *= 2;
+                        tuple_types = realloc(tuple_types, sizeof(Type) * capacity);
+                        tuple_type_names = realloc(tuple_type_names, sizeof(char*) * capacity);
+                    }
+                    
+                    char *elem_type_name = NULL;
+                    TypeInfo *elem_type_info = NULL;
+                    Type elem_type = parse_type_with_element(p, NULL, &elem_type_name, NULL, &elem_type_info);
+                    if (elem_type == TYPE_UNKNOWN) {
+                        free(tuple_types);
+                        for (int i = 0; i < count; i++) {
+                            if (tuple_type_names[i]) free(tuple_type_names[i]);
+                        }
+                        free(tuple_type_names);
+                        return TYPE_UNKNOWN;
+                    }
+                    
+                    tuple_types[count] = elem_type;
+                    tuple_type_names[count] = elem_type_name;  /* May be NULL for primitive types */
+                    count++;
+                    
+                    if (match(p, TOKEN_COMMA)) {
+                        advance(p);  /* consume ',' */
+                    } else {
+                        break;
+                    }
+                } while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF));
+            }
+            
+            if (!expect(p, TOKEN_RPAREN, "Expected ')' after tuple types")) {
+                free(tuple_types);
+                for (int i = 0; i < count; i++) {
+                    if (tuple_type_names[i]) free(tuple_type_names[i]);
+                }
+                free(tuple_type_names);
+                return TYPE_UNKNOWN;
+            }
+            
+            /* Create TypeInfo for tuple if output parameter provided */
+            if (type_info_out) {
+                TypeInfo *info = malloc(sizeof(TypeInfo));
+                info->base_type = TYPE_TUPLE;
+                info->tuple_types = tuple_types;
+                info->tuple_type_names = tuple_type_names;
+                info->tuple_element_count = count;
+                *type_info_out = info;
+            } else {
+                /* Free if not needed */
+                free(tuple_types);
+                for (int i = 0; i < count; i++) {
+                    if (tuple_type_names[i]) free(tuple_type_names[i]);
+                }
+                free(tuple_type_names);
+            }
+            
+            return TYPE_TUPLE;
+        }
         default:
             fprintf(stderr, "Error at line %d, column %d: Expected type annotation\n", tok->line, tok->column);
             return TYPE_UNKNOWN;
@@ -442,7 +513,7 @@ static bool parse_parameters(Parser *p, Parameter **params, int *param_count) {
             Type element_type = TYPE_UNKNOWN;
             char *type_param_name = NULL;
             FunctionSignature *fn_sig = NULL;
-            param_list[count].type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig);
+            param_list[count].type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig, NULL);
             param_list[count].struct_type_name = type_param_name;  /* Store generic type param here */
             param_list[count].element_type = element_type;
             param_list[count].fn_sig = fn_sig;  /* Store function signature if it's a function type */
@@ -517,7 +588,7 @@ static ASTNode *parse_prefix_op(Parser *p) {
         node->as.prefix_op.args = args;
         node->as.prefix_op.arg_count = count;
         return node;
-    } else if (match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_RANGE) || match(p, TOKEN_PRINT)) {
+    } else if (match(p, TOKEN_IDENTIFIER)) {
         /* Check if this is union construction (Identifier.Variant) or function call */
         /* Peek ahead to see if next token is DOT - if so, it's union construction not a function call */
         Token *next_tok = peek_token(p, 1);
@@ -532,15 +603,9 @@ static ASTNode *parse_prefix_op(Parser *p) {
             return expr;
         }
         
-        /* It's a function call - allow print as function name */
-        char *func_name;
-        if (tok->type == TOKEN_PRINT) {
-            func_name = strdup("print");
-            advance(p);
-        } else {
-            func_name = strdup(tok->value ? tok->value : "range");
-            advance(p);
-        }
+        /* It's a function call */
+        char *func_name = strdup(tok->value ? tok->value : "unknown");
+        advance(p);
 
         int capacity = 4;
         int count = 0;
@@ -727,8 +792,202 @@ static ASTNode *parse_primary(Parser *p) {
             }
         }
 
-        case TOKEN_LPAREN:
-            return parse_prefix_op(p);
+        case TOKEN_LPAREN: {
+            /* Could be:
+             * 1. Prefix operation: (+ a b), (func arg1 arg2)
+             * 2. Tuple literal: (value, value, ...)
+             * 3. Parenthesized expression: (expr)
+             * 
+             * Strategy: Peek ahead to distinguish. If next token is an operator or looks like
+             * a function call pattern, parse as prefix op. Otherwise, parse first element
+             * and check for comma to distinguish tuple vs parenthesized expr.
+             */
+            int line = tok->line;
+            int column = tok->column;
+            
+            /* Peek at next token after '(' */
+            Token *next = peek_token(p, 1);
+            if (!next) {
+                fprintf(stderr, "Error at line %d, column %d: Unexpected end of input after '('\n",
+                        line, column);
+                return NULL;
+            }
+            
+            /* Check for empty tuple: () */
+            if (next->type == TOKEN_RPAREN) {
+                advance(p);  /* consume '(' */
+                advance(p);  /* consume ')' */
+                node = create_node(AST_TUPLE_LITERAL, line, column);
+                node->as.tuple_literal.elements = NULL;
+                node->as.tuple_literal.element_count = 0;
+                node->as.tuple_literal.element_types = NULL;
+                return node;
+            }
+            
+            /* If next token is an operator (+, -, *, /, %, ==, !=, <, >, etc.),
+             * parse as prefix operation. Note: We can't reliably distinguish function calls
+             * from tuple literals by looking at the first identifier, so we handle both
+             * by parsing the first element and checking what follows. */
+            bool is_operator = (next->type == TOKEN_PLUS || next->type == TOKEN_MINUS ||
+                               next->type == TOKEN_STAR || next->type == TOKEN_SLASH ||
+                               next->type == TOKEN_PERCENT ||
+                               next->type == TOKEN_EQ || next->type == TOKEN_NE ||
+                               next->type == TOKEN_LT || next->type == TOKEN_GT ||
+                               next->type == TOKEN_LE || next->type == TOKEN_GE ||
+                               next->type == TOKEN_AND || next->type == TOKEN_OR ||
+                               next->type == TOKEN_NOT);
+            
+            if (is_operator) {
+                /* Parse as prefix operation */
+                return parse_prefix_op(p);
+            }
+            
+            /* Otherwise, could be:
+             * - Function call: (func arg1 arg2)
+             * - Tuple literal: (value, value, ...)
+             * - Parenthesized expression: (expr)
+             */
+            advance(p);  /* consume '(' */
+            
+            ASTNode *first_expr = parse_expression(p);
+            if (!first_expr) {
+                fprintf(stderr, "Error at line %d, column %d: Failed to parse expression after '('\n",
+                        line, column);
+                return NULL;
+            }
+            
+            /* Check what follows the first expression */
+            if (match(p, TOKEN_COMMA)) {
+                /* It's a tuple literal: (expr, expr, ...) */
+                int capacity = 4;
+                int count = 1;
+                ASTNode **elements = malloc(sizeof(ASTNode*) * capacity);
+                elements[0] = first_expr;
+                
+                /* Parse remaining elements */
+                while (match(p, TOKEN_COMMA)) {
+                    advance(p);  /* consume ',' */
+                    
+                    /* Allow trailing comma before ) */
+                    if (match(p, TOKEN_RPAREN)) {
+                        break;
+                    }
+                    
+                    if (count >= capacity) {
+                        capacity *= 2;
+                        elements = realloc(elements, sizeof(ASTNode*) * capacity);
+                    }
+                    
+                    elements[count] = parse_expression(p);
+                    if (!elements[count]) {
+                        fprintf(stderr, "Error at line %d, column %d: Failed to parse tuple element\n",
+                                current_token(p)->line, current_token(p)->column);
+                        for (int i = 0; i < count; i++) {
+                            free_ast(elements[i]);
+                        }
+                        free(elements);
+                        return NULL;
+                    }
+                    count++;
+                }
+                
+                if (!expect(p, TOKEN_RPAREN, "Expected ')' at end of tuple literal")) {
+                    for (int i = 0; i < count; i++) {
+                        free_ast(elements[i]);
+                    }
+                    free(elements);
+                    return NULL;
+                }
+                
+                node = create_node(AST_TUPLE_LITERAL, line, column);
+                node->as.tuple_literal.elements = elements;
+                node->as.tuple_literal.element_count = count;
+                node->as.tuple_literal.element_types = NULL;  /* Filled by type checker */
+                return node;
+            } else if (match(p, TOKEN_RPAREN)) {
+                /* Could be:
+                 * 1. Function call with zero arguments: (funcname)
+                 * 2. Parenthesized expression: (expr)
+                 * 
+                 * If first_expr is an identifier, treat it as a function call with zero arguments.
+                 * This ensures (main) calls main() instead of returning the function value.
+                 */
+                if (first_expr->type == AST_IDENTIFIER) {
+                    /* Treat as function call with zero arguments */
+                    advance(p);  /* consume ')' */
+                    
+                    ASTNode *node = create_node(AST_CALL, line, column);
+                    node->as.call.name = first_expr->as.identifier;  /* Steal the string */
+                    node->as.call.args = NULL;  /* Zero arguments */
+                    node->as.call.arg_count = 0;
+                    
+                    /* Free the identifier node shell (but not the string, we stole it) */
+                    free(first_expr);
+                    return node;
+                } else {
+                    /* Parenthesized expression: (expr) */
+                    advance(p);  /* consume ')' */
+                    return first_expr;
+                }
+            } else {
+                /* It's a function call: (func arg1 arg2 ...) */
+                /* First expression should be the function name */
+                if (first_expr->type != AST_IDENTIFIER) {
+                    fprintf(stderr, "Error at line %d, column %d: Function call requires identifier as first element\n",
+                            line, column);
+                    free_ast(first_expr);
+                    return NULL;
+                }
+                
+                char *func_name = first_expr->as.identifier;
+                
+                /* Parse arguments */
+                int capacity = 4;
+                int count = 0;
+                ASTNode **args = malloc(sizeof(ASTNode*) * capacity);
+                
+                while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF)) {
+                    if (count >= capacity) {
+                        capacity *= 2;
+                        args = realloc(args, sizeof(ASTNode*) * capacity);
+                    }
+                    
+                    args[count] = parse_expression(p);
+                    if (!args[count]) {
+                        fprintf(stderr, "Error at line %d, column %d: Failed to parse function argument\n",
+                                current_token(p)->line, current_token(p)->column);
+                        for (int i = 0; i < count; i++) {
+                            free_ast(args[i]);
+                        }
+                        free(args);
+                        free(func_name);
+                        free(first_expr);  /* Don't use free_ast - we already extracted the identifier */
+                        return NULL;
+                    }
+                    count++;
+                }
+                
+                if (!expect(p, TOKEN_RPAREN, "Expected ')' at end of function call")) {
+                    for (int i = 0; i < count; i++) {
+                        free_ast(args[i]);
+                    }
+                    free(args);
+                    free_ast(first_expr);
+                    return NULL;
+                }
+                
+                /* Create function call node */
+                node = create_node(AST_CALL, line, column);
+                node->as.call.name = func_name;
+                node->as.call.args = args;
+                node->as.call.arg_count = count;
+                
+                /* Free the first_expr struct but keep the identifier */
+                free(first_expr);  /* Don't use free_ast - we're using the identifier */
+                
+                return node;
+            }
+        }
 
         default: {
             /* Re-read token to ensure it's still valid (might have been corrupted during recursion) */
@@ -861,6 +1120,7 @@ static ASTNode *parse_expression(Parser *p) {
     /* Handle field access or union construction:
      * - obj.field -> field access
      * - UnionName.Variant { ... } -> union construction
+     * - tuple.0, tuple.1 -> tuple index access
      */
     while (match(p, TOKEN_DOT)) {
         Token *dot_tok = current_token(p);
@@ -873,10 +1133,24 @@ static ASTNode *parse_expression(Parser *p) {
         int column = dot_tok->column;
         advance(p);  /* consume '.' */
         
+        /* Check if this is a tuple index: tuple.0, tuple.1, etc. */
+        if (match(p, TOKEN_NUMBER)) {
+            Token *num_tok = current_token(p);
+            int index = (int)atoll(num_tok->value);
+            advance(p);  /* consume number */
+            
+            /* Create tuple index node */
+            ASTNode *index_node = create_node(AST_TUPLE_INDEX, line, column);
+            index_node->as.tuple_index.tuple = expr;
+            index_node->as.tuple_index.index = index;
+            expr = index_node;
+            continue;
+        }
+        
         if (!match(p, TOKEN_IDENTIFIER)) {
             Token *err_tok = current_token(p);
             if (err_tok) {
-                fprintf(stderr, "Error at line %d, column %d: Expected field or variant name after '.'\n",
+                fprintf(stderr, "Error at line %d, column %d: Expected field name, variant name, or tuple index after '.'\n",
                         err_tok->line, err_tok->column);
             } else {
                 fprintf(stderr, "Error: Parser reached invalid state (NULL token) after '.'\n");
@@ -1125,7 +1399,7 @@ static ASTNode *parse_statement(Parser *p) {
             Type element_type = TYPE_UNKNOWN;
             char *type_param_name = NULL;  /* For generic types like List<Point> */
             FunctionSignature *fn_sig = NULL;  /* For function types */
-            Type type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig);
+            Type type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig, NULL);
 
             /* For generic lists, type_param_name contains the element type (e.g., "Point") */
             /* For structs, type_name contains the struct name */
@@ -1242,17 +1516,7 @@ static ASTNode *parse_statement(Parser *p) {
             return node;
         }
 
-        case TOKEN_PRINT: {
-            int line = tok->line;
-            int column = tok->column;
-            advance(p);
-
-            ASTNode *expr = parse_expression(p);
-
-            node = create_node(AST_PRINT, line, column);
-            node->as.print.expr = expr;
-            return node;
-        }
+        /* TOKEN_PRINT case removed - print is now a regular built-in function */
 
         case TOKEN_ASSERT: {
             int line = tok->line;
@@ -1808,10 +2072,11 @@ static ASTNode *parse_function(Parser *p, bool is_extern) {
         return NULL;
     }
 
-    /* Parse return type and capture struct/generic type name if applicable */
+    /* Parse return type and capture struct/generic type name and TypeInfo if applicable */
     char *return_struct_name = NULL;
     FunctionSignature *return_fn_sig = NULL;
-    Type return_type = parse_type_with_element(p, NULL, &return_struct_name, &return_fn_sig);
+    TypeInfo *return_type_info = NULL;
+    Type return_type = parse_type_with_element(p, NULL, &return_struct_name, &return_fn_sig, &return_type_info);
     
     /* For non-generic structs, we still need to capture the name */
     if (return_type == TYPE_STRUCT && !return_struct_name) {
@@ -1844,6 +2109,7 @@ static ASTNode *parse_function(Parser *p, bool is_extern) {
     node->as.function.return_type = return_type;
     node->as.function.return_struct_type_name = return_struct_name;  /* May be NULL */
     node->as.function.return_fn_sig = return_fn_sig;  /* May be NULL */
+    node->as.function.return_type_info = return_type_info;  /* May be NULL, for tuple returns */
     node->as.function.body = body;
     node->as.function.is_extern = is_extern;
     return node;
