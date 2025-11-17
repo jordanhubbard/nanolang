@@ -1,8 +1,18 @@
 # PARTICLE EXPLOSION - Interactive Particle System
 # Click to spawn explosions! Tests: Dynamic arrays, GC, SDL events
+# MODERNIZED: Added Particle struct for cleaner data organization
 
 import "modules/sdl/sdl.nano"
 import "sdl_helpers.nano"
+
+# === STRUCTS ===
+struct Particle {
+    x: float,
+    y: float,
+    vx: float,
+    vy: float,
+    life: float
+}
 
 # === CONSTANTS ===
 let WINDOW_WIDTH: int = 800
