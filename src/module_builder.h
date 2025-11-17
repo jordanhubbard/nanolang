@@ -13,6 +13,10 @@ typedef struct {
     char *version;
     char *description;
     
+    // C headers to include (e.g., ["SDL.h", "SDL_mixer.h"])
+    char **headers;
+    size_t headers_count;
+    
     // C sources to compile
     char **c_sources;
     size_t c_sources_count;
