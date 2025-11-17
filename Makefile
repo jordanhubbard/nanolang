@@ -93,7 +93,7 @@ stage1.5: $(HYBRID_COMPILER)
 	@echo "✓ Stage 1.5 hybrid compiler built: $(HYBRID_COMPILER)"
 
 clean:
-	rm -f $(OBJ_DIR)/*.o $(OBJ_DIR)/runtime/*.o $(COMPILER) $(INTERPRETER) $(HYBRID_COMPILER) *.out *.out.c tests/*.out tests/*.out.c
+	rm -f $(OBJ_DIR)/*.o $(OBJ_DIR)/runtime/*.o $(COMPILER) $(INTERPRETER) $(HYBRID_COMPILER) $(FFI_BINDGEN) *.out *.out.c tests/*.out tests/*.out.c
 	rm -rf .test_output $(COV_DIR)
 	rm -f *.gcda *.gcno *.gcov coverage.info
 	find . -name "*.gcda" -o -name "*.gcno" | xargs rm -f
