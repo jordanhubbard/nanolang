@@ -1010,11 +1010,11 @@ static ASTNode *parse_primary(Parser *p) {
             
             /* Debug: Special handling for ELSE token to understand flow */
             if (type_name && strcmp(type_name, "ELSE") == 0) {
-                fprintf(stderr, "DEBUG: parse_primary encountered token that names as ELSE (type=%d, TOKEN_ELSE=%d) at line %d, column %d\n",
-                        current_tok->type, TOKEN_ELSE, current_tok->line, current_tok->column);
-                fprintf(stderr, "DEBUG: Token value: '%s'\n", current_tok->value ? current_tok->value : "(null)");
-                fprintf(stderr, "DEBUG: This means parse_expression was called, which called parse_primary\n");
-                fprintf(stderr, "DEBUG: ELSE should never reach parse_primary - it should be handled in parse_if_expression\n");
+                // fprintf(stderr, "DEBUG: parse_primary encountered token that names as ELSE (type=%d, TOKEN_ELSE=%d) at line %d, column %d\n",
+                //         current_tok->type, TOKEN_ELSE, current_tok->line, current_tok->column);
+                // fprintf(stderr, "DEBUG: Token value: '%s'\n", current_tok->value ? current_tok->value : "(null)");
+                // fprintf(stderr, "DEBUG: This means parse_expression was called, which called parse_primary\n");
+                // fprintf(stderr, "DEBUG: ELSE should never reach parse_primary - it should be handled in parse_if_expression\n");
             }
             
             fprintf(stderr, "Error at line %d, column %d: Unexpected token in expression: %s (type=%d)\n",
@@ -1044,14 +1044,14 @@ static ASTNode *parse_if_expression(Parser *p) {
 
     ASTNode *condition = parse_expression(p);
     if (!condition) {
-        fprintf(stderr, "DEBUG [if_depth=%d]: Failed to parse condition at line %d\n", if_depth, line);
+        // fprintf(stderr, "DEBUG [if_depth=%d]: Failed to parse condition at line %d\n", if_depth, line);
         if_depth--;
         return NULL;
     }
 
     ASTNode *then_branch = parse_block(p);
     if (!then_branch) {
-        fprintf(stderr, "DEBUG [if_depth=%d]: Failed to parse then_branch at line %d\n", if_depth, line);
+        // fprintf(stderr, "DEBUG [if_depth=%d]: Failed to parse then_branch at line %d\n", if_depth, line);
         /* Error recovery: if then_branch failed, try to consume ELSE and else_branch
          * to get back to a consistent state */
         if (match(p, TOKEN_ELSE)) {
@@ -1064,19 +1064,19 @@ static ASTNode *parse_if_expression(Parser *p) {
     
     /* Debug: Check current token after then_branch */
     Token *after_then = current_token(p);
-    fprintf(stderr, "DEBUG [if_depth=%d]: After then_branch, current token is %s at line %d, column %d\n",
-            if_depth, after_then ? token_type_name(after_then->type) : "NULL",
-            after_then ? after_then->line : 0, after_then ? after_then->column : 0);
+    // fprintf(stderr, "DEBUG [if_depth=%d]: After then_branch, current token is %s at line %d, column %d\n",
+    //         if_depth, after_then ? token_type_name(after_then->type) : "NULL",
+    //         after_then ? after_then->line : 0, after_then ? after_then->column : 0);
 
     if (!expect(p, TOKEN_ELSE, "Expected 'else' after 'if' block")) {
-        fprintf(stderr, "DEBUG [if_depth=%d]: Failed to find ELSE after then_branch at line %d\n", if_depth, line);
+        // fprintf(stderr, "DEBUG [if_depth=%d]: Failed to find ELSE after then_branch at line %d\n", if_depth, line);
         if_depth--;
         return NULL;
     }
 
     ASTNode *else_branch = parse_block(p);
     if (!else_branch) {
-        fprintf(stderr, "DEBUG [if_depth=%d]: Failed to parse else_branch at line %d\n", if_depth, line);
+        // fprintf(stderr, "DEBUG [if_depth=%d]: Failed to parse else_branch at line %d\n", if_depth, line);
         if_depth--;
         return NULL;
     }
@@ -1285,8 +1285,8 @@ static ASTNode *parse_block(Parser *p) {
     /* Debug: Track block boundaries */
     static int block_count = 0;
     int my_block_id = ++block_count;
-    fprintf(stderr, "DEBUG: [block_%d depth=%d] Started parsing block at line %d\n", 
-            my_block_id, p->recursion_depth, line);
+    // fprintf(stderr, "DEBUG: [block_%d depth=%d] Started parsing block at line %d\n", 
+    //         my_block_id, p->recursion_depth, line);
 
     int capacity = 8;
     int count = 0;
@@ -1334,8 +1334,8 @@ static ASTNode *parse_block(Parser *p) {
     }
 
     Token *end_tok = current_token(p);
-    fprintf(stderr, "DEBUG: [block_%d depth=%d] Expecting closing '}' at line %d\n",
-            my_block_id, p->recursion_depth, end_tok ? end_tok->line : 0);
+    // fprintf(stderr, "DEBUG: [block_%d depth=%d] Expecting closing '}' at line %d\n",
+    //         my_block_id, p->recursion_depth, end_tok ? end_tok->line : 0);
     
     if (!expect(p, TOKEN_RBRACE, "Expected '}'")) {
         free(statements);
@@ -1343,8 +1343,8 @@ static ASTNode *parse_block(Parser *p) {
         return NULL;
     }
 
-    fprintf(stderr, "DEBUG: [block_%d depth=%d] Finished parsing block, consumed %d statements\n",
-            my_block_id, p->recursion_depth, count);
+    // fprintf(stderr, "DEBUG: [block_%d depth=%d] Finished parsing block, consumed %d statements\n",
+    //         my_block_id, p->recursion_depth, count);
 
     ASTNode *node = create_node(AST_BLOCK, line, column);
     node->as.block.statements = statements;
@@ -1556,9 +1556,9 @@ static ASTNode *parse_statement(Parser *p) {
             /* Try to parse as expression statement */
             /* Debug: Check if this is being called with ELSE token */
             if (tok->type == TOKEN_ELSE) {
-                fprintf(stderr, "DEBUG: parse_statement default case hit with ELSE token at line %d, column %d\n",
-                        tok->line, tok->column);
-                fprintf(stderr, "DEBUG: This suggests switch statement didn't match TOKEN_ELSE case\n");
+                // fprintf(stderr, "DEBUG: parse_statement default case hit with ELSE token at line %d, column %d\n",
+                //         tok->line, tok->column);
+                // fprintf(stderr, "DEBUG: This suggests switch statement didn't match TOKEN_ELSE case\n");
             }
             return parse_expression(p);
         }
