@@ -2269,16 +2269,11 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     }
     
     /* Also generate extern declarations for extern functions from imported modules */
-    if (env && env->functions && env->function_count > 0) {
+    /* BUT: If any modules provide C headers, skip this entirely - the headers declare the functions */
+    if (g_module_headers_count == 0 && env && env->functions && env->function_count > 0) {
         for (int i = 0; i < env->function_count; i++) {
             Function *func = &env->functions[i];
             if (!func || !func->name || !func->is_extern) continue;
-            
-            /* Skip SDL/TTF functions - they're declared by #include <SDL.h> and <SDL_ttf.h> */
-            if (strncmp(func->name, "SDL_", 4) == 0 || strncmp(func->name, "TTF_", 4) == 0 ||
-                strncmp(func->name, "Mix_", 4) == 0) {
-                continue;
-            }
             
             /* Check if this extern function is already in the program AST (declared above) */
             bool in_program = false;
