@@ -185,6 +185,61 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
         return strdup(module_path);
     }
     
+    /* Check if this is a project-relative path (starts with "examples/" or "src/") */
+    if (strncmp(module_path, "examples/", 9) == 0 || strncmp(module_path, "src/", 4) == 0) {
+        /* Try to find project root by walking up from current_file */
+        if (current_file) {
+            char current_dir[1024];
+            strncpy(current_dir, current_file, sizeof(current_dir) - 1);
+            current_dir[sizeof(current_dir) - 1] = '\0';
+            
+            /* Remove filename to get directory */
+            char *last_slash = strrchr(current_dir, '/');
+            if (last_slash) {
+                *last_slash = '\0';
+                
+                /* Walk up to find project root (directory containing "modules/" or "examples/") */
+                char test_path[1024];
+                for (int depth = 0; depth < 10; depth++) {
+                    /* Check if this directory has modules/ or examples/ subdirectory */
+                    snprintf(test_path, sizeof(test_path), "%s/modules", current_dir);
+                    DIR *dir = opendir(test_path);
+                    if (dir) {
+                        closedir(dir);
+                        /* Found project root - resolve path from here */
+                        snprintf(test_path, sizeof(test_path), "%s/%s", current_dir, module_path);
+                        FILE *test = fopen(test_path, "r");
+                        if (test) {
+                            fclose(test);
+                            return strdup(test_path);
+                        }
+                        break;
+                    }
+                    
+                    /* Try examples/ directory */
+                    snprintf(test_path, sizeof(test_path), "%s/examples", current_dir);
+                    dir = opendir(test_path);
+                    if (dir) {
+                        closedir(dir);
+                        /* Found project root - resolve path from here */
+                        snprintf(test_path, sizeof(test_path), "%s/%s", current_dir, module_path);
+                        FILE *test = fopen(test_path, "r");
+                        if (test) {
+                            fclose(test);
+                            return strdup(test_path);
+                        }
+                        break;
+                    }
+                    
+                    /* Move up one directory */
+                    last_slash = strrchr(current_dir, '/');
+                    if (!last_slash) break;
+                    *last_slash = '\0';
+                }
+            }
+        }
+    }
+    
     /* First, try relative to current file */
     char *resolved = NULL;
     if (current_file) {
@@ -263,6 +318,15 @@ ASTNode *load_module(const char *module_path, Environment *env) {
     ASTNode *module_ast = parse_program(tokens, token_count);
     if (!module_ast) {
         fprintf(stderr, "Error: Failed to parse module '%s'\n", module_path);
+        free_tokens(tokens, token_count);
+        free(source);
+        return NULL;
+    }
+    
+    /* Process imports first - modules may depend on symbols from imported modules */
+    if (!process_imports(module_ast, env, NULL, module_path)) {
+        fprintf(stderr, "Error: Failed to process imports for module '%s'\n", module_path);
+        free_ast(module_ast);
         free_tokens(tokens, token_count);
         free(source);
         return NULL;
@@ -425,7 +489,17 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
             for (int j = 0; j < module_ast->as.program.count; j++) {
                 ASTNode *module_item = module_ast->as.program.items[j];
                 
-                /* Skip imports, shadows, and statements in modules */
+                /* Export top-level constants (immutable let statements) from modules */
+                if (module_item->type == AST_LET && !module_item->as.let.is_mut) {
+                    /* This is a constant - make it available in importing module */
+                    Value val = create_void();  /* Placeholder for compile-time constant */
+                    env_define_var(env, module_item->as.let.name, 
+                                   module_item->as.let.var_type, 
+                                   false, val);
+                    continue;
+                }
+                
+                /* Skip imports, shadows, and executable statements in modules */
                 if (module_item->type == AST_IMPORT || 
                     module_item->type == AST_SHADOW ||
                     module_item->type == AST_LET ||

@@ -4,9 +4,9 @@
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
 import "modules/sdl_mixer/sdl_mixer.nano"
-import "examples/protracker/types.nano"
-import "examples/protracker/pattern.nano"
-import "examples/protracker/ui.nano"
+import "examples/protracker-clone/types.nano"
+import "examples/protracker-clone/pattern.nano"
+import "examples/protracker-clone/ui.nano"
 
 fn main() -> int {
     (println "")
