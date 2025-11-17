@@ -1,5 +1,7 @@
 #include "nanolang.h"
+#include "module_builder.h"
 #include <stdarg.h>
+#include <libgen.h>
 
 /* String builder for C code generation */
 typedef struct {
@@ -113,6 +115,59 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
 
 /* Global tuple registry - set during transpilation */
 static TupleTypeRegistry *g_tuple_registry = NULL;
+
+/* Global header collection - gathered from imported modules */
+static char **g_module_headers = NULL;
+static size_t g_module_headers_count = 0;
+static size_t g_module_headers_capacity = 0;
+
+static void add_module_header(const char *header) {
+    if (!header) return;
+    
+    /* Check if already added */
+    for (size_t i = 0; i < g_module_headers_count; i++) {
+        if (strcmp(g_module_headers[i], header) == 0) {
+            return;  /* Already in list */
+        }
+    }
+    
+    /* Expand capacity if needed */
+    if (g_module_headers_count >= g_module_headers_capacity) {
+        g_module_headers_capacity = g_module_headers_capacity == 0 ? 8 : g_module_headers_capacity * 2;
+        g_module_headers = realloc(g_module_headers, sizeof(char*) * g_module_headers_capacity);
+    }
+    
+    g_module_headers[g_module_headers_count++] = strdup(header);
+}
+
+static void clear_module_headers(void) {
+    for (size_t i = 0; i < g_module_headers_count; i++) {
+        free(g_module_headers[i]);
+    }
+    free(g_module_headers);
+    g_module_headers = NULL;
+    g_module_headers_count = 0;
+    g_module_headers_capacity = 0;
+}
+
+static void collect_headers_from_module(const char *module_path) {
+    if (!module_path) return;
+    
+    /* Extract module directory from path */
+    char *path_copy = strdup(module_path);
+    char *dir = dirname(path_copy);
+    
+    /* Load module metadata */
+    ModuleBuildMetadata *meta = module_load_metadata(dir);
+    if (meta && meta->headers) {
+        for (size_t i = 0; i < meta->headers_count; i++) {
+            add_module_header(meta->headers[i]);
+        }
+        module_metadata_free(meta);
+    }
+    
+    free(path_copy);
+}
 
 static FunctionTypeRegistry *create_fn_type_registry(void) {
     FunctionTypeRegistry *reg = malloc(sizeof(FunctionTypeRegistry));
@@ -1447,6 +1502,20 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         return NULL;
     }
 
+    /* Clear and collect headers from imported modules */
+    clear_module_headers();
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_IMPORT) {
+            /* Resolve module path and collect headers */
+            char *module_path = resolve_module_path(item->as.import_stmt.module_path, NULL);
+            if (module_path) {
+                collect_headers_from_module(module_path);
+                free(module_path);
+            }
+        }
+    }
+
     StringBuilder *sb = sb_create();
 
     /* C includes and headers */
@@ -1460,10 +1529,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "#include <math.h>\n");
     
     /* Include headers from imported modules (generic C library support) */
-    /* This replaces hardcoded SDL detection with module-driven header includes */
-    /* Note: Module headers are tracked during import processing and stored in environment */
-    /* For now, we'll use a simple approach: check if module paths were loaded */
-    /* TODO: Store module headers in environment during import processing */
+    if (g_module_headers_count > 0) {
+        sb_append(sb, "\n/* Headers from imported modules */\n");
+        for (size_t i = 0; i < g_module_headers_count; i++) {
+            sb_appendf(sb, "#include <%s>\n", g_module_headers[i]);
+        }
+    }
     
     sb_append(sb, "\n/* nanolang runtime */\n");
     sb_append(sb, "#include \"runtime/list_int.h\"\n");
@@ -2528,6 +2599,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     free_fn_type_registry(fn_registry);
     free_tuple_type_registry(tuple_registry);
     g_tuple_registry = NULL;  /* Clear global registry */
+    clear_module_headers();  /* Clear collected headers */
 
     char *result = sb->buffer;
     free(sb);
