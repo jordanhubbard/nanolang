@@ -18,7 +18,7 @@ struct Particle {
 let WINDOW_WIDTH: int = 800
 let WINDOW_HEIGHT: int = 600
 let PARTICLE_SIZE: int = 2
-let PARTICLES_PER_EXPLOSION: int = 30
+let PARTICLES_PER_EXPLOSION: int = 300
 let GRAVITY: float = 100.0
 
 # === PARTICLE PHYSICS ===

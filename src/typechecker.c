@@ -1024,6 +1024,17 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
                 }
             }
             
+            /* Propagate element type to empty array literals for correct transpilation */
+            if (declared_type == TYPE_ARRAY && element_type != TYPE_UNKNOWN) {
+                if (stmt->as.let.value->type == AST_ARRAY_LITERAL) {
+                    ASTNode *array_lit = stmt->as.let.value;
+                    if (array_lit->as.array_literal.element_count == 0) {
+                        /* Set element type on empty array literal so transpiler knows what to generate */
+                        array_lit->as.array_literal.element_type = element_type;
+                    }
+                }
+            }
+            
             /* Create TypeInfo for tuples */
             TypeInfo *type_info = NULL;
             if (declared_type == TYPE_TUPLE && stmt->as.let.value->type == AST_TUPLE_LITERAL) {
@@ -1103,6 +1114,17 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
                 tc->has_error = true;
             }
 
+            /* Propagate element type to empty array literals for correct transpilation */
+            if (sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
+                if (stmt->as.set.value->type == AST_ARRAY_LITERAL) {
+                    ASTNode *array_lit = stmt->as.set.value;
+                    if (array_lit->as.array_literal.element_count == 0) {
+                        /* Set element type on empty array literal so transpiler knows what to generate */
+                        array_lit->as.array_literal.element_type = sym->element_type;
+                    }
+                }
+            }
+            
             Type value_type = check_expression(stmt->as.set.value, tc->env);
             if (!types_match(value_type, sym->type)) {
                 fprintf(stderr, "Error at line %d, column %d: Type mismatch in assignment\n", stmt->line, stmt->column);
