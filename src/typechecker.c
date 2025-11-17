@@ -1074,6 +1074,11 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
                     }
                 }
                 
+                /* If this is an array of structs, store the struct type name for the elements */
+                if (declared_type == TYPE_ARRAY && element_type == TYPE_STRUCT && stmt->as.let.type_name) {
+                    sym->struct_type_name = strdup(stmt->as.let.type_name);
+                }
+                
                 /* If this is a union, store the union type name */
                 if (declared_type == TYPE_UNION && stmt->as.let.type_name) {
                     sym->struct_type_name = strdup(stmt->as.let.type_name);

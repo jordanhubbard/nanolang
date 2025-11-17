@@ -7,14 +7,21 @@ A minimal, LLM-friendly programming language designed for AI programming with st
 ## Quick Start
 
 ```bash
-# Build the compiler
+# Build the compiler and interpreter
 make
 
-# Compile a program
-./nanoc examples/hello.nano -o hello
+# Option 1: Run with the interpreter (instant execution)
+./bin/nano examples/hello.nano
 
-# Run it
+# Option 2: Compile to native binary
+./bin/nanoc examples/hello.nano -o hello
 ./hello
+
+# Run the test suite
+make test
+
+# Build all examples
+make examples
 ```
 
 ## Philosophy
@@ -429,6 +436,69 @@ A small language is:
 - Easier to reason about
 - Less prone to bugs
 
+## Building nanolang
+
+### Build Commands
+
+```bash
+# Build compiler and interpreter (default)
+make
+
+# Run test suite
+make test
+
+# Build all examples
+make examples
+
+# Build with memory sanitizers (for development)
+make sanitize
+
+# Build with coverage instrumentation
+make coverage
+
+# Generate HTML coverage report
+make coverage-report
+
+# Run valgrind memory checks
+make valgrind
+
+# Run static analysis
+make lint
+
+# Quick check (build + test)
+make check
+
+# Install to system (default: /usr/local/bin)
+make install
+
+# Uninstall from system
+make uninstall
+
+# Clean build artifacts
+make clean
+
+# Show all available targets
+make help
+```
+
+### Interpreter vs Compiler
+
+nanolang provides two execution modes:
+
+**Interpreter (`bin/nano`)**:
+- Instant execution, no compilation step
+- Great for development and debugging
+- Built-in tracing support (`--trace-all`, `--trace-function=name`, etc.)
+- Runs shadow-tests automatically
+- Use for rapid iteration
+
+**Compiler (`bin/nanoc`)**:
+- Transpiles to C, then compiles to native binary
+- Maximum performance
+- Produces standalone executables
+- Runs shadow-tests during compilation
+- Use for production builds
+
 ## Getting Started
 
 ### 1. Write a nanolang program
@@ -457,10 +527,18 @@ shadow main {
 }
 ```
 
-### 2. Compile (future)
+### 2. Run or Compile
+
+**Option A: Run with interpreter (instant execution, great for debugging)**
 
 ```bash
-nanoc hello.nano -o hello
+./bin/nano hello.nano
+```
+
+**Option B: Compile to native binary (best performance)**
+
+```bash
+./bin/nanoc hello.nano -o hello
 ./hello
 ```
 
