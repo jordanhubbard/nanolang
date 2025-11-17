@@ -11,15 +11,42 @@
 # Note: Some examples are interpreter-only (run with: ./bin/nano examples/name.nano)
 
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -g
+CFLAGS = -Wall -Wextra -std=c99 -g -I../src
 BIN_DIR = ../bin
 OBJ_DIR = ../obj
 COMPILER = $(BIN_DIR)/nanoc
 INTERPRETER = $(BIN_DIR)/nano
 
-# SDL2 configuration
-SDL2_CFLAGS := -I/opt/homebrew/include/SDL2 -I/usr/local/include/SDL2 -I/usr/include/SDL2
-SDL2_LDFLAGS := -L/opt/homebrew/lib -L/usr/local/lib -L/usr/lib -lSDL2
+# SDL2 configuration - Auto-discover using dep_locator.sh
+DEP_LOCATOR := ../modules/tools/dep_locator.sh
+
+# Try pkg-config first for SDL2
+SDL2_PKG_CONFIG := $(shell pkg-config --exists sdl2 2>/dev/null && echo "yes" || echo "no")
+
+ifeq ($(SDL2_PKG_CONFIG),yes)
+    # Use pkg-config if available (most reliable)
+    SDL2_CFLAGS := $(shell pkg-config --cflags sdl2)
+    SDL2_LDFLAGS := $(shell pkg-config --libs sdl2)
+else
+    # Use dep_locator.sh to find SDL2
+    SDL2_INFO := $(shell $(DEP_LOCATOR) SDL2 2>/dev/null)
+    SDL2_FOUND := $(shell echo '$(SDL2_INFO)' | grep -q '"found": *true' && echo "yes" || echo "no")
+    
+    ifeq ($(SDL2_FOUND),yes)
+        # Extract paths from JSON using sed (portable across macOS and Linux)
+        SDL2_INCLUDE_DIR := $(shell echo '$(SDL2_INFO)' | sed -n 's/.*"include_dirs": *\[ *"\([^"]*\)".*/\1/p')
+        SDL2_LIB_DIR := $(shell echo '$(SDL2_INFO)' | sed -n 's/.*"library_dirs": *\[ *"\([^"]*\)".*/\1/p')
+        
+        ifneq ($(SDL2_INCLUDE_DIR),)
+            SDL2_CFLAGS := -I$(SDL2_INCLUDE_DIR)
+            SDL2_LDFLAGS := -L$(SDL2_LIB_DIR) -lSDL2
+        else
+            $(error SDL2 not found. Please install SDL2)
+        endif
+    else
+        $(error SDL2 not found. Please install SDL2)
+    endif
+endif
 
 # Check if SDL2_ttf is available
 SDL2_TTF_AVAILABLE := $(shell pkg-config --exists sdl2_ttf 2>/dev/null && echo "yes" || echo "no")
@@ -27,13 +54,21 @@ ifeq ($(SDL2_TTF_AVAILABLE),yes)
     SDL2_CFLAGS += -DHAVE_SDL_TTF $(shell pkg-config --cflags sdl2_ttf)
     SDL2_LDFLAGS += $(shell pkg-config --libs sdl2_ttf)
 else
-    # Try common locations
-    ifneq ($(wildcard /opt/homebrew/include/SDL2/SDL_ttf.h),)
-        SDL2_CFLAGS += -DHAVE_SDL_TTF -I/opt/homebrew/include/SDL2
-        SDL2_LDFLAGS += -L/opt/homebrew/lib -lSDL2_ttf
-    else ifneq ($(wildcard /usr/local/include/SDL2/SDL_ttf.h),)
-        SDL2_CFLAGS += -DHAVE_SDL_TTF -I/usr/local/include/SDL2
-        SDL2_LDFLAGS += -L/usr/local/lib -lSDL2_ttf
+    # Check common paths for SDL2_ttf
+    SDL2_TTF_HEADER := $(shell \
+        if [ -f /opt/homebrew/include/SDL2/SDL_ttf.h ]; then \
+            echo /opt/homebrew/include/SDL2/SDL_ttf.h; \
+        elif [ -f /usr/local/include/SDL2/SDL_ttf.h ]; then \
+            echo /usr/local/include/SDL2/SDL_ttf.h; \
+        elif [ -f /usr/include/SDL2/SDL_ttf.h ]; then \
+            echo /usr/include/SDL2/SDL_ttf.h; \
+        fi)
+    
+    ifneq ($(SDL2_TTF_HEADER),)
+        SDL2_TTF_DIR := $(dir $(SDL2_TTF_HEADER))
+        SDL2_TTF_LIBDIR := $(subst include/SDL2/,lib,$(SDL2_TTF_DIR))
+        SDL2_CFLAGS += -DHAVE_SDL_TTF -I$(SDL2_TTF_DIR)
+        SDL2_LDFLAGS += -L$(SDL2_TTF_LIBDIR) -lSDL2_ttf
     endif
 endif
 
@@ -89,7 +124,7 @@ interpreter: $(INTERPRETER) | $(BIN_DIR)
 $(CHECKERS): checkers.nano ../modules/sdl/sdl.nano ../modules/sdl_helpers/sdl_helpers.nano ../modules/sdl_helpers/sdl_helpers.c $(COMPILER) | $(BIN_DIR) $(OBJ_DIR)
 	@echo "Building checkers game..."
 	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -c ../modules/sdl_helpers/sdl_helpers.c -o $(OBJ_DIR)/sdl_helpers_checkers.o
-	NANO_MODULE_PATH=../modules $(COMPILER) checkers.nano -o $(CHECKERS) --keep-c
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/checkers.nano -o bin/checkers --keep-c
 	@echo "#include <stdint.h>" > $(BIN_DIR)/checkers_externs.c
 	@echo "extern int64_t nl_sdl_render_fill_rect(int64_t renderer, int64_t x, int64_t y, int64_t w, int64_t h);" >> $(BIN_DIR)/checkers_externs.c
 	@echo "extern int64_t nl_sdl_poll_event_quit(void);" >> $(BIN_DIR)/checkers_externs.c
@@ -97,7 +132,7 @@ $(CHECKERS): checkers.nano ../modules/sdl/sdl.nano ../modules/sdl_helpers/sdl_he
 	@echo "extern int64_t nl_sdl_render_text_solid(int64_t renderer, int64_t font, const char* text, int64_t x, int64_t y, int64_t r, int64_t g, int64_t b, int64_t a);" >> $(BIN_DIR)/checkers_externs.c
 	@echo "extern int64_t nl_sdl_render_text_blended(int64_t renderer, int64_t font, const char* text, int64_t x, int64_t y, int64_t r, int64_t g, int64_t b, int64_t a);" >> $(BIN_DIR)/checkers_externs.c
 	@cat $(BIN_DIR)/checkers_externs.c $(BIN_DIR)/checkers.c > $(BIN_DIR)/checkers_tmp.c && mv $(BIN_DIR)/checkers_tmp.c $(BIN_DIR)/checkers.c
-	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/checkers.c $(OBJ_DIR)/sdl_helpers_checkers.o -o $(CHECKERS) $(SDL2_LDFLAGS)
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/checkers.c $(OBJ_DIR)/sdl_helpers_checkers.o $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o -o $(CHECKERS) $(SDL2_LDFLAGS)
 	@rm -f $(BIN_DIR)/checkers_externs.c
 	@echo "✓ Checkers built: $(CHECKERS)"
 
@@ -105,11 +140,11 @@ $(CHECKERS): checkers.nano ../modules/sdl/sdl.nano ../modules/sdl_helpers/sdl_he
 $(BOIDS_SDL): boids_sdl.nano ../modules/sdl/sdl.nano ../modules/sdl_helpers/sdl_helpers.nano ../modules/sdl_helpers/sdl_helpers.c $(COMPILER) | $(BIN_DIR) $(OBJ_DIR)
 	@echo "Building Boids SDL simulation..."
 	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -c ../modules/sdl_helpers/sdl_helpers.c -o $(OBJ_DIR)/sdl_helpers_boids.o
-	NANO_MODULE_PATH=../modules $(COMPILER) boids_sdl.nano -o $(BOIDS_SDL) --keep-c
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/boids_sdl.nano -o bin/boids_sdl --keep-c
 	@echo "#include <stdint.h>" > $(BIN_DIR)/boids_sdl_externs.c
 	@echo "extern int64_t nl_sdl_render_fill_rect(int64_t renderer, int64_t x, int64_t y, int64_t w, int64_t h);" >> $(BIN_DIR)/boids_sdl_externs.c
 	@cat $(BIN_DIR)/boids_sdl_externs.c $(BIN_DIR)/boids_sdl.c > $(BIN_DIR)/boids_sdl_tmp.c && mv $(BIN_DIR)/boids_sdl_tmp.c $(BIN_DIR)/boids_sdl.c
-	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/boids_sdl.c $(OBJ_DIR)/sdl_helpers_boids.o -o $(BOIDS_SDL) $(SDL2_LDFLAGS)
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/boids_sdl.c $(OBJ_DIR)/sdl_helpers_boids.o $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o -o $(BOIDS_SDL) $(SDL2_LDFLAGS)
 	@rm -f $(BIN_DIR)/boids_sdl_externs.c
 	@echo "✓ Boids SDL built: $(BOIDS_SDL)"
 
@@ -117,11 +152,11 @@ $(BOIDS_SDL): boids_sdl.nano ../modules/sdl/sdl.nano ../modules/sdl_helpers/sdl_
 $(PARTICLES_SDL): particles_sdl.nano ../modules/sdl/sdl.nano ../modules/sdl_helpers/sdl_helpers.nano ../modules/sdl_helpers/sdl_helpers.c $(COMPILER) | $(BIN_DIR) $(OBJ_DIR)
 	@echo "Building Particles SDL demo..."
 	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -c ../modules/sdl_helpers/sdl_helpers.c -o $(OBJ_DIR)/sdl_helpers_particles.o
-	NANO_MODULE_PATH=../modules $(COMPILER) particles_sdl.nano -o $(PARTICLES_SDL) --keep-c
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/particles_sdl.nano -o bin/particles_sdl --keep-c
 	@echo "#include <stdint.h>" > $(BIN_DIR)/particles_sdl_externs.c
 	@echo "extern int64_t nl_sdl_render_fill_rect(int64_t renderer, int64_t x, int64_t y, int64_t w, int64_t h);" >> $(BIN_DIR)/particles_sdl_externs.c
 	@cat $(BIN_DIR)/particles_sdl_externs.c $(BIN_DIR)/particles_sdl.c > $(BIN_DIR)/particles_sdl_tmp.c && mv $(BIN_DIR)/particles_sdl_tmp.c $(BIN_DIR)/particles_sdl.c
-	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/particles_sdl.c $(OBJ_DIR)/sdl_helpers_particles.o -o $(PARTICLES_SDL) $(SDL2_LDFLAGS)
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/particles_sdl.c $(OBJ_DIR)/sdl_helpers_particles.o $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o -o $(PARTICLES_SDL) $(SDL2_LDFLAGS)
 	@rm -f $(BIN_DIR)/particles_sdl_externs.c
 	@echo "✓ Particles SDL built: $(PARTICLES_SDL)"
 
@@ -129,13 +164,13 @@ $(PARTICLES_SDL): particles_sdl.nano ../modules/sdl/sdl.nano ../modules/sdl_help
 $(FALLING_SAND_SDL): falling_sand_sdl.nano ../modules/sdl/sdl.nano ../modules/sdl_helpers/sdl_helpers.nano ../modules/sdl_helpers/sdl_helpers.c $(COMPILER) | $(BIN_DIR) $(OBJ_DIR)
 	@echo "Building Falling Sand SDL demo..."
 	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -c ../modules/sdl_helpers/sdl_helpers.c -o $(OBJ_DIR)/sdl_helpers_falling_sand.o
-	NANO_MODULE_PATH=../modules $(COMPILER) falling_sand_sdl.nano -o $(FALLING_SAND_SDL) --keep-c
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/falling_sand_sdl.nano -o bin/falling_sand_sdl --keep-c
 	@echo "#include <stdint.h>" > $(BIN_DIR)/falling_sand_sdl_externs.c
 	@echo "extern int64_t nl_sdl_render_fill_rect(int64_t renderer, int64_t x, int64_t y, int64_t w, int64_t h);" >> $(BIN_DIR)/falling_sand_sdl_externs.c
 	@echo "extern int64_t nl_sdl_poll_event_quit(void);" >> $(BIN_DIR)/falling_sand_sdl_externs.c
 	@echo "extern int64_t nl_sdl_poll_mouse_click(void);" >> $(BIN_DIR)/falling_sand_sdl_externs.c
 	@cat $(BIN_DIR)/falling_sand_sdl_externs.c $(BIN_DIR)/falling_sand_sdl.c > $(BIN_DIR)/falling_sand_sdl_tmp.c && mv $(BIN_DIR)/falling_sand_sdl_tmp.c $(BIN_DIR)/falling_sand_sdl.c
-	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/falling_sand_sdl.c $(OBJ_DIR)/sdl_helpers_falling_sand.o -o $(FALLING_SAND_SDL) $(SDL2_LDFLAGS)
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/falling_sand_sdl.c $(OBJ_DIR)/sdl_helpers_falling_sand.o $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o -o $(FALLING_SAND_SDL) $(SDL2_LDFLAGS)
 	@rm -f $(BIN_DIR)/falling_sand_sdl_externs.c
 	@echo "✓ Falling Sand SDL built: $(FALLING_SAND_SDL)"
 
@@ -143,12 +178,12 @@ $(FALLING_SAND_SDL): falling_sand_sdl.nano ../modules/sdl/sdl.nano ../modules/sd
 $(TERRAIN_EXPLORER_SDL): terrain_explorer_sdl.nano ../modules/sdl/sdl.nano ../modules/sdl_helpers/sdl_helpers.nano ../modules/sdl_helpers/sdl_helpers.c $(COMPILER) | $(BIN_DIR) $(OBJ_DIR)
 	@echo "Building Terrain Explorer SDL demo..."
 	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -c ../modules/sdl_helpers/sdl_helpers.c -o $(OBJ_DIR)/sdl_helpers_terrain.o
-	NANO_MODULE_PATH=../modules $(COMPILER) terrain_explorer_sdl.nano -o $(TERRAIN_EXPLORER_SDL) --keep-c
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/terrain_explorer_sdl.nano -o bin/terrain_explorer_sdl --keep-c
 	@echo "#include <stdint.h>" > $(BIN_DIR)/terrain_explorer_sdl_externs.c
 	@echo "extern int64_t nl_sdl_render_fill_rect(int64_t renderer, int64_t x, int64_t y, int64_t w, int64_t h);" >> $(BIN_DIR)/terrain_explorer_sdl_externs.c
 	@echo "extern int64_t nl_sdl_poll_event_quit(void);" >> $(BIN_DIR)/terrain_explorer_sdl_externs.c
 	@cat $(BIN_DIR)/terrain_explorer_sdl_externs.c $(BIN_DIR)/terrain_explorer_sdl.c > $(BIN_DIR)/terrain_explorer_sdl_tmp.c && mv $(BIN_DIR)/terrain_explorer_sdl_tmp.c $(BIN_DIR)/terrain_explorer_sdl.c
-	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/terrain_explorer_sdl.c $(OBJ_DIR)/sdl_helpers_terrain.o -o $(TERRAIN_EXPLORER_SDL) $(SDL2_LDFLAGS)
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/terrain_explorer_sdl.c $(OBJ_DIR)/sdl_helpers_terrain.o $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o -o $(TERRAIN_EXPLORER_SDL) $(SDL2_LDFLAGS)
 	@rm -f $(BIN_DIR)/terrain_explorer_sdl_externs.c
 	@echo "✓ Terrain Explorer SDL built: $(TERRAIN_EXPLORER_SDL)"
 
@@ -156,12 +191,12 @@ $(TERRAIN_EXPLORER_SDL): terrain_explorer_sdl.nano ../modules/sdl/sdl.nano ../mo
 $(MUSIC_SEQUENCER_SDL): music_sequencer_sdl.nano ../modules/sdl/sdl.nano ../modules/sdl_helpers/sdl_helpers.nano ../modules/sdl_helpers/sdl_helpers.c $(COMPILER) | $(BIN_DIR) $(OBJ_DIR)
 	@echo "Building Music Sequencer SDL demo..."
 	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -c ../modules/sdl_helpers/sdl_helpers.c -o $(OBJ_DIR)/sdl_helpers_sequencer.o
-	NANO_MODULE_PATH=../modules $(COMPILER) music_sequencer_sdl.nano -o $(MUSIC_SEQUENCER_SDL) --keep-c
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/music_sequencer_sdl.nano -o bin/music_sequencer_sdl --keep-c
 	@echo "#include <stdint.h>" > $(BIN_DIR)/music_sequencer_sdl_externs.c
 	@echo "extern int64_t nl_sdl_render_fill_rect(int64_t renderer, int64_t x, int64_t y, int64_t w, int64_t h);" >> $(BIN_DIR)/music_sequencer_sdl_externs.c
 	@echo "extern int64_t nl_sdl_poll_event_quit(void);" >> $(BIN_DIR)/music_sequencer_sdl_externs.c
 	@cat $(BIN_DIR)/music_sequencer_sdl_externs.c $(BIN_DIR)/music_sequencer_sdl.c > $(BIN_DIR)/music_sequencer_sdl_tmp.c && mv $(BIN_DIR)/music_sequencer_sdl_tmp.c $(BIN_DIR)/music_sequencer_sdl.c
-	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/music_sequencer_sdl.c $(OBJ_DIR)/sdl_helpers_sequencer.o -o $(MUSIC_SEQUENCER_SDL) $(SDL2_LDFLAGS)
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/music_sequencer_sdl.c $(OBJ_DIR)/sdl_helpers_sequencer.o $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o -o $(MUSIC_SEQUENCER_SDL) $(SDL2_LDFLAGS)
 	@rm -f $(BIN_DIR)/music_sequencer_sdl_externs.c
 	@echo "✓ Music Sequencer SDL built: $(MUSIC_SEQUENCER_SDL)"
 

@@ -35,7 +35,7 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "return") == 0) return TOKEN_RETURN;
     if (strcmp(str, "assert") == 0) return TOKEN_ASSERT;
     if (strcmp(str, "shadow") == 0) return TOKEN_SHADOW;
-    if (strcmp(str, "print") == 0) return TOKEN_PRINT;
+    /* "print" and "println" are builtin functions, not keywords */
     if (strcmp(str, "array") == 0) return TOKEN_ARRAY;
     if (strcmp(str, "struct") == 0) return TOKEN_STRUCT;
     if (strcmp(str, "enum") == 0) return TOKEN_ENUM;
@@ -58,7 +58,7 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "and") == 0) return TOKEN_AND;
     if (strcmp(str, "or") == 0) return TOKEN_OR;
     if (strcmp(str, "not") == 0) return TOKEN_NOT;
-    if (strcmp(str, "range") == 0) return TOKEN_RANGE;
+    /* "range", "print", "println" are builtin functions, not keywords - treat as identifiers */
 
     return TOKEN_IDENTIFIER;
 }
@@ -293,7 +293,7 @@ const char *token_type_name(TokenType type) {
         case TOKEN_RETURN: return "RETURN";
         case TOKEN_ASSERT: return "ASSERT";
         case TOKEN_SHADOW: return "SHADOW";
-        case TOKEN_PRINT: return "PRINT";
+        /* TOKEN_PRINT removed */
         case TOKEN_EXTERN: return "EXTERN";
         case TOKEN_ARRAY: return "ARRAY";
         case TOKEN_STRUCT: return "STRUCT";
@@ -319,7 +319,7 @@ const char *token_type_name(TokenType type) {
         case TOKEN_AND: return "AND";
         case TOKEN_OR: return "OR";
         case TOKEN_NOT: return "NOT";
-        case TOKEN_RANGE: return "RANGE";
+        /* TOKEN_RANGE removed */
         default: return "UNKNOWN";
     }
 }

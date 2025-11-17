@@ -1,0 +1,11 @@
+/* Minimal tuple test without shadow tests */
+
+fn main() -> int {
+    let t: (int, int) = (10, 20)
+    let a: int = t.0
+    let b: int = t.1
+    let sum: int = (+ a b)
+    (println sum)
+    return sum
+}
+

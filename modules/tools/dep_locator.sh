@@ -1,17 +1,17 @@
 #!/bin/bash
-# Wrapper script for dep_locator.nano
-# Allows passing command-line arguments
+# Dependency Locator - Find C/C++ libraries on macOS and Linux
+# Outputs JSON with library paths
+#
+# Usage: ./dep_locator.sh <library-name> [OPTIONS]
+# Example: ./dep_locator.sh SDL2
+#          ./dep_locator.sh openssl --header-name openssl/ssl.h --lib-name ssl
 
 set -e
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Parse arguments
 LIB_NAME=""
 HEADER_NAME=""
 LIB_BASENAME=""
-NO_PKG_CONFIG=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -23,34 +23,31 @@ while [[ $# -gt 0 ]]; do
             LIB_BASENAME="$2"
             shift 2
             ;;
-        --no-pkg-config)
-            NO_PKG_CONFIG=true
-            shift
-            ;;
         --help|-h)
             echo "Usage: $0 <library-name> [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  --header-name <name>  Specific header file name (default: <name>.h)"
+            echo "  --header-name <name>  Specific header subdirectory (default: <name>)"
             echo "  --lib-name <name>     Specific library base name (default: <name>)"
-            echo "  --no-pkg-config       Skip pkg-config and only use heuristic search"
             echo "  --help, -h            Show this help message"
             echo ""
             echo "Example:"
             echo "  $0 SDL2"
-            echo "  $0 openssl --header-name openssl/ssl.h --lib-name ssl"
+            echo "  $0 openssl --header-name openssl --lib-name ssl"
+            echo ""
+            echo "Output: JSON with include_dirs, library_dirs, and libraries"
             exit 0
             ;;
         -*)
-            echo "Unknown option: $1"
-            echo "Use --help for usage information"
+            echo "Unknown option: $1" >&2
+            echo "Use --help for usage information" >&2
             exit 1
             ;;
         *)
             if [ -z "$LIB_NAME" ]; then
                 LIB_NAME="$1"
             else
-                echo "Error: Multiple library names specified"
+                echo "Error: Multiple library names specified" >&2
                 exit 1
             fi
             shift
@@ -59,24 +56,76 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ -z "$LIB_NAME" ]; then
-    echo "Error: Library name required"
-    echo "Usage: $0 <library-name> [OPTIONS]"
-    echo "Use --help for more information"
+    echo "Error: Library name required" >&2
+    echo "Usage: $0 <library-name> [OPTIONS]" >&2
     exit 1
 fi
 
-# Set environment variables for nanolang program
-export DEP_LOCATOR_NAME="$LIB_NAME"
-if [ -n "$HEADER_NAME" ]; then
-    export DEP_LOCATOR_HEADER_NAME="$HEADER_NAME"
+# Set defaults
+HEADER_NAME="${HEADER_NAME:-$LIB_NAME}"
+LIB_BASENAME="${LIB_BASENAME:-$LIB_NAME}"
+
+# Search prefixes
+PREFIXES=("/usr" "/usr/local")
+if [ -d "/opt/homebrew" ]; then
+    PREFIXES+=("/opt/homebrew")
 fi
-if [ -n "$LIB_BASENAME" ]; then
-    export DEP_LOCATOR_LIB_NAME="$LIB_BASENAME"
-fi
-if [ "$NO_PKG_CONFIG" = true ]; then
-    export DEP_LOCATOR_NO_PKG_CONFIG="1"
+if [ -d "/opt/local" ]; then
+    PREFIXES+=("/opt/local")
 fi
 
-# Run nanolang dependency locator
-"$PROJECT_ROOT/bin/nano" "$SCRIPT_DIR/dep_locator.nano" --call main
+# Find include directory
+INCLUDE_DIR=""
+for prefix in "${PREFIXES[@]}"; do
+    candidate="$prefix/include/$HEADER_NAME"
+    if [ -d "$candidate" ]; then
+        INCLUDE_DIR="$candidate"
+        break
+    fi
+done
 
+# Find library directory
+LIB_DIR=""
+for prefix in "${PREFIXES[@]}"; do
+    candidate="$prefix/lib"
+    if [ -d "$candidate" ]; then
+        # Check if library actually exists
+        if [ -f "$candidate/lib${LIB_BASENAME}.dylib" ] || \
+           [ -f "$candidate/lib${LIB_BASENAME}.so" ] || \
+           [ -f "$candidate/lib${LIB_BASENAME}.a" ]; then
+            LIB_DIR="$candidate"
+            break
+        fi
+    fi
+done
+
+# Output JSON
+echo "{"
+echo "  \"name\": \"$LIB_NAME\","
+
+if [ -n "$INCLUDE_DIR" ] && [ -n "$LIB_DIR" ]; then
+    echo "  \"found\": true,"
+    echo "  \"origin\": \"heuristic\","
+else
+    echo "  \"found\": false,"
+    echo "  \"origin\": \"none\","
+fi
+
+echo "  \"include_dirs\": ["
+if [ -n "$INCLUDE_DIR" ]; then
+    echo "    \"$INCLUDE_DIR\""
+fi
+echo "  ],"
+
+echo "  \"library_dirs\": ["
+if [ -n "$LIB_DIR" ]; then
+    echo "    \"$LIB_DIR\""
+fi
+echo "  ],"
+
+echo "  \"libraries\": ["
+if [ -n "$LIB_DIR" ]; then
+    echo "    \"$LIB_BASENAME\""
+fi
+echo "  ]"
+echo "}"

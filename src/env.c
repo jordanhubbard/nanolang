@@ -177,6 +177,10 @@ void env_define_var(Environment *env, const char *name, Type type, bool is_mut, 
 }
 
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value) {
+    env_define_var_with_type_info(env, name, type, element_type, NULL, is_mut, value);
+}
+
+void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
     if (env->symbol_count >= env->symbol_capacity) {
         env->symbol_capacity *= 2;
         env->symbols = realloc(env->symbols, sizeof(Symbol) * env->symbol_capacity);
@@ -187,6 +191,7 @@ void env_define_var_with_element_type(Environment *env, const char *name, Type t
     sym.type = type;
     sym.struct_type_name = NULL;  /* Initialize to NULL (set later for struct types) */
     sym.element_type = element_type;  /* Store element type for arrays */
+    sym.type_info = type_info;  /* Store full type info for complex types (tuples, etc.) */
     sym.is_mut = is_mut;
     sym.value = value;
     sym.is_used = false;  /* Initialize as unused */

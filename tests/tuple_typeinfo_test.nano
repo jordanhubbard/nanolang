@@ -1,0 +1,83 @@
+/* Test TypeInfo support for tuples */
+
+/* Test 1: Mixed type tuple with bool */
+fn test_mixed_types() -> int {
+    let t: (int, bool, int) = (42, true, 7)
+    let x: int = t.0
+    let flag: bool = t.1
+    let y: int = t.2
+    
+    if flag {
+        return (+ x y)
+    } else {
+        return 0
+    }
+}
+
+shadow test_mixed_types {
+    assert (== (test_mixed_types) 49)
+}
+
+/* Test 2: String in tuple */
+fn test_string_tuple() -> string {
+    let t: (int, string, int) = (5, "hello", 10)
+    return t.1
+}
+
+shadow test_string_tuple {
+    assert (== (test_string_tuple) "hello")
+}
+
+/* Test 3: Float in tuple */
+fn test_float_tuple() -> float {
+    let t: (int, float, bool) = (10, 3.14, true)
+    return t.1
+}
+
+shadow test_float_tuple {
+    let result: float = (test_float_tuple)
+    assert (== result 3.14)
+}
+
+/* Test 4: Nested tuple operations */
+fn test_nested_ops() -> int {
+    let coords: (int, int, bool) = (3, 4, true)
+    let active: bool = coords.2
+    
+    if active {
+        let x: int = coords.0
+        let y: int = coords.1
+        return (* x y)
+    } else {
+        return 0
+    }
+}
+
+shadow test_nested_ops {
+    assert (== (test_nested_ops) 12)
+}
+
+/* Test 5: Four element tuple with mixed types */
+fn test_four_mixed() -> bool {
+    let t: (int, bool, string, float) = (42, true, "test", 2.5)
+    let num: int = t.0
+    let flag: bool = t.1
+    let text: string = t.2
+    let fval: float = t.3
+    
+    return (and flag (== num 42))
+}
+
+shadow test_four_mixed {
+    assert (== (test_four_mixed) true)
+}
+
+fn main() -> int {
+    (println "All TypeInfo tuple tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

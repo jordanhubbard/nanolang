@@ -1,0 +1,311 @@
+/* Comprehensive test for control flow statements */
+
+/* ===== IF/ELSE STATEMENTS ===== */
+
+fn test_if_simple() -> int {
+    if (> 5 3) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow test_if_simple {
+    assert (== (test_if_simple) 1)
+}
+
+fn test_if_else_false() -> int {
+    if (< 5 3) {
+        return 0
+    } else {
+        return 1
+    }
+}
+
+shadow test_if_else_false {
+    assert (== (test_if_else_false) 1)
+}
+
+fn test_nested_if() -> int {
+    if (> 10 5) {
+        if (< 3 7) {
+            return 42
+        } else {
+            return 0
+        }
+    } else {
+        return 0
+    }
+}
+
+shadow test_nested_if {
+    assert (== (test_nested_if) 42)
+}
+
+fn test_if_with_complex_condition() -> bool {
+    let x: int = 5
+    let y: int = 10
+    if (and (> x 0) (< y 20)) {
+        return true
+    } else {
+        return false
+    }
+}
+
+shadow test_if_with_complex_condition {
+    assert (== (test_if_with_complex_condition) true)
+}
+
+/* ===== WHILE LOOPS ===== */
+
+fn test_while_simple() -> int {
+    let mut count: int = 0
+    let mut i: int = 0
+    while (< i 5) {
+        set count (+ count 1)
+        set i (+ i 1)
+    }
+    return count
+}
+
+shadow test_while_simple {
+    assert (== (test_while_simple) 5)
+}
+
+fn test_while_sum() -> int {
+    let mut sum: int = 0
+    let mut i: int = 1
+    while (<= i 10) {
+        set sum (+ sum i)
+        set i (+ i 1)
+    }
+    return sum
+}
+
+shadow test_while_sum {
+    assert (== (test_while_sum) 55)
+}
+
+fn test_while_with_break_condition() -> int {
+    let mut count: int = 0
+    let mut i: int = 0
+    while (< i 100) {
+        set count (+ count 1)
+        set i (+ i 1)
+        /* Simulate break by condition */
+        if (== i 10) {
+            return count
+        } else {
+            /* Continue */
+            let dummy: int = 0
+        }
+    }
+    return count
+}
+
+shadow test_while_with_break_condition {
+    assert (== (test_while_with_break_condition) 10)
+}
+
+fn test_while_nested() -> int {
+    let mut sum: int = 0
+    let mut i: int = 0
+    while (< i 3) {
+        let mut j: int = 0
+        while (< j 3) {
+            set sum (+ sum 1)
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    return sum
+}
+
+shadow test_while_nested {
+    assert (== (test_while_nested) 9)
+}
+
+/* ===== FOR LOOPS ===== */
+
+fn test_for_simple() -> int {
+    let mut sum: int = 0
+    for i in (range 0 5) {
+        set sum (+ sum i)
+    }
+    return sum
+}
+
+shadow test_for_simple {
+    assert (== (test_for_simple) 10)
+}
+
+fn test_for_range() -> int {
+    let mut count: int = 0
+    for i in (range 0 10) {
+        set count (+ count 1)
+    }
+    return count
+}
+
+shadow test_for_range {
+    assert (== (test_for_range) 10)
+}
+
+fn test_for_with_computation() -> int {
+    let mut product: int = 1
+    for i in (range 1 6) {
+        set product (* product i)
+    }
+    return product
+}
+
+shadow test_for_with_computation {
+    /* 1 * 2 * 3 * 4 * 5 = 120 */
+    assert (== (test_for_with_computation) 120)
+}
+
+fn test_for_nested() -> int {
+    let mut count: int = 0
+    for i in (range 0 3) {
+        for j in (range 0 4) {
+            set count (+ count 1)
+        }
+    }
+    return count
+}
+
+shadow test_for_nested {
+    assert (== (test_for_nested) 12)
+}
+
+fn test_for_with_if() -> int {
+    let mut even_sum: int = 0
+    for i in (range 0 10) {
+        if (== (% i 2) 0) {
+            set even_sum (+ even_sum i)
+        } else {
+            /* Skip odd numbers */
+            let dummy: int = 0
+        }
+    }
+    return even_sum
+}
+
+shadow test_for_with_if {
+    /* 0 + 2 + 4 + 6 + 8 = 20 */
+    assert (== (test_for_with_if) 20)
+}
+
+/* ===== RETURN STATEMENTS ===== */
+
+fn test_early_return() -> int {
+    if (> 5 3) {
+        return 100
+    } else {
+        let dummy: int = 0
+    }
+    return 0
+}
+
+shadow test_early_return {
+    assert (== (test_early_return) 100)
+}
+
+fn test_conditional_return() -> int {
+    let x: int = 10
+    if (> x 5) {
+        return 1
+    } else {
+        return -1
+    }
+}
+
+shadow test_conditional_return {
+    assert (== (test_conditional_return) 1)
+}
+
+fn test_multiple_returns() -> int {
+    let x: int = 7
+    if (< x 5) {
+        return 1
+    } else {
+        if (< x 10) {
+            return 2
+        } else {
+            return 3
+        }
+    }
+}
+
+shadow test_multiple_returns {
+    assert (== (test_multiple_returns) 2)
+}
+
+/* ===== COMPLEX CONTROL FLOW ===== */
+
+fn test_fibonacci_iterative() -> int {
+    let mut a: int = 0
+    let mut b: int = 1
+    let mut i: int = 0
+    while (< i 10) {
+        let temp: int = a
+        set a b
+        set b (+ temp b)
+        set i (+ i 1)
+    }
+    return a
+}
+
+shadow test_fibonacci_iterative {
+    assert (== (test_fibonacci_iterative) 55)
+}
+
+fn test_prime_check() -> bool {
+    let n: int = 17
+    if (<= n 1) {
+        return false
+    } else {
+        let mut i: int = 2
+        while (< i n) {
+            if (== (% n i) 0) {
+                return false
+            } else {
+                let dummy: int = 0
+            }
+            set i (+ i 1)
+        }
+        return true
+    }
+}
+
+shadow test_prime_check {
+    assert (== (test_prime_check) true)
+}
+
+fn test_sum_with_for_and_if() -> int {
+    let mut sum: int = 0
+    for i in (range 1 11) {
+        if (> i 5) {
+            set sum (+ sum i)
+        } else {
+            /* Skip */
+            let dummy: int = 0
+        }
+    }
+    return sum
+}
+
+shadow test_sum_with_for_and_if {
+    /* 6 + 7 + 8 + 9 + 10 = 40 */
+    assert (== (test_sum_with_for_and_if) 40)
+}
+
+fn main() -> int {
+    (println "All control flow tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

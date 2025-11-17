@@ -99,8 +99,20 @@ typedef struct {
     int capacity;
 } FunctionTypeRegistry;
 
-/* Forward declaration for transpile_statement (needs FunctionTypeRegistry defined first) */
+/* Tuple type registry for generating tuple struct typedefs */
+typedef struct {
+    TypeInfo **tuples;
+    char **typedef_names;
+    int count;
+    int capacity;
+} TupleTypeRegistry;
+
+/* Forward declarations */
 static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, Environment *env, FunctionTypeRegistry *fn_registry);
+static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *env);
+
+/* Global tuple registry - set during transpilation */
+static TupleTypeRegistry *g_tuple_registry = NULL;
 
 static FunctionTypeRegistry *create_fn_type_registry(void) {
     FunctionTypeRegistry *reg = malloc(sizeof(FunctionTypeRegistry));
@@ -121,6 +133,97 @@ static void free_fn_type_registry(FunctionTypeRegistry *reg) {
     }
     free(reg->signatures);
     free(reg);
+}
+
+/* Tuple type registry functions */
+static TupleTypeRegistry *create_tuple_type_registry(void) {
+    TupleTypeRegistry *reg = malloc(sizeof(TupleTypeRegistry));
+    reg->tuples = malloc(sizeof(TypeInfo*) * 16);
+    reg->typedef_names = malloc(sizeof(char*) * 16);
+    reg->count = 0;
+    reg->capacity = 16;
+    return reg;
+}
+
+static void free_tuple_type_registry(TupleTypeRegistry *reg) {
+    if (!reg) return;
+    if (reg->typedef_names) {
+        for (int i = 0; i < reg->count; i++) {
+            free(reg->typedef_names[i]);
+        }
+        free(reg->typedef_names);
+    }
+    free(reg->tuples);
+    free(reg);
+}
+
+/* Check if two tuple types are equal */
+static bool tuple_types_equal(TypeInfo *a, TypeInfo *b) {
+    if (!a || !b) return false;
+    if (a->tuple_element_count != b->tuple_element_count) return false;
+    
+    for (int i = 0; i < a->tuple_element_count; i++) {
+        if (a->tuple_types[i] != b->tuple_types[i]) return false;
+    }
+    
+    return true;
+}
+
+/* Generate typedef name for a tuple type */
+static char *get_tuple_typedef_name(TypeInfo *info, int index) {
+    char *name = malloc(256);
+    StringBuilder *sb = sb_create();
+    
+    sb_append(sb, "Tuple");
+    for (int i = 0; i < info->tuple_element_count; i++) {
+        sb_append(sb, "_");
+        switch (info->tuple_types[i]) {
+            case TYPE_INT: sb_append(sb, "int"); break;
+            case TYPE_FLOAT: sb_append(sb, "float"); break;
+            case TYPE_BOOL: sb_append(sb, "bool"); break;
+            case TYPE_STRING: sb_append(sb, "string"); break;
+            default: sb_appendf(sb, "t%d", i); break;
+        }
+    }
+    sb_appendf(sb, "_%d", index);
+    
+    snprintf(name, 256, "%s", sb->buffer);
+    free(sb->buffer);
+    free(sb);
+    return name;
+}
+
+/* Register a tuple type and get its typedef name */
+static const char *register_tuple_type(TupleTypeRegistry *reg, TypeInfo *info) {
+    /* Check if already registered */
+    for (int i = 0; i < reg->count; i++) {
+        if (tuple_types_equal(reg->tuples[i], info)) {
+            return reg->typedef_names[i];
+        }
+    }
+    
+    /* Register new tuple type */
+    if (reg->count >= reg->capacity) {
+        reg->capacity *= 2;
+        reg->tuples = realloc(reg->tuples, sizeof(TypeInfo*) * reg->capacity);
+        reg->typedef_names = realloc(reg->typedef_names, sizeof(char*) * reg->capacity);
+    }
+    
+    reg->tuples[reg->count] = info;
+    reg->typedef_names[reg->count] = get_tuple_typedef_name(info, reg->count);
+    reg->count++;
+    
+    return reg->typedef_names[reg->count - 1];
+}
+
+/* Generate C typedef for a tuple type */
+static void generate_tuple_typedef(StringBuilder *sb, TypeInfo *info, const char *typedef_name) {
+    sb_appendf(sb, "typedef struct { ");
+    for (int i = 0; i < info->tuple_element_count; i++) {
+        if (i > 0) sb_append(sb, "; ");
+        sb_appendf(sb, "%s _%d", type_to_c(info->tuple_types[i]), i);
+    }
+    sb_appendf(sb, "; } %s;\n", typedef_name);
 }
 
 /* Generate unique typedef name for a function signature */
@@ -284,7 +387,7 @@ static const char *type_to_c(Type type) {
         case TYPE_BOOL: return "bool";
         case TYPE_STRING: return "const char*";
         case TYPE_VOID: return "void";
-        case TYPE_ARRAY: return "int64_t*";  /* Arrays are int64_t* for array<int> */
+        case TYPE_ARRAY: return "DynArray*";  /* All arrays are now dynamic arrays with GC */
         case TYPE_STRUCT: return "struct"; /* Will be extended with struct name */
         case TYPE_UNION: return ""; /* Union names are used directly (typedef'd) */
         case TYPE_FUNCTION: return ""; /* Will be handled with typedef */
@@ -369,11 +472,11 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
         case AST_IDENTIFIER: {
             /* Check if this identifier is a function name */
             Function *func_def = env_get_function(env, expr->as.identifier);
-            if (func_def && !func_def->is_extern) {
-                /* User-defined function - add nl_ prefix */
+            if (func_def && !func_def->is_extern && func_def->body != NULL) {
+                /* User-defined function (has body) - add nl_ prefix */
                 sb_append(sb, get_c_func_name(expr->as.identifier));
             } else {
-                /* Variable or extern function - use as-is */
+                /* Variable, builtin function, or extern function - use as-is */
                 sb_append(sb, expr->as.identifier);
             }
             break;
@@ -540,6 +643,10 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 func_name = "nl_array_new_int";  /* For now, assume int arrays */
             } else if (strcmp(func_name, "array_set") == 0) {
                 func_name = "nl_array_set_int";  /* For now, assume int arrays */
+            } else if (strcmp(func_name, "array_push") == 0) {
+                func_name = "nl_array_push";  /* Dynamic array push */
+            } else if (strcmp(func_name, "array_pop") == 0) {
+                func_name = "nl_array_pop";  /* Dynamic array pop */
             } else if (strcmp(func_name, "print") == 0) {
                 /* Special handling for print - dispatch based on argument type */
                 Type arg_type = check_expression(expr->as.call.args[0], env);
@@ -631,9 +738,9 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
         }
 
         case AST_ARRAY_LITERAL: {
-            /* Transpile array literal: [1, 2, 3] -> nl_array_literal_int(3, 1, 2, 3) */
+            /* Transpile array literal: [1, 2, 3] -> dynarray_literal_int(3, 1, 2, 3) */
             int count = expr->as.array_literal.element_count;
-            sb_appendf(sb, "nl_array_literal_int(%d", count);
+            sb_appendf(sb, "dynarray_literal_int(%d", count);
             for (int i = 0; i < count; i++) {
                 sb_append(sb, ", ");
                 transpile_expression(sb, expr->as.array_literal.elements[i], env);
@@ -850,6 +957,70 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             break;
         }
 
+        case AST_TUPLE_LITERAL: {
+            /* Transpile tuple literal to C compound literal
+             * (int, string) literal becomes: (Tuple_int_string){._0 = val1, ._1 = val2}
+             * For now, we'll use a simpler approach with struct initialization
+             */
+            int element_count = expr->as.tuple_literal.element_count;
+            
+            /* Empty tuple */
+            if (element_count == 0) {
+                sb_append(sb, "(struct {int _dummy;}){0}");
+                break;
+            }
+            
+            /* Try to use typedef if we have a tuple registry and element types */
+            const char *typedef_name = NULL;
+            if (g_tuple_registry && expr->as.tuple_literal.element_types) {
+                /* Create temporary TypeInfo to look up typedef */
+                TypeInfo temp_info;
+                temp_info.tuple_types = expr->as.tuple_literal.element_types;
+                temp_info.tuple_type_names = NULL;
+                temp_info.tuple_element_count = element_count;
+                
+                /* Look up existing typedef */
+                for (int i = 0; i < g_tuple_registry->count; i++) {
+                    if (tuple_types_equal(g_tuple_registry->tuples[i], &temp_info)) {
+                        typedef_name = g_tuple_registry->typedef_names[i];
+                        break;
+                    }
+                }
+            }
+            
+            if (typedef_name) {
+                /* Use typedef name */
+                sb_appendf(sb, "(%s){", typedef_name);
+            } else {
+                /* Fall back to inline struct for tuple */
+                sb_append(sb, "(struct { ");
+                for (int i = 0; i < element_count; i++) {
+                    /* Determine C type for each element */
+                    Type elem_type = expr->as.tuple_literal.element_types ? 
+                                    expr->as.tuple_literal.element_types[i] : TYPE_INT;
+                    const char *c_type = type_to_c(elem_type);
+                    sb_appendf(sb, "%s _%d; ", c_type, i);
+                }
+                sb_append(sb, "}){");
+            }
+            
+            /* Initialize fields */
+            for (int i = 0; i < element_count; i++) {
+                if (i > 0) sb_append(sb, ", ");
+                sb_appendf(sb, "._%d = ", i);
+                transpile_expression(sb, expr->as.tuple_literal.elements[i], env);
+            }
+            sb_append(sb, "}");
+            break;
+        }
+
+        case AST_TUPLE_INDEX: {
+            /* Transpile tuple index access: tuple.0 becomes tuple._0 */
+            transpile_expression(sb, expr->as.tuple_index.tuple, env);
+            sb_appendf(sb, "._%d", expr->as.tuple_index.index);
+            break;
+        }
+
         default:
             sb_append(sb, "/* unknown expr */");
             break;
@@ -914,6 +1085,43 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
                 /* Get or register the typedef for this function signature */
                 const char *typedef_name = register_function_signature(fn_registry, stmt->as.let.fn_sig);
                 sb_appendf(sb, "%s %s = ", typedef_name, stmt->as.let.name);
+            }
+            /* Handle tuple types */
+            else if (stmt->as.let.var_type == TYPE_TUPLE && stmt->as.let.value && 
+                     stmt->as.let.value->type == AST_TUPLE_LITERAL) {
+                /* Generate inline struct type for tuple variables
+                 * let t: (int, string) = (10, "hello")
+                 * becomes: struct { int64_t _0; const char* _1; } t = {._0 = 10LL, ._1 = "hello"};
+                 * Note: We use designated initializer syntax instead of compound literal
+                 * to avoid C's anonymous struct type incompatibility issues.
+                 */
+                ASTNode *tuple_literal = stmt->as.let.value;
+                int element_count = tuple_literal->as.tuple_literal.element_count;
+                
+                /* Empty tuple */
+                if (element_count == 0) {
+                    sb_appendf(sb, "struct {int _dummy;} %s = {0};\n", stmt->as.let.name);
+                } else {
+                    /* Generate inline struct with element types */
+                    sb_append(sb, "struct { ");
+                    for (int i = 0; i < element_count; i++) {
+                        Type elem_type = tuple_literal->as.tuple_literal.element_types ? 
+                                        tuple_literal->as.tuple_literal.element_types[i] : TYPE_INT;
+                        const char *c_type = type_to_c(elem_type);
+                        sb_appendf(sb, "%s _%d; ", c_type, i);
+                    }
+                    sb_appendf(sb, "} %s = {", stmt->as.let.name);
+                    
+                    /* Generate designated initializers for each field */
+                    for (int i = 0; i < element_count; i++) {
+                        if (i > 0) sb_append(sb, ", ");
+                        sb_appendf(sb, "._%d = ", i);
+                        transpile_expression(sb, tuple_literal->as.tuple_literal.elements[i], env);
+                    }
+                    sb_append(sb, "};\n");
+                }
+                /* Skip the generic value transpilation since we handled it above */
+                goto skip_value_transpile;
             } else {
                 sb_appendf(sb, "%s %s = ", type_to_c(stmt->as.let.var_type), stmt->as.let.name);
             }
@@ -938,6 +1146,8 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
             }
             transpile_expression(sb, stmt->as.let.value, env);
             sb_append(sb, ";\n");
+            
+        skip_value_transpile:
             /* Register variable in environment for type tracking during transpilation */
             env_define_var(env, stmt->as.let.name, stmt->as.let.var_type, stmt->as.let.is_mut, create_void());
             break;
@@ -1459,6 +1669,56 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "    }\n");
     sb_append(sb, "}\n\n");
     
+    /* Wrappers for array push/pop that work with GC dynamic arrays */
+    sb_append(sb, "static DynArray* nl_array_push(DynArray* arr, double val) {\n");
+    sb_append(sb, "    if (arr->elem_type == ELEM_INT) {\n");
+    sb_append(sb, "        return dyn_array_push_int(arr, (int64_t)val);\n");
+    sb_append(sb, "    } else {\n");
+    sb_append(sb, "        return dyn_array_push_float(arr, val);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static double nl_array_pop(DynArray* arr) {\n");
+    sb_append(sb, "    bool success = false;\n");
+    sb_append(sb, "    if (arr->elem_type == ELEM_INT) {\n");
+    sb_append(sb, "        return (double)dyn_array_pop_int(arr, &success);\n");
+    sb_append(sb, "    } else {\n");
+    sb_append(sb, "        return dyn_array_pop_float(arr, &success);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "}\n\n");
+    
+    /* Array length wrapper */
+    sb_append(sb, "static int64_t nl_array_length(DynArray* arr) {\n");
+    sb_append(sb, "    return dyn_array_length(arr);\n");
+    sb_append(sb, "}\n\n");
+    
+    /* Array get (at) wrapper */
+    sb_append(sb, "static int64_t nl_array_at_int(DynArray* arr, int64_t idx) {\n");
+    sb_append(sb, "    return dyn_array_get_int(arr, idx);\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static double nl_array_at_float(DynArray* arr, int64_t idx) {\n");
+    sb_append(sb, "    return dyn_array_get_float(arr, idx);\n");
+    sb_append(sb, "}\n\n");
+    
+    /* Array set wrapper */
+    sb_append(sb, "static void nl_array_set_int(DynArray* arr, int64_t idx, int64_t val) {\n");
+    sb_append(sb, "    dyn_array_set_int(arr, idx, val);\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static void nl_array_set_float(DynArray* arr, int64_t idx, double val) {\n");
+    sb_append(sb, "    dyn_array_set_float(arr, idx, val);\n");
+    sb_append(sb, "}\n\n");
+    
+    /* Array new wrapper - creates DynArray with specified size and default value */
+    sb_append(sb, "static DynArray* nl_array_new_int(int64_t size, int64_t default_val) {\n");
+    sb_append(sb, "    DynArray* arr = dyn_array_new(ELEM_INT);\n");
+    sb_append(sb, "    for (int64_t i = 0; i < size; i++) {\n");
+    sb_append(sb, "        dyn_array_push_int(arr, default_val);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return arr;\n");
+    sb_append(sb, "}\n\n");
+    
     sb_append(sb, "static int64_t dynarray_length(DynArray* arr) {\n");
     sb_append(sb, "    return dyn_array_length(arr);\n");
     sb_append(sb, "}\n\n");
@@ -1513,77 +1773,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "/* ========== Array Operations (With Bounds Checking!) ========== */\n\n");
     
     sb_append(sb, "/* Array struct */\n");
-    sb_append(sb, "typedef struct {\n");
-    sb_append(sb, "    int64_t length;\n");
-    sb_append(sb, "    void* data;\n");
-    sb_append(sb, "    size_t element_size;\n");
-    sb_append(sb, "} nl_array;\n\n");
-    
-    sb_append(sb, "/* Array access - BOUNDS CHECKED! */\n");
-    sb_append(sb, "static int64_t nl_array_at_int(nl_array* arr, int64_t index) {\n");
-    sb_append(sb, "    if (index < 0 || index >= arr->length) {\n");
-    sb_append(sb, "        fprintf(stderr, \"Runtime Error: Array index %lld out of bounds [0..%lld)\\n\", index, arr->length);\n");
-    sb_append(sb, "        exit(1);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    return ((int64_t*)arr->data)[index];\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "static double nl_array_at_float(nl_array* arr, int64_t index) {\n");
-    sb_append(sb, "    if (index < 0 || index >= arr->length) {\n");
-    sb_append(sb, "        fprintf(stderr, \"Runtime Error: Array index %lld out of bounds [0..%lld)\\n\", index, arr->length);\n");
-    sb_append(sb, "        exit(1);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    return ((double*)arr->data)[index];\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "static const char* nl_array_at_string(nl_array* arr, int64_t index) {\n");
-    sb_append(sb, "    if (index < 0 || index >= arr->length) {\n");
-    sb_append(sb, "        fprintf(stderr, \"Runtime Error: Array index %lld out of bounds [0..%lld)\\n\", index, arr->length);\n");
-    sb_append(sb, "        exit(1);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    return ((const char**)arr->data)[index];\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "/* Array length */\n");
-    sb_append(sb, "static int64_t nl_array_length(nl_array* arr) {\n");
-    sb_append(sb, "    return arr->length;\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "/* Array creation */\n");
-    sb_append(sb, "static nl_array* nl_array_new_int(int64_t size, int64_t default_val) {\n");
-    sb_append(sb, "    nl_array* arr = malloc(sizeof(nl_array));\n");
-    sb_append(sb, "    arr->length = size;\n");
-    sb_append(sb, "    arr->element_size = sizeof(int64_t);\n");
-    sb_append(sb, "    arr->data = malloc(size * sizeof(int64_t));\n");
-    sb_append(sb, "    for (int64_t i = 0; i < size; i++) {\n");
-    sb_append(sb, "        ((int64_t*)arr->data)[i] = default_val;\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    return arr;\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "/* Array set - BOUNDS CHECKED! */\n");
-    sb_append(sb, "static void nl_array_set_int(nl_array* arr, int64_t index, int64_t value) {\n");
-    sb_append(sb, "    if (index < 0 || index >= arr->length) {\n");
-    sb_append(sb, "        fprintf(stderr, \"Runtime Error: Array index %lld out of bounds [0..%lld)\\n\", index, arr->length);\n");
-    sb_append(sb, "        exit(1);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    ((int64_t*)arr->data)[index] = value;\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "/* Array literal creation helper */\n");
-    sb_append(sb, "static nl_array* nl_array_literal_int(int64_t count, ...) {\n");
-    sb_append(sb, "    nl_array* arr = malloc(sizeof(nl_array));\n");
-    sb_append(sb, "    arr->length = count;\n");
-    sb_append(sb, "    arr->element_size = sizeof(int64_t);\n");
-    sb_append(sb, "    arr->data = malloc(count * sizeof(int64_t));\n");
-    sb_append(sb, "    va_list args;\n");
-    sb_append(sb, "    va_start(args, count);\n");
-    sb_append(sb, "    for (int64_t i = 0; i < count; i++) {\n");
-    sb_append(sb, "        ((int64_t*)arr->data)[i] = va_arg(args, int64_t);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    va_end(args);\n");
-    sb_append(sb, "    return arr;\n");
-    sb_append(sb, "}\n\n");
+    /* Old nl_array operations removed - now using DynArray exclusively */
     
     sb_append(sb, "/* ========== End Array Operations ========== */\n\n");
 
@@ -1751,6 +1941,10 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     /* Collect all function signatures used in the program */
     FunctionTypeRegistry *fn_registry = create_fn_type_registry();
     
+    /* Create tuple type registry for tuple return types */
+    TupleTypeRegistry *tuple_registry = create_tuple_type_registry();
+    g_tuple_registry = tuple_registry;  /* Set global registry for expression transpilation */
+    
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         
@@ -1769,6 +1963,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                 register_function_signature(fn_registry, item->as.function.return_fn_sig);
             }
             
+            /* Check return type for tuple type */
+            if (item->as.function.return_type == TYPE_TUPLE && 
+                item->as.function.return_type_info) {
+                register_tuple_type(tuple_registry, item->as.function.return_type_info);
+            }
+            
             /* Collect from function body */
             collect_fn_sigs(item->as.function.body, fn_registry);
         }
@@ -1780,6 +1980,16 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         for (int i = 0; i < fn_registry->count; i++) {
             generate_function_typedef(sb, fn_registry->signatures[i],
                                     fn_registry->typedef_names[i]);
+        }
+        sb_append(sb, "\n");
+    }
+    
+    /* Generate tuple type typedefs */
+    if (tuple_registry->count > 0) {
+        sb_append(sb, "/* Tuple Type Typedefs */\n");
+        for (int i = 0; i < tuple_registry->count; i++) {
+            generate_tuple_typedef(sb, tuple_registry->tuples[i],
+                                 tuple_registry->typedef_names[i]);
         }
         sb_append(sb, "\n");
     }
@@ -1933,6 +2143,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET && !item->as.let.is_mut) {
+            /* Skip SDL/TTF constants - they come from SDL headers */
+            if (strncmp(item->as.let.name, "SDL_", 4) == 0 || 
+                strncmp(item->as.let.name, "TTF_", 4) == 0) {
+                continue;
+            }
+            
             /* Emit as C constant */
             sb_append(sb, "static const ");
             sb_append(sb, type_to_c(item->as.let.var_type));
@@ -1971,6 +2187,11 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                 /* Use prefixed union name */
                 const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
                 sb_append(sb, prefixed_name);
+            } else if (item->as.function.return_type == TYPE_TUPLE && item->as.function.return_type_info) {
+                /* Use typedef name for tuple return type */
+                const char *typedef_name = register_tuple_type(tuple_registry, 
+                                                              item->as.function.return_type_info);
+                sb_append(sb, typedef_name);
             } else {
                 sb_append(sb, type_to_c(item->as.function.return_type));
             }
@@ -2037,6 +2258,11 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                 /* Use prefixed union name */
                 const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
                 sb_append(sb, prefixed_name);
+            } else if (item->as.function.return_type == TYPE_TUPLE && item->as.function.return_type_info) {
+                /* Use typedef name for tuple return type */
+                const char *typedef_name = register_tuple_type(tuple_registry, 
+                                                              item->as.function.return_type_info);
+                sb_append(sb, typedef_name);
             } else {
                 sb_append(sb, type_to_c(item->as.function.return_type));
             }
@@ -2103,6 +2329,8 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     /* Cleanup */
     free_fn_type_registry(fn_registry);
+    free_tuple_type_registry(tuple_registry);
+    g_tuple_registry = NULL;  /* Clear global registry */
 
     char *result = sb->buffer;
     free(sb);

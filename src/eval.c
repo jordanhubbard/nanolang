@@ -2190,6 +2190,49 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             return result;
         }
 
+        case AST_TUPLE_LITERAL: {
+            /* Evaluate tuple literal: (1, "hello", true) */
+            int element_count = expr->as.tuple_literal.element_count;
+            
+            /* Empty tuple */
+            if (element_count == 0) {
+                return create_tuple(NULL, 0);
+            }
+            
+            /* Evaluate each element */
+            Value *elements = malloc(sizeof(Value) * element_count);
+            for (int i = 0; i < element_count; i++) {
+                elements[i] = eval_expression(expr->as.tuple_literal.elements[i], env);
+            }
+            
+            /* Create tuple value */
+            Value result = create_tuple(elements, element_count);
+            free(elements);  /* create_tuple makes a copy */
+            
+            return result;
+        }
+
+        case AST_TUPLE_INDEX: {
+            /* Evaluate tuple index access: tuple.0, tuple.1 */
+            Value tuple = eval_expression(expr->as.tuple_index.tuple, env);
+            
+            if (tuple.type != VAL_TUPLE) {
+                fprintf(stderr, "Error: Tuple index access on non-tuple value (type %d)\n", tuple.type);
+                return create_void();
+            }
+            
+            int index = expr->as.tuple_index.index;
+            TupleValue *tv = tuple.as.tuple_val;
+            
+            if (index < 0 || index >= tv->element_count) {
+                fprintf(stderr, "Error: Tuple index %d out of bounds (tuple has %d elements)\n",
+                        index, tv->element_count);
+                return create_void();
+            }
+            
+            return tv->elements[index];
+        }
+
         default:
             return create_void();
     }

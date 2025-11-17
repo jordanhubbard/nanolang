@@ -876,6 +876,86 @@ Type check_expression(ASTNode *expr, Environment *env) {
             return TYPE_VOID;
         }
 
+        case AST_TUPLE_LITERAL: {
+            /* Type check tuple literal: (expr1, expr2, expr3) */
+            int element_count = expr->as.tuple_literal.element_count;
+            
+            /* Empty tuple is valid */
+            if (element_count == 0) {
+                expr->as.tuple_literal.element_types = NULL;
+                return TYPE_TUPLE;
+            }
+            
+            /* Allocate space for element types */
+            expr->as.tuple_literal.element_types = malloc(sizeof(Type) * element_count);
+            
+            /* Type check each element */
+            for (int i = 0; i < element_count; i++) {
+                Type elem_type = check_expression(expr->as.tuple_literal.elements[i], env);
+                if (elem_type == TYPE_UNKNOWN) {
+                    fprintf(stderr, "Error at line %d, column %d: Tuple element %d has unknown type\n",
+                            expr->line, expr->column, i);
+                    return TYPE_UNKNOWN;
+                }
+                expr->as.tuple_literal.element_types[i] = elem_type;
+            }
+            
+            return TYPE_TUPLE;
+        }
+
+        case AST_TUPLE_INDEX: {
+            /* Type check tuple index access: tuple.0, tuple.1 */
+            Type tuple_type = check_expression(expr->as.tuple_index.tuple, env);
+            
+            if (tuple_type != TYPE_TUPLE) {
+                fprintf(stderr, "Error at line %d, column %d: Tuple index access on non-tuple type\n",
+                        expr->line, expr->column);
+                return TYPE_UNKNOWN;
+            }
+            
+            /* Get the tuple expression to check bounds */
+            ASTNode *tuple_expr = expr->as.tuple_index.tuple;
+            int index = expr->as.tuple_index.index;
+            
+            /* If the tuple is a literal, we can check bounds and get exact type */
+            if (tuple_expr->type == AST_TUPLE_LITERAL) {
+                int element_count = tuple_expr->as.tuple_literal.element_count;
+                if (index < 0 || index >= element_count) {
+                    fprintf(stderr, "Error at line %d, column %d: Tuple index %d out of bounds (tuple has %d elements)\n",
+                            expr->line, expr->column, index, element_count);
+                    return TYPE_UNKNOWN;
+                }
+                
+                /* Return the type of the indexed element */
+                if (tuple_expr->as.tuple_literal.element_types) {
+                    return tuple_expr->as.tuple_literal.element_types[index];
+                }
+            }
+            /* If the tuple is a variable, look up TypeInfo */
+            else if (tuple_expr->type == AST_IDENTIFIER) {
+                Symbol *sym = env_get_var(env, tuple_expr->as.identifier);
+                if (sym && sym->type == TYPE_TUPLE && sym->type_info) {
+                    TypeInfo *type_info = sym->type_info;
+                    
+                    /* Check bounds */
+                    if (index < 0 || index >= type_info->tuple_element_count) {
+                        fprintf(stderr, "Error at line %d, column %d: Tuple index %d out of bounds (tuple has %d elements)\n",
+                                expr->line, expr->column, index, type_info->tuple_element_count);
+                        return TYPE_UNKNOWN;
+                    }
+                    
+                    /* Return the type of the indexed element */
+                    return type_info->tuple_types[index];
+                }
+            }
+            
+            /* For function returns or other complex expressions, we can't statically determine the type.
+             * Return TYPE_INT as a conservative estimate.
+             * TODO: Store TypeInfo in function return types for complete type checking.
+             */
+            return TYPE_INT;
+        }
+
         default:
             fprintf(stderr, "Error at line %d, column %d: Invalid expression type\n", expr->line, expr->column);
             return TYPE_UNKNOWN;
@@ -944,9 +1024,41 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
                 }
             }
             
+            /* Create TypeInfo for tuples */
+            TypeInfo *type_info = NULL;
+            if (declared_type == TYPE_TUPLE && stmt->as.let.value->type == AST_TUPLE_LITERAL) {
+                /* Create TypeInfo from tuple literal */
+                ASTNode *tuple_lit = stmt->as.let.value;
+                type_info = malloc(sizeof(TypeInfo));
+                type_info->base_type = TYPE_TUPLE;
+                type_info->element_type = NULL;
+                type_info->generic_name = NULL;
+                type_info->type_params = NULL;
+                type_info->type_param_count = 0;
+                type_info->tuple_element_count = tuple_lit->as.tuple_literal.element_count;
+                
+                /* Copy tuple element types */
+                if (type_info->tuple_element_count > 0) {
+                    type_info->tuple_types = malloc(sizeof(Type) * type_info->tuple_element_count);
+                    type_info->tuple_type_names = malloc(sizeof(char*) * type_info->tuple_element_count);
+                    
+                    for (int i = 0; i < type_info->tuple_element_count; i++) {
+                        if (tuple_lit->as.tuple_literal.element_types) {
+                            type_info->tuple_types[i] = tuple_lit->as.tuple_literal.element_types[i];
+                        } else {
+                            type_info->tuple_types[i] = TYPE_UNKNOWN;
+                        }
+                        type_info->tuple_type_names[i] = NULL;  /* TODO: Handle struct/union types */
+                    }
+                } else {
+                    type_info->tuple_types = NULL;
+                    type_info->tuple_type_names = NULL;
+                }
+            }
+            
             /* Add to environment */
             Value val = create_void(); /* Placeholder */
-            env_define_var_with_element_type(tc->env, stmt->as.let.name, declared_type, element_type, stmt->as.let.is_mut, val);
+            env_define_var_with_type_info(tc->env, stmt->as.let.name, declared_type, element_type, type_info, stmt->as.let.is_mut, val);
             
             /* Store definition location for unused variable warnings */
             Symbol *sym = env_get_var(tc->env, stmt->as.let.name);

@@ -3,7 +3,7 @@
 # MODERNIZED: Added Particle struct for cleaner data organization
 
 import "modules/sdl/sdl.nano"
-import "sdl_helpers.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
 
 # === STRUCTS ===
 struct Particle {
