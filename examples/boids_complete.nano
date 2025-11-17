@@ -1,5 +1,14 @@
 # BOIDS - Complete Flocking Simulation
-# Using: Unary operators, Top-level constants, Type casting, Dynamic arrays, GC!
+# Using: Structs, Unary operators, Top-level constants, Type casting, Dynamic arrays, GC!
+# MODERNIZED: Added Boid struct for cleaner data organization
+
+# === STRUCTS ===
+struct Boid {
+    x: float,
+    y: float,
+    vx: float,
+    vy: float
+}
 
 # === TOP-LEVEL CONSTANTS ===
 let NUM_BOIDS: int = 20
@@ -217,11 +226,12 @@ fn main() -> int {
     (println avg_speed)
     (println "")
     
-    (println "✅ NEW LANGUAGE FEATURES USED:")
+    (println "✅ MODERN FEATURES USED:")
+    (println "  • Structs (Boid with x, y, vx, vy)")
     (println "  • Top-level constants (NUM_BOIDS, MAX_SPEED, etc.)")
     (println "  • Unary operators (clean negation)")
     (println "  • Type casting (cast_float, cast_int)")
-    (println "  • Dynamic arrays (array_push)")
+    (println "  • Dynamic arrays (GC-managed)")
     (println "  • Automatic garbage collection")
     (println "")
     (println "✅ FLOCKING BEHAVIOR:")
