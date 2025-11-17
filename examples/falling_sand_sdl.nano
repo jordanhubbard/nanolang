@@ -276,6 +276,95 @@ shadow get_material_color {
     assert (== (get_material_color Material.EMPTY) 0)
 }
 
+fn get_material_name(mat: Material) -> string {
+    if (== mat Material.EMPTY) {
+        return "EMPTY"
+    } else {
+        if (== mat Material.SAND) {
+            return "SAND"
+        } else {
+            if (== mat Material.WATER) {
+                return "WATER"
+            } else {
+                if (== mat Material.STONE) {
+                    return "STONE"
+                } else {
+                    if (== mat Material.WOOD) {
+                        return "WOOD"
+                    } else {
+                        if (== mat Material.FIRE) {
+                            return "FIRE"
+                        } else {
+                            if (== mat Material.SMOKE) {
+                                return "SMOKE"
+                            } else {
+                                return "UNKNOWN"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow get_material_name {
+    assert (str_equals (get_material_name Material.SAND) "SAND")
+    assert (str_equals (get_material_name Material.WATER) "WATER")
+}
+
+fn render_ui(renderer: int, current_material: Material, paused: bool) -> void {
+    # Draw semi-transparent overlay at top
+    (SDL_SetRenderDrawColor renderer 0 0 0 180)
+    (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH 40)
+    
+    # For now, just draw colored rectangles to indicate material
+    # In a full implementation, you'd use TTF_RenderText here
+    
+    # Draw material indicator box
+    let color: int = (get_material_color current_material)
+    if (== color 0) {
+        (SDL_SetRenderDrawColor renderer 50 50 50 255)
+    } else {
+        if (== color 1) {
+            (SDL_SetRenderDrawColor renderer 194 178 128 255)  # Sand
+        } else {
+            if (== color 2) {
+                (SDL_SetRenderDrawColor renderer 64 164 223 255)  # Water
+            } else {
+                if (== color 3) {
+                    (SDL_SetRenderDrawColor renderer 128 128 128 255)  # Stone
+                } else {
+                    if (== color 4) {
+                        (SDL_SetRenderDrawColor renderer 139 69 19 255)  # Wood
+                    } else {
+                        if (== color 5) {
+                            (SDL_SetRenderDrawColor renderer 255 100 0 255)  # Fire
+                        } else {
+                            (SDL_SetRenderDrawColor renderer 64 64 64 255)  # Smoke
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    (nl_sdl_render_fill_rect renderer 10 10 30 20)
+    
+    # Draw pause indicator if paused
+    if paused {
+        (SDL_SetRenderDrawColor renderer 255 200 0 255)
+        (nl_sdl_render_fill_rect renderer (- WINDOW_WIDTH 50) 10 40 20)
+    } else {
+        (print "")
+    }
+}
+
+shadow render_ui {
+    # Uses SDL rendering, can't test
+    (print "")
+}
+
 fn render_grid(renderer: int, grid: array<int>) -> void {
     let mut y: int = 0
     while (< y GRID_HEIGHT) {
@@ -335,11 +424,16 @@ fn main() -> int {
     (println "╚════════════════════════════════════════════╝")
     (println "")
     (println "Controls:")
-    (println "  Left Click - Draw material")
-    (println "  1-6 - Select material (Sand/Water/Stone/Wood/Fire/Smoke)")
+    (println "  Left Click + Drag - Draw material continuously")
+    (println "  1 - Sand   2 - Water   3 - Stone")
+    (println "  4 - Wood   5 - Fire    6 - Smoke")
     (println "  SPACE - Pause/Play")
-    (println "  C - Clear")
+    (println "  C - Clear grid")
     (println "  ESC - Quit")
+    (println "")
+    (println "UI Indicators:")
+    (println "  Top-left box - Current material (colored)")
+    (println "  Top-right box - Pause status (yellow when paused)")
     (println "")
     
     # Initialize SDL
@@ -401,7 +495,60 @@ fn main() -> int {
     
     # Main loop
     while running {
-        # Handle events
+        # Handle keyboard input
+        let key: int = (nl_sdl_poll_keypress)
+        if (> key -1) {
+            # Material selection: 1=30, 2=31, 3=32, 4=33, 5=34, 6=35
+            if (== key 30) {
+                set current_material Material.SAND
+            } else {
+                if (== key 31) {
+                    set current_material Material.WATER
+                } else {
+                    if (== key 32) {
+                        set current_material Material.STONE
+                    } else {
+                        if (== key 33) {
+                            set current_material Material.WOOD
+                        } else {
+                            if (== key 34) {
+                                set current_material Material.FIRE
+                            } else {
+                                if (== key 35) {
+                                    set current_material Material.SMOKE
+                                } else {
+                                    if (== key 44) {
+                                        # SPACE = toggle pause
+                                        set paused (not paused)
+                                    } else {
+                                        if (== key 6) {
+                                            # C = clear
+                                            let mut clear_i: int = 0
+                                            while (< clear_i grid_size) {
+                                                (array_set grid clear_i Material.EMPTY)
+                                                (array_set fire_life clear_i 0)
+                                                set clear_i (+ clear_i 1)
+                                            }
+                                        } else {
+                                            if (== key 41) {
+                                                # ESC = quit
+                                                set running false
+                                            } else {
+                                                (print "")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            (print "")
+        }
+        
+        # Handle quit event
         let quit_event: int = (nl_sdl_poll_event_quit)
         if (== quit_event 1) {
             set running false
@@ -409,12 +556,12 @@ fn main() -> int {
             (print "")
         }
         
-        # Handle mouse input
-        let mouse_click: int = (nl_sdl_poll_mouse_click)
-        if (> mouse_click -1) {
-            # Mouse click returns x * 10000 + y, decode it
-            let mouse_x: int = (/ mouse_click 10000)
-            let mouse_y: int = (% mouse_click 10000)
+        # Handle mouse input (continuous drawing while held)
+        let mouse_state: int = (nl_sdl_poll_mouse_state)
+        if (> mouse_state -1) {
+            # Mouse state returns x * 10000 + y, decode it
+            let mouse_x: int = (/ mouse_state 10000)
+            let mouse_y: int = (% mouse_state 10000)
             
             # Convert to grid coordinates
             let grid_x: int = (/ mouse_x CELL_SIZE)
@@ -482,6 +629,7 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer 0 0 0 255)
         (SDL_RenderClear renderer)
         (render_grid renderer grid)
+        (render_ui renderer current_material paused)
         (SDL_RenderPresent renderer)
         
         # Frame delay

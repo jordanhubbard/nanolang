@@ -52,6 +52,39 @@ int64_t nl_sdl_poll_mouse_click(void) {
     return -1;
 }
 
+/* Helper to poll for mouse state (continuous holding)
+ * Returns x * 10000 + y if left button is held, -1 otherwise
+ */
+int64_t nl_sdl_poll_mouse_state(void) {
+    int x, y;
+    Uint32 state = SDL_GetMouseState(&x, &y);
+    if (state & SDL_BUTTON_LMASK) {
+        return (int64_t)x * 10000 + (int64_t)y;
+    }
+    return -1;
+}
+
+/* Helper to poll for keyboard events
+ * Returns SDL scancode if key pressed, -1 otherwise
+ * Common scancodes:
+ *   SPACE = 44, ESC = 41, C = 6
+ *   0-9 = 30-39, 1 = 30, 2 = 31, etc.
+ */
+int64_t nl_sdl_poll_keypress(void) {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
+            /* Store quit event for next poll_event_quit call */
+            SDL_PushEvent(&event);
+            return -1;
+        }
+        if (event.type == SDL_KEYDOWN) {
+            return event.key.keysym.scancode;
+        }
+    }
+    return -1;
+}
+
 #ifdef HAVE_SDL_TTF
 /* Helper to render text using SDL_ttf
  * Creates SDL_Color struct, renders text, creates texture, and renders to screen
