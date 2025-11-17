@@ -344,7 +344,7 @@ void module_builder_free(ModuleBuilder *builder) {
     free(builder);
 }
 
-ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta) {
+ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), ModuleBuildMetadata *meta) {
     if (!meta || meta->c_sources_count == 0) {
         // No C sources = nothing to build, but still need link/compile flags
         ModuleBuildInfo *info = calloc(1, sizeof(ModuleBuildInfo));
@@ -573,7 +573,7 @@ void module_build_info_free(ModuleBuildInfo *info) {
     free(info);
 }
 
-// Get all link flags from multiple modules
+// Get all link flags from multiple modules (deduplicated)
 char** module_get_link_flags(ModuleBuildInfo **modules, size_t count, size_t *out_count) {
     size_t total = 0;
     
@@ -594,7 +594,20 @@ char** module_get_link_flags(ModuleBuildInfo **modules, size_t count, size_t *ou
     for (size_t i = 0; i < count; i++) {
         if (modules[i]) {
             for (size_t j = 0; j < modules[i]->link_flags_count; j++) {
-                all_flags[pos++] = strdup(modules[i]->link_flags[j]);
+                const char *flag = modules[i]->link_flags[j];
+                
+                // Check if this flag already exists (deduplicate)
+                bool duplicate = false;
+                for (size_t k = 0; k < pos; k++) {
+                    if (strcmp(all_flags[k], flag) == 0) {
+                        duplicate = true;
+                        break;
+                    }
+                }
+                
+                if (!duplicate) {
+                    all_flags[pos++] = strdup(flag);
+                }
             }
         }
     }

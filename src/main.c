@@ -202,19 +202,6 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         strncat(lib_flags, temp, sizeof(lib_flags) - strlen(lib_flags) - 1);
     }
     
-    /* Check if SDL helpers runtime is needed by checking if sdl_helpers module is imported */
-    /* This is cleaner than checking function names - modules explicitly declare dependencies */
-    bool needs_sdl_helpers = false;
-    if (modules) {
-        for (int i = 0; i < modules->count; i++) {
-            const char *module_path = modules->module_paths[i];
-            if (module_path && strstr(module_path, "sdl_helpers.nano") != NULL) {
-                needs_sdl_helpers = true;
-                break;
-            }
-        }
-    }
-    
     /* Build runtime files string */
     /* Note: sdl_helpers.c is NOT included here - it's provided by the sdl_helpers module */
     char runtime_files[512] = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c";
