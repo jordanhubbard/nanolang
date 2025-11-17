@@ -39,6 +39,23 @@ let PT_CHANNELS: int = 4
 let PT_PATTERNS: int = 64
 let PT_ROWS: int = 64
 let PT_SAMPLES: int = 31
+let MAX_SONG_LENGTH: int = 128
+
+# Sample data layout (per sample, 7 values)
+let SAMPLE_NAME_IDX: int = 0     # Would be string, using int for now
+let SAMPLE_LENGTH_IDX: int = 1   # Length in words (2 bytes)
+let SAMPLE_VOLUME_IDX: int = 2   # 0-64
+let SAMPLE_FINETUNE_IDX: int = 3  # -8 to +7
+let SAMPLE_LOOP_START_IDX: int = 4
+let SAMPLE_LOOP_LENGTH_IDX: int = 5
+let SAMPLE_DATA_PTR_IDX: int = 6  # Pointer to sample data
+let SAMPLE_FIELDS: int = 7
+
+# Module header layout
+let HEADER_SONG_LENGTH_IDX: int = 0
+let HEADER_RESTART_POS_IDX: int = 1
+let HEADER_NUM_PATTERNS_IDX: int = 2
+let HEADER_FIELDS: int = 3
 
 # Display constants
 let WINDOW_WIDTH: int = 1280
@@ -53,55 +70,130 @@ let COLOR_CURSOR: int = 15287648         # 0xE94560
 let COLOR_TEXT: int = 14540253           # 0xDDDDDD
 let COLOR_HEADER: int = 2894892          # 0x2C2C4C
 
+# === PERIOD TABLE ===
+# Amiga period table for notes with finetune 0
+# This is the heart of ProTracker's audio system
+# Based on PAL Amiga timing: 3546895 Hz / period = frequency
+# Note: Implemented as lookup function to avoid C const array initialization issues
+
 # === HELPER FUNCTIONS ===
 
 fn note_to_period(note: int) -> int {
-    # Amiga period table for notes
-    # C-1 = 856, C-2 = 428, C-3 = 214, etc.
-    if (== note 0) {
-        return 0
-    } else {
-        if (<= note 12) {
-            # Octave 1 - approximate
-            return (/ 856 note)
-        } else {
-            if (<= note 24) {
-                # Octave 2
-                return (/ 856 (* (- note 12) 2))
-            } else {
-                # Octave 3
-                return (/ 856 (* (- note 24) 4))
-            }
-        }
-    }
+    # Convert note number (1-36) to Amiga period
+    # 0 = no note, 1 = C-1, 13 = C-2, 25 = C-3
+    if (== note 0) { return 0 } else {}
+    if (< note 1) { return 0 } else {}
+    if (> note 36) { return 113 } else {}
+    
+    # Lookup table for all 36 notes (3 octaves)
+    # Octave 1 (C-1 to B-1)
+    if (== note 1) { return 856 } else {}
+    if (== note 2) { return 808 } else {}
+    if (== note 3) { return 762 } else {}
+    if (== note 4) { return 720 } else {}
+    if (== note 5) { return 678 } else {}
+    if (== note 6) { return 640 } else {}
+    if (== note 7) { return 604 } else {}
+    if (== note 8) { return 570 } else {}
+    if (== note 9) { return 538 } else {}
+    if (== note 10) { return 508 } else {}
+    if (== note 11) { return 480 } else {}
+    if (== note 12) { return 453 } else {}
+    
+    # Octave 2 (C-2 to B-2)
+    if (== note 13) { return 428 } else {}
+    if (== note 14) { return 404 } else {}
+    if (== note 15) { return 381 } else {}
+    if (== note 16) { return 360 } else {}
+    if (== note 17) { return 339 } else {}
+    if (== note 18) { return 320 } else {}
+    if (== note 19) { return 302 } else {}
+    if (== note 20) { return 285 } else {}
+    if (== note 21) { return 269 } else {}
+    if (== note 22) { return 254 } else {}
+    if (== note 23) { return 240 } else {}
+    if (== note 24) { return 226 } else {}
+    
+    # Octave 3 (C-3 to B-3)
+    if (== note 25) { return 214 } else {}
+    if (== note 26) { return 202 } else {}
+    if (== note 27) { return 190 } else {}
+    if (== note 28) { return 180 } else {}
+    if (== note 29) { return 170 } else {}
+    if (== note 30) { return 160 } else {}
+    if (== note 31) { return 151 } else {}
+    if (== note 32) { return 143 } else {}
+    if (== note 33) { return 135 } else {}
+    if (== note 34) { return 127 } else {}
+    if (== note 35) { return 120 } else {}
+    if (== note 36) { return 113 } else {}
+    
+    return 0  # Invalid note
 }
 
 shadow note_to_period {
     assert (== (note_to_period 0) 0)
-    assert (> (note_to_period 1) 0)
+    assert (== (note_to_period 1) 856)   # C-1
+    assert (== (note_to_period 13) 428)  # C-2
+    assert (== (note_to_period 25) 214)  # C-3
+    assert (== (note_to_period 36) 113)  # B-3
 }
 
 fn note_name(note: int) -> string {
-    if (== note NoteValue.C1) { return "C-1" } else {
-    if (== note NoteValue.CS1) { return "C#1" } else {
-    if (== note NoteValue.D1) { return "D-1" } else {
-    if (== note NoteValue.DS1) { return "D#1" } else {
-    if (== note NoteValue.E1) { return "E-1" } else {
-    if (== note NoteValue.F1) { return "F-1" } else {
-    if (== note NoteValue.FS1) { return "F#1" } else {
-    if (== note NoteValue.G1) { return "G-1" } else {
-    if (== note NoteValue.GS1) { return "G#1" } else {
-    if (== note NoteValue.A1) { return "A-1" } else {
-    if (== note NoteValue.AS1) { return "A#1" } else {
-    if (== note NoteValue.B1) { return "B-1" } else {
-        return "---"
-    }}}}}}}}}}}}
+    # Return ProTracker-style note names
+    # Simplified to avoid deep nesting issues
+    if (== note 0) { return "---" } else {}
+    
+    # Octave 1 (notes 1-12)
+    if (== note 1) { return "C-1" } else {}
+    if (== note 2) { return "C#1" } else {}
+    if (== note 3) { return "D-1" } else {}
+    if (== note 4) { return "D#1" } else {}
+    if (== note 5) { return "E-1" } else {}
+    if (== note 6) { return "F-1" } else {}
+    if (== note 7) { return "F#1" } else {}
+    if (== note 8) { return "G-1" } else {}
+    if (== note 9) { return "G#1" } else {}
+    if (== note 10) { return "A-1" } else {}
+    if (== note 11) { return "A#1" } else {}
+    if (== note 12) { return "B-1" } else {}
+    
+    # Octave 2 (notes 13-24)
+    if (== note 13) { return "C-2" } else {}
+    if (== note 14) { return "C#2" } else {}
+    if (== note 15) { return "D-2" } else {}
+    if (== note 16) { return "D#2" } else {}
+    if (== note 17) { return "E-2" } else {}
+    if (== note 18) { return "F-2" } else {}
+    if (== note 19) { return "F#2" } else {}
+    if (== note 20) { return "G-2" } else {}
+    if (== note 21) { return "G#2" } else {}
+    if (== note 22) { return "A-2" } else {}
+    if (== note 23) { return "A#2" } else {}
+    if (== note 24) { return "B-2" } else {}
+    
+    # Octave 3 (notes 25-36)
+    if (== note 25) { return "C-3" } else {}
+    if (== note 26) { return "C#3" } else {}
+    if (== note 27) { return "D-3" } else {}
+    if (== note 28) { return "D#3" } else {}
+    if (== note 29) { return "E-3" } else {}
+    if (== note 30) { return "F-3" } else {}
+    if (== note 31) { return "F#3" } else {}
+    if (== note 32) { return "G-3" } else {}
+    if (== note 33) { return "G#3" } else {}
+    if (== note 34) { return "A-3" } else {}
+    if (== note 35) { return "A#3" } else {}
+    if (== note 36) { return "B-3" } else {}
+    
+    return "???"
 }
 
 shadow note_name {
     assert (== (note_name 0) "---")
-    assert (== (note_name NoteValue.C1) "C-1")
-    assert (== (note_name NoteValue.CS1) "C#1")
+    assert (== (note_name 1) "C-1")
+    assert (== (note_name 13) "C-2")
+    assert (== (note_name 25) "C-3")
 }
 
 fn effect_name(effect: int) -> string {
