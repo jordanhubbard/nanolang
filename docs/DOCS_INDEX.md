@@ -1,36 +1,30 @@
 # nanolang Documentation Index
 
-Welcome to nanolang! This index will help you navigate the documentation.
+> **Note:** This page has been reorganized. For the complete documentation guide, see **[docs/README.md](README.md)**.
 
-## Quick Links
+## Quick Navigation
 
-- **New to nanolang?** Start with [Getting Started](GETTING_STARTED.md)
-- **Want details?** Read the [Language Specification](SPECIFICATION.md)
-- **Need a quick reference?** See [Quick Reference](QUICK_REFERENCE.md)
-- **Feature overview?** See [Features](FEATURES.md) - Complete feature list with examples
-- **Standard library?** Browse [Standard Library Reference](STDLIB.md) (37 functions)
-- **Learn about shadow-tests?** See [Shadow-Tests Guide](SHADOW_TESTS.md)
-- **Ready to contribute?** Check [Contributing Guidelines](CONTRIBUTING.md)
-- **Want examples?** Browse the [examples/](../examples/) directory
-- **Using C FFI?** See [External C Function Interface](EXTERN_FFI.md) and [Safe C FFI Functions Reference](SAFE_C_FFI_FUNCTIONS.md)
-- **Variable mutability?** See [Mutability Guide](MUTABILITY_GUIDE.md)
-- **Debugging code?** See [Tracing System for Debugging](TRACING_IMPLEMENTATION.md) - LLM-friendly runtime tracing
-- **Garbage collection?** See [GC Features Guide](GC_FEATURES.md) - Dynamic arrays and automatic memory management
-- **Game development?** Check [Game Examples](../examples/) - 6 working games (Life, Snake, Boids, Maze, Particles, Checkers)
+### 🚀 Getting Started
+- **[Getting Started Guide](GETTING_STARTED.md)** - Learn nanolang in 15 minutes
+- **[Quick Reference](QUICK_REFERENCE.md)** - Syntax cheat sheet
+- **[Examples](../examples/README.md)** - 70+ example programs
 
-## Documentation Structure
+### 📖 Core Documentation
+- **[Language Specification](SPECIFICATION.md)** - Complete language reference
+- **[Features Guide](FEATURES.md)** - All language features
+- **[Standard Library](STDLIB.md)** - 37 built-in functions
+- **[Shadow Tests](SHADOW_TESTS.md)** - Testing philosophy
 
-### For Beginners
+### 🏗️ Advanced
+- **[Module System](MODULE_SYSTEM.md)** - Creating modules
+- **[Extern FFI](EXTERN_FFI.md)** - Calling C functions
+- **[Architecture Analysis](ARCHITECTURE_ANALYSIS.md)** - System design
 
-1. **[README.md](README.md)** - Project overview and quick introduction
-2. **[GETTING_STARTED.md](GETTING_STARTED.md)** - Your first nanolang program
-3. **[examples/](examples/)** - Sample code to learn from
+### 🤝 Contributing
+- **[Contributing Guide](CONTRIBUTING.md)** - How to help
+- **[Roadmap](ROADMAP.md)** - Future plans
 
-### For Developers
-
-1. **[SPECIFICATION.md](SPECIFICATION.md)** - Complete language reference
-2. **[SHADOW_TESTS.md](SHADOW_TESTS.md)** - Deep dive into testing
-3. **[CONTRIBUTING.md](CONTRIBUTING.md)** - How to contribute
+---
 
 ## What is nanolang?
 
@@ -42,12 +36,17 @@ nanolang is a minimal, LLM-friendly programming language with:
 - **C transpilation** - Native performance
 - **Clear semantics** - Unambiguous and simple
 
-## Philosophy
+## Documentation by Skill Level
 
-nanolang prioritizes:
+**🟢 Beginner:** Start with [Getting Started](GETTING_STARTED.md) → [Examples](../examples/README.md) → [Quick Reference](QUICK_REFERENCE.md)
 
-1. **Clarity over brevity** - Explicit is better than implicit
-2. **Testing over trust** - All code must be tested
+**🟡 Intermediate:** [Language Specification](SPECIFICATION.md) → [Features](FEATURES.md) → [Standard Library](STDLIB.md)
+
+**🔴 Advanced:** [Architecture](ARCHITECTURE_ANALYSIS.md) → [Module System](MODULE_SYSTEM.md) → [Language Design](LANGUAGE_DESIGN_REVIEW.md)
+
+---
+
+📚 **[View Complete Documentation Map →](README.md)**
 3. **Simplicity over features** - Minimal but complete
 4. **LLM-friendly** - Optimized for AI understanding
 5. **Self-hosting** - Eventually compiles itself

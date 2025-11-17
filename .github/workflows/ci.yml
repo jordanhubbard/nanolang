@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Build and Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+      
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          # macOS comes with clang and make by default
+          echo "Using system clang and make"
+      
+      - name: Check dependencies
+        run: make check-deps
+      
+      - name: Build compiler and interpreter
+        run: make
+      
+      - name: Run core test suite
+        run: make test
+      
+      - name: Verify binaries exist
+        run: |
+          test -f ./bin/nanoc || exit 1
+          test -f ./bin/nano || exit 1
+          echo "✓ Binaries built successfully"
+      
+      - name: Test basic example
+        run: |
+          ./bin/nano examples/hello.nano
+          ./bin/nanoc examples/factorial.nano -o factorial_test
+          ./factorial_test
+          rm -f factorial_test
+
+  sanitizers:
+    name: Memory Sanitizers
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+      
+      - name: Build with sanitizers
+        run: make sanitize
+      
+      - name: Run tests with sanitizers
+        run: make test
+
+  lint:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang-tidy
+      
+      - name: Run linter
+        run: make lint
+        continue-on-error: true
