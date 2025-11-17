@@ -346,36 +346,63 @@ void module_builder_free(ModuleBuilder *builder) {
 
 ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta) {
     if (!meta || meta->c_sources_count == 0) {
-        // No C sources = nothing to build, but still need link flags
+        // No C sources = nothing to build, but still need link/compile flags
         ModuleBuildInfo *info = calloc(1, sizeof(ModuleBuildInfo));
         if (!info) return NULL;
 
         // Collect link flags from pkg-config and system_libs
-        size_t total_flags = 0;
-        char **flags = calloc(1024, sizeof(char*));
+        size_t total_link_flags = 0;
+        char **link_flags = calloc(1024, sizeof(char*));
 
         // Add pkg-config link flags
         for (size_t i = 0; i < meta->pkg_config_count; i++) {
             char *pkg_flags = get_pkg_config_flags(meta->pkg_config[i], "--libs");
             if (pkg_flags) {
-                flags[total_flags++] = pkg_flags;
+                link_flags[total_link_flags++] = pkg_flags;
             }
         }
 
         // Add custom ldflags
         for (size_t i = 0; i < meta->ldflags_count; i++) {
-            flags[total_flags++] = strdup(meta->ldflags[i]);
+            link_flags[total_link_flags++] = strdup(meta->ldflags[i]);
         }
 
         // Add system libs
         for (size_t i = 0; i < meta->system_libs_count; i++) {
             char *lib_flag = malloc(256);
             snprintf(lib_flag, 256, "-l%s", meta->system_libs[i]);
-            flags[total_flags++] = lib_flag;
+            link_flags[total_link_flags++] = lib_flag;
         }
 
-        info->link_flags = flags;
-        info->link_flags_count = total_flags;
+        info->link_flags = link_flags;
+        info->link_flags_count = total_link_flags;
+
+        // Collect compile flags (include paths from pkg-config)
+        size_t total_compile_flags = 0;
+        char **compile_flags = calloc(1024, sizeof(char*));
+
+        // Add pkg-config compile flags (include paths, defines)
+        for (size_t i = 0; i < meta->pkg_config_count; i++) {
+            char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+            if (pkg_cflags) {
+                compile_flags[total_compile_flags++] = pkg_cflags;
+            }
+        }
+
+        // Add custom include dirs
+        for (size_t i = 0; i < meta->include_dirs_count; i++) {
+            char *include_flag = malloc(256);
+            snprintf(include_flag, 256, "-I%s", meta->include_dirs[i]);
+            compile_flags[total_compile_flags++] = include_flag;
+        }
+
+        // Add custom cflags
+        for (size_t i = 0; i < meta->cflags_count; i++) {
+            compile_flags[total_compile_flags++] = strdup(meta->cflags[i]);
+        }
+
+        info->compile_flags = compile_flags;
+        info->compile_flags_count = total_compile_flags;
         info->needs_rebuild = false;
         info->object_file = NULL;
 
@@ -469,34 +496,61 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta)
     info->needs_rebuild = needs_rebuild;
 
     // Collect link flags
-    size_t total_flags = 0;
-    char **flags = calloc(1024, sizeof(char*));
+    size_t total_link_flags = 0;
+    char **link_flags = calloc(1024, sizeof(char*));
 
     // Add object file
-    flags[total_flags++] = strdup(object_file);
+    link_flags[total_link_flags++] = strdup(object_file);
 
     // Add pkg-config link flags
     for (size_t i = 0; i < meta->pkg_config_count; i++) {
         char *pkg_flags = get_pkg_config_flags(meta->pkg_config[i], "--libs");
         if (pkg_flags) {
-            flags[total_flags++] = pkg_flags;
+            link_flags[total_link_flags++] = pkg_flags;
         }
     }
 
     // Add custom ldflags
     for (size_t i = 0; i < meta->ldflags_count; i++) {
-        flags[total_flags++] = strdup(meta->ldflags[i]);
+        link_flags[total_link_flags++] = strdup(meta->ldflags[i]);
     }
 
     // Add system libs
     for (size_t i = 0; i < meta->system_libs_count; i++) {
         char *lib_flag = malloc(256);
         snprintf(lib_flag, 256, "-l%s", meta->system_libs[i]);
-        flags[total_flags++] = lib_flag;
+        link_flags[total_link_flags++] = lib_flag;
     }
 
-    info->link_flags = flags;
-    info->link_flags_count = total_flags;
+    info->link_flags = link_flags;
+    info->link_flags_count = total_link_flags;
+
+    // Collect compile flags (include paths from pkg-config)
+    size_t total_compile_flags = 0;
+    char **compile_flags = calloc(1024, sizeof(char*));
+
+    // Add pkg-config compile flags (include paths, defines)
+    for (size_t i = 0; i < meta->pkg_config_count; i++) {
+        char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+        if (pkg_cflags) {
+            compile_flags[total_compile_flags++] = pkg_cflags;
+        }
+    }
+
+    // Add custom include dirs
+    for (size_t i = 0; i < meta->include_dirs_count; i++) {
+        char *include_flag = malloc(256);
+        snprintf(include_flag, 256, "-I%s", meta->include_dirs[i]);
+        compile_flags[total_compile_flags++] = include_flag;
+    }
+
+    // Add custom cflags
+    for (size_t i = 0; i < meta->cflags_count; i++) {
+        compile_flags[total_compile_flags++] = strdup(meta->cflags[i]);
+    }
+
+    info->compile_flags = compile_flags;
+    info->compile_flags_count = total_compile_flags;
 
     return info;
 }

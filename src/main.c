@@ -129,9 +129,10 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     /* Compile modules to object files */
     char compile_cmd[4096];
     char module_objs[2048] = "";
+    char module_compile_flags[2048] = "";
     
     if (modules->count > 0) {
-        if (!compile_modules(modules, env, module_objs, sizeof(module_objs), opts->verbose)) {
+        if (!compile_modules(modules, env, module_objs, sizeof(module_objs), module_compile_flags, sizeof(module_compile_flags), opts->verbose)) {
             fprintf(stderr, "Error: Failed to compile modules\n");
             free(c_code);
             free_ast(program);
@@ -149,6 +150,12 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         char temp[512];
         snprintf(temp, sizeof(temp), " -I%s", opts->include_paths[i]);
         strncat(include_flags, temp, sizeof(include_flags) - strlen(include_flags) - 1);
+    }
+    
+    /* Add module compile flags (include paths from pkg-config) */
+    if (module_compile_flags[0] != '\0') {
+        strncat(include_flags, " ", sizeof(include_flags) - strlen(include_flags) - 1);
+        strncat(include_flags, module_compile_flags, sizeof(include_flags) - strlen(include_flags) - 1);
     }
     
     /* Build library path flags */
@@ -334,6 +341,11 @@ int main(int argc, char *argv[]) {
     opts.library_path_count = library_path_count;
     opts.libraries = libraries;
     opts.library_count = library_count;
+    
+    /* Check for NANO_VERBOSE_BUILD environment variable */
+    if (getenv("NANO_VERBOSE_BUILD")) {
+        opts.verbose = true;
+    }
     
     int result = compile_file(input_file, output_file, &opts);
     
