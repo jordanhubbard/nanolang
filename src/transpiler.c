@@ -509,8 +509,12 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                         sb_append(sb, ") != 0)");
                     }
                 } else {
-                    /* Regular comparison */
-                    sb_append(sb, "(");
+                    /* Regular binary operation */
+                    /* Only add parentheses for arithmetic to ensure correct precedence */
+                    bool needs_parens = (op == TOKEN_PLUS || op == TOKEN_MINUS || 
+                                       op == TOKEN_STAR || op == TOKEN_SLASH || op == TOKEN_PERCENT);
+                    
+                    if (needs_parens) sb_append(sb, "(");
                     transpile_expression(sb, expr->as.prefix_op.args[0], env);
                     switch (op) {
                         case TOKEN_PLUS: sb_append(sb, " + "); break;
@@ -529,7 +533,7 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                         default: sb_append(sb, " OP "); break;
                     }
                     transpile_expression(sb, expr->as.prefix_op.args[1], env);
-                    sb_append(sb, ")");
+                    if (needs_parens) sb_append(sb, ")");
                 }
             } else if (arg_count == 1 && op == TOKEN_NOT) {
                 sb_append(sb, "(!");
