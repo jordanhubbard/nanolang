@@ -25,10 +25,10 @@ struct Cell {
 # === CONSTANTS ===
 let WINDOW_WIDTH: int = 800
 let WINDOW_HEIGHT: int = 600
-let CELL_SIZE: int = 2
+let CELL_SIZE: int = 1
 let GRID_WIDTH: int = (/ WINDOW_WIDTH CELL_SIZE)
 let GRID_HEIGHT: int = (/ WINDOW_HEIGHT CELL_SIZE)
-let BRUSH_SIZE: int = 3
+let BRUSH_SIZE: int = 5
 let FIRE_LIFETIME: int = 30
 
 # === GRID OPERATIONS ===
@@ -222,17 +222,34 @@ shadow update_fire {
 }
 
 fn update_smoke(grid: array<int>, x: int, y: int) -> bool {
-    # Smoke rises and dissipates
+    # Smoke rises and disperses horizontally
     let above: Material = (get_material grid x (- y 1))
     
+    # Try to rise
     if (== above Material.EMPTY) {
         set grid (set_material grid x y Material.EMPTY)
         set grid (set_material grid x (- y 1) Material.SMOKE)
         return true
     } else {
-        # Dissipate randomly (simplified: dissipate every time)
-        set grid (set_material grid x y Material.EMPTY)
-        return true
+        # Can't rise, try to spread horizontally
+        let left: Material = (get_material grid (- x 1) y)
+        let right: Material = (get_material grid (+ x 1) y)
+        
+        if (== left Material.EMPTY) {
+            set grid (set_material grid x y Material.EMPTY)
+            set grid (set_material grid (- x 1) y Material.SMOKE)
+            return true
+        } else {
+            if (== right Material.EMPTY) {
+                set grid (set_material grid x y Material.EMPTY)
+                set grid (set_material grid (+ x 1) y Material.SMOKE)
+                return true
+            } else {
+                # Can't move, slowly dissipate (1 in 10 chance)
+                # For now, just stay put - dissipation could be added later
+                return false
+            }
+        }
     }
 }
 
