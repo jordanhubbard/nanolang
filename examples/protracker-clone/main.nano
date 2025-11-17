@@ -8,6 +8,7 @@ import "modules/pt2_state/pt2_state.nano"  # Must import directly (nested import
 import "examples/protracker-clone/types.nano"
 import "examples/protracker-clone/pattern.nano"
 import "examples/protracker-clone/replayer.nano"
+import "examples/protracker-clone/mod_loader.nano"
 import "examples/protracker-clone/ui.nano"
 
 fn main() -> int {
@@ -63,11 +64,14 @@ fn main() -> int {
     
     (println "✓ Window and renderer created")
     (println "")
-    (println "Initializing pattern data...")
     
     # Create pattern data
     let pattern_data: array<int> = (create_demo_pattern)
     (println "✓ Pattern data initialized")
+    
+    # TODO: Load MOD file
+    # let mod_path: string = "/Users/jordanh/Downloads/gabba-studies-12.mod"
+    # set pattern_data (load_mod_file mod_path)
     
     (println "")
     (println "Controls:")

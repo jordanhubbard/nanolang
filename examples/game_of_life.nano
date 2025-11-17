@@ -189,6 +189,10 @@ fn main() -> int {
         # Check if this is part of the glider
         let mut cell: CellState = CellState.DEAD
         
+        # Use x and glider_x in a way compiler recognizes (store in temp var)
+        let x_offset: int = (- x glider_x)
+        let y_offset: int = (- y glider_y)
+        
         # Row 0:  0 1 0
         if (== y glider_y) {
             if (== x (+ glider_x 1)) {
@@ -229,6 +233,9 @@ fn main() -> int {
         } else {
             (print "")
         }
+        
+        # Use offset variables to ensure x, glider_x, y, glider_y are considered used
+        let _dummy: int = (+ x_offset y_offset)
         
         set new_grid (array_push new_grid cell)
         set i (+ i 1)
