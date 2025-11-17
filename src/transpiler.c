@@ -910,12 +910,34 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 sb_append(sb, ")");
             } else {
                 /* Normal function call */
+                
+                /* Check if this is an extern function that needs return type casting */
+                Function *func_def = env_get_function(env, func_name);
+                bool needs_return_cast = false;
+                
+                /* If this is an extern function returning int (which represents a pointer),
+                 * and we have headers included, cast the return value to avoid type errors.
+                 * Don't cast void returns! */
+                if (func_def && func_def->is_extern && func_def->return_type == TYPE_INT) {
+                    /* Extern functions that return int likely return pointers
+                     * When C headers are included, we need to cast pointer returns to int64_t */
+                    needs_return_cast = true;
+                } else if (func_def && func_def->is_extern && func_def->return_type == TYPE_VOID) {
+                    /* Void returns - don't cast */
+                    needs_return_cast = false;
+                }
+                
+                /* Add cast for pointer-returning extern functions */
+                if (needs_return_cast) {
+                    sb_append(sb, "(int64_t)");
+                }
+                
                 sb_appendf(sb, "%s(", func_name);
                 
-                /* Check if this is an SDL function that needs pointer casts */
-                Function *func_def = env_get_function(env, func_name);
+                /* Check if this is an SDL/Mix function that needs pointer casts */
                 bool is_sdl_func = func_def && func_def->is_extern && 
                                   (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "TTF_", 4) == 0);
+                bool is_mix_func = func_def && func_def->is_extern && strncmp(func_name, "Mix_", 4) == 0;
                 bool is_nl_sdl_helper = func_def && func_def->is_extern && 
                                        strncmp(func_name, "nl_sdl_", 7) == 0;
                 
@@ -928,6 +950,20 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                         if (sdl_param_type && func_def->params[i].type == TYPE_INT) {
                             /* Cast int to pointer type */
                             sb_appendf(sb, "(%s)", sdl_param_type);
+                        }
+                    } else if (is_mix_func && func_def && i < func_def->param_count) {
+                        /* SDL_mixer functions: cast int64_t to pointer types */
+                        if (func_def->params[i].type == TYPE_INT) {
+                            /* Common SDL_mixer pointer types */
+                            if (strcmp(func_name, "Mix_PlayMusic") == 0 && i == 0) {
+                                sb_append(sb, "(Mix_Music*)");
+                            } else if (strcmp(func_name, "Mix_FreeMusic") == 0 && i == 0) {
+                                sb_append(sb, "(Mix_Music*)");
+                            } else if (strcmp(func_name, "Mix_PlayChannel") == 0 && i == 1) {
+                                sb_append(sb, "(Mix_Chunk*)");
+                            } else if (strcmp(func_name, "Mix_FreeChunk") == 0 && i == 0) {
+                                sb_append(sb, "(Mix_Chunk*)");
+                            }
                         }
                     } else if (is_nl_sdl_helper && func_def && i < func_def->param_count) {
                         /* nl_sdl_ helpers: first param is SDL_Renderer* passed as int64_t */

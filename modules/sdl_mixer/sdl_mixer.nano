@@ -9,7 +9,7 @@
 extern fn Mix_Init(flags: int) -> int
 
 # Shutdown SDL_mixer
-extern fn Mix_Quit() -> int
+extern fn Mix_Quit() -> void
 
 # Open audio device with specified parameters
 # frequency: sample rate (e.g., 44100)
@@ -19,7 +19,7 @@ extern fn Mix_Quit() -> int
 extern fn Mix_OpenAudio(frequency: int, format: int, channels: int, chunksize: int) -> int
 
 # Close audio device
-extern fn Mix_CloseAudio() -> int
+extern fn Mix_CloseAudio() -> void
 
 # === Format Flags ===
 
@@ -92,7 +92,7 @@ extern fn Mix_VolumeChunk(chunk: int, volume: int) -> int
 extern fn Mix_LoadMUS(file: string) -> int
 
 # Free Mix_Music
-extern fn Mix_FreeMusic(music: int) -> int
+extern fn Mix_FreeMusic(music: int) -> void
 
 # Play music
 # loops: 0 = play once, -1 = loop forever, N = play N+1 times
@@ -117,11 +117,11 @@ extern fn Mix_FadeOutMusic(ms: int) -> int
 # Rewind music to start
 extern fn Mix_RewindMusic() -> int
 
-# Pause music
-extern fn Mix_PauseMusic() -> int
+# Pause music (returns void in C, but we use int for consistency)
+extern fn Mix_PauseMusic() -> void
 
-# Resume music
-extern fn Mix_ResumeMusic() -> int
+# Resume music (returns void in C, but we use int for consistency)
+extern fn Mix_ResumeMusic() -> void
 
 # Set music volume
 # volume: 0-128 (MIX_MAX_VOLUME)
