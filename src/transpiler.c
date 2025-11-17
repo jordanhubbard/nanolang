@@ -723,8 +723,13 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                     const char *arr_name = expr->as.call.args[0]->as.identifier;
                     Symbol *arr_sym = env_get_var(env, arr_name);
                     if (arr_sym) {
+                        /* Enums are int64_t, treat as int arrays */
+                        if (arr_sym->type == TYPE_ARRAY && arr_sym->element_type == TYPE_ENUM) {
+                            /* Enum arrays use int array functions (enums are int64_t) */
+                            /* Let it fall through to int array handling below */
+                        }
                         /* Check if this is a struct array */
-                        if (arr_sym->type == TYPE_ARRAY && arr_sym->element_type == TYPE_STRUCT) {
+                        else if (arr_sym->type == TYPE_ARRAY && arr_sym->element_type == TYPE_STRUCT) {
                             if (arr_sym->struct_type_name) {
                                 struct_type_name = arr_sym->struct_type_name;
                                 is_struct_array_op = true;

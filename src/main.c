@@ -5,6 +5,7 @@
 typedef struct {
     bool verbose;
     bool keep_c;
+    bool save_asm;            /* -S flag: save generated C to .genC file */
     char **include_paths;      /* -I flags */
     int include_count;
     char **library_paths;     /* -L flags */
@@ -94,6 +95,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (opts->verbose) printf("✓ Shadow tests passed\n");
 
     /* Phase 6: C Transpilation */
+    if (opts->verbose) printf("Transpiling to C...\n");
     char *c_code = transpile_to_c(program, env);
     if (!c_code) {
         fprintf(stderr, "Transpilation failed\n");
@@ -104,7 +106,33 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(source);
         return 1;
     }
-    if (opts->verbose) printf("✓ Transpilation complete\n");
+    
+    /* Calculate C code size */
+    size_t c_code_size = strlen(c_code);
+    int c_code_lines = 1;
+    for (size_t i = 0; i < c_code_size; i++) {
+        if (c_code[i] == '\n') c_code_lines++;
+    }
+    
+    if (opts->verbose) {
+        printf("✓ Transpilation complete (%d lines of C, %zu bytes)\n", c_code_lines, c_code_size);
+    }
+    
+    /* Save generated C to .genC file if -S flag is set */
+    if (opts->save_asm) {
+        char gen_c_file[512];
+        snprintf(gen_c_file, sizeof(gen_c_file), "%s.genC", input_file);
+        FILE *gen_c = fopen(gen_c_file, "w");
+        if (gen_c) {
+            fprintf(gen_c, "%s", c_code);
+            fclose(gen_c);
+            if (opts->verbose) {
+                printf("✓ Saved generated C to: %s\n", gen_c_file);
+            }
+        } else {
+            fprintf(stderr, "Warning: Could not save generated C to %s\n", gen_c_file);
+        }
+    }
 
     /* Write C code to temporary file */
     char temp_c_file[256];
@@ -241,8 +269,9 @@ int main(int argc, char *argv[]) {
         printf("Usage: %s <input.nano> [OPTIONS]\n\n", argv[0]);
         printf("Options:\n");
         printf("  -o <file>      Specify output file (default: a.out)\n");
-        printf("  --verbose      Show detailed compilation steps\n");
-        printf("  --keep-c       Keep generated C file\n");
+        printf("  --verbose      Show detailed compilation steps and commands\n");
+        printf("  --keep-c       Keep generated C file (in output directory)\n");
+        printf("  -S             Save generated C to <input>.genC (for inspection)\n");
         printf("  -I <path>      Add include path for C compilation\n");
         printf("  -L <path>      Add library path for C linking\n");
         printf("  -l <lib>       Link against library (e.g., -lSDL2)\n");
@@ -250,7 +279,7 @@ int main(int argc, char *argv[]) {
         printf("  --help, -h     Show this help message\n");
         printf("\nExamples:\n");
         printf("  %s hello.nano -o hello\n", argv[0]);
-        printf("  %s program.nano --verbose --keep-c\n", argv[0]);
+        printf("  %s program.nano --verbose -S          # Show steps and save C code\n", argv[0]);
         printf("  %s example.nano -o example --verbose\n", argv[0]);
         printf("  %s sdl_app.nano -o app -I/opt/homebrew/include/SDL2 -L/opt/homebrew/lib -lSDL2\n\n", argv[0]);
         return 0;
@@ -267,6 +296,7 @@ int main(int argc, char *argv[]) {
     CompilerOptions opts = {
         .verbose = false,
         .keep_c = false,
+        .save_asm = false,
         .include_paths = NULL,
         .include_count = 0,
         .library_paths = NULL,
@@ -292,6 +322,8 @@ int main(int argc, char *argv[]) {
             opts.verbose = true;
         } else if (strcmp(argv[i], "--keep-c") == 0) {
             opts.keep_c = true;
+        } else if (strcmp(argv[i], "-S") == 0) {
+            opts.save_asm = true;
         } else if (strcmp(argv[i], "-I") == 0 && i + 1 < argc) {
             if (include_count < 32) {
                 include_paths[include_count++] = argv[i + 1];
