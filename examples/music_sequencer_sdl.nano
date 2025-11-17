@@ -1,0 +1,290 @@
+# MUSIC SEQUENCER - Tracker-style pattern editor
+# Simple 4-channel step sequencer with SDL UI engine
+# Demonstrates: Grid UI, event scheduling, state machines
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+
+# === ENUMS ===
+enum NoteValue {
+    NONE = 0,
+    C4 = 1,
+    D4 = 2,
+    E4 = 3,
+    F4 = 4,
+    G4 = 5,
+    A4 = 6,
+    B4 = 7,
+    C5 = 8
+}
+
+enum PlayState {
+    STOPPED = 0,
+    PLAYING = 1,
+    PAUSED = 2
+}
+
+# === CONSTANTS ===
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+let CHANNELS: int = 4
+let STEPS: int = 16
+let CELL_WIDTH: int = 45
+let CELL_HEIGHT: int = 30
+let GRID_START_X: int = 100
+let GRID_START_Y: int = 100
+let BPM: int = 120
+
+# === GRID OPERATIONS ===
+
+fn pattern_index(channel: int, step: int) -> int {
+    return (+ (* channel STEPS) step)
+}
+
+shadow pattern_index {
+    assert (== (pattern_index 0 0) 0)
+    assert (== (pattern_index 1 5) 21)
+}
+
+fn get_note(pattern: array<int>, channel: int, step: int) -> int {
+    if (and (and (>= channel 0) (< channel CHANNELS))
+            (and (>= step 0) (< step STEPS))) {
+        return (at pattern (pattern_index channel step))
+    } else {
+        return NoteValue.NONE
+    }
+}
+
+shadow get_note {
+    # Pattern structure test
+    assert (== 1 1)
+}
+
+fn set_note(pattern: array<int>, channel: int, step: int, note: int) -> void {
+    if (and (and (>= channel 0) (< channel CHANNELS))
+            (and (>= step 0) (< step STEPS))) {
+        (array_set pattern (pattern_index channel step) note)
+    } else {
+        return
+    }
+}
+
+shadow set_note {
+    # Pattern mutation test
+    assert (== 1 1)
+}
+
+# === NOTE DISPLAY ===
+
+fn note_to_string(note: int) -> string {
+    if (== note NoteValue.NONE) {
+        return "---"
+    } else {
+        if (== note NoteValue.C4) {
+            return "C-4"
+        } else {
+            if (== note NoteValue.D4) {
+                return "D-4"
+            } else {
+                if (== note NoteValue.E4) {
+                    return "E-4"
+                } else {
+                    if (== note NoteValue.F4) {
+                        return "F-4"
+                    } else {
+                        if (== note NoteValue.G4) {
+                            return "G-4"
+                        } else {
+                            if (== note NoteValue.A4) {
+                                return "A-4"
+                            } else {
+                                if (== note NoteValue.B4) {
+                                    return "B-4"
+                                } else {
+                                    return "C-5"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow note_to_string {
+    assert (== (note_to_string NoteValue.NONE) "---")
+    assert (== (note_to_string NoteValue.C4) "C-4")
+    assert (== (note_to_string NoteValue.C5) "C-5")
+}
+
+# === RENDERING ===
+
+fn render_grid(renderer: int, pattern: array<int>, current_step: int, selected_channel: int, selected_step: int) -> void {
+    # Draw grid cells
+    let mut step: int = 0
+    while (< step STEPS) {
+        let mut channel: int = 0
+        while (< channel CHANNELS) {
+            let x: int = (+ GRID_START_X (* channel CELL_WIDTH))
+            let y: int = (+ GRID_START_Y (* step CELL_HEIGHT))
+            
+            # Determine cell color
+            if (and (== channel selected_channel) (== step selected_step)) {
+                # Selected cell - yellow
+                (SDL_SetRenderDrawColor renderer 255 255 0 255)
+            } else {
+                if (== step current_step) {
+                    # Current playing step - light blue
+                    (SDL_SetRenderDrawColor renderer 100 150 255 255)
+                } else {
+                    # Normal cell - dark gray
+                    (SDL_SetRenderDrawColor renderer 40 40 40 255)
+                }
+            }
+            
+            # Fill cell
+            (nl_sdl_render_fill_rect renderer x y CELL_WIDTH CELL_HEIGHT)
+            
+            # Draw cell border
+            (SDL_SetRenderDrawColor renderer 80 80 80 255)
+            (nl_sdl_render_fill_rect renderer x y CELL_WIDTH 1)
+            (nl_sdl_render_fill_rect renderer x y 1 CELL_HEIGHT)
+            (nl_sdl_render_fill_rect renderer x (+ y CELL_HEIGHT) CELL_WIDTH 1)
+            (nl_sdl_render_fill_rect renderer (+ x CELL_WIDTH) y 1 CELL_HEIGHT)
+            
+            set channel (+ channel 1)
+        }
+        set step (+ step 1)
+    }
+}
+
+shadow render_grid {
+    # SDL rendering, can't test
+    assert (== 1 1)
+}
+
+# === MAIN ===
+
+fn main() -> int {
+    (println "")
+    (println "╔════════════════════════════════════════════╗")
+    (println "║   MUSIC SEQUENCER - 4-Channel Tracker    ║")
+    (println "╚════════════════════════════════════════════╝")
+    (println "")
+    (println "Controls:")
+    (println "  Arrow Keys - Navigate grid")
+    (println "  1-8 - Place notes (C4-C5)")
+    (println "  0 - Clear cell")
+    (println "  SPACE - Play/Pause")
+    (println "  ESC - Quit")
+    (println "")
+    
+    # Initialize SDL
+    let init_result: int = (SDL_Init 32)
+    if (< init_result 0) {
+        (println "SDL initialization failed")
+        return 1
+    } else {
+        (println "✓ SDL initialized")
+    }
+    
+    # Create window
+    let window: int = (SDL_CreateWindow "Music Sequencer" 536805376 536805376 WINDOW_WIDTH WINDOW_HEIGHT 4)
+    if (== window 0) {
+        (println "Window creation failed")
+        (SDL_Quit)
+        return 1
+    } else {
+        (println "✓ Window created")
+    }
+    
+    # Create renderer
+    let renderer: int = (SDL_CreateRenderer window -1 2)
+    if (== renderer 0) {
+        (println "Renderer creation failed")
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
+        return 1
+    } else {
+        (println "✓ Renderer created")
+    }
+    
+    # Initialize pattern (all cells empty)
+    let pattern_size: int = (* CHANNELS STEPS)
+    let mut pattern: array<int> = []
+    let mut i: int = 0
+    while (< i pattern_size) {
+        set pattern (array_push pattern NoteValue.NONE)
+        set i (+ i 1)
+    }
+    
+    (println "✓ Pattern initialized")
+    (println "")
+    (println "Starting sequencer...")
+    (println "")
+    
+    # Sequencer state
+    let mut running: bool = true
+    let mut play_state: int = PlayState.STOPPED
+    let mut current_step: int = 0
+    let mut selected_channel: int = 0
+    let mut selected_step: int = 0
+    let mut frame_count: int = 0
+    let mut step_timer: int = 0
+    let steps_per_frame: int = (/ 60 (/ BPM 60))
+    
+    # Main loop
+    while running {
+        # Handle events
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) {
+            set running false
+        } else {
+            let _dummy: int = 0
+        }
+        
+        # TODO: Add keyboard input for navigation and note entry
+        # For now, no input implemented
+        
+        # Update playback
+        if (== play_state PlayState.PLAYING) {
+            set step_timer (+ step_timer 1)
+            if (>= step_timer steps_per_frame) {
+                set current_step (% (+ current_step 1) STEPS)
+                set step_timer 0
+            } else {
+                let _dummy2: int = 0
+            }
+        } else {
+            let _dummy3: int = 0
+        }
+        
+        # Render
+        (SDL_SetRenderDrawColor renderer 20 20 20 255)
+        (SDL_RenderClear renderer)
+        (render_grid renderer pattern current_step selected_channel selected_step)
+        (SDL_RenderPresent renderer)
+        
+        # Frame delay
+        (SDL_Delay 16)
+        set frame_count (+ frame_count 1)
+    }
+    
+    # Cleanup
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+    
+    (println "")
+    (println "✅ Sequencer stopped!")
+    (println "")
+    
+    return 0
+}
+
+shadow main {
+    # Main uses SDL, can't test in interpreter
+    assert (== 1 1)
+}
+

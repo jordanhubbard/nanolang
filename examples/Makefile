@@ -41,9 +41,12 @@ endif
 CHECKERS = $(BIN_DIR)/checkers
 BOIDS_SDL = $(BIN_DIR)/boids_sdl
 PARTICLES_SDL = $(BIN_DIR)/particles_sdl
+FALLING_SAND_SDL = $(BIN_DIR)/falling_sand_sdl
+TERRAIN_EXPLORER_SDL = $(BIN_DIR)/terrain_explorer_sdl
+MUSIC_SEQUENCER_SDL = $(BIN_DIR)/music_sequencer_sdl
 
 # SDL examples
-SDL_EXAMPLES = $(CHECKERS) $(BOIDS_SDL) $(PARTICLES_SDL)
+SDL_EXAMPLES = $(CHECKERS) $(BOIDS_SDL) $(PARTICLES_SDL) $(FALLING_SAND_SDL) $(TERRAIN_EXPLORER_SDL) $(MUSIC_SEQUENCER_SDL)
 
 # All compiled examples
 ALL_EXAMPLES = $(SDL_EXAMPLES)
@@ -57,9 +60,12 @@ all: sdl interpreter
 	@echo "═══════════════════════════════════════════════════"
 	@echo ""
 	@echo "Compiled examples (binaries in bin/):"
-	@echo "  ./bin/checkers      - Checkers with AI, king pieces, jump logic"
-	@echo "  ./bin/boids_sdl     - Visual flocking simulation (Boids algorithm)"
-	@echo "  ./bin/particles_sdl - Particle physics explosion with gravity"
+	@echo "  ./bin/checkers             - Checkers with AI, king pieces, jump logic"
+	@echo "  ./bin/boids_sdl            - Visual flocking simulation (Boids algorithm)"
+	@echo "  ./bin/particles_sdl        - Particle physics explosion with gravity"
+	@echo "  ./bin/falling_sand_sdl     - Cellular automata physics sandbox"
+	@echo "  ./bin/terrain_explorer_sdl - Procedural terrain with Perlin noise"
+	@echo "  ./bin/music_sequencer_sdl  - 4-channel tracker-style sequencer"
 	@echo ""
 	@echo "Interpreter examples (run with ./bin/nano):"
 	@echo "  ./bin/nano examples/snake.nano          - Snake with AI pathfinding"
@@ -119,12 +125,58 @@ $(PARTICLES_SDL): particles_sdl.nano ../modules/sdl/sdl.nano ../modules/sdl_help
 	@rm -f $(BIN_DIR)/particles_sdl_externs.c
 	@echo "✓ Particles SDL built: $(PARTICLES_SDL)"
 
+# Falling Sand SDL - Cellular automata physics sandbox
+$(FALLING_SAND_SDL): falling_sand_sdl.nano ../modules/sdl/sdl.nano ../modules/sdl_helpers/sdl_helpers.nano ../modules/sdl_helpers/sdl_helpers.c $(COMPILER) | $(BIN_DIR) $(OBJ_DIR)
+	@echo "Building Falling Sand SDL demo..."
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -c ../modules/sdl_helpers/sdl_helpers.c -o $(OBJ_DIR)/sdl_helpers_falling_sand.o
+	NANO_MODULE_PATH=../modules $(COMPILER) falling_sand_sdl.nano -o $(FALLING_SAND_SDL) --keep-c
+	@echo "#include <stdint.h>" > $(BIN_DIR)/falling_sand_sdl_externs.c
+	@echo "extern int64_t nl_sdl_render_fill_rect(int64_t renderer, int64_t x, int64_t y, int64_t w, int64_t h);" >> $(BIN_DIR)/falling_sand_sdl_externs.c
+	@echo "extern int64_t nl_sdl_poll_event_quit(void);" >> $(BIN_DIR)/falling_sand_sdl_externs.c
+	@echo "extern int64_t nl_sdl_poll_mouse_click(void);" >> $(BIN_DIR)/falling_sand_sdl_externs.c
+	@cat $(BIN_DIR)/falling_sand_sdl_externs.c $(BIN_DIR)/falling_sand_sdl.c > $(BIN_DIR)/falling_sand_sdl_tmp.c && mv $(BIN_DIR)/falling_sand_sdl_tmp.c $(BIN_DIR)/falling_sand_sdl.c
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/falling_sand_sdl.c $(OBJ_DIR)/sdl_helpers_falling_sand.o -o $(FALLING_SAND_SDL) $(SDL2_LDFLAGS)
+	@rm -f $(BIN_DIR)/falling_sand_sdl_externs.c
+	@echo "✓ Falling Sand SDL built: $(FALLING_SAND_SDL)"
+
+# Terrain Explorer SDL - Procedural terrain generation
+$(TERRAIN_EXPLORER_SDL): terrain_explorer_sdl.nano ../modules/sdl/sdl.nano ../modules/sdl_helpers/sdl_helpers.nano ../modules/sdl_helpers/sdl_helpers.c $(COMPILER) | $(BIN_DIR) $(OBJ_DIR)
+	@echo "Building Terrain Explorer SDL demo..."
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -c ../modules/sdl_helpers/sdl_helpers.c -o $(OBJ_DIR)/sdl_helpers_terrain.o
+	NANO_MODULE_PATH=../modules $(COMPILER) terrain_explorer_sdl.nano -o $(TERRAIN_EXPLORER_SDL) --keep-c
+	@echo "#include <stdint.h>" > $(BIN_DIR)/terrain_explorer_sdl_externs.c
+	@echo "extern int64_t nl_sdl_render_fill_rect(int64_t renderer, int64_t x, int64_t y, int64_t w, int64_t h);" >> $(BIN_DIR)/terrain_explorer_sdl_externs.c
+	@echo "extern int64_t nl_sdl_poll_event_quit(void);" >> $(BIN_DIR)/terrain_explorer_sdl_externs.c
+	@cat $(BIN_DIR)/terrain_explorer_sdl_externs.c $(BIN_DIR)/terrain_explorer_sdl.c > $(BIN_DIR)/terrain_explorer_sdl_tmp.c && mv $(BIN_DIR)/terrain_explorer_sdl_tmp.c $(BIN_DIR)/terrain_explorer_sdl.c
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/terrain_explorer_sdl.c $(OBJ_DIR)/sdl_helpers_terrain.o -o $(TERRAIN_EXPLORER_SDL) $(SDL2_LDFLAGS)
+	@rm -f $(BIN_DIR)/terrain_explorer_sdl_externs.c
+	@echo "✓ Terrain Explorer SDL built: $(TERRAIN_EXPLORER_SDL)"
+
+# Music Sequencer SDL - 4-channel tracker-style sequencer
+$(MUSIC_SEQUENCER_SDL): music_sequencer_sdl.nano ../modules/sdl/sdl.nano ../modules/sdl_helpers/sdl_helpers.nano ../modules/sdl_helpers/sdl_helpers.c $(COMPILER) | $(BIN_DIR) $(OBJ_DIR)
+	@echo "Building Music Sequencer SDL demo..."
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -c ../modules/sdl_helpers/sdl_helpers.c -o $(OBJ_DIR)/sdl_helpers_sequencer.o
+	NANO_MODULE_PATH=../modules $(COMPILER) music_sequencer_sdl.nano -o $(MUSIC_SEQUENCER_SDL) --keep-c
+	@echo "#include <stdint.h>" > $(BIN_DIR)/music_sequencer_sdl_externs.c
+	@echo "extern int64_t nl_sdl_render_fill_rect(int64_t renderer, int64_t x, int64_t y, int64_t w, int64_t h);" >> $(BIN_DIR)/music_sequencer_sdl_externs.c
+	@echo "extern int64_t nl_sdl_poll_event_quit(void);" >> $(BIN_DIR)/music_sequencer_sdl_externs.c
+	@cat $(BIN_DIR)/music_sequencer_sdl_externs.c $(BIN_DIR)/music_sequencer_sdl.c > $(BIN_DIR)/music_sequencer_sdl_tmp.c && mv $(BIN_DIR)/music_sequencer_sdl_tmp.c $(BIN_DIR)/music_sequencer_sdl.c
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/music_sequencer_sdl.c $(OBJ_DIR)/sdl_helpers_sequencer.o -o $(MUSIC_SEQUENCER_SDL) $(SDL2_LDFLAGS)
+	@rm -f $(BIN_DIR)/music_sequencer_sdl_externs.c
+	@echo "✓ Music Sequencer SDL built: $(MUSIC_SEQUENCER_SDL)"
+
 # Convenience targets for individual SDL examples
 checkers: $(CHECKERS)
 
 boids-sdl: $(BOIDS_SDL)
 
 particles-sdl: $(PARTICLES_SDL)
+
+falling-sand-sdl: $(FALLING_SAND_SDL)
+
+terrain-explorer-sdl: $(TERRAIN_EXPLORER_SDL)
+
+music-sequencer-sdl: $(MUSIC_SEQUENCER_SDL)
 
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
@@ -136,6 +188,7 @@ clean:
 	@echo "Cleaning example binaries and artifacts..."
 	rm -f $(ALL_EXAMPLES)
 	rm -f $(BIN_DIR)/checkers.c $(BIN_DIR)/boids_sdl.c $(BIN_DIR)/particles_sdl.c
+	rm -f $(BIN_DIR)/falling_sand_sdl.c $(BIN_DIR)/terrain_explorer_sdl.c $(BIN_DIR)/music_sequencer_sdl.c
 	rm -f $(OBJ_DIR)/sdl_helpers_*.o
 	@echo "✓ Examples cleaned"
 
@@ -146,9 +199,12 @@ help:
 	@echo "  make interpreter  - Verify interpreter examples"
 	@echo ""
 	@echo "Individual SDL examples (compiled to bin/):"
-	@echo "  make checkers     - Checkers with AI"
-	@echo "  make boids-sdl    - Visual boids simulation"
-	@echo "  make particles-sdl - Particle explosion demo"
+	@echo "  make checkers             - Checkers with AI"
+	@echo "  make boids-sdl            - Visual boids simulation"
+	@echo "  make particles-sdl        - Particle explosion demo"
+	@echo "  make falling-sand-sdl     - Cellular automata physics sandbox"
+	@echo "  make terrain-explorer-sdl - Procedural terrain generation"
+	@echo "  make music-sequencer-sdl  - 4-channel tracker sequencer"
 	@echo ""
 	@echo "Interpreter examples (run with: ./bin/nano examples/file.nano):"
 	@echo "  snake.nano         - Snake with AI pathfinding"
