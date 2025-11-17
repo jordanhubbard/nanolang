@@ -11,6 +11,8 @@
 # Note: These values must match SDL2's actual definitions
 let SDL_INIT_VIDEO: int = 32
 let SDL_INIT_AUDIO: int = 16
+let SDL_INIT_TIMER: int = 1
+let SDL_INIT_EVERYTHING: int = 62977
 let SDL_WINDOWPOS_UNDEFINED: int = 536805376
 let SDL_WINDOWPOS_CENTERED: int = 805240832
 let SDL_WINDOW_SHOWN: int = 4

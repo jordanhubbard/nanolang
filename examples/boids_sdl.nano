@@ -22,6 +22,13 @@ let MAX_SPEED: float = 100.0
 let PERCEPTION_RADIUS: float = 50.0
 let FPS: int = 60
 
+# Flocking behavior constants
+let VISUAL_RANGE: float = 75.0
+let MIN_DISTANCE: float = 20.0
+let COHESION_FACTOR: float = 0.005
+let SEPARATION_FACTOR: float = 0.05
+let ALIGNMENT_FACTOR: float = 0.05
+
 # === VECTOR MATH ===
 
 fn vec_length(dx: float, dy: float) -> float {
@@ -147,8 +154,95 @@ fn main() -> int {
             set running false
         } else {}
         
-        # Continue with simulation
-        # For now: velocities stay constant (simplified demo)
+        # Apply flocking rules
+        let mut new_vx: array<float> = []
+        let mut new_vy: array<float> = []
+        
+        set i 0
+        while (< i NUM_BOIDS) {
+            let x: float = (at boid_x i)
+            let y: float = (at boid_y i)
+            let vx: float = (at boid_vx i)
+            let vy: float = (at boid_vy i)
+            
+            # Initialize forces
+            let mut cohesion_x: float = 0.0
+            let mut cohesion_y: float = 0.0
+            let mut separation_x: float = 0.0
+            let mut separation_y: float = 0.0
+            let mut alignment_x: float = 0.0
+            let mut alignment_y: float = 0.0
+            let mut neighbor_count: int = 0
+            
+            # Check all other boids
+            let mut j: int = 0
+            while (< j NUM_BOIDS) {
+                if (!= i j) {
+                    let other_x: float = (at boid_x j)
+                    let other_y: float = (at boid_y j)
+                    let dx: float = (- other_x x)
+                    let dy: float = (- other_y y)
+                    let dist: float = (vec_length dx dy)
+                    
+                    if (< dist VISUAL_RANGE) {
+                        # Cohesion: steer towards average position
+                        set cohesion_x (+ cohesion_x other_x)
+                        set cohesion_y (+ cohesion_y other_y)
+                        
+                        # Alignment: match velocity
+                        set alignment_x (+ alignment_x (at boid_vx j))
+                        set alignment_y (+ alignment_y (at boid_vy j))
+                        
+                        set neighbor_count (+ neighbor_count 1)
+                    } else {}
+                    
+                    # Separation: avoid crowding
+                    if (< dist MIN_DISTANCE) {
+                        set separation_x (- separation_x dx)
+                        set separation_y (- separation_y dy)
+                    } else {}
+                } else {}
+                
+                set j (+ j 1)
+            }
+            
+            # Apply cohesion
+            let mut new_vx_val: float = vx
+            let mut new_vy_val: float = vy
+            
+            if (> neighbor_count 0) {
+                let avg_x: float = (/ cohesion_x (cast_float neighbor_count))
+                let avg_y: float = (/ cohesion_y (cast_float neighbor_count))
+                set new_vx_val (+ new_vx_val (* (- avg_x x) COHESION_FACTOR))
+                set new_vy_val (+ new_vy_val (* (- avg_y y) COHESION_FACTOR))
+                
+                let avg_vx: float = (/ alignment_x (cast_float neighbor_count))
+                let avg_vy: float = (/ alignment_y (cast_float neighbor_count))
+                set new_vx_val (+ new_vx_val (* (- avg_vx vx) ALIGNMENT_FACTOR))
+                set new_vy_val (+ new_vy_val (* (- avg_vy vy) ALIGNMENT_FACTOR))
+            } else {}
+            
+            # Apply separation
+            set new_vx_val (+ new_vx_val (* separation_x SEPARATION_FACTOR))
+            set new_vy_val (+ new_vy_val (* separation_y SEPARATION_FACTOR))
+            
+            # Limit speed
+            let speed: float = (vec_length new_vx_val new_vy_val)
+            if (> speed MAX_SPEED) {
+                let scale: float = (/ MAX_SPEED speed)
+                set new_vx_val (* new_vx_val scale)
+                set new_vy_val (* new_vy_val scale)
+            } else {}
+            
+            set new_vx (array_push new_vx new_vx_val)
+            set new_vy (array_push new_vy new_vy_val)
+            
+            set i (+ i 1)
+        }
+        
+        # Update velocities
+        set boid_vx new_vx
+        set boid_vy new_vy
         
         # Update positions
         let mut new_x: array<float> = []

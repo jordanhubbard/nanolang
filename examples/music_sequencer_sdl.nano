@@ -71,14 +71,15 @@ enum PlayState {
 
 # === CONSTANTS ===
 
-# Display
-let WINDOW_WIDTH: int = 1024
-let WINDOW_HEIGHT: int = 768
-let CELL_WIDTH: int = 80
-let CELL_HEIGHT: int = 20
-let GRID_START_X: int = 50
-let GRID_START_Y: int = 100
-let HEADER_HEIGHT: int = 80
+# Display - ProTracker style layout
+let WINDOW_WIDTH: int = 1280
+let WINDOW_HEIGHT: int = 800
+let CELL_WIDTH: int = 140
+let CELL_HEIGHT: int = 32
+let GRID_START_X: int = 60
+let GRID_START_Y: int = 180
+let HEADER_HEIGHT: int = 60
+let ROW_NUMBER_WIDTH: int = 50
 
 # Music
 let CHANNELS: int = 8
@@ -249,15 +250,45 @@ shadow wave_type_to_string {
 # === RENDERING ===
 
 fn draw_header(renderer: int, current_pattern: int, play_state: int, bpm: int) -> void {
-    # Draw header background
-    (SDL_SetRenderDrawColor renderer 22 33 62 255)
+    # Draw header background - classic ProTracker dark blue
+    (SDL_SetRenderDrawColor renderer 0 0 40 255)
     (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH HEADER_HEIGHT)
     
-    # Draw pattern indicator (colored bar)
-    (SDL_SetRenderDrawColor renderer 233 69 96 255)
-    let bar_width: int = (/ WINDOW_WIDTH NUM_PATTERNS)
-    let bar_x: int = (* current_pattern bar_width)
-    (nl_sdl_render_fill_rect renderer bar_x 10 bar_width 20)
+    # Draw title bar - ProTracker pink/red
+    (SDL_SetRenderDrawColor renderer 170 85 170 255)
+    (nl_sdl_render_fill_rect renderer 10 10 400 40)
+    
+    # Draw pattern indicators - one box per pattern
+    let mut p: int = 0
+    while (< p NUM_PATTERNS) {
+        let px: int = (+ 450 (* p 60))
+        if (== p current_pattern) {
+            (SDL_SetRenderDrawColor renderer 255 170 0 255)  # Orange for current
+        } else {
+            (SDL_SetRenderDrawColor renderer 60 60 100 255)  # Dark for others
+        }
+        (nl_sdl_render_fill_rect renderer px 15 50 30)
+        set p (+ p 1)
+    }
+    
+    # Draw play state indicator
+    let state_x: int = 700
+    if (== play_state PlayState.PLAYING) {
+        (SDL_SetRenderDrawColor renderer 0 255 0 255)  # Green
+    } else {
+        (SDL_SetRenderDrawColor renderer 255 0 0 255)  # Red
+    }
+    (nl_sdl_render_fill_rect renderer state_x 15 30 30)
+    
+    # Draw BPM meter - bars representing tempo
+    let bpm_bars: int = (/ bpm 20)
+    let mut b: int = 0
+    while (< b bpm_bars) {
+        (SDL_SetRenderDrawColor renderer 100 200 255 255)
+        let bx: int = (+ 800 (* b 15))
+        (nl_sdl_render_fill_rect renderer bx 20 10 25)
+        set b (+ b 1)
+    }
     
     return
 }
@@ -267,32 +298,49 @@ shadow draw_header {
 }
 
 fn draw_channel_headers(renderer: int, channel_waves: array<int>, channel_mutes: array<int>) -> void {
-    # Draw channel header boxes
+    # Draw separator line above channels
+    (SDL_SetRenderDrawColor renderer 170 85 170 255)
+    (nl_sdl_render_fill_rect renderer 0 (- GRID_START_Y 60) WINDOW_WIDTH 3)
+    
+    # Draw channel headers - ProTracker style
     let mut ch: int = 0
     while (< ch CHANNELS) {
         let x: int = (+ GRID_START_X (* ch CELL_WIDTH))
-        let y: int = (- GRID_START_Y 30)
+        let y: int = (- GRID_START_Y 50)
         
-        # Draw channel box
-        (SDL_SetRenderDrawColor renderer 16 33 62 255)
-        (nl_sdl_render_fill_rect renderer x y (- CELL_WIDTH 2) 25)
+        # Draw channel number box - alternating colors like ProTracker
+        let ch_mod: int = (% ch 2)
+        if (== ch_mod 0) {
+            (SDL_SetRenderDrawColor renderer 85 85 127 255)
+        } else {
+            (SDL_SetRenderDrawColor renderer 68 68 102 255)
+        }
+        (nl_sdl_render_fill_rect renderer x y (- CELL_WIDTH 4) 40)
         
-        # Color code by waveform
+        # Draw waveform indicator bar - different colors per waveform
         let wave: int = (at channel_waves ch)
         if (== wave WaveType.SQUARE) {
-            (SDL_SetRenderDrawColor renderer 100 150 255 255)
+            (SDL_SetRenderDrawColor renderer 255 255 0 255)  # Yellow
         } else {
             if (== wave WaveType.SAW) {
-                (SDL_SetRenderDrawColor renderer 255 150 100 255)
+                (SDL_SetRenderDrawColor renderer 255 136 0 255)  # Orange
             } else {
                 if (== wave WaveType.TRIANGLE) {
-                    (SDL_SetRenderDrawColor renderer 150 255 150 255)
+                    (SDL_SetRenderDrawColor renderer 0 255 170 255)  # Cyan
                 } else {
-                    (SDL_SetRenderDrawColor renderer 200 200 200 255)
+                    (SDL_SetRenderDrawColor renderer 200 200 200 255)  # Gray for noise
                 }
             }
         }
-        (nl_sdl_render_fill_rect renderer (+ x 2) (+ y 2) 10 21)
+        # Waveform bar at bottom of header
+        (nl_sdl_render_fill_rect renderer (+ x 5) (+ y 32) (- CELL_WIDTH 14) 6)
+        
+        # Draw mute indicator if muted
+        let muted: int = (at channel_mutes ch)
+        if (== muted 1) {
+            (SDL_SetRenderDrawColor renderer 255 0 0 255)
+            (nl_sdl_render_fill_rect renderer (+ x 5) (+ y 5) 15 15)
+        } else {}
         
         set ch (+ ch 1)
     }
@@ -305,40 +353,88 @@ shadow draw_channel_headers {
 
 fn draw_pattern_grid(renderer: int, pattern_data: array<int>, current_pattern: int, 
                      cursor_channel: int, cursor_step: int, playing_step: int) -> void {
-    # Draw pattern grid as colored cells
+    # Draw pattern grid - ProTracker style with row numbers
     let mut step: int = 0
-    let visible_steps: int = 16  # Only show 16 steps at a time
+    let visible_steps: int = 16  # Show 16 rows at a time
     
     while (< step visible_steps) {
+        let y: int = (+ GRID_START_Y (* step CELL_HEIGHT))
+        
+        # Draw row number background (hex style!)
+        let step_mod: int = (% step 4)
+        if (== step_mod 0) {
+            (SDL_SetRenderDrawColor renderer 0 85 127 255)  # Every 4th row highlighted
+        } else {
+            (SDL_SetRenderDrawColor renderer 0 51 85 255)
+        }
+        (nl_sdl_render_fill_rect renderer 10 y 40 (- CELL_HEIGHT 2))
+        
+        # Draw row number as colored bars (represents hex value)
+        let bar_count: int = (% step 16)
+        let mut b: int = 0
+        while (< b bar_count) {
+            (SDL_SetRenderDrawColor renderer 255 170 0 255)
+            (nl_sdl_render_fill_rect renderer (+ 15 (* b 2)) (+ y 5) 1 (- CELL_HEIGHT 12))
+            set b (+ b 1)
+        }
+        
+        # Highlight playing row
+        if (== step playing_step) {
+            (SDL_SetRenderDrawColor renderer 255 170 0 255)
+            (nl_sdl_render_fill_rect renderer 0 y WINDOW_WIDTH 2)
+        } else {}
+        
+        # Draw each channel's cell
         let mut ch: int = 0
         while (< ch CHANNELS) {
             let x: int = (+ GRID_START_X (* ch CELL_WIDTH))
-            let y: int = (+ GRID_START_Y (* step CELL_HEIGHT))
             
             # Get note data
             let note: int = (get_note_at pattern_data current_pattern ch step)
             
-            # Background color
+            # Cell background - alternating channel colors like ProTracker
+            let ch_mod: int = (% ch 2)
             if (and (== ch cursor_channel) (== step cursor_step)) {
-                # Cursor position
-                (SDL_SetRenderDrawColor renderer 233 69 96 255)
+                # Cursor cell - bright highlight
+                (SDL_SetRenderDrawColor renderer 170 85 170 255)
             } else {
-                if (== step playing_step) {
-                    # Playing step
-                    (SDL_SetRenderDrawColor renderer 50 100 50 255)
+                if (== ch_mod 0) {
+                    (SDL_SetRenderDrawColor renderer 0 34 68 255)
                 } else {
-                    # Normal cell
-                    (SDL_SetRenderDrawColor renderer 15 52 96 255)
+                    (SDL_SetRenderDrawColor renderer 0 17 51 255)
                 }
             }
-            (nl_sdl_render_fill_rect renderer x y (- CELL_WIDTH 2) (- CELL_HEIGHT 2))
+            (nl_sdl_render_fill_rect renderer x y (- CELL_WIDTH 4) (- CELL_HEIGHT 2))
             
-            # Draw note indicator
+            # Draw note as vertical bar if present
             if (> note NoteValue.NONE) {
-                # Color based on note pitch
-                let note_color: int = (* note 6)
-                (SDL_SetRenderDrawColor renderer (+ 100 note_color) 200 255 255)
-                (nl_sdl_render_fill_rect renderer (+ x 5) (+ y 5) (- CELL_WIDTH 12) (- CELL_HEIGHT 12))
+                # Note height represents pitch (higher notes = taller bars)
+                let note_height: int = (+ 8 (/ note 2))
+                let bar_y: int = (- (+ y CELL_HEIGHT) (+ note_height 4))
+                
+                # Note color by octave
+                if (< note 13) {
+                    # Octave 3 - blue
+                    (SDL_SetRenderDrawColor renderer 85 170 255 255)
+                } else {
+                    if (< note 25) {
+                        # Octave 4 - green
+                        (SDL_SetRenderDrawColor renderer 170 255 85 255)
+                    } else {
+                        # Octave 5 - yellow
+                        (SDL_SetRenderDrawColor renderer 255 255 85 255)
+                    }
+                }
+                
+                # Draw note bar
+                (nl_sdl_render_fill_rect renderer (+ x 10) bar_y (- CELL_WIDTH 24) note_height)
+                
+                # Draw effect indicator if present
+                let effect: int = (get_effect_type_at pattern_data current_pattern ch step)
+                if (> effect EffectType.NONE) {
+                    (SDL_SetRenderDrawColor renderer 255 85 85 255)
+                    (nl_sdl_render_fill_rect renderer (+ x (- CELL_WIDTH 12)) (+ y 5) 8 8)
+                } else {}
             } else {}
             
             set ch (+ ch 1)
