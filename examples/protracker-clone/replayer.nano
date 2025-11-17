@@ -309,35 +309,71 @@ shadow process_tick {
 # === PLAYBACK INFO GETTERS ===
 
 fn get_current_row() -> int {
-    return g_current_row
+    let row: int = g_current_row
+    return row
+}
+
+shadow get_current_row {
+    (init_replayer)
+    assert (== (get_current_row) 0)
 }
 
 fn get_current_pattern() -> int {
-    return g_current_pattern
+    let pattern: int = g_current_pattern
+    return pattern
+}
+
+shadow get_current_pattern {
+    (init_replayer)
+    assert (== (get_current_pattern) 0)
 }
 
 fn get_current_speed() -> int {
-    return g_speed
+    let speed: int = g_speed
+    return speed
+}
+
+shadow get_current_speed {
+    (init_replayer)
+    assert (== (get_current_speed) 6)
 }
 
 fn get_current_bpm() -> int {
-    return g_bpm
+    let bpm: int = g_bpm
+    return bpm
+}
+
+shadow get_current_bpm {
+    (init_replayer)
+    assert (== (get_current_bpm) 125)
 }
 
 fn get_channel_note(channel: int) -> int {
-    if (== channel 0) { return g_ch0_note } else {
-    if (== channel 1) { return g_ch1_note } else {
-    if (== channel 2) { return g_ch2_note } else {
-    if (== channel 3) { return g_ch3_note } else {
-        return 0
-    }}}}
+    let note: int = 0
+    if (== channel 0) { set note g_ch0_note } else {
+    if (== channel 1) { set note g_ch1_note } else {
+    if (== channel 2) { set note g_ch2_note } else {
+    if (== channel 3) { set note g_ch3_note } else {}}}
+    return note
+}
+
+shadow get_channel_note {
+    (init_replayer)
+    (trigger_note 0 13 1 64)  # C-2
+    assert (== (get_channel_note 0) 13)
 }
 
 fn get_channel_volume(channel: int) -> int {
-    if (== channel 0) { return g_ch0_volume } else {
-    if (== channel 1) { return g_ch1_volume } else {
-    if (== channel 2) { return g_ch2_volume } else {
-    if (== channel 3) { return g_ch3_volume } else {
-        return 0
-    }}}}
+    let volume: int = 0
+    if (== channel 0) { set volume g_ch0_volume } else {
+    if (== channel 1) { set volume g_ch1_volume } else {
+    if (== channel 2) { set volume g_ch2_volume } else {
+    if (== channel 3) { set volume g_ch3_volume } else {}}}
+    return volume
+}
+
+shadow get_channel_volume {
+    (init_replayer)
+    (trigger_note 0 1 1 64)
+    assert (== (get_channel_volume 0) 64)
 }
