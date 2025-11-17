@@ -1,38 +1,8 @@
 {
   "name": "sdl_helpers",
   "version": "1.0.0",
-  "description": "SDL2 helper functions for nanolang (wrappers for struct operations)",
-  "type": "ffi",
-  "source_file": "sdl_helpers.nano",
-  "runtime_file": "sdl_helpers.c",
-  "dependencies": {
-    "system": {
-      "macos": {
-        "brew": ["sdl2"]
-      },
-      "linux": {
-        "apt": ["libsdl2-dev"]
-      }
-    },
-    "nanolang": ["sdl"]
-  },
-  "compilation": {
-    "library_name": "SDL2",
-    "include_paths": {
-      "macos": ["/opt/homebrew/include/SDL2", "/usr/local/include/SDL2"],
-      "linux": ["/usr/include/SDL2"]
-    },
-    "library_paths": {
-      "macos": ["/opt/homebrew/lib", "/usr/local/lib"],
-      "linux": ["/usr/lib/x86_64-linux-gnu"]
-    },
-    "libraries": ["SDL2"]
-  },
-  "exports": {
-    "functions": [
-      "nl_sdl_render_fill_rect",
-      "nl_sdl_poll_event_quit"
-    ]
-  }
+  "description": "Helper functions for SDL rendering and event handling",
+  "c_sources": ["sdl_helpers.c"],
+  "pkg_config": ["sdl2"],
+  "dependencies": ["sdl"]
 }
-

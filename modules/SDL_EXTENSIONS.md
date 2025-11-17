@@ -14,23 +14,94 @@ Nanolang provides three SDL-related module families:
 
 ## Installation Requirements
 
+The nanolang module system will automatically detect and use SDL libraries if they're installed. Install the development packages for your platform:
+
+### Linux (Debian/Ubuntu/Mint)
+
+```bash
+# Install SDL2 core (required)
+sudo apt-get update
+sudo apt-get install libsdl2-dev
+
+# Install SDL2_ttf for text rendering (optional)
+sudo apt-get install libsdl2-ttf-dev
+
+# Install SDL2_mixer for audio (optional)
+sudo apt-get install libsdl2-mixer-dev
+
+# Install pkg-config (required for module system)
+sudo apt-get install pkg-config
+```
+
+### Linux (Fedora/RHEL/CentOS)
+
+```bash
+# Install SDL2 core (required)
+sudo dnf install SDL2-devel
+
+# Install SDL2_ttf for text rendering (optional)
+sudo dnf install SDL2_ttf-devel
+
+# Install SDL2_mixer for audio (optional)
+sudo dnf install SDL2_mixer-devel
+
+# Install pkg-config (required for module system)
+sudo dnf install pkgconf-pkg-config
+```
+
+### Linux (Arch/Manjaro)
+
+```bash
+# Install SDL2 core (required)
+sudo pacman -S sdl2
+
+# Install SDL2_ttf for text rendering (optional)
+sudo pacman -S sdl2_ttf
+
+# Install SDL2_mixer for audio (optional)
+sudo pacman -S sdl2_mixer
+
+# pkg-config is usually pre-installed
+sudo pacman -S pkg-config
+```
+
 ### macOS (using Homebrew)
 
 ```bash
-brew install sdl2 sdl2_ttf sdl2_mixer
+# Install Homebrew if not already installed:
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install SDL2 core (required)
+brew install sdl2
+
+# Install SDL2_ttf for text rendering (optional)
+brew install sdl2_ttf
+
+# Install SDL2_mixer for audio (optional)
+brew install sdl2_mixer
+
+# pkg-config is usually installed with Homebrew
+brew install pkg-config
 ```
 
-### Linux (Debian/Ubuntu)
+### Verifying Installation
+
+After installation, verify SDL is available:
 
 ```bash
-sudo apt-get install libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev
+# Check SDL2 (should show version and flags)
+pkg-config --modversion sdl2
+pkg-config --cflags sdl2
+pkg-config --libs sdl2
+
+# Check SDL2_ttf
+pkg-config --modversion SDL2_ttf
+
+# Check SDL2_mixer
+pkg-config --modversion SDL2_mixer
 ```
 
-### Linux (Fedora/RHEL)
-
-```bash
-sudo dnf install SDL2-devel SDL2_ttf-devel SDL2_mixer-devel
-```
+If `pkg-config` reports "Package not found", the development package is not installed correctly.
 
 ## Module Usage
 
@@ -138,9 +209,34 @@ fn main() -> int {
 - `draw_text_blended()` - Helper to render text directly to screen
 
 **Common Font Paths:**
-- macOS: `/System/Library/Fonts/*.ttc`, `/Library/Fonts/*.ttf`
-- Linux: `/usr/share/fonts/truetype/*/*.ttf`
-- Windows: `C:\\Windows\\Fonts\\*.ttf`
+
+Linux:
+- `/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf`
+- `/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf`
+- `/usr/share/fonts/TTF/DejaVuSans.ttf` (Arch)
+- `~/.local/share/fonts/` (user fonts)
+
+macOS:
+- `/System/Library/Fonts/Helvetica.ttc`
+- `/Library/Fonts/Arial.ttf`
+- `~/Library/Fonts/` (user fonts)
+
+Windows:
+- `C:\\Windows\\Fonts\\arial.ttf`
+- `C:\\Windows\\Fonts\\calibri.ttf`
+
+Finding fonts on your system:
+```bash
+# Linux
+fc-list | grep -i "ttf"
+
+# macOS
+ls /System/Library/Fonts/*.ttc
+ls /Library/Fonts/*.ttf
+
+# List available fonts with fc-list (Linux/macOS)
+fc-list : family style | sort | uniq
+```
 
 ### SDL_mixer (`modules/sdl_mixer/sdl_mixer.nano`)
 
@@ -198,25 +294,43 @@ fn main() -> int {
 
 ## Building Examples with SDL Extensions
 
-When building examples that use SDL extensions, you need to:
+**With the module system (automatic - recommended):**
 
-1. **Compile the C helpers:**
-   ```bash
-   gcc -c modules/sdl_ttf/sdl_ttf_helpers.c -o sdl_ttf_helpers.o $(pkg-config --cflags SDL2_ttf)
-   gcc -c modules/sdl_mixer/sdl_mixer_helpers.c -o sdl_mixer_helpers.o $(pkg-config --cflags SDL2_mixer)
-   ```
+The nanolang compiler automatically builds and links modules:
 
-2. **Link with the libraries:**
-   ```bash
-   gcc your_program.c sdl_ttf_helpers.o -o your_program \
-       $(pkg-config --libs SDL2 SDL2_ttf SDL2_mixer)
-   ```
+```bash
+# Set module path (if not in default location)
+export NANO_MODULE_PATH=modules
 
-3. **Set NANO_MODULE_PATH:**
-   ```bash
-   export NANO_MODULE_PATH=modules
-   nanoc examples/your_program.nano -o bin/your_program --keep-c
-   ```
+# Just compile - modules build automatically!
+nanoc examples/your_program.nano -o bin/your_program
+
+# Run it
+./bin/your_program
+```
+
+The compiler will:
+1. Detect imported SDL modules
+2. Compile C helpers if needed (cached for speed)
+3. Link with system libraries automatically
+4. Generate the binary
+
+**Manual building (if needed):**
+
+If you need to manually build for debugging:
+
+```bash
+# Compile C helpers
+gcc -c modules/sdl_ttf/sdl_ttf_helpers.c -o sdl_ttf_helpers.o $(pkg-config --cflags SDL2_ttf)
+gcc -c modules/sdl_mixer/sdl_mixer_helpers.c -o sdl_mixer_helpers.o $(pkg-config --cflags SDL2_mixer)
+
+# Transpile nanolang to C
+nanoc your_program.nano -o your_program.c --keep-c
+
+# Link everything
+gcc your_program.c sdl_ttf_helpers.o sdl_mixer_helpers.o -o your_program \
+    $(pkg-config --libs sdl2 SDL2_ttf SDL2_mixer)
+```
 
 ## Example Applications
 
@@ -236,19 +350,79 @@ See the `examples/` directory for complete working examples:
 
 ### "SDL2_ttf/SDL_ttf.h: No such file or directory"
 
-Install SDL2_ttf development headers (see Installation Requirements above).
+Install SDL2_ttf development package:
+```bash
+# Linux (Debian/Ubuntu)
+sudo apt-get install libsdl2-ttf-dev
 
-### "undefined reference to TTF_Init"
+# Linux (Fedora/RHEL)
+sudo dnf install SDL2_ttf-devel
 
-Link with SDL2_ttf library: `-lSDL2_ttf`
+# macOS
+brew install sdl2_ttf
+```
+
+### "Package 'SDL2_ttf' was not found"
+
+pkg-config cannot find the SDL2_ttf package. Install it:
+```bash
+# Linux (Debian/Ubuntu)
+sudo apt-get install libsdl2-ttf-dev pkg-config
+
+# Linux (Fedora/RHEL)
+sudo dnf install SDL2_ttf-devel pkgconf-pkg-config
+
+# macOS
+brew install sdl2_ttf pkg-config
+```
+
+### "undefined reference to TTF_Init" or "undefined symbol: TTF_Init"
+
+The linker cannot find SDL2_ttf. Verify it's installed:
+```bash
+pkg-config --libs SDL2_ttf
+```
+
+If the command works, rebuild your program to pick up the correct link flags.
 
 ### "Mix_OpenAudio failed"
 
-Check that your audio device is working and not in use by another application.
+Audio device issues:
+- Check that your audio device is working
+- Ensure no other application is using the audio device exclusively
+- On Linux, verify PulseAudio or ALSA is working:
+  ```bash
+  speaker-test -t sine -f 1000 -l 1
+  ```
 
 ### Font file not found
 
-Use absolute paths to fonts or check common font directories for your OS.
+Use absolute paths to fonts or check common directories:
+```bash
+# Find fonts on Linux
+fc-list | grep -i dejavu
+
+# Find fonts on macOS  
+ls /System/Library/Fonts/*.ttc
+
+# Test if font exists
+ls -l /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf
+```
+
+### Module not rebuilding automatically
+
+Clear the build cache:
+```bash
+rm -rf modules/*/.build/
+```
+
+### Verbose build output for debugging
+
+```bash
+NANO_VERBOSE_BUILD=1 nanoc my_program.nano -o my_program
+```
+
+This shows all compilation and linking commands.
 
 ## Performance Tips
 
