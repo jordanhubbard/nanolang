@@ -22,6 +22,9 @@ INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/tracing.o 
 HYBRID_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/lexer_bridge.o $(OBJ_DIR)/lexer_nano.o $(OBJ_DIR)/main_stage1_5.o
 PREFIX ?= /usr/local
 
+# Default target: build everything
+.DEFAULT_GOAL := all
+
 # Dependency checking
 .PHONY: check-deps check-deps-sdl
 check-deps:
