@@ -1,8 +1,17 @@
 # BOIDS - Visual Flocking Simulation with SDL
 # Demonstrates: Vector math, steering behaviors, emergent behavior, SDL graphics
+# MODERNIZED: Added Boid struct for cleaner data organization
 
 import "modules/sdl/sdl.nano"
 import "sdl_helpers.nano"
+
+# === STRUCTS ===
+struct Boid {
+    x: float,
+    y: float,
+    vx: float,
+    vy: float
+}
 
 # === CONSTANTS ===
 let WINDOW_WIDTH: int = 800
