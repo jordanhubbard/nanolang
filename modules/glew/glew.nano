@@ -79,6 +79,10 @@ extern fn glScalef(x: float, y: float, z: float) -> void
 extern fn glEnable(cap: int) -> void
 extern fn glDisable(cap: int) -> void
 
+# Matrix stack operations
+extern fn glPushMatrix() -> void
+extern fn glPopMatrix() -> void
+
 # === OpenGL Constants ===
 # Define in your program:
 #
