@@ -57,3 +57,4 @@ Thumbs.db
 .Spotlight-V100
 .Trashes
 modules/*/.build/
+*.genC
