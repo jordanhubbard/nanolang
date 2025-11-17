@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkdtemp */
 #include "nanolang.h"
+#include "module_builder.h"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -621,7 +622,20 @@ static bool is_ffi_only_module(const char *module_path) {
     return has_extern && !has_implementation;
 }
 
-/* Compile all modules in the list to object files */
+/* Helper: Extract module directory from module path */
+static char* get_module_dir(const char *module_path) {
+    char *dir = strdup(module_path);
+    char *last_slash = strrchr(dir, '/');
+    if (last_slash) {
+        *last_slash = '\0';
+    } else {
+        free(dir);
+        dir = strdup(".");
+    }
+    return dir;
+}
+
+/* Compile all modules in the list to object files using the module builder */
 bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_buffer, size_t buffer_size, bool verbose) {
     if (!modules || !module_objs_buffer || buffer_size == 0) {
         return false;
@@ -633,61 +647,162 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
         return true;  /* No modules to compile */
     }
     
-    if (verbose) {
-        printf("Compiling %d module(s) to object files...\n", modules->count);
+    /* Check for verbose build flag */
+    if (getenv("NANO_VERBOSE_BUILD")) {
+        verbose = true;
+        module_builder_verbose = true;
     }
     
-    int compiled_count = 0;
+    if (verbose) {
+        printf("[Modules] Processing %d module(s)...\n", modules->count);
+    }
+    
+    /* Create module builder */
+    const char *module_path_env = getenv("NANO_MODULE_PATH");
+    ModuleBuilder *builder = module_builder_new(module_path_env);
+    if (!builder) {
+        fprintf(stderr, "Error: Failed to create module builder\n");
+        return false;
+    }
+    
+    /* Track all build info for cleanup */
+    ModuleBuildInfo **build_infos = calloc(modules->count, sizeof(ModuleBuildInfo*));
+    int build_info_count = 0;
+    
+    int nanolang_compiled = 0;
+    int c_modules_built = 0;
+    int ffi_only = 0;
+    
     for (int i = 0; i < modules->count; i++) {
         const char *module_path = modules->module_paths[i];
         
-        /* Skip FFI-only modules (they're just extern declarations, no code to compile) */
-        if (is_ffi_only_module(module_path)) {
+        /* Get module directory */
+        char *module_dir = get_module_dir(module_path);
+        
+        /* Check if module has module.json (C sources) */
+        ModuleBuildMetadata *meta = module_load_metadata(module_dir);
+        
+        if (meta) {
+            /* Module has C sources - use module builder */
             if (verbose) {
-                printf("Skipping FFI-only module '%s' (no implementation to compile)\n", module_path);
+                printf("[Modules] Building C module '%s' (%s)\n", meta->name, module_dir);
             }
-            continue;
-        }
-        
-        /* Generate object file name from module path */
-        char obj_file[512];
-        const char *last_slash = strrchr(module_path, '/');
-        const char *base_name = last_slash ? last_slash + 1 : module_path;
-        
-        /* Remove .nano extension */
-        char base_without_ext[256];
-        snprintf(base_without_ext, sizeof(base_without_ext), "%s", base_name);
-        char *dot = strrchr(base_without_ext, '.');
-        if (dot && strcmp(dot, ".nano") == 0) {
-            *dot = '\0';
-        }
-        
-        /* Generate object file path */
-        snprintf(obj_file, sizeof(obj_file), "obj/%s.o", base_without_ext);
-        
-        /* Ensure obj directory exists */
-        system("mkdir -p obj 2>/dev/null");
-        
-        /* Compile module to object file */
-        if (!compile_module_to_object(module_path, obj_file, env, verbose)) {
-            fprintf(stderr, "Error: Failed to compile module '%s'\n", module_path);
-            return false;
-        }
-        
-        compiled_count++;
-        
-        /* Add to module_objs buffer */
-        if (strlen(module_objs_buffer) + strlen(obj_file) + 1 < buffer_size) {
-            assert(obj_file != NULL);
-            if (module_objs_buffer[0] != '\0') {
-                safe_strncat(module_objs_buffer, " ", sizeof(module_objs_buffer));
+            
+            ModuleBuildInfo *info = module_build(builder, meta);
+            if (!info) {
+                fprintf(stderr, "Error: Failed to build module '%s'\n", meta->name);
+                module_metadata_free(meta);
+                free(module_dir);
+                module_builder_free(builder);
+                for (int j = 0; j < build_info_count; j++) {
+                    module_build_info_free(build_infos[j]);
+                }
+                free(build_infos);
+                return false;
             }
-            safe_strncat(module_objs_buffer, obj_file, sizeof(module_objs_buffer));
+            
+            /* Add object file to buffer if it exists */
+            if (info->object_file) {
+                if (strlen(module_objs_buffer) + strlen(info->object_file) + 2 < buffer_size) {
+                    if (module_objs_buffer[0] != '\0') {
+                        strcat(module_objs_buffer, " ");
+                    }
+                    strcat(module_objs_buffer, info->object_file);
+                }
+            }
+            
+            build_infos[build_info_count++] = info;
+            c_modules_built++;
+            module_metadata_free(meta);
+        } else {
+            /* No module.json - check if it's FFI-only (just extern declarations) */
+            if (is_ffi_only_module(module_path)) {
+                if (verbose) {
+                    printf("[Modules] Skipping FFI-only module '%s'\n", module_path);
+                }
+                ffi_only++;
+                free(module_dir);
+                continue;
+            }
+            
+            /* Pure nanolang module - compile using existing method */
+            if (verbose) {
+                printf("[Modules] Compiling nanolang module '%s'\n", module_path);
+            }
+            
+            /* Generate object file name from module path */
+            char obj_file[512];
+            const char *last_slash = strrchr(module_path, '/');
+            const char *base_name = last_slash ? last_slash + 1 : module_path;
+            
+            /* Remove .nano extension */
+            char base_without_ext[256];
+            snprintf(base_without_ext, sizeof(base_without_ext), "%s", base_name);
+            char *dot = strrchr(base_without_ext, '.');
+            if (dot && strcmp(dot, ".nano") == 0) {
+                *dot = '\0';
+            }
+            
+            /* Generate object file path */
+            snprintf(obj_file, sizeof(obj_file), "obj/%s.o", base_without_ext);
+            
+            /* Ensure obj directory exists */
+            system("mkdir -p obj 2>/dev/null");
+            
+            /* Compile module to object file */
+            if (!compile_module_to_object(module_path, obj_file, env, verbose)) {
+                fprintf(stderr, "Error: Failed to compile module '%s'\n", module_path);
+                free(module_dir);
+                module_builder_free(builder);
+                for (int j = 0; j < build_info_count; j++) {
+                    module_build_info_free(build_infos[j]);
+                }
+                free(build_infos);
+                return false;
+            }
+            
+            nanolang_compiled++;
+            
+            /* Add to module_objs buffer */
+            if (strlen(module_objs_buffer) + strlen(obj_file) + 2 < buffer_size) {
+                if (module_objs_buffer[0] != '\0') {
+                    strcat(module_objs_buffer, " ");
+                }
+                strcat(module_objs_buffer, obj_file);
+            }
         }
+        
+        free(module_dir);
     }
     
-    if (verbose && compiled_count == 0) {
-        printf("No modules with implementations to compile (all are FFI-only)\n");
+    /* Get all link flags from C modules */
+    size_t link_flags_count = 0;
+    char **link_flags = module_get_link_flags(build_infos, build_info_count, &link_flags_count);
+    
+    /* Add link flags to buffer */
+    if (link_flags) {
+        for (size_t i = 0; i < link_flags_count; i++) {
+            if (strlen(module_objs_buffer) + strlen(link_flags[i]) + 2 < buffer_size) {
+                if (module_objs_buffer[0] != '\0') {
+                    strcat(module_objs_buffer, " ");
+                }
+                strcat(module_objs_buffer, link_flags[i]);
+            }
+            free(link_flags[i]);
+        }
+        free(link_flags);
+    }
+    
+    /* Cleanup */
+    for (int j = 0; j < build_info_count; j++) {
+        module_build_info_free(build_infos[j]);
+    }
+    free(build_infos);
+    module_builder_free(builder);
+    
+    if (verbose) {
+        printf("[Modules] ✓ Complete: %d nanolang, %d C, %d FFI-only\n", 
+               nanolang_compiled, c_modules_built, ffi_only);
     }
     
     return true;
