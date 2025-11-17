@@ -55,6 +55,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (opts->verbose) printf("✓ Parsing complete\n");
 
     /* Phase 3: Create environment and process imports */
+    clear_module_cache();  /* Clear cache from any previous compilation */
     Environment *env = create_environment();
     ModuleList *modules = create_module_list();
     if (!process_imports(program, env, modules, input_file)) {
