@@ -30,6 +30,14 @@ extern fn glewGetString(name: int) -> string
 # Get OpenGL error string from error code
 extern fn glewGetErrorString(error: int) -> string
 
+# === OpenGL Error Checking ===
+
+# Get current OpenGL error code (GL_NO_ERROR if no error)
+extern fn glGetError() -> int
+
+# Get OpenGL string info
+extern fn glGetString(name: int) -> string
+
 # === Constants ===
 # Define as let constants in your code:
 #

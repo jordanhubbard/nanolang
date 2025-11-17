@@ -8,7 +8,7 @@ import "examples/protracker-clone/pattern.nano"
 
 # === UI RENDERING ===
 
-fn draw_header(renderer: int, title: string, playing: bool) -> void {
+fn draw_header(renderer: int, title: string, playing: bool) -> int {
     # Background
     (SDL_SetRenderDrawColor renderer 28 28 76 255)
     (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH 80)
@@ -27,6 +27,7 @@ fn draw_header(renderer: int, title: string, playing: bool) -> void {
     # Separator
     (SDL_SetRenderDrawColor renderer 100 100 150 255)
     (nl_sdl_render_fill_rect renderer 0 78 WINDOW_WIDTH 2)
+    return 0
 }
 
 shadow draw_header {
@@ -34,7 +35,7 @@ shadow draw_header {
     assert true
 }
 
-fn draw_pattern_grid(renderer: int, pattern_data: array<int>, current_pattern: int, current_row: int, cursor_channel: int) -> void {
+fn draw_pattern_grid(renderer: int, pattern_data: array<int>, current_pattern: int, current_row: int, cursor_channel: int) -> int {
     # Background
     (SDL_SetRenderDrawColor renderer 31 31 63 255)
     (nl_sdl_render_fill_rect renderer 0 80 PATTERN_WIDTH (- WINDOW_HEIGHT 80))
@@ -71,6 +72,7 @@ fn draw_pattern_grid(renderer: int, pattern_data: array<int>, current_pattern: i
         let cursor_y: int = (+ 90 (* current_row 44))
         (nl_sdl_render_fill_rect renderer cursor_x cursor_y (/ PATTERN_WIDTH PT_CHANNELS) 42)
     } else {}
+    return 0
 }
 
 shadow draw_pattern_grid {
@@ -78,7 +80,7 @@ shadow draw_pattern_grid {
     assert true
 }
 
-fn draw_sample_list(renderer: int) -> void {
+fn draw_sample_list(renderer: int) -> int {
     # Sample list area
     let sample_x: int = (+ PATTERN_WIDTH 20)
     let sample_width: int = (- (- WINDOW_WIDTH sample_x) 20)
@@ -94,6 +96,7 @@ fn draw_sample_list(renderer: int) -> void {
         (nl_sdl_render_fill_rect renderer (+ sample_x 10) y (- sample_width 20) 60)
         set i (+ i 1)
     }
+    return 0
 }
 
 shadow draw_sample_list {
@@ -101,7 +104,7 @@ shadow draw_sample_list {
     assert true
 }
 
-fn draw_controls_help(renderer: int) -> void {
+fn draw_controls_help(renderer: int) -> int {
     let help_y: int = (- WINDOW_HEIGHT 80)
     
     # Help background
@@ -124,6 +127,7 @@ fn draw_controls_help(renderer: int) -> void {
         
         set i (+ i 1)
     }
+    return 0
 }
 
 shadow draw_controls_help {
