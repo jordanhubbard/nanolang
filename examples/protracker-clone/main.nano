@@ -4,6 +4,7 @@
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
 import "modules/sdl_mixer/sdl_mixer.nano"
+import "modules/pt2_state/pt2_state.nano"  # Must import directly (nested imports not tracked)
 import "examples/protracker-clone/types.nano"
 import "examples/protracker-clone/pattern.nano"
 import "examples/protracker-clone/replayer.nano"
