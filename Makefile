@@ -22,7 +22,31 @@ INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/tracing.o 
 HYBRID_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/lexer_bridge.o $(OBJ_DIR)/lexer_nano.o $(OBJ_DIR)/main_stage1_5.o
 PREFIX ?= /usr/local
 
-all: $(COMPILER) $(INTERPRETER) $(FFI_BINDGEN)
+# Dependency checking
+.PHONY: check-deps check-deps-sdl
+check-deps:
+	@echo "Checking build dependencies..."
+	@command -v $(CC) >/dev/null 2>&1 || { echo "❌ Error: $(CC) not found. Please install a C compiler."; exit 1; }
+	@command -v make >/dev/null 2>&1 || { echo "❌ Error: make not found. Please install make."; exit 1; }
+	@echo "✓ Core dependencies satisfied ($(CC), make)"
+
+check-deps-sdl:
+	@echo "Checking SDL2 dependencies for graphics examples..."
+	@if command -v pkg-config >/dev/null 2>&1; then \
+		if pkg-config --exists sdl2 2>/dev/null; then \
+			echo "✓ SDL2 found: $$(pkg-config --modversion sdl2)"; \
+		else \
+			echo "⚠️  SDL2 not found (optional - needed for graphics examples only)"; \
+			echo "   Install with:"; \
+			echo "   - macOS: brew install sdl2"; \
+			echo "   - Ubuntu: sudo apt-get install libsdl2-dev"; \
+			echo "   - Fedora: sudo dnf install SDL2-devel"; \
+		fi; \
+	else \
+		echo "⚠️  pkg-config not found (optional - used for SDL2 detection)"; \
+	fi
+
+all: check-deps $(COMPILER) $(INTERPRETER) $(FFI_BINDGEN)
 
 $(COMPILER): $(COMPILER_OBJECTS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(COMPILER) $(COMPILER_OBJECTS)
@@ -134,14 +158,17 @@ check: all test
 
 # Build all examples (delegates to examples/Makefile)
 examples: $(COMPILER) $(INTERPRETER) | $(BIN_DIR)
+	@$(MAKE) check-deps-sdl
 	@$(MAKE) -C examples all
 
 # Show help
 help:
 	@echo "nanolang Makefile targets:"
 	@echo "  make              - Build compiler and interpreter"
+	@echo "  make check-deps   - Check required build dependencies (gcc, make)"
+	@echo "  make check-deps-sdl - Check optional SDL2 dependencies (for graphics examples)"
 	@echo "  make stage1.5     - Build Stage 1.5 hybrid compiler (nanolang lexer + C)"
-	@echo "  make examples     - Build all examples (see examples/Makefile for details)"
+	@echo "  make examples     - Build all examples (auto-checks SDL2 if needed)"
 	@echo "  make test         - Run test suite"
 	@echo "  make sanitize     - Build with memory sanitizers"
 	@echo "  make coverage     - Build with coverage instrumentation"
@@ -153,5 +180,9 @@ help:
 	@echo "  make uninstall    - Uninstall from $(PREFIX)/bin"
 	@echo "  make clean        - Remove build artifacts"
 	@echo "  make help         - Show this help message"
+	@echo ""
+	@echo "Dependencies:"
+	@echo "  Required: gcc/clang, make"
+	@echo "  Optional: SDL2 (only for graphics examples in examples/)"
 
-.PHONY: all clean test sanitize coverage coverage-report valgrind install uninstall lint check help stage1.5 examples
+.PHONY: all clean test sanitize coverage coverage-report valgrind install uninstall lint check help stage1.5 examples check-deps check-deps-sdl

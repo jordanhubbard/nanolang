@@ -1,12 +1,69 @@
 # nanolang
 
+![Build Status](https://github.com/yourusername/nanolang/workflows/CI/badge.svg)
+![Tests](https://img.shields.io/badge/tests-17%2F17%20passing-brightgreen.svg)
+![Examples](https://img.shields.io/badge/examples-25%2F28%20working-green.svg)
+![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.1.0--alpha-orange.svg)
+
 **Status**: ✅ Production Ready - 17/17 tests passing + 25/28 examples working, **37 stdlib functions**, arrays with bounds checking, **self-hosting foundation 100% complete** ✅
 
 A minimal, LLM-friendly programming language designed for AI programming with strict, unambiguous syntax, mandatory shadow-tests, and a path to self-hosting via C transpilation.
 
+## Documentation 📚
+
+**New to nanolang?** Start here:
+- 🚀 [Quick Start](#quick-start) (scroll down)
+- 📖 [Getting Started Guide](docs/GETTING_STARTED.md) - Learn the basics
+- ⚡ [Quick Reference](docs/QUICK_REFERENCE.md) - Syntax cheat sheet
+- 📘 [Language Specification](docs/SPECIFICATION.md) - Complete reference
+- 📋 [Documentation Index](docs/DOCS_INDEX.md) - All documentation
+
+**Contributing:**
+- 🤝 [Contributing Guide](docs/CONTRIBUTING.md)
+- 🐛 [Report a Bug](https://github.com/yourusername/nanolang/issues/new?template=bug_report.md)
+- 💡 [Request a Feature](https://github.com/yourusername/nanolang/issues/new?template=feature_request.md)
+
 ## Quick Start
 
+### Prerequisites
+
+**Required:**
+- C compiler (GCC or Clang)
+- Make
+
+**Optional (for graphics examples only):**
+- SDL2 development libraries
+
+> **Note:** SDL2 is **not required** for the core nanolang language. It's only needed if you want to build and run the graphical examples in `examples/` (games, simulations, etc.). The compiler, interpreter, and all core functionality work without SDL2.
+
+**Install SDL2 (optional):**
+
 ```bash
+# macOS
+brew install sdl2
+
+# Ubuntu/Debian
+sudo apt-get install libsdl2-dev
+
+# Fedora
+sudo dnf install SDL2-devel
+```
+
+**Don't have SDL2?** No problem! Try the basic examples first:
+```bash
+./bin/nano examples/hello.nano
+./bin/nano examples/factorial.nano
+./bin/nano examples/calculator.nano
+```
+
+### Building nanolang
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/nanolang.git
+cd nanolang
+
 # Build the compiler and interpreter
 make
 
@@ -20,7 +77,7 @@ make
 # Run the test suite
 make test
 
-# Build all examples
+# Build all examples (requires SDL2 for some examples)
 make examples
 ```
 

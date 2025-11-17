@@ -1,146 +1,93 @@
-# Planning & Session Documentation
+# Planning Documents
 
-This directory contains AI-assisted development planning, session summaries, and implementation documentation. These files are not user-facing documentation.
+This directory contains design documents and implementation plans for nanolang features.
 
----
+## 📋 Active Planning Documents
 
-## 📂 Directory Structure
+These documents represent current or upcoming work:
 
-**User-Facing Docs:** `/docs/` - For end users, developers using nanolang  
-**Planning Docs:** `/planning/` - For development tracking, AI sessions, implementation plans  
-**Root:** Only `README.md` allowed
+### Current Development
+- **[TODO.md](TODO.md)** - Current tasks and priorities
+- **[REMAINING_TODOS.md](REMAINING_TODOS.md)** - Outstanding work items
+- **[NEXT_STEPS.md](NEXT_STEPS.md)** - Immediate next steps
 
----
+### Self-Hosting Initiative
+- **[SELF_HOSTING_ROADMAP.md](SELF_HOSTING_ROADMAP.md)** - Path to self-hosting compiler
+- **[SELF_HOSTING_IMPLEMENTATION_PLAN.md](SELF_HOSTING_IMPLEMENTATION_PLAN.md)** - Implementation details
+- **[SELF_HOSTING_REALITY_CHECK.md](SELF_HOSTING_REALITY_CHECK.md)** - Feasibility analysis
+- **[BOOTSTRAP_STRATEGY.md](BOOTSTRAP_STRATEGY.md)** - Bootstrap approach
 
-## 📋 Current Planning Documents
+### Stage 1.5 Hybrid Compiler
+- **[STAGE1_5_DISCOVERY.md](STAGE1_5_DISCOVERY.md)** - Initial exploration
+- **[STAGE1_5_ISSUES.md](STAGE1_5_ISSUES.md)** - Known issues
+- **[STAGE1_5_FINAL_ASSESSMENT.md](STAGE1_5_FINAL_ASSESSMENT.md)** - Status assessment
 
-### Active Implementation Plans
-- `NEXT_STEPS.md` - Immediate next actions for union types
-- `UNION_IMPLEMENTATION_SUMMARY.md` - Complete union types overview
-- `LANGUAGE_EXTENSIONS_ROADMAP.md` - v2.0 feature roadmap
+### Language Features
+- **[LANGUAGE_ENHANCEMENTS.md](LANGUAGE_ENHANCEMENTS.md)** - Proposed enhancements
+- **[LANGUAGE_EXTENSIONS_ROADMAP.md](LANGUAGE_EXTENSIONS_ROADMAP.md)** - Extension plans
+- **[FIRST_CLASS_FUNCTIONS_DESIGN.md](FIRST_CLASS_FUNCTIONS_DESIGN.md)** - Function types
+- **[GENERICS_DESIGN.md](GENERICS_DESIGN.md)** - Generic programming
+- **[GENERICS_EXTENDED_DESIGN.md](GENERICS_EXTENDED_DESIGN.md)** - Extended generics
 
-### Session Summaries
-- `SESSION_COMPLETE.md` - Latest session (Union types 70% complete)
-- `SESSION_END_STATUS.md` - Session checkpoint status
-- `SESSION_COMPLETE_SUMMARY.md` - Previous session summary
+### Module System
+- **[MODULE_SYSTEM_ANALYSIS.md](MODULE_SYSTEM_ANALYSIS.md)** - Module system design
+- **[MODULE_FFI_IMPLEMENTATION.md](MODULE_FFI_IMPLEMENTATION.md)** - FFI implementation
 
-### Union Types Implementation (In Progress)
-- `UNION_TYPES_IMPLEMENTATION.md` - Original implementation plan
-- `UNION_IMPLEMENTATION_SUMMARY.md` - Current status and progress
-- `UNION_IMPLEMENTATION_STATUS.md` - Detailed status tracking
-- `UNION_PARSER_PROGRESS.md` - Parser phase progress
-- `PHASE2_PARSER_COMPLETE.md` - Parser completion status
-- `PHASE3_TYPECHECKER_STATUS.md` - Type checker status
+### Data Structures
+- **[STRUCT_ARRAYS_PLAN.md](STRUCT_ARRAYS_PLAN.md)** - Struct arrays
+- **[ENUM_IMPLEMENTATION_PLAN.md](ENUM_IMPLEMENTATION_PLAN.md)** - Enum implementation
+- **[LISTS_IMPLEMENTATION_GUIDE.md](LISTS_IMPLEMENTATION_GUIDE.md)** - Dynamic lists
+- **[UNION_TYPES_IMPLEMENTATION.md](UNION_TYPES_IMPLEMENTATION.md)** - Union types
 
-### Self-Hosting (Complete)
-- `SELF_HOSTING_IMPLEMENTATION_PLAN.md` - Original plan
-- `BOOTSTRAP_STRATEGY.md` - Multi-stage bootstrap strategy
-- `STAGE_0_TO_2_SUMMARY.md` - Stages 0-2 summary
-- `STAGES_0_TO_2_COMPLETE_SUMMARY.md` - Complete summary
-- `STAGE1_5_COMPLETE.md` - Hybrid compiler complete
-- `STAGE1_5_DISCOVERY.md` - Stage 1.5 discoveries
-- `STAGE1_5_FINAL_ASSESSMENT.md` - Final assessment
-- `STAGE1_5_ISSUES.md` - Issues encountered
-- `STAGE1_5_STATUS.md` - Status tracking
-- `STAGE1_5_TOKEN_DEBUG.md` - Token debugging
-- `STAGE2_ASSESSMENT.md` - Stage 2 assessment
-- `FINAL_STATUS.md` - Project status at completion
+### Garbage Collection
+- **[GC_DESIGN.md](GC_DESIGN.md)** - GC system design
+- **[GC_UNIVERSAL_OBJECTS.md](GC_UNIVERSAL_OBJECTS.md)** - Universal object model
 
-### Bug Fixes & Debugging
-- `BUGS_FIXED_SUMMARY.md` - Summary of bugs fixed
-- `TRANSPILER_BUGS_FIXED_FINAL.md` - Transpiler bug fixes
-- `LEXER_BUG_FOUND.md` - Lexer bug discovery
+### Examples & Showcases
+- **[SHOWCASE_GAMES_ROADMAP.md](SHOWCASE_GAMES_ROADMAP.md)** - Game examples roadmap
+- **[EXAMPLES_MODERNIZATION.md](EXAMPLES_MODERNIZATION.md)** - Example updates
+- **[EXAMPLES_AUDIT_PROGRESS.md](EXAMPLES_AUDIT_PROGRESS.md)** - Audit status
 
-### Feature Implementation Guides
-- `ENUM_IMPLEMENTATION_PLAN.md` - Enum implementation (Complete)
-- `LISTS_IMPLEMENTATION_GUIDE.md` - Dynamic lists guide
-- `STRING_OPERATIONS_PLAN.md` - String operations plan
-- `C_FFI_PROPOSAL.md` - C FFI proposal
-- `TRACING_DESIGN.md` - Tracing system design
+### Compiler Implementation
+- **[PARSER_SELF_HOSTED_PLAN.md](PARSER_SELF_HOSTED_PLAN.md)** - Self-hosted parser
+- **[PHASE2_PARSER_DESIGN.md](PHASE2_PARSER_DESIGN.md)** - Phase 2 parser
+- **[LEXER_BLOCKERS.md](LEXER_BLOCKERS.md)** - Lexer issues
+- **[TRANSPILER_ENUM_ISSUE.md](TRANSPILER_ENUM_ISSUE.md)** - Transpiler bug
 
-### Roadmaps & TODOs
-- `IMPLEMENTATION_ROADMAP.md` - Overall implementation roadmap
-- `REMAINING_TODOS.md` - Remaining tasks
+### Type System
+- **[CAST_IMPLEMENTATION.md](CAST_IMPLEMENTATION.md)** - Type casting
 
----
+### Audits & Analysis
+- **[UNION_TYPES_AUDIT.md](UNION_TYPES_AUDIT.md)** - Union types review
+- **[TAXONOMY_AUDIT_2025.md](TAXONOMY_AUDIT_2025.md)** - Language taxonomy
+- **[COMPILER_WARNINGS_FIXED.md](COMPILER_WARNINGS_FIXED.md)** - Warning resolution
 
-## 🗂️ Document Categories
+### Historical Documents
+- **[IMPLEMENTATION.old.md](IMPLEMENTATION.old.md)** - Old implementation notes
+- **[SESSION_WRAPUP_NOV14.md](SESSION_WRAPUP_NOV14.md)** - Development session notes
 
-### 1. **Planning Documents** (Future Work)
-Documents describing features to be implemented:
-- `ENUM_IMPLEMENTATION_PLAN.md`
-- `LANGUAGE_EXTENSIONS_ROADMAP.md`
-- `NEXT_STEPS.md`
+## 📁 Organization
 
-### 2. **Session Summaries** (Historical Record)
-Summaries of completed development sessions:
-- `SESSION_COMPLETE.md`
-- `SESSION_END_STATUS.md`
-- Various `STAGE_*` documents
+Planning documents are organized by:
+- **Current vs Historical** - Active plans vs completed work
+- **Feature Area** - Grouped by language feature or component
+- **Phase** - Stage 1, Stage 1.5, Stage 2, etc.
 
-### 3. **Implementation Tracking** (Active Work)
-Documents tracking ongoing implementation:
-- `UNION_IMPLEMENTATION_SUMMARY.md`
-- `UNION_PARSER_PROGRESS.md`
-- `PHASE*_*.md`
+## 🎯 For Contributors
 
-### 4. **Completed Work** (Archive)
-Documents about finished features:
-- `FINAL_STATUS.md`
-- `BUGS_FIXED_SUMMARY.md`
-- `TRANSPILER_BUGS_FIXED_FINAL.md`
-
----
-
-## 🧹 Maintenance Guidelines
-
-### Keep Files That:
-- ✅ Document ongoing work (Union types)
-- ✅ Provide historical context (Session summaries)
-- ✅ Plan future work (Roadmaps)
-- ✅ Track implementation progress
-
-### Delete Files That:
-- ❌ Document completed and obsolete work with no historical value
-- ❌ Are duplicates of other documents
-- ❌ Are outdated and superseded by newer docs
-
-### When to Archive:
-Move to `planning/archive/` if:
-- Work is complete but historical record is valuable
-- Document was useful during development but no longer needed
-- Multiple similar documents exist (consolidate into one)
-
----
-
-## 📝 File Naming Conventions
-
-- `*_PLAN.md` - Future work plans
-- `*_SUMMARY.md` - Summaries of completed work
-- `*_STATUS.md` - Current status of ongoing work
-- `*_COMPLETE.md` - Completion reports
-- `SESSION_*.md` - Development session records
-- `STAGE_*.md` - Self-hosting stage documents
-
----
-
-## 🔄 Regular Cleanup
-
-**After Each Major Milestone:**
-1. Move obsolete documents to `planning/archive/`
-2. Update this README with current structure
-3. Consolidate duplicate information
-4. Keep only relevant, up-to-date planning docs
-
-**Current Status:** Union types in progress (70% complete)  
-**Next Cleanup:** After union types merge to main
-
----
+When working on a feature:
+1. Check if a planning document exists
+2. Read the design rationale
+3. Update the document as implementation progresses
+4. Mark as complete when finished
 
 ## 📚 Related Documentation
 
-- **User Docs:** `/docs/` - Getting started, language reference, guides
-- **Code:** `/src/` - Implementation
-- **Tests:** `/tests/` - Test suite
-- **Examples:** `/examples/` - Example programs
+For user-facing documentation, see:
+- **[docs/](../docs/)** - User documentation
+- **[README.md](../README.md)** - Project overview
+- **[CONTRIBUTING.md](../docs/CONTRIBUTING.md)** - Contribution guide
 
+---
+
+_Planning documents are primarily for maintainers and contributors. Users should start with the main [documentation](../docs/)._
