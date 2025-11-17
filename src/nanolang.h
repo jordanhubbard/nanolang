@@ -117,6 +117,7 @@ typedef enum {
     VAL_GC_STRUCT,  /* GC-managed struct (heap-allocated) */
     VAL_UNION,      /* Union values (tagged unions) */
     VAL_FUNCTION,   /* Function values (for first-class functions) */
+    VAL_TUPLE,      /* Tuple values: (1, "hello", true) */
     VAL_VOID
 } ValueType;
 
@@ -146,6 +147,12 @@ typedef struct {
     int field_count;         /* Number of fields in this variant */
 } UnionValue;
 
+/* Tuple value structure */
+typedef struct {
+    Value *elements;          /* Array of values */
+    int element_count;        /* Number of elements */
+} TupleValue;
+
 /* Type information */
 typedef enum {
     TYPE_INT,
@@ -163,6 +170,7 @@ typedef enum {
     TYPE_LIST_TOKEN,
     TYPE_LIST_GENERIC, /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
     TYPE_FUNCTION,     /* Function type: fn(int, int) -> int */
+    TYPE_TUPLE,        /* Tuple type: (int, string, bool) */
     TYPE_UNKNOWN
 } Type;
 
@@ -175,6 +183,11 @@ typedef struct TypeInfo {
     char *generic_name;              /* e.g., "List" */
     struct TypeInfo **type_params;   /* e.g., [TypeInfo{TYPE_INT}] */
     int type_param_count;            /* Number of type parameters */
+    
+    /* For tuple types: (int, string, bool) */
+    Type *tuple_types;               /* Array of tuple element types */
+    char **tuple_type_names;         /* For struct/enum/union tuple elements */
+    int tuple_element_count;         /* Number of tuple elements */
 } TypeInfo;
 
 /* Value structure */
@@ -195,6 +208,7 @@ struct Value {
             char *function_name;       /* Name of the function */
             struct FunctionSignature *signature;  /* Function signature */
         } function_val;  /* Function values */
+        TupleValue *tuple_val;  /* Tuple values */
     } as;
 };
 
@@ -227,7 +241,9 @@ typedef enum {
     AST_UNION_DEF,
     AST_UNION_CONSTRUCT,
     AST_MATCH,
-    AST_IMPORT
+    AST_IMPORT,
+    AST_TUPLE_LITERAL,     /* Tuple literal: (1, "hello", true) */
+    AST_TUPLE_INDEX        /* Tuple index access: tuple.0, tuple.1 */
 } ASTNodeType;
 
 /* Forward declaration */
@@ -391,6 +407,17 @@ struct ASTNode {
             char *module_path;  /* Path to module file (e.g., "math.nano" or "utils/math.nano") */
             char *module_name;  /* Optional module name/alias */
         } import_stmt;
+        /* Tuple literal: (1, "hello", true) */
+        struct {
+            ASTNode **elements;    /* Array of element expressions */
+            int element_count;     /* Number of elements */
+            Type *element_types;   /* Types of each element (filled by type checker) */
+        } tuple_literal;
+        /* Tuple index access: tuple.0, tuple.1 */
+        struct {
+            ASTNode *tuple;        /* The tuple expression */
+            int index;             /* The index being accessed (0, 1, 2, ...) */
+        } tuple_index;
     } as;
 };
 
@@ -541,6 +568,10 @@ Value create_function(const char *function_name, FunctionSignature *signature);
 FunctionSignature *create_function_signature(Type *param_types, int param_count, Type return_type);
 void free_function_signature(FunctionSignature *sig);
 bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2);
+
+/* Tuple helpers */
+Value create_tuple(Value *elements, int element_count);
+void free_tuple(TupleValue *tuple);
 
 /* Module loading */
 typedef struct {
@@ -738,11 +769,12 @@ static inline void print_backtrace(void) {
 #endif
 }
 
+/* Don't redefine assert - use standard library version */
 /* Enhanced assert macro with backtrace */
 #ifdef NDEBUG
-#define assert(expr) ((void)0)
+/* #define assert(expr) ((void)0) */
 #else
-#define assert(expr) \
+/* #define assert(expr) \
     do { \
         if (!(expr)) { \
             safe_fprintf(stderr, "\nAssertion failed: %s\n", #expr); \
@@ -750,7 +782,7 @@ static inline void print_backtrace(void) {
             print_backtrace(); \
             abort(); \
         } \
-    } while(0)
+    } while(0) */
 #endif
 
 #endif /* NANOLANG_H */

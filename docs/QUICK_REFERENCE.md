@@ -72,6 +72,47 @@ match r {
 }
 ```
 
+**Generics (Monomorphized):**
+```nano
+# Built-in generic: List<T>
+let numbers: List<int> = (List_int_new)
+(List_int_push numbers 42)
+(List_int_push numbers 17)
+
+let len: int = (List_int_length numbers)
+let first: int = (List_int_get numbers 0)
+
+# Generic with user-defined types
+struct Point { x: int, y: int }
+let points: List<Point> = (List_Point_new)
+```
+
+**First-Class Functions:**
+```nano
+# Function type: fn(param_types) -> return_type
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+# Assign function to variable
+let f: fn(int) -> int = double
+let result: int = (f 5)  # result = 10
+
+# Function as parameter
+fn apply_op(op: fn(int) -> int, x: int) -> int {
+    return (op x)
+}
+
+let y: int = (apply_op double 7)  # y = 14
+
+# Function as return value
+fn get_doubler() -> fn(int) -> int {
+    return double
+}
+
+let op: fn(int) -> int = (get_doubler)
+```
+
 ## Operators (Prefix Notation)
 
 ### Arithmetic

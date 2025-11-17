@@ -7,7 +7,8 @@ Welcome to nanolang! This index will help you navigate the documentation.
 - **New to nanolang?** Start with [Getting Started](GETTING_STARTED.md)
 - **Want details?** Read the [Language Specification](SPECIFICATION.md)
 - **Need a quick reference?** See [Quick Reference](QUICK_REFERENCE.md)
-- **Standard library?** Browse [Standard Library Reference](STDLIB.md) (24 functions)
+- **Feature overview?** See [Features](FEATURES.md) - Complete feature list with examples
+- **Standard library?** Browse [Standard Library Reference](STDLIB.md) (37 functions)
 - **Learn about shadow-tests?** See [Shadow-Tests Guide](SHADOW_TESTS.md)
 - **Ready to contribute?** Check [Contributing Guidelines](CONTRIBUTING.md)
 - **Want examples?** Browse the [examples/](../examples/) directory
@@ -151,9 +152,12 @@ let mut y: int = 20    # Mutable
 - `bool` - Boolean (true/false)
 - `string` - UTF-8 text
 - `void` - No return value
-- `struct` - Composite data types
+- `struct` - Composite data types (product types)
 - `enum` - Named constants
 - `union` - Tagged unions/sum types
+- `List<T>` - Generic lists (monomorphized at compile time)
+- `fn(T1, T2) -> R` - First-class function types
+- `(T1, T2)` - Tuple types (in development)
 
 ### Operations
 - Arithmetic: `+`, `-`, `*`, `/`, `%`
@@ -177,10 +181,10 @@ let mut y: int = 20    # Mutable
 - ✅ Type checker with inference
 - ✅ Shadow-test runner (interpreter mode)
 - ✅ C transpiler for native compilation
-- ✅ Interpreter (`nano`) - runs shadow tests
-- ✅ Compiler (`nanoc`) - transpiles to C and compiles
-- ✅ Standard library (24 functions)
-  - 3 I/O, 11 Math, 5 String, 4 Array, 3 OS
+- ✅ Interpreter (`nano`) - runs shadow tests with tracing
+- ✅ Compiler (`nanoc`) - transpiles to C99 and compiles
+- ✅ Standard library (37 functions)
+  - 3 I/O, 11 Math, 18 String, 4 Array, 3 OS, Dynamic Generics
 - ✅ Array support with bounds checking
 - ✅ 24 example programs
 - ✅ Test suite (17/17 tests passing)
@@ -188,6 +192,12 @@ let mut y: int = 20    # Mutable
 - ✅ Comprehensive documentation
 
 ### Recent Improvements (November 2025)
+- ✅ **Zero Compiler Warnings** - Clean build with no warnings
+- ✅ **Generics (Monomorphization)** - `List<T>` with compile-time specialization
+- ✅ **First-Class Functions** - Functions as values, parameters, and return types
+- ✅ **Union Types** - Tagged unions/sum types with pattern matching
+- ✅ **Pattern Matching** - `match` expressions with exhaustive checking
+- ✅ **Namespacing** - `nl_` prefix for all user-defined types in C output
 - ✅ **Garbage Collection** - Universal GC with reference counting and cycle detection
 - ✅ **Dynamic Arrays** - `array_push`, `array_pop`, `array_remove_at` with automatic memory management
 - ✅ **Type Casting** - Explicit type conversions: `cast_int()`, `cast_float()`, `cast_bool()`, `cast_string()`
@@ -197,7 +207,6 @@ let mut y: int = 20    # Mutable
 - ✅ **6 Game Examples** - Conway's Life, Snake, Boids, Maze, Particles, Checkers
 - ✅ **Vector Math Module** - 2D vector operations for game development
 - ✅ **SDL Integration** - Full SDL2 support with text rendering (SDL_ttf)
-- ✅ **Union Types** - Tagged unions/sum types with pattern matching
 - ✅ Multi-line comment support (`/* */`)
 - ✅ Fixed critical infinite loop bug in return propagation
 - ✅ Added array operations with safety guarantees
@@ -251,15 +260,16 @@ A: Use `nanoc program.nano` to compile and test, or `nano program.nano` to inter
 A: Portability, performance, and path to self-hosting.
 
 **Q: What's the standard library like?**  
-A: 24 functions covering I/O, math, strings, arrays, and OS operations. See [STDLIB.md](STDLIB.md).
+A: 37 functions covering I/O, math, strings, arrays, OS operations, and generic lists. See [STDLIB.md](STDLIB.md).
 
 ## Resources
 
 ### Documentation
 - [README.md](../README.md) - Overview
+- [FEATURES.md](FEATURES.md) - Complete feature list with examples
 - [SPECIFICATION.md](SPECIFICATION.md) - Language reference
 - [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - One-page syntax guide
-- [STDLIB.md](STDLIB.md) - Standard library reference (24 functions)
+- [STDLIB.md](STDLIB.md) - Standard library reference (37 functions)
 - [GETTING_STARTED.md](GETTING_STARTED.md) - Tutorial
 - [SHADOW_TESTS.md](SHADOW_TESTS.md) - Testing guide
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guide

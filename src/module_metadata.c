@@ -149,6 +149,7 @@ bool embed_metadata_in_module_c(char *c_code, ModuleMetadata *meta, size_t buffe
 
 /* Deserialize metadata from C code (simplified - would need full C parser) */
 bool deserialize_module_metadata_from_c(const char *c_code, ModuleMetadata **meta_out) {
+    (void)c_code;  /* Unused parameter - stub function */
     /* TODO: Implement C code parsing to extract metadata */
     /* For now, this is a placeholder */
     *meta_out = NULL;

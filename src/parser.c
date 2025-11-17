@@ -417,7 +417,8 @@ static bool parse_parameters(Parser *p, Parameter **params, int *param_count) {
 
             /* Parameter name */
             if (!match(p, TOKEN_IDENTIFIER)) {
-                fprintf(stderr, "Error at line %d, column %d: Expected parameter name\n", current_token(p)->line);
+                Token *tok = current_token(p);
+                fprintf(stderr, "Error at line %d, column %d: Expected parameter name\n", tok->line, tok->column);
                 free(param_list);
                 return false;
             }
@@ -565,7 +566,7 @@ static ASTNode *parse_prefix_op(Parser *p) {
         node->as.call.arg_count = count;
         return node;
     } else {
-        fprintf(stderr, "Error at line %d, column %d: Invalid prefix operation\n", line);
+        fprintf(stderr, "Error at line %d, column %d: Invalid prefix operation\n", line, column);
         return NULL;
     }
 }
@@ -1102,7 +1103,7 @@ static ASTNode *parse_statement(Parser *p) {
             }
 
             if (!match(p, TOKEN_IDENTIFIER)) {
-                fprintf(stderr, "Error at line %d, column %d: Expected variable name\n", line);
+                fprintf(stderr, "Error at line %d, column %d: Expected variable name\n", line, column);
                 return NULL;
             }
             char *name = strdup(current_token(p)->value);
@@ -1159,7 +1160,7 @@ static ASTNode *parse_statement(Parser *p) {
             advance(p);
 
             if (!match(p, TOKEN_IDENTIFIER)) {
-                fprintf(stderr, "Error at line %d, column %d: Expected variable name\n", line);
+                fprintf(stderr, "Error at line %d, column %d: Expected variable name\n", line, column);
                 return NULL;
             }
             char *name = strdup(current_token(p)->value);
@@ -1193,7 +1194,7 @@ static ASTNode *parse_statement(Parser *p) {
             advance(p);
 
             if (!match(p, TOKEN_IDENTIFIER)) {
-                fprintf(stderr, "Error at line %d, column %d: Expected loop variable\n", line);
+                fprintf(stderr, "Error at line %d, column %d: Expected loop variable\n", line, column);
                 return NULL;
             }
             char *var_name = strdup(current_token(p)->value);
@@ -1206,14 +1207,14 @@ static ASTNode *parse_statement(Parser *p) {
 
             ASTNode *range_expr = parse_expression(p);
             if (!range_expr) {
-                fprintf(stderr, "Error at line %d, column %d: Invalid range expression in for loop\n", line);
+                fprintf(stderr, "Error at line %d, column %d: Invalid range expression in for loop\n", line, column);
                 free(var_name);
                 return NULL;
             }
 
             ASTNode *body = parse_block(p);
             if (!body) {
-                fprintf(stderr, "Error at line %d, column %d: Invalid body in for loop\n", line);
+                fprintf(stderr, "Error at line %d, column %d: Invalid body in for loop\n", line, column);
                 free(var_name);
                 free_ast(range_expr);
                 return NULL;

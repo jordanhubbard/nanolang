@@ -2254,7 +2254,7 @@ bool type_check(ASTNode *program, Environment *env) {
             }
             
             Function func;
-            func.name = func_name;
+            func.name = strdup(func_name);  /* Create copy to avoid const qualifier warning */
             func.params = item->as.function.params;
             func.param_count = item->as.function.param_count;
             func.return_type = return_type;

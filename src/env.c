@@ -742,3 +742,45 @@ Value create_function(const char *function_name, FunctionSignature *signature) {
     val.as.function_val.signature = signature;
     return val;
 }
+
+/* Create tuple value */
+Value create_tuple(Value *elements, int element_count) {
+    Value val;
+    val.type = VAL_TUPLE;
+    val.is_return = false;
+    val.as.tuple_val = malloc(sizeof(TupleValue));
+    val.as.tuple_val->element_count = element_count;
+    
+    /* Allocate and copy elements */
+    if (element_count > 0) {
+        val.as.tuple_val->elements = malloc(sizeof(Value) * element_count);
+        for (int i = 0; i < element_count; i++) {
+            val.as.tuple_val->elements[i] = elements[i];
+            /* Deep copy strings */
+            if (elements[i].type == VAL_STRING) {
+                val.as.tuple_val->elements[i].as.string_val = strdup(elements[i].as.string_val);
+            }
+        }
+    } else {
+        val.as.tuple_val->elements = NULL;
+    }
+    
+    return val;
+}
+
+/* Free tuple value */
+void free_tuple(TupleValue *tuple) {
+    if (!tuple) return;
+    
+    /* Free string elements */
+    for (int i = 0; i < tuple->element_count; i++) {
+        if (tuple->elements[i].type == VAL_STRING && tuple->elements[i].as.string_val) {
+            free(tuple->elements[i].as.string_val);
+        }
+    }
+    
+    if (tuple->elements) {
+        free(tuple->elements);
+    }
+    free(tuple);
+}

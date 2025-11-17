@@ -18,7 +18,12 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
     
     /* Initialize tracing */
     tracing_init();
+#ifdef TRACING_ENABLED
     tracing_configure(argc, argv);
+#else
+    (void)argc;  /* Unused without tracing */
+    (void)argv;  /* Unused without tracing */
+#endif
     
     /* Read source file */
     FILE *file = fopen(input_file, "r");
