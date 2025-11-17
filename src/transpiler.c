@@ -2417,10 +2417,10 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET && !item->as.let.is_mut) {
-            /* Skip SDL/TTF constants - they come from SDL headers */
-            if (strncmp(item->as.let.name, "SDL_", 4) == 0 || 
-                strncmp(item->as.let.name, "TTF_", 4) == 0) {
-                continue;
+            /* Skip constants that come from C headers - they're already defined in the headers */
+            Symbol *sym = env_get_var(env, item->as.let.name);
+            if (sym && sym->from_c_header) {
+                continue;  /* Skip - defined in C header */
             }
             
             /* Emit as C constant */

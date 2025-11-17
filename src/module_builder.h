@@ -7,6 +7,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+/* Forward declare ConstantDef struct from nanolang.h */
+struct ConstantDef;
+
 // Module build metadata structure (from module.json)
 typedef struct {
     char *name;
@@ -102,6 +105,11 @@ bool module_ensure_build_dir(const char *module_dir);
 
 // Verbose build output (controlled by NANO_VERBOSE_BUILD env var)
 extern bool module_builder_verbose;
+
+// Parse C header to extract #define constants
+// Returns array of ConstantDef, caller must free
+// Note: ConstantDef is defined in nanolang.h
+struct ConstantDef* parse_c_header_constants(const char *header_path, int *count_out);
 
 #endif // MODULE_BUILDER_H
 
