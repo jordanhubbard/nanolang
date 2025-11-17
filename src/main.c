@@ -188,10 +188,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     }
     
     /* Build runtime files string */
-    char runtime_files[512] = "src/runtime/list_int.c src/runtime/list_string.c";
-    if (needs_sdl_helpers) {
-        strncat(runtime_files, " src/runtime/sdl_helpers.c", sizeof(runtime_files) - strlen(runtime_files) - 1);
-    }
+    /* Note: sdl_helpers.c is NOT included here - it's provided by the sdl_helpers module */
+    char runtime_files[512] = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c";
     
     if (opts->verbose) {
         snprintf(compile_cmd, sizeof(compile_cmd), 

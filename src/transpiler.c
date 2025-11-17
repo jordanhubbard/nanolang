@@ -2038,6 +2038,58 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             sb_append(sb, ");\n");
         }
     }
+    
+    /* Also generate extern declarations for extern functions from imported modules */
+    if (env && env->functions && env->function_count > 0) {
+        for (int i = 0; i < env->function_count; i++) {
+            Function *func = &env->functions[i];
+            if (!func || !func->name || !func->is_extern) continue;
+            
+            /* Skip SDL/TTF functions - they're declared by #include <SDL.h> and <SDL_ttf.h> */
+            if (strncmp(func->name, "SDL_", 4) == 0 || strncmp(func->name, "TTF_", 4) == 0 ||
+                strncmp(func->name, "Mix_", 4) == 0) {
+                continue;
+            }
+            
+            /* Check if this extern function is already in the program AST (declared above) */
+            bool in_program = false;
+            for (int j = 0; j < program->as.program.count; j++) {
+                ASTNode *item = program->as.program.items[j];
+                if (item->type == AST_FUNCTION && item->as.function.is_extern &&
+                    strcmp(item->as.function.name, func->name) == 0) {
+                    in_program = true;
+                    break;
+                }
+            }
+            if (in_program) continue;  /* Already declared above */
+            
+            /* Generate extern declaration for this module extern function */
+            sb_append(sb, "extern ");
+            
+            const char *ret_type_c = type_to_c(func->return_type);
+            const char *sdl_ret_type = get_sdl_c_type(func->name, -1, true);
+            if (sdl_ret_type) {
+                ret_type_c = sdl_ret_type;
+            }
+            
+            sb_append(sb, ret_type_c);
+            sb_appendf(sb, " %s(", func->name);
+            
+            for (int j = 0; j < func->param_count; j++) {
+                if (j > 0) sb_append(sb, ", ");
+                const char *param_type_c = type_to_c(func->params[j].type);
+                
+                const char *sdl_param_type = get_sdl_c_type(func->name, j, false);
+                if (sdl_param_type) {
+                    param_type_c = sdl_param_type;
+                }
+                
+                sb_appendf(sb, "%s %s", param_type_c, func->params[j].name);
+            }
+            sb_append(sb, ");\n");
+        }
+    }
+    
     if (has_sdl || has_sdl_ttf) {
         sb_append(sb, "\n");
     }
