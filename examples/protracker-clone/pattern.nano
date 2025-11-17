@@ -1,7 +1,7 @@
 # ProTracker Pattern Editor
 # Pattern data management and editing
 
-import "examples/protracker/types.nano"
+import "examples/protracker-clone/types.nano"
 
 # === PATTERN DATA STRUCTURE ===
 

@@ -1,6 +1,24 @@
 # NanoLang ProTracker Clone
 
-A multi-file ProTracker music tracker implementation in nanolang, inspired by [pt2-clone](https://github.com/jordanhubbard/pt2-clone.git).
+A multi-file ProTracker music tracker implementation in nanolang, inspired by **pt2-clone** by Olav Sørensen (8bitbubsy).
+
+## Credits
+
+This project is inspired by and based on the architectural design of:
+
+**[pt2-clone](https://github.com/8bitbubsy/pt2-clone)** by **Olav Sørensen** ([@8bitbubsy](https://github.com/8bitbubsy))
+
+The original pt2-clone is a highly accurate clone of the classic ProTracker 2 for Amiga, written in C. This nanolang implementation uses the same data structures and design principles, adapted to nanolang's syntax and module system.
+
+Special thanks to Olav for:
+- Creating the definitive ProTracker clone
+- Documenting the ProTracker format thoroughly
+- Making the source code available for study
+- Preserving classic Amiga music software history
+
+Original ProTracker 2 © 1990-1998 by various authors  
+pt2-clone © Olav Sørensen  
+This nanolang implementation © 2025
 
 ## Overview
 

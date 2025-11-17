@@ -1,5 +1,8 @@
 # ProTracker Clone - Multi-file Project Makefile
 # Demonstrates compiling a nanolang project from multiple source files
+#
+# Based on pt2-clone by Olav Sørensen (8bitbubsy)
+# https://github.com/8bitbubsy/pt2-clone
 
 # Compiler settings
 NANOC = ../../bin/nanoc
@@ -7,7 +10,7 @@ NANO_MODULE_PATH = ../../modules
 export NANO_MODULE_PATH
 
 # Project settings
-PROJECT_NAME = protracker
+PROJECT_NAME = protracker-clone
 MAIN_FILE = main.nano
 OUTPUT = ../../bin/$(PROJECT_NAME)
 
@@ -31,7 +34,7 @@ $(OUTPUT): $(SOURCES)
 	done
 	@echo ""
 	@echo "Compiling $(MAIN_FILE) (imports all modules)..."
-	cd ../.. && NANO_MODULE_PATH=modules ./bin/nanoc examples/protracker/$(MAIN_FILE) -o $(OUTPUT)
+	cd ../.. && NANO_MODULE_PATH=modules ./bin/nanoc examples/protracker-clone/$(MAIN_FILE) -o $(OUTPUT)
 	@echo ""
 	@echo "✓ ProTracker built: $(OUTPUT)"
 	@echo ""
