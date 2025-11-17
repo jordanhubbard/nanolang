@@ -4,6 +4,7 @@
   "description": "GLEW - OpenGL Extension Wrangler for loading OpenGL functions and extensions",
   "headers": ["GL/glew.h"],
   "pkg_config": ["glew"],
+  "ldflags": ["-framework", "OpenGL"],
   "install": {
     "macos": {
       "brew": "glew",

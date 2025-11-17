@@ -27,8 +27,14 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/boids_sdl \
 	$(BIN_DIR)/particles_sdl \
 	$(BIN_DIR)/falling_sand_sdl \
-	$(BIN_DIR)/music_sequencer_sdl \
 	$(BIN_DIR)/terrain_explorer_sdl
+
+# OpenGL examples (GLFW + GLEW)
+OPENGL_EXAMPLES = \
+	$(BIN_DIR)/opengl_cube
+
+# All graphics examples
+GRAPHICS_EXAMPLES = $(SDL_EXAMPLES) $(OPENGL_EXAMPLES)
 
 # === Interpreter-Only Examples ===
 # These use features the transpiler doesn't support yet
@@ -41,20 +47,22 @@ INTERPRETER_EXAMPLES = \
 
 # === Targets ===
 
-.PHONY: all sdl interpreter clean help checkers-sdl boids-sdl particles-sdl falling-sand-sdl music-sequencer-sdl terrain-explorer-sdl run-% force-rebuild
+.PHONY: all sdl opengl interpreter clean help checkers-sdl boids-sdl particles-sdl falling-sand-sdl terrain-explorer-sdl opengl-cube run-% force-rebuild
 
 # Default: build all compiled examples
-all: $(COMPILER) $(SDL_EXAMPLES)
+all: $(COMPILER) $(GRAPHICS_EXAMPLES)
 	@echo ""
 	@echo "✓ All compiled examples built successfully!"
 	@echo ""
-	@echo "Run examples:"
+	@echo "SDL examples:"
 	@echo "  ./bin/checkers_sdl"
 	@echo "  ./bin/boids_sdl"
 	@echo "  ./bin/particles_sdl"
 	@echo "  ./bin/falling_sand_sdl"
-	@echo "  ./bin/music_sequencer_sdl"
 	@echo "  ./bin/terrain_explorer_sdl"
+	@echo ""
+	@echo "OpenGL examples:"
+	@echo "  ./bin/opengl_cube  (requires: brew install glfw glew)"
 	@echo ""
 	@echo "Interpreter-only examples (run with: ./bin/nano examples/name.nano):"
 	@echo "  $(INTERPRETER_EXAMPLES)"
@@ -62,6 +70,9 @@ all: $(COMPILER) $(SDL_EXAMPLES)
 
 # SDL examples only
 sdl: $(SDL_EXAMPLES)
+
+# OpenGL examples only
+opengl: $(OPENGL_EXAMPLES)
 
 # Ensure compiler and interpreter exist by always checking parent Makefile
 $(COMPILER):
@@ -83,9 +94,10 @@ checkers-sdl: $(BIN_DIR)/checkers_sdl
 boids-sdl: $(BIN_DIR)/boids_sdl
 particles-sdl: $(BIN_DIR)/particles_sdl
 falling-sand-sdl: $(BIN_DIR)/falling_sand_sdl
-music-sequencer-sdl: $(BIN_DIR)/music_sequencer_sdl
 
 terrain-explorer-sdl: $(BIN_DIR)/terrain_explorer_sdl
+
+opengl-cube: $(BIN_DIR)/opengl_cube
 
 # === Binary Build Rules ===
 
@@ -109,15 +121,15 @@ $(BIN_DIR)/falling_sand_sdl: falling_sand_sdl.nano $(COMPILER)
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/falling_sand_sdl.nano -o bin/falling_sand_sdl
 	@echo "✓ Falling Sand SDL built: $@"
 
-$(BIN_DIR)/music_sequencer_sdl: music_sequencer_sdl.nano $(COMPILER)
-	@echo "Building Music Sequencer SDL (with automatic module building)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/music_sequencer_sdl.nano -o bin/music_sequencer_sdl
-	@echo "✓ Music Sequencer SDL built: $@"
-
 $(BIN_DIR)/terrain_explorer_sdl: terrain_explorer_sdl.nano $(COMPILER)
 	@echo "Building Terrain Explorer SDL (with automatic module building + struct arrays)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/terrain_explorer_sdl.nano -o bin/terrain_explorer_sdl
 	@echo "✓ Terrain Explorer SDL built: $@"
+
+$(BIN_DIR)/opengl_cube: opengl_cube.nano $(COMPILER)
+	@echo "Building OpenGL Rotating Cube (GLFW + GLEW)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_cube.nano -o bin/opengl_cube
+	@echo "✓ OpenGL Cube built: $@"
 
 # === Interpreter-Only Examples ===
 
@@ -147,7 +159,7 @@ run-%: %.nano $(INTERPRETER)
 
 clean:
 	@echo "Cleaning example binaries and build artifacts..."
-	rm -f $(SDL_EXAMPLES)
+	rm -f $(GRAPHICS_EXAMPLES)
 	rm -rf $(BIN_DIR)/*.dSYM
 	rm -f $(BIN_DIR)/*.c
 	rm -f ../obj/sdl_helpers_*.o
@@ -172,7 +184,6 @@ help:
 	@echo "  boids_sdl         - Flocking simulation"
 	@echo "  particles_sdl     - Particle explosion"
 	@echo "  falling_sand_sdl  - Cellular automata sandbox"
-	@echo "  music_sequencer_sdl - ProTracker-style sequencer"
 	@echo ""
 	@echo "Interpreter-only examples:"
 	@echo "  life_sdl          - Conway's Game of Life"

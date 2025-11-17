@@ -1,5 +1,28 @@
 # nanolang Project Rules
 
+## ⚠️ IMMEDIATE ACTIONS (Do These FIRST)
+
+### At Session Start:
+1. **Run**: `ls *.md` - Check for obsolete files in root
+2. **DELETE** any `*_COMPLETE.md`, `*_SUMMARY.md`, `*_STATUS.md` files
+3. **MOVE** any planning files to `planning/` directory
+4. **CHECK** `planning/` for in-progress work before starting new tasks
+
+### Before Every Commit:
+1. **Run**: `ls *.md` - Verify root is clean
+2. **DELETE** completion/status files created during session
+3. **MOVE** any planning docs to `planning/`
+4. **UPDATE** `docs/DOCS_INDEX.md` if you modified docs/
+5. **VERIFY** examples compile without warnings (per rules below)
+
+### Allowed in Root Directory:
+- `README.md` - Project overview
+- `CONTRIBUTING.md` - Contribution guidelines
+- `CONTRIBUTORS.md` - Contributor list
+- `LICENSE` - Project license
+- `.cursorrules` - This file
+- **NOTHING ELSE** - All other .md files must be deleted or moved
+
 ## Documentation Policy
 
 ### 1. Obsolete Files
