@@ -709,10 +709,21 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     
     /* Compile C code to object file */
     /* Note: Runtime files are linked separately, not compiled into module objects */
+    /* Add SDL flags if SDL modules are used */
+    char sdl_flags[256] = "";
+    FILE *sdl_check = popen("sdl2-config --cflags 2>/dev/null", "r");
+    if (sdl_check) {
+        fgets(sdl_flags, sizeof(sdl_flags), sdl_check);
+        pclose(sdl_check);
+        /* Remove trailing newline */
+        char *newline = strchr(sdl_flags, '\n');
+        if (newline) *newline = '\0';
+    }
+    
     char compile_cmd[1024];
     snprintf(compile_cmd, sizeof(compile_cmd),
-            "gcc -std=c99 -Isrc -c -o %s %s",
-            output_obj, temp_c_file);
+            "gcc -std=c99 -Isrc %s -c -o %s %s",
+            sdl_flags, output_obj, temp_c_file);
     
     if (verbose) {
         printf("Compiling module: %s\n", compile_cmd);
