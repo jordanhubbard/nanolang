@@ -146,6 +146,8 @@ run-%: %.nano $(INTERPRETER)
 clean:
 	@echo "Cleaning example binaries..."
 	rm -f $(SDL_EXAMPLES)
+	rm -rf $(BIN_DIR)/*_sdl.dSYM
+	rm -rf $(BIN_DIR)/checkers.dSYM
 	rm -f $(BIN_DIR)/*.c
 	rm -f ../obj/sdl_helpers_*.o
 	rm -rf ../modules/*/.build/
