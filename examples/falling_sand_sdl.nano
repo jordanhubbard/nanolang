@@ -482,6 +482,10 @@ fn main() -> int {
         (print "")
     }
     
+    # Disable mouse motion events to prevent event queue flooding
+    # SDL_MOUSEMOTION = 0x400 = 1024
+    (SDL_EventState 1024 0)
+    
     # Initialize grid
     let grid_size: int = (* GRID_WIDTH GRID_HEIGHT)
     let mut grid: array<int> = []

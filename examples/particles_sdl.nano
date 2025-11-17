@@ -90,6 +90,10 @@ fn main() -> int {
         (println "✓ SDL initialized")
     }
     
+    # Disable mouse motion events to prevent event queue flooding
+    # SDL_MOUSEMOTION = 0x400 = 1024
+    (SDL_EventState 1024 0)
+    
     # Particle data (parallel arrays)
     let mut particle_x: array<float> = []
     let mut particle_y: array<float> = []
@@ -131,11 +135,63 @@ fn main() -> int {
     
     # Main loop
     let dt: float = 0.016
-    let max_frames: int = 600
     let mut frame: int = 0
     let mut running: bool = true
     
-    while (and running (< frame max_frames)) {
+    (println "Click to spawn explosions! Press ESC or close window to quit.")
+    (println "")
+    
+    while running {
+        # Handle keyboard input (ESC to quit)
+        let key: int = (nl_sdl_poll_keypress)
+        if (> key -1) {
+            if (== key 41) {
+                # ESC key = quit
+                set running false
+            } else {
+                (print "")
+            }
+        } else {
+            (print "")
+        }
+        
+        # Check for quit event (window close)
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) {
+            set running false
+        } else {
+            (print "")
+        }
+        
+        # Check for mouse click to spawn explosion
+        let mouse: int = (nl_sdl_poll_mouse_click)
+        if (> mouse -1) {
+            # Decode mouse position: x * 10000 + y
+            let click_x: float = (cast_float (/ mouse 10000))
+            let click_y: float = (cast_float (% mouse 10000))
+            
+            # Spawn new explosion at click position
+            set i 0
+            while (< i PARTICLES_PER_EXPLOSION) {
+                let angle_seed: int = (* i 37)
+                let speed_seed: int = (+ (* i 13) 7)
+                let angle_mod: float = (cast_float (% angle_seed 360))
+                let speed_mod: float = (cast_float (% speed_seed 100))
+                let vx: float = (* (- angle_mod 180.0) 2.0)
+                let vy: float = (* (- speed_mod 50.0) 3.0)
+                
+                set particle_x (array_push particle_x click_x)
+                set particle_y (array_push particle_y click_y)
+                set particle_vx (array_push particle_vx vx)
+                set particle_vy (array_push particle_vy vy)
+                set particle_life (array_push particle_life 100)
+                
+                set i (+ i 1)
+            }
+        } else {
+            (print "")
+        }
+        
         # Update particles
         let count: int = (array_length particle_x)
         let mut new_x: array<float> = []
@@ -208,22 +264,11 @@ fn main() -> int {
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)
         
-        # Status every 60 frames
-        if (== (% frame 60) 0) {
-            (print "Frame ")
-            (print frame)
-            (print ": ")
-            (print alive_count)
-            (println " particles alive")
-        } else {
-            (print "")
-        }
-        
         set frame (+ frame 1)
     }
     
     (println "")
-    (println "✨ Simulation complete!")
+    (println "✨ Exiting...")
     (print "Total frames: ")
     (println frame)
     (println "")
