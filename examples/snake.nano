@@ -1,17 +1,26 @@
 # SNAKE - Classic Snake Game (Text-based)
 # Tests: Dynamic arrays, collision detection, game logic
+# MODERNIZED: Uses enums for directions, struct for positions
+
+# === ENUMS ===
+enum Direction {
+    UP = 0,
+    RIGHT = 1,
+    DOWN = 2,
+    LEFT = 3
+}
+
+# === STRUCTS ===
+struct Position {
+    x: int,
+    y: int
+}
 
 # === CONSTANTS ===
 let GRID_WIDTH: int = 30
 let GRID_HEIGHT: int = 15
 let INITIAL_LENGTH: int = 3
 let MAX_MOVES: int = 50
-
-# === DIRECTIONS ===
-let DIR_UP: int = 0
-let DIR_RIGHT: int = 1
-let DIR_DOWN: int = 2
-let DIR_LEFT: int = 3
 
 # === GRID OPERATIONS ===
 
@@ -51,16 +60,16 @@ shadow is_valid_pos {
 }
 
 fn move_in_direction(x: int, y: int, dir: int) -> int {
-    if (== dir DIR_UP) {
+    if (== dir Direction.UP) {
         return (- y 1)
     } else {
-        if (== dir DIR_DOWN) {
+        if (== dir Direction.DOWN) {
             return (+ y 1)
         } else {
-            if (== dir DIR_LEFT) {
+            if (== dir Direction.LEFT) {
                 return x
             } else {
-                if (== dir DIR_RIGHT) {
+                if (== dir Direction.RIGHT) {
                     return x
                 } else {
                     return x
@@ -71,7 +80,7 @@ fn move_in_direction(x: int, y: int, dir: int) -> int {
 }
 
 shadow move_in_direction {
-    let y: int = (move_in_direction 5 5 DIR_UP)
+    let y: int = (move_in_direction 5 5 Direction.UP)
     assert (== y 4)
 }
 
@@ -212,7 +221,7 @@ fn main() -> int {
     (println "")
     
     # Initial direction
-    let mut direction: int = DIR_RIGHT
+    let mut direction: int = Direction.RIGHT
     let mut score: int = 0
     let mut moves: int = 0
     let mut game_over: bool = false
@@ -230,16 +239,16 @@ fn main() -> int {
         
         # Decide direction based on food position
         if (< head_x food_x) {
-            set direction DIR_RIGHT
+            set direction Direction.RIGHT
         } else {
             if (> head_x food_x) {
-                set direction DIR_LEFT
+                set direction Direction.LEFT
             } else {
                 if (< head_y food_y) {
-                    set direction DIR_DOWN
+                    set direction Direction.DOWN
                 } else {
                     if (> head_y food_y) {
-                        set direction DIR_UP
+                        set direction Direction.UP
                     } else {
                         (print "")
                     }
@@ -251,16 +260,16 @@ fn main() -> int {
         let mut new_head_x: int = head_x
         let mut new_head_y: int = head_y
         
-        if (== direction DIR_UP) {
+        if (== direction Direction.UP) {
             set new_head_y (- head_y 1)
         } else {
-            if (== direction DIR_DOWN) {
+            if (== direction Direction.DOWN) {
                 set new_head_y (+ head_y 1)
             } else {
-                if (== direction DIR_LEFT) {
+                if (== direction Direction.LEFT) {
                     set new_head_x (- head_x 1)
                 } else {
-                    if (== direction DIR_RIGHT) {
+                    if (== direction Direction.RIGHT) {
                         set new_head_x (+ head_x 1)
                     } else {
                         (print "")
