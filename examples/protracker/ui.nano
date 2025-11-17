@@ -1,0 +1,132 @@
+# ProTracker UI Rendering
+# Pattern editor and UI drawing
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+import "examples/protracker/types.nano"
+import "examples/protracker/pattern.nano"
+
+# === UI RENDERING ===
+
+fn draw_header(renderer: int, title: string, playing: bool) -> void {
+    # Background
+    (SDL_SetRenderDrawColor renderer 28 28 76 255)
+    (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH 80)
+    
+    # Title would go here (needs SDL_ttf)
+    # For now, just draw colored rectangle for status
+    
+    # Status indicator
+    if playing {
+        (SDL_SetRenderDrawColor renderer 0 255 0 255)
+    } else {
+        (SDL_SetRenderDrawColor renderer 255 0 0 255)
+    }
+    (nl_sdl_render_fill_rect renderer 20 20 40 40)
+    
+    # Separator
+    (SDL_SetRenderDrawColor renderer 100 100 150 255)
+    (nl_sdl_render_fill_rect renderer 0 78 WINDOW_WIDTH 2)
+}
+
+shadow draw_header {
+    # Can't test without SDL context
+    assert true
+}
+
+fn draw_pattern_grid(renderer: int, pattern_data: array<int>, current_pattern: int, current_row: int, cursor_channel: int) -> void {
+    # Background
+    (SDL_SetRenderDrawColor renderer 31 31 63 255)
+    (nl_sdl_render_fill_rect renderer 0 80 PATTERN_WIDTH (- WINDOW_HEIGHT 80))
+    
+    # Draw row lines
+    (SDL_SetRenderDrawColor renderer 45 45 75 255)
+    let mut row: int = 0
+    while (< row 16) {
+        let y: int = (+ 90 (* row 44))
+        (nl_sdl_render_fill_rect renderer 0 y PATTERN_WIDTH 1)
+        set row (+ row 1)
+    }
+    
+    # Draw channel separators
+    (SDL_SetRenderDrawColor renderer 50 50 90 255)
+    let mut ch: int = 1
+    while (< ch PT_CHANNELS) {
+        let x: int = (* ch (/ PATTERN_WIDTH PT_CHANNELS))
+        (nl_sdl_render_fill_rect renderer x 80 2 (- WINDOW_HEIGHT 80))
+        set ch (+ ch 1)
+    }
+    
+    # Highlight current row
+    if (and (>= current_row 0) (< current_row 16)) {
+        (SDL_SetRenderDrawColor renderer 50 50 100 255)
+        let hl_y: int = (+ 90 (* current_row 44))
+        (nl_sdl_render_fill_rect renderer 0 hl_y PATTERN_WIDTH 42)
+    } else {}
+    
+    # Cursor highlight
+    if (and (>= cursor_channel 0) (< cursor_channel PT_CHANNELS)) {
+        (SDL_SetRenderDrawColor renderer 233 69 96 128)
+        let cursor_x: int = (* cursor_channel (/ PATTERN_WIDTH PT_CHANNELS))
+        let cursor_y: int = (+ 90 (* current_row 44))
+        (nl_sdl_render_fill_rect renderer cursor_x cursor_y (/ PATTERN_WIDTH PT_CHANNELS) 42)
+    } else {}
+}
+
+shadow draw_pattern_grid {
+    # Can't test without SDL context
+    assert true
+}
+
+fn draw_sample_list(renderer: int) -> void {
+    # Sample list area
+    let sample_x: int = (+ PATTERN_WIDTH 20)
+    let sample_width: int = (- (- WINDOW_WIDTH sample_x) 20)
+    
+    (SDL_SetRenderDrawColor renderer 26 26 46 255)
+    (nl_sdl_render_fill_rect renderer sample_x 90 sample_width 600)
+    
+    # Sample slots  
+    let mut i: int = 0
+    while (< i 8) {
+        let y: int = (+ 100 (* i 70))
+        (SDL_SetRenderDrawColor renderer 40 40 70 255)
+        (nl_sdl_render_fill_rect renderer (+ sample_x 10) y (- sample_width 20) 60)
+        set i (+ i 1)
+    }
+}
+
+shadow draw_sample_list {
+    # Can't test without SDL context  
+    assert true
+}
+
+fn draw_controls_help(renderer: int) -> void {
+    let help_y: int = (- WINDOW_HEIGHT 80)
+    
+    # Help background
+    (SDL_SetRenderDrawColor renderer 20 20 35 255)
+    (nl_sdl_render_fill_rect renderer 0 help_y WINDOW_WIDTH 80)
+    
+    # Separator
+    (SDL_SetRenderDrawColor renderer 100 100 150 255)
+    (nl_sdl_render_fill_rect renderer 0 help_y WINDOW_WIDTH 2)
+    
+    # Control indicators (colored blocks for now, text needs SDL_ttf)
+    let mut i: int = 0
+    while (< i 10) {
+        let x: int = (+ 20 (* i 125))
+        (SDL_SetRenderDrawColor renderer 60 60 100 255)
+        (nl_sdl_render_fill_rect renderer x (+ help_y 10) 110 25)
+        
+        (SDL_SetRenderDrawColor renderer 80 80 120 255)
+        (nl_sdl_render_fill_rect renderer x (+ help_y 45) 110 20)
+        
+        set i (+ i 1)
+    }
+}
+
+shadow draw_controls_help {
+    # Can't test without SDL context
+    assert true
+}

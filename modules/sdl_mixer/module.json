@@ -2,7 +2,7 @@
   "name": "sdl_mixer",
   "version": "1.0.0",
   "description": "Audio mixing and playback for SDL - music and sound effects",
-  "c_sources": ["sdl_mixer_helpers.c"],
+  "c_sources": [],
   "pkg_config": ["SDL2_mixer"],
   "dependencies": ["sdl"]
 }

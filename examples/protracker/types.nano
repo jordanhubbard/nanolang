@@ -1,0 +1,122 @@
+# ProTracker Data Types
+# Core data structures for the tracker
+
+# === ENUMS ===
+
+enum NoteValue {
+    NONE = 0,
+    C1 = 1, CS1 = 2, D1 = 3, DS1 = 4, E1 = 5, F1 = 6,
+    FS1 = 7, G1 = 8, GS1 = 9, A1 = 10, AS1 = 11, B1 = 12,
+    C2 = 13, CS2 = 14, D2 = 15, DS2 = 16, E2 = 17, F2 = 18,
+    FS2 = 19, G2 = 20, GS2 = 21, A2 = 22, AS2 = 23, B2 = 24,
+    C3 = 25, CS3 = 26, D3 = 27, DS3 = 28, E3 = 29, F3 = 30,
+    FS3 = 31, G3 = 32, GS3 = 33, A3 = 34, AS3 = 35, B3 = 36
+}
+
+enum EffectType {
+    NONE = 0,
+    ARPEGGIO = 1,
+    PORTA_UP = 2,
+    PORTA_DOWN = 3,
+    PORTA_NOTE = 4,
+    VIBRATO = 5,
+    TREMOLO = 7,
+    VOLUME = 12,
+    BREAK = 13,
+    SPEED = 15
+}
+
+enum PlayState {
+    STOPPED = 0,
+    PLAYING = 1,
+    PAUSED = 2
+}
+
+# === CONSTANTS ===
+
+# ProTracker standard values
+let PT_CHANNELS: int = 4
+let PT_PATTERNS: int = 64
+let PT_ROWS: int = 64
+let PT_SAMPLES: int = 31
+
+# Display constants
+let WINDOW_WIDTH: int = 1280
+let WINDOW_HEIGHT: int = 800
+let PATTERN_WIDTH: int = 320
+let SAMPLE_HEIGHT: int = 100
+
+# Colors (decimal, not hex)
+let COLOR_BACKGROUND: int = 1710618      # 0x1A1A2A
+let COLOR_PATTERN_BG: int = 2039583      # 0x1F1F3F  
+let COLOR_CURSOR: int = 15287648         # 0xE94560
+let COLOR_TEXT: int = 14540253           # 0xDDDDDD
+let COLOR_HEADER: int = 2894892          # 0x2C2C4C
+
+# === HELPER FUNCTIONS ===
+
+fn note_to_period(note: int) -> int {
+    # Amiga period table for notes
+    # C-1 = 856, C-2 = 428, C-3 = 214, etc.
+    if (== note 0) {
+        return 0
+    } else {
+        if (<= note 12) {
+            # Octave 1 - approximate
+            return (/ 856 note)
+        } else {
+            if (<= note 24) {
+                # Octave 2
+                return (/ 856 (* (- note 12) 2))
+            } else {
+                # Octave 3
+                return (/ 856 (* (- note 24) 4))
+            }
+        }
+    }
+}
+
+shadow note_to_period {
+    assert (== (note_to_period 0) 0)
+    assert (> (note_to_period 1) 0)
+}
+
+fn note_name(note: int) -> string {
+    if (== note NoteValue.C1) { return "C-1" } else {
+    if (== note NoteValue.CS1) { return "C#1" } else {
+    if (== note NoteValue.D1) { return "D-1" } else {
+    if (== note NoteValue.DS1) { return "D#1" } else {
+    if (== note NoteValue.E1) { return "E-1" } else {
+    if (== note NoteValue.F1) { return "F-1" } else {
+    if (== note NoteValue.FS1) { return "F#1" } else {
+    if (== note NoteValue.G1) { return "G-1" } else {
+    if (== note NoteValue.GS1) { return "G#1" } else {
+    if (== note NoteValue.A1) { return "A-1" } else {
+    if (== note NoteValue.AS1) { return "A#1" } else {
+    if (== note NoteValue.B1) { return "B-1" } else {
+        return "---"
+    }}}}}}}}}}}}
+}
+
+shadow note_name {
+    assert (== (note_name 0) "---")
+    assert (== (note_name NoteValue.C1) "C-1")
+    assert (== (note_name NoteValue.CS1) "C#1")
+}
+
+fn effect_name(effect: int) -> string {
+    if (== effect EffectType.NONE) { return "---" } else {
+    if (== effect EffectType.ARPEGGIO) { return "ARP" } else {
+    if (== effect EffectType.PORTA_UP) { return "PUP" } else {
+    if (== effect EffectType.PORTA_DOWN) { return "PDN" } else {
+    if (== effect EffectType.VIBRATO) { return "VIB" } else {
+    if (== effect EffectType.VOLUME) { return "VOL" } else {
+    if (== effect EffectType.SPEED) { return "SPD" } else {
+        return "???"
+    }}}}}}}
+}
+
+shadow effect_name {
+    assert (== (effect_name 0) "---")
+    assert (== (effect_name EffectType.ARPEGGIO) "ARP")
+}

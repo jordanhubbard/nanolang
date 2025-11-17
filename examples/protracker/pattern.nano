@@ -1,0 +1,103 @@
+# ProTracker Pattern Editor
+# Pattern data management and editing
+
+import "examples/protracker/types.nano"
+
+# === PATTERN DATA STRUCTURE ===
+
+# Pattern data: flat array of [note, sample, effect, param]
+# Index: (pattern * PT_CHANNELS * PT_ROWS * 4) + (channel * PT_ROWS * 4) + (row * 4) + component
+
+fn pattern_index(pattern: int, channel: int, row: int, component: int) -> int {
+    let pattern_size: int = (* (* PT_CHANNELS PT_ROWS) 4)
+    let pattern_offset: int = (* pattern pattern_size)
+    let channel_size: int = (* PT_ROWS 4)
+    let channel_offset: int = (* channel channel_size)
+    let row_offset: int = (* row 4)
+    return (+ (+ (+ pattern_offset channel_offset) row_offset) component)
+}
+
+shadow pattern_index {
+    assert (== (pattern_index 0 0 0 0) 0)
+    assert (== (pattern_index 0 0 0 1) 1)
+    assert (> (pattern_index 1 0 0 0) 0)
+}
+
+# Initialize empty pattern data
+fn create_pattern_data() -> array<int> {
+    let total_size: int = (* (* (* PT_PATTERNS PT_CHANNELS) PT_ROWS) 4)
+    let mut data: array<int> = []
+    let mut i: int = 0
+    while (< i total_size) {
+        set data (array_push data 0)
+        set i (+ i 1)
+    }
+    return data
+}
+
+shadow create_pattern_data {
+    let data: array<int> = (create_pattern_data)
+    let size: int = (array_length data)
+    let expected: int = (* (* (* PT_PATTERNS PT_CHANNELS) PT_ROWS) 4)
+    assert (== size expected)
+}
+
+# Get note at position
+fn get_note(data: array<int>, pattern: int, channel: int, row: int) -> int {
+    let idx: int = (pattern_index pattern channel row 0)
+    return (at data idx)
+}
+
+shadow get_note {
+    let data: array<int> = (create_pattern_data)
+    assert (== (get_note data 0 0 0) 0)
+}
+
+# Get sample at position
+fn get_sample(data: array<int>, pattern: int, channel: int, row: int) -> int {
+    let idx: int = (pattern_index pattern channel row 1)
+    return (at data idx)
+}
+
+shadow get_sample {
+    let data: array<int> = (create_pattern_data)
+    assert (== (get_sample data 0 0 0) 0)
+}
+
+# Get effect at position
+fn get_effect(data: array<int>, pattern: int, channel: int, row: int) -> int {
+    let idx: int = (pattern_index pattern channel row 2)
+    return (at data idx)
+}
+
+shadow get_effect {
+    let data: array<int> = (create_pattern_data)
+    assert (== (get_effect data 0 0 0) 0)
+}
+
+# Get effect parameter at position
+fn get_param(data: array<int>, pattern: int, channel: int, row: int) -> int {
+    let idx: int = (pattern_index pattern channel row 3)
+    return (at data idx)
+}
+
+shadow get_param {
+    let data: array<int> = (create_pattern_data)
+    assert (== (get_param data 0 0 0) 0)
+}
+
+# Create demo pattern with C major scale
+fn create_demo_pattern() -> array<int> {
+    let mut data: array<int> = (create_pattern_data)
+    
+    # Add C major scale in channel 0
+    # This would use array_set if it worked properly with mutable arrays
+    # For now, just return empty pattern
+    
+    return data
+}
+
+shadow create_demo_pattern {
+    let data: array<int> = (create_demo_pattern)
+    assert (> (array_length data) 0)
+}
