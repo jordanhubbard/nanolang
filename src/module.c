@@ -13,6 +13,57 @@
 char *mkdtemp(char *template);
 #endif
 
+/* Module cache to prevent duplicate imports */
+typedef struct {
+    char **loaded_paths;
+    int count;
+    int capacity;
+} ModuleCache;
+
+static ModuleCache *module_cache = NULL;
+
+static void init_module_cache(void) {
+    if (!module_cache) {
+        module_cache = malloc(sizeof(ModuleCache));
+        module_cache->count = 0;
+        module_cache->capacity = 16;
+        module_cache->loaded_paths = malloc(sizeof(char*) * module_cache->capacity);
+    }
+}
+
+static bool is_module_cached(const char *module_path) {
+    if (!module_cache) return false;
+    for (int i = 0; i < module_cache->count; i++) {
+        if (strcmp(module_cache->loaded_paths[i], module_path) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void cache_module(const char *module_path) {
+    init_module_cache();
+    if (is_module_cached(module_path)) return;
+    
+    if (module_cache->count >= module_cache->capacity) {
+        module_cache->capacity *= 2;
+        module_cache->loaded_paths = realloc(module_cache->loaded_paths, 
+                                             sizeof(char*) * module_cache->capacity);
+    }
+    module_cache->loaded_paths[module_cache->count++] = strdup(module_path);
+}
+
+void clear_module_cache(void) {
+    if (module_cache) {
+        for (int i = 0; i < module_cache->count; i++) {
+            free(module_cache->loaded_paths[i]);
+        }
+        free(module_cache->loaded_paths);
+        free(module_cache);
+        module_cache = NULL;
+    }
+}
+
 /* Create a new module list */
 ModuleList *create_module_list(void) {
     ModuleList *list = malloc(sizeof(ModuleList));
@@ -286,8 +337,19 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
 }
 
 /* Load and parse a module file */
-ASTNode *load_module(const char *module_path, Environment *env) {
+static ASTNode *load_module_internal(const char *module_path, Environment *env, bool use_cache) {
     if (!module_path) return NULL;
+    
+    /* Check if module is already loaded (only if using cache) */
+    if (use_cache && is_module_cached(module_path)) {
+        /* Module already loaded - skip to avoid duplicate definitions */
+        return NULL;  /* NULL means "already loaded, skip processing" */
+    }
+    
+    /* Mark module as loading to prevent circular imports (only if using cache) */
+    if (use_cache) {
+        cache_module(module_path);
+    }
     
     /* Read source file */
     FILE *file = fopen(module_path, "r");
@@ -344,6 +406,11 @@ ASTNode *load_module(const char *module_path, Environment *env) {
     free_tokens(tokens, token_count);
     free(source);
     return module_ast;
+}
+
+/* Public wrapper for load_module that uses cache */
+ASTNode *load_module(const char *module_path, Environment *env) {
+    return load_module_internal(module_path, env, true);
 }
 
 /* Load module from a package file */
@@ -467,7 +534,9 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 module_ast = load_module(module_path, env);
             }
             
-            if (!module_ast) {
+            /* NULL return means module was already loaded - this is OK */
+            if (module_ast == NULL && !is_module_cached(module_path)) {
+                /* Only error if module wasn't cached (i.e., actual failure) */
                 fprintf(stderr, "Error at line %d, column %d: Failed to load module '%s'\n",
                         item->line, item->column, module_path);
                 free(module_path);
@@ -477,6 +546,12 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 }
                 free(unpacked_dirs);
                 return false;
+            }
+            
+            /* If module was already cached, skip processing */
+            if (module_ast == NULL) {
+                free(module_path);
+                continue;
             }
             
             /* Add to module list */
@@ -539,13 +614,25 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     /* Create a separate environment for module compilation to avoid symbol conflicts */
     Environment *module_env = create_environment();
     
+    /* Clear cache temporarily - each module compilation gets fresh environment */
+    /* But we want dependencies to load properly, so we'll save and restore */
+    ModuleCache *saved_cache = module_cache;
+    module_cache = NULL;  /* Start with clean cache for this compilation */
+    
     /* Load and type-check the module */
     ASTNode *module_ast = load_module(module_path, module_env);
     if (!module_ast) {
         fprintf(stderr, "Error: Failed to load module '%s' for compilation\n", module_path);
         free_environment(module_env);
+        /* Restore cache */
+        clear_module_cache();
+        module_cache = saved_cache;
         return false;
     }
+    
+    /* Clean up local cache and restore original */
+    clear_module_cache();
+    module_cache = saved_cache;
     
     /* Extract module metadata before transpiling */
     const char *last_slash = strrchr(module_path, '/');
