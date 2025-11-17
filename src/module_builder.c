@@ -196,6 +196,7 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
         } \
     } while(0)
 
+    PARSE_STRING_ARRAY("headers", headers, headers_count);
     PARSE_STRING_ARRAY("c_sources", c_sources, c_sources_count);
     PARSE_STRING_ARRAY("system_libs", system_libs, system_libs_count);
     PARSE_STRING_ARRAY("pkg_config", pkg_config, pkg_config_count);
@@ -227,6 +228,7 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
         free(meta->arr); \
     } while(0)
 
+    FREE_STRING_ARRAY(headers, headers_count);
     FREE_STRING_ARRAY(c_sources, c_sources_count);
     FREE_STRING_ARRAY(system_libs, system_libs_count);
     FREE_STRING_ARRAY(pkg_config, pkg_config_count);

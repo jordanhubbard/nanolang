@@ -1,6 +1,0 @@
-{
-  "name": "ui",
-  "version": "1.0.0",
-  "description": "ProTracker UI rendering",
-  "headers": ["SDL.h"]
-}
