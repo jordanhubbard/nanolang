@@ -17,6 +17,9 @@ typedef struct {
     char **headers;
     size_t headers_count;
     
+    // Header priority (higher = included first, default = 0)
+    int header_priority;
+    
     // C sources to compile
     char **c_sources;
     size_t c_sources_count;

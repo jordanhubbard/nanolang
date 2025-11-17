@@ -97,6 +97,38 @@ nanolang/
 └── src/                        # Source code
 ```
 
+## Compiler Architecture Rules
+
+### Transpiler Module Independence
+
+**The transpiler (`src/transpiler.c`) MUST remain module-agnostic.**
+
+- **NO module-specific code**: The transpiler should never contain special cases for specific modules (SDL, OpenGL, GLEW, etc.)
+- **Generic module loading only**: Only generic code for loading module metadata and headers is allowed
+- **Module behavior via metadata**: All module-specific behavior (header order, dependencies, special flags) must be expressed through `module.json` metadata
+- **No hardcoded module names**: Never check for specific module names in transpiler code
+
+**Why this matters:**
+- Keeps the transpiler maintainable and extensible
+- Allows new modules to be added without modifying core compiler code
+- Enforces separation of concerns between compiler infrastructure and module ecosystem
+- Makes the module system truly pluggable
+
+**Examples:**
+
+❌ **BAD - Module-specific code in transpiler:**
+```c
+if (strcmp(module_name, "glew") == 0) {
+    sb_append(sb, "#include <GL/glew.h>\n");
+}
+```
+
+✅ **GOOD - Generic module loading with priority:**
+```c
+// Sort headers by priority from module.json metadata
+// Generic implementation that works for any module
+```
+
 ## Enforcement
 
 - Before committing changes, verify:
@@ -106,6 +138,7 @@ nanolang/
   4. Durable tests are in `tests/`
   5. Temporary test files are removed
   6. `docs/DOCS_INDEX.md` is updated if docs changed
+  7. **Transpiler contains no module-specific code**
 
 ## Examples
 

@@ -117,32 +117,50 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
 static TupleTypeRegistry *g_tuple_registry = NULL;
 
 /* Global header collection - gathered from imported modules */
-static char **g_module_headers = NULL;
+typedef struct {
+    char *name;
+    int priority;  /* Higher priority = included first */
+} ModuleHeader;
+
+static ModuleHeader *g_module_headers = NULL;
 static size_t g_module_headers_count = 0;
 static size_t g_module_headers_capacity = 0;
 
-static void add_module_header(const char *header) {
+static void add_module_header(const char *header, int priority) {
     if (!header) return;
     
     /* Check if already added */
     for (size_t i = 0; i < g_module_headers_count; i++) {
-        if (strcmp(g_module_headers[i], header) == 0) {
-            return;  /* Already in list */
+        if (strcmp(g_module_headers[i].name, header) == 0) {
+            /* Update priority if higher */
+            if (priority > g_module_headers[i].priority) {
+                g_module_headers[i].priority = priority;
+            }
+            return;
         }
     }
     
     /* Expand capacity if needed */
     if (g_module_headers_count >= g_module_headers_capacity) {
         g_module_headers_capacity = g_module_headers_capacity == 0 ? 8 : g_module_headers_capacity * 2;
-        g_module_headers = realloc(g_module_headers, sizeof(char*) * g_module_headers_capacity);
+        g_module_headers = realloc(g_module_headers, sizeof(ModuleHeader) * g_module_headers_capacity);
     }
     
-    g_module_headers[g_module_headers_count++] = strdup(header);
+    g_module_headers[g_module_headers_count].name = strdup(header);
+    g_module_headers[g_module_headers_count].priority = priority;
+    g_module_headers_count++;
+}
+
+/* Compare function for qsort - higher priority first */
+static int compare_headers_by_priority(const void *a, const void *b) {
+    const ModuleHeader *ha = (const ModuleHeader *)a;
+    const ModuleHeader *hb = (const ModuleHeader *)b;
+    return hb->priority - ha->priority;  /* Descending order */
 }
 
 static void clear_module_headers(void) {
     for (size_t i = 0; i < g_module_headers_count; i++) {
-        free(g_module_headers[i]);
+        free(g_module_headers[i].name);
     }
     free(g_module_headers);
     g_module_headers = NULL;
@@ -161,7 +179,7 @@ static void collect_headers_from_module(const char *module_path) {
     ModuleBuildMetadata *meta = module_load_metadata(dir);
     if (meta && meta->headers) {
         for (size_t i = 0; i < meta->headers_count; i++) {
-            add_module_header(meta->headers[i]);
+            add_module_header(meta->headers[i], meta->header_priority);
         }
         module_metadata_free(meta);
     }
@@ -1530,9 +1548,14 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     
     /* Include headers from imported modules (generic C library support) */
     if (g_module_headers_count > 0) {
-        sb_append(sb, "\n/* Headers from imported modules */\n");
+        /* Sort headers by priority (highest first) */
+        qsort(g_module_headers, g_module_headers_count, sizeof(ModuleHeader), compare_headers_by_priority);
+        
+        sb_append(sb, "\n/* Headers from imported modules (sorted by priority) */\n");
         for (size_t i = 0; i < g_module_headers_count; i++) {
-            sb_appendf(sb, "#include <%s>\n", g_module_headers[i]);
+            sb_appendf(sb, "#include <%s>  /* priority: %d */\n", 
+                       g_module_headers[i].name, 
+                       g_module_headers[i].priority);
         }
     }
     

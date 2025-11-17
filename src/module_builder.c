@@ -207,6 +207,14 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
 
     #undef PARSE_STRING_ARRAY
 
+    // Parse header_priority (default = 0)
+    cJSON *header_priority = cJSON_GetObjectItem(json, "header_priority");
+    if (header_priority && cJSON_IsNumber(header_priority)) {
+        meta->header_priority = header_priority->valueint;
+    } else {
+        meta->header_priority = 0;  // Default priority
+    }
+
     meta->module_dir = strdup(module_dir);
 
     cJSON_Delete(json);
