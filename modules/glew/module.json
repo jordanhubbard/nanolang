@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "GLEW - OpenGL Extension Wrangler for loading OpenGL functions and extensions",
   "headers": ["GL/glew.h"],
+  "header_priority": 1000,
   "pkg_config": ["glew"],
   "ldflags": ["-framework", "OpenGL"],
   "install": {
@@ -14,7 +15,6 @@
       "apt": "libglew-dev",
       "command": "sudo apt install libglew-dev"
     }
-  },
-  "dependencies": ["glfw"]
+  }
 }
 

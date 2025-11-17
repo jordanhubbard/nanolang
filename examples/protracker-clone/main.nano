@@ -163,30 +163,28 @@ fn main() -> int {
         # Check for ESC or window close handled above
         # nl_sdl_should_quit function doesn't exist, handled by ESC key
         
-        # Update playback with demo
+        # Update playback - read pattern and trigger notes
         if playing {
             set frame (+ frame 1)
-            set demo_tick (+ demo_tick 1)
-            
-            # Demo: Trigger C major scale every 20 frames
-            let note_trigger: int = (/ demo_tick 20)
-            let in_note: int = (% demo_tick 20)
-            if (== in_note 0) {
-                let scale_note: int = (% note_trigger 8)
-                # C major: C-2(13), D-2(15), E-2(17), F-2(18), G-2(20), A-2(22), B-2(24), C-3(25)
-                if (== scale_note 0) { (trigger_note 0 13 1 64) } else {
-                if (== scale_note 1) { (trigger_note 0 15 1 64) } else {
-                if (== scale_note 2) { (trigger_note 0 17 1 64) } else {
-                if (== scale_note 3) { (trigger_note 0 18 1 64) } else {
-                if (== scale_note 4) { (trigger_note 0 20 1 64) } else {
-                if (== scale_note 5) { (trigger_note 0 22 1 64) } else {
-                if (== scale_note 6) { (trigger_note 0 24 1 64) } else {
-                if (== scale_note 7) { (trigger_note 0 25 1 64) } else {
-                }}}}}}}}
-            } else {}
             
             if (>= frame 6) {  # ~10 rows/second at 60 FPS
                 set frame 0
+                
+                # Read notes from pattern at current row and trigger them
+                let mut chan: int = 0
+                while (< chan PT_CHANNELS) {
+                    let note: int = (get_note pattern_data current_pattern chan current_row)
+                    let sample: int = (get_sample pattern_data current_pattern chan current_row)
+                    
+                    # Trigger note if present (note > 0)
+                    if (> note 0) {
+                        (trigger_note chan note sample 64)
+                    } else {}
+                    
+                    set chan (+ chan 1)
+                }
+                
+                # Advance to next row
                 set current_row (+ current_row 1)
                 if (>= current_row PT_ROWS) {
                     set current_row 0
