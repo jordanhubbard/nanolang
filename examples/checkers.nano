@@ -7,25 +7,44 @@
 # - Visual feedback (selection highlighting)
 # - Game over detection and display
 # - Piece rendering with kings shown as gold circles
+# MODERNIZED: Uses enums, structs, top-level constants!
 
 import "modules/sdl/sdl.nano"
 import "sdl_helpers.nano"
 
-# Piece Type Constants (used as inline literals with comments):
-# EMPTY = 0
-# RED_PIECE = 1
-# RED_KING = 2
-# BLACK_PIECE = 3
-# BLACK_KING = 4
+# === ENUMS ===
+enum PieceType {
+    EMPTY = 0,
+    RED_PIECE = 1,
+    RED_KING = 2,
+    BLACK_PIECE = 3,
+    BLACK_KING = 4
+}
 
-# Game State Constants:
-# PLAYER_TURN = 0
-# AI_TURN = 1
-# GAME_OVER = 2
+enum GameState {
+    PLAYER_TURN = 0,
+    AI_TURN = 1,
+    GAME_OVER = 2
+}
+
+# === STRUCTS ===
+struct Position {
+    row: int,
+    col: int
+}
+
+# === CONSTANTS ===
+let BOARD_SIZE: int = 8
+let SQUARE_SIZE: int = 80
+let STATUS_HEIGHT: int = 60
+let SDL_INIT_VIDEO: int = 32
+let SDL_WINDOWPOS_UNDEFINED: int = 536805376
+let SDL_WINDOW_SHOWN: int = 4
+let SDL_RENDERER_ACCELERATED: int = 2
 
 # Helper Functions for Board Access
 fn board_index(row: int, col: int) -> int {
-    let board_size: int = 8
+    let board_size: int = BOARD_SIZE
     return (+ (* row board_size) col)
 }
 
@@ -73,7 +92,7 @@ shadow board_set {
 
 # Position validation
 fn is_valid_pos(row: int, col: int) -> bool {
-    let board_size: int = 8
+    let board_size: int = BOARD_SIZE
     return (and (and (>= row 0) (< row board_size))
                 (and (>= col 0) (< col board_size)))
 }
@@ -126,7 +145,7 @@ shadow is_king {
 
 # Initialize board
 fn init_board() -> array<int> {
-    let board_size: int = 8
+    let board_size: int = BOARD_SIZE
     let mut board: array<int> = [0, 0, 0, 0, 0, 0, 0, 0,
                                   0, 0, 0, 0, 0, 0, 0, 0,
                                   0, 0, 0, 0, 0, 0, 0, 0,
@@ -331,7 +350,7 @@ shadow has_jump_from_pos {
 
 # Check if any jumps available for current player
 fn has_any_jump(board: array<int>, game_state: int) -> bool {
-    let board_size: int = 8
+    let board_size: int = BOARD_SIZE
     let mut i: int = 0
     while (< i board_size) {
         let mut j: int = 0
@@ -377,8 +396,8 @@ shadow draw_circle {
 # Draw simple text using filled rectangles (pixel-style)
 # For game over screen - we'll draw message centered
 fn draw_game_over_screen(renderer: int, player_won: bool) -> void {
-    let board_size: int = 8
-    let square_size: int = 80
+    let board_size: int = BOARD_SIZE
+    let square_size: int = SQUARE_SIZE
     let window_width: int = (* board_size square_size)
     let board_height: int = (* board_size square_size)
     
@@ -592,8 +611,8 @@ shadow draw_game_over_screen {
 
 # Check if click is on quit button
 fn is_quit_button_click(x: int, y: int) -> bool {
-    let board_size: int = 8
-    let square_size: int = 80
+    let board_size: int = BOARD_SIZE
+    let square_size: int = SQUARE_SIZE
     let window_width: int = (* board_size square_size)
     let button_width: int = 150
     let button_height: int = 50
@@ -614,8 +633,8 @@ shadow is_quit_button_click {
 
 # Check if click is on play again button
 fn is_play_again_button_click(x: int, y: int) -> bool {
-    let board_size: int = 8
-    let square_size: int = 80
+    let board_size: int = BOARD_SIZE
+    let square_size: int = SQUARE_SIZE
     let window_width: int = (* board_size square_size)
     let button_width: int = 150
     let button_height: int = 50
@@ -636,8 +655,8 @@ shadow is_play_again_button_click {
 
 # Render the game board
 fn render_board(renderer: int, board: array<int>, selected_row: int, selected_col: int, has_selection: bool) -> void {
-    let board_size: int = 8
-    let square_size: int = 80
+    let board_size: int = BOARD_SIZE
+    let square_size: int = SQUARE_SIZE
     
     # Clear screen (light gray)
                 (SDL_SetRenderDrawColor renderer 240 240 240 255)
@@ -743,7 +762,7 @@ shadow decode_move_to_col {
 
 # Simplified AI: find first available move (jumps prioritized)
 fn find_ai_move(board: array<int>, game_state: int) -> int {
-    let board_size: int = 8
+    let board_size: int = BOARD_SIZE
     
     # First check for jumps (mandatory)
     let mut i: int = 0
@@ -809,7 +828,7 @@ shadow find_ai_move {
 
 # Count remaining pieces
 fn count_player_pieces(board: array<int>) -> int {
-    let board_size: int = 8
+    let board_size: int = BOARD_SIZE
     let mut count: int = 0
     let mut i: int = 0
     while (< i board_size) {
@@ -831,7 +850,7 @@ shadow count_player_pieces {
 }
 
 fn count_ai_pieces(board: array<int>) -> int {
-    let board_size: int = 8
+    let board_size: int = BOARD_SIZE
     let mut count: int = 0
     let mut i: int = 0
     while (< i board_size) {
@@ -854,7 +873,7 @@ shadow count_ai_pieces {
 
 # Execute a move on the board
 fn make_move(board: array<int>, from_row: int, from_col: int, to_row: int, to_col: int) -> array<int> {
-    let board_size: int = 8
+    let board_size: int = BOARD_SIZE
     let mut new_board: array<int> = board
     let piece: int = (board_get new_board from_row from_col)
     
@@ -894,14 +913,14 @@ fn main() -> int {
     (println "Starting Checkers - Full Version...")
     
     # SDL constants
-    let sdl_init_video: int = 32
-    let sdl_windowpos_undefined: int = 536805376
-    let sdl_window_shown: int = 4
-    let sdl_renderer_accelerated: int = 2
+    let sdl_init_video: int = SDL_INIT_VIDEO
+    let sdl_windowpos_undefined: int = SDL_WINDOWPOS_UNDEFINED
+    let sdl_window_shown: int = SDL_WINDOW_SHOWN
+    let sdl_renderer_accelerated: int = SDL_RENDERER_ACCELERATED
     
     # Window dimensions
-    let board_size: int = 8
-    let square_size: int = 80
+    let board_size: int = BOARD_SIZE
+    let square_size: int = SQUARE_SIZE
     let window_width: int = (* board_size square_size)
     let window_height: int = (+ (* board_size square_size) 60)
     
