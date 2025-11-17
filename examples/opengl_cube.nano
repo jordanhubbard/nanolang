@@ -52,11 +52,12 @@ fn draw_cube(rotation: float) -> void {
     # Reset modelview matrix
     (glLoadIdentity)
     
-    # Move cube away from camera
+    # Move cube away from camera (same as teapot)
     (glTranslatef 0.0 0.0 -5.0)
     
-    # Rotate cube
-    (glRotatef rotation 1.0 0.5 0.0)
+    # Rotate cube on two axes like teapot
+    (glRotatef rotation 0.0 1.0 0.0)
+    (glRotatef (* rotation 0.5) 1.0 0.0 0.0)
     
     # Draw cube with colored faces
     (glBegin GL_QUADS)
@@ -144,10 +145,13 @@ fn main() -> int {
     
     # Set up OpenGL
     (setup_opengl)
+    
+    # Set clear color (dark blue background)
     (glClearColor 0.1 0.1 0.15 1.0)
     
-    (println "✓ OpenGL ready")
+    (println "✓ OpenGL ready - rendering cube")
     (println "Press ESC to exit")
+    (println "If you see a black screen, GLEW might not be loading GL functions correctly")
     (println "")
     
     # Animation state
@@ -156,10 +160,10 @@ fn main() -> int {
     
     # Main loop
     while (== (glfwWindowShouldClose window) 0) {
-        # Update rotation
-        set rotation (+ rotation 1.0)
+        # Update rotation (same speed as teapot)
+        set rotation (+ rotation 0.8)
         if (>= rotation 360.0) {
-            set rotation 0.0
+            set rotation (- rotation 360.0)
         } else {}
         
         # Draw scene
