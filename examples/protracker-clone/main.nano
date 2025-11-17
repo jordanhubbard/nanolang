@@ -178,9 +178,10 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer 26 26 42 255)
         (SDL_RenderClear renderer)
         
-        (draw_header renderer "ProTracker Clone" playing)
+        # Draw enhanced UI
+        (draw_status_bar renderer)
+        (draw_all_channels renderer)
         (draw_pattern_grid renderer pattern_data current_pattern current_row cursor_channel)
-        (draw_sample_list renderer)
         (draw_controls_help renderer)
         
         (SDL_RenderPresent renderer)
