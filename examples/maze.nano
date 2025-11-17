@@ -1,12 +1,17 @@
 # MAZE GENERATOR & SOLVER
 # Demonstrates: Recursive algorithms, pathfinding, backtracking
+# MODERNIZED: Uses enums for type-safe cell states
+
+# === ENUMS ===
+enum CellState {
+    PATH = 0,
+    WALL = 1,
+    VISITED = 2
+}
 
 # === CONSTANTS ===
 let MAZE_WIDTH: int = 25
 let MAZE_HEIGHT: int = 15
-let WALL: int = 1
-let PATH: int = 0
-let VISITED: int = 2
 
 # === GRID OPS ===
 
@@ -19,18 +24,18 @@ shadow grid_index {
     assert (== (grid_index 5 2 10) 25)
 }
 
-fn grid_get(grid: array<int>, x: int, y: int, width: int, height: int) -> int {
+fn grid_get(grid: array<int>, x: int, y: int, width: int, height: int) -> CellState {
     if (< x 0) {
-        return WALL
+        return CellState.WALL
     } else {
         if (>= x width) {
-            return WALL
+            return CellState.WALL
         } else {
             if (< y 0) {
-                return WALL
+                return CellState.WALL
             } else {
                 if (>= y height) {
-                    return WALL
+                    return CellState.WALL
                 } else {
                     let idx: int = (grid_index x y width)
                     return (at grid idx)
@@ -53,7 +58,7 @@ fn print_maze(maze: array<int>, width: int, height: int, path_x: array<int>, pat
     while (< y height) {
         let mut x: int = 0
         while (< x width) {
-            let cell: int = (grid_get maze x y width height)
+            let cell: CellState = (grid_get maze x y width height)
             
             # Check if this is on the solution path
             let mut on_path: bool = false
@@ -74,7 +79,7 @@ fn print_maze(maze: array<int>, width: int, height: int, path_x: array<int>, pat
             if on_path {
                 (print "•")
             } else {
-                if (== cell WALL) {
+                if (== cell CellState.WALL) {
                     (print "█")
                 } else {
                     (print " ")
@@ -108,28 +113,28 @@ fn generate_maze(width: int, height: int) -> array<int> {
         let y_coord: int = (/ i width)
         
         # Create border walls and some interior walls
-        let mut cell_val: int = PATH
+        let mut cell_val: CellState = CellState.PATH
         
         # Borders are walls
         if (== x 0) {
-            set cell_val WALL
+            set cell_val CellState.WALL
         } else {
             if (== x (- width 1)) {
-                set cell_val WALL
+                set cell_val CellState.WALL
             } else {
                 if (== y_coord 0) {
-                    set cell_val WALL
+                    set cell_val CellState.WALL
                 } else {
                     if (== y_coord (- height 1)) {
-                        set cell_val WALL
+                        set cell_val CellState.WALL
                     } else {
                         # Create pattern of walls
                         let sum: int = (+ x y_coord)
                         if (== (% sum 5) 0) {
-                            set cell_val WALL
+                            set cell_val CellState.WALL
                         } else {
                             if (== (% (* x 3) 7) 0) {
-                                set cell_val WALL
+                                set cell_val CellState.WALL
                             } else {
                                 (print "")
                             }
@@ -184,7 +189,7 @@ fn find_path(maze: array<int>, start_x: int, start_y: int, end_x: int, end_y: in
         # Try right
         if (< current_x end_x) {
             let next_x: int = (+ current_x 1)
-            if (== (grid_get maze next_x current_y width height) PATH) {
+            if (== (grid_get maze next_x current_y width height) CellState.PATH) {
                 set current_x next_x
                 set moved true
             } else {
@@ -198,7 +203,7 @@ fn find_path(maze: array<int>, start_x: int, start_y: int, end_x: int, end_y: in
         if (not moved) {
             if (< current_y end_y) {
                 let next_y: int = (+ current_y 1)
-                if (== (grid_get maze current_x next_y width height) PATH) {
+                if (== (grid_get maze current_x next_y width height) CellState.PATH) {
                     set current_y next_y
                     set moved true
                 } else {
@@ -215,7 +220,7 @@ fn find_path(maze: array<int>, start_x: int, start_y: int, end_x: int, end_y: in
         if (not moved) {
             if (> current_x end_x) {
                 let next_x: int = (- current_x 1)
-                if (== (grid_get maze next_x current_y width height) PATH) {
+                if (== (grid_get maze next_x current_y width height) CellState.PATH) {
                     set current_x next_x
                     set moved true
                 } else {
@@ -232,7 +237,7 @@ fn find_path(maze: array<int>, start_x: int, start_y: int, end_x: int, end_y: in
         if (not moved) {
             if (> current_y end_y) {
                 let next_y: int = (- current_y 1)
-                if (== (grid_get maze current_x next_y width height) PATH) {
+                if (== (grid_get maze current_x next_y width height) CellState.PATH) {
                     set current_y next_y
                     set moved true
                 } else {
@@ -321,12 +326,16 @@ fn main() -> int {
     (println "║        MAZE COMPLETE ✓                    ║")
     (println "╚════════════════════════════════════════════╝")
     (println "")
-    (println "✅ FEATURES DEMONSTRATED:")
+    (println "✅ MODERN FEATURES USED:")
+    (println "  • Enums (CellState.WALL, PATH, VISITED)")
+    (println "  • Top-level constants (MAZE_WIDTH, etc.)")
+    (println "  • Dynamic arrays (GC-managed)")
+    (println "  • Type-safe cell states")
+    (println "")
+    (println "✅ ALGORITHMS DEMONSTRATED:")
     (println "  • Procedural maze generation")
-    (println "  • Grid-based algorithms")
-    (println "  • Pathfinding (greedy best-first)")
-    (println "  • Complex conditional logic")
-    (println "  • Dynamic array building")
+    (println "  • Greedy best-first pathfinding")
+    (println "  • Grid-based data structures")
     (println "  • 2D coordinate systems")
     (println "")
     (println "🗺️ Maze solved successfully!")
