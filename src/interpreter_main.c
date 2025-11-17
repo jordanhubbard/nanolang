@@ -109,23 +109,40 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
     }
     if (opts->verbose) printf("✓ Interpretation complete\n");
 
-    /* Phase 5: Call specified function if requested */
+    /* Phase 6: Call main() or specified function */
     int exit_code = 0;
-    if (opts->call_function) {
-        Function *func = env_get_function(env, opts->call_function);
+    const char *func_to_call = opts->call_function ? opts->call_function : "main";
+    bool should_call_function = opts->call_function != NULL;
+    
+    /* If no explicit --call, check if main() exists */
+    if (!opts->call_function) {
+        Function *main_func = env_get_function(env, "main");
+        should_call_function = (main_func != NULL);
+    }
+    
+    if (should_call_function) {
+        Function *func = env_get_function(env, func_to_call);
         if (!func) {
-            fprintf(stderr, "Error: Function '%s' not found\n", opts->call_function);
-            free_ast(program);
-            free_tokens(tokens, token_count);
-            free_environment(env);
-            free(source);
-            return 1;
+            if (opts->call_function) {
+                /* Only error if explicitly requested via --call */
+                fprintf(stderr, "Error: Function '%s' not found\n", func_to_call);
+                free_ast(program);
+                free_tokens(tokens, token_count);
+                free_environment(env);
+                free(source);
+                return 1;
+            }
+            /* If main() doesn't exist and wasn't explicitly requested, just finish */
+            free_module_list(modules);
+            modules = NULL;  /* Prevent double-free */
+            goto cleanup;
         }
 
-        if (opts->verbose) printf("Calling function '%s'...\n", opts->call_function);
+        if (opts->verbose) printf("Calling function '%s'...\n", func_to_call);
 
-        /* Cleanup before function call */
+        /* Cleanup modules before function call */
         free_module_list(modules);
+        modules = NULL;  /* Prevent double-free */
 
         /* Parse and convert call_args to proper argument values */
         Value *args = NULL;
@@ -135,7 +152,7 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
             /* Check argument count matches function signature */
             if (opts->call_arg_count != func->param_count) {
                 fprintf(stderr, "Error: Function '%s' expects %d arguments, got %d\n",
-                        opts->call_function, func->param_count, opts->call_arg_count);
+                        func_to_call, func->param_count, opts->call_arg_count);
                 free_ast(program);
                 free_tokens(tokens, token_count);
                 free_environment(env);
@@ -202,7 +219,7 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
         }
 
         /* Call the function */
-        Value result = call_function(opts->call_function, args, arg_count, env);
+        Value result = call_function(func_to_call, args, arg_count, env);
         
         /* Free argument strings if allocated */
         if (args) {
@@ -220,11 +237,14 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
         }
     }
 
+cleanup:
     /* Cleanup */
     free_ast(program);
     free_tokens(tokens, token_count);
     free_environment(env);
-    free_module_list(modules);
+    if (modules) {
+        free_module_list(modules);
+    }
     free(source);
     tracing_cleanup();
     gc_shutdown();
