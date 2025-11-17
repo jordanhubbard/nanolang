@@ -545,6 +545,7 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
         case AST_CALL: {
             /* Map nanolang OS function names to C implementation names */
             const char *func_name = expr->as.call.name;
+            const char *original_func_name = func_name;  /* Save original for struct array detection */
 
             /* File operations */
             if (strcmp(func_name, "file_read") == 0) {
@@ -635,18 +636,22 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 func_name = "nl_str_equals";
             
             /* Array operations */
-            } else if (strcmp(func_name, "at") == 0) {
-                func_name = "nl_array_at_int";  /* For now, assume int arrays */
             } else if (strcmp(func_name, "array_length") == 0) {
                 func_name = "nl_array_length";
             } else if (strcmp(func_name, "array_new") == 0) {
                 func_name = "nl_array_new_int";  /* For now, assume int arrays */
             } else if (strcmp(func_name, "array_set") == 0) {
-                func_name = "nl_array_set_int";  /* For now, assume int arrays */
+                /* array_set needs type detection - will handle specially below */
+                func_name = "nl_array_set";  /* Placeholder, will be replaced */
             } else if (strcmp(func_name, "array_push") == 0) {
-                func_name = "nl_array_push";  /* Dynamic array push */
+                /* array_push needs type detection - will handle specially below */
+                func_name = "nl_array_push";  /* Placeholder, will be replaced */
             } else if (strcmp(func_name, "array_pop") == 0) {
-                func_name = "nl_array_pop";  /* Dynamic array pop */
+                /* array_pop needs type detection - will handle specially below */
+                func_name = "nl_array_pop";  /* Placeholder, will be replaced */
+            } else if (strcmp(func_name, "at") == 0) {
+                /* at() needs type detection - will handle specially below */
+                func_name = "nl_array_at";  /* Placeholder, will be replaced */
             } else if (strcmp(func_name, "print") == 0) {
                 /* Special handling for print - dispatch based on argument type */
                 Type arg_type = check_expression(expr->as.call.args[0], env);
@@ -707,45 +712,141 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 }
             }
 
-            sb_appendf(sb, "%s(", func_name);
+            /* Special handling for struct array operations */
+            bool is_struct_array_op = false;
+            const char *struct_type_name = NULL;
             
-            /* Check if this is an SDL function that needs pointer casts */
-            Function *func_def = env_get_function(env, func_name);
-            bool is_sdl_func = func_def && func_def->is_extern && 
-                              (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "TTF_", 4) == 0);
-            bool is_nl_sdl_helper = func_def && func_def->is_extern && 
-                                   strncmp(func_name, "nl_sdl_", 7) == 0;
-            
-            for (int i = 0; i < expr->as.call.arg_count; i++) {
-                if (i > 0) sb_append(sb, ", ");
-                
-                /* Check if this parameter needs a cast for SDL functions */
-                if (is_sdl_func && func_def && i < func_def->param_count) {
-                    const char *sdl_param_type = get_sdl_c_type(func_name, i, false);
-                    if (sdl_param_type && func_def->params[i].type == TYPE_INT) {
-                        /* Cast int to pointer type */
-                        sb_appendf(sb, "(%s)", sdl_param_type);
+            if ((strcmp(original_func_name, "array_push") == 0 || strcmp(original_func_name, "at") == 0 || 
+                 strcmp(original_func_name, "array_set") == 0) && expr->as.call.arg_count >= 1) {
+                /* Check the ARRAY's element type (first argument) */
+                if (expr->as.call.args[0]->type == AST_IDENTIFIER) {
+                    const char *arr_name = expr->as.call.args[0]->as.identifier;
+                    Symbol *arr_sym = env_get_var(env, arr_name);
+                    if (arr_sym) {
+                        /* Check if this is a struct array */
+                        if (arr_sym->type == TYPE_ARRAY && arr_sym->element_type == TYPE_STRUCT) {
+                            if (arr_sym->struct_type_name) {
+                                struct_type_name = arr_sym->struct_type_name;
+                                is_struct_array_op = true;
+                            } else {
+                                /* Try to get from type annotation */
+                                /* For array_push: check the value being pushed */
+                                if (strcmp(original_func_name, "array_push") == 0 && expr->as.call.arg_count >= 2) {
+                                    if (expr->as.call.args[1]->type == AST_STRUCT_LITERAL) {
+                                        struct_type_name = expr->as.call.args[1]->as.struct_literal.struct_name;
+                                        is_struct_array_op = true;
+                                    }
+                                }
+                            }
+                        }
                     }
-                } else if (is_nl_sdl_helper && func_def && i < func_def->param_count) {
-                    /* nl_sdl_ helpers: first param is SDL_Renderer* passed as int64_t */
-                    /* Don't cast - the helper function accepts int64_t and casts internally */
+                }
+            }
+            
+            if (is_struct_array_op && struct_type_name) {
+                /* Generate struct-specific array operation */
+                const char *prefixed_struct = get_prefixed_type_name(struct_type_name);
+                
+                if (strcmp(original_func_name, "array_push") == 0) {
+                    /* dyn_array_push_struct(arr, &value, sizeof(nl_StructName)) */
+                    sb_append(sb, "dyn_array_push_struct(");
+                    transpile_expression(sb, expr->as.call.args[0], env);  /* array */
+                    sb_append(sb, ", &(");
+                    transpile_expression(sb, expr->as.call.args[1], env);  /* value */
+                    sb_appendf(sb, "), sizeof(%s))", prefixed_struct);
+                } else if (strcmp(original_func_name, "at") == 0) {
+                    /* *((nl_StructName*)dyn_array_get_struct(arr, index)) */
+                    sb_appendf(sb, "*((%s*)dyn_array_get_struct(", prefixed_struct);
+                    transpile_expression(sb, expr->as.call.args[0], env);  /* array */
+                    sb_append(sb, ", ");
+                    transpile_expression(sb, expr->as.call.args[1], env);  /* index */
+                    sb_append(sb, "))");
+                } else if (strcmp(original_func_name, "array_set") == 0) {
+                    /* dyn_array_set_struct(arr, index, &value, sizeof(nl_StructName)) */
+                    sb_append(sb, "dyn_array_set_struct(");
+                    transpile_expression(sb, expr->as.call.args[0], env);  /* array */
+                    sb_append(sb, ", ");
+                    transpile_expression(sb, expr->as.call.args[1], env);  /* index */
+                    sb_append(sb, ", &(");
+                    transpile_expression(sb, expr->as.call.args[2], env);  /* value */
+                    sb_appendf(sb, "), sizeof(%s))", prefixed_struct);
+                }
+            } else if (strcmp(original_func_name, "at") == 0 || strcmp(original_func_name, "array_set") == 0) {
+                /* Non-struct arrays: use type-specific int/float versions */
+                /* For at(): nl_array_at_int or nl_array_at_float */
+                /* For array_set(): nl_array_set_int or nl_array_set_float */
+                if (strcmp(original_func_name, "at") == 0) {
+                    func_name = "nl_array_at_int";  /* Default to int */
+                } else if (strcmp(original_func_name, "array_set") == 0) {
+                    func_name = "nl_array_set_int";  /* Default to int */
                 }
                 
-                transpile_expression(sb, expr->as.call.args[i], env);
+                /* Normal function call */
+                sb_appendf(sb, "%s(", func_name);
+                
+                for (int i = 0; i < expr->as.call.arg_count; i++) {
+                    if (i > 0) sb_append(sb, ", ");
+                    transpile_expression(sb, expr->as.call.args[i], env);
+                }
+                sb_append(sb, ")");
+            } else {
+                /* Normal function call */
+                sb_appendf(sb, "%s(", func_name);
+                
+                /* Check if this is an SDL function that needs pointer casts */
+                Function *func_def = env_get_function(env, func_name);
+                bool is_sdl_func = func_def && func_def->is_extern && 
+                                  (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "TTF_", 4) == 0);
+                bool is_nl_sdl_helper = func_def && func_def->is_extern && 
+                                       strncmp(func_name, "nl_sdl_", 7) == 0;
+                
+                for (int i = 0; i < expr->as.call.arg_count; i++) {
+                    if (i > 0) sb_append(sb, ", ");
+                    
+                    /* Check if this parameter needs a cast for SDL functions */
+                    if (is_sdl_func && func_def && i < func_def->param_count) {
+                        const char *sdl_param_type = get_sdl_c_type(func_name, i, false);
+                        if (sdl_param_type && func_def->params[i].type == TYPE_INT) {
+                            /* Cast int to pointer type */
+                            sb_appendf(sb, "(%s)", sdl_param_type);
+                        }
+                    } else if (is_nl_sdl_helper && func_def && i < func_def->param_count) {
+                        /* nl_sdl_ helpers: first param is SDL_Renderer* passed as int64_t */
+                        /* Don't cast - the helper function accepts int64_t and casts internally */
+                    }
+                    
+                    transpile_expression(sb, expr->as.call.args[i], env);
+                }
+                sb_append(sb, ")");
             }
-            sb_append(sb, ")");
             break;
         }
 
         case AST_ARRAY_LITERAL: {
-            /* Transpile array literal: [1, 2, 3] -> dynarray_literal_int(3, 1, 2, 3) */
+            /* Transpile array literal */
             int count = expr->as.array_literal.element_count;
-            sb_appendf(sb, "dynarray_literal_int(%d", count);
-            for (int i = 0; i < count; i++) {
-                sb_append(sb, ", ");
-                transpile_expression(sb, expr->as.array_literal.elements[i], env);
+            Type elem_type = expr->as.array_literal.element_type;
+            
+            if (elem_type == TYPE_STRUCT) {
+                /* Struct array literal - create empty ELEM_STRUCT array */
+                /* The array will be populated by subsequent array_push operations if non-empty */
+                sb_append(sb, "dyn_array_new(ELEM_STRUCT)");
+            } else if (elem_type == TYPE_FLOAT) {
+                sb_appendf(sb, "dynarray_literal_float(%d", count);
+                for (int i = 0; i < count; i++) {
+                    sb_append(sb, ", ");
+                    transpile_expression(sb, expr->as.array_literal.elements[i], env);
+                }
+                sb_append(sb, ")");
+            } else {
+                /* Default to int */
+                sb_appendf(sb, "dynarray_literal_int(%d", count);
+                for (int i = 0; i < count; i++) {
+                    sb_append(sb, ", ");
+                    transpile_expression(sb, expr->as.array_literal.elements[i], env);
+                }
+                sb_append(sb, ")");
             }
-            sb_append(sb, ")");
             break;
         }
 
@@ -1149,7 +1250,17 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
             
         skip_value_transpile:
             /* Register variable in environment for type tracking during transpilation */
-            env_define_var(env, stmt->as.let.name, stmt->as.let.var_type, stmt->as.let.is_mut, create_void());
+            /* Preserve element_type and type_name for arrays and structs */
+            env_define_var_with_type_info(env, stmt->as.let.name, stmt->as.let.var_type, 
+                                         stmt->as.let.element_type, NULL, stmt->as.let.is_mut, create_void());
+            
+            /* For arrays of structs, set struct_type_name */
+            if (stmt->as.let.var_type == TYPE_ARRAY && stmt->as.let.element_type == TYPE_STRUCT && stmt->as.let.type_name) {
+                Symbol *sym = env_get_var(env, stmt->as.let.name);
+                if (sym) {
+                    sym->struct_type_name = strdup(stmt->as.let.type_name);
+                }
+            }
             break;
         }
 
@@ -2356,8 +2467,20 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             int saved_symbol_count = env->symbol_count;
             for (int j = 0; j < item->as.function.param_count; j++) {
                 Value dummy_val = create_void();
-                env_define_var(env, item->as.function.params[j].name,
-                             item->as.function.params[j].type, false, dummy_val);
+                /* Preserve element_type for array parameters */
+                env_define_var_with_type_info(env, item->as.function.params[j].name,
+                             item->as.function.params[j].type, item->as.function.params[j].element_type, 
+                             NULL, false, dummy_val);
+                
+                /* For array<Struct> parameters, set struct_type_name */
+                if (item->as.function.params[j].type == TYPE_ARRAY && 
+                    item->as.function.params[j].element_type == TYPE_STRUCT &&
+                    item->as.function.params[j].struct_type_name) {
+                    Symbol *param_sym = env_get_var(env, item->as.function.params[j].name);
+                    if (param_sym) {
+                        param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
+                    }
+                }
             }
 
             /* Function body */

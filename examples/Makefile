@@ -27,21 +27,21 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/boids_sdl \
 	$(BIN_DIR)/particles_sdl \
 	$(BIN_DIR)/falling_sand_sdl \
-	$(BIN_DIR)/music_sequencer_sdl
+	$(BIN_DIR)/music_sequencer_sdl \
+	$(BIN_DIR)/terrain_explorer_sdl
 
 # === Interpreter-Only Examples ===
-# These use features the transpiler doesn't support yet (struct arrays, etc.)
+# These use features the transpiler doesn't support yet
 # Run with: ../bin/nano examples/name.nano
 
 INTERPRETER_EXAMPLES = \
 	life_sdl.nano \
 	snake_sdl.nano \
-	maze_sdl.nano \
-	terrain_explorer_sdl.nano
+	maze_sdl.nano
 
 # === Targets ===
 
-.PHONY: all sdl interpreter clean help checkers boids-sdl particles-sdl falling-sand-sdl music-sequencer-sdl
+.PHONY: all sdl interpreter clean help checkers boids-sdl particles-sdl falling-sand-sdl music-sequencer-sdl terrain-explorer-sdl
 
 # Default: build all compiled examples
 all: $(COMPILER) $(SDL_EXAMPLES)
@@ -54,6 +54,7 @@ all: $(COMPILER) $(SDL_EXAMPLES)
 	@echo "  $(BIN_DIR)/particles_sdl"
 	@echo "  $(BIN_DIR)/falling_sand_sdl"
 	@echo "  $(BIN_DIR)/music_sequencer_sdl"
+	@echo "  $(BIN_DIR)/terrain_explorer_sdl"
 	@echo ""
 	@echo "Interpreter-only examples (run with: ../bin/nano examples/name.nano):"
 	@echo "  $(INTERPRETER_EXAMPLES)"
@@ -82,6 +83,8 @@ particles-sdl: $(BIN_DIR)/particles_sdl
 falling-sand-sdl: $(BIN_DIR)/falling_sand_sdl
 music-sequencer-sdl: $(BIN_DIR)/music_sequencer_sdl
 
+terrain-explorer-sdl: $(BIN_DIR)/terrain_explorer_sdl
+
 # === Binary Build Rules ===
 
 $(BIN_DIR)/checkers: checkers.nano $(COMPILER)
@@ -108,6 +111,11 @@ $(BIN_DIR)/music_sequencer_sdl: music_sequencer_sdl.nano $(COMPILER)
 	@echo "Building Music Sequencer SDL (with automatic module building)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/music_sequencer_sdl.nano -o bin/music_sequencer_sdl
 	@echo "✓ Music Sequencer SDL built: $@"
+
+$(BIN_DIR)/terrain_explorer_sdl: terrain_explorer_sdl.nano $(COMPILER)
+	@echo "Building Terrain Explorer SDL (with automatic module building + struct arrays)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/terrain_explorer_sdl.nano -o bin/terrain_explorer_sdl
+	@echo "✓ Terrain Explorer SDL built: $@"
 
 # === Interpreter-Only Examples ===
 

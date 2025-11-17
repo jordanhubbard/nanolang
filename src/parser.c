@@ -360,7 +360,10 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
                 }
             }
             
-            /* Could be a struct type */
+            /* Could be a struct type - save the identifier name */
+            if (type_param_name_out) {
+                *type_param_name_out = strdup(tok->value);
+            }
             type = TYPE_STRUCT;
             advance(p);
             return type;
@@ -374,8 +377,8 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
             }
             advance(p);  /* consume '<' */
             
-            /* Parse element type (no need for type_param_name in arrays for now) */
-            Type element_type = parse_type_with_element(p, NULL, NULL, NULL, NULL);
+            /* Parse element type - save struct name if it's array<StructName> */
+            Type element_type = parse_type_with_element(p, NULL, type_param_name_out, NULL, NULL);
             if (element_type == TYPE_UNKNOWN) {
                 return TYPE_UNKNOWN;
             }
@@ -1405,6 +1408,12 @@ static ASTNode *parse_statement(Parser *p) {
             /* For structs, type_name contains the struct name */
             if (type == TYPE_LIST_GENERIC && type_param_name) {
                 /* Replace type_name with the generic parameter name */
+                if (type_name) free(type_name);
+                type_name = type_param_name;
+            }
+            
+            /* For array<StructName>, save the struct name in type_name */
+            if (type == TYPE_ARRAY && element_type == TYPE_STRUCT && type_param_name) {
                 if (type_name) free(type_name);
                 type_name = type_param_name;
             }

@@ -84,5 +84,11 @@ void dyn_array_reserve(DynArray* arr, int64_t new_capacity);
 /* Clone array (deep copy) */
 DynArray* dyn_array_clone(DynArray* arr);
 
+/* Struct array operations */
+DynArray* dyn_array_push_struct(DynArray* arr, const void* struct_ptr, size_t struct_size);
+void* dyn_array_get_struct(DynArray* arr, int64_t index);
+void dyn_array_set_struct(DynArray* arr, int64_t index, const void* struct_ptr, size_t struct_size);
+void dyn_array_pop_struct(DynArray* arr, void* out_struct, size_t struct_size, bool* success);
+
 #endif /* NANOLANG_DYN_ARRAY_H */
 

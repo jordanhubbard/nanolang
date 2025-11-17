@@ -325,3 +325,81 @@ DynArray* dyn_array_clone(DynArray* arr) {
     return new_arr;
 }
 
+/* Push struct - makes a copy of the struct */
+DynArray* dyn_array_push_struct(DynArray* arr, const void* struct_ptr, size_t struct_size) {
+    assert(arr != NULL && "DynArray: NULL array");
+    assert(struct_ptr != NULL && "DynArray: NULL struct pointer");
+    assert(arr->elem_type == ELEM_STRUCT && "DynArray: Type mismatch");
+    
+    /* Set struct size on first push if not already set */
+    if (arr->elem_size == 0 || arr->elem_size == sizeof(void*)) {
+        arr->elem_size = struct_size;
+    }
+    
+    assert(arr->elem_size == struct_size && "DynArray: Struct size mismatch");
+    
+    if (arr->length >= arr->capacity) {
+        dyn_array_grow(arr);
+    }
+    
+    /* Copy struct into array */
+    void* dest = (uint8_t*)arr->data + (arr->length * arr->elem_size);
+    memcpy(dest, struct_ptr, struct_size);
+    arr->length++;
+    
+    return arr;
+}
+
+/* Get struct - returns pointer to struct in array (not a copy) */
+void* dyn_array_get_struct(DynArray* arr, int64_t index) {
+    assert(arr != NULL && "DynArray: NULL array");
+    assert(arr->elem_type == ELEM_STRUCT && "DynArray: Type mismatch");
+    
+    if (index < 0 || index >= arr->length) {
+        fprintf(stderr, "DynArray: Index out of bounds: %lld (length: %lld)\n", 
+                (long long)index, (long long)arr->length);
+        return NULL;
+    }
+    
+    /* Return pointer to struct in array */
+    return (uint8_t*)arr->data + (index * arr->elem_size);
+}
+
+/* Set struct - copies the struct into the array */
+void dyn_array_set_struct(DynArray* arr, int64_t index, const void* struct_ptr, size_t struct_size) {
+    assert(arr != NULL && "DynArray: NULL array");
+    assert(struct_ptr != NULL && "DynArray: NULL struct pointer");
+    assert(arr->elem_type == ELEM_STRUCT && "DynArray: Type mismatch");
+    assert(arr->elem_size == struct_size && "DynArray: Struct size mismatch");
+    
+    if (index < 0 || index >= arr->length) {
+        fprintf(stderr, "DynArray: Index out of bounds: %lld (length: %lld)\n", 
+                (long long)index, (long long)arr->length);
+        return;
+    }
+    
+    /* Copy struct into array */
+    void* dest = (uint8_t*)arr->data + (index * arr->elem_size);
+    memcpy(dest, struct_ptr, struct_size);
+}
+
+/* Pop struct - copies the last struct into out_struct and removes it */
+void dyn_array_pop_struct(DynArray* arr, void* out_struct, size_t struct_size, bool* success) {
+    assert(arr != NULL && "DynArray: NULL array");
+    assert(out_struct != NULL && "DynArray: NULL output pointer");
+    assert(arr->elem_type == ELEM_STRUCT && "DynArray: Type mismatch");
+    assert(arr->elem_size == struct_size && "DynArray: Struct size mismatch");
+    
+    if (arr->length == 0) {
+        if (success) *success = false;
+        return;
+    }
+    
+    /* Copy last struct to output */
+    void* src = (uint8_t*)arr->data + ((arr->length - 1) * arr->elem_size);
+    memcpy(out_struct, src, struct_size);
+    arr->length--;
+    
+    if (success) *success = true;
+}
+
