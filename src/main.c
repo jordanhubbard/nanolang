@@ -134,9 +134,16 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         }
     }
 
-    /* Write C code to temporary file */
-    char temp_c_file[256];
-    snprintf(temp_c_file, sizeof(temp_c_file), "%s.c", output_file);
+    /* Write C code to temporary file in /tmp (or keep in output dir if --keep-c) */
+    char temp_c_file[512];
+    if (opts->keep_c) {
+        /* Keep in output directory if --keep-c is set */
+        snprintf(temp_c_file, sizeof(temp_c_file), "%s.c", output_file);
+    } else {
+        /* Use /tmp for temporary files */
+        snprintf(temp_c_file, sizeof(temp_c_file), "/tmp/nanoc_%d_%s.c", 
+                 (int)getpid(), strrchr(output_file, '/') ? strrchr(output_file, '/') + 1 : output_file);
+    }
 
     FILE *c_file = fopen(temp_c_file, "w");
     if (!c_file) {
@@ -221,12 +228,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     if (result == 0) {
         if (opts->verbose) printf("✓ Compilation successful: %s\n", output_file);
-        /* Remove temporary C file unless --keep-c */
-        if (!opts->keep_c) {
-            remove(temp_c_file);
-        }
     } else {
         fprintf(stderr, "C compilation failed\n");
+    }
+
+    /* Remove temporary C file unless --keep-c (cleanup on both success and failure) */
+    if (!opts->keep_c) {
+        remove(temp_c_file);
     }
 
     /* Cleanup */
@@ -257,7 +265,7 @@ int main(int argc, char *argv[]) {
         printf("Options:\n");
         printf("  -o <file>      Specify output file (default: a.out)\n");
         printf("  --verbose      Show detailed compilation steps and commands\n");
-        printf("  --keep-c       Keep generated C file (in output directory)\n");
+        printf("  --keep-c       Keep generated C file (saves to output dir instead of /tmp)\n");
         printf("  -S             Save generated C to <input>.genC (for inspection)\n");
         printf("  -I <path>      Add include path for C compilation\n");
         printf("  -L <path>      Add library path for C linking\n");
