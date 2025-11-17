@@ -705,15 +705,8 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                 return false;
             }
             
-            /* Add object file to buffer if it exists */
-            if (info->object_file) {
-                if (strlen(module_objs_buffer) + strlen(info->object_file) + 2 < buffer_size) {
-                    if (module_objs_buffer[0] != '\0') {
-                        strcat(module_objs_buffer, " ");
-                    }
-                    strcat(module_objs_buffer, info->object_file);
-                }
-            }
+            /* Note: object file is included in link_flags, so we don't add it here */
+            /* It will be added below when we collect all link flags */
             
             build_infos[build_info_count++] = info;
             c_modules_built++;
