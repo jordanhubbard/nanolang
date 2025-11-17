@@ -231,6 +231,15 @@ fn main() -> int {
     return 0
 }
 
+shadow check_gl_error {
+    (check_gl_error "test")
+}
+
+shadow print_gl_info {
+    # Can't test in interpreter - no OpenGL context
+    (print_gl_info)
+}
+
 shadow setup_opengl {
     # Can't test OpenGL functions in interpreter (no context)
     (setup_opengl)
