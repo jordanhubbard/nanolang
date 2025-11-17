@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-// Module metadata structure
+// Module build metadata structure (from module.json)
 typedef struct {
     char *name;
     char *version;
@@ -43,7 +43,7 @@ typedef struct {
     
     // Module directory path
     char *module_dir;
-} ModuleMetadata;
+} ModuleBuildMetadata;
 
 // Build information for tracking
 typedef struct {
@@ -64,14 +64,14 @@ void module_builder_free(ModuleBuilder *builder);
 
 // Load module metadata from module.json
 // Returns NULL if no module.json exists (pure nanolang module)
-ModuleMetadata* module_load_metadata(const char *module_dir);
+ModuleBuildMetadata* module_load_metadata(const char *module_dir);
 
 // Free module metadata
-void module_metadata_free(ModuleMetadata *meta);
+void module_metadata_free(ModuleBuildMetadata *meta);
 
 // Build a module (compile C sources if needed)
 // Returns build info with object file path and link flags
-ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleMetadata *meta);
+ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta);
 
 // Free build info
 void module_build_info_free(ModuleBuildInfo *info);
@@ -80,7 +80,7 @@ void module_build_info_free(ModuleBuildInfo *info);
 char** module_get_link_flags(ModuleBuildInfo **modules, size_t count, size_t *out_count);
 
 // Check if module needs rebuild
-bool module_needs_rebuild(const char *module_dir, ModuleMetadata *meta);
+bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta);
 
 // Get module build directory path
 char* module_get_build_dir(const char *module_dir);
