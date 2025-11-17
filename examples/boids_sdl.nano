@@ -148,11 +148,26 @@ fn main() -> int {
     let mut running: bool = true
     
     while running {
-        # Check for quit event
+        # Handle keyboard input (ESC to quit)
+        let key: int = (nl_sdl_poll_keypress)
+        if (> key -1) {
+            if (== key 41) {
+                # ESC key = quit
+                set running false
+            } else {
+                (print "")
+            }
+        } else {
+            (print "")
+        }
+        
+        # Check for quit event (window close)
         let quit: int = (nl_sdl_poll_event_quit)
         if (== quit 1) {
             set running false
-        } else {}
+        } else {
+            (print "")
+        }
         
         # Apply flocking rules
         let mut new_vx: array<float> = []
