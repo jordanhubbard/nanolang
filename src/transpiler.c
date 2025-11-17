@@ -458,7 +458,14 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             break;
 
         case AST_FLOAT:
-            sb_appendf(sb, "%g", expr->as.float_val);
+            // Always output at least one decimal place to ensure float type in C
+            if (expr->as.float_val == (double)(int64_t)expr->as.float_val) {
+                // It's a whole number like 0.0 or 1.0 - add .0
+                sb_appendf(sb, "%.1f", expr->as.float_val);
+            } else {
+                // Has decimal places - use %g
+                sb_appendf(sb, "%g", expr->as.float_val);
+            }
             break;
 
         case AST_STRING:
@@ -2218,9 +2225,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         }
     }
     
-    if (has_sdl || has_sdl_ttf) {
-        sb_append(sb, "\n");
-    }
+    sb_append(sb, "\n");
     
     /* Forward declare all functions (including module functions) */
     /* First, collect function names from current program AST */
