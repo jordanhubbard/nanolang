@@ -143,6 +143,7 @@ $(BOIDS_SDL): boids_sdl.nano ../modules/sdl/sdl.nano ../modules/sdl_helpers/sdl_
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/boids_sdl.nano -o bin/boids_sdl --keep-c
 	@echo "#include <stdint.h>" > $(BIN_DIR)/boids_sdl_externs.c
 	@echo "extern int64_t nl_sdl_render_fill_rect(int64_t renderer, int64_t x, int64_t y, int64_t w, int64_t h);" >> $(BIN_DIR)/boids_sdl_externs.c
+	@echo "extern int64_t nl_sdl_poll_event_quit(void);" >> $(BIN_DIR)/boids_sdl_externs.c
 	@cat $(BIN_DIR)/boids_sdl_externs.c $(BIN_DIR)/boids_sdl.c > $(BIN_DIR)/boids_sdl_tmp.c && mv $(BIN_DIR)/boids_sdl_tmp.c $(BIN_DIR)/boids_sdl.c
 	$(CC) $(CFLAGS) $(SDL2_CFLAGS) $(BIN_DIR)/boids_sdl.c $(OBJ_DIR)/sdl_helpers_boids.o $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o -o $(BOIDS_SDL) $(SDL2_LDFLAGS)
 	@rm -f $(BIN_DIR)/boids_sdl_externs.c
