@@ -108,6 +108,10 @@ fn main() -> int {
         (println "✓ SDL initialized")
     }
     
+    # Disable mouse motion events to prevent event queue flooding
+    # SDL_MOUSEMOTION = 0x400 = 1024
+    (SDL_EventState 1024 0)
+    
     # Initialize boids with random-ish positions
     let mut boid_x: array<float> = []
     let mut boid_y: array<float> = []
@@ -148,7 +152,7 @@ fn main() -> int {
     let mut running: bool = true
     
     while running {
-        # Handle keyboard input (ESC to quit)
+        # Handle events - keypress drains the event queue
         let key: int = (nl_sdl_poll_keypress)
         if (> key -1) {
             if (== key 41) {
@@ -161,7 +165,8 @@ fn main() -> int {
             (print "")
         }
         
-        # Check for quit event (window close)
+        # Note: nl_sdl_poll_keypress already handles SDL_QUIT by pushing it back
+        # But we still check for safety in case the queue wasn't empty
         let quit: int = (nl_sdl_poll_event_quit)
         if (== quit 1) {
             set running false
