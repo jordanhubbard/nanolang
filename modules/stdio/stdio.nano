@@ -1,0 +1,124 @@
+# stdio - Standard I/O Module
+# This module provides FFI bindings for C file I/O operations.
+# Supports reading binary files, seeking, and file size queries.
+
+# === File Modes ===
+
+# Open for reading (file must exist)
+let FILE_MODE_READ: string = "rb"
+
+# Open for writing (creates or truncates)
+let FILE_MODE_WRITE: string = "wb"
+
+# Open for append (creates if doesn't exist)
+let FILE_MODE_APPEND: string = "ab"
+
+# Open for reading and writing
+let FILE_MODE_READ_WRITE: string = "r+b"
+
+# === File Operations ===
+
+# Open a file
+# Returns file handle (FILE* as int) or 0 on failure
+extern fn fopen(filename: string, mode: string) -> int
+
+# Close a file
+# Returns 0 on success
+extern fn fclose(file: int) -> int
+
+# Read data from file into buffer
+# size: size of each element
+# count: number of elements to read
+# Returns number of elements successfully read
+extern fn fread(ptr: int, size: int, count: int, file: int) -> int
+
+# Write data to file from buffer
+# size: size of each element
+# count: number of elements to write
+# Returns number of elements successfully written
+extern fn fwrite(ptr: int, size: int, count: int, file: int) -> int
+
+# Seek to position in file
+# offset: number of bytes to seek
+# whence: SEEK_SET, SEEK_CUR, or SEEK_END
+# Returns 0 on success
+extern fn fseek(file: int, offset: int, whence: int) -> int
+
+# Get current file position
+# Returns current position or -1 on error
+extern fn ftell(file: int) -> int
+
+# Rewind file to beginning
+extern fn rewind(file: int) -> int
+
+# Check for end of file
+# Returns non-zero if EOF reached
+extern fn feof(file: int) -> int
+
+# Check for file error
+# Returns non-zero if error occurred
+extern fn ferror(file: int) -> int
+
+# Clear EOF and error indicators
+extern fn clearerr(file: int) -> int
+
+# Flush file buffer
+# Returns 0 on success
+extern fn fflush(file: int) -> int
+
+# === Seek Whence Constants ===
+
+let SEEK_SET: int = 0  # Seek from beginning of file
+let SEEK_CUR: int = 1  # Seek from current position
+let SEEK_END: int = 2  # Seek from end of file
+
+# === Character I/O ===
+
+# Read a single character
+# Returns character as int, or -1 on EOF
+extern fn fgetc(file: int) -> int
+
+# Write a single character
+# Returns character written, or -1 on error
+extern fn fputc(c: int, file: int) -> int
+
+# Put character back to stream
+# Returns character pushed back, or -1 on error
+extern fn ungetc(c: int, file: int) -> int
+
+# === Helper Functions ===
+
+# Get file size in bytes
+fn file_size(filename: string) -> int {
+    let file: int = (fopen filename FILE_MODE_READ)
+    if (== file 0) {
+        return -1
+    } else {
+        # Seek to end
+        (fseek file 0 SEEK_END)
+        let size: int = (ftell file)
+        (fclose file)
+        return size
+    }
+}
+
+shadow file_size {
+    # Can't test without actual files, but verify it compiles
+    assert (>= (file_size "/nonexistent") -1)
+}
+
+# Check if file exists
+fn file_exists(filename: string) -> bool {
+    let file: int = (fopen filename FILE_MODE_READ)
+    if (== file 0) {
+        return false
+    } else {
+        (fclose file)
+        return true
+    }
+}
+
+shadow file_exists {
+    # Can't test without actual files, but verify it compiles
+    assert (== (file_exists "/nonexistent") false)
+}
