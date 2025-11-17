@@ -89,13 +89,13 @@ let MAX_SEQUENCE: int = 16   # Max patterns in sequence
 let BPM: int = 125
 
 # Colors (RGB packed as single int for simplicity)
-let COLOR_BG: int = 0x1a1a2e
-let COLOR_GRID: int = 0x0f3460
-let COLOR_HEADER: int = 0x16213e
-let COLOR_CURSOR: int = 0xe94560
-let COLOR_TEXT: int = 0xeee
-let COLOR_PLAYING: int = 0x00ff00
-let COLOR_MUTED: int = 0x666666
+let COLOR_BG: int = 1711662
+let COLOR_GRID: int = 980064
+let COLOR_HEADER: int = 1450302
+let COLOR_CURSOR: int = 15287648
+let COLOR_TEXT: int = 3822
+let COLOR_PLAYING: int = 65280
+let COLOR_MUTED: int = 6710886
 
 # === DATA STRUCTURES (Using Arrays) ===
 
@@ -460,46 +460,8 @@ fn init_pattern_data() -> array<int> {
         set i (+ i 1)
     }
     
-    # Add some demo notes in pattern 0
-    # C major scale in channel 0
-    let pattern: int = 0
-    let channel: int = 0
-    
-    let idx_c4: int = (pattern_cell_index pattern channel 0 0)
-    let idx_d4: int = (pattern_cell_index pattern channel 4 0)
-    let idx_e4: int = (pattern_cell_index pattern channel 8 0)
-    let idx_f4: int = (pattern_cell_index pattern channel 12 0)
-    let idx_g4: int = (pattern_cell_index pattern channel 16 0)
-    let idx_a4: int = (pattern_cell_index pattern channel 20 0)
-    let idx_b4: int = (pattern_cell_index pattern channel 24 0)
-    let idx_c5: int = (pattern_cell_index pattern channel 28 0)
-    
-    (array_set data idx_c4 NoteValue.C4)
-    (array_set data idx_d4 NoteValue.D4)
-    (array_set data idx_e4 NoteValue.E4)
-    (array_set data idx_f4 NoteValue.F4)
-    (array_set data idx_g4 NoteValue.G4)
-    (array_set data idx_a4 NoteValue.A4)
-    (array_set data idx_b4 NoteValue.B4)
-    (array_set data idx_c5 NoteValue.C5)
-    
-    # Add bass line in channel 1
-    let channel1: int = 1
-    let idx1_c3: int = (pattern_cell_index pattern channel1 0 0)
-    let idx1_g3: int = (pattern_cell_index pattern channel1 8 0)
-    let idx1_c3_2: int = (pattern_cell_index pattern channel1 16 0)
-    let idx1_g3_2: int = (pattern_cell_index pattern channel1 24 0)
-    
-    (array_set data idx1_c3 NoteValue.C3)
-    (array_set data idx1_g3 NoteValue.G3)
-    (array_set data idx1_c3_2 NoteValue.C3)
-    (array_set data idx1_g3_2 NoteValue.G3)
-    
-    # Add some effects
-    let eff1: int = (pattern_cell_index pattern channel 0 1)
-    let eff1_param: int = (pattern_cell_index pattern channel 0 2)
-    (array_set data eff1 EffectType.VOLUME)
-    (array_set data eff1_param 15)  # Full volume
+    # TODO: Add demo pattern data once array_set type checking is fixed
+    # For now, just return empty pattern data
     
     return data
 }
@@ -652,7 +614,7 @@ fn main() -> int {
                 set playing_step (+ playing_step 1)
                 if (>= playing_step STEPS) {
                     set playing_step 0
-                }
+                } else {}
             } else {}
         } else {}
         
