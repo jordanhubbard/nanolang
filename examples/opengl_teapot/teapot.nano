@@ -1,0 +1,351 @@
+# OpenGL Textured Rotating Teapot Demo
+# Demonstrates GLFW + GLEW with procedural geometry and dynamic textures
+#
+# Installation:
+#   macOS:  brew install glfw glew
+#   Linux:  sudo apt install libglfw3-dev libglew-dev
+#
+# This demo features:
+# - Rotating 3D teapot (simplified geometry)
+# - Procedurally generated textures
+# - Random texture cycling
+# - Smooth rotation animation
+
+import "modules/glfw/glfw.nano"
+import "modules/glew/glew.nano"
+
+# === OpenGL Constants ===
+let GL_COLOR_BUFFER_BIT: int = 16384      # 0x00004000
+let GL_DEPTH_BUFFER_BIT: int = 256        # 0x00000100
+let GL_DEPTH_TEST: int = 2929             # 0x0B71
+let GL_QUADS: int = 7
+let GL_TRIANGLES: int = 4
+let GL_MODELVIEW: int = 5888
+let GL_PROJECTION: int = 5889
+let GLEW_OK: int = 0
+let GLFW_KEY_ESCAPE: int = 256
+let GLFW_KEY_SPACE: int = 32
+
+# Window dimensions
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+
+# Texture state
+struct TextureState {
+    current_texture: int,
+    r: float,
+    g: float,
+    b: float,
+    pattern: int
+}
+
+# === Geometry: Simplified Teapot ===
+
+fn draw_teapot_body(size: float) -> void {
+    # Draw teapot body as sphere approximation with quads
+    let mut lat: int = 0
+    let lat_bands: int = 12
+    let long_bands: int = 16
+    
+    while (< lat lat_bands) {
+        let lat1: float = (* (* (cast_float lat) 3.14159) (/ 1.0 (cast_float lat_bands)))
+        let lat2: float = (* (* (+ (cast_float lat) 1.0) 3.14159) (/ 1.0 (cast_float lat_bands)))
+        
+        let mut lon: int = 0
+        while (< lon long_bands) {
+            let lon1: float = (* (* (cast_float lon) 2.0) (/ 3.14159 (cast_float long_bands)))
+            let lon2: float = (* (* (+ (cast_float lon) 1.0) 2.0) (/ 3.14159 (cast_float long_bands)))
+            
+            # Calculate vertices
+            let x1: float = (* size (* (sin lat1) (cos lon1)))
+            let y1: float = (* size (cos lat1))
+            let z1: float = (* size (* (sin lat1) (sin lon1)))
+            
+            let x2: float = (* size (* (sin lat1) (cos lon2)))
+            let y2: float = (* size (cos lat1))
+            let z2: float = (* size (* (sin lat1) (sin lon2)))
+            
+            let x3: float = (* size (* (sin lat2) (cos lon2)))
+            let y3: float = (* size (cos lat2))
+            let z3: float = (* size (* (sin lat2) (sin lon2)))
+            
+            let x4: float = (* size (* (sin lat2) (cos lon1)))
+            let y4: float = (* size (cos lat2))
+            let z4: float = (* size (* (sin lat2) (sin lon1)))
+            
+            # Draw quad
+            (glBegin GL_QUADS)
+            (glVertex3f x1 y1 z1)
+            (glVertex3f x2 y2 z2)
+            (glVertex3f x3 y3 z3)
+            (glVertex3f x4 y4 z4)
+            (glEnd)
+            
+            set lon (+ lon 1)
+        }
+        set lat (+ lat 1)
+    }
+}
+
+fn draw_teapot_spout(size: float) -> void {
+    # Draw spout as a simple cone
+    (glPushMatrix)
+    (glTranslatef (* size 0.7) 0.0 0.0)
+    (glRotatef 90.0 0.0 1.0 0.0)
+    
+    let mut i: int = 0
+    while (< i 8) {
+        let angle1: float = (* (* (cast_float i) 2.0) (/ 3.14159 8.0))
+        let angle2: float = (* (* (+ (cast_float i) 1.0) 2.0) (/ 3.14159 8.0))
+        
+        (glBegin GL_TRIANGLES)
+        (glVertex3f 0.0 0.0 (* size 0.3))
+        (glVertex3f (* (* size 0.15) (cos angle1)) (* (* size 0.15) (sin angle1)) 0.0)
+        (glVertex3f (* (* size 0.15) (cos angle2)) (* (* size 0.15) (sin angle2)) 0.0)
+        (glEnd)
+        
+        set i (+ i 1)
+    }
+    (glPopMatrix)
+}
+
+fn draw_teapot_handle(size: float) -> void {
+    # Draw handle as a torus section
+    (glPushMatrix)
+    (glTranslatef (* size -0.7) 0.0 0.0)
+    
+    let mut i: int = 0
+    while (< i 12) {
+        let angle: float = (* (* (cast_float i) 3.14159) (/ 1.0 12.0))
+        let x: float = (* (* size 0.3) (cos angle))
+        let y: float = (* (* size 0.3) (sin angle))
+        
+        (glBegin GL_QUADS)
+        (glVertex3f x y (* size 0.1))
+        (glVertex3f x y (* size -0.1))
+        (glVertex3f (* x 0.8) (* y 0.8) (* size -0.1))
+        (glVertex3f (* x 0.8) (* y 0.8) (* size 0.1))
+        (glEnd)
+        
+        set i (+ i 1)
+    }
+    (glPopMatrix)
+}
+
+fn get_texture_color(pattern: int, r: float, g: float, b: float) -> void {
+    # Apply different procedural "textures" based on pattern
+    if (== pattern 0) {
+        # Solid color
+        (glColor3f r g b)
+    } else {
+        if (== pattern 1) {
+            # Inverted color
+            (glColor3f (- 1.0 r) (- 1.0 g) (- 1.0 b))
+        } else {
+            if (== pattern 2) {
+                # Shifted hue
+                (glColor3f g b r)
+            } else {
+                if (== pattern 3) {
+                    # Grayscale
+                    let gray: float = (/ (+ (+ r g) b) 3.0)
+                    (glColor3f gray gray gray)
+                } else {
+                    # Complementary
+                    (glColor3f (- 1.0 r) g b)
+                }
+            }
+        }
+    }
+}
+
+fn draw_textured_teapot(rotation: float, tex_state: TextureState) -> void {
+    # Clear buffers
+    (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
+    
+    # Reset modelview matrix
+    (glLoadIdentity)
+    
+    # Position camera
+    (glTranslatef 0.0 0.0 -5.0)
+    
+    # Rotate teapot
+    (glRotatef rotation 0.0 1.0 0.0)
+    (glRotatef (* rotation 0.5) 1.0 0.0 0.0)
+    
+    # Apply texture color
+    (get_texture_color tex_state.pattern tex_state.r tex_state.g tex_state.b)
+    
+    # Draw teapot parts
+    (draw_teapot_body 1.0)
+    (draw_teapot_spout 1.0)
+    (draw_teapot_handle 1.0)
+}
+
+fn random_texture_state(seed: int) -> TextureState {
+    # Generate pseudo-random texture parameters
+    let r_val: int = (% (* seed 1103515245) 256)
+    let g_val: int = (% (* (+ seed 12345) 1664525) 256)
+    let b_val: int = (% (* (+ seed 54321) 1013904223) 256)
+    
+    let r: float = (/ (cast_float r_val) 255.0)
+    let g: float = (/ (cast_float g_val) 255.0)
+    let b: float = (/ (cast_float b_val) 255.0)
+    
+    let pattern: int = (% seed 5)
+    
+    return TextureState {
+        current_texture: seed,
+        r: r,
+        g: g,
+        b: b,
+        pattern: pattern
+    }
+}
+
+fn setup_opengl() -> void {
+    # Enable depth testing
+    (glEnable GL_DEPTH_TEST)
+    
+    # Set up projection matrix
+    (glMatrixMode GL_PROJECTION)
+    (glLoadIdentity)
+    
+    # Symmetric orthographic view
+    (glOrtho -2.0 2.0 -2.0 2.0 0.1 100.0)
+    
+    # Switch to modelview
+    (glMatrixMode GL_MODELVIEW)
+}
+
+fn main() -> int {
+    # Initialize GLFW
+    if (== (glfwInit) 0) {
+        (println "❌ Failed to initialize GLFW!")
+        return 1
+    } else {
+        (println "✓ GLFW initialized")
+    }
+    
+    # Create window
+    let window: int = (glfwCreateWindow WINDOW_WIDTH WINDOW_HEIGHT "OpenGL Textured Teapot - nanolang" 0 0)
+    if (== window 0) {
+        (println "❌ Failed to create window!")
+        (glfwTerminate)
+        return 1
+    } else {
+        (println "✓ Window created")
+    }
+    
+    # Make OpenGL context current
+    (glfwMakeContextCurrent window)
+    
+    # Initialize GLEW
+    let glew_status: int = (glewInit)
+    if (!= glew_status GLEW_OK) {
+        (println "❌ Failed to initialize GLEW!")
+        (glfwTerminate)
+        return 1
+    } else {
+        (println "✓ GLEW initialized - OpenGL ready")
+    }
+    
+    # Setup OpenGL state
+    (setup_opengl)
+    (glClearColor 0.05 0.05 0.1 1.0)
+    
+    (println "✓ Teapot demo ready")
+    (println "")
+    (println "Controls:")
+    (println "  SPACE - Change texture")
+    (println "  ESC   - Exit")
+    (println "")
+    
+    # Animation state
+    let mut rotation: float = 0.0
+    let mut texture_seed: int = 1
+    let mut tex_state: TextureState = (random_texture_state texture_seed)
+    let mut frame_count: int = 0
+    let mut last_space_state: int = 0
+    
+    # Main render loop
+    while (== (glfwWindowShouldClose window) 0) {
+        # Update rotation
+        set rotation (+ rotation 0.8)
+        if (>= rotation 360.0) {
+            set rotation (- rotation 360.0)
+        } else {}
+        
+        # Draw scene
+        (draw_textured_teapot rotation tex_state)
+        
+        # Swap buffers and poll events
+        (glfwSwapBuffers window)
+        (glfwPollEvents)
+        
+        # Check for space key (change texture)
+        let space_state: int = (glfwGetKey window GLFW_KEY_SPACE)
+        if (and (== space_state 1) (== last_space_state 0)) {
+            set texture_seed (+ texture_seed 1)
+            set tex_state (random_texture_state texture_seed)
+            let pat: int = tex_state.pattern
+            let red: float = tex_state.r
+            let green: float = tex_state.g
+            let blue: float = tex_state.b
+            (print "Texture changed: pattern ")
+            (print pat)
+            (print " (R=")
+            (print red)
+            (print " G=")
+            (print green)
+            (print " B=")
+            (print blue)
+            (println ")")
+        } else {}
+        set last_space_state space_state
+        
+        # Check for ESC key
+        if (== (glfwGetKey window GLFW_KEY_ESCAPE) 1) {
+            (glfwSetWindowShouldClose window 1)
+        } else {}
+        
+        set frame_count (+ frame_count 1)
+    }
+    
+    (println "")
+    (print "Rendered ")
+    (print frame_count)
+    (println " frames")
+    
+    # Cleanup
+    (glfwDestroyWindow window)
+    (glfwTerminate)
+    (println "✓ Cleanup complete")
+    
+    return 0
+}
+
+shadow random_texture_state {
+    let state: TextureState = (random_texture_state 42)
+    assert (== state.current_texture 42)
+    assert (>= state.r 0.0)
+    assert (<= state.r 1.0)
+    assert (>= state.pattern 0)
+    assert (< state.pattern 5)
+}
+
+shadow setup_opengl {
+    # OpenGL functions can't be tested in interpreter
+    (setup_opengl)
+}
+
+shadow draw_textured_teapot {
+    let state: TextureState = TextureState { current_texture: 0, r: 1.0, g: 0.5, b: 0.3, pattern: 0 }
+    (draw_textured_teapot 45.0 state)
+}
+
+shadow main {
+    # GLFW requires window system - can't test in interpreter
+    # assert (== (main) 0)
+}
+

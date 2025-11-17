@@ -31,7 +31,8 @@ SDL_EXAMPLES = \
 
 # OpenGL examples (GLFW + GLEW)
 OPENGL_EXAMPLES = \
-	$(BIN_DIR)/opengl_cube
+	$(BIN_DIR)/opengl_cube \
+	$(BIN_DIR)/opengl_teapot
 
 # All graphics examples
 GRAPHICS_EXAMPLES = $(SDL_EXAMPLES) $(OPENGL_EXAMPLES)
@@ -47,7 +48,7 @@ INTERPRETER_EXAMPLES = \
 
 # === Targets ===
 
-.PHONY: all sdl opengl interpreter clean help checkers-sdl boids-sdl particles-sdl falling-sand-sdl terrain-explorer-sdl opengl-cube run-% force-rebuild
+.PHONY: all sdl opengl interpreter clean help checkers-sdl boids-sdl particles-sdl falling-sand-sdl terrain-explorer-sdl opengl-cube opengl-teapot run-% force-rebuild
 
 # Default: build all compiled examples
 all: $(COMPILER) $(GRAPHICS_EXAMPLES)
@@ -62,7 +63,8 @@ all: $(COMPILER) $(GRAPHICS_EXAMPLES)
 	@echo "  ./bin/terrain_explorer_sdl"
 	@echo ""
 	@echo "OpenGL examples:"
-	@echo "  ./bin/opengl_cube  (requires: brew install glfw glew)"
+	@echo "  ./bin/opengl_cube    (requires: brew install glfw glew)"
+	@echo "  ./bin/opengl_teapot  (rotating teapot with texture cycling)"
 	@echo ""
 	@echo "Interpreter-only examples (run with: ./bin/nano examples/name.nano):"
 	@echo "  $(INTERPRETER_EXAMPLES)"
@@ -98,6 +100,7 @@ falling-sand-sdl: $(BIN_DIR)/falling_sand_sdl
 terrain-explorer-sdl: $(BIN_DIR)/terrain_explorer_sdl
 
 opengl-cube: $(BIN_DIR)/opengl_cube
+opengl-teapot: $(BIN_DIR)/opengl_teapot
 
 # === Binary Build Rules ===
 
@@ -130,6 +133,11 @@ $(BIN_DIR)/opengl_cube: opengl_cube.nano $(COMPILER)
 	@echo "Building OpenGL Rotating Cube (GLFW + GLEW)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_cube.nano -o bin/opengl_cube
 	@echo "✓ OpenGL Cube built: $@"
+
+$(BIN_DIR)/opengl_teapot: opengl_teapot/teapot.nano $(COMPILER)
+	@echo "Building OpenGL Textured Teapot (GLFW + GLEW + procedural textures)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_teapot/teapot.nano -o bin/opengl_teapot
+	@echo "✓ OpenGL Teapot built: $@"
 
 # === Interpreter-Only Examples ===
 
