@@ -566,8 +566,24 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 
                 /* Export top-level constants (immutable let statements) from modules */
                 if (module_item->type == AST_LET && !module_item->as.let.is_mut) {
-                    /* This is a constant - make it available in importing module */
-                    Value val = create_void();  /* Placeholder for compile-time constant */
+                    /* This is a constant - evaluate it and make it available in importing module */
+                    Value val = create_void();
+                    
+                    /* Try to evaluate constant expressions (literals and simple expressions) */
+                    if (module_item->as.let.value) {
+                        ASTNode *value_node = module_item->as.let.value;
+                        if (value_node->type == AST_NUMBER) {
+                            val = create_int(value_node->as.number);
+                        } else if (value_node->type == AST_FLOAT) {
+                            val = create_float(value_node->as.float_val);
+                        } else if (value_node->type == AST_BOOL) {
+                            val = create_bool(value_node->as.bool_val);
+                        } else if (value_node->type == AST_STRING) {
+                            val = create_string(value_node->as.string_val);
+                        }
+                        /* For complex expressions, keep as void - transpiler will use variable name */
+                    }
+                    
                     env_define_var(env, module_item->as.let.name, 
                                    module_item->as.let.var_type, 
                                    false, val);

@@ -476,6 +476,36 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 /* User-defined function (has body) - add nl_ prefix */
                 sb_append(sb, get_c_func_name(expr->as.identifier));
             } else {
+                /* Check if this is an immutable constant that should be inlined */
+                /* This handles imported constants from other modules */
+                int var_index = -1;
+                for (int i = env->symbol_count - 1; i >= 0; i--) {
+                    if (strcmp(env->symbols[i].name, expr->as.identifier) == 0) {
+                        var_index = i;
+                        break;
+                    }
+                }
+                
+                if (var_index >= 0 && !env->symbols[var_index].is_mut) {
+                    /* This is an immutable variable - inline its value if it's a constant */
+                    Value val = env->symbols[var_index].value;
+                    if (val.type == VAL_INT) {
+                        char num_buf[64];
+                        snprintf(num_buf, sizeof(num_buf), "%lld", val.as.int_val);
+                        sb_append(sb, num_buf);
+                        break;
+                    } else if (val.type == VAL_FLOAT) {
+                        char num_buf[64];
+                        snprintf(num_buf, sizeof(num_buf), "%g", val.as.float_val);
+                        sb_append(sb, num_buf);
+                        break;
+                    } else if (val.type == VAL_BOOL) {
+                        sb_append(sb, val.as.bool_val ? "true" : "false");
+                        break;
+                    }
+                    /* For other types, fall through to normal variable reference */
+                }
+                
                 /* Variable, builtin function, or extern function - use as-is */
                 sb_append(sb, expr->as.identifier);
             }
