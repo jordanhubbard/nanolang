@@ -183,8 +183,8 @@ fn main() -> int {
     let mut new_grid: array<int> = []
     set i 0
     while (< i grid_size) {
-        let x: int = (% i GRID_WIDTH)
         let y: int = (/ i GRID_WIDTH)
+        let x: int = (% i GRID_WIDTH)
         
         # Check if this is part of the glider
         let mut cell: CellState = CellState.DEAD

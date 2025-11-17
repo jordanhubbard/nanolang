@@ -85,8 +85,6 @@ shadow move_in_direction {
 }
 
 fn print_grid(snake_x: array<int>, snake_y: array<int>, food_x: int, food_y: int, width: int, height: int) -> int {
-    let snake_len: int = (array_length snake_x)
-    
     let mut y: int = 0
     while (< y height) {
         let mut x: int = 0
@@ -109,7 +107,7 @@ fn print_grid(snake_x: array<int>, snake_y: array<int>, food_x: int, food_y: int
                 # Check if this is snake
                 let mut is_snake: bool = false
                 let mut i: int = 0
-                while (< i snake_len) {
+                while (< i (array_length snake_x)) {
                     if (== x (at snake_x i)) {
                         if (== y (at snake_y i)) {
                             set is_snake true

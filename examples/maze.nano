@@ -58,8 +58,6 @@ fn print_maze(maze: array<int>, width: int, height: int, path_x: array<int>, pat
     while (< y height) {
         let mut x: int = 0
         while (< x width) {
-            let cell: CellState = (grid_get maze x y width height)
-            
             # Check if this is on the solution path
             let mut on_path: bool = false
             let mut i: int = 0
@@ -79,6 +77,7 @@ fn print_maze(maze: array<int>, width: int, height: int, path_x: array<int>, pat
             if on_path {
                 (print "•")
             } else {
+                let cell: CellState = (grid_get maze x y width height)
                 if (== cell CellState.WALL) {
                     (print "█")
                 } else {
@@ -110,7 +109,7 @@ fn generate_maze(width: int, height: int) -> array<int> {
     let mut i: int = 0
     while (< i size) {
         let x: int = (% i width)
-        let y_coord: int = (/ i width)
+        let y: int = (/ i width)
         
         # Create border walls and some interior walls
         let mut cell_val: CellState = CellState.PATH
@@ -122,14 +121,14 @@ fn generate_maze(width: int, height: int) -> array<int> {
             if (== x (- width 1)) {
                 set cell_val CellState.WALL
             } else {
-                if (== y_coord 0) {
+                if (== y 0) {
                     set cell_val CellState.WALL
                 } else {
-                    if (== y_coord (- height 1)) {
+                    if (== y (- height 1)) {
                         set cell_val CellState.WALL
                     } else {
                         # Create pattern of walls
-                        let sum: int = (+ x y_coord)
+                        let sum: int = (+ x y)
                         if (== (% sum 5) 0) {
                             set cell_val CellState.WALL
                         } else {
@@ -312,7 +311,6 @@ fn main() -> int {
     (println ")...")
     
     let path_x: array<int> = (find_path maze start_x start_y end_x end_y MAZE_WIDTH MAZE_HEIGHT)
-    let path_y: array<int> = []  # For now, y coords not returned
     
     (print "✓ Path found with ")
     (print (array_length path_x))
