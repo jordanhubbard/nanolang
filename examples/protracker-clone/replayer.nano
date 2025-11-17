@@ -1,0 +1,343 @@
+# ProTracker Replayer Engine
+# Core playback and effect processing
+# Based on pt2_replayer.c from pt2-clone by Olav Sørensen
+
+import "examples/protracker-clone/types.nano"
+import "examples/protracker-clone/pattern.nano"
+
+# === MODULE STATE ===
+
+# Global playback state
+let mut g_playing: int = 0           # 0 = stopped, 1 = playing
+let mut g_current_pattern: int = 0  # Current pattern index
+let mut g_current_row: int = 0      # Current row in pattern (0-63)
+let mut g_song_pos: int = 0         # Position in song (order list)
+let mut g_speed: int = 6            # Ticks per row (default 6)
+let mut g_bpm: int = 125            # Beats per minute (default 125)
+let mut g_tick: int = 0             # Current tick (0 to speed-1)
+
+# Pattern order list (which patterns play in which order)
+let mut g_pattern_table: array<int> = []  # Max 128 entries
+let mut g_song_length: int = 1            # Number of patterns in song
+
+# === CHANNEL STATE ===
+# Each of 4 channels has its own state
+
+# Channel periods (Amiga frequency values)
+let mut g_ch0_period: int = 0
+let mut g_ch1_period: int = 0
+let mut g_ch2_period: int = 0
+let mut g_ch3_period: int = 0
+
+# Channel volumes (0-64)
+let mut g_ch0_volume: int = 0
+let mut g_ch1_volume: int = 0
+let mut g_ch2_volume: int = 0
+let mut g_ch3_volume: int = 0
+
+# Channel samples (1-31, 0 = none)
+let mut g_ch0_sample: int = 0
+let mut g_ch1_sample: int = 0
+let mut g_ch2_sample: int = 0
+let mut g_ch3_sample: int = 0
+
+# Channel note (for display)
+let mut g_ch0_note: int = 0
+let mut g_ch1_note: int = 0
+let mut g_ch2_note: int = 0
+let mut g_ch3_note: int = 0
+
+# === INITIALIZATION ===
+
+fn init_replayer() -> int {
+    set g_playing 0
+    set g_current_pattern 0
+    set g_current_row 0
+    set g_song_pos 0
+    set g_speed 6
+    set g_bpm 125
+    set g_tick 0
+    
+    # Initialize pattern table with default (pattern 0)
+    set g_pattern_table []
+    set g_pattern_table (array_push g_pattern_table 0)
+    set g_song_length 1
+    
+    # Clear all channels
+    set g_ch0_period 0
+    set g_ch1_period 0
+    set g_ch2_period 0
+    set g_ch3_period 0
+    
+    set g_ch0_volume 0
+    set g_ch1_volume 0
+    set g_ch2_volume 0
+    set g_ch3_volume 0
+    
+    set g_ch0_sample 0
+    set g_ch1_sample 0
+    set g_ch2_sample 0
+    set g_ch3_sample 0
+    
+    set g_ch0_note 0
+    set g_ch1_note 0
+    set g_ch2_note 0
+    set g_ch3_note 0
+    
+    return 0
+}
+
+shadow init_replayer {
+    let result: int = (init_replayer)
+    assert (== result 0)
+}
+
+# === PLAYBACK CONTROL ===
+
+fn start_playback() -> int {
+    set g_playing 1
+    set g_tick 0
+    return 0
+}
+
+fn stop_playback() -> int {
+    set g_playing 0
+    set g_tick 0
+    return 0
+}
+
+fn is_playing() -> int {
+    return g_playing
+}
+
+shadow is_playing {
+    (init_replayer)
+    (start_playback)
+    assert (== (is_playing) 1)
+    (stop_playback)
+    assert (== (is_playing) 0)
+}
+
+# === PATTERN NAVIGATION ===
+
+fn set_pattern(pattern: int) -> int {
+    if (< pattern 0) {
+        set g_current_pattern 0
+    } else {
+        if (>= pattern PT_PATTERNS) {
+            set g_current_pattern (- PT_PATTERNS 1)
+        } else {
+            set g_current_pattern pattern
+        }
+    }
+    set g_current_row 0
+    return g_current_pattern
+}
+
+fn next_row() -> int {
+    set g_current_row (+ g_current_row 1)
+    
+    # Check if we reached end of pattern
+    if (>= g_current_row PT_ROWS) {
+        set g_current_row 0
+        
+        # Advance to next pattern in song
+        set g_song_pos (+ g_song_pos 1)
+        if (>= g_song_pos g_song_length) {
+            set g_song_pos 0  # Loop back to start
+        }
+        
+        # Get pattern from order table
+        let next_pattern: int = (at g_pattern_table g_song_pos)
+        set g_current_pattern next_pattern
+    } else {}
+    
+    return g_current_row
+}
+
+shadow next_row {
+    (init_replayer)
+    (set_pattern 0)
+    let row1: int = (next_row)
+    assert (== row1 1)
+}
+
+# === NOTE TRIGGERING ===
+
+fn trigger_note(channel: int, note: int, sample: int, volume: int) -> int {
+    # Set period from note
+    let period: int = (note_to_period note)
+    
+    # Update channel state based on channel number
+    if (== channel 0) {
+        set g_ch0_note note
+        set g_ch0_period period
+        set g_ch0_sample sample
+        if (> volume 0) {
+            set g_ch0_volume volume
+        } else {}
+    } else {
+    if (== channel 1) {
+        set g_ch1_note note
+        set g_ch1_period period
+        set g_ch1_sample sample
+        if (> volume 0) {
+            set g_ch1_volume volume
+        } else {}
+    } else {
+    if (== channel 2) {
+        set g_ch2_note note
+        set g_ch2_period period
+        set g_ch2_sample sample
+        if (> volume 0) {
+            set g_ch2_volume volume
+        } else {}
+    } else {
+    if (== channel 3) {
+        set g_ch3_note note
+        set g_ch3_period period
+        set g_ch3_sample sample
+        if (> volume 0) {
+            set g_ch3_volume volume
+        } else {}
+    } else {}}}}
+    
+    return period
+}
+
+shadow trigger_note {
+    (init_replayer)
+    (trigger_note 0 1 1 64)  # Channel 0, C-1, sample 1, volume 64
+    assert (== g_ch0_note 1)
+    assert (== g_ch0_period 856)  # C-1 period
+    assert (== g_ch0_sample 1)
+    assert (== g_ch0_volume 64)
+}
+
+# === EFFECT PROCESSING ===
+
+fn process_effect_speed(param: int) -> int {
+    # Effect 0xF - Set speed/tempo
+    if (<= param 32) {
+        # 1-32: Set speed (ticks per row)
+        if (> param 0) {
+            set g_speed param
+        } else {}
+    } else {
+        # 33+: Set BPM
+        set g_bpm param
+    }
+    return g_speed
+}
+
+fn process_effect_volume(param: int) -> int {
+    # Effect 0xC - Set volume
+    # param is 0-64 (0x00-0x40)
+    if (> param 64) {
+        return 64
+    } else {
+        return param
+    }
+}
+
+# === TICK HANDLER ===
+
+fn process_tick(pattern_data: array<int>) -> int {
+    # Main replayer tick - called once per tick
+    
+    if (== g_playing 0) {
+        return 0
+    } else {}
+    
+    # On tick 0, process new notes
+    if (== g_tick 0) {
+        # Process all 4 channels
+        let mut ch: int = 0
+        while (< ch PT_CHANNELS) {
+            # Get note data for this channel
+            let note: int = (get_note pattern_data g_current_pattern ch g_current_row)
+            let sample: int = (get_sample pattern_data g_current_pattern ch g_current_row)
+            let effect: int = (get_effect pattern_data g_current_pattern ch g_current_row)
+            let param: int = (get_param pattern_data g_current_pattern ch g_current_row)
+            
+            # Trigger note if present
+            if (> note 0) {
+                (trigger_note ch note sample 64)
+            } else {}
+            
+            # Process effects
+            if (== effect EffectType.SPEED) {
+                (process_effect_speed param)
+            } else {
+            if (== effect EffectType.VOLUME) {
+                let vol: int = (process_effect_volume param)
+                # Apply volume to channel (simplified)
+            } else {}}
+            
+            set ch (+ ch 1)
+        }
+    } else {}
+    
+    # Advance tick
+    set g_tick (+ g_tick 1)
+    
+    # Check if we should advance to next row
+    if (>= g_tick g_speed) {
+        set g_tick 0
+        (next_row)
+    } else {}
+    
+    return g_tick
+}
+
+shadow process_tick {
+    (init_replayer)
+    (start_playback)
+    let data: array<int> = (create_pattern_data)
+    
+    # Process one full row (6 ticks at speed 6)
+    let mut i: int = 0
+    while (< i 6) {
+        (process_tick data)
+        set i (+ i 1)
+    }
+    
+    # Should have advanced to row 1
+    assert (== g_current_row 1)
+}
+
+# === PLAYBACK INFO GETTERS ===
+
+fn get_current_row() -> int {
+    return g_current_row
+}
+
+fn get_current_pattern() -> int {
+    return g_current_pattern
+}
+
+fn get_current_speed() -> int {
+    return g_speed
+}
+
+fn get_current_bpm() -> int {
+    return g_bpm
+}
+
+fn get_channel_note(channel: int) -> int {
+    if (== channel 0) { return g_ch0_note } else {
+    if (== channel 1) { return g_ch1_note } else {
+    if (== channel 2) { return g_ch2_note } else {
+    if (== channel 3) { return g_ch3_note } else {
+        return 0
+    }}}}
+}
+
+fn get_channel_volume(channel: int) -> int {
+    if (== channel 0) { return g_ch0_volume } else {
+    if (== channel 1) { return g_ch1_volume } else {
+    if (== channel 2) { return g_ch2_volume } else {
+    if (== channel 3) { return g_ch3_volume } else {
+        return 0
+    }}}}
+}
