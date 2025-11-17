@@ -1,0 +1,546 @@
+// Module Build System Implementation
+// Handles automatic compilation of C sources, caching, and dependency tracking
+
+#include "module_builder.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <errno.h>
+#include <time.h>
+
+// JSON parsing (simple, minimal implementation for module.json)
+#include "cJSON.h"
+
+bool module_builder_verbose = false;
+
+// Helper: Check if file exists
+static bool file_exists(const char *path) {
+    struct stat st;
+    return stat(path, &st) == 0 && S_ISREG(st.st_mode);
+}
+
+// Helper: Check if directory exists
+static bool dir_exists(const char *path) {
+    struct stat st;
+    return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
+}
+
+// Helper: Get file modification time
+static time_t get_mtime(const char *path) {
+    struct stat st;
+    if (stat(path, &st) != 0) {
+        return 0;
+    }
+    return st.st_mtime;
+}
+
+// Helper: Create directory (mkdir -p)
+static bool mkdir_p(const char *path) {
+    char tmp[1024];
+    char *p = NULL;
+    size_t len;
+
+    snprintf(tmp, sizeof(tmp), "%s", path);
+    len = strlen(tmp);
+    if (tmp[len - 1] == '/') {
+        tmp[len - 1] = 0;
+    }
+
+    for (p = tmp + 1; *p; p++) {
+        if (*p == '/') {
+            *p = 0;
+            if (!dir_exists(tmp)) {
+                if (mkdir(tmp, 0755) != 0 && errno != EEXIST) {
+                    return false;
+                }
+            }
+            *p = '/';
+        }
+    }
+
+    if (!dir_exists(tmp)) {
+        if (mkdir(tmp, 0755) != 0 && errno != EEXIST) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Helper: Run command and capture output
+static char* run_command(const char *cmd) {
+    FILE *fp = popen(cmd, "r");
+    if (!fp) {
+        return NULL;
+    }
+
+    char *output = malloc(4096);
+    if (!output) {
+        pclose(fp);
+        return NULL;
+    }
+
+    size_t total = 0;
+    size_t capacity = 4096;
+    
+    while (fgets(output + total, capacity - total, fp) != NULL) {
+        total = strlen(output);
+        if (total + 1024 > capacity) {
+            capacity *= 2;
+            char *new_output = realloc(output, capacity);
+            if (!new_output) {
+                free(output);
+                pclose(fp);
+                return NULL;
+            }
+            output = new_output;
+        }
+    }
+
+    pclose(fp);
+
+    // Remove trailing newline
+    if (total > 0 && output[total - 1] == '\n') {
+        output[total - 1] = '\0';
+    }
+
+    return output;
+}
+
+// Get pkg-config flags
+static char* get_pkg_config_flags(const char *package, const char *flag_type) {
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "pkg-config %s %s 2>/dev/null", flag_type, package);
+    return run_command(cmd);
+}
+
+// Module metadata functions
+
+ModuleMetadata* module_load_metadata(const char *module_dir) {
+    char path[1024];
+    snprintf(path, sizeof(path), "%s/module.json", module_dir);
+
+    if (!file_exists(path)) {
+        // No module.json = pure nanolang module
+        return NULL;
+    }
+
+    // Read file
+    FILE *fp = fopen(path, "r");
+    if (!fp) {
+        fprintf(stderr, "Error: Could not open %s\n", path);
+        return NULL;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    char *content = malloc(size + 1);
+    if (!content) {
+        fclose(fp);
+        return NULL;
+    }
+
+    fread(content, 1, size, fp);
+    content[size] = '\0';
+    fclose(fp);
+
+    // Parse JSON
+    cJSON *json = cJSON_Parse(content);
+    free(content);
+
+    if (!json) {
+        fprintf(stderr, "Error: Invalid JSON in %s\n", path);
+        return NULL;
+    }
+
+    ModuleMetadata *meta = calloc(1, sizeof(ModuleMetadata));
+    if (!meta) {
+        cJSON_Delete(json);
+        return NULL;
+    }
+
+    // Parse fields
+    cJSON *name = cJSON_GetObjectItem(json, "name");
+    if (name && cJSON_IsString(name)) {
+        meta->name = strdup(name->valuestring);
+    }
+
+    cJSON *version = cJSON_GetObjectItem(json, "version");
+    if (version && cJSON_IsString(version)) {
+        meta->version = strdup(version->valuestring);
+    }
+
+    cJSON *description = cJSON_GetObjectItem(json, "description");
+    if (description && cJSON_IsString(description)) {
+        meta->description = strdup(description->valuestring);
+    }
+
+    // Parse arrays
+    #define PARSE_STRING_ARRAY(field_name, dest, count) do { \
+        cJSON *arr = cJSON_GetObjectItem(json, field_name); \
+        if (arr && cJSON_IsArray(arr)) { \
+            int arr_size = cJSON_GetArraySize(arr); \
+            meta->dest = calloc(arr_size, sizeof(char*)); \
+            meta->count = 0; \
+            for (int i = 0; i < arr_size; i++) { \
+                cJSON *item = cJSON_GetArrayItem(arr, i); \
+                if (cJSON_IsString(item)) { \
+                    meta->dest[meta->count++] = strdup(item->valuestring); \
+                } \
+            } \
+        } \
+    } while(0)
+
+    PARSE_STRING_ARRAY("c_sources", c_sources, c_sources_count);
+    PARSE_STRING_ARRAY("system_libs", system_libs, system_libs_count);
+    PARSE_STRING_ARRAY("pkg_config", pkg_config, pkg_config_count);
+    PARSE_STRING_ARRAY("include_dirs", include_dirs, include_dirs_count);
+    PARSE_STRING_ARRAY("cflags", cflags, cflags_count);
+    PARSE_STRING_ARRAY("ldflags", ldflags, ldflags_count);
+    PARSE_STRING_ARRAY("dependencies", dependencies, dependencies_count);
+
+    #undef PARSE_STRING_ARRAY
+
+    meta->module_dir = strdup(module_dir);
+
+    cJSON_Delete(json);
+    return meta;
+}
+
+void module_metadata_free(ModuleMetadata *meta) {
+    if (!meta) return;
+
+    free(meta->name);
+    free(meta->version);
+    free(meta->description);
+    free(meta->module_dir);
+
+    #define FREE_STRING_ARRAY(arr, count) do { \
+        for (size_t i = 0; i < meta->count; i++) { \
+            free(meta->arr[i]); \
+        } \
+        free(meta->arr); \
+    } while(0)
+
+    FREE_STRING_ARRAY(c_sources, c_sources_count);
+    FREE_STRING_ARRAY(system_libs, system_libs_count);
+    FREE_STRING_ARRAY(pkg_config, pkg_config_count);
+    FREE_STRING_ARRAY(include_dirs, include_dirs_count);
+    FREE_STRING_ARRAY(cflags, cflags_count);
+    FREE_STRING_ARRAY(ldflags, ldflags_count);
+    FREE_STRING_ARRAY(dependencies, dependencies_count);
+
+    #undef FREE_STRING_ARRAY
+
+    free(meta);
+}
+
+// Module build directory management
+
+char* module_get_build_dir(const char *module_dir) {
+    char *build_dir = malloc(1024);
+    if (!build_dir) return NULL;
+    snprintf(build_dir, 1024, "%s/.build", module_dir);
+    return build_dir;
+}
+
+bool module_ensure_build_dir(const char *module_dir) {
+    char *build_dir = module_get_build_dir(module_dir);
+    if (!build_dir) return false;
+
+    bool success = mkdir_p(build_dir);
+    free(build_dir);
+    return success;
+}
+
+// Check if module needs rebuild
+
+bool module_needs_rebuild(const char *module_dir, ModuleMetadata *meta) {
+    if (!meta || meta->c_sources_count == 0) {
+        // No C sources = no rebuild needed
+        return false;
+    }
+
+    char *build_dir = module_get_build_dir(module_dir);
+    if (!build_dir) return true;
+
+    char object_file[1024];
+    snprintf(object_file, sizeof(object_file), "%s/%s.o", build_dir, meta->name);
+    free(build_dir);
+
+    if (!file_exists(object_file)) {
+        if (module_builder_verbose) {
+            printf("[Module] %s needs build: object file missing\n", meta->name);
+        }
+        return true;
+    }
+
+    time_t object_mtime = get_mtime(object_file);
+
+    // Check if any C source is newer
+    for (size_t i = 0; i < meta->c_sources_count; i++) {
+        char source_path[1024];
+        snprintf(source_path, sizeof(source_path), "%s/%s", module_dir, meta->c_sources[i]);
+
+        if (!file_exists(source_path)) {
+            fprintf(stderr, "Error: C source not found: %s\n", source_path);
+            return true;
+        }
+
+        time_t source_mtime = get_mtime(source_path);
+        if (source_mtime > object_mtime) {
+            if (module_builder_verbose) {
+                printf("[Module] %s needs rebuild: %s modified\n", meta->name, meta->c_sources[i]);
+            }
+            return true;
+        }
+    }
+
+    // Check if module.json is newer
+    char module_json[1024];
+    snprintf(module_json, sizeof(module_json), "%s/module.json", module_dir);
+    time_t json_mtime = get_mtime(module_json);
+    if (json_mtime > object_mtime) {
+        if (module_builder_verbose) {
+            printf("[Module] %s needs rebuild: module.json modified\n", meta->name);
+        }
+        return true;
+    }
+
+    return false;
+}
+
+// Build module
+
+struct ModuleBuilder {
+    char *module_path;
+    char **include_paths;
+    size_t include_paths_count;
+};
+
+ModuleBuilder* module_builder_new(const char *module_path) {
+    ModuleBuilder *builder = calloc(1, sizeof(ModuleBuilder));
+    if (!builder) return NULL;
+
+    builder->module_path = strdup(module_path ? module_path : "modules");
+    return builder;
+}
+
+void module_builder_free(ModuleBuilder *builder) {
+    if (!builder) return;
+
+    free(builder->module_path);
+    
+    for (size_t i = 0; i < builder->include_paths_count; i++) {
+        free(builder->include_paths[i]);
+    }
+    free(builder->include_paths);
+
+    free(builder);
+}
+
+ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleMetadata *meta) {
+    if (!meta || meta->c_sources_count == 0) {
+        // No C sources = nothing to build, but still need link flags
+        ModuleBuildInfo *info = calloc(1, sizeof(ModuleBuildInfo));
+        if (!info) return NULL;
+
+        // Collect link flags from pkg-config and system_libs
+        size_t total_flags = 0;
+        char **flags = calloc(1024, sizeof(char*));
+
+        // Add pkg-config link flags
+        for (size_t i = 0; i < meta->pkg_config_count; i++) {
+            char *pkg_flags = get_pkg_config_flags(meta->pkg_config[i], "--libs");
+            if (pkg_flags) {
+                flags[total_flags++] = pkg_flags;
+            }
+        }
+
+        // Add custom ldflags
+        for (size_t i = 0; i < meta->ldflags_count; i++) {
+            flags[total_flags++] = strdup(meta->ldflags[i]);
+        }
+
+        // Add system libs
+        for (size_t i = 0; i < meta->system_libs_count; i++) {
+            char *lib_flag = malloc(256);
+            snprintf(lib_flag, 256, "-l%s", meta->system_libs[i]);
+            flags[total_flags++] = lib_flag;
+        }
+
+        info->link_flags = flags;
+        info->link_flags_count = total_flags;
+        info->needs_rebuild = false;
+        info->object_file = NULL;
+
+        return info;
+    }
+
+    // Ensure build directory exists
+    if (!module_ensure_build_dir(meta->module_dir)) {
+        fprintf(stderr, "Error: Could not create build directory for %s\n", meta->name);
+        return NULL;
+    }
+
+    // Check if rebuild needed
+    bool needs_rebuild = module_needs_rebuild(meta->module_dir, meta);
+
+    char *build_dir = module_get_build_dir(meta->module_dir);
+    char object_file[1024];
+    snprintf(object_file, sizeof(object_file), "%s/%s.o", build_dir, meta->name);
+
+    if (needs_rebuild) {
+        if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+            printf("[Module] Building %s...\n", meta->name);
+        }
+
+        // Build compile command
+        char compile_cmd[8192];
+        int pos = 0;
+
+        // Get CC from environment or use gcc
+        const char *cc = getenv("NANO_CC");
+        if (!cc) cc = "gcc";
+
+        pos += snprintf(compile_cmd + pos, sizeof(compile_cmd) - pos, "%s -c -fPIC", cc);
+
+        // Add pkg-config cflags
+        for (size_t i = 0; i < meta->pkg_config_count; i++) {
+            char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+            if (pkg_cflags) {
+                pos += snprintf(compile_cmd + pos, sizeof(compile_cmd) - pos, " %s", pkg_cflags);
+                free(pkg_cflags);
+            }
+        }
+
+        // Add include dirs
+        for (size_t i = 0; i < meta->include_dirs_count; i++) {
+            pos += snprintf(compile_cmd + pos, sizeof(compile_cmd) - pos, " -I%s", meta->include_dirs[i]);
+        }
+
+        // Add custom cflags
+        for (size_t i = 0; i < meta->cflags_count; i++) {
+            pos += snprintf(compile_cmd + pos, sizeof(compile_cmd) - pos, " %s", meta->cflags[i]);
+        }
+
+        // Add source files
+        for (size_t i = 0; i < meta->c_sources_count; i++) {
+            pos += snprintf(compile_cmd + pos, sizeof(compile_cmd) - pos, " %s/%s", 
+                          meta->module_dir, meta->c_sources[i]);
+        }
+
+        // Add output file
+        pos += snprintf(compile_cmd + pos, sizeof(compile_cmd) - pos, " -o %s", object_file);
+
+        // Run compile command
+        if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+            printf("[Module] %s\n", compile_cmd);
+        }
+
+        int result = system(compile_cmd);
+        if (result != 0) {
+            fprintf(stderr, "Error: Failed to compile module %s\n", meta->name);
+            free(build_dir);
+            return NULL;
+        }
+
+        if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+            printf("[Module] ✓ Built %s\n", meta->name);
+        }
+    } else {
+        if (module_builder_verbose) {
+            printf("[Module] %s up to date (using cache)\n", meta->name);
+        }
+    }
+
+    free(build_dir);
+
+    // Create build info with object file and link flags
+    ModuleBuildInfo *info = calloc(1, sizeof(ModuleBuildInfo));
+    if (!info) return NULL;
+
+    info->object_file = strdup(object_file);
+    info->needs_rebuild = needs_rebuild;
+
+    // Collect link flags
+    size_t total_flags = 0;
+    char **flags = calloc(1024, sizeof(char*));
+
+    // Add object file
+    flags[total_flags++] = strdup(object_file);
+
+    // Add pkg-config link flags
+    for (size_t i = 0; i < meta->pkg_config_count; i++) {
+        char *pkg_flags = get_pkg_config_flags(meta->pkg_config[i], "--libs");
+        if (pkg_flags) {
+            flags[total_flags++] = pkg_flags;
+        }
+    }
+
+    // Add custom ldflags
+    for (size_t i = 0; i < meta->ldflags_count; i++) {
+        flags[total_flags++] = strdup(meta->ldflags[i]);
+    }
+
+    // Add system libs
+    for (size_t i = 0; i < meta->system_libs_count; i++) {
+        char *lib_flag = malloc(256);
+        snprintf(lib_flag, 256, "-l%s", meta->system_libs[i]);
+        flags[total_flags++] = lib_flag;
+    }
+
+    info->link_flags = flags;
+    info->link_flags_count = total_flags;
+
+    return info;
+}
+
+void module_build_info_free(ModuleBuildInfo *info) {
+    if (!info) return;
+
+    free(info->object_file);
+
+    for (size_t i = 0; i < info->link_flags_count; i++) {
+        free(info->link_flags[i]);
+    }
+    free(info->link_flags);
+
+    free(info);
+}
+
+// Get all link flags from multiple modules
+char** module_get_link_flags(ModuleBuildInfo **modules, size_t count, size_t *out_count) {
+    size_t total = 0;
+    
+    // Count total flags
+    for (size_t i = 0; i < count; i++) {
+        if (modules[i]) {
+            total += modules[i]->link_flags_count;
+        }
+    }
+
+    char **all_flags = calloc(total + 1, sizeof(char*));
+    if (!all_flags) {
+        *out_count = 0;
+        return NULL;
+    }
+
+    size_t pos = 0;
+    for (size_t i = 0; i < count; i++) {
+        if (modules[i]) {
+            for (size_t j = 0; j < modules[i]->link_flags_count; j++) {
+                all_flags[pos++] = strdup(modules[i]->link_flags[j]);
+            }
+        }
+    }
+
+    *out_count = pos;
+    return all_flags;
+}
+
