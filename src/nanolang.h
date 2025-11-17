@@ -593,7 +593,7 @@ ASTNode *load_module(const char *module_path, Environment *env);
 ASTNode *load_module_from_package(const char *package_path, Environment *env, char *temp_dir_out, size_t temp_dir_size);
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
 bool compile_module_to_object(const char *module_path, const char *output_obj, Environment *env, bool verbose);
-bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_buffer, size_t buffer_size, bool verbose);
+bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_buffer, size_t buffer_size, char *compile_flags_buffer, size_t compile_flags_buffer_size, bool verbose);
 
 /* Module metadata for serialization */
 typedef struct {

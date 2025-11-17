@@ -636,12 +636,16 @@ static char* get_module_dir(const char *module_path) {
 }
 
 /* Compile all modules in the list to object files using the module builder */
-bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_buffer, size_t buffer_size, bool verbose) {
+bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_buffer, size_t buffer_size, char *compile_flags_buffer, size_t compile_flags_buffer_size, bool verbose) {
     if (!modules || !module_objs_buffer || buffer_size == 0) {
         return false;
     }
     
+    /* Initialize buffers */
     module_objs_buffer[0] = '\0';
+    if (compile_flags_buffer && compile_flags_buffer_size > 0) {
+        compile_flags_buffer[0] = '\0';
+    }
     
     if (modules->count == 0) {
         return true;  /* No modules to compile */
@@ -791,6 +795,26 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
             free(link_flags[i]);
         }
         free(link_flags);
+    }
+    
+    /* Get all compile flags from C modules */
+    if (compile_flags_buffer && compile_flags_buffer_size > 0) {
+        size_t compile_flags_count = 0;
+        char **compile_flags = module_get_compile_flags(build_infos, build_info_count, &compile_flags_count);
+        
+        /* Add compile flags to buffer */
+        if (compile_flags) {
+            for (size_t i = 0; i < compile_flags_count; i++) {
+                if (strlen(compile_flags_buffer) + strlen(compile_flags[i]) + 2 < compile_flags_buffer_size) {
+                    if (compile_flags_buffer[0] != '\0') {
+                        strcat(compile_flags_buffer, " ");
+                    }
+                    strcat(compile_flags_buffer, compile_flags[i]);
+                }
+                free(compile_flags[i]);
+            }
+            free(compile_flags);
+        }
     }
     
     /* Cleanup */
