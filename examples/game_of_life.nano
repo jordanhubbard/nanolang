@@ -1,5 +1,12 @@
 # CONWAY'S GAME OF LIFE - Cellular Automata Simulation
 # Pure computation - tests arrays, logic, neighbor counting
+# MODERNIZED: Uses enums, top-level constants, dynamic arrays
+
+# === ENUMS ===
+enum CellState {
+    DEAD = 0,
+    ALIVE = 1
+}
 
 # === CONSTANTS ===
 let GRID_WIDTH: int = 40
@@ -18,18 +25,18 @@ shadow grid_index {
     assert (== (grid_index 9 9 10) 99)
 }
 
-fn grid_get(grid: array<int>, x: int, y: int, width: int, height: int) -> int {
+fn grid_get(grid: array<int>, x: int, y: int, width: int, height: int) -> CellState {
     if (< x 0) {
-        return 0
+        return CellState.DEAD
     } else {
         if (>= x width) {
-            return 0
+            return CellState.DEAD
         } else {
             if (< y 0) {
-                return 0
+                return CellState.DEAD
             } else {
                 if (>= y height) {
-                    return 0
+                    return CellState.DEAD
                 } else {
                     let idx: int = (grid_index x y width)
                     return (at grid idx)
@@ -81,24 +88,24 @@ shadow count_neighbors {
     assert (== (count_neighbors grid 0 0 3 3) 2)  # Corner has 2 neighbors
 }
 
-fn apply_rules(alive: int, neighbors: int) -> int {
-    if (== alive 1) {
+fn apply_rules(alive: CellState, neighbors: int) -> CellState {
+    if (== alive CellState.ALIVE) {
         # Cell is alive
         if (< neighbors 2) {
-            return 0  # Dies from underpopulation
+            return CellState.DEAD  # Dies from underpopulation
         } else {
             if (> neighbors 3) {
-                return 0  # Dies from overpopulation
+                return CellState.DEAD  # Dies from overpopulation
             } else {
-                return 1  # Survives
+                return CellState.ALIVE  # Survives
             }
         }
     } else {
         # Cell is dead
         if (== neighbors 3) {
-            return 1  # Becomes alive (reproduction)
+            return CellState.ALIVE  # Becomes alive (reproduction)
         } else {
-            return 0  # Stays dead
+            return CellState.DEAD  # Stays dead
         }
     }
 }
@@ -117,8 +124,8 @@ fn print_grid(grid: array<int>, width: int, height: int) -> int {
     while (< y height) {
         let mut x: int = 0
         while (< x width) {
-            let cell: int = (grid_get grid x y width height)
-            if (== cell 1) {
+            let cell: CellState = (grid_get grid x y width height)
+            if (== cell CellState.ALIVE) {
                 (print "█")
             } else {
                 (print " ")
@@ -162,7 +169,7 @@ fn main() -> int {
     let mut i: int = 0
     
     while (< i grid_size) {
-        set grid (array_push grid 0)
+        set grid (array_push grid CellState.DEAD)
         set i (+ i 1)
     }
     
@@ -180,12 +187,12 @@ fn main() -> int {
         let y: int = (/ i GRID_WIDTH)
         
         # Check if this is part of the glider
-        let mut cell: int = 0
+        let mut cell: CellState = CellState.DEAD
         
         # Row 0:  0 1 0
         if (== y glider_y) {
             if (== x (+ glider_x 1)) {
-                set cell 1
+                set cell CellState.ALIVE
             } else {
                 (print "")
             }
@@ -196,7 +203,7 @@ fn main() -> int {
         # Row 1:  0 0 1
         if (== y (+ glider_y 1)) {
             if (== x (+ glider_x 2)) {
-                set cell 1
+                set cell CellState.ALIVE
             } else {
                 (print "")
             }
@@ -207,13 +214,13 @@ fn main() -> int {
         # Row 2:  1 1 1
         if (== y (+ glider_y 2)) {
             if (== x glider_x) {
-                set cell 1
+                set cell CellState.ALIVE
             } else {
                 if (== x (+ glider_x 1)) {
-                    set cell 1
+                    set cell CellState.ALIVE
                 } else {
                     if (== x (+ glider_x 2)) {
-                        set cell 1
+                        set cell CellState.ALIVE
                     } else {
                         (print "")
                     }
@@ -245,9 +252,9 @@ fn main() -> int {
         while (< i grid_size) {
             let x: int = (% i GRID_WIDTH)
             let y: int = (/ i GRID_WIDTH)
-            let alive: int = (grid_get grid x y GRID_WIDTH GRID_HEIGHT)
+            let alive: CellState = (grid_get grid x y GRID_WIDTH GRID_HEIGHT)
             let neighbors: int = (count_neighbors grid x y GRID_WIDTH GRID_HEIGHT)
-            let new_cell: int = (apply_rules alive neighbors)
+            let new_cell: CellState = (apply_rules alive neighbors)
             
             set new_grid (array_push new_grid new_cell)
             set i (+ i 1)
@@ -267,13 +274,18 @@ fn main() -> int {
     (println "║        SIMULATION COMPLETE ✓               ║")
     (println "╚════════════════════════════════════════════╝")
     (println "")
-    (println "✅ FEATURES DEMONSTRATED:")
+    (println "✅ MODERN FEATURES USED:")
+    (println "  • Enums (CellState.DEAD, CellState.ALIVE)")
+    (println "  • Top-level constants (GRID_WIDTH, etc.)")
+    (println "  • Dynamic arrays (GC-managed)")
+    (println "  • Type-safe cell states")
+    (println "")
+    (println "✅ ALGORITHMS DEMONSTRATED:")
     (println "  • 2D grid operations via 1D array")
-    (println "  • Neighbor counting algorithm")
-    (println "  • Cellular automata rules")
-    (println "  • Dynamic array construction")
+    (println "  • Neighbor counting (Moore neighborhood)")
+    (println "  • Conway's Life rules (birth/death/survival)")
+    (println "  • Glider pattern generation")
     (println "  • Boundary checking")
-    (println "  • Complex nested conditionals")
     (println "")
     (println "🔬 Life emerged from simple rules!")
     
