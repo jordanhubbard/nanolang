@@ -8,6 +8,12 @@ import "examples/protracker-clone/types.nano"
 # Pattern data: flat array of [note, sample, effect, param]
 # Index: (pattern * PT_CHANNELS * PT_ROWS * 4) + (channel * PT_ROWS * 4) + (row * 4) + component
 
+# Component indices
+let NOTE_COMP: int = 0
+let SAMPLE_COMP: int = 1
+let EFFECT_COMP: int = 2
+let PARAM_COMP: int = 3
+
 fn pattern_index(pattern: int, channel: int, row: int, component: int) -> int {
     let pattern_size: int = (* (* PT_CHANNELS PT_ROWS) 4)
     let pattern_offset: int = (* pattern pattern_size)
