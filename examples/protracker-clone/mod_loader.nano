@@ -17,8 +17,8 @@ fn load_mod_file(filename: string) -> array<int> {
     (println filename)
     
     # Read file
-    let file_data: string = (os_file_read filename)
-    let file_size: int = (string_length file_data)
+    let file_data: string = (file_read filename)
+    let file_size: int = (str_length file_data)
     
     (print "File size: ")
     (print file_size)
@@ -31,7 +31,7 @@ fn load_mod_file(filename: string) -> array<int> {
     } else {}
     
     # Read song name (bytes 0-19)
-    let song_name: string = (string_substring file_data 0 20)
+    let song_name: string = (str_substring file_data 0 20)
     (print "Song: ")
     (println song_name)
     
@@ -39,8 +39,8 @@ fn load_mod_file(filename: string) -> array<int> {
     let sample_offset: int = (+ 20 (* 31 30))
     
     # Read song length (byte 950)
-    let song_length_byte: string = (string_substring file_data 950 1)
-    let song_length: int = (string_char_at song_length_byte 0)
+    let song_length_byte: string = (str_substring file_data 950 1)
+    let song_length: int = (char_at song_length_byte 0)
     (print "Song length: ")
     (println song_length)
     
@@ -51,8 +51,8 @@ fn load_mod_file(filename: string) -> array<int> {
     let mut highest_pattern: int = 0
     let mut i: int = 0
     while (< i song_length) {
-        let table_byte: string = (string_substring file_data (+ pattern_table_start i) 1)
-        let pattern_num: int = (string_char_at table_byte 0)
+        let table_byte: string = (str_substring file_data (+ pattern_table_start i) 1)
+        let pattern_num: int = (char_at table_byte 0)
         if (> pattern_num highest_pattern) {
             set highest_pattern pattern_num
         } else {}
@@ -63,7 +63,7 @@ fn load_mod_file(filename: string) -> array<int> {
     (println highest_pattern)
     
     # Read module tag (bytes 1080-1083, should be "M.K." or "4CHN")
-    let tag: string = (string_substring file_data 1080 4)
+    let tag: string = (str_substring file_data 1080 4)
     (print "Module tag: ")
     (println tag)
     
@@ -91,15 +91,15 @@ fn load_mod_file(filename: string) -> array<int> {
                 
                 if (< note_offset file_size) {
                     # Read 4 bytes for this note
-                    let byte0_str: string = (string_substring file_data note_offset 1)
-                    let byte1_str: string = (string_substring file_data (+ note_offset 1) 1)
-                    let byte2_str: string = (string_substring file_data (+ note_offset 2) 1)
-                    let byte3_str: string = (string_substring file_data (+ note_offset 3) 1)
+                    let byte0_str: string = (str_substring file_data note_offset 1)
+                    let byte1_str: string = (str_substring file_data (+ note_offset 1) 1)
+                    let byte2_str: string = (str_substring file_data (+ note_offset 2) 1)
+                    let byte3_str: string = (str_substring file_data (+ note_offset 3) 1)
                     
-                    let byte0: int = (string_char_at byte0_str 0)
-                    let byte1: int = (string_char_at byte1_str 0)
-                    let byte2: int = (string_char_at byte2_str 0)
-                    let byte3: int = (string_char_at byte3_str 0)
+                    let byte0: int = (char_at byte0_str 0)
+                    let byte1: int = (char_at byte1_str 0)
+                    let byte2: int = (char_at byte2_str 0)
+                    let byte3: int = (char_at byte3_str 0)
                     
                     # MOD format: period is in bytes 0-1 (12 bits)
                     # Sample number is in bytes 0,2 (upper 4 bits of byte 0, upper 4 bits of byte 2)

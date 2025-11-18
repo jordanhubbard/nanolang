@@ -67,11 +67,17 @@ fn main() -> int {
     
     # Create pattern data
     let pattern_data: array<int> = (create_demo_pattern)
-    (println "✓ Pattern data initialized")
     
-    # TODO: Load MOD file
-    # let mod_path: string = "/Users/jordanh/Downloads/gabba-studies-12.mod"
-    # set pattern_data (load_mod_file mod_path)
+    # Try to load MOD file
+    let mod_path: string = "/Users/jordanh/Downloads/gabba-studies-12.mod"
+    if (file_exists mod_path) {
+        (println "")
+        (println "Loading MOD file...")
+        set pattern_data (load_mod_file mod_path)
+        (println "✓ MOD file loaded")
+    } else {
+        (println "✓ Using demo pattern (MOD file not found)")
+    }
     
     (println "")
     (println "Controls:")
@@ -200,10 +206,10 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer 26 26 42 255)
         (SDL_RenderClear renderer)
         
-        (draw_header renderer "ProTracker Clone" playing)
-        (draw_pattern_grid renderer pattern_data current_pattern current_row cursor_channel)
-        (draw_sample_list renderer)
-        (draw_controls_help renderer)
+        # (draw_header renderer "ProTracker Clone" playing)
+        # (draw_pattern_grid renderer pattern_data current_pattern current_row cursor_channel)
+        # (draw_sample_list renderer)
+        # (draw_controls_help renderer)
         
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)
