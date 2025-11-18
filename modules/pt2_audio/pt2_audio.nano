@@ -1,0 +1,16 @@
+# ProTracker Audio Module
+# FFI bindings for pt2_audio wrapper
+
+# Initialize audio system
+extern fn pt2_audio_init(sample_rate: int) -> int
+
+# Load MOD file
+extern fn pt2_audio_load_mod(filename: string) -> int
+
+# Playback control
+extern fn pt2_audio_play() -> void
+extern fn pt2_audio_stop() -> void
+extern fn pt2_audio_is_playing() -> int
+
+# Audio generation (called from audio callback)
+# extern fn pt2_audio_update(buffer: ptr, frames: int) -> void

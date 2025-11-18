@@ -1,14 +1,20 @@
 {
   "name": "pt2_audio",
   "version": "1.0.0",
-  "description": "ProTracker audio engine - Paula emulation and mixing",
+  "description": "ProTracker audio engine - Paula emulation, BLEP, and replayer from pt2-clone",
   "c_sources": [
     "pt2_paula.c",
     "pt2_blep.c",
-    "pt2_audio.c"
+    "pt2_rcfilters.c",
+    "pt2_audio_wrapper.c"
   ],
-  "headers": ["pt2_audio.h"],
-  "cflags": ["-Imodules/pt2_audio", "-O2"],
-  "pkg_config": ["sdl2"],
-  "dependencies": ["sdl"]
+  "headers": [
+    "pt2_paula.h",
+    "pt2_blep.h", 
+    "pt2_rcfilters.h",
+    "pt2_structs.h",
+    "pt2_replayer.h"
+  ],
+  "cflags": ["-Imodules/pt2_audio", "-O2", "-Wno-unused-variable"],
+  "pkg_config": []
 }
