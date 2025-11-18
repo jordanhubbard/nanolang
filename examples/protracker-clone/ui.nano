@@ -2,10 +2,7 @@
 # Pattern editor and UI drawing
 
 import "modules/sdl/sdl.nano"
-# Note: sdl_helpers is imported in main.nano to avoid module compilation issues
-# We declare the functions we need as extern here
-extern fn nl_sdl_render_fill_rect(renderer: int, x: int, y: int, w: int, h: int) -> int
-
+import "modules/sdl_helpers/sdl_helpers.nano"
 import "examples/protracker-clone/types.nano"
 import "examples/protracker-clone/pattern.nano"
 
