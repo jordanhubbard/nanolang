@@ -122,7 +122,7 @@ static char* get_pkg_config_flags(const char *package, const char *flag_type) {
 // Note: This is a basic parser - it handles simple integer #define patterns only
 #include "nanolang.h"
 
-struct ConstantDef* parse_c_header_constants(const char *header_path, int *count_out) {
+ConstantDef* parse_c_header_constants(const char *header_path, int *count_out) {
     *count_out = 0;
     
     FILE *fp = fopen(header_path, "r");

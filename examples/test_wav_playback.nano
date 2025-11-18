@@ -1,0 +1,67 @@
+# Test WAV Playback
+# Simple test to verify our converted samples play with SDL_mixer
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_mixer/sdl_mixer.nano"
+
+fn main() -> int {
+    (println "Testing WAV playback...")
+    
+    # Initialize SDL
+    if (!= (SDL_Init SDL_INIT_AUDIO) 0) {
+        (println "SDL_Init failed")
+        return 1
+    } else {}
+    
+    # Initialize SDL_mixer
+    if (!= (Mix_OpenAudio 44100 MIX_DEFAULT_FORMAT 2 2048) 0) {
+        (println "Mix_OpenAudio failed")
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    (println "SDL_mixer initialized")
+    (print "Channels: ")
+    (println (Mix_AllocateChannels (-1)))
+    
+    # Load a sample WAV file
+    let sample_file: string = "/tmp/pt2_sample_1.wav"
+    (print "Loading: ")
+    (println sample_file)
+    
+    let sample: int = (Mix_LoadWAV sample_file)
+    if (== sample 0) {
+        (println "ERROR: Failed to load WAV file")
+        (println "Make sure to run ProTracker first to generate WAV files!")
+        (Mix_CloseAudio)
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    (println "✓ WAV loaded successfully!")
+    (println "")
+    (println "Playing sample on channel 0...")
+    
+    # Play sample on channel 0, no loops
+    let channel: int = (Mix_PlayChannel 0 sample 0)
+    if (== channel (-1)) {
+        (println "ERROR: Failed to play sample")
+    } else {
+        (print "✓ Playing on channel ")
+        (println channel)
+        (println "")
+        (println "Listening for 2 seconds...")
+        
+        # Wait for playback
+        (SDL_Delay 2000)
+    }
+    
+    # Cleanup
+    # (Mix_FreeChunk sample)  # TODO: Fix void function issue
+    (Mix_CloseAudio)
+    (SDL_Quit)
+    
+    (println "")
+    (println "✓ Test complete!")
+    return 0
+}

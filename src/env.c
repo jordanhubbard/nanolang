@@ -44,7 +44,7 @@ static BuiltinFuncInfo builtin_functions[] = {
     
     /* Array operations */
     {"array_length", 1, {TYPE_ARRAY, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
-    {"array_new", 1, {TYPE_INT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_ARRAY},
+    {"array_new", 2, {TYPE_INT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_ARRAY},
     {"array_set", 3, {TYPE_ARRAY, TYPE_INT, TYPE_INT}, TYPE_VOID},
     {"at", 2, {TYPE_ARRAY, TYPE_INT, TYPE_UNKNOWN}, TYPE_INT},
 

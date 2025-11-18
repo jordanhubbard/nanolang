@@ -365,6 +365,42 @@ Type check_expression(ASTNode *expr, Environment *env) {
                     return TYPE_ARRAY;
                 }
                 
+                /* Special handling for file_read_bytes builtin */
+                if (strcmp(expr->as.call.name, "file_read_bytes") == 0) {
+                    /* file_read_bytes(filename) -> array<int> of bytes */
+                    if (expr->as.call.arg_count >= 1) {
+                        check_expression(expr->as.call.args[0], env);
+                    }
+                    return TYPE_ARRAY;
+                }
+                
+                /* Special handling for array_get builtin */
+                if (strcmp(expr->as.call.name, "array_get") == 0) {
+                    /* array_get(array, index) -> element type (same as at()) */
+                    if (expr->as.call.arg_count >= 1) {
+                        ASTNode *array_arg = expr->as.call.args[0];
+                        check_expression(array_arg, env);
+                        
+                        /* Try to infer element type from array */
+                        if (array_arg->type == AST_IDENTIFIER) {
+                            Symbol *sym = env_get_var(env, array_arg->as.identifier);
+                            if (sym && sym->element_type != TYPE_UNKNOWN) {
+                                return sym->element_type;
+                            }
+                        }
+                    }
+                    return TYPE_INT;  /* Default fallback */
+                }
+                
+                /* Special handling for array_length builtin */
+                if (strcmp(expr->as.call.name, "array_length") == 0) {
+                    /* array_length(array) -> int */
+                    if (expr->as.call.arg_count >= 1) {
+                        check_expression(expr->as.call.args[0], env);
+                    }
+                    return TYPE_INT;
+                }
+                
                 safe_fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
                         expr->line, expr->column, safe_format_string(expr->as.call.name));
                 return TYPE_UNKNOWN;
@@ -441,7 +477,7 @@ Type check_expression(ASTNode *expr, Environment *env) {
             }
 
             /* Special handling for array operations that need element type inference */
-            if (strcmp(expr->as.call.name, "at") == 0) {
+            if (strcmp(expr->as.call.name, "at") == 0 || strcmp(expr->as.call.name, "array_get") == 0) {
                 /* at(array, index) returns the element type of the array */
                 if (expr->as.call.arg_count >= 1) {
                     ASTNode *array_arg = expr->as.call.args[0];
@@ -480,6 +516,31 @@ Type check_expression(ASTNode *expr, Environment *env) {
                     if (array_type == TYPE_ARRAY && array_arg->type == AST_ARRAY_LITERAL) {
                         return array_arg->as.array_literal.element_type;
                     }
+                }
+            }
+
+            /* Special handling for file_read_bytes - returns array<int> */
+            if (strcmp(expr->as.call.name, "file_read_bytes") == 0) {
+                /* Check arguments */
+                if (expr->as.call.arg_count >= 1) {
+                    check_expression(expr->as.call.args[0], env);
+                }
+                return TYPE_ARRAY;  /* Returns array<int> of bytes */
+            }
+            
+            /* Special handling for polymorphic built-in functions (abs, min, max) */
+            /* These functions return the same type as their input arguments */
+            if (strcmp(expr->as.call.name, "abs") == 0 ||
+                strcmp(expr->as.call.name, "min") == 0 ||
+                strcmp(expr->as.call.name, "max") == 0) {
+                /* Check the type of the first argument */
+                if (expr->as.call.arg_count >= 1) {
+                    Type arg_type = check_expression(expr->as.call.args[0], env);
+                    if (arg_type == TYPE_FLOAT) {
+                        return TYPE_FLOAT;
+                    }
+                    /* For int or other types, return int */
+                    return TYPE_INT;
                 }
             }
 
@@ -1243,11 +1304,11 @@ static const char *builtin_function_names[] = {
     /* Type conversions */
     "int_to_string", "string_to_int", "digit_value", "char_to_lower", "char_to_upper",
     /* Array */
-    "at", "array_length", "array_new", "array_set",
+    "at", "array_get", "array_length", "array_new", "array_set",
     /* OS */
     "getcwd", "getenv", "exit",
     /* File I/O (stdlib functions) */
-    "file_read", "file_write", "file_append", "file_remove", "file_rename",
+    "file_read", "file_read_bytes", "file_write", "file_append", "file_remove", "file_rename",
     "file_exists", "file_size",
     /* Directory operations */
     "dir_create", "dir_remove", "dir_list", "dir_exists", "chdir",
