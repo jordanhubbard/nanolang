@@ -1,0 +1,111 @@
+# MOD Player with Simple Animated Visualizer
+# Shows animated waveform and VU meters while playing MOD music
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_mixer/sdl_mixer.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+
+fn main() -> int {
+    (println "MOD Visualizer - Press ESC to quit")
+    
+    # Initialize SDL
+    (SDL_Init (+ SDL_INIT_VIDEO SDL_INIT_AUDIO))
+    
+    # Init mixer
+    (Mix_Init 0)
+    (Mix_OpenAudio 44100 32784 2 2048)
+    
+    # Create window and renderer
+    let window: int = (SDL_CreateWindow "MOD Visualizer" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
+    let renderer: int = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+    
+    # Load MOD
+    let music: int = (Mix_LoadMUS "/Users/jordanh/Downloads/gabba-studies-12.mod")
+    if (== music 0) {
+        (print "Failed to load MOD: ")
+        (println (Mix_GetError))
+        return 1
+    } else {
+        (println "MOD loaded! Playing...")
+    }
+    
+    # Play music  
+    (Mix_PlayMusic music -1)
+    (Mix_VolumeMusic 80)
+    
+    # Main loop
+    let mut running: bool = true
+    let mut frame: int = 0
+    
+    while running {
+        # Events
+        if (!= (nl_sdl_poll_event_quit) 0) {
+            set running false
+        } else {
+            if (== (nl_sdl_poll_keypress) 27) {
+                set running false
+            } else {
+                # continue
+            }
+        }
+        
+        # Clear
+        (SDL_SetRenderDrawColor renderer 10 10 15 255)
+        (SDL_RenderClear renderer)
+        
+        # Draw animated waveform (simulated)
+        let mut i: int = 0
+        (SDL_SetRenderDrawColor renderer 0 255 100 255)
+        while (< i 700) {
+            let t: float = (* 0.01 (cast_float (+ frame i)))
+            let y: int = (+ 200 (cast_int (* 80.0 (sin t))))
+            (SDL_RenderDrawPoint renderer (+ 50 i) y)
+            set i (+ i 1)
+        }
+        
+        # Draw VU meters (animated)
+        let vu: int = (+ 50 (cast_int (* 30.0 (sin (* 0.05 (cast_float frame))))))
+        
+        # Channel 1
+        (SDL_SetRenderDrawColor renderer 0 255 0 255)
+        (nl_sdl_render_fill_rect renderer 100 (- 500 vu) 20 vu)
+        
+        # Channel 2
+        (SDL_SetRenderDrawColor renderer 0 255 0 255)
+        let vu2: int = (+ 50 (cast_int (* 25.0 (sin (* 0.07 (cast_float frame))))))
+        (nl_sdl_render_fill_rect renderer 250 (- 500 vu2) 20 vu2)
+        
+        # Channel 3
+        (SDL_SetRenderDrawColor renderer 0 255 0 255)
+        let vu3: int = (+ 50 (cast_int (* 28.0 (sin (* 0.06 (cast_float frame))))))
+        (nl_sdl_render_fill_rect renderer 400 (- 500 vu3) 20 vu3)
+        
+        # Channel 4
+        (SDL_SetRenderDrawColor renderer 0 255 0 255)
+        let vu4: int = (+ 50 (cast_int (* 32.0 (sin (* 0.08 (cast_float frame))))))
+        (nl_sdl_render_fill_rect renderer 550 (- 500 vu4) 20 vu4)
+        
+        # Present
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
+        
+        set frame (+ frame 1)
+    }
+    
+    # Cleanup
+    (Mix_HaltMusic)
+    (Mix_FreeMusic music)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (Mix_CloseAudio)
+    (Mix_Quit)
+    (SDL_Quit)
+    
+    (println "Done!")
+    return 0
+}
+
+shadow main { assert true }
