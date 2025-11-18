@@ -664,6 +664,10 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             /* File operations */
             if (strcmp(func_name, "file_read") == 0) {
                 func_name = "nl_os_file_read";
+            } else if (strcmp(func_name, "file_read_binary") == 0) {
+                func_name = "nl_os_file_read_binary";
+            } else if (strcmp(func_name, "file_size") == 0) {
+                func_name = "nl_os_file_size";
             } else if (strcmp(func_name, "file_write") == 0) {
                 func_name = "nl_os_file_write";
             } else if (strcmp(func_name, "file_append") == 0) {
@@ -740,6 +744,9 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             /* String operations */
             } else if (strcmp(func_name, "str_length") == 0) {
                 func_name = "strlen";  /* Use C string library directly */
+            } else if (strcmp(func_name, "array_length") == 0) {
+                /* array_length handled specially - see array operations */
+                func_name = "array_length";  /* Placeholder */
             } else if (strcmp(func_name, "str_concat") == 0) {
                 func_name = "nl_str_concat";
             } else if (strcmp(func_name, "str_substring") == 0) {

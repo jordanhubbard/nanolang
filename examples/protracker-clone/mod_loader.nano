@@ -31,9 +31,9 @@ fn load_mod_file(filename: string) -> array<int> {
     (println "Loading MOD file:")
     (println filename)
     
-    # Read file
+    # Read file - use file_size for binary data (not str_length)
     let file_data: string = (file_read filename)
-    let file_size: int = (str_length file_data)
+    let file_size: int = (file_size filename)
     
     (print "File size: ")
     (print file_size)

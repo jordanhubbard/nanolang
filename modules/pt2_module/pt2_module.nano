@@ -1,0 +1,28 @@
+# ProTracker Module API
+# Provides MOD file operations for nanolang
+
+# Load MOD file - returns 0 on success, -1 on error
+extern fn pt2_module_load(filename: string) -> int
+
+# Get module info
+extern fn pt2_module_get_name() -> string
+extern fn pt2_module_get_song_length() -> int
+extern fn pt2_module_get_pattern_count() -> int
+extern fn pt2_module_get_pattern_table(position: int) -> int
+
+# Get sample info
+extern fn pt2_module_get_sample_length(sample_num: int) -> int
+extern fn pt2_module_get_sample_volume(sample_num: int) -> int
+extern fn pt2_module_get_sample_name(sample_num: int) -> string
+
+# Get note data from pattern
+extern fn pt2_module_get_note_period(pattern: int, row: int, channel: int) -> int
+extern fn pt2_module_get_note_sample(pattern: int, row: int, channel: int) -> int
+extern fn pt2_module_get_note_command(pattern: int, row: int, channel: int) -> int
+extern fn pt2_module_get_note_param(pattern: int, row: int, channel: int) -> int
+
+# Save module
+extern fn pt2_module_save(filename: string) -> int
+
+# Free module
+extern fn pt2_module_free() -> void
