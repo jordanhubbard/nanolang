@@ -668,6 +668,8 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 func_name = "nl_os_file_read_binary";
             } else if (strcmp(func_name, "file_size") == 0) {
                 func_name = "nl_os_file_size";
+            } else if (strcmp(func_name, "file_read_bytes") == 0) {
+                func_name = "nl_os_file_read_bytes";
             } else if (strcmp(func_name, "file_write") == 0) {
                 func_name = "nl_os_file_write";
             } else if (strcmp(func_name, "file_append") == 0) {
@@ -745,8 +747,8 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             } else if (strcmp(func_name, "str_length") == 0) {
                 func_name = "strlen";  /* Use C string library directly */
             } else if (strcmp(func_name, "array_length") == 0) {
-                /* array_length handled specially - see array operations */
-                func_name = "array_length";  /* Placeholder */
+                /* array_length - get DynArray size */
+                func_name = "dyn_array_length";
             } else if (strcmp(func_name, "str_concat") == 0) {
                 func_name = "nl_str_concat";
             } else if (strcmp(func_name, "str_substring") == 0) {
@@ -770,8 +772,8 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             } else if (strcmp(func_name, "array_pop") == 0) {
                 /* array_pop needs type detection - will handle specially below */
                 func_name = "nl_array_pop";  /* Placeholder, will be replaced */
-            } else if (strcmp(func_name, "at") == 0) {
-                /* at() needs type detection - will handle specially below */
+            } else if (strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0) {
+                /* at() and array_get() need type detection - will handle specially below */
                 func_name = "nl_array_at";  /* Placeholder, will be replaced */
             } else if (strcmp(func_name, "print") == 0) {
                 /* Special handling for print - dispatch based on argument type */
@@ -903,11 +905,11 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                     transpile_expression(sb, expr->as.call.args[2], env);  /* value */
                     sb_appendf(sb, "), sizeof(%s))", prefixed_struct);
                 }
-            } else if (strcmp(original_func_name, "at") == 0 || strcmp(original_func_name, "array_set") == 0) {
+            } else if (strcmp(original_func_name, "at") == 0 || strcmp(original_func_name, "array_get") == 0 || strcmp(original_func_name, "array_set") == 0) {
                 /* Non-struct arrays: use type-specific int/float versions */
-                /* For at(): nl_array_at_int or nl_array_at_float */
+                /* For at() and array_get(): nl_array_at_int or nl_array_at_float */
                 /* For array_set(): nl_array_set_int or nl_array_set_float */
-                if (strcmp(original_func_name, "at") == 0) {
+                if (strcmp(original_func_name, "at") == 0 || strcmp(original_func_name, "array_get") == 0) {
                     func_name = "nl_array_at_int";  /* Default to int */
                 } else if (strcmp(original_func_name, "array_set") == 0) {
                     func_name = "nl_array_set_int";  /* Default to int */
@@ -1636,35 +1638,31 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "    return buffer;\n");
     sb_append(sb, "}\n\n");
 
-    /* Binary file reading - returns array of bytes as int64_t array */
-    sb_append(sb, "static void* nl_os_file_read_binary(const char* path, int64_t* out_size) {\n");
+    /* Binary file reading - returns DynArray of bytes (0-255) */
+    sb_append(sb, "static DynArray* nl_os_file_read_bytes(const char* path) {\n");
     sb_append(sb, "    FILE* f = fopen(path, \"rb\");\n");
     sb_append(sb, "    if (!f) {\n");
-    sb_append(sb, "        *out_size = 0;\n");
-    sb_append(sb, "        return NULL;\n");
+    sb_append(sb, "        /* Return empty array on error */\n");
+    sb_append(sb, "        return dyn_array_new(ELEM_INT);\n");
     sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
     sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
     sb_append(sb, "    long size = ftell(f);\n");
     sb_append(sb, "    fseek(f, 0, SEEK_SET);\n");
     sb_append(sb, "    \n");
-    sb_append(sb, "    /* Allocate int64_t array for byte data */\n");
-    sb_append(sb, "    int64_t* data = malloc(size * sizeof(int64_t));\n");
-    sb_append(sb, "    if (!data) {\n");
-    sb_append(sb, "        fclose(f);\n");
-    sb_append(sb, "        *out_size = 0;\n");
-    sb_append(sb, "        return NULL;\n");
-    sb_append(sb, "    }\n");
+    sb_append(sb, "    /* Create dynamic array for bytes */\n");
+    sb_append(sb, "    DynArray* bytes = dyn_array_new(ELEM_INT);\n");
     sb_append(sb, "    \n");
-    sb_append(sb, "    /* Read bytes and convert to int64_t array */\n");
+    sb_append(sb, "    /* Read bytes and add to array */\n");
     sb_append(sb, "    for (long i = 0; i < size; i++) {\n");
     sb_append(sb, "        int c = fgetc(f);\n");
     sb_append(sb, "        if (c == EOF) break;\n");
-    sb_append(sb, "        data[i] = (int64_t)(unsigned char)c;\n");
+    sb_append(sb, "        int64_t byte_val = (int64_t)(unsigned char)c;\n");
+    sb_append(sb, "        dyn_array_push_int(bytes, byte_val);\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    \n");
     sb_append(sb, "    fclose(f);\n");
-    sb_append(sb, "    *out_size = size;\n");
-    sb_append(sb, "    return data;\n");
+    sb_append(sb, "    return bytes;\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static int64_t nl_os_file_write(const char* path, const char* content) {\n");
