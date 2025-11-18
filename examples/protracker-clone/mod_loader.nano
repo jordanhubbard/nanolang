@@ -1,6 +1,7 @@
 # MOD file loader
 # Based on pt2-clone by Olav Sørensen
 
+import "modules/pt2_state/pt2_state.nano"
 import "examples/protracker-clone/types.nano"
 import "examples/protracker-clone/pattern.nano"
 
@@ -49,10 +50,14 @@ fn load_mod_file(filename: string) -> array<int> {
     (println song_name)
     (println "")
     
-    # Parse sample headers (bytes 20-949 = 31 samples * 30 bytes each)
+    # Parse sample headers and extract sample data
     (println "Parsing samples:")
+    
+    # First pass: parse headers and calculate offsets
     let mut samp: int = 0
     let mut total_sample_bytes: int = 0
+    let mut sample_count: int = 0
+    
     while (< samp 31) {
         let header_offset: int = (+ 20 (* samp 30))
         
@@ -65,27 +70,39 @@ fn load_mod_file(filename: string) -> array<int> {
         let samp_loop_start: int = (* (read_be16 file_data (+ header_offset 26)) 2)
         let samp_loop_len: int = (* (read_be16 file_data (+ header_offset 28)) 2)
         
-        # Print sample info
+        # Print and store sample info
         if (> samp_len_bytes 0) {
             (print "  Sample ")
             (print (+ samp 1))
-            (print ": ")
-            (print samp_name)
-            (print " len=")
+            (print ": len=")
             (print samp_len_bytes)
             (print " vol=")
-            (println samp_volume)
+            (print samp_volume)
+            (print " loop=")
+            (print samp_loop_start)
+            (print "/")
+            (println samp_loop_len)
+            
+            # Store in pt2_state for later use
+            (pt2_set_sample_length samp samp_len_bytes)
+            (pt2_set_sample_volume samp samp_volume)
+            (pt2_set_sample_loop_start samp samp_loop_start)
+            (pt2_set_sample_loop_length samp samp_loop_len)
             
             set total_sample_bytes (+ total_sample_bytes samp_len_bytes)
+            set sample_count (+ sample_count 1)
         } else {}
         
         set samp (+ samp 1)
     }
     
     (println "")
+    (print "Samples found: ")
+    (println sample_count)
     (print "Total sample data: ")
     (print total_sample_bytes)
     (println " bytes")
+    (println "")
     
     # Read song length (byte 950)
     let song_length_byte: string = (str_substring file_data 950 1)

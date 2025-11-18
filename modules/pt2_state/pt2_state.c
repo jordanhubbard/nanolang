@@ -26,6 +26,12 @@ static int g_ch_volume[4] = {0, 0, 0, 0};
 static int g_ch_sample[4] = {0, 0, 0, 0};
 static int g_ch_note[4] = {0, 0, 0, 0};
 
+// Sample data (31 samples)
+static int g_sample_length[31];
+static int g_sample_volume[31];
+static int g_sample_loop_start[31];
+static int g_sample_loop_length[31];
+
 // === INITIALIZATION ===
 
 extern int pt2_init_state(void) {
@@ -196,4 +202,58 @@ extern void pt2_set_song_length(int length) {
 
 extern int pt2_get_song_length(void) {
     return g_song_length;
+}
+
+// === SAMPLE DATA ===
+
+extern void pt2_set_sample_length(int sample, int length) {
+    if (sample >= 0 && sample < 31) {
+        g_sample_length[sample] = length;
+    }
+}
+
+extern int pt2_get_sample_length(int sample) {
+    if (sample >= 0 && sample < 31) {
+        return g_sample_length[sample];
+    }
+    return 0;
+}
+
+extern void pt2_set_sample_volume(int sample, int volume) {
+    if (sample >= 0 && sample < 31) {
+        g_sample_volume[sample] = volume;
+    }
+}
+
+extern int pt2_get_sample_volume(int sample) {
+    if (sample >= 0 && sample < 31) {
+        return g_sample_volume[sample];
+    }
+    return 0;
+}
+
+extern void pt2_set_sample_loop_start(int sample, int start) {
+    if (sample >= 0 && sample < 31) {
+        g_sample_loop_start[sample] = start;
+    }
+}
+
+extern int pt2_get_sample_loop_start(int sample) {
+    if (sample >= 0 && sample < 31) {
+        return g_sample_loop_start[sample];
+    }
+    return 0;
+}
+
+extern void pt2_set_sample_loop_length(int sample, int length) {
+    if (sample >= 0 && sample < 31) {
+        g_sample_loop_length[sample] = length;
+    }
+}
+
+extern int pt2_get_sample_loop_length(int sample) {
+    if (sample >= 0 && sample < 31) {
+        return g_sample_loop_length[sample];
+    }
+    return 0;
 }
