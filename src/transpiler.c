@@ -1629,6 +1629,37 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "    return buffer;\n");
     sb_append(sb, "}\n\n");
 
+    /* Binary file reading - returns array of bytes as int64_t array */
+    sb_append(sb, "static void* nl_os_file_read_binary(const char* path, int64_t* out_size) {\n");
+    sb_append(sb, "    FILE* f = fopen(path, \"rb\");\n");
+    sb_append(sb, "    if (!f) {\n");
+    sb_append(sb, "        *out_size = 0;\n");
+    sb_append(sb, "        return NULL;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
+    sb_append(sb, "    long size = ftell(f);\n");
+    sb_append(sb, "    fseek(f, 0, SEEK_SET);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Allocate int64_t array for byte data */\n");
+    sb_append(sb, "    int64_t* data = malloc(size * sizeof(int64_t));\n");
+    sb_append(sb, "    if (!data) {\n");
+    sb_append(sb, "        fclose(f);\n");
+    sb_append(sb, "        *out_size = 0;\n");
+    sb_append(sb, "        return NULL;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Read bytes and convert to int64_t array */\n");
+    sb_append(sb, "    for (long i = 0; i < size; i++) {\n");
+    sb_append(sb, "        int c = fgetc(f);\n");
+    sb_append(sb, "        if (c == EOF) break;\n");
+    sb_append(sb, "        data[i] = (int64_t)(unsigned char)c;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    fclose(f);\n");
+    sb_append(sb, "    *out_size = size;\n");
+    sb_append(sb, "    return data;\n");
+    sb_append(sb, "}\n\n");
+
     sb_append(sb, "static int64_t nl_os_file_write(const char* path, const char* content) {\n");
     sb_append(sb, "    FILE* f = fopen(path, \"w\");\n");
     sb_append(sb, "    if (!f) return -1;\n");
