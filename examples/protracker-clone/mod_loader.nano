@@ -104,11 +104,6 @@ fn load_mod_file(filename: string) -> array<int> {
     (println " bytes")
     (println "")
     
-    # TODO: Extract sample waveform data
-    # Sample data starts after patterns at: 1084 + (highest_pattern + 1) * 1024
-    # For now, we'll skip actual waveform extraction and focus on pattern playback
-    # We can use SDL_mixer to generate test tones instead
-    
     # Read song length (byte 950)
     let song_length_byte: string = (str_substring file_data 950 1)
     let song_length: int = (char_at song_length_byte 0)
@@ -211,6 +206,38 @@ fn load_mod_file(filename: string) -> array<int> {
         set patt (+ patt 1)
     }
     
+    # Extract sample waveform data
+    (println "")
+    (println "Extracting sample waveforms...")
+    
+    let pattern_data_size: int = (* (+ highest_pattern 1) 1024)
+    let sample_data_offset: int = (+ 1084 pattern_data_size)
+    
+    set samp 0
+    let mut current_pos: int = sample_data_offset
+    
+    while (< samp 31) {
+        let sample_len: int = (pt2_get_sample_length samp)
+        
+        if (> sample_len 0) {
+            let pcm_data: string = (str_substring file_data current_pos sample_len)
+            let wav_name: string = (str_concat "/tmp/pt2_sample_" (int_to_string (+ samp 1)))
+            set wav_name (str_concat wav_name ".raw")
+            (file_write wav_name pcm_data)
+            
+            (print "  Sample ")
+            (print (+ samp 1))
+            (print ": ")
+            (print sample_len)
+            (println " bytes")
+            
+            set current_pos (+ current_pos sample_len)
+        } else {}
+        
+        set samp (+ samp 1)
+    }
+    
+    (println "")
     (println "✓ MOD file loaded successfully!")
     return pattern_data
 }
