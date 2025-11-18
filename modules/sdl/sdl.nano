@@ -36,6 +36,8 @@ extern fn SDL_Delay(ms: int) -> void
 # SDL2 Window Functions
 extern fn SDL_CreateWindow(title: string, x: int, y: int, w: int, h: int, flags: int) -> int
 extern fn SDL_DestroyWindow(window: int) -> void
+extern fn SDL_SetWindowTitle(window: int, title: string) -> void
+extern fn SDL_GetWindowSize(window: int, w_ptr: int, h_ptr: int) -> void
 
 # SDL2 Renderer Functions  
 extern fn SDL_CreateRenderer(window: int, index: int, flags: int) -> int
@@ -46,8 +48,13 @@ extern fn SDL_SetRenderDrawColor(renderer: int, r: int, g: int, b: int, a: int) 
 extern fn SDL_RenderFillRect(renderer: int, rect_ptr: int) -> int
 extern fn SDL_RenderDrawPoint(renderer: int, x: int, y: int) -> int
 extern fn SDL_RenderDrawLine(renderer: int, x1: int, y1: int, x2: int, y2: int) -> int
+extern fn SDL_RenderDrawRect(renderer: int, rect_ptr: int) -> int
 extern fn SDL_SetRenderDrawBlendMode(renderer: int, mode: int) -> int
 extern fn SDL_RenderCopy(renderer: int, texture: int, srcrect: int, dstrect: int) -> int
+extern fn SDL_CreateTexture(renderer: int, format: int, access: int, w: int, h: int) -> int
+extern fn SDL_UpdateTexture(texture: int, rect: int, pixels: int, pitch: int) -> int
+extern fn SDL_SetTextureBlendMode(texture: int, mode: int) -> int
+extern fn SDL_SetTextureAlphaMod(texture: int, alpha: int) -> int
 extern fn SDL_QueryTexture(texture: int, format: int, access: int, w: int, h: int) -> int
 extern fn SDL_CreateTextureFromSurface(renderer: int, surface: int) -> int
 extern fn SDL_DestroyTexture(texture: int) -> void
