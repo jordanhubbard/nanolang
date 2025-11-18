@@ -1,0 +1,17 @@
+{
+  "name": "pt2_module",
+  "version": "1.0.0",
+  "description": "ProTracker MOD file operations from pt2-clone",
+  "c_sources": [
+    "pt2_module_api.c",
+    "pt2_module_loader.c",
+    "pt2_module_saver.c"
+  ],
+  "headers": [
+    "pt2_structs.h",
+    "pt2_module_loader.h",
+    "pt2_module_saver.h"
+  ],
+  "cflags": ["-I.", "-Wno-unused-variable", "-Wno-unused-parameter"],
+  "pkg_config": []
+}
