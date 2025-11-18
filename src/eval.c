@@ -1420,7 +1420,8 @@ static Value eval_call(ASTNode *node, Environment *env) {
         }
         const char *str = args[0].as.string_val;
         long long index = args[1].as.int_val;
-        int len = strlen(str);
+        /* Safety: Bound string scan to 1MB */
+        int len = strnlen(str, 1024*1024);
         if (index < 0 || index >= len) {
             fprintf(stderr, "Error: Index %lld out of bounds (string length %d)\n", index, len);
             return create_void();
