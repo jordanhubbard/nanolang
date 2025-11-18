@@ -11,6 +11,19 @@ let MOD_SAMPLE_HEADER_SIZE: int = 30
 let MOD_SAMPLES: int = 31
 let MOD_PATTERN_TABLE_SIZE: int = 128
 
+# Helper: Read 16-bit big-endian value from string
+fn read_be16(data: string, offset: int) -> int {
+    let byte1: int = (char_at data offset)
+    let byte2: int = (char_at data (+ offset 1))
+    return (+ (* byte1 256) byte2)
+}
+
+shadow read_be16 {
+    # Test: 0x1817 = 6167 decimal
+    let test_data: string = "\x18\x17\x00\x00"
+    assert (== (read_be16 test_data 0) 6167)
+}
+
 # Load MOD file and return pattern data
 fn load_mod_file(filename: string) -> array<int> {
     (println "Loading MOD file:")
@@ -34,9 +47,45 @@ fn load_mod_file(filename: string) -> array<int> {
     let song_name: string = (str_substring file_data 0 20)
     (print "Song: ")
     (println song_name)
+    (println "")
     
-    # Skip sample headers for now (bytes 20-949 = 31 samples * 30 bytes)
-    let sample_offset: int = (+ 20 (* 31 30))
+    # Parse sample headers (bytes 20-949 = 31 samples * 30 bytes each)
+    (println "Parsing samples:")
+    let mut samp: int = 0
+    let mut total_sample_bytes: int = 0
+    while (< samp 31) {
+        let header_offset: int = (+ 20 (* samp 30))
+        
+        # Read sample header
+        let samp_name: string = (str_substring file_data header_offset 22)
+        let samp_len_words: int = (read_be16 file_data (+ header_offset 22))
+        let samp_len_bytes: int = (* samp_len_words 2)
+        let samp_finetune: int = (char_at file_data (+ header_offset 24))
+        let samp_volume: int = (char_at file_data (+ header_offset 25))
+        let samp_loop_start: int = (* (read_be16 file_data (+ header_offset 26)) 2)
+        let samp_loop_len: int = (* (read_be16 file_data (+ header_offset 28)) 2)
+        
+        # Print sample info
+        if (> samp_len_bytes 0) {
+            (print "  Sample ")
+            (print (+ samp 1))
+            (print ": ")
+            (print samp_name)
+            (print " len=")
+            (print samp_len_bytes)
+            (print " vol=")
+            (println samp_volume)
+            
+            set total_sample_bytes (+ total_sample_bytes samp_len_bytes)
+        } else {}
+        
+        set samp (+ samp 1)
+    }
+    
+    (println "")
+    (print "Total sample data: ")
+    (print total_sample_bytes)
+    (println " bytes")
     
     # Read song length (byte 950)
     let song_length_byte: string = (str_substring file_data 950 1)
