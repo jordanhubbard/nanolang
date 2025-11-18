@@ -104,6 +104,11 @@ fn load_mod_file(filename: string) -> array<int> {
     (println " bytes")
     (println "")
     
+    # TODO: Extract sample waveform data
+    # Sample data starts after patterns at: 1084 + (highest_pattern + 1) * 1024
+    # For now, we'll skip actual waveform extraction and focus on pattern playback
+    # We can use SDL_mixer to generate test tones instead
+    
     # Read song length (byte 950)
     let song_length_byte: string = (str_substring file_data 950 1)
     let song_length: int = (char_at song_length_byte 0)
