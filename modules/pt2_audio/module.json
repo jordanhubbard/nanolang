@@ -1,0 +1,14 @@
+{
+  "name": "pt2_audio",
+  "version": "1.0.0",
+  "description": "ProTracker audio engine - Paula emulation and mixing",
+  "c_sources": [
+    "pt2_paula.c",
+    "pt2_blep.c",
+    "pt2_audio.c"
+  ],
+  "headers": ["pt2_audio.h"],
+  "cflags": ["-Imodules/pt2_audio", "-O2"],
+  "pkg_config": ["sdl2"],
+  "dependencies": ["sdl"]
+}
