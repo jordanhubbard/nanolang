@@ -25,7 +25,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env);
 /* File Operations */
 static Value builtin_file_read(Value *args) {
     const char *path = args[0].as.string_val;
-    FILE *f = fopen(path, "r");
+    FILE *f = fopen(path, "rb");  /* Binary mode for MOD files and other binary data */
     if (!f) return create_string("");
 
     fseek(f, 0, SEEK_END);

@@ -782,6 +782,9 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                     case TYPE_BOOL:
                         func_name = "nl_print_bool";
                         break;
+                    case TYPE_ARRAY:
+                        func_name = "nl_print_array";
+                        break;
                     default:
                         func_name = "nl_print_int";  /* Fallback */
                         break;
@@ -801,6 +804,9 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                         break;
                     case TYPE_BOOL:
                         func_name = "nl_println_bool";
+                        break;
+                    case TYPE_ARRAY:
+                        func_name = "nl_println_array";
                         break;
                     default:
                         func_name = "nl_println_int";  /* Fallback */
@@ -1611,7 +1617,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     /* File operations */
     sb_append(sb, "static char* nl_os_file_read(const char* path) {\n");
-    sb_append(sb, "    FILE* f = fopen(path, \"r\");\n");
+    sb_append(sb, "    FILE* f = fopen(path, \"rb\");  /* Binary mode for MOD files */\n");
     sb_append(sb, "    if (!f) return \"\";\n");
     sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
     sb_append(sb, "    long size = ftell(f);\n");
@@ -2032,6 +2038,31 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     sb_append(sb, "static void nl_println_bool(bool value) {\n");
     sb_append(sb, "    printf(\"%s\\n\", value ? \"true\" : \"false\");\n");
+    sb_append(sb, "}\n\n");
+
+    /* Array printing - supports DynArray */
+    sb_append(sb, "static void nl_print_array(DynArray* arr) {\n");
+    sb_append(sb, "    printf(\"[\");\n");
+    sb_append(sb, "    for (int i = 0; i < arr->length; i++) {\n");
+    sb_append(sb, "        if (i > 0) printf(\", \");\n");
+    sb_append(sb, "        switch (arr->elem_type) {\n");
+    sb_append(sb, "            case ELEM_INT:\n");
+    sb_append(sb, "                printf(\"%lld\", ((int64_t*)arr->data)[i]);\n");
+    sb_append(sb, "                break;\n");
+    sb_append(sb, "            case ELEM_FLOAT:\n");
+    sb_append(sb, "                printf(\"%g\", ((double*)arr->data)[i]);\n");
+    sb_append(sb, "                break;\n");
+    sb_append(sb, "            default:\n");
+    sb_append(sb, "                printf(\"?\");\n");
+    sb_append(sb, "                break;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    printf(\"]\");\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static void nl_println_array(DynArray* arr) {\n");
+    sb_append(sb, "    nl_print_array(arr);\n");
+    sb_append(sb, "    printf(\"\\n\");\n");
     sb_append(sb, "}\n\n");
 
     /* Array operations */
