@@ -2,6 +2,7 @@
 # Based on pt2-clone by Olav Sørensen
 
 import "modules/pt2_state/pt2_state.nano"
+import "modules/audio_helpers/audio_helpers.nano"
 import "examples/protracker-clone/types.nano"
 import "examples/protracker-clone/pattern.nano"
 
@@ -221,15 +222,28 @@ fn load_mod_file(filename: string) -> array<int> {
         
         if (> sample_len 0) {
             let pcm_data: string = (str_substring file_data current_pos sample_len)
-            let wav_name: string = (str_concat "/tmp/pt2_sample_" (int_to_string (+ samp 1)))
-            set wav_name (str_concat wav_name ".raw")
-            (file_write wav_name pcm_data)
             
-            (print "  Sample ")
-            (print (+ samp 1))
-            (print ": ")
-            (print sample_len)
-            (println " bytes")
+            # Save as .raw file
+            let raw_name: string = (str_concat "/tmp/pt2_sample_" (int_to_string (+ samp 1)))
+            set raw_name (str_concat raw_name ".raw")
+            (file_write raw_name pcm_data)
+            
+            # Convert to .wav file
+            let wav_name: string = (str_concat "/tmp/pt2_sample_" (int_to_string (+ samp 1)))
+            set wav_name (str_concat wav_name ".wav")
+            let result: int = (audio_convert_raw_to_wav raw_name wav_name 8363)
+            
+            if (== result 0) {
+                (print "  Sample ")
+                (print (+ samp 1))
+                (print ": ")
+                (print sample_len)
+                (print " bytes -> ")
+                (println wav_name)
+            } else {
+                (print "  ERROR converting sample ")
+                (println (+ samp 1))
+            }
             
             set current_pos (+ current_pos sample_len)
         } else {}
@@ -238,6 +252,7 @@ fn load_mod_file(filename: string) -> array<int> {
     }
     
     (println "")
+    (println "✓ Samples converted to WAV format!")
     (println "✓ MOD file loaded successfully!")
     return pattern_data
 }

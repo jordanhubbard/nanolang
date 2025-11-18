@@ -1,0 +1,6 @@
+# Audio Helper Functions
+# Utilities for audio conversion and playback
+
+# Convert raw PCM to WAV format
+# Returns 0 on success, -1 on error
+extern fn audio_convert_raw_to_wav(raw_file: string, wav_file: string, sample_rate: int) -> int
