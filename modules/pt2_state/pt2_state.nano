@@ -41,3 +41,13 @@ extern fn pt2_set_pattern_table_entry(pos: int, pattern: int) -> int
 extern fn pt2_get_pattern_table_entry(pos: int) -> int
 extern fn pt2_set_song_length(length: int) -> int
 extern fn pt2_get_song_length() -> int
+
+# Sample data
+extern fn pt2_set_sample_length(sample: int, length: int) -> void
+extern fn pt2_get_sample_length(sample: int) -> int
+extern fn pt2_set_sample_volume(sample: int, volume: int) -> void
+extern fn pt2_get_sample_volume(sample: int) -> int
+extern fn pt2_set_sample_loop_start(sample: int, start: int) -> void
+extern fn pt2_get_sample_loop_start(sample: int) -> int
+extern fn pt2_set_sample_loop_length(sample: int, length: int) -> void
+extern fn pt2_get_sample_loop_length(sample: int) -> int
