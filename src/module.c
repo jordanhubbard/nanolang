@@ -814,7 +814,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     
     char compile_cmd[1024];
     snprintf(compile_cmd, sizeof(compile_cmd),
-            "gcc -std=c99 -Isrc %s -c -o %s %s",
+            "gcc -std=c99 -Isrc -Imodules/sdl_helpers %s -c -o %s %s",
             sdl_flags, output_obj, temp_c_file);
     
     if (verbose) {
