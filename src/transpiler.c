@@ -1764,9 +1764,10 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     sb_append(sb, "/* ========== Advanced String Operations ========== */\n\n");
     
-    /* char_at */
+    /* char_at - use strnlen for safety */
     sb_append(sb, "static int64_t char_at(const char* s, int64_t index) {\n");
-    sb_append(sb, "    int len = strlen(s);\n");
+    sb_append(sb, "    /* Safety: Bound string scan to reasonable size (1MB) */\n");
+    sb_append(sb, "    int len = strnlen(s, 1024*1024);\n");
     sb_append(sb, "    if (index < 0 || index >= len) {\n");
     sb_append(sb, "        fprintf(stderr, \"Error: Index %lld out of bounds (string length %d)\\n\", index, len);\n");
     sb_append(sb, "        return 0;\n");
@@ -2003,10 +2004,11 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "}\n\n");
     
     /* String operations */
-    sb_append(sb, "/* String concatenation */\n");
+    sb_append(sb, "/* String concatenation - use strnlen for safety */\n");
     sb_append(sb, "static const char* nl_str_concat(const char* s1, const char* s2) {\n");
-    sb_append(sb, "    size_t len1 = strlen(s1);\n");
-    sb_append(sb, "    size_t len2 = strlen(s2);\n");
+    sb_append(sb, "    /* Safety: Bound string scan to 1MB */\n");
+    sb_append(sb, "    size_t len1 = strnlen(s1, 1024*1024);\n");
+    sb_append(sb, "    size_t len2 = strnlen(s2, 1024*1024);\n");
     sb_append(sb, "    char* result = malloc(len1 + len2 + 1);\n");
     sb_append(sb, "    if (!result) return \"\";\n");
     sb_append(sb, "    strcpy(result, s1);\n");
@@ -2014,9 +2016,10 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "    return result;\n");
     sb_append(sb, "}\n\n");
     
-    sb_append(sb, "/* String substring */\n");
+    sb_append(sb, "/* String substring - use strnlen for safety */\n");
     sb_append(sb, "static const char* nl_str_substring(const char* str, int64_t start, int64_t length) {\n");
-    sb_append(sb, "    int64_t str_len = strlen(str);\n");
+    sb_append(sb, "    /* Safety: Bound string scan to 1MB */\n");
+    sb_append(sb, "    int64_t str_len = strnlen(str, 1024*1024);\n");
     sb_append(sb, "    if (start < 0 || start >= str_len || length < 0) return \"\";\n");
     sb_append(sb, "    if (start + length > str_len) length = str_len - start;\n");
     sb_append(sb, "    char* result = malloc(length + 1);\n");
