@@ -1,0 +1,9 @@
+{
+  "name": "audio_helpers",
+  "version": "1.0.0",
+  "description": "Audio conversion utilities for ProTracker",
+  "c_sources": ["audio_helpers.c"],
+  "headers": [],
+  "cflags": ["-O2"],
+  "pkg_config": []
+}
