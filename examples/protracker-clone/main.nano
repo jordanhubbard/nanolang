@@ -104,6 +104,12 @@ fn main() -> int {
     let mut demo_tick: int = 0  # For demo pattern playback
     
     while running {
+        # Check for quit events (window close, Cmd-Q, etc.)
+        let quit_event: int = (nl_sdl_poll_event_quit)
+        if (== quit_event 1) {
+            set running false
+        } else {}
+        
         # Handle keyboard input
         let key: int = (nl_sdl_poll_keypress)
         if (> key -1) {
