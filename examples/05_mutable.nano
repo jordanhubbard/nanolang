@@ -67,11 +67,11 @@ shadow double_value {
 }
 
 fn main() -> int {
-    print (immutable_example)
-    print (mutable_counter)
-    print (accumulator 7)
-    print (swap_values 15 25)
-    print (double_value 42)
+    (print (immutable_example))
+    (print (mutable_counter))
+    (print (accumulator 7))
+    (print (swap_values 15 25))
+    (print (double_value 42))
     return 0
 }
 
