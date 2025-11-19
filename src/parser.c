@@ -287,6 +287,7 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
         case TOKEN_TYPE_FLOAT: type = TYPE_FLOAT; break;
         case TOKEN_TYPE_BOOL: type = TYPE_BOOL; break;
         case TOKEN_TYPE_STRING: type = TYPE_STRING; break;
+        case TOKEN_TYPE_BSTRING: type = TYPE_BSTRING; break;
         case TOKEN_TYPE_VOID: type = TYPE_VOID; break;
         
         case TOKEN_FN: {
