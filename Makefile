@@ -60,6 +60,10 @@ $(COMPILER): $(COMPILER_OBJECTS) | $(BIN_DIR)
 $(INTERPRETER): $(INTERPRETER_OBJECTS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -DNANO_INTERPRETER -o $(INTERPRETER) $(INTERPRETER_OBJECTS)
 
+# Ensure directories exist before building object files
+$(COMPILER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime
+$(INTERPRETER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime
+
 $(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o
 
@@ -82,13 +86,13 @@ $(OBJ_DIR)/lexer_nano.o: src_nano/lexer_main.nano $(COMPILER) | $(OBJ_DIR)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/runtime/%.o: $(RUNTIME_DIR)/%.c $(HEADERS) | $(OBJ_DIR)/runtime
+$(OBJ_DIR)/runtime/%.o: $(RUNTIME_DIR)/%.c $(HEADERS) | $(OBJ_DIR) $(OBJ_DIR)/runtime
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
-$(OBJ_DIR)/runtime:
+$(OBJ_DIR)/runtime: | $(OBJ_DIR)
 	mkdir -p $(OBJ_DIR)/runtime
 
 $(BIN_DIR):
