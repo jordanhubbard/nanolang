@@ -1,10 +1,9 @@
 # Example 24: Simple Random Number Demo
 # Demonstrates extern C functions (rand, srand, time) and mutable variables
 
-# External C functions for random numbers and time
+# External C functions for random numbers
 extern fn rand() -> int
 extern fn srand(seed: int) -> void
-extern fn time(tloc: int) -> int
 
 # Helper: Get a random number in range [min, max]
 fn random_range(min: int, max: int) -> int {
@@ -27,8 +26,8 @@ shadow random_range {
 
 # Generate and print random numbers
 fn random_demo() -> int {
-    # Seed with current time
-    (srand (time 0))
+    # Seed with a fixed value (for reproducible output in tests)
+    (srand 42)
     
     (println "Random Number Demo")
     (println "===================")

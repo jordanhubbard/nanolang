@@ -54,7 +54,7 @@ shadow factorial_while {
 fn countdown(n: int) -> int {
     let mut i: int = n
     while (> i 0) {
-        print i
+        (print i)
         set i (- i 1)
     }
     return 0
@@ -65,9 +65,9 @@ shadow countdown {
 }
 
 fn main() -> int {
-    print (sum_while 10)
-    print (count_up 7)
-    print (factorial_while 6)
+    (print (sum_while 10))
+    (print (count_up 7))
+    (print (factorial_while 6))
     return 0
 }
 

@@ -1879,15 +1879,17 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (func) {
                 /* Return a function value - create signature from function's parameters */
                 Type *param_types = NULL;
+                int actual_param_count = 0;
                 if (func->param_count > 0 && func->params) {
                     param_types = malloc(sizeof(Type) * func->param_count);
                     for (int i = 0; i < func->param_count; i++) {
                         param_types[i] = func->params[i].type;
                     }
+                    actual_param_count = func->param_count;
                 }
                 FunctionSignature *sig = create_function_signature(
                     param_types,
-                    func->param_count,
+                    actual_param_count,
                     func->return_type
                 );
                 return create_function(expr->as.identifier, sig);

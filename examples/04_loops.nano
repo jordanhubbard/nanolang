@@ -64,10 +64,10 @@ shadow factorial_while {
 }
 
 fn main() -> int {
-    print (sum_while 10)
-    print (sum_for 10)
-    print (count_up 7)
-    print (factorial_while 6)
+    (print (sum_while 10))
+    (print (sum_for 10))
+    (print (count_up 7))
+    (print (factorial_while 6))
     return 0
 }
 

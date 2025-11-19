@@ -2365,10 +2365,19 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_FUNCTION && item->as.function.is_extern) {
+            const char *func_name = item->as.function.name;
+            
+            /* Skip standard C library functions - they're already declared in system headers */
+            if (strcmp(func_name, "rand") == 0 || strcmp(func_name, "srand") == 0 ||
+                strcmp(func_name, "time") == 0 || strcmp(func_name, "malloc") == 0 ||
+                strcmp(func_name, "free") == 0 || strcmp(func_name, "printf") == 0 ||
+                strcmp(func_name, "fprintf") == 0 || strcmp(func_name, "sprintf") == 0) {
+                continue;  /* Skip - already in C stdlib */
+            }
+            
             /* Generate extern declaration with proper SDL types */
             sb_append(sb, "extern ");
             
-            const char *func_name = item->as.function.name;
             const char *ret_type_c = type_to_c(item->as.function.return_type);
             
             /* Check for SDL-specific types */

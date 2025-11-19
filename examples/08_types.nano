@@ -34,7 +34,7 @@ shadow return_string {
 }
 
 fn void_function() -> void {
-    print "This function returns void"
+    (print "This function returns void")
 }
 
 shadow void_function {
@@ -97,15 +97,15 @@ fn main() -> int {
     let my_bool: bool = true
     let my_string: string = "nanolang"
 
-    print my_int
-    print my_float
-    print my_bool
-    print my_string
+    (print my_int)
+    (print my_float)
+    (print my_bool)
+    (print my_string)
 
-    print (process_int 25)
-    print (process_float 50.0)
-    print (process_bool false)
-    print (process_string "types")
+    (print (process_int 25))
+    (print (process_float 50.0))
+    (print (process_bool false))
+    (print (process_string "types"))
 
     (void_function)
 
