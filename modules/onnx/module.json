@@ -1,0 +1,34 @@
+{
+  "name": "onnx",
+  "version": "1.0.0",
+  "description": "ONNX Runtime for AI model inference - CPU-based neural network inference",
+  
+  "c_sources": [
+    "onnx_wrapper.c"
+  ],
+  
+  "system_libs": [
+    "onnxruntime"
+  ],
+  
+  "include_dirs": [
+    "/opt/homebrew/include/onnxruntime",
+    "/opt/homebrew/include",
+    "/usr/local/include/onnxruntime",
+    "/usr/local/include"
+  ],
+  
+  "cflags": [
+    "-O2",
+    "-Wall",
+    "-Wextra"
+  ],
+  
+  "ldflags": [
+    "-L/opt/homebrew/lib",
+    "-L/usr/local/lib"
+  ],
+  
+  "dependencies": []
+}
+
