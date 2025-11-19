@@ -32,6 +32,7 @@ Type token_to_type(TokenType token) {
         case TOKEN_TYPE_FLOAT: return TYPE_FLOAT;
         case TOKEN_TYPE_BOOL: return TYPE_BOOL;
         case TOKEN_TYPE_STRING: return TYPE_STRING;
+        case TOKEN_TYPE_BSTRING: return TYPE_BSTRING;
         case TOKEN_TYPE_VOID: return TYPE_VOID;
         default: return TYPE_UNKNOWN;
     }
@@ -372,6 +373,54 @@ Type check_expression(ASTNode *expr, Environment *env) {
                         check_expression(expr->as.call.args[0], env);
                     }
                     return TYPE_ARRAY;
+                }
+                
+                /* Special handling for bstring operations */
+                if (strcmp(expr->as.call.name, "bstr_new") == 0 ||
+                    strcmp(expr->as.call.name, "bstr_new_binary") == 0 ||
+                    strcmp(expr->as.call.name, "bstr_concat") == 0 ||
+                    strcmp(expr->as.call.name, "bstr_substring") == 0) {
+                    /* These return bstring */
+                    for (int i = 0; i < expr->as.call.arg_count; i++) {
+                        check_expression(expr->as.call.args[i], env);
+                    }
+                    return TYPE_BSTRING;
+                }
+                
+                if (strcmp(expr->as.call.name, "bstr_length") == 0 ||
+                    strcmp(expr->as.call.name, "bstr_byte_at") == 0 ||
+                    strcmp(expr->as.call.name, "bstr_utf8_length") == 0 ||
+                    strcmp(expr->as.call.name, "bstr_utf8_char_at") == 0) {
+                    /* These return int */
+                    for (int i = 0; i < expr->as.call.arg_count; i++) {
+                        check_expression(expr->as.call.args[i], env);
+                    }
+                    return TYPE_INT;
+                }
+                
+                if (strcmp(expr->as.call.name, "bstr_equals") == 0 ||
+                    strcmp(expr->as.call.name, "bstr_validate_utf8") == 0) {
+                    /* These return bool */
+                    for (int i = 0; i < expr->as.call.arg_count; i++) {
+                        check_expression(expr->as.call.args[i], env);
+                    }
+                    return TYPE_BOOL;
+                }
+                
+                if (strcmp(expr->as.call.name, "bstr_to_cstr") == 0) {
+                    /* bstring -> string conversion */
+                    if (expr->as.call.arg_count >= 1) {
+                        check_expression(expr->as.call.args[0], env);
+                    }
+                    return TYPE_STRING;
+                }
+                
+                if (strcmp(expr->as.call.name, "bstr_free") == 0) {
+                    /* void return */
+                    if (expr->as.call.arg_count >= 1) {
+                        check_expression(expr->as.call.args[0], env);
+                    }
+                    return TYPE_VOID;
                 }
                 
                 /* Special handling for array_get builtin */
@@ -1294,9 +1343,13 @@ static const char *builtin_function_names[] = {
     "abs", "min", "max", "sqrt", "pow", "floor", "ceil", "round",
     "sin", "cos", "tan", "atan2",
     /* Type casting */
-    "cast_int", "cast_float", "cast_bool", "cast_string",
-    /* String */
+    "cast_int", "cast_float", "cast_bool", "cast_string", "cast_bstring",
+    /* String (C strings) */
     "str_length", "str_concat", "str_substring", "str_contains", "str_equals",
+    /* Binary strings (nl_string_t) */
+    "bstr_new", "bstr_new_binary", "bstr_length", "bstr_concat", "bstr_substring",
+    "bstr_equals", "bstr_byte_at", "bstr_validate_utf8", "bstr_utf8_length",
+    "bstr_utf8_char_at", "bstr_to_cstr", "bstr_free",
     /* Advanced string operations */
     "char_at", "string_from_char",
     /* Character classification */
