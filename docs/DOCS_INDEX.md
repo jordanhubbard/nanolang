@@ -18,6 +18,7 @@
 ### 🏗️ Advanced
 - **[Module System](MODULE_SYSTEM.md)** - Creating modules
 - **[Extern FFI](EXTERN_FFI.md)** - Calling C functions
+- **[AI & Machine Learning](AI_ML_GUIDE.md)** - Neural network inference with ONNX
 - **[Architecture Analysis](ARCHITECTURE_ANALYSIS.md)** - System design
 
 ### 🤝 Contributing
@@ -288,6 +289,7 @@ A: 37 functions covering I/O, math, strings, arrays, OS operations, and generic 
 - [FEATURE_TESTING_SUMMARY.md](FEATURE_TESTING_SUMMARY.md) - Summary of tested features and capabilities
 - [EXTERN_FFI.md](EXTERN_FFI.md) - How to use external C functions
 - [SAFE_C_FFI_FUNCTIONS.md](SAFE_C_FFI_FUNCTIONS.md) - Reference of safe C functions for FFI
+- [AI_ML_GUIDE.md](AI_ML_GUIDE.md) - AI and machine learning with ONNX Runtime
 - [MODULES.md](MODULES.md) - Module system guide (importing, packaging, distribution)
 - [BUILDING_HYBRID_APPS.md](BUILDING_HYBRID_APPS.md) - Building hybrid C/nanolang applications
 

@@ -1,0 +1,64 @@
+# ONNX Runtime Module for nanolang
+# 
+# Provides CPU-based neural network inference using ONNX Runtime.
+# 
+# Installation:
+#   macOS: brew install onnxruntime
+#   Linux: sudo apt-get install libonnxruntime-dev
+#
+# Usage:
+#   import "onnx"
+#   let model: int = (onnx_load_model "model.onnx")
+#   # ... run inference ...
+#   (onnx_free_model model)
+
+# Initialize ONNX Runtime (called automatically)
+extern fn onnx_init() -> int
+
+# Load an ONNX model from file
+# Returns: model handle (>= 0) on success, -1 on failure
+extern fn onnx_load_model(model_path: string) -> int
+
+# Free a loaded model
+extern fn onnx_free_model(model_handle: int) -> void
+
+# Run inference on a model
+# 
+# Parameters:
+#   model_handle: Handle from onnx_load_model
+#   input_data: Pointer to input float array (pass array directly)
+#   input_size: Number of elements in input
+#   input_shape: Shape dimensions (e.g., [1, 3, 224, 224] for batch=1, channels=3, 224x224)
+#   input_rank: Number of dimensions (e.g., 4 for above)
+#   output_data: Pre-allocated output array
+#   output_size: Number of elements in output
+#
+# Returns: 0 on success, -1 on failure
+#
+# Note: This is the low-level interface. Use helper functions below for easier usage.
+extern fn onnx_run_inference(
+    model_handle: int,
+    input_data: int,
+    input_size: int,
+    input_shape: int,
+    input_rank: int,
+    output_data: int,
+    output_size: int
+) -> int
+
+# Get input shape information
+# Returns: number of dimensions, fills shape_out array if provided
+extern fn onnx_get_input_shape(
+    model_handle: int,
+    shape_out: int,
+    max_dims: int
+) -> int
+
+# Get output shape information
+# Returns: number of dimensions, fills shape_out array if provided
+extern fn onnx_get_output_shape(
+    model_handle: int,
+    shape_out: int,
+    max_dims: int
+) -> int
+

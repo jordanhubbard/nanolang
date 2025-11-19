@@ -1,0 +1,58 @@
+# Simple ONNX Model Loading Example
+#
+# This example demonstrates basic ONNX Runtime usage:
+# - Loading a model
+# - Checking for errors
+# - Freeing resources
+#
+# Before running this example:
+# 1. Install ONNX Runtime: brew install onnxruntime
+# 2. Create a simple model with create_test_model.py
+#
+# Run:
+#   ./bin/nanoc examples/40_onnx_simple.nano -o onnx_simple
+#   ./onnx_simple
+
+import "modules/onnx/onnx.nano"
+
+fn main() -> int {
+    (println "=== ONNX Runtime Simple Example ===")
+    (println "")
+    
+    # Try to load a model
+    (println "Loading ONNX model...")
+    let model: int = (onnx_load_model "examples/models/simple_model.onnx")
+    
+    if (< model 0) {
+        (println "ERROR: Failed to load model")
+        (println "")
+        (println "Make sure you have:")
+        (println "  1. Installed ONNX Runtime: brew install onnxruntime")
+        (println "  2. Created the model: python examples/models/create_test_model.py")
+        (println "  3. Model file exists: examples/models/simple_model.onnx")
+        return 1
+    } else {
+        (println "✓ Model loaded successfully!")
+        (println "")
+        
+        # Get model information
+        (println "Model Information:")
+        (println "  Model handle: ")
+        (print model)
+        (println "")
+        
+        # Clean up
+        (println "Freeing model resources...")
+        (onnx_free_model model)
+        (println "✓ Resources freed")
+        (println "")
+        
+        (println "Example completed successfully!")
+        return 0
+    }
+}
+
+shadow main {
+    # Skipped - uses extern functions
+}
+

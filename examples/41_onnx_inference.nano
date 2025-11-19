@@ -1,0 +1,129 @@
+# ONNX Inference Example
+#
+# This example demonstrates running inference with an ONNX model:
+# - Loading a model
+# - Preparing input data
+# - Running inference
+# - Processing output
+#
+# Before running:
+# 1. Install ONNX Runtime: brew install onnxruntime
+# 2. Create test models: python examples/models/create_test_model.py
+#
+# Run:
+#   ./bin/nanoc examples/41_onnx_inference.nano -o onnx_inference
+#   ./onnx_inference
+
+import "modules/onnx/onnx.nano"
+
+# Helper: Create a simple test input
+fn create_test_input() -> array<float> {
+    let mut input: array<float> = []
+    let mut i: int = 0
+    while (< i 10) {
+        # Create input values: [0.1, 0.2, 0.3, ..., 1.0]
+        let value: float = (/ (int_to_float (+ i 1)) 10.0)
+        set input (array_push input value)
+        set i (+ i 1)
+    }
+    return input
+}
+
+# Helper: Print array values
+fn print_array(arr: array<float>, name: string) -> void {
+    (print name)
+    (print ": [")
+    let mut i: int = 0
+    while (< i (array_length arr)) {
+        if (> i 0) {
+            (print ", ")
+        } else {
+            # First element
+        }
+        (print (at arr i))
+        set i (+ i 1)
+    }
+    (println "]")
+}
+
+# Helper: Find index of maximum value
+fn argmax(arr: array<float>) -> int {
+    if (== (array_length arr) 0) {
+        return -1
+    } else {
+        let mut max_idx: int = 0
+        let mut max_val: float = (at arr 0)
+        let mut i: int = 1
+        while (< i (array_length arr)) {
+            let val: float = (at arr i)
+            if (> val max_val) {
+                set max_val val
+                set max_idx i
+            } else {
+                # Not max
+            }
+            set i (+ i 1)
+        }
+        return max_idx
+    }
+}
+
+shadow argmax {
+    assert (== (argmax [1.0, 2.0, 3.0]) 2)
+    assert (== (argmax [5.0, 2.0, 1.0]) 0)
+    assert (== (argmax [1.0]) 0)
+}
+
+fn main() -> int {
+    (println "=== ONNX Inference Example ===")
+    (println "")
+    
+    # Load model
+    (println "Loading model...")
+    let model: int = (onnx_load_model "examples/models/simple_model.onnx")
+    
+    if (< model 0) {
+        (println "ERROR: Failed to load model")
+        (println "")
+        (println "Make sure you have:")
+        (println "  1. Installed ONNX Runtime: brew install onnxruntime")
+        (println "  2. Created the model: python examples/models/create_test_model.py")
+        return 1
+    } else {
+        (println "✓ Model loaded")
+        (println "")
+        
+        # Note: Full inference support requires array-to-pointer conversion
+        # This is a placeholder showing the API structure
+        # In a complete implementation, we'd need runtime support for:
+        # - Converting nanolang arrays to C pointers
+        # - Allocating output arrays
+        # - Calling onnx_run_inference with proper pointer arguments
+        
+        (println "Model Information:")
+        (println "  Model expects input shape: [batch, 10]")
+        (println "  Model produces output shape: [batch, 5]")
+        (println "")
+        
+        # Create test input
+        let input: array<float> = (create_test_input)
+        (print_array input "Input")
+        (println "")
+        
+        (println "Note: Full inference requires additional runtime support")
+        (println "      for array-to-pointer conversion.")
+        (println "      This will be added in a future update.")
+        (println "")
+        
+        # Clean up
+        (onnx_free_model model)
+        (println "✓ Model freed")
+        
+        return 0
+    }
+}
+
+shadow main {
+    # Skipped - uses extern functions
+}
+
