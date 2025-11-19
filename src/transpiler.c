@@ -460,6 +460,7 @@ static const char *type_to_c(Type type) {
         case TYPE_FLOAT: return "double";
         case TYPE_BOOL: return "bool";
         case TYPE_STRING: return "const char*";
+        case TYPE_BSTRING: return "nl_string_t*";
         case TYPE_VOID: return "void";
         case TYPE_ARRAY: return "DynArray*";  /* All arrays are now dynamic arrays with GC */
         case TYPE_STRUCT: return "struct"; /* Will be extended with struct name */
