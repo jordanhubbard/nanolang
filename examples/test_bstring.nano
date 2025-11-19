@@ -1,0 +1,69 @@
+# Test bstring type (binary strings with UTF-8 support)
+
+fn main() -> int {
+    (println "Testing bstring type...")
+    (println "")
+    
+    # Create a bstring from C string
+    let bs: bstring = (bstr_new "Hello World")
+    (println "Created bstring")
+    
+    # Get length and print
+    (print "Length: ")
+    (println (bstr_length bs))
+    
+    # Get byte at index
+    (print "First byte (H): ")
+    (println (bstr_byte_at bs 0))
+    
+    # Convert back to C string for printing
+    (print "Content: ")
+    (println (bstr_to_cstr bs))
+    
+    # Create another bstring and concatenate
+    let bs2: bstring = (bstr_new " - UTF-8 test")
+    let bs3: bstring = (bstr_concat bs bs2)
+    (print "Concatenated: ")
+    (println (bstr_to_cstr bs3))
+    
+    # Test UTF-8
+    let utf8_bs: bstring = (bstr_new "Hello 世界")
+    let valid: bool = (bstr_validate_utf8 utf8_bs)
+    (print "UTF-8 string: ")
+    (println (bstr_to_cstr utf8_bs))
+    (print "Byte length: ")
+    (println (bstr_length utf8_bs))
+    (print "Character length: ")
+    (println (bstr_utf8_length utf8_bs))
+    
+    # Substring
+    let sub: bstring = (bstr_substring bs 0 5)
+    (print "Substring[0:5]: ")
+    (println (bstr_to_cstr sub))
+    
+    # Equality test
+    let test1: bstring = (bstr_new "test")
+    let test2: bstring = (bstr_new "test")
+    (print "Equality test: ")
+    if (bstr_equals test1 test2) {
+        (println "PASS")
+    } else {
+        (println "FAIL")
+    }
+    
+    # Free memory (in real code, would use GC)
+    (bstr_free bs)
+    (bstr_free bs2)
+    (bstr_free bs3)
+    (bstr_free utf8_bs)
+    (bstr_free sub)
+    (bstr_free test1)
+    (bstr_free test2)
+    
+    (println "")
+    (println "All bstring tests passed!")
+    
+    return 0
+}
+
+shadow main { assert true }

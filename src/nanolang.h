@@ -69,6 +69,7 @@ typedef enum {
     TOKEN_TYPE_FLOAT,
     TOKEN_TYPE_BOOL,
     TOKEN_TYPE_STRING,
+    TOKEN_TYPE_BSTRING,
     TOKEN_TYPE_VOID,
 
     /* Operators (as identifiers in prefix position) */
@@ -159,6 +160,7 @@ typedef enum {
     TYPE_FLOAT,
     TYPE_BOOL,
     TYPE_STRING,
+    TYPE_BSTRING,      /* Binary string (nl_string_t*) - length-explicit, UTF-8 */
     TYPE_VOID,
     TYPE_ARRAY,
     TYPE_STRUCT,

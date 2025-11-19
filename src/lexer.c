@@ -53,6 +53,7 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "bool") == 0) return TOKEN_TYPE_BOOL;
     if (strcmp(str, "string") == 0) return TOKEN_TYPE_STRING;
     if (strcmp(str, "void") == 0) return TOKEN_TYPE_VOID;
+    if (strcmp(str, "bstring") == 0) return TOKEN_TYPE_BSTRING;
 
     /* Operators (when used as identifiers in prefix position) */
     if (strcmp(str, "and") == 0) return TOKEN_AND;

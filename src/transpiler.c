@@ -255,6 +255,7 @@ static char *get_tuple_typedef_name(TypeInfo *info, int index) {
             case TYPE_FLOAT: sb_append(sb, "float"); break;
             case TYPE_BOOL: sb_append(sb, "bool"); break;
             case TYPE_STRING: sb_append(sb, "string"); break;
+            case TYPE_BSTRING: sb_append(sb, "bstring"); break;
             default: sb_appendf(sb, "t%d", i); break;
         }
     }
@@ -743,9 +744,37 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             } else if (strcmp(func_name, "tan") == 0) {
                 func_name = "tan";  /* Use C math library directly */
             
-            /* String operations */
+            /* String operations (C strings) */
             } else if (strcmp(func_name, "str_length") == 0) {
                 func_name = "strlen";  /* Use C string library directly */
+            
+            /* Binary string operations (nl_string_t) */
+            } else if (strcmp(func_name, "bstr_length") == 0) {
+                func_name = "nl_string_length";
+            } else if (strcmp(func_name, "bstr_concat") == 0) {
+                func_name = "nl_string_concat";
+            } else if (strcmp(func_name, "bstr_substring") == 0) {
+                func_name = "nl_string_substring";
+            } else if (strcmp(func_name, "bstr_equals") == 0) {
+                func_name = "nl_string_equals";
+            } else if (strcmp(func_name, "bstr_byte_at") == 0) {
+                func_name = "nl_string_byte_at";
+            } else if (strcmp(func_name, "bstr_new") == 0) {
+                func_name = "nl_string_new";
+            } else if (strcmp(func_name, "bstr_new_binary") == 0) {
+                func_name = "nl_string_new_binary";
+            } else if (strcmp(func_name, "bstr_validate_utf8") == 0) {
+                func_name = "nl_string_validate_utf8";
+            } else if (strcmp(func_name, "bstr_utf8_length") == 0) {
+                func_name = "nl_string_utf8_length";
+            } else if (strcmp(func_name, "bstr_utf8_char_at") == 0) {
+                func_name = "nl_string_utf8_char_at";
+            } else if (strcmp(func_name, "bstr_to_cstr") == 0) {
+                func_name = "nl_string_to_cstr";
+            } else if (strcmp(func_name, "bstr_free") == 0) {
+                func_name = "nl_string_free";
+                
+            /* String operations (continued) */
             } else if (strcmp(func_name, "array_length") == 0) {
                 /* array_length - get DynArray size */
                 func_name = "dyn_array_length";
@@ -1596,6 +1625,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "#include <time.h>\n");
     sb_append(sb, "#include <stdarg.h>\n");
     sb_append(sb, "#include <math.h>\n");
+    sb_append(sb, "#include \"runtime/nl_string.h\"\n");
     
     /* Include headers from imported modules (generic C library support) */
     if (g_module_headers_count > 0) {
