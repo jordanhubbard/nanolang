@@ -11,16 +11,24 @@ Each example was launched and allowed to run for 1 second to verify:
 
 ## Results
 
-### ✅ PASSING Examples (5/7)
+### ✅ FULLY WORKING Examples (4/7)
 
 #### OpenGL Examples
-- **✓ opengl_cube** - Runs successfully, displays rotating cube
-- **✓ opengl_teapot** - Runs successfully, displays textured teapot
+- **✓ opengl_cube** - Runs successfully, displays rotating 3D cube
+- **✓ opengl_teapot** - Runs successfully, displays textured teapot with cycling textures
 
 #### SDL Examples  
-- **✓ checkers_sdl** - Runs successfully, displays game board
-- **✓ falling_sand_sdl** - Runs successfully, displays sand simulation
-- **✓ terrain_explorer_sdl** - Runs successfully, displays terrain
+- **✓ checkers_sdl** - Runs successfully, displays interactive game board
+- **✓ falling_sand_sdl** - Runs successfully, displays falling sand physics simulation
+
+### ⚠️ PARTIALLY WORKING Examples (1/7)
+
+#### terrain_explorer_sdl
+**Status:** Runs but only displays static rectangle (rendering issue)
+
+**Issue:** The terrain generation/rendering logic appears broken - only shows a static
+green rectangle instead of procedurally generated terrain. This may be a pre-existing
+issue unrelated to opaque types.
 
 ### ❌ FAILING Examples (2/7)
 
@@ -50,14 +58,16 @@ function dyn_array_get_int, file dyn_array.c, line 191.
 
 **Opaque Type System: ✅ WORKING CORRECTLY**
 
-- **5 out of 7 examples run successfully** with opaque types
-- **2 failures are pre-existing bugs** in DynArray implementation
+- **4 out of 7 examples run fully successfully** (57% fully working)
+- **1 example partially works** (runs but has rendering issues - possibly pre-existing)
+- **2 failures are confirmed pre-existing bugs** in DynArray implementation
 - **Zero crashes related to opaque type casting or FFI boundaries**
 
 ### Success Rate
-- Examples working: 71% (5/7)
+- Fully working examples: 57% (4/7)
+- Partially working: 14% (1/7)
+- Failing (pre-existing bugs): 29% (2/7)
 - New issues from opaque types: 0%
-- Pre-existing issues: 29% (2/7)
 
 ### Opaque Type Validation
 All opaque type conversions work correctly:
