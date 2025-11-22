@@ -113,8 +113,26 @@ static char* run_command(const char *cmd) {
 // Get pkg-config flags
 static char* get_pkg_config_flags(const char *package, const char *flag_type) {
     char cmd[512];
+    
+    // Try standard pkg-config first
     snprintf(cmd, sizeof(cmd), "pkg-config %s %s 2>/dev/null", flag_type, package);
-    return run_command(cmd);
+    char *result = run_command(cmd);
+    
+    // If that failed, try Homebrew's pkg-config on macOS
+    if (!result || strlen(result) == 0) {
+        free(result);
+        snprintf(cmd, sizeof(cmd), "/opt/homebrew/bin/pkg-config %s %s 2>/dev/null", flag_type, package);
+        result = run_command(cmd);
+    }
+    
+    // If still failed, try /usr/local/bin (Intel Mac Homebrew)
+    if (!result || strlen(result) == 0) {
+        free(result);
+        snprintf(cmd, sizeof(cmd), "/usr/local/bin/pkg-config %s %s 2>/dev/null", flag_type, package);
+        result = run_command(cmd);
+    }
+    
+    return result;
 }
 
 // Simple C header parser to extract #define constants
