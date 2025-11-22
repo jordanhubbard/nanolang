@@ -63,6 +63,7 @@ typedef enum {
     TOKEN_UNION,
     TOKEN_MATCH,
     TOKEN_IMPORT,
+    TOKEN_OPAQUE,
 
     /* Types */
     TOKEN_TYPE_INT,
@@ -173,6 +174,7 @@ typedef enum {
     TYPE_LIST_GENERIC, /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
     TYPE_FUNCTION,     /* Function type: fn(int, int) -> int */
     TYPE_TUPLE,        /* Tuple type: (int, string, bool) */
+    TYPE_OPAQUE,       /* Opaque C pointer type: GLFWwindow, SDL_Window, etc. */
     TYPE_UNKNOWN
 } Type;
 
@@ -190,6 +192,9 @@ typedef struct TypeInfo {
     Type *tuple_types;               /* Array of tuple element types */
     char **tuple_type_names;         /* For struct/enum/union tuple elements */
     int tuple_element_count;         /* Number of tuple elements */
+    
+    /* For opaque types: GLFWwindow, SDL_Window */
+    char *opaque_type_name;          /* e.g., "GLFWwindow" */
 } TypeInfo;
 
 /* Value structure */
@@ -244,6 +249,7 @@ typedef enum {
     AST_UNION_CONSTRUCT,
     AST_MATCH,
     AST_IMPORT,
+    AST_OPAQUE_TYPE,       /* Opaque type declaration: opaque type TypeName */
     AST_TUPLE_LITERAL,     /* Tuple literal: (1, "hello", true) */
     AST_TUPLE_INDEX        /* Tuple index access: tuple.0, tuple.1 */
 } ASTNodeType;
@@ -410,6 +416,10 @@ struct ASTNode {
             char *module_path;  /* Path to module file (e.g., "math.nano" or "utils/math.nano") */
             char *module_name;  /* Optional module name/alias */
         } import_stmt;
+        /* Opaque type declaration: opaque type TypeName */
+        struct {
+            char *name;            /* Type name (e.g., "GLFWwindow", "SDL_Window") */
+        } opaque_type;
         /* Tuple literal: (1, "hello", true) */
         struct {
             ASTNode **elements;    /* Array of element expressions */
@@ -478,6 +488,12 @@ typedef struct {
     Type **variant_field_types;
 } UnionDef;
 
+/* Opaque type definition entry (for C pointer types) */
+typedef struct {
+    char *name;            /* Type name in nanolang (e.g., "GLFWwindow") */
+    char *c_type_name;     /* C type with pointer (e.g., "GLFWwindow*") */
+} OpaqueTypeDef;
+
 /* Constant definition entry (from C headers or nanolang) */
 typedef struct {
     char *name;
@@ -511,6 +527,9 @@ typedef struct {
     UnionDef *unions;
     int union_count;
     int union_capacity;
+    OpaqueTypeDef *opaque_types;
+    int opaque_type_count;
+    int opaque_type_capacity;
     GenericInstantiation *generic_instances;
     int generic_instance_count;
     int generic_instance_capacity;
@@ -561,6 +580,8 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
 int env_get_enum_variant(Environment *env, const char *variant_name);
 void env_define_union(Environment *env, UnionDef union_def);
 UnionDef *env_get_union(Environment *env, const char *name);
+void env_define_opaque_type(Environment *env, const char *name);
+OpaqueTypeDef *env_get_opaque_type(Environment *env, const char *name);
 int env_get_union_variant_index(Environment *env, const char *union_name, const char *variant_name);
 
 /* Utilities */

@@ -80,8 +80,8 @@ fn main() -> int {
     # Initialize SDL
     (SDL_Init 32)
     
-    let window: int = (SDL_CreateWindow "Nanolang Particles" 100 100 WINDOW_WIDTH WINDOW_HEIGHT 4)
-    let renderer: int = (SDL_CreateRenderer window -1 2)
+    let window: SDL_Window = (SDL_CreateWindow "Nanolang Particles" 100 100 WINDOW_WIDTH WINDOW_HEIGHT 4)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
     
     if (== renderer 0) {
         (println "Failed to create renderer")

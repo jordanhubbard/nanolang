@@ -112,6 +112,7 @@ static ASTNode *parse_block(Parser *p);
 static ASTNode *parse_struct_def(Parser *p);
 static ASTNode *parse_enum_def(Parser *p);
 static ASTNode *parse_union_def(Parser *p);
+static ASTNode *parse_opaque_type(Parser *p);
 static ASTNode *parse_match_expr(Parser *p);
 
 /* Create AST nodes */
@@ -1757,6 +1758,45 @@ static ASTNode *parse_enum_def(Parser *p) {
     return node;
 }
 
+/* Parse opaque type declaration: opaque type TypeName */
+static ASTNode *parse_opaque_type(Parser *p) {
+    int line = current_token(p)->line;
+    int column = current_token(p)->column;
+    
+    if (!expect(p, TOKEN_OPAQUE, "Expected 'opaque'")) {
+        return NULL;
+    }
+    
+    /* Expect "type" keyword (using identifier since "type" is not a token) */
+    if (!match(p, TOKEN_IDENTIFIER)) {
+        fprintf(stderr, "Error at line %d, column %d: Expected 'type' after 'opaque'\n",
+                current_token(p)->line, current_token(p)->column);
+        return NULL;
+    }
+    
+    if (strcmp(current_token(p)->value, "type") != 0) {
+        fprintf(stderr, "Error at line %d, column %d: Expected 'type' after 'opaque', got '%s'\n",
+                current_token(p)->line, current_token(p)->column, current_token(p)->value);
+        return NULL;
+    }
+    advance(p);  /* Skip "type" */
+    
+    /* Get type name */
+    if (!match(p, TOKEN_IDENTIFIER)) {
+        fprintf(stderr, "Error at line %d, column %d: Expected type name after 'opaque type'\n",
+                current_token(p)->line, current_token(p)->column);
+        return NULL;
+    }
+    char *type_name = strdup(current_token(p)->value);
+    advance(p);
+    
+    /* Create AST node */
+    ASTNode *node = create_node(AST_OPAQUE_TYPE, line, column);
+    node->as.opaque_type.name = type_name;
+    
+    return node;
+}
+
 /* Parse union definition */
 static ASTNode *parse_union_def(Parser *p) {
     int line = current_token(p)->line;
@@ -2254,6 +2294,8 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             parsed = parse_enum_def(&parser);
         } else if (match(&parser, TOKEN_UNION)) {
             parsed = parse_union_def(&parser);
+        } else if (match(&parser, TOKEN_OPAQUE)) {
+            parsed = parse_opaque_type(&parser);
         } else if (match(&parser, TOKEN_EXTERN)) {
             /* extern fn declarations */
             advance(&parser);  /* Skip 'extern' token */

@@ -17,8 +17,8 @@ fn main() -> int {
     # Initialize SDL
     (SDL_Init SDL_INIT_VIDEO)
     
-    let window: int = (SDL_CreateWindow "Texture Demo" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
-    let renderer: int = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+    let window: SDL_Window = (SDL_CreateWindow "Texture Demo" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
     
     # Create a streaming texture (format: ARGB8888 = 372645892)
     let texture: int = (SDL_CreateTexture renderer 372645892 1 TEXTURE_WIDTH TEXTURE_HEIGHT)

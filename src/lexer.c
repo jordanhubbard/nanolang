@@ -41,6 +41,7 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "enum") == 0) return TOKEN_ENUM;
     if (strcmp(str, "union") == 0) return TOKEN_UNION;
     if (strcmp(str, "match") == 0) return TOKEN_MATCH;
+    if (strcmp(str, "opaque") == 0) return TOKEN_OPAQUE;
     if (strcmp(str, "import") == 0) return TOKEN_IMPORT;
 
     /* Boolean literals */
@@ -301,6 +302,7 @@ const char *token_type_name(TokenType type) {
         case TOKEN_ENUM: return "ENUM";
         case TOKEN_UNION: return "UNION";
         case TOKEN_MATCH: return "MATCH";
+        case TOKEN_OPAQUE: return "OPAQUE";
         case TOKEN_TYPE_INT: return "TYPE_INT";
         case TOKEN_TYPE_FLOAT: return "TYPE_FLOAT";
         case TOKEN_TYPE_BOOL: return "TYPE_BOOL";

@@ -43,7 +43,7 @@ fn main() -> int {
     }
     
     # Create window
-    let window: int = (SDL_CreateWindow "NanoLang ProTracker" 50 50 WINDOW_WIDTH WINDOW_HEIGHT 4)
+    let window: SDL_Window = (SDL_CreateWindow "NanoLang ProTracker" 50 50 WINDOW_WIDTH WINDOW_HEIGHT 4)
     if (== window 0) {
         (println "✗ Failed to create window")
         (Mix_CloseAudio)
@@ -53,7 +53,7 @@ fn main() -> int {
     } else {}
     
     # Create renderer
-    let renderer: int = (SDL_CreateRenderer window -1 6)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 6)
     if (== renderer 0) {
         (println "✗ Failed to create renderer")
         (SDL_DestroyWindow window)

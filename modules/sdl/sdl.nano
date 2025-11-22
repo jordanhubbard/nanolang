@@ -3,9 +3,13 @@
 # 
 # This module provides both extern function declarations and SDL constants
 # Compilation requirements are specified in module.json
-#
-# The transpiler handles SDL-specific type mappings (SDL_Window*, SDL_Renderer*, 
-# Uint32, Uint8, etc.) automatically via get_sdl_c_type() function.
+
+# === Opaque Type Declarations ===
+
+opaque type SDL_Window
+opaque type SDL_Renderer
+opaque type SDL_Texture
+opaque type SDL_Surface
 
 # SDL2 Constants
 # Note: These values must match SDL2's actual definitions
@@ -34,31 +38,31 @@ extern fn SDL_GetTicks() -> int
 extern fn SDL_Delay(ms: int) -> void
 
 # SDL2 Window Functions
-extern fn SDL_CreateWindow(title: string, x: int, y: int, w: int, h: int, flags: int) -> int
-extern fn SDL_DestroyWindow(window: int) -> void
-extern fn SDL_SetWindowTitle(window: int, title: string) -> void
-extern fn SDL_GetWindowSize(window: int, w_ptr: int, h_ptr: int) -> void
+extern fn SDL_CreateWindow(title: string, x: int, y: int, w: int, h: int, flags: int) -> SDL_Window
+extern fn SDL_DestroyWindow(window: SDL_Window) -> void
+extern fn SDL_SetWindowTitle(window: SDL_Window, title: string) -> void
+extern fn SDL_GetWindowSize(window: SDL_Window, w_ptr: int, h_ptr: int) -> void
 
 # SDL2 Renderer Functions  
-extern fn SDL_CreateRenderer(window: int, index: int, flags: int) -> int
-extern fn SDL_DestroyRenderer(renderer: int) -> void
-extern fn SDL_RenderClear(renderer: int) -> int
-extern fn SDL_RenderPresent(renderer: int) -> void
-extern fn SDL_SetRenderDrawColor(renderer: int, r: int, g: int, b: int, a: int) -> int
-extern fn SDL_RenderFillRect(renderer: int, rect_ptr: int) -> int
-extern fn SDL_RenderDrawPoint(renderer: int, x: int, y: int) -> int
-extern fn SDL_RenderDrawLine(renderer: int, x1: int, y1: int, x2: int, y2: int) -> int
-extern fn SDL_RenderDrawRect(renderer: int, rect_ptr: int) -> int
-extern fn SDL_SetRenderDrawBlendMode(renderer: int, mode: int) -> int
-extern fn SDL_RenderCopy(renderer: int, texture: int, srcrect: int, dstrect: int) -> int
-extern fn SDL_CreateTexture(renderer: int, format: int, access: int, w: int, h: int) -> int
-extern fn SDL_UpdateTexture(texture: int, rect: int, pixels: int, pitch: int) -> int
-extern fn SDL_SetTextureBlendMode(texture: int, mode: int) -> int
-extern fn SDL_SetTextureAlphaMod(texture: int, alpha: int) -> int
-extern fn SDL_QueryTexture(texture: int, format: int, access: int, w: int, h: int) -> int
-extern fn SDL_CreateTextureFromSurface(renderer: int, surface: int) -> int
-extern fn SDL_DestroyTexture(texture: int) -> void
-extern fn SDL_FreeSurface(surface: int) -> void
+extern fn SDL_CreateRenderer(window: SDL_Window, index: int, flags: int) -> SDL_Renderer
+extern fn SDL_DestroyRenderer(renderer: SDL_Renderer) -> void
+extern fn SDL_RenderClear(renderer: SDL_Renderer) -> int
+extern fn SDL_RenderPresent(renderer: SDL_Renderer) -> void
+extern fn SDL_SetRenderDrawColor(renderer: SDL_Renderer, r: int, g: int, b: int, a: int) -> int
+extern fn SDL_RenderFillRect(renderer: SDL_Renderer, rect_ptr: int) -> int
+extern fn SDL_RenderDrawPoint(renderer: SDL_Renderer, x: int, y: int) -> int
+extern fn SDL_RenderDrawLine(renderer: SDL_Renderer, x1: int, y1: int, x2: int, y2: int) -> int
+extern fn SDL_RenderDrawRect(renderer: SDL_Renderer, rect_ptr: int) -> int
+extern fn SDL_SetRenderDrawBlendMode(renderer: SDL_Renderer, mode: int) -> int
+extern fn SDL_RenderCopy(renderer: SDL_Renderer, texture: SDL_Texture, srcrect: int, dstrect: int) -> int
+extern fn SDL_CreateTexture(renderer: SDL_Renderer, format: int, access: int, w: int, h: int) -> SDL_Texture
+extern fn SDL_UpdateTexture(texture: SDL_Texture, rect: int, pixels: int, pitch: int) -> int
+extern fn SDL_SetTextureBlendMode(texture: SDL_Texture, mode: int) -> int
+extern fn SDL_SetTextureAlphaMod(texture: SDL_Texture, alpha: int) -> int
+extern fn SDL_QueryTexture(texture: SDL_Texture, format: int, access: int, w: int, h: int) -> int
+extern fn SDL_CreateTextureFromSurface(renderer: SDL_Renderer, surface: SDL_Surface) -> SDL_Texture
+extern fn SDL_DestroyTexture(texture: SDL_Texture) -> void
+extern fn SDL_FreeSurface(surface: SDL_Surface) -> void
 
 # SDL2 Event Functions
 extern fn SDL_PollEvent(event_ptr: int) -> int

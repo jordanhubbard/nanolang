@@ -272,7 +272,17 @@ Type check_expression(ASTNode *expr, Environment *env) {
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
                 Type right = check_expression(expr->as.prefix_op.args[1], env);
 
-                if (!types_match(left, right)) {
+                /* Allow comparing opaque types with int (for null checks) */
+                bool types_ok = types_match(left, right);
+                if (!types_ok) {
+                    /* Check if we're comparing an opaque type with int (null check) */
+                    if ((left == TYPE_STRUCT || left == TYPE_INT) && (right == TYPE_STRUCT || right == TYPE_INT)) {
+                        /* One might be an opaque type - this is allowed for null checks */
+                        types_ok = true;
+                    }
+                }
+                
+                if (!types_ok) {
                     fprintf(stderr, "Error at line %d, column %d: Type mismatch in equality check\n", expr->line, expr->column);
                 }
                 return TYPE_BOOL;
@@ -512,7 +522,24 @@ Type check_expression(ASTNode *expr, Environment *env) {
                     } else {
                         /* Regular argument type checking */
                         Type arg_type = check_expression(arg, env);
-                        if (!types_match(arg_type, func->params[i].type)) {
+                        
+                        /* Check for opaque type parameters - allow 0 (null) as argument */
+                        bool is_opaque_param = false;
+                        if (func->params[i].type == TYPE_STRUCT && func->params[i].struct_type_name) {
+                            OpaqueTypeDef *opaque = env_get_opaque_type(env, func->params[i].struct_type_name);
+                            if (opaque) {
+                                is_opaque_param = true;
+                                /* For opaque types, allow TYPE_INT (for passing 0 as NULL) */
+                                if (arg_type != TYPE_INT && arg_type != TYPE_STRUCT) {
+                                    fprintf(stderr, "Error at line %d, column %d: Argument %d type mismatch in call to '%s'\n",
+                                            expr->line, expr->column, i + 1, expr->as.call.name);
+                                    fprintf(stderr, "  Expected opaque type '%s' or 0 (null), got %s\n",
+                                            func->params[i].struct_type_name, type_to_string(arg_type));
+                                }
+                            }
+                        }
+                        
+                        if (!is_opaque_param && !types_match(arg_type, func->params[i].type)) {
                             fprintf(stderr, "Error at line %d, column %d: Argument %d type mismatch in call to '%s'\n",
                                     expr->line, expr->column, i + 1, expr->as.call.name);
                         }
@@ -2326,6 +2353,21 @@ bool type_check(ASTNode *program, Environment *env) {
             
             env_define_union(env, udef);
             
+        } else if (item->type == AST_OPAQUE_TYPE) {
+            /* Register opaque type */
+            const char *type_name = item->as.opaque_type.name;
+            
+            /* Check if opaque type already defined */
+            if (env_get_opaque_type(env, type_name)) {
+                fprintf(stderr, "Error at line %d, column %d: Opaque type '%s' is already defined\n",
+                        item->line, item->column, type_name);
+                tc.has_error = true;
+                continue;
+            }
+            
+            /* Register the opaque type in environment */
+            env_define_opaque_type(env, type_name);
+            
         } else if (item->type == AST_ENUM_DEF) {
             /* Defensive check: ensure item and enum_def fields are valid */
             if (!item) {
@@ -2762,6 +2804,21 @@ bool type_check_module(ASTNode *program, Environment *env) {
             }
             
             env_define_union(env, udef);
+            
+        } else if (item->type == AST_OPAQUE_TYPE) {
+            /* Register opaque type */
+            const char *type_name = item->as.opaque_type.name;
+            
+            /* Check if opaque type already defined */
+            if (env_get_opaque_type(env, type_name)) {
+                fprintf(stderr, "Error at line %d, column %d: Opaque type '%s' is already defined\n",
+                        item->line, item->column, type_name);
+                tc.has_error = true;
+                continue;
+            }
+            
+            /* Register the opaque type in environment */
+            env_define_opaque_type(env, type_name);
             
         } else if (item->type == AST_ENUM_DEF) {
             /* Defensive check: ensure item and enum_def fields are valid */

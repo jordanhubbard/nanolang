@@ -14,17 +14,8 @@
 import "modules/glfw/glfw.nano"
 import "modules/glew/glew.nano"
 
-# === OpenGL Constants ===
-let GL_COLOR_BUFFER_BIT: int = 16384      # 0x00004000
-let GL_DEPTH_BUFFER_BIT: int = 256        # 0x00000100
-let GL_DEPTH_TEST: int = 2929             # 0x0B71
-let GL_QUADS: int = 7
-let GL_TRIANGLES: int = 4
-let GL_MODELVIEW: int = 5888
-let GL_PROJECTION: int = 5889
-let GLEW_OK: int = 0
-let GLFW_KEY_ESCAPE: int = 256
-let GLFW_KEY_SPACE: int = 32
+# Note: OpenGL constants (GL_*, GLEW_*, GLFW_*) are automatically loaded from C headers
+# No manual declarations needed!
 
 # Window dimensions
 let WINDOW_WIDTH: int = 800
@@ -228,7 +219,7 @@ fn main() -> int {
     }
     
     # Create window
-    let window: int = (glfwCreateWindow WINDOW_WIDTH WINDOW_HEIGHT "OpenGL Textured Teapot - nanolang" 0 0)
+    let window: GLFWwindow = (glfwCreateWindow WINDOW_WIDTH WINDOW_HEIGHT "OpenGL Textured Teapot - nanolang" 0 0)
     if (== window 0) {
         (println "❌ Failed to create window!")
         (glfwTerminate)

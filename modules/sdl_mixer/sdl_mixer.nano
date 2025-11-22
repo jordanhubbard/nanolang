@@ -2,6 +2,11 @@
 # This module provides FFI bindings for SDL_mixer, a UI engine extension for audio playback.
 # SDL_mixer works natively on macOS, X11, Windows, and other platforms.
 
+# === Opaque Type Declarations ===
+
+opaque type Mix_Chunk
+opaque type Mix_Music
+
 # === Initialization ===
 
 # Initialize SDL_mixer with format flags
@@ -44,26 +49,26 @@ extern fn Mix_AllocateChannels(numchans: int) -> int
 # === Sound Effect Functions ===
 
 # Load WAV file
-# Returns Mix_Chunk handle (pointer as int) or 0 on failure
-extern fn Mix_LoadWAV(file: string) -> int
+# Returns Mix_Chunk handle or 0 on failure
+extern fn Mix_LoadWAV(file: string) -> Mix_Chunk
 
 # Free Mix_Chunk
-extern fn Mix_FreeChunk(chunk: int) -> int
+extern fn Mix_FreeChunk(chunk: Mix_Chunk) -> int
 
 # Play sound effect on channel
 # channel: -1 for first available channel
 # chunk: sound chunk to play
 # loops: 0 = play once, -1 = loop forever, N = play N+1 times
 # Returns channel number or -1 on error
-extern fn Mix_PlayChannel(channel: int, chunk: int, loops: int) -> int
+extern fn Mix_PlayChannel(channel: int, chunk: Mix_Chunk, loops: int) -> int
 
 # Play sound effect on channel for specified time
 # ticks: maximum milliseconds to play (-1 = no limit)
-extern fn Mix_PlayChannelTimed(channel: int, chunk: int, loops: int, ticks: int) -> int
+extern fn Mix_PlayChannelTimed(channel: int, chunk: Mix_Chunk, loops: int, ticks: int) -> int
 
 # Fade in sound effect
 # ms: milliseconds for fade in
-extern fn Mix_FadeInChannel(channel: int, chunk: int, loops: int, ms: int) -> int
+extern fn Mix_FadeInChannel(channel: int, chunk: Mix_Chunk, loops: int, ms: int) -> int
 
 # Halt playing on channel
 extern fn Mix_HaltChannel(channel: int) -> int
@@ -83,29 +88,29 @@ extern fn Mix_Volume(channel: int, volume: int) -> int
 let MIX_MAX_VOLUME: int = 128
 
 # Set volume for chunk
-extern fn Mix_VolumeChunk(chunk: int, volume: int) -> int
+extern fn Mix_VolumeChunk(chunk: Mix_Chunk, volume: int) -> int
 
 # === Music Functions ===
 
 # Load music file (supports MP3, OGG, FLAC, MOD, MIDI, etc.)
-# Returns Mix_Music handle (pointer as int) or 0 on failure
-extern fn Mix_LoadMUS(file: string) -> int
+# Returns Mix_Music handle or 0 on failure
+extern fn Mix_LoadMUS(file: string) -> Mix_Music
 
 # Free Mix_Music
-extern fn Mix_FreeMusic(music: int) -> void
+extern fn Mix_FreeMusic(music: Mix_Music) -> void
 
 # Play music
 # loops: 0 = play once, -1 = loop forever, N = play N+1 times
 # Returns 0 on success, -1 on error
-extern fn Mix_PlayMusic(music: int, loops: int) -> int
+extern fn Mix_PlayMusic(music: Mix_Music, loops: int) -> int
 
 # Fade in music
 # ms: milliseconds for fade in
-extern fn Mix_FadeInMusic(music: int, loops: int, ms: int) -> int
+extern fn Mix_FadeInMusic(music: Mix_Music, loops: int, ms: int) -> int
 
 # Fade in music starting at position
 # position: starting position (interpretation depends on music type)
-extern fn Mix_FadeInMusicPos(music: int, loops: int, ms: int, position: float) -> int
+extern fn Mix_FadeInMusicPos(music: Mix_Music, loops: int, ms: int, position: float) -> int
 
 # Halt music playback
 extern fn Mix_HaltMusic() -> int

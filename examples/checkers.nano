@@ -924,7 +924,7 @@ fn main() -> int {
     } else {}
     
     # Create window
-    let window: int = (SDL_CreateWindow "Checkers" SDL_WINDOWPOS_UNDEFINED SDL_WINDOWPOS_UNDEFINED window_width window_height SDL_WINDOW_SHOWN)
+    let window: SDL_Window = (SDL_CreateWindow "Checkers" SDL_WINDOWPOS_UNDEFINED SDL_WINDOWPOS_UNDEFINED window_width window_height SDL_WINDOW_SHOWN)
     if (== window 0) {
         (println "Window creation failed")
         (SDL_Quit)
@@ -932,7 +932,7 @@ fn main() -> int {
     } else {}
     
     # Create renderer
-    let renderer: int = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
     if (== renderer 0) {
         (println "Renderer creation failed")
         (SDL_DestroyWindow window)

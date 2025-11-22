@@ -130,8 +130,8 @@ fn main() -> int {
     # (glfwWindowHint GLFW_CONTEXT_VERSION_MAJOR 3)
     # (glfwWindowHint GLFW_CONTEXT_VERSION_MINOR 3)
     
-    # Create window
-    let window: int = (glfwCreateWindow WINDOW_WIDTH WINDOW_HEIGHT "OpenGL Rotating Cube - nanolang" 0 0)
+    # Create window  
+    let window: GLFWwindow = (glfwCreateWindow WINDOW_WIDTH WINDOW_HEIGHT "OpenGL Rotating Cube - nanolang" 0 0)
     if (== window 0) {
         (println "Failed to create GLFW window!")
         (glfwTerminate)

@@ -460,7 +460,7 @@ fn main() -> int {
     }
     
     # Create window
-    let window: int = (SDL_CreateWindow "Falling Sand" 536805376 536805376 WINDOW_WIDTH WINDOW_HEIGHT 4)
+    let window: SDL_Window = (SDL_CreateWindow "Falling Sand" 536805376 536805376 WINDOW_WIDTH WINDOW_HEIGHT 4)
     if (== window 0) {
         (println "Window creation failed")
         (SDL_Quit)
@@ -470,7 +470,7 @@ fn main() -> int {
     }
     
     # Create renderer
-    let renderer: int = (SDL_CreateRenderer window -1 2)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
     if (== renderer 0) {
         (println "Renderer creation failed")
         (SDL_DestroyWindow window)

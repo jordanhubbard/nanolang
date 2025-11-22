@@ -12,6 +12,11 @@
 # - Monitor and video mode queries
 # - Cross-platform window system abstraction
 
+# === Opaque Type Declarations ===
+
+opaque type GLFWwindow
+opaque type GLFWmonitor
+
 # === Window Management ===
 
 # Initialize GLFW - must be called before any other GLFW functions
@@ -22,30 +27,29 @@ extern fn glfwInit() -> int
 extern fn glfwTerminate() -> void
 
 # Create a window with OpenGL context
-# Returns window handle as int (pointer cast)
 # width, height: window dimensions in screen coordinates
 # title: window title string
-# monitor, share: usually 0 (NULL) for windowed mode
-extern fn glfwCreateWindow(width: int, height: int, title: string, monitor: int, share: int) -> int
+# monitor, share: usually 0 (null) for windowed mode
+extern fn glfwCreateWindow(width: int, height: int, title: string, monitor: GLFWmonitor, share: GLFWwindow) -> GLFWwindow
 
 # Destroy a window and its context
-extern fn glfwDestroyWindow(window: int) -> void
+extern fn glfwDestroyWindow(window: GLFWwindow) -> void
 
 # Check if window should close (user clicked X button)
 # Returns 1 if should close, 0 otherwise
-extern fn glfwWindowShouldClose(window: int) -> int
+extern fn glfwWindowShouldClose(window: GLFWwindow) -> int
 
 # Set window should close flag
-extern fn glfwSetWindowShouldClose(window: int, value: int) -> void
+extern fn glfwSetWindowShouldClose(window: GLFWwindow, value: int) -> void
 
 # Swap front and back buffers (display rendered frame)
-extern fn glfwSwapBuffers(window: int) -> void
+extern fn glfwSwapBuffers(window: GLFWwindow) -> void
 
 # Process events (mouse, keyboard, window resize, etc.)
 extern fn glfwPollEvents() -> void
 
 # Make the OpenGL context of the window current
-extern fn glfwMakeContextCurrent(window: int) -> void
+extern fn glfwMakeContextCurrent(window: GLFWwindow) -> void
 
 # === Window Attributes ===
 
@@ -55,18 +59,18 @@ extern fn glfwWindowHint(hint: int, value: int) -> void
 
 # Get framebuffer size (actual pixel size, may differ from window size on hi-DPI)
 # width_out, height_out: pointers to receive the dimensions
-extern fn glfwGetFramebufferSize(window: int, width_out: int, height_out: int) -> void
+extern fn glfwGetFramebufferSize(window: GLFWwindow, width_out: int, height_out: int) -> void
 
 # === Input ===
 
 # Get key state (GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT)
-extern fn glfwGetKey(window: int, key: int) -> int
+extern fn glfwGetKey(window: GLFWwindow, key: int) -> int
 
 # Get mouse button state
-extern fn glfwGetMouseButton(window: int, button: int) -> int
+extern fn glfwGetMouseButton(window: GLFWwindow, button: int) -> int
 
 # Get cursor position in screen coordinates
-extern fn glfwGetCursorPos(window: int, xpos_out: int, ypos_out: int) -> void
+extern fn glfwGetCursorPos(window: GLFWwindow, xpos_out: int, ypos_out: int) -> void
 
 # === Timing ===
 

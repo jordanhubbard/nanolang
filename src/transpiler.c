@@ -470,6 +470,7 @@ static const char *type_to_c(Type type) {
         case TYPE_LIST_STRING: return "List_string*";
         case TYPE_LIST_TOKEN: return "List_token*";
         case TYPE_LIST_GENERIC: return ""; /* Will be handled specially with type_name */
+        case TYPE_OPAQUE: return "int64_t"; /* Opaque pointers stored as int64_t */
         default: return "void";
     }
 }
@@ -960,16 +961,18 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 Function *func_def = env_get_function(env, func_name);
                 bool needs_return_cast = false;
                 
-                /* If this is an extern function returning int (which represents a pointer),
-                 * and we have headers included, cast the return value to avoid type errors.
-                 * Don't cast void returns! */
-                if (func_def && func_def->is_extern && func_def->return_type == TYPE_INT) {
-                    /* Extern functions that return int likely return pointers
-                     * When C headers are included, we need to cast pointer returns to int64_t */
-                    needs_return_cast = true;
-                } else if (func_def && func_def->is_extern && func_def->return_type == TYPE_VOID) {
-                    /* Void returns - don't cast */
-                    needs_return_cast = false;
+                /* Check if function returns an opaque type - cast to int64_t */
+                if (func_def && func_def->is_extern) {
+                    if (func_def->return_struct_type_name) {
+                        /* Check if return type is opaque */
+                        OpaqueTypeDef *opaque = env_get_opaque_type(env, func_def->return_struct_type_name);
+                        if (opaque) {
+                            needs_return_cast = true;
+                        }
+                    } else if (func_def->return_type == TYPE_INT) {
+                        /* Legacy: Extern functions returning int likely return pointers */
+                        needs_return_cast = true;
+                    }
                 }
                 
                 /* Add cast for pointer-returning extern functions */
@@ -979,40 +982,44 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 
                 sb_appendf(sb, "%s(", func_name);
                 
-                /* Check if this is an SDL/Mix function that needs pointer casts */
-                bool is_sdl_func = func_def && func_def->is_extern && 
-                                  (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "TTF_", 4) == 0);
-                bool is_mix_func = func_def && func_def->is_extern && strncmp(func_name, "Mix_", 4) == 0;
-                bool is_nl_sdl_helper = func_def && func_def->is_extern && 
-                                       strncmp(func_name, "nl_sdl_", 7) == 0;
-                
+                /* GENERIC OPAQUE TYPE CASTING - works for any C library */
                 for (int i = 0; i < expr->as.call.arg_count; i++) {
                     if (i > 0) sb_append(sb, ", ");
                     
-                    /* Check if this parameter needs a cast for SDL functions */
-                    if (is_sdl_func && func_def && i < func_def->param_count) {
-                        const char *sdl_param_type = get_sdl_c_type(func_name, i, false);
-                        if (sdl_param_type && func_def->params[i].type == TYPE_INT) {
-                            /* Cast int to pointer type */
-                            sb_appendf(sb, "(%s)", sdl_param_type);
-                        }
-                    } else if (is_mix_func && func_def && i < func_def->param_count) {
-                        /* SDL_mixer functions: cast int64_t to pointer types */
-                        if (func_def->params[i].type == TYPE_INT) {
-                            /* Common SDL_mixer pointer types */
-                            if (strcmp(func_name, "Mix_PlayMusic") == 0 && i == 0) {
-                                sb_append(sb, "(Mix_Music*)");
-                            } else if (strcmp(func_name, "Mix_FreeMusic") == 0 && i == 0) {
-                                sb_append(sb, "(Mix_Music*)");
-                            } else if (strcmp(func_name, "Mix_PlayChannel") == 0 && i == 1) {
-                                sb_append(sb, "(Mix_Chunk*)");
-                            } else if (strcmp(func_name, "Mix_FreeChunk") == 0 && i == 0) {
-                                sb_append(sb, "(Mix_Chunk*)");
+                    /* Check if this parameter is an opaque type that needs casting */
+                    if (func_def && func_def->is_extern && i < func_def->param_count) {
+                        /* Check if parameter has an opaque type */
+                        if (func_def->params[i].struct_type_name) {
+                            OpaqueTypeDef *opaque = env_get_opaque_type(env, func_def->params[i].struct_type_name);
+                            if (opaque) {
+                                /* Cast int64_t to C pointer type (e.g., "GLFWwindow*") */
+                                sb_appendf(sb, "(%s)", opaque->c_type_name);
                             }
                         }
-                    } else if (is_nl_sdl_helper && func_def && i < func_def->param_count) {
-                        /* nl_sdl_ helpers: first param is SDL_Renderer* passed as int64_t */
-                        /* Don't cast - the helper function accepts int64_t and casts internally */
+                        /* Legacy SDL support: also check for SDL/Mix functions using TYPE_INT */
+                        else if (func_def->params[i].type == TYPE_INT) {
+                            bool is_sdl_func = (strncmp(func_name, "SDL_", 4) == 0 || 
+                                              strncmp(func_name, "TTF_", 4) == 0);
+                            bool is_mix_func = strncmp(func_name, "Mix_", 4) == 0;
+                            
+                            if (is_sdl_func) {
+                                const char *sdl_param_type = get_sdl_c_type(func_name, i, false);
+                                if (sdl_param_type) {
+                                    sb_appendf(sb, "(%s)", sdl_param_type);
+                                }
+                            } else if (is_mix_func) {
+                                /* SDL_mixer pointer types */
+                                if (strcmp(func_name, "Mix_PlayMusic") == 0 && i == 0) {
+                                    sb_append(sb, "(Mix_Music*)");
+                                } else if (strcmp(func_name, "Mix_FreeMusic") == 0 && i == 0) {
+                                    sb_append(sb, "(Mix_Music*)");
+                                } else if (strcmp(func_name, "Mix_PlayChannel") == 0 && i == 1) {
+                                    sb_append(sb, "(Mix_Chunk*)");
+                                } else if (strcmp(func_name, "Mix_FreeChunk") == 0 && i == 0) {
+                                    sb_append(sb, "(Mix_Chunk*)");
+                                }
+                            }
+                        }
                     }
                     
                     transpile_expression(sb, expr->as.call.args[i], env);
@@ -1373,8 +1380,15 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
                     /* Regular struct/union type - use prefixed name */
                     const char *type_name = stmt->as.let.type_name ? stmt->as.let.type_name : get_struct_type_from_expr(stmt->as.let.value);
                     if (type_name) {
-                        const char *prefixed_name = get_prefixed_type_name(type_name);
-                        sb_appendf(sb, "%s %s = ", prefixed_name, stmt->as.let.name);
+                        /* Check if this is an opaque type */
+                        OpaqueTypeDef *opaque = env_get_opaque_type(env, type_name);
+                        if (opaque) {
+                            /* Opaque types are stored as int64_t */
+                            sb_appendf(sb, "int64_t %s = ", stmt->as.let.name);
+                        } else {
+                            const char *prefixed_name = get_prefixed_type_name(type_name);
+                            sb_appendf(sb, "%s %s = ", prefixed_name, stmt->as.let.name);
+                        }
                     } else {
                         /* Fallback if we can't determine struct type */
                         sb_appendf(sb, "/* struct */ void* %s = ", stmt->as.let.name);
