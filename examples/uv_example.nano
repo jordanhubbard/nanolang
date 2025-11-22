@@ -1,0 +1,151 @@
+# uv_example.nano - libuv async I/O demonstration
+#
+# This example demonstrates libuv event loop and system information.
+
+import "modules/uv/uv.nano"
+
+fn show_version_info() -> void {
+    (println "=== Version Information ===")
+    (print "libuv version: ")
+    (println (nl_uv_version_string))
+    
+    let version_num: int = (nl_uv_version)
+    (print "Version number: ")
+    (println version_num)
+    (println "")
+}
+
+shadow show_version_info {
+    # Skip - uses extern functions
+}
+
+fn show_system_info() -> void {
+    (println "=== System Information ===")
+    
+    (print "Hostname: ")
+    (println (nl_uv_os_gethostname))
+    
+    (print "Current directory: ")
+    (println (nl_uv_cwd))
+    
+    (print "Process ID: ")
+    (println (nl_uv_os_getpid))
+    
+    (print "Parent PID: ")
+    (println (nl_uv_os_getppid))
+    
+    (print "CPU count: ")
+    (println (nl_uv_cpu_count))
+    
+    let total_mem: int = (nl_uv_get_total_memory)
+    (print "Total memory: ")
+    (print total_mem)
+    (println " bytes")
+    
+    let free_mem: int = (nl_uv_get_free_memory)
+    (print "Free memory: ")
+    (print free_mem)
+    (println " bytes")
+    
+    let load: int = (nl_uv_loadavg_1min)
+    (print "Load average (1 min): ")
+    (println load)
+    
+    (println "")
+}
+
+shadow show_system_info {
+    # Skip - uses extern functions
+}
+
+fn test_event_loop() -> void {
+    (println "=== Event Loop Test ===")
+    
+    let loop: int = (nl_uv_default_loop)
+    
+    if (== loop 0) {
+        (println "Failed to get default loop")
+        return
+    }
+    
+    (println "Event loop created successfully")
+    
+    let alive: int = (nl_uv_loop_alive loop)
+    (print "Loop alive: ")
+    (println alive)
+    
+    let now: int = (nl_uv_now loop)
+    (print "Current time (ms): ")
+    (println now)
+    
+    let hrtime: int = (nl_uv_hrtime)
+    (print "High-res time (ns): ")
+    (println hrtime)
+    
+    (println "")
+}
+
+shadow test_event_loop {
+    # Skip - uses extern functions
+}
+
+fn test_timing() -> void {
+    (println "=== Timing Test ===")
+    
+    let loop: int = (nl_uv_default_loop)
+    
+    let start: int = (nl_uv_hrtime)
+    (println "Sleeping for 100ms...")
+    (nl_uv_sleep 100)
+    let end: int = (nl_uv_hrtime)
+    
+    let elapsed_ns: int = (- end start)
+    let elapsed_ms: int = (/ elapsed_ns 1000000)
+    (print "Actual sleep time: ")
+    (print elapsed_ms)
+    (println " ms")
+    
+    (println "")
+}
+
+shadow test_timing {
+    # Skip - uses extern functions
+}
+
+fn test_error_handling() -> void {
+    (println "=== Error Handling ===")
+    
+    # Test error code -2 (ENOENT)
+    let err_msg: string = (nl_uv_strerror -2)
+    (print "Error -2: ")
+    (println err_msg)
+    
+    let err_name: string = (nl_uv_err_name -2)
+    (print "Error name: ")
+    (println err_name)
+    
+    (println "")
+}
+
+shadow test_error_handling {
+    # Skip - uses extern functions
+}
+
+fn main() -> int {
+    (println "libuv Examples for nanolang")
+    (println "===========================")
+    (println "")
+    
+    show_version_info
+    show_system_info
+    test_event_loop
+    test_timing
+    test_error_handling
+    
+    (println "All tests completed!")
+    return 0
+}
+
+shadow main {
+    # Skip - uses extern functions
+}

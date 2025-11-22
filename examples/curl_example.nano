@@ -1,0 +1,112 @@
+# curl_example.nano - HTTP requests with libcurl
+#
+# This example demonstrates making HTTP GET and POST requests.
+
+import "modules/curl/curl.nano"
+
+fn test_simple_get() -> void {
+    (println "=== Testing Simple GET ===")
+    
+    # Simple GET request
+    let response: string = (nl_curl_simple_get "https://httpbin.org/get")
+    (println "Response:")
+    (println response)
+    (println "")
+}
+
+shadow test_simple_get {
+    # Skip - uses extern functions
+}
+
+fn test_simple_post() -> void {
+    (println "=== Testing Simple POST ===")
+    
+    # Simple POST request with JSON data
+    let data: string = "{\"message\": \"Hello from nanolang!\"}"
+    let response: string = (nl_curl_simple_post "https://httpbin.org/post" data)
+    (println "Response:")
+    (println response)
+    (println "")
+}
+
+shadow test_simple_post {
+    # Skip - uses extern functions
+}
+
+fn test_download_file() -> void {
+    (println "=== Testing File Download ===")
+    
+    # Download a small file
+    let result: int = (nl_curl_download_file "https://httpbin.org/robots.txt" "robots.txt")
+    if (== result 0) {
+        (println "File downloaded successfully to robots.txt")
+    } else {
+        (println "Download failed")
+    }
+    (println "")
+}
+
+shadow test_download_file {
+    # Skip - uses extern functions
+}
+
+fn test_advanced() -> void {
+    (println "=== Testing Advanced Usage ===")
+    
+    # Initialize curl globally
+    let init_result: int = (nl_curl_global_init)
+    if (!= init_result 0) {
+        (println "Failed to initialize curl")
+        return
+    }
+    
+    # Create handle
+    let curl: int = (nl_curl_easy_init)
+    if (== curl 0) {
+        (println "Failed to create curl handle")
+        (nl_curl_global_cleanup)
+        return
+    }
+    
+    # Configure request
+    (nl_curl_easy_setopt_url curl "https://httpbin.org/status/200")
+    (nl_curl_easy_setopt_follow_location curl 1)
+    (nl_curl_easy_setopt_timeout curl 10)
+    (nl_curl_easy_setopt_useragent curl "nanolang-example/1.0")
+    
+    # Perform request
+    let perform_result: int = (nl_curl_easy_perform curl)
+    if (== perform_result 0) {
+        let code: int = (nl_curl_easy_getinfo_response_code curl)
+        (print "HTTP Response Code: ")
+        (println code)
+    } else {
+        (println "Request failed")
+    }
+    
+    # Cleanup
+    (nl_curl_easy_cleanup curl)
+    (nl_curl_global_cleanup)
+}
+
+shadow test_advanced {
+    # Skip - uses extern functions
+}
+
+fn main() -> int {
+    (println "libcurl Examples for nanolang")
+    (println "==============================")
+    (println "")
+    
+    test_simple_get
+    test_simple_post
+    test_download_file
+    test_advanced
+    
+    (println "All tests completed!")
+    return 0
+}
+
+shadow main {
+    # Skip - uses extern functions
+}

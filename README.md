@@ -1,14 +1,14 @@
 # nanolang
 
 ![Build Status](https://github.com/yourusername/nanolang/workflows/CI/badge.svg)
-![Tests](https://img.shields.io/badge/tests-17%2F17%20passing-brightgreen.svg)
+![Tests](https://img.shields.io/badge/tests-20%2F20%20passing-brightgreen.svg)
 ![Examples](https://img.shields.io/badge/examples-25%2F28%20working-green.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![Version](https://img.shields.io/badge/version-0.1.0--alpha-orange.svg)
 
-**Status**: ✅ Production Ready - 17/17 tests passing + 25/28 examples working, **37 stdlib functions**, arrays with bounds checking, **self-hosting foundation 100% complete** ✅
+**Status**: ✅ Production Ready - 20/20 tests passing + 25/28 examples working, **49+ stdlib functions**, arrays with bounds checking, **self-hosting foundation 100% complete** ✅
 
-A minimal, LLM-friendly programming language designed for AI programming with strict, unambiguous syntax, mandatory shadow-tests, and a path to self-hosting via C transpilation.
+A minimal, LLM-friendly programming language designed for AI-assisted programming with strict, unambiguous syntax, mandatory shadow-tests, and a path to self-hosting via C transpilation.
 
 ## Documentation 📚
 
@@ -32,13 +32,13 @@ A minimal, LLM-friendly programming language designed for AI programming with st
 - C compiler (GCC or Clang)
 - Make
 
-**Optional (for graphics examples only):**
-- SDL2 development libraries
+**Optional Modules** (only needed if using specific features):
 
-> **Note:** SDL2 is **not required** for the core nanolang language. It's only needed if you want to build and run the graphical examples in `examples/` (games, simulations, etc.). The compiler, interpreter, and all core functionality work without SDL2.
+> **Note:** The core nanolang compiler and interpreter work without any of these libraries. They're only needed if you import the corresponding modules in your code.
 
-**Install SDL2 (optional):**
+#### Graphics & Game Development
 
+**SDL2** - Window management, 2D graphics, input
 ```bash
 # macOS
 brew install sdl2
@@ -50,11 +50,130 @@ sudo apt-get install libsdl2-dev
 sudo dnf install SDL2-devel
 ```
 
-**Don't have SDL2?** No problem! Try the basic examples first:
+**SDL2_mixer** - Audio playback (music, sound effects)
+```bash
+# macOS
+brew install sdl2_mixer
+
+# Ubuntu/Debian
+sudo apt-get install libsdl2-mixer-dev
+```
+
+**SDL2_ttf** - TrueType font rendering
+```bash
+# macOS
+brew install sdl2_ttf
+
+# Ubuntu/Debian
+sudo apt-get install libsdl2-ttf-dev
+```
+
+#### OpenGL Development
+
+**GLFW** - Modern OpenGL window and input
+```bash
+# macOS
+brew install glfw
+
+# Ubuntu/Debian
+sudo apt install libglfw3-dev
+```
+
+**GLEW** - OpenGL Extension Wrangler
+```bash
+# macOS
+brew install glew
+
+# Ubuntu/Debian
+sudo apt install libglew-dev
+```
+
+#### AI/ML
+
+**ONNX Runtime** - Neural network inference
+```bash
+# macOS
+brew install onnxruntime
+
+# Ubuntu/Debian
+sudo apt-get install libonnxruntime-dev
+```
+
+See [docs/AI_ML_GUIDE.md](docs/AI_ML_GUIDE.md) for ONNX usage.
+
+#### Networking & HTTP
+
+**libcurl** - HTTP/HTTPS client for web requests and REST APIs
+```bash
+# macOS
+brew install curl
+
+# Ubuntu/Debian
+sudo apt install libcurl4-openssl-dev
+```
+
+#### Async I/O & Event Loops
+
+**libevent** - Asynchronous event notification (for servers, high-performance I/O)
+```bash
+# macOS
+brew install libevent
+
+# Ubuntu/Debian
+sudo apt install libevent-dev
+```
+
+**libuv** - Cross-platform async I/O (powers Node.js)
+```bash
+# macOS
+brew install libuv
+
+# Ubuntu/Debian
+sudo apt install libuv1-dev
+```
+
+#### Database
+
+**SQLite3** - Embedded SQL database
+```bash
+# macOS
+brew install sqlite
+
+# Ubuntu/Debian
+sudo apt install libsqlite3-dev
+```
+
+#### Module Reference Table
+
+| Module | Description | Install Command (macOS) | Use Cases |
+|--------|-------------|------------------------|-----------|
+| **Graphics & Games** ||||
+| `sdl` | 2D graphics, windowing, input | `brew install sdl2` | Games, GUI apps, graphics |
+| `sdl_mixer` | Audio playback | `brew install sdl2_mixer` | Music, sound effects |
+| `sdl_ttf` | Font rendering | `brew install sdl2_ttf` | Text display in games/apps |
+| **OpenGL** ||||
+| `glfw` | OpenGL windowing | `brew install glfw` | 3D graphics, OpenGL apps |
+| `glew` | OpenGL extensions | `brew install glew` | Modern OpenGL features |
+| **Networking** ||||
+| `curl` | HTTP/HTTPS client | `brew install curl` | REST APIs, web requests, downloads |
+| **Async I/O** ||||
+| `event` | Event notification (libevent) | `brew install libevent` | Network servers, async I/O |
+| `uv` | Cross-platform async (libuv) | `brew install libuv` | Node.js-style event loop |
+| **Database** ||||
+| `sqlite` | Embedded SQL database | `brew install sqlite` | Local data storage, SQL queries |
+| **AI/ML** ||||
+| `onnx` | Neural network inference | `brew install onnxruntime` | PyTorch/TF models, ML inference |
+
+See [docs/MODULE_SYSTEM.md](docs/MODULE_SYSTEM.md) for creating your own modules.
+
+---
+
+**Don't have any modules installed?** No problem! Try the basic examples first:
 ```bash
 ./bin/nano examples/hello.nano
 ./bin/nano examples/factorial.nano
 ./bin/nano examples/calculator.nano
+./bin/nano examples/primes.nano
 ```
 
 ### Building nanolang
@@ -102,12 +221,23 @@ make examples
 
 **Working Examples**: 25/28 (89%) ⭐  
 **Critical Bugs**: 0  
-**Standard Library**: **37 functions** (11 math, **18 string**, 4 arrays, 3 I/O, OS stdlib)  
-**Data Structures**: Arrays, Structs, Enums, Dynamic Lists ✅  
+**Standard Library**: **49+ functions** (11 math, 18 string, 12 bstring, 4 arrays, 3 I/O, OS stdlib)  
+**Data Structures**: Arrays, Structs, Enums, Unions, Dynamic Lists ✅  
+**Advanced Features**: Module system, FFI, Pattern matching, First-class functions, Generics ✅  
 **Self-Hosting Foundation**: **100% Complete** (6/6 features) 🎉  
 **Quality**: CI/CD, sanitizers, coverage, linting
 
-See [docs/ROADMAP.md](docs/ROADMAP.md) and [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) for details.
+See [docs/ROADMAP.md](docs/ROADMAP.md) and [docs/FEATURES.md](docs/FEATURES.md) for details.
+
+## What Makes nanolang Different?
+
+nanolang is designed for the AI age - optimized for both human readability and LLM code generation:
+
+1. **No Operator Precedence** - Prefix notation `(+ a b)` eliminates ambiguity
+2. **Mandatory Tests** - Every function requires a `shadow` test block
+3. **Explicit Everything** - No implicit conversions, no hidden behavior
+4. **Rich Type System** - Structs, enums, unions, generics, and first-class functions
+5. **Modern Tooling** - Dual execution (interpreter + compiler), module system, AI/ML support
 
 ## Quick Example
 
@@ -130,6 +260,12 @@ fn main() -> int {
     return 0
 }
 ```
+
+**Key Points:**
+- Prefix notation: `(+ a b)` instead of `a + b`
+- Every function needs a shadow test (enforced at compile time)
+- Types are always explicit: `a: int, b: int`
+- Simple, readable syntax optimized for LLMs
 
 ## Language Features
 
@@ -167,20 +303,30 @@ To eliminate precedence ambiguity, all operations use prefix notation:
 (not flag)
 ```
 
-### 4. Minimal Type System
+### 4. Rich Type System
 
 ```nano
-# Built-in types
+# Primitive types
 int      # Signed integer (64-bit)
 float    # Floating point (64-bit)
 bool     # Boolean (true/false)
-string   # UTF-8 string
+string   # C-style string (null-terminated)
+bstring  # Binary string (length-explicit, UTF-8 aware)
 void     # No return value
+
+# Composite types
+struct   # Product types (record types)
+enum     # Named integer constants
+union    # Tagged unions (sum types)
+
+# Generic types
+List<T>  # Dynamic lists with type parameter
 
 # Type syntax is always: name: type
 let x: int = 42
 let name: string = "nano"
 let flag: bool = true
+let data: bstring = (bstr_new "Hello 世界")
 ```
 
 ### 5. Functions
@@ -241,9 +387,9 @@ for i in (range 0 10) {
 }
 ```
 
-### 8. Built-in Functions (37 total)
+### 8. Built-in Functions (49+ total)
 
-**Core I/O:**
+**Core I/O (3):**
 ```nano
 print       # Print to stdout
 println     # Print with newline
@@ -264,6 +410,14 @@ int_to_string string_to_int digit_value
 char_to_lower char_to_upper
 ```
 
+**Binary String Operations (12):**
+```nano
+# Binary strings - length-explicit, UTF-8 aware
+bstr_new bstr_new_binary bstr_length bstr_concat
+bstr_substring bstr_equals bstr_byte_at bstr_to_cstr
+bstr_validate_utf8 bstr_utf8_length bstr_utf8_char_at bstr_free
+```
+
 **Math Operations (11):**
 ```nano
 abs min max sqrt pow floor ceil round sin cos tan
@@ -274,10 +428,16 @@ abs min max sqrt pow floor ceil round sin cos tan
 at array_length array_new array_set
 ```
 
-**Dynamic Lists (13):**
+**Dynamic Lists (per type):**
 ```nano
-list_int_new list_int_push list_int_pop list_int_get
-# ... and more list operations
+List_<T>_new List_<T>_push List_<T>_pop List_<T>_get
+List_<T>_length List_<T>_clear
+# Available for: int, string, and user-defined types
+```
+
+**OS/System (3):**
+```nano
+getcwd getenv range
 ```
 
 See [docs/STDLIB.md](docs/STDLIB.md) for complete documentation.
@@ -305,6 +465,142 @@ See [docs/STDLIB.md](docs/STDLIB.md) for complete documentation.
 (or a b)    # Logical OR
 (not a)     # Logical NOT
 ```
+
+### 10. Module System & Imports
+
+nanolang supports a module system for organizing code across multiple files and integrating with C libraries.
+
+```nano
+# Import a nanolang module
+import "modules/sdl/sdl.nano"
+
+# Use functions from the module
+fn main() -> int {
+    let window: int = (SDL_CreateWindow "Game" 100 100 800 600 0)
+    (SDL_Quit)
+    return 0
+}
+
+shadow main {
+    # Skip extern-based tests
+}
+```
+
+**Module Features:**
+- Automatic C compilation for FFI modules
+- Dependency management via `module.json`
+- pkg-config integration
+- Cached compilation
+
+See [docs/MODULE_SYSTEM.md](docs/MODULE_SYSTEM.md) for details.
+
+### 11. Structs, Enums, and Unions
+
+**Structs (Product Types):**
+```nano
+struct Point {
+    x: int,
+    y: int
+}
+
+let p: Point = Point { x: 10, y: 20 }
+let x_val: int = p.x
+```
+
+**Enums (Named Constants):**
+```nano
+enum Status {
+    Pending = 0,
+    Active = 1,
+    Complete = 2
+}
+
+let s: int = Status.Active
+```
+
+**Unions (Tagged Unions / Sum Types):**
+```nano
+union Result {
+    Ok { value: int },
+    Error { code: int, message: string }
+}
+
+fn divide(a: int, b: int) -> Result {
+    if (== b 0) {
+        return Result.Error { code: 1, message: "Division by zero" }
+    } else {
+        return Result.Ok { value: (/ a b) }
+    }
+}
+
+# Pattern matching on unions
+match result {
+    Ok(v) => (println v.value),
+    Error(e) => (println e.message)
+}
+```
+
+### 12. Generics & First-Class Functions
+
+**Generic Lists with Monomorphization:**
+```nano
+# Create typed lists
+let numbers: List<int> = (List_int_new)
+(List_int_push numbers 42)
+let first: int = (List_int_get numbers 0)
+
+# Lists work with user-defined types
+struct Point { x: int, y: int }
+let points: List<Point> = (List_Point_new)
+```
+
+**First-Class Functions:**
+```nano
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+# Assign function to variable
+let f: fn(int) -> int = double
+
+# Pass function as parameter
+fn apply_twice(op: fn(int) -> int, x: int) -> int {
+    return (op (op x))
+}
+
+let result: int = (apply_twice double 5)  # result = 20
+```
+
+### 13. AI/ML Support with ONNX
+
+nanolang can run neural network models via ONNX Runtime:
+
+```nano
+import "modules/onnx/onnx.nano"
+
+fn main() -> int {
+    let model: int = (onnx_load_model "resnet50.onnx")
+    if (< model 0) {
+        (println "Failed to load model")
+        return 1
+    }
+    
+    # Run inference (see AI_ML_GUIDE.md for details)
+    (onnx_free_model model)
+    return 0
+}
+
+shadow main {
+    # Skip extern tests
+}
+```
+
+**Supported:**
+- PyTorch, TensorFlow, scikit-learn models (converted to ONNX)
+- Image classification, NLP, object detection
+- CPU-only (no GPU required)
+
+See [docs/AI_ML_GUIDE.md](docs/AI_ML_GUIDE.md) for complete guide.
 
 ## Complete Example
 
@@ -558,14 +854,26 @@ nanolang provides two execution modes:
 
 ## Getting Started
 
-### 1. Write a nanolang program
+### 1. Install nanolang
+
+```bash
+git clone https://github.com/yourusername/nanolang.git
+cd nanolang
+make
+```
+
+This builds two executables:
+- `bin/nano` - Interpreter (instant execution)
+- `bin/nanoc` - Compiler (generates native binaries)
+
+### 2. Write Your First Program
 
 Create `hello.nano`:
 
 ```nano
 fn greet(name: string) -> void {
-    print "Hello, "
-    print name
+    (println "Hello, ")
+    (println name)
 }
 
 shadow greet {
@@ -584,26 +892,33 @@ shadow main {
 }
 ```
 
-### 2. Run or Compile
+### 3. Run It Two Ways
 
-**Option A: Run with interpreter (instant execution, great for debugging)**
+**Option A: Interpreter (instant execution, great for development)**
 
 ```bash
 ./bin/nano hello.nano
 ```
 
-**Option B: Compile to native binary (best performance)**
+**Option B: Compile to native binary (maximum performance)**
 
 ```bash
 ./bin/nanoc hello.nano -o hello
 ./hello
 ```
 
-### 3. See it work
+Both produce the same output:
+```
+Hello, 
+World
+```
 
-```
-Hello, World
-```
+### 4. Next Steps
+
+- **Learn the syntax**: Read [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)
+- **Explore examples**: Check out `examples/` directory
+- **Try the tutorial**: Follow [docs/QUICK_REFERENCE.md](docs/QUICK_REFERENCE.md)
+- **Build something**: See `examples/game_of_life.nano` or `examples/calculator.nano`
 
 ## Project Status
 
@@ -626,14 +941,39 @@ Hello, World
 
 See [planning/SELF_HOSTING_IMPLEMENTATION_PLAN.md](planning/SELF_HOSTING_IMPLEMENTATION_PLAN.md) for the roadmap to implementing nanolang in nanolang itself. All 6 essential features are complete: structs, enums, dynamic lists, file I/O, advanced string operations, and system execution. See [docs/SELF_HOSTING_CHECKLIST.md](docs/SELF_HOSTING_CHECKLIST.md) for status details.
 
+## Learning Path
+
+**Complete Beginner?**
+1. Start with [Quick Start](#quick-start) above
+2. Read [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) - basics tutorial
+3. Try examples: `hello.nano`, `factorial.nano`, `calculator.nano`
+
+**Know Programming?**
+1. Skim [docs/QUICK_REFERENCE.md](docs/QUICK_REFERENCE.md) - syntax cheat sheet
+2. Review [Language Features](#language-features) section above
+3. Explore advanced examples: `game_of_life.nano`, `boids_complete.nano`
+
+**Want Advanced Features?**
+- **Modules**: [docs/MODULE_SYSTEM.md](docs/MODULE_SYSTEM.md)
+- **FFI/C Integration**: [docs/EXTERN_FFI.md](docs/EXTERN_FFI.md)
+- **AI/ML**: [docs/AI_ML_GUIDE.md](docs/AI_ML_GUIDE.md)
+- **Type System**: [docs/SPECIFICATION.md](docs/SPECIFICATION.md)
+
 ## Contributing
 
-nanolang is designed to be:
-- Simple enough that an LLM can implement features
-- Clear enough that humans can review implementations
-- Complete enough to be useful
+nanolang welcomes contributions! The language is designed to be:
+- **Simple enough** that an LLM can implement features
+- **Clear enough** that humans can review implementations
+- **Complete enough** to be useful
 
-Contributions welcome! The language is deliberately minimal to make contributions manageable.
+**Ways to contribute:**
+- Add examples or tutorials
+- Improve documentation
+- Report bugs or suggest features
+- Implement new stdlib functions
+- Write modules (SDL, OpenGL, etc.)
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
