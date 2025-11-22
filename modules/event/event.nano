@@ -1,0 +1,50 @@
+# event.nano - libevent async event notification module for nanolang
+#
+# Provides asynchronous event loop for high-performance network servers
+# and non-blocking I/O operations.
+#
+# Example usage:
+#   import "modules/event/event.nano"
+#   
+#   fn main() -> int {
+#       let base: int = (nl_event_base_new)
+#       (println (nl_event_base_get_method base))
+#       (nl_event_base_free base)
+#       return 0
+#   }
+
+# ============================================================================
+# Event base (event loop) management
+# ============================================================================
+
+extern fn nl_event_base_new() -> int
+extern fn nl_event_base_free(base: int) -> void
+extern fn nl_event_base_dispatch(base: int) -> int
+extern fn nl_event_base_loop(base: int, flags: int) -> int
+extern fn nl_event_base_loopexit(base: int, timeout_secs: int) -> int
+extern fn nl_event_base_loopbreak(base: int) -> int
+
+# ============================================================================
+# Event base information
+# ============================================================================
+
+extern fn nl_event_base_get_method(base: int) -> string
+extern fn nl_event_base_get_num_events(base: int) -> int
+extern fn nl_event_get_version() -> string
+extern fn nl_event_get_version_number() -> int
+
+# ============================================================================
+# Timer events
+# ============================================================================
+
+extern fn nl_evtimer_new(base: int) -> int
+extern fn nl_event_free(event: int) -> void
+extern fn nl_evtimer_add_timeout(event: int, timeout_secs: int) -> int
+extern fn nl_event_del(event: int) -> int
+
+# ============================================================================
+# Utilities
+# ============================================================================
+
+extern fn nl_event_enable_debug_mode() -> void
+extern fn nl_event_sleep(base: int, seconds: int) -> int

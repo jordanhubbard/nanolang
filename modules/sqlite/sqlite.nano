@@ -1,0 +1,79 @@
+# sqlite.nano - SQLite3 embedded database module for nanolang
+#
+# Provides SQL database functionality for local data storage.
+#
+# Example usage:
+#   import "modules/sqlite/sqlite.nano"
+#   
+#   fn main() -> int {
+#       let db: int = (nl_sqlite3_open "test.db")
+#       (nl_sqlite3_exec db "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT)")
+#       (nl_sqlite3_exec db "INSERT INTO users (name) VALUES ('Alice')")
+#       (nl_sqlite3_close db)
+#       return 0
+#   }
+
+# ============================================================================
+# Version information
+# ============================================================================
+
+extern fn nl_sqlite3_version() -> string
+extern fn nl_sqlite3_version_number() -> int
+
+# ============================================================================
+# Database management
+# ============================================================================
+
+extern fn nl_sqlite3_open(filename: string) -> int
+extern fn nl_sqlite3_close(db: int) -> int
+extern fn nl_sqlite3_errmsg(db: int) -> string
+
+# ============================================================================
+# Simple execution (no result set)
+# ============================================================================
+
+extern fn nl_sqlite3_exec(db: int, sql: string) -> int
+
+# ============================================================================
+# Prepared statements
+# ============================================================================
+
+extern fn nl_sqlite3_prepare(db: int, sql: string) -> int
+extern fn nl_sqlite3_finalize(stmt: int) -> int
+extern fn nl_sqlite3_step(stmt: int) -> int
+extern fn nl_sqlite3_reset(stmt: int) -> int
+
+# ============================================================================
+# Binding parameters (1-based index)
+# ============================================================================
+
+extern fn nl_sqlite3_bind_int(stmt: int, index: int, value: int) -> int
+extern fn nl_sqlite3_bind_double(stmt: int, index: int, value: float) -> int
+extern fn nl_sqlite3_bind_text(stmt: int, index: int, value: string) -> int
+extern fn nl_sqlite3_bind_null(stmt: int, index: int) -> int
+
+# ============================================================================
+# Reading result columns (0-based index)
+# ============================================================================
+
+extern fn nl_sqlite3_column_count(stmt: int) -> int
+extern fn nl_sqlite3_column_name(stmt: int, index: int) -> string
+extern fn nl_sqlite3_column_int(stmt: int, index: int) -> int
+extern fn nl_sqlite3_column_double(stmt: int, index: int) -> float
+extern fn nl_sqlite3_column_text(stmt: int, index: int) -> string
+extern fn nl_sqlite3_column_type(stmt: int, index: int) -> int
+
+# ============================================================================
+# Database info
+# ============================================================================
+
+extern fn nl_sqlite3_last_insert_rowid(db: int) -> int
+extern fn nl_sqlite3_changes(db: int) -> int
+
+# ============================================================================
+# Transactions
+# ============================================================================
+
+extern fn nl_sqlite3_begin_transaction(db: int) -> int
+extern fn nl_sqlite3_commit(db: int) -> int
+extern fn nl_sqlite3_rollback(db: int) -> int
