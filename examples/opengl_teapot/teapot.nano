@@ -150,17 +150,24 @@ fn get_texture_color(pattern: int, r: float, g: float, b: float) -> void {
     }
 }
 
-fn draw_textured_teapot(rotation: float, tex_state: TextureState) -> void {
+fn draw_textured_teapot(rotation: float, manual_rot_x: float, manual_rot_y: float, zoom: float, tex_state: TextureState) -> void {
     # Clear buffers
     (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
     
     # Reset modelview matrix
     (glLoadIdentity)
     
-    # Position camera
-    (glTranslatef 0.0 0.0 -5.0)
+    # Position camera with zoom
+    (glTranslatef 0.0 0.0 (* -5.0 zoom))
     
-    # Rotate teapot
+    # Tilt view to see teapot from the side (not from bottom)
+    (glRotatef -20.0 1.0 0.0 0.0)
+    
+    # Apply manual rotation controls
+    (glRotatef manual_rot_y 0.0 1.0 0.0)
+    (glRotatef manual_rot_x 1.0 0.0 0.0)
+    
+    # Rotate teapot (auto rotation)
     (glRotatef rotation 0.0 1.0 0.0)
     (glRotatef (* rotation 0.5) 1.0 0.0 0.0)
     
@@ -248,12 +255,18 @@ fn main() -> int {
     (println "✓ Teapot demo ready")
     (println "")
     (println "Controls:")
-    (println "  SPACE - Change texture")
-    (println "  ESC   - Exit")
+    (println "  SPACE      - Change texture")
+    (println "  Arrow Keys - Manual rotation")
+    (println "  + / =      - Zoom in")
+    (println "  - / _      - Zoom out")
+    (println "  ESC        - Exit")
     (println "")
     
     # Animation state
     let mut rotation: float = 0.0
+    let mut manual_rot_x: float = 0.0
+    let mut manual_rot_y: float = 0.0
+    let mut zoom: float = 1.0
     let mut texture_seed: int = 1
     let mut tex_state: TextureState = (random_texture_state texture_seed)
     let mut frame_count: int = 0
@@ -267,8 +280,36 @@ fn main() -> int {
             set rotation (- rotation 360.0)
         } else {}
         
+        # Handle arrow keys for manual rotation
+        if (== (glfwGetKey window GLFW_KEY_UP) 1) {
+            set manual_rot_x (- manual_rot_x 2.0)
+        } else {}
+        if (== (glfwGetKey window GLFW_KEY_DOWN) 1) {
+            set manual_rot_x (+ manual_rot_x 2.0)
+        } else {}
+        if (== (glfwGetKey window GLFW_KEY_LEFT) 1) {
+            set manual_rot_y (- manual_rot_y 2.0)
+        } else {}
+        if (== (glfwGetKey window GLFW_KEY_RIGHT) 1) {
+            set manual_rot_y (+ manual_rot_y 2.0)
+        } else {}
+        
+        # Handle zoom controls (+ / - keys)
+        if (or (== (glfwGetKey window GLFW_KEY_EQUAL) 1) (== (glfwGetKey window GLFW_KEY_KP_ADD) 1)) {
+            set zoom (* zoom 0.98)
+            if (< zoom 0.3) {
+                set zoom 0.3
+            } else {}
+        } else {}
+        if (or (== (glfwGetKey window GLFW_KEY_MINUS) 1) (== (glfwGetKey window GLFW_KEY_KP_SUBTRACT) 1)) {
+            set zoom (* zoom 1.02)
+            if (> zoom 3.0) {
+                set zoom 3.0
+            } else {}
+        } else {}
+        
         # Draw scene
-        (draw_textured_teapot rotation tex_state)
+        (draw_textured_teapot rotation manual_rot_x manual_rot_y zoom tex_state)
         
         # Swap buffers and poll events
         (glfwSwapBuffers window)
@@ -332,7 +373,7 @@ shadow setup_opengl {
 
 shadow draw_textured_teapot {
     let state: TextureState = TextureState { current_texture: 0, r: 1.0, g: 0.5, b: 0.3, pattern: 0 }
-    (draw_textured_teapot 45.0 state)
+    (draw_textured_teapot 45.0 0.0 0.0 1.0 state)
 }
 
 shadow main {
