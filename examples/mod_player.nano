@@ -50,7 +50,7 @@ fn main() -> int {
     (println mod_file)
     
     # Load the module
-    let music: int = (Mix_LoadMUS mod_file)
+    let music: Mix_Music = (Mix_LoadMUS mod_file)
     if (== music 0) {
         (println "✗ Failed to load MOD file")
         (Mix_CloseAudio)

@@ -23,7 +23,7 @@ fn main() -> int {
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
     
     # Load MOD
-    let music: int = (Mix_LoadMUS "/Users/jordanh/Downloads/gabba-studies-12.mod")
+    let music: Mix_Music = (Mix_LoadMUS "/Users/jordanh/Downloads/gabba-studies-12.mod")
     if (== music 0) {
         (print "Failed to load MOD: ")
         (println (Mix_GetError))

@@ -29,7 +29,7 @@ fn main() -> int {
     (print "Loading: ")
     (println sample_file)
     
-    let sample: int = (Mix_LoadWAV sample_file)
+    let sample: Mix_Chunk = (Mix_LoadWAV sample_file)
     if (== sample 0) {
         (println "ERROR: Failed to load WAV file")
         (println "Make sure to run ProTracker first to generate WAV files!")

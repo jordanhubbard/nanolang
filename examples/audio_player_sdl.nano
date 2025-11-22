@@ -70,19 +70,19 @@ fn main() -> int {
     let music_loaded: bool = false
     
     # Try different common music formats
-    let music_mp3: int = (Mix_LoadMUS "music.mp3")
+    let music_mp3: Mix_Music = (Mix_LoadMUS "music.mp3")
     if (!= music_mp3 0) {
         set music music_mp3
         set music_loaded true
         (println "✓ Loaded music.mp3")
     } else {
-        let music_ogg: int = (Mix_LoadMUS "music.ogg")
+        let music_ogg: Mix_Music = (Mix_LoadMUS "music.ogg")
         if (!= music_ogg 0) {
             set music music_ogg
             set music_loaded true
             (println "✓ Loaded music.ogg")
         } else {
-            let music_wav: int = (Mix_LoadMUS "music.wav")
+            let music_wav: Mix_Music = (Mix_LoadMUS "music.wav")
             if (!= music_wav 0) {
                 set music music_wav
                 set music_loaded true
@@ -95,7 +95,7 @@ fn main() -> int {
     
     # Try to load sound effect
     (println "Checking for sound effect...")
-    let sound: int = (Mix_LoadWAV "sound.wav")
+    let sound: Mix_Chunk = (Mix_LoadWAV "sound.wav")
     let sound_loaded: bool = false
     if (!= sound 0) {
         (println "✓ Loaded sound.wav")

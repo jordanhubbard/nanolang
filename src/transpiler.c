@@ -375,80 +375,49 @@ static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
     sb_append(sb, ");\n");
 }
 
-/* Get SDL C type for a function parameter/return based on function name and position
+/* SDL-specific scalar type mapping for FFI
  * 
- * This function provides SDL-specific type mapping for FFI. SDL uses custom C types
- * (SDL_Window*, SDL_Renderer*, Uint32, Uint8, etc.) that don't exist in nanolang's
- * type system. nanolang represents these as `int`, but the transpiler needs to know
- * the correct C types for code generation.
+ * NOTE: Opaque pointer types (SDL_Window*, SDL_Renderer*, Mix_Chunk*, TTF_Font*, etc.)
+ * are now handled by the generic opaque type system. This function only handles
+ * SDL-specific scalar types (Uint32, Uint8) and non-opaque struct types
+ * (SDL_Rect*, SDL_Event*) that can't be represented as opaque types.
  * 
- * This is a feature of the FFI system, not a hack. It enables seamless integration
- * with C libraries that use custom types.
+ * This is a minimal legacy compatibility function. Once SDL scalar types are
+ * properly represented in the type system, this function can be removed entirely.
  */
 static const char *get_sdl_c_type(const char *func_name, int param_index, bool is_return) {
-    if (!func_name || strncmp(func_name, "SDL_", 4) != 0) {
-        if (func_name && strncmp(func_name, "TTF_", 4) == 0) {
-            /* TTF functions */
-            if (is_return) {
-                if (strstr(func_name, "OpenFont")) return "TTF_Font*";
-                if (strstr(func_name, "RenderText")) return "SDL_Surface*";
-            }
-            if (param_index == 0 && strstr(func_name, "CloseFont")) return "TTF_Font*";
-            if (param_index == 0 && strstr(func_name, "RenderText")) return "TTF_Font*";
-        }
+    if (!func_name) return NULL;
+    
+    /* SDL/TTF functions only */
+    if (strncmp(func_name, "SDL_", 4) != 0 && strncmp(func_name, "TTF_", 4) != 0) {
         return NULL;
     }
     
     if (is_return) {
-        /* Return types */
-        if (strstr(func_name, "CreateWindow")) return "SDL_Window*";
-        if (strstr(func_name, "CreateRenderer")) return "SDL_Renderer*";
-        if (strstr(func_name, "CreateTexture")) return "SDL_Texture*";
-        if (strstr(func_name, "GetError")) return "const char*";
+        /* Return scalar types (opaque pointers now handled by opaque type system) */
         if (strstr(func_name, "GetTicks")) return "Uint32";
-        if (strstr(func_name, "PollEvent")) return "int";
-        if (strstr(func_name, "Init")) return "int";
-        if (strstr(func_name, "RenderClear")) return "int";
-        if (strstr(func_name, "SetRenderDrawColor")) return "int";
         return NULL;
     } else {
-        /* Parameter types */
-        if (param_index == 0) {
-            /* First parameter */
-            if (strstr(func_name, "DestroyWindow")) return "SDL_Window*";
-            if (strstr(func_name, "DestroyRenderer")) return "SDL_Renderer*";
-            if (strstr(func_name, "DestroyTexture")) return "SDL_Texture*";
-            if (strstr(func_name, "CreateRenderer")) return "SDL_Window*";
-            if (strstr(func_name, "RenderClear") || strstr(func_name, "RenderPresent") ||
-                strstr(func_name, "SetRenderDrawColor") || strstr(func_name, "RenderFillRect") ||
-                strstr(func_name, "RenderDrawPoint") || strstr(func_name, "RenderDrawLine") ||
-                strstr(func_name, "SetRenderDrawBlendMode") || strstr(func_name, "RenderCopy") ||
-                strstr(func_name, "CreateTextureFromSurface")) return "SDL_Renderer*";
-            if (strstr(func_name, "QueryTexture")) return "SDL_Texture*";
-            if (strstr(func_name, "PollEvent")) return "SDL_Event*";
-            if (strstr(func_name, "FreeSurface")) return "SDL_Surface*";
-        }
+        /* Parameter types - only SDL-specific scalars and non-opaque structs */
+        
+        /* SDL_Rect* - struct pointers (data structures, not opaque resources) */
         if (strstr(func_name, "RenderFillRect") && param_index == 1) return "const SDL_Rect*";
         if (strstr(func_name, "RenderCopy")) {
-            if (param_index == 2) return "const SDL_Rect*";
-            if (param_index == 3) return "const SDL_Rect*";
+            if (param_index == 2 || param_index == 3) return "const SDL_Rect*";
         }
+        
+        /* SDL_Event* - struct pointer (data structure, not opaque resource) */
+        if (strstr(func_name, "PollEvent") && param_index == 0) return "SDL_Event*";
+        
+        /* int* for out parameters */
         if (strstr(func_name, "QueryTexture") && param_index >= 2) return "int*";
-        if (strstr(func_name, "RenderText_Solid") && param_index == 2) return "SDL_Color";
-        /* SDL functions that take Uint32 for flags/delays */
+        
+        /* SDL scalar types (Uint32, Uint8) - these should eventually become proper types */
         if (strstr(func_name, "Init") && param_index == 0) return "Uint32";
         if (strstr(func_name, "Delay") && param_index == 0) return "Uint32";
-        if (strstr(func_name, "CreateWindow")) {
-            if (param_index == 1 || param_index == 2 || param_index == 3 || param_index == 4) return "int";
-            if (param_index == 5) return "Uint32";
-        }
-        if (strstr(func_name, "CreateRenderer")) {
-            if (param_index == 1) return "int";
-            if (param_index == 2) return "Uint32";
-        }
-        if (strstr(func_name, "SetRenderDrawColor")) {
-            if (param_index >= 1 && param_index <= 4) return "Uint8";
-        }
+        if (strstr(func_name, "CreateWindow") && param_index == 5) return "Uint32";
+        if (strstr(func_name, "CreateRenderer") && param_index == 2) return "Uint32";
+        if (strstr(func_name, "SetRenderDrawColor") && param_index >= 1 && param_index <= 4) return "Uint8";
     }
     return NULL;
 }

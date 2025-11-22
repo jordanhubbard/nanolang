@@ -96,9 +96,9 @@ fn render_header(renderer: int, font: int, mod_file: ModFile, current_pos: int, 
     
     # Title
     if (!= font 0) {
-        let surface: int = (TTF_RenderText_Solid font (mod_file.title) 255 255 255 255)
+        let surface: SDL_Surface = (TTF_RenderText_Solid font (mod_file.title) 255 255 255 255)
         if (!= surface 0) {
-            let texture: int = (SDL_CreateTextureFromSurface renderer surface)
+            let texture: SDL_Texture = (SDL_CreateTextureFromSurface renderer surface)
             if (!= texture 0) {
                 (SDL_RenderCopy renderer texture 0 0 20 10 400 40)
                 (SDL_DestroyTexture texture)
@@ -108,9 +108,9 @@ fn render_header(renderer: int, font: int, mod_file: ModFile, current_pos: int, 
         
         # Playback status
         if is_playing {
-            let status_surf: int = (TTF_RenderText_Solid font "PLAYING" 0 255 0 255)
+            let status_surf: SDL_Surface = (TTF_RenderText_Solid font "PLAYING" 0 255 0 255)
             if (!= status_surf 0) {
-                let status_tex: int = (SDL_CreateTextureFromSurface renderer status_surf)
+                let status_tex: SDL_Texture = (SDL_CreateTextureFromSurface renderer status_surf)
                 if (!= status_tex 0) {
                     (SDL_RenderCopy renderer status_tex 0 0 20 60 150 30)
                     (SDL_DestroyTexture status_tex)
@@ -118,9 +118,9 @@ fn render_header(renderer: int, font: int, mod_file: ModFile, current_pos: int, 
                 (SDL_FreeSurface status_surf)
             } else {}
         } else {
-            let status_surf: int = (TTF_RenderText_Solid font "STOPPED" 255 0 0 255)
+            let status_surf: SDL_Surface = (TTF_RenderText_Solid font "STOPPED" 255 0 0 255)
             if (!= status_surf 0) {
-                let status_tex: int = (SDL_CreateTextureFromSurface renderer status_surf)
+                let status_tex: SDL_Texture = (SDL_CreateTextureFromSurface renderer status_surf)
                 if (!= status_tex 0) {
                     (SDL_RenderCopy renderer status_tex 0 0 20 60 150 30)
                     (SDL_DestroyTexture status_tex)
