@@ -303,7 +303,7 @@ shadow get_biome_color {
     assert (== (get_biome_color BiomeType.SNOW) 5)
 }
 
-fn render_world(renderer: int, world: array<Tile>, camera_x: int, camera_y: int) -> void {
+fn render_world(renderer: SDL_Renderer, world: array<Tile>, camera_x: int, camera_y: int) -> void {
     let mut screen_y: int = 0
     while (< screen_y TILES_Y) {
         let mut screen_x: int = 0
@@ -415,16 +415,20 @@ fn main() -> int {
     let mut player_x: int = (/ WORLD_WIDTH 2)
     let mut player_y: int = (/ WORLD_HEIGHT 2)
     
-    # Initial exploration around player
-    let mut dy: int = (- 0 VIEW_RADIUS)
-    while (<= dy VIEW_RADIUS) {
-        let mut dx: int = (- 0 VIEW_RADIUS)
-        while (<= dx VIEW_RADIUS) {
-            (explore_tile world (+ player_x dx) (+ player_y dy))
+    # Initial exploration - explore entire visible screen
+    (println "Exploring initial area...")
+    let mut dy: int = 0
+    while (< dy TILES_Y) {
+        let mut dx: int = 0
+        while (< dx TILES_X) {
+            let world_x: int = (+ camera_x dx)
+            let world_y: int = (+ camera_y dy)
+            (explore_tile world world_x world_y)
             set dx (+ dx 1)
         }
         set dy (+ dy 1)
     }
+    (println "✓ Initial area explored")
     
     # Camera position
     let mut camera_x: int = (- player_x (/ TILES_X 2))

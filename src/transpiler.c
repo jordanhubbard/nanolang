@@ -907,12 +907,22 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 }
             } else if (strcmp(original_func_name, "at") == 0 || strcmp(original_func_name, "array_get") == 0 || strcmp(original_func_name, "array_set") == 0) {
                 /* Non-struct arrays: use type-specific int/float versions */
-                /* For at() and array_get(): nl_array_at_int or nl_array_at_float */
-                /* For array_set(): nl_array_set_int or nl_array_set_float */
+                /* Detect element type from the array variable */
+                Type elem_type = TYPE_INT;  /* Default to int */
+                
+                if (expr->as.call.arg_count > 0 && expr->as.call.args[0]->type == AST_IDENTIFIER) {
+                    const char *array_name = expr->as.call.args[0]->as.identifier;
+                    Symbol *sym = env_get_var(env, array_name);
+                    if (sym && sym->element_type != TYPE_UNKNOWN) {
+                        elem_type = sym->element_type;
+                    }
+                }
+                
+                /* Choose appropriate function based on element type */
                 if (strcmp(original_func_name, "at") == 0 || strcmp(original_func_name, "array_get") == 0) {
-                    func_name = "nl_array_at_int";  /* Default to int */
+                    func_name = (elem_type == TYPE_FLOAT) ? "nl_array_at_float" : "nl_array_at_int";
                 } else if (strcmp(original_func_name, "array_set") == 0) {
-                    func_name = "nl_array_set_int";  /* Default to int */
+                    func_name = (elem_type == TYPE_FLOAT) ? "nl_array_set_float" : "nl_array_set_int";
                 }
                 
                 /* Normal function call */
