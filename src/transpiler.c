@@ -941,15 +941,11 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 bool needs_return_cast = false;
                 
                 /* Check if function returns an opaque type - cast to int64_t */
-                if (func_def && func_def->is_extern) {
-                    if (func_def->return_struct_type_name) {
-                        /* Check if return type is opaque */
-                        OpaqueTypeDef *opaque = env_get_opaque_type(env, func_def->return_struct_type_name);
-                        if (opaque) {
-                            needs_return_cast = true;
-                        }
-                    } else if (func_def->return_type == TYPE_INT) {
-                        /* Legacy: Extern functions returning int likely return pointers */
+                /* Only cast opaque type returns, not regular int returns */
+                if (func_def && func_def->is_extern && func_def->return_struct_type_name) {
+                    /* Check if return type is opaque */
+                    OpaqueTypeDef *opaque = env_get_opaque_type(env, func_def->return_struct_type_name);
+                    if (opaque) {
                         needs_return_cast = true;
                     }
                 }
@@ -2524,11 +2520,18 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                     if (j > 0) sb_append(sb, ", ");
                     /* Handle struct parameter types */
                     if (func->params[j].type == TYPE_STRUCT && func->params[j].struct_type_name) {
-                        const char *prefixed_name = get_prefixed_type_name(func->params[j].struct_type_name);
-                        if (prefixed_name) {
-                            sb_append(sb, prefixed_name);
+                        /* Check if this is an opaque type */
+                        OpaqueTypeDef *opaque = env_get_opaque_type(env, func->params[j].struct_type_name);
+                        if (opaque) {
+                            /* Opaque types are stored as int64_t */
+                            sb_append(sb, "int64_t");
                         } else {
-                            sb_append(sb, type_to_c(func->params[j].type));
+                            const char *prefixed_name = get_prefixed_type_name(func->params[j].struct_type_name);
+                            if (prefixed_name) {
+                                sb_append(sb, prefixed_name);
+                            } else {
+                                sb_append(sb, type_to_c(func->params[j].type));
+                            }
                         }
                     } else if (func->params[j].type == TYPE_LIST_GENERIC && func->params[j].struct_type_name) {
                         sb_appendf(sb, "List_%s*", func->params[j].struct_type_name);
@@ -2627,9 +2630,16 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                               item->as.function.params[j].struct_type_name,
                               item->as.function.params[j].name);
                 } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
-                    /* Use prefixed type name */
-                    const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
-                    sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                    /* Check if this is an opaque type */
+                    OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
+                    if (opaque) {
+                        /* Opaque types are stored as int64_t */
+                        sb_appendf(sb, "int64_t %s", item->as.function.params[j].name);
+                    } else {
+                        /* Use prefixed type name for regular structs */
+                        const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
+                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                    }
                 } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
                     /* Use prefixed union name */
                     const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
@@ -2698,9 +2708,16 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                               item->as.function.params[j].struct_type_name,
                               item->as.function.params[j].name);
                 } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
-                    /* Use prefixed type name */
-                    const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
-                    sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                    /* Check if this is an opaque type */
+                    OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
+                    if (opaque) {
+                        /* Opaque types are stored as int64_t */
+                        sb_appendf(sb, "int64_t %s", item->as.function.params[j].name);
+                    } else {
+                        /* Use prefixed type name for regular structs */
+                        const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
+                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                    }
                 } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
                     /* Use prefixed union name */
                     const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);

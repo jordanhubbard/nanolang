@@ -8,7 +8,8 @@
 # are automatically linked when SDL modules are used.
 
 # Helper to render a filled rectangle (wraps SDL_RenderFillRect with SDL_Rect)
-extern fn nl_sdl_render_fill_rect(renderer: SDL_Renderer, x: int, y: int, w: int, h: int) -> int
+# Note: renderer is int64_t (not SDL_Renderer opaque type) to avoid double casting
+extern fn nl_sdl_render_fill_rect(renderer: int, x: int, y: int, w: int, h: int) -> int
 
 # Helper to poll SDL events and return 1 if quit event, 0 otherwise
 extern fn nl_sdl_poll_event_quit() -> int

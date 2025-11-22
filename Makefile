@@ -38,13 +38,24 @@ check-deps:
 
 check-deps-sdl:
 	@echo "Checking SDL2 dependencies for graphics examples..."
-	@if command -v pkg-config >/dev/null 2>&1; then \
+	@if [ "$$(uname -s)" = "Darwin" ]; then \
+		if ! command -v brew >/dev/null 2>&1; then \
+			echo "⚠️  Homebrew not found on macOS"; \
+			echo "Running bootstrap script..."; \
+			echo ""; \
+			./scripts/bootstrap-macos.sh; \
+		elif ! command -v pkg-config >/dev/null 2>&1 || ! pkg-config --exists sdl2 2>/dev/null; then \
+			echo "⚠️  SDL2 not found - running bootstrap..."; \
+			./scripts/bootstrap-macos.sh; \
+		else \
+			echo "✓ SDL2 found: $$(pkg-config --modversion sdl2)"; \
+		fi; \
+	elif command -v pkg-config >/dev/null 2>&1; then \
 		if pkg-config --exists sdl2 2>/dev/null; then \
 			echo "✓ SDL2 found: $$(pkg-config --modversion sdl2)"; \
 		else \
 			echo "⚠️  SDL2 not found (optional - needed for graphics examples only)"; \
 			echo "   Install with:"; \
-			echo "   - macOS: brew install sdl2"; \
 			echo "   - Ubuntu: sudo apt-get install libsdl2-dev"; \
 			echo "   - Fedora: sudo dnf install SDL2-devel"; \
 		fi; \

@@ -539,7 +539,33 @@ Type check_expression(ASTNode *expr, Environment *env) {
                             }
                         }
                         
-                        if (!is_opaque_param && !types_match(arg_type, func->params[i].type)) {
+                        /* Check for reverse case: parameter is int but argument is opaque type
+                         * Opaque types are stored as int64_t, so they can be passed to int parameters */
+                        bool is_opaque_arg = false;
+                        if (func->params[i].type == TYPE_INT && arg_type == TYPE_STRUCT) {
+                            /* Check if the argument is a variable with an opaque type */
+                            if (arg->type == AST_IDENTIFIER) {
+                                Symbol *sym = env_get_var(env, arg->as.identifier);
+                                if (sym && sym->type == TYPE_STRUCT && sym->struct_type_name) {
+                                    OpaqueTypeDef *opaque = env_get_opaque_type(env, sym->struct_type_name);
+                                    if (opaque) {
+                                        is_opaque_arg = true;  /* Allow opaque type to be passed as int */
+                                    }
+                                }
+                            }
+                            /* Also check if the argument is a function call that returns an opaque type */
+                            else if (arg->type == AST_CALL) {
+                                Function *called_func = env_get_function(env, arg->as.call.name);
+                                if (called_func && called_func->return_type == TYPE_STRUCT && called_func->return_struct_type_name) {
+                                    OpaqueTypeDef *opaque = env_get_opaque_type(env, called_func->return_struct_type_name);
+                                    if (opaque) {
+                                        is_opaque_arg = true;  /* Allow opaque type to be passed as int */
+                                    }
+                                }
+                            }
+                        }
+                        
+                        if (!is_opaque_param && !is_opaque_arg && !types_match(arg_type, func->params[i].type)) {
                             fprintf(stderr, "Error at line %d, column %d: Argument %d type mismatch in call to '%s'\n",
                                     expr->line, expr->column, i + 1, expr->as.call.name);
                         }
