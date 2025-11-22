@@ -37,8 +37,21 @@ fi
 
 echo -e "${GREEN}✓${NC} Xcode Command Line Tools installed"
 
-# Check for Homebrew
-if ! command -v brew &> /dev/null; then
+# Check for Homebrew - look in standard locations first
+BREW_PATH=""
+if command -v brew &> /dev/null; then
+    BREW_PATH=$(command -v brew)
+elif [[ $(uname -m) == 'arm64' ]] && [[ -x /opt/homebrew/bin/brew ]]; then
+    # Apple Silicon - Homebrew installed but not in PATH
+    BREW_PATH="/opt/homebrew/bin/brew"
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+    # Intel Mac - Homebrew installed but not in PATH
+    BREW_PATH="/usr/local/bin/brew"
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+if [[ -z "$BREW_PATH" ]]; then
     echo -e "${YELLOW}Homebrew not found.${NC}"
     echo "Installing Homebrew..."
     echo ""
@@ -51,8 +64,17 @@ if ! command -v brew &> /dev/null; then
         if [[ $(uname -m) == 'arm64' ]]; then
             echo ""
             echo "Configuring Homebrew for Apple Silicon..."
-            echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+            # Add to shell profile if not already present
+            if ! grep -q '/opt/homebrew/bin/brew shellenv' ~/.zprofile 2>/dev/null; then
+                echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+            fi
             eval "$(/opt/homebrew/bin/brew shellenv)"
+        elif [[ $(uname -m) == 'x86_64' ]]; then
+            # Intel Mac
+            if ! grep -q '/usr/local/bin/brew shellenv' ~/.zprofile 2>/dev/null; then
+                echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zprofile
+            fi
+            eval "$(/usr/local/bin/brew shellenv)"
         fi
         
         echo -e "${GREEN}✓${NC} Homebrew installed successfully"
@@ -66,7 +88,7 @@ if ! command -v brew &> /dev/null; then
         exit 1
     fi
 else
-    echo -e "${GREEN}✓${NC} Homebrew already installed"
+    echo -e "${GREEN}✓${NC} Homebrew already installed at: $BREW_PATH"
 fi
 
 echo ""
