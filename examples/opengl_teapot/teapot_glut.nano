@@ -1,0 +1,179 @@
+# OpenGL Teapot with GLUT - The REAL Utah Teapot!
+# Now using glutSolidTeapot() for authentic teapot geometry
+
+import "modules/glfw/glfw.nano"
+import "modules/glew/glew.nano"
+import "modules/glut/glut.nano"
+
+# Note: All GL/GLUT functions are now available from the imported modules
+
+# Window dimensions
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+
+fn setup_opengl() -> void {
+    # Enable depth testing
+    (glEnable GL_DEPTH_TEST)
+    
+    # Enable smooth shading
+    (glShadeModel GL_SMOOTH)
+    
+    # Set up projection matrix with PERSPECTIVE
+    (glMatrixMode GL_PROJECTION)
+    (glLoadIdentity)
+    
+    # Perspective projection
+    (glFrustum -0.5 0.5 -0.375 0.375 0.1 100.0)
+    
+    # Switch to modelview
+    (glMatrixMode GL_MODELVIEW)
+}
+
+fn draw_teapot(rotation: float, manual_rot_x: float, manual_rot_y: float, zoom: float, r: float, g: float, b: float) -> void {
+    # Clear buffers
+    (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
+    
+    # Reset modelview matrix
+    (glLoadIdentity)
+    
+    # Position camera with zoom
+    (glTranslatef 0.0 0.0 (* -5.0 zoom))
+    
+    # Tilt view to see teapot from nice angle
+    (glRotatef -30.0 1.0 0.0 0.0)
+    
+    # Apply manual rotation controls
+    (glRotatef manual_rot_y 0.0 1.0 0.0)
+    (glRotatef manual_rot_x 1.0 0.0 0.0)
+    
+    # Rotate teapot (auto rotation)
+    (glRotatef rotation 0.0 1.0 0.0)
+    
+    # Apply color
+    (glColor3f r g b)
+    
+    # Draw THE REAL TEAPOT!
+    (glutSolidTeapot 1.0)
+}
+
+fn main() -> int {
+    # Initialize GLFW
+    if (== (glfwInit) 0) {
+        (println "Failed to initialize GLFW!")
+        return 1
+    } else {}
+    
+    # Create window
+    let window: GLFWwindow = (glfwCreateWindow WINDOW_WIDTH WINDOW_HEIGHT "Utah Teapot - GLUT" 0 0)
+    if (== window 0) {
+        (println "Failed to create window!")
+        (glfwTerminate)
+        return 1
+    } else {}
+    
+    # Make OpenGL context current
+    (glfwMakeContextCurrent window)
+    
+    # Initialize GLEW
+    let glew_status: int = (glewInit)
+    if (!= glew_status GLEW_OK) {
+        (println "Failed to initialize GLEW!")
+        (glfwTerminate)
+        return 1
+    } else {}
+    
+    # Setup OpenGL state
+    (setup_opengl)
+    (glClearColor 0.05 0.05 0.1 1.0)
+    
+    (println "Utah Teapot Demo Ready!")
+    (println "Controls:")
+    (println "  Arrow Keys - Rotate")
+    (println "  + / -      - Zoom")
+    (println "  SPACE      - Change color")
+    (println "  ESC        - Exit")
+    
+    # Animation state
+    let mut rotation: float = 0.0
+    let mut manual_rot_x: float = 0.0
+    let mut manual_rot_y: float = 0.0
+    let mut zoom: float = 1.0
+    let mut r: float = 0.8
+    let mut g: float = 0.3
+    let mut b: float = 0.5
+    let mut last_space_state: int = 0
+    
+    # Main render loop
+    while (== (glfwWindowShouldClose window) 0) {
+        # Update rotation
+        set rotation (+ rotation 0.8)
+        if (>= rotation 360.0) {
+            set rotation (- rotation 360.0)
+        } else {}
+        
+        # Handle arrow keys
+        if (== (glfwGetKey window GLFW_KEY_UP) 1) {
+            set manual_rot_x (- manual_rot_x 2.0)
+        } else {}
+        if (== (glfwGetKey window GLFW_KEY_DOWN) 1) {
+            set manual_rot_x (+ manual_rot_x 2.0)
+        } else {}
+        if (== (glfwGetKey window GLFW_KEY_LEFT) 1) {
+            set manual_rot_y (- manual_rot_y 2.0)
+        } else {}
+        if (== (glfwGetKey window GLFW_KEY_RIGHT) 1) {
+            set manual_rot_y (+ manual_rot_y 2.0)
+        } else {}
+        
+        # Handle zoom
+        if (or (== (glfwGetKey window GLFW_KEY_EQUAL) 1) (== (glfwGetKey window GLFW_KEY_KP_ADD) 1)) {
+            set zoom (* zoom 0.98)
+            if (< zoom 0.3) {
+                set zoom 0.3
+            } else {}
+        } else {}
+        if (or (== (glfwGetKey window GLFW_KEY_MINUS) 1) (== (glfwGetKey window GLFW_KEY_KP_SUBTRACT) 1)) {
+            set zoom (* zoom 1.02)
+            if (> zoom 3.0) {
+                set zoom 3.0
+            } else {}
+        } else {}
+        
+        # Handle color change (space bar)
+        let space_state: int = (glfwGetKey window GLFW_KEY_SPACE)
+        if (and (== space_state 1) (== last_space_state 0)) {
+            # Cycle through colors
+            if (> r 0.7) {
+                set r 0.3
+                set g 0.8
+                set b 0.3
+            } else {
+                if (> g 0.7) {
+                    set r 0.3
+                    set g 0.3
+                    set b 0.8
+                } else {
+                    set r 0.8
+                    set g 0.3
+                    set b 0.5
+                }
+            }
+        } else {}
+        set last_space_state space_state
+        
+        # ESC to exit
+        if (== (glfwGetKey window GLFW_KEY_ESCAPE) 1) {
+            (glfwSetWindowShouldClose window 1)
+        } else {}
+        
+        # Render
+        (draw_teapot rotation manual_rot_x manual_rot_y zoom r g b)
+        
+        (glfwSwapBuffers window)
+        (glfwPollEvents)
+    }
+    
+    # Cleanup
+    (glfwTerminate)
+    return 0
+}

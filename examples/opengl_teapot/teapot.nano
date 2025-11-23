@@ -14,8 +14,8 @@
 import "modules/glfw/glfw.nano"
 import "modules/glew/glew.nano"
 
-# Note: OpenGL constants (GL_*, GLEW_*, GLFW_*) are automatically loaded from C headers
-# No manual declarations needed!
+# Note: All OpenGL functions are now available from GLEW module
+# No manual extern declarations needed!
 
 # Window dimensions
 let WINDOW_WIDTH: int = 800
@@ -33,10 +33,10 @@ struct TextureState {
 # === Geometry: Simplified Teapot ===
 
 fn draw_teapot_body(size: float) -> void {
-    # Draw teapot body as sphere approximation with quads
+    # Draw teapot body as SQUASHED sphere (wider than tall) with quads and normals
     let mut lat: int = 0
-    let lat_bands: int = 12
-    let long_bands: int = 16
+    let lat_bands: int = 20
+    let long_bands: int = 24
     
     while (< lat lat_bands) {
         let lat1: float = (* (* (cast_float lat) 3.14159) (/ 1.0 (cast_float lat_bands)))
@@ -47,28 +47,55 @@ fn draw_teapot_body(size: float) -> void {
             let lon1: float = (* (* (cast_float lon) 2.0) (/ 3.14159 (cast_float long_bands)))
             let lon2: float = (* (* (+ (cast_float lon) 1.0) 2.0) (/ 3.14159 (cast_float long_bands)))
             
-            # Calculate vertices
-            let x1: float = (* size (* (sin lat1) (cos lon1)))
-            let y1: float = (* size (cos lat1))
-            let z1: float = (* size (* (sin lat1) (sin lon1)))
+            # Calculate vertices - SQUASH vertically (y *= 0.7) to make it teapot-shaped
+            let x1_base: float = (* (sin lat1) (cos lon1))
+            let y1_base: float = (* (cos lat1) 0.7)  # Squash!
+            let z1_base: float = (* (sin lat1) (sin lon1))
             
-            let x2: float = (* size (* (sin lat1) (cos lon2)))
-            let y2: float = (* size (cos lat1))
-            let z2: float = (* size (* (sin lat1) (sin lon2)))
+            let x2_base: float = (* (sin lat1) (cos lon2))
+            let y2_base: float = (* (cos lat1) 0.7)  # Squash!
+            let z2_base: float = (* (sin lat1) (sin lon2))
             
-            let x3: float = (* size (* (sin lat2) (cos lon2)))
-            let y3: float = (* size (cos lat2))
-            let z3: float = (* size (* (sin lat2) (sin lon2)))
+            let x3_base: float = (* (sin lat2) (cos lon2))
+            let y3_base: float = (* (cos lat2) 0.7)  # Squash!
+            let z3_base: float = (* (sin lat2) (sin lon2))
             
-            let x4: float = (* size (* (sin lat2) (cos lon1)))
-            let y4: float = (* size (cos lat2))
-            let z4: float = (* size (* (sin lat2) (sin lon1)))
+            let x4_base: float = (* (sin lat2) (cos lon1))
+            let y4_base: float = (* (cos lat2) 0.7)  # Squash!
+            let z4_base: float = (* (sin lat2) (sin lon1))
             
-            # Draw quad
+            # Apply size
+            let x1: float = (* size x1_base)
+            let y1: float = (* size y1_base)
+            let z1: float = (* size z1_base)
+            
+            let x2: float = (* size x2_base)
+            let y2: float = (* size y2_base)
+            let z2: float = (* size z2_base)
+            
+            let x3: float = (* size x3_base)
+            let y3: float = (* size y3_base)
+            let z3: float = (* size z3_base)
+            
+            let x4: float = (* size x4_base)
+            let y4: float = (* size y4_base)
+            let z4: float = (* size z4_base)
+            
+            # Calculate normals (normalized vertex positions for sphere)
+            let len1: float = (sqrt (+ (+ (* x1 x1) (* y1 y1)) (* z1 z1)))
+            let len2: float = (sqrt (+ (+ (* x2 x2) (* y2 y2)) (* z2 z2)))
+            let len3: float = (sqrt (+ (+ (* x3 x3) (* y3 y3)) (* z3 z3)))
+            let len4: float = (sqrt (+ (+ (* x4 x4) (* y4 y4)) (* z4 z4)))
+            
+            # Draw quad with normals
             (glBegin GL_QUADS)
+            (glNormal3f (/ x1 len1) (/ y1 len1) (/ z1 len1))
             (glVertex3f x1 y1 z1)
+            (glNormal3f (/ x2 len2) (/ y2 len2) (/ z2 len2))
             (glVertex3f x2 y2 z2)
+            (glNormal3f (/ x3 len3) (/ y3 len3) (/ z3 len3))
             (glVertex3f x3 y3 z3)
+            (glNormal3f (/ x4 len4) (/ y4 len4) (/ z4 len4))
             (glVertex3f x4 y4 z4)
             (glEnd)
             
@@ -79,20 +106,23 @@ fn draw_teapot_body(size: float) -> void {
 }
 
 fn draw_teapot_spout(size: float) -> void {
-    # Draw spout as a simple cone
+    # Draw spout as a LARGE cone (actually visible!)
     (glPushMatrix)
-    (glTranslatef (* size 0.7) 0.0 0.0)
+    (glTranslatef (* size 0.9) (* size -0.2) 0.0)  # Position at side, slightly down
     (glRotatef 90.0 0.0 1.0 0.0)
+    (glRotatef -20.0 1.0 0.0 0.0)  # Tilt upward
     
     let mut i: int = 0
-    while (< i 8) {
-        let angle1: float = (* (* (cast_float i) 2.0) (/ 3.14159 8.0))
-        let angle2: float = (* (* (+ (cast_float i) 1.0) 2.0) (/ 3.14159 8.0))
+    while (< i 16) {
+        let angle1: float = (* (* (cast_float i) 2.0) (/ 3.14159 16.0))
+        let angle2: float = (* (* (+ (cast_float i) 1.0) 2.0) (/ 3.14159 16.0))
         
+        # Cone from wide base to narrow tip
         (glBegin GL_TRIANGLES)
-        (glVertex3f 0.0 0.0 (* size 0.3))
-        (glVertex3f (* (* size 0.15) (cos angle1)) (* (* size 0.15) (sin angle1)) 0.0)
-        (glVertex3f (* (* size 0.15) (cos angle2)) (* (* size 0.15) (sin angle2)) 0.0)
+        (glNormal3f 0.5 0.0 0.0)
+        (glVertex3f 0.0 0.0 (* size 0.6))  # Tip
+        (glVertex3f (* (* size 0.35) (cos angle1)) (* (* size 0.35) (sin angle1)) 0.0)  # Base
+        (glVertex3f (* (* size 0.35) (cos angle2)) (* (* size 0.35) (sin angle2)) 0.0)
         (glEnd)
         
         set i (+ i 1)
@@ -101,21 +131,28 @@ fn draw_teapot_spout(size: float) -> void {
 }
 
 fn draw_teapot_handle(size: float) -> void {
-    # Draw handle as a torus section
+    # Draw handle as a LARGE curved loop
     (glPushMatrix)
-    (glTranslatef (* size -0.7) 0.0 0.0)
+    (glTranslatef (* size -0.8) 0.0 0.0)  # Position on back
     
     let mut i: int = 0
-    while (< i 12) {
-        let angle: float = (* (* (cast_float i) 3.14159) (/ 1.0 12.0))
-        let x: float = (* (* size 0.3) (cos angle))
-        let y: float = (* (* size 0.3) (sin angle))
+    while (< i 16) {
+        let angle1: float = (* (* (cast_float i) 3.14159) (/ 1.0 16.0))
+        let angle2: float = (* (* (+ (cast_float i) 1.0) 3.14159) (/ 1.0 16.0))
         
+        # Arc from top to bottom
+        let x1: float = (* (* size 0.5) (cos angle1))
+        let y1: float = (* (* size 0.6) (sin angle1))
+        let x2: float = (* (* size 0.5) (cos angle2))
+        let y2: float = (* (* size 0.6) (sin angle2))
+        
+        # Draw thick handle with quads
         (glBegin GL_QUADS)
-        (glVertex3f x y (* size 0.1))
-        (glVertex3f x y (* size -0.1))
-        (glVertex3f (* x 0.8) (* y 0.8) (* size -0.1))
-        (glVertex3f (* x 0.8) (* y 0.8) (* size 0.1))
+        (glNormal3f -1.0 0.0 0.0)
+        (glVertex3f x1 y1 (* size 0.15))
+        (glVertex3f x1 y1 (* size -0.15))
+        (glVertex3f x2 y2 (* size -0.15))
+        (glVertex3f x2 y2 (* size 0.15))
         (glEnd)
         
         set i (+ i 1)
@@ -205,12 +242,16 @@ fn setup_opengl() -> void {
     # Enable depth testing
     (glEnable GL_DEPTH_TEST)
     
-    # Set up projection matrix
+    # Enable smooth shading
+    (glShadeModel GL_SMOOTH)
+    
+    # Set up projection matrix with PERSPECTIVE (this is key for 3D!)
     (glMatrixMode GL_PROJECTION)
     (glLoadIdentity)
     
-    # Symmetric orthographic view
-    (glOrtho -2.0 2.0 -2.0 2.0 0.1 100.0)
+    # Perspective projection - makes far objects smaller
+    # Parameters: left, right, bottom, top, near, far
+    (glFrustum -0.5 0.5 -0.375 0.375 0.1 100.0)
     
     # Switch to modelview
     (glMatrixMode GL_MODELVIEW)

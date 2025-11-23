@@ -1,0 +1,24 @@
+{
+  "name": "glut",
+  "version": "1.0.0",
+  "description": "OpenGL Utility Toolkit (FreeGLUT) - 3D shapes, text rendering, and the famous Utah Teapot",
+  "headers": ["glut_platform.h"],
+  "cflags": ["-Imodules/glut"],
+  "pkg_config": ["glut"],
+  "c_sources": [],
+  "dependencies": [],
+  "install": {
+    "macos": {
+      "brew": "freeglut",
+      "command": "brew install freeglut",
+      "note": "FreeGLUT provides better cross-platform compatibility than deprecated GLUT.framework"
+    },
+    "linux": {
+      "apt": "freeglut3-dev",
+      "command": "sudo apt install freeglut3-dev",
+      "yum": "freeglut-devel",
+      "pacman": "freeglut"
+    }
+  },
+  "notes": "Uses FreeGLUT (open-source GLUT) with pkg-config for universal cross-platform support. FreeGLUT pkg-config handles all linking automatically."
+}

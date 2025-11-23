@@ -68,11 +68,5 @@ extern fn SDL_FreeSurface(surface: SDL_Surface) -> void
 extern fn SDL_PollEvent(event_ptr: int) -> int
 extern fn SDL_EventState(type: int, state: int) -> int
 
-# SDL2 TTF Functions
-extern fn TTF_Init() -> int
-extern fn TTF_Quit() -> void
-extern fn TTF_GetError() -> string
-extern fn TTF_OpenFont(file: string, ptsize: int) -> int
-extern fn TTF_CloseFont(font: int) -> void
-extern fn TTF_RenderText_Solid(font: int, text: string, r: int, g: int, b: int, a: int) -> int
-extern fn TTF_RenderText_Blended(font: int, text: string, r: int, g: int, b: int, a: int) -> int
+# SDL_ttf integration has been moved to modules/sdl_ttf/
+# Use: import "modules/sdl_ttf/sdl_ttf.nano" for TTF font rendering

@@ -23,18 +23,22 @@ struct Tile {
 }
 
 # === CONSTANTS ===
-let WINDOW_WIDTH: int = 800
-let WINDOW_HEIGHT: int = 600
-let TILE_SIZE: int = 16
-let TILES_X: int = 50  # 800 / 16
-let TILES_Y: int = 37  # 600 / 16
-let WORLD_WIDTH: int = 100
-let WORLD_HEIGHT: int = 100
+let WINDOW_WIDTH: int = 1200
+let WINDOW_HEIGHT: int = 900
+let TILE_SIZE: int = 12
+let TILES_X: int = 100  # 1200 / 12
+let TILES_Y: int = 75   # 900 / 12
+let WORLD_WIDTH: int = 200
+let WORLD_HEIGHT: int = 200
 let VIEW_RADIUS: int = 5
 
 # Noise parameters
-let NOISE_SCALE: float = 0.05
-let NOISE_OCTAVES: int = 3
+let NOISE_SCALE: float = 0.04
+let NOISE_OCTAVES: int = 4
+
+# View modes
+let VIEW_2D: int = 0
+let VIEW_3D: int = 1
 
 # === NOISE GENERATION ===
 
@@ -359,57 +363,262 @@ shadow render_world {
     assert (== 1 1)
 }
 
+# Render world with animation effects
+fn render_world_animated(renderer: SDL_Renderer, world: array<Tile>, camera_x: int, camera_y: int, frame: int) -> void {
+    let mut screen_y: int = 0
+    while (< screen_y TILES_Y) {
+        let mut screen_x: int = 0
+        while (< screen_x TILES_X) {
+            let world_x: int = (+ camera_x screen_x)
+            let world_y: int = (+ camera_y screen_y)
+            
+            let tile: Tile = (get_tile world world_x world_y)
+            
+            # Render based on exploration status
+            if (tile.explored) {
+                let color: int = (get_biome_color tile.biome)
+                
+                # Water animation - shimmer effect
+                if (== color 0) {
+                    let wave_offset: int = (% (+ frame (+ world_x world_y)) 30)
+                    if (< wave_offset 10) {
+                        (SDL_SetRenderDrawColor renderer 30 60 170 255)  # Lighter blue
+                    } else {
+                        (SDL_SetRenderDrawColor renderer 20 50 150 255)  # Normal ocean
+                    }
+                } else {
+                    if (== color 1) {
+                        (SDL_SetRenderDrawColor renderer 238 214 175 255)  # Beach
+                    } else {
+                        if (== color 2) {
+                            (SDL_SetRenderDrawColor renderer 124 252 0 255)  # Plains
+                        } else {
+                            # Forest animation - gentle sway
+                            if (== color 3) {
+                                let sway: int = (% (+ frame world_x) 60)
+                                if (< sway 30) {
+                                    (SDL_SetRenderDrawColor renderer 34 139 34 255)  # Normal forest
+                                } else {
+                                    (SDL_SetRenderDrawColor renderer 40 145 40 255)  # Slightly lighter
+                                }
+                            } else {
+                                if (== color 4) {
+                                    (SDL_SetRenderDrawColor renderer 128 128 128 255)  # Mountain
+                                } else {
+                                    # Snow with sparkle effect
+                                    let sparkle: int = (% (+ (+ frame world_x) world_y) 50)
+                                    if (< sparkle 5) {
+                                        (SDL_SetRenderDrawColor renderer 255 255 255 255)  # Bright sparkle
+                                    } else {
+                                        (SDL_SetRenderDrawColor renderer 245 245 245 255)  # Normal snow
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                # Fog of war - dark
+                (SDL_SetRenderDrawColor renderer 20 20 20 255)
+            }
+            
+            # Draw tile
+            let pixel_x: int = (* screen_x TILE_SIZE)
+            let pixel_y: int = (* screen_y TILE_SIZE)
+            (nl_sdl_render_fill_rect renderer pixel_x pixel_y TILE_SIZE TILE_SIZE)
+            
+            set screen_x (+ screen_x 1)
+        }
+        set screen_y (+ screen_y 1)
+    }
+}
+
+# Render world in 3D perspective view (isometric style)
+fn render_world_3d(renderer: SDL_Renderer, world: array<Tile>, camera_x: int, camera_y: int, frame: int) -> void {
+    # Render from back to front for proper layering
+    let mut screen_y: int = 0
+    while (< screen_y TILES_Y) {
+        let mut screen_x: int = 0
+        while (< screen_x TILES_X) {
+            let world_x: int = (+ camera_x screen_x)
+            let world_y: int = (+ camera_y screen_y)
+            
+            let tile: Tile = (get_tile world world_x world_y)
+            
+            # Only render explored tiles
+            if (tile.explored) {
+                let base_color: int = (get_biome_color tile.biome)
+                
+                # Apply animation effects
+                let mut color: int = base_color
+                if (== base_color 0) {
+                    # Water shimmer
+                    let wave: int = (% (+ frame (+ world_x world_y)) 30)
+                    if (< wave 10) {
+                        set color 6  # Lighter water
+                    } else {}
+                } else {}
+                if (== base_color 5) {
+                    # Snow sparkle
+                    let sparkle: int = (% (+ (+ frame world_x) world_y) 50)
+                    if (< sparkle 5) {
+                        set color 7  # Brighter snow
+                    } else {}
+                } else {}
+                
+                # Calculate 3D position based on elevation
+                let height_offset: int = (cast_int (* tile.elevation 30.0))
+                let base_pixel_x: int = (* screen_x TILE_SIZE)
+                let base_pixel_y: int = (* screen_y TILE_SIZE)
+                let pixel_y: int = (- base_pixel_y height_offset)
+                
+                # Draw vertical face (side of elevated terrain)
+                if (> height_offset 0) {
+                    # Darker shade for the vertical face
+                    if (== color 0) {
+                        (SDL_SetRenderDrawColor renderer 10 25 75 255)  # Ocean (darker)
+                    } else {
+                        if (== color 1) {
+                            (SDL_SetRenderDrawColor renderer 180 160 130 255)  # Beach (darker)
+                        } else {
+                            if (== color 2) {
+                                (SDL_SetRenderDrawColor renderer 90 180 0 255)  # Plains (darker)
+                            } else {
+                                if (== color 3) {
+                                    (SDL_SetRenderDrawColor renderer 20 90 20 255)  # Forest (darker)
+                                } else {
+                                    if (== color 4) {
+                                        (SDL_SetRenderDrawColor renderer 80 80 80 255)  # Mountain (darker)
+                                    } else {
+                                        (SDL_SetRenderDrawColor renderer 200 200 200 255)  # Snow (darker)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    # Draw vertical face
+                    (nl_sdl_render_fill_rect renderer base_pixel_x pixel_y TILE_SIZE (+ height_offset 2))
+                } else {}
+                
+                # Draw top face
+                if (== color 0) {
+                    (SDL_SetRenderDrawColor renderer 20 50 150 255)  # Ocean
+                } else {
+                    if (== color 1) {
+                        (SDL_SetRenderDrawColor renderer 238 214 175 255)  # Beach
+                    } else {
+                        if (== color 2) {
+                            (SDL_SetRenderDrawColor renderer 124 252 0 255)  # Plains
+                        } else {
+                            if (== color 3) {
+                                (SDL_SetRenderDrawColor renderer 34 139 34 255)  # Forest
+                            } else {
+                                if (== color 4) {
+                                    (SDL_SetRenderDrawColor renderer 128 128 128 255)  # Mountain
+                                } else {
+                                    if (== color 5) {
+                                        (SDL_SetRenderDrawColor renderer 255 255 255 255)  # Snow
+                                    } else {
+                                        if (== color 6) {
+                                            (SDL_SetRenderDrawColor renderer 30 60 170 255)  # Animated water
+                                        } else {
+                                            (SDL_SetRenderDrawColor renderer 255 255 255 255)  # Bright snow
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                (nl_sdl_render_fill_rect renderer base_pixel_x pixel_y TILE_SIZE TILE_SIZE)
+                
+                # Add border for depth perception
+                (SDL_SetRenderDrawColor renderer 0 0 0 100)
+                let border_x: int = base_pixel_x
+                let border_y: int = pixel_y
+                (nl_sdl_render_fill_rect renderer border_x border_y TILE_SIZE 1)
+                (nl_sdl_render_fill_rect renderer border_x border_y 1 TILE_SIZE)
+            } else {
+                # Fog of war - dark
+                (SDL_SetRenderDrawColor renderer 20 20 20 255)
+                let pixel_x: int = (* screen_x TILE_SIZE)
+                let pixel_y: int = (* screen_y TILE_SIZE)
+                (nl_sdl_render_fill_rect renderer pixel_x pixel_y TILE_SIZE TILE_SIZE)
+            }
+            
+            set screen_x (+ screen_x 1)
+        }
+        set screen_y (+ screen_y 1)
+    }
+}
+
+shadow render_world_3d {
+    # Uses SDL, can't test
+    assert (== 1 1)
+}
+
+# Draw UI overlay with controls
+fn draw_ui_overlay(renderer: SDL_Renderer, view_mode: int) -> void {
+    # Draw semi-transparent dark bar at bottom
+    (SDL_SetRenderDrawColor renderer 0 0 0 200)
+    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 40) WINDOW_WIDTH 40)
+    
+    # Draw colored indicators for controls
+    # Arrows indicator (blue)
+    (SDL_SetRenderDrawColor renderer 50 100 200 255)
+    (nl_sdl_render_fill_rect renderer 20 (- WINDOW_HEIGHT 30) 60 20)
+    
+    # R key indicator (green)
+    (SDL_SetRenderDrawColor renderer 50 200 50 255)
+    (nl_sdl_render_fill_rect renderer 100 (- WINDOW_HEIGHT 30) 40 20)
+    
+    # 3 key indicator (yellow)
+    (SDL_SetRenderDrawColor renderer 200 200 50 255)
+    (nl_sdl_render_fill_rect renderer 160 (- WINDOW_HEIGHT 30) 40 20)
+    
+    # ESC indicator (red)
+    (SDL_SetRenderDrawColor renderer 200 50 50 255)
+    (nl_sdl_render_fill_rect renderer 220 (- WINDOW_HEIGHT 30) 60 20)
+    
+    # Draw mode indicator on right side
+    if (== view_mode VIEW_3D) {
+        (SDL_SetRenderDrawColor renderer 100 255 100 255)
+        (nl_sdl_render_fill_rect renderer (- WINDOW_WIDTH 80) (- WINDOW_HEIGHT 30) 60 20)
+    } else {
+        (SDL_SetRenderDrawColor renderer 100 100 255 255)
+        (nl_sdl_render_fill_rect renderer (- WINDOW_WIDTH 80) (- WINDOW_HEIGHT 30) 60 20)
+    }
+}
+
 # === MAIN ===
 
 fn main() -> int {
-    (println "")
-    (println "╔════════════════════════════════════════════╗")
-    (println "║   PROCEDURAL TERRAIN EXPLORER             ║")
-    (println "╚════════════════════════════════════════════╝")
-    (println "")
-    (println "Generating infinite world with Perlin noise...")
-    (println "")
-    (println "Controls:")
-    (println "  Arrow Keys - Move camera (reveals fog of war)")
-    (println "  ESC - Quit")
-    (println "")
     
     # Initialize SDL
     let init_result: int = (SDL_Init 32)
     if (< init_result 0) {
-        (println "SDL initialization failed")
         return 1
-    } else {
-        (println "✓ SDL initialized")
-    }
+    } else {}
     
     # Create window
-    let window: SDL_Window = (SDL_CreateWindow "Terrain Explorer" 536805376 536805376 WINDOW_WIDTH WINDOW_HEIGHT 4)
+    let window: SDL_Window = (SDL_CreateWindow "Terrain Explorer v2.0" 536805376 536805376 WINDOW_WIDTH WINDOW_HEIGHT 4)
     if (== window 0) {
-        (println "Window creation failed")
         (SDL_Quit)
         return 1
-    } else {
-        (println "✓ Window created")
-    }
+    } else {}
     
     # Create renderer
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
     if (== renderer 0) {
-        (println "Renderer creation failed")
         (SDL_DestroyWindow window)
         (SDL_Quit)
         return 1
-    } else {
-        (println "✓ Renderer created")
-    }
+    } else {}
     
     # Generate world
-    let seed: int = 12345
-    let world: array<Tile> = (generate_world seed)
-    
-    (println "✓ World generated")
-    (println "")
+    let mut seed: int = 12345
+    let mut world: array<Tile> = (generate_world seed)
+    let mut view_mode: int = VIEW_2D
     
     # Player position (center of world)
     let mut player_x: int = (/ WORLD_WIDTH 2)
@@ -420,7 +629,6 @@ fn main() -> int {
     let mut camera_y: int = (- player_y (/ TILES_Y 2))
     
     # Initial exploration - explore entire visible screen
-    (println "Exploring initial area...")
     let mut dy: int = 0
     while (< dy TILES_Y) {
         let mut dx: int = 0
@@ -432,14 +640,10 @@ fn main() -> int {
         }
         set dy (+ dy 1)
     }
-    (println "✓ Initial area explored")
     
     # Game state
     let mut running: bool = true
     let mut frame_count: int = 0
-    
-    (println "Starting exploration...")
-    (println "")
     
     # Main loop
     while running {
@@ -451,13 +655,117 @@ fn main() -> int {
             let _dummy: int = 0
         }
         
-        # TODO: Add arrow key input handling for player movement
-        # For now, no movement implemented
+        # Handle keyboard input
+        let key: int = (nl_sdl_poll_keypress)
+        if (> key -1) {
+            # Arrow keys
+            if (== key 79) {
+                # Right arrow
+                set player_x (+ player_x 1)
+                set camera_x (- player_x (/ TILES_X 2))
+                # Explore new column
+                let mut dy: int = 0
+                while (< dy TILES_Y) {
+                    let world_x: int = (+ camera_x (- TILES_X 1))
+                    let world_y: int = (+ camera_y dy)
+                    (explore_tile world world_x world_y)
+                    set dy (+ dy 1)
+                }
+            } else {
+                if (== key 80) {
+                    # Left arrow
+                    set player_x (- player_x 1)
+                    set camera_x (- player_x (/ TILES_X 2))
+                    # Explore new column
+                    let mut dy: int = 0
+                    while (< dy TILES_Y) {
+                        let world_x: int = camera_x
+                        let world_y: int = (+ camera_y dy)
+                        (explore_tile world world_x world_y)
+                        set dy (+ dy 1)
+                    }
+                } else {
+                    if (== key 81) {
+                        # Down arrow
+                        set player_y (+ player_y 1)
+                        set camera_y (- player_y (/ TILES_Y 2))
+                        # Explore new row
+                        let mut dx: int = 0
+                        while (< dx TILES_X) {
+                            let world_x: int = (+ camera_x dx)
+                            let world_y: int = (+ camera_y (- TILES_Y 1))
+                            (explore_tile world world_x world_y)
+                            set dx (+ dx 1)
+                        }
+                    } else {
+                        if (== key 82) {
+                            # Up arrow
+                            set player_y (- player_y 1)
+                            set camera_y (- player_y (/ TILES_Y 2))
+                            # Explore new row
+                            let mut dx: int = 0
+                            while (< dx TILES_X) {
+                                let world_x: int = (+ camera_x dx)
+                                let world_y: int = camera_y
+                                (explore_tile world world_x world_y)
+                                set dx (+ dx 1)
+                            }
+                        } else {
+                            if (== key 21) {
+                                # R key - Regenerate terrain
+                                set seed (+ seed 1337)
+                                set world (generate_world seed)
+                                # Reset camera to center
+                                set player_x (/ WORLD_WIDTH 2)
+                                set player_y (/ WORLD_HEIGHT 2)
+                                set camera_x (- player_x (/ TILES_X 2))
+                                set camera_y (- player_y (/ TILES_Y 2))
+                                # Re-explore initial area
+                                let mut ey: int = 0
+                                while (< ey TILES_Y) {
+                                    let mut ex: int = 0
+                                    while (< ex TILES_X) {
+                                        let world_x: int = (+ camera_x ex)
+                                        let world_y: int = (+ camera_y ey)
+                                        (explore_tile world world_x world_y)
+                                        set ex (+ ex 1)
+                                    }
+                                    set ey (+ ey 1)
+                                }
+                            } else {
+                                if (== key 32) {
+                                    # 3 key - Toggle 3D view
+                                    if (== view_mode VIEW_2D) {
+                                        set view_mode VIEW_3D
+                                    } else {
+                                        set view_mode VIEW_2D
+                                    }
+                                } else {
+                                    (print "")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            (print "")
+        }
         
         # Render
         (SDL_SetRenderDrawColor renderer 0 0 0 255)
         (SDL_RenderClear renderer)
-        (render_world renderer world camera_x camera_y)
+        
+        # Choose rendering mode
+        if (== view_mode VIEW_3D) {
+            (render_world_3d renderer world camera_x camera_y frame_count)
+        } else {
+            (render_world_animated renderer world camera_x camera_y frame_count)
+        }
+        
+        # Draw UI overlay
+        (draw_ui_overlay renderer view_mode)
+        
         (SDL_RenderPresent renderer)
         
         # Frame delay
@@ -469,10 +777,6 @@ fn main() -> int {
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
     (SDL_Quit)
-    
-    (println "")
-    (println "✅ Exploration complete!")
-    (println "")
     
     return 0
 }

@@ -293,6 +293,7 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
     PARSE_STRING_ARRAY("include_dirs", include_dirs, include_dirs_count);
     PARSE_STRING_ARRAY("cflags", cflags, cflags_count);
     PARSE_STRING_ARRAY("ldflags", ldflags, ldflags_count);
+    PARSE_STRING_ARRAY("frameworks", frameworks, frameworks_count);
     PARSE_STRING_ARRAY("dependencies", dependencies, dependencies_count);
 
     #undef PARSE_STRING_ARRAY
@@ -333,6 +334,7 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
     FREE_STRING_ARRAY(include_dirs, include_dirs_count);
     FREE_STRING_ARRAY(cflags, cflags_count);
     FREE_STRING_ARRAY(ldflags, ldflags_count);
+    FREE_STRING_ARRAY(frameworks, frameworks_count);
     FREE_STRING_ARRAY(dependencies, dependencies_count);
 
     #undef FREE_STRING_ARRAY
@@ -466,6 +468,14 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         for (size_t i = 0; i < meta->ldflags_count; i++) {
             link_flags[total_link_flags++] = strdup(meta->ldflags[i]);
         }
+
+        // Add macOS frameworks
+        #ifdef __APPLE__
+        for (size_t i = 0; i < meta->frameworks_count; i++) {
+            link_flags[total_link_flags++] = strdup("-framework");
+            link_flags[total_link_flags++] = strdup(meta->frameworks[i]);
+        }
+        #endif
 
         // Add system libs
         for (size_t i = 0; i < meta->system_libs_count; i++) {
@@ -614,6 +624,14 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
     for (size_t i = 0; i < meta->ldflags_count; i++) {
         link_flags[total_link_flags++] = strdup(meta->ldflags[i]);
     }
+
+    // Add macOS frameworks
+    #ifdef __APPLE__
+    for (size_t i = 0; i < meta->frameworks_count; i++) {
+        link_flags[total_link_flags++] = strdup("-framework");
+        link_flags[total_link_flags++] = strdup(meta->frameworks[i]);
+    }
+    #endif
 
     // Add system libs
     for (size_t i = 0; i < meta->system_libs_count; i++) {

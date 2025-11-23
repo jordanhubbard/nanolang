@@ -53,7 +53,7 @@ shadow is_valid_pos {
     assert (== (is_valid_pos GRID_WIDTH 10) false)
 }
 
-fn get_material(grid: array<int>, x: int, y: int) -> Material {
+fn read_material(grid: array<int>, x: int, y: int) -> Material {
     if (not (is_valid_pos x y)) {
         return Material.STONE
     } else {
@@ -61,17 +61,17 @@ fn get_material(grid: array<int>, x: int, y: int) -> Material {
     }
 }
 
-shadow get_material {
+shadow read_material {
     let grid: array<int> = []
     let mut i: int = 0
     while (< i (* GRID_WIDTH GRID_HEIGHT)) {
         set grid (array_push grid Material.EMPTY)
         set i (+ i 1)
     }
-    assert (== (get_material grid 0 0) Material.EMPTY)
+    assert (== (read_material grid 0 0) Material.EMPTY)
 }
 
-fn set_material(grid: array<int>, x: int, y: int, mat: Material) -> array<int> {
+fn write_material(grid: array<int>, x: int, y: int, mat: Material) -> array<int> {
     if (is_valid_pos x y) {
         let idx: int = (grid_index x y)
         (array_set grid idx mat)
@@ -81,7 +81,7 @@ fn set_material(grid: array<int>, x: int, y: int, mat: Material) -> array<int> {
     }
 }
 
-shadow set_material {
+shadow write_material {
     # Uses array operations, can't test fully
     (print "")
 }
@@ -90,31 +90,31 @@ shadow set_material {
 
 fn update_sand(grid: array<int>, x: int, y: int) -> bool {
     # Sand falls down, or diagonally if blocked
-    let below: Material = (get_material grid x (+ y 1))
+    let below: Material = (read_material grid x (+ y 1))
     
     if (== below Material.EMPTY) {
-        set grid (set_material grid x y Material.EMPTY)
-        set grid (set_material grid x (+ y 1) Material.SAND)
+        set grid (write_material grid x y Material.EMPTY)
+        set grid (write_material grid x (+ y 1) Material.SAND)
         return true
     } else {
         if (== below Material.WATER) {
             # Sand falls through water (swap)
-            set grid (set_material grid x y Material.WATER)
-            set grid (set_material grid x (+ y 1) Material.SAND)
+            set grid (write_material grid x y Material.WATER)
+            set grid (write_material grid x (+ y 1) Material.SAND)
             return true
         } else {
             # Try diagonal
-            let left_below: Material = (get_material grid (- x 1) (+ y 1))
-            let right_below: Material = (get_material grid (+ x 1) (+ y 1))
+            let left_below: Material = (read_material grid (- x 1) (+ y 1))
+            let right_below: Material = (read_material grid (+ x 1) (+ y 1))
             
             if (== left_below Material.EMPTY) {
-                set grid (set_material grid x y Material.EMPTY)
-                set grid (set_material grid (- x 1) (+ y 1) Material.SAND)
+                set grid (write_material grid x y Material.EMPTY)
+                set grid (write_material grid (- x 1) (+ y 1) Material.SAND)
                 return true
             } else {
                 if (== right_below Material.EMPTY) {
-                    set grid (set_material grid x y Material.EMPTY)
-                    set grid (set_material grid (+ x 1) (+ y 1) Material.SAND)
+                    set grid (write_material grid x y Material.EMPTY)
+                    set grid (write_material grid (+ x 1) (+ y 1) Material.SAND)
                     return true
                 } else {
                     return false
@@ -131,25 +131,25 @@ shadow update_sand {
 
 fn update_water(grid: array<int>, x: int, y: int) -> bool {
     # Water falls down, then spreads sideways
-    let below: Material = (get_material grid x (+ y 1))
+    let below: Material = (read_material grid x (+ y 1))
     
     if (== below Material.EMPTY) {
-        set grid (set_material grid x y Material.EMPTY)
-        set grid (set_material grid x (+ y 1) Material.WATER)
+        set grid (write_material grid x y Material.EMPTY)
+        set grid (write_material grid x (+ y 1) Material.WATER)
         return true
     } else {
         # Try spreading sideways
-        let left: Material = (get_material grid (- x 1) y)
-        let right: Material = (get_material grid (+ x 1) y)
+        let left: Material = (read_material grid (- x 1) y)
+        let right: Material = (read_material grid (+ x 1) y)
         
         if (== left Material.EMPTY) {
-            set grid (set_material grid x y Material.EMPTY)
-            set grid (set_material grid (- x 1) y Material.WATER)
+            set grid (write_material grid x y Material.EMPTY)
+            set grid (write_material grid (- x 1) y Material.WATER)
             return true
         } else {
             if (== right Material.EMPTY) {
-                set grid (set_material grid x y Material.EMPTY)
-                set grid (set_material grid (+ x 1) y Material.WATER)
+                set grid (write_material grid x y Material.EMPTY)
+                set grid (write_material grid (+ x 1) y Material.WATER)
                 return true
             } else {
                 return false
@@ -170,7 +170,7 @@ fn update_fire(grid: array<int>, x: int, y: int, fire_life: array<int>) -> bool 
     
     if (<= life 0) {
         # Fire died, become smoke
-        set grid (set_material grid x y Material.SMOKE)
+        set grid (write_material grid x y Material.SMOKE)
         return true
     } else {
         # Decrease lifetime
@@ -180,32 +180,32 @@ fn update_fire(grid: array<int>, x: int, y: int, fire_life: array<int>) -> bool 
         let mut spread: bool = false
         
         # Check all 4 directions
-        if (== (get_material grid (- x 1) y) Material.WOOD) {
-            set grid (set_material grid (- x 1) y Material.FIRE)
+        if (== (read_material grid (- x 1) y) Material.WOOD) {
+            set grid (write_material grid (- x 1) y Material.FIRE)
             (array_set fire_life (grid_index (- x 1) y) FIRE_LIFETIME)
             set spread true
         } else {
             (print "")
         }
         
-        if (== (get_material grid (+ x 1) y) Material.WOOD) {
-            set grid (set_material grid (+ x 1) y Material.FIRE)
+        if (== (read_material grid (+ x 1) y) Material.WOOD) {
+            set grid (write_material grid (+ x 1) y Material.FIRE)
             (array_set fire_life (grid_index (+ x 1) y) FIRE_LIFETIME)
             set spread true
         } else {
             (print "")
         }
         
-        if (== (get_material grid x (- y 1)) Material.WOOD) {
-            set grid (set_material grid x (- y 1) Material.FIRE)
+        if (== (read_material grid x (- y 1)) Material.WOOD) {
+            set grid (write_material grid x (- y 1) Material.FIRE)
             (array_set fire_life (grid_index x (- y 1)) FIRE_LIFETIME)
             set spread true
         } else {
             (print "")
         }
         
-        if (== (get_material grid x (+ y 1)) Material.WOOD) {
-            set grid (set_material grid x (+ y 1) Material.FIRE)
+        if (== (read_material grid x (+ y 1)) Material.WOOD) {
+            set grid (write_material grid x (+ y 1) Material.FIRE)
             (array_set fire_life (grid_index x (+ y 1)) FIRE_LIFETIME)
             set spread true
         } else {
@@ -223,26 +223,26 @@ shadow update_fire {
 
 fn update_smoke(grid: array<int>, x: int, y: int) -> bool {
     # Smoke rises and disperses horizontally
-    let above: Material = (get_material grid x (- y 1))
+    let above: Material = (read_material grid x (- y 1))
     
     # Try to rise
     if (== above Material.EMPTY) {
-        set grid (set_material grid x y Material.EMPTY)
-        set grid (set_material grid x (- y 1) Material.SMOKE)
+        set grid (write_material grid x y Material.EMPTY)
+        set grid (write_material grid x (- y 1) Material.SMOKE)
         return true
     } else {
         # Can't rise, try to spread horizontally
-        let left: Material = (get_material grid (- x 1) y)
-        let right: Material = (get_material grid (+ x 1) y)
+        let left: Material = (read_material grid (- x 1) y)
+        let right: Material = (read_material grid (+ x 1) y)
         
         if (== left Material.EMPTY) {
-            set grid (set_material grid x y Material.EMPTY)
-            set grid (set_material grid (- x 1) y Material.SMOKE)
+            set grid (write_material grid x y Material.EMPTY)
+            set grid (write_material grid (- x 1) y Material.SMOKE)
             return true
         } else {
             if (== right Material.EMPTY) {
-                set grid (set_material grid x y Material.EMPTY)
-                set grid (set_material grid (+ x 1) y Material.SMOKE)
+                set grid (write_material grid x y Material.EMPTY)
+                set grid (write_material grid (+ x 1) y Material.SMOKE)
                 return true
             } else {
                 # Can't move, slowly dissipate (1 in 10 chance)
@@ -260,7 +260,7 @@ shadow update_smoke {
 
 # === RENDERING ===
 
-fn get_material_color(mat: Material) -> int {
+fn read_material_color(mat: Material) -> int {
     if (== mat Material.SAND) {
         return 1  # Yellow
     } else {
@@ -288,12 +288,12 @@ fn get_material_color(mat: Material) -> int {
     }
 }
 
-shadow get_material_color {
-    assert (== (get_material_color Material.SAND) 1)
-    assert (== (get_material_color Material.EMPTY) 0)
+shadow read_material_color {
+    assert (== (read_material_color Material.SAND) 1)
+    assert (== (read_material_color Material.EMPTY) 0)
 }
 
-fn get_material_name(mat: Material) -> string {
+fn read_material_name(mat: Material) -> string {
     if (== mat Material.EMPTY) {
         return "EMPTY"
     } else {
@@ -325,9 +325,9 @@ fn get_material_name(mat: Material) -> string {
     }
 }
 
-shadow get_material_name {
-    assert (str_equals (get_material_name Material.SAND) "SAND")
-    assert (str_equals (get_material_name Material.WATER) "WATER")
+shadow read_material_name {
+    assert (str_equals (read_material_name Material.SAND) "SAND")
+    assert (str_equals (read_material_name Material.WATER) "WATER")
 }
 
 fn render_ui(renderer: int, current_material: Material, paused: bool) -> void {
@@ -339,7 +339,7 @@ fn render_ui(renderer: int, current_material: Material, paused: bool) -> void {
     # In a full implementation, you'd use TTF_RenderText here
     
     # Draw material indicator box
-    let color: int = (get_material_color current_material)
+    let color: int = (read_material_color current_material)
     if (== color 0) {
         (SDL_SetRenderDrawColor renderer 50 50 50 255)
     } else {
@@ -387,11 +387,11 @@ fn render_grid(renderer: int, grid: array<int>) -> void {
     while (< y GRID_HEIGHT) {
         let mut x: int = 0
         while (< x GRID_WIDTH) {
-            let mat: Material = (get_material grid x y)
+            let mat: Material = (read_material grid x y)
             
             # Only render non-empty cells for performance
             if (!= mat Material.EMPTY) {
-                let color: int = (get_material_color mat)
+                let color: int = (read_material_color mat)
                 
                 # Set color based on material
                 if (== color 1) {
@@ -591,7 +591,7 @@ fn main() -> int {
             while (< dy BRUSH_SIZE) {
                 let mut dx: int = (- 0 BRUSH_SIZE)
                 while (< dx BRUSH_SIZE) {
-                    set grid (set_material grid (+ grid_x dx) (+ grid_y dy) current_material)
+                    set grid (write_material grid (+ grid_x dx) (+ grid_y dy) current_material)
                     
                     # Initialize fire lifetime if placing fire
                     if (== current_material Material.FIRE) {
@@ -612,7 +612,7 @@ fn main() -> int {
             while (>= y 0) {
                 let mut x: int = 0
                 while (< x GRID_WIDTH) {
-                    let mat: Material = (get_material grid x y)
+                    let mat: Material = (read_material grid x y)
                     
                     # Skip empty cells for performance
                     if (!= mat Material.EMPTY) {

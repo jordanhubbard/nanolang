@@ -9,7 +9,7 @@ opaque type TTF_Font
 # === SDL_ttf Initialization ===
 
 extern fn TTF_Init() -> int
-extern fn TTF_Quit() -> int
+extern fn TTF_Quit() -> void
 extern fn TTF_WasInit() -> int
 
 # === Font Management ===
@@ -19,7 +19,7 @@ extern fn TTF_WasInit() -> int
 extern fn TTF_OpenFont(file: string, ptsize: int) -> TTF_Font
 
 # Close a font handle
-extern fn TTF_CloseFont(font: TTF_Font) -> int
+extern fn TTF_CloseFont(font: TTF_Font) -> void
 
 # === Text Rendering ===
 
@@ -68,7 +68,7 @@ let TTF_STYLE_STRIKETHROUGH: int = 8
 extern fn TTF_GetFontStyle(font: TTF_Font) -> int
 
 # Set font style (use bitwise OR to combine styles)
-extern fn TTF_SetFontStyle(font: TTF_Font, style: int) -> int
+extern fn TTF_SetFontStyle(font: TTF_Font, style: int) -> void
 
 # === Error Handling ===
 
@@ -76,5 +76,5 @@ extern fn TTF_SetFontStyle(font: TTF_Font, style: int) -> int
 extern fn TTF_GetError() -> string
 
 # Clear error message
-extern fn TTF_ClearError() -> int
+extern fn TTF_ClearError() -> void
 

@@ -2,33 +2,21 @@
   "name": "onnx",
   "version": "1.0.0",
   "description": "ONNX Runtime for AI model inference - CPU-based neural network inference",
-  
-  "c_sources": [
-    "onnx_wrapper.c"
-  ],
-  
-  "system_libs": [
-    "onnxruntime"
-  ],
-  
-  "include_dirs": [
-    "/opt/homebrew/include/onnxruntime",
-    "/opt/homebrew/include",
-    "/usr/local/include/onnxruntime",
-    "/usr/local/include"
-  ],
-  
-  "cflags": [
-    "-O2",
-    "-Wall",
-    "-Wextra"
-  ],
-  
-  "ldflags": [
-    "-L/opt/homebrew/lib",
-    "-L/usr/local/lib"
-  ],
-  
-  "dependencies": []
+  "headers": ["onnxruntime_c_api.h"],
+  "c_sources": ["onnx_wrapper.c"],
+  "pkg_config": ["libonnxruntime"],
+  "cflags": ["-O2"],
+  "dependencies": [],
+  "install": {
+    "macos": {
+      "brew": "onnxruntime",
+      "command": "brew install onnxruntime"
+    },
+    "linux": {
+      "note": "Build from source or use distribution package",
+      "command": "sudo apt install libonnxruntime-dev || build from https://github.com/microsoft/onnxruntime"
+    }
+  },
+  "notes": "Uses pkg-config if available, otherwise falls back to common library paths. ONNX Runtime pkg-config support varies by installation method."
 }
 

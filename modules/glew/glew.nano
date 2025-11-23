@@ -79,9 +79,13 @@ extern fn glColor4f(r: float, g: float, b: float, a: float) -> void
 extern fn glMatrixMode(mode: int) -> void
 extern fn glLoadIdentity() -> void
 extern fn glOrtho(left: float, right: float, bottom: float, top: float, near: float, far: float) -> void
+extern fn glFrustum(left: float, right: float, bottom: float, top: float, near: float, far: float) -> void
 extern fn glTranslatef(x: float, y: float, z: float) -> void
 extern fn glRotatef(angle: float, x: float, y: float, z: float) -> void
 extern fn glScalef(x: float, y: float, z: float) -> void
+
+# Rendering modes
+extern fn glShadeModel(mode: int) -> void
 
 # State management
 extern fn glEnable(cap: int) -> void
@@ -90,6 +94,9 @@ extern fn glDisable(cap: int) -> void
 # Matrix stack operations
 extern fn glPushMatrix() -> void
 extern fn glPopMatrix() -> void
+
+# Normal vectors for lighting
+extern fn glNormal3f(nx: float, ny: float, nz: float) -> void
 
 # === OpenGL Constants ===
 # Define in your program:

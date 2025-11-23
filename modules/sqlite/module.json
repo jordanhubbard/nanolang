@@ -4,7 +4,7 @@
   "description": "SQLite3 - Embedded SQL database engine for local data storage",
   "headers": ["sqlite3.h"],
   "c_sources": ["sqlite_helpers.c"],
-  "system_libs": ["sqlite3"],
+  "pkg_config": ["sqlite3"],
   "install": {
     "macos": {
       "brew": "sqlite",
@@ -14,5 +14,6 @@
       "apt": "libsqlite3-dev",
       "command": "sudo apt install libsqlite3-dev"
     }
-  }
+  },
+  "notes": "SQLite3 provides pkg-config support for universal path discovery"
 }

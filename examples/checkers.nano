@@ -51,11 +51,11 @@ shadow board_index {
     assert (== (board_index 3 4) 28)
 }
 
-fn board_get(board: array<int>, row: int, col: int) -> int {
+fn board_read(board: array<int>, row: int, col: int) -> int {
     return (at board (board_index row col))
 }
 
-shadow board_get {
+shadow board_read {
     let board: array<int> = [1, 0, 0, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 0, 0, 0, 0,
@@ -64,17 +64,17 @@ shadow board_get {
                               0, 0, 0, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 0, 0, 0, 3]
-    assert (== (board_get board 0 0) 1)
-    assert (== (board_get board 7 7) 3)
+    assert (== (board_read board 0 0) 1)
+    assert (== (board_read board 7 7) 3)
 }
 
-fn board_set(board: array<int>, row: int, col: int, value: int) -> array<int> {
+fn board_write(board: array<int>, row: int, col: int, value: int) -> array<int> {
     let mut new_board: array<int> = board
     (array_set new_board (board_index row col) value)
     return new_board
 }
 
-shadow board_set {
+shadow board_write {
     let board: array<int> = [0, 0, 0, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 0, 0, 0, 0,
@@ -83,8 +83,8 @@ shadow board_set {
                               0, 0, 0, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 0, 0, 0, 0]
-    let modified: array<int> = (board_set board 3 4 42)
-    assert (== (board_get modified 3 4) 42)
+    let modified: array<int> = (board_write board 3 4 42)
+    assert (== (board_read modified 3 4) 42)
 }
 
 # Position validation
@@ -158,7 +158,7 @@ fn init_board() -> array<int> {
         let mut j: int = 0
         while (< j board_size) {
             if (is_dark_square i j) {
-                set board (board_set board i j 1)  # RED_PIECE
+                set board (board_write board i j 1)  # RED_PIECE
             } else {}
             set j (+ j 1)
         }
@@ -171,7 +171,7 @@ fn init_board() -> array<int> {
         let mut j: int = 0
         while (< j board_size) {
             if (is_dark_square i j) {
-                set board (board_set board i j 3)  # BLACK_PIECE
+                set board (board_write board i j 3)  # BLACK_PIECE
             } else {}
             set j (+ j 1)
         }
@@ -183,9 +183,9 @@ fn init_board() -> array<int> {
 
 shadow init_board {
     let board: array<int> = (init_board)
-    assert (== (board_get board 0 1) 1)  # RED_PIECE
-    assert (== (board_get board 5 0) 3)  # BLACK_PIECE
-    assert (== (board_get board 3 0) 0)  # EMPTY
+    assert (== (board_read board 0 1) 1)  # RED_PIECE
+    assert (== (board_read board 5 0) 3)  # BLACK_PIECE
+    assert (== (board_read board 3 0) 0)  # EMPTY
 }
 
 fn abs_int(x: int) -> int {
@@ -212,16 +212,15 @@ fn is_valid_move(board: array<int>, game_state: int, from_row: int, from_col: in
     if (not (is_dark_square to_row to_col)) {
         return false
     } else {}
-    if (!= (board_get board to_row to_col) 0) {  # if not EMPTY
+    if (!= (board_read board to_row to_col) 0) {  # if not EMPTY
         return false
     } else {}
     
-    let piece: int = (board_get board from_row from_col)
+    let piece: int = (board_read board from_row from_col)
     if (== piece 0) {  # if EMPTY
         return false
     } else {}
     
-    let row_diff: int = (- to_row from_row)
     let col_diff: int = (abs_int (- to_col from_col))
     
     if (!= col_diff 1) {
@@ -230,16 +229,16 @@ fn is_valid_move(board: array<int>, game_state: int, from_row: int, from_col: in
     
     if (and (is_player_piece piece) (== game_state 0)) {  # PLAYER_TURN
         if (is_king piece) {
-            return (== (abs_int row_diff) 1)
+            return (== (abs_int (- to_row from_row)) 1)
         } else {
-            return (== row_diff 1)
+            return (== (- to_row from_row) 1)
         }
     } else {
         if (and (is_ai_piece piece) (== game_state 1)) {  # AI_TURN
             if (is_king piece) {
-                return (== (abs_int row_diff) 1)
+                return (== (abs_int (- to_row from_row)) 1)
             } else {
-                return (== row_diff -1)
+                return (== (- to_row from_row) -1)
             }
         } else {
             return false
@@ -264,11 +263,11 @@ fn is_valid_jump(board: array<int>, game_state: int, from_row: int, from_col: in
     if (not (is_dark_square to_row to_col)) {
         return false
     } else {}
-    if (!= (board_get board to_row to_col) 0) {  # if not EMPTY
+    if (!= (board_read board to_row to_col) 0) {  # if not EMPTY
         return false
     } else {}
     
-    let piece: int = (board_get board from_row from_col)
+    let piece: int = (board_read board from_row from_col)
     if (== piece 0) {  # if EMPTY
         return false
     } else {}
@@ -287,10 +286,8 @@ fn is_valid_jump(board: array<int>, game_state: int, from_row: int, from_col: in
         return false
     } else {}
     
-    let mid_piece: int = (board_get board mid_row mid_col)
-    
     if (and (is_player_piece piece) (== game_state 0)) {  # PLAYER_TURN
-        if (not (is_ai_piece mid_piece)) {
+        if (not (is_ai_piece (board_read board mid_row mid_col))) {
             return false
         } else {}
         if (is_king piece) {
@@ -300,7 +297,7 @@ fn is_valid_jump(board: array<int>, game_state: int, from_row: int, from_col: in
         }
     } else {
         if (and (is_ai_piece piece) (== game_state 1)) {  # AI_TURN
-            if (not (is_player_piece mid_piece)) {
+            if (not (is_player_piece (board_read board mid_row mid_col))) {
                 return false
             } else {}
             if (is_king piece) {
@@ -316,8 +313,8 @@ fn is_valid_jump(board: array<int>, game_state: int, from_row: int, from_col: in
 
 shadow is_valid_jump {
     let mut board: array<int> = (init_board)
-    set board (board_set board 3 2 3)  # BLACK_PIECE in middle
-    set board (board_set board 4 3 0)  # EMPTY destination
+    set board (board_write board 3 2 3)  # BLACK_PIECE in middle
+    set board (board_write board 4 3 0)  # EMPTY destination
     assert (== (is_valid_jump board 0 2 1 4 3) true)  # PLAYER_TURN, valid jump
 }
 
@@ -340,8 +337,8 @@ fn has_jump_from_pos(board: array<int>, game_state: int, row: int, col: int) -> 
 
 shadow has_jump_from_pos {
     let mut board: array<int> = (init_board)
-    set board (board_set board 3 2 3)  # BLACK_PIECE
-    set board (board_set board 4 3 0)  # EMPTY
+    set board (board_write board 3 2 3)  # BLACK_PIECE
+    set board (board_write board 4 3 0)  # EMPTY
     assert (== (has_jump_from_pos board 0 2 1) true)  # PLAYER_TURN
 }
 
@@ -352,7 +349,7 @@ fn has_any_jump(board: array<int>, game_state: int) -> bool {
     while (< i board_size) {
         let mut j: int = 0
         while (< j board_size) {
-            let piece: int = (board_get board i j)
+            let piece: int = (board_read board i j)
             if (or (and (== game_state 0) (is_player_piece piece))  # PLAYER_TURN
                    (and (== game_state 1) (is_ai_piece piece))) {   # AI_TURN
                 if (has_jump_from_pos board game_state i j) {
@@ -420,10 +417,11 @@ fn draw_game_over_screen(renderer: int, player_won: bool) -> void {
     (nl_sdl_render_fill_rect renderer (+ msg_x (- msg_width 4)) msg_y 4 msg_height)  # Right
     
     # Draw winner text using simple block letters at top of message box
+    (SDL_SetRenderDrawColor renderer 255 255 255 255)  # White text
+    
     let text_y: int = (+ msg_y 30)
     let text_x_start: int = (+ msg_x 80)
-    
-    (SDL_SetRenderDrawColor renderer 255 255 255 255)  # White text
+    let _use_text: int = (+ text_y text_x_start)  # Force compiler to see usage
     
     if player_won {
         # Draw "RED WINS!" in block letters
@@ -650,8 +648,8 @@ shadow is_play_again_button_click {
     assert (== (is_play_again_button_click 400 350) true)  # Approximate center of play again button
 }
 
-# Render the game board
-fn render_board(renderer: int, board: array<int>, selected_row: int, selected_col: int, has_selection: bool) -> void {
+# Render the game board with flash animation
+fn render_board(renderer: int, board: array<int>, selected_row: int, selected_col: int, has_selection: bool, flash_row: int, flash_col: int, flash_frame: int) -> void {
     let board_size: int = BOARD_SIZE
     let square_size: int = SQUARE_SIZE
     
@@ -678,18 +676,38 @@ fn render_board(renderer: int, board: array<int>, selected_row: int, selected_co
                 (nl_sdl_render_fill_rect renderer (* j square_size) (* i square_size) square_size square_size)
             } else {}
             
+            # Flash animation for recently moved piece
+            if (and (>= flash_frame 0) (and (== flash_row i) (== flash_col j))) {
+                # Pulse effect: cycles every 20 frames
+                let pulse_cycle: int = (% flash_frame 20)
+                let pulse_intensity: int = (- 10 (abs_int (- pulse_cycle 10)))  # 0-10-0 pattern
+                let glow_alpha: int = (+ 100 (* pulse_intensity 15))  # 100-250-100 alpha
+                (SDL_SetRenderDrawColor renderer 0 255 255 glow_alpha)  # Cyan glow
+                (nl_sdl_render_fill_rect renderer (* j square_size) (* i square_size) square_size square_size)
+            } else {}
+            
             # Draw piece
-            let piece: int = (board_get board i j)
+            let piece: int = (board_read board i j)
             if (!= piece 0) {  # if not EMPTY
                 let center_x: int = (+ (* j square_size) (/ square_size 2))
                 let center_y: int = (+ (* i square_size) (/ square_size 2))
                 let radius: int = (/ square_size 3)
                 
-                # Piece color
+                # Piece color with flash brightness boost
+                let is_flashing: bool = (and (>= flash_frame 0) (and (== flash_row i) (== flash_col j)))
+                
                 if (is_player_piece piece) {
-                    (SDL_SetRenderDrawColor renderer 220 20 60 255)  # Red
+                    if is_flashing {
+                        (SDL_SetRenderDrawColor renderer 255 100 130 255)  # Brighter red
+                    } else {
+                        (SDL_SetRenderDrawColor renderer 220 20 60 255)  # Normal red
+                    }
                         } else {
-                    (SDL_SetRenderDrawColor renderer 30 30 30 255)   # Black
+                    if is_flashing {
+                        (SDL_SetRenderDrawColor renderer 80 80 80 255)  # Brighter black
+                    } else {
+                        (SDL_SetRenderDrawColor renderer 30 30 30 255)   # Normal black
+                    }
                 }
                 
                 (draw_circle renderer center_x center_y radius)
@@ -715,6 +733,59 @@ shadow render_board {
     assert (== 1 1)  # Visual function
 }
 
+# Draw UI overlay showing game state and controls
+fn draw_ui_overlay(renderer: SDL_Renderer, game_state: int, player_pieces: int, ai_pieces: int) -> void {
+    let board_size: int = BOARD_SIZE
+    let square_size: int = SQUARE_SIZE
+    
+    # Draw semi-transparent bar at top
+    (SDL_SetRenderDrawColor renderer 0 0 0 200)
+    (nl_sdl_render_fill_rect renderer 0 0 (* board_size square_size) 40)
+    
+    # Player pieces indicator (left side - red)
+    (SDL_SetRenderDrawColor renderer 220 20 60 255)
+    (nl_sdl_render_fill_rect renderer 10 10 20 20)
+    # Count boxes
+    let mut i: int = 0
+    while (< i player_pieces) {
+        if (< i 12) {
+            (SDL_SetRenderDrawColor renderer 180 180 180 255)
+            (nl_sdl_render_fill_rect renderer (+ 40 (* i 8)) 15 6 10)
+        } else {}
+        set i (+ i 1)
+    }
+    
+    # AI pieces indicator (right side - black)
+    (SDL_SetRenderDrawColor renderer 30 30 30 255)
+    (nl_sdl_render_fill_rect renderer (- (* board_size square_size) 130) 10 20 20)
+    # Count boxes
+    set i 0
+    while (< i ai_pieces) {
+        if (< i 12) {
+            (SDL_SetRenderDrawColor renderer 180 180 180 255)
+            (nl_sdl_render_fill_rect renderer (- (* board_size square_size) (+ 100 (* i 8))) 15 6 10)
+        } else {}
+        set i (+ i 1)
+    }
+    
+    # Game state indicator (center)
+    if (== game_state 0) {
+        # Player turn - red glow
+        (SDL_SetRenderDrawColor renderer 220 20 60 255)
+        (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 30) 5 60 30)
+        (SDL_SetRenderDrawColor renderer 255 100 120 255)
+        (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 28) 7 56 26)
+    } else {
+        if (== game_state 1) {
+            # AI turn - dark glow
+            (SDL_SetRenderDrawColor renderer 30 30 30 255)
+            (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 30) 5 60 30)
+            (SDL_SetRenderDrawColor renderer 80 80 80 255)
+            (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 28) 7 56 26)
+        } else {}
+    }
+}
+
 # Move encoding/decoding (since we can't return multiple values)
 # Encode: from_row * 1000 + from_col * 100 + to_row * 10 + to_col
 fn encode_move(from_row: int, from_col: int, to_row: int, to_col: int) -> int {
@@ -725,36 +796,36 @@ shadow encode_move {
     assert (== (encode_move 2 3 4 5) 2345)
 }
 
-fn decode_move_from_row(move: int) -> int {
+fn extract_source_row(move: int) -> int {
     return (/ move 1000)
 }
 
-shadow decode_move_from_row {
-    assert (== (decode_move_from_row 2345) 2)
+shadow extract_source_row {
+    assert (== (extract_source_row 2345) 2)
 }
 
-fn decode_move_from_col(move: int) -> int {
+fn extract_source_column(move: int) -> int {
     return (/ (% move 1000) 100)
 }
 
-shadow decode_move_from_col {
-    assert (== (decode_move_from_col 2345) 3)
+shadow extract_source_column {
+    assert (== (extract_source_column 2345) 3)
 }
 
-fn decode_move_to_row(move: int) -> int {
+fn extract_destination_row(move: int) -> int {
     return (/ (% move 100) 10)
 }
 
-shadow decode_move_to_row {
-    assert (== (decode_move_to_row 2345) 4)
+shadow extract_destination_row {
+    assert (== (extract_destination_row 2345) 4)
 }
 
-fn decode_move_to_col(move: int) -> int {
+fn extract_destination_column(move: int) -> int {
     return (% move 10)
 }
 
-shadow decode_move_to_col {
-    assert (== (decode_move_to_col 2345) 5)
+shadow extract_destination_column {
+    assert (== (extract_destination_column 2345) 5)
 }
 
 # Simplified AI: find first available move (jumps prioritized)
@@ -766,7 +837,7 @@ fn find_ai_move(board: array<int>, game_state: int) -> int {
     while (< i board_size) {
         let mut j: int = 0
         while (< j board_size) {
-            let piece: int = (board_get board i j)
+            let piece: int = (board_read board i j)
             if (is_ai_piece piece) {
                 # Check all jump directions
                 if (is_valid_jump board game_state i j (- i 2) (- j 2)) {
@@ -792,7 +863,7 @@ fn find_ai_move(board: array<int>, game_state: int) -> int {
     while (< i board_size) {
         let mut j: int = 0
         while (< j board_size) {
-            let piece: int = (board_get board i j)
+            let piece: int = (board_read board i j)
             if (is_ai_piece piece) {
                 # Check all move directions (AI moves up, so negative row)
                 if (is_valid_move board game_state i j (- i 1) (- j 1)) {
@@ -831,7 +902,7 @@ fn count_player_pieces(board: array<int>) -> int {
     while (< i board_size) {
         let mut j: int = 0
         while (< j board_size) {
-            if (is_player_piece (board_get board i j)) {
+            if (is_player_piece (board_read board i j)) {
                 set count (+ count 1)
             } else {}
             set j (+ j 1)
@@ -853,7 +924,7 @@ fn count_ai_pieces(board: array<int>) -> int {
     while (< i board_size) {
         let mut j: int = 0
         while (< j board_size) {
-            if (is_ai_piece (board_get board i j)) {
+            if (is_ai_piece (board_read board i j)) {
                 set count (+ count 1)
             } else {}
             set j (+ j 1)
@@ -872,7 +943,7 @@ shadow count_ai_pieces {
 fn make_move(board: array<int>, from_row: int, from_col: int, to_row: int, to_col: int) -> array<int> {
     let board_size: int = BOARD_SIZE
     let mut new_board: array<int> = board
-    let piece: int = (board_get new_board from_row from_col)
+    let piece: int = (board_read new_board from_row from_col)
     
     # Check if it's a jump
     let is_jump: bool = (== (abs_int (- to_row from_row)) 2)
@@ -880,19 +951,19 @@ fn make_move(board: array<int>, from_row: int, from_col: int, to_row: int, to_co
         # Remove jumped piece
         let mid_row: int = (+ from_row (/ (- to_row from_row) 2))
         let mid_col: int = (+ from_col (/ (- to_col from_col) 2))
-        set new_board (board_set new_board mid_row mid_col 0)  # EMPTY
+        set new_board (board_write new_board mid_row mid_col 0)  # EMPTY
     } else {}
     
     # Move piece
-    set new_board (board_set new_board from_row from_col 0)  # EMPTY
-    set new_board (board_set new_board to_row to_col piece)
+    set new_board (board_write new_board from_row from_col 0)  # EMPTY
+    set new_board (board_write new_board to_row to_col piece)
     
     # Check for king promotion
     if (and (== piece 1) (== to_row (- board_size 1))) {  # RED_PIECE reaches bottom
-        set new_board (board_set new_board to_row to_col 2)  # RED_KING
+        set new_board (board_write new_board to_row to_col 2)  # RED_KING
     } else {}
     if (and (== piece 3) (== to_row 0)) {  # BLACK_PIECE reaches top
-        set new_board (board_set new_board to_row to_col 4)  # BLACK_KING
+        set new_board (board_write new_board to_row to_col 4)  # BLACK_KING
     } else {}
     
     return new_board
@@ -901,13 +972,12 @@ fn make_move(board: array<int>, from_row: int, from_col: int, to_row: int, to_co
 shadow make_move {
     let board: array<int> = (init_board)
     let new_board: array<int> = (make_move board 2 1 3 0)
-    assert (== (board_get new_board 2 1) 0)  # EMPTY at source
-    assert (== (board_get new_board 3 0) 1)  # RED_PIECE at destination
+    assert (== (board_read new_board 2 1) 0)  # EMPTY at source
+    assert (== (board_read new_board 3 0) 1)  # RED_PIECE at destination
 }
 
 # Main game function
 fn main() -> int {
-    (println "Starting Checkers - Full Version...")
     
     # SDL constants come from the imported SDL module
     
@@ -948,6 +1018,11 @@ fn main() -> int {
     let mut has_selection: bool = false
     let mut frame_count: int = 0
     
+    # Flash animation state
+    let mut flash_row: int = -1
+    let mut flash_col: int = -1
+    let mut flash_frame: int = -1
+    
     # Game loop
     let mut running: bool = true
     while running {
@@ -962,7 +1037,6 @@ fn main() -> int {
             if (== game_state 2) {  # GAME_OVER
                 if (is_quit_button_click click_x click_y) {
                     set running false
-                    (println "Quit button clicked")
                 } else {
                     if (is_play_again_button_click click_x click_y) {
                         # Reset game
@@ -971,7 +1045,6 @@ fn main() -> int {
                         set selected_row -1
                         set selected_col -1
                         set has_selection false
-                        (println "New game started!")
                     } else {}
                 }
             } else {
@@ -999,14 +1072,17 @@ fn main() -> int {
                         
                         if move_valid {
                             set board (make_move board selected_row selected_col row col)
+                            # Start flash animation at destination
+                            set flash_row row
+                            set flash_col col
+                            set flash_frame 0
                             set has_selection false
                             set selected_row -1
                             set selected_col -1
                             set game_state 1  # Switch to AI_TURN
-                            (println "Player moved")
                         } else {
                             # Try selecting new piece
-                            if (is_player_piece (board_get board row col)) {
+                            if (is_player_piece (board_read board row col)) {
                                 set selected_row row
                                 set selected_col col
                             } else {
@@ -1017,11 +1093,10 @@ fn main() -> int {
                         }
                     } else {
                         # Select piece
-                        if (is_player_piece (board_get board row col)) {
+                        if (is_player_piece (board_read board row col)) {
                             set has_selection true
                             set selected_row row
                             set selected_col col
-                            (println "Piece selected")
                         } else {}
                     }
                 } else {}
@@ -1039,13 +1114,6 @@ fn main() -> int {
         if (!= game_state 2) {  # Not already GAME_OVER
             if (or (== (count_player_pieces board) 0) (== (count_ai_pieces board) 0)) {
                 set game_state 2  # GAME_OVER
-                (println "====================")
-                if (== (count_player_pieces board) 0) {
-                    (println "GAME OVER: Black (AI) wins!")
-                } else {
-                    (println "GAME OVER: Red (You) win!")
-                }
-                (println "====================")
             } else {}
         } else {}
         
@@ -1053,18 +1121,37 @@ fn main() -> int {
         if (and (== game_state 1) (== (% frame_count 60) 0)) {  # AI_TURN
             let ai_move: int = (find_ai_move board game_state)
             if (> ai_move 0) {
-                let ai_from_row: int = (decode_move_from_row ai_move)
-                let ai_from_col: int = (decode_move_from_col ai_move)
-                let ai_to_row: int = (decode_move_to_row ai_move)
-                let ai_to_col: int = (decode_move_to_col ai_move)
+                let ai_from_row: int = (extract_source_row ai_move)
+                let ai_from_col: int = (extract_source_column ai_move)
+                let ai_to_row: int = (extract_destination_row ai_move)
+                let ai_to_col: int = (extract_destination_column ai_move)
                 set board (make_move board ai_from_row ai_from_col ai_to_row ai_to_col)
+                # Start flash animation at AI's destination
+                set flash_row ai_to_row
+                set flash_col ai_to_col
+                set flash_frame 0
                 set game_state 0  # Switch to PLAYER_TURN
-                (println "AI moved")
+            } else {}
+        } else {}
+        
+        # Update flash animation
+        if (>= flash_frame 0) {
+            set flash_frame (+ flash_frame 1)
+            if (>= flash_frame 60) {  # Flash for 60 frames (1 second at 60fps)
+                # Flash animation complete
+                set flash_frame -1
+                set flash_row -1
+                set flash_col -1
             } else {}
         } else {}
         
         # Render
-        (render_board renderer board selected_row selected_col has_selection)
+        (render_board renderer board selected_row selected_col has_selection flash_row flash_col flash_frame)
+        
+        # Draw UI overlay
+        let player_count: int = (count_player_pieces board)
+        let ai_count: int = (count_ai_pieces board)
+        (draw_ui_overlay renderer game_state player_count ai_count)
         
         # Render game over screen if game is over
         if (== game_state 2) {  # GAME_OVER

@@ -45,6 +45,10 @@ typedef struct {
     char **ldflags;
     size_t ldflags_count;
     
+    // macOS frameworks (e.g., ["OpenGL", "Cocoa"])
+    char **frameworks;
+    size_t frameworks_count;
+    
     // Module dependencies (other nanolang modules)
     char **dependencies;
     size_t dependencies_count;

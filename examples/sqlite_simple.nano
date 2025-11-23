@@ -1,0 +1,107 @@
+# Simple SQLite Database Example
+# Demonstrates basic CRUD operations with SQLite3
+
+import "modules/sqlite/sqlite.nano"
+
+fn main() -> int {
+    (println "")
+    (println "📇 SQLite Database Example")
+    (println "==========================")
+    (println "")
+    
+    # Open database
+    let db_path: string = "test.db"
+    let db: int = (nl_sqlite3_open db_path)
+    
+    if (== db 0) {
+        (println "❌ Failed to open database")
+        return 1
+    } else {
+        (print "✓ Database opened: ")
+        (println db_path)
+    }
+    
+    # Create table
+    (println "")
+    (println "Creating table...")
+    let create_sql: string = "CREATE TABLE IF NOT EXISTS contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT)"
+    let create_result: int = (nl_sqlite3_exec db create_sql)
+    
+    if (== create_result 0) {
+        (println "✓ Table created")
+    } else {
+        (print "❌ Create failed: ")
+        (println (nl_sqlite3_errmsg db))
+    }
+    
+    # Insert data
+    (println "")
+    (println "Inserting contacts...")
+    let insert1: string = "INSERT INTO contacts (name, email) VALUES ('Alice', 'alice@example.com')"
+    (nl_sqlite3_exec db insert1)
+    (println "✓ Inserted Alice")
+    
+    let insert2: string = "INSERT INTO contacts (name, email) VALUES ('Bob', 'bob@example.com')"
+    (nl_sqlite3_exec db insert2)
+    (println "✓ Inserted Bob")
+    
+    # Query data
+    (println "")
+    (println "Querying all contacts...")
+    (println "")
+    
+    let select_sql: string = "SELECT id, name, email FROM contacts"
+    let stmt: int = (nl_sqlite3_prepare db select_sql)
+    
+    if (== stmt 0) {
+        (println "❌ Failed to prepare query")
+    } else {
+        let mut running: bool = true
+        let mut count: int = 0
+        
+        while running {
+            let result: int = (nl_sqlite3_step stmt)
+            
+            if (== result 100) {  # SQLITE_ROW
+                set count (+ count 1)
+                
+                let id: int = (nl_sqlite3_column_int stmt 0)
+                let name: string = (nl_sqlite3_column_text stmt 1)
+                let email: string = (nl_sqlite3_column_text stmt 2)
+                
+                (print "ID: ")
+                (print id)
+                (print " | Name: ")
+                (print name)
+                (print " | Email: ")
+                (println email)
+            } else {
+                set running false
+            }
+        }
+        
+        (nl_sqlite3_finalize stmt)
+        
+        (println "")
+        (print "Total: ")
+        (print count)
+        (println " contacts")
+    }
+    
+    # Close database
+    (nl_sqlite3_close db)
+    
+    (println "")
+    (println "✅ Database operations completed!")
+    (println "")
+    (print "View with: sqlite3 ")
+    (println db_path)
+    (println "")
+    
+    return 0
+}
+
+shadow main {
+    # Uses extern functions
+    assert true
+}

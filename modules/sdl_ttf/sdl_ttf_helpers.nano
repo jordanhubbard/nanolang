@@ -4,119 +4,24 @@
 import "modules/sdl/sdl.nano"
 import "modules/sdl_ttf/sdl_ttf.nano"
 
-# === Helper Functions ===
+# === C Helper Functions (implemented in sdl_ttf_helpers.c) ===
 
-# Render text to texture (solid rendering, fast but blocky)
+# Render text to texture (blended, anti-aliased)
 # Returns texture handle or 0 on failure
-fn render_text_solid_to_texture(renderer: int, font: int, text: string, r: int, g: int, b: int, a: int) -> int {
-    let surface: int = (TTF_RenderText_Solid font text r g b a)
-    if (== surface 0) {
-        return 0
-    } else {
-        let texture: int = (SDL_CreateTextureFromSurface renderer surface)
-        (SDL_FreeSurface surface)
-        return texture
-    }
-}
+extern fn nl_render_text_blended_to_texture(renderer: int, font: int, text: string, r: int, g: int, b: int, a: int) -> int
 
-shadow render_text_solid_to_texture {
-    # Cannot test without actual SDL context
-    assert true
-}
-
-# Render text to texture (blended rendering, smooth anti-aliased)
-# Returns texture handle or 0 on failure
-fn render_text_blended_to_texture(renderer: int, font: int, text: string, r: int, g: int, b: int, a: int) -> int {
-    let surface: int = (TTF_RenderText_Blended font text r g b a)
-    if (== surface 0) {
-        return 0
-    } else {
-        let texture: int = (SDL_CreateTextureFromSurface renderer surface)
-        (SDL_FreeSurface surface)
-        return texture
-    }
-}
-
-shadow render_text_blended_to_texture {
-    # Cannot test without actual SDL context
-    assert true
-}
-
-# Draw text at position (solid rendering)
+# Draw text at position (blended, anti-aliased)
 # Returns 1 on success, 0 on failure
-fn draw_text_solid(renderer: int, font: int, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int {
-    let texture: int = (render_text_solid_to_texture renderer font text r g b a)
-    if (== texture 0) {
-        return 0
-    } else {
-        # Get texture dimensions
-        let mut w: int = 0
-        let mut h: int = 0
-        (SDL_QueryTexture texture w h)
-        
-        # Render texture
-        (SDL_RenderCopy renderer texture 0 0 w h x y w h)
-        (SDL_DestroyTexture texture)
-        return 1
-    }
-}
+extern fn nl_draw_text_blended(renderer: int, font: int, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int
 
-shadow draw_text_solid {
-    # Cannot test without actual SDL context
-    assert true
-}
+# === Nano Helper Functions ===
 
-# Draw text at position (blended rendering, anti-aliased)
-# Returns 1 on success, 0 on failure
+# Convenience wrapper with more readable name
 fn draw_text_blended(renderer: int, font: int, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int {
-    let texture: int = (render_text_blended_to_texture renderer font text r g b a)
-    if (== texture 0) {
-        return 0
-    } else {
-        # Get texture dimensions
-        let mut w: int = 0
-        let mut h: int = 0
-        (SDL_QueryTexture texture w h)
-        
-        # Render texture
-        (SDL_RenderCopy renderer texture 0 0 w h x y w h)
-        (SDL_DestroyTexture texture)
-        return 1
-    }
+    return (nl_draw_text_blended renderer font text x y r g b a)
 }
 
 shadow draw_text_blended {
-    # Cannot test without actual SDL context
-    assert true
-}
-
-# Get text width and height (useful for layout calculations)
-# Returns width (height can be obtained via TTF_FontHeight)
-fn get_text_width(font: int, text: string) -> int {
-    let mut w: int = 0
-    let mut h: int = 0
-    (TTF_SizeText font text w h)
-    return w
-}
-
-shadow get_text_width {
-    # Cannot test without actual font
-    assert true
-}
-
-# Draw centered text
-fn draw_text_centered(renderer: int, font: int, text: string, center_x: int, center_y: int, r: int, g: int, b: int, a: int) -> int {
-    let mut w: int = 0
-    let mut h: int = 0
-    (TTF_SizeText font text w h)
-    
-    let x: int = (- center_x (/ w 2))
-    let y: int = (- center_y (/ h 2))
-    
-    return (draw_text_blended renderer font text x y r g b a)
-}
-
-shadow draw_text_centered {
     # Cannot test without actual SDL context
     assert true
 }

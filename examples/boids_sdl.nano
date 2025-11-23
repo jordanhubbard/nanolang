@@ -4,6 +4,8 @@
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 # === STRUCTS ===
 struct Boid {
@@ -88,12 +90,23 @@ shadow wrap_coord {
     assert (< wrapped 1.0)
 }
 
+# === UI OVERLAY ===
+
+fn draw_ui_overlay(renderer: SDL_Renderer, font: int, boid_count: int) -> void {
+    # Draw semi-transparent bar at bottom
+    (SDL_SetRenderDrawColor renderer 0 0 0 200)
+    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 30) WINDOW_WIDTH 30)
+    
+    # Draw "Boids: XX" text
+    (draw_text_blended renderer font "Boids: 50" 10 (- WINDOW_HEIGHT 25) 100 200 100 255)
+    
+    # Draw "ESC = Quit" text
+    (draw_text_blended renderer font "ESC = Quit" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 25) 200 100 100 255)
+}
+
 # === MAIN ===
 
 fn main() -> int {
-    (println "")
-    (println "🐕 BOIDS - Flocking Simulation")
-    (println "")
     
     # Initialize SDL
     (SDL_Init 32)
@@ -102,11 +115,20 @@ fn main() -> int {
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
     
     if (== renderer 0) {
-        (println "Failed to create renderer")
         return 1
-    } else {
-        (println "✓ SDL initialized")
-    }
+    } else {}
+    
+    # Initialize SDL_ttf
+    (TTF_Init)
+    
+    # Load font
+    let font: TTF_Font = (TTF_OpenFont "/System/Library/Fonts/Supplemental/Arial.ttf" 16)
+    if (== font 0) {
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
+        return 1
+    } else {}
     
     # Disable mouse motion events to prevent event queue flooding
     # SDL_MOUSEMOTION = 0x400 = 1024
@@ -117,10 +139,6 @@ fn main() -> int {
     let mut boid_y: array<float> = []
     let mut boid_vx: array<float> = []
     let mut boid_vy: array<float> = []
-    
-    (print "Spawning ")
-    (print NUM_BOIDS)
-    (println " boids...")
     
     let mut i: int = 0
     while (< i NUM_BOIDS) {
@@ -141,10 +159,6 @@ fn main() -> int {
         
         set i (+ i 1)
     }
-    
-    (println "✓ Boids spawned")
-    (println "")
-    (println "Press ESC or close window to quit...")
     
     # Main loop
     let dt: float = 0.016
@@ -307,6 +321,9 @@ fn main() -> int {
             set i (+ i 1)
         }
         
+        # Draw UI overlay
+        (draw_ui_overlay renderer font NUM_BOIDS)
+        
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)
         
@@ -319,6 +336,8 @@ fn main() -> int {
     (println frame)
     
     # Cleanup
+    (TTF_CloseFont font)
+    (TTF_Quit)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
     (SDL_Quit)

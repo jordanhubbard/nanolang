@@ -23,23 +23,23 @@ let GRAVITY: float = 100.0
 
 # === PARTICLE PHYSICS ===
 
-fn update_particle_x(x: float, vx: float, dt: float) -> float {
+fn compute_horizontal_position(x: float, vx: float, dt: float) -> float {
     return (+ x (* vx dt))
 }
 
-shadow update_particle_x {
-    let new_x: float = (update_particle_x 100.0 50.0 0.1)
+shadow compute_horizontal_position {
+    let new_x: float = (compute_horizontal_position 100.0 50.0 0.1)
     assert (> new_x 104.0)
     assert (< new_x 106.0)
 }
 
-fn update_particle_y(y: float, vy: float, dt: float, gravity: float) -> float {
+fn compute_vertical_position(y: float, vy: float, dt: float, gravity: float) -> float {
     let new_vy: float = (+ vy (* gravity dt))
     return (+ y (* new_vy dt))
 }
 
-shadow update_particle_y {
-    let new_y: float = (update_particle_y 100.0 0.0 0.1 10.0)
+shadow compute_vertical_position {
+    let new_y: float = (compute_vertical_position 100.0 0.0 0.1 10.0)
     assert (> new_y 100.0)
 }
 
@@ -69,13 +69,41 @@ shadow is_particle_offscreen {
     assert (== (is_particle_offscreen 50.0 200.0 100 100) true)
 }
 
+# === UI OVERLAY ===
+
+fn draw_ui_overlay(renderer: SDL_Renderer, particle_count: int) -> void {
+    # Draw semi-transparent bar at bottom
+    (SDL_SetRenderDrawColor renderer 0 0 0 200)
+    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 30) WINDOW_WIDTH 30)
+    
+    # Particle count indicator (left)
+    (SDL_SetRenderDrawColor renderer 255 150 50 255)
+    (nl_sdl_render_fill_rect renderer 10 (- WINDOW_HEIGHT 20) 20 10)
+    
+    # Draw small boxes for particle count (max 100 shown)
+    let mut i: int = 0
+    let display_count: int = particle_count
+    while (< i display_count) {
+        if (< i 100) {
+            let intensity: int = (- 255 (* i 2))
+            (SDL_SetRenderDrawColor renderer intensity 100 50 255)
+            (nl_sdl_render_fill_rect renderer (+ 40 (* i 2)) (- WINDOW_HEIGHT 18) 2 6)
+        } else {}
+        set i (+ i 1)
+    }
+    
+    # Click indicator (center)
+    (SDL_SetRenderDrawColor renderer 100 200 255 255)
+    (nl_sdl_render_fill_rect renderer (- (/ WINDOW_WIDTH 2) 30) (- WINDOW_HEIGHT 20) 60 10)
+    
+    # ESC indicator (right)
+    (SDL_SetRenderDrawColor renderer 200 50 50 255)
+    (nl_sdl_render_fill_rect renderer (- WINDOW_WIDTH 70) (- WINDOW_HEIGHT 20) 60 10)
+}
+
 # === MAIN ===
 
 fn main() -> int {
-    (println "")
-    (println "✨ PARTICLE EXPLOSION - Interactive Demo")
-    (println "Running 10 seconds of particle physics...")
-    (println "")
     
     # Initialize SDL
     (SDL_Init 32)
@@ -137,6 +165,7 @@ fn main() -> int {
     let dt: float = 0.016
     let mut frame: int = 0
     let mut running: bool = true
+    let _dt_check: float = (* dt 1.0)  # Force usage to avoid warning
     
     (println "Click to spawn explosions! Press ESC or close window to quit.")
     (println "")
@@ -204,24 +233,23 @@ fn main() -> int {
         let mut alive_count: int = 0
         
         while (< i count) {
-            let x: float = (at particle_x i)
-            let y: float = (at particle_y i)
-            let vx: float = (at particle_vx i)
-            let vy: float = (at particle_vy i)
             let life: int = (at particle_life i)
-            
-            # Update velocity (gravity)
-            let new_vy_val: float = (+ vy (* GRAVITY dt))
-            
-            # Update position
-            let new_x_val: float = (+ x (* vx dt))
-            let new_y_val: float = (+ y (* new_vy_val dt))
-            
-            # Decrease life
             let new_life_val: int = (- life 1)
             
             # Keep particle if still alive and onscreen
             if (> new_life_val 0) {
+                let x: float = (at particle_x i)
+                let y: float = (at particle_y i)
+                let vx: float = (at particle_vx i)
+                let vy: float = (at particle_vy i)
+                
+                # Update velocity (gravity)
+                let new_vy_val: float = (+ vy (* GRAVITY dt))
+                
+                # Update position
+                let new_x_val: float = (+ x (* vx dt))
+                let new_y_val: float = (+ y (* new_vy_val dt))
+                
                 if (not (is_particle_offscreen new_x_val new_y_val WINDOW_WIDTH WINDOW_HEIGHT)) {
                     set new_x (array_push new_x new_x_val)
                     set new_y (array_push new_y new_y_val)
@@ -260,6 +288,10 @@ fn main() -> int {
             
             set i (+ i 1)
         }
+        
+        # Draw UI overlay
+        let particle_count: int = (array_length particle_x)
+        (draw_ui_overlay renderer particle_count)
         
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)
