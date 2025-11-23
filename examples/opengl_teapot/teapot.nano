@@ -161,7 +161,7 @@ fn draw_textured_teapot(rotation: float, manual_rot_x: float, manual_rot_y: floa
     (glTranslatef 0.0 0.0 (* -5.0 zoom))
     
     # Tilt view to see teapot from the side (not from bottom)
-    (glRotatef -20.0 1.0 0.0 0.0)
+    (glRotatef -45.0 1.0 0.0 0.0)
     
     # Apply manual rotation controls
     (glRotatef manual_rot_y 0.0 1.0 0.0)
