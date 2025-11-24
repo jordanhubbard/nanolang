@@ -1,6 +1,6 @@
 # nanolang
 
-![Build Status](https://github.com/yourusername/nanolang/workflows/CI/badge.svg)
+[![CI](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml/badge.svg)](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml)
 ![Tests](https://img.shields.io/badge/tests-20%2F20%20passing-brightgreen.svg)
 ![Examples](https://img.shields.io/badge/examples-25%2F28%20working-green.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
@@ -21,8 +21,8 @@ A minimal, LLM-friendly programming language designed for AI-assisted programmin
 
 **Contributing:**
 - 🤝 [Contributing Guide](docs/CONTRIBUTING.md)
-- 🐛 [Report a Bug](https://github.com/yourusername/nanolang/issues/new?template=bug_report.md)
-- 💡 [Request a Feature](https://github.com/yourusername/nanolang/issues/new?template=feature_request.md)
+- 🐛 [Report a Bug](https://github.com/jordanhubbard/nanolang/issues/new?template=bug_report.md)
+- 💡 [Request a Feature](https://github.com/jordanhubbard/nanolang/issues/new?template=feature_request.md)
 
 ## Quick Start
 
@@ -180,7 +180,7 @@ See [docs/MODULE_SYSTEM.md](docs/MODULE_SYSTEM.md) for creating your own modules
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/nanolang.git
+git clone https://github.com/jordanhubbard/nanolang.git
 cd nanolang
 
 # Build the compiler and interpreter
@@ -857,7 +857,7 @@ nanolang provides two execution modes:
 ### 1. Install nanolang
 
 ```bash
-git clone https://github.com/yourusername/nanolang.git
+git clone https://github.com/jordanhubbard/nanolang.git
 cd nanolang
 make
 ```

@@ -156,9 +156,9 @@ Historical design documents and implementation plans are in the [planning/](../p
 ## 💡 Quick Links
 
 - 🏠 [Main README](../README.md)
-- 🐛 [Report a Bug](https://github.com/yourusername/nanolang/issues/new?template=bug_report.md)
-- 💡 [Request a Feature](https://github.com/yourusername/nanolang/issues/new?template=feature_request.md)
-- 🤝 [Discussions](https://github.com/yourusername/nanolang/discussions)
+- 🐛 [Report a Bug](https://github.com/jordanhubbard/nanolang/issues/new?template=bug_report.md)
+- 💡 [Request a Feature](https://github.com/jordanhubbard/nanolang/issues/new?template=feature_request.md)
+- 🤝 [Discussions](https://github.com/jordanhubbard/nanolang/discussions)
 
 ## 📝 Documentation Style Guide
 
@@ -173,8 +173,8 @@ When contributing to documentation:
 
 - Check the [Quick Reference](QUICK_REFERENCE.md) for syntax questions
 - Browse the [Examples](../examples/README.md) for code patterns
-- Search the [Issues](https://github.com/yourusername/nanolang/issues) for discussions
-- Ask in [Discussions](https://github.com/yourusername/nanolang/discussions)
+- Search the [Issues](https://github.com/jordanhubbard/nanolang/issues) for discussions
+- Ask in [Discussions](https://github.com/jordanhubbard/nanolang/discussions)
 
 ---
 
