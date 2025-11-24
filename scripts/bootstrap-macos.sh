@@ -93,6 +93,17 @@ fi
 
 echo ""
 
+# Install pkg-config (required for dependency detection)
+if ! command -v pkg-config &> /dev/null; then
+    echo "Installing pkg-config..."
+    brew install pkg-config
+    echo -e "${GREEN}✓${NC} pkg-config installed successfully"
+else
+    echo -e "${GREEN}✓${NC} pkg-config already installed"
+fi
+
+echo ""
+
 # Install SDL2 (idempotent - only install if not present)
 if command -v pkg-config &> /dev/null && pkg-config --exists sdl2 2>/dev/null; then
     SDL2_VERSION=$(pkg-config --modversion sdl2)
@@ -101,6 +112,18 @@ else
     echo "Installing SDL2..."
     brew install sdl2
     echo -e "${GREEN}✓${NC} SDL2 installed successfully"
+fi
+
+echo ""
+
+# Install SDL2_ttf (required for text rendering in SDL examples)
+if command -v pkg-config &> /dev/null && pkg-config --exists sdl2_ttf 2>/dev/null; then
+    SDL2_TTF_VERSION=$(pkg-config --modversion sdl2_ttf)
+    echo -e "${GREEN}✓${NC} SDL2_ttf already installed (version $SDL2_TTF_VERSION)"
+else
+    echo "Installing SDL2_ttf (TrueType font support for SDL)..."
+    brew install sdl2_ttf
+    echo -e "${GREEN}✓${NC} SDL2_ttf installed successfully"
 fi
 
 echo ""
@@ -163,6 +186,11 @@ if command -v pkg-config &> /dev/null && pkg-config --exists sdl2; then
 else
     echo -e "${RED}✗${NC} SDL2 verification failed"
     exit 1
+fi
+
+if command -v pkg-config &> /dev/null && pkg-config --exists sdl2_ttf; then
+    SDL2_TTF_VERSION=$(pkg-config --modversion sdl2_ttf)
+    echo -e "${GREEN}✓${NC} SDL2_ttf version: $SDL2_TTF_VERSION"
 fi
 
 if command -v pkg-config &> /dev/null && pkg-config --exists glfw3; then
