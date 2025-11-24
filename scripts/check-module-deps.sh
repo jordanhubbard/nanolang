@@ -90,8 +90,12 @@ map_package() {
                 SDL2_mixer) pkg_name="libsdl2-mixer-dev" ;;
                 SDL2_image) pkg_name="libsdl2-image-dev" ;;
                 glut) pkg_name="freeglut3-dev" ;;
+                glew) pkg_name="libglew-dev" ;;
+                glfw3) pkg_name="libglfw3-dev" ;;
                 libuv) pkg_name="libuv1-dev" ;;
                 libevent) pkg_name="libevent-dev" ;;
+                libcurl) pkg_name="libcurl4-openssl-dev" ;;
+                sqlite3) pkg_name="libsqlite3-dev" ;;
                 libonnxruntime) pkg_name="libonnxruntime-dev" ;;
                 *) pkg_name="${pkg_config_name}-dev" ;;
             esac
