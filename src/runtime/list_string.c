@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include "list_string.h"
 #include <stdlib.h>
 #include <stdio.h>
