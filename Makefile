@@ -1,5 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99 -g -Isrc
+LDFLAGS = -lm
 SANITIZE_FLAGS = -fsanitize=address,undefined -fno-omit-frame-pointer
 COVERAGE_FLAGS = -fprofile-arcs -ftest-coverage
 SRC_DIR = src
@@ -75,21 +76,21 @@ modules-install:
 all: check-deps $(COMPILER) $(INTERPRETER) $(FFI_BINDGEN)
 
 $(COMPILER): $(COMPILER_OBJECTS) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(COMPILER) $(COMPILER_OBJECTS)
+	$(CC) $(CFLAGS) -o $(COMPILER) $(COMPILER_OBJECTS) $(LDFLAGS)
 
 $(INTERPRETER): $(INTERPRETER_OBJECTS) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -DNANO_INTERPRETER -o $(INTERPRETER) $(INTERPRETER_OBJECTS)
+	$(CC) $(CFLAGS) -DNANO_INTERPRETER -o $(INTERPRETER) $(INTERPRETER_OBJECTS) $(LDFLAGS)
 
 # Ensure directories exist before building object files
 $(COMPILER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime
 $(INTERPRETER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime
 
 $(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o
+	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o $(LDFLAGS)
 
 # Stage 1.5: Hybrid compiler with nanolang lexer
 $(HYBRID_COMPILER): $(HYBRID_OBJECTS) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(HYBRID_COMPILER) $(HYBRID_OBJECTS)
+	$(CC) $(CFLAGS) -o $(HYBRID_COMPILER) $(HYBRID_OBJECTS) $(LDFLAGS)
 
 # Compile nanolang lexer to object file (lexer_main.nano -> lexer_nano.o)
 $(OBJ_DIR)/ffi_bindgen.o: src/ffi_bindgen.c | $(OBJ_DIR)
