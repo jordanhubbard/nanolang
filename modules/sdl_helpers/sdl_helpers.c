@@ -25,6 +25,8 @@ int64_t nl_sdl_poll_event_quit(void) {
         if (event.type == SDL_QUIT) {
             return 1;
         }
+        /* Push non-quit events back so other functions can process them */
+        SDL_PushEvent(&event);
     }
     return 0;
 }

@@ -15,15 +15,15 @@ fn setup_opengl() -> void {
     # Enable depth testing
     (glEnable GL_DEPTH_TEST)
     
-    # Enable smooth shading
+    # Enable smooth shading for better appearance
     (glShadeModel GL_SMOOTH)
     
-    # Set up projection matrix with PERSPECTIVE
+    # Set up projection matrix with PERSPECTIVE (proper 3D!)
     (glMatrixMode GL_PROJECTION)
     (glLoadIdentity)
     
-    # Perspective projection
-    (glFrustum -0.5 0.5 -0.375 0.375 0.1 100.0)
+    # Perspective projection - wider field of view for better teapot visibility
+    (glFrustum -0.6 0.6 -0.45 0.45 1.0 100.0)
     
     # Switch to modelview
     (glMatrixMode GL_MODELVIEW)
@@ -36,11 +36,12 @@ fn draw_teapot(rotation: float, manual_rot_x: float, manual_rot_y: float, zoom: 
     # Reset modelview matrix
     (glLoadIdentity)
     
-    # Position camera with zoom
-    (glTranslatef 0.0 0.0 (* -5.0 zoom))
+    # Position camera with zoom - farther back for better perspective
+    (glTranslatef 0.0 -0.3 (* -6.5 zoom))
     
-    # Tilt view to see teapot from nice angle
-    (glRotatef -30.0 1.0 0.0 0.0)
+    # Classic Utah teapot viewing angle - iconic 3/4 view showing spout and handle
+    (glRotatef -25.0 1.0 0.0 0.0)
+    (glRotatef 30.0 0.0 1.0 0.0)
     
     # Apply manual rotation controls
     (glRotatef manual_rot_y 0.0 1.0 0.0)
@@ -52,8 +53,8 @@ fn draw_teapot(rotation: float, manual_rot_x: float, manual_rot_y: float, zoom: 
     # Apply color
     (glColor3f r g b)
     
-    # Draw THE REAL TEAPOT!
-    (glutSolidTeapot 1.0)
+    # Draw THE REAL UTAH TEAPOT!
+    (glutSolidTeapot 1.5)
 }
 
 fn main() -> int {

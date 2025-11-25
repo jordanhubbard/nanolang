@@ -1,24 +1,23 @@
 {
   "name": "glut",
   "version": "1.0.0",
-  "description": "OpenGL Utility Toolkit (FreeGLUT) - 3D shapes, text rendering, and the famous Utah Teapot",
+  "description": "OpenGL Utility Toolkit - 3D shapes, text rendering, and the famous Utah Teapot",
   "headers": ["glut_platform.h"],
   "cflags": ["-Imodules/glut"],
-  "pkg_config": ["glut"],
+  "ldflags": ["-framework GLUT", "-Wno-deprecated-declarations"],
   "c_sources": [],
   "dependencies": [],
   "install": {
     "macos": {
-      "brew": "freeglut",
-      "command": "brew install freeglut",
-      "note": "FreeGLUT provides better cross-platform compatibility than deprecated GLUT.framework"
+      "note": "GLUT.framework is built into macOS (deprecated but still available)"
     },
     "linux": {
       "apt": "freeglut3-dev",
       "command": "sudo apt install freeglut3-dev",
       "yum": "freeglut-devel",
-      "pacman": "freeglut"
+      "pacman": "freeglut",
+      "note": "Linux uses FreeGLUT via pkg-config"
     }
   },
-  "notes": "Uses FreeGLUT (open-source GLUT) with pkg-config for universal cross-platform support. FreeGLUT pkg-config handles all linking automatically."
+  "notes": "macOS uses system GLUT.framework, Linux uses FreeGLUT. GLUT is deprecated on macOS but still functional."
 }
