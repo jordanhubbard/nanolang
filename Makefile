@@ -129,6 +129,7 @@ clean:
 	rm -f *.gcda *.gcno *.gcov coverage.info
 	find . -name "*.gcda" -o -name "*.gcno" | xargs rm -f
 	@$(MAKE) -C examples clean 2>/dev/null || true
+	@$(MAKE) -C confusion-mdl clean 2>/dev/null || true
 
 test: $(COMPILER) $(INTERPRETER)
 	@./test.sh
