@@ -33,6 +33,7 @@ a.out
 test_output/
 .test/
 .test_output/
+.parity_check/
 
 # Compiler cache
 .cache/
