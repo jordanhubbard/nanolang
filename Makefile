@@ -142,11 +142,7 @@ sanitize: clean $(COMPILER) $(INTERPRETER)
 # Build with code coverage instrumentation
 coverage: CFLAGS += $(COVERAGE_FLAGS)
 coverage: LDFLAGS += $(COVERAGE_FLAGS)
-coverage: clean
-	@mkdir -p $(COV_DIR)
-	$(CC) $(CFLAGS) -c $(COMMON_SOURCES) $(SRC_DIR)/main.c $(SRC_DIR)/interpreter_main.c -Isrc
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(COMPILER) $(COMMON_OBJECTS) $(OBJ_DIR)/main.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(INTERPRETER) $(COMMON_OBJECTS) $(OBJ_DIR)/interpreter_main.o
+coverage: clean $(COMPILER) $(INTERPRETER)
 	@echo "Built with coverage instrumentation"
 
 # Run valgrind memory checks on test suite
