@@ -17,6 +17,7 @@
 #include <unistd.h>
 #elif defined(__linux__)
 #include <execinfo.h>
+#include <unistd.h>
 #endif
 
 /* Token types */

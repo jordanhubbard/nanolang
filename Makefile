@@ -1,5 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99 -g -Isrc
+LDFLAGS = -lm
 SANITIZE_FLAGS = -fsanitize=address,undefined -fno-omit-frame-pointer
 COVERAGE_FLAGS = -fprofile-arcs -ftest-coverage
 SRC_DIR = src
@@ -63,24 +64,33 @@ check-deps-sdl:
 		echo "⚠️  pkg-config not found (optional - used for SDL2 detection)"; \
 	fi
 
+# Module dependency management
+modules: modules-check
+
+modules-check:
+	@./scripts/check-module-deps.sh check
+
+modules-install:
+	@./scripts/check-module-deps.sh install
+
 all: check-deps $(COMPILER) $(INTERPRETER) $(FFI_BINDGEN)
 
 $(COMPILER): $(COMPILER_OBJECTS) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(COMPILER) $(COMPILER_OBJECTS)
+	$(CC) $(CFLAGS) -o $(COMPILER) $(COMPILER_OBJECTS) $(LDFLAGS)
 
 $(INTERPRETER): $(INTERPRETER_OBJECTS) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -DNANO_INTERPRETER -o $(INTERPRETER) $(INTERPRETER_OBJECTS)
+	$(CC) $(CFLAGS) -DNANO_INTERPRETER -o $(INTERPRETER) $(INTERPRETER_OBJECTS) $(LDFLAGS)
 
 # Ensure directories exist before building object files
 $(COMPILER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime
 $(INTERPRETER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime
 
 $(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o
+	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o $(LDFLAGS)
 
 # Stage 1.5: Hybrid compiler with nanolang lexer
 $(HYBRID_COMPILER): $(HYBRID_OBJECTS) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(HYBRID_COMPILER) $(HYBRID_OBJECTS)
+	$(CC) $(CFLAGS) -o $(HYBRID_COMPILER) $(HYBRID_OBJECTS) $(LDFLAGS)
 
 # Compile nanolang lexer to object file (lexer_main.nano -> lexer_nano.o)
 $(OBJ_DIR)/ffi_bindgen.o: src/ffi_bindgen.c | $(OBJ_DIR)
@@ -188,6 +198,9 @@ help:
 	@echo "  make              - Build compiler and interpreter"
 	@echo "  make check-deps   - Check required build dependencies (gcc, make)"
 	@echo "  make check-deps-sdl - Check optional SDL2 dependencies (for graphics examples)"
+	@echo "  make modules      - Check all module dependencies (C libraries)"
+	@echo "  make modules-check - Same as 'make modules'"
+	@echo "  make modules-install - Interactively install missing module dependencies"
 	@echo "  make stage1.5     - Build Stage 1.5 hybrid compiler (nanolang lexer + C)"
 	@echo "  make examples     - Build all examples (auto-checks SDL2 if needed)"
 	@echo "  make test         - Run test suite"
@@ -205,5 +218,9 @@ help:
 	@echo "Dependencies:"
 	@echo "  Required: gcc/clang, make"
 	@echo "  Optional: SDL2 (only for graphics examples in examples/)"
+	@echo ""
+	@echo "Module Management:"
+	@echo "  Use 'make modules' to check which C library dependencies are installed."
+	@echo "  Use 'make modules-install' to interactively install missing dependencies."
 
-.PHONY: all clean test sanitize coverage coverage-report valgrind install uninstall lint check help stage1.5 examples check-deps check-deps-sdl
+.PHONY: all clean test sanitize coverage coverage-report valgrind install uninstall lint check help stage1.5 examples check-deps check-deps-sdl modules modules-check modules-install
