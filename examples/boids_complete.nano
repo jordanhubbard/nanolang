@@ -96,6 +96,7 @@ fn main() -> int {
     
     # === SIMULATION LOOP ===
     let mut frame: int = 0
+    let num_boids_float: float = (cast_float NUM_BOIDS)
     
     while (< frame MAX_FRAMES) {
         # Apply simple cohesion: move towards center
@@ -113,7 +114,6 @@ fn main() -> int {
         }
         
         # Average using casting!
-        let num_boids_float: float = (cast_float NUM_BOIDS)
         set center_x (/ center_x num_boids_float)
         set center_y (/ center_y num_boids_float)
         

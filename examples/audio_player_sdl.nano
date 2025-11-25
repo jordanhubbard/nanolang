@@ -5,11 +5,25 @@ import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
 import "modules/sdl_mixer/sdl_mixer.nano"
 import "modules/sdl_mixer/sdl_mixer_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 # === CONSTANTS ===
 
 let WINDOW_WIDTH: int = 640
 let WINDOW_HEIGHT: int = 480
+
+# === RENDERING ===
+
+fn render_help_text(renderer: int, font: int) -> void {
+    # Draw semi-transparent bar at bottom
+    (SDL_SetRenderDrawColor renderer 0 0 0 200)
+    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 50) WINDOW_WIDTH 50)
+    
+    # Draw help text using SDL_ttf
+    (draw_text_blended renderer font "SPACE = Play/Pause  P = Sound  +/- = Volume" 10 (- WINDOW_HEIGHT 40) 200 200 200 255)
+    (draw_text_blended renderer font "F = Fade In  S = Fade Out  R = Restart  ESC = Quit" 10 (- WINDOW_HEIGHT 25) 200 200 200 255)
+}
 
 # === MAIN ===
 
@@ -63,6 +77,22 @@ fn main() -> int {
     
     (println "✓ Window and renderer created")
     (println "")
+    
+    # Initialize SDL_ttf
+    (TTF_Init)
+    
+    # Load font
+    let font: TTF_Font = (TTF_OpenFont "/System/Library/Fonts/Supplemental/Arial.ttf" 14)
+    if (== font 0) {
+        (println "Failed to load font")
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (shutdown_audio)
+        (SDL_Quit)
+        return 1
+    } else {
+        (print "")
+    }
     
     # Try to load music file
     (println "Checking for music files...")
@@ -255,6 +285,9 @@ fn main() -> int {
             (nl_sdl_render_fill_rect renderer 300 20 40 40)
         } else {}
         
+        # Draw help text
+        (render_help_text renderer font)
+        
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)
     }
@@ -271,6 +304,8 @@ fn main() -> int {
         (Mix_FreeChunk sound)
     } else {}
     
+    (TTF_CloseFont font)
+    (TTF_Quit)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
     (shutdown_audio)

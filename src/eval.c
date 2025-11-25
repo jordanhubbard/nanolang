@@ -1328,6 +1328,41 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
 
 /* Evaluate function call */
 static Value eval_call(ASTNode *node, Environment *env) {
+    /* Check if this is a function call returning a function: ((func_call) arg1 arg2) */
+    if (node->as.call.func_expr) {
+        /* Evaluate the inner function call to get the function */
+        Value func_val = eval_expression(node->as.call.func_expr, env);
+        if (func_val.type != VAL_FUNCTION) {
+            fprintf(stderr, "Error: Expression does not return a function\n");
+            return create_void();
+        }
+        
+        /* Get the function name from the function value */
+        const char *func_name = func_val.as.function_val.function_name;
+        if (!func_name) {
+            fprintf(stderr, "Error: Cannot get function name from function value\n");
+            return create_void();
+        }
+        
+        /* Evaluate arguments */
+        Value *args = malloc(sizeof(Value) * node->as.call.arg_count);
+        for (int i = 0; i < node->as.call.arg_count; i++) {
+            args[i] = eval_expression(node->as.call.args[i], env);
+        }
+        
+        /* Call the function */
+        Function *func = env_get_function(env, func_name);
+        if (!func) {
+            fprintf(stderr, "Error: Function '%s' not found\n", func_name);
+            free(args);
+            return create_void();
+        }
+        
+        Value result = call_function(func_name, args, node->as.call.arg_count, env);
+        free(args);
+        return result;
+    }
+    
     const char *name = node->as.call.name;
 
     /* Check if the name refers to a function variable (for first-class functions) */
@@ -1745,7 +1780,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
         return create_void();
     }
 
-    /* External C library functions */
+    /* External C library functions - provide interpreter implementations */
     if (strcmp(name, "rand") == 0) {
         return create_int(rand());
     }
@@ -1761,16 +1796,311 @@ static Value eval_call(ASTNode *node, Environment *env) {
         /* Simplified: ignore the argument, just return current time */
         return create_int((long long)time(NULL));
     }
+    
+    /* C string functions - map to interpreter built-ins */
+    if (strcmp(name, "strlen") == 0) {
+        return builtin_str_length(args);
+    }
+    if (strcmp(name, "strcmp") == 0) {
+        if (node->as.call.arg_count < 2 || args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
+            fprintf(stderr, "Error: strcmp requires 2 string arguments\n");
+            return create_void();
+        }
+        int result = strcmp(args[0].as.string_val, args[1].as.string_val);
+        return create_int(result);
+    }
+    if (strcmp(name, "strncmp") == 0) {
+        if (node->as.call.arg_count < 3 || args[0].type != VAL_STRING || args[1].type != VAL_STRING || args[2].type != VAL_INT) {
+            fprintf(stderr, "Error: strncmp requires 2 string arguments and 1 int argument\n");
+            return create_void();
+        }
+        int n = (int)args[2].as.int_val;
+        if (n < 0) n = 0;
+        int result = strncmp(args[0].as.string_val, args[1].as.string_val, (size_t)n);
+        return create_int(result);
+    }
+    
+    /* C math functions - provide interpreter implementations */
+    if (strcmp(name, "asin") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: asin requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(asin(args[0].as.float_val));
+    }
+    if (strcmp(name, "acos") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: acos requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(acos(args[0].as.float_val));
+    }
+    if (strcmp(name, "atan") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: atan requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(atan(args[0].as.float_val));
+    }
+    if (strcmp(name, "exp") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: exp requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(exp(args[0].as.float_val));
+    }
+    if (strcmp(name, "exp2") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: exp2 requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(exp2(args[0].as.float_val));
+    }
+    if (strcmp(name, "log") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: log requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(log(args[0].as.float_val));
+    }
+    if (strcmp(name, "log10") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: log10 requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(log10(args[0].as.float_val));
+    }
+    if (strcmp(name, "log2") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: log2 requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(log2(args[0].as.float_val));
+    }
+    if (strcmp(name, "cbrt") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: cbrt requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(cbrt(args[0].as.float_val));
+    }
+    if (strcmp(name, "hypot") == 0) {
+        if (node->as.call.arg_count < 2 || args[0].type != VAL_FLOAT || args[1].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: hypot requires 2 float arguments\n");
+            return create_void();
+        }
+        return create_float(hypot(args[0].as.float_val, args[1].as.float_val));
+    }
+    if (strcmp(name, "sinh") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: sinh requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(sinh(args[0].as.float_val));
+    }
+    if (strcmp(name, "cosh") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: cosh requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(cosh(args[0].as.float_val));
+    }
+    if (strcmp(name, "tanh") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: tanh requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(tanh(args[0].as.float_val));
+    }
+    if (strcmp(name, "fmod") == 0) {
+        if (node->as.call.arg_count < 2 || args[0].type != VAL_FLOAT || args[1].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: fmod requires 2 float arguments\n");
+            return create_void();
+        }
+        return create_float(fmod(args[0].as.float_val, args[1].as.float_val));
+    }
+    if (strcmp(name, "fabs") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: fabs requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(fabs(args[0].as.float_val));
+    }
+    
+    /* C character functions */
+    if (strcmp(name, "getchar") == 0) {
+        int c = getchar();
+        return create_int(c);
+    }
+    if (strcmp(name, "putchar") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
+            fprintf(stderr, "Error: putchar requires 1 int argument\n");
+            return create_void();
+        }
+        int c = putchar((int)args[0].as.int_val);
+        return create_int(c);
+    }
+    if (strcmp(name, "isalpha") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
+            fprintf(stderr, "Error: isalpha requires 1 int argument\n");
+            return create_void();
+        }
+        return create_bool(isalpha((int)args[0].as.int_val) != 0);
+    }
+    if (strcmp(name, "isdigit") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
+            fprintf(stderr, "Error: isdigit requires 1 int argument\n");
+            return create_void();
+        }
+        return create_bool(isdigit((int)args[0].as.int_val) != 0);
+    }
+    if (strcmp(name, "isalnum") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
+            fprintf(stderr, "Error: isalnum requires 1 int argument\n");
+            return create_void();
+        }
+        return create_bool(isalnum((int)args[0].as.int_val) != 0);
+    }
+    if (strcmp(name, "islower") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
+            fprintf(stderr, "Error: islower requires 1 int argument\n");
+            return create_void();
+        }
+        return create_bool(islower((int)args[0].as.int_val) != 0);
+    }
+    if (strcmp(name, "isupper") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
+            fprintf(stderr, "Error: isupper requires 1 int argument\n");
+            return create_void();
+        }
+        return create_bool(isupper((int)args[0].as.int_val) != 0);
+    }
+    if (strcmp(name, "tolower") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
+            fprintf(stderr, "Error: tolower requires 1 int argument\n");
+            return create_void();
+        }
+        return create_int(tolower((int)args[0].as.int_val));
+    }
+    if (strcmp(name, "toupper") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
+            fprintf(stderr, "Error: toupper requires 1 int argument\n");
+            return create_void();
+        }
+        return create_int(toupper((int)args[0].as.int_val));
+    }
+    if (strcmp(name, "isspace") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
+            fprintf(stderr, "Error: isspace requires 1 int argument\n");
+            return create_void();
+        }
+        return create_bool(isspace((int)args[0].as.int_val) != 0);
+    }
+    if (strcmp(name, "isprint") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
+            fprintf(stderr, "Error: isprint requires 1 int argument\n");
+            return create_void();
+        }
+        return create_bool(isprint((int)args[0].as.int_val) != 0);
+    }
+    if (strcmp(name, "ispunct") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
+            fprintf(stderr, "Error: ispunct requires 1 int argument\n");
+            return create_void();
+        }
+        return create_bool(ispunct((int)args[0].as.int_val) != 0);
+    }
 
     /* Get user-defined function */
     Function *func = env_get_function(env, name);
+    
+    /* Check if this is a generic list function (List_TypeName_new, List_TypeName_push, etc.) */
+    /* This check happens before checking func->body because generic list functions are registered as extern */
+    if (!func || (func->is_extern && func->body == NULL && strncmp(name, "List_", 5) == 0)) {
+        if (strncmp(name, "List_", 5) == 0) {
+            /* Extract element type name and operation from function name */
+            /* Format: List_TypeName_new, List_TypeName_push, List_TypeName_get, List_TypeName_length */
+            const char *type_start = name + 5;  /* Skip "List_" */
+            const char *func_suffix = strrchr(name, '_');
+            if (func_suffix && func_suffix > type_start) {
+                func_suffix++;  /* Skip '_' */
+                int type_name_len = (int)(func_suffix - type_start - 1);
+                char *type_name = malloc(type_name_len + 1);
+                strncpy(type_name, type_start, type_name_len);
+                type_name[type_name_len] = '\0';
+                
+                /* Check which operation */
+                if (strcmp(func_suffix, "new") == 0) {
+                    /* List_TypeName_new() -> List<TypeName> */
+                    /* Use DynArray with ELEM_INT to store struct pointers as int64_t */
+                    DynArray *list = dyn_array_new(ELEM_INT);
+                    free(type_name);
+                    return create_int((long long)list);
+                } else if (strcmp(func_suffix, "push") == 0) {
+                    /* List_TypeName_push(list, value) -> void */
+                    if (node->as.call.arg_count < 2) {
+                        fprintf(stderr, "Error: %s requires 2 arguments\n", name);
+                        free(type_name);
+                        return create_void();
+                    }
+                    DynArray *list = (DynArray*)args[0].as.int_val;
+                    /* Store struct value as pointer (int64_t) */
+                    /* args[1] should be a struct value */
+                    if (args[1].type != VAL_STRUCT) {
+                        fprintf(stderr, "Error: %s_push expects struct value\n", name);
+                        free(type_name);
+                        return create_void();
+                    }
+                    int64_t value_ptr = (int64_t)args[1].as.struct_val;  /* Store StructValue* as int64_t */
+                    dyn_array_push_int(list, value_ptr);
+                    free(type_name);
+                    return create_void();
+                } else if (strcmp(func_suffix, "get") == 0) {
+                    /* List_TypeName_get(list, index) -> TypeName */
+                    if (node->as.call.arg_count < 2) {
+                        fprintf(stderr, "Error: %s requires 2 arguments\n", name);
+                        free(type_name);
+                        return create_void();
+                    }
+                    DynArray *list = (DynArray*)args[0].as.int_val;
+                    int index = (int)args[1].as.int_val;
+                    if (index < 0 || index >= list->length) {
+                        fprintf(stderr, "Error: Index %d out of bounds\n", index);
+                        free(type_name);
+                        return create_void();
+                    }
+                    int64_t value_ptr = dyn_array_get_int(list, index);
+                    /* Cast back to StructValue* and return as struct value */
+                    StructValue *sv = (StructValue*)value_ptr;
+                    Value result;
+                    result.type = VAL_STRUCT;
+                    result.is_return = false;
+                    result.as.struct_val = sv;
+                    free(type_name);
+                    return result;
+                } else if (strcmp(func_suffix, "length") == 0) {
+                    /* List_TypeName_length(list) -> int */
+                    if (node->as.call.arg_count < 1) {
+                        fprintf(stderr, "Error: %s requires 1 argument\n", name);
+                        free(type_name);
+                        return create_void();
+                    }
+                    DynArray *list = (DynArray*)args[0].as.int_val;
+                    free(type_name);
+                    return create_int(list->length);
+                }
+                free(type_name);
+            }
+        }
+    }
+    
     if (!func) {
         fprintf(stderr, "Error: Undefined function '%s'\n", name);
         return create_void();
     }
 
     /* If built-in with no body, already handled above */
-    if (func->body == NULL) {
+    if (func->body == NULL && !(func->is_extern && strncmp(name, "List_", 5) == 0)) {
         fprintf(stderr, "Error: Built-in function '%s' not implemented in interpreter\n", name);
         return create_void();
     }
@@ -2576,7 +2906,8 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
         return false;
     }
 
-    printf("Running shadow tests...\n");
+    /* Shadow test output goes to stdout (filtered by test scripts) */
+    fprintf(stdout, "Running shadow tests...\n");
 
     bool all_passed = true;
 
@@ -2625,23 +2956,23 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
             }
             
             if (uses_extern) {
-                printf("Testing %s... SKIPPED (uses extern functions - not supported in interpreter)\n", func_name);
+                fprintf(stdout, "Testing %s... SKIPPED (uses extern functions - not supported in interpreter)\n", func_name);
                 continue;
             }
             
-            printf("Testing %s... ", func_name);
+            fprintf(stdout, "Testing %s... ", func_name);
             
             /* Execute shadow test */
             eval_statement(item->as.shadow.body, env);
 
-            printf("PASSED\n");
+            fprintf(stdout, "PASSED\n");
         }
         /* Note: We do NOT execute non-shadow items here - they're already registered
          * in the environment by the type checker. Only shadow test bodies need execution. */
     }
 
     if (all_passed) {
-        printf("All shadow tests passed!\n");
+        fprintf(stdout, "All shadow tests passed!\n");
     }
 
     return all_passed;
@@ -2692,6 +3023,83 @@ bool run_program(ASTNode *program, Environment *env) {
 
 /* Call a function by name with arguments */
 Value call_function(const char *name, Value *args, int arg_count, Environment *env) {
+    /* Check if this is a generic list function (List_TypeName_new, List_TypeName_push, etc.) */
+    if (strncmp(name, "List_", 5) == 0) {
+        /* Extract element type name and operation from function name */
+        /* Format: List_TypeName_new, List_TypeName_push, List_TypeName_get, List_TypeName_length */
+        const char *type_start = name + 5;  /* Skip "List_" */
+        const char *func_suffix = strrchr(name, '_');
+        if (func_suffix && func_suffix > type_start) {
+            func_suffix++;  /* Skip '_' */
+            int type_name_len = (int)(func_suffix - type_start - 1);
+            char *type_name = malloc(type_name_len + 1);
+            strncpy(type_name, type_start, type_name_len);
+            type_name[type_name_len] = '\0';
+            
+            /* Check which operation */
+            if (strcmp(func_suffix, "new") == 0) {
+                /* List_TypeName_new() -> List<TypeName> */
+                /* Use DynArray with ELEM_INT to store struct pointers as int64_t */
+                DynArray *list = dyn_array_new(ELEM_INT);
+                free(type_name);
+                return create_int((long long)list);
+            } else if (strcmp(func_suffix, "push") == 0) {
+                /* List_TypeName_push(list, value) -> void */
+                if (arg_count < 2) {
+                    fprintf(stderr, "Error: %s requires 2 arguments\n", name);
+                    free(type_name);
+                    return create_void();
+                }
+                DynArray *list = (DynArray*)args[0].as.int_val;
+                /* Store struct value as pointer (int64_t) */
+                /* args[1] should be a struct value */
+                if (args[1].type != VAL_STRUCT) {
+                    fprintf(stderr, "Error: %s_push expects struct value\n", name);
+                    free(type_name);
+                    return create_void();
+                }
+                int64_t value_ptr = (int64_t)args[1].as.struct_val;  /* Store StructValue* as int64_t */
+                dyn_array_push_int(list, value_ptr);
+                free(type_name);
+                return create_void();
+            } else if (strcmp(func_suffix, "get") == 0) {
+                /* List_TypeName_get(list, index) -> TypeName */
+                if (arg_count < 2) {
+                    fprintf(stderr, "Error: %s requires 2 arguments\n", name);
+                    free(type_name);
+                    return create_void();
+                }
+                DynArray *list = (DynArray*)args[0].as.int_val;
+                int index = (int)args[1].as.int_val;
+                if (index < 0 || index >= list->length) {
+                    fprintf(stderr, "Error: Index %d out of bounds\n", index);
+                    free(type_name);
+                    return create_void();
+                }
+                int64_t value_ptr = dyn_array_get_int(list, index);
+                /* Cast back to StructValue* and return as struct value */
+                StructValue *sv = (StructValue*)value_ptr;
+                Value result;
+                result.type = VAL_STRUCT;
+                result.is_return = false;
+                result.as.struct_val = sv;
+                free(type_name);
+                return result;
+            } else if (strcmp(func_suffix, "length") == 0) {
+                /* List_TypeName_length(list) -> int */
+                if (arg_count < 1) {
+                    fprintf(stderr, "Error: %s requires 1 argument\n", name);
+                    free(type_name);
+                    return create_void();
+                }
+                DynArray *list = (DynArray*)args[0].as.int_val;
+                free(type_name);
+                return create_int(list->length);
+            }
+            free(type_name);
+        }
+    }
+    
     Function *func = env_get_function(env, name);
     if (!func) {
         fprintf(stderr, "Error: Function '%s' not found\n", name);

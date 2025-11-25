@@ -4,6 +4,8 @@
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 # === ENUMS ===
 enum BiomeType {
@@ -558,35 +560,22 @@ shadow render_world_3d {
 }
 
 # Draw UI overlay with controls
-fn draw_ui_overlay(renderer: SDL_Renderer, view_mode: int) -> void {
+fn draw_ui_overlay(renderer: SDL_Renderer, font: int, view_mode: int) -> void {
     # Draw semi-transparent dark bar at bottom
     (SDL_SetRenderDrawColor renderer 0 0 0 200)
-    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 40) WINDOW_WIDTH 40)
+    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 50) WINDOW_WIDTH 50)
     
-    # Draw colored indicators for controls
-    # Arrows indicator (blue)
-    (SDL_SetRenderDrawColor renderer 50 100 200 255)
-    (nl_sdl_render_fill_rect renderer 20 (- WINDOW_HEIGHT 30) 60 20)
-    
-    # R key indicator (green)
-    (SDL_SetRenderDrawColor renderer 50 200 50 255)
-    (nl_sdl_render_fill_rect renderer 100 (- WINDOW_HEIGHT 30) 40 20)
-    
-    # 3 key indicator (yellow)
-    (SDL_SetRenderDrawColor renderer 200 200 50 255)
-    (nl_sdl_render_fill_rect renderer 160 (- WINDOW_HEIGHT 30) 40 20)
-    
-    # ESC indicator (red)
-    (SDL_SetRenderDrawColor renderer 200 50 50 255)
-    (nl_sdl_render_fill_rect renderer 220 (- WINDOW_HEIGHT 30) 60 20)
+    # Draw help text using SDL_ttf
+    (draw_text_blended renderer font "Arrow Keys = Move" 10 (- WINDOW_HEIGHT 40) 50 100 200 255)
+    (draw_text_blended renderer font "R = Regenerate" 10 (- WINDOW_HEIGHT 25) 50 200 50 255)
+    (draw_text_blended renderer font "3 = Toggle 3D" 200 (- WINDOW_HEIGHT 40) 200 200 50 255)
+    (draw_text_blended renderer font "ESC = Quit" 200 (- WINDOW_HEIGHT 25) 200 50 50 255)
     
     # Draw mode indicator on right side
     if (== view_mode VIEW_3D) {
-        (SDL_SetRenderDrawColor renderer 100 255 100 255)
-        (nl_sdl_render_fill_rect renderer (- WINDOW_WIDTH 80) (- WINDOW_HEIGHT 30) 60 20)
+        (draw_text_blended renderer font "3D View" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 32) 100 255 100 255)
     } else {
-        (SDL_SetRenderDrawColor renderer 100 100 255 255)
-        (nl_sdl_render_fill_rect renderer (- WINDOW_WIDTH 80) (- WINDOW_HEIGHT 30) 60 20)
+        (draw_text_blended renderer font "2D View" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 32) 100 100 255 255)
     }
 }
 
@@ -610,6 +599,18 @@ fn main() -> int {
     # Create renderer
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
     if (== renderer 0) {
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    # Initialize SDL_ttf
+    (TTF_Init)
+    
+    # Load font
+    let font: TTF_Font = (TTF_OpenFont "/System/Library/Fonts/Supplemental/Arial.ttf" 16)
+    if (== font 0) {
+        (SDL_DestroyRenderer renderer)
         (SDL_DestroyWindow window)
         (SDL_Quit)
         return 1
@@ -764,7 +765,7 @@ fn main() -> int {
         }
         
         # Draw UI overlay
-        (draw_ui_overlay renderer view_mode)
+        (draw_ui_overlay renderer font view_mode)
         
         (SDL_RenderPresent renderer)
         
@@ -774,6 +775,8 @@ fn main() -> int {
     }
     
     # Cleanup
+    (TTF_CloseFont font)
+    (TTF_Quit)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
     (SDL_Quit)

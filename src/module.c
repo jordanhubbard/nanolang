@@ -113,7 +113,16 @@ static char **get_module_search_paths(int *count_out) {
     /* Get NANO_MODULE_PATH environment variable */
     const char *module_path_env = getenv("NANO_MODULE_PATH");
     
-    assert(module_path_env != NULL);
+    /* If NANO_MODULE_PATH is not set, use default module directory */
+    if (!module_path_env || safe_strlen(module_path_env) == 0) {
+        /* Default to "modules" directory in current working directory */
+        *count_out = 1;
+        free(paths);  /* Free the initial allocation */
+        paths = malloc(sizeof(char*));
+        paths[0] = strdup("modules");
+        return paths;
+    }
+    
     if (module_path_env && safe_strlen(module_path_env) > 0) {
         /* Split by colon (Unix) or semicolon (Windows) */
         char *path_copy = strdup(module_path_env);

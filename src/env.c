@@ -704,6 +704,7 @@ FunctionSignature *create_function_signature(Type *param_types, int param_count,
     sig->param_count = param_count;
     sig->return_type = return_type;
     sig->return_struct_name = NULL;
+    sig->return_fn_sig = NULL;  /* Initialize function return signature */
     
     if (param_count > 0) {
         sig->param_types = malloc(sizeof(Type) * param_count);
@@ -740,6 +741,11 @@ void free_function_signature(FunctionSignature *sig) {
     
     if (sig->return_struct_name) {
         free(sig->return_struct_name);
+    }
+    
+    /* Free nested function signature if present */
+    if (sig->return_fn_sig) {
+        free_function_signature(sig->return_fn_sig);
     }
     
     free(sig);
@@ -782,6 +788,13 @@ bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2)
         
         if ((name1 == NULL) != (name2 == NULL)) return false;
         if (name1 && name2 && strcmp(name1, name2) != 0) return false;
+    }
+    
+    /* For function returns, check function signatures match */
+    if (sig1->return_type == TYPE_FUNCTION) {
+        if (!function_signatures_equal(sig1->return_fn_sig, sig2->return_fn_sig)) {
+            return false;
+        }
     }
     
     return true;

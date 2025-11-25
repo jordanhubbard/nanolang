@@ -2,29 +2,32 @@
  * Demonstrates the new List<T> generic syntax
  */
 
-/* Define Token struct for List<Token> example */
-struct Token {
+/* Define MyToken struct for List<MyToken> example (renamed to avoid conflict with runtime Token) */
+struct MyToken {
     type: int,
     value: string,
     line: int,
     column: int
 }
 
-/* List runtime functions */
-extern fn list_int_new() -> int
-extern fn list_int_push(list: int, value: int) -> void
-extern fn list_int_get(list: int, index: int) -> int
-extern fn list_int_length(list: int) -> int
+/* List runtime functions - these are opaque pointers represented as int64_t */
+extern fn list_int_new() -> int64_t
+extern fn list_int_push(list: int64_t, value: int) -> void
+extern fn list_int_get(list: int64_t, index: int) -> int
+extern fn list_int_length(list: int64_t) -> int
 
-extern fn list_string_new() -> int
-extern fn list_string_push(list: int, value: string) -> void
-extern fn list_string_get(list: int, index: int) -> string
-extern fn list_string_length(list: int) -> int
+extern fn list_string_new() -> int64_t
+extern fn list_string_push(list: int64_t, value: string) -> void
+extern fn list_string_get(list: int64_t, index: int) -> string
+extern fn list_string_length(list: int64_t) -> int
 
-extern fn list_token_new() -> int
-extern fn list_token_push(list: int, tok: Token) -> void
-extern fn list_token_get(list: int, index: int) -> Token
-extern fn list_token_length(list: int) -> int
+/* For custom structs, the compiler automatically generates specialized functions:
+ * - List_MyToken_new() -> List_MyToken*
+ * - List_MyToken_push(list, value) -> void
+ * - List_MyToken_get(list, index) -> MyToken
+ * - List_MyToken_length(list) -> int
+ * These don't need extern declarations - they're generated during compilation.
+ */
 
 /* Example 1: List<int> for numbers */
 fn demo_list_int() -> int {
@@ -90,30 +93,30 @@ shadow demo_list_string {
     assert (== (demo_list_string) 0)
 }
 
-/* Example 3: List<Token> for custom structs */
+/* Example 3: List<MyToken> for custom structs */
 fn demo_list_token() -> int {
-    (println "=== List<Token> Demo ===")
+    (println "=== List<MyToken> Demo ===")
     
     /* Create list with generic syntax */
-    let tokens: List<Token> = (list_token_new)
+    let tokens: List<MyToken> = (List_MyToken_new)
     
     /* Create and add tokens */
-    let tok1: Token = Token { type: 1, value: "fn", line: 1, column: 1 }
-    let tok2: Token = Token { type: 2, value: "main", line: 1, column: 4 }
-    let tok3: Token = Token { type: 3, value: "(", line: 1, column: 8 }
+    let tok1: MyToken = MyToken { type: 1, value: "fn", line: 1, column: 1 }
+    let tok2: MyToken = MyToken { type: 2, value: "main", line: 1, column: 4 }
+    let tok3: MyToken = MyToken { type: 3, value: "(", line: 1, column: 8 }
     
-    (list_token_push tokens tok1)
-    (list_token_push tokens tok2)
-    (list_token_push tokens tok3)
+    (List_MyToken_push tokens tok1)
+    (List_MyToken_push tokens tok2)
+    (List_MyToken_push tokens tok3)
     
     /* Print tokens */
-    let len: int = (list_token_length tokens)
+    let len: int = (List_MyToken_length tokens)
     (print "Token count: ")
     (println len)
     
     let mut i: int = 0
     while (< i len) {
-        let tok: Token = (list_token_get tokens i)
+        let tok: MyToken = (List_MyToken_get tokens i)
         (print "Token: ")
         (print tok.value)
         (print " (line ")
@@ -134,7 +137,7 @@ fn type_safety_demo() -> int {
     /* These type annotations ensure type safety */
     let numbers: List<int> = (list_int_new)
     let words: List<string> = (list_string_new)
-    let tokens: List<Token> = (list_token_new)
+    let tokens: List<MyToken> = (List_MyToken_new)
     
     /* The compiler knows the types */
     (list_int_push numbers 42)       /* ✓ Correct */

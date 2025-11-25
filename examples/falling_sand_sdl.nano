@@ -4,6 +4,8 @@
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 # === ENUMS ===
 enum Material {
@@ -330,48 +332,21 @@ shadow read_material_name {
     assert (str_equals (read_material_name Material.WATER) "WATER")
 }
 
-fn render_ui(renderer: int, current_material: Material, paused: bool) -> void {
+fn render_ui(renderer: int, font: int, current_material: Material, paused: bool) -> void {
     # Draw semi-transparent overlay at top
     (SDL_SetRenderDrawColor renderer 0 0 0 180)
-    (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH 40)
+    (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH 50)
     
-    # For now, just draw colored rectangles to indicate material
-    # In a full implementation, you'd use TTF_RenderText here
+    # Draw material name using SDL_ttf
+    let material_name: string = (read_material_name current_material)
+    (draw_text_blended renderer font material_name 10 10 255 255 255 255)
     
-    # Draw material indicator box
-    let color: int = (read_material_color current_material)
-    if (== color 0) {
-        (SDL_SetRenderDrawColor renderer 50 50 50 255)
-    } else {
-        if (== color 1) {
-            (SDL_SetRenderDrawColor renderer 194 178 128 255)  # Sand
-        } else {
-            if (== color 2) {
-                (SDL_SetRenderDrawColor renderer 64 164 223 255)  # Water
-            } else {
-                if (== color 3) {
-                    (SDL_SetRenderDrawColor renderer 128 128 128 255)  # Stone
-                } else {
-                    if (== color 4) {
-                        (SDL_SetRenderDrawColor renderer 139 69 19 255)  # Wood
-                    } else {
-                        if (== color 5) {
-                            (SDL_SetRenderDrawColor renderer 255 100 0 255)  # Fire
-                        } else {
-                            (SDL_SetRenderDrawColor renderer 64 64 64 255)  # Smoke
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    (nl_sdl_render_fill_rect renderer 10 10 30 20)
+    # Draw help text
+    (draw_text_blended renderer font "1-6 = Material  SPACE = Pause  C = Clear  ESC = Quit" 10 30 200 200 200 255)
     
     # Draw pause indicator if paused
     if paused {
-        (SDL_SetRenderDrawColor renderer 255 200 0 255)
-        (nl_sdl_render_fill_rect renderer (- WINDOW_WIDTH 50) 10 40 20)
+        (draw_text_blended renderer font "PAUSED" (- WINDOW_WIDTH 80) 10 255 200 0 255)
     } else {
         (print "")
     }
@@ -473,6 +448,21 @@ fn main() -> int {
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
     if (== renderer 0) {
         (println "Renderer creation failed")
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
+        return 1
+    } else {
+        (print "")
+    }
+    
+    # Initialize SDL_ttf
+    (TTF_Init)
+    
+    # Load font
+    let font: TTF_Font = (TTF_OpenFont "/System/Library/Fonts/Supplemental/Arial.ttf" 16)
+    if (== font 0) {
+        (println "Failed to load font")
+        (SDL_DestroyRenderer renderer)
         (SDL_DestroyWindow window)
         (SDL_Quit)
         return 1
@@ -643,7 +633,7 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer 0 0 0 255)
         (SDL_RenderClear renderer)
         (render_grid renderer grid)
-        (render_ui renderer current_material paused)
+        (render_ui renderer font current_material paused)
         (SDL_RenderPresent renderer)
         
         # Frame delay
@@ -652,6 +642,8 @@ fn main() -> int {
     }
     
     # Cleanup
+    (TTF_CloseFont font)
+    (TTF_Quit)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
     (SDL_Quit)

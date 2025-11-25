@@ -231,6 +231,18 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         if (opts->verbose) printf("✓ Compilation successful: %s\n", output_file);
     } else {
         fprintf(stderr, "C compilation failed\n");
+        /* Cleanup */
+        free(c_code);
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        free(source);
+        /* Remove temporary C file unless --keep-c */
+        if (!opts->keep_c) {
+            remove(temp_c_file);
+        }
+        return 1;  /* Return error if C compilation failed */
     }
 
     /* Remove temporary C file unless --keep-c (cleanup on both success and failure) */
@@ -246,7 +258,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     free_module_list(modules);
     free(source);
 
-    return result;
+    return 0;  /* Success */
 }
 
 /* Main entry point */

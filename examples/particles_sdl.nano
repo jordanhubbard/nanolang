@@ -4,6 +4,8 @@
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 # === STRUCTS ===
 struct Particle {
@@ -71,34 +73,19 @@ shadow is_particle_offscreen {
 
 # === UI OVERLAY ===
 
-fn draw_ui_overlay(renderer: SDL_Renderer, particle_count: int) -> void {
+fn draw_ui_overlay(renderer: SDL_Renderer, font: int, particle_count: int) -> void {
     # Draw semi-transparent bar at bottom
     (SDL_SetRenderDrawColor renderer 0 0 0 200)
-    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 30) WINDOW_WIDTH 30)
+    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 40) WINDOW_WIDTH 40)
     
-    # Particle count indicator (left)
-    (SDL_SetRenderDrawColor renderer 255 150 50 255)
-    (nl_sdl_render_fill_rect renderer 10 (- WINDOW_HEIGHT 20) 20 10)
+    # Draw help text using SDL_ttf
+    let mut count_text: string = "Particles: "
+    set count_text (str_concat count_text (int_to_string particle_count))
+    (draw_text_blended renderer font count_text 10 (- WINDOW_HEIGHT 30) 255 150 50 255)
     
-    # Draw small boxes for particle count (max 100 shown)
-    let mut i: int = 0
-    let display_count: int = particle_count
-    while (< i display_count) {
-        if (< i 100) {
-            let intensity: int = (- 255 (* i 2))
-            (SDL_SetRenderDrawColor renderer intensity 100 50 255)
-            (nl_sdl_render_fill_rect renderer (+ 40 (* i 2)) (- WINDOW_HEIGHT 18) 2 6)
-        } else {}
-        set i (+ i 1)
-    }
+    (draw_text_blended renderer font "Click to spawn explosions" (- (/ WINDOW_WIDTH 2) 100) (- WINDOW_HEIGHT 30) 100 200 255 255)
     
-    # Click indicator (center)
-    (SDL_SetRenderDrawColor renderer 100 200 255 255)
-    (nl_sdl_render_fill_rect renderer (- (/ WINDOW_WIDTH 2) 30) (- WINDOW_HEIGHT 20) 60 10)
-    
-    # ESC indicator (right)
-    (SDL_SetRenderDrawColor renderer 200 50 50 255)
-    (nl_sdl_render_fill_rect renderer (- WINDOW_WIDTH 70) (- WINDOW_HEIGHT 20) 60 10)
+    (draw_text_blended renderer font "ESC = Quit" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 30) 200 50 50 255)
 }
 
 # === MAIN ===
@@ -116,6 +103,21 @@ fn main() -> int {
         return 1
     } else {
         (println "✓ SDL initialized")
+    }
+    
+    # Initialize SDL_ttf
+    (TTF_Init)
+    
+    # Load font
+    let font: TTF_Font = (TTF_OpenFont "/System/Library/Fonts/Supplemental/Arial.ttf" 16)
+    if (== font 0) {
+        (println "Failed to load font")
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
+        return 1
+    } else {
+        (println "✓ Font loaded")
     }
     
     # Disable mouse motion events to prevent event queue flooding
@@ -291,7 +293,7 @@ fn main() -> int {
         
         # Draw UI overlay
         let particle_count: int = (array_length particle_x)
-        (draw_ui_overlay renderer particle_count)
+        (draw_ui_overlay renderer font particle_count)
         
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)
@@ -315,6 +317,8 @@ fn main() -> int {
     (println "🎆 Particles exploded beautifully!")
     
     # Cleanup
+    (TTF_CloseFont font)
+    (TTF_Quit)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
     (SDL_Quit)

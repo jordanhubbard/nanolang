@@ -42,6 +42,9 @@ static void sb_appendf(StringBuilder *sb, const char *fmt, ...) {
 /* Forward declarations */
 static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *env);
 static const char *type_to_c(Type type);
+extern Type check_expression(ASTNode *expr, Environment *env);  /* From typechecker.c */
+extern const char *get_struct_type_name(ASTNode *expr, Environment *env);  /* From typechecker.c */
+extern StructDef *env_get_struct(Environment *env, const char *name);  /* From env.c */
 
 /* Generate indentation */
 static void emit_indent(StringBuilder *sb, int indent) {
@@ -352,27 +355,69 @@ static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
     sb_append(sb, "typedef ");
     
     /* Return type */
-    if (sig->return_type == TYPE_STRUCT && sig->return_struct_name) {
+    if (sig->return_type == TYPE_FUNCTION && sig->return_fn_sig) {
+        /* Nested function return type: fn() -> fn(int, int) -> int
+         * C syntax: typedef int64_t (*(*FnType_N)())(int64_t, int64_t);
+         */
+        /* Return type of nested function */
+        sb_appendf(sb, "%s ", type_to_c(sig->return_fn_sig->return_type));
+        /* Outer function pointer: (*(*typedef_name)()) */
+        sb_appendf(sb, "(*(*%s)(", typedef_name);
+        /* Parameters for outer function */
+        for (int i = 0; i < sig->param_count; i++) {
+            if (i > 0) sb_append(sb, ", ");
+            
+            if (sig->param_types[i] == TYPE_STRUCT && sig->param_struct_names[i]) {
+                sb_appendf(sb, "struct %s", sig->param_struct_names[i]);
+            } else {
+                sb_append(sb, type_to_c(sig->param_types[i]));
+            }
+        }
+        sb_append(sb, "))(");
+        /* Parameters for nested function */
+        for (int i = 0; i < sig->return_fn_sig->param_count; i++) {
+            if (i > 0) sb_append(sb, ", ");
+            
+            if (sig->return_fn_sig->param_types[i] == TYPE_STRUCT && sig->return_fn_sig->param_struct_names[i]) {
+                sb_appendf(sb, "struct %s", sig->return_fn_sig->param_struct_names[i]);
+            } else {
+                sb_append(sb, type_to_c(sig->return_fn_sig->param_types[i]));
+            }
+        }
+        sb_append(sb, ");\n");
+    } else if (sig->return_type == TYPE_STRUCT && sig->return_struct_name) {
         sb_appendf(sb, "struct %s ", sig->return_struct_name);
+        /* Function pointer syntax: (*typedef_name) */
+        sb_appendf(sb, "(*%s)", typedef_name);
+        /* Parameters */
+        sb_append(sb, "(");
+        for (int i = 0; i < sig->param_count; i++) {
+            if (i > 0) sb_append(sb, ", ");
+            
+            if (sig->param_types[i] == TYPE_STRUCT && sig->param_struct_names[i]) {
+                sb_appendf(sb, "struct %s", sig->param_struct_names[i]);
+            } else {
+                sb_append(sb, type_to_c(sig->param_types[i]));
+            }
+        }
+        sb_append(sb, ");\n");
     } else {
         sb_appendf(sb, "%s ", type_to_c(sig->return_type));
-    }
-    
-    /* Function pointer syntax: (*typedef_name) */
-    sb_appendf(sb, "(*%s)", typedef_name);
-    
-    /* Parameters */
-    sb_append(sb, "(");
-    for (int i = 0; i < sig->param_count; i++) {
-        if (i > 0) sb_append(sb, ", ");
-        
-        if (sig->param_types[i] == TYPE_STRUCT && sig->param_struct_names[i]) {
-            sb_appendf(sb, "struct %s", sig->param_struct_names[i]);
-        } else {
-            sb_append(sb, type_to_c(sig->param_types[i]));
+        /* Function pointer syntax: (*typedef_name) */
+        sb_appendf(sb, "(*%s)", typedef_name);
+        /* Parameters */
+        sb_append(sb, "(");
+        for (int i = 0; i < sig->param_count; i++) {
+            if (i > 0) sb_append(sb, ", ");
+            
+            if (sig->param_types[i] == TYPE_STRUCT && sig->param_struct_names[i]) {
+                sb_appendf(sb, "struct %s", sig->param_struct_names[i]);
+            } else {
+                sb_append(sb, type_to_c(sig->param_types[i]));
+            }
         }
+        sb_append(sb, ");\n");
     }
-    sb_append(sb, ");\n");
 }
 
 /* SDL-specific scalar type mapping for FFI
@@ -554,6 +599,9 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                     } else if (val.type == VAL_BOOL) {
                         sb_append(sb, val.as.bool_val ? "true" : "false");
                         break;
+                    } else if (val.type == VAL_STRING) {
+                        /* String constants should use the variable name, not inline */
+                        /* Fall through to use variable name */
                     }
                     /* For other types, fall through to normal variable reference */
                 }
@@ -617,10 +665,20 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                     transpile_expression(sb, expr->as.prefix_op.args[1], env);
                     if (needs_parens) sb_append(sb, ")");
                 }
-            } else if (arg_count == 1 && op == TOKEN_NOT) {
-                sb_append(sb, "(!");
-                transpile_expression(sb, expr->as.prefix_op.args[0], env);
-                sb_append(sb, ")");
+            } else if (arg_count == 1) {
+                /* Unary operations */
+                if (op == TOKEN_NOT) {
+                    sb_append(sb, "(!");
+                    transpile_expression(sb, expr->as.prefix_op.args[0], env);
+                    sb_append(sb, ")");
+                } else if (op == TOKEN_MINUS) {
+                    /* Unary negation: (- x) */
+                    sb_append(sb, "(-");
+                    transpile_expression(sb, expr->as.prefix_op.args[0], env);
+                    sb_append(sb, ")");
+                } else {
+                    sb_append(sb, "(/* unknown unary op */)");
+                }
             } else {
                 sb_append(sb, "(/* unknown op */)");
             }
@@ -629,6 +687,23 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
         }
 
         case AST_CALL: {
+            /* Check if this is a function call returning a function: ((func_call) arg1 arg2) */
+            if (expr->as.call.func_expr) {
+                /* Transpile the inner function call first */
+                sb_append(sb, "(");
+                transpile_expression(sb, expr->as.call.func_expr, env);
+                sb_append(sb, ")(");
+                
+                /* Transpile arguments */
+                for (int i = 0; i < expr->as.call.arg_count; i++) {
+                    if (i > 0) sb_append(sb, ", ");
+                    transpile_expression(sb, expr->as.call.args[i], env);
+                }
+                sb_append(sb, ")");
+                break;
+            }
+            
+            /* Regular function call */
             /* Map nanolang OS function names to C implementation names */
             const char *func_name = expr->as.call.name;
             const char *original_func_name = func_name;  /* Save original for struct array detection */
@@ -772,12 +847,64 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             } else if (strcmp(func_name, "array_pop") == 0) {
                 /* array_pop needs type detection - will handle specially below */
                 func_name = "nl_array_pop";  /* Placeholder, will be replaced */
+            } else if (strcmp(func_name, "array_remove_at") == 0) {
+                /* array_remove_at(array, index) -> array */
+                func_name = "dyn_array_remove_at";  /* Use runtime function directly */
             } else if (strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0) {
                 /* at() and array_get() need type detection - will handle specially below */
                 func_name = "nl_array_at";  /* Placeholder, will be replaced */
             } else if (strcmp(func_name, "print") == 0) {
                 /* Special handling for print - dispatch based on argument type */
-                Type arg_type = check_expression(expr->as.call.args[0], env);
+                /* Check field access FIRST before calling check_expression to avoid type checker errors */
+                Type arg_type = TYPE_UNKNOWN;
+                ASTNode *arg = expr->as.call.args[0];
+                
+                /* Check for string literals first */
+                if (arg->type == AST_STRING) {
+                    arg_type = TYPE_STRING;
+                } else if (arg->type == AST_FIELD_ACCESS) {
+                    ASTNode *field_expr = arg;
+                    const char *struct_name = NULL;
+                    
+                    /* Try to get struct name from the object expression */
+                    if (field_expr->as.field_access.object->type == AST_IDENTIFIER) {
+                        /* Direct identifier access - look up symbol */
+                        Symbol *sym = env_get_var(env, field_expr->as.field_access.object->as.identifier);
+                        if (sym) {
+                            /* Check if symbol has struct_type_name set (even if type isn't TYPE_STRUCT yet) */
+                            if (sym->struct_type_name) {
+                                struct_name = sym->struct_type_name;
+                            } else if (sym->type == TYPE_STRUCT) {
+                                /* Type is STRUCT but struct_type_name not set - try get_struct_type_name */
+                                struct_name = get_struct_type_name(field_expr->as.field_access.object, env);
+                            }
+                        }
+                    }
+                    
+                    /* Fallback: try get_struct_type_name for any expression type */
+                    if (!struct_name) {
+                        struct_name = get_struct_type_name(field_expr->as.field_access.object, env);
+                    }
+                    
+                    if (struct_name) {
+                        StructDef *sdef = env_get_struct(env, struct_name);
+                        if (sdef) {
+                            const char *field_name = field_expr->as.field_access.field_name;
+                            for (int i = 0; i < sdef->field_count; i++) {
+                                if (strcmp(sdef->field_names[i], field_name) == 0) {
+                                    arg_type = sdef->field_types[i];
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                /* If we couldn't determine from field access or string literal, use type checker */
+                if (arg_type == TYPE_UNKNOWN) {
+                    arg_type = check_expression(arg, env);
+                }
+                
                 switch (arg_type) {
                     case TYPE_INT:
                         func_name = "nl_print_int";
@@ -800,7 +927,56 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 }
             } else if (strcmp(func_name, "println") == 0) {
                 /* Special handling for println - dispatch based on argument type */
-                Type arg_type = check_expression(expr->as.call.args[0], env);
+                /* Check field access FIRST before calling check_expression to avoid type checker errors */
+                Type arg_type = TYPE_UNKNOWN;
+                ASTNode *arg = expr->as.call.args[0];
+                
+                /* Check for string literals first */
+                if (arg->type == AST_STRING) {
+                    arg_type = TYPE_STRING;
+                } else if (arg->type == AST_FIELD_ACCESS) {
+                    ASTNode *field_expr = arg;
+                    const char *struct_name = NULL;
+                    
+                    /* Try to get struct name from the object expression */
+                    if (field_expr->as.field_access.object->type == AST_IDENTIFIER) {
+                        /* Direct identifier access - look up symbol */
+                        Symbol *sym = env_get_var(env, field_expr->as.field_access.object->as.identifier);
+                        if (sym) {
+                            /* Check if symbol has struct_type_name set (even if type isn't TYPE_STRUCT yet) */
+                            if (sym->struct_type_name) {
+                                struct_name = sym->struct_type_name;
+                            } else if (sym->type == TYPE_STRUCT) {
+                                /* Type is STRUCT but struct_type_name not set - try get_struct_type_name */
+                                struct_name = get_struct_type_name(field_expr->as.field_access.object, env);
+                            }
+                        }
+                    }
+                    
+                    /* Fallback: try get_struct_type_name for any expression type */
+                    if (!struct_name) {
+                        struct_name = get_struct_type_name(field_expr->as.field_access.object, env);
+                    }
+                    
+                    if (struct_name) {
+                        StructDef *sdef = env_get_struct(env, struct_name);
+                        if (sdef) {
+                            const char *field_name = field_expr->as.field_access.field_name;
+                            for (int i = 0; i < sdef->field_count; i++) {
+                                if (strcmp(sdef->field_names[i], field_name) == 0) {
+                                    arg_type = sdef->field_types[i];
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                /* If we couldn't determine from field access or string literal, use type checker */
+                if (arg_type == TYPE_UNKNOWN) {
+                    arg_type = check_expression(arg, env);
+                }
+                
                 switch (arg_type) {
                     case TYPE_INT:
                         func_name = "nl_println_int";
@@ -822,22 +998,46 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                         break;
                 }
             } else {
-                /* Check if this is an extern function */
-                Function *func_def = env_get_function(env, func_name);
-                if (func_def && func_def->is_extern) {
-                    /* Extern functions - call directly with original name (no change) */
-                } else if (!func_def) {
-                    /* Not a function definition - check if it's a function parameter */
-                    Symbol *sym = env_get_var(env, func_name);
-                    if (sym && sym->type == TYPE_FUNCTION) {
-                        /* Function parameter - use as-is (no nl_ prefix) */
+                /* Check if this is a standard C library function that we skip declaring */
+                if (strcmp(func_name, "rand") == 0 || strcmp(func_name, "srand") == 0 ||
+                    strcmp(func_name, "time") == 0 || strcmp(func_name, "malloc") == 0 ||
+                    strcmp(func_name, "free") == 0 || strcmp(func_name, "printf") == 0 ||
+                    strcmp(func_name, "fprintf") == 0 || strcmp(func_name, "sprintf") == 0 ||
+                    strcmp(func_name, "strlen") == 0 || strcmp(func_name, "strcmp") == 0 ||
+                    strcmp(func_name, "strncmp") == 0 || strcmp(func_name, "strchr") == 0 ||
+                    strcmp(func_name, "getchar") == 0 || strcmp(func_name, "putchar") == 0 ||
+                    strcmp(func_name, "isalpha") == 0 || strcmp(func_name, "isdigit") == 0 ||
+                    strcmp(func_name, "isalnum") == 0 || strcmp(func_name, "islower") == 0 ||
+                    strcmp(func_name, "isupper") == 0 || strcmp(func_name, "tolower") == 0 ||
+                    strcmp(func_name, "toupper") == 0 || strcmp(func_name, "isspace") == 0 ||
+                    strcmp(func_name, "isprint") == 0 || strcmp(func_name, "ispunct") == 0 ||
+                    strcmp(func_name, "asin") == 0 || strcmp(func_name, "acos") == 0 ||
+                    strcmp(func_name, "atan") == 0 || strcmp(func_name, "atan2") == 0 ||
+                    strcmp(func_name, "exp") == 0 || strcmp(func_name, "exp2") == 0 ||
+                    strcmp(func_name, "log") == 0 || strcmp(func_name, "log10") == 0 ||
+                    strcmp(func_name, "log2") == 0 || strcmp(func_name, "cbrt") == 0 ||
+                    strcmp(func_name, "hypot") == 0 || strcmp(func_name, "sinh") == 0 ||
+                    strcmp(func_name, "cosh") == 0 || strcmp(func_name, "tanh") == 0 ||
+                    strcmp(func_name, "fmod") == 0 || strcmp(func_name, "fabs") == 0) {
+                    /* Standard C library function - use original name (no prefix) */
+                } else {
+                    /* Check if this is an extern function */
+                    Function *func_def = env_get_function(env, func_name);
+                    if (func_def && func_def->is_extern) {
+                        /* Extern functions - call directly with original name (no change) */
+                    } else if (!func_def) {
+                        /* Not a function definition - check if it's a function parameter */
+                        Symbol *sym = env_get_var(env, func_name);
+                        if (sym && sym->type == TYPE_FUNCTION) {
+                            /* Function parameter - use as-is (no nl_ prefix) */
+                        } else {
+                            /* Unknown - add prefix anyway (will fail at C compilation) */
+                            func_name = get_c_func_name(func_name);
+                        }
                     } else {
-                        /* Unknown - add prefix anyway (will fail at C compilation) */
+                        /* User-defined functions get nl_ prefix to avoid C stdlib conflicts */
                         func_name = get_c_func_name(func_name);
                     }
-                } else {
-                    /* User-defined functions get nl_ prefix to avoid C stdlib conflicts */
-                    func_name = get_c_func_name(func_name);
                 }
             }
 
@@ -905,6 +1105,14 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                     transpile_expression(sb, expr->as.call.args[2], env);  /* value */
                     sb_appendf(sb, "), sizeof(%s))", prefixed_struct);
                 }
+            } else if (strcmp(original_func_name, "array_remove_at") == 0) {
+                /* array_remove_at(array, index) -> array */
+                /* Use runtime function directly - returns DynArray* */
+                sb_append(sb, "dyn_array_remove_at(");
+                transpile_expression(sb, expr->as.call.args[0], env);  /* array */
+                sb_append(sb, ", ");
+                transpile_expression(sb, expr->as.call.args[1], env);  /* index */
+                sb_append(sb, ")");
             } else if (strcmp(original_func_name, "at") == 0 || strcmp(original_func_name, "array_get") == 0 || strcmp(original_func_name, "array_set") == 0) {
                 /* Non-struct arrays: use type-specific int/float versions */
                 /* Detect element type from the array variable */
@@ -1443,10 +1651,17 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
             env_define_var_with_type_info(env, stmt->as.let.name, stmt->as.let.var_type, 
                                          stmt->as.let.element_type, NULL, stmt->as.let.is_mut, create_void());
             
-            /* For arrays of structs, set struct_type_name */
-            if (stmt->as.let.var_type == TYPE_ARRAY && stmt->as.let.element_type == TYPE_STRUCT && stmt->as.let.type_name) {
-                Symbol *sym = env_get_var(env, stmt->as.let.name);
-                if (sym) {
+            /* Set struct_type_name for struct variables */
+            Symbol *sym = env_get_var(env, stmt->as.let.name);
+            if (sym) {
+                if (stmt->as.let.var_type == TYPE_STRUCT && stmt->as.let.type_name) {
+                    /* Struct variable - set struct_type_name */
+                    sym->struct_type_name = strdup(stmt->as.let.type_name);
+                } else if (stmt->as.let.var_type == TYPE_ARRAY && stmt->as.let.element_type == TYPE_STRUCT && stmt->as.let.type_name) {
+                    /* Array of structs - set struct_type_name for element type */
+                    sym->struct_type_name = strdup(stmt->as.let.type_name);
+                } else if (stmt->as.let.var_type == TYPE_UNION && stmt->as.let.type_name) {
+                    /* Union variable - set struct_type_name */
                     sym->struct_type_name = strdup(stmt->as.let.type_name);
                 }
             }
@@ -2194,9 +2409,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             const char *elem_type = inst->type_arg_names[0];
             const char *specialized_name = inst->concrete_name;
             
+            /* Get prefixed struct name (adds nl_ prefix for user types) */
+            const char *prefixed_elem_type = get_prefixed_type_name(elem_type);
+            
             /* Generate struct definition */
             sb_appendf(sb, "typedef struct {\n");
-            sb_appendf(sb, "    struct %s *data;\n", elem_type);
+            sb_appendf(sb, "    %s *data;\n", prefixed_elem_type);
             sb_appendf(sb, "    int count;\n");
             sb_appendf(sb, "    int capacity;\n");
             sb_appendf(sb, "} %s;\n\n", specialized_name);
@@ -2204,26 +2422,26 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             /* Generate constructor */
             sb_appendf(sb, "%s* %s_new() {\n", specialized_name, specialized_name);
             sb_appendf(sb, "    %s *list = malloc(sizeof(%s));\n", specialized_name, specialized_name);
-            sb_appendf(sb, "    list->data = malloc(sizeof(struct %s) * 4);\n", elem_type);
+            sb_appendf(sb, "    list->data = malloc(sizeof(%s) * 4);\n", prefixed_elem_type);
             sb_appendf(sb, "    list->count = 0;\n");
             sb_appendf(sb, "    list->capacity = 4;\n");
             sb_appendf(sb, "    return list;\n");
             sb_appendf(sb, "}\n\n");
             
             /* Generate push function */
-            sb_appendf(sb, "void %s_push(%s *list, struct %s value) {\n",
-                      specialized_name, specialized_name, elem_type);
+            sb_appendf(sb, "void %s_push(%s *list, %s value) {\n",
+                      specialized_name, specialized_name, prefixed_elem_type);
             sb_appendf(sb, "    if (list->count >= list->capacity) {\n");
             sb_appendf(sb, "        list->capacity *= 2;\n");
-            sb_appendf(sb, "        list->data = realloc(list->data, sizeof(struct %s) * list->capacity);\n",
-                      elem_type);
+            sb_appendf(sb, "        list->data = realloc(list->data, sizeof(%s) * list->capacity);\n",
+                      prefixed_elem_type);
             sb_appendf(sb, "    }\n");
             sb_appendf(sb, "    list->data[list->count++] = value;\n");
             sb_appendf(sb, "}\n\n");
             
             /* Generate get function */
-            sb_appendf(sb, "struct %s %s_get(%s *list, int index) {\n",
-                      elem_type, specialized_name, specialized_name);
+            sb_appendf(sb, "%s %s_get(%s *list, int index) {\n",
+                      prefixed_elem_type, specialized_name, specialized_name);
             sb_appendf(sb, "    return list->data[index];\n");
             sb_appendf(sb, "}\n\n");
             
@@ -2315,7 +2533,13 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             /* Check return type for function type */
             if (item->as.function.return_type == TYPE_FUNCTION && 
                 item->as.function.return_fn_sig) {
+                /* Register the nested function signature */
                 register_function_signature(fn_registry, item->as.function.return_fn_sig);
+                /* Also register the outer function signature if it's used as a type */
+                /* Create a signature for fn() -> fn(...) -> ... */
+                FunctionSignature *outer_sig = create_function_signature(NULL, 0, TYPE_FUNCTION);
+                outer_sig->return_fn_sig = item->as.function.return_fn_sig;
+                register_function_signature(fn_registry, outer_sig);
             }
             
             /* Check return type for tuple type */
@@ -2356,11 +2580,39 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         if (item->type == AST_FUNCTION && item->as.function.is_extern) {
             const char *func_name = item->as.function.name;
             
+            /* Skip generic list functions - they're generated by the compiler */
+            if (strncmp(func_name, "List_", 5) == 0) {
+                continue;
+            }
+            
+            /* Skip runtime list functions - they're declared in runtime headers */
+            if (strncmp(func_name, "list_int_", 9) == 0 ||
+                strncmp(func_name, "list_string_", 12) == 0 ||
+                strncmp(func_name, "list_token_", 11) == 0) {
+                continue;
+            }
+            
             /* Skip standard C library functions - they're already declared in system headers */
             if (strcmp(func_name, "rand") == 0 || strcmp(func_name, "srand") == 0 ||
                 strcmp(func_name, "time") == 0 || strcmp(func_name, "malloc") == 0 ||
                 strcmp(func_name, "free") == 0 || strcmp(func_name, "printf") == 0 ||
-                strcmp(func_name, "fprintf") == 0 || strcmp(func_name, "sprintf") == 0) {
+                strcmp(func_name, "fprintf") == 0 || strcmp(func_name, "sprintf") == 0 ||
+                strcmp(func_name, "strlen") == 0 || strcmp(func_name, "strcmp") == 0 ||
+                strcmp(func_name, "strncmp") == 0 || strcmp(func_name, "strchr") == 0 ||
+                strcmp(func_name, "getchar") == 0 || strcmp(func_name, "putchar") == 0 ||
+                strcmp(func_name, "isalpha") == 0 || strcmp(func_name, "isdigit") == 0 ||
+                strcmp(func_name, "isalnum") == 0 || strcmp(func_name, "islower") == 0 ||
+                strcmp(func_name, "isupper") == 0 || strcmp(func_name, "tolower") == 0 ||
+                strcmp(func_name, "toupper") == 0 || strcmp(func_name, "isspace") == 0 ||
+                strcmp(func_name, "isprint") == 0 || strcmp(func_name, "ispunct") == 0 ||
+                strcmp(func_name, "asin") == 0 || strcmp(func_name, "acos") == 0 ||
+                strcmp(func_name, "atan") == 0 || strcmp(func_name, "atan2") == 0 ||
+                strcmp(func_name, "exp") == 0 || strcmp(func_name, "exp2") == 0 ||
+                strcmp(func_name, "log") == 0 || strcmp(func_name, "log10") == 0 ||
+                strcmp(func_name, "log2") == 0 || strcmp(func_name, "cbrt") == 0 ||
+                strcmp(func_name, "hypot") == 0 || strcmp(func_name, "sinh") == 0 ||
+                strcmp(func_name, "cosh") == 0 || strcmp(func_name, "tanh") == 0 ||
+                strcmp(func_name, "fmod") == 0 || strcmp(func_name, "fabs") == 0) {
                 continue;  /* Skip - already in C stdlib */
             }
             
@@ -2409,6 +2661,11 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         for (int i = 0; i < env->function_count; i++) {
             Function *func = &env->functions[i];
             if (!func || !func->name || !func->is_extern) continue;
+            
+            /* Skip generic list functions - they're generated by the compiler, not extern */
+            if (strncmp(func->name, "List_", 5) == 0) {
+                continue;
+            }
             
             /* Check if this extern function is already in the program AST (declared above) */
             bool in_program = false;
@@ -2492,6 +2749,11 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             
             /* Skip built-in functions - they're macros or already declared */
             if (is_builtin_function(func->name)) {
+                continue;
+            }
+            
+            /* Skip generic list functions - they're generated by the compiler */
+            if (strncmp(func->name, "List_", 5) == 0) {
                 continue;
             }
             

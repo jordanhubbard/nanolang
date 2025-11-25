@@ -129,11 +129,18 @@ static bool types_match(Type t1, Type t2) {
         return true;
     }
     
+    /* Function types match with int when checking function-typed parameters */
+    /* This is a temporary workaround - function-typed parameters return TYPE_INT as placeholder */
+    if ((t1 == TYPE_FUNCTION && t2 == TYPE_INT) ||
+        (t1 == TYPE_INT && t2 == TYPE_FUNCTION)) {
+        return true;  /* Allow for now - runtime will handle */
+    }
+    
     return false;
 }
 
 /* Helper: Get the struct type name from an expression (returns NULL if not a struct) */
-static const char *get_struct_type_name(ASTNode *expr, Environment *env) {
+const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
     
     switch (expr->type) {
@@ -154,6 +161,33 @@ static const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             if (func && func->return_type == TYPE_STRUCT) {
                 return func->return_struct_type_name;
             }
+            
+            /* Special handling for generic list get functions: List_TypeName_get */
+            const char *func_name = expr->as.call.name;
+            if (func_name && strncmp(func_name, "List_", 5) == 0) {
+                const char *func_suffix = strrchr(func_name, '_');
+                if (func_suffix && strcmp(func_suffix, "_get") == 0) {
+                    /* Extract type name: "List_MyToken_get" -> "MyToken" */
+                    const char *type_start = func_name + 5;  /* Skip "List_" */
+                    int type_name_len = (int)(func_suffix - type_start);
+                    if (type_name_len > 0) {
+                        char *type_name = malloc(type_name_len + 1);
+                        strncpy(type_name, type_start, type_name_len);
+                        type_name[type_name_len] = '\0';
+                        
+                        /* Check if this type name exists as a struct */
+                        StructDef *sdef = env_get_struct(env, type_name);
+                        if (sdef) {
+                            /* Return a copy that will be used by the caller */
+                            char *result = strdup(type_name);
+                            free(type_name);
+                            return result;
+                        }
+                        free(type_name);
+                    }
+                }
+            }
+            
             return NULL;
         }
         
@@ -319,6 +353,27 @@ Type check_expression(ASTNode *expr, Environment *env) {
         }
 
         case AST_CALL: {
+            /* Check if this is a function call returning a function: ((func_call) arg1 arg2) */
+            if (expr->as.call.func_expr) {
+                /* First, check the inner function call */
+                Type inner_type = check_expression(expr->as.call.func_expr, env);
+                if (inner_type != TYPE_FUNCTION) {
+                    fprintf(stderr, "Error at line %d, column %d: Expression does not return a function\n",
+                            expr->line, expr->column);
+                    return TYPE_UNKNOWN;
+                }
+                
+                /* Check argument types */
+                for (int i = 0; i < expr->as.call.arg_count; i++) {
+                    check_expression(expr->as.call.args[i], env);
+                }
+                
+                /* Return type will be determined at runtime */
+                /* For now, assume it returns int */
+                return TYPE_INT;
+            }
+            
+            /* Regular function call */
             /* Check if function exists */
             Function *func = env_get_function(env, expr->as.call.name);
             
@@ -326,14 +381,18 @@ Type check_expression(ASTNode *expr, Environment *env) {
             if (!func) {
                 Symbol *sym = env_get_var(env, expr->as.call.name);
                 if (sym && sym->type == TYPE_FUNCTION) {
-                    /* This is a call to a function parameter - we can't fully type check it */
-                    /* Just check that arguments are valid expressions */
+                    /* This is a call to a function parameter - check arguments */
                     for (int i = 0; i < expr->as.call.arg_count; i++) {
                         check_expression(expr->as.call.args[i], env);
                     }
-                    /* Return type is unknown - function signatures don't store this info yet */
-                    /* TODO: Store full function signature in Symbol for better type checking */
-                    return TYPE_INT;  /* Assume int for now */
+                    /* If this is a call with no arguments (just getting the function), return TYPE_FUNCTION */
+                    if (expr->as.call.arg_count == 0) {
+                        return TYPE_FUNCTION;
+                    }
+                    /* Otherwise, return type depends on the function signature */
+                    /* For now, return TYPE_FUNCTION if it's a function-typed parameter being called */
+                    /* The actual return type would be in the function signature, but we don't store that in Symbol yet */
+                    return TYPE_INT;  /* Placeholder - actual return type depends on function signature */
                 }
                 
                 /* Special handling for dynamic array builtins */
@@ -458,6 +517,37 @@ Type check_expression(ASTNode *expr, Environment *env) {
                         check_expression(expr->as.call.args[0], env);
                     }
                     return TYPE_INT;
+                }
+                
+                /* Special handling for generic list get functions: List_TypeName_get */
+                const char *func_name = expr->as.call.name;
+                if (func_name && strncmp(func_name, "List_", 5) == 0) {
+                    const char *func_suffix = strrchr(func_name, '_');
+                    if (func_suffix && strcmp(func_suffix, "_get") == 0) {
+                        /* Extract type name: "List_MyToken_get" -> "MyToken" */
+                        const char *type_start = func_name + 5;  /* Skip "List_" */
+                        int type_name_len = (int)(func_suffix - type_start);
+                        if (type_name_len > 0) {
+                            char *type_name = malloc(type_name_len + 1);
+                            strncpy(type_name, type_start, type_name_len);
+                            type_name[type_name_len] = '\0';
+                            
+                            /* Check if this type name exists as a struct */
+                            StructDef *sdef = env_get_struct(env, type_name);
+                            if (sdef) {
+                                /* Check arguments */
+                                if (expr->as.call.arg_count >= 1) {
+                                    check_expression(expr->as.call.args[0], env);
+                                }
+                                if (expr->as.call.arg_count >= 2) {
+                                    check_expression(expr->as.call.args[1], env);
+                                }
+                                free(type_name);
+                                return TYPE_STRUCT;  /* Returns the struct type */
+                            }
+                            free(type_name);
+                        }
+                    }
                 }
                 
                 safe_fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
@@ -646,6 +736,11 @@ Type check_expression(ASTNode *expr, Environment *env) {
                 }
             }
 
+            /* Check if function returns a function type */
+            if (func->return_type == TYPE_FUNCTION) {
+                return TYPE_FUNCTION;
+            }
+            
             return func->return_type;
         }
 
@@ -1132,6 +1227,7 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
     switch (stmt->type) {
         case AST_LET: {
             Type declared_type = stmt->as.let.var_type;
+            Type original_declared_type = declared_type;  /* Save original before modifications */
             
             /* Handle generic lists: List<UserType> - Register BEFORE checking expression */
             if (declared_type == TYPE_LIST_GENERIC && stmt->as.let.type_name) {
@@ -1168,7 +1264,74 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
                 declared_type = TYPE_INT;
             }
             
-            if (!types_match(value_type, declared_type)) {
+            /* Special handling for function types - need to check signatures match */
+            /* Also handle case where value_type is TYPE_INT (function-typed parameter placeholder) */
+            if (declared_type == TYPE_FUNCTION && (value_type == TYPE_FUNCTION || value_type == TYPE_INT)) {
+                /* Both are function types - check if signatures match */
+                FunctionSignature *declared_sig = stmt->as.let.fn_sig;
+                FunctionSignature *value_sig = NULL;
+                
+                /* Get function signature from value expression */
+                if (stmt->as.let.value->type == AST_CALL) {
+                    /* Function call - could be calling a function-typed parameter */
+                    Function *func = env_get_function(tc->env, stmt->as.let.value->as.call.name);
+                    if (func && func->return_type == TYPE_FUNCTION) {
+                        /* Function that returns a function */
+                        value_sig = func->return_fn_sig;
+                    } else if (!func) {
+                        /* Check if it's a function-typed parameter being called */
+                        Symbol *sym = env_get_var(tc->env, stmt->as.let.value->as.call.name);
+                        if (sym && sym->type == TYPE_FUNCTION) {
+                            /* Function-typed parameter - if called with 0 args, it's the function itself */
+                            if (stmt->as.let.value->as.call.arg_count == 0) {
+                                /* TODO: Get function signature from parameter - for now allow it */
+                                /* The signature should match the declared type */
+                            }
+                        }
+                    }
+                } else if (stmt->as.let.value->type == AST_IDENTIFIER) {
+                    /* Could be function name or function-typed variable */
+                    Function *func = env_get_function(tc->env, stmt->as.let.value->as.identifier);
+                    if (func && func->return_type == TYPE_FUNCTION) {
+                        /* Function that returns a function */
+                        value_sig = func->return_fn_sig;
+                    } else if (func) {
+                        /* Function name used as value - create signature from function definition */
+                        Type *param_types = NULL;
+                        if (func->params && func->param_count > 0) {
+                            param_types = malloc(sizeof(Type) * func->param_count);
+                            for (int i = 0; i < func->param_count; i++) {
+                                param_types[i] = func->params[i].type;
+                            }
+                        }
+                        value_sig = create_function_signature(param_types, func->param_count, func->return_type);
+                        if (param_types) free(param_types);
+                    } else {
+                        /* Check if it's a function-typed variable */
+                        Symbol *sym = env_get_var(tc->env, stmt->as.let.value->as.identifier);
+                        if (sym && sym->type == TYPE_FUNCTION) {
+                            /* TODO: Store function signature in Symbol for function-typed variables */
+                            /* For now, allow it - runtime will handle */
+                        }
+                    }
+                } else if (stmt->as.let.value->type == AST_CALL && stmt->as.let.value->as.call.func_expr) {
+                    /* Function call returning function: ((func_call) arg1 arg2) */
+                    /* The return type will be determined at runtime */
+                    /* For now, allow it if declared type is TYPE_FUNCTION */
+                }
+                
+                /* Check if signatures match */
+                if (declared_sig && value_sig) {
+                    if (!function_signatures_equal(declared_sig, value_sig)) {
+                        fprintf(stderr, "Error at line %d, column %d: Function signature mismatch in let statement\n", stmt->line, stmt->column);
+                        tc->has_error = true;
+                    }
+                } else if (!declared_sig || !value_sig) {
+                    /* One or both signatures missing - allow for now (runtime will handle) */
+                    /* This happens when function signatures aren't fully parsed yet, or when */
+                    /* dealing with function-typed parameters where we don't have full signature info */
+                }
+            } else if (!types_match(value_type, declared_type)) {
                 fprintf(stderr, "Error at line %d, column %d: Type mismatch in let statement\n", stmt->line, stmt->column);
                 tc->has_error = true;
             }
@@ -1231,8 +1394,11 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
             }
             
             /* Add to environment */
+            /* Use original_declared_type to ensure struct types are preserved */
+            Type env_type = (original_declared_type == TYPE_STRUCT || original_declared_type == TYPE_UNION) 
+                          ? original_declared_type : declared_type;
             Value val = create_void(); /* Placeholder */
-            env_define_var_with_type_info(tc->env, stmt->as.let.name, declared_type, element_type, type_info, stmt->as.let.is_mut, val);
+            env_define_var_with_type_info(tc->env, stmt->as.let.name, env_type, element_type, type_info, stmt->as.let.is_mut, val);
             
             /* Store definition location for unused variable warnings */
             Symbol *sym = env_get_var(tc->env, stmt->as.let.name);
@@ -1241,10 +1407,21 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
                 sym->def_column = stmt->column;
                 
                 /* If this is a struct, store the struct type name */
-                if (value_type == TYPE_STRUCT) {
+                /* Use original_declared_type to check before any modifications */
+                if (stmt->as.let.type_name) {
+                    if (original_declared_type == TYPE_STRUCT || original_declared_type == TYPE_UNION) {
+                        /* Use the declared type name */
+                        sym->struct_type_name = strdup(stmt->as.let.type_name);
+                    }
+                }
+                /* Also try to infer from value expression if struct_type_name not set */
+                if (!sym->struct_type_name && value_type == TYPE_STRUCT) {
+                    /* Infer struct type name from the value expression */
                     const char *struct_name = get_struct_type_name(stmt->as.let.value, tc->env);
                     if (struct_name) {
                         sym->struct_type_name = strdup(struct_name);
+                        /* Free the temporary string returned by get_struct_type_name */
+                        free((void*)struct_name);
                     }
                 }
                 

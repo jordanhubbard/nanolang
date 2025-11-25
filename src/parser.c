@@ -254,15 +254,7 @@ static FunctionSignature *parse_function_signature(Parser *p) {
     FunctionSignature *return_fn_sig = NULL;
     sig->return_type = parse_type_with_element(p, NULL, &return_struct_name, &return_fn_sig, NULL);
     sig->return_struct_name = return_struct_name;  /* May be NULL */
-    
-    /* TODO: Handle function types as return types */
-    /* For now, we don't support fn() -> fn()->int */
-    if (return_fn_sig) {
-        fprintf(stderr, "Error: Function types as return values not yet supported in function type signatures\n");
-        free_function_signature(return_fn_sig);
-        free_function_signature(sig);
-        return NULL;
-    }
+    sig->return_fn_sig = return_fn_sig;  /* Store function signature for function return types */
     
     if (sig->return_type == TYPE_UNKNOWN) {
         /* Error already reported */
@@ -632,6 +624,7 @@ static ASTNode *parse_prefix_op(Parser *p) {
 
         ASTNode *node = create_node(AST_CALL, line, column);
         node->as.call.name = func_name;
+        node->as.call.func_expr = NULL;
         node->as.call.args = args;
         node->as.call.arg_count = count;
         return node;
@@ -923,6 +916,7 @@ static ASTNode *parse_primary(Parser *p) {
                     
                     ASTNode *node = create_node(AST_CALL, line, column);
                     node->as.call.name = first_expr->as.identifier;  /* Steal the string */
+                    node->as.call.func_expr = NULL;
                     node->as.call.args = NULL;  /* Zero arguments */
                     node->as.call.arg_count = 0;
                     
@@ -936,15 +930,25 @@ static ASTNode *parse_primary(Parser *p) {
                 }
             } else {
                 /* It's a function call: (func arg1 arg2 ...) */
-                /* First expression should be the function name */
-                if (first_expr->type != AST_IDENTIFIER) {
-                    fprintf(stderr, "Error at line %d, column %d: Function call requires identifier as first element\n",
+                /* First expression could be:
+                 * 1. Identifier: (func arg1 arg2) - regular function call
+                 * 2. Function call: ((func_call) arg1 arg2) - function returning function
+                 */
+                char *func_name = NULL;
+                ASTNode *func_expr = NULL;
+                
+                if (first_expr->type == AST_IDENTIFIER) {
+                    /* Regular function call */
+                    func_name = first_expr->as.identifier;
+                } else if (first_expr->type == AST_CALL) {
+                    /* Function call returning function: ((func_call) arg1 arg2) */
+                    func_expr = first_expr;
+                } else {
+                    fprintf(stderr, "Error at line %d, column %d: Function call requires identifier or function call as first element\n",
                             line, column);
                     free_ast(first_expr);
                     return NULL;
                 }
-                
-                char *func_name = first_expr->as.identifier;
                 
                 /* Parse arguments */
                 int capacity = 4;
@@ -965,8 +969,11 @@ static ASTNode *parse_primary(Parser *p) {
                             free_ast(args[i]);
                         }
                         free(args);
-                        free(func_name);
-                        free(first_expr);  /* Don't use free_ast - we already extracted the identifier */
+                        if (func_name) free(func_name);
+                        if (func_expr) free_ast(func_expr);
+                        if (first_expr && first_expr->type == AST_IDENTIFIER) {
+                            free(first_expr);  /* Don't use free_ast - we already extracted the identifier */
+                        }
                         return NULL;
                     }
                     count++;
@@ -977,18 +984,28 @@ static ASTNode *parse_primary(Parser *p) {
                         free_ast(args[i]);
                     }
                     free(args);
-                    free_ast(first_expr);
+                    if (func_name) free(func_name);
+                    if (func_expr) free_ast(func_expr);
+                    if (first_expr && first_expr->type == AST_IDENTIFIER) {
+                        free(first_expr);
+                    }
                     return NULL;
                 }
                 
                 /* Create function call node */
                 node = create_node(AST_CALL, line, column);
-                node->as.call.name = func_name;
+                if (func_name) {
+                    node->as.call.name = func_name;
+                    node->as.call.func_expr = NULL;
+                    /* Free the first_expr struct but keep the identifier */
+                    free(first_expr);  /* Don't use free_ast - we're using the identifier */
+                } else {
+                    node->as.call.name = NULL;
+                    node->as.call.func_expr = func_expr;
+                    /* func_expr is already first_expr, don't free it again */
+                }
                 node->as.call.args = args;
                 node->as.call.arg_count = count;
-                
-                /* Free the first_expr struct but keep the identifier */
-                free(first_expr);  /* Don't use free_ast - we're using the identifier */
                 
                 return node;
             }
@@ -1555,6 +1572,29 @@ static ASTNode *parse_statement(Parser *p) {
         }
 
         default: {
+            /* Special handling for print/println statements: print expr or println expr */
+            if (tok->type == TOKEN_IDENTIFIER) {
+                if (strcmp(tok->value, "print") == 0 || strcmp(tok->value, "println") == 0) {
+                    int line = tok->line;
+                    int column = tok->column;
+                    bool is_println = (strcmp(tok->value, "println") == 0);
+                    advance(p);  /* consume 'print' or 'println' */
+                    
+                    /* Parse the expression to print */
+                    ASTNode *expr = parse_expression(p);
+                    if (!expr) {
+                        fprintf(stderr, "Error at line %d, column %d: Expected expression after '%s'\n",
+                                line, column, is_println ? "println" : "print");
+                        return NULL;
+                    }
+                    
+                    /* Create AST_PRINT node */
+                    ASTNode *node = create_node(AST_PRINT, line, column);
+                    node->as.print.expr = expr;
+                    return node;
+                }
+            }
+            
             /* Try to parse as expression statement */
             /* Debug: Check if this is being called with ELSE token */
             if (tok->type == TOKEN_ELSE) {
@@ -2377,6 +2417,9 @@ void free_ast(ASTNode *node) {
             break;
         case AST_CALL:
             free(node->as.call.name);
+            if (node->as.call.func_expr) {
+                free_ast(node->as.call.func_expr);
+            }
             for (int i = 0; i < node->as.call.arg_count; i++) {
                 free_ast(node->as.call.args[i]);
             }

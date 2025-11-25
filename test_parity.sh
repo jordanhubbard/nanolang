@@ -38,16 +38,24 @@ for example in "${EXAMPLES[@]}"; do
     echo "Testing: $example"
     echo "=================================================="
     
-    # Run interpreter
+    # Run interpreter - capture stdout and stderr separately
     echo "--- Interpreter Output ---"
-    NANO_MODULE_PATH=modules ./bin/nano "$example" > /tmp/interp_out.txt 2>&1
+    NANO_MODULE_PATH=modules ./bin/nano "$example" > /tmp/interp_stdout.txt 2> /tmp/interp_stderr.txt
     INTERP_EXIT=$?
+    # Filter warnings from stderr (warnings are multi-line, so use sed to remove warning blocks)
+    cat /tmp/interp_stderr.txt | sed '/^Warning:/,/^$/d' | grep -v "^Running shadow tests" | grep -v "^Testing" | grep -v "PASSED$" | grep -v "SKIPPED" | grep -v "All shadow tests passed" > /tmp/interp_stderr_filtered.txt
+    # Combine stdout and filtered stderr
+    (cat /tmp/interp_stdout.txt; cat /tmp/interp_stderr_filtered.txt) > /tmp/interp_out.txt
     cat /tmp/interp_out.txt
     
-    # Compile and run
+    # Compile and run - capture compilation output separately
     echo ""
     echo "--- Compiler Output ---"
-    NANO_MODULE_PATH=modules ./bin/nanoc "$example" -o /tmp/test_bin 2>&1 | grep -v "^Testing" | grep -v "PASSED" | grep -v "SKIPPED" | grep -v "All shadow tests passed" > /tmp/compile_out.txt
+    NANO_MODULE_PATH=modules ./bin/nanoc "$example" -o /tmp/test_bin > /tmp/compile_stdout.txt 2> /tmp/compile_stderr.txt
+    COMPILE_EXIT=$?
+    # Filter shadow test output from stderr
+    cat /tmp/compile_stderr.txt | grep -v "^Running shadow tests" | grep -v "^Testing" | grep -v "PASSED$" | grep -v "SKIPPED" | grep -v "All shadow tests passed" > /tmp/compile_filtered.txt || true
+    
     if [ -f /tmp/test_bin ]; then
         /tmp/test_bin > /tmp/compiled_out.txt 2>&1
         COMP_EXIT=$?
@@ -55,7 +63,8 @@ for example in "${EXAMPLES[@]}"; do
         rm /tmp/test_bin
     else
         echo "COMPILATION FAILED:"
-        cat /tmp/compile_out.txt
+        cat /tmp/compile_stdout.txt
+        cat /tmp/compile_filtered.txt
         COMP_EXIT=1
     fi
     

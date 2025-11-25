@@ -8,9 +8,9 @@ struct Point {
     y: int
 }
 
-/* Helper function to create a Point (workaround for struct literal bug) */
+/* Helper function to create a Point */
 fn make_point(x: int, y: int) -> Point {
-    let p: Point = (Point_new x y)
+    let p: Point = Point { x: x, y: y }
     return p
 }
 
@@ -19,9 +19,6 @@ shadow make_point {
     assert (== p.x 10)
     assert (== p.y 20)
 }
-
-/* External function to create Point (temporary workaround) */
-extern fn Point_new(x: int, y: int) -> Point
 
 fn test_list_operations() -> int {
     /* Create a List<Point> - compiler generates List_Point type automatically! */
@@ -42,7 +39,8 @@ shadow test_list_operations {
 }
 
 fn main() -> int {
-    return (test_list_operations)
+    let result: int = (test_list_operations)
+    return result
 }
 
 shadow main {

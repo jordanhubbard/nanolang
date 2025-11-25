@@ -19,6 +19,7 @@ static size_t get_element_size(ElementType type) {
         case ELEM_FLOAT:  return sizeof(double);
         case ELEM_STRING: return sizeof(char*);
         case ELEM_BOOL:   return sizeof(bool);
+        case ELEM_POINTER: return sizeof(int64_t);  /* Pointers stored as int64_t */
         default:          return sizeof(void*);
     }
 }

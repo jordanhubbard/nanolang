@@ -1,103 +1,168 @@
-# nanolang Module Package Format
+# nanolang Module Format
 
 ## Overview
 
-nanolang modules are distributed as compressed archives containing:
-- Module metadata (JSON)
-- Compiled object files (.o)
-- Source files (.nano) for reference
-- Build metadata
+nanolang modules are directories containing:
+- Module metadata (`module.json`) - **Required if module has C sources**
+- Nanolang source files (`.nano`) - **Required**
+- C implementation files (`.c`) - Optional
+- C header files (`.h`) - Optional
 
-## Archive Format
+**Note:** This document describes the **current implementation**. For future archive-based distribution format, see the roadmap.
 
-- **Format**: tar archive compressed with zstd
-- **Extension**: `.nano.tar.zst`
-- **Tool**: `tar -I zstd` (supported by GNU tar and BSD tar)
+## Module Structure
 
-## Directory Structure
+A typical module directory:
 
 ```
-module-name.nano.tar.zst
-├── module.json          # Module metadata
-├── module.o             # Compiled object file (if has implementation)
-├── module.nano          # Source file (for reference/documentation)
-└── build.json           # Build metadata (compiler version, flags, etc.)
+modules/sdl_ttf/
+├── module.json              # Module metadata (required if C sources exist)
+├── sdl_ttf.nano             # Main module file (required)
+├── sdl_ttf_helpers.c        # C implementation (optional)
+├── sdl_ttf_helpers.nano     # Additional nanolang helpers (optional)
+└── sdl_ttf_helpers.h        # C header (optional)
 ```
 
-## Module Metadata (module.json)
+## module.json Format
+
+The `module.json` file describes how to build and link the module.
+
+### Standard Format
 
 ```json
 {
-  "name": "sdl",
+  "name": "module_name",
   "version": "1.0.0",
-  "description": "SDL2 library bindings for nanolang",
-  "type": "ffi",
-  "dependencies": {
-    "system": {
-      "macos": {
-        "brew": ["sdl2"]
-      },
-      "linux": {
-        "apt": ["libsdl2-dev"]
-      }
-    },
-    "nanolang": []
-  },
-  "compilation": {
-    "include_paths": ["/opt/homebrew/include/SDL2"],
-    "library_paths": ["/opt/homebrew/lib"],
-    "libraries": ["SDL2"]
-  },
-  "exports": {
-    "functions": [
-      {
-        "name": "SDL_Init",
-        "signature": "extern fn SDL_Init(flags: int) -> int"
-      }
-    ]
-  },
-  "build_info": {
-    "compiler_version": "1.0.0",
-    "build_date": "2025-11-15",
-    "platform": "darwin-arm64"
-  }
+  "description": "Short description of the module",
+  
+  "c_sources": [
+    "helper.c",
+    "another_file.c"
+  ],
+  
+  "headers": [
+    "helper.h"
+  ],
+  
+  "pkg_config": [
+    "sdl2_ttf"
+  ],
+  
+  "cflags": [
+    "-O2",
+    "-Wall",
+    "-Imodules/module_name"
+  ],
+  
+  "dependencies": [
+    "sdl"
+  ]
 }
 ```
 
-## Build Metadata (build.json)
+### Field Reference
+
+#### Required Fields
+
+- **`name`** (string): Module name (should match directory name)
+
+#### Optional Fields
+
+- **`version`** (string): Semantic version (e.g., "1.0.0")
+- **`description`** (string): Brief description of module purpose
+- **`c_sources`** (array of strings): C source files to compile (relative to module directory)
+- **`headers`** (array of strings): C header files (for include paths)
+- **`pkg_config`** (array of strings): pkg-config packages for compile and link flags
+- **`cflags`** (array of strings): Additional compiler flags (including `-I` for include dirs)
+- **`dependencies`** (array of strings): Other nanolang modules this module depends on
+
+### Field Usage Notes
+
+1. **`c_sources`**: List all `.c` files that need compilation
+2. **`headers`**: List header files (used for include path detection)
+3. **`pkg_config`**: Preferred method for system library detection
+4. **`cflags`**: Use for custom compiler flags, include paths (`-I`), etc.
+5. **`dependencies`**: List other nanolang modules this depends on
+
+### Build Process
+
+When a module is imported:
+
+1. **Parse module.json** (if it exists)
+2. **Check dependencies** - recursively process dependent modules
+3. **Check build cache**:
+   - Module build directory: `modules/module_name/.build/`
+   - Object files compiled from `c_sources`
+4. **Rebuild if needed**:
+   - Any C source is newer than object file
+   - `module.json` changed
+   - Dependency changed
+5. **Track for linking**:
+   - Add object files to link list
+   - Add pkg-config libraries to link list
+   - Add cflags to compile flags
+
+### Examples
+
+#### Simple FFI Module (No C Sources)
 
 ```json
 {
-  "source_file": "sdl.nano",
-  "object_file": "sdl.o",
-  "has_implementation": false,
-  "is_ffi_only": true,
-  "compiler_flags": {
-    "include_paths": ["-I/opt/homebrew/include/SDL2"],
-    "library_paths": ["-L/opt/homebrew/lib"],
-    "libraries": ["-lSDL2"]
-  }
+  "name": "vector2d",
+  "version": "1.0.0",
+  "description": "2D vector mathematics"
 }
 ```
 
-## Module Types
+#### Module with C Implementation
 
-1. **ffi** - FFI-only module (only extern declarations, no implementation)
-2. **implementation** - Module with nanolang implementations
-3. **hybrid** - Module with both FFI declarations and implementations
+```json
+{
+  "name": "sdl_helpers",
+  "version": "1.0.0",
+  "description": "Helper functions for SDL rendering",
+  "c_sources": ["sdl_helpers.c"],
+  "headers": ["sdl_helpers.h"],
+  "cflags": ["-Imodules/sdl_helpers"],
+  "pkg_config": ["sdl2"],
+  "dependencies": ["sdl"]
+}
+```
 
-## Installation
+#### Module with System Libraries
 
-Modules are installed to a directory specified by `NANO_MODULE_PATH`:
-- Default: `~/.nanolang/modules/`
-- Can be overridden with `NANO_MODULE_PATH` environment variable
-- Multiple paths supported (colon-separated on Unix, semicolon on Windows)
+```json
+{
+  "name": "math_ext",
+  "version": "1.0.0",
+  "description": "Extended math functions",
+  "cflags": ["-lm"]
+}
+```
 
 ## Module Search
 
 When importing a module:
-1. Check current directory
-2. Check `NANO_MODULE_PATH` directories (in order)
-3. For each directory, look for `module-name.nano.tar.zst`
-4. If found, unpack to temp directory and load
 
+1. Check current directory
+2. Check `NANO_MODULE_PATH` directories (in order, colon-separated)
+3. For each directory, look for `module-name/module-name.nano` or `module-name.nano`
+4. Load `module.json` if it exists in the module directory
+
+## Pure Nanolang Modules
+
+Modules with no C sources don't need `module.json`:
+
+```
+modules/my_pure_module/
+└── my_module.nano
+```
+
+Just import:
+```nano
+import "modules/my_pure_module/my_module.nano"
+```
+
+## Future: Archive Format
+
+**Note:** Archive-based distribution (`.nano.tar.zst`) is planned for future releases but not yet implemented. The current system uses directory-based modules as described above.

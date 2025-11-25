@@ -264,6 +264,7 @@ typedef struct FunctionSignature {
     char **param_struct_names;   /* For struct/enum/union parameters */
     Type return_type;            /* Return type */
     char *return_struct_name;    /* For struct/enum/union return */
+    struct FunctionSignature *return_fn_sig;  /* For function return types: fn() -> fn() -> int */
 } FunctionSignature;
 
 /* Parameter structure */
@@ -292,7 +293,8 @@ struct ASTNode {
             int arg_count;
         } prefix_op;
         struct {
-            char *name;
+            char *name;           /* Function name (for regular calls) */
+            ASTNode *func_expr;   /* Function expression (for calls like ((func_call) arg1 arg2)) */
             ASTNode **args;
             int arg_count;
         } call;

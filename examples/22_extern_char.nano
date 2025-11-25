@@ -92,7 +92,7 @@ fn test_mixed_operations() -> int {
     let ch: int = 98  # 'b'
     let is_letter: int = (isalpha ch)
     
-    if is_letter {
+    if (!= is_letter 0) {
         let uppercase: int = (toupper ch)
         (println "Original: 98 ('b')")
         (println "Uppercase:")
