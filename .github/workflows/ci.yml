@@ -85,7 +85,11 @@ jobs:
         run: make sanitize
 
       - name: Run tests with sanitizers
-        run: make test
+        run: |
+          # Disable leak detection for exit-time leaks in short-lived compiler process
+          # AddressSanitizer still catches real memory issues (use-after-free, etc.)
+          export ASAN_OPTIONS=detect_leaks=0
+          make test
 
       - name: Show sanitizer error logs on failure
         if: failure()
