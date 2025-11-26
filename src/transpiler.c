@@ -1821,6 +1821,9 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     StringBuilder *sb = sb_create();
 
+    /* POSIX feature macro for strdup, strnlen, etc. */
+    sb_append(sb, "#define _POSIX_C_SOURCE 200809L\n\n");
+
     /* C includes and headers */
     sb_append(sb, "#include <stdio.h>\n");
     sb_append(sb, "#include <stdint.h>\n");

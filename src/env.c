@@ -155,6 +155,28 @@ void free_environment(Environment *env) {
     }
     free(env->enums);
     
+    /* Free unions */
+    for (int i = 0; i < env->union_count; i++) {
+        free(env->unions[i].name);
+        for (int j = 0; j < env->unions[i].variant_count; j++) {
+            free(env->unions[i].variant_names[j]);
+            if (env->unions[i].variant_field_names && env->unions[i].variant_field_names[j]) {
+                for (int k = 0; k < env->unions[i].variant_field_counts[j]; k++) {
+                    free(env->unions[i].variant_field_names[j][k]);
+                }
+                free(env->unions[i].variant_field_names[j]);
+            }
+            if (env->unions[i].variant_field_types && env->unions[i].variant_field_types[j]) {
+                free(env->unions[i].variant_field_types[j]);
+            }
+        }
+        if (env->unions[i].variant_names) free(env->unions[i].variant_names);
+        if (env->unions[i].variant_field_counts) free(env->unions[i].variant_field_counts);
+        if (env->unions[i].variant_field_names) free(env->unions[i].variant_field_names);
+        if (env->unions[i].variant_field_types) free(env->unions[i].variant_field_types);
+    }
+    free(env->unions);
+    
     /* Free generic instantiations */
     for (int i = 0; i < env->generic_instance_count; i++) {
         free(env->generic_instances[i].generic_name);
