@@ -136,6 +136,7 @@ test: $(COMPILER) $(INTERPRETER)
 
 # Build with AddressSanitizer and UndefinedBehaviorSanitizer
 sanitize: CFLAGS += $(SANITIZE_FLAGS)
+sanitize: LDFLAGS += $(SANITIZE_FLAGS)
 sanitize: clean $(COMPILER) $(INTERPRETER)
 	@echo "Built with sanitizers enabled"
 
