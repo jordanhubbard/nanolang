@@ -588,7 +588,7 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                     Value val = env->symbols[var_index].value;
                     if (val.type == VAL_INT) {
                         char num_buf[64];
-                        snprintf(num_buf, sizeof(num_buf), "%lld", val.as.int_val);
+                        snprintf(num_buf, sizeof(num_buf), "%lld", (long long)val.as.int_val);
                         sb_append(sb, num_buf);
                         break;
                     } else if (val.type == VAL_FLOAT) {
@@ -2043,7 +2043,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "    /* Safety: Bound string scan to reasonable size (1MB) */\n");
     sb_append(sb, "    int len = strnlen(s, 1024*1024);\n");
     sb_append(sb, "    if (index < 0 || index >= len) {\n");
-    sb_append(sb, "        fprintf(stderr, \"Error: Index %lld out of bounds (string length %d)\\n\", index, len);\n");
+    sb_append(sb, "        fprintf(stderr, \"Error: Index %lld out of bounds (string length %d)\\n\", (long long)index, len);\n");
     sb_append(sb, "        return 0;\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    return (unsigned char)s[index];\n");
@@ -2085,7 +2085,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     /* Type conversions */
     sb_append(sb, "static char* int_to_string(int64_t n) {\n");
     sb_append(sb, "    char* buffer = malloc(32);\n");
-    sb_append(sb, "    snprintf(buffer, 32, \"%lld\", n);\n");
+    sb_append(sb, "    snprintf(buffer, 32, \"%lld\", (long long)n);\n");
     sb_append(sb, "    return buffer;\n");
     sb_append(sb, "}\n\n");
     
@@ -2148,7 +2148,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     /* Specialized print functions for each type (no newline) */
     sb_append(sb, "static void nl_print_int(int64_t value) {\n");
-    sb_append(sb, "    printf(\"%lld\", value);\n");
+    sb_append(sb, "    printf(\"%lld\", (long long)value);\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static void nl_print_float(double value) {\n");
@@ -2165,7 +2165,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     /* Specialized println functions for each type */
     sb_append(sb, "static void nl_println_int(int64_t value) {\n");
-    sb_append(sb, "    printf(\"%lld\\n\", value);\n");
+    sb_append(sb, "    printf(\"%lld\\n\", (long long)value);\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static void nl_println_float(double value) {\n");
@@ -2324,7 +2324,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "        if (i > 0) printf(\", \");\n");
     sb_append(sb, "        switch (arr->elem_type) {\n");
     sb_append(sb, "            case ELEM_INT:\n");
-    sb_append(sb, "                printf(\"%lld\", ((int64_t*)arr->data)[i]);\n");
+    sb_append(sb, "                printf(\"%lld\", (long long)((int64_t*)arr->data)[i]);\n");
     sb_append(sb, "                break;\n");
     sb_append(sb, "            case ELEM_FLOAT:\n");
     sb_append(sb, "                printf(\"%g\", ((double*)arr->data)[i]);\n");

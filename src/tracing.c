@@ -238,7 +238,7 @@ const char *format_value_for_trace(Value val) {
     static char buffer[256];
     switch (val.type) {
         case VAL_INT:
-            snprintf(buffer, sizeof(buffer), "%lld", val.as.int_val);
+            snprintf(buffer, sizeof(buffer), "%lld", (long long)val.as.int_val);
             break;
         case VAL_FLOAT:
             snprintf(buffer, sizeof(buffer), "%g", val.as.float_val);

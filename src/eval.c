@@ -219,7 +219,7 @@ static Value builtin_getenv(Value *args) {
 static void print_value(Value val) {
     switch (val.type) {
         case VAL_INT:
-            printf("%lld", val.as.int_val);
+            printf("%lld", (long long)val.as.int_val);
             break;
         case VAL_FLOAT:
             printf("%g", val.as.float_val);
@@ -266,7 +266,7 @@ static void print_value(Value val) {
                 if (i > 0) printf(", ");
                 switch (elem_type) {
                     case ELEM_INT:
-                        printf("%lld", dyn_array_get_int(arr, i));
+                        printf("%lld", (long long)dyn_array_get_int(arr, i));
                         break;
                     case ELEM_FLOAT:
                         printf("%g", dyn_array_get_float(arr, i));
@@ -582,7 +582,7 @@ static Value builtin_cast_string(Value *args) {
     if (arg.type == VAL_STRING) {
         return arg;  /* Already a string */
     } else if (arg.type == VAL_INT) {
-        snprintf(buffer, sizeof(buffer), "%lld", arg.as.int_val);
+        snprintf(buffer, sizeof(buffer), "%lld", (long long)arg.as.int_val);
         return create_string(buffer);
     } else if (arg.type == VAL_FLOAT) {
         snprintf(buffer, sizeof(buffer), "%g", arg.as.float_val);
@@ -725,7 +725,7 @@ static Value builtin_at(Value *args) {
         /* BOUNDS CHECKING - This is the safety guarantee! */
         if (index < 0 || index >= arr->length) {
             fprintf(stderr, "Runtime Error: Array index %lld out of bounds [0..%d)\n",
-                    index, arr->length);
+                    (long long)index, arr->length);
             exit(1);  /* Fail fast - no undefined behavior! */
         }
         
@@ -753,7 +753,7 @@ static Value builtin_at(Value *args) {
         /* BOUNDS CHECKING */
         if (index < 0 || index >= len) {
             fprintf(stderr, "Runtime Error: Array index %lld out of bounds [0..%lld)\n",
-                    index, len);
+                    (long long)index, (long long)len);
             exit(1);
         }
         
@@ -847,7 +847,7 @@ static Value builtin_array_set(Value *args) {
     /* BOUNDS CHECKING */
     if (index < 0 || index >= arr->length) {
         fprintf(stderr, "Runtime Error: Array index %lld out of bounds [0..%d)\n",
-                index, arr->length);
+                (long long)index, arr->length);
         exit(1);  /* Fail fast! */
     }
     
@@ -1047,7 +1047,7 @@ static Value builtin_array_remove_at(Value *args) {
     int64_t index = args[1].as.int_val;
     
     if (index < 0 || index >= dyn_array_length(arr)) {
-        fprintf(stderr, "Runtime Error: Array index %lld out of bounds\n", index);
+        fprintf(stderr, "Runtime Error: Array index %lld out of bounds\n", (long long)index);
         exit(1);
     }
     
@@ -1458,7 +1458,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
         /* Safety: Bound string scan to 1MB */
         int len = strnlen(str, 1024*1024);
         if (index < 0 || index >= len) {
-            fprintf(stderr, "Error: Index %lld out of bounds (string length %d)\n", index, len);
+            fprintf(stderr, "Error: Index %lld out of bounds (string length %d)\n", (long long)index, len);
             return create_void();
         }
         return create_int((unsigned char)str[index]);
@@ -1520,7 +1520,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
             return create_string("0");
         }
         char buffer[32];
-        snprintf(buffer, sizeof(buffer), "%lld", args[0].as.int_val);
+        snprintf(buffer, sizeof(buffer), "%lld", (long long)args[0].as.int_val);
         return create_string(buffer);
     }
     
