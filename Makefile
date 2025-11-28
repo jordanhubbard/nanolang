@@ -160,7 +160,7 @@ valgrind: $(COMPILER) $(INTERPRETER)
 coverage-report: coverage test
 	@echo "Generating coverage report..."
 	@lcov --capture --directory . --output-file coverage.info
-	@lcov --remove coverage.info '/usr/*' --output-file coverage.info
+	@lcov --remove coverage.info '/usr/*' --output-file coverage.info --ignore-errors unused
 	@genhtml coverage.info --output-directory $(COV_DIR)
 	@echo "Coverage report generated in $(COV_DIR)/index.html"
 
