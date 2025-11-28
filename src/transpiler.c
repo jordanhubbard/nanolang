@@ -2120,18 +2120,18 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     /* abs function - works with int and float via macro */
     sb_append(sb, "#define nl_abs(x) _Generic((x), \\\n");
-    sb_append(sb, "    int64_t: (int64_t)((x) < 0 ? -(x) : (x)), \\\n");
-    sb_append(sb, "    double: (double)((x) < 0.0 ? -(x) : (x)))\n\n");
+    sb_append(sb, "    double: (double)((x) < 0.0 ? -(x) : (x)), \\\n");
+    sb_append(sb, "    default: (int64_t)((x) < 0 ? -(x) : (x)))\n\n");
 
     /* min function */
     sb_append(sb, "#define nl_min(a, b) _Generic((a), \\\n");
-    sb_append(sb, "    int64_t: (int64_t)((a) < (b) ? (a) : (b)), \\\n");
-    sb_append(sb, "    double: (double)((a) < (b) ? (a) : (b)))\n\n");
+    sb_append(sb, "    double: (double)((a) < (b) ? (a) : (b)), \\\n");
+    sb_append(sb, "    default: (int64_t)((a) < (b) ? (a) : (b)))\n\n");
 
     /* max function */
     sb_append(sb, "#define nl_max(a, b) _Generic((a), \\\n");
-    sb_append(sb, "    int64_t: (int64_t)((a) > (b) ? (a) : (b)), \\\n");
-    sb_append(sb, "    double: (double)((a) > (b) ? (a) : (b)))\n\n");
+    sb_append(sb, "    double: (double)((a) > (b) ? (a) : (b)), \\\n");
+    sb_append(sb, "    default: (int64_t)((a) > (b) ? (a) : (b)))\n\n");
 
     /* Type casting functions */
     sb_append(sb, "static int64_t nl_cast_int(double x) { return (int64_t)x; }\n");
