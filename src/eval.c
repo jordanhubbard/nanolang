@@ -2956,7 +2956,10 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
             }
             
             if (uses_extern) {
-                fprintf(stdout, "Testing %s... SKIPPED (uses extern functions - not supported in interpreter)\n", func_name);
+                fprintf(stdout, "Testing %s... SKIPPED (uses extern functions)\n", func_name);
+                /* Note: Shadow tests with extern functions are skipped in interpreter mode.
+                 * These tests work fine when compiled (nanoc), but the interpreter cannot
+                 * execute them. Consider testing extern functionality via compiled tests. */
                 continue;
             }
             

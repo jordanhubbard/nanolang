@@ -1,0 +1,28 @@
+/* =============================================================================
+ * File I/O Support for Self-Hosted Compiler
+ * =============================================================================
+ * Extern declarations for reading and writing files
+ */
+
+/* Read entire file into a string */
+extern fn read_file(path: string) -> string
+
+/* Write string to file */
+extern fn write_file(path: string, content: string) -> int
+
+/* Check if file exists */
+extern fn file_exists(path: string) -> bool
+
+/* Example usage:
+fn main() -> int {
+    if (file_exists "input.nano") {
+        let source: string = (read_file "input.nano")
+        let output: string = "/* Generated code */\n"
+        let result: int = (write_file "output.c" output)
+        return result
+    } else {
+        (println "File not found")
+        return 1
+    }
+}
+*/
