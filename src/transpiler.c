@@ -478,6 +478,7 @@ static const char *type_to_c(Type type) {
         case TYPE_VOID: return "void";
         case TYPE_ARRAY: return "DynArray*";  /* All arrays are now dynamic arrays with GC */
         case TYPE_STRUCT: return "struct"; /* Will be extended with struct name */
+        case TYPE_ENUM: return ""; /* Enum names are used directly (typedef'd) */
         case TYPE_UNION: return ""; /* Union names are used directly (typedef'd) */
         case TYPE_FUNCTION: return ""; /* Will be handled with typedef */
         case TYPE_LIST_INT: return "List_int*";
@@ -2361,39 +2362,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     sb_append(sb, "/* ========== End Math and Utility Built-in Functions ========== */\n\n");
 
-    /* Generate struct typedefs */
-    sb_append(sb, "/* ========== Struct Definitions ========== */\n\n");
-    for (int i = 0; i < env->struct_count; i++) {
-        StructDef *sdef = &env->structs[i];
-        
-        /* Get prefixed name (adds nl_ for user types, keeps runtime types as-is) */
-        /* IMPORTANT: Save a copy since get_prefixed_type_name uses a static buffer */
-        const char *prefixed_name = strdup(get_prefixed_type_name(sdef->name));
-        
-        /* Generate typedef struct */
-        sb_appendf(sb, "typedef struct %s {\n", prefixed_name);
-        for (int j = 0; j < sdef->field_count; j++) {
-            sb_append(sb, "    ");
-            if (sdef->field_types[j] == TYPE_STRUCT || sdef->field_types[j] == TYPE_UNION) {
-                /* Use the actual struct/union type name if available */
-                if (sdef->field_type_names && sdef->field_type_names[j]) {
-                    const char *field_struct_name = get_prefixed_type_name(sdef->field_type_names[j]);
-                    sb_append(sb, field_struct_name);
-                } else {
-                    /* Fallback to void* if type name not captured */
-                    sb_append(sb, "void* /* struct field */");
-                }
-            } else {
-                sb_append(sb, type_to_c(sdef->field_types[j]));
-            }
-            sb_appendf(sb, " %s;\n", sdef->field_names[j]);
-        }
-        sb_appendf(sb, "} %s;\n\n", prefixed_name);
-        free((void*)prefixed_name);  /* Free the duplicated name */
-    }
-    sb_append(sb, "/* ========== End Struct Definitions ========== */\n\n");
-
-    /* Generate enum typedefs */
+    /* Generate enum typedefs first (before structs, since structs may use enums) */
     sb_append(sb, "/* ========== Enum Definitions ========== */\n\n");
     for (int i = 0; i < env->enum_count; i++) {
         EnumDef *edef = &env->enums[i];
@@ -2420,6 +2389,38 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         sb_appendf(sb, "} %s;\n\n", prefixed_enum);
     }
     sb_append(sb, "/* ========== End Enum Definitions ========== */\n\n");
+
+    /* Generate struct typedefs */
+    sb_append(sb, "/* ========== Struct Definitions ========== */\n\n");
+    for (int i = 0; i < env->struct_count; i++) {
+        StructDef *sdef = &env->structs[i];
+        
+        /* Get prefixed name (adds nl_ for user types, keeps runtime types as-is) */
+        /* IMPORTANT: Save a copy since get_prefixed_type_name uses a static buffer */
+        const char *prefixed_name = strdup(get_prefixed_type_name(sdef->name));
+        
+        /* Generate typedef struct */
+        sb_appendf(sb, "typedef struct %s {\n", prefixed_name);
+        for (int j = 0; j < sdef->field_count; j++) {
+            sb_append(sb, "    ");
+            if (sdef->field_types[j] == TYPE_STRUCT || sdef->field_types[j] == TYPE_UNION || sdef->field_types[j] == TYPE_ENUM) {
+                /* Use the actual struct/union/enum type name if available */
+                if (sdef->field_type_names && sdef->field_type_names[j]) {
+                    const char *field_type_name = get_prefixed_type_name(sdef->field_type_names[j]);
+                    sb_append(sb, field_type_name);
+                } else {
+                    /* Fallback to void* if type name not captured */
+                    sb_append(sb, "void* /* composite type field */");
+                }
+            } else {
+                sb_append(sb, type_to_c(sdef->field_types[j]));
+            }
+            sb_appendf(sb, " %s;\n", sdef->field_names[j]);
+        }
+        sb_appendf(sb, "} %s;\n\n", prefixed_name);
+        free((void*)prefixed_name);  /* Free the duplicated name */
+    }
+    sb_append(sb, "/* ========== End Struct Definitions ========== */\n\n");
 
     /* Generate specialized generic list types */
     sb_append(sb, "/* ========== Generic List Specializations ========== */\n\n");

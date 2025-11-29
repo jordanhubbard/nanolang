@@ -136,6 +136,12 @@ static bool types_match(Type t1, Type t2) {
         return true;  /* Allow for now - runtime will handle */
     }
     
+    /* Enums match with int (enums are represented as integers in C) */
+    if ((t1 == TYPE_ENUM && t2 == TYPE_INT) ||
+        (t1 == TYPE_INT && t2 == TYPE_ENUM)) {
+        return true;
+    }
+    
     return false;
 }
 
@@ -873,7 +879,7 @@ Type check_expression(ASTNode *expr, Environment *env) {
                     /* Verify variant exists */
                     for (int i = 0; i < enum_def->variant_count; i++) {
                         if (safe_strcmp(enum_def->variant_names[i], variant_name) == 0) {
-                            return TYPE_INT;  /* Enums are represented as integers */
+                            return TYPE_ENUM;  /* Return TYPE_ENUM for proper type checking */
                         }
                     }
                     
@@ -2509,11 +2515,23 @@ bool type_check(ASTNode *program, Environment *env) {
                 sdef.field_types[j] = item->as.struct_def.field_types[j];
             }
             
-            /* Duplicate field type names (for struct/union types) */
+            /* Duplicate field type names (for struct/union/enum types) */
             sdef.field_type_names = malloc(sizeof(char*) * sdef.field_count);
             for (int j = 0; j < sdef.field_count; j++) {
                 if (item->as.struct_def.field_type_names && item->as.struct_def.field_type_names[j]) {
                     sdef.field_type_names[j] = strdup(item->as.struct_def.field_type_names[j]);
+                    
+                    /* Fix type if this is actually an enum (parser can't distinguish at parse time) */
+                    if (sdef.field_types[j] == TYPE_STRUCT) {
+                        /* Check if this name is an enum */
+                        if (env_get_enum(env, item->as.struct_def.field_type_names[j])) {
+                            sdef.field_types[j] = TYPE_ENUM;
+                        }
+                        /* Check if this name is a union */
+                        else if (env_get_union(env, item->as.struct_def.field_type_names[j])) {
+                            sdef.field_types[j] = TYPE_UNION;
+                        }
+                    }
                 } else {
                     sdef.field_type_names[j] = NULL;
                 }
@@ -2971,11 +2989,23 @@ bool type_check_module(ASTNode *program, Environment *env) {
                 sdef.field_types[j] = item->as.struct_def.field_types[j];
             }
             
-            /* Duplicate field type names (for struct/union types) */
+            /* Duplicate field type names (for struct/union/enum types) */
             sdef.field_type_names = malloc(sizeof(char*) * sdef.field_count);
             for (int j = 0; j < sdef.field_count; j++) {
                 if (item->as.struct_def.field_type_names && item->as.struct_def.field_type_names[j]) {
                     sdef.field_type_names[j] = strdup(item->as.struct_def.field_type_names[j]);
+                    
+                    /* Fix type if this is actually an enum (parser can't distinguish at parse time) */
+                    if (sdef.field_types[j] == TYPE_STRUCT) {
+                        /* Check if this name is an enum */
+                        if (env_get_enum(env, item->as.struct_def.field_type_names[j])) {
+                            sdef.field_types[j] = TYPE_ENUM;
+                        }
+                        /* Check if this name is a union */
+                        else if (env_get_union(env, item->as.struct_def.field_type_names[j])) {
+                            sdef.field_types[j] = TYPE_UNION;
+                        }
+                    }
                 } else {
                     sdef.field_type_names[j] = NULL;
                 }
