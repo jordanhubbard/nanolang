@@ -1636,12 +1636,14 @@ static ASTNode *parse_struct_def(Parser *p) {
     int count = 0;
     char **field_names = malloc(sizeof(char*) * capacity);
     Type *field_types = malloc(sizeof(Type) * capacity);
+    char **field_type_names = malloc(sizeof(char*) * capacity);
     
     while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
         if (count >= capacity) {
             capacity *= 2;
             field_names = realloc(field_names, sizeof(char*) * capacity);
             field_types = realloc(field_types, sizeof(Type) * capacity);
+            field_type_names = realloc(field_type_names, sizeof(char*) * capacity);
         }
         
         /* Parse field name */
@@ -1658,8 +1660,10 @@ static ASTNode *parse_struct_def(Parser *p) {
             break;
         }
         
-        /* Parse field type */
-        field_types[count] = parse_type(p);
+        /* Parse field type and capture type name for struct/union/enum types */
+        char *type_name = NULL;
+        field_types[count] = parse_type_with_element(p, NULL, &type_name, NULL, NULL);
+        field_type_names[count] = type_name;  /* May be NULL for non-struct types */
         count++;
         
         /* Optional comma */
@@ -1673,9 +1677,11 @@ static ASTNode *parse_struct_def(Parser *p) {
         free(struct_name);
         for (int i = 0; i < count; i++) {
             free(field_names[i]);
+            if (field_type_names[i]) free(field_type_names[i]);
         }
         free(field_names);
         free(field_types);
+        free(field_type_names);
         return NULL;
     }
     
@@ -1684,6 +1690,7 @@ static ASTNode *parse_struct_def(Parser *p) {
     node->as.struct_def.name = struct_name;
     node->as.struct_def.field_names = field_names;
     node->as.struct_def.field_types = field_types;
+    node->as.struct_def.field_type_names = field_type_names;
     node->as.struct_def.field_count = count;
     
     return node;

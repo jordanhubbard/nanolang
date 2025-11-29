@@ -1,0 +1,44 @@
+struct Point {
+    x: float,
+    y: float
+}
+
+struct Line {
+    start: Point,
+    end: Point
+}
+
+struct Triangle {
+    a: Point,
+    b: Point,
+    c: Point
+}
+
+fn main() -> int {
+    let p1: Point = Point { x: 0.0, y: 0.0 }
+    let p2: Point = Point { x: 1.0, y: 0.0 }
+    let p3: Point = Point { x: 0.5, y: 1.0 }
+    
+    let line: Line = Line { start: p1, end: p2 }
+    
+    let tri: Triangle = Triangle { a: p1, b: p2, c: p3 }
+    
+    println("Nested structs test - accessing nested fields")
+    println(line.start.x)
+    println(line.end.y)
+    println(tri.a.x)
+    println(tri.b.y)
+    println(tri.c.x)
+    println("All nested field accesses successful!")
+    return 0
+}
+
+shadow main {
+    let p: Point = Point { x: 1.0, y: 2.0 }
+    assert (== p.x 1.0)
+    assert (== p.y 2.0)
+    
+    let line: Line = Line { start: p, end: p }
+    assert (== line.start.x 1.0)
+    assert (== line.end.y 2.0)
+}

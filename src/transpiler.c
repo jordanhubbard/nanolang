@@ -498,8 +498,8 @@ static const char *get_struct_type_from_expr(ASTNode *expr) {
         return expr->as.struct_literal.struct_name;
     }
     
-    /* For identifiers, calls, field access - would need type environment lookup */
-    /* For now, return NULL and let caller handle it */
+    /* For other expression types, we can't determine the struct type without environment */
+    /* Caller should use get_struct_type_name(expr, env) from typechecker.c instead */
     return NULL;
 }
 
@@ -1561,7 +1561,16 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
                     sb_appendf(sb, "%s %s = ", prefixed_enum, stmt->as.let.name);
                 } else {
                     /* Regular struct/union type - use prefixed name */
-                    const char *type_name = stmt->as.let.type_name ? stmt->as.let.type_name : get_struct_type_from_expr(stmt->as.let.value);
+                    const char *type_name = stmt->as.let.type_name;
+                    if (!type_name) {
+                        /* Try to infer from literal */
+                        type_name = get_struct_type_from_expr(stmt->as.let.value);
+                    }
+                    if (!type_name) {
+                        /* Try to infer from field access or other expressions */
+                        type_name = get_struct_type_name(stmt->as.let.value, env);
+                    }
+                    
                     if (type_name) {
                         /* Check if this is an opaque type */
                         OpaqueTypeDef *opaque = env_get_opaque_type(env, type_name);
@@ -2358,21 +2367,29 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         StructDef *sdef = &env->structs[i];
         
         /* Get prefixed name (adds nl_ for user types, keeps runtime types as-is) */
-        const char *prefixed_name = get_prefixed_type_name(sdef->name);
+        /* IMPORTANT: Save a copy since get_prefixed_type_name uses a static buffer */
+        const char *prefixed_name = strdup(get_prefixed_type_name(sdef->name));
         
         /* Generate typedef struct */
         sb_appendf(sb, "typedef struct %s {\n", prefixed_name);
         for (int j = 0; j < sdef->field_count; j++) {
             sb_append(sb, "    ");
-            if (sdef->field_types[j] == TYPE_STRUCT) {
-                /* For struct fields, we'd need the struct type name - for now use void* */
-                sb_append(sb, "void* /* struct field */");
+            if (sdef->field_types[j] == TYPE_STRUCT || sdef->field_types[j] == TYPE_UNION) {
+                /* Use the actual struct/union type name if available */
+                if (sdef->field_type_names && sdef->field_type_names[j]) {
+                    const char *field_struct_name = get_prefixed_type_name(sdef->field_type_names[j]);
+                    sb_append(sb, field_struct_name);
+                } else {
+                    /* Fallback to void* if type name not captured */
+                    sb_append(sb, "void* /* struct field */");
+                }
             } else {
                 sb_append(sb, type_to_c(sdef->field_types[j]));
             }
             sb_appendf(sb, " %s;\n", sdef->field_names[j]);
         }
         sb_appendf(sb, "} %s;\n\n", prefixed_name);
+        free((void*)prefixed_name);  /* Free the duplicated name */
     }
     sb_append(sb, "/* ========== End Struct Definitions ========== */\n\n");
 

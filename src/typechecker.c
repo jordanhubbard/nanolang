@@ -203,8 +203,13 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             /* Find the field */
             for (int i = 0; i < sdef->field_count; i++) {
                 if (strcmp(sdef->field_names[i], expr->as.field_access.field_name) == 0) {
-                    /* If the field is a struct, we'd need to track its type name */
-                    /* For now, we only track top-level struct names */
+                    /* Check if this field is a struct/union type */
+                    if ((sdef->field_types[i] == TYPE_STRUCT || sdef->field_types[i] == TYPE_UNION) &&
+                        sdef->field_type_names && sdef->field_type_names[i]) {
+                        /* Return the struct type name for this field */
+                        return strdup(sdef->field_type_names[i]);
+                    }
+                    /* Field is not a struct, or type name not available */
                     return NULL;
                 }
             }
@@ -2504,6 +2509,16 @@ bool type_check(ASTNode *program, Environment *env) {
                 sdef.field_types[j] = item->as.struct_def.field_types[j];
             }
             
+            /* Duplicate field type names (for struct/union types) */
+            sdef.field_type_names = malloc(sizeof(char*) * sdef.field_count);
+            for (int j = 0; j < sdef.field_count; j++) {
+                if (item->as.struct_def.field_type_names && item->as.struct_def.field_type_names[j]) {
+                    sdef.field_type_names[j] = strdup(item->as.struct_def.field_type_names[j]);
+                } else {
+                    sdef.field_type_names[j] = NULL;
+                }
+            }
+            
             env_define_struct(env, sdef);
             
         } else if (item->type == AST_UNION_DEF) {
@@ -2954,6 +2969,16 @@ bool type_check_module(ASTNode *program, Environment *env) {
             sdef.field_types = malloc(sizeof(Type) * sdef.field_count);
             for (int j = 0; j < sdef.field_count; j++) {
                 sdef.field_types[j] = item->as.struct_def.field_types[j];
+            }
+            
+            /* Duplicate field type names (for struct/union types) */
+            sdef.field_type_names = malloc(sizeof(char*) * sdef.field_count);
+            for (int j = 0; j < sdef.field_count; j++) {
+                if (item->as.struct_def.field_type_names && item->as.struct_def.field_type_names[j]) {
+                    sdef.field_type_names[j] = strdup(item->as.struct_def.field_type_names[j]);
+                } else {
+                    sdef.field_type_names[j] = NULL;
+                }
             }
             
             env_define_struct(env, sdef);
