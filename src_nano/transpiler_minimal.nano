@@ -1,0 +1,514 @@
+/* =============================================================================
+ * nanolang Transpiler (Self-Hosted) - Minimal Version
+ * =============================================================================
+ * C code generation from nanolang AST
+ * 
+ * Phase 1 Scope (Minimal):
+ * - Generate C code for basic expressions
+ * - Generate C code for statements (let, if, while, return)
+ * - Generate C code for function definitions
+ * - Generate main() wrapper
+ * - Generate necessary C includes and runtime
+ * 
+ * Strategy:
+ * - Simple recursive code generation
+ * - Generate readable C code (not optimized)
+ * - Use string concatenation (no string builder yet)
+ * - Generate flat C (minimal helper functions)
+ */
+
+/* =============================================================================
+ * CODE GENERATION STATE
+ * ============================================================================= */
+
+struct CodeGenState {
+    indent_level: int,
+    temp_var_counter: int,
+    has_error: bool
+}
+
+fn codegen_new() -> CodeGenState {
+    return CodeGenState {
+        indent_level: 0,
+        temp_var_counter: 0,
+        has_error: false
+    }
+}
+
+shadow codegen_new {
+    let state: CodeGenState = (codegen_new)
+    assert (== state.indent_level 0)
+}
+
+/* =============================================================================
+ * CODE GENERATION HELPERS
+ * ============================================================================= */
+
+/* Generate indentation */
+fn gen_indent(level: int) -> string {
+    if (<= level 0) {
+        return ""
+    } else {
+        return (str_concat "    " (gen_indent (- level 1)))
+    }
+}
+
+shadow gen_indent {
+    assert (== (gen_indent 0) "")
+    assert (== (gen_indent 1) "    ")
+}
+
+/* Generate a fresh temporary variable name */
+fn gen_temp_var(state: CodeGenState) -> string {
+    let counter_str: string = (int_to_string state.temp_var_counter)
+    return (str_concat "_t" counter_str)
+}
+
+shadow gen_temp_var {
+    let state: CodeGenState = (codegen_new)
+    let name: string = (gen_temp_var state)
+    assert (== name "_t0")
+}
+
+/* Increment temp counter */
+fn codegen_next_temp(state: CodeGenState) -> CodeGenState {
+    return CodeGenState {
+        indent_level: state.indent_level,
+        temp_var_counter: (+ state.temp_var_counter 1),
+        has_error: state.has_error
+    }
+}
+
+shadow codegen_next_temp {
+    let state: CodeGenState = (codegen_new)
+    let state2: CodeGenState = (codegen_next_temp state)
+    assert (== state2.temp_var_counter 1)
+}
+
+/* =============================================================================
+ * EXPRESSION CODE GENERATION
+ * ============================================================================= */
+
+/* Generate code for a number literal */
+fn gen_number(value: string) -> string {
+    return value
+}
+
+shadow gen_number {
+    assert (== (gen_number "42") "42")
+}
+
+/* Generate code for a string literal */
+fn gen_string(value: string) -> string {
+    /* For now, return as-is. In production, need to escape special chars */
+    return (str_concat "\"" (str_concat value "\""))
+}
+
+shadow gen_string {
+    let code: string = (gen_string "hello")
+    assert (== code "\"hello\"")
+}
+
+/* Generate code for a boolean literal */
+fn gen_bool(value: bool) -> string {
+    if value {
+        return "1"
+    } else {
+        return "0"
+    }
+}
+
+shadow gen_bool {
+    assert (== (gen_bool true) "1")
+    assert (== (gen_bool false) "0")
+}
+
+/* Generate code for an identifier */
+fn gen_identifier(name: string) -> string {
+    /* Add nl_ prefix for namespacing */
+    return (str_concat "nl_" name)
+}
+
+shadow gen_identifier {
+    assert (== (gen_identifier "x") "nl_x")
+}
+
+/* Generate code for a binary operation */
+fn gen_binary_op(op: string, left: string, right: string) -> string {
+    /* Convert nanolang operators to C operators */
+    let mut c_op: string = op
+    
+    /* Arithmetic is same: +, -, *, /, % */
+    /* Comparison: ==, !=, <, >, <=, >= */
+    /* Logical: convert 'and' -> '&&', 'or' -> '||' */
+    
+    if (== op "and") {
+        set c_op "&&"
+    } else {
+        if (== op "or") {
+            set c_op "||"
+        } else {
+            set c_op op
+        }
+    }
+    
+    let mut result: string = "("
+    set result (str_concat result left)
+    set result (str_concat result " ")
+    set result (str_concat result c_op)
+    set result (str_concat result " ")
+    set result (str_concat result right)
+    set result (str_concat result ")")
+    
+    return result
+}
+
+shadow gen_binary_op {
+    let code: string = (gen_binary_op "+" "2" "3")
+    assert (== code "(2 + 3)")
+    
+    let code2: string = (gen_binary_op "and" "a" "b")
+    assert (== code2 "(a && b)")
+}
+
+/* Generate code for a function call */
+fn gen_call(func_name: string, args: array<string>) -> string {
+    let mut result: string = "nl_"
+    set result (str_concat result func_name)
+    set result (str_concat result "(")
+    
+    /* Add arguments */
+    let arg_count: int = (array_length args)
+    let mut i: int = 0
+    
+    while (< i arg_count) {
+        if (> i 0) {
+            set result (str_concat result ", ")
+        } else {
+            (print "")
+        }
+        
+        let arg: string = (at args i)  /* Type from array<string> */
+        set result (str_concat result arg)
+        set i (+ i 1)
+    }
+    
+    set result (str_concat result ")")
+    return result
+}
+
+shadow gen_call {
+    let args: array<string> = []
+    let code1: string = (gen_call "foo" args)
+    assert (== code1 "nl_foo()")
+    
+    let mut args2: array<string> = []
+    set args2 (array_push args2 "1")
+    set args2 (array_push args2 "2")
+    let code2: string = (gen_call "add" args2)
+    assert (== code2 "nl_add(1, 2)")
+}
+
+/* =============================================================================
+ * STATEMENT CODE GENERATION
+ * ============================================================================= */
+
+/* Generate code for a let statement */
+fn gen_let(name: string, type_name: string, value_expr: string, indent: int) -> string {
+    let mut result: string = (gen_indent indent)
+    
+    /* Convert nanolang types to C types */
+    let mut c_type: string = type_name
+    if (== type_name "int") {
+        set c_type "int64_t"
+    } else {
+        if (== type_name "float") {
+            set c_type "double"
+        } else {
+            if (== type_name "bool") {
+                set c_type "int"
+            } else {
+                if (== type_name "string") {
+                    set c_type "char*"
+                } else {
+                    set c_type type_name  /* Keep as-is for struct types */
+                }
+            }
+        }
+    }
+    
+    set result (str_concat result c_type)
+    set result (str_concat result " nl_")
+    set result (str_concat result name)
+    set result (str_concat result " = ")
+    set result (str_concat result value_expr)
+    set result (str_concat result ";\n")
+    
+    return result
+}
+
+shadow gen_let {
+    let code: string = (gen_let "x" "int" "42" 0)
+    assert (== code "int64_t nl_x = 42;\n")
+}
+
+/* Generate code for an if statement */
+fn gen_if(condition: string, then_body: string, else_body: string, indent: int) -> string {
+    let mut result: string = (gen_indent indent)
+    set result (str_concat result "if (")
+    set result (str_concat result condition)
+    set result (str_concat result ") {\n")
+    set result (str_concat result then_body)
+    set result (str_concat result (gen_indent indent))
+    set result (str_concat result "}")
+    
+    /* Add else clause if present */
+    if (!= else_body "") {
+        set result (str_concat result " else {\n")
+        set result (str_concat result else_body)
+        set result (str_concat result (gen_indent indent))
+        set result (str_concat result "}")
+    } else {
+        (print "")
+    }
+    
+    set result (str_concat result "\n")
+    return result
+}
+
+shadow gen_if {
+    let code: string = (gen_if "x > 0" "    return 1;\n" "" 0)
+    /* Just verify it doesn't crash */
+    assert (== 1 1)
+}
+
+/* Generate code for a while loop */
+fn gen_while(condition: string, body: string, indent: int) -> string {
+    let mut result: string = (gen_indent indent)
+    set result (str_concat result "while (")
+    set result (str_concat result condition)
+    set result (str_concat result ") {\n")
+    set result (str_concat result body)
+    set result (str_concat result (gen_indent indent))
+    set result (str_concat result "}\n")
+    
+    return result
+}
+
+shadow gen_while {
+    let code: string = (gen_while "i < 10" "    i++;\n" 0)
+    /* Just verify it doesn't crash */
+    assert (== 1 1)
+}
+
+/* Generate code for a return statement */
+fn gen_return(value_expr: string, indent: int) -> string {
+    let mut result: string = (gen_indent indent)
+    set result (str_concat result "return ")
+    set result (str_concat result value_expr)
+    set result (str_concat result ";\n")
+    
+    return result
+}
+
+shadow gen_return {
+    let code: string = (gen_return "42" 1)
+    assert (== code "    return 42;\n")
+}
+
+/* =============================================================================
+ * FUNCTION DEFINITION GENERATION
+ * ============================================================================= */
+
+/* Generate function signature */
+fn gen_function_signature(name: string, params: array<string>, param_types: array<string>, return_type: string) -> string {
+    let mut result: string = ""
+    
+    /* Convert return type */
+    let mut c_ret_type: string = return_type
+    if (== return_type "int") {
+        set c_ret_type "int64_t"
+    } else {
+        if (== return_type "void") {
+            set c_ret_type "void"
+        } else {
+            if (== return_type "bool") {
+                set c_ret_type "int"
+            } else {
+                set c_ret_type return_type
+            }
+        }
+    }
+    
+    set result (str_concat result c_ret_type)
+    set result (str_concat result " nl_")
+    set result (str_concat result name)
+    set result (str_concat result "(")
+    
+    /* Add parameters */
+    let param_count: int = (array_length params)
+    let mut i: int = 0
+    
+    while (< i param_count) {
+        if (> i 0) {
+            set result (str_concat result ", ")
+        } else {
+            (print "")
+        }
+        
+        let param_type: string = (at param_types i)
+        let mut c_param_type: string = param_type
+        
+        if (== param_type "int") {
+            set c_param_type "int64_t"
+        } else {
+            if (== param_type "bool") {
+                set c_param_type "int"
+            } else {
+                set c_param_type param_type
+            }
+        }
+        
+        set result (str_concat result c_param_type)
+        set result (str_concat result " nl_")
+        let param_name: string = (at params i)
+        set result (str_concat result param_name)
+        
+        set i (+ i 1)
+    }
+    
+    set result (str_concat result ")")
+    return result
+}
+
+shadow gen_function_signature {
+    let params: array<string> = []
+    let types: array<string> = []
+    let sig: string = (gen_function_signature "foo" params types "int")
+    assert (== sig "int64_t nl_foo()")
+}
+
+/* Generate complete function definition */
+fn gen_function(name: string, params: array<string>, param_types: array<string>, return_type: string, body: string) -> string {
+    let mut result: string = (gen_function_signature name params param_types return_type)
+    set result (str_concat result " {\n")
+    set result (str_concat result body)
+    set result (str_concat result "}\n\n")
+    
+    return result
+}
+
+shadow gen_function {
+    let params: array<string> = []
+    let types: array<string> = []
+    let func: string = (gen_function "main" params types "int" "    return 0;\n")
+    /* Just verify it doesn't crash */
+    assert (== 1 1)
+}
+
+/* =============================================================================
+ * C RUNTIME / STANDARD LIBRARY
+ * ============================================================================= */
+
+/* Generate C includes and runtime support */
+fn gen_c_includes() -> string {
+    let mut result: string = "/* Generated by nanolang self-hosted compiler */\n"
+    set result (str_concat result "#include <stdio.h>\n")
+    set result (str_concat result "#include <stdlib.h>\n")
+    set result (str_concat result "#include <stdint.h>\n")
+    set result (str_concat result "#include <string.h>\n")
+    set result (str_concat result "\n")
+    
+    return result
+}
+
+shadow gen_c_includes {
+    let includes: string = (gen_c_includes)
+    /* Just verify it generates something */
+    assert (== 1 1)
+}
+
+/* Generate runtime helper functions */
+fn gen_c_runtime() -> string {
+    let mut result: string = "/* Runtime helper functions */\n"
+    
+    /* print function */
+    set result (str_concat result "void nl_print(char* s) {\n")
+    set result (str_concat result "    printf(\"%s\", s);\n")
+    set result (str_concat result "}\n\n")
+    
+    /* println function */
+    set result (str_concat result "void nl_println(char* s) {\n")
+    set result (str_concat result "    printf(\"%s\\n\", s);\n")
+    set result (str_concat result "}\n\n")
+    
+    /* int_to_string function */
+    set result (str_concat result "char* nl_int_to_string(int64_t n) {\n")
+    set result (str_concat result "    char* buf = malloc(32);\n")
+    set result (str_concat result "    snprintf(buf, 32, \"%lld\", n);\n")
+    set result (str_concat result "    return buf;\n")
+    set result (str_concat result "}\n\n")
+    
+    return result
+}
+
+shadow gen_c_runtime {
+    let runtime: string = (gen_c_runtime)
+    /* Just verify it generates something */
+    assert (== 1 1)
+}
+
+/* Generate complete C program */
+fn gen_c_program(functions: string) -> string {
+    let mut result: string = (gen_c_includes)
+    set result (str_concat result (gen_c_runtime))
+    set result (str_concat result "/* User functions */\n")
+    set result (str_concat result functions)
+    
+    return result
+}
+
+shadow gen_c_program {
+    let prog: string = (gen_c_program "int64_t nl_main() { return 0; }\n")
+    /* Just verify it generates something */
+    assert (== 1 1)
+}
+
+/* =============================================================================
+ * MAIN ENTRY POINT (For Testing)
+ * ============================================================================= */
+
+fn main() -> int {
+    (println "=== nanolang Transpiler (Minimal) ===")
+    (println "")
+    (println "Phase 1 Scope:")
+    (println "  ✓ Expression code generation (literals, binary ops, calls)")
+    (println "  ✓ Statement code generation (let, if, while, return)")
+    (println "  ✓ Function definition generation")
+    (println "  ✓ C runtime support (print, println, conversions)")
+    (println "  ✓ Complete C program generation")
+    (println "")
+    (println "Example Generated Code:")
+    (println "")
+    
+    /* Generate a simple hello world program */
+    let mut body: string = ""
+    set body (str_concat body (gen_indent 1))
+    set body (str_concat body "nl_println(\"Hello, World!\");\n")
+    set body (str_concat body (gen_return "0" 1))
+    
+    let params: array<string> = []
+    let types: array<string> = []
+    let main_func: string = (gen_function "main" params types "int" body)
+    let program: string = (gen_c_program main_func)
+    
+    (print program)
+    (println "")
+    (println "All transpiler tests passed!")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

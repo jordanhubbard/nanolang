@@ -315,7 +315,7 @@ fn scene_hit(spheres: array<Sphere>, r: Ray, light_pos: Vec3) -> Vec3 {
         set i (+ i 1)
     }
     
-    if (did_hit) {
+    if did_hit {
         let closest_hit: HitRecord = HitRecord {
             hit: true,
             t: closest_t,
@@ -495,32 +495,36 @@ fn main() -> int {
     let mut spheres: array<Sphere> = []
     
     # Ground sphere (large)
-    set spheres (array_push spheres (Sphere {
+    let ground: Sphere = Sphere {
         center: Vec3 { x: 0.0, y: -100.5, z: -1.0 },
         radius: 100.0,
         color: Vec3 { x: 0.5, y: 0.5, z: 0.5 }
-    }))
+    }
+    set spheres (array_push spheres ground)
     
     # Center sphere (red)
-    set spheres (array_push spheres (Sphere {
+    let center_sphere: Sphere = Sphere {
         center: Vec3 { x: 0.0, y: 0.0, z: -1.0 },
         radius: 0.5,
         color: Vec3 { x: 0.8, y: 0.3, z: 0.3 }
-    }))
+    }
+    set spheres (array_push spheres center_sphere)
     
     # Left sphere (green)
-    set spheres (array_push spheres (Sphere {
+    let left_sphere: Sphere = Sphere {
         center: Vec3 { x: -1.0, y: 0.0, z: -1.0 },
         radius: 0.5,
         color: Vec3 { x: 0.3, y: 0.8, z: 0.3 }
-    }))
+    }
+    set spheres (array_push spheres left_sphere)
     
     # Right sphere (blue)
-    set spheres (array_push spheres (Sphere {
+    let right_sphere: Sphere = Sphere {
         center: Vec3 { x: 1.0, y: 0.0, z: -1.0 },
         radius: 0.5,
         color: Vec3 { x: 0.3, y: 0.3, z: 0.8 }
-    }))
+    }
+    set spheres (array_push spheres right_sphere)
     
     (println "✓ Scene created with 4 spheres")
     
@@ -593,7 +597,7 @@ fn main() -> int {
         }
         
         # Render if needed
-        if (needs_render) {
+        if needs_render {
             set needs_render false
             
             # Convert screen space light to world space

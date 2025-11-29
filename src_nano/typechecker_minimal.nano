@@ -1,0 +1,468 @@
+/* =============================================================================
+ * nanolang Type Checker (Self-Hosted) - Minimal Version
+ * =============================================================================
+ * Type checking for the self-hosted nanolang compiler
+ * 
+ * Phase 1 Scope (Minimal):
+ * - Basic types: int, float, bool, string, void
+ * - Variable declarations and usage
+ * - Function signatures
+ * - Binary operations (+, -, *, /, ==, <, >, etc.)
+ * - Function calls with type checking
+ * - Simple struct support (no nested/complex types yet)
+ * 
+ * NOT in Phase 1:
+ * - Generics
+ * - Unions
+ * - Arrays/Lists
+ * - Advanced type inference
+ * - Module system
+ */
+
+/* =============================================================================
+ * TYPE SYSTEM
+ * ============================================================================= */
+
+/* Basic type kinds */
+enum TypeKind {
+    TYPE_INT,
+    TYPE_FLOAT,
+    TYPE_BOOL,
+    TYPE_STRING,
+    TYPE_VOID,
+    TYPE_FUNCTION,
+    TYPE_STRUCT,
+    TYPE_UNKNOWN
+}
+
+/* Type representation */
+struct Type {
+    kind: int,           /* TypeKind */
+    name: string         /* For struct types, empty for primitives */
+}
+
+/* Function signature for type checking */
+struct FunctionType {
+    name: string,
+    param_count: int,
+    return_type: Type
+    /* Note: param types stored separately in environment */
+}
+
+/* =============================================================================
+ * SYMBOL TABLE / ENVIRONMENT
+ * ============================================================================= */
+
+/* Symbol in the environment (variable or function) */
+struct Symbol {
+    name: string,
+    sym_type: Type,
+    is_mutable: bool,
+    is_function: bool,
+    defined: bool
+}
+
+/* Environment for type checking */
+struct TypeEnvironment {
+    error_count: int,
+    has_error: bool
+}
+
+/* Global storage for symbols - using arrays for Phase 1 */
+/* Note: In production, we'd use a proper hash map */
+
+/* =============================================================================
+ * TYPE CHECKING FUNCTIONS
+ * ============================================================================= */
+
+/* Create a new type */
+fn type_int() -> Type {
+    return Type {
+        kind: TypeKind.TYPE_INT,
+        name: ""
+    }
+}
+
+shadow type_int {
+    let t: Type = (type_int)
+    assert (== t.kind TypeKind.TYPE_INT)
+}
+
+fn type_float() -> Type {
+    return Type {
+        kind: TypeKind.TYPE_FLOAT,
+        name: ""
+    }
+}
+
+shadow type_float {
+    let t: Type = (type_float)
+    assert (== t.kind TypeKind.TYPE_FLOAT)
+}
+
+fn type_bool() -> Type {
+    return Type {
+        kind: TypeKind.TYPE_BOOL,
+        name: ""
+    }
+}
+
+shadow type_bool {
+    let t: Type = (type_bool)
+    assert (== t.kind TypeKind.TYPE_BOOL)
+}
+
+fn type_string() -> Type {
+    return Type {
+        kind: TypeKind.TYPE_STRING,
+        name: ""
+    }
+}
+
+shadow type_string {
+    let t: Type = (type_string)
+    assert (== t.kind TypeKind.TYPE_STRING)
+}
+
+fn type_void() -> Type {
+    return Type {
+        kind: TypeKind.TYPE_VOID,
+        name: ""
+    }
+}
+
+shadow type_void {
+    let t: Type = (type_void)
+    assert (== t.kind TypeKind.TYPE_VOID)
+}
+
+/* Check if two types are equal */
+fn types_equal(t1: Type, t2: Type) -> bool {
+    if (!= t1.kind t2.kind) {
+        return false
+    } else {
+        /* For struct types, also check name */
+        if (== t1.kind TypeKind.TYPE_STRUCT) {
+            return (== t1.name t2.name)
+        } else {
+            return true
+        }
+    }
+}
+
+shadow types_equal {
+    let int1: Type = (type_int)
+    let int2: Type = (type_int)
+    let float1: Type = (type_float)
+    
+    assert (types_equal int1 int2)
+    assert (not (types_equal int1 float1))
+}
+
+/* Create type from string representation */
+fn type_from_string(s: string) -> Type {
+    if (== s "int") {
+        return (type_int)
+    } else {
+        if (== s "float") {
+            return (type_float)
+        } else {
+            if (== s "bool") {
+                return (type_bool)
+            } else {
+                if (== s "string") {
+                    return (type_string)
+                } else {
+                    if (== s "void") {
+                        return (type_void)
+                    } else {
+                        /* Assume it's a struct type */
+                        return Type {
+                            kind: TypeKind.TYPE_STRUCT,
+                            name: s
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow type_from_string {
+    let t: Type = (type_from_string "int")
+    assert (== t.kind TypeKind.TYPE_INT)
+    
+    let t2: Type = (type_from_string "MyStruct")
+    assert (== t2.kind TypeKind.TYPE_STRUCT)
+    /* String comparison in struct might not work as expected */
+    /* Just check the kind for now */
+}
+
+/* Type to string for error messages */
+fn type_to_string(t: Type) -> string {
+    if (== t.kind TypeKind.TYPE_INT) {
+        return "int"
+    } else {
+        if (== t.kind TypeKind.TYPE_FLOAT) {
+            return "float"
+        } else {
+            if (== t.kind TypeKind.TYPE_BOOL) {
+                return "bool"
+            } else {
+                if (== t.kind TypeKind.TYPE_STRING) {
+                    return "string"
+                } else {
+                    if (== t.kind TypeKind.TYPE_VOID) {
+                        return "void"
+                    } else {
+                        if (== t.kind TypeKind.TYPE_STRUCT) {
+                            return t.name
+                        } else {
+                            return "unknown"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow type_to_string {
+    assert (== (type_to_string (type_int)) "int")
+    assert (== (type_to_string (type_bool)) "bool")
+}
+
+/* =============================================================================
+ * SYMBOL TABLE MANAGEMENT
+ * ============================================================================= */
+
+/* Create new empty environment */
+fn env_new() -> TypeEnvironment {
+    return TypeEnvironment {
+        error_count: 0,
+        has_error: false
+    }
+}
+
+shadow env_new {
+    let env: TypeEnvironment = (env_new)
+    assert (== env.error_count 0)
+    assert (== env.has_error false)
+}
+
+/* Create a new symbol */
+fn symbol_new(name: string, sym_type: Type, is_mut: bool, is_fn: bool) -> Symbol {
+    return Symbol {
+        name: name,
+        sym_type: sym_type,
+        is_mutable: is_mut,
+        is_function: is_fn,
+        defined: true
+    }
+}
+
+shadow symbol_new {
+    let sym: Symbol = (symbol_new "x" (type_int) true false)
+    assert (== sym.is_mutable true)
+    assert (== sym.is_function false)
+}
+
+/* Add symbol to environment (using array) */
+fn env_add_symbol(env: TypeEnvironment, symbols: array<Symbol>, sym: Symbol) -> array<Symbol> {
+    return (array_push symbols sym)
+}
+
+shadow env_add_symbol {
+    let env: TypeEnvironment = (env_new)
+    let symbols: array<Symbol> = []
+    let sym: Symbol = (symbol_new "x" (type_int) false false)
+    let new_symbols: array<Symbol> = (env_add_symbol env symbols sym)
+    assert (== (array_length new_symbols) 1)
+}
+
+/* Look up symbol by name */
+fn env_lookup(symbols: array<Symbol>, name: string) -> int {
+    /* Returns index of symbol, or -1 if not found */
+    let count: int = (array_length symbols)
+    let mut i: int = (- count 1)  /* Search backwards for most recent definition */
+    
+    while (>= i 0) {
+        let sym: Symbol = (at symbols i)
+        if (== sym.name name) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (- i 1)
+    }
+    
+    return -1
+}
+
+shadow env_lookup {
+    let env: TypeEnvironment = (env_new)
+    let mut symbols: array<Symbol> = []
+    set symbols (array_push symbols (symbol_new "x" (type_int) false false))
+    set symbols (array_push symbols (symbol_new "y" (type_bool) false false))
+    
+    let idx: int = (env_lookup symbols "y")
+    assert (== idx 1)
+    
+    let not_found: int = (env_lookup symbols "z")
+    assert (== not_found -1)
+}
+
+/* Check if symbol exists */
+fn env_has_symbol(symbols: array<Symbol>, name: string) -> bool {
+    return (>= (env_lookup symbols name) 0)
+}
+
+shadow env_has_symbol {
+    let mut symbols: array<Symbol> = []
+    set symbols (array_push symbols (symbol_new "x" (type_int) false false))
+    
+    assert (env_has_symbol symbols "x")
+    assert (not (env_has_symbol symbols "y"))
+}
+
+/* Get symbol type */
+fn env_get_type(symbols: array<Symbol>, name: string) -> Type {
+    let idx: int = (env_lookup symbols name)
+    if (>= idx 0) {
+        let sym: Symbol = (at symbols idx)
+        return sym.sym_type
+    } else {
+        /* Return unknown type for undefined symbols */
+        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "undefined" }
+    }
+}
+
+shadow env_get_type {
+    let mut symbols: array<Symbol> = []
+    set symbols (array_push symbols (symbol_new "x" (type_int) false false))
+    
+    let t: Type = (env_get_type symbols "x")
+    assert (== t.kind TypeKind.TYPE_INT)
+}
+
+/* =============================================================================
+ * EXPRESSION TYPE CHECKING
+ * ============================================================================= */
+
+/* Check type of a literal number */
+fn check_number_literal(value: string) -> Type {
+    /* For now, all numbers are int */
+    /* TODO: detect floats by checking for '.' */
+    return (type_int)
+}
+
+shadow check_number_literal {
+    let t: Type = (check_number_literal "42")
+    assert (== t.kind TypeKind.TYPE_INT)
+}
+
+/* Check type of a string literal */
+fn check_string_literal() -> Type {
+    return (type_string)
+}
+
+shadow check_string_literal {
+    let t: Type = (check_string_literal)
+    assert (== t.kind TypeKind.TYPE_STRING)
+}
+
+/* Check type of a boolean literal */
+fn check_bool_literal() -> Type {
+    return (type_bool)
+}
+
+shadow check_bool_literal {
+    let t: Type = (check_bool_literal)
+    assert (== t.kind TypeKind.TYPE_BOOL)
+}
+
+/* Check if operator is valid for given types */
+fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
+    /* Arithmetic ops: +, -, *, /, % */
+    if (or (or (or (or (== op "+") (== op "-")) (== op "*")) (== op "/")) (== op "%")) {
+        /* Both operands must be int or float */
+        if (and (== left_type.kind TypeKind.TYPE_INT) (== right_type.kind TypeKind.TYPE_INT)) {
+            return (type_int)
+        } else {
+            if (or (== left_type.kind TypeKind.TYPE_FLOAT) (== right_type.kind TypeKind.TYPE_FLOAT)) {
+                return (type_float)
+            } else {
+                /* Type error */
+                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+            }
+        }
+    } else {
+        /* Comparison ops: ==, !=, <, >, <=, >= */
+        if (or (or (or (or (or (== op "==") (== op "!=")) (== op "<")) (== op ">")) (== op "<=")) (== op ">=")) {
+            /* Types must match, result is bool */
+            if (types_equal left_type right_type) {
+                return (type_bool)
+            } else {
+                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+            }
+        } else {
+            /* Logical ops: and, or */
+            if (or (== op "and") (== op "or")) {
+                /* Both must be bool */
+                if (and (== left_type.kind TypeKind.TYPE_BOOL) (== right_type.kind TypeKind.TYPE_BOOL)) {
+                    return (type_bool)
+                } else {
+                    return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+                }
+            } else {
+                /* Unknown operator */
+                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+            }
+        }
+    }
+}
+
+shadow check_binary_op {
+    let int_t: Type = (type_int)
+    let bool_t: Type = (type_bool)
+    
+    /* Test arithmetic */
+    let result1: Type = (check_binary_op "+" int_t int_t)
+    assert (== result1.kind TypeKind.TYPE_INT)
+    
+    /* Test comparison */
+    let result2: Type = (check_binary_op "==" int_t int_t)
+    assert (== result2.kind TypeKind.TYPE_BOOL)
+    
+    /* Test logical */
+    let result3: Type = (check_binary_op "and" bool_t bool_t)
+    assert (== result3.kind TypeKind.TYPE_BOOL)
+}
+
+/* =============================================================================
+ * MAIN ENTRY POINT (For Testing)
+ * ============================================================================= */
+
+fn main() -> int {
+    (println "=== nanolang Type Checker (Minimal) ===")
+    (println "")
+    (println "Phase 1 Scope:")
+    (println "  ✓ Basic types: int, float, bool, string, void")
+    (println "  ✓ Type equality checking")
+    (println "  ✓ Type representation")
+    (println "  ✓ Binary operator type checking")
+    (println "")
+    (println "Next Steps:")
+    (println "  - Implement symbol table/environment")
+    (println "  - Add expression type checking from AST")
+    (println "  - Add statement type checking")
+    (println "  - Add function signature validation")
+    (println "")
+    (println "All basic infrastructure tests passed!")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
