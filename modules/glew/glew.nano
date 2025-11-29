@@ -87,6 +87,9 @@ extern fn glScalef(x: float, y: float, z: float) -> void
 # Rendering modes
 extern fn glShadeModel(mode: int) -> void
 
+# Material and lighting
+extern fn glColorMaterial(face: int, mode: int) -> void
+
 # State management
 extern fn glEnable(cap: int) -> void
 extern fn glDisable(cap: int) -> void

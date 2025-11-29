@@ -123,15 +123,26 @@ $(BIN_DIR):
 stage1.5: $(HYBRID_COMPILER)
 	@echo "✓ Stage 1.5 hybrid compiler built: $(HYBRID_COMPILER)"
 
+# Bootstrap: Build self-hosted compiler (Stage 1)
+bootstrap: $(COMPILER)
+	@echo "==================================================================="
+	@echo "  Bootstrap: Building Self-Hosted Compiler (Stage 1)"
+	@echo "==================================================================="
+	@./scripts/bootstrap.sh
+	@echo "✓ Bootstrap complete: build_bootstrap/nanoc_stage1"
+
 clean:
 	rm -f $(OBJ_DIR)/*.o $(OBJ_DIR)/runtime/*.o $(COMPILER) $(INTERPRETER) $(HYBRID_COMPILER) $(FFI_BINDGEN) *.out *.out.c tests/*.out tests/*.out.c
 	rm -rf .test_output $(COV_DIR)
 	rm -f *.gcda *.gcno *.gcov coverage.info
 	find . -name "*.gcda" -o -name "*.gcno" | xargs rm -f
+	rm -rf build_bootstrap/*.c build_bootstrap/nanoc_stage1 build_bootstrap/stage1_compiler build_bootstrap/*.o
+	rm -f test.nano test_output.c test_program
 	@$(MAKE) -C examples clean 2>/dev/null || true
 	@$(MAKE) -C confusion-mdl clean 2>/dev/null || true
 
-test: $(COMPILER) $(INTERPRETER)
+test: $(COMPILER) $(INTERPRETER) bootstrap
+	@echo "Running test suite (includes bootstrap verification)..."
 	@./test.sh
 
 # Build with AddressSanitizer and UndefinedBehaviorSanitizer
@@ -186,7 +197,8 @@ lint:
 check: all test
 
 # Build all examples (delegates to examples/Makefile)
-examples: $(COMPILER) $(INTERPRETER) | $(BIN_DIR)
+examples: $(COMPILER) $(INTERPRETER) bootstrap | $(BIN_DIR)
+	@echo "Building examples (bootstrap verified)..."
 	@$(MAKE) check-deps-sdl
 	@$(MAKE) -C examples all
 
@@ -200,8 +212,9 @@ help:
 	@echo "  make modules-check - Same as 'make modules'"
 	@echo "  make modules-install - Interactively install missing module dependencies"
 	@echo "  make stage1.5     - Build Stage 1.5 hybrid compiler (nanolang lexer + C)"
-	@echo "  make examples     - Build all examples (auto-checks SDL2 if needed)"
-	@echo "  make test         - Run test suite"
+	@echo "  make bootstrap    - Build self-hosted compiler (Stage 1, nanolang → C)"
+	@echo "  make examples     - Build all examples (includes bootstrap)"
+	@echo "  make test         - Run test suite (includes bootstrap verification)"
 	@echo "  make sanitize     - Build with memory sanitizers"
 	@echo "  make coverage     - Build with coverage instrumentation"
 	@echo "  make coverage-report - Generate HTML coverage report"
@@ -221,4 +234,4 @@ help:
 	@echo "  Use 'make modules' to check which C library dependencies are installed."
 	@echo "  Use 'make modules-install' to interactively install missing dependencies."
 
-.PHONY: all clean test sanitize coverage coverage-report valgrind install uninstall lint check help stage1.5 examples check-deps check-deps-sdl modules modules-check modules-install
+.PHONY: all clean test sanitize coverage coverage-report valgrind install uninstall lint check help stage1.5 bootstrap examples check-deps check-deps-sdl modules modules-check modules-install
