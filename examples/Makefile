@@ -27,7 +27,8 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/boids_sdl \
 	$(BIN_DIR)/particles_sdl \
 	$(BIN_DIR)/falling_sand_sdl \
-	$(BIN_DIR)/terrain_explorer_sdl
+	$(BIN_DIR)/terrain_explorer_sdl \
+	$(BIN_DIR)/raytracer_simple
 
 # OpenGL examples (GLFW + GLEW)
 OPENGL_EXAMPLES = \
@@ -68,15 +69,16 @@ all: $(COMPILER) $(GRAPHICS_EXAMPLES)
 	@echo "✓ All compiled examples built successfully!"
 	@echo ""
 	@echo "SDL examples:"
-	@echo "  ./bin/checkers_sdl"
-	@echo "  ./bin/boids_sdl"
-	@echo "  ./bin/particles_sdl"
-	@echo "  ./bin/falling_sand_sdl"
-	@echo "  ./bin/terrain_explorer_sdl"
+	@echo "  ./bin/checkers_sdl         - Full checkers game with AI"
+	@echo "  ./bin/boids_sdl            - Flocking simulation (Craig Reynolds' Boids)"
+	@echo "  ./bin/particles_sdl        - Particle explosion effect"
+	@echo "  ./bin/falling_sand_sdl     - Cellular automata sandbox"
+	@echo "  ./bin/terrain_explorer_sdl - 3D terrain with mouse camera"
+	@echo "  ./bin/raytracer_simple     - Real-time ray tracer with mouse-controlled light"
 	@echo ""
-	@echo "OpenGL examples:"
-	@echo "  ./bin/opengl_cube    (requires: brew install glfw glew)"
-	@echo "  ./bin/opengl_teapot  (rotating teapot with texture cycling)"
+	@echo "OpenGL examples (requires: brew install glfw glew):"
+	@echo "  ./bin/opengl_cube          - Rotating textured cube"
+	@echo "  ./bin/opengl_teapot        - Rotating teapot with texture cycling"
 	@echo ""
 	@echo "Interpreter demo examples (run with: ./bin/nano examples/name.nano):"
 	@echo "  hello.nano"
@@ -115,8 +117,8 @@ checkers-sdl: $(BIN_DIR)/checkers_sdl
 boids-sdl: $(BIN_DIR)/boids_sdl
 particles-sdl: $(BIN_DIR)/particles_sdl
 falling-sand-sdl: $(BIN_DIR)/falling_sand_sdl
-
 terrain-explorer-sdl: $(BIN_DIR)/terrain_explorer_sdl
+raytracer-simple: $(BIN_DIR)/raytracer_simple
 
 opengl-cube: $(BIN_DIR)/opengl_cube
 opengl-teapot: $(BIN_DIR)/opengl_teapot
@@ -157,6 +159,11 @@ $(BIN_DIR)/opengl_teapot: opengl_teapot/teapot.nano $(COMPILER)
 	@echo "Building OpenGL Textured Teapot (GLFW + GLEW + procedural textures)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_teapot/teapot.nano -o bin/opengl_teapot
 	@echo "✓ OpenGL Teapot built: $@"
+
+$(BIN_DIR)/raytracer_simple: raytracer_simple.nano $(COMPILER)
+	@echo "Building Ray Tracer (real-time with mouse-controlled light)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/raytracer_simple.nano -o bin/raytracer_simple
+	@echo "✓ Ray Tracer built: $@"
 
 # === Interpreter Demo Examples ===
 
@@ -221,10 +228,14 @@ help:
 	@echo "  make clean        - Remove build artifacts"
 	@echo ""
 	@echo "Compiled examples (transpiler):"
-	@echo "  checkers_sdl      - Full checkers game with AI"
-	@echo "  boids_sdl         - Flocking simulation"
-	@echo "  particles_sdl     - Particle explosion"
-	@echo "  falling_sand_sdl  - Cellular automata sandbox"
+	@echo "  checkers-sdl         - Full checkers game with AI"
+	@echo "  boids-sdl            - Flocking simulation"
+	@echo "  particles-sdl        - Particle explosion"
+	@echo "  falling-sand-sdl     - Cellular automata sandbox"
+	@echo "  terrain-explorer-sdl - 3D terrain with mouse camera"
+	@echo "  raytracer-simple     - Real-time ray tracer"
+	@echo "  opengl-cube          - Rotating OpenGL cube"
+	@echo "  opengl-teapot        - Rotating OpenGL teapot"
 	@echo ""
 	@echo "Interpreter demo examples:"
 	@echo "  hello             - Hello World (simplest example)"
