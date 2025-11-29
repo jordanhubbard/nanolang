@@ -1,0 +1,35 @@
+/* Test struct field access */
+
+struct Test {
+    name: string,
+    value: int
+}
+
+fn main() -> int {
+    let t1: Test = Test { name: "Hello", value: 5 }
+    (println t1.name)
+    (println (cast_string t1.value))
+    
+    let t2: Test = Test { name: "World", value: 10 }
+    (println t2.name)
+    (println (cast_string t2.value))
+    
+    if (== (str_equals t1.name "Hello") true) {
+        (println "t1.name OK!")
+    } else {
+        (println "t1.name WRONG!")
+        return 1
+    }
+    
+    if (== (str_equals t2.name "World") true) {
+        (println "t2.name OK!")
+        return 0
+    } else {
+        (println "t2.name WRONG!")
+        return 1
+    }
+}
+
+shadow main {
+    assert (== (main) 0)
+}

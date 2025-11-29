@@ -1,0 +1,54 @@
+/* Test method syntax sugar */
+
+fn test_method_syntax() -> bool {
+    /* Test 1: String methods */
+    let s: string = "Hello, World!"
+    let len1: int = (str_length s)           /* Old syntax */
+    let len2: int = s.str_length()           /* New syntax */
+    
+    if (!= len1 len2) {
+        return false
+    }
+    
+    /* Test 2: String methods with arguments */
+    let sub1: string = (str_substring s 0 5)      /* Old: (func obj args) */
+    let sub2: string = s.str_substring(0, 5)      /* New: obj.func(args) */
+    
+    if (!= (str_equals sub1 "Hello") true) {
+        return false
+    }
+    
+    if (!= (str_equals sub2 "Hello") true) {
+        return false
+    }
+    
+    /* Test 3: Method calls with multiple args */
+    let contains1: bool = (str_contains s "World")      /* Old */
+    let contains2: bool = s.str_contains("World")       /* New */
+    
+    if (!= contains1 contains2) {
+        return false
+    }
+    
+    return true
+}
+
+shadow test_method_syntax {
+    assert (test_method_syntax)
+}
+
+fn main() -> int {
+    if (test_method_syntax) {
+        (println "Method syntax WORKS!")
+        (println "  Old: (str_length s)")
+        (println "  New: s.str_length()")
+        return 0
+    } else {
+        (println "Method syntax FAILED")
+        return 1
+    }
+}
+
+shadow main {
+    assert (== (main) 0)
+}

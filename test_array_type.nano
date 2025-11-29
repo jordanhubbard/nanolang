@@ -1,0 +1,49 @@
+/* Test array type inference */
+
+fn test_basic_at() -> string {
+    let arr: array<string> = (array_new 2 "default")
+    (array_set arr 0 "hello")
+    (array_set arr 1 "world")
+    
+    let elem: string = (at arr 0)
+    return elem
+}
+
+shadow test_basic_at {
+    let result: string = (test_basic_at)
+    assert (== (str_equals result "hello") true)
+}
+
+fn test_at_in_loop() -> string {
+    let arr: array<string> = (array_new 2 "")
+    (array_set arr 0 "a")
+    (array_set arr 1 "b")
+    
+    let mut result: string = ""
+    
+    for i in (range 0 2) {
+        let elem: string = (at arr i)
+        set result (str_concat result elem)
+    }
+    
+    return result
+}
+
+shadow test_at_in_loop {
+    let result: string = (test_at_in_loop)
+    assert (== (str_equals result "ab") true)
+}
+
+fn main() -> int {
+    let r1: string = (test_basic_at)
+    (println r1)
+    
+    let r2: string = (test_at_in_loop)
+    (println r2)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

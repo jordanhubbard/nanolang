@@ -1,0 +1,46 @@
+/* Test the exact pattern from StringBuilder */
+
+fn test_pattern(parts: array<string>) -> string {
+    let mut result: string = ""
+    let count: int = (array_length parts)
+    let mut part_val: string = ""
+    
+    for idx in (range 0 count) {
+        set part_val (at parts idx)
+        set result (str_concat result part_val)
+    }
+    
+    return result
+}
+
+shadow test_pattern {
+    let arr: array<string> = (array_new 3 "")
+    (array_set arr 0 "a")
+    (array_set arr 1 "b")
+    (array_set arr 2 "c")
+    
+    let result: string = (test_pattern arr)
+    assert (== (str_equals result "abc") true)
+}
+
+fn main() -> int {
+    let arr: array<string> = (array_new 3 "")
+    (array_set arr 0 "Hello")
+    (array_set arr 1 " ")
+    (array_set arr 2 "World")
+    
+    let result: string = (test_pattern arr)
+    (println result)
+    
+    if (== (str_equals result "Hello World") true) {
+        (println "SUCCESS!")
+        return 0
+    } else {
+        (println "FAILED")
+        return 1
+    }
+}
+
+shadow main {
+    assert (== (main) 0)
+}

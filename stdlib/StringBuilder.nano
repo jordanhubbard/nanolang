@@ -1,0 +1,355 @@
+/* =============================================================================
+ * StringBuilder Module
+ * =============================================================================
+ * Efficient string building without O(n²) concatenation.
+ * 
+ * Usage:
+ *   let sb: StringBuilder = StringBuilder_new()
+ *   (StringBuilder_append sb "Hello")
+ *   (StringBuilder_append sb " ")
+ *   (StringBuilder_append sb "World")
+ *   let result: string = (StringBuilder_to_string sb)
+ * 
+ * Or with method syntax:
+ *   let result: string = sb.StringBuilder_append("Hello")
+ *                          .StringBuilder_append(" ")
+ *                          .StringBuilder_append("World")
+ *                          .StringBuilder_to_string()
+ */
+
+/* StringBuilder state */
+struct StringBuilder {
+    buffer: string,      /* Current content */
+    length: int,         /* Current length */
+    capacity: int        /* Allocated capacity */
+}
+
+/* Initial capacity for new StringBuilder */
+let STRINGBUILDER_INITIAL_CAPACITY: int = 256
+
+/* Growth factor when expanding */
+let STRINGBUILDER_GROWTH_FACTOR: int = 2
+
+/* Create a new StringBuilder with default capacity */
+fn StringBuilder_new() -> StringBuilder {
+    return StringBuilder {
+        buffer: "",
+        length: 0,
+        capacity: STRINGBUILDER_INITIAL_CAPACITY
+    }
+}
+
+shadow StringBuilder_new {
+    let sb: StringBuilder = (StringBuilder_new)
+    assert (== sb.length 0)
+    assert (== sb.capacity STRINGBUILDER_INITIAL_CAPACITY)
+}
+
+/* Create a new StringBuilder with specific initial capacity */
+fn StringBuilder_with_capacity(capacity: int) -> StringBuilder {
+    return StringBuilder {
+        buffer: "",
+        length: 0,
+        capacity: capacity
+    }
+}
+
+shadow StringBuilder_with_capacity {
+    let sb: StringBuilder = (StringBuilder_with_capacity 1024)
+    assert (== sb.capacity 1024)
+}
+
+/* Append a string to the StringBuilder (returns new StringBuilder) */
+fn StringBuilder_append(sb: StringBuilder, text: string) -> StringBuilder {
+    let text_len: int = (str_length text)
+    
+    if (== text_len 0) {
+        return sb
+    }
+    
+    /* Calculate new length and capacity */
+    let new_length: int = (+ sb.length text_len)
+    let mut new_capacity: int = sb.capacity
+    
+    if (>= new_length new_capacity) {
+        /* Need to expand - double capacity until we have enough space */
+        while (< new_capacity new_length) {
+            set new_capacity (* new_capacity STRINGBUILDER_GROWTH_FACTOR)
+        }
+    }
+    
+    /* Concatenate strings */
+    let new_buffer: string = (str_concat sb.buffer text)
+    
+    /* Create new StringBuilder with appended text */
+    return StringBuilder {
+        buffer: new_buffer,
+        length: new_length,
+        capacity: new_capacity
+    }
+}
+
+shadow StringBuilder_append {
+    let sb1: StringBuilder = (StringBuilder_new)
+    let sb2: StringBuilder = (StringBuilder_append sb1 "Hello")
+    assert (== sb2.length 5)
+    assert (== (str_equals sb2.buffer "Hello") true)
+    
+    let sb3: StringBuilder = (StringBuilder_append sb2 " ")
+    assert (== sb3.length 6)
+    
+    let sb4: StringBuilder = (StringBuilder_append sb3 "World")
+    assert (== sb4.length 11)
+    assert (== (str_equals sb4.buffer "Hello World") true)
+}
+
+/* Append a string with a newline (returns new StringBuilder) */
+fn StringBuilder_append_line(sb: StringBuilder, text: string) -> StringBuilder {
+    let sb2: StringBuilder = (StringBuilder_append sb text)
+    return (StringBuilder_append sb2 "\n")
+}
+
+shadow StringBuilder_append_line {
+    let sb1: StringBuilder = (StringBuilder_new)
+    let sb2: StringBuilder = (StringBuilder_append_line sb1 "Line 1")
+    let sb3: StringBuilder = (StringBuilder_append_line sb2 "Line 2")
+    assert (== sb3.length 14)  /* "Line 1\nLine 2\n" = 14 chars */
+}
+
+/* Append an integer (converted to string, returns new StringBuilder) */
+fn StringBuilder_append_int(sb: StringBuilder, n: int) -> StringBuilder {
+    let s: string = (int_to_string n)
+    return (StringBuilder_append sb s)
+}
+
+shadow StringBuilder_append_int {
+    let sb1: StringBuilder = (StringBuilder_new)
+    let sb2: StringBuilder = (StringBuilder_append_int sb1 42)
+    assert (== (str_equals sb2.buffer "42") true)
+    
+    let sb3: StringBuilder = (StringBuilder_append sb2 " and ")
+    let sb4: StringBuilder = (StringBuilder_append_int sb3 100)
+    assert (== (str_equals sb4.buffer "42 and 100") true)
+}
+
+/* Append a character (ASCII value, returns new StringBuilder) */
+fn StringBuilder_append_char(sb: StringBuilder, c: int) -> StringBuilder {
+    let s: string = (string_from_char c)
+    return (StringBuilder_append sb s)
+}
+
+shadow StringBuilder_append_char {
+    let sb1: StringBuilder = (StringBuilder_new)
+    let sb2: StringBuilder = (StringBuilder_append_char sb1 'H')
+    let sb3: StringBuilder = (StringBuilder_append_char sb2 'i')
+    assert (== (str_equals sb3.buffer "Hi") true)
+}
+
+/* Get the current content as a string */
+fn StringBuilder_to_string(sb: StringBuilder) -> string {
+    return sb.buffer
+}
+
+shadow StringBuilder_to_string {
+    let mut sb: StringBuilder = (StringBuilder_new)
+    (StringBuilder_append sb "Test")
+    let result: string = (StringBuilder_to_string sb)
+    assert (== (str_equals result "Test") true)
+}
+
+/* Get current length */
+fn StringBuilder_length(sb: StringBuilder) -> int {
+    return sb.length
+}
+
+shadow StringBuilder_length {
+    let sb1: StringBuilder = (StringBuilder_new)
+    assert (== (StringBuilder_length sb1) 0)
+    let sb2: StringBuilder = (StringBuilder_append sb1 "Hello")
+    assert (== (StringBuilder_length sb2) 5)
+}
+
+/* Clear the StringBuilder (reset to empty, returns new StringBuilder) */
+fn StringBuilder_clear(sb: StringBuilder) -> StringBuilder {
+    return StringBuilder {
+        buffer: "",
+        length: 0,
+        capacity: sb.capacity
+    }
+}
+
+shadow StringBuilder_clear {
+    let sb1: StringBuilder = (StringBuilder_new)
+    let sb2: StringBuilder = (StringBuilder_append sb1 "Hello")
+    assert (> sb2.length 0)
+    let sb3: StringBuilder = (StringBuilder_clear sb2)
+    assert (== sb3.length 0)
+    assert (== (str_equals sb3.buffer "") true)
+}
+
+/* Check if StringBuilder is empty */
+fn StringBuilder_is_empty(sb: StringBuilder) -> bool {
+    return (== sb.length 0)
+}
+
+shadow StringBuilder_is_empty {
+    let sb1: StringBuilder = (StringBuilder_new)
+    assert (StringBuilder_is_empty sb1)
+    
+    let sb2: StringBuilder = (StringBuilder_new)
+    let sb3: StringBuilder = (StringBuilder_append sb2 "X")
+    assert (not (StringBuilder_is_empty sb3))
+}
+
+/* Build a string from multiple parts efficiently */
+fn StringBuilder_from_parts(parts: array<string>) -> string {
+    let sb_start: StringBuilder = (StringBuilder_new)
+    let count: int = (array_length parts)
+    let mut sb: StringBuilder = sb_start
+    let mut part_val: string = ""
+    
+    for idx in (range 0 count) {
+        set part_val (at parts idx)
+        set sb (StringBuilder_append sb part_val)
+    }
+    
+    return (StringBuilder_to_string sb)
+}
+
+shadow StringBuilder_from_parts {
+    let parts: array<string> = (array_new 3 "")
+    (array_set parts 0 "Hello")
+    (array_set parts 1 " ")
+    (array_set parts 2 "World")
+    
+    let result: string = (StringBuilder_from_parts parts)
+    assert (== (str_equals result "Hello World") true)
+}
+
+/* Join strings with a separator */
+fn StringBuilder_join(parts: array<string>, separator: string) -> string {
+    let sb_start: StringBuilder = (StringBuilder_new)
+    let count: int = (array_length parts)
+    let mut sb: StringBuilder = sb_start
+    let mut part_val: string = ""
+    
+    for idx in (range 0 count) {
+        if (!= idx 0) {
+            set sb (StringBuilder_append sb separator)
+        }
+        set part_val (at parts idx)
+        set sb (StringBuilder_append sb part_val)
+    }
+    
+    return (StringBuilder_to_string sb)
+}
+
+shadow StringBuilder_join {
+    let parts: array<string> = (array_new 3 "")
+    (array_set parts 0 "one")
+    (array_set parts 1 "two")
+    (array_set parts 2 "three")
+    
+    let result: string = (StringBuilder_join parts ", ")
+    assert (== (str_equals result "one, two, three") true)
+}
+
+/* Repeat a string n times */
+fn StringBuilder_repeat(text: string, n: int) -> string {
+    let sb_start: StringBuilder = (StringBuilder_new)
+    let mut sb: StringBuilder = sb_start
+    
+    for i in (range 0 n) {
+        set sb (StringBuilder_append sb text)
+    }
+    
+    return (StringBuilder_to_string sb)
+}
+
+shadow StringBuilder_repeat {
+    let result: string = (StringBuilder_repeat "ab" 3)
+    assert (== (str_equals result "ababab") true)
+}
+
+/* Build indentation string (spaces) */
+fn StringBuilder_indent(level: int, spaces_per_level: int) -> string {
+    let total_spaces: int = (* level spaces_per_level)
+    return (StringBuilder_repeat " " total_spaces)
+}
+
+shadow StringBuilder_indent {
+    let indent0: string = (StringBuilder_indent 0 4)
+    assert (== (str_equals indent0 "") true)
+    
+    let indent1: string = (StringBuilder_indent 1 4)
+    assert (== (str_equals indent1 "    ") true)
+    
+    let indent2: string = (StringBuilder_indent 2 4)
+    assert (== (str_equals indent2 "        ") true)
+}
+
+/* Main function for testing */
+fn main() -> int {
+    (println "=== StringBuilder Module Tests ===")
+    (println "")
+    
+    /* Test 1: Basic append */
+    (println "Test 1: Basic append")
+    let sb1a: StringBuilder = (StringBuilder_new)
+    let sb1b: StringBuilder = (StringBuilder_append sb1a "Hello")
+    let sb1c: StringBuilder = (StringBuilder_append sb1b " ")
+    let sb1d: StringBuilder = (StringBuilder_append sb1c "World")
+    (println (StringBuilder_to_string sb1d))
+    (println "")
+    
+    /* Test 2: Append int */
+    (println "Test 2: Append int")
+    let sb2a: StringBuilder = (StringBuilder_new)
+    let sb2b: StringBuilder = (StringBuilder_append sb2a "The answer is ")
+    let sb2c: StringBuilder = (StringBuilder_append_int sb2b 42)
+    (println (StringBuilder_to_string sb2c))
+    (println "")
+    
+    /* Test 3: Append line */
+    (println "Test 3: Append line")
+    let sb3a: StringBuilder = (StringBuilder_new)
+    let sb3b: StringBuilder = (StringBuilder_append_line sb3a "Line 1")
+    let sb3c: StringBuilder = (StringBuilder_append_line sb3b "Line 2")
+    let sb3d: StringBuilder = (StringBuilder_append_line sb3c "Line 3")
+    (println (StringBuilder_to_string sb3d))
+    
+    /* Test 4: Join */
+    (println "Test 4: Join")
+    let parts: array<string> = (array_new 4 "")
+    (array_set parts 0 "apple")
+    (array_set parts 1 "banana")
+    (array_set parts 2 "cherry")
+    (array_set parts 3 "date")
+    let joined: string = (StringBuilder_join parts ", ")
+    (println joined)
+    (println "")
+    
+    /* Test 5: Repeat */
+    (println "Test 5: Repeat")
+    let repeated: string = (StringBuilder_repeat "=*=" 10)
+    (println repeated)
+    (println "")
+    
+    /* Test 6: Indentation */
+    (println "Test 6: Indentation")
+    let sb6a: StringBuilder = (StringBuilder_new)
+    let sb6b: StringBuilder = (StringBuilder_append sb6a (StringBuilder_indent 0 4))
+    let sb6c: StringBuilder = (StringBuilder_append_line sb6b "fn main() {")
+    let sb6d: StringBuilder = (StringBuilder_append sb6c (StringBuilder_indent 1 4))
+    let sb6e: StringBuilder = (StringBuilder_append_line sb6d "return 0")
+    let sb6f: StringBuilder = (StringBuilder_append sb6e (StringBuilder_indent 0 4))
+    let sb6g: StringBuilder = (StringBuilder_append_line sb6f "}")
+    (println (StringBuilder_to_string sb6g))
+    
+    (println "=== All StringBuilder tests passed! ===")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -10,14 +10,13 @@ extern fn read_file(path: string) -> string
 /* Write string to file */
 extern fn write_file(path: string, content: string) -> int
 
-/* Check if file exists */
-extern fn file_exists(path: string) -> bool
+/* Note: file_exists is a builtin function, no need to declare it here */
 
 /* Example usage:
 fn main() -> int {
     if (file_exists "input.nano") {
         let source: string = (read_file "input.nano")
-        let output: string = "/* Generated code */\n"
+        let output: string = "Generated code"
         let result: int = (write_file "output.c" output)
         return result
     } else {

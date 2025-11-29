@@ -1,0 +1,24 @@
+GOAL: Method Syntax
+
+Current nanolang already supports struct field access:
+  my_struct.field_name
+
+We want to ADD support for method calls:
+  my_string.length()
+  tokens.filter(pred)
+
+This means:
+  - If we see expr.identifier(args), it's a method call
+  - If we see expr.identifier (no parens), it's field access
+
+Implementation:
+  In parser, after parsing primary expression:
+  1. Check if next token is DOT
+  2. If DOT, check what follows:
+     - If identifier + LPAREN → method call
+     - If identifier (no LPAREN) → field access (existing)
+
+Transform:
+  obj.method(arg1, arg2) → (method obj arg1 arg2)
+
+This is syntactic sugar - no runtime changes needed!

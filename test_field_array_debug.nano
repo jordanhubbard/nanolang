@@ -1,0 +1,20 @@
+/* Debug field array element type */
+
+struct Test {
+    items: array<string>
+}
+
+fn test_func(t: Test) -> string {
+    return (at t.items 0)
+}
+
+fn main() -> int {
+    let t: Test = Test { items: (array_new 1 "hello") }
+    let result: string = (test_func t)
+    (println result)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

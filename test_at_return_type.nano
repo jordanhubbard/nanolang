@@ -1,0 +1,21 @@
+/* Debug: What type does at return? */
+
+fn test_at_return(parts: array<string>) -> int {
+    /* Try to assign result of at to different types */
+    let result: string = (at parts 0)
+    return 0
+}
+
+shadow test_at_return {
+    let arr: array<string> = (array_new 1 "x")
+    assert (== (test_at_return arr) 0)
+}
+
+fn main() -> int {
+    let arr: array<string> = (array_new 1 "test")
+    return (test_at_return arr)
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,88 @@
+/* Test StringBuilder append function */
+
+struct StringBuilder {
+    buffer: string,
+    length: int,
+    capacity: int
+}
+
+let STRINGBUILDER_DEFAULT_CAPACITY: int = 16
+let STRINGBUILDER_GROWTH_FACTOR: int = 2
+
+fn StringBuilder_new() -> StringBuilder {
+    return StringBuilder {
+        buffer: "",
+        length: 0,
+        capacity: STRINGBUILDER_DEFAULT_CAPACITY
+    }
+}
+
+fn StringBuilder_append(sb: StringBuilder, text: string) -> StringBuilder {
+    let text_len: int = (str_length text)
+    
+    if (== text_len 0) {
+        return sb
+    }
+    
+    /* Calculate new length and capacity */
+    let new_length: int = (+ sb.length text_len)
+    let mut new_capacity: int = sb.capacity
+    
+    if (>= new_length new_capacity) {
+        /* Need to expand - double capacity until we have enough space */
+        while (< new_capacity new_length) {
+            set new_capacity (* new_capacity STRINGBUILDER_GROWTH_FACTOR)
+        }
+    }
+    
+    /* Concatenate strings */
+    let new_buffer: string = (str_concat sb.buffer text)
+    
+    /* Create new StringBuilder with appended text */
+    return StringBuilder {
+        buffer: new_buffer,
+        length: new_length,
+        capacity: new_capacity
+    }
+}
+
+fn main() -> int {
+    let sb1: StringBuilder = (StringBuilder_new)
+    (println "sb1 created")
+    (println (cast_string sb1.length))
+    
+    let sb2: StringBuilder = (StringBuilder_append sb1 "Hello")
+    (println "sb2 created")
+    (println "sb2.buffer:")
+    (println sb2.buffer)
+    (println "sb2.length:")
+    (println (cast_string sb2.length))
+    (println "sb2.capacity:")
+    (println (cast_string sb2.capacity))
+    
+    if (== sb2.length 5) {
+        (println "Length OK!")
+    } else {
+        (println "Length WRONG!")
+        return 1
+    }
+    
+    let buffer_val: string = sb2.buffer
+    (println "buffer_val:")
+    (println buffer_val)
+    
+    if (== (str_equals buffer_val "Hello") true) {
+        (println "Buffer OK!")
+        return 0
+    } else {
+        (println "Buffer WRONG!")
+        (println "Expected: Hello")
+        (println "Got:")
+        (println buffer_val)
+        return 1
+    }
+}
+
+shadow main {
+    assert (== (main) 0)
+}

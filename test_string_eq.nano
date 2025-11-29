@@ -1,0 +1,30 @@
+/* Test if string == already works */
+
+fn test_string_eq() -> bool {
+    let a: string = "hello"
+    let b: string = "hello"
+    let c: string = "world"
+    
+    let result1: bool = (== a b)
+    let result2: bool = (== a c)
+    
+    return (and result1 (not result2))
+}
+
+shadow test_string_eq {
+    assert (test_string_eq)
+}
+
+fn main() -> int {
+    if (test_string_eq) {
+        (println "String == operator WORKS!")
+        return 0
+    } else {
+        (println "String == operator FAILED")
+        return 1
+    }
+}
+
+shadow main {
+    assert (== (main) 0)
+}

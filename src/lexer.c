@@ -119,6 +119,58 @@ Token *tokenize(const char *source, int *token_count) {
             tokens = realloc(tokens, sizeof(Token) * capacity);
         }
 
+        /* Character literals: 'x' or '\n' */
+        if (source[i] == '\'') {
+            i++; /* Skip opening quote */
+            if (source[i] == '\0') {
+                fprintf(stderr, "Error: Unterminated character literal at line %d\n", line);
+                free(tokens);
+                return NULL;
+            }
+            
+            int char_value;
+            if (source[i] == '\\') {
+                /* Escape sequence */
+                i++;
+                if (source[i] == '\0') {
+                    fprintf(stderr, "Error: Incomplete escape sequence at line %d\n", line);
+                    free(tokens);
+                    return NULL;
+                }
+                switch (source[i]) {
+                    case 'n': char_value = '\n'; break;
+                    case 't': char_value = '\t'; break;
+                    case 'r': char_value = '\r'; break;
+                    case '0': char_value = '\0'; break;
+                    case '\\': char_value = '\\'; break;
+                    case '\'': char_value = '\''; break;
+                    case '"': char_value = '"'; break;
+                    default:
+                        fprintf(stderr, "Error: Unknown escape sequence '\\%c' at line %d\n", source[i], line);
+                        char_value = source[i]; /* Use character as-is */
+                        break;
+                }
+                i++;
+            } else {
+                /* Regular character */
+                char_value = (unsigned char)source[i];
+                i++;
+            }
+            
+            if (source[i] != '\'') {
+                fprintf(stderr, "Error: Unterminated character literal at line %d (expected ')\n", line);
+                free(tokens);
+                return NULL;
+            }
+            i++; /* Skip closing quote */
+            
+            /* Create token with ASCII value as integer */
+            char value_str[16];
+            snprintf(value_str, sizeof(value_str), "%d", char_value);
+            tokens[count++] = create_token(TOKEN_NUMBER, value_str, line, column);
+            continue;
+        }
+
         /* String literals */
         if (source[i] == '"') {
             i++; /* Skip opening quote */

@@ -1,0 +1,47 @@
+/* Minimal StringBuilder test */
+
+struct StringBuilder {
+    parts: array<string>,
+    length: int
+}
+
+fn test_create() -> StringBuilder {
+    let parts: array<string> = (array_new 2 "")
+    (array_set parts 0 "Hello")
+    (array_set parts 1 "World")
+    
+    return StringBuilder { 
+        parts: parts,
+        length: 10
+    }
+}
+
+fn test_join(sb: StringBuilder) -> string {
+    let mut result: string = ""
+    let count: int = (array_length sb.parts)
+    
+    for idx in (range 0 count) {
+        let part: string = (at sb.parts idx)
+        set result (str_concat result part)
+    }
+    
+    return result
+}
+
+fn main() -> int {
+    let sb: StringBuilder = (test_create)
+    let text: string = (test_join sb)
+    (println text)
+    
+    if (== (str_equals text "HelloWorld") true) {
+        (println "SUCCESS!")
+        return 0
+    } else {
+        (println "FAILED")
+        return 1
+    }
+}
+
+shadow main {
+    assert (== (main) 0)
+}

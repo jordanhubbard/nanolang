@@ -838,7 +838,25 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             } else if (strcmp(func_name, "array_length") == 0) {
                 func_name = "nl_array_length";
             } else if (strcmp(func_name, "array_new") == 0) {
-                func_name = "nl_array_new_int";  /* For now, assume int arrays */
+                /* Detect element type from default value (second argument) */
+                Type elem_type = TYPE_INT;  /* Default */
+                if (expr->as.call.arg_count >= 2) {
+                    Type default_type = check_expression(expr->as.call.args[1], env);
+                    if (default_type != TYPE_UNKNOWN) {
+                        elem_type = default_type;
+                    }
+                }
+                
+                /* Choose function based on element type */
+                if (elem_type == TYPE_STRING) {
+                    func_name = "nl_array_new_string";
+                } else if (elem_type == TYPE_FLOAT) {
+                    func_name = "nl_array_new_float";
+                } else if (elem_type == TYPE_BOOL) {
+                    func_name = "nl_array_new_bool";
+                } else {
+                    func_name = "nl_array_new_int";
+                }
             } else if (strcmp(func_name, "array_set") == 0) {
                 /* array_set needs type detection - will handle specially below */
                 func_name = "nl_array_set";  /* Placeholder, will be replaced */
@@ -1115,23 +1133,59 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
                 transpile_expression(sb, expr->as.call.args[1], env);  /* index */
                 sb_append(sb, ")");
             } else if (strcmp(original_func_name, "at") == 0 || strcmp(original_func_name, "array_get") == 0 || strcmp(original_func_name, "array_set") == 0) {
-                /* Non-struct arrays: use type-specific int/float versions */
-                /* Detect element type from the array variable */
+                /* Non-struct arrays: use type-specific int/float/string/bool versions */
+                /* Detect element type from the array variable or field */
                 Type elem_type = TYPE_INT;  /* Default to int */
                 
-                if (expr->as.call.arg_count > 0 && expr->as.call.args[0]->type == AST_IDENTIFIER) {
-                    const char *array_name = expr->as.call.args[0]->as.identifier;
-                    Symbol *sym = env_get_var(env, array_name);
-                    if (sym && sym->element_type != TYPE_UNKNOWN) {
-                        elem_type = sym->element_type;
+                if (expr->as.call.arg_count > 0) {
+                    ASTNode *array_arg = expr->as.call.args[0];
+                    
+                    /* Check if it's an identifier (variable) */
+                    if (array_arg->type == AST_IDENTIFIER) {
+                        const char *array_name = array_arg->as.identifier;
+                        Symbol *sym = env_get_var(env, array_name);
+                        if (sym && sym->element_type != TYPE_UNKNOWN) {
+                            elem_type = sym->element_type;
+                        }
+                    }
+                    /* Check if it's a field access */
+                    else if (array_arg->type == AST_FIELD_ACCESS) {
+                        const char *struct_name = get_struct_type_name(array_arg->as.field_access.object, env);
+                        if (struct_name) {
+                            StructDef *sdef = env_get_struct(env, struct_name);
+                            if (sdef && sdef->field_element_types) {
+                                const char *field_name = array_arg->as.field_access.field_name;
+                                for (int i = 0; i < sdef->field_count; i++) {
+                                    if (strcmp(sdef->field_names[i], field_name) == 0) {
+                                        if (sdef->field_types[i] == TYPE_ARRAY && sdef->field_element_types[i] != TYPE_UNKNOWN) {
+                                            elem_type = sdef->field_element_types[i];
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 
                 /* Choose appropriate function based on element type */
+                const char *type_suffix = "int";  /* Default */
+                if (elem_type == TYPE_FLOAT) {
+                    type_suffix = "float";
+                } else if (elem_type == TYPE_STRING) {
+                    type_suffix = "string";
+                } else if (elem_type == TYPE_BOOL) {
+                    type_suffix = "bool";
+                }
+                
                 if (strcmp(original_func_name, "at") == 0 || strcmp(original_func_name, "array_get") == 0) {
-                    func_name = (elem_type == TYPE_FLOAT) ? "nl_array_at_float" : "nl_array_at_int";
+                    static char func_buf[64];
+                    snprintf(func_buf, sizeof(func_buf), "nl_array_at_%s", type_suffix);
+                    func_name = func_buf;
                 } else if (strcmp(original_func_name, "array_set") == 0) {
-                    func_name = (elem_type == TYPE_FLOAT) ? "nl_array_set_float" : "nl_array_set_int";
+                    static char func_buf2[64];
+                    snprintf(func_buf2, sizeof(func_buf2), "nl_array_set_%s", type_suffix);
+                    func_name = func_buf2;
                 }
                 
                 /* Normal function call */
@@ -2257,6 +2311,14 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "    return dyn_array_get_float(arr, idx);\n");
     sb_append(sb, "}\n\n");
     
+    sb_append(sb, "static const char* nl_array_at_string(DynArray* arr, int64_t idx) {\n");
+    sb_append(sb, "    return dyn_array_get_string(arr, idx);\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static bool nl_array_at_bool(DynArray* arr, int64_t idx) {\n");
+    sb_append(sb, "    return dyn_array_get_bool(arr, idx);\n");
+    sb_append(sb, "}\n\n");
+    
     /* Array set wrapper */
     sb_append(sb, "static void nl_array_set_int(DynArray* arr, int64_t idx, int64_t val) {\n");
     sb_append(sb, "    dyn_array_set_int(arr, idx, val);\n");
@@ -2266,11 +2328,43 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "    dyn_array_set_float(arr, idx, val);\n");
     sb_append(sb, "}\n\n");
     
+    sb_append(sb, "static void nl_array_set_string(DynArray* arr, int64_t idx, const char* val) {\n");
+    sb_append(sb, "    dyn_array_set_string(arr, idx, val);\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static void nl_array_set_bool(DynArray* arr, int64_t idx, bool val) {\n");
+    sb_append(sb, "    dyn_array_set_bool(arr, idx, val);\n");
+    sb_append(sb, "}\n\n");
+    
     /* Array new wrapper - creates DynArray with specified size and default value */
     sb_append(sb, "static DynArray* nl_array_new_int(int64_t size, int64_t default_val) {\n");
     sb_append(sb, "    DynArray* arr = dyn_array_new(ELEM_INT);\n");
     sb_append(sb, "    for (int64_t i = 0; i < size; i++) {\n");
     sb_append(sb, "        dyn_array_push_int(arr, default_val);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return arr;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static DynArray* nl_array_new_float(int64_t size, double default_val) {\n");
+    sb_append(sb, "    DynArray* arr = dyn_array_new(ELEM_FLOAT);\n");
+    sb_append(sb, "    for (int64_t i = 0; i < size; i++) {\n");
+    sb_append(sb, "        dyn_array_push_float(arr, default_val);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return arr;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static DynArray* nl_array_new_string(int64_t size, const char* default_val) {\n");
+    sb_append(sb, "    DynArray* arr = dyn_array_new(ELEM_STRING);\n");
+    sb_append(sb, "    for (int64_t i = 0; i < size; i++) {\n");
+    sb_append(sb, "        dyn_array_push_string(arr, default_val);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return arr;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static DynArray* nl_array_new_bool(int64_t size, bool default_val) {\n");
+    sb_append(sb, "    DynArray* arr = dyn_array_new(ELEM_BOOL);\n");
+    sb_append(sb, "    for (int64_t i = 0; i < size; i++) {\n");
+    sb_append(sb, "        dyn_array_push_bool(arr, default_val);\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    return arr;\n");
     sb_append(sb, "}\n\n");

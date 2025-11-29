@@ -1,0 +1,76 @@
+/* Simple StringBuilder test to debug */
+
+struct StringBuilder {
+    parts: array<string>,
+    length: int,
+    buffer: string
+}
+
+fn StringBuilder_new() -> StringBuilder {
+    let parts: array<string> = (array_new 0 "")
+    return StringBuilder { 
+        parts: parts,
+        length: 0,
+        buffer: ""
+    }
+}
+
+fn StringBuilder_join(parts: array<string>) -> string {
+    let mut result: string = ""
+    let count: int = (array_length parts)
+    
+    for idx in (range 0 count) {
+        let part: string = (at parts idx)
+        set result (str_concat result part)
+    }
+    
+    return result
+}
+
+fn StringBuilder_append(sb: StringBuilder, text: string) -> StringBuilder {
+    /* Create new parts array with one more element */
+    let old_count: int = (array_length sb.parts)
+    let new_parts: array<string> = (array_new (+ old_count 1) "")
+    
+    /* Copy old parts */
+    for i in (range 0 old_count) {
+        let val: string = (at sb.parts i)
+        (array_set new_parts i val)
+    }
+    
+    /* Add new text */
+    (array_set new_parts old_count text)
+    
+    /* Join all parts */
+    let joined: string = (StringBuilder_join new_parts)
+    
+    return StringBuilder {
+        parts: new_parts,
+        length: (str_length joined),
+        buffer: joined
+    }
+}
+
+fn main() -> int {
+    let sb1: StringBuilder = (StringBuilder_new)
+    (println "Created sb1")
+    (println sb1.buffer)
+    (println (cast_string sb1.length))
+    
+    let sb2: StringBuilder = (StringBuilder_append sb1 "Hello")
+    (println "Created sb2")
+    (println sb2.buffer)
+    (println (cast_string sb2.length))
+    
+    if (== (str_equals sb2.buffer "Hello") true) {
+        (println "SUCCESS!")
+        return 0
+    } else {
+        (println "FAILED")
+        return 1
+    }
+}
+
+shadow main {
+    assert (== (main) 0)
+}

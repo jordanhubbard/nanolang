@@ -368,6 +368,7 @@ struct ASTNode {
             char **field_names;       // Array of field names
             Type *field_types;        // Array of field types
             char **field_type_names;  // For TYPE_STRUCT/TYPE_UNION fields: actual type names
+            Type *field_element_types;  // For TYPE_ARRAY fields: element type
             int field_count;          // Number of fields
         } struct_def;
         struct {
@@ -472,6 +473,7 @@ typedef struct {
     char **field_names;
     Type *field_types;
     char **field_type_names;  /* For TYPE_STRUCT/TYPE_UNION fields: actual type name (e.g., "Vec3") */
+    Type *field_element_types;  /* For TYPE_ARRAY fields: element type (e.g., TYPE_STRING for array<string>) */
     int field_count;
 } StructDef;
 

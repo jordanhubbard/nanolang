@@ -1,0 +1,28 @@
+/* =============================================================================
+ * Command-Line Argument Support for Self-Hosted Compiler
+ * =============================================================================
+ * Extern declarations for accessing command-line arguments
+ */
+
+/* Get number of command-line arguments (including program name) */
+extern fn get_argc() -> int
+
+/* Get command-line argument by index */
+extern fn get_argv(index: int) -> string
+
+/* Example usage:
+fn main() -> int {
+    let argc: int = (get_argc)
+    if (< argc 2) {
+        (println "Usage: compiler <input.nano> [options]")
+        return 1
+    } else {
+        (print "")
+    }
+    
+    let input_file: string = (get_argv 1)
+    (print "Compiling: ")
+    (println input_file)
+    return 0
+}
+*/

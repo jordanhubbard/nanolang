@@ -245,6 +245,14 @@ fn setup_opengl() -> void {
     # Enable smooth shading
     (glShadeModel GL_SMOOTH)
     
+    # Enable lighting for 3D shading
+    (glEnable GL_LIGHTING)
+    (glEnable GL_LIGHT0)
+    
+    # Enable color material tracking so glColor3f sets the material color
+    (glEnable GL_COLOR_MATERIAL)
+    (glColorMaterial GL_FRONT_AND_BACK GL_AMBIENT_AND_DIFFUSE)
+    
     # Set up projection matrix with PERSPECTIVE (this is key for 3D!)
     (glMatrixMode GL_PROJECTION)
     (glLoadIdentity)
