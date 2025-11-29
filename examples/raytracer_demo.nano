@@ -1,0 +1,632 @@
+# RAY TRACING DEMO - Based on "Ray Tracing in One Weekend"
+# Interactive ray tracer with mouse-controlled light source
+# Click to set light position, press SPACE to render
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+
+# === CONSTANTS ===
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+let SAMPLES_PER_PIXEL: int = 4
+let MAX_DEPTH: int = 10
+
+# === VEC3 STRUCT ===
+struct Vec3 {
+    x: float,
+    y: float,
+    z: float
+}
+
+# === RAY STRUCT ===
+struct Ray {
+    origin: Vec3,
+    direction: Vec3
+}
+
+# === SPHERE STRUCT ===
+struct Sphere {
+    center: Vec3,
+    radius: float,
+    color: Vec3
+}
+
+# === HIT RECORD ===
+struct HitRecord {
+    hit: bool,
+    t: float,
+    point: Vec3,
+    normal: Vec3,
+    color: Vec3
+}
+
+# === VECTOR MATH FUNCTIONS ===
+
+fn vec3_new(x: float, y: float, z: float) -> Vec3 {
+    return Vec3 { x: x, y: y, z: z }
+}
+
+shadow vec3_new {
+    let v: Vec3 = (vec3_new 1.0 2.0 3.0)
+    assert (== v.x 1.0)
+    assert (== v.y 2.0)
+    assert (== v.z 3.0)
+}
+
+fn vec3_add(a: Vec3, b: Vec3) -> Vec3 {
+    return Vec3 {
+        x: (+ a.x b.x),
+        y: (+ a.y b.y),
+        z: (+ a.z b.z)
+    }
+}
+
+shadow vec3_add {
+    let v1: Vec3 = Vec3 { x: 1.0, y: 2.0, z: 3.0 }
+    let v2: Vec3 = Vec3 { x: 4.0, y: 5.0, z: 6.0 }
+    let result: Vec3 = (vec3_add v1 v2)
+    assert (== result.x 5.0)
+    assert (== result.y 7.0)
+    assert (== result.z 9.0)
+}
+
+fn vec3_sub(a: Vec3, b: Vec3) -> Vec3 {
+    return Vec3 {
+        x: (- a.x b.x),
+        y: (- a.y b.y),
+        z: (- a.z b.z)
+    }
+}
+
+shadow vec3_sub {
+    let v1: Vec3 = Vec3 { x: 5.0, y: 7.0, z: 9.0 }
+    let v2: Vec3 = Vec3 { x: 1.0, y: 2.0, z: 3.0 }
+    let result: Vec3 = (vec3_sub v1 v2)
+    assert (== result.x 4.0)
+    assert (== result.y 5.0)
+    assert (== result.z 6.0)
+}
+
+fn vec3_mul_scalar(v: Vec3, s: float) -> Vec3 {
+    return Vec3 {
+        x: (* v.x s),
+        y: (* v.y s),
+        z: (* v.z s)
+    }
+}
+
+shadow vec3_mul_scalar {
+    let v: Vec3 = Vec3 { x: 1.0, y: 2.0, z: 3.0 }
+    let result: Vec3 = (vec3_mul_scalar v 2.0)
+    assert (== result.x 2.0)
+    assert (== result.y 4.0)
+    assert (== result.z 6.0)
+}
+
+fn vec3_dot(a: Vec3, b: Vec3) -> float {
+    return (+ (+ (* a.x b.x) (* a.y b.y)) (* a.z b.z))
+}
+
+shadow vec3_dot {
+    let v1: Vec3 = Vec3 { x: 1.0, y: 2.0, z: 3.0 }
+    let v2: Vec3 = Vec3 { x: 4.0, y: 5.0, z: 6.0 }
+    let result: float = (vec3_dot v1 v2)
+    assert (== result 32.0)
+}
+
+fn vec3_length_squared(v: Vec3) -> float {
+    return (+ (+ (* v.x v.x) (* v.y v.y)) (* v.z v.z))
+}
+
+shadow vec3_length_squared {
+    let v: Vec3 = Vec3 { x: 3.0, y: 4.0, z: 0.0 }
+    let result: float = (vec3_length_squared v)
+    assert (== result 25.0)
+}
+
+fn vec3_length(v: Vec3) -> float {
+    return (sqrt (vec3_length_squared v))
+}
+
+shadow vec3_length {
+    let v: Vec3 = Vec3 { x: 3.0, y: 4.0, z: 0.0 }
+    let result: float = (vec3_length v)
+    assert (== result 5.0)
+}
+
+fn vec3_normalize(v: Vec3) -> Vec3 {
+    let len: float = (vec3_length v)
+    if (> len 0.0001) {
+        return (vec3_mul_scalar v (/ 1.0 len))
+    } else {
+        return Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    }
+}
+
+shadow vec3_normalize {
+    let v: Vec3 = Vec3 { x: 3.0, y: 4.0, z: 0.0 }
+    let result: Vec3 = (vec3_normalize v)
+    assert (== result.x 0.6)
+    assert (== result.y 0.8)
+}
+
+fn vec3_clamp(v: Vec3, min_val: float, max_val: float) -> Vec3 {
+    return Vec3 {
+        x: (max min_val (min v.x max_val)),
+        y: (max min_val (min v.y max_val)),
+        z: (max min_val (min v.z max_val))
+    }
+}
+
+shadow vec3_clamp {
+    let v: Vec3 = Vec3 { x: -1.0, y: 0.5, z: 2.0 }
+    let result: Vec3 = (vec3_clamp v 0.0 1.0)
+    assert (== result.x 0.0)
+    assert (== result.y 0.5)
+    assert (== result.z 1.0)
+}
+
+# === RAY FUNCTIONS ===
+
+fn ray_at(r: Ray, t: float) -> Vec3 {
+    return (vec3_add r.origin (vec3_mul_scalar r.direction t))
+}
+
+shadow ray_at {
+    let origin: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    let direction: Vec3 = Vec3 { x: 1.0, y: 0.0, z: 0.0 }
+    let r: Ray = Ray { origin: origin, direction: direction }
+    let result: Vec3 = (ray_at r 5.0)
+    assert (== result.x 5.0)
+    assert (== result.y 0.0)
+    assert (== result.z 0.0)
+}
+
+# === SPHERE INTERSECTION ===
+
+fn sphere_hit(sphere: Sphere, r: Ray, t_min: float, t_max: float) -> HitRecord {
+    let oc: Vec3 = (vec3_sub r.origin sphere.center)
+    let a: float = (vec3_length_squared r.direction)
+    let half_b: float = (vec3_dot oc r.direction)
+    let c: float = (- (vec3_length_squared oc) (* sphere.radius sphere.radius))
+    let discriminant: float = (- (* half_b half_b) (* a c))
+    
+    let no_hit: HitRecord = HitRecord {
+        hit: false,
+        t: 0.0,
+        point: Vec3 { x: 0.0, y: 0.0, z: 0.0 },
+        normal: Vec3 { x: 0.0, y: 0.0, z: 0.0 },
+        color: Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    }
+    
+    if (< discriminant 0.0) {
+        return no_hit
+    } else {
+        let sqrtd: float = (sqrt discriminant)
+        let root: float = (/ (- (- 0.0 half_b) sqrtd) a)
+        
+        let mut t_val: float = root
+        let out_of_range1: bool = (< t_val t_min)
+        let out_of_range2: bool = (> t_val t_max)
+        if (or out_of_range1 out_of_range2) {
+            set t_val (/ (+ (- 0.0 half_b) sqrtd) a)
+            let out_of_range3: bool = (< t_val t_min)
+            let out_of_range4: bool = (> t_val t_max)
+            if (or out_of_range3 out_of_range4) {
+                return no_hit
+            } else {
+                (print "")
+            }
+        } else {
+            (print "")
+        }
+        
+        let hit_point: Vec3 = (ray_at r t_val)
+        let normal: Vec3 = (vec3_normalize (vec3_sub hit_point sphere.center))
+        
+        return HitRecord {
+            hit: true,
+            t: t_val,
+            point: hit_point,
+            normal: normal,
+            color: sphere.color
+        }
+    }
+}
+
+shadow sphere_hit {
+    let sphere: Sphere = Sphere {
+        center: Vec3 { x: 0.0, y: 0.0, z: -1.0 },
+        radius: 0.5,
+        color: Vec3 { x: 1.0, y: 0.0, z: 0.0 }
+    }
+    let ray: Ray = Ray {
+        origin: Vec3 { x: 0.0, y: 0.0, z: 0.0 },
+        direction: Vec3 { x: 0.0, y: 0.0, z: -1.0 }
+    }
+    let hit: HitRecord = (sphere_hit sphere ray 0.0 100.0)
+    assert hit.hit
+}
+
+# === LIGHTING CALCULATION ===
+
+fn calculate_lighting(hit: HitRecord, light_pos: Vec3, view_dir: Vec3) -> Vec3 {
+    # Ambient component
+    let ambient: Vec3 = (vec3_mul_scalar hit.color 0.2)
+    
+    # Light direction
+    let light_dir: Vec3 = (vec3_normalize (vec3_sub light_pos hit.point))
+    
+    # Diffuse component
+    let diff: float = (max 0.0 (vec3_dot hit.normal light_dir))
+    let diffuse: Vec3 = (vec3_mul_scalar hit.color diff)
+    
+    # Specular component (Blinn-Phong)
+    let half_dir: Vec3 = (vec3_normalize (vec3_add light_dir view_dir))
+    let spec: float = (pow (max 0.0 (vec3_dot hit.normal half_dir)) 32.0)
+    let specular: Vec3 = Vec3 { x: spec, y: spec, z: spec }
+    
+    # Combine components
+    let result: Vec3 = (vec3_add (vec3_add ambient diffuse) specular)
+    return (vec3_clamp result 0.0 1.0)
+}
+
+shadow calculate_lighting {
+    let hit: HitRecord = HitRecord {
+        hit: true,
+        t: 1.0,
+        point: Vec3 { x: 0.0, y: 0.0, z: 0.0 },
+        normal: Vec3 { x: 0.0, y: 1.0, z: 0.0 },
+        color: Vec3 { x: 1.0, y: 0.0, z: 0.0 }
+    }
+    let light_pos: Vec3 = Vec3 { x: 0.0, y: 1.0, z: 0.0 }
+    let view_dir: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 1.0 }
+    let color: Vec3 = (calculate_lighting hit light_pos view_dir)
+    assert (> color.x 0.0)
+}
+
+# === SCENE INTERSECTION ===
+
+fn scene_hit(spheres: array<Sphere>, r: Ray, light_pos: Vec3) -> Vec3 {
+    let count: int = (array_length spheres)
+    let mut i: int = 0
+    let mut closest_t: float = 1000000.0
+    let mut did_hit: bool = false
+    let mut hit_point: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    let mut hit_normal: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    let mut hit_color: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    
+    while (< i count) {
+        let sphere: Sphere = (at spheres i)
+        let hit: HitRecord = (sphere_hit sphere r 0.001 closest_t)
+        
+        if (hit.hit) {
+            set closest_t hit.t
+            set did_hit true
+            set hit_point hit.point
+            set hit_normal hit.normal
+            set hit_color hit.color
+        } else {
+            (print "")
+        }
+        
+        set i (+ i 1)
+    }
+    
+    if (did_hit) {
+        let closest_hit: HitRecord = HitRecord {
+            hit: true,
+            t: closest_t,
+            point: hit_point,
+            normal: hit_normal,
+            color: hit_color
+        }
+        let view_dir: Vec3 = (vec3_normalize (vec3_mul_scalar r.direction -1.0))
+        return (calculate_lighting closest_hit light_pos view_dir)
+    } else {
+        # Sky gradient
+        let unit_dir: Vec3 = (vec3_normalize r.direction)
+        let t: float = (* (+ unit_dir.y 1.0) 0.5)
+        let white: Vec3 = Vec3 { x: 1.0, y: 1.0, z: 1.0 }
+        let blue: Vec3 = Vec3 { x: 0.5, y: 0.7, z: 1.0 }
+        let sky_white: Vec3 = (vec3_mul_scalar white (- 1.0 t))
+        let sky_blue: Vec3 = (vec3_mul_scalar blue t)
+        return (vec3_add sky_white sky_blue)
+    }
+}
+
+shadow scene_hit {
+    let spheres: array<Sphere> = []
+    let ray: Ray = Ray {
+        origin: Vec3 { x: 0.0, y: 0.0, z: 0.0 },
+        direction: Vec3 { x: 0.0, y: 0.0, z: -1.0 }
+    }
+    let light: Vec3 = Vec3 { x: 0.0, y: 1.0, z: 0.0 }
+    let color: Vec3 = (scene_hit spheres ray light)
+    assert (>= color.x 0.0)
+}
+
+# === CAMERA RAY ===
+
+fn get_ray(u: float, v: float, camera_origin: Vec3, viewport_width: float, viewport_height: float) -> Ray {
+    let focal_length: float = 1.0
+    let horizontal: Vec3 = Vec3 { x: viewport_width, y: 0.0, z: 0.0 }
+    let vertical: Vec3 = Vec3 { x: 0.0, y: viewport_height, z: 0.0 }
+    let lower_left: Vec3 = Vec3 {
+        x: (- (- camera_origin.x (/ viewport_width 2.0)) 0.0),
+        y: (- (- camera_origin.y (/ viewport_height 2.0)) 0.0),
+        z: (- camera_origin.z focal_length)
+    }
+    
+    let h_offset: Vec3 = (vec3_mul_scalar horizontal u)
+    let v_offset: Vec3 = (vec3_mul_scalar vertical v)
+    let target: Vec3 = (vec3_add (vec3_add lower_left h_offset) v_offset)
+    let direction: Vec3 = (vec3_sub target camera_origin)
+    let dir_normalized: Vec3 = (vec3_normalize direction)
+    
+    return Ray {
+        origin: camera_origin,
+        direction: dir_normalized
+    }
+}
+
+shadow get_ray {
+    let camera: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    let ray: Ray = (get_ray 0.5 0.5 camera 2.0 2.0)
+    assert (== ray.origin.x 0.0)
+    assert (== ray.origin.y 0.0)
+    assert (== ray.origin.z 0.0)
+}
+
+# === RENDERING ===
+
+fn render_scene(renderer: SDL_Renderer, spheres: array<Sphere>, light_pos: Vec3, width: int, height: int) -> void {
+    (println "Rendering scene...")
+    
+    let aspect_ratio: float = (/ (cast_float width) (cast_float height))
+    let viewport_height: float = 2.0
+    let viewport_width: float = (* aspect_ratio viewport_height)
+    let camera_origin: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    
+    (SDL_SetRenderDrawColor renderer 0 0 0 255)
+    (SDL_RenderClear renderer)
+    
+    let mut y: int = 0
+    while (< y height) {
+        if (== (% y 50) 0) {
+            (print "Rendering row: ")
+            (println y)
+        } else {
+            (print "")
+        }
+        
+        let mut x: int = 0
+        while (< x width) {
+            let width_minus_1: int = (- width 1)
+            let height_minus_1: int = (- height 1)
+            let height_minus_y_minus_1: int = (- (- height y) 1)
+            let u: float = (/ (cast_float x) (cast_float width_minus_1))
+            let v: float = (/ (cast_float height_minus_y_minus_1) (cast_float height_minus_1))
+            
+            let r: Ray = (get_ray u v camera_origin viewport_width viewport_height)
+            let color: Vec3 = (scene_hit spheres r light_pos)
+            
+            let ir: int = (cast_int (* color.x 255.0))
+            let ig: int = (cast_int (* color.y 255.0))
+            let ib: int = (cast_int (* color.z 255.0))
+            
+            (SDL_SetRenderDrawColor renderer ir ig ib 255)
+            (SDL_RenderDrawPoint renderer x y)
+            
+            set x (+ x 1)
+        }
+        
+        set y (+ y 1)
+    }
+    
+    (SDL_RenderPresent renderer)
+    (println "Rendering complete!")
+}
+
+shadow render_scene {
+    # Cannot test SDL functions in shadow, just verify function exists
+    assert true
+}
+
+# === UI OVERLAY ===
+
+fn draw_ui(renderer: SDL_Renderer, font: int, light_x: int, light_y: int) -> void {
+    # Draw semi-transparent bar at bottom
+    (SDL_SetRenderDrawColor renderer 0 0 0 200)
+    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 60) WINDOW_WIDTH 60)
+    
+    # Instructions
+    (draw_text_blended renderer font "Click to move light (auto-redraw)    SPACE = Redraw    ESC = Quit" 10 (- WINDOW_HEIGHT 50) 200 200 255 255)
+    
+    # Light position
+    let mut light_text: string = "Light: ("
+    set light_text (str_concat light_text (int_to_string light_x))
+    set light_text (str_concat light_text ", ")
+    set light_text (str_concat light_text (int_to_string light_y))
+    set light_text (str_concat light_text ")")
+    (draw_text_blended renderer font light_text 10 (- WINDOW_HEIGHT 30) 255 200 100 255)
+}
+
+shadow draw_ui {
+    # Cannot test SDL functions in shadow, just verify function exists
+    assert true
+}
+
+# === MAIN ===
+
+fn main() -> int {
+    # Initialize SDL
+    (SDL_Init 32)
+    
+    let window: SDL_Window = (SDL_CreateWindow "Ray Tracer Demo - Nanolang" 100 100 WINDOW_WIDTH WINDOW_HEIGHT 4)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
+    
+    if (== renderer 0) {
+        (println "Failed to create renderer")
+        return 1
+    } else {
+        (println "✓ SDL initialized")
+    }
+    
+    # Initialize SDL_ttf
+    (TTF_Init)
+    let font: TTF_Font = (TTF_OpenFont "/System/Library/Fonts/Supplemental/Arial.ttf" 16)
+    if (== font 0) {
+        (println "Failed to load font")
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
+        return 1
+    } else {
+        (println "✓ Font loaded")
+    }
+    
+    # Disable mouse motion events
+    (SDL_EventState 1024 0)
+    
+    # Create scene with spheres
+    let mut spheres: array<Sphere> = []
+    
+    # Ground sphere (large)
+    set spheres (array_push spheres (Sphere {
+        center: Vec3 { x: 0.0, y: -100.5, z: -1.0 },
+        radius: 100.0,
+        color: Vec3 { x: 0.5, y: 0.5, z: 0.5 }
+    }))
+    
+    # Center sphere (red)
+    set spheres (array_push spheres (Sphere {
+        center: Vec3 { x: 0.0, y: 0.0, z: -1.0 },
+        radius: 0.5,
+        color: Vec3 { x: 0.8, y: 0.3, z: 0.3 }
+    }))
+    
+    # Left sphere (green)
+    set spheres (array_push spheres (Sphere {
+        center: Vec3 { x: -1.0, y: 0.0, z: -1.0 },
+        radius: 0.5,
+        color: Vec3 { x: 0.3, y: 0.8, z: 0.3 }
+    }))
+    
+    # Right sphere (blue)
+    set spheres (array_push spheres (Sphere {
+        center: Vec3 { x: 1.0, y: 0.0, z: -1.0 },
+        radius: 0.5,
+        color: Vec3 { x: 0.3, y: 0.3, z: 0.8 }
+    }))
+    
+    (println "✓ Scene created with 4 spheres")
+    
+    # Light position (world space)
+    let mut light_x: int = 400
+    let mut light_y: int = 200
+    let light_z: float = 2.0
+    
+    # State
+    let mut running: bool = true
+    let mut needs_render: bool = true
+    
+    (println "")
+    (println "=== RAY TRACER DEMO ===")
+    (println "Click to move light (auto-redraws scene)")
+    (println "Press SPACE to redraw")
+    (println "Press ESC to quit")
+    (println "")
+    
+    # Initial render
+    (SDL_SetRenderDrawColor renderer 20 20 30 255)
+    (SDL_RenderClear renderer)
+    (draw_ui renderer font light_x light_y)
+    (SDL_RenderPresent renderer)
+    
+    # Main loop
+    while running {
+        # Handle keyboard input
+        let key: int = (nl_sdl_poll_keypress)
+        if (> key -1) {
+            if (== key 41) {
+                # ESC = quit
+                set running false
+            } else {
+                if (== key 44) {
+                    # SPACE = trigger redraw
+                    set needs_render true
+                } else {
+                    (print "")
+                }
+            }
+        } else {
+            (print "")
+        }
+        
+        # Check for quit event
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) {
+            set running false
+        } else {
+            (print "")
+        }
+        
+        # Check for mouse click - redraw when light position changes
+        let mouse: int = (nl_sdl_poll_mouse_click)
+        if (> mouse -1) {
+            set light_x (/ mouse 10000)
+            set light_y (% mouse 10000)
+            
+            (print "Light position set to: (")
+            (print light_x)
+            (print ", ")
+            (print light_y)
+            (println ")")
+            
+            # Trigger immediate redraw with new light position
+            set needs_render true
+        } else {
+            (print "")
+        }
+        
+        # Render if needed
+        if (needs_render) {
+            set needs_render false
+            
+            # Convert screen space light to world space
+            let light_world_x: float = (/ (* (- (cast_float light_x) (/ (cast_float WINDOW_WIDTH) 2.0)) 4.0) (cast_float WINDOW_WIDTH))
+            let light_world_y: float = (/ (* (- (/ (cast_float WINDOW_HEIGHT) 2.0) (cast_float light_y)) 4.0) (cast_float WINDOW_HEIGHT))
+            let light_pos: Vec3 = Vec3 { x: light_world_x, y: light_world_y, z: light_z }
+            
+            (render_scene renderer spheres light_pos WINDOW_WIDTH WINDOW_HEIGHT)
+            (draw_ui renderer font light_x light_y)
+            (SDL_RenderPresent renderer)
+        } else {
+            # Just update UI
+            (draw_ui renderer font light_x light_y)
+            (SDL_RenderPresent renderer)
+        }
+        
+        (SDL_Delay 16)
+    }
+    
+    (println "")
+    (println "✨ Exiting...")
+    (println "")
+    
+    # Cleanup
+    (TTF_CloseFont font)
+    (TTF_Quit)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
