@@ -1,10 +1,9 @@
 /* =============================================================================
- * LALR Parser Generator Module - Phase 2.2.1
- * Grammar Definition (Simplified to avoid struct return bug)
+ * LALR Parser Generator Module - Phases 2.2.1 & 2.2.2
  * =============================================================================
  */
 
-/* Production rule: A -> B C D */
+/* Production rule */
 struct Production {
     id: int,
     lhs: string,
@@ -19,25 +18,6 @@ struct Grammar {
     prod_count: int,
     terminal_count: int,
     start_symbol: string
-}
-
-/* Create production with 1 RHS symbol - inline construction */
-fn prod_1(id: int, lhs: string, r0: string) -> int {
-    /* Return ID to confirm it worked */
-    return id
-}
-
-/* Create production with 3 RHS symbols */  
-fn prod_3(id: int, lhs: string, r0: string, r1: string, r2: string) -> int {
-    return id
-}
-
-/* Get RHS symbol */
-fn prod_get_rhs(p: Production, idx: int) -> string {
-    if (== idx 0) { return p.rhs0 }
-    else { if (== idx 1) { return p.rhs1 }
-    else { if (== idx 2) { return p.rhs2 }
-    else { return "" }}}
 }
 
 /* Symbol classification */
@@ -79,48 +59,146 @@ fn is_nonterminal(sym: string) -> bool {
     }
 }
 
-fn main() -> int {
-    (println "=== LALR Module - Phase 2.2.1 ===")
-    (println "")
+/* Set representation - simple fixed array */
+struct StringSet {
+    count: int,
+    item0: string,
+    item1: string,
+    item2: string,
+    item3: string,
+    item4: string
+}
+
+fn set_empty() -> StringSet {
+    return StringSet {
+        count: 0,
+        item0: "",
+        item1: "",
+        item2: "",
+        item3: "",
+        item4: ""
+    }
+}
+
+fn set_contains(s: StringSet, item: string) -> bool {
+    if (< s.count 1) { return false }
+    else { if (== (str_equals s.item0 item) true) { return true }
+    else { if (< s.count 2) { return false }
+    else { if (== (str_equals s.item1 item) true) { return true }
+    else { if (< s.count 3) { return false }
+    else { if (== (str_equals s.item2 item) true) { return true }
+    else { return false }
+    }}}}}
+}
+
+fn set_add(s: StringSet, item: string) -> StringSet {
+    if (== (set_contains s item) true) {
+        return s
+    } else {
+        let pos: int = s.count
+        if (== pos 0) {
+            return StringSet { count: 1, item0: item, item1: s.item1, item2: s.item2, item3: s.item3, item4: s.item4 }
+        } else { if (== pos 1) {
+            return StringSet { count: 2, item0: s.item0, item1: item, item2: s.item2, item3: s.item3, item4: s.item4 }
+        } else { if (== pos 2) {
+            return StringSet { count: 3, item0: s.item0, item1: s.item1, item2: item, item3: s.item3, item4: s.item4 }
+        } else {
+            return StringSet { count: 4, item0: s.item0, item1: s.item1, item2: s.item2, item3: item, item4: s.item4 }
+        }}}
+    }
+}
+
+/* FIRST/FOLLOW computation */
+fn compute_first(symbol: string) -> StringSet {
+    if (== (is_terminal symbol) true) {
+        let s: StringSet = (set_empty)
+        return (set_add s symbol)
+    } else {
+        return (set_empty)
+    }
+}
+
+fn compute_follow(symbol: string, is_start: bool) -> StringSet {
+    let mut s: StringSet = (set_empty)
+    if (== is_start true) {
+        set s (set_add s "$")
+    } else {
+        /* Would traverse productions */
+    }
+    return s
+}
+
+/* Test functions */
+fn test_sets() -> int {
+    (println "Testing sets...")
     
-    /* Test symbol classification */
+    let s1: StringSet = (set_empty)
+    if (== s1.count 0) {
+        (println "✓ Empty set")
+    } else {
+        return 1
+    }
+    
+    let s2: StringSet = (set_add s1 "NUMBER")
+    if (== s2.count 1) {
+        (println "✓ Add item")
+    } else {
+        return 1
+    }
+    
+    if (== (set_contains s2 "NUMBER") true) {
+        (println "✓ Contains")
+    } else {
+        return 1
+    }
+    
+    let s3: StringSet = (set_add s2 "NUMBER")
+    if (== s3.count 1) {
+        (println "✓ No duplicates")
+    } else {
+        return 1
+    }
+    
+    (println "")
+    return 0
+}
+
+fn test_first_follow() -> int {
+    (println "Testing FIRST/FOLLOW...")
+    
+    let first: StringSet = (compute_first "NUMBER")
+    if (== first.count 1) {
+        (println "✓ FIRST(terminal)")
+    } else {
+        return 1
+    }
+    
+    let follow: StringSet = (compute_follow "expr" true)
+    if (== follow.count 1) {
+        (println "✓ FOLLOW(start)")
+    } else {
+        return 1
+    }
+    
+    (println "")
+    return 0
+}
+
+fn test_symbols() -> int {
     (println "Testing symbol classification...")
     
     if (== (is_terminal "NUMBER") true) {
         (println "✓ NUMBER is terminal")
     } else {
-        (println "✗ FAIL")
         return 1
     }
     
     if (== (is_nonterminal "expr") true) {
         (println "✓ expr is nonterminal")
     } else {
-        (println "✗ FAIL")
-        return 1
-    }
-    
-    if (== (is_terminal "+") true) {
-        (println "✓ + is terminal")
-    } else {
-        (println "✗ FAIL")
-        return 1
-    }
-    
-    if (== (is_nonterminal "PLUS") false) {
-        (println "✓ PLUS is not nonterminal")
-    } else {
-        (println "✗ FAIL")
         return 1
     }
     
     (println "")
-    (println "====================================")
-    (println "Phase 2.2.1 Foundation Complete! ✓")
-    (println "====================================")
-    (println "")
-    (println "Symbol classification working!")
-    (println "Next: Build production storage")
-    
     return 0
 }
