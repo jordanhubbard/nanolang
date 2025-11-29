@@ -1,0 +1,276 @@
+/* =============================================================================
+ * AST Module - Abstract Syntax Tree Support  
+ * Simplified working version
+ * =============================================================================
+ */
+
+/* AST Node Types */
+enum ASTNodeType {
+    Program,
+    Function,
+    Call,
+    Identifier,
+    IntLiteral,
+    StringLiteral,
+    Block,
+    If,
+    Empty
+}
+
+/* Core AST Structure */
+struct AST {
+    node_type: ASTNodeType,
+    name: string,
+    value: string,
+    child_count: int
+}
+
+/* Create empty node */
+fn ast_empty() -> AST {
+    return AST {
+        node_type: ASTNodeType.Empty,
+        name: "",
+        value: "",
+        child_count: 0
+    }
+}
+
+/* Create program */
+fn ast_program() -> AST {
+    return AST {
+        node_type: ASTNodeType.Program,
+        name: "program",
+        value: "",
+        child_count: 0
+    }
+}
+
+/* Create function */
+fn ast_function(name: string) -> AST {
+    return AST {
+        node_type: ASTNodeType.Function,
+        name: name,
+        value: "",
+        child_count: 0
+    }
+}
+
+/* Create identifier */
+fn ast_identifier(name: string) -> AST {
+    return AST {
+        node_type: ASTNodeType.Identifier,
+        name: name,
+        value: name,
+        child_count: 0
+    }
+}
+
+/* Create integer literal - store as string */
+fn ast_int(value: string) -> AST {
+    return AST {
+        node_type: ASTNodeType.IntLiteral,
+        name: "",
+        value: value,
+        child_count: 0
+    }
+}
+
+/* Create string literal */
+fn ast_string(value: string) -> AST {
+    return AST {
+        node_type: ASTNodeType.StringLiteral,
+        name: "",
+        value: value,
+        child_count: 0
+    }
+}
+
+/* Create call node */
+fn ast_call(func_name: string, arg_count: int) -> AST {
+    return AST {
+        node_type: ASTNodeType.Call,
+        name: func_name,
+        value: "",
+        child_count: arg_count
+    }
+}
+
+/* Create block */
+fn ast_block(stmt_count: int) -> AST {
+    return AST {
+        node_type: ASTNodeType.Block,
+        name: "",
+        value: "",
+        child_count: stmt_count
+    }
+}
+
+/* Query functions */
+fn ast_is_call(node: AST) -> bool {
+    return (== node.node_type ASTNodeType.Call)
+}
+
+fn ast_is_identifier(node: AST) -> bool {
+    return (== node.node_type ASTNodeType.Identifier)
+}
+
+fn ast_is_int_literal(node: AST) -> bool {
+    return (== node.node_type ASTNodeType.IntLiteral)
+}
+
+fn ast_is_string_literal(node: AST) -> bool {
+    return (== node.node_type ASTNodeType.StringLiteral)
+}
+
+fn ast_is_literal(node: AST) -> bool {
+    let is_int: bool = (ast_is_int_literal node)
+    let is_str: bool = (ast_is_string_literal node)
+    
+    if (== is_int true) {
+        return true
+    } else {
+        return is_str
+    }
+}
+
+/* Get type name */
+fn ast_type_name(node: AST) -> string {
+    let node_type: ASTNodeType = node.node_type
+    
+    if (== node_type ASTNodeType.Program) {
+        return "Program"
+    } else {
+        if (== node_type ASTNodeType.Function) {
+            return "Function"
+        } else {
+            if (== node_type ASTNodeType.Call) {
+                return "Call"
+            } else {
+                if (== node_type ASTNodeType.Identifier) {
+                    return "Identifier"
+                } else {
+                    if (== node_type ASTNodeType.IntLiteral) {
+                        return "IntLiteral"
+                    } else {
+                        if (== node_type ASTNodeType.StringLiteral) {
+                            return "StringLiteral"
+                        } else {
+                            if (== node_type ASTNodeType.Block) {
+                                return "Block"
+                            } else {
+                                return "Unknown"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/* Pretty print */
+fn ast_to_string(node: AST) -> string {
+    let node_type: ASTNodeType = node.node_type
+    
+    if (== node_type ASTNodeType.IntLiteral) {
+        return (str_concat "Int(" (str_concat node.value ")"))
+    } else {
+        if (== node_type ASTNodeType.StringLiteral) {
+            return (str_concat "String(" (str_concat node.value ")"))
+        } else {
+            if (== node_type ASTNodeType.Identifier) {
+                return (str_concat "Id(" (str_concat node.name ")"))
+            } else {
+                if (== node_type ASTNodeType.Call) {
+                    return (str_concat "Call(" (str_concat node.name ")"))
+                } else {
+                    return (ast_type_name node)
+                }
+            }
+        }
+    }
+}
+
+fn main() -> int {
+    (println "=== AST Module - Basic Tests ===")
+    (println "")
+    
+    /* Test node creation */
+    (println "Creating AST nodes...")
+    let int_node: AST = (ast_int "42")
+    let str_node: AST = (ast_string "hello")
+    let id_node: AST = (ast_identifier "x")
+    let call_node: AST = (ast_call "println" 1)
+    let prog_node: AST = (ast_program)
+    let func_node: AST = (ast_function "main")
+    
+    (println (ast_to_string int_node))
+    (println (ast_to_string str_node))
+    (println (ast_to_string id_node))
+    (println (ast_to_string call_node))
+    (println "")
+    
+    /* Test type checking */
+    (println "Testing type predicates...")
+    
+    if (== (ast_is_literal int_node) true) {
+        (println "✓ ast_is_literal(int) = true")
+    } else {
+        (println "✗ FAIL: ast_is_literal(int)")
+        return 1
+    }
+    
+    if (== (ast_is_literal str_node) true) {
+        (println "✓ ast_is_literal(string) = true")
+    } else {
+        (println "✗ FAIL: ast_is_literal(string)")
+        return 1
+    }
+    
+    if (== (ast_is_literal id_node) false) {
+        (println "✓ ast_is_literal(id) = false")
+    } else {
+        (println "✗ FAIL: ast_is_literal(id)")
+        return 1
+    }
+    
+    if (== (ast_is_call call_node) true) {
+        (println "✓ ast_is_call works")
+    } else {
+        (println "✗ FAIL: ast_is_call")
+        return 1
+    }
+    
+    if (== (ast_is_identifier id_node) true) {
+        (println "✓ ast_is_identifier works")
+    } else {
+        (println "✗ FAIL: ast_is_identifier")
+        return 1
+    }
+    
+    (println "")
+    
+    /* Test type names */
+    (println "Testing type names...")
+    let prog_name: string = (ast_type_name prog_node)
+    if (== (str_equals prog_name "Program") true) {
+        (println "✓ Program type name")
+    } else {
+        (println "✗ FAIL: Program type name")
+        return 1
+    }
+    
+    let func_name: string = (ast_type_name func_node)
+    if (== (str_equals func_name "Function") true) {
+        (println "✓ Function type name")
+    } else {
+        (println "✗ FAIL: Function type name")
+        return 1
+    }
+    
+    (println "")
+    (println "============================")
+    (println "All AST tests PASSED! ✓")
+    (println "============================")
+    return 0
+}
