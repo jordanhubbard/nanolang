@@ -1264,15 +1264,15 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
                 if (env_get_union(tc->env, stmt->as.let.type_name)) {
                     declared_type = TYPE_UNION;
                 }
-                /* Check if this is actually an enum (treat enums as int) */
+                /* Check if this is actually an enum */
                 else if (env_get_enum(tc->env, stmt->as.let.type_name)) {
-                    declared_type = TYPE_INT;
+                    declared_type = TYPE_ENUM;
                 }
             }
             /* Legacy handling for enums without type_name */
             else if (declared_type == TYPE_STRUCT && value_type == TYPE_INT) {
-                /* This is okay - enums are represented as ints */
-                declared_type = TYPE_INT;
+                /* This is okay - enums are compatible with ints */
+                declared_type = TYPE_ENUM;
             }
             
             /* Special handling for function types - need to check signatures match */
@@ -1405,8 +1405,9 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
             }
             
             /* Add to environment */
-            /* Use original_declared_type to ensure struct types are preserved */
-            Type env_type = (original_declared_type == TYPE_STRUCT || original_declared_type == TYPE_UNION) 
+            /* Use original_declared_type to ensure struct and union types are preserved */
+            /* But use declared_type for enums (which may have been corrected from TYPE_STRUCT) */
+            Type env_type = (original_declared_type == TYPE_STRUCT && declared_type != TYPE_ENUM) || original_declared_type == TYPE_UNION
                           ? original_declared_type : declared_type;
             Value val = create_void(); /* Placeholder */
             env_define_var_with_type_info(tc->env, stmt->as.let.name, env_type, element_type, type_info, stmt->as.let.is_mut, val);
