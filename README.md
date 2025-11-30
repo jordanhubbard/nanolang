@@ -4,11 +4,12 @@
 ![Tests](https://img.shields.io/badge/tests-20%2F20%20passing-brightgreen.svg)
 ![Examples](https://img.shields.io/badge/examples-25%2F28%20working-green.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
-![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)
+![Self-Hosting](https://img.shields.io/badge/self--hosting-100%25%20achieved-brightgreen.svg)
 
-**Status**: ✅ Production Ready - 20/20 tests passing + 25/28 examples working, **49+ stdlib functions**, arrays with bounds checking, **self-hosting foundation 100% complete** ✅
+**Status**: 🎊 **SELF-HOSTED** 🎊 - Compiler written IN NanoLang! See [SELFHOSTING_ACHIEVED.md](SELFHOSTING_ACHIEVED.md) for the full story.
 
-A minimal, LLM-friendly programming language designed for AI-assisted programming with strict, unambiguous syntax, mandatory shadow-tests, and a path to self-hosting via C transpilation.
+A minimal, LLM-friendly programming language designed for AI-assisted programming with strict, unambiguous syntax, mandatory shadow-tests, and **true self-hosting** via C transpilation.
 
 ## Documentation 📚
 
@@ -19,8 +20,13 @@ A minimal, LLM-friendly programming language designed for AI-assisted programmin
 - 📘 [Language Specification](docs/SPECIFICATION.md) - Complete reference
 - 📋 [Documentation Index](docs/DOCS_INDEX.md) - All documentation
 
+**Self-Hosting Achievement:**
+- 🎊 [Self-Hosting Achieved!](SELFHOSTING_ACHIEVED.md) - The complete story of how NanoLang became self-hosted
+- 📚 [Epic Journey Documentation](docs/SESSION_EPIC_COMPLETE.md) - From 100+ errors to working compiler in one day
+- 🏗️ [Technical Details](docs/PHASE_2_COMPLETE.md) - How all components compile
+
 **Contributing:**
-- 🤝 [Contributing Guide](docs/CONTRIBUTING.md)
+- 🤝 [Contributing Guide](CONTRIBUTING.md) - Development principles and guidelines
 - 🐛 [Report a Bug](https://github.com/jordanhubbard/nanolang/issues/new?template=bug_report.md)
 - 💡 [Request a Feature](https://github.com/jordanhubbard/nanolang/issues/new?template=feature_request.md)
 
