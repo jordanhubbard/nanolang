@@ -1,240 +1,254 @@
-# Contributing to Nanolang
+# Contributing to NanoLang
 
-Thank you for your interest in contributing to nanolang! This document provides guidelines and best practices for contributors.
+## Ground Rules for Feature Development
 
-## Quick Start
+These rules ensure the long-term maintainability and self-hosting capability of NanoLang.
 
-1. **Fork and clone** the repository
-2. **Build the project**: `make`
-3. **Run tests**: `make test`
-4. **Build examples**: `make examples`
+### 1. **Interpreter/Compiler Feature Parity**
 
-## Development Workflow
+**RULE**: The interpreter and compiler must ALWAYS support the same features.
 
-### 1. Interpreter-First Development
+**Why**: Shadow tests run in the interpreter to validate code correctness. If the interpreter doesn't support a feature that the compiler does, shadow tests will fail and we lose our testing infrastructure.
 
-**Always develop with the interpreter before compiling:**
+**Implementation**:
+- When adding a new language feature (operators, types, built-ins), implement it in BOTH:
+  - Compiler (`src/transpiler.c`, `src/parser.c`, `src/typechecker.c`)
+  - Interpreter (`src/eval.c`)
+- Before marking a feature complete, verify shadow tests work for that feature
+- Shadow tests are NOT optional - they're our quality guarantee
 
+**Example**: Generic `List<T>` support
+- ✅ Compiler: Generates C code with `list_TypeName_*` functions
+- ✅ Interpreter: Generic handler in `eval.c` delegates to `list_int_*` as backing store
+- ✅ Result: Shadow tests work, feature parity achieved
+
+### 2. **Warning-Free, Clean Sources**
+
+**RULE**: All code must compile without warnings. The codebase should be clean and maintainable.
+
+**Why**: Warnings hide real issues. A warning-free codebase makes it easy to spot new problems immediately.
+
+**Requirements**:
+- C code: `-Wall -Wextra -Werror` compliance (no warnings = no errors)
+- NanoLang code: No type warnings, no unused variable warnings
+- CI/CD: Build should fail on warnings
+- Exception: Acceptable warnings (like C11 typedef redefinitions) must be documented
+
+**How to maintain**:
 ```bash
-# Debug with interpreter (immediate feedback)
-./bin/nano your_program.nano --trace-all
-
-# Compile for production only after interpreter passes
-./bin/nanoc your_program.nano -o program
+make clean && make  # Should show no warnings
+./bin/nanoc file.nano  # Should show no warnings
 ```
 
-### 2. Shadow Tests Required
+### 3. **Dual Implementation: C Reference + NanoLang Self-Hosted**
 
-**Every function MUST have a shadow test:**
+**RULE**: All features must be implemented twice:
+1. **C Reference Implementation** (in `src/`) - Bootstrap compiler
+2. **NanoLang Self-Hosted** (in `src_nano/`) - Self-hosting components
 
+**Why**: 
+- C reference compiles NanoLang code initially (bootstrapping)
+- NanoLang self-hosted version proves the language is powerful enough to implement itself
+- Self-hosting is the ultimate test of language completeness
+
+**Workflow**:
+1. **First**: Implement feature in C reference implementation
+2. **Test**: Verify it works with existing test suite
+3. **Second**: Implement same feature in NanoLang (in `src_nano/`)
+4. **Verify**: Self-hosted component uses the new feature correctly
+5. **Dogfood**: Use new feature throughout codebase
+
+**File Structure**:
+```
+src/          - C reference implementation (bootstrap compiler)
+  parser.c    - C parser
+  typechecker.c - C typechecker
+  transpiler.c  - C transpiler
+  eval.c      - C interpreter
+
+src_nano/     - NanoLang self-hosted implementation
+  parser_mvp.nano - Parser in NanoLang
+  typechecker_minimal.nano - Typechecker in NanoLang
+  transpiler_minimal.nano - Transpiler in NanoLang
+```
+
+### 4. **Test-First Development**
+
+**RULE**: Every feature must have tests BEFORE being marked complete.
+
+**Test Hierarchy**:
+1. **Shadow Tests** (inline tests in NanoLang functions)
+   - Unit tests for individual functions
+   - Run in interpreter during compilation
+   - Mandatory for all exported functions
+
+2. **Integration Tests** (`tests/*.nano`)
+   - Test feature combinations
+   - Run both interpreter and compiler paths
+   - Must pass 100%
+
+3. **Self-Hosting Tests**
+   - Bootstrap compilation (C compiles NanoLang compiler)
+   - Self-compilation (NanoLang compiles itself)
+   - Fixed-point verification (C1 ≡ C2)
+
+**Example**:
 ```nano
-fn add(a: int, b: int) -> int {
-    return (+ a b)
+fn list_length(list: List<int>) -> int {
+    return (list_int_length list)
 }
 
-shadow add {
-    assert (== (add 2 3) 5)
-    assert (== (add 0 0) 0)
-    assert (== (add -1 1) 0)
+shadow list_length {
+    let xs: List<int> = (list_int_new)
+    (list_int_push xs 5)
+    (list_int_push xs 10)
+    assert (== (list_length xs) 2)
 }
 ```
 
-### 3. Code Style
+### 5. **Documentation Standards**
 
-- **Prefix notation**: All operations use prefix: `(+ a b)`, not `a + b`
-- **Explicit types**: Always annotate variable types: `let x: int = 42`
-- **Mutable variables**: Use `mut` keyword: `let mut counter: int = 0`
-- **Both branches required**: `if/else` must have both branches
+**RULE**: Code should be self-documenting, with comments only where necessary.
 
-See [.cursorrules](.cursorrules) for complete style guidelines.
+**What to Document**:
+- ✅ Complex algorithms (why, not what)
+- ✅ Non-obvious design decisions
+- ✅ Workarounds for language/compiler limitations
+- ✅ Public API functions (brief description)
 
-## Project Organization
+**What NOT to Document**:
+- ❌ Obvious code (`i++  // increment i`)
+- ❌ Redundant README files that duplicate code docs
+- ❌ Over-commented code that restates what it does
 
-### File Structure
+**README Policy**:
+- Update only when requested by contributor/maintainer
+- Keep focused: What is NanoLang, how to build, how to run
+- Avoid documenting every function (use `--help` flags instead)
 
+### 6. **Error Messages Must Be Excellent**
+
+**RULE**: Error messages should immediately tell the user what's wrong and how to fix it.
+
+**Format**:
 ```
-nanolang/
-├── src/           # Compiler source (C)
-├── src_nano/      # Self-hosted components (nanolang)
-├── modules/       # Standard library modules
-├── examples/      # Example programs
-├── tests/         # Test suite
-├── docs/          # User-facing documentation
-└── planning/      # Future work and design docs
+Error at line X, column Y: <What went wrong>
+  Note: <Additional context>
+  Hint: <How to fix it>
 ```
 
-### Documentation Rules
+**Example**:
+```
+Error at line 42, column 18: Undefined function 'list_Point_new'
+  Note: struct or enum 'Point' is not defined
+  Hint: Define 'struct Point { ... }' before using List<Point>
+```
 
-Per [.cursorrules](.cursorrules):
+**Line numbers are mandatory**: Every error during parsing, type-checking, or transpiling must include line and column numbers.
 
-- **Obsolete files**: Delete completed implementation summaries
-- **Planning docs**: Keep in `planning/` directory
-- **User docs**: Consolidate in `docs/` directory
-- **Update index**: Always update `docs/DOCS_INDEX.md` when adding docs
+### 7. **Backward Compatibility**
 
-## Making Changes
+**RULE**: Once a feature is released, it must continue to work in future versions.
 
-### Adding a Language Feature
+**Breaking Changes Require**:
+- Major version bump
+- Migration guide
+- Deprecation warnings in previous version
+- Community discussion
 
-1. **Update parser** (`src/parser.c`) to recognize new syntax
-2. **Update typechecker** (`src/typechecker.c`) to validate semantics
-3. **Update interpreter** (`src/eval.c`) for interpretation
-4. **Update transpiler** (`src/transpiler.c`) for C code generation
-5. **Add unit tests** in `tests/`
-6. **Add examples** in `examples/`
-7. **Update documentation** in `docs/`
-8. **Update SPECIFICATION.md** with new feature
+**Safe Changes**:
+- Adding new features (non-breaking)
+- Fixing bugs
+- Improving error messages
+- Performance optimizations
 
-### Fixing a Bug
+### 8. **Performance Considerations**
 
-1. **Write a failing test** that demonstrates the bug
-2. **Fix the bug** in the appropriate source file
-3. **Verify test passes**: `make test`
-4. **Add regression test** to prevent recurrence
-5. **Document fix** in commit message
+**RULE**: Don't sacrifice correctness for performance, but be mindful of efficiency.
 
-### Adding an Example
+**Guidelines**:
+- Use appropriate data structures (`List<T>` for dynamic, arrays for fixed)
+- Avoid N² algorithms where N could be large
+- Profile before optimizing ("premature optimization is evil")
+- Memory leaks are bugs - always free allocated memory
 
-1. **Create example** in `examples/` directory
-2. **Add shadow tests** to demonstrate correctness
-3. **Test with interpreter**: `./bin/nano examples/your_example.nano`
-4. **Test compilation**: `make examples`
-5. **Verify zero warnings**: Examples must compile cleanly
-6. **Update examples/Makefile** if needed
-7. **Add comments** explaining complex algorithms
+**Self-Hosting Performance**:
+- Compilation should be fast enough for development (< 5 seconds for small files)
+- Shadow tests should run quickly (< 1 second for typical test suite)
+- Large files (> 2000 lines) may need optimization or splitting
 
-## Build System
+## Contribution Workflow
 
-### Makefile Targets
+### 1. Before Starting
 
+- Read this CONTRIBUTING.md
+- Check existing issues/PRs to avoid duplicates
+- Discuss large changes in an issue first
+
+### 2. During Development
+
+- Follow the 8 ground rules above
+- Write tests as you code (not after)
+- Run `make test` frequently
+- Keep commits atomic and well-described
+
+### 3. Before Submitting PR
+
+**Checklist**:
 ```bash
-make              # Build compiler and interpreter
-make examples     # Build all examples
-make test         # Run test suite
-make check        # Build + test
-make clean        # Remove all build artifacts
-
-make sanitize     # Build with memory sanitizers
-make coverage     # Build with coverage instrumentation
-make valgrind     # Run valgrind memory checks
-```
-
-### Zero Warnings Policy
-
-**All code must compile without warnings:**
-
-- Compiler: `-Wall -Wextra` enforced
-- Examples: Must build cleanly
-- No exceptions
-
-## Testing
-
-### Shadow Tests
-
-- Run automatically during compilation
-- Test every function at compile time
-- Zero runtime overhead (stripped from builds)
-
-### Unit Tests
-
-```bash
-./test.sh         # Run all unit tests
-./bin/nano tests/unit/test_name.nano
-```
-
-### Manual Testing
-
-```bash
-# Test with tracing
-./bin/nano examples/program.nano --trace-function=function_name
-
-# Test compilation
-./bin/nanoc examples/program.nano -o test_output
-./test_output
-```
-
-## Commit Guidelines
-
-### Commit Message Format
-
-```
-<type>: <subject>
-
-<body>
-
-Co-authored-by: Your Name <your.email@example.com>
-```
-
-**Types:**
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `refactor`: Code refactoring
-- `test`: Test additions or changes
-- `chore`: Build system or tooling changes
-- `perf`: Performance improvements
-
-### Before Committing
-
-```bash
-# Check status
-git status
-
-# Review changes
-git diff
-
-# Verify builds cleanly
+# Clean build
 make clean && make
 
-# Run tests
-make test
+# All tests pass
+make test  # Must show 100% pass rate
 
-# Build examples
-make examples
+# No warnings
+./bin/nanoc your_file.nano  # Should be warning-free
+
+# Self-hosted components still build
+make  # Should rebuild parser_mvp, typechecker_minimal, etc.
+
+# Your feature has tests
+# Shadow tests in your .nano file
+# Integration test in tests/ if appropriate
 ```
 
-## Pull Request Process
+### 4. PR Description Template
 
-1. **Create a feature branch**: `git checkout -b feature/your-feature`
-2. **Make changes** following guidelines above
-3. **Test thoroughly**: `make check`
-4. **Commit with descriptive message**
-5. **Push to your fork**: `git push origin feature/your-feature`
-6. **Create pull request** against `main` branch
-7. **Address review feedback**
+```markdown
+## What Changed
+Brief description of the feature/fix
 
-### PR Checklist
+## Implementation
+- C Reference: <files modified>
+- NanoLang Self-Hosted: <files modified>
+- Interpreter Parity: ✅ YES / ❌ NO / ⚠️ N/A
 
-- [ ] Code builds without warnings
-- [ ] All tests pass
-- [ ] New features have shadow tests
-- [ ] Examples updated if needed
-- [ ] Documentation updated
-- [ ] `docs/DOCS_INDEX.md` updated if docs changed
-- [ ] Commit messages follow format
+## Testing
+- Shadow tests: ✅ Added / ⚠️ Updated / ❌ None
+- Integration tests: ✅ Added / ⚠️ Updated / ❌ None
+- All tests passing: ✅ YES / ❌ NO
 
-## Getting Help
+## Breaking Changes
+YES / NO - if yes, describe migration path
 
-- **Documentation**: See `docs/` directory
-- **Specification**: See `docs/SPECIFICATION.md`
-- **Examples**: See `examples/` directory
-- **Issues**: Check GitHub issues for known problems
+## Checklist
+- [ ] Builds warning-free
+- [ ] All tests pass (100%)
+- [ ] Interpreter/compiler parity maintained
+- [ ] Documentation updated (if needed)
+- [ ] Self-hosted components updated (if needed)
+```
+
+## Questions?
+
+Open an issue or discussion. We're here to help!
 
 ## Code of Conduct
 
 - Be respectful and constructive
 - Focus on the code, not the person
-- Welcome newcomers
-- Help others learn
+- Assume good intentions
+- Help newcomers learn
 
-## License
-
-By contributing, you agree that your contributions will be licensed under the same license as the project (see LICENSE file).
-
-## Questions?
-
-Open an issue or discussion on GitHub.
-
----
-
-**Thank you for contributing to nanolang!** 🚀
+**Welcome to NanoLang! Let's build something amazing together.** 🚀

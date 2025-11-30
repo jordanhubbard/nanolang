@@ -1780,6 +1780,77 @@ static Value eval_call(ASTNode *node, Environment *env) {
         return create_void();
     }
 
+    /* Generic list functions: list_TypeName_operation for user-defined types */
+    /* Pattern: list_ASTNumber_new, list_Point_push, etc. */
+    /* For interpreter/shadow tests, we use a simple generic list that stores pointers */
+    if (strncmp(name, "list_", 5) == 0) {
+        /* Extract the operation: list_TypeName_op -> op */
+        const char *last_underscore = strrchr(name, '_');
+        if (last_underscore) {
+            const char *operation = last_underscore + 1;
+            
+            /* Use list_int as the underlying implementation (stores pointers as int64) */
+            if (strcmp(operation, "new") == 0) {
+                List_int *list = list_int_new();  /* Generic list stores pointers */
+                return create_int((long long)list);
+            }
+            if (strcmp(operation, "with_capacity") == 0) {
+                List_int *list = list_int_with_capacity(args[0].as.int_val);
+                return create_int((long long)list);
+            }
+            if (strcmp(operation, "push") == 0) {
+                List_int *list = (List_int*)args[0].as.int_val;
+                /* Store the struct pointer (passed as int) */
+                list_int_push(list, args[1].as.int_val);
+                return create_void();
+            }
+            if (strcmp(operation, "pop") == 0) {
+                List_int *list = (List_int*)args[0].as.int_val;
+                return create_int(list_int_pop(list));
+            }
+            if (strcmp(operation, "get") == 0) {
+                List_int *list = (List_int*)args[0].as.int_val;
+                return create_int(list_int_get(list, args[1].as.int_val));
+            }
+            if (strcmp(operation, "set") == 0) {
+                List_int *list = (List_int*)args[0].as.int_val;
+                list_int_set(list, args[1].as.int_val, args[2].as.int_val);
+                return create_void();
+            }
+            if (strcmp(operation, "insert") == 0) {
+                List_int *list = (List_int*)args[0].as.int_val;
+                list_int_insert(list, args[1].as.int_val, args[2].as.int_val);
+                return create_void();
+            }
+            if (strcmp(operation, "remove") == 0) {
+                List_int *list = (List_int*)args[0].as.int_val;
+                return create_int(list_int_remove(list, args[1].as.int_val));
+            }
+            if (strcmp(operation, "length") == 0) {
+                List_int *list = (List_int*)args[0].as.int_val;
+                return create_int(list_int_length(list));
+            }
+            if (strcmp(operation, "capacity") == 0) {
+                List_int *list = (List_int*)args[0].as.int_val;
+                return create_int(list_int_capacity(list));
+            }
+            if (strcmp(operation, "is_empty") == 0) {
+                List_int *list = (List_int*)args[0].as.int_val;
+                return create_bool(list_int_is_empty(list));
+            }
+            if (strcmp(operation, "clear") == 0) {
+                List_int *list = (List_int*)args[0].as.int_val;
+                list_int_clear(list);
+                return create_void();
+            }
+            if (strcmp(operation, "free") == 0) {
+                List_int *list = (List_int*)args[0].as.int_val;
+                list_int_free(list);
+                return create_void();
+            }
+        }
+    }
+
     /* External C library functions - provide interpreter implementations */
     if (strcmp(name, "rand") == 0) {
         return create_int(rand());
