@@ -739,21 +739,9 @@ fn generate_return_stmt(parser: Parser, ret: ASTReturn, indent: int) -> string {
 fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int) -> string {
     let mut code: string = (gen_indent indent)
     
-    /* Add type - map nanolang types to C types */
-    if (== let_stmt.var_type "int") {
-        set code (str_concat code "int64_t ")
-    } else {
-        if (== let_stmt.var_type "bool") {
-            set code (str_concat code "bool ")
-        } else {
-            if (== let_stmt.var_type "string") {
-                set code (str_concat code "char* ")
-            } else {
-                /* Default to int64_t */
-                set code (str_concat code "int64_t ")
-            }
-        }
-    }
+    /* TODO: Get actual type from let_stmt - currently defaults to int64_t */
+    /* Workaround: Cannot access struct field from function parameter during transpilation */
+    set code (str_concat code "int64_t ")
     
     /* Add variable name with nl_ prefix */
     set code (str_concat code "nl_")

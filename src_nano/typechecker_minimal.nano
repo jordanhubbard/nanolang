@@ -591,9 +591,8 @@ fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: Typ
 fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>) -> array<Symbol> {
     /* Check if variable already exists in current scope */
     if (env_has_symbol symbols let_node.name) {
-        (print "Type error: Variable ")
-        (print let_node.name)
-        (println " already defined")
+        /* TODO: Better error reporting with variable name */
+        (println "Type error: Variable already defined")
         return symbols
     } else {
         (print "")
@@ -639,8 +638,8 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: Ty
  * Returns: true if valid, false if type errors
  */
 fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>) -> bool {
-    (print "Type checking function: ")
-    (println func.name)
+    /* TODO: Add function name to debug output */
+    (println "Type checking function...")
     
     /* Build symbol table with parameters */
     /* TODO: Extract parameters from Parser storage */
@@ -711,8 +710,8 @@ fn typecheck_parser(parser: Parser) -> int {
     let mut i: int = 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
-        (print "  Registering function: ")
-        (println func.name)
+        /* TODO: Add function name to debug output */
+        (println "  Registering function...")
         
         let return_type: Type = (type_from_string func.return_type)
         let func_sym: Symbol = (symbol_new func.name return_type false true)
@@ -724,13 +723,13 @@ fn typecheck_parser(parser: Parser) -> int {
     set i 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
-        (print "  Type checking: ")
-        (println func.name)
+        /* TODO: Add function name to debug output */
+        (println "  Type checking function...")
         
         let valid: bool = (check_function parser func symbols)
         if (not valid) {
-            (print "Error: Type error in function ")
-            (println func.name)
+            /* TODO: Add function name to error message */
+            (println "Error: Type error in function")
             return 1
         } else {
             (print "")
