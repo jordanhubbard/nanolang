@@ -459,7 +459,7 @@ fn main() -> int {
     (TTF_Init)
     
     # Load font
-    let font: TTF_Font = (TTF_OpenFont "/System/Library/Fonts/Supplemental/Arial.ttf" 16)
+    let font: TTF_Font = (open_font_portable "Arial" 16)
     if (== font 0) {
         (println "Failed to load font")
         (SDL_DestroyRenderer renderer)

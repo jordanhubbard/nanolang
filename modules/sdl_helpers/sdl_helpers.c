@@ -50,6 +50,8 @@ int64_t nl_sdl_poll_mouse_click(void) {
                 return (int64_t)event.button.x * 10000 + (int64_t)event.button.y;
             }
         }
+        /* Push back unhandled events so other functions can process them */
+        SDL_PushEvent(&event);
     }
     return -1;
 }
@@ -83,6 +85,8 @@ int64_t nl_sdl_poll_keypress(void) {
         if (event.type == SDL_KEYDOWN) {
             return event.key.keysym.scancode;
         }
+        /* Push back unhandled events so other functions can process them */
+        SDL_PushEvent(&event);
     }
     return -1;
 }

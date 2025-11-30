@@ -10,8 +10,6 @@ import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 # === CONSTANTS ===
 let WINDOW_WIDTH: int = 800
 let WINDOW_HEIGHT: int = 600
-let SAMPLES_PER_PIXEL: int = 4
-let MAX_DEPTH: int = 10
 
 # === VEC3 STRUCT ===
 struct Vec3 {
@@ -148,8 +146,10 @@ fn vec3_normalize(v: Vec3) -> Vec3 {
 shadow vec3_normalize {
     let v: Vec3 = Vec3 { x: 3.0, y: 4.0, z: 0.0 }
     let result: Vec3 = (vec3_normalize v)
-    assert (== result.x 0.6)
-    assert (== result.y 0.8)
+    assert (> result.x 0.59)
+    assert (< result.x 0.61)
+    assert (> result.y 0.79)
+    assert (< result.y 0.81)
 }
 
 fn vec3_clamp(v: Vec3, min_val: float, max_val: float) -> Vec3 {
@@ -171,7 +171,10 @@ shadow vec3_clamp {
 # === RAY FUNCTIONS ===
 
 fn ray_at(r: Ray, t: float) -> Vec3 {
-    return (vec3_add r.origin (vec3_mul_scalar r.direction t))
+    let origin: Vec3 = r.origin
+    let direction: Vec3 = r.direction
+    let scaled_dir: Vec3 = (vec3_mul_scalar direction t)
+    return (vec3_add origin scaled_dir)
 }
 
 shadow ray_at {
@@ -187,9 +190,12 @@ shadow ray_at {
 # === SPHERE INTERSECTION ===
 
 fn sphere_hit(sphere: Sphere, r: Ray, t_min: float, t_max: float) -> HitRecord {
-    let oc: Vec3 = (vec3_sub r.origin sphere.center)
-    let a: float = (vec3_length_squared r.direction)
-    let half_b: float = (vec3_dot oc r.direction)
+    let ray_origin: Vec3 = r.origin
+    let ray_direction: Vec3 = r.direction
+    let sphere_center: Vec3 = sphere.center
+    let oc: Vec3 = (vec3_sub ray_origin sphere_center)
+    let a: float = (vec3_length_squared ray_direction)
+    let half_b: float = (vec3_dot oc ray_direction)
     let c: float = (- (vec3_length_squared oc) (* sphere.radius sphere.radius))
     let discriminant: float = (- (* half_b half_b) (* a c))
     
@@ -224,14 +230,17 @@ fn sphere_hit(sphere: Sphere, r: Ray, t_min: float, t_max: float) -> HitRecord {
         }
         
         let hit_point: Vec3 = (ray_at r t_val)
-        let normal: Vec3 = (vec3_normalize (vec3_sub hit_point sphere.center))
+        let sphere_center2: Vec3 = sphere.center
+        let diff_from_center: Vec3 = (vec3_sub hit_point sphere_center2)
+        let normal: Vec3 = (vec3_normalize diff_from_center)
+        let sphere_color: Vec3 = sphere.color
         
         return HitRecord {
             hit: true,
             t: t_val,
             point: hit_point,
             normal: normal,
-            color: sphere.color
+            color: sphere_color
         }
     }
 }
@@ -247,25 +256,32 @@ shadow sphere_hit {
         direction: Vec3 { x: 0.0, y: 0.0, z: -1.0 }
     }
     let hit: HitRecord = (sphere_hit sphere ray 0.0 100.0)
-    assert hit.hit
+    assert (hit.hit)
 }
 
 # === LIGHTING CALCULATION ===
 
 fn calculate_lighting(hit: HitRecord, light_pos: Vec3, view_dir: Vec3) -> Vec3 {
+    # Extract hit record fields
+    let hit_color: Vec3 = hit.color
+    let hit_point: Vec3 = hit.point
+    let hit_normal: Vec3 = hit.normal
+    
     # Ambient component
-    let ambient: Vec3 = (vec3_mul_scalar hit.color 0.2)
+    let ambient: Vec3 = (vec3_mul_scalar hit_color 0.2)
     
     # Light direction
-    let light_dir: Vec3 = (vec3_normalize (vec3_sub light_pos hit.point))
+    let light_to_hit: Vec3 = (vec3_sub light_pos hit_point)
+    let light_dir: Vec3 = (vec3_normalize light_to_hit)
     
     # Diffuse component
-    let diff: float = (max 0.0 (vec3_dot hit.normal light_dir))
-    let diffuse: Vec3 = (vec3_mul_scalar hit.color diff)
+    let diff: float = (max 0.0 (vec3_dot hit_normal light_dir))
+    let diffuse: Vec3 = (vec3_mul_scalar hit_color diff)
     
     # Specular component (Blinn-Phong)
-    let half_dir: Vec3 = (vec3_normalize (vec3_add light_dir view_dir))
-    let spec: float = (pow (max 0.0 (vec3_dot hit.normal half_dir)) 32.0)
+    let half_vec: Vec3 = (vec3_add light_dir view_dir)
+    let half_dir: Vec3 = (vec3_normalize half_vec)
+    let spec: float = (pow (max 0.0 (vec3_dot hit_normal half_dir)) 32.0)
     let specular: Vec3 = Vec3 { x: spec, y: spec, z: spec }
     
     # Combine components
@@ -287,32 +303,107 @@ shadow calculate_lighting {
     assert (> color.x 0.0)
 }
 
-# === SCENE INTERSECTION ===
+# === FIXED SCENE INTERSECTION ===
 
-fn scene_hit(spheres: array<Sphere>, r: Ray, light_pos: Vec3) -> Vec3 {
-    let count: int = (array_length spheres)
-    let mut i: int = 0
+fn scene_hit(r: Ray, light_pos: Vec3) -> Vec3 {
+    # Define 4 spheres directly (no array needed)
+    let ground: Sphere = Sphere {
+        center: Vec3 { x: 0.0, y: -100.5, z: -1.0 },
+        radius: 100.0,
+        color: Vec3 { x: 0.5, y: 0.5, z: 0.5 }
+    }
+    
+    let center_sphere: Sphere = Sphere {
+        center: Vec3 { x: 0.0, y: 0.0, z: -1.0 },
+        radius: 0.5,
+        color: Vec3 { x: 0.8, y: 0.3, z: 0.3 }
+    }
+    
+    let left_sphere: Sphere = Sphere {
+        center: Vec3 { x: -1.0, y: 0.0, z: -1.0 },
+        radius: 0.5,
+        color: Vec3 { x: 0.3, y: 0.8, z: 0.3 }
+    }
+    
+    let right_sphere: Sphere = Sphere {
+        center: Vec3 { x: 1.0, y: 0.0, z: -1.0 },
+        radius: 0.5,
+        color: Vec3 { x: 0.3, y: 0.3, z: 0.8 }
+    }
+    
+    # Check all spheres and find closest hit
     let mut closest_t: float = 1000000.0
     let mut did_hit: bool = false
     let mut hit_point: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
     let mut hit_normal: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
     let mut hit_color: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
     
-    while (< i count) {
-        let sphere: Sphere = (at spheres i)
-        let hit: HitRecord = (sphere_hit sphere r 0.001 closest_t)
-        
-        if (hit.hit) {
-            set closest_t hit.t
-            set did_hit true
-            set hit_point hit.point
-            set hit_normal hit.normal
-            set hit_color hit.color
-        } else {
-            (print "")
-        }
-        
-        set i (+ i 1)
+    # Check ground
+    let hit_ground: HitRecord = (sphere_hit ground r 0.001 closest_t)
+    let ground_hit: bool = hit_ground.hit
+    if ground_hit {
+        let ground_t: float = hit_ground.t
+        let ground_point: Vec3 = hit_ground.point
+        let ground_normal: Vec3 = hit_ground.normal
+        let ground_color: Vec3 = hit_ground.color
+        set closest_t ground_t
+        set did_hit true
+        set hit_point ground_point
+        set hit_normal ground_normal
+        set hit_color ground_color
+    } else {
+        (print "")
+    }
+    
+    # Check center sphere
+    let hit_center: HitRecord = (sphere_hit center_sphere r 0.001 closest_t)
+    let center_hit: bool = hit_center.hit
+    if center_hit {
+        let center_t: float = hit_center.t
+        let center_point: Vec3 = hit_center.point
+        let center_normal: Vec3 = hit_center.normal
+        let center_color: Vec3 = hit_center.color
+        set closest_t center_t
+        set did_hit true
+        set hit_point center_point
+        set hit_normal center_normal
+        set hit_color center_color
+    } else {
+        (print "")
+    }
+    
+    # Check left sphere
+    let hit_left: HitRecord = (sphere_hit left_sphere r 0.001 closest_t)
+    let left_hit: bool = hit_left.hit
+    if left_hit {
+        let left_t: float = hit_left.t
+        let left_point: Vec3 = hit_left.point
+        let left_normal: Vec3 = hit_left.normal
+        let left_color: Vec3 = hit_left.color
+        set closest_t left_t
+        set did_hit true
+        set hit_point left_point
+        set hit_normal left_normal
+        set hit_color left_color
+    } else {
+        (print "")
+    }
+    
+    # Check right sphere
+    let hit_right: HitRecord = (sphere_hit right_sphere r 0.001 closest_t)
+    let right_hit: bool = hit_right.hit
+    if right_hit {
+        let right_t: float = hit_right.t
+        let right_point: Vec3 = hit_right.point
+        let right_normal: Vec3 = hit_right.normal
+        let right_color: Vec3 = hit_right.color
+        set closest_t right_t
+        set did_hit true
+        set hit_point right_point
+        set hit_normal right_normal
+        set hit_color right_color
+    } else {
+        (print "")
     }
     
     if did_hit {
@@ -323,11 +414,14 @@ fn scene_hit(spheres: array<Sphere>, r: Ray, light_pos: Vec3) -> Vec3 {
             normal: hit_normal,
             color: hit_color
         }
-        let view_dir: Vec3 = (vec3_normalize (vec3_mul_scalar r.direction -1.0))
+        let ray_dir: Vec3 = r.direction
+        let neg_ray_dir: Vec3 = (vec3_mul_scalar ray_dir -1.0)
+        let view_dir: Vec3 = (vec3_normalize neg_ray_dir)
         return (calculate_lighting closest_hit light_pos view_dir)
     } else {
         # Sky gradient
-        let unit_dir: Vec3 = (vec3_normalize r.direction)
+        let ray_dir2: Vec3 = r.direction
+        let unit_dir: Vec3 = (vec3_normalize ray_dir2)
         let t: float = (* (+ unit_dir.y 1.0) 0.5)
         let white: Vec3 = Vec3 { x: 1.0, y: 1.0, z: 1.0 }
         let blue: Vec3 = Vec3 { x: 0.5, y: 0.7, z: 1.0 }
@@ -338,13 +432,12 @@ fn scene_hit(spheres: array<Sphere>, r: Ray, light_pos: Vec3) -> Vec3 {
 }
 
 shadow scene_hit {
-    let spheres: array<Sphere> = []
     let ray: Ray = Ray {
         origin: Vec3 { x: 0.0, y: 0.0, z: 0.0 },
         direction: Vec3 { x: 0.0, y: 0.0, z: -1.0 }
     }
     let light: Vec3 = Vec3 { x: 0.0, y: 1.0, z: 0.0 }
-    let color: Vec3 = (scene_hit spheres ray light)
+    let color: Vec3 = (scene_hit ray light)
     assert (>= color.x 0.0)
 }
 
@@ -382,7 +475,7 @@ shadow get_ray {
 
 # === RENDERING ===
 
-fn render_scene(renderer: SDL_Renderer, spheres: array<Sphere>, light_pos: Vec3, width: int, height: int) -> void {
+fn render_scene(renderer: SDL_Renderer, light_pos: Vec3, width: int, height: int) -> void {
     (println "Rendering scene...")
     
     let aspect_ratio: float = (/ (cast_float width) (cast_float height))
@@ -411,7 +504,7 @@ fn render_scene(renderer: SDL_Renderer, spheres: array<Sphere>, light_pos: Vec3,
             let v: float = (/ (cast_float height_minus_y_minus_1) (cast_float height_minus_1))
             
             let r: Ray = (get_ray u v camera_origin viewport_width viewport_height)
-            let color: Vec3 = (scene_hit spheres r light_pos)
+            let color: Vec3 = (scene_hit r light_pos)
             
             let ir: int = (cast_int (* color.x 255.0))
             let ig: int = (cast_int (* color.y 255.0))
@@ -452,6 +545,8 @@ fn draw_ui(renderer: SDL_Renderer, font: int, light_x: int, light_y: int) -> voi
     set light_text (str_concat light_text (int_to_string light_y))
     set light_text (str_concat light_text ")")
     (draw_text_blended renderer font light_text 10 (- WINDOW_HEIGHT 30) 255 200 100 255)
+    
+    (draw_text_blended renderer font "Click to set light position" (- (/ WINDOW_WIDTH 2) 100) (- WINDOW_HEIGHT 30) 150 150 150 255)
 }
 
 shadow draw_ui {
@@ -477,9 +572,9 @@ fn main() -> int {
     
     # Initialize SDL_ttf
     (TTF_Init)
-    let font: TTF_Font = (TTF_OpenFont "/System/Library/Fonts/Supplemental/Arial.ttf" 16)
+    let font: TTF_Font = (open_font_portable "Arial" 16)
     if (== font 0) {
-        (println "Failed to load font")
+        (println "Failed to load font (tried Arial, DejaVuSans, LiberationSans, FreeSans)")
         (SDL_DestroyRenderer renderer)
         (SDL_DestroyWindow window)
         (SDL_Quit)
@@ -490,41 +585,6 @@ fn main() -> int {
     
     # Disable mouse motion events
     (SDL_EventState 1024 0)
-    
-    # Create scene with spheres
-    let mut spheres: array<Sphere> = []
-    
-    # Ground sphere (large)
-    let ground: Sphere = Sphere {
-        center: Vec3 { x: 0.0, y: -100.5, z: -1.0 },
-        radius: 100.0,
-        color: Vec3 { x: 0.5, y: 0.5, z: 0.5 }
-    }
-    set spheres (array_push spheres ground)
-    
-    # Center sphere (red)
-    let center_sphere: Sphere = Sphere {
-        center: Vec3 { x: 0.0, y: 0.0, z: -1.0 },
-        radius: 0.5,
-        color: Vec3 { x: 0.8, y: 0.3, z: 0.3 }
-    }
-    set spheres (array_push spheres center_sphere)
-    
-    # Left sphere (green)
-    let left_sphere: Sphere = Sphere {
-        center: Vec3 { x: -1.0, y: 0.0, z: -1.0 },
-        radius: 0.5,
-        color: Vec3 { x: 0.3, y: 0.8, z: 0.3 }
-    }
-    set spheres (array_push spheres left_sphere)
-    
-    # Right sphere (blue)
-    let right_sphere: Sphere = Sphere {
-        center: Vec3 { x: 1.0, y: 0.0, z: -1.0 },
-        radius: 0.5,
-        color: Vec3 { x: 0.3, y: 0.3, z: 0.8 }
-    }
-    set spheres (array_push spheres right_sphere)
     
     (println "✓ Scene created with 4 spheres")
     
@@ -540,7 +600,7 @@ fn main() -> int {
     (println "")
     (println "=== RAY TRACER DEMO ===")
     (println "Click to move light (auto-redraws scene)")
-    (println "Press SPACE to redraw")
+    (println "Press SPACE to redraw manually")
     (println "Press ESC to quit")
     (println "")
     
@@ -560,7 +620,7 @@ fn main() -> int {
                 set running false
             } else {
                 if (== key 44) {
-                    # SPACE = trigger redraw
+                    # SPACE = render
                     set needs_render true
                 } else {
                     (print "")
@@ -578,7 +638,7 @@ fn main() -> int {
             (print "")
         }
         
-        # Check for mouse click - redraw when light position changes
+        # Check for mouse click - auto-redraw when light position changes
         let mouse: int = (nl_sdl_poll_mouse_click)
         if (> mouse -1) {
             set light_x (/ mouse 10000)
@@ -588,7 +648,7 @@ fn main() -> int {
             (print light_x)
             (print ", ")
             (print light_y)
-            (println ")")
+            (println ") - triggering auto-redraw...")
             
             # Trigger immediate redraw with new light position
             set needs_render true
@@ -605,7 +665,7 @@ fn main() -> int {
             let light_world_y: float = (/ (* (- (/ (cast_float WINDOW_HEIGHT) 2.0) (cast_float light_y)) 4.0) (cast_float WINDOW_HEIGHT))
             let light_pos: Vec3 = Vec3 { x: light_world_x, y: light_world_y, z: light_z }
             
-            (render_scene renderer spheres light_pos WINDOW_WIDTH WINDOW_HEIGHT)
+            (render_scene renderer light_pos WINDOW_WIDTH WINDOW_HEIGHT)
             (draw_ui renderer font light_x light_y)
             (SDL_RenderPresent renderer)
         } else {
