@@ -2543,11 +2543,55 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     }
     sb_append(sb, "/* ========== End Struct Definitions ========== */\n\n");
 
-    /* Generate specialized generic list types */
-    sb_append(sb, "/* ========== Generic List Specializations ========== */\n\n");
-    for (int i = 0; i < env->generic_instance_count; i++) {
-        GenericInstantiation *inst = &env->generic_instances[i];
-        if (strcmp(inst->generic_name, "List") == 0 && inst->type_arg_names) {
+    /* Detect and emit generic list includes/declarations */
+    char *detected_list_types[32];
+    int detected_list_count = 0;
+    
+    /* Scan generic instantiations for List<Type> usage */
+    if (env && env->generic_instances) {
+        for (int i = 0; i < env->generic_instance_count && i < 1000 && detected_list_count < 32; i++) {
+            GenericInstantiation *inst = &env->generic_instances[i];
+            if (inst && strcmp(inst->generic_name, "List") == 0 && inst->type_arg_names && inst->type_arg_names[0]) {
+                const char *elem_type = inst->type_arg_names[0];
+                /* Check if already detected */
+                bool found = false;
+                for (int j = 0; j < detected_list_count; j++) {
+                    if (strcmp(detected_list_types[j], elem_type) == 0) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    detected_list_types[detected_list_count++] = (char*)elem_type;
+                }
+            }
+        }
+    }
+    
+    /* Emit includes and forward declarations for detected types */
+    if (detected_list_count > 0) {
+        sb_append(sb, "/* ========== Generic List Includes (Auto-Generated) ========== */\n");
+        for (int i = 0; i < detected_list_count; i++) {
+            sb_appendf(sb, "#include \"/tmp/list_%s.h\"\n", detected_list_types[i]);
+        }
+        sb_append(sb, "\n/* Forward declarations */\n");
+        for (int i = 0; i < detected_list_count; i++) {
+            const char *type_name = detected_list_types[i];
+            sb_appendf(sb, "List_%s* nl_list_%s_new(void);\n", type_name, type_name);
+            sb_appendf(sb, "void nl_list_%s_push(List_%s *list, nl_%s value);\n", type_name, type_name, type_name);
+            sb_appendf(sb, "nl_%s nl_list_%s_get(List_%s *list, int index);\n", type_name, type_name, type_name);
+            sb_appendf(sb, "int nl_list_%s_length(List_%s *list);\n", type_name, type_name);
+        }
+        sb_append(sb, "/* ========== End Generic List Includes ========== */\n\n");
+    }
+
+    /* Generate specialized generic list types (skip if using external files) */
+    if (detected_list_count == 0) {
+        /* Only generate inline if no external list files are being used */
+        sb_append(sb, "/* ========== Generic List Specializations ========== */\n\n");
+        for (int i = 0; i < env->generic_instance_count; i++) {
+            GenericInstantiation *inst = &env->generic_instances[i];
+            if (strcmp(inst->generic_name, "List") == 0 && inst->type_arg_names) {
             const char *elem_type = inst->type_arg_names[0];
             const char *specialized_name = inst->concrete_name;
             
@@ -2591,9 +2635,15 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             sb_appendf(sb, "int %s_length(%s *list) {\n", specialized_name, specialized_name);
             sb_appendf(sb, "    return list->count;\n");
             sb_appendf(sb, "}\n\n");
+            }
         }
+        sb_append(sb, "/* ========== End Generic List Specializations ========== */\n\n");
+    } else {
+        /* Using external list implementations */
+        sb_append(sb, "/* ========== Generic List Specializations ========== */\n");
+        sb_append(sb, "/* (Using external implementations from /tmp/list_*.h) */\n");
+        sb_append(sb, "/* ========== End Generic List Specializations ========== */\n\n");
     }
-    sb_append(sb, "/* ========== End Generic List Specializations ========== */\n\n");
 
     /* Generate union definitions */
     sb_append(sb, "/* ========== Union Definitions ========== */\n\n");
