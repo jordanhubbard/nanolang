@@ -2666,6 +2666,11 @@ bool type_check(ASTNode *program, Environment *env) {
             sdef.field_element_types = malloc(sizeof(Type) * sdef.field_count);
             for (int j = 0; j < sdef.field_count; j++) {
                 sdef.field_element_types[j] = item->as.struct_def.field_element_types[j];
+                
+                /* Register generic list instantiation for List<T> fields */
+                if (sdef.field_types[j] == TYPE_LIST_GENERIC && sdef.field_type_names[j] != NULL) {
+                    env_register_list_instantiation(env, sdef.field_type_names[j]);
+                }
             }
             
             env_define_struct(env, sdef);
@@ -3148,6 +3153,11 @@ bool type_check_module(ASTNode *program, Environment *env) {
             sdef.field_element_types = malloc(sizeof(Type) * sdef.field_count);
             for (int j = 0; j < sdef.field_count; j++) {
                 sdef.field_element_types[j] = item->as.struct_def.field_element_types[j];
+                
+                /* Register generic list instantiation for List<T> fields */
+                if (sdef.field_types[j] == TYPE_LIST_GENERIC && sdef.field_type_names[j] != NULL) {
+                    env_register_list_instantiation(env, sdef.field_type_names[j]);
+                }
             }
             
             env_define_struct(env, sdef);
