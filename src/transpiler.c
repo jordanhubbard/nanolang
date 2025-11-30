@@ -2851,37 +2851,59 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             /* Generate extern declaration with proper SDL types */
             sb_append(sb, "extern ");
             
-            const char *ret_type_c = type_to_c(item->as.function.return_type);
-            
-            /* Check for SDL-specific types */
+            /* Handle return type */
             const char *sdl_ret_type = get_sdl_c_type(func_name, -1, true);
             if (sdl_ret_type) {
-                ret_type_c = sdl_ret_type;
+                sb_append(sb, sdl_ret_type);
+            } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
+                /* Struct return type: use prefixed name */
+                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                sb_append(sb, prefixed_name);
+            } else if (item->as.function.return_type == TYPE_UNION && item->as.function.return_struct_type_name) {
+                /* Union return type: use prefixed name */
+                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                sb_append(sb, prefixed_name);
+            } else if (item->as.function.return_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
+                /* Generic list return type: List<ElementType> -> List_ElementType* */
+                sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
             } else if (item->as.function.return_type == TYPE_INT && 
                       (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "TTF_", 4) == 0)) {
                 /* For SDL functions returning int that might be Uint32, check */
                 if (strstr(func_name, "GetTicks")) {
-                    ret_type_c = "Uint32";
+                    sb_append(sb, "Uint32");
+                } else {
+                    sb_append(sb, type_to_c(item->as.function.return_type));
                 }
+            } else {
+                sb_append(sb, type_to_c(item->as.function.return_type));
             }
             
-            sb_append(sb, ret_type_c);
             sb_appendf(sb, " %s(", func_name);
             
+            /* Handle parameters */
             for (int j = 0; j < item->as.function.param_count; j++) {
                 if (j > 0) sb_append(sb, ", ");
-                const char *param_type_c = type_to_c(item->as.function.params[j].type);
                 
                 /* Check for SDL-specific parameter types */
                 const char *sdl_param_type = get_sdl_c_type(func_name, j, false);
                 if (sdl_param_type) {
-                    param_type_c = sdl_param_type;
-                } else if (item->as.function.params[j].type == TYPE_INT && 
-                          (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "TTF_", 4) == 0)) {
-                    /* Keep as int64_t for non-pointer int parameters */
+                    sb_append(sb, sdl_param_type);
+                } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
+                    /* Struct parameter: use prefixed name */
+                    const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
+                    sb_append(sb, prefixed_name);
+                } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
+                    /* Union parameter: use prefixed name */
+                    const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
+                    sb_append(sb, prefixed_name);
+                } else if (item->as.function.params[j].type == TYPE_LIST_GENERIC && item->as.function.params[j].struct_type_name) {
+                    /* Generic list parameter: List<ElementType> -> List_ElementType* */
+                    sb_appendf(sb, "List_%s*", item->as.function.params[j].struct_type_name);
+                } else {
+                    sb_append(sb, type_to_c(item->as.function.params[j].type));
                 }
                 
-                sb_appendf(sb, "%s %s", param_type_c, item->as.function.params[j].name);
+                sb_appendf(sb, " %s", item->as.function.params[j].name);
             }
             sb_append(sb, ");\n");
         }
