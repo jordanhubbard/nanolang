@@ -7,9 +7,14 @@
 *.out
 a.out
 
-# Compiled binaries
-/bin/
+# Compiled binaries (ignore all bin/ except README)
+/bin/*
+!/bin/README.md
+
+# Build artifacts (bootstrap stages)
 /build/
+
+# Distribution
 /dist/
 /target/
 
@@ -60,13 +65,17 @@ Thumbs.db
 modules/*/.build/
 *.genC
 
-# Build sentinels
+# Build sentinels (old and new)
 .stage*.built
+build/.*.done
 
 # Temporary test files
 examples/test_*.nano
 examples/phase2_*.nano
 examples/self_host_*.nano
+
+# Example binaries (built by 'make examples')
+examples/bin/
 
 
 # src_nano should contain ONLY pure NanoLang sources
