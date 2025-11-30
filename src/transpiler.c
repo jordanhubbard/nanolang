@@ -2511,6 +2511,37 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     }
     sb_append(sb, "/* ========== End Enum Definitions ========== */\n\n");
 
+    /* Forward declare List types BEFORE structs (in case structs contain List fields) */
+    char *detected_list_types_early[32];
+    int detected_list_count_early = 0;
+    
+    if (env && env->generic_instances) {
+        for (int i = 0; i < env->generic_instance_count && i < 1000 && detected_list_count_early < 32; i++) {
+            GenericInstantiation *inst = &env->generic_instances[i];
+            if (inst && strcmp(inst->generic_name, "List") == 0 && inst->type_arg_names && inst->type_arg_names[0]) {
+                const char *elem_type = inst->type_arg_names[0];
+                bool found = false;
+                for (int j = 0; j < detected_list_count_early; j++) {
+                    if (strcmp(detected_list_types_early[j], elem_type) == 0) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    detected_list_types_early[detected_list_count_early++] = (char*)elem_type;
+                }
+            }
+        }
+    }
+    
+    if (detected_list_count_early > 0) {
+        sb_append(sb, "/* ========== Generic List Forward Declarations ========== */\n");
+        for (int i = 0; i < detected_list_count_early; i++) {
+            sb_appendf(sb, "typedef struct List_%s List_%s;\n", detected_list_types_early[i], detected_list_types_early[i]);
+        }
+        sb_append(sb, "/* ========== End Generic List Forward Declarations ========== */\n\n");
+    }
+
     /* Generate struct typedefs */
     sb_append(sb, "/* ========== Struct Definitions ========== */\n\n");
     for (int i = 0; i < env->struct_count; i++) {
@@ -2524,7 +2555,15 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         sb_appendf(sb, "typedef struct %s {\n", prefixed_name);
         for (int j = 0; j < sdef->field_count; j++) {
             sb_append(sb, "    ");
-            if (sdef->field_types[j] == TYPE_STRUCT || sdef->field_types[j] == TYPE_UNION || sdef->field_types[j] == TYPE_ENUM) {
+            if (sdef->field_types[j] == TYPE_LIST_GENERIC) {
+                /* Generic list field: List<TypeName> -> List_TypeName* */
+                if (sdef->field_type_names && sdef->field_type_names[j]) {
+                    sb_appendf(sb, "List_%s*", sdef->field_type_names[j]);
+                } else {
+                    /* Fallback if type name not captured */
+                    sb_append(sb, "void* /* List field */");
+                }
+            } else if (sdef->field_types[j] == TYPE_STRUCT || sdef->field_types[j] == TYPE_UNION || sdef->field_types[j] == TYPE_ENUM) {
                 /* Use the actual struct/union/enum type name if available */
                 if (sdef->field_type_names && sdef->field_type_names[j]) {
                     const char *field_type_name = get_prefixed_type_name(sdef->field_type_names[j]);
@@ -2543,7 +2582,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     }
     sb_append(sb, "/* ========== End Struct Definitions ========== */\n\n");
 
-    /* Detect and emit generic list includes/declarations */
+    /* Detect generic list usage BEFORE emitting includes */
     char *detected_list_types[32];
     int detected_list_count = 0;
     
@@ -2568,13 +2607,14 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         }
     }
     
-    /* Emit includes and forward declarations for detected types */
+    /* Emit includes and function forward declarations */
     if (detected_list_count > 0) {
+        /* Emit includes */
         sb_append(sb, "/* ========== Generic List Includes (Auto-Generated) ========== */\n");
         for (int i = 0; i < detected_list_count; i++) {
             sb_appendf(sb, "#include \"/tmp/list_%s.h\"\n", detected_list_types[i]);
         }
-        sb_append(sb, "\n/* Forward declarations */\n");
+        sb_append(sb, "\n/* Function forward declarations */\n");
         for (int i = 0; i < detected_list_count; i++) {
             const char *type_name = detected_list_types[i];
             sb_appendf(sb, "List_%s* nl_list_%s_new(void);\n", type_name, type_name);

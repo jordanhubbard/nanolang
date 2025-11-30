@@ -32,7 +32,7 @@ cat > "$HEADER_FILE" << EOF
 typedef struct nl_$TYPE_NAME nl_$TYPE_NAME;
 
 /* Dynamic list of $TYPE_NAME */
-typedef struct {
+typedef struct List_$TYPE_NAME {
     nl_$TYPE_NAME *data;      /* Array of elements */
     int length;               /* Current number of elements */
     int capacity;             /* Allocated capacity */
