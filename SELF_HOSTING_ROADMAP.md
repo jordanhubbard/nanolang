@@ -151,13 +151,49 @@ src_nano/         # Self-hosted compiler in nanolang
 tests/selfhost/   # Test suite for self-hosted compiler (8 tests)
 ```
 
-## Next Steps
+## Bootstrap Chicken-and-Egg Problem Discovered
 
-**Immediate (This Session):**
-1. Fix parser `else if` syntax errors
-2. Fix typechecker struct field access  
-3. Fix transpiler extern declarations
-4. Get all three components compiling
+**Root Cause:** The self-hosted components use advanced features that aren't yet implemented:
+- Generic `List<ASTNumber>`, `List<ASTIdentifier>`, etc. (only `List<int>`, `List<string>`, `List<Token>` exist)
+- Complex struct field access on function parameters
+- Large deeply-nested functions that expose parser/compiler limitations
+
+**What This Means:**
+We can't compile the self-hosted components with the current compiler because they use features needed TO BUILD a compiler that supports those features. Classic bootstrap problem!
+
+**Two Paths Forward:**
+
+### Path A: Enhance C Compiler First (Recommended)
+1. Add generic list support for arbitrary struct types to C compiler
+2. Fix struct field access type inference in C compiler
+3. Add parser improvements (better nesting, error recovery)
+4. THEN compile self-hosted components with enhanced C compiler
+
+### Path B: Simplify Self-Hosted Components (Harder)
+1. Rewrite Parser/Typechecker/Transpiler to use arrays instead of `List<T>`
+2. Reduce nesting depth in parser functions
+3. Add explicit type annotations everywhere
+4. May sacrifice code quality/readability
+
+**Decision:** Path A is better - enhance the C compiler to support the features we need, THEN bootstrap.
+
+## Next Steps (Revised)
+
+**Phase 0: Enhance C Compiler** (NEW - REQUIRED)
+1. Implement generic list codegen for any struct type
+   - Currently: Manual list_int.c, list_string.c files
+   - Needed: Auto-generate list_TYPE.c for any TYPE at compile time
+2. Fix struct field access type inference
+   - Allow `param.field` where `param: StructType`
+3. Parser improvements for deeply nested code
+4. Test enhancements with existing test suite
+
+**Phase 1: Compile Self-Hosted Components**
+1. Fix parser brace matching issues
+2. Fix extern declarations
+3. Verify all 3 components compile
+
+**Phase 2-4:** (unchanged)
 
 **Next Session:**
 1. Test parser on all 8 selfhost tests
