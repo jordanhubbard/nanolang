@@ -579,8 +579,16 @@ Type check_expression(ASTNode *expr, Environment *env) {
                                     free(type_name);
                                     return TYPE_VOID;
                                 }
+                            } else {
+                                /* Better error message: list function for unknown type */
+                                safe_fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
+                                        expr->line, expr->column, safe_format_string(expr->as.call.name));
+                                safe_fprintf(stderr, "  Note: struct or enum '%s' is not defined\n", type_name);
+                                safe_fprintf(stderr, "  Hint: Define 'struct %s { ... }' before using List<%s>\n", 
+                                        type_name, type_name);
+                                free(type_name);
+                                return TYPE_UNKNOWN;
                             }
-                            free(type_name);
                         }
                     }
                 }
