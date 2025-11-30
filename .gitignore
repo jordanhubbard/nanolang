@@ -68,3 +68,8 @@ examples/test_*.nano
 examples/phase2_*.nano
 examples/self_host_*.nano
 
+
+# src_nano should contain ONLY pure NanoLang sources
+src_nano/*.c
+src_nano/*.bak
+src_nano/*.genC
