@@ -210,18 +210,149 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         strncat(lib_flags, temp, sizeof(lib_flags) - strlen(lib_flags) - 1);
     }
     
+    /* Detect and generate generic list types from the C code */
+    char generated_lists[1024] = "";
+    const char *scan_ptr = c_code;
+    char detected_types[32][64]; /* Track up to 32 unique list types */
+    int detected_count = 0;
+    
+    /* Scan for List_TypeName* patterns */
+    while ((scan_ptr = strstr(scan_ptr, "List_")) != NULL) {
+        scan_ptr += 5; /* Skip "List_" */
+        const char *end_ptr = scan_ptr;
+        
+        /* Extract type name (alphanumeric + underscore) */
+        while ((*end_ptr >= 'A' && *end_ptr <= 'Z') || 
+               (*end_ptr >= 'a' && *end_ptr <= 'z') || 
+               (*end_ptr >= '0' && *end_ptr <= '9') || 
+               *end_ptr == '_') {
+            end_ptr++;
+        }
+        
+        /* Check if followed by * or space (valid list type) */
+        if (*end_ptr == '*' || *end_ptr == ' ' || *end_ptr == '\n') {
+            int len = end_ptr - scan_ptr;
+            char type_name[64];
+            strncpy(type_name, scan_ptr, len);
+            type_name[len] = '\0';
+            
+            /* Skip built-in types */
+            if (strcmp(type_name, "int") == 0 || 
+                strcmp(type_name, "string") == 0 || 
+                strcmp(type_name, "token") == 0) {
+                continue;
+            }
+            
+            /* Check if already detected */
+            bool already_detected = false;
+            for (int i = 0; i < detected_count; i++) {
+                if (strcmp(detected_types[i], type_name) == 0) {
+                    already_detected = true;
+                    break;
+                }
+            }
+            
+            if (!already_detected && detected_count < 32) {
+                strncpy(detected_types[detected_count], type_name, 63);
+                detected_types[detected_count][63] = '\0';
+                detected_count++;
+                
+                /* Generate list runtime files */
+                char gen_cmd[512];
+                snprintf(gen_cmd, sizeof(gen_cmd), 
+                        "./scripts/generate_list.sh %s /tmp > /dev/null 2>&1", 
+                        type_name);
+                if (opts->verbose) {
+                    printf("Generating List<%s> runtime...\n", type_name);
+                }
+                int gen_result = system(gen_cmd);
+                if (gen_result != 0 && opts->verbose) {
+                    fprintf(stderr, "Warning: Failed to generate list_%s runtime\n", type_name);
+                }
+                
+                /* Create wrapper that includes struct definition */
+                char wrapper_file[512];
+                snprintf(wrapper_file, sizeof(wrapper_file), "/tmp/list_%s_wrapper.c", type_name);
+                FILE *wrapper = fopen(wrapper_file, "w");
+                if (wrapper) {
+                    /* Extract struct definition from generated C code */
+                    const char *struct_search = c_code;
+                    char struct_pattern[128];
+                    snprintf(struct_pattern, sizeof(struct_pattern), "typedef struct nl_%s {", type_name);
+                    const char *struct_start = strstr(struct_search, struct_pattern);
+                    
+                    if (struct_start) {
+                        /* Find the end of the struct (closing brace + semicolon) */
+                        const char *struct_end = struct_start;
+                        int brace_count = 0;
+                        bool found_open_brace = false;
+                        while (*struct_end) {
+                            if (*struct_end == '{') {
+                                found_open_brace = true;
+                                brace_count++;
+                            } else if (*struct_end == '}' && found_open_brace) {
+                                brace_count--;
+                                if (brace_count == 0) {
+                                    /* Found the closing brace, look for semicolon */
+                                    struct_end++;
+                                    while (*struct_end && *struct_end != ';') struct_end++;
+                                    if (*struct_end == ';') struct_end++;
+                                    break;
+                                }
+                            }
+                            struct_end++;
+                        }
+                        
+                        /* Write the wrapper */
+                        fprintf(wrapper, "#include <stdint.h>\n");
+                        fprintf(wrapper, "#include <stdbool.h>\n");
+                        fprintf(wrapper, "#include <stdlib.h>\n");
+                        fprintf(wrapper, "#include <stdio.h>\n");
+                        fprintf(wrapper, "#include <string.h>\n\n");
+                        fprintf(wrapper, "/* Struct definition extracted from main file */\n");
+                        fprintf(wrapper, "%.*s\n\n", (int)(struct_end - struct_start), struct_start);
+                        fprintf(wrapper, "/* Include list implementation */\n");
+                        fprintf(wrapper, "#include \"/tmp/list_%s.c\"\n", type_name);
+                    } else {
+                        /* Fallback: just include the list file */
+                        fprintf(wrapper, "#include \"/tmp/list_%s.c\"\n", type_name);
+                    }
+                    fclose(wrapper);
+                }
+                
+                /* Add wrapper to compile list */
+                char list_file[256];
+                snprintf(list_file, sizeof(list_file), " /tmp/list_%s_wrapper.c", type_name);
+                strncat(generated_lists, list_file, sizeof(generated_lists) - strlen(generated_lists) - 1);
+            }
+        }
+    }
+    
+    if (opts->verbose && detected_count > 0) {
+        printf("Detected %d generic list type(s): ", detected_count);
+        for (int i = 0; i < detected_count; i++) {
+            printf("%s%s", detected_types[i], i < detected_count - 1 ? ", " : "");
+        }
+        printf("\n");
+    }
+    
     /* Build runtime files string */
     /* Note: sdl_helpers.c is NOT included here - it's provided by the sdl_helpers module */
-    char runtime_files[512] = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_token.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c";
+    char runtime_files[1536] = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_token.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c";
+    strncat(runtime_files, generated_lists, sizeof(runtime_files) - strlen(runtime_files) - 1);
+    
+    /* Add /tmp to include path for generated list headers */
+    char include_flags_with_tmp[2560];
+    snprintf(include_flags_with_tmp, sizeof(include_flags_with_tmp), "%s -I/tmp", include_flags);
     
     if (opts->verbose) {
         snprintf(compile_cmd, sizeof(compile_cmd), 
                 "gcc -std=c99 %s -o %s %s %s %s %s %s", 
-                include_flags, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
+                include_flags_with_tmp, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
     } else {
         snprintf(compile_cmd, sizeof(compile_cmd), 
                 "gcc -std=c99 %s -o %s %s %s %s %s %s", 
-                include_flags, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
+                include_flags_with_tmp, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
     }
 
     if (opts->verbose) printf("Compiling C code: %s\n", compile_cmd);

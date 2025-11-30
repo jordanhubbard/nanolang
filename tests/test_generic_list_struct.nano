@@ -1,0 +1,34 @@
+/* Test generic List<Struct> - Phase 0 Test Case */
+
+struct Point {
+    x: int,
+    y: int
+}
+
+fn test_list_point() -> bool {
+    let points: List<Point> = (list_Point_new)
+    
+    let p1: Point = Point { x: 10, y: 20 }
+    let p2: Point = Point { x: 30, y: 40 }
+    
+    (list_Point_push points p1)
+    (list_Point_push points p2)
+    
+    let len: int = (list_Point_length points)
+    let first: Point = (list_Point_get points 0)
+    
+    return (and (== len 2) (== first.x 10))
+}
+
+fn main() -> int {
+    let result: bool = (test_list_point)
+    if result {
+        return 0
+    } else {
+        return 1
+    }
+}
+
+shadow test_list_point {
+    assert (== (test_list_point) true)
+}
