@@ -33,8 +33,14 @@ jobs:
       - name: Check dependencies
         run: make check-deps
 
-      - name: Build compiler and interpreter
-        run: make
+      - name: Build - Stage 1 (C Reference Compiler)
+        run: make stage1
+
+      - name: Build - Stage 2 (Self-Hosted Components)
+        run: make stage2
+
+      - name: Build - Stage 3 (Bootstrap Validation)
+        run: make stage3
 
       - name: Run test suite
         run: make test
@@ -84,6 +90,9 @@ jobs:
       - name: Build with AddressSanitizer
         run: make sanitize
 
+      - name: Complete 3-stage bootstrap with sanitizers
+        run: make build
+
       - name: Run tests with sanitizers
         run: |
           # Disable leak detection for exit-time leaks in short-lived compiler process
@@ -118,6 +127,9 @@ jobs:
 
       - name: Build with coverage
         run: make coverage
+
+      - name: Complete 3-stage bootstrap with coverage
+        run: make build
 
       - name: Run tests
         run: make test
