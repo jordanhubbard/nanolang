@@ -940,6 +940,21 @@ static ASTNode *parse_primary(Parser *p) {
                 if (first_expr->type == AST_IDENTIFIER) {
                     /* Regular function call */
                     func_name = first_expr->as.identifier;
+                } else if (first_expr->type == AST_FIELD_ACCESS) {
+                    /* Module.function call - convert to qualified name */
+                    /* e.g., Math.square becomes "Math.square" */
+                    if (first_expr->as.field_access.object->type == AST_IDENTIFIER) {
+                        char *module = first_expr->as.field_access.object->as.identifier;
+                        char *field = first_expr->as.field_access.field_name;
+                        func_name = malloc(strlen(module) + strlen(field) + 2);
+                        sprintf(func_name, "%s.%s", module, field);
+                        free_ast(first_expr);  /* Clean up the field access node */
+                    } else {
+                        fprintf(stderr, "Error at line %d, column %d: Complex field access not supported in function calls\n",
+                                line, column);
+                        free_ast(first_expr);
+                        return NULL;
+                    }
                 } else if (first_expr->type == AST_CALL) {
                     /* Function call returning function: ((func_call) arg1 arg2) */
                     func_expr = first_expr;

@@ -581,6 +581,8 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
         
         if (item->type == AST_IMPORT) {
             char *module_path = resolve_module_path(item->as.import_stmt.module_path, current_file);
+            char *module_alias = item->as.import_stmt.module_name;  /* NULL if no alias */
+            
             if (!module_path) {
                 fprintf(stderr, "Error at line %d, column %d: Failed to resolve module path '%s'\n",
                         item->line, item->column, item->as.import_stmt.module_path);
@@ -658,6 +660,48 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
             /* Add to module list */
             if (modules) {
                 module_list_add(modules, module_path);
+            }
+            
+            /* Register namespace if module has an alias */
+            if (module_alias) {
+                /* Extract function names, struct names, enum names, union names from module */
+                /* Count them first */
+                int func_count = 0, struct_count = 0, enum_count = 0, union_count = 0;
+                for (int j = 0; j < module_ast->as.program.count; j++) {
+                    ASTNode *node = module_ast->as.program.items[j];
+                    if (node->type == AST_FUNCTION) func_count++;
+                    else if (node->type == AST_STRUCT_DEF) struct_count++;
+                    else if (node->type == AST_ENUM_DEF) enum_count++;
+                    else if (node->type == AST_UNION_DEF) union_count++;
+                }
+                
+                /* Allocate arrays */
+                char **func_names = malloc(sizeof(char*) * (func_count > 0 ? func_count : 1));
+                char **struct_names = malloc(sizeof(char*) * (struct_count > 0 ? struct_count : 1));
+                char **enum_names = malloc(sizeof(char*) * (enum_count > 0 ? enum_count : 1));
+                char **union_names = malloc(sizeof(char*) * (union_count > 0 ? union_count : 1));
+                
+                /* Fill arrays */
+                int f_idx = 0, s_idx = 0, e_idx = 0, u_idx = 0;
+                for (int j = 0; j < module_ast->as.program.count; j++) {
+                    ASTNode *node = module_ast->as.program.items[j];
+                    if (node->type == AST_FUNCTION) {
+                        func_names[f_idx++] = strdup(node->as.function.name);
+                    } else if (node->type == AST_STRUCT_DEF) {
+                        struct_names[s_idx++] = strdup(node->as.struct_def.name);
+                    } else if (node->type == AST_ENUM_DEF) {
+                        enum_names[e_idx++] = strdup(node->as.enum_def.name);
+                    } else if (node->type == AST_UNION_DEF) {
+                        union_names[u_idx++] = strdup(node->as.union_def.name);
+                    }
+                }
+                
+                /* Register the namespace */
+                env_register_namespace(env, module_alias,
+                                      func_names, func_count,
+                                      struct_names, struct_count,
+                                      enum_names, enum_count,
+                                      union_names, union_count);
             }
             
             /* Execute module definitions (functions, structs, etc.) */

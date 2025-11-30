@@ -1,8 +1,7 @@
 # Main lexer implementation - combines all helper functions
 # This file implements the complete tokenize function
 
-# Include all definitions (in a real implementation, these would be imports)
-# For now, we'll copy the essential parts
+import "src_nano/ast_shared.nano"
 
 enum TokenType {
     TOKEN_EOF,
@@ -62,12 +61,7 @@ enum TokenType {
     TOKEN_RANGE
 }
 
-struct Token {
-    type: int,
-    value: string,
-    line: int,
-    column: int
-}
+/* Token struct is now imported from ast_shared.nano */
 
 fn is_identifier_start(c: int) -> bool {
     return (or (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122))) (== c 95))
@@ -266,7 +260,7 @@ shadow keyword_or_identifier {
 }
 
 # Process string literal - returns new position or -1 on error
-fn process_string(source: string, i: int, len: int, tokens: list_token, line: int, column: int) -> int {
+fn process_string(source: string, i: int, len: int, tokens: List<Token>, line: int, column: int) -> int {
     let mut pos: int = (+ i 1)
     let start: int = pos
     while (and (< pos len) (!= (char_at source pos) 34)) {
@@ -281,21 +275,21 @@ fn process_string(source: string, i: int, len: int, tokens: list_token, line: in
     } else {
         let str_length: int = (- pos start)
         let str_value: string = (str_substring source start str_length)
-        let tok: Token = Token { type: TokenType.TOKEN_STRING, value: str_value, line: line, column: column }
-        (list_token_push tokens tok)
+        let tok: Token = Token { token_type: TokenType.TOKEN_STRING, value: str_value, line: line, column: column }
+        (List_Token_push tokens tok)
         return (+ pos 1)
     }
 }
 
 shadow process_string {
-    let mut tokens: list_token = (list_token_new)
+    let mut tokens: List<Token> = (List_Token_new)
     let result: int = (process_string "\"hello\"" 0 7 tokens 1 1)
     assert (> result 0)
-    assert (> (list_token_length tokens) 0)
+    assert (> (List_Token_length tokens) 0)
 }
 
 # Process number - returns new position
-fn process_number(source: string, i: int, len: int, tokens: list_token, line: int, column: int) -> int {
+fn process_number(source: string, i: int, len: int, tokens: List<Token>, line: int, column: int) -> int {
     let mut pos: int = i
     let start: int = pos
     let c: int = (char_at source pos)
@@ -315,27 +309,27 @@ fn process_number(source: string, i: int, len: int, tokens: list_token, line: in
         }
         let float_length: int = (- pos start)
         let float_value: string = (str_substring source start float_length)
-        let tok: Token = Token { type: TokenType.TOKEN_FLOAT, value: float_value, line: line, column: column }
-        (list_token_push tokens tok)
+        let tok: Token = Token { token_type: TokenType.TOKEN_FLOAT, value: float_value, line: line, column: column }
+        (List_Token_push tokens tok)
         return pos
     } else {
         let num_length: int = (- pos start)
         let num_value: string = (str_substring source start num_length)
-        let tok: Token = Token { type: TokenType.TOKEN_NUMBER, value: num_value, line: line, column: column }
-        (list_token_push tokens tok)
+        let tok: Token = Token { token_type: TokenType.TOKEN_NUMBER, value: num_value, line: line, column: column }
+        (List_Token_push tokens tok)
         return pos
     }
 }
 
 shadow process_number {
-    let mut tokens: list_token = (list_token_new)
+    let mut tokens: List<Token> = (List<Token>_new)
     let result: int = (process_number "42" 0 2 tokens 1 1)
     assert (> result 0)
-    assert (> (list_token_length tokens) 0)
+    assert (> (List<Token>_length tokens) 0)
 }
 
 # Process identifier/keyword - returns new position
-fn process_identifier(source: string, i: int, len: int, tokens: list_token, line: int, column: int) -> int {
+fn process_identifier(source: string, i: int, len: int, tokens: List<Token>, line: int, column: int) -> int {
     let mut pos: int = i
     let start: int = pos
     while (and (< pos len) (is_identifier_char (char_at source pos))) {
@@ -344,98 +338,98 @@ fn process_identifier(source: string, i: int, len: int, tokens: list_token, line
     let id_length: int = (- pos start)
     let id_value: string = (str_substring source start id_length)
     let token_type: int = (keyword_or_identifier id_value)
-    let tok: Token = Token { type: token_type, value: id_value, line: line, column: column }
-    (list_token_push tokens tok)
+    let tok: Token = Token { token_type: token_type, value: id_value, line: line, column: column }
+    (List_Token_push tokens tok)
     return pos
 }
 
 shadow process_identifier {
-    let mut tokens: list_token = (list_token_new)
+    let mut tokens: List<Token> = (List_Token_new)
     let result: int = (process_identifier "fn" 0 2 tokens 1 1)
     assert (> result 0)
-    assert (> (list_token_length tokens) 0)
+    assert (> (List<Token>_length tokens) 0)
 }
 
 # Process single character token - returns new position
-fn process_single_char(c: int, tokens: list_token, line: int, column: int, i: int) -> int {
+fn process_single_char(c: int, tokens: List<Token>, line: int, column: int, i: int) -> int {
     if (== c 40) {
-        let tok: Token = Token { type: TokenType.TOKEN_LPAREN, value: "", line: line, column: column }
-        (list_token_push tokens tok)
+        let tok: Token = Token { token_type: TokenType.TOKEN_LPAREN, value: "", line: line, column: column }
+        (List<Token>_push tokens tok)
         return (+ i 1)
     } else {
         if (== c 41) {
-            let tok: Token = Token { type: TokenType.TOKEN_RPAREN, value: "", line: line, column: column }
-            (list_token_push tokens tok)
+            let tok: Token = Token { token_type: TokenType.TOKEN_RPAREN, value: "", line: line, column: column }
+            (List<Token>_push tokens tok)
             return (+ i 1)
         } else {
             if (== c 123) {
-                let tok: Token = Token { type: TokenType.TOKEN_LBRACE, value: "", line: line, column: column }
-                (list_token_push tokens tok)
+                let tok: Token = Token { token_type: TokenType.TOKEN_LBRACE, value: "", line: line, column: column }
+                (List<Token>_push tokens tok)
                 return (+ i 1)
             } else {
                 if (== c 125) {
-                    let tok: Token = Token { type: TokenType.TOKEN_RBRACE, value: "", line: line, column: column }
-                    (list_token_push tokens tok)
+                    let tok: Token = Token { token_type: TokenType.TOKEN_RBRACE, value: "", line: line, column: column }
+                    (List<Token>_push tokens tok)
                     return (+ i 1)
                 } else {
                     if (== c 91) {
-                        let tok: Token = Token { type: TokenType.TOKEN_LBRACKET, value: "", line: line, column: column }
-                        (list_token_push tokens tok)
+                        let tok: Token = Token { token_type: TokenType.TOKEN_LBRACKET, value: "", line: line, column: column }
+                        (List<Token>_push tokens tok)
                         return (+ i 1)
                     } else {
                         if (== c 93) {
-                            let tok: Token = Token { type: TokenType.TOKEN_RBRACKET, value: "", line: line, column: column }
-                            (list_token_push tokens tok)
+                            let tok: Token = Token { token_type: TokenType.TOKEN_RBRACKET, value: "", line: line, column: column }
+                            (List<Token>_push tokens tok)
                             return (+ i 1)
                         } else {
                             if (== c 44) {
-                                let tok: Token = Token { type: TokenType.TOKEN_COMMA, value: "", line: line, column: column }
-                                (list_token_push tokens tok)
+                                let tok: Token = Token { token_type: TokenType.TOKEN_COMMA, value: "", line: line, column: column }
+                                (List<Token>_push tokens tok)
                                 return (+ i 1)
                             } else {
                                 if (== c 58) {
-                                    let tok: Token = Token { type: TokenType.TOKEN_COLON, value: "", line: line, column: column }
-                                    (list_token_push tokens tok)
+                                    let tok: Token = Token { token_type: TokenType.TOKEN_COLON, value: "", line: line, column: column }
+                                    (List<Token>_push tokens tok)
                                     return (+ i 1)
                                 } else {
                                     if (== c 46) {
-                                        let tok: Token = Token { type: TokenType.TOKEN_DOT, value: "", line: line, column: column }
-                                        (list_token_push tokens tok)
+                                        let tok: Token = Token { token_type: TokenType.TOKEN_DOT, value: "", line: line, column: column }
+                                        (List<Token>_push tokens tok)
                                         return (+ i 1)
                                     } else {
                                         if (== c 43) {
-                                            let tok: Token = Token { type: TokenType.TOKEN_PLUS, value: "", line: line, column: column }
-                                            (list_token_push tokens tok)
+                                            let tok: Token = Token { token_type: TokenType.TOKEN_PLUS, value: "", line: line, column: column }
+                                            (List<Token>_push tokens tok)
                                             return (+ i 1)
                                         } else {
                                             if (== c 45) {
-                                                let tok: Token = Token { type: TokenType.TOKEN_MINUS, value: "", line: line, column: column }
-                                                (list_token_push tokens tok)
+                                                let tok: Token = Token { token_type: TokenType.TOKEN_MINUS, value: "", line: line, column: column }
+                                                (List<Token>_push tokens tok)
                                                 return (+ i 1)
                                             } else {
                                                 if (== c 42) {
-                                                    let tok: Token = Token { type: TokenType.TOKEN_STAR, value: "", line: line, column: column }
-                                                    (list_token_push tokens tok)
+                                                    let tok: Token = Token { token_type: TokenType.TOKEN_STAR, value: "", line: line, column: column }
+                                                    (List<Token>_push tokens tok)
                                                     return (+ i 1)
                                                 } else {
                                                     if (== c 47) {
-                                                        let tok: Token = Token { type: TokenType.TOKEN_SLASH, value: "", line: line, column: column }
-                                                        (list_token_push tokens tok)
+                                                        let tok: Token = Token { token_type: TokenType.TOKEN_SLASH, value: "", line: line, column: column }
+                                                        (List<Token>_push tokens tok)
                                                         return (+ i 1)
                                                     } else {
                                                         if (== c 37) {
-                                                            let tok: Token = Token { type: TokenType.TOKEN_PERCENT, value: "", line: line, column: column }
-                                                            (list_token_push tokens tok)
+                                                            let tok: Token = Token { token_type: TokenType.TOKEN_PERCENT, value: "", line: line, column: column }
+                                                            (List<Token>_push tokens tok)
                                                             return (+ i 1)
                                                         } else {
                                                             if (== c 60) {
-                                                                let tok: Token = Token { type: TokenType.TOKEN_LT, value: "", line: line, column: column }
-                                                                (list_token_push tokens tok)
+                                                                let tok: Token = Token { token_type: TokenType.TOKEN_LT, value: "", line: line, column: column }
+                                                                (List<Token>_push tokens tok)
                                                                 return (+ i 1)
                                                             } else {
                                                                 if (== c 62) {
-                                                                    let tok: Token = Token { type: TokenType.TOKEN_GT, value: "", line: line, column: column }
-                                                                    (list_token_push tokens tok)
+                                                                    let tok: Token = Token { token_type: TokenType.TOKEN_GT, value: "", line: line, column: column }
+                                                                    (List<Token>_push tokens tok)
                                                                     return (+ i 1)
                                                                 } else {
                                                                     return (+ i 1)
@@ -458,14 +452,14 @@ fn process_single_char(c: int, tokens: list_token, line: int, column: int, i: in
 }
 
 shadow process_single_char {
-    let mut tokens: list_token = (list_token_new)
+    let mut tokens: List<Token> = (List<Token>_new)
     let result: int = (process_single_char 40 tokens 1 1 0)
     assert (> result 0)
-    assert (> (list_token_length tokens) 0)
+    assert (> (List<Token>_length tokens) 0)
 }
 
 # Process two-character operators - returns new position or -1
-fn process_two_char(source: string, i: int, len: int, tokens: list_token, line: int, column: int) -> int {
+fn process_two_char(source: string, i: int, len: int, tokens: List<Token>, line: int, column: int) -> int {
     if (>= (+ i 1) len) {
         return -1
     } else {
@@ -475,28 +469,28 @@ fn process_two_char(source: string, i: int, len: int, tokens: list_token, line: 
     let next: int = (char_at source (+ i 1))
     
     if (and (== c 45) (== next 62)) {
-        let tok: Token = Token { type: TokenType.TOKEN_ARROW, value: "", line: line, column: column }
-        (list_token_push tokens tok)
+        let tok: Token = Token { token_type: TokenType.TOKEN_ARROW, value: "", line: line, column: column }
+        (List<Token>_push tokens tok)
         return (+ i 2)
     } else {
         if (and (== c 61) (== next 61)) {
-            let tok: Token = Token { type: TokenType.TOKEN_EQ, value: "", line: line, column: column }
-            (list_token_push tokens tok)
+            let tok: Token = Token { token_type: TokenType.TOKEN_EQ, value: "", line: line, column: column }
+            (List<Token>_push tokens tok)
             return (+ i 2)
         } else {
             if (and (== c 33) (== next 61)) {
-                let tok: Token = Token { type: TokenType.TOKEN_NE, value: "", line: line, column: column }
-                (list_token_push tokens tok)
+                let tok: Token = Token { token_type: TokenType.TOKEN_NE, value: "", line: line, column: column }
+                (List<Token>_push tokens tok)
                 return (+ i 2)
             } else {
                 if (and (== c 60) (== next 61)) {
-                    let tok: Token = Token { type: TokenType.TOKEN_LE, value: "", line: line, column: column }
-                    (list_token_push tokens tok)
+                    let tok: Token = Token { token_type: TokenType.TOKEN_LE, value: "", line: line, column: column }
+                    (List<Token>_push tokens tok)
                     return (+ i 2)
                 } else {
                     if (and (== c 62) (== next 61)) {
-                        let tok: Token = Token { type: TokenType.TOKEN_GE, value: "", line: line, column: column }
-                        (list_token_push tokens tok)
+                        let tok: Token = Token { token_type: TokenType.TOKEN_GE, value: "", line: line, column: column }
+                        (List<Token>_push tokens tok)
                         return (+ i 2)
                     } else {
                         return -1
@@ -508,15 +502,15 @@ fn process_two_char(source: string, i: int, len: int, tokens: list_token, line: 
 }
 
 shadow process_two_char {
-    let mut tokens: list_token = (list_token_new)
+    let mut tokens: List<Token> = (List<Token>_new)
     let result: int = (process_two_char "->" 0 2 tokens 1 1)
     assert (> result 0)
-    assert (> (list_token_length tokens) 0)
+    assert (> (List<Token>_length tokens) 0)
 }
 
 # Main tokenization function
-fn tokenize(source: string) -> list_token {
-    let mut tokens: list_token = (list_token_new)
+fn tokenize(source: string) -> List<Token> {
+    let mut tokens: List<Token> = (List<Token>_new)
     let mut i: int = 0
     let len: int = (str_length source)
     let mut line: int = 1
@@ -553,8 +547,8 @@ fn tokenize(source: string) -> list_token {
                 
                 # Try assignment operator
                 if (and (== new_pos -1) (== c 61)) {
-                    let tok: Token = Token { type: TokenType.TOKEN_ASSIGN, value: "", line: line, column: column }
-                    (list_token_push tokens tok)
+                    let tok: Token = Token { token_type: TokenType.TOKEN_ASSIGN, value: "", line: line, column: column }
+                    (List<Token>_push tokens tok)
                     set new_pos (+ i 1)
                 } else {
                     # Not assignment operator, continue
@@ -590,19 +584,19 @@ fn tokenize(source: string) -> list_token {
     }
     
     # Add EOF token
-    let eof_tok: Token = Token { type: TokenType.TOKEN_EOF, value: "", line: line, column: column }
-    (list_token_push tokens eof_tok)
+    let eof_tok: Token = Token { token_type: TokenType.TOKEN_EOF, value: "", line: line, column: column }
+    (List<Token>_push tokens eof_tok)
     return tokens
 }
 
 shadow tokenize {
     let source1: string = "fn main() -> int { return 0 }"
-    let tokens1: list_token = (tokenize source1)
-    assert (> (list_token_length tokens1) 0)
+    let tokens1: List<Token> = (tokenize source1)
+    assert (> (List<Token>_length tokens1) 0)
     
     let source2: string = "42 3.14"
-    let tokens2: list_token = (tokenize source2)
-    assert (> (list_token_length tokens2) 0)
+    let tokens2: List<Token> = (tokenize source2)
+    assert (> (List<Token>_length tokens2) 0)
 }
 
 # Dummy main for compilation - Stage 1.5 uses C main instead

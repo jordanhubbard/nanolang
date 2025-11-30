@@ -104,6 +104,9 @@ Environment *create_environment(void) {
     env->generic_instances = malloc(sizeof(GenericInstantiation) * 8);
     env->generic_instance_count = 0;
     env->generic_instance_capacity = 8;
+    env->namespaces = malloc(sizeof(ModuleNamespace) * 8);
+    env->namespace_count = 0;
+    env->namespace_capacity = 8;
     return env;
 }
 
@@ -200,6 +203,28 @@ void free_environment(Environment *env) {
     }
     free(env->opaque_types);
 
+    /* Free namespaces */
+    for (int i = 0; i < env->namespace_count; i++) {
+        free(env->namespaces[i].alias);
+        for (int j = 0; j < env->namespaces[i].function_count; j++) {
+            free(env->namespaces[i].function_names[j]);
+        }
+        free(env->namespaces[i].function_names);
+        for (int j = 0; j < env->namespaces[i].struct_count; j++) {
+            free(env->namespaces[i].struct_names[j]);
+        }
+        free(env->namespaces[i].struct_names);
+        for (int j = 0; j < env->namespaces[i].enum_count; j++) {
+            free(env->namespaces[i].enum_names[j]);
+        }
+        free(env->namespaces[i].enum_names);
+        for (int j = 0; j < env->namespaces[i].union_count; j++) {
+            free(env->namespaces[i].union_names[j]);
+        }
+        free(env->namespaces[i].union_names);
+    }
+    free(env->namespaces);
+
     free(env);
 }
 
@@ -286,6 +311,36 @@ void env_define_function(Environment *env, Function func) {
 /* Get function */
 Function *env_get_function(Environment *env, const char *name) {
     if (!name) {
+        return NULL;
+    }
+
+    /* Check for Module.function pattern */
+    const char *dot = strchr(name, '.');
+    if (dot) {
+        char module_alias[256];
+        size_t module_len = dot - name;
+        if (module_len >= sizeof(module_alias)) {
+            module_len = sizeof(module_alias) - 1;
+        }
+        strncpy(module_alias, name, module_len);
+        module_alias[module_len] = '\0';
+        const char *func_name = dot + 1;
+        
+        /* Find namespace */
+        for (int i = 0; i < env->namespace_count; i++) {
+            if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
+                /* Check if function is in this namespace */
+                for (int j = 0; j < env->namespaces[i].function_count; j++) {
+                    if (strcmp(env->namespaces[i].function_names[j], func_name) == 0) {
+                        /* Look up the actual function by its original name */
+                        return env_get_function(env, func_name);
+                    }
+                }
+                /* Function not found in this module's namespace */
+                return NULL;
+            }
+        }
+        /* Module alias not found */
         return NULL;
     }
 
@@ -458,6 +513,34 @@ void env_define_struct(Environment *env, StructDef struct_def) {
 
 /* Get struct definition */
 StructDef *env_get_struct(Environment *env, const char *name) {
+    /* Check for Module.Type pattern */
+    const char *dot = strchr(name, '.');
+    if (dot) {
+        char module_alias[256];
+        size_t module_len = dot - name;
+        if (module_len >= sizeof(module_alias)) {
+            module_len = sizeof(module_alias) - 1;
+        }
+        strncpy(module_alias, name, module_len);
+        module_alias[module_len] = '\0';
+        const char *type_name = dot + 1;
+        
+        /* Find namespace */
+        for (int i = 0; i < env->namespace_count; i++) {
+            if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
+                /* Check if struct is in this namespace */
+                for (int j = 0; j < env->namespaces[i].struct_count; j++) {
+                    if (strcmp(env->namespaces[i].struct_names[j], type_name) == 0) {
+                        /* Look up the actual struct by its original name */
+                        return env_get_struct(env, type_name);
+                    }
+                }
+                return NULL;
+            }
+        }
+        return NULL;
+    }
+    
     for (int i = 0; i < env->struct_count; i++) {
         if (safe_strcmp(env->structs[i].name, name) == 0) {
             return &env->structs[i];
@@ -504,6 +587,31 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
         return NULL;
     }
     
+    /* Check for Module.Type pattern */
+    const char *dot = strchr(name, '.');
+    if (dot) {
+        char module_alias[256];
+        size_t module_len = dot - name;
+        if (module_len >= sizeof(module_alias)) {
+            module_len = sizeof(module_alias) - 1;
+        }
+        strncpy(module_alias, name, module_len);
+        module_alias[module_len] = '\0';
+        const char *type_name = dot + 1;
+        
+        for (int i = 0; i < env->namespace_count; i++) {
+            if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
+                for (int j = 0; j < env->namespaces[i].enum_count; j++) {
+                    if (strcmp(env->namespaces[i].enum_names[j], type_name) == 0) {
+                        return env_get_enum(env, type_name);
+                    }
+                }
+                return NULL;
+            }
+        }
+        return NULL;
+    }
+    
     for (int i = 0; i < env->enum_count; i++) {
         /* Use safe_strcmp which handles NULL pointers */
         if (safe_strcmp(env->enums[i].name, name) == 0) {
@@ -546,6 +654,31 @@ void env_define_union(Environment *env, UnionDef union_def) {
 
 /* Get union definition */
 UnionDef *env_get_union(Environment *env, const char *name) {
+    /* Check for Module.Type pattern */
+    const char *dot = strchr(name, '.');
+    if (dot) {
+        char module_alias[256];
+        size_t module_len = dot - name;
+        if (module_len >= sizeof(module_alias)) {
+            module_len = sizeof(module_alias) - 1;
+        }
+        strncpy(module_alias, name, module_len);
+        module_alias[module_len] = '\0';
+        const char *type_name = dot + 1;
+        
+        for (int i = 0; i < env->namespace_count; i++) {
+            if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
+                for (int j = 0; j < env->namespaces[i].union_count; j++) {
+                    if (strcmp(env->namespaces[i].union_names[j], type_name) == 0) {
+                        return env_get_union(env, type_name);
+                    }
+                }
+                return NULL;
+            }
+        }
+        return NULL;
+    }
+    
     for (int i = 0; i < env->union_count; i++) {
         if (safe_strcmp(env->unions[i].name, name) == 0) {
             return &env->unions[i];
@@ -872,4 +1005,41 @@ void free_tuple(TupleValue *tuple) {
         free(tuple->elements);
     }
     free(tuple);
+}
+
+/* Register a module namespace (for import aliases) */
+void env_register_namespace(Environment *env, const char *alias, 
+                            char **function_names, int function_count,
+                            char **struct_names, int struct_count,
+                            char **enum_names, int enum_count,
+                            char **union_names, int union_count) {
+    if (!env || !alias) {
+        return;
+    }
+    
+    /* Check if alias already exists */
+    for (int i = 0; i < env->namespace_count; i++) {
+        if (strcmp(env->namespaces[i].alias, alias) == 0) {
+            /* Namespace already registered */
+            return;
+        }
+    }
+    
+    /* Expand capacity if needed */
+    if (env->namespace_count >= env->namespace_capacity) {
+        env->namespace_capacity *= 2;
+        env->namespaces = realloc(env->namespaces, sizeof(ModuleNamespace) * env->namespace_capacity);
+    }
+    
+    /* Register the namespace */
+    ModuleNamespace *ns = &env->namespaces[env->namespace_count++];
+    ns->alias = strdup(alias);
+    ns->function_names = function_names;
+    ns->function_count = function_count;
+    ns->struct_names = struct_names;
+    ns->struct_count = struct_count;
+    ns->enum_names = enum_names;
+    ns->enum_count = enum_count;
+    ns->union_names = union_names;
+    ns->union_count = union_count;
 }

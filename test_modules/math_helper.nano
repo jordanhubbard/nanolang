@@ -1,0 +1,26 @@
+/* Simple math helper module for testing import aliases */
+
+fn square(x: int) -> int {
+    return (* x x)
+}
+
+fn cube(x: int) -> int {
+    return (* x (* x x))
+}
+
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow square {
+    assert (== (square 5) 25)
+    assert (== (square 10) 100)
+}
+
+shadow cube {
+    assert (== (cube 3) 27)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+}

@@ -518,6 +518,19 @@ typedef struct {
     char *concrete_name;       /* e.g., "List_int" or "List_Point" (generated name) */
 } GenericInstantiation;
 
+/* Module namespace for import aliases */
+typedef struct {
+    char *alias;               /* Module alias name (e.g., "Math", "Lexer") */
+    char **function_names;     /* Functions from this module */
+    int function_count;
+    char **struct_names;       /* Structs from this module */
+    int struct_count;
+    char **enum_names;         /* Enums from this module */
+    int enum_count;
+    char **union_names;        /* Unions from this module */
+    int union_count;
+} ModuleNamespace;
+
 /* Environment for variable and function storage */
 typedef struct {
     Symbol *symbols;
@@ -541,6 +554,9 @@ typedef struct {
     GenericInstantiation *generic_instances;
     int generic_instance_count;
     int generic_instance_capacity;
+    ModuleNamespace *namespaces;  /* Module alias → symbols mapping */
+    int namespace_count;
+    int namespace_capacity;
 } Environment;
 
 /* Function declarations */
@@ -582,6 +598,11 @@ Function *env_get_function(Environment *env, const char *name);
 bool is_builtin_function(const char *name);
 void env_define_struct(Environment *env, StructDef struct_def);
 StructDef *env_get_struct(Environment *env, const char *name);
+void env_register_namespace(Environment *env, const char *alias,
+                            char **function_names, int function_count,
+                            char **struct_names, int struct_count,
+                            char **enum_names, int enum_count,
+                            char **union_names, int union_count);
 void env_define_enum(Environment *env, EnumDef enum_def);
 EnumDef *env_get_enum(Environment *env, const char *name);
 void env_register_list_instantiation(Environment *env, const char *element_type);
