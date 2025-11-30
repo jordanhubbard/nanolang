@@ -4,7 +4,7 @@
 ![Tests](https://img.shields.io/badge/tests-20%2F20%20passing-brightgreen.svg)
 ![Examples](https://img.shields.io/badge/examples-25%2F28%20working-green.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
-![Version](https://img.shields.io/badge/version-0.1.0--alpha-orange.svg)
+![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)
 
 **Status**: ✅ Production Ready - 20/20 tests passing + 25/28 examples working, **49+ stdlib functions**, arrays with bounds checking, **self-hosting foundation 100% complete** ✅
 

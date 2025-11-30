@@ -6,6 +6,11 @@ fn main() -> int {
     let b: int = t.1
     let sum: int = (+ a b)
     (println sum)
-    return sum
+    /* Verify correct value */
+    if (!= sum 30) {
+        return 1
+    } else {
+        return 0
+    }
 }
 

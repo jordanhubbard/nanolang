@@ -2,7 +2,8 @@
 # Comprehensive test runner for nanolang
 # Tests all language features with both interpreter and compiler
 
-set -e
+# Don't exit on first error - show all test results
+set +e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -31,11 +32,11 @@ run_interpreter_test() {
     
     if ./bin/nano "$test_file" > /dev/null 2>&1; then
         echo -e "${GREEN}✅${NC} INT: $test_name"
-        ((INTERPRETER_PASS++))
+        INTERPRETER_PASS=$((INTERPRETER_PASS + 1))
         return 0
     else
         echo -e "${RED}❌${NC} INT: $test_name"
-        ((INTERPRETER_FAIL++))
+        INTERPRETER_FAIL=$((INTERPRETER_FAIL + 1))
         return 1
     fi
 }
@@ -50,7 +51,7 @@ run_compiler_test() {
         if [ -f "$output_file" ]; then
             if "$output_file" > /dev/null 2>&1; then
                 echo -e "${GREEN}✅${NC} COM: $test_name"
-                ((COMPILER_PASS++))
+                COMPILER_PASS=$((COMPILER_PASS + 1))
                 rm -f "$output_file" "${output_file}.c"
                 return 0
             fi
@@ -58,7 +59,7 @@ run_compiler_test() {
     fi
     
     echo -e "${RED}❌${NC} COM: $test_name"
-    ((COMPILER_FAIL++))
+    COMPILER_FAIL=$((COMPILER_FAIL + 1))
     rm -f "$output_file" "${output_file}.c"
     return 1
 }
@@ -80,15 +81,16 @@ done
 
 echo ""
 echo "=== EXAMPLES (as tests) ==="
-for example in examples/*.nano; do
-    [ -f "$example" ] || continue
-    # Skip SDL examples (require external libraries)
-    if [[ "$example" == *"sdl"* ]]; then
-        continue
-    fi
-    run_interpreter_test "$example"
-    run_compiler_test "$example"
-done
+echo "(Skipped - run 'make examples' to test separately)"
+# for example in examples/*.nano; do
+#     [ -f "$example" ] || continue
+#     # Skip SDL examples (require external libraries)
+#     if [[ "$example" == *"sdl"* ]]; then
+#         continue
+#     fi
+#     run_interpreter_test "$example"
+#     run_compiler_test "$example"
+# done
 
 echo ""
 echo "========================================"

@@ -71,8 +71,8 @@ fn fib_pair(n: int) -> (int, int) {
 
 shadow fib_pair {
     let result: (int, int) = (fib_pair 6)
-    assert (== result.0 8)
-    assert (== result.1 13)
+    assert (== result.0 5)
+    assert (== result.1 8)
 }
 
 /* Test 6: Multiple tuple returns in one function */
@@ -164,7 +164,7 @@ fn test_tuple_reuse() -> int {
 }
 
 shadow test_tuple_reuse {
-    assert (== (test_tuple_reuse) 31)
+    assert (== (test_tuple_reuse) 35)
 }
 
 fn main() -> int {

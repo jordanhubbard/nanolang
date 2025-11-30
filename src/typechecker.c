@@ -286,7 +286,8 @@ Type check_expression(ASTNode *expr, Environment *env) {
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
                 Type right = check_expression(expr->as.prefix_op.args[1], env);
 
-                if (left == TYPE_INT && right == TYPE_INT) return TYPE_INT;
+                /* Enums are compatible with ints in arithmetic */
+                if ((left == TYPE_INT || left == TYPE_ENUM) && (right == TYPE_INT || right == TYPE_ENUM)) return TYPE_INT;
                 if (left == TYPE_FLOAT && right == TYPE_FLOAT) return TYPE_FLOAT;
 
                 fprintf(stderr, "Error at line %d, column %d: Type mismatch in arithmetic operation\n", expr->line, expr->column);
@@ -530,31 +531,54 @@ Type check_expression(ASTNode *expr, Environment *env) {
                     return TYPE_INT;
                 }
                 
-                /* Special handling for generic list get functions: List_TypeName_get */
+                /* Special handling for generic list functions: list_TypeName_operation */
                 const char *func_name = expr->as.call.name;
-                if (func_name && strncmp(func_name, "List_", 5) == 0) {
+                if (func_name && strncmp(func_name, "list_", 5) == 0) {
+                    /* Find the last underscore to identify the operation */
                     const char *func_suffix = strrchr(func_name, '_');
-                    if (func_suffix && strcmp(func_suffix, "_get") == 0) {
-                        /* Extract type name: "List_MyToken_get" -> "MyToken" */
-                        const char *type_start = func_name + 5;  /* Skip "List_" */
+                    if (func_suffix) {
+                        /* Extract type name: "list_MyType_new" -> "MyType" */
+                        const char *type_start = func_name + 5;  /* Skip "list_" */
                         int type_name_len = (int)(func_suffix - type_start);
                         if (type_name_len > 0) {
                             char *type_name = malloc(type_name_len + 1);
                             strncpy(type_name, type_start, type_name_len);
                             type_name[type_name_len] = '\0';
                             
-                            /* Check if this type name exists as a struct */
+                            /* Check if this type name exists as a struct or enum */
                             StructDef *sdef = env_get_struct(env, type_name);
-                            if (sdef) {
-                                /* Check arguments */
-                                if (expr->as.call.arg_count >= 1) {
-                                    check_expression(expr->as.call.args[0], env);
+                            EnumDef *edef = env_get_enum(env, type_name);
+                            
+                            if (sdef || edef) {
+                                /* Type check based on the operation */
+                                const char *operation = func_suffix + 1;  /* Skip the '_' */
+                                
+                                /* Type check arguments */
+                                for (int i = 0; i < expr->as.call.arg_count; i++) {
+                                    check_expression(expr->as.call.args[i], env);
                                 }
-                                if (expr->as.call.arg_count >= 2) {
-                                    check_expression(expr->as.call.args[1], env);
+                                
+                                /* Return appropriate type based on operation */
+                                if (strcmp(operation, "new") == 0 || strcmp(operation, "with_capacity") == 0) {
+                                    free(type_name);
+                                    return TYPE_LIST_GENERIC;  /* Returns List<Type> */
+                                } else if (strcmp(operation, "get") == 0) {
+                                    free(type_name);
+                                    return edef ? TYPE_ENUM : TYPE_STRUCT;  /* Returns element type */
+                                } else if (strcmp(operation, "length") == 0 || strcmp(operation, "capacity") == 0) {
+                                    free(type_name);
+                                    return TYPE_INT;
+                                } else if (strcmp(operation, "is_empty") == 0) {
+                                    free(type_name);
+                                    return TYPE_BOOL;
+                                } else if (strcmp(operation, "pop") == 0) {
+                                    free(type_name);
+                                    return edef ? TYPE_ENUM : TYPE_STRUCT;  /* Returns element type */
+                                } else {
+                                    /* push, set, insert, remove, clear, free return void */
+                                    free(type_name);
+                                    return TYPE_VOID;
                                 }
-                                free(type_name);
-                                return TYPE_STRUCT;  /* Returns the struct type */
                             }
                             free(type_name);
                         }
@@ -1263,8 +1287,8 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
             if (declared_type == TYPE_LIST_GENERIC && stmt->as.let.type_name) {
                 const char *element_type = stmt->as.let.type_name;
                 
-                /* Verify element type exists (struct must be defined) */
-                if (!env_get_struct(tc->env, element_type)) {
+                /* Verify element type exists (struct or enum must be defined) */
+                if (!env_get_struct(tc->env, element_type) && !env_get_enum(tc->env, element_type)) {
                     fprintf(stderr, "Error at line %d, column %d: Unknown type '%s' in List<%s>\n",
                             stmt->line, stmt->column, element_type, element_type);
                     tc->has_error = true;
@@ -1668,6 +1692,8 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;  /* Special handling */
     func.param_count = 2;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1678,6 +1704,8 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;  /* Accept int or float */
     func.param_count = 1;
     func.return_type = TYPE_INT;  /* Can also be float */
+    func.return_type_info = NULL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1688,6 +1716,8 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_INT;  /* Can also be float */
+    func.return_type_info = NULL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1698,6 +1728,8 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_INT;  /* Can also be float */
+    func.return_type_info = NULL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1708,6 +1740,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1718,6 +1751,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1729,6 +1763,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_FLOAT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1739,6 +1774,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_FLOAT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1749,6 +1785,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_FLOAT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1759,6 +1796,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_FLOAT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1769,6 +1807,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_FLOAT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1780,6 +1819,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_FLOAT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1790,6 +1830,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_FLOAT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1800,6 +1841,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_FLOAT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1811,6 +1853,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1821,6 +1864,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1831,6 +1875,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 3;
     func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1841,6 +1886,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1851,6 +1897,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1862,6 +1909,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_UNKNOWN;  /* Will be determined by array element type */
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1872,6 +1920,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1882,6 +1931,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_ARRAY;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1892,6 +1942,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 3;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1902,6 +1953,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 0;
     func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1911,6 +1963,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1921,6 +1974,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;  /* string, index */
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1930,6 +1984,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;  /* char code */
     func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1940,6 +1995,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1949,6 +2005,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1958,6 +2015,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1967,6 +2025,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1976,6 +2035,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1985,6 +2045,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -1995,6 +2056,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2004,6 +2066,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2013,6 +2076,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2022,6 +2086,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2031,6 +2096,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2041,6 +2107,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 0;
     func.return_type = TYPE_LIST_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2050,6 +2117,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_LIST_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2059,6 +2127,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;  /* list, value */
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2068,6 +2137,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2077,6 +2147,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;  /* list, index */
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2086,6 +2157,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 3;  /* list, index, value */
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2095,6 +2167,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 3;  /* list, index, value */
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2104,6 +2177,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;  /* list, index */
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2113,6 +2187,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2122,6 +2197,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2131,6 +2207,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2140,6 +2217,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2149,6 +2227,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2159,6 +2238,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 0;
     func.return_type = TYPE_LIST_STRING;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2168,6 +2248,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_LIST_STRING;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2177,6 +2258,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2186,6 +2268,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2195,6 +2278,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2204,6 +2288,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 3;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2213,6 +2298,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 3;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2222,6 +2308,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2231,6 +2318,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2240,6 +2328,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2249,6 +2338,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2258,6 +2348,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2267,6 +2358,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2277,6 +2369,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 0;
     func.return_type = TYPE_LIST_TOKEN;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2286,6 +2379,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_LIST_TOKEN;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2295,6 +2389,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2304,6 +2399,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_STRUCT;  /* Returns Token struct */
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2313,6 +2409,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_STRUCT;  /* Returns Token struct */
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2322,6 +2419,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 3;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2331,6 +2429,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 3;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2340,6 +2439,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_STRUCT;  /* Returns Token struct */
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2349,6 +2449,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2358,6 +2459,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2367,6 +2469,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2376,6 +2479,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2385,6 +2489,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = false;
@@ -2815,8 +2920,10 @@ bool type_check(ASTNode *program, Environment *env) {
             func.params = item->as.function.params;
             func.param_count = item->as.function.param_count;
             func.return_type = return_type;
+    func.return_type_info = NULL;
             func.return_struct_type_name = item->as.function.return_struct_type_name;
             func.return_fn_sig = item->as.function.return_fn_sig;  /* Store function signature for TYPE_FUNCTION returns */
+            func.return_type_info = item->as.function.return_type_info;  /* Store tuple type info for TYPE_TUPLE returns */
             func.body = item->as.function.body;
             func.shadow_test = NULL;
             func.is_extern = item->as.function.is_extern;
@@ -3253,6 +3360,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
             f.return_struct_type_name = item->as.function.return_struct_type_name ? 
                 strdup(item->as.function.return_struct_type_name) : NULL;
             f.return_fn_sig = item->as.function.return_fn_sig;
+            f.return_type_info = item->as.function.return_type_info;
             f.body = item->as.function.body;
             f.shadow_test = NULL;  /* Will be linked in second pass */
             f.is_extern = item->as.function.is_extern;

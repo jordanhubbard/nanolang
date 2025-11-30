@@ -462,6 +462,7 @@ typedef struct {
     Type return_type;
     char *return_struct_type_name;  /* For TYPE_STRUCT returns: which struct */
     FunctionSignature *return_fn_sig;  /* For TYPE_FUNCTION returns: function signature */
+    TypeInfo *return_type_info;  /* For TYPE_TUPLE returns: tuple element types */
     ASTNode *body;
     ASTNode *shadow_test;
     bool is_extern;  /* NEW: Mark external C functions */

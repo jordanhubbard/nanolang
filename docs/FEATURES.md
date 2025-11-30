@@ -1,6 +1,6 @@
 # nanolang Features Overview
 
-**Version:** 0.1.0-alpha  
+**Version:** 0.2.0  
 **Status:** Alpha - Feature-Complete, Production-Ready Approaching
 
 ---

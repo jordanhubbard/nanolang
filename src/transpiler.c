@@ -1518,20 +1518,30 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             
             /* Try to use typedef if we have a tuple registry and element types */
             const char *typedef_name = NULL;
-            if (g_tuple_registry && expr->as.tuple_literal.element_types) {
-                /* Create temporary TypeInfo to look up typedef */
-                TypeInfo temp_info;
-                temp_info.tuple_types = expr->as.tuple_literal.element_types;
-                temp_info.tuple_type_names = NULL;
-                temp_info.tuple_element_count = element_count;
+            if (g_tuple_registry) {
+                /* Allocate TypeInfo on heap so it persists */
+                TypeInfo *temp_info = malloc(sizeof(TypeInfo));
+                temp_info->base_type = TYPE_TUPLE;
+                temp_info->tuple_element_count = element_count;
+                temp_info->element_type = NULL;
+                temp_info->generic_name = NULL;
+                temp_info->type_params = NULL;
+                temp_info->type_param_count = 0;
+                temp_info->tuple_type_names = NULL;
                 
-                /* Look up existing typedef */
-                for (int i = 0; i < g_tuple_registry->count; i++) {
-                    if (tuple_types_equal(g_tuple_registry->tuples[i], &temp_info)) {
-                        typedef_name = g_tuple_registry->typedef_names[i];
-                        break;
+                /* Get element types - either from stored types or infer from expressions */
+                if (expr->as.tuple_literal.element_types) {
+                    temp_info->tuple_types = expr->as.tuple_literal.element_types;
+                } else {
+                    /* Infer types from expressions if not already stored */
+                    temp_info->tuple_types = malloc(sizeof(Type) * element_count);
+                    for (int i = 0; i < element_count; i++) {
+                        temp_info->tuple_types[i] = check_expression(expr->as.tuple_literal.elements[i], env);
                     }
                 }
+                
+                /* Register (or look up existing) typedef */
+                typedef_name = register_tuple_type(g_tuple_registry, temp_info);
             }
             
             if (typedef_name) {
@@ -1684,6 +1694,22 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
                 }
                 /* Skip the generic value transpilation since we handled it above */
                 goto skip_value_transpile;
+            }
+            /* Handle tuple types from function calls */
+            else if (stmt->as.let.var_type == TYPE_TUPLE && stmt->as.let.value && 
+                     stmt->as.let.value->type == AST_CALL) {
+                /* Get the function being called */
+                const char *func_name = stmt->as.let.value->as.call.name;
+                Function *func_def = env_get_function(env, func_name);
+                
+                if (func_def && func_def->return_type == TYPE_TUPLE && func_def->return_type_info) {
+                    /* Use the typedef name for this tuple type */
+                    const char *typedef_name = register_tuple_type(g_tuple_registry, func_def->return_type_info);
+                    sb_appendf(sb, "%s %s = ", typedef_name, stmt->as.let.name);
+                } else {
+                    /* Fallback - should not happen if type checking is correct */
+                    sb_appendf(sb, "/* tuple */ void %s = ", stmt->as.let.name);
+                }
             } else {
                 sb_appendf(sb, "%s %s = ", type_to_c(stmt->as.let.var_type), stmt->as.let.name);
             }
@@ -1916,6 +1942,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "#include \"runtime/list_int.h\"\n");
     sb_append(sb, "#include \"runtime/list_string.h\"\n");
     sb_append(sb, "#include \"runtime/list_token.h\"\n");
+    sb_append(sb, "#include \"runtime/token_helpers.h\"\n");
     sb_append(sb, "#include <sys/stat.h>\n");
     sb_append(sb, "#include <sys/types.h>\n");
     sb_append(sb, "#include <dirent.h>\n");
