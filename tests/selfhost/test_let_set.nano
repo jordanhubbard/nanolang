@@ -1,0 +1,58 @@
+/* Test let and set statements */
+
+fn test_immutable_let() -> int {
+    let x: int = 42
+    return x
+}
+
+shadow test_immutable_let {
+    assert (== (test_immutable_let) 42)
+}
+
+fn test_mutable_let() -> int {
+    let mut x: int = 10
+    set x 20
+    return x
+}
+
+shadow test_mutable_let {
+    assert (== (test_mutable_let) 20)
+}
+
+fn test_multiple_sets() -> int {
+    let mut x: int = 1
+    set x 2
+    set x 3
+    set x 4
+    return x
+}
+
+shadow test_multiple_sets {
+    assert (== (test_multiple_sets) 4)
+}
+
+fn test_set_with_expression() -> int {
+    let mut x: int = 10
+    set x (+ x 5)
+    return x
+}
+
+shadow test_set_with_expression {
+    assert (== (test_set_with_expression) 15)
+}
+
+fn test_multiple_variables() -> int {
+    let mut a: int = 5
+    let mut b: int = 10
+    set a (+ a 1)
+    set b (+ b 2)
+    return (+ a b)
+}
+
+shadow test_multiple_variables {
+    assert (== (test_multiple_variables) 18)
+}
+
+fn main() -> int {
+    return 0
+}

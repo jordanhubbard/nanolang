@@ -1,0 +1,65 @@
+/* Test all logical operators supported by self-hosted compiler */
+
+fn test_and_true() -> int {
+    if (and true true) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow test_and_true {
+    assert (== (test_and_true) 1)
+}
+
+fn test_and_false() -> int {
+    if (and true false) {
+        return 0
+    } else {
+        return 1
+    }
+}
+
+shadow test_and_false {
+    assert (== (test_and_false) 1)
+}
+
+fn test_or_true() -> int {
+    if (or false true) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow test_or_true {
+    assert (== (test_or_true) 1)
+}
+
+fn test_or_false() -> int {
+    if (or false false) {
+        return 0
+    } else {
+        return 1
+    }
+}
+
+shadow test_or_false {
+    assert (== (test_or_false) 1)
+}
+
+fn test_complex_logic() -> int {
+    if (and (> 5 3) (< 2 10)) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow test_complex_logic {
+    assert (== (test_complex_logic) 1)
+}
+
+fn main() -> int {
+    return 0
+}

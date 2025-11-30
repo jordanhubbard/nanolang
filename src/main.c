@@ -212,7 +212,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     /* Build runtime files string */
     /* Note: sdl_helpers.c is NOT included here - it's provided by the sdl_helpers module */
-    char runtime_files[512] = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c";
+    char runtime_files[512] = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_token.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c";
     
     if (opts->verbose) {
         snprintf(compile_cmd, sizeof(compile_cmd), 

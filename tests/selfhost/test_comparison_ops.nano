@@ -1,0 +1,77 @@
+/* Test all comparison operators supported by self-hosted compiler */
+
+fn test_equals() -> int {
+    if (== 5 5) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow test_equals {
+    assert (== (test_equals) 1)
+}
+
+fn test_not_equals() -> int {
+    if (!= 5 3) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow test_not_equals {
+    assert (== (test_not_equals) 1)
+}
+
+fn test_less_than() -> int {
+    if (< 3 5) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow test_less_than {
+    assert (== (test_less_than) 1)
+}
+
+fn test_less_equal() -> int {
+    if (<= 5 5) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow test_less_equal {
+    assert (== (test_less_equal) 1)
+}
+
+fn test_greater_than() -> int {
+    if (> 10 5) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow test_greater_than {
+    assert (== (test_greater_than) 1)
+}
+
+fn test_greater_equal() -> int {
+    if (>= 7 7) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow test_greater_equal {
+    assert (== (test_greater_equal) 1)
+}
+
+fn main() -> int {
+    return 0
+}

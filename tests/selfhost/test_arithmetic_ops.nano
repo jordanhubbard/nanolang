@@ -1,0 +1,71 @@
+/* Test all arithmetic operators supported by self-hosted compiler */
+
+fn test_addition() -> int {
+    let a: int = (+ 5 3)
+    let b: int = (+ 10 20)
+    return (+ a b)
+}
+
+shadow test_addition {
+    assert (== (test_addition) 38)
+}
+
+fn test_subtraction() -> int {
+    let a: int = (- 10 3)
+    let b: int = (- 20 5)
+    return (+ a b)
+}
+
+shadow test_subtraction {
+    assert (== (test_subtraction) 22)
+}
+
+fn test_multiplication() -> int {
+    let a: int = (* 5 3)
+    let b: int = (* 2 4)
+    return (+ a b)
+}
+
+shadow test_multiplication {
+    assert (== (test_multiplication) 23)
+}
+
+fn test_division() -> int {
+    let a: int = (/ 20 4)
+    let b: int = (/ 15 3)
+    return (+ a b)
+}
+
+shadow test_division {
+    assert (== (test_division) 10)
+}
+
+fn test_modulo() -> int {
+    let a: int = (% 10 3)
+    let b: int = (% 15 4)
+    return (+ a b)
+}
+
+shadow test_modulo {
+    assert (== (test_modulo) 4)
+}
+
+fn test_nested_arithmetic() -> int {
+    return (+ (* 2 3) (- 10 4))
+}
+
+shadow test_nested_arithmetic {
+    assert (== (test_nested_arithmetic) 12)
+}
+
+fn test_complex_expression() -> int {
+    return (* (+ 2 3) (- 10 3))
+}
+
+shadow test_complex_expression {
+    assert (== (test_complex_expression) 35)
+}
+
+fn main() -> int {
+    return 0
+}

@@ -1,0 +1,69 @@
+/* Test function calls with arguments */
+
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 5 10) 15)
+    assert (== (add 0 0) 0)
+}
+
+fn multiply(x: int, y: int) -> int {
+    return (* x y)
+}
+
+shadow multiply {
+    assert (== (multiply 3 4) 12)
+    assert (== (multiply 7 2) 14)
+}
+
+fn maximum(a: int, b: int) -> int {
+    if (> a b) {
+        return a
+    } else {
+        return b
+    }
+}
+
+shadow maximum {
+    assert (== (maximum 10 5) 10)
+    assert (== (maximum 3 9) 9)
+}
+
+fn minimum(a: int, b: int) -> int {
+    if (< a b) {
+        return a
+    } else {
+        return b
+    }
+}
+
+shadow minimum {
+    assert (== (minimum 10 5) 5)
+    assert (== (minimum 3 9) 3)
+}
+
+fn compute(a: int, b: int, c: int) -> int {
+    let temp1: int = (add a b)
+    let temp2: int = (multiply temp1 c)
+    return temp2
+}
+
+shadow compute {
+    assert (== (compute 2 3 4) 20)
+}
+
+fn nested_calls() -> int {
+    let m1: int = (multiply 2 3)
+    let m2: int = (multiply 4 5)
+    return (add m1 m2)
+}
+
+shadow nested_calls {
+    assert (== (nested_calls) 26)
+}
+
+fn main() -> int {
+    return 0
+}
