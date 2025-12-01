@@ -40,7 +40,7 @@ GRAPHICS_EXAMPLES = $(SDL_EXAMPLES) $(OPENGL_EXAMPLES)
 
 # === Interpreter Demo Examples ===
 # Simple examples perfect for demonstrating the interpreter
-# Run with: ../bin/nano examples/name.nano
+# Run with: ../bin/nano examples/<filename>
 # Note: Some of these can also be compiled, but are great for interpreter demos
 
 INTERPRETER_DEMO_EXAMPLES = \
