@@ -342,7 +342,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     /* Build runtime files string */
     /* Note: sdl_helpers.c is NOT included here - it's provided by the sdl_helpers module */
-    char runtime_files[1536] = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_token.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/runtime/cli.c src/runtime/cli_main.c";
+    char runtime_files[1536] = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_token.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/runtime/cli.c";
     strncat(runtime_files, generated_lists, sizeof(runtime_files) - strlen(runtime_files) - 1);
     
     /* Add /tmp to include path for generated list headers */
