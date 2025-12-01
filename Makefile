@@ -36,6 +36,7 @@ RUNTIME_DIR = $(SRC_DIR)/runtime
 
 # Binaries
 COMPILER = $(BIN_DIR)/nanoc
+COMPILER_C = $(BIN_DIR)/nanoc_c
 INTERPRETER = $(BIN_DIR)/nano
 HYBRID_COMPILER = $(BIN_DIR)/nanoc_stage1_5
 FFI_BINDGEN = $(BIN_DIR)/nanoc-ffi
@@ -152,10 +153,16 @@ $(SENTINEL_STAGE1): $(COMPILER) $(INTERPRETER) $(FFI_BINDGEN)
 	@echo "✓ Stage 1 complete (C reference binaries)"
 	@touch $(SENTINEL_STAGE1)
 
-$(COMPILER): $(COMPILER_OBJECTS) | $(BIN_DIR)
-	@echo "Stage 1: Building reference compiler..."
-	$(CC) $(CFLAGS) -o $(COMPILER) $(COMPILER_OBJECTS) $(LDFLAGS)
-	@echo "✓ Compiler: $(COMPILER)"
+# Build C reference compiler (nanoc_c) - used by self-hosted version
+$(COMPILER_C): $(COMPILER_OBJECTS) | $(BIN_DIR)
+	@echo "Stage 1: Building C reference compiler..."
+	$(CC) $(CFLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS)
+	@echo "✓ C Compiler: $(COMPILER_C)"
+
+# Default compiler target - link to nanoc_c for now
+$(COMPILER): $(COMPILER_C) | $(BIN_DIR)
+	@ln -sf nanoc_c $(COMPILER)
+	@echo "✓ Compiler: $(COMPILER) -> $(COMPILER_C)"
 
 $(INTERPRETER): $(INTERPRETER_OBJECTS) | $(BIN_DIR)
 	@echo "Stage 1: Building reference interpreter..."
@@ -280,10 +287,11 @@ bootstrap-install: bootstrap
 	@echo "=========================================="
 	@echo "Installing Self-Hosted Compiler"
 	@echo "=========================================="
-	@echo "Replacing bin/nanoc with self-hosted version..."
+	@echo "Installing self-hosted compiler as bin/nanoc..."
 	@if [ -f $(NANOC_STAGE1) ]; then \
+		rm -f $(COMPILER) && \
 		cp $(NANOC_STAGE1) $(COMPILER) && \
-		echo "✓ bin/nanoc replaced with self-hosted version"; \
+		echo "✓ bin/nanoc installed (self-hosted version)"; \
 	else \
 		echo "❌ Error: Stage 1 binary not found"; \
 		exit 1; \
@@ -304,7 +312,7 @@ bootstrap-install: bootstrap
 # Bootstrap Stage 0: Build C reference compiler
 bootstrap0: $(SENTINEL_BOOTSTRAP0)
 
-$(SENTINEL_BOOTSTRAP0): $(COMPILER)
+$(SENTINEL_BOOTSTRAP0): $(COMPILER_C)
 	@echo "✓ Bootstrap Stage 0: C reference compiler ready"
 	@touch $(SENTINEL_BOOTSTRAP0)
 
@@ -318,7 +326,7 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 	@echo "=========================================="
 	@echo "Compiling nanoc_v05.nano with C compiler..."
 	@if [ -f $(NANOC_SOURCE) ]; then \
-		$(COMPILER) $(NANOC_SOURCE) -o $(NANOC_STAGE1) && \
+		$(COMPILER_C) $(NANOC_SOURCE) -o $(NANOC_STAGE1) && \
 		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
 		echo "" && \
 		echo "Testing stage 1 compiler..." && \
