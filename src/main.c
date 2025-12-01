@@ -1,6 +1,10 @@
 #include "nanolang.h"
 #include "version.h"
 
+/* Global argc/argv for runtime access by transpiled programs */
+int g_argc = 0;
+char **g_argv = NULL;
+
 /* Compilation options */
 typedef struct {
     bool verbose;
@@ -394,6 +398,10 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
 /* Main entry point */
 int main(int argc, char *argv[]) {
+    /* Store argc/argv for runtime access */
+    g_argc = argc;
+    g_argv = argv;
+    
     /* Handle --version */
     if (argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)) {
         printf("nanoc %s\n", NANOLANG_VERSION);
