@@ -2,8 +2,9 @@
 #include "version.h"
 
 /* Global argc/argv for runtime access */
-extern int g_argc;
-extern char **g_argv;
+int g_argc = 0;
+char **g_argv = NULL;
+
 #include "tracing.h"
 #include "runtime/gc.h"
 
