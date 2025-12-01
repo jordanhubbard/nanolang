@@ -1,26 +1,25 @@
-/* Simple math helper module for testing import aliases */
-
-fn square(x: int) -> int {
-    return (* x x)
-}
-
-fn cube(x: int) -> int {
-    return (* x (* x x))
-}
+/* Simple test module for import alias testing */
 
 fn add(a: int, b: int) -> int {
     return (+ a b)
 }
 
-shadow square {
-    assert (== (square 5) 25)
-    assert (== (square 10) 100)
+fn multiply(a: int, b: int) -> int {
+    return (* a b)
 }
 
-shadow cube {
-    assert (== (cube 3) 27)
+fn square(x: int) -> int {
+    return (* x x)
 }
 
 shadow add {
     assert (== (add 2 3) 5)
+}
+
+shadow multiply {
+    assert (== (multiply 4 5) 20)
+}
+
+shadow square {
+    assert (== (square 7) 49)
 }
