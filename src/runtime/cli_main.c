@@ -1,5 +1,6 @@
 /* CLI runtime main wrapper - defines g_argc/g_argv and wraps nl_main */
 #include <stdint.h>
+#include <stddef.h>
 
 /* Defined by transpiled code */
 extern int64_t nl_main(void);
