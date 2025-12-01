@@ -1,5 +1,9 @@
 #include "nanolang.h"
 #include "version.h"
+
+/* Global argc/argv for runtime access */
+extern int g_argc;
+extern char **g_argv;
 #include "tracing.h"
 #include "runtime/gc.h"
 
@@ -254,6 +258,10 @@ cleanup:
 
 /* Main entry point */
 int main(int argc, char *argv[]) {
+    /* Store argc/argv for runtime access */
+    g_argc = argc;
+    g_argv = argv;
+    
     /* Handle --version */
     if (argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)) {
         printf("nano %s\n", NANOLANG_VERSION);
