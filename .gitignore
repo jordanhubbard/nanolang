@@ -82,3 +82,6 @@ examples/bin/
 src_nano/*.c
 src_nano/*.bak
 src_nano/*.genC
+
+# Compiled binaries
+bin/

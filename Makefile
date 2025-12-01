@@ -270,6 +270,36 @@ bootstrap: $(SENTINEL_BOOTSTRAP3)
 	@echo "=========================================="
 	@$(MAKE) bootstrap-status
 	@echo ""
+	@echo "NOTE: Stage binaries left in place for verification."
+	@echo "To install self-hosted compiler, run: make bootstrap-install"
+	@echo ""
+
+# Bootstrap and install: Replace bin/nanoc with self-hosted version (GCC-style)
+bootstrap-install: bootstrap
+	@echo ""
+	@echo "=========================================="
+	@echo "Installing Self-Hosted Compiler"
+	@echo "=========================================="
+	@echo "Replacing bin/nanoc with self-hosted version..."
+	@if [ -f $(NANOC_STAGE1) ]; then \
+		cp $(NANOC_STAGE1) $(COMPILER) && \
+		echo "✓ bin/nanoc replaced with self-hosted version"; \
+	else \
+		echo "❌ Error: Stage 1 binary not found"; \
+		exit 1; \
+	fi
+	@echo "Cleaning up stage binaries..."
+	@rm -f $(NANOC_STAGE1) $(NANOC_STAGE2)
+	@rm -f $(SENTINEL_BOOTSTRAP0) $(SENTINEL_BOOTSTRAP1) $(SENTINEL_BOOTSTRAP2) $(SENTINEL_BOOTSTRAP3)
+	@echo ""
+	@echo "=========================================="
+	@echo "✅ BOOTSTRAP INSTALLATION COMPLETE!"
+	@echo "=========================================="
+	@echo ""
+	@echo "bin/nanoc is now the SELF-HOSTED compiler!"
+	@echo ""
+	@file $(COMPILER) 2>/dev/null || true
+	@echo ""
 
 # Bootstrap Stage 0: Build C reference compiler
 bootstrap0: $(SENTINEL_BOOTSTRAP0)
@@ -511,11 +541,13 @@ help:
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "TRUE Bootstrap (Classic GCC-style):"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "  make bootstrap0  - Stage 0: C → nanoc"
-	@echo "  make bootstrap1  - Stage 1: nanoc → nanoc_stage1"
-	@echo "  make bootstrap2  - Stage 2: stage1 → nanoc_stage2"
-	@echo "  make bootstrap3  - Stage 3: Verify stage1 == stage2"
-	@echo "  make bootstrap-status - Show bootstrap status"
+	@echo "  make bootstrap         - Build all stages (keep stage binaries)"
+	@echo "  make bootstrap-install - Bootstrap + replace bin/nanoc (GCC-style)"
+	@echo "  make bootstrap0        - Stage 0: C → nanoc"
+	@echo "  make bootstrap1        - Stage 1: nanoc → nanoc_stage1"
+	@echo "  make bootstrap2        - Stage 2: stage1 → nanoc_stage2"
+	@echo "  make bootstrap3        - Stage 3: Verify stage1 == stage2"
+	@echo "  make bootstrap-status  - Show bootstrap status"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "Development:"
@@ -554,4 +586,4 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test examples clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status
+.PHONY: all build test examples clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install
