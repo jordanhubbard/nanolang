@@ -80,7 +80,7 @@ all: $(COMPILER) $(GRAPHICS_EXAMPLES)
 	@echo "  ./bin/opengl_cube          - Rotating textured cube"
 	@echo "  ./bin/opengl_teapot        - Rotating teapot with texture cycling"
 	@echo ""
-	@echo "Interpreter demo examples (run with: ./bin/nano examples/name.nano):"
+	@echo "Interpreter demo examples (run with: ./bin/nano examples/<filename>):"
 	@echo "  hello.nano"
 	@echo "  calculator.nano"
 	@echo "  factorial.nano"
