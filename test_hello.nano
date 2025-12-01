@@ -1,0 +1,10 @@
+/* Simple test program for self-hosted compiler */
+
+fn main() -> int {
+    (println "Hello from self-hosted compiler!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
