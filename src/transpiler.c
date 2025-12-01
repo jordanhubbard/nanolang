@@ -3287,7 +3287,12 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     Function *main_func = env_get_function(env, "main");
     if (main_func && !main_func->is_extern) {
     sb_append(sb, "\n/* C main() entry point - calls nanolang main (nl_main) */\n");
-    sb_append(sb, "int main() {\n");
+    sb_append(sb, "/* Global argc/argv for CLI runtime support */\n");
+    sb_append(sb, "int g_argc = 0;\n");
+    sb_append(sb, "char **g_argv = NULL;\n\n");
+    sb_append(sb, "int main(int argc, char **argv) {\n");
+    sb_append(sb, "    g_argc = argc;\n");
+    sb_append(sb, "    g_argv = argv;\n");
     sb_append(sb, "    return (int)nl_main();\n");
     sb_append(sb, "}\n");
     }
