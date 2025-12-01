@@ -52,7 +52,7 @@ SENTINEL_BOOTSTRAP2 = .bootstrap2.built
 SENTINEL_BOOTSTRAP3 = .bootstrap3.built
 
 # Bootstrap binaries
-NANOC_V04_SOURCE = $(SRC_NANO_DIR)/nanoc_v04.nano
+NANOC_SOURCE = $(SRC_NANO_DIR)/nanoc_v05.nano
 NANOC_STAGE1 = $(BIN_DIR)/nanoc_stage1
 NANOC_STAGE2 = $(BIN_DIR)/nanoc_stage2
 
@@ -316,9 +316,9 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 	@echo "=========================================="
 	@echo "Bootstrap Stage 1: Self-Hosted Compiler"
 	@echo "=========================================="
-	@echo "Compiling nanoc_v04.nano with C compiler..."
-	@if [ -f $(NANOC_V04_SOURCE) ]; then \
-		$(COMPILER) $(NANOC_V04_SOURCE) -o $(NANOC_STAGE1) && \
+	@echo "Compiling nanoc_v05.nano with C compiler..."
+	@if [ -f $(NANOC_SOURCE) ]; then \
+		$(COMPILER) $(NANOC_SOURCE) -o $(NANOC_STAGE1) && \
 		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
 		echo "" && \
 		echo "Testing stage 1 compiler..." && \
@@ -330,7 +330,7 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 			exit 1; \
 		fi; \
 	else \
-		echo "❌ Error: $(NANOC_V04_SOURCE) not found!"; \
+		echo "❌ Error: $(NANOC_SOURCE) not found!"; \
 		exit 1; \
 	fi
 
@@ -342,8 +342,8 @@ $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
 	@echo "=========================================="
 	@echo "Bootstrap Stage 2: Recompilation"
 	@echo "=========================================="
-	@echo "Compiling nanoc_v04.nano with stage 1 compiler..."
-	@$(NANOC_STAGE1) $(NANOC_V04_SOURCE) -o $(NANOC_STAGE2) 2>&1 | tail -5 && \
+	@echo "Compiling nanoc_v05.nano with stage 1 compiler..."
+	@$(NANOC_STAGE1) $(NANOC_SOURCE) $(NANOC_STAGE2) && \
 	echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)" && \
 	echo "" && \
 	touch $(SENTINEL_BOOTSTRAP2)
