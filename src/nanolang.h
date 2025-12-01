@@ -64,6 +64,7 @@ typedef enum {
     TOKEN_UNION,
     TOKEN_MATCH,
     TOKEN_IMPORT,
+    TOKEN_AS,       /* "as" keyword for import aliases */
     TOKEN_OPAQUE,
 
     /* Types */

@@ -2267,8 +2267,8 @@ static ASTNode *parse_import(Parser *p) {
     }
 
     /* Optional: import "module.nano" as alias */
-    if (match(p, TOKEN_IDENTIFIER) && strcmp(current_token(p)->value, "as") == 0) {
-        advance(p);  /* consume "as" */
+    if (match(p, TOKEN_AS)) {
+        advance(p);  /* consume "as" keyword */
         if (!match(p, TOKEN_IDENTIFIER)) {
             fprintf(stderr, "Error at line %d, column %d: Expected module alias name after 'as'\n", line, column);
             free(module_path);

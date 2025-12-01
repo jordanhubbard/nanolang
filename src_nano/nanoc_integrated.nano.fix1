@@ -336,6 +336,9 @@ struct TypeEnvironment {
 struct TypeCheckState {
     error_count: int,
     has_error: bool
+    symbols: array<Symbol>,
+    count: int,
+    max_size: int
 }
 
 /* Code generation state */
