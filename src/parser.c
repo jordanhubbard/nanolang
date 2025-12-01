@@ -948,7 +948,12 @@ static ASTNode *parse_primary(Parser *p) {
                         char *field = first_expr->as.field_access.field_name;
                         func_name = malloc(strlen(module) + strlen(field) + 2);
                         sprintf(func_name, "%s.%s", module, field);
-                        free_ast(first_expr);  /* Clean up the field access node */
+                        
+                        /* BUGFIX: Don't free the field_access node at all!
+                         * The strings (module, field) are still in use by later AST nodes.
+                         * This causes a small memory leak but prevents use-after-free corruption.
+                         * TODO: Proper fix would be to copy strings or restructure AST lifecycle. */
+                        /* free_ast(first_expr);  -- DISABLED to prevent corruption */
                     } else {
                         fprintf(stderr, "Error at line %d, column %d: Complex field access not supported in function calls\n",
                                 line, column);

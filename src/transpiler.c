@@ -708,6 +708,13 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             /* Map nanolang OS function names to C implementation names */
             const char *func_name = expr->as.call.name;
             const char *original_func_name = func_name;  /* Save original for struct array detection */
+            
+            /* Handle qualified names from import aliases: Module.function -> function */
+            const char *dot = strchr(func_name, '.');
+            if (dot) {
+                func_name = dot + 1;  /* Skip module prefix, use just the function name */
+                original_func_name = func_name;  /* Update original as well */
+            }
 
             /* File operations */
             if (strcmp(func_name, "file_read") == 0) {
