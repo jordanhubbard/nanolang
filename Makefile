@@ -128,7 +128,8 @@ clean:
 	@echo "Cleaning all build artifacts..."
 	rm -rf $(OBJ_DIR) $(BUILD_DIR) $(COV_DIR)
 	rm -f $(BIN_DIR)/*.out *.out *.out.c tests/*.out tests/*.out.c
-	rm -f $(BIN_DIR)/nanoc_stage1 $(BIN_DIR)/nanoc_stage2
+	rm -f $(COMPILER) $(COMPILER_C) $(INTERPRETER) $(FFI_BINDGEN) $(HYBRID_COMPILER)
+	rm -f $(BIN_DIR)/nanoc_stage1 $(BIN_DIR)/nanoc_stage2 $(BIN_DIR)/parser_mvp
 	rm -f $(SENTINEL_STAGE1) $(SENTINEL_STAGE2) $(SENTINEL_STAGE3)
 	rm -f $(SENTINEL_BOOTSTRAP0) $(SENTINEL_BOOTSTRAP1) $(SENTINEL_BOOTSTRAP2) $(SENTINEL_BOOTSTRAP3)
 	rm -f *.gcda *.gcno *.gcov coverage.info
