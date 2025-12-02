@@ -1215,7 +1215,17 @@ static ASTNode *parse_expression(Parser *p) {
         advance(p);
         
         /* Check if this is union construction: UnionName.Variant { ... } */
-        if (match(p, TOKEN_LBRACE) && expr->type == AST_IDENTIFIER) {
+        /* Union names should start with uppercase by convention, and we need both
+         * the union name and variant name to be identifiers (not field access) */
+        bool looks_like_union = (expr->type == AST_IDENTIFIER && 
+                                 expr->as.identifier && 
+                                 expr->as.identifier[0] >= 'A' && 
+                                 expr->as.identifier[0] <= 'Z' &&
+                                 field_or_variant && 
+                                 field_or_variant[0] >= 'A' &&
+                                 field_or_variant[0] <= 'Z');
+        
+        if (match(p, TOKEN_LBRACE) && looks_like_union) {
             /* This is union construction */
             char *union_name = expr->as.identifier;
             char *variant_name = field_or_variant;
