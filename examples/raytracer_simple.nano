@@ -305,29 +305,56 @@ shadow calculate_lighting {
 
 # === FIXED SCENE INTERSECTION ===
 
+fn checkerboard_color(hit_point: Vec3) -> Vec3 {
+    # Scale the hit point to make checker size reasonable
+    let scale: float = 2.0
+    let sx: int = (cast_int (floor (* hit_point.x scale)))
+    let sz: int = (cast_int (floor (* hit_point.z scale)))
+    
+    # XOR pattern for checkerboard
+    let checker: int = (% (+ sx sz) 2)
+    
+    if (== checker 0) {
+        return Vec3 { x: 0.9, y: 0.9, z: 0.9 }
+    } else {
+        return Vec3 { x: 0.3, y: 0.3, z: 0.3 }
+    }
+}
+
+shadow checkerboard_color {
+    let p1: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    let c1: Vec3 = (checkerboard_color p1)
+    assert (== c1.x 0.9)
+    
+    let p2: Vec3 = Vec3 { x: 0.6, y: 0.0, z: 0.0 }
+    let c2: Vec3 = (checkerboard_color p2)
+    assert (== c2.x 0.3)
+}
+
 fn scene_hit(r: Ray, light_pos: Vec3) -> Vec3 {
-    # Define 4 spheres directly (no array needed)
+    # Classic scene: Checkerboard floor + glass sphere + opaque spheres
     let ground: Sphere = Sphere {
         center: Vec3 { x: 0.0, y: -100.5, z: -1.0 },
         radius: 100.0,
         color: Vec3 { x: 0.5, y: 0.5, z: 0.5 }
     }
     
+    # Glass sphere in center (light blue tint)
     let center_sphere: Sphere = Sphere {
         center: Vec3 { x: 0.0, y: 0.0, z: -1.0 },
         radius: 0.5,
-        color: Vec3 { x: 0.8, y: 0.3, z: 0.3 }
+        color: Vec3 { x: 0.7, y: 0.9, z: 1.0 }
     }
     
     let left_sphere: Sphere = Sphere {
-        center: Vec3 { x: -1.0, y: 0.0, z: -1.0 },
-        radius: 0.5,
-        color: Vec3 { x: 0.3, y: 0.8, z: 0.3 }
+        center: Vec3 { x: -1.2, y: 0.0, z: -1.2 },
+        radius: 0.4,
+        color: Vec3 { x: 0.8, y: 0.3, z: 0.3 }
     }
     
     let right_sphere: Sphere = Sphere {
-        center: Vec3 { x: 1.0, y: 0.0, z: -1.0 },
-        radius: 0.5,
+        center: Vec3 { x: 1.2, y: 0.0, z: -1.2 },
+        radius: 0.4,
         color: Vec3 { x: 0.3, y: 0.3, z: 0.8 }
     }
     
@@ -337,6 +364,8 @@ fn scene_hit(r: Ray, light_pos: Vec3) -> Vec3 {
     let mut hit_point: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
     let mut hit_normal: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
     let mut hit_color: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    let mut is_ground_hit: bool = false
+    let mut is_glass_hit: bool = false
     
     # Check ground
     let hit_ground: HitRecord = (sphere_hit ground r 0.001 closest_t)
@@ -351,11 +380,13 @@ fn scene_hit(r: Ray, light_pos: Vec3) -> Vec3 {
         set hit_point ground_point
         set hit_normal ground_normal
         set hit_color ground_color
+        set is_ground_hit true
+        set is_glass_hit false
     } else {
         (print "")
     }
     
-    # Check center sphere
+    # Check center sphere (glass)
     let hit_center: HitRecord = (sphere_hit center_sphere r 0.001 closest_t)
     let center_hit: bool = hit_center.hit
     if center_hit {
@@ -368,6 +399,8 @@ fn scene_hit(r: Ray, light_pos: Vec3) -> Vec3 {
         set hit_point center_point
         set hit_normal center_normal
         set hit_color center_color
+        set is_ground_hit false
+        set is_glass_hit true
     } else {
         (print "")
     }
@@ -407,6 +440,31 @@ fn scene_hit(r: Ray, light_pos: Vec3) -> Vec3 {
     }
     
     if did_hit {
+        # Apply checkerboard pattern to ground
+        if is_ground_hit {
+            set hit_color (checkerboard_color hit_point)
+        } else {
+            (print "")
+        }
+        
+        # Glass sphere gets special treatment (high specular highlights)
+        if is_glass_hit {
+            let ambient: Vec3 = (vec3_mul_scalar hit_color 0.6)
+            let light_to_hit: Vec3 = (vec3_sub light_pos hit_point)
+            let light_dir: Vec3 = (vec3_normalize light_to_hit)
+            let ray_dir: Vec3 = r.direction
+            let neg_ray_dir: Vec3 = (vec3_mul_scalar ray_dir -1.0)
+            let view_dir: Vec3 = (vec3_normalize neg_ray_dir)
+            let half_vec: Vec3 = (vec3_add light_dir view_dir)
+            let half_dir: Vec3 = (vec3_normalize half_vec)
+            let spec: float = (pow (max 0.0 (vec3_dot hit_normal half_dir)) 128.0)
+            let specular: Vec3 = Vec3 { x: spec, y: spec, z: spec }
+            let glass_color: Vec3 = (vec3_add ambient specular)
+            return (vec3_clamp glass_color 0.0 1.0)
+        } else {
+            (print "")
+        }
+        
         let closest_hit: HitRecord = HitRecord {
             hit: true,
             t: closest_t,
@@ -476,15 +534,13 @@ shadow get_ray {
 # === RENDERING ===
 
 fn render_scene(renderer: SDL_Renderer, light_pos: Vec3, width: int, height: int) -> void {
-    (println "Rendering scene...")
+    (println "")
+    (println "Rendering scene... (this will take a moment)")
     
     let aspect_ratio: float = (/ (cast_float width) (cast_float height))
     let viewport_height: float = 2.0
     let viewport_width: float = (* aspect_ratio viewport_height)
     let camera_origin: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
-    
-    (SDL_SetRenderDrawColor renderer 0 0 0 255)
-    (SDL_RenderClear renderer)
     
     let mut y: int = 0
     while (< y height) {
@@ -586,7 +642,7 @@ fn main() -> int {
     # Disable mouse motion events
     (SDL_EventState 1024 0)
     
-    (println "✓ Scene created with 4 spheres")
+    (println "✓ Scene: Checkerboard floor + Glass sphere + 2 spheres")
     
     # Light position (world space)
     let mut light_x: int = 400
@@ -598,10 +654,17 @@ fn main() -> int {
     let mut needs_render: bool = true
     
     (println "")
-    (println "=== RAY TRACER DEMO ===")
-    (println "Click to set light position")
-    (println "Press SPACE to render")
-    (println "Press ESC to quit")
+    (println "=== CLASSIC RAY TRACER DEMO ===")
+    (println "")
+    (println "Features:")
+    (println "  ✓ Checkerboard floor pattern")
+    (println "  ✓ Glass sphere in center")
+    (println "  ✓ Two opaque spheres")
+    (println "")
+    (println "Controls:")
+    (println "  Click = Set light position")
+    (println "  SPACE = Render scene")
+    (println "  ESC = Quit")
     (println "")
     
     # Initial render
@@ -663,11 +726,23 @@ fn main() -> int {
             let light_world_y: float = (/ (* (- (/ (cast_float WINDOW_HEIGHT) 2.0) (cast_float light_y)) 4.0) (cast_float WINDOW_HEIGHT))
             let light_pos: Vec3 = Vec3 { x: light_world_x, y: light_world_y, z: light_z }
             
-            (render_scene renderer light_pos WINDOW_WIDTH WINDOW_HEIGHT)
-            (draw_ui renderer font light_x light_y)
+            # Clear screen once before rendering
+            (SDL_SetRenderDrawColor renderer 0 0 0 255)
+            (SDL_RenderClear renderer)
             (SDL_RenderPresent renderer)
+            
+            # Now render the scene (this takes time but only happens once)
+            (render_scene renderer light_pos WINDOW_WIDTH WINDOW_HEIGHT)
+            
+            # Draw UI on top
+            (draw_ui renderer font light_x light_y)
+            
+            # Present final result
+            (SDL_RenderPresent renderer)
+            
+            (println "✓ Rendering complete!")
         } else {
-            # Don't redraw - just wait for events
+            # Don't redraw - cached image is already showing
             (print "")
         }
         
