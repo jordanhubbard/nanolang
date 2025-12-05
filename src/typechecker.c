@@ -60,6 +60,12 @@ const char *type_to_string(Type type) {
 /* Forward declarations */
 static Type check_statement(TypeChecker *tc, ASTNode *node);
 
+/* Recursion depth tracking to prevent stack overflow */
+static int g_check_expr_depth = 0;
+static int g_check_stmt_depth = 0;
+#define MAX_CHECK_EXPR_DEPTH 2000
+#define MAX_CHECK_STMT_DEPTH 2000
+
 /* Check if an AST node contains calls to extern functions */
 static bool contains_extern_calls(ASTNode *node, Environment *env) {
     if (!node) return false;
@@ -227,10 +233,29 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     }
 }
 
-/* Check expression type */
+/* Internal implementation - do not call directly */
+static Type check_expression_impl(ASTNode *expr, Environment *env);
+
+/* Check expression type (wrapper with recursion depth tracking) */
 Type check_expression(ASTNode *expr, Environment *env) {
     if (!expr) return TYPE_UNKNOWN;
 
+    /* Check recursion depth to prevent stack overflow */
+    g_check_expr_depth++;
+    if (g_check_expr_depth > MAX_CHECK_EXPR_DEPTH) {
+        fprintf(stderr, "Error: Type checker recursion depth exceeded. "
+                        "File too large - consider splitting into modules\n");
+        g_check_expr_depth--;
+        return TYPE_UNKNOWN;
+    }
+
+    Type result = check_expression_impl(expr, env);
+    g_check_expr_depth--;
+    return result;
+}
+
+/* Internal implementation of check_expression */
+static Type check_expression_impl(ASTNode *expr, Environment *env) {
     switch (expr->type) {
         case AST_NUMBER:
             return TYPE_INT;
@@ -1282,10 +1307,30 @@ Type check_expression(ASTNode *expr, Environment *env) {
     }
 }
 
-/* Check statement and return its type (for blocks) */
+/* Internal implementation - do not call directly */
+static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt);
+
+/* Check statement and return its type (for blocks) (wrapper with recursion depth tracking) */
 static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
     if (!stmt) return TYPE_VOID;
 
+    /* Check recursion depth to prevent stack overflow */
+    g_check_stmt_depth++;
+    if (g_check_stmt_depth > MAX_CHECK_STMT_DEPTH) {
+        fprintf(stderr, "Error: Type checker recursion depth exceeded. "
+                        "File too large - consider splitting into modules\n");
+        tc->has_error = true;
+        g_check_stmt_depth--;
+        return TYPE_VOID;
+    }
+
+    Type result = check_statement_impl(tc, stmt);
+    g_check_stmt_depth--;
+    return result;
+}
+
+/* Internal implementation of check_statement */
+static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
     switch (stmt->type) {
         case AST_LET: {
             Type declared_type = stmt->as.let.var_type;

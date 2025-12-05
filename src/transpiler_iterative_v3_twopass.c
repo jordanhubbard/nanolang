@@ -1,0 +1,770 @@
+/*
+ * ITERATIVE TRANSPILER - Two-Pass Architecture
+ * 
+ * Pass 1: Traverse AST and build ordered list of work items
+ * Pass 2: Process work items and generate output
+ * 
+ * This cleanly separates "what to output" from "outputting it"
+ * No LIFO/FIFO issues - items are processed in the order they're created.
+ */
+
+#include "nanolang.h"
+#include "module_builder.h"
+#include <stdarg.h>
+#include <string.h>
+
+/* ============================================================================
+ * WORK ITEM TYPES - Describe what output to generate
+ * ============================================================================ */
+
+typedef enum {
+    WORK_LITERAL,      /* Output a literal string */
+    WORK_FORMATTED,    /* Output a formatted string */
+    WORK_INDENT,       /* Output indentation */
+} WorkItemType;
+
+typedef struct {
+    WorkItemType type;
+    union {
+        char *literal;           /* For WORK_LITERAL */
+        char *formatted;         /* For WORK_FORMATTED (pre-formatted) */
+        int indent_level;        /* For WORK_INDENT */
+    } data;
+} WorkItem;
+
+/* ============================================================================
+ * WORK LIST - Ordered list of work items (NOT a stack!)
+ * ============================================================================ */
+
+typedef struct {
+    WorkItem *items;
+    int capacity;
+    int count;
+} WorkList;
+
+static WorkList *worklist_create(int initial_capacity) {
+    WorkList *list = malloc(sizeof(WorkList));
+    list->capacity = initial_capacity;
+    list->count = 0;
+    list->items = malloc(sizeof(WorkItem) * initial_capacity);
+    return list;
+}
+
+static void worklist_free(WorkList *list) {
+    if (!list) return;
+    for (int i = 0; i < list->count; i++) {
+        if (list->items[i].type == WORK_LITERAL && list->items[i].data.literal) {
+            free(list->items[i].data.literal);
+        }
+        if (list->items[i].type == WORK_FORMATTED && list->items[i].data.formatted) {
+            free(list->items[i].data.formatted);
+        }
+    }
+    free(list->items);
+    free(list);
+}
+
+static void worklist_grow(WorkList *list) {
+    list->capacity *= 2;
+    list->items = realloc(list->items, sizeof(WorkItem) * list->capacity);
+}
+
+static void worklist_append(WorkList *list, WorkItem item) {
+    if (list->count >= list->capacity) {
+        worklist_grow(list);
+    }
+    list->items[list->count++] = item;
+}
+
+/* ============================================================================
+ * WORK ITEM BUILDERS - Append work items to list
+ * ============================================================================ */
+
+static void emit_literal(WorkList *list, const char *str) {
+    WorkItem item;
+    item.type = WORK_LITERAL;
+    item.data.literal = strdup(str);
+    worklist_append(list, item);
+}
+
+static void emit_formatted(WorkList *list, const char *fmt, ...) {
+    char buffer[2048];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_end(args);
+    
+    WorkItem item;
+    item.type = WORK_FORMATTED;
+    item.data.formatted = strdup(buffer);
+    worklist_append(list, item);
+}
+
+static void emit_indent_item(WorkList *list, int level) {
+    WorkItem item;
+    item.type = WORK_INDENT;
+    item.data.indent_level = level;
+    worklist_append(list, item);
+}
+
+/* ============================================================================
+ * HELPER FUNCTIONS
+ * ============================================================================ */
+
+/* Function name mapping table */
+typedef struct {
+    const char *nano_name;
+    const char *c_name;
+} FunctionMapping;
+
+static const FunctionMapping function_map[] = {
+    {"println", "println"},
+    {"print", "print"},
+    {"file_read", "nl_os_file_read"},
+    {"file_write", "nl_os_file_write"},
+    {"abs", "nl_abs"},
+    {"min", "nl_min"},
+    {"max", "nl_max"},
+    {"sqrt", "sqrt"},
+    {"pow", "pow"},
+    {"floor", "floor"},
+    {"ceil", "ceil"},
+    {"round", "round"},
+    {"str_length", "strlen"},
+    {"str_concat", "nl_str_concat"},
+    {"str_substring", "nl_str_substring"},
+    {"str_contains", "nl_str_contains"},
+    {"str_equals", "nl_str_equals"},
+    {"char_at", "char_at"},                     /* Generated inline, no prefix */
+    {"string_from_char", "string_from_char"},   /* Generated inline, no prefix */
+    {"int_to_string", "int_to_string"},         /* Generated inline, no prefix */
+    {"string_to_int", "string_to_int"},         /* Generated inline, no prefix */
+    {"is_digit", "is_digit"},                   /* Generated inline, no prefix */
+    {"is_alpha", "is_alpha"},                   /* Generated inline, no prefix */
+    {"is_alnum", "is_alnum"},                   /* Generated inline, no prefix */
+    {"is_whitespace", "is_whitespace"},         /* Generated inline, no prefix */
+    {"is_upper", "is_upper"},                   /* Generated inline, no prefix */
+    {"is_lower", "is_lower"},                   /* Generated inline, no prefix */
+    {"digit_value", "digit_value"},             /* Generated inline, no prefix */
+    {"char_to_lower", "char_to_lower"},         /* Generated inline, no prefix */
+    {"char_to_upper", "char_to_upper"},         /* Generated inline, no prefix */
+    {"array_length", "dyn_array_length"},
+    {"at", "dyn_array_get"},
+    {"array_set", "dyn_array_put"},
+    {"array_get", "dyn_array_get"},
+};
+
+static const char *map_function_name(const char *name, Environment *env) {
+    /* Handle module-qualified names */
+    const char *dot = strchr(name, '.');
+    if (dot) {
+        name = dot + 1;
+    }
+    
+    /* Check mapping table */
+    for (size_t i = 0; i < sizeof(function_map)/sizeof(function_map[0]); i++) {
+        if (strcmp(name, function_map[i].nano_name) == 0) {
+            return function_map[i].c_name;
+        }
+    }
+    
+    /* User-defined function? */
+    Function *func = env_get_function(env, name);
+    if (func && !func->is_extern && func->body != NULL) {
+        static char prefixed[256];
+        snprintf(prefixed, sizeof(prefixed), "nl_%s", name);
+        return prefixed;
+    }
+    
+    return name;
+}
+
+/* ============================================================================
+ * PASS 1: BUILD WORK ITEMS (Expression Transpiler)
+ * Traverses AST and appends work items in correct output order
+ * ============================================================================ */
+
+/* Forward declarations */
+static void build_expr(WorkList *list, ASTNode *expr, Environment *env);
+static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *env, 
+                       FunctionTypeRegistry *fn_registry);
+
+static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
+    if (!expr) return;
+    
+    switch (expr->type) {
+        case AST_NUMBER:
+            emit_formatted(list, "%lldLL", expr->as.number);
+            break;
+            
+        case AST_FLOAT:
+            if (expr->as.float_val == (double)(int64_t)expr->as.float_val) {
+                emit_formatted(list, "%.1f", expr->as.float_val);
+            } else {
+                emit_formatted(list, "%g", expr->as.float_val);
+            }
+            break;
+            
+        case AST_STRING:
+            emit_formatted(list, "\"%s\"", expr->as.string_val);
+            break;
+            
+        case AST_BOOL:
+            emit_literal(list, expr->as.bool_val ? "true" : "false");
+            break;
+            
+        case AST_IDENTIFIER: {
+            /* Check for constant inlining */
+            Symbol *sym = env_get_var(env, expr->as.identifier);
+            if (sym && !sym->is_mut) {
+                if (sym->value.type == VAL_INT) {
+                    emit_formatted(list, "%lldLL", (long long)sym->value.as.int_val);
+                    return;
+                } else if (sym->value.type == VAL_FLOAT) {
+                    emit_formatted(list, "%g", sym->value.as.float_val);
+                    return;
+                } else if (sym->value.type == VAL_BOOL) {
+                    emit_literal(list, sym->value.as.bool_val ? "true" : "false");
+                    return;
+                }
+            }
+            
+            /* Check if it's a function identifier */
+            Function *func_def = env_get_function(env, expr->as.identifier);
+            if (func_def && !func_def->is_extern && func_def->body != NULL) {
+                emit_formatted(list, "nl_%s", expr->as.identifier);
+            } else {
+                emit_literal(list, expr->as.identifier);
+            }
+            break;
+        }
+        
+        case AST_PREFIX_OP: {
+            TokenType op = expr->as.prefix_op.op;
+            int arg_count = expr->as.prefix_op.arg_count;
+            
+            if (arg_count == 2) {
+                /* Binary operator */
+                bool is_string_comp = false;
+                if (op == TOKEN_EQ || op == TOKEN_NE) {
+                    Type t1 = check_expression(expr->as.prefix_op.args[0], env);
+                    Type t2 = check_expression(expr->as.prefix_op.args[1], env);
+                    if (t1 == TYPE_STRING && t2 == TYPE_STRING) {
+                        is_string_comp = true;
+                    }
+                }
+                
+                if (is_string_comp) {
+                    /* String comparison: strcmp(a, b) == 0 */
+                    emit_literal(list, "(strcmp(");
+                    build_expr(list, expr->as.prefix_op.args[0], env);
+                    emit_literal(list, ", ");
+                    build_expr(list, expr->as.prefix_op.args[1], env);
+                    if (op == TOKEN_EQ) {
+                        emit_literal(list, ") == 0)");
+                    } else {
+                        emit_literal(list, ") != 0)");
+                    }
+                } else {
+                    /* Regular binary operator */
+                    bool needs_parens = (op == TOKEN_PLUS || op == TOKEN_MINUS || 
+                                       op == TOKEN_STAR || op == TOKEN_SLASH || op == TOKEN_PERCENT);
+                    
+                    if (needs_parens) emit_literal(list, "(");
+                    build_expr(list, expr->as.prefix_op.args[0], env);
+                    
+                    const char *op_str = NULL;
+                    switch (op) {
+                        case TOKEN_PLUS: op_str = " + "; break;
+                        case TOKEN_MINUS: op_str = " - "; break;
+                        case TOKEN_STAR: op_str = " * "; break;
+                        case TOKEN_SLASH: op_str = " / "; break;
+                        case TOKEN_PERCENT: op_str = " % "; break;
+                        case TOKEN_EQ: op_str = " == "; break;
+                        case TOKEN_NE: op_str = " != "; break;
+                        case TOKEN_LT: op_str = " < "; break;
+                        case TOKEN_LE: op_str = " <= "; break;
+                        case TOKEN_GT: op_str = " > "; break;
+                        case TOKEN_GE: op_str = " >= "; break;
+                        case TOKEN_AND: op_str = " && "; break;
+                        case TOKEN_OR: op_str = " || "; break;
+                        default: op_str = " OP "; break;
+                    }
+                    emit_literal(list, op_str);
+                    build_expr(list, expr->as.prefix_op.args[1], env);
+                    if (needs_parens) emit_literal(list, ")");
+                }
+            } else if (arg_count == 1) {
+                /* Unary operator */
+                if (op == TOKEN_NOT) {
+                    emit_literal(list, "(!");
+                    build_expr(list, expr->as.prefix_op.args[0], env);
+                    emit_literal(list, ")");
+                } else if (op == TOKEN_MINUS) {
+                    emit_literal(list, "(-");
+                    build_expr(list, expr->as.prefix_op.args[0], env);
+                    emit_literal(list, ")");
+                }
+            }
+            break;
+        }
+        
+        case AST_CALL: {
+            /* Map function name */
+            const char *func_name = expr->as.call.name;
+            
+            /* Special handling for println/print - needs type dispatch */
+            if (strcmp(func_name, "println") == 0 && expr->as.call.arg_count == 1) {
+                Type arg_type = check_expression(expr->as.call.args[0], env);
+                if (arg_type == TYPE_STRING) {
+                    emit_literal(list, "nl_println_string(");
+                } else if (arg_type == TYPE_FLOAT) {
+                    emit_literal(list, "nl_println_float(");
+                } else if (arg_type == TYPE_BOOL) {
+                    emit_literal(list, "nl_println_bool(");
+                } else {
+                    emit_literal(list, "nl_println_int(");
+                }
+                build_expr(list, expr->as.call.args[0], env);
+                emit_literal(list, ")");
+            } 
+            /* Special handling for at() and array_set() - needs type-specific functions */
+            else if ((strcmp(func_name, "at") == 0 || strcmp(func_name, "array_set") == 0) && 
+                     expr->as.call.arg_count >= 2) {
+                /* Detect element type from array argument (first arg) */
+                Type elem_type = TYPE_INT;  /* Default to int */
+                
+                ASTNode *array_arg = expr->as.call.args[0];
+                if (array_arg->type == AST_IDENTIFIER) {
+                    /* Array is a variable - look up its element type */
+                    const char *array_name = array_arg->as.identifier;
+                    Symbol *sym = env_get_var(env, array_name);
+                    if (sym && sym->element_type != TYPE_UNKNOWN) {
+                        elem_type = sym->element_type;
+                    }
+                }
+                
+                /* Map element type to suffix */
+                const char *type_suffix = "int";
+                if (elem_type == TYPE_FLOAT) {
+                    type_suffix = "float";
+                } else if (elem_type == TYPE_STRING) {
+                    type_suffix = "string";
+                } else if (elem_type == TYPE_BOOL) {
+                    type_suffix = "bool";
+                }
+                
+                /* Generate type-specific function name */
+                char func_buf[64];
+                if (strcmp(func_name, "at") == 0) {
+                    snprintf(func_buf, sizeof(func_buf), "nl_array_at_%s", type_suffix);
+                } else {
+                    snprintf(func_buf, sizeof(func_buf), "nl_array_set_%s", type_suffix);
+                }
+                
+                emit_literal(list, func_buf);
+                emit_literal(list, "(");
+                for (int i = 0; i < expr->as.call.arg_count; i++) {
+                    if (i > 0) emit_literal(list, ", ");
+                    build_expr(list, expr->as.call.args[i], env);
+                }
+                emit_literal(list, ")");
+            }
+            else {
+                /* Regular function call */
+                const char *mapped_name = map_function_name(func_name, env);
+                
+                emit_literal(list, mapped_name);
+                emit_literal(list, "(");
+                for (int i = 0; i < expr->as.call.arg_count; i++) {
+                    if (i > 0) emit_literal(list, ", ");
+                    build_expr(list, expr->as.call.args[i], env);
+                }
+                emit_literal(list, ")");
+            }
+            break;
+        }
+        
+        case AST_IF: {
+            /* Ternary operator */
+            emit_literal(list, "(");
+            build_expr(list, expr->as.if_stmt.condition, env);
+            emit_literal(list, " ? ");
+            build_expr(list, expr->as.if_stmt.then_branch, env);
+            emit_literal(list, " : ");
+            build_expr(list, expr->as.if_stmt.else_branch, env);
+            emit_literal(list, ")");
+            break;
+        }
+        
+        case AST_TUPLE_LITERAL: {
+            int element_count = expr->as.tuple_literal.element_count;
+            
+            if (element_count == 0) {
+                emit_literal(list, "(struct {int _dummy;}){0}");
+                break;
+            }
+            
+            /* Try to find typedef from pre-collected registry */
+            const char *typedef_name = NULL;
+            extern TupleTypeRegistry *g_tuple_registry;
+            
+            if (g_tuple_registry && element_count > 0) {
+                if (expr->as.tuple_literal.element_types) {
+                    /* Element types are set - look up by exact match */
+                    for (int i = 0; i < g_tuple_registry->count; i++) {
+                        TypeInfo *registered = g_tuple_registry->tuples[i];
+                        if (registered->tuple_element_count == element_count) {
+                            bool match = true;
+                            for (int j = 0; j < element_count; j++) {
+                                if (registered->tuple_types[j] != expr->as.tuple_literal.element_types[j]) {
+                                    match = false;
+                                    break;
+                                }
+                            }
+                            if (match) {
+                                typedef_name = g_tuple_registry->typedef_names[i];
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    /* Element types not set - try to infer and match */
+                    Type inferred_types[element_count];
+                    for (int i = 0; i < element_count; i++) {
+                        Type elem_type = TYPE_INT;
+                        ASTNode *elem = expr->as.tuple_literal.elements[i];
+                        if (elem) {
+                            if (elem->type == AST_NUMBER) elem_type = TYPE_INT;
+                            else if (elem->type == AST_STRING) elem_type = TYPE_STRING;
+                            else if (elem->type == AST_BOOL) elem_type = TYPE_BOOL;
+                            else if (elem->type == AST_FLOAT) elem_type = TYPE_FLOAT;
+                            else if (elem->type == AST_IDENTIFIER) elem_type = TYPE_INT;
+                        }
+                        inferred_types[i] = elem_type;
+                    }
+                    
+                    /* Look up by inferred types */
+                    for (int i = 0; i < g_tuple_registry->count; i++) {
+                        TypeInfo *registered = g_tuple_registry->tuples[i];
+                        if (registered->tuple_element_count == element_count) {
+                            bool match = true;
+                            for (int j = 0; j < element_count; j++) {
+                                if (registered->tuple_types[j] != inferred_types[j]) {
+                                    match = false;
+                                    break;
+                                }
+                            }
+                            if (match) {
+                                typedef_name = g_tuple_registry->typedef_names[i];
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (typedef_name) {
+                /* Use typedef */
+                emit_formatted(list, "(%s){", typedef_name);
+            } else {
+                /* Fall back to inline struct */
+                emit_literal(list, "(struct { ");
+                for (int i = 0; i < element_count; i++) {
+                    Type elem_type = expr->as.tuple_literal.element_types ? 
+                                   expr->as.tuple_literal.element_types[i] : TYPE_INT;
+                    const char *c_type = type_to_c(elem_type);
+                    emit_formatted(list, "%s _%d; ", c_type, i);
+                }
+                emit_literal(list, "}){");
+            }
+            
+            /* Emit field initializers IN ORDER */
+            for (int i = 0; i < element_count; i++) {
+                if (i > 0) emit_literal(list, ", ");
+                emit_formatted(list, "._%d = ", i);
+                build_expr(list, expr->as.tuple_literal.elements[i], env);
+            }
+            emit_literal(list, "}");
+            break;
+        }
+        
+        case AST_FIELD_ACCESS: {
+            /* Check if this is an enum variant (Enum.Variant) */
+            if (expr->as.field_access.object->type == AST_IDENTIFIER) {
+                const char *object_name = expr->as.field_access.object->as.identifier;
+                if (env_get_enum(env, object_name)) {
+                    /* It's an enum - generate prefixed variant name */
+                    const char *prefixed = get_prefixed_variant_name(object_name, expr->as.field_access.field_name);
+                    emit_literal(list, prefixed);
+                    break;
+                }
+            }
+            
+            /* Regular field access */
+            build_expr(list, expr->as.field_access.object, env);
+            emit_literal(list, ".");
+            emit_literal(list, expr->as.field_access.field_name);
+            break;
+        }
+            
+        case AST_TUPLE_INDEX:
+            build_expr(list, expr->as.tuple_index.tuple, env);
+            emit_formatted(list, "._%d", expr->as.tuple_index.index);
+            break;
+            
+        case AST_STRUCT_LITERAL: {
+            /* Struct literal: StructName { field1: val1, field2: val2 } */
+            const char *struct_name = expr->as.struct_literal.struct_name;
+            const char *prefixed = get_prefixed_type_name(struct_name);
+            int field_count = expr->as.struct_literal.field_count;
+            
+            emit_formatted(list, "(%s){", prefixed);
+            for (int i = 0; i < field_count; i++) {
+                if (i > 0) emit_literal(list, ", ");
+                emit_formatted(list, ".%s = ", expr->as.struct_literal.field_names[i]);
+                build_expr(list, expr->as.struct_literal.field_values[i], env);
+            }
+            emit_literal(list, "}");
+            break;
+        }
+        
+        case AST_ARRAY_LITERAL: {
+            /* Array literal: [1, 2, 3] */
+            int count = expr->as.array_literal.element_count;
+            if (count == 0) {
+                emit_literal(list, "(int64_t[]){}");
+            } else {
+                Type elem_type = check_expression(expr->as.array_literal.elements[0], env);
+                const char *c_type = type_to_c(elem_type);
+                emit_formatted(list, "(%s[]){", c_type);
+                for (int i = 0; i < count; i++) {
+                    if (i > 0) emit_literal(list, ", ");
+                    build_expr(list, expr->as.array_literal.elements[i], env);
+                }
+                emit_literal(list, "}");
+            }
+            break;
+        }
+            
+        default:
+            emit_formatted(list, "/* unsupported expr type %d */", expr->type);
+            break;
+    }
+}
+
+/* ============================================================================
+ * PASS 1: BUILD WORK ITEMS (Statement Transpiler)
+ * ============================================================================ */
+
+static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *env,
+                       FunctionTypeRegistry *fn_registry) {
+    if (!stmt) return;
+    
+    switch (stmt->type) {
+        case AST_BLOCK:
+            emit_indent_item(list, indent);
+            emit_literal(list, "{\n");
+            for (int i = 0; i < stmt->as.block.count; i++) {
+                build_stmt(list, stmt->as.block.statements[i], indent + 1, env, fn_registry);
+            }
+            emit_indent_item(list, indent);
+            emit_literal(list, "}\n");
+            break;
+            
+        case AST_RETURN:
+            emit_indent_item(list, indent);
+            emit_literal(list, "return");
+            if (stmt->as.return_stmt.value) {
+                emit_literal(list, " ");
+                build_expr(list, stmt->as.return_stmt.value, env);
+            }
+            emit_literal(list, ";\n");
+            break;
+            
+        case AST_LET: {
+            emit_indent_item(list, indent);
+            
+            /* Handle tuple types - use __auto_type to infer from RHS */
+            if (stmt->as.let.var_type == TYPE_TUPLE) {
+                emit_formatted(list, "__auto_type %s = ", stmt->as.let.name);
+                build_expr(list, stmt->as.let.value, env);
+                emit_literal(list, ";\n");
+            }
+            /* Handle struct/enum types that need prefixing */
+            else if (stmt->as.let.var_type == TYPE_STRUCT || stmt->as.let.var_type == TYPE_UNION) {
+                /* Check if it's an enum */
+                bool is_enum = false;
+                const char *type_name = stmt->as.let.type_name;
+                
+                if (!type_name && stmt->as.let.value) {
+                    /* Try to infer from value */
+                    if (stmt->as.let.value->type == AST_FIELD_ACCESS &&
+                        stmt->as.let.value->as.field_access.object->type == AST_IDENTIFIER) {
+                        type_name = stmt->as.let.value->as.field_access.object->as.identifier;
+                        if (env_get_enum(env, type_name)) {
+                            is_enum = true;
+                        }
+                    }
+                }
+                
+                if (is_enum || (type_name && env_get_enum(env, type_name))) {
+                    /* Enum type */
+                    const char *prefixed = get_prefixed_type_name(type_name);
+                    emit_formatted(list, "%s %s = ", prefixed, stmt->as.let.name);
+                    build_expr(list, stmt->as.let.value, env);
+                    emit_literal(list, ";\n");
+                } else {
+                    /* Struct type */
+                    if (!type_name && stmt->as.let.value) {
+                        type_name = get_struct_type_name(stmt->as.let.value, env);
+                    }
+                    if (type_name) {
+                        const char *prefixed = get_prefixed_type_name(type_name);
+                        emit_formatted(list, "%s %s", prefixed, stmt->as.let.name);
+                    } else {
+                        emit_formatted(list, "void* %s", stmt->as.let.name);
+                    }
+                    if (stmt->as.let.value) {
+                        emit_literal(list, " = ");
+                        build_expr(list, stmt->as.let.value, env);
+                    }
+                    emit_literal(list, ";\n");
+                }
+            }
+            else {
+                /* Regular types (int, float, string, bool, etc.) */
+                const char *c_type = type_to_c(stmt->as.let.var_type);
+                emit_formatted(list, "%s %s", c_type, stmt->as.let.name);
+                
+                if (stmt->as.let.value) {
+                    emit_literal(list, " = ");
+                    build_expr(list, stmt->as.let.value, env);
+                }
+                emit_literal(list, ";\n");
+            }
+            
+            /* Register in environment */
+            env_define_var_with_type_info(env, stmt->as.let.name, stmt->as.let.var_type,
+                                         stmt->as.let.element_type, NULL, stmt->as.let.is_mut, create_void());
+            break;
+        }
+        
+        case AST_SET:
+            emit_indent_item(list, indent);
+            emit_literal(list, stmt->as.set.name);
+            emit_literal(list, " = ");
+            build_expr(list, stmt->as.set.value, env);
+            emit_literal(list, ";\n");
+            break;
+            
+        case AST_WHILE:
+            emit_indent_item(list, indent);
+            emit_literal(list, "while (");
+            build_expr(list, stmt->as.while_stmt.condition, env);
+            emit_literal(list, ") ");
+            build_stmt(list, stmt->as.while_stmt.body, indent, env, fn_registry);
+            break;
+            
+        case AST_IF:
+            emit_indent_item(list, indent);
+            emit_literal(list, "if (");
+            build_expr(list, stmt->as.if_stmt.condition, env);
+            emit_literal(list, ") ");
+            build_stmt(list, stmt->as.if_stmt.then_branch, indent, env, fn_registry);
+            if (stmt->as.if_stmt.else_branch) {
+                emit_indent_item(list, indent);
+                emit_literal(list, "else ");
+                build_stmt(list, stmt->as.if_stmt.else_branch, indent, env, fn_registry);
+            }
+            break;
+            
+        case AST_PRINT: {
+            emit_indent_item(list, indent);
+            
+            /* Get the type of the expression */
+            Type expr_type = check_expression(stmt->as.print.expr, env);
+            
+            /* Map type to print function */
+            const char *print_func = "print_int";
+            if (expr_type == TYPE_STRING) {
+                print_func = "print_string";
+            } else if (expr_type == TYPE_FLOAT) {
+                print_func = "print_float";
+            } else if (expr_type == TYPE_BOOL) {
+                print_func = "print_bool";
+            }
+            
+            emit_literal(list, print_func);
+            emit_literal(list, "(");
+            build_expr(list, stmt->as.print.expr, env);
+            emit_literal(list, ");\n");
+            break;
+        }
+            
+        default:
+            /* Expression statement */
+            emit_indent_item(list, indent);
+            build_expr(list, stmt, env);
+            emit_literal(list, ";\n");
+            break;
+    }
+}
+
+/* ============================================================================
+ * PASS 2: PROCESS WORK ITEMS AND GENERATE OUTPUT
+ * Simply walks through the list and outputs each item
+ * ============================================================================ */
+
+static void process_worklist(StringBuilder *sb, WorkList *list) {
+    for (int i = 0; i < list->count; i++) {
+        WorkItem *item = &list->items[i];
+        
+        switch (item->type) {
+            case WORK_LITERAL:
+                sb_append(sb, item->data.literal);
+                break;
+                
+            case WORK_FORMATTED:
+                sb_append(sb, item->data.formatted);
+                break;
+                
+            case WORK_INDENT:
+                emit_indent(sb, item->data.indent_level);
+                break;
+        }
+    }
+}
+
+/* ============================================================================
+ * PUBLIC API - Two-Pass Transpiler
+ * ============================================================================ */
+
+void transpile_expression_iterative(StringBuilder *sb, ASTNode *expr, Environment *env) {
+    if (!expr) return;
+    
+    /* Pass 1: Build work items */
+    WorkList *list = worklist_create(1000);
+    build_expr(list, expr, env);
+    
+    /* Pass 2: Process and output */
+    process_worklist(sb, list);
+    
+    /* Cleanup */
+    worklist_free(list);
+}
+
+void transpile_statement_iterative(StringBuilder *sb, ASTNode *stmt, int indent,
+                                  Environment *env, FunctionTypeRegistry *fn_registry) {
+    if (!stmt) return;
+    
+    /* Pass 1: Build work items */
+    WorkList *list = worklist_create(5000);
+    build_stmt(list, stmt, indent, env, fn_registry);
+    
+    /* Pass 2: Process and output */
+    process_worklist(sb, list);
+    
+    /* Cleanup */
+    worklist_free(list);
+}

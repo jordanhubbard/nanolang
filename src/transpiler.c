@@ -3,6 +3,13 @@
 #include <stdarg.h>
 #include <libgen.h>
 
+/* ============================================================================
+ * ITERATIVE TRANSPILER CONFIGURATION
+ * Set to 1 to use iterative version (unlimited file size, zero recursion)
+ * Set to 0 to use recursive version (with Phase 1 depth guards)
+ * ============================================================================ */
+#define USE_ITERATIVE_TRANSPILER 1  /* Back to two-pass architecture */
+
 /* String builder for C code generation */
 typedef struct {
     char *buffer;
@@ -28,6 +35,11 @@ static void sb_append(StringBuilder *sb, const char *str) {
     }
     safe_strncpy(sb->buffer + sb->length, str, sb->capacity - sb->length);
     sb->length += len;
+}
+
+static void sb_append_char(StringBuilder *sb, char c) {
+    char str[2] = {c, '\0'};
+    sb_append(sb, str);
 }
 
 static void sb_appendf(StringBuilder *sb, const char *fmt, ...) {
@@ -115,6 +127,12 @@ typedef struct {
 /* Forward declarations */
 static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, Environment *env, FunctionTypeRegistry *fn_registry);
 static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *env);
+
+/* Recursion depth tracking to prevent stack overflow */
+static int g_transpile_expr_depth = 0;
+static int g_transpile_stmt_depth = 0;
+#define MAX_TRANSPILE_EXPR_DEPTH 2000
+#define MAX_TRANSPILE_STMT_DEPTH 2000
 
 /* Global tuple registry - set during transpilation */
 static TupleTypeRegistry *g_tuple_registry = NULL;
@@ -539,9 +557,31 @@ static const char *get_c_func_name(const char *nano_name) {
     return buffer;
 }
 
+/* ============================================================================
+ * ITERATIVE TRANSPILER IMPLEMENTATION
+ * Two-pass architecture: clean and simple!
+ * ============================================================================ */
+#if USE_ITERATIVE_TRANSPILER
+#include "transpiler_iterative_v3_twopass.c"
+#endif
+
+/* ============================================================================
+ * RECURSIVE TRANSPILER IMPLEMENTATION (with Phase 1 depth guards)
+ * ============================================================================ */
+#if !USE_ITERATIVE_TRANSPILER
+
 /* Transpile expression to C */
 static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *env) {
     if (!expr) return;
+
+    /* Check recursion depth to prevent stack overflow */
+    g_transpile_expr_depth++;
+    if (g_transpile_expr_depth > MAX_TRANSPILE_EXPR_DEPTH) {
+        sb_append(sb, "/* ERROR: Transpiler recursion depth exceeded. "
+                      "File too large - consider splitting into modules */");
+        g_transpile_expr_depth--;
+        return;
+    }
 
     switch (expr->type) {
         case AST_NUMBER:
@@ -1588,11 +1628,23 @@ static void transpile_expression(StringBuilder *sb, ASTNode *expr, Environment *
             sb_append(sb, "/* unknown expr */");
             break;
     }
+
+    g_transpile_expr_depth--;
 }
 
 /* Transpile statement to C */
 static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, Environment *env, FunctionTypeRegistry *fn_registry) {
     if (!stmt) return;
+
+    /* Check recursion depth to prevent stack overflow */
+    g_transpile_stmt_depth++;
+    if (g_transpile_stmt_depth > MAX_TRANSPILE_STMT_DEPTH) {
+        emit_indent(sb, indent);
+        sb_append(sb, "/* ERROR: Transpiler recursion depth exceeded. "
+                      "File too large - consider splitting into modules */\n");
+        g_transpile_stmt_depth--;
+        return;
+    }
 
     switch (stmt->type) {
         case AST_LET: {
@@ -1859,9 +1911,146 @@ static void transpile_statement(StringBuilder *sb, ASTNode *stmt, int indent, En
             sb_append(sb, ";\n");
             break;
     }
+
+    g_transpile_stmt_depth--;
 }
 
+#endif /* !USE_ITERATIVE_TRANSPILER */
+
+/* ============================================================================
+ * TRANSPILER DISPATCHER - Calls appropriate version
+ * ============================================================================ */
+
+#if USE_ITERATIVE_TRANSPILER
+/* Iterative versions are already defined above in transpiler_iterative_COMPLETE.c */
+/* They are named transpile_expression_iterative and transpile_statement_iterative */
+/* Create wrapper functions that call them */
+static void transpile_expression_wrapper(StringBuilder *sb, ASTNode *expr, Environment *env) {
+    transpile_expression_iterative(sb, expr, env);
+}
+static void transpile_statement_wrapper(StringBuilder *sb, ASTNode *stmt, int indent, Environment *env, FunctionTypeRegistry *fn_registry) {
+    transpile_statement_iterative(sb, stmt, indent, env, fn_registry);
+}
+#define transpile_expression transpile_expression_wrapper
+#define transpile_statement transpile_statement_wrapper
+#else
+/* Recursive versions are used directly (already defined above) */
+#endif
+
 /* Helper to recursively collect function signatures from statements */
+/* Collect tuple types from expressions */
+static void collect_tuple_types_from_expr(ASTNode *expr, TupleTypeRegistry *reg) {
+    if (!expr) return;
+    
+    switch (expr->type) {
+        case AST_TUPLE_LITERAL:
+            if (expr->as.tuple_literal.element_count > 0) {
+                if (expr->as.tuple_literal.element_types) {
+                    /* Element types are set - register directly */
+                    TypeInfo *temp_info = malloc(sizeof(TypeInfo));
+                    temp_info->tuple_element_count = expr->as.tuple_literal.element_count;
+                    temp_info->tuple_types = malloc(sizeof(Type) * expr->as.tuple_literal.element_count);
+                    for (int i = 0; i < expr->as.tuple_literal.element_count; i++) {
+                        temp_info->tuple_types[i] = expr->as.tuple_literal.element_types[i];
+                    }
+                    temp_info->tuple_type_names = NULL;
+                    register_tuple_type(reg, temp_info);
+                } else {
+                    /* Element types not set - infer from elements */
+                    TypeInfo *temp_info = malloc(sizeof(TypeInfo));
+                    temp_info->tuple_element_count = expr->as.tuple_literal.element_count;
+                    temp_info->tuple_types = malloc(sizeof(Type) * expr->as.tuple_literal.element_count);
+                    for (int i = 0; i < expr->as.tuple_literal.element_count; i++) {
+                        /* Try to infer type from expression */
+                        Type elem_type = TYPE_INT;  /* Default to int */
+                        ASTNode *elem = expr->as.tuple_literal.elements[i];
+                        if (elem) {
+                            if (elem->type == AST_NUMBER) elem_type = TYPE_INT;
+                            else if (elem->type == AST_STRING) elem_type = TYPE_STRING;
+                            else if (elem->type == AST_BOOL) elem_type = TYPE_BOOL;
+                            else if (elem->type == AST_FLOAT) elem_type = TYPE_FLOAT;
+                            else if (elem->type == AST_IDENTIFIER) elem_type = TYPE_INT;  /* Assume int for vars */
+                        }
+                        temp_info->tuple_types[i] = elem_type;
+                    }
+                    temp_info->tuple_type_names = NULL;
+                    register_tuple_type(reg, temp_info);
+                }
+            }
+            /* Also collect from tuple elements */
+            for (int i = 0; i < expr->as.tuple_literal.element_count; i++) {
+                collect_tuple_types_from_expr(expr->as.tuple_literal.elements[i], reg);
+            }
+            break;
+        case AST_PREFIX_OP:
+            for (int i = 0; i < expr->as.prefix_op.arg_count; i++) {
+                collect_tuple_types_from_expr(expr->as.prefix_op.args[i], reg);
+            }
+            break;
+        case AST_CALL:
+            for (int i = 0; i < expr->as.call.arg_count; i++) {
+                collect_tuple_types_from_expr(expr->as.call.args[i], reg);
+            }
+            break;
+        case AST_IF:
+            if (expr->as.if_stmt.condition) {
+                collect_tuple_types_from_expr(expr->as.if_stmt.condition, reg);
+            }
+            if (expr->as.if_stmt.then_branch) {
+                /* If expressions can have tuple literals as branches */
+                collect_tuple_types_from_expr(expr->as.if_stmt.then_branch, reg);
+            }
+            if (expr->as.if_stmt.else_branch) {
+                collect_tuple_types_from_expr(expr->as.if_stmt.else_branch, reg);
+            }
+            break;
+
+        default:
+            break;
+    }
+}
+
+/* Collect tuple types from statements */
+static void collect_tuple_types_from_stmt(ASTNode *stmt, TupleTypeRegistry *reg) {
+    if (!stmt) return;
+    
+    switch (stmt->type) {
+        case AST_LET:
+            if (stmt->as.let.value) {
+                collect_tuple_types_from_expr(stmt->as.let.value, reg);
+            }
+            break;
+        case AST_RETURN:
+            if (stmt->as.return_stmt.value) {
+                collect_tuple_types_from_expr(stmt->as.return_stmt.value, reg);
+            }
+            break;
+        case AST_BLOCK:
+            for (int i = 0; i < stmt->as.block.count; i++) {
+                collect_tuple_types_from_stmt(stmt->as.block.statements[i], reg);
+            }
+            break;
+        case AST_IF:
+            if (stmt->as.if_stmt.condition) {
+                collect_tuple_types_from_expr(stmt->as.if_stmt.condition, reg);
+            }
+            collect_tuple_types_from_stmt(stmt->as.if_stmt.then_branch, reg);
+            collect_tuple_types_from_stmt(stmt->as.if_stmt.else_branch, reg);
+            break;
+        case AST_WHILE:
+            if (stmt->as.while_stmt.condition) {
+                collect_tuple_types_from_expr(stmt->as.while_stmt.condition, reg);
+            }
+            collect_tuple_types_from_stmt(stmt->as.while_stmt.body, reg);
+            break;
+        case AST_FOR:
+            collect_tuple_types_from_stmt(stmt->as.for_stmt.body, reg);
+            break;
+        default:
+            break;
+    }
+}
+
 static void collect_fn_sigs(ASTNode *stmt, FunctionTypeRegistry *reg) {
     if (!stmt) return;
     
@@ -2789,6 +2978,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             
             /* Collect from function body */
             collect_fn_sigs(item->as.function.body, fn_registry);
+            collect_tuple_types_from_stmt(item->as.function.body, tuple_registry);
         }
     }
     
@@ -2804,7 +2994,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     
     /* Generate tuple type typedefs */
     if (tuple_registry->count > 0) {
-        sb_append(sb, "/* Tuple Type Typedefs */\n");
+        sb_appendf(sb, "/* Tuple Type Typedefs (found %d types) */\n", tuple_registry->count);
         for (int i = 0; i < tuple_registry->count; i++) {
             generate_tuple_typedef(sb, tuple_registry->tuples[i],
                                  tuple_registry->typedef_names[i]);
