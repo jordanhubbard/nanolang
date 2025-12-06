@@ -592,7 +592,7 @@ fn draw_ui(renderer: SDL_Renderer, font: int, light_x: int, light_y: int) -> voi
     (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 60) WINDOW_WIDTH 60)
     
     # Instructions
-    (draw_text_blended renderer font "SPACE = Render    ESC = Quit" 10 (- WINDOW_HEIGHT 50) 200 200 255 255)
+    (nl_draw_text_blended renderer font "SPACE = Render    ESC = Quit" 10 (- WINDOW_HEIGHT 50) 200 200 255 255)
     
     # Light position
     let mut light_text: string = "Light: ("
@@ -600,9 +600,9 @@ fn draw_ui(renderer: SDL_Renderer, font: int, light_x: int, light_y: int) -> voi
     set light_text (str_concat light_text ", ")
     set light_text (str_concat light_text (int_to_string light_y))
     set light_text (str_concat light_text ")")
-    (draw_text_blended renderer font light_text 10 (- WINDOW_HEIGHT 30) 255 200 100 255)
+    (nl_draw_text_blended renderer font light_text 10 (- WINDOW_HEIGHT 30) 255 200 100 255)
     
-    (draw_text_blended renderer font "Click to set light position" (- (/ WINDOW_WIDTH 2) 100) (- WINDOW_HEIGHT 30) 150 150 150 255)
+    (nl_draw_text_blended renderer font "Click to set light position" (- (/ WINDOW_WIDTH 2) 100) (- WINDOW_HEIGHT 30) 150 150 150 255)
 }
 
 shadow draw_ui {
@@ -628,7 +628,7 @@ fn main() -> int {
     
     # Initialize SDL_ttf
     (TTF_Init)
-    let font: TTF_Font = (open_font_portable "Arial" 16)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 16)
     if (== font 0) {
         (println "Failed to load font (tried Arial, DejaVuSans, LiberationSans, FreeSans)")
         (SDL_DestroyRenderer renderer)

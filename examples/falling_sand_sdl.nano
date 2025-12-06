@@ -339,14 +339,14 @@ fn render_ui(renderer: int, font: int, current_material: Material, paused: bool)
     
     # Draw material name using SDL_ttf
     let material_name: string = (read_material_name current_material)
-    (draw_text_blended renderer font material_name 10 10 255 255 255 255)
+    (nl_draw_text_blended renderer font material_name 10 10 255 255 255 255)
     
     # Draw help text
-    (draw_text_blended renderer font "1-6 = Material  SPACE = Pause  C = Clear  ESC = Quit" 10 30 200 200 200 255)
+    (nl_draw_text_blended renderer font "1-6 = Material  SPACE = Pause  C = Clear  ESC = Quit" 10 30 200 200 200 255)
     
     # Draw pause indicator if paused
     if paused {
-        (draw_text_blended renderer font "PAUSED" (- WINDOW_WIDTH 80) 10 255 200 0 255)
+        (nl_draw_text_blended renderer font "PAUSED" (- WINDOW_WIDTH 80) 10 255 200 0 255)
     } else {
         (print "")
     }
@@ -459,7 +459,7 @@ fn main() -> int {
     (TTF_Init)
     
     # Load font
-    let font: TTF_Font = (open_font_portable "Arial" 16)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 16)
     if (== font 0) {
         (println "Failed to load font")
         (SDL_DestroyRenderer renderer)

@@ -81,11 +81,11 @@ fn draw_ui_overlay(renderer: SDL_Renderer, font: int, particle_count: int) -> vo
     # Draw help text using SDL_ttf
     let mut count_text: string = "Particles: "
     set count_text (str_concat count_text (int_to_string particle_count))
-    (draw_text_blended renderer font count_text 10 (- WINDOW_HEIGHT 30) 255 150 50 255)
+    (nl_draw_text_blended renderer font count_text 10 (- WINDOW_HEIGHT 30) 255 150 50 255)
     
-    (draw_text_blended renderer font "Click to spawn explosions" (- (/ WINDOW_WIDTH 2) 100) (- WINDOW_HEIGHT 30) 100 200 255 255)
+    (nl_draw_text_blended renderer font "Click to spawn explosions" (- (/ WINDOW_WIDTH 2) 100) (- WINDOW_HEIGHT 30) 100 200 255 255)
     
-    (draw_text_blended renderer font "ESC = Quit" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 30) 200 50 50 255)
+    (nl_draw_text_blended renderer font "ESC = Quit" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 30) 200 50 50 255)
 }
 
 # === MAIN ===
@@ -109,7 +109,7 @@ fn main() -> int {
     (TTF_Init)
     
     # Load font
-    let font: TTF_Font = (open_font_portable "Arial" 16)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 16)
     if (== font 0) {
         (println "Failed to load font")
         (SDL_DestroyRenderer renderer)

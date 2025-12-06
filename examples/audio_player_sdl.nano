@@ -21,8 +21,8 @@ fn render_help_text(renderer: int, font: int) -> void {
     (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 50) WINDOW_WIDTH 50)
     
     # Draw help text using SDL_ttf
-    (draw_text_blended renderer font "SPACE = Play/Pause  P = Sound  +/- = Volume" 10 (- WINDOW_HEIGHT 40) 200 200 200 255)
-    (draw_text_blended renderer font "F = Fade In  S = Fade Out  R = Restart  ESC = Quit" 10 (- WINDOW_HEIGHT 25) 200 200 200 255)
+    (nl_draw_text_blended renderer font "SPACE = Play/Pause  P = Sound  +/- = Volume" 10 (- WINDOW_HEIGHT 40) 200 200 200 255)
+    (nl_draw_text_blended renderer font "F = Fade In  S = Fade Out  R = Restart  ESC = Quit" 10 (- WINDOW_HEIGHT 25) 200 200 200 255)
 }
 
 # === MAIN ===
@@ -82,7 +82,7 @@ fn main() -> int {
     (TTF_Init)
     
     # Load font
-    let font: TTF_Font = (open_font_portable "Arial" 14)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 14)
     if (== font 0) {
         (println "Failed to load font")
         (SDL_DestroyRenderer renderer)

@@ -166,10 +166,10 @@ fn render_help_text(renderer: int, font: int) -> void {
     
     # Draw help text using SDL_ttf
     if (!= font 0) {
-        (draw_text_blended renderer font "SPACE = Play/Pause" 10 (- WINDOW_HEIGHT 30) 200 200 200 255)
-        (draw_text_blended renderer font "R = Restart" 200 (- WINDOW_HEIGHT 30) 200 200 200 255)
-        (draw_text_blended renderer font "+/- = Volume" 350 (- WINDOW_HEIGHT 30) 200 200 200 255)
-        (draw_text_blended renderer font "ESC = Quit" (- WINDOW_WIDTH 120) (- WINDOW_HEIGHT 30) 200 200 200 255)
+        (nl_draw_text_blended renderer font "SPACE = Play/Pause" 10 (- WINDOW_HEIGHT 30) 200 200 200 255)
+        (nl_draw_text_blended renderer font "R = Restart" 200 (- WINDOW_HEIGHT 30) 200 200 200 255)
+        (nl_draw_text_blended renderer font "+/- = Volume" 350 (- WINDOW_HEIGHT 30) 200 200 200 255)
+        (nl_draw_text_blended renderer font "ESC = Quit" (- WINDOW_WIDTH 120) (- WINDOW_HEIGHT 30) 200 200 200 255)
     } else {}
 }
 
