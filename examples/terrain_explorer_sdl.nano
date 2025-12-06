@@ -626,7 +626,7 @@ shadow render_world_3d {
 }
 
 # Draw UI overlay with controls
-fn draw_ui_overlay(renderer: SDL_Renderer, font: int, view_mode: int) -> void {
+fn draw_ui_overlay(renderer: SDL_Renderer, font: TTF_Font, view_mode: int) -> void {
     # Draw semi-transparent dark bar at bottom
     (SDL_SetRenderDrawColor renderer 0 0 0 200)
     (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 50) WINDOW_WIDTH 50)

@@ -90,7 +90,7 @@ shadow swap_be16 {
 
 # === RENDERING ===
 
-fn render_header(renderer: int, font: int, mod_file: ModFile, current_pos: int, is_playing: bool) -> void {
+fn render_header(renderer: SDL_Renderer, font: TTF_Font, mod_file: ModFile, current_pos: int, is_playing: bool) -> void {
     # Background
     (SDL_SetRenderDrawColor renderer 20 20 40 255)
     (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH HEADER_HEIGHT)
@@ -136,7 +136,7 @@ fn render_header(renderer: int, font: int, mod_file: ModFile, current_pos: int, 
     (nl_sdl_render_fill_rect renderer 0 (- HEADER_HEIGHT 2) WINDOW_WIDTH 2)
 }
 
-fn render_pattern_editor(renderer: int, font: int, current_pattern: int, current_row: int) -> void {
+fn render_pattern_editor(renderer: SDL_Renderer, font: TTF_Font, current_pattern: int, current_row: int) -> void {
     # Background
     (SDL_SetRenderDrawColor renderer 10 10 20 255)
     (nl_sdl_render_fill_rect renderer 0 HEADER_HEIGHT WINDOW_WIDTH (- WINDOW_HEIGHT (+ HEADER_HEIGHT 40)))
@@ -159,7 +159,7 @@ fn render_pattern_editor(renderer: int, font: int, current_pattern: int, current
     } else {}
 }
 
-fn render_help_text(renderer: int, font: int) -> void {
+fn render_help_text(renderer: SDL_Renderer, font: TTF_Font) -> void {
     # Draw semi-transparent bar at bottom
     (SDL_SetRenderDrawColor renderer 0 0 0 200)
     (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 40) WINDOW_WIDTH 40)
@@ -250,8 +250,8 @@ fn main() -> int {
     
     # Load font (you'll need to provide a TTF font file)
     # For now, we'll skip font loading and just show the pattern grid
-    let font: int = 0
-    # let font: int = (TTF_OpenFont "/System/Library/Fonts/Monaco.dfont" 12)
+    let font: TTF_Font = 0
+    # let font: TTF_Font = (TTF_OpenFont "/System/Library/Fonts/Monaco.dfont" 12)
     
     (println "✓ SDL initialized successfully")
     (println "")

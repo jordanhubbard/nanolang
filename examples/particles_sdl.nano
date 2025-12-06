@@ -73,7 +73,7 @@ shadow is_particle_offscreen {
 
 # === UI OVERLAY ===
 
-fn draw_ui_overlay(renderer: SDL_Renderer, font: int, particle_count: int) -> void {
+fn draw_ui_overlay(renderer: SDL_Renderer, font: TTF_Font, particle_count: int) -> void {
     # Draw semi-transparent bar at bottom
     (SDL_SetRenderDrawColor renderer 0 0 0 200)
     (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 40) WINDOW_WIDTH 40)
