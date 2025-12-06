@@ -369,7 +369,7 @@ shadow has_any_jump {
 }
 
 # Draw a filled circle (for pieces)
-fn draw_circle(renderer: int, center_x: int, center_y: int, radius: int) -> void {
+fn draw_circle(renderer: SDL_Renderer, center_x: int, center_y: int, radius: int) -> void {
     let mut dy: int = (- 0 radius)
     while (<= dy radius) {
         let mut dx: int = (- 0 radius)
@@ -389,7 +389,7 @@ shadow draw_circle {
 
 # Draw simple text using filled rectangles (pixel-style)
 # For game over screen - we'll draw message centered
-fn draw_game_over_screen(renderer: int, player_won: bool) -> void {
+fn draw_game_over_screen(renderer: SDL_Renderer, player_won: bool) -> void {
     let board_size: int = BOARD_SIZE
     let square_size: int = SQUARE_SIZE
     let window_width: int = (* board_size square_size)
@@ -649,7 +649,7 @@ shadow is_play_again_button_click {
 }
 
 # Render the game board with flash animation
-fn render_board(renderer: int, board: array<int>, selected_row: int, selected_col: int, has_selection: bool, flash_row: int, flash_col: int, flash_frame: int) -> void {
+fn render_board(renderer: SDL_Renderer, board: array<int>, selected_row: int, selected_col: int, has_selection: bool, flash_row: int, flash_col: int, flash_frame: int) -> void {
     let board_size: int = BOARD_SIZE
     let square_size: int = SQUARE_SIZE
     

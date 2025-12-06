@@ -6,10 +6,12 @@
 #
 # Note: These helpers are implemented in C (src/runtime/sdl_helpers.c) and
 # are automatically linked when SDL modules are used.
+#
+# Note: This module depends on the sdl module for opaque type definitions.
+# Make sure to import sdl before sdl_helpers: import "modules/sdl/sdl.nano"
 
 # Helper to render a filled rectangle (wraps SDL_RenderFillRect with SDL_Rect)
-# Note: renderer is int64_t (not SDL_Renderer opaque type) to avoid double casting
-extern fn nl_sdl_render_fill_rect(renderer: int, x: int, y: int, w: int, h: int) -> int
+extern fn nl_sdl_render_fill_rect(renderer: SDL_Renderer, x: int, y: int, w: int, h: int) -> int
 
 # Helper to poll SDL events and return 1 if quit event, 0 otherwise
 extern fn nl_sdl_poll_event_quit() -> int
@@ -37,8 +39,8 @@ extern fn nl_sdl_poll_mouse_motion() -> int
 extern fn nl_sdl_poll_keypress() -> int
 
 # Helper to render text using SDL_ttf (solid rendering - faster, no anti-aliasing)
-extern fn nl_sdl_render_text_solid(renderer: int, font: int, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int
+extern fn nl_sdl_render_text_solid(renderer: SDL_Renderer, font: int, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int
 
 # Helper to render text using SDL_ttf (blended rendering - slower, anti-aliased)
-extern fn nl_sdl_render_text_blended(renderer: int, font: int, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int
+extern fn nl_sdl_render_text_blended(renderer: SDL_Renderer, font: int, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int
 
