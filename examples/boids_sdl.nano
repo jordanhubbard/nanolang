@@ -92,16 +92,16 @@ shadow wrap_coord {
 
 # === UI OVERLAY ===
 
-fn draw_ui_overlay(renderer: SDL_Renderer, font: int, boid_count: int) -> void {
+fn draw_ui_overlay(renderer: SDL_Renderer, font: TTF_Font, boid_count: int) -> void {
     # Draw semi-transparent bar at bottom
     (SDL_SetRenderDrawColor renderer 0 0 0 200)
     (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 30) WINDOW_WIDTH 30)
     
     # Draw "Boids: XX" text
-    (draw_text_blended renderer font "Boids: 50" 10 (- WINDOW_HEIGHT 25) 100 200 100 255)
+    (nl_draw_text_blended renderer font "Boids: 50" 10 (- WINDOW_HEIGHT 25) 100 200 100 255)
     
     # Draw "ESC = Quit" text
-    (draw_text_blended renderer font "ESC = Quit" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 25) 200 100 100 255)
+    (nl_draw_text_blended renderer font "ESC = Quit" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 25) 200 100 100 255)
 }
 
 # === MAIN ===
@@ -122,7 +122,7 @@ fn main() -> int {
     (TTF_Init)
     
     # Load font
-    let font: TTF_Font = (open_font_portable "Arial" 16)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 16)
     if (== font 0) {
         (SDL_DestroyRenderer renderer)
         (SDL_DestroyWindow window)
@@ -134,11 +134,11 @@ fn main() -> int {
     # SDL_MOUSEMOTION = 0x400 = 1024
     (SDL_EventState 1024 0)
     
-    # Initialize boids with random-ish positions
-    let mut boid_x: array<float> = []
-    let mut boid_y: array<float> = []
-    let mut boid_vx: array<float> = []
-    let mut boid_vy: array<float> = []
+    # Initialize boids with random-ish positions - pre-allocate arrays
+    let mut boid_x: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    let mut boid_y: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    let mut boid_vx: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    let mut boid_vy: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     
     let mut i: int = 0
     while (< i NUM_BOIDS) {
@@ -152,10 +152,10 @@ fn main() -> int {
         let vx: float = (- (* 20.0 mod5) 40.0)
         let vy: float = (- (* 20.0 mod3) 30.0)
         
-        set boid_x (array_push boid_x x)
-        set boid_y (array_push boid_y y)
-        set boid_vx (array_push boid_vx vx)
-        set boid_vy (array_push boid_vy vy)
+        (array_set boid_x i x)
+        (array_set boid_y i y)
+        (array_set boid_vx i vx)
+        (array_set boid_vy i vy)
         
         set i (+ i 1)
     }
@@ -188,9 +188,9 @@ fn main() -> int {
             (print "")
         }
         
-        # Apply flocking rules
-        let mut new_vx: array<float> = []
-        let mut new_vy: array<float> = []
+        # Apply flocking rules - pre-allocate arrays
+        let mut new_vx: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        let mut new_vy: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         
         set i 0
         while (< i NUM_BOIDS) {
@@ -275,8 +275,8 @@ fn main() -> int {
                 set new_vy_val (* new_vy_val scale)
             } else {}
             
-            set new_vx (array_push new_vx new_vx_val)
-            set new_vy (array_push new_vy new_vy_val)
+            (array_set new_vx i new_vx_val)
+            (array_set new_vy i new_vy_val)
             
             set i (+ i 1)
         }
@@ -285,9 +285,9 @@ fn main() -> int {
         set boid_vx new_vx
         set boid_vy new_vy
         
-        # Update positions
-        let mut new_x: array<float> = []
-        let mut new_y: array<float> = []
+        # Update positions - pre-allocate arrays
+        let mut new_x: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        let mut new_y: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         
         set i 0
         while (< i NUM_BOIDS) {
@@ -303,8 +303,8 @@ fn main() -> int {
             set new_x_val (wrap_coord new_x_val (cast_float WINDOW_WIDTH))
             set new_y_val (wrap_coord new_y_val (cast_float WINDOW_HEIGHT))
             
-            set new_x (array_push new_x new_x_val)
-            set new_y (array_push new_y new_y_val)
+            (array_set new_x i new_x_val)
+            (array_set new_y i new_y_val)
             
             set i (+ i 1)
         }
