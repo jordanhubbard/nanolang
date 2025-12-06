@@ -1660,9 +1660,16 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             if (sdl_ret_type) {
                 sb_append(sb, sdl_ret_type);
             } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
-                /* Struct return type: use prefixed name */
-                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
-                sb_append(sb, prefixed_name);
+                /* Check if this is an opaque type */
+                OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.return_struct_type_name);
+                if (opaque) {
+                    /* Opaque types are stored as void* */
+                    sb_append(sb, "void*");
+                } else {
+                    /* Struct return type: use prefixed name */
+                    const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                    sb_append(sb, prefixed_name);
+                }
             } else if (item->as.function.return_type == TYPE_UNION && item->as.function.return_struct_type_name) {
                 /* Union return type: use prefixed name */
                 const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
@@ -1693,9 +1700,16 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                 if (sdl_param_type) {
                     sb_append(sb, sdl_param_type);
                 } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
-                    /* Struct parameter: use prefixed name */
-                    const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
-                    sb_append(sb, prefixed_name);
+                    /* Check if this is an opaque type */
+                    OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
+                    if (opaque) {
+                        /* Opaque types are stored as void* */
+                        sb_append(sb, "void*");
+                    } else {
+                        /* Struct parameter: use prefixed name */
+                        const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
+                        sb_append(sb, prefixed_name);
+                    }
                 } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
                     /* Union parameter: use prefixed name */
                     const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
@@ -1916,9 +1930,16 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                 /* Generic list return type: List<ElementType> -> List_ElementType* */
                 sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
             } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
-                /* Use prefixed type name */
-                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
-                sb_append(sb, prefixed_name);
+                /* Check if this is an opaque type */
+                OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.return_struct_type_name);
+                if (opaque) {
+                    /* Opaque types are stored as void* */
+                    sb_append(sb, "void*");
+                } else {
+                    /* Use prefixed type name */
+                    const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                    sb_append(sb, prefixed_name);
+                }
             } else if (item->as.function.return_type == TYPE_UNION && item->as.function.return_struct_type_name) {
                 /* Use prefixed union name */
                 const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
@@ -1994,9 +2015,16 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                 /* Generic list return type: List<ElementType> -> List_ElementType* */
                 sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
             } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
-                /* Use prefixed type name */
-                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
-                sb_append(sb, prefixed_name);
+                /* Check if this is an opaque type */
+                OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.return_struct_type_name);
+                if (opaque) {
+                    /* Opaque types are stored as void* */
+                    sb_append(sb, "void*");
+                } else {
+                    /* Use prefixed type name */
+                    const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                    sb_append(sb, prefixed_name);
+                }
             } else if (item->as.function.return_type == TYPE_UNION && item->as.function.return_struct_type_name) {
                 /* Use prefixed union name */
                 const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
