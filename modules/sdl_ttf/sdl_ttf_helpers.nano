@@ -8,11 +8,11 @@ import "modules/sdl_ttf/sdl_ttf.nano"
 
 # Render text to texture (blended, anti-aliased)
 # Returns texture handle or 0 on failure
-extern fn nl_render_text_blended_to_texture(renderer: int, font: int, text: string, r: int, g: int, b: int, a: int) -> int
+extern fn nl_render_text_blended_to_texture(renderer: SDL_Renderer, font: TTF_Font, text: string, r: int, g: int, b: int, a: int) -> int
 
 # Draw text at position (blended, anti-aliased)
 # Returns 1 on success, 0 on failure
-extern fn nl_draw_text_blended(renderer: int, font: int, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int
+extern fn nl_draw_text_blended(renderer: SDL_Renderer, font: TTF_Font, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int
 
 # Open font with platform-specific fallback paths
 # Searches for font by name across common font directories on macOS, Linux, and Windows
@@ -20,31 +20,6 @@ extern fn nl_draw_text_blended(renderer: int, font: int, text: string, x: int, y
 # Returns font handle or 0 on failure
 extern fn nl_open_font_portable(font_name: string, ptsize: int) -> TTF_Font
 
-# === Nano Helper Functions ===
-
-# Convenience wrapper with more readable name
-fn draw_text_blended(renderer: int, font: int, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int {
-    return (nl_draw_text_blended renderer font text x y r g b a)
-}
-
-shadow draw_text_blended {
-    # Cannot test without actual SDL context
-    assert true
-}
-
-# Portable font loading - searches platform-specific paths
-# Usage: let font: TTF_Font = (open_font_portable "Arial" 16)
-# Automatically searches:
-#   macOS: /System/Library/Fonts, /Library/Fonts
-#   Linux: /usr/share/fonts/truetype/*, ~/.fonts
-#   Windows: C:/Windows/Fonts
-# Falls back to: DejaVuSans, LiberationSans, FreeSans
-fn open_font_portable(font_name: string, ptsize: int) -> TTF_Font {
-    return (nl_open_font_portable font_name ptsize)
-}
-
-shadow open_font_portable {
-    # Cannot test without actual SDL_ttf context
-    assert true
-}
+# Note: nl_draw_text_blended and nl_open_font_portable can be used directly
+# since they are extern functions with convenient parameter names
 

@@ -20,16 +20,16 @@
 
 // Helper to render text to texture (blended, anti-aliased)
 // Returns texture handle or 0 on failure
-int64_t nl_render_text_blended_to_texture(int64_t renderer, int64_t font, const char* text, 
+int64_t nl_render_text_blended_to_texture(SDL_Renderer* renderer, TTF_Font* font, const char* text, 
                                            int64_t r, int64_t g, int64_t b, int64_t a) {
     SDL_Color color = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
-    SDL_Surface* surface = TTF_RenderText_Blended((TTF_Font*)font, text, color);
+    SDL_Surface* surface = TTF_RenderText_Blended(font, text, color);
     
     if (!surface) {
         return 0;
     }
     
-    SDL_Texture* texture = SDL_CreateTextureFromSurface((SDL_Renderer*)renderer, surface);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
     
     return (int64_t)texture;
@@ -37,7 +37,7 @@ int64_t nl_render_text_blended_to_texture(int64_t renderer, int64_t font, const 
 
 // Helper to draw text at position (blended, anti-aliased)
 // Returns 1 on success, 0 on failure
-int64_t nl_draw_text_blended(int64_t renderer, int64_t font, const char* text, 
+int64_t nl_draw_text_blended(SDL_Renderer* renderer, TTF_Font* font, const char* text, 
                               int64_t x, int64_t y, int64_t r, int64_t g, int64_t b, int64_t a) {
     int64_t texture = nl_render_text_blended_to_texture(renderer, font, text, r, g, b, a);
     
@@ -52,7 +52,7 @@ int64_t nl_draw_text_blended(int64_t renderer, int64_t font, const char* text,
     // Render texture
     SDL_Rect src = {0, 0, w, h};
     SDL_Rect dst = {(int)x, (int)y, w, h};
-    SDL_RenderCopy((SDL_Renderer*)renderer, (SDL_Texture*)texture, &src, &dst);
+    SDL_RenderCopy(renderer, (SDL_Texture*)texture, &src, &dst);
     
     SDL_DestroyTexture((SDL_Texture*)texture);
     return 1;
@@ -60,8 +60,8 @@ int64_t nl_draw_text_blended(int64_t renderer, int64_t font, const char* text,
 
 // Helper to open font with platform-specific fallback paths
 // Tries multiple common font locations across platforms
-// Returns font handle or 0 on failure
-int64_t nl_open_font_portable(const char* font_name, int64_t ptsize) {
+// Returns font handle or NULL on failure
+TTF_Font* nl_open_font_portable(const char* font_name, int64_t ptsize) {
     TTF_Font* font = NULL;
     FILE* test_file = NULL;
     
@@ -102,7 +102,7 @@ int64_t nl_open_font_portable(const char* font_name, int64_t ptsize) {
             // File exists, try to open with SDL_ttf
             font = TTF_OpenFont(full_path, (int)ptsize);
             if (font) {
-                return (int64_t)font;
+                return font;
             }
         }
     }
@@ -127,13 +127,13 @@ int64_t nl_open_font_portable(const char* font_name, int64_t ptsize) {
     
     if (!is_fallback) {
         for (int i = 0; fallback_fonts[i] != NULL; i++) {
-            font = (TTF_Font*)nl_open_font_portable(fallback_fonts[i], ptsize);
+            font = nl_open_font_portable(fallback_fonts[i], ptsize);
             if (font) {
-                return (int64_t)font;
+                return font;
             }
         }
     }
     
-    return 0;  // All attempts failed
+    return NULL;  // All attempts failed
 }
 
