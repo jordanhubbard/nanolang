@@ -480,7 +480,7 @@ static const char *type_to_c(Type type) {
         case TYPE_LIST_STRING: return "List_string*";
         case TYPE_LIST_TOKEN: return "List_token*";
         case TYPE_LIST_GENERIC: return ""; /* Will be handled specially with type_name */
-        case TYPE_OPAQUE: return "int64_t"; /* Opaque pointers stored as int64_t */
+        case TYPE_OPAQUE: return "void*"; /* Opaque pointers stored as void* */
         default: return "void";
     }
 }
@@ -1843,8 +1843,8 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                         /* Check if this is an opaque type */
                         OpaqueTypeDef *opaque = env_get_opaque_type(env, func->params[j].struct_type_name);
                         if (opaque) {
-                            /* Opaque types are stored as int64_t */
-                            sb_append(sb, "int64_t");
+                            /* Opaque types are stored as void* */
+                            sb_append(sb, "void*");
                         } else {
                             const char *prefixed_name = get_prefixed_type_name(func->params[j].struct_type_name);
                             if (prefixed_name) {
@@ -1953,8 +1953,8 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                     /* Check if this is an opaque type */
                     OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
                     if (opaque) {
-                        /* Opaque types are stored as int64_t */
-                        sb_appendf(sb, "int64_t %s", item->as.function.params[j].name);
+                        /* Opaque types are stored as void* */
+                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
                     } else {
                         /* Use prefixed type name for regular structs */
                         const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
@@ -2031,8 +2031,8 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                     /* Check if this is an opaque type */
                     OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
                     if (opaque) {
-                        /* Opaque types are stored as int64_t */
-                        sb_appendf(sb, "int64_t %s", item->as.function.params[j].name);
+                        /* Opaque types are stored as void* */
+                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
                     } else {
                         /* Use prefixed type name for regular structs */
                         const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);

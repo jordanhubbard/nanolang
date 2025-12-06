@@ -1,0 +1,621 @@
+# CLASSIC RAY TRACER
+# Sphere on checkered floor with reflections (like the classic raytracing demo)
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+
+# === CONSTANTS ===
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+
+# === VEC3 STRUCT ===
+struct Vec3 {
+    x: float,
+    y: float,
+    z: float
+}
+
+# === RAY STRUCT ===
+struct Ray {
+    origin: Vec3,
+    direction: Vec3
+}
+
+# === HIT RECORD ===
+struct HitRecord {
+    hit: bool,
+    t: float,
+    point: Vec3,
+    normal: Vec3,
+    color: Vec3
+}
+
+# === VECTOR MATH FUNCTIONS ===
+
+fn vec3_new(x: float, y: float, z: float) -> Vec3 {
+    return Vec3 { x: x, y: y, z: z }
+}
+
+fn vec3_add(a: Vec3, b: Vec3) -> Vec3 {
+    return Vec3 {
+        x: (+ a.x b.x),
+        y: (+ a.y b.y),
+        z: (+ a.z b.z)
+    }
+}
+
+fn vec3_sub(a: Vec3, b: Vec3) -> Vec3 {
+    return Vec3 {
+        x: (- a.x b.x),
+        y: (- a.y b.y),
+        z: (- a.z b.z)
+    }
+}
+
+fn vec3_mul_scalar(v: Vec3, s: float) -> Vec3 {
+    return Vec3 {
+        x: (* v.x s),
+        y: (* v.y s),
+        z: (* v.z s)
+    }
+}
+
+fn vec3_dot(a: Vec3, b: Vec3) -> float {
+    return (+ (+ (* a.x b.x) (* a.y b.y)) (* a.z b.z))
+}
+
+fn vec3_length_squared(v: Vec3) -> float {
+    return (+ (+ (* v.x v.x) (* v.y v.y)) (* v.z v.z))
+}
+
+fn vec3_length(v: Vec3) -> float {
+    return (sqrt (vec3_length_squared v))
+}
+
+fn vec3_normalize(v: Vec3) -> Vec3 {
+    let len: float = (vec3_length v)
+    if (> len 0.0001) {
+        return (vec3_mul_scalar v (/ 1.0 len))
+    } else {
+        return Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    }
+}
+
+fn vec3_clamp(v: Vec3, min_val: float, max_val: float) -> Vec3 {
+    return Vec3 {
+        x: (max min_val (min v.x max_val)),
+        y: (max min_val (min v.y max_val)),
+        z: (max min_val (min v.z max_val))
+    }
+}
+
+fn vec3_reflect(v: Vec3, n: Vec3) -> Vec3 {
+    # r = v - 2 * dot(v, n) * n
+    let dot_vn: float = (vec3_dot v n)
+    let twice_dot: float = (* 2.0 dot_vn)
+    let scaled_n: Vec3 = (vec3_mul_scalar n twice_dot)
+    return (vec3_sub v scaled_n)
+}
+
+fn vec3_refract(uv: Vec3, n: Vec3, etai_over_etat: float) -> Vec3 {
+    # Snell's law refraction
+    let cos_theta: float = (min (vec3_dot (vec3_mul_scalar uv -1.0) n) 1.0)
+    let r_out_perp: Vec3 = (vec3_mul_scalar (vec3_add uv (vec3_mul_scalar n cos_theta)) etai_over_etat)
+    let r_out_perp_len_sq: float = (vec3_length_squared r_out_perp)
+    let r_out_parallel_len: float = (sqrt (abs (- 1.0 r_out_perp_len_sq)))
+    let r_out_parallel: Vec3 = (vec3_mul_scalar n (- 0.0 r_out_parallel_len))
+    return (vec3_add r_out_perp r_out_parallel)
+}
+
+fn schlick_reflectance(cosine: float, ref_idx: float) -> float {
+    # Schlick's approximation for Fresnel reflectance
+    let r0: float = (/ (- 1.0 ref_idx) (+ 1.0 ref_idx))
+    let r0_sq: float = (* r0 r0)
+    let one_minus_cos: float = (- 1.0 cosine)
+    let one_minus_cos_5: float = (* (* (* (* one_minus_cos one_minus_cos) one_minus_cos) one_minus_cos) one_minus_cos)
+    return (+ r0_sq (* (- 1.0 r0_sq) one_minus_cos_5))
+}
+
+# === RAY FUNCTIONS ===
+
+fn ray_at(r: Ray, t: float) -> Vec3 {
+    let origin: Vec3 = r.origin
+    let direction: Vec3 = r.direction
+    let scaled_dir: Vec3 = (vec3_mul_scalar direction t)
+    return (vec3_add origin scaled_dir)
+}
+
+# === SPHERE INTERSECTION ===
+
+fn sphere_hit(center: Vec3, radius: float, r: Ray, t_min: float, t_max: float) -> HitRecord {
+    let ray_origin: Vec3 = r.origin
+    let ray_direction: Vec3 = r.direction
+    let oc: Vec3 = (vec3_sub ray_origin center)
+    let a: float = (vec3_length_squared ray_direction)
+    let half_b: float = (vec3_dot oc ray_direction)
+    let c: float = (- (vec3_length_squared oc) (* radius radius))
+    let discriminant: float = (- (* half_b half_b) (* a c))
+    
+    let no_hit: HitRecord = HitRecord {
+        hit: false,
+        t: 0.0,
+        point: Vec3 { x: 0.0, y: 0.0, z: 0.0 },
+        normal: Vec3 { x: 0.0, y: 0.0, z: 0.0 },
+        color: Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    }
+    
+    if (< discriminant 0.0) {
+        return no_hit
+    } else {
+        let sqrtd: float = (sqrt discriminant)
+        let root: float = (/ (- (- 0.0 half_b) sqrtd) a)
+        
+        let mut t_val: float = root
+        if (or (< t_val t_min) (> t_val t_max)) {
+            set t_val (/ (+ (- 0.0 half_b) sqrtd) a)
+            if (or (< t_val t_min) (> t_val t_max)) {
+                return no_hit
+            } else {
+                let mut dummy: int = 0
+            }
+        } else {
+            let mut dummy: int = 0
+        }
+        
+        let hit_point: Vec3 = (ray_at r t_val)
+        let diff_from_center: Vec3 = (vec3_sub hit_point center)
+        let normal: Vec3 = (vec3_normalize diff_from_center)
+        
+        # Gradient color based on normal (red-ish at top, green at sides)
+        # Map normal.y from -1..1 to red..green gradient
+        let ny_norm: float = (* (+ normal.y 1.0) 0.5)  # 0..1
+        let r_component: float = (- 1.0 ny_norm)       # 1 at top, 0 at bottom
+        let g_component: float = ny_norm                # 0 at top, 1 at bottom
+        
+        # Mix with some base color for visual interest
+        let red: float = (+ (* r_component 0.8) 0.2)
+        let green: float = (+ (* g_component 0.6) 0.2)
+        let blue: float = 0.3
+        
+        return HitRecord {
+            hit: true,
+            t: t_val,
+            point: hit_point,
+            normal: normal,
+            color: Vec3 { x: red, y: green, z: blue }
+        }
+    }
+}
+
+# === PLANE INTERSECTION ===
+
+fn plane_hit(r: Ray, t_min: float, t_max: float) -> HitRecord {
+    # Plane at y = -0.5
+    let plane_y: float = -0.5
+    let ray_origin: Vec3 = r.origin
+    let ray_direction: Vec3 = r.direction
+    
+    let no_hit: HitRecord = HitRecord {
+        hit: false,
+        t: 0.0,
+        point: Vec3 { x: 0.0, y: 0.0, z: 0.0 },
+        normal: Vec3 { x: 0.0, y: 0.0, z: 0.0 },
+        color: Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    }
+    
+    # Check if ray is parallel to plane (direction.y ~ 0)
+    if (< (abs ray_direction.y) 0.0001) {
+        return no_hit
+    } else {
+        let mut dummy: int = 0
+    }
+    
+    # Calculate t where ray hits plane
+    let t: float = (/ (- plane_y ray_origin.y) ray_direction.y)
+    
+    if (or (< t t_min) (> t t_max)) {
+        return no_hit
+    } else {
+        let mut dummy: int = 0
+    }
+    
+    let hit_point: Vec3 = (ray_at r t)
+    
+    # Checkerboard pattern
+    let scale: float = 1.0
+    let px: int = (cast_int (floor (* hit_point.x scale)))
+    let pz: int = (cast_int (floor (* hit_point.z scale)))
+    let checker: int = (% (+ px pz) 2)
+    
+    let mut color: Vec3 = Vec3 { x: 0.9, y: 0.9, z: 0.9 }
+    if (== checker 0) {
+        set color Vec3 { x: 0.3, y: 0.3, z: 0.3 }
+    } else {
+        let mut dummy: int = 0
+    }
+    
+    return HitRecord {
+        hit: true,
+        t: t,
+        point: hit_point,
+        normal: Vec3 { x: 0.0, y: 1.0, z: 0.0 },
+        color: color
+    }
+}
+
+# === SCENE ===
+
+fn scene_color(r: Ray, depth: int, light_pos: Vec3) -> Vec3 {
+    if (<= depth 0) {
+        # Return background gradient instead of black
+        let ray_dir: Vec3 = r.direction
+        let unit_dir: Vec3 = (vec3_normalize ray_dir)
+        let t: float = (* (+ unit_dir.y 1.0) 0.5)
+        let white: Vec3 = Vec3 { x: 1.0, y: 1.0, z: 1.0 }
+        let blue: Vec3 = Vec3 { x: 0.5, y: 0.7, z: 1.0 }
+        let sky_white: Vec3 = (vec3_mul_scalar white (- 1.0 t))
+        let sky_blue: Vec3 = (vec3_mul_scalar blue t)
+        return (vec3_add sky_white sky_blue)
+    } else {
+        let mut dummy: int = 0
+    }
+    
+    # Check light sphere first (small glowing sun)
+    let light_radius: float = 0.15
+    let light_rec: HitRecord = (sphere_hit light_pos light_radius r 0.001 1000.0)
+    
+    if light_rec.hit {
+        # Return bright yellow/white for the light source
+        return Vec3 { x: 1.0, y: 1.0, z: 0.8 }
+    } else {
+        let mut dummy: int = 0
+    }
+    
+    # Glass sphere at origin
+    let sphere_center: Vec3 = Vec3 { x: 0.0, y: 0.0, z: -3.0 }
+    let sphere_radius: float = 1.0
+    
+    # Check sphere hit
+    let sphere_rec: HitRecord = (sphere_hit sphere_center sphere_radius r 0.001 1000.0)
+    
+    if sphere_rec.hit {
+        # Glass sphere - refraction and reflection with surface lighting
+        let refraction_ratio: float = 1.5  # Glass IOR (index of refraction)
+        
+        # Determine if ray is entering or exiting the sphere
+        let front_face: bool = (< (vec3_dot r.direction sphere_rec.normal) 0.0)
+        let outward_normal: Vec3 = sphere_rec.normal
+        let etai_over_etat: float = 0.0
+        
+        if front_face {
+            set etai_over_etat (/ 1.0 refraction_ratio)
+        } else {
+            set etai_over_etat refraction_ratio
+            set outward_normal (vec3_mul_scalar sphere_rec.normal -1.0)
+        }
+        
+        let unit_direction: Vec3 = (vec3_normalize r.direction)
+        let cos_theta: float = (min (vec3_dot (vec3_mul_scalar unit_direction -1.0) outward_normal) 1.0)
+        let sin_theta: float = (sqrt (- 1.0 (* cos_theta cos_theta)))
+        
+        # Check for total internal reflection
+        let cannot_refract: bool = (> (* etai_over_etat sin_theta) 1.0)
+        let reflectance: float = (schlick_reflectance cos_theta etai_over_etat)
+        
+        # Calculate surface lighting (only on front face)
+        let mut surface_light: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+        if front_face {
+            let light_to_hit: Vec3 = (vec3_sub light_pos sphere_rec.point)
+            let light_dir: Vec3 = (vec3_normalize light_to_hit)
+            let light_intensity: float = (max 0.0 (vec3_dot outward_normal light_dir))
+            
+            # Bright white highlight where light hits
+            set surface_light Vec3 {
+                x: (* light_intensity 0.4),
+                y: (* light_intensity 0.4),
+                z: (* light_intensity 0.5)
+            }
+        } else {
+            let mut dummy: int = 0
+        }
+        
+        # Mix reflection and refraction based on Fresnel
+        if (or cannot_refract (> reflectance 0.5)) {
+            # Mostly reflection
+            let reflected_dir: Vec3 = (vec3_reflect unit_direction outward_normal)
+            let reflected_ray: Ray = Ray { origin: sphere_rec.point, direction: reflected_dir }
+            let reflected_color: Vec3 = (scene_color reflected_ray (- depth 1) light_pos)
+            return (vec3_add reflected_color surface_light)
+        } else {
+            # Refraction with surface lighting
+            let refracted_dir: Vec3 = (vec3_refract unit_direction outward_normal etai_over_etat)
+            let refracted_ray: Ray = Ray { origin: sphere_rec.point, direction: refracted_dir }
+            let refracted_color: Vec3 = (scene_color refracted_ray (- depth 1) light_pos)
+            
+            # Add slight tint for glass appearance
+            let tinted: Vec3 = Vec3 {
+                x: (* refracted_color.x 0.95),
+                y: (* refracted_color.y 0.98),
+                z: (* refracted_color.z 1.0)
+            }
+            
+            # Mix refraction with surface lighting
+            return (vec3_add tinted surface_light)
+        }
+    } else {
+        let mut dummy: int = 0
+    }
+    
+    # Check plane hit
+    let plane_rec: HitRecord = (plane_hit r 0.001 1000.0)
+    
+    if plane_rec.hit {
+        # Hit floor - show checkerboard with lighting and reflection
+        let base_color: Vec3 = plane_rec.color
+        
+        # Add lighting to floor
+        let light_to_hit: Vec3 = (vec3_sub light_pos plane_rec.point)
+        let light_dir: Vec3 = (vec3_normalize light_to_hit)
+        let diffuse: float = (max 0.3 (vec3_dot plane_rec.normal light_dir))
+        let lit_color: Vec3 = (vec3_mul_scalar base_color diffuse)
+        
+        # Cast reflection ray if depth > 0
+        if (> depth 1) {
+            let reflected_dir: Vec3 = (vec3_reflect r.direction plane_rec.normal)
+            let reflected_ray: Ray = Ray {
+                origin: plane_rec.point,
+                direction: reflected_dir
+            }
+            let reflected_color: Vec3 = (scene_color reflected_ray (- depth 1) light_pos)
+            
+            # Mix lit color with reflection (30% reflection)
+            let base_scaled: Vec3 = (vec3_mul_scalar lit_color 0.7)
+            let refl_scaled: Vec3 = (vec3_mul_scalar reflected_color 0.3)
+            return (vec3_add base_scaled refl_scaled)
+        } else {
+            return lit_color
+        }
+    } else {
+        let mut dummy: int = 0
+    }
+    
+    # Background gradient (sky)
+    let ray_dir: Vec3 = r.direction
+    let unit_dir: Vec3 = (vec3_normalize ray_dir)
+    let t: float = (* (+ unit_dir.y 1.0) 0.5)
+    let white: Vec3 = Vec3 { x: 1.0, y: 1.0, z: 1.0 }
+    let blue: Vec3 = Vec3 { x: 0.5, y: 0.7, z: 1.0 }
+    let sky_white: Vec3 = (vec3_mul_scalar white (- 1.0 t))
+    let sky_blue: Vec3 = (vec3_mul_scalar blue t)
+    return (vec3_add sky_white sky_blue)
+}
+
+# === CAMERA ===
+
+fn get_ray(u: float, v: float) -> Ray {
+    let aspect_ratio: float = (/ 800.0 600.0)
+    let viewport_height: float = 2.0
+    let viewport_width: float = (* aspect_ratio viewport_height)
+    let focal_length: float = 1.0
+    
+    let camera_origin: Vec3 = Vec3 { x: 0.0, y: 0.5, z: 0.0 }
+    
+    let horizontal: Vec3 = Vec3 { x: viewport_width, y: 0.0, z: 0.0 }
+    let vertical: Vec3 = Vec3 { x: 0.0, y: viewport_height, z: 0.0 }
+    let lower_left: Vec3 = Vec3 {
+        x: (- (- camera_origin.x (/ viewport_width 2.0)) 0.0),
+        y: (- (- camera_origin.y (/ viewport_height 2.0)) 0.0),
+        z: (- camera_origin.z focal_length)
+    }
+    
+    let h_offset: Vec3 = (vec3_mul_scalar horizontal u)
+    let v_offset: Vec3 = (vec3_mul_scalar vertical v)
+    let target: Vec3 = (vec3_add (vec3_add lower_left h_offset) v_offset)
+    let direction: Vec3 = (vec3_sub target camera_origin)
+    let dir_normalized: Vec3 = (vec3_normalize direction)
+    
+    return Ray {
+        origin: camera_origin,
+        direction: dir_normalized
+    }
+}
+
+# === RENDERING ===
+
+fn render_scene(renderer: SDL_Renderer, light_pos: Vec3) -> void {
+    let width: int = WINDOW_WIDTH
+    let height: int = WINDOW_HEIGHT
+    
+    let mut y: int = 0
+    while (< y height) {
+        let mut x: int = 0
+        while (< x width) {
+            # Calculate UV coordinates
+            let u: float = (/ (cast_float x) (cast_float (- width 1)))
+            let v: float = (/ (cast_float (- (- height y) 1)) (cast_float (- height 1)))
+            
+            # Get ray and trace with dynamic light
+            let r: Ray = (get_ray u v)
+            let color: Vec3 = (scene_color r 5 light_pos)  # depth = 5 for glass refraction
+            
+            # Convert to RGB
+            let ir: int = (cast_int (* color.x 255.0))
+            let ig: int = (cast_int (* color.y 255.0))
+            let ib: int = (cast_int (* color.z 255.0))
+            
+            (SDL_SetRenderDrawColor renderer ir ig ib 255)
+            (SDL_RenderDrawPoint renderer x y)
+            
+            set x (+ x 1)
+        }
+        
+        set y (+ y 1)
+    }
+    
+    (SDL_RenderPresent renderer)
+    (println "")
+    (println "✓ Rendering complete!")
+}
+
+# === MAIN ===
+
+fn main() -> int {
+    (println "")
+    (println "=== CLASSIC RAY TRACER ===")
+    (println "")
+    (println "Controls:")
+    (println "  Click = Set light position and render")
+    (println "  Click + Drag = Continuous render while moving")
+    (println "  ESC = Quit")
+    (println "")
+    
+    # Initialize SDL
+    (SDL_Init 32)
+    let window: SDL_Window = (SDL_CreateWindow "Classic Ray Tracer - Nanolang" 100 100 WINDOW_WIDTH WINDOW_HEIGHT 4)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
+    
+    if (== renderer 0) {
+        (println "Failed to create renderer")
+        return 1
+    } else {
+        (println "✓ SDL initialized")
+    }
+    
+    # Clear to black
+    (SDL_SetRenderDrawColor renderer 0 0 0 255)
+    (SDL_RenderClear renderer)
+    (SDL_RenderPresent renderer)
+    
+    # Light position (screen space) - top right area
+    let mut light_x: int = 600
+    let mut light_y: int = 150
+    
+    # Viewport parameters (must match get_ray function)
+    let aspect_ratio: float = (/ 800.0 600.0)
+    let viewport_height: float = 2.0
+    let viewport_width: float = (* aspect_ratio viewport_height)
+    let camera_y: float = 0.5
+    let viewport_z: float = -1.0  # Viewport plane is at z=-1.0
+    
+    # Mouse state
+    let mut mouse_down: bool = false
+    let mut needs_render: bool = false
+    let mut last_light_x: int = -1
+    let mut last_light_y: int = -1
+    
+    (println "Rendering with default light position...")
+    
+    # Initial render with default light
+    # Convert screen coordinates to world coordinates on viewport plane
+    let u: float = (/ (cast_float light_x) (cast_float WINDOW_WIDTH))
+    let v: float = (/ (cast_float light_y) (cast_float WINDOW_HEIGHT))
+    let light_world_x: float = (- (* u viewport_width) (/ viewport_width 2.0))
+    let light_world_y: float = (+ (- (* (- 1.0 v) viewport_height) (/ viewport_height 2.0)) camera_y)
+    let world_light: Vec3 = Vec3 { x: light_world_x, y: light_world_y, z: viewport_z }
+    (render_scene renderer world_light)
+    set last_light_x light_x
+    set last_light_y light_y
+    
+    (println "Done! Click and drag to move the light.")
+    (println "")
+    
+    # Event loop
+    let mut running: bool = true
+    while running {
+        # Handle keyboard
+        let key: int = (nl_sdl_poll_keypress)
+        if (> key -1) {
+            if (== key 41) {
+                set running false
+            } else {
+                let mut dummy: int = 0
+            }
+        } else {
+            let mut dummy: int = 0
+        }
+        
+        # Check for quit event
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) {
+            set running false
+        } else {
+            let mut dummy: int = 0
+        }
+        
+        # Handle mouse button down
+        let mouse_click: int = (nl_sdl_poll_mouse_click)
+        if (> mouse_click -1) {
+            set light_x (/ mouse_click 10000)
+            set light_y (% mouse_click 10000)
+            set mouse_down true
+            set needs_render true
+            (println light_x)
+        } else {
+            let mut dummy: int = 0
+        }
+        
+        # Handle mouse button up
+        let mouse_up: int = (nl_sdl_poll_mouse_up)
+        if (> mouse_up -1) {
+            set mouse_down false
+            (println "Mouse released - render stopped")
+        } else {
+            let mut dummy: int = 0
+        }
+        
+        # Handle mouse motion (only while button is down)
+        if mouse_down {
+            let mouse_motion: int = (nl_sdl_poll_mouse_motion)
+            if (> mouse_motion -1) {
+                let new_x: int = (/ mouse_motion 10000)
+                let new_y: int = (% mouse_motion 10000)
+                
+                # Only render if position changed
+                if (or (!= new_x light_x) (!= new_y light_y)) {
+                    set light_x new_x
+                    set light_y new_y
+                    set needs_render true
+                } else {
+                    let mut dummy: int = 0
+                }
+            } else {
+                let mut dummy: int = 0
+            }
+        } else {
+            let mut dummy: int = 0
+        }
+        
+        # Render if needed
+        if needs_render {
+            # Only render if position actually changed
+            if (or (!= light_x last_light_x) (!= light_y last_light_y)) {
+                set needs_render false
+                set last_light_x light_x
+                set last_light_y light_y
+                
+                # Convert screen coordinates to world coordinates on viewport plane
+                let u: float = (/ (cast_float light_x) (cast_float WINDOW_WIDTH))
+                let v: float = (/ (cast_float light_y) (cast_float WINDOW_HEIGHT))
+                let light_world_x: float = (- (* u viewport_width) (/ viewport_width 2.0))
+                let light_world_y: float = (+ (- (* (- 1.0 v) viewport_height) (/ viewport_height 2.0)) camera_y)
+                let world_light: Vec3 = Vec3 { x: light_world_x, y: light_world_y, z: viewport_z }
+                
+                (render_scene renderer world_light)
+            } else {
+                let mut dummy: int = 0
+            }
+        } else {
+            let mut dummy: int = 0
+        }
+        
+        (SDL_Delay 16)
+    }
+    
+    # Cleanup
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+    
+    (println "✨ Done!")
+    return 0
+}

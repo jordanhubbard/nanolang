@@ -68,6 +68,50 @@ int64_t nl_sdl_poll_mouse_state(void) {
     return -1;
 }
 
+/* Helper to poll for mouse button up
+ * Returns x * 10000 + y if left button was released, -1 otherwise
+ */
+int64_t nl_sdl_poll_mouse_up(void) {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
+            /* Store quit event for next poll_event_quit call */
+            SDL_PushEvent(&event);
+            return -1;
+        }
+        if (event.type == SDL_MOUSEBUTTONUP) {
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                /* Encode x and y into single return value: x * 10000 + y */
+                return (int64_t)event.button.x * 10000 + (int64_t)event.button.y;
+            }
+        }
+        /* Push back unhandled events so other functions can process them */
+        SDL_PushEvent(&event);
+    }
+    return -1;
+}
+
+/* Helper to poll for mouse motion
+ * Returns x * 10000 + y if mouse moved, -1 otherwise
+ */
+int64_t nl_sdl_poll_mouse_motion(void) {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
+            /* Store quit event for next poll_event_quit call */
+            SDL_PushEvent(&event);
+            return -1;
+        }
+        if (event.type == SDL_MOUSEMOTION) {
+            /* Encode x and y into single return value: x * 10000 + y */
+            return (int64_t)event.motion.x * 10000 + (int64_t)event.motion.y;
+        }
+        /* Push back unhandled events so other functions can process them */
+        SDL_PushEvent(&event);
+    }
+    return -1;
+}
+
 /* Helper to poll for keyboard events
  * Returns SDL scancode if key pressed, -1 otherwise
  * Common scancodes:

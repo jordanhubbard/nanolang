@@ -1,0 +1,836 @@
+/* ============================================================================
+ * COMPREHENSIVE TYPE SYSTEM TEST SUITE
+ * Tests all basic types, container types, and nested combinations
+ * ============================================================================ */
+
+/* ============================================================================
+ * SECTION 1: BASIC TYPES
+ * Tests: int, float, bool, string, void
+ * ============================================================================ */
+
+/* Test 1.1: Int type */
+fn test_int_basic() -> int {
+    let a: int = 42
+    let b: int = -17
+    let c: int = 0
+    return (+ (+ a b) c)
+}
+
+shadow test_int_basic {
+    assert (== (test_int_basic) 25)
+}
+
+/* Test 1.2: Float type */
+fn test_float_basic() -> float {
+    let a: float = 2.5
+    let b: float = 3.5
+    let c: float = 0.0
+    return (+ (+ a b) c)
+}
+
+shadow test_float_basic {
+    assert (== (test_float_basic) 6.0)
+}
+
+/* Test 1.3: Bool type */
+fn test_bool_basic() -> bool {
+    let a: bool = true
+    let b: bool = false
+    return (and a (not b))
+}
+
+shadow test_bool_basic {
+    assert (== (test_bool_basic) true)
+}
+
+/* Test 1.4: String type */
+fn test_string_basic() -> bool {
+    let a: string = "hello"
+    let b: string = "world"
+    return (and (== a "hello") (== b "world"))
+}
+
+shadow test_string_basic {
+    assert (== (test_string_basic) true)
+}
+
+/* Test 1.5: Void return type */
+fn test_void_basic() -> void {
+    let x: int = 42
+    return
+}
+
+shadow test_void_basic {
+    (test_void_basic)
+}
+
+/* ============================================================================
+ * SECTION 2: ARRAY TYPES
+ * Tests: array<int>, array<float>, array<bool>, array<string>
+ * ============================================================================ */
+
+/* Test 2.1: Array of int */
+fn test_array_int() -> int {
+    let mut arr: array<int> = []
+    set arr (array_push arr 10)
+    set arr (array_push arr 20)
+    set arr (array_push arr 30)
+    return (+ (at arr 0) (at arr 2))
+}
+
+shadow test_array_int {
+    assert (== (test_array_int) 40)
+}
+
+/* Test 2.2: Array of float */
+fn test_array_float() -> float {
+    let mut arr: array<float> = []
+    set arr (array_push arr 1.5)
+    set arr (array_push arr 2.5)
+    return (+ (at arr 0) (at arr 1))
+}
+
+shadow test_array_float {
+    assert (== (test_array_float) 4.0)
+}
+
+/* Test 2.3: Array of bool */
+fn test_array_bool() -> bool {
+    let mut arr: array<bool> = []
+    set arr (array_push arr true)
+    set arr (array_push arr false)
+    set arr (array_push arr true)
+    return (and (at arr 0) (at arr 2))
+}
+
+shadow test_array_bool {
+    assert (== (test_array_bool) true)
+}
+
+/* Test 2.4: Array of string */
+fn test_array_string() -> bool {
+    let mut arr: array<string> = []
+    set arr (array_push arr "foo")
+    set arr (array_push arr "bar")
+    return (== (at arr 0) "foo")
+}
+
+shadow test_array_string {
+    assert (== (test_array_string) true)
+}
+
+/* ============================================================================
+ * SECTION 3: TUPLE TYPES
+ * Tests: 2-tuples, 3-tuples, 4-tuples with mixed types
+ * ============================================================================ */
+
+/* Test 3.1: Tuple (int, int) */
+fn test_tuple_int_int() -> int {
+    let t: (int, int) = (10, 20)
+    return (+ t.0 t.1)
+}
+
+shadow test_tuple_int_int {
+    assert (== (test_tuple_int_int) 30)
+}
+
+/* Test 3.2: Tuple (int, float) */
+fn test_tuple_int_float() -> int {
+    let t: (int, float) = (5, 2.5)
+    return t.0
+}
+
+shadow test_tuple_int_float {
+    assert (== (test_tuple_int_float) 5)
+}
+
+/* Test 3.3: Tuple (int, bool) */
+fn test_tuple_int_bool() -> int {
+    let t: (int, bool) = (42, true)
+    if t.1 {
+        return t.0
+    } else {
+        return 0
+    }
+}
+
+shadow test_tuple_int_bool {
+    assert (== (test_tuple_int_bool) 42)
+}
+
+/* Test 3.4: Tuple (int, string) */
+fn test_tuple_int_string() -> bool {
+    let t: (int, string) = (7, "test")
+    return (and (== t.0 7) (== t.1 "test"))
+}
+
+shadow test_tuple_int_string {
+    assert (== (test_tuple_int_string) true)
+}
+
+/* Test 3.5: Tuple (float, float) */
+fn test_tuple_float_float() -> float {
+    let t: (float, float) = (1.5, 2.5)
+    return (* t.0 t.1)
+}
+
+shadow test_tuple_float_float {
+    assert (== (test_tuple_float_float) 3.75)
+}
+
+/* Test 3.6: Tuple (float, bool) */
+fn test_tuple_float_bool() -> float {
+    let t: (float, bool) = (3.14, false)
+    if t.1 {
+        return 0.0
+    } else {
+        return t.0
+    }
+}
+
+shadow test_tuple_float_bool {
+    assert (== (test_tuple_float_bool) 3.14)
+}
+
+/* Test 3.7: Tuple (bool, bool) */
+fn test_tuple_bool_bool() -> bool {
+    let t: (bool, bool) = (true, false)
+    return (and t.0 (not t.1))
+}
+
+shadow test_tuple_bool_bool {
+    assert (== (test_tuple_bool_bool) true)
+}
+
+/* Test 3.8: Tuple (string, string) */
+fn test_tuple_string_string() -> bool {
+    let t: (string, string) = ("hello", "world")
+    return (and (== t.0 "hello") (== t.1 "world"))
+}
+
+shadow test_tuple_string_string {
+    assert (== (test_tuple_string_string) true)
+}
+
+/* Test 3.9: 3-tuple (int, int, int) */
+fn test_tuple_3_int() -> int {
+    let t: (int, int, int) = (1, 2, 3)
+    return (+ (+ t.0 t.1) t.2)
+}
+
+shadow test_tuple_3_int {
+    assert (== (test_tuple_3_int) 6)
+}
+
+/* Test 3.10: 3-tuple (int, float, bool) */
+fn test_tuple_3_mixed() -> int {
+    let t: (int, float, bool) = (10, 2.5, true)
+    if t.2 {
+        return t.0
+    } else {
+        return 0
+    }
+}
+
+shadow test_tuple_3_mixed {
+    assert (== (test_tuple_3_mixed) 10)
+}
+
+/* Test 3.11: 4-tuple (int, int, int, int) */
+fn test_tuple_4_int() -> int {
+    let t: (int, int, int, int) = (1, 2, 3, 4)
+    return (+ (+ t.0 t.1) (+ t.2 t.3))
+}
+
+shadow test_tuple_4_int {
+    assert (== (test_tuple_4_int) 10)
+}
+
+/* Test 3.12: 4-tuple mixed types */
+fn test_tuple_4_mixed() -> bool {
+    let t: (int, float, bool, string) = (42, 3.14, true, "test")
+    return (and (and (== t.0 42) t.2) (== t.3 "test"))
+}
+
+shadow test_tuple_4_mixed {
+    assert (== (test_tuple_4_mixed) true)
+}
+
+/* ============================================================================
+ * SECTION 4: STRUCT TYPES
+ * Tests: simple structs, nested structs
+ * ============================================================================ */
+
+/* Test 4.1: Simple struct with int fields */
+struct Point2D {
+    x: int,
+    y: int
+}
+
+fn test_struct_int() -> int {
+    let p: Point2D = Point2D { x: 10, y: 20 }
+    return (+ p.x p.y)
+}
+
+shadow test_struct_int {
+    assert (== (test_struct_int) 30)
+}
+
+/* Test 4.2: Struct with float fields */
+struct Vec2D {
+    x: float,
+    y: float
+}
+
+fn test_struct_float() -> float {
+    let v: Vec2D = Vec2D { x: 1.5, y: 2.5 }
+    return (+ v.x v.y)
+}
+
+shadow test_struct_float {
+    assert (== (test_struct_float) 4.0)
+}
+
+/* Test 4.3: Struct with mixed types */
+struct Person {
+    age: int,
+    height: float,
+    active: bool,
+    name: string
+}
+
+fn test_struct_mixed() -> bool {
+    let p: Person = Person { age: 30, height: 5.9, active: true, name: "Alice" }
+    return (and (and (== p.age 30) p.active) (== p.name "Alice"))
+}
+
+shadow test_struct_mixed {
+    assert (== (test_struct_mixed) true)
+}
+
+/* Test 4.4: Nested structs */
+struct Rectangle {
+    topLeft: Point2D,
+    bottomRight: Point2D
+}
+
+fn test_struct_nested() -> int {
+    let tl: Point2D = Point2D { x: 0, y: 10 }
+    let br: Point2D = Point2D { x: 10, y: 0 }
+    let rect: Rectangle = Rectangle { topLeft: tl, bottomRight: br }
+    return (+ rect.topLeft.x rect.bottomRight.x)
+}
+
+shadow test_struct_nested {
+    assert (== (test_struct_nested) 10)
+}
+
+/* ============================================================================
+ * SECTION 5: ENUM TYPES
+ * Tests: simple enums, enums in structs
+ * ============================================================================ */
+
+/* Test 5.1: Simple enum */
+enum Status {
+    IDLE = 0,
+    RUNNING = 1,
+    DONE = 2
+}
+
+fn test_enum_basic() -> bool {
+    let s: Status = Status.RUNNING
+    return (== s Status.RUNNING)
+}
+
+shadow test_enum_basic {
+    assert (== (test_enum_basic) true)
+}
+
+/* Test 5.2: Enum comparison */
+fn test_enum_compare() -> int {
+    let s: Status = Status.DONE
+    if (== s Status.IDLE) {
+        return 0
+    } else {
+        if (== s Status.RUNNING) {
+            return 1
+        } else {
+            return 2
+        }
+    }
+}
+
+shadow test_enum_compare {
+    assert (== (test_enum_compare) 2)
+}
+
+/* Test 5.3: Enum in struct */
+struct Task {
+    id: int,
+    status: Status
+}
+
+fn test_enum_in_struct() -> bool {
+    let t: Task = Task { id: 42, status: Status.RUNNING }
+    return (and (== t.id 42) (== t.status Status.RUNNING))
+}
+
+shadow test_enum_in_struct {
+    assert (== (test_enum_in_struct) true)
+}
+
+/* ============================================================================
+ * SECTION 6: NESTED CONTAINER TYPES
+ * Tests: array of structs, array of tuples, struct with arrays, etc.
+ * ============================================================================ */
+
+/* Test 6.1: Array of structs - NOT YET SUPPORTED */
+/* fn test_array_of_structs() -> int {
+    let mut arr: array<Point2D> = []
+    let p1: Point2D = Point2D { x: 1, y: 2 }
+    let p2: Point2D = Point2D { x: 3, y: 4 }
+    set arr (array_push arr p1)
+    set arr (array_push arr p2)
+    let first: Point2D = (at arr 0)
+    let second: Point2D = (at arr 1)
+    return (+ (+ first.x first.y) (+ second.x second.y))
+}
+
+shadow test_array_of_structs {
+    assert (== (test_array_of_structs) 10)
+} */
+
+/* Test 6.2: Struct with array field */
+struct Container {
+    id: int,
+    values: array<int>
+}
+
+fn test_struct_with_array() -> int {
+    let mut vals: array<int> = []
+    set vals (array_push vals 10)
+    set vals (array_push vals 20)
+    let c: Container = Container { id: 1, values: vals }
+    return (+ c.id (at c.values 0))
+}
+
+shadow test_struct_with_array {
+    assert (== (test_struct_with_array) 11)
+}
+
+/* Test 6.3: Array of tuples - NOT YET SUPPORTED */
+/* fn test_array_of_tuples() -> int {
+    let mut arr: array<(int, int)> = []
+    set arr (array_push arr (1, 2))
+    set arr (array_push arr (3, 4))
+    let first: (int, int) = (at arr 0)
+    let second: (int, int) = (at arr 1)
+    return (+ (+ first.0 first.1) (+ second.0 second.1))
+}
+
+shadow test_array_of_tuples {
+    assert (== (test_array_of_tuples) 10)
+} */
+
+/* Test 6.4: Tuple with arrays - NOT YET SUPPORTED */
+/* fn test_tuple_with_arrays() -> int {
+    let mut arr1: array<int> = []
+    set arr1 (array_push arr1 10)
+    let mut arr2: array<int> = []
+    set arr2 (array_push arr2 20)
+    let t: (array<int>, array<int>) = (arr1, arr2)
+    return (+ (at t.0 0) (at t.1 0))
+}
+
+shadow test_tuple_with_arrays {
+    assert (== (test_tuple_with_arrays) 30)
+} */
+
+/* Test 6.5: Tuple with structs */
+fn test_tuple_with_structs() -> int {
+    let p1: Point2D = Point2D { x: 5, y: 10 }
+    let p2: Point2D = Point2D { x: 15, y: 20 }
+    let t: (Point2D, Point2D) = (p1, p2)
+    let first: Point2D = t.0
+    let second: Point2D = t.1
+    return (+ first.x second.y)
+}
+
+shadow test_tuple_with_structs {
+    assert (== (test_tuple_with_structs) 25)
+}
+
+/* Test 6.6: Struct with tuple field */
+struct Pair {
+    id: int,
+    coords: (int, int)
+}
+
+fn test_struct_with_tuple() -> int {
+    let p: Pair = Pair { id: 1, coords: (10, 20) }
+    return (+ p.id (+ p.coords.0 p.coords.1))
+}
+
+shadow test_struct_with_tuple {
+    assert (== (test_struct_with_tuple) 31)
+}
+
+/* ============================================================================
+ * SECTION 7: DEEPLY NESTED TYPES
+ * Tests: complex nesting of multiple container types
+ * ============================================================================ */
+
+/* Test 7.1: Array of array of int - NOT YET SUPPORTED */
+/* fn test_array_of_array_int() -> int {
+    let mut inner1: array<int> = []
+    set inner1 (array_push inner1 1)
+    set inner1 (array_push inner1 2)
+    
+    let mut inner2: array<int> = []
+    set inner2 (array_push inner2 3)
+    set inner2 (array_push inner2 4)
+    
+    let mut outer: array<array<int>> = []
+    set outer (array_push outer inner1)
+    set outer (array_push outer inner2)
+    
+    let row0: array<int> = (at outer 0)
+    let row1: array<int> = (at outer 1)
+    return (+ (at row0 0) (at row1 1))
+}
+
+shadow test_array_of_array_int {
+    assert (== (test_array_of_array_int) 5)
+} */
+
+/* Test 7.2: Tuple with nested tuples */
+fn test_tuple_nested() -> int {
+    let inner1: (int, int) = (1, 2)
+    let inner2: (int, int) = (3, 4)
+    let outer: ((int, int), (int, int)) = (inner1, inner2)
+    let first: (int, int) = outer.0
+    let second: (int, int) = outer.1
+    return (+ (+ first.0 first.1) (+ second.0 second.1))
+}
+
+shadow test_tuple_nested {
+    assert (== (test_tuple_nested) 10)
+}
+
+/* Test 7.3: Struct with nested struct with array */
+struct DataSet {
+    name: string,
+    container: Container
+}
+
+fn test_deeply_nested_struct() -> int {
+    let mut vals: array<int> = []
+    set vals (array_push vals 100)
+    let c: Container = Container { id: 5, values: vals }
+    let ds: DataSet = DataSet { name: "test", container: c }
+    return (+ ds.container.id (at ds.container.values 0))
+}
+
+shadow test_deeply_nested_struct {
+    assert (== (test_deeply_nested_struct) 105)
+}
+
+/* Test 7.4: Array of structs with tuples - NOT YET SUPPORTED */
+/* struct PointPair {
+    p1: (int, int),
+    p2: (int, int)
+}
+
+fn test_array_struct_tuple() -> int {
+    let mut arr: array<PointPair> = []
+    let pp: PointPair = PointPair { p1: (1, 2), p2: (3, 4) }
+    set arr (array_push arr pp)
+    let item: PointPair = (at arr 0)
+    let first: (int, int) = item.p1
+    let second: (int, int) = item.p2
+    return (+ (+ first.0 first.1) (+ second.0 second.1))
+}
+
+shadow test_array_struct_tuple {
+    assert (== (test_array_struct_tuple) 10)
+} */
+
+/* Test 7.5: Tuple with struct with array */
+fn test_tuple_struct_array() -> int {
+    let mut vals: array<int> = []
+    set vals (array_push vals 50)
+    let c: Container = Container { id: 10, values: vals }
+    let t: (int, Container) = (5, c)
+    let cont: Container = t.1
+    return (+ t.0 (+ cont.id (at cont.values 0)))
+}
+
+shadow test_tuple_struct_array {
+    assert (== (test_tuple_struct_array) 65)
+}
+
+/* ============================================================================
+ * SECTION 8: FUNCTION TYPES
+ * Tests: functions as parameters, function return values
+ * ============================================================================ */
+
+/* Test 8.1: Function taking int returning int */
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+fn test_function_int_int() -> int {
+    return (double 21)
+}
+
+shadow test_function_int_int {
+    assert (== (test_function_int_int) 42)
+}
+
+/* Test 8.2: Function taking multiple parameters */
+fn add_three(a: int, b: int, c: int) -> int {
+    return (+ (+ a b) c)
+}
+
+fn test_function_multi_param() -> int {
+    return (add_three 10 20 30)
+}
+
+shadow test_function_multi_param {
+    assert (== (test_function_multi_param) 60)
+}
+
+/* Test 8.3: Function returning tuple */
+fn get_coords() -> (int, int) {
+    return (100, 200)
+}
+
+fn test_function_return_tuple() -> int {
+    let result: (int, int) = (get_coords)
+    return (+ result.0 result.1)
+}
+
+shadow test_function_return_tuple {
+    assert (== (test_function_return_tuple) 300)
+}
+
+/* Test 8.4: Function taking struct */
+fn get_point_sum(p: Point2D) -> int {
+    return (+ p.x p.y)
+}
+
+fn test_function_struct_param() -> int {
+    let p: Point2D = Point2D { x: 15, y: 25 }
+    return (get_point_sum p)
+}
+
+shadow test_function_struct_param {
+    assert (== (test_function_struct_param) 40)
+}
+
+/* Test 8.5: Function returning struct */
+fn make_point(x: int, y: int) -> Point2D {
+    return Point2D { x: x, y: y }
+}
+
+fn test_function_return_struct() -> int {
+    let p: Point2D = (make_point 7 8)
+    return (+ p.x p.y)
+}
+
+shadow test_function_return_struct {
+    assert (== (test_function_return_struct) 15)
+}
+
+/* Test 8.6: Function taking tuple */
+fn sum_tuple(t: (int, int)) -> int {
+    return (+ t.0 t.1)
+}
+
+fn test_function_tuple_param() -> int {
+    let t: (int, int) = (30, 40)
+    return (sum_tuple t)
+}
+
+shadow test_function_tuple_param {
+    assert (== (test_function_tuple_param) 70)
+}
+
+/* Test 8.7: Function taking array */
+fn sum_array(arr: array<int>) -> int {
+    let a: int = (at arr 0)
+    let b: int = (at arr 1)
+    return (+ a b)
+}
+
+fn test_function_array_param() -> int {
+    let mut arr: array<int> = []
+    set arr (array_push arr 11)
+    set arr (array_push arr 22)
+    return (sum_array arr)
+}
+
+shadow test_function_array_param {
+    assert (== (test_function_array_param) 33)
+}
+
+/* Test 8.8: Function with mixed parameter types */
+fn complex_function(i: int, f: float, b: bool, s: string) -> int {
+    if b {
+        return i
+    } else {
+        return 0
+    }
+}
+
+fn test_function_mixed_params() -> int {
+    return (complex_function 10 5.5 true "test")
+}
+
+shadow test_function_mixed_params {
+    assert (== (test_function_mixed_params) 10)
+}
+
+/* ============================================================================
+ * SECTION 9: EDGE CASES AND EXTREME NESTING
+ * Tests: maximum complexity combinations
+ * ============================================================================ */
+
+/* Test 9.1: 3-level nested arrays - NOT YET SUPPORTED */
+/* fn test_triple_nested_array() -> int {
+    let mut l1: array<int> = []
+    set l1 (array_push l1 1)
+    
+    let mut l2: array<array<int>> = []
+    set l2 (array_push l2 l1)
+    
+    let mut l3: array<array<array<int>>> = []
+    set l3 (array_push l3 l2)
+    
+    let level2: array<array<int>> = (at l3 0)
+    let level1: array<int> = (at level2 0)
+    return (at level1 0)
+}
+
+shadow test_triple_nested_array {
+    assert (== (test_triple_nested_array) 1)
+} */
+
+/* Test 9.2: Struct with multiple nested types */
+struct ComplexData {
+    id: int,
+    coords: (int, int),
+    values: array<int>,
+    point: Point2D
+}
+
+fn test_complex_struct() -> int {
+    let mut vals: array<int> = []
+    set vals (array_push vals 5)
+    let p: Point2D = Point2D { x: 10, y: 20 }
+    let c: ComplexData = ComplexData { 
+        id: 1, 
+        coords: (2, 3), 
+        values: vals, 
+        point: p 
+    }
+    return (+ (+ c.id (+ c.coords.0 c.coords.1)) (+ (at c.values 0) (+ c.point.x c.point.y)))
+}
+
+shadow test_complex_struct {
+    assert (== (test_complex_struct) 41)
+}
+
+/* Test 9.3: Array of complex structs - NOT YET SUPPORTED */
+/* fn test_array_complex_struct() -> int {
+    let mut vals1: array<int> = []
+    set vals1 (array_push vals1 100)
+    let p1: Point2D = Point2D { x: 1, y: 2 }
+    let c1: ComplexData = ComplexData { 
+        id: 10, 
+        coords: (3, 4), 
+        values: vals1, 
+        point: p1 
+    }
+    
+    let mut arr: array<ComplexData> = []
+    set arr (array_push arr c1)
+    
+    let item: ComplexData = (at arr 0)
+    return (+ item.id (at item.values 0))
+}
+
+shadow test_array_complex_struct {
+    assert (== (test_array_complex_struct) 110)
+} */
+
+/* Test 9.4: Tuple with maximum mixed types - arrays in tuples not yet supported */
+/* fn test_mega_tuple() -> int {
+    let mut arr: array<int> = []
+    set arr (array_push arr 7)
+    let p: Point2D = Point2D { x: 8, y: 9 }
+    let t: (int, float, bool, string, array<int>, Point2D) = 
+        (1, 2.0, true, "test", arr, p)
+    
+    let arr_val: array<int> = t.4
+    let point_val: Point2D = t.5
+    let sum: int = (+ (+ t.0 (at arr_val 0)) (+ point_val.x point_val.y))
+    return sum
+}
+
+shadow test_mega_tuple {
+    assert (== (test_mega_tuple) 25)
+} */
+
+/* Test 9.5: Function returning nested structure */
+fn make_complex_data(id: int) -> ComplexData {
+    let mut vals: array<int> = []
+    set vals (array_push vals id)
+    let p: Point2D = Point2D { x: id, y: (+ id 1) }
+    return ComplexData { 
+        id: id, 
+        coords: (id, (+ id 1)), 
+        values: vals, 
+        point: p 
+    }
+}
+
+fn test_function_complex_return() -> int {
+    let c: ComplexData = (make_complex_data 50)
+    return (+ c.id (+ c.point.x c.point.y))
+}
+
+shadow test_function_complex_return {
+    assert (== (test_function_complex_return) 151)
+}
+
+/* ============================================================================
+ * MAIN TEST DRIVER
+ * ============================================================================ */
+
+fn main() -> int {
+    (println "========================================")
+    (println "COMPREHENSIVE TYPE SYSTEM TEST SUITE")
+    (println "========================================")
+    (println "")
+    (println "✓ Section 1: Basic types (5 tests)")
+    (println "✓ Section 2: Array types (4 tests)")
+    (println "✓ Section 3: Tuple types (12 tests)")
+    (println "✓ Section 4: Struct types (4 tests)")
+    (println "✓ Section 5: Enum types (3 tests)")
+    (println "✓ Section 6: Nested containers (3 tests, 3 pending)")
+    (println "✓ Section 7: Deep nesting (3 tests, 2 pending)")
+    (println "✓ Section 8: Function types (8 tests)")
+    (println "✓ Section 9: Edge cases (2 tests, 3 pending)")
+    (println "")
+    (println "========================================")
+    (println "Total: 44 type combination tests passing")
+    (println "       8 tests pending (arrays of complex types)")
+    (println "All tests passed!")
+    (println "========================================")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -17,6 +17,12 @@ int64_t nl_sdl_poll_mouse_click(void);
 /* Poll for mouse state (holding) */
 int64_t nl_sdl_poll_mouse_state(void);
 
+/* Poll for mouse button up */
+int64_t nl_sdl_poll_mouse_up(void);
+
+/* Poll for mouse motion */
+int64_t nl_sdl_poll_mouse_motion(void);
+
 /* Poll for keyboard events - returns scancode or -1 */
 int64_t nl_sdl_poll_keypress(void);
 

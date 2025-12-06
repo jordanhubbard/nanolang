@@ -120,6 +120,8 @@ typedef struct {
 static const FunctionMapping function_map[] = {
     {"println", "println"},
     {"print", "print"},
+    {"cast_int", "nl_cast_int"},
+    {"cast_float", "nl_cast_float"},
     {"file_read", "nl_os_file_read"},
     {"file_write", "nl_os_file_write"},
     {"abs", "nl_abs"},
@@ -313,7 +315,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             /* Map function name */
             const char *func_name = expr->as.call.name;
             
-            /* Special handling for println/print - needs type dispatch */
+            /* Special handling for println - needs type dispatch */
             if (strcmp(func_name, "println") == 0 && expr->as.call.arg_count == 1) {
                 Type arg_type = check_expression(expr->as.call.args[0], env);
                 if (arg_type == TYPE_STRING) {
@@ -327,7 +329,22 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
                 build_expr(list, expr->as.call.args[0], env);
                 emit_literal(list, ")");
-            } 
+            }
+            /* Special handling for print - needs type dispatch */
+            else if (strcmp(func_name, "print") == 0 && expr->as.call.arg_count == 1) {
+                Type arg_type = check_expression(expr->as.call.args[0], env);
+                if (arg_type == TYPE_STRING) {
+                    emit_literal(list, "nl_print_string(");
+                } else if (arg_type == TYPE_FLOAT) {
+                    emit_literal(list, "nl_print_float(");
+                } else if (arg_type == TYPE_BOOL) {
+                    emit_literal(list, "nl_print_bool(");
+                } else {
+                    emit_literal(list, "nl_print_int(");
+                }
+                build_expr(list, expr->as.call.args[0], env);
+                emit_literal(list, ")");
+            }
             /* Special handling for at() and array_set() - needs type-specific functions */
             else if ((strcmp(func_name, "at") == 0 || strcmp(func_name, "array_set") == 0) && 
                      expr->as.call.arg_count >= 2) {
@@ -615,16 +632,27 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                     build_expr(list, stmt->as.let.value, env);
                     emit_literal(list, ";\n");
                 } else {
-                    /* Struct type */
+                    /* Check if this is an opaque type */
                     if (!type_name && stmt->as.let.value) {
                         type_name = get_struct_type_name(stmt->as.let.value, env);
                     }
+                    
+                    OpaqueTypeDef *opaque = NULL;
                     if (type_name) {
+                        opaque = env_get_opaque_type(env, type_name);
+                    }
+                    
+                    if (opaque) {
+                        /* Opaque types are stored as void* */
+                        emit_formatted(list, "void* %s", stmt->as.let.name);
+                    } else if (type_name) {
+                        /* Regular struct type */
                         const char *prefixed = get_prefixed_type_name(type_name);
                         emit_formatted(list, "%s %s", prefixed, stmt->as.let.name);
                     } else {
                         emit_formatted(list, "void* %s", stmt->as.let.name);
                     }
+                    
                     if (stmt->as.let.value) {
                         emit_literal(list, " = ");
                         build_expr(list, stmt->as.let.value, env);
