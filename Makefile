@@ -113,6 +113,13 @@ test: build
 	fi
 	@echo ""
 	@echo "✅ All tests passed!"
+	@echo ""
+	@echo "=========================================="
+	@echo "Building Examples"
+	@echo "=========================================="
+	@$(MAKE) examples
+	@echo ""
+	@echo "✅ All tests and examples completed!"
 
 # Examples: Build examples (depends on build)
 examples: build check-deps-sdl
