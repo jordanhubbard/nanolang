@@ -133,13 +133,13 @@ union Option {
     None {}
 }
 
-fn unwrap_or(opt: Option, default: int) -> int {
+fn unwrap_or(opt: Option, default_val: int) -> int {
     match opt {
         Some(val) => {
             return val.value
         }
         None(empty) => {
-            return default
+            return default_val
         }
     }
 }

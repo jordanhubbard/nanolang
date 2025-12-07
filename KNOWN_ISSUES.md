@@ -32,6 +32,69 @@ if ((uintptr_t)tok < 0x1000)
 
 ---
 
+## Test Suite Status
+
+### Passing Tests: 21/24 (88%)
+
+**Interpreter:** 11/12 pass (92%)  
+**Compiler:** 10/12 pass (83%)
+
+### Known Test Failures
+
+#### 1. test_firstclass_functions (Interpreter + Compiler)
+
+**Status:** ⚠️ **Feature Not Implemented**  
+**Reason:** First-class functions are not yet supported
+
+This test requires:
+- Function types as parameters: `fn(int) -> int`
+- Functions as return values
+- Nested function definitions
+- Function variables and closures
+
+**Example that doesn't work:**
+```nano
+fn make_adder(n: int) -> fn(int) -> int {
+    fn add_n(x: int) -> int {
+        return (+ x n)
+    }
+    return add_n
+}
+```
+
+**Status:** This is a planned feature but not yet implemented. The test failure is expected.
+
+#### 2. test_unions_match_comprehensive (Compiler Only)
+
+**Status:** ⚠️ **Transpiler Limitation**  
+**Reason:** Union construction (`AST_UNION_CONSTRUCT`) not yet transpiled to C
+
+The interpreter fully supports unions and pattern matching, but the C transpiler doesn't yet generate code for union construction.
+
+**What works:**
+- ✅ Interpreter: Full union support
+- ✅ Union definitions transpile
+- ✅ Match expressions in interpreter
+
+**What doesn't work:**
+- ❌ Compiler: Union construction like `Result.Ok { value: 42 }`
+- ❌ Transpiler doesn't handle `AST_UNION_CONSTRUCT` (expr type 25)
+
+**Error seen:**
+```
+/tmp/nanoc_XXX.c:534:5: error: unknown type name 'nl_Result'
+nl_Result status = /* unsupported expr type 25 */;
+```
+
+**Workaround:** Use interpreter mode for programs with unions:
+```bash
+./bin/nano tests/unit/test_unions_match_comprehensive.nano  # Works!
+```
+
+**Status:** Transpiler enhancement needed. Union definitions and match expressions need C code generation.
+
+---
+
 ## Historical Record: Original Issue Description
 
 ### Symptoms
