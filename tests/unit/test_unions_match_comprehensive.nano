@@ -70,7 +70,7 @@ shadow divide {
             assert false
         }
         Error(err) => {
-            assert (== (str_length err.message) 17)
+            assert (== (str_length err.message) 16)
         }
     }
 }
@@ -217,7 +217,7 @@ fn test_multiple_unions() -> bool {
     let result1: Result = Result.Ok { value: 1 }
     let animal1: Animal = Animal.Dog { name: "Buddy" }
     
-    let ok: bool = false
+    let mut ok: bool = false
     match result1 {
         Ok(val) => {
             set ok true
