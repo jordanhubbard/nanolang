@@ -637,6 +637,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             if (count == 0) {
                 /* Empty array - need to determine type */
                 Type elem_type = expr->as.array_literal.element_type;
+                
                 if (elem_type == TYPE_UNKNOWN) {
                     /* Default to int for empty arrays without type info */
                     elem_type = TYPE_INT;
