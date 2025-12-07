@@ -15,9 +15,17 @@ Nanolang is designed to work cross-platform with minimal friction. This document
 
 | Platform | Architecture | Status | Notes |
 |----------|-------------|--------|-------|
-| macOS | x86_64, ARM64 | ✅ Full Support | Primary development platform |
+| macOS | x86_64 | ✅ Full Support | Primary development platform |
+| macOS | ARM64 (Apple Silicon) | ⚠️ Untested | Likely same issue as Linux ARM64 |
 | Ubuntu Linux | x86_64 | ✅ Full Support | Tested on Ubuntu 22.04+ |
 | Debian Linux | x86_64 | ✅ Full Support | Should work on most Debian-based distros |
+
+### ❌ Known Broken
+
+| Platform | Architecture | Status | Notes |
+|----------|-------------|--------|-------|
+| **Linux** | **ARM64 (aarch64)** | 🔴 **BROKEN** | **Parser completely fails - see [KNOWN_ISSUES.md](/KNOWN_ISSUES.md)** |
+| Raspberry Pi OS | ARM64 | 🔴 **BROKEN** | Same ARM64 parser bug |
 
 ### 🟡 Expected to Work
 
