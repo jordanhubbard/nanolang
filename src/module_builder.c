@@ -132,6 +132,24 @@ static char* get_pkg_config_flags(const char *package, const char *flag_type) {
         result = run_command(cmd);
     }
     
+    // If result is empty or only whitespace, return NULL instead
+    if (result) {
+        // Trim leading/trailing whitespace
+        char *start = result;
+        while (*start && (*start == ' ' || *start == '\t' || *start == '\n' || *start == '\r')) {
+            start++;
+        }
+        if (*start == '\0') {
+            // Empty after trimming
+            free(result);
+            return NULL;
+        }
+        // If start is not at beginning, shift the string
+        if (start != result) {
+            memmove(result, start, strlen(start) + 1);
+        }
+    }
+    
     return result;
 }
 
