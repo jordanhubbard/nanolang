@@ -350,6 +350,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                      expr->as.call.arg_count >= 2) {
                 /* Detect element type from array argument (first arg) */
                 Type elem_type = TYPE_INT;  /* Default to int */
+                const char *struct_name = NULL;
                 
                 ASTNode *array_arg = expr->as.call.args[0];
                 if (array_arg->type == AST_IDENTIFIER) {
@@ -358,84 +359,140 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     Symbol *sym = env_get_var(env, array_name);
                     if (sym && sym->element_type != TYPE_UNKNOWN) {
                         elem_type = sym->element_type;
+                        if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
+                            struct_name = sym->struct_type_name;
+                        }
                     }
                 }
                 
-                /* Map element type to suffix */
-                const char *type_suffix = "int";
-                if (elem_type == TYPE_FLOAT) {
-                    type_suffix = "float";
-                } else if (elem_type == TYPE_STRING) {
-                    type_suffix = "string";
-                } else if (elem_type == TYPE_BOOL) {
-                    type_suffix = "bool";
-                } else if (elem_type == TYPE_ARRAY) {
-                    type_suffix = "array";  /* For nested arrays */
-                }
-                
-                /* Generate type-specific function name */
-                char func_buf[64];
-                if (strcmp(func_name, "at") == 0) {
-                    snprintf(func_buf, sizeof(func_buf), "nl_array_at_%s", type_suffix);
+                /* For structs, use dyn_array_get/set_struct with casts */
+                if (elem_type == TYPE_STRUCT && struct_name) {
+                    if (strcmp(func_name, "at") == 0) {
+                        /* Generate: *((nl_StructName*)dyn_array_get_struct(arr, idx)) */
+                        emit_formatted(list, "*((nl_%s*)dyn_array_get_struct(", struct_name);
+                        build_expr(list, expr->as.call.args[0], env);  /* array */
+                        emit_literal(list, ", ");
+                        build_expr(list, expr->as.call.args[1], env);  /* index */
+                        emit_literal(list, "))");
+                    } else {
+                        /* Generate: dyn_array_set_struct(arr, idx, &value, sizeof(nl_StructName)) */
+                        emit_literal(list, "dyn_array_set_struct(");
+                        build_expr(list, expr->as.call.args[0], env);  /* array */
+                        emit_literal(list, ", ");
+                        build_expr(list, expr->as.call.args[1], env);  /* index */
+                        emit_literal(list, ", &(");
+                        build_expr(list, expr->as.call.args[2], env);  /* value */
+                        emit_formatted(list, "), sizeof(nl_%s))", struct_name);
+                    }
                 } else {
-                    snprintf(func_buf, sizeof(func_buf), "nl_array_set_%s", type_suffix);
+                    /* Map element type to suffix for primitive types */
+                    const char *type_suffix = "int";
+                    if (elem_type == TYPE_FLOAT) {
+                        type_suffix = "float";
+                    } else if (elem_type == TYPE_STRING) {
+                        type_suffix = "string";
+                    } else if (elem_type == TYPE_BOOL) {
+                        type_suffix = "bool";
+                    } else if (elem_type == TYPE_ARRAY) {
+                        type_suffix = "array";  /* For nested arrays */
+                    }
+                    
+                    /* Generate type-specific function name */
+                    char func_buf[64];
+                    if (strcmp(func_name, "at") == 0) {
+                        snprintf(func_buf, sizeof(func_buf), "nl_array_at_%s", type_suffix);
+                    } else {
+                        snprintf(func_buf, sizeof(func_buf), "nl_array_set_%s", type_suffix);
+                    }
+                    
+                    emit_literal(list, func_buf);
+                    emit_literal(list, "(");
+                    for (int i = 0; i < expr->as.call.arg_count; i++) {
+                        if (i > 0) emit_literal(list, ", ");
+                        build_expr(list, expr->as.call.args[i], env);
+                    }
+                    emit_literal(list, ")");
                 }
-                
-                emit_literal(list, func_buf);
-                emit_literal(list, "(");
-                for (int i = 0; i < expr->as.call.arg_count; i++) {
-                    if (i > 0) emit_literal(list, ", ");
-                    build_expr(list, expr->as.call.args[i], env);
-                }
-                emit_literal(list, ")");
             }
             /* Special handling for array_push() and array_pop() - dynamic array operations */
             else if (strcmp(func_name, "array_push") == 0 && expr->as.call.arg_count == 2) {
                 /* Detect element type from array argument (first arg) or value argument (second arg) */
                 Type elem_type = TYPE_INT;  /* Default to int */
+                const char *struct_name = NULL;
                 
                 ASTNode *array_arg = expr->as.call.args[0];
+                ASTNode *value_arg = expr->as.call.args[1];
+                
                 if (array_arg->type == AST_IDENTIFIER) {
                     /* Array is a variable - look up its element type */
                     const char *array_name = array_arg->as.identifier;
                     Symbol *sym = env_get_var(env, array_name);
                     if (sym && sym->element_type != TYPE_UNKNOWN) {
                         elem_type = sym->element_type;
+                        /* For array<struct>, the struct name is stored in struct_type_name */
+                        if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
+                            struct_name = sym->struct_type_name;
+                        }
                     } else {
                         /* Try to infer from value type */
-                        elem_type = check_expression(expr->as.call.args[1], env);
+                        elem_type = check_expression(value_arg, env);
                     }
                 } else {
                     /* Try to infer from value type */
-                    elem_type = check_expression(expr->as.call.args[1], env);
+                    elem_type = check_expression(value_arg, env);
                 }
                 
-                /* Map element type to suffix */
-                const char *type_suffix = "int";
-                if (elem_type == TYPE_FLOAT) {
-                    type_suffix = "float";
-                } else if (elem_type == TYPE_STRING) {
-                    type_suffix = "string";
-                } else if (elem_type == TYPE_BOOL) {
-                    type_suffix = "bool";
-                } else if (elem_type == TYPE_ARRAY) {
-                    type_suffix = "array";  /* For nested arrays */
+                /* If we still don't have struct name, try to infer from value argument */
+                if (elem_type == TYPE_STRUCT && !struct_name) {
+                    /* Check if value is a variable with struct type */
+                    if (value_arg->type == AST_IDENTIFIER) {
+                        Symbol *value_sym = env_get_var(env, value_arg->as.identifier);
+                        if (value_sym && value_sym->type == TYPE_STRUCT && value_sym->struct_type_name) {
+                            struct_name = value_sym->struct_type_name;
+                        }
+                    } else if (value_arg->type == AST_STRUCT_LITERAL) {
+                        /* Struct literal has the name directly */
+                        struct_name = value_arg->as.struct_literal.struct_name;
+                    }
                 }
                 
-                /* Generate: dyn_array_push_<type>(arr, value) */
-                char func_buf[64];
-                snprintf(func_buf, sizeof(func_buf), "dyn_array_push_%s", type_suffix);
-                
-                emit_literal(list, func_buf);
-                emit_literal(list, "(");
-                build_expr(list, expr->as.call.args[0], env);  /* array */
-                emit_literal(list, ", ");
-                build_expr(list, expr->as.call.args[1], env);  /* value */
-                emit_literal(list, ")");
+                /* For structs, use dyn_array_push_struct with sizeof */
+                if (elem_type == TYPE_STRUCT && struct_name) {
+                    /* Generate: dyn_array_push_struct(arr, &value, sizeof(nl_StructName)) */
+                    emit_literal(list, "dyn_array_push_struct(");
+                    build_expr(list, expr->as.call.args[0], env);  /* array */
+                    emit_literal(list, ", &(");
+                    build_expr(list, expr->as.call.args[1], env);  /* value */
+                    emit_formatted(list, "), sizeof(nl_%s))", struct_name);
+                } else {
+                    /* Map element type to suffix for primitive types */
+                    const char *type_suffix = "int";
+                    if (elem_type == TYPE_FLOAT) {
+                        type_suffix = "float";
+                    } else if (elem_type == TYPE_STRING) {
+                        type_suffix = "string";
+                    } else if (elem_type == TYPE_BOOL) {
+                        type_suffix = "bool";
+                    } else if (elem_type == TYPE_ARRAY) {
+                        type_suffix = "array";  /* For nested arrays */
+                    }
+                    
+                    /* Generate: dyn_array_push_<type>(arr, value) */
+                    char func_buf[64];
+                    snprintf(func_buf, sizeof(func_buf), "dyn_array_push_%s", type_suffix);
+                    
+                    emit_literal(list, func_buf);
+                    emit_literal(list, "(");
+                    build_expr(list, expr->as.call.args[0], env);  /* array */
+                    emit_literal(list, ", ");
+                    build_expr(list, expr->as.call.args[1], env);  /* value */
+                    emit_literal(list, ")");
+                }
             }
             else if (strcmp(func_name, "array_pop") == 0 && expr->as.call.arg_count == 1) {
                 /* Detect element type from array argument */
                 Type elem_type = TYPE_INT;  /* Default to int */
+                const char *struct_name = NULL;
                 
                 ASTNode *array_arg = expr->as.call.args[0];
                 if (array_arg->type == AST_IDENTIFIER) {
@@ -443,33 +500,44 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     Symbol *sym = env_get_var(env, array_name);
                     if (sym && sym->element_type != TYPE_UNKNOWN) {
                         elem_type = sym->element_type;
+                        if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
+                            struct_name = sym->struct_type_name;
+                        }
                     }
                 }
                 
-                /* Map element type to suffix */
-                const char *type_suffix = "int";
-                if (elem_type == TYPE_FLOAT) {
-                    type_suffix = "float";
-                } else if (elem_type == TYPE_STRING) {
-                    type_suffix = "string";
-                } else if (elem_type == TYPE_BOOL) {
-                    type_suffix = "bool";
-                } else if (elem_type == TYPE_ARRAY) {
-                    type_suffix = "array";  /* For nested arrays */
+                /* For structs, use dyn_array_pop_struct */
+                if (elem_type == TYPE_STRUCT && struct_name) {
+                    /* Generate: ({ bool _s; nl_StructName _v; dyn_array_pop_struct(arr, &_v, sizeof(nl_StructName), &_s); _v; }) */
+                    emit_formatted(list, "({ bool _s; nl_%s _v; dyn_array_pop_struct(", struct_name);
+                    build_expr(list, expr->as.call.args[0], env);  /* array */
+                    emit_formatted(list, ", &_v, sizeof(nl_%s), &_s); _v; })", struct_name);
+                } else {
+                    /* Map element type to suffix for primitive types */
+                    const char *type_suffix = "int";
+                    if (elem_type == TYPE_FLOAT) {
+                        type_suffix = "float";
+                    } else if (elem_type == TYPE_STRING) {
+                        type_suffix = "string";
+                    } else if (elem_type == TYPE_BOOL) {
+                        type_suffix = "bool";
+                    } else if (elem_type == TYPE_ARRAY) {
+                        type_suffix = "array";  /* For nested arrays */
+                    }
+                    
+                    /* Generate wrapper that handles bool success parameter */
+                    char func_buf[128];
+                    snprintf(func_buf, sizeof(func_buf), 
+                             "({ bool _s; %s _v = dyn_array_pop_%s(", 
+                             (elem_type == TYPE_FLOAT ? "double" : 
+                              elem_type == TYPE_STRING ? "const char*" :
+                              elem_type == TYPE_BOOL ? "bool" :
+                              elem_type == TYPE_ARRAY ? "DynArray*" : "int64_t"),
+                             type_suffix);
+                    emit_literal(list, func_buf);
+                    build_expr(list, expr->as.call.args[0], env);  /* array */
+                    emit_literal(list, ", &_s); _v; })");
                 }
-                
-                /* Generate wrapper that handles bool success parameter */
-                char func_buf[128];
-                snprintf(func_buf, sizeof(func_buf), 
-                         "({ bool _s; %s _v = dyn_array_pop_%s(", 
-                         (elem_type == TYPE_FLOAT ? "double" : 
-                          elem_type == TYPE_STRING ? "const char*" :
-                          elem_type == TYPE_BOOL ? "bool" :
-                          elem_type == TYPE_ARRAY ? "DynArray*" : "int64_t"),
-                         type_suffix);
-                emit_literal(list, func_buf);
-                build_expr(list, expr->as.call.args[0], env);  /* array */
-                emit_literal(list, ", &_s); _v; })");
             }
             else {
                 /* Regular function call */
@@ -655,6 +723,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, "dyn_array_new(ELEM_STRING)");
                 } else if (elem_type == TYPE_BOOL) {
                     emit_literal(list, "dyn_array_new(ELEM_BOOL)");
+                } else if (elem_type == TYPE_STRUCT) {
+                    /* Array of structs - size will be set on first push */
+                    emit_literal(list, "dyn_array_new(ELEM_STRUCT)");
                 } else {
                     /* Fallback for other types */
                     emit_literal(list, "dyn_array_new(ELEM_INT)");

@@ -25,13 +25,13 @@ export NANO_MODULE_PATH=../modules
 SDL_EXAMPLES = \
 	$(BIN_DIR)/checkers_sdl \
 	$(BIN_DIR)/boids_sdl \
+	$(BIN_DIR)/particles_sdl \
+	$(BIN_DIR)/falling_sand \
 	$(BIN_DIR)/raytracer_simple
 
-# SDL examples that require interpreter (use array_push for dynamic arrays)
-SDL_INTERPRETER_ONLY = \
-	particles_sdl.nano \
-	falling_sand_sdl.nano \
-	terrain_explorer_sdl.nano
+# Note: terrain_explorer_sdl uses array<struct> (array<Tile>)
+# Array<struct> has partial transpiler support but needs further work on metadata flow
+# Run with interpreter: ../bin/nano examples/terrain_explorer_sdl.nano
 
 # OpenGL examples (GLFW + GLEW)
 OPENGL_EXAMPLES = \
@@ -72,14 +72,14 @@ all: $(COMPILER) $(GRAPHICS_EXAMPLES)
 	@echo "✓ All compiled examples built successfully!"
 	@echo ""
 	@echo "SDL examples:"
-	@echo "  ./bin/checkers_sdl         - Full checkers game with AI"
-	@echo "  ./bin/boids_sdl            - Flocking simulation (Craig Reynolds' Boids)"
-	@echo "  ./bin/raytracer_simple     - Real-time ray tracer with mouse-controlled light"
+	@echo "  ./bin/checkers_sdl           - Full checkers game with AI"
+	@echo "  ./bin/boids_sdl              - Flocking simulation (Craig Reynolds' Boids)"
+	@echo "  ./bin/particles_sdl          - Particle explosion effects (nested arrays!)"
+	@echo "  ./bin/falling_sand           - Cellular automata sandbox"
+	@echo "  ./bin/raytracer_simple       - Real-time ray tracer with mouse-controlled light"
 	@echo ""
-	@echo "SDL Examples (Interpreter Only - use dynamic arrays):"
-	@echo "  ../bin/nano examples/particles_sdl.nano        - Particle explosion effect"
-	@echo "  ../bin/nano examples/falling_sand_sdl.nano     - Cellular automata sandbox"
-	@echo "  ../bin/nano examples/terrain_explorer_sdl.nano - 3D terrain with mouse camera"
+	@echo "Interpreter-only examples:"
+	@echo "  ../bin/nano examples/terrain_explorer_sdl.nano - 3D terrain explorer (uses array<struct>)"
 	@echo ""
 	@echo "OpenGL examples (requires: brew install glfw glew):"
 	@echo "  ./bin/opengl_cube          - Rotating textured cube"
@@ -137,9 +137,20 @@ $(BIN_DIR)/boids_sdl: boids_sdl.nano $(COMPILER)
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/boids_sdl.nano -o bin/boids_sdl
 	@echo "✓ Boids SDL built: $@"
 
-# Note: particles_sdl, falling_sand_sdl, and terrain_explorer_sdl are interpreter-only
-# They use array_push for dynamic arrays which is not supported in the transpiler
-# Run them with: ../bin/nano examples/<name>.nano
+$(BIN_DIR)/particles_sdl: particles_sdl.nano $(COMPILER)
+	@echo "Building Particles SDL (particle explosion effects)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/particles_sdl.nano -o bin/particles_sdl
+	@echo "✓ Particles SDL built: $@"
+
+$(BIN_DIR)/falling_sand: falling_sand.nano $(COMPILER)
+	@echo "Building Falling Sand (cellular automata sandbox)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/falling_sand.nano -o bin/falling_sand
+	@echo "✓ Falling Sand built: $@"
+
+$(BIN_DIR)/terrain_explorer_sdl: terrain_explorer_sdl.nano $(COMPILER)
+	@echo "Building Terrain Explorer SDL (3D terrain with mouse camera)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/terrain_explorer_sdl.nano -o bin/terrain_explorer_sdl
+	@echo "✓ Terrain Explorer SDL built: $@"
 
 $(BIN_DIR)/opengl_cube: opengl_cube.nano $(COMPILER)
 	@echo "Building OpenGL Rotating Cube (GLFW + GLEW)..."
