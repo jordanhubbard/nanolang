@@ -110,90 +110,120 @@ static char* run_command(const char *cmd) {
     return output;
 }
 
-// Map pkg-config package names to system package names
-static const char* get_system_package_name(const char *pkg_config_name) {
-    // Common mappings (can be extended)
-    if (strcmp(pkg_config_name, "sdl2") == 0) {
-        #ifdef __APPLE__
-        return "sdl2";  // Homebrew uses same name
-        #else
-        // Check for Debian/Ubuntu vs Fedora
-        if (access("/etc/debian_version", F_OK) == 0) {
-            return "libsdl2-dev";
-        } else if (access("/etc/redhat-release", F_OK) == 0) {
-            return "SDL2-devel";
-        }
-        return "libsdl2-dev";  // Default to Debian
-        #endif
-    }
-    
-    // Default: try appending -dev for Debian, -devel for Fedora
-    #ifdef __APPLE__
-    return pkg_config_name;
-    #else
-    if (access("/etc/debian_version", F_OK) == 0) {
-        static char pkg_name[256];
-        snprintf(pkg_name, sizeof(pkg_name), "lib%s-dev", pkg_config_name);
-        return pkg_name;
-    } else if (access("/etc/redhat-release", F_OK) == 0) {
-        static char pkg_name[256];
-        snprintf(pkg_name, sizeof(pkg_name), "%s-devel", pkg_config_name);
-        return pkg_name;
-    }
-    return pkg_config_name;
-    #endif
-}
-
-// Try to install missing package automatically
-static bool auto_install_package(const char *pkg_config_name) {
-    const char *sys_package = get_system_package_name(pkg_config_name);
-    char cmd[1024];
-    
-    printf("[Module] Package '%s' not found, attempting to install %s...\n", 
-           pkg_config_name, sys_package);
+// Install system packages from module metadata
+static bool install_system_packages(ModuleBuildMetadata *meta) {
+    bool all_installed = true;
+    char cmd[2048];
     
     #ifdef __APPLE__
-    // macOS: Use Homebrew
-    if (access("/opt/homebrew/bin/brew", F_OK) == 0 || access("/usr/local/bin/brew", F_OK) == 0) {
-        snprintf(cmd, sizeof(cmd), "brew install %s 2>&1", sys_package);
-        printf("[Module] Running: brew install %s\n", sys_package);
-        int result = system(cmd);
-        if (result == 0) {
-            printf("[Module] ✓ Successfully installed %s\n", sys_package);
-            return true;
+    // macOS: Install Homebrew packages
+    if (meta->brew_packages_count > 0) {
+        if (access("/opt/homebrew/bin/brew", F_OK) == 0 || access("/usr/local/bin/brew", F_OK) == 0) {
+            printf("[Module] Installing Homebrew packages for '%s'...\n", meta->name);
+            for (size_t i = 0; i < meta->brew_packages_count; i++) {
+                // Check if already installed
+                snprintf(cmd, sizeof(cmd), "brew list %s >/dev/null 2>&1", meta->brew_packages[i]);
+                if (system(cmd) == 0) {
+                    printf("[Module]   ✓ %s already installed\n", meta->brew_packages[i]);
+                    continue;
+                }
+                
+                // Install package
+                snprintf(cmd, sizeof(cmd), "brew install %s", meta->brew_packages[i]);
+                printf("[Module]   Installing %s...\n", meta->brew_packages[i]);
+                int result = system(cmd);
+                if (result == 0) {
+                    printf("[Module]   ✓ Successfully installed %s\n", meta->brew_packages[i]);
+                } else {
+                    fprintf(stderr, "[Module]   ❌ Failed to install %s\n", meta->brew_packages[i]);
+                    all_installed = false;
+                }
+            }
+        } else {
+            fprintf(stderr, "[Module] ⚠️  Homebrew not found, cannot auto-install packages\n");
+            fprintf(stderr, "[Module]    Install Homebrew: /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\n");
+            all_installed = false;
         }
-    } else {
-        fprintf(stderr, "[Module] ⚠️  Homebrew not found, cannot auto-install %s\n", sys_package);
-        fprintf(stderr, "[Module]    Install Homebrew: /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\n");
     }
     #else
-    // Linux: Try apt-get (Debian/Ubuntu) or dnf (Fedora)
+    // Linux: Install apt or dnf packages
     if (access("/usr/bin/apt-get", F_OK) == 0 || access("/usr/bin/apt", F_OK) == 0) {
         // Debian/Ubuntu
-        snprintf(cmd, sizeof(cmd), "sudo apt-get update && sudo apt-get install -y %s 2>&1", sys_package);
-        printf("[Module] Running: sudo apt-get install -y %s\n", sys_package);
-        int result = system(cmd);
-        if (result == 0) {
-            printf("[Module] ✓ Successfully installed %s\n", sys_package);
-            return true;
+        if (meta->apt_packages_count > 0) {
+            printf("[Module] Installing apt packages for '%s'...\n", meta->name);
+            
+            // Build list of packages to install
+            char packages[1024] = "";
+            for (size_t i = 0; i < meta->apt_packages_count; i++) {
+                // Check if already installed
+                snprintf(cmd, sizeof(cmd), "dpkg -l %s 2>/dev/null | grep -q '^ii'", meta->apt_packages[i]);
+                if (system(cmd) == 0) {
+                    printf("[Module]   ✓ %s already installed\n", meta->apt_packages[i]);
+                    continue;
+                }
+                
+                // Add to install list
+                if (strlen(packages) > 0) strcat(packages, " ");
+                strncat(packages, meta->apt_packages[i], sizeof(packages) - strlen(packages) - 1);
+            }
+            
+            // Install all needed packages at once
+            if (strlen(packages) > 0) {
+                snprintf(cmd, sizeof(cmd), "sudo apt-get update -qq && sudo apt-get install -y %s", packages);
+                printf("[Module]   Running: sudo apt-get install -y %s\n", packages);
+                printf("[Module]   (You may be prompted for your password)\n");
+                int result = system(cmd);
+                if (result == 0) {
+                    printf("[Module]   ✓ Successfully installed packages\n");
+                } else {
+                    fprintf(stderr, "[Module]   ❌ Failed to install packages\n");
+                    all_installed = false;
+                }
+            }
         }
     } else if (access("/usr/bin/dnf", F_OK) == 0) {
         // Fedora/RHEL
-        snprintf(cmd, sizeof(cmd), "sudo dnf install -y %s 2>&1", sys_package);
-        printf("[Module] Running: sudo dnf install -y %s\n", sys_package);
-        int result = system(cmd);
-        if (result == 0) {
-            printf("[Module] ✓ Successfully installed %s\n", sys_package);
-            return true;
+        if (meta->dnf_packages_count > 0) {
+            printf("[Module] Installing dnf packages for '%s'...\n", meta->name);
+            
+            // Build list of packages to install
+            char packages[1024] = "";
+            for (size_t i = 0; i < meta->dnf_packages_count; i++) {
+                // Check if already installed
+                snprintf(cmd, sizeof(cmd), "rpm -q %s >/dev/null 2>&1", meta->dnf_packages[i]);
+                if (system(cmd) == 0) {
+                    printf("[Module]   ✓ %s already installed\n", meta->dnf_packages[i]);
+                    continue;
+                }
+                
+                // Add to install list
+                if (strlen(packages) > 0) strcat(packages, " ");
+                strncat(packages, meta->dnf_packages[i], sizeof(packages) - strlen(packages) - 1);
+            }
+            
+            // Install all needed packages at once
+            if (strlen(packages) > 0) {
+                snprintf(cmd, sizeof(cmd), "sudo dnf install -y %s", packages);
+                printf("[Module]   Running: sudo dnf install -y %s\n", packages);
+                printf("[Module]   (You may be prompted for your password)\n");
+                int result = system(cmd);
+                if (result == 0) {
+                    printf("[Module]   ✓ Successfully installed packages\n");
+                } else {
+                    fprintf(stderr, "[Module]   ❌ Failed to install packages\n");
+                    all_installed = false;
+                }
+            }
         }
     } else {
-        fprintf(stderr, "[Module] ⚠️  No supported package manager found (apt-get/dnf)\n");
+        if (meta->apt_packages_count > 0 || meta->dnf_packages_count > 0) {
+            fprintf(stderr, "[Module] ⚠️  No supported package manager found (apt-get/dnf)\n");
+            all_installed = false;
+        }
     }
     #endif
     
-    fprintf(stderr, "[Module] ❌ Failed to install %s\n", sys_package);
-    fprintf(stderr, "[Module]    You may need to install it manually or run with sudo privileges\n");
-    return false;
+    return all_installed;
 }
 
 // Get pkg-config flags, with automatic package installation on failure
@@ -218,36 +248,6 @@ static char* get_pkg_config_flags(const char *package, const char *flag_type) {
         result = run_command(cmd);
     }
     
-    // If still no result, try to auto-install the package
-    if (!result || strlen(result) == 0) {
-        free(result);
-        
-        // Only try auto-install once per package (use static flag)
-        static char attempted_packages[1024] = {0};
-        if (!strstr(attempted_packages, package)) {
-            // Mark as attempted
-            strncat(attempted_packages, package, sizeof(attempted_packages) - strlen(attempted_packages) - 1);
-            strncat(attempted_packages, " ", sizeof(attempted_packages) - strlen(attempted_packages) - 1);
-            
-            // Try to auto-install
-            if (auto_install_package(package)) {
-                // Try pkg-config again after installation
-                snprintf(cmd, sizeof(cmd), "pkg-config %s %s 2>/dev/null", flag_type, package);
-                result = run_command(cmd);
-                
-                if (result && strlen(result) > 0) {
-                    // Success! Continue with the result
-                } else {
-                    free(result);
-                    result = NULL;
-                }
-            } else {
-                result = NULL;
-            }
-        } else {
-            result = NULL;
-        }
-    }
     
     // If result is empty or only whitespace, return NULL instead
     if (result) {
@@ -430,6 +430,9 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
     PARSE_STRING_ARRAY("ldflags", ldflags, ldflags_count);
     PARSE_STRING_ARRAY("frameworks", frameworks, frameworks_count);
     PARSE_STRING_ARRAY("dependencies", dependencies, dependencies_count);
+    PARSE_STRING_ARRAY("apt_packages", apt_packages, apt_packages_count);
+    PARSE_STRING_ARRAY("dnf_packages", dnf_packages, dnf_packages_count);
+    PARSE_STRING_ARRAY("brew_packages", brew_packages, brew_packages_count);
 
     #undef PARSE_STRING_ARRAY
 
@@ -471,6 +474,9 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
     FREE_STRING_ARRAY(ldflags, ldflags_count);
     FREE_STRING_ARRAY(frameworks, frameworks_count);
     FREE_STRING_ARRAY(dependencies, dependencies_count);
+    FREE_STRING_ARRAY(apt_packages, apt_packages_count);
+    FREE_STRING_ARRAY(dnf_packages, dnf_packages_count);
+    FREE_STRING_ARRAY(brew_packages, brew_packages_count);
 
     #undef FREE_STRING_ARRAY
 
@@ -582,6 +588,14 @@ void module_builder_free(ModuleBuilder *builder) {
 }
 
 ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), ModuleBuildMetadata *meta) {
+    // Install system package dependencies BEFORE trying to build
+    if (meta && (meta->apt_packages_count > 0 || meta->dnf_packages_count > 0 || meta->brew_packages_count > 0)) {
+        if (!install_system_packages(meta)) {
+            fprintf(stderr, "[Module] Warning: Some system packages failed to install for '%s'\n", meta->name);
+            fprintf(stderr, "[Module] Continuing anyway - build may fail if dependencies are missing\n");
+        }
+    }
+    
     if (!meta || meta->c_sources_count == 0) {
         // No C sources = nothing to build, but still need link/compile flags
         ModuleBuildInfo *info = calloc(1, sizeof(ModuleBuildInfo));

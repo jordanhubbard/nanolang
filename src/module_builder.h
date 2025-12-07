@@ -53,6 +53,14 @@ typedef struct {
     char **dependencies;
     size_t dependencies_count;
     
+    // System package dependencies (for auto-installation)
+    char **apt_packages;       // Debian/Ubuntu package names
+    size_t apt_packages_count;
+    char **dnf_packages;       // Fedora/RHEL package names
+    size_t dnf_packages_count;
+    char **brew_packages;      // macOS Homebrew package names
+    size_t brew_packages_count;
+    
     // Module directory path
     char *module_dir;
 } ModuleBuildMetadata;
