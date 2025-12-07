@@ -85,7 +85,7 @@ PREFIX ?= /usr/local
 
 .DEFAULT_GOAL := build
 
-.PHONY: all build test examples clean rebuild help check-deps status
+.PHONY: all build test examples examples-no-sdl clean rebuild help check-deps status
 
 # Build: 3-stage bootstrap (uses sentinels to skip completed stages)
 build: $(SENTINEL_STAGE3)
@@ -129,6 +129,31 @@ examples: build check-deps-sdl
 	@echo "=========================================="
 	@$(MAKE) -C examples all
 	@echo "✅ Examples built successfully!"
+
+# Examples without SDL: Build only non-SDL examples  
+examples-no-sdl: build
+	@echo ""
+	@echo "=========================================="
+	@echo "Building Examples (Skipping SDL)"
+	@echo "=========================================="
+	@echo "⚠️  SDL examples will be skipped (SDL2 development libraries not installed)"
+	@echo ""
+	@echo "Interpreter-only examples are available:"
+	@echo "  ./bin/nano examples/hello.nano"
+	@echo "  ./bin/nano examples/factorial.nano"
+	@echo "  ./bin/nano examples/fibonacci.nano"
+	@echo "  ./bin/nano examples/primes.nano"
+	@echo "  ./bin/nano examples/calculator.nano"
+	@echo "  ./bin/nano examples/game_of_life.nano"
+	@echo "  ./bin/nano examples/snake.nano"
+	@echo "  ./bin/nano examples/maze.nano"
+	@echo ""
+	@echo "To build SDL examples, install SDL2 development libraries:"
+	@echo "  Ubuntu/Debian: sudo apt-get install libsdl2-dev libsdl2-mixer-dev libsdl2-ttf-dev"
+	@echo "  Fedora/RHEL:   sudo dnf install SDL2-devel SDL2_mixer-devel SDL2_ttf-devel"
+	@echo "  macOS:         brew install sdl2 sdl2_mixer sdl2_ttf"
+	@echo ""
+	@echo "✅ Build complete (SDL examples skipped)"
 
 # Clean: Remove all build artifacts and sentinels
 clean:
@@ -510,6 +535,29 @@ check-deps-sdl:
 			echo "⚠️  Homebrew not found on macOS"; \
 		elif ! command -v pkg-config >/dev/null 2>&1 || ! pkg-config --exists sdl2 2>/dev/null; then \
 			echo "⚠️  SDL2 not found (optional)"; \
+			echo "   Install with: brew install sdl2 sdl2_mixer sdl2_ttf"; \
+		else \
+			echo "✓ SDL2 found: $$(pkg-config --modversion sdl2)"; \
+		fi; \
+	elif [ "$$(uname -s)" = "Linux" ]; then \
+		if ! command -v pkg-config >/dev/null 2>&1; then \
+			echo "❌ pkg-config not found - cannot check for SDL2"; \
+			echo "   Install with: sudo apt-get install pkg-config"; \
+			exit 1; \
+		elif ! pkg-config --exists sdl2 2>/dev/null; then \
+			echo "❌ SDL2 development libraries not found"; \
+			echo "   SDL examples cannot be built without SDL2 headers."; \
+			echo ""; \
+			echo "   To install SDL2 on Ubuntu/Debian:"; \
+			echo "     sudo apt-get install libsdl2-dev libsdl2-mixer-dev libsdl2-ttf-dev"; \
+			echo ""; \
+			echo "   To install SDL2 on Fedora/RHEL:"; \
+			echo "     sudo dnf install SDL2-devel SDL2_mixer-devel SDL2_ttf-devel"; \
+			echo ""; \
+			echo "   To skip SDL examples and continue:"; \
+			echo "     make examples-no-sdl"; \
+			echo ""; \
+			exit 1; \
 		else \
 			echo "✓ SDL2 found: $$(pkg-config --modversion sdl2)"; \
 		fi; \
@@ -625,4 +673,4 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test examples clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install
+.PHONY: all build test examples examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install
