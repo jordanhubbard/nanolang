@@ -30,7 +30,6 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/mod_player \
 	$(BIN_DIR)/raytracer_simple \
 	$(BIN_DIR)/asteroids_sdl \
-	$(BIN_DIR)/asteroids_enhanced_sdl \
 	$(BIN_DIR)/terrain_explorer_sdl
 
 # Additional compiled examples (non-graphics)
@@ -90,8 +89,7 @@ all: $(COMPILER) $(ALL_COMPILED)
 	@echo "  ./bin/falling_sand           - Cellular automata sandbox"
 	@echo "  ./bin/mod_player             - MOD/XM music player (requires music files)"
 	@echo "  ./bin/raytracer_simple       - Real-time ray tracer with mouse-controlled light"
-	@echo "  ./bin/asteroids_sdl          - Classic arcade game (parallel arrays pattern)"
-	@echo "  ./bin/asteroids_enhanced_sdl - Enhanced with breaking asteroids & thrust cone"
+	@echo "  ./bin/asteroids_sdl          - Full arcade game (3 lives, game over, HUD, breaking asteroids)"
 	@echo "  ./bin/terrain_explorer_sdl   - 3D terrain with mouse camera (array<struct>!)"
 	@echo ""
 	@echo "Compiled terminal examples:"
