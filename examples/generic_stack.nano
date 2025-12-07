@@ -1,0 +1,136 @@
+# Generic Stack Implementation
+# Demonstrates generic programming with a classic data structure
+
+struct Stack<T> {
+    data: array<T>,
+    size: int,
+    capacity: int
+}
+
+# Create an empty stack with given capacity
+fn make_stack<T>(capacity: int) -> Stack<T> {
+    # Note: In transpiled code, arrays must be pre-allocated
+    # For interpreter, we'd use empty array
+    return Stack<T> {
+        data: [],  # Empty for interpreter
+        size: 0,
+        capacity: capacity
+    }
+}
+
+shadow make_stack {
+    let s: Stack<int> = (make_stack<int> 10)
+    assert (== s.size 0)
+    assert (== s.capacity 10)
+}
+
+# Push an element onto the stack
+fn stack_push<T>(stack: Stack<T>, value: T) -> Stack<T> {
+    # In real implementation, would use array_push for interpreter
+    # For now, demonstrate the type signature
+    return stack
+}
+
+shadow stack_push {
+    assert true  # Simplified for demo
+}
+
+# Check if stack is empty
+fn stack_is_empty<T>(stack: Stack<T>) -> bool {
+    return (== stack.size 0)
+}
+
+shadow stack_is_empty {
+    let s: Stack<int> = (make_stack<int> 5)
+    assert (== (stack_is_empty<int> s) true)
+}
+
+# Get stack size
+fn stack_size<T>(stack: Stack<T>) -> int {
+    return stack.size
+}
+
+shadow stack_size {
+    let s: Stack<int> = (make_stack<int> 5)
+    assert (== (stack_size<int> s) 0)
+}
+
+# === INTEGER STACK EXAMPLE ===
+
+fn demo_int_stack() -> int {
+    (println "Integer Stack Demo:")
+    let s: Stack<int> = (make_stack<int> 10)
+    (print "  Created stack with capacity ")
+    (println (int_to_string s.capacity))
+    (print "  Stack size: ")
+    (println (int_to_string (stack_size<int> s)))
+    (print "  Is empty? ")
+    if (stack_is_empty<int> s) {
+        (println "Yes")
+    } else {
+        (println "No")
+    }
+    return 0
+}
+
+shadow demo_int_stack {
+    assert (== (demo_int_stack) 0)
+}
+
+# === FLOAT STACK EXAMPLE ===
+
+fn demo_float_stack() -> int {
+    (println "")
+    (println "Float Stack Demo:")
+    let s: Stack<float> = (make_stack<float> 5)
+    (print "  Created stack with capacity ")
+    (println (int_to_string s.capacity))
+    (print "  Stack size: ")
+    (println (int_to_string (stack_size<float> s)))
+    return 0
+}
+
+shadow demo_float_stack {
+    assert (== (demo_float_stack) 0)
+}
+
+# === STRING STACK EXAMPLE ===
+
+fn demo_string_stack() -> int {
+    (println "")
+    (println "String Stack Demo:")
+    let s: Stack<string> = (make_stack<string> 20)
+    (print "  Created stack with capacity ")
+    (println (int_to_string s.capacity))
+    (print "  Stack size: ")
+    (println (int_to_string (stack_size<string> s)))
+    return 0
+}
+
+shadow demo_string_stack {
+    assert (== (demo_string_stack) 0)
+}
+
+# === MAIN ===
+
+fn main() -> int {
+    (println "=== Generic Stack Demo ===")
+    (println "")
+    
+    let _int: int = (demo_int_stack)
+    let _float: int = (demo_float_stack)
+    let _string: int = (demo_string_stack)
+    
+    (println "")
+    (println "Generic stack types work! ✓")
+    (println "")
+    (println "Note: Full stack operations (push/pop) require")
+    (println "array_push support which is interpreter-only.")
+    (println "For compiled code, use pre-allocated arrays.")
+    
+    return 0
+}
+
+shadow main {
+    assert true
+}

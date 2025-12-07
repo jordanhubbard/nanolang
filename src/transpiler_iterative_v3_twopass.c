@@ -550,11 +550,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             /* Array literal: [1, 2, 3] */
             int count = expr->as.array_literal.element_count;
             if (count == 0) {
-                emit_literal(list, "(int64_t[]){}");
+                emit_literal(list, "(DynArray*)(int64_t[]){}");
             } else {
                 Type elem_type = check_expression(expr->as.array_literal.elements[0], env);
                 const char *c_type = type_to_c(elem_type);
-                emit_formatted(list, "(%s[]){", c_type);
+                emit_formatted(list, "(DynArray*)(%s[]){", c_type);
                 for (int i = 0; i < count; i++) {
                     if (i > 0) emit_literal(list, ", ");
                     build_expr(list, expr->as.array_literal.elements[i], env);
