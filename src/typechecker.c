@@ -3128,8 +3128,13 @@ bool type_check(ASTNode *program, Environment *env) {
             /* Check for unused variables before leaving scope */
             check_unused_variables(&tc, saved_symbol_count);
 
-            /* Restore environment (remove parameters) */
-            env->symbol_count = saved_symbol_count;
+            /* DON'T restore environment - transpiler needs these symbols! */
+            /* The old code removed function-local symbols after typechecking:
+             *   env->symbol_count = saved_symbol_count;
+             * This caused array<struct> to fail because transpiler couldn't find
+             * the struct_type_name metadata. Now we keep all symbols so transpiler
+             * can access type information. C's function-local scope prevents collisions.
+             */
 
             /* Verify function has shadow test (skip for extern functions and functions that use extern functions) */
             Function *func = env_get_function(env, item->as.function.name);
@@ -3575,8 +3580,13 @@ bool type_check_module(ASTNode *program, Environment *env) {
             /* Check for unused variables before leaving scope */
             check_unused_variables(&tc, saved_symbol_count);
 
-            /* Restore environment (remove parameters) */
-            env->symbol_count = saved_symbol_count;
+            /* DON'T restore environment - transpiler needs these symbols! */
+            /* The old code removed function-local symbols after typechecking:
+             *   env->symbol_count = saved_symbol_count;
+             * This caused array<struct> to fail because transpiler couldn't find
+             * the struct_type_name metadata. Now we keep all symbols so transpiler
+             * can access type information. C's function-local scope prevents collisions.
+             */
 
             /* Verify function has shadow test (skip for extern functions and functions that use extern functions) */
             Function *func = env_get_function(env, item->as.function.name);

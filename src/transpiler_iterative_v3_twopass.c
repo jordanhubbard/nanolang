@@ -885,6 +885,16 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             /* Register in environment */
             env_define_var_with_type_info(env, stmt->as.let.name, stmt->as.let.var_type,
                                          stmt->as.let.element_type, NULL, stmt->as.let.is_mut, create_void());
+            
+            /* For array<struct>, set struct_type_name so array_push can find it */
+            if (stmt->as.let.var_type == TYPE_ARRAY && 
+                stmt->as.let.element_type == TYPE_STRUCT &&
+                stmt->as.let.type_name) {
+                Symbol *sym = env_get_var(env, stmt->as.let.name);
+                if (sym) {
+                    sym->struct_type_name = strdup(stmt->as.let.type_name);
+                }
+            }
             break;
         }
         
