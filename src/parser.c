@@ -50,8 +50,10 @@ static Token *current_token(Parser *p) {
     
     /* Validate token pointer is within reasonable bounds */
     Token *tok = &p->tokens[safe_pos];
-    if ((uintptr_t)tok < 0x1000 || (uintptr_t)tok > 0x7fffffffffff) {
-        /* Token pointer is in invalid memory range (zero page or way out of bounds) */
+    /* Only check for NULL/zero page - don't assume architecture-specific address ranges */
+    /* ARM64 can have addresses above 0x7fffffffffff in user space */
+    if ((uintptr_t)tok < 0x1000) {
+        /* Token pointer is in NULL or zero page (invalid memory) */
         return NULL;
     }
     
