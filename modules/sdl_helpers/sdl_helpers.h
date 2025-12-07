@@ -29,6 +29,9 @@ int64_t nl_sdl_poll_mouse_motion(void);
 /* Poll for keyboard events - returns scancode or -1 */
 int64_t nl_sdl_poll_keypress(void);
 
+/* Check if a key is currently held down - returns 1 if held, 0 otherwise */
+int64_t nl_sdl_key_state(int64_t scancode);
+
 /* Render text (solid - faster, no AA) */
 int64_t nl_sdl_render_text_solid(SDL_Renderer* renderer, int64_t font, const char* text, int64_t x, int64_t y, int64_t r, int64_t g, int64_t b, int64_t a);
 

@@ -138,18 +138,15 @@ fn main() -> int {
         let dt: float = (/ (cast_float (- current_time last_time)) 1000.0)
         set last_time current_time
         
-        # Input
-        let key: int = (nl_sdl_poll_keypress)
-        let mut thrust: bool = false
-        let mut rotate_left: bool = false
-        let mut rotate_right: bool = false
-        let mut shoot: bool = false
+        # Input - check keyboard state for continuous input
+        let thrust: bool = (== (nl_sdl_key_state 82) 1)       # Up arrow
+        let rotate_left: bool = (== (nl_sdl_key_state 80) 1)  # Left arrow
+        let rotate_right: bool = (== (nl_sdl_key_state 79) 1) # Right arrow
+        let shoot: bool = (== (nl_sdl_key_state 44) 1)        # Space
         
-        if (== key 1073741906) { set thrust true } else {}      # Up
-        if (== key 1073741904) { set rotate_left true } else {} # Left
-        if (== key 1073741903) { set rotate_right true } else {} # Right
-        if (== key 32) { set shoot true } else {}                # Space
-        if (== key 41) { set running false } else {}             # ESC
+        # Check for ESC keypress to quit (one-time check)
+        let key: int = (nl_sdl_poll_keypress)
+        if (== key 41) { set running false } else {}            # ESC
         
         if (== (nl_sdl_poll_event_quit) 1) { set running false } else {}
         

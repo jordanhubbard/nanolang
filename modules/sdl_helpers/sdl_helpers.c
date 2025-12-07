@@ -135,6 +135,18 @@ int64_t nl_sdl_poll_keypress(void) {
     return -1;
 }
 
+/* Helper to check if a key is currently held down (keyboard state)
+ * Returns 1 if the key with given scancode is held, 0 otherwise
+ * Use this for continuous input (thrust, rotation) instead of nl_sdl_poll_keypress
+ * Common scancodes:
+ *   UP = 82, DOWN = 81, LEFT = 80, RIGHT = 79
+ *   SPACE = 44, ESC = 41
+ */
+int64_t nl_sdl_key_state(int64_t scancode) {
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
+    return state[scancode] ? 1 : 0;
+}
+
 #ifdef HAVE_SDL_TTF
 /* Helper to render text using SDL_ttf
  * Creates SDL_Color struct, renders text, creates texture, and renders to screen

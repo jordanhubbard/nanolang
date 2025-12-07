@@ -1,0 +1,141 @@
+# Comprehensive test for array<struct> - multiple operations
+
+struct Point {
+    x: int,
+    y: int
+}
+
+struct Particle {
+    x: float,
+    y: float,
+    vx: float,
+    vy: float,
+    life: float
+}
+
+fn test_simple_array_struct() -> int {
+    # Create empty array
+    let mut points: array<Point> = []
+    
+    # Add several points
+    let p1: Point = Point { x: 10, y: 20 }
+    let p2: Point = Point { x: 30, y: 40 }
+    let p3: Point = Point { x: 50, y: 60 }
+    
+    set points (array_push points p1)
+    set points (array_push points p2)
+    set points (array_push points p3)
+    
+    # Verify length
+    let len: int = (array_length points)
+    assert (== len 3)
+    
+    # Access elements
+    let retrieved: Point = (at points 0)
+    assert (== retrieved.x 10)
+    assert (== retrieved.y 20)
+    
+    let retrieved2: Point = (at points 1)
+    assert (== retrieved2.x 30)
+    assert (== retrieved2.y 40)
+    
+    let retrieved3: Point = (at points 2)
+    assert (== retrieved3.x 50)
+    assert (== retrieved3.y 60)
+    
+    return 0
+}
+
+fn test_nested_field_access() -> int {
+    let mut particles: array<Particle> = []
+    
+    let p1: Particle = Particle { x: 1.5, y: 2.5, vx: 0.1, vy: 0.2, life: 1.0 }
+    let p2: Particle = Particle { x: 3.5, y: 4.5, vx: 0.3, vy: 0.4, life: 0.5 }
+    
+    set particles (array_push particles p1)
+    set particles (array_push particles p2)
+    
+    # Access fields directly from array
+    let first: Particle = (at particles 0)
+    assert (== first.x 1.5)
+    assert (== first.vx 0.1)
+    assert (== first.life 1.0)
+    
+    let second: Particle = (at particles 1)
+    assert (== second.y 4.5)
+    assert (== second.vy 0.4)
+    
+    return 0
+}
+
+fn test_array_modification() -> int {
+    let mut points: array<Point> = []
+    
+    # Add 5 points
+    let mut i: int = 0
+    while (< i 5) {
+        let p: Point = Point { x: i, y: (* i 2) }
+        set points (array_push points p)
+        set i (+ i 1)
+    }
+    
+    # Verify all points
+    set i 0
+    while (< i 5) {
+        let p: Point = (at points i)
+        assert (== p.x i)
+        assert (== p.y (* i 2))
+        set i (+ i 1)
+    }
+    
+    return 0
+}
+
+fn test_multiple_arrays() -> int {
+    # Test having multiple array<struct> variables simultaneously
+    let mut points: array<Point> = []
+    let mut particles: array<Particle> = []
+    
+    let pt: Point = Point { x: 100, y: 200 }
+    set points (array_push points pt)
+    
+    let pa: Particle = Particle { x: 1.1, y: 2.2, vx: 0.0, vy: 0.0, life: 1.0 }
+    set particles (array_push particles pa)
+    
+    # Verify both arrays work
+    assert (== (array_length points) 1)
+    assert (== (array_length particles) 1)
+    
+    let retrieved_pt: Point = (at points 0)
+    assert (== retrieved_pt.x 100)
+    
+    let retrieved_pa: Particle = (at particles 0)
+    assert (== retrieved_pa.x 1.1)
+    
+    return 0
+}
+
+fn main() -> int {
+    (println "Testing array<struct> comprehensive...")
+    
+    let result1: int = (test_simple_array_struct)
+    (println "✓ Simple array<struct> operations")
+    
+    let result2: int = (test_nested_field_access)
+    (println "✓ Nested field access")
+    
+    let result3: int = (test_array_modification)
+    (println "✓ Array modification in loops")
+    
+    let result4: int = (test_multiple_arrays)
+    (println "✓ Multiple array<struct> variables")
+    
+    (println "")
+    (println "✅ All array<struct> tests passed!")
+    
+    return 0
+}
+
+shadow main {
+    assert true
+}
