@@ -30,6 +30,7 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/mod_player \
 	$(BIN_DIR)/raytracer_simple \
 	$(BIN_DIR)/asteroids_sdl \
+	$(BIN_DIR)/asteroids_enhanced_sdl \
 	$(BIN_DIR)/terrain_explorer_sdl
 
 # Additional compiled examples (non-graphics)
@@ -90,6 +91,7 @@ all: $(COMPILER) $(ALL_COMPILED)
 	@echo "  ./bin/mod_player             - MOD/XM music player (requires music files)"
 	@echo "  ./bin/raytracer_simple       - Real-time ray tracer with mouse-controlled light"
 	@echo "  ./bin/asteroids_sdl          - Classic arcade game (parallel arrays pattern)"
+	@echo "  ./bin/asteroids_enhanced_sdl - Enhanced with breaking asteroids & thrust cone"
 	@echo "  ./bin/terrain_explorer_sdl   - 3D terrain with mouse camera (array<struct>!)"
 	@echo ""
 	@echo "Compiled terminal examples:"
@@ -138,6 +140,7 @@ checkers-sdl: $(BIN_DIR)/checkers_sdl
 boids-sdl: $(BIN_DIR)/boids_sdl
 raytracer-simple: $(BIN_DIR)/raytracer_simple
 asteroids-sdl: $(BIN_DIR)/asteroids_sdl
+asteroids-enhanced-sdl: $(BIN_DIR)/asteroids_enhanced_sdl
 terrain-explorer-sdl: $(BIN_DIR)/terrain_explorer_sdl
 
 opengl-cube: $(BIN_DIR)/opengl_cube
@@ -194,6 +197,11 @@ $(BIN_DIR)/asteroids_sdl: asteroids_sdl.nano $(COMPILER)
 	@echo "Building Asteroids (classic arcade game with parallel arrays)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/asteroids_sdl.nano -o bin/asteroids_sdl
 	@echo "✓ Asteroids built: $@"
+
+$(BIN_DIR)/asteroids_enhanced_sdl: asteroids_enhanced_sdl.nano $(COMPILER)
+	@echo "Building Asteroids Enhanced (breaking asteroids & thrust effects)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/asteroids_enhanced_sdl.nano -o bin/asteroids_enhanced_sdl
+	@echo "✓ Asteroids Enhanced built: $@"
 
 # === Non-Graphics Compiled Examples ===
 
