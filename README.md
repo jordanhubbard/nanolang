@@ -9,9 +9,6 @@
 
 **Status**: 🎊 **SELF-HOSTED** 🎊 - Compiler written IN NanoLang! See [SELFHOSTING_ACHIEVED.md](SELFHOSTING_ACHIEVED.md) for the full story.
 
-> **⚠️ CRITICAL: ARM64 Support Broken**  
-> Nanolang currently **does not work on ARM64/aarch64** systems (Raspberry Pi, ARM servers). Parser completely fails on fresh clone. Works perfectly on x86_64 (Intel/AMD). See [KNOWN_ISSUES.md](KNOWN_ISSUES.md) for details. **Fix in progress.**
-
 A minimal, LLM-friendly programming language designed for AI-assisted programming with strict, unambiguous syntax, mandatory shadow-tests, and **true self-hosting** via C transpilation.
 
 ## Documentation 📚

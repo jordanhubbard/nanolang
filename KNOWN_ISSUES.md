@@ -1,11 +1,38 @@
 # Known Issues
 
-## Critical: Parser Failure on ARM64 (aarch64) Fresh Clone
+## ~~Critical: Parser Failure on ARM64 (aarch64) Fresh Clone~~ **FIXED!**
 
-**Status:** 🔴 **CRITICAL BUG** - Blocks all usage on ARM64 systems  
-**Affects:** ARM64/aarch64 Linux systems (tested on Ubuntu 24.04)  
+**Status:** ✅ **FIXED** (December 6, 2025)  
+**Affected:** ARM64/aarch64 Linux systems (tested on Ubuntu 24.04)  
 **First Reported:** December 6, 2025  
+**Fixed:** December 6, 2025 (same day!)  
 **System:** sparky.local - Ubuntu 24.04, GCC 13.3.0, aarch64
+
+### The Fix
+
+**Root Cause:** x86_64-specific address validation in `current_token()` function (src/parser.c line 54)
+
+The parser had this check:
+```c
+if ((uintptr_t)tok < 0x1000 || (uintptr_t)tok > 0x7fffffffffff)
+```
+
+The upper bound `0x7fffffffffff` is valid for x86_64, but ARM64 user-space addresses can be much higher (e.g., `0xbf7bd7a8a7b0`), causing all tokens to be rejected.
+
+**Solution:** Removed architecture-specific upper bound check, keeping only NULL/zero-page validation:
+```c
+if ((uintptr_t)tok < 0x1000)
+```
+
+**Result:** 
+- ✅ Parser works on ARM64
+- ✅ 21/24 tests pass (same as x86_64)
+- ✅ Factorial, checkers, and other examples compile and run
+- ✅ Both compiler and interpreter work
+
+---
+
+## Historical Record: Original Issue Description
 
 ### Symptoms
 
