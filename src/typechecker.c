@@ -161,7 +161,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             
         case AST_IDENTIFIER: {
             Symbol *sym = env_get_var(env, expr->as.identifier);
-            if (sym && sym->type == TYPE_STRUCT) {
+            if (sym && (sym->type == TYPE_STRUCT || sym->type == TYPE_UNION)) {
                 return sym->struct_type_name;
             }
             return NULL;
@@ -1142,6 +1142,24 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 if (func && func->return_struct_type_name) {
                     union_type_name = func->return_struct_type_name;
                 }
+            } else if (match_expr_node->type == AST_FIELD_ACCESS) {
+                /* Handle field access expressions like resp.status */
+                const char *struct_name = get_struct_type_name(match_expr_node->as.field_access.object, env);
+                if (struct_name) {
+                    /* Look up the struct definition to find the field's type name */
+                    StructDef *sdef = env_get_struct(env, struct_name);
+                    if (sdef && sdef->field_type_names) {
+                        const char *field_name = match_expr_node->as.field_access.field_name;
+                        for (int i = 0; i < sdef->field_count; i++) {
+                            if (strcmp(sdef->field_names[i], field_name) == 0) {
+                                if (sdef->field_types[i] == TYPE_UNION && sdef->field_type_names[i]) {
+                                    union_type_name = sdef->field_type_names[i];
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
             }
             
             if (union_type_name) {
@@ -1197,13 +1215,19 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
              * Type check all statements and return the type of the last expression/return
              */
             Type block_type = TYPE_VOID;
+            
+            /* Create a temporary TypeChecker for statement type checking */
+            TypeChecker temp_tc;
+            temp_tc.env = env;
+            temp_tc.has_error = false;
+            
             for (int i = 0; i < expr->as.block.count; i++) {
                 ASTNode *stmt = expr->as.block.statements[i];
                 if (stmt->type == AST_RETURN && stmt->as.return_stmt.value) {
                     block_type = check_expression(stmt->as.return_stmt.value, env);
                 } else {
                     /* Type check the statement (for side effects) */
-                    Type stmt_type = check_statement(NULL, stmt);
+                    Type stmt_type = check_statement(&temp_tc, stmt);
                     /* If it's the last statement and not a return, use its type */
                     if (i == expr->as.block.count - 1 && stmt_type != TYPE_VOID) {
                         block_type = stmt_type;
@@ -1501,10 +1525,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
             
             /* Add to environment */
-            /* Use original_declared_type to ensure struct and union types are preserved */
-            /* But use declared_type for enums (which may have been corrected from TYPE_STRUCT) */
-            Type env_type = (original_declared_type == TYPE_STRUCT && declared_type != TYPE_ENUM) || original_declared_type == TYPE_UNION
-                          ? original_declared_type : declared_type;
+            /* Use declared_type which has been corrected for unions and enums */
+            Type env_type = declared_type;
             Value val = create_void(); /* Placeholder */
             env_define_var_with_type_info(tc->env, stmt->as.let.name, env_type, element_type, type_info, stmt->as.let.is_mut, val);
             

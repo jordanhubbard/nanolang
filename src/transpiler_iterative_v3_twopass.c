@@ -547,19 +547,55 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         }
         
         case AST_ARRAY_LITERAL: {
-            /* Array literal: [1, 2, 3] */
+            /* Array literal: [1, 2, 3] - Use dynarray_literal_* helper functions */
             int count = expr->as.array_literal.element_count;
+            
             if (count == 0) {
-                emit_literal(list, "(DynArray*)(int64_t[]){}");
-            } else {
-                Type elem_type = check_expression(expr->as.array_literal.elements[0], env);
-                const char *c_type = type_to_c(elem_type);
-                emit_formatted(list, "(DynArray*)(%s[]){", c_type);
-                for (int i = 0; i < count; i++) {
-                    if (i > 0) emit_literal(list, ", ");
-                    build_expr(list, expr->as.array_literal.elements[i], env);
+                /* Empty array - need to determine type */
+                Type elem_type = expr->as.array_literal.element_type;
+                if (elem_type == TYPE_UNKNOWN) {
+                    /* Default to int for empty arrays without type info */
+                    elem_type = TYPE_INT;
                 }
-                emit_literal(list, "}");
+                
+                /* Generate call to appropriate constructor */
+                if (elem_type == TYPE_INT) {
+                    emit_literal(list, "dynarray_literal_int(0)");
+                } else if (elem_type == TYPE_FLOAT) {
+                    emit_literal(list, "dynarray_literal_float(0)");
+                } else {
+                    /* Fallback for other types */
+                    emit_literal(list, "dyn_array_new(ELEM_INT)");
+                }
+            } else {
+                /* Non-empty array - determine type from first element */
+                Type elem_type = check_expression(expr->as.array_literal.elements[0], env);
+                
+                /* Generate call to appropriate helper function */
+                if (elem_type == TYPE_INT) {
+                    emit_formatted(list, "dynarray_literal_int(%d", count);
+                    for (int i = 0; i < count; i++) {
+                        emit_literal(list, ", ");
+                        build_expr(list, expr->as.array_literal.elements[i], env);
+                    }
+                    emit_literal(list, ")");
+                } else if (elem_type == TYPE_FLOAT) {
+                    emit_formatted(list, "dynarray_literal_float(%d", count);
+                    for (int i = 0; i < count; i++) {
+                        emit_literal(list, ", ");
+                        build_expr(list, expr->as.array_literal.elements[i], env);
+                    }
+                    emit_literal(list, ")");
+                } else {
+                    /* For other types, fallback to old behavior */
+                    const char *c_type = type_to_c(elem_type);
+                    emit_formatted(list, "(%s[]){", c_type);
+                    for (int i = 0; i < count; i++) {
+                        if (i > 0) emit_literal(list, ", ");
+                        build_expr(list, expr->as.array_literal.elements[i], env);
+                    }
+                    emit_literal(list, "}");
+                }
             }
             break;
         }
