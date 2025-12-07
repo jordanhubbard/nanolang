@@ -1,0 +1,43 @@
+# Test 3D arrays with empty initialization
+
+fn main() -> int {
+    (println "Testing 3D array creation...")
+    
+    # Create empty 3D array
+    let mut cube: array<array<array<int>>> = []
+    (println "Created empty 3D array")
+    
+    # Create 2D array (layer)
+    let mut layer: array<array<int>> = []
+    (println "Created empty 2D array")
+    
+    # Create 1D array (row)
+    let mut row: array<int> = []
+    (println "Created empty 1D array")
+    
+    # Push value to row
+    set row (array_push row 42)
+    (println "Pushed value to row")
+    
+    # Push row to layer
+    set layer (array_push layer row)
+    (println "Pushed row to layer")
+    
+    # Push layer to cube
+    set cube (array_push cube layer)
+    (println "Pushed layer to cube")
+    
+    # Now try to access
+    (println "Accessing cube...")
+    let retrieved_layer: array<array<int>> = (at cube 0)
+    (println "Got layer from cube")
+    
+    let retrieved_row: array<int> = (at retrieved_layer 0)
+    (println "Got row from layer")
+    
+    let value: int = (at retrieved_row 0)
+    (print "Value: ")
+    (println value)
+    
+    return value
+}
