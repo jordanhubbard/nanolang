@@ -1,0 +1,33 @@
+# Test returning a function pointer (no closures)
+
+fn add_one(x: int) -> int {
+    return (+ x 1)
+}
+
+fn add_two(x: int) -> int {
+    return (+ x 2)
+}
+
+fn get_adder(which: int) -> fn(int) -> int {
+    if (== which 1) {
+        return add_one
+    } else {
+        return add_two
+    }
+}
+
+fn main() -> int {
+    let adder: fn(int) -> int = (get_adder 1)
+    let result: int = (adder 10)
+    
+    (print "Result: ")
+    (println result)
+    
+    if (== result 11) {
+        (println "✅ Function pointers work!")
+        return 0
+    } else {
+        (println "❌ Test failed")
+        return 1
+    }
+}

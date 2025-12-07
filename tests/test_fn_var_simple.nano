@@ -1,0 +1,14 @@
+# Test function variable storage
+
+fn add_one(x: int) -> int {
+    return (+ x 1)
+}
+
+fn main() -> int {
+    let f: fn(int) -> int = add_one
+    (println "Stored function in variable")
+    let result: int = (f 5)
+    (print "Result: ")
+    (println result)
+    return result
+}

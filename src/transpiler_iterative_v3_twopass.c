@@ -736,6 +736,17 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                 build_expr(list, stmt->as.let.value, env);
                 emit_literal(list, ";\n");
             }
+            /* Handle function types - use typedef from registry */
+            else if (stmt->as.let.var_type == TYPE_FUNCTION && stmt->as.let.fn_sig) {
+                const char *typedef_name = register_function_signature(fn_registry, stmt->as.let.fn_sig);
+                emit_formatted(list, "%s %s", typedef_name, stmt->as.let.name);
+                
+                if (stmt->as.let.value) {
+                    emit_literal(list, " = ");
+                    build_expr(list, stmt->as.let.value, env);
+                }
+                emit_literal(list, ";\n");
+            }
             /* Handle struct/enum types that need prefixing */
             else if (stmt->as.let.var_type == TYPE_STRUCT || stmt->as.let.var_type == TYPE_UNION) {
                 /* Check if it's an enum */

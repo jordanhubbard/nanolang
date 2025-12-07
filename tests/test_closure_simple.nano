@@ -1,0 +1,16 @@
+# Test simple closure - function returning function
+
+fn make_adder(x: int) -> fn(int) -> int {
+    # Try to return a nested function
+    # This will likely fail because we can't define nested functions yet
+    fn adder(y: int) -> int {
+        return (+ x y)
+    }
+    return adder
+}
+
+fn main() -> int {
+    let add5: fn(int) -> int = (make_adder 5)
+    let result: int = (add5 10)
+    return result
+}

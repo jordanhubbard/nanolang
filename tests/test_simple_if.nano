@@ -1,0 +1,14 @@
+# Test simple if without else
+
+fn main() -> int {
+    let x: int = 5
+    
+    if (!= x 5) {
+        (println "Wrong")
+        return 1
+    }
+    
+    let y: int = 10
+    (println y)
+    return 0
+}

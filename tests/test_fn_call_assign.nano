@@ -1,0 +1,17 @@
+# Test assigning result of function call that returns a function
+
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+fn get_double() -> fn(int) -> int {
+    return double
+}
+
+fn main() -> int {
+    let f: fn(int) -> int = (get_double)
+    let result: int = (f 5)
+    (print "Result: ")
+    (println result)
+    return result
+}
