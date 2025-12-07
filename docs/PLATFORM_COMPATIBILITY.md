@@ -253,11 +253,53 @@ brew install sdl2
 
 This is expected on headless systems. SDL examples will fallback to software renderer automatically.
 
+### "Parser reached invalid state" on fresh clone
+
+**Problem:**
+After `git clone` and `make examples`, you get:
+```
+Error: Parser reached invalid state
+Error: Program must define a 'main' function
+```
+
+**Possible causes:**
+1. Uninitialized memory in parser/lexer (compiler-specific)
+2. Self-hosted components failed but build claimed success
+3. Platform-specific undefined behavior
+
+**Solution:**
+```bash
+# Try a clean rebuild
+make clean && make
+
+# If that fails, check the bootstrap status carefully
+# Look for "0/3 components built successfully" in Stage 2
+
+# The C reference compiler should still work for simple programs:
+./bin/nanoc examples/factorial.nano -o test_factorial
+./test_factorial
+
+# Report the issue with your system info:
+# - OS and version (uname -a)
+# - GCC version (gcc --version)
+# - Output of: make clean && make 2>&1 | tee build.log
+```
+
+**Workaround:**
+If examples don't compile but the C compiler built successfully, try:
+- Simpler examples: `factorial.nano`, `fibonacci.nano`
+- Interpreter mode: `./bin/nano examples/checkers.nano`
+- Report the issue on GitHub with full build log
+
+**Status:** This is a known bug being investigated. It appears to be a memory
+initialization or platform-specific issue that doesn't affect all systems.
+
 ### "Segmentation fault" in examples
 
 **Possible causes:**
 1. Missing display (X11/Wayland)
 2. Corrupted module cache
+3. Related to above parser issue
 
 **Solution:**
 ```bash
