@@ -1118,6 +1118,24 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                 continue;
             }
             
+            // Validate flag is printable ASCII (no UTF-8 or binary garbage)
+            bool valid = true;
+            for (const char *p = link_flags[i]; *p; p++) {
+                if ((unsigned char)*p < 32 || (unsigned char)*p > 126) {
+                    // Non-printable or non-ASCII character found
+                    if (verbose) {
+                        fprintf(stderr, "[Modules] Warning: Skipping invalid link flag with non-ASCII character (byte 0x%02x)\n", (unsigned char)*p);
+                    }
+                    valid = false;
+                    break;
+                }
+            }
+            
+            if (!valid) {
+                free(link_flags[i]);
+                continue;
+            }
+            
             if (strlen(module_objs_buffer) + strlen(link_flags[i]) + 2 < buffer_size) {
                 if (module_objs_buffer[0] != '\0') {
                     strcat(module_objs_buffer, " ");
@@ -1139,6 +1157,24 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
             for (size_t i = 0; i < compile_flags_count; i++) {
                 // Skip NULL or empty flags
                 if (!compile_flags[i] || compile_flags[i][0] == '\0') {
+                    free(compile_flags[i]);
+                    continue;
+                }
+                
+                // Validate flag is printable ASCII (no UTF-8 or binary garbage)
+                bool valid = true;
+                for (const char *p = compile_flags[i]; *p; p++) {
+                    if ((unsigned char)*p < 32 || (unsigned char)*p > 126) {
+                        // Non-printable or non-ASCII character found
+                        if (verbose) {
+                            fprintf(stderr, "[Modules] Warning: Skipping invalid compile flag with non-ASCII character (byte 0x%02x)\n", (unsigned char)*p);
+                        }
+                        valid = false;
+                        break;
+                    }
+                }
+                
+                if (!valid) {
                     free(compile_flags[i]);
                     continue;
                 }
