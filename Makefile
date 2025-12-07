@@ -219,8 +219,19 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1)
 		fi; \
 	done; \
 	echo ""; \
-	echo "✓ Stage 2: $$success/3 components built successfully"; \
-	touch $(SENTINEL_STAGE2)
+	if [ $$success -eq 3 ]; then \
+		echo "✓ Stage 2: $$success/3 components built successfully"; \
+		touch $(SENTINEL_STAGE2); \
+	else \
+		echo "❌ Stage 2: FAILED - Only $$success/3 components built successfully"; \
+		echo ""; \
+		echo "Self-hosted components are optional. The C reference compiler still works."; \
+		echo "To use nanolang without self-hosted features, this is fine."; \
+		echo "To fix: Check errors above or run 'make clean && make' to retry."; \
+		echo ""; \
+		echo "Continuing with C reference compiler only..."; \
+		touch $(SENTINEL_STAGE2); \
+	fi
 
 # ============================================================================
 # Stage 3: Bootstrap Validation (re-compile with stage2, verify working)
@@ -251,22 +262,35 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 		fi; \
 	done; \
 	echo ""; \
-	echo "✓ Stage 3: $$success/3 components validated"; \
+	if [ $$success -eq 3 ]; then \
+		echo "✓ Stage 3: $$success/3 components validated"; \
+	else \
+		echo "⚠️  Stage 3: Only $$success/3 components validated (self-hosted features incomplete)"; \
+	fi; \
 	echo ""; \
 	echo "==========================================";\
 	echo "Bootstrap Status Summary"; \
 	echo "==========================================";\
 	echo "✅ Stage 1: C reference compiler working"; \
-	echo "✅ Stage 2: Self-hosted components compile"; \
-	echo "✅ Stage 3: Components pass tests"; \
-	echo ""; \
-	echo "📊 Self-Hosted Code Statistics:"; \
-	echo "  • Parser:       2,767 lines"; \
-	echo "  • Type Checker:   797 lines"; \
-	echo "  • Transpiler:   1,081 lines"; \
-	echo "  • Total:        4,645+ lines"; \
-	echo ""; \
-	echo "🎯 Status: Phase 1 Complete (85%)"; \
+	if [ $$success -eq 3 ]; then \
+		echo "✅ Stage 2: Self-hosted components compile"; \
+		echo "✅ Stage 3: Components pass tests"; \
+		echo ""; \
+		echo "📊 Self-Hosted Code Statistics:"; \
+		echo "  • Parser:       2,767 lines"; \
+		echo "  • Type Checker:   797 lines"; \
+		echo "  • Transpiler:   1,081 lines"; \
+		echo "  • Total:        4,645+ lines"; \
+		echo ""; \
+		echo "🎯 Status: Phase 1 Complete (85%)"; \
+	else \
+		echo "⚠️  Stage 2: Self-hosted components incomplete (using C reference only)"; \
+		echo "⚠️  Stage 3: Component validation skipped"; \
+		echo ""; \
+		echo "✓ C reference compiler is fully functional"; \
+		echo "✓ All language features work via C implementation"; \
+		echo "✓ Self-hosted features are optional/experimental"; \
+	fi; \
 	echo ""; \
 	touch $(SENTINEL_STAGE3)
 

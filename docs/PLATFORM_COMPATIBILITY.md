@@ -332,17 +332,23 @@ let bullet_y: array<float> = [...]
 let bullet_active: array<bool> = [...]
 ```
 
-### Operator Limitations
+### Spelled-Out Operators (By Design)
 
-**Problem:** `!` operator for logical NOT is not supported.
+**Note:** Nanolang uses spelled-out operators consistently:
 
 ```nano
-# Doesn't work:
-if (! condition) { ... }
-
-# Works:
+# Correct nanolang style:
 if (not condition) { ... }
+if (and (> x 0) (< x 10)) { ... }
+if (or (== x 5) (== x 10)) { ... }
+
+# NOT valid (C-style operators not supported):
+if (! condition) { ... }      # Wrong - use 'not'
+if (x > 0 && x < 10) { ... }  # Wrong - use 'and'
+if (x == 5 || x == 10) { ... }  # Wrong - use 'or'
 ```
+
+This is intentional - it maintains consistency with the prefix notation philosophy.
 
 ### Examples Status
 
@@ -366,7 +372,6 @@ These limitations should be addressed in future releases:
 1. Add `float_to_int()` and `int_to_float()` standard library functions
 2. Fix arrays of structs compilation  
 3. Improve type inference and automatic conversions
-4. Support `!` operator natively
 
 ---
 
