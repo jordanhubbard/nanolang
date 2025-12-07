@@ -27,10 +27,6 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/boids_sdl \
 	$(BIN_DIR)/raytracer_simple
 
-# TODO: asteroids_sdl uses arrays of structs which the transpiler doesn't support yet
-# Works in interpreter: ./bin/nano examples/asteroids_sdl.nano
-# $(BIN_DIR)/asteroids_sdl
-
 # SDL examples that require interpreter (use array_push for dynamic arrays)
 SDL_INTERPRETER_ONLY = \
 	particles_sdl.nano \
@@ -78,7 +74,6 @@ all: $(COMPILER) $(GRAPHICS_EXAMPLES)
 	@echo "SDL examples:"
 	@echo "  ./bin/checkers_sdl         - Full checkers game with AI"
 	@echo "  ./bin/boids_sdl            - Flocking simulation (Craig Reynolds' Boids)"
-	@echo "  ./bin/asteroids_sdl        - Classic Atari Asteroids game"
 	@echo "  ./bin/raytracer_simple     - Real-time ray tracer with mouse-controlled light"
 	@echo ""
 	@echo "SDL Examples (Interpreter Only - use dynamic arrays):"
@@ -125,7 +120,6 @@ $(INTERPRETER):
 # Individual target aliases
 checkers-sdl: $(BIN_DIR)/checkers_sdl
 boids-sdl: $(BIN_DIR)/boids_sdl
-asteroids-sdl: $(BIN_DIR)/asteroids_sdl
 raytracer-simple: $(BIN_DIR)/raytracer_simple
 
 opengl-cube: $(BIN_DIR)/opengl_cube
@@ -142,11 +136,6 @@ $(BIN_DIR)/boids_sdl: boids_sdl.nano $(COMPILER)
 	@echo "Building Boids SDL (with automatic module building)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/boids_sdl.nano -o bin/boids_sdl
 	@echo "✓ Boids SDL built: $@"
-
-$(BIN_DIR)/asteroids_sdl: asteroids_sdl.nano $(COMPILER)
-	@echo "Building Asteroids SDL (classic Atari game)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/asteroids_sdl.nano -o bin/asteroids_sdl
-	@echo "✓ Asteroids SDL built: $@"
 
 # Note: particles_sdl, falling_sand_sdl, and terrain_explorer_sdl are interpreter-only
 # They use array_push for dynamic arrays which is not supported in the transpiler
