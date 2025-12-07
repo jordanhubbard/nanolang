@@ -6,6 +6,9 @@
   "cflags": ["-Imodules/sdl_ttf"],
   "c_sources": ["sdl_ttf_helpers.c"],
   "pkg_config": ["sdl2", "SDL2_ttf"],
+  "apt_packages": ["libsdl2-dev", "libsdl2-ttf-dev"],
+  "dnf_packages": ["SDL2-devel", "SDL2_ttf-devel"],
+  "brew_packages": ["sdl2", "sdl2_ttf"],
   "dependencies": ["sdl"]
 }
 
