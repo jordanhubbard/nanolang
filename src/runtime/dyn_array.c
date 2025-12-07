@@ -126,6 +126,21 @@ DynArray* dyn_array_push_string(DynArray* arr, const char* value) {
     return arr;
 }
 
+DynArray* dyn_array_push_array(DynArray* arr, DynArray* value) {
+    assert(arr != NULL && "DynArray: NULL array");
+    assert(arr->elem_type == ELEM_ARRAY && "DynArray: Type mismatch");
+    
+    if (arr->length >= arr->capacity) {
+        dyn_array_grow(arr);
+    }
+    
+    /* Store DynArray pointer - nested array */
+    ((DynArray**)arr->data)[arr->length] = value;
+    arr->length++;
+    
+    return arr;
+}
+
 /* Pop int */
 int64_t dyn_array_pop_int(DynArray* arr, bool* success) {
     assert(arr != NULL && "DynArray: NULL array");
@@ -186,6 +201,20 @@ const char* dyn_array_pop_string(DynArray* arr, bool* success) {
     return ((const char**)arr->data)[arr->length];
 }
 
+DynArray* dyn_array_pop_array(DynArray* arr, bool* success) {
+    assert(arr != NULL && "DynArray: NULL array");
+    assert(arr->elem_type == ELEM_ARRAY && "DynArray: Type mismatch");
+    
+    if (arr->length == 0) {
+        if (success) *success = false;
+        return NULL;
+    }
+    
+    arr->length--;
+    if (success) *success = true;
+    return ((DynArray**)arr->data)[arr->length];
+}
+
 /* Get int */
 int64_t dyn_array_get_int(DynArray* arr, int64_t index) {
     assert(arr != NULL && "DynArray: NULL array");
@@ -222,6 +251,14 @@ const char* dyn_array_get_string(DynArray* arr, int64_t index) {
     return ((const char**)arr->data)[index];
 }
 
+DynArray* dyn_array_get_array(DynArray* arr, int64_t index) {
+    assert(arr != NULL && "DynArray: NULL array");
+    assert(arr->elem_type == ELEM_ARRAY && "DynArray: Type mismatch");
+    assert(index >= 0 && index < arr->length && "DynArray: Index out of bounds");
+    
+    return ((DynArray**)arr->data)[index];
+}
+
 /* Set int */
 void dyn_array_set_int(DynArray* arr, int64_t index, int64_t value) {
     assert(arr != NULL && "DynArray: NULL array");
@@ -256,6 +293,14 @@ void dyn_array_set_string(DynArray* arr, int64_t index, const char* value) {
     assert(index >= 0 && index < arr->length && "DynArray: Index out of bounds");
     
     ((const char**)arr->data)[index] = value;
+}
+
+void dyn_array_set_array(DynArray* arr, int64_t index, DynArray* value) {
+    assert(arr != NULL && "DynArray: NULL array");
+    assert(arr->elem_type == ELEM_ARRAY && "DynArray: Type mismatch");
+    assert(index >= 0 && index < arr->length && "DynArray: Index out of bounds");
+    
+    ((DynArray**)arr->data)[index] = value;
 }
 
 /* Remove element at index */

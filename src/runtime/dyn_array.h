@@ -38,24 +38,28 @@ DynArray* dyn_array_push_int(DynArray* arr, int64_t value);
 DynArray* dyn_array_push_float(DynArray* arr, double value);
 DynArray* dyn_array_push_bool(DynArray* arr, bool value);
 DynArray* dyn_array_push_string(DynArray* arr, const char* value);
+DynArray* dyn_array_push_array(DynArray* arr, DynArray* value);  /* For nested arrays */
 
 /* Pop element from end of array */
 int64_t dyn_array_pop_int(DynArray* arr, bool* success);
 double dyn_array_pop_float(DynArray* arr, bool* success);
 bool dyn_array_pop_bool(DynArray* arr, bool* success);
 const char* dyn_array_pop_string(DynArray* arr, bool* success);
+DynArray* dyn_array_pop_array(DynArray* arr, bool* success);  /* For nested arrays */
 
 /* Get element at index */
 int64_t dyn_array_get_int(DynArray* arr, int64_t index);
 double dyn_array_get_float(DynArray* arr, int64_t index);
 bool dyn_array_get_bool(DynArray* arr, int64_t index);
 const char* dyn_array_get_string(DynArray* arr, int64_t index);
+DynArray* dyn_array_get_array(DynArray* arr, int64_t index);  /* For nested arrays */
 
 /* Set element at index */
 void dyn_array_set_int(DynArray* arr, int64_t index, int64_t value);
 void dyn_array_set_float(DynArray* arr, int64_t index, double value);
 void dyn_array_set_bool(DynArray* arr, int64_t index, bool value);
 void dyn_array_set_string(DynArray* arr, int64_t index, const char* value);
+void dyn_array_set_array(DynArray* arr, int64_t index, DynArray* value);  /* For nested arrays */
 
 /* Remove element at index (shifts remaining elements) */
 DynArray* dyn_array_remove_at(DynArray* arr, int64_t index);
