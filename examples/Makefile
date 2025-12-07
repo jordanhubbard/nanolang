@@ -27,7 +27,14 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/boids_sdl \
 	$(BIN_DIR)/particles_sdl \
 	$(BIN_DIR)/falling_sand \
+	$(BIN_DIR)/mod_player \
 	$(BIN_DIR)/raytracer_simple
+
+# Additional compiled examples (non-graphics)
+COMPILED_EXAMPLES = \
+	$(BIN_DIR)/snake \
+	$(BIN_DIR)/game_of_life \
+	$(BIN_DIR)/random_simple
 
 # Note: terrain_explorer_sdl uses array<struct> (array<Tile>)
 # Array<struct> has partial transpiler support but needs further work on metadata flow
@@ -40,6 +47,9 @@ OPENGL_EXAMPLES = \
 
 # All graphics examples
 GRAPHICS_EXAMPLES = $(SDL_EXAMPLES) $(OPENGL_EXAMPLES)
+
+# All compiled examples
+ALL_COMPILED = $(GRAPHICS_EXAMPLES) $(COMPILED_EXAMPLES)
 
 # === Interpreter Demo Examples ===
 # Simple examples perfect for demonstrating the interpreter
@@ -67,7 +77,7 @@ INTERPRETER_ONLY_EXAMPLES = \
 .PHONY: all sdl opengl interpreter clean help checkers-sdl boids-sdl particles-sdl falling-sand-sdl terrain-explorer-sdl opengl-cube opengl-teapot run-% force-rebuild
 
 # Default: build all compiled examples
-all: $(COMPILER) $(GRAPHICS_EXAMPLES)
+all: $(COMPILER) $(ALL_COMPILED)
 	@echo ""
 	@echo "✓ All compiled examples built successfully!"
 	@echo ""
@@ -76,7 +86,13 @@ all: $(COMPILER) $(GRAPHICS_EXAMPLES)
 	@echo "  ./bin/boids_sdl              - Flocking simulation (Craig Reynolds' Boids)"
 	@echo "  ./bin/particles_sdl          - Particle explosion effects (nested arrays!)"
 	@echo "  ./bin/falling_sand           - Cellular automata sandbox"
+	@echo "  ./bin/mod_player             - MOD/XM music player (requires music files)"
 	@echo "  ./bin/raytracer_simple       - Real-time ray tracer with mouse-controlled light"
+	@echo ""
+	@echo "Compiled terminal examples:"
+	@echo "  ./bin/snake                  - Classic snake game"
+	@echo "  ./bin/game_of_life           - Conway's Game of Life"
+	@echo "  ./bin/random_simple          - Random number generation"
 	@echo ""
 	@echo "Interpreter-only examples:"
 	@echo "  ../bin/nano examples/terrain_explorer_sdl.nano - 3D terrain explorer (uses array<struct>)"
@@ -166,6 +182,28 @@ $(BIN_DIR)/raytracer_simple: raytracer_simple.nano $(COMPILER)
 	@echo "Building Ray Tracer (real-time with mouse-controlled light)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/raytracer_simple.nano -o bin/raytracer_simple
 	@echo "✓ Ray Tracer built: $@"
+
+$(BIN_DIR)/mod_player: mod_player.nano $(COMPILER)
+	@echo "Building MOD Player (SDL_mixer music player)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/mod_player.nano -o bin/mod_player
+	@echo "✓ MOD Player built: $@"
+
+# === Non-Graphics Compiled Examples ===
+
+$(BIN_DIR)/snake: snake.nano $(COMPILER)
+	@echo "Building Snake (terminal game)..."
+	cd .. && ./bin/nanoc examples/snake.nano -o bin/snake
+	@echo "✓ Snake built: $@"
+
+$(BIN_DIR)/game_of_life: game_of_life.nano $(COMPILER)
+	@echo "Building Game of Life (Conway's cellular automaton)..."
+	cd .. && ./bin/nanoc examples/game_of_life.nano -o bin/game_of_life
+	@echo "✓ Game of Life built: $@"
+
+$(BIN_DIR)/random_simple: 24_random_simple.nano $(COMPILER)
+	@echo "Building Random Simple (number generation demo)..."
+	cd .. && ./bin/nanoc examples/24_random_simple.nano -o bin/random_simple
+	@echo "✓ Random Simple built: $@"
 
 # === Interpreter Demo Examples ===
 
