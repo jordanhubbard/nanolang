@@ -29,7 +29,8 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/falling_sand \
 	$(BIN_DIR)/mod_player \
 	$(BIN_DIR)/raytracer_simple \
-	$(BIN_DIR)/asteroids_sdl
+	$(BIN_DIR)/asteroids_sdl \
+	$(BIN_DIR)/terrain_explorer_sdl
 
 # Additional compiled examples (non-graphics)
 COMPILED_EXAMPLES = \
@@ -37,9 +38,8 @@ COMPILED_EXAMPLES = \
 	$(BIN_DIR)/game_of_life \
 	$(BIN_DIR)/random_simple
 
-# Note: terrain_explorer_sdl uses array<struct> (array<Tile>)
-# Array<struct> has partial transpiler support but needs further work on metadata flow
-# Run with interpreter: ../bin/nano examples/terrain_explorer_sdl.nano
+# Note: array<struct> is now fully supported! (fixed in commit 4952d65)
+# terrain_explorer_sdl uses array<Tile> and compiles successfully.
 
 # OpenGL examples (GLFW + GLEW)
 OPENGL_EXAMPLES = \
@@ -90,14 +90,12 @@ all: $(COMPILER) $(ALL_COMPILED)
 	@echo "  ./bin/mod_player             - MOD/XM music player (requires music files)"
 	@echo "  ./bin/raytracer_simple       - Real-time ray tracer with mouse-controlled light"
 	@echo "  ./bin/asteroids_sdl          - Classic arcade game (parallel arrays pattern)"
+	@echo "  ./bin/terrain_explorer_sdl   - 3D terrain with mouse camera (array<struct>!)"
 	@echo ""
 	@echo "Compiled terminal examples:"
 	@echo "  ./bin/snake                  - Classic snake game"
 	@echo "  ./bin/game_of_life           - Conway's Game of Life"
 	@echo "  ./bin/random_simple          - Random number generation"
-	@echo ""
-	@echo "Interpreter-only examples:"
-	@echo "  ../bin/nano examples/terrain_explorer_sdl.nano - 3D terrain explorer (uses array<struct>)"
 	@echo ""
 	@echo "OpenGL examples (requires: brew install glfw glew):"
 	@echo "  ./bin/opengl_cube          - Rotating textured cube"
@@ -140,6 +138,7 @@ checkers-sdl: $(BIN_DIR)/checkers_sdl
 boids-sdl: $(BIN_DIR)/boids_sdl
 raytracer-simple: $(BIN_DIR)/raytracer_simple
 asteroids-sdl: $(BIN_DIR)/asteroids_sdl
+terrain-explorer-sdl: $(BIN_DIR)/terrain_explorer_sdl
 
 opengl-cube: $(BIN_DIR)/opengl_cube
 opengl-teapot: $(BIN_DIR)/opengl_teapot
