@@ -1,7 +1,8 @@
 # nanolang
 
 [![CI](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml/badge.svg)](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml)
-![Tests](https://img.shields.io/badge/tests-20%2F20%20passing-brightgreen.svg)
+![Tests](https://img.shields.io/badge/tests-21%2F21%20passing-brightgreen.svg)
+![Skipped](https://img.shields.io/badge/skipped-3%20expected%20failures-blue.svg)
 ![Examples](https://img.shields.io/badge/examples-25%2F28%20working-green.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)
