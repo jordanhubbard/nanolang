@@ -203,8 +203,11 @@ make
 # Run the test suite
 make test
 
-# Build all examples (requires SDL2 for some examples)
+# Build all examples (requires SDL2 for graphics examples)
 make examples
+
+# Or skip SDL examples if SDL2 is not installed
+make examples-no-sdl
 ```
 
 ## Philosophy
@@ -807,8 +810,11 @@ make
 # Run test suite
 make test
 
-# Build all examples
+# Build all examples (requires SDL2 for graphics examples)
 make examples
+
+# Build non-SDL examples only (if SDL2 is not installed)
+make examples-no-sdl
 
 # Build with memory sanitizers (for development)
 make sanitize
