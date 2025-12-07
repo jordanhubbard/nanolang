@@ -419,6 +419,22 @@ fn main() -> int {
     return 0
 }
 
+shadow wrap_position {
+    assert (== (wrap_position -5.0 100.0) 100.0)
+    assert (== (wrap_position 105.0 100.0) 0.0)
+    assert (== (wrap_position 50.0 100.0) 50.0)
+}
+
+shadow distance_squared {
+    assert (== (distance_squared 0.0 0.0 3.0 4.0) 25.0)
+    assert (== (distance_squared 1.0 1.0 1.0 1.0) 0.0)
+}
+
+shadow circles_collide {
+    assert (circles_collide 0.0 0.0 10.0 5.0 5.0 10.0)
+    assert (not (circles_collide 0.0 0.0 5.0 100.0 100.0 5.0))
+}
+
 shadow main {
     assert true
 }

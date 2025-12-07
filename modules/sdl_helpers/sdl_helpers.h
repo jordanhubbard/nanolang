@@ -2,9 +2,7 @@
 #define SDL_HELPERS_H
 
 #include <stdint.h>
-
-/* Forward declare SDL types */
-typedef struct SDL_Renderer SDL_Renderer;
+#include <SDL.h>  /* Include SDL headers to avoid typedef redefinition warnings */
 
 /* SDL Helper Functions - nanolang FFI bindings */
 
