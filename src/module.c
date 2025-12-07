@@ -1112,6 +1112,12 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
     /* Add link flags to buffer */
     if (link_flags) {
         for (size_t i = 0; i < link_flags_count; i++) {
+            // Skip NULL or empty flags
+            if (!link_flags[i] || link_flags[i][0] == '\0') {
+                free(link_flags[i]);
+                continue;
+            }
+            
             if (strlen(module_objs_buffer) + strlen(link_flags[i]) + 2 < buffer_size) {
                 if (module_objs_buffer[0] != '\0') {
                     strcat(module_objs_buffer, " ");
@@ -1131,6 +1137,12 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
         /* Add compile flags to buffer */
         if (compile_flags) {
             for (size_t i = 0; i < compile_flags_count; i++) {
+                // Skip NULL or empty flags
+                if (!compile_flags[i] || compile_flags[i][0] == '\0') {
+                    free(compile_flags[i]);
+                    continue;
+                }
+                
                 if (strlen(compile_flags_buffer) + strlen(compile_flags[i]) + 2 < compile_flags_buffer_size) {
                     if (compile_flags_buffer[0] != '\0') {
                         strcat(compile_flags_buffer, " ");

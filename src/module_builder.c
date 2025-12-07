@@ -732,6 +732,11 @@ char** module_get_link_flags(ModuleBuildInfo **modules, size_t count, size_t *ou
             for (size_t j = 0; j < modules[i]->link_flags_count; j++) {
                 const char *flag = modules[i]->link_flags[j];
                 
+                // Skip NULL or empty flags
+                if (!flag || flag[0] == '\0') {
+                    continue;
+                }
+                
                 // Check if this flag already exists (deduplicate)
                 bool duplicate = false;
                 for (size_t k = 0; k < pos; k++) {
@@ -773,6 +778,10 @@ char** module_get_compile_flags(ModuleBuildInfo **modules, size_t count, size_t 
     for (size_t i = 0; i < count; i++) {
         if (modules[i]) {
             for (size_t j = 0; j < modules[i]->compile_flags_count; j++) {
+                // Skip NULL or invalid flags
+                if (!modules[i]->compile_flags[j] || modules[i]->compile_flags[j][0] == '\0') {
+                    continue;
+                }
                 all_flags[pos++] = strdup(modules[i]->compile_flags[j]);
             }
         }
