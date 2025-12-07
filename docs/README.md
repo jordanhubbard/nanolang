@@ -42,6 +42,13 @@ Complete language documentation:
    - First-class functions
    - Module system
 
+5.5. **[Nested Types Guide](NESTED_TYPES.md)** - NEW! Nested arrays and advanced types
+   - 2D and 3D arrays (matrices, cubes)
+   - Arbitrary nesting depth
+   - Memory management and GC
+   - Performance considerations
+   - Complete examples
+
 6. **[Standard Library](STDLIB.md)** - All 37 built-in functions
    - Math functions (11)
    - String operations (18)
