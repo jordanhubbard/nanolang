@@ -141,6 +141,7 @@ boids-sdl: $(BIN_DIR)/boids_sdl
 raytracer-simple: $(BIN_DIR)/raytracer_simple
 asteroids-sdl: $(BIN_DIR)/asteroids_sdl
 asteroids-enhanced-sdl: $(BIN_DIR)/asteroids_enhanced_sdl
+asteroids-complete-sdl: $(BIN_DIR)/asteroids_complete_sdl
 terrain-explorer-sdl: $(BIN_DIR)/terrain_explorer_sdl
 
 opengl-cube: $(BIN_DIR)/opengl_cube
@@ -202,6 +203,11 @@ $(BIN_DIR)/asteroids_enhanced_sdl: asteroids_enhanced_sdl.nano $(COMPILER)
 	@echo "Building Asteroids Enhanced (breaking asteroids & thrust effects)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/asteroids_enhanced_sdl.nano -o bin/asteroids_enhanced_sdl
 	@echo "✓ Asteroids Enhanced built: $@"
+
+$(BIN_DIR)/asteroids_complete_sdl: asteroids_complete_sdl.nano $(COMPILER)
+	@echo "Building Asteroids Complete (3 lives, game over, score display)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/asteroids_complete_sdl.nano -o bin/asteroids_complete_sdl
+	@echo "✓ Asteroids Complete built: $@"
 
 # === Non-Graphics Compiled Examples ===
 
