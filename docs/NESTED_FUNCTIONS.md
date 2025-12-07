@@ -1,17 +1,134 @@
 # Nested Functions Design Document
 
-## Status: NOT YET IMPLEMENTED
+## Status: PARTIALLY IMPLEMENTED (Function Pointers ✅, Closures ❌)
 
 This document describes the design for nested function support in nanolang.
+
+## What's Implemented Now ✅
+
+**Function Pointers** are fully functional in both interpreter and compiled modes!
+
+- ✅ Functions can be returned from other functions
+- ✅ Functions can be stored in variables  
+- ✅ Functions can be passed as arguments
+- ✅ Higher-order functions work (map, filter-style)
+- ✅ Function factories work
+- ❌ Closures with variable capture (not yet implemented)
+
+See [Function Pointers](#function-pointers-implemented) section below for examples.
+
+## Function Pointers (Implemented)
+
+Function pointers allow passing, storing, and returning functions as values. This enables functional programming patterns without requiring closures.
+
+### Working Examples
+
+```nano
+# Example 1: Higher-order function
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+fn apply_twice(f: fn(int) -> int, x: int) -> int {
+    let result1: int = (f x)
+    let result2: int = (f result1)
+    return result2
+}
+
+fn main() -> int {
+    let result: int = (apply_twice double 5)
+    return result  # Returns 20
+}
+```
+
+```nano
+# Example 2: Function factory
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+fn triple(x: int) -> int {
+    return (* x 3)
+}
+
+fn make_multiplier(factor: int) -> fn(int) -> int {
+    if (== factor 2) {
+        return double
+    } else {
+        return triple
+    }
+}
+
+fn main() -> int {
+    let mult: fn(int) -> int = (make_multiplier 2)
+    let result: int = (mult 7)
+    return result  # Returns 14
+}
+```
+
+```nano
+# Example 3: Storing functions in variables
+fn add_one(x: int) -> int {
+    return (+ x 1)
+}
+
+fn main() -> int {
+    let f: fn(int) -> int = add_one
+    let result: int = (f 10)
+    return result  # Returns 11
+}
+```
+
+### Use Cases
+
+Function pointers enable many functional programming patterns:
+
+1. **Higher-Order Functions**: `apply_twice`, `map`, `filter`, `fold`
+2. **Function Factories**: Return different functions based on conditions
+3. **Strategy Pattern**: Pass different algorithms as function arguments
+4. **Callbacks**: Store functions to be called later
+5. **Function Composition**: Chain operations by passing functions
+
+### Limitations
+
+**No Variable Capture**: Functions cannot access variables from their defining scope:
+
+```nano
+# ❌ This doesn't work - closures not implemented
+fn make_adder(x: int) -> fn(int) -> int {
+    # This would require capturing 'x'
+    fn adder(y: int) -> int {
+        return (+ x y)  # ❌ Cannot capture 'x'
+    }
+    return adder
+}
+```
+
+**Workaround**: Use pre-defined functions or pass values explicitly:
+
+```nano
+# ✅ This works - no capture needed
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+fn make_multiplier(factor: int) -> fn(int) -> int {
+    if (== factor 2) {
+        return double  # Return pre-defined function
+    }
+    # ...
+}
+```
 
 ## Overview
 
 Nested functions would allow functions to return other functions, enabling:
-- Higher-order functions (map, filter, reduce)
-- Currying and partial application
-- Function factories and closures
+- ✅ Higher-order functions (map, filter, reduce) - **IMPLEMENTED via function pointers**
+- ❌ Currying and partial application - **Requires closures**
+- ✅ Function factories - **IMPLEMENTED via function pointers**
+- ❌ Closures with variable capture - **NOT YET IMPLEMENTED**
 
-## Proposed Syntax
+## Proposed Syntax (For Full Closures)
 
 ```nano
 # Function that returns a function
@@ -267,27 +384,40 @@ fn test_nested_closures() -> int {
 
 ## Priority
 
-**Medium Priority** - This is a valuable feature but not critical:
+**Low Priority for Full Closures** - Function pointers are now implemented, closures less critical:
 
-- ✅ Many languages work without nested function returns
-- ✅ Workarounds exist (structs, function pointers)
-- ✅ Implementation is complex (40-90 hours)
-- ❌ Would enable functional programming patterns
-- ❌ Would improve code expressiveness
+- ✅ Function pointers already enable most functional programming patterns
+- ✅ Higher-order functions work without closures
+- ✅ Function factories work without closures
+- ✅ Workarounds exist for most use cases
+- ❌ Closures would enable variable capture
+- ❌ Implementation is complex (40-90 hours for closures)
 
 ## Alternatives
 
-1. **Keep current approach**: Functions can be passed but not returned
-2. **Add lambda expressions first**: Simpler than full nested functions
-3. **Focus on other features**: Arrays, lists, structs more critical
+1. ~~**Keep current approach**: Functions can be passed but not returned~~ ✅ **DONE! Function pointers work!**
+2. **Add lambda expressions**: Simpler syntax for inline functions
+3. **Focus on other features**: Many functional patterns already work
 
 ## Conclusion
 
-Nested functions would be a valuable addition to nanolang, but the implementation effort is substantial. Given the current workarounds and other priorities, this feature should be implemented after:
+**Function pointers are now fully functional!** This enables:
+- ✅ Higher-order functions
+- ✅ Function factories
+- ✅ Callbacks and strategy patterns
+- ✅ Function composition
+
+**Full closures with variable capture** remain unimplemented, but they're less critical now that function pointers work. The effort required (40-90 hours) may not be justified given the workarounds available.
+
+Nanolang now has feature parity with Go, C, and C++ for function pointers, and is approaching the functional capabilities of Rust, TypeScript, and Python (minus closures).
+
+Closure implementation should be considered after:
 
 1. ✅ Nested arrays (DONE!)
-2. Nested lists
-3. Better error messages
-4. Standard library expansion
+2. ✅ Function pointers (DONE!)
+3. Nested lists  
+4. Better error messages
+5. Standard library expansion
+6. Lambda expression syntax
 
-When implemented, nested functions would bring nanolang closer to languages like JavaScript, Python, and Rust in terms of functional programming support.
+If closures are never implemented, nanolang still provides excellent functional programming support through function pointers!
