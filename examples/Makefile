@@ -25,8 +25,10 @@ export NANO_MODULE_PATH=../modules
 SDL_EXAMPLES = \
 	$(BIN_DIR)/checkers_sdl \
 	$(BIN_DIR)/boids_sdl \
-	$(BIN_DIR)/asteroids_sdl \
 	$(BIN_DIR)/raytracer_simple
+
+# TODO: asteroids_sdl uses :: enum syntax which is not supported yet
+# $(BIN_DIR)/asteroids_sdl
 
 # SDL examples that require interpreter (use array_push for dynamic arrays)
 SDL_INTERPRETER_ONLY = \
