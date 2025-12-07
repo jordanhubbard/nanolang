@@ -88,29 +88,35 @@ For experienced users:
     - Building C extensions
     - Automatic module building
 
-13. **[Extern FFI](EXTERN_FFI.md)** - Calling C functions from nanolang
+13. **[Platform Compatibility](PLATFORM_COMPATIBILITY.md)** - Cross-platform guide
+    - macOS and Linux support
+    - SDL software renderer fallback
+    - Troubleshooting platform issues
+    - Known limitations
 
-14. **[Building Hybrid Apps](BUILDING_HYBRID_APPS.md)** - Combining nanolang with C
+14. **[Extern FFI](EXTERN_FFI.md)** - Calling C functions from nanolang
+
+15. **[Building Hybrid Apps](BUILDING_HYBRID_APPS.md)** - Combining nanolang with C
 
 ### 📊 Roadmap & Status
 
 Project status and future plans:
 
-15. **[Roadmap](ROADMAP.md)** - Future development plans
-16. **[Implementation Status](../AUDIT_RESULTS.md)** - Current feature status
-17. **[Self-Hosting Checklist](SELF_HOSTING_CHECKLIST.md)** - Path to self-hosting
+16. **[Roadmap](ROADMAP.md)** - Future development plans
+17. **[Implementation Status](../AUDIT_RESULTS.md)** - Current feature status
+18. **[Self-Hosting Checklist](SELF_HOSTING_CHECKLIST.md)** - Path to self-hosting
 
 ### 🤝 Contributing
 
 Help make nanolang better:
 
-18. **[Contributing Guide](CONTRIBUTING.md)** - How to contribute
+19. **[Contributing Guide](CONTRIBUTING.md)** - How to contribute
     - Code contributions
     - Documentation improvements
     - Bug reports
     - Feature requests
 
-19. **[Contributors List](../CONTRIBUTORS.md)** - Thank you!
+20. **[Contributors List](../CONTRIBUTORS.md)** - Thank you!
 
 ## 📋 Documentation by Topic
 
@@ -148,6 +154,9 @@ Help make nanolang better:
 
 **I want to use C libraries:**
 → [Extern FFI](EXTERN_FFI.md) → [Module System](MODULE_SYSTEM.md) → [Building Hybrid Apps](BUILDING_HYBRID_APPS.md)
+
+**I'm having platform/compatibility issues:**
+→ [Platform Compatibility](PLATFORM_COMPATIBILITY.md) → [Module System](MODULE_SYSTEM.md)
 
 ## 🗂️ Planning Documents
 
