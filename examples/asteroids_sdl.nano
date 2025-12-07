@@ -281,12 +281,12 @@ shadow update_bullet {
 # === ASTEROID FUNCTIONS ===
 
 fn get_asteroid_radius(size: AsteroidSize) -> int {
-    if (== size AsteroidSize::Large) {
+    if (== size AsteroidSize.Large) {
         return 40
     } else {
         (print "")
     }
-    if (== size AsteroidSize::Medium) {
+    if (== size AsteroidSize.Medium) {
         return 25
     } else {
         (print "")
@@ -295,18 +295,18 @@ fn get_asteroid_radius(size: AsteroidSize) -> int {
 }
 
 shadow get_asteroid_radius {
-    assert (== (get_asteroid_radius AsteroidSize::Large) 40)
-    assert (== (get_asteroid_radius AsteroidSize::Medium) 25)
-    assert (== (get_asteroid_radius AsteroidSize::Small) 15)
+    assert (== (get_asteroid_radius AsteroidSize.Large) 40)
+    assert (== (get_asteroid_radius AsteroidSize.Medium) 25)
+    assert (== (get_asteroid_radius AsteroidSize.Small) 15)
 }
 
 fn get_asteroid_score(size: AsteroidSize) -> int {
-    if (== size AsteroidSize::Large) {
+    if (== size AsteroidSize.Large) {
         return 20
     } else {
         (print "")
     }
-    if (== size AsteroidSize::Medium) {
+    if (== size AsteroidSize.Medium) {
         return 50
     } else {
         (print "")
@@ -315,9 +315,9 @@ fn get_asteroid_score(size: AsteroidSize) -> int {
 }
 
 shadow get_asteroid_score {
-    assert (== (get_asteroid_score AsteroidSize::Large) 20)
-    assert (== (get_asteroid_score AsteroidSize::Medium) 50)
-    assert (== (get_asteroid_score AsteroidSize::Small) 100)
+    assert (== (get_asteroid_score AsteroidSize.Large) 20)
+    assert (== (get_asteroid_score AsteroidSize.Medium) 50)
+    assert (== (get_asteroid_score AsteroidSize.Small) 100)
 }
 
 fn create_asteroid(x: float, y: float, vx: float, vy: float, size: AsteroidSize) -> Asteroid {
@@ -333,7 +333,7 @@ fn create_asteroid(x: float, y: float, vx: float, vy: float, size: AsteroidSize)
 }
 
 shadow create_asteroid {
-    let ast: Asteroid = (create_asteroid 100.0 100.0 50.0 30.0 AsteroidSize::Large)
+    let ast: Asteroid = (create_asteroid 100.0 100.0 50.0 30.0 AsteroidSize.Large)
     assert (== ast.active true)
     assert (== ast.radius 40)
 }
@@ -362,7 +362,7 @@ fn update_asteroid(asteroid: Asteroid, dt: float) -> Asteroid {
 }
 
 shadow update_asteroid {
-    let ast: Asteroid = (create_asteroid 100.0 100.0 50.0 30.0 AsteroidSize::Large)
+    let ast: Asteroid = (create_asteroid 100.0 100.0 50.0 30.0 AsteroidSize.Large)
     let updated: Asteroid = (update_asteroid ast 0.016)
     assert (== updated.active true)
 }
@@ -498,26 +498,26 @@ fn init_game(level: int) -> GameData {
     # Create initial asteroids (4 + level)
     let num_asteroids: int = (+ 4 level)
     let asteroids: array<Asteroid> = [
-        (create_asteroid 100.0 100.0 50.0 30.0 AsteroidSize::Large),
-        (create_asteroid 700.0 100.0 -40.0 40.0 AsteroidSize::Large),
-        (create_asteroid 100.0 500.0 40.0 -50.0 AsteroidSize::Large),
-        (create_asteroid 700.0 500.0 -50.0 -40.0 AsteroidSize::Large),
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 },
-        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize::Small, active: false, radius: 15 }
+        (create_asteroid 100.0 100.0 50.0 30.0 AsteroidSize.Large),
+        (create_asteroid 700.0 100.0 -40.0 40.0 AsteroidSize.Large),
+        (create_asteroid 100.0 500.0 40.0 -50.0 AsteroidSize.Large),
+        (create_asteroid 700.0 500.0 -50.0 -40.0 AsteroidSize.Large),
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 }
     ]
     
     return GameData {
@@ -527,7 +527,7 @@ fn init_game(level: int) -> GameData {
         score: 0,
         lives: 3,
         level: level,
-        state: GameState::Playing
+        state: GameState.Playing
     }
 }
 
@@ -559,9 +559,20 @@ fn main() -> int {
         (print "")
     }
     
-    # Create window and renderer
+    # Create window and renderer with software fallback
     let window: SDL_Window = (SDL_CreateWindow "Asteroids - nanolang" 100 100 WINDOW_WIDTH WINDOW_HEIGHT 4)
-    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
+    let mut renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
+    if (== renderer 0) {
+        (println "Hardware acceleration not available, trying software renderer...")
+        set renderer (SDL_CreateRenderer window -1 1)
+        if (== renderer 0) {
+            (println "Error: Renderer creation failed")
+            (SDL_DestroyWindow window)
+            (TTF_Quit)
+            (SDL_Quit)
+            return 1
+        } else {}
+    } else {}
     
     # Load font
     let font: TTF_Font = (nl_open_font_portable "Arial" 16)
@@ -576,8 +587,40 @@ fn main() -> int {
         (print "")
     }
     
-    # Initialize game
-    let mut game: GameData = (init_game 1)
+    # Initialize game - use separate variables instead of GameData struct
+    let mut ship: Ship = Ship { x: 400.0, y: 300.0, vx: 0.0, vy: 0.0, angle: 0.0, thrusting: false }
+    let mut bullets: array<Bullet> = [
+        Bullet { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, active: false, life: 0.0 },
+        Bullet { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, active: false, life: 0.0 },
+        Bullet { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, active: false, life: 0.0 },
+        Bullet { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, active: false, life: 0.0 },
+        Bullet { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, active: false, life: 0.0 }
+    ]
+    let mut asteroids: array<Asteroid> = [
+        (create_asteroid 100.0 100.0 50.0 30.0 AsteroidSize.Large),
+        (create_asteroid 700.0 100.0 -40.0 40.0 AsteroidSize.Large),
+        (create_asteroid 100.0 500.0 40.0 -50.0 AsteroidSize.Large),
+        (create_asteroid 700.0 500.0 -50.0 -40.0 AsteroidSize.Large),
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 },
+        Asteroid { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, size: AsteroidSize.Small, active: false, radius: 15 }
+    ]
+    let mut score: int = 0
+    let mut lives: int = 3
+    let mut level: int = 1
     
     # Game loop
     let dt: float = 0.016
@@ -595,7 +638,7 @@ fn main() -> int {
     
     while running {
         # Handle input
-        let key: int = (nl_sdl_poll_key)
+        let key: int = (nl_sdl_poll_keypress)
         if (== key 27) {  # ESC
             set running false
         } else {
@@ -604,41 +647,41 @@ fn main() -> int {
         
         # Update ship based on input
         if (== key 1073741906) {  # UP arrow
-            set game.ship (set_ship_thrust game.ship true)
+            set ship (set_ship_thrust ship true)
         } else {
-            set game.ship (set_ship_thrust game.ship false)
+            set ship (set_ship_thrust ship false)
         }
         
         if (== key 1073741904) {  # LEFT arrow
-            set game.ship (rotate_ship game.ship -1)
+            set ship (rotate_ship ship -1)
         } else {
             (print "")
         }
         
         if (== key 1073741903) {  # RIGHT arrow
-            set game.ship (rotate_ship game.ship 1)
+            set ship (rotate_ship ship 1)
         } else {
             (print "")
         }
         
         # Update ship
-        set game.ship (update_ship game.ship dt)
+        set ship (update_ship ship dt)
         
         # Update bullets
         let mut i: int = 0
         while (< i MAX_BULLETS) {
-            let bullet: Bullet = (at game.bullets i)
+            let bullet: Bullet = (at bullets i)
             let updated_bullet: Bullet = (update_bullet bullet dt)
-            (array_set game.bullets i updated_bullet)
+            (array_set bullets i updated_bullet)
             set i (+ i 1)
         }
         
         # Update asteroids
         set i 0
         while (< i MAX_ASTEROIDS) {
-            let asteroid: Asteroid = (at game.asteroids i)
+            let asteroid: Asteroid = (at asteroids i)
             let updated_asteroid: Asteroid = (update_asteroid asteroid dt)
-            (array_set game.asteroids i updated_asteroid)
+            (array_set asteroids i updated_asteroid)
             set i (+ i 1)
         }
         
@@ -647,22 +690,24 @@ fn main() -> int {
         (SDL_RenderClear renderer)
         
         # Draw game objects
-        (draw_ship renderer game.ship)
+        (draw_ship renderer ship)
         
         set i 0
         while (< i MAX_BULLETS) {
-            (draw_bullet renderer (at game.bullets i))
+            let bullet: Bullet = (at bullets i)
+            (draw_bullet renderer bullet)
             set i (+ i 1)
         }
         
         set i 0
         while (< i MAX_ASTEROIDS) {
-            (draw_asteroid renderer (at game.asteroids i))
+            let asteroid: Asteroid = (at asteroids i)
+            (draw_asteroid renderer asteroid)
             set i (+ i 1)
         }
         
         # Draw UI
-        (draw_ui renderer font game.score game.lives game.level)
+        (draw_ui renderer font score lives level)
         
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)

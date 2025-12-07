@@ -1001,13 +1001,17 @@ fn main() -> int {
         return 1
     } else {}
     
-    # Create renderer
-    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
+    # Create renderer - try accelerated first, fallback to software
+    let mut renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
     if (== renderer 0) {
-        (println "Renderer creation failed")
-        (SDL_DestroyWindow window)
-        (SDL_Quit)
-        return 1
+        (println "Hardware acceleration not available, trying software renderer...")
+        set renderer (SDL_CreateRenderer window -1 SDL_RENDERER_SOFTWARE)
+        if (== renderer 0) {
+            (println "Renderer creation failed")
+            (SDL_DestroyWindow window)
+            (SDL_Quit)
+            return 1
+        } else {}
     } else {}
     
     # Initialize game

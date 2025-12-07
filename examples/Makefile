@@ -27,7 +27,8 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/boids_sdl \
 	$(BIN_DIR)/raytracer_simple
 
-# TODO: asteroids_sdl uses :: enum syntax which is not supported yet
+# TODO: asteroids_sdl uses arrays of structs which the transpiler doesn't support yet
+# Works in interpreter: ./bin/nano examples/asteroids_sdl.nano
 # $(BIN_DIR)/asteroids_sdl
 
 # SDL examples that require interpreter (use array_push for dynamic arrays)
