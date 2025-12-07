@@ -917,6 +917,8 @@ static ElementType value_type_to_elem_type(ValueType vtype) {
         case VAL_BOOL: return ELEM_BOOL;
         case VAL_STRING: return ELEM_STRING;
         case VAL_DYN_ARRAY: return ELEM_ARRAY;  /* Nested arrays */
+        case VAL_STRUCT:
+        case VAL_GC_STRUCT: return ELEM_STRUCT;  /* Structs */
         default: return ELEM_INT; /* Default */
     }
 }

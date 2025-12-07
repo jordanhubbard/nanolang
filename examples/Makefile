@@ -28,7 +28,8 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/particles_sdl \
 	$(BIN_DIR)/falling_sand \
 	$(BIN_DIR)/mod_player \
-	$(BIN_DIR)/raytracer_simple
+	$(BIN_DIR)/raytracer_simple \
+	$(BIN_DIR)/asteroids_sdl
 
 # Additional compiled examples (non-graphics)
 COMPILED_EXAMPLES = \
@@ -88,6 +89,7 @@ all: $(COMPILER) $(ALL_COMPILED)
 	@echo "  ./bin/falling_sand           - Cellular automata sandbox"
 	@echo "  ./bin/mod_player             - MOD/XM music player (requires music files)"
 	@echo "  ./bin/raytracer_simple       - Real-time ray tracer with mouse-controlled light"
+	@echo "  ./bin/asteroids_sdl          - Classic arcade game (parallel arrays pattern)"
 	@echo ""
 	@echo "Compiled terminal examples:"
 	@echo "  ./bin/snake                  - Classic snake game"
@@ -137,6 +139,7 @@ $(INTERPRETER):
 checkers-sdl: $(BIN_DIR)/checkers_sdl
 boids-sdl: $(BIN_DIR)/boids_sdl
 raytracer-simple: $(BIN_DIR)/raytracer_simple
+asteroids-sdl: $(BIN_DIR)/asteroids_sdl
 
 opengl-cube: $(BIN_DIR)/opengl_cube
 opengl-teapot: $(BIN_DIR)/opengl_teapot
@@ -187,6 +190,11 @@ $(BIN_DIR)/mod_player: mod_player.nano $(COMPILER)
 	@echo "Building MOD Player (SDL_mixer music player)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/mod_player.nano -o bin/mod_player
 	@echo "✓ MOD Player built: $@"
+
+$(BIN_DIR)/asteroids_sdl: asteroids_sdl.nano $(COMPILER)
+	@echo "Building Asteroids (classic arcade game with parallel arrays)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/asteroids_sdl.nano -o bin/asteroids_sdl
+	@echo "✓ Asteroids built: $@"
 
 # === Non-Graphics Compiled Examples ===
 
