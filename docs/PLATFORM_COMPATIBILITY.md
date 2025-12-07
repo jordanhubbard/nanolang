@@ -292,6 +292,84 @@ Hardware acceleration not available, trying software renderer...
 
 ---
 
+## Transpiler Limitations (December 2025)
+
+The current transpiler has several limitations discovered during the asteroids rewrite attempt:
+
+### Type Conversion Issues
+
+**Problem:** No built-in functions for explicit type conversion between int and float.
+
+**Missing Functions:**
+- `int_to_float()` - Convert integer to float
+- `float_to_int()` - Convert float to integer  
+- `cast_int()` - Used in boids_sdl but doesn't exist
+
+**Current Workarounds:**
+- Use `floor(x)`, `ceil(x)`, `round(x)` - but these return float, not int
+- Automatic conversion sometimes works, but is inconsistent
+- Examples like checkers avoid the issue by using int throughout
+
+**Impact:**
+- Can't easily convert SDL float coordinates to int for rendering
+- Makes compiled games with physics (float) + rendering (int) difficult
+
+### Array of Structs
+
+**Problem:** Arrays of user-defined struct types don't compile.
+
+```nano
+# This doesn't work in compiled mode:
+let bullets: array<Bullet> = [...]
+```
+
+**Workaround:**  
+Use "structure of arrays" pattern (separate arrays for each field):
+```nano
+# This works:
+let bullet_x: array<float> = [...]
+let bullet_y: array<float> = [...]
+let bullet_active: array<bool> = [...]
+```
+
+### Operator Limitations
+
+**Problem:** `!` operator for logical NOT is not supported.
+
+```nano
+# Doesn't work:
+if (! condition) { ... }
+
+# Works:
+if (not condition) { ... }
+```
+
+### Examples Status
+
+| Example | Compiles | Reason |
+|---------|----------|--------|
+| checkers.nano | ✅ Yes | Uses int coordinates only |
+| raytracer_simple.nano | ✅ Yes | Uses float throughout |
+| boids_sdl.nano | ❌ No | Uses undefined `cast_int` |
+| asteroids_sdl.nano | ❌ No | Arrays of structs + type conversions |
+| particles_sdl.nano | ❌ No | Dynamic `array_push` |
+
+**For Now:** Run these examples in interpreter mode:
+```bash
+./bin/nano examples/boids_sdl.nano
+./bin/nano examples/asteroids_sdl.nano
+```
+
+### Future Work
+
+These limitations should be addressed in future releases:
+1. Add `float_to_int()` and `int_to_float()` standard library functions
+2. Fix arrays of structs compilation  
+3. Improve type inference and automatic conversions
+4. Support `!` operator natively
+
+---
+
 ## Contributing Platform Support
 
 Want to help test nanolang on other platforms?
