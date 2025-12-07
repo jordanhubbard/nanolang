@@ -369,6 +369,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     type_suffix = "string";
                 } else if (elem_type == TYPE_BOOL) {
                     type_suffix = "bool";
+                } else if (elem_type == TYPE_ARRAY) {
+                    type_suffix = "array";  /* For nested arrays */
                 }
                 
                 /* Generate type-specific function name */
@@ -386,6 +388,88 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     build_expr(list, expr->as.call.args[i], env);
                 }
                 emit_literal(list, ")");
+            }
+            /* Special handling for array_push() and array_pop() - dynamic array operations */
+            else if (strcmp(func_name, "array_push") == 0 && expr->as.call.arg_count == 2) {
+                /* Detect element type from array argument (first arg) or value argument (second arg) */
+                Type elem_type = TYPE_INT;  /* Default to int */
+                
+                ASTNode *array_arg = expr->as.call.args[0];
+                if (array_arg->type == AST_IDENTIFIER) {
+                    /* Array is a variable - look up its element type */
+                    const char *array_name = array_arg->as.identifier;
+                    Symbol *sym = env_get_var(env, array_name);
+                    if (sym && sym->element_type != TYPE_UNKNOWN) {
+                        elem_type = sym->element_type;
+                    } else {
+                        /* Try to infer from value type */
+                        elem_type = check_expression(expr->as.call.args[1], env);
+                    }
+                } else {
+                    /* Try to infer from value type */
+                    elem_type = check_expression(expr->as.call.args[1], env);
+                }
+                
+                /* Map element type to suffix */
+                const char *type_suffix = "int";
+                if (elem_type == TYPE_FLOAT) {
+                    type_suffix = "float";
+                } else if (elem_type == TYPE_STRING) {
+                    type_suffix = "string";
+                } else if (elem_type == TYPE_BOOL) {
+                    type_suffix = "bool";
+                } else if (elem_type == TYPE_ARRAY) {
+                    type_suffix = "array";  /* For nested arrays */
+                }
+                
+                /* Generate: dyn_array_push_<type>(arr, value) */
+                char func_buf[64];
+                snprintf(func_buf, sizeof(func_buf), "dyn_array_push_%s", type_suffix);
+                
+                emit_literal(list, func_buf);
+                emit_literal(list, "(");
+                build_expr(list, expr->as.call.args[0], env);  /* array */
+                emit_literal(list, ", ");
+                build_expr(list, expr->as.call.args[1], env);  /* value */
+                emit_literal(list, ")");
+            }
+            else if (strcmp(func_name, "array_pop") == 0 && expr->as.call.arg_count == 1) {
+                /* Detect element type from array argument */
+                Type elem_type = TYPE_INT;  /* Default to int */
+                
+                ASTNode *array_arg = expr->as.call.args[0];
+                if (array_arg->type == AST_IDENTIFIER) {
+                    const char *array_name = array_arg->as.identifier;
+                    Symbol *sym = env_get_var(env, array_name);
+                    if (sym && sym->element_type != TYPE_UNKNOWN) {
+                        elem_type = sym->element_type;
+                    }
+                }
+                
+                /* Map element type to suffix */
+                const char *type_suffix = "int";
+                if (elem_type == TYPE_FLOAT) {
+                    type_suffix = "float";
+                } else if (elem_type == TYPE_STRING) {
+                    type_suffix = "string";
+                } else if (elem_type == TYPE_BOOL) {
+                    type_suffix = "bool";
+                } else if (elem_type == TYPE_ARRAY) {
+                    type_suffix = "array";  /* For nested arrays */
+                }
+                
+                /* Generate wrapper that handles bool success parameter */
+                char func_buf[128];
+                snprintf(func_buf, sizeof(func_buf), 
+                         "({ bool _s; %s _v = dyn_array_pop_%s(", 
+                         (elem_type == TYPE_FLOAT ? "double" : 
+                          elem_type == TYPE_STRING ? "const char*" :
+                          elem_type == TYPE_BOOL ? "bool" :
+                          elem_type == TYPE_ARRAY ? "DynArray*" : "int64_t"),
+                         type_suffix);
+                emit_literal(list, func_buf);
+                build_expr(list, expr->as.call.args[0], env);  /* array */
+                emit_literal(list, ", &_s); _v; })");
             }
             else {
                 /* Regular function call */
@@ -553,6 +637,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             if (count == 0) {
                 /* Empty array - need to determine type */
                 Type elem_type = expr->as.array_literal.element_type;
+                
                 if (elem_type == TYPE_UNKNOWN) {
                     /* Default to int for empty arrays without type info */
                     elem_type = TYPE_INT;
@@ -563,6 +648,13 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, "dynarray_literal_int(0)");
                 } else if (elem_type == TYPE_FLOAT) {
                     emit_literal(list, "dynarray_literal_float(0)");
+                } else if (elem_type == TYPE_ARRAY) {
+                    /* Nested array */
+                    emit_literal(list, "dyn_array_new(ELEM_ARRAY)");
+                } else if (elem_type == TYPE_STRING) {
+                    emit_literal(list, "dyn_array_new(ELEM_STRING)");
+                } else if (elem_type == TYPE_BOOL) {
+                    emit_literal(list, "dyn_array_new(ELEM_BOOL)");
                 } else {
                     /* Fallback for other types */
                     emit_literal(list, "dyn_array_new(ELEM_INT)");
@@ -642,6 +734,17 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             if (stmt->as.let.var_type == TYPE_TUPLE) {
                 emit_formatted(list, "__auto_type %s = ", stmt->as.let.name);
                 build_expr(list, stmt->as.let.value, env);
+                emit_literal(list, ";\n");
+            }
+            /* Handle function types - use typedef from registry */
+            else if (stmt->as.let.var_type == TYPE_FUNCTION && stmt->as.let.fn_sig) {
+                const char *typedef_name = register_function_signature(fn_registry, stmt->as.let.fn_sig);
+                emit_formatted(list, "%s %s", typedef_name, stmt->as.let.name);
+                
+                if (stmt->as.let.value) {
+                    emit_literal(list, " = ");
+                    build_expr(list, stmt->as.let.value, env);
+                }
                 emit_literal(list, ";\n");
             }
             /* Handle struct/enum types that need prefixing */

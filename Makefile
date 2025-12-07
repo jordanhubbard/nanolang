@@ -211,6 +211,10 @@ $(INTERPRETER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime
 $(OBJ_DIR)/ffi_bindgen.o: src/ffi_bindgen.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c src/ffi_bindgen.c -o $(OBJ_DIR)/ffi_bindgen.o
 
+# Special dependency: transpiler.o depends on transpiler_iterative_v3_twopass.c (which is #included)
+$(OBJ_DIR)/transpiler.o: $(SRC_DIR)/transpiler.c $(SRC_DIR)/transpiler_iterative_v3_twopass.c $(HEADERS) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/transpiler.c -o $@
+
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 

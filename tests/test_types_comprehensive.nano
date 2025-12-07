@@ -481,7 +481,7 @@ shadow test_struct_with_tuple {
  * ============================================================================ */
 
 /* Test 7.1: Array of array of int - NOT YET SUPPORTED */
-/* fn test_array_of_array_int() -> int {
+fn test_array_of_array_int() -> int {
     let mut inner1: array<int> = []
     set inner1 (array_push inner1 1)
     set inner1 (array_push inner1 2)
@@ -501,7 +501,7 @@ shadow test_struct_with_tuple {
 
 shadow test_array_of_array_int {
     assert (== (test_array_of_array_int) 5)
-} */
+}
 
 /* Test 7.2: Tuple with nested tuples */
 fn test_tuple_nested() -> int {
@@ -697,7 +697,7 @@ shadow test_function_mixed_params {
  * ============================================================================ */
 
 /* Test 9.1: 3-level nested arrays - NOT YET SUPPORTED */
-/* fn test_triple_nested_array() -> int {
+fn test_triple_nested_array() -> int {
     let mut l1: array<int> = []
     set l1 (array_push l1 1)
     
@@ -714,7 +714,7 @@ shadow test_function_mixed_params {
 
 shadow test_triple_nested_array {
     assert (== (test_triple_nested_array) 1)
-} */
+}
 
 /* Test 9.2: Struct with multiple nested types */
 struct ComplexData {

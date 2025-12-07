@@ -637,11 +637,20 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     
                     /* Special handling for function-typed parameters */
                     if (func->params[i].type == TYPE_FUNCTION) {
-                        /* Argument must be an identifier (function name) */
+                        /* Argument must be an identifier (function name or function-typed variable) */
                         if (arg->type != AST_IDENTIFIER) {
                             fprintf(stderr, "Error at line %d, column %d: Function parameter expects a function name\n",
                                     arg->line, arg->column);
                             return TYPE_UNKNOWN;
+                        }
+                        
+                        /* First check if it's a function-typed variable */
+                        Symbol *sym = env_get_var(env, arg->as.identifier);
+                        if (sym && sym->type == TYPE_FUNCTION) {
+                            /* It's a function-typed variable - mark as used and allow it */
+                            sym->is_used = true;
+                            /* TODO: Check signature match when we store signatures in Symbol */
+                            continue;  /* Skip to next argument */
                         }
                         
                         /* Look up the function */

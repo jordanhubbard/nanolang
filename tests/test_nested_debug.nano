@@ -1,0 +1,26 @@
+# Test to debug nested array type checking
+
+fn main() -> int {
+    # Test 1: Simple int array
+    let mut arr1: array<int> = []
+    (println "Created int array")
+    
+    # Test 2: Array of arrays  
+    let mut arr2: array<array<int>> = []
+    (println "Created array<array<int>>")
+    
+    # Test 3: Push into int array
+    set arr1 (array_push arr1 42)
+    (println "Pushed 42 into int array")
+    
+    # Test 4: Create inner array
+    let mut inner: array<int> = []
+    set inner (array_push inner 99)
+    (println "Created and populated inner array")
+    
+    # Test 5: Push inner into outer - THIS IS WHERE IT SHOULD FAIL
+    set arr2 (array_push arr2 inner)
+    (println "Pushed inner array into outer array")
+    
+    return 0
+}

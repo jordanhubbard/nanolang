@@ -1166,6 +1166,15 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "    dyn_array_set_bool(arr, idx, val);\n");
     sb_append(sb, "}\n\n");
     
+    /* Nested array support */
+    sb_append(sb, "static DynArray* nl_array_at_array(DynArray* arr, int64_t idx) {\n");
+    sb_append(sb, "    return dyn_array_get_array(arr, idx);\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static void nl_array_set_array(DynArray* arr, int64_t idx, DynArray* val) {\n");
+    sb_append(sb, "    dyn_array_set_array(arr, idx, val);\n");
+    sb_append(sb, "}\n\n");
+    
     /* Array new wrapper - creates DynArray with specified size and default value */
     sb_append(sb, "static DynArray* nl_array_new_int(int64_t size, int64_t default_val) {\n");
     sb_append(sb, "    DynArray* arr = dyn_array_new(ELEM_INT);\n");

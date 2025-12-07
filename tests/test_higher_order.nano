@@ -1,0 +1,67 @@
+# Test higher-order functions (functions taking/returning functions)
+
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+fn triple(x: int) -> int {
+    return (* x 3)
+}
+
+fn apply_twice(f: fn(int) -> int, x: int) -> int {
+    let result1: int = (f x)
+    let result2: int = (f result1)
+    return result2
+}
+
+fn make_multiplier(factor: int) -> fn(int) -> int {
+    # Can't capture 'factor' without closures, so return predefined functions
+    if (== factor 2) {
+        return double
+    } else {
+        return triple
+    }
+}
+
+fn main() -> int {
+    # Test 1: Pass function to higher-order function
+    let result1: int = (apply_twice double 5)
+    (print "apply_twice(double, 5) = ")
+    (println result1)
+    
+    if (!= result1 20) {
+        (println "❌ Test 1 failed")
+        return 1
+    } else {
+        (println "Test 1 passed")
+    }
+    
+    # Test 2: Get function from factory
+    let mult: fn(int) -> int = (make_multiplier 2)
+    let result2: int = (mult 7)
+    (print "make_multiplier(2)(7) = ")
+    (println result2)
+    
+    if (!= result2 14) {
+        (println "❌ Test 2 failed")
+        return 1
+    } else {
+        (println "Test 2 passed")
+    }
+    
+    # Test 3: Chain function calls
+    let mult3: fn(int) -> int = (make_multiplier 3)
+    let result3: int = (apply_twice mult3 2)
+    (print "apply_twice(make_multiplier(3), 2) = ")
+    (println result3)
+    
+    if (!= result3 18) {
+        (println "❌ Test 3 failed")
+        return 1
+    } else {
+        (println "Test 3 passed")
+    }
+    
+    (println "✅ All higher-order function tests passed!")
+    return 0
+}

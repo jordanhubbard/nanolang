@@ -17,6 +17,7 @@
 /* Forward declarations */
 static Value eval_expression(ASTNode *expr, Environment *env);
 static Value eval_statement(ASTNode *stmt, Environment *env);
+static Value create_dyn_array(DynArray *arr);
 
 /* ==========================================================================
  * Built-in OS Functions Implementation
@@ -768,6 +769,8 @@ static Value builtin_at(Value *args) {
                 return create_bool(dyn_array_get_bool(arr, index));
             case ELEM_STRING:
                 return create_string(dyn_array_get_string(arr, index));
+            case ELEM_ARRAY:
+                return create_dyn_array(dyn_array_get_array(arr, index));
             default:
                 fprintf(stderr, "Error: Unsupported array element type\n");
                 return create_void();
@@ -913,6 +916,7 @@ static ElementType value_type_to_elem_type(ValueType vtype) {
         case VAL_FLOAT: return ELEM_FLOAT;
         case VAL_BOOL: return ELEM_BOOL;
         case VAL_STRING: return ELEM_STRING;
+        case VAL_DYN_ARRAY: return ELEM_ARRAY;  /* Nested arrays */
         default: return ELEM_INT; /* Default */
     }
 }
@@ -942,6 +946,9 @@ static Value builtin_array_push(Value *args) {
                 break;
             case VAL_STRING:
                 dyn_array_push_string(arr, args[1].as.string_val);
+                break;
+            case VAL_DYN_ARRAY:
+                dyn_array_push_array(arr, args[1].as.dyn_array_val);
                 break;
             default:
                 fprintf(stderr, "Error: Unsupported array element type\n");
@@ -982,6 +989,9 @@ static Value builtin_array_push(Value *args) {
             break;
         case VAL_STRING:
             dyn_array_push_string(arr, args[1].as.string_val);
+            break;
+        case VAL_DYN_ARRAY:
+            dyn_array_push_array(arr, args[1].as.dyn_array_val);
             break;
         default:
             fprintf(stderr, "Error: Unsupported array element type\n");
@@ -1025,6 +1035,10 @@ static Value builtin_array_pop(Value *args) {
         case ELEM_STRING: {
             const char *val = dyn_array_pop_string(arr, &success);
             return success ? create_string(val) : create_void();
+        }
+        case ELEM_ARRAY: {
+            DynArray *val = dyn_array_pop_array(arr, &success);
+            return success ? create_dyn_array(val) : create_void();
         }
         default:
             fprintf(stderr, "Error: Unsupported array element type\n");

@@ -1,0 +1,40 @@
+# Test GC with nested arrays
+
+fn test_gc_stress() -> int {
+    # Create many nested arrays to stress test GC
+    let mut outer: array<array<int>> = []
+    
+    let mut i: int = 0
+    while (< i 100) {
+        let mut inner: array<int> = []
+        let mut j: int = 0
+        while (< j 10) {
+            set inner (array_push inner j)
+            set j (+ j 1)
+        }
+        set outer (array_push outer inner)
+        set i (+ i 1)
+    }
+    
+    # Access some values to verify correctness
+    let row_50: array<int> = (at outer 50)
+    let value: int = (at row_50 5)
+    
+    return value
+}
+
+fn main() -> int {
+    (println "Testing nested arrays with GC stress...")
+    
+    let result: int = (test_gc_stress)
+    (print "Result: ")
+    (println result)
+    
+    if (== result 5) {
+        (println "✅ GC handles nested arrays correctly!")
+        return 0
+    } else {
+        (println "❌ Test failed")
+        return 1
+    }
+}
