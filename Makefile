@@ -533,31 +533,21 @@ check-deps-sdl:
 	@if [ "$$(uname -s)" = "Darwin" ]; then \
 		if ! command -v brew >/dev/null 2>&1; then \
 			echo "⚠️  Homebrew not found on macOS"; \
+			echo "   Will attempt to install SDL2 automatically when needed"; \
 		elif ! command -v pkg-config >/dev/null 2>&1 || ! pkg-config --exists sdl2 2>/dev/null; then \
-			echo "⚠️  SDL2 not found (optional)"; \
-			echo "   Install with: brew install sdl2 sdl2_mixer sdl2_ttf"; \
+			echo "⚠️  SDL2 not found"; \
+			echo "   Will attempt to install automatically when building SDL modules"; \
 		else \
 			echo "✓ SDL2 found: $$(pkg-config --modversion sdl2)"; \
 		fi; \
 	elif [ "$$(uname -s)" = "Linux" ]; then \
 		if ! command -v pkg-config >/dev/null 2>&1; then \
-			echo "❌ pkg-config not found - cannot check for SDL2"; \
+			echo "⚠️  pkg-config not found"; \
 			echo "   Install with: sudo apt-get install pkg-config"; \
-			exit 1; \
 		elif ! pkg-config --exists sdl2 2>/dev/null; then \
-			echo "❌ SDL2 development libraries not found"; \
-			echo "   SDL examples cannot be built without SDL2 headers."; \
-			echo ""; \
-			echo "   To install SDL2 on Ubuntu/Debian:"; \
-			echo "     sudo apt-get install libsdl2-dev libsdl2-mixer-dev libsdl2-ttf-dev"; \
-			echo ""; \
-			echo "   To install SDL2 on Fedora/RHEL:"; \
-			echo "     sudo dnf install SDL2-devel SDL2_mixer-devel SDL2_ttf-devel"; \
-			echo ""; \
-			echo "   To skip SDL examples and continue:"; \
-			echo "     make examples-no-sdl"; \
-			echo ""; \
-			exit 1; \
+			echo "⚠️  SDL2 not found"; \
+			echo "   Will attempt to install automatically when building SDL modules"; \
+			echo "   (You may be prompted for sudo password during module build)"; \
 		else \
 			echo "✓ SDL2 found: $$(pkg-config --modversion sdl2)"; \
 		fi; \
