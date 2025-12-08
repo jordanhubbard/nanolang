@@ -902,6 +902,21 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             emit_indent_item(list, indent);
             emit_literal(list, stmt->as.set.name);
             emit_literal(list, " = ");
+            
+            /* Special handling for empty array literals: infer type from target variable */
+            if (stmt->as.set.value &&
+                stmt->as.set.value->type == AST_ARRAY_LITERAL &&
+                stmt->as.set.value->as.array_literal.element_count == 0 &&
+                stmt->as.set.value->as.array_literal.element_type == TYPE_UNKNOWN) {
+                
+                /* Look up the target variable's element type */
+                Symbol *sym = env_get_var(env, stmt->as.set.name);
+                if (sym && sym->element_type != TYPE_UNKNOWN) {
+                    /* Propagate the element type to the empty array literal */
+                    stmt->as.set.value->as.array_literal.element_type = sym->element_type;
+                }
+            }
+            
             build_expr(list, stmt->as.set.value, env);
             emit_literal(list, ";\n");
             break;

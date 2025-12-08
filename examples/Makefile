@@ -21,23 +21,23 @@ export NANO_MODULE_PATH=../modules
 
 # === Compiled Examples (Transpiler) ===
 
-# SDL examples that compile successfully
+# SDL examples that compile successfully (module_function naming)
 SDL_EXAMPLES = \
-	$(BIN_DIR)/checkers_sdl \
-	$(BIN_DIR)/boids_sdl \
-	$(BIN_DIR)/particles_sdl \
-	$(BIN_DIR)/falling_sand \
-	$(BIN_DIR)/mod_player \
-	$(BIN_DIR)/raytracer_simple \
-	$(BIN_DIR)/asteroids_sdl \
-	$(BIN_DIR)/terrain_explorer_sdl
+	$(BIN_DIR)/sdl_checkers \
+	$(BIN_DIR)/sdl_boids \
+	$(BIN_DIR)/sdl_particles \
+	$(BIN_DIR)/sdl_falling_sand \
+	$(BIN_DIR)/sdl_mod_player \
+	$(BIN_DIR)/sdl_raytracer \
+	$(BIN_DIR)/sdl_asteroids \
+	$(BIN_DIR)/sdl_terrain_explorer
 
-# Additional compiled examples (non-graphics)
+# Additional compiled examples (non-graphics, module_function naming)
 COMPILED_EXAMPLES = \
 	$(BIN_DIR)/snake \
 	$(BIN_DIR)/game_of_life \
-	$(BIN_DIR)/snake_ncurses \
-	$(BIN_DIR)/game_of_life_ncurses \
+	$(BIN_DIR)/ncurses_snake \
+	$(BIN_DIR)/ncurses_game_of_life \
 	$(BIN_DIR)/random_simple
 
 # Note: Module integration examples (vector2d_demo, sdl_import_test, sdl_mouse_click) 
@@ -88,20 +88,20 @@ all: $(COMPILER) $(ALL_COMPILED)
 	@echo "✓ All compiled examples built successfully!"
 	@echo ""
 	@echo "SDL examples:"
-	@echo "  ./bin/checkers_sdl           - Full checkers game with AI"
-	@echo "  ./bin/boids_sdl              - Flocking simulation (Craig Reynolds' Boids)"
-	@echo "  ./bin/particles_sdl          - Particle explosion effects (nested arrays!)"
-	@echo "  ./bin/falling_sand           - Cellular automata sandbox"
-	@echo "  ./bin/mod_player             - MOD/XM music player (requires music files)"
-	@echo "  ./bin/raytracer_simple       - Real-time ray tracer with mouse-controlled light"
-	@echo "  ./bin/asteroids_sdl          - Full arcade game (3 lives, game over, HUD, breaking asteroids)"
-	@echo "  ./bin/terrain_explorer_sdl   - 3D terrain with mouse camera (array<struct>!)"
+	@echo "  ./bin/sdl_checkers           - Full checkers game with AI"
+	@echo "  ./bin/sdl_boids              - Flocking simulation (Craig Reynolds' Boids)"
+	@echo "  ./bin/sdl_particles          - Particle explosion effects (nested arrays!)"
+	@echo "  ./bin/sdl_falling_sand       - Cellular automata sandbox"
+	@echo "  ./bin/sdl_mod_player         - MOD/XM music player (requires music files)"
+	@echo "  ./bin/sdl_raytracer          - Real-time ray tracer with mouse-controlled light"
+	@echo "  ./bin/sdl_asteroids          - Full arcade game (3 lives, game over, HUD, breaking asteroids)"
+	@echo "  ./bin/sdl_terrain_explorer   - 3D terrain with mouse camera (array<struct>!)"
 	@echo ""
 	@echo "Compiled terminal examples:"
 	@echo "  ./bin/snake                  - Classic snake game (scrolling output)"
 	@echo "  ./bin/game_of_life           - Conway's Game of Life (scrolling output)"
-	@echo "  ./bin/snake_ncurses          - Snake with interactive NCurses UI ⭐"
-	@echo "  ./bin/game_of_life_ncurses   - Game of Life with NCurses animation ⭐"
+	@echo "  ./bin/ncurses_snake          - Snake with interactive NCurses UI ⭐"
+	@echo "  ./bin/ncurses_game_of_life   - Game of Life with NCurses animation ⭐"
 	@echo "  ./bin/random_simple          - Random number generation"
 	@echo ""
 	@echo "OpenGL examples (requires: brew install glfw glew):"
@@ -152,30 +152,30 @@ opengl-teapot: $(BIN_DIR)/opengl_teapot
 
 # === Binary Build Rules ===
 
-$(BIN_DIR)/checkers_sdl: checkers.nano $(COMPILER)
-	@echo "Building Checkers SDL (with automatic module building)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/checkers.nano -o bin/checkers_sdl
-	@echo "✓ Checkers SDL built: $@"
+$(BIN_DIR)/sdl_checkers: checkers.nano $(COMPILER)
+	@echo "Building SDL Checkers (with automatic module building)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/checkers.nano -o bin/sdl_checkers
+	@echo "✓ SDL Checkers built: $@"
 
-$(BIN_DIR)/boids_sdl: boids_sdl.nano $(COMPILER)
-	@echo "Building Boids SDL (with automatic module building)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/boids_sdl.nano -o bin/boids_sdl
-	@echo "✓ Boids SDL built: $@"
+$(BIN_DIR)/sdl_boids: boids_sdl.nano $(COMPILER)
+	@echo "Building SDL Boids (with automatic module building)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/boids_sdl.nano -o bin/sdl_boids
+	@echo "✓ SDL Boids built: $@"
 
-$(BIN_DIR)/particles_sdl: particles_sdl.nano $(COMPILER)
-	@echo "Building Particles SDL (particle explosion effects)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/particles_sdl.nano -o bin/particles_sdl
-	@echo "✓ Particles SDL built: $@"
+$(BIN_DIR)/sdl_particles: particles_sdl.nano $(COMPILER)
+	@echo "Building SDL Particles (particle explosion effects)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/particles_sdl.nano -o bin/sdl_particles
+	@echo "✓ SDL Particles built: $@"
 
-$(BIN_DIR)/falling_sand: falling_sand.nano $(COMPILER)
-	@echo "Building Falling Sand (cellular automata sandbox)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/falling_sand.nano -o bin/falling_sand
-	@echo "✓ Falling Sand built: $@"
+$(BIN_DIR)/sdl_falling_sand: falling_sand.nano $(COMPILER)
+	@echo "Building SDL Falling Sand (cellular automata sandbox)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/falling_sand.nano -o bin/sdl_falling_sand
+	@echo "✓ SDL Falling Sand built: $@"
 
-$(BIN_DIR)/terrain_explorer_sdl: terrain_explorer_sdl.nano $(COMPILER)
-	@echo "Building Terrain Explorer SDL (3D terrain with mouse camera)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/terrain_explorer_sdl.nano -o bin/terrain_explorer_sdl
-	@echo "✓ Terrain Explorer SDL built: $@"
+$(BIN_DIR)/sdl_terrain_explorer: terrain_explorer_sdl.nano $(COMPILER)
+	@echo "Building SDL Terrain Explorer (3D terrain with mouse camera)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/terrain_explorer_sdl.nano -o bin/sdl_terrain_explorer
+	@echo "✓ SDL Terrain Explorer built: $@"
 
 $(BIN_DIR)/opengl_cube: opengl_cube.nano $(COMPILER)
 	@echo "Building OpenGL Rotating Cube (GLFW + GLEW)..."
@@ -187,20 +187,20 @@ $(BIN_DIR)/opengl_teapot: opengl_teapot/teapot.nano $(COMPILER)
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_teapot/teapot.nano -o bin/opengl_teapot
 	@echo "✓ OpenGL Teapot built: $@"
 
-$(BIN_DIR)/raytracer_simple: raytracer_simple.nano $(COMPILER)
-	@echo "Building Ray Tracer (real-time with mouse-controlled light)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/raytracer_simple.nano -o bin/raytracer_simple
-	@echo "✓ Ray Tracer built: $@"
+$(BIN_DIR)/sdl_raytracer: raytracer_simple.nano $(COMPILER)
+	@echo "Building SDL Raytracer (real-time with mouse-controlled light)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/raytracer_simple.nano -o bin/sdl_raytracer
+	@echo "✓ SDL Raytracer built: $@"
 
-$(BIN_DIR)/mod_player: mod_player.nano $(COMPILER)
-	@echo "Building MOD Player (SDL_mixer music player)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/mod_player.nano -o bin/mod_player
-	@echo "✓ MOD Player built: $@"
+$(BIN_DIR)/sdl_mod_player: mod_player.nano $(COMPILER)
+	@echo "Building SDL MOD Player (SDL_mixer music player)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/mod_player.nano -o bin/sdl_mod_player
+	@echo "✓ SDL MOD Player built: $@"
 
-$(BIN_DIR)/asteroids_sdl: asteroids_complete_sdl.nano $(COMPILER)
-	@echo "Building Asteroids (full arcade game with lives, game over, HUD)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/asteroids_complete_sdl.nano -o bin/asteroids_sdl
-	@echo "✓ Asteroids built: $@"
+$(BIN_DIR)/sdl_asteroids: asteroids_complete_sdl.nano $(COMPILER)
+	@echo "Building SDL Asteroids (full arcade game with lives, game over, HUD)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/asteroids_complete_sdl.nano -o bin/sdl_asteroids
+	@echo "✓ SDL Asteroids built: $@"
 
 # === Non-Graphics Compiled Examples ===
 
@@ -214,15 +214,15 @@ $(BIN_DIR)/game_of_life: game_of_life.nano $(COMPILER)
 	cd .. && ./bin/nanoc examples/game_of_life.nano -o bin/game_of_life
 	@echo "✓ Game of Life built: $@"
 
-$(BIN_DIR)/snake_ncurses: snake_ncurses.nano $(COMPILER)
-	@echo "Building Snake NCurses (interactive terminal game)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/snake_ncurses.nano -o bin/snake_ncurses
-	@echo "✓ Snake NCurses built: $@"
+$(BIN_DIR)/ncurses_snake: snake_ncurses.nano $(COMPILER)
+	@echo "Building NCurses Snake (interactive terminal game)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/snake_ncurses.nano -o bin/ncurses_snake
+	@echo "✓ NCurses Snake built: $@"
 
-$(BIN_DIR)/game_of_life_ncurses: game_of_life_ncurses.nano $(COMPILER)
-	@echo "Building Game of Life NCurses (interactive simulation)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/game_of_life_ncurses.nano -o bin/game_of_life_ncurses
-	@echo "✓ Game of Life NCurses built: $@"
+$(BIN_DIR)/ncurses_game_of_life: game_of_life_ncurses.nano $(COMPILER)
+	@echo "Building NCurses Game of Life (interactive simulation)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/game_of_life_ncurses.nano -o bin/ncurses_game_of_life
+	@echo "✓ NCurses Game of Life built: $@"
 
 $(BIN_DIR)/random_simple: 24_random_simple.nano $(COMPILER)
 	@echo "Building Random Simple (number generation demo)..."
