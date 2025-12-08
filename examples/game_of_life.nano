@@ -13,6 +13,10 @@ let GRID_WIDTH: int = 40
 let GRID_HEIGHT: int = 20
 let GENERATIONS: int = 10
 
+# === EXTERNAL FUNCTIONS ===
+extern fn rand() -> int
+extern fn srand(seed: int) -> void
+
 # === GRID OPERATIONS ===
 
 fn grid_index(x: int, y: int, width: int) -> int {
@@ -164,86 +168,36 @@ fn main() -> int {
     (println " cells")
     (println "")
     
-    # Initialize grid with glider pattern
+    # Initialize grid with random population (~30% alive)
+    # Seed random number generator with current time
+    (srand 42)  # Use fixed seed for reproducibility, or (time 0) for varying results
+    
     let mut grid: array<int> = []
     let mut i: int = 0
+    let mut alive_count: int = 0
+    
+    (println "Populating grid randomly (30% alive cells)...")
     
     while (< i grid_size) {
-        set grid (array_push grid CellState.DEAD)
+        # Generate random number 0-99
+        # If < 30, cell is alive (30% probability)
+        let r: int = (% (rand) 100)
+        
+        if (< r 30) {
+            set grid (array_push grid CellState.ALIVE)
+            set alive_count (+ alive_count 1)
+        } else {
+            set grid (array_push grid CellState.DEAD)
+        }
+        
         set i (+ i 1)
     }
     
-    # Place glider at position (10, 5)
-    # Pattern:  0 1 0
-    #           0 0 1
-    #           1 1 1
-    let glider_x: int = 10
-    let glider_y: int = 5
-    
-    let mut new_grid: array<int> = []
-    set i 0
-    while (< i grid_size) {
-        let y: int = (/ i GRID_WIDTH)
-        let x: int = (% i GRID_WIDTH)
-        
-        # Check if this is part of the glider
-        let mut cell: CellState = CellState.DEAD
-        
-        # Use x and glider_x in a way compiler recognizes (store in temp var)
-        let x_offset: int = (- x glider_x)
-        let y_offset: int = (- y glider_y)
-        
-        # Row 0:  0 1 0
-        if (== y glider_y) {
-            if (== x (+ glider_x 1)) {
-                set cell CellState.ALIVE
-            } else {
-                (print "")
-            }
-        } else {
-            (print "")
-        }
-        
-        # Row 1:  0 0 1
-        if (== y (+ glider_y 1)) {
-            if (== x (+ glider_x 2)) {
-                set cell CellState.ALIVE
-            } else {
-                (print "")
-            }
-        } else {
-            (print "")
-        }
-        
-        # Row 2:  1 1 1
-        if (== y (+ glider_y 2)) {
-            if (== x glider_x) {
-                set cell CellState.ALIVE
-            } else {
-                if (== x (+ glider_x 1)) {
-                    set cell CellState.ALIVE
-                } else {
-                    if (== x (+ glider_x 2)) {
-                        set cell CellState.ALIVE
-                    } else {
-                        (print "")
-                    }
-                }
-            }
-        } else {
-            (print "")
-        }
-        
-        # Use offset variables to ensure x, glider_x, y, glider_y are considered used
-        let _dummy: int = (+ x_offset y_offset)
-        
-        set new_grid (array_push new_grid cell)
-        set i (+ i 1)
-    }
-    
-    set grid new_grid
-    
-    (println "✓ Grid initialized with glider pattern")
+    (print "✓ Grid initialized with ")
+    (print alive_count)
+    (print " alive cells (")
+    (print (/ (* alive_count 100) grid_size))
+    (println "%)")
     (println "")
     (println "Generation 0:")
     (print_grid grid GRID_WIDTH GRID_HEIGHT)
@@ -251,6 +205,8 @@ fn main() -> int {
     
     # Simulate generations
     let mut gen: int = 0
+    let mut new_grid: array<int> = []
+    
     while (< gen GENERATIONS) {
         # Compute next generation
         set new_grid []

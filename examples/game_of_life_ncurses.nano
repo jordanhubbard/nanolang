@@ -14,6 +14,10 @@ let GRID_WIDTH: int = 60
 let GRID_HEIGHT: int = 30
 let UPDATE_DELAY_MS: int = 100
 
+# === EXTERNAL FUNCTIONS ===
+extern fn rand() -> int
+extern fn srand(seed: int) -> void
+
 # === HELPER FUNCTIONS ===
 
 fn grid_index(x: int, y: int, width: int) -> int {
@@ -172,7 +176,7 @@ fn step(grid: array<CellState>, width: int, height: int) -> array<CellState> {
 }
 
 fn draw_grid_ncurses(grid: array<CellState>, width: int, height: int) -> void {
-    let alive: CellState = CellState.ALIVE
+    let alive: int = CellState.ALIVE
     
     let mut y: int = 0
     while (< y height) {
@@ -204,14 +208,27 @@ fn main() -> int {
     (nl_nodelay win 1)  # Non-blocking input
     (timeout_wrapper 100)       # 100ms timeout
     
-    # Initialize grid with patterns
-    let mut grid: array<CellState> = (make_empty_grid GRID_WIDTH GRID_HEIGHT)
+    # Initialize grid with random population (~30% alive)
+    # Seed random number generator
+    (srand 42)  # Use fixed seed for reproducibility, or (time 0) for varying
     
-    # Add some interesting patterns
-    set grid (add_glider grid GRID_WIDTH GRID_HEIGHT 5 5)
-    set grid (add_glider grid GRID_WIDTH GRID_HEIGHT 15 10)
-    set grid (add_blinker grid GRID_WIDTH GRID_HEIGHT 30 15)
-    set grid (add_blinker grid GRID_WIDTH GRID_HEIGHT 40 20)
+    let mut grid: array<CellState> = []
+    let grid_size: int = (* GRID_WIDTH GRID_HEIGHT)
+    let mut i: int = 0
+    
+    while (< i grid_size) {
+        # Generate random number 0-99
+        # If < 30, cell is alive (30% probability)
+        let r: int = (% (rand) 100)
+        
+        if (< r 30) {
+            set grid (array_push grid CellState.ALIVE)
+        } else {
+            set grid (array_push grid CellState.DEAD)
+        }
+        
+        set i (+ i 1)
+    }
     
     let mut generation: int = 0
     let mut running: bool = true
