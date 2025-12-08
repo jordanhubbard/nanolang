@@ -167,7 +167,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (opts->verbose) printf("✓ Generated C code: %s\n", temp_c_file);
 
     /* Compile modules to object files */
-    char compile_cmd[4096];
+    char compile_cmd[16384];  /* Increased to handle long command lines with many modules */
     char module_objs[2048] = "";
     char module_compile_flags[2048] = "";
     
@@ -349,14 +349,23 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char include_flags_with_tmp[2560];
     snprintf(include_flags_with_tmp, sizeof(include_flags_with_tmp), "%s -I/tmp", include_flags);
     
-    if (opts->verbose) {
-        snprintf(compile_cmd, sizeof(compile_cmd), 
-                "gcc -std=c99 %s -o %s %s %s %s %s %s", 
-                include_flags_with_tmp, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
-    } else {
-        snprintf(compile_cmd, sizeof(compile_cmd), 
-                "gcc -std=c99 %s -o %s %s %s %s %s %s", 
-                include_flags_with_tmp, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
+    int cmd_len = snprintf(compile_cmd, sizeof(compile_cmd), 
+            "gcc -std=c99 %s -o %s %s %s %s %s %s", 
+            include_flags_with_tmp, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
+    
+    if (cmd_len >= (int)sizeof(compile_cmd)) {
+        fprintf(stderr, "Error: Compile command too long (%d bytes, max %zu)\n", cmd_len, sizeof(compile_cmd));
+        fprintf(stderr, "Try reducing the number of modules or shortening paths.\n");
+        free(c_code);
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        free(source);
+        if (!opts->keep_c) {
+            remove(temp_c_file);
+        }
+        return 1;
     }
 
     if (opts->verbose) printf("Compiling C code: %s\n", compile_cmd);
