@@ -26,7 +26,6 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/sdl_checkers \
 	$(BIN_DIR)/sdl_boids \
 	$(BIN_DIR)/sdl_particles \
-	$(BIN_DIR)/sdl_falling_sand \
 	$(BIN_DIR)/sdl_mod_player \
 	$(BIN_DIR)/sdl_raytracer \
 	$(BIN_DIR)/sdl_asteroids \
@@ -36,6 +35,7 @@ SDL_EXAMPLES = \
 COMPILED_EXAMPLES = \
 	$(BIN_DIR)/snake \
 	$(BIN_DIR)/game_of_life \
+	$(BIN_DIR)/falling_sand \
 	$(BIN_DIR)/ncurses_snake \
 	$(BIN_DIR)/ncurses_game_of_life \
 	$(BIN_DIR)/random_simple
@@ -91,7 +91,6 @@ all: $(COMPILER) $(ALL_COMPILED)
 	@echo "  ./bin/sdl_checkers           - Full checkers game with AI"
 	@echo "  ./bin/sdl_boids              - Flocking simulation (Craig Reynolds' Boids)"
 	@echo "  ./bin/sdl_particles          - Particle explosion effects (nested arrays!)"
-	@echo "  ./bin/sdl_falling_sand       - Cellular automata sandbox"
 	@echo "  ./bin/sdl_mod_player         - MOD/XM music player (requires music files)"
 	@echo "  ./bin/sdl_raytracer          - Real-time ray tracer with mouse-controlled light"
 	@echo "  ./bin/sdl_asteroids          - Full arcade game (3 lives, game over, HUD, breaking asteroids)"
@@ -100,6 +99,7 @@ all: $(COMPILER) $(ALL_COMPILED)
 	@echo "Compiled terminal examples:"
 	@echo "  ./bin/snake                  - Classic snake game (scrolling output)"
 	@echo "  ./bin/game_of_life           - Conway's Game of Life (scrolling output)"
+	@echo "  ./bin/falling_sand           - Cellular automata physics simulation"
 	@echo "  ./bin/ncurses_snake          - Snake with interactive NCurses UI ⭐"
 	@echo "  ./bin/ncurses_game_of_life   - Game of Life with NCurses animation ⭐"
 	@echo "  ./bin/random_simple          - Random number generation"
@@ -167,11 +167,6 @@ $(BIN_DIR)/sdl_particles: particles_sdl.nano $(COMPILER)
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/particles_sdl.nano -o bin/sdl_particles
 	@echo "✓ SDL Particles built: $@"
 
-$(BIN_DIR)/sdl_falling_sand: falling_sand.nano $(COMPILER)
-	@echo "Building SDL Falling Sand (cellular automata sandbox)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/falling_sand.nano -o bin/sdl_falling_sand
-	@echo "✓ SDL Falling Sand built: $@"
-
 $(BIN_DIR)/sdl_terrain_explorer: terrain_explorer_sdl.nano $(COMPILER)
 	@echo "Building SDL Terrain Explorer (3D terrain with mouse camera)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/terrain_explorer_sdl.nano -o bin/sdl_terrain_explorer
@@ -213,6 +208,11 @@ $(BIN_DIR)/game_of_life: game_of_life.nano $(COMPILER)
 	@echo "Building Game of Life (Conway's cellular automaton)..."
 	cd .. && ./bin/nanoc examples/game_of_life.nano -o bin/game_of_life
 	@echo "✓ Game of Life built: $@"
+
+$(BIN_DIR)/falling_sand: falling_sand.nano $(COMPILER)
+	@echo "Building Falling Sand (cellular automata physics)..."
+	cd .. && ./bin/nanoc examples/falling_sand.nano -o bin/falling_sand
+	@echo "✓ Falling Sand built: $@"
 
 $(BIN_DIR)/ncurses_snake: snake_ncurses.nano $(COMPILER)
 	@echo "Building NCurses Snake (interactive terminal game)..."

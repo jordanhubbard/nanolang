@@ -105,6 +105,9 @@ fn main() -> int {
             }
         } else {}
         
+        # Check for window close button
+        if (== (nl_sdl_poll_event_quit) 1) { set running false } else {}
+        
         # Check if music is still playing
         let is_playing: int = (Mix_PlayingMusic)
         if (== is_playing 0) {
