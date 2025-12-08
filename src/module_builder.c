@@ -888,7 +888,7 @@ char** module_get_link_flags(ModuleBuildInfo **modules, size_t count, size_t *ou
     return all_flags;
 }
 
-// Get all compile flags from multiple modules
+// Get all compile flags from multiple modules (with deduplication)
 char** module_get_compile_flags(ModuleBuildInfo **modules, size_t count, size_t *out_count) {
     size_t total = 0;
     
@@ -913,7 +913,19 @@ char** module_get_compile_flags(ModuleBuildInfo **modules, size_t count, size_t 
                 if (!modules[i]->compile_flags[j] || modules[i]->compile_flags[j][0] == '\0') {
                     continue;
                 }
-                all_flags[pos++] = strdup(modules[i]->compile_flags[j]);
+                
+                // Check for duplicates
+                bool duplicate = false;
+                for (size_t k = 0; k < pos; k++) {
+                    if (all_flags[k] && strcmp(all_flags[k], modules[i]->compile_flags[j]) == 0) {
+                        duplicate = true;
+                        break;
+                    }
+                }
+                
+                if (!duplicate) {
+                    all_flags[pos++] = strdup(modules[i]->compile_flags[j]);
+                }
             }
         }
     }
