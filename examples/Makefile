@@ -42,8 +42,7 @@ COMPILED_EXAMPLES = \
 	$(BIN_DIR)/falling_sand \
 	$(BIN_DIR)/ncurses_snake \
 	$(BIN_DIR)/ncurses_game_of_life \
-	$(BIN_DIR)/ncurses_matrix_rain \
-	$(BIN_DIR)/random_simple
+	$(BIN_DIR)/ncurses_matrix_rain
 
 # Note: Module integration examples (vector2d_demo, sdl_import_test, sdl_mouse_click) 
 # have API mismatches and need updating - excluded from default build
@@ -108,7 +107,7 @@ all: $(COMPILER) $(ALL_COMPILED)
 	@echo "  ./bin/sdl_falling_sand       - Cellular automata sandbox (interactive)"
 	@echo ""
 	@echo "Other SDL examples:"
-	@echo "  ./bin/sdl_mod_player         - MOD/XM music player (requires files)"
+	@echo "  ./bin/sdl_mod_player         - MOD/XM music player with visualizer (requires files)"
 	@echo ""
 	@echo "Terminal examples:"
 	@echo "  ./bin/snake                  - Classic snake (scrolling output)"
@@ -116,7 +115,6 @@ all: $(COMPILER) $(ALL_COMPILED)
 	@echo "  ./bin/falling_sand           - Cellular automata physics"
 	@echo "  ./bin/ncurses_snake          - Snake with interactive NCurses UI"
 	@echo "  ./bin/ncurses_game_of_life   - Game of Life with NCurses animation"
-	@echo "  ./bin/random_simple          - Random number generation"
 	@echo ""
 	@echo "OpenGL examples (requires: brew install glfw glew):"
 	@echo "  ./bin/opengl_cube          - Rotating textured cube"
@@ -223,9 +221,9 @@ $(BIN_DIR)/sdl_raytracer: raytracer_simple.nano $(COMPILER)
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/raytracer_simple.nano -o bin/sdl_raytracer
 	@echo "✓ SDL Raytracer built: $@"
 
-$(BIN_DIR)/sdl_mod_player: mod_player.nano $(COMPILER)
-	@echo "Building SDL MOD Player (SDL_mixer music player)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/mod_player.nano -o bin/sdl_mod_player
+$(BIN_DIR)/sdl_mod_player: visualizer/mod_visualizer.nano $(COMPILER)
+	@echo "Building SDL MOD Player with visualizer (4-channel VU meters)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/visualizer/mod_visualizer.nano -o bin/sdl_mod_player
 	@echo "✓ SDL MOD Player built: $@"
 
 $(BIN_DIR)/sdl_asteroids: asteroids_complete_sdl.nano $(COMPILER)
@@ -264,11 +262,6 @@ $(BIN_DIR)/ncurses_matrix_rain: ncurses_matrix_rain.nano $(COMPILER)
 	@echo "Building NCurses Matrix Rain (The Matrix 1999)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/ncurses_matrix_rain.nano -o bin/ncurses_matrix_rain
 	@echo "✓ NCurses Matrix Rain built: $@"
-
-$(BIN_DIR)/random_simple: 24_random_simple.nano $(COMPILER)
-	@echo "Building Random Simple (number generation demo)..."
-	cd .. && ./bin/nanoc examples/24_random_simple.nano -o bin/random_simple
-	@echo "✓ Random Simple built: $@"
 
 # === Developer/Debug Examples (Not Built by Default) ===
 # These examples have been moved from tests/ but need API updates:
