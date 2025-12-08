@@ -21,7 +21,8 @@ int64_t nl_sdl_render_fill_rect(int64_t renderer_ptr, int64_t x, int64_t y, int6
 /* Helper to poll SDL events and return 1 if quit, 0 otherwise */
 int64_t nl_sdl_poll_event_quit(void) {
     SDL_Event event;
-    if (SDL_PollEvent(&event)) {
+    /* Check all events in the queue, not just one */
+    while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             return 1;
         }
