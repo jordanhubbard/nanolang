@@ -24,6 +24,8 @@ export NANO_MODULE_PATH=../modules
 # SDL examples that compile successfully (module_function naming)
 SDL_EXAMPLES = \
 	$(BIN_DIR)/sdl_pong \
+	$(BIN_DIR)/sdl_fire \
+	$(BIN_DIR)/sdl_starfield \
 	$(BIN_DIR)/sdl_checkers \
 	$(BIN_DIR)/sdl_boids \
 	$(BIN_DIR)/sdl_particles \
@@ -39,6 +41,7 @@ COMPILED_EXAMPLES = \
 	$(BIN_DIR)/falling_sand \
 	$(BIN_DIR)/ncurses_snake \
 	$(BIN_DIR)/ncurses_game_of_life \
+	$(BIN_DIR)/ncurses_matrix_rain \
 	$(BIN_DIR)/random_simple
 
 # Note: Module integration examples (vector2d_demo, sdl_import_test, sdl_mouse_click) 
@@ -88,22 +91,29 @@ all: $(COMPILER) $(ALL_COMPILED)
 	@echo ""
 	@echo "✓ All compiled examples built successfully!"
 	@echo ""
-	@echo "SDL examples:"
+	@echo "Classic games:"
 	@echo "  ./bin/sdl_pong               - Table tennis (1972) - First video game! 🏓"
-	@echo "  ./bin/sdl_checkers           - Full checkers game with AI"
-	@echo "  ./bin/sdl_boids              - Flocking simulation (Craig Reynolds' Boids)"
-	@echo "  ./bin/sdl_particles          - Particle explosion effects (nested arrays!)"
-	@echo "  ./bin/sdl_mod_player         - MOD/XM music player (requires music files)"
-	@echo "  ./bin/sdl_raytracer          - Real-time ray tracer with mouse-controlled light"
-	@echo "  ./bin/sdl_asteroids          - Full arcade game (3 lives, game over, HUD, breaking asteroids)"
-	@echo "  ./bin/sdl_terrain_explorer   - 3D terrain with mouse camera (array<struct>!)"
+	@echo "  ./bin/sdl_asteroids          - Space shooter with lives, game over, HUD"
+	@echo "  ./bin/sdl_checkers           - Board game with AI"
 	@echo ""
-	@echo "Compiled terminal examples:"
-	@echo "  ./bin/snake                  - Classic snake game (scrolling output)"
-	@echo "  ./bin/game_of_life           - Conway's Game of Life (scrolling output)"
-	@echo "  ./bin/falling_sand           - Cellular automata physics simulation"
-	@echo "  ./bin/ncurses_snake          - Snake with interactive NCurses UI ⭐"
-	@echo "  ./bin/ncurses_game_of_life   - Game of Life with NCurses animation ⭐"
+	@echo "Visual demos:"
+	@echo "  ./bin/sdl_fire               - Fire effect (demoscene classic) 🔥"
+	@echo "  ./bin/sdl_starfield          - 3D space travel effect ⭐"
+	@echo "  ./bin/ncurses_matrix_rain    - Matrix digital rain (1999) 🖥️"
+	@echo "  ./bin/sdl_boids              - Flocking simulation (Craig Reynolds)"
+	@echo "  ./bin/sdl_particles          - Particle explosion effects"
+	@echo "  ./bin/sdl_raytracer          - Real-time ray tracer with mouse light"
+	@echo "  ./bin/sdl_terrain_explorer   - 3D terrain with mouse camera"
+	@echo ""
+	@echo "Other SDL examples:"
+	@echo "  ./bin/sdl_mod_player         - MOD/XM music player (requires files)"
+	@echo ""
+	@echo "Terminal examples:"
+	@echo "  ./bin/snake                  - Classic snake (scrolling output)"
+	@echo "  ./bin/game_of_life           - Conway's Game of Life (30% random)"
+	@echo "  ./bin/falling_sand           - Cellular automata physics"
+	@echo "  ./bin/ncurses_snake          - Snake with interactive NCurses UI"
+	@echo "  ./bin/ncurses_game_of_life   - Game of Life with NCurses animation"
 	@echo "  ./bin/random_simple          - Random number generation"
 	@echo ""
 	@echo "OpenGL examples (requires: brew install glfw glew):"
@@ -158,6 +168,16 @@ $(BIN_DIR)/sdl_pong: sdl_pong.nano $(COMPILER)
 	@echo "Building SDL Pong (1972 - first video game)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_pong.nano -o bin/sdl_pong
 	@echo "✓ SDL Pong built: $@"
+
+$(BIN_DIR)/sdl_fire: sdl_fire.nano $(COMPILER)
+	@echo "Building SDL Fire (demoscene classic)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_fire.nano -o bin/sdl_fire
+	@echo "✓ SDL Fire built: $@"
+
+$(BIN_DIR)/sdl_starfield: sdl_starfield.nano $(COMPILER)
+	@echo "Building SDL Starfield (3D space travel)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_starfield.nano -o bin/sdl_starfield
+	@echo "✓ SDL Starfield built: $@"
 
 $(BIN_DIR)/sdl_checkers: checkers.nano $(COMPILER)
 	@echo "Building SDL Checkers (with automatic module building)..."
@@ -230,6 +250,11 @@ $(BIN_DIR)/ncurses_game_of_life: game_of_life_ncurses.nano $(COMPILER)
 	@echo "Building NCurses Game of Life (interactive simulation)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/game_of_life_ncurses.nano -o bin/ncurses_game_of_life
 	@echo "✓ NCurses Game of Life built: $@"
+
+$(BIN_DIR)/ncurses_matrix_rain: ncurses_matrix_rain.nano $(COMPILER)
+	@echo "Building NCurses Matrix Rain (The Matrix 1999)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/ncurses_matrix_rain.nano -o bin/ncurses_matrix_rain
+	@echo "✓ NCurses Matrix Rain built: $@"
 
 $(BIN_DIR)/random_simple: 24_random_simple.nano $(COMPILER)
 	@echo "Building Random Simple (number generation demo)..."

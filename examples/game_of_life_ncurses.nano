@@ -214,6 +214,8 @@ fn main() -> int {
     
     let mut grid: array<CellState> = []
     let grid_size: int = (* GRID_WIDTH GRID_HEIGHT)
+    let alive: CellState = CellState.ALIVE
+    let dead: CellState = CellState.DEAD
     let mut i: int = 0
     
     while (< i grid_size) {
@@ -222,9 +224,9 @@ fn main() -> int {
         let r: int = (% (rand) 100)
         
         if (< r 30) {
-            set grid (array_push grid CellState.ALIVE)
+            set grid (array_push grid alive)
         } else {
-            set grid (array_push grid CellState.DEAD)
+            set grid (array_push grid dead)
         }
         
         set i (+ i 1)

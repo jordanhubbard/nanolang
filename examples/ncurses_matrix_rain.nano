@@ -1,0 +1,182 @@
+# MATRIX DIGITAL RAIN - The Matrix (1999)
+# Iconic falling green characters effect
+# Press any key to exit
+
+import "modules/ncurses/ncurses.nano"
+
+# === CONSTANTS ===
+let MAX_COLS: int = 120
+let MAX_DROPS: int = 120
+let UPDATE_DELAY_MS: int = 50
+
+# === EXTERNAL FUNCTIONS ===
+extern fn rand() -> int
+extern fn srand(seed: int) -> void
+extern fn time(t: int) -> int
+
+# === DROP STATE ===
+# Each column has a "drop" - a stream of falling characters
+
+fn random_char() -> int {
+    # Matrix uses katakana, numbers, and some ASCII
+    # For simplicity, use ASCII printable chars (33-126)
+    let r: int = (% (rand) 94)
+    return (+ r 33)
+}
+
+fn random_speed() -> int {
+    # Random speed between 1-3 characters per update
+    let r: int = (% (rand) 3)
+    return (+ r 1)
+}
+
+# === MAIN ===
+
+fn main() -> int {
+    (println "Starting Matrix Digital Rain...")
+    (println "Press any key to exit")
+    (println "")
+    
+    # Seed random
+    let t: int = (time 0)
+    (srand t)
+    
+    # Initialize ncurses
+    let win: int = (initscr_wrapper)
+    (curs_set_wrapper 0)        # Hide cursor
+    (nl_nodelay win 1)           # Non-blocking input
+    (timeout_wrapper UPDATE_DELAY_MS)
+    
+    # Try to enable colors
+    (start_color_wrapper)
+    
+    # Define green color pair (pair 1 = green on black)
+    (init_pair_wrapper 1 2 0)  # COLOR_GREEN=2, COLOR_BLACK=0
+    
+    # Calculate color pair attribute value (pair * 256)
+    let COLOR_PAIR_GREEN: int = (* 1 256)
+    
+    # Get screen dimensions
+    let max_x: int = (getmaxx_wrapper win)
+    let max_y: int = (getmaxy_wrapper win)
+    
+    # Initialize drop positions (Y coordinate for each column)
+    # -1 means drop hasn't started yet
+    let mut drop_y: array<int> = []
+    let mut drop_speed: array<int> = []
+    let mut drop_length: array<int> = []
+    
+    let mut i: int = 0
+    while (< i MAX_COLS) {
+        # Random starting Y position (some start off-screen)
+        let start_y: int = (- (% (rand) (+ max_y 20)) 20)
+        set drop_y (array_push drop_y start_y)
+        
+        # Random speed (1-3)
+        set drop_speed (array_push drop_speed (random_speed))
+        
+        # Random length (5-25 characters)
+        let len: int = (+ (% (rand) 20) 5)
+        set drop_length (array_push drop_length len)
+        
+        set i (+ i 1)
+    }
+    
+    let mut frame: int = 0
+    let mut running: bool = true
+    
+    # Main loop
+    while running {
+        # Check for input (any key exits)
+        let key: int = (getch_wrapper)
+        if (>= key 0) {
+            set running false
+        } else {}
+        
+        # Clear screen
+        (clear_wrapper)
+        
+        # Update and draw each drop
+        set i 0
+        while (< i MAX_COLS) {
+            # Only draw if column exists on screen
+            if (< i max_x) {
+                let y: int = (at drop_y i)
+                let len: int = (at drop_length i)
+                let speed: int = (at drop_speed i)
+                
+                # Draw the trail
+                let mut trail_y: int = y
+                let mut trail_idx: int = 0
+                
+                while (< trail_idx len) {
+                    let char_y: int = (- trail_y trail_idx)
+                    
+                    if (>= char_y 0) {
+                        if (< char_y max_y) {
+                            # Brightest at head, dimmer down the trail
+                            if (== trail_idx 0) {
+                                # Head - bright white/green
+                                (attron_wrapper COLOR_PAIR_GREEN)
+                                (attron_wrapper A_BOLD)
+                                (mvaddch_wrapper char_y i (random_char))
+                                (attroff_wrapper A_BOLD)
+                                (attroff_wrapper COLOR_PAIR_GREEN)
+                            } else {
+                                if (< trail_idx 3) {
+                                    # Near head - bright green
+                                    (attron_wrapper COLOR_PAIR_GREEN)
+                                    (attron_wrapper A_BOLD)
+                                    (mvaddch_wrapper char_y i (random_char))
+                                    (attroff_wrapper A_BOLD)
+                                    (attroff_wrapper COLOR_PAIR_GREEN)
+                                } else {
+                                    # Trail - normal green
+                                    (attron_wrapper COLOR_PAIR_GREEN)
+                                    (mvaddch_wrapper char_y i (random_char))
+                                    (attroff_wrapper COLOR_PAIR_GREEN)
+                                }
+                            }
+                        } else {}
+                    } else {}
+                    
+                    set trail_idx (+ trail_idx 1)
+                }
+                
+                # Move drop down by speed
+                if (== (% frame speed) 0) {
+                    let new_y: int = (+ y 1)
+                    
+                    # If drop is off screen, reset it
+                    let reset_threshold: int = (+ (+ max_y len) 5)
+                    if (> new_y reset_threshold) {
+                        # Reset to top with random offset
+                        let reset_y: int = (- (% (rand) 10) 10)
+                        (array_set drop_y i reset_y)
+                        
+                        # New random speed and length
+                        (array_set drop_speed i (random_speed))
+                        let new_len: int = (+ (% (rand) 20) 5)
+                        (array_set drop_length i new_len)
+                    } else {
+                        (array_set drop_y i new_y)
+                    }
+                } else {}
+            } else {}
+            
+            set i (+ i 1)
+        }
+        
+        (refresh_wrapper)
+        
+        set frame (+ frame 1)
+    }
+    
+    # Cleanup
+    (endwin_wrapper)
+    
+    (println "")
+    (println "Matrix disconnected.")
+    
+    return 0
+}
