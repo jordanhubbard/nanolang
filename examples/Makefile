@@ -32,7 +32,8 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/sdl_mod_player \
 	$(BIN_DIR)/sdl_raytracer \
 	$(BIN_DIR)/sdl_asteroids \
-	$(BIN_DIR)/sdl_terrain_explorer
+	$(BIN_DIR)/sdl_terrain_explorer \
+	$(BIN_DIR)/sdl_falling_sand
 
 # Additional compiled examples (non-graphics, module_function naming)
 COMPILED_EXAMPLES = \
@@ -104,6 +105,7 @@ all: $(COMPILER) $(ALL_COMPILED)
 	@echo "  ./bin/sdl_particles          - Particle explosion effects"
 	@echo "  ./bin/sdl_raytracer          - Real-time ray tracer with mouse light"
 	@echo "  ./bin/sdl_terrain_explorer   - 3D terrain with mouse camera"
+	@echo "  ./bin/sdl_falling_sand       - Cellular automata sandbox (interactive)"
 	@echo ""
 	@echo "Other SDL examples:"
 	@echo "  ./bin/sdl_mod_player         - MOD/XM music player (requires files)"
@@ -153,11 +155,13 @@ $(INTERPRETER):
 # 5. Links everything automatically!
 
 # Individual target aliases
-checkers-sdl: $(BIN_DIR)/checkers_sdl
-boids-sdl: $(BIN_DIR)/boids_sdl
-raytracer-simple: $(BIN_DIR)/raytracer_simple
-asteroids-sdl: $(BIN_DIR)/asteroids_sdl
-terrain-explorer-sdl: $(BIN_DIR)/terrain_explorer_sdl
+checkers-sdl: $(BIN_DIR)/sdl_checkers
+boids-sdl: $(BIN_DIR)/sdl_boids
+particles-sdl: $(BIN_DIR)/sdl_particles
+raytracer-simple: $(BIN_DIR)/sdl_raytracer
+asteroids-sdl: $(BIN_DIR)/sdl_asteroids
+terrain-explorer-sdl: $(BIN_DIR)/sdl_terrain_explorer
+falling-sand-sdl: $(BIN_DIR)/sdl_falling_sand
 
 opengl-cube: $(BIN_DIR)/opengl_cube
 opengl-teapot: $(BIN_DIR)/opengl_teapot
@@ -198,6 +202,11 @@ $(BIN_DIR)/sdl_terrain_explorer: terrain_explorer_sdl.nano $(COMPILER)
 	@echo "Building SDL Terrain Explorer (3D terrain with mouse camera)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/terrain_explorer_sdl.nano -o bin/sdl_terrain_explorer
 	@echo "✓ SDL Terrain Explorer built: $@"
+
+$(BIN_DIR)/sdl_falling_sand: falling_sand_sdl.nano $(COMPILER)
+	@echo "Building SDL Falling Sand (cellular automata sandbox)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/falling_sand_sdl.nano -o bin/sdl_falling_sand
+	@echo "✓ SDL Falling Sand built: $@"
 
 $(BIN_DIR)/opengl_cube: opengl_cube.nano $(COMPILER)
 	@echo "Building OpenGL Rotating Cube (GLFW + GLEW)..."
@@ -334,12 +343,12 @@ help:
 	@echo "Compiled examples (transpiler):"
 	@echo "  checkers-sdl         - Full checkers game with AI"
 	@echo "  boids-sdl            - Flocking simulation"
-	@echo "  particles-sdl        - Particle explosion"
-	@echo "  falling-sand-sdl     - Cellular automata sandbox"
+	@echo "  particles-sdl        - Particle explosion effects"
+	@echo "  falling-sand-sdl     - Cellular automata sandbox (interactive)"
 	@echo "  terrain-explorer-sdl - 3D terrain with mouse camera"
-	@echo "  raytracer-simple     - Real-time ray tracer"
+	@echo "  raytracer-simple     - Real-time ray tracer with mouse light"
 	@echo "  opengl-cube          - Rotating OpenGL cube"
-	@echo "  opengl-teapot        - Rotating OpenGL teapot"
+	@echo "  opengl-teapot        - Rotating OpenGL teapot with textures"
 	@echo ""
 	@echo "Interpreter demo examples:"
 	@echo "  hello             - Hello World (simplest example)"

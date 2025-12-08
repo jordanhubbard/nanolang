@@ -332,7 +332,7 @@ shadow read_material_name {
     assert (str_equals (read_material_name Material.WATER) "WATER")
 }
 
-fn render_ui(renderer: int, font: TTF_Font, current_material: Material, paused: bool) -> void {
+fn render_ui(renderer: SDL_Renderer, font: TTF_Font, current_material: Material, paused: bool) -> void {
     # Draw semi-transparent overlay at top
     (SDL_SetRenderDrawColor renderer 0 0 0 180)
     (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH 50)
@@ -357,7 +357,7 @@ shadow render_ui {
     (print "")
 }
 
-fn render_grid(renderer: int, grid: array<int>) -> void {
+fn render_grid(renderer: SDL_Renderer, grid: array<int>) -> void {
     let mut y: int = 0
     while (< y GRID_HEIGHT) {
         let mut x: int = 0
