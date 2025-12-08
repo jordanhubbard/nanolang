@@ -260,7 +260,7 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
                 *last_slash = '\0';
                 
                 /* Walk up to find project root (directory containing "modules/" or "examples/") */
-                char test_path[1024];
+                char test_path[2048];  /* Increased to handle long paths */
                 for (int depth = 0; depth < 10; depth++) {
                     /* Check if this directory has modules/ or examples/ subdirectory */
                     snprintf(test_path, sizeof(test_path), "%s/modules", current_dir);

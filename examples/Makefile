@@ -40,6 +40,9 @@ COMPILED_EXAMPLES = \
 	$(BIN_DIR)/game_of_life_ncurses \
 	$(BIN_DIR)/random_simple
 
+# Note: Module integration examples (vector2d_demo, sdl_import_test, sdl_mouse_click) 
+# have API mismatches and need updating - excluded from default build
+
 # Note: array<struct> is now fully supported! (fixed in commit 4952d65)
 # terrain_explorer_sdl uses array<Tile> and compiles successfully.
 
@@ -225,6 +228,14 @@ $(BIN_DIR)/random_simple: 24_random_simple.nano $(COMPILER)
 	@echo "Building Random Simple (number generation demo)..."
 	cd .. && ./bin/nanoc examples/24_random_simple.nano -o bin/random_simple
 	@echo "✓ Random Simple built: $@"
+
+# === Developer/Debug Examples (Not Built by Default) ===
+# These examples have been moved from tests/ but need API updates:
+#   vector2d_demo.nano          - Vector2D module (has function name mismatches)
+#   sdl_import_test.nano        - SDL import verification (missing SDL_Rect type)
+#   sdl_mouse_click.nano        - SDL mouse input (needs SDL struct updates)
+#   protracker_mod_loading.nano - ProTracker MOD loading (requires specific .mod files)
+#   audio_wav_playback.nano     - SDL_mixer WAV playback (hard-coded paths)
 
 # === Interpreter Demo Examples ===
 

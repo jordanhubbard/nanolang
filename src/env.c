@@ -772,7 +772,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     env->generic_instances[env->generic_instance_count++] = inst;
     
     /* Register specialized functions in environment for type checking */
-    char func_name[256];
+    char func_name[512];  /* Increased to handle long type names + suffixes */
     Function func;
     Parameter *params;
     
