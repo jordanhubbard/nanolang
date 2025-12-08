@@ -1,0 +1,254 @@
+# PONG - The First Video Game (1972)
+# Two-player table tennis simulation
+# Controls: W/S for left paddle, Up/Down arrows for right paddle
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+
+# === CONSTANTS ===
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+let PADDLE_WIDTH: int = 15
+let PADDLE_HEIGHT: int = 80
+let BALL_SIZE: int = 12
+let PADDLE_SPEED: float = 400.0
+let BALL_SPEED: float = 300.0
+let WINNING_SCORE: int = 11
+
+# === MAIN ===
+
+fn main() -> int {
+    (println "╔════════════════════════════════════════════╗")
+    (println "║              PONG (1972)                  ║")
+    (println "╚════════════════════════════════════════════╝")
+    (println "")
+    (println "Controls:")
+    (println "  Player 1 (Left):  W/S")
+    (println "  Player 2 (Right): Up/Down arrows")
+    (println "  ESC: Quit")
+    (println "")
+    (println "First to 11 points wins!")
+    (println "")
+    
+    # Initialize SDL
+    (SDL_Init SDL_INIT_VIDEO)
+    let window: SDL_Window = (SDL_CreateWindow "PONG" 100 100 WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
+    
+    # Initialize SDL_TTF
+    (TTF_Init)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 48)
+    if (== font 0) {
+        (println "Warning: Failed to load font. Scores will not display.")
+    } else {
+        (println "✓ Font loaded successfully")
+    }
+    
+    # Game state
+    let mut player1_score: int = 0
+    let mut player2_score: int = 0
+    let mut running: bool = true
+    let mut game_over: bool = false
+    
+    # Paddle positions (Y coordinate, centered)
+    let mut paddle1_y: float = (cast_float (/ (- WINDOW_HEIGHT PADDLE_HEIGHT) 2))
+    let mut paddle2_y: float = (cast_float (/ (- WINDOW_HEIGHT PADDLE_HEIGHT) 2))
+    
+    # Ball state
+    let mut ball_x: float = (/ (cast_float WINDOW_WIDTH) 2.0)
+    let mut ball_y: float = (/ (cast_float WINDOW_HEIGHT) 2.0)
+    let mut ball_vx: float = BALL_SPEED
+    let mut ball_vy: float = 0.0
+    
+    # Timing
+    let mut last_time: int = (SDL_GetTicks)
+    
+    # Main loop
+    while running {
+        # Delta time
+        let current_time: int = (SDL_GetTicks)
+        let dt: float = (/ (cast_float (- current_time last_time)) 1000.0)
+        set last_time current_time
+        
+        # Input - check keyboard state for continuous movement
+        let p1_up: bool = (== (nl_sdl_key_state 26) 1)     # W key
+        let p1_down: bool = (== (nl_sdl_key_state 22) 1)   # S key
+        let p2_up: bool = (== (nl_sdl_key_state 82) 1)     # Up arrow
+        let p2_down: bool = (== (nl_sdl_key_state 81) 1)   # Down arrow
+        
+        # Check for quit/escape
+        let key: int = (nl_sdl_poll_keypress)
+        if (== key 41) { set running false } else {}  # ESC
+        if (== (nl_sdl_poll_event_quit) 1) { set running false } else {}
+        
+        # Update game state (only if not game over)
+        if (not game_over) {
+            # Move paddles
+            if p1_up {
+                set paddle1_y (- paddle1_y (* PADDLE_SPEED dt))
+            } else {}
+            if p1_down {
+                set paddle1_y (+ paddle1_y (* PADDLE_SPEED dt))
+            } else {}
+            if p2_up {
+                set paddle2_y (- paddle2_y (* PADDLE_SPEED dt))
+            } else {}
+            if p2_down {
+                set paddle2_y (+ paddle2_y (* PADDLE_SPEED dt))
+            } else {}
+            
+            # Clamp paddles to screen
+            if (< paddle1_y 0.0) { set paddle1_y 0.0 } else {}
+            if (> paddle1_y (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))) {
+                set paddle1_y (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))
+            } else {}
+            if (< paddle2_y 0.0) { set paddle2_y 0.0 } else {}
+            if (> paddle2_y (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))) {
+                set paddle2_y (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))
+            } else {}
+            
+            # Move ball
+            set ball_x (+ ball_x (* ball_vx dt))
+            set ball_y (+ ball_y (* ball_vy dt))
+            
+            # Ball collision with top/bottom
+            if (< ball_y 0.0) {
+                set ball_y 0.0
+                set ball_vy (- 0.0 ball_vy)
+            } else {}
+            if (> ball_y (cast_float (- WINDOW_HEIGHT BALL_SIZE))) {
+                set ball_y (cast_float (- WINDOW_HEIGHT BALL_SIZE))
+                set ball_vy (- 0.0 ball_vy)
+            } else {}
+            
+            # Ball collision with paddles
+            # Left paddle
+            if (< ball_x 40.0) {
+                if (> ball_x 10.0) {
+                    # Check Y overlap
+                    let ball_center_y: float = (+ ball_y (/ (cast_float BALL_SIZE) 2.0))
+                    if (>= ball_center_y paddle1_y) {
+                        if (<= ball_center_y (+ paddle1_y (cast_float PADDLE_HEIGHT))) {
+                            # Hit!
+                            set ball_vx (- 0.0 ball_vx)
+                            set ball_x 40.0
+                            # Add angle based on where ball hits paddle
+                            let hit_pos: float = (/ (- ball_center_y paddle1_y) (cast_float PADDLE_HEIGHT))
+                            set ball_vy (* (* (- hit_pos 0.5) 2.0) BALL_SPEED)
+                        } else {}
+                    } else {}
+                } else {}
+            } else {}
+            
+            # Right paddle
+            let paddle2_x: float = (cast_float (- WINDOW_WIDTH 40))
+            if (> ball_x paddle2_x) {
+                let paddle2_right: float = (cast_float (- WINDOW_WIDTH 10))
+                if (< ball_x paddle2_right) {
+                    # Check Y overlap
+                    let ball_center_y: float = (+ ball_y (/ (cast_float BALL_SIZE) 2.0))
+                    if (>= ball_center_y paddle2_y) {
+                        if (<= ball_center_y (+ paddle2_y (cast_float PADDLE_HEIGHT))) {
+                            # Hit!
+                            set ball_vx (- 0.0 ball_vx)
+                            set ball_x paddle2_x
+                            # Add angle based on where ball hits paddle
+                            let hit_pos: float = (/ (- ball_center_y paddle2_y) (cast_float PADDLE_HEIGHT))
+                            set ball_vy (* (* (- hit_pos 0.5) 2.0) BALL_SPEED)
+                        } else {}
+                    } else {}
+                } else {}
+            } else {}
+            
+            # Score points
+            if (< ball_x (- 0.0 (cast_float BALL_SIZE))) {
+                # Player 2 scores
+                set player2_score (+ player2_score 1)
+                # Reset ball
+                set ball_x (/ (cast_float WINDOW_WIDTH) 2.0)
+                set ball_y (/ (cast_float WINDOW_HEIGHT) 2.0)
+                set ball_vx (- 0.0 BALL_SPEED)
+                set ball_vy 0.0
+                
+                # Check win condition
+                if (>= player2_score WINNING_SCORE) {
+                    set game_over true
+                    (println "Player 2 Wins!")
+                } else {}
+            } else {}
+            
+            if (> ball_x (cast_float WINDOW_WIDTH)) {
+                # Player 1 scores
+                set player1_score (+ player1_score 1)
+                # Reset ball
+                set ball_x (/ (cast_float WINDOW_WIDTH) 2.0)
+                set ball_y (/ (cast_float WINDOW_HEIGHT) 2.0)
+                set ball_vx BALL_SPEED
+                set ball_vy 0.0
+                
+                # Check win condition
+                if (>= player1_score WINNING_SCORE) {
+                    set game_over true
+                    (println "Player 1 Wins!")
+                } else {}
+            } else {}
+        } else {}
+        
+        # Render
+        # Clear screen (black)
+        (SDL_SetRenderDrawColor renderer 0 0 0 255)
+        (SDL_RenderClear renderer)
+        
+        # Draw center line (dashed)
+        (SDL_SetRenderDrawColor renderer 255 255 255 255)
+        let mut line_y: int = 0
+        while (< line_y WINDOW_HEIGHT) {
+            (nl_sdl_render_fill_rect renderer (- (/ WINDOW_WIDTH 2) 2) line_y 4 10)
+            set line_y (+ line_y 20)
+        }
+        
+        # Draw paddles (white)
+        (nl_sdl_render_fill_rect renderer 10 (cast_int paddle1_y) PADDLE_WIDTH PADDLE_HEIGHT)
+        (nl_sdl_render_fill_rect renderer (- WINDOW_WIDTH 25) (cast_int paddle2_y) PADDLE_WIDTH PADDLE_HEIGHT)
+        
+        # Draw ball (white)
+        (nl_sdl_render_fill_rect renderer (cast_int ball_x) (cast_int ball_y) BALL_SIZE BALL_SIZE)
+        
+        # Draw scores
+        if (!= font 0) {
+            let p1_score_str: string = (int_to_string player1_score)
+            let p2_score_str: string = (int_to_string player2_score)
+            
+            (nl_draw_text_blended renderer font p1_score_str 280 50 255 255 255 255)
+            (nl_draw_text_blended renderer font p2_score_str 480 50 255 255 255 255)
+            
+            # Game over message
+            if (== game_over true) {
+                if (>= player1_score WINNING_SCORE) {
+                    (nl_draw_text_blended renderer font "Player 1 Wins!" 240 250 255 255 0 255)
+                } else {
+                    (nl_draw_text_blended renderer font "Player 2 Wins!" 240 250 255 255 0 255)
+                }
+                (nl_draw_text_blended renderer font "ESC to Exit" 280 320 200 200 200 255)
+            } else {}
+        } else {}
+        
+        (SDL_RenderPresent renderer)
+        
+        # Small delay
+        (SDL_Delay 16)
+    }
+    
+    # Cleanup
+    if (!= font 0) {
+        (TTF_CloseFont font)
+    } else {}
+    (TTF_Quit)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+    
+    return 0
+}

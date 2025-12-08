@@ -23,6 +23,7 @@ export NANO_MODULE_PATH=../modules
 
 # SDL examples that compile successfully (module_function naming)
 SDL_EXAMPLES = \
+	$(BIN_DIR)/sdl_pong \
 	$(BIN_DIR)/sdl_checkers \
 	$(BIN_DIR)/sdl_boids \
 	$(BIN_DIR)/sdl_particles \
@@ -88,6 +89,7 @@ all: $(COMPILER) $(ALL_COMPILED)
 	@echo "✓ All compiled examples built successfully!"
 	@echo ""
 	@echo "SDL examples:"
+	@echo "  ./bin/sdl_pong               - Table tennis (1972) - First video game! 🏓"
 	@echo "  ./bin/sdl_checkers           - Full checkers game with AI"
 	@echo "  ./bin/sdl_boids              - Flocking simulation (Craig Reynolds' Boids)"
 	@echo "  ./bin/sdl_particles          - Particle explosion effects (nested arrays!)"
@@ -151,6 +153,11 @@ opengl-cube: $(BIN_DIR)/opengl_cube
 opengl-teapot: $(BIN_DIR)/opengl_teapot
 
 # === Binary Build Rules ===
+
+$(BIN_DIR)/sdl_pong: sdl_pong.nano $(COMPILER)
+	@echo "Building SDL Pong (1972 - first video game)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_pong.nano -o bin/sdl_pong
+	@echo "✓ SDL Pong built: $@"
 
 $(BIN_DIR)/sdl_checkers: checkers.nano $(COMPILER)
 	@echo "Building SDL Checkers (with automatic module building)..."
