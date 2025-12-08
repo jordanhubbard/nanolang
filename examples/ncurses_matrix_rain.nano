@@ -53,9 +53,6 @@ fn main() -> int {
     # Define green color pair (pair 1 = green on black)
     (init_pair_wrapper 1 2 0)  # COLOR_GREEN=2, COLOR_BLACK=0
     
-    # Calculate color pair attribute value (pair * 256)
-    let COLOR_PAIR_GREEN: int = (* 1 256)
-    
     # Get screen dimensions
     let max_x: int = (getmaxx_wrapper win)
     let max_y: int = (getmaxy_wrapper win)
@@ -95,6 +92,9 @@ fn main() -> int {
         
         # Clear screen
         (clear_wrapper)
+        
+        # Color pair attribute value (pair * 256) - needed for green text
+        let COLOR_PAIR_GREEN: int = (* 1 256)
         
         # Update and draw each drop
         set i 0

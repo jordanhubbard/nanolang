@@ -67,17 +67,6 @@ fn main() -> int {
     
     # Main loop
     while running {
-        # Delta time
-        let current_time: int = (SDL_GetTicks)
-        let dt: float = (/ (cast_float (- current_time last_time)) 1000.0)
-        set last_time current_time
-        
-        # Input - check keyboard state for continuous movement
-        let p1_up: bool = (== (nl_sdl_key_state 26) 1)     # W key
-        let p1_down: bool = (== (nl_sdl_key_state 22) 1)   # S key
-        let p2_up: bool = (== (nl_sdl_key_state 82) 1)     # Up arrow
-        let p2_down: bool = (== (nl_sdl_key_state 81) 1)   # Down arrow
-        
         # Check for quit/escape
         let key: int = (nl_sdl_poll_keypress)
         if (== key 41) { set running false } else {}  # ESC
@@ -85,6 +74,17 @@ fn main() -> int {
         
         # Update game state (only if not game over)
         if (not game_over) {
+            # Delta time (only needed for game updates)
+            let current_time: int = (SDL_GetTicks)
+            let dt: float = (/ (cast_float (- current_time last_time)) 1000.0)
+            set last_time current_time
+            
+            # Input - check keyboard state for continuous movement
+            let p1_up: bool = (== (nl_sdl_key_state 26) 1)     # W key
+            let p1_down: bool = (== (nl_sdl_key_state 22) 1)   # S key
+            let p2_up: bool = (== (nl_sdl_key_state 82) 1)     # Up arrow
+            let p2_down: bool = (== (nl_sdl_key_state 81) 1)   # Down arrow
+            
             # Move paddles
             if p1_up {
                 set paddle1_y (- paddle1_y (* PADDLE_SPEED dt))
