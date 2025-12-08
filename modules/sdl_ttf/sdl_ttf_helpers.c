@@ -74,8 +74,20 @@ TTF_Font* nl_open_font_portable(const char* font_name, int64_t ptsize) {
         "~/Library/Fonts/%s.ttf",
 #endif
 #ifdef PLATFORM_LINUX
+        // DejaVu fonts (most common on Linux)
         "/usr/share/fonts/truetype/dejavu/%s.ttf",
+        "/usr/share/fonts/dejavu/%s.ttf",
+        "/usr/share/fonts/truetype/dejavu/%s-Regular.ttf",
+        "/usr/share/fonts/dejavu/%s-Regular.ttf",
+        // Liberation fonts (Red Hat-based distros)
+        "/usr/share/fonts/liberation/%s-Regular.ttf",
+        "/usr/share/fonts/truetype/liberation/%s-Regular.ttf",
+        "/usr/share/fonts/liberation/%s.ttf",
         "/usr/share/fonts/truetype/liberation/%s.ttf",
+        // GNU FreeFont
+        "/usr/share/fonts/truetype/freefont/%s.ttf",
+        "/usr/share/fonts/gnu-free/%s.ttf",
+        // Generic TTF locations
         "/usr/share/fonts/TTF/%s.ttf",
         "/usr/share/fonts/truetype/%s.ttf",
         "/usr/local/share/fonts/%s.ttf",
@@ -108,11 +120,26 @@ TTF_Font* nl_open_font_portable(const char* font_name, int64_t ptsize) {
     }
     
     // If nothing worked, try common font fallbacks
+    // On Linux, we also try explicit filenames since font names don't always match
     const char* fallback_fonts[] = {
+#ifdef PLATFORM_LINUX
+        // Try full filenames for common Linux fonts
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+        "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
+        "/usr/share/fonts/gnu-free/FreeSans.ttf",
+        // Fallback to font names
+        "DejaVuSans",
+        "LiberationSans",
+        "FreeSans",
+#else
         "Arial",
         "DejaVuSans",
         "LiberationSans",
         "FreeSans",
+#endif
         NULL
     };
     
@@ -126,12 +153,36 @@ TTF_Font* nl_open_font_portable(const char* font_name, int64_t ptsize) {
     }
     
     if (!is_fallback) {
+#ifdef PLATFORM_LINUX
+        // On Linux, try absolute paths first
+        for (int i = 0; fallback_fonts[i] != NULL; i++) {
+            // If it starts with '/', it's an absolute path - try opening directly
+            if (fallback_fonts[i][0] == '/') {
+                test_file = fopen(fallback_fonts[i], "rb");
+                if (test_file) {
+                    fclose(test_file);
+                    font = TTF_OpenFont(fallback_fonts[i], (int)ptsize);
+                    if (font) {
+                        return font;
+                    }
+                }
+            } else {
+                // It's a font name, use recursive search
+                font = nl_open_font_portable(fallback_fonts[i], ptsize);
+                if (font) {
+                    return font;
+                }
+            }
+        }
+#else
+        // On other platforms, just use font names
         for (int i = 0; fallback_fonts[i] != NULL; i++) {
             font = nl_open_font_portable(fallback_fonts[i], ptsize);
             if (font) {
                 return font;
             }
         }
+#endif
     }
     
     return NULL;  // All attempts failed

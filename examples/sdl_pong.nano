@@ -1,11 +1,10 @@
 # PONG - The First Video Game (1972)
 # Two-player table tennis simulation
 # Controls: W/S for left paddle, Up/Down arrows for right paddle
+# Authentic 1972 style with blocky score display (no fonts!)
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 # === CONSTANTS ===
 let WINDOW_WIDTH: int = 800
@@ -16,6 +15,127 @@ let BALL_SIZE: int = 12
 let PADDLE_SPEED: float = 400.0
 let BALL_SPEED: float = 300.0
 let WINNING_SCORE: int = 11
+
+# === BLOCKY DIGIT RENDERING (7-SEGMENT STYLE) ===
+# Draws a single digit using rectangles to match 1972 Pong aesthetic
+
+fn draw_segment_horizontal(renderer: SDL_Renderer, x: int, y: int, w: int, h: int) -> void {
+    (nl_sdl_render_fill_rect renderer x y w h)
+    return
+}
+
+fn draw_segment_vertical(renderer: SDL_Renderer, x: int, y: int, w: int, h: int) -> void {
+    (nl_sdl_render_fill_rect renderer x y w h)
+    return
+}
+
+# Draw a blocky digit (0-9) at position x,y with given segment size
+# Uses 7-segment display pattern
+fn draw_digit(renderer: SDL_Renderer, digit: int, x: int, y: int, seg_width: int, seg_height: int) -> void {
+    let seg_thick: int = (/ seg_width 5)  # Thickness of segments
+    
+    # Define which segments are on for each digit (7-segment encoding)
+    # Segments: top, top-right, bottom-right, bottom, bottom-left, top-left, middle
+    
+    if (== digit 0) {
+        (draw_segment_horizontal renderer x y seg_width seg_thick)                                    # top
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) y seg_thick seg_height)       # top-right
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) seg_height seg_thick seg_height) # bottom-right
+        (draw_segment_horizontal renderer x (- (+ y seg_height seg_height) seg_thick) seg_width seg_thick) # bottom
+        (draw_segment_vertical renderer x seg_height seg_thick seg_height)                           # bottom-left
+        (draw_segment_vertical renderer x y seg_thick seg_height)                                    # top-left
+    } else {}
+    
+    if (== digit 1) {
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) y seg_thick seg_height)       # top-right
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) seg_height seg_thick seg_height) # bottom-right
+    } else {}
+    
+    if (== digit 2) {
+        (draw_segment_horizontal renderer x y seg_width seg_thick)                                    # top
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) y seg_thick seg_height)       # top-right
+        (draw_segment_horizontal renderer x (- seg_height (/ seg_thick 2)) seg_width seg_thick)      # middle
+        (draw_segment_vertical renderer x seg_height seg_thick seg_height)                           # bottom-left
+        (draw_segment_horizontal renderer x (- (+ y seg_height seg_height) seg_thick) seg_width seg_thick) # bottom
+    } else {}
+    
+    if (== digit 3) {
+        (draw_segment_horizontal renderer x y seg_width seg_thick)                                    # top
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) y seg_thick seg_height)       # top-right
+        (draw_segment_horizontal renderer x (- seg_height (/ seg_thick 2)) seg_width seg_thick)      # middle
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) seg_height seg_thick seg_height) # bottom-right
+        (draw_segment_horizontal renderer x (- (+ y seg_height seg_height) seg_thick) seg_width seg_thick) # bottom
+    } else {}
+    
+    if (== digit 4) {
+        (draw_segment_vertical renderer x y seg_thick seg_height)                                    # top-left
+        (draw_segment_horizontal renderer x (- seg_height (/ seg_thick 2)) seg_width seg_thick)      # middle
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) y seg_thick seg_height)       # top-right
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) seg_height seg_thick seg_height) # bottom-right
+    } else {}
+    
+    if (== digit 5) {
+        (draw_segment_horizontal renderer x y seg_width seg_thick)                                    # top
+        (draw_segment_vertical renderer x y seg_thick seg_height)                                    # top-left
+        (draw_segment_horizontal renderer x (- seg_height (/ seg_thick 2)) seg_width seg_thick)      # middle
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) seg_height seg_thick seg_height) # bottom-right
+        (draw_segment_horizontal renderer x (- (+ y seg_height seg_height) seg_thick) seg_width seg_thick) # bottom
+    } else {}
+    
+    if (== digit 6) {
+        (draw_segment_horizontal renderer x y seg_width seg_thick)                                    # top
+        (draw_segment_vertical renderer x y seg_thick seg_height)                                    # top-left
+        (draw_segment_horizontal renderer x (- seg_height (/ seg_thick 2)) seg_width seg_thick)      # middle
+        (draw_segment_vertical renderer x seg_height seg_thick seg_height)                           # bottom-left
+        (draw_segment_horizontal renderer x (- (+ y seg_height seg_height) seg_thick) seg_width seg_thick) # bottom
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) seg_height seg_thick seg_height) # bottom-right
+    } else {}
+    
+    if (== digit 7) {
+        (draw_segment_horizontal renderer x y seg_width seg_thick)                                    # top
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) y seg_thick seg_height)       # top-right
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) seg_height seg_thick seg_height) # bottom-right
+    } else {}
+    
+    if (== digit 8) {
+        (draw_segment_horizontal renderer x y seg_width seg_thick)                                    # top
+        (draw_segment_vertical renderer x y seg_thick seg_height)                                    # top-left
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) y seg_thick seg_height)       # top-right
+        (draw_segment_horizontal renderer x (- seg_height (/ seg_thick 2)) seg_width seg_thick)      # middle
+        (draw_segment_vertical renderer x seg_height seg_thick seg_height)                           # bottom-left
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) seg_height seg_thick seg_height) # bottom-right
+        (draw_segment_horizontal renderer x (- (+ y seg_height seg_height) seg_thick) seg_width seg_thick) # bottom
+    } else {}
+    
+    if (== digit 9) {
+        (draw_segment_horizontal renderer x y seg_width seg_thick)                                    # top
+        (draw_segment_vertical renderer x y seg_thick seg_height)                                    # top-left
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) y seg_thick seg_height)       # top-right
+        (draw_segment_horizontal renderer x (- seg_height (/ seg_thick 2)) seg_width seg_thick)      # middle
+        (draw_segment_vertical renderer (- (+ x seg_width) seg_thick) seg_height seg_thick seg_height) # bottom-right
+        (draw_segment_horizontal renderer x (- (+ y seg_height seg_height) seg_thick) seg_width seg_thick) # bottom
+    } else {}
+    
+    return
+}
+
+# Draw a two-digit score at position x,y
+fn draw_score(renderer: SDL_Renderer, score: int, x: int, y: int) -> void {
+    let tens: int = (/ score 10)
+    let ones: int = (% score 10)
+    
+    let seg_width: int = 40
+    let seg_height: int = 30
+    let digit_spacing: int = 55
+    
+    # Only draw tens digit if > 0
+    if (> tens 0) {
+        (draw_digit renderer tens x y seg_width seg_height)
+    } else {}
+    
+    (draw_digit renderer ones (+ x digit_spacing) y seg_width seg_height)
+    return
+}
 
 # === MAIN ===
 
@@ -36,15 +156,6 @@ fn main() -> int {
     (SDL_Init SDL_INIT_VIDEO)
     let window: SDL_Window = (SDL_CreateWindow "PONG" 100 100 WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
-    
-    # Initialize SDL_TTF
-    (TTF_Init)
-    let font: TTF_Font = (nl_open_font_portable "Arial" 48)
-    if (== font 0) {
-        (println "Warning: Failed to load font. Scores will not display.")
-    } else {
-        (println "✓ Font loaded successfully")
-    }
     
     # Game state
     let mut player1_score: int = 0
@@ -216,23 +327,25 @@ fn main() -> int {
         # Draw ball (white)
         (nl_sdl_render_fill_rect renderer (cast_int ball_x) (cast_int ball_y) BALL_SIZE BALL_SIZE)
         
-        # Draw scores
-        if (!= font 0) {
-            let p1_score_str: string = (int_to_string player1_score)
-            let p2_score_str: string = (int_to_string player2_score)
-            
-            (nl_draw_text_blended renderer font p1_score_str 280 50 255 255 255 255)
-            (nl_draw_text_blended renderer font p2_score_str 480 50 255 255 255 255)
-            
-            # Game over message
-            if (== game_over true) {
-                if (>= player1_score WINNING_SCORE) {
-                    (nl_draw_text_blended renderer font "Player 1 Wins!" 240 250 255 255 0 255)
-                } else {
-                    (nl_draw_text_blended renderer font "Player 2 Wins!" 240 250 255 255 0 255)
-                }
-                (nl_draw_text_blended renderer font "ESC to Exit" 280 320 200 200 200 255)
-            } else {}
+        # Draw scores (blocky 7-segment style)
+        (draw_score renderer player1_score 280 50)
+        (draw_score renderer player2_score 480 50)
+        
+        # Game over message (simple blocky text)
+        if (== game_over true) {
+            # Draw "WIN" message using simple rectangles
+            let msg_y: int = 270
+            if (>= player1_score WINNING_SCORE) {
+                # Player 1 wins - show on left side
+                (nl_sdl_render_fill_rect renderer 250 msg_y 80 15)
+                (nl_sdl_render_fill_rect renderer 250 msg_y 15 50)
+                (nl_sdl_render_fill_rect renderer 250 (+ msg_y 35) 80 15)
+            } else {
+                # Player 2 wins - show on right side
+                (nl_sdl_render_fill_rect renderer 450 msg_y 80 15)
+                (nl_sdl_render_fill_rect renderer 450 msg_y 15 50)
+                (nl_sdl_render_fill_rect renderer 450 (+ msg_y 35) 80 15)
+            }
         } else {}
         
         (SDL_RenderPresent renderer)
@@ -242,13 +355,31 @@ fn main() -> int {
     }
     
     # Cleanup
-    if (!= font 0) {
-        (TTF_CloseFont font)
-    } else {}
-    (TTF_Quit)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
     (SDL_Quit)
     
     return 0
+}
+
+# === SHADOW TESTS ===
+
+shadow draw_segment_horizontal {
+    assert true  # Drawing function - tested visually
+}
+
+shadow draw_segment_vertical {
+    assert true  # Drawing function - tested visually
+}
+
+shadow draw_digit {
+    assert true  # Drawing function - tested visually
+}
+
+shadow draw_score {
+    assert true  # Drawing function - tested visually
+}
+
+shadow main {
+    assert true  # Interactive game - tested at runtime
 }

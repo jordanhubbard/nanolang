@@ -1,12 +1,34 @@
 # Simple MOD file player
 # Plays ProTracker .MOD files using SDL_mixer
-# Usage: ./bin/mod_player path/to/file.mod
+# Usage: ./bin/sdl_mod_player path/to/file.mod
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
 import "modules/sdl_mixer/sdl_mixer.nano"
 
+# Command-line argument support
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
 fn main() -> int {
+    # Check command-line arguments first (before SDL init)
+    let argc: int = (get_argc)
+    if (< argc 2) {
+        (println "")
+        (println "╔════════════════════════════════════════════════════════╗")
+        (println "║  NANOLANG MOD PLAYER                                  ║")
+        (println "╚════════════════════════════════════════════════════════╝")
+        (println "")
+        (println "Usage: sdl_mod_player <path/to/file.mod>")
+        (println "")
+        (println "Plays ProTracker MOD files (also supports XM, IT, S3M)")
+        (println "")
+        return 1
+    } else {}
+    
+    # Get MOD file path from command line
+    let mod_file: string = (get_argv 1)
+    
     (println "")
     (println "╔════════════════════════════════════════════════════════╗")
     (println "║  NANOLANG MOD PLAYER                                  ║")
@@ -40,12 +62,6 @@ fn main() -> int {
     (println "")
     
     # Load MOD file
-    # TODO: Get from command line args - for now use hardcoded path
-    let mod_file: string = "/Users/jordanh/Downloads/gabba-studies-12.mod"
-    
-    # Note: Can't check if file exists without os_file_exists
-    # SDL_mixer will fail if file doesn't exist
-    
     (print "Loading: ")
     (println mod_file)
     
