@@ -148,6 +148,18 @@ extern fn Mix_PlayingMusic() -> int
 # Check if music is paused
 extern fn Mix_PausedMusic() -> int
 
+# === Audio Analysis ===
+
+# Set post-mix processor callback
+# This callback receives the final mixed audio stream
+# callback: function to process audio data
+# arg: user data passed to callback
+extern fn Mix_SetPostMix(callback: fn(void, int) -> void, arg: void) -> void
+
+# Query mixing channels
+# Returns number of channels in use
+extern fn Mix_GetNumChannels() -> int
+
 # === Error Handling ===
 
 # Get last SDL_mixer error

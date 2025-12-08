@@ -82,6 +82,9 @@ static char* run_command(const char *cmd) {
         pclose(fp);
         return NULL;
     }
+    
+    // Initialize buffer to empty string in case command produces no output
+    output[0] = '\0';
 
     size_t total = 0;
     size_t capacity = 4096;

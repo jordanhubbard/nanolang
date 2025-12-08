@@ -1,9 +1,10 @@
-# MOD Player with Simple Animated Visualizer
-# Shows animated waveform and VU meters while playing MOD music
+# MOD Player with Real-Time Audio Visualizer
+# Shows animated waveform and VU meters with real audio analysis
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_mixer/sdl_mixer.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/audio_viz/audio_viz.nano"
 
 let WINDOW_WIDTH: int = 800
 let WINDOW_HEIGHT: int = 600
@@ -60,6 +61,11 @@ fn main() -> int {
     } else {}
     
     (println "✓ SDL_mixer initialized with MOD support")
+    (println "")
+    
+    # Initialize audio visualization
+    (nl_audio_viz_init 32784 2)  # MIX_DEFAULT_FORMAT, stereo
+    (println "✓ Audio visualization initialized")
     (println "")
     
     # Create window and renderer
@@ -145,37 +151,78 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer 10 10 15 255)
         (SDL_RenderClear renderer)
         
-        # Draw animated waveform (simulated)
+        # Get real-time audio volumes for each channel (0-100)
+        let vol1: int = (nl_audio_viz_get_channel_volume_int 0)
+        let vol2: int = (nl_audio_viz_get_channel_volume_int 1)
+        let vol3: int = (nl_audio_viz_get_channel_volume_int 2)
+        let vol4: int = (nl_audio_viz_get_channel_volume_int 3)
+        
+        # Draw animated waveform based on overall volume
+        let avg_vol: int = (/ (+ (+ vol1 vol2) (+ vol3 vol4)) 4)
         let mut i: int = 0
         (SDL_SetRenderDrawColor renderer 0 255 100 255)
         while (< i 700) {
+            # Mix frame-based animation with audio amplitude
             let t: float = (* 0.01 (cast_float (+ frame i)))
-            let y: int = (+ 200 (cast_int (* 80.0 (sin t))))
+            let amp: float = (+ 80.0 (* 0.8 (cast_float avg_vol)))
+            let y: int = (+ 200 (cast_int (* amp (sin t))))
             (SDL_RenderDrawPoint renderer (+ 50 i) y)
             set i (+ i 1)
         }
         
-        # Draw VU meters (animated)
-        let vu: int = (+ 50 (cast_int (* 30.0 (sin (* 0.05 (cast_float frame))))))
+        # Draw VU meters with real audio data (scale 0-100 to 0-200 pixels)
+        let vu1: int = (* vol1 2)
+        let vu2: int = (* vol2 2)
+        let vu3: int = (* vol3 2)
+        let vu4: int = (* vol4 2)
         
-        # Channel 1
-        (SDL_SetRenderDrawColor renderer 0 255 0 255)
-        (nl_sdl_render_fill_rect renderer 100 (- 500 vu) 20 vu)
+        # Channel 1 - Green to Yellow to Red gradient based on volume
+        if (> vol1 80) {
+            (SDL_SetRenderDrawColor renderer 255 0 0 255)  # Red
+        } else {
+            if (> vol1 50) {
+                (SDL_SetRenderDrawColor renderer 255 255 0 255)  # Yellow
+            } else {
+                (SDL_SetRenderDrawColor renderer 0 255 0 255)  # Green
+            }
+        }
+        (nl_sdl_render_fill_rect renderer 150 (- 500 vu1) 30 vu1)
         
         # Channel 2
-        (SDL_SetRenderDrawColor renderer 0 255 0 255)
-        let vu2: int = (+ 50 (cast_int (* 25.0 (sin (* 0.07 (cast_float frame))))))
-        (nl_sdl_render_fill_rect renderer 250 (- 500 vu2) 20 vu2)
+        if (> vol2 80) {
+            (SDL_SetRenderDrawColor renderer 255 0 0 255)
+        } else {
+            if (> vol2 50) {
+                (SDL_SetRenderDrawColor renderer 255 255 0 255)
+            } else {
+                (SDL_SetRenderDrawColor renderer 0 255 0 255)
+            }
+        }
+        (nl_sdl_render_fill_rect renderer 280 (- 500 vu2) 30 vu2)
         
         # Channel 3
-        (SDL_SetRenderDrawColor renderer 0 255 0 255)
-        let vu3: int = (+ 50 (cast_int (* 28.0 (sin (* 0.06 (cast_float frame))))))
-        (nl_sdl_render_fill_rect renderer 400 (- 500 vu3) 20 vu3)
+        if (> vol3 80) {
+            (SDL_SetRenderDrawColor renderer 255 0 0 255)
+        } else {
+            if (> vol3 50) {
+                (SDL_SetRenderDrawColor renderer 255 255 0 255)
+            } else {
+                (SDL_SetRenderDrawColor renderer 0 255 0 255)
+            }
+        }
+        (nl_sdl_render_fill_rect renderer 410 (- 500 vu3) 30 vu3)
         
         # Channel 4
-        (SDL_SetRenderDrawColor renderer 0 255 0 255)
-        let vu4: int = (+ 50 (cast_int (* 32.0 (sin (* 0.08 (cast_float frame))))))
-        (nl_sdl_render_fill_rect renderer 550 (- 500 vu4) 20 vu4)
+        if (> vol4 80) {
+            (SDL_SetRenderDrawColor renderer 255 0 0 255)
+        } else {
+            if (> vol4 50) {
+                (SDL_SetRenderDrawColor renderer 255 255 0 255)
+            } else {
+                (SDL_SetRenderDrawColor renderer 0 255 0 255)
+            }
+        }
+        (nl_sdl_render_fill_rect renderer 540 (- 500 vu4) 30 vu4)
         
         # Present
         (SDL_RenderPresent renderer)
@@ -188,6 +235,7 @@ fn main() -> int {
     (println "Cleaning up...")
     (Mix_HaltMusic)
     (Mix_FreeMusic music)
+    (nl_audio_viz_shutdown)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
     (Mix_CloseAudio)

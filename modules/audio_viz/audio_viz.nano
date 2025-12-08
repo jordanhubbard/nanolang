@@ -1,0 +1,15 @@
+# Audio Visualization Module
+# Provides real-time audio analysis for SDL_mixer playback
+# Analyzes the mixed audio stream and provides per-channel volume levels
+
+# Initialize audio visualization system
+# format: audio format (use MIX_DEFAULT_FORMAT from sdl_mixer)
+# channels: number of audio channels (1=mono, 2=stereo)
+extern fn nl_audio_viz_init(format: int, channels: int) -> void
+
+# Get volume level for a channel (0-3)
+# Returns integer 0-100 representing volume level
+extern fn nl_audio_viz_get_channel_volume_int(channel: int) -> int
+
+# Shutdown audio visualization
+extern fn nl_audio_viz_shutdown() -> void
