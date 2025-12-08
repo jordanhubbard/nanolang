@@ -36,6 +36,8 @@ SDL_EXAMPLES = \
 COMPILED_EXAMPLES = \
 	$(BIN_DIR)/snake \
 	$(BIN_DIR)/game_of_life \
+	$(BIN_DIR)/snake_ncurses \
+	$(BIN_DIR)/game_of_life_ncurses \
 	$(BIN_DIR)/random_simple
 
 # Note: array<struct> is now fully supported! (fixed in commit 4952d65)
@@ -93,8 +95,10 @@ all: $(COMPILER) $(ALL_COMPILED)
 	@echo "  ./bin/terrain_explorer_sdl   - 3D terrain with mouse camera (array<struct>!)"
 	@echo ""
 	@echo "Compiled terminal examples:"
-	@echo "  ./bin/snake                  - Classic snake game"
-	@echo "  ./bin/game_of_life           - Conway's Game of Life"
+	@echo "  ./bin/snake                  - Classic snake game (scrolling output)"
+	@echo "  ./bin/game_of_life           - Conway's Game of Life (scrolling output)"
+	@echo "  ./bin/snake_ncurses          - Snake with interactive NCurses UI ⭐"
+	@echo "  ./bin/game_of_life_ncurses   - Game of Life with NCurses animation ⭐"
 	@echo "  ./bin/random_simple          - Random number generation"
 	@echo ""
 	@echo "OpenGL examples (requires: brew install glfw glew):"
@@ -206,6 +210,16 @@ $(BIN_DIR)/game_of_life: game_of_life.nano $(COMPILER)
 	@echo "Building Game of Life (Conway's cellular automaton)..."
 	cd .. && ./bin/nanoc examples/game_of_life.nano -o bin/game_of_life
 	@echo "✓ Game of Life built: $@"
+
+$(BIN_DIR)/snake_ncurses: snake_ncurses.nano $(COMPILER)
+	@echo "Building Snake NCurses (interactive terminal game)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/snake_ncurses.nano -o bin/snake_ncurses
+	@echo "✓ Snake NCurses built: $@"
+
+$(BIN_DIR)/game_of_life_ncurses: game_of_life_ncurses.nano $(COMPILER)
+	@echo "Building Game of Life NCurses (interactive simulation)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/game_of_life_ncurses.nano -o bin/game_of_life_ncurses
+	@echo "✓ Game of Life NCurses built: $@"
 
 $(BIN_DIR)/random_simple: 24_random_simple.nano $(COMPILER)
 	@echo "Building Random Simple (number generation demo)..."

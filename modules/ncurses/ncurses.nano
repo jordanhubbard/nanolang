@@ -1,0 +1,111 @@
+# NCurses FFI Bindings
+# Terminal UI library for creating interactive text-based interfaces
+
+# === EXTERNAL C WRAPPERS ===
+# All C functions have _wrapper suffix for consistency
+
+# Initialization and cleanup
+extern fn initscr_wrapper() -> int
+extern fn endwin_wrapper() -> int
+extern fn curs_set_wrapper(visibility: int) -> int
+
+# Output functions
+extern fn clear_wrapper() -> int
+extern fn refresh_wrapper() -> int
+extern fn erase_wrapper() -> int
+extern fn move_wrapper(y: int, x: int) -> int
+
+# Text output
+extern fn mvprintw_wrapper(y: int, x: int, str: string) -> int
+extern fn mvaddch_wrapper(y: int, x: int, ch: int) -> int
+extern fn mvaddstr_wrapper(y: int, x: int, str: string) -> int
+extern fn addch_wrapper(ch: int) -> int
+extern fn addstr_wrapper(str: string) -> int
+
+# Input functions
+extern fn getch_wrapper() -> int
+extern fn nl_nodelay(win: int, bf: int) -> int
+extern fn nl_keypad(win: int, bf: int) -> int
+extern fn timeout_wrapper(delay: int) -> void
+
+# Color functions
+extern fn start_color_wrapper() -> int
+extern fn has_colors_wrapper() -> int
+extern fn init_pair_wrapper(pair: int, fg: int, bg: int) -> int
+extern fn attron_wrapper(attrs: int) -> int
+extern fn attroff_wrapper(attrs: int) -> int
+
+# Screen info
+extern fn getmaxx_wrapper(win: int) -> int
+extern fn getmaxy_wrapper(win: int) -> int
+extern fn stdscr_wrapper() -> int
+
+# Input mode control
+extern fn noecho_wrapper() -> int
+extern fn echo_wrapper() -> int
+extern fn cbreak_wrapper() -> int
+extern fn nocbreak_wrapper() -> int
+
+# Box drawing
+extern fn box_wrapper(win: int, verch: int, horch: int) -> int
+
+# === CONSTANTS ===
+
+# Color values
+let COLOR_BLACK: int = 0
+let COLOR_RED: int = 1
+let COLOR_GREEN: int = 2
+let COLOR_YELLOW: int = 3
+let COLOR_BLUE: int = 4
+let COLOR_MAGENTA: int = 5
+let COLOR_CYAN: int = 6
+let COLOR_WHITE: int = 7
+
+# Special key codes (for getch)
+let KEY_DOWN: int = 258
+let KEY_UP: int = 259
+let KEY_LEFT: int = 260
+let KEY_RIGHT: int = 261
+let KEY_HOME: int = 262
+let KEY_BACKSPACE: int = 263
+let KEY_F0: int = 264
+
+# Common ASCII codes
+let KEY_ESC: int = 27
+let KEY_SPACE: int = 32
+let KEY_ENTER: int = 10
+
+# Additional special keys
+let KEY_DC: int = 330        # Delete character
+let KEY_IC: int = 331        # Insert character  
+let KEY_PPAGE: int = 339     # Page up
+let KEY_NPAGE: int = 338     # Page down
+let KEY_END: int = 360       # End key
+
+# Error codes
+let ERR: int = -1
+let OK: int = 0
+
+# Attributes for text styling
+let A_NORMAL: int = 0
+let A_STANDOUT: int = 65536
+let A_UNDERLINE: int = 131072
+let A_REVERSE: int = 262144
+let A_BLINK: int = 524288
+let A_DIM: int = 1048576
+let A_BOLD: int = 2097152
+
+# === HELPER FUNCTIONS ===
+
+# Create a color pair attribute value
+# Left shift by 8 bits (multiply by 256)
+fn COLOR_PAIR(n: int) -> int {
+    return (* n 256)
+}
+
+# NOTE: All ncurses functions use _wrapper suffix for consistency
+# Example usage:
+#   let win: int = (initscr_wrapper)
+#   (mvprintw_wrapper 0 0 "Hello World!")
+#   (refresh_wrapper)
+#   (endwin_wrapper)

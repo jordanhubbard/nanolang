@@ -1,0 +1,273 @@
+# Conway's Game of Life - NCurses Version
+# Watch cellular automata patterns evolve in real-time
+
+import "modules/ncurses/ncurses.nano"
+
+# === ENUMS ===
+enum CellState {
+    DEAD = 0,
+    ALIVE = 1
+}
+
+# === CONSTANTS ===
+let GRID_WIDTH: int = 60
+let GRID_HEIGHT: int = 30
+let UPDATE_DELAY_MS: int = 100
+
+# === HELPER FUNCTIONS ===
+
+fn grid_index(x: int, y: int, width: int) -> int {
+    return (+ (* y width) x)
+}
+
+fn grid_get(grid: array<CellState>, x: int, y: int, width: int, height: int) -> CellState {
+    if (< x 0) {
+        return CellState.DEAD
+    } else {
+        if (>= x width) {
+            return CellState.DEAD
+        } else {
+            if (< y 0) {
+                return CellState.DEAD
+            } else {
+                if (>= y height) {
+                    return CellState.DEAD
+                } else {
+                    let idx: int = (grid_index x y width)
+                    return (at grid idx)
+                }
+            }
+        }
+    }
+}
+
+fn count_neighbors(grid: array<CellState>, x: int, y: int, width: int, height: int) -> int {
+    let mut count: int = 0
+    
+    # Check all 8 neighbors
+    if (== (grid_get grid (- x 1) (- y 1) width height) CellState.ALIVE) { set count (+ count 1) } else {}
+    if (== (grid_get grid x (- y 1) width height) CellState.ALIVE) { set count (+ count 1) } else {}
+    if (== (grid_get grid (+ x 1) (- y 1) width height) CellState.ALIVE) { set count (+ count 1) } else {}
+    if (== (grid_get grid (- x 1) y width height) CellState.ALIVE) { set count (+ count 1) } else {}
+    if (== (grid_get grid (+ x 1) y width height) CellState.ALIVE) { set count (+ count 1) } else {}
+    if (== (grid_get grid (- x 1) (+ y 1) width height) CellState.ALIVE) { set count (+ count 1) } else {}
+    if (== (grid_get grid x (+ y 1) width height) CellState.ALIVE) { set count (+ count 1) } else {}
+    if (== (grid_get grid (+ x 1) (+ y 1) width height) CellState.ALIVE) { set count (+ count 1) } else {}
+    
+    return count
+}
+
+fn apply_rules(current: CellState, neighbors: int) -> CellState {
+    let dead: CellState = CellState.DEAD
+    let alive: CellState = CellState.ALIVE
+    
+    if (== current alive) {
+        # Cell is alive
+        if (< neighbors 2) {
+            return dead
+        } else {
+            if (> neighbors 3) {
+                return dead
+            } else {
+                return alive
+            }
+        }
+    } else {
+        # Cell is dead
+        if (== neighbors 3) {
+            return alive
+        } else {
+            return dead
+        }
+    }
+}
+
+fn make_empty_grid(width: int, height: int) -> array<CellState> {
+    let mut grid: array<CellState> = []
+    let total: int = (* width height)
+    let dead: CellState = CellState.DEAD
+    
+    let mut i: int = 0
+    while (< i total) {
+        set grid (array_push grid dead)
+        set i (+ i 1)
+    }
+    
+    return grid
+}
+
+fn add_glider(grid: array<CellState>, width: int, height: int, start_x: int, start_y: int) -> array<CellState> {
+    # Glider pattern:
+    #   █
+    #    █
+    # ███
+    
+    let alive: CellState = CellState.ALIVE
+    
+    let idx1: int = (grid_index (+ start_x 1) start_y width)
+    let idx2: int = (grid_index (+ start_x 2) (+ start_y 1) width)
+    let idx3: int = (grid_index start_x (+ start_y 2) width)
+    let idx4: int = (grid_index (+ start_x 1) (+ start_y 2) width)
+    let idx5: int = (grid_index (+ start_x 2) (+ start_y 2) width)
+    
+    (array_set grid idx1 alive)
+    (array_set grid idx2 alive)
+    (array_set grid idx3 alive)
+    (array_set grid idx4 alive)
+    (array_set grid idx5 alive)
+    
+    return grid
+}
+
+fn add_blinker(grid: array<CellState>, width: int, height: int, start_x: int, start_y: int) -> array<CellState> {
+    # Blinker pattern (oscillator):
+    # ███
+    
+    let alive: CellState = CellState.ALIVE
+    
+    let idx1: int = (grid_index start_x start_y width)
+    let idx2: int = (grid_index (+ start_x 1) start_y width)
+    let idx3: int = (grid_index (+ start_x 2) start_y width)
+    
+    (array_set grid idx1 alive)
+    (array_set grid idx2 alive)
+    (array_set grid idx3 alive)
+    
+    return grid
+}
+
+fn step(grid: array<CellState>, width: int, height: int) -> array<CellState> {
+    let mut new_grid: array<CellState> = (make_empty_grid width height)
+    
+    let mut y: int = 0
+    while (< y height) {
+        let mut x: int = 0
+        while (< x width) {
+            let idx: int = (grid_index x y width)
+            let neighbors: int = (count_neighbors grid x y width height)
+            
+            if (< neighbors 2) {
+                let dead: CellState = CellState.DEAD
+                (array_set new_grid idx dead)
+            } else {
+                if (== neighbors 2) {
+                    (array_set new_grid idx (at grid idx))
+                } else {
+                    if (== neighbors 3) {
+                        let alive: CellState = CellState.ALIVE
+                        (array_set new_grid idx alive)
+                    } else {
+                        let dead: CellState = CellState.DEAD
+                        (array_set new_grid idx dead)
+                    }
+                }
+            }
+            
+            set x (+ x 1)
+        }
+        set y (+ y 1)
+    }
+    
+    return new_grid
+}
+
+fn draw_grid_ncurses(grid: array<CellState>, width: int, height: int) -> void {
+    let alive: CellState = CellState.ALIVE
+    
+    let mut y: int = 0
+    while (< y height) {
+        let mut x: int = 0
+        while (< x width) {
+            let idx: int = (grid_index x y width)
+            
+            if (== (at grid idx) alive) {
+                (mvaddch_wrapper y x (cast_int '#'))
+            } else {
+                (mvaddch_wrapper y x (cast_int ' '))
+            }
+            
+            set x (+ x 1)
+        }
+        set y (+ y 1)
+    }
+}
+
+# === MAIN ===
+
+fn main() -> int {
+    (println "Starting Conway's Game of Life (NCurses)...")
+    (println "")
+    
+    # Initialize ncurses
+    let win: int = (initscr_wrapper)
+    (curs_set_wrapper 0)        # Hide cursor
+    (nl_nodelay win 1)  # Non-blocking input
+    (timeout_wrapper 100)       # 100ms timeout
+    
+    # Initialize grid with patterns
+    let mut grid: array<CellState> = (make_empty_grid GRID_WIDTH GRID_HEIGHT)
+    
+    # Add some interesting patterns
+    set grid (add_glider grid GRID_WIDTH GRID_HEIGHT 5 5)
+    set grid (add_glider grid GRID_WIDTH GRID_HEIGHT 15 10)
+    set grid (add_blinker grid GRID_WIDTH GRID_HEIGHT 30 15)
+    set grid (add_blinker grid GRID_WIDTH GRID_HEIGHT 40 20)
+    
+    let mut generation: int = 0
+    let mut running: bool = true
+    let mut paused: bool = false
+    
+    # Game loop
+    while running {
+        # Get input
+        let key: int = (getch_wrapper)
+        
+        if (== key KEY_ESC) {
+            set running false
+        } else {
+            if (or (== key KEY_SPACE) (== key (cast_int ' '))) {
+                set paused (not paused)
+            } else {
+                if (or (== key (cast_int 'q')) (== key (cast_int 'Q'))) {
+                    set running false
+                } else {}
+            }
+        }
+        
+        # Update simulation (if not paused)
+        if (not paused) {
+            set grid (step grid GRID_WIDTH GRID_HEIGHT)
+            set generation (+ generation 1)
+        } else {}
+        
+        # Draw
+        (clear_wrapper)
+        (draw_grid_ncurses grid GRID_WIDTH GRID_HEIGHT)
+        
+        # Draw UI
+        (mvprintw_wrapper (+ GRID_HEIGHT 1) 0 (str_concat "Generation: " (int_to_string generation)))
+        
+        if paused {
+            (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "PAUSED - SPACE=Resume  Q=Quit")
+        } else {
+            (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "SPACE=Pause  Q=Quit")
+        }
+        
+        (refresh_wrapper)
+    }
+    
+    # Cleanup
+    (endwin_wrapper)
+    
+    (println "")
+    (println "Game of Life finished!")
+    (print "Final generation: ")
+    (println generation)
+    
+    return 0
+}
+
+shadow main {
+    # Skip running - it's an interactive simulation
+    assert true
+}
