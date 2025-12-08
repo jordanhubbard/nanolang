@@ -282,10 +282,9 @@ fn main() -> int {
                 set new_snake_y (array_push new_snake_y new_head_y)
                 
                 # Copy old body (excluding tail if didn't eat food)
-                let mut copy_length: int = snake_length
-                if (not ate_food) {
-                    set copy_length (- snake_length 1)
-                } else {}
+                # When food eaten: old arrays have (snake_length-1) elements
+                # When not eaten: we want to drop the tail, copying (snake_length-1) elements
+                let copy_length: int = (- snake_length 1)
                 let mut i: int = 0
                 while (< i copy_length) {
                     set new_snake_x (array_push new_snake_x (at snake_x i))
