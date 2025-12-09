@@ -1,0 +1,10 @@
+{
+  "name": "ui_widgets",
+  "version": "1.0.0",
+  "description": "Simple UI widgets (Button, Label, Slider) for SDL applications",
+  "headers": ["ui_widgets.h"],
+  "cflags": ["-Imodules/ui_widgets"],
+  "c_sources": ["ui_widgets.c"],
+  "pkg_config": ["sdl2", "SDL2_ttf"],
+  "dependencies": ["sdl", "sdl_ttf"]
+}

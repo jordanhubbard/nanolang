@@ -1,0 +1,56 @@
+# UI Widgets Module for SDL Applications
+# Provides simple, clickable UI widgets: Buttons, Labels, Sliders, Progress Bars
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+
+# Button widget - draws a button with text and detects clicks
+# Returns: 1 if button was clicked (mouse released over button), 0 otherwise
+# Handles mouse state internally
+# 
+# Parameters:
+#   renderer: SDL renderer
+#   font: TTF_Font for text
+#   text: button label
+#   x, y, w, h: button rectangle
+#
+# Usage:
+#   if (== (nl_ui_button renderer font "Play" 100 100 80 40) 1) {
+#       (println "Play clicked!")
+#   }
+extern fn nl_ui_button(renderer: SDL_Renderer, font: TTF_Font, text: string,
+                       x: int, y: int, w: int, h: int) -> int
+
+# Label widget - draws text at position
+# 
+# Parameters:
+#   renderer: SDL renderer  
+#   font: TTF_Font for text
+#   text: label text
+#   x, y: position
+#   r, g, b, a: text color (0-255)
+extern fn nl_ui_label(renderer: SDL_Renderer, font: TTF_Font, text: string,
+                      x: int, y: int, r: int, g: int, b: int, a: int) -> void
+
+# Slider widget - horizontal slider control
+# Returns: new value (0.0 to 1.0)
+# Handles mouse state internally
+#
+# Parameters:
+#   renderer: SDL renderer
+#   x, y, w, h: slider rectangle  
+#   value: current value (0.0 to 1.0)
+#
+# Usage:
+#   set volume (nl_ui_slider renderer 50 50 200 20 volume)
+extern fn nl_ui_slider(renderer: SDL_Renderer, x: int, y: int, w: int, h: int,
+                       value: float) -> float
+
+# Progress bar widget - shows progress (non-interactive)
+#
+# Parameters:
+#   renderer: SDL renderer
+#   x, y, w, h: progress bar rectangle
+#   progress: current progress (0.0 to 1.0)
+extern fn nl_ui_progress_bar(renderer: SDL_Renderer, x: int, y: int, w: int, h: int,
+                              progress: float) -> void

@@ -1,0 +1,154 @@
+# UI Widgets Demo
+# Tests buttons, labels, sliders, and progress bars
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+import "modules/ui_widgets/ui_widgets.nano"
+
+let WINDOW_WIDTH: int = 600
+let WINDOW_HEIGHT: int = 500
+
+fn main() -> int {
+    (println "")
+    (println "╔════════════════════════════════════════════════════════╗")
+    (println "║  UI WIDGETS DEMO                                       ║")
+    (println "╚════════════════════════════════════════════════════════╝")
+    (println "")
+    (println "Testing buttons, labels, sliders, and progress bars")
+    (println "")
+    
+    # Initialize SDL
+    (SDL_Init SDL_INIT_VIDEO)
+    
+    # Initialize SDL_ttf
+    (TTF_Init)
+    
+    # Create window and renderer
+    let window: SDL_Window = (SDL_CreateWindow "UI Widgets Demo" 
+                                                SDL_WINDOWPOS_CENTERED 
+                                                SDL_WINDOWPOS_CENTERED 
+                                                WINDOW_WIDTH WINDOW_HEIGHT 
+                                                SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 
+                                                      (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+    
+    # Load font
+    let font: TTF_Font = (nl_open_font_portable "Arial" 16)
+    let title_font: TTF_Font = (nl_open_font_portable "Arial" 24)
+    
+    if (== font 0) {
+        (println "✗ Failed to load font")
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (TTF_Quit)
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    (println "✓ UI initialized")
+    (println "")
+    
+    # State variables
+    let mut running: bool = true
+    let mut click_count: int = 0
+    let mut volume: float = 0.5
+    let mut progress: float = 0.0
+    let mut frame: int = 0
+    
+    # Main loop
+    while running {
+        # Poll events
+        if (== (nl_sdl_poll_event_quit) 1) {
+            set running false
+        } else {}
+        
+        let key: int = (nl_sdl_poll_keypress)
+        if (== key 41) {  # ESC
+            set running false
+        } else {}
+        
+        # Clear screen
+        (SDL_SetRenderDrawColor renderer 30 30 40 255)
+        (SDL_RenderClear renderer)
+        
+        # Draw title
+        (nl_ui_label renderer title_font "UI Widgets Demo" 180 20 200 200 255 255)
+        
+        # Draw labels
+        (nl_ui_label renderer font "Buttons:" 50 80 180 180 200 255)
+        (nl_ui_label renderer font "Slider:" 50 220 180 180 200 255)
+        (nl_ui_label renderer font "Progress Bar:" 50 320 180 180 200 255)
+        
+        # Test buttons
+        if (== (nl_ui_button renderer font "Click Me!" 50 110 120 40) 1) {
+            set click_count (+ click_count 1)
+            (print "Button 1 clicked! Count: ")
+            (println click_count)
+        } else {}
+        
+        if (== (nl_ui_button renderer font "Reset" 190 110 100 40) 1) {
+            set click_count 0
+            set volume 0.5
+            set progress 0.0
+            (println "Reset clicked!")
+        } else {}
+        
+        if (== (nl_ui_button renderer font "Quit" 310 110 100 40) 1) {
+            (println "Quit clicked!")
+            set running false
+        } else {}
+        
+        # Show click count
+        let mut count_text: string = "Clicks: "
+        (nl_ui_label renderer font count_text 50 165 150 200 150 255)
+        (nl_ui_label renderer font (int_to_string click_count) 120 165 150 255 150 255)
+        
+        # Test slider
+        set volume (nl_ui_slider renderer 50 250 300 30 volume)
+        
+        # Show volume value
+        let mut vol_text: string = "Volume: "
+        (nl_ui_label renderer font vol_text 370 255 150 200 255 255)
+        let vol_percent: int = (cast_int (* volume 100.0))
+        (nl_ui_label renderer font (int_to_string vol_percent) 450 255 100 255 255 255)
+        
+        # Test progress bar (auto-increment)
+        set progress (+ progress 0.002)
+        if (> progress 1.0) {
+            set progress 0.0
+        } else {}
+        (nl_ui_progress_bar renderer 50 350 500 25 progress)
+        
+        # Show progress percentage
+        let progress_percent: int = (cast_int (* progress 100.0))
+        (nl_ui_label renderer font (int_to_string progress_percent) 280 390 200 255 200 255)
+        
+        # Instructions
+        (nl_ui_label renderer font "Click buttons, drag slider, watch progress bar" 100 440 150 150 150 255)
+        (nl_ui_label renderer font "Press ESC to quit" 200 465 120 120 120 255)
+        
+        # Present
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
+        
+        set frame (+ frame 1)
+    }
+    
+    # Cleanup
+    (println "")
+    (println "Cleaning up...")
+    (TTF_CloseFont font)
+    (TTF_CloseFont title_font)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (TTF_Quit)
+    (SDL_Quit)
+    
+    (println "✓ Done")
+    (println "")
+    return 0
+}
+
+shadow main { assert true }
