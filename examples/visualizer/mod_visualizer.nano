@@ -214,7 +214,7 @@ fn main() -> int {
                     let left_sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
                     let right_sample: float = (nl_audio_viz_get_waveform_sample 1 idx)
                     let amplitude: float = (+ (abs left_sample) (abs right_sample))
-                    let radius: int = (+ 50 (cast_int (* amplitude 60.0)))
+                    let radius: int = (+ 70 (cast_int (* amplitude 100.0)))  # Increased from 50+60 to 70+100
                     
                     let angle_float: float = (cast_float angle)
                     let rad: float = (* angle_float 0.01745)
@@ -239,8 +239,8 @@ fn main() -> int {
             while (< i (- waveform_size 1)) {
                 let left: float = (nl_audio_viz_get_waveform_sample 0 i)
                 let right: float = (nl_audio_viz_get_waveform_sample 1 i)
-                let x: int = (+ center_x (cast_int (* left 80.0)))
-                let y: int = (+ center_y (cast_int (* right 80.0)))
+                let x: int = (+ center_x (cast_int (* left 120.0)))  # Increased from 80 to 120
+                let y: int = (+ center_y (cast_int (* right 120.0)))
                 (SDL_RenderDrawPoint renderer x y)
                 set i (+ i 4)
             }
@@ -256,7 +256,7 @@ fn main() -> int {
                 let left_sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
                 let right_sample: float = (nl_audio_viz_get_waveform_sample 1 idx)
                 let amplitude: float = (+ (abs left_sample) (abs right_sample))
-                let height: int = (+ 10 (cast_int (* amplitude 120.0)))
+                let height: int = (+ 20 (cast_int (* amplitude 180.0)))  # Increased from 10+120 to 20+180
                 
                 let bar_x: int = (+ 50 (* bar bar_width))
                 let bar_y: int = (- 350 height)
@@ -283,7 +283,7 @@ fn main() -> int {
                 
                 # Spiral grows outward
                 let spiral_radius: float = (+ 30.0 (* 0.2 (cast_float angle)))
-                let spiral_amp: float = (+ spiral_radius (* amplitude 40.0))
+                let spiral_amp: float = (+ spiral_radius (* amplitude 70.0))  # Increased from 40 to 70
                 
                 let angle_float: float = (cast_float angle)
                 let rad: float = (* angle_float 0.01745)
@@ -311,7 +311,7 @@ fn main() -> int {
                 if (< idx waveform_size) {
                     let sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
                     let amplitude: float = (abs sample)
-                    let ray_length: int = (+ 50 (cast_int (* amplitude 150.0)))
+                    let ray_length: int = (+ 80 (cast_int (* amplitude 200.0)))  # Increased from 50+150 to 80+200
                     
                     let angle_float: float = (* (cast_float ray) 10.0)
                     let rad: float = (* angle_float 0.01745)
@@ -345,7 +345,7 @@ fn main() -> int {
                     let sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
                     let amplitude: float = (abs sample)
                     let base_radius: int = (+ (* ring 15) 20)
-                    let radius: int = (+ base_radius (cast_int (* amplitude 30.0)))
+                    let radius: int = (+ base_radius (cast_int (* amplitude 50.0)))  # Increased from 30 to 50
                     
                     let mut angle: int = 0
                     while (< angle 360) {

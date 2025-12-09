@@ -268,7 +268,6 @@ $(BIN_DIR)/ncurses_matrix_rain: ncurses_matrix_rain.nano $(COMPILER)
 #   vector2d_demo.nano          - Vector2D module (has function name mismatches)
 #   sdl_import_test.nano        - SDL import verification (missing SDL_Rect type)
 #   sdl_mouse_click.nano        - SDL mouse input (needs SDL struct updates)
-#   protracker_mod_loading.nano - ProTracker MOD loading (requires specific .mod files)
 #   audio_wav_playback.nano     - SDL_mixer WAV playback (hard-coded paths)
 
 # === Interpreter Demo Examples ===

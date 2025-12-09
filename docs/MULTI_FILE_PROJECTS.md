@@ -84,16 +84,16 @@ parser.nano (imports types)
 compiler.nano (imports parser, gets types transitively)
 ```
 
-## Example: ProTracker Clone
+## Example: Multi-File Project Structure
 
-Complete 4-file multi-file project (566 lines):
+Complete multi-file project example:
 
 ```
-examples/protracker-clone/
-├── types.nano     (124 lines) - Enums, constants, helpers
-├── pattern.nano   (103 lines) - Pattern data management
-├── ui.nano        (132 lines) - SDL rendering
-├── main.nano      (207 lines) - Entry point
+examples/myproject/
+├── types.nano     - Base types, enums, constants
+├── utils.nano     - Helper functions
+├── core.nano      - Core logic
+├── main.nano      - Entry point
 ├── Makefile
 └── README.md
 ```
@@ -101,31 +101,31 @@ examples/protracker-clone/
 **Import Structure:**
 ```nano
 // types.nano - Base definitions
-enum NoteValue { C_0, CS_0, D_0, ... }
-let PT_CHANNELS: int = 4
-let PT_ROWS: int = 64
+enum Status { Ok, Error, Pending }
+let MAX_RETRIES: int = 3
+let TIMEOUT: float = 30.0
 
-// pattern.nano - Uses types
-import "examples/protracker-clone/types.nano"
-let pattern_size = PT_CHANNELS * PT_ROWS  // Constants work!
+// utils.nano - Uses types
+import "examples/myproject/types.nano"
+let retry_count = MAX_RETRIES * 2  // Constants work!
 
-// ui.nano - Uses types and pattern
-import "examples/protracker-clone/types.nano"
-import "examples/protracker-clone/pattern.nano"
+// core.nano - Uses types and utils
+import "examples/myproject/types.nano"
+import "examples/myproject/utils.nano"
 
 // main.nano - Uses everything
-import "examples/protracker-clone/types.nano"
-import "examples/protracker-clone/pattern.nano"
-import "examples/protracker-clone/ui.nano"
+import "examples/myproject/types.nano"
+import "examples/myproject/utils.nano"
+import "examples/myproject/core.nano"
 ```
 
 **Compilation:**
 ```bash
-cd examples/protracker-clone
+cd examples/myproject
 make
 # Compiles main.nano with all imports
 # Each module compiled to .o file
-# Linked together with SDL/SDL_mixer
+# Linked together
 ```
 
 ## Generic Module System

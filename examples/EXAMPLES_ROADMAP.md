@@ -2,10 +2,11 @@
 
 ## ✅ Phase 1 Complete: Cleanup (Dec 2024)
 
-**Removed 6 duplicate files (~98KB):**
+**Removed 9 duplicate/obsolete files (~120KB):**
 - ❌ asteroids_enhanced_sdl.nano, asteroids_sdl.nano → ✅ Keep asteroids_complete_sdl.nano
 - ❌ raytracer_classic.nano, raytracer_demo.nano → ✅ Keep raytracer_simple.nano
-- ❌ mod_player_sdl.nano → ✅ Keep mod_player.nano
+- ❌ mod_player_sdl.nano, mod_player.nano → ✅ Keep visualizer/mod_visualizer.nano
+- ❌ protracker_mod_loading.nano, protracker-clone/ → ✅ Keep visualizer/mod_visualizer.nano
 - ❌ sqlite_example.nano → ✅ Keep sqlite_simple.nano
 
 **Result:** Cleaner examples directory, no naming confusion
