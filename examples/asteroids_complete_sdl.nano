@@ -5,6 +5,7 @@ import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
 import "modules/sdl_ttf/sdl_ttf.nano"
 import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+import "modules/ui_widgets/ui_widgets.nano"
 
 # === CONSTANTS ===
 let WINDOW_WIDTH: int = 800
@@ -695,8 +696,48 @@ fn main() -> int {
                 let final_score_text: string = (str_concat "Final Score: " (int_to_string score))
                 (nl_draw_text_blended renderer font final_score_text 280 320 255 255 255 255)
                 
-                # Draw restart instruction
-                (nl_draw_text_blended renderer font "Press R to Restart or ESC to Quit" 180 380 255 255 255 255)
+                # Restart button
+                if (== (nl_ui_button renderer font "Restart Game" 325 380 150 40) 1) {
+                    # Restart game
+                    set game_state STATE_PLAYING
+                    set lives STARTING_LIVES
+                    set score 0
+                    set ship_alive true
+                    set ship_x (/ (cast_float WINDOW_WIDTH) 2.0)
+                    set ship_y (/ (cast_float WINDOW_HEIGHT) 2.0)
+                    set ship_vx 0.0
+                    set ship_vy 0.0
+                    set ship_angle 0.0
+                    
+                    # Clear all arrays
+                    set asteroid_x []
+                    set asteroid_y []
+                    set asteroid_vx []
+                    set asteroid_vy []
+                    set asteroid_size []
+                    set bullet_x []
+                    set bullet_y []
+                    set bullet_vx []
+                    set bullet_vy []
+                    set bullet_life []
+                    
+                    # Spawn new asteroids
+                    let mut spawn_i: int = 0
+                    while (< spawn_i 3) {
+                        let rand_x: float = (cast_float (* (% spawn_i 7) 100))
+                        let rand_y: float = (cast_float (* (% spawn_i 5) 100))
+                        let rand_vx: float = (- (cast_float (* (% spawn_i 3) 30)) 45.0)
+                        let rand_vy: float = (- (cast_float (* (% spawn_i 4) 30)) 45.0)
+                        
+                        set asteroid_x (array_push asteroid_x rand_x)
+                        set asteroid_y (array_push asteroid_y rand_y)
+                        set asteroid_vx (array_push asteroid_vx rand_vx)
+                        set asteroid_vy (array_push asteroid_vy rand_vy)
+                        set asteroid_size (array_push asteroid_size ASTEROID_SIZE_LARGE)
+                        
+                        set spawn_i (+ spawn_i 1)
+                    }
+                } else {}
             } else {
                 # Fallback: Draw large red rectangle for GAME OVER
                 (SDL_SetRenderDrawColor renderer 255 0 0 255)

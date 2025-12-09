@@ -6,6 +6,7 @@ import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
 import "modules/sdl_ttf/sdl_ttf.nano"
 import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+import "modules/ui_widgets/ui_widgets.nano"
 
 # === STRUCTS ===
 struct Boid {
@@ -165,6 +166,11 @@ fn main() -> int {
     let mut frame: int = 0
     let mut running: bool = true
     
+    # Adjustable flocking parameters (sliders control these)
+    let mut cohesion_factor: float = 0.005
+    let mut separation_factor: float = 0.05
+    let mut alignment_factor: float = 0.05
+    
     while running {
         # Handle events - keypress drains the event queue
         let key: int = (nl_sdl_poll_keypress)
@@ -254,18 +260,18 @@ fn main() -> int {
             if (> neighbor_count 0) {
                 let avg_x: float = (/ cohesion_x (cast_float neighbor_count))
                 let avg_y: float = (/ cohesion_y (cast_float neighbor_count))
-                set new_vx_val (+ new_vx_val (* (- avg_x x) COHESION_FACTOR))
-                set new_vy_val (+ new_vy_val (* (- avg_y y) COHESION_FACTOR))
+                set new_vx_val (+ new_vx_val (* (- avg_x x) cohesion_factor))
+                set new_vy_val (+ new_vy_val (* (- avg_y y) cohesion_factor))
                 
                 let avg_vx: float = (/ alignment_x (cast_float neighbor_count))
                 let avg_vy: float = (/ alignment_y (cast_float neighbor_count))
-                set new_vx_val (+ new_vx_val (* (- avg_vx vx) ALIGNMENT_FACTOR))
-                set new_vy_val (+ new_vy_val (* (- avg_vy vy) ALIGNMENT_FACTOR))
+                set new_vx_val (+ new_vx_val (* (- avg_vx vx) alignment_factor))
+                set new_vy_val (+ new_vy_val (* (- avg_vy vy) alignment_factor))
             } else {}
             
             # Apply separation
-            set new_vx_val (+ new_vx_val (* separation_x SEPARATION_FACTOR))
-            set new_vy_val (+ new_vy_val (* separation_y SEPARATION_FACTOR))
+            set new_vx_val (+ new_vx_val (* separation_x separation_factor))
+            set new_vy_val (+ new_vy_val (* separation_y separation_factor))
             
             # Limit speed
             let speed: float = (vec_length new_vx_val new_vy_val)
@@ -315,6 +321,22 @@ fn main() -> int {
         # Render
         (SDL_SetRenderDrawColor renderer 10 10 30 255)
         (SDL_RenderClear renderer)
+        
+        # Parameter sliders (bottom of screen) - scale 0.0-1.0 to parameter ranges
+        let cohesion_norm: float = (/ cohesion_factor 0.02)
+        let cohesion_slider: float = (nl_ui_slider renderer 20 560 150 20 cohesion_norm)
+        set cohesion_factor (* cohesion_slider 0.02)
+        (nl_ui_label renderer font "Cohesion" 20 540 200 200 200 255)
+        
+        let separation_norm: float = (/ separation_factor 0.2)
+        let separation_slider: float = (nl_ui_slider renderer 200 560 150 20 separation_norm)
+        set separation_factor (* separation_slider 0.2)
+        (nl_ui_label renderer font "Separation" 200 540 200 200 200 255)
+        
+        let alignment_norm: float = (/ alignment_factor 0.2)
+        let alignment_slider: float = (nl_ui_slider renderer 380 560 150 20 alignment_norm)
+        set alignment_factor (* alignment_slider 0.2)
+        (nl_ui_label renderer font "Alignment" 380 540 200 200 200 255)
         
         # Draw boids
         (SDL_SetRenderDrawColor renderer 100 200 255 255)

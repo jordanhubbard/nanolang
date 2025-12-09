@@ -6,6 +6,7 @@ import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
 import "modules/sdl_ttf/sdl_ttf.nano"
 import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+import "modules/ui_widgets/ui_widgets.nano"
 
 # === STRUCTS ===
 struct Particle {
@@ -169,6 +170,9 @@ fn main() -> int {
     let mut running: bool = true
     let _dt_check: float = (* dt 1.0)  # Force usage to avoid warning
     
+    # Adjustable gravity (slider controls this)
+    let mut gravity: float = 100.0
+    
     (println "Click to spawn explosions! Press ESC or close window to quit.")
     (println "")
     
@@ -246,7 +250,7 @@ fn main() -> int {
                 let vy: float = (at particle_vy i)
                 
                 # Update velocity (gravity)
-                let new_vy_val: float = (+ vy (* GRAVITY dt))
+                let new_vy_val: float = (+ vy (* gravity dt))
                 
                 # Update position
                 let new_x_val: float = (+ x (* vx dt))
@@ -278,6 +282,12 @@ fn main() -> int {
         # Render
         (SDL_SetRenderDrawColor renderer 10 10 20 255)
         (SDL_RenderClear renderer)
+        
+        # Gravity slider (bottom of screen) - range 0 to 300
+        let gravity_norm: float = (/ gravity 300.0)
+        let gravity_slider: float = (nl_ui_slider renderer 20 560 200 20 gravity_norm)
+        set gravity (* gravity_slider 300.0)
+        (nl_ui_label renderer font "Gravity" 20 540 200 200 200 255)
         
         # Draw particles
         (SDL_SetRenderDrawColor renderer 255 200 100 255)
