@@ -134,7 +134,8 @@ void free_environment(Environment *env) {
     free(env->symbols);
 
     for (int i = 0; i < env->function_count; i++) {
-        /* Note: function names are not owned by environment */
+        /* Note: function names are not owned by environment - they point to AST */
+        /* Freeing them causes double-free crashes */
     }
     free(env->functions);
     

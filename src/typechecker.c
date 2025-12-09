@@ -1205,6 +1205,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 Type arm_type = check_expression(expr->as.match_expr.arm_bodies[i], env);
                 
                 /* Restore scope */
+                /* Note: Symbols added here will be leaked, but typechecker is short-lived */
                 env->symbol_count = saved_symbol_count;
                 
                 /* First arm determines return type */

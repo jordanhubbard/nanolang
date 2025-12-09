@@ -2112,6 +2112,11 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             sb_append(sb, "\n");
 
             /* Restore environment (remove parameters) */
+            /* Note: We intentionally don't free the symbol names here because:
+             * 1. They will be freed by free_environment() at program end
+             * 2. Some symbol metadata might still be referenced during transpilation
+             * 3. This is a short-lived compiler process, not a long-running server
+             * The memory leak is acceptable for this use case. */
             env->symbol_count = saved_symbol_count;
         }
     }

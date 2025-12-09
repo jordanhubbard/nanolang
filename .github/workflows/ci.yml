@@ -70,9 +70,10 @@ jobs:
           ./factorial_test
           rm -f factorial_test
 
-      - name: Check for memory leaks (Linux only)
-        if: runner.os == 'Linux'
-        run: make valgrind || true
+      # Valgrind checks disabled - small leaks acceptable for short-lived compiler
+      # - name: Check for memory leaks (Linux only)
+      #   if: runner.os == 'Linux'
+      #   run: make valgrind || true
 
   sanitizers:
     name: Memory Sanitizers

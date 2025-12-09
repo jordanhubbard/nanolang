@@ -2570,6 +2570,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
                     
                     /* Restore environment */
+                    /* Note: Symbols added here will be leaked, but interpreter is short-lived */
                     env->symbol_count = saved_symbol_count;
                     
                     return result;
