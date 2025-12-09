@@ -6,6 +6,7 @@ import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
 import "modules/sdl_ttf/sdl_ttf.nano"
 import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+import "modules/ui_widgets/ui_widgets.nano"
 
 # === ENUMS ===
 enum Material {
@@ -556,6 +557,36 @@ fn main() -> int {
         } else {
             (print "")
         }
+        
+        # Material selector buttons (at bottom of screen)
+        if (== (nl_ui_button renderer font "Sand" 50 560 70 30) 1) {
+            set current_material Material.SAND
+        } else {}
+        
+        if (== (nl_ui_button renderer font "Water" 130 560 70 30) 1) {
+            set current_material Material.WATER
+        } else {}
+        
+        if (== (nl_ui_button renderer font "Stone" 210 560 70 30) 1) {
+            set current_material Material.STONE
+        } else {}
+        
+        if (== (nl_ui_button renderer font "Wood" 290 560 70 30) 1) {
+            set current_material Material.WOOD
+        } else {}
+        
+        if (== (nl_ui_button renderer font "Fire" 370 560 70 30) 1) {
+            set current_material Material.FIRE
+        } else {}
+        
+        if (== (nl_ui_button renderer font "Clear" 680 560 70 30) 1) {
+            let mut clear_i: int = 0
+            while (< clear_i grid_size) {
+                (array_set grid clear_i Material.EMPTY)
+                (array_set fire_life clear_i 0)
+                set clear_i (+ clear_i 1)
+            }
+        } else {}
         
         # Handle quit event
         let quit_event: int = (nl_sdl_poll_event_quit)
