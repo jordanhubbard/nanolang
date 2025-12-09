@@ -16,22 +16,26 @@ extern fn get_argv(index: int) -> string
 fn main() -> int {
     # Check command-line arguments first (before SDL init)
     let argc: int = (get_argc)
+    
+    # Get MOD file path from command line or use default
+    let mod_file: string = ""
     if (< argc 2) {
+        # Use default MOD file for instant gratification!
+        set mod_file "examples/gabba-studies-12.mod"
         (println "")
         (println "╔════════════════════════════════════════════════════════╗")
         (println "║  NANOLANG MOD PLAYER WITH VISUALIZER                  ║")
         (println "╚════════════════════════════════════════════════════════╝")
         (println "")
-        (println "Usage: sdl_mod_player <path/to/file.mod>")
+        (println "No file specified - using default:")
+        (println "  📀 gabba-studies-12.mod")
         (println "")
-        (println "Plays ProTracker MOD files (also supports XM, IT, S3M)")
-        (println "Shows 4-channel VU meters and animated waveform")
+        (println "Usage: sdl_mod_player [path/to/file.mod]")
+        (println "       (defaults to examples/gabba-studies-12.mod)")
         (println "")
-        return 1
-    } else {}
-    
-    # Get MOD file path from command line
-    let mod_file: string = (get_argv 1)
+    } else {
+        set mod_file (get_argv 1)
+    }
     
     (println "")
     (println "╔════════════════════════════════════════════════════════╗")
@@ -73,7 +77,11 @@ fn main() -> int {
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
     
     # Load MOD file
-    (print "Loading: ")
+    if (< argc 2) {
+        (print "Loading default: ")
+    } else {
+        (print "Loading: ")
+    }
     (println mod_file)
     
     let music: Mix_Music = (Mix_LoadMUS mod_file)
@@ -93,7 +101,8 @@ fn main() -> int {
     # Display controls
     (println "Controls:")
     (println "  SPACE - Play/Pause")
-    (println "  ESC - Quit")
+    (println "  TAB   - Cycle Visualizer Mode")
+    (println "  ESC   - Quit")
     (println "")
     
     # Set volume to 80% (100 out of 128 max)
@@ -108,6 +117,8 @@ fn main() -> int {
     let mut running: bool = true
     let mut playing: bool = true
     let mut frame: int = 0
+    let mut viz_mode: int = 0  # 0=Circular, 1=Bars, 2=Spiral, 3=Starburst, 4=Tunnel
+    let num_viz_modes: int = 5
     
     while running {
         # Poll for keyboard events
@@ -125,12 +136,22 @@ fn main() -> int {
                     set playing true
                 }
             } else {
-                # ESC = 41
-                if (== key 41) {
-                    set running false
-                    (println "")
-                    (println "Stopping playback...")
-                } else {}
+                # TAB = 43
+                if (== key 43) {
+                    set viz_mode (% (+ viz_mode 1) num_viz_modes)
+                    if (== viz_mode 0) { (println "🌀 Visualizer: Circular Spectrum") } else {}
+                    if (== viz_mode 1) { (println "📊 Visualizer: Frequency Bars") } else {}
+                    if (== viz_mode 2) { (println "🌊 Visualizer: Spiral Vortex") } else {}
+                    if (== viz_mode 3) { (println "✨ Visualizer: Starburst") } else {}
+                    if (== viz_mode 4) { (println "🎆 Visualizer: Tunnel") } else {}
+                } else {
+                    # ESC = 41
+                    if (== key 41) {
+                        set running false
+                        (println "")
+                        (println "Stopping playback...")
+                    } else {}
+                }
             }
         } else {}
         
@@ -157,18 +178,195 @@ fn main() -> int {
         let vol3: int = (nl_audio_viz_get_channel_volume_int 2)
         let vol4: int = (nl_audio_viz_get_channel_volume_int 3)
         
-        # Draw animated waveform based on overall volume
-        let avg_vol: int = (/ (+ (+ vol1 vol2) (+ vol3 vol4)) 4)
+        # === REAL OSCILLOSCOPE WAVEFORM (Top) ===
+        # Draw actual audio waveform - mixed mono (L+R) for full signal
+        let waveform_size: int = (nl_audio_viz_get_waveform_size)
         let mut i: int = 0
-        (SDL_SetRenderDrawColor renderer 0 255 100 255)
-        while (< i 700) {
-            # Mix frame-based animation with audio amplitude
-            let t: float = (* 0.01 (cast_float (+ frame i)))
-            let amp: float = (+ 80.0 (* 0.8 (cast_float avg_vol)))
-            let y: int = (+ 200 (cast_int (* amp (sin t))))
+        let waveform_width: int = 700
+        let waveform_step: int = (/ waveform_size waveform_width)
+        
+        # Draw waveform with glow effect
+        (SDL_SetRenderDrawColor renderer 0 255 255 200)  # Cyan
+        while (< i waveform_width) {
+            let sample_idx: int = (* i waveform_step)
+            # Mix left and right channels for full audio representation
+            let left: float = (nl_audio_viz_get_waveform_sample 0 sample_idx)
+            let right: float = (nl_audio_viz_get_waveform_sample 1 sample_idx)
+            let mixed: float = (* (+ left right) 0.5)  # Average of both channels
+            let y: int = (+ 100 (cast_int (* mixed 150.0)))
+            
+            # Draw thicker line for visibility
             (SDL_RenderDrawPoint renderer (+ 50 i) y)
+            (SDL_RenderDrawPoint renderer (+ 50 i) (+ y 1))
             set i (+ i 1)
         }
+        
+        # === TRIPPY VISUALIZER (Middle) - Multiple Modes ===
+        let center_x: int = 400
+        let center_y: int = 300
+        
+        # Mode 0: Circular Spectrum with Lissajous
+        if (== viz_mode 0) {
+            let mut angle: int = 0
+            while (< angle 360) {
+                let idx: int = (* angle 2)
+                if (< idx waveform_size) {
+                    let left_sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
+                    let right_sample: float = (nl_audio_viz_get_waveform_sample 1 idx)
+                    let amplitude: float = (+ (abs left_sample) (abs right_sample))
+                    let radius: int = (+ 50 (cast_int (* amplitude 60.0)))
+                    
+                    let angle_float: float = (cast_float angle)
+                    let rad: float = (* angle_float 0.01745)
+                    let x: int = (+ center_x (cast_int (* (cast_float radius) (cos rad))))
+                    let y: int = (+ center_y (cast_int (* (cast_float radius) (sin rad))))
+                    
+                    let color_offset: int = (+ angle frame)
+                    let r: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float color_offset) 0.05)))))
+                    let g: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 120)) 0.05)))))
+                    let b: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 240)) 0.05)))))
+                    
+                    (SDL_SetRenderDrawColor renderer r g b 255)
+                    (SDL_RenderDrawPoint renderer x y)
+                    (SDL_RenderDrawPoint renderer (+ x 1) y)
+                } else {}
+                set angle (+ angle 3)
+            }
+            
+            # Lissajous curve
+            set i 0
+            (SDL_SetRenderDrawColor renderer 255 100 255 200)
+            while (< i (- waveform_size 1)) {
+                let left: float = (nl_audio_viz_get_waveform_sample 0 i)
+                let right: float = (nl_audio_viz_get_waveform_sample 1 i)
+                let x: int = (+ center_x (cast_int (* left 80.0)))
+                let y: int = (+ center_y (cast_int (* right 80.0)))
+                (SDL_RenderDrawPoint renderer x y)
+                set i (+ i 4)
+            }
+        } else {}
+        
+        # Mode 1: Frequency Bars (Classic Spectrum Analyzer)
+        if (== viz_mode 1) {
+            let num_bars: int = 64
+            let bar_width: int = (/ 700 num_bars)
+            let mut bar: int = 0
+            while (< bar num_bars) {
+                let idx: int = (* bar (/ waveform_size num_bars))
+                let left_sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
+                let right_sample: float = (nl_audio_viz_get_waveform_sample 1 idx)
+                let amplitude: float = (+ (abs left_sample) (abs right_sample))
+                let height: int = (+ 10 (cast_int (* amplitude 120.0)))
+                
+                let bar_x: int = (+ 50 (* bar bar_width))
+                let bar_y: int = (- 350 height)
+                
+                # Color based on height
+                let color_val: int = (+ bar frame)
+                let r: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float color_val) 0.1)))))
+                let g: int = (+ 128 (cast_int (* 127.0 (cos (* (cast_float color_val) 0.08)))))
+                let b: int = 255
+                
+                (SDL_SetRenderDrawColor renderer r g b 255)
+                (nl_sdl_render_fill_rect renderer bar_x bar_y bar_width height)
+                set bar (+ bar 1)
+            }
+        } else {}
+        
+        # Mode 2: Spiral Vortex
+        if (== viz_mode 2) {
+            let mut angle: int = 0
+            while (< angle 720) {
+                let idx: int = (% (* angle 3) waveform_size)
+                let sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
+                let amplitude: float = (abs sample)
+                
+                # Spiral grows outward
+                let spiral_radius: float = (+ 30.0 (* 0.2 (cast_float angle)))
+                let spiral_amp: float = (+ spiral_radius (* amplitude 40.0))
+                
+                let angle_float: float = (cast_float angle)
+                let rad: float = (* angle_float 0.01745)
+                let x: int = (+ center_x (cast_int (* spiral_amp (cos rad))))
+                let y: int = (+ center_y (cast_int (* spiral_amp (sin rad))))
+                
+                let color_offset: int = (+ angle frame)
+                let r: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float color_offset) 0.03)))))
+                let g: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 90)) 0.03)))))
+                let b: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 180)) 0.03)))))
+                
+                (SDL_SetRenderDrawColor renderer r g b 255)
+                (SDL_RenderDrawPoint renderer x y)
+                (SDL_RenderDrawPoint renderer (+ x 1) y)
+                (SDL_RenderDrawPoint renderer x (+ y 1))
+                set angle (+ angle 5)
+            }
+        } else {}
+        
+        # Mode 3: Starburst (Radiating Lines)
+        if (== viz_mode 3) {
+            let mut ray: int = 0
+            while (< ray 36) {
+                let idx: int = (* ray 28)
+                if (< idx waveform_size) {
+                    let sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
+                    let amplitude: float = (abs sample)
+                    let ray_length: int = (+ 50 (cast_int (* amplitude 150.0)))
+                    
+                    let angle_float: float = (* (cast_float ray) 10.0)
+                    let rad: float = (* angle_float 0.01745)
+                    
+                    # Draw line from center outward
+                    let mut r: int = 0
+                    while (< r ray_length) {
+                        let x: int = (+ center_x (cast_int (* (cast_float r) (cos rad))))
+                        let y: int = (+ center_y (cast_int (* (cast_float r) (sin rad))))
+                        
+                        let color_offset: int = (+ r frame)
+                        let cr: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float color_offset) 0.02)))))
+                        let cg: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 120)) 0.02)))))
+                        let cb: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 240)) 0.02)))))
+                        
+                        (SDL_SetRenderDrawColor renderer cr cg cb 255)
+                        (SDL_RenderDrawPoint renderer x y)
+                        set r (+ r 3)
+                    }
+                } else {}
+                set ray (+ ray 1)
+            }
+        } else {}
+        
+        # Mode 4: Tunnel Effect
+        if (== viz_mode 4) {
+            let mut ring: int = 0
+            while (< ring 20) {
+                let idx: int = (* ring 50)
+                if (< idx waveform_size) {
+                    let sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
+                    let amplitude: float = (abs sample)
+                    let base_radius: int = (+ (* ring 15) 20)
+                    let radius: int = (+ base_radius (cast_int (* amplitude 30.0)))
+                    
+                    let mut angle: int = 0
+                    while (< angle 360) {
+                        let angle_float: float = (cast_float angle)
+                        let rad: float = (* angle_float 0.01745)
+                        let x: int = (+ center_x (cast_int (* (cast_float radius) (cos rad))))
+                        let y: int = (+ center_y (cast_int (* (cast_float radius) (sin rad))))
+                        
+                        let color_offset: int = (+ (+ ring angle) frame)
+                        let r: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float color_offset) 0.04)))))
+                        let g: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 120)) 0.04)))))
+                        let b: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 240)) 0.04)))))
+                        
+                        (SDL_SetRenderDrawColor renderer r g b 255)
+                        (SDL_RenderDrawPoint renderer x y)
+                        set angle (+ angle 15)
+                    }
+                } else {}
+                set ring (+ ring 1)
+            }
+        } else {}
         
         # Draw VU meters with real audio data (scale 0-100 to 0-200 pixels)
         let vu1: int = (* vol1 2)
@@ -176,23 +374,24 @@ fn main() -> int {
         let vu3: int = (* vol3 2)
         let vu4: int = (* vol4 2)
         
-        # Channel 1 - Green to Yellow to Red gradient based on volume
-        if (> vol1 80) {
-            (SDL_SetRenderDrawColor renderer 255 0 0 255)  # Red
+        # === VU METERS WITH IMPROVED COLOR GRADIENTS (Bottom) ===
+        # Channel 1 - Green to Yellow to Red gradient (thresholds: 30%, 60%)
+        if (> vol1 60) {
+            (SDL_SetRenderDrawColor renderer 255 0 0 255)  # Red - PEAK!
         } else {
-            if (> vol1 50) {
-                (SDL_SetRenderDrawColor renderer 255 255 0 255)  # Yellow
+            if (> vol1 30) {
+                (SDL_SetRenderDrawColor renderer 255 255 0 255)  # Yellow - Hot
             } else {
-                (SDL_SetRenderDrawColor renderer 0 255 0 255)  # Green
+                (SDL_SetRenderDrawColor renderer 0 255 0 255)  # Green - Good
             }
         }
         (nl_sdl_render_fill_rect renderer 150 (- 500 vu1) 30 vu1)
         
         # Channel 2
-        if (> vol2 80) {
+        if (> vol2 60) {
             (SDL_SetRenderDrawColor renderer 255 0 0 255)
         } else {
-            if (> vol2 50) {
+            if (> vol2 30) {
                 (SDL_SetRenderDrawColor renderer 255 255 0 255)
             } else {
                 (SDL_SetRenderDrawColor renderer 0 255 0 255)
@@ -201,10 +400,10 @@ fn main() -> int {
         (nl_sdl_render_fill_rect renderer 280 (- 500 vu2) 30 vu2)
         
         # Channel 3
-        if (> vol3 80) {
+        if (> vol3 60) {
             (SDL_SetRenderDrawColor renderer 255 0 0 255)
         } else {
-            if (> vol3 50) {
+            if (> vol3 30) {
                 (SDL_SetRenderDrawColor renderer 255 255 0 255)
             } else {
                 (SDL_SetRenderDrawColor renderer 0 255 0 255)
@@ -213,10 +412,10 @@ fn main() -> int {
         (nl_sdl_render_fill_rect renderer 410 (- 500 vu3) 30 vu3)
         
         # Channel 4
-        if (> vol4 80) {
+        if (> vol4 60) {
             (SDL_SetRenderDrawColor renderer 255 0 0 255)
         } else {
-            if (> vol4 50) {
+            if (> vol4 30) {
                 (SDL_SetRenderDrawColor renderer 255 255 0 255)
             } else {
                 (SDL_SetRenderDrawColor renderer 0 255 0 255)

@@ -11,5 +11,13 @@ extern fn nl_audio_viz_init(format: int, channels: int) -> void
 # Returns integer 0-100 representing volume level
 extern fn nl_audio_viz_get_channel_volume_int(channel: int) -> int
 
+# Get waveform sample at index for oscilloscope display
+# channel: 0 = left, 1 = right, index: 0 to buffer size
+# Returns value between -1.0 and 1.0
+extern fn nl_audio_viz_get_waveform_sample(channel: int, index: int) -> float
+
+# Get waveform buffer size (typically 1024 samples)
+extern fn nl_audio_viz_get_waveform_size() -> int
+
 # Shutdown audio visualization
 extern fn nl_audio_viz_shutdown() -> void
