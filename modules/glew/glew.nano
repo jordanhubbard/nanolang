@@ -101,6 +101,20 @@ extern fn glPopMatrix() -> void
 # Normal vectors for lighting
 extern fn glNormal3f(nx: float, ny: float, nz: float) -> void
 
+# Lighting functions (custom wrappers in glew.c)
+extern fn nl_glLightfv4(light: int, pname: int, x: float, y: float, z: float, w: float) -> void
+extern fn nl_glMaterialfv4(face: int, pname: int, x: float, y: float, z: float, w: float) -> void
+extern fn glMaterialf(face: int, pname: int, param: float) -> void
+
+# Depth testing
+extern fn glDepthFunc(func: int) -> void
+
+# Face culling
+extern fn glCullFace(mode: int) -> void
+
+# Text rendering (raster position)
+extern fn glRasterPos2f(x: float, y: float) -> void
+
 # === OpenGL Constants ===
 # Define in your program:
 #

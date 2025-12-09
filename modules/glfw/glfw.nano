@@ -61,6 +61,9 @@ extern fn glfwWindowHint(hint: int, value: int) -> void
 # width_out, height_out: pointers to receive the dimensions
 extern fn glfwGetFramebufferSize(window: GLFWwindow, width_out: int, height_out: int) -> void
 
+# Set swap interval (vsync): 0 = no vsync, 1 = vsync, 2 = double buffer
+extern fn glfwSwapInterval(interval: int) -> void
+
 # === Input ===
 
 # Get key state (GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT)
