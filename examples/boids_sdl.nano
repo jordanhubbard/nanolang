@@ -322,21 +322,25 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer 10 10 30 255)
         (SDL_RenderClear renderer)
         
+        # Parameter sliders in a panel
+        (nl_ui_panel renderer 10 530 550 65 25 25 35 220)
+        (nl_ui_label renderer font "Flocking Parameters" 20 535 150 200 255 255)
+        
         # Parameter sliders (bottom of screen) - scale 0.0-1.0 to parameter ranges
         let cohesion_norm: float = (/ cohesion_factor 0.02)
-        let cohesion_slider: float = (nl_ui_slider renderer 20 560 150 20 cohesion_norm)
+        let cohesion_slider: float = (nl_ui_slider renderer 20 565 150 20 cohesion_norm)
         set cohesion_factor (* cohesion_slider 0.02)
-        (nl_ui_label renderer font "Cohesion" 20 540 200 200 200 255)
+        (nl_ui_label renderer font "Cohesion" 20 548 200 200 200 255)
         
         let separation_norm: float = (/ separation_factor 0.2)
-        let separation_slider: float = (nl_ui_slider renderer 200 560 150 20 separation_norm)
+        let separation_slider: float = (nl_ui_slider renderer 200 565 150 20 separation_norm)
         set separation_factor (* separation_slider 0.2)
-        (nl_ui_label renderer font "Separation" 200 540 200 200 200 255)
+        (nl_ui_label renderer font "Separation" 200 548 200 200 200 255)
         
         let alignment_norm: float = (/ alignment_factor 0.2)
-        let alignment_slider: float = (nl_ui_slider renderer 380 560 150 20 alignment_norm)
+        let alignment_slider: float = (nl_ui_slider renderer 380 565 150 20 alignment_norm)
         set alignment_factor (* alignment_slider 0.2)
-        (nl_ui_label renderer font "Alignment" 380 540 200 200 200 255)
+        (nl_ui_label renderer font "Alignment" 380 548 200 200 200 255)
         
         # Draw boids
         (SDL_SetRenderDrawColor renderer 100 200 255 255)

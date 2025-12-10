@@ -283,11 +283,15 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer 10 10 20 255)
         (SDL_RenderClear renderer)
         
+        # Gravity slider in a panel
+        (nl_ui_panel renderer 10 530 240 65 25 25 35 220)
+        (nl_ui_label renderer font "Physics Controls" 20 535 150 200 255 255)
+        
         # Gravity slider (bottom of screen) - range 0 to 300
         let gravity_norm: float = (/ gravity 300.0)
-        let gravity_slider: float = (nl_ui_slider renderer 20 560 200 20 gravity_norm)
+        let gravity_slider: float = (nl_ui_slider renderer 20 565 200 20 gravity_norm)
         set gravity (* gravity_slider 300.0)
-        (nl_ui_label renderer font "Gravity" 20 540 200 200 200 255)
+        (nl_ui_label renderer font "Gravity" 20 548 200 200 200 255)
         
         # Draw particles
         (SDL_SetRenderDrawColor renderer 255 200 100 255)

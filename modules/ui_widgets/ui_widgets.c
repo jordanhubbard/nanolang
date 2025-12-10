@@ -175,3 +175,188 @@ void nl_ui_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w,
     SDL_SetRenderDrawColor(renderer, 100, 100, 120, 255);
     SDL_RenderDrawRect(renderer, &bg);
 }
+
+// Draw a checkbox with label
+// Returns new checked state (1 or 0)
+int64_t nl_ui_checkbox(SDL_Renderer* renderer, TTF_Font* font,
+                       const char* label, int64_t x, int64_t y, int64_t checked) {
+    
+    int64_t new_checked = checked;
+    int box_size = 20;
+    
+    // Get mouse state
+    int mouse_x, mouse_y;
+    Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    
+    int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, box_size, box_size);
+    
+    // Detect click
+    if (prev_mouse_down && !mouse_down && is_hovered) {
+        new_checked = !checked;
+    }
+    
+    prev_mouse_down = mouse_down;
+    
+    // Choose colors based on state
+    SDL_Color bg_color, border_color, check_color;
+    
+    if (is_hovered) {
+        bg_color = (SDL_Color){100, 100, 120, 255};
+        border_color = (SDL_Color){180, 180, 220, 255};
+    } else {
+        bg_color = (SDL_Color){60, 60, 80, 255};
+        border_color = (SDL_Color){120, 120, 150, 255};
+    }
+    check_color = (SDL_Color){100, 200, 255, 255};
+    
+    // Draw checkbox background
+    SDL_Rect box = {(int)x, (int)y, box_size, box_size};
+    SDL_SetRenderDrawColor(renderer, bg_color.r, bg_color.g, bg_color.b, bg_color.a);
+    SDL_RenderFillRect(renderer, &box);
+    
+    // Draw border
+    SDL_SetRenderDrawColor(renderer, border_color.r, border_color.g, border_color.b, border_color.a);
+    SDL_RenderDrawRect(renderer, &box);
+    
+    // Draw check mark if checked
+    if (new_checked) {
+        SDL_SetRenderDrawColor(renderer, check_color.r, check_color.g, check_color.b, check_color.a);
+        // Draw a simple X mark
+        int padding = 4;
+        SDL_RenderDrawLine(renderer, (int)x + padding, (int)y + padding, 
+                          (int)x + box_size - padding, (int)y + box_size - padding);
+        SDL_RenderDrawLine(renderer, (int)x + box_size - padding, (int)y + padding,
+                          (int)x + padding, (int)y + box_size - padding);
+        // Make it thicker
+        SDL_RenderDrawLine(renderer, (int)x + padding + 1, (int)y + padding, 
+                          (int)x + box_size - padding + 1, (int)y + box_size - padding);
+        SDL_RenderDrawLine(renderer, (int)x + box_size - padding + 1, (int)y + padding,
+                          (int)x + padding + 1, (int)y + box_size - padding);
+    }
+    
+    // Draw label text
+    if (font && label && strlen(label) > 0) {
+        SDL_Color text_color = {220, 220, 220, 255};
+        SDL_Surface* surface = TTF_RenderText_Blended(font, label, text_color);
+        if (surface) {
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+            if (texture) {
+                int text_x = (int)x + box_size + 8;
+                int text_y = (int)y + (box_size - surface->h) / 2;
+                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                SDL_DestroyTexture(texture);
+            }
+            SDL_FreeSurface(surface);
+        }
+    }
+    
+    return new_checked;
+}
+
+// Draw a radio button with label
+// Returns 1 if clicked, 0 otherwise
+int64_t nl_ui_radio_button(SDL_Renderer* renderer, TTF_Font* font,
+                           const char* label, int64_t x, int64_t y, int64_t selected) {
+    
+    int clicked = 0;
+    int circle_radius = 10;
+    int circle_size = circle_radius * 2;
+    
+    // Get mouse state
+    int mouse_x, mouse_y;
+    Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    
+    int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, circle_size, circle_size);
+    
+    // Detect click
+    if (prev_mouse_down && !mouse_down && is_hovered) {
+        clicked = 1;
+    }
+    
+    prev_mouse_down = mouse_down;
+    
+    // Choose colors based on state
+    SDL_Color bg_color, border_color, fill_color;
+    
+    if (is_hovered) {
+        bg_color = (SDL_Color){100, 100, 120, 255};
+        border_color = (SDL_Color){180, 180, 220, 255};
+    } else {
+        bg_color = (SDL_Color){60, 60, 80, 255};
+        border_color = (SDL_Color){120, 120, 150, 255};
+    }
+    fill_color = (SDL_Color){100, 200, 255, 255};
+    
+    int center_x = (int)x + circle_radius;
+    int center_y = (int)y + circle_radius;
+    
+    // Draw circle background (approximate with filled rect and pixels)
+    SDL_Rect bg_rect = {(int)x, (int)y, circle_size, circle_size};
+    SDL_SetRenderDrawColor(renderer, bg_color.r, bg_color.g, bg_color.b, bg_color.a);
+    SDL_RenderFillRect(renderer, &bg_rect);
+    
+    // Draw circle border (approximate)
+    SDL_SetRenderDrawColor(renderer, border_color.r, border_color.g, border_color.b, border_color.a);
+    for (int angle = 0; angle < 360; angle += 10) {
+        double rad = angle * 3.14159 / 180.0;
+        int px = center_x + (int)(circle_radius * cos(rad));
+        int py = center_y + (int)(circle_radius * sin(rad));
+        SDL_RenderDrawPoint(renderer, px, py);
+        SDL_RenderDrawPoint(renderer, px + 1, py);
+        SDL_RenderDrawPoint(renderer, px, py + 1);
+    }
+    
+    // Draw filled circle if selected
+    if (selected) {
+        SDL_SetRenderDrawColor(renderer, fill_color.r, fill_color.g, fill_color.b, fill_color.a);
+        int inner_radius = circle_radius - 4;
+        // Fill inner circle
+        for (int dy = -inner_radius; dy <= inner_radius; dy++) {
+            for (int dx = -inner_radius; dx <= inner_radius; dx++) {
+                if (dx * dx + dy * dy <= inner_radius * inner_radius) {
+                    SDL_RenderDrawPoint(renderer, center_x + dx, center_y + dy);
+                }
+            }
+        }
+    }
+    
+    // Draw label text
+    if (font && label && strlen(label) > 0) {
+        SDL_Color text_color = {220, 220, 220, 255};
+        SDL_Surface* surface = TTF_RenderText_Blended(font, label, text_color);
+        if (surface) {
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+            if (texture) {
+                int text_x = (int)x + circle_size + 8;
+                int text_y = (int)y + (circle_size - surface->h) / 2;
+                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                SDL_DestroyTexture(texture);
+            }
+            SDL_FreeSurface(surface);
+        }
+    }
+    
+    return clicked;
+}
+
+// Draw a panel (container for grouping widgets)
+void nl_ui_panel(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_t h,
+                 int64_t r, int64_t g, int64_t b, int64_t a) {
+    
+    // Draw background
+    SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
+    SDL_SetRenderDrawColor(renderer, (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a);
+    SDL_RenderFillRect(renderer, &bg);
+    
+    // Draw border (lighter than background)
+    SDL_SetRenderDrawColor(renderer, 
+                          (uint8_t)(r + 40 > 255 ? 255 : r + 40),
+                          (uint8_t)(g + 40 > 255 ? 255 : g + 40),
+                          (uint8_t)(b + 40 > 255 ? 255 : b + 40),
+                          (uint8_t)a);
+    SDL_RenderDrawRect(renderer, &bg);
+}

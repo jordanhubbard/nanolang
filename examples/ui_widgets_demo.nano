@@ -1,5 +1,5 @@
 # UI Widgets Demo
-# Tests buttons, labels, sliders, and progress bars
+# Tests ALL widgets: buttons, labels, sliders, progress bars, checkboxes, radio buttons, and panels
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
@@ -7,8 +7,8 @@ import "modules/sdl_ttf/sdl_ttf.nano"
 import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 import "modules/ui_widgets/ui_widgets.nano"
 
-let WINDOW_WIDTH: int = 600
-let WINDOW_HEIGHT: int = 500
+let WINDOW_WIDTH: int = 700
+let WINDOW_HEIGHT: int = 650
 
 fn main() -> int {
     (println "")
@@ -16,7 +16,8 @@ fn main() -> int {
     (println "║  UI WIDGETS DEMO                                       ║")
     (println "╚════════════════════════════════════════════════════════╝")
     (println "")
-    (println "Testing buttons, labels, sliders, and progress bars")
+    (println "Testing ALL widgets: buttons, labels, sliders, progress bars,")
+    (println "                     checkboxes, radio buttons, and panels")
     (println "")
     
     # Initialize SDL
@@ -56,6 +57,11 @@ fn main() -> int {
     let mut volume: float = 0.5
     let mut progress: float = 0.0
     let mut frame: int = 0
+    
+    # New widget states
+    let mut auto_increment: int = 1  # Checkbox state
+    let mut show_debug: int = 0      # Checkbox state
+    let mut color_mode: int = 0      # Radio button group: 0=Red, 1=Green, 2=Blue
     
     # Main loop
     while running {
@@ -114,20 +120,76 @@ fn main() -> int {
         let vol_percent: int = (cast_int (* volume 100.0))
         (nl_ui_label renderer font (int_to_string vol_percent) 450 255 100 255 255 255)
         
-        # Test progress bar (auto-increment)
-        set progress (+ progress 0.002)
-        if (> progress 1.0) {
-            set progress 0.0
+        # Test progress bar (auto-increment if checkbox enabled)
+        if (== auto_increment 1) {
+            set progress (+ progress 0.002)
+            if (> progress 1.0) {
+                set progress 0.0
+            } else {}
         } else {}
-        (nl_ui_progress_bar renderer 50 350 500 25 progress)
+        (nl_ui_progress_bar renderer 50 360 500 25 progress)
         
         # Show progress percentage
         let progress_percent: int = (cast_int (* progress 100.0))
-        (nl_ui_label renderer font (int_to_string progress_percent) 280 390 200 255 200 255)
+        (nl_ui_label renderer font (int_to_string progress_percent) 280 395 200 255 200 255)
+        
+        # NEW WIDGETS PANEL
+        (nl_ui_panel renderer 40 430 620 170 30 30 40 220)
+        (nl_ui_label renderer font "New Widgets:" 50 435 200 200 255 255)
+        
+        # Checkboxes section
+        (nl_ui_label renderer font "Checkboxes:" 50 460 180 180 200 255)
+        set auto_increment (nl_ui_checkbox renderer font "Auto-increment progress" 50 485 auto_increment)
+        set show_debug (nl_ui_checkbox renderer font "Show debug info" 50 510 show_debug)
+        
+        # Radio buttons section  
+        (nl_ui_label renderer font "Color Mode (Radio Buttons):" 320 460 180 180 200 255)
+        
+        let red_selected: int = 0
+        if (== color_mode 0) { set red_selected 1 } else {}
+        if (== (nl_ui_radio_button renderer font "Red" 320 485 red_selected) 1) {
+            set color_mode 0
+        } else {}
+        
+        let green_selected: int = 0
+        if (== color_mode 1) { set green_selected 1 } else {}
+        if (== (nl_ui_radio_button renderer font "Green" 320 510 green_selected) 1) {
+            set color_mode 1
+        } else {}
+        
+        let blue_selected: int = 0
+        if (== color_mode 2) { set blue_selected 1 } else {}
+        if (== (nl_ui_radio_button renderer font "Blue" 320 535 blue_selected) 1) {
+            set color_mode 2
+        } else {}
+        
+        # Color preview based on radio selection
+        (nl_ui_label renderer font "Selected:" 470 495 150 150 150 255)
+        if (== color_mode 0) {
+            (nl_sdl_render_fill_rect renderer 550 495 40 40)
+            (SDL_SetRenderDrawColor renderer 255 0 0 255)
+            (nl_sdl_render_fill_rect renderer 550 495 40 40)
+        } else {}
+        if (== color_mode 1) {
+            (SDL_SetRenderDrawColor renderer 0 255 0 255)
+            (nl_sdl_render_fill_rect renderer 550 495 40 40)
+        } else {}
+        if (== color_mode 2) {
+            (SDL_SetRenderDrawColor renderer 0 0 255 255)
+            (nl_sdl_render_fill_rect renderer 550 495 40 40)
+        } else {}
+        
+        # Debug info panel (if checkbox enabled)
+        if (== show_debug 1) {
+            (nl_ui_panel renderer 40 560 300 35 40 40 50 220)
+            (nl_ui_label renderer font "Debug: Checkboxes work!" 50 570 100 255 100 255)
+            let mut debug_text: string = "Frame: "
+            set debug_text (str_concat debug_text (int_to_string frame))
+            (nl_ui_label renderer font debug_text 200 570 100 255 255 255)
+        } else {}
         
         # Instructions
-        (nl_ui_label renderer font "Click buttons, drag slider, watch progress bar" 100 440 150 150 150 255)
-        (nl_ui_label renderer font "Press ESC to quit" 200 465 120 120 120 255)
+        (nl_ui_label renderer font "Try all the widgets! Press ESC to quit" 180 615 150 150 150 255)
         
         # Present
         (SDL_RenderPresent renderer)

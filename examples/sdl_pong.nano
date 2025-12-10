@@ -50,6 +50,7 @@ fn main() -> int {
     let mut player1_score: int = 0
     let mut player2_score: int = 0
     let mut game_over: bool = false
+    let mut show_fps: int = 0  # Checkbox state for showing FPS
     
     # Paddle positions (Y coordinate, centered)
     let mut paddle1_y: float = (cast_float (/ (- WINDOW_HEIGHT PADDLE_HEIGHT) 2))
@@ -186,16 +187,16 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer 255 255 255 255)
         
         # UI Buttons at bottom
-        if (== (nl_ui_button renderer font "Start" 280 560 70 30) 1) {
+        if (== (nl_ui_button renderer font "Start" 250 560 70 30) 1) {
             set paused false
             set game_over false
         } else {}
         
-        if (== (nl_ui_button renderer font "Pause" 360 560 70 30) 1) {
+        if (== (nl_ui_button renderer font "Pause" 330 560 70 30) 1) {
             set paused true
         } else {}
         
-        if (== (nl_ui_button renderer font "Reset" 440 560 70 30) 1) {
+        if (== (nl_ui_button renderer font "Reset" 410 560 70 30) 1) {
             set player1_score 0
             set player2_score 0
             set ball_x (/ (cast_float WINDOW_WIDTH) 2.0)
@@ -207,6 +208,15 @@ fn main() -> int {
             set paused true
             set game_over false
             (println "Game Reset")
+        } else {}
+        
+        # Checkbox for showing FPS
+        set show_fps (nl_ui_checkbox renderer font "Show FPS" 550 565 show_fps)
+        
+        # Display FPS if checkbox is enabled
+        if (== show_fps 1) {
+            let fps: int = (cast_int (/ 1000.0 16.0))
+            (nl_ui_label renderer font "FPS: 60" 680 565 100 255 100 255)
         } else {}
         
         # Draw center line (dashed)

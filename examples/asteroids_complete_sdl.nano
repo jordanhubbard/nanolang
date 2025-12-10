@@ -135,6 +135,7 @@ fn main() -> int {
     let mut score: int = 0
     let mut respawn_timer: float = 0.0
     let mut running: bool = true
+    let mut debug_mode: int = 0  # Checkbox state for debug visualization
     
     # Ship state
     let mut ship_x: float = (/ (cast_float WINDOW_WIDTH) 2.0)
@@ -660,9 +661,22 @@ fn main() -> int {
             let lives_text: string = (str_concat "Lives: " (int_to_string lives))
             (nl_draw_text_blended renderer font lives_text 10 10 255 255 255 255)
             
-            # Draw Score (bottom right)
+            # Draw Score (top center)
             let score_text: string = (str_concat "Score: " (int_to_string score))
-            (nl_draw_text_blended renderer font score_text 620 560 255 255 0 255)
+            (nl_draw_text_blended renderer font score_text 350 10 255 255 0 255)
+            
+            # Debug mode checkbox (bottom left)
+            set debug_mode (nl_ui_checkbox renderer font "Debug" 10 560 debug_mode)
+            
+            # Draw debug info if enabled
+            if (== debug_mode 1) {
+                let asteroid_count: int = (array_length asteroid_x)
+                let bullet_count: int = (array_length bullet_x)
+                let debug_text: string = (str_concat "Asteroids: " (int_to_string asteroid_count))
+                set debug_text (str_concat debug_text " Bullets: ")
+                set debug_text (str_concat debug_text (int_to_string bullet_count))
+                (nl_draw_text_blended renderer font debug_text 150 563 100 255 100 255)
+            } else {}
         } else {
             # Fallback: Draw simple HUD with rectangles if font didn't load
             (SDL_SetRenderDrawColor renderer 255 255 255 255)

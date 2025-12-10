@@ -54,3 +54,53 @@ extern fn nl_ui_slider(renderer: SDL_Renderer, x: int, y: int, w: int, h: int,
 #   progress: current progress (0.0 to 1.0)
 extern fn nl_ui_progress_bar(renderer: SDL_Renderer, x: int, y: int, w: int, h: int,
                               progress: float) -> void
+
+# Checkbox widget - toggleable boolean state
+# Returns: new checked state (1 for checked, 0 for unchecked)
+# Handles mouse state internally
+#
+# Parameters:
+#   renderer: SDL renderer
+#   font: TTF_Font for label text
+#   label: checkbox label text
+#   x, y: position (top-left corner)
+#   checked: current checked state (1 or 0)
+#
+# Usage:
+#   set paused (nl_ui_checkbox renderer font "Paused" 10 10 paused)
+extern fn nl_ui_checkbox(renderer: SDL_Renderer, font: TTF_Font, label: string,
+                         x: int, y: int, checked: int) -> int
+
+# Radio button widget - selectable option in a group
+# Returns: 1 if this button was clicked (should become selected), 0 otherwise
+# Handles mouse state internally
+# Note: You manage the selected state yourself to create radio groups
+#
+# Parameters:
+#   renderer: SDL renderer
+#   font: TTF_Font for label text
+#   label: radio button label
+#   x, y: position (top-left corner)
+#   selected: whether this button is currently selected (1 or 0)
+#
+# Usage:
+#   if (== (nl_ui_radio_button renderer font "Sand" 10 10 (== material SAND)) 1) {
+#       set material SAND
+#   }
+extern fn nl_ui_radio_button(renderer: SDL_Renderer, font: TTF_Font, label: string,
+                              x: int, y: int, selected: int) -> int
+
+# Panel widget - styled container for grouping widgets
+# Draws a background panel with border for visual grouping
+# Draw this first, then draw widgets on top
+#
+# Parameters:
+#   renderer: SDL renderer
+#   x, y, w, h: panel rectangle
+#   r, g, b, a: background color (0-255)
+#
+# Usage:
+#   (nl_ui_panel renderer 10 10 200 150 30 30 40 200)
+#   # Then draw widgets inside...
+extern fn nl_ui_panel(renderer: SDL_Renderer, x: int, y: int, w: int, h: int,
+                      r: int, g: int, b: int, a: int) -> void
