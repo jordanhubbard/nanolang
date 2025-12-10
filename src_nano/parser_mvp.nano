@@ -25,18 +25,36 @@ struct LexToken {
 /* AST Node Types - renamed to avoid runtime conflicts */
 enum ParseNodeType {
     PNODE_NUMBER = 0,
-    PNODE_STRING = 1,
-    PNODE_BOOL = 2,
-    PNODE_IDENTIFIER = 3,
-    PNODE_BINARY_OP = 4,
-    PNODE_CALL = 5,
-    PNODE_LET = 6,
-    PNODE_BLOCK = 7,
-    PNODE_PROGRAM = 8,
-    PNODE_FUNCTION = 9,
-    PNODE_STRUCT = 10,
-    PNODE_ENUM = 11,
-    PNODE_UNION = 12
+    PNODE_FLOAT = 1,
+    PNODE_STRING = 2,
+    PNODE_BOOL = 3,
+    PNODE_IDENTIFIER = 4,
+    PNODE_BINARY_OP = 5,
+    PNODE_CALL = 6,
+    PNODE_ARRAY_LITERAL = 7,
+    PNODE_LET = 8,
+    PNODE_SET = 9,
+    PNODE_IF = 10,
+    PNODE_WHILE = 11,
+    PNODE_FOR = 12,
+    PNODE_RETURN = 13,
+    PNODE_BLOCK = 14,
+    PNODE_PRINT = 15,
+    PNODE_ASSERT = 16,
+    PNODE_PROGRAM = 17,
+    PNODE_FUNCTION = 18,
+    PNODE_SHADOW = 19,
+    PNODE_STRUCT_DEF = 20,
+    PNODE_STRUCT_LITERAL = 21,
+    PNODE_FIELD_ACCESS = 22,
+    PNODE_ENUM = 23,
+    PNODE_UNION_DEF = 24,
+    PNODE_UNION_CONSTRUCT = 25,
+    PNODE_MATCH = 26,
+    PNODE_IMPORT = 27,
+    PNODE_OPAQUE_TYPE = 28,
+    PNODE_TUPLE_LITERAL = 29,
+    PNODE_TUPLE_INDEX = 30
 }
 
 /* Base Parse Node - all nodes share these fields */
@@ -188,6 +206,131 @@ struct ASTUnion {
     /* Note: Variants stored separately */
 }
 
+struct ASTFloat {
+    node_type: int,
+    line: int,
+    column: int,
+    value: string
+}
+
+struct ASTArrayLiteral {
+    node_type: int,
+    line: int,
+    column: int,
+    element_count: int
+    /* Note: Elements stored separately in parser.array_elements */
+}
+
+struct ASTFor {
+    node_type: int,
+    line: int,
+    column: int,
+    var_name: string,
+    iterable: int,  /* Expression node ID */
+    iterable_type: int,
+    body: int  /* Block node ID */
+}
+
+struct ASTPrint {
+    node_type: int,
+    line: int,
+    column: int,
+    value: int,  /* Expression node ID */
+    value_type: int
+}
+
+struct ASTAssert {
+    node_type: int,
+    line: int,
+    column: int,
+    condition: int,  /* Expression node ID */
+    condition_type: int
+}
+
+struct ASTShadow {
+    node_type: int,
+    line: int,
+    column: int,
+    target_name: string,
+    body: int  /* Block node ID */
+}
+
+struct ASTStructLiteral {
+    node_type: int,
+    line: int,
+    column: int,
+    struct_name: string,
+    field_count: int
+    /* Note: Field names and values stored separately */
+}
+
+struct ASTFieldAccess {
+    node_type: int,
+    line: int,
+    column: int,
+    object: int,  /* Expression node ID */
+    object_type: int,
+    field_name: string
+}
+
+struct ASTUnionConstruct {
+    node_type: int,
+    line: int,
+    column: int,
+    union_name: string,
+    variant_name: string,
+    field_count: int
+    /* Note: Field names and values stored separately */
+}
+
+struct ASTMatchArm {
+    pattern: string,  /* For now, simple string pattern */
+    guard_expr: int,  /* Optional guard expression node ID, -1 if none */
+    body_expr: int    /* Body expression node ID */
+}
+
+struct ASTMatch {
+    node_type: int,
+    line: int,
+    column: int,
+    scrutinee: int,  /* Expression being matched */
+    scrutinee_type: int,
+    arm_count: int
+    /* Note: Match arms stored separately in parser.match_arms */
+}
+
+struct ASTImport {
+    node_type: int,
+    line: int,
+    column: int,
+    module_path: string,
+    module_name: string
+}
+
+struct ASTOpaqueType {
+    node_type: int,
+    line: int,
+    column: int,
+    type_name: string
+}
+
+struct ASTTupleLiteral {
+    node_type: int,
+    line: int,
+    column: int,
+    element_count: int
+    /* Note: Elements stored separately in parser.tuple_elements */
+}
+
+struct ASTTupleIndex {
+    node_type: int,
+    line: int,
+    column: int,
+    tuple: int,  /* Tuple expression node ID */
+    tuple_type: int,
+    index: int   /* Integer index */
+}
+
 /* Parser State - stores all AST nodes */
 struct Parser {
     /* Token stream */
@@ -198,37 +341,67 @@ struct Parser {
     
     /* AST node storage lists */
     numbers: List<ASTNumber>,
+    floats: List<ASTFloat>,
+    strings: List<ASTString>,
+    bools: List<ASTBool>,
     identifiers: List<ASTIdentifier>,
     binary_ops: List<ASTBinaryOp>,
     calls: List<ASTCall>,
+    array_literals: List<ASTArrayLiteral>,
     lets: List<ASTLet>,
     sets: List<ASTSet>,
     ifs: List<ASTIf>,
     whiles: List<ASTWhile>,
+    fors: List<ASTFor>,
     returns: List<ASTReturn>,
     blocks: List<ASTBlock>,
+    prints: List<ASTPrint>,
+    asserts: List<ASTAssert>,
     functions: List<ASTFunction>,
+    shadows: List<ASTShadow>,
     structs: List<ASTStruct>,
+    struct_literals: List<ASTStructLiteral>,
+    field_accesses: List<ASTFieldAccess>,
     enums: List<ASTEnum>,
-    unions: List<ASTUnion>
+    unions: List<ASTUnion>,
+    union_constructs: List<ASTUnionConstruct>,
+    matches: List<ASTMatch>,
+    imports: List<ASTImport>,
+    opaque_types: List<ASTOpaqueType>,
+    tuple_literals: List<ASTTupleLiteral>,
+    tuple_indices: List<ASTTupleIndex>
     
     /* AST node counts (for quick access) */
     numbers_count: int,
+    floats_count: int,
     strings_count: int,
     bools_count: int,
     identifiers_count: int,
     binary_ops_count: int,
     calls_count: int,
+    array_literals_count: int,
     lets_count: int,
     sets_count: int,
     ifs_count: int,
     whiles_count: int,
+    fors_count: int,
     returns_count: int,
     blocks_count: int,
+    prints_count: int,
+    asserts_count: int,
     functions_count: int,
+    shadows_count: int,
     structs_count: int,
+    struct_literals_count: int,
+    field_accesses_count: int,
     enums_count: int,
     unions_count: int,
+    union_constructs_count: int,
+    matches_count: int,
+    imports_count: int,
+    opaque_types_count: int,
+    tuple_literals_count: int,
+    tuple_indices_count: int,
     
     /* Global node ID counter */
     next_node_id: int,
@@ -242,19 +415,35 @@ struct Parser {
 fn parser_init_ast_lists() -> Parser {
     /* Use let statements to trigger generic instantiation */
     let numbers: List<ASTNumber> = (list_ASTNumber_new)
+    let floats: List<ASTFloat> = (list_ASTFloat_new)
+    let strings: List<ASTString> = (list_ASTString_new)
+    let bools: List<ASTBool> = (list_ASTBool_new)
     let identifiers: List<ASTIdentifier> = (list_ASTIdentifier_new)
     let binary_ops: List<ASTBinaryOp> = (list_ASTBinaryOp_new)
     let calls: List<ASTCall> = (list_ASTCall_new)
+    let array_literals: List<ASTArrayLiteral> = (list_ASTArrayLiteral_new)
     let lets: List<ASTLet> = (list_ASTLet_new)
     let sets: List<ASTSet> = (list_ASTSet_new)
     let ifs: List<ASTIf> = (list_ASTIf_new)
     let whiles: List<ASTWhile> = (list_ASTWhile_new)
+    let fors: List<ASTFor> = (list_ASTFor_new)
     let returns: List<ASTReturn> = (list_ASTReturn_new)
     let blocks: List<ASTBlock> = (list_ASTBlock_new)
+    let prints: List<ASTPrint> = (list_ASTPrint_new)
+    let asserts: List<ASTAssert> = (list_ASTAssert_new)
     let functions: List<ASTFunction> = (list_ASTFunction_new)
+    let shadows: List<ASTShadow> = (list_ASTShadow_new)
     let structs: List<ASTStruct> = (list_ASTStruct_new)
+    let struct_literals: List<ASTStructLiteral> = (list_ASTStructLiteral_new)
+    let field_accesses: List<ASTFieldAccess> = (list_ASTFieldAccess_new)
     let enums: List<ASTEnum> = (list_ASTEnum_new)
     let unions: List<ASTUnion> = (list_ASTUnion_new)
+    let union_constructs: List<ASTUnionConstruct> = (list_ASTUnionConstruct_new)
+    let matches: List<ASTMatch> = (list_ASTMatch_new)
+    let imports: List<ASTImport> = (list_ASTImport_new)
+    let opaque_types: List<ASTOpaqueType> = (list_ASTOpaqueType_new)
+    let tuple_literals: List<ASTTupleLiteral> = (list_ASTTupleLiteral_new)
+    let tuple_indices: List<ASTTupleIndex> = (list_ASTTupleIndex_new)
     
     /* Return a temporary parser with initialized lists */
     /* Note: This is a workaround - we'll extract the lists */
@@ -265,35 +454,65 @@ fn parser_init_ast_lists() -> Parser {
         token_count: 0,
         has_error: false,
         numbers: numbers,
+        floats: floats,
+        strings: strings,
+        bools: bools,
         identifiers: identifiers,
         binary_ops: binary_ops,
         calls: calls,
+        array_literals: array_literals,
         lets: lets,
         sets: sets,
         ifs: ifs,
         whiles: whiles,
+        fors: fors,
         returns: returns,
         blocks: blocks,
+        prints: prints,
+        asserts: asserts,
         functions: functions,
+        shadows: shadows,
         structs: structs,
+        struct_literals: struct_literals,
+        field_accesses: field_accesses,
         enums: enums,
         unions: unions,
+        union_constructs: union_constructs,
+        matches: matches,
+        imports: imports,
+        opaque_types: opaque_types,
+        tuple_literals: tuple_literals,
+        tuple_indices: tuple_indices,
         numbers_count: 0,
+        floats_count: 0,
         strings_count: 0,
         bools_count: 0,
         identifiers_count: 0,
         binary_ops_count: 0,
         calls_count: 0,
+        array_literals_count: 0,
         lets_count: 0,
         sets_count: 0,
         ifs_count: 0,
         whiles_count: 0,
+        fors_count: 0,
         returns_count: 0,
         blocks_count: 0,
+        prints_count: 0,
+        asserts_count: 0,
         functions_count: 0,
+        shadows_count: 0,
         structs_count: 0,
+        struct_literals_count: 0,
+        field_accesses_count: 0,
         enums_count: 0,
         unions_count: 0,
+        union_constructs_count: 0,
+        matches_count: 0,
+        imports_count: 0,
+        opaque_types_count: 0,
+        tuple_literals_count: 0,
+        tuple_indices_count: 0,
         next_node_id: 0,
         last_expr_node_id: -1,
         last_expr_node_type: -1
@@ -317,35 +536,65 @@ fn parser_new(tokens: List<LexToken>, token_count: int) -> Parser {
         token_count: token_count,
         has_error: false,
         numbers: init_parser.numbers,
+        floats: init_parser.floats,
+        strings: init_parser.strings,
+        bools: init_parser.bools,
         identifiers: init_parser.identifiers,
         binary_ops: init_parser.binary_ops,
         calls: init_parser.calls,
+        array_literals: init_parser.array_literals,
         lets: init_parser.lets,
         sets: init_parser.sets,
         ifs: init_parser.ifs,
         whiles: init_parser.whiles,
+        fors: init_parser.fors,
         returns: init_parser.returns,
         blocks: init_parser.blocks,
+        prints: init_parser.prints,
+        asserts: init_parser.asserts,
         functions: init_parser.functions,
+        shadows: init_parser.shadows,
         structs: init_parser.structs,
+        struct_literals: init_parser.struct_literals,
+        field_accesses: init_parser.field_accesses,
         enums: init_parser.enums,
         unions: init_parser.unions,
+        union_constructs: init_parser.union_constructs,
+        matches: init_parser.matches,
+        imports: init_parser.imports,
+        opaque_types: init_parser.opaque_types,
+        tuple_literals: init_parser.tuple_literals,
+        tuple_indices: init_parser.tuple_indices,
         numbers_count: 0,
+        floats_count: 0,
         strings_count: 0,
         bools_count: 0,
         identifiers_count: 0,
         binary_ops_count: 0,
         calls_count: 0,
+        array_literals_count: 0,
         lets_count: 0,
         sets_count: 0,
         ifs_count: 0,
         whiles_count: 0,
+        fors_count: 0,
         returns_count: 0,
         blocks_count: 0,
+        prints_count: 0,
+        asserts_count: 0,
         functions_count: 0,
+        shadows_count: 0,
         structs_count: 0,
+        struct_literals_count: 0,
+        field_accesses_count: 0,
         enums_count: 0,
         unions_count: 0,
+        union_constructs_count: 0,
+        matches_count: 0,
+        imports_count: 0,
+        opaque_types_count: 0,
+        tuple_literals_count: 0,
+        tuple_indices_count: 0,
         next_node_id: 0,
         last_expr_node_id: -1,
         last_expr_node_type: -1
@@ -391,35 +640,65 @@ fn parser_with_position(p: Parser, new_position: int) -> Parser {
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: p.next_node_id,
         last_expr_node_id: p.last_expr_node_id,
         last_expr_node_type: p.last_expr_node_type
@@ -534,35 +813,65 @@ fn parser_with_error(p: Parser, error: bool) -> Parser {
         token_count: p.token_count,
         has_error: error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: p.next_node_id,
         last_expr_node_id: p.last_expr_node_id,
         last_expr_node_type: p.last_expr_node_type
@@ -582,35 +891,65 @@ fn parser_with_calls_count(p: Parser, calls_count: int) -> Parser {
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: p.next_node_id,
         last_expr_node_id: p.last_expr_node_id,
         last_expr_node_type: p.last_expr_node_type
@@ -746,18 +1085,13 @@ shadow token_union { assert (== (token_union) 53) }
 
 /* Helper: Store number node and return node ID */
 fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Parser {
-    /* Create ASTNumber node */
     let node: ASTNumber = ASTNumber {
         node_type: ParseNodeType.PNODE_NUMBER,
         line: line,
         column: column,
         value: value
     }
-    
-    /* Node ID is the count before storing (index in list) */
     let node_id: int = p.numbers_count
-    
-    /* Store in list (mutable operation) */
     (list_ASTNumber_push p.numbers node)
     
     return Parser {
@@ -765,39 +1099,69 @@ fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Pars
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
-        numbers: p.numbers,  /* Same list reference (modified in place) */
+        numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: (+ p.numbers_count 1),
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
         last_expr_node_id: node_id,
-        last_expr_node_type: 0  /* 0 = number */
+        last_expr_node_type: 0
     }
 }
 
@@ -808,18 +1172,13 @@ shadow parser_store_number {
 
 /* Helper: Store identifier node and return node ID */
 fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> Parser {
-    /* Create ASTIdentifier node */
     let node: ASTIdentifier = ASTIdentifier {
         node_type: ParseNodeType.PNODE_IDENTIFIER,
         line: line,
         column: column,
         name: name
     }
-    
-    /* Node ID is the count before storing (index in list) */
     let node_id: int = p.identifiers_count
-    
-    /* Store in list (mutable operation) */
     (list_ASTIdentifier_push p.identifiers node)
     
     return Parser {
@@ -828,38 +1187,68 @@ fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> P
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
-        identifiers: p.identifiers,  /* Same list reference (modified in place) */
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
+        identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: (+ p.identifiers_count 1),
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
         last_expr_node_id: node_id,
-        last_expr_node_type: 1  /* 1 = identifier */
+        last_expr_node_type: 1
     }
 }
 
@@ -870,7 +1259,6 @@ shadow parser_store_identifier {
 
 /* Helper: Store binary operation node */
 fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_type: int, right_type: int, line: int, column: int) -> Parser {
-    /* Create ASTBinaryOp node */
     let node: ASTBinaryOp = ASTBinaryOp {
         node_type: ParseNodeType.PNODE_BINARY_OP,
         line: line,
@@ -881,11 +1269,7 @@ fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_
         left_type: left_type,
         right_type: right_type
     }
-    
-    /* Node ID is the count before storing (index in list) */
     let node_id: int = p.binary_ops_count
-    
-    /* Store in list (mutable operation) */
     (list_ASTBinaryOp_push p.binary_ops node)
     
     return Parser {
@@ -894,38 +1278,68 @@ fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
-        binary_ops: p.binary_ops,  /* Same list reference (modified in place) */
+        binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: (+ p.binary_ops_count 1),
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
         last_expr_node_id: node_id,
-        last_expr_node_type: 2  /* 2 = binary_op */
+        last_expr_node_type: 2
     }
 }
 
@@ -935,6 +1349,8 @@ shadow parser_store_binary_op {
 }
 
 /* Helper: Store function call node */
+
+/* Helper: Store call node */
 fn parser_store_call(p: Parser, function_id: int, arg_count: int, line: int, column: int) -> Parser {
     let node: ASTCall = ASTCall {
         node_type: ParseNodeType.PNODE_CALL,
@@ -943,7 +1359,6 @@ fn parser_store_call(p: Parser, function_id: int, arg_count: int, line: int, col
         function: function_id,
         arg_count: arg_count
     }
-    
     let node_id: int = p.calls_count
     (list_ASTCall_push p.calls node)
     
@@ -953,41 +1368,70 @@ fn parser_store_call(p: Parser, function_id: int, arg_count: int, line: int, col
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: (+ p.calls_count 1),
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
         last_expr_node_id: node_id,
-        last_expr_node_type: 3  /* 3 = call */
+        last_expr_node_type: 3
     }
 }
-
 shadow parser_store_call {
     assert (== 1 1)
 }
@@ -1167,6 +1611,8 @@ shadow parse_expression {
 /* ========== Statement Parsing ========== */
 
 /* Helper: Store let statement node */
+
+/* Helper: Store let node */
 fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, value_type: int, is_mut: bool, line: int, column: int) -> Parser {
     let node: ASTLet = ASTLet {
         node_type: ParseNodeType.PNODE_LET,
@@ -1178,7 +1624,7 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         value_type: value_type,
         is_mut: is_mut
     }
-    
+    let node_id: int = p.lets_count
     (list_ASTLet_push p.lets node)
     
     return Parser {
@@ -1187,46 +1633,77 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: (+ p.lets_count 1),
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
-        last_expr_node_id: p.last_expr_node_id,
-        last_expr_node_type: p.last_expr_node_type
+        last_expr_node_id: node_id,
+        last_expr_node_type: -1
     }
 }
-
 shadow parser_store_let {
     assert (== 1 1)
 }
 
 /* Helper: Store set statement node */
+
+/* Helper: Store set node */
 fn parser_store_set(p: Parser, target: string, value_id: int, value_type: int, line: int, column: int) -> Parser {
     let node: ASTSet = ASTSet {
         node_type: ParseNodeType.PNODE_LET,  /* TODO: Add PNODE_SET */
@@ -1236,7 +1713,7 @@ fn parser_store_set(p: Parser, target: string, value_id: int, value_type: int, l
         value: value_id,
         value_type: value_type
     }
-    
+    let node_id: int = p.sets_count
     (list_ASTSet_push p.sets node)
     
     return Parser {
@@ -1245,49 +1722,80 @@ fn parser_store_set(p: Parser, target: string, value_id: int, value_type: int, l
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: (+ p.sets_count 1),
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
-        last_expr_node_id: p.last_expr_node_id,
-        last_expr_node_type: p.last_expr_node_type
+        last_expr_node_id: node_id,
+        last_expr_node_type: -1
     }
 }
-
 shadow parser_store_set {
     assert (== 1 1)
 }
 
 /* Helper: Store if statement node */
+
+/* Helper: Store if node */
 fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_id: int, else_body_id: int, line: int, column: int) -> Parser {
     let node: ASTIf = ASTIf {
-        node_type: ParseNodeType.PNODE_BLOCK,  /* TODO: Add PNODE_IF to enum */
+        node_type: ParseNodeType.PNODE_IF,
         line: line,
         column: column,
         condition: condition_id,
@@ -1295,7 +1803,7 @@ fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_
         then_body: then_body_id,
         else_body: else_body_id
     }
-    
+    let node_id: int = p.ifs_count
     (list_ASTIf_push p.ifs node)
     
     return Parser {
@@ -1304,56 +1812,87 @@ fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: (+ p.ifs_count 1),
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
-        last_expr_node_id: p.last_expr_node_id,
-        last_expr_node_type: p.last_expr_node_type
+        last_expr_node_id: node_id,
+        last_expr_node_type: -1
     }
 }
-
 shadow parser_store_if {
     assert (== 1 1)
 }
 
 /* Helper: Store while statement node */
+
+/* Helper: Store while node */
 fn parser_store_while(p: Parser, condition_id: int, condition_type: int, body_id: int, line: int, column: int) -> Parser {
     let node: ASTWhile = ASTWhile {
-        node_type: ParseNodeType.PNODE_BLOCK,  /* TODO: Add PNODE_WHILE to enum */
+        node_type: ParseNodeType.PNODE_WHILE,
         line: line,
         column: column,
         condition: condition_id,
         condition_type: condition_type,
         body: body_id
     }
-    
+    let node_id: int = p.whiles_count
     (list_ASTWhile_push p.whiles node)
     
     return Parser {
@@ -1362,55 +1901,86 @@ fn parser_store_while(p: Parser, condition_id: int, condition_type: int, body_id
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: (+ p.whiles_count 1),
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
-        last_expr_node_id: p.last_expr_node_id,
-        last_expr_node_type: p.last_expr_node_type
+        last_expr_node_id: node_id,
+        last_expr_node_type: -1
     }
 }
-
 shadow parser_store_while {
     assert (== 1 1)
 }
 
 /* Helper: Store return statement node */
+
+/* Helper: Store return node */
 fn parser_store_return(p: Parser, value_id: int, value_type: int, line: int, column: int) -> Parser {
     let node: ASTReturn = ASTReturn {
-        node_type: ParseNodeType.PNODE_BLOCK,  /* TODO: Add PNODE_RETURN to enum */
+        node_type: ParseNodeType.PNODE_RETURN,
         line: line,
         column: column,
         value: value_id,
         value_type: value_type
     }
-    
+    let node_id: int = p.returns_count
     (list_ASTReturn_push p.returns node)
     
     return Parser {
@@ -1419,46 +1989,77 @@ fn parser_store_return(p: Parser, value_id: int, value_type: int, line: int, col
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: (+ p.returns_count 1),
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
-        last_expr_node_id: p.last_expr_node_id,
-        last_expr_node_type: p.last_expr_node_type
+        last_expr_node_id: node_id,
+        last_expr_node_type: -1
     }
 }
-
 shadow parser_store_return {
     assert (== 1 1)
 }
 
 /* Helper: Store block statement node */
+
+/* Helper: Store block node */
 fn parser_store_block(p: Parser, statement_count: int, line: int, column: int) -> Parser {
     let node: ASTBlock = ASTBlock {
         node_type: ParseNodeType.PNODE_BLOCK,
@@ -1466,8 +2067,7 @@ fn parser_store_block(p: Parser, statement_count: int, line: int, column: int) -
         column: column,
         statement_count: statement_count
     }
-    
-    let block_id: int = p.blocks_count
+    let node_id: int = p.blocks_count
     (list_ASTBlock_push p.blocks node)
     
     return Parser {
@@ -1476,41 +2076,70 @@ fn parser_store_block(p: Parser, statement_count: int, line: int, column: int) -
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: (+ p.blocks_count 1),
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
-        last_expr_node_id: block_id,
-        last_expr_node_type: 3  /* 3 = block */
+        last_expr_node_id: node_id,
+        last_expr_node_type: -1
     }
 }
-
 shadow parser_store_block {
     assert (== 1 1)
 }
@@ -1874,6 +2503,8 @@ shadow parse_statement {
 /* ========== Definition Parsing ========== */
 
 /* Helper: Store function definition node */
+
+/* Helper: Store function node */
 fn parser_store_function(p: Parser, name: string, param_count: int, return_type: string, body_id: int, line: int, column: int) -> Parser {
     let node: ASTFunction = ASTFunction {
         node_type: ParseNodeType.PNODE_FUNCTION,
@@ -1884,7 +2515,7 @@ fn parser_store_function(p: Parser, name: string, param_count: int, return_type:
         return_type: return_type,
         body: body_id
     }
-    
+    let node_id: int = p.functions_count
     (list_ASTFunction_push p.functions node)
     
     return Parser {
@@ -1893,55 +2524,86 @@ fn parser_store_function(p: Parser, name: string, param_count: int, return_type:
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: (+ p.functions_count 1),
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
-        last_expr_node_id: p.last_expr_node_id,
-        last_expr_node_type: p.last_expr_node_type
+        last_expr_node_id: node_id,
+        last_expr_node_type: -1
     }
 }
-
 shadow parser_store_function {
     assert (== 1 1)
 }
 
 /* Helper: Store struct definition node */
+
+/* Helper: Store struct node */
 fn parser_store_struct(p: Parser, name: string, field_count: int, line: int, column: int) -> Parser {
     let node: ASTStruct = ASTStruct {
-        node_type: ParseNodeType.PNODE_STRUCT,
+        node_type: ParseNodeType.PNODE_STRUCT_DEF,
         line: line,
         column: column,
         name: name,
         field_count: field_count
     }
-    
+    let node_id: int = p.structs_count
     (list_ASTStruct_push p.structs node)
     
     return Parser {
@@ -1950,46 +2612,77 @@ fn parser_store_struct(p: Parser, name: string, field_count: int, line: int, col
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: (+ p.structs_count 1),
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
-        last_expr_node_id: p.last_expr_node_id,
-        last_expr_node_type: p.last_expr_node_type
+        last_expr_node_id: node_id,
+        last_expr_node_type: -1
     }
 }
-
 shadow parser_store_struct {
     assert (== 1 1)
 }
 
 /* Helper: Store enum definition node */
+
+/* Helper: Store enum node */
 fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, column: int) -> Parser {
     let node: ASTEnum = ASTEnum {
         node_type: ParseNodeType.PNODE_ENUM,
@@ -1998,7 +2691,7 @@ fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, col
         name: name,
         variant_count: variant_count
     }
-    
+    let node_id: int = p.enums_count
     (list_ASTEnum_push p.enums node)
     
     return Parser {
@@ -2007,55 +2700,86 @@ fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, col
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: (+ p.enums_count 1),
         unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
-        last_expr_node_id: p.last_expr_node_id,
-        last_expr_node_type: p.last_expr_node_type
+        last_expr_node_id: node_id,
+        last_expr_node_type: -1
     }
 }
-
 shadow parser_store_enum {
     assert (== 1 1)
 }
 
 /* Helper: Store union definition node */
+
+/* Helper: Store union node */
 fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, column: int) -> Parser {
     let node: ASTUnion = ASTUnion {
-        node_type: ParseNodeType.PNODE_UNION,
+        node_type: ParseNodeType.PNODE_UNION_DEF,
         line: line,
         column: column,
         name: name,
         variant_count: variant_count
     }
-    
+    let node_id: int = p.unions_count
     (list_ASTUnion_push p.unions node)
     
     return Parser {
@@ -2064,41 +2788,70 @@ fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, co
         token_count: p.token_count,
         has_error: p.has_error,
         numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
         ifs: p.ifs,
         whiles: p.whiles,
+        fors: p.fors,
         returns: p.returns,
         blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
         functions: p.functions,
+        shadows: p.shadows,
         structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
         enums: p.enums,
         unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
         whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
         functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
         structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
         enums_count: p.enums_count,
         unions_count: (+ p.unions_count 1),
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
-        last_expr_node_id: p.last_expr_node_id,
-        last_expr_node_type: p.last_expr_node_type
+        last_expr_node_id: node_id,
+        last_expr_node_type: -1
     }
 }
-
 shadow parser_store_union {
     assert (== 1 1)
 }
