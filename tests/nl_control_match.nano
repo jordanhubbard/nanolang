@@ -1,0 +1,327 @@
+/* nl_control_match.nano - Comprehensive match expression tests
+ * Tests all aspects of match expressions in nanolang
+ * Category: Core Language - Control Flow
+ */
+
+/* ==== PART 1: Basic Union for Match Testing ==== */
+
+union Option {
+    Some { value: int },
+    None { }
+}
+
+union Result {
+    Ok { value: int },
+    Error { code: int, message: string }
+}
+
+union Color {
+    Red { },
+    Green { },
+    Blue { },
+    RGB { r: int, g: int, b: int }
+}
+
+/* ==== PART 2: Simple Match Tests ==== */
+
+/* Test 1: Basic match on Option.Some */
+fn test_match_some() -> int {
+    let opt: Option = Option.Some { value: 42 }
+    
+    match opt {
+        Some(s) => {
+            return s.value
+        }
+        None(n) => {
+            return 0
+        }
+    }
+}
+
+shadow test_match_some {
+    assert (== (test_match_some) 42)
+}
+
+/* Test 2: Basic match on Option.None */
+fn test_match_none() -> int {
+    let opt: Option = Option.None { }
+    
+    match opt {
+        Some(s) => {
+            return s.value
+        }
+        None(n) => {
+            return -1
+        }
+    }
+}
+
+shadow test_match_none {
+    assert (== (test_match_none) -1)
+}
+
+/* Test 3: Match with multiple fields in variant */
+fn test_match_multiple_fields() -> int {
+    let res: Result = Result.Error { code: 404, message: "not found" }
+    
+    match res {
+        Ok(o) => {
+            return o.value
+        }
+        Error(e) => {
+            return e.code
+        }
+    }
+}
+
+shadow test_match_multiple_fields {
+    assert (== (test_match_multiple_fields) 404)
+}
+
+/* ==== PART 3: Match with Computation ==== */
+
+/* Test 4: Match result used in computation */
+fn get_value_or_default(opt: Option, default_val: int) -> int {
+    match opt {
+        Some(s) => {
+            return s.value
+        }
+        None(n) => {
+            return default_val
+        }
+    }
+}
+
+shadow get_value_or_default {
+    let some_val: Option = Option.Some { value: 100 }
+    let none_val: Option = Option.None { }
+    
+    assert (== (get_value_or_default some_val 0) 100)
+    assert (== (get_value_or_default none_val 999) 999)
+}
+
+/* Test 5: Match with nested computation */
+fn double_if_some(opt: Option) -> int {
+    match opt {
+        Some(s) => {
+            return (* s.value 2)
+        }
+        None(n) => {
+            return 0
+        }
+    }
+}
+
+shadow double_if_some {
+    let some_val: Option = Option.Some { value: 21 }
+    let none_val: Option = Option.None { }
+    
+    assert (== (double_if_some some_val) 42)
+    assert (== (double_if_some none_val) 0)
+}
+
+/* ==== PART 4: Match with Multiple Variants ==== */
+
+/* Test 6: Match on 4-variant union */
+fn color_to_int(c: Color) -> int {
+    match c {
+        Red(r) => {
+            return 1
+        }
+        Green(g) => {
+            return 2
+        }
+        Blue(b) => {
+            return 3
+        }
+        RGB(rgb) => {
+            return (+ (+ rgb.r rgb.g) rgb.b)
+        }
+    }
+}
+
+shadow color_to_int {
+    let red: Color = Color.Red { }
+    let green: Color = Color.Green { }
+    let blue: Color = Color.Blue { }
+    let custom: Color = Color.RGB { r: 100, g: 150, b: 200 }
+    
+    assert (== (color_to_int red) 1)
+    assert (== (color_to_int green) 2)
+    assert (== (color_to_int blue) 3)
+    assert (== (color_to_int custom) 450)
+}
+
+/* ==== PART 5: Match in Control Flow ==== */
+
+/* Test 7: Match inside if statement */
+fn process_option_conditionally(opt: Option, use_default: bool) -> int {
+    if use_default {
+        return 0
+    } else {
+        match opt {
+            Some(s) => {
+                return s.value
+            }
+            None(n) => {
+                return -1
+            }
+        }
+    }
+}
+
+shadow process_option_conditionally {
+    let some_val: Option = Option.Some { value: 50 }
+    
+    assert (== (process_option_conditionally some_val true) 0)
+    assert (== (process_option_conditionally some_val false) 50)
+}
+
+/* Test 8: Match inside while loop */
+fn sum_options(count: int) -> int {
+    let mut sum: int = 0
+    let mut i: int = 0
+    
+    while (< i count) {
+        let opt: Option = Option.Some { value: i }
+        match opt {
+            Some(s) => {
+                set sum (+ sum s.value)
+            }
+            None(n) => {
+                set sum (+ sum 0)
+            }
+        }
+        set i (+ i 1)
+    }
+    
+    return sum
+}
+
+shadow sum_options {
+    assert (== (sum_options 5) 10)
+    assert (== (sum_options 10) 45)
+}
+
+/* ==== PART 6: Chained Match Operations ==== */
+
+/* Test 9: Function returning union, then matching */
+fn maybe_double(x: int) -> Option {
+    if (> x 0) {
+        return Option.Some { value: (* x 2) }
+    } else {
+        return Option.None { }
+    }
+}
+
+fn test_chained_match() -> int {
+    let result: Option = (maybe_double 5)
+    
+    match result {
+        Some(s) => {
+            return s.value
+        }
+        None(n) => {
+            return 0
+        }
+    }
+}
+
+shadow test_chained_match {
+    assert (== (test_chained_match) 10)
+}
+
+/* Test 10: Multiple match calls in sequence */
+fn test_sequential_matches() -> int {
+    let opt1: Option = Option.Some { value: 10 }
+    let opt2: Option = Option.Some { value: 20 }
+    let opt3: Option = Option.None { }
+    
+    let mut total: int = 0
+    
+    match opt1 {
+        Some(s) => {
+            set total (+ total s.value)
+        }
+        None(n) => {
+            set total (+ total 0)
+        }
+    }
+    
+    match opt2 {
+        Some(s) => {
+            set total (+ total s.value)
+        }
+        None(n) => {
+            set total (+ total 0)
+        }
+    }
+    
+    match opt3 {
+        Some(s) => {
+            set total (+ total s.value)
+        }
+        None(n) => {
+            set total (+ total 100)
+        }
+    }
+    
+    return total
+}
+
+shadow test_sequential_matches {
+    assert (== (test_sequential_matches) 130)
+}
+
+/* ==== PART 7: Error Handling Pattern ==== */
+
+/* Test 11: Safe division with Result */
+fn safe_divide(a: int, b: int) -> Result {
+    if (== b 0) {
+        return Result.Error { code: 1, message: "division by zero" }
+    } else {
+        return Result.Ok { value: (/ a b) }
+    }
+}
+
+fn test_safe_division() -> int {
+    let r1: Result = (safe_divide 100 10)
+    let r2: Result = (safe_divide 50 0)
+    
+    let mut sum: int = 0
+    
+    match r1 {
+        Ok(o) => {
+            set sum (+ sum o.value)
+        }
+        Error(e) => {
+            set sum (+ sum e.code)
+        }
+    }
+    
+    match r2 {
+        Ok(o) => {
+            set sum (+ sum o.value)
+        }
+        Error(e) => {
+            set sum (+ sum (* e.code 100))
+        }
+    }
+    
+    return sum
+}
+
+shadow test_safe_division {
+    assert (== (test_safe_division) 110)
+}
+
+/* ==== Main Function ==== */
+
+fn main() -> int {
+    (println "nl_control_match: All match expression tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

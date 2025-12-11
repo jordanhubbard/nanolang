@@ -1,0 +1,150 @@
+/* nl_syntax_literals.nano - Core syntax literal tests
+ * Tests all literal types: numbers, strings, bools, arrays
+ * Category: Core Language - Syntax
+ */
+
+/* ==== PART 1: Integer Literals ==== */
+
+fn test_int_positive() -> int {
+    return 42
+}
+
+shadow test_int_positive {
+    assert (== (test_int_positive) 42)
+}
+
+fn test_int_zero() -> int {
+    return 0
+}
+
+shadow test_int_zero {
+    assert (== (test_int_zero) 0)
+}
+
+fn test_int_negative() -> int {
+    return -100
+}
+
+shadow test_int_negative {
+    assert (== (test_int_negative) -100)
+}
+
+fn test_int_large() -> int {
+    return 1000000
+}
+
+shadow test_int_large {
+    assert (== (test_int_large) 1000000)
+}
+
+/* ==== PART 2: Float Literals ==== */
+
+fn test_float_simple() -> float {
+    return 3.14
+}
+
+shadow test_float_simple {
+    assert (== (test_float_simple) 3.14)
+}
+
+fn test_float_zero() -> float {
+    return 0.0
+}
+
+shadow test_float_zero {
+    assert (== (test_float_zero) 0.0)
+}
+
+fn test_float_negative() -> float {
+    return -2.5
+}
+
+shadow test_float_negative {
+    assert (== (test_float_negative) -2.5)
+}
+
+/* ==== PART 3: Boolean Literals ==== */
+
+fn test_bool_true() -> bool {
+    return true
+}
+
+shadow test_bool_true {
+    assert (== (test_bool_true) true)
+}
+
+fn test_bool_false() -> bool {
+    return false
+}
+
+shadow test_bool_false {
+    assert (== (test_bool_false) false)
+}
+
+/* ==== PART 4: String Literals ==== */
+
+fn test_string_simple() -> string {
+    return "hello"
+}
+
+shadow test_string_simple {
+    assert (== (test_string_simple) "hello")
+}
+
+fn test_string_empty() -> string {
+    return ""
+}
+
+shadow test_string_empty {
+    assert (== (test_string_empty) "")
+}
+
+fn test_string_with_spaces() -> string {
+    return "hello world"
+}
+
+shadow test_string_with_spaces {
+    assert (== (test_string_with_spaces) "hello world")
+}
+
+/* ==== PART 5: Complex Literal Expressions ==== */
+
+fn test_nested_literals() -> int {
+    let x: int = 10
+    let y: int = 20
+    return (+ x y)
+}
+
+shadow test_nested_literals {
+    assert (== (test_nested_literals) 30)
+}
+
+fn test_literal_in_condition() -> bool {
+    let x: int = 42
+    return (== x 42)
+}
+
+shadow test_literal_in_condition {
+    assert (== (test_literal_in_condition) true)
+}
+
+fn test_string_concat_length() -> int {
+    let s1: string = "hello"
+    let s2: string = "world"
+    return (+ (str_length s1) (str_length s2))
+}
+
+shadow test_string_concat_length {
+    assert (== (test_string_concat_length) 10)
+}
+
+/* ==== Main ==== */
+
+fn main() -> int {
+    (println "nl_syntax_literals: All literal tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

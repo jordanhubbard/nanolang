@@ -1,0 +1,450 @@
+/* nl_types_union_construct.nano - Comprehensive union construction tests
+ * Tests all aspects of union variant construction with fields
+ * Category: Core Language - Types
+ */
+
+/* ==== PART 1: Basic Unions ==== */
+
+union Option {
+    Some { value: int },
+    None { }
+}
+
+union Result {
+    Ok { value: int },
+    Error { code: int, message: string }
+}
+
+union Either {
+    Left { value: int },
+    Right { value: string }
+}
+
+/* ==== PART 2: Simple Union Construction ==== */
+
+/* Test 1: Construct Option.Some with field */
+fn test_option_some() -> int {
+    let opt: Option = Option.Some { value: 42 }
+    match opt {
+        Some(s) => {
+            return s.value
+        }
+        None(n) => {
+            return 0
+        }
+    }
+}
+
+shadow test_option_some {
+    assert (== (test_option_some) 42)
+}
+
+/* Test 2: Construct Option.None (empty variant) */
+fn test_option_none() -> int {
+    let opt: Option = Option.None { }
+    match opt {
+        Some(s) => {
+            return s.value
+        }
+        None(n) => {
+            return -1
+        }
+    }
+}
+
+shadow test_option_none {
+    assert (== (test_option_none) -1)
+}
+
+/* Test 3: Construct Result.Ok */
+fn test_result_ok() -> int {
+    let res: Result = Result.Ok { value: 100 }
+    match res {
+        Ok(o) => {
+            return o.value
+        }
+        Error(e) => {
+            return e.code
+        }
+    }
+}
+
+shadow test_result_ok {
+    assert (== (test_result_ok) 100)
+}
+
+/* Test 4: Construct Result.Error with multiple fields */
+fn test_result_error() -> int {
+    let res: Result = Result.Error { code: 404, message: "not found" }
+    match res {
+        Ok(o) => {
+            return 0
+        }
+        Error(e) => {
+            return e.code
+        }
+    }
+}
+
+shadow test_result_error {
+    assert (== (test_result_error) 404)
+}
+
+/* ==== PART 3: Union Construction with Computed Values ==== */
+
+/* Test 5: Field value from variable */
+fn test_value_from_var() -> int {
+    let x: int = 50
+    let opt: Option = Option.Some { value: x }
+    match opt {
+        Some(s) => {
+            return s.value
+        }
+        None(n) => {
+            return 0
+        }
+    }
+}
+
+shadow test_value_from_var {
+    assert (== (test_value_from_var) 50)
+}
+
+/* Test 6: Field value from expression */
+fn test_value_from_expr() -> int {
+    let opt: Option = Option.Some { value: (+ 20 22) }
+    match opt {
+        Some(s) => {
+            return s.value
+        }
+        None(n) => {
+            return 0
+        }
+    }
+}
+
+shadow test_value_from_expr {
+    assert (== (test_value_from_expr) 42)
+}
+
+/* Test 7: Multiple fields from variables */
+fn test_multi_field_vars() -> int {
+    let code: int = 500
+    let msg: string = "server error"
+    let res: Result = Result.Error { code: code, message: msg }
+    match res {
+        Ok(o) => {
+            return 0
+        }
+        Error(e) => {
+            return e.code
+        }
+    }
+}
+
+shadow test_multi_field_vars {
+    assert (== (test_multi_field_vars) 500)
+}
+
+/* ==== PART 4: Union Construction in Functions ==== */
+
+/* Test 8: Function returning constructed union */
+fn make_some(x: int) -> Option {
+    return Option.Some { value: x }
+}
+
+shadow make_some {
+    let opt: Option = (make_some 77)
+    match opt {
+        Some(s) => {
+            assert (== s.value 77)
+        }
+        None(n) => {
+            assert false
+        }
+    }
+}
+
+/* Test 9: Function with conditional union construction */
+fn maybe_value(x: int) -> Option {
+    if (> x 0) {
+        return Option.Some { value: x }
+    } else {
+        return Option.None { }
+    }
+}
+
+shadow maybe_value {
+    let pos: Option = (maybe_value 10)
+    let neg: Option = (maybe_value -5)
+    
+    match pos {
+        Some(s) => {
+            assert (== s.value 10)
+        }
+        None(n) => {
+            assert false
+        }
+    }
+    
+    match neg {
+        Some(s) => {
+            assert false
+        }
+        None(n) => {
+            assert true
+        }
+    }
+}
+
+/* Test 10: Function returning Result */
+fn safe_divide(a: int, b: int) -> Result {
+    if (== b 0) {
+        return Result.Error { code: 1, message: "div by zero" }
+    } else {
+        return Result.Ok { value: (/ a b) }
+    }
+}
+
+shadow safe_divide {
+    let r1: Result = (safe_divide 100 10)
+    let r2: Result = (safe_divide 50 0)
+    
+    match r1 {
+        Ok(o) => {
+            assert (== o.value 10)
+        }
+        Error(e) => {
+            assert false
+        }
+    }
+    
+    match r2 {
+        Ok(o) => {
+            assert false
+        }
+        Error(e) => {
+            assert (== e.code 1)
+        }
+    }
+}
+
+/* ==== PART 5: Union Construction in Loops ==== */
+
+/* Test 11: Construct union in while loop */
+fn sum_some_values(count: int) -> int {
+    let mut sum: int = 0
+    let mut i: int = 0
+    
+    while (< i count) {
+        let opt: Option = Option.Some { value: i }
+        match opt {
+            Some(s) => {
+                set sum (+ sum s.value)
+            }
+            None(n) => {
+                set sum sum
+            }
+        }
+        set i (+ i 1)
+    }
+    
+    return sum
+}
+
+shadow sum_some_values {
+    assert (== (sum_some_values 5) 10)
+    assert (== (sum_some_values 10) 45)
+}
+
+/* Test 12: Alternating union construction */
+fn alternate_construct(count: int) -> int {
+    let mut sum: int = 0
+    let mut i: int = 0
+    
+    while (< i count) {
+        if (== (% i 2) 0) {
+            let opt: Option = Option.Some { value: i }
+            match opt {
+                Some(s) => {
+                    set sum (+ sum s.value)
+                }
+                None(n) => {
+                    set sum sum
+                }
+            }
+        } else {
+            let opt: Option = Option.None { }
+            match opt {
+                Some(s) => {
+                    set sum (+ sum s.value)
+                }
+                None(n) => {
+                    set sum (+ sum 100)
+                }
+            }
+        }
+        set i (+ i 1)
+    }
+    
+    return sum
+}
+
+shadow alternate_construct {
+    assert (== (alternate_construct 4) 202)
+}
+
+/* ==== PART 6: Either Union (Left/Right Pattern) ==== */
+
+/* Test 13: Either.Left construction */
+fn test_either_left() -> int {
+    let e: Either = Either.Left { value: 42 }
+    match e {
+        Left(l) => {
+            return l.value
+        }
+        Right(r) => {
+            return 0
+        }
+    }
+}
+
+shadow test_either_left {
+    assert (== (test_either_left) 42)
+}
+
+/* Test 14: Either.Right construction */
+fn test_either_right() -> int {
+    let e: Either = Either.Right { value: "hello" }
+    match e {
+        Left(l) => {
+            return l.value
+        }
+        Right(r) => {
+            return (str_length r.value)
+        }
+    }
+}
+
+shadow test_either_right {
+    assert (== (test_either_right) 5)
+}
+
+/* Test 15: Function returning Either - simple version */
+fn get_either_left(val: int) -> Either {
+    return Either.Left { value: val }
+}
+
+shadow get_either_left {
+    let e: Either = (get_either_left 42)
+    match e {
+        Left(l) => {
+            assert (== l.value 42)
+        }
+        Right(r) => {
+            assert false
+        }
+    }
+}
+
+/* ==== PART 7: Complex Union Scenarios ==== */
+
+/* Test 16: Chained union operations */
+fn chain_operations(x: int) -> int {
+    let opt1: Option = (maybe_value x)
+    
+    match opt1 {
+        Some(s) => {
+            let opt2: Option = Option.Some { value: (* s.value 2) }
+            match opt2 {
+                Some(s2) => {
+                    return s2.value
+                }
+                None(n2) => {
+                    return 0
+                }
+            }
+        }
+        None(n) => {
+            return -1
+        }
+    }
+}
+
+shadow chain_operations {
+    assert (== (chain_operations 5) 10)
+    assert (== (chain_operations -5) -1)
+}
+
+/* Test 17: Union as function parameter (implicit) */
+fn unwrap_or(opt: Option, default_val: int) -> int {
+    match opt {
+        Some(s) => {
+            return s.value
+        }
+        None(n) => {
+            return default_val
+        }
+    }
+}
+
+shadow unwrap_or {
+    let some_opt: Option = Option.Some { value: 42 }
+    let none_opt: Option = Option.None { }
+    
+    assert (== (unwrap_or some_opt 0) 42)
+    assert (== (unwrap_or none_opt 99) 99)
+}
+
+/* Test 18: Multiple union constructions in one function */
+fn test_multiple_constructions() -> int {
+    let opt1: Option = Option.Some { value: 10 }
+    let opt2: Option = Option.Some { value: 20 }
+    let opt3: Option = Option.None { }
+    
+    let mut sum: int = 0
+    
+    match opt1 {
+        Some(s) => {
+            set sum (+ sum s.value)
+        }
+        None(n) => {
+            set sum sum
+        }
+    }
+    
+    match opt2 {
+        Some(s) => {
+            set sum (+ sum s.value)
+        }
+        None(n) => {
+            set sum sum
+        }
+    }
+    
+    match opt3 {
+        Some(s) => {
+            set sum (+ sum s.value)
+        }
+        None(n) => {
+            set sum (+ sum 70)
+        }
+    }
+    
+    return sum
+}
+
+shadow test_multiple_constructions {
+    assert (== (test_multiple_constructions) 100)
+}
+
+/* ==== Main Function ==== */
+
+fn main() -> int {
+    (println "nl_types_union_construct: All union construction tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,338 @@
+/* nl_types_tuple.nano - Comprehensive tuple literal tests
+ * Tests all aspects of tuple literals including the edge case disambiguation
+ * Category: Core Language - Types
+ */
+
+/* ==== PART 1: Basic Tuple Literals ==== */
+
+/* Test 1: Simple 2-tuple creation */
+fn test_pair_literal() -> int {
+    let pair: (int, int) = (10, 20)
+    return (+ pair.0 pair.1)
+}
+
+shadow test_pair_literal {
+    assert (== (test_pair_literal) 30)
+}
+
+/* Test 2: 3-tuple creation */
+fn test_triple_literal() -> int {
+    let triple: (int, int, int) = (1, 2, 3)
+    return (+ (+ triple.0 triple.1) triple.2)
+}
+
+shadow test_triple_literal {
+    assert (== (test_triple_literal) 6)
+}
+
+/* Test 3: 4-tuple creation */
+fn test_quad_literal() -> int {
+    let quad: (int, int, int, int) = (10, 20, 30, 40)
+    return (+ (+ (+ quad.0 quad.1) quad.2) quad.3)
+}
+
+shadow test_quad_literal {
+    assert (== (test_quad_literal) 100)
+}
+
+/* Test 4: 5-tuple creation */
+fn test_five_tuple_literal() -> int {
+    let t: (int, int, int, int, int) = (2, 4, 6, 8, 10)
+    return (+ (+ (+ (+ t.0 t.1) t.2) t.3) t.4)
+}
+
+shadow test_five_tuple_literal {
+    assert (== (test_five_tuple_literal) 30)
+}
+
+/* ==== PART 2: Mixed Type Tuples ==== */
+
+/* Test 5: (int, string) tuple */
+fn test_int_string_tuple() -> int {
+    let t: (int, string) = (42, "hello")
+    return t.0
+}
+
+shadow test_int_string_tuple {
+    assert (== (test_int_string_tuple) 42)
+}
+
+/* Test 6: (string, int, bool) tuple */
+fn test_mixed_three() -> bool {
+    let t: (string, int, bool) = ("test", 99, true)
+    return t.2
+}
+
+shadow test_mixed_three {
+    assert (== (test_mixed_three) true)
+}
+
+/* Test 7: (bool, bool, bool) tuple */
+fn test_bool_tuple() -> int {
+    let flags: (bool, bool, bool) = (true, false, true)
+    let mut count: int = 0
+    
+    if flags.0 {
+        set count (+ count 1)
+    } else {
+        set count count
+    }
+    
+    if flags.1 {
+        set count (+ count 1)
+    } else {
+        set count count
+    }
+    
+    if flags.2 {
+        set count (+ count 1)
+    } else {
+        set count count
+    }
+    
+    return count
+}
+
+shadow test_bool_tuple {
+    assert (== (test_bool_tuple) 2)
+}
+
+/* ==== PART 3: Tuple Disambiguation (Critical Edge Case) ==== */
+
+/* Test 8: Parenthesized expression vs tuple - single value */
+fn test_paren_vs_tuple_single() -> int {
+    let x: int = (42)
+    return x
+}
+
+shadow test_paren_vs_tuple_single {
+    assert (== (test_paren_vs_tuple_single) 42)
+}
+
+/* Test 9: Parenthesized expression vs tuple - with operator */
+fn test_paren_expr() -> int {
+    let x: int = (+ 10 20)
+    return x
+}
+
+shadow test_paren_expr {
+    assert (== (test_paren_expr) 30)
+}
+
+/* Test 10: Actual tuple (comma makes it a tuple) */
+fn test_actual_tuple() -> int {
+    let t: (int, int) = (10, 20)
+    return t.0
+}
+
+shadow test_actual_tuple {
+    assert (== (test_actual_tuple) 10)
+}
+
+/* Test 11: Nested parentheses with tuple */
+fn test_nested_paren_tuple() -> int {
+    let a: int = (+ 1 (+ 2 3))
+    let t: (int, int) = (a, (* 2 a))
+    return (+ t.0 t.1)
+}
+
+shadow test_nested_paren_tuple {
+    assert (== (test_nested_paren_tuple) 18)
+}
+
+/* ==== PART 4: Tuple Return Values ==== */
+
+/* Test 12: Function returning tuple */
+fn make_pair(a: int, b: int) -> (int, int) {
+    return (a, b)
+}
+
+shadow make_pair {
+    let p: (int, int) = (make_pair 5 10)
+    assert (== p.0 5)
+    assert (== p.1 10)
+}
+
+/* Test 13: Swap using tuple */
+fn swap(a: int, b: int) -> (int, int) {
+    return (b, a)
+}
+
+shadow swap {
+    let result: (int, int) = (swap 1 2)
+    assert (== result.0 2)
+    assert (== result.1 1)
+}
+
+/* Test 14: Min/max pair */
+fn min_max(a: int, b: int) -> (int, int) {
+    if (< a b) {
+        return (a, b)
+    } else {
+        return (b, a)
+    }
+}
+
+shadow min_max {
+    let r1: (int, int) = (min_max 10 5)
+    assert (== r1.0 5)
+    assert (== r1.1 10)
+    
+    let r2: (int, int) = (min_max 3 8)
+    assert (== r2.0 3)
+    assert (== r2.1 8)
+}
+
+/* Test 15: Divmod (quotient and remainder) */
+fn divmod(a: int, b: int) -> (int, int) {
+    let q: int = (/ a b)
+    let r: int = (% a b)
+    return (q, r)
+}
+
+shadow divmod {
+    let result: (int, int) = (divmod 17 5)
+    assert (== result.0 3)
+    assert (== result.1 2)
+}
+
+/* ==== PART 5: Tuple in Control Flow ==== */
+
+/* Test 16: Tuple in if branches */
+fn conditional_tuple(flag: bool) -> (int, int) {
+    if flag {
+        return (1, 2)
+    } else {
+        return (3, 4)
+    }
+}
+
+shadow conditional_tuple {
+    let t1: (int, int) = (conditional_tuple true)
+    let t2: (int, int) = (conditional_tuple false)
+    
+    assert (== t1.0 1)
+    assert (== t1.1 2)
+    assert (== t2.0 3)
+    assert (== t2.1 4)
+}
+
+/* Test 17: Tuple in while loop */
+fn sum_tuple_loop() -> int {
+    let mut sum: int = 0
+    let mut i: int = 0
+    
+    while (< i 5) {
+        let pair: (int, int) = (i, (* i 2))
+        set sum (+ sum (+ pair.0 pair.1))
+        set i (+ i 1)
+    }
+    
+    return sum
+}
+
+shadow sum_tuple_loop {
+    assert (== (sum_tuple_loop) 30)
+}
+
+/* ==== PART 6: Tuple Field Access Patterns ==== */
+
+/* Test 18: Multiple access to same tuple */
+fn test_multiple_access() -> int {
+    let t: (int, int, int) = (10, 20, 30)
+    let a: int = t.0
+    let b: int = t.1
+    let c: int = t.2
+    let sum1: int = (+ a b)
+    let sum2: int = (+ sum1 c)
+    return sum2
+}
+
+shadow test_multiple_access {
+    assert (== (test_multiple_access) 60)
+}
+
+/* Test 19: Tuple field in expression */
+fn test_tuple_in_expr() -> int {
+    let t: (int, int) = (7, 3)
+    return (+ (* t.0 t.1) (- t.0 t.1))
+}
+
+shadow test_tuple_in_expr {
+    assert (== (test_tuple_in_expr) 25)
+}
+
+/* Test 20: Tuple field as function argument */
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+fn test_tuple_as_arg() -> int {
+    let t: (int, int) = (5, 10)
+    return (+ (double t.0) (double t.1))
+}
+
+shadow test_tuple_as_arg {
+    assert (== (test_tuple_as_arg) 30)
+}
+
+/* ==== PART 7: Complex Tuple Expressions ==== */
+
+/* Test 21: Tuple with computed elements */
+fn test_computed_tuple() -> int {
+    let x: int = 5
+    let t: (int, int, int) = ((* x 1), (* x 2), (* x 3))
+    return (+ (+ t.0 t.1) t.2)
+}
+
+shadow test_computed_tuple {
+    assert (== (test_computed_tuple) 30)
+}
+
+/* Test 22: Fibonacci pair iteration */
+fn fib_step(prev: (int, int)) -> (int, int) {
+    let a: int = prev.0
+    let b: int = prev.1
+    return (b, (+ a b))
+}
+
+fn test_fib_iteration() -> int {
+    let mut state: (int, int) = (0, 1)
+    let mut i: int = 0
+    
+    while (< i 6) {
+        set state (fib_step state)
+        set i (+ i 1)
+    }
+    
+    return state.0
+}
+
+shadow test_fib_iteration {
+    assert (== (test_fib_iteration) 8)
+}
+
+/* Test 23: Coordinate operations */
+fn add_coords(a: (int, int), b: (int, int)) -> (int, int) {
+    return ((+ a.0 b.0), (+ a.1 b.1))
+}
+
+shadow add_coords {
+    let p1: (int, int) = (10, 20)
+    let p2: (int, int) = (5, 15)
+    let result: (int, int) = (add_coords p1 p2)
+    
+    assert (== result.0 15)
+    assert (== result.1 35)
+}
+
+/* ==== Main Function ==== */
+
+fn main() -> int {
+    (println "nl_types_tuple: All tuple literal tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

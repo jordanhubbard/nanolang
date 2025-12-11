@@ -1,0 +1,222 @@
+/* nl_syntax_operators.nano - Core operator tests
+ * Tests arithmetic, comparison, logical, and unary operators
+ * Category: Core Language - Syntax
+ */
+
+/* ==== PART 1: Arithmetic Operators ==== */
+
+fn test_add() -> int {
+    return (+ 10 20)
+}
+
+shadow test_add {
+    assert (== (test_add) 30)
+}
+
+fn test_sub() -> int {
+    return (- 50 20)
+}
+
+shadow test_sub {
+    assert (== (test_sub) 30)
+}
+
+fn test_mul() -> int {
+    return (* 6 7)
+}
+
+shadow test_mul {
+    assert (== (test_mul) 42)
+}
+
+fn test_div() -> int {
+    return (/ 100 10)
+}
+
+shadow test_div {
+    assert (== (test_div) 10)
+}
+
+fn test_mod() -> int {
+    return (% 17 5)
+}
+
+shadow test_mod {
+    assert (== (test_mod) 2)
+}
+
+/* ==== PART 2: Comparison Operators ==== */
+
+fn test_eq_true() -> bool {
+    return (== 5 5)
+}
+
+shadow test_eq_true {
+    assert (== (test_eq_true) true)
+}
+
+fn test_eq_false() -> bool {
+    return (== 5 6)
+}
+
+shadow test_eq_false {
+    assert (== (test_eq_false) false)
+}
+
+fn test_ne_true() -> bool {
+    return (!= 5 6)
+}
+
+shadow test_ne_true {
+    assert (== (test_ne_true) true)
+}
+
+fn test_lt() -> bool {
+    return (< 3 5)
+}
+
+shadow test_lt {
+    assert (== (test_lt) true)
+}
+
+fn test_le() -> bool {
+    return (<= 5 5)
+}
+
+shadow test_le {
+    assert (== (test_le) true)
+}
+
+fn test_gt() -> bool {
+    return (> 10 5)
+}
+
+shadow test_gt {
+    assert (== (test_gt) true)
+}
+
+fn test_ge() -> bool {
+    return (>= 5 5)
+}
+
+shadow test_ge {
+    assert (== (test_ge) true)
+}
+
+/* ==== PART 3: Logical Operators ==== */
+
+fn test_and_tt() -> bool {
+    return (and true true)
+}
+
+shadow test_and_tt {
+    assert (== (test_and_tt) true)
+}
+
+fn test_and_tf() -> bool {
+    return (and true false)
+}
+
+shadow test_and_tf {
+    assert (== (test_and_tf) false)
+}
+
+fn test_or_tf() -> bool {
+    return (or true false)
+}
+
+shadow test_or_tf {
+    assert (== (test_or_tf) true)
+}
+
+fn test_or_ff() -> bool {
+    return (or false false)
+}
+
+shadow test_or_ff {
+    assert (== (test_or_ff) false)
+}
+
+fn test_not_true() -> bool {
+    return (not true)
+}
+
+shadow test_not_true {
+    assert (== (test_not_true) false)
+}
+
+fn test_not_false() -> bool {
+    return (not false)
+}
+
+shadow test_not_false {
+    assert (== (test_not_false) true)
+}
+
+/* ==== PART 4: Unary Operators ==== */
+
+fn test_negate() -> int {
+    let x: int = 42
+    return (- 0 x)
+}
+
+shadow test_negate {
+    assert (== (test_negate) -42)
+}
+
+fn test_abs_positive() -> int {
+    return (abs 42)
+}
+
+shadow test_abs_positive {
+    assert (== (test_abs_positive) 42)
+}
+
+fn test_abs_negative() -> int {
+    return (abs -42)
+}
+
+shadow test_abs_negative {
+    assert (== (test_abs_negative) 42)
+}
+
+/* ==== PART 5: Complex Expressions ==== */
+
+fn test_nested_arithmetic() -> int {
+    return (+ (* 3 4) (/ 20 5))
+}
+
+shadow test_nested_arithmetic {
+    assert (== (test_nested_arithmetic) 16)
+}
+
+fn test_chained_comparison() -> bool {
+    let x: int = 5
+    return (and (> x 0) (< x 10))
+}
+
+shadow test_chained_comparison {
+    assert (== (test_chained_comparison) true)
+}
+
+fn test_complex_logic() -> bool {
+    let a: bool = true
+    let b: bool = false
+    let c: bool = true
+    return (or (and a b) (and a c))
+}
+
+shadow test_complex_logic {
+    assert (== (test_complex_logic) true)
+}
+
+/* ==== Main ==== */
+
+fn main() -> int {
+    (println "nl_syntax_operators: All operator tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

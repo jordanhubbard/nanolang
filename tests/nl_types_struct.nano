@@ -1,0 +1,234 @@
+/* nl_types_struct.nano - Comprehensive struct tests
+ * Tests struct definition, construction, field access, nesting
+ * Category: Core Language - Types
+ */
+
+/* ==== PART 1: Basic Struct Definition ==== */
+
+struct Point {
+    x: int,
+    y: int
+}
+
+struct Person {
+    name: string,
+    age: int,
+    active: bool
+}
+
+struct Color {
+    r: int,
+    g: int,
+    b: int,
+    alpha: float
+}
+
+/* ==== PART 2: Simple Struct Construction ==== */
+
+fn test_point_create() -> int {
+    let p: Point = Point { x: 10, y: 20 }
+    return (+ p.x p.y)
+}
+
+shadow test_point_create {
+    assert (== (test_point_create) 30)
+}
+
+fn test_person_create() -> int {
+    let person: Person = Person { name: "Alice", age: 30, active: true }
+    return person.age
+}
+
+shadow test_person_create {
+    assert (== (test_person_create) 30)
+}
+
+fn test_color_create() -> int {
+    let c: Color = Color { r: 255, g: 128, b: 64, alpha: 1.0 }
+    return (+ (+ c.r c.g) c.b)
+}
+
+shadow test_color_create {
+    assert (== (test_color_create) 447)
+}
+
+/* ==== PART 3: Field Access Patterns ==== */
+
+fn test_field_access_x() -> int {
+    let p: Point = Point { x: 42, y: 10 }
+    return p.x
+}
+
+shadow test_field_access_x {
+    assert (== (test_field_access_x) 42)
+}
+
+fn test_field_access_y() -> int {
+    let p: Point = Point { x: 10, y: 42 }
+    return p.y
+}
+
+shadow test_field_access_y {
+    assert (== (test_field_access_y) 42)
+}
+
+fn test_field_string() -> string {
+    let person: Person = Person { name: "Bob", age: 25, active: false }
+    return person.name
+}
+
+shadow test_field_string {
+    assert (== (test_field_string) "Bob")
+}
+
+fn test_field_bool() -> bool {
+    let person: Person = Person { name: "Carol", age: 35, active: true }
+    return person.active
+}
+
+shadow test_field_bool {
+    assert (== (test_field_bool) true)
+}
+
+/* ==== PART 4: Nested Structs ==== */
+
+struct Line {
+    start: Point,
+    end: Point
+}
+
+struct Triangle {
+    a: Point,
+    b: Point,
+    c: Point
+}
+
+fn test_nested_line() -> int {
+    let p1: Point = Point { x: 0, y: 0 }
+    let p2: Point = Point { x: 10, y: 10 }
+    let line: Line = Line { start: p1, end: p2 }
+    return (+ line.start.x line.end.y)
+}
+
+shadow test_nested_line {
+    assert (== (test_nested_line) 10)
+}
+
+fn test_nested_triangle() -> int {
+    let a: Point = Point { x: 0, y: 0 }
+    let b: Point = Point { x: 10, y: 0 }
+    let c: Point = Point { x: 5, y: 10 }
+    let tri: Triangle = Triangle { a: a, b: b, c: c }
+    return (+ (+ tri.a.x tri.b.x) tri.c.y)
+}
+
+shadow test_nested_triangle {
+    assert (== (test_nested_triangle) 20)
+}
+
+/* ==== PART 5: Structs in Functions ==== */
+
+fn make_point(x: int, y: int) -> Point {
+    return Point { x: x, y: y }
+}
+
+shadow make_point {
+    let p: Point = (make_point 5 10)
+    assert (== p.x 5)
+    assert (== p.y 10)
+}
+
+fn add_points(a: Point, b: Point) -> Point {
+    return Point { x: (+ a.x b.x), y: (+ a.y b.y) }
+}
+
+shadow add_points {
+    let p1: Point = Point { x: 10, y: 20 }
+    let p2: Point = Point { x: 5, y: 15 }
+    let result: Point = (add_points p1 p2)
+    assert (== result.x 15)
+    assert (== result.y 35)
+}
+
+fn distance_squared(a: Point, b: Point) -> int {
+    let dx: int = (- b.x a.x)
+    let dy: int = (- b.y a.y)
+    return (+ (* dx dx) (* dy dy))
+}
+
+shadow distance_squared {
+    let p1: Point = Point { x: 0, y: 0 }
+    let p2: Point = Point { x: 3, y: 4 }
+    assert (== (distance_squared p1 p2) 25)
+}
+
+/* ==== PART 6: Structs in Control Flow ==== */
+
+fn conditional_point(flag: bool) -> Point {
+    if flag {
+        return Point { x: 1, y: 1 }
+    } else {
+        return Point { x: -1, y: -1 }
+    }
+}
+
+shadow conditional_point {
+    let p1: Point = (conditional_point true)
+    let p2: Point = (conditional_point false)
+    assert (== p1.x 1)
+    assert (== p2.x -1)
+}
+
+fn sum_points_loop(count: int) -> int {
+    let mut sum: int = 0
+    let mut i: int = 0
+    
+    while (< i count) {
+        let p: Point = Point { x: i, y: (* i 2) }
+        set sum (+ sum (+ p.x p.y))
+        set i (+ i 1)
+    }
+    
+    return sum
+}
+
+shadow sum_points_loop {
+    assert (== (sum_points_loop 5) 30)
+}
+
+/* ==== PART 7: Complex Nested Access ==== */
+
+struct Rectangle {
+    top_left: Point,
+    bottom_right: Point
+}
+
+fn rect_width(r: Rectangle) -> int {
+    return (- r.bottom_right.x r.top_left.x)
+}
+
+fn rect_height(r: Rectangle) -> int {
+    return (- r.bottom_right.y r.top_left.y)
+}
+
+fn rect_area(r: Rectangle) -> int {
+    return (* (rect_width r) (rect_height r))
+}
+
+shadow rect_area {
+    let tl: Point = Point { x: 0, y: 0 }
+    let br: Point = Point { x: 10, y: 5 }
+    let rect: Rectangle = Rectangle { top_left: tl, bottom_right: br }
+    assert (== (rect_area rect) 50)
+}
+
+/* ==== Main ==== */
+
+fn main() -> int {
+    (println "nl_types_struct: All struct tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

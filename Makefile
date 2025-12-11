@@ -103,7 +103,7 @@ all: build
 test: build
 	@echo ""
 	@echo "=========================================="
-	@echo "Running Test Suite"
+	@echo "Running Complete Test Suite"
 	@echo "=========================================="
 	@./tests/run_all_tests.sh
 	@echo ""
@@ -113,6 +113,37 @@ test: build
 	fi
 	@echo ""
 	@echo "✅ All tests passed!"
+
+# Test only core language features (nl_* tests)
+test-lang: build
+	@echo ""
+	@echo "=========================================="
+	@echo "Running Core Language Tests (nl_*)"
+	@echo "=========================================="
+	@./tests/run_all_tests.sh --lang
+
+# Test only application/integration tests
+test-app: build
+	@echo ""
+	@echo "=========================================="
+	@echo "Running Application Tests"
+	@echo "=========================================="
+	@./tests/run_all_tests.sh --app
+
+# Test only unit tests
+test-unit: build
+	@echo ""
+	@echo "=========================================="
+	@echo "Running Unit Tests"
+	@echo "=========================================="
+	@./tests/run_all_tests.sh --unit
+
+# Quick test (language tests only, fastest)
+test-quick: build
+	@./tests/run_all_tests.sh --lang
+
+# Full test with examples
+test-full: test
 	@echo ""
 	@echo "=========================================="
 	@echo "Building Examples"

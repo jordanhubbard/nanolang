@@ -1,0 +1,304 @@
+/* nl_types_enum.nano - Comprehensive enum tests
+ * Tests enum definition, variant access, and usage patterns
+ * Category: Core Language - Types
+ */
+
+/* ==== PART 1: Basic Enum Definition ==== */
+
+enum Direction {
+    North,
+    South,
+    East,
+    West
+}
+
+enum Status {
+    Active,
+    Inactive,
+    Pending
+}
+
+enum Day {
+    Monday,
+    Tuesday,
+    Wednesday,
+    Thursday,
+    Friday,
+    Saturday,
+    Sunday
+}
+
+/* ==== PART 2: Enum Variant Access ==== */
+
+fn test_direction_north() -> int {
+    let d: Direction = Direction.North
+    if (== d Direction.North) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow test_direction_north {
+    assert (== (test_direction_north) 1)
+}
+
+fn test_direction_south() -> int {
+    let d: Direction = Direction.South
+    if (== d Direction.South) {
+        return 2
+    } else {
+        return 0
+    }
+}
+
+shadow test_direction_south {
+    assert (== (test_direction_south) 2)
+}
+
+fn test_status_active() -> bool {
+    let s: Status = Status.Active
+    return (== s Status.Active)
+}
+
+shadow test_status_active {
+    assert (== (test_status_active) true)
+}
+
+fn test_status_inactive() -> bool {
+    let s: Status = Status.Inactive
+    return (== s Status.Inactive)
+}
+
+shadow test_status_inactive {
+    assert (== (test_status_inactive) true)
+}
+
+/* ==== PART 3: Enum Comparison ==== */
+
+fn test_enum_equality() -> bool {
+    let d1: Direction = Direction.East
+    let d2: Direction = Direction.East
+    return (== d1 d2)
+}
+
+shadow test_enum_equality {
+    assert (== (test_enum_equality) true)
+}
+
+fn test_enum_inequality() -> bool {
+    let d1: Direction = Direction.East
+    let d2: Direction = Direction.West
+    return (!= d1 d2)
+}
+
+shadow test_enum_inequality {
+    assert (== (test_enum_inequality) true)
+}
+
+/* ==== PART 4: Enum in Functions ==== */
+
+fn opposite_direction(d: Direction) -> Direction {
+    if (== d Direction.North) {
+        return Direction.South
+    } else {
+        if (== d Direction.South) {
+            return Direction.North
+        } else {
+            if (== d Direction.East) {
+                return Direction.West
+            } else {
+                return Direction.East
+            }
+        }
+    }
+}
+
+shadow opposite_direction {
+    assert (== (opposite_direction Direction.North) Direction.South)
+    assert (== (opposite_direction Direction.South) Direction.North)
+    assert (== (opposite_direction Direction.East) Direction.West)
+    assert (== (opposite_direction Direction.West) Direction.East)
+}
+
+fn direction_to_int(d: Direction) -> int {
+    if (== d Direction.North) {
+        return 0
+    } else {
+        if (== d Direction.South) {
+            return 1
+        } else {
+            if (== d Direction.East) {
+                return 2
+            } else {
+                return 3
+            }
+        }
+    }
+}
+
+shadow direction_to_int {
+    assert (== (direction_to_int Direction.North) 0)
+    assert (== (direction_to_int Direction.South) 1)
+    assert (== (direction_to_int Direction.East) 2)
+    assert (== (direction_to_int Direction.West) 3)
+}
+
+/* ==== PART 5: Enum in Control Flow ==== */
+
+fn test_enum_in_if() -> int {
+    let status: Status = Status.Pending
+    
+    if (== status Status.Active) {
+        return 1
+    } else {
+        if (== status Status.Inactive) {
+            return 2
+        } else {
+            return 3
+        }
+    }
+}
+
+shadow test_enum_in_if {
+    assert (== (test_enum_in_if) 3)
+}
+
+fn count_weekdays_manual() -> int {
+    let mut count: int = 0
+    
+    let d1: Day = Day.Monday
+    let d2: Day = Day.Tuesday
+    let d3: Day = Day.Wednesday
+    let d4: Day = Day.Thursday
+    let d5: Day = Day.Friday
+    let d6: Day = Day.Saturday
+    let d7: Day = Day.Sunday
+    
+    if (and (!= d1 Day.Saturday) (!= d1 Day.Sunday)) {
+        set count (+ count 1)
+    } else {
+        set count count
+    }
+    if (and (!= d2 Day.Saturday) (!= d2 Day.Sunday)) {
+        set count (+ count 1)
+    } else {
+        set count count
+    }
+    if (and (!= d3 Day.Saturday) (!= d3 Day.Sunday)) {
+        set count (+ count 1)
+    } else {
+        set count count
+    }
+    if (and (!= d4 Day.Saturday) (!= d4 Day.Sunday)) {
+        set count (+ count 1)
+    } else {
+        set count count
+    }
+    if (and (!= d5 Day.Saturday) (!= d5 Day.Sunday)) {
+        set count (+ count 1)
+    } else {
+        set count count
+    }
+    if (and (!= d6 Day.Saturday) (!= d6 Day.Sunday)) {
+        set count (+ count 1)
+    } else {
+        set count count
+    }
+    if (and (!= d7 Day.Saturday) (!= d7 Day.Sunday)) {
+        set count (+ count 1)
+    } else {
+        set count count
+    }
+    
+    return count
+}
+
+shadow count_weekdays_manual {
+    assert (== (count_weekdays_manual) 5)
+}
+
+/* ==== PART 6: Enum State Machine ==== */
+
+fn next_status(s: Status) -> Status {
+    if (== s Status.Active) {
+        return Status.Inactive
+    } else {
+        if (== s Status.Inactive) {
+            return Status.Pending
+        } else {
+            return Status.Active
+        }
+    }
+}
+
+fn test_status_cycle() -> bool {
+    let s0: Status = Status.Active
+    let s1: Status = (next_status s0)
+    let s2: Status = (next_status s1)
+    let s3: Status = (next_status s2)
+    
+    return (and (and (== s1 Status.Inactive) (== s2 Status.Pending)) (== s3 Status.Active))
+}
+
+shadow test_status_cycle {
+    assert (== (test_status_cycle) true)
+}
+
+/* ==== PART 7: Complex Enum Usage ==== */
+
+fn is_weekend(d: Day) -> bool {
+    return (or (== d Day.Saturday) (== d Day.Sunday))
+}
+
+shadow is_weekend {
+    assert (== (is_weekend Day.Saturday) true)
+    assert (== (is_weekend Day.Sunday) true)
+    assert (== (is_weekend Day.Monday) false)
+    assert (== (is_weekend Day.Friday) false)
+}
+
+fn day_to_string(d: Day) -> string {
+    if (== d Day.Monday) {
+        return "Monday"
+    } else {
+        if (== d Day.Tuesday) {
+            return "Tuesday"
+        } else {
+            if (== d Day.Wednesday) {
+                return "Wednesday"
+            } else {
+                if (== d Day.Thursday) {
+                    return "Thursday"
+                } else {
+                    if (== d Day.Friday) {
+                        return "Friday"
+                    } else {
+                        if (== d Day.Saturday) {
+                            return "Saturday"
+                        } else {
+                            return "Sunday"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow day_to_string {
+    assert (== (day_to_string Day.Monday) "Monday")
+    assert (== (day_to_string Day.Friday) "Friday")
+    assert (== (day_to_string Day.Sunday) "Sunday")
+}
+
+/* ==== Main ==== */
+
+fn main() -> int {
+    (println "nl_types_enum: All enum tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

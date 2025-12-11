@@ -1,0 +1,206 @@
+/* nl_control_for.nano - FOR loop tests
+ * Tests for-in loops with ranges and arrays
+ * Category: Core Language - Control Flow
+ */
+
+/* ==== PART 1: Basic For-In with Range ==== */
+
+fn test_for_sum() -> int {
+    let mut sum: int = 0
+    for i in (range 0 5) {
+        set sum (+ sum i)
+    }
+    return sum
+}
+
+shadow test_for_sum {
+    assert (== (test_for_sum) 10)
+}
+
+fn test_for_count() -> int {
+    let mut count: int = 0
+    for i in (range 0 10) {
+        set count (+ count 1)
+    }
+    return count
+}
+
+shadow test_for_count {
+    assert (== (test_for_count) 10)
+}
+
+fn test_for_product() -> int {
+    let mut product: int = 1
+    for i in (range 1 6) {
+        set product (* product i)
+    }
+    return product
+}
+
+shadow test_for_product {
+    assert (== (test_for_product) 120)
+}
+
+/* ==== PART 2: For-In with Range Variations ==== */
+
+fn test_for_range_start() -> int {
+    let mut sum: int = 0
+    for i in (range 5 10) {
+        set sum (+ sum i)
+    }
+    return sum
+}
+
+shadow test_for_range_start {
+    assert (== (test_for_range_start) 35)
+}
+
+fn test_for_single_iteration() -> int {
+    let mut sum: int = 0
+    for i in (range 0 1) {
+        set sum (+ sum 42)
+    }
+    return sum
+}
+
+shadow test_for_single_iteration {
+    assert (== (test_for_single_iteration) 42)
+}
+
+/* ==== PART 3: Nested For Loops ==== */
+
+fn test_nested_for() -> int {
+    let mut sum: int = 0
+    for i in (range 0 3) {
+        for j in (range 0 3) {
+            set sum (+ sum 1)
+        }
+    }
+    return sum
+}
+
+shadow test_nested_for {
+    assert (== (test_nested_for) 9)
+}
+
+fn test_nested_for_mult() -> int {
+    let mut sum: int = 0
+    for i in (range 1 4) {
+        for j in (range 1 4) {
+            set sum (+ sum (* i j))
+        }
+    }
+    return sum
+}
+
+shadow test_nested_for_mult {
+    assert (== (test_nested_for_mult) 36)
+}
+
+/* ==== PART 4: For with Conditional ==== */
+
+fn count_even_for(n: int) -> int {
+    let mut count: int = 0
+    for i in (range 0 n) {
+        if (== (% i 2) 0) {
+            set count (+ count 1)
+        } else {
+            set count count
+        }
+    }
+    return count
+}
+
+shadow count_even_for {
+    assert (== (count_even_for 10) 5)
+}
+
+fn sum_odd_for(n: int) -> int {
+    let mut sum: int = 0
+    for i in (range 1 n) {
+        if (== (% i 2) 1) {
+            set sum (+ sum i)
+        } else {
+            set sum sum
+        }
+    }
+    return sum
+}
+
+shadow sum_odd_for {
+    assert (== (sum_odd_for 10) 25)
+}
+
+/* ==== PART 5: For with Complex Operations ==== */
+
+fn sum_squares(n: int) -> int {
+    let mut sum: int = 0
+    for i in (range 1 n) {
+        set sum (+ sum (* i i))
+    }
+    return sum
+}
+
+shadow sum_squares {
+    assert (== (sum_squares 4) 14)
+    assert (== (sum_squares 5) 30)
+}
+
+fn triangular_number(n: int) -> int {
+    let mut sum: int = 0
+    for i in (range 1 (+ n 1)) {
+        set sum (+ sum i)
+    }
+    return sum
+}
+
+shadow triangular_number {
+    assert (== (triangular_number 5) 15)
+    assert (== (triangular_number 10) 55)
+}
+
+/* ==== PART 6: For with Accumulator Patterns ==== */
+
+fn count_divisible(n: int, divisor: int) -> int {
+    let mut count: int = 0
+    for i in (range 1 (+ n 1)) {
+        if (== (% i divisor) 0) {
+            set count (+ count 1)
+        } else {
+            set count count
+        }
+    }
+    return count
+}
+
+shadow count_divisible {
+    assert (== (count_divisible 20 5) 4)
+    assert (== (count_divisible 10 2) 5)
+}
+
+fn sum_multiples(n: int, factor: int) -> int {
+    let mut sum: int = 0
+    for i in (range 1 n) {
+        if (== (% i factor) 0) {
+            set sum (+ sum i)
+        } else {
+            set sum sum
+        }
+    }
+    return sum
+}
+
+shadow sum_multiples {
+    assert (== (sum_multiples 10 3) 18)
+}
+
+/* ==== Main ==== */
+
+fn main() -> int {
+    (println "nl_control_for: All for loop tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,273 @@
+/* nl_functions_basic.nano - Basic function tests
+ * Tests function definition, calls, parameters, return values
+ * Category: Core Language - Functions
+ */
+
+/* ==== PART 1: Simple Functions ==== */
+
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+    assert (== (add 0 0) 0)
+    assert (== (add -5 10) 5)
+}
+
+fn multiply(a: int, b: int) -> int {
+    return (* a b)
+}
+
+shadow multiply {
+    assert (== (multiply 3 4) 12)
+    assert (== (multiply 0 100) 0)
+    assert (== (multiply -2 5) -10)
+}
+
+fn identity(x: int) -> int {
+    return x
+}
+
+shadow identity {
+    assert (== (identity 42) 42)
+    assert (== (identity 0) 0)
+}
+
+/* ==== PART 2: Functions with Different Types ==== */
+
+fn str_length_test(s: string) -> int {
+    return (str_length s)
+}
+
+shadow str_length_test {
+    assert (== (str_length_test "hello") 5)
+    assert (== (str_length_test "") 0)
+}
+
+fn bool_not(b: bool) -> bool {
+    return (not b)
+}
+
+shadow bool_not {
+    assert (== (bool_not true) false)
+    assert (== (bool_not false) true)
+}
+
+fn float_add(a: float, b: float) -> float {
+    return (+ a b)
+}
+
+shadow float_add {
+    assert (== (float_add 1.5 2.5) 4.0)
+}
+
+/* ==== PART 3: Functions with Multiple Parameters ==== */
+
+fn three_sum(a: int, b: int, c: int) -> int {
+    return (+ (+ a b) c)
+}
+
+shadow three_sum {
+    assert (== (three_sum 1 2 3) 6)
+}
+
+fn four_params(a: int, b: int, c: int, d: int) -> int {
+    return (+ (+ (+ a b) c) d)
+}
+
+shadow four_params {
+    assert (== (four_params 1 2 3 4) 10)
+}
+
+fn mixed_params(x: int, flag: bool, name: string) -> int {
+    if flag {
+        return (+ x (str_length name))
+    } else {
+        return x
+    }
+}
+
+shadow mixed_params {
+    assert (== (mixed_params 10 true "hello") 15)
+    assert (== (mixed_params 10 false "hello") 10)
+}
+
+/* ==== PART 4: Functions with Local Variables ==== */
+
+fn with_locals(x: int) -> int {
+    let a: int = (* x 2)
+    let b: int = (+ a 10)
+    return b
+}
+
+shadow with_locals {
+    assert (== (with_locals 5) 20)
+}
+
+fn swap_and_sum(a: int, b: int) -> int {
+    let temp_a: int = b
+    let temp_b: int = a
+    return (+ temp_a temp_b)
+}
+
+shadow swap_and_sum {
+    assert (== (swap_and_sum 5 10) 15)
+}
+
+fn complex_locals(x: int, y: int) -> int {
+    let sum: int = (+ x y)
+    let diff: int = (- x y)
+    let product: int = (* x y)
+    return (+ (+ sum diff) product)
+}
+
+shadow complex_locals {
+    assert (== (complex_locals 5 3) 25)
+}
+
+/* ==== PART 5: Recursive Functions ==== */
+
+fn factorial_rec(n: int) -> int {
+    if (<= n 1) {
+        return 1
+    } else {
+        return (* n (factorial_rec (- n 1)))
+    }
+}
+
+shadow factorial_rec {
+    assert (== (factorial_rec 0) 1)
+    assert (== (factorial_rec 1) 1)
+    assert (== (factorial_rec 5) 120)
+}
+
+fn fibonacci_rec(n: int) -> int {
+    if (<= n 1) {
+        return n
+    } else {
+        return (+ (fibonacci_rec (- n 1)) (fibonacci_rec (- n 2)))
+    }
+}
+
+shadow fibonacci_rec {
+    assert (== (fibonacci_rec 0) 0)
+    assert (== (fibonacci_rec 1) 1)
+    assert (== (fibonacci_rec 6) 8)
+}
+
+fn sum_rec(n: int) -> int {
+    if (<= n 0) {
+        return 0
+    } else {
+        return (+ n (sum_rec (- n 1)))
+    }
+}
+
+shadow sum_rec {
+    assert (== (sum_rec 5) 15)
+    assert (== (sum_rec 10) 55)
+}
+
+/* ==== PART 6: Functions Calling Functions ==== */
+
+fn square(x: int) -> int {
+    return (* x x)
+}
+
+fn cube(x: int) -> int {
+    return (* (square x) x)
+}
+
+shadow cube {
+    assert (== (cube 2) 8)
+    assert (== (cube 3) 27)
+}
+
+fn sum_of_squares(a: int, b: int) -> int {
+    return (+ (square a) (square b))
+}
+
+shadow sum_of_squares {
+    assert (== (sum_of_squares 3 4) 25)
+}
+
+fn hypotenuse_squared(a: int, b: int) -> int {
+    return (sum_of_squares a b)
+}
+
+shadow hypotenuse_squared {
+    assert (== (hypotenuse_squared 3 4) 25)
+}
+
+/* ==== PART 7: Functions with Conditionals ==== */
+
+fn abs_val(x: int) -> int {
+    if (< x 0) {
+        return (- 0 x)
+    } else {
+        return x
+    }
+}
+
+shadow abs_val {
+    assert (== (abs_val 5) 5)
+    assert (== (abs_val -5) 5)
+    assert (== (abs_val 0) 0)
+}
+
+fn max_val(a: int, b: int) -> int {
+    if (> a b) {
+        return a
+    } else {
+        return b
+    }
+}
+
+shadow max_val {
+    assert (== (max_val 5 10) 10)
+    assert (== (max_val 10 5) 10)
+    assert (== (max_val 5 5) 5)
+}
+
+fn min_val(a: int, b: int) -> int {
+    if (< a b) {
+        return a
+    } else {
+        return b
+    }
+}
+
+shadow min_val {
+    assert (== (min_val 5 10) 5)
+    assert (== (min_val 10 5) 5)
+}
+
+fn clamp(x: int, low: int, high: int) -> int {
+    if (< x low) {
+        return low
+    } else {
+        if (> x high) {
+            return high
+        } else {
+            return x
+        }
+    }
+}
+
+shadow clamp {
+    assert (== (clamp 5 0 10) 5)
+    assert (== (clamp -5 0 10) 0)
+    assert (== (clamp 15 0 10) 10)
+}
+
+/* ==== Main ==== */
+
+fn main() -> int {
+    (println "nl_functions_basic: All function tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
