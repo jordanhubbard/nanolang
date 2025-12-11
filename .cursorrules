@@ -258,6 +258,67 @@ Once parser reaches 100% feature coverage:
 - Self-hosting: Validated
 - Performance: < 10s compile time
 
+## Temporary AI Planning Files
+
+**NEVER commit temporary AI planning/status files to the repository.**
+
+### What Are Temporary Files?
+
+Any `.md` file in the top-level directory that was created during AI-assisted development sessions:
+- `*_STATUS.md`, `*_SUMMARY.md`, `*_GUIDE.md`
+- `IMPLEMENTATION_*.md`, `REMAINING_*.md`, `WORK_*.md`
+- `VICTORY_*.md`, `FINAL_*.md`, `FEATURES_*.md`
+- Any planning, tracking, or status documentation
+
+### Rules for Temporary Files
+
+1. **Do NOT commit** these files to the repository
+2. **If committed by mistake**, remove immediately:
+   ```bash
+   git rm TEMPORARY_FILE.md
+   git commit -m "chore: Remove temporary AI planning file"
+   ```
+
+3. **Extract user-facing content** before deletion:
+   - Installation/setup changes → `README.md`
+   - User documentation → `docs/` directory
+   - API documentation → appropriate `docs/*.md`
+   - Discard internal planning/status content
+
+### What Belongs Where
+
+| Content Type | Destination |
+|-------------|-------------|
+| Installation instructions | `README.md` |
+| User guides | `docs/` |
+| API documentation | `docs/` |
+| Architecture docs | `docs/architecture/` |
+| Contributing guidelines | `CONTRIBUTING.md` |
+| AI planning/status | **DELETE - do not commit** |
+
+### Pre-Commit Check
+
+Before committing, verify no temporary files are staged:
+```bash
+# Check for suspicious top-level .md files
+ls *.md | grep -v -E "^(README|CONTRIBUTING|CONTRIBUTORS|LICENSE)\.md$"
+
+# If any appear, either:
+# 1. Extract useful content to proper location
+# 2. Add to .gitignore
+# 3. Delete the file
+```
+
+### Allowed Top-Level Markdown Files
+
+Only these `.md` files should exist at the project root:
+- `README.md` - Project overview and setup
+- `CONTRIBUTING.md` - Contribution guidelines
+- `CONTRIBUTORS.md` - List of contributors
+- `LICENSE.md` (or `LICENSE`) - License information
+
+Everything else belongs in `docs/` or should not be committed.
+
 ## Remember
 
 **"Always Green" means ALWAYS GREEN.**
@@ -267,5 +328,6 @@ No exceptions. No "temporary breaks". No "will fix tomorrow".
 If it breaks tests, it doesn't get committed.  
 If it breaks self-hosting, it's a critical bug.  
 If examples fail, it's blocking.
+If it's a temporary planning file, it doesn't get committed.
 
 Keep nanolang green! 🟢
