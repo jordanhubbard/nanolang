@@ -1749,7 +1749,43 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
                 } else {
                     /* Parse left side first */
                     let p1: Parser = (parse_primary p)
-                    return (parse_expression_recursive p1 true)
+                    
+                    /* Handle postfix operators: field access */
+                    let mut p_postfix: Parser = p1
+                    let mut done: bool = false
+                    
+                    while (not done) {
+                        if (parser_is_at_end p_postfix) {
+                            set done true
+                        } else {
+                            let tok_post: LexToken = (parser_current p_postfix)
+                            
+                            if (== tok_post.token_type (token_dot)) {
+                                /* Field access: obj.field */
+                                let p_dot: Parser = (parser_advance p_postfix)
+                                
+                                if (parser_is_at_end p_dot) {
+                                    set done true
+                                } else {
+                                    let tok_field: LexToken = (parser_current p_dot)
+                                    
+                                    if (== tok_field.token_type (token_identifier)) {
+                                        let field_name: string = tok_field.value
+                                        let p_field: Parser = (parser_advance p_dot)
+                                        let obj_id: int = p_postfix.last_expr_node_id
+                                        let obj_type: int = p_postfix.last_expr_node_type
+                                        set p_postfix (parser_store_field_access p_field obj_id obj_type field_name tok_post.line tok_post.column)
+                                    } else {
+                                        set done true
+                                    }
+                                }
+                            } else {
+                                set done true
+                            }
+                        }
+                    }
+                    
+                    return (parse_expression_recursive p_postfix true)
                 }
             }
         }
