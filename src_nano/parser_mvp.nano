@@ -1658,13 +1658,49 @@ fn parse_primary(p: Parser) -> Parser {
                                     }
                                     return (parser_with_error pcur true)
                                 } else {
-                                    /* Regular parenthesized expression */
+                                    /* Regular parenthesized expression OR tuple literal */
                                     let p2: Parser = (parse_expression p1)
                                     if (parser_has_error p2) {
                                         return p2
                                     } else {
-                                        let p3: Parser = (parser_expect p2 (token_rparen))
-                                        return p3
+                                        /* Check for tuple (comma) vs paren expression (rparen) */
+                                        let tok_after: LexToken = (parser_current p2)
+                                        if (== tok_after.token_type (token_comma)) {
+                                            /* Tuple literal: (expr, expr, ...) */
+                                            let mut tuple_count: int = 1
+                                            let mut ptup: Parser = (parser_advance p2)
+                                            
+                                            while (not (parser_is_at_end ptup)) {
+                                                let ttup: LexToken = (parser_current ptup)
+                                                if (== ttup.token_type (token_rparen)) {
+                                                    return (parser_advance ptup)
+                                                } else {
+                                                    let pelem: Parser = (parse_expression ptup)
+                                                    if (parser_has_error pelem) {
+                                                        return pelem
+                                                    } else {
+                                                        set tuple_count (+ tuple_count 1)
+                                                        set ptup pelem
+                                                        let tnext: LexToken = (parser_current ptup)
+                                                        if (== tnext.token_type (token_comma)) {
+                                                            set ptup (parser_advance ptup)
+                                                        } else {
+                                                            break
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            let tfinal: LexToken = (parser_current ptup)
+                                            if (== tfinal.token_type (token_rparen)) {
+                                                return (parser_advance ptup)
+                                            } else {
+                                                return (parser_with_error ptup true)
+                                            }
+                                        } else {
+                                            /* Regular parenthesized expression */
+                                            let p3: Parser = (parser_expect p2 (token_rparen))
+                                            return p3
+                                        }
                                     }
                                 }
                             }
@@ -1772,9 +1808,66 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
                                     if (== tok_field.token_type (token_identifier)) {
                                         let field_name: string = tok_field.value
                                         let p_field: Parser = (parser_advance p_dot)
-                                        let obj_id: int = p_postfix.last_expr_node_id
-                                        let obj_type: int = p_postfix.last_expr_node_type
-                                        set p_postfix (parser_store_field_access p_field obj_id obj_type field_name tok_post.line tok_post.column)
+                                        
+                                        /* Check for union construction: Type.Variant{...} */
+                                        if (not (parser_is_at_end p_field)) {
+                                            let tok_brace: LexToken = (parser_current p_field)
+                                            if (== tok_brace.token_type (token_lbrace)) {
+                                                /* Union construction with fields */
+                                                let p_lbrace: Parser = (parser_advance p_field)
+                                                
+                                                /* Parse fields until rbrace */
+                                                let mut puc: Parser = p_lbrace
+                                                while (not (parser_is_at_end puc)) {
+                                                    let tuc: LexToken = (parser_current puc)
+                                                    if (== tuc.token_type (token_rbrace)) {
+                                                        set p_postfix (parser_advance puc)
+                                                        break
+                                                    } else {
+                                                        /* Parse field: name: value */
+                                                        if (== tuc.token_type (token_identifier)) {
+                                                            let pf1: Parser = (parser_advance puc)
+                                                            let tf2: LexToken = (parser_current pf1)
+                                                            if (== tf2.token_type (token_colon)) {
+                                                                let pf2: Parser = (parser_advance pf1)
+                                                                let pf3: Parser = (parse_expression pf2)
+                                                                if (parser_has_error pf3) {
+                                                                    return pf3
+                                                                } else {
+                                                                    set puc pf3
+                                                                    let tf4: LexToken = (parser_current puc)
+                                                                    if (== tf4.token_type (token_comma)) {
+                                                                        set puc (parser_advance puc)
+                                                                    } else {
+                                                                        break
+                                                                    }
+                                                                }
+                                                            } else {
+                                                                set puc (parser_advance puc)
+                                                            }
+                                                        } else {
+                                                            set puc (parser_advance puc)
+                                                        }
+                                                    }
+                                                }
+                                                let tuc_final: LexToken = (parser_current puc)
+                                                if (== tuc_final.token_type (token_rbrace)) {
+                                                    set p_postfix (parser_advance puc)
+                                                } else {
+                                                    set p_postfix puc
+                                                }
+                                            } else {
+                                                /* Regular field access */
+                                                let obj_id: int = p_postfix.last_expr_node_id
+                                                let obj_type: int = p_postfix.last_expr_node_type
+                                                set p_postfix (parser_store_field_access p_field obj_id obj_type field_name tok_post.line tok_post.column)
+                                            }
+                                        } else {
+                                            /* Regular field access (end of file) */
+                                            let obj_id: int = p_postfix.last_expr_node_id
+                                            let obj_type: int = p_postfix.last_expr_node_type
+                                            set p_postfix (parser_store_field_access p_field obj_id obj_type field_name tok_post.line tok_post.column)
+                                        }
                                     } else {
                                         set done true
                                     }
