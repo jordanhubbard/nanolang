@@ -99,8 +99,11 @@ build: $(SENTINEL_STAGE3)
 # Alias for build
 all: build
 
-# Test: Run all tests (depends on build)
-test: build
+# Test: Run all tests + examples (alias for test-full)
+test: test-full
+
+# Full test suite with examples
+test-full: build
 	@echo ""
 	@echo "=========================================="
 	@echo "Running Complete Test Suite"
@@ -112,7 +115,12 @@ test: build
 		./tests/selfhost/run_selfhost_tests.sh; \
 	fi
 	@echo ""
-	@echo "✅ All tests passed!"
+	@echo "=========================================="
+	@echo "Building Examples"
+	@echo "=========================================="
+	@$(MAKE) examples
+	@echo ""
+	@echo "✅ All tests and examples completed!"
 
 # Test only core language features (nl_* tests)
 test-lang: build
@@ -141,16 +149,6 @@ test-unit: build
 # Quick test (language tests only, fastest)
 test-quick: build
 	@./tests/run_all_tests.sh --lang
-
-# Full test with examples
-test-full: test
-	@echo ""
-	@echo "=========================================="
-	@echo "Building Examples"
-	@echo "=========================================="
-	@$(MAKE) examples
-	@echo ""
-	@echo "✅ All tests and examples completed!"
 
 # Examples: Build examples (depends on build)
 examples: build check-deps-sdl
