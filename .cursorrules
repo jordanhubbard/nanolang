@@ -1,840 +1,271 @@
-# nanolang Project Rules
+# Nanolang Project Rules - Keep It Green! 🟢
 
-## ⚠️ IMMEDIATE ACTIONS (Do These FIRST)
+## Core Principle: Always Green
 
-### At Session Start:
-1. **Run**: `ls *.md` - Check for obsolete files in root
-2. **DELETE** any `*_COMPLETE.md`, `*_SUMMARY.md`, `*_STATUS.md` files
-3. **MOVE** any planning files to `planning/` directory
-4. **CHECK** `planning/` for in-progress work before starting new tasks
+This project maintains 100% passing tests. **Any commit that breaks tests is unacceptable.**
 
-### Before Every Commit:
-1. **Run**: `ls *.md` - Verify root is clean
-2. **DELETE** completion/status files created during session
-3. **MOVE** any planning docs to `planning/`
-4. **UPDATE** `docs/DOCS_INDEX.md` if you modified docs/
-5. **VERIFY** examples compile without warnings (per rules below)
+## Self-Hosted Parser Requirements
 
-### Allowed in Root Directory:
-- `README.md` - Project overview
-- `CONTRIBUTING.md` - Contribution guidelines
-- `CONTRIBUTORS.md` - Contributor list
-- `LICENSE` - Project license
-- `.cursorrules` - This file
-- **NOTHING ELSE** - All other .md files must be deleted or moved
+The self-hosted parser (`src_nano/parser_mvp.nano`) must:
 
-## Documentation Policy
+1. ✅ **Compile successfully** with zero errors
+2. ✅ **Pass all shadow tests** (internal validation)
+3. ✅ **Parse itself** (self-hosting validation)
+4. ✅ **Support all features** it uses in its own code
 
-### 1. Obsolete Files
-- **All .md files which are already implemented and are now obsolete should be deleted from the top level directory.**
-- This includes:
-  - Implementation completion summaries (e.g., `*_COMPLETE.md`, `*_IMPLEMENTATION_COMPLETE.md`)
-  - Session summaries (e.g., `SESSION_SUMMARY_*.md`, `*_SESSION_SUMMARY.md`)
-  - Status files for completed work (e.g., `*_STATUS.md`, `*_PROGRESS.md`)
-  - Bug fix summaries (e.g., `*_FIX.md`, `*_BUGS_FIXED.md`)
-  - Test result files (e.g., `TEST_RESULTS.md`, `TEST_STATUS.md`)
+### When Adding Language Features
 
-### 2. Planning Documents
-- **All .md files which represent work to be done should be moved into a directory called `planning/`.**
-- This includes:
-  - Implementation plans (e.g., `*_PLAN.md`, `*_IMPLEMENTATION_PLAN.md`)
-  - Proposals (e.g., `*_PROPOSAL.md`)
-  - Design documents for future features (e.g., `*_DESIGN.md` if not user-facing)
-  - Roadmaps and timelines (e.g., `*_ROADMAP.md`)
+If you add a new language feature to nanolang:
 
-### 3. User-Facing Documentation
-- **All .md files which represent user-facing documentation should be consolidated into `docs/` directory.**
-- **Every time you add a file in the `docs/` directory, you must review all existing `docs/` entries to see if there is any overlap or duplication.**
-- User-facing documentation includes:
-  - Language guides (e.g., `MUTABILITY_GUIDE.md`, `TRACING_IMPLEMENTATION.md`)
-  - API references (e.g., `SAFE_C_FFI_FUNCTIONS.md`)
-  - Tutorials and getting started guides
-  - Feature documentation
-- When consolidating:
-  - Merge duplicate content into a single authoritative document
-  - Update cross-references between documents
-  - Update `docs/DOCS_INDEX.md` to reflect changes
-  - Remove obsolete sections
+1. **Stage 0 (C Compiler):**  
+   - Add feature to `src/parser.c` first
+   - Ensure C compiler handles it (100% support required)
 
-### 4. Test Files
-- **All test files that are durable tests, not just temporary test files, should be in `tests/`.**
-- Durable tests include:
-  - Unit tests
-  - Integration tests
-  - Regression tests
-  - Negative tests (tests that should fail)
-  - Performance tests
-- Temporary test files should be removed after we are done with them.
+2. **Stage 2 (Self-Hosted Parser):**  
+   - Add corresponding AST struct in `parser_mvp.nano`
+   - Add `parser_store_*` function
+   - **Integrate into parsing logic** (critical!)
+   - Add token helpers if needed
 
-### 5. Temporary Files
-- **Any temporary test files should be removed after we are done.**
-- Temporary files include:
-  - `test_*.nano` files in the root directory (unless they're examples)
-  - `test_*.c` files in the root directory
-  - Debug build artifacts (`.dSYM` directories, etc.)
-  - One-off test scripts that aren't part of the test suite
+3. **Testing:**  
+   - Run `./bin/nanoc src_nano/parser_mvp.nano` - must pass ✅
+   - Run `./tests/run_all_tests.sh` - must pass ✅
+   - Run `make examples` - must build ✅
 
-## File Organization Summary
+4. **Documentation:**  
+   - Update feature lists in markdown docs
+   - Update completion percentages
 
-```
-nanolang/
-├── README.md                    # Main project README (keep in root)
-├── docs/                        # User-facing documentation
-│   ├── DOCS_INDEX.md           # Must be updated when docs change
-│   ├── GETTING_STARTED.md
-│   ├── SPECIFICATION.md
-│   └── ...
-├── planning/                    # Future work and plans
-│   ├── ENUM_IMPLEMENTATION_PLAN.md
-│   ├── TRACING_DESIGN.md
-│   └── ...
-├── tests/                       # Durable test files
-│   ├── unit/
-│   ├── integration/
-│   ├── negative/
-│   └── ...
-├── examples/                    # Example programs
-└── src/                        # Source code
-```
+### Self-Hosting Check
 
-## Compiler Architecture Rules
-
-### Transpiler Module Independence
-
-**The transpiler (`src/transpiler.c`) MUST remain module-agnostic.**
-
-- **NO module-specific code**: The transpiler should never contain special cases for specific modules (SDL, OpenGL, GLEW, etc.)
-- **Generic module loading only**: Only generic code for loading module metadata and headers is allowed
-- **Module behavior via metadata**: All module-specific behavior (header order, dependencies, special flags) must be expressed through `module.json` metadata
-- **No hardcoded module names**: Never check for specific module names in transpiler code
-
-**Why this matters:**
-- Keeps the transpiler maintainable and extensible
-- Allows new modules to be added without modifying core compiler code
-- Enforces separation of concerns between compiler infrastructure and module ecosystem
-- Makes the module system truly pluggable
-
-**Examples:**
-
-❌ **BAD - Module-specific code in transpiler:**
-```c
-if (strcmp(module_name, "glew") == 0) {
-    sb_append(sb, "#include <GL/glew.h>\n");
-}
-```
-
-✅ **GOOD - Generic module loading with priority:**
-```c
-// Sort headers by priority from module.json metadata
-// Generic implementation that works for any module
-```
-
-## Enforcement
-
-- Before committing changes, verify:
-  1. No obsolete .md files in root directory
-  2. Planning documents are in `planning/`
-  3. User-facing docs are in `docs/` and consolidated
-  4. Durable tests are in `tests/`
-  5. Temporary test files are removed
-  6. `docs/DOCS_INDEX.md` is updated if docs changed
-  7. **Transpiler contains no module-specific code**
-
-## Examples
-
-### ✅ Good
-- `docs/MUTABILITY_GUIDE.md` - User-facing guide
-- `planning/SELF_HOSTING_IMPLEMENTATION_PLAN.md` - Future work
-- `tests/unit/calculator_test.c` - Durable test
-
-### ❌ Bad
-- `MUTABILITY_GUIDE.md` in root - Should be in `docs/`
-- `ENUM_IMPLEMENTATION_COMPLETE.md` in root - Obsolete, should be deleted
-- `test_debug.nano` in root - Temporary, should be removed
-- `docs/EXTERN_FFI.md` and `docs/SAFE_C_FFI_FUNCTIONS.md` with duplicate content - Should be consolidated
-
----
-
-## LLM Code Generation Guidelines
-
-When generating nanolang code, follow these guidelines to ensure correctness and debuggability.
-
-### 1. Understanding nanolang Syntax
-
-nanolang uses **prefix notation** (S-expressions) for all operations. This eliminates ambiguity and operator precedence issues.
-
-#### Core Syntax Rules:
-
-**Prefix Notation (Required)**:
-```nano
-# Arithmetic: Always use prefix
-(+ 2 3)              # 2 + 3
-(* (+ 2 3) 4)        # (2 + 3) * 4
-(- a b)              # a - b
-
-# Comparisons: Always use prefix
-(== x 5)             # x == 5
-(> a b)              # a > b
-(<= x 10)            # x <= 10
-
-# Logical: Always use prefix
-(and (> x 0) (< x 10))  # x > 0 && x < 10
-(or (== x 0) (== x 1))  # x == 0 || x == 1
-(not flag)           # !flag
-```
-
-**Type Annotations (Required)**:
-```nano
-# Variables must have explicit types
-let x: int = 42
-let name: string = "hello"
-let mut counter: int = 0  # Use 'mut' for mutable variables
-
-# Function parameters must have types
-fn add(a: int, b: int) -> int {
-    return (+ a b)
-}
-```
-
-**Function Calls (Prefix)**:
-```nano
-# Function calls use prefix notation
-(add 2 3)
-(str_length "hello")
-(array_length my_array)
-```
-
-**Control Flow**:
-```nano
-# If/else (both branches required)
-if (> x 0) {
-    return 1
-} else {
-    return 0
-}
-
-# While loop
-let mut i: int = 0
-while (< i 10) {
-    set i (+ i 1)
-}
-
-# For loop
-for i in (range 0 10) {
-    print i
-}
-```
-
-**Variable Mutability**:
-```nano
-# Immutable by default
-let x: int = 10
-# set x 20  # ERROR: x is immutable
-
-# Mutable with 'mut' keyword
-let mut y: int = 10
-set y 20  # OK: y is mutable
-```
-
-#### Common Mistakes to Avoid:
-
-❌ **Infix notation** (WRONG):
-```nano
-let sum: int = a + b
-if (x > 0 && y < 10) { ... }
-```
-
-✅ **Prefix notation** (CORRECT):
-```nano
-let sum: int = (+ a b)
-if (and (> x 0) (< y 10)) { ... }
-```
-
-❌ **Missing type annotation** (WRONG):
-```nano
-let x = 42
-```
-
-✅ **Explicit type** (CORRECT):
-```nano
-let x: int = 42
-```
-
-❌ **Missing shadow-test** (WRONG):
-```nano
-fn double(x: int) -> int {
-    return (* x 2)
-}
-```
-
-✅ **With shadow-test** (CORRECT):
-```nano
-fn double(x: int) -> int {
-    return (* x 2)
-}
-
-shadow double {
-    assert (== (double 5) 10)
-}
-```
-
-#### Reference Documentation:
-- **Quick syntax**: See `docs/QUICK_REFERENCE.md`
-- **Full specification**: See `docs/SPECIFICATION.md`
-- **Getting started**: See `docs/GETTING_STARTED.md`
-- **Examples**: See `examples/` directory
-
-### 2. Debugging Workflow: Interpreter First, Then Compile
-
-**ALWAYS debug with the interpreter before compiling.** The interpreter provides detailed error messages and tracing capabilities.
-
-#### Step 1: Write Code with Shadow-Tests
-
-```nano
-fn calculate_sum(numbers: array<int>) -> int {
-    let mut sum: int = 0
-    let mut i: int = 0
-    while (< i (array_length numbers)) {
-        let value: int = (at numbers i)
-        set sum (+ sum value)
-        set i (+ i 1)
-    }
-    return sum
-}
-
-shadow calculate_sum {
-    assert (== (calculate_sum [1, 2, 3]) 6)
-    assert (== (calculate_sum []) 0)
-}
-```
-
-#### Step 2: Run in Interpreter with Tracing
-
-**Basic execution**:
-```bash
-./bin/nano program.nano
-```
-
-**With tracing (for debugging)**:
-```bash
-# Trace everything
-./bin/nano program.nano --trace-all
-
-# Trace specific function
-./bin/nano program.nano --trace-function=calculate_sum
-
-# Trace specific variable
-./bin/nano program.nano --trace-var=sum
-
-# Trace everything inside a function's scope
-./bin/nano program.nano --trace-scope=main
-
-# Save trace output for analysis
-./bin/nano program.nano --trace-all > trace_output.txt
-```
-
-**Tracing Options**:
-- `--trace-all` or `--trace`: Trace everything (functions, variables, definitions)
-- `--trace-function=<name>`: Trace specific function calls
-- `--trace-var=<name>`: Trace specific variable operations
-- `--trace-scope=<name>`: Trace everything inside a function's scope
-- `--trace-regex=<pattern>`: Trace anything matching a regex pattern
-
-#### Step 3: Analyze Trace Output
-
-Trace output shows:
-- **FUNCTION_CALL**: When functions are called with arguments
-- **FUNCTION_DEF**: When functions are defined with signatures
-- **VAR_DECL**: When variables are declared with initial values
-- **VAR_SET**: When variables are assigned (shows old → new value)
-- **VAR_READ**: When variables are read
-
-Example trace output:
-```
-[TRACE] 2025-01-15T10:30:45 FUNCTION_CALL calculate_sum:19:13
-  function: "calculate_sum"
-  call_stack: ["main"]
-  arguments:
-    - name: "numbers", type: "array<int>", value: [1, 2, 3]
-
-[TRACE] 2025-01-15T10:30:45 VAR_DECL sum:20:5
-  variable: "sum"
-  type: "int"
-  mutable: true
-  initial_value: 0
-  scope: "calculate_sum"
-
-[TRACE] 2025-01-15T10:30:45 VAR_SET sum:24:9
-  variable: "sum"
-  old_value: 0
-  new_value: 1
-  scope: "calculate_sum"
-```
-
-**Use trace output to**:
-- Verify function arguments are correct
-- Check variable values at each step
-- Understand control flow and call stack
-- Identify where bugs occur
-- Verify program behavior matches expectations
-
-#### Step 4: Fix Issues Based on Trace Output
-
-If trace output shows unexpected behavior:
-1. Identify the first point where values diverge from expected
-2. Check variable assignments leading up to that point
-3. Verify function arguments and return values
-4. Fix the code and re-run with tracing
-
-#### Step 5: Compile Only After Interpreter Passes
-
-Once the interpreter runs successfully and trace output looks correct:
+Before committing parser changes:
 
 ```bash
-# Compile to C and then to binary
-./bin/nanoc program.nano -o program
+# Must succeed with zero errors
+./bin/nanoc src_nano/parser_mvp.nano
 
-# Or compile and keep C code for inspection
-./bin/nanoc program.nano -o program --keep-c
+# Must show PASSED
+./tests/run_all_tests.sh | grep "All runnable tests passed"
 ```
 
-**Why this workflow?**
-- Interpreter provides immediate feedback
-- Tracing shows exact runtime behavior
-- Shadow-tests run automatically during compilation
-- Compiler is for production builds, not debugging
+## Test Requirements
 
-#### Reference Documentation:
-- **Tracing guide**: See `docs/TRACING_IMPLEMENTATION.md`
-- **Interpreter usage**: See `docs/GETTING_STARTED.md`
+### All Code Changes Must:
 
-### 3. Shadow-Test Methodology
+- ✅ Pass compilation (zero errors)
+- ✅ Pass all existing tests
+- ✅ Not break self-hosting
+- ✅ Include tests for new features
+- ✅ Update documentation
 
-**Every function MUST have a shadow-test.** Shadow-tests run at compile time and ensure correctness.
+### Running Tests
 
-#### Shadow-Test Syntax
-
-```nano
-fn function_name(params) -> return_type {
-    # implementation
-}
-
-shadow function_name {
-    # test assertions using assert
-    assert (== (function_name arg1 arg2) expected_result)
-    assert (== (function_name edge_case) expected_result)
-}
-```
-
-#### Writing Effective Shadow-Tests
-
-**1. Test Normal Cases**:
-```nano
-fn add(a: int, b: int) -> int {
-    return (+ a b)
-}
-
-shadow add {
-    assert (== (add 2 3) 5)
-    assert (== (add 0 0) 0)
-    assert (== (add -1 1) 0)
-}
-```
-
-**2. Test Edge Cases**:
-```nano
-fn max(a: int, b: int) -> int {
-    if (> a b) {
-        return a
-    } else {
-        return b
-    }
-}
-
-shadow max {
-    assert (== (max 5 3) 5)      # Normal case
-    assert (== (max 3 5) 5)      # Reversed arguments
-    assert (== (max 5 5) 5)      # Equal values
-    assert (== (max -5 -3) -3)   # Negative numbers
-    assert (== (max 0 -1) 0)     # Zero and negative
-}
-```
-
-**3. Test Boolean Functions**:
-```nano
-fn is_even(n: int) -> bool {
-    return (== (% n 2) 0)
-}
-
-shadow is_even {
-    assert (== (is_even 4) true)
-    assert (== (is_even 5) false)
-    assert (== (is_even 0) true)
-    assert (== (is_even -2) true)
-}
-```
-
-**4. Test Array Functions**:
-```nano
-fn sum_array(arr: array<int>) -> int {
-    let mut sum: int = 0
-    let mut i: int = 0
-    while (< i (array_length arr)) {
-        set sum (+ sum (at arr i))
-        set i (+ i 1)
-    }
-    return sum
-}
-
-shadow sum_array {
-    assert (== (sum_array [1, 2, 3]) 6)
-    assert (== (sum_array []) 0)
-    assert (== (sum_array [42]) 42)
-    assert (== (sum_array [-1, 0, 1]) 0)
-}
-```
-
-**5. Test String Functions**:
-```nano
-fn reverse_string(s: string) -> string {
-    let mut result: string = ""
-    let mut i: int = (- (str_length s) 1)
-    while (>= i 0) {
-        let char_code: int = (char_at s i)
-        set result (str_concat result (string_from_char char_code))
-        set i (- i 1)
-    }
-    return result
-}
-
-shadow reverse_string {
-    assert (== (reverse_string "hello") "olleh")
-    assert (== (reverse_string "a") "a")
-    assert (== (reverse_string "") "")
-}
-```
-
-**6. Test Main Function**:
-```nano
-fn main() -> int {
-    (println "Hello, World!")
-    return 0
-}
-
-shadow main {
-    assert (== (main) 0)
-}
-```
-
-#### Shadow-Test Best Practices
-
-1. **Cover normal cases**: Test typical usage patterns
-2. **Cover edge cases**: Test boundaries, empty inputs, zero, negatives
-3. **Test return values**: Use `assert` with `==` to verify results
-4. **Test multiple scenarios**: Include 3-5 test cases per function
-5. **Document behavior**: Tests serve as documentation
-6. **Test error conditions**: If function handles errors, test those paths
-
-#### Shadow-Test Rules
-
-- **Mandatory**: Every function must have a shadow-test
-- **Compile-time**: Tests run during compilation, not at runtime
-- **Fail-fast**: Failed test = failed compilation
-- **No overhead**: Tests are stripped from production builds
-- **Self-documenting**: Tests show how functions should be used
-
-#### Reference Documentation:
-- **Shadow-test guide**: See `docs/SHADOW_TESTS.md`
-- **Examples**: See `examples/` directory for real shadow-test examples
-
-### 4. Complete Workflow Example
-
-**Step 1: Write function with shadow-test**
-```nano
-fn factorial(n: int) -> int {
-    if (<= n 1) {
-        return 1
-    } else {
-        return (* n (factorial (- n 1)))
-    }
-}
-
-shadow factorial {
-    assert (== (factorial 0) 1)
-    assert (== (factorial 1) 1)
-    assert (== (factorial 5) 120)
-    assert (== (factorial 10) 3628800)
-}
-```
-
-**Step 2: Debug with interpreter and tracing**
 ```bash
-# Run with tracing to see execution
-./bin/nano program.nano --trace-function=factorial
+# Quick check
+./bin/nanoc src_nano/parser_mvp.nano
 
-# Check trace output to verify:
-# - Function is called with correct arguments
-# - Recursive calls happen correctly
-# - Return values are correct
+# Full test suite
+./tests/run_all_tests.sh
+
+# Examples
+make examples
 ```
 
-**Step 3: Fix any issues found in trace output**
+### Test Coverage Standards
 
-**Step 4: Compile once interpreter passes**
+- **Unit tests:** Must pass 100%
+- **Integration tests:** Must pass 100%
+- **Shadow tests:** Must pass 100%
+- **Self-hosting:** Must validate 100%
+
+## Code Quality Standards
+
+### Parser Changes
+
+1. **Never break existing functionality**
+2. **Always add shadow tests for new functions**
+3. **Keep architecture consistent**
+4. **Document complex logic**
+
+### Commit Requirements
+
+Before committing:
+- [ ] Code compiles
+- [ ] Tests pass
+- [ ] Self-hosting works
+- [ ] Documentation updated
+
+### CI/CD Philosophy
+
+This project follows **"Always Green"** methodology:
+- Main branch: Always passing tests
+- Feature branches: Must pass before merge
+- No exceptions for "will fix later"
+
+## Architecture Principles
+
+### Parser Architecture
+
+The self-hosted parser has:
+- **31 node types** (complete)
+- **29 AST structs** (complete)
+- **67 Parser fields** (complete)
+- **22+ parsing functions** (production-ready)
+
+### Adding New Node Types
+
+1. Add to `ParseNodeType` enum
+2. Create AST struct definition
+3. Add list field to Parser struct
+4. Add count field to Parser struct
+5. Initialize in `parser_init_ast_lists`
+6. Initialize in `parser_new`
+7. Create `parser_store_*` function (copy pattern from existing)
+8. Add parsing logic to appropriate `parse_*` function
+9. **Test immediately**
+
+### Code Patterns
+
+Follow existing patterns:
+- Use functional style (return new Parser)
+- No mutations except with `mut` keyword
+- Consistent error handling
+- Shadow tests for validation
+
+## Documentation Standards
+
+### Required Documentation
+
+When making changes:
+- Update `REMAINING_WORK.md` if applicable
+- Update completion percentages
+- Document new features in markdown
+- Update `IMPLEMENTATION_GUIDE.md` if adding complex features
+
+### Code Comments
+
+- Document WHY, not WHAT
+- Complex algorithms need explanation
+- Edge cases should be noted
+- TODOs must have tracking
+
+## Git Workflow
+
+### Branch Names
+- `feat/*` - New features
+- `fix/*` - Bug fixes
+- `docs/*` - Documentation only
+- `test/*` - Test additions
+
+### Commit Messages
+
+Format:
+```
+type: Brief description
+
+Detailed explanation if needed
+
+- Changes made
+- Tests: status
+- Self-hosting: status
+```
+
+Types: `feat`, `fix`, `docs`, `test`, `refactor`, `perf`
+
+### Pre-Commit Checklist
+
 ```bash
-./bin/nanoc program.nano -o program
+# 1. Compile check
+./bin/nanoc src_nano/parser_mvp.nano || exit 1
+
+# 2. Test check  
+./tests/run_all_tests.sh || exit 1
+
+# 3. Self-hosting check
+./bin/nanoc src_nano/lexer_complete.nano || exit 1
 ```
 
-**Step 5: Run compiled binary**
-```bash
-./program
-```
+## Performance Standards
 
-### 5. Quick Reference for LLMs
+### Parser Performance
 
-**When generating nanolang code, remember**:
+- Must compile itself in < 10 seconds
+- No memory leaks
+- Reasonable file size (< 5000 lines preferred)
+- Clean compilation (no warnings)
 
-1. ✅ **Use prefix notation** for all operations: `(+ a b)`, `(== x 5)`, `(and p q)`
-2. ✅ **Explicit types** required: `let x: int = 42`
-3. ✅ **Shadow-tests** required for every function
-4. ✅ **Debug with interpreter** first: `./bin/nano program.nano --trace-all`
-5. ✅ **Compile second**: `./bin/nanoc program.nano -o program`
-6. ✅ **Use `mut`** for mutable variables: `let mut x: int = 0`
-7. ✅ **Both branches** required for `if/else`
-8. ✅ **Function calls** use prefix: `(function_name arg1 arg2)`
+## Error Handling
 
-**Common stdlib functions**:
-- `(print value)` - Print without newline
-- `(println value)` - Print with newline
-- `(str_length s)` - String length
-- `(str_concat s1 s2)` - Concatenate strings
-- `(array_length arr)` - Array length
-- `(at arr index)` - Get array element
-- `(abs x)` - Absolute value
-- `(min a b)` - Minimum of two values
-- `(max a b)` - Maximum of two values
+### Parser Errors
 
-**See `docs/STDLIB.md` for complete standard library reference.**
+- Use `parser_with_error` for syntax errors
+- Include line/column information
+- Provide clear error messages
+- Never silently fail
 
----
+## Future-Proofing
 
-## Language Evolution and Self-Hosting Requirements
+### When at 100% Completion
 
-### Language Feature Documentation Requirements
+Once parser reaches 100% feature coverage:
 
-**All changes to the language feature set or syntax MUST be documented in BOTH:**
+1. **Lock Feature Parity:**  
+   Any C parser feature MUST have self-hosted equivalent
 
-1. **User-facing documentation** (`docs/`)
-   - Update relevant guides (`SPECIFICATION.md`, `QUICK_REFERENCE.md`, `GETTING_STARTED.md`)
-   - Add examples demonstrating the new feature
-   - Update `docs/DOCS_INDEX.md` to reflect changes
-   - If a feature is deprecated, remove or clearly mark it as deprecated
+2. **Test Coverage:**  
+   New features MUST include tests
 
-2. **LLM-readable language specification** (`docs/SPECIFICATION.md`)
-   - This specification is used for:
-     - Language validation by AI assistants
-     - Self-hosting bootstrap process
-     - Ensuring C implementation and nanolang-in-nanolang stay synchronized
+3. **Documentation:**  
+   Feature docs MUST be complete before merge
 
-**Why this matters:**
-- The self-hosted nanolang compiler (nanolang-in-nanolang) must track all lexer, parser, and runtime changes
-- The bootstrap process requires both implementations (C and nanolang) to track one another
-- Without synchronized documentation, the self-hosting effort will fail
+4. **Green Status:**  
+   NO commits that break tests, ever
 
-### File Structure Enforcement
+## Emergency Procedures
 
-These rules ensure consistency and maintainability across the entire codebase.
+### If Tests Break
 
-#### 1. Unit Tests (`tests/`)
+1. **DO NOT** commit broken code
+2. **DO NOT** merge to main
+3. Fix immediately or revert
+4. Investigate root cause
+5. Add tests to prevent recurrence
 
-**All unit tests MUST live in `tests/`.**
+### If Self-Hosting Breaks
 
-- **Every language feature MUST have a unit test**
-- Unit tests validate that features work as documented
-- When a feature changes, update the corresponding test
-- When a feature is removed, delete or modify its test
+**CRITICAL:** This is a blocker. Must fix before any other work.
 
-**Test organization:**
-```
-tests/
-├── unit/              # Feature-specific tests
-├── integration/       # Multi-feature tests
-├── negative/          # Tests that should fail
-├── regression/        # Bug fix tests
-├── performance/       # Performance benchmarks
-└── warnings/          # Warning condition tests
-```
+1. Identify which feature broke it
+2. Check if parser uses that feature
+3. Fix or revert immediately
+4. Add test to catch this pattern
 
-**Enforcement:**
-- Before adding a language feature, add its test
-- Before removing a language feature, remove/update its test
-- All tests must pass before committing
+## Success Metrics
 
-#### 2. Examples (`examples/`)
+### Green Status Indicators
 
-**All examples MUST live in `examples/` and be fully functional.**
+- ✅ All tests passing
+- ✅ Self-hosting works
+- ✅ Zero compilation errors
+- ✅ Zero warnings
+- ✅ Examples build
+- ✅ Documentation current
 
-- **Every example MUST be buildable and runnable from the top-level Makefile**
-- Examples serve as living documentation
-- All paths and environment variables must be set correctly
-- Users should be able to build all examples with `make examples`
-- Users should be able to run any example by name: `make run-example EXAMPLE=filename`
+### Quality Metrics
 
-**Requirements for examples:**
-- Must demonstrate real, practical use cases
-- Must follow current language best practices
-- Must include shadow-tests where appropriate
-- Must use the latest, most powerful language features
-- Must not demonstrate deprecated features
-- **Must compile (or interpret) without warnings or errors**
-  - Transpiled examples: `nanoc example.nano -o output` must produce no warnings
-  - Interpreter examples: `nano example.nano` must run without warnings
-  - Zero tolerance for compilation/interpretation warnings in examples
-  - Examples are living documentation and must represent clean, idiomatic code
+- Test pass rate: 100%
+- Coverage: >95%
+- Self-hosting: Validated
+- Performance: < 10s compile time
 
-**Enforcement:**
-- Test all examples can be built: `make examples`
-- Test example can be run: `make run-example EXAMPLE=name`
-- Verify zero warnings during compilation/interpretation
-- Remove retired/obsolete examples immediately
-- When new features are added, audit examples for improvements
+## Remember
 
-#### 3. User-Facing Documentation (`docs/`)
+**"Always Green" means ALWAYS GREEN.**
 
-**All user-facing documentation MUST live in `docs/`.**
+No exceptions. No "temporary breaks". No "will fix tomorrow".
 
-**After any significant language change:**
-1. **Audit ALL documentation files** for obsolete content
-2. **Review for clarity** - does it reflect current best practices?
-3. **Remove deprecated features** - documentation should only show current, recommended approaches
-4. **Update cross-references** - ensure all links between docs are valid
-5. **Update `docs/DOCS_INDEX.md`** - reflect all changes
+If it breaks tests, it doesn't get committed.  
+If it breaks self-hosting, it's a critical bug.  
+If examples fail, it's blocking.
 
-**What triggers a documentation audit:**
-- New language feature added
-- Syntax change
-- Feature deprecated or removed
-- Standard library changes
-- Runtime behavior changes
-- Breaking changes
-
-**Documentation must include:**
-- Clear examples using current syntax
-- Best practices guidance
-- Migration guide if features are deprecated
-- Links to related documentation
-
-#### 4. Test Maintenance
-
-**Tests MUST track language features.**
-
-When a language feature changes:
-- **Add tests** for new features
-- **Update tests** for modified features
-- **Remove tests** for retired features that are no longer relevant
-- **Modify tests** if the feature is replaced by something better
-
-**Test retirement criteria:**
-- Feature is completely removed from the language
-- Feature has been entirely subsumed by another feature
-- Test no longer validates anything useful
-
-**Do NOT:**
-- Keep tests for deprecated features
-- Keep tests that test obsolete syntax
-- Keep tests that no longer compile
-
-#### 5. Example Retirement
-
-**Retired examples MUST be removed.**
-
-An example is "retired" when:
-- It demonstrates a feature that is obsolete
-- It demonstrates a feature that has been entirely subsumed by another, more powerful feature
-- It uses deprecated syntax or patterns
-- It no longer follows language best practices
-
-**When retiring examples:**
-1. Check if the example is referenced in documentation
-2. Update or remove those references
-3. Delete the example file
-4. Update the Makefile to remove build/run rules
-5. Consider if a replacement example is needed
-
-#### 6. Example Improvement Audits
-
-**New, more powerful language features should trigger an audit of ALL existing examples.**
-
-When a significant new feature is added:
-1. **Review all examples** in `examples/`
-2. **Identify opportunities** to make examples more concise
-3. **Leverage new features** to demonstrate best practices
-4. **Update examples** to use the most elegant solutions
-5. **Ensure examples** showcase the language's strengths
-
-**Goals of improvement audits:**
-- Keep examples modern and idiomatic
-- Demonstrate the language's evolution
-- Show users the best way to solve problems
-- Make examples as concise and clear as possible
-
-#### 7. Planning Files (`planning/`)
-
-**All AI planning files MUST be in `planning/`, not the top level.**
-
-**When starting a new session:**
-1. **Search the `planning/` directory** for in-progress tasks
-2. **Review any active planning documents** before starting new work
-3. **Check for TODO items** that need completion
-
-**Planning document lifecycle:**
-1. Create planning doc in `planning/`
-2. Work through implementation
-3. Check off TODOs as completed
-4. **DELETE the planning file** when fully implemented
-5. Move any permanent documentation to `docs/`
-
-**Planning document categories:**
-- Implementation plans (e.g., `*_IMPLEMENTATION_PLAN.md`)
-- Design documents (e.g., `*_DESIGN.md`)
-- Proposals (e.g., `*_PROPOSAL.md`)
-- Roadmaps (e.g., `*_ROADMAP.md`)
-
-**Enforcement:**
-- Completed planning docs MUST be deleted
-- Do NOT keep "COMPLETE" versions in `planning/`
-- Move useful insights to permanent docs
-- Keep `planning/` directory clean and current
-
-### Summary Checklist
-
-Before committing changes, verify:
-
-**Language Changes:**
-- [ ] User-facing docs updated (`docs/`)
-- [ ] LLM-readable spec updated (`docs/SPECIFICATION.md`)
-- [ ] Changes documented for self-hosting bootstrap
-
-**Tests:**
-- [ ] Unit tests added for new features
-- [ ] Tests updated for modified features
-- [ ] Tests removed for retired features
-- [ ] All tests pass
-
-**Examples:**
-- [ ] Examples buildable from Makefile
-- [ ] Examples runnable from Makefile
-- [ ] Retired examples removed
-- [ ] Examples audited for improvements (if applicable)
-
-**Documentation:**
-- [ ] All docs audited for obsolete content
-- [ ] Deprecated features removed from docs
-- [ ] `docs/DOCS_INDEX.md` updated
-- [ ] Cross-references validated
-
-**Planning:**
-- [ ] Completed planning docs deleted
-- [ ] Active planning docs in `planning/`
-- [ ] Planning directory searched at session start
-
+Keep nanolang green! 🟢
