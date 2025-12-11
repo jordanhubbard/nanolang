@@ -1449,6 +1449,113 @@ shadow parser_store_call {
     assert (== 1 1)
 }
 
+/* Parse union construction: UnionName.Variant{field: value} */
+fn parse_union_construct(p: Parser, union_name: string, variant_name: string, start_line: int, start_column: int) -> Parser {
+    /* p should be positioned after { */
+    let mut field_count: int = 0
+    /* Simplified: just expect } for MVP */
+    let tok: LexToken = (parser_current p)
+    if (== tok.token_type (token_rbrace)) {
+        let p1: Parser = (parser_advance p)
+        return (parser_store_union_construct p1 union_name variant_name field_count start_line start_column)
+    } else {
+        /* TODO: Parse actual fields */
+        return (parser_with_error p true)
+    }
+}
+
+/* Parse struct literal: StructName{field1: val1, field2: val2} */
+fn parse_struct_literal(p: Parser, struct_name: string, start_line: int, start_column: int) -> Parser {
+    /* p should be positioned after the { */
+    let mut field_count: int = 0
+    let mut pcur: Parser = p
+    
+    /* Parse fields */
+    while (not (parser_is_at_end pcur)) {
+        let tcur: LexToken = (parser_current pcur)
+        if (== tcur.token_type (token_rbrace)) {
+            /* End of struct literal */
+            let p_final: Parser = (parser_advance pcur)
+            return (parser_store_struct_literal p_final struct_name field_count start_line start_column)
+        } else {
+            /* Expect field name */
+            if (== tcur.token_type (token_identifier)) {
+                let p1: Parser = (parser_advance pcur)  /* consume field name */
+                
+                /* Expect colon */
+                if (parser_is_at_end p1) {
+                    return (parser_with_error p1 true)
+                } else {
+                    let t2: LexToken = (parser_current p1)
+                    if (== t2.token_type (token_colon)) {
+                        let p2: Parser = (parser_advance p1)  /* consume colon */
+                        
+                        /* Parse field value expression */
+                        let p3: Parser = (parse_expression p2)
+                        if (parser_has_error p3) {
+                            return p3
+                        } else {
+                            set field_count (+ field_count 1)
+                            set pcur p3
+                            
+                            /* Check for comma or rbrace */
+                            let tnext: LexToken = (parser_current pcur)
+                            if (== tnext.token_type (token_comma)) {
+                                set pcur (parser_advance pcur)
+                            } else {
+                                if (== tnext.token_type (token_rbrace)) {
+                                    let p_final: Parser = (parser_advance pcur)
+                                    return (parser_store_struct_literal p_final struct_name field_count start_line start_column)
+                                } else {
+                                    return (parser_with_error pcur true)
+                                }
+                            }
+                        }
+                    } else {
+                        return (parser_with_error p1 true)
+                    }
+                }
+            } else {
+                return (parser_with_error pcur true)
+            }
+        }
+    }
+    return (parser_with_error pcur true)
+}
+
+/* Parse match expression: match expr { pattern => body, ... } */
+fn parse_match(p: Parser) -> Parser {
+    let tok: LexToken = (parser_current p)
+    let p1: Parser = (parser_advance p)  /* consume 'match' */
+    
+    /* Parse matched expression */
+    let p2: Parser = (parse_expression p1)
+    if (parser_has_error p2) {
+        return p2
+    } else {
+        let matched_expr_id: int = p2.last_expr_node_id
+        
+        /* Expect lbrace */
+        let tok3: LexToken = (parser_current p2)
+        if (== tok3.token_type (token_lbrace)) {
+            let p3: Parser = (parser_advance p2)  /* consume { */
+            
+            /* Parse match arms - simplified for MVP */
+            /* For now, just expect rbrace */
+            let tok4: LexToken = (parser_current p3)
+            if (== tok4.token_type (token_rbrace)) {
+                let p4: Parser = (parser_advance p3)
+                return (parser_store_match p4 matched_expr_id 0 tok.line tok.column)
+            } else {
+                /* TODO: Parse actual match arms */
+                return (parser_with_error p3 true)
+            }
+        } else {
+            return (parser_with_error p2 true)
+        }
+    }
+}
+
 /* Parse primary expression: number, identifier, string, bool, or parenthesized */
 fn parse_primary(p: Parser) -> Parser {
     if (parser_is_at_end p) {
@@ -1498,6 +1605,8 @@ fn parse_primary(p: Parser) -> Parser {
             return (parser_with_error pcur true)
         } else {
             if (== tok.token_type (token_number)) {
+            /* Check for float (contains decimal point) - simplified check */
+            /* For MVP: treat all as numbers, floats need string contains "." */
             let p1: Parser = (parser_store_number p tok.value tok.line tok.column)
             return (parser_advance p1)
         } else {
