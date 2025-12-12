@@ -591,14 +591,6 @@ void module_builder_free(ModuleBuilder *builder) {
 }
 
 ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), ModuleBuildMetadata *meta) {
-    // Install system package dependencies BEFORE trying to build
-    if (meta && (meta->apt_packages_count > 0 || meta->dnf_packages_count > 0 || meta->brew_packages_count > 0)) {
-        if (!install_system_packages(meta)) {
-            fprintf(stderr, "[Module] Warning: Some system packages failed to install for '%s'\n", meta->name);
-            fprintf(stderr, "[Module] Continuing anyway - build may fail if dependencies are missing\n");
-        }
-    }
-    
     if (!meta || meta->c_sources_count == 0) {
         // No C sources = nothing to build, but still need link/compile flags
         ModuleBuildInfo *info = calloc(1, sizeof(ModuleBuildInfo));
@@ -687,6 +679,14 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
     if (needs_rebuild) {
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
             printf("[Module] Building %s...\n", meta->name);
+        }
+
+        // Install system package dependencies (only when rebuilding)
+        if (meta->apt_packages_count > 0 || meta->dnf_packages_count > 0 || meta->brew_packages_count > 0) {
+            if (!install_system_packages(meta)) {
+                fprintf(stderr, "[Module] Warning: Some system packages failed to install for '%s'\n", meta->name);
+                fprintf(stderr, "[Module] Continuing anyway - build may fail if dependencies are missing\n");
+            }
         }
 
         // Build compile command
