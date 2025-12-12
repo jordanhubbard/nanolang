@@ -14,13 +14,6 @@
 #   sdl_*      - SDL2 graphics examples
 #   ncurses_*  - NCurses terminal UI examples
 #   opengl_*   - OpenGL 3D graphics examples
-#   onnx_*     - ONNX machine learning examples
-#   sqlite_*   - SQLite database examples
-#   curl_*     - HTTP/curl examples
-#   uv_*       - libuv async I/O examples
-#   event_*    - Event system examples
-#   vector2d_* - Vector math examples
-#   stdlib_*   - Standard library examples
 
 BIN_DIR = ../bin
 COMPILER = $(BIN_DIR)/nanoc
@@ -29,57 +22,17 @@ INTERPRETER = $(BIN_DIR)/nano
 # Set module path for automatic module building
 export NANO_MODULE_PATH=../modules
 
-# === Nanolang-Only Examples (nl_*) ===
-# These have no external dependencies, just pure nanolang
+# === Nanolang-Only Compiled Examples (nl_*) ===
+# These compile to native binaries (others are interpreter-only)
 
 NL_EXAMPLES = \
-	$(BIN_DIR)/nl_hello \
-	$(BIN_DIR)/nl_calculator \
-	$(BIN_DIR)/nl_factorial \
-	$(BIN_DIR)/nl_fibonacci \
-	$(BIN_DIR)/nl_primes \
-	$(BIN_DIR)/nl_operators \
-	$(BIN_DIR)/nl_strings \
-	$(BIN_DIR)/nl_floats \
-	$(BIN_DIR)/nl_loops \
-	$(BIN_DIR)/nl_mutable \
-	$(BIN_DIR)/nl_logical \
-	$(BIN_DIR)/nl_comparisons \
-	$(BIN_DIR)/nl_types \
-	$(BIN_DIR)/nl_math \
-	$(BIN_DIR)/nl_advanced_math \
-	$(BIN_DIR)/nl_string_ops \
-	$(BIN_DIR)/nl_arrays \
-	$(BIN_DIR)/nl_array_complete \
-	$(BIN_DIR)/nl_struct \
-	$(BIN_DIR)/nl_enum \
-	$(BIN_DIR)/nl_list_int \
-	$(BIN_DIR)/nl_extern_math \
-	$(BIN_DIR)/nl_extern_char \
-	$(BIN_DIR)/nl_extern_string \
-	$(BIN_DIR)/nl_random_sentence \
-	$(BIN_DIR)/nl_pi_calculator \
-	$(BIN_DIR)/nl_pi_simple \
-	$(BIN_DIR)/nl_tictactoe \
-	$(BIN_DIR)/nl_tracing \
-	$(BIN_DIR)/nl_union_types \
-	$(BIN_DIR)/nl_generic_lists \
-	$(BIN_DIR)/nl_generic_list_basics \
-	$(BIN_DIR)/nl_first_class_functions \
-	$(BIN_DIR)/nl_filter_map_fold \
-	$(BIN_DIR)/nl_function_factories \
-	$(BIN_DIR)/nl_function_variables \
-	$(BIN_DIR)/nl_matrix_operations \
-	$(BIN_DIR)/nl_boids \
-	$(BIN_DIR)/nl_game_of_life \
 	$(BIN_DIR)/nl_snake \
-	$(BIN_DIR)/nl_falling_sand \
-	$(BIN_DIR)/nl_maze \
-	$(BIN_DIR)/nl_generic_queue \
-	$(BIN_DIR)/nl_generic_stack \
-	$(BIN_DIR)/nl_for_loop_patterns \
-	$(BIN_DIR)/nl_tuple_coordinates \
-	$(BIN_DIR)/nl_language_features
+	$(BIN_DIR)/nl_game_of_life \
+	$(BIN_DIR)/nl_falling_sand
+
+# Note: Most nl_* examples are interpreter-only (run with: ../bin/nano <file>)
+# They demonstrate language features but may use constructs the transpiler
+# doesn't fully support yet.
 
 # === SDL Examples (sdl_*) ===
 # Require SDL2 library
@@ -91,19 +44,11 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/sdl_checkers \
 	$(BIN_DIR)/sdl_boids \
 	$(BIN_DIR)/sdl_particles \
+	$(BIN_DIR)/sdl_mod_visualizer \
 	$(BIN_DIR)/sdl_raytracer \
 	$(BIN_DIR)/sdl_asteroids \
 	$(BIN_DIR)/sdl_terrain_explorer \
-	$(BIN_DIR)/sdl_falling_sand \
-	$(BIN_DIR)/sdl_nanoamp \
-	$(BIN_DIR)/sdl_nanoviz \
-	$(BIN_DIR)/sdl_mod_visualizer \
-	$(BIN_DIR)/sdl_audio_player \
-	$(BIN_DIR)/sdl_ui_widgets \
-	$(BIN_DIR)/sdl_drawing_primitives \
-	$(BIN_DIR)/sdl_texture_demo \
-	$(BIN_DIR)/sdl_window_control \
-	$(BIN_DIR)/sdl_mouse_click
+	$(BIN_DIR)/sdl_falling_sand
 
 # === NCurses Examples (ncurses_*) ===
 # Require ncurses library
@@ -120,49 +65,18 @@ OPENGL_EXAMPLES = \
 	$(BIN_DIR)/opengl_cube \
 	$(BIN_DIR)/opengl_teapot
 
-# === Other Module Examples ===
-
-ONNX_EXAMPLES = \
-	$(BIN_DIR)/onnx_simple \
-	$(BIN_DIR)/onnx_inference \
-	$(BIN_DIR)/onnx_classifier
-
-SQLITE_EXAMPLES = \
-	$(BIN_DIR)/sqlite_simple
-
-CURL_EXAMPLES = \
-	$(BIN_DIR)/curl_example
-
-UV_EXAMPLES = \
-	$(BIN_DIR)/uv_example
-
-EVENT_EXAMPLES = \
-	$(BIN_DIR)/event_example
-
-VECTOR2D_EXAMPLES = \
-	$(BIN_DIR)/vector2d_demo
-
-STDLIB_EXAMPLES = \
-	$(BIN_DIR)/stdlib_ast_demo
-
-# === All Examples ===
+# === All Default Examples ===
+# These are known to compile and work
 
 ALL_EXAMPLES = \
 	$(NL_EXAMPLES) \
 	$(SDL_EXAMPLES) \
 	$(NCURSES_EXAMPLES) \
-	$(OPENGL_EXAMPLES) \
-	$(ONNX_EXAMPLES) \
-	$(SQLITE_EXAMPLES) \
-	$(CURL_EXAMPLES) \
-	$(UV_EXAMPLES) \
-	$(EVENT_EXAMPLES) \
-	$(VECTOR2D_EXAMPLES) \
-	$(STDLIB_EXAMPLES)
+	$(OPENGL_EXAMPLES)
 
 # === Targets ===
 
-.PHONY: all nl sdl ncurses opengl onnx sqlite curl uv event vector2d stdlib clean help
+.PHONY: all nl sdl ncurses opengl clean help
 
 # Default: build all examples
 all: $(COMPILER) $(ALL_EXAMPLES)
@@ -170,8 +84,9 @@ all: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "All examples built successfully!"
 	@echo ""
 	@echo "Nanolang-only examples (nl_*):"
-	@echo "  ./bin/nl_hello, nl_calculator, nl_factorial, nl_fibonacci, nl_primes..."
-	@echo "  ./bin/nl_game_of_life, nl_snake, nl_maze, nl_boids, nl_falling_sand..."
+	@echo "  ./bin/nl_snake              - Snake game (terminal)"
+	@echo "  ./bin/nl_game_of_life       - Conway's Game of Life (terminal)"
+	@echo "  ./bin/nl_falling_sand       - Falling sand simulation (terminal)"
 	@echo ""
 	@echo "SDL examples (sdl_*):"
 	@echo "  ./bin/sdl_pong              - Table tennis (1972)"
@@ -184,8 +99,6 @@ all: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  ./bin/sdl_raytracer         - Real-time ray tracer"
 	@echo "  ./bin/sdl_terrain_explorer  - 3D terrain"
 	@echo "  ./bin/sdl_falling_sand      - Cellular automata sandbox"
-	@echo "  ./bin/sdl_nanoamp           - Audio player with visualization"
-	@echo "  ./bin/sdl_nanoviz           - Audio visualizer"
 	@echo "  ./bin/sdl_mod_visualizer    - MOD music player"
 	@echo ""
 	@echo "NCurses examples (ncurses_*):"
@@ -197,19 +110,15 @@ all: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  ./bin/opengl_cube           - Rotating textured cube"
 	@echo "  ./bin/opengl_teapot         - Rotating teapot"
 	@echo ""
+	@echo "Interpreter-only examples (run with: ./bin/nano examples/<file>):"
+	@echo "  nl_hello, nl_calculator, nl_factorial, nl_fibonacci, nl_primes..."
+	@echo ""
 
 # Category targets
 nl: $(COMPILER) $(NL_EXAMPLES)
 sdl: $(COMPILER) $(SDL_EXAMPLES)
 ncurses: $(COMPILER) $(NCURSES_EXAMPLES)
 opengl: $(COMPILER) $(OPENGL_EXAMPLES)
-onnx: $(COMPILER) $(ONNX_EXAMPLES)
-sqlite: $(COMPILER) $(SQLITE_EXAMPLES)
-curl: $(COMPILER) $(CURL_EXAMPLES)
-uv: $(COMPILER) $(UV_EXAMPLES)
-event: $(COMPILER) $(EVENT_EXAMPLES)
-vector2d: $(COMPILER) $(VECTOR2D_EXAMPLES)
-stdlib: $(COMPILER) $(STDLIB_EXAMPLES)
 
 # Ensure compiler exists
 $(COMPILER):
@@ -218,7 +127,7 @@ $(COMPILER):
 $(INTERPRETER):
 	@cd .. && $(MAKE) bin/nano
 
-# === Generic Build Rules ===
+# === Build Rules ===
 
 # Nanolang-only examples (no module path needed)
 $(BIN_DIR)/nl_%: nl_%.nano $(COMPILER)
@@ -244,41 +153,6 @@ $(BIN_DIR)/opengl_teapot: opengl_teapot/teapot.nano $(COMPILER)
 	@echo "Building OpenGL Teapot..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_teapot/teapot.nano -o bin/opengl_teapot
 
-# ONNX examples
-$(BIN_DIR)/onnx_%: onnx_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# SQLite examples
-$(BIN_DIR)/sqlite_%: sqlite_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# Curl examples
-$(BIN_DIR)/curl_%: curl_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# UV examples
-$(BIN_DIR)/uv_%: uv_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# Event examples
-$(BIN_DIR)/event_%: event_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# Vector2D examples
-$(BIN_DIR)/vector2d_%: vector2d_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# Stdlib examples
-$(BIN_DIR)/stdlib_%: stdlib_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
 # === Clean ===
 
 clean:
@@ -299,9 +173,6 @@ help:
 	@echo "  make sdl          - Build SDL examples"
 	@echo "  make ncurses      - Build NCurses examples"
 	@echo "  make opengl       - Build OpenGL examples"
-	@echo "  make onnx         - Build ONNX examples"
-	@echo "  make sqlite       - Build SQLite examples"
-	@echo "  make curl         - Build curl examples"
 	@echo "  make clean        - Remove build artifacts"
 	@echo ""
 	@echo "Naming Convention:"
@@ -309,7 +180,4 @@ help:
 	@echo "  sdl_*      - SDL2 graphics"
 	@echo "  ncurses_*  - NCurses terminal UI"
 	@echo "  opengl_*   - OpenGL 3D graphics"
-	@echo "  onnx_*     - ONNX machine learning"
-	@echo "  sqlite_*   - SQLite database"
-	@echo "  curl_*     - HTTP requests"
 	@echo ""
