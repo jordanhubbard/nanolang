@@ -11,6 +11,15 @@
 #   let files: array<string> = (nl_fs_list_files "examples/audio" ".mp3")
 extern fn nl_fs_list_files(path: string, extension: string) -> array<string>
 
+# List directories in a directory
+# Returns array of directory names (relative to directory)
+# Parameters:
+#   path: directory path to list
+#
+# Usage:
+#   let dirs: array<string> = (nl_fs_list_dirs "/Users/user/Music")
+extern fn nl_fs_list_dirs(path: string) -> array<string>
+
 # Check if a path is a directory
 # Returns: 1 if directory, 0 otherwise
 extern fn nl_fs_is_directory(path: string) -> int

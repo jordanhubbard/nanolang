@@ -1,0 +1,24 @@
+# Preferences Module - Save/Load Application Preferences
+# Provides simple key-value preference storage using files
+
+# Save playlist to preferences file
+# Returns: 1 on success, 0 on failure
+# Parameters:
+#   filename: preference file path (e.g., ~/.nanoamp_prefs)
+#   items: array of strings to save
+#   count: number of items
+extern fn nl_prefs_save_playlist(filename: string, items: array<string>, count: int) -> int
+
+# Load playlist from preferences file
+# Returns: array of strings, or empty array if file doesn't exist
+extern fn nl_prefs_load_playlist(filename: string) -> array<string>
+
+# Get user's home directory
+# Returns: home directory path (e.g., /Users/username)
+extern fn nl_prefs_get_home() -> string
+
+# Build preference file path
+# Returns: full path to ~/.app_prefs
+# Parameters:
+#   app_name: application name (e.g., "nanoamp")
+extern fn nl_prefs_get_path(app_name: string) -> string

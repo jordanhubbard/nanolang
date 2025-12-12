@@ -18,6 +18,9 @@ typedef struct {
 // List files in directory with optional extension filter
 nl_array_t* nl_fs_list_files(const char* path, const char* extension);
 
+// List directories in directory
+nl_array_t* nl_fs_list_dirs(const char* path);
+
 // Check if path is a directory
 int64_t nl_fs_is_directory(const char* path);
 

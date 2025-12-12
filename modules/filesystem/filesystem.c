@@ -7,8 +7,8 @@
 #include <dirent.h>
 #include <unistd.h>
 
-// Helper: Create nanolang array
-static nl_array_t* create_array(int64_t initial_capacity) {
+// Helper: Create nanolang array for strings
+static nl_array_t* create_string_array(int64_t initial_capacity) {
     nl_array_t* arr = (nl_array_t*)malloc(sizeof(nl_array_t));
     if (!arr) return NULL;
     
@@ -27,7 +27,7 @@ static nl_array_t* create_array(int64_t initial_capacity) {
 }
 
 // Helper: Append string to array
-static void array_append(nl_array_t* arr, const char* str) {
+static void array_append_string(nl_array_t* arr, const char* str) {
     if (!arr || !str) return;
     
     // Grow if needed
@@ -60,7 +60,7 @@ static int ends_with(const char* str, const char* suffix) {
 
 // List files in directory
 nl_array_t* nl_fs_list_files(const char* path, const char* extension) {
-    nl_array_t* result = create_array(32);
+    nl_array_t* result = create_string_array(32);
     if (!result) return NULL;
     
     DIR* dir = opendir(path);
@@ -88,8 +88,43 @@ nl_array_t* nl_fs_list_files(const char* path, const char* extension) {
             if (S_ISREG(st.st_mode)) {
                 // Filter by extension if specified
                 if (!filter_by_ext || ends_with(entry->d_name, extension)) {
-                    array_append(result, entry->d_name);
+                    array_append_string(result, entry->d_name);
                 }
+            }
+        }
+    }
+    
+    closedir(dir);
+    return result;
+}
+
+// List directories in directory
+nl_array_t* nl_fs_list_dirs(const char* path) {
+    nl_array_t* result = create_string_array(32);
+    if (!result) return NULL;
+    
+    DIR* dir = opendir(path);
+    if (!dir) {
+        return result; // Return empty array
+    }
+    
+    struct dirent* entry;
+    
+    while ((entry = readdir(dir)) != NULL) {
+        // Skip . and ..
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+        
+        // Build full path for stat check
+        char full_path[1024];
+        snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
+        
+        struct stat st;
+        if (stat(full_path, &st) == 0) {
+            // Only include directories
+            if (S_ISDIR(st.st_mode)) {
+                array_append_string(result, entry->d_name);
             }
         }
     }
