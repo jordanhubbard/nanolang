@@ -7,9 +7,11 @@
 #ifndef NL_ARRAY_T_DEFINED
 #define NL_ARRAY_T_DEFINED
 typedef struct {
-    void** data;
     int64_t length;
     int64_t capacity;
+    int elem_type;     // ElementType enum value
+    unsigned char elem_size;
+    void* data;
 } nl_array_t;
 #endif
 

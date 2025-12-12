@@ -14,7 +14,9 @@ static nl_array_t* create_array(int64_t initial_capacity) {
     
     arr->length = 0;
     arr->capacity = initial_capacity;
-    arr->data = (void**)calloc(initial_capacity, sizeof(void*));
+    arr->elem_type = 3;  // ELEM_STRING = 3
+    arr->elem_size = sizeof(char*);
+    arr->data = calloc(initial_capacity, sizeof(char*));
     
     if (!arr->data) {
         free(arr);
@@ -31,7 +33,7 @@ static void array_append(nl_array_t* arr, const char* str) {
     // Grow if needed
     if (arr->length >= arr->capacity) {
         int64_t new_capacity = arr->capacity * 2;
-        void** new_data = (void**)realloc(arr->data, new_capacity * sizeof(void*));
+        char** new_data = (char**)realloc(arr->data, new_capacity * sizeof(char*));
         if (!new_data) return;
         arr->data = new_data;
         arr->capacity = new_capacity;
@@ -40,7 +42,7 @@ static void array_append(nl_array_t* arr, const char* str) {
     // Duplicate string and add to array
     char* dup = strdup(str);
     if (dup) {
-        arr->data[arr->length++] = dup;
+        ((char**)arr->data)[arr->length++] = dup;
     }
 }
 
