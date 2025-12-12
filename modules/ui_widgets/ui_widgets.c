@@ -360,3 +360,175 @@ void nl_ui_panel(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_
                           (uint8_t)a);
     SDL_RenderDrawRect(renderer, &bg);
 }
+
+// Scrollable list widget - displays a list of items with scrolling
+// Returns index of clicked item, or -1 if none
+int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
+                               nl_array_t* items, int64_t item_count,
+                               int64_t x, int64_t y, int64_t w, int64_t h,
+                               int64_t scroll_offset, int64_t selected_index) {
+    
+    if (!items || !font) return -1;
+    
+    int64_t clicked_index = -1;
+    
+    // Get mouse state
+    int mouse_x, mouse_y;
+    Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    
+    // Detect click
+    int is_over_list = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, (int)w, (int)h);
+    static int list_prev_mouse_down = 0;
+    
+    // Draw background
+    SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
+    SDL_SetRenderDrawColor(renderer, 25, 25, 35, 255);
+    SDL_RenderFillRect(renderer, &bg);
+    
+    // Draw border
+    SDL_SetRenderDrawColor(renderer, 80, 80, 100, 255);
+    SDL_RenderDrawRect(renderer, &bg);
+    
+    // Calculate visible items
+    int item_height = 20;
+    int visible_count = (int)h / item_height;
+    
+    // Draw items
+    for (int i = 0; i < visible_count && (scroll_offset + i) < item_count; i++) {
+        int64_t item_idx = scroll_offset + i;
+        if (item_idx >= items->length) break;
+        
+        const char* item_text = (const char*)items->data[item_idx];
+        if (!item_text) continue;
+        
+        int item_y = (int)y + (i * item_height);
+        
+        // Check if mouse is over this item
+        int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, item_y, (int)w, item_height);
+        
+        // Detect click on this item
+        if (list_prev_mouse_down && !mouse_down && is_hovered) {
+            clicked_index = item_idx;
+        }
+        
+        // Choose background color
+        SDL_Color bg_color;
+        if (item_idx == selected_index) {
+            bg_color = (SDL_Color){60, 100, 180, 255};  // Selected
+        } else if (is_hovered) {
+            bg_color = (SDL_Color){50, 50, 70, 255};    // Hovered
+        } else {
+            bg_color = (SDL_Color){25, 25, 35, 255};    // Normal
+        }
+        
+        // Draw item background
+        SDL_Rect item_rect = {(int)x + 2, item_y, (int)w - 4, item_height};
+        SDL_SetRenderDrawColor(renderer, bg_color.r, bg_color.g, bg_color.b, bg_color.a);
+        SDL_RenderFillRect(renderer, &item_rect);
+        
+        // Draw item text
+        SDL_Color text_color = {220, 220, 220, 255};
+        SDL_Surface* surface = TTF_RenderText_Blended(font, item_text, text_color);
+        if (surface) {
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+            if (texture) {
+                SDL_Rect dest = {(int)x + 5, item_y + 2, surface->w, surface->h};
+                // Clip text if too wide
+                if (dest.w > (int)w - 10) {
+                    dest.w = (int)w - 10;
+                }
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                SDL_DestroyTexture(texture);
+            }
+            SDL_FreeSurface(surface);
+        }
+    }
+    
+    list_prev_mouse_down = mouse_down;
+    return clicked_index;
+}
+
+// Time display widget - shows time in MM:SS format
+void nl_ui_time_display(SDL_Renderer* renderer, TTF_Font* font,
+                        int64_t seconds, int64_t x, int64_t y,
+                        int64_t r, int64_t g, int64_t b, int64_t a) {
+    
+    if (!font) return;
+    
+    // Format time as MM:SS
+    int minutes = (int)seconds / 60;
+    int secs = (int)seconds % 60;
+    
+    char time_str[16];
+    snprintf(time_str, sizeof(time_str), "%02d:%02d", minutes, secs);
+    
+    // Draw text
+    SDL_Color color = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
+    SDL_Surface* surface = TTF_RenderText_Blended(font, time_str, color);
+    
+    if (surface) {
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        if (texture) {
+            SDL_Rect dest = {(int)x, (int)y, surface->w, surface->h};
+            SDL_RenderCopy(renderer, texture, NULL, &dest);
+            SDL_DestroyTexture(texture);
+        }
+        SDL_FreeSurface(surface);
+    }
+}
+
+// Seekable progress bar - interactive progress bar
+// Returns new position if clicked, or -1.0 if not
+double nl_ui_seekable_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_t h,
+                                    double progress) {
+    
+    if (progress < 0.0) progress = 0.0;
+    if (progress > 1.0) progress = 1.0;
+    
+    double new_position = -1.0;
+    
+    // Get mouse state
+    int mouse_x, mouse_y;
+    Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    
+    static int seek_prev_mouse_down = 0;
+    int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, (int)w, (int)h);
+    
+    // Detect click and calculate new position
+    if (seek_prev_mouse_down && !mouse_down && is_hovered) {
+        new_position = (double)(mouse_x - x) / (double)w;
+        if (new_position < 0.0) new_position = 0.0;
+        if (new_position > 1.0) new_position = 1.0;
+    }
+    
+    seek_prev_mouse_down = mouse_down;
+    
+    // Choose colors based on hover state
+    SDL_Color bg_color = {40, 40, 50, 255};
+    SDL_Color progress_color = is_hovered ? 
+        (SDL_Color){100, 200, 120, 255} : 
+        (SDL_Color){80, 180, 100, 255};
+    SDL_Color border_color = is_hovered ?
+        (SDL_Color){140, 140, 160, 255} :
+        (SDL_Color){100, 100, 120, 255};
+    
+    // Draw background
+    SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
+    SDL_SetRenderDrawColor(renderer, bg_color.r, bg_color.g, bg_color.b, bg_color.a);
+    SDL_RenderFillRect(renderer, &bg);
+    
+    // Draw progress
+    if (progress > 0.0) {
+        SDL_Rect prog = {(int)x, (int)y, (int)(w * progress), (int)h};
+        SDL_SetRenderDrawColor(renderer, progress_color.r, progress_color.g, progress_color.b, progress_color.a);
+        SDL_RenderFillRect(renderer, &prog);
+    }
+    
+    // Draw border
+    SDL_SetRenderDrawColor(renderer, border_color.r, border_color.g, border_color.b, border_color.a);
+    SDL_RenderDrawRect(renderer, &bg);
+    
+    return new_position;
+}

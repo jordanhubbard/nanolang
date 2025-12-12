@@ -1,0 +1,8 @@
+{
+  "name": "filesystem",
+  "version": "1.0.0",
+  "description": "Directory listing and file operations",
+  "c_sources": ["filesystem.c"],
+  "headers": ["filesystem.h"],
+  "cflags": ["-Imodules/filesystem"]
+}

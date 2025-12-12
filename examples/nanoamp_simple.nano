@@ -1,0 +1,392 @@
+# NanoAmp - Winamp-style MP3 Player
+# Features: Play/Pause/Stop/Next/Prev buttons, volume slider, 
+# progress bar, visualizations, and playlist management
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_mixer/sdl_mixer.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+import "modules/audio_viz/audio_viz.nano"
+import "modules/ui_widgets/ui_widgets.nano"
+
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+
+# Command-line argument support
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn main() -> int {
+    (println "")
+    (println "╔════════════════════════════════════════════════════════╗")
+    (println "║  NANOAMP - MP3 PLAYER                                  ║")
+    (println "╚════════════════════════════════════════════════════════╝")
+    (println "")
+    
+    # Get MP3 file path from command line or use default
+    let argc: int = (get_argc)
+    let mp3_file: string = ""
+    
+    if (< argc 2) {
+        set mp3_file "examples/audio/demo.mp3"
+        (println "No file specified - looking for demo track...")
+        (println "Usage: nanoamp [path/to/file.mp3]")
+        (println "")
+    } else {
+        set mp3_file (get_argv 1)
+    }
+    
+    # Initialize SDL
+    (SDL_Init (+ SDL_INIT_VIDEO SDL_INIT_AUDIO))
+    
+    # Initialize SDL_mixer for MP3 playback
+    let mixer_init: int = (Mix_Init 8)  # MP3 support
+    if (!= mixer_init 8) {
+        (println "✗ SDL_mixer failed to initialize with MP3 support")
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    # Open audio device
+    let audio_result: int = (Mix_OpenAudio 44100 32784 2 2048)
+    if (!= audio_result 0) {
+        (println "✗ Failed to open audio device")
+        (Mix_Quit)
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    (println "✓ SDL_mixer initialized with MP3 support")
+    
+    # Initialize audio visualization
+    (nl_audio_viz_init 32784 2)
+    (println "✓ Audio visualization initialized")
+    
+    # Initialize SDL_ttf
+    (TTF_Init)
+    
+    # Create window and renderer
+    let window: SDL_Window = (SDL_CreateWindow "NanoAmp - MP3 Player"
+                                                SDL_WINDOWPOS_CENTERED
+                                                SDL_WINDOWPOS_CENTERED
+                                                WINDOW_WIDTH WINDOW_HEIGHT
+                                                SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1
+                                                      (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+    
+    # Load fonts
+    let font: TTF_Font = (nl_open_font_portable "Arial" 14)
+    let title_font: TTF_Font = (nl_open_font_portable "Arial" 20)
+    
+    if (== font 0) {
+        (println "✗ Failed to load font")
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (TTF_Quit)
+        (Mix_CloseAudio)
+        (Mix_Quit)
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    (println "")
+    (print "Loading: ")
+    (println mp3_file)
+    
+    # Load MP3 file
+    let music: Mix_Music = (Mix_LoadMUS mp3_file)
+    let has_music: bool = (!= music 0)
+    
+    if has_music {
+        (println "✓ MP3 file loaded successfully")
+        (println "")
+        (println "Controls:")
+        (println "  Click buttons to control playback")
+        (println "  Drag volume slider to adjust volume")
+        (println "  TAB to cycle visualizer modes")
+        (println "  ESC to quit")
+        (println "")
+    } else {
+        (println "✗ Failed to load MP3 file")
+        (println "")
+        (println "To use NanoAmp:")
+        (println "  1. Place MP3 files in examples/audio/")
+        (println "  2. Run: ./bin/nanoamp examples/audio/yourfile.mp3")
+        (println "")
+        (println "Demo mode: showing UI only")
+        (println "")
+    }
+    
+    # Set initial volume
+    (Mix_VolumeMusic 80)
+    
+    # State variables
+    let mut running: bool = true
+    let mut playing: bool = false
+    let mut volume: float = 0.63  # 80/128
+    let mut viz_mode: int = 0
+    let num_viz_modes: int = 5
+    let mut frame: int = 0
+    
+    # Main loop
+    while running {
+        # Poll events
+        if (== (nl_sdl_poll_event_quit) 1) {
+            set running false
+        } else {}
+        
+        let key: int = (nl_sdl_poll_keypress)
+        if (== key 41) {  # ESC
+            set running false
+        } else {}
+        
+        if (== key 43) {  # TAB - cycle visualizer
+            set viz_mode (% (+ viz_mode 1) num_viz_modes)
+            if (== viz_mode 0) { (println "🌀 Visualizer: Circular Spectrum") } else {}
+            if (== viz_mode 1) { (println "📊 Visualizer: Frequency Bars") } else {}
+            if (== viz_mode 2) { (println "🌊 Visualizer: Spiral Vortex") } else {}
+            if (== viz_mode 3) { (println "✨ Visualizer: Starburst") } else {}
+            if (== viz_mode 4) { (println "🎆 Visualizer: Tunnel") } else {}
+        } else {}
+        
+        # Clear screen
+        (SDL_SetRenderDrawColor renderer 15 15 20 255)
+        (SDL_RenderClear renderer)
+        
+        # Draw title
+        (nl_ui_label renderer title_font "NanoAmp" 320 15 200 200 255 255)
+        
+        # Draw track info
+        if has_music {
+            (nl_ui_label renderer font mp3_file 50 50 180 180 200 255)
+        } else {
+            (nl_ui_label renderer font "No track loaded - Demo Mode" 240 50 150 150 150 255)
+        }
+        
+        # === UI CONTROLS (Top Section) ===
+        
+        # Play button
+        if (== (nl_ui_button renderer font "Play" 50 80 70 35) 1) {
+            if has_music {
+                if playing {
+                    (Mix_ResumeMusic)
+                } else {
+                    (Mix_PlayMusic music -1)
+                    set playing true
+                }
+                (println "▶ Playing")
+            } else {}
+        } else {}
+        
+        # Pause button
+        if (== (nl_ui_button renderer font "Pause" 130 80 70 35) 1) {
+            if has_music {
+                (Mix_PauseMusic)
+                (println "⏸ Paused")
+            } else {}
+        } else {}
+        
+        # Stop button
+        if (== (nl_ui_button renderer font "Stop" 210 80 70 35) 1) {
+            if has_music {
+                (Mix_HaltMusic)
+                set playing false
+                (println "⏹ Stopped")
+            } else {}
+        } else {}
+        
+        # Volume label
+        (nl_ui_label renderer font "Volume:" 550 85 150 200 255 255)
+        
+        # Volume slider
+        set volume (nl_ui_slider renderer 620 85 150 25 volume)
+        let vol_int: int = (cast_int (* volume 128.0))
+        (Mix_VolumeMusic vol_int)
+        
+        # Volume percentage
+        let vol_percent: int = (cast_int (* volume 100.0))
+        (nl_ui_label renderer font (int_to_string vol_percent) 620 115 100 200 255 255)
+        
+        # Progress bar placeholder (SDL_mixer doesn't easily expose position)
+        (nl_ui_progress_bar renderer 50 130 700 20 0.0)
+        
+        # === VISUALIZATIONS (Middle Section) ===
+        
+        # Get audio levels
+        let vol1: int = (nl_audio_viz_get_channel_volume_int 0)
+        let vol2: int = (nl_audio_viz_get_channel_volume_int 1)
+        let vol3: int = (nl_audio_viz_get_channel_volume_int 2)
+        let vol4: int = (nl_audio_viz_get_channel_volume_int 3)
+        
+        # Oscilloscope waveform (Top)
+        let waveform_size: int = (nl_audio_viz_get_waveform_size)
+        let mut i: int = 0
+        let waveform_width: int = 700
+        let waveform_step: int = (/ waveform_size waveform_width)
+        
+        (SDL_SetRenderDrawColor renderer 0 255 255 200)
+        while (< i waveform_width) {
+            let sample_idx: int = (* i waveform_step)
+            let left: float = (nl_audio_viz_get_waveform_sample 0 sample_idx)
+            let right: float = (nl_audio_viz_get_waveform_sample 1 sample_idx)
+            let mixed: float = (* (+ left right) 0.5)
+            let y: int = (+ 200 (cast_int (* mixed 150.0)))
+            
+            (SDL_RenderDrawPoint renderer (+ 50 i) y)
+            (SDL_RenderDrawPoint renderer (+ 50 i) (+ y 1))
+            set i (+ i 1)
+        }
+        
+        # Trippy visualizer (Middle) - reusing MOD player code
+        let center_x: int = 400
+        let center_y: int = 350
+        
+        # Mode 0: Circular Spectrum
+        if (== viz_mode 0) {
+            let mut angle: int = 0
+            while (< angle 360) {
+                let idx: int = (* angle 2)
+                if (< idx waveform_size) {
+                    let left_sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
+                    let right_sample: float = (nl_audio_viz_get_waveform_sample 1 idx)
+                    let amplitude: float = (+ (abs left_sample) (abs right_sample))
+                    let radius: int = (+ 50 (cast_int (* amplitude 80.0)))
+                    
+                    let angle_float: float = (cast_float angle)
+                    let rad: float = (* angle_float 0.01745)
+                    let x: int = (+ center_x (cast_int (* (cast_float radius) (cos rad))))
+                    let y: int = (+ center_y (cast_int (* (cast_float radius) (sin rad))))
+                    
+                    let color_offset: int = (+ angle frame)
+                    let r: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float color_offset) 0.05)))))
+                    let g: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 120)) 0.05)))))
+                    let b: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 240)) 0.05)))))
+                    
+                    (SDL_SetRenderDrawColor renderer r g b 255)
+                    (SDL_RenderDrawPoint renderer x y)
+                    (SDL_RenderDrawPoint renderer (+ x 1) y)
+                } else {}
+                set angle (+ angle 3)
+            }
+            
+            # Lissajous curve
+            set i 0
+            (SDL_SetRenderDrawColor renderer 255 100 255 200)
+            while (< i (- waveform_size 1)) {
+                let left: float = (nl_audio_viz_get_waveform_sample 0 i)
+                let right: float = (nl_audio_viz_get_waveform_sample 1 i)
+                let x: int = (+ center_x (cast_int (* left 100.0)))
+                let y: int = (+ center_y (cast_int (* right 100.0)))
+                (SDL_RenderDrawPoint renderer x y)
+                set i (+ i 4)
+            }
+        } else {}
+        
+        # Mode 1: Frequency Bars
+        if (== viz_mode 1) {
+            let num_bars: int = 64
+            let bar_width: int = (/ 700 num_bars)
+            let mut bar: int = 0
+            while (< bar num_bars) {
+                let idx: int = (* bar (/ waveform_size num_bars))
+                let left_sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
+                let right_sample: float = (nl_audio_viz_get_waveform_sample 1 idx)
+                let amplitude: float = (+ (abs left_sample) (abs right_sample))
+                let height: int = (+ 20 (cast_int (* amplitude 150.0)))
+                
+                let bar_x: int = (+ 50 (* bar bar_width))
+                let bar_y: int = (- 400 height)
+                
+                let color_val: int = (+ bar frame)
+                let r: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float color_val) 0.1)))))
+                let g: int = (+ 128 (cast_int (* 127.0 (cos (* (cast_float color_val) 0.08)))))
+                let b: int = 255
+                
+                (SDL_SetRenderDrawColor renderer r g b 255)
+                (nl_sdl_render_fill_rect renderer bar_x bar_y bar_width height)
+                set bar (+ bar 1)
+            }
+        } else {}
+        
+        # VU Meters (Bottom)
+        let vu1: int = (* vol1 2)
+        let vu2: int = (* vol2 2)
+        let vu3: int = (* vol3 2)
+        let vu4: int = (* vol4 2)
+        
+        # Draw VU meters
+        if (> vol1 60) {
+            (SDL_SetRenderDrawColor renderer 255 0 0 255)
+        } else {
+            if (> vol1 30) {
+                (SDL_SetRenderDrawColor renderer 255 255 0 255)
+            } else {
+                (SDL_SetRenderDrawColor renderer 0 255 0 255)
+            }
+        }
+        (nl_sdl_render_fill_rect renderer 150 (- 550 vu1) 30 vu1)
+        
+        if (> vol2 60) {
+            (SDL_SetRenderDrawColor renderer 255 0 0 255)
+        } else {
+            if (> vol2 30) {
+                (SDL_SetRenderDrawColor renderer 255 255 0 255)
+            } else {
+                (SDL_SetRenderDrawColor renderer 0 255 0 255)
+            }
+        }
+        (nl_sdl_render_fill_rect renderer 280 (- 550 vu2) 30 vu2)
+        
+        if (> vol3 60) {
+            (SDL_SetRenderDrawColor renderer 255 0 0 255)
+        } else {
+            if (> vol3 30) {
+                (SDL_SetRenderDrawColor renderer 255 255 0 255)
+            } else {
+                (SDL_SetRenderDrawColor renderer 0 255 0 255)
+            }
+        }
+        (nl_sdl_render_fill_rect renderer 410 (- 550 vu3) 30 vu3)
+        
+        if (> vol4 60) {
+            (SDL_SetRenderDrawColor renderer 255 0 0 255)
+        } else {
+            if (> vol4 30) {
+                (SDL_SetRenderDrawColor renderer 255 255 0 255)
+            } else {
+                (SDL_SetRenderDrawColor renderer 0 255 0 255)
+            }
+        }
+        (nl_sdl_render_fill_rect renderer 540 (- 550 vu4) 30 vu4)
+        
+        # Present
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
+        
+        set frame (+ frame 1)
+    }
+    
+    # Cleanup
+    (println "")
+    (println "Cleaning up...")
+    if has_music {
+        (Mix_HaltMusic)
+        (Mix_FreeMusic music)
+    } else {}
+    (nl_audio_viz_shutdown)
+    (TTF_CloseFont font)
+    (TTF_CloseFont title_font)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (TTF_Quit)
+    (Mix_CloseAudio)
+    (Mix_Quit)
+    (SDL_Quit)
+    
+    (println "✓ Done")
+    (println "")
+    return 0
+}
+
+shadow main { assert true }

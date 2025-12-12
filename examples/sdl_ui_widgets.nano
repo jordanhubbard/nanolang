@@ -1,5 +1,6 @@
 # UI Widgets Demo
-# Tests ALL widgets: buttons, labels, sliders, progress bars, checkboxes, radio buttons, and panels
+# Tests ALL widgets: buttons, labels, sliders, progress bars, checkboxes, radio buttons, panels,
+#                     scrollable lists, time display, and seekable progress bars
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
@@ -7,8 +8,8 @@ import "modules/sdl_ttf/sdl_ttf.nano"
 import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 import "modules/ui_widgets/ui_widgets.nano"
 
-let WINDOW_WIDTH: int = 700
-let WINDOW_HEIGHT: int = 650
+let WINDOW_WIDTH: int = 900
+let WINDOW_HEIGHT: int = 700
 
 fn main() -> int {
     (println "")
@@ -17,7 +18,8 @@ fn main() -> int {
     (println "╚════════════════════════════════════════════════════════╝")
     (println "")
     (println "Testing ALL widgets: buttons, labels, sliders, progress bars,")
-    (println "                     checkboxes, radio buttons, and panels")
+    (println "                     checkboxes, radio buttons, panels,")
+    (println "                     scrollable lists, time display, seekable bars")
     (println "")
     
     # Initialize SDL
@@ -63,6 +65,24 @@ fn main() -> int {
     let mut show_debug: int = 0      # Checkbox state
     let mut color_mode: int = 0      # Radio button group: 0=Red, 1=Green, 2=Blue
     
+    # Scrollable list demo data
+    let mut playlist: array<string> = []
+    set playlist (array_push playlist "Track 01 - Intro.mp3")
+    set playlist (array_push playlist "Track 02 - Main Theme.mp3")
+    set playlist (array_push playlist "Track 03 - Action Scene.mp3")
+    set playlist (array_push playlist "Track 04 - Calm Moment.mp3")
+    set playlist (array_push playlist "Track 05 - Boss Battle.mp3")
+    set playlist (array_push playlist "Track 06 - Victory.mp3")
+    set playlist (array_push playlist "Track 07 - Credits.mp3")
+    set playlist (array_push playlist "Track 08 - Bonus Track.mp3")
+    set playlist (array_push playlist "Track 09 - Remix Version.mp3")
+    set playlist (array_push playlist "Track 10 - Hidden Song.mp3")
+    
+    let mut selected_track: int = 0
+    let mut playback_time: int = 0
+    let mut track_duration: int = 215  # 3:35
+    let mut seek_progress: float = 0.0
+    
     # Main loop
     while running {
         # Poll events
@@ -98,6 +118,8 @@ fn main() -> int {
             set click_count 0
             set volume 0.5
             set progress 0.0
+            set playback_time 0
+            set seek_progress 0.0
             (println "Reset clicked!")
         } else {}
         
@@ -126,6 +148,13 @@ fn main() -> int {
             if (> progress 1.0) {
                 set progress 0.0
             } else {}
+            
+            # Also update playback time for demo
+            set playback_time (+ playback_time 1)
+            if (>= playback_time track_duration) {
+                set playback_time 0
+            } else {}
+            set seek_progress (/ (cast_float playback_time) (cast_float track_duration))
         } else {}
         (nl_ui_progress_bar renderer 50 360 500 25 progress)
         
@@ -133,9 +162,9 @@ fn main() -> int {
         let progress_percent: int = (cast_int (* progress 100.0))
         (nl_ui_label renderer font (int_to_string progress_percent) 280 395 200 255 200 255)
         
-        # NEW WIDGETS PANEL
+        # NEW WIDGETS PANEL 1: Checkboxes and Radio Buttons
         (nl_ui_panel renderer 40 430 620 170 30 30 40 220)
-        (nl_ui_label renderer font "New Widgets:" 50 435 200 200 255 255)
+        (nl_ui_label renderer font "Widgets Part 1:" 50 435 200 200 255 255)
         
         # Checkboxes section
         (nl_ui_label renderer font "Checkboxes:" 50 460 180 180 200 255)
@@ -179,17 +208,52 @@ fn main() -> int {
             (nl_sdl_render_fill_rect renderer 550 495 40 40)
         } else {}
         
+        # NEW WIDGETS PANEL 2: Scrollable List, Time Display, Seekable Progress
+        (nl_ui_panel renderer 670 60 210 540 30 30 40 220)
+        (nl_ui_label renderer font "Widgets Part 2:" 680 65 200 200 255 255)
+        
+        # Scrollable list widget
+        (nl_ui_label renderer font "Scrollable List:" 680 95 180 180 200 255)
+        let clicked_item: int = (nl_ui_scrollable_list renderer font playlist 
+                                                       (array_length playlist)
+                                                       680 120 190 280 0 selected_track)
+        if (!= clicked_item -1) {
+            set selected_track clicked_item
+            (print "Selected track: ")
+            (println (at playlist selected_track))
+        } else {}
+        
+        # Time display widgets
+        (nl_ui_label renderer font "Time Display:" 680 415 180 180 200 255)
+        (nl_ui_time_display renderer font playback_time 680 440 100 200 255 255)
+        (nl_ui_label renderer font "/" 740 440 150 150 150 255)
+        (nl_ui_time_display renderer font track_duration 760 440 100 200 255 255)
+        
+        # Seekable progress bar
+        (nl_ui_label renderer font "Seekable Bar:" 680 475 180 180 200 255)
+        let new_seek_pos: float = (nl_ui_seekable_progress_bar renderer 680 500 190 20 seek_progress)
+        if (> new_seek_pos -0.5) {
+            set seek_progress new_seek_pos
+            set playback_time (cast_int (* new_seek_pos (cast_float track_duration)))
+            (print "Seeked to: ")
+            (println playback_time)
+        } else {}
+        
+        # Show currently playing
+        (nl_ui_label renderer font "Now Playing:" 680 535 150 150 150 255)
+        (nl_ui_label renderer font (at playlist selected_track) 680 555 200 255 200 255)
+        
         # Debug info panel (if checkbox enabled)
         if (== show_debug 1) {
-            (nl_ui_panel renderer 40 560 300 35 40 40 50 220)
-            (nl_ui_label renderer font "Debug: Checkboxes work!" 50 570 100 255 100 255)
+            (nl_ui_panel renderer 40 610 300 35 40 40 50 220)
+            (nl_ui_label renderer font "Debug: Checkboxes work!" 50 620 100 255 100 255)
             let mut debug_text: string = "Frame: "
             set debug_text (str_concat debug_text (int_to_string frame))
-            (nl_ui_label renderer font debug_text 200 570 100 255 255 255)
+            (nl_ui_label renderer font debug_text 200 620 100 255 255 255)
         } else {}
         
         # Instructions
-        (nl_ui_label renderer font "Try all the widgets! Press ESC to quit" 180 615 150 150 150 255)
+        (nl_ui_label renderer font "Try all the widgets! Press ESC to quit" 180 665 150 150 150 255)
         
         # Present
         (SDL_RenderPresent renderer)

@@ -104,3 +104,56 @@ extern fn nl_ui_radio_button(renderer: SDL_Renderer, font: TTF_Font, label: stri
 #   # Then draw widgets inside...
 extern fn nl_ui_panel(renderer: SDL_Renderer, x: int, y: int, w: int, h: int,
                       r: int, g: int, b: int, a: int) -> void
+
+# Scrollable list widget - displays a list of items with scrolling
+# Returns: index of clicked item (0-based), or -1 if none clicked
+# Handles scroll state internally
+#
+# Parameters:
+#   renderer: SDL renderer
+#   font: TTF_Font for text
+#   items: array of strings to display
+#   item_count: number of items in array
+#   x, y, w, h: list area rectangle
+#   scroll_offset: current scroll position (items from top)
+#   selected_index: currently selected item index (-1 for none)
+#
+# Usage:
+#   let clicked: int = (nl_ui_scrollable_list renderer font items count 10 50 300 200 0 current_index)
+extern fn nl_ui_scrollable_list(renderer: SDL_Renderer, font: TTF_Font,
+                                 items: array<string>, item_count: int,
+                                 x: int, y: int, w: int, h: int,
+                                 scroll_offset: int, selected_index: int) -> int
+
+# Time display widget - shows time in MM:SS format
+# Displays formatted time string
+#
+# Parameters:
+#   renderer: SDL renderer
+#   font: TTF_Font for text
+#   seconds: time in seconds
+#   x, y: position
+#   r, g, b, a: text color (0-255)
+#
+# Usage:
+#   (nl_ui_time_display renderer font 125 50 50 150 200 255 255)  # Shows "02:05"
+extern fn nl_ui_time_display(renderer: SDL_Renderer, font: TTF_Font,
+                              seconds: int, x: int, y: int,
+                              r: int, g: int, b: int, a: int) -> void
+
+# Seekable progress bar - interactive progress bar with click-to-seek
+# Returns: new position (0.0 to 1.0) if clicked, or -1.0 if not clicked
+# Handles mouse state internally
+#
+# Parameters:
+#   renderer: SDL renderer
+#   x, y, w, h: progress bar rectangle
+#   progress: current progress (0.0 to 1.0)
+#
+# Usage:
+#   let new_pos: float = (nl_ui_seekable_progress_bar renderer 50 100 700 20 current_progress)
+#   if (> new_pos -0.5) {
+#       # User clicked, seek to new_pos
+#   }
+extern fn nl_ui_seekable_progress_bar(renderer: SDL_Renderer, x: int, y: int, w: int, h: int,
+                                       progress: float) -> float

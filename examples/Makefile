@@ -45,6 +45,7 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/sdl_boids \
 	$(BIN_DIR)/sdl_particles \
 	$(BIN_DIR)/sdl_mod_visualizer \
+	$(BIN_DIR)/sdl_nanoamp \
 	$(BIN_DIR)/sdl_raytracer \
 	$(BIN_DIR)/sdl_asteroids \
 	$(BIN_DIR)/sdl_terrain_explorer \
@@ -99,7 +100,8 @@ all: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  ./bin/sdl_raytracer         - Real-time ray tracer"
 	@echo "  ./bin/sdl_terrain_explorer  - 3D terrain"
 	@echo "  ./bin/sdl_falling_sand      - Cellular automata sandbox"
-	@echo "  ./bin/sdl_mod_visualizer    - MOD music player"
+	@echo "  ./bin/sdl_mod_visualizer    - MOD music player with visualizer"
+	@echo "  ./bin/sdl_nanoamp           - MP3 player with visualizer (Winamp-style)"
 	@echo ""
 	@echo "NCurses examples (ncurses_*):"
 	@echo "  ./bin/ncurses_snake         - Snake game"
@@ -152,6 +154,12 @@ $(BIN_DIR)/opengl_cube: opengl_cube.nano $(COMPILER)
 $(BIN_DIR)/opengl_teapot: opengl_teapot/teapot.nano $(COMPILER)
 	@echo "Building OpenGL Teapot..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_teapot/teapot.nano -o bin/opengl_teapot
+	@echo "✓ OpenGL Teapot built: $@"
+
+$(BIN_DIR)/sdl_nanoamp: sdl_nanoamp.nano $(COMPILER)
+	@echo "Building NanoAmp MP3 Player with visualizer (Winamp-style)..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_nanoamp.nano -o bin/sdl_nanoamp
+	@echo "✓ NanoAmp built: $@"
 
 # === Clean ===
 
