@@ -86,7 +86,7 @@ static bool match(Parser *p, TokenType type) {
     if (!tok) {
         return false;
     }
-    return tok->type == type;
+    return tok->token_type == type;
 }
 
 static bool expect(Parser *p, TokenType type, const char *msg) {
@@ -97,7 +97,7 @@ static bool expect(Parser *p, TokenType type, const char *msg) {
             return false;
         }
         const char *msg_safe = msg ? msg : "(null message)";
-        const char *token_name = token_type_name(tok->type);
+        const char *token_name = token_type_name(tok->token_type);
         const char *token_name_safe = token_name ? token_name : "UNKNOWN";
         fprintf(stderr, "Error at line %d, column %d: %s (got %s)\n",
                 tok->line, tok->column, msg_safe, token_name_safe);
@@ -138,7 +138,7 @@ static FunctionSignature *parse_function_signature(Parser *p) {
     }
     
     /* Expect 'fn' */
-    if (tok->type != TOKEN_FN) {
+    if (tok->token_type != TOKEN_FN) {
         fprintf(stderr, "Error at line %d, column %d: Expected 'fn' for function type\n",
                 tok->line, tok->column);
         return NULL;
@@ -151,7 +151,7 @@ static FunctionSignature *parse_function_signature(Parser *p) {
         fprintf(stderr, "Error: Parser reached invalid state (NULL token) after 'fn'\n");
         return NULL;
     }
-    if (tok->type != TOKEN_LPAREN) {
+    if (tok->token_type != TOKEN_LPAREN) {
         fprintf(stderr, "Error at line %d, column %d: Expected '(' after 'fn'\n",
                 tok->line, tok->column);
         return NULL;
@@ -174,7 +174,7 @@ static FunctionSignature *parse_function_signature(Parser *p) {
         return NULL;
     }
     
-    if (tok->type != TOKEN_RPAREN) {
+    if (tok->token_type != TOKEN_RPAREN) {
         /* Parse comma-separated types */
         while (1) {
             char *struct_name = NULL;
@@ -213,7 +213,7 @@ static FunctionSignature *parse_function_signature(Parser *p) {
                 return NULL;
             }
             
-            if (tok->type == TOKEN_COMMA) {
+            if (tok->token_type == TOKEN_COMMA) {
                 advance(p);  /* consume ',' */
             } else {
                 break;
@@ -228,7 +228,7 @@ static FunctionSignature *parse_function_signature(Parser *p) {
         free_function_signature(sig);
         return NULL;
     }
-    if (tok->type != TOKEN_RPAREN) {
+    if (tok->token_type != TOKEN_RPAREN) {
         fprintf(stderr, "Error at line %d, column %d: Expected ')' in function type\n",
                 tok->line, tok->column);
         free_function_signature(sig);
@@ -243,7 +243,7 @@ static FunctionSignature *parse_function_signature(Parser *p) {
         free_function_signature(sig);
         return NULL;
     }
-    if (tok->type != TOKEN_ARROW) {
+    if (tok->token_type != TOKEN_ARROW) {
         fprintf(stderr, "Error at line %d, column %d: Expected '->' in function type\n",
                 tok->line, tok->column);
         free_function_signature(sig);
@@ -277,7 +277,7 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
     Type type = TYPE_UNKNOWN;
     Token *tok = current_token(p);
 
-    switch (tok->type) {
+    switch (tok->token_type) {
         case TOKEN_TYPE_INT: type = TYPE_INT; break;
         case TOKEN_TYPE_FLOAT: type = TYPE_FLOAT; break;
         case TOKEN_TYPE_BOOL: type = TYPE_BOOL; break;
@@ -315,18 +315,18 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
             /* Check for generic type syntax: List<T> */
             if (strcmp(tok->value, "List") == 0) {
                 advance(p);  /* consume 'List' */
-                if (current_token(p)->type == TOKEN_LT) {
+                if (current_token(p)->token_type == TOKEN_LT) {
                     advance(p);  /* consume '<' */
                     
                     /* Parse type parameter */
                     Token *type_param_tok = current_token(p);
-                    if (type_param_tok->type == TOKEN_TYPE_INT) {
+                    if (type_param_tok->token_type == TOKEN_TYPE_INT) {
                         type = TYPE_LIST_INT;
                         advance(p);
-                    } else if (type_param_tok->type == TOKEN_TYPE_STRING) {
+                    } else if (type_param_tok->token_type == TOKEN_TYPE_STRING) {
                         type = TYPE_LIST_STRING;
                         advance(p);
-                    } else if (type_param_tok->type == TOKEN_IDENTIFIER) {
+                    } else if (type_param_tok->token_type == TOKEN_IDENTIFIER) {
                         /* Handle Token specially for backwards compatibility */
                         if (strcmp(type_param_tok->value, "Token") == 0) {
                             type = TYPE_LIST_TOKEN;
@@ -346,7 +346,7 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
                         return TYPE_UNKNOWN;
                     }
                     
-                    if (current_token(p)->type != TOKEN_GT) {
+                    if (current_token(p)->token_type != TOKEN_GT) {
                         fprintf(stderr, "Error at line %d, column %d: Expected '>' after List type parameter\n",
                                 current_token(p)->line, current_token(p)->column);
                         return TYPE_UNKNOWN;
@@ -366,7 +366,7 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
         case TOKEN_ARRAY:
             /* Parse array<element_type> */
             advance(p);  /* consume 'array' */
-            if (current_token(p)->type != TOKEN_LT) {
+            if (current_token(p)->token_type != TOKEN_LT) {
                 fprintf(stderr, "Error at line %d, column %d: Expected '<' after 'array'\n", 
                         current_token(p)->line, current_token(p)->column);
                 return TYPE_UNKNOWN;
@@ -379,7 +379,7 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
                 return TYPE_UNKNOWN;
             }
             
-            if (current_token(p)->type != TOKEN_GT) {
+            if (current_token(p)->token_type != TOKEN_GT) {
                 fprintf(stderr, "Error at line %d, column %d: Expected '>' after array element type\n", 
                         current_token(p)->line, current_token(p)->column);
                 return TYPE_UNKNOWN;
@@ -504,7 +504,7 @@ static bool parse_parameters(Parser *p, Parameter **params, int *param_count) {
             /* Type - check if it's a struct type (identifier) */
             Token *type_token = current_token(p);
             char *struct_name = NULL;
-            if (type_token->type == TOKEN_IDENTIFIER) {
+            if (type_token->token_type == TOKEN_IDENTIFIER) {
                 struct_name = strdup(type_token->value);
             }
             
@@ -551,7 +551,7 @@ static ASTNode *parse_prefix_op(Parser *p) {
 
     /* Get operator */
     tok = current_token(p);
-    TokenType op = tok->type;
+    TokenType op = tok->token_type;
 
     /* Check if it's a valid operator or function call */
     bool is_operator = (op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_STAR ||
@@ -591,7 +591,7 @@ static ASTNode *parse_prefix_op(Parser *p) {
         /* Check if this is union construction (Identifier.Variant) or function call */
         /* Peek ahead to see if next token is DOT - if so, it's union construction not a function call */
         Token *next_tok = peek_token(p, 1);
-        if (next_tok && next_tok->type == TOKEN_DOT) {
+        if (next_tok && next_tok->token_type == TOKEN_DOT) {
             /* This is union construction like (Result.Ok {...}), not a function call */
             /* Parse it as a parenthesized expression */
             ASTNode *expr = parse_expression(p);
@@ -645,7 +645,7 @@ static ASTNode *parse_primary(Parser *p) {
     }
     ASTNode *node;
 
-    switch (tok->type) {
+    switch (tok->token_type) {
         case TOKEN_NUMBER:
             node = create_node(AST_NUMBER, tok->line, tok->column);
             node->as.number = atoll(tok->value);
@@ -722,7 +722,7 @@ static ASTNode *parse_primary(Parser *p) {
             /* Only parse as struct literal if identifier starts with uppercase (type convention) */
             Token *next = peek_token(p, 1);
             bool looks_like_struct = tok->value && tok->value[0] >= 'A' && tok->value[0] <= 'Z';
-            if (next && next->type == TOKEN_LBRACE && looks_like_struct) {
+            if (next && next->token_type == TOKEN_LBRACE && looks_like_struct) {
                 /* Parse struct literal */
                 int line = tok->line;
                 int column = tok->column;
@@ -814,7 +814,7 @@ static ASTNode *parse_primary(Parser *p) {
             }
             
             /* Check for empty tuple: () */
-            if (next->type == TOKEN_RPAREN) {
+            if (next->token_type == TOKEN_RPAREN) {
                 advance(p);  /* consume '(' */
                 advance(p);  /* consume ')' */
                 node = create_node(AST_TUPLE_LITERAL, line, column);
@@ -828,14 +828,14 @@ static ASTNode *parse_primary(Parser *p) {
              * parse as prefix operation. Note: We can't reliably distinguish function calls
              * from tuple literals by looking at the first identifier, so we handle both
              * by parsing the first element and checking what follows. */
-            bool is_operator = (next->type == TOKEN_PLUS || next->type == TOKEN_MINUS ||
-                               next->type == TOKEN_STAR || next->type == TOKEN_SLASH ||
-                               next->type == TOKEN_PERCENT ||
-                               next->type == TOKEN_EQ || next->type == TOKEN_NE ||
-                               next->type == TOKEN_LT || next->type == TOKEN_GT ||
-                               next->type == TOKEN_LE || next->type == TOKEN_GE ||
-                               next->type == TOKEN_AND || next->type == TOKEN_OR ||
-                               next->type == TOKEN_NOT);
+            bool is_operator = (next->token_type == TOKEN_PLUS || next->token_type == TOKEN_MINUS ||
+                               next->token_type == TOKEN_STAR || next->token_type == TOKEN_SLASH ||
+                               next->token_type == TOKEN_PERCENT ||
+                               next->token_type == TOKEN_EQ || next->token_type == TOKEN_NE ||
+                               next->token_type == TOKEN_LT || next->token_type == TOKEN_GT ||
+                               next->token_type == TOKEN_LE || next->token_type == TOKEN_GE ||
+                               next->token_type == TOKEN_AND || next->token_type == TOKEN_OR ||
+                               next->token_type == TOKEN_NOT);
             
             if (is_operator) {
                 /* Parse as prefix operation */
@@ -1047,19 +1047,19 @@ static ASTNode *parse_primary(Parser *p) {
                         current_tok->line, current_tok->column);
                 return NULL;
             }
-            const char *type_name = token_type_name(current_tok->type);
+            const char *type_name = token_type_name(current_tok->token_type);
             
             /* Debug: Special handling for ELSE token to understand flow */
             if (type_name && strcmp(type_name, "ELSE") == 0) {
                 // fprintf(stderr, "DEBUG: parse_primary encountered token that names as ELSE (type=%d, TOKEN_ELSE=%d) at line %d, column %d\n",
-                //         current_tok->type, TOKEN_ELSE, current_tok->line, current_tok->column);
+                //         current_tok->token_type, TOKEN_ELSE, current_tok->line, current_tok->column);
                 // fprintf(stderr, "DEBUG: Token value: '%s'\n", current_tok->value ? current_tok->value : "(null)");
                 // fprintf(stderr, "DEBUG: This means parse_expression was called, which called parse_primary\n");
                 // fprintf(stderr, "DEBUG: ELSE should never reach parse_primary - it should be handled in parse_if_expression\n");
             }
             
             fprintf(stderr, "Error at line %d, column %d: Unexpected token in expression: %s (type=%d)\n",
-                    current_tok->line, current_tok->column, type_name ? type_name : "UNKNOWN", current_tok->type);
+                    current_tok->line, current_tok->column, type_name ? type_name : "UNKNOWN", current_tok->token_type);
             return NULL;
         }
     }
@@ -1375,7 +1375,7 @@ static ASTNode *parse_block(Parser *p) {
             /* Parsing failed - check if next token is closing brace */
             /* If so, this might be the end of our block */
             Token *next_tok = current_token(p);
-            if (next_tok && next_tok->type == TOKEN_RBRACE) {
+            if (next_tok && next_tok->token_type == TOKEN_RBRACE) {
                 /* Hit closing brace - this ends our block */
                 break;
             }
@@ -1413,7 +1413,7 @@ static ASTNode *parse_statement(Parser *p) {
     }
     ASTNode *node;
 
-    switch (tok->type) {
+    switch (tok->token_type) {
         case TOKEN_LET: {
             int line = tok->line;
             int column = tok->column;
@@ -1445,7 +1445,7 @@ static ASTNode *parse_statement(Parser *p) {
             /* Capture type name if it's a struct/union type (identifier) */
             Token *type_token = current_token(p);
             char *type_name = NULL;
-            if (type_token->type == TOKEN_IDENTIFIER) {
+            if (type_token->token_type == TOKEN_IDENTIFIER) {
                 type_name = strdup(type_token->value);
             }
             
@@ -1605,7 +1605,7 @@ static ASTNode *parse_statement(Parser *p) {
 
         default: {
             /* Special handling for print/println statements: print expr or println expr */
-            if (tok->type == TOKEN_IDENTIFIER) {
+            if (tok->token_type == TOKEN_IDENTIFIER) {
                 if (strcmp(tok->value, "print") == 0 || strcmp(tok->value, "println") == 0) {
                     int line = tok->line;
                     int column = tok->column;
@@ -1629,7 +1629,7 @@ static ASTNode *parse_statement(Parser *p) {
             
             /* Try to parse as expression statement */
             /* Debug: Check if this is being called with ELSE token */
-            if (tok->type == TOKEN_ELSE) {
+            if (tok->token_type == TOKEN_ELSE) {
                 // fprintf(stderr, "DEBUG: parse_statement default case hit with ELSE token at line %d, column %d\n",
                 //         tok->line, tok->column);
                 // fprintf(stderr, "DEBUG: This suggests switch statement didn't match TOKEN_ELSE case\n");
@@ -2222,7 +2222,7 @@ static ASTNode *parse_function(Parser *p, bool is_extern) {
         /* Go back one token to get the struct name */
         if (p->pos > 0 && p->pos <= p->count) {
             Token *prev_token = &p->tokens[p->pos - 1];
-            if (prev_token && prev_token->type == TOKEN_IDENTIFIER) {
+            if (prev_token && prev_token->token_type == TOKEN_IDENTIFIER) {
                 return_struct_name = strdup(prev_token->value);
             }
         }

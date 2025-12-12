@@ -3,7 +3,7 @@
 /* Helper function to create a token */
 static Token create_token(TokenType type, const char *value, int line, int column) {
     Token token;
-    token.type = type;
+    token.token_type = type;
     token.value = value ? strdup(value) : NULL;
     token.line = line;
     token.column = column;

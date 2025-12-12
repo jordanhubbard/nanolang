@@ -10,7 +10,7 @@
 /* Helper: Copy a token (deep copy of value string) */
 static Token token_copy(const Token *src) {
     Token dst;
-    dst.type = src->type;
+    dst.token_type = src->token_type;
     dst.value = src->value ? strdup(src->value) : NULL;
     dst.line = src->line;
     dst.column = src->column;

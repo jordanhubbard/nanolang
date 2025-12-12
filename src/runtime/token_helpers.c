@@ -8,7 +8,7 @@
 
 int64_t token_get_type(List_token *list, int64_t index) {
     Token *ptr = list_token_get(list, (int)index);
-    return (int64_t)ptr->type;
+    return (int64_t)ptr->token_type;
 }
 
 const char* token_get_value(List_token *list, int64_t index) {

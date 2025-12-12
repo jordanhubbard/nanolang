@@ -257,6 +257,29 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     sym.def_line = 0;     /* Will be set by type checker if needed */
     sym.def_column = 0;
 
+    /* WORKAROUND: Check if symbol already exists and preserve/update metadata */
+    /* This handles a bug where symbols are added multiple times during type-checking.
+     * When a symbol is re-added, preserve or update struct_type_name to maintain type information. */
+    Symbol *existing = env_get_var(env, name);
+    if (existing) {
+        /* If existing has struct_type_name but new one doesn't, preserve it */
+        if (existing->struct_type_name && !sym.struct_type_name) {
+            sym.struct_type_name = strdup(existing->struct_type_name);
+        }
+        /* If new one has struct_type_name but existing doesn't, update the existing symbol instead */
+        else if (!existing->struct_type_name && sym.struct_type_name) {
+            /* Update the existing symbol with the new metadata */
+            existing->struct_type_name = strdup(sym.struct_type_name);
+            existing->type = sym.type;
+            existing->element_type = sym.element_type;
+            existing->type_info = sym.type_info;
+            existing->is_mut = sym.is_mut;
+            existing->value = sym.value;
+            /* Don't add a new symbol - we updated the existing one */
+            return;
+        }
+    }
+    
     env->symbols[env->symbol_count++] = sym;
 }
 

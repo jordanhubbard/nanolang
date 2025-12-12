@@ -1540,40 +1540,51 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             Value val = create_void(); /* Placeholder */
             env_define_var_with_type_info(tc->env, stmt->as.let.name, env_type, element_type, type_info, stmt->as.let.is_mut, val);
             
-            /* Store definition location for unused variable warnings */
+            /* Store definition location and type metadata for unused variable warnings */
+            /* IMPORTANT: Look up the symbol FRESH each time we need to modify it,
+             * because the symbol array may get reallocated! */
+            
+            /* Set definition location */
             Symbol *sym = env_get_var(tc->env, stmt->as.let.name);
             if (sym) {
                 sym->def_line = stmt->line;
                 sym->def_column = stmt->column;
-                
-                /* If this is a struct, store the struct type name */
-                /* Use original_declared_type to check before any modifications */
-                if (stmt->as.let.type_name) {
-                    if (original_declared_type == TYPE_STRUCT || original_declared_type == TYPE_UNION) {
-                        /* Use the declared type name */
-                        sym->struct_type_name = strdup(stmt->as.let.type_name);
-                    }
-                }
-                /* Also try to infer from value expression if struct_type_name not set */
-                if (!sym->struct_type_name && value_type == TYPE_STRUCT) {
-                    /* Infer struct type name from the value expression */
-                    const char *struct_name = get_struct_type_name(stmt->as.let.value, tc->env);
-                    if (struct_name) {
-                        sym->struct_type_name = strdup(struct_name);
-                        /* Free the temporary string returned by get_struct_type_name */
-                        free((void*)struct_name);
-                    }
-                }
-                
-                /* If this is an array of structs, store the struct type name for the elements */
-                if (declared_type == TYPE_ARRAY && element_type == TYPE_STRUCT && stmt->as.let.type_name) {
+            }
+            
+            /* Set struct type name - look up symbol again to be safe */
+            sym = env_get_var(tc->env, stmt->as.let.name);
+            if (sym && stmt->as.let.type_name) {
+                if (original_declared_type == TYPE_STRUCT || original_declared_type == TYPE_UNION) {
+                    /* Use the declared type name */
+                    if (sym->struct_type_name) free(sym->struct_type_name);  /* Free old value if any */
                     sym->struct_type_name = strdup(stmt->as.let.type_name);
                 }
-                
-                /* If this is a union, store the union type name */
-                if (declared_type == TYPE_UNION && stmt->as.let.type_name) {
-                    sym->struct_type_name = strdup(stmt->as.let.type_name);
+            }
+            
+            /* Also try to infer from value expression if struct_type_name not set */
+            sym = env_get_var(tc->env, stmt->as.let.name);
+            if (sym && !sym->struct_type_name && value_type == TYPE_STRUCT) {
+                /* Infer struct type name from the value expression */
+                const char *struct_name = get_struct_type_name(stmt->as.let.value, tc->env);
+                if (struct_name) {
+                    sym->struct_type_name = strdup(struct_name);
+                    /* Free the temporary string returned by get_struct_type_name */
+                    free((void*)struct_name);
                 }
+            }
+            
+            /* If this is an array of structs, store the struct type name for the elements */
+            sym = env_get_var(tc->env, stmt->as.let.name);
+            if (sym && declared_type == TYPE_ARRAY && element_type == TYPE_STRUCT && stmt->as.let.type_name) {
+                if (sym->struct_type_name) free(sym->struct_type_name);
+                sym->struct_type_name = strdup(stmt->as.let.type_name);
+            }
+            
+            /* If this is a union, store the union type name */
+            sym = env_get_var(tc->env, stmt->as.let.name);
+            if (sym && declared_type == TYPE_UNION && stmt->as.let.type_name) {
+                if (sym->struct_type_name) free(sym->struct_type_name);
+                sym->struct_type_name = strdup(stmt->as.let.type_name);
             }
             
             return TYPE_VOID;
@@ -1690,7 +1701,28 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             return TYPE_VOID;
         }
 
-        case AST_IF:
+        case AST_IF: {
+            /* Type check if statement */
+            Type cond_type = check_expression(stmt->as.if_stmt.condition, tc->env);
+            if (cond_type != TYPE_BOOL) {
+                fprintf(stderr, "Error at line %d, column %d: If condition must be bool\n", 
+                        stmt->line, stmt->column);
+                tc->has_error = true;
+            }
+            
+            /* Type check then branch */
+            if (stmt->as.if_stmt.then_branch) {
+                check_statement(tc, stmt->as.if_stmt.then_branch);
+            }
+            
+            /* Type check else branch if present */
+            if (stmt->as.if_stmt.else_branch) {
+                check_statement(tc, stmt->as.if_stmt.else_branch);
+            }
+            
+            return TYPE_VOID;
+        }
+        
         case AST_PREFIX_OP:
         case AST_CALL:
             /* Expression statements */

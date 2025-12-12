@@ -50,7 +50,7 @@ Token *tokenize_nano(const char *source, int *token_count) {
         }
         
         /* Deep copy token */
-        tokens[i].type = src->type;
+        tokens[i].token_type = src->token_type;
         tokens[i].value = src->value ? strdup(src->value) : NULL;
         tokens[i].line = src->line;
         tokens[i].column = src->column;

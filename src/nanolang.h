@@ -95,7 +95,7 @@ typedef enum {
 
 /* Token structure */
 typedef struct {
-    TokenType type;
+    TokenType token_type;  /* Changed from 'type' to match NanoLang transpiler output */
     char *value;
     int line;
     int column;
