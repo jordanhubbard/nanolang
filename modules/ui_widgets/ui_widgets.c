@@ -399,7 +399,7 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
         int64_t item_idx = scroll_offset + i;
         if (item_idx >= items->length) break;
         
-        const char* item_text = (const char*)items->data[item_idx];
+        const char* item_text = ((const char**)items->data)[item_idx];
         if (!item_text) continue;
         
         int item_y = (int)y + (i * item_height);

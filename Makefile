@@ -419,7 +419,7 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
 		echo "" && \
 		echo "Testing stage 1 compiler..." && \
-		if $(NANOC_STAGE1) examples/hello.nano /tmp/bootstrap_test && /tmp/bootstrap_test >/dev/null 2>&1; then \
+		if $(NANOC_STAGE1) examples/nl_hello.nano /tmp/bootstrap_test && /tmp/bootstrap_test >/dev/null 2>&1; then \
 			echo "✓ Stage 1 compiler works!"; \
 			touch $(SENTINEL_BOOTSTRAP1); \
 		else \

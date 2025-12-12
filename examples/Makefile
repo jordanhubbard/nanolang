@@ -49,7 +49,13 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/sdl_raytracer \
 	$(BIN_DIR)/sdl_asteroids \
 	$(BIN_DIR)/sdl_terrain_explorer \
-	$(BIN_DIR)/sdl_falling_sand
+	$(BIN_DIR)/sdl_falling_sand \
+	$(BIN_DIR)/sdl_ui_widgets \
+	$(BIN_DIR)/sdl_texture_demo \
+	$(BIN_DIR)/sdl_drawing_primitives \
+	$(BIN_DIR)/sdl_window_control \
+	$(BIN_DIR)/sdl_audio_wav \
+	$(BIN_DIR)/sdl_mouse_click
 
 # === NCurses Examples (ncurses_*) ===
 # Require ncurses library
@@ -102,6 +108,12 @@ all: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  ./bin/sdl_falling_sand      - Cellular automata sandbox"
 	@echo "  ./bin/sdl_mod_visualizer    - MOD music player with visualizer"
 	@echo "  ./bin/sdl_nanoamp           - MP3 player with visualizer (Winamp-style)"
+	@echo "  ./bin/sdl_ui_widgets        - UI widgets showcase (buttons, sliders, etc.)"
+	@echo "  ./bin/sdl_texture_demo      - Texture loading and rendering"
+	@echo "  ./bin/sdl_drawing_primitives - Basic shape drawing"
+	@echo "  ./bin/sdl_window_control    - Window management demo"
+	@echo "  ./bin/sdl_audio_wav         - Simple WAV audio playback"
+	@echo "  ./bin/sdl_mouse_click       - Mouse input handling"
 	@echo ""
 	@echo "NCurses examples (ncurses_*):"
 	@echo "  ./bin/ncurses_snake         - Snake game"
