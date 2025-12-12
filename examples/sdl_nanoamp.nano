@@ -1,9 +1,10 @@
-# NanoAmp - Winamp-style MP3 Player (Enhanced)
-# A proper homage to classic Winamp with full playlist support
+# NanoAmp - Winamp-style MP3 Player (With Preferences & Directory Browser)
+# A proper homage to classic Winamp with persistent playlist support
 #
 # Features:
-# - Load entire directories of MP3 files
-# - Scrollable playlist display
+# - Save/load playlist from ~/.nanoamp_prefs automatically
+# - Built-in directory browser to add music folders
+# - Scrollable playlist display with click-to-play
 # - Play/Pause/Stop/Next/Previous controls
 # - Shuffle and Repeat modes
 # - Time display (current / duration)
@@ -11,8 +12,8 @@
 # - Volume control
 # - Audio visualizations
 #
-# Usage: ./bin/sdl_nanoamp [path/to/music/directory]
-#        Default: examples/audio/
+# Usage: ./bin/sdl_nanoamp [optional: path/to/music/directory]
+#        No arguments needed - loads saved playlist or starts empty
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
@@ -22,14 +23,19 @@ import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 import "modules/audio_viz/audio_viz.nano"
 import "modules/ui_widgets/ui_widgets.nano"
 import "modules/filesystem/filesystem.nano"
+import "modules/preferences/preferences.nano"
 
 let WINDOW_WIDTH: int = 600
-let WINDOW_HEIGHT: int = 550
+let WINDOW_HEIGHT: int = 600  # Taller for directory browser mode
 
 # Playback states
 let STATE_STOPPED: int = 0
 let STATE_PLAYING: int = 1
 let STATE_PAUSED: int = 2
+
+# UI modes
+let MODE_PLAYER: int = 0
+let MODE_BROWSER: int = 1
 
 # Command-line argument support
 extern fn get_argc() -> int
@@ -41,40 +47,61 @@ extern fn rand() -> int
 fn main() -> int {
     (println "")
     (println "╔════════════════════════════════════════════════════════╗")
-    (println "║  NANOAMP - WINAMP TRIBUTE MP3 PLAYER                  ║")
+    (println "║  NANOAMP - WITH PREFERENCES & DIRECTORY BROWSER       ║")
     (println "╚════════════════════════════════════════════════════════╝")
     (println "")
     
-    # Get music directory from command line or use default
+    # Get preference file path
+    let pref_path: string = (nl_prefs_get_path "nanoamp")
+    (print "Preference file: ")
+    (println pref_path)
+    
+    # Try to load from command line arg first, then preferences
     let argc: int = (get_argc)
-    let mut music_dir: string = ""
+    let mut playlist: array<string> = []
+    let mut playlist_count: int = 0
     
-    if (< argc 2) {
-        set music_dir "examples/audio"
-        (println "No directory specified - using default: examples/audio/")
+    if (>= argc 2) {
+        # Load from specified directory
+        let music_dir: string = (get_argv 1)
+        (print "Loading MP3 files from: ")
+        (println music_dir)
+        
+        let files: array<string> = (nl_fs_list_files music_dir ".mp3")
+        let file_count: int = (array_length files)
+        
+        if (== file_count 0) {
+            (println "✗ No MP3 files found in directory")
+        } else {
+            # Build full paths
+            let mut i: int = 0
+            while (< i file_count) {
+                let filename: string = (at files i)
+                let full_path: string = (nl_fs_join_path music_dir filename)
+                (array_push playlist full_path)
+                set i (+ i 1)
+            }
+            set playlist_count (array_length playlist)
+            
+            (print "✓ Loaded ")
+            (print playlist_count)
+            (println " MP3 files from directory")
+        }
     } else {
-        set music_dir (get_argv 1)
+        # Load from preferences
+        (println "Loading playlist from preferences...")
+        set playlist (nl_prefs_load_playlist pref_path)
+        set playlist_count (array_length playlist)
+        
+        if (== playlist_count 0) {
+            (println "No saved playlist - starting empty")
+            (println "Click 'Browse' button to add music")
+        } else {
+            (print "✓ Loaded ")
+            (print playlist_count)
+            (println " tracks from saved playlist")
+        }
     }
-    
-    (print "Loading MP3 files from: ")
-    (println music_dir)
-    (println "")
-    
-    # Load playlist from directory
-    let playlist: array<string> = (nl_fs_list_files music_dir ".mp3")
-    let playlist_count: int = (array_length playlist)
-    
-    if (== playlist_count 0) {
-        (println "✗ No MP3 files found in directory")
-        (println "")
-        (println "Usage: ./bin/sdl_nanoamp [path/to/music/directory]")
-        (println "")
-        return 1
-    } else {}
-    
-    (print "✓ Found ")
-    (print playlist_count)
-    (println " MP3 files")
     (println "")
     
     # Initialize SDL
@@ -149,6 +176,11 @@ fn main() -> int {
     let num_viz_modes: int = 3
     let mut frame: int = 0
     
+    # UI mode state
+    let mut ui_mode: int = MODE_PLAYER
+    let mut browser_path: string = (nl_prefs_get_home)
+    let mut browser_scroll: int = 0
+    
     # Playback time tracking (in seconds)
     let mut playback_start_ticks: int = 0
     let mut playback_time: int = 0
@@ -222,9 +254,86 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer 20 25 35 255)
         (SDL_RenderClear renderer)
         
-        # === TITLE SECTION ===
-        (nl_ui_label renderer title_font "♫ NanoAmp" 20 10 100 200 255 255)
-        (nl_ui_label renderer small_font "Winamp Tribute" 110 25 120 140 160 255)
+        if (== ui_mode MODE_BROWSER) {
+            # === DIRECTORY BROWSER MODE ===
+            
+            # Title
+            (nl_ui_label renderer title_font "Browse for Music Directory" 20 20 200 200 255 255)
+            
+            # Current path
+            (nl_ui_label renderer small_font browser_path 20 50 180 180 180 255)
+            
+            # ".." button to go up one directory
+            if (== (nl_ui_button renderer font ".." 20 80 80 30) 1) {
+                let parent: string = (nl_fs_join_path browser_path "..")
+                set browser_path parent
+                set browser_scroll 0
+            } else {}
+            
+            # "Select This Folder" button
+            if (== (nl_ui_button renderer font "Select This Folder" 110 80 180 30) 1) {
+                # Add all MP3 files from this directory
+                let files: array<string> = (nl_fs_list_files browser_path ".mp3")
+                let file_count: int = (array_length files)
+                
+                let mut i: int = 0
+                while (< i file_count) {
+                    let filename: string = (at files i)
+                    let full_path: string = (nl_fs_join_path browser_path filename)
+                    (array_push playlist full_path)
+                    set i (+ i 1)
+                }
+                set playlist_count (array_length playlist)
+                
+                (print "✓ Added ")
+                (print file_count)
+                (print " MP3 files from ")
+                (println browser_path)
+                set ui_mode MODE_PLAYER
+            } else {}
+            
+            # "Cancel" button
+            if (== (nl_ui_button renderer font "Cancel" 300 80 80 30) 1) {
+                set ui_mode MODE_PLAYER
+            } else {}
+            
+            # List directories
+            let dirs: array<string> = (nl_fs_list_dirs browser_path)
+            let dir_count: int = (array_length dirs)
+            
+            if (== dir_count 0) {
+                (nl_ui_label renderer small_font "No subdirectories" 30 130 150 150 150 255)
+            } else {
+                # Draw directory buttons
+                let mut dir_y: int = 130
+                let mut dir_i: int = browser_scroll
+                
+                while (< dir_i dir_count) {
+                    let dir_name: string = (at dirs dir_i)
+                    
+                    # Directory button - click to navigate
+                    if (== (nl_ui_button renderer small_font dir_name 20 dir_y 560 25) 1) {
+                        let new_path: string = (nl_fs_join_path browser_path dir_name)
+                        set browser_path new_path
+                        set browser_scroll 0
+                    } else {}
+                    
+                    set dir_y (+ dir_y 28)
+                    set dir_i (+ dir_i 1)
+                    
+                    # Stop at bottom of viewport
+                    if (> dir_y 530) {
+                        set dir_i dir_count  # Break loop
+                    } else {}
+                }
+            }
+            
+        } else {
+            # === PLAYER MODE ===
+            
+            # === TITLE SECTION ===
+            (nl_ui_label renderer title_font "♫ NanoAmp" 20 10 100 200 255 255)
+            (nl_ui_label renderer small_font "Winamp Tribute" 110 25 120 140 160 255)
         
         # === TRACK INFO SECTION ===
         let current_track_name: string = ""
@@ -271,28 +380,30 @@ fn main() -> int {
         } else {}
         
         if (== (nl_ui_button renderer font "Play" 80 135 50 30) 1) {
-            if (== playback_state STATE_STOPPED) {
-                # Load and play track
-                let track_path: string = (nl_fs_join_path music_dir current_track_name)
-                let music: Mix_Music = (Mix_LoadMUS track_path)
+            if (> playlist_count 0) {
+                if (== playback_state STATE_STOPPED) {
+                    # Load and play track (playlist contains full paths)
+                    let track_path: string = (at playlist current_track_index)
+                    let music: Mix_Music = (Mix_LoadMUS track_path)
                 
-                if (!= music 0) {
-                    (Mix_PlayMusic music -1)
-                    set playback_state STATE_PLAYING
-                    set playback_start_ticks (SDL_GetTicks)
-                    set has_music true
-                    (println "▶ Playing")
+                    if (!= music 0) {
+                        (Mix_PlayMusic music -1)
+                        set playback_state STATE_PLAYING
+                        set playback_start_ticks (SDL_GetTicks)
+                        set has_music true
+                        (println "▶ Playing")
+                    } else {
+                        (println "✗ Failed to load track")
+                    }
                 } else {
-                    (println "✗ Failed to load track")
+                    if (== playback_state STATE_PAUSED) {
+                        (Mix_ResumeMusic)
+                        set playback_state STATE_PLAYING
+                        set playback_start_ticks (- (SDL_GetTicks) (* playback_time 1000))
+                        (println "▶ Resume")
+                    } else {}
                 }
-            } else {
-                if (== playback_state STATE_PAUSED) {
-                    (Mix_ResumeMusic)
-                    set playback_state STATE_PLAYING
-                    set playback_start_ticks (- (SDL_GetTicks) (* playback_time 1000))
-                    (println "▶ Resume")
-                } else {}
-            }
+            } else {}
         } else {}
         
         if (== (nl_ui_button renderer font "Pause" 140 135 50 30) 1) {
@@ -444,34 +555,59 @@ fn main() -> int {
                 (SDL_RenderDrawPoint renderer (+ 30 i) (+ y 1))
                 set i (+ i 1)
             }
-        } else {}
-        
-        # === PLAYLIST SECTION ===
-        (nl_ui_label renderer font "Playlist:" 20 355 180 180 200 255)
-        
-        # Scrollable playlist
-        let clicked_track: int = (nl_ui_scrollable_list renderer small_font playlist
-                                                        playlist_count
-                                                        20 375 560 155 0 current_track_index)
-        if (!= clicked_track -1) {
-            set current_track_index clicked_track
-            set playback_time 0
-            set playback_start_ticks (SDL_GetTicks)
-            
-            (print "Selected: ")
-            (println (at playlist clicked_track))
-            
-            # Auto-play selected track
-            let track_path: string = (nl_fs_join_path music_dir current_track_name)
-            let music: Mix_Music = (Mix_LoadMUS track_path)
-            
-            if (!= music 0) {
-                (Mix_PlayMusic music -1)
-                set playback_state STATE_PLAYING
-                set playback_start_ticks (SDL_GetTicks)
-                set has_music true
             } else {}
-        } else {}
+            
+            # === BROWSE & CLEAR BUTTONS ===
+            if (== (nl_ui_button renderer font "Browse..." 20 175 90 30) 1) {
+                set ui_mode MODE_BROWSER
+                set browser_path (nl_prefs_get_home)
+                set browser_scroll 0
+                (println "📁 Opening directory browser...")
+            } else {}
+            
+            if (== (nl_ui_button renderer font "Clear" 120 175 70 30) 1) {
+                set playlist []
+                set playlist_count 0
+                set current_track_index 0
+                if (!= playback_state STATE_STOPPED) {
+                    (Mix_HaltMusic)
+                    set playback_state STATE_STOPPED
+                } else {}
+                (println "🗑 Playlist cleared")
+            } else {}
+            
+            # === PLAYLIST SECTION ===
+            (nl_ui_label renderer font "Playlist:" 20 355 180 180 200 255)
+            
+            # Show message if empty, otherwise show list
+            if (== playlist_count 0) {
+                (nl_ui_label renderer small_font "No tracks - click 'Browse' to add music" 30 385 150 150 150 255)
+            } else {
+                # Scrollable playlist
+                let clicked_track: int = (nl_ui_scrollable_list renderer small_font playlist
+                                                                playlist_count
+                                                                20 375 560 155 0 current_track_index)
+                if (!= clicked_track -1) {
+                    set current_track_index clicked_track
+                    set playback_time 0
+                    set playback_start_ticks (SDL_GetTicks)
+                    
+                    (print "Selected: ")
+                    (println (at playlist clicked_track))
+                    
+                    # Auto-play selected track (playlist contains full paths now)
+                    let track_path: string = (at playlist clicked_track)
+                    let music: Mix_Music = (Mix_LoadMUS track_path)
+                    
+                    if (!= music 0) {
+                        (Mix_PlayMusic music -1)
+                        set playback_state STATE_PLAYING
+                        set playback_start_ticks (SDL_GetTicks)
+                        set has_music true
+                    } else {}
+                } else {}
+            }
+        }
         
         # Present
         (SDL_RenderPresent renderer)
@@ -480,8 +616,22 @@ fn main() -> int {
         set frame (+ frame 1)
     }
     
-    # Cleanup
+    # Save playlist before exit
     (println "")
+    (print "Saving ")
+    (print playlist_count)
+    (print " tracks to ")
+    (print pref_path)
+    (println "...")
+    
+    let save_result: int = (nl_prefs_save_playlist pref_path playlist playlist_count)
+    if (== save_result 1) {
+        (println "✓ Playlist saved successfully")
+    } else {
+        (println "✗ Failed to save playlist")
+    }
+    
+    # Cleanup
     (println "Cleaning up...")
     (Mix_HaltMusic)
     (nl_audio_viz_shutdown)
