@@ -350,6 +350,31 @@
     "first_class_functions": "See examples/34_function_types.nano"
   },
   
+  "compiler_internals": {
+    "location": "stdlib/",
+    "description": "Self-hosted compiler components written in NanoLang",
+    "modules": [
+      {
+        "name": "StringBuilder",
+        "file": "stdlib/StringBuilder.nano",
+        "description": "String building utility for efficient concatenation",
+        "functions": 14
+      },
+      {
+        "name": "ast",
+        "file": "stdlib/ast.nano",
+        "description": "Abstract Syntax Tree data structures and operations",
+        "functions": 13
+      },
+      {
+        "name": "lalr",
+        "file": "stdlib/lalr.nano",
+        "description": "LALR parser tables and algorithms",
+        "functions": 20
+      }
+    ]
+  },
+  
   "status": {
     "version": "0.3.0",
     "stability": "production-ready",
@@ -386,6 +411,7 @@
     ],
     "self_hosting_achievement": {
       "date": "2025-11-30",
+      "status": "100% complete - true self-hosting achieved",
       "compiler_source": "src_nano/nanoc_selfhost.nano (152 lines)",
       "total_lines": "4,789 lines of self-hosted compiler code",
       "components": {
@@ -395,7 +421,9 @@
         "compiler_driver": "152 lines"
       },
       "bootstrap_chain": "C compiler → NanoLang compiler → NanoLang programs",
-      "verification": "All 156 shadow tests passing in self-hosted mode"
+      "verification": "All 156 shadow tests passing in self-hosted mode",
+      "bootstrap_stages": "Stage 0 (C) → Stage 1 (mixed) → Stage 2 (full self-host)",
+      "current_status": "Production-ready, self-compiling language (December 2025)"
     }
   }
 }
