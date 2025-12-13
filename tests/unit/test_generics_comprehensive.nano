@@ -94,7 +94,7 @@ fn test_list_operations() -> bool {
         return false
     } else {
         /* Verify all elements */
-        let sum: int = 0
+        let mut sum: int = 0
         let mut i: int = 0
         while (< i len) {
             let val: int = (list_int_get nums i)
