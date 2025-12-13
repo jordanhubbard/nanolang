@@ -4,10 +4,14 @@
 ![Tests](https://img.shields.io/badge/tests-21%2F21%20passing-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)
+![Bootstrap](https://img.shields.io/badge/bootstrap-100%25%20self--hosting-success.svg)
+![Type System](https://img.shields.io/badge/type%20system-100%25%20functional-success.svg)
 
 **A minimal, LLM-friendly programming language with mandatory testing and unambiguous syntax.**
 
 NanoLang transpiles to C for native performance while providing a clean, modern syntax optimized for both human readability and AI code generation.
+
+> **🎉 NEW**: NanoLang has achieved **TRUE 100% SELF-HOSTING** with a fully functional type system! The compiler is now written entirely in NanoLang and successfully compiles itself through multiple bootstrap stages. See [BOOTSTRAP_VICTORY.md](BOOTSTRAP_VICTORY.md) for details.
 
 ## Quick Start
 
