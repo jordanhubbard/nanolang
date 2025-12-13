@@ -34,15 +34,17 @@ fn compile_file(input: string, output: string) -> int {
 fn main() -> int {
     let argc: int = (get_argc)
     
-    /* Support two modes:
-     * 1. nanoc input.nano output  (compile with output)
-     * 2. nanoc input.nano         (compile and run shadow tests only)
+    /* Support three modes:
+     * 1. nanoc input.nano output      (compile with output)
+     * 2. nanoc input.nano -o output   (compile with -o flag, for compatibility)
+     * 3. nanoc input.nano             (compile and run shadow tests only)
      */
     if (< argc 2) {
         (println "Usage: nanoc <input.nano> [output]")
         (println "")
         (println "Examples:")
         (println "  nanoc program.nano program    # Compile to binary")
+        (println "  nanoc program.nano -o program # Compile to binary (with -o flag)")
         (println "  nanoc program.nano            # Run shadow tests only")
         (println "")
         (println "This is a self-hosted compiler written in NanoLang!")
@@ -57,11 +59,25 @@ fn main() -> int {
         } else {
             /* Get input and output files */
             let input: string = (get_argv 1)
-            let output: string = (get_argv 2)
+            let arg2: string = (get_argv 2)
             
-            /* Compile */
-            let result: int = (compile_file input output)
-            return result
+            /* Check if arg2 is "-o" flag */
+            if (str_equals arg2 "-o") {
+                /* nanoc input.nano -o output */
+                if (< argc 4) {
+                    (println "Error: -o flag requires output filename")
+                    return 1
+                } else {
+                    let output: string = (get_argv 3)
+                    let result: int = (compile_file input output)
+                    return result
+                }
+            } else {
+                /* nanoc input.nano output */
+                let output: string = arg2
+                let result: int = (compile_file input output)
+                return result
+            }
         }
     }
 }
