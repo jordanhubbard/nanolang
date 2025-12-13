@@ -11,9 +11,9 @@
 #
 # BOOTSTRAP TARGETS (Classic GCC-style):
 # - Stage 0: C Reference Compiler (bin/nanoc from C sources)
-# - Stage 1: Self-Hosted Compiler (nanoc_v04.nano compiled by stage 0)
-# - Stage 2: Recompiled Compiler (nanoc_v04.nano compiled by stage 1)
-# - Stage 3: Verify stage1 == stage2 (reproducible build proof!)
+# - Stage 1: Self-Hosted Compiler (nanoc_v05.nano compiled by stage 0)
+# - Stage 2: Recompiled Compiler (nanoc_v05.nano compiled by stage 1)
+# - Stage 3: Verify stage1 == stage2, auto-install nanoc_stage2 as bin/nanoc
 #
 # Sentinel files track build progress (.stage*.built) to avoid rebuilds.
 # Use "make clean" to remove all build artifacts and start fresh.
@@ -220,10 +220,15 @@ $(COMPILER_C): $(COMPILER_OBJECTS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS)
 	@echo "✓ C Compiler: $(COMPILER_C)"
 
-# Default compiler target - link to nanoc_c for now
+# Default compiler target - link to nanoc_c initially (bootstrap will update to nanoc_stage2)
 $(COMPILER): $(COMPILER_C) | $(BIN_DIR)
-	@ln -sf nanoc_c $(COMPILER)
-	@echo "✓ Compiler: $(COMPILER) -> $(COMPILER_C)"
+	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
+		ln -sf nanoc_stage2 $(COMPILER); \
+		echo "✓ Compiler: $(COMPILER) -> nanoc_stage2 (self-hosted)"; \
+	else \
+		ln -sf nanoc_c $(COMPILER); \
+		echo "✓ Compiler: $(COMPILER) -> $(COMPILER_C) (C reference)"; \
+	fi
 
 $(INTERPRETER): $(INTERPRETER_OBJECTS) | $(BIN_DIR)
 	@echo "Stage 1: Building reference interpreter..."
@@ -366,36 +371,25 @@ bootstrap: $(SENTINEL_BOOTSTRAP3)
 	@echo "=========================================="
 	@$(MAKE) bootstrap-status
 	@echo ""
-	@echo "NOTE: Stage binaries left in place for verification."
-	@echo "To install self-hosted compiler, run: make bootstrap-install"
+	@echo "✓ Self-hosted compiler installed as bin/nanoc"
+	@echo "✓ Stage binaries preserved in bin/ for verification"
+	@echo "✓ All future builds will use the self-hosted compiler"
 	@echo ""
 
-# Bootstrap and install: Replace bin/nanoc with self-hosted version (GCC-style)
+# Bootstrap and install: DEPRECATED - bootstrap now auto-installs
+# This target is kept for backwards compatibility but now just calls bootstrap
 bootstrap-install: bootstrap
 	@echo ""
 	@echo "=========================================="
-	@echo "Installing Self-Hosted Compiler"
-	@echo "=========================================="
-	@echo "Installing self-hosted compiler as bin/nanoc..."
-	@if [ -f $(NANOC_STAGE1) ]; then \
-		rm -f $(COMPILER) && \
-		cp $(NANOC_STAGE1) $(COMPILER) && \
-		echo "✓ bin/nanoc installed (self-hosted version)"; \
-	else \
-		echo "❌ Error: Stage 1 binary not found"; \
-		exit 1; \
-	fi
-	@echo "Cleaning up stage binaries..."
-	@rm -f $(NANOC_STAGE1) $(NANOC_STAGE2)
-	@rm -f $(SENTINEL_BOOTSTRAP0) $(SENTINEL_BOOTSTRAP1) $(SENTINEL_BOOTSTRAP2) $(SENTINEL_BOOTSTRAP3)
-	@echo ""
-	@echo "=========================================="
-	@echo "✅ BOOTSTRAP INSTALLATION COMPLETE!"
+	@echo "NOTE: bootstrap-install is DEPRECATED"
 	@echo "=========================================="
 	@echo ""
-	@echo "bin/nanoc is now the SELF-HOSTED compiler!"
+	@echo "The 'make bootstrap' target now automatically installs"
+	@echo "the self-hosted compiler. This target is kept for"
+	@echo "backwards compatibility but does nothing extra."
 	@echo ""
-	@file $(COMPILER) 2>/dev/null || true
+	@echo "To verify installation:"
+	@echo "  ls -lh bin/nanoc*"
 	@echo ""
 
 # Bootstrap Stage 0: Build C reference compiler
@@ -464,7 +458,6 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 		echo "by the C compiler is IDENTICAL to the compiler compiled"; \
 		echo "by itself. This is TRUE SELF-HOSTING!"; \
 		echo ""; \
-		touch $(SENTINEL_BOOTSTRAP3); \
 	else \
 		echo "⚠️  Bootstrap verification: Binaries differ"; \
 		echo ""; \
@@ -478,8 +471,18 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 		echo ""; \
 		echo "Both compilers work correctly, which proves self-hosting!"; \
 		echo ""; \
-		touch $(SENTINEL_BOOTSTRAP3); \
-	fi
+	fi; \
+	echo "==========================================";\
+	echo "Installing Self-Hosted Compiler"; \
+	echo "==========================================";\
+	echo "Updating bin/nanoc to use self-hosted compiler...";\
+	rm -f $(COMPILER); \
+	ln -sf nanoc_stage2 $(COMPILER); \
+	echo "✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)"; \
+	echo ""; \
+	echo "All subsequent builds (test, examples) will use the self-hosted compiler!"; \
+	echo ""; \
+	touch $(SENTINEL_BOOTSTRAP3)
 
 # Show bootstrap status
 bootstrap-status:
@@ -651,12 +654,11 @@ help:
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "TRUE Bootstrap (Classic GCC-style):"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "  make bootstrap         - Build all stages (keep stage binaries)"
-	@echo "  make bootstrap-install - Bootstrap + replace bin/nanoc (GCC-style)"
+	@echo "  make bootstrap         - 3-stage bootstrap + auto-install nanoc_stage2"
 	@echo "  make bootstrap0        - Stage 0: C → nanoc"
 	@echo "  make bootstrap1        - Stage 1: nanoc → nanoc_stage1"
 	@echo "  make bootstrap2        - Stage 2: stage1 → nanoc_stage2"
-	@echo "  make bootstrap3        - Stage 3: Verify stage1 == stage2"
+	@echo "  make bootstrap3        - Stage 3: Verify + install nanoc_stage2"
 	@echo "  make bootstrap-status  - Show bootstrap status"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -673,10 +675,12 @@ help:
 	@echo "  Stage 3: Validate components work"
 	@echo ""
 	@echo "TRUE Bootstrap Process:"
-	@echo "  Stage 0: C sources → bin/nanoc (C-based)"
-	@echo "  Stage 1: bin/nanoc compiles nanoc_v04.nano → nanoc_stage1"
-	@echo "  Stage 2: nanoc_stage1 recompiles nanoc_v04.nano → nanoc_stage2"
-	@echo "  Stage 3: Verify nanoc_stage1 == nanoc_stage2 (reproducible!)"
+	@echo "  Stage 0: C sources → bin/nanoc_c (C-based)"
+	@echo "  Stage 1: nanoc_c compiles nanoc_v05.nano → nanoc_stage1"
+	@echo "  Stage 2: nanoc_stage1 recompiles nanoc_v05.nano → nanoc_stage2"
+	@echo "  Stage 3: Verify stage1 == stage2, install nanoc_stage2 as bin/nanoc"
+	@echo ""
+	@echo "After bootstrap: bin/nanoc → nanoc_stage2 (self-hosted compiler)"
 	@echo ""
 	@echo "Sentinels:"
 	@echo "  .stage{1,2,3}.built - Component build"

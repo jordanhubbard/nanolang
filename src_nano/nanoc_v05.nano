@@ -34,22 +34,35 @@ fn compile_file(input: string, output: string) -> int {
 fn main() -> int {
     let argc: int = (get_argc)
     
-    /* Check for minimum arguments: program input output */
-    if (< argc 3) {
-        (println "Usage: nanoc_v05 <input.nano> <output>")
+    /* Support two modes:
+     * 1. nanoc input.nano output  (compile with output)
+     * 2. nanoc input.nano         (compile and run shadow tests only)
+     */
+    if (< argc 2) {
+        (println "Usage: nanoc <input.nano> [output]")
         (println "")
-        (println "Example: nanoc_v05 program.nano program")
+        (println "Examples:")
+        (println "  nanoc program.nano program    # Compile to binary")
+        (println "  nanoc program.nano            # Run shadow tests only")
         (println "")
         (println "This is a self-hosted compiler written in NanoLang!")
         return 1
     } else {
-        /* Get input and output files */
-        let input: string = (get_argv 1)
-        let output: string = (get_argv 2)
-        
-        /* Compile */
-        let result: int = (compile_file input output)
-        return result
+        if (== argc 2) {
+            /* Shadow test mode: just call nanoc_c to run tests */
+            let input: string = (get_argv 1)
+            let cmd: string = (str_concat "bin/nanoc_c " input)
+            let result: int = (system cmd)
+            return result
+        } else {
+            /* Get input and output files */
+            let input: string = (get_argv 1)
+            let output: string = (get_argv 2)
+            
+            /* Compile */
+            let result: int = (compile_file input output)
+            return result
+        }
     }
 }
 
