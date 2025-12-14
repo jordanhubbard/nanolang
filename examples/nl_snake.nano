@@ -34,23 +34,8 @@ shadow grid_index {
 }
 
 fn is_valid_pos(x: int, y: int, width: int, height: int) -> bool {
-    if (< x 0) {
-        return false
-    } else {
-        if (>= x width) {
-            return false
-        } else {
-            if (< y 0) {
-                return false
-            } else {
-                if (>= y height) {
-                    return false
-                } else {
-                    return true
-                }
-            }
-        }
-    }
+    return (and (and (>= x 0) (< x width))
+                (and (>= y 0) (< y height)))
 }
 
 shadow is_valid_pos {
@@ -59,65 +44,51 @@ shadow is_valid_pos {
     assert (== (is_valid_pos 10 5 10 10) false)
 }
 
-fn move_in_direction(x: int, y: int, dir: int) -> int {
+fn move_in_direction(x: int, y: int, dir: int) -> (int, int) {
     if (== dir Direction.UP) {
-        return (- y 1)
+        return (x, (- y 1))
     } else {
         if (== dir Direction.DOWN) {
-            return (+ y 1)
+            return (x, (+ y 1))
         } else {
             if (== dir Direction.LEFT) {
-                return x
+                return ((- x 1), y)
             } else {
-                if (== dir Direction.RIGHT) {
-                    return x
-                } else {
-                    return x
-                }
+                # Direction.RIGHT
+                return ((+ x 1), y)
             }
         }
     }
 }
 
 shadow move_in_direction {
-    let y: int = (move_in_direction 5 5 Direction.UP)
-    assert (== y 4)
+    let result: (int, int) = (move_in_direction 5 5 Direction.UP)
+    assert (== result.0 5)
+    assert (== result.1 4)
+    let result2: (int, int) = (move_in_direction 5 5 Direction.LEFT)
+    assert (== result2.0 4)
+    assert (== result2.1 5)
 }
 
 fn print_grid(snake_x: array<int>, snake_y: array<int>, food_x: int, food_y: int, width: int, height: int) -> int {
-    let mut y: int = 0
-    while (< y height) {
-        let mut x: int = 0
-        while (< x width) {
-            # Check if this is food
-            let mut is_food: bool = false
-            if (== x food_x) {
-                if (== y food_y) {
-                    set is_food true
-                } else {
-                    (print "")
-                }
-            } else {
-                (print "")
-            }
+    # Modern for loop iteration
+    for y in (range 0 height) {
+        for x in (range 0 width) {
+            # Check if this is food (modern boolean expression)
+            let is_food: bool = (and (== x food_x) (== y food_y))
             
             if is_food {
                 (print "◉")
             } else {
-                # Check if this is snake
+                # Check if this is snake (modernized loop)
                 let mut is_snake: bool = false
-                let mut i: int = 0
-                while (< i (array_length snake_x)) {
-                    if (== x (at snake_x i)) {
-                        if (== y (at snake_y i)) {
-                            set is_snake true
-                        } else {
-                            (print "")
-                        }
+                let snake_len: int = (array_length snake_x)
+                for i in (range 0 snake_len) {
+                    if (and (== x (at snake_x i)) (== y (at snake_y i))) {
+                        set is_snake true
                     } else {
                         (print "")
                     }
-                    set i (+ i 1)
                 }
                 
                 if is_snake {
@@ -126,11 +97,8 @@ fn print_grid(snake_x: array<int>, snake_y: array<int>, food_x: int, food_y: int
                     (print "·")
                 }
             }
-            
-            set x (+ x 1)
         }
         (println "")
-        set y (+ y 1)
     }
     return 0
 }
@@ -151,18 +119,13 @@ fn check_self_collision(snake_x: array<int>, snake_y: array<int>) -> bool {
         let head_x: int = (at snake_x 0)
         let head_y: int = (at snake_y 0)
         
-        let mut i: int = 1
-        while (< i len) {
-            if (== head_x (at snake_x i)) {
-                if (== head_y (at snake_y i)) {
-                    return true
-                } else {
-                    (print "")
-                }
+        # Check collision with body (modern for loop)
+        for i in (range 1 len) {
+            if (and (== head_x (at snake_x i)) (== head_y (at snake_y i))) {
+                return true
             } else {
                 (print "")
             }
-            set i (+ i 1)
         }
         return false
     }
@@ -254,27 +217,10 @@ fn main() -> int {
             }
         }
         
-        # Calculate new head position
-        let mut new_head_x: int = head_x
-        let mut new_head_y: int = head_y
-        
-        if (== direction Direction.UP) {
-            set new_head_y (- head_y 1)
-        } else {
-            if (== direction Direction.DOWN) {
-                set new_head_y (+ head_y 1)
-            } else {
-                if (== direction Direction.LEFT) {
-                    set new_head_x (- head_x 1)
-                } else {
-                    if (== direction Direction.RIGHT) {
-                        set new_head_x (+ head_x 1)
-                    } else {
-                        (print "")
-                    }
-                }
-            }
-        }
+        # Calculate new head position using modern tuple return
+        let new_pos: (int, int) = (move_in_direction head_x head_y direction)
+        let new_head_x: int = new_pos.0
+        let new_head_y: int = new_pos.1
         
         # Check wall collision
         if (not (is_valid_pos new_head_x new_head_y GRID_WIDTH GRID_HEIGHT)) {
@@ -288,26 +234,21 @@ fn main() -> int {
             set new_snake_x (array_push new_snake_x new_head_x)
             set new_snake_y (array_push new_snake_y new_head_y)
             
-            # Check if food eaten
-            let mut ate_food: bool = false
-            if (== new_head_x food_x) {
-                if (== new_head_y food_y) {
-                    set ate_food true
-                    set score (+ score 1)
-                    # Move food (simple: add offset)
-                    set food_x (+ food_x 5)
-                    set food_y (+ food_y 3)
-                    # Wrap food position
-                    if (>= food_x GRID_WIDTH) {
-                        set food_x (- food_x GRID_WIDTH)
-                    } else {
-                        (print "")
-                    }
-                    if (>= food_y GRID_HEIGHT) {
-                        set food_y (- food_y GRID_HEIGHT)
-                    } else {
-                        (print "")
-                    }
+            # Check if food eaten (modern boolean expression)
+            let ate_food: bool = (and (== new_head_x food_x) (== new_head_y food_y))
+            if ate_food {
+                set score (+ score 1)
+                # Move food (simple: add offset)
+                set food_x (+ food_x 5)
+                set food_y (+ food_y 3)
+                # Wrap food position
+                if (>= food_x GRID_WIDTH) {
+                    set food_x (- food_x GRID_WIDTH)
+                } else {
+                    (print "")
+                }
+                if (>= food_y GRID_HEIGHT) {
+                    set food_y (- food_y GRID_HEIGHT)
                 } else {
                     (print "")
                 }
@@ -315,20 +256,18 @@ fn main() -> int {
                 (print "")
             }
             
-            # Copy rest of body
+            # Copy rest of body (modern for loop)
             let body_len: int = (array_length snake_x)
-            let copy_len: int = body_len
+            let mut copy_len: int = body_len
             if (not ate_food) {
                 set copy_len (- body_len 1)  # Remove tail
             } else {
                 (print "")
             }
             
-            set i 0
-            while (< i copy_len) {
+            for i in (range 0 copy_len) {
                 set new_snake_x (array_push new_snake_x (at snake_x i))
                 set new_snake_y (array_push new_snake_y (at snake_y i))
-                set i (+ i 1)
             }
             
             set snake_x new_snake_x

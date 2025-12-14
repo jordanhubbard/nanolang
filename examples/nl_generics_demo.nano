@@ -1,0 +1,161 @@
+# Comprehensive Generic Types Demo
+# Demonstrates List<T> with user-defined types
+
+struct Point {
+    x: int,
+    y: int
+}
+
+struct Player {
+    name: string,
+    score: int,
+    position: Point
+}
+
+fn test_point_list() -> int {
+    (println "=== Testing List<Point> ===")
+    
+    let points: List<Point> = (list_Point_new)
+    
+    # Add some points
+    let p1: Point = Point { x: 10, y: 20 }
+    let p2: Point = Point { x: 30, y: 40 }
+    let p3: Point = Point { x: 50, y: 60 }
+    
+    (list_Point_push points p1)
+    (list_Point_push points p2)
+    (list_Point_push points p3)
+    
+    (print "Added ")
+    (print (list_Point_length points))
+    (println " points")
+    
+    # Retrieve and use points
+    let first: Point = (list_Point_get points 0)
+    (print "First point: (")
+    (print first.x)
+    (print ", ")
+    (print first.y)
+    (println ")")
+    
+    let last: Point = (list_Point_pop points)
+    (print "Popped point: (")
+    (print last.x)
+    (print ", ")
+    (print last.y)
+    (println ")")
+    
+    (print "Remaining points: ")
+    (println (list_Point_length points))
+    
+    return 0
+}
+
+shadow test_point_list {
+    assert (== (test_point_list) 0)
+}
+
+fn test_player_list() -> int {
+    (println "")
+    (println "=== Testing List<Player> ===")
+    
+    let players: List<Player> = (list_Player_new)
+    
+    # Create players
+    let spawn: Point = Point { x: 0, y: 0 }
+    
+    let p1: Player = Player { 
+        name: "Alice", 
+        score: 100,
+        position: spawn
+    }
+    
+    let p2: Player = Player {
+        name: "Bob",
+        score: 150,
+        position: Point { x: 10, y: 10 }
+    }
+    
+    (list_Player_push players p1)
+    (list_Player_push players p2)
+    
+    # Calculate total score
+    let mut total_score: int = 0
+    for i in (range 0 (list_Player_length players)) {
+        let player: Player = (list_Player_get players i)
+        set total_score (+ total_score player.score)
+        
+        (print "Player ")
+        (print player.name)
+        (print " - Score: ")
+        (print player.score)
+        (print " at (")
+        (print player.position.x)
+        (print ", ")
+        (print player.position.y)
+        (println ")")
+    }
+    
+    (print "Total score: ")
+    (println total_score)
+    
+    return total_score
+}
+
+shadow test_player_list {
+    assert (== (test_player_list) 250)
+}
+
+fn test_multiple_lists() -> int {
+    (println "")
+    (println "=== Testing Multiple Generic Lists ===")
+    
+    let points: List<Point> = (list_Point_new)
+    let players: List<Player> = (list_Player_new)
+    
+    (list_Point_push points Point { x: 1, y: 2 })
+    (list_Point_push points Point { x: 3, y: 4 })
+    
+    let spawn: Point = Point { x: 0, y: 0 }
+    (list_Player_push players Player { name: "Test", score: 50, position: spawn })
+    
+    let point_count: int = (list_Point_length points)
+    let player_count: int = (list_Player_length players)
+    
+    (print "Points: ")
+    (print point_count)
+    (print ", Players: ")
+    (println player_count)
+    
+    return (+ point_count player_count)
+}
+
+shadow test_multiple_lists {
+    assert (== (test_multiple_lists) 3)
+}
+
+fn main() -> int {
+    (println "╔════════════════════════════════════════╗")
+    (println "║  Nanolang Generic Types Demonstration  ║")
+    (println "╚════════════════════════════════════════╝")
+    (println "")
+    
+    (test_point_list)
+    (test_player_list)
+    (test_multiple_lists)
+    
+    (println "")
+    (println "✅ All generic type tests passed!")
+    (println "")
+    (println "Generic types support:")
+    (println "  • List<Point>, List<Player>, List<Any Struct>")
+    (println "  • Full CRUD operations (push, pop, get, set)")
+    (println "  • Type-safe operations")
+    (println "  • Automatic memory management")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

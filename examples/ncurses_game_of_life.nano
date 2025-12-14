@@ -24,28 +24,24 @@ fn grid_index(x: int, y: int, width: int) -> int {
     return (+ (* y width) x)
 }
 
-fn grid_get(grid: array<CellState>, x: int, y: int, width: int, height: int) -> CellState {
-    if (< x 0) {
+fn grid_get(grid: array<int>, x: int, y: int, width: int, height: int) -> int {
+    # Modern bounds checking with early return
+    if (or (< x 0) (>= x width)) {
         return CellState.DEAD
     } else {
-        if (>= x width) {
-            return CellState.DEAD
-        } else {
-            if (< y 0) {
-                return CellState.DEAD
-            } else {
-                if (>= y height) {
-                    return CellState.DEAD
-                } else {
-                    let idx: int = (grid_index x y width)
-                    return (at grid idx)
-                }
-            }
-        }
+        (print "")
     }
+    if (or (< y 0) (>= y height)) {
+        return CellState.DEAD
+    } else {
+        (print "")
+    }
+    
+    let idx: int = (grid_index x y width)
+    return (at grid idx)
 }
 
-fn count_neighbors(grid: array<CellState>, x: int, y: int, width: int, height: int) -> int {
+fn count_neighbors(grid: array<int>, x: int, y: int, width: int, height: int) -> int {
     let mut count: int = 0
     
     # Check all 8 neighbors
@@ -86,21 +82,20 @@ fn apply_rules(current: CellState, neighbors: int) -> CellState {
     }
 }
 
-fn make_empty_grid(width: int, height: int) -> array<CellState> {
-    let mut grid: array<CellState> = []
+fn make_empty_grid(width: int, height: int) -> array<int> {
+    let mut grid: array<int> = []
     let total: int = (* width height)
-    let dead: CellState = CellState.DEAD
+    let dead: int = CellState.DEAD
     
-    let mut i: int = 0
-    while (< i total) {
+    # Modern for loop
+    for i in (range 0 total) {
         set grid (array_push grid dead)
-        set i (+ i 1)
     }
     
     return grid
 }
 
-fn add_glider(grid: array<CellState>, width: int, height: int, start_x: int, start_y: int) -> array<CellState> {
+fn add_glider(grid: array<int>, width: int, height: int, start_x: int, start_y: int) -> array<int> {
     # Glider pattern:
     #   █
     #    █
@@ -123,7 +118,7 @@ fn add_glider(grid: array<CellState>, width: int, height: int, start_x: int, sta
     return grid
 }
 
-fn add_blinker(grid: array<CellState>, width: int, height: int, start_x: int, start_y: int) -> array<CellState> {
+fn add_blinker(grid: array<int>, width: int, height: int, start_x: int, start_y: int) -> array<int> {
     # Blinker pattern (oscillator):
     # ███
     
@@ -140,13 +135,12 @@ fn add_blinker(grid: array<CellState>, width: int, height: int, start_x: int, st
     return grid
 }
 
-fn step(grid: array<CellState>, width: int, height: int) -> array<CellState> {
-    let mut new_grid: array<CellState> = (make_empty_grid width height)
+fn step(grid: array<int>, width: int, height: int) -> array<int> {
+    let mut new_grid: array<int> = (make_empty_grid width height)
     
-    let mut y: int = 0
-    while (< y height) {
-        let mut x: int = 0
-        while (< x width) {
+    # Modern for loops
+    for y in (range 0 height) {
+        for x in (range 0 width) {
             let idx: int = (grid_index x y width)
             let neighbors: int = (count_neighbors grid x y width height)
             
@@ -166,22 +160,18 @@ fn step(grid: array<CellState>, width: int, height: int) -> array<CellState> {
                     }
                 }
             }
-            
-            set x (+ x 1)
         }
-        set y (+ y 1)
     }
     
     return new_grid
 }
 
-fn draw_grid_ncurses(grid: array<CellState>, width: int, height: int) -> void {
+fn draw_grid_ncurses(grid: array<int>, width: int, height: int) -> void {
     let alive: int = CellState.ALIVE
     
-    let mut y: int = 0
-    while (< y height) {
-        let mut x: int = 0
-        while (< x width) {
+    # Modern for loops
+    for y in (range 0 height) {
+        for x in (range 0 width) {
             let idx: int = (grid_index x y width)
             
             if (== (at grid idx) alive) {
@@ -189,10 +179,7 @@ fn draw_grid_ncurses(grid: array<CellState>, width: int, height: int) -> void {
             } else {
                 (mvaddch_wrapper y x (cast_int ' '))
             }
-            
-            set x (+ x 1)
         }
-        set y (+ y 1)
     }
 }
 
@@ -212,7 +199,7 @@ fn main() -> int {
     # Seed random number generator
     (srand 42)  # Use fixed seed for reproducibility, or (time 0) for varying
     
-    let mut grid: array<CellState> = []
+    let mut grid: array<int> = []
     let grid_size: int = (* GRID_WIDTH GRID_HEIGHT)
     let alive: CellState = CellState.ALIVE
     let dead: CellState = CellState.DEAD

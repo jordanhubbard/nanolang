@@ -24,23 +24,9 @@ fn grid_index(x: int, y: int, width: int) -> int {
 }
 
 fn is_valid_pos(x: int, y: int, width: int, height: int) -> bool {
-    if (< x 0) {
-        return false
-    } else {
-        if (>= x width) {
-            return false
-        } else {
-            if (< y 0) {
-                return false
-            } else {
-                if (>= y height) {
-                    return false
-                } else {
-                    return true
-                }
-            }
-        }
-    }
+    # Modern boolean expression
+    return (and (and (>= x 0) (< x width))
+                (and (>= y 0) (< y height)))
 }
 
 fn check_self_collision(snake_x: array<int>, snake_y: array<int>, length: int) -> bool {
@@ -51,47 +37,34 @@ fn check_self_collision(snake_x: array<int>, snake_y: array<int>, length: int) -
     let head_x: int = (at snake_x 0)
     let head_y: int = (at snake_y 0)
     
-    let mut i: int = 1
-    while (< i length) {
-        let sx: int = (at snake_x i)
-        let sy: int = (at snake_y i)
-        
-        if (== head_x sx) {
-            if (== head_y sy) {
-                return true
-            } else {}
+    # Modern for loop with boolean expression
+    for i in (range 1 length) {
+        if (and (== head_x (at snake_x i)) (== head_y (at snake_y i))) {
+            return true
         } else {}
-        
-        set i (+ i 1)
     }
     
     return false
 }
 
 fn draw_border(width: int, height: int) -> void {
-    # Draw top border
+    # Draw top border (modern for loop)
     (mvaddch_wrapper 0 0 (cast_int '+'))
-    let mut x: int = 1
-    while (< x (+ width 1)) {
+    for x in (range 1 (+ width 1)) {
         (mvaddch_wrapper 0 x (cast_int '-'))
-        set x (+ x 1)
     }
     (mvaddch_wrapper 0 (+ width 1) (cast_int '+'))
     
-    # Draw sides
-    let mut y: int = 1
-    while (< y (+ height 1)) {
+    # Draw sides (modern for loop)
+    for y in (range 1 (+ height 1)) {
         (mvaddch_wrapper y 0 (cast_int '|'))
         (mvaddch_wrapper y (+ width 1) (cast_int '|'))
-        set y (+ y 1)
     }
     
-    # Draw bottom border
+    # Draw bottom border (modern for loop)
     (mvaddch_wrapper (+ height 1) 0 (cast_int '+'))
-    set x 1
-    while (< x (+ width 1)) {
+    for x in (range 1 (+ width 1)) {
         (mvaddch_wrapper (+ height 1) x (cast_int '-'))
-        set x (+ x 1)
     }
     (mvaddch_wrapper (+ height 1) (+ width 1) (cast_int '+'))
 }
@@ -102,9 +75,8 @@ fn draw_game(snake_x: array<int>, snake_y: array<int>, food_x: int, food_y: int,
     # Draw border
     (draw_border GRID_WIDTH GRID_HEIGHT)
     
-    # Draw snake
-    let mut i: int = 0
-    while (< i length) {
+    # Draw snake (modern for loop)
+    for i in (range 0 length) {
         let sx: int = (at snake_x i)
         let sy: int = (at snake_y i)
         
@@ -118,8 +90,6 @@ fn draw_game(snake_x: array<int>, snake_y: array<int>, food_x: int, food_y: int,
             # Body
             (mvaddch_wrapper screen_y screen_x (cast_int 'o'))
         }
-        
-        set i (+ i 1)
     }
     
     # Draw food

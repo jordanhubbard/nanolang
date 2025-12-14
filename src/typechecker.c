@@ -168,6 +168,11 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
         }
         
         case AST_CALL: {
+            /* Check if return_struct_type_name was set by type checker (for generic list get) */
+            if (expr->as.call.return_struct_type_name) {
+                return expr->as.call.return_struct_type_name;
+            }
+            
             /* Check if function returns a struct */
             Function *func = env_get_function(env, expr->as.call.name);
             if (func && func->return_type == TYPE_STRUCT) {
@@ -418,6 +423,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (!func) {
                 Symbol *sym = env_get_var(env, expr->as.call.name);
                 if (sym && sym->type == TYPE_FUNCTION) {
+                    /* Mark the variable as used */
+                    sym->is_used = true;
+                    
                     /* This is a call to a function parameter - check arguments */
                     for (int i = 0; i < expr->as.call.arg_count; i++) {
                         check_expression(expr->as.call.args[i], env);
@@ -426,10 +434,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     if (expr->as.call.arg_count == 0) {
                         return TYPE_FUNCTION;
                     }
-                    /* Otherwise, return type depends on the function signature */
-                    /* For now, return TYPE_FUNCTION if it's a function-typed parameter being called */
-                    /* The actual return type would be in the function signature, but we don't store that in Symbol yet */
-                    return TYPE_INT;  /* Placeholder - actual return type depends on function signature */
+                    /* Get return type from the type_info signature if available */
+                    /* For now, we don't track return types properly in TypeInfo */
+                    /* Default to TYPE_INT as placeholder */
+                    return TYPE_INT;
                 }
                 
                 /* Special handling for dynamic array builtins */
@@ -588,6 +596,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                     free(type_name);
                                     return TYPE_LIST_GENERIC;  /* Returns List<Type> */
                                 } else if (strcmp(operation, "get") == 0) {
+                                    /* Set struct type name on the call node for field access */
+                                    if (!edef && sdef) {
+                                        expr->as.call.return_struct_type_name = strdup(type_name);
+                                    }
                                     free(type_name);
                                     return edef ? TYPE_ENUM : TYPE_STRUCT;  /* Returns element type */
                                 } else if (strcmp(operation, "length") == 0 || strcmp(operation, "capacity") == 0) {

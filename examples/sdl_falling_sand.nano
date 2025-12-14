@@ -91,8 +91,9 @@ shadow write_material {
 
 # === CELLULAR AUTOMATA RULES ===
 
-fn update_sand(grid: array<int>, x: int, y: int) -> bool {
+fn update_sand(grid_in: array<int>, x: int, y: int) -> bool {
     # Sand falls down, or diagonally if blocked
+    let mut grid: array<int> = grid_in
     let below: Material = (read_material grid x (+ y 1))
     
     if (== below Material.EMPTY) {
@@ -132,8 +133,9 @@ shadow update_sand {
     (print "")
 }
 
-fn update_water(grid: array<int>, x: int, y: int) -> bool {
+fn update_water(grid_in: array<int>, x: int, y: int) -> bool {
     # Water falls down, then spreads sideways
+    let mut grid: array<int> = grid_in
     let below: Material = (read_material grid x (+ y 1))
     
     if (== below Material.EMPTY) {
@@ -166,8 +168,9 @@ shadow update_water {
     (print "")
 }
 
-fn update_fire(grid: array<int>, x: int, y: int, fire_life: array<int>) -> bool {
+fn update_fire(grid_in: array<int>, x: int, y: int, fire_life: array<int>) -> bool {
     # Fire burns wood, creates smoke, has lifetime
+    let mut grid: array<int> = grid_in
     let idx: int = (grid_index x y)
     let life: int = (at fire_life idx)
     
@@ -224,8 +227,9 @@ shadow update_fire {
     (print "")
 }
 
-fn update_smoke(grid: array<int>, x: int, y: int) -> bool {
+fn update_smoke(grid_in: array<int>, x: int, y: int) -> bool {
     # Smoke rises and disperses horizontally
+    let mut grid: array<int> = grid_in
     let above: Material = (read_material grid x (- y 1))
     
     # Try to rise
@@ -562,37 +566,37 @@ fn main() -> int {
         (nl_ui_panel renderer 40 545 550 50 20 20 30 200)
         
         # Radio buttons for material selection (convert bool to int for selected state)
-        let sand_selected: int = 0
+        let mut sand_selected: int = 0
         if (== current_material Material.SAND) { set sand_selected 1 } else {}
         if (== (nl_ui_radio_button renderer font "Sand" 50 560 sand_selected) 1) {
             set current_material Material.SAND
         } else {}
         
-        let water_selected: int = 0
+        let mut water_selected: int = 0
         if (== current_material Material.WATER) { set water_selected 1 } else {}
         if (== (nl_ui_radio_button renderer font "Water" 130 560 water_selected) 1) {
             set current_material Material.WATER
         } else {}
         
-        let stone_selected: int = 0
+        let mut stone_selected: int = 0
         if (== current_material Material.STONE) { set stone_selected 1 } else {}
         if (== (nl_ui_radio_button renderer font "Stone" 220 560 stone_selected) 1) {
             set current_material Material.STONE
         } else {}
         
-        let wood_selected: int = 0
+        let mut wood_selected: int = 0
         if (== current_material Material.WOOD) { set wood_selected 1 } else {}
         if (== (nl_ui_radio_button renderer font "Wood" 310 560 wood_selected) 1) {
             set current_material Material.WOOD
         } else {}
         
-        let fire_selected: int = 0
+        let mut fire_selected: int = 0
         if (== current_material Material.FIRE) { set fire_selected 1 } else {}
         if (== (nl_ui_radio_button renderer font "Fire" 400 560 fire_selected) 1) {
             set current_material Material.FIRE
         } else {}
         
-        let smoke_selected: int = 0
+        let mut smoke_selected: int = 0
         if (== current_material Material.SMOKE) { set smoke_selected 1 } else {}
         if (== (nl_ui_radio_button renderer font "Smoke" 480 560 smoke_selected) 1) {
             set current_material Material.SMOKE

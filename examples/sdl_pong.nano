@@ -78,7 +78,7 @@ fn main() -> int {
         
         # Calculate delta time
         let current_time: int = (SDL_GetTicks)
-        let dt: float = (/ (cast_float (- current_time last_time)) 1000.0)
+        let mut dt: float = (/ (cast_float (- current_time last_time)) 1000.0)
         set last_time current_time
         
         # Limit dt to prevent huge jumps

@@ -1062,7 +1062,7 @@ fn main() -> int {
                     if has_selection {
                         # Try to make move
                         let jumps_available: bool = (has_any_jump board game_state)
-                        let move_valid: bool = false
+                        let mut move_valid: bool = false
                         
                         if jumps_available {
                             set move_valid (is_valid_jump board game_state selected_row selected_col row col)

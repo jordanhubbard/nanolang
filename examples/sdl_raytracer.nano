@@ -651,7 +651,7 @@ fn main() -> int {
     
     # State
     let mut running: bool = true
-    let mut needs_render: bool = true
+    let mut needs_render: bool = false  # Don't render on startup - wait for user to press SPACE
     
     (println "")
     (println "=== CLASSIC RAY TRACER DEMO ===")

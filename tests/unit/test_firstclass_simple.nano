@@ -1,0 +1,62 @@
+/* Simple First-Class Functions Test
+ * Tests basic function references without complex features
+ */
+
+/* Test 1: Functions as parameters */
+fn apply_twice(f: fn(int) -> int, x: int) -> int {
+    let result1: int = (f x)
+    let result2: int = (f result1)
+    return result2
+}
+
+fn increment(n: int) -> int {
+    return (+ n 1)
+}
+
+shadow increment {
+    assert (== (increment 5) 6)
+}
+
+fn test_apply() -> bool {
+    let result: int = (apply_twice increment 10)
+    return (== result 12)
+}
+
+shadow test_apply {
+    assert (== (test_apply) true)
+}
+
+/* Test 2: Binary functions */
+fn binary_op(f: fn(int, int) -> int, a: int, b: int) -> int {
+    return (f a b)
+}
+
+fn add(x: int, y: int) -> int {
+    return (+ x y)
+}
+
+fn multiply(x: int, y: int) -> int {
+    return (* x y)
+}
+
+fn test_binary() -> bool {
+    let sum: int = (binary_op add 10 20)
+    let product: int = (binary_op multiply 10 20)
+    return (and (== sum 30) (== product 200))
+}
+
+shadow test_binary {
+    assert (== (test_binary) true)
+}
+
+fn main() -> int {
+    (println "=== Testing First-Class Functions ===")
+    (println "✓ Function parameters work")
+    (println "✓ Binary functions work")
+    (println "✅ All tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

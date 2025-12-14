@@ -629,6 +629,7 @@ static ASTNode *parse_prefix_op(Parser *p) {
         node->as.call.func_expr = NULL;
         node->as.call.args = args;
         node->as.call.arg_count = count;
+        node->as.call.return_struct_type_name = NULL;  /* Will be set by type checker if needed */
         return node;
     } else {
         fprintf(stderr, "Error at line %d, column %d: Invalid prefix operation\n", line, column);
@@ -720,9 +721,22 @@ static ASTNode *parse_primary(Parser *p) {
         case TOKEN_IDENTIFIER: {
             /* Check if this is a struct literal: StructName { ... } */
             /* Only parse as struct literal if identifier starts with uppercase (type convention) */
+            /* AND it's not followed by code keywords that indicate it's a condition */
             Token *next = peek_token(p, 1);
+            Token *after_brace = peek_token(p, 2);
             bool looks_like_struct = tok->value && tok->value[0] >= 'A' && tok->value[0] <= 'Z';
-            if (next && next->token_type == TOKEN_LBRACE && looks_like_struct) {
+            
+            /* Heuristic: if the token after { is a keyword like 'if', 'return', 'let', etc., 
+               this is NOT a struct literal, it's a code block after a condition */
+            bool looks_like_code_block = after_brace && (
+                after_brace->token_type == TOKEN_IF ||
+                after_brace->token_type == TOKEN_RETURN ||
+                after_brace->token_type == TOKEN_LET ||
+                after_brace->token_type == TOKEN_WHILE ||
+                after_brace->token_type == TOKEN_FOR
+            );
+            
+            if (next && next->token_type == TOKEN_LBRACE && looks_like_struct && !looks_like_code_block) {
                 /* Parse struct literal */
                 int line = tok->line;
                 int column = tok->column;
@@ -921,6 +935,7 @@ static ASTNode *parse_primary(Parser *p) {
                     node->as.call.func_expr = NULL;
                     node->as.call.args = NULL;  /* Zero arguments */
                     node->as.call.arg_count = 0;
+                    node->as.call.return_struct_type_name = NULL;  /* Will be set by type checker if needed */
                     
                     /* Free the identifier node shell (but not the string, we stole it) */
                     free(first_expr);
@@ -1028,6 +1043,7 @@ static ASTNode *parse_primary(Parser *p) {
                 }
                 node->as.call.args = args;
                 node->as.call.arg_count = count;
+                node->as.call.return_struct_type_name = NULL;  /* Will be set by type checker if needed */
                 
                 return node;
             }
@@ -1109,23 +1125,23 @@ static ASTNode *parse_if_expression(Parser *p) {
     //         if_depth, after_then ? token_type_name(after_then->type) : "NULL",
     //         after_then ? after_then->line : 0, after_then ? after_then->column : 0);
 
-    if (!expect(p, TOKEN_ELSE, "Expected 'else' after 'if' block")) {
-        // fprintf(stderr, "DEBUG [if_depth=%d]: Failed to find ELSE after then_branch at line %d\n", if_depth, line);
-        // if_depth--;
-        return NULL;
-    }
-
-    ASTNode *else_branch = parse_block(p);
-    if (!else_branch) {
-        // fprintf(stderr, "DEBUG [if_depth=%d]: Failed to parse else_branch at line %d\n", if_depth, line);
-        // if_depth--;
-        return NULL;
+    /* Check for optional 'else' clause */
+    ASTNode *else_branch = NULL;
+    Token *current = current_token(p);
+    if (current && current->token_type == TOKEN_ELSE) {
+        advance(p);  /* consume 'else' */
+        else_branch = parse_block(p);
+        if (!else_branch) {
+            // fprintf(stderr, "DEBUG [if_depth=%d]: Failed to parse else_branch at line %d\n", if_depth, line);
+            // if_depth--;
+            return NULL;
+        }
     }
 
     ASTNode *node = create_node(AST_IF, line, column);
     node->as.if_stmt.condition = condition;
     node->as.if_stmt.then_branch = then_branch;
-    node->as.if_stmt.else_branch = else_branch;
+    node->as.if_stmt.else_branch = else_branch;  /* Can be NULL for standalone if */
     // if_depth--;
     return node;
 }

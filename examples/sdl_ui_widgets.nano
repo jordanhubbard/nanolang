@@ -174,19 +174,19 @@ fn main() -> int {
         # Radio buttons section  
         (nl_ui_label renderer font "Color Mode (Radio Buttons):" 320 460 180 180 200 255)
         
-        let red_selected: int = 0
+        let mut red_selected: int = 0
         if (== color_mode 0) { set red_selected 1 } else {}
         if (== (nl_ui_radio_button renderer font "Red" 320 485 red_selected) 1) {
             set color_mode 0
         } else {}
         
-        let green_selected: int = 0
+        let mut green_selected: int = 0
         if (== color_mode 1) { set green_selected 1 } else {}
         if (== (nl_ui_radio_button renderer font "Green" 320 510 green_selected) 1) {
             set color_mode 1
         } else {}
         
-        let blue_selected: int = 0
+        let mut blue_selected: int = 0
         if (== color_mode 2) { set blue_selected 1 } else {}
         if (== (nl_ui_radio_button renderer font "Blue" 320 535 blue_selected) 1) {
             set color_mode 2

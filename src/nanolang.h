@@ -299,6 +299,7 @@ struct ASTNode {
             ASTNode *func_expr;   /* Function expression (for calls like ((func_call) arg1 arg2)) */
             ASTNode **args;
             int arg_count;
+            char *return_struct_type_name;  /* For calls that return struct types (e.g., list_Point_get) */
         } call;
         struct {
             ASTNode **elements;

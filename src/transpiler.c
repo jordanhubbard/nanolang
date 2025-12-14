@@ -642,7 +642,9 @@ static void collect_tuple_types_from_stmt(ASTNode *stmt, TupleTypeRegistry *reg)
                 collect_tuple_types_from_expr(stmt->as.if_stmt.condition, reg);
             }
             collect_tuple_types_from_stmt(stmt->as.if_stmt.then_branch, reg);
-            collect_tuple_types_from_stmt(stmt->as.if_stmt.else_branch, reg);
+            if (stmt->as.if_stmt.else_branch) {
+                collect_tuple_types_from_stmt(stmt->as.if_stmt.else_branch, reg);
+            }
             break;
         case AST_WHILE:
             if (stmt->as.while_stmt.condition) {
@@ -674,7 +676,9 @@ static void collect_fn_sigs(ASTNode *stmt, FunctionTypeRegistry *reg) {
             break;
         case AST_IF:
             collect_fn_sigs(stmt->as.if_stmt.then_branch, reg);
-            collect_fn_sigs(stmt->as.if_stmt.else_branch, reg);
+            if (stmt->as.if_stmt.else_branch) {
+                collect_fn_sigs(stmt->as.if_stmt.else_branch, reg);
+            }
             break;
         case AST_WHILE:
             collect_fn_sigs(stmt->as.while_stmt.body, reg);
@@ -1130,6 +1134,11 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     /* Array length wrapper */
     sb_append(sb, "static int64_t nl_array_length(DynArray* arr) {\n");
     sb_append(sb, "    return dyn_array_length(arr);\n");
+    sb_append(sb, "}\n\n");
+    
+    /* Array remove_at wrapper */
+    sb_append(sb, "static DynArray* nl_array_remove_at(DynArray* arr, int64_t index) {\n");
+    sb_append(sb, "    return dyn_array_remove_at(arr, index);\n");
     sb_append(sb, "}\n\n");
     
     /* Array get (at) wrapper */

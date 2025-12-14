@@ -1,0 +1,95 @@
+# Comprehensive Standalone If Statement Test
+# Tests that if statements work without else clauses
+
+fn test_standalone_if_simple(x: int) -> int {
+    let mut result: int = x
+    if (> x 10) {
+        set result (+ result 5)
+    }
+    return result
+}
+
+shadow test_standalone_if_simple {
+    assert (== (test_standalone_if_simple 5) 5)
+    assert (== (test_standalone_if_simple 15) 20)
+}
+
+fn test_standalone_if_nested(x: int, y: int) -> int {
+    let mut sum: int = (+ x y)
+    
+    if (> x 0) {
+        if (> y 0) {
+            set sum (+ sum 10)
+        }
+    }
+    
+    return sum
+}
+
+shadow test_standalone_if_nested {
+    assert (== (test_standalone_if_nested 5 3) 18)
+    assert (== (test_standalone_if_nested -5 3) -2)
+    assert (== (test_standalone_if_nested 5 -3) 2)
+}
+
+fn test_standalone_if_multiple(x: int) -> int {
+    let mut result: int = x
+    
+    if (> x 10) {
+        set result (+ result 1)
+    }
+    
+    if (> x 20) {
+        set result (+ result 2)
+    }
+    
+    if (> x 30) {
+        set result (+ result 3)
+    }
+    
+    return result
+}
+
+shadow test_standalone_if_multiple {
+    assert (== (test_standalone_if_multiple 5) 5)
+    assert (== (test_standalone_if_multiple 15) 16)
+    assert (== (test_standalone_if_multiple 25) 28)
+    assert (== (test_standalone_if_multiple 35) 41)
+}
+
+fn test_standalone_if_with_return(x: int) -> int {
+    if (< x 0) {
+        return 0
+    }
+    
+    if (> x 100) {
+        return 100
+    }
+    
+    return x
+}
+
+shadow test_standalone_if_with_return {
+    assert (== (test_standalone_if_with_return -5) 0)
+    assert (== (test_standalone_if_with_return 50) 50)
+    assert (== (test_standalone_if_with_return 150) 100)
+}
+
+fn main() -> int {
+    (println "=== Testing Standalone If Statements ===")
+    (println "")
+    
+    (println "✓ test_standalone_if_simple passed")
+    (println "✓ test_standalone_if_nested passed")
+    (println "✓ test_standalone_if_multiple passed")
+    (println "✓ test_standalone_if_with_return passed")
+    
+    (println "")
+    (println "✅ All standalone if tests passed!")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -95,22 +95,23 @@ fn reset_star(stars: array<float>, idx: int) -> array<float> {
 
 fn update_stars(stars: array<float>, count: int, dt: float) -> array<float> {
     let mut i: int = 0
+    let mut result: array<float> = stars
     
     while (< i count) {
-        let z: float = (get_star_z stars i)
+        let z: float = (get_star_z result i)
         let new_z: float = (- z (* STAR_SPEED dt))
         
         # If star passes camera, reset it
         if (< new_z 1.0) {
-            set stars (reset_star stars i)
+            set result (reset_star result i)
         } else {
-            set stars (set_star_z stars i new_z)
+            set result (set_star_z result i new_z)
         }
         
         set i (+ i 1)
     }
     
-    return stars
+    return result
 }
 
 # === MAIN ===
@@ -170,13 +171,13 @@ fn main() -> int {
             let z: float = (get_star_z stars i)
             
             # Size based on distance (closer = bigger)
-            let size: int = (cast_int (/ 400.0 z))
+            let mut size: int = (cast_int (/ 400.0 z))
             if (< size 1) { set size 1 } else {}
             if (> size 4) { set size 4 } else {}
             
             # Brightness based on distance (closer = brighter)
             let brightness_f: float = (/ 400.0 z)
-            let brightness: int = (cast_int (* brightness_f 255.0))
+            let mut brightness: int = (cast_int (* brightness_f 255.0))
             if (> brightness 255) { set brightness 255 } else {}
             if (< brightness 50) { set brightness 50 } else {}
             

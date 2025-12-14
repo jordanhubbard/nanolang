@@ -130,6 +130,19 @@ void free_environment(Environment *env) {
             free(sv->field_values);
             free(sv);
         }
+        if (env->symbols[i].value.type == VAL_FUNCTION) {
+            /* Free function value - strdup'd strings */
+            if (env->symbols[i].value.as.function_val.function_name) {
+                free((char*)env->symbols[i].value.as.function_val.function_name);
+            }
+            if (env->symbols[i].value.as.function_val.signature) {
+                FunctionSignature *sig = env->symbols[i].value.as.function_val.signature;
+                if (sig->param_types) {
+                    free(sig->param_types);
+                }
+                free(sig);
+            }
+        }
     }
     free(env->symbols);
 

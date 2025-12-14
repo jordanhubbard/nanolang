@@ -18,7 +18,7 @@ fn main() -> int {
     let argc: int = (get_argc)
     
     # Get MOD file path from command line or use default
-    let mod_file: string = ""
+    let mut mod_file: string = ""
     if (< argc 2) {
         # Use default MOD file for instant gratification!
         set mod_file "examples/gabba-studies-12.mod"

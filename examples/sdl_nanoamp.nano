@@ -336,7 +336,7 @@ fn main() -> int {
             (nl_ui_label renderer small_font "Winamp Tribute" 110 25 120 140 160 255)
         
         # === TRACK INFO SECTION ===
-        let current_track_name: string = ""
+        let mut current_track_name: string = ""
         if (< current_track_index playlist_count) {
             set current_track_name (at playlist current_track_index)
         } else {}
@@ -353,7 +353,7 @@ fn main() -> int {
         (nl_ui_label renderer small_font "128kbps 44kHz Stereo" 140 88 100 150 100 255)
         
         # === SEEKABLE PROGRESS BAR ===
-        let progress: float = 0.0
+        let mut progress: float = 0.0
         if (> track_duration 0) {
             set progress (/ (cast_float playback_time) (cast_float track_duration))
         } else {}
@@ -433,7 +433,7 @@ fn main() -> int {
         
         # === CONTROL BUTTONS ROW 2 ===
         # Shuffle button (toggle)
-        let shuffle_label: string = ""
+        let mut shuffle_label: string = ""
         if (== shuffle_mode 1) {
             set shuffle_label "Shuf:ON"
         } else {
@@ -450,7 +450,7 @@ fn main() -> int {
         } else {}
         
         # Repeat button (cycles: off -> all -> one)
-        let repeat_label: string = ""
+        let mut repeat_label: string = ""
         if (== repeat_mode 0) { set repeat_label "Repeat" } else {}
         if (== repeat_mode 1) { set repeat_label "Rep:All" } else {}
         if (== repeat_mode 2) { set repeat_label "Rep:One" } else {}
@@ -473,8 +473,8 @@ fn main() -> int {
         (nl_ui_panel renderer 15 175 570 170 15 20 30 255)
         
         # Get audio levels for visualization
-        let vol1: int = (nl_audio_viz_get_channel_volume_int 0)
-        let vol2: int = (nl_audio_viz_get_channel_volume_int 1)
+        # let vol1: int = (nl_audio_viz_get_channel_volume_int 0)  # Currently unused
+        # let vol2: int = (nl_audio_viz_get_channel_volume_int 1)  # Currently unused
         
         # Waveform/spectrum display
         let waveform_size: int = (nl_audio_viz_get_waveform_size)

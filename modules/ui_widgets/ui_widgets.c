@@ -7,8 +7,10 @@ static int point_in_rect(int px, int py, int rx, int ry, int rw, int rh) {
     return px >= rx && px <= rx + rw && py >= ry && py <= ry + rh;
 }
 
-// Static state for button click detection
-static int prev_mouse_down = 0;
+// Static state for widget click detection (separate for each widget type)
+static int button_prev_mouse_down = 0;
+static int checkbox_prev_mouse_down = 0;
+static int radio_prev_mouse_down = 0;
 
 // Draw a button with text
 // Returns 1 if clicked, 0 otherwise
@@ -24,12 +26,12 @@ int64_t nl_ui_button(SDL_Renderer* renderer, TTF_Font* font,
     int clicked = 0;
     
     // Detect click (mouse was down, now up, and cursor is over button)
-    if (prev_mouse_down && !mouse_down && is_hovered) {
+    if (button_prev_mouse_down && !mouse_down && is_hovered) {
         clicked = 1;
     }
     
     // Update mouse state for next frame
-    prev_mouse_down = mouse_down;
+    button_prev_mouse_down = mouse_down;
     
     // Choose colors based on state
     SDL_Color bg_color, border_color, text_color;
@@ -192,11 +194,11 @@ int64_t nl_ui_checkbox(SDL_Renderer* renderer, TTF_Font* font,
     int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, box_size, box_size);
     
     // Detect click
-    if (prev_mouse_down && !mouse_down && is_hovered) {
+    if (checkbox_prev_mouse_down && !mouse_down && is_hovered) {
         new_checked = !checked;
     }
     
-    prev_mouse_down = mouse_down;
+    checkbox_prev_mouse_down = mouse_down;
     
     // Choose colors based on state
     SDL_Color bg_color, border_color, check_color;
@@ -272,11 +274,11 @@ int64_t nl_ui_radio_button(SDL_Renderer* renderer, TTF_Font* font,
     int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, circle_size, circle_size);
     
     // Detect click
-    if (prev_mouse_down && !mouse_down && is_hovered) {
+    if (radio_prev_mouse_down && !mouse_down && is_hovered) {
         clicked = 1;
     }
     
-    prev_mouse_down = mouse_down;
+    radio_prev_mouse_down = mouse_down;
     
     // Choose colors based on state
     SDL_Color bg_color, border_color, fill_color;

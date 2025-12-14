@@ -1816,17 +1816,82 @@ static Value eval_call(ASTNode *node, Environment *env) {
             }
             if (strcmp(operation, "push") == 0) {
                 List_int *list = (List_int*)args[0].as.int_val;
-                /* Store the struct pointer (passed as int) */
-                list_int_push(list, args[1].as.int_val);
+                /* Handle different value types */
+                if (args[1].type == VAL_STRUCT) {
+                    /* Allocate struct on heap and store pointer */
+                    StructValue *sv_copy = malloc(sizeof(StructValue));
+                    sv_copy->struct_name = strdup(args[1].as.struct_val->struct_name);
+                    sv_copy->field_count = args[1].as.struct_val->field_count;
+                    sv_copy->field_names = malloc(sizeof(char*) * sv_copy->field_count);
+                    sv_copy->field_values = malloc(sizeof(Value) * sv_copy->field_count);
+                    for (int i = 0; i < sv_copy->field_count; i++) {
+                        sv_copy->field_names[i] = strdup(args[1].as.struct_val->field_names[i]);
+                        sv_copy->field_values[i] = args[1].as.struct_val->field_values[i];
+                    }
+                    list_int_push(list, (int64_t)sv_copy);
+                } else {
+                    /* For non-struct types, store as int */
+                    list_int_push(list, args[1].as.int_val);
+                }
                 return create_void();
             }
             if (strcmp(operation, "pop") == 0) {
                 List_int *list = (List_int*)args[0].as.int_val;
-                return create_int(list_int_pop(list));
+                int64_t stored_val = list_int_pop(list);
+                
+                /* Extract type name to determine if this is a struct list */
+                const char *type_start = name + 5;  /* Skip "list_" */
+                int type_name_len = (int)(last_underscore - type_start);
+                char *type_name = malloc(type_name_len + 1);
+                strncpy(type_name, type_start, type_name_len);
+                type_name[type_name_len] = '\0';
+                
+                /* Check if this is a struct type */
+                if (strcmp(type_name, "int") != 0 && 
+                    strcmp(type_name, "string") != 0 && 
+                    strcmp(type_name, "token") != 0 &&
+                    strcmp(type_name, "Token") != 0) {
+                    /* Struct type */
+                    StructValue *sv = (StructValue*)stored_val;
+                    Value result;
+                    result.type = VAL_STRUCT;
+                    result.as.struct_val = sv;
+                    free(type_name);
+                    return result;
+                } else {
+                    free(type_name);
+                    return create_int(stored_val);
+                }
             }
             if (strcmp(operation, "get") == 0) {
                 List_int *list = (List_int*)args[0].as.int_val;
-                return create_int(list_int_get(list, args[1].as.int_val));
+                int64_t stored_val = list_int_get(list, args[1].as.int_val);
+                
+                /* Determine if this list stores structs by checking the type name in the function */
+                /* Extract type name: list_TypeName_get -> TypeName */
+                const char *type_start = name + 5;  /* Skip "list_" */
+                int type_name_len = (int)(last_underscore - type_start);
+                char *type_name = malloc(type_name_len + 1);
+                strncpy(type_name, type_start, type_name_len);
+                type_name[type_name_len] = '\0';
+                
+                /* Check if this type name is a struct (not int/string/token) */
+                if (strcmp(type_name, "int") != 0 && 
+                    strcmp(type_name, "string") != 0 && 
+                    strcmp(type_name, "token") != 0 &&
+                    strcmp(type_name, "Token") != 0) {
+                    /* This is a struct type - stored value is a pointer to StructValue */
+                    StructValue *sv = (StructValue*)stored_val;
+                    Value result;
+                    result.type = VAL_STRUCT;
+                    result.as.struct_val = sv;
+                    free(type_name);
+                    return result;
+                } else {
+                    /* This is a primitive type */
+                    free(type_name);
+                    return create_int(stored_val);
+                }
             }
             if (strcmp(operation, "set") == 0) {
                 List_int *list = (List_int*)args[0].as.int_val;
@@ -2251,6 +2316,12 @@ static Value eval_call(ASTNode *node, Environment *env) {
         free(env->symbols[i].name);
         if (env->symbols[i].value.type == VAL_STRING) {
             free(env->symbols[i].value.as.string_val);
+        }
+        if (env->symbols[i].value.type == VAL_FUNCTION) {
+            /* Function value cleanup - Both function_name and signature cause crashes when freed.
+               This suggests they may be shared or already freed elsewhere.
+               Skip cleanup to avoid crashes - this causes a small memory leak but prevents segfaults. */
+            /* TODO: Fix function value memory management properly */
         }
     }
     env->symbol_count = old_symbol_count;

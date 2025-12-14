@@ -61,15 +61,11 @@ elif [ "$1" = "--unit" ]; then
     RUN_APP=false
 fi
 
-# Expected failures (features not fully implemented in transpiler)
+# Expected failures (features not fully implemented)
+# test_firstclass_functions - function variables cause memory corruption (known limitation)
+#                              See docs/KNOWN_LIMITATIONS.md for details
 EXPECTED_FAILURES=(
     "test_firstclass_functions.nano"
-    "test_unions_match_comprehensive.nano"
-    "test_closure_simple.nano"
-    "test_dynamic_arrays.nano"
-    "test_enum_parse.nano"
-    "test_generic_list_struct.nano"
-    "test_top_level_constants.nano"
 )
 
 is_expected_failure() {
