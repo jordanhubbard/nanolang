@@ -5,14 +5,10 @@
 *.dylib
 *.exe
 *.out
-a.out
 
 # Compiled binaries (ignore all bin/ except README)
 /bin/*
 !/bin/README.md
-
-# Default compiler output files
-a.out
 
 # Build artifacts (bootstrap stages)
 /build/

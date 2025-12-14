@@ -424,7 +424,7 @@ int main(int argc, char *argv[]) {
         printf("nanoc - Compiler for the nanolang programming language\n\n");
         printf("Usage: %s <input.nano> [OPTIONS]\n\n", argv[0]);
         printf("Options:\n");
-        printf("  -o <file>      Specify output file (default: a.out)\n");
+        printf("  -o <file>      Specify output file (default: /tmp/nanoc_a.out)\n");
         printf("  --verbose      Show detailed compilation steps and commands\n");
         printf("  --keep-c       Keep generated C file (saves to output dir instead of /tmp)\n");
         printf("  -S             Save generated C to <input>.genC (for inspection)\n");
@@ -448,7 +448,7 @@ int main(int argc, char *argv[]) {
     }
 
     const char *input_file = argv[1];
-    const char *output_file = "a.out";
+    const char *output_file = "/tmp/nanoc_a.out";  /* Default to /tmp to avoid polluting project dir */
     CompilerOptions opts = {
         .verbose = false,
         .keep_c = false,
