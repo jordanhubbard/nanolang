@@ -2,27 +2,26 @@
 # Demonstrates loops, conditionals, and modulo operations
 
 fn is_prime(n: int) -> bool {
+    # Early returns for simple cases
     if (< n 2) {
         return false
-    } else {
-        if (== n 2) {
-            return true
-        } else {
-            if (== (% n 2) 0) {
-                return false
-            } else {
-                let mut i: int = 3
-                while (<= (* i i) n) {
-                    if (== (% n i) 0) {
-                        return false
-                    } else {
-                        set i (+ i 2)
-                    }
-                }
-                return true
-            }
-        }
     }
+    if (== n 2) {
+        return true
+    }
+    if (== (% n 2) 0) {
+        return false
+    }
+    
+    # Check odd divisors up to sqrt(n)
+    let mut i: int = 3
+    while (<= (* i i) n) {
+        if (== (% n i) 0) {
+            return false
+        }
+        set i (+ i 2)
+    }
+    return true
 }
 
 shadow is_prime {
@@ -59,10 +58,8 @@ fn count_primes(limit: int) -> int {
     while (< i limit) {
         if (is_prime i) {
             set count (+ count 1)
-            set i (+ i 1)
-        } else {
-            set i (+ i 1)
         }
+        set i (+ i 1)
     }
 
     return count
@@ -83,10 +80,8 @@ fn main() -> int {
     while (< n 51) {
         if (is_prime n) {
             print n
-            set n (+ n 1)
-        } else {
-            set n (+ n 1)
         }
+        set n (+ n 1)
     }
 
     print ""

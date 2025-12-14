@@ -71,10 +71,10 @@ fn main() -> int {
     while running {
         # Handle keyboard input
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 41) { set running false } else {}  # ESC
+        if (== key 41) { set running false }  # ESC
         
         # Check for quit event
-        if (== (nl_sdl_poll_event_quit) 1) { set running false } else {}
+        if (== (nl_sdl_poll_event_quit) 1) { set running false }
         
         # Calculate delta time
         let current_time: int = (SDL_GetTicks)
@@ -82,7 +82,7 @@ fn main() -> int {
         set last_time current_time
         
         # Limit dt to prevent huge jumps
-        if (> dt 0.1) { set dt 0.016 } else {}
+        if (> dt 0.1) { set dt 0.016 }
         
         # Update game state (only if not paused and not game over)
         if (not paused) {
@@ -94,20 +94,20 @@ fn main() -> int {
                 let p2_down: bool = (== (nl_sdl_key_state 81) 1)   # Down arrow
                 
                 # Move paddles
-                if p1_up { set paddle1_y (- paddle1_y (* PADDLE_SPEED dt)) } else {}
-                if p1_down { set paddle1_y (+ paddle1_y (* PADDLE_SPEED dt)) } else {}
-                if p2_up { set paddle2_y (- paddle2_y (* PADDLE_SPEED dt)) } else {}
-                if p2_down { set paddle2_y (+ paddle2_y (* PADDLE_SPEED dt)) } else {}
+                if p1_up { set paddle1_y (- paddle1_y (* PADDLE_SPEED dt)) }
+                if p1_down { set paddle1_y (+ paddle1_y (* PADDLE_SPEED dt)) }
+                if p2_up { set paddle2_y (- paddle2_y (* PADDLE_SPEED dt)) }
+                if p2_down { set paddle2_y (+ paddle2_y (* PADDLE_SPEED dt)) }
                 
                 # Clamp paddles to screen
-                if (< paddle1_y 0.0) { set paddle1_y 0.0 } else {}
+                if (< paddle1_y 0.0) { set paddle1_y 0.0 }
                 if (> paddle1_y (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))) {
                     set paddle1_y (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))
-                } else {}
-                if (< paddle2_y 0.0) { set paddle2_y 0.0 } else {}
+                }
+                if (< paddle2_y 0.0) { set paddle2_y 0.0 }
                 if (> paddle2_y (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))) {
                     set paddle2_y (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))
-                } else {}
+                }
                 
                 # Move ball
                 set ball_x (+ ball_x (* ball_vx dt))
@@ -117,11 +117,11 @@ fn main() -> int {
                 if (< ball_y 0.0) {
                     set ball_y 0.0
                     set ball_vy (- 0.0 ball_vy)
-                } else {}
+                }
                 if (> ball_y (cast_float (- WINDOW_HEIGHT BALL_SIZE))) {
                     set ball_y (cast_float (- WINDOW_HEIGHT BALL_SIZE))
                     set ball_vy (- 0.0 ball_vy)
-                } else {}
+                }
                 
                 # Ball collision with paddles
                 if (< ball_x 40.0) {
@@ -133,10 +133,10 @@ fn main() -> int {
                                 set ball_x 40.0
                                 let hit_pos: float = (/ (- ball_center_y paddle1_y) (cast_float PADDLE_HEIGHT))
                                 set ball_vy (* (* (- hit_pos 0.5) 2.0) BALL_SPEED)
-                            } else {}
-                        } else {}
-                    } else {}
-                } else {}
+                            }
+                        }
+                    }
+                }
                 
                 if (> ball_x (cast_float (- WINDOW_WIDTH 40))) {
                     if (< ball_x (cast_float (- WINDOW_WIDTH 10))) {
@@ -147,10 +147,10 @@ fn main() -> int {
                                 set ball_x (cast_float (- WINDOW_WIDTH 40))
                                 let hit_pos: float = (/ (- ball_center_y paddle2_y) (cast_float PADDLE_HEIGHT))
                                 set ball_vy (* (* (- hit_pos 0.5) 2.0) BALL_SPEED)
-                            } else {}
-                        } else {}
-                    } else {}
-                } else {}
+                            }
+                        }
+                    }
+                }
                 
                 # Ball out of bounds - score
                 if (< ball_x 0.0) {
@@ -163,8 +163,8 @@ fn main() -> int {
                         set game_over true
                         set paused true
                         (println "Player 2 Wins!")
-                    } else {}
-                } else {}
+                    }
+                }
                 
                 if (> ball_x (cast_float WINDOW_WIDTH)) {
                     set player1_score (+ player1_score 1)
@@ -176,10 +176,10 @@ fn main() -> int {
                         set game_over true
                         set paused true
                         (println "Player 1 Wins!")
-                    } else {}
-                } else {}
-            } else {}
-        } else {}
+                    }
+                }
+            }
+        }
         
         # Render
         (SDL_SetRenderDrawColor renderer 0 0 0 255)
@@ -190,11 +190,11 @@ fn main() -> int {
         if (== (nl_ui_button renderer font "Start" 250 560 70 30) 1) {
             set paused false
             set game_over false
-        } else {}
+        }
         
         if (== (nl_ui_button renderer font "Pause" 330 560 70 30) 1) {
             set paused true
-        } else {}
+        }
         
         if (== (nl_ui_button renderer font "Reset" 410 560 70 30) 1) {
             set player1_score 0
@@ -208,7 +208,7 @@ fn main() -> int {
             set paused true
             set game_over false
             (println "Game Reset")
-        } else {}
+        }
         
         # Checkbox for showing FPS
         set show_fps (nl_ui_checkbox renderer font "Show FPS" 550 565 show_fps)
@@ -217,7 +217,7 @@ fn main() -> int {
         if (== show_fps 1) {
             let fps: int = (cast_int (/ 1000.0 16.0))
             (nl_ui_label renderer font "FPS: 60" 680 565 100 255 100 255)
-        } else {}
+        }
         
         # Draw center line (dashed)
         let mut line_y: int = 0
@@ -264,7 +264,7 @@ fn main() -> int {
                 (nl_sdl_render_fill_rect renderer 450 msg_y 15 50)
                 (nl_sdl_render_fill_rect renderer 450 (+ msg_y 35) 80 15)
             }
-        } else {}
+        }
         
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)

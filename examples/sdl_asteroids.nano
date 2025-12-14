@@ -209,7 +209,7 @@ fn main() -> int {
         
         # Check for keypresses (one-time events)
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 41) { set running false } else {}           # ESC
+        if (== key 41) { set running false }           # ESC
         if (== key 21) {                                       # R key
             if (== game_state STATE_GAME_OVER) {
                 # Restart game
@@ -264,10 +264,10 @@ fn main() -> int {
                 set particle_vx []
                 set particle_vy []
                 set particle_life []
-            } else {}
-        } else {}
+            }
+        }
         
-        if (== (nl_sdl_poll_event_quit) 1) { set running false } else {}
+        if (== (nl_sdl_poll_event_quit) 1) { set running false }
         
         # Update respawn timer if dead
         if (== game_state STATE_DEAD) {
@@ -286,8 +286,8 @@ fn main() -> int {
                     # Game over
                     set game_state STATE_GAME_OVER
                 }
-            } else {}
-        } else {}
+            }
+        }
         
         # Only update gameplay if playing
         if (== game_state STATE_PLAYING) {
@@ -305,30 +305,30 @@ fn main() -> int {
                         set bullet_life (array_push bullet_life 2.0)
                         set bullet_active (array_push bullet_active true)
                         set shoot_cooldown 0.25
-                    } else {}
-                } else {}
-            } else {}
+                    }
+                }
+            }
             
             # Update ship
             if ship_alive {
                 if rotate_left {
                     set ship_angle (- ship_angle (* SHIP_ROTATION_SPEED dt))
-                } else {}
+                }
                 if rotate_right {
                     set ship_angle (+ ship_angle (* SHIP_ROTATION_SPEED dt))
-                } else {}
+                }
                 
                 if thrust {
                     set ship_vx (+ ship_vx (* (cos ship_angle) (* SHIP_THRUST dt)))
                     set ship_vy (+ ship_vy (* (sin ship_angle) (* SHIP_THRUST dt)))
-                } else {}
+                }
                 
                 set ship_vx (* ship_vx SHIP_DRAG)
                 set ship_vy (* ship_vy SHIP_DRAG)
                 set ship_x (wrap_position (+ ship_x (* ship_vx dt)) (cast_float WINDOW_WIDTH))
                 set ship_y (wrap_position (+ ship_y (* ship_vy dt)) (cast_float WINDOW_HEIGHT))
-            } else {}
-        } else {}
+            }
+        }
         
         # Always update asteroids, bullets, particles (even when dead)
         let mut i: int = 0
@@ -344,7 +344,7 @@ fn main() -> int {
                 
                 (array_set asteroid_x i new_x)
                 (array_set asteroid_y i new_y)
-            } else {}
+            }
             set i (+ i 1)
         }
         
@@ -372,15 +372,15 @@ fn main() -> int {
                     if (< new_life 0.0) {
                         (array_set bullet_active i false)
                     } else {
-                        if (< new_x 0.0) { (array_set bullet_active i false) } else {}
-                        if (> new_x (cast_float WINDOW_WIDTH)) { (array_set bullet_active i false) } else {}
-                        if (< new_y 0.0) { (array_set bullet_active i false) } else {}
-                        if (> new_y (cast_float WINDOW_HEIGHT)) { (array_set bullet_active i false) } else {}
+                        if (< new_x 0.0) { (array_set bullet_active i false) }
+                        if (> new_x (cast_float WINDOW_WIDTH)) { (array_set bullet_active i false) }
+                        if (< new_y 0.0) { (array_set bullet_active i false) }
+                        if (> new_y (cast_float WINDOW_HEIGHT)) { (array_set bullet_active i false) }
                     }
-                } else {}
+                }
                 set i (+ i 1)
             }
-        } else {}
+        }
         
         # Update particles
         set i 0
@@ -498,14 +498,14 @@ fn main() -> int {
                                         # Small -> Destroyed (no children)
                                     }
                                 }
-                            } else {}
-                        } else {}
+                            }
+                        }
                         set j (+ j 1)
                     }
-                } else {}
+                }
                 set i (+ i 1)
             }
-        } else {}
+        }
         
         # Collision: ship vs asteroids (only if playing)
         if (== game_state STATE_PLAYING) {
@@ -538,12 +538,12 @@ fn main() -> int {
                                 set particle_life (array_push particle_life 1.0)
                                 set k (+ k 1)
                             }
-                        } else {}
-                    } else {}
+                        }
+                    }
                     set i (+ i 1)
                 }
-            } else {}
-        } else {}
+            }
+        }
         
         # Render
         (SDL_SetRenderDrawColor renderer 0 0 0 255)
@@ -588,9 +588,9 @@ fn main() -> int {
                     (SDL_RenderDrawLine renderer (cast_int ship_x) (cast_int ship_y) tx ty)
                     (SDL_RenderDrawLine renderer bx1 by1 tx ty)
                     (SDL_RenderDrawLine renderer bx2 by2 tx ty)
-                } else {}
-            } else {}
-        } else {}
+                }
+            }
+        }
         
         # Draw asteroids (different sizes!)
         set i 0
@@ -623,7 +623,7 @@ fn main() -> int {
                     (SDL_RenderDrawPoint renderer px py)
                     set angle (+ angle 10)
                 }
-            } else {}
+            }
             set i (+ i 1)
         }
         
@@ -639,7 +639,7 @@ fn main() -> int {
                 (SDL_RenderDrawPoint renderer (+ bx 1) by)
                 (SDL_RenderDrawPoint renderer bx (+ by 1))
                 (SDL_RenderDrawPoint renderer (+ bx 1) (+ by 1))
-            } else {}
+            }
             set i (+ i 1)
         }
         
@@ -651,7 +651,7 @@ fn main() -> int {
                 let alpha: int = (cast_int (* plife 255.0))
                 (SDL_SetRenderDrawColor renderer 255 150 0 alpha)
                 (SDL_RenderDrawPoint renderer (cast_int (at particle_x i)) (cast_int (at particle_y i)))
-            } else {}
+            }
             set i (+ i 1)
         }
         
@@ -676,7 +676,7 @@ fn main() -> int {
                 set debug_text (str_concat debug_text " Bullets: ")
                 set debug_text (str_concat debug_text (int_to_string bullet_count))
                 (nl_draw_text_blended renderer font debug_text 150 563 100 255 100 255)
-            } else {}
+            }
         } else {
             # Fallback: Draw simple HUD with rectangles if font didn't load
             (SDL_SetRenderDrawColor renderer 255 255 255 255)
@@ -692,7 +692,7 @@ fn main() -> int {
             # Score indicator (bottom right) - draw rectangles proportional to score
             (SDL_SetRenderDrawColor renderer 255 255 0 255)
             let mut score_width: int = (/ score 10)
-            if (> score_width 200) { set score_width 200 } else {}
+            if (> score_width 200) { set score_width 200 }
             (nl_sdl_render_fill_rect renderer (- 790 score_width) 570 score_width 20)
         }
         
@@ -751,7 +751,7 @@ fn main() -> int {
                         
                         set spawn_i (+ spawn_i 1)
                     }
-                } else {}
+                }
             } else {
                 # Fallback: Draw large red rectangle for GAME OVER
                 (SDL_SetRenderDrawColor renderer 255 0 0 255)
@@ -764,7 +764,7 @@ fn main() -> int {
                 (SDL_RenderDrawLine renderer 550 300 250 300)
                 (SDL_RenderDrawLine renderer 250 300 250 250)
             }
-        } else {}
+        }
         
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)
