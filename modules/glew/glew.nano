@@ -94,9 +94,21 @@ extern fn glColorMaterial(face: int, mode: int) -> void
 extern fn glEnable(cap: int) -> void
 extern fn glDisable(cap: int) -> void
 
+# Attribute stack operations
+extern fn glPushAttrib(mask: int) -> void
+extern fn glPopAttrib() -> void
+
 # Matrix stack operations
 extern fn glPushMatrix() -> void
 extern fn glPopMatrix() -> void
+
+# Polygon rendering
+extern fn glPolygonMode(face: int, mode: int) -> void
+extern fn glLineWidth(width: float) -> void
+extern fn glPointSize(size: float) -> void
+
+# Blending
+extern fn glBlendFunc(sfactor: int, dfactor: int) -> void
 
 # Normal vectors for lighting
 extern fn glNormal3f(nx: float, ny: float, nz: float) -> void

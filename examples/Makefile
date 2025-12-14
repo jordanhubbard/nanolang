@@ -53,7 +53,6 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/sdl_ui_widgets \
 	$(BIN_DIR)/sdl_texture_demo \
 	$(BIN_DIR)/sdl_drawing_primitives \
-	$(BIN_DIR)/sdl_window_control \
 	$(BIN_DIR)/sdl_audio_wav \
 	$(BIN_DIR)/sdl_mouse_click
 
@@ -111,7 +110,6 @@ all: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  ./bin/sdl_ui_widgets        - UI widgets showcase (buttons, sliders, etc.)"
 	@echo "  ./bin/sdl_texture_demo      - Texture loading and rendering"
 	@echo "  ./bin/sdl_drawing_primitives - Basic shape drawing"
-	@echo "  ./bin/sdl_window_control    - Window management demo"
 	@echo "  ./bin/sdl_audio_wav         - Simple WAV audio playback"
 	@echo "  ./bin/sdl_mouse_click       - Mouse input handling"
 	@echo ""
@@ -122,7 +120,7 @@ all: $(COMPILER) $(ALL_EXAMPLES)
 	@echo ""
 	@echo "OpenGL examples (opengl_*):"
 	@echo "  ./bin/opengl_cube           - Rotating textured cube"
-	@echo "  ./bin/opengl_teapot         - Rotating teapot"
+	@echo "  ./bin/opengl_teapot         - Utah teapot with multiple shaders"
 	@echo ""
 	@echo "Interpreter-only examples (run with: ./bin/nano examples/<file>):"
 	@echo "  nl_hello, nl_calculator, nl_factorial, nl_fibonacci, nl_primes..."
@@ -163,9 +161,9 @@ $(BIN_DIR)/opengl_cube: opengl_cube.nano $(COMPILER)
 	@echo "Building OpenGL Cube..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_cube.nano -o bin/opengl_cube
 
-$(BIN_DIR)/opengl_teapot: opengl_teapot/teapot.nano $(COMPILER)
+$(BIN_DIR)/opengl_teapot: opengl_teapot.nano $(COMPILER)
 	@echo "Building OpenGL Teapot..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_teapot/teapot.nano -o bin/opengl_teapot
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_teapot.nano -o bin/opengl_teapot
 	@echo "✓ OpenGL Teapot built: $@"
 
 $(BIN_DIR)/sdl_nanoamp: sdl_nanoamp.nano $(COMPILER)
