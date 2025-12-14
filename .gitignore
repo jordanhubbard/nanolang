@@ -11,6 +11,9 @@ a.out
 /bin/*
 !/bin/README.md
 
+# Default compiler output files
+a.out
+
 # Build artifacts (bootstrap stages)
 /build/
 
