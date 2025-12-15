@@ -240,6 +240,9 @@ fn main() -> int {
             let current_ticks: int = (SDL_GetTicks)
             set playback_time (/ (- current_ticks playback_start_ticks) 1000)
             
+            # Update visualization
+            (nl_audio_viz_update)
+            
             # Check if track finished
             if (>= playback_time track_duration) {
                 if (== repeat_mode REPEAT_ONE) {
@@ -261,6 +264,11 @@ fn main() -> int {
                     set playback_start_ticks (SDL_GetTicks)
                 }
             } else {}
+        } else {}
+        
+        # Update viz even when stopped (show idle state)
+        if (== playback_state STATE_STOPPED) {
+            (nl_audio_viz_update)
         } else {}
         
         # === RENDERING ===
@@ -388,17 +396,17 @@ fn main() -> int {
             let btn_h: int = 26
             
             # Previous
-            if (== (nl_ui_button renderer font "⏮" 15 ctrl_y 42 btn_h) 1) {
+            if (== (nl_ui_button renderer font "|<<" 15 ctrl_y 42 btn_h) 1) {
                 if (> current_track_index 0) {
                     set current_track_index (- current_track_index 1)
                     set playback_time 0
                     set playback_start_ticks (SDL_GetTicks)
-                    (println "⏮ Previous")
+                    (println "[*] Previous")
                 } else {}
             } else {}
             
             # Play
-            if (== (nl_ui_button renderer font "▶" 62 ctrl_y 50 btn_h) 1) {
+            if (== (nl_ui_button renderer font ">" 62 ctrl_y 50 btn_h) 1) {
                 if (> playlist_count 0) {
                     if (== playback_state STATE_STOPPED) {
                         let track_path: string = (at playlist current_track_index)
@@ -408,43 +416,43 @@ fn main() -> int {
                             set playback_state STATE_PLAYING
                             set playback_start_ticks (SDL_GetTicks)
                             set has_music true
-                            (println "▶ Play")
+                            (println "[*] Play")
                         } else {}
                     } else {
                         if (== playback_state STATE_PAUSED) {
                             (Mix_ResumeMusic)
                             set playback_state STATE_PLAYING
                             set playback_start_ticks (- (SDL_GetTicks) (* playback_time 1000))
-                            (println "▶ Resume")
+                            (println "[*] Resume")
                         } else {}
                     }
                 } else {}
             } else {}
             
             # Pause
-            if (== (nl_ui_button renderer font "⏸" 117 ctrl_y 42 btn_h) 1) {
+            if (== (nl_ui_button renderer font "||" 117 ctrl_y 42 btn_h) 1) {
                 if (== playback_state STATE_PLAYING) {
                     (Mix_PauseMusic)
                     set playback_state STATE_PAUSED
-                    (println "⏸ Pause")
+                    (println "[*] Pause")
                 } else {}
             } else {}
             
             # Stop
-            if (== (nl_ui_button renderer font "⏹" 164 ctrl_y 42 btn_h) 1) {
+            if (== (nl_ui_button renderer font "[]" 164 ctrl_y 42 btn_h) 1) {
                 (Mix_HaltMusic)
                 set playback_state STATE_STOPPED
                 set playback_time 0
-                (println "⏹ Stop")
+                (println "[*] Stop")
             } else {}
             
             # Next
-            if (== (nl_ui_button renderer font "⏭" 211 ctrl_y 42 btn_h) 1) {
+            if (== (nl_ui_button renderer font ">>|" 211 ctrl_y 42 btn_h) 1) {
                 if (< (+ current_track_index 1) playlist_count) {
                     set current_track_index (+ current_track_index 1)
                     set playback_time 0
                     set playback_start_ticks (SDL_GetTicks)
-                    (println "⏭ Next")
+                    (println "[*] Next")
                 } else {}
             } else {}
             
@@ -452,31 +460,31 @@ fn main() -> int {
             # Shuffle
             let mut shuffle_label: string = ""
             if (== shuffle_mode 1) {
-                set shuffle_label "🔀"
+                set shuffle_label "SHF"
             } else {
-                set shuffle_label "🔀"  # Same but grayed in real version
+                set shuffle_label "shf"
             }
             if (== (nl_ui_button renderer font shuffle_label 268 ctrl_y 38 btn_h) 1) {
                 if (== shuffle_mode 0) {
                     set shuffle_mode 1
-                    (println "🔀 Shuffle ON")
+                    (println "[*] Shuffle ON")
                 } else {
                     set shuffle_mode 0
-                    (println "Shuffle OFF")
+                    (println "[*] Shuffle OFF")
                 }
             } else {}
             
             # Repeat
             let mut repeat_label: string = ""
-            if (== repeat_mode REPEAT_OFF) { set repeat_label "🔁" } else {}
-            if (== repeat_mode REPEAT_ALL) { set repeat_label "🔁" } else {}
-            if (== repeat_mode REPEAT_ONE) { set repeat_label "🔂" } else {}
+            if (== repeat_mode REPEAT_OFF) { set repeat_label "rep" } else {}
+            if (== repeat_mode REPEAT_ALL) { set repeat_label "REP" } else {}
+            if (== repeat_mode REPEAT_ONE) { set repeat_label "RE1" } else {}
             
             if (== (nl_ui_button renderer font repeat_label 311 ctrl_y 38 btn_h) 1) {
                 set repeat_mode (% (+ repeat_mode 1) 3)
-                if (== repeat_mode REPEAT_OFF) { (println "Repeat OFF") } else {}
-                if (== repeat_mode REPEAT_ALL) { (println "🔁 Repeat ALL") } else {}
-                if (== repeat_mode REPEAT_ONE) { (println "🔂 Repeat ONE") } else {}
+                if (== repeat_mode REPEAT_OFF) { (println "[*] Repeat OFF") } else {}
+                if (== repeat_mode REPEAT_ALL) { (println "[*] Repeat ALL") } else {}
+                if (== repeat_mode REPEAT_ONE) { (println "[*] Repeat ONE") } else {}
             } else {}
             
             # === 5. VOLUME CONTROL ===
@@ -494,9 +502,9 @@ fn main() -> int {
             
             # Viz mode label
             let mut viz_label: string = ""
-            if (== viz_mode 0) { set viz_label "● Circular Spectrum" } else {}
-            if (== viz_mode 1) { set viz_label "● Frequency Analyzer" } else {}
-            if (== viz_mode 2) { set viz_label "● Oscilloscope" } else {}
+            if (== viz_mode 0) { set viz_label "[*] Circular Spectrum" } else {}
+            if (== viz_mode 1) { set viz_label "[*] Frequency Analyzer" } else {}
+            if (== viz_mode 2) { set viz_label "[*] Oscilloscope" } else {}
             (nl_ui_label renderer tiny_font viz_label 15 150 120 160 180 255)
             (nl_ui_label renderer tiny_font "TAB: Change Mode" 450 150 100 140 160 255)
             
@@ -589,7 +597,10 @@ fn main() -> int {
             if (== (nl_ui_button renderer font "Browse..." 10 playlist_btn_y 85 22) 1) {
                 set ui_mode MODE_BROWSER
                 set browser_path (nl_prefs_get_home)
-                (println "📁 Browser")
+                set browser_scroll 0
+                (println "[*] Switched to Browser mode")
+                (print "    Path: ")
+                (println browser_path)
             } else {}
             
             if (== (nl_ui_button renderer font "Clear" 100 playlist_btn_y 60 22) 1) {
@@ -639,9 +650,9 @@ fn main() -> int {
             
             # Playback status
             let mut status_text: string = ""
-            if (== playback_state STATE_PLAYING) { set status_text "▶ Playing" } else {}
-            if (== playback_state STATE_PAUSED) { set status_text "⏸ Paused" } else {}
-            if (== playback_state STATE_STOPPED) { set status_text "⏹ Stopped" } else {}
+            if (== playback_state STATE_PLAYING) { set status_text "> Playing" } else {}
+            if (== playback_state STATE_PAUSED) { set status_text "|| Paused" } else {}
+            if (== playback_state STATE_STOPPED) { set status_text "[] Stopped" } else {}
             (nl_ui_label renderer tiny_font status_text 10 630 150 200 255 255)
             
             # Shuffle/Repeat status

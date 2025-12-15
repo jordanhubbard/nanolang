@@ -157,29 +157,41 @@ fn main() -> int {
         set auto_increment (nl_ui_checkbox renderer font "Auto-increment progress" 400 130 auto_increment)
         set show_debug (nl_ui_checkbox renderer font "Show debug info" 400 155 show_debug)
         
-        # Radio buttons - FIXED!
+        # Radio buttons - FIXED! (with proper spacing)
         (nl_ui_label renderer font "Color Mode (FIXED!):" 400 190 180 180 200 255)
         
         # Check each radio button and update state properly
+        # IMPORTANT: Check buttons one at a time and skip others if one was clicked
+        let mut radio_clicked: int = 0
+        
         let mut red_selected: int = 0
         if (== color_mode 0) { set red_selected 1 } else {}
-        if (== (nl_ui_radio_button renderer font "Red" 400 215 red_selected) 1) {
-            set color_mode 0
-            (println "Red selected")
+        if (== radio_clicked 0) {
+            if (== (nl_ui_radio_button renderer font "Red" 400 215 red_selected) 1) {
+                set color_mode 0
+                set radio_clicked 1
+                (println "Red selected")
+            } else {}
         } else {}
         
         let mut green_selected: int = 0
         if (== color_mode 1) { set green_selected 1 } else {}
-        if (== (nl_ui_radio_button renderer font "Green" 500 215 green_selected) 1) {
-            set color_mode 1
-            (println "Green selected")
+        if (== radio_clicked 0) {
+            if (== (nl_ui_radio_button renderer font "Green" 490 215 green_selected) 1) {
+                set color_mode 1
+                set radio_clicked 1
+                (println "Green selected")
+            } else {}
         } else {}
         
         let mut blue_selected: int = 0
         if (== color_mode 2) { set blue_selected 1 } else {}
-        if (== (nl_ui_radio_button renderer font "Blue" 600 215 blue_selected) 1) {
-            set color_mode 2
-            (println "Blue selected")
+        if (== radio_clicked 0) {
+            if (== (nl_ui_radio_button renderer font "Blue" 580 215 blue_selected) 1) {
+                set color_mode 2
+                set radio_clicked 1
+                (println "Blue selected")
+            } else {}
         } else {}
         
         # Color preview
@@ -204,30 +216,8 @@ fn main() -> int {
         (nl_ui_panel renderer 760 70 420 300 30 30 40 220)
         (nl_ui_label renderer font "Advanced Widgets" 770 75 220 220 255 255)
         
-        # Dropdown - FIXED with proper toggle!
+        # Dropdown label (widget will be rendered at END to appear on top)
         (nl_ui_label renderer font "Quality Dropdown (FIXED!):" 770 105 180 180 200 255)
-        let dropdown_result: int = (nl_ui_dropdown renderer font quality_options 
-                                                    (array_length quality_options)
-                                                    770 130 200 30 selected_quality dropdown_open)
-        if (== dropdown_result -2) {
-            # Toggle open
-            set dropdown_open 1
-            (println "Dropdown opened")
-        } else {
-            if (== dropdown_result -3) {
-                # Close (clicked outside)
-                set dropdown_open 0
-                (println "Dropdown closed (clicked outside)")
-            } else {
-                if (!= dropdown_result -1) {
-                    # Item selected
-                    set selected_quality dropdown_result
-                    set dropdown_open 0
-                    (println "Quality selected:")
-                    (println (at quality_options selected_quality))
-                } else {}
-            }
-        }
         
         # Number Spinners
         (nl_ui_label renderer font "Difficulty:" 770 180 180 180 200 255)
@@ -282,6 +272,30 @@ fn main() -> int {
         
         # Instructions
         (nl_ui_label renderer font "Press ESC to quit • All widgets are now fully functional!" 300 765 150 150 150 255)
+        
+        # === RENDER DROPDOWN LAST (so it appears on top of other widgets) ===
+        let dropdown_result: int = (nl_ui_dropdown renderer font quality_options 
+                                                    (array_length quality_options)
+                                                    770 130 200 30 selected_quality dropdown_open)
+        if (== dropdown_result -2) {
+            # Toggle open
+            set dropdown_open 1
+            (println "Dropdown opened")
+        } else {
+            if (== dropdown_result -3) {
+                # Close (clicked outside)
+                set dropdown_open 0
+                (println "Dropdown closed (clicked outside)")
+            } else {
+                if (!= dropdown_result -1) {
+                    # Item selected
+                    set selected_quality dropdown_result
+                    set dropdown_open 0
+                    (println "Quality selected:")
+                    (println (at quality_options selected_quality))
+                } else {}
+            }
+        }
         
         # Present
         (SDL_RenderPresent renderer)
