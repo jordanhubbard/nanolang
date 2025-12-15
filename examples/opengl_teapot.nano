@@ -565,7 +565,6 @@ fn main() -> int {
         
         # Draw scene
         (draw_teapot rot_x rot_y zoom shader_mode)
-        (draw_status_overlay shader_mode rot_x rot_y zoom auto_rotate)
         
         # Swap buffers and poll events
         (glfwSwapBuffers window)
