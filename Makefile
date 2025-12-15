@@ -99,11 +99,21 @@ build: $(SENTINEL_STAGE3)
 # Alias for build
 all: build
 
-# Test: Run all tests + examples (alias for test-full)
-test: test-full
+# ============================================================================
+# Test Targets (Meta-Rule Pattern for Stage-Specific Testing)
+# ============================================================================
+# In a fully self-bootstrapping system, tests should use the most evolved
+# compiler by default. These targets allow testing at specific bootstrap stages:
+#
+# - test: Uses best available (nanoc_stage2 if bootstrapped, else nanoc_c)
+# - test-stage1: Forces C reference compiler only
+# - test-stage2: Forces nanoc_stage1 (first self-compilation)
+# - test-bootstrap: Forces full bootstrap + nanoc_stage2
+# ============================================================================
 
-# Full test suite with examples
-test-full: build
+# Core test implementation (used by all test variants)
+.PHONY: test-impl
+test-impl:
 	@echo ""
 	@echo "=========================================="
 	@echo "Running Complete Test Suite"
@@ -121,6 +131,65 @@ test-full: build
 	@$(MAKE) examples
 	@echo ""
 	@echo "✅ All tests and examples completed!"
+
+# Default test: Use most evolved compiler available
+test: build
+	@echo ""
+	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
+		echo "🎯 Testing with SELF-HOSTED compiler (nanoc_stage2)"; \
+		echo "   Bootstrap complete - using fully evolved version"; \
+	else \
+		echo "🎯 Testing with C REFERENCE compiler (nanoc_c)"; \
+		echo "   Bootstrap not complete - using baseline version"; \
+	fi
+	@echo ""
+	@$(MAKE) test-impl
+
+# Alias for backwards compatibility
+test-full: test
+
+# Test with Stage 1 only (C reference compiler)
+test-stage1: stage1
+	@echo ""
+	@echo "🎯 Testing with STAGE 1 (C reference compiler only)"
+	@echo "   Forcing baseline C implementation"
+	@echo ""
+	@# Temporarily ensure nanoc points to nanoc_c
+	@rm -f $(COMPILER)
+	@ln -sf nanoc_c $(COMPILER)
+	@$(MAKE) test-impl
+	@# Restore proper link based on bootstrap status
+	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
+		rm -f $(COMPILER); \
+		ln -sf nanoc_stage2 $(COMPILER); \
+	fi
+
+# Test with Stage 2 (first self-compilation via nanoc_stage1)
+test-stage2: bootstrap1
+	@echo ""
+	@echo "🎯 Testing with STAGE 2 (nanoc_stage1)"
+	@echo "   Using first self-compilation (C → nanoc_stage1)"
+	@echo ""
+	@# Temporarily point nanoc to nanoc_stage1
+	@rm -f $(COMPILER)
+	@ln -sf nanoc_stage1 $(COMPILER)
+	@$(MAKE) test-impl
+	@# Restore proper link based on bootstrap status
+	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
+		rm -f $(COMPILER); \
+		ln -sf nanoc_stage2 $(COMPILER); \
+	else \
+		rm -f $(COMPILER); \
+		ln -sf nanoc_c $(COMPILER); \
+	fi
+
+# Test with full bootstrap (nanoc_stage2)
+test-bootstrap: bootstrap
+	@echo ""
+	@echo "🎯 Testing with FULLY BOOTSTRAPPED compiler (nanoc_stage2)"
+	@echo "   Using self-hosted compiler (stage1 → nanoc_stage2)"
+	@echo ""
+	@$(MAKE) test-impl
 
 # Test only core language features (nl_* tests)
 test-lang: build
@@ -638,10 +707,22 @@ help:
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "  make build       - Build all components (default)"
 	@echo "  make bootstrap   - TRUE 3-stage bootstrap (GCC-style)"
-	@echo "  make test        - Build + run all tests"
+	@echo "  make test        - Build + run all tests (auto-detect best compiler)"
 	@echo "  make examples    - Build + compile examples"
 	@echo "  make clean       - Remove all artifacts"
 	@echo "  make rebuild     - Clean + build"
+	@echo ""
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "Testing Targets:"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  make test              - Test with best available compiler"
+	@echo "  make test-stage1       - Test with C reference compiler only"
+	@echo "  make test-stage2       - Test with nanoc_stage1 (first self-compile)"
+	@echo "  make test-bootstrap    - Test with fully bootstrapped compiler"
+	@echo "  make test-lang         - Test only core language features"
+	@echo "  make test-app          - Test only application/integration tests"
+	@echo "  make test-unit         - Test only unit tests"
+	@echo "  make test-quick        - Quick test (language tests only)"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "Component Build (Stage Targets):"
