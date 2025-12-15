@@ -88,9 +88,11 @@ fn main() -> int {
     let mut input_focused: int = 0
     
     # File selector - NEW!
-    let mut files: array<string> = (nl_fs_list_files "examples" ".nano")
-    let mut selected_file: int = 0
+    let mut current_dir: string = "examples"
+    let mut files: array<string> = (nl_fs_list_files current_dir ".nano")
+    let mut selected_file: int = -1
     let mut file_scroll: int = 0
+    let mut selected_file_path: string = ""
     
     # Main loop
     while running {
@@ -235,27 +237,77 @@ fn main() -> int {
         (nl_ui_label renderer font "Players:" 1010 230 180 180 200 255)
         (nl_ui_label renderer font (int_to_string player_count) 1010 250 150 255 255 255)
         
-        # === BOTTOM: File Selector - NEW! ===
+        # === BOTTOM: File Selector with Directory Browser - NEW! ===
         (nl_ui_panel renderer 20 390 1160 380 30 30 40 220)
-        (nl_ui_label renderer font "File Selector (NEW!)" 30 395 220 220 255 255)
-        (nl_ui_label renderer font "Select a .nano file from examples/:" 30 420 150 200 200 255)
+        (nl_ui_label renderer font "File Browser (Interactive!)" 30 395 220 220 255 255)
         
+        # Show current directory
+        (nl_ui_label renderer font "Current dir:" 30 420 100 150 150 255)
+        (nl_ui_label renderer font current_dir 130 420 150 200 200 255)
+        
+        # Directory navigation buttons
+        if (== (nl_ui_button renderer font "Parent (..))" 750 415 90 22) 1) {
+            set current_dir ".."
+            set files (nl_fs_list_files current_dir ".nano")
+            set selected_file -1
+            set selected_file_path ""
+            (println "Browsing parent directory")
+        } else {}
+        
+        if (== (nl_ui_button renderer font "Home" 845 415 60 22) 1) {
+            set current_dir "."
+            set files (nl_fs_list_files current_dir ".nano")
+            set selected_file -1
+            set selected_file_path ""
+            (println "Browsing home directory")
+        } else {}
+        
+        if (== (nl_ui_button renderer font "Examples" 910 415 80 22) 1) {
+            set current_dir "examples"
+            set files (nl_fs_list_files current_dir ".nano")
+            set selected_file -1
+            set selected_file_path ""
+            (println "Browsing examples directory")
+        } else {}
+        
+        if (== (nl_ui_button renderer font "Refresh" 995 415 70 22) 1) {
+            set files (nl_fs_list_files current_dir ".nano")
+            (println "Refreshed file list")
+        } else {}
+        
+        # File selector widget
         let file_clicked: int = (nl_ui_file_selector renderer font files 
                                                      (array_length files)
-                                                     30 445 1140 280 file_scroll selected_file)
+                                                     30 445 1140 250 file_scroll selected_file)
         if (!= file_clicked -1) {
             set selected_file file_clicked
-            (println "File selected:")
-            (println (at files selected_file))
-        } else {}
-        
-        # Show selected file info
-        (nl_ui_label renderer font "Selected file:" 30 735 120 150 150 255)
-        if (>= selected_file 0) {
-            if (< selected_file (array_length files)) {
-                (nl_ui_label renderer font (at files selected_file) 130 735 200 255 200 255)
+            if (>= selected_file 0) {
+                if (< selected_file (array_length files)) {
+                    let filename: string = (at files selected_file)
+                    set selected_file_path (nl_fs_join_path current_dir filename)
+                    (println "File selected:")
+                    (println "  Directory: ")
+                    (println current_dir)
+                    (println "  Filename: ")
+                    (println filename)
+                    (println "  Full path: ")
+                    (println selected_file_path)
+                } else {}
             } else {}
         } else {}
+        
+        # Show selected file info prominently
+        (nl_ui_label renderer font "Selected file:" 30 705 120 150 150 255)
+        if (!= selected_file_path "") {
+            (nl_ui_label renderer font selected_file_path 130 705 100 255 100 255)
+        } else {
+            (nl_ui_label renderer font "(none - click a file to select)" 130 705 120 120 120 255)
+        }
+        
+        # File count
+        let file_count: int = (array_length files)
+        (nl_ui_label renderer font "Files found:" 30 730 120 150 150 255)
+        (nl_ui_label renderer font (int_to_string file_count) 130 730 150 200 200 255)
         
         # Debug info (if enabled)
         if (== show_debug 1) {
@@ -319,7 +371,7 @@ fn main() -> int {
     (println "  ✓ Dropdown now toggles open/close on click")
     (println "  ✓ Dropdown closes when clicking outside")
     (println "  ✓ Radio buttons work as a proper group")
-    (println "  ✓ File selector widget added")
+    (println "  ✓ File browser with directory navigation")
     (println "  ✓ Text input shows read-only text")
     (println "")
     (println "Note: Text input editing requires SDL text input events")
