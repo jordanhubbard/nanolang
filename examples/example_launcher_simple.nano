@@ -1,0 +1,62 @@
+# NANOLANG EXAMPLE LAUNCHER (Simplified)
+# App Store-style browser for nanolang examples
+
+# Constants
+let WINDOW_WIDTH: int = 1000
+let WINDOW_HEIGHT: int = 700
+let CARD_SIZE: int = 180
+let CARD_PADDING: int = 20
+
+# Main launcher
+fn main() -> int {
+    println("=== NanoLang Example Launcher ===")
+    println("")
+    println("Available Example Categories:")
+    println("")
+    println("1. LANGUAGE BASICS")
+    println("   - nl_hello - Your first program")
+    println("   - nl_calculator - Basic arithmetic")
+    println("   - nl_factorial - Recursive algorithms")
+    println("   - nl_arrays - Array operations")
+    println("   - nl_enum - User-defined types")
+    println("")
+    println("2. GAMES")
+    println("   - nl_snake (terminal)")
+    println("   - sdl_pong - The first video game (1972)")
+    println("   - sdl_asteroids - Space shooter")
+    println("   - sdl_checkers - Board game with AI")
+    println("   - ncurses_game_of_life - Cellular automata")
+    println("")
+    println("3. GRAPHICS & VISUAL")
+    println("   - sdl_falling_sand - Physics sandbox")
+    println("   - sdl_boids - Flocking simulation")
+    println("   - sdl_particles - Particle effects")
+    println("   - sdl_raytracer - Ray tracing")
+    println("   - sdl_fire - Demoscene fire effect")
+    println("   - sdl_starfield - 3D starfield")
+    println("   - sdl_terrain_explorer - Terrain generation")
+    println("   - ncurses_matrix_rain - Matrix effect")
+    println("   - opengl_cube - Rotating cube")
+    println("   - opengl_teapot - Utah teapot")
+    println("")
+    println("4. AUDIO & MUSIC")
+    println("   - sdl_nanoamp_enhanced - Winamp-style MP3 player")
+    println("   - sdl_mod_visualizer - MOD music with viz")
+    println("")
+    println("5. ADVANCED FEATURES")
+    println("   - nl_generics_demo - Generic programming")
+    println("   - nl_filter_map_fold - Functional patterns")
+    println("   - nl_matrix_operations - Linear algebra")
+    println("")
+    println("6. EXTERNAL LIBRARIES")
+    println("   - sqlite_simple - Database operations")
+    println("")
+    println("To run an example:")
+    println("  Compiled:     ./bin/<example_name>")
+    println("  Interpreter:  ./bin/nano examples/<example_name>.nano")
+    println("")
+    println("To build all examples: cd examples && make build")
+    println("")
+    
+    return 0
+}

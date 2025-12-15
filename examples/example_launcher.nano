@@ -1,0 +1,650 @@
+# NANOLANG EXAMPLE LAUNCHER
+# App Store-style browser for all nanolang examples
+# Click to launch any example instantly!
+
+import "SDL"
+import "ui_widgets"
+
+# === CONSTANTS ===
+let WINDOW_WIDTH: int = 1200
+let WINDOW_HEIGHT: int = 800
+let SIDEBAR_WIDTH: int = 250
+let CARD_WIDTH: int = 350
+let CARD_HEIGHT: int = 200
+let CARD_PADDING: int = 20
+let SCROLL_SPEED: int = 30
+
+# === ENUMS ===
+enum ExampleCategory {
+    LANGUAGE_BASICS = 0,
+    GAMES = 1,
+    GRAPHICS = 2,
+    AUDIO = 3,
+    ADVANCED = 4,
+    EXTERNAL_LIBS = 5,
+    ALL = 99
+}
+
+# === STRUCTS ===
+struct ExampleCard {
+    name: string,
+    description: string,
+    category: int,
+    executable_path: string,
+    is_compiled: bool,
+    requires_args: bool,
+    icon_color_r: int,
+    icon_color_g: int,
+    icon_color_b: int
+}
+
+# === EXTERNAL FUNCTIONS ===
+extern fn system(cmd: string) -> int
+extern fn fork() -> int
+extern fn execl(path: string, arg0: string, arg1: string, arg2: string) -> int
+
+# === EXAMPLE DATABASE ===
+
+fn create_example_database() -> array<ExampleCard> {
+    let examples: array<ExampleCard> = array_new<ExampleCard>(50)
+    let count: int = 0
+    
+    # === LANGUAGE BASICS ===
+    examples[count] = ExampleCard {
+        name: "Hello World",
+        description: "Your first nanolang program!",
+        category: ExampleCategory::LANGUAGE_BASICS,
+        executable_path: "../bin/nano nl_hello.nano",
+        is_compiled: false,
+        requires_args: false,
+        icon_color_r: 100, icon_color_g: 200, icon_color_b: 255
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Calculator",
+        description: "Basic arithmetic operations",
+        category: ExampleCategory::LANGUAGE_BASICS,
+        executable_path: "../bin/nano nl_calculator.nano",
+        is_compiled: false,
+        requires_args: false,
+        icon_color_r: 100, icon_color_g: 200, icon_color_b: 255
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Algorithms",
+        description: "Factorial, Fibonacci, Primes",
+        category: ExampleCategory::LANGUAGE_BASICS,
+        executable_path: "../bin/nano nl_factorial.nano",
+        is_compiled: false,
+        requires_args: false,
+        icon_color_r: 100, icon_color_g: 200, icon_color_b: 255
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Arrays Complete",
+        description: "Comprehensive array operations",
+        category: ExampleCategory::LANGUAGE_BASICS,
+        executable_path: "../bin/nano nl_arrays.nano",
+        is_compiled: false,
+        requires_args: false,
+        icon_color_r: 100, icon_color_g: 200, icon_color_b: 255
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Enums & Structs",
+        description: "User-defined types",
+        category: ExampleCategory::LANGUAGE_BASICS,
+        executable_path: "../bin/nano nl_enum.nano",
+        is_compiled: false,
+        requires_args: false,
+        icon_color_r: 100, icon_color_g: 200, icon_color_b: 255
+    }
+    count = count + 1
+    
+    # === GAMES ===
+    examples[count] = ExampleCard {
+        name: "Snake",
+        description: "Classic snake game (terminal)",
+        category: ExampleCategory::GAMES,
+        executable_path: "../bin/nl_snake",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 100, icon_color_g: 255, icon_color_b: 100
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Pong",
+        description: "The first video game (1972)",
+        category: ExampleCategory::GAMES,
+        executable_path: "../bin/sdl_pong",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 100, icon_color_g: 255, icon_color_b: 100
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Asteroids",
+        description: "Space shooter with HUD",
+        category: ExampleCategory::GAMES,
+        executable_path: "../bin/sdl_asteroids",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 100, icon_color_g: 255, icon_color_b: 100
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Checkers",
+        description: "Board game with AI opponent",
+        category: ExampleCategory::GAMES,
+        executable_path: "../bin/sdl_checkers",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 100, icon_color_g: 255, icon_color_b: 100
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Game of Life",
+        description: "Conway's cellular automata",
+        category: ExampleCategory::GAMES,
+        executable_path: "../bin/ncurses_game_of_life",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 100, icon_color_g: 255, icon_color_b: 100
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Maze Generator",
+        description: "Procedural maze & pathfinding",
+        category: ExampleCategory::GAMES,
+        executable_path: "../bin/nano nl_maze.nano",
+        is_compiled: false,
+        requires_args: false,
+        icon_color_r: 100, icon_color_g: 255, icon_color_b: 100
+    }
+    count = count + 1
+    
+    # === GRAPHICS ===
+    examples[count] = ExampleCard {
+        name: "Falling Sand",
+        description: "Cellular automata physics sandbox",
+        category: ExampleCategory::GRAPHICS,
+        executable_path: "../bin/sdl_falling_sand",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 255, icon_color_g: 150, icon_color_b: 50
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Boids Flocking",
+        description: "Emergent flocking behavior",
+        category: ExampleCategory::GRAPHICS,
+        executable_path: "../bin/sdl_boids",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 255, icon_color_g: 150, icon_color_b: 50
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Particle System",
+        description: "Interactive particle explosions",
+        category: ExampleCategory::GRAPHICS,
+        executable_path: "../bin/sdl_particles",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 255, icon_color_g: 150, icon_color_b: 50
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Ray Tracer",
+        description: "Real-time ray tracing",
+        category: ExampleCategory::GRAPHICS,
+        executable_path: "../bin/sdl_raytracer",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 255, icon_color_g: 150, icon_color_b: 50
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Fire Effect",
+        description: "Classic demoscene fire",
+        category: ExampleCategory::GRAPHICS,
+        executable_path: "../bin/sdl_fire",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 255, icon_color_g: 150, icon_color_b: 50
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Starfield",
+        description: "3D space travel effect",
+        category: ExampleCategory::GRAPHICS,
+        executable_path: "../bin/sdl_starfield",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 255, icon_color_g: 150, icon_color_b: 50
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Terrain Explorer",
+        description: "Procedural terrain generation",
+        category: ExampleCategory::GRAPHICS,
+        executable_path: "../bin/sdl_terrain_explorer",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 255, icon_color_g: 150, icon_color_b: 50
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Matrix Rain",
+        description: "The Matrix digital rain effect",
+        category: ExampleCategory::GRAPHICS,
+        executable_path: "../bin/ncurses_matrix_rain",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 255, icon_color_g: 150, icon_color_b: 50
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "UI Showcase",
+        description: "All UI widgets + file browser",
+        category: ExampleCategory::GRAPHICS,
+        executable_path: "../bin/sdl_ui_demo",
+        is_compiled: false,
+        requires_args: false,
+        icon_color_r: 255, icon_color_g: 150, icon_color_b: 50
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "OpenGL Cube",
+        description: "Rotating textured cube",
+        category: ExampleCategory::GRAPHICS,
+        executable_path: "../bin/opengl_cube",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 255, icon_color_g: 150, icon_color_b: 50
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "OpenGL Teapot",
+        description: "Utah teapot with shaders",
+        category: ExampleCategory::GRAPHICS,
+        executable_path: "../bin/opengl_teapot",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 255, icon_color_g: 150, icon_color_b: 50
+    }
+    count = count + 1
+    
+    # === AUDIO ===
+    examples[count] = ExampleCard {
+        name: "NanoAmp",
+        description: "Winamp-style MP3 player",
+        category: ExampleCategory::AUDIO,
+        executable_path: "../bin/sdl_nanoamp_enhanced",
+        is_compiled: true,
+        requires_args: false,
+        icon_color_r: 255, icon_color_g: 100, icon_color_b: 200
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "MOD Visualizer",
+        description: "MOD music with visualizations",
+        category: ExampleCategory::AUDIO,
+        executable_path: "../bin/sdl_mod_visualizer examples/gabba-studies-12.mod",
+        is_compiled: true,
+        requires_args: true,
+        icon_color_r: 255, icon_color_g: 100, icon_color_b: 200
+    }
+    count = count + 1
+    
+    # === ADVANCED ===
+    examples[count] = ExampleCard {
+        name: "Generics Demo",
+        description: "Generic programming with List<T>",
+        category: ExampleCategory::ADVANCED,
+        executable_path: "../bin/nano nl_generics_demo.nano",
+        is_compiled: false,
+        requires_args: false,
+        icon_color_r: 200, icon_color_g: 100, icon_color_b: 255
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Filter/Map/Fold",
+        description: "Functional programming patterns",
+        category: ExampleCategory::ADVANCED,
+        executable_path: "../bin/nano nl_filter_map_fold.nano",
+        is_compiled: false,
+        requires_args: false,
+        icon_color_r: 200, icon_color_g: 100, icon_color_b: 255
+    }
+    count = count + 1
+    
+    examples[count] = ExampleCard {
+        name: "Matrix Operations",
+        description: "Linear algebra operations",
+        category: ExampleCategory::ADVANCED,
+        executable_path: "../bin/nano nl_matrix_operations.nano",
+        is_compiled: false,
+        requires_args: false,
+        icon_color_r: 200, icon_color_g: 100, icon_color_b: 255
+    }
+    count = count + 1
+    
+    # === EXTERNAL LIBRARIES ===
+    examples[count] = ExampleCard {
+        name: "SQLite Database",
+        description: "Basic CRUD operations",
+        category: ExampleCategory::EXTERNAL_LIBS,
+        executable_path: "../bin/nano sqlite_simple.nano",
+        is_compiled: false,
+        requires_args: false,
+        icon_color_r: 255, icon_color_g: 200, icon_color_b: 100
+    }
+    count = count + 1
+    
+    return examples
+}
+
+fn get_category_name(category: int) -> string {
+    if category == ExampleCategory::LANGUAGE_BASICS {
+        return "Language Basics"
+    }
+    if category == ExampleCategory::GAMES {
+        return "Games"
+    }
+    if category == ExampleCategory::GRAPHICS {
+        return "Graphics & Visual"
+    }
+    if category == ExampleCategory::AUDIO {
+        return "Audio & Music"
+    }
+    if category == ExampleCategory::ADVANCED {
+        return "Advanced Features"
+    }
+    if category == ExampleCategory::EXTERNAL_LIBS {
+        return "External Libraries"
+    }
+    return "All Examples"
+}
+
+# === RENDERING ===
+
+fn draw_card(renderer: SDL_Renderer, card: ExampleCard, x: int, y: int, is_hovered: bool) -> void {
+    # Card background
+    if is_hovered {
+        SDL_SetRenderDrawColor(renderer, 70, 70, 80, 255)
+    } else {
+        SDL_SetRenderDrawColor(renderer, 50, 50, 60, 255)
+    }
+    
+    let rect: SDL_Rect = SDL_Rect { x: x, y: y, w: CARD_WIDTH, h: CARD_HEIGHT }
+    SDL_RenderFillRect(renderer, rect)
+    
+    # Icon area (colored square at top)
+    SDL_SetRenderDrawColor(renderer, card.icon_color_r, card.icon_color_g, card.icon_color_b, 255)
+    let icon_rect: SDL_Rect = SDL_Rect { x: x + 10, y: y + 10, w: 80, h: 80 }
+    SDL_RenderFillRect(renderer, icon_rect)
+    
+    # Border
+    if is_hovered {
+        SDL_SetRenderDrawColor(renderer, 100, 150, 255, 255)
+    } else {
+        SDL_SetRenderDrawColor(renderer, 80, 80, 90, 255)
+    }
+    SDL_RenderDrawRect(renderer, rect)
+    
+    # TODO: Add text rendering for name and description
+    # For now, cards are just colored blocks - text requires font support
+}
+
+fn draw_sidebar(renderer: SDL_Renderer, font: TTF_Font, selected_category: int) -> void {
+    # Sidebar background
+    SDL_SetRenderDrawColor(renderer, 40, 40, 50, 255)
+    let sidebar_rect: SDL_Rect = SDL_Rect { x: 0, y: 0, w: SIDEBAR_WIDTH, h: WINDOW_HEIGHT }
+    SDL_RenderFillRect(renderer, sidebar_rect)
+    
+    # Title
+    let title_color: SDL_Color = SDL_Color { r: 255, g: 255, b: 255, a: 255 }
+    ui_draw_text(renderer, font, "NANOLANG", 20, 30, title_color)
+    ui_draw_text(renderer, font, "EXAMPLES", 20, 60, title_color)
+    
+    # Category buttons
+    let categories: array<int> = array_new<int>(7)
+    categories[0] = ExampleCategory::ALL
+    categories[1] = ExampleCategory::LANGUAGE_BASICS
+    categories[2] = ExampleCategory::GAMES
+    categories[3] = ExampleCategory::GRAPHICS
+    categories[4] = ExampleCategory::AUDIO
+    categories[5] = ExampleCategory::ADVANCED
+    categories[6] = ExampleCategory::EXTERNAL_LIBS
+    
+    let y: int = 120
+    let i: int = 0
+    while i < 7 {
+        let cat: int = categories[i]
+        let is_selected: bool = (cat == selected_category)
+        
+        if is_selected {
+            SDL_SetRenderDrawColor(renderer, 70, 120, 200, 255)
+        } else {
+            SDL_SetRenderDrawColor(renderer, 50, 50, 60, 255)
+        }
+        
+        let btn_rect: SDL_Rect = SDL_Rect { x: 10, y: y, w: SIDEBAR_WIDTH - 20, h: 50 }
+        SDL_RenderFillRect(renderer, btn_rect)
+        
+        let text_color: SDL_Color = SDL_Color { r: 255, g: 255, b: 255, a: 255 }
+        ui_draw_text(renderer, font, get_category_name(cat), 20, y + 15, text_color)
+        
+        y = y + 60
+        i = i + 1
+    }
+}
+
+fn count_category_examples(examples: array<ExampleCard>, category: int) -> int {
+    let count: int = 0
+    let i: int = 0
+    while i < array_length<ExampleCard>(examples) {
+        if category == ExampleCategory::ALL {
+            count = count + 1
+        } else if examples[i].category == category {
+            count = count + 1
+        }
+        i = i + 1
+    }
+    return count
+}
+
+fn launch_example(card: ExampleCard) -> void {
+    println("Launching: " + card.name)
+    
+    # Fork and execute in child process
+    let pid: int = fork()
+    if pid == 0 {
+        # Child process - launch the example
+        # TODO: This needs proper system() or execl() support
+        system(card.executable_path)
+    }
+    # Parent continues running the launcher
+}
+
+# === MAIN ===
+
+fn main() -> int {
+    println("=== NanoLang Example Launcher ===")
+    
+    # Initialize SDL
+    if SDL_Init(SDL_INIT_VIDEO) != 0 {
+        println("Failed to initialize SDL")
+        return 1
+    }
+    
+    if TTF_Init() != 0 {
+        println("Failed to initialize SDL_ttf")
+        return 1
+    }
+    
+    # Create window
+    let window: SDL_Window = SDL_CreateWindow(
+        "NanoLang Examples",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        WINDOW_WIDTH,
+        WINDOW_HEIGHT,
+        SDL_WINDOW_SHOWN
+    )
+    
+    if window == 0 {
+        println("Failed to create window")
+        return 1
+    }
+    
+    let renderer: SDL_Renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED)
+    
+    # Load font
+    let font: TTF_Font = TTF_OpenFont("/System/Library/Fonts/Helvetica.ttc", 16)
+    if font == 0 {
+        println("Failed to load font")
+        return 1
+    }
+    
+    # Load examples database
+    let examples: array<ExampleCard> = create_example_database()
+    let selected_category: int = ExampleCategory::ALL
+    let scroll_offset: int = 0
+    let hovered_card: int = -1
+    
+    # Main loop
+    let running: bool = true
+    let event: SDL_Event = SDL_Event {}
+    
+    while running {
+        # Event handling
+        while SDL_PollEvent(event) != 0 {
+            if event.type == SDL_QUIT {
+                running = false
+            }
+            
+            if event.type == SDL_MOUSEBUTTONDOWN {
+                let mouse_x: int = event.button.x
+                let mouse_y: int = event.button.y
+                
+                # Check sidebar clicks (category selection)
+                if mouse_x < SIDEBAR_WIDTH {
+                    let btn_y: int = 120
+                    let cat_index: int = (mouse_y - btn_y) / 60
+                    if cat_index >= 0 && cat_index < 7 {
+                        let categories: array<int> = array_new<int>(7)
+                        categories[0] = ExampleCategory::ALL
+                        categories[1] = ExampleCategory::LANGUAGE_BASICS
+                        categories[2] = ExampleCategory::GAMES
+                        categories[3] = ExampleCategory::GRAPHICS
+                        categories[4] = ExampleCategory::AUDIO
+                        categories[5] = ExampleCategory::ADVANCED
+                        categories[6] = ExampleCategory::EXTERNAL_LIBS
+                        selected_category = categories[cat_index]
+                        scroll_offset = 0
+                    }
+                } else if hovered_card >= 0 {
+                    # Launch the clicked example
+                    launch_example(examples[hovered_card])
+                }
+            }
+            
+            if event.type == SDL_MOUSEWHEEL {
+                scroll_offset = scroll_offset - (event.wheel.y * SCROLL_SPEED)
+                if scroll_offset < 0 {
+                    scroll_offset = 0
+                }
+            }
+        }
+        
+        # Rendering
+        SDL_SetRenderDrawColor(renderer, 30, 30, 40, 255)
+        SDL_RenderClear(renderer)
+        
+        # Draw sidebar
+        draw_sidebar(renderer, font, selected_category)
+        
+        # Draw example cards
+        let x: int = SIDEBAR_WIDTH + CARD_PADDING
+        let y: int = CARD_PADDING - scroll_offset
+        let cards_per_row: int = (WINDOW_WIDTH - SIDEBAR_WIDTH - CARD_PADDING) / (CARD_WIDTH + CARD_PADDING)
+        let col: int = 0
+        
+        let mouse_state: SDL_MouseState = SDL_GetMouseState()
+        let mouse_x: int = mouse_state.x
+        let mouse_y: int = mouse_state.y
+        hovered_card = -1
+        
+        let i: int = 0
+        while i < array_length<ExampleCard>(examples) {
+            let card: ExampleCard = examples[i]
+            
+            # Filter by category
+            if selected_category != ExampleCategory::ALL && card.category != selected_category {
+                i = i + 1
+                continue
+            }
+            
+            # Check if card is visible
+            if y >= -CARD_HEIGHT && y < WINDOW_HEIGHT {
+                let is_hovered: bool = (
+                    mouse_x >= x && mouse_x < x + CARD_WIDTH &&
+                    mouse_y >= y && mouse_y < y + CARD_HEIGHT
+                )
+                
+                if is_hovered {
+                    hovered_card = i
+                }
+                
+                draw_card(renderer, card, x, y, is_hovered)
+            }
+            
+            # Move to next position
+            col = col + 1
+            if col >= cards_per_row {
+                col = 0
+                x = SIDEBAR_WIDTH + CARD_PADDING
+                y = y + CARD_HEIGHT + CARD_PADDING
+            } else {
+                x = x + CARD_WIDTH + CARD_PADDING
+            }
+            
+            i = i + 1
+        }
+        
+        SDL_RenderPresent(renderer)
+        SDL_Delay(16)  # ~60 FPS
+    }
+    
+    # Cleanup
+    TTF_CloseFont(font)
+    SDL_DestroyRenderer(renderer)
+    SDL_DestroyWindow(window)
+    TTF_Quit()
+    SDL_Quit()
+    
+    return 0
+}

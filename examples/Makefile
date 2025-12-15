@@ -84,10 +84,13 @@ ALL_EXAMPLES = \
 
 # === Targets ===
 
-.PHONY: all nl sdl ncurses opengl clean help
+.PHONY: all build nl sdl ncurses opengl clean help launcher
 
-# Default: build all examples
-all: $(COMPILER) $(ALL_EXAMPLES)
+# Default: launch the example browser
+all: launcher
+
+# Build all examples (old default)
+build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo ""
 	@echo "All examples built successfully!"
 	@echo ""
@@ -129,6 +132,13 @@ all: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "Interpreter-only examples (run with: ./bin/nano examples/<file>):"
 	@echo "  nl_hello, nl_calculator, nl_factorial, nl_fibonacci, nl_primes..."
 	@echo ""
+	@echo "To launch the example browser:"
+	@echo "  cd examples && make"
+	@echo ""
+
+# Example launcher (interpreter-based for now)
+launcher: $(INTERPRETER)
+	@cd .. && ./bin/nano examples/example_launcher_simple.nano
 
 # Category targets
 nl: $(COMPILER) $(NL_EXAMPLES)
@@ -200,7 +210,9 @@ help:
 	@echo "Nanolang Examples Makefile"
 	@echo ""
 	@echo "Targets:"
-	@echo "  make              - Build all examples"
+	@echo "  make              - Launch example browser (app store UI)"
+	@echo "  make launcher     - Launch example browser"
+	@echo "  make build        - Build all examples"
 	@echo "  make nl           - Build nanolang-only examples"
 	@echo "  make sdl          - Build SDL examples"
 	@echo "  make ncurses      - Build NCurses examples"

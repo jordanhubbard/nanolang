@@ -219,13 +219,21 @@ test-unit: build
 test-quick: build
 	@./tests/run_all_tests.sh --lang
 
-# Examples: Build examples (depends on build)
+# Examples: Launch example browser (depends on build)
 examples: build check-deps-sdl
+	@echo ""
+	@echo "=========================================="
+	@echo "🚀 Launching Example Browser"
+	@echo "=========================================="
+	@$(MAKE) -C examples all
+
+# Build all examples without launching browser
+examples-build: build check-deps-sdl
 	@echo ""
 	@echo "=========================================="
 	@echo "Building Examples"
 	@echo "=========================================="
-	@$(MAKE) -C examples all
+	@$(MAKE) -C examples build
 	@echo "✅ Examples built successfully!"
 
 # Examples without SDL: Build only non-SDL examples  
