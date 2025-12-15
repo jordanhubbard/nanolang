@@ -106,6 +106,18 @@ fn main() -> int {
             set running false
         } else {}
         
+        # DEBUG: Check for mouse clicks
+        let mouse_click: int = (nl_sdl_poll_mouse_up)
+        if (!= mouse_click -1) {
+            let mouse_x: int = (/ mouse_click 10000)
+            let mouse_y: int = (% mouse_click 10000)
+            (println "[MOUSE UP] Clicked at:")
+            (print "  X: ")
+            (println mouse_x)
+            (print "  Y: ")
+            (println mouse_y)
+        } else {}
+        
         # Clear screen
         (SDL_SetRenderDrawColor renderer 25 25 35 255)
         (SDL_RenderClear renderer)
@@ -246,7 +258,9 @@ fn main() -> int {
         (nl_ui_label renderer font current_dir 130 420 150 200 200 255)
         
         # Directory navigation buttons
-        if (== (nl_ui_button renderer font "Parent (..))" 750 415 90 22) 1) {
+        let parent_clicked: int = (nl_ui_button renderer font "Parent (..))" 750 415 90 22)
+        if (== parent_clicked 1) {
+            (println "[DEBUG] Parent button clicked!")
             set current_dir ".."
             set files (nl_fs_list_files current_dir ".nano")
             set selected_file -1
@@ -254,7 +268,9 @@ fn main() -> int {
             (println "Browsing parent directory")
         } else {}
         
-        if (== (nl_ui_button renderer font "Home" 845 415 60 22) 1) {
+        let home_clicked: int = (nl_ui_button renderer font "Home" 845 415 60 22)
+        if (== home_clicked 1) {
+            (println "[DEBUG] Home button clicked!")
             set current_dir "."
             set files (nl_fs_list_files current_dir ".nano")
             set selected_file -1
@@ -262,7 +278,9 @@ fn main() -> int {
             (println "Browsing home directory")
         } else {}
         
-        if (== (nl_ui_button renderer font "Examples" 910 415 80 22) 1) {
+        let examples_clicked: int = (nl_ui_button renderer font "Examples" 910 415 80 22)
+        if (== examples_clicked 1) {
+            (println "[DEBUG] Examples button clicked!")
             set current_dir "examples"
             set files (nl_fs_list_files current_dir ".nano")
             set selected_file -1
@@ -270,7 +288,9 @@ fn main() -> int {
             (println "Browsing examples directory")
         } else {}
         
-        if (== (nl_ui_button renderer font "Refresh" 995 415 70 22) 1) {
+        let refresh_clicked: int = (nl_ui_button renderer font "Refresh" 995 415 70 22)
+        if (== refresh_clicked 1) {
+            (println "[DEBUG] Refresh button clicked!")
             set files (nl_fs_list_files current_dir ".nano")
             (println "Refreshed file list")
         } else {}
