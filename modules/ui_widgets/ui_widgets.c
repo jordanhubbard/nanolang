@@ -9,7 +9,6 @@ static int point_in_rect(int px, int py, int rx, int ry, int rw, int rh) {
 
 // Static state for widget click detection (separate for each widget type)
 static int button_prev_mouse_down = 0;
-static int button_click_processed = 0;  // Track if a button click was already processed this frame
 static int checkbox_prev_mouse_down = 0;
 static int radio_prev_mouse_down = 0;
 
@@ -76,20 +75,13 @@ int64_t nl_ui_button(SDL_Renderer* renderer, TTF_Font* font,
     int clicked = 0;
     
     // Detect click (mouse was down, now up, and cursor is over button)
-    // Only allow one button click per mouse release to prevent multiple buttons from firing
-    if (button_prev_mouse_down && !mouse_down && is_hovered && !button_click_processed) {
+    if (button_prev_mouse_down && !mouse_down && is_hovered) {
         clicked = 1;
-        button_click_processed = 1;  // Mark that we've processed a click this mouse release
     }
     
-    // Update mouse state only when it changes
-    if (mouse_down != button_prev_mouse_down) {
-        button_prev_mouse_down = mouse_down;
-        // Reset click processed flag when mouse goes back down (ready for next click)
-        if (mouse_down) {
-            button_click_processed = 0;
-        }
-    }
+    // Update mouse state AFTER checking for click
+    // This allows multiple buttons to detect the same mouse release if hovered
+    button_prev_mouse_down = mouse_down;
     
     // Choose colors based on state
     SDL_Color bg_color, border_color, text_color;
