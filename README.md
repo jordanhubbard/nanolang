@@ -207,6 +207,24 @@ make clean
 sudo make install
 ```
 
+## Teaching LLMs NanoLang
+
+NanoLang is designed to be LLM-friendly with unambiguous syntax and mandatory testing. To teach an AI system to code in NanoLang:
+
+### For LLM Training
+
+- **[MEMORY.md](MEMORY.md)** - Complete LLM training reference with patterns, idioms, debugging workflows, and common errors
+- **[spec.json](spec.json)** - Formal language specification (types, stdlib, syntax, operations)
+- **[Examples](examples/)** - 90+ working examples demonstrating all features
+
+### Quick LLM Bootstrap
+
+1. Read `MEMORY.md` first - covers syntax, patterns, testing, debugging
+2. Reference `spec.json` for stdlib functions and type details  
+3. Study examples for idiomatic usage patterns
+
+The combination of MEMORY.md (practical guidance) + spec.json (formal reference) provides complete coverage for code generation and understanding.
+
 ## Contributing
 
 We welcome contributions! Areas where you can help:
