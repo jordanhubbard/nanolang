@@ -240,9 +240,6 @@ fn main() -> int {
             let current_ticks: int = (SDL_GetTicks)
             set playback_time (/ (- current_ticks playback_start_ticks) 1000)
             
-            # Update visualization
-            (nl_audio_viz_update)
-            
             # Check if track finished
             if (>= playback_time track_duration) {
                 if (== repeat_mode REPEAT_ONE) {
@@ -264,11 +261,6 @@ fn main() -> int {
                     set playback_start_ticks (SDL_GetTicks)
                 }
             } else {}
-        } else {}
-        
-        # Update viz even when stopped (show idle state)
-        if (== playback_state STATE_STOPPED) {
-            (nl_audio_viz_update)
         } else {}
         
         # === RENDERING ===
