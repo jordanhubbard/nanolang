@@ -24,11 +24,18 @@
 - Any other planning or project management documentation
 
 #### Enforcement:
-1. **AI Level**: Custom droid (`nanolang-planning-directory-enforcer`) prevents creation of planning files at top level
+1. **AI Level**: 
+   - Factory droid: `nanolang-planning-directory-enforcer` (prevents creation of planning files at top level)
+   - Cursor rule: `.cursor/rules/file-organization/RULE.md` (same enforcement for Cursor users)
 2. **Git Level**: Pre-commit hook automatically moves misplaced planning `.md` files to `planning/` and blocks the commit for review
    - Hook source: `scripts/pre-commit-planning-enforcer`
    - Already installed in `.git/hooks/pre-commit`
    - To reinstall: `cp scripts/pre-commit-planning-enforcer .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit`
+
+#### Cross-Tool Integration:
+- **Cursor users**: See `.cursor/rules/` for modular rule system that references this file
+- **Factory users**: This file is the source of truth
+- Both tools now share consistent file organization rules
 
 #### Rationale:
 Keeps the repository root clean and navigable by segregating project documentation from essential top-level files.

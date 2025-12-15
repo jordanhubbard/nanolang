@@ -1,5 +1,14 @@
 # Nanolang Project Rules - Keep It Green! 🟢
 
+> **⚠️ MIGRATION NOTICE**: These rules have been migrated to modern Cursor rules format.
+> See `.cursor/rules/` for the new modular rule system:
+> - `.cursor/rules/file-organization/` - File organization enforcement
+> - `.cursor/rules/testing-standards/` - Always Green testing philosophy
+> - `.cursor/rules/code-quality/` - Code quality and parser architecture
+>
+> This `.cursorrules` file is kept for backward compatibility but will be removed in the future.
+> The new format is cleaner, more maintainable, and integrates with Factory's `.factory/PROJECT_RULES.md`.
+
 ## Core Principle: Always Green
 
 This project maintains 100% passing tests. **Any commit that breaks tests is unacceptable.**
