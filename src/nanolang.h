@@ -197,6 +197,9 @@ typedef struct TypeInfo {
     
     /* For opaque types: GLFWwindow, SDL_Window */
     char *opaque_type_name;          /* e.g., "GLFWwindow" */
+    
+    /* For function types: fn(int, int) -> int */
+    struct FunctionSignature *fn_sig;  /* Function signature with param/return types */
 } TypeInfo;
 
 /* Value structure */

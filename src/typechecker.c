@@ -434,9 +434,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     if (expr->as.call.arg_count == 0) {
                         return TYPE_FUNCTION;
                     }
-                    /* Get return type from the type_info signature if available */
-                    /* For now, we don't track return types properly in TypeInfo */
-                    /* Default to TYPE_INT as placeholder */
+                    /* Get return type from the function signature in type_info */
+                    if (sym->type_info && sym->type_info->fn_sig) {
+                        return sym->type_info->fn_sig->return_type;
+                    }
+                    /* Fallback if no signature available */
+                    /* Return TYPE_INT for legacy compatibility (used in let statement checks) */
                     return TYPE_INT;
                 }
                 
@@ -3154,8 +3157,17 @@ bool type_check(ASTNode *program, Environment *env) {
                     element_type = TYPE_INT;  /* Fallback to TYPE_INT if not specified */
                 }
                 
-                env_define_var_with_element_type(env, item->as.function.params[j].name,
-                             param_type, element_type, false, val);
+                /* For function parameters, create TypeInfo with signature */
+                if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
+                    TypeInfo *type_info = malloc(sizeof(TypeInfo));
+                    memset(type_info, 0, sizeof(TypeInfo));
+                    type_info->base_type = TYPE_FUNCTION;
+                    type_info->fn_sig = item->as.function.params[j].fn_sig;
+                    env_define_var_with_type_info(env, item->as.function.params[j].name, param_type, TYPE_UNKNOWN, type_info, false, val);
+                } else {
+                    env_define_var_with_element_type(env, item->as.function.params[j].name,
+                                 param_type, element_type, false, val);
+                }
                 
                 /* Store type name for struct/union parameters */
                 Symbol *param_sym = env_get_var(env, item->as.function.params[j].name);
@@ -3602,8 +3614,16 @@ bool type_check_module(ASTNode *program, Environment *env) {
                     val = create_struct(item->as.function.params[j].struct_type_name, NULL, NULL, 0);
                 } else val = create_void();
                 
+                /* For function parameters, create TypeInfo with signature */
+                if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
+                    TypeInfo *type_info = malloc(sizeof(TypeInfo));
+                    memset(type_info, 0, sizeof(TypeInfo));
+                    type_info->base_type = TYPE_FUNCTION;
+                    type_info->fn_sig = item->as.function.params[j].fn_sig;
+                    env_define_var_with_type_info(env, item->as.function.params[j].name, param_type, TYPE_UNKNOWN, type_info, false, val);
+                }
                 /* Use env_define_var_with_element_type for arrays to preserve element type */
-                if (param_type == TYPE_ARRAY && element_type != TYPE_UNKNOWN) {
+                else if (param_type == TYPE_ARRAY && element_type != TYPE_UNKNOWN) {
                     env_define_var_with_element_type(env, item->as.function.params[j].name, param_type, element_type, false, val);
                 } else {
                     env_define_var(env, item->as.function.params[j].name, param_type, false, val);
