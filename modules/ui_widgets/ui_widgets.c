@@ -12,6 +12,55 @@ static int button_prev_mouse_down = 0;
 static int checkbox_prev_mouse_down = 0;
 static int radio_prev_mouse_down = 0;
 
+// Global text input buffer for SDL_TextInput events
+static char g_text_input_buffer[256] = "";
+static int g_text_input_active = 0;
+
+// Helper: Start SDL text input mode
+static void start_text_input() {
+    if (!g_text_input_active) {
+        SDL_StartTextInput();
+        g_text_input_active = 1;
+    }
+}
+
+// Helper: Stop SDL text input mode
+static void stop_text_input() {
+    if (g_text_input_active) {
+        SDL_StopTextInput();
+        g_text_input_active = 0;
+    }
+}
+
+// Helper: Process SDL text input events and update buffer
+// Call this from your main event loop
+// Returns: 1 if text was modified, 0 otherwise
+static int process_text_input_event(SDL_Event* event, char* buffer, size_t buffer_size) {
+    if (!buffer || buffer_size == 0) return 0;
+    
+    if (event->type == SDL_TEXTINPUT) {
+        // Add new text to buffer
+        size_t current_len = strlen(buffer);
+        size_t input_len = strlen(event->text.text);
+        
+        if (current_len + input_len < buffer_size - 1) {
+            strcat(buffer, event->text.text);
+            return 1;
+        }
+    } else if (event->type == SDL_KEYDOWN) {
+        if (event->key.keysym.sym == SDLK_BACKSPACE && strlen(buffer) > 0) {
+            // Remove last character
+            buffer[strlen(buffer) - 1] = '\0';
+            return 1;
+        } else if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER) {
+            // Enter pressed
+            return 2;  // Special return value for Enter
+        }
+    }
+    
+    return 0;
+}
+
 // Draw a button with text
 // Returns 1 if clicked, 0 otherwise
 int64_t nl_ui_button(SDL_Renderer* renderer, TTF_Font* font,
@@ -703,6 +752,24 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
         SDL_RenderDrawLine(renderer, arrow_x - i, arrow_y + i, arrow_x + i, arrow_y + i);
     }
     
+    // Check for click on dropdown button to toggle open/close state
+    if (dropdown_prev_mouse_down && !mouse_down && is_hovered && !is_open) {
+        dropdown_prev_mouse_down = mouse_down;
+        return -2;  // Signal to toggle dropdown open
+    }
+    
+    // If dropdown is open, check for clicks outside to close it
+    if (is_open && dropdown_prev_mouse_down && !mouse_down) {
+        int list_h = (int)h * (item_count < 5 ? item_count : 5);
+        int list_y = (int)y + (int)h;
+        int in_dropdown_area = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, (int)w, (int)h + list_h);
+        
+        if (!in_dropdown_area) {
+            dropdown_prev_mouse_down = mouse_down;
+            return -3;  // Signal to close dropdown (clicked outside)
+        }
+    }
+    
     // If dropdown is open, draw the list of options
     if (is_open && item_count > 0) {
         int item_h = (int)h;
@@ -855,6 +922,90 @@ int64_t nl_ui_number_spinner(SDL_Renderer* renderer, TTF_Font* font,
     }
     
     return new_value;
+}
+
+// File selector widget - browse and select files
+// Returns: selected file index, or -1 if no change
+int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
+                             nl_array_t* files, int64_t file_count,
+                             int64_t x, int64_t y, int64_t w, int64_t h,
+                             int64_t scroll_offset, int64_t selected_index) {
+    
+    if (!files || !font || file_count == 0) return -1;
+    
+    int64_t clicked_item = -1;
+    
+    // Get mouse state
+    int mouse_x, mouse_y;
+    Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    
+    static int file_selector_prev_mouse_down = 0;
+    
+    // Draw background panel
+    SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
+    SDL_SetRenderDrawColor(renderer, 40, 40, 50, 255);
+    SDL_RenderFillRect(renderer, &bg);
+    SDL_SetRenderDrawColor(renderer, 100, 100, 120, 255);
+    SDL_RenderDrawRect(renderer, &bg);
+    
+    // Calculate visible items
+    int item_h = 25;  // Height per file entry
+    int visible_items = (int)h / item_h;
+    int scroll_start = (int)scroll_offset;
+    
+    // Draw file list
+    for (int i = scroll_start; i < file_count && (i - scroll_start) < visible_items; i++) {
+        const char* filename = ((const char**)files->data)[i];
+        if (!filename) continue;
+        
+        int item_y = (int)y + ((i - scroll_start) * item_h);
+        int item_hovered = point_in_rect(mouse_x, mouse_y, (int)x, item_y, (int)w, item_h);
+        
+        // Highlight selected item
+        if (i == selected_index) {
+            SDL_Rect highlight = {(int)x + 2, item_y + 2, (int)w - 4, item_h - 2};
+            SDL_SetRenderDrawColor(renderer, 60, 100, 180, 255);
+            SDL_RenderFillRect(renderer, &highlight);
+        } else if (item_hovered) {
+            // Highlight hovered item
+            SDL_Rect hover = {(int)x + 2, item_y + 2, (int)w - 4, item_h - 2};
+            SDL_SetRenderDrawColor(renderer, 70, 70, 90, 255);
+            SDL_RenderFillRect(renderer, &hover);
+        }
+        
+        // Check for click
+        if (file_selector_prev_mouse_down && !mouse_down && item_hovered) {
+            clicked_item = i;
+        }
+        
+        // Draw filename
+        SDL_Color text_color = (i == selected_index) ? 
+            (SDL_Color){255, 255, 255, 255} : 
+            (SDL_Color){220, 220, 220, 255};
+        
+        SDL_Surface* surface = TTF_RenderText_Blended(font, filename, text_color);
+        if (surface) {
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+            if (texture) {
+                SDL_Rect dest = {(int)x + 8, item_y + (item_h - surface->h) / 2, surface->w, surface->h};
+                // Clip if too wide
+                if (dest.w > (int)w - 16) {
+                    dest.w = (int)w - 16;
+                }
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                SDL_DestroyTexture(texture);
+            }
+            SDL_FreeSurface(surface);
+        }
+    }
+    
+    // Update mouse state
+    if (mouse_down != file_selector_prev_mouse_down) {
+        file_selector_prev_mouse_down = mouse_down;
+    }
+    
+    return clicked_item;
 }
 
 // Tooltip widget - shows informational text on hover

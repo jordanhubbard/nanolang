@@ -179,7 +179,7 @@ extern fn nl_ui_text_input(renderer: SDL_Renderer, font: TTF_Font,
                             is_focused: int) -> int
 
 # Dropdown/Combo box widget - shows selected item, expands to show list when clicked
-# Returns: index of newly selected item, or -1 if no change
+# Returns: index of newly selected item, -1 for no change, -2 to toggle open, -3 to close
 # Handles mouse state internally
 #
 # Parameters:
@@ -192,9 +192,18 @@ extern fn nl_ui_text_input(renderer: SDL_Renderer, font: TTF_Font,
 #   is_open: whether dropdown list is open (1 or 0)
 #
 # Usage:
-#   let new_index: int = (nl_ui_dropdown renderer font options count 50 100 200 30 current 0)
-#   if (!= new_index -1) {
-#       set current new_index
+#   let result: int = (nl_ui_dropdown renderer font options count 50 100 200 30 current dropdown_open)
+#   if (== result -2) {
+#       set dropdown_open 1  # Toggle open
+#   } else {
+#       if (== result -3) {
+#           set dropdown_open 0  # Close (clicked outside)
+#       } else {
+#           if (!= result -1) {
+#               set current result  # Item selected
+#               set dropdown_open 0
+#           } else {}
+#       }
 #   }
 extern fn nl_ui_dropdown(renderer: SDL_Renderer, font: TTF_Font,
                          items: array<string>, item_count: int,
@@ -235,3 +244,28 @@ extern fn nl_ui_number_spinner(renderer: SDL_Renderer, font: TTF_Font,
 extern fn nl_ui_tooltip(renderer: SDL_Renderer, font: TTF_Font,
                         text: string, widget_x: int, widget_y: int,
                         widget_w: int, widget_h: int) -> void
+
+# File selector widget - browse and select files from a directory
+# Returns: index of selected file in the array, or -1 if no change
+# Handles mouse state internally
+#
+# Parameters:
+#   renderer: SDL renderer
+#   font: TTF_Font for text
+#   files: array of filenames to display
+#   file_count: number of files in array
+#   x, y, w, h: file selector area rectangle
+#   scroll_offset: current scroll position (items from top)
+#   selected_index: currently selected file index (-1 for none)
+#
+# Usage:
+#   let files: array<string> = (nl_fs_list_files "." ".nano")
+#   let clicked: int = (nl_ui_file_selector renderer font files (array_length files) 50 50 400 500 0 current)
+#   if (!= clicked -1) {
+#       set current clicked
+#       # Process selected file...
+#   }
+extern fn nl_ui_file_selector(renderer: SDL_Renderer, font: TTF_Font,
+                               files: array<string>, file_count: int,
+                               x: int, y: int, w: int, h: int,
+                               scroll_offset: int, selected_index: int) -> int

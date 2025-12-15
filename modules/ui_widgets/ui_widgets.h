@@ -99,4 +99,10 @@ void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
                    const char* text, int64_t widget_x, int64_t widget_y,
                    int64_t widget_w, int64_t widget_h);
 
+// File selector widget - browse and select files from a directory
+int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
+                             nl_array_t* files, int64_t file_count,
+                             int64_t x, int64_t y, int64_t w, int64_t h,
+                             int64_t scroll_offset, int64_t selected_index);
+
 #endif // UI_WIDGETS_H
