@@ -27,6 +27,9 @@ int64_t nl_sdl_poll_mouse_motion(void);
 /* Poll for keyboard events - returns scancode or -1 */
 int64_t nl_sdl_poll_keypress(void);
 
+/* Poll for mouse wheel/trackpad scroll - returns positive (up) or negative (down), 0 if no scroll */
+int64_t nl_sdl_poll_mouse_wheel(void);
+
 /* Check if a key is currently held down - returns 1 if held, 0 otherwise */
 int64_t nl_sdl_key_state(int64_t scancode);
 

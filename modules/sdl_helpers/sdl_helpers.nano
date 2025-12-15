@@ -38,6 +38,11 @@ extern fn nl_sdl_poll_mouse_motion() -> int
 # Common scancodes: SPACE=44, ESC=41, C=6, 1=30, 2=31, 3=32, 4=33, 5=34, 6=35
 extern fn nl_sdl_poll_keypress() -> int
 
+# Helper to poll for mouse wheel/trackpad scroll events
+# Returns: positive (typically +1) = scroll up, negative (typically -1) = scroll down, 0 = no scroll
+# Useful for scrolling lists, zooming, etc.
+extern fn nl_sdl_poll_mouse_wheel() -> int
+
 # Helper to check if a key is currently held down (keyboard state)
 # Returns 1 if key is held, 0 otherwise
 # Use this for continuous input (thrust, rotation) instead of nl_sdl_poll_keypress

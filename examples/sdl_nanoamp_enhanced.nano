@@ -275,6 +275,16 @@ fn main() -> int {
         if (== ui_mode MODE_BROWSER) {
             # === DIRECTORY BROWSER MODE ===
             
+            # Mouse wheel scrolling
+            let wheel_delta: int = (nl_sdl_poll_mouse_wheel)
+            if (!= wheel_delta 0) {
+                # Scroll up (positive) = decrease scroll offset, scroll down (negative) = increase
+                set browser_scroll (- browser_scroll wheel_delta)
+                if (< browser_scroll 0) {
+                    set browser_scroll 0
+                } else {}
+            } else {}
+            
             (nl_ui_label renderer title_font "Browse Music Directory" 20 15 200 220 255 255)
             (nl_ui_label renderer tiny_font browser_path 20 45 180 180 200 255)
             

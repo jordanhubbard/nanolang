@@ -136,6 +136,28 @@ int64_t nl_sdl_poll_keypress(void) {
     return -1;
 }
 
+/* Helper to poll for mouse wheel events
+ * Returns wheel.y value: positive = scroll up, negative = scroll down, 0 = no scroll
+ * Typical values are -1 or +1
+ */
+int64_t nl_sdl_poll_mouse_wheel(void) {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
+            /* Store quit event for next poll_event_quit call */
+            SDL_PushEvent(&event);
+            return 0;
+        }
+        if (event.type == SDL_MOUSEWHEEL) {
+            /* Return vertical scroll amount (positive = up, negative = down) */
+            return (int64_t)event.wheel.y;
+        }
+        /* Push back unhandled events so other functions can process them */
+        SDL_PushEvent(&event);
+    }
+    return 0;
+}
+
 /* Helper to check if a key is currently held down (keyboard state)
  * Returns 1 if the key with given scancode is held, 0 otherwise
  * Use this for continuous input (thrust, rotation) instead of nl_sdl_poll_keypress
