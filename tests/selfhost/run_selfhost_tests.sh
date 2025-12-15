@@ -59,10 +59,23 @@ echo "========================================"
 echo "Results: $PASSED passed, $FAILED failed"
 echo "========================================"
 
+# Cleanup intermediate test binaries
+echo ""
+echo "Cleaning up test binaries..."
+for test in "${TESTS[@]}"; do
+    TEST_BIN="bin/selfhost_$(basename $test .nano)"
+    if [ -f "$TEST_BIN" ]; then
+        rm -f "$TEST_BIN"
+    fi
+done
+echo "✓ Removed selfhost_test_* binaries"
+
 if [ $FAILED -eq 0 ]; then
+    echo ""
     echo "🎉 All tests passed!"
     exit 0
 else
+    echo ""
     echo "❌ Some tests failed"
     exit 1
 fi
