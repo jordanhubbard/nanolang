@@ -17,6 +17,10 @@ typedef struct {
 } nl_array_t;
 #endif
 
+// Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
+// This allows all widgets to see the same mouse transition
+void nl_ui_update_mouse_state();
+
 // Create a button and check for mouse interaction
 // Returns: 1 if clicked (mouse released over button), 0 otherwise
 // Uses SDL mouse state internally

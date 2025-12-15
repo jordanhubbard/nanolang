@@ -109,6 +109,9 @@ fn main() -> int {
         # NOTE: DO NOT poll mouse events here! The widgets handle mouse internally via SDL_GetMouseState()
         # Polling events in the main loop interferes with their state tracking
         
+        # Update widget mouse state ONCE per frame before rendering
+        (nl_ui_update_mouse_state)
+        
         # Clear screen
         (SDL_SetRenderDrawColor renderer 25 25 35 255)
         (SDL_RenderClear renderer)
@@ -252,31 +255,41 @@ fn main() -> int {
         let parent_clicked: int = (nl_ui_button renderer font "Parent (..))" 750 415 90 22)
         if (== parent_clicked 1) {
             (println "[DEBUG] Parent button clicked!")
-            set current_dir ".."
+            # Go up from current directory
+            set current_dir (nl_fs_join_path current_dir "..")
+            (print "New path: ")
+            (println current_dir)
             set files (nl_fs_list_files current_dir ".nano")
             set selected_file -1
             set selected_file_path ""
-            (println "Browsing parent directory")
+            (print "Files found: ")
+            (println (array_length files))
         } else {}
         
         let home_clicked: int = (nl_ui_button renderer font "Home" 845 415 60 22)
         if (== home_clicked 1) {
             (println "[DEBUG] Home button clicked!")
             set current_dir "."
+            (print "New path: ")
+            (println current_dir)
             set files (nl_fs_list_files current_dir ".nano")
             set selected_file -1
             set selected_file_path ""
-            (println "Browsing home directory")
+            (print "Files found: ")
+            (println (array_length files))
         } else {}
         
         let examples_clicked: int = (nl_ui_button renderer font "Examples" 910 415 80 22)
         if (== examples_clicked 1) {
             (println "[DEBUG] Examples button clicked!")
             set current_dir "examples"
+            (print "New path: ")
+            (println current_dir)
             set files (nl_fs_list_files current_dir ".nano")
             set selected_file -1
             set selected_file_path ""
-            (println "Browsing examples directory")
+            (print "Files found: ")
+            (println (array_length files))
         } else {}
         
         let refresh_clicked: int = (nl_ui_button renderer font "Refresh" 995 415 70 22)

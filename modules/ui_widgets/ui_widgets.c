@@ -8,8 +8,12 @@ static int point_in_rect(int px, int py, int rx, int ry, int rw, int rh) {
 }
 
 // Static state for widget click detection (separate for each widget type)
+// We track both CURRENT and PREVIOUS to detect transitions
+static int button_current_mouse_down = 0;
 static int button_prev_mouse_down = 0;
+static int checkbox_current_mouse_down = 0;
 static int checkbox_prev_mouse_down = 0;
+static int radio_current_mouse_down = 0;
 static int radio_prev_mouse_down = 0;
 
 // Global text input buffer for SDL_TextInput events
@@ -61,32 +65,46 @@ static int process_text_input_event(SDL_Event* event, char* buffer, size_t buffe
     return 0;
 }
 
+// Update mouse state - call once per frame BEFORE rendering widgets
+void nl_ui_update_mouse_state() {
+    // Save current as previous
+    button_prev_mouse_down = button_current_mouse_down;
+    checkbox_prev_mouse_down = checkbox_current_mouse_down;
+    radio_prev_mouse_down = radio_current_mouse_down;
+    
+    // Read new current state
+    int mouse_x, mouse_y;
+    Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    
+    button_current_mouse_down = mouse_down;
+    checkbox_current_mouse_down = mouse_down;
+    radio_current_mouse_down = mouse_down;
+}
+
 // Draw a button with text
 // Returns 1 if clicked, 0 otherwise
 int64_t nl_ui_button(SDL_Renderer* renderer, TTF_Font* font,
                      const char* text, int64_t x, int64_t y, int64_t w, int64_t h) {
     
-    // Get current mouse state
+    // Get mouse position (state is tracked by nl_ui_update_mouse_state())
     int mouse_x, mouse_y;
-    Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    SDL_GetMouseState(&mouse_x, &mouse_y);
     
     int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, (int)w, (int)h);
     int clicked = 0;
     
-    // Detect click (mouse was down, now up, and cursor is over button)
-    if (button_prev_mouse_down && !mouse_down && is_hovered) {
+    // Detect click: was down prev frame, up current frame, and hovering
+    if (button_prev_mouse_down && !button_current_mouse_down && is_hovered) {
         clicked = 1;
     }
     
-    // Update mouse state AFTER checking for click
-    // This allows multiple buttons to detect the same mouse release if hovered
-    button_prev_mouse_down = mouse_down;
+    // State is updated once per frame by nl_ui_update_mouse_state(), not here!
     
     // Choose colors based on state
     SDL_Color bg_color, border_color, text_color;
     
-    if (mouse_down && is_hovered) {
+    if (button_current_mouse_down && is_hovered) {
         // Pressed
         bg_color = (SDL_Color){70, 70, 80, 255};
         border_color = (SDL_Color){150, 150, 200, 255};
@@ -236,22 +254,18 @@ int64_t nl_ui_checkbox(SDL_Renderer* renderer, TTF_Font* font,
     int64_t new_checked = checked;
     int box_size = 20;
     
-    // Get mouse state
+    // Get mouse position (state tracked by nl_ui_update_mouse_state())
     int mouse_x, mouse_y;
-    Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    SDL_GetMouseState(&mouse_x, &mouse_y);
     
     int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, box_size, box_size);
     
-    // Detect click
-    if (checkbox_prev_mouse_down && !mouse_down && is_hovered) {
+    // Detect click: was down prev frame, up current frame, and hovering
+    if (checkbox_prev_mouse_down && !checkbox_current_mouse_down && is_hovered) {
         new_checked = !checked;
     }
     
-    // Update mouse state only when it changes
-    if (mouse_down != checkbox_prev_mouse_down) {
-        checkbox_prev_mouse_down = mouse_down;
-    }
+    // State updated once per frame by nl_ui_update_mouse_state(), not here!
     
     // Choose colors based on state
     SDL_Color bg_color, border_color, check_color;
@@ -319,23 +333,18 @@ int64_t nl_ui_radio_button(SDL_Renderer* renderer, TTF_Font* font,
     int circle_radius = 10;
     int circle_size = circle_radius * 2;
     
-    // Get mouse state
+    // Get mouse position (state tracked by nl_ui_update_mouse_state())
     int mouse_x, mouse_y;
-    Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    SDL_GetMouseState(&mouse_x, &mouse_y);
     
     int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, circle_size, circle_size);
     
-    // Detect click
-    if (radio_prev_mouse_down && !mouse_down && is_hovered) {
+    // Detect click: was down prev frame, up current frame, and hovering
+    if (radio_prev_mouse_down && !radio_current_mouse_down && is_hovered) {
         clicked = 1;
     }
     
-    // Update mouse state only when it changes
-    // This is critical for radio buttons since multiple are checked per frame
-    if (mouse_down != radio_prev_mouse_down) {
-        radio_prev_mouse_down = mouse_down;
-    }
+    // State updated once per frame by nl_ui_update_mouse_state(), not here!
     
     // Choose colors based on state
     SDL_Color bg_color, border_color, fill_color;

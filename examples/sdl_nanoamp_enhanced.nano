@@ -235,6 +235,9 @@ fn main() -> int {
             if (== viz_mode 2) { (println "🌊 Oscilloscope") } else {}
         } else {}
         
+        # CRITICAL: Update widget mouse state ONCE per frame BEFORE rendering widgets
+        (nl_ui_update_mouse_state)
+        
         # Update playback time
         if (== playback_state STATE_PLAYING) {
             let current_ticks: int = (SDL_GetTicks)
