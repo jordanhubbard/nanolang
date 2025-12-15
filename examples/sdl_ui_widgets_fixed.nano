@@ -106,17 +106,8 @@ fn main() -> int {
             set running false
         } else {}
         
-        # DEBUG: Check for mouse clicks
-        let mouse_click: int = (nl_sdl_poll_mouse_up)
-        if (!= mouse_click -1) {
-            let mouse_x: int = (/ mouse_click 10000)
-            let mouse_y: int = (% mouse_click 10000)
-            (println "[MOUSE UP] Clicked at:")
-            (print "  X: ")
-            (println mouse_x)
-            (print "  Y: ")
-            (println mouse_y)
-        } else {}
+        # NOTE: DO NOT poll mouse events here! The widgets handle mouse internally via SDL_GetMouseState()
+        # Polling events in the main loop interferes with their state tracking
         
         # Clear screen
         (SDL_SetRenderDrawColor renderer 25 25 35 255)
