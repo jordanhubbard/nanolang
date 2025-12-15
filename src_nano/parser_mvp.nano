@@ -1685,17 +1685,18 @@ fn parse_primary(p: Parser) -> Parser {
                                                         if (== tnext.token_type (token_comma)) {
                                                             set ptup (parser_advance ptup)
                                                         } else {
-                                                            break
+                                                            /* No comma, should be rparen - exit loop by returning */
+                                                            if (== tnext.token_type (token_rparen)) {
+                                                                return (parser_advance ptup)
+                                                            } else {
+                                                                return (parser_with_error ptup true)
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
-                                            let tfinal: LexToken = (parser_current ptup)
-                                            if (== tfinal.token_type (token_rparen)) {
-                                                return (parser_advance ptup)
-                                            } else {
-                                                return (parser_with_error ptup true)
-                                            }
+                                            /* Loop ended without finding rparen */
+                                            return (parser_with_error ptup true)
                                         } else {
                                             /* Regular parenthesized expression */
                                             let p3: Parser = (parser_expect p2 (token_rparen))
@@ -1711,6 +1712,7 @@ fn parse_primary(p: Parser) -> Parser {
                     }
                 }
             }
+        }
         }
     }
 }
@@ -1818,11 +1820,12 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
                                                 
                                                 /* Parse fields until rbrace */
                                                 let mut puc: Parser = p_lbrace
-                                                while (not (parser_is_at_end puc)) {
+                                                let mut done: bool = false
+                                                while (and (not (parser_is_at_end puc)) (not done)) {
                                                     let tuc: LexToken = (parser_current puc)
                                                     if (== tuc.token_type (token_rbrace)) {
                                                         set p_postfix (parser_advance puc)
-                                                        break
+                                                        set done true
                                                     } else {
                                                         /* Parse field: name: value */
                                                         if (== tuc.token_type (token_identifier)) {
@@ -1839,7 +1842,13 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
                                                                     if (== tf4.token_type (token_comma)) {
                                                                         set puc (parser_advance puc)
                                                                     } else {
-                                                                        break
+                                                                        /* No comma, check for rbrace */
+                                                                        if (== tf4.token_type (token_rbrace)) {
+                                                                            set p_postfix (parser_advance puc)
+                                                                            set done true
+                                                                        } else {
+                                                                            set puc (parser_advance puc)
+                                                                        }
                                                                     }
                                                                 }
                                                             } else {
@@ -1850,11 +1859,15 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
                                                         }
                                                     }
                                                 }
-                                                let tuc_final: LexToken = (parser_current puc)
-                                                if (== tuc_final.token_type (token_rbrace)) {
-                                                    set p_postfix (parser_advance puc)
+                                                if (not done) {
+                                                    let tuc_final: LexToken = (parser_current puc)
+                                                    if (== tuc_final.token_type (token_rbrace)) {
+                                                        set p_postfix (parser_advance puc)
+                                                    } else {
+                                                        set p_postfix puc
+                                                    }
                                                 } else {
-                                                    set p_postfix puc
+                                                    (print "")
                                                 }
                                             } else {
                                                 /* Regular field access */
@@ -3797,6 +3810,24 @@ shadow parser_store_union {
     assert (== 1 1)
 }
 
+/* Stub: Store union construction (not yet implemented) */
+fn parser_store_union_construct(p: Parser, union_name: string, variant_name: string, field_count: int, line: int, column: int) -> Parser {
+    /* TODO: Implement union construction storage */
+    return (parser_with_error p false)
+}
+
+/* Stub: Store struct literal (not yet implemented) */
+fn parser_store_struct_literal(p: Parser, type_name: string, field_count: int, line: int, column: int) -> Parser {
+    /* TODO: Implement struct literal storage */
+    return (parser_with_error p false)
+}
+
+/* Stub: Store match expression (not yet implemented) */
+fn parser_store_match(p: Parser, target_id: int, branch_count: int, line: int, column: int) -> Parser {
+    /* TODO: Implement match expression storage */
+    return (parser_with_error p false)
+}
+
 /* Helper: Parse function parameters (simplified - just skip them for now) */
 fn parse_function_params(p: Parser, param_count: int) -> Parser {
     if (parser_has_error p) {
@@ -4309,13 +4340,7 @@ fn parse_program(tokens: List<LexToken>, token_count: int) -> Parser {
     let mut p: Parser = (parser_new tokens token_count)
     
     /* Parse all definitions until end of tokens or error */
-    while (not (parser_is_at_end p)) {
-        if (parser_has_error p) {
-            break
-        } else {
-            (print "")
-        }
-        
+    while (and (not (parser_is_at_end p)) (not (parser_has_error p))) {
         set p (parse_definition p)
     }
     
