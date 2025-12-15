@@ -119,8 +119,25 @@ Some examples legitimately don't compile due to:
 ## Action Items
 
 1. ✅ Document the actual situation (this file)
-2. ⬜ Fix transpiler `print` bug
+2. 🔄 Fix transpiler `print` bug - IN PROGRESS
+   - **Root cause identified**: Transpiler generates calls to `print_int`/`print_string` etc.
+   - **Should generate**: `nl_print_int`/`nl_print_string` etc.
+   - **Location**: Somewhere print statements are transformed to typed function calls
+   - **Functions already declared correctly**: Lines 1048-1060 in transpiler.c define nl_print_*
+   - **Issue**: The call site generation is missing the `nl_` prefix
+   - **Next**: Need to find where print→print_TYPE transformation happens (likely typechecker or early transpiler phase)
 3. ⬜ Systematically test ALL nl_* examples for compilation
 4. ⬜ Update Makefile to compile all working examples
 5. ⬜ Add metadata to launcher showing compile status
 6. ⬜ Fix remaining transpiler limitations
+
+## Debug Notes (2025-12-15)
+
+Investigated the `print` statement transpiler bug:
+- Parser creates AST_PRINT nodes (parser.c line ~1625)
+- Typechecker validates but doesn't transform (typechecker.c line 1705)
+- Transpiler defines correct functions: `nl_print_int`, `nl_print_string` etc (transpiler.c 1048-1060)
+- **Bug**: Generated C code calls `print_int(x)` instead of `nl_print_int(x)`
+- No direct string manipulation of "print_" found in transpiler
+- AST_PRINT nodes have no `.function_name` field - name must be generated dynamically
+- Search areas: transpile_statement_iterative, AST_PRINT case handling, builtin function call generation
