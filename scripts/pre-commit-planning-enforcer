@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# Pre-commit hook to move planning .md files to planning/ directory
+# Keeps essential top-level docs in place (README, LICENSE, CONTRIBUTING, etc.)
+
+# Files that should remain at the top level
+ALLOWED_TOP_LEVEL=(
+    "README.md"
+    "CONTRIBUTING.md"
+    "CONTRIBUTORS.md"
+    "LICENSE"
+    "MEMORY.md"
+    "SPEC_AUDIT.md"
+)
+
+# Get the root of the git repository
+GIT_ROOT=$(git rev-parse --show-toplevel)
+
+# Track if we moved any files
+MOVED_FILES=0
+
+# Get staged files that are .md files in the top-level directory
+while IFS= read -r file; do
+    # Skip if file doesn't exist (deleted files)
+    [ ! -f "$GIT_ROOT/$file" ] && continue
+    
+    # Check if it's a top-level .md file
+    if [[ "$file" == *.md ]] && [[ ! "$file" == */* ]]; then
+        # Extract just the filename
+        filename=$(basename "$file")
+        
+        # Check if this file is in the allowed list
+        ALLOWED=0
+        for allowed in "${ALLOWED_TOP_LEVEL[@]}"; do
+            if [[ "$filename" == "$allowed" ]]; then
+                ALLOWED=1
+                break
+            fi
+        done
+        
+        # If not allowed, move it to planning/
+        if [[ $ALLOWED -eq 0 ]]; then
+            echo "Moving planning file: $filename -> planning/$filename"
+            
+            # Ensure planning directory exists
+            mkdir -p "$GIT_ROOT/planning"
+            
+            # Move the file
+            git mv "$file" "planning/$filename"
+            
+            MOVED_FILES=1
+        fi
+    fi
+done < <(git diff --cached --name-only --diff-filter=ACM)
+
+# If we moved files, warn the user
+if [[ $MOVED_FILES -eq 1 ]]; then
+    echo ""
+    echo "Planning .md files have been automatically moved to planning/ directory."
+    echo "Please review the changes and commit again if satisfied."
+    echo ""
+    exit 1
+fi
+
+exit 0
