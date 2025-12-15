@@ -78,6 +78,24 @@ Before committing parser changes:
 3. Fix or revert immediately
 4. Add test to catch this pattern
 
+## Success Metrics
+
+### Green Status Indicators
+
+- ✅ All tests passing
+- ✅ Self-hosting works
+- ✅ Zero compilation errors
+- ✅ Zero warnings
+- ✅ Examples build
+- ✅ Documentation current
+
+### Quality Metrics
+
+- Test pass rate: 100%
+- Coverage: >95%
+- Self-hosting: Validated
+- Performance: < 10s compile time
+
 ## Remember
 
 **"Always Green" means ALWAYS GREEN.**

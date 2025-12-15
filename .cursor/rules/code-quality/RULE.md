@@ -127,3 +127,21 @@ Types: `feat`, `fix`, `docs`, `test`, `refactor`, `perf`
 # 3. Self-hosting check
 ./bin/nanoc src_nano/lexer_complete.nano || exit 1
 ```
+
+## Future-Proofing
+
+### When at 100% Completion
+
+Once parser reaches 100% feature coverage:
+
+1. **Lock Feature Parity:**  
+   Any C parser feature MUST have self-hosted equivalent
+
+2. **Test Coverage:**  
+   New features MUST include tests
+
+3. **Documentation:**  
+   Feature docs MUST be complete before merge
+
+4. **Green Status:**  
+   NO commits that break tests, ever
