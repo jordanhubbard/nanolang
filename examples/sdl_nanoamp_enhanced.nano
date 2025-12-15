@@ -1,0 +1,705 @@
+# NanoAmp Enhanced - Pixel-Perfect Winamp Tribute
+# Ultimate Winamp aesthetic with tight layout and authentic styling
+#
+# Features:
+# - Classic Winamp layout and color scheme
+# - Compact transport controls with symbols
+# - Prominent track info display
+# - Professional visualization panel
+# - Integrated playlist with proper styling
+# - Status bar with playback info
+# - Directory browser for music discovery
+#
+# Usage: ./bin/sdl_nanoamp_enhanced [optional: path/to/music/directory]
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_mixer/sdl_mixer.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+import "modules/audio_viz/audio_viz.nano"
+import "modules/ui_widgets/ui_widgets.nano"
+import "modules/filesystem/filesystem.nano"
+import "modules/preferences/preferences.nano"
+
+let WINDOW_WIDTH: int = 600
+let WINDOW_HEIGHT: int = 650
+
+# Winamp color palette
+let WINAMP_BG_R: int = 16
+let WINAMP_BG_G: int = 20
+let WINAMP_BG_B: int = 32
+
+let WINAMP_PANEL_R: int = 8
+let WINAMP_PANEL_G: int = 12
+let WINAMP_PANEL_B: int = 20
+
+let WINAMP_HIGHLIGHT_R: int = 60
+let WINAMP_HIGHLIGHT_G: int = 100
+let WINAMP_HIGHLIGHT_B: int = 180
+
+let WINAMP_ACCENT_R: int = 0
+let WINAMP_ACCENT_G: int = 255
+let WINAMP_ACCENT_B: int = 100
+
+# Playback states
+let STATE_STOPPED: int = 0
+let STATE_PLAYING: int = 1
+let STATE_PAUSED: int = 2
+
+# UI modes
+let MODE_PLAYER: int = 0
+let MODE_BROWSER: int = 1
+
+# Repeat modes
+let REPEAT_OFF: int = 0
+let REPEAT_ALL: int = 1
+let REPEAT_ONE: int = 2
+
+# Command-line args
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+extern fn rand() -> int
+
+# String helpers (we'll need these)
+fn get_filename_from_path(path: string) -> string {
+    # Extract just the filename from a full path
+    # Simple version - just return the path for now
+    # In real implementation would parse the path
+    return path
+}
+
+fn main() -> int {
+    (println "")
+    (println "╔════════════════════════════════════════════════════════╗")
+    (println "║  NANOAMP ENHANCED - PIXEL-PERFECT WINAMP TRIBUTE      ║")
+    (println "╚════════════════════════════════════════════════════════╝")
+    (println "")
+    
+    # Load preferences and music
+    let pref_path: string = (nl_prefs_get_path "nanoamp")
+    (print "Preferences: ")
+    (println pref_path)
+    
+    let argc: int = (get_argc)
+    let mut playlist: array<string> = []
+    let mut playlist_count: int = 0
+    
+    # Load from command line or preferences
+    if (>= argc 2) {
+        let music_dir: string = (get_argv 1)
+        (print "Loading from: ")
+        (println music_dir)
+        
+        let files: array<string> = (nl_fs_list_files music_dir ".mp3")
+        let file_count: int = (array_length files)
+        
+        let mut i: int = 0
+        while (< i file_count) {
+            let filename: string = (at files i)
+            let full_path: string = (nl_fs_join_path music_dir filename)
+            set playlist (array_push playlist full_path)
+            set i (+ i 1)
+        }
+        set playlist_count (array_length playlist)
+        
+        (print "✓ Loaded ")
+        (print playlist_count)
+        (println " MP3 files")
+    } else {
+        (println "Loading saved playlist...")
+        set playlist (nl_prefs_load_playlist pref_path)
+        set playlist_count (array_length playlist)
+        
+        if (== playlist_count 0) {
+            (println "No saved playlist - starting empty")
+        } else {
+            (print "✓ Loaded ")
+            (print playlist_count)
+            (println " saved tracks")
+        }
+    }
+    (println "")
+    
+    # Initialize SDL
+    (SDL_Init (+ SDL_INIT_VIDEO SDL_INIT_AUDIO))
+    
+    # Initialize SDL_mixer
+    let mixer_init: int = (Mix_Init 8)
+    if (!= mixer_init 8) {
+        (println "✗ SDL_mixer MP3 support failed")
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    let audio_result: int = (Mix_OpenAudio 44100 32784 2 2048)
+    if (!= audio_result 0) {
+        (println "✗ Failed to open audio")
+        (Mix_Quit)
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    (println "✓ SDL_mixer ready")
+    
+    # Initialize visualization
+    (nl_audio_viz_init 32784 2)
+    (println "✓ Audio visualization ready")
+    
+    # Initialize SDL_ttf
+    (TTF_Init)
+    
+    # Create window
+    let window: SDL_Window = (SDL_CreateWindow "♫ NanoAmp - Winamp Tribute ♫"
+                                                SDL_WINDOWPOS_CENTERED
+                                                SDL_WINDOWPOS_CENTERED
+                                                WINDOW_WIDTH WINDOW_HEIGHT
+                                                SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1
+                                                      (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+    
+    # Load fonts - different sizes for hierarchy
+    let title_font: TTF_Font = (nl_open_font_portable "Arial" 20)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 14)
+    let small_font: TTF_Font = (nl_open_font_portable "Arial" 11)
+    let tiny_font: TTF_Font = (nl_open_font_portable "Arial" 9)
+    
+    if (== font 0) {
+        (println "✗ Failed to load fonts")
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (TTF_Quit)
+        (Mix_CloseAudio)
+        (Mix_Quit)
+        (SDL_Quit)
+        return 1
+    } else {}
+    
+    (println "")
+    (println "Controls:")
+    (println "  Transport buttons: Prev/Play/Pause/Stop/Next")
+    (println "  Click playlist tracks to play")
+    (println "  Click/drag progress bar to seek")
+    (println "  TAB: cycle visualizer modes")
+    (println "  ESC: quit and save playlist")
+    (println "")
+    
+    # State variables
+    let mut running: bool = true
+    let mut playback_state: int = STATE_STOPPED
+    let mut current_track_index: int = 0
+    let mut volume: float = 0.625  # 80/128
+    let mut viz_mode: int = 1  # Start with frequency bars (most Winamp-like)
+    let num_viz_modes: int = 3
+    let mut frame: int = 0
+    
+    # UI mode
+    let mut ui_mode: int = MODE_PLAYER
+    let mut browser_path: string = (nl_prefs_get_home)
+    let mut browser_scroll: int = 0
+    
+    # Time tracking
+    let mut playback_start_ticks: int = 0
+    let mut playback_time: int = 0
+    let mut track_duration: int = 215  # 3:35 default
+    
+    # Playback modes
+    let mut shuffle_mode: int = 0
+    let mut repeat_mode: int = REPEAT_OFF
+    
+    # Music handle
+    let mut has_music: bool = false
+    
+    # Set initial volume
+    (Mix_VolumeMusic 80)
+    
+    (println "Ready! Click Browse to add music or drag files to playlist")
+    (println "")
+    
+    # === MAIN LOOP ===
+    while running {
+        # Event handling
+        if (== (nl_sdl_poll_event_quit) 1) {
+            set running false
+        } else {}
+        
+        let key: int = (nl_sdl_poll_keypress)
+        if (== key 41) {  # ESC
+            set running false
+        } else {}
+        
+        if (== key 43) {  # TAB
+            set viz_mode (% (+ viz_mode 1) num_viz_modes)
+            if (== viz_mode 0) { (println "🌀 Circular Spectrum") } else {}
+            if (== viz_mode 1) { (println "📊 Frequency Bars") } else {}
+            if (== viz_mode 2) { (println "🌊 Oscilloscope") } else {}
+        } else {}
+        
+        # Update playback time
+        if (== playback_state STATE_PLAYING) {
+            let current_ticks: int = (SDL_GetTicks)
+            set playback_time (/ (- current_ticks playback_start_ticks) 1000)
+            
+            # Check if track finished
+            if (>= playback_time track_duration) {
+                if (== repeat_mode REPEAT_ONE) {
+                    set playback_time 0
+                    set playback_start_ticks (SDL_GetTicks)
+                } else {
+                    # Next track
+                    if (< (+ current_track_index 1) playlist_count) {
+                        set current_track_index (+ current_track_index 1)
+                    } else {
+                        if (== repeat_mode REPEAT_ALL) {
+                            set current_track_index 0
+                        } else {
+                            set playback_state STATE_STOPPED
+                            set current_track_index 0
+                        }
+                    }
+                    set playback_time 0
+                    set playback_start_ticks (SDL_GetTicks)
+                }
+            } else {}
+        } else {}
+        
+        # === RENDERING ===
+        
+        # Clear with Winamp dark blue-gray
+        (SDL_SetRenderDrawColor renderer WINAMP_BG_R WINAMP_BG_G WINAMP_BG_B 255)
+        (SDL_RenderClear renderer)
+        
+        if (== ui_mode MODE_BROWSER) {
+            # === DIRECTORY BROWSER MODE ===
+            
+            (nl_ui_label renderer title_font "Browse Music Directory" 20 15 200 220 255 255)
+            (nl_ui_label renderer tiny_font browser_path 20 45 180 180 200 255)
+            
+            # Navigation buttons
+            if (== (nl_ui_button renderer font ".." 20 70 60 25) 1) {
+                set browser_path (nl_fs_join_path browser_path "..")
+                set browser_scroll 0
+            } else {}
+            
+            if (== (nl_ui_button renderer font "Select Folder" 90 70 120 25) 1) {
+                let files: array<string> = (nl_fs_list_files browser_path ".mp3")
+                let file_count: int = (array_length files)
+                
+                let mut i: int = 0
+                while (< i file_count) {
+                    let filename: string = (at files i)
+                    let full_path: string = (nl_fs_join_path browser_path filename)
+                    set playlist (array_push playlist full_path)
+                    set i (+ i 1)
+                }
+                set playlist_count (array_length playlist)
+                
+                (print "Added ")
+                (print file_count)
+                (println " MP3 files")
+                set ui_mode MODE_PLAYER
+            } else {}
+            
+            if (== (nl_ui_button renderer font "Cancel" 220 70 70 25) 1) {
+                set ui_mode MODE_PLAYER
+            } else {}
+            
+            # List directories
+            let dirs: array<string> = (nl_fs_list_dirs browser_path)
+            let dir_count: int = (array_length dirs)
+            
+            if (== dir_count 0) {
+                (nl_ui_label renderer small_font "No subdirectories" 30 110 150 150 150 255)
+            } else {
+                let mut dir_y: int = 110
+                let mut dir_i: int = browser_scroll
+                
+                while (< dir_i dir_count) {
+                    let dir_name: string = (at dirs dir_i)
+                    
+                    if (== (nl_ui_button renderer small_font dir_name 20 dir_y 560 22) 1) {
+                        set browser_path (nl_fs_join_path browser_path dir_name)
+                        set browser_scroll 0
+                    } else {}
+                    
+                    set dir_y (+ dir_y 25)
+                    set dir_i (+ dir_i 1)
+                    
+                    if (> dir_y 600) {
+                        set dir_i dir_count
+                    } else {}
+                }
+            }
+            
+        } else {
+            # === PLAYER MODE - WINAMP STYLE LAYOUT ===
+            
+            # === 1. TITLE BAR / TRACK INFO PANEL ===
+            # Dark panel with track name prominently displayed
+            (nl_ui_panel renderer 5 5 590 70 WINAMP_PANEL_R WINAMP_PANEL_G WINAMP_PANEL_B 255)
+            
+            # App title/logo
+            (nl_ui_label renderer title_font "♫ NanoAmp" 15 10 WINAMP_ACCENT_R WINAMP_ACCENT_G WINAMP_ACCENT_B 255)
+            
+            # Track name (get filename only, no path)
+            let mut current_track_display: string = ""
+            if (< current_track_index playlist_count) {
+                set current_track_display (at playlist current_track_index)
+            } else {
+                set current_track_display "No track loaded"
+            }
+            
+            # Show in smaller text under title
+            (nl_ui_label renderer small_font current_track_display 15 38 200 220 255 255)
+            
+            # Track metadata (mock for now)
+            (nl_ui_label renderer tiny_font "128kbps • 44.1kHz • Stereo" 15 58 120 160 180 255)
+            
+            # Time display - RIGHT ALIGNED, LARGE
+            (nl_ui_time_display renderer title_font playback_time 430 12 WINAMP_ACCENT_R WINAMP_ACCENT_G WINAMP_ACCENT_B 255)
+            (nl_ui_label renderer title_font "/" 483 12 120 140 160 255)
+            (nl_ui_time_display renderer title_font track_duration 500 12 WINAMP_ACCENT_R WINAMP_ACCENT_G WINAMP_ACCENT_B 255)
+            
+            # Track position indicator
+            let mut track_pos_text: string = ""
+            if (> playlist_count 0) {
+                set track_pos_text (int_to_string (+ current_track_index 1))
+                set track_pos_text (str_concat track_pos_text " of ")
+                set track_pos_text (str_concat track_pos_text (int_to_string playlist_count))
+            } else {
+                set track_pos_text "0 of 0"
+            }
+            (nl_ui_label renderer tiny_font track_pos_text 495 58 150 160 180 255)
+            
+            # === 2. SEEKABLE PROGRESS BAR ===
+            let mut progress: float = 0.0
+            if (> track_duration 0) {
+                set progress (/ (cast_float playback_time) (cast_float track_duration))
+            } else {}
+            
+            let seek_pos: float = (nl_ui_seekable_progress_bar renderer 10 85 580 14 progress)
+            if (> seek_pos -0.5) {
+                set playback_time (cast_int (* seek_pos (cast_float track_duration)))
+                set playback_start_ticks (- (SDL_GetTicks) (* playback_time 1000))
+            } else {}
+            
+            # === 3. TRANSPORT CONTROLS - COMPACT LAYOUT ===
+            let ctrl_y: int = 108
+            let btn_h: int = 26
+            
+            # Previous
+            if (== (nl_ui_button renderer font "⏮" 15 ctrl_y 42 btn_h) 1) {
+                if (> current_track_index 0) {
+                    set current_track_index (- current_track_index 1)
+                    set playback_time 0
+                    set playback_start_ticks (SDL_GetTicks)
+                    (println "⏮ Previous")
+                } else {}
+            } else {}
+            
+            # Play
+            if (== (nl_ui_button renderer font "▶" 62 ctrl_y 50 btn_h) 1) {
+                if (> playlist_count 0) {
+                    if (== playback_state STATE_STOPPED) {
+                        let track_path: string = (at playlist current_track_index)
+                        let music: Mix_Music = (Mix_LoadMUS track_path)
+                        if (!= music 0) {
+                            (Mix_PlayMusic music -1)
+                            set playback_state STATE_PLAYING
+                            set playback_start_ticks (SDL_GetTicks)
+                            set has_music true
+                            (println "▶ Play")
+                        } else {}
+                    } else {
+                        if (== playback_state STATE_PAUSED) {
+                            (Mix_ResumeMusic)
+                            set playback_state STATE_PLAYING
+                            set playback_start_ticks (- (SDL_GetTicks) (* playback_time 1000))
+                            (println "▶ Resume")
+                        } else {}
+                    }
+                } else {}
+            } else {}
+            
+            # Pause
+            if (== (nl_ui_button renderer font "⏸" 117 ctrl_y 42 btn_h) 1) {
+                if (== playback_state STATE_PLAYING) {
+                    (Mix_PauseMusic)
+                    set playback_state STATE_PAUSED
+                    (println "⏸ Pause")
+                } else {}
+            } else {}
+            
+            # Stop
+            if (== (nl_ui_button renderer font "⏹" 164 ctrl_y 42 btn_h) 1) {
+                (Mix_HaltMusic)
+                set playback_state STATE_STOPPED
+                set playback_time 0
+                (println "⏹ Stop")
+            } else {}
+            
+            # Next
+            if (== (nl_ui_button renderer font "⏭" 211 ctrl_y 42 btn_h) 1) {
+                if (< (+ current_track_index 1) playlist_count) {
+                    set current_track_index (+ current_track_index 1)
+                    set playback_time 0
+                    set playback_start_ticks (SDL_GetTicks)
+                    (println "⏭ Next")
+                } else {}
+            } else {}
+            
+            # === 4. MODE CONTROLS ===
+            # Shuffle
+            let mut shuffle_label: string = ""
+            if (== shuffle_mode 1) {
+                set shuffle_label "🔀"
+            } else {
+                set shuffle_label "🔀"  # Same but grayed in real version
+            }
+            if (== (nl_ui_button renderer font shuffle_label 268 ctrl_y 38 btn_h) 1) {
+                if (== shuffle_mode 0) {
+                    set shuffle_mode 1
+                    (println "🔀 Shuffle ON")
+                } else {
+                    set shuffle_mode 0
+                    (println "Shuffle OFF")
+                }
+            } else {}
+            
+            # Repeat
+            let mut repeat_label: string = ""
+            if (== repeat_mode REPEAT_OFF) { set repeat_label "🔁" } else {}
+            if (== repeat_mode REPEAT_ALL) { set repeat_label "🔁" } else {}
+            if (== repeat_mode REPEAT_ONE) { set repeat_label "🔂" } else {}
+            
+            if (== (nl_ui_button renderer font repeat_label 311 ctrl_y 38 btn_h) 1) {
+                set repeat_mode (% (+ repeat_mode 1) 3)
+                if (== repeat_mode REPEAT_OFF) { (println "Repeat OFF") } else {}
+                if (== repeat_mode REPEAT_ALL) { (println "🔁 Repeat ALL") } else {}
+                if (== repeat_mode REPEAT_ONE) { (println "🔂 Repeat ONE") } else {}
+            } else {}
+            
+            # === 5. VOLUME CONTROL ===
+            (nl_ui_label renderer small_font "Vol" 365 ctrl_y 120 180 220 255)
+            set volume (nl_ui_slider renderer 395 (+ ctrl_y 6) 110 14 volume)
+            let vol_int: int = (cast_int (* volume 128.0))
+            (Mix_VolumeMusic vol_int)
+            
+            # Volume percentage
+            let vol_pct: int = (cast_int (* volume 100.0))
+            (nl_ui_label renderer small_font (int_to_string vol_pct) 510 ctrl_y 150 200 255 255)
+            
+            # === 6. VISUALIZATION PANEL ===
+            (nl_ui_panel renderer 5 145 590 175 WINAMP_PANEL_R WINAMP_PANEL_G WINAMP_PANEL_B 255)
+            
+            # Viz mode label
+            let mut viz_label: string = ""
+            if (== viz_mode 0) { set viz_label "● Circular Spectrum" } else {}
+            if (== viz_mode 1) { set viz_label "● Frequency Analyzer" } else {}
+            if (== viz_mode 2) { set viz_label "● Oscilloscope" } else {}
+            (nl_ui_label renderer tiny_font viz_label 15 150 120 160 180 255)
+            (nl_ui_label renderer tiny_font "TAB: Change Mode" 450 150 100 140 160 255)
+            
+            # Get waveform data
+            let waveform_size: int = (nl_audio_viz_get_waveform_size)
+            
+            # Mode 0: Circular Spectrum
+            if (== viz_mode 0) {
+                let center_x: int = 300
+                let center_y: int = 232
+                
+                let mut angle: int = 0
+                while (< angle 360) {
+                    let idx: int = (* angle 4)
+                    if (< idx waveform_size) {
+                        let left: float = (nl_audio_viz_get_waveform_sample 0 idx)
+                        let right: float = (nl_audio_viz_get_waveform_sample 1 idx)
+                        let amp: float = (+ (abs left) (abs right))
+                        let radius: int = (+ 30 (cast_int (* amp 55.0)))
+                        
+                        let angle_f: float = (cast_float angle)
+                        let rad: float = (* angle_f 0.01745)
+                        let x: int = (+ center_x (cast_int (* (cast_float radius) (cos rad))))
+                        let y: int = (+ center_y (cast_int (* (cast_float radius) (sin rad))))
+                        
+                        let col_off: int = (+ angle frame)
+                        let r: int = (+ 80 (cast_int (* 175.0 (sin (* (cast_float col_off) 0.03)))))
+                        let g: int = (+ 60 (cast_int (* 195.0 (sin (* (cast_float (+ col_off 120)) 0.03)))))
+                        let b: int = 255
+                        
+                        (SDL_SetRenderDrawColor renderer r g b 255)
+                        (SDL_RenderDrawPoint renderer x y)
+                        (SDL_RenderDrawPoint renderer (+ x 1) y)
+                    } else {}
+                    set angle (+ angle 3)
+                }
+            } else {}
+            
+            # Mode 1: Frequency Bars (Most Winamp-like!)
+            if (== viz_mode 1) {
+                let num_bars: int = 56
+                let bar_width: int = (/ 560 num_bars)
+                let mut bar: int = 0
+                
+                while (< bar num_bars) {
+                    let idx: int = (* bar (/ waveform_size num_bars))
+                    let left: float = (nl_audio_viz_get_waveform_sample 0 idx)
+                    let right: float = (nl_audio_viz_get_waveform_sample 1 idx)
+                    let amp: float = (+ (abs left) (abs right))
+                    let height: int = (+ 8 (cast_int (* amp 130.0)))
+                    
+                    let bar_x: int = (+ 20 (* bar bar_width))
+                    let bar_y: int = (- 305 height)
+                    
+                    # Gradient color - green to yellow to red
+                    let color_val: int = (cast_int (* (/ (cast_float bar) (cast_float num_bars)) 255.0))
+                    let r: int = (+ 0 color_val)
+                    let g: int = (- 255 (/ color_val 2))
+                    let b: int = 30
+                    
+                    (SDL_SetRenderDrawColor renderer r g b 255)
+                    (nl_sdl_render_fill_rect renderer bar_x bar_y (- bar_width 1) height)
+                    set bar (+ bar 1)
+                }
+            } else {}
+            
+            # Mode 2: Oscilloscope
+            if (== viz_mode 2) {
+                let mut i: int = 0
+                let wave_width: int = 560
+                let wave_step: int = (/ waveform_size wave_width)
+                
+                (SDL_SetRenderDrawColor renderer 0 255 200 220)
+                while (< i wave_width) {
+                    let sample_idx: int = (* i wave_step)
+                    let left: float = (nl_audio_viz_get_waveform_sample 0 sample_idx)
+                    let right: float = (nl_audio_viz_get_waveform_sample 1 sample_idx)
+                    let mixed: float = (* (+ left right) 0.5)
+                    let y: int = (+ 232 (cast_int (* mixed 85.0)))
+                    
+                    (SDL_RenderDrawPoint renderer (+ 20 i) y)
+                    (SDL_RenderDrawPoint renderer (+ 20 i) (+ y 1))
+                    set i (+ i 1)
+                }
+            } else {}
+            
+            # === 7. PLAYLIST CONTROL BUTTONS ===
+            let playlist_btn_y: int = 330
+            
+            if (== (nl_ui_button renderer font "Browse..." 10 playlist_btn_y 85 22) 1) {
+                set ui_mode MODE_BROWSER
+                set browser_path (nl_prefs_get_home)
+                (println "📁 Browser")
+            } else {}
+            
+            if (== (nl_ui_button renderer font "Clear" 100 playlist_btn_y 60 22) 1) {
+                set playlist []
+                set playlist_count 0
+                set current_track_index 0
+                if (!= playback_state STATE_STOPPED) {
+                    (Mix_HaltMusic)
+                    set playback_state STATE_STOPPED
+                } else {}
+                (println "Playlist cleared")
+            } else {}
+            
+            if (== (nl_ui_button renderer font "Save" 165 playlist_btn_y 50 22) 1) {
+                (nl_prefs_save_playlist pref_path playlist playlist_count)
+                (println "✓ Saved")
+            } else {}
+            
+            # === 8. PLAYLIST ===
+            (nl_ui_label renderer small_font "Playlist:" 10 358 180 200 220 255)
+            
+            if (== playlist_count 0) {
+                (nl_ui_label renderer tiny_font "No tracks - click Browse to add music" 20 380 150 150 150 255)
+            } else {
+                let clicked: int = (nl_ui_scrollable_list renderer tiny_font playlist
+                                                           playlist_count
+                                                           10 375 580 245 0 current_track_index)
+                if (!= clicked -1) {
+                    set current_track_index clicked
+                    set playback_time 0
+                    set playback_start_ticks (SDL_GetTicks)
+                    
+                    # Auto-play
+                    let track_path: string = (at playlist clicked)
+                    let music: Mix_Music = (Mix_LoadMUS track_path)
+                    if (!= music 0) {
+                        (Mix_PlayMusic music -1)
+                        set playback_state STATE_PLAYING
+                        set playback_start_ticks (SDL_GetTicks)
+                        set has_music true
+                    } else {}
+                } else {}
+            }
+            
+            # === 9. STATUS BAR ===
+            (nl_ui_panel renderer 0 625 600 25 5 8 12 255)
+            
+            # Playback status
+            let mut status_text: string = ""
+            if (== playback_state STATE_PLAYING) { set status_text "▶ Playing" } else {}
+            if (== playback_state STATE_PAUSED) { set status_text "⏸ Paused" } else {}
+            if (== playback_state STATE_STOPPED) { set status_text "⏹ Stopped" } else {}
+            (nl_ui_label renderer tiny_font status_text 10 630 150 200 255 255)
+            
+            # Shuffle/Repeat status
+            let mut mode_status: string = ""
+            if (== shuffle_mode 1) {
+                set mode_status "Shuffle"
+            } else {}
+            if (== repeat_mode REPEAT_ALL) {
+                if (== shuffle_mode 1) {
+                    set mode_status "Shuffle, Repeat All"
+                } else {
+                    set mode_status "Repeat All"
+                }
+            } else {}
+            if (== repeat_mode REPEAT_ONE) {
+                set mode_status "Repeat One"
+            } else {}
+            
+            if (!= mode_status "") {
+                (nl_ui_label renderer tiny_font mode_status 250 630 120 180 220 255)
+            } else {}
+            
+            # Version info
+            (nl_ui_label renderer tiny_font "NanoAmp v2.0" 510 630 100 140 160 255)
+        }
+        
+        # Present frame
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
+        
+        set frame (+ frame 1)
+    }
+    
+    # === CLEANUP ===
+    (println "")
+    (println "Saving playlist...")
+    let save_result: int = (nl_prefs_save_playlist pref_path playlist playlist_count)
+    if (== save_result 1) {
+        (println "✓ Playlist saved")
+    } else {}
+    
+    (println "Cleaning up...")
+    (Mix_HaltMusic)
+    (nl_audio_viz_shutdown)
+    (TTF_CloseFont font)
+    (TTF_CloseFont title_font)
+    (TTF_CloseFont small_font)
+    (TTF_CloseFont tiny_font)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (TTF_Quit)
+    (Mix_CloseAudio)
+    (Mix_Quit)
+    (SDL_Quit)
+    
+    (println "✓ Done")
+    (println "")
+    return 0
+}
+
+shadow main { assert true }

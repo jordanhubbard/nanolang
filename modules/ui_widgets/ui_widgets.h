@@ -72,4 +72,31 @@ void nl_ui_time_display(SDL_Renderer* renderer, TTF_Font* font,
 double nl_ui_seekable_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_t h,
                                     double progress);
 
+// Text input field - single line text input
+// Returns 1 if Enter was pressed, 0 otherwise
+// buffer is modified in place (max buffer_size characters)
+int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
+                          char* buffer, int64_t buffer_size,
+                          int64_t x, int64_t y, int64_t w, int64_t h,
+                          int64_t is_focused);
+
+// Dropdown/Combo box widget - shows selected item, expands when clicked
+// Returns index of newly selected item, or -1 if no change
+int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
+                       nl_array_t* items, int64_t item_count,
+                       int64_t x, int64_t y, int64_t w, int64_t h,
+                       int64_t selected_index, int64_t is_open);
+
+// Number spinner widget - increment/decrement numeric value with +/- buttons
+// Returns new value (clamped between min_val and max_val)
+int64_t nl_ui_number_spinner(SDL_Renderer* renderer, TTF_Font* font,
+                              int64_t value, int64_t min_val, int64_t max_val,
+                              int64_t x, int64_t y, int64_t w, int64_t h);
+
+// Tooltip widget - shows informational text when hovering over a widget area
+// Call this after drawing the widget you want to add a tooltip to
+void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
+                   const char* text, int64_t widget_x, int64_t widget_y,
+                   int64_t widget_w, int64_t widget_h);
+
 #endif // UI_WIDGETS_H

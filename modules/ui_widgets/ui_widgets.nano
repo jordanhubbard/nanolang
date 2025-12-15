@@ -157,3 +157,81 @@ extern fn nl_ui_time_display(renderer: SDL_Renderer, font: TTF_Font,
 #   }
 extern fn nl_ui_seekable_progress_bar(renderer: SDL_Renderer, x: int, y: int, w: int, h: int,
                                        progress: float) -> float
+
+# Text input field - single line text input widget
+# Returns: 1 if Enter was pressed, 0 otherwise
+# Note: Text editing not yet implemented, shows current buffer content only
+# Handles mouse state internally
+#
+# Parameters:
+#   renderer: SDL renderer
+#   font: TTF_Font for text
+#   buffer: string buffer (displayed text)
+#   buffer_size: maximum buffer size
+#   x, y, w, h: input field rectangle
+#   is_focused: whether this input is currently focused (1 or 0)
+#
+# Usage:
+#   (nl_ui_text_input renderer font username 64 50 200 300 40 focused)
+extern fn nl_ui_text_input(renderer: SDL_Renderer, font: TTF_Font,
+                            buffer: string, buffer_size: int,
+                            x: int, y: int, w: int, h: int,
+                            is_focused: int) -> int
+
+# Dropdown/Combo box widget - shows selected item, expands to show list when clicked
+# Returns: index of newly selected item, or -1 if no change
+# Handles mouse state internally
+#
+# Parameters:
+#   renderer: SDL renderer
+#   font: TTF_Font for text
+#   items: array of strings to display
+#   item_count: number of items in array
+#   x, y, w, h: dropdown rectangle
+#   selected_index: currently selected item index
+#   is_open: whether dropdown list is open (1 or 0)
+#
+# Usage:
+#   let new_index: int = (nl_ui_dropdown renderer font options count 50 100 200 30 current 0)
+#   if (!= new_index -1) {
+#       set current new_index
+#   }
+extern fn nl_ui_dropdown(renderer: SDL_Renderer, font: TTF_Font,
+                         items: array<string>, item_count: int,
+                         x: int, y: int, w: int, h: int,
+                         selected_index: int, is_open: int) -> int
+
+# Number spinner widget - increment/decrement numeric value with +/- buttons
+# Returns: new value (clamped between min and max)
+# Handles mouse state internally
+#
+# Parameters:
+#   renderer: SDL renderer
+#   font: TTF_Font for text
+#   value: current value
+#   min_val: minimum allowed value
+#   max_val: maximum allowed value
+#   x, y, w, h: spinner rectangle
+#
+# Usage:
+#   set volume (nl_ui_number_spinner renderer font volume 0 100 50 150 120 30)
+extern fn nl_ui_number_spinner(renderer: SDL_Renderer, font: TTF_Font,
+                                value: int, min_val: int, max_val: int,
+                                x: int, y: int, w: int, h: int) -> int
+
+# Tooltip widget - shows informational text when hovering over a widget area
+# Call this after drawing the widget you want to add a tooltip to
+#
+# Parameters:
+#   renderer: SDL renderer
+#   font: TTF_Font for text
+#   text: tooltip text to display
+#   widget_x, widget_y: widget position
+#   widget_w, widget_h: widget size
+#
+# Usage:
+#   (nl_ui_button renderer font "Save" 100 100 80 40)
+#   (nl_ui_tooltip renderer font "Save your work" 100 100 80 40)
+extern fn nl_ui_tooltip(renderer: SDL_Renderer, font: TTF_Font,
+                        text: string, widget_x: int, widget_y: int,
+                        widget_w: int, widget_h: int) -> void

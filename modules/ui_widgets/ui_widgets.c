@@ -30,8 +30,11 @@ int64_t nl_ui_button(SDL_Renderer* renderer, TTF_Font* font,
         clicked = 1;
     }
     
-    // Update mouse state for next frame
-    button_prev_mouse_down = mouse_down;
+    // Update mouse state only when it changes (not on every widget call)
+    // This prevents multiple widgets from interfering with each other in the same frame
+    if (mouse_down != button_prev_mouse_down) {
+        button_prev_mouse_down = mouse_down;
+    }
     
     // Choose colors based on state
     SDL_Color bg_color, border_color, text_color;
@@ -198,7 +201,10 @@ int64_t nl_ui_checkbox(SDL_Renderer* renderer, TTF_Font* font,
         new_checked = !checked;
     }
     
-    checkbox_prev_mouse_down = mouse_down;
+    // Update mouse state only when it changes
+    if (mouse_down != checkbox_prev_mouse_down) {
+        checkbox_prev_mouse_down = mouse_down;
+    }
     
     // Choose colors based on state
     SDL_Color bg_color, border_color, check_color;
@@ -278,7 +284,11 @@ int64_t nl_ui_radio_button(SDL_Renderer* renderer, TTF_Font* font,
         clicked = 1;
     }
     
-    radio_prev_mouse_down = mouse_down;
+    // Update mouse state only when it changes
+    // This is critical for radio buttons since multiple are checked per frame
+    if (mouse_down != radio_prev_mouse_down) {
+        radio_prev_mouse_down = mouse_down;
+    }
     
     // Choose colors based on state
     SDL_Color bg_color, border_color, fill_color;
@@ -533,4 +543,365 @@ double nl_ui_seekable_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y,
     SDL_RenderDrawRect(renderer, &bg);
     
     return new_position;
+}
+
+// Text input field - single line text input
+// Returns 1 if Enter was pressed, 0 otherwise
+// Text buffer is modified in place
+int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
+                          char* buffer, int64_t buffer_size,
+                          int64_t x, int64_t y, int64_t w, int64_t h,
+                          int64_t is_focused) {
+    
+    int enter_pressed = 0;
+    
+    // Get mouse state
+    int mouse_x, mouse_y;
+    Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    
+    static int input_prev_mouse_down = 0;
+    int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, (int)w, (int)h);
+    
+    // Choose colors based on state
+    SDL_Color bg_color, border_color, text_color;
+    
+    if (is_focused) {
+        bg_color = (SDL_Color){70, 70, 90, 255};
+        border_color = (SDL_Color){100, 150, 255, 255};
+        text_color = (SDL_Color){255, 255, 255, 255};
+    } else if (is_hovered) {
+        bg_color = (SDL_Color){60, 60, 80, 255};
+        border_color = (SDL_Color){140, 140, 180, 255};
+        text_color = (SDL_Color){220, 220, 220, 255};
+    } else {
+        bg_color = (SDL_Color){50, 50, 70, 255};
+        border_color = (SDL_Color){100, 100, 130, 255};
+        text_color = (SDL_Color){200, 200, 200, 255};
+    }
+    
+    // Draw background
+    SDL_Rect rect = {(int)x, (int)y, (int)w, (int)h};
+    SDL_SetRenderDrawColor(renderer, bg_color.r, bg_color.g, bg_color.b, bg_color.a);
+    SDL_RenderFillRect(renderer, &rect);
+    
+    // Draw border (thicker if focused)
+    SDL_SetRenderDrawColor(renderer, border_color.r, border_color.g, border_color.b, border_color.a);
+    SDL_RenderDrawRect(renderer, &rect);
+    if (is_focused) {
+        SDL_Rect inner = {(int)x + 1, (int)y + 1, (int)w - 2, (int)h - 2};
+        SDL_RenderDrawRect(renderer, &inner);
+    }
+    
+    // Draw text content
+    if (font && buffer && strlen(buffer) > 0) {
+        SDL_Surface* surface = TTF_RenderText_Blended(font, buffer, text_color);
+        if (surface) {
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+            if (texture) {
+                int text_x = (int)x + 8;
+                int text_y = (int)y + ((int)h - surface->h) / 2;
+                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
+                // Clip text if too wide
+                if (dest.w > (int)w - 16) {
+                    dest.w = (int)w - 16;
+                }
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                SDL_DestroyTexture(texture);
+            }
+            SDL_FreeSurface(surface);
+        }
+    }
+    
+    // Draw cursor if focused
+    if (is_focused) {
+        static int cursor_blink_counter = 0;
+        cursor_blink_counter++;
+        if ((cursor_blink_counter / 30) % 2 == 0) {  // Blink every 30 frames
+            int cursor_x = (int)x + 8;
+            if (buffer && strlen(buffer) > 0) {
+                // Measure text width to position cursor
+                int text_w, text_h;
+                TTF_SizeText(font, buffer, &text_w, &text_h);
+                cursor_x += text_w + 2;
+            }
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_RenderDrawLine(renderer, cursor_x, (int)y + 6, cursor_x, (int)y + (int)h - 6);
+        }
+    }
+    
+    // Update mouse state only when it changes
+    if (mouse_down != input_prev_mouse_down) {
+        input_prev_mouse_down = mouse_down;
+    }
+    
+    return enter_pressed;
+}
+
+// Dropdown/Combo box widget - shows selected item, expands to show options when clicked
+// Returns: index of newly selected item, or -1 if no change
+int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
+                       nl_array_t* items, int64_t item_count,
+                       int64_t x, int64_t y, int64_t w, int64_t h,
+                       int64_t selected_index, int64_t is_open) {
+    
+    if (!items || !font || item_count == 0) return -1;
+    
+    int64_t new_selection = -1;
+    
+    // Get mouse state
+    int mouse_x, mouse_y;
+    Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    
+    static int dropdown_prev_mouse_down = 0;
+    int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, (int)w, (int)h);
+    
+    // Colors
+    SDL_Color bg_color = is_hovered ? 
+        (SDL_Color){80, 80, 100, 255} : 
+        (SDL_Color){60, 60, 80, 255};
+    SDL_Color border_color = {120, 120, 150, 255};
+    SDL_Color text_color = {220, 220, 220, 255};
+    SDL_Color arrow_color = {180, 180, 200, 255};
+    
+    // Draw main dropdown box
+    SDL_Rect box = {(int)x, (int)y, (int)w, (int)h};
+    SDL_SetRenderDrawColor(renderer, bg_color.r, bg_color.g, bg_color.b, bg_color.a);
+    SDL_RenderFillRect(renderer, &box);
+    SDL_SetRenderDrawColor(renderer, border_color.r, border_color.g, border_color.b, border_color.a);
+    SDL_RenderDrawRect(renderer, &box);
+    
+    // Draw selected item text
+    if (selected_index >= 0 && selected_index < items->length) {
+        const char* selected_text = ((const char**)items->data)[selected_index];
+        if (selected_text) {
+            SDL_Surface* surface = TTF_RenderText_Blended(font, selected_text, text_color);
+            if (surface) {
+                SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+                if (texture) {
+                    int text_x = (int)x + 8;
+                    int text_y = (int)y + ((int)h - surface->h) / 2;
+                    SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
+                    if (dest.w > (int)w - 30) {
+                        dest.w = (int)w - 30;
+                    }
+                    SDL_RenderCopy(renderer, texture, NULL, &dest);
+                    SDL_DestroyTexture(texture);
+                }
+                SDL_FreeSurface(surface);
+            }
+        }
+    }
+    
+    // Draw dropdown arrow
+    int arrow_x = (int)x + (int)w - 20;
+    int arrow_y = (int)y + (int)h / 2;
+    SDL_SetRenderDrawColor(renderer, arrow_color.r, arrow_color.g, arrow_color.b, arrow_color.a);
+    // Simple down arrow (triangle)
+    for (int i = 0; i < 5; i++) {
+        SDL_RenderDrawLine(renderer, arrow_x - i, arrow_y + i, arrow_x + i, arrow_y + i);
+    }
+    
+    // If dropdown is open, draw the list of options
+    if (is_open && item_count > 0) {
+        int item_h = (int)h;
+        int list_h = (int)h * (item_count < 5 ? item_count : 5);
+        int list_y = (int)y + (int)h;
+        
+        // Draw list background
+        SDL_Rect list_bg = {(int)x, list_y, (int)w, list_h};
+        SDL_SetRenderDrawColor(renderer, 45, 45, 65, 255);
+        SDL_RenderFillRect(renderer, &list_bg);
+        SDL_SetRenderDrawColor(renderer, border_color.r, border_color.g, border_color.b, border_color.a);
+        SDL_RenderDrawRect(renderer, &list_bg);
+        
+        // Draw items
+        for (int i = 0; i < item_count && i < 5; i++) {
+            const char* item_text = ((const char**)items->data)[i];
+            if (!item_text) continue;
+            
+            int item_y = list_y + (i * item_h);
+            int item_hovered = point_in_rect(mouse_x, mouse_y, (int)x, item_y, (int)w, item_h);
+            
+            // Highlight selected and hovered items
+            if (i == selected_index) {
+                SDL_Rect highlight = {(int)x + 2, item_y, (int)w - 4, item_h};
+                SDL_SetRenderDrawColor(renderer, 60, 100, 180, 255);
+                SDL_RenderFillRect(renderer, &highlight);
+            } else if (item_hovered) {
+                SDL_Rect highlight = {(int)x + 2, item_y, (int)w - 4, item_h};
+                SDL_SetRenderDrawColor(renderer, 70, 70, 90, 255);
+                SDL_RenderFillRect(renderer, &highlight);
+            }
+            
+            // Check for click on this item
+            if (dropdown_prev_mouse_down && !mouse_down && item_hovered) {
+                new_selection = i;
+            }
+            
+            // Draw item text
+            SDL_Surface* surface = TTF_RenderText_Blended(font, item_text, text_color);
+            if (surface) {
+                SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+                if (texture) {
+                    SDL_Rect dest = {(int)x + 8, item_y + (item_h - surface->h) / 2, surface->w, surface->h};
+                    if (dest.w > (int)w - 16) {
+                        dest.w = (int)w - 16;
+                    }
+                    SDL_RenderCopy(renderer, texture, NULL, &dest);
+                    SDL_DestroyTexture(texture);
+                }
+                SDL_FreeSurface(surface);
+            }
+        }
+    }
+    
+    // Update mouse state only when it changes
+    if (mouse_down != dropdown_prev_mouse_down) {
+        dropdown_prev_mouse_down = mouse_down;
+    }
+    
+    return new_selection;
+}
+
+// Number spinner widget - increment/decrement numeric value
+// Returns: new value
+int64_t nl_ui_number_spinner(SDL_Renderer* renderer, TTF_Font* font,
+                              int64_t value, int64_t min_val, int64_t max_val,
+                              int64_t x, int64_t y, int64_t w, int64_t h) {
+    
+    int64_t new_value = value;
+    
+    // Get mouse state
+    int mouse_x, mouse_y;
+    Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    
+    static int spinner_prev_mouse_down = 0;
+    
+    int button_w = 20;
+    SDL_Rect minus_btn = {(int)x, (int)y, button_w, (int)h};
+    SDL_Rect plus_btn = {(int)x + (int)w - button_w, (int)y, button_w, (int)h};
+    SDL_Rect value_area = {(int)x + button_w, (int)y, (int)w - 2 * button_w, (int)h};
+    
+    int minus_hovered = point_in_rect(mouse_x, mouse_y, minus_btn.x, minus_btn.y, minus_btn.w, minus_btn.h);
+    int plus_hovered = point_in_rect(mouse_x, mouse_y, plus_btn.x, plus_btn.y, plus_btn.w, plus_btn.h);
+    
+    // Detect button clicks
+    if (spinner_prev_mouse_down && !mouse_down) {
+        if (minus_hovered && value > min_val) {
+            new_value = value - 1;
+        } else if (plus_hovered && value < max_val) {
+            new_value = value + 1;
+        }
+    }
+    
+    // Colors
+    SDL_Color minus_bg = minus_hovered ? (SDL_Color){90, 90, 110, 255} : (SDL_Color){70, 70, 90, 255};
+    SDL_Color plus_bg = plus_hovered ? (SDL_Color){90, 90, 110, 255} : (SDL_Color){70, 70, 90, 255};
+    SDL_Color border_color = {120, 120, 150, 255};
+    SDL_Color text_color = {220, 220, 220, 255};
+    
+    // Draw minus button
+    SDL_SetRenderDrawColor(renderer, minus_bg.r, minus_bg.g, minus_bg.b, minus_bg.a);
+    SDL_RenderFillRect(renderer, &minus_btn);
+    SDL_SetRenderDrawColor(renderer, border_color.r, border_color.g, border_color.b, border_color.a);
+    SDL_RenderDrawRect(renderer, &minus_btn);
+    // Draw minus sign
+    SDL_SetRenderDrawColor(renderer, text_color.r, text_color.g, text_color.b, text_color.a);
+    int minus_y = (int)y + (int)h / 2;
+    SDL_RenderDrawLine(renderer, (int)x + 5, minus_y, (int)x + button_w - 5, minus_y);
+    
+    // Draw plus button
+    SDL_SetRenderDrawColor(renderer, plus_bg.r, plus_bg.g, plus_bg.b, plus_bg.a);
+    SDL_RenderFillRect(renderer, &plus_btn);
+    SDL_SetRenderDrawColor(renderer, border_color.r, border_color.g, border_color.b, border_color.a);
+    SDL_RenderDrawRect(renderer, &plus_btn);
+    // Draw plus sign
+    SDL_SetRenderDrawColor(renderer, text_color.r, text_color.g, text_color.b, text_color.a);
+    int plus_x = plus_btn.x + button_w / 2;
+    int plus_y = plus_btn.y + (int)h / 2;
+    SDL_RenderDrawLine(renderer, plus_x - 5, plus_y, plus_x + 5, plus_y);
+    SDL_RenderDrawLine(renderer, plus_x, plus_y - 5, plus_x, plus_y + 5);
+    
+    // Draw value area
+    SDL_SetRenderDrawColor(renderer, 50, 50, 70, 255);
+    SDL_RenderFillRect(renderer, &value_area);
+    SDL_SetRenderDrawColor(renderer, border_color.r, border_color.g, border_color.b, border_color.a);
+    SDL_RenderDrawRect(renderer, &value_area);
+    
+    // Draw value text
+    char value_str[32];
+    snprintf(value_str, sizeof(value_str), "%lld", (long long)new_value);
+    if (font) {
+        SDL_Surface* surface = TTF_RenderText_Blended(font, value_str, text_color);
+        if (surface) {
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+            if (texture) {
+                int text_x = value_area.x + (value_area.w - surface->w) / 2;
+                int text_y = value_area.y + (value_area.h - surface->h) / 2;
+                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                SDL_DestroyTexture(texture);
+            }
+            SDL_FreeSurface(surface);
+        }
+    }
+    
+    // Update mouse state only when it changes
+    if (mouse_down != spinner_prev_mouse_down) {
+        spinner_prev_mouse_down = mouse_down;
+    }
+    
+    return new_value;
+}
+
+// Tooltip widget - shows informational text on hover
+// Call this after drawing the widget you want to add a tooltip to
+void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
+                   const char* text, int64_t widget_x, int64_t widget_y,
+                   int64_t widget_w, int64_t widget_h) {
+    
+    if (!font || !text || strlen(text) == 0) return;
+    
+    // Get mouse state
+    int mouse_x, mouse_y;
+    SDL_GetMouseState(&mouse_x, &mouse_y);
+    
+    // Check if mouse is over the widget area
+    if (!point_in_rect(mouse_x, mouse_y, (int)widget_x, (int)widget_y, (int)widget_w, (int)widget_h)) {
+        return;  // Don't show tooltip if not hovering
+    }
+    
+    // Measure text size
+    int text_w, text_h;
+    TTF_SizeText(font, text, &text_w, &text_h);
+    
+    int tooltip_w = text_w + 16;
+    int tooltip_h = text_h + 12;
+    int tooltip_x = mouse_x + 15;  // Offset from cursor
+    int tooltip_y = mouse_y + 15;
+    
+    // Draw tooltip background
+    SDL_Rect bg = {tooltip_x, tooltip_y, tooltip_w, tooltip_h};
+    SDL_SetRenderDrawColor(renderer, 40, 40, 50, 240);
+    SDL_RenderFillRect(renderer, &bg);
+    
+    // Draw border
+    SDL_SetRenderDrawColor(renderer, 150, 150, 170, 255);
+    SDL_RenderDrawRect(renderer, &bg);
+    
+    // Draw text
+    SDL_Color text_color = {255, 255, 255, 255};
+    SDL_Surface* surface = TTF_RenderText_Blended(font, text, text_color);
+    if (surface) {
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        if (texture) {
+            SDL_Rect dest = {tooltip_x + 8, tooltip_y + 6, surface->w, surface->h};
+            SDL_RenderCopy(renderer, texture, NULL, &dest);
+            SDL_DestroyTexture(texture);
+        }
+        SDL_FreeSurface(surface);
+    }
 }

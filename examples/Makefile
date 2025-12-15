@@ -46,11 +46,13 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/sdl_particles \
 	$(BIN_DIR)/sdl_mod_visualizer \
 	$(BIN_DIR)/sdl_nanoamp \
+	$(BIN_DIR)/sdl_nanoamp_enhanced \
 	$(BIN_DIR)/sdl_raytracer \
 	$(BIN_DIR)/sdl_asteroids \
 	$(BIN_DIR)/sdl_terrain_explorer \
 	$(BIN_DIR)/sdl_falling_sand \
 	$(BIN_DIR)/sdl_ui_widgets \
+	$(BIN_DIR)/sdl_ui_widgets_extended \
 	$(BIN_DIR)/sdl_texture_demo \
 	$(BIN_DIR)/sdl_drawing_primitives \
 	$(BIN_DIR)/sdl_audio_wav \
@@ -107,7 +109,9 @@ all: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  ./bin/sdl_falling_sand      - Cellular automata sandbox"
 	@echo "  ./bin/sdl_mod_visualizer    - MOD music player with visualizer"
 	@echo "  ./bin/sdl_nanoamp           - MP3 player with visualizer (Winamp-style)"
+	@echo "  ./bin/sdl_nanoamp_enhanced  - MP3 player (enhanced Winamp tribute)"
 	@echo "  ./bin/sdl_ui_widgets        - UI widgets showcase (buttons, sliders, etc.)"
+	@echo "  ./bin/sdl_ui_widgets_extended - Extended UI widgets demo (all widgets)"
 	@echo "  ./bin/sdl_texture_demo      - Texture loading and rendering"
 	@echo "  ./bin/sdl_drawing_primitives - Basic shape drawing"
 	@echo "  ./bin/sdl_audio_wav         - Simple WAV audio playback"
@@ -170,6 +174,16 @@ $(BIN_DIR)/sdl_nanoamp: sdl_nanoamp.nano $(COMPILER)
 	@echo "Building NanoAmp MP3 Player with visualizer (Winamp-style)..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_nanoamp.nano -o bin/sdl_nanoamp
 	@echo "✓ NanoAmp built: $@"
+
+$(BIN_DIR)/sdl_nanoamp_enhanced: sdl_nanoamp_enhanced.nano $(COMPILER)
+	@echo "Building NanoAmp Enhanced - Pixel-perfect Winamp tribute..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_nanoamp_enhanced.nano -o bin/sdl_nanoamp_enhanced
+	@echo "✓ NanoAmp Enhanced built: $@"
+
+$(BIN_DIR)/sdl_ui_widgets_extended: sdl_ui_widgets_extended.nano $(COMPILER)
+	@echo "Building Extended UI Widgets Demo..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_ui_widgets_extended.nano -o bin/sdl_ui_widgets_extended
+	@echo "✓ UI Widgets Extended built: $@"
 
 # === Clean ===
 
