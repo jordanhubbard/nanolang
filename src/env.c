@@ -131,16 +131,12 @@ void free_environment(Environment *env) {
             free(sv);
         }
         if (env->symbols[i].value.type == VAL_FUNCTION) {
-            /* Free function value - strdup'd strings */
+            /* Free function value - strdup'd strings and signature */
             if (env->symbols[i].value.as.function_val.function_name) {
                 free((char*)env->symbols[i].value.as.function_val.function_name);
             }
             if (env->symbols[i].value.as.function_val.signature) {
-                FunctionSignature *sig = env->symbols[i].value.as.function_val.signature;
-                if (sig->param_types) {
-                    free(sig->param_types);
-                }
-                free(sig);
+                free_function_signature(env->symbols[i].value.as.function_val.signature);
             }
         }
     }
@@ -317,6 +313,15 @@ void env_set_var(Environment *env, const char *name, Value value) {
         /* Free old string value if needed */
         if (sym->value.type == VAL_STRING) {
             free(sym->value.as.string_val);
+        }
+        /* Free old function value if needed */
+        if (sym->value.type == VAL_FUNCTION) {
+            if (sym->value.as.function_val.function_name) {
+                free((char*)sym->value.as.function_val.function_name);
+            }
+            if (sym->value.as.function_val.signature) {
+                free_function_signature(sym->value.as.function_val.signature);
+            }
         }
         sym->value = value;
     }

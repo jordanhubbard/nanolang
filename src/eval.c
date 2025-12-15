@@ -2318,10 +2318,13 @@ static Value eval_call(ASTNode *node, Environment *env) {
             free(env->symbols[i].value.as.string_val);
         }
         if (env->symbols[i].value.type == VAL_FUNCTION) {
-            /* Function value cleanup - Both function_name and signature cause crashes when freed.
-               This suggests they may be shared or already freed elsewhere.
-               Skip cleanup to avoid crashes - this causes a small memory leak but prevents segfaults. */
-            /* TODO: Fix function value memory management properly */
+            /* Free function value - both function_name and signature */
+            if (env->symbols[i].value.as.function_val.function_name) {
+                free((char*)env->symbols[i].value.as.function_val.function_name);
+            }
+            if (env->symbols[i].value.as.function_val.signature) {
+                free_function_signature(env->symbols[i].value.as.function_val.signature);
+            }
         }
     }
     env->symbol_count = old_symbol_count;
