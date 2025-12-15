@@ -307,31 +307,98 @@ fn main() -> int {
                 set ui_mode MODE_PLAYER
             } else {}
             
-            # List directories
+            # Scroll buttons
+            if (== (nl_ui_button renderer font "^" 565 110 30 30) 1) {
+                if (> browser_scroll 0) {
+                    set browser_scroll (- browser_scroll 1)
+                } else {}
+            } else {}
+            
+            if (== (nl_ui_button renderer font "v" 565 560 30 30) 1) {
+                set browser_scroll (+ browser_scroll 1)
+            } else {}
+            
+            # List directories and files together
             let dirs: array<string> = (nl_fs_list_dirs browser_path)
             let dir_count: int = (array_length dirs)
+            let files: array<string> = (nl_fs_list_files browser_path ".mp3")
+            let file_count: int = (array_length files)
+            let total_items: int = (+ dir_count file_count)
             
-            if (== dir_count 0) {
-                (nl_ui_label renderer small_font "No subdirectories" 30 110 150 150 150 255)
+            if (== total_items 0) {
+                (nl_ui_label renderer small_font "No directories or MP3 files" 30 110 150 150 150 255)
             } else {
-                let mut dir_y: int = 110
-                let mut dir_i: int = browser_scroll
+                let mut item_y: int = 110
+                let mut item_i: int = browser_scroll
+                let max_visible: int = 19  # Max items to show
+                let mut visible_count: int = 0
                 
-                while (< dir_i dir_count) {
-                    let dir_name: string = (at dirs dir_i)
-                    
-                    if (== (nl_ui_button renderer small_font dir_name 20 dir_y 560 22) 1) {
-                        set browser_path (nl_fs_join_path browser_path dir_name)
-                        set browser_scroll 0
-                    } else {}
-                    
-                    set dir_y (+ dir_y 25)
-                    set dir_i (+ dir_i 1)
-                    
-                    if (> dir_y 600) {
-                        set dir_i dir_count
-                    } else {}
+                # Render directories first (in cyan/blue)
+                while (< item_i dir_count) {
+                    if (>= visible_count max_visible) {
+                        set item_i dir_count  # Exit loop
+                    } else {
+                        let dir_name: string = (at dirs item_i)
+                        
+                        # Directory button in cyan
+                        if (== (nl_ui_button renderer small_font dir_name 20 item_y 540 22) 1) {
+                            set browser_path (nl_fs_join_path browser_path dir_name)
+                            set browser_scroll 0
+                        } else {}
+                        
+                        # Draw folder indicator [DIR] in cyan
+                        (nl_ui_label renderer tiny_font "[DIR]" 480 item_y 100 200 255 255)
+                        
+                        set item_y (+ item_y 25)
+                        set item_i (+ item_i 1)
+                        set visible_count (+ visible_count 1)
+                    }
                 }
+                
+                # Then render files (in white/gray)
+                if (< visible_count max_visible) {
+                    let mut file_start: int = (- item_i dir_count)
+                    if (< file_start 0) {
+                        set file_start 0
+                    } else {}
+                    
+                    let mut file_i: int = file_start
+                    while (< file_i file_count) {
+                        if (>= visible_count max_visible) {
+                            set file_i file_count  # Exit loop
+                        } else {
+                            let filename: string = (at files file_i)
+                            
+                            # File button in normal color
+                            if (== (nl_ui_button renderer small_font filename 20 item_y 540 22) 1) {
+                                # Add single file to playlist
+                                let full_path: string = (nl_fs_join_path browser_path filename)
+                                set playlist (array_push playlist full_path)
+                                set playlist_count (array_length playlist)
+                                (print "Added: ")
+                                (println filename)
+                                set ui_mode MODE_PLAYER
+                            } else {}
+                            
+                            # Draw file indicator [MP3] in gray
+                            (nl_ui_label renderer tiny_font "[MP3]" 480 item_y 150 150 150 255)
+                            
+                            set item_y (+ item_y 25)
+                            set file_i (+ file_i 1)
+                            set visible_count (+ visible_count 1)
+                        }
+                    }
+                } else {}
+                
+                # Show scroll position indicator
+                if (> total_items max_visible) {
+                    (nl_ui_label renderer tiny_font "Scroll:" 565 145 150 150 150 255)
+                    let scroll_pos: string = (int_to_string (+ browser_scroll 1))
+                    let scroll_total: string = (int_to_string total_items)
+                    (nl_ui_label renderer tiny_font scroll_pos 565 165 150 150 150 255)
+                    (nl_ui_label renderer tiny_font "/" 577 165 150 150 150 255)
+                    (nl_ui_label renderer tiny_font scroll_total 585 165 150 150 150 255)
+                } else {}
             }
             
         } else {
