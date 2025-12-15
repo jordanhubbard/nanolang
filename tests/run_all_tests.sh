@@ -62,10 +62,8 @@ elif [ "$1" = "--unit" ]; then
 fi
 
 # Expected failures (features not fully implemented)
-# test_firstclass_functions - function variables cause memory corruption (known limitation)
-#                              See docs/KNOWN_LIMITATIONS.md for details
+# None currently - function variables are now fully supported!
 EXPECTED_FAILURES=(
-    "test_firstclass_functions.nano"
 )
 
 is_expected_failure() {

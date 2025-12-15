@@ -2,52 +2,32 @@
 
 ## Function Variables (First-Class Functions)
 
-**Status:** Partial Support
+**Status:** ✅ FULLY SUPPORTED (Fixed in commits d5dceb2 and c12704f)
 
 ### What Works ✅
 - Functions as parameters: `fn apply(f: fn(int)->int, x: int) -> int`
 - Passing functions to other functions: `(apply increment 5)`
 - Functions returning function references: `fn get_func() -> fn(int)->int`
-
-### What Doesn't Work ❌
-- **Function variables**: Storing functions in variables and calling them causes memory corruption
+- **Function variables**: Storing functions in variables and calling them
   ```nano
-  let f: fn(int) -> int = increment  # Variable assignment works
-  let result: int = (f 10)            # Calling through variable CRASHES
+  let f: fn(int) -> int = increment  # Variable assignment works ✅
+  let result: int = (f 10)            # Calling through variable works! ✅
   ```
+- Calling function-typed parameters: `fn filter(predicate: fn(int)->bool, n: int) -> bool { return (predicate n) }`
+- Conditional function selection: `fn select(use_add: bool) -> fn(int,int)->int { if use_add { return add } else { return mul } }`
+
+### Fixed Issues
+1. **Memory Management (d5dceb2)**: Fixed function value cleanup in `env_set_var()`, `free_environment()`, and `eval_function()` to properly use `free_function_signature()` instead of incomplete manual cleanup
+2. **Type Checking (c12704f)**: Added `fn_sig` field to `TypeInfo` and stored function signatures when adding function parameters to environment, allowing proper return type inference when calling function parameters
 
 ### Technical Details
-- **Root Cause:** Memory management issue in function value cleanup
-- **Symptom:** Segfault when returning from a function that has a function variable in scope
-- **Location:** `eval.c` function scope cleanup and `env.c` free_environment
-- **Impact:** Function variables cannot be used reliably
+The fixes addressed:
+- Proper cleanup of function_name and signature in all paths (no more double-free)
+- Complete signature cleanup including param_struct_names and nested signatures
+- Storage of function signatures in TypeInfo for function-typed parameters
+- Return type retrieval from stored signatures during type checking
 
-### Workaround
-Use function parameters and returns instead of variables:
-```nano
-# DON'T DO THIS (crashes):
-fn bad_example() -> int {
-    let f: fn(int) -> int = increment
-    return (f 10)  # CRASH!
-}
-
-# DO THIS (works):
-fn good_example(f: fn(int) -> int) -> int {
-    return (f 10)  # OK - function as parameter
-}
-
-fn call_it() -> int {
-    return (good_example increment)  # OK - direct function reference
-}
-```
-
-### Future Fix
-This requires redesigning how function values are stored and cleaned up to avoid:
-1. Double-free of function_name string
-2. Double-free of FunctionSignature
-3. Potential stack corruption during cleanup
-
-The issue is complex and requires careful analysis of Value copy semantics and ownership.
+All first-class function features are now fully functional and tested!
 
 ## Top-Level Constants with Uppercase Names in Conditionals
 
