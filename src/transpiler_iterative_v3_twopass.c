@@ -948,14 +948,14 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             /* Get the type of the expression */
             Type expr_type = check_expression(stmt->as.print.expr, env);
             
-            /* Map type to print function */
-            const char *print_func = "print_int";
+            /* Map type to print function (with nl_ prefix) */
+            const char *print_func = "nl_print_int";
             if (expr_type == TYPE_STRING) {
-                print_func = "print_string";
+                print_func = "nl_print_string";
             } else if (expr_type == TYPE_FLOAT) {
-                print_func = "print_float";
+                print_func = "nl_print_float";
             } else if (expr_type == TYPE_BOOL) {
-                print_func = "print_bool";
+                print_func = "nl_print_bool";
             }
             
             emit_literal(list, print_func);

@@ -23,16 +23,42 @@ INTERPRETER = $(BIN_DIR)/nano
 export NANO_MODULE_PATH=../modules
 
 # === Nanolang-Only Compiled Examples (nl_*) ===
-# These compile to native binaries (others are interpreter-only)
+# After fixing the print statement bug, many more examples now compile!
 
 NL_EXAMPLES = \
-	$(BIN_DIR)/nl_snake \
+	$(BIN_DIR)/nl_hello \
+	$(BIN_DIR)/nl_calculator \
+	$(BIN_DIR)/nl_factorial \
+	$(BIN_DIR)/nl_fibonacci \
+	$(BIN_DIR)/nl_primes \
+	$(BIN_DIR)/nl_enum \
+	$(BIN_DIR)/nl_struct \
+	$(BIN_DIR)/nl_loops \
+	$(BIN_DIR)/nl_comparisons \
+	$(BIN_DIR)/nl_logical \
+	$(BIN_DIR)/nl_operators \
+	$(BIN_DIR)/nl_floats \
+	$(BIN_DIR)/nl_types \
+	$(BIN_DIR)/nl_mutable \
+	$(BIN_DIR)/nl_extern_char \
+	$(BIN_DIR)/nl_extern_math \
+	$(BIN_DIR)/nl_extern_string \
+	$(BIN_DIR)/nl_advanced_math \
+	$(BIN_DIR)/nl_filter_map_fold \
+	$(BIN_DIR)/nl_first_class_functions \
+	$(BIN_DIR)/nl_function_return_values \
+	$(BIN_DIR)/nl_function_factories_v2 \
+	$(BIN_DIR)/nl_demo_selfhosting \
+	$(BIN_DIR)/nl_array_bounds \
+	$(BIN_DIR)/nl_arrays_test \
+	$(BIN_DIR)/nl_falling_sand \
 	$(BIN_DIR)/nl_game_of_life \
-	$(BIN_DIR)/nl_falling_sand
+	$(BIN_DIR)/nl_snake
 
-# Note: Most nl_* examples are interpreter-only (run with: ../bin/nano <file>)
-# They demonstrate language features but may use constructs the transpiler
-# doesn't fully support yet.
+# Note: Some nl_* examples still require the interpreter due to:
+# - array_new() runtime issues (nl_arrays.nano, nl_array_complete.nano)
+# - Generic list implementation limitations (nl_generic_*.nano)
+# - Complex language features still in development
 
 # === SDL Examples (sdl_*) ===
 # Require SDL2 library
@@ -94,10 +120,19 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo ""
 	@echo "All examples built successfully!"
 	@echo ""
-	@echo "Nanolang-only examples (nl_*):"
-	@echo "  ./bin/nl_snake              - Snake game (terminal)"
-	@echo "  ./bin/nl_game_of_life       - Conway's Game of Life (terminal)"
-	@echo "  ./bin/nl_falling_sand       - Falling sand simulation (terminal)"
+	@echo "Nanolang-only examples (nl_*) - NOW 27 COMPILED EXAMPLES!"
+	@echo "  Basic:"
+	@echo "    ./bin/nl_hello, nl_calculator, nl_factorial, nl_fibonacci, nl_primes"
+	@echo "  Language Features:"
+	@echo "    ./bin/nl_enum, nl_struct, nl_types, nl_loops, nl_comparisons, nl_logical"
+	@echo "    ./bin/nl_operators, nl_floats, nl_mutable, nl_arrays_test, nl_array_bounds"
+	@echo "  External Functions:"
+	@echo "    ./bin/nl_extern_char, nl_extern_math, nl_extern_string, nl_advanced_math"
+	@echo "  Advanced:"
+	@echo "    ./bin/nl_filter_map_fold, nl_first_class_functions, nl_function_return_values"
+	@echo "    ./bin/nl_function_factories_v2, nl_demo_selfhosting"
+	@echo "  Games/Simulations:"
+	@echo "    ./bin/nl_snake, nl_game_of_life, nl_falling_sand"
 	@echo ""
 	@echo "SDL examples (sdl_*):"
 	@echo "  ./bin/sdl_pong              - Table tennis (1972)"
