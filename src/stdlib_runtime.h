@@ -8,6 +8,10 @@ typedef struct {
     int capacity;
 } StringBuilder;
 
+/* StringBuilder functions */
+StringBuilder *sb_create(void);
+void sb_append(StringBuilder *sb, const char *str);
+
 /* Generate standard library runtime functions */
 void generate_string_operations(StringBuilder *sb);
 void generate_file_operations(StringBuilder *sb);

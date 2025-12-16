@@ -111,9 +111,17 @@ all: build
 # - test-bootstrap: Forces full bootstrap + nanoc_stage2
 # ============================================================================
 
+# Unit tests for C components
+.PHONY: test-units
+test-units:
+	@echo "Running C unit tests..."
+	@$(CC) $(CFLAGS) -o tests/test_transpiler tests/test_transpiler.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_transpiler
+	@rm -f tests/test_transpiler
+
 # Core test implementation (used by all test variants)
 .PHONY: test-impl
-test-impl:
+test-impl: test-units
 	@echo ""
 	@echo "=========================================="
 	@echo "Running Complete Test Suite"

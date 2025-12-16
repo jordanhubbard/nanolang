@@ -6,7 +6,7 @@
 
 /* String builder for C code generation - now defined in stdlib_runtime.h */
 
-static StringBuilder *sb_create(void) {
+StringBuilder *sb_create(void) {
     StringBuilder *sb = malloc(sizeof(StringBuilder));
     if (!sb) {
         fprintf(stderr, "Error: Out of memory allocating StringBuilder\n");
