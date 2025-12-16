@@ -1007,6 +1007,36 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
     }
 }
 
+/* Generate enum definitions */
+static void generate_enum_definitions(Environment *env, StringBuilder *sb) {
+    sb_append(sb, "/* ========== Enum Definitions ========== */\n\n");
+    for (int i = 0; i < env->enum_count; i++) {
+        EnumDef *edef = &env->enums[i];
+        
+        /* Skip runtime-provided enums - they're already defined in nanolang.h */
+        if (is_runtime_typedef(edef->name)) {
+            continue;
+        }
+        
+        /* Get prefixed enum name */
+        const char *prefixed_enum = get_prefixed_type_name(edef->name);
+        
+        /* Generate typedef enum with prefixed variants */
+        sb_appendf(sb, "typedef enum {\n");
+        for (int j = 0; j < edef->variant_count; j++) {
+            /* Prefix variants: nl_EnumName_VARIANT */
+            const char *prefixed_variant = get_prefixed_variant_name(edef->name, edef->variant_names[j]);
+            sb_appendf(sb, "    %s = %d",
+                      prefixed_variant,
+                      edef->variant_values[j]);
+            if (j < edef->variant_count - 1) sb_append(sb, ",\n");
+            else sb_append(sb, "\n");
+        }
+        sb_appendf(sb, "} %s;\n\n", prefixed_enum);
+    }
+    sb_append(sb, "/* ========== End Enum Definitions ========== */\n\n");
+}
+
 /* Transpile program to C */
 char *transpile_to_c(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) {
@@ -1602,32 +1632,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "/* ========== End Math and Utility Built-in Functions ========== */\n\n");
 
     /* Generate enum typedefs first (before structs, since structs may use enums) */
-    sb_append(sb, "/* ========== Enum Definitions ========== */\n\n");
-    for (int i = 0; i < env->enum_count; i++) {
-        EnumDef *edef = &env->enums[i];
-        
-        /* Skip runtime-provided enums - they're already defined in nanolang.h */
-        if (is_runtime_typedef(edef->name)) {
-            continue;
-        }
-        
-        /* Get prefixed enum name */
-        const char *prefixed_enum = get_prefixed_type_name(edef->name);
-        
-        /* Generate typedef enum with prefixed variants */
-        sb_appendf(sb, "typedef enum {\n");
-        for (int j = 0; j < edef->variant_count; j++) {
-            /* Prefix variants: nl_EnumName_VARIANT */
-            const char *prefixed_variant = get_prefixed_variant_name(edef->name, edef->variant_names[j]);
-            sb_appendf(sb, "    %s = %d",
-                      prefixed_variant,
-                      edef->variant_values[j]);
-            if (j < edef->variant_count - 1) sb_append(sb, ",\n");
-            else sb_append(sb, "\n");
-        }
-        sb_appendf(sb, "} %s;\n\n", prefixed_enum);
-    }
-    sb_append(sb, "/* ========== End Enum Definitions ========== */\n\n");
+    generate_enum_definitions(env, sb);
 
     /* Forward declare List types BEFORE structs */
     generate_list_specializations(env, sb);
