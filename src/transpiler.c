@@ -1142,309 +1142,8 @@ static void generate_union_definitions(Environment *env, StringBuilder *sb) {
     sb_append(sb, "/* ========== End Union Definitions ========== */\n\n");
 }
 
-/* Transpile program to C */
-char *transpile_to_c(ASTNode *program, Environment *env) {
-    if (!program || program->type != AST_PROGRAM) {
-        return NULL;
-    }
-    
-    if (!env) {
-        fprintf(stderr, "Error: Environment is NULL in transpile_to_c\n");
-        return NULL;
-    }
-
-    /* Clear and collect headers from imported modules */
-    clear_module_headers();
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_IMPORT) {
-            /* Resolve module path and collect headers */
-            char *module_path = resolve_module_path(item->as.import_stmt.module_path, NULL);
-            if (module_path) {
-                collect_headers_from_module(module_path);
-                free(module_path);
-            }
-        }
-    }
-
-    StringBuilder *sb = sb_create();
-
-    /* POSIX feature macro for strdup, strnlen, etc. */
-    sb_append(sb, "#define _POSIX_C_SOURCE 200809L\n\n");
-
-    /* Generate headers */
-    generate_c_headers(sb);
-
-    /* OS stdlib runtime library */
-    sb_append(sb, "/* ========== OS Standard Library ========== */\n\n");
-
-    /* File operations */
-    sb_append(sb, "static char* nl_os_file_read(const char* path) {\n");
-    sb_append(sb, "    FILE* f = fopen(path, \"rb\");  /* Binary mode for MOD files */\n");
-    sb_append(sb, "    if (!f) return \"\";\n");
-    sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
-    sb_append(sb, "    long size = ftell(f);\n");
-    sb_append(sb, "    fseek(f, 0, SEEK_SET);\n");
-    sb_append(sb, "    char* buffer = malloc(size + 1);\n");
-    sb_append(sb, "    fread(buffer, 1, size, f);\n");
-    sb_append(sb, "    buffer[size] = '\\0';\n");
-    sb_append(sb, "    fclose(f);\n");
-    sb_append(sb, "    return buffer;\n");
-    sb_append(sb, "}\n\n");
-
-    /* Binary file reading - returns DynArray of bytes (0-255) */
-    sb_append(sb, "static DynArray* nl_os_file_read_bytes(const char* path) {\n");
-    sb_append(sb, "    FILE* f = fopen(path, \"rb\");\n");
-    sb_append(sb, "    if (!f) {\n");
-    sb_append(sb, "        /* Return empty array on error */\n");
-    sb_append(sb, "        return dyn_array_new(ELEM_INT);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    \n");
-    sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
-    sb_append(sb, "    long size = ftell(f);\n");
-    sb_append(sb, "    fseek(f, 0, SEEK_SET);\n");
-    sb_append(sb, "    \n");
-    sb_append(sb, "    /* Create dynamic array for bytes */\n");
-    sb_append(sb, "    DynArray* bytes = dyn_array_new(ELEM_INT);\n");
-    sb_append(sb, "    \n");
-    sb_append(sb, "    /* Read bytes and add to array */\n");
-    sb_append(sb, "    for (long i = 0; i < size; i++) {\n");
-    sb_append(sb, "        int c = fgetc(f);\n");
-    sb_append(sb, "        if (c == EOF) break;\n");
-    sb_append(sb, "        int64_t byte_val = (int64_t)(unsigned char)c;\n");
-    sb_append(sb, "        dyn_array_push_int(bytes, byte_val);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    \n");
-    sb_append(sb, "    fclose(f);\n");
-    sb_append(sb, "    return bytes;\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static int64_t nl_os_file_write(const char* path, const char* content) {\n");
-    sb_append(sb, "    FILE* f = fopen(path, \"w\");\n");
-    sb_append(sb, "    if (!f) return -1;\n");
-    sb_append(sb, "    fputs(content, f);\n");
-    sb_append(sb, "    fclose(f);\n");
-    sb_append(sb, "    return 0;\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static int64_t nl_os_file_append(const char* path, const char* content) {\n");
-    sb_append(sb, "    FILE* f = fopen(path, \"a\");\n");
-    sb_append(sb, "    if (!f) return -1;\n");
-    sb_append(sb, "    fputs(content, f);\n");
-    sb_append(sb, "    fclose(f);\n");
-    sb_append(sb, "    return 0;\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static int64_t nl_os_file_remove(const char* path) {\n");
-    sb_append(sb, "    return remove(path) == 0 ? 0 : -1;\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static int64_t nl_os_file_rename(const char* old_path, const char* new_path) {\n");
-    sb_append(sb, "    return rename(old_path, new_path) == 0 ? 0 : -1;\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static bool nl_os_file_exists(const char* path) {\n");
-    sb_append(sb, "    return access(path, F_OK) == 0;\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static int64_t nl_os_file_size(const char* path) {\n");
-    sb_append(sb, "    struct stat st;\n");
-    sb_append(sb, "    if (stat(path, &st) != 0) return -1;\n");
-    sb_append(sb, "    return st.st_size;\n");
-    sb_append(sb, "}\n\n");
-
-    /* Directory operations */
-    sb_append(sb, "static int64_t nl_os_dir_create(const char* path) {\n");
-    sb_append(sb, "    return mkdir(path, 0755) == 0 ? 0 : -1;\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static int64_t nl_os_dir_remove(const char* path) {\n");
-    sb_append(sb, "    return rmdir(path) == 0 ? 0 : -1;\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static char* nl_os_dir_list(const char* path) {\n");
-    sb_append(sb, "    DIR* dir = opendir(path);\n");
-    sb_append(sb, "    if (!dir) return \"\";\n");
-    sb_append(sb, "    size_t capacity = 4096;\n");
-    sb_append(sb, "    size_t used = 0;\n");
-    sb_append(sb, "    char* buffer = malloc(capacity);\n");
-    sb_append(sb, "    if (!buffer) { closedir(dir); return \"\"; }\n");
-    sb_append(sb, "    buffer[0] = '\\0';\n");
-    sb_append(sb, "    struct dirent* entry;\n");
-    sb_append(sb, "    while ((entry = readdir(dir)) != NULL) {\n");
-    sb_append(sb, "        if (strcmp(entry->d_name, \".\") == 0 || strcmp(entry->d_name, \"..\") == 0) continue;\n");
-    sb_append(sb, "        size_t name_len = strlen(entry->d_name);\n");
-    sb_append(sb, "        size_t needed = used + name_len + 2; /* +1 for newline, +1 for null */\n");
-    sb_append(sb, "        if (needed > capacity) {\n");
-    sb_append(sb, "            capacity = needed * 2;\n");
-    sb_append(sb, "            char* new_buffer = realloc(buffer, capacity);\n");
-    sb_append(sb, "            if (!new_buffer) { free(buffer); closedir(dir); return \"\"; }\n");
-    sb_append(sb, "            buffer = new_buffer;\n");
-    sb_append(sb, "        }\n");
-    sb_append(sb, "        memcpy(buffer + used, entry->d_name, name_len);\n");
-    sb_append(sb, "        used += name_len;\n");
-    sb_append(sb, "        buffer[used++] = '\\n';\n");
-    sb_append(sb, "        buffer[used] = '\\0';\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    closedir(dir);\n");
-    sb_append(sb, "    return buffer;\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static bool nl_os_dir_exists(const char* path) {\n");
-    sb_append(sb, "    struct stat st;\n");
-    sb_append(sb, "    if (stat(path, &st) != 0) return false;\n");
-    sb_append(sb, "    return S_ISDIR(st.st_mode);\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static char* nl_os_getcwd(void) {\n");
-    sb_append(sb, "    char* buffer = malloc(1024);\n");
-    sb_append(sb, "    if (getcwd(buffer, 1024) == NULL) {\n");
-    sb_append(sb, "        buffer[0] = '\\0';\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    return buffer;\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static int64_t nl_os_chdir(const char* path) {\n");
-    sb_append(sb, "    return chdir(path) == 0 ? 0 : -1;\n");
-    sb_append(sb, "}\n\n");
-
-    /* Path operations */
-    sb_append(sb, "static bool nl_os_path_isfile(const char* path) {\n");
-    sb_append(sb, "    struct stat st;\n");
-    sb_append(sb, "    if (stat(path, &st) != 0) return false;\n");
-    sb_append(sb, "    return S_ISREG(st.st_mode);\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static bool nl_os_path_isdir(const char* path) {\n");
-    sb_append(sb, "    struct stat st;\n");
-    sb_append(sb, "    if (stat(path, &st) != 0) return false;\n");
-    sb_append(sb, "    return S_ISDIR(st.st_mode);\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static char* nl_os_path_join(const char* a, const char* b) {\n");
-    sb_append(sb, "    char* buffer = malloc(2048);\n");
-    sb_append(sb, "    if (strlen(a) == 0) {\n");
-    sb_append(sb, "        snprintf(buffer, 2048, \"%s\", b);\n");
-    sb_append(sb, "    } else if (a[strlen(a) - 1] == '/') {\n");
-    sb_append(sb, "        snprintf(buffer, 2048, \"%s%s\", a, b);\n");
-    sb_append(sb, "    } else {\n");
-    sb_append(sb, "        snprintf(buffer, 2048, \"%s/%s\", a, b);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    return buffer;\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static char* nl_os_path_basename(const char* path) {\n");
-    sb_append(sb, "    char* path_copy = strdup(path);\n");
-    sb_append(sb, "    char* base = basename(path_copy);\n");
-    sb_append(sb, "    char* result = strdup(base);\n");
-    sb_append(sb, "    free(path_copy);\n");
-    sb_append(sb, "    return result;\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static char* nl_os_path_dirname(const char* path) {\n");
-    sb_append(sb, "    char* path_copy = strdup(path);\n");
-    sb_append(sb, "    char* dir = dirname(path_copy);\n");
-    sb_append(sb, "    char* result = strdup(dir);\n");
-    sb_append(sb, "    free(path_copy);\n");
-    sb_append(sb, "    return result;\n");
-    sb_append(sb, "}\n\n");
-
-    /* Process operations */
-    sb_append(sb, "static int64_t nl_os_system(const char* command) {\n");
-    sb_append(sb, "    return system(command);\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static void nl_os_exit(int64_t code) {\n");
-    sb_append(sb, "    exit((int)code);\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static char* nl_os_getenv(const char* name) {\n");
-    sb_append(sb, "    const char* value = getenv(name);\n");
-    sb_append(sb, "    return value ? (char*)value : \"\";\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "/* ========== End OS Standard Library ========== */\n\n");
-
-    sb_append(sb, "/* ========== Advanced String Operations ========== */\n\n");
-    
-    /* char_at - use strnlen for safety */
-    sb_append(sb, "static int64_t char_at(const char* s, int64_t index) {\n");
-    sb_append(sb, "    /* Safety: Bound string scan to reasonable size (1MB) */\n");
-    sb_append(sb, "    int len = strnlen(s, 1024*1024);\n");
-    sb_append(sb, "    if (index < 0 || index >= len) {\n");
-    sb_append(sb, "        fprintf(stderr, \"Error: Index %lld out of bounds (string length %d)\\n\", (long long)index, len);\n");
-    sb_append(sb, "        return 0;\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    return (unsigned char)s[index];\n");
-    sb_append(sb, "}\n\n");
-    
-    /* string_from_char */
-    sb_append(sb, "static char* string_from_char(int64_t c) {\n");
-    sb_append(sb, "    char* buffer = malloc(2);\n");
-    sb_append(sb, "    buffer[0] = (char)c;\n");
-    sb_append(sb, "    buffer[1] = '\\0';\n");
-    sb_append(sb, "    return buffer;\n");
-    sb_append(sb, "}\n\n");
-    
-    /* Character classification */
-    sb_append(sb, "static bool is_digit(int64_t c) {\n");
-    sb_append(sb, "    return c >= '0' && c <= '9';\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "static bool is_alpha(int64_t c) {\n");
-    sb_append(sb, "    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "static bool is_alnum(int64_t c) {\n");
-    sb_append(sb, "    return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "static bool is_whitespace(int64_t c) {\n");
-    sb_append(sb, "    return c == ' ' || c == '\\t' || c == '\\n' || c == '\\r';\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "static bool is_upper(int64_t c) {\n");
-    sb_append(sb, "    return c >= 'A' && c <= 'Z';\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "static bool is_lower(int64_t c) {\n");
-    sb_append(sb, "    return c >= 'a' && c <= 'z';\n");
-    sb_append(sb, "}\n\n");
-    
-    /* Type conversions */
-    sb_append(sb, "static char* int_to_string(int64_t n) {\n");
-    sb_append(sb, "    char* buffer = malloc(32);\n");
-    sb_append(sb, "    snprintf(buffer, 32, \"%lld\", (long long)n);\n");
-    sb_append(sb, "    return buffer;\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "static int64_t string_to_int(const char* s) {\n");
-    sb_append(sb, "    return strtoll(s, NULL, 10);\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "static int64_t digit_value(int64_t c) {\n");
-    sb_append(sb, "    if (c >= '0' && c <= '9') {\n");
-    sb_append(sb, "        return c - '0';\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    return -1;\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "static int64_t char_to_lower(int64_t c) {\n");
-    sb_append(sb, "    if (c >= 'A' && c <= 'Z') {\n");
-    sb_append(sb, "        return c + 32;\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    return c;\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "static int64_t char_to_upper(int64_t c) {\n");
-    sb_append(sb, "    if (c >= 'a' && c <= 'z') {\n");
-    sb_append(sb, "        return c - 32;\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    return c;\n");
-    sb_append(sb, "}\n\n");
-    
-    sb_append(sb, "/* ========== End Advanced String Operations ========== */\n\n");
-
+/* Generate math and utility built-in functions */
+static void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "/* ========== Math and Utility Built-in Functions ========== */\n\n");
 
     /* abs function - works with int and float via macro */
@@ -1735,8 +1434,340 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "/* ========== End Array Operations ========== */\n\n");
 
     sb_append(sb, "/* ========== End Math and Utility Built-in Functions ========== */\n\n");
+}
+
+/* Generate string operations */
+static void generate_string_operations(StringBuilder *sb) {
+    sb_append(sb, "/* ========== Advanced String Operations ========== */\n\n");
+    
+    /* char_at - use strnlen for safety */
+    sb_append(sb, "static int64_t char_at(const char* s, int64_t index) {\n");
+    sb_append(sb, "    /* Safety: Bound string scan to reasonable size (1MB) */\n");
+    sb_append(sb, "    int len = strnlen(s, 1024*1024);\n");
+    sb_append(sb, "    if (index < 0 || index >= len) {\n");
+    sb_append(sb, "        fprintf(stderr, \"Error: Index %lld out of bounds (string length %d)\\n\", (long long)index, len);\n");
+    sb_append(sb, "        return 0;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return (unsigned char)s[index];\n");
+    sb_append(sb, "}\n\n");
+    
+    /* string_from_char */
+    sb_append(sb, "static char* string_from_char(int64_t c) {\n");
+    sb_append(sb, "    char* buffer = malloc(2);\n");
+    sb_append(sb, "    buffer[0] = (char)c;\n");
+    sb_append(sb, "    buffer[1] = '\\0';\n");
+    sb_append(sb, "    return buffer;\n");
+    sb_append(sb, "}\n\n");
+    
+    /* Character classification */
+    sb_append(sb, "static bool is_digit(int64_t c) {\n");
+    sb_append(sb, "    return c >= '0' && c <= '9';\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static bool is_alpha(int64_t c) {\n");
+    sb_append(sb, "    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static bool is_alnum(int64_t c) {\n");
+    sb_append(sb, "    return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static bool is_whitespace(int64_t c) {\n");
+    sb_append(sb, "    return c == ' ' || c == '\\t' || c == '\\n' || c == '\\r';\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static bool is_upper(int64_t c) {\n");
+    sb_append(sb, "    return c >= 'A' && c <= 'Z';\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static bool is_lower(int64_t c) {\n");
+    sb_append(sb, "    return c >= 'a' && c <= 'z';\n");
+    sb_append(sb, "}\n\n");
+    
+    /* Type conversions */
+    sb_append(sb, "static char* int_to_string(int64_t n) {\n");
+    sb_append(sb, "    char* buffer = malloc(32);\n");
+    sb_append(sb, "    snprintf(buffer, 32, \"%lld\", (long long)n);\n");
+    sb_append(sb, "    return buffer;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static int64_t string_to_int(const char* s) {\n");
+    sb_append(sb, "    return strtoll(s, NULL, 10);\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static int64_t digit_value(int64_t c) {\n");
+    sb_append(sb, "    if (c >= '0' && c <= '9') {\n");
+    sb_append(sb, "        return c - '0';\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return -1;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static int64_t char_to_lower(int64_t c) {\n");
+    sb_append(sb, "    if (c >= 'A' && c <= 'Z') {\n");
+    sb_append(sb, "    return c + 32;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return c;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static int64_t char_to_upper(int64_t c) {\n");
+    sb_append(sb, "    if (c >= 'a' && c <= 'z') {\n");
+    sb_append(sb, "        return c - 32;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return c;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "/* ========== End Advanced String Operations ========== */\n\n");
+}
+
+/* Generate path operations for OS stdlib */
+static void generate_path_operations(StringBuilder *sb) {
+    /* Path operations */
+    sb_append(sb, "static bool nl_os_path_isfile(const char* path) {\n");
+    sb_append(sb, "    struct stat st;\n");
+    sb_append(sb, "    if (stat(path, &st) != 0) return false;\n");
+    sb_append(sb, "    return S_ISREG(st.st_mode);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static bool nl_os_path_isdir(const char* path) {\n");
+    sb_append(sb, "    struct stat st;\n");
+    sb_append(sb, "    if (stat(path, &st) != 0) return false;\n");
+    sb_append(sb, "    return S_ISDIR(st.st_mode);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static char* nl_os_path_join(const char* a, const char* b) {\n");
+    sb_append(sb, "    char* buffer = malloc(2048);\n");
+    sb_append(sb, "    if (strlen(a) == 0) {\n");
+    sb_append(sb, "        snprintf(buffer, 2048, \"%s\", b);\n");
+    sb_append(sb, "    } else if (a[strlen(a) - 1] == '/') {\n");
+    sb_append(sb, "        snprintf(buffer, 2048, \"%s%s\", a, b);\n");
+    sb_append(sb, "    } else {\n");
+    sb_append(sb, "        snprintf(buffer, 2048, \"%s/%s\", a, b);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return buffer;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static char* nl_os_path_basename(const char* path) {\n");
+    sb_append(sb, "    char* path_copy = strdup(path);\n");
+    sb_append(sb, "    char* base = basename(path_copy);\n");
+    sb_append(sb, "    char* result = strdup(base);\n");
+    sb_append(sb, "    free(path_copy);\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static char* nl_os_path_dirname(const char* path) {\n");
+    sb_append(sb, "    char* path_copy = strdup(path);\n");
+    sb_append(sb, "    char* dir = dirname(path_copy);\n");
+    sb_append(sb, "    char* result = strdup(dir);\n");
+    sb_append(sb, "    free(path_copy);\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+}
+
+/* Generate directory operations for OS stdlib */
+static void generate_dir_operations(StringBuilder *sb) {
+    /* Directory operations */
+    sb_append(sb, "static int64_t nl_os_dir_create(const char* path) {\n");
+    sb_append(sb, "    return mkdir(path, 0755) == 0 ? 0 : -1;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static int64_t nl_os_dir_remove(const char* path) {\n");
+    sb_append(sb, "    return rmdir(path) == 0 ? 0 : -1;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static char* nl_os_dir_list(const char* path) {\n");
+    sb_append(sb, "    DIR* dir = opendir(path);\n");
+    sb_append(sb, "    if (!dir) return \"\";\n");
+    sb_append(sb, "    size_t capacity = 4096;\n");
+    sb_append(sb, "    size_t used = 0;\n");
+    sb_append(sb, "    char* buffer = malloc(capacity);\n");
+    sb_append(sb, "    if (!buffer) { closedir(dir); return \"\"; }\n");
+    sb_append(sb, "    buffer[0] = '\\0';\n");
+    sb_append(sb, "    struct dirent* entry;\n");
+    sb_append(sb, "    while ((entry = readdir(dir)) != NULL) {\n");
+    sb_append(sb, "        if (strcmp(entry->d_name, \".\") == 0 || strcmp(entry->d_name, \"..\") == 0) continue;\n");
+    sb_append(sb, "        size_t name_len = strlen(entry->d_name);\n");
+    sb_append(sb, "        size_t needed = used + name_len + 2; /* +1 for newline, +1 for null */\n");
+    sb_append(sb, "        if (needed > capacity) {\n");
+    sb_append(sb, "            capacity = needed * 2;\n");
+    sb_append(sb, "            char* new_buffer = realloc(buffer, capacity);\n");
+    sb_append(sb, "            if (!new_buffer) { free(buffer); closedir(dir); return \"\"; }\n");
+    sb_append(sb, "            buffer = new_buffer;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        memcpy(buffer + used, entry->d_name, name_len);\n");
+    sb_append(sb, "        used += name_len;\n");
+    sb_append(sb, "        buffer[used++] = '\\n';\n");
+    sb_append(sb, "        buffer[used] = '\\0';\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    closedir(dir);\n");
+    sb_append(sb, "    return buffer;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static bool nl_os_dir_exists(const char* path) {\n");
+    sb_append(sb, "    struct stat st;\n");
+    sb_append(sb, "    if (stat(path, &st) != 0) return false;\n");
+    sb_append(sb, "    return S_ISDIR(st.st_mode);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static char* nl_os_getcwd(void) {\n");
+    sb_append(sb, "    char* buffer = malloc(1024);\n");
+    sb_append(sb, "    if (getcwd(buffer, 1024) == NULL) {\n");
+    sb_append(sb, "        buffer[0] = '\\0';\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return buffer;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static int64_t nl_os_chdir(const char* path) {\n");
+    sb_append(sb, "    return chdir(path) == 0 ? 0 : -1;\n");
+    sb_append(sb, "}\n\n");
+}
+
+/* Generate file operations for OS stdlib */
+static void generate_file_operations(StringBuilder *sb) {
+    /* File operations */
+    sb_append(sb, "static char* nl_os_file_read(const char* path) {\n");
+    sb_append(sb, "    FILE* f = fopen(path, \"rb\");  /* Binary mode for MOD files */\n");
+    sb_append(sb, "    if (!f) return \"\";\n");
+    sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
+    sb_append(sb, "    long size = ftell(f);\n");
+    sb_append(sb, "    fseek(f, 0, SEEK_SET);\n");
+    sb_append(sb, "    char* buffer = malloc(size + 1);\n");
+    sb_append(sb, "    fread(buffer, 1, size, f);\n");
+    sb_append(sb, "    buffer[size] = '\\0';\n");
+    sb_append(sb, "    fclose(f);\n");
+    sb_append(sb, "    return buffer;\n");
+    sb_append(sb, "}\n\n");
+
+    /* Binary file reading - returns DynArray of bytes (0-255) */
+    sb_append(sb, "static DynArray* nl_os_file_read_bytes(const char* path) {\n");
+    sb_append(sb, "    FILE* f = fopen(path, \"rb\");\n");
+    sb_append(sb, "    if (!f) {\n");
+    sb_append(sb, "        /* Return empty array on error */\n");
+    sb_append(sb, "        return dyn_array_new(ELEM_INT);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
+    sb_append(sb, "    long size = ftell(f);\n");
+    sb_append(sb, "    fseek(f, 0, SEEK_SET);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Create dynamic array for bytes */\n");
+    sb_append(sb, "    DynArray* bytes = dyn_array_new(ELEM_INT);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Read bytes and add to array */\n");
+    sb_append(sb, "    for (long i = 0; i < size; i++) {\n");
+    sb_append(sb, "        int c = fgetc(f);\n");
+    sb_append(sb, "        if (c == EOF) break;\n");
+    sb_append(sb, "        int64_t byte_val = (int64_t)(unsigned char)c;\n");
+    sb_append(sb, "        dyn_array_push_int(bytes, byte_val);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    fclose(f);\n");
+    sb_append(sb, "    return bytes;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static int64_t nl_os_file_write(const char* path, const char* content) {\n");
+    sb_append(sb, "    FILE* f = fopen(path, \"w\");\n");
+    sb_append(sb, "    if (!f) return -1;\n");
+    sb_append(sb, "    fputs(content, f);\n");
+    sb_append(sb, "    fclose(f);\n");
+    sb_append(sb, "    return 0;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static int64_t nl_os_file_append(const char* path, const char* content) {\n");
+    sb_append(sb, "    FILE* f = fopen(path, \"a\");\n");
+    sb_append(sb, "    if (!f) return -1;\n");
+    sb_append(sb, "    fputs(content, f);\n");
+    sb_append(sb, "    fclose(f);\n");
+    sb_append(sb, "    return 0;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static int64_t nl_os_file_remove(const char* path) {\n");
+    sb_append(sb, "    return remove(path) == 0 ? 0 : -1;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static int64_t nl_os_file_rename(const char* old_path, const char* new_path) {\n");
+    sb_append(sb, "    return rename(old_path, new_path) == 0 ? 0 : -1;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static bool nl_os_file_exists(const char* path) {\n");
+    sb_append(sb, "    return access(path, F_OK) == 0;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static int64_t nl_os_file_size(const char* path) {\n");
+    sb_append(sb, "    struct stat st;\n");
+    sb_append(sb, "    if (stat(path, &st) != 0) return -1;\n");
+    sb_append(sb, "    return st.st_size;\n");
+    sb_append(sb, "}\n\n");
+}
+
+/* Transpile program to C */
+char *transpile_to_c(ASTNode *program, Environment *env) {
+    if (!program || program->type != AST_PROGRAM) {
+        return NULL;
+    }
+    
+    if (!env) {
+        fprintf(stderr, "Error: Environment is NULL in transpile_to_c\n");
+        return NULL;
+    }
+
+    /* Clear and collect headers from imported modules */
+    clear_module_headers();
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_IMPORT) {
+            /* Resolve module path and collect headers */
+            char *module_path = resolve_module_path(item->as.import_stmt.module_path, NULL);
+            if (module_path) {
+                collect_headers_from_module(module_path);
+                free(module_path);
+            }
+        }
+    }
+
+    StringBuilder *sb = sb_create();
+
+    /* POSIX feature macro for strdup, strnlen, etc. */
+    sb_append(sb, "#define _POSIX_C_SOURCE 200809L\n\n");
+
+    /* Generate headers */
+    generate_c_headers(sb);
+
+    /* OS stdlib runtime library */
+    sb_append(sb, "/* ========== OS Standard Library ========== */\n\n");
+
+    /* File operations */
+    generate_file_operations(sb);
+
+    /* Directory operations */
+    generate_dir_operations(sb);
+
+    /* Path operations */
+    generate_path_operations(sb);
+
+    /* Process operations */
+    sb_append(sb, "static int64_t nl_os_system(const char* command) {\n");
+    sb_append(sb, "    return system(command);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static void nl_os_exit(int64_t code) {\n");
+    sb_append(sb, "    exit((int)code);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static char* nl_os_getenv(const char* name) {\n");
+    sb_append(sb, "    const char* value = getenv(name);\n");
+    sb_append(sb, "    return value ? (char*)value : \"\";\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* ========== End OS Standard Library ========== */\n\n");
+
+    /* String operations */
+    generate_string_operations(sb);
+
+    /* Math and utility built-in functions */
+    generate_math_utility_builtins(sb);
 
     /* Generate enum typedefs first (before structs, since structs may use enums) */
+    generate_enum_definitions(env, sb);
     generate_enum_definitions(env, sb);
 
     /* Forward declare List types BEFORE structs */
