@@ -1083,6 +1083,65 @@ static void generate_struct_definitions(Environment *env, StringBuilder *sb) {
     sb_append(sb, "/* ========== End Struct Definitions ========== */\n\n");
 }
 
+/* Generate union definitions */
+static void generate_union_definitions(Environment *env, StringBuilder *sb) {
+    sb_append(sb, "/* ========== Union Definitions ========== */\n\n");
+    for (int i = 0; i < env->union_count; i++) {
+        UnionDef *udef = &env->unions[i];
+        
+        /* Get prefixed union name */
+        const char *prefixed_union = get_prefixed_type_name(udef->name);
+        
+        /* First, generate typedef struct for each variant (so they can be used as types in match) */
+        for (int j = 0; j < udef->variant_count; j++) {
+            if (udef->variant_field_counts[j] > 0) {
+                /* Variant has fields - create typedef struct */
+                const char *variant_struct = get_prefixed_variant_struct_name(udef->name, udef->variant_names[j]);
+                sb_appendf(sb, "typedef struct {\n");
+                for (int k = 0; k < udef->variant_field_counts[j]; k++) {
+                    sb_append(sb, "    ");
+                    sb_append(sb, type_to_c(udef->variant_field_types[j][k]));
+                    sb_appendf(sb, " %s;\n", udef->variant_field_names[j][k]);
+                }
+                sb_appendf(sb, "} %s;\n\n", variant_struct);
+            }
+        }
+        
+        /* Generate tag enum with prefixed name */
+        sb_appendf(sb, "typedef enum {\n");
+        for (int j = 0; j < udef->variant_count; j++) {
+            /* Prefix tag enum variants: nl_UnionName_TAG_VARIANT */
+            sb_appendf(sb, "    nl_%s_TAG_%s = %d",
+                      udef->name,
+                      udef->variant_names[j],
+                      j);
+            if (j < udef->variant_count - 1) sb_append(sb, ",\n");
+            else sb_append(sb, "\n");
+        }
+        sb_appendf(sb, "} %s_Tag;\n\n", prefixed_union);
+        
+        /* Generate tagged union struct with prefixed name */
+        sb_appendf(sb, "typedef struct %s {\n", prefixed_union);
+        sb_appendf(sb, "    %s_Tag tag;\n", prefixed_union);
+        sb_append(sb, "    union {\n");
+        
+        for (int j = 0; j < udef->variant_count; j++) {
+            if (udef->variant_field_counts[j] > 0) {
+                /* Use the typedef'd variant struct */
+                const char *variant_struct = get_prefixed_variant_struct_name(udef->name, udef->variant_names[j]);
+                sb_appendf(sb, "        %s %s;\n", variant_struct, udef->variant_names[j]);
+            } else {
+                /* Variant has no fields - use dummy int */
+                sb_appendf(sb, "        int %s; /* empty variant */\n", udef->variant_names[j]);
+            }
+        }
+        
+        sb_append(sb, "    } data;\n");
+        sb_appendf(sb, "} %s;\n\n", prefixed_union);
+    }
+    sb_append(sb, "/* ========== End Union Definitions ========== */\n\n");
+}
+
 /* Transpile program to C */
 char *transpile_to_c(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) {
@@ -1690,61 +1749,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     generate_list_implementations(env, sb);
 
     /* Generate union definitions */
-    sb_append(sb, "/* ========== Union Definitions ========== */\n\n");
-    for (int i = 0; i < env->union_count; i++) {
-        UnionDef *udef = &env->unions[i];
-        
-        /* Get prefixed union name */
-        const char *prefixed_union = get_prefixed_type_name(udef->name);
-        
-        /* First, generate typedef struct for each variant (so they can be used as types in match) */
-        for (int j = 0; j < udef->variant_count; j++) {
-            if (udef->variant_field_counts[j] > 0) {
-                /* Variant has fields - create typedef struct */
-                const char *variant_struct = get_prefixed_variant_struct_name(udef->name, udef->variant_names[j]);
-                sb_appendf(sb, "typedef struct {\n");
-                for (int k = 0; k < udef->variant_field_counts[j]; k++) {
-                    sb_append(sb, "    ");
-                    sb_append(sb, type_to_c(udef->variant_field_types[j][k]));
-                    sb_appendf(sb, " %s;\n", udef->variant_field_names[j][k]);
-                }
-                sb_appendf(sb, "} %s;\n\n", variant_struct);
-            }
-        }
-        
-        /* Generate tag enum with prefixed name */
-        sb_appendf(sb, "typedef enum {\n");
-        for (int j = 0; j < udef->variant_count; j++) {
-            /* Prefix tag enum variants: nl_UnionName_TAG_VARIANT */
-            sb_appendf(sb, "    nl_%s_TAG_%s = %d",
-                      udef->name,
-                      udef->variant_names[j],
-                      j);
-            if (j < udef->variant_count - 1) sb_append(sb, ",\n");
-            else sb_append(sb, "\n");
-        }
-        sb_appendf(sb, "} %s_Tag;\n\n", prefixed_union);
-        
-        /* Generate tagged union struct with prefixed name */
-        sb_appendf(sb, "typedef struct %s {\n", prefixed_union);
-        sb_appendf(sb, "    %s_Tag tag;\n", prefixed_union);
-        sb_append(sb, "    union {\n");
-        
-        for (int j = 0; j < udef->variant_count; j++) {
-            if (udef->variant_field_counts[j] > 0) {
-                /* Use the typedef'd variant struct */
-                const char *variant_struct = get_prefixed_variant_struct_name(udef->name, udef->variant_names[j]);
-                sb_appendf(sb, "        %s %s;\n", variant_struct, udef->variant_names[j]);
-            } else {
-                /* Variant has no fields - use dummy int */
-                sb_appendf(sb, "        int %s; /* empty variant */\n", udef->variant_names[j]);
-            }
-        }
-        
-        sb_append(sb, "    } data;\n");
-        sb_appendf(sb, "} %s;\n\n", prefixed_union);
-    }
-    sb_append(sb, "/* ========== End Union Definitions ========== */\n\n");
+    generate_union_definitions(env, sb);
 
     /* ========== Function Type Typedefs ========== */
     /* Collect all function signatures used in the program */
