@@ -1,477 +1,446 @@
 # NanoLang Examples Index
+## Complete Guide to All 88 Examples
 
-> **Total Examples**: 85  
-> **Last Updated**: 2025-12-16  
-> **Purpose**: Complete catalog with difficulty ratings, prerequisites, and learning paths
-
----
-
-## 📚 Quick Navigation
-
-- [By Difficulty](#by-difficulty)
-- [By Category](#by-category)
-- [Learning Paths](#learning-paths)
-- [Complete Alphabetical Index](#complete-alphabetical-index)
+**Last Updated**: 2025-12-16  
+**Total Examples**: 88  
+**Organization**: By difficulty and topic
 
 ---
 
-## By Difficulty
+## Quick Start - Learning Paths
 
-### 🟢 Beginner (1-2 weeks of programming experience)
+### 🌱 Beginner Path (Start Here!)
+Follow this sequence to learn NanoLang basics:
+1. `nl_hello.nano` - Hello World, basic syntax
+2. `nl_calculator.nano` - Functions and prefix notation
+3. `nl_operators.nano` - Arithmetic operators
+4. `nl_comparisons.nano` - Comparison operators
+5. `nl_types.nano` - Type system basics
+6. `nl_mutable.nano` - Immutable vs mutable
+7. `nl_for_loop_patterns.nano` - Loops and iteration
+8. `nl_array_complete.nano` - Arrays and collections
+9. `nl_struct.nano` - User-defined types
+10. `nl_factorial.nano` - Recursion
 
-Essential basics for getting started with NanoLang.
-
-| Example | Topics | Description |
-|---------|--------|-------------|
-| `nl_hello.nano` | Output | Classic "Hello, World!" program |
-| `nl_calculator.nano` | Arithmetic, functions | Basic calculator with operators |
-| `nl_factorial.nano` | Recursion | Compute factorials |
-| `nl_types.nano` | Type system | Primitive types demonstration |
-| `nl_variables.nano` | Variables | Let bindings and scope |
-| `nl_comparisons.nano` | Boolean logic | Comparison operators |
-| `nl_conditionals.nano` | Control flow | If/else statements |
-| `nl_new_features.nano` | Unary operators | Negation and constants |
-
-**Prerequisites**: None  
-**Next Steps**: [Core Language Path](#core-language-path)
-
-### 🟡 Intermediate (Comfortable with basics)
-
-Building on fundamentals with more complex features.
-
-| Example | Topics | Description |
-|---------|--------|-------------|
-| `nl_loops.nano` | Iteration | While and for loops |
-| `nl_arrays.nano` | Data structures | Array operations |
-| `nl_strings.nano` | String manipulation | String functions |
-| `nl_struct.nano` | User types | Struct definition and usage |
-| `nl_first_class_functions.nano` | Functions | Higher-order functions |
-| `nl_mutability.nano` | Memory model | Mutable vs immutable |
-| `nl_shadow_testing.nano` | Testing | Shadow test patterns |
-| `sqlite_simple.nano` | FFI, Database | SQLite integration |
-
-**Prerequisites**: Beginner examples  
-**Next Steps**: [FFI Path](#ffi-path) or [Data Structures Path](#data-structures-path)
-
-### 🔴 Advanced (Deep language knowledge)
-
-Complex features requiring understanding of multiple concepts.
-
-| Example | Topics | Description |
-|---------|--------|-------------|
-| `nl_generics_demo.nano` | Generics, Monomorphization | Comprehensive List<T> demo |
-| `nl_generic_stack.nano` | Generics, Data structures | Generic stack implementation |
-| `nl_generic_queue.nano` | Generics, Data structures | Generic queue implementation |
-| `stdlib_ast_demo.nano` | Metaprogramming | AST manipulation |
-| `nl_demo_selfhosting.nano` | Compiler | Self-hosting demonstration |
-| `nl_tracing.nano` | Debugging | Execution tracing |
-
-**Prerequisites**: Intermediate examples + generics understanding  
-**Next Steps**: [Metaprogramming Path](#metaprogramming-path)
+**Estimated Time**: 4-6 hours
 
 ---
 
-## By Category
+### 🎮 Graphics & Games Path
+For visual applications and game development:
+1. `sdl_drawing_primitives.nano` - SDL basics
+2. `sdl_mouse_click.nano` - Input handling
+3. `sdl_particles.nano` - Particle systems
+4. `sdl_pong.nano` - Complete game
+5. `sdl_asteroids.nano` - Advanced game ⭐ SHOWCASE
+6. `sdl_terrain_explorer.nano` - 3D graphics ⭐ SHOWCASE
+7. `opengl_cube.nano` - OpenGL 3D
+8. `sdl_raytracer.nano` - Ray tracing
 
-### 🎯 Core Language (21 examples)
-
-Fundamental language features and syntax.
-
-**Beginner:**
-- `nl_hello.nano` - Hello world
-- `nl_calculator.nano` - Basic arithmetic
-- `nl_types.nano` - Type system
-- `nl_variables.nano` - Variables and scope
-- `nl_comparisons.nano` - Comparison operators
-- `nl_conditionals.nano` - If/else statements
-- `nl_factorial.nano` - Recursion basics
-- `nl_new_features.nano` - Unary operators
-
-**Intermediate:**
-- `nl_loops.nano` - Iteration
-- `nl_strings.nano` - String manipulation
-- `nl_mutability.nano` - Mutable state
-- `nl_shadow_testing.nano` - Testing patterns
-- `nl_struct.nano` - User-defined types
-- `nl_enum.nano` - Enumerations
-- `nl_first_class_functions.nano` - Higher-order functions
-
-**Advanced:**
-- `nl_advanced_math.nano` - Complex math operations
-- `nl_opaque_types.nano` - Opaque type definitions
-- `nl_lifetimes.nano` - Memory lifetime management
-
-### 🔌 Foreign Function Interface (14 examples)
-
-Interoperability with C libraries and system APIs.
-
-**Beginner:**
-- `nl_extern_math.nano` - Calling C math functions
-- `nl_extern_string.nano` - String FFI
-- `nl_extern_char.nano` - Character functions
-
-**Intermediate:**
-- `curl_example.nano` - HTTP requests with libcurl
-- `sqlite_simple.nano` - Database operations
-- `uv_example.nano` - Async I/O with libuv
-- `event_example.nano` - Event loop integration
-
-**Advanced:**
-- `nl_extern_arrays.nano` - Array marshalling
-- `nl_extern_malloc.nano` - Manual memory management
-- `nl_extern_structs.nano` - Struct FFI patterns
-
-### 🎮 Graphics & UI (25 examples)
-
-SDL-based graphics, games, and user interfaces.
-
-**Beginner:**
-- `sdl_primitives.nano` - Basic shapes
-- `sdl_mouse.nano` - Mouse input
-- `sdl_keyboard.nano` - Keyboard input
-- `sdl_animation.nano` - Simple animation
-
-**Intermediate:**
-- `sdl_particles.nano` - Particle systems
-- `sdl_pong.nano` - Classic Pong game
-- `sdl_asteroids.nano` - Asteroids game ⭐
-- `sdl_breakout.nano` - Breakout clone
-- `sdl_ui_widgets_extended.nano` - Comprehensive UI widgets
-- `sdl_nanoviz.nano` - Data visualization
-
-**Advanced:**
-- `sdl_nanoamp_enhanced.nano` - Audio player with UI ⭐
-- `sdl_terrain.nano` - Terrain generation ⭐
-- `sdl_boids.nano` - Flocking simulation ⭐
-
-**Terminal UI:**
-- `ncurses_game_of_life.nano` - Conway's Game of Life
-- `ncurses_matrix_rain.nano` - Matrix-style animation
-- `ncurses_snake.nano` - Snake game
-
-⭐ = Showcase applications (see [Showcase Applications](#showcase-applications))
-
-### 📊 Data Structures & Algorithms (12 examples)
-
-Collections, sorting, searching, and algorithms.
-
-**Beginner:**
-- `nl_arrays.nano` - Array basics
-- `nl_array_bounds.nano` - Bounds checking
-
-**Intermediate:**
-- `nl_array_complete.nano` - Comprehensive array operations
-- `nl_sorting.nano` - Sorting algorithms
-- `nl_searching.nano` - Search algorithms
-- `nl_matrix_ops.nano` - Matrix operations ⭐
-
-**Advanced:**
-- `nl_generics_demo.nano` - Generic List<T> ⭐
-- `nl_generic_stack.nano` - Generic stack
-- `nl_generic_queue.nano` - Generic queue
-- `nl_boids.nano` - Boids algorithm ⭐
-
-### 🧪 Testing & Quality (6 examples)
-
-Testing patterns, debugging, and code quality.
-
-- `nl_shadow_testing.nano` - Shadow test patterns
-- `nl_tracing.nano` - Execution tracing
-- `test_all_features.nano` - Feature coverage tests
-- `test_driver.nano` - Test runner
-
-### 🔧 Metaprogramming & Compiler (5 examples)
-
-AST manipulation, code generation, and compiler internals.
-
-**Advanced Only:**
-- `stdlib_ast_demo.nano` - AST manipulation ⭐
-- `nl_demo_selfhosting.nano` - Self-hosting demo
-- `nl_macros.nano` - Macro system (experimental)
-- `nl_codegen.nano` - Code generation patterns
-
-### 🎲 Real-World Applications (8 examples)
-
-Production-quality examples solving real problems.
-
-- `sdl_asteroids.nano` - Full game with collision detection ⭐
-- `sdl_terrain.nano` - Procedural terrain generation ⭐
-- `sdl_nanoamp_enhanced.nano` - Audio player ⭐
-- `nl_boids.nano` - Flocking simulation ⭐
-- `nl_matrix_ops.nano` - Linear algebra ⭐
-- `stdlib_ast_demo.nano` - Metaprogramming ⭐
-- `sqlite_simple.nano` - Database CRUD (best practices) ✅
-- `curl_example.nano` - HTTP client
-
-✅ = Production security best practices  
-⭐ = Showcase applications
+**Estimated Time**: 8-12 hours
 
 ---
 
-## Learning Paths
+### 🔌 C FFI & Integration Path
+For calling C libraries and external integrations:
+1. `nl_extern_math.nano` - C math functions
+2. `nl_extern_string.nano` - C string functions
+3. `curl_example.nano` - HTTP requests with libcurl
+4. `sqlite_simple.nano` - Database operations
+5. `uv_example.nano` - Async I/O with libuv
+6. `event_example.nano` - Event loops with libevent
 
-### 🚀 Path 1: Core Language (2-3 weeks)
-
-**Goal**: Master NanoLang fundamentals
-
-```
-Week 1: Basics
-  nl_hello.nano → nl_calculator.nano → nl_types.nano → nl_variables.nano
-  → nl_comparisons.nano → nl_conditionals.nano → nl_factorial.nano
-
-Week 2: Data & Control Flow
-  nl_loops.nano → nl_arrays.nano → nl_strings.nano → nl_struct.nano
-
-Week 3: Advanced Features
-  nl_mutability.nano → nl_first_class_functions.nano → nl_shadow_testing.nano
-```
-
-**Prerequisites**: None  
-**Outcome**: Comfortable writing NanoLang programs  
-**Next**: Choose FFI, Graphics, or Data Structures path
-
-### 🔌 Path 2: FFI & System Integration (1-2 weeks)
-
-**Goal**: Integrate with C libraries and system APIs
-
-```
-Day 1-2: FFI Basics
-  nl_extern_math.nano → nl_extern_string.nano → nl_extern_char.nano
-
-Day 3-5: Libraries
-  curl_example.nano → sqlite_simple.nano
-
-Day 6-7: Advanced Integration
-  uv_example.nano → event_example.nano → nl_extern_structs.nano
-```
-
-**Prerequisites**: Core Language Path  
-**Outcome**: Call C libraries, use databases, make HTTP requests  
-**Next**: Build real applications
-
-### 🎮 Path 3: Graphics & Game Development (3-4 weeks)
-
-**Goal**: Build interactive graphical applications
-
-```
-Week 1: SDL Basics
-  sdl_primitives.nano → sdl_mouse.nano → sdl_keyboard.nano
-  → sdl_animation.nano
-
-Week 2: Intermediate Graphics
-  sdl_particles.nano → sdl_ui_widgets_extended.nano
-  → sdl_nanoviz.nano
-
-Week 3: Game Development
-  sdl_pong.nano → sdl_breakout.nano → sdl_asteroids.nano
-
-Week 4: Advanced Projects
-  sdl_terrain.nano → sdl_boids.nano → sdl_nanoamp_enhanced.nano
-```
-
-**Prerequisites**: Core Language Path  
-**Outcome**: Build games and graphical applications  
-**Project Ideas**: 
-- Space shooter game
-- Simulation with visualization
-- Audio application with UI
-
-### 📊 Path 4: Data Structures & Algorithms (2-3 weeks)
-
-**Goal**: Master efficient data manipulation
-
-```
-Week 1: Arrays & Basic Structures
-  nl_arrays.nano → nl_array_complete.nano → nl_sorting.nano
-  → nl_searching.nano
-
-Week 2: Generics
-  nl_generics_demo.nano → nl_generic_stack.nano → nl_generic_queue.nano
-
-Week 3: Advanced Algorithms
-  nl_matrix_ops.nano → nl_boids.nano
-```
-
-**Prerequisites**: Core Language Path  
-**Outcome**: Implement efficient data structures and algorithms  
-**Next**: Metaprogramming path or build applications
-
-### 🔬 Path 5: Metaprogramming & Compiler (1-2 weeks)
-
-**Goal**: Understand and manipulate code at compile time
-
-```
-Week 1: AST Basics
-  stdlib_ast_demo.nano → nl_demo_selfhosting.nano
-
-Week 2: Advanced Metaprogramming
-  nl_macros.nano → nl_codegen.nano → nl_tracing.nano
-```
-
-**Prerequisites**: All other paths  
-**Outcome**: Write code that generates code, build DSLs  
-**Advanced Projects**:
-- Custom test framework
-- Code generator
-- Domain-specific language
+**Estimated Time**: 6-8 hours
 
 ---
 
-## Showcase Applications
+### 🧠 Advanced Features Path
+For advanced language features and metaprogramming:
+1. `nl_generics_demo.nano` - Generic types
+2. `nl_first_class_functions.nano` - Higher-order functions
+3. `nl_filter_map_fold.nano` - Functional programming
+4. `stdlib_ast_demo.nano` - AST manipulation ⭐ SHOWCASE
+5. `nl_demo_selfhosting.nano` - Self-hosting demo
+6. `nl_tracing.nano` - Execution tracing
 
-These 6 examples represent production-quality applications:
-
-### 🎯 Top Tier (Reference Quality)
-
-1. **sdl_asteroids.nano** (A+) - Full game
-   - Collision detection, game loop, input handling
-   - 450 lines of clean, documented code
-   - **Learning Value**: Complete game architecture
-
-2. **sdl_terrain.nano** (A) - Procedural generation
-   - Perlin noise, rendering, camera controls
-   - Sophisticated algorithm implementation
-   - **Learning Value**: Graphics + algorithms
-
-3. **nl_matrix_ops.nano** (A-) - Linear algebra
-   - Matrix multiplication, transpose, determinant
-   - Demonstrates computational patterns
-   - **Learning Value**: Algorithm design
-
-### 🌟 Production Examples
-
-4. **sdl_nanoamp_enhanced.nano** (B+) - Audio player
-   - Real UI, file handling, audio playback
-   - **Learning Value**: Multimedia + UI integration
-
-5. **nl_generics_demo.nano** (A) - Type system showcase
-   - Monomorphization, type safety
-   - **Learning Value**: Advanced type systems
-
-6. **stdlib_ast_demo.nano** (B+) - Metaprogramming
-   - AST manipulation, code generation
-   - **Learning Value**: Compiler internals
-
-**Refinement Roadmap**: See `docs/SHOWCASE_APPLICATIONS.md`
+**Estimated Time**: 8-10 hours
 
 ---
 
-## Complete Alphabetical Index
+## Complete Examples Catalog
 
-| Example | Category | Difficulty | Topics |
-|---------|----------|------------|--------|
-| `curl_example.nano` | FFI | 🟡 | HTTP, libcurl, networking |
-| `event_example.nano` | FFI | 🟡 | Event loops, async patterns |
-| `example_launcher.nano` | Utilities | 🟢 | Project structure |
-| `example_launcher_simple.nano` | Utilities | 🟢 | Simple launcher |
-| `ncurses_game_of_life.nano` | Graphics | 🟡 | Terminal UI, simulation |
-| `ncurses_matrix_rain.nano` | Graphics | 🟢 | Terminal animation |
-| `ncurses_snake.nano` | Graphics | 🟡 | Terminal game |
-| `nl_advanced_math.nano` | Core | 🔴 | Complex math |
-| `nl_array_bounds.nano` | Data Structures | 🟢 | Bounds checking |
-| `nl_array_complete.nano` | Data Structures | 🟡 | Comprehensive arrays |
-| `nl_arrays_test.nano` | Testing | 🟡 | Array testing |
-| `nl_boids.nano` | Algorithms | 🔴 | Flocking simulation |
-| `nl_calculator.nano` | Core | 🟢 | Basic arithmetic |
-| `nl_comparisons.nano` | Core | 🟢 | Boolean logic |
-| `nl_demo_selfhosting.nano` | Metaprogramming | 🔴 | Self-hosting |
-| `nl_enum.nano` | Core | 🟡 | Enumerations |
-| `nl_extern_char.nano` | FFI | 🟢 | Character FFI |
-| `nl_extern_math.nano` | FFI | 🟢 | Math FFI |
-| `nl_extern_string.nano` | FFI | 🟢 | String FFI |
-| `nl_factorial.nano` | Core | 🟢 | Recursion |
-| `nl_first_class_functions.nano` | Core | 🟡 | Higher-order functions |
-| `nl_generics_demo.nano` | Advanced | 🔴 | Generics, List<T> |
-| `nl_generic_queue.nano` | Data Structures | 🔴 | Generic queue |
-| `nl_generic_stack.nano` | Data Structures | 🔴 | Generic stack |
-| `nl_hello.nano` | Core | 🟢 | Hello world |
-| `nl_loops.nano` | Core | 🟡 | Iteration |
-| `nl_matrix_ops.nano` | Algorithms | 🔴 | Linear algebra |
-| `nl_mutability.nano` | Core | 🟡 | Mutable state |
-| `nl_new_features.nano` | Core | 🟢 | Unary operators |
-| `nl_opaque_types.nano` | Core | 🔴 | Type system |
-| `nl_shadow_testing.nano` | Testing | 🟡 | Test patterns |
-| `nl_strings.nano` | Core | 🟡 | String manipulation |
-| `nl_struct.nano` | Core | 🟡 | User types |
-| `nl_tracing.nano` | Debugging | 🔴 | Execution tracing |
-| `nl_types.nano` | Core | 🟢 | Type system |
-| `nl_variables.nano` | Core | 🟢 | Variables |
-| `sdl_animation.nano` | Graphics | 🟢 | Basic animation |
-| `sdl_asteroids.nano` | Graphics | 🔴 | Full game ⭐ |
-| `sdl_boids.nano` | Graphics | 🔴 | Flocking ⭐ |
-| `sdl_breakout.nano` | Graphics | 🟡 | Game clone |
-| `sdl_keyboard.nano` | Graphics | 🟢 | Input handling |
-| `sdl_mouse.nano` | Graphics | 🟢 | Mouse input |
-| `sdl_nanoamp_enhanced.nano` | Graphics | 🔴 | Audio player ⭐ |
-| `sdl_nanoviz.nano` | Graphics | 🟡 | Visualization |
-| `sdl_particles.nano` | Graphics | 🟡 | Particle systems |
-| `sdl_pong.nano` | Graphics | 🟡 | Classic game |
-| `sdl_primitives.nano` | Graphics | 🟢 | Basic shapes |
-| `sdl_terrain.nano` | Graphics | 🔴 | Terrain gen ⭐ |
-| `sdl_ui_widgets_extended.nano` | Graphics | 🟡 | UI widgets |
-| `sqlite_simple.nano` | FFI | 🟡 | Database ✅ |
-| `stdlib_ast_demo.nano` | Metaprogramming | 🔴 | AST demo ⭐ |
-| `uv_example.nano` | FFI | 🟡 | Async I/O |
+### 1. LANGUAGE BASICS (15 examples)
 
-**Legend:**
-- 🟢 Beginner
-- 🟡 Intermediate  
-- 🔴 Advanced
-- ⭐ Showcase application
-- ✅ Production security best practices
+#### Core Syntax
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_hello.nano` | ⭐ Beginner | Hello World, print | 5 min |
+| `nl_calculator.nano` | ⭐ Beginner | Functions, arithmetic | 10 min |
+| `nl_operators.nano` | ⭐ Beginner | +, -, *, /, % | 10 min |
+| `nl_comparisons.nano` | ⭐ Beginner | ==, !=, <, >, etc | 10 min |
+| `nl_logical.nano` | ⭐ Beginner | and, or, not | 10 min |
+| `nl_floats.nano` | ⭐ Beginner | Float arithmetic | 10 min |
+
+#### Types & Variables
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_types.nano` | ⭐ Beginner | Type system | 15 min |
+| `nl_mutable.nano` | ⭐ Beginner | let vs let mut | 15 min |
+
+#### Control Flow
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_for_loop_patterns.nano` | ⭐⭐ Intermediate | For loops, ranges | 20 min |
+| `nl_factorial.nano` | ⭐⭐ Intermediate | Recursion | 15 min |
+| `nl_fibonacci.nano` | ⭐⭐ Intermediate | Recursion, memoization | 20 min |
+| `nl_primes.nano` | ⭐⭐ Intermediate | Algorithms | 20 min |
+
+#### Language Features
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_language_features.nano` | ⭐⭐ Intermediate | Feature showcase | 30 min |
+| `nl_new_features.nano` | ⭐⭐ Intermediate | Recent additions | 20 min |
+| `nl_random_sentence.nano` | ⭐ Beginner | RNG, strings | 15 min |
 
 ---
 
-## Using This Index
+### 2. DATA STRUCTURES (12 examples)
 
-### For New Users
+#### Arrays
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_array_complete.nano` | ⭐⭐ Intermediate | Arrays (comprehensive) | 30 min |
+| `nl_array_bounds.nano` | ⭐⭐ Intermediate | Bounds checking | 15 min |
+| `nl_arrays_test.nano` | ⭐⭐ Intermediate | Array testing | 20 min |
+| `nl_list_int.nano` | ⭐⭐ Intermediate | Dynamic int lists | 20 min |
+| `vector2d_demo.nano` | ⭐⭐ Intermediate | 2D vectors | 20 min |
 
-1. Start with [Core Language Path](#path-1-core-language-2-3-weeks)
-2. Complete all 🟢 Beginner examples
-3. Choose a specialization path (FFI, Graphics, Data Structures)
-4. Build a project combining learned concepts
+#### User-Defined Types
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_struct.nano` | ⭐⭐ Intermediate | Structs | 20 min |
+| `nl_enum.nano` | ⭐⭐ Intermediate | Enumerations | 20 min |
+| `nl_union_types.nano` | ⭐⭐⭐ Advanced | Tagged unions | 30 min |
+| `nl_tuple_coordinates.nano` | ⭐⭐ Intermediate | Tuples | 15 min |
 
-### For Teachers/Curriculum Designers
-
-- Each path includes time estimates
-- Examples are ordered by prerequisite dependencies
-- Categories align with common CS curricula
-- Showcase applications work as final projects
-
-### For Contributors
-
-- All examples should fit into a category
-- New examples should specify difficulty and prerequisites
-- Update this index when adding/removing examples
-- Follow instructional template (see `EXAMPLES_INSTRUCTIONAL_REVIEW.md`)
-
----
-
-## Maintenance
-
-**How to Update This Index:**
-
-1. Count examples: `ls examples/*.nano | wc -l`
-2. Update total count at top
-3. When adding examples:
-   - Assign difficulty (🟢🟡🔴)
-   - Place in correct category
-   - Add to alphabetical index
-   - Update related learning path
-4. When removing examples:
-   - Remove from all sections
-   - Update count
-   - Check learning paths for broken references
-
-**Related Documentation:**
-- `EXAMPLES_OVERLAP_AUDIT.md` - Redundancy analysis
-- `EXAMPLES_INSTRUCTIONAL_REVIEW.md` - Teaching focus
-- `REALWORLD_EXAMPLES_EVALUATION.md` - Production quality
-- `SHOWCASE_APPLICATIONS.md` - Flagship examples
+#### Generics
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_generics_demo.nano` | ⭐⭐⭐ Advanced | Generic List<T> | 40 min |
+| `nl_generic_stack.nano` | ⭐⭐⭐ Advanced | Generic Stack<T> | 30 min |
+| `nl_generic_queue.nano` | ⭐⭐⭐ Advanced | Generic Queue<T> | 30 min |
 
 ---
 
-**Index Version**: 1.0  
-**Examples Count**: 85  
-**Last Audit**: 2025-12-16
+### 3. FUNCTIONS & FUNCTIONAL PROGRAMMING (4 examples)
 
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_first_class_functions.nano` | ⭐⭐⭐ Advanced | Functions as values | 30 min |
+| `nl_function_factories_v2.nano` | ⭐⭐⭐ Advanced | Closures, factories | 30 min |
+| `nl_filter_map_fold.nano` | ⭐⭐⭐ Advanced | FP patterns | 40 min |
+| `nl_function_variables.nano` | ⭐⭐ Intermediate | Function references | 20 min |
+
+---
+
+### 4. STRINGS (2 examples)
+
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_string_operations.nano` | ⭐⭐ Intermediate | String manipulation | 25 min |
+| `nl_extern_string.nano` | ⭐⭐⭐ Advanced | C FFI strings | 25 min |
+
+---
+
+### 5. MATH (5 examples)
+
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_advanced_math.nano` | ⭐⭐ Intermediate | Trig, logarithms | 25 min |
+| `nl_math_utils.nano` | ⭐⭐ Intermediate | Math utilities | 20 min |
+| `nl_extern_math.nano` | ⭐⭐ Intermediate | C math FFI | 20 min |
+| `nl_extern_char.nano` | ⭐⭐ Intermediate | C char FFI | 15 min |
+| `nl_matrix_operations.nano` | ⭐⭐⭐⭐⭐ Expert | Linear algebra ⭐ SHOWCASE | 60 min |
+| `nl_pi_calculator.nano` | ⭐⭐ Intermediate | Pi calculation | 20 min |
+
+---
+
+### 6. STANDARD LIBRARY (4 examples)
+
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_stdlib.nano` | ⭐⭐ Intermediate | Stdlib overview | 30 min |
+| `nl_os_basic.nano` | ⭐⭐ Intermediate | File I/O, paths | 30 min |
+| `stdlib_ast_demo.nano` | ⭐⭐⭐⭐⭐ Expert | AST manipulation ⭐ SHOWCASE | 60 min |
+| `nl_tracing.nano` | ⭐⭐ Intermediate | Execution tracing | 25 min |
+
+---
+
+### 7. EXTERNAL LIBRARIES (7 examples)
+
+#### HTTP & Networking
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `curl_example.nano` | ⭐⭐⭐ Advanced | HTTP with libcurl | 30 min |
+| `uv_example.nano` | ⭐⭐⭐⭐ Expert | Async I/O (libuv) | 40 min |
+| `event_example.nano` | ⭐⭐⭐⭐ Expert | Event loops (libevent) | 40 min |
+
+#### Database
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `sqlite_simple.nano` | ⭐⭐⭐ Advanced | SQLite database | 30 min |
+
+#### Machine Learning
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `onnx_classifier.nano` | ⭐⭐⭐⭐ Expert | ML inference (ONNX) | 45 min |
+| `onnx_inference.nano` | ⭐⭐⭐ Advanced | ONNX basics | 30 min |
+| `onnx_simple.nano` | ⭐⭐ Intermediate | Simple ONNX | 20 min |
+
+---
+
+### 8. GAMES (8 examples)
+
+#### Cellular Automata
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_game_of_life.nano` | ⭐⭐⭐ Advanced | Conway's Life | 40 min |
+| `nl_falling_sand.nano` | ⭐⭐⭐ Advanced | Particle physics | 40 min |
+
+#### Classic Games
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_snake.nano` | ⭐⭐ Intermediate | Snake game | 30 min |
+| `nl_tictactoe.nano` | ⭐⭐ Intermediate | Tic-tac-toe | 30 min |
+| `nl_maze.nano` | ⭐⭐⭐ Advanced | Maze generation | 35 min |
+
+#### AI & Simulation
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_boids.nano` | ⭐⭐⭐⭐ Expert | Flocking AI | 50 min |
+
+#### Ncurses Games
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `ncurses_snake.nano` | ⭐⭐⭐ Advanced | Terminal snake | 35 min |
+| `ncurses_game_of_life.nano` | ⭐⭐⭐ Advanced | Terminal Life | 35 min |
+
+---
+
+### 9. SDL GRAPHICS & GAMES (22 examples)
+
+#### SDL Basics
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `sdl_drawing_primitives.nano` | ⭐⭐ Intermediate | Drawing basics | 25 min |
+| `sdl_texture_demo.nano` | ⭐⭐ Intermediate | Textures | 25 min |
+| `sdl_mouse_click.nano` | ⭐⭐ Intermediate | Mouse input | 20 min |
+
+#### SDL Audio
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `sdl_audio_wav.nano` | ⭐⭐⭐ Advanced | WAV playback | 30 min |
+| `sdl_audio_player.nano` | ⭐⭐⭐⭐ Expert | Full audio player | 60 min |
+| `sdl_nanoamp_enhanced.nano` | ⭐⭐⭐⭐⭐ Expert | Music visualizer ⭐ SHOWCASE | 90 min |
+| `sdl_mod_visualizer.nano` | ⭐⭐⭐⭐ Expert | MOD player | 50 min |
+
+#### SDL UI
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `sdl_ui_widgets_extended.nano` | ⭐⭐⭐⭐ Expert | Complete UI suite | 60 min |
+
+#### SDL Visual Effects
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `sdl_fire.nano` | ⭐⭐⭐ Advanced | Fire effect | 35 min |
+| `sdl_particles.nano` | ⭐⭐⭐⭐⭐ Expert | Particle system ⭐ SHOWCASE | 50 min |
+| `sdl_starfield.nano` | ⭐⭐⭐ Advanced | Starfield | 30 min |
+| `ncurses_matrix_rain.nano` | ⭐⭐⭐ Advanced | Matrix rain | 30 min |
+
+#### SDL Physics & Simulation
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `sdl_falling_sand.nano` | ⭐⭐⭐⭐ Expert | Falling sand physics | 50 min |
+| `sdl_boids.nano` | ⭐⭐⭐⭐⭐ Expert | Flocking AI ⭐ SHOWCASE | 60 min |
+
+#### SDL Games
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `sdl_pong.nano` | ⭐⭐⭐ Advanced | Pong game | 40 min |
+| `sdl_checkers.nano` | ⭐⭐⭐⭐ Expert | Checkers + AI | 60 min |
+| `sdl_asteroids.nano` | ⭐⭐⭐⭐⭐ Expert | Complete game ⭐ SHOWCASE | 90 min |
+
+#### SDL Advanced Graphics
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `sdl_raytracer.nano` | ⭐⭐⭐⭐⭐ Expert | Ray tracing | 90 min |
+| `sdl_terrain_explorer.nano` | ⭐⭐⭐⭐⭐ Expert | 3D terrain ⭐ SHOWCASE | 90 min |
+
+#### SDL Integration
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `sdl_nanoviz.nano` | ⭐⭐⭐⭐⭐ Expert | 3D music visualizer | 90 min |
+| `sdl_import_test.nano` | ⭐⭐ Intermediate | Module testing | 10 min |
+| `example_launcher.nano` | ⭐⭐ Intermediate | Utility launcher | 20 min |
+
+---
+
+### 10. OPENGL (2 examples)
+
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `opengl_cube.nano` | ⭐⭐⭐⭐ Expert | 3D cube | 45 min |
+| `opengl_teapot.nano` | ⭐⭐⭐⭐ Expert | Utah teapot | 45 min |
+
+---
+
+### 11. ADVANCED FEATURES (3 examples)
+
+| Example | Difficulty | Topics | Time |
+|---------|------------|--------|------|
+| `nl_language_features.nano` | ⭐⭐ Intermediate | Feature showcase | 30 min |
+| `nl_new_features.nano` | ⭐⭐ Intermediate | Recent features | 20 min |
+| `nl_demo_selfhosting.nano` | ⭐⭐⭐⭐⭐ Expert | Self-hosting demo | 60 min |
+
+---
+
+## ⭐ Showcase Applications
+
+These 6 examples represent the best of NanoLang - production-quality applications demonstrating multiple features:
+
+1. **SDL Asteroids** (`sdl_asteroids.nano`) - Complete arcade game
+   - Topics: Game loop, physics, collision, entities, state management
+   - Time: 90+ minutes
+   - Why showcase: Complete, polished, production-ready
+
+2. **SDL Terrain Explorer** (`sdl_terrain_explorer.nano`) - 3D graphics
+   - Topics: 3D math, LOD rendering, Perlin noise, camera controls
+   - Time: 90+ minutes
+   - Why showcase: Advanced graphics, performance optimization
+
+3. **SDL Boids** (`sdl_boids.nano`) - Flocking AI simulation
+   - Topics: AI, spatial hashing, emergent behavior, 1000+ entities
+   - Time: 60+ minutes
+   - Why showcase: Sophisticated algorithms, excellent performance
+
+4. **SDL NanoAmp Enhanced** (`sdl_nanoamp_enhanced.nano`) - Music visualizer
+   - Topics: Audio, FFT, DSP, real-time visualization
+   - Time: 90+ minutes
+   - Why showcase: Audio processing, beautiful visualization
+
+5. **Matrix Operations** (`nl_matrix_operations.nano`) - Linear algebra
+   - Topics: Generics, performance, algorithms, comprehensive tests
+   - Time: 60+ minutes
+   - Why showcase: Production library quality
+
+6. **Stdlib AST Demo** (`stdlib_ast_demo.nano`) - Metaprogramming
+   - Topics: AST manipulation, compiler internals, code generation
+   - Time: 60+ minutes
+   - Why showcase: Unique NanoLang feature, advanced
+
+See `docs/SHOWCASE_APPLICATIONS.md` for detailed analysis.
+
+---
+
+## Difficulty Ratings Explained
+
+- ⭐ **Beginner** (0-15 min): Basic syntax, no prerequisites
+- ⭐⭐ **Intermediate** (15-30 min): Requires basic knowledge
+- ⭐⭐⭐ **Advanced** (30-50 min): Complex concepts, multiple features
+- ⭐⭐⭐⭐ **Expert** (50-90 min): Production-quality, sophisticated
+- ⭐⭐⭐⭐⭐ **Showcase** (90+ min): Best-in-class, comprehensive
+
+---
+
+## Topic Index
+
+Find examples by topic:
+
+**Language Core**: hello, calculator, operators, types, mutable, loops, factorial, fibonacci
+
+**Data Structures**: arrays, structs, enums, unions, tuples, generics
+
+**Functions**: first-class, factories, closures, filter/map/fold
+
+**Strings**: operations, extern string
+
+**Math**: advanced math, matrix operations, pi calculator, extern math
+
+**I/O & OS**: stdlib, os_basic, file operations
+
+**FFI & External**: curl, sqlite, uv, event, onnx
+
+**Games**: game of life, snake, maze, tic-tac-toe, boids
+
+**SDL Graphics**: primitives, textures, particles, effects
+
+**SDL Games**: pong, checkers, asteroids
+
+**SDL Audio**: wav player, audio player, visualizers
+
+**OpenGL**: 3D cube, teapot
+
+**Advanced**: generics, AST, self-hosting, tracing
+
+---
+
+## Prerequisites Map
+
+```
+LEVEL 1 (No Prerequisites):
+└─ nl_hello.nano
+
+LEVEL 2 (Hello World only):
+├─ nl_calculator.nano
+├─ nl_operators.nano
+└─ nl_types.nano
+
+LEVEL 3 (Basics + Types):
+├─ nl_mutable.nano
+├─ nl_for_loop_patterns.nano
+├─ nl_array_complete.nano
+└─ nl_struct.nano
+
+LEVEL 4 (Data Structures):
+├─ nl_generics_demo.nano
+├─ nl_first_class_functions.nano
+└─ SDL basics (primitives, mouse)
+
+LEVEL 5 (Advanced Features):
+├─ SDL games (pong, asteroids)
+├─ stdlib_ast_demo.nano
+└─ Matrix operations
+
+SHOWCASE LEVEL:
+└─ All showcase applications
+```
+
+---
+
+## Total Time Estimates
+
+- **Beginner Path**: 4-6 hours
+- **Graphics Path**: 8-12 hours
+- **FFI Path**: 6-8 hours
+- **Advanced Path**: 8-10 hours
+- **All Examples**: 60-80 hours
+- **Showcase Only**: 8-10 hours
+
+---
+
+## Next Steps
+
+1. **Start with Beginner Path** - Learn fundamentals
+2. **Choose your interest** - Graphics, FFI, or Advanced
+3. **Build something** - Apply what you learned
+4. **Study Showcases** - See production-quality code
+
+For detailed analysis, see:
+- `docs/EXAMPLES_OVERLAP_AUDIT.md` - Redundancy analysis
+- `docs/EXAMPLES_INSTRUCTIONAL_REVIEW.md` - Teaching focus
+- `docs/REALWORLD_EXAMPLES_EVALUATION.md` - Production quality
+- `docs/SHOWCASE_APPLICATIONS.md` - Flagship applications
+
+---
+
+**Happy Learning!** 🚀
