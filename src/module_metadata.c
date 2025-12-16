@@ -26,7 +26,11 @@ static int count_function_signatures(ModuleMetadata *meta) {
     for (int i = 0; i < meta->function_count; i++) {
         Function *f = &meta->functions[i];
         if (f->return_fn_sig) count++;  /* Return type function sig */
-        /* TODO: Count nested function signatures in parameters */
+        
+        /* Count parameter function signatures */
+        for (int j = 0; j < f->param_count; j++) {
+            if (f->params[j].fn_sig) count++;
+        }
     }
     return count;
 }
@@ -167,6 +171,8 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     if (fn_sig_count > 0) {
         APPEND("\n    /* Initialize FunctionSignatures */\n");
         int sig_idx = 0;
+        
+        /* Serialize return type function signatures */
         for (int i = 0; i < meta->function_count; i++) {
             Function *f = &meta->functions[i];
             if (f->return_fn_sig) {
@@ -174,11 +180,31 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
                 sig_idx++;
             }
         }
+        
+        /* Serialize parameter function signatures */
+        for (int i = 0; i < meta->function_count; i++) {
+            Function *f = &meta->functions[i];
+            for (int j = 0; j < f->param_count; j++) {
+                if (f->params[j].fn_sig) {
+                    serialize_function_signature(&buffer, &pos, &capacity, f->params[j].fn_sig, sig_idx);
+                    sig_idx++;
+                }
+            }
+        }
+        
         APPEND("\n");
     }
     
     int param_idx = 0;
     int sig_idx = 0;  /* Track which FunctionSignature index to reference */
+    
+    /* Calculate starting index for parameter signatures (after return signatures) */
+    int param_sig_start_idx = 0;
+    for (int i = 0; i < meta->function_count; i++) {
+        if (meta->functions[i].return_fn_sig) param_sig_start_idx++;
+    }
+    int param_sig_idx = param_sig_start_idx;  /* Track parameter fn_sig indices */
+    
     for (int i = 0; i < meta->function_count; i++) {
         Function *f = &meta->functions[i];
         char temp[2048];
@@ -233,9 +259,17 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
                 }
                 snprintf(temp, sizeof(temp), "    _module_params[%d].element_type = %d;\n", param_idx, p->element_type);
                 APPEND(temp);
-                /* TODO: Serialize fn_sig for function parameters */
-                snprintf(temp, sizeof(temp), "    _module_params[%d].fn_sig = NULL;\n", param_idx);
-                APPEND(temp);
+                
+                /* Link to parameter's function signature if present */
+                if (p->fn_sig) {
+                    snprintf(temp, sizeof(temp), "    _module_params[%d].fn_sig = &_fn_signatures[%d];\n", param_idx, param_sig_idx);
+                    APPEND(temp);
+                    param_sig_idx++;
+                } else {
+                    snprintf(temp, sizeof(temp), "    _module_params[%d].fn_sig = NULL;\n", param_idx);
+                    APPEND(temp);
+                }
+                
                 param_idx++;
             }
         } else {
