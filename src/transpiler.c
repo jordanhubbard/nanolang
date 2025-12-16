@@ -12,9 +12,18 @@ typedef struct {
 
 static StringBuilder *sb_create(void) {
     StringBuilder *sb = malloc(sizeof(StringBuilder));
+    if (!sb) {
+        fprintf(stderr, "Error: Out of memory allocating StringBuilder\n");
+        exit(1);
+    }
     sb->capacity = 1024;
     sb->length = 0;
     sb->buffer = malloc(sb->capacity);
+    if (!sb->buffer) {
+        fprintf(stderr, "Error: Out of memory allocating StringBuilder buffer\n");
+        free(sb);
+        exit(1);
+    }
     sb->buffer[0] = '\0';
     return sb;
 }
@@ -166,6 +175,10 @@ static void add_module_header(const char *header, int priority) {
     }
     
     g_module_headers[g_module_headers_count].name = strdup(header);
+    if (!g_module_headers[g_module_headers_count].name) {
+        fprintf(stderr, "Error: Out of memory duplicating module header name\n");
+        exit(1);
+    }
     g_module_headers[g_module_headers_count].priority = priority;
     g_module_headers_count++;
 }
@@ -192,6 +205,10 @@ static void collect_headers_from_module(const char *module_path) {
     
     /* Extract module directory from path */
     char *path_copy = strdup(module_path);
+    if (!path_copy) {
+        fprintf(stderr, "Error: Out of memory duplicating module path\n");
+        exit(1);
+    }
     char *dir = dirname(path_copy);
     
     /* Load module metadata */
@@ -208,8 +225,23 @@ static void collect_headers_from_module(const char *module_path) {
 
 static FunctionTypeRegistry *create_fn_type_registry(void) {
     FunctionTypeRegistry *reg = malloc(sizeof(FunctionTypeRegistry));
+    if (!reg) {
+        fprintf(stderr, "Error: Out of memory allocating FunctionTypeRegistry\n");
+        exit(1);
+    }
     reg->signatures = malloc(sizeof(FunctionSignature*) * 16);
+    if (!reg->signatures) {
+        fprintf(stderr, "Error: Out of memory allocating function signatures array\n");
+        free(reg);
+        exit(1);
+    }
     reg->typedef_names = malloc(sizeof(char*) * 16);
+    if (!reg->typedef_names) {
+        fprintf(stderr, "Error: Out of memory allocating typedef names array\n");
+        free(reg->signatures);
+        free(reg);
+        exit(1);
+    }
     reg->count = 0;
     reg->capacity = 16;
     return reg;
@@ -236,8 +268,23 @@ static void free_fn_type_registry(FunctionTypeRegistry *reg) {
 /* Tuple type registry functions */
 static TupleTypeRegistry *create_tuple_type_registry(void) {
     TupleTypeRegistry *reg = malloc(sizeof(TupleTypeRegistry));
+    if (!reg) {
+        fprintf(stderr, "Error: Out of memory allocating TupleTypeRegistry\n");
+        exit(1);
+    }
     reg->tuples = malloc(sizeof(TypeInfo*) * 16);
+    if (!reg->tuples) {
+        fprintf(stderr, "Error: Out of memory allocating tuples array\n");
+        free(reg);
+        exit(1);
+    }
     reg->typedef_names = malloc(sizeof(char*) * 16);
+    if (!reg->typedef_names) {
+        fprintf(stderr, "Error: Out of memory allocating tuple typedef names\n");
+        free(reg->tuples);
+        free(reg);
+        exit(1);
+    }
     reg->count = 0;
     reg->capacity = 16;
     return reg;
@@ -281,6 +328,10 @@ static bool tuple_types_equal(TypeInfo *a, TypeInfo *b) {
 /* Generate typedef name for a tuple type */
 static char *get_tuple_typedef_name(TypeInfo *info, int index) {
     char *name = malloc(256);
+    if (!name) {
+        fprintf(stderr, "Error: Out of memory allocating tuple typedef name\n");
+        exit(1);
+    }
     StringBuilder *sb = sb_create();
     
     sb_append(sb, "Tuple");
@@ -350,6 +401,10 @@ static void generate_tuple_typedef(StringBuilder *sb, TypeInfo *info, const char
 /* Generate unique typedef name for a function signature */
 static char *get_function_typedef_name(FunctionSignature *sig, int index) {
     char *name = malloc(64);
+    if (!name) {
+        fprintf(stderr, "Error: Out of memory allocating function typedef name\n");
+        exit(1);
+    }
     
     /* Generate descriptive name based on signature pattern */
     if (sig->param_count == 1 && sig->return_type == TYPE_BOOL) {
@@ -615,8 +670,17 @@ static void collect_tuple_types_from_expr(ASTNode *expr, TupleTypeRegistry *reg)
                 if (expr->as.tuple_literal.element_types) {
                     /* Element types are set - register directly */
                     TypeInfo *temp_info = malloc(sizeof(TypeInfo));
+                    if (!temp_info) {
+                        fprintf(stderr, "Error: Out of memory allocating tuple TypeInfo\n");
+                        exit(1);
+                    }
                     temp_info->tuple_element_count = expr->as.tuple_literal.element_count;
                     temp_info->tuple_types = malloc(sizeof(Type) * expr->as.tuple_literal.element_count);
+                    if (!temp_info->tuple_types) {
+                        fprintf(stderr, "Error: Out of memory allocating tuple types array\n");
+                        free(temp_info);
+                        exit(1);
+                    }
                     for (int i = 0; i < expr->as.tuple_literal.element_count; i++) {
                         temp_info->tuple_types[i] = expr->as.tuple_literal.element_types[i];
                     }
@@ -625,8 +689,17 @@ static void collect_tuple_types_from_expr(ASTNode *expr, TupleTypeRegistry *reg)
                 } else {
                     /* Element types not set - infer from elements */
                     TypeInfo *temp_info = malloc(sizeof(TypeInfo));
+                    if (!temp_info) {
+                        fprintf(stderr, "Error: Out of memory allocating tuple TypeInfo\n");
+                        exit(1);
+                    }
                     temp_info->tuple_element_count = expr->as.tuple_literal.element_count;
                     temp_info->tuple_types = malloc(sizeof(Type) * expr->as.tuple_literal.element_count);
+                    if (!temp_info->tuple_types) {
+                        fprintf(stderr, "Error: Out of memory allocating tuple types array\n");
+                        free(temp_info);
+                        exit(1);
+                    }
                     for (int i = 0; i < expr->as.tuple_literal.element_count; i++) {
                         /* Try to infer type from expression */
                         Type elem_type = TYPE_INT;  /* Default to int */
@@ -1445,6 +1518,10 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
         /* Get prefixed name (adds nl_ for user types, keeps runtime types as-is) */
         /* IMPORTANT: Save a copy since get_prefixed_type_name uses a static buffer */
         const char *prefixed_name = strdup(get_prefixed_type_name(sdef->name));
+        if (!prefixed_name) {
+            fprintf(stderr, "Error: Out of memory duplicating struct name\n");
+            exit(1);
+        }
         
         /* Generate typedef struct */
         sb_appendf(sb, "typedef struct %s {\n", prefixed_name);
@@ -2183,6 +2260,10 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                     Symbol *param_sym = env_get_var(env, item->as.function.params[j].name);
                     if (param_sym) {
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
+                        if (!param_sym->struct_type_name) {
+                            fprintf(stderr, "Error: Out of memory duplicating param struct type name\n");
+                            exit(1);
+                        }
                     }
                 }
             }

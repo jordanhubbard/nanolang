@@ -44,9 +44,18 @@ typedef struct {
 
 static WorkList *worklist_create(int initial_capacity) {
     WorkList *list = malloc(sizeof(WorkList));
+    if (!list) {
+        fprintf(stderr, "Error: Out of memory allocating WorkList\n");
+        exit(1);
+    }
     list->capacity = initial_capacity;
     list->count = 0;
     list->items = malloc(sizeof(WorkItem) * initial_capacity);
+    if (!list->items) {
+        fprintf(stderr, "Error: Out of memory allocating WorkList items\n");
+        free(list);
+        exit(1);
+    }
     return list;
 }
 
@@ -94,6 +103,10 @@ static void emit_literal(WorkList *list, const char *str) {
     WorkItem item;
     item.type = WORK_LITERAL;
     item.data.literal = strdup(str);
+    if (!item.data.literal) {
+        fprintf(stderr, "Error: Out of memory duplicating literal string\n");
+        exit(1);
+    }
     worklist_append(list, item);
 }
 
@@ -107,6 +120,10 @@ static void emit_formatted(WorkList *list, const char *fmt, ...) {
     WorkItem item;
     item.type = WORK_FORMATTED;
     item.data.formatted = strdup(buffer);
+    if (!item.data.formatted) {
+        fprintf(stderr, "Error: Out of memory duplicating formatted string\n");
+        exit(1);
+    }
     worklist_append(list, item);
 }
 
@@ -918,6 +935,10 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                 Symbol *sym = env_get_var(env, stmt->as.let.name);
                 if (sym) {
                     sym->struct_type_name = strdup(stmt->as.let.type_name);
+                    if (!sym->struct_type_name) {
+                        fprintf(stderr, "Error: Out of memory duplicating struct type name\n");
+                        exit(1);
+                    }
                 }
             }
             break;
