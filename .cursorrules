@@ -1,0 +1,115 @@
+# Nanolang Cursor Rules
+
+## Session Start Protocol
+**CRITICAL**: At the start of every coding session, run:
+```bash
+bd ready --json
+```
+This command shows all open issues ready to be worked on. Use this to understand project priorities.
+
+## Project Management via Beads
+
+**DO NOT create markdown planning files.** Instead, use beads CLI:
+
+### Creating Issues
+```bash
+bd create --title "Issue title" --description "Details" --priority [0-4] --type [feature|bug|task|chore|epic] --labels "label1,label2"
+```
+
+### Viewing Work
+```bash
+bd ready --json          # Show ready-to-work issues
+bd list --json           # Show all issues  
+bd show <id>             # Show specific issue details
+```
+
+### Working on Issues
+```bash
+bd update <id> --status in_progress    # Start work
+bd update <id> --notes "Progress..."   # Add progress notes
+bd close <id> --reason "Done because..." # Complete issue
+```
+
+### Dependencies
+```bash
+bd link <child-id> --depends-on <parent-id>  # Child depends on parent
+bd link <blocker-id> --blocks <blocked-id>   # Blocker blocks another issue
+```
+
+## Code Standards
+
+### Development Rules
+1. **Interpreter/Compiler Parity**: Both must support same features
+2. **Warning-Free Code**: Compile with `-Wall -Wextra -Werror`
+3. **Dual Implementation**: C reference in `src/`, NanoLang self-hosted in `src_nano/`
+4. **Test-First**: Shadow tests required for all functions
+5. **Minimal Comments**: Code should be self-documenting
+
+### Testing
+```bash
+make test                # Run all tests (must be 100%)
+./bin/nanoc file.nano    # Test compilation
+./bin/nano file.nano     # Test interpretation
+```
+
+### Key Resources
+- `MEMORY.md` - LLM reference for patterns and idioms
+- `spec.json` - Formal language specification
+- `CONTRIBUTING.md` - Development guidelines
+- `.factory/PROJECT_RULES.md` - Complete project rules
+
+## File Organization
+
+### Top-Level Files (Only These Allowed)
+- `README.md`, `CONTRIBUTING.md`, `CONTRIBUTORS.md`
+- `LICENSE`, `MEMORY.md`, `SPEC_AUDIT.md`
+
+### Everything Else
+- Code: `src/`, `src_nano/`, `tests/`
+- Docs: `docs/`
+- Examples: `examples/`
+- Modules: `modules/`
+- Legacy planning: `planning/` (read-only, create new issues as beads)
+
+## Git Workflow
+
+### Commits
+```bash
+git status && git diff                    # Review changes
+git add <files>
+git commit -m "type: brief description
+
+Detailed explanation of changes.
+Related to nanolang-XXX.
+
+Co-authored-by: factory-droid[bot] <138933559+factory-droid[bot]@users.noreply.github.com>"
+```
+
+### Commit Types
+- `feat`: New feature
+- `fix`: Bug fix
+- `refactor`: Code restructuring
+- `test`: Test additions/changes
+- `docs`: Documentation
+- `chore`: Maintenance
+
+## NanoLang Specific
+
+### Syntax
+- Prefix notation: `(+ a b)` not `a + b`
+- Mandatory shadow tests for all functions
+- Immutable by default: `let mut` for mutability
+- Static typing with inference
+
+### Common Patterns
+```nano
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+}
+```
+
+For complete language details, see `MEMORY.md` and `spec.json`.
