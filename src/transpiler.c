@@ -2008,14 +2008,19 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                 continue;
             }
             
-            /* Skip complex return types for now to avoid bus errors */
-            /* TODO: Fix struct/union return type handling */
-            if (func->return_type == TYPE_STRUCT || func->return_type == TYPE_UNION || func->return_type == TYPE_LIST_GENERIC || func->return_type == TYPE_FUNCTION) {
-                continue;  /* Skip complex types for now */
+            /* Handle return type - List type enabled, others still skipped (incremental rollout) */
+            if (func->return_type == TYPE_LIST_GENERIC) {
+                if (!func->return_struct_type_name) {
+                    continue;  /* Skip - missing element type metadata */
+                }
+                sb_appendf(sb, "List_%s*", func->return_struct_type_name);
+            } else if (func->return_type == TYPE_STRUCT || func->return_type == TYPE_UNION || func->return_type == TYPE_FUNCTION) {
+                continue;  /* Skip Struct/Union/Function - causes test failures (see nanolang-cv7) */
+            } else {
+                /* Simple types */
+                sb_append(sb, type_to_c(func->return_type));
             }
             
-            /* Simple forward declaration for basic types only */
-            sb_append(sb, type_to_c(func->return_type));
             sb_appendf(sb, " nl_%s(", func->name);
             
             /* Function parameters */
