@@ -1,5 +1,33 @@
-# NANOLANG NEW FEATURES DEMO
-# Shows: Unary operators & Top-level constants working together!
+# Language Features Showcase - Recent Additions
+#
+# Concept: Demonstrates recently added language features
+# Topics: unary operators, top-level constants, language evolution
+# Difficulty: Intermediate
+#
+# Description:
+# Showcases recently added features to NanoLang including unary
+# operators (negation) and top-level constants. Demonstrates how
+# these features work together and their practical applications.
+#
+# Key Features Demonstrated:
+# - Unary negation operator (-)
+# - Top-level constants (global const values)
+# - Feature interaction and composition
+# - Modern language capabilities
+#
+# Recently Added Features:
+# - Unary operators: -, not
+# - Top-level constant declarations
+# - Enhanced type inference in constants
+# - Improved error messages
+#
+# Prerequisites:
+# - nl_operators.nano - Basic operators
+# - nl_types.nano - Type system
+#
+# Next Steps:
+# - nl_language_features.nano - Comprehensive feature tour
+# - Explore other recent additions
 
 # Top-level constants - now supported!
 let MAX_SIZE: int = 10
