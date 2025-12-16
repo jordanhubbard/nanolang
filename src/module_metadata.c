@@ -9,6 +9,17 @@ static void serialize_function_signature(char **buffer_ptr, size_t *pos_ptr, siz
 static void serialize_type_info(char **buffer_ptr, size_t *pos_ptr, size_t *capacity_ptr,
                                 TypeInfo *type_info, int info_idx);
 
+/* Count total TypeInfo structures needed (for pre-allocation) */
+static int count_type_infos(ModuleMetadata *meta) {
+    int count = 0;
+    for (int i = 0; i < meta->function_count; i++) {
+        Function *f = &meta->functions[i];
+        if (f->return_type_info) count++;
+        /* TODO: Count nested TypeInfo in parameters and recursive structures */
+    }
+    return count;
+}
+
 /* Helper macro for appending to dynamic buffer */
 #define APPEND_TO_BUFFER(buf_ptr, pos_ptr, cap_ptr, str) do { \
     size_t len = strlen(str); \
@@ -117,6 +128,106 @@ static void serialize_function_signature(char **buffer_ptr, size_t *pos_ptr, siz
     APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
 }
 
+/* Serialize a TypeInfo structure to C initialization code */
+static void serialize_type_info(char **buffer_ptr, size_t *pos_ptr, size_t *capacity_ptr,
+                                TypeInfo *type_info, int info_idx) {
+    if (!type_info) return;
+    
+    char temp[2048];
+    
+    /* Base type */
+    snprintf(temp, sizeof(temp), "    _type_infos[%d].base_type = %d;\n", info_idx, type_info->base_type);
+    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    
+    /* TODO: Handle recursive element_type */
+    snprintf(temp, sizeof(temp), "    _type_infos[%d].element_type = NULL;\n", info_idx);
+    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    
+    /* Generic name */
+    if (type_info->generic_name) {
+        snprintf(temp, sizeof(temp), "    _type_infos[%d].generic_name = \"%s\";\n", 
+                 info_idx, type_info->generic_name);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    } else {
+        snprintf(temp, sizeof(temp), "    _type_infos[%d].generic_name = NULL;\n", info_idx);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    }
+    
+    /* TODO: Handle type_params array */
+    snprintf(temp, sizeof(temp), "    _type_infos[%d].type_params = NULL;\n", info_idx);
+    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    snprintf(temp, sizeof(temp), "    _type_infos[%d].type_param_count = 0;\n", info_idx);
+    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    
+    /* Tuple types */
+    if (type_info->tuple_element_count > 0 && type_info->tuple_types) {
+        snprintf(temp, sizeof(temp), "    static Type _type_info_%d_tuple_types[%d] = {",
+                 info_idx, type_info->tuple_element_count);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        
+        for (int i = 0; i < type_info->tuple_element_count; i++) {
+            if (i > 0) APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, ", ");
+            snprintf(temp, sizeof(temp), "%d", type_info->tuple_types[i]);
+            APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        }
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, "};\n");
+        
+        snprintf(temp, sizeof(temp), "    _type_infos[%d].tuple_types = _type_info_%d_tuple_types;\n",
+                 info_idx, info_idx);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        
+        /* Tuple type names */
+        if (type_info->tuple_type_names) {
+            snprintf(temp, sizeof(temp), "    static char* _type_info_%d_tuple_names[%d] = {",
+                     info_idx, type_info->tuple_element_count);
+            APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+            
+            for (int i = 0; i < type_info->tuple_element_count; i++) {
+                if (i > 0) APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, ", ");
+                if (type_info->tuple_type_names[i]) {
+                    snprintf(temp, sizeof(temp), "\"%s\"", type_info->tuple_type_names[i]);
+                    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+                } else {
+                    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, "NULL");
+                }
+            }
+            APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, "};\n");
+            
+            snprintf(temp, sizeof(temp), "    _type_infos[%d].tuple_type_names = _type_info_%d_tuple_names;\n",
+                     info_idx, info_idx);
+            APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        } else {
+            snprintf(temp, sizeof(temp), "    _type_infos[%d].tuple_type_names = NULL;\n", info_idx);
+            APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        }
+        
+        snprintf(temp, sizeof(temp), "    _type_infos[%d].tuple_element_count = %d;\n",
+                 info_idx, type_info->tuple_element_count);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    } else {
+        snprintf(temp, sizeof(temp), "    _type_infos[%d].tuple_types = NULL;\n", info_idx);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        snprintf(temp, sizeof(temp), "    _type_infos[%d].tuple_type_names = NULL;\n", info_idx);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        snprintf(temp, sizeof(temp), "    _type_infos[%d].tuple_element_count = 0;\n", info_idx);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    }
+    
+    /* Opaque type name */
+    if (type_info->opaque_type_name) {
+        snprintf(temp, sizeof(temp), "    _type_infos[%d].opaque_type_name = \"%s\";\n",
+                 info_idx, type_info->opaque_type_name);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    } else {
+        snprintf(temp, sizeof(temp), "    _type_infos[%d].opaque_type_name = NULL;\n", info_idx);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    }
+    
+    /* TODO: Handle fn_sig */
+    snprintf(temp, sizeof(temp), "    _type_infos[%d].fn_sig = NULL;\n", info_idx);
+    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+}
+
 /* Serialize module metadata to C code that can be embedded */
 char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     if (!meta) return NULL;
@@ -148,6 +259,13 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     int fn_sig_count = count_function_signatures(meta);
     if (fn_sig_count > 0) {
         snprintf(temp, sizeof(temp), "static FunctionSignature _fn_signatures[%d];\n", fn_sig_count);
+        APPEND(temp);
+    }
+    
+    /* Count and declare TypeInfo arrays */
+    int type_info_count = count_type_infos(meta);
+    if (type_info_count > 0) {
+        snprintf(temp, sizeof(temp), "static TypeInfo _type_infos[%d];\n", type_info_count);
         APPEND(temp);
     }
     
@@ -195,6 +313,20 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
         APPEND("\n");
     }
     
+    /* Serialize TypeInfos */
+    if (type_info_count > 0) {
+        APPEND("    /* Initialize TypeInfos */\n");
+        int info_idx = 0;
+        for (int i = 0; i < meta->function_count; i++) {
+            Function *f = &meta->functions[i];
+            if (f->return_type_info) {
+                serialize_type_info(&buffer, &pos, &capacity, f->return_type_info, info_idx);
+                info_idx++;
+            }
+        }
+        APPEND("\n");
+    }
+    
     int param_idx = 0;
     int sig_idx = 0;  /* Track which FunctionSignature index to reference */
     
@@ -232,9 +364,19 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
             snprintf(temp, sizeof(temp), "    _module_functions[%d].return_fn_sig = NULL;\n", i);
             APPEND(temp);
         }
-        /* TODO: Serialize return_type_info for tuple return types */
-        snprintf(temp, sizeof(temp), "    _module_functions[%d].return_type_info = NULL;\n", i);
-        APPEND(temp);
+        /* Link to TypeInfo if present */
+        if (f->return_type_info) {
+            /* Find the TypeInfo index for this function's return type */
+            int type_info_idx = 0;
+            for (int k = 0; k < i; k++) {
+                if (meta->functions[k].return_type_info) type_info_idx++;
+            }
+            snprintf(temp, sizeof(temp), "    _module_functions[%d].return_type_info = &_type_infos[%d];\n", i, type_info_idx);
+            APPEND(temp);
+        } else {
+            snprintf(temp, sizeof(temp), "    _module_functions[%d].return_type_info = NULL;\n", i);
+            APPEND(temp);
+        }
         snprintf(temp, sizeof(temp), "    _module_functions[%d].body = NULL;\n", i);
         APPEND(temp);
         snprintf(temp, sizeof(temp), "    _module_functions[%d].shadow_test = NULL;\n", i);
