@@ -870,11 +870,16 @@ static void generate_c_headers(StringBuilder *sb) {
 /* Generate List<T> specializations and forward declarations */
 static void generate_list_specializations(Environment *env, StringBuilder *sb) {
     /* Forward declare List types BEFORE structs (in case structs contain List fields) */
-    char *detected_list_types_early[32];
+    int capacity_early = 32;
+    char **detected_list_types_early = malloc(sizeof(char*) * capacity_early);
+    if (!detected_list_types_early) {
+        fprintf(stderr, "Error: Out of memory allocating list types array\n");
+        exit(1);
+    }
     int detected_list_count_early = 0;
     
     if (env && env->generic_instances) {
-        for (int i = 0; i < env->generic_instance_count && i < 1000 && detected_list_count_early < 32; i++) {
+        for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
             GenericInstantiation *inst = &env->generic_instances[i];
             if (inst && strcmp(inst->generic_name, "List") == 0 && inst->type_arg_names && inst->type_arg_names[0]) {
                 const char *elem_type = inst->type_arg_names[0];
@@ -886,6 +891,17 @@ static void generate_list_specializations(Environment *env, StringBuilder *sb) {
                     }
                 }
                 if (!found) {
+                    /* Grow array if needed */
+                    if (detected_list_count_early >= capacity_early) {
+                        capacity_early *= 2;
+                        char **new_array = realloc(detected_list_types_early, sizeof(char*) * capacity_early);
+                        if (!new_array) {
+                            fprintf(stderr, "Error: Out of memory growing list types array to %d\n", capacity_early);
+                            free(detected_list_types_early);
+                            exit(1);
+                        }
+                        detected_list_types_early = new_array;
+                    }
                     detected_list_types_early[detected_list_count_early++] = (char*)elem_type;
                 }
             }
@@ -899,17 +915,24 @@ static void generate_list_specializations(Environment *env, StringBuilder *sb) {
         }
         sb_append(sb, "/* ========== End Generic List Forward Declarations ========== */\n\n");
     }
+    
+    free(detected_list_types_early);
 }
 
 /* Generate List<T> includes and implementations */
 static void generate_list_implementations(Environment *env, StringBuilder *sb) {
     /* Detect generic list usage BEFORE emitting includes */
-    char *detected_list_types[32];
+    int capacity = 32;
+    char **detected_list_types = malloc(sizeof(char*) * capacity);
+    if (!detected_list_types) {
+        fprintf(stderr, "Error: Out of memory allocating list types array\n");
+        exit(1);
+    }
     int detected_list_count = 0;
     
     /* Scan generic instantiations for List<Type> usage */
     if (env && env->generic_instances) {
-        for (int i = 0; i < env->generic_instance_count && i < 1000 && detected_list_count < 32; i++) {
+        for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
             GenericInstantiation *inst = &env->generic_instances[i];
             if (inst && strcmp(inst->generic_name, "List") == 0 && inst->type_arg_names && inst->type_arg_names[0]) {
                 const char *elem_type = inst->type_arg_names[0];
@@ -922,6 +945,17 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
                     }
                 }
                 if (!found) {
+                    /* Grow array if needed */
+                    if (detected_list_count >= capacity) {
+                        capacity *= 2;
+                        char **new_array = realloc(detected_list_types, sizeof(char*) * capacity);
+                        if (!new_array) {
+                            fprintf(stderr, "Error: Out of memory growing list types array to %d\n", capacity);
+                            free(detected_list_types);
+                            exit(1);
+                        }
+                        detected_list_types = new_array;
+                    }
                     detected_list_types[detected_list_count++] = (char*)elem_type;
                 }
             }
@@ -1009,6 +1043,8 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
         sb_append(sb, "/* (Using external implementations from /tmp/list_*.h) */\n");
         sb_append(sb, "/* ========== End Generic List Specializations ========== */\n\n");
     }
+    
+    free(detected_list_types);
 }
 
 /* Generate enum definitions */
