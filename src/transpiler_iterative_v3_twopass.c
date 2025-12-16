@@ -74,7 +74,7 @@ static void worklist_free(WorkList *list) {
 }
 
 static void worklist_grow(WorkList *list) {
-    if (list->capacity > SIZE_MAX / 2 / sizeof(WorkItem)) {
+    if ((size_t)list->capacity > SIZE_MAX / 2 / sizeof(WorkItem)) {
         fprintf(stderr, "Error: WorkList capacity overflow\n");
         exit(1);
     }

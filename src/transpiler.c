@@ -29,7 +29,7 @@ void sb_append(StringBuilder *sb, const char *str) {
     int len = safe_strlen(str);
     while (sb->length + len >= sb->capacity) {
         /* Check for overflow before doubling capacity */
-        if (sb->capacity > SIZE_MAX / 2) {
+        if ((size_t)sb->capacity > SIZE_MAX / 2) {
             fprintf(stderr, "Error: StringBuilder capacity overflow\n");
             exit(1);
         }
@@ -160,7 +160,7 @@ static void add_module_header(const char *header, int priority) {
     /* Expand capacity if needed */
     if (g_module_headers_count >= g_module_headers_capacity) {
         int new_capacity = g_module_headers_capacity == 0 ? 8 : g_module_headers_capacity * 2;
-        if (new_capacity > SIZE_MAX / sizeof(ModuleHeader)) {
+        if ((size_t)new_capacity > SIZE_MAX / sizeof(ModuleHeader)) {
             fprintf(stderr, "Error: Module headers capacity overflow\n");
             exit(1);
         }
@@ -364,7 +364,7 @@ static const char *register_tuple_type(TupleTypeRegistry *reg, TypeInfo *info) {
     
     /* Register new tuple type */
     if (reg->count >= reg->capacity) {
-        if (reg->capacity > SIZE_MAX / 2) {
+        if ((size_t)reg->capacity > SIZE_MAX / 2) {
             fprintf(stderr, "Error: Tuple registry capacity overflow\n");
             exit(1);
         }
@@ -433,7 +433,7 @@ static const char *register_function_signature(FunctionTypeRegistry *reg, Functi
     
     /* Register new signature */
     if (reg->count >= reg->capacity) {
-        if (reg->capacity > SIZE_MAX / 2) {
+        if ((size_t)reg->capacity > SIZE_MAX / 2) {
             fprintf(stderr, "Error: Function registry capacity overflow\n");
             exit(1);
         }
