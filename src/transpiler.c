@@ -1225,7 +1225,11 @@ static void generate_module_function_declarations(StringBuilder *sb, Environment
                 }
                 sb_appendf(sb, "List_%s*", func->return_struct_type_name);
             } else if (func->return_type == TYPE_STRUCT || func->return_type == TYPE_UNION || func->return_type == TYPE_FUNCTION) {
-                continue;  /* Skip Struct/Union/Function - causes test failures (see nanolang-cv7) */
+                /* Skip Struct/Union/Function - causes 48 test failures
+                 * Root cause: Module functions with complex return types conflict with program declarations
+                 * Needs deeper investigation of declaration ordering/visibility (nanolang-cv7)
+                 */
+                continue;
             } else {
                 /* Simple types */
                 sb_append(sb, type_to_c(func->return_type));
