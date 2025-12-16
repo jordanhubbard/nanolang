@@ -164,7 +164,7 @@ void nl_ui_label(SDL_Renderer* renderer, TTF_Font* font,
     }
     
     SDL_Color color = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
-    SDL_Surface* surface = TTF_RenderText_Blended(font, text, color);
+    SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text, color);
     
     if (surface) {
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);

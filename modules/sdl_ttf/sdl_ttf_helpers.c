@@ -18,12 +18,12 @@
 #define PLATFORM_WINDOWS
 #endif
 
-// Helper to render text to texture (blended, anti-aliased)
+// Helper to render text to texture (blended, anti-aliased, UTF-8 support)
 // Returns texture handle or 0 on failure
 int64_t nl_render_text_blended_to_texture(SDL_Renderer* renderer, TTF_Font* font, const char* text, 
                                            int64_t r, int64_t g, int64_t b, int64_t a) {
     SDL_Color color = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
-    SDL_Surface* surface = TTF_RenderText_Blended(font, text, color);
+    SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text, color);
     
     if (!surface) {
         return 0;
