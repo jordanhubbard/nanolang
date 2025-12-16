@@ -1928,6 +1928,130 @@ static void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 }
 
+/* Generate function implementations from program AST */
+static void generate_function_implementations(StringBuilder *sb, ASTNode *program, Environment *env,
+                                              FunctionTypeRegistry *fn_registry, TupleTypeRegistry *tuple_registry) {
+    /* Transpile all functions (skip shadow tests and extern functions) */
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_FUNCTION) {
+            /* Skip extern functions - they're declared only, no implementation */
+            if (item->as.function.is_extern) {
+                continue;
+            }
+            
+            /* Function return type */
+            if (item->as.function.return_type == TYPE_FUNCTION && item->as.function.return_fn_sig) {
+                /* Function return type: use typedef */
+                const char *typedef_name = register_function_signature(fn_registry, 
+                                                                      item->as.function.return_fn_sig);
+                sb_append(sb, typedef_name);
+            } else if (item->as.function.return_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
+                /* Generic list return type: List<ElementType> -> List_ElementType* */
+                sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
+            } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
+                /* Check if this is an opaque type */
+                OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.return_struct_type_name);
+                if (opaque) {
+                    /* Opaque types are stored as void* */
+                    sb_append(sb, "void*");
+                } else {
+                    /* Use prefixed type name */
+                    const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                    sb_append(sb, prefixed_name);
+                }
+            } else if (item->as.function.return_type == TYPE_UNION && item->as.function.return_struct_type_name) {
+                /* Use prefixed union name */
+                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                sb_append(sb, prefixed_name);
+            } else if (item->as.function.return_type == TYPE_TUPLE && item->as.function.return_type_info) {
+                /* Use typedef name for tuple return type */
+                const char *typedef_name = register_tuple_type(tuple_registry, 
+                                                              item->as.function.return_type_info);
+                sb_append(sb, typedef_name);
+            } else {
+                sb_append(sb, type_to_c(item->as.function.return_type));
+            }
+            
+            const char *c_func_name = get_c_func_name(item->as.function.name);
+            sb_appendf(sb, " %s(", c_func_name);
+            
+            /* Function parameters */
+            for (int j = 0; j < item->as.function.param_count; j++) {
+                if (j > 0) sb_append(sb, ", ");
+                
+                if (item->as.function.params[j].type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
+                    /* Function parameter: use typedef */
+                    const char *typedef_name = register_function_signature(fn_registry, 
+                                                                          item->as.function.params[j].fn_sig);
+                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_LIST_GENERIC && item->as.function.params[j].struct_type_name) {
+                    /* Generic list parameter: List<ElementType> -> List_ElementType* */
+                    sb_appendf(sb, "List_%s* %s",
+                              item->as.function.params[j].struct_type_name,
+                              item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
+                    /* Check if this is an opaque type */
+                    OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
+                    if (opaque) {
+                        /* Opaque types are stored as void* */
+                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                    } else {
+                        /* Use prefixed type name for regular structs */
+                        const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
+                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                    }
+                } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
+                    /* Use prefixed union name */
+                    const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
+                    sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                } else {
+                    sb_appendf(sb, "%s %s",
+                              type_to_c(item->as.function.params[j].type),
+                              item->as.function.params[j].name);
+                }
+            }
+            sb_append(sb, ") ");
+
+            /* Add parameters to environment for type checking during transpilation */
+            int saved_symbol_count = env->symbol_count;
+            for (int j = 0; j < item->as.function.param_count; j++) {
+                Value dummy_val = create_void();
+                /* Preserve element_type for array parameters */
+                env_define_var_with_type_info(env, item->as.function.params[j].name,
+                             item->as.function.params[j].type, item->as.function.params[j].element_type, 
+                             NULL, false, dummy_val);
+                
+                /* For array<Struct> parameters, set struct_type_name */
+                if (item->as.function.params[j].type == TYPE_ARRAY && 
+                    item->as.function.params[j].element_type == TYPE_STRUCT &&
+                    item->as.function.params[j].struct_type_name) {
+                    Symbol *param_sym = env_get_var(env, item->as.function.params[j].name);
+                    if (param_sym) {
+                        param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
+                        if (!param_sym->struct_type_name) {
+                            fprintf(stderr, "Error: Out of memory duplicating param struct type name\n");
+                            exit(1);
+                        }
+                    }
+                }
+            }
+
+            /* Function body */
+            transpile_statement(sb, item->as.function.body, 0, env, fn_registry);
+            sb_append(sb, "\n");
+
+            /* Restore environment (remove parameters) */
+            /* Note: We intentionally don't free the symbol names here because:
+             * 1. They will be freed by free_environment() at program end
+             * 2. Some symbol metadata might still be referenced during transpilation
+             * 3. This is a short-lived compiler process, not a long-running server
+             * The memory leak is acceptable for this use case. */
+            env->symbol_count = saved_symbol_count;
+        }
+    }
+}
+
 /* Transpile program to C */
 char *transpile_to_c(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) {
@@ -2298,125 +2422,8 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     /* Forward declare functions from current program */
     generate_program_function_declarations(sb, program, env, fn_registry, tuple_registry);
 
-    /* Transpile all functions (skip shadow tests and extern functions) */
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_FUNCTION) {
-            /* Skip extern functions - they're declared only, no implementation */
-            if (item->as.function.is_extern) {
-                continue;
-            }
-            
-            /* Function return type */
-            if (item->as.function.return_type == TYPE_FUNCTION && item->as.function.return_fn_sig) {
-                /* Function return type: use typedef */
-                const char *typedef_name = register_function_signature(fn_registry, 
-                                                                      item->as.function.return_fn_sig);
-                sb_append(sb, typedef_name);
-            } else if (item->as.function.return_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
-                /* Generic list return type: List<ElementType> -> List_ElementType* */
-                sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
-            } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
-                /* Check if this is an opaque type */
-                OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.return_struct_type_name);
-                if (opaque) {
-                    /* Opaque types are stored as void* */
-                    sb_append(sb, "void*");
-                } else {
-                    /* Use prefixed type name */
-                    const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
-                    sb_append(sb, prefixed_name);
-                }
-            } else if (item->as.function.return_type == TYPE_UNION && item->as.function.return_struct_type_name) {
-                /* Use prefixed union name */
-                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
-                sb_append(sb, prefixed_name);
-            } else if (item->as.function.return_type == TYPE_TUPLE && item->as.function.return_type_info) {
-                /* Use typedef name for tuple return type */
-                const char *typedef_name = register_tuple_type(tuple_registry, 
-                                                              item->as.function.return_type_info);
-                sb_append(sb, typedef_name);
-            } else {
-                sb_append(sb, type_to_c(item->as.function.return_type));
-            }
-            
-            const char *c_func_name = get_c_func_name(item->as.function.name);
-            sb_appendf(sb, " %s(", c_func_name);
-            
-            /* Function parameters */
-            for (int j = 0; j < item->as.function.param_count; j++) {
-                if (j > 0) sb_append(sb, ", ");
-                
-                if (item->as.function.params[j].type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
-                    /* Function parameter: use typedef */
-                    const char *typedef_name = register_function_signature(fn_registry, 
-                                                                          item->as.function.params[j].fn_sig);
-                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
-                } else if (item->as.function.params[j].type == TYPE_LIST_GENERIC && item->as.function.params[j].struct_type_name) {
-                    /* Generic list parameter: List<ElementType> -> List_ElementType* */
-                    sb_appendf(sb, "List_%s* %s",
-                              item->as.function.params[j].struct_type_name,
-                              item->as.function.params[j].name);
-                } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
-                    /* Check if this is an opaque type */
-                    OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
-                    if (opaque) {
-                        /* Opaque types are stored as void* */
-                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
-                    } else {
-                        /* Use prefixed type name for regular structs */
-                        const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
-                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
-                    }
-                } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
-                    /* Use prefixed union name */
-                    const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
-                    sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
-                } else {
-                    sb_appendf(sb, "%s %s",
-                              type_to_c(item->as.function.params[j].type),
-                              item->as.function.params[j].name);
-                }
-            }
-            sb_append(sb, ") ");
-
-            /* Add parameters to environment for type checking during transpilation */
-            int saved_symbol_count = env->symbol_count;
-            for (int j = 0; j < item->as.function.param_count; j++) {
-                Value dummy_val = create_void();
-                /* Preserve element_type for array parameters */
-                env_define_var_with_type_info(env, item->as.function.params[j].name,
-                             item->as.function.params[j].type, item->as.function.params[j].element_type, 
-                             NULL, false, dummy_val);
-                
-                /* For array<Struct> parameters, set struct_type_name */
-                if (item->as.function.params[j].type == TYPE_ARRAY && 
-                    item->as.function.params[j].element_type == TYPE_STRUCT &&
-                    item->as.function.params[j].struct_type_name) {
-                    Symbol *param_sym = env_get_var(env, item->as.function.params[j].name);
-                    if (param_sym) {
-                        param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
-                        if (!param_sym->struct_type_name) {
-                            fprintf(stderr, "Error: Out of memory duplicating param struct type name\n");
-                            exit(1);
-                        }
-                    }
-                }
-            }
-
-            /* Function body */
-            transpile_statement(sb, item->as.function.body, 0, env, fn_registry);
-            sb_append(sb, "\n");
-
-            /* Restore environment (remove parameters) */
-            /* Note: We intentionally don't free the symbol names here because:
-             * 1. They will be freed by free_environment() at program end
-             * 2. Some symbol metadata might still be referenced during transpilation
-             * 3. This is a short-lived compiler process, not a long-running server
-             * The memory leak is acceptable for this use case. */
-            env->symbol_count = saved_symbol_count;
-        }
-    }
+    /* Generate function implementations */
+    generate_function_implementations(sb, program, env, fn_registry, tuple_registry);
 
     /* Add C main() wrapper that calls nl_main() for standalone executables */
     /* Only add if there's a main function (modules don't have main) */
