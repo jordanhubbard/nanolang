@@ -61,7 +61,20 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
         if (f->return_struct_type_name) {
             snprintf(temp, sizeof(temp), "    _module_functions[%d].return_struct_type_name = \"%s\";\n", i, f->return_struct_type_name);
             APPEND(temp);
+        } else {
+            snprintf(temp, sizeof(temp), "    _module_functions[%d].return_struct_type_name = NULL;\n", i);
+            APPEND(temp);
         }
+        /* TODO: Serialize return_fn_sig for function return types */
+        snprintf(temp, sizeof(temp), "    _module_functions[%d].return_fn_sig = NULL;\n", i);
+        APPEND(temp);
+        /* TODO: Serialize return_type_info for tuple return types */
+        snprintf(temp, sizeof(temp), "    _module_functions[%d].return_type_info = NULL;\n", i);
+        APPEND(temp);
+        snprintf(temp, sizeof(temp), "    _module_functions[%d].body = NULL;\n", i);
+        APPEND(temp);
+        snprintf(temp, sizeof(temp), "    _module_functions[%d].shadow_test = NULL;\n", i);
+        APPEND(temp);
         snprintf(temp, sizeof(temp), "    _module_functions[%d].is_extern = %s;\n", i, f->is_extern ? "true" : "false");
         APPEND(temp);
         if (f->param_count > 0) {
@@ -76,8 +89,14 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
                 if (p->struct_type_name) {
                     snprintf(temp, sizeof(temp), "    _module_params[%d].struct_type_name = \"%s\";\n", param_idx, p->struct_type_name);
                     APPEND(temp);
+                } else {
+                    snprintf(temp, sizeof(temp), "    _module_params[%d].struct_type_name = NULL;\n", param_idx);
+                    APPEND(temp);
                 }
                 snprintf(temp, sizeof(temp), "    _module_params[%d].element_type = %d;\n", param_idx, p->element_type);
+                APPEND(temp);
+                /* TODO: Serialize fn_sig for function parameters */
+                snprintf(temp, sizeof(temp), "    _module_params[%d].fn_sig = NULL;\n", param_idx);
                 APPEND(temp);
                 param_idx++;
             }
