@@ -828,36 +828,8 @@ static void collect_fn_sigs(ASTNode *stmt, FunctionTypeRegistry *reg) {
     }
 }
 
-/* Transpile program to C */
-char *transpile_to_c(ASTNode *program, Environment *env) {
-    if (!program || program->type != AST_PROGRAM) {
-        return NULL;
-    }
-    
-    if (!env) {
-        fprintf(stderr, "Error: Environment is NULL in transpile_to_c\n");
-        return NULL;
-    }
-
-    /* Clear and collect headers from imported modules */
-    clear_module_headers();
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_IMPORT) {
-            /* Resolve module path and collect headers */
-            char *module_path = resolve_module_path(item->as.import_stmt.module_path, NULL);
-            if (module_path) {
-                collect_headers_from_module(module_path);
-                free(module_path);
-            }
-        }
-    }
-
-    StringBuilder *sb = sb_create();
-
-    /* POSIX feature macro for strdup, strnlen, etc. */
-    sb_append(sb, "#define _POSIX_C_SOURCE 200809L\n\n");
-
+/* Generate C headers and includes */
+static void generate_c_headers(StringBuilder *sb) {
     /* C includes and headers */
     sb_append(sb, "#include <stdio.h>\n");
     sb_append(sb, "#include <stdint.h>\n");
@@ -893,6 +865,40 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "#include <unistd.h>\n");
     sb_append(sb, "#include <libgen.h>\n");
     sb_append(sb, "\n");
+}
+
+/* Transpile program to C */
+char *transpile_to_c(ASTNode *program, Environment *env) {
+    if (!program || program->type != AST_PROGRAM) {
+        return NULL;
+    }
+    
+    if (!env) {
+        fprintf(stderr, "Error: Environment is NULL in transpile_to_c\n");
+        return NULL;
+    }
+
+    /* Clear and collect headers from imported modules */
+    clear_module_headers();
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_IMPORT) {
+            /* Resolve module path and collect headers */
+            char *module_path = resolve_module_path(item->as.import_stmt.module_path, NULL);
+            if (module_path) {
+                collect_headers_from_module(module_path);
+                free(module_path);
+            }
+        }
+    }
+
+    StringBuilder *sb = sb_create();
+
+    /* POSIX feature macro for strdup, strnlen, etc. */
+    sb_append(sb, "#define _POSIX_C_SOURCE 200809L\n\n");
+
+    /* Generate headers */
+    generate_c_headers(sb);
 
     /* OS stdlib runtime library */
     sb_append(sb, "/* ========== OS Standard Library ========== */\n\n");
