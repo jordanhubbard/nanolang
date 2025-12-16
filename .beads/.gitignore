@@ -1,0 +1,20 @@
+# Ignore all .beads/ contents by default (local workspace files)
+# Only files explicitly whitelisted below will be tracked in git
+*
+
+# === Files tracked in git (shared across clones) ===
+
+# This gitignore file itself
+!.gitignore
+
+# Issue data in JSONL format (the main data file)
+!issues.jsonl
+
+# Repository metadata (database name, JSONL filename)
+!metadata.json
+
+# Configuration template (sync branch, integrations)
+!config.yaml
+
+# Documentation for contributors
+!README.md

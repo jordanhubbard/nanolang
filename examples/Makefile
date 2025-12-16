@@ -53,12 +53,17 @@ NL_EXAMPLES = \
 	$(BIN_DIR)/nl_arrays_test \
 	$(BIN_DIR)/nl_falling_sand \
 	$(BIN_DIR)/nl_game_of_life \
-	$(BIN_DIR)/nl_snake
+	$(BIN_DIR)/nl_snake \
+	$(BIN_DIR)/nl_function_factories
 
-# Note: Some nl_* examples still require the interpreter due to:
-# - array_new() runtime issues (nl_arrays.nano, nl_array_complete.nano)
-# - Generic list implementation limitations (nl_generic_*.nano)
-# - Complex language features still in development
+# Note: 29 of 62 nl_* examples compile successfully!
+# The remaining 33 require the interpreter due to:
+# - Dynamic arrays: array_new(), array_push() not in transpiler
+# - Generic types: typedef conflicts and scope issues  
+# - Complex runtime features still in development
+#
+# This is a massive improvement from earlier versions where only 3 compiled.
+# Recent fixes: print statement bug (nl_ prefix) + NULL function pointer handling!
 
 # === SDL Examples (sdl_*) ===
 # Require SDL2 library
@@ -165,7 +170,18 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  ./bin/opengl_teapot         - Utah teapot with multiple shaders"
 	@echo ""
 	@echo "Interpreter-only examples (run with: ./bin/nano examples/<file>):"
-	@echo "  nl_hello, nl_calculator, nl_factorial, nl_fibonacci, nl_primes..."
+	@echo "  Examples requiring interpreter (34 total):"
+	@echo "    - Arrays: nl_arrays, nl_array_complete, nl_arrays_simple"
+	@echo "    - Generics: nl_generic_* (8 examples - list, stack, queue, demo, etc.)"
+	@echo "    - Functions: nl_function_variables (interpreter double-free)"
+	@echo "    - Math/Strings: nl_matrix_operations, nl_string_operations, nl_math_utils, etc."
+	@echo "    - Games: nl_tictactoe, nl_tictactoe_simple, nl_maze, nl_boids"
+	@echo "    - Other: nl_tracing, nl_union_types, nl_os_basic, and more"
+	@echo ""
+	@echo "  Reason: These use features not yet in transpiler:"
+	@echo "    - Dynamic arrays (array_new, array_push)"
+	@echo "    - Generic types (typedef conflicts)"
+	@echo "    - Complex runtime features"
 	@echo ""
 	@echo "To launch the example browser:"
 	@echo "  cd examples && make"

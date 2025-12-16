@@ -65,8 +65,18 @@ static void worklist_free(WorkList *list) {
 }
 
 static void worklist_grow(WorkList *list) {
-    list->capacity *= 2;
-    list->items = realloc(list->items, sizeof(WorkItem) * list->capacity);
+    if (list->capacity > SIZE_MAX / 2 / sizeof(WorkItem)) {
+        fprintf(stderr, "Error: WorkList capacity overflow\n");
+        exit(1);
+    }
+    int new_capacity = list->capacity * 2;
+    WorkItem *new_items = realloc(list->items, sizeof(WorkItem) * new_capacity);
+    if (!new_items) {
+        fprintf(stderr, "Error: Out of memory in WorkList\n");
+        exit(1);
+    }
+    list->items = new_items;
+    list->capacity = new_capacity;
 }
 
 static void worklist_append(WorkList *list, WorkItem item) {
@@ -314,6 +324,21 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         case AST_CALL: {
             /* Map function name */
             const char *func_name = expr->as.call.name;
+            
+            /* Check for NULL function name (happens with function pointers: ((get_operation choice) a b)) */
+            if (!func_name) {
+                /* This is a function pointer call - use func_expr */
+                if (expr->as.call.func_expr) {
+                    build_expr(list, expr->as.call.func_expr, env);
+                    emit_literal(list, "(");
+                    for (int i = 0; i < expr->as.call.arg_count; i++) {
+                        if (i > 0) emit_literal(list, ", ");
+                        build_expr(list, expr->as.call.args[i], env);
+                    }
+                    emit_literal(list, ")");
+                }
+                break;
+            }
             
             /* Special handling for println - needs type dispatch */
             if (strcmp(func_name, "println") == 0 && expr->as.call.arg_count == 1) {

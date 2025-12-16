@@ -23,8 +23,19 @@ static void sb_append(StringBuilder *sb, const char *str) {
     assert(str != NULL);
     int len = safe_strlen(str);
     while (sb->length + len >= sb->capacity) {
-        sb->capacity *= 2;
-        sb->buffer = realloc(sb->buffer, sb->capacity);
+        /* Check for overflow before doubling capacity */
+        if (sb->capacity > SIZE_MAX / 2) {
+            fprintf(stderr, "Error: StringBuilder capacity overflow\n");
+            exit(1);
+        }
+        int new_capacity = sb->capacity * 2;
+        char *new_buffer = realloc(sb->buffer, new_capacity);
+        if (!new_buffer) {
+            fprintf(stderr, "Error: Out of memory in StringBuilder\n");
+            exit(1);
+        }
+        sb->buffer = new_buffer;
+        sb->capacity = new_capacity;
     }
     safe_strncpy(sb->buffer + sb->length, str, sb->capacity - sb->length);
     sb->length += len;
@@ -140,8 +151,18 @@ static void add_module_header(const char *header, int priority) {
     
     /* Expand capacity if needed */
     if (g_module_headers_count >= g_module_headers_capacity) {
-        g_module_headers_capacity = g_module_headers_capacity == 0 ? 8 : g_module_headers_capacity * 2;
-        g_module_headers = realloc(g_module_headers, sizeof(ModuleHeader) * g_module_headers_capacity);
+        int new_capacity = g_module_headers_capacity == 0 ? 8 : g_module_headers_capacity * 2;
+        if (new_capacity > SIZE_MAX / sizeof(ModuleHeader)) {
+            fprintf(stderr, "Error: Module headers capacity overflow\n");
+            exit(1);
+        }
+        ModuleHeader *new_headers = realloc(g_module_headers, sizeof(ModuleHeader) * new_capacity);
+        if (!new_headers) {
+            fprintf(stderr, "Error: Out of memory in module headers\n");
+            exit(1);
+        }
+        g_module_headers = new_headers;
+        g_module_headers_capacity = new_capacity;
     }
     
     g_module_headers[g_module_headers_count].name = strdup(header);
@@ -202,7 +223,13 @@ static void free_fn_type_registry(FunctionTypeRegistry *reg) {
         }
         free(reg->typedef_names);
     }
-    free(reg->signatures);
+    /* Free each FunctionSignature struct, not just the array of pointers */
+    if (reg->signatures) {
+        for (int i = 0; i < reg->count; i++) {
+            free_function_signature(reg->signatures[i]);
+        }
+        free(reg->signatures);
+    }
     free(reg);
 }
 
@@ -224,7 +251,18 @@ static void free_tuple_type_registry(TupleTypeRegistry *reg) {
         }
         free(reg->typedef_names);
     }
-    free(reg->tuples);
+    /* Free each TypeInfo struct and its tuple_types array, not just the array of pointers */
+    if (reg->tuples) {
+        for (int i = 0; i < reg->count; i++) {
+            if (reg->tuples[i]) {
+                if (reg->tuples[i]->tuple_types) {
+                    free(reg->tuples[i]->tuple_types);
+                }
+                free(reg->tuples[i]);
+            }
+        }
+        free(reg->tuples);
+    }
     free(reg);
 }
 
@@ -276,9 +314,20 @@ static const char *register_tuple_type(TupleTypeRegistry *reg, TypeInfo *info) {
     
     /* Register new tuple type */
     if (reg->count >= reg->capacity) {
-        reg->capacity *= 2;
-        reg->tuples = realloc(reg->tuples, sizeof(TypeInfo*) * reg->capacity);
-        reg->typedef_names = realloc(reg->typedef_names, sizeof(char*) * reg->capacity);
+        if (reg->capacity > SIZE_MAX / 2) {
+            fprintf(stderr, "Error: Tuple registry capacity overflow\n");
+            exit(1);
+        }
+        int new_capacity = reg->capacity * 2;
+        TypeInfo **new_tuples = realloc(reg->tuples, sizeof(TypeInfo*) * new_capacity);
+        char **new_names = realloc(reg->typedef_names, sizeof(char*) * new_capacity);
+        if (!new_tuples || !new_names) {
+            fprintf(stderr, "Error: Out of memory in tuple registry\n");
+            exit(1);
+        }
+        reg->tuples = new_tuples;
+        reg->typedef_names = new_names;
+        reg->capacity = new_capacity;
     }
     
     reg->tuples[reg->count] = info;
@@ -330,11 +379,22 @@ static const char *register_function_signature(FunctionTypeRegistry *reg, Functi
     
     /* Register new signature */
     if (reg->count >= reg->capacity) {
-        reg->capacity *= 2;
-        reg->signatures = realloc(reg->signatures,
-                                 sizeof(FunctionSignature*) * reg->capacity);
-        reg->typedef_names = realloc(reg->typedef_names,
-                                    sizeof(char*) * reg->capacity);
+        if (reg->capacity > SIZE_MAX / 2) {
+            fprintf(stderr, "Error: Function registry capacity overflow\n");
+            exit(1);
+        }
+        int new_capacity = reg->capacity * 2;
+        FunctionSignature **new_sigs = realloc(reg->signatures,
+                                               sizeof(FunctionSignature*) * new_capacity);
+        char **new_names = realloc(reg->typedef_names,
+                                   sizeof(char*) * new_capacity);
+        if (!new_sigs || !new_names) {
+            fprintf(stderr, "Error: Out of memory in function registry\n");
+            exit(1);
+        }
+        reg->signatures = new_sigs;
+        reg->typedef_names = new_names;
+        reg->capacity = new_capacity;
     }
     
     reg->signatures[reg->count] = sig;
@@ -847,13 +907,26 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "static char* nl_os_dir_list(const char* path) {\n");
     sb_append(sb, "    DIR* dir = opendir(path);\n");
     sb_append(sb, "    if (!dir) return \"\";\n");
-    sb_append(sb, "    char* buffer = malloc(4096);\n");
+    sb_append(sb, "    size_t capacity = 4096;\n");
+    sb_append(sb, "    size_t used = 0;\n");
+    sb_append(sb, "    char* buffer = malloc(capacity);\n");
+    sb_append(sb, "    if (!buffer) { closedir(dir); return \"\"; }\n");
     sb_append(sb, "    buffer[0] = '\\0';\n");
     sb_append(sb, "    struct dirent* entry;\n");
     sb_append(sb, "    while ((entry = readdir(dir)) != NULL) {\n");
     sb_append(sb, "        if (strcmp(entry->d_name, \".\") == 0 || strcmp(entry->d_name, \"..\") == 0) continue;\n");
-    sb_append(sb, "        strcat(buffer, entry->d_name);\n");
-    sb_append(sb, "        strcat(buffer, \"\\n\");\n");
+    sb_append(sb, "        size_t name_len = strlen(entry->d_name);\n");
+    sb_append(sb, "        size_t needed = used + name_len + 2; /* +1 for newline, +1 for null */\n");
+    sb_append(sb, "        if (needed > capacity) {\n");
+    sb_append(sb, "            capacity = needed * 2;\n");
+    sb_append(sb, "            char* new_buffer = realloc(buffer, capacity);\n");
+    sb_append(sb, "            if (!new_buffer) { free(buffer); closedir(dir); return \"\"; }\n");
+    sb_append(sb, "            buffer = new_buffer;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        memcpy(buffer + used, entry->d_name, name_len);\n");
+    sb_append(sb, "        used += name_len;\n");
+    sb_append(sb, "        buffer[used++] = '\\n';\n");
+    sb_append(sb, "        buffer[used] = '\\0';\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    closedir(dir);\n");
     sb_append(sb, "    return buffer;\n");
@@ -1237,8 +1310,9 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     sb_append(sb, "    size_t len2 = strnlen(s2, 1024*1024);\n");
     sb_append(sb, "    char* result = malloc(len1 + len2 + 1);\n");
     sb_append(sb, "    if (!result) return \"\";\n");
-    sb_append(sb, "    strcpy(result, s1);\n");
-    sb_append(sb, "    strcat(result, s2);\n");
+    sb_append(sb, "    memcpy(result, s1, len1);\n");
+    sb_append(sb, "    memcpy(result + len1, s2, len2);\n");
+    sb_append(sb, "    result[len1 + len2] = '\\0';\n");
     sb_append(sb, "    return result;\n");
     sb_append(sb, "}\n\n");
     
@@ -1570,7 +1644,6 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     /* Create tuple type registry for tuple return types */
     TupleTypeRegistry *tuple_registry = create_tuple_type_registry();
     g_tuple_registry = tuple_registry;  /* Set global registry for expression transpilation */
-    
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         
@@ -1588,11 +1661,9 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                 item->as.function.return_fn_sig) {
                 /* Register the nested function signature */
                 register_function_signature(fn_registry, item->as.function.return_fn_sig);
-                /* Also register the outer function signature if it's used as a type */
-                /* Create a signature for fn() -> fn(...) -> ... */
-                FunctionSignature *outer_sig = create_function_signature(NULL, 0, TYPE_FUNCTION);
-                outer_sig->return_fn_sig = item->as.function.return_fn_sig;
-                register_function_signature(fn_registry, outer_sig);
+                /* Note: We used to also register an outer signature, but it caused
+                 * a double-free bug since the inner signature would be freed twice.
+                 * The typedef for the return function signature is sufficient. */
             }
             
             /* Check return type for tuple type */
