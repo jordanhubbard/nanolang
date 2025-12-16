@@ -330,11 +330,6 @@ static bool tuple_types_equal(TypeInfo *a, TypeInfo *b) {
 
 /* Generate typedef name for a tuple type */
 static char *get_tuple_typedef_name(TypeInfo *info, int index) {
-    char *name = malloc(256);
-    if (!name) {
-        fprintf(stderr, "Error: Out of memory allocating tuple typedef name\n");
-        exit(1);
-    }
     StringBuilder *sb = sb_create();
     
     sb_append(sb, "Tuple");
@@ -351,7 +346,12 @@ static char *get_tuple_typedef_name(TypeInfo *info, int index) {
     }
     sb_appendf(sb, "_%d", index);
     
-    snprintf(name, 256, "%s", sb->buffer);
+    /* Only allocate what's needed using strdup */
+    char *name = strdup(sb->buffer);
+    if (!name) {
+        fprintf(stderr, "Error: Out of memory duplicating tuple typedef name\n");
+        exit(1);
+    }
     free(sb->buffer);
     free(sb);
     return name;
@@ -969,7 +969,9 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
             /* Generate constructor */
             sb_appendf(sb, "%s* %s_new() {\n", specialized_name, specialized_name);
             sb_appendf(sb, "    %s *list = malloc(sizeof(%s));\n", specialized_name, specialized_name);
+            sb_appendf(sb, "    if (!list) return NULL;\n");
             sb_appendf(sb, "    list->data = malloc(sizeof(%s) * 4);\n", prefixed_elem_type);
+            sb_appendf(sb, "    if (!list->data) { free(list); return NULL; }\n");
             sb_appendf(sb, "    list->count = 0;\n");
             sb_appendf(sb, "    list->capacity = 4;\n");
             sb_appendf(sb, "    return list;\n");
@@ -980,8 +982,10 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
                       specialized_name, specialized_name, prefixed_elem_type);
             sb_appendf(sb, "    if (list->count >= list->capacity) {\n");
             sb_appendf(sb, "        list->capacity *= 2;\n");
-            sb_appendf(sb, "        list->data = realloc(list->data, sizeof(%s) * list->capacity);\n",
-                      prefixed_elem_type);
+            sb_appendf(sb, "        %s *new_data = realloc(list->data, sizeof(%s) * list->capacity);\n",
+                      prefixed_elem_type, prefixed_elem_type);
+            sb_appendf(sb, "        if (!new_data) return; /* Out of memory */\n");
+            sb_appendf(sb, "        list->data = new_data;\n");
             sb_appendf(sb, "    }\n");
             sb_appendf(sb, "    list->data[list->count++] = value;\n");
             sb_appendf(sb, "}\n\n");
@@ -1635,6 +1639,7 @@ static void generate_string_operations(StringBuilder *sb) {
     /* string_from_char */
     sb_append(sb, "static char* string_from_char(int64_t c) {\n");
     sb_append(sb, "    char* buffer = malloc(2);\n");
+    sb_append(sb, "    if (!buffer) return \"\";\n");
     sb_append(sb, "    buffer[0] = (char)c;\n");
     sb_append(sb, "    buffer[1] = '\\0';\n");
     sb_append(sb, "    return buffer;\n");
@@ -1668,6 +1673,7 @@ static void generate_string_operations(StringBuilder *sb) {
     /* Type conversions */
     sb_append(sb, "static char* int_to_string(int64_t n) {\n");
     sb_append(sb, "    char* buffer = malloc(32);\n");
+    sb_append(sb, "    if (!buffer) return \"\";\n");
     sb_append(sb, "    snprintf(buffer, 32, \"%lld\", (long long)n);\n");
     sb_append(sb, "    return buffer;\n");
     sb_append(sb, "}\n\n");
@@ -1717,6 +1723,7 @@ static void generate_path_operations(StringBuilder *sb) {
 
     sb_append(sb, "static char* nl_os_path_join(const char* a, const char* b) {\n");
     sb_append(sb, "    char* buffer = malloc(2048);\n");
+    sb_append(sb, "    if (!buffer) return \"\";\n");
     sb_append(sb, "    if (strlen(a) == 0) {\n");
     sb_append(sb, "        snprintf(buffer, 2048, \"%s\", b);\n");
     sb_append(sb, "    } else if (a[strlen(a) - 1] == '/') {\n");
@@ -1812,6 +1819,7 @@ static void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "    long size = ftell(f);\n");
     sb_append(sb, "    fseek(f, 0, SEEK_SET);\n");
     sb_append(sb, "    char* buffer = malloc(size + 1);\n");
+    sb_append(sb, "    if (!buffer) { fclose(f); return \"\"; }\n");
     sb_append(sb, "    fread(buffer, 1, size, f);\n");
     sb_append(sb, "    buffer[size] = '\\0';\n");
     sb_append(sb, "    fclose(f);\n");
