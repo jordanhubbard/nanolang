@@ -1,7 +1,40 @@
 /* =============================================================================
- * AST Module Demo - Programmatic AST Construction
+ * AST Module Demo - Metaprogramming Showcase
+ * 
+ * Concept: Direct access to Abstract Syntax Tree for code analysis
+ * Topics: AST, metaprogramming, compiler internals, programmatic code generation
+ * Difficulty: Advanced
+ * 
+ * Description:
+ * Demonstrates NanoLang's unique capability to build and manipulate Abstract
+ * Syntax Trees programmatically. Shows how to construct AST nodes, create
+ * code structures, and perform metaprogramming tasks.
+ * 
+ * Key Features Demonstrated:
+ * - Programmatic AST node creation
+ * - AST construction for literals, identifiers, calls
+ * - Code structure building
+ * - Metaprogramming capabilities
+ * - Compiler internals exposure
+ * 
+ * Use Cases:
+ * - Building code generators
+ * - Creating DSLs (Domain Specific Languages)
+ * - Implementing macros and code transformations
+ * - Automated refactoring tools
+ * - Template engines
+ * 
+ * Prerequisites:
+ * - Understanding of Abstract Syntax Trees
+ * - Knowledge of compiler design basics
+ * - Advanced NanoLang features
+ * 
+ * Next Steps:
+ * - Build a simple code generator
+ * - Create a custom DSL
+ * - Implement macro system
+ * - Explore code transformation tools
  * =============================================================================
- * Shows how to use the AST module to build abstract syntax trees programmatically
  */
 
 import "stdlib/ast.nano"
