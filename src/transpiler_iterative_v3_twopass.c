@@ -200,7 +200,8 @@ static const char *map_function_name(const char *name, Environment *env) {
     /* User-defined function? */
     Function *func = env_get_function(env, name);
     if (func && !func->is_extern && func->body != NULL) {
-        static char prefixed[256];
+        /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
+        static _Thread_local char prefixed[256];
         snprintf(prefixed, sizeof(prefixed), "nl_%s", name);
         return prefixed;
     }

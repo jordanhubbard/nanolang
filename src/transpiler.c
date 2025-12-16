@@ -88,8 +88,9 @@ static bool conflicts_with_runtime(const char *name) {
 }
 
 /* Get prefixed type name for user-defined types */
+/* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_type_name(const char *name) {
-    static char buffer[512];
+    static _Thread_local char buffer[512];
     
     /* Runtime types: no prefix */
     if (is_runtime_typedef(name) || conflicts_with_runtime(name)) {
@@ -102,15 +103,17 @@ static const char *get_prefixed_type_name(const char *name) {
 }
 
 /* Get prefixed enum variant name */
+/* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_variant_name(const char *enum_name, const char *variant_name) {
-    static char buffer[512];
+    static _Thread_local char buffer[512];
     snprintf(buffer, sizeof(buffer), "nl_%s_%s", enum_name, variant_name);
     return buffer;
 }
 
 /* Get prefixed variant struct name for unions: UnionName.Variant -> nl_UnionName_Variant */
+/* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_variant_struct_name(const char *union_name, const char *variant_name) {
-    static char buffer[512];
+    static _Thread_local char buffer[512];
     snprintf(buffer, sizeof(buffer), "nl_%s_%s", union_name, variant_name);
     return buffer;
 }
@@ -630,7 +633,8 @@ static const char *get_c_func_name(const char *nano_name) {
     }
 
     /* Prefix user functions to avoid conflicts with C stdlib (abs, min, max, etc.) */
-    static char buffer[256];
+    /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
+    static _Thread_local char buffer[256];
     snprintf(buffer, sizeof(buffer), "nl_%s", nano_name);
     return buffer;
 }
