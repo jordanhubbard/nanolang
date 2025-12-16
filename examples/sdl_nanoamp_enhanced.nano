@@ -69,6 +69,31 @@ fn get_filename_from_path(path: string) -> string {
     return path
 }
 
+# Safe music loading with error handling
+fn try_load_and_play_music(track_path: string) -> int {
+    let music: Mix_Music = (Mix_LoadMUS track_path)
+    if (== music 0) {
+        # Failed to load - get error message
+        (print "✗ Failed to load: ")
+        (println track_path)
+        (print "  Error: ")
+        (println (Mix_GetError))
+        return 0  # Failure
+    } else {
+        # Successfully loaded - start playing
+        let play_result: int = (Mix_PlayMusic music -1)
+        if (== play_result 0) {
+            return 1  # Success
+        } else {
+            (print "✗ Failed to play: ")
+            (println track_path)
+            (print "  Error: ")
+            (println (Mix_GetError))
+            return 0  # Failure
+        }
+    }
+}
+
 fn main() -> int {
     (println "")
     (println "╔════════════════════════════════════════════════════════╗")
@@ -482,14 +507,33 @@ fn main() -> int {
                 if (> playlist_count 0) {
                     if (== playback_state STATE_STOPPED) {
                         let track_path: string = (at playlist current_track_index)
-                        let music: Mix_Music = (Mix_LoadMUS track_path)
-                        if (!= music 0) {
-                            (Mix_PlayMusic music -1)
+                        let load_result: int = (try_load_and_play_music track_path)
+                        if (== load_result 1) {
+                            # Successfully loaded and playing
                             set playback_state STATE_PLAYING
                             set playback_start_ticks (SDL_GetTicks)
                             set has_music true
                             (println "[*] Play")
-                        } else {}
+                        } else {
+                            # Failed to load - show error and try next track
+                            (println "[*] Error loading track, skipping to next...")
+                            
+                            # Try to auto-skip to next valid track
+                            if (< playlist_count 10) {
+                                # Small playlist - try next track
+                                set current_track_index (% (+ current_track_index 1) playlist_count)
+                                let next_path: string = (at playlist current_track_index)
+                                let next_result: int = (try_load_and_play_music next_path)
+                                if (== next_result 1) {
+                                    set playback_state STATE_PLAYING
+                                    set playback_start_ticks (SDL_GetTicks)
+                                    set has_music true
+                                    (println "[*] Skipped to next track")
+                                } else {
+                                    (println "[*] Next track also failed")
+                                }
+                            } else {}
+                        }
                     } else {
                         if (== playback_state STATE_PAUSED) {
                             (Mix_ResumeMusic)
@@ -705,15 +749,23 @@ fn main() -> int {
                     set playback_time 0
                     set playback_start_ticks (SDL_GetTicks)
                     
-                    # Auto-play
+                    # Auto-play with error handling
                     let track_path: string = (at playlist clicked)
-                    let music: Mix_Music = (Mix_LoadMUS track_path)
-                    if (!= music 0) {
-                        (Mix_PlayMusic music -1)
+                    let load_result: int = (try_load_and_play_music track_path)
+                    if (== load_result 1) {
+                        # Successfully loaded and playing
                         set playback_state STATE_PLAYING
                         set playback_start_ticks (SDL_GetTicks)
                         set has_music true
-                    } else {}
+                    } else {
+                        # Failed to load - show error message
+                        (println "[*] Error: Cannot play selected track")
+                        (println "[*] The file may be corrupt or unsupported format")
+                        
+                        # Keep player in stopped state
+                        set playback_state STATE_STOPPED
+                        set has_music false
+                    }
                 } else {}
             }
             
