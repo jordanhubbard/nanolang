@@ -1,6 +1,43 @@
-# event_example.nano - libevent async event notification
+# Async Events with libevent - Event Notification Example
 #
-# This example demonstrates libevent event loop basics.
+# Concept: Asynchronous event notification using libevent
+# Topics: event loops, async notifications, libevent, non-blocking I/O, C FFI
+# Difficulty: Advanced
+#
+# Description:
+# Demonstrates libevent for asynchronous event notification and handling.
+# Shows how to set up event loops, register callbacks, and handle events
+# in a non-blocking manner. Alternative to libuv with different API.
+#
+# Key Features Demonstrated:
+# - libevent event loop setup
+# - Event registration and callbacks
+# - Async event handling
+# - Non-blocking architecture
+# - Timer events
+#
+# Real-World Use Cases:
+# - Event-driven servers
+# - Real-time notification systems
+# - Network protocol implementations
+# - Async I/O applications
+# - High-concurrency systems
+#
+# Libevent vs libuv:
+# - libevent: Mature, battle-tested, callback-based
+# - libuv: Modern, cross-platform, used by Node.js
+# - Both: Excellent for async I/O
+#
+# Prerequisites:
+# - uv_example.nano - Async I/O concepts
+# - Understanding of event-driven programming
+# - C FFI familiarity
+#
+# Next Steps:
+# - Add network event examples
+# - Implement signal handling
+# - Build async HTTP client
+# - Compare with libuv approach
 
 import "modules/event/event.nano"
 

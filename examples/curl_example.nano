@@ -1,6 +1,40 @@
-# curl_example.nano - HTTP requests with libcurl
+# HTTP Requests with libcurl - Network I/O Example
 #
-# This example demonstrates making HTTP GET and POST requests.
+# Concept: Making HTTP requests using libcurl C library
+# Topics: HTTP, networking, C FFI, external libraries, web APIs
+# Difficulty: Intermediate
+#
+# Description:
+# Demonstrates how to make HTTP GET and POST requests using libcurl.
+# Shows C library integration for network I/O and how to handle HTTP
+# responses. Foundation for building web clients and API integrations.
+#
+# Key Features Demonstrated:
+# - libcurl integration via C FFI
+# - HTTP GET requests
+# - HTTP POST requests with data
+# - Response handling
+# - External library usage
+#
+# Real-World Use Cases:
+# - REST API clients
+# - Web scrapers
+# - Data fetchers
+# - Webhook implementations
+# - Integration with web services
+#
+# Prerequisites:
+# - Understanding of HTTP protocol
+# - Basic networking concepts
+# - C FFI familiarity
+#
+# Next Steps:
+# - Add error handling and timeouts
+# - Support custom headers
+# - Implement HTTPS with certificates
+# - Handle different response types (JSON, XML)
+#
+# See docs/REALWORLD_EXAMPLES_EVALUATION.md for expansion roadmap
 
 import "modules/curl/curl.nano"
 

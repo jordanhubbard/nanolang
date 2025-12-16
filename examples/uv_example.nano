@@ -1,6 +1,46 @@
-# uv_example.nano - libuv async I/O demonstration
+# Async I/O with libuv - Event Loop Example
 #
-# This example demonstrates libuv event loop and system information.
+# Concept: Asynchronous I/O using libuv event loop
+# Topics: async I/O, event loops, non-blocking operations, libuv, C FFI
+# Difficulty: Advanced
+#
+# Description:
+# Demonstrates libuv event loop for asynchronous operations. Shows basic
+# timer callbacks and system information queries. Foundation for building
+# high-performance async I/O applications.
+#
+# Key Features Demonstrated:
+# - libuv event loop initialization
+# - Async timer callbacks
+# - System information queries
+# - Non-blocking operations
+# - Event-driven architecture
+#
+# Real-World Use Cases:
+# - HTTP servers (non-blocking)
+# - Real-time applications
+# - File watchers
+# - Network servers (TCP/UDP)
+# - High-performance I/O
+#
+# Current Limitations:
+# - Only demonstrates timers (basic)
+# - Missing async file I/O examples
+# - No TCP/UDP server examples
+# - No error handling patterns
+#
+# Prerequisites:
+# - Understanding of async programming
+# - Event loop concepts
+# - C FFI familiarity
+#
+# Next Steps:
+# - Add async file I/O (read/write)
+# - Implement TCP server example
+# - Add error handling patterns
+# - Build HTTP server demo
+#
+# See docs/REALWORLD_EXAMPLES_EVALUATION.md for expansion roadmap
 
 import "modules/uv/uv.nano"
 
