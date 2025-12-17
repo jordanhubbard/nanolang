@@ -1191,6 +1191,11 @@ static void generate_union_definitions(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->union_count; i++) {
         UnionDef *udef = &env->unions[i];
         
+        /* Skip generic union definitions - they'll be generated as instantiations */
+        if (udef->generic_param_count > 0) {
+            continue;
+        }
+        
         /* Get prefixed union name */
         const char *prefixed_union = get_prefixed_type_name(udef->name);
         
@@ -1242,6 +1247,124 @@ static void generate_union_definitions(Environment *env, StringBuilder *sb) {
         sb_appendf(sb, "} %s;\n\n", prefixed_union);
     }
     sb_append(sb, "/* ========== End Union Definitions ========== */\n\n");
+    
+    /* Generate generic union instantiations */
+    if (env && env->generic_instances) {
+        sb_append(sb, "/* ========== Generic Union Instantiations ========== */\n\n");
+        for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
+            GenericInstantiation *inst = &env->generic_instances[i];
+            if (!inst || !inst->generic_name || !inst->type_arg_names) continue;
+            
+            /* Skip List instantiations (handled separately) */
+            if (strcmp(inst->generic_name, "List") == 0) continue;
+            
+            /* Look up the generic union definition */
+            UnionDef *udef = env_get_union(env, inst->generic_name);
+            if (!udef || udef->generic_param_count == 0) continue;
+            
+            /* Verify type arg count matches */
+            if (inst->type_arg_count != udef->generic_param_count) continue;
+            
+            /* Generate monomorphized union name: Result_int_string */
+            char monomorphized_name[256];
+            snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", inst->generic_name);
+            for (int j = 0; j < inst->type_arg_count; j++) {
+                strcat(monomorphized_name, "_");
+                strcat(monomorphized_name, inst->type_arg_names[j]);
+            }
+            
+            const char *prefixed_union = get_prefixed_type_name(monomorphized_name);
+            
+            /* Generate variant structs with type substitution */
+            for (int j = 0; j < udef->variant_count; j++) {
+                if (udef->variant_field_counts[j] > 0) {
+                    const char *variant_struct = get_prefixed_variant_struct_name(monomorphized_name, udef->variant_names[j]);
+                    sb_appendf(sb, "typedef struct {\n");
+                    
+                    for (int k = 0; k < udef->variant_field_counts[j]; k++) {
+                        sb_append(sb, "    ");
+                        
+                        /* Check if field type is a generic parameter */
+                        Type field_type = udef->variant_field_types[j][k];
+                        if (field_type == TYPE_GENERIC || field_type == TYPE_STRUCT) {
+                            /* Look up which generic parameter this is */
+                            bool substituted = false;
+                            if (udef->variant_field_type_names && udef->variant_field_type_names[j] &&
+                                udef->variant_field_type_names[j][k]) {
+                                const char *type_name = udef->variant_field_type_names[j][k];
+                                
+                                /* Check if it matches a generic parameter */
+                                for (int p = 0; p < udef->generic_param_count; p++) {
+                                    if (strcmp(type_name, udef->generic_params[p]) == 0) {
+                                        /* Substitute with concrete type */
+                                        const char *concrete_type = inst->type_arg_names[p];
+                                        
+                                        /* Map to C type */
+                                        if (strcmp(concrete_type, "int") == 0) {
+                                            sb_append(sb, "int64_t");
+                                        } else if (strcmp(concrete_type, "string") == 0) {
+                                            sb_append(sb, "const char*");
+                                        } else if (strcmp(concrete_type, "bool") == 0) {
+                                            sb_append(sb, "bool");
+                                        } else if (strcmp(concrete_type, "float") == 0) {
+                                            sb_append(sb, "double");
+                                        } else {
+                                            /* User-defined type */
+                                            const char *prefixed_type = get_prefixed_type_name(concrete_type);
+                                            sb_append(sb, prefixed_type);
+                                        }
+                                        substituted = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if (!substituted) {
+                                /* Fallback: use original type */
+                                sb_append(sb, type_to_c(field_type));
+                            }
+                        } else {
+                            /* Non-generic field type */
+                            sb_append(sb, type_to_c(field_type));
+                        }
+                        
+                        sb_appendf(sb, " %s;\n", udef->variant_field_names[j][k]);
+                    }
+                    sb_appendf(sb, "} %s;\n\n", variant_struct);
+                }
+            }
+            
+            /* Generate tag enum */
+            sb_appendf(sb, "typedef enum {\n");
+            for (int j = 0; j < udef->variant_count; j++) {
+                sb_appendf(sb, "    nl_%s_TAG_%s = %d",
+                          monomorphized_name,
+                          udef->variant_names[j],
+                          j);
+                if (j < udef->variant_count - 1) sb_append(sb, ",\n");
+                else sb_append(sb, "\n");
+            }
+            sb_appendf(sb, "} %s_Tag;\n\n", prefixed_union);
+            
+            /* Generate tagged union struct */
+            sb_appendf(sb, "typedef struct %s {\n", prefixed_union);
+            sb_appendf(sb, "    %s_Tag tag;\n", prefixed_union);
+            sb_append(sb, "    union {\n");
+            
+            for (int j = 0; j < udef->variant_count; j++) {
+                if (udef->variant_field_counts[j] > 0) {
+                    const char *variant_struct = get_prefixed_variant_struct_name(monomorphized_name, udef->variant_names[j]);
+                    sb_appendf(sb, "        %s %s;\n", variant_struct, udef->variant_names[j]);
+                } else {
+                    sb_appendf(sb, "        int %s; /* empty variant */\n", udef->variant_names[j]);
+                }
+            }
+            
+            sb_append(sb, "    } data;\n");
+            sb_appendf(sb, "} %s;\n\n", prefixed_union);
+        }
+        sb_append(sb, "/* ========== End Generic Union Instantiations ========== */\n\n");
+    }
 }
 
 /* Generate forward declarations for module functions */

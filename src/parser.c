@@ -312,57 +312,180 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
                 return type;
             }
             
-            /* Check for generic type syntax: List<T> */
-            if (strcmp(tok->value, "List") == 0) {
-                advance(p);  /* consume 'List' */
+            /* Check for generic type syntax: List<T>, Result<T,E>, etc. */
+            {
+                char *type_name = strdup(tok->value);
+                advance(p);  /* consume type name */
+                
+                /* Check if this is a generic type (followed by '<') */
                 if (current_token(p)->token_type == TOKEN_LT) {
                     advance(p);  /* consume '<' */
                     
-                    /* Parse type parameter */
-                    Token *type_param_tok = current_token(p);
-                    if (type_param_tok->token_type == TOKEN_TYPE_INT) {
-                        type = TYPE_LIST_INT;
-                        advance(p);
-                    } else if (type_param_tok->token_type == TOKEN_TYPE_STRING) {
-                        type = TYPE_LIST_STRING;
-                        advance(p);
-                    } else if (type_param_tok->token_type == TOKEN_IDENTIFIER) {
-                        /* Handle Token specially for backwards compatibility */
-                        if (strcmp(type_param_tok->value, "Token") == 0) {
-                            type = TYPE_LIST_TOKEN;
+                    /* Special handling for List<T> for backward compatibility */
+                    if (strcmp(type_name, "List") == 0) {
+                        /* Parse single type parameter */
+                        Token *type_param_tok = current_token(p);
+                        if (type_param_tok->token_type == TOKEN_TYPE_INT) {
+                            type = TYPE_LIST_INT;
                             advance(p);
-                        } else {
-                            /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
-                            type = TYPE_LIST_GENERIC;
-                            /* Store type parameter name for later use */
-                            if (type_param_name_out) {
-                                *type_param_name_out = strdup(type_param_tok->value);
+                        } else if (type_param_tok->token_type == TOKEN_TYPE_STRING) {
+                            type = TYPE_LIST_STRING;
+                            advance(p);
+                        } else if (type_param_tok->token_type == TOKEN_IDENTIFIER) {
+                            /* Handle Token specially for backwards compatibility */
+                            if (strcmp(type_param_tok->value, "Token") == 0) {
+                                type = TYPE_LIST_TOKEN;
+                                advance(p);
+                            } else {
+                                /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
+                                type = TYPE_LIST_GENERIC;
+                                /* Store type parameter name for later use */
+                                if (type_param_name_out) {
+                                    *type_param_name_out = strdup(type_param_tok->value);
+                                }
+                                advance(p);
                             }
-                            advance(p);
+                        } else {
+                            fprintf(stderr, "Error at line %d, column %d: Expected type parameter after 'List<'\n",
+                                    type_param_tok->line, type_param_tok->column);
+                            free(type_name);
+                            return TYPE_UNKNOWN;
                         }
-                    } else {
-                        fprintf(stderr, "Error at line %d, column %d: Expected type parameter after 'List<'\n",
-                                type_param_tok->line, type_param_tok->column);
-                        return TYPE_UNKNOWN;
+                        
+                        if (current_token(p)->token_type != TOKEN_GT) {
+                            fprintf(stderr, "Error at line %d, column %d: Expected '>' after List type parameter\n",
+                                    current_token(p)->line, current_token(p)->column);
+                            free(type_name);
+                            return TYPE_UNKNOWN;
+                        }
+                        advance(p);  /* consume '>' */
+                        free(type_name);
+                        return type;
                     }
                     
-                    if (current_token(p)->token_type != TOKEN_GT) {
-                        fprintf(stderr, "Error at line %d, column %d: Expected '>' after List type parameter\n",
-                                current_token(p)->line, current_token(p)->column);
-                        return TYPE_UNKNOWN;
+                    /* Generic union/struct types: Result<int, string>, Option<T>, etc. */
+                    if (type_info_out) {
+                        TypeInfo *info = malloc(sizeof(TypeInfo));
+                        info->base_type = TYPE_UNION;  /* Assume union for now */
+                        info->generic_name = type_name;  /* Transfer ownership */
+                        info->type_param_count = 0;
+                        info->type_params = NULL;
+                        info->element_type = NULL;
+                        info->tuple_types = NULL;
+                        info->tuple_type_names = NULL;
+                        info->tuple_element_count = 0;
+                        info->opaque_type_name = NULL;
+                        info->fn_sig = NULL;
+                        
+                        /* Parse comma-separated type parameters */
+                        int capacity = 4;
+                        info->type_params = malloc(sizeof(TypeInfo*) * capacity);
+                        
+                        while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
+                            if (info->type_param_count >= capacity) {
+                                capacity *= 2;
+                                info->type_params = realloc(info->type_params, sizeof(TypeInfo*) * capacity);
+                            }
+                            
+                            /* Parse each type parameter */
+                            TypeInfo *param_info = malloc(sizeof(TypeInfo));
+                            param_info->element_type = NULL;
+                            param_info->generic_name = NULL;
+                            param_info->type_params = NULL;
+                            param_info->type_param_count = 0;
+                            param_info->tuple_types = NULL;
+                            param_info->tuple_type_names = NULL;
+                            param_info->tuple_element_count = 0;
+                            param_info->opaque_type_name = NULL;
+                            param_info->fn_sig = NULL;
+                            
+                            Token *param_tok = current_token(p);
+                            if (param_tok->token_type == TOKEN_TYPE_INT) {
+                                param_info->base_type = TYPE_INT;
+                                advance(p);
+                            } else if (param_tok->token_type == TOKEN_TYPE_STRING) {
+                                param_info->base_type = TYPE_STRING;
+                                advance(p);
+                            } else if (param_tok->token_type == TOKEN_TYPE_BOOL) {
+                                param_info->base_type = TYPE_BOOL;
+                                advance(p);
+                            } else if (param_tok->token_type == TOKEN_TYPE_FLOAT) {
+                                param_info->base_type = TYPE_FLOAT;
+                                advance(p);
+                            } else if (param_tok->token_type == TOKEN_IDENTIFIER) {
+                                param_info->base_type = TYPE_STRUCT;
+                                param_info->generic_name = strdup(param_tok->value);
+                                advance(p);
+                            } else {
+                                fprintf(stderr, "Error at line %d, column %d: Expected type parameter\n",
+                                        param_tok->line, param_tok->column);
+                                free(param_info);
+                                /* Free info and its type_params */
+                                for (int i = 0; i < info->type_param_count; i++) {
+                                    free(info->type_params[i]);
+                                }
+                                free(info->type_params);
+                                free(info->generic_name);
+                                free(info);
+                                return TYPE_UNKNOWN;
+                            }
+                            
+                            info->type_params[info->type_param_count] = param_info;
+                            info->type_param_count++;
+                            
+                            /* Check for comma */
+                            if (match(p, TOKEN_COMMA)) {
+                                advance(p);
+                            } else if (!match(p, TOKEN_GT)) {
+                                fprintf(stderr, "Error at line %d, column %d: Expected ',' or '>' in generic type parameters\n",
+                                        current_token(p)->line, current_token(p)->column);
+                                /* Free info and its type_params */
+                                for (int i = 0; i < info->type_param_count; i++) {
+                                    free(info->type_params[i]);
+                                }
+                                free(info->type_params);
+                                free(info->generic_name);
+                                free(info);
+                                return TYPE_UNKNOWN;
+                            }
+                        }
+                        
+                        if (!expect(p, TOKEN_GT, "Expected '>' after generic type parameters")) {
+                            /* Free info and its type_params */
+                            for (int i = 0; i < info->type_param_count; i++) {
+                                free(info->type_params[i]);
+                            }
+                            free(info->type_params);
+                            free(info->generic_name);
+                            free(info);
+                            return TYPE_UNKNOWN;
+                        }
+                        
+                        *type_info_out = info;
+                        return TYPE_UNION;  /* Generic unions/structs use TYPE_UNION */
+                    } else {
+                        /* No type_info_out provided, just consume the parameters */
+                        while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
+                            advance(p);
+                        }
+                        if (!expect(p, TOKEN_GT, "Expected '>' after generic type parameters")) {
+                            free(type_name);
+                            return TYPE_UNKNOWN;
+                        }
+                        free(type_name);
+                        return TYPE_UNION;
                     }
-                    advance(p);  /* consume '>' */
-                    return type;
                 }
+                
+                /* Not a generic type - just a regular struct/union */
+                if (type_param_name_out) {
+                    *type_param_name_out = type_name;  /* Transfer ownership */
+                } else {
+                    free(type_name);
+                }
+                type = TYPE_STRUCT;
+                return type;
             }
-            
-            /* Could be a struct type - save the identifier name */
-            if (type_param_name_out) {
-                *type_param_name_out = strdup(tok->value);
-            }
-            type = TYPE_STRUCT;
-            advance(p);
-            return type;
         case TOKEN_ARRAY:
             /* Parse array<element_type> */
             advance(p);  /* consume 'array' */
@@ -1510,7 +1633,8 @@ static ASTNode *parse_statement(Parser *p) {
             Type element_type = TYPE_UNKNOWN;
             char *type_param_name = NULL;  /* For generic types like List<Point> */
             FunctionSignature *fn_sig = NULL;  /* For function types */
-            Type type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig, NULL);
+            TypeInfo *type_info = NULL;  /* For generic types like Result<int, string> */
+            Type type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig, &type_info);
 
             /* For generic lists, type_param_name contains the element type (e.g., "Point") */
             /* For structs, type_name contains the struct name */
@@ -1524,6 +1648,12 @@ static ASTNode *parse_statement(Parser *p) {
             if (type == TYPE_ARRAY && element_type == TYPE_STRUCT && type_param_name) {
                 if (type_name) free(type_name);
                 type_name = type_param_name;
+            }
+            
+            /* For generic types with TypeInfo, use the generic_name */
+            if (type_info && type_info->generic_name) {
+                if (type_name) free(type_name);
+                type_name = strdup(type_info->generic_name);
             }
 
             if (!expect(p, TOKEN_ASSIGN, "Expected '=' in let statement")) {
@@ -1540,6 +1670,7 @@ static ASTNode *parse_statement(Parser *p) {
             node->as.let.type_name = type_name;  /* For structs or generic type params */
             node->as.let.element_type = element_type;
             node->as.let.fn_sig = fn_sig;  /* For function types */
+            node->as.let.type_info = type_info;  /* For generic types like Result<int, string> */
             node->as.let.is_mut = is_mut;
             node->as.let.value = value;
             return node;
@@ -2025,6 +2156,7 @@ static ASTNode *parse_union_def(Parser *p) {
     int *variant_field_counts = malloc(sizeof(int) * capacity);
     char ***variant_field_names = malloc(sizeof(char**) * capacity);
     Type **variant_field_types = malloc(sizeof(Type*) * capacity);
+    char ***variant_field_type_names = malloc(sizeof(char**) * capacity);
     
     while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
         if (count >= capacity) {
@@ -2033,6 +2165,7 @@ static ASTNode *parse_union_def(Parser *p) {
             variant_field_counts = realloc(variant_field_counts, sizeof(int) * capacity);
             variant_field_names = realloc(variant_field_names, sizeof(char**) * capacity);
             variant_field_types = realloc(variant_field_types, sizeof(Type*) * capacity);
+            variant_field_type_names = realloc(variant_field_type_names, sizeof(char**) * capacity);
         }
         
         /* Parse variant name */
@@ -2055,12 +2188,14 @@ static ASTNode *parse_union_def(Parser *p) {
         int field_count = 0;
         char **field_names = malloc(sizeof(char*) * field_capacity);
         Type *field_types = malloc(sizeof(Type) * field_capacity);
+        char **field_type_names = malloc(sizeof(char*) * field_capacity);
         
         while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
             if (field_count >= field_capacity) {
                 field_capacity *= 2;
                 field_names = realloc(field_names, sizeof(char*) * field_capacity);
                 field_types = realloc(field_types, sizeof(Type) * field_capacity);
+                field_type_names = realloc(field_type_names, sizeof(char*) * field_capacity);
             }
             
             /* Parse field name */
@@ -2078,10 +2213,14 @@ static ASTNode *parse_union_def(Parser *p) {
                 break;
             }
             
-            /* Parse field type */
-            field_types[field_count] = parse_type(p);
+            /* Parse field type - capture type name for struct/union types */
+            char *type_param_name = NULL;
+            field_types[field_count] = parse_type_with_element(p, NULL, &type_param_name, NULL, NULL);
+            field_type_names[field_count] = type_param_name;  /* May be NULL for primitive types */
+            
             if (field_types[field_count] == TYPE_UNKNOWN) {
                 free(field_names[field_count]);
+                if (field_type_names[field_count]) free(field_type_names[field_count]);
                 break;
             }
             
@@ -2097,9 +2236,11 @@ static ASTNode *parse_union_def(Parser *p) {
         if (!expect(p, TOKEN_RBRACE, "Expected '}' after variant fields")) {
             for (int i = 0; i < field_count; i++) {
                 free(field_names[i]);
+                if (field_type_names[i]) free(field_type_names[i]);
             }
             free(field_names);
             free(field_types);
+            free(field_type_names);
             free(variant_names[count]);
             break;
         }
@@ -2107,6 +2248,7 @@ static ASTNode *parse_union_def(Parser *p) {
         variant_field_counts[count] = field_count;
         variant_field_names[count] = field_names;
         variant_field_types[count] = field_types;
+        variant_field_type_names[count] = field_type_names;
         count++;
         
         /* Optional comma between variants */
@@ -2144,6 +2286,7 @@ static ASTNode *parse_union_def(Parser *p) {
     node->as.union_def.variant_field_counts = variant_field_counts;
     node->as.union_def.variant_field_names = variant_field_names;
     node->as.union_def.variant_field_types = variant_field_types;
+    node->as.union_def.variant_field_type_names = variant_field_type_names;
     node->as.union_def.variant_count = count;
     node->as.union_def.generic_params = generic_params;
     node->as.union_def.generic_param_count = generic_param_count;

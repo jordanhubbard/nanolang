@@ -1275,7 +1275,13 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 Type expected_type = udef->variant_field_types[variant_idx][field_index];
                 Type actual_type = check_expression(expr->as.union_construct.field_values[i], env);
                 
-                if (actual_type != expected_type) {
+                /* For generic unions, accept any type for generic type parameters */
+                /* TODO: Proper type substitution for generic instantiations */
+                bool is_generic_param = (expected_type == TYPE_GENERIC || expected_type == TYPE_STRUCT);
+                if (is_generic_param && udef->generic_param_count > 0) {
+                    /* This is likely a generic type parameter - accept it for now */
+                    /* The transpiler will handle concrete type generation */
+                } else if (actual_type != expected_type) {
                     fprintf(stderr, "Error at line %d, column %d: Field '%s' expects type '%s', got '%s'\n",
                             expr->line, expr->column, field_name,
                             type_to_string(expected_type),
@@ -1546,6 +1552,55 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
             }
             
+            /* Handle generic unions: Result<int, string>, Option<T>, etc. */
+            if (declared_type == TYPE_UNION && stmt->as.let.type_info) {
+                TypeInfo *info = stmt->as.let.type_info;
+                if (info->generic_name) {
+                    /* Verify the union definition exists */
+                    UnionDef *union_def = env_get_union(tc->env, info->generic_name);
+                    if (!union_def) {
+                        fprintf(stderr, "Error at line %d, column %d: Unknown union '%s'\n",
+                                stmt->line, stmt->column, info->generic_name);
+                        tc->has_error = true;
+                    } else if (union_def->generic_param_count != info->type_param_count) {
+                        fprintf(stderr, "Error at line %d, column %d: Union '%s' expects %d type parameter(s), got %d\n",
+                                stmt->line, stmt->column, info->generic_name,
+                                union_def->generic_param_count, info->type_param_count);
+                        tc->has_error = true;
+                    } else {
+                        /* Build concrete type names for registration */
+                        char **type_names = malloc(sizeof(char*) * info->type_param_count);
+                        for (int i = 0; i < info->type_param_count; i++) {
+                            TypeInfo *param = info->type_params[i];
+                            if (param->base_type == TYPE_INT) {
+                                type_names[i] = strdup("int");
+                            } else if (param->base_type == TYPE_STRING) {
+                                type_names[i] = strdup("string");
+                            } else if (param->base_type == TYPE_BOOL) {
+                                type_names[i] = strdup("bool");
+                            } else if (param->base_type == TYPE_FLOAT) {
+                                type_names[i] = strdup("float");
+                            } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
+                                type_names[i] = strdup(param->generic_name);
+                            } else {
+                                type_names[i] = strdup("unknown");
+                            }
+                        }
+                        
+                        /* Register this instantiation for code generation */
+                        env_register_union_instantiation(tc->env, info->generic_name,
+                                                        (const char**)type_names,
+                                                        info->type_param_count);
+                        
+                        /* Free type names */
+                        for (int i = 0; i < info->type_param_count; i++) {
+                            free(type_names[i]);
+                        }
+                        free(type_names);
+                    }
+                }
+            }
+            
             /* Now check the expression - the specialized functions are registered */
             Type value_type = check_expression(stmt->as.let.value, tc->env);
             
@@ -1663,9 +1718,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
             }
             
-            /* Create TypeInfo for tuples */
-            TypeInfo *type_info = NULL;
-            if (declared_type == TYPE_TUPLE && stmt->as.let.value->type == AST_TUPLE_LITERAL) {
+            /* Create TypeInfo for tuples or use existing from parser for generic types */
+            TypeInfo *type_info = stmt->as.let.type_info;  /* Use parser's TypeInfo if available */
+            if (!type_info && declared_type == TYPE_TUPLE && stmt->as.let.value->type == AST_TUPLE_LITERAL) {
                 /* Create TypeInfo from tuple literal */
                 ASTNode *tuple_lit = stmt->as.let.value;
                 type_info = malloc(sizeof(TypeInfo));
@@ -3011,6 +3066,20 @@ bool type_check(ASTNode *program, Environment *env) {
                 }
             }
             
+            /* Duplicate variant field type names */
+            udef.variant_field_type_names = malloc(sizeof(char**) * udef.variant_count);
+            for (int j = 0; j < udef.variant_count; j++) {
+                int field_count = udef.variant_field_counts[j];
+                udef.variant_field_type_names[j] = malloc(sizeof(char*) * field_count);
+                for (int k = 0; k < field_count; k++) {
+                    if (item->as.union_def.variant_field_type_names[j][k]) {
+                        udef.variant_field_type_names[j][k] = strdup(item->as.union_def.variant_field_type_names[j][k]);
+                    } else {
+                        udef.variant_field_type_names[j][k] = NULL;
+                    }
+                }
+            }
+            
             /* Copy generic parameters if present */
             udef.generic_param_count = item->as.union_def.generic_param_count;
             if (udef.generic_param_count > 0) {
@@ -3573,6 +3642,20 @@ bool type_check_module(ASTNode *program, Environment *env) {
                 udef.variant_field_types[j] = malloc(sizeof(Type) * field_count);
                 for (int k = 0; k < field_count; k++) {
                     udef.variant_field_types[j][k] = item->as.union_def.variant_field_types[j][k];
+                }
+            }
+            
+            /* Allocate field type names */
+            udef.variant_field_type_names = malloc(sizeof(char**) * udef.variant_count);
+            for (int j = 0; j < udef.variant_count; j++) {
+                int field_count = udef.variant_field_counts[j];
+                udef.variant_field_type_names[j] = malloc(sizeof(char*) * field_count);
+                for (int k = 0; k < field_count; k++) {
+                    if (item->as.union_def.variant_field_type_names[j][k]) {
+                        udef.variant_field_type_names[j][k] = strdup(item->as.union_def.variant_field_type_names[j][k]);
+                    } else {
+                        udef.variant_field_type_names[j][k] = NULL;
+                    }
                 }
             }
             

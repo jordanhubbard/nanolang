@@ -322,6 +322,7 @@ struct ASTNode {
             char *type_name;         /* For TYPE_STRUCT/TYPE_UNION: actual type name (e.g., "Status", "Point") */
             Type element_type;       /* For TYPE_ARRAY: element type (e.g., TYPE_INT for array<int>) */
             FunctionSignature *fn_sig;  /* For TYPE_FUNCTION: function signature */
+            TypeInfo *type_info;     /* For generic types: Result<int, string>, List<Point>, etc. */
             bool is_mut;
             ASTNode *value;
         } let;
@@ -412,6 +413,7 @@ struct ASTNode {
             int *variant_field_counts;
             char ***variant_field_names;
             Type **variant_field_types;
+            char ***variant_field_type_names;  // For TYPE_STRUCT/TYPE_UNION fields: actual type names
             bool is_pub;              // Visibility: public (pub) vs private
             char **generic_params;    // Generic parameter names: ["T", "E"]
             int generic_param_count;  // Number of generic parameters
@@ -533,6 +535,7 @@ typedef struct {
     int *variant_field_counts;
     char ***variant_field_names;
     Type **variant_field_types;
+    char ***variant_field_type_names;  /* For TYPE_STRUCT/TYPE_UNION fields: actual type names */
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     char *module_name;  /* Module this union belongs to (NULL for global) */
     char **generic_params;    /* Generic parameter names: ["T", "E"] for Result<T, E> */
