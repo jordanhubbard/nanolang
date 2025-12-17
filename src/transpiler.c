@@ -1994,8 +1994,10 @@ static void collect_function_and_tuple_types(ASTNode *program, FunctionTypeRegis
 
 /* Generate module extern declarations (extern functions from imported modules) */
 static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env) {
-    /* If any modules provide C headers, skip this entirely - the headers declare the functions */
-    if (g_module_headers_count == 0 && env && env->functions && env->function_count > 0) {
+    /* Generate extern declarations for module wrapper functions (e.g., nl_sqlite3_*)
+     * Note: System library functions (e.g., sqlite3_*) are declared in module headers,
+     * but module wrapper functions need explicit extern declarations */
+    if (env && env->functions && env->function_count > 0) {
         for (int i = 0; i < env->function_count; i++) {
             Function *func = &env->functions[i];
             if (!func || !func->name || !func->is_extern) continue;
