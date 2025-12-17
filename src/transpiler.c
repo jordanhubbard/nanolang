@@ -1802,18 +1802,69 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
     }
 }
 
-/* Transpile program to C */
-char *transpile_to_c(ASTNode *program, Environment *env) {
-    if (!program || program->type != AST_PROGRAM) {
-        return NULL;
+/* Generate OS process operations (system, exit, getenv) */
+static void generate_process_operations(StringBuilder *sb) {
+    sb_append(sb, "static int64_t nl_os_system(const char* command) {\n");
+    sb_append(sb, "    return system(command);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static void nl_os_exit(int64_t code) {\n");
+    sb_append(sb, "    exit((int)code);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static char* nl_os_getenv(const char* name) {\n");
+    sb_append(sb, "    const char* value = getenv(name);\n");
+    sb_append(sb, "    return value ? (char*)value : \"\";\n");
+    sb_append(sb, "}\n\n");
+}
+
+/* Generate C main() wrapper that calls nanolang main() */
+static void generate_main_wrapper(StringBuilder *sb, Environment *env) {
+    /* Only generate if there's a non-extern main function */
+    Function *main_func = env_get_function(env, "main");
+    if (!main_func || main_func->is_extern) {
+        return;
     }
     
-    if (!env) {
-        fprintf(stderr, "Error: Environment is NULL in transpile_to_c\n");
-        return NULL;
-    }
+    /* Get the mangled name for main (could be module__main) */
+    const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name);
+    
+    sb_append(sb, "\n/* C main() entry point - calls nanolang main */\n");
+    sb_append(sb, "/* Global argc/argv for CLI runtime support */\n");
+    sb_append(sb, "int g_argc = 0;\n");
+    sb_append(sb, "char **g_argv = NULL;\n\n");
+    sb_append(sb, "int main(int argc, char **argv) {\n");
+    sb_append(sb, "    g_argc = argc;\n");
+    sb_append(sb, "    g_argv = argv;\n");
+    sb_appendf(sb, "    return (int)%s();\n", c_main_name);
+    sb_append(sb, "}\n");
+}
 
-    /* Clear and collect headers from imported modules */
+/* Generate top-level constants */
+static void generate_toplevel_constants(StringBuilder *sb, ASTNode *program, Environment *env) {
+    sb_append(sb, "/* Top-level constants */\n");
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_LET && !item->as.let.is_mut) {
+            /* Skip constants that come from C headers - they're already defined in the headers */
+            Symbol *sym = env_get_var(env, item->as.let.name);
+            if (sym && sym->from_c_header) {
+                continue;  /* Skip - defined in C header */
+            }
+            
+            /* Emit as C constant */
+            sb_append(sb, "static const ");
+            sb_append(sb, type_to_c(item->as.let.var_type));
+            sb_appendf(sb, " %s = ", item->as.let.name);
+            transpile_expression(sb, item->as.let.value, env);
+            sb_append(sb, ";\n");
+        }
+    }
+    sb_append(sb, "\n");
+}
+
+/* Collect module headers from all import statements */
+static void collect_module_headers_from_imports(ASTNode *program) {
     clear_module_headers();
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -1826,6 +1877,21 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             }
         }
     }
+}
+
+/* Transpile program to C */
+char *transpile_to_c(ASTNode *program, Environment *env) {
+    if (!program || program->type != AST_PROGRAM) {
+        return NULL;
+    }
+    
+    if (!env) {
+        fprintf(stderr, "Error: Environment is NULL in transpile_to_c\n");
+        return NULL;
+    }
+
+    /* Clear and collect headers from imported modules */
+    collect_module_headers_from_imports(program);
 
     StringBuilder *sb = sb_create();
 
@@ -1848,18 +1914,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     generate_path_operations(sb);
 
     /* Process operations */
-    sb_append(sb, "static int64_t nl_os_system(const char* command) {\n");
-    sb_append(sb, "    return system(command);\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static void nl_os_exit(int64_t code) {\n");
-    sb_append(sb, "    exit((int)code);\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static char* nl_os_getenv(const char* name) {\n");
-    sb_append(sb, "    const char* value = getenv(name);\n");
-    sb_append(sb, "    return value ? (char*)value : \"\";\n");
-    sb_append(sb, "}\n\n");
+    generate_process_operations(sb);
 
     sb_append(sb, "/* ========== End OS Standard Library ========== */\n\n");
 
@@ -2184,25 +2239,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     }
     
     /* Emit top-level constants */
-    sb_append(sb, "/* Top-level constants */\n");
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_LET && !item->as.let.is_mut) {
-            /* Skip constants that come from C headers - they're already defined in the headers */
-            Symbol *sym = env_get_var(env, item->as.let.name);
-            if (sym && sym->from_c_header) {
-                continue;  /* Skip - defined in C header */
-            }
-            
-            /* Emit as C constant */
-            sb_append(sb, "static const ");
-            sb_append(sb, type_to_c(item->as.let.var_type));
-            sb_appendf(sb, " %s = ", item->as.let.name);
-            transpile_expression(sb, item->as.let.value, env);
-            sb_append(sb, ";\n");
-        }
-    }
-    sb_append(sb, "\n");
+    generate_toplevel_constants(sb, program, env);
     
     /* Forward declare functions from current program */
     generate_program_function_declarations(sb, program, env, fn_registry, tuple_registry);
@@ -2211,22 +2248,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     generate_function_implementations(sb, program, env, fn_registry, tuple_registry);
 
     /* Add C main() wrapper that calls nl_main() for standalone executables */
-    /* Only add if there's a main function (modules don't have main) */
-    Function *main_func = env_get_function(env, "main");
-    if (main_func && !main_func->is_extern) {
-    /* Get the mangled name for main (could be module__main) */
-    const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name);
-    
-    sb_append(sb, "\n/* C main() entry point - calls nanolang main */\n");
-    sb_append(sb, "/* Global argc/argv for CLI runtime support */\n");
-    sb_append(sb, "int g_argc = 0;\n");
-    sb_append(sb, "char **g_argv = NULL;\n\n");
-    sb_append(sb, "int main(int argc, char **argv) {\n");
-    sb_append(sb, "    g_argc = argc;\n");
-    sb_append(sb, "    g_argv = argv;\n");
-    sb_appendf(sb, "    return (int)%s();\n", c_main_name);
-    sb_append(sb, "}\n");
-    }
+    generate_main_wrapper(sb, env);
 
     /* Cleanup */
     free_fn_type_registry(fn_registry);
