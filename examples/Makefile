@@ -47,13 +47,15 @@ NL_EXAMPLES = \
 	$(BIN_DIR)/nl_first_class_functions \
 	$(BIN_DIR)/nl_function_return_values \
 	$(BIN_DIR)/nl_function_factories_v2 \
-	$(BIN_DIR)/nl_demo_selfhosting \
 	$(BIN_DIR)/nl_array_bounds \
 	$(BIN_DIR)/nl_array_complete \
 	$(BIN_DIR)/nl_arrays_test \
 	$(BIN_DIR)/nl_falling_sand \
 	$(BIN_DIR)/nl_game_of_life \
 	$(BIN_DIR)/nl_snake
+
+# Temporarily disabled due to module import context bug (nanolang-6h9):
+# - nl_demo_selfhosting (imports math_helper with 'as' alias)
 
 # Note: 28 of 49 nl_* examples compile successfully!
 # The remaining 21 require the interpreter due to:
