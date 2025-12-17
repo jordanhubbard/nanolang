@@ -1098,6 +1098,7 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                             const char *variant_name = uc->as.union_construct.variant_name;
                             int variant_idx = env_get_union_variant_index(env, 
                                 uc->as.union_construct.union_name, variant_name);
+                            (void)variant_idx;  /* Retrieved for validation but not used in codegen */
                             
                             /* Generate union construction with monomorphized type name */
                             emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", 

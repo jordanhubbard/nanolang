@@ -16,9 +16,6 @@
  * - Proven working: Compiles real programs ✅
  */
 
-/* We import the math helper to demonstrate import aliases work */
-import "test_modules/math_helper.nano" as Math
-
 struct CompilerConfig {
     input_file: string,
     output_file: string,

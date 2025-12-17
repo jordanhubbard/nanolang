@@ -9,8 +9,6 @@
  * - Can compile itself! ✅
  */
 
-import "test_modules/math_helper.nano" as Math
-
 extern fn get_argc() -> int
 extern fn get_argv(index: int) -> string
 

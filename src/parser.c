@@ -267,10 +267,12 @@ static FunctionSignature *parse_function_signature(Parser *p) {
     return sig;
 }
 
-/* Parse type annotation */
+/* Parse type annotation - currently unused but kept for API consistency */
+/*
 static Type parse_type(Parser *p) {
     return parse_type_with_element(p, NULL, NULL, NULL, NULL);
 }
+*/
 
 /* Parse type annotation with optional element_type output (for arrays) and type_param_name for generics */
 static Type parse_type_with_element(Parser *p, Type *element_type_out, char **type_param_name_out, FunctionSignature **fn_sig_out, TypeInfo **type_info_out) {
@@ -324,44 +326,44 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
                     /* Special handling for List<T> for backward compatibility */
                     if (strcmp(type_name, "List") == 0) {
                         /* Parse single type parameter */
-                        Token *type_param_tok = current_token(p);
-                        if (type_param_tok->token_type == TOKEN_TYPE_INT) {
-                            type = TYPE_LIST_INT;
+                    Token *type_param_tok = current_token(p);
+                    if (type_param_tok->token_type == TOKEN_TYPE_INT) {
+                        type = TYPE_LIST_INT;
+                        advance(p);
+                    } else if (type_param_tok->token_type == TOKEN_TYPE_STRING) {
+                        type = TYPE_LIST_STRING;
+                        advance(p);
+                    } else if (type_param_tok->token_type == TOKEN_IDENTIFIER) {
+                        /* Handle Token specially for backwards compatibility */
+                        if (strcmp(type_param_tok->value, "Token") == 0) {
+                            type = TYPE_LIST_TOKEN;
                             advance(p);
-                        } else if (type_param_tok->token_type == TOKEN_TYPE_STRING) {
-                            type = TYPE_LIST_STRING;
-                            advance(p);
-                        } else if (type_param_tok->token_type == TOKEN_IDENTIFIER) {
-                            /* Handle Token specially for backwards compatibility */
-                            if (strcmp(type_param_tok->value, "Token") == 0) {
-                                type = TYPE_LIST_TOKEN;
-                                advance(p);
-                            } else {
-                                /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
-                                type = TYPE_LIST_GENERIC;
-                                /* Store type parameter name for later use */
-                                if (type_param_name_out) {
-                                    *type_param_name_out = strdup(type_param_tok->value);
-                                }
-                                advance(p);
-                            }
                         } else {
-                            fprintf(stderr, "Error at line %d, column %d: Expected type parameter after 'List<'\n",
-                                    type_param_tok->line, type_param_tok->column);
-                            free(type_name);
-                            return TYPE_UNKNOWN;
+                            /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
+                            type = TYPE_LIST_GENERIC;
+                            /* Store type parameter name for later use */
+                            if (type_param_name_out) {
+                                *type_param_name_out = strdup(type_param_tok->value);
+                            }
+                            advance(p);
                         }
-                        
-                        if (current_token(p)->token_type != TOKEN_GT) {
-                            fprintf(stderr, "Error at line %d, column %d: Expected '>' after List type parameter\n",
-                                    current_token(p)->line, current_token(p)->column);
+                    } else {
+                        fprintf(stderr, "Error at line %d, column %d: Expected type parameter after 'List<'\n",
+                                type_param_tok->line, type_param_tok->column);
                             free(type_name);
-                            return TYPE_UNKNOWN;
-                        }
-                        advance(p);  /* consume '>' */
-                        free(type_name);
-                        return type;
+                        return TYPE_UNKNOWN;
                     }
+                    
+                    if (current_token(p)->token_type != TOKEN_GT) {
+                        fprintf(stderr, "Error at line %d, column %d: Expected '>' after List type parameter\n",
+                                current_token(p)->line, current_token(p)->column);
+                            free(type_name);
+                        return TYPE_UNKNOWN;
+                    }
+                    advance(p);  /* consume '>' */
+                        free(type_name);
+                    return type;
+                }
                     
                     /* Generic union/struct types: Result<int, string>, Option<T>, etc. */
                     if (type_info_out) {
@@ -478,13 +480,13 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
                 }
                 
                 /* Not a generic type - just a regular struct/union */
-                if (type_param_name_out) {
+            if (type_param_name_out) {
                     *type_param_name_out = type_name;  /* Transfer ownership */
                 } else {
                     free(type_name);
-                }
-                type = TYPE_STRUCT;
-                return type;
+            }
+            type = TYPE_STRUCT;
+            return type;
             }
         case TOKEN_ARRAY:
             /* Parse array<element_type> */
