@@ -1562,8 +1562,8 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                     sb_append(sb, prefixed_name);
                 } else if (item->as.function.return_struct_type_name) {
                     /* Non-generic union - use prefixed union name */
-                    const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
-                    sb_append(sb, prefixed_name);
+                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                sb_append(sb, prefixed_name);
                 } else {
                     /* Fallback */
                     sb_append(sb, type_to_c(item->as.function.return_type));
@@ -1699,8 +1699,8 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                     sb_append(sb, prefixed_name);
                 } else if (item->as.function.return_struct_type_name) {
                     /* Non-generic union - use prefixed union name */
-                    const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
-                    sb_append(sb, prefixed_name);
+                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                sb_append(sb, prefixed_name);
                 } else {
                     /* Fallback */
                     sb_append(sb, type_to_c(item->as.function.return_type));
@@ -1879,73 +1879,33 @@ static void collect_module_headers_from_imports(ASTNode *program) {
     }
 }
 
-/* Transpile program to C */
-char *transpile_to_c(ASTNode *program, Environment *env) {
-    if (!program || program->type != AST_PROGRAM) {
-        return NULL;
+/* Generate typedef declarations for function and tuple types */
+static void generate_type_typedefs(StringBuilder *sb, FunctionTypeRegistry *fn_registry, 
+                                     TupleTypeRegistry *tuple_registry) {
+    /* Generate function type typedefs */
+    if (fn_registry->count > 0) {
+        sb_append(sb, "/* Function Type Typedefs */\n");
+        for (int i = 0; i < fn_registry->count; i++) {
+            generate_function_typedef(sb, fn_registry->signatures[i],
+                                    fn_registry->typedef_names[i]);
+        }
+        sb_append(sb, "\n");
     }
     
-    if (!env) {
-        fprintf(stderr, "Error: Environment is NULL in transpile_to_c\n");
-        return NULL;
+    /* Generate tuple type typedefs */
+    if (tuple_registry->count > 0) {
+        sb_appendf(sb, "/* Tuple Type Typedefs (found %d types) */\n", tuple_registry->count);
+        for (int i = 0; i < tuple_registry->count; i++) {
+            generate_tuple_typedef(sb, tuple_registry->tuples[i],
+                                 tuple_registry->typedef_names[i]);
+        }
+        sb_append(sb, "\n");
     }
+}
 
-    /* Clear and collect headers from imported modules */
-    collect_module_headers_from_imports(program);
-
-    StringBuilder *sb = sb_create();
-
-    /* POSIX feature macro for strdup, strnlen, etc. */
-    sb_append(sb, "#define _POSIX_C_SOURCE 200809L\n\n");
-
-    /* Generate headers */
-    generate_c_headers(sb);
-
-    /* OS stdlib runtime library */
-    sb_append(sb, "/* ========== OS Standard Library ========== */\n\n");
-
-    /* File operations */
-    generate_file_operations(sb);
-
-    /* Directory operations */
-    generate_dir_operations(sb);
-
-    /* Path operations */
-    generate_path_operations(sb);
-
-    /* Process operations */
-    generate_process_operations(sb);
-
-    sb_append(sb, "/* ========== End OS Standard Library ========== */\n\n");
-
-    /* String operations */
-    generate_string_operations(sb);
-
-    /* Math and utility built-in functions */
-    generate_math_utility_builtins(sb);
-
-    /* Generate enum typedefs first (before structs, since structs may use enums) */
-    generate_enum_definitions(env, sb);
-
-    /* Forward declare List types BEFORE structs */
-    generate_list_specializations(env, sb);
-
-    /* Generate struct typedefs */
-    generate_struct_definitions(env, sb);
-
-    /* Generate List implementations and includes */
-    generate_list_implementations(env, sb);
-
-    /* Generate union definitions */
-    generate_union_definitions(env, sb);
-
-    /* ========== Function Type Typedefs ========== */
-    /* Collect all function signatures used in the program */
-    FunctionTypeRegistry *fn_registry = create_fn_type_registry();
-    
-    /* Create tuple type registry for tuple return types */
-    TupleTypeRegistry *tuple_registry = create_tuple_type_registry();
-    g_tuple_registry = tuple_registry;  /* Set global registry for expression transpilation */
+/* Collect function signatures and tuple types from program AST */
+static void collect_function_and_tuple_types(ASTNode *program, FunctionTypeRegistry *fn_registry,
+                                               TupleTypeRegistry *tuple_registry) {
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         
@@ -1979,28 +1939,65 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             collect_tuple_types_from_stmt(item->as.function.body, tuple_registry);
         }
     }
-    
-    /* Generate typedef declarations */
-    if (fn_registry->count > 0) {
-        sb_append(sb, "/* Function Type Typedefs */\n");
-        for (int i = 0; i < fn_registry->count; i++) {
-            generate_function_typedef(sb, fn_registry->signatures[i],
-                                    fn_registry->typedef_names[i]);
+}
+
+/* Generate module extern declarations (extern functions from imported modules) */
+static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env) {
+    /* If any modules provide C headers, skip this entirely - the headers declare the functions */
+    if (g_module_headers_count == 0 && env && env->functions && env->function_count > 0) {
+        for (int i = 0; i < env->function_count; i++) {
+            Function *func = &env->functions[i];
+            if (!func || !func->name || !func->is_extern) continue;
+            
+            /* Skip generic list functions - they're generated by the compiler, not extern */
+            if (strncmp(func->name, "List_", 5) == 0) {
+                continue;
+            }
+            
+            /* Check if this extern function is already in the program AST (declared above) */
+            bool in_program = false;
+            for (int j = 0; j < program->as.program.count; j++) {
+                ASTNode *item = program->as.program.items[j];
+                if (item->type == AST_FUNCTION && item->as.function.is_extern &&
+                    strcmp(item->as.function.name, func->name) == 0) {
+                    in_program = true;
+                    break;
+                }
+            }
+            if (in_program) continue;  /* Already declared above */
+            
+            /* Generate extern declaration for this module extern function */
+            sb_append(sb, "extern ");
+            
+            const char *ret_type_c = type_to_c(func->return_type);
+            const char *sdl_ret_type = get_sdl_c_type(func->name, -1, true);
+            if (sdl_ret_type) {
+                ret_type_c = sdl_ret_type;
+            }
+            
+            sb_append(sb, ret_type_c);
+            sb_appendf(sb, " %s(", func->name);
+            
+            for (int j = 0; j < func->param_count; j++) {
+                if (j > 0) sb_append(sb, ", ");
+                const char *param_type_c = type_to_c(func->params[j].type);
+                
+                const char *sdl_param_type = get_sdl_c_type(func->name, j, false);
+                if (sdl_param_type) {
+                    param_type_c = sdl_param_type;
+                }
+                
+                sb_appendf(sb, "%s %s", param_type_c, func->params[j].name);
+            }
+            sb_append(sb, ");\n");
         }
-        sb_append(sb, "\n");
     }
     
-    /* Generate tuple type typedefs */
-    if (tuple_registry->count > 0) {
-        sb_appendf(sb, "/* Tuple Type Typedefs (found %d types) */\n", tuple_registry->count);
-        for (int i = 0; i < tuple_registry->count; i++) {
-            generate_tuple_typedef(sb, tuple_registry->tuples[i],
-                                 tuple_registry->typedef_names[i]);
-        }
         sb_append(sb, "\n");
     }
 
-    /* Generate extern function declarations */
+/* Generate extern function declarations from program AST */
+static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env) {
     sb_append(sb, "/* External C function declarations */\n");
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -2094,8 +2091,8 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                     sb_append(sb, prefixed_name);
                 } else if (item->as.function.return_struct_type_name) {
                     /* Non-generic union - use prefixed union name */
-                    const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
-                    sb_append(sb, prefixed_name);
+                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                sb_append(sb, prefixed_name);
                 } else {
                     /* Fallback */
                     sb_append(sb, type_to_c(item->as.function.return_type));
@@ -2152,59 +2149,84 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
             sb_append(sb, ");\n");
         }
     }
-    
-    /* Also generate extern declarations for extern functions from imported modules */
-    /* BUT: If any modules provide C headers, skip this entirely - the headers declare the functions */
-    if (g_module_headers_count == 0 && env && env->functions && env->function_count > 0) {
-        for (int i = 0; i < env->function_count; i++) {
-            Function *func = &env->functions[i];
-            if (!func || !func->name || !func->is_extern) continue;
-            
-            /* Skip generic list functions - they're generated by the compiler, not extern */
-            if (strncmp(func->name, "List_", 5) == 0) {
-                continue;
-            }
-            
-            /* Check if this extern function is already in the program AST (declared above) */
-            bool in_program = false;
-            for (int j = 0; j < program->as.program.count; j++) {
-                ASTNode *item = program->as.program.items[j];
-                if (item->type == AST_FUNCTION && item->as.function.is_extern &&
-                    strcmp(item->as.function.name, func->name) == 0) {
-                    in_program = true;
-                    break;
-                }
-            }
-            if (in_program) continue;  /* Already declared above */
-            
-            /* Generate extern declaration for this module extern function */
-            sb_append(sb, "extern ");
-            
-            const char *ret_type_c = type_to_c(func->return_type);
-            const char *sdl_ret_type = get_sdl_c_type(func->name, -1, true);
-            if (sdl_ret_type) {
-                ret_type_c = sdl_ret_type;
-            }
-            
-            sb_append(sb, ret_type_c);
-            sb_appendf(sb, " %s(", func->name);
-            
-            for (int j = 0; j < func->param_count; j++) {
-                if (j > 0) sb_append(sb, ", ");
-                const char *param_type_c = type_to_c(func->params[j].type);
-                
-                const char *sdl_param_type = get_sdl_c_type(func->name, j, false);
-                if (sdl_param_type) {
-                    param_type_c = sdl_param_type;
-                }
-                
-                sb_appendf(sb, "%s %s", param_type_c, func->params[j].name);
-            }
-            sb_append(sb, ");\n");
-        }
+}
+
+/* Transpile program to C */
+char *transpile_to_c(ASTNode *program, Environment *env) {
+    if (!program || program->type != AST_PROGRAM) {
+        return NULL;
     }
     
-    sb_append(sb, "\n");
+    if (!env) {
+        fprintf(stderr, "Error: Environment is NULL in transpile_to_c\n");
+        return NULL;
+    }
+
+    /* Clear and collect headers from imported modules */
+    collect_module_headers_from_imports(program);
+
+    StringBuilder *sb = sb_create();
+
+    /* POSIX feature macro for strdup, strnlen, etc. */
+    sb_append(sb, "#define _POSIX_C_SOURCE 200809L\n\n");
+
+    /* Generate headers */
+    generate_c_headers(sb);
+
+    /* OS stdlib runtime library */
+    sb_append(sb, "/* ========== OS Standard Library ========== */\n\n");
+
+    /* File operations */
+    generate_file_operations(sb);
+
+    /* Directory operations */
+    generate_dir_operations(sb);
+
+    /* Path operations */
+    generate_path_operations(sb);
+
+    /* Process operations */
+    generate_process_operations(sb);
+
+    sb_append(sb, "/* ========== End OS Standard Library ========== */\n\n");
+
+    /* String operations */
+    generate_string_operations(sb);
+
+    /* Math and utility built-in functions */
+    generate_math_utility_builtins(sb);
+
+    /* Generate enum typedefs first (before structs, since structs may use enums) */
+    generate_enum_definitions(env, sb);
+
+    /* Forward declare List types BEFORE structs */
+    generate_list_specializations(env, sb);
+
+    /* Generate struct typedefs */
+    generate_struct_definitions(env, sb);
+
+    /* Generate List implementations and includes */
+    generate_list_implementations(env, sb);
+
+    /* Generate union definitions */
+    generate_union_definitions(env, sb);
+
+    /* ========== Function Type Typedefs ========== */
+    /* Collect all function signatures and tuple types used in the program */
+    FunctionTypeRegistry *fn_registry = create_fn_type_registry();
+    TupleTypeRegistry *tuple_registry = create_tuple_type_registry();
+    g_tuple_registry = tuple_registry;  /* Set global registry for expression transpilation */
+    
+    collect_function_and_tuple_types(program, fn_registry, tuple_registry);
+    
+    /* Generate typedef declarations */
+    generate_type_typedefs(sb, fn_registry, tuple_registry);
+
+    /* Generate extern function declarations */
+    generate_extern_declarations(sb, program, env);
+    
+    /* Also generate extern declarations for extern functions from imported modules */
+    generate_module_extern_declarations(sb, program, env);
     
     /* Forward declare all functions (including module functions) */
     /* First, collect function names from current program AST */
