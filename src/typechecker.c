@@ -3011,6 +3011,21 @@ bool type_check(ASTNode *program, Environment *env) {
                 }
             }
             
+            /* Copy generic parameters if present */
+            udef.generic_param_count = item->as.union_def.generic_param_count;
+            if (udef.generic_param_count > 0) {
+                udef.generic_params = malloc(sizeof(char*) * udef.generic_param_count);
+                for (int j = 0; j < udef.generic_param_count; j++) {
+                    udef.generic_params[j] = strdup(item->as.union_def.generic_params[j]);
+                }
+            } else {
+                udef.generic_params = NULL;
+            }
+            
+            /* Set module visibility */
+            udef.is_pub = item->as.union_def.is_pub;
+            udef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            
             env_define_union(env, udef);
             
         } else if (item->type == AST_OPAQUE_TYPE) {
@@ -3560,6 +3575,21 @@ bool type_check_module(ASTNode *program, Environment *env) {
                     udef.variant_field_types[j][k] = item->as.union_def.variant_field_types[j][k];
                 }
             }
+            
+            /* Copy generic parameters if present */
+            udef.generic_param_count = item->as.union_def.generic_param_count;
+            if (udef.generic_param_count > 0) {
+                udef.generic_params = malloc(sizeof(char*) * udef.generic_param_count);
+                for (int j = 0; j < udef.generic_param_count; j++) {
+                    udef.generic_params[j] = strdup(item->as.union_def.generic_params[j]);
+                }
+            } else {
+                udef.generic_params = NULL;
+            }
+            
+            /* Set module visibility */
+            udef.is_pub = item->as.union_def.is_pub;
+            udef.module_name = env->current_module ? strdup(env->current_module) : NULL;
             
             env_define_union(env, udef);
             

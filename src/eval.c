@@ -2955,6 +2955,19 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             udef.name = strdup(stmt->as.union_def.name);
             udef.variant_count = stmt->as.union_def.variant_count;
             
+            /* Copy generic parameters */
+            udef.generic_param_count = stmt->as.union_def.generic_param_count;
+            if (udef.generic_param_count > 0) {
+                udef.generic_params = malloc(sizeof(char*) * udef.generic_param_count);
+                for (int j = 0; j < udef.generic_param_count; j++) {
+                    udef.generic_params[j] = strdup(stmt->as.union_def.generic_params[j]);
+                }
+            } else {
+                udef.generic_params = NULL;
+            }
+            udef.is_pub = stmt->as.union_def.is_pub;
+            udef.module_name = NULL;
+            
             if (udef.variant_count <= 0) {
                 fprintf(stderr, "Error: Union '%s' has invalid variant count: %d\n", udef.name, udef.variant_count);
                 free(udef.name);

@@ -837,9 +837,13 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.params = NULL;
     func.return_type = TYPE_LIST_GENERIC;
     func.return_struct_type_name = NULL;
+    func.return_fn_sig = NULL;
+    func.return_type_info = NULL;
     func.body = NULL;  /* Built-in */
     func.shadow_test = NULL;
     func.is_extern = true;
+    func.is_pub = false;
+    func.module_name = NULL;
     env_define_function(env, func);
     
     /* List_T_push(list: List<T>*, value: T) -> void */
@@ -896,10 +900,72 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.params = params;
     func.return_type = TYPE_INT;
     func.return_struct_type_name = NULL;
+    func.return_fn_sig = NULL;
+    func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = true;
+    func.is_pub = false;
+    func.module_name = NULL;
     env_define_function(env, func);
+}
+
+/* Register a generic union instantiation for code generation
+ * Example: Result<int, string> -> Result_int_string
+ */
+void env_register_union_instantiation(Environment *env, const char *union_name, 
+                                     const char **type_args, int type_arg_count) {
+    if (!env || !union_name || !type_args || type_arg_count == 0) {
+        return;
+    }
+    
+    /* Check if already registered */
+    for (int i = 0; i < env->generic_instance_count; i++) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        if (safe_strcmp(inst->generic_name, union_name) == 0 &&
+            inst->type_arg_count == type_arg_count) {
+            /* Check if all type args match */
+            bool all_match = true;
+            for (int j = 0; j < type_arg_count; j++) {
+                if (!safe_strcmp(inst->type_arg_names[j], type_args[j])) {
+                    all_match = false;
+                    break;
+                }
+            }
+            if (all_match) {
+                return;  /* Already registered */
+            }
+        }
+    }
+    
+    /* Add new instantiation */
+    if (env->generic_instance_count >= env->generic_instance_capacity) {
+        env->generic_instance_capacity *= 2;
+        env->generic_instances = realloc(env->generic_instances,
+            sizeof(GenericInstantiation) * env->generic_instance_capacity);
+    }
+    
+    GenericInstantiation inst;
+    inst.generic_name = strdup(union_name);
+    inst.type_arg_count = type_arg_count;
+    inst.type_args = malloc(sizeof(Type) * type_arg_count);
+    inst.type_arg_names = malloc(sizeof(char*) * type_arg_count);
+    
+    for (int i = 0; i < type_arg_count; i++) {
+        inst.type_args[i] = TYPE_UNION;  /* Generic union type */
+        inst.type_arg_names[i] = strdup(type_args[i]);
+    }
+    
+    /* Generate specialized name: Result<int, string> -> Result_int_string */
+    char specialized[512];
+    int offset = snprintf(specialized, sizeof(specialized), "%s", union_name);
+    for (int i = 0; i < type_arg_count && offset < (int)sizeof(specialized) - 20; i++) {
+        offset += snprintf(specialized + offset, sizeof(specialized) - offset, 
+                          "_%s", type_args[i]);
+    }
+    inst.concrete_name = strdup(specialized);
+    
+    env->generic_instances[env->generic_instance_count++] = inst;
 }
 
 /* ============================================================================

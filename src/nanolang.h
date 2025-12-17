@@ -666,6 +666,8 @@ void env_register_namespace(Environment *env, const char *alias,
 void env_define_enum(Environment *env, EnumDef enum_def);
 EnumDef *env_get_enum(Environment *env, const char *name);
 void env_register_list_instantiation(Environment *env, const char *element_type);
+void env_register_union_instantiation(Environment *env, const char *union_name,
+                                      const char **type_args, int type_arg_count);
 int env_get_enum_variant(Environment *env, const char *variant_name);
 void env_define_union(Environment *env, UnionDef union_def);
 UnionDef *env_get_union(Environment *env, const char *name);
