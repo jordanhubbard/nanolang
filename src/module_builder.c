@@ -742,6 +742,94 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
             printf("[Module] ✓ Built %s\n", meta->name);
         }
+        
+        /* Also create shared library for interpreter FFI */
+        #ifdef __APPLE__
+        char shared_lib[1024];
+        snprintf(shared_lib, sizeof(shared_lib), "%s/.build/lib%s.dylib", 
+                 meta->module_dir, meta->name);
+        #else
+        char shared_lib[1024];
+        snprintf(shared_lib, sizeof(shared_lib), "%s/.build/lib%s.so", 
+                 meta->module_dir, meta->name);
+        #endif
+        
+        /* Build shared library command */
+        char lib_cmd[4096];
+        size_t lib_pos = 0;
+        
+        #ifdef __APPLE__
+        lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                           "%s -shared -fPIC -o %s", cc, shared_lib);
+        #else
+        lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                           "%s -shared -fPIC -o %s", cc, shared_lib);
+        #endif
+        
+        /* Add source files */
+        for (size_t i = 0; i < meta->c_sources_count; i++) {
+            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, 
+                               " %s/%s", meta->module_dir, meta->c_sources[i]);
+        }
+        
+        /* Add pkg-config cflags */
+        for (size_t i = 0; i < meta->pkg_config_count; i++) {
+            char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+            if (pkg_cflags) {
+                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, 
+                                   " %s", pkg_cflags);
+                free(pkg_cflags);
+            }
+        }
+        
+        /* Add pkg-config link flags */
+        for (size_t i = 0; i < meta->pkg_config_count; i++) {
+            char *pkg_libs = get_pkg_config_flags(meta->pkg_config[i], "--libs");
+            if (pkg_libs) {
+                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                                   " %s", pkg_libs);
+                free(pkg_libs);
+            }
+        }
+        
+        /* Add custom cflags */
+        for (size_t i = 0; i < meta->cflags_count; i++) {
+            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                               " %s", meta->cflags[i]);
+        }
+        
+        /* Add custom ldflags */
+        for (size_t i = 0; i < meta->ldflags_count; i++) {
+            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                               " %s", meta->ldflags[i]);
+        }
+        
+        /* Add system libs */
+        for (size_t i = 0; i < meta->system_libs_count; i++) {
+            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                               " -l%s", meta->system_libs[i]);
+        }
+        
+        /* Add macOS frameworks */
+        #ifdef __APPLE__
+        for (size_t i = 0; i < meta->frameworks_count; i++) {
+            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                               " -framework %s", meta->frameworks[i]);
+        }
+        #endif
+        
+        /* Build shared library */
+        if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+            printf("[Module] Building shared library: %s\n", lib_cmd);
+        }
+        
+        int lib_result = system(lib_cmd);
+        if (lib_result != 0) {
+            fprintf(stderr, "Warning: Failed to build shared library for %s (interpreter FFI unavailable)\n", 
+                    meta->name);
+        } else if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+            printf("[Module] ✓ Built shared library %s\n", shared_lib);
+        }
     } else {
         if (module_builder_verbose) {
             printf("[Module] %s up to date (using cache)\n", meta->name);

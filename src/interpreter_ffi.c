@@ -287,16 +287,45 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
     }
     
     /* Call the C function based on signature 
-     * This is a simplified version - a full implementation would need libffi */
+     * Extract actual values from buffer for calling */
     unsigned char result_buffer[64];
     memset(result_buffer, 0, sizeof(result_buffer));
     
-    /* TODO: This is a placeholder - need proper FFI call mechanism
-     * For now, handle common simple cases */
+    /* Extract argument values based on their types */
+    void *arg_ptrs[16];  /* Actual values to pass */
+    for (int i = 0; i < arg_count; i++) {
+        Type param_type = func_info->params[i].type;
+        switch (param_type) {
+            case TYPE_INT:
+                /* Pass int64_t by value (cast to pointer-sized int) */
+                arg_ptrs[i] = (void*)(*((int64_t*)(arg_buffer + arg_offsets[i])));
+                break;
+            case TYPE_FLOAT:
+                /* Pass double by value - NOT SUPPORTED in simple casting */
+                /* This is a limitation - need libffi for proper float support */
+                arg_ptrs[i] = (void*)(arg_buffer + arg_offsets[i]);
+                break;
+            case TYPE_BOOL:
+                /* Pass bool by value (cast to pointer-sized int) */
+                arg_ptrs[i] = (void*)(*((bool*)(arg_buffer + arg_offsets[i])) ? 1 : 0);
+                break;
+            case TYPE_STRING:
+                /* Strings are already pointers - extract the pointer */
+                arg_ptrs[i] = (void*)(*((const char**)(arg_buffer + arg_offsets[i])));
+                break;
+            default:
+                arg_ptrs[i] = NULL;
+                break;
+        }
+    }
+    
+    /* Call function with extracted arguments */
     typedef int64_t (*FFI_Func_NoArgs)(void);
     typedef int64_t (*FFI_Func_1Arg)(void*);
     typedef int64_t (*FFI_Func_2Args)(void*, void*);
     typedef int64_t (*FFI_Func_3Args)(void*, void*, void*);
+    typedef int64_t (*FFI_Func_4Args)(void*, void*, void*, void*);
+    typedef int64_t (*FFI_Func_5Args)(void*, void*, void*, void*, void*);
     
     int64_t result = 0;
     
@@ -305,22 +334,24 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
             result = ((FFI_Func_NoArgs)func_ptr)();
             break;
         case 1:
-            result = ((FFI_Func_1Arg)func_ptr)(
-                (void*)(arg_buffer + arg_offsets[0]));
+            result = ((FFI_Func_1Arg)func_ptr)(arg_ptrs[0]);
             break;
         case 2:
-            result = ((FFI_Func_2Args)func_ptr)(
-                (void*)(arg_buffer + arg_offsets[0]),
-                (void*)(arg_buffer + arg_offsets[1]));
+            result = ((FFI_Func_2Args)func_ptr)(arg_ptrs[0], arg_ptrs[1]);
             break;
         case 3:
-            result = ((FFI_Func_3Args)func_ptr)(
-                (void*)(arg_buffer + arg_offsets[0]),
-                (void*)(arg_buffer + arg_offsets[1]),
-                (void*)(arg_buffer + arg_offsets[2]));
+            result = ((FFI_Func_3Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2]);
+            break;
+        case 4:
+            result = ((FFI_Func_4Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], 
+                                                arg_ptrs[2], arg_ptrs[3]);
+            break;
+        case 5:
+            result = ((FFI_Func_5Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], 
+                                                arg_ptrs[2], arg_ptrs[3], arg_ptrs[4]);
             break;
         default:
-            fprintf(stderr, "Error: FFI does not support %d arguments yet\n", arg_count);
+            fprintf(stderr, "Error: FFI does not support %d arguments yet (max 5)\n", arg_count);
             return create_void();
     }
     
