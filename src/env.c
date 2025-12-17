@@ -107,6 +107,14 @@ Environment *create_environment(void) {
     env->namespaces = malloc(sizeof(ModuleNamespace) * 8);
     env->namespace_count = 0;
     env->namespace_capacity = 8;
+    env->current_module = NULL;  /* Start in global scope */
+    
+    /* Initialize import tracker */
+    env->import_tracker = malloc(sizeof(ImportTracker));
+    env->import_tracker->imports = malloc(sizeof(SelectiveImport) * 8);
+    env->import_tracker->import_count = 0;
+    env->import_tracker->import_capacity = 8;
+    
     return env;
 }
 
@@ -345,6 +353,10 @@ void env_define_function(Environment *env, Function func) {
     if (env->function_count >= env->function_capacity) {
         env->function_capacity *= 2;
         env->functions = realloc(env->functions, sizeof(Function) * env->function_capacity);
+        if (!env->functions) {
+            fprintf(stderr, "Error: Out of memory reallocating functions array\n");
+            exit(1);
+        }
     }
 
     env->functions[env->function_count++] = func;

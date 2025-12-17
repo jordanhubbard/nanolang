@@ -9,6 +9,92 @@ typedef struct {
     bool warnings_enabled;
 } TypeChecker;
 
+/* Helper: Check if symbol was explicitly imported via selective import */
+static bool is_symbol_imported(const char *symbol_name, const char *module_path, Environment *env) {
+    if (!env->import_tracker) return true;  /* No tracking = allow all */
+    
+    for (int i = 0; i < env->import_tracker->import_count; i++) {
+        SelectiveImport *imp = &env->import_tracker->imports[i];
+        
+        /* Check if this import is from the right module */
+        if (imp->module_path && strcmp(imp->module_path, module_path) == 0) {
+            /* Wildcard import - all symbols accessible */
+            if (imp->is_wildcard) return true;
+            
+            /* Check if symbol in imported list */
+            if (imp->imported_symbols) {
+                for (int j = 0; j < imp->symbol_count; j++) {
+                    if (strcmp(imp->imported_symbols[j], symbol_name) == 0) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    
+    /* Not found in any selective import - not accessible */
+    return false;
+}
+
+/* Helper: Check if a function is accessible from current module */
+static bool is_function_accessible(Function *func, Environment *env, int line, int column) {
+    if (!func) return false;
+    
+    /* If no module context, everything is accessible (legacy/global scope) */
+    if (!env->current_module) return true;
+    
+    /* If function has no module, it's global (legacy) - accessible */
+    if (!func->module_name) return true;
+    
+    /* If same module, always accessible */
+    if (func->module_name && strcmp(func->module_name, env->current_module) == 0) {
+        return true;
+    }
+    
+    /* Different module - check visibility */
+    if (!func->is_pub) {
+        fprintf(stderr, "Error at line %d, column %d: Function '%s' is private to module '%s'\n",
+                line, column, func->name, func->module_name);
+        fprintf(stderr, "  Note: Use 'pub fn %s(...)' to make it accessible from other modules\n",
+                func->name);
+        fprintf(stderr, "  Hint: Private functions are only accessible within their defining module\n");
+        return false;
+    }
+    
+    /* TODO: Check if symbol was explicitly imported via selective import */
+    /* For now, if public and visible, allow access */
+    
+    return true;
+}
+
+/* Helper: Check if a struct is accessible from current module */
+static bool is_struct_accessible(StructDef *sdef, Environment *env, int line, int column) {
+    if (!sdef) return false;
+    
+    /* If no module context, everything is accessible */
+    if (!env->current_module) return true;
+    
+    /* If struct has no module, it's global - accessible */
+    if (!sdef->module_name) return true;
+    
+    /* If same module, always accessible */
+    if (sdef->module_name && strcmp(sdef->module_name, env->current_module) == 0) {
+        return true;
+    }
+    
+    /* Different module - check visibility */
+    if (!sdef->is_pub) {
+        fprintf(stderr, "Error at line %d, column %d: Struct '%s' is private to module '%s'\n",
+                line, column, sdef->name, sdef->module_name);
+        fprintf(stderr, "  Note: Use 'pub struct %s { ... }' to make it accessible from other modules\n",
+                sdef->name);
+        fprintf(stderr, "  Hint: Private types are only accessible within their defining module\n");
+        return false;
+    }
+    
+    return true;
+}
+
 /* Check for unused variables in current scope and emit warnings */
 static void check_unused_variables(TypeChecker *tc, int start_index) {
     if (!tc->warnings_enabled) return;
@@ -291,6 +377,53 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             return sym->type;
         }
 
+        case AST_QUALIFIED_NAME: {
+            /* Handle qualified names: module::symbol or std::io::fs::read_file */
+            int part_count = expr->as.qualified_name.part_count;
+            char **parts = expr->as.qualified_name.name_parts;
+            
+            if (part_count < 2) {
+                fprintf(stderr, "Error at line %d, column %d: Invalid qualified name (need at least 2 parts)\n",
+                        expr->line, expr->column);
+                return TYPE_UNKNOWN;
+            }
+            
+            /* For now, handle simple case: module::symbol (2 parts) */
+            /* TODO: Handle nested modules (std::io::fs::read_file) */
+            if (part_count == 2) {
+                char *module_name = parts[0];
+                char *symbol_name = parts[1];
+                
+                /* Look up function in the module namespace */
+                /* For now, search all functions with matching name */
+                /* TODO: Implement proper module-scoped lookup */
+                Function *func = env_get_function(env, symbol_name);
+                if (func) {
+                    /* TODO: Check if function belongs to the specified module */
+                    /* TODO: Check visibility (pub vs private) */
+                    return TYPE_FUNCTION;
+                }
+                
+                /* Try looking up as variable (for module-level constants) */
+                Symbol *sym = env_get_var(env, symbol_name);
+                if (sym) {
+                    /* TODO: Check if symbol belongs to the specified module */
+                    /* TODO: Check visibility */
+                    sym->is_used = true;
+                    return sym->type;
+                }
+                
+                fprintf(stderr, "Error at line %d, column %d: Undefined symbol '%s' in module '%s'\n",
+                        expr->line, expr->column, symbol_name, module_name);
+                return TYPE_UNKNOWN;
+            }
+            
+            /* Nested modules not yet supported */
+            fprintf(stderr, "Error at line %d, column %d: Nested module paths not yet implemented\n",
+                    expr->line, expr->column);
+            return TYPE_UNKNOWN;
+        }
+
         case AST_PREFIX_OP: {
             TokenType op = expr->as.prefix_op.op;
             int arg_count = expr->as.prefix_op.arg_count;
@@ -418,6 +551,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Regular function call */
             /* Check if function exists */
             Function *func = env_get_function(env, expr->as.call.name);
+            
+            /* Check visibility */
+            if (func && !is_function_accessible(func, env, expr->line, expr->column)) {
+                return TYPE_UNKNOWN;
+            }
             
             /* If not a function, check if it's a function-typed variable (parameter) */
             if (!func) {
@@ -2739,6 +2877,16 @@ bool type_check(ASTNode *program, Environment *env) {
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         
+        /* Handle module declaration */
+        if (item->type == AST_MODULE_DECL) {
+            /* Set current module context */
+            if (env->current_module) {
+                free(env->current_module);
+            }
+            env->current_module = strdup(item->as.module_decl.name);
+            continue;
+        }
+        
         /* Skip imports - they're handled separately */
         if (item->type == AST_IMPORT) {
             continue;
@@ -3057,13 +3205,52 @@ bool type_check(ASTNode *program, Environment *env) {
             func.params = item->as.function.params;
             func.param_count = item->as.function.param_count;
             func.return_type = return_type;
-    func.return_type_info = NULL;
+            func.return_type_info = NULL;
             func.return_struct_type_name = item->as.function.return_struct_type_name;
             func.return_fn_sig = item->as.function.return_fn_sig;  /* Store function signature for TYPE_FUNCTION returns */
             func.return_type_info = item->as.function.return_type_info;  /* Store tuple type info for TYPE_TUPLE returns */
             func.body = item->as.function.body;
             func.shadow_test = NULL;
             func.is_extern = item->as.function.is_extern;
+            func.is_pub = item->as.function.is_pub;  /* Store visibility */
+            
+            /* Store module context with independent copy */
+            func.module_name = NULL;
+            
+            /* Try to find module declaration in this program to get fresh copy from AST */
+            const char *module_name_from_ast = NULL;
+            for (int m = 0; m < program->as.program.count && !module_name_from_ast; m++) {
+                if (program->as.program.items[m]->type == AST_MODULE_DECL) {
+                    module_name_from_ast = program->as.program.items[m]->as.module_decl.name;
+                    /* Validate AST string */
+                    bool valid = true;
+                    for (int c = 0; c < 64 && module_name_from_ast[c]; c++) {
+                        if ((unsigned char)module_name_from_ast[c] < 32 || 
+                            (unsigned char)module_name_from_ast[c] >= 127) {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    if (valid) {
+                        func.module_name = strdup(module_name_from_ast);
+                    }
+                    break;
+                }
+            }
+            
+            /* Fallback to env->current_module if no valid AST module name */
+            if (!func.module_name && env->current_module) {
+                bool valid_module_name = true;
+                for (const char *p = env->current_module; *p && valid_module_name; p++) {
+                    unsigned char c = (unsigned char)*p;
+                    if (c < 32 || c >= 127) {
+                        valid_module_name = false;
+                    }
+                }
+                if (valid_module_name) {
+                    func.module_name = strdup(env->current_module);
+                }
+            }
 
             env_define_function(env, func);
             
@@ -3239,6 +3426,16 @@ bool type_check_module(ASTNode *program, Environment *env) {
     /* First pass: collect all struct, enum, and function definitions */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
+        
+        /* Handle module declaration */
+        if (item->type == AST_MODULE_DECL) {
+            /* Set current module context */
+            if (env->current_module) {
+                free(env->current_module);
+            }
+            env->current_module = strdup(item->as.module_decl.name);
+            continue;
+        }
         
         /* Skip imports - they're handled separately */
         if (item->type == AST_IMPORT) {

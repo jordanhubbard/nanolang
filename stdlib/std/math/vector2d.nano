@@ -1,0 +1,342 @@
+/* =============================================================================
+ * std::math::vector2d Module - 2D Vector Mathematics
+ * =============================================================================
+ * Provides comprehensive vector operations for game development and graphics:
+ * - Creation and basic operations
+ * - Length, distance, and normalization
+ * - Rotation and angle conversion
+ * - Interpolation and clamping
+ * - Advanced operations (reflection, perpendicular)
+ * 
+ * Usage:
+ *   from "std/math/vector2d.nano" import Vector2D, vec_new, vec_add
+ *   
+ *   let pos: Vector2D = (vec_new 100.0 200.0)
+ *   let velocity: Vector2D = (vec_new 5.0 0.0)
+ *   let new_pos: Vector2D = (vec_add pos velocity)
+ */
+
+module std_math_vector2d
+
+/* =============================================================================
+ * Vector Type
+ * =============================================================================
+ */
+
+/* 2D Vector with x and y components */
+pub struct Vector2D {
+    x: float,
+    y: float
+}
+
+/* =============================================================================
+ * Creation Functions
+ * =============================================================================
+ */
+
+/* Create a new vector */
+pub fn vec_new(x: float, y: float) -> Vector2D {
+    return Vector2D { x: x, y: y }
+}
+
+shadow vec_new {
+    let v: Vector2D = (vec_new 3.0 4.0)
+    assert (== v.x 3.0)
+    assert (== v.y 4.0)
+}
+
+/* Zero vector (0, 0) */
+pub fn vec_zero() -> Vector2D {
+    return Vector2D { x: 0.0, y: 0.0 }
+}
+
+shadow vec_zero {
+    let v: Vector2D = (vec_zero)
+    assert (== v.x 0.0)
+    assert (== v.y 0.0)
+}
+
+/* =============================================================================
+ * Basic Operations
+ * =============================================================================
+ */
+
+/* Vector addition */
+pub fn vec_add(a: Vector2D, b: Vector2D) -> Vector2D {
+    return Vector2D { x: (+ a.x b.x), y: (+ a.y b.y) }
+}
+
+shadow vec_add {
+    let a: Vector2D = (vec_new 1.0 2.0)
+    let b: Vector2D = (vec_new 3.0 4.0)
+    let c: Vector2D = (vec_add a b)
+    assert (== c.x 4.0)
+    assert (== c.y 6.0)
+}
+
+/* Vector subtraction */
+pub fn vec_sub(a: Vector2D, b: Vector2D) -> Vector2D {
+    return Vector2D { x: (- a.x b.x), y: (- a.y b.y) }
+}
+
+shadow vec_sub {
+    let a: Vector2D = (vec_new 5.0 7.0)
+    let b: Vector2D = (vec_new 2.0 3.0)
+    let c: Vector2D = (vec_sub a b)
+    assert (== c.x 3.0)
+    assert (== c.y 4.0)
+}
+
+/* Scalar multiplication */
+pub fn vec_scale(v: Vector2D, s: float) -> Vector2D {
+    return Vector2D { x: (* v.x s), y: (* v.y s) }
+}
+
+shadow vec_scale {
+    let v: Vector2D = (vec_new 2.0 3.0)
+    let scaled: Vector2D = (vec_scale v 2.0)
+    assert (== scaled.x 4.0)
+    assert (== scaled.y 6.0)
+}
+
+/* Dot product (scalar result) */
+pub fn vec_dot(a: Vector2D, b: Vector2D) -> float {
+    return (+ (* a.x b.x) (* a.y b.y))
+}
+
+shadow vec_dot {
+    let a: Vector2D = (vec_new 1.0 0.0)
+    let b: Vector2D = (vec_new 0.0 1.0)
+    assert (== (vec_dot a b) 0.0)
+    
+    let c: Vector2D = (vec_new 2.0 3.0)
+    let d: Vector2D = (vec_new 4.0 5.0)
+    assert (== (vec_dot c d) 23.0)
+}
+
+/* =============================================================================
+ * Length and Distance
+ * =============================================================================
+ */
+
+/* Length (magnitude) of vector */
+pub fn vec_length(v: Vector2D) -> float {
+    let len_squared: float = (+ (* v.x v.x) (* v.y v.y))
+    return (sqrt len_squared)
+}
+
+shadow vec_length {
+    let v: Vector2D = (vec_new 3.0 4.0)
+    let len: float = (vec_length v)
+    assert (== len 5.0)
+}
+
+/* Length squared (faster, no sqrt) */
+pub fn vec_length_squared(v: Vector2D) -> float {
+    return (+ (* v.x v.x) (* v.y v.y))
+}
+
+shadow vec_length_squared {
+    let v: Vector2D = (vec_new 3.0 4.0)
+    assert (== (vec_length_squared v) 25.0)
+}
+
+/* Distance between two points */
+pub fn vec_distance(a: Vector2D, b: Vector2D) -> float {
+    let diff: Vector2D = (vec_sub b a)
+    return (vec_length diff)
+}
+
+shadow vec_distance {
+    let a: Vector2D = (vec_new 0.0 0.0)
+    let b: Vector2D = (vec_new 3.0 4.0)
+    assert (== (vec_distance a b) 5.0)
+}
+
+/* Distance squared (faster) */
+pub fn vec_distance_squared(a: Vector2D, b: Vector2D) -> float {
+    let diff: Vector2D = (vec_sub b a)
+    return (vec_length_squared diff)
+}
+
+shadow vec_distance_squared {
+    let a: Vector2D = (vec_new 0.0 0.0)
+    let b: Vector2D = (vec_new 3.0 4.0)
+    assert (== (vec_distance_squared a b) 25.0)
+}
+
+/* =============================================================================
+ * Normalization
+ * =============================================================================
+ */
+
+/* Normalize vector (make length = 1) */
+pub fn vec_normalize(v: Vector2D) -> Vector2D {
+    let len: float = (vec_length v)
+    if (> len 0.0) {
+        return (vec_scale v (/ 1.0 len))
+    } else {
+        return (vec_zero)
+    }
+}
+
+shadow vec_normalize {
+    let v: Vector2D = (vec_new 3.0 4.0)
+    let n: Vector2D = (vec_normalize v)
+    assert (== n.x 0.6)
+    assert (== n.y 0.8)
+    
+    let zero: Vector2D = (vec_zero)
+    let norm_zero: Vector2D = (vec_normalize zero)
+    assert (== norm_zero.x 0.0)
+}
+
+/* =============================================================================
+ * Rotation and Angles
+ * =============================================================================
+ */
+
+/* Rotate vector by angle (radians) */
+pub fn vec_rotate(v: Vector2D, angle: float) -> Vector2D {
+    let cos_a: float = (cos angle)
+    let sin_a: float = (sin angle)
+    let new_x: float = (- (* v.x cos_a) (* v.y sin_a))
+    let new_y: float = (+ (* v.x sin_a) (* v.y cos_a))
+    return Vector2D { x: new_x, y: new_y }
+}
+
+shadow vec_rotate {
+    let v: Vector2D = (vec_new 1.0 0.0)
+    let pi_over_2: float = 1.5708
+    let rotated: Vector2D = (vec_rotate v pi_over_2)
+    /* Should be approximately (0, 1) */
+    assert (< (abs rotated.x) 0.01)
+    assert (> rotated.y 0.99)
+}
+
+/* Create vector from angle (radians) */
+pub fn vec_from_angle(angle: float) -> Vector2D {
+    return Vector2D { x: (cos angle), y: (sin angle) }
+}
+
+shadow vec_from_angle {
+    let v: Vector2D = (vec_from_angle 0.0)
+    assert (== v.x 1.0)
+    assert (< (abs v.y) 0.01)
+}
+
+/* Get angle of vector (radians) */
+pub fn vec_to_angle(v: Vector2D) -> float {
+    return (atan2 v.y v.x)
+}
+
+shadow vec_to_angle {
+    let v: Vector2D = (vec_new 1.0 0.0)
+    let angle: float = (vec_to_angle v)
+    assert (< (abs angle) 0.01)
+}
+
+/* =============================================================================
+ * Interpolation
+ * =============================================================================
+ */
+
+/* Lerp (linear interpolation) between two vectors */
+pub fn vec_lerp(a: Vector2D, b: Vector2D, t: float) -> Vector2D {
+    let one_minus_t: float = (- 1.0 t)
+    let x: float = (+ (* a.x one_minus_t) (* b.x t))
+    let y: float = (+ (* a.y one_minus_t) (* b.y t))
+    return Vector2D { x: x, y: y }
+}
+
+shadow vec_lerp {
+    let a: Vector2D = (vec_new 0.0 0.0)
+    let b: Vector2D = (vec_new 10.0 10.0)
+    let mid: Vector2D = (vec_lerp a b 0.5)
+    assert (== mid.x 5.0)
+    assert (== mid.y 5.0)
+}
+
+/* =============================================================================
+ * Clamping and Constraints
+ * =============================================================================
+ */
+
+/* Clamp vector to maximum length */
+pub fn vec_clamp_length(v: Vector2D, max_len: float) -> Vector2D {
+    let len: float = (vec_length v)
+    if (> len max_len) {
+        let normalized: Vector2D = (vec_normalize v)
+        return (vec_scale normalized max_len)
+    } else {
+        return v
+    }
+}
+
+shadow vec_clamp_length {
+    let v: Vector2D = (vec_new 30.0 40.0)
+    let clamped: Vector2D = (vec_clamp_length v 10.0)
+    let len: float = (vec_length clamped)
+    assert (> len 9.99)
+    assert (< len 10.01)
+}
+
+/* =============================================================================
+ * Advanced Operations
+ * =============================================================================
+ */
+
+/* Perpendicular vector (rotate 90 degrees counterclockwise) */
+pub fn vec_perp(v: Vector2D) -> Vector2D {
+    return Vector2D { x: (- v.y), y: v.x }
+}
+
+shadow vec_perp {
+    let v: Vector2D = (vec_new 1.0 0.0)
+    let perp: Vector2D = (vec_perp v)
+    assert (== perp.x 0.0)
+    assert (== perp.y 1.0)
+}
+
+/* Reflect vector off a normal */
+pub fn vec_reflect(v: Vector2D, normal: Vector2D) -> Vector2D {
+    let dot: float = (vec_dot v normal)
+    let scaled_normal: Vector2D = (vec_scale normal (* 2.0 dot))
+    return (vec_sub v scaled_normal)
+}
+
+shadow vec_reflect {
+    let v: Vector2D = (vec_new 1.0 -1.0)
+    let normal: Vector2D = (vec_new 0.0 1.0)
+    let reflected: Vector2D = (vec_reflect v normal)
+    assert (== reflected.x 1.0)
+    assert (== reflected.y 1.0)
+}
+
+/* Main function for testing */
+fn main() -> int {
+    (println "=== std::math::vector2d Tests ===")
+    let v1: Vector2D = (vec_new 3.0 4.0)
+    let v2: Vector2D = (vec_new 1.0 2.0)
+    let sum: Vector2D = (vec_add v1 v2)
+    (print "Vector addition: (")
+    (print (float_to_string v1.x))
+    (print ", ")
+    (print (float_to_string v1.y))
+    (print ") + (")
+    (print (float_to_string v2.x))
+    (print ", ")
+    (print (float_to_string v2.y))
+    (print ") = (")
+    (print (float_to_string sum.x))
+    (print ", ")
+    (print (float_to_string sum.y))
+    (println ")")
+    (println "✅ All tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

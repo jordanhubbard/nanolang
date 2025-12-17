@@ -21,8 +21,9 @@ Follow this sequence to learn NanoLang basics:
 8. `nl_array_complete.nano` - Arrays and collections
 9. `nl_struct.nano` - User-defined types
 10. `nl_factorial.nano` - Recursion
+11. `namespace_demo.nano` - Module system and visibility ⭐ NEW
 
-**Estimated Time**: 4-6 hours
+**Estimated Time**: 4-7 hours
 
 ---
 
@@ -419,7 +420,7 @@ SHOWCASE LEVEL:
 
 ## Total Time Estimates
 
-- **Beginner Path**: 4-6 hours
+- **Beginner Path**: 4-7 hours
 - **Graphics Path**: 8-12 hours
 - **FFI Path**: 6-8 hours
 - **Advanced Path**: 8-10 hours

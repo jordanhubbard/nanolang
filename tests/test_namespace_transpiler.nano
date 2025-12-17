@@ -1,0 +1,36 @@
+# Test transpiler namespace code generation
+# Verifies: name mangling, static declarations, qualified names
+
+module transpiler_test
+
+# Public function - should NOT be static
+pub fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+# Private function - should be static in C
+fn helper(x: int) -> int {
+    return (* x 2)
+}
+
+# Public function using private helper
+pub fn process(val: int) -> int {
+    let doubled: int = (helper val)
+    return (+ doubled 10)
+}
+
+fn main() -> int {
+    # Test direct calls
+    let sum: int = (add 5 7)
+    let proc: int = (process 20)
+    
+    # sum should be 12
+    # proc should be (20 * 2) + 10 = 50
+    # return sum + proc = 62
+    return (+ sum proc)
+}
+
+shadow main {
+    assert (== (main) 62)
+}
+

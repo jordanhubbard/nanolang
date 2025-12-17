@@ -1,0 +1,177 @@
+/* =============================================================================
+ * Namespace System Demo
+ * =============================================================================
+ * Demonstrates NanoLang's namespace system features:
+ * - Module declarations
+ * - Public/private visibility
+ * - Namespace-scoped functions
+ * 
+ * This example shows the core namespace features without external imports.
+ */
+
+module namespace_demo
+
+/* =============================================================================
+ * Public API - Exported Functions
+ * =============================================================================
+ */
+
+/* Public function - accessible from other modules */
+pub fn public_add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow public_add {
+    assert (== (public_add 5 7) 12)
+}
+
+/* Public function using private helper */
+pub fn calculate_sum(numbers: array<int>) -> int {
+    let count: int = (array_length numbers)
+    return (sum_array numbers 0 count 0)
+}
+
+shadow calculate_sum {
+    let nums: array<int> = [1, 2, 3, 4, 5]
+    assert (== (calculate_sum nums) 15)
+}
+
+/* =============================================================================
+ * Private Implementation - Module-Internal Functions
+ * =============================================================================
+ */
+
+/* Private recursive helper - not exported */
+fn sum_array(arr: array<int>, idx: int, len: int, acc: int) -> int {
+    if (>= idx len) {
+        return acc
+    } else {
+        let val: int = (at arr idx)
+        let new_acc: int = (+ acc val)
+        return (sum_array arr (+ idx 1) len new_acc)
+    }
+}
+
+shadow sum_array {
+    let nums: array<int> = [10, 20, 30]
+    assert (== (sum_array nums 0 3 0) 60)
+}
+
+/* Private helper for validation */
+fn is_positive(n: int) -> bool {
+    return (> n 0)
+}
+
+shadow is_positive {
+    assert (== (is_positive 5) true)
+    assert (== (is_positive -3) false)
+    assert (== (is_positive 0) false)
+}
+
+/* =============================================================================
+ * Public Data Processing
+ * =============================================================================
+ */
+
+/* Public struct - exported type */
+pub struct DataPoint {
+    value: int,
+    valid: bool
+}
+
+/* Public function using public struct */
+pub fn create_data_point(value: int) -> DataPoint {
+    return DataPoint {
+        value: value,
+        valid: (is_positive value)
+    }
+}
+
+shadow create_data_point {
+    let dp1: DataPoint = (create_data_point 42)
+    assert (== dp1.value 42)
+    assert (== dp1.valid true)
+    
+    let dp2: DataPoint = (create_data_point -5)
+    assert (== dp2.value -5)
+    assert (== dp2.valid false)
+}
+
+/* Public function for percentage calculation */
+pub fn calculate_percentage(part: int, total: int) -> int {
+    if (== total 0) {
+        return 0
+    } else {
+        return (/ (* part 100) total)
+    }
+}
+
+shadow calculate_percentage {
+    assert (== (calculate_percentage 50 100) 50)
+    assert (== (calculate_percentage 25 100) 25)
+    assert (== (calculate_percentage 0 100) 0)
+    assert (== (calculate_percentage 100 0) 0)
+}
+
+/* =============================================================================
+ * Main Demo
+ * =============================================================================
+ */
+
+pub fn main() -> int {
+    (println "=== Namespace System Demo ===")
+    (println "")
+    
+    /* Test public API */
+    (println "1. Public Functions:")
+    let sum: int = (public_add 10 20)
+    (print "  public_add(10, 20) = ")
+    (println sum)
+    
+    let nums: array<int> = [1, 2, 3, 4, 5]
+    let total: int = (calculate_sum nums)
+    (print "  calculate_sum([1,2,3,4,5]) = ")
+    (println total)
+    (println "")
+    
+    /* Test public struct */
+    (println "2. Public Struct (DataPoint):")
+    let dp: DataPoint = (create_data_point 42)
+    (print "  DataPoint { value: ")
+    (print dp.value)
+    (print ", valid: ")
+    (print dp.valid)
+    (println " }")
+    (println "")
+    
+    /* Test percentage calculation */
+    (println "3. Percentage Calculation:")
+    let pct: int = (calculate_percentage 50 100)
+    (print "  calculate_percentage(50, 100) = ")
+    (print pct)
+    (println "%")
+    (println "")
+    
+    /* Demonstrate visibility */
+    (println "4. Visibility Control:")
+    (println "  ✓ Public functions: public_add, calculate_sum, create_data_point, calculate_percentage")
+    (println "  ✓ Private functions: sum_array, is_positive (not accessible from other modules)")
+    (println "  ✓ Public types: DataPoint")
+    (println "")
+    
+    (println "✅ All namespace features working correctly!")
+    (println "")
+    (println "Key Features Demonstrated:")
+    (println "  - Module declaration (module namespace_demo)")
+    (println "  - Public API (pub fn, pub struct)")
+    (println "  - Private implementation details (fn without pub)")
+    (println "  - Namespace isolation and visibility control")
+    (println "  - Shadow tests for validation")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

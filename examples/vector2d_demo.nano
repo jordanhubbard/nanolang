@@ -1,4 +1,11 @@
-import "modules/vector2d/vector2d.nano"
+/* =============================================================================
+ * Vector2D Module Demo
+ * =============================================================================
+ * Demonstrates 2D vector mathematics using the std::math::vector2d module.
+ * Shows: vector creation, operations, normalization, rotation.
+ */
+
+from "modules/std/math/vector2d.nano" import Vector2D, vec_new, vec_length, vec_add, vec_normalize, vec_rotate
 
 fn main() -> int {
     (println "Testing Vector2D module...")

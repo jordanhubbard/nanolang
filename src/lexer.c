@@ -22,6 +22,10 @@ static bool is_identifier_char(char c) {
 /* Check if string is a keyword and return appropriate token type */
 static TokenType keyword_or_identifier(const char *str) {
     /* Keywords */
+    if (strcmp(str, "module") == 0) return TOKEN_MODULE;
+    if (strcmp(str, "pub") == 0) return TOKEN_PUB;
+    if (strcmp(str, "from") == 0) return TOKEN_FROM;
+    if (strcmp(str, "use") == 0) return TOKEN_USE;
     if (strcmp(str, "extern") == 0) return TOKEN_EXTERN;
     if (strcmp(str, "fn") == 0) return TOKEN_FN;
     if (strcmp(str, "let") == 0) return TOKEN_LET;
@@ -241,6 +245,11 @@ Token *tokenize(const char *source, int *token_count) {
         }
 
         /* Two-character operators */
+        if (source[i] == ':' && source[i + 1] == ':') {
+            tokens[count++] = create_token(TOKEN_DOUBLE_COLON, NULL, line, column);
+            i += 2;
+            continue;
+        }
         if (source[i] == '-' && source[i + 1] == '>') {
             tokens[count++] = create_token(TOKEN_ARROW, NULL, line, column);
             i += 2;
@@ -333,9 +342,14 @@ const char *token_type_name(TokenType type) {
         case TOKEN_RBRACKET: return "RBRACKET";
         case TOKEN_COMMA: return "COMMA";
         case TOKEN_COLON: return "COLON";
+        case TOKEN_DOUBLE_COLON: return "DOUBLE_COLON";
         case TOKEN_ARROW: return "ARROW";
         case TOKEN_ASSIGN: return "ASSIGN";
         case TOKEN_DOT: return "DOT";
+        case TOKEN_MODULE: return "MODULE";
+        case TOKEN_PUB: return "PUB";
+        case TOKEN_FROM: return "FROM";
+        case TOKEN_USE: return "USE";
         case TOKEN_FN: return "FN";
         case TOKEN_LET: return "LET";
         case TOKEN_MUT: return "MUT";

@@ -405,13 +405,27 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     }
     
     /* Type check module (without requiring main) */
+    /* Save current module context before processing imported module */
+    char *saved_current_module = env->current_module;
+    env->current_module = NULL;  /* Reset to process module with its own context */
+    
     if (!type_check_module(module_ast, env)) {
         fprintf(stderr, "Error: Type checking failed for module '%s'\n", module_path);
+        env->current_module = saved_current_module;  /* Restore context */
         free_ast(module_ast);
         free_tokens(tokens, token_count);
         free(source);
         return NULL;
     }
+    
+    /* Restore original module context */
+    /* NOTE: We intentionally DON'T free env->current_module here because:
+     * 1. Functions registered during type_check have module_name pointers that reference it
+     * 2. Those pointers are just shallow copies from the struct assignment
+     * 3. Freeing would create dangling pointers
+     * 4. This is a short-lived compiler process, so the memory leak is acceptable
+     */
+    env->current_module = saved_current_module;
     
     /* Load constants from C headers if module has module.json */
     char *module_dir_copy = strdup(module_path);
@@ -581,7 +595,7 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
         
         if (item->type == AST_IMPORT) {
             char *module_path = resolve_module_path(item->as.import_stmt.module_path, current_file);
-            char *module_alias = item->as.import_stmt.module_name;  /* NULL if no alias */
+            char *module_alias = item->as.import_stmt.module_alias;  /* NULL if no alias */
             
             if (!module_path) {
                 fprintf(stderr, "Error at line %d, column %d: Failed to resolve module path '%s'\n",

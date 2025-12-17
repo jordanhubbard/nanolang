@@ -181,10 +181,30 @@ static const FunctionMapping function_map[] = {
     {"at", "dyn_array_get"},
     {"array_set", "dyn_array_put"},
     {"array_get", "dyn_array_get"},
+    {"array_remove_at", "dyn_array_remove_at"},
 };
 
 static const char *map_function_name(const char *name, Environment *env) {
-    /* Handle module-qualified names */
+    /* Handle qualified names: module::func or nested::module::func */
+    const char *double_colon = strstr(name, "::");
+    if (double_colon) {
+        /* Qualified name - convert to mangled form: module::func -> module__func */
+        static _Thread_local char mangled[512];
+        size_t i = 0, j = 0;
+        while (name[i] && j < sizeof(mangled) - 1) {
+            if (name[i] == ':' && name[i+1] == ':') {
+                mangled[j++] = '_';
+                mangled[j++] = '_';
+                i += 2;
+            } else {
+                mangled[j++] = name[i++];
+            }
+        }
+        mangled[j] = '\0';
+        return mangled;
+    }
+    
+    /* Handle legacy module-qualified names with dot notation */
     const char *dot = strchr(name, '.');
     if (dot) {
         name = dot + 1;
@@ -197,13 +217,13 @@ static const char *map_function_name(const char *name, Environment *env) {
         }
     }
     
-    /* User-defined function? */
+    /* User-defined function? Look up to get module context */
     Function *func = env_get_function(env, name);
+    
     if (func && !func->is_extern && func->body != NULL) {
-        /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
-        static _Thread_local char prefixed[256];
-        snprintf(prefixed, sizeof(prefixed), "nl_%s", name);
-        return prefixed;
+        /* Use get_c_func_name_with_module for namespace mangling */
+        extern const char *get_c_func_name_with_module(const char *nano_name, const char *module_name);
+        return get_c_func_name_with_module(name, func->module_name);
     }
     
     return name;
@@ -266,6 +286,29 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             } else {
                 emit_literal(list, expr->as.identifier);
             }
+            break;
+        }
+        
+        case AST_QUALIFIED_NAME: {
+            /* Qualified name: std::io::read -> std__io__read */
+            static _Thread_local char mangled[512];
+            size_t j = 0;
+            
+            /* Join all parts with __ separator */
+            for (int i = 0; i < expr->as.qualified_name.part_count; i++) {
+                if (i > 0) {
+                    mangled[j++] = '_';
+                    mangled[j++] = '_';
+                }
+                const char *part = expr->as.qualified_name.name_parts[i];
+                size_t k = 0;
+                while (part[k] && j < sizeof(mangled) - 3) {
+                    mangled[j++] = part[k++];
+                }
+            }
+            mangled[j] = '\0';
+            
+            emit_literal(list, mangled);
             break;
         }
         
@@ -456,6 +499,75 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                     emit_literal(list, ")");
                 }
+            }
+            /* Special handling for array_new() - creates new dynamic array with size and initial value */
+            else if (strcmp(func_name, "array_new") == 0 && expr->as.call.arg_count == 2) {
+                /* array_new(size, default_value) -> DynArray* */
+                ASTNode *size_arg = expr->as.call.args[0];
+                ASTNode *value_arg = expr->as.call.args[1];
+                
+                /* Infer element type from default value */
+                Type elem_type = check_expression(value_arg, env);
+                const char *struct_name = NULL;
+                
+                /* For structs, get the struct name */
+                if (elem_type == TYPE_STRUCT) {
+                    if (value_arg->type == AST_IDENTIFIER) {
+                        Symbol *value_sym = env_get_var(env, value_arg->as.identifier);
+                        if (value_sym && value_sym->struct_type_name) {
+                            struct_name = value_sym->struct_type_name;
+                        }
+                    } else if (value_arg->type == AST_STRUCT_LITERAL) {
+                        struct_name = value_arg->as.struct_literal.struct_name;
+                    }
+                }
+                
+                /* Map element type to ElementType enum */
+                const char *elem_type_str = "ELEM_INT";
+                if (elem_type == TYPE_FLOAT) {
+                    elem_type_str = "ELEM_FLOAT";
+                } else if (elem_type == TYPE_STRING) {
+                    elem_type_str = "ELEM_STRING";
+                } else if (elem_type == TYPE_BOOL) {
+                    elem_type_str = "ELEM_BOOL";
+                } else if (elem_type == TYPE_ARRAY) {
+                    elem_type_str = "ELEM_ARRAY";
+                } else if (elem_type == TYPE_STRUCT) {
+                    elem_type_str = "ELEM_STRUCT";
+                }
+                
+                /* Generate initialization code using a compound statement */
+                /* ({ DynArray* _arr = dyn_array_new(ELEM_TYPE); for (...) { dyn_array_push_*(_arr, val); } _arr; }) */
+                emit_formatted(list, "({ DynArray* _arr = dyn_array_new(%s); ", elem_type_str);
+                emit_literal(list, "int64_t _size = ");
+                build_expr(list, size_arg, env);
+                emit_literal(list, "; for (int64_t _i = 0; _i < _size; _i++) { ");
+                
+                /* Generate appropriate push call based on type */
+                if (elem_type == TYPE_STRUCT && struct_name) {
+                    /* For structs: dyn_array_push_struct(_arr, &value, sizeof(nl_StructName)) */
+                    emit_literal(list, "dyn_array_push_struct(_arr, &(");
+                    build_expr(list, value_arg, env);
+                    emit_formatted(list, "), sizeof(nl_%s)); ", struct_name);
+                } else {
+                    /* For primitives: dyn_array_push_<type>(_arr, value) */
+                    const char *type_suffix = "int";
+                    if (elem_type == TYPE_FLOAT) {
+                        type_suffix = "float";
+                    } else if (elem_type == TYPE_STRING) {
+                        type_suffix = "string";
+                    } else if (elem_type == TYPE_BOOL) {
+                        type_suffix = "bool";
+                    } else if (elem_type == TYPE_ARRAY) {
+                        type_suffix = "array";
+                    }
+                    
+                    emit_formatted(list, "dyn_array_push_%s(_arr, ", type_suffix);
+                    build_expr(list, value_arg, env);
+                    emit_literal(list, "); ");
+                }
+                
+                emit_literal(list, "} _arr; })");
             }
             /* Special handling for array_push() and array_pop() - dynamic array operations */
             else if (strcmp(func_name, "array_push") == 0 && expr->as.call.arg_count == 2) {

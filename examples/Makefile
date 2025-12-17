@@ -33,7 +33,6 @@ NL_EXAMPLES = \
 	$(BIN_DIR)/nl_primes \
 	$(BIN_DIR)/nl_enum \
 	$(BIN_DIR)/nl_struct \
-	$(BIN_DIR)/nl_loops \
 	$(BIN_DIR)/nl_comparisons \
 	$(BIN_DIR)/nl_logical \
 	$(BIN_DIR)/nl_operators \
@@ -50,14 +49,14 @@ NL_EXAMPLES = \
 	$(BIN_DIR)/nl_function_factories_v2 \
 	$(BIN_DIR)/nl_demo_selfhosting \
 	$(BIN_DIR)/nl_array_bounds \
+	$(BIN_DIR)/nl_array_complete \
 	$(BIN_DIR)/nl_arrays_test \
 	$(BIN_DIR)/nl_falling_sand \
 	$(BIN_DIR)/nl_game_of_life \
-	$(BIN_DIR)/nl_snake \
-	$(BIN_DIR)/nl_function_factories
+	$(BIN_DIR)/nl_snake
 
-# Note: 29 of 62 nl_* examples compile successfully!
-# The remaining 33 require the interpreter due to:
+# Note: 28 of 49 nl_* examples compile successfully!
+# The remaining 21 require the interpreter due to:
 # - Dynamic arrays: array_new(), array_push() not in transpiler
 # - Generic types: typedef conflicts and scope issues  
 # - Complex runtime features still in development
@@ -76,13 +75,11 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/sdl_boids \
 	$(BIN_DIR)/sdl_particles \
 	$(BIN_DIR)/sdl_mod_visualizer \
-	$(BIN_DIR)/sdl_nanoamp \
 	$(BIN_DIR)/sdl_nanoamp_enhanced \
 	$(BIN_DIR)/sdl_raytracer \
 	$(BIN_DIR)/sdl_asteroids \
 	$(BIN_DIR)/sdl_terrain_explorer \
 	$(BIN_DIR)/sdl_falling_sand \
-	$(BIN_DIR)/sdl_ui_widgets \
 	$(BIN_DIR)/sdl_ui_widgets_extended \
 	$(BIN_DIR)/sdl_texture_demo \
 	$(BIN_DIR)/sdl_drawing_primitives \
@@ -117,20 +114,22 @@ ALL_EXAMPLES = \
 
 .PHONY: all build nl sdl ncurses opengl clean help launcher
 
-# Default: launch the example browser
-all: launcher
+# Default: build all examples
+all: build
 
-# Build all examples (old default)
+# Build all examples
 build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo ""
 	@echo "All examples built successfully!"
 	@echo ""
-	@echo "Nanolang-only examples (nl_*) - NOW 27 COMPILED EXAMPLES!"
+	@echo "Nanolang-only examples (nl_*) - 28 COMPILED EXAMPLES!"
 	@echo "  Basic:"
 	@echo "    ./bin/nl_hello, nl_calculator, nl_factorial, nl_fibonacci, nl_primes"
 	@echo "  Language Features:"
-	@echo "    ./bin/nl_enum, nl_struct, nl_types, nl_loops, nl_comparisons, nl_logical"
-	@echo "    ./bin/nl_operators, nl_floats, nl_mutable, nl_arrays_test, nl_array_bounds"
+	@echo "    ./bin/nl_enum, nl_struct, nl_types, nl_comparisons, nl_logical"
+	@echo "    ./bin/nl_operators, nl_floats, nl_mutable"
+	@echo "  Arrays:"
+	@echo "    ./bin/nl_arrays_test, nl_array_bounds, nl_array_complete"
 	@echo "  External Functions:"
 	@echo "    ./bin/nl_extern_char, nl_extern_math, nl_extern_string, nl_advanced_math"
 	@echo "  Advanced:"
@@ -151,9 +150,7 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  ./bin/sdl_terrain_explorer  - 3D terrain"
 	@echo "  ./bin/sdl_falling_sand      - Cellular automata sandbox"
 	@echo "  ./bin/sdl_mod_visualizer    - MOD music player with visualizer"
-	@echo "  ./bin/sdl_nanoamp           - MP3 player with visualizer (Winamp-style)"
 	@echo "  ./bin/sdl_nanoamp_enhanced  - MP3 player (enhanced Winamp tribute)"
-	@echo "  ./bin/sdl_ui_widgets        - UI widgets showcase (buttons, sliders, etc.)"
 	@echo "  ./bin/sdl_ui_widgets_extended - Extended UI widgets demo (all widgets)"
 	@echo "  ./bin/sdl_texture_demo      - Texture loading and rendering"
 	@echo "  ./bin/sdl_drawing_primitives - Basic shape drawing"
@@ -170,8 +167,8 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  ./bin/opengl_teapot         - Utah teapot with multiple shaders"
 	@echo ""
 	@echo "Interpreter-only examples (run with: ./bin/nano examples/<file>):"
-	@echo "  Examples requiring interpreter (34 total):"
-	@echo "    - Arrays: nl_arrays, nl_array_complete, nl_arrays_simple"
+	@echo "  Examples requiring interpreter (21 total):"
+	@echo "    - Arrays: (None - all array examples now compile!)"
 	@echo "    - Generics: nl_generic_* (8 examples - list, stack, queue, demo, etc.)"
 	@echo "    - Functions: nl_function_variables (interpreter double-free)"
 	@echo "    - Math/Strings: nl_matrix_operations, nl_string_operations, nl_math_utils, etc."
@@ -179,9 +176,9 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "    - Other: nl_tracing, nl_union_types, nl_os_basic, and more"
 	@echo ""
 	@echo "  Reason: These use features not yet in transpiler:"
-	@echo "    - Dynamic arrays (array_new, array_push)"
 	@echo "    - Generic types (typedef conflicts)"
 	@echo "    - Complex runtime features"
+	@echo "    - First-class function edge cases"
 	@echo ""
 	@echo "To launch the example browser:"
 	@echo "  cd examples && make"
@@ -231,11 +228,6 @@ $(BIN_DIR)/opengl_teapot: opengl_teapot.nano $(COMPILER)
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_teapot.nano -o bin/opengl_teapot
 	@echo "✓ OpenGL Teapot built: $@"
 
-$(BIN_DIR)/sdl_nanoamp: sdl_nanoamp.nano $(COMPILER)
-	@echo "Building NanoAmp MP3 Player with visualizer (Winamp-style)..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_nanoamp.nano -o bin/sdl_nanoamp
-	@echo "✓ NanoAmp built: $@"
-
 $(BIN_DIR)/sdl_nanoamp_enhanced: sdl_nanoamp_enhanced.nano $(COMPILER)
 	@echo "Building NanoAmp Enhanced - Pixel-perfect Winamp tribute..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_nanoamp_enhanced.nano -o bin/sdl_nanoamp_enhanced
@@ -261,9 +253,9 @@ help:
 	@echo "Nanolang Examples Makefile"
 	@echo ""
 	@echo "Targets:"
-	@echo "  make              - Launch example browser (app store UI)"
-	@echo "  make launcher     - Launch example browser"
+	@echo "  make              - Build all examples (default)"
 	@echo "  make build        - Build all examples"
+	@echo "  make launcher     - Launch example browser (app store UI)"
 	@echo "  make nl           - Build nanolang-only examples"
 	@echo "  make sdl          - Build SDL examples"
 	@echo "  make ncurses      - Build NCurses examples"

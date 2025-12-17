@@ -798,10 +798,51 @@ static ASTNode *parse_primary(Parser *p) {
                 node->as.struct_literal.field_count = count;
                 return node;
             } else {
-                /* Regular identifier */
-                node = create_node(AST_IDENTIFIER, tok->line, tok->column);
-                node->as.identifier = strdup(tok->value);
+                /* Check for qualified name: module::symbol or std::io::read_file */
+                int line = tok->line;
+                int column = tok->column;
+                
+                /* Collect all name parts separated by :: */
+                int capacity = 4;
+                int count = 0;
+                char **name_parts = malloc(sizeof(char*) * capacity);
+                
+                name_parts[count++] = strdup(tok->value);
                 advance(p);
+                
+                /* Check for :: */
+                while (match(p, TOKEN_DOUBLE_COLON)) {
+                    advance(p);  /* consume :: */
+                    
+                    if (!match(p, TOKEN_IDENTIFIER)) {
+                        fprintf(stderr, "Error at line %d, column %d: Expected identifier after '::'\n",
+                                current_token(p)->line, current_token(p)->column);
+                        for (int i = 0; i < count; i++) {
+                            free(name_parts[i]);
+                        }
+                        free(name_parts);
+                        return NULL;
+                    }
+                    
+                    if (count >= capacity) {
+                        capacity *= 2;
+                        name_parts = realloc(name_parts, sizeof(char*) * capacity);
+                    }
+                    name_parts[count++] = strdup(current_token(p)->value);
+                    advance(p);
+                }
+                
+                if (count == 1) {
+                    /* Simple identifier */
+                    node = create_node(AST_IDENTIFIER, line, column);
+                    node->as.identifier = name_parts[0];
+                    free(name_parts);
+                } else {
+                    /* Qualified name */
+                    node = create_node(AST_QUALIFIED_NAME, line, column);
+                    node->as.qualified_name.name_parts = name_parts;
+                    node->as.qualified_name.part_count = count;
+                }
                 return node;
             }
         }
@@ -2270,18 +2311,59 @@ static ASTNode *parse_function(Parser *p, bool is_extern) {
     return node;
 }
 
-/* Parse shadow-test block */
+/* Parse module declaration: module my_module */
+static ASTNode *parse_module_decl(Parser *p) {
+    int line = current_token(p)->line;
+    int column = current_token(p)->column;
+
+    if (!expect(p, TOKEN_MODULE, "Expected 'module'")) {
+        return NULL;
+    }
+
+    if (!match(p, TOKEN_IDENTIFIER)) {
+        fprintf(stderr, "Error at line %d, column %d: Expected module name after 'module'\n", line, column);
+        return NULL;
+    }
+
+    char *module_name = strdup(current_token(p)->value);
+    advance(p);
+
+    ASTNode *node = create_node(AST_MODULE_DECL, line, column);
+    node->as.module_decl.name = module_name;
+    return node;
+}
+
+/* Parse import statement:
+ *   - import "path.nano"
+ *   - import "path.nano" as alias
+ *   - from "path.nano" import sym1, sym2
+ *   - from "path.nano" import *
+ *   - pub use "path.nano" as alias  (re-export)
+ */
 static ASTNode *parse_import(Parser *p) {
     int line = current_token(p)->line;
     int column = current_token(p)->column;
 
-    if (!expect(p, TOKEN_IMPORT, "Expected 'import'")) {
+    bool is_from = false;
+    bool is_use = false;
+
+    /* Check if this is 'use' (for pub use re-exports) */
+    if (match(p, TOKEN_USE)) {
+        is_use = true;
+        advance(p);  /* consume 'use' */
+    }
+    /* Check if this is 'from' (selective import) */
+    else if (match(p, TOKEN_FROM)) {
+        is_from = true;
+        advance(p);  /* consume 'from' */
+    }
+    /* Otherwise it must be 'import' */
+    else if (!expect(p, TOKEN_IMPORT, "Expected 'import', 'from', or 'use'")) {
         return NULL;
     }
 
-    /* Parse import path: import "module.nano" or import module */
+    /* Parse import path: "module.nano" or module (identifier) */
     char *module_path = NULL;
-    char *module_name = NULL;
 
     if (match(p, TOKEN_STRING)) {
         /* import "module.nano" */
@@ -2299,21 +2381,77 @@ static ASTNode *parse_import(Parser *p) {
         return NULL;
     }
 
-    /* Optional: import "module.nano" as alias */
-    if (match(p, TOKEN_AS)) {
-        advance(p);  /* consume "as" keyword */
-        if (!match(p, TOKEN_IDENTIFIER)) {
-            fprintf(stderr, "Error at line %d, column %d: Expected module alias name after 'as'\n", line, column);
+    char *module_alias = NULL;
+    bool is_selective = false;
+    bool is_wildcard = false;
+    char **import_symbols = NULL;
+    int import_symbol_count = 0;
+
+    if (is_from) {
+        /* from "module.nano" import sym1, sym2 or from "module.nano" import * */
+        if (!expect(p, TOKEN_IMPORT, "Expected 'import' after module path in 'from' statement")) {
             free(module_path);
             return NULL;
         }
-        module_name = strdup(current_token(p)->value);
-        advance(p);
+
+        if (match(p, TOKEN_STAR)) {
+            /* Wildcard import: from "module.nano" import * */
+            is_wildcard = true;
+            is_selective = true;
+            advance(p);
+        } else {
+            /* Selective import: from "module.nano" import sym1, sym2, sym3 */
+            is_selective = true;
+            int capacity = 8;
+            import_symbols = malloc(sizeof(char*) * capacity);
+            
+            while (true) {
+                if (!match(p, TOKEN_IDENTIFIER)) {
+                    fprintf(stderr, "Error at line %d, column %d: Expected symbol name after 'import'\n",
+                            current_token(p)->line, current_token(p)->column);
+                    free(module_path);
+                    for (int i = 0; i < import_symbol_count; i++) {
+                        free(import_symbols[i]);
+                    }
+                    free(import_symbols);
+                    return NULL;
+                }
+
+                if (import_symbol_count >= capacity) {
+                    capacity *= 2;
+                    import_symbols = realloc(import_symbols, sizeof(char*) * capacity);
+                }
+                import_symbols[import_symbol_count++] = strdup(current_token(p)->value);
+                advance(p);
+
+                if (!match(p, TOKEN_COMMA)) {
+                    break;
+                }
+                advance(p);  /* consume comma */
+            }
+        }
+    } else {
+        /* Regular import or pub use: Optional 'as alias' */
+        if (match(p, TOKEN_AS)) {
+            advance(p);  /* consume "as" keyword */
+            if (!match(p, TOKEN_IDENTIFIER)) {
+                fprintf(stderr, "Error at line %d, column %d: Expected module alias name after 'as'\n", line, column);
+                free(module_path);
+                return NULL;
+            }
+            module_alias = strdup(current_token(p)->value);
+            advance(p);
+        }
     }
 
     ASTNode *node = create_node(AST_IMPORT, line, column);
     node->as.import_stmt.module_path = module_path;
-    node->as.import_stmt.module_name = module_name;
+    node->as.import_stmt.module_alias = module_alias;
+    node->as.import_stmt.is_selective = is_selective;
+    node->as.import_stmt.is_wildcard = is_wildcard;
+    node->as.import_stmt.is_pub_use = false;  /* Set by caller if 'pub use' */
+    node->as.import_stmt.import_symbols = import_symbols;
+    node->as.import_stmt.import_symbol_count = import_symbol_count;
     return node;
 }
 
@@ -2391,8 +2529,49 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         }
 
         ASTNode *parsed = NULL;
-        if (match(&parser, TOKEN_IMPORT)) {
+        if (match(&parser, TOKEN_MODULE)) {
+            parsed = parse_module_decl(&parser);
+        } else if (match(&parser, TOKEN_IMPORT) || match(&parser, TOKEN_FROM)) {
             parsed = parse_import(&parser);
+        } else if (match(&parser, TOKEN_PUB)) {
+            /* pub keyword before function or type definition */
+            advance(&parser);  /* consume 'pub' */
+            bool is_pub = true;
+            
+            if (match(&parser, TOKEN_USE)) {
+                /* pub use - re-export */
+                parsed = parse_import(&parser);
+                if (parsed && parsed->type == AST_IMPORT) {
+                    parsed->as.import_stmt.is_pub_use = true;
+                }
+            } else if (match(&parser, TOKEN_FN)) {
+                parsed = parse_function(&parser, false);
+                if (parsed && parsed->type == AST_FUNCTION) {
+                    parsed->as.function.is_pub = is_pub;
+                }
+            } else if (match(&parser, TOKEN_STRUCT)) {
+                parsed = parse_struct_def(&parser);
+                if (parsed && parsed->type == AST_STRUCT_DEF) {
+                    parsed->as.struct_def.is_pub = is_pub;
+                }
+            } else if (match(&parser, TOKEN_ENUM)) {
+                parsed = parse_enum_def(&parser);
+                if (parsed && parsed->type == AST_ENUM_DEF) {
+                    parsed->as.enum_def.is_pub = is_pub;
+                }
+            } else if (match(&parser, TOKEN_UNION)) {
+                parsed = parse_union_def(&parser);
+                if (parsed && parsed->type == AST_UNION_DEF) {
+                    parsed->as.union_def.is_pub = is_pub;
+                }
+            } else {
+                Token *err_tok = current_token(&parser);
+                if (err_tok) {
+                    fprintf(stderr, "Error at line %d, column %d: 'pub' keyword must be followed by fn, struct, enum, union, or use\n",
+                            err_tok->line, err_tok->column);
+                }
+                continue;
+            }
         } else if (match(&parser, TOKEN_STRUCT)) {
             parsed = parse_struct_def(&parser);
         } else if (match(&parser, TOKEN_ENUM)) {
@@ -2542,9 +2721,24 @@ void free_ast(ASTNode *node) {
             if (node->as.import_stmt.module_path) {
                 free(node->as.import_stmt.module_path);
             }
-            if (node->as.import_stmt.module_name) {
-                free(node->as.import_stmt.module_name);
+            if (node->as.import_stmt.module_alias) {
+                free(node->as.import_stmt.module_alias);
             }
+            if (node->as.import_stmt.import_symbols) {
+                for (int i = 0; i < node->as.import_stmt.import_symbol_count; i++) {
+                    free(node->as.import_stmt.import_symbols[i]);
+                }
+                free(node->as.import_stmt.import_symbols);
+            }
+            break;
+        case AST_MODULE_DECL:
+            free(node->as.module_decl.name);
+            break;
+        case AST_QUALIFIED_NAME:
+            for (int i = 0; i < node->as.qualified_name.part_count; i++) {
+                free(node->as.qualified_name.name_parts[i]);
+            }
+            free(node->as.qualified_name.name_parts);
             break;
         case AST_PROGRAM:
             for (int i = 0; i < node->as.program.count; i++) {

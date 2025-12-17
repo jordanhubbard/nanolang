@@ -1,0 +1,184 @@
+/* =============================================================================
+ * std::math Module - Extended Math Functions
+ * =============================================================================
+ * Provides additional mathematical functions via FFI for:
+ * - Inverse trigonometric functions
+ * - Logarithmic and exponential functions
+ * - Hyperbolic functions
+ * - Additional utility functions
+ * 
+ * Usage:
+ *   from "std/math/extended.nano" import atan2, log, exp
+ *   
+ *   let angle: float = (atan2 y_diff x_diff)
+ *   let natural_log: float = (log value)
+ */
+
+module std_math
+
+/* =============================================================================
+ * Inverse Trigonometric Functions
+ * =============================================================================
+ */
+
+/* Arcsine (inverse sine)
+ * Returns: angle in radians [-π/2, π/2]
+ * Domain: [-1, 1]
+ */
+pub extern fn asin(x: float) -> float
+
+/* Arccosine (inverse cosine)
+ * Returns: angle in radians [0, π]
+ * Domain: [-1, 1]
+ */
+pub extern fn acos(x: float) -> float
+
+/* Arctangent (inverse tangent)
+ * Returns: angle in radians [-π/2, π/2]
+ */
+pub extern fn atan(x: float) -> float
+
+/* Two-argument arctangent (critical for vector-to-angle conversion)
+ * Returns: angle in radians [-π, π]
+ * Handles all quadrants correctly
+ * 
+ * Example:
+ *   let dx: float = (- target_x current_x)
+ *   let dy: float = (- target_y current_y)
+ *   let angle: float = (atan2 dy dx)
+ */
+pub extern fn atan2(y: float, x: float) -> float
+
+/* =============================================================================
+ * Logarithmic and Exponential Functions
+ * =============================================================================
+ */
+
+/* Natural logarithm (base e)
+ * Returns: ln(x)
+ * Domain: (0, ∞)
+ */
+pub extern fn log(x: float) -> float
+
+/* Base-10 logarithm
+ * Returns: log₁₀(x)
+ * Domain: (0, ∞)
+ */
+pub extern fn log10(x: float) -> float
+
+/* Exponential function
+ * Returns: e^x
+ */
+pub extern fn exp(x: float) -> float
+
+/* =============================================================================
+ * Hyperbolic Functions
+ * =============================================================================
+ */
+
+/* Hyperbolic sine
+ * Returns: sinh(x) = (e^x - e^(-x)) / 2
+ */
+pub extern fn sinh(x: float) -> float
+
+/* Hyperbolic cosine
+ * Returns: cosh(x) = (e^x + e^(-x)) / 2
+ */
+pub extern fn cosh(x: float) -> float
+
+/* Hyperbolic tangent
+ * Returns: tanh(x) = sinh(x) / cosh(x)
+ */
+pub extern fn tanh(x: float) -> float
+
+/* =============================================================================
+ * Utility Functions
+ * =============================================================================
+ */
+
+/* Floating-point remainder
+ * Returns: x - n * y, where n is the quotient x/y rounded to zero
+ * 
+ * Example (wrap angle to range):
+ *   let wrapped: float = (fmod angle 360.0)
+ */
+pub extern fn fmod(x: float, y: float) -> float
+
+/* Floating-point absolute value
+ * Returns: |x|
+ */
+pub extern fn fabs(x: float) -> float
+
+/* =============================================================================
+ * Constants
+ * =============================================================================
+ */
+
+/* Pi (π) constant */
+pub let PI: float = 3.141592653589793
+
+/* Euler's number (e) constant */
+pub let E: float = 2.718281828459045
+
+/* =============================================================================
+ * Helper Functions
+ * =============================================================================
+ */
+
+/* Convert degrees to radians */
+pub fn deg_to_rad(degrees: float) -> float {
+    return (* degrees (/ PI 180.0))
+}
+
+/* Convert radians to degrees */
+pub fn rad_to_deg(radians: float) -> float {
+    return (* radians (/ 180.0 PI))
+}
+
+/* Clamp value between min and max */
+pub fn clamp(value: float, min: float, max: float) -> float {
+    if (< value min) {
+        return min
+    } else {
+        if (> value max) {
+            return max
+        } else {
+            return value
+        }
+    }
+}
+
+shadow clamp {
+    assert (== (clamp 5.0 0.0 10.0) 5.0)
+    assert (== (clamp -1.0 0.0 10.0) 0.0)
+    assert (== (clamp 15.0 0.0 10.0) 10.0)
+}
+
+/* Linear interpolation between a and b */
+pub fn lerp(a: float, b: float, t: float) -> float {
+    return (+ a (* (- b a) t))
+}
+
+shadow lerp {
+    assert (== (lerp 0.0 10.0 0.5) 5.0)
+    assert (== (lerp 0.0 10.0 0.0) 0.0)
+    assert (== (lerp 0.0 10.0 1.0) 10.0)
+}
+
+/* Main function for testing */
+fn main() -> int {
+    (println "=== std::math Extended Functions ===")
+    (println "Available functions:")
+    (println "  Inverse trig: asin, acos, atan, atan2")
+    (println "  Logarithmic: log, log10, exp")
+    (println "  Hyperbolic: sinh, cosh, tanh")
+    (println "  Utility: fmod, fabs")
+    (println "  Helpers: deg_to_rad, rad_to_deg, clamp, lerp")
+    (println "✅ Module loaded successfully!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

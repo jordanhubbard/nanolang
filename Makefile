@@ -85,7 +85,7 @@ PREFIX ?= /usr/local
 
 .DEFAULT_GOAL := build
 
-.PHONY: all build test examples examples-no-sdl clean rebuild help check-deps status
+.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps status
 
 # Build: 3-stage bootstrap (uses sentinels to skip completed stages)
 build: $(SENTINEL_STAGE3)
@@ -227,21 +227,21 @@ test-unit: build
 test-quick: build
 	@./tests/run_all_tests.sh --lang
 
-# Examples: Launch example browser (depends on build)
+# Build all examples (primary examples target)
 examples: build check-deps-sdl
-	@echo ""
-	@echo "=========================================="
-	@echo "🚀 Launching Example Browser"
-	@echo "=========================================="
-	@$(MAKE) -C examples all
-
-# Build all examples without launching browser
-examples-build: build check-deps-sdl
 	@echo ""
 	@echo "=========================================="
 	@echo "Building Examples"
 	@echo "=========================================="
 	@$(MAKE) -C examples build
+
+# Launch example browser
+examples-launcher: build check-deps-sdl
+	@echo ""
+	@echo "=========================================="
+	@echo "🚀 Launching Example Browser"
+	@echo "=========================================="
+	@$(MAKE) -C examples launcher
 	@echo "✅ Examples built successfully!"
 
 # Examples without SDL: Build only non-SDL examples  
@@ -721,12 +721,13 @@ help:
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "Main Targets:"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "  make build       - Build all components (default)"
-	@echo "  make bootstrap   - TRUE 3-stage bootstrap (GCC-style)"
-	@echo "  make test        - Build + run all tests (auto-detect best compiler)"
-	@echo "  make examples    - Build + compile examples"
-	@echo "  make clean       - Remove all artifacts"
-	@echo "  make rebuild     - Clean + build"
+	@echo "  make build            - Build all components (default)"
+	@echo "  make bootstrap        - TRUE 3-stage bootstrap (GCC-style)"
+	@echo "  make test             - Build + run all tests (auto-detect best compiler)"
+	@echo "  make examples         - Build all examples"
+	@echo "  make examples-launcher- Launch example browser"
+	@echo "  make clean            - Remove all artifacts"
+	@echo "  make rebuild          - Clean + build"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "Testing Targets:"
@@ -797,4 +798,4 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test examples examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install
+.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install

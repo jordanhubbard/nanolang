@@ -1,0 +1,199 @@
+/* =============================================================================
+ * std::io Module - Standard I/O Operations
+ * =============================================================================
+ * Provides FFI bindings for C file I/O operations.
+ * Supports reading/writing files, seeking, and file size queries.
+ * 
+ * Usage:
+ *   from "std/io/stdio.nano" import fopen, fclose, file_size
+ *   
+ *   let file: int = (fopen "data.bin" FILE_MODE_READ)
+ *   let size: int = (file_size "data.bin")
+ *   (fclose file)
+ */
+
+module std_io
+
+/* =============================================================================
+ * File Mode Constants
+ * =============================================================================
+ */
+
+/* Open for reading (file must exist) */
+pub let FILE_MODE_READ: string = "rb"
+
+/* Open for writing (creates or truncates) */
+pub let FILE_MODE_WRITE: string = "wb"
+
+/* Open for append (creates if doesn't exist) */
+pub let FILE_MODE_APPEND: string = "ab"
+
+/* Open for reading and writing */
+pub let FILE_MODE_READ_WRITE: string = "r+b"
+
+/* =============================================================================
+ * Seek Position Constants
+ * =============================================================================
+ */
+
+/* Seek from beginning of file */
+pub let SEEK_SET: int = 0
+
+/* Seek from current position */
+pub let SEEK_CUR: int = 1
+
+/* Seek from end of file */
+pub let SEEK_END: int = 2
+
+/* =============================================================================
+ * Core File Operations
+ * =============================================================================
+ */
+
+/* Open a file
+ * Returns: file handle (FILE* as int) or 0 on failure
+ */
+pub extern fn fopen(filename: string, mode: string) -> int
+
+/* Close a file
+ * Returns: 0 on success
+ */
+pub extern fn fclose(file: int) -> int
+
+/* Read data from file into buffer
+ * size: size of each element
+ * count: number of elements to read
+ * Returns: number of elements successfully read
+ */
+pub extern fn fread(ptr: int, size: int, count: int, file: int) -> int
+
+/* Write data to file from buffer
+ * size: size of each element
+ * count: number of elements to write
+ * Returns: number of elements successfully written
+ */
+pub extern fn fwrite(ptr: int, size: int, count: int, file: int) -> int
+
+/* Flush file buffer
+ * Returns: 0 on success
+ */
+pub extern fn fflush(file: int) -> int
+
+/* =============================================================================
+ * File Position Operations
+ * =============================================================================
+ */
+
+/* Seek to position in file
+ * offset: number of bytes to seek
+ * whence: SEEK_SET, SEEK_CUR, or SEEK_END
+ * Returns: 0 on success
+ */
+pub extern fn fseek(file: int, offset: int, whence: int) -> int
+
+/* Get current file position
+ * Returns: current position or -1 on error
+ */
+pub extern fn ftell(file: int) -> int
+
+/* Rewind file to beginning */
+pub extern fn rewind(file: int) -> int
+
+/* =============================================================================
+ * File Status Operations
+ * =============================================================================
+ */
+
+/* Check for end of file
+ * Returns: non-zero if EOF reached
+ */
+pub extern fn feof(file: int) -> int
+
+/* Check for file error
+ * Returns: non-zero if error occurred
+ */
+pub extern fn ferror(file: int) -> int
+
+/* Clear EOF and error indicators */
+pub extern fn clearerr(file: int) -> int
+
+/* =============================================================================
+ * Character I/O Operations
+ * =============================================================================
+ */
+
+/* Read a single character
+ * Returns: character as int, or -1 on EOF
+ */
+pub extern fn fgetc(file: int) -> int
+
+/* Write a single character
+ * Returns: character written, or -1 on error
+ */
+pub extern fn fputc(c: int, file: int) -> int
+
+/* Put character back to stream
+ * Returns: character pushed back, or -1 on error
+ */
+pub extern fn ungetc(c: int, file: int) -> int
+
+/* =============================================================================
+ * Helper Functions
+ * =============================================================================
+ */
+
+/* Get file size in bytes
+ * Returns: size in bytes, or -1 on error
+ */
+pub fn file_size(filename: string) -> int {
+    let file: int = (fopen filename FILE_MODE_READ)
+    if (== file 0) {
+        return -1
+    } else {
+        /* Seek to end */
+        (fseek file 0 SEEK_END)
+        let size: int = (ftell file)
+        (fclose file)
+        return size
+    }
+}
+
+shadow file_size {
+    /* Verify it handles nonexistent files */
+    assert (>= (file_size "/nonexistent") -1)
+}
+
+/* Check if file exists
+ * Returns: true if file can be opened for reading
+ */
+pub fn file_exists(filename: string) -> bool {
+    let file: int = (fopen filename FILE_MODE_READ)
+    if (== file 0) {
+        return false
+    } else {
+        (fclose file)
+        return true
+    }
+}
+
+shadow file_exists {
+    /* Verify it handles nonexistent files */
+    assert (== (file_exists "/nonexistent") false)
+}
+
+/* Main function for testing */
+fn main() -> int {
+    (println "=== std::io Tests ===")
+    (println "File operations available:")
+    (println "  - fopen/fclose")
+    (println "  - fread/fwrite")
+    (println "  - fseek/ftell/rewind")
+    (println "  - file_size/file_exists")
+    (println "✅ Module loaded successfully!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

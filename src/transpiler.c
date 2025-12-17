@@ -600,9 +600,43 @@ static const char *type_to_c(Type type) {
 }
 
 /* Get C function name with prefix to avoid conflicts with standard library */
-static const char *get_c_func_name(const char *nano_name) {
-    /* Note: main() now gets nl_ prefix to support library mode (Stage 1.5+) */
-    /* Standalone programs use --entry-point to call nl_main() */
+/* Helper: Mangle module name for C identifier (module -> module, std::io -> std__io) */
+static void mangle_module_name(char *dest, size_t dest_size, const char *module_name) {
+    /* Safety check: ensure valid input */
+    if (!dest || dest_size == 0 || !module_name || module_name[0] == '\0') {
+        if (dest && dest_size > 0) {
+            dest[0] = '\0';
+        }
+        return;
+    }
+    
+    size_t i = 0, j = 0;
+    while (module_name[i] && j < dest_size - 1) {
+        /* Only copy valid ASCII/UTF-8 characters */
+        unsigned char c = (unsigned char)module_name[i];
+        
+        if (module_name[i] == ':' && module_name[i+1] == ':') {
+            /* Replace :: with __ */
+            dest[j++] = '_';
+            if (j < dest_size - 1) {
+                dest[j++] = '_';
+            }
+            i += 2;
+        } else if (c >= 32 && c < 127) {
+            /* Only copy printable ASCII characters */
+            dest[j++] = module_name[i++];
+        } else {
+            /* Skip invalid/non-ASCII characters */
+            i++;
+        }
+    }
+    dest[j] = '\0';
+}
+
+/* Helper: Get C function name with namespace mangling support */
+static const char *get_c_func_name_with_module(const char *nano_name, const char *module_name) {
+    /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
+    static _Thread_local char buffer[512];
     
     /* Don't prefix list runtime functions */
     if (strncmp(nano_name, "list_int_", 9) == 0 || 
@@ -627,12 +661,39 @@ static const char *get_c_func_name(const char *nano_name) {
         strcmp(nano_name, "char_to_upper") == 0) {
         return nano_name;
     }
-
-    /* Prefix user functions to avoid conflicts with C stdlib (abs, min, max, etc.) */
-    /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
-    static _Thread_local char buffer[256];
+    
+    /* If module_name is provided, use namespace mangling: module__func */
+    if (module_name && module_name[0] != '\0') {
+        /* Validate module_name contains only printable ASCII before using */
+        bool valid_module_name = true;
+        for (const char *p = module_name; *p; p++) {
+            unsigned char c = (unsigned char)*p;
+            if (c < 32 || c >= 127) {
+                valid_module_name = false;
+                break;
+            }
+        }
+        
+        if (valid_module_name) {
+            char mangled_module[256];
+            mangle_module_name(mangled_module, sizeof(mangled_module), module_name);
+            /* Only use mangled name if it's non-empty */
+            if (mangled_module[0] != '\0') {
+                snprintf(buffer, sizeof(buffer), "%s__%s", mangled_module, nano_name);
+                return buffer;
+            }
+        }
+    }
+    
+    /* Legacy: prefix with nl_ for global scope */
     snprintf(buffer, sizeof(buffer), "nl_%s", nano_name);
     return buffer;
+}
+
+static const char *get_c_func_name(const char *nano_name) {
+    /* Note: main() now gets nl_ prefix to support library mode (Stage 1.5+) */
+    /* Standalone programs use --entry-point to call nl_main() */
+    return get_c_func_name_with_module(nano_name, NULL);
 }
 
 /* ============================================================================
@@ -1285,6 +1346,11 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                 continue;
             }
             
+            /* Add static for private functions */
+            if (!item->as.function.is_pub) {
+                sb_append(sb, "static ");
+            }
+            
             /* Regular functions - forward declare with nl_ prefix */
             /* Function return type */
             if (item->as.function.return_type == TYPE_FUNCTION && item->as.function.return_fn_sig) {
@@ -1319,7 +1385,14 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                 sb_append(sb, type_to_c(item->as.function.return_type));
             }
             
-            const char *c_func_name = get_c_func_name(item->as.function.name);
+            /* Get module name from environment for namespace-aware mangling */
+            const char *module_name = NULL;
+            Function *func = env_get_function(env, item->as.function.name);
+            if (func) {
+                module_name = func->module_name;
+            }
+            /* Use namespace-aware function name (handles module::function -> module__function) */
+            const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name);
             sb_appendf(sb, " %s(", c_func_name);
             
             /* Function parameters */
@@ -1376,6 +1449,11 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                 continue;
             }
             
+            /* Add static for private functions */
+            if (!item->as.function.is_pub) {
+                sb_append(sb, "static ");
+            }
+            
             /* Function return type */
             if (item->as.function.return_type == TYPE_FUNCTION && item->as.function.return_fn_sig) {
                 /* Function return type: use typedef */
@@ -1409,7 +1487,14 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                 sb_append(sb, type_to_c(item->as.function.return_type));
             }
             
-            const char *c_func_name = get_c_func_name(item->as.function.name);
+            /* Get module name from environment for namespace-aware mangling */
+            const char *module_name = NULL;
+            Function *func = env_get_function(env, item->as.function.name);
+            if (func) {
+                module_name = func->module_name;
+            }
+            /* Use namespace-aware function name (handles module::function -> module__function) */
+            const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name);
             sb_appendf(sb, " %s(", c_func_name);
             
             /* Function parameters */
@@ -1865,14 +1950,17 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     /* Only add if there's a main function (modules don't have main) */
     Function *main_func = env_get_function(env, "main");
     if (main_func && !main_func->is_extern) {
-    sb_append(sb, "\n/* C main() entry point - calls nanolang main (nl_main) */\n");
+    /* Get the mangled name for main (could be module__main) */
+    const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name);
+    
+    sb_append(sb, "\n/* C main() entry point - calls nanolang main */\n");
     sb_append(sb, "/* Global argc/argv for CLI runtime support */\n");
     sb_append(sb, "int g_argc = 0;\n");
     sb_append(sb, "char **g_argv = NULL;\n\n");
     sb_append(sb, "int main(int argc, char **argv) {\n");
     sb_append(sb, "    g_argc = argc;\n");
     sb_append(sb, "    g_argv = argv;\n");
-    sb_append(sb, "    return (int)nl_main();\n");
+    sb_appendf(sb, "    return (int)%s();\n", c_main_name);
     sb_append(sb, "}\n");
     }
 

@@ -1,0 +1,95 @@
+/* =============================================================================
+ * std::lib - Standard Library Root Module
+ * =============================================================================
+ * Re-exports commonly used functions and types from the standard library.
+ * Provides convenient access without fully qualified imports.
+ * 
+ * Usage:
+ *   from "std/lib.nano" import StringBuilder, file_exists, Vector2D
+ *   
+ * Or use fully qualified names:
+ *   from "std/collections/stringbuilder.nano" import StringBuilder
+ *   from "std/io/stdio.nano" import file_exists
+ *   from "std/math/vector2d.nano" import Vector2D
+ */
+
+module std
+
+/* =============================================================================
+ * Re-export collections module
+ * =============================================================================
+ */
+
+/* Re-export StringBuilder from std::collections */
+pub use std_collections_stringbuilder::StringBuilder
+pub use std_collections_stringbuilder::new as sb_new
+pub use std_collections_stringbuilder::append as sb_append
+pub use std_collections_stringbuilder::to_string as sb_to_string
+
+/* =============================================================================
+ * Re-export I/O module
+ * =============================================================================
+ */
+
+/* Re-export file operations from std::io */
+pub use std_io::fopen
+pub use std_io::fclose
+pub use std_io::fread
+pub use std_io::fwrite
+pub use std_io::file_size
+pub use std_io::file_exists
+
+/* Re-export file mode constants */
+pub use std_io::FILE_MODE_READ
+pub use std_io::FILE_MODE_WRITE
+pub use std_io::FILE_MODE_APPEND
+pub use std_io::FILE_MODE_READ_WRITE
+
+/* =============================================================================
+ * Re-export math module
+ * =============================================================================
+ */
+
+/* Re-export extended math functions from std::math */
+pub use std_math::atan2
+pub use std_math::log
+pub use std_math::exp
+pub use std_math::PI
+pub use std_math::E
+
+/* Re-export vector math from std::math::vector2d */
+pub use std_math_vector2d::Vector2D
+pub use std_math_vector2d::vec_new
+pub use std_math_vector2d::vec_add
+pub use std_math_vector2d::vec_sub
+pub use std_math_vector2d::vec_scale
+pub use std_math_vector2d::vec_length
+pub use std_math_vector2d::vec_normalize
+
+/* =============================================================================
+ * Library Information
+ * =============================================================================
+ */
+
+/* Standard library version */
+pub let STD_VERSION: string = "1.0.0"
+
+/* Main function for testing */
+fn main() -> int {
+    (println "=== NanoLang Standard Library ===")
+    (print "Version: ")
+    (println STD_VERSION)
+    (println "")
+    (println "Available modules:")
+    (println "  - std::collections (StringBuilder)")
+    (println "  - std::io (file operations)")
+    (println "  - std::math (extended math, vector2d)")
+    (println "")
+    (println "✅ Standard library loaded successfully!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

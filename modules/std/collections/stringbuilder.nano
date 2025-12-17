@@ -1,0 +1,186 @@
+/* =============================================================================
+ * std::collections::StringBuilder Module
+ * =============================================================================
+ * Efficient string building without O(n²) concatenation.
+ * 
+ * Usage:
+ *   from "std/collections/stringbuilder.nano" import StringBuilder, new, append
+ *   let sb: StringBuilder = (new)
+ *   let sb2: StringBuilder = (append sb "Hello World")
+ *   let result: string = (to_string sb2)
+ */
+
+module std_collections_stringbuilder
+
+/* StringBuilder state */
+pub struct StringBuilder {
+    buffer: string,      /* Current content */
+    length: int,         /* Current length */
+    capacity: int        /* Allocated capacity */
+}
+
+/* Initial capacity for new StringBuilder */
+let INITIAL_CAPACITY: int = 256
+
+/* Growth factor when expanding */
+let GROWTH_FACTOR: int = 2
+
+/* Create a new StringBuilder with default capacity */
+pub fn new() -> StringBuilder {
+    return StringBuilder {
+        buffer: "",
+        length: 0,
+        capacity: INITIAL_CAPACITY
+    }
+}
+
+shadow new {
+    let sb: StringBuilder = (new)
+    assert (== sb.length 0)
+    assert (== sb.capacity INITIAL_CAPACITY)
+}
+
+/* Create a new StringBuilder with specific initial capacity */
+pub fn with_capacity(capacity: int) -> StringBuilder {
+    return StringBuilder {
+        buffer: "",
+        length: 0,
+        capacity: capacity
+    }
+}
+
+shadow with_capacity {
+    let sb: StringBuilder = (with_capacity 1024)
+    assert (== sb.capacity 1024)
+}
+
+/* Append a string to the StringBuilder (returns new StringBuilder) */
+pub fn append(sb: StringBuilder, text: string) -> StringBuilder {
+    let text_len: int = (str_length text)
+    
+    if (== text_len 0) {
+        return sb
+    }
+    
+    /* Calculate new length and capacity */
+    let new_length: int = (+ sb.length text_len)
+    let mut new_capacity: int = sb.capacity
+    
+    if (>= new_length new_capacity) {
+        /* Need to expand - double capacity until we have enough space */
+        while (< new_capacity new_length) {
+            set new_capacity (* new_capacity GROWTH_FACTOR)
+        }
+    }
+    
+    /* Concatenate strings */
+    let new_buffer: string = (str_concat sb.buffer text)
+    
+    /* Create new StringBuilder with appended text */
+    return StringBuilder {
+        buffer: new_buffer,
+        length: new_length,
+        capacity: new_capacity
+    }
+}
+
+shadow append {
+    let sb1: StringBuilder = (new)
+    let sb2: StringBuilder = (append sb1 "Hello")
+    assert (== sb2.length 5)
+    assert (== (str_equals sb2.buffer "Hello") true)
+}
+
+/* Append a string with a newline */
+pub fn append_line(sb: StringBuilder, text: string) -> StringBuilder {
+    let sb2: StringBuilder = (append sb text)
+    return (append sb2 "\n")
+}
+
+/* Append an integer (converted to string) */
+pub fn append_int(sb: StringBuilder, n: int) -> StringBuilder {
+    let s: string = (int_to_string n)
+    return (append sb s)
+}
+
+/* Append a character (ASCII value) */
+pub fn append_char(sb: StringBuilder, c: int) -> StringBuilder {
+    let s: string = (string_from_char c)
+    return (append sb s)
+}
+
+/* Get the current content as a string */
+pub fn to_string(sb: StringBuilder) -> string {
+    return sb.buffer
+}
+
+/* Get current length */
+pub fn length(sb: StringBuilder) -> int {
+    return sb.length
+}
+
+/* Clear the StringBuilder (reset to empty) */
+pub fn clear(sb: StringBuilder) -> StringBuilder {
+    return StringBuilder {
+        buffer: "",
+        length: 0,
+        capacity: sb.capacity
+    }
+}
+
+/* Check if StringBuilder is empty */
+pub fn is_empty(sb: StringBuilder) -> bool {
+    return (== sb.length 0)
+}
+
+/* Build a string from multiple parts efficiently */
+pub fn from_parts(parts: array<string>) -> string {
+    let sb_start: StringBuilder = (new)
+    let count: int = (array_length parts)
+    let mut sb: StringBuilder = sb_start
+    let mut part_val: string = ""
+    
+    for idx in (range 0 count) {
+        set part_val (at parts idx)
+        set sb (append sb part_val)
+    }
+    
+    return (to_string sb)
+}
+
+/* Join strings with a separator */
+pub fn join(parts: array<string>, separator: string) -> string {
+    let sb_start: StringBuilder = (new)
+    let count: int = (array_length parts)
+    let mut sb: StringBuilder = sb_start
+    let mut part_val: string = ""
+    
+    for idx in (range 0 count) {
+        if (!= idx 0) {
+            set sb (append sb separator)
+        }
+        set part_val (at parts idx)
+        set sb (append sb part_val)
+    }
+    
+    return (to_string sb)
+}
+
+/* Repeat a string n times */
+pub fn repeat(text: string, n: int) -> string {
+    let sb_start: StringBuilder = (new)
+    let mut sb: StringBuilder = sb_start
+    
+    for i in (range 0 n) {
+        set sb (append sb text)
+    }
+    
+    return (to_string sb)
+}
+
+/* Build indentation string (spaces) */
+pub fn indent(level: int, spaces_per_level: int) -> string {
+    let total_spaces: int = (* level spaces_per_level)
+    return (repeat " " total_spaces)
+}
+

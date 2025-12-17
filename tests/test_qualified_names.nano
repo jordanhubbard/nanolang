@@ -1,0 +1,20 @@
+# Test qualified name resolution (basic)
+
+module test_qualified
+
+# Define a function
+pub fn helper() -> int {
+    return 99
+}
+
+fn main() -> int {
+    # For now, just test that module declaration works
+    # TODO: Test actual qualified name calls once fully implemented
+    let result: int = (helper)
+    return result
+}
+
+shadow main {
+    assert (== (main) 99)
+}
+

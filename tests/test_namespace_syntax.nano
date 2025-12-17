@@ -1,0 +1,49 @@
+# Test namespace syntax parsing (no external dependencies)
+
+# Module declaration
+module test_syntax
+
+# Public function
+pub fn public_add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+# Private function (default)
+fn private_helper() -> int {
+    return 100
+}
+
+# Public struct
+pub struct Point {
+    x: int
+    y: int
+}
+
+# Private struct
+struct InternalData {
+    value: int
+}
+
+# Public enum
+pub enum Status {
+    Active
+    Inactive
+}
+
+fn main() -> int {
+    # Test public function
+    let result: int = (public_add 5 7)
+    
+    # Test struct creation
+    let p: Point = Point { x: result, y: 20 }
+    
+    # Test enum
+    let s: Status = Status.Active
+    
+    return p.x
+}
+
+shadow main {
+    assert (== (main) 12)
+}
+

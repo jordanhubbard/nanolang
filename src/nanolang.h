@@ -39,11 +39,16 @@ typedef enum {
     TOKEN_RBRACKET,
     TOKEN_COMMA,
     TOKEN_COLON,
+    TOKEN_DOUBLE_COLON,  /* :: for namespace qualification */
     TOKEN_ARROW,
     TOKEN_ASSIGN,
     TOKEN_DOT,
 
     /* Keywords */
+    TOKEN_MODULE,    /* module keyword for explicit module declaration */
+    TOKEN_PUB,       /* pub keyword for visibility */
+    TOKEN_FROM,      /* from keyword for selective imports */
+    TOKEN_USE,       /* use keyword for re-exports */
     TOKEN_EXTERN,
     TOKEN_FN,
     TOKEN_LET,
@@ -254,9 +259,11 @@ typedef enum {
     AST_UNION_CONSTRUCT,
     AST_MATCH,
     AST_IMPORT,
+    AST_MODULE_DECL,       /* Module declaration: module module_name */
     AST_OPAQUE_TYPE,       /* Opaque type declaration: opaque type TypeName */
     AST_TUPLE_LITERAL,     /* Tuple literal: (1, "hello", true) */
-    AST_TUPLE_INDEX        /* Tuple index access: tuple.0, tuple.1 */
+    AST_TUPLE_INDEX,       /* Tuple index access: tuple.0, tuple.1 */
+    AST_QUALIFIED_NAME     /* Qualified name: module::symbol or std::io::read_file */
 } ASTNodeType;
 
 /* Forward declaration */
@@ -352,7 +359,8 @@ struct ASTNode {
             FunctionSignature *return_fn_sig;  /* For TYPE_FUNCTION returns */
             TypeInfo *return_type_info;  /* For TYPE_TUPLE returns: stores element types */
             ASTNode *body;
-            bool is_extern;  /* NEW: Mark external C functions */
+            bool is_extern;  /* Mark external C functions */
+            bool is_pub;     /* Visibility: public (pub) vs private */
         } function;
         struct {
             char *function_name;
@@ -375,6 +383,7 @@ struct ASTNode {
             char **field_type_names;  // For TYPE_STRUCT/TYPE_UNION fields: actual type names
             Type *field_element_types;  // For TYPE_ARRAY fields: element type
             int field_count;          // Number of fields
+            bool is_pub;              // Visibility: public (pub) vs private
         } struct_def;
         struct {
             char *struct_name;        // Name of struct type
@@ -391,6 +400,7 @@ struct ASTNode {
             char **variant_names;     // Array of variant names
             int *variant_values;      // Array of variant values (or NULL for auto)
             int variant_count;        // Number of variants
+            bool is_pub;              // Visibility: public (pub) vs private
         } enum_def;
         
         /* Union definition: union Color { Red {}, Blue { intensity: int } } */
@@ -401,6 +411,7 @@ struct ASTNode {
             int *variant_field_counts;
             char ***variant_field_names;
             Type **variant_field_types;
+            bool is_pub;              // Visibility: public (pub) vs private
         } union_def;
         
         /* Union construction: Color.Red {} or Color.Blue { intensity: 5 } */
@@ -421,11 +432,25 @@ struct ASTNode {
             ASTNode **arm_bodies;
             char *union_type_name;  /* Filled during typechecking */
         } match_expr;
-        /* Import statement: import "module.nano" or import module */
+        /* Import statement: import "module.nano" as alias or from "module.nano" import sym1, sym2 */
         struct {
-            char *module_path;  /* Path to module file (e.g., "math.nano" or "utils/math.nano") */
-            char *module_name;  /* Optional module name/alias */
+            char *module_path;      /* Path to module file (e.g., "math.nano" or "utils/math.nano") */
+            char *module_alias;     /* Optional module alias (for "import ... as alias") */
+            bool is_selective;      /* true for "from...import" syntax */
+            bool is_wildcard;       /* true for "from...import *" syntax */
+            bool is_pub_use;        /* true for "pub use" (re-export) */
+            char **import_symbols;  /* NULL or array of symbol names for selective import */
+            int import_symbol_count;/* Number of symbols in selective import */
         } import_stmt;
+        /* Module declaration: module module_name */
+        struct {
+            char *name;             /* Explicit module name */
+        } module_decl;
+        /* Qualified name: module::symbol, std::io::fs::read_file */
+        struct {
+            char **name_parts;      /* Array of name segments: ["std", "io", "fs", "read_file"] */
+            int part_count;         /* Number of segments */
+        } qualified_name;
         /* Opaque type declaration: opaque type TypeName */
         struct {
             char *name;            /* Type name (e.g., "GLFWwindow", "SDL_Window") */
@@ -470,7 +495,9 @@ typedef struct {
     TypeInfo *return_type_info;  /* For TYPE_TUPLE returns: tuple element types */
     ASTNode *body;
     ASTNode *shadow_test;
-    bool is_extern;  /* NEW: Mark external C functions */
+    bool is_extern;  /* Mark external C functions */
+    bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
+    char *module_name;  /* Module this function belongs to (NULL for global) */
 } Function;
 
 /* Struct definition entry */
@@ -481,6 +508,8 @@ typedef struct {
     char **field_type_names;  /* For TYPE_STRUCT/TYPE_UNION fields: actual type name (e.g., "Vec3") */
     Type *field_element_types;  /* For TYPE_ARRAY fields: element type (e.g., TYPE_STRING for array<string>) */
     int field_count;
+    bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
+    char *module_name;  /* Module this struct belongs to (NULL for global) */
 } StructDef;
 
 /* Enum definition entry */
@@ -489,6 +518,8 @@ typedef struct {
     char **variant_names;
     int *variant_values;
     int variant_count;
+    bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
+    char *module_name;  /* Module this enum belongs to (NULL for global) */
 } EnumDef;
 
 /* Union definition entry */
@@ -499,6 +530,8 @@ typedef struct {
     int *variant_field_counts;
     char ***variant_field_names;
     Type **variant_field_types;
+    bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
+    char *module_name;  /* Module this union belongs to (NULL for global) */
 } UnionDef;
 
 /* Opaque type definition entry (for C pointer types) */
@@ -536,6 +569,21 @@ typedef struct {
     int union_count;
 } ModuleNamespace;
 
+/* Selective import tracking */
+typedef struct {
+    char *module_path;         /* Module file path */
+    char **imported_symbols;   /* Symbols explicitly imported (NULL = all/wildcard) */
+    int symbol_count;          /* Number of imported symbols (0 = wildcard) */
+    bool is_wildcard;          /* true for "from module import *" */
+} SelectiveImport;
+
+/* Import tracking in Environment */
+typedef struct {
+    SelectiveImport *imports;
+    int import_count;
+    int import_capacity;
+} ImportTracker;
+
 /* Environment for variable and function storage */
 typedef struct {
     Symbol *symbols;
@@ -562,6 +610,8 @@ typedef struct {
     ModuleNamespace *namespaces;  /* Module alias → symbols mapping */
     int namespace_count;
     int namespace_capacity;
+    char *current_module;  /* Currently active module name (NULL for global scope) */
+    ImportTracker *import_tracker;  /* Track selective imports */
 } Environment;
 
 /* Function declarations */

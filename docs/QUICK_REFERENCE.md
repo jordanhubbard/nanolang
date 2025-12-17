@@ -272,8 +272,15 @@ fn       let      mut      set      if       else
 while    for      in       return   assert   shadow
 int      float    bool     string   void
 true     false    print    and      or       not
-range
+range    module   pub      from     import   use
+struct   enum     union    extern   as
 ```
+
+**Namespace Keywords (NEW!):**
+- `module` - Declare module namespace
+- `pub` - Make symbol public (exported)
+- `from` - Selective import syntax
+- `use` - Re-export symbols
 
 ## Common Patterns
 
@@ -354,6 +361,7 @@ if (and (> x 0) (< x 10)) {
 
 ## Program Structure
 
+### Basic Program
 ```nano
 # 1. Define helper functions
 fn helper1(x: int) -> int {
@@ -383,6 +391,50 @@ shadow main {
     assert (== (main) 0)
 }
 ```
+
+### Module with Namespace (NEW!)
+```nano
+/* Declare module namespace */
+module my_app
+
+/* Import with selective symbols */
+from "modules/std/io/stdio.nano" import fopen, fclose
+
+/* Public API - exported to other modules */
+pub fn process_file(path: string) -> bool {
+    let file: int = (fopen path "rb")
+    if (== file 0) {
+        return false
+    } else {
+        (fclose file)
+        return true
+    }
+}
+
+/* Private helper - module-only */
+fn validate_path(path: string) -> bool {
+    return true  # Simplified
+}
+
+/* Public struct */
+pub struct Config {
+    enabled: bool,
+    timeout: int
+}
+
+/* Main entry point */
+pub fn main() -> int {
+    let cfg: Config = Config { enabled: true, timeout: 30 }
+    return 0
+}
+```
+
+**Key Namespace Features:**
+- `module name` - Declares namespace
+- `pub fn` - Public function (exported)
+- `fn` (no pub) - Private function (module-only)
+- `from "path" import symbols` - Selective imports
+- See `docs/NAMESPACE_USAGE.md` for complete guide
 
 ## Common Mistakes
 
