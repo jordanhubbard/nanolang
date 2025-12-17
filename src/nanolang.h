@@ -426,6 +426,7 @@ struct ASTNode {
             int field_count;
             char **field_names;
             ASTNode **field_values;
+            TypeInfo *type_info;  /* For generic unions: full instantiation info (e.g., Result<int, string>) */
         } union_construct;
         
         /* Match expression: match c { Red(r) => ..., Blue(b) => ... } */

@@ -705,6 +705,10 @@ static const char *get_c_func_name(const char *nano_name) {
  * ITERATIVE TRANSPILER IMPLEMENTATION
  * Two-pass architecture: clean and simple!
  * ============================================================================ */
+
+/* Global context for the iterative transpiler */
+ASTNode *g_current_function = NULL;
+
 #include "transpiler_iterative_v3_twopass.c"
 
 
@@ -1662,10 +1666,45 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                     const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
                     sb_append(sb, prefixed_name);
                 }
-            } else if (item->as.function.return_type == TYPE_UNION && item->as.function.return_struct_type_name) {
-                /* Use prefixed union name */
-                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
-                sb_append(sb, prefixed_name);
+            } else if (item->as.function.return_type == TYPE_UNION) {
+                /* Check if this is a generic union instantiation */
+                if (item->as.function.return_type_info &&
+                    item->as.function.return_type_info->generic_name &&
+                    item->as.function.return_type_info->type_param_count > 0) {
+                    /* Build monomorphized name: Result<int, string> -> Result_int_string */
+                    char monomorphized_name[256];
+                    snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", 
+                            item->as.function.return_type_info->generic_name);
+                    
+                    for (int ti = 0; ti < item->as.function.return_type_info->type_param_count; ti++) {
+                        TypeInfo *param = item->as.function.return_type_info->type_params[ti];
+                        strcat(monomorphized_name, "_");
+                        
+                        if (param->base_type == TYPE_INT) {
+                            strcat(monomorphized_name, "int");
+                        } else if (param->base_type == TYPE_STRING) {
+                            strcat(monomorphized_name, "string");
+                        } else if (param->base_type == TYPE_BOOL) {
+                            strcat(monomorphized_name, "bool");
+                        } else if (param->base_type == TYPE_FLOAT) {
+                            strcat(monomorphized_name, "float");
+                        } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
+                            strcat(monomorphized_name, param->generic_name);
+                        } else {
+                            strcat(monomorphized_name, "unknown");
+                        }
+                    }
+                    
+                    const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
+                    sb_append(sb, prefixed_name);
+                } else if (item->as.function.return_struct_type_name) {
+                    /* Non-generic union - use prefixed union name */
+                    const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                    sb_append(sb, prefixed_name);
+                } else {
+                    /* Fallback */
+                    sb_append(sb, type_to_c(item->as.function.return_type));
+                }
             } else if (item->as.function.return_type == TYPE_TUPLE && item->as.function.return_type_info) {
                 /* Use typedef name for tuple return type */
                 const char *typedef_name = register_tuple_type(tuple_registry, 
@@ -1747,7 +1786,9 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
             }
 
             /* Function body */
+            g_current_function = item;  /* Set context for union construction in returns */
             transpile_statement(sb, item->as.function.body, 0, env, fn_registry);
+            g_current_function = NULL;  /* Clear context */
             sb_append(sb, "\n");
 
             /* Restore environment (remove parameters) */
@@ -1965,10 +2006,45 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
                     const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
                     sb_append(sb, prefixed_name);
                 }
-            } else if (item->as.function.return_type == TYPE_UNION && item->as.function.return_struct_type_name) {
-                /* Union return type: use prefixed name */
-                const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
-                sb_append(sb, prefixed_name);
+            } else if (item->as.function.return_type == TYPE_UNION) {
+                /* Check if this is a generic union instantiation */
+                if (item->as.function.return_type_info &&
+                    item->as.function.return_type_info->generic_name &&
+                    item->as.function.return_type_info->type_param_count > 0) {
+                    /* Build monomorphized name: Result<int, string> -> Result_int_string */
+                    char monomorphized_name[256];
+                    snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", 
+                            item->as.function.return_type_info->generic_name);
+                    
+                    for (int ti = 0; ti < item->as.function.return_type_info->type_param_count; ti++) {
+                        TypeInfo *param = item->as.function.return_type_info->type_params[ti];
+                        strcat(monomorphized_name, "_");
+                        
+                        if (param->base_type == TYPE_INT) {
+                            strcat(monomorphized_name, "int");
+                        } else if (param->base_type == TYPE_STRING) {
+                            strcat(monomorphized_name, "string");
+                        } else if (param->base_type == TYPE_BOOL) {
+                            strcat(monomorphized_name, "bool");
+                        } else if (param->base_type == TYPE_FLOAT) {
+                            strcat(monomorphized_name, "float");
+                        } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
+                            strcat(monomorphized_name, param->generic_name);
+                        } else {
+                            strcat(monomorphized_name, "unknown");
+                        }
+                    }
+                    
+                    const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
+                    sb_append(sb, prefixed_name);
+                } else if (item->as.function.return_struct_type_name) {
+                    /* Non-generic union - use prefixed union name */
+                    const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
+                    sb_append(sb, prefixed_name);
+                } else {
+                    /* Fallback */
+                    sb_append(sb, type_to_c(item->as.function.return_type));
+                }
             } else if (item->as.function.return_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
                 /* Generic list return type: List<ElementType> -> List_ElementType* */
                 sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);

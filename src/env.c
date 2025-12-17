@@ -927,7 +927,7 @@ void env_register_union_instantiation(Environment *env, const char *union_name,
             /* Check if all type args match */
             bool all_match = true;
             for (int j = 0; j < type_arg_count; j++) {
-                if (!safe_strcmp(inst->type_arg_names[j], type_args[j])) {
+                if (safe_strcmp(inst->type_arg_names[j], type_args[j]) != 0) {
                     all_match = false;
                     break;
                 }

@@ -1,0 +1,52 @@
+/* Standard Library: Result<T, E> Type
+ * 
+ * The Result type represents either success (Ok) or failure (Err).
+ * This is the recommended way to handle errors in NanoLang.
+ * 
+ * Type Parameters:
+ *   T - The type of the success value
+ *   E - The type of the error value
+ * 
+ * Usage Examples:
+ *   Result<int, string> for operations that return int or string error
+ *   Result<string, string> for operations that return string or error message
+ *   Result<bool, int> for operations that return bool or error code
+ * 
+ * Pattern Matching:
+ *   Use match expressions to handle both success and error cases safely.
+ * 
+ * Example:
+ *   fn divide(a: int, b: int) -> Result<int, string> {
+ *       if (== b 0) {
+ *           return Result.Err { error: "Division by zero" }
+ *       }
+ *       return Result.Ok { value: (/ a b) }
+ *   }
+ * 
+ *   let result: Result<int, string> = (divide 10 2)
+ *   match result {
+ *       Ok(val) => println("Success: {val}"),
+ *       Err(msg) => println("Error: {msg}")
+ *   }
+ */
+
+union Result<T, E> {
+    Ok { value: T },
+    Err { error: E }
+}
+
+/* Note: Helper functions like is_ok(), is_err(), unwrap(), and unwrap_or()
+ * will be added once generic functions are supported in the language.
+ * 
+ * For now, use pattern matching with 'match' expressions to safely
+ * handle Result values.
+ * 
+ * Planned API (future):
+ *   fn is_ok<T, E>(r: Result<T, E>) -> bool
+ *   fn is_err<T, E>(r: Result<T, E>) -> bool
+ *   fn unwrap<T, E>(r: Result<T, E>) -> T
+ *   fn unwrap_or<T, E>(r: Result<T, E>, default: T) -> T
+ *   fn map<T, E, U>(r: Result<T, E>, f: fn(T) -> U) -> Result<U, E>
+ *   fn map_err<T, E, F>(r: Result<T, E>, f: fn(E) -> F) -> Result<T, F>
+ */
+

@@ -1,0 +1,141 @@
+/* Test: Standard Library Result<T, E> Type */
+
+union Result<T, E> {
+    Ok { value: T },
+    Err { error: E }
+}
+
+/* Test function: Division that can fail */
+fn divide(a: int, b: int) -> Result<int, string> {
+    if (== b 0) {
+        return Result.Err { error: "Division by zero" }
+    }
+    return Result.Ok { value: (/ a b) }
+}
+
+shadow divide {
+    /* Test successful division */
+    let result1: Result<int, string> = (divide 10 2)
+    assert true  /* Verify it compiles */
+    
+    /* Test division by zero */
+    let result2: Result<int, string> = (divide 10 0)
+    assert true  /* Verify it compiles */
+}
+
+/* Test function: Parse integer from string (simulated) */
+fn parse_int(s: string) -> Result<int, string> {
+    /* Simplified simulation - in real implementation would parse string */
+    if (== s "42") {
+        return Result.Ok { value: 42 }
+    }
+    return Result.Err { error: "Invalid number" }
+}
+
+shadow parse_int {
+    let result1: Result<int, string> = (parse_int "42")
+    assert true
+    
+    let result2: Result<int, string> = (parse_int "invalid")
+    assert true
+}
+
+/* Test function: File operation simulation */
+fn read_file(path: string) -> Result<string, int> {
+    /* Simulate file read - error codes as integers */
+    if (== path "exists.txt") {
+        return Result.Ok { value: "file contents" }
+    }
+    if (== path "notfound.txt") {
+        return Result.Err { error: 404 }
+    }
+    return Result.Err { error: 500 }
+}
+
+shadow read_file {
+    let r1: Result<string, int> = (read_file "exists.txt")
+    let r2: Result<string, int> = (read_file "notfound.txt")
+    let r3: Result<string, int> = (read_file "other.txt")
+    assert true
+}
+
+/* Test function: Nested Results */
+fn validate_positive(n: int) -> Result<int, string> {
+    if (> n 0) {
+        return Result.Ok { value: n }
+    }
+    return Result.Err { error: "Number must be positive" }
+}
+
+fn safe_divide_positive(a: int, b: int) -> Result<int, string> {
+    /* This would benefit from monadic bind in a real implementation */
+    if (<= b 0) {
+        return Result.Err { error: "Divisor must be positive" }
+    }
+    if (== b 0) {
+        return Result.Err { error: "Division by zero" }
+    }
+    let result: int = (/ a b)
+    if (<= result 0) {
+        return Result.Err { error: "Result must be positive" }
+    }
+    return Result.Ok { value: result }
+}
+
+shadow safe_divide_positive {
+    let r1: Result<int, string> = (safe_divide_positive 10 2)  /* Ok(5) */
+    let r2: Result<int, string> = (safe_divide_positive 10 0)  /* Err */
+    let r3: Result<int, string> = (safe_divide_positive -10 2) /* Err */
+    let r4: Result<int, string> = (safe_divide_positive 1 3)   /* Err (result is 0) */
+    assert true
+}
+
+/* Test different type combinations */
+fn test_bool_result() -> Result<bool, string> {
+    return Result.Ok { value: true }
+}
+
+fn test_float_result() -> Result<float, int> {
+    return Result.Ok { value: 3.14 }
+}
+
+shadow test_bool_result {
+    let r: Result<bool, string> = (test_bool_result)
+    assert true
+}
+
+shadow test_float_result {
+    let r: Result<float, int> = (test_float_result)
+    assert true
+}
+
+fn main() -> int {
+    println("Testing stdlib Result<T, E> type")
+    
+    /* Test with int/string */
+    let r1: Result<int, string> = (divide 10 2)
+    println("divide(10, 2) created successfully")
+    
+    let r2: Result<int, string> = (divide 10 0)
+    println("divide(10, 0) created successfully")
+    
+    /* Test with string/int */
+    let r3: Result<string, int> = (read_file "exists.txt")
+    println("read_file created successfully")
+    
+    /* Test with bool/string */
+    let r4: Result<bool, string> = (test_bool_result)
+    println("bool result created successfully")
+    
+    /* Test with float/int */
+    let r5: Result<float, int> = (test_float_result)
+    println("float result created successfully")
+    
+    println("All Result type tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

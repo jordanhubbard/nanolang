@@ -3421,6 +3421,44 @@ bool type_check(ASTNode *program, Environment *env) {
             /* Get the resolved return type from the function definition in env */
             Function *func_def = env_get_function(env, item->as.function.name);
             tc.current_function_return_type = func_def ? func_def->return_type : item->as.function.return_type;
+            
+            /* Register generic union instantiation for function return type */
+            if (item->as.function.return_type == TYPE_UNION &&
+                item->as.function.return_type_info &&
+                item->as.function.return_type_info->generic_name &&
+                item->as.function.return_type_info->type_param_count > 0) {
+                
+                TypeInfo *info = item->as.function.return_type_info;
+                char **type_names = malloc(sizeof(char*) * info->type_param_count);
+                
+                for (int ti = 0; ti < info->type_param_count; ti++) {
+                    TypeInfo *param = info->type_params[ti];
+                    if (param->base_type == TYPE_INT) {
+                        type_names[ti] = strdup("int");
+                    } else if (param->base_type == TYPE_STRING) {
+                        type_names[ti] = strdup("string");
+                    } else if (param->base_type == TYPE_BOOL) {
+                        type_names[ti] = strdup("bool");
+                    } else if (param->base_type == TYPE_FLOAT) {
+                        type_names[ti] = strdup("float");
+                    } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
+                        type_names[ti] = strdup(param->generic_name);
+                    } else {
+                        type_names[ti] = strdup("unknown");
+                    }
+                }
+                
+                /* Register this instantiation for code generation */
+                env_register_union_instantiation(tc.env, info->generic_name,
+                                                (const char**)type_names,
+                                                info->type_param_count);
+                
+                /* Free type names */
+                for (int ti = 0; ti < info->type_param_count; ti++) {
+                    free(type_names[ti]);
+                }
+                free(type_names);
+            }
 
             /* Save current symbol count for scope restoration */
             int saved_symbol_count = env->symbol_count;

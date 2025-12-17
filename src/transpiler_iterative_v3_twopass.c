@@ -14,6 +14,13 @@
 #include <string.h>
 
 /* ============================================================================
+ * TRANSPILER CONTEXT - Track current function for type resolution
+ * (Declared in transpiler.c, visible here via include)
+ * ============================================================================ */
+
+extern ASTNode *g_current_function;  /* Current function being transpiled */
+
+/* ============================================================================
  * WORK ITEM TYPES - Describe what output to generate
  * ============================================================================ */
 
@@ -858,10 +865,46 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             const char *union_name = expr->as.union_construct.union_name;
             const char *variant_name = expr->as.union_construct.variant_name;
             
-            /* Check if this is a generic union instantiation from context */
-            /* For now, use the base union name - proper generic handling needs context from parent let statement */
-            const char *prefixed_union = get_prefixed_type_name(union_name);
-            const char *prefixed_variant = get_prefixed_variant_struct_name(union_name, variant_name);
+            /* Check if we're in a function returning a generic union */
+            const char *prefixed_union;
+            char monomorphized_name[256];
+            bool is_generic = false;
+            
+            if (g_current_function && 
+                g_current_function->as.function.return_type == TYPE_UNION &&
+                g_current_function->as.function.return_type_info &&
+                g_current_function->as.function.return_type_info->generic_name &&
+                g_current_function->as.function.return_type_info->type_param_count > 0 &&
+                strcmp(union_name, g_current_function->as.function.return_type_info->generic_name) == 0) {
+                /* Build monomorphized name: Result<int, string> -> Result_int_string */
+                snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", 
+                        g_current_function->as.function.return_type_info->generic_name);
+                
+                for (int ti = 0; ti < g_current_function->as.function.return_type_info->type_param_count; ti++) {
+                    TypeInfo *param = g_current_function->as.function.return_type_info->type_params[ti];
+                    strcat(monomorphized_name, "_");
+                    
+                    if (param->base_type == TYPE_INT) {
+                        strcat(monomorphized_name, "int");
+                    } else if (param->base_type == TYPE_STRING) {
+                        strcat(monomorphized_name, "string");
+                    } else if (param->base_type == TYPE_BOOL) {
+                        strcat(monomorphized_name, "bool");
+                    } else if (param->base_type == TYPE_FLOAT) {
+                        strcat(monomorphized_name, "float");
+                    } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
+                        strcat(monomorphized_name, param->generic_name);
+                    } else {
+                        strcat(monomorphized_name, "unknown");
+                    }
+                }
+                
+                prefixed_union = get_prefixed_type_name(monomorphized_name);
+                is_generic = true;
+            } else {
+                /* Non-generic union or no function context - use base name */
+                prefixed_union = get_prefixed_type_name(union_name);
+            }
             
             /* Get variant index */
             int variant_idx = env_get_union_variant_index(env, union_name, variant_name);
@@ -872,8 +915,15 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
             
             /* Generate union construction: (UnionName){ .tag = TAG, .data.variant = {...} } */
-            emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", 
-                          prefixed_union, union_name, variant_name);
+            if (is_generic) {
+                /* For generic unions, use monomorphized tag name */
+                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", 
+                              prefixed_union, monomorphized_name, variant_name);
+            } else {
+                /* For non-generic unions, use base tag name */
+                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", 
+                              prefixed_union, union_name, variant_name);
+            }
             
             if (expr->as.union_construct.field_count > 0) {
                 emit_formatted(list, ", .data.%s = {", variant_name);
