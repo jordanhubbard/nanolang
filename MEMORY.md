@@ -65,6 +65,12 @@ fn name(param1: type1, param2: type2) -> return_type {
 shadow name {
     assert (== (name arg1 arg2) expected)
 }
+
+# External C Functions
+extern fn function_name(param: type) -> return_type
+
+# Public external functions (for modules)
+pub extern fn module_function(param: type) -> return_type
 ```
 
 ### Control Flow
@@ -121,6 +127,16 @@ union Result {
     Ok { value: int }, 
     Error { message: string } 
 }
+
+# Generic Union (NEW!)
+union Result<T, E> {
+    Ok { value: T },
+    Err { error: E }
+}
+
+# Using generic unions
+let success: Result<int, string> = Result.Ok { value: 42 }
+let failure: Result<int, string> = Result.Err { error: "failed" }
 
 # Match on union
 match result {
@@ -489,14 +505,22 @@ fn get_product(id: ProductId) -> Product { ... }
 
 ### Using Modules
 ```nano
-# Import a module (looks for module.json with FFI bindings)
+# Import an FFI module (looks for module.json with FFI bindings)
 import sdl
 
-# Use module functions (no namespace prefix in nanolang)
+# Import a standard library module
+import std.result
+
+# Use module functions with namespace prefix
 fn main() -> int {
     # SDL functions available directly
     (SDL_Init 0)
-    # ...
+    
+    # stdlib functions use namespace
+    let r: Result<int, string> = Result.Ok { value: 42 }
+    let is_success: bool = (std.result.is_ok r)
+    
+    return 0
 }
 ```
 
@@ -757,6 +781,48 @@ fn process_result(r: Result) -> int {
     }
 }
 ```
+
+### Standard Library Result<T, E>
+NanoLang includes a standard library generic Result type for error handling:
+
+```nano
+import std.result
+
+fn divide(a: int, b: int) -> Result<int, string> {
+    if (== b 0) {
+        return Result.Err { error: "Division by zero" }
+    }
+    return Result.Ok { value: (/ a b) }
+}
+
+fn main() -> int {
+    let result: Result<int, string> = (divide 10 2)
+    
+    if (std.result.is_ok result) {
+        let value: int = (std.result.unwrap result "Should not fail")
+        (println value)  # Prints 5
+    }
+    
+    return 0
+}
+
+shadow divide {
+    let r1: Result<int, string> = (divide 10 2)
+    assert (std.result.is_ok r1)
+    assert (== (std.result.unwrap r1 "failed") 5)
+    
+    let r2: Result<int, string> = (divide 10 0)
+    assert (std.result.is_err r2)
+}
+```
+
+**Standard Library Result Functions:**
+- `std.result.is_ok<T,E>(result: Result<T,E>) -> bool`
+- `std.result.is_err<T,E>(result: Result<T,E>) -> bool`
+- `std.result.unwrap<T,E>(result: Result<T,E>, msg: string) -> T`
+- `std.result.unwrap_or<T,E>(result: Result<T,E>, default: T) -> T`
+- `std.result.map<T,E,U>(result: Result<T,E>, f: fn(T) -> U) -> Result<U,E>`
+- `std.result.map_err<T,E,F>(result: Result<T,E>, f: fn(E) -> F) -> Result<T,F>`
 
 ## Summary: The NanoLang Vibe
 

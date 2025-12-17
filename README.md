@@ -1,11 +1,12 @@
 # nanolang
 
 [![CI](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml/badge.svg)](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml)
-![Tests](https://img.shields.io/badge/tests-21%2F21%20passing-brightgreen.svg)
+![Tests](https://img.shields.io/badge/tests-74%2F74%20passing-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
-![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Bootstrap](https://img.shields.io/badge/bootstrap-100%25%20self--hosting-success.svg)
 ![Type System](https://img.shields.io/badge/type%20system-100%25%20functional-success.svg)
+![Parity](https://img.shields.io/badge/compiler%2Finterpreter-100%25%20parity-success.svg)
 
 **A minimal, LLM-friendly programming language with mandatory testing and unambiguous syntax.**
 
@@ -67,9 +68,12 @@ Run it:
 - **Prefix Notation** - No operator precedence: `(+ a (* b c))` is always clear
 - **Mandatory Testing** - Every function requires a `shadow` test block
 - **Static Typing** - Catch errors at compile time
+- **Generic Types** - Generic unions like `Result<T, E>` for error handling
+- **100% Parity** - Compiler and interpreter support identical features
 - **Immutable by Default** - Use `let mut` for mutability
 - **C Interop** - Easy FFI via modules with automatic package management
 - **Module System** - Automatic dependency installation via `module.json`
+- **Standard Library** - Growing stdlib with `Result<T,E>`, string ops, math, and more
 
 ## Documentation
 
@@ -78,7 +82,7 @@ Run it:
 1. **[Getting Started](docs/GETTING_STARTED.md)** - 15-minute tutorial
 2. **[Quick Reference](docs/QUICK_REFERENCE.md)** - Syntax cheat sheet  
 3. **[Language Specification](docs/SPECIFICATION.md)** - Complete reference
-4. **[Examples](examples/)** - 90+ working examples
+4. **[Examples](examples/)** - 86 working examples
 
 ### Key Topics
 
@@ -150,6 +154,39 @@ let numbers: List<int> = (List_int_new)
 # First-class functions
 fn double(x: int) -> int { return (* x 2) }
 let f: fn(int) -> int = double
+
+# Generic unions (NEW!)
+union Result<T, E> {
+    Ok { value: T },
+    Err { error: E }
+}
+
+let success: Result<int, string> = Result.Ok { value: 42 }
+let failure: Result<int, string> = Result.Err { error: "oops" }
+```
+
+### Standard Library
+
+NanoLang includes a growing standard library:
+
+```nano
+import std.result
+
+fn divide(a: int, b: int) -> Result<int, string> {
+    if (== b 0) {
+        return Result.Err { error: "Division by zero" }
+    }
+    return Result.Ok { value: (/ a b) }
+}
+
+fn main() -> int {
+    let result: Result<int, string> = (divide 10 2)
+    if (std.result.is_ok result) {
+        let value: int = (std.result.unwrap result "failed")
+        (println value)
+    }
+    return 0
+}
 ```
 
 ## Examples
