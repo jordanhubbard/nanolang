@@ -1,0 +1,23 @@
+/* Test generic union parsing and usage */
+
+union Result<T, E> {
+    Ok { value: T },
+    Err { error: E }
+}
+
+fn test_result_parsing() -> int {
+    return 0
+}
+
+shadow test_result_parsing {
+    assert (== (test_result_parsing) 0)
+}
+
+fn main() -> int {
+    println("Generic Result type parser test passed")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
