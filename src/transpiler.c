@@ -1995,7 +1995,7 @@ static void collect_function_and_tuple_types(ASTNode *program, FunctionTypeRegis
 /* Generate module extern declarations (extern functions from imported modules) */
 static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env) {
     /* Generate extern declarations for module wrapper functions (e.g., nl_sqlite3_*)
-     * Note: System library functions (e.g., sqlite3_*) are declared in module headers,
+     * Note: System library functions (e.g., SDL_*, sqlite3_*) are declared in module headers,
      * but module wrapper functions need explicit extern declarations */
     if (env && env->functions && env->function_count > 0) {
         for (int i = 0; i < env->function_count; i++) {
@@ -2019,28 +2019,78 @@ static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *prog
             }
             if (in_program) continue;  /* Already declared above */
             
+            /* If modules provide C headers AND this is a system library function (not a wrapper),
+             * skip the declaration - it's already in the system header */
+            if (g_module_headers_count > 0) {
+                /* Check for known system library prefixes */
+                bool is_system_function = (
+                    strncmp(func->name, "SDL_", 4) == 0 ||
+                    strncmp(func->name, "TTF_", 4) == 0 ||
+                    strncmp(func->name, "IMG_", 4) == 0 ||
+                    strncmp(func->name, "Mix_", 4) == 0 ||
+                    strncmp(func->name, "sqlite3_", 8) == 0 ||
+                    strncmp(func->name, "curl_", 5) == 0 ||
+                    strncmp(func->name, "glfwInit", 8) == 0 ||
+                    strncmp(func->name, "glfw", 4) == 0
+                );
+                
+                /* Check for wrapper functions from modules with custom headers
+                 * These are declared in their module headers (e.g., sdl_helpers.h, ui_widgets.h) */
+                bool is_module_with_header = (
+                    strncmp(func->name, "nl_sdl_", 7) == 0 ||
+                    strncmp(func->name, "nl_ui_", 6) == 0 ||
+                    strncmp(func->name, "nl_prefs_", 9) == 0 ||
+                    strncmp(func->name, "nl_fs_", 6) == 0
+                );
+                
+                if (is_system_function || is_module_with_header) {
+                    continue;  /* Skip - already in system/module header */
+                }
+            }
+            
             /* Generate extern declaration for this module extern function */
             sb_append(sb, "extern ");
             
-            const char *ret_type_c = type_to_c(func->return_type);
+            /* Handle return type - check for opaque types */
             const char *sdl_ret_type = get_sdl_c_type(func->name, -1, true);
             if (sdl_ret_type) {
-                ret_type_c = sdl_ret_type;
+                sb_append(sb, sdl_ret_type);
+            } else if (func->return_type == TYPE_STRUCT && func->return_struct_type_name) {
+                /* Check if this is an opaque type */
+                OpaqueTypeDef *opaque = env_get_opaque_type(env, func->return_struct_type_name);
+                if (opaque) {
+                    sb_append(sb, "void*");
+                } else {
+                    const char *prefixed = get_prefixed_type_name(func->return_struct_type_name);
+                    sb_append(sb, prefixed);
+                }
+            } else {
+                sb_append(sb, type_to_c(func->return_type));
             }
             
-            sb_append(sb, ret_type_c);
             sb_appendf(sb, " %s(", func->name);
             
+            /* Handle parameters - check for opaque types */
             for (int j = 0; j < func->param_count; j++) {
                 if (j > 0) sb_append(sb, ", ");
-                const char *param_type_c = type_to_c(func->params[j].type);
                 
                 const char *sdl_param_type = get_sdl_c_type(func->name, j, false);
                 if (sdl_param_type) {
-                    param_type_c = sdl_param_type;
+                    sb_append(sb, sdl_param_type);
+                } else if (func->params[j].type == TYPE_STRUCT && func->params[j].struct_type_name) {
+                    /* Check if this is an opaque type */
+                    OpaqueTypeDef *opaque = env_get_opaque_type(env, func->params[j].struct_type_name);
+                    if (opaque) {
+                        sb_append(sb, "void*");
+                    } else {
+                        const char *prefixed = get_prefixed_type_name(func->params[j].struct_type_name);
+                        sb_append(sb, prefixed);
+                    }
+                } else {
+                    sb_append(sb, type_to_c(func->params[j].type));
                 }
                 
-                sb_appendf(sb, "%s %s", param_type_c, func->params[j].name);
+                sb_appendf(sb, " %s", func->params[j].name);
             }
             sb_append(sb, ");\n");
         }
