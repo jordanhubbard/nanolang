@@ -557,6 +557,30 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
             
             /* Regular function call */
+            
+            /* Special handling for map builtin - check before environment lookup */
+            if (strcmp(expr->as.call.name, "map") == 0) {
+                /* map(array, transform_fn) -> array */
+                if (expr->as.call.arg_count >= 2) {
+                    Type array_type = check_expression(expr->as.call.args[0], env);
+                    check_expression(expr->as.call.args[1], env);  /* Check function */
+                    return array_type;  /* Return same type as input array */
+                }
+                return TYPE_ARRAY;
+            }
+            
+            /* Special handling for reduce builtin - check before environment lookup */
+            if (strcmp(expr->as.call.name, "reduce") == 0) {
+                /* reduce(array, initial, combine_fn) -> type_of_initial */
+                if (expr->as.call.arg_count >= 3) {
+                    check_expression(expr->as.call.args[0], env);  /* Check array */
+                    Type initial_type = check_expression(expr->as.call.args[1], env);  /* Check initial value */
+                    check_expression(expr->as.call.args[2], env);  /* Check function */
+                    return initial_type;  /* Return same type as initial value */
+                }
+                return TYPE_UNKNOWN;
+            }
+            
             /* Check if function exists */
             Function *func = env_get_function(env, expr->as.call.name);
             
@@ -1976,6 +2000,8 @@ static const char *builtin_function_names[] = {
     "int_to_string", "string_to_int", "digit_value", "char_to_lower", "char_to_upper",
     /* Array */
     "at", "array_get", "array_length", "array_new", "array_set",
+    /* Higher-order array functions */
+    "map", "reduce",
     /* OS */
     "getcwd", "getenv", "exit",
     /* File I/O (stdlib functions) */
@@ -2275,6 +2301,28 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 3;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    /* map(arr: array<T>, transform: fn(T) -> T) -> array<T> */
+    func.name = "map";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_ARRAY;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+    
+    /* reduce(arr: array<T>, initial: T, combine: fn(T, T) -> T) -> T */
+    func.name = "reduce";
+    func.params = NULL;
+    func.param_count = 3;
+    func.return_type = TYPE_UNKNOWN;  /* Will be type of initial value */
     func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;

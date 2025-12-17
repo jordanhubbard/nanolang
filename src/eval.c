@@ -1074,6 +1074,295 @@ static Value builtin_array_remove_at(Value *args) {
 }
 
 /* ==========================================================================
+ * Higher-Order Array Functions (map, reduce)
+ * ========================================================================== */
+
+static Value builtin_map(Value *args, Environment *env) {
+    /* map(array, transform_fn) -> array
+     * Applies transform_fn to each element and returns a new array
+     */
+    if (args[1].type != VAL_FUNCTION) {
+        fprintf(stderr, "Error: map() requires a function as second argument\n");
+        return create_void();
+    }
+    
+    const char *transform_fn_name = args[1].as.function_val.function_name;
+    
+    /* Handle static arrays */
+    if (args[0].type == VAL_ARRAY) {
+        Array *input_arr = args[0].as.array_val;
+        int64_t len = input_arr->length;
+        
+        /* Create new array of same type and size */
+        Value result = create_array(input_arr->element_type, len, len);
+        Array *output_arr = result.as.array_val;
+        
+        /* Apply transform to each element */
+        for (int64_t i = 0; i < len; i++) {
+            Value elem;
+            elem.type = input_arr->element_type;
+            elem.is_return = false;
+            
+            /* Get element from input array */
+            switch (input_arr->element_type) {
+                case VAL_INT:
+                    elem.as.int_val = ((long long*)input_arr->data)[i];
+                    break;
+                case VAL_FLOAT:
+                    elem.as.float_val = ((double*)input_arr->data)[i];
+                    break;
+                case VAL_BOOL:
+                    elem.as.bool_val = ((bool*)input_arr->data)[i];
+                    break;
+                case VAL_STRING:
+                    elem.as.string_val = ((char**)input_arr->data)[i];
+                    break;
+                default:
+                    fprintf(stderr, "Error: Unsupported array element type in map\n");
+                    return create_void();
+            }
+            
+            /* Call transform function with this element */
+            Value call_args[1];
+            call_args[0] = elem;
+            Value transformed = call_function(transform_fn_name, call_args, 1, env);
+            
+            /* Store transformed value in output array */
+            switch (output_arr->element_type) {
+                case VAL_INT:
+                    if (transformed.type != VAL_INT) {
+                        fprintf(stderr, "Error: Transform function must return same type as array elements\n");
+                        return create_void();
+                    }
+                    ((long long*)output_arr->data)[i] = transformed.as.int_val;
+                    break;
+                case VAL_FLOAT:
+                    if (transformed.type != VAL_FLOAT) {
+                        fprintf(stderr, "Error: Transform function must return same type as array elements\n");
+                        return create_void();
+                    }
+                    ((double*)output_arr->data)[i] = transformed.as.float_val;
+                    break;
+                case VAL_BOOL:
+                    if (transformed.type != VAL_BOOL) {
+                        fprintf(stderr, "Error: Transform function must return same type as array elements\n");
+                        return create_void();
+                    }
+                    ((bool*)output_arr->data)[i] = transformed.as.bool_val;
+                    break;
+                case VAL_STRING:
+                    if (transformed.type != VAL_STRING) {
+                        fprintf(stderr, "Error: Transform function must return same type as array elements\n");
+                        return create_void();
+                    }
+                    ((char**)output_arr->data)[i] = strdup(transformed.as.string_val);
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        return result;
+    }
+    
+    /* Handle dynamic arrays */
+    if (args[0].type == VAL_DYN_ARRAY) {
+        DynArray *input_arr = args[0].as.dyn_array_val;
+        int64_t len = dyn_array_length(input_arr);
+        ElementType elem_type = dyn_array_get_elem_type(input_arr);
+        
+        /* Create new dynamic array of same type */
+        DynArray *output_arr = dyn_array_new(elem_type);
+        
+        /* Apply transform to each element */
+        for (int64_t i = 0; i < len; i++) {
+            Value elem;
+            elem.is_return = false;
+            
+            /* Get element from input array */
+            switch (elem_type) {
+                case ELEM_INT:
+                    elem.type = VAL_INT;
+                    elem.as.int_val = dyn_array_get_int(input_arr, i);
+                    break;
+                case ELEM_FLOAT:
+                    elem.type = VAL_FLOAT;
+                    elem.as.float_val = dyn_array_get_float(input_arr, i);
+                    break;
+                case ELEM_BOOL:
+                    elem.type = VAL_BOOL;
+                    elem.as.bool_val = dyn_array_get_bool(input_arr, i);
+                    break;
+                case ELEM_STRING:
+                    elem.type = VAL_STRING;
+                    elem.as.string_val = (char*)dyn_array_get_string(input_arr, i);
+                    break;
+                case ELEM_ARRAY:
+                    elem.type = VAL_DYN_ARRAY;
+                    elem.as.dyn_array_val = dyn_array_get_array(input_arr, i);
+                    break;
+                default:
+                    fprintf(stderr, "Error: Unsupported array element type in map\n");
+                    return create_void();
+            }
+            
+            /* Call transform function */
+            Value call_args[1];
+            call_args[0] = elem;
+            Value transformed = call_function(transform_fn_name, call_args, 1, env);
+            
+            /* Push transformed value to output array */
+            switch (elem_type) {
+                case ELEM_INT:
+                    if (transformed.type != VAL_INT) {
+                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        return create_void();
+                    }
+                    dyn_array_push_int(output_arr, transformed.as.int_val);
+                    break;
+                case ELEM_FLOAT:
+                    if (transformed.type != VAL_FLOAT) {
+                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        return create_void();
+                    }
+                    dyn_array_push_float(output_arr, transformed.as.float_val);
+                    break;
+                case ELEM_BOOL:
+                    if (transformed.type != VAL_BOOL) {
+                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        return create_void();
+                    }
+                    dyn_array_push_bool(output_arr, transformed.as.bool_val);
+                    break;
+                case ELEM_STRING:
+                    if (transformed.type != VAL_STRING) {
+                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        return create_void();
+                    }
+                    dyn_array_push_string(output_arr, transformed.as.string_val);
+                    break;
+                case ELEM_ARRAY:
+                    if (transformed.type != VAL_DYN_ARRAY) {
+                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        return create_void();
+                    }
+                    dyn_array_push_array(output_arr, transformed.as.dyn_array_val);
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        return create_dyn_array(output_arr);
+    }
+    
+    fprintf(stderr, "Error: map() requires an array as first argument\n");
+    return create_void();
+}
+
+static Value builtin_reduce(Value *args, Environment *env) {
+    /* reduce(array, initial_value, combine_fn) -> value
+     * Combines all elements using combine_fn, starting with initial_value
+     */
+    if (args[2].type != VAL_FUNCTION) {
+        fprintf(stderr, "Error: reduce() requires a function as third argument\n");
+        return create_void();
+    }
+    
+    const char *combine_fn_name = args[2].as.function_val.function_name;
+    Value accumulator = args[1];  /* Initial value */
+    
+    /* Handle static arrays */
+    if (args[0].type == VAL_ARRAY) {
+        Array *arr = args[0].as.array_val;
+        int64_t len = arr->length;
+        
+        for (int64_t i = 0; i < len; i++) {
+            Value elem;
+            elem.type = arr->element_type;
+            elem.is_return = false;
+            
+            /* Get element */
+            switch (arr->element_type) {
+                case VAL_INT:
+                    elem.as.int_val = ((long long*)arr->data)[i];
+                    break;
+                case VAL_FLOAT:
+                    elem.as.float_val = ((double*)arr->data)[i];
+                    break;
+                case VAL_BOOL:
+                    elem.as.bool_val = ((bool*)arr->data)[i];
+                    break;
+                case VAL_STRING:
+                    elem.as.string_val = ((char**)arr->data)[i];
+                    break;
+                default:
+                    fprintf(stderr, "Error: Unsupported array element type in reduce\n");
+                    return create_void();
+            }
+            
+            /* Call combine function with accumulator and element */
+            Value call_args[2];
+            call_args[0] = accumulator;
+            call_args[1] = elem;
+            accumulator = call_function(combine_fn_name, call_args, 2, env);
+        }
+        
+        return accumulator;
+    }
+    
+    /* Handle dynamic arrays */
+    if (args[0].type == VAL_DYN_ARRAY) {
+        DynArray *arr = args[0].as.dyn_array_val;
+        int64_t len = dyn_array_length(arr);
+        ElementType elem_type = dyn_array_get_elem_type(arr);
+        
+        for (int64_t i = 0; i < len; i++) {
+            Value elem;
+            elem.is_return = false;
+            
+            /* Get element */
+            switch (elem_type) {
+                case ELEM_INT:
+                    elem.type = VAL_INT;
+                    elem.as.int_val = dyn_array_get_int(arr, i);
+                    break;
+                case ELEM_FLOAT:
+                    elem.type = VAL_FLOAT;
+                    elem.as.float_val = dyn_array_get_float(arr, i);
+                    break;
+                case ELEM_BOOL:
+                    elem.type = VAL_BOOL;
+                    elem.as.bool_val = dyn_array_get_bool(arr, i);
+                    break;
+                case ELEM_STRING:
+                    elem.type = VAL_STRING;
+                    elem.as.string_val = (char*)dyn_array_get_string(arr, i);
+                    break;
+                case ELEM_ARRAY:
+                    elem.type = VAL_DYN_ARRAY;
+                    elem.as.dyn_array_val = dyn_array_get_array(arr, i);
+                    break;
+                default:
+                    fprintf(stderr, "Error: Unsupported array element type in reduce\n");
+                    return create_void();
+            }
+            
+            /* Call combine function */
+            Value call_args[2];
+            call_args[0] = accumulator;
+            call_args[1] = elem;
+            accumulator = call_function(combine_fn_name, call_args, 2, env);
+        }
+        
+        return accumulator;
+    }
+    
+    fprintf(stderr, "Error: reduce() requires an array as first argument\n");
+    return create_void();
+}
+
+/* ==========================================================================
  * End of Math and Utility Built-in Functions
  * ========================================================================== */
 
@@ -1580,6 +1869,10 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "array_length") == 0) return builtin_array_length(args);
     if (strcmp(name, "array_new") == 0) return builtin_array_new(args);
     if (strcmp(name, "array_set") == 0) return builtin_array_set(args);
+    
+    /* Higher-order array functions */
+    if (strcmp(name, "map") == 0) return builtin_map(args, env);
+    if (strcmp(name, "reduce") == 0) return builtin_reduce(args, env);
     
     /* Dynamic array operations (GC-managed) */
     if (strcmp(name, "array_push") == 0) return builtin_array_push(args);
