@@ -115,7 +115,13 @@ all: build
 .PHONY: test-units
 test-units:
 	@echo "Running C unit tests..."
-	@$(CC) $(CFLAGS) -o tests/test_transpiler tests/test_transpiler.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@# Check if coverage instrumentation is present and add flags if needed
+	@if ls obj/*.gcno >/dev/null 2>&1; then \
+		echo "  (Coverage instrumentation detected - linking with coverage flags)"; \
+		$(CC) $(CFLAGS) $(COVERAGE_FLAGS) -o tests/test_transpiler tests/test_transpiler.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) $(COVERAGE_FLAGS); \
+	else \
+		$(CC) $(CFLAGS) -o tests/test_transpiler tests/test_transpiler.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS); \
+	fi
 	@./tests/test_transpiler
 	@rm -f tests/test_transpiler
 
