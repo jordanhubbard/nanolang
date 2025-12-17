@@ -105,12 +105,12 @@ OPENGL_EXAMPLES = \
 
 # === All Default Examples ===
 # These are known to compile and work
+# NOTE: OpenGL examples excluded by default (require GLFW+GLEW libraries)
 
 ALL_EXAMPLES = \
 	$(NL_EXAMPLES) \
 	$(SDL_EXAMPLES) \
-	$(NCURSES_EXAMPLES) \
-	$(OPENGL_EXAMPLES)
+	$(NCURSES_EXAMPLES)
 
 # === Targets ===
 
