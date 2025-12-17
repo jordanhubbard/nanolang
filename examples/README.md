@@ -78,6 +78,21 @@ cd examples && make
 
 - **factorial.nano** - Recursive factorial
   - Recursion demonstration
+
+**Advanced Features:**
+
+- **nl_data_analytics.nano** - Data analytics engine (SHOWCASE)
+  - map() and reduce() built-in functions
+  - First-class functions as transformation pipelines
+  - Functional vs imperative programming comparison
+  - Statistical computations (sum, product, min, max, variance)
+  - Real-world analytics pipeline architecture
+  - 19 comprehensive shadow tests
+
+- **nl_map_reduce.nano** - Map/Reduce demonstrations
+  - First-class functions with map() and reduce()
+  - Multiple transformation examples
+  - Function composition patterns
   - Conditional returns
   - Edge case handling (0! = 1)
 
