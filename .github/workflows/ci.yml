@@ -65,8 +65,8 @@ jobs:
 
       - name: Test basic examples
         run: |
-          ./bin/nano examples/hello.nano
-          ./bin/nanoc examples/factorial.nano -o factorial_test
+          ./bin/nano examples/nl_hello.nano
+          ./bin/nanoc examples/nl_factorial.nano -o factorial_test
           ./factorial_test
           rm -f factorial_test
 
