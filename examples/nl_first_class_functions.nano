@@ -40,9 +40,9 @@ fn apply_twice(x: int, f: fn(int) -> int) -> int {
 }
 
 shadow apply_twice {
-    /* Shadow test disabled - interpreter doesn't support function values yet */
-    /* TODO: Enable when interpreter supports first-class functions */
-    assert (== 1 1)
+    /* Test applying a function twice */
+    let result: int = (apply_twice 5 double)
+    assert (== result 20)  /* 5 * 2 * 2 = 20 */
 }
 
 /* Higher-order function: apply binary operation */
@@ -51,9 +51,9 @@ fn combine(a: int, b: int, op: fn(int, int) -> int) -> int {
 }
 
 shadow combine {
-    /* Shadow test disabled - interpreter doesn't support function values yet */
-    /* TODO: Enable when interpreter supports first-class functions */
-    assert (== 1 1)
+    /* Test combining two numbers with a binary operation */
+    let result: int = (combine 10 7 add)
+    assert (== result 17)  /* 10 + 7 = 17 */
 }
 
 fn main() -> int {

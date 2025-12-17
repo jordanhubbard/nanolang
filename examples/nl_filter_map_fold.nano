@@ -124,8 +124,10 @@ fn count_matching(numbers: array<int>, test: fn(int) -> bool) -> int {
 }
 
 shadow count_matching {
-    /* TODO: Enable when interpreter supports first-class functions */
-    assert (== 1 1)
+    /* Test counting elements that match a predicate */
+    let numbers: array<int> = [1, 2, 3, 4, 5, 6]
+    let even_count: int = (count_matching numbers is_even)
+    assert (== even_count 3)  /* 2, 4, 6 */
 }
 
 /* Apply transform to first element (simplified map) */
@@ -138,8 +140,10 @@ fn apply_first(numbers: array<int>, transform: fn(int) -> int) -> int {
 }
 
 shadow apply_first {
-    /* TODO: Enable when interpreter supports first-class functions */
-    assert (== 1 1)
+    /* Test applying a transform to the first element */
+    let numbers: array<int> = [5, 10, 15]
+    let result: int = (apply_first numbers double)
+    assert (== result 10)  /* 5 * 2 = 10 */
 }
 
 /* Fold: combine elements */
@@ -154,8 +158,10 @@ fn fold(numbers: array<int>, initial: int, combine: fn(int, int) -> int) -> int 
 }
 
 shadow fold {
-    /* TODO: Enable when interpreter supports first-class functions */
-    assert (== 1 1)
+    /* Test folding (reducing) an array */
+    let numbers: array<int> = [1, 2, 3, 4]
+    let sum: int = (fold numbers 0 add)
+    assert (== sum 10)  /* 1+2+3+4 = 10 */
 }
 
 /* ============================================================================

@@ -1,23 +1,23 @@
 /* Example: Union Types (Tagged Unions/Sum Types) */
 
-/* Define a Result union for error handling */
-union Result {
-    Ok { value: int },
-    Error { code: int, message: string }
+/* Define a generic Result union for error handling */
+union Result<T, E> {
+    Ok { value: T },
+    Error { error: E }
 }
 
-/* Function that returns a union type */
-fn divide(a: int, b: int) -> Result {
+/* Function that returns a generic union type with string error */
+fn divide(a: int, b: int) -> Result<int, string> {
     if (== b 0) {
-        return Result.Error { code: 1, message: "Division by zero" }
+        return Result.Error { error: "Division by zero" }
     } else {
         return Result.Ok { value: (/ a b) }
     }
 }
 
 shadow divide {
-    let ok: Result = (divide 10 2)
-    let err: Result = (divide 10 0)
+    let ok: Result<int, string> = (divide 10 2)
+    let err: Result<int, string> = (divide 10 0)
     # Both should execute without crashing
     assert (== 1 1)
 }
@@ -56,10 +56,13 @@ shadow create_pair {
 }
 
 fn main() -> int {
-    /* Create union values */
-    let result1: Result = (divide 10 2)
-    let result2: Result = (divide 10 0)
+    /* Create generic union values */
+    let result1: Result<int, string> = (divide 10 2)
+    let result2: Result<int, string> = (divide 10 0)
     
+    (println "Generic Result<int, string> types created successfully")
+    
+    /* Non-generic unions still work too */
     let status: Status = (get_status)
     
     let data1: Data = Data.Empty {}
@@ -68,6 +71,8 @@ fn main() -> int {
     let data4: Data = (create_pair 5 10)
     
     (println "Union types demonstration complete!")
+    (println "✓ Generic unions (Result<T,E>): Working")
+    (println "✓ Non-generic unions (Status, Data): Working")
     return 0
 }
 

@@ -27,8 +27,10 @@ fn get_adder() -> fn(int, int) -> int {
 }
 
 shadow get_adder {
-    /* TODO: Enable when interpreter supports function return values */
-    assert (== 1 1)
+    /* Test that factory returns a valid function */
+    let adder_fn: fn(int, int) -> int = (get_adder)
+    let result: int = (adder_fn 5 3)
+    assert (== result 8)  /* 5 + 3 = 8 */
 }
 
 fn get_multiplier() -> fn(int, int) -> int {
@@ -36,8 +38,10 @@ fn get_multiplier() -> fn(int, int) -> int {
 }
 
 shadow get_multiplier {
-    /* TODO: Enable when interpreter supports function return values */
-    assert (== 1 1)
+    /* Test that factory returns a valid function */
+    let mul_fn: fn(int, int) -> int = (get_multiplier)
+    let result: int = (mul_fn 4 5)
+    assert (== result 20)  /* 4 * 5 = 20 */
 }
 
 /* Helper that applies a returned function (uses Phase B1) */
@@ -49,8 +53,11 @@ fn apply_returned_function(a: int, b: int, factory: fn() -> fn(int, int) -> int)
 }
 
 shadow apply_returned_function {
-    /* TODO: Enable when interpreter supports */
-    assert (== 1 1)
+    /* Test applying a function returned from a factory */
+    let result1: int = (apply_returned_function 10 5 get_adder)
+    assert (== result1 15)  /* 10 + 5 = 15 */
+    let result2: int = (apply_returned_function 10 5 get_multiplier)
+    assert (== result2 50)  /* 10 * 5 = 50 */
 }
 
 fn main() -> int {
