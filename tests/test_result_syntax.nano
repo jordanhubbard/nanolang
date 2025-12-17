@@ -1,0 +1,25 @@
+/* Test: Result<int, string> syntax parsing */
+
+union Result<T, E> {
+    Ok { value: T },
+    Err { error: E }
+}
+
+fn test_result_with_types() -> int {
+    /* This should parse Result<int, string> */
+    let x: Result<int, string> = Result.Ok { value: 42 }
+    return 0
+}
+
+shadow test_result_with_types {
+    assert (== (test_result_with_types) 0)
+}
+
+fn main() -> int {
+    println("Testing Result<int, string> parsing")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

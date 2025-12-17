@@ -1,0 +1,24 @@
+/* Test Result<int, string> in let statement */
+
+union Result<T, E> {
+    Ok { value: T },
+    Err { error: E }
+}
+
+fn test_result_let() -> bool {
+    let result: Result<int, string> = (Result.Ok { value: 42 })
+    return true
+}
+
+shadow test_result_let {
+    assert (== (test_result_let) true)
+}
+
+fn main() -> int {
+    (println "Testing Result<int, string> in let statement...")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
