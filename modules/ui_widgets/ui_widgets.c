@@ -432,7 +432,7 @@ void nl_ui_panel(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_
 // Scrollable list widget - displays a list of items with scrolling
 // Returns index of clicked item, or -1 if none
 int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
-                               nl_array_t* items, int64_t item_count,
+                               DynArray* items, int64_t item_count,
                                int64_t x, int64_t y, int64_t w, int64_t h,
                                int64_t scroll_offset, int64_t selected_index) {
     
@@ -697,7 +697,7 @@ int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
 // Dropdown/Combo box widget - shows selected item, expands to show options when clicked
 // Returns: index of newly selected item, or -1 if no change
 int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
-                       nl_array_t* items, int64_t item_count,
+                       DynArray* items, int64_t item_count,
                        int64_t x, int64_t y, int64_t w, int64_t h,
                        int64_t selected_index, int64_t is_open) {
     
@@ -934,7 +934,7 @@ int64_t nl_ui_number_spinner(SDL_Renderer* renderer, TTF_Font* font,
 // File selector widget - browse and select files
 // Returns: selected file index, or -1 if no change
 int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
-                             nl_array_t* files, int64_t file_count,
+                             DynArray* files, int64_t file_count,
                              int64_t x, int64_t y, int64_t w, int64_t h,
                              int64_t scroll_offset, int64_t selected_index) {
     

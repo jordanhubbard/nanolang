@@ -2,24 +2,13 @@
 #define NANOLANG_FILESYSTEM_H
 
 #include <stdint.h>
-
-// Check if array type already defined
-#ifndef NL_ARRAY_T_DEFINED
-#define NL_ARRAY_T_DEFINED
-typedef struct {
-    int64_t length;
-    int64_t capacity;
-    int elem_type;     // ElementType enum value
-    unsigned char elem_size;
-    void* data;
-} nl_array_t;
-#endif
+#include "../../src/runtime/dyn_array.h"
 
 // List files in directory with optional extension filter
-nl_array_t* nl_fs_list_files(const char* path, const char* extension);
+DynArray* nl_fs_list_files(const char* path, const char* extension);
 
 // List directories in directory
-nl_array_t* nl_fs_list_dirs(const char* path);
+DynArray* nl_fs_list_dirs(const char* path);
 
 // Check if path is a directory
 int64_t nl_fs_is_directory(const char* path);

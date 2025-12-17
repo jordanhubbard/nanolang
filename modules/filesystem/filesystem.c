@@ -8,13 +8,13 @@
 #include <unistd.h>
 
 // Helper: Create nanolang array for strings
-static nl_array_t* create_string_array(int64_t initial_capacity) {
-    nl_array_t* arr = (nl_array_t*)malloc(sizeof(nl_array_t));
+static DynArray* create_string_array(int64_t initial_capacity) {
+    DynArray* arr = (DynArray*)malloc(sizeof(DynArray));
     if (!arr) return NULL;
     
     arr->length = 0;
     arr->capacity = initial_capacity;
-    arr->elem_type = 3;  // ELEM_STRING = 3
+    arr->elem_type = ELEM_STRING;  // ElementType enum from dyn_array.h
     arr->elem_size = sizeof(char*);
     arr->data = calloc(initial_capacity, sizeof(char*));
     
@@ -27,7 +27,7 @@ static nl_array_t* create_string_array(int64_t initial_capacity) {
 }
 
 // Helper: Append string to array
-static void array_append_string(nl_array_t* arr, const char* str) {
+static void array_append_string(DynArray* arr, const char* str) {
     if (!arr || !str) return;
     
     // Grow if needed
@@ -59,8 +59,8 @@ static int ends_with(const char* str, const char* suffix) {
 }
 
 // List files in directory
-nl_array_t* nl_fs_list_files(const char* path, const char* extension) {
-    nl_array_t* result = create_string_array(32);
+DynArray* nl_fs_list_files(const char* path, const char* extension) {
+    DynArray* result = create_string_array(32);
     if (!result) return NULL;
     
     DIR* dir = opendir(path);
@@ -99,8 +99,8 @@ nl_array_t* nl_fs_list_files(const char* path, const char* extension) {
 }
 
 // List directories in directory
-nl_array_t* nl_fs_list_dirs(const char* path) {
-    nl_array_t* result = create_string_array(32);
+DynArray* nl_fs_list_dirs(const char* path) {
+    DynArray* result = create_string_array(32);
     if (!result) return NULL;
     
     DIR* dir = opendir(path);

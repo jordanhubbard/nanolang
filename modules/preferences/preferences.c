@@ -5,13 +5,13 @@
 #include <unistd.h>
 
 // Helper: Create array for strings
-static nl_array_t* create_string_array(int64_t initial_capacity) {
-    nl_array_t* arr = (nl_array_t*)malloc(sizeof(nl_array_t));
+static DynArray* create_string_array(int64_t initial_capacity) {
+    DynArray* arr = (DynArray*)malloc(sizeof(DynArray));
     if (!arr) return NULL;
     
     arr->length = 0;
     arr->capacity = initial_capacity;
-    arr->elem_type = 3;  // ELEM_STRING = 3
+    arr->elem_type = ELEM_STRING;  // ElementType enum from dyn_array.h
     arr->elem_size = sizeof(char*);
     arr->data = calloc(initial_capacity, sizeof(char*));
     
@@ -24,7 +24,7 @@ static nl_array_t* create_string_array(int64_t initial_capacity) {
 }
 
 // Helper: Append string to array
-static void array_append_string(nl_array_t* arr, const char* str) {
+static void array_append_string(DynArray* arr, const char* str) {
     if (!arr || !str) return;
     
     // Grow if needed
@@ -44,7 +44,7 @@ static void array_append_string(nl_array_t* arr, const char* str) {
 }
 
 // Save playlist to file
-int64_t nl_prefs_save_playlist(const char* filename, nl_array_t* items, int64_t count) {
+int64_t nl_prefs_save_playlist(const char* filename, DynArray* items, int64_t count) {
     if (!filename || !items) return 0;
     
     FILE* fp = fopen(filename, "w");
@@ -65,8 +65,8 @@ int64_t nl_prefs_save_playlist(const char* filename, nl_array_t* items, int64_t 
 }
 
 // Load playlist from file
-nl_array_t* nl_prefs_load_playlist(const char* filename) {
-    nl_array_t* result = create_string_array(32);
+DynArray* nl_prefs_load_playlist(const char* filename) {
+    DynArray* result = create_string_array(32);
     if (!result) return NULL;
     
     // Check if file exists

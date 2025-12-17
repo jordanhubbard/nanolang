@@ -4,18 +4,7 @@
 #include <stdint.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-
-// Check if array type already defined
-#ifndef NL_ARRAY_T_DEFINED
-#define NL_ARRAY_T_DEFINED
-typedef struct {
-    int64_t length;
-    int64_t capacity;
-    int elem_type;     // ElementType enum value
-    unsigned char elem_size;
-    void* data;
-} nl_array_t;
-#endif
+#include "../../src/runtime/dyn_array.h"
 
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
@@ -62,7 +51,7 @@ void nl_ui_panel(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_
 // Scrollable list widget - displays a list of items with scrolling
 // Returns index of clicked item, or -1 if none
 int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
-                               nl_array_t* items, int64_t item_count,
+                               DynArray* items, int64_t item_count,
                                int64_t x, int64_t y, int64_t w, int64_t h,
                                int64_t scroll_offset, int64_t selected_index);
 
@@ -87,7 +76,7 @@ int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
 // Dropdown/Combo box widget - shows selected item, expands when clicked
 // Returns index of newly selected item, or -1 if no change
 int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
-                       nl_array_t* items, int64_t item_count,
+                       DynArray* items, int64_t item_count,
                        int64_t x, int64_t y, int64_t w, int64_t h,
                        int64_t selected_index, int64_t is_open);
 
@@ -105,7 +94,7 @@ void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
 
 // File selector widget - browse and select files from a directory
 int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
-                             nl_array_t* files, int64_t file_count,
+                             DynArray* files, int64_t file_count,
                              int64_t x, int64_t y, int64_t w, int64_t h,
                              int64_t scroll_offset, int64_t selected_index);
 
