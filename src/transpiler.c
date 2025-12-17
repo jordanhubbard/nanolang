@@ -55,6 +55,80 @@ static void sb_appendf(StringBuilder *sb, const char *fmt, ...) {
     sb_append(sb, buffer);
 }
 
+/* Safe helper to build monomorphized type names with bounds checking
+ * Returns true on success, false if buffer would overflow */
+static bool build_monomorphized_name(char *dest, size_t dest_size, 
+                                     const char *base_name, 
+                                     const char **type_args, int type_arg_count) {
+    if (!dest || !base_name || dest_size == 0) return false;
+    
+    /* Start with base name */
+    size_t pos = 0;
+    int written = snprintf(dest + pos, dest_size - pos, "%s", base_name);
+    if (written < 0 || (size_t)written >= dest_size - pos) {
+        return false;  /* Base name too long */
+    }
+    pos += written;
+    
+    /* Append each type argument with underscore separator */
+    for (int i = 0; i < type_arg_count; i++) {
+        if (!type_args[i]) continue;
+        
+        /* Append underscore */
+        if (pos + 1 >= dest_size) return false;
+        dest[pos++] = '_';
+        dest[pos] = '\0';
+        
+        /* Append type arg name */
+        written = snprintf(dest + pos, dest_size - pos, "%s", type_args[i]);
+        if (written < 0 || (size_t)written >= dest_size - pos) {
+            return false;  /* Type arg name too long */
+        }
+        pos += written;
+    }
+    
+    return true;
+}
+
+/* Helper to build monomorphized name from TypeInfo parameters */
+static bool build_monomorphized_name_from_typeinfo(char *dest, size_t dest_size,
+                                                   const char *base_name,
+                                                   TypeInfo **type_params, 
+                                                   int type_param_count) {
+    if (!dest || !base_name || dest_size == 0) return false;
+    if (type_param_count == 0) {
+        return snprintf(dest, dest_size, "%s", base_name) < (int)dest_size;
+    }
+    
+    /* Extract type names from TypeInfo structures */
+    const char *type_names[32];  /* Max 32 type parameters */
+    if (type_param_count > 32) return false;
+    
+    for (int i = 0; i < type_param_count; i++) {
+        TypeInfo *param = type_params[i];
+        if (!param) {
+            type_names[i] = "unknown";
+            continue;
+        }
+        
+        if (param->base_type == TYPE_INT) {
+            type_names[i] = "int";
+        } else if (param->base_type == TYPE_STRING) {
+            type_names[i] = "string";
+        } else if (param->base_type == TYPE_BOOL) {
+            type_names[i] = "bool";
+        } else if (param->base_type == TYPE_FLOAT) {
+            type_names[i] = "float";
+        } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
+            type_names[i] = param->generic_name;
+        } else {
+            type_names[i] = "unknown";
+        }
+    }
+    
+    return build_monomorphized_name(dest, dest_size, base_name, type_names, type_param_count);
+}
+
 /* Forward declarations */
 static const char *type_to_c(Type type);
 extern Type check_expression(ASTNode *expr, Environment *env);  /* From typechecker.c */
@@ -1276,10 +1350,13 @@ static void generate_union_definitions(Environment *env, StringBuilder *sb) {
             
             /* Generate monomorphized union name: Result_int_string */
             char monomorphized_name[256];
-            snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", inst->generic_name);
-            for (int j = 0; j < inst->type_arg_count; j++) {
-                strcat(monomorphized_name, "_");
-                strcat(monomorphized_name, inst->type_arg_names[j]);
+            if (!build_monomorphized_name(monomorphized_name, sizeof(monomorphized_name),
+                                          inst->generic_name, 
+                                          (const char **)inst->type_arg_names, 
+                                          inst->type_arg_count)) {
+                fprintf(stderr, "Warning: Monomorphized type name too long for %s, skipping\n", 
+                        inst->generic_name);
+                continue;
             }
             
             /* Check if already generated */
@@ -1536,30 +1613,17 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                     item->as.function.return_type_info->type_param_count > 0) {
                     /* Build monomorphized name: Result<int, string> -> Result_int_string */
                     char monomorphized_name[256];
-                    snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", 
-                            item->as.function.return_type_info->generic_name);
-                    
-                    for (int ti = 0; ti < item->as.function.return_type_info->type_param_count; ti++) {
-                        TypeInfo *param = item->as.function.return_type_info->type_params[ti];
-                        strcat(monomorphized_name, "_");
-                        
-                        if (param->base_type == TYPE_INT) {
-                            strcat(monomorphized_name, "int");
-                        } else if (param->base_type == TYPE_STRING) {
-                            strcat(monomorphized_name, "string");
-                        } else if (param->base_type == TYPE_BOOL) {
-                            strcat(monomorphized_name, "bool");
-                        } else if (param->base_type == TYPE_FLOAT) {
-                            strcat(monomorphized_name, "float");
-                        } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
-                            strcat(monomorphized_name, param->generic_name);
-                        } else {
-                            strcat(monomorphized_name, "unknown");
-                        }
+                    if (!build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            item->as.function.return_type_info->generic_name,
+                            item->as.function.return_type_info->type_params,
+                            item->as.function.return_type_info->type_param_count)) {
+                        fprintf(stderr, "Warning: Monomorphized type name too long, using fallback\n");
+                        sb_append(sb, type_to_c(item->as.function.return_type));
+                    } else {
+                        const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
+                        sb_append(sb, prefixed_name);
                     }
-                    
-                    const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
-                    sb_append(sb, prefixed_name);
                 } else if (item->as.function.return_struct_type_name) {
                     /* Non-generic union - use prefixed union name */
                 const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
@@ -1673,30 +1737,17 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                     item->as.function.return_type_info->type_param_count > 0) {
                     /* Build monomorphized name: Result<int, string> -> Result_int_string */
                     char monomorphized_name[256];
-                    snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", 
-                            item->as.function.return_type_info->generic_name);
-                    
-                    for (int ti = 0; ti < item->as.function.return_type_info->type_param_count; ti++) {
-                        TypeInfo *param = item->as.function.return_type_info->type_params[ti];
-                        strcat(monomorphized_name, "_");
-                        
-                        if (param->base_type == TYPE_INT) {
-                            strcat(monomorphized_name, "int");
-                        } else if (param->base_type == TYPE_STRING) {
-                            strcat(monomorphized_name, "string");
-                        } else if (param->base_type == TYPE_BOOL) {
-                            strcat(monomorphized_name, "bool");
-                        } else if (param->base_type == TYPE_FLOAT) {
-                            strcat(monomorphized_name, "float");
-                        } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
-                            strcat(monomorphized_name, param->generic_name);
-                        } else {
-                            strcat(monomorphized_name, "unknown");
-                        }
+                    if (!build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            item->as.function.return_type_info->generic_name,
+                            item->as.function.return_type_info->type_params,
+                            item->as.function.return_type_info->type_param_count)) {
+                        fprintf(stderr, "Warning: Monomorphized type name too long, using fallback\n");
+                        sb_append(sb, type_to_c(item->as.function.return_type));
+                    } else {
+                        const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
+                        sb_append(sb, prefixed_name);
                     }
-                    
-                    const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
-                    sb_append(sb, prefixed_name);
                 } else if (item->as.function.return_struct_type_name) {
                     /* Non-generic union - use prefixed union name */
                 const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
@@ -2065,30 +2116,17 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
                     item->as.function.return_type_info->type_param_count > 0) {
                     /* Build monomorphized name: Result<int, string> -> Result_int_string */
                     char monomorphized_name[256];
-                    snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", 
-                            item->as.function.return_type_info->generic_name);
-                    
-                    for (int ti = 0; ti < item->as.function.return_type_info->type_param_count; ti++) {
-                        TypeInfo *param = item->as.function.return_type_info->type_params[ti];
-                        strcat(monomorphized_name, "_");
-                        
-                        if (param->base_type == TYPE_INT) {
-                            strcat(monomorphized_name, "int");
-                        } else if (param->base_type == TYPE_STRING) {
-                            strcat(monomorphized_name, "string");
-                        } else if (param->base_type == TYPE_BOOL) {
-                            strcat(monomorphized_name, "bool");
-                        } else if (param->base_type == TYPE_FLOAT) {
-                            strcat(monomorphized_name, "float");
-                        } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
-                            strcat(monomorphized_name, param->generic_name);
-                        } else {
-                            strcat(monomorphized_name, "unknown");
-                        }
+                    if (!build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            item->as.function.return_type_info->generic_name,
+                            item->as.function.return_type_info->type_params,
+                            item->as.function.return_type_info->type_param_count)) {
+                        fprintf(stderr, "Warning: Monomorphized type name too long, using fallback\n");
+                        sb_append(sb, type_to_c(item->as.function.return_type));
+                    } else {
+                        const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
+                        sb_append(sb, prefixed_name);
                     }
-                    
-                    const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
-                    sb_append(sb, prefixed_name);
                 } else if (item->as.function.return_struct_type_name) {
                     /* Non-generic union - use prefixed union name */
                 const char *prefixed_name = get_prefixed_type_name(item->as.function.return_struct_type_name);
