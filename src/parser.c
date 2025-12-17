@@ -2345,12 +2345,10 @@ static ASTNode *parse_import(Parser *p) {
     int column = current_token(p)->column;
 
     bool is_from = false;
-    bool is_use = false;
 
     /* Check if this is 'use' (for pub use re-exports) */
     if (match(p, TOKEN_USE)) {
-        is_use = true;
-        advance(p);  /* consume 'use' */
+        advance(p);  /* consume 'use' (pub use for re-exports) */
     }
     /* Check if this is 'from' (selective import) */
     else if (match(p, TOKEN_FROM)) {

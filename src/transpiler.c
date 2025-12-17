@@ -690,11 +690,16 @@ static const char *get_c_func_name_with_module(const char *nano_name, const char
     return buffer;
 }
 
+/* Legacy wrapper - now we always use get_c_func_name_with_module directly
+ * NOTE: Kept for reference but disabled to avoid unused function warnings
+ */
+#if 0  /* Disabled - use get_c_func_name_with_module directly */
 static const char *get_c_func_name(const char *nano_name) {
     /* Note: main() now gets nl_ prefix to support library mode (Stage 1.5+) */
     /* Standalone programs use --entry-point to call nl_main() */
     return get_c_func_name_with_module(nano_name, NULL);
 }
+#endif  /* Disabled - use get_c_func_name_with_module directly */
 
 /* ============================================================================
  * ITERATIVE TRANSPILER IMPLEMENTATION

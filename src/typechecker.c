@@ -9,7 +9,10 @@ typedef struct {
     bool warnings_enabled;
 } TypeChecker;
 
-/* Helper: Check if symbol was explicitly imported via selective import */
+/* Helper: Check if symbol was explicitly imported via selective import
+ * NOTE: Currently unused - reserved for future selective import enforcement
+ */
+#if 0  /* Disabled - not yet needed */
 static bool is_symbol_imported(const char *symbol_name, const char *module_path, Environment *env) {
     if (!env->import_tracker) return true;  /* No tracking = allow all */
     
@@ -35,6 +38,7 @@ static bool is_symbol_imported(const char *symbol_name, const char *module_path,
     /* Not found in any selective import - not accessible */
     return false;
 }
+#endif  /* Disabled - not yet needed */
 
 /* Helper: Check if a function is accessible from current module */
 static bool is_function_accessible(Function *func, Environment *env, int line, int column) {
@@ -67,7 +71,10 @@ static bool is_function_accessible(Function *func, Environment *env, int line, i
     return true;
 }
 
-/* Helper: Check if a struct is accessible from current module */
+/* Helper: Check if a struct is accessible from current module
+ * NOTE: Currently unused - reserved for future struct visibility enforcement
+ */
+#if 0  /* Disabled - not yet needed */
 static bool is_struct_accessible(StructDef *sdef, Environment *env, int line, int column) {
     if (!sdef) return false;
     
@@ -94,6 +101,7 @@ static bool is_struct_accessible(StructDef *sdef, Environment *env, int line, in
     
     return true;
 }
+#endif  /* Disabled - not yet needed */
 
 /* Check for unused variables in current scope and emit warnings */
 static void check_unused_variables(TypeChecker *tc, int start_index) {
