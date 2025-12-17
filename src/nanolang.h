@@ -403,7 +403,8 @@ struct ASTNode {
             bool is_pub;              // Visibility: public (pub) vs private
         } enum_def;
         
-        /* Union definition: union Color { Red {}, Blue { intensity: int } } */
+        /* Union definition: union Color { Red {}, Blue { intensity: int } } 
+         * Generic union: union Result<T, E> { Ok { value: T }, Err { error: E } } */
         struct {
             char *name;
             int variant_count;
@@ -412,6 +413,8 @@ struct ASTNode {
             char ***variant_field_names;
             Type **variant_field_types;
             bool is_pub;              // Visibility: public (pub) vs private
+            char **generic_params;    // Generic parameter names: ["T", "E"]
+            int generic_param_count;  // Number of generic parameters
         } union_def;
         
         /* Union construction: Color.Red {} or Color.Blue { intensity: 5 } */
@@ -532,6 +535,8 @@ typedef struct {
     Type **variant_field_types;
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     char *module_name;  /* Module this union belongs to (NULL for global) */
+    char **generic_params;    /* Generic parameter names: ["T", "E"] for Result<T, E> */
+    int generic_param_count;  /* Number of generic parameters (0 for non-generic) */
 } UnionDef;
 
 /* Opaque type definition entry (for C pointer types) */

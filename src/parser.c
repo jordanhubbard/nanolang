@@ -1961,8 +1961,59 @@ static ASTNode *parse_union_def(Parser *p) {
     char *union_name = strdup(current_token(p)->value);
     advance(p);
     
+    /* Parse optional generic parameters: <T, E> */
+    char **generic_params = NULL;
+    int generic_param_count = 0;
+    
+    if (match(p, TOKEN_LT)) {
+        advance(p);  /* consume '<' */
+        
+        int capacity = 4;
+        generic_params = malloc(sizeof(char*) * capacity);
+        
+        while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
+            if (generic_param_count >= capacity) {
+                capacity *= 2;
+                generic_params = realloc(generic_params, sizeof(char*) * capacity);
+            }
+            
+            if (!match(p, TOKEN_IDENTIFIER)) {
+                fprintf(stderr, "Error at line %d, column %d: Expected generic parameter name\n",
+                        current_token(p)->line, current_token(p)->column);
+                for (int i = 0; i < generic_param_count; i++) {
+                    free(generic_params[i]);
+                }
+                free(generic_params);
+                free(union_name);
+                return NULL;
+            }
+            
+            generic_params[generic_param_count] = strdup(current_token(p)->value);
+            generic_param_count++;
+            advance(p);
+            
+            /* Optional comma between parameters */
+            if (match(p, TOKEN_COMMA)) {
+                advance(p);
+            }
+        }
+        
+        if (!expect(p, TOKEN_GT, "Expected '>' after generic parameters")) {
+            for (int i = 0; i < generic_param_count; i++) {
+                free(generic_params[i]);
+            }
+            free(generic_params);
+            free(union_name);
+            return NULL;
+        }
+    }
+    
     /* Expect opening brace */
     if (!expect(p, TOKEN_LBRACE, "Expected '{' after union name")) {
+        for (int i = 0; i < generic_param_count; i++) {
+            free(generic_params[i]);
+        }
+        free(generic_params);
         free(union_name);
         return NULL;
     }
@@ -2079,6 +2130,10 @@ static ASTNode *parse_union_def(Parser *p) {
         free(variant_field_counts);
         free(variant_field_names);
         free(variant_field_types);
+        for (int i = 0; i < generic_param_count; i++) {
+            free(generic_params[i]);
+        }
+        free(generic_params);
         return NULL;
     }
     
@@ -2090,6 +2145,8 @@ static ASTNode *parse_union_def(Parser *p) {
     node->as.union_def.variant_field_names = variant_field_names;
     node->as.union_def.variant_field_types = variant_field_types;
     node->as.union_def.variant_count = count;
+    node->as.union_def.generic_params = generic_params;
+    node->as.union_def.generic_param_count = generic_param_count;
     
     return node;
 }
