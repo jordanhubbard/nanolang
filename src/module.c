@@ -14,9 +14,10 @@
 char *mkdtemp(char *template);
 #endif
 
-/* Module cache to prevent duplicate imports */
+/* Module cache to prevent duplicate imports and preserve ASTs */
 typedef struct {
     char **loaded_paths;
+    ASTNode **loaded_asts;  /* Corresponding ASTs for each path */
     int count;
     int capacity;
 } ModuleCache;
@@ -29,6 +30,7 @@ static void init_module_cache(void) {
         module_cache->count = 0;
         module_cache->capacity = 16;
         module_cache->loaded_paths = malloc(sizeof(char*) * module_cache->capacity);
+        module_cache->loaded_asts = malloc(sizeof(ASTNode*) * module_cache->capacity);
     }
 }
 
@@ -42,6 +44,16 @@ static bool is_module_cached(const char *module_path) {
     return false;
 }
 
+static ASTNode *get_cached_module_ast(const char *module_path) {
+    if (!module_cache) return NULL;
+    for (int i = 0; i < module_cache->count; i++) {
+        if (strcmp(module_cache->loaded_paths[i], module_path) == 0) {
+            return module_cache->loaded_asts[i];
+        }
+    }
+    return NULL;
+}
+
 static void cache_module(const char *module_path) {
     init_module_cache();
     if (is_module_cached(module_path)) return;
@@ -50,16 +62,46 @@ static void cache_module(const char *module_path) {
         module_cache->capacity *= 2;
         module_cache->loaded_paths = realloc(module_cache->loaded_paths, 
                                              sizeof(char*) * module_cache->capacity);
+        module_cache->loaded_asts = realloc(module_cache->loaded_asts,
+                                            sizeof(ASTNode*) * module_cache->capacity);
     }
-    module_cache->loaded_paths[module_cache->count++] = strdup(module_path);
+    module_cache->loaded_paths[module_cache->count] = strdup(module_path);
+    module_cache->loaded_asts[module_cache->count] = NULL;  /* Set later */
+    module_cache->count++;
+}
+
+static void cache_module_with_ast(const char *module_path, ASTNode *ast) {
+    init_module_cache();
+    
+    /* Check if already cached - if so, update AST */
+    for (int i = 0; i < module_cache->count; i++) {
+        if (strcmp(module_cache->loaded_paths[i], module_path) == 0) {
+            module_cache->loaded_asts[i] = ast;
+            return;
+        }
+    }
+    
+    /* Not cached yet - add new entry */
+    if (module_cache->count >= module_cache->capacity) {
+        module_cache->capacity *= 2;
+        module_cache->loaded_paths = realloc(module_cache->loaded_paths,
+                                             sizeof(char*) * module_cache->capacity);
+        module_cache->loaded_asts = realloc(module_cache->loaded_asts,
+                                            sizeof(ASTNode*) * module_cache->capacity);
+    }
+    module_cache->loaded_paths[module_cache->count] = strdup(module_path);
+    module_cache->loaded_asts[module_cache->count] = ast;
+    module_cache->count++;
 }
 
 void clear_module_cache(void) {
     if (module_cache) {
         for (int i = 0; i < module_cache->count; i++) {
             free(module_cache->loaded_paths[i]);
+            /* Don't free ASTs - they're owned by the environment */
         }
         free(module_cache->loaded_paths);
+        free(module_cache->loaded_asts);
         free(module_cache);
         module_cache = NULL;
     }
@@ -351,13 +393,16 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     if (!module_path) return NULL;
     
     /* Check if module is already loaded (only if using cache) */
-    if (use_cache && is_module_cached(module_path)) {
-        /* Module already loaded - skip to avoid duplicate definitions */
-        return NULL;  /* NULL means "already loaded, skip processing" */
-    }
-    
-    /* Mark module as loading to prevent circular imports (only if using cache) */
     if (use_cache) {
+        ASTNode *cached_ast = get_cached_module_ast(module_path);
+        if (cached_ast) {
+            /* Module already loaded - return cached AST */
+            /* This allows compile_module_to_object to reuse the AST */
+            /* without triggering a second parse (fixes nanolang-6h9) */
+            return cached_ast;
+        }
+        
+        /* Mark module as loading to prevent circular imports */
         cache_module(module_path);
     }
     
@@ -520,6 +565,12 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     
     free_tokens(tokens, token_count);
     free(source);
+    
+    /* Cache the AST with the module path for reuse (fixes nanolang-6h9) */
+    if (use_cache) {
+        cache_module_with_ast(module_path, module_ast);
+    }
+    
     return module_ast;
 }
 
@@ -782,32 +833,34 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
 }
 
 /* Compile a single module to an object file */
-bool compile_module_to_object(const char *module_path, const char *output_obj, Environment *env_unused, bool verbose) {
-    (void)env_unused;  /* Not used - we create our own environment */
+bool compile_module_to_object(const char *module_path, const char *output_obj, Environment *env, bool verbose) {
     if (!module_path || !output_obj) return false;
     
-    /* Create a separate environment for module compilation to avoid symbol conflicts */
-    Environment *module_env = create_environment();
-    
-    /* Clear cache temporarily - each module compilation gets fresh environment */
-    /* But we want dependencies to load properly, so we'll save and restore */
-    ModuleCache *saved_cache = module_cache;
-    module_cache = NULL;  /* Start with clean cache for this compilation */
-    
-    /* Load and type-check the module */
-    ASTNode *module_ast = load_module(module_path, module_env);
-    if (!module_ast) {
-        fprintf(stderr, "Error: Failed to load module '%s' for compilation\n", module_path);
-        free_environment(module_env);
-        /* Restore cache */
-        clear_module_cache();
-        module_cache = saved_cache;
+    /* Reuse the environment passed in - avoids reloading and AST corruption */
+    if (!env) {
+        fprintf(stderr, "Error: Environment required for module compilation\n");
         return false;
     }
     
-    /* Clean up local cache and restore original */
-    clear_module_cache();
-    module_cache = saved_cache;
+    /* Check if module AST is already cached - if so, reuse it */
+    /* This prevents the AST corruption bug (nanolang-6h9) that occurred */
+    /* when modules were loaded twice with different environments */
+    ASTNode *module_ast = get_cached_module_ast(module_path);
+    
+    if (module_ast && verbose) {
+        printf("[Module] Using cached AST for '%s'\n", module_path);
+    }
+    
+    /* If not in cache, load it now (but only once!) */
+    if (!module_ast) {
+        module_ast = load_module(module_path, env);
+        if (!module_ast) {
+            fprintf(stderr, "Error: Failed to load module '%s' for compilation\n", module_path);
+            return false;
+        }
+        /* Cache the AST for future reuse */
+        cache_module_with_ast(module_path, module_ast);
+    }
     
     /* Extract module metadata before transpiling */
     const char *last_slash = strrchr(module_path, '/');
@@ -818,14 +871,12 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     if (dot) *dot = '\0';
     
     /* Extract module metadata - TODO: Fix bus error in extract_module_metadata */
-    ModuleMetadata *meta = NULL;  // extract_module_metadata(module_env, module_name);
+    ModuleMetadata *meta = NULL;  // extract_module_metadata(env, module_name);
     
-    /* Transpile module to C */
-    char *c_code = transpile_to_c(module_ast, module_env);
+    /* Transpile module to C using the shared environment */
+    char *c_code = transpile_to_c(module_ast, env);
     if (!c_code) {
         fprintf(stderr, "Error: Failed to transpile module '%s'\n", module_path);
-        free_ast(module_ast);
-        free_environment(module_env);
         if (meta) free_module_metadata(meta);
         return false;
     }
@@ -855,7 +906,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     if (!c_file) {
         fprintf(stderr, "Error: Could not create C file '%s'\n", temp_c_file);
         free(c_code);
-        free_ast(module_ast);
+        /* Don't free AST - it's owned by the cache */
         return false;
     }
     
@@ -910,8 +961,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
         /* Keep C file for debugging */
         fprintf(stderr, "C file kept at: %s\n", temp_c_file);
         free(c_code);
-        free_ast(module_ast);
-        free_environment(module_env);
+        /* Don't free AST or environment - they're owned by the cache/caller */
         return false;
     }
     
@@ -923,8 +973,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     }
     
     free(c_code);
-    free_ast(module_ast);
-    free_environment(module_env);
+    /* Don't free AST or environment - they're owned by the cache/caller */
     return true;
 }
 
