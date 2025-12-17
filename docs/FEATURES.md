@@ -157,6 +157,58 @@ shadow divide {
 - Named fields per variant
 - Compile-time exhaustiveness checking
 
+### ✅ Generic Unions
+
+**NEW!** Unions can now be generic over type parameters:
+
+```nano
+union Result<T, E> {
+    Ok { value: T },
+    Err { error: E }
+}
+
+fn divide(a: int, b: int) -> Result<int, string> {
+    if (== b 0) {
+        return Result.Err { error: "Division by zero" }
+    }
+    return Result.Ok { value: (/ a b) }
+}
+
+shadow divide {
+    let r1: Result<int, string> = (divide 10 2)
+    match r1 {
+        Ok(v) => assert (== v.value 5),
+        Err(e) => assert false
+    }
+    
+    let r2: Result<int, string> = (divide 10 0)
+    match r2 {
+        Ok(v) => assert false,
+        Err(e) => assert (str_equals e.error "Division by zero")
+    }
+}
+```
+
+**Features:**
+- Generic type parameters (`<T, E>`)
+- Type-safe monomorphization (generates concrete types at compile-time)
+- Works with any type: primitives, structs, other generics
+- Standard library includes `Result<T,E>` with helper functions
+
+**Standard Library Usage:**
+```nano
+import std.result
+
+fn main() -> int {
+    let result: Result<int, string> = (divide 10 2)
+    if (std.result.is_ok result) {
+        let value: int = (std.result.unwrap result "failed")
+        (println value)
+    }
+    return 0
+}
+```
+
 ---
 
 ### ✅ Pattern Matching
