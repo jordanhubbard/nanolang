@@ -114,7 +114,20 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
     }
     if (opts->verbose) printf("✓ Interpretation complete\n");
 
-    /* Phase 6: Call main() or specified function */
+    /* Phase 6: Shadow Test Execution (parity with compiler) */
+    if (!run_shadow_tests(program, env)) {
+        fprintf(stderr, "Shadow tests failed\n");
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        free(source);
+        gc_shutdown();
+        return 1;
+    }
+    if (opts->verbose) printf("✓ Shadow tests passed\n");
+
+    /* Phase 7: Call main() or specified function */
     int exit_code = 0;
     const char *func_to_call = opts->call_function ? opts->call_function : "main";
     bool should_call_function = opts->call_function != NULL;
