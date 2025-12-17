@@ -7,6 +7,7 @@ char **g_argv = NULL;
 
 #include "tracing.h"
 #include "runtime/gc.h"
+#include "interpreter_ffi.h"
 
 /* Interpreter options */
 typedef struct {
@@ -86,6 +87,33 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
     }
     if (opts->verbose && modules->count > 0) {
         printf("✓ Loaded %d module(s)\n", modules->count);
+    }
+
+    /* Phase 3.5: Initialize FFI and load module shared libraries */
+    if (!ffi_init(opts->verbose)) {
+        fprintf(stderr, "FFI initialization failed\n");
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        free(source);
+        gc_shutdown();
+        return 1;
+    }
+    
+    /* Load each module's shared library for FFI access */
+    for (int i = 0; i < modules->count; i++) {
+        const char *module_name = modules->module_paths[i];
+        /* Extract module name from path (last component without .nano) */
+        const char *last_slash = strrchr(module_name, '/');
+        const char *base_name = last_slash ? last_slash + 1 : module_name;
+        char mod_name[256];
+        snprintf(mod_name, sizeof(mod_name), "%s", base_name);
+        char *dot = strrchr(mod_name, '.');
+        if (dot) *dot = '\0';
+        
+        /* Try to load module shared library (may not exist for pure nanolang modules) */
+        ffi_load_module(mod_name, module_name, env, opts->verbose);
     }
 
     /* Phase 4: Type Checking */
@@ -264,6 +292,7 @@ cleanup:
         free_module_list(modules);
     }
     free(source);
+    ffi_cleanup();
     tracing_cleanup();
     gc_shutdown();
 

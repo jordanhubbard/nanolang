@@ -5,6 +5,7 @@
 #include "runtime/gc.h"
 #include "runtime/dyn_array.h"
 #include "tracing.h"
+#include "interpreter_ffi.h"
 #include <stdlib.h>
 #include <time.h>
 #include <sys/stat.h>
@@ -2546,6 +2547,11 @@ static Value eval_call(ASTNode *node, Environment *env) {
 
     /* If built-in with no body, already handled above */
     if (func->body == NULL && !(func->is_extern && strncmp(name, "List_", 5) == 0)) {
+        /* Try FFI for extern functions */
+        if (func->is_extern && ffi_is_available()) {
+            return ffi_call_extern(name, args, node->as.call.arg_count, func, env);
+        }
+        
         fprintf(stderr, "Error: Built-in function '%s' not implemented in interpreter\n", name);
         return create_void();
     }
