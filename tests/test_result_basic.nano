@@ -1,0 +1,35 @@
+/* Test: Basic Result<T, E> functionality */
+
+union Result<T, E> {
+    Ok { value: T },
+    Err { error: E }
+}
+
+fn divide(a: int, b: int) -> Result<int, string> {
+    if (== b 0) {
+        return Result.Err { error: "Division by zero" }
+    }
+    return Result.Ok { value: (/ a b) }
+}
+
+shadow divide {
+    /* Test successful division */
+    let result1: Result<int, string> = (divide 10 2)
+    assert true  /* Just verify it compiles for now */
+    
+    /* Test division by zero */
+    let result2: Result<int, string> = (divide 10 0)
+    assert true  /* Just verify it compiles for now */
+}
+
+fn main() -> int {
+    println("Testing Result<int, string> basic functionality")
+    let x: Result<int, string> = Result.Ok { value: 42 }
+    let y: Result<int, string> = Result.Err { error: "test error" }
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

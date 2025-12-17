@@ -853,6 +853,41 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             break;
         }
         
+        case AST_UNION_CONSTRUCT: {
+            /* Union construction: UnionName.Variant { field1: val1, field2: val2 } */
+            const char *union_name = expr->as.union_construct.union_name;
+            const char *variant_name = expr->as.union_construct.variant_name;
+            
+            /* Check if this is a generic union instantiation from context */
+            /* For now, use the base union name - proper generic handling needs context from parent let statement */
+            const char *prefixed_union = get_prefixed_type_name(union_name);
+            const char *prefixed_variant = get_prefixed_variant_struct_name(union_name, variant_name);
+            
+            /* Get variant index */
+            int variant_idx = env_get_union_variant_index(env, union_name, variant_name);
+            if (variant_idx < 0) {
+                fprintf(stderr, "Error: Unknown variant '%s' in union '%s'\n", variant_name, union_name);
+                emit_literal(list, "/* ERROR: unknown variant */");
+                break;
+            }
+            
+            /* Generate union construction: (UnionName){ .tag = TAG, .data.variant = {...} } */
+            emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", 
+                          prefixed_union, union_name, variant_name);
+            
+            if (expr->as.union_construct.field_count > 0) {
+                emit_formatted(list, ", .data.%s = {", variant_name);
+                for (int i = 0; i < expr->as.union_construct.field_count; i++) {
+                    if (i > 0) emit_literal(list, ", ");
+                    emit_formatted(list, ".%s = ", expr->as.union_construct.field_names[i]);
+                    build_expr(list, expr->as.union_construct.field_values[i], env);
+                }
+                emit_literal(list, "}");
+            }
+            emit_literal(list, "}");
+            break;
+        }
+        
         case AST_ARRAY_LITERAL: {
             /* Array literal: [1, 2, 3] - Use dynarray_literal_* helper functions */
             int count = expr->as.array_literal.element_count;
@@ -975,54 +1010,115 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             }
             /* Handle struct/enum types that need prefixing */
             else if (stmt->as.let.var_type == TYPE_STRUCT || stmt->as.let.var_type == TYPE_UNION) {
-                /* Check if it's an enum */
-                bool is_enum = false;
-                const char *type_name = stmt->as.let.type_name;
-                
-                if (!type_name && stmt->as.let.value) {
-                    /* Try to infer from value */
-                    if (stmt->as.let.value->type == AST_FIELD_ACCESS &&
-                        stmt->as.let.value->as.field_access.object->type == AST_IDENTIFIER) {
-                        type_name = stmt->as.let.value->as.field_access.object->as.identifier;
-                        if (env_get_enum(env, type_name)) {
-                            is_enum = true;
+                /* Check if this is a generic union instantiation */
+                if (stmt->as.let.var_type == TYPE_UNION && stmt->as.let.type_info && 
+                    stmt->as.let.type_info->generic_name && stmt->as.let.type_info->type_param_count > 0) {
+                    /* Build monomorphized name: Result<int, string> -> Result_int_string */
+                    char monomorphized_name[256];
+                    snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", stmt->as.let.type_info->generic_name);
+                    
+                    for (int i = 0; i < stmt->as.let.type_info->type_param_count; i++) {
+                        TypeInfo *param = stmt->as.let.type_info->type_params[i];
+                        strcat(monomorphized_name, "_");
+                        
+                        if (param->base_type == TYPE_INT) {
+                            strcat(monomorphized_name, "int");
+                        } else if (param->base_type == TYPE_STRING) {
+                            strcat(monomorphized_name, "string");
+                        } else if (param->base_type == TYPE_BOOL) {
+                            strcat(monomorphized_name, "bool");
+                        } else if (param->base_type == TYPE_FLOAT) {
+                            strcat(monomorphized_name, "float");
+                        } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
+                            strcat(monomorphized_name, param->generic_name);
+                        } else {
+                            strcat(monomorphized_name, "unknown");
                         }
                     }
-                }
-                
-                if (is_enum || (type_name && env_get_enum(env, type_name))) {
-                    /* Enum type */
-                    const char *prefixed = get_prefixed_type_name(type_name);
-                    emit_formatted(list, "%s %s = ", prefixed, stmt->as.let.name);
-                    build_expr(list, stmt->as.let.value, env);
-                    emit_literal(list, ";\n");
-                } else {
-                    /* Check if this is an opaque type */
-                    if (!type_name && stmt->as.let.value) {
-                        type_name = get_struct_type_name(stmt->as.let.value, env);
-                    }
                     
-                    OpaqueTypeDef *opaque = NULL;
-                    if (type_name) {
-                        opaque = env_get_opaque_type(env, type_name);
-                    }
-                    
-                    if (opaque) {
-                        /* Opaque types are stored as void* */
-                        emit_formatted(list, "void* %s", stmt->as.let.name);
-                    } else if (type_name) {
-                        /* Regular struct type */
-                        const char *prefixed = get_prefixed_type_name(type_name);
-                        emit_formatted(list, "%s %s", prefixed, stmt->as.let.name);
-                    } else {
-                        emit_formatted(list, "void* %s", stmt->as.let.name);
-                    }
+                    const char *prefixed = get_prefixed_type_name(monomorphized_name);
+                    emit_formatted(list, "%s %s", prefixed, stmt->as.let.name);
                     
                     if (stmt->as.let.value) {
                         emit_literal(list, " = ");
-                        build_expr(list, stmt->as.let.value, env);
+                        
+                        /* Special handling for union construction with generic unions */
+                        if (stmt->as.let.value->type == AST_UNION_CONSTRUCT) {
+                            ASTNode *uc = stmt->as.let.value;
+                            const char *variant_name = uc->as.union_construct.variant_name;
+                            int variant_idx = env_get_union_variant_index(env, 
+                                uc->as.union_construct.union_name, variant_name);
+                            
+                            /* Generate union construction with monomorphized type name */
+                            emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", 
+                                          prefixed, monomorphized_name, variant_name);
+                            
+                            if (uc->as.union_construct.field_count > 0) {
+                                emit_formatted(list, ", .data.%s = {", variant_name);
+                                for (int i = 0; i < uc->as.union_construct.field_count; i++) {
+                                    if (i > 0) emit_literal(list, ", ");
+                                    emit_formatted(list, ".%s = ", uc->as.union_construct.field_names[i]);
+                                    build_expr(list, uc->as.union_construct.field_values[i], env);
+                                }
+                                emit_literal(list, "}");
+                            }
+                            emit_literal(list, "}");
+                        } else {
+                            build_expr(list, stmt->as.let.value, env);
+                        }
                     }
                     emit_literal(list, ";\n");
+                }
+                else {
+                    /* Check if it's an enum */
+                    bool is_enum = false;
+                    const char *type_name = stmt->as.let.type_name;
+                    
+                    if (!type_name && stmt->as.let.value) {
+                        /* Try to infer from value */
+                        if (stmt->as.let.value->type == AST_FIELD_ACCESS &&
+                            stmt->as.let.value->as.field_access.object->type == AST_IDENTIFIER) {
+                            type_name = stmt->as.let.value->as.field_access.object->as.identifier;
+                            if (env_get_enum(env, type_name)) {
+                                is_enum = true;
+                            }
+                        }
+                    }
+                    
+                    if (is_enum || (type_name && env_get_enum(env, type_name))) {
+                        /* Enum type */
+                        const char *prefixed = get_prefixed_type_name(type_name);
+                        emit_formatted(list, "%s %s = ", prefixed, stmt->as.let.name);
+                        build_expr(list, stmt->as.let.value, env);
+                        emit_literal(list, ";\n");
+                    } else {
+                        /* Check if this is an opaque type */
+                        if (!type_name && stmt->as.let.value) {
+                            type_name = get_struct_type_name(stmt->as.let.value, env);
+                        }
+                        
+                        OpaqueTypeDef *opaque = NULL;
+                        if (type_name) {
+                            opaque = env_get_opaque_type(env, type_name);
+                        }
+                        
+                        if (opaque) {
+                            /* Opaque types are stored as void* */
+                            emit_formatted(list, "void* %s", stmt->as.let.name);
+                        } else if (type_name) {
+                            /* Regular struct type */
+                            const char *prefixed = get_prefixed_type_name(type_name);
+                            emit_formatted(list, "%s %s", prefixed, stmt->as.let.name);
+                        } else {
+                            emit_formatted(list, "void* %s", stmt->as.let.name);
+                        }
+                        
+                        if (stmt->as.let.value) {
+                            emit_literal(list, " = ");
+                            build_expr(list, stmt->as.let.value, env);
+                        }
+                        emit_literal(list, ";\n");
+                    }
                 }
             }
             else {

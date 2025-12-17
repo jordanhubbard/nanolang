@@ -1251,6 +1251,11 @@ static void generate_union_definitions(Environment *env, StringBuilder *sb) {
     /* Generate generic union instantiations */
     if (env && env->generic_instances) {
         sb_append(sb, "/* ========== Generic Union Instantiations ========== */\n\n");
+        
+        /* Track generated instantiations to avoid duplicates */
+        char **generated = malloc(sizeof(char*) * env->generic_instance_count);
+        int generated_count = 0;
+        
         for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
             GenericInstantiation *inst = &env->generic_instances[i];
             if (!inst || !inst->generic_name || !inst->type_arg_names) continue;
@@ -1272,6 +1277,19 @@ static void generate_union_definitions(Environment *env, StringBuilder *sb) {
                 strcat(monomorphized_name, "_");
                 strcat(monomorphized_name, inst->type_arg_names[j]);
             }
+            
+            /* Check if already generated */
+            bool already_generated = false;
+            for (int j = 0; j < generated_count; j++) {
+                if (strcmp(generated[j], monomorphized_name) == 0) {
+                    already_generated = true;
+                    break;
+                }
+            }
+            if (already_generated) continue;
+            
+            /* Mark as generated */
+            generated[generated_count++] = strdup(monomorphized_name);
             
             const char *prefixed_union = get_prefixed_type_name(monomorphized_name);
             
@@ -1363,6 +1381,13 @@ static void generate_union_definitions(Environment *env, StringBuilder *sb) {
             sb_append(sb, "    } data;\n");
             sb_appendf(sb, "} %s;\n\n", prefixed_union);
         }
+        
+        /* Free generated names tracking */
+        for (int i = 0; i < generated_count; i++) {
+            free(generated[i]);
+        }
+        free(generated);
+        
         sb_append(sb, "/* ========== End Generic Union Instantiations ========== */\n\n");
     }
 }
