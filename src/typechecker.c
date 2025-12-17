@@ -3725,6 +3725,8 @@ bool type_check_module(ASTNode *program, Environment *env) {
             f.body = item->as.function.body;
             f.shadow_test = NULL;  /* Will be linked in second pass */
             f.is_extern = item->as.function.is_extern;
+            f.is_pub = item->as.function.is_pub;  /* Store visibility */
+            f.module_name = env->current_module ? strdup(env->current_module) : NULL;
             
             env_define_function(env, f);
         }

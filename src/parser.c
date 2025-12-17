@@ -2224,7 +2224,7 @@ static ASTNode *parse_match_expr(Parser *p) {
 }
 
 /* Parse function definition */
-static ASTNode *parse_function(Parser *p, bool is_extern) {
+static ASTNode *parse_function(Parser *p, bool is_extern, bool is_pub) {
     Token *tok = current_token(p);
     if (!tok) {
         fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parse_function\n");
@@ -2308,6 +2308,7 @@ static ASTNode *parse_function(Parser *p, bool is_extern) {
     node->as.function.return_type_info = return_type_info;  /* May be NULL, for tuple returns */
     node->as.function.body = body;
     node->as.function.is_extern = is_extern;
+    node->as.function.is_pub = is_pub;
     return node;
 }
 
@@ -2542,11 +2543,13 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                 if (parsed && parsed->type == AST_IMPORT) {
                     parsed->as.import_stmt.is_pub_use = true;
                 }
+            } else if (match(&parser, TOKEN_EXTERN)) {
+                /* pub extern fn declarations */
+                advance(&parser);  /* Skip 'extern' token */
+                parsed = parse_function(&parser, true, true);  /* is_extern=true, is_pub=true */
             } else if (match(&parser, TOKEN_FN)) {
-                parsed = parse_function(&parser, false);
-                if (parsed && parsed->type == AST_FUNCTION) {
-                    parsed->as.function.is_pub = is_pub;
-                }
+                /* pub fn declarations */
+                parsed = parse_function(&parser, false, true);  /* is_extern=false, is_pub=true */
             } else if (match(&parser, TOKEN_STRUCT)) {
                 parsed = parse_struct_def(&parser);
                 if (parsed && parsed->type == AST_STRUCT_DEF) {
@@ -2579,11 +2582,12 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         } else if (match(&parser, TOKEN_OPAQUE)) {
             parsed = parse_opaque_type(&parser);
         } else if (match(&parser, TOKEN_EXTERN)) {
-            /* extern fn declarations */
+            /* extern fn declarations (private by default) */
             advance(&parser);  /* Skip 'extern' token */
-            parsed = parse_function(&parser, true);
+            parsed = parse_function(&parser, true, false);  /* is_extern=true, is_pub=false */
         } else if (match(&parser, TOKEN_FN)) {
-            parsed = parse_function(&parser, false);
+            /* Regular fn declarations (private by default) */
+            parsed = parse_function(&parser, false, false);  /* is_extern=false, is_pub=false */
         } else if (match(&parser, TOKEN_SHADOW)) {
             parsed = parse_shadow(&parser);
         } else if (match(&parser, TOKEN_LET)) {
