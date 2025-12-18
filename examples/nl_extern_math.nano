@@ -46,9 +46,8 @@ shadow test_inverse_trig {
 
 # Test exponential functions
 fn test_exponential() -> int {
-    let x: float = 2.0
-    let result_exp: float = (exp x)
-    let result_exp2: float = (exp2 x)
+    let result_exp: float = (exp 2.0)
+    let result_exp2: float = (exp2 2.0)
     let result_log: float = (log result_exp)
     let result_log10: float = (log10 100.0)
     let result_log2: float = (log2 8.0)
@@ -69,7 +68,6 @@ shadow test_exponential {
 
 # Test power functions
 fn test_power() -> int {
-    let x: float = 8.0
     let y: float = 27.0
     
     let result_cbrt: float = (cbrt y)  # Cube root of 27 = 3
@@ -136,23 +134,23 @@ fn main() -> int {
     
     (println "")
     (println "Test 1: Inverse Trigonometric Functions")
-    let r1: int = (test_inverse_trig)
+    (test_inverse_trig)
     
     (println "")
     (println "Test 2: Exponential Functions")
-    let r2: int = (test_exponential)
+    (test_exponential)
     
     (println "")
     (println "Test 3: Power Functions")
-    let r3: int = (test_power)
+    (test_power)
     
     (println "")
     (println "Test 4: Rounding Functions")
-    let r4: int = (test_rounding)
+    (test_rounding)
     
     (println "")
     (println "Test 5: Remainder Functions")
-    let r5: int = (test_remainder)
+    (test_remainder)
     
     (println "")
     (println "========================================")

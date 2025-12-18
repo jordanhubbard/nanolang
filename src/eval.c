@@ -2365,6 +2365,34 @@ static Value eval_call(ASTNode *node, Environment *env) {
         }
         return create_float(fmod(args[0].as.float_val, args[1].as.float_val));
     }
+    if (strcmp(name, "trunc") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: trunc requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(trunc(args[0].as.float_val));
+    }
+    if (strcmp(name, "rint") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: rint requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(rint(args[0].as.float_val));
+    }
+    if (strcmp(name, "nearbyint") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: nearbyint requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(nearbyint(args[0].as.float_val));
+    }
+    if (strcmp(name, "remainder") == 0) {
+        if (node->as.call.arg_count < 2 || args[0].type != VAL_FLOAT || args[1].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: remainder requires 2 float arguments\n");
+            return create_void();
+        }
+        return create_float(remainder(args[0].as.float_val, args[1].as.float_val));
+    }
     if (strcmp(name, "fabs") == 0) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: fabs requires 1 float argument\n");

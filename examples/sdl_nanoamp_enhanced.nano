@@ -69,6 +69,11 @@ fn get_filename_from_path(path: string) -> string {
     return path
 }
 
+shadow get_filename_from_path {
+    assert (== (get_filename_from_path "song.mod") "song.mod")
+    assert (== (get_filename_from_path "a/b/c.wav") "a/b/c.wav")
+}
+
 # Safe music loading with error handling
 fn try_load_and_play_music(track_path: string) -> int {
     let music: Mix_Music = (Mix_LoadMUS track_path)
@@ -231,9 +236,6 @@ fn main() -> int {
     # Playback modes
     let mut shuffle_mode: int = 0
     let mut repeat_mode: int = REPEAT_OFF
-    
-    # Music handle
-    let mut has_music: bool = false
     
     # Set initial volume
     (Mix_VolumeMusic 80)
@@ -512,7 +514,6 @@ fn main() -> int {
                             # Successfully loaded and playing
                             set playback_state STATE_PLAYING
                             set playback_start_ticks (SDL_GetTicks)
-                            set has_music true
                             (println "[*] Play")
                         } else {
                             # Failed to load - show error and try next track
@@ -527,7 +528,6 @@ fn main() -> int {
                                 if (== next_result 1) {
                                     set playback_state STATE_PLAYING
                                     set playback_start_ticks (SDL_GetTicks)
-                                    set has_music true
                                     (println "[*] Skipped to next track")
                                 } else {
                                     (println "[*] Next track also failed")
@@ -756,7 +756,6 @@ fn main() -> int {
                         # Successfully loaded and playing
                         set playback_state STATE_PLAYING
                         set playback_start_ticks (SDL_GetTicks)
-                        set has_music true
                     } else {
                         # Failed to load - show error message
                         (println "[*] Error: Cannot play selected track")
@@ -764,7 +763,6 @@ fn main() -> int {
                         
                         # Keep player in stopped state
                         set playback_state STATE_STOPPED
-                        set has_music false
                     }
                 } else {}
             }
