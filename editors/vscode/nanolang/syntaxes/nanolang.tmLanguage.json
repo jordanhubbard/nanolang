@@ -30,15 +30,15 @@
       "patterns": [
         {
           "name": "keyword.control.nanolang",
-          "match": "\\b(if|else|while|for|return|break|continue|match|case|default|pub|mod|import|as|extern|module|opaque)\\b"
+          "match": "\\b(if|else|while|for|in|return|match|pub|module|import|from|use|as|extern|opaque)\\b"
         },
         {
           "name": "keyword.declaration.nanolang",
-          "match": "\\b(fn|let|mut|set|const|struct|union|enum|typedef|shadow|assert)\\b"
+          "match": "\\b(fn|let|mut|set|struct|union|enum|shadow|assert)\\b"
         },
         {
           "name": "storage.modifier.nanolang",
-          "match": "\\b(pub|mut|const)\\b"
+          "match": "\\b(pub|mut)\\b"
         }
       ]
     },
@@ -77,11 +77,11 @@
       "patterns": [
         {
           "name": "storage.type.primitive.nanolang",
-          "match": "\\b(int|float|bool|string|void|opaque)\\b"
+          "match": "\\b(int|float|bool|string|bstring|void|opaque)\\b"
         },
         {
           "name": "storage.type.generic.nanolang",
-          "match": "\\b(array|Result|Option)\\b"
+          "match": "\\b(array|List|Result|Option)\\b"
         },
         {
           "name": "storage.type.user.nanolang",
@@ -113,7 +113,7 @@
         },
         {
           "name": "keyword.operator.logical.nanolang",
-          "match": "&&|\\|\\||!"
+          "match": "\\b(and|or|not)\\b"
         },
         {
           "name": "keyword.operator.assignment.nanolang",

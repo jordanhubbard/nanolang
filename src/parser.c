@@ -571,7 +571,8 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
             
             /* Create TypeInfo for tuple if output parameter provided */
             if (type_info_out) {
-                TypeInfo *info = malloc(sizeof(TypeInfo));
+                /* Must zero-init so unused pointer fields (e.g., generic_name) are NULL. */
+                TypeInfo *info = calloc(1, sizeof(TypeInfo));
                 info->base_type = TYPE_TUPLE;
                 info->tuple_types = tuple_types;
                 info->tuple_type_names = tuple_type_names;

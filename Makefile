@@ -318,7 +318,16 @@ $(SENTINEL_STAGE1): $(COMPILER) $(INTERPRETER) $(FFI_BINDGEN)
 # Build C reference compiler (nanoc_c) - used by self-hosted version
 $(COMPILER_C): $(COMPILER_OBJECTS) | $(BIN_DIR)
 	@echo "Stage 1: Building C reference compiler..."
-	$(CC) $(CFLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS)
+	@# If objects were built with sanitizers/coverage, ensure we link with matching flags.
+	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
+		echo "  (Sanitizer instrumentation detected in objects - linking with sanitizer flags)"; \
+		$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS) $(SANITIZE_FLAGS); \
+	elif ls obj/*.gcno >/dev/null 2>&1; then \
+		echo "  (Coverage instrumentation detected in objects - linking with coverage flags)"; \
+		$(CC) $(CFLAGS) $(COVERAGE_FLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS) $(COVERAGE_FLAGS); \
+	else \
+		$(CC) $(CFLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS); \
+	fi
 	@echo "✓ C Compiler: $(COMPILER_C)"
 
 # Default compiler target - link to nanoc_c initially (bootstrap will update to nanoc_stage2)
@@ -333,7 +342,16 @@ $(COMPILER): $(COMPILER_C) | $(BIN_DIR)
 
 $(INTERPRETER): $(INTERPRETER_OBJECTS) | $(BIN_DIR)
 	@echo "Stage 1: Building reference interpreter..."
-	$(CC) $(CFLAGS) -DNANO_INTERPRETER -o $(INTERPRETER) $(INTERPRETER_OBJECTS) $(LDFLAGS)
+	@# If objects were built with sanitizers/coverage, ensure we link with matching flags.
+	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
+		echo "  (Sanitizer instrumentation detected in objects - linking with sanitizer flags)"; \
+		$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -DNANO_INTERPRETER -o $(INTERPRETER) $(INTERPRETER_OBJECTS) $(LDFLAGS) $(SANITIZE_FLAGS); \
+	elif ls obj/*.gcno >/dev/null 2>&1; then \
+		echo "  (Coverage instrumentation detected in objects - linking with coverage flags)"; \
+		$(CC) $(CFLAGS) $(COVERAGE_FLAGS) -DNANO_INTERPRETER -o $(INTERPRETER) $(INTERPRETER_OBJECTS) $(LDFLAGS) $(COVERAGE_FLAGS); \
+	else \
+		$(CC) $(CFLAGS) -DNANO_INTERPRETER -o $(INTERPRETER) $(INTERPRETER_OBJECTS) $(LDFLAGS); \
+	fi
 	@echo "✓ Interpreter: $(INTERPRETER)"
 
 $(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o | $(BIN_DIR)
