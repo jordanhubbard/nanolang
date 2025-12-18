@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml/badge.svg)](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml)
 ![Tests](https://img.shields.io/badge/tests-74%2F74%20passing-brightgreen.svg)
+![Coverage](https://img.shields.io/badge/coverage-%3E60%25-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Bootstrap](https://img.shields.io/badge/bootstrap-100%25%20self--hosting-success.svg)
