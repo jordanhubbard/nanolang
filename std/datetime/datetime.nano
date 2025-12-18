@@ -1,0 +1,211 @@
+// Datetime Library for Nanolang
+// Provides date/time parsing, formatting, and manipulation
+
+// --- Core Types ---
+
+// Opaque datetime object
+opaque DateTime
+
+// --- Constructors ---
+
+// Get current datetime
+extern fn nl_datetime_now() -> DateTime
+
+// Parse ISO 8601 string (YYYY-MM-DDTHH:MM:SS or YYYY-MM-DD)
+extern fn nl_datetime_parse_iso(datetime_str: string) -> DateTime
+
+// Parse custom format (strptime-style)
+extern fn nl_datetime_parse_format(datetime_str: string, format: string) -> DateTime
+
+// Create from components (year, month, day, hour, minute, second)
+extern fn nl_datetime_create(year: int, month: int, day: int, hour: int, minute: int, second: int) -> DateTime
+
+// Create from Unix timestamp
+extern fn nl_datetime_from_timestamp(timestamp: int) -> DateTime
+
+// --- Formatters ---
+
+// Format as ISO 8601 (YYYY-MM-DDTHH:MM:SS)
+extern fn nl_datetime_to_iso(dt: DateTime) -> string
+
+// Format with custom format (strftime-style)
+extern fn nl_datetime_format(dt: DateTime, format: string) -> string
+
+// Convert to Unix timestamp
+extern fn nl_datetime_to_timestamp(dt: DateTime) -> int
+
+// --- Component Accessors ---
+
+extern fn nl_datetime_year(dt: DateTime) -> int
+extern fn nl_datetime_month(dt: DateTime) -> int
+extern fn nl_datetime_day(dt: DateTime) -> int
+extern fn nl_datetime_hour(dt: DateTime) -> int
+extern fn nl_datetime_minute(dt: DateTime) -> int
+extern fn nl_datetime_second(dt: DateTime) -> int
+extern fn nl_datetime_weekday(dt: DateTime) -> int  // 0=Sunday, 6=Saturday
+extern fn nl_datetime_day_of_year(dt: DateTime) -> int
+
+// --- Arithmetic ---
+
+// Add/subtract seconds
+extern fn nl_datetime_add_seconds(dt: DateTime, seconds: int) -> DateTime
+extern fn nl_datetime_add_minutes(dt: DateTime, minutes: int) -> DateTime
+extern fn nl_datetime_add_hours(dt: DateTime, hours: int) -> DateTime
+extern fn nl_datetime_add_days(dt: DateTime, days: int) -> DateTime
+
+// Difference in seconds
+extern fn nl_datetime_diff_seconds(dt1: DateTime, dt2: DateTime) -> int
+
+// --- Comparison ---
+
+extern fn nl_datetime_equals(dt1: DateTime, dt2: DateTime) -> int
+extern fn nl_datetime_before(dt1: DateTime, dt2: DateTime) -> int
+extern fn nl_datetime_after(dt1: DateTime, dt2: DateTime) -> int
+
+// --- Utilities ---
+
+// Check if year is leap year
+extern fn nl_datetime_is_leap_year(year: int) -> int
+
+// Days in month (1-12)
+extern fn nl_datetime_days_in_month(year: int, month: int) -> int
+
+// Free datetime
+extern fn nl_datetime_free(dt: DateTime) -> void
+
+// --- High-Level API ---
+
+pub fn now() -> DateTime {
+    return (nl_datetime_now)
+}
+
+pub fn parse_iso(datetime_str: string) -> DateTime {
+    return (nl_datetime_parse_iso datetime_str)
+}
+
+pub fn parse(datetime_str: string, format: string) -> DateTime {
+    return (nl_datetime_parse_format datetime_str format)
+}
+
+pub fn create(year: int, month: int, day: int, hour: int, minute: int, second: int) -> DateTime {
+    return (nl_datetime_create year month day hour minute second)
+}
+
+pub fn from_timestamp(timestamp: int) -> DateTime {
+    return (nl_datetime_from_timestamp timestamp)
+}
+
+pub fn to_iso(dt: DateTime) -> string {
+    return (nl_datetime_to_iso dt)
+}
+
+pub fn format(dt: DateTime, format_str: string) -> string {
+    return (nl_datetime_format dt format_str)
+}
+
+pub fn to_timestamp(dt: DateTime) -> int {
+    return (nl_datetime_to_timestamp dt)
+}
+
+pub fn year(dt: DateTime) -> int {
+    return (nl_datetime_year dt)
+}
+
+pub fn month(dt: DateTime) -> int {
+    return (nl_datetime_month dt)
+}
+
+pub fn day(dt: DateTime) -> int {
+    return (nl_datetime_day dt)
+}
+
+pub fn hour(dt: DateTime) -> int {
+    return (nl_datetime_hour dt)
+}
+
+pub fn minute(dt: DateTime) -> int {
+    return (nl_datetime_minute dt)
+}
+
+pub fn second(dt: DateTime) -> int {
+    return (nl_datetime_second dt)
+}
+
+pub fn weekday(dt: DateTime) -> int {
+    return (nl_datetime_weekday dt)
+}
+
+pub fn add_seconds(dt: DateTime, seconds: int) -> DateTime {
+    return (nl_datetime_add_seconds dt seconds)
+}
+
+pub fn add_minutes(dt: DateTime, minutes: int) -> DateTime {
+    return (nl_datetime_add_minutes dt minutes)
+}
+
+pub fn add_hours(dt: DateTime, hours: int) -> DateTime {
+    return (nl_datetime_add_hours dt hours)
+}
+
+pub fn add_days(dt: DateTime, days: int) -> DateTime {
+    return (nl_datetime_add_days dt days)
+}
+
+pub fn diff_seconds(dt1: DateTime, dt2: DateTime) -> int {
+    return (nl_datetime_diff_seconds dt1 dt2)
+}
+
+pub fn equals(dt1: DateTime, dt2: DateTime) -> bool {
+    return (== (nl_datetime_equals dt1 dt2) 1)
+}
+
+pub fn before(dt1: DateTime, dt2: DateTime) -> bool {
+    return (== (nl_datetime_before dt1 dt2) 1)
+}
+
+pub fn after(dt1: DateTime, dt2: DateTime) -> bool {
+    return (== (nl_datetime_after dt1 dt2) 1)
+}
+
+pub fn is_leap_year(year: int) -> bool {
+    return (== (nl_datetime_is_leap_year year) 1)
+}
+
+pub fn days_in_month(year: int, month: int) -> int {
+    return (nl_datetime_days_in_month year month)
+}
+
+pub fn free(dt: DateTime) -> void {
+    (nl_datetime_free dt)
+}
+
+// Convenience functions
+
+pub fn weekday_name(dt: DateTime) -> string {
+    let wd: int = (weekday dt)
+    if (== wd 0) { return "Sunday" }
+    if (== wd 1) { return "Monday" }
+    if (== wd 2) { return "Tuesday" }
+    if (== wd 3) { return "Wednesday" }
+    if (== wd 4) { return "Thursday" }
+    if (== wd 5) { return "Friday" }
+    if (== wd 6) { return "Saturday" }
+    return "Unknown"
+}
+
+pub fn month_name(month: int) -> string {
+    if (== month 1) { return "January" }
+    if (== month 2) { return "February" }
+    if (== month 3) { return "March" }
+    if (== month 4) { return "April" }
+    if (== month 5) { return "May" }
+    if (== month 6) { return "June" }
+    if (== month 7) { return "July" }
+    if (== month 8) { return "August" }
+    if (== month 9) { return "September" }
+    if (== month 10) { return "October" }
+    if (== month 11) { return "November" }
+    if (== month 12) { return "December" }
+    return "Unknown"
+}
+
