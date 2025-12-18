@@ -55,3 +55,7 @@ extern fn nl_sdl_render_text_solid(renderer: SDL_Renderer, font: int, text: stri
 # Helper to render text using SDL_ttf (blended rendering - slower, anti-aliased)
 extern fn nl_sdl_render_text_blended(renderer: SDL_Renderer, font: int, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int
 
+# Process execution helper
+# Wrapper around libc system(3) with a nanolang-friendly ABI.
+extern fn nl_system(cmd: string) -> int
+

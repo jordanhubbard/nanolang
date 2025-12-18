@@ -39,4 +39,7 @@ int64_t nl_sdl_render_text_solid(SDL_Renderer* renderer, int64_t font, const cha
 /* Render text (blended - slower, anti-aliased) */
 int64_t nl_sdl_render_text_blended(SDL_Renderer* renderer, int64_t font, const char* text, int64_t x, int64_t y, int64_t r, int64_t g, int64_t b, int64_t a);
 
+/* Execute a shell command via system(3) */
+int64_t nl_system(const char* cmd);
+
 #endif /* SDL_HELPERS_H */

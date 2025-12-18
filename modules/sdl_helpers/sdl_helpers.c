@@ -10,6 +10,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+/* Wrapper around libc system(3) using the nanolang int64_t ABI. */
+int64_t nl_system(const char* cmd) {
+    return (int64_t)system(cmd);
+}
+
 /* Helper to create SDL_Rect and call SDL_RenderFillRect */
 /* Note: renderer is passed as int64_t (pointer value) and cast back to SDL_Renderer* */
 int64_t nl_sdl_render_fill_rect(int64_t renderer_ptr, int64_t x, int64_t y, int64_t w, int64_t h) {

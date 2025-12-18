@@ -114,7 +114,7 @@ ALL_EXAMPLES = \
 
 # === Targets ===
 
-.PHONY: all build nl sdl ncurses opengl clean help launcher
+.PHONY: all build nl sdl ncurses opengl clean help launcher launcher-simple
 
 # Default: build all examples
 all: build
@@ -186,8 +186,15 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  cd examples && make"
 	@echo ""
 
-# Example launcher (interpreter-based for now)
-launcher: $(INTERPRETER)
+# Example launcher (SDL app-store style)
+launcher: $(COMPILER)
+	@echo "Building SDL example launcher..."
+	@cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_example_launcher.nano -o bin/sdl_example_launcher
+	@echo "Launching... (ESC or Quit to exit)"
+	@cd .. && ./bin/sdl_example_launcher
+
+# Fallback text launcher
+launcher-simple: $(INTERPRETER)
 	@cd .. && ./bin/nano examples/example_launcher_simple.nano
 
 # Category targets
