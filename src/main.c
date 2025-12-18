@@ -349,9 +349,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char include_flags_with_tmp[2560];
     snprintf(include_flags_with_tmp, sizeof(include_flags_with_tmp), "%s -I/tmp", include_flags);
     
-    int cmd_len = snprintf(compile_cmd, sizeof(compile_cmd), 
-            "gcc -std=c99 %s -o %s %s %s %s %s %s", 
-            include_flags_with_tmp, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
+    const char *cc = getenv("NANO_CC");
+    if (!cc) cc = getenv("CC");
+    if (!cc) cc = "cc";
+
+    int cmd_len = snprintf(compile_cmd, sizeof(compile_cmd),
+            "%s -std=c99 %s -o %s %s %s %s %s %s",
+            cc, include_flags_with_tmp, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
     
     if (cmd_len >= (int)sizeof(compile_cmd)) {
         fprintf(stderr, "Error: Compile command too long (%d bytes, max %zu)\n", cmd_len, sizeof(compile_cmd));

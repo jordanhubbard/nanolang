@@ -930,10 +930,14 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
         if (newline) *newline = '\0';
     }
     
+    const char *cc = getenv("NANO_CC");
+    if (!cc) cc = getenv("CC");
+    if (!cc) cc = "cc";
+
     char compile_cmd[1024];
     snprintf(compile_cmd, sizeof(compile_cmd),
-            "gcc -std=c99 -Isrc -Imodules/sdl_helpers %s -c -o %s %s",
-            sdl_flags, output_obj, temp_c_file);
+            "%s -std=c99 -Isrc -Imodules/sdl_helpers %s -c -o %s %s",
+            cc, sdl_flags, output_obj, temp_c_file);
     
     if (verbose) {
         printf("Compiling module: %s\n", compile_cmd);

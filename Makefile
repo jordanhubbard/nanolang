@@ -20,7 +20,7 @@
 #
 # ============================================================================
 
-CC = gcc
+CC = cc
 CFLAGS = -Wall -Wextra -std=c99 -g -Isrc
 LDFLAGS = -lm
 SANITIZE_FLAGS = -fsanitize=address,undefined -fno-omit-frame-pointer

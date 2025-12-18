@@ -727,9 +727,10 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         char compile_cmd[8192];
         int pos = 0;
 
-        // Get CC from environment or use gcc
+        // Get CC from environment or use POSIX cc
         const char *cc = getenv("NANO_CC");
-        if (!cc) cc = "gcc";
+        if (!cc) cc = getenv("CC");
+        if (!cc) cc = "cc";
 
         pos += snprintf(compile_cmd + pos, sizeof(compile_cmd) - pos, "%s -c -fPIC", cc);
 
