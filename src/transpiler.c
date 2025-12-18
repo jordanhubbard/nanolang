@@ -2035,13 +2035,9 @@ static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *prog
                 );
                 
                 /* Check for wrapper functions from modules with custom headers
+                 * All module wrapper functions start with "nl_" prefix
                  * These are declared in their module headers (e.g., sdl_helpers.h, ui_widgets.h) */
-                bool is_module_with_header = (
-                    strncmp(func->name, "nl_sdl_", 7) == 0 ||
-                    strncmp(func->name, "nl_ui_", 6) == 0 ||
-                    strncmp(func->name, "nl_prefs_", 9) == 0 ||
-                    strncmp(func->name, "nl_fs_", 6) == 0
-                );
+                bool is_module_with_header = (strncmp(func->name, "nl_", 3) == 0);
                 
                 if (is_system_function || is_module_with_header) {
                     continue;  /* Skip - already in system/module header */
