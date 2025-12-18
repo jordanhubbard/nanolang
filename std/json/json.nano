@@ -1,0 +1,143 @@
+// JSON Parsing and Generation Library
+// Wraps cJSON for nanolang applications
+
+// Parse JSON string into nanolang value
+// Returns opaque handle to JSON object, or null on error
+extern fn cJSON_Parse(json_string: string) -> opaque
+
+// Generate JSON string from JSON object
+// Returns formatted JSON string
+extern fn cJSON_Print(json_object: opaque) -> string
+
+// Delete JSON object (free memory)
+extern fn cJSON_Delete(json_object: opaque) -> void
+
+// Object/Array access
+extern fn cJSON_GetObjectItem(object: opaque, key: string) -> opaque
+extern fn cJSON_GetArraySize(array: opaque) -> int
+extern fn cJSON_GetArrayItem(array: opaque, index: int) -> opaque
+
+// Type checking
+extern fn cJSON_IsNull(item: opaque) -> bool
+extern fn cJSON_IsBool(item: opaque) -> bool
+extern fn cJSON_IsNumber(item: opaque) -> bool
+extern fn cJSON_IsString(item: opaque) -> bool
+extern fn cJSON_IsArray(item: opaque) -> bool
+extern fn cJSON_IsObject(item: opaque) -> bool
+
+// Value extraction
+extern fn nl_cjson_get_number_value(item: opaque) -> float
+extern fn nl_cjson_get_string_value(item: opaque) -> string
+extern fn nl_cjson_get_bool_value(item: opaque) -> bool
+
+// Object creation
+extern fn cJSON_CreateObject() -> opaque
+extern fn cJSON_CreateArray() -> opaque
+extern fn cJSON_CreateString(value: string) -> opaque
+extern fn cJSON_CreateNumber(value: float) -> opaque
+extern fn cJSON_CreateBool(value: bool) -> opaque
+extern fn cJSON_CreateNull() -> opaque
+
+// Object manipulation
+extern fn cJSON_AddItemToObject(object: opaque, key: string, item: opaque) -> void
+extern fn cJSON_AddItemToArray(array: opaque, item: opaque) -> void
+
+// High-level API
+
+pub fn parse(json: string) -> opaque {
+    return (cJSON_Parse json)
+}
+
+pub fn stringify(obj: opaque) -> string {
+    return (cJSON_Print obj)
+}
+
+pub fn free(obj: opaque) -> void {
+    (cJSON_Delete obj)
+}
+
+// Object access helpers
+pub fn get_field(obj: opaque, key: string) -> opaque {
+    return (cJSON_GetObjectItem obj key)
+}
+
+pub fn get_number(item: opaque) -> float {
+    return (nl_cjson_get_number_value item)
+}
+
+pub fn get_string(item: opaque) -> string {
+    return (nl_cjson_get_string_value item)
+}
+
+pub fn get_bool(item: opaque) -> bool {
+    return (nl_cjson_get_bool_value item)
+}
+
+// Array helpers
+pub fn array_length(arr: opaque) -> int {
+    return (cJSON_GetArraySize arr)
+}
+
+pub fn array_get(arr: opaque, index: int) -> opaque {
+    return (cJSON_GetArrayItem arr index)
+}
+
+// Type checking helpers
+pub fn is_null(item: opaque) -> bool {
+    return (cJSON_IsNull item)
+}
+
+pub fn is_bool(item: opaque) -> bool {
+    return (cJSON_IsBool item)
+}
+
+pub fn is_number(item: opaque) -> bool {
+    return (cJSON_IsNumber item)
+}
+
+pub fn is_string(item: opaque) -> bool {
+    return (cJSON_IsString item)
+}
+
+pub fn is_array(item: opaque) -> bool {
+    return (cJSON_IsArray item)
+}
+
+pub fn is_object(item: opaque) -> bool {
+    return (cJSON_IsObject item)
+}
+
+// Object creation helpers
+pub fn new_object() -> opaque {
+    return (cJSON_CreateObject)
+}
+
+pub fn new_array() -> opaque {
+    return (cJSON_CreateArray)
+}
+
+pub fn new_string(val: string) -> opaque {
+    return (cJSON_CreateString val)
+}
+
+pub fn new_number(val: float) -> opaque {
+    return (cJSON_CreateNumber val)
+}
+
+pub fn new_bool(val: bool) -> opaque {
+    return (cJSON_CreateBool val)
+}
+
+pub fn new_null() -> opaque {
+    return (cJSON_CreateNull)
+}
+
+// Building objects
+pub fn add_field(obj: opaque, key: string, value: opaque) -> void {
+    (cJSON_AddItemToObject obj key value)
+}
+
+pub fn add_to_array(arr: opaque, item: opaque) -> void {
+    (cJSON_AddItemToArray arr item)
+}
+
