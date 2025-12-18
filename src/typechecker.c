@@ -574,6 +574,17 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
                 return TYPE_ARRAY;
             }
+
+            /* Special handling for filter builtin - check before environment lookup */
+            if (strcmp(expr->as.call.name, "filter") == 0) {
+                /* filter(array, predicate_fn) -> array */
+                if (expr->as.call.arg_count >= 2) {
+                    Type array_type = check_expression(expr->as.call.args[0], env);
+                    check_expression(expr->as.call.args[1], env);  /* Check function */
+                    return array_type;
+                }
+                return TYPE_ARRAY;
+            }
             
             /* Special handling for reduce builtin - check before environment lookup */
             if (strcmp(expr->as.call.name, "reduce") == 0) {

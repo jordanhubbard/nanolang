@@ -865,7 +865,7 @@ fn main() -> int {
 # pipeline.nano
 from "std/io/fs.nano" import read_file, write_file
 from "std/string/utils.nano" import split, join
-from "std/collections/array.nano" import filter, map
+# filter() and map() are builtins (no import needed)
 
 fn process_data(input_path: string, output_path: string) -> int {
     let data: string = (read_file input_path)

@@ -439,6 +439,88 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 emit_literal(list, ")");
             }
 
+            /* Special handling for filter() - compiled lowering */
+            else if (strcmp(func_name, "filter") == 0 && expr->as.call.arg_count == 2) {
+                /* filter(array<T>, fn(T)->bool) -> array<T>
+                 * Arrays are DynArray* in compiled mode.
+                 */
+                ASTNode *array_arg = expr->as.call.args[0];
+                ASTNode *fn_arg = expr->as.call.args[1];
+
+                Type elem_type = TYPE_INT;  /* default */
+                const char *struct_name = NULL;
+
+                if (array_arg && array_arg->type == AST_IDENTIFIER) {
+                    Symbol *sym = env_get_var(env, array_arg->as.identifier);
+                    if (sym && sym->element_type != TYPE_UNKNOWN) {
+                        elem_type = sym->element_type;
+                        if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
+                            struct_name = sym->struct_type_name;
+                        }
+                    }
+                } else if (array_arg && array_arg->type == AST_ARRAY_LITERAL &&
+                           array_arg->as.array_literal.element_type != TYPE_UNKNOWN) {
+                    elem_type = array_arg->as.array_literal.element_type;
+                    if (elem_type == TYPE_STRUCT && array_arg->as.array_literal.element_count > 0) {
+                        ASTNode *first = array_arg->as.array_literal.elements[0];
+                        if (first && first->type == AST_STRUCT_LITERAL) {
+                            struct_name = first->as.struct_literal.struct_name;
+                        }
+                    }
+                }
+
+                const char *elem_enum = "ELEM_INT";
+                const char *type_suffix = "int";
+                const char *c_type = "int64_t";
+
+                if (elem_type == TYPE_FLOAT) {
+                    elem_enum = "ELEM_FLOAT";
+                    type_suffix = "float";
+                    c_type = "double";
+                } else if (elem_type == TYPE_STRING) {
+                    elem_enum = "ELEM_STRING";
+                    type_suffix = "string";
+                    c_type = "const char*";
+                } else if (elem_type == TYPE_BOOL) {
+                    elem_enum = "ELEM_BOOL";
+                    type_suffix = "bool";
+                    c_type = "bool";
+                } else if (elem_type == TYPE_ARRAY) {
+                    elem_enum = "ELEM_ARRAY";
+                    type_suffix = "array";
+                    c_type = "DynArray*";
+                } else if (elem_type == TYPE_STRUCT) {
+                    elem_enum = "ELEM_STRUCT";
+                }
+
+                emit_literal(list, "({ DynArray* _arr = ");
+                build_expr(list, array_arg, env);
+                emit_literal(list, "; __auto_type _pred = ");
+                build_expr(list, fn_arg, env);
+                emit_formatted(list, "; DynArray* _out = dyn_array_new(%s); ", elem_enum);
+                emit_literal(list, "int64_t _len = dyn_array_length(_arr); ");
+                emit_literal(list, "for (int64_t _i = 0; _i < _len; _i++) { ");
+
+                if (elem_type == TYPE_STRUCT && struct_name) {
+                    emit_formatted(list,
+                                   "nl_%s _elem = *((nl_%s*)dyn_array_get_struct(_arr, _i)); ",
+                                   struct_name, struct_name);
+                    emit_literal(list, "if (_pred(_elem)) { ");
+                    emit_formatted(list, "dyn_array_push_struct(_out, &_elem, sizeof(nl_%s)); ", struct_name);
+                    emit_literal(list, "} ");
+                } else if (elem_type == TYPE_STRUCT && !struct_name) {
+                    emit_literal(list, "int64_t _elem = dyn_array_get_int(_arr, _i); ");
+                    emit_literal(list, "if (_pred(_elem)) { dyn_array_push_int(_out, _elem); } ");
+                } else {
+                    emit_formatted(list, "%s _elem = dyn_array_get_%s(_arr, _i); ", c_type, type_suffix);
+                    emit_literal(list, "if (_pred(_elem)) { ");
+                    emit_formatted(list, "dyn_array_push_%s(_out, _elem); ", type_suffix);
+                    emit_literal(list, "} ");
+                }
+
+                emit_literal(list, "} _out; })");
+            }
+
             /* Special handling for map() - compiled lowering */
             else if (strcmp(func_name, "map") == 0 && expr->as.call.arg_count == 2) {
                 /* map(array<T>, fn(T)->T) -> array<T>

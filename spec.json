@@ -281,6 +281,10 @@
       "array_length": { "signature": "array_length(array<T>) -> int", "description": "Get array length" },
       "array_new": { "signature": "array_new(int, T) -> array<T>", "description": "Create new array" },
       "array_set": { "signature": "array_set(array<T>, int, T) -> void", "description": "Set element (bounds-checked)" },
+      "filter": {
+        "signature": "filter(array<T>, fn(T) -> bool) -> array<T>",
+        "description": "Keep elements that satisfy a predicate and return a new array (compiled + interpreted)"
+      },
       "map": {
         "signature": "map(array<T>, fn(T) -> T) -> array<T>",
         "description": "Apply a transform function to each element and return a new array (compiled + interpreted)"

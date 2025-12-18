@@ -258,11 +258,11 @@ fn main() -> int {
     let numbers: array<int> = [1, 2, 3, 4, 5]
     
     // Map: apply function to each element
-    let squares: array<int> = (map square numbers)
+    let squares: array<int> = (map numbers square)
     // squares = [1, 4, 9, 16, 25]
     
     // Reduce: accumulate values
-    let sum: int = (reduce add 0 numbers)
+    let sum: int = (reduce numbers 0 add)
     // sum = 15
     
     (println (int_to_string sum))
@@ -490,9 +490,9 @@ fn with_debug(c: Config, enabled: bool) -> Config {
 ```nano
 fn process_numbers(nums: array<int>) -> int {
     // Filter evens, square them, sum them
-    let evens: array<int> = (filter is_even nums)
-    let squares: array<int> = (map square evens)
-    return (reduce add 0 squares)
+    let evens: array<int> = (filter nums is_even)
+    let squares: array<int> = (map evens square)
+    return (reduce squares 0 add)
 }
 ```
 
