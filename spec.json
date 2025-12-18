@@ -152,8 +152,8 @@
       "description": "Variable assignment (variable must be declared as mutable)"
     },
     "if": {
-      "syntax": "if condition { then_branch } else { else_branch }",
-      "description": "Conditional expression (both branches required)"
+      "syntax": "if condition { then_branch } [else { else_branch }]",
+      "description": "Conditional expression (else branch optional)"
     },
     "while": {
       "syntax": "while condition { body }",
@@ -340,14 +340,108 @@
       ]
     }
   },
+
+  "common_errors": {
+    "missing_shadow_test": {
+      "severity": "warning",
+      "phase": "typecheck",
+      "message_template": "Warning: Function '{name}' is missing a shadow test",
+      "cause": "The function has no shadow block (and does not call extern functions).",
+      "fix": "Add a shadow block after the function with at least one assert.",
+      "example": "fn double(x: int) -> int {\n    return (* x 2)\n}\n\nshadow double {\n    assert (== (double 5) 10)\n}"
+    },
+    "undefined_variable": {
+      "severity": "error",
+      "phase": "typecheck",
+      "message_template": "Error at line {line}, column {column}: Undefined variable '{name}'",
+      "cause": "A variable is referenced before it is declared in the current scope.",
+      "fix": "Declare the variable with let before use, or fix the identifier spelling.",
+      "example": "fn main() -> int {\n    let y: int = (+ x 1)\n    return 0\n}\n\nshadow main {\n    assert (== (main) 0)\n}"
+    },
+    "type_mismatch_let": {
+      "severity": "error",
+      "phase": "typecheck",
+      "message_template": "Error at line {line}, column {column}: Type mismatch in let statement",
+      "cause": "The declared type of a let binding does not match the type of the initializer expression.",
+      "fix": "Change the annotation or change the expression so the types match.",
+      "example": "fn main() -> int {\n    let x: int = 3.14\n    return 0\n}\n\nshadow main {\n    assert (== (main) 0)\n}"
+    },
+    "immutable_assignment": {
+      "severity": "error",
+      "phase": "typecheck",
+      "message_template": "Error at line {line}, column {column}: Cannot assign to immutable variable '{name}'",
+      "cause": "set was used on a variable declared without mut.",
+      "fix": "Declare the variable with let mut, then use set.",
+      "example": "fn main() -> int {\n    let counter: int = 0\n    set counter (+ counter 1)\n    return 0\n}\n\nshadow main {\n    assert (== (main) 0)\n}"
+    },
+    "undefined_var_or_function_runtime": {
+      "severity": "error",
+      "phase": "runtime",
+      "message_template": "Error: Undefined variable or function '{name}'",
+      "cause": "An identifier could not be resolved at runtime (neither variable nor function).",
+      "fix": "Ensure the identifier is declared/defined and in scope, or fix the spelling.",
+      "example": "fn main() -> int {\n    (foo 1 2)\n    return 0\n}\n\nshadow main {\n    assert (== (main) 0)\n}"
+    },
+    "missing_main": {
+      "severity": "error",
+      "phase": "typecheck",
+      "message_template": "Error: Program must define a 'main' function",
+      "cause": "The entrypoint function main was not found.",
+      "fix": "Define fn main() -> int { ... } in the program."
+    },
+    "main_wrong_return_type": {
+      "severity": "error",
+      "phase": "typecheck",
+      "message_template": "Error: 'main' function must return int",
+      "cause": "The main function exists but does not return int.",
+      "fix": "Change main signature to fn main() -> int and return an int."
+    }
+  },
+
+  "debugging": {
+    "workflow": [
+      "Start with the first reported error and use line/column to locate the source.",
+      "Use the interpreter (nano) for fast feedback; enable tracing to understand execution.",
+      "If compiling, use nanoc --keep-c to inspect generated C output."
+    ],
+    "interpreter_flags": {
+      "--trace-all": "Trace all execution",
+      "--trace-function=<name>": "Trace a specific function",
+      "--trace-var=<name>": "Trace variable reads/writes",
+      "--trace-scope=<name>": "Trace a function scope",
+      "--call <function>": "Call a specific function"
+    },
+    "compiler_flags": {
+      "--keep-c": "Keep the generated C file for inspection",
+      "--verbose": "Verbose output",
+      "-o": "Output binary name"
+    }
+  },
+
+  "idioms": {
+    "shadow_test_first": {
+      "description": "Write the shadow block first to lock behavior, then implement.",
+      "example": "fn add(a: int, b: int) -> int {\n    return (+ a b)\n}\n\nshadow add {\n    assert (== (add 2 3) 5)\n}"
+    },
+    "struct_constructor": {
+      "description": "Use a helper function to build structs consistently.",
+      "example": "struct Point { x: int, y: int }\n\nfn make_point(x: int, y: int) -> Point {\n    return Point { x: x, y: y }\n}\n\nshadow make_point {\n    let p: Point = (make_point 1 2)\n    assert (== p.x 1)\n    assert (== p.y 2)\n}"
+    },
+    "import_alias": {
+      "description": "Import a module with an alias and call functions via qualified name.",
+      "example": "import \"test_modules/math_helper.nano\" as Math\n\nfn main() -> int {\n    let sum: int = (Math.add 2 3)\n    return sum\n}\n\nshadow main {\n    assert (== (main) 5)\n}"
+    }
+  },
   
   "examples": {
-    "hello_world": "fn main() -> int { (println \"Hello, World!\"); return 0 }",
-    "fibonacci": "See docs/SPECIFICATION.md section 10.1",
-    "prime_checker": "See docs/SPECIFICATION.md section 10.2",
-    "unions": "See docs/QUICK_REFERENCE.md union examples",
-    "generics": "See examples/lists/ directory",
-    "first_class_functions": "See examples/34_function_types.nano"
+    "hello_world": "fn main() -> int {\n    (println \"Hello, World!\")\n    return 0\n}\n\nshadow main {\n    assert (== (main) 0)\n}",
+    "shadow_test_driven": "fn double(x: int) -> int {\n    return (* x 2)\n}\n\nshadow double {\n    assert (== (double 0) 0)\n    assert (== (double 5) 10)\n}",
+    "import_alias": "import \"test_modules/math_helper.nano\" as Math\n\nfn main() -> int {\n    return (Math.add 2 3)\n}\n\nshadow main {\n    assert (== (main) 5)\n}",
+    "fibonacci": "See examples/nl_fibonacci.nano",
+    "prime_checker": "See examples/nl_primes.nano",
+    "unions": "See examples/nl_union_types.nano",
+    "generics": "See examples/nl_generics_demo.nano",
+    "first_class_functions": "See examples/nl_first_class_functions.nano"
   },
   
   "compiler_internals": {
