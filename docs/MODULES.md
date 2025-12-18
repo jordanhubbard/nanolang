@@ -436,7 +436,7 @@ import "std/io/stdio.nano" as IO
 
 **Selective Import:**
 ```nano
-from "std/math/extended.nano" use (sqrt, pow, sin)
+from "std/math/extended.nano" import sqrt, pow, sin
 ```
 
 ---

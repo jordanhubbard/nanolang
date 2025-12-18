@@ -44,7 +44,7 @@ fn main() -> int {
 Import specific functions instead of the entire module:
 
 ```nano
-from "std/math/extended.nano" use (sqrt, pow, sin, cos)
+from "std/math/extended.nano" import sqrt, pow, sin, cos
 
 fn distance(x: float, y: float) -> float {
     return (sqrt (+ (* x x) (* y y)))
@@ -305,8 +305,8 @@ pub struct PublicStruct {
 
 ```nano
 // math_utils.nano
-from "std/math/extended.nano" use (sqrt, pow)
-pub use (sqrt, pow)  // Re-export for convenience
+from "std/math/extended.nano" import sqrt, pow
+pub use "std/math/extended.nano" as Math  // Re-export module under a public alias
 
 pub fn hypotenuse(a: float, b: float) -> float {
     return (sqrt (+ (* a a) (* b b)))
@@ -512,7 +512,7 @@ Now you understand the module system! Continue to:
 import "path/to/module.nano" as Name
 
 // Selective import
-from "path/to/module.nano" use (func1, func2, Type)
+from "path/to/module.nano" import func1, func2, Type
 
 // Multiple imports
 import "module1.nano" as M1
