@@ -438,6 +438,191 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 build_expr(list, expr->as.call.args[0], env);
                 emit_literal(list, ")");
             }
+
+            /* Special handling for map() - compiled lowering */
+            else if (strcmp(func_name, "map") == 0 && expr->as.call.arg_count == 2) {
+                /* map(array<T>, fn(T)->T) -> array<T>
+                 * Arrays are DynArray* in compiled mode.
+                 */
+                ASTNode *array_arg = expr->as.call.args[0];
+                ASTNode *fn_arg = expr->as.call.args[1];
+
+                Type elem_type = TYPE_INT;  /* default */
+                const char *struct_name = NULL;
+
+                if (array_arg && array_arg->type == AST_IDENTIFIER) {
+                    Symbol *sym = env_get_var(env, array_arg->as.identifier);
+                    if (sym && sym->element_type != TYPE_UNKNOWN) {
+                        elem_type = sym->element_type;
+                        if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
+                            struct_name = sym->struct_type_name;
+                        }
+                    }
+                } else if (array_arg && array_arg->type == AST_ARRAY_LITERAL &&
+                           array_arg->as.array_literal.element_type != TYPE_UNKNOWN) {
+                    elem_type = array_arg->as.array_literal.element_type;
+                    if (elem_type == TYPE_STRUCT && array_arg->as.array_literal.element_count > 0) {
+                        ASTNode *first = array_arg->as.array_literal.elements[0];
+                        if (first && first->type == AST_STRUCT_LITERAL) {
+                            struct_name = first->as.struct_literal.struct_name;
+                        }
+                    }
+                }
+
+                const char *elem_enum = "ELEM_INT";
+                const char *type_suffix = "int";
+                const char *c_type = "int64_t";
+
+                if (elem_type == TYPE_FLOAT) {
+                    elem_enum = "ELEM_FLOAT";
+                    type_suffix = "float";
+                    c_type = "double";
+                } else if (elem_type == TYPE_STRING) {
+                    elem_enum = "ELEM_STRING";
+                    type_suffix = "string";
+                    c_type = "const char*";
+                } else if (elem_type == TYPE_BOOL) {
+                    elem_enum = "ELEM_BOOL";
+                    type_suffix = "bool";
+                    c_type = "bool";
+                } else if (elem_type == TYPE_ARRAY) {
+                    elem_enum = "ELEM_ARRAY";
+                    type_suffix = "array";
+                    c_type = "DynArray*";
+                } else if (elem_type == TYPE_STRUCT) {
+                    elem_enum = "ELEM_STRUCT";
+                }
+
+                emit_literal(list, "({ DynArray* _arr = ");
+                build_expr(list, array_arg, env);
+                emit_literal(list, "; __auto_type _f = ");
+                build_expr(list, fn_arg, env);
+                emit_formatted(list, "; DynArray* _out = dyn_array_new(%s); ", elem_enum);
+                emit_literal(list, "int64_t _len = dyn_array_length(_arr); ");
+                emit_literal(list, "for (int64_t _i = 0; _i < _len; _i++) { ");
+
+                if (elem_type == TYPE_STRUCT && struct_name) {
+                    emit_formatted(list,
+                                   "nl_%s _elem = *((nl_%s*)dyn_array_get_struct(_arr, _i)); ",
+                                   struct_name, struct_name);
+                    emit_formatted(list,
+                                   "nl_%s _mapped = _f(_elem); dyn_array_push_struct(_out, &_mapped, sizeof(nl_%s)); ",
+                                   struct_name, struct_name);
+                } else if (elem_type == TYPE_STRUCT && !struct_name) {
+                    /* Best effort fallback - treat as int to avoid generating invalid C types */
+                    emit_literal(list, "int64_t _elem = dyn_array_get_int(_arr, _i); ");
+                    emit_literal(list, "int64_t _mapped = _f(_elem); dyn_array_push_int(_out, _mapped); ");
+                } else {
+                    emit_formatted(list, "%s _elem = dyn_array_get_%s(_arr, _i); ", c_type, type_suffix);
+                    emit_formatted(list, "%s _mapped = _f(_elem); dyn_array_push_%s(_out, _mapped); ", c_type, type_suffix);
+                }
+
+                emit_literal(list, "} _out; })");
+            }
+
+            /* Special handling for reduce() - compiled lowering */
+            else if (strcmp(func_name, "reduce") == 0 && expr->as.call.arg_count == 3) {
+                /* reduce(array<T>, acc, fn(acc, T)->acc) -> acc */
+                ASTNode *array_arg = expr->as.call.args[0];
+                ASTNode *initial_arg = expr->as.call.args[1];
+                ASTNode *fn_arg = expr->as.call.args[2];
+
+                Type elem_type = TYPE_INT;  /* default */
+                const char *elem_struct_name = NULL;
+
+                if (array_arg && array_arg->type == AST_IDENTIFIER) {
+                    Symbol *sym = env_get_var(env, array_arg->as.identifier);
+                    if (sym && sym->element_type != TYPE_UNKNOWN) {
+                        elem_type = sym->element_type;
+                        if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
+                            elem_struct_name = sym->struct_type_name;
+                        }
+                    }
+                } else if (array_arg && array_arg->type == AST_ARRAY_LITERAL &&
+                           array_arg->as.array_literal.element_type != TYPE_UNKNOWN) {
+                    elem_type = array_arg->as.array_literal.element_type;
+                    if (elem_type == TYPE_STRUCT && array_arg->as.array_literal.element_count > 0) {
+                        ASTNode *first = array_arg->as.array_literal.elements[0];
+                        if (first && first->type == AST_STRUCT_LITERAL) {
+                            elem_struct_name = first->as.struct_literal.struct_name;
+                        }
+                    }
+                }
+
+                Type acc_type = check_expression(initial_arg, env);
+                const char *acc_c_type = "int64_t";
+                const char *acc_struct_name = NULL;
+
+                if (acc_type == TYPE_FLOAT) {
+                    acc_c_type = "double";
+                } else if (acc_type == TYPE_BOOL) {
+                    acc_c_type = "bool";
+                } else if (acc_type == TYPE_STRING) {
+                    acc_c_type = "const char*";
+                } else if (acc_type == TYPE_ARRAY) {
+                    acc_c_type = "DynArray*";
+                } else if (acc_type == TYPE_STRUCT) {
+                    /* Try to recover struct name */
+                    if (initial_arg && initial_arg->type == AST_STRUCT_LITERAL) {
+                        acc_struct_name = initial_arg->as.struct_literal.struct_name;
+                    } else if (initial_arg && initial_arg->type == AST_IDENTIFIER) {
+                        Symbol *sym = env_get_var(env, initial_arg->as.identifier);
+                        if (sym && sym->struct_type_name) {
+                            acc_struct_name = sym->struct_type_name;
+                        }
+                    }
+                    if (acc_struct_name) {
+                        static _Thread_local char buf[256];
+                        snprintf(buf, sizeof(buf), "nl_%s", acc_struct_name);
+                        acc_c_type = buf;
+                    }
+                }
+
+                const char *elem_suffix = "int";
+                const char *elem_c_type = "int64_t";
+                if (elem_type == TYPE_FLOAT) {
+                    elem_suffix = "float";
+                    elem_c_type = "double";
+                } else if (elem_type == TYPE_STRING) {
+                    elem_suffix = "string";
+                    elem_c_type = "const char*";
+                } else if (elem_type == TYPE_BOOL) {
+                    elem_suffix = "bool";
+                    elem_c_type = "bool";
+                } else if (elem_type == TYPE_ARRAY) {
+                    elem_suffix = "array";
+                    elem_c_type = "DynArray*";
+                }
+
+                emit_literal(list, "({ DynArray* _arr = ");
+                build_expr(list, array_arg, env);
+                emit_literal(list, "; __auto_type _f = ");
+                build_expr(list, fn_arg, env);
+                emit_literal(list, "; ");
+
+                emit_formatted(list, "%s _acc = ", acc_c_type);
+                build_expr(list, initial_arg, env);
+                emit_literal(list, "; ");
+
+                emit_literal(list, "int64_t _len = dyn_array_length(_arr); ");
+                emit_literal(list, "for (int64_t _i = 0; _i < _len; _i++) { ");
+
+                if (elem_type == TYPE_STRUCT && elem_struct_name) {
+                    emit_formatted(list,
+                                   "nl_%s _elem = *((nl_%s*)dyn_array_get_struct(_arr, _i)); ",
+                                   elem_struct_name, elem_struct_name);
+                    emit_literal(list, "_acc = _f(_acc, _elem); ");
+                } else if (elem_type == TYPE_STRUCT && !elem_struct_name) {
+                    emit_literal(list, "int64_t _elem = dyn_array_get_int(_arr, _i); ");
+                    emit_literal(list, "_acc = _f(_acc, _elem); ");
+                } else {
+                    emit_formatted(list, "%s _elem = dyn_array_get_%s(_arr, _i); ", elem_c_type, elem_suffix);
+                    emit_literal(list, "_acc = _f(_acc, _elem); ");
+                }
+
+                emit_literal(list, "} _acc; })");
+            }
+
             /* Special handling for at() and array_set() - needs type-specific functions */
             else if ((strcmp(func_name, "at") == 0 || strcmp(func_name, "array_set") == 0) && 
                      expr->as.call.arg_count >= 2) {

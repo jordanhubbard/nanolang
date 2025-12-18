@@ -1,0 +1,61 @@
+/* nl_functions_map_reduce.nano - map()/reduce() builtin tests
+ * Category: Core Language - Functions
+ */
+
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+shadow double {
+    assert (== (double 5) 10)
+    assert (== (double 0) 0)
+}
+
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+    assert (== (add -1 1) 0)
+}
+
+fn map_basic() -> array<int> {
+    let nums: array<int> = [1, 2, 3]
+    return (map nums double)
+}
+
+shadow map_basic {
+    let doubled: array<int> = (map_basic)
+    assert (== (array_length doubled) 3)
+    assert (== (at doubled 0) 2)
+    assert (== (at doubled 1) 4)
+    assert (== (at doubled 2) 6)
+}
+
+fn reduce_basic() -> int {
+    let nums: array<int> = [1, 2, 3, 4]
+    return (reduce nums 0 add)
+}
+
+shadow reduce_basic {
+    assert (== (reduce_basic) 10)
+}
+
+fn reduce_empty_returns_initial() -> int {
+    let nums: array<int> = (array_new 0 0)
+    return (reduce nums 123 add)
+}
+
+shadow reduce_empty_returns_initial {
+    assert (== (reduce_empty_returns_initial) 123)
+}
+
+fn main() -> int {
+    (println "nl_functions_map_reduce: All map/reduce tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
