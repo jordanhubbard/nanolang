@@ -1,5 +1,11 @@
-// Module Build System for Nanolang
-// Handles automatic compilation of C sources and dependency tracking
+/**
+ * @file module_builder.h
+ * @brief Module build system for nanolang
+ *
+ * Provides automatic compilation of C modules, dependency tracking, and
+ * platform-specific package management integration. Handles module.json
+ * metadata parsing and incremental compilation.
+ */
 
 #ifndef MODULE_BUILDER_H
 #define MODULE_BUILDER_H

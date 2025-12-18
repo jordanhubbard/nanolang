@@ -462,6 +462,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 if (left == TYPE_FLOAT && right == TYPE_FLOAT) return TYPE_FLOAT;
 
                 fprintf(stderr, "Error at line %d, column %d: Type mismatch in arithmetic operation\n", expr->line, expr->column);
+                fprintf(stderr, "  Expected: numeric types (int or float)\n");
+                fprintf(stderr, "  Got: %s and %s\n", type_to_string(left), type_to_string(right));
+                fprintf(stderr, "  Hint: Both operands must be the same numeric type\n");
                 return TYPE_UNKNOWN;
             }
 
@@ -476,6 +479,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
                 if (!types_match(left, right)) {
                     fprintf(stderr, "Error at line %d, column %d: Type mismatch in comparison\n", expr->line, expr->column);
+                    fprintf(stderr, "  Left operand: %s\n", type_to_string(left));
+                    fprintf(stderr, "  Right operand: %s\n", type_to_string(right));
+                    fprintf(stderr, "  Hint: Comparison requires both operands to be the same type\n");
                 }
                 return TYPE_BOOL;
             }
