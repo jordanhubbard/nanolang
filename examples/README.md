@@ -134,7 +134,7 @@ Numbered examples (01-34) test specific language features:
 - **19-23**: Lists, extern functions, string manipulation
 - **24-26**: Random numbers, math algorithms, games
 - **27-30**: Tracing, unions, generic lists
-- **31-34**: First-class functions, map/filter/fold, closures
+- **31-34**: First-class functions and map/reduce (no captured closures)
 
 ## Building Examples
 

@@ -201,7 +201,7 @@ fn apply_scaling_factor(data: array<int>, factor: int) -> array<int> {
     (print factor)
     (println "")
     
-    /* We would use a closure here, but let's use triple as example */
+    /* We would use a capturing closure here, but NanoLang currently doesn't support captures; use a named function. */
     let result: array<int> = (map data triple)
     (println "✓ Scaling complete")
     return result

@@ -361,7 +361,7 @@ Find examples by topic:
 
 **Data Structures**: arrays, structs, enums, unions, tuples, generics
 
-**Functions**: first-class, factories, closures, filter/map/fold
+**Functions**: first-class, factories (no captured closures), map/reduce
 
 **Strings**: operations, extern string
 

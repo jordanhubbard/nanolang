@@ -94,7 +94,7 @@ Key differences from other languages:
 - ✅ Syntax and semantics
 - ✅ Type system fundamentals
 - ✅ Control flow
-- ✅ Functions and closures
+- ✅ Functions (first-class; no captured closures)
 - ✅ Data structures (structs, enums, unions)
 - ✅ Pattern matching
 - ✅ Generic programming
