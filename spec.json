@@ -280,7 +280,15 @@
       "at": { "signature": "at(array<T>, int) -> T", "description": "Get element (bounds-checked)" },
       "array_length": { "signature": "array_length(array<T>) -> int", "description": "Get array length" },
       "array_new": { "signature": "array_new(int, T) -> array<T>", "description": "Create new array" },
-      "array_set": { "signature": "array_set(array<T>, int, T) -> void", "description": "Set element (bounds-checked)" }
+      "array_set": { "signature": "array_set(array<T>, int, T) -> void", "description": "Set element (bounds-checked)" },
+      "map": {
+        "signature": "map(array<T>, fn(T) -> T) -> array<T>",
+        "description": "Apply a transform function to each element and return a new array (compiled + interpreted)"
+      },
+      "reduce": {
+        "signature": "reduce(array<T>, A, fn(A, T) -> A) -> A",
+        "description": "Fold an array into a single value, starting from an initial accumulator (compiled + interpreted)"
+      }
     },
     "os": {
       "getcwd": { "signature": "getcwd() -> string", "description": "Get current directory" },
@@ -441,7 +449,9 @@
     "prime_checker": "See examples/nl_primes.nano",
     "unions": "See examples/nl_union_types.nano",
     "generics": "See examples/nl_generics_demo.nano",
-    "first_class_functions": "See examples/nl_first_class_functions.nano"
+    "first_class_functions": "See examples/nl_first_class_functions.nano",
+    "map_reduce": "See examples/nl_map_reduce.nano",
+    "data_analytics": "See examples/nl_data_analytics.nano"
   },
   
   "compiler_internals": {
