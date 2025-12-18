@@ -126,6 +126,9 @@ static bool get_module_library_path(const char *module_name, char *out_path, siz
 /* Load a module's shared library */
 bool ffi_load_module(const char *module_name, const char *module_path, 
                      Environment *env, bool verbose) {
+    (void)module_path;  /* Reserved for future use */
+    (void)env;          /* Reserved for future use */
+    
     if (!ffi_initialized) {
         fprintf(stderr, "Error: FFI not initialized\n");
         return false;
@@ -233,6 +236,8 @@ static Value marshal_c_to_value(void *c_result, Type return_type) {
 /* Call an extern function via FFI */
 Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
                       Function *func_info, Environment *env) {
+    (void)env;  /* Reserved for future use */
+    
     if (!ffi_initialized) {
         fprintf(stderr, "Error: FFI not initialized\n");
         return create_void();
@@ -307,7 +312,7 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
                 break;
             case TYPE_BOOL:
                 /* Pass bool by value (cast to pointer-sized int) */
-                arg_ptrs[i] = (void*)(*((bool*)(arg_buffer + arg_offsets[i])) ? 1 : 0);
+                arg_ptrs[i] = (void*)(intptr_t)(*((bool*)(arg_buffer + arg_offsets[i])) ? 1 : 0);
                 break;
             case TYPE_STRING:
                 /* Strings are already pointers - extract the pointer */
