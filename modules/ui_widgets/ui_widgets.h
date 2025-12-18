@@ -67,9 +67,9 @@ double nl_ui_seekable_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y,
 
 // Text input field - single line text input
 // Returns 1 if Enter was pressed, 0 otherwise
-// buffer is modified in place (max buffer_size characters)
+// NOTE: Currently treated as read-only text for NanoLang integration.
 int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
-                          char* buffer, int64_t buffer_size,
+                          const char* buffer, int64_t buffer_size,
                           int64_t x, int64_t y, int64_t w, int64_t h,
                           int64_t is_focused);
 

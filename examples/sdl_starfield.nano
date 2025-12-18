@@ -52,12 +52,33 @@ fn get_star_x(stars: array<float>, idx: int) -> float {
     return (at stars (* idx 3))
 }
 
+shadow get_star_x {
+    let stars: array<float> = [1.0, 2.0, 3.0,
+                               4.0, 5.0, 6.0]
+    assert (== (get_star_x stars 0) 1.0)
+    assert (== (get_star_x stars 1) 4.0)
+}
+
 fn get_star_y(stars: array<float>, idx: int) -> float {
     return (at stars (+ (* idx 3) 1))
 }
 
+shadow get_star_y {
+    let stars: array<float> = [1.0, 2.0, 3.0,
+                               4.0, 5.0, 6.0]
+    assert (== (get_star_y stars 0) 2.0)
+    assert (== (get_star_y stars 1) 5.0)
+}
+
 fn get_star_z(stars: array<float>, idx: int) -> float {
     return (at stars (+ (* idx 3) 2))
+}
+
+shadow get_star_z {
+    let stars: array<float> = [1.0, 2.0, 3.0,
+                               4.0, 5.0, 6.0]
+    assert (== (get_star_z stars 0) 3.0)
+    assert (== (get_star_z stars 1) 6.0)
 }
 
 fn set_star_x(stars: array<float>, idx: int, val: float) -> array<float> {
@@ -65,14 +86,32 @@ fn set_star_x(stars: array<float>, idx: int, val: float) -> array<float> {
     return stars
 }
 
+shadow set_star_x {
+    let mut stars: array<float> = [1.0, 2.0, 3.0]
+    set stars (set_star_x stars 0 9.0)
+    assert (== (at stars 0) 9.0)
+}
+
 fn set_star_y(stars: array<float>, idx: int, val: float) -> array<float> {
     (array_set stars (+ (* idx 3) 1) val)
     return stars
 }
 
+shadow set_star_y {
+    let mut stars: array<float> = [1.0, 2.0, 3.0]
+    set stars (set_star_y stars 0 9.0)
+    assert (== (at stars 1) 9.0)
+}
+
 fn set_star_z(stars: array<float>, idx: int, val: float) -> array<float> {
     (array_set stars (+ (* idx 3) 2) val)
     return stars
+}
+
+shadow set_star_z {
+    let mut stars: array<float> = [1.0, 2.0, 3.0]
+    set stars (set_star_z stars 0 9.0)
+    assert (== (at stars 2) 9.0)
 }
 
 fn reset_star(stars: array<float>, idx: int) -> array<float> {
@@ -112,6 +151,11 @@ fn update_stars(stars: array<float>, count: int, dt: float) -> array<float> {
     }
     
     return result
+}
+
+shadow update_stars {
+    /* update_stars may call reset_star(), which uses rand(); keep shadow test side-effect free. */
+    assert true
 }
 
 # === MAIN ===

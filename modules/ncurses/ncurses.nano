@@ -103,6 +103,11 @@ fn COLOR_PAIR(n: int) -> int {
     return (* n 256)
 }
 
+shadow COLOR_PAIR {
+    assert (== (COLOR_PAIR 1) 256)
+    assert (== (COLOR_PAIR 2) 512)
+}
+
 # NOTE: All ncurses functions use _wrapper suffix for consistency
 # Example usage:
 #   let win: int = (initscr_wrapper)

@@ -23,10 +23,21 @@ fn grid_index(x: int, y: int, width: int) -> int {
     return (+ (* y width) x)
 }
 
+shadow grid_index {
+    assert (== (grid_index 0 0 10) 0)
+    assert (== (grid_index 3 2 10) 23)
+}
+
 fn is_valid_pos(x: int, y: int, width: int, height: int) -> bool {
     # Modern boolean expression
     return (and (and (>= x 0) (< x width))
                 (and (>= y 0) (< y height)))
+}
+
+shadow is_valid_pos {
+    assert (is_valid_pos 0 0 10 10)
+    assert (not (is_valid_pos (- 1) 0 10 10))
+    assert (not (is_valid_pos 0 10 10 10))
 }
 
 fn check_self_collision(snake_x: array<int>, snake_y: array<int>, length: int) -> bool {
@@ -45,6 +56,12 @@ fn check_self_collision(snake_x: array<int>, snake_y: array<int>, length: int) -
     }
     
     return false
+}
+
+shadow check_self_collision {
+    let snake_x: array<int> = [5, 4, 5]
+    let snake_y: array<int> = [5, 5, 5]
+    assert (check_self_collision snake_x snake_y 3)
 }
 
 fn draw_border(width: int, height: int) -> void {
@@ -120,6 +137,11 @@ fn place_food(old_food_x: int, old_food_y: int, length: int) -> int {
     
     # Return food position encoded as (y * width + x)
     return (grid_index food_x food_y GRID_WIDTH)
+}
+
+shadow place_food {
+    /* Deterministic placement based on old coords */
+    assert (== (place_food 0 0 0) (grid_index 7 5 GRID_WIDTH))
 }
 
 # === MAIN GAME ===

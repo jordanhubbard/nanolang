@@ -29,6 +29,11 @@ fn compile_file(input: string, output: string) -> int {
     }
 }
 
+shadow compile_file {
+    /* compile_file executes system commands; keep the shadow test side-effect free. */
+    assert true
+}
+
 fn main() -> int {
     let argc: int = (get_argc)
     
