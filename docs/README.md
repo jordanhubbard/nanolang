@@ -102,7 +102,7 @@ Project status and future plans:
 
 16. **[Roadmap](ROADMAP.md)** - Future development plans
 17. **[Spec / Coverage Audit](../SPEC_AUDIT.md)** - Gaps tracked for LLM/implementation parity
-18. **[Self-Hosting Checklist](SELF_HOSTING_CHECKLIST.md)** - Path to self-hosting
+18. **[Self-Hosting Checklist](../planning/SELF_HOSTING_CHECKLIST.md)** - Path to self-hosting
 
 ### 🤝 Contributing
 

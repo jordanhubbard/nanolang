@@ -173,7 +173,7 @@ Build a minimal, LLM-friendly programming language that:
 
 **Goal**: Compile nanolang compiler in nanolang
 
-**Documentation**: See [SELF_HOSTING_REQUIREMENTS.md](SELF_HOSTING_REQUIREMENTS.md) for detailed analysis
+**Documentation**: See [planning/SELF_HOSTING_REQUIREMENTS.md](../planning/SELF_HOSTING_REQUIREMENTS.md) for detailed analysis
 
 **Required Features** (6 essential):
 1. ✅ Structs - Represent tokens, AST nodes, symbols (COMPLETE)

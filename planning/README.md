@@ -34,7 +34,7 @@ These documents represent current or upcoming work:
 - **[MODULE_FFI_IMPLEMENTATION.md](MODULE_FFI_IMPLEMENTATION.md)** - FFI implementation
 
 ### Data Structures
-- **[STRUCT_ARRAYS_PLAN.md](STRUCT_ARRAYS_PLAN.md)** - Struct arrays
+- **[STRUCT_ARRAYS_PLAN.md](archive/STRUCT_ARRAYS_PLAN.md)** - Struct arrays
 - **[ENUM_IMPLEMENTATION_PLAN.md](ENUM_IMPLEMENTATION_PLAN.md)** - Enum implementation
 - **[LISTS_IMPLEMENTATION_GUIDE.md](LISTS_IMPLEMENTATION_GUIDE.md)** - Dynamic lists
 - **[UNION_TYPES_IMPLEMENTATION.md](UNION_TYPES_IMPLEMENTATION.md)** - Union types
@@ -55,16 +55,16 @@ These documents represent current or upcoming work:
 - **[TRANSPILER_ENUM_ISSUE.md](TRANSPILER_ENUM_ISSUE.md)** - Transpiler bug
 
 ### Type System
-- **[CAST_IMPLEMENTATION.md](CAST_IMPLEMENTATION.md)** - Type casting
+- **[CAST_IMPLEMENTATION.md](archive/CAST_IMPLEMENTATION.md)** - Type casting
 
 ### Audits & Analysis
 - **[UNION_TYPES_AUDIT.md](UNION_TYPES_AUDIT.md)** - Union types review
 - **[TAXONOMY_AUDIT_2025.md](TAXONOMY_AUDIT_2025.md)** - Language taxonomy
-- **[COMPILER_WARNINGS_FIXED.md](COMPILER_WARNINGS_FIXED.md)** - Warning resolution
+- **[COMPILER_WARNINGS_FIXED.md](archive/COMPILER_WARNINGS_FIXED.md)** - Warning resolution
 
 ### Historical Documents
 - **[IMPLEMENTATION.old.md](IMPLEMENTATION.old.md)** - Old implementation notes
-- **[SESSION_WRAPUP_NOV14.md](SESSION_WRAPUP_NOV14.md)** - Development session notes
+- **[SESSION_WRAPUP_NOV14.md](archive/SESSION_WRAPUP_NOV14.md)** - Development session notes
 
 ## 📁 Organization
 

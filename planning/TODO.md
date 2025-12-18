@@ -452,14 +452,14 @@ Choose your path:
 ## 🔗 Key Resources
 
 ### Documentation
-- [SPECIFICATION.md](docs/SPECIFICATION.md) - Language reference
-- [SELF_HOSTING_REQUIREMENTS.md](docs/SELF_HOSTING_REQUIREMENTS.md) - Feature requirements
-- [SELF_HOSTING_CHECKLIST.md](docs/SELF_HOSTING_CHECKLIST.md) - Implementation tracking
+- [SPECIFICATION.md](../docs/SPECIFICATION.md) - Language reference
+- [SELF_HOSTING_REQUIREMENTS.md](SELF_HOSTING_REQUIREMENTS.md) - Feature requirements
+- [SELF_HOSTING_CHECKLIST.md](SELF_HOSTING_CHECKLIST.md) - Implementation tracking
 
 ### Examples
-- [examples/28_union_types.nano](examples/28_union_types.nano) - Union types demo
-- [examples/17_struct_test.nano](examples/17_struct_test.nano) - Struct examples
-- [examples/18_enum_test.nano](examples/18_enum_test.nano) - Enum examples
+- [examples/nl_union_types.nano](../examples/nl_union_types.nano) - Union types demo
+- [examples/nl_struct.nano](../examples/nl_struct.nano) - Struct example
+- [examples/nl_enum.nano](../examples/nl_enum.nano) - Enum example
 
 ### Test Infrastructure
 - `tests/unit/unions/` - 5 union tests

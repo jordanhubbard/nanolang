@@ -2,7 +2,6 @@
 
 import os
 import re
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -18,9 +17,11 @@ SKIP_DIRS = {
     "bin",
     "node_modules",
     "coverage-html",
-    # Historical/maintainer notes frequently contain stale references; keep CI focused
-    # on user-facing docs under docs/ and top-level entrypoints.
-    "planning",
+}
+
+# Archived snapshots are allowed to contain stale references.
+SKIP_PATH_PREFIXES = {
+    Path("planning/archive"),
 }
 
 
@@ -54,6 +55,11 @@ def normalize_target(raw: str) -> str:
 
 def iter_markdown_files(repo_root: Path):
     for root, dirs, files in os.walk(repo_root):
+        rel_root = Path(root).resolve().relative_to(repo_root)
+        if any(rel_root == p or p in rel_root.parents for p in SKIP_PATH_PREFIXES):
+            dirs[:] = []
+            continue
+
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
         for name in files:
             if name.lower().endswith(".md"):
@@ -63,6 +69,18 @@ def iter_markdown_files(repo_root: Path):
 def find_broken_links_in_file(repo_root: Path, md_path: Path) -> list[BrokenLink]:
     rel_md_path = md_path.relative_to(repo_root)
     content = md_path.read_text(encoding="utf-8", errors="replace")
+
+    # Links inside fenced code blocks are not rendered by markdown, so ignore them.
+    in_fence = False
+    stripped_lines: list[str] = []
+    for line in content.splitlines(keepends=True):
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if not in_fence:
+            stripped_lines.append(line)
+
+    content = "".join(stripped_lines)
 
     broken: list[BrokenLink] = []
     for match in RE_MD_LINK.finditer(content):

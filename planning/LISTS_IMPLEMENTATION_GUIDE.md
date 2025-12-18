@@ -57,7 +57,7 @@ void list_int_free(List_int *list);
 #endif
 ```
 
-**File:** `src/runtime/list_int.c` (see LISTS_DESIGN_SIMPLE.md for full code)
+**File:** `src/runtime/list_int.c`
 
 ### Step 3: Add to Type System (Day 1)
 
@@ -403,7 +403,7 @@ fn parse(tokens: list_token) -> list_astnode {
 
 ---
 
-**See:** [LISTS_DESIGN_SIMPLE.md](docs/LISTS_DESIGN_SIMPLE.md) for detailed design  
+**See:** [SELF_HOSTING_IMPLEMENTATION_PLAN.md](SELF_HOSTING_IMPLEMENTATION_PLAN.md) for context on how lists are used in the self-hosting plan  
 **Status:** Ready to implement (after structs complete)  
 **Priority:** #3 for self-hosting
 

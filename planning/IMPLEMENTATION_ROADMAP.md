@@ -18,7 +18,7 @@ All 6 essential features for self-hosting have been fully designed. We can now b
 
 ### 1. Structs (Priority #1) ⭐
 
-**Design:** [`docs/STRUCTS_DESIGN.md`](docs/STRUCTS_DESIGN.md)
+**Design:** [SELF_HOSTING_REQUIREMENTS.md](SELF_HOSTING_REQUIREMENTS.md)
 
 **What:** Aggregate types for grouping related data
 
@@ -48,7 +48,7 @@ let t: int = tok.type  # Field access
 
 ### 2. Enums (Priority #2)
 
-**Design:** [`docs/ENUMS_DESIGN.md`](docs/ENUMS_DESIGN.md)
+**Design:** [ENUM_IMPLEMENTATION_PLAN.md](ENUM_IMPLEMENTATION_PLAN.md)
 
 **What:** Type-safe named constants
 
@@ -76,7 +76,7 @@ let t: int = TOKEN_NUMBER  # Use as int constant
 
 ### 3. Dynamic Lists (Priority #3)
 
-**Design:** [`docs/LISTS_DESIGN.md`](docs/LISTS_DESIGN.md)
+**Design:** [LISTS_IMPLEMENTATION_GUIDE.md](LISTS_IMPLEMENTATION_GUIDE.md)
 
 **What:** Resizable collections (unlike fixed arrays)
 
@@ -107,7 +107,7 @@ let len: int = (list_length tokens)
 
 ### 4. File I/O
 
-**Design:** [`docs/STDLIB_ADDITIONS_DESIGN.md`](docs/STDLIB_ADDITIONS_DESIGN.md) (Part 1)
+**Design:** [SELF_HOSTING_REQUIREMENTS.md](SELF_HOSTING_REQUIREMENTS.md)
 
 **What:** Read/write files
 
@@ -131,7 +131,7 @@ let exists: bool = (file_exists "file.txt")
 
 ### 5. Advanced String Operations
 
-**Design:** [`docs/STDLIB_ADDITIONS_DESIGN.md`](docs/STDLIB_ADDITIONS_DESIGN.md) (Part 2)
+**Design:** [STRING_OPERATIONS_PLAN.md](STRING_OPERATIONS_PLAN.md)
 
 **What:** Character access, parsing, formatting
 
@@ -160,7 +160,7 @@ let parts: array<string> = (str_split "a,b" ",")  # ["a", "b"]
 
 ### 6. System Execution
 
-**Design:** [`docs/STDLIB_ADDITIONS_DESIGN.md`](docs/STDLIB_ADDITIONS_DESIGN.md) (Part 3)
+**Design:** [SELF_HOSTING_REQUIREMENTS.md](SELF_HOSTING_REQUIREMENTS.md)
 
 **What:** Execute system commands (invoke gcc)
 
@@ -493,14 +493,13 @@ Let's build it! 🚀
 ---
 
 **Documentation Index:**
-- [SELF_HOSTING_SUMMARY.md](SELF_HOSTING_SUMMARY.md) - Quick overview
-- [docs/SELF_HOSTING_REQUIREMENTS.md](docs/SELF_HOSTING_REQUIREMENTS.md) - Detailed analysis
-- [docs/SELF_HOSTING_FEATURE_GAP.md](docs/SELF_HOSTING_FEATURE_GAP.md) - Gap analysis
-- [docs/SELF_HOSTING_CHECKLIST.md](docs/SELF_HOSTING_CHECKLIST.md) - Implementation tracking
-- [docs/STRUCTS_DESIGN.md](docs/STRUCTS_DESIGN.md) - Structs design
-- [docs/ENUMS_DESIGN.md](docs/ENUMS_DESIGN.md) - Enums design
-- [docs/LISTS_DESIGN.md](docs/LISTS_DESIGN.md) - Lists design
-- [docs/STDLIB_ADDITIONS_DESIGN.md](docs/STDLIB_ADDITIONS_DESIGN.md) - Stdlib additions
+- [SELF_HOST_STATUS.md](SELF_HOST_STATUS.md) - Quick overview
+- [SELF_HOSTING_REQUIREMENTS.md](SELF_HOSTING_REQUIREMENTS.md) - Detailed analysis
+- [SELF_HOSTING_FEATURE_GAP.md](SELF_HOSTING_FEATURE_GAP.md) - Gap analysis
+- [SELF_HOSTING_CHECKLIST.md](SELF_HOSTING_CHECKLIST.md) - Implementation tracking
+- [ENUM_IMPLEMENTATION_PLAN.md](ENUM_IMPLEMENTATION_PLAN.md) - Enums plan
+- [LISTS_IMPLEMENTATION_GUIDE.md](LISTS_IMPLEMENTATION_GUIDE.md) - Lists plan
+- [STRING_OPERATIONS_PLAN.md](STRING_OPERATIONS_PLAN.md) - String ops plan
 
 **Last Updated:** 2025-11-12  
 **Status:** ✅ Ready to Implement

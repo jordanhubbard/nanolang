@@ -473,7 +473,7 @@ nanolanc_stage4: src_nano/compiler.nano bin/nanolanc_stage3
 ## References
 
 - [SELF_HOSTING_IMPLEMENTATION_PLAN.md](SELF_HOSTING_IMPLEMENTATION_PLAN.md) - Implementation details
-- [SELF_HOSTING_CHECKLIST.md](../docs/SELF_HOSTING_CHECKLIST.md) - Feature checklist
+- [SELF_HOSTING_CHECKLIST.md](SELF_HOSTING_CHECKLIST.md) - Feature checklist
 - GCC Bootstrap Process: https://gcc.gnu.org/install/build.html
 
 ---
