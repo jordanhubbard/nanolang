@@ -1,0 +1,116 @@
+// Regular Expression Library
+// Wraps POSIX regex for nanolang
+
+// Compile a regex pattern
+// Returns opaque handle to compiled regex, or null on error
+extern fn nl_regex_compile(pattern: string) -> opaque
+
+// Test if string matches pattern
+// Returns 1 if match, 0 if no match, -1 on error
+extern fn nl_regex_match(regex: opaque, text: string) -> int
+
+// Find first match in text
+// Returns match position or -1 if not found
+extern fn nl_regex_find(regex: opaque, text: string) -> int
+
+// Find all matches in text
+// Returns array of match positions
+extern fn nl_regex_find_all(regex: opaque, text: string) -> array<int>
+
+// Extract capture groups from last match
+// Returns array of captured strings
+extern fn nl_regex_groups(regex: opaque, text: string) -> array<string>
+
+// Replace first occurrence
+extern fn nl_regex_replace(regex: opaque, text: string, replacement: string) -> string
+
+// Replace all occurrences
+extern fn nl_regex_replace_all(regex: opaque, text: string, replacement: string) -> string
+
+// Split string by regex pattern
+extern fn nl_regex_split(regex: opaque, text: string) -> array<string>
+
+// Free compiled regex
+extern fn nl_regex_free(regex: opaque) -> void
+
+// High-level convenience API
+
+pub fn compile(pattern: string) -> opaque {
+    return (nl_regex_compile pattern)
+}
+
+pub fn matches(regex: opaque, text: string) -> bool {
+    let result: int = (nl_regex_match regex text)
+    return (== result 1)
+}
+
+pub fn find(regex: opaque, text: string) -> int {
+    return (nl_regex_find regex text)
+}
+
+pub fn find_all(regex: opaque, text: string) -> array<int> {
+    return (nl_regex_find_all regex text)
+}
+
+pub fn groups(regex: opaque, text: string) -> array<string> {
+    return (nl_regex_groups regex text)
+}
+
+pub fn replace(regex: opaque, text: string, replacement: string) -> string {
+    return (nl_regex_replace regex text replacement)
+}
+
+pub fn replace_all(regex: opaque, text: string, replacement: string) -> string {
+    return (nl_regex_replace_all regex text replacement)
+}
+
+pub fn split(regex: opaque, text: string) -> array<string> {
+    return (nl_regex_split regex text)
+}
+
+pub fn free(regex: opaque) -> void {
+    (nl_regex_free regex)
+}
+
+// One-shot convenience functions (compile, use, free in one call)
+
+pub fn quick_match(pattern: string, text: string) -> bool {
+    let regex: opaque = (compile pattern)
+    if (== regex (cast 0 opaque)) {
+        return false
+    }
+    let result: bool = (matches regex text)
+    (free regex)
+    return result
+}
+
+pub fn quick_find(pattern: string, text: string) -> int {
+    let regex: opaque = (compile pattern)
+    if (== regex (cast 0 opaque)) {
+        return (- 1)
+    }
+    let result: int = (find regex text)
+    (free regex)
+    return result
+}
+
+pub fn quick_replace(pattern: string, text: string, replacement: string) -> string {
+    let regex: opaque = (compile pattern)
+    if (== regex (cast 0 opaque)) {
+        return text
+    }
+    let result: string = (replace regex text replacement)
+    (free regex)
+    return result
+}
+
+pub fn quick_split(pattern: string, text: string) -> array<string> {
+    let regex: opaque = (compile pattern)
+    if (== regex (cast 0 opaque)) {
+        return []
+    }
+    let result: array<string> = (split regex text)
+    (free regex)
+    return result
+}
+
