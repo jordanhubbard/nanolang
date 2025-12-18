@@ -202,6 +202,140 @@ jobs:
               body: body
             });
 
+  performance:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for comparison
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential bc
+
+      - name: Download baseline benchmark
+        id: baseline
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: performance-baseline
+          path: .benchmark_baseline
+
+      - name: Run performance benchmarks
+        run: |
+          ./scripts/benchmark.sh
+          cp .benchmark_results/benchmark_*.json .benchmark_results/current.json
+
+      - name: Compare with baseline
+        id: compare
+        if: steps.baseline.outcome == 'success'
+        run: |
+          BASELINE=.benchmark_baseline/baseline.json
+          CURRENT=.benchmark_results/current.json
+          
+          if [ ! -f "$BASELINE" ]; then
+            echo "No baseline found, skipping comparison"
+            echo "regression=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Extract key metrics
+          BASELINE_BUILD=$(grep "total_build_ms" "$BASELINE" | grep -oE '[0-9]+')
+          CURRENT_BUILD=$(grep "total_build_ms" "$CURRENT" | grep -oE '[0-9]+')
+          
+          BASELINE_TEST=$(grep "test_suite_ms" "$BASELINE" | grep -oE '[0-9]+')
+          CURRENT_TEST=$(grep "test_suite_ms" "$CURRENT" | grep -oE '[0-9]+')
+          
+          BASELINE_COMPILE=$(grep "self_hosting_compile_ms" "$BASELINE" | grep -oE '[0-9]+')
+          CURRENT_COMPILE=$(grep "self_hosting_compile_ms" "$CURRENT" | grep -oE '[0-9]+')
+          
+          # Calculate percentage changes
+          BUILD_PCT=$(echo "scale=2; ($CURRENT_BUILD - $BASELINE_BUILD) * 100 / $BASELINE_BUILD" | bc)
+          TEST_PCT=$(echo "scale=2; ($CURRENT_TEST - $BASELINE_TEST) * 100 / $BASELINE_TEST" | bc)
+          COMPILE_PCT=$(echo "scale=2; ($CURRENT_COMPILE - $BASELINE_COMPILE) * 100 / $BASELINE_COMPILE" | bc)
+          
+          echo "build_change=$BUILD_PCT" >> $GITHUB_OUTPUT
+          echo "test_change=$TEST_PCT" >> $GITHUB_OUTPUT
+          echo "compile_change=$COMPILE_PCT" >> $GITHUB_OUTPUT
+          
+          # Check for regressions (>20% slower)
+          REGRESSION=false
+          if (( $(echo "$BUILD_PCT > 20" | bc -l) )); then
+            echo "⚠️  Build time regression: +${BUILD_PCT}% (${BASELINE_BUILD}ms → ${CURRENT_BUILD}ms)"
+            REGRESSION=true
+          fi
+          if (( $(echo "$TEST_PCT > 20" | bc -l) )); then
+            echo "⚠️  Test time regression: +${TEST_PCT}% (${BASELINE_TEST}ms → ${CURRENT_TEST}ms)"
+            REGRESSION=true
+          fi
+          if (( $(echo "$COMPILE_PCT > 20" | bc -l) )); then
+            echo "⚠️  Compile time regression: +${COMPILE_PCT}% (${BASELINE_COMPILE}ms → ${CURRENT_COMPILE}ms)"
+            REGRESSION=true
+          fi
+          
+          echo "regression=$REGRESSION" >> $GITHUB_OUTPUT
+          
+          # Create comparison report
+          cat > .benchmark_results/comparison.md << EOF
+          ## Performance Comparison
+          
+          | Metric | Baseline | Current | Change |
+          |--------|----------|---------|--------|
+          | Build Time | ${BASELINE_BUILD}ms | ${CURRENT_BUILD}ms | ${BUILD_PCT}% |
+          | Test Suite | ${BASELINE_TEST}ms | ${CURRENT_TEST}ms | ${TEST_PCT}% |
+          | Self-Host Compile | ${BASELINE_COMPILE}ms | ${CURRENT_COMPILE}ms | ${COMPILE_PCT}% |
+          EOF
+
+      - name: Fail on regression
+        if: steps.compare.outputs.regression == 'true'
+        run: |
+          echo "❌ Performance regression detected (>20% slower)"
+          echo "See comparison report in artifacts for details"
+          cat .benchmark_results/comparison.md
+          exit 1
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results
+          path: .benchmark_results/
+
+      - name: Update performance baseline (main branch only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-baseline
+          path: .benchmark_results/current.json
+
+      - name: Comment performance on PR
+        if: github.event_name == 'pull_request' && steps.compare.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const buildChange = '${{ steps.compare.outputs.build_change }}';
+            const testChange = '${{ steps.compare.outputs.test_change }}';
+            const compileChange = '${{ steps.compare.outputs.compile_change }}';
+            
+            let emoji = '✅';
+            if (parseFloat(buildChange) > 20 || parseFloat(testChange) > 20 || parseFloat(compileChange) > 20) {
+              emoji = '⚠️';
+            } else if (parseFloat(buildChange) < -10 || parseFloat(testChange) < -10 || parseFloat(compileChange) < -10) {
+              emoji = '🚀';
+            }
+            
+            const body = `## ${emoji} Performance Report\n\n| Metric | Change |\n|--------|--------|\n| Build Time | ${buildChange}% |\n| Test Suite | ${testChange}% |\n| Self-Host Compile | ${compileChange}% |\n\n[View detailed benchmarks in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              body: body
+            });
+
   lint:
     name: Code Quality
     runs-on: ubuntu-latest
