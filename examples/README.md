@@ -123,18 +123,15 @@ cd examples && make
   - Depth-first search solving
   - ASCII visualization
 
-### 🧪 Test Examples (Feature Verification)
+### 🧪 Feature Verification (Language Tests)
 
-Numbered examples (01-34) test specific language features:
+The canonical feature verification programs live in `tests/` as `nl_*.nano` and are run by:
 
-- **01-09**: Core operators, strings, floats, loops, mutability
-- **10-13**: OS functions, stdlib, advanced math, string operations
-- **14-16**: Array operations and bounds checking
-- **17-18**: Struct and enum types
-- **19-23**: Lists, extern functions, string manipulation
-- **24-26**: Random numbers, math algorithms, games
-- **27-30**: Tracing, unions, generic lists
-- **31-34**: First-class functions and map/reduce (no captured closures)
+```bash
+make test-quick
+# or
+make test
+```
 
 ## Building Examples
 
