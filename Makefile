@@ -115,8 +115,11 @@ all: build
 .PHONY: test-units
 test-units:
 	@echo "Running C unit tests..."
-	@# Check if coverage instrumentation is present and add flags if needed
-	@if ls obj/*.gcno >/dev/null 2>&1; then \
+	@# Detect which instrumentation is present in object files
+	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
+		echo "  (Sanitizer instrumentation detected in objects - linking with sanitizer flags)"; \
+		$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -o tests/test_transpiler tests/test_transpiler.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) $(SANITIZE_FLAGS); \
+	elif ls obj/*.gcno >/dev/null 2>&1; then \
 		echo "  (Coverage instrumentation detected - linking with coverage flags)"; \
 		$(CC) $(CFLAGS) $(COVERAGE_FLAGS) -o tests/test_transpiler tests/test_transpiler.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) $(COVERAGE_FLAGS); \
 	else \
