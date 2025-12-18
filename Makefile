@@ -162,6 +162,13 @@ test: build
 # Alias for backwards compatibility
 test-full: test
 
+# Performance benchmarking
+benchmark:
+	@echo "Running performance benchmarks..."
+	@./scripts/benchmark.sh
+
+.PHONY: benchmark
+
 # Test with Stage 1 only (C reference compiler)
 test-stage1: stage1
 	@echo ""
@@ -804,4 +811,4 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install
+.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark
