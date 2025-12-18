@@ -47,7 +47,7 @@ fn main() -> int {
     println("   - opengl_teapot - Utah teapot")
     println("")
     println("4. AUDIO & MUSIC")
-    println("   - sdl_nanoamp_enhanced - Winamp-style MP3 player")
+    println("   - sdl_nanoamp - Winamp-style MP3 player")
     println("   - sdl_mod_visualizer - MOD music with viz")
     println("")
     println("5. ADVANCED FEATURES (Most compile!)")

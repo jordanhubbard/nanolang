@@ -77,7 +77,7 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/sdl_boids \
 	$(BIN_DIR)/sdl_particles \
 	$(BIN_DIR)/sdl_mod_visualizer \
-	$(BIN_DIR)/sdl_nanoamp_enhanced \
+	$(BIN_DIR)/sdl_nanoamp \
 	$(BIN_DIR)/sdl_raytracer \
 	$(BIN_DIR)/sdl_asteroids \
 	$(BIN_DIR)/sdl_terrain_explorer \
@@ -152,7 +152,7 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  ./bin/sdl_terrain_explorer  - 3D terrain"
 	@echo "  ./bin/sdl_falling_sand      - Cellular automata sandbox"
 	@echo "  ./bin/sdl_mod_visualizer    - MOD music player with visualizer"
-	@echo "  ./bin/sdl_nanoamp_enhanced  - MP3 player (enhanced Winamp tribute)"
+	@echo "  ./bin/sdl_nanoamp           - MP3 player (Winamp tribute)"
 	@echo "  ./bin/sdl_ui_widgets_extended - Extended UI widgets demo (all widgets)"
 	@echo "  ./bin/sdl_texture_demo      - Texture loading and rendering"
 	@echo "  ./bin/sdl_drawing_primitives - Basic shape drawing"
@@ -230,10 +230,10 @@ $(BIN_DIR)/opengl_teapot: opengl_teapot.nano $(COMPILER)
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_teapot.nano -o bin/opengl_teapot
 	@echo "✓ OpenGL Teapot built: $@"
 
-$(BIN_DIR)/sdl_nanoamp_enhanced: sdl_nanoamp_enhanced.nano $(COMPILER)
-	@echo "Building NanoAmp Enhanced - Pixel-perfect Winamp tribute..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_nanoamp_enhanced.nano -o bin/sdl_nanoamp_enhanced
-	@echo "✓ NanoAmp Enhanced built: $@"
+$(BIN_DIR)/sdl_nanoamp: sdl_nanoamp.nano $(COMPILER)
+	@echo "Building SDL NanoAmp - Pixel-perfect Winamp tribute..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_nanoamp.nano -o bin/sdl_nanoamp
+	@echo "✓ SDL NanoAmp built: $@"
 
 $(BIN_DIR)/sdl_ui_widgets_extended: sdl_ui_widgets_extended.nano $(COMPILER)
 	@echo "Building Extended UI Widgets Demo..."

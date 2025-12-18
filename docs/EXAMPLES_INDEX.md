@@ -242,7 +242,7 @@ For advanced language features and metaprogramming:
 |---------|------------|--------|------|
 | `sdl_audio_wav.nano` | ⭐⭐⭐ Advanced | WAV playback | 30 min |
 | `sdl_audio_player.nano` | ⭐⭐⭐⭐ Expert | Full audio player | 60 min |
-| `sdl_nanoamp_enhanced.nano` | ⭐⭐⭐⭐⭐ Expert | Music visualizer ⭐ SHOWCASE | 90 min |
+| `sdl_nanoamp.nano` | ⭐⭐⭐⭐⭐ Expert | Music visualizer ⭐ SHOWCASE | 90 min |
 | `sdl_mod_visualizer.nano` | ⭐⭐⭐⭐ Expert | MOD player | 50 min |
 
 #### SDL UI
@@ -324,7 +324,7 @@ These 6 examples represent the best of NanoLang - production-quality application
    - Time: 60+ minutes
    - Why showcase: Sophisticated algorithms, excellent performance
 
-4. **SDL NanoAmp Enhanced** (`sdl_nanoamp_enhanced.nano`) - Music visualizer
+4. **SDL NanoAmp** (`sdl_nanoamp.nano`) - Music visualizer
    - Topics: Audio, FFT, DSP, real-time visualization
    - Time: 90+ minutes
    - Why showcase: Audio processing, beautiful visualization

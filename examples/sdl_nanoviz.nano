@@ -42,7 +42,7 @@
 # - nl_advanced_math.nano - 3D math
 #
 # Next Steps:
-# - sdl_nanoamp_enhanced.nano - Advanced audio player
+# - sdl_nanoamp.nano - Advanced audio player
 # - Add more visualization presets
 # - Implement beat detection
 

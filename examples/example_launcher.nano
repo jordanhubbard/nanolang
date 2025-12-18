@@ -299,7 +299,7 @@ fn create_example_database() -> array<ExampleCard> {
         name: "NanoAmp",
         description: "Winamp-style MP3 player",
         category: ExampleCategory::AUDIO,
-        executable_path: "../bin/sdl_nanoamp_enhanced",
+        executable_path: "../bin/sdl_nanoamp",
         is_compiled: true,
         requires_args: false,
         icon_color_r: 255, icon_color_g: 100, icon_color_b: 200

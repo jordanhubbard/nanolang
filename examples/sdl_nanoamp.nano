@@ -1,4 +1,4 @@
-# NanoAmp Enhanced - Pixel-Perfect Winamp Tribute
+# SDL NanoAmp - Pixel-Perfect Winamp Tribute
 # Ultimate Winamp aesthetic with tight layout and authentic styling
 #
 # Features:
@@ -10,7 +10,7 @@
 # - Status bar with playback info
 # - Directory browser for music discovery
 #
-# Usage: ./bin/sdl_nanoamp_enhanced [optional: path/to/music/directory]
+# Usage: ./bin/sdl_nanoamp [optional: path/to/music/directory]
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
