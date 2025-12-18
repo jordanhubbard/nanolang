@@ -507,5 +507,5 @@ Continue to [Tutorial 3: Module System](03-modules.md) to learn about:
 Or explore:
 - [Examples](../../examples/) - Real-world code
 - [Modules Reference](../MODULES.md) - Available libraries
-- [FFI Guide](03-ffi-integration.md) - C integration
+- [FFI Guide](../FFI_GUIDE.md) - C integration
 

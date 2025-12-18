@@ -75,6 +75,17 @@ jobs:
       #   if: runner.os == 'Linux'
       #   run: make valgrind || true
 
+  docs:
+    name: Docs (link check)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check markdown links
+        run: python3 scripts/check_markdown_links.py
+
   sanitizers:
     name: Memory Sanitizers
     runs-on: ubuntu-latest

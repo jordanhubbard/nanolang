@@ -573,7 +573,7 @@ shadow main {
 - Full guide: [GETTING_STARTED.md](GETTING_STARTED.md)
 - Language spec: [SPECIFICATION.md](SPECIFICATION.md)
 - Testing guide: [SHADOW_TESTS.md](SHADOW_TESTS.md)
-- Examples: [examples/](examples/)
+- Examples: [examples/](../examples/README.md)
 
 ---
 

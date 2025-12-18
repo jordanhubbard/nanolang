@@ -238,6 +238,6 @@ Run in a compilation buffer:
 ## See Also
 
 - [Benchmarking Suite](../scripts/benchmark.sh)
-- [Testing Guide](TESTING.md)
+- [Testing Guide](SHADOW_TESTS.md)
 - [Contributing Guidelines](../CONTRIBUTING.md)
 

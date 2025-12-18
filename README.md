@@ -13,7 +13,7 @@
 
 NanoLang transpiles to C for native performance while providing a clean, modern syntax optimized for both human readability and AI code generation.
 
-> **🎉 NEW**: NanoLang has achieved **TRUE 100% SELF-HOSTING** with a fully functional type system! The compiler is now written entirely in NanoLang and successfully compiles itself through multiple bootstrap stages. See [BOOTSTRAP_VICTORY.md](BOOTSTRAP_VICTORY.md) for details.
+> **Self-hosting:** the compiler is being incrementally self-hosted; see [planning/SELF_HOSTING.md](planning/SELF_HOSTING.md) for design notes and current status.
 
 ## Quick Start
 
@@ -83,11 +83,11 @@ Run it:
 1. **[Getting Started](docs/GETTING_STARTED.md)** - 15-minute tutorial
 2. **[Quick Reference](docs/QUICK_REFERENCE.md)** - Syntax cheat sheet  
 3. **[Language Specification](docs/SPECIFICATION.md)** - Complete reference
-4. **[Examples](examples/)** - 86 working examples
+4. **[Examples](examples/README.md)** - Working examples (all runnable)
 
 ### Key Topics
 
-- **[Standard Library](docs/STDLIB.md)** - 49+ built-in functions
+- **[Standard Library](docs/STDLIB.md)** - Built-in functions
 - **[Module System](docs/MODULE_SYSTEM.md)** - Creating and using modules
 - **[FFI Guide](docs/EXTERN_FFI.md)** - Calling C functions
 - **[Shadow Tests](docs/SHADOW_TESTS.md)** - Testing philosophy
@@ -194,19 +194,19 @@ fn main() -> int {
 
 ### Core Examples
 
-- **[hello.nano](examples/hello.nano)** - Basic structure
-- **[calculator.nano](examples/calculator.nano)** - Arithmetic operations
-- **[factorial.nano](examples/factorial.nano)** - Recursion
-- **[fibonacci.nano](examples/fibonacci.nano)** - Multiple algorithms
-- **[primes.nano](examples/primes.nano)** - Prime number sieve
+- **[hello.nano](examples/nl_hello.nano)** - Basic structure
+- **[calculator.nano](examples/nl_calculator.nano)** - Arithmetic operations
+- **[factorial.nano](examples/nl_factorial.nano)** - Recursion
+- **[fibonacci.nano](examples/nl_fibonacci.nano)** - Multiple algorithms
+- **[primes.nano](examples/nl_primes.nano)** - Prime number sieve
 
 ### Game Examples
 
-- **[snake_ncurses.nano](examples/snake_ncurses.nano)** - Classic snake with NCurses UI
-- **[game_of_life_ncurses.nano](examples/game_of_life_ncurses.nano)** - Conway's Game of Life
-- **[asteroids_complete.nano](examples/asteroids_complete.nano)** - Full Asteroids game (SDL)
-- **[checkers.nano](examples/checkers.nano)** - Checkers with AI (SDL)
-- **[boids_sdl.nano](examples/boids_sdl.nano)** - Flocking simulation (SDL)
+- **[snake_ncurses.nano](examples/ncurses_snake.nano)** - Classic snake with NCurses UI
+- **[game_of_life_ncurses.nano](examples/ncurses_game_of_life.nano)** - Conway's Game of Life
+- **[asteroids_complete.nano](examples/sdl_asteroids.nano)** - Full Asteroids game (SDL)
+- **[checkers.nano](examples/sdl_checkers.nano)** - Checkers with AI (SDL)
+- **[boids_sdl.nano](examples/sdl_boids.nano)** - Flocking simulation (SDL)
 
 See **[examples/README.md](examples/README.md)** for the complete list.
 
@@ -253,7 +253,7 @@ NanoLang is designed to be LLM-friendly with unambiguous syntax and mandatory te
 
 - **[MEMORY.md](MEMORY.md)** - Complete LLM training reference with patterns, idioms, debugging workflows, and common errors
 - **[spec.json](spec.json)** - Formal language specification (types, stdlib, syntax, operations)
-- **[Examples](examples/)** - 90+ working examples demonstrating all features
+- **[Examples](examples/README.md)** - Runnable examples demonstrating all features
 
 ### Quick LLM Bootstrap
 

@@ -206,5 +206,6 @@ set arr2 (array_push arr2 4)              # OK!
 ## See Also
 
 - [Generic Types](./GENERIC_TYPES.md) - Generic type instantiation with List<T>
-- [Type System](./TYPE_SYSTEM.md) - Complete type system documentation
+- [Language Specification](./SPECIFICATION.md) - Types, arrays, and semantics
+- [spec.json](../spec.json) - Machine-readable reference (types + stdlib)
 - [Examples](../examples/) - Real-world usage examples

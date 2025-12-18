@@ -431,7 +431,6 @@ While the critical bugs are fixed, potential improvements include:
 ## References
 
 - [LANGUAGE_DESIGN_REVIEW.md](LANGUAGE_DESIGN_REVIEW.md) - Original bug report
-- [REVIEW_SUMMARY.md](REVIEW_SUMMARY.md) - Executive summary
 - Test suite: `tests/test_namespace_fixes.sh`
 - Test cases: `tests/negative/duplicate_functions/`, `tests/negative/builtin_collision/`, `tests/warnings/similar_names/`
 

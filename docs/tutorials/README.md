@@ -29,14 +29,14 @@ Comprehensive step-by-step guides to master nanolang from beginner to advanced.
 
 ### 🔧 Intermediate
 
-**[4. FFI Integration](04-ffi-integration.md)** ⏱️ 1 hour  
+**4. FFI Integration** ⏱️ 1 hour  
 *Coming soon - See [FFI Guide](../FFI_GUIDE.md)*
 - Calling C libraries
 - Type marshaling
 - Creating C modules
 - Memory management in FFI
 
-**[5. Building Applications](05-building-applications.md)** ⏱️ 2-3 hours  
+**5. Building Applications** ⏱️ 2-3 hours  
 *Coming soon*
 - Project structure
 - Testing strategies
@@ -46,14 +46,14 @@ Comprehensive step-by-step guides to master nanolang from beginner to advanced.
 
 ### 🚀 Advanced
 
-**[6. Performance Optimization](06-performance.md)** ⏱️ 1-2 hours  
+**6. Performance Optimization** ⏱️ 1-2 hours  
 *Coming soon*
 - Benchmarking
 - Memory optimization
 - Compilation flags
 - Profiling tools
 
-**[7. Advanced Type System](07-advanced-types.md)** ⏱️ 1 hour  
+**7. Advanced Type System** ⏱️ 1 hour  
 *Coming soon*
 - Complex generic constraints
 - Variance and type bounds
@@ -159,8 +159,7 @@ After completing the tutorials, explore these examples:
 
 ### Development
 - [Contributing Guide](../../CONTRIBUTING.md) - How to contribute
-- [Project Structure](../project-structure.md) - Codebase organization
-- [Testing Standards](../../.cursor/rules/PROJECT_RULES.md) - Quality guidelines
+- [Project Structure](../MULTI_FILE_PROJECTS.md) - Codebase organization
 
 ### Community
 - [GitHub Issues](https://github.com/jordanhubbard/nanolang/issues) - Report bugs, request features

@@ -42,18 +42,12 @@ Complete language documentation:
    - First-class functions
    - Module system
 
-5.5. **[Nested Types Guide](NESTED_TYPES.md)** - NEW! Nested arrays and advanced types
-   - 2D and 3D arrays (matrices, cubes)
-   - Arbitrary nesting depth
-   - Memory management and GC
-   - Performance considerations
-   - Complete examples
+5.5. **Arrays & Memory**
+   - [Array Safety](ARRAY_SAFETY.md)
+   - [Dynamic Arrays](DYNAMIC_ARRAYS.md)
+   - [Memory Management](MEMORY_MANAGEMENT.md)
 
-6. **[Standard Library](STDLIB.md)** - All 37 built-in functions
-   - Math functions (11)
-   - String operations (18)
-   - Array functions (4)
-   - I/O and OS functions
+6. **[Standard Library](STDLIB.md)** - Built-in functions
 
 ### 🧪 Testing & Quality
 
@@ -71,11 +65,8 @@ Understanding nanolang's testing philosophy:
 
 For contributors and language designers:
 
-9. **[Architecture Analysis](ARCHITECTURE_ANALYSIS.md)** - System architecture
-   - Compiler pipeline
-   - Component design
-   - Design decisions
-   - Performance considerations
+9. **Design + implementation notes**
+   - Maintainer-facing design docs live in [planning/](../planning/)
 
 10. **[Language Design Review](LANGUAGE_DESIGN_REVIEW.md)** - Design philosophy
     - Why prefix notation?
@@ -83,7 +74,7 @@ For contributors and language designers:
     - Comparison to other languages
     - Design trade-offs
 
-11. **[Review Summary](REVIEW_SUMMARY.md)** - Executive summary of design
+11. (See also: [Language Design Review](LANGUAGE_DESIGN_REVIEW.md))
 
 ### 🔧 Advanced Topics
 
@@ -110,7 +101,7 @@ For experienced users:
 Project status and future plans:
 
 16. **[Roadmap](ROADMAP.md)** - Future development plans
-17. **[Implementation Status](../AUDIT_RESULTS.md)** - Current feature status
+17. **[Spec / Coverage Audit](../SPEC_AUDIT.md)** - Gaps tracked for LLM/implementation parity
 18. **[Self-Hosting Checklist](SELF_HOSTING_CHECKLIST.md)** - Path to self-hosting
 
 ### 🤝 Contributing
@@ -141,7 +132,7 @@ Help make nanolang better:
 - [Shadow Tests](SHADOW_TESTS.md)
 
 **🔴 Advanced (Deep understanding)**
-- [Architecture Analysis](ARCHITECTURE_ANALYSIS.md)
+- [Planning / design notes](../planning/README.md)
 - [Module System](MODULE_SYSTEM.md)
 - [Language Design Review](LANGUAGE_DESIGN_REVIEW.md)
 
@@ -151,10 +142,10 @@ Help make nanolang better:
 → [Getting Started](GETTING_STARTED.md) → [Examples](../examples/README.md) → [Quick Reference](QUICK_REFERENCE.md)
 
 **I want to understand the design:**
-→ [Language Design Review](LANGUAGE_DESIGN_REVIEW.md) → [Architecture Analysis](ARCHITECTURE_ANALYSIS.md)
+→ [Language Design Review](LANGUAGE_DESIGN_REVIEW.md) → [planning/](../planning/)
 
 **I want to contribute:**
-→ [Contributing Guide](CONTRIBUTING.md) → [Architecture Analysis](ARCHITECTURE_ANALYSIS.md) → [Roadmap](ROADMAP.md)
+→ [Contributing Guide](CONTRIBUTING.md) → [planning/](../planning/) → [Roadmap](ROADMAP.md)
 
 **I want to build something:**
 → [Examples](../examples/README.md) → [Standard Library](STDLIB.md) → [Module System](MODULE_SYSTEM.md)

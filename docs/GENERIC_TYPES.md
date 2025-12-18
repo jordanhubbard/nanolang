@@ -188,5 +188,6 @@ Potential improvements (not currently implemented):
 ## See Also
 
 - [Dynamic Arrays](./DYNAMIC_ARRAYS.md) - Built-in array operations
-- [Type System](./TYPE_SYSTEM.md) - Complete type system documentation
+- [Language Specification](./SPECIFICATION.md) - Types, generics, and semantics
+- [spec.json](../spec.json) - Machine-readable reference (types + stdlib)
 - [Examples](../examples/) - See examples using generic lists

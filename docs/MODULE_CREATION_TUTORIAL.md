@@ -498,7 +498,7 @@ All examples in `examples/` directory demonstrate module usage.
 
 ## Reference
 
-- [Module Format Specification](MODULE_FORMAT.md)
+- [Module Format / System](MODULE_SYSTEM.md)
 - [SDL Extensions Guide](../modules/SDL_EXTENSIONS.md)
 - [Standard Library Reference](STDLIB.md)
 - [FFI Best Practices](../planning/C_FFI_PROPOSAL.md)

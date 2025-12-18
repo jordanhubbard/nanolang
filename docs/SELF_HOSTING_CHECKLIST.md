@@ -513,5 +513,5 @@ let exit_code: int = (system "gcc -o prog prog.c")
 **Status:** Planning Phase  
 **Next Review:** After structs implementation
 
-See [SELF_HOSTING_REQUIREMENTS.md](SELF_HOSTING_REQUIREMENTS.md) for detailed requirements and [SELF_HOSTING_SUMMARY.md](../SELF_HOSTING_SUMMARY.md) for quick overview.
+See [SELF_HOSTING_REQUIREMENTS.md](SELF_HOSTING_REQUIREMENTS.md) for detailed requirements and [planning/SELF_HOST_STATUS.md](../planning/SELF_HOST_STATUS.md) for a quick status overview.
 
