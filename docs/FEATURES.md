@@ -193,18 +193,18 @@ shadow divide {
 - Generic type parameters (`<T, E>`)
 - Type-safe monomorphization (generates concrete types at compile-time)
 - Works with any type: primitives, structs, other generics
-- Standard library includes `Result<T,E>` with helper functions
+- Standard library includes `Result<T,E>` (helper functions are planned once generic functions are supported)
 
 **Standard Library Usage:**
 ```nano
-import std.result
-
 fn main() -> int {
     let result: Result<int, string> = (divide 10 2)
-    if (std.result.is_ok result) {
-        let value: int = (std.result.unwrap result "failed")
-        (println value)
+
+    match result {
+        Ok(v) => (println v.value),
+        Err(e) => (println e.error)
     }
+
     return 0
 }
 ```

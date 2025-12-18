@@ -508,9 +508,6 @@ fn get_product(id: ProductId) -> Product { ... }
 # Import an FFI module (looks for module.json with FFI bindings)
 import sdl
 
-# Import a standard library module
-import std.result
-
 # Use module functions with namespace prefix
 fn main() -> int {
     # SDL functions available directly
@@ -518,7 +515,17 @@ fn main() -> int {
     
     # stdlib functions use namespace
     let r: Result<int, string> = Result.Ok { value: 42 }
-    let is_success: bool = (std.result.is_ok r)
+
+    # Result helper functions (is_ok/unwrap/etc) are planned once generic
+    # functions are supported. For now, use match on Result.
+    match r {
+        Ok(v) => {
+            (println v.value)
+        }
+        Err(e) => {
+            (println e.error)
+        }
+    }
     
     return 0
 }
@@ -786,8 +793,6 @@ fn process_result(r: Result) -> int {
 NanoLang includes a standard library generic Result type for error handling:
 
 ```nano
-import std.result
-
 fn divide(a: int, b: int) -> Result<int, string> {
     if (== b 0) {
         return Result.Err { error: "Division by zero" }
@@ -797,10 +802,14 @@ fn divide(a: int, b: int) -> Result<int, string> {
 
 fn main() -> int {
     let result: Result<int, string> = (divide 10 2)
-    
-    if (std.result.is_ok result) {
-        let value: int = (std.result.unwrap result "Should not fail")
-        (println value)  # Prints 5
+
+    match result {
+        Ok(v) => {
+            (println v.value)  # Prints 5
+        }
+        Err(e) => {
+            (println e.error)
+        }
     }
     
     return 0
@@ -808,21 +817,21 @@ fn main() -> int {
 
 shadow divide {
     let r1: Result<int, string> = (divide 10 2)
-    assert (std.result.is_ok r1)
-    assert (== (std.result.unwrap r1 "failed") 5)
+    match r1 {
+        Ok(v) => assert (== v.value 5),
+        Err(e) => assert false
+    }
     
     let r2: Result<int, string> = (divide 10 0)
-    assert (std.result.is_err r2)
+    match r2 {
+        Ok(v) => assert false,
+        Err(e) => assert true
+    }
 }
 ```
 
-**Standard Library Result Functions:**
-- `std.result.is_ok<T,E>(result: Result<T,E>) -> bool`
-- `std.result.is_err<T,E>(result: Result<T,E>) -> bool`
-- `std.result.unwrap<T,E>(result: Result<T,E>, msg: string) -> T`
-- `std.result.unwrap_or<T,E>(result: Result<T,E>, default: T) -> T`
-- `std.result.map<T,E,U>(result: Result<T,E>, f: fn(T) -> U) -> Result<U,E>`
-- `std.result.map_err<T,E,F>(result: Result<T,E>, f: fn(E) -> F) -> Result<T,F>`
+Note: Helper functions like `is_ok`, `is_err`, `unwrap`, `unwrap_or`, `map`, and
+`map_err` are planned once generic functions are supported.
 
 ## Summary: The NanoLang Vibe
 

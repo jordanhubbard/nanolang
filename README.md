@@ -171,7 +171,10 @@ let failure: Result<int, string> = Result.Err { error: "oops" }
 NanoLang includes a growing standard library:
 
 ```nano
-import std.result
+union Result<T, E> {
+    Ok { value: T },
+    Err { error: E }
+}
 
 fn divide(a: int, b: int) -> Result<int, string> {
     if (== b 0) {
@@ -182,10 +185,15 @@ fn divide(a: int, b: int) -> Result<int, string> {
 
 fn main() -> int {
     let result: Result<int, string> = (divide 10 2)
-    if (std.result.is_ok result) {
-        let value: int = (std.result.unwrap result "failed")
-        (println value)
+
+    /* Note: Result helper functions (is_ok/unwrap/etc) are planned once
+     * generic functions are supported. For now, use match.
+     */
+    match result {
+        Ok(v) => (println v.value),
+        Err(e) => (println e.error)
     }
+
     return 0
 }
 ```
