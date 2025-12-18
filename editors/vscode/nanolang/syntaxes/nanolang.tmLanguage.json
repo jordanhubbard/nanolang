@@ -1,0 +1,138 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Nanolang",
+  "scopeName": "source.nanolang",
+  "patterns": [
+    {"include": "#comments"},
+    {"include": "#keywords"},
+    {"include": "#strings"},
+    {"include": "#numbers"},
+    {"include": "#types"},
+    {"include": "#functions"},
+    {"include": "#operators"},
+    {"include": "#constants"}
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.nanolang",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.nanolang",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.nanolang",
+          "match": "\\b(if|else|while|for|return|break|continue|match|case|default|pub|mod|import|as|extern|module|opaque)\\b"
+        },
+        {
+          "name": "keyword.declaration.nanolang",
+          "match": "\\b(fn|let|mut|set|const|struct|union|enum|typedef|shadow|assert)\\b"
+        },
+        {
+          "name": "storage.modifier.nanolang",
+          "match": "\\b(pub|mut|const)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.nanolang",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.nanolang",
+              "match": "\\\\(n|t|r|\\\\|\")"
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.nanolang",
+          "match": "\\b[0-9]+\\.[0-9]+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.nanolang",
+          "match": "\\b[0-9]+\\b"
+        },
+        {
+          "name": "constant.numeric.hex.nanolang",
+          "match": "\\b0x[0-9a-fA-F]+\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "storage.type.primitive.nanolang",
+          "match": "\\b(int|float|bool|string|void|opaque)\\b"
+        },
+        {
+          "name": "storage.type.generic.nanolang",
+          "match": "\\b(array|Result|Option)\\b"
+        },
+        {
+          "name": "storage.type.user.nanolang",
+          "match": "\\b[A-Z][a-zA-Z0-9_]*\\b"
+        }
+      ]
+    },
+    "functions": {
+      "patterns": [
+        {
+          "name": "entity.name.function.nanolang",
+          "match": "\\b[a-z_][a-zA-Z0-9_]*(?=\\s*\\()"
+        },
+        {
+          "name": "support.function.builtin.nanolang",
+          "match": "\\b(println|print|len|get|set|push|pop|map|reduce|filter|fold|cast|sizeof)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.arithmetic.nanolang",
+          "match": "\\+|-|\\*|/|%"
+        },
+        {
+          "name": "keyword.operator.comparison.nanolang",
+          "match": "==|!=|<|>|<=|>="
+        },
+        {
+          "name": "keyword.operator.logical.nanolang",
+          "match": "&&|\\|\\||!"
+        },
+        {
+          "name": "keyword.operator.assignment.nanolang",
+          "match": "="
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.nanolang",
+          "match": "\\b(true|false)\\b"
+        },
+        {
+          "name": "constant.language.null.nanolang",
+          "match": "\\bnull\\b"
+        }
+      ]
+    }
+  }
+}
+

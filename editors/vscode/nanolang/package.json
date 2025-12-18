@@ -1,0 +1,27 @@
+{
+  "name": "nanolang",
+  "displayName": "Nanolang",
+  "description": "Syntax highlighting for Nanolang",
+  "version": "1.0.0",
+  "publisher": "nanolang",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "nanolang",
+      "aliases": ["Nanolang", "nano"],
+      "extensions": [".nano"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "nanolang",
+      "scopeName": "source.nanolang",
+      "path": "./syntaxes/nanolang.tmLanguage.json"
+    }]
+  }
+}
+
