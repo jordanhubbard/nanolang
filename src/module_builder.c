@@ -16,6 +16,38 @@
 
 bool module_builder_verbose = false;
 
+static void append_flag_move_to_end(char **out_flags, size_t *out_count, size_t out_cap, const char *flag) {
+    if (!flag || flag[0] == '\0' || !out_flags || !out_count) return;
+
+    for (size_t i = 0; i < *out_count; i++) {
+        if (out_flags[i] && strcmp(out_flags[i], flag) == 0) {
+            free(out_flags[i]);
+            for (size_t j = i; j + 1 < *out_count; j++) {
+                out_flags[j] = out_flags[j + 1];
+            }
+            (*out_count)--;
+            break;
+        }
+    }
+
+    if (*out_count >= out_cap) return;
+    out_flags[(*out_count)++] = strdup(flag);
+}
+
+static void append_split_flags_move_to_end(char **out_flags, size_t *out_count, size_t out_cap, const char *flags) {
+    if (!flags || flags[0] == '\0') return;
+
+    char *copy = strdup(flags);
+    if (!copy) return;
+
+    char *saveptr = NULL;
+    for (char *tok = strtok_r(copy, " \t\r\n", &saveptr); tok; tok = strtok_r(NULL, " \t\r\n", &saveptr)) {
+        append_flag_move_to_end(out_flags, out_count, out_cap, tok);
+    }
+
+    free(copy);
+}
+
 // Helper: Check if file exists
 static bool file_exists(const char *path) {
     struct stat st;
@@ -604,7 +636,8 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         for (size_t i = 0; i < meta->pkg_config_count; i++) {
             char *pkg_flags = get_pkg_config_flags(meta->pkg_config[i], "--libs");
             if (pkg_flags) {
-                link_flags[total_link_flags++] = pkg_flags;
+                append_split_flags_move_to_end(link_flags, &total_link_flags, 1024, pkg_flags);
+                free(pkg_flags);
             }
         }
 
@@ -639,7 +672,8 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         for (size_t i = 0; i < meta->pkg_config_count; i++) {
             char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
             if (pkg_cflags) {
-                compile_flags[total_compile_flags++] = pkg_cflags;
+                append_split_flags_move_to_end(compile_flags, &total_compile_flags, 1024, pkg_cflags);
+                free(pkg_cflags);
             }
         }
 
@@ -772,24 +806,48 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                                " %s/%s", meta->module_dir, meta->c_sources[i]);
         }
         
-        /* Add pkg-config cflags */
+        /* Add pkg-config flags (deduplicated) */
+        char *shared_cflags[1024] = {0};
+        size_t shared_cflags_count = 0;
         for (size_t i = 0; i < meta->pkg_config_count; i++) {
             char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
             if (pkg_cflags) {
-                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, 
-                                   " %s", pkg_cflags);
+                append_split_flags_move_to_end(shared_cflags, &shared_cflags_count, 1024, pkg_cflags);
                 free(pkg_cflags);
             }
         }
-        
-        /* Add pkg-config link flags */
+        for (size_t i = 0; i < shared_cflags_count; i++) {
+            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", shared_cflags[i]);
+            free(shared_cflags[i]);
+        }
+
+        char *shared_ldflags[1024] = {0};
+        size_t shared_ldflags_count = 0;
         for (size_t i = 0; i < meta->pkg_config_count; i++) {
             char *pkg_libs = get_pkg_config_flags(meta->pkg_config[i], "--libs");
             if (pkg_libs) {
-                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                                   " %s", pkg_libs);
+                append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, pkg_libs);
                 free(pkg_libs);
             }
+        }
+        for (size_t i = 0; i < meta->system_libs_count; i++) {
+            char buf[256];
+            snprintf(buf, sizeof(buf), "-l%s", meta->system_libs[i]);
+            append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, buf);
+        }
+        for (size_t i = 0; i < meta->ldflags_count; i++) {
+            append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, meta->ldflags[i]);
+        }
+        #ifdef __APPLE__
+        for (size_t i = 0; i < meta->frameworks_count; i++) {
+            append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, "-framework");
+            append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, meta->frameworks[i]);
+        }
+        #endif
+
+        for (size_t i = 0; i < shared_ldflags_count; i++) {
+            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", shared_ldflags[i]);
+            free(shared_ldflags[i]);
         }
         
         /* Add custom cflags */
@@ -798,25 +856,7 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                                " %s", meta->cflags[i]);
         }
         
-        /* Add custom ldflags */
-        for (size_t i = 0; i < meta->ldflags_count; i++) {
-            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                               " %s", meta->ldflags[i]);
-        }
-        
-        /* Add system libs */
-        for (size_t i = 0; i < meta->system_libs_count; i++) {
-            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                               " -l%s", meta->system_libs[i]);
-        }
-        
-        /* Add macOS frameworks */
-        #ifdef __APPLE__
-        for (size_t i = 0; i < meta->frameworks_count; i++) {
-            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                               " -framework %s", meta->frameworks[i]);
-        }
-        #endif
+        /* Note: ldflags/system libs/frameworks are included above via shared_ldflags */
         
         /* Build shared library */
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
@@ -856,7 +896,8 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
     for (size_t i = 0; i < meta->pkg_config_count; i++) {
         char *pkg_flags = get_pkg_config_flags(meta->pkg_config[i], "--libs");
         if (pkg_flags) {
-            link_flags[total_link_flags++] = pkg_flags;
+            append_split_flags_move_to_end(link_flags, &total_link_flags, 1024, pkg_flags);
+            free(pkg_flags);
         }
     }
 
@@ -891,7 +932,8 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
     for (size_t i = 0; i < meta->pkg_config_count; i++) {
         char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
         if (pkg_cflags) {
-            compile_flags[total_compile_flags++] = pkg_cflags;
+            append_split_flags_move_to_end(compile_flags, &total_compile_flags, 1024, pkg_cflags);
+            free(pkg_cflags);
         }
     }
 
@@ -959,18 +1001,19 @@ char** module_get_link_flags(ModuleBuildInfo **modules, size_t count, size_t *ou
                     continue;
                 }
                 
-                // Check if this flag already exists (deduplicate)
-                bool duplicate = false;
+                // De-duplicate by keeping the LAST occurrence (helps link order for dependent libs)
                 for (size_t k = 0; k < pos; k++) {
                     if (strcmp(all_flags[k], flag) == 0) {
-                        duplicate = true;
+                        free(all_flags[k]);
+                        for (size_t m = k; m + 1 < pos; m++) {
+                            all_flags[m] = all_flags[m + 1];
+                        }
+                        pos--;
                         break;
                     }
                 }
-                
-                if (!duplicate) {
-                    all_flags[pos++] = strdup(flag);
-                }
+
+                all_flags[pos++] = strdup(flag);
             }
         }
     }

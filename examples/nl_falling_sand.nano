@@ -108,7 +108,6 @@ fn main() -> int {
     # Add floor
     set i 0
     while (< i GRID_WIDTH) {
-        let idx: int = (grid_index i (- GRID_HEIGHT 1) GRID_WIDTH)
         set grid (array_push grid WALL)  # This will overflow, but for demo purposes...
         set i (+ i 1)
     }
@@ -118,8 +117,6 @@ fn main() -> int {
     let spawn_count: int = 10
     set i 0
     while (< i spawn_count) {
-        let spawn_x: int = (+ 15 i)
-        let idx: int = (grid_index spawn_x 5 GRID_WIDTH)
         # In a real version we'd set the grid properly
         set i (+ i 1)
     }

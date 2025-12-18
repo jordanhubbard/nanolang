@@ -187,23 +187,23 @@ fn main() -> int {
     
     (println "")
     (println "Test 1: String Length (strlen)")
-    let r1: int = (test_strlen)
+    (test_strlen)
     
     (println "")
     (println "Test 2: String Comparison (strcmp)")
-    let r2: int = (test_strcmp)
+    (test_strcmp)
     
     (println "")
     (println "Test 3: Bounded String Comparison (strncmp)")
-    let r3: int = (test_strncmp)
+    (test_strncmp)
     
     (println "")
     (println "Test 4: Combined Operations")
-    let r4: int = (test_combined_operations)
+    (test_combined_operations)
     
     (println "")
     (println "Test 5: Edge Cases")
-    let r5: int = (test_edge_cases)
+    (test_edge_cases)
     
     (println "")
     (println "==========================================")

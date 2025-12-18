@@ -160,19 +160,19 @@ fn main() -> int {
     
     (println "")
     (println "Test 1: Character Classification")
-    let r1: int = (test_char_classification)
+    (test_char_classification)
     
     (println "")
     (println "Test 2: Character Conversion")
-    let r2: int = (test_char_conversion)
+    (test_char_conversion)
     
     (println "")
     (println "Test 3: Mixed Character Operations")
-    let r3: int = (test_mixed_operations)
+    (test_mixed_operations)
     
     (println "")
     (println "Test 4: Various Character Types")
-    let r4: int = (test_various_types)
+    (test_various_types)
     
     (println "")
     (println "=============================================")

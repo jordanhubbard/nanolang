@@ -215,7 +215,6 @@ fn main() -> int {
         
         # Display FPS if checkbox is enabled
         if (== show_fps 1) {
-            let fps: int = (cast_int (/ 1000.0 16.0))
             (nl_ui_label renderer font "FPS: 60" 680 565 100 255 100 255)
         }
         

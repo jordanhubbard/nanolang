@@ -229,10 +229,8 @@ fn main() -> int {
                 set game_over true
             } else {
                 # Check if food eaten
-                let mut ate_food: bool = false
                 if (== new_head_x food_x) {
                     if (== new_head_y food_y) {
-                        set ate_food true
                         set score (+ score 10)
                         set snake_length (+ snake_length 1)
                         
