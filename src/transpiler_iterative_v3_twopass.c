@@ -236,6 +236,46 @@ static const char *map_function_name(const char *name, Environment *env) {
     return name;
 }
 
+static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
+    if (!array_expr) return TYPE_UNKNOWN;
+
+    if (array_expr->type == AST_IDENTIFIER) {
+        Symbol *sym = env_get_var(env, array_expr->as.identifier);
+        if (sym && sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
+            return sym->element_type;
+        }
+    }
+
+    if (array_expr->type == AST_ARRAY_LITERAL) {
+        if (array_expr->as.array_literal.element_type != TYPE_UNKNOWN) {
+            return array_expr->as.array_literal.element_type;
+        }
+        if (array_expr->as.array_literal.element_count > 0) {
+            return check_expression(array_expr->as.array_literal.elements[0], env);
+        }
+    }
+
+    if (array_expr->type == AST_FIELD_ACCESS) {
+        const char *struct_name = get_struct_type_name(array_expr->as.field_access.object, env);
+        if (struct_name) {
+            StructDef *sdef = env_get_struct(env, struct_name);
+            if (sdef && sdef->field_element_types) {
+                const char *field_name = array_expr->as.field_access.field_name;
+                for (int i = 0; i < sdef->field_count; i++) {
+                    if (strcmp(sdef->field_names[i], field_name) == 0) {
+                        if (sdef->field_types[i] == TYPE_ARRAY && sdef->field_element_types[i] != TYPE_UNKNOWN) {
+                            return sdef->field_element_types[i];
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return TYPE_UNKNOWN;
+}
+
 /* ============================================================================
  * PASS 1: BUILD WORK ITEMS (Expression Transpiler)
  * Traverses AST and appends work items in correct output order
@@ -325,6 +365,185 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             
             if (arg_count == 2) {
                 /* Binary operator */
+                if (op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_STAR || op == TOKEN_SLASH || op == TOKEN_PERCENT) {
+                    Type t1 = check_expression(expr->as.prefix_op.args[0], env);
+                    Type t2 = check_expression(expr->as.prefix_op.args[1], env);
+                    if (t1 == TYPE_ARRAY || t2 == TYPE_ARRAY) {
+                        bool left_is_array = (t1 == TYPE_ARRAY);
+                        bool right_is_array = (t2 == TYPE_ARRAY);
+
+                        ASTNode *left_expr = expr->as.prefix_op.args[0];
+                        ASTNode *right_expr = expr->as.prefix_op.args[1];
+
+                        const char *fn = NULL;
+                        const char *fn_scalar = NULL;
+                        const char *fn_rscalar = NULL;
+                        switch (op) {
+                            case TOKEN_PLUS:
+                                fn = "nl_array_add";
+                                if (t2 == TYPE_FLOAT || t1 == TYPE_FLOAT) {
+                                    fn_scalar = "nl_array_add_scalar_float";
+                                    fn_rscalar = "nl_array_radd_scalar_float";
+                                } else if (t2 == TYPE_STRING || t1 == TYPE_STRING) {
+                                    fn_scalar = "nl_array_add_scalar_string";
+                                    fn_rscalar = "nl_array_radd_scalar_string";
+                                } else {
+                                    fn_scalar = "nl_array_add_scalar_int";
+                                    fn_rscalar = "nl_array_radd_scalar_int";
+                                }
+                                break;
+                            case TOKEN_MINUS:
+                                fn = "nl_array_sub";
+                                if (t2 == TYPE_FLOAT || t1 == TYPE_FLOAT) {
+                                    fn_scalar = "nl_array_sub_scalar_float";
+                                    fn_rscalar = "nl_array_rsub_scalar_float";
+                                } else {
+                                    fn_scalar = "nl_array_sub_scalar_int";
+                                    fn_rscalar = "nl_array_rsub_scalar_int";
+                                }
+                                break;
+                            case TOKEN_STAR:
+                                fn = "nl_array_mul";
+                                if (t2 == TYPE_FLOAT || t1 == TYPE_FLOAT) {
+                                    fn_scalar = "nl_array_mul_scalar_float";
+                                    fn_rscalar = "nl_array_rmul_scalar_float";
+                                } else {
+                                    fn_scalar = "nl_array_mul_scalar_int";
+                                    fn_rscalar = "nl_array_rmul_scalar_int";
+                                }
+                                break;
+                            case TOKEN_SLASH:
+                                fn = "nl_array_div";
+                                if (t2 == TYPE_FLOAT || t1 == TYPE_FLOAT) {
+                                    fn_scalar = "nl_array_div_scalar_float";
+                                    fn_rscalar = "nl_array_rdiv_scalar_float";
+                                } else {
+                                    fn_scalar = "nl_array_div_scalar_int";
+                                    fn_rscalar = "nl_array_rdiv_scalar_int";
+                                }
+                                break;
+                            case TOKEN_PERCENT:
+                                fn = "nl_array_mod";
+                                fn_scalar = "nl_array_mod_scalar_int";
+                                fn_rscalar = "nl_array_rmod_scalar_int";
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (left_is_array && right_is_array) {
+                            Type elem = infer_array_element_type(left_expr, env);
+                            Type elem2 = infer_array_element_type(right_expr, env);
+
+                            if (elem != TYPE_UNKNOWN && elem2 != TYPE_UNKNOWN && elem == elem2 &&
+                                (elem == TYPE_INT || elem == TYPE_FLOAT || elem == TYPE_STRING || elem == TYPE_ARRAY)) {
+                                const char *elem_enum = (elem == TYPE_INT) ? "ELEM_INT" :
+                                                        (elem == TYPE_FLOAT) ? "ELEM_FLOAT" :
+                                                        (elem == TYPE_STRING) ? "ELEM_STRING" :
+                                                        "ELEM_ARRAY";
+                                const char *get_suffix = (elem == TYPE_INT) ? "int" :
+                                                         (elem == TYPE_FLOAT) ? "float" :
+                                                         (elem == TYPE_STRING) ? "string" :
+                                                         "array";
+                                const char *push_suffix = get_suffix;
+                                const char *c_type = (elem == TYPE_INT) ? "int64_t" :
+                                                     (elem == TYPE_FLOAT) ? "double" :
+                                                     (elem == TYPE_STRING) ? "const char*" :
+                                                     "DynArray*";
+
+                                emit_literal(list, "({ DynArray* _a = ");
+                                build_expr(list, left_expr, env);
+                                emit_literal(list, "; DynArray* _b = ");
+                                build_expr(list, right_expr, env);
+                                emit_formatted(list, "; assert(dyn_array_length(_a) == dyn_array_length(_b)); DynArray* _out = dyn_array_new(%s); int64_t _len = dyn_array_length(_a); ", elem_enum);
+                                emit_formatted(list, "for (int64_t _i = 0; _i < _len; _i++) { %s _x = dyn_array_get_%s(_a, _i); %s _y = dyn_array_get_%s(_b, _i); ", c_type, get_suffix, c_type, get_suffix);
+                                if (elem == TYPE_STRING) {
+                                    if (op == TOKEN_PLUS) {
+                                        emit_literal(list, "dyn_array_push_string(_out, nl_str_concat(_x, _y)); ");
+                                    } else {
+                                        emit_literal(list, "assert(false && \"string arrays only support +\"); ");
+                                    }
+                                } else if (elem == TYPE_ARRAY) {
+                                    emit_formatted(list, "dyn_array_push_%s(_out, %s(_x, _y)); ", push_suffix, fn);
+                                } else {
+                                    const char *op_str = (op == TOKEN_PLUS) ? "+" :
+                                                        (op == TOKEN_MINUS) ? "-" :
+                                                        (op == TOKEN_STAR) ? "*" :
+                                                        (op == TOKEN_SLASH) ? "/" :
+                                                        "%";
+                                    emit_formatted(list, "dyn_array_push_%s(_out, _x %s _y); ", push_suffix, op_str);
+                                }
+                                emit_literal(list, "} _out; })");
+                            } else {
+                                emit_literal(list, "({ DynArray* _a = ");
+                                build_expr(list, left_expr, env);
+                                emit_literal(list, "; DynArray* _b = ");
+                                build_expr(list, right_expr, env);
+                                emit_formatted(list, "; %s(_a, _b); })", fn ? fn : "nl_array_add");
+                            }
+                            break;
+                        }
+
+                        /* array-scalar broadcast */
+                        ASTNode *arr_expr = left_is_array ? left_expr : right_expr;
+                        ASTNode *scalar_expr = left_is_array ? right_expr : left_expr;
+                        Type elem = infer_array_element_type(arr_expr, env);
+
+                        if (elem == TYPE_INT || elem == TYPE_FLOAT || elem == TYPE_STRING) {
+                            const char *elem_enum = (elem == TYPE_INT) ? "ELEM_INT" : (elem == TYPE_FLOAT) ? "ELEM_FLOAT" : "ELEM_STRING";
+                            const char *get_suffix = (elem == TYPE_INT) ? "int" : (elem == TYPE_FLOAT) ? "float" : "string";
+                            const char *push_suffix = get_suffix;
+                            const char *c_type = (elem == TYPE_INT) ? "int64_t" : (elem == TYPE_FLOAT) ? "double" : "const char*";
+                            const char *op_str = (op == TOKEN_PLUS) ? "+" :
+                                                (op == TOKEN_MINUS) ? "-" :
+                                                (op == TOKEN_STAR) ? "*" :
+                                                (op == TOKEN_SLASH) ? "/" :
+                                                "%";
+
+                            emit_literal(list, "({ DynArray* _a = ");
+                            build_expr(list, arr_expr, env);
+                            emit_literal(list, "; ");
+                            emit_formatted(list, "%s _s = ", c_type);
+                            build_expr(list, scalar_expr, env);
+                            emit_formatted(list, "; DynArray* _out = dyn_array_new(%s); int64_t _len = dyn_array_length(_a); ", elem_enum);
+                            emit_formatted(list, "for (int64_t _i = 0; _i < _len; _i++) { %s _x = dyn_array_get_%s(_a, _i); ", c_type, get_suffix);
+                            if (elem == TYPE_STRING) {
+                                if (op == TOKEN_PLUS) {
+                                    if (left_is_array) {
+                                        emit_literal(list, "dyn_array_push_string(_out, nl_str_concat(_x, _s)); ");
+                                    } else {
+                                        emit_literal(list, "dyn_array_push_string(_out, nl_str_concat(_s, _x)); ");
+                                    }
+                                } else {
+                                    emit_literal(list, "assert(false && \"string arrays only support +\"); ");
+                                }
+                            } else {
+                                if (left_is_array) {
+                                    emit_formatted(list, "dyn_array_push_%s(_out, _x %s _s); ", push_suffix, op_str);
+                                } else {
+                                    emit_formatted(list, "dyn_array_push_%s(_out, _s %s _x); ", push_suffix, op_str);
+                                }
+                            }
+                            emit_literal(list, "} _out; })");
+                        } else {
+                            /* Fallback: use runtime helper (asserts element type at runtime) */
+                            emit_literal(list, "({ DynArray* _a = ");
+                            build_expr(list, arr_expr, env);
+                            emit_literal(list, "; ");
+                            if (left_is_array) {
+                                emit_formatted(list, "%s(_a, ", fn_scalar ? fn_scalar : "nl_array_add_scalar_int");
+                                build_expr(list, scalar_expr, env);
+                                emit_literal(list, "); })");
+                            } else {
+                                emit_formatted(list, "%s(", fn_rscalar ? fn_rscalar : "nl_array_radd_scalar_int");
+                                build_expr(list, scalar_expr, env);
+                                emit_literal(list, ", _a); })");
+                            }
+                        }
+                        break;
+                    }
+                }
+
                 bool is_string_comp = false;
                 if (op == TOKEN_EQ || op == TOKEN_NE) {
                     Type t1 = check_expression(expr->as.prefix_op.args[0], env);
@@ -381,9 +600,27 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     build_expr(list, expr->as.prefix_op.args[0], env);
                     emit_literal(list, ")");
                 } else if (op == TOKEN_MINUS) {
-                    emit_literal(list, "(-");
-                    build_expr(list, expr->as.prefix_op.args[0], env);
-                    emit_literal(list, ")");
+                    Type t = check_expression(expr->as.prefix_op.args[0], env);
+                    if (t == TYPE_ARRAY) {
+                        ASTNode *arr_expr = expr->as.prefix_op.args[0];
+                        Type elem = infer_array_element_type(arr_expr, env);
+                        if (elem == TYPE_INT || elem == TYPE_FLOAT) {
+                            const char *elem_enum = (elem == TYPE_INT) ? "ELEM_INT" : "ELEM_FLOAT";
+                            const char *get_suffix = (elem == TYPE_INT) ? "int" : "float";
+                            const char *push_suffix = get_suffix;
+                            const char *c_type = (elem == TYPE_INT) ? "int64_t" : "double";
+                            emit_literal(list, "({ DynArray* _a = ");
+                            build_expr(list, arr_expr, env);
+                            emit_formatted(list, "; DynArray* _out = dyn_array_new(%s); int64_t _len = dyn_array_length(_a); ", elem_enum);
+                            emit_formatted(list, "for (int64_t _i = 0; _i < _len; _i++) { %s _x = dyn_array_get_%s(_a, _i); dyn_array_push_%s(_out, -_x); } _out; })", c_type, get_suffix, push_suffix);
+                        } else {
+                            emit_literal(list, "({ assert(false && \"unary minus requires array<int> or array<float>\"); (DynArray*)0; })");
+                        }
+                    } else {
+                        emit_literal(list, "(-");
+                        build_expr(list, expr->as.prefix_op.args[0], env);
+                        emit_literal(list, ")");
+                    }
                 }
             }
             break;

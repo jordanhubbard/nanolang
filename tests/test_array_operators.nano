@@ -1,0 +1,86 @@
+fn test_int_array_array_add() -> int {
+    let a: array<int> = [1, 2, 3]
+    let b: array<int> = [10, 20, 30]
+    let c: array<int> = (+ a b)
+
+    if (!= (array_length c) 3) { (println "FAIL: length") return 1 }
+    if (!= (at c 0) 11) { (println "FAIL: c[0]") return 1 }
+    if (!= (at c 1) 22) { (println "FAIL: c[1]") return 1 }
+    if (!= (at c 2) 33) { (println "FAIL: c[2]") return 1 }
+    return 0
+}
+
+shadow test_int_array_array_add {
+    assert (== (test_int_array_array_add) 0)
+}
+
+fn test_int_array_scalar_broadcast() -> int {
+    let a: array<int> = [1, 2, 3]
+    let b: array<int> = (+ a 5)
+    let c: array<int> = (- 100 a)
+
+    if (!= (at b 0) 6) { (println "FAIL: b[0]") return 1 }
+    if (!= (at b 2) 8) { (println "FAIL: b[2]") return 1 }
+
+    if (!= (at c 0) 99) { (println "FAIL: c[0]") return 1 }
+    if (!= (at c 2) 97) { (println "FAIL: c[2]") return 1 }
+    return 0
+}
+
+shadow test_int_array_scalar_broadcast {
+    assert (== (test_int_array_scalar_broadcast) 0)
+}
+
+fn test_float_array_mul_div() -> int {
+    let a: array<float> = [1.0, 2.0, 4.0]
+    let b: array<float> = (* a 2.0)
+    let c: array<float> = (/ b 4.0)
+
+    let v0: float = (at c 0)
+    let v1: float = (at c 1)
+    let v2: float = (at c 2)
+
+    if (or (< v0 0.49) (> v0 0.51)) { (println "FAIL: v0") return 1 }
+    if (or (< v1 0.99) (> v1 1.01)) { (println "FAIL: v1") return 1 }
+    if (or (< v2 1.99) (> v2 2.01)) { (println "FAIL: v2") return 1 }
+    return 0
+}
+
+shadow test_float_array_mul_div {
+    assert (== (test_float_array_mul_div) 0)
+}
+
+fn test_string_array_concat() -> int {
+    let mut a: array<string> = []
+    set a (array_push a "a")
+    set a (array_push a "b")
+
+    let mut b: array<string> = []
+    set b (array_push b "x")
+    set b (array_push b "y")
+
+    let c: array<string> = (+ a b)
+    if (!= (at c 0) "ax") { (println "FAIL: c[0]") return 1 }
+    if (!= (at c 1) "by") { (println "FAIL: c[1]") return 1 }
+
+    let d: array<string> = (+ c "!")
+    if (!= (at d 0) "ax!") { (println "FAIL: d[0]") return 1 }
+
+    let e: array<string> = (+ "(" c)
+    if (!= (at e 1) "(by") { (println "FAIL: e[1]") return 1 }
+    return 0
+}
+
+shadow test_string_array_concat {
+    assert (== (test_string_array_concat) 0)
+}
+
+fn main() -> int {
+    if (!= (test_int_array_array_add) 0) { return 1 }
+    if (!= (test_int_array_scalar_broadcast) 0) { return 1 }
+    if (!= (test_float_array_mul_div) 0) { return 1 }
+    if (!= (test_string_array_concat) 0) { return 1 }
+
+    (println "PASSED")
+    return 0
+}

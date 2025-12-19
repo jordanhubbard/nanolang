@@ -332,6 +332,49 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     }
 }
 
+static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
+    if (!array_expr) return TYPE_UNKNOWN;
+
+    if (array_expr->type == AST_ARRAY_LITERAL) {
+        if (array_expr->as.array_literal.element_type != TYPE_UNKNOWN) {
+            return array_expr->as.array_literal.element_type;
+        }
+        if (array_expr->as.array_literal.element_count > 0) {
+            return check_expression(array_expr->as.array_literal.elements[0], env);
+        }
+        return TYPE_UNKNOWN;
+    }
+
+    if (array_expr->type == AST_IDENTIFIER) {
+        Symbol *sym = env_get_var(env, array_expr->as.identifier);
+        if (sym && sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
+            return sym->element_type;
+        }
+        return TYPE_UNKNOWN;
+    }
+
+    if (array_expr->type == AST_FIELD_ACCESS) {
+        const char *struct_name = get_struct_type_name(array_expr->as.field_access.object, env);
+        if (struct_name) {
+            StructDef *sdef = env_get_struct(env, struct_name);
+            if (sdef && sdef->field_element_types) {
+                const char *field_name = array_expr->as.field_access.field_name;
+                for (int i = 0; i < sdef->field_count; i++) {
+                    if (strcmp(sdef->field_names[i], field_name) == 0) {
+                        if (sdef->field_types[i] == TYPE_ARRAY && sdef->field_element_types[i] != TYPE_UNKNOWN) {
+                            return sdef->field_element_types[i];
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return TYPE_UNKNOWN;
+    }
+
+    return TYPE_UNKNOWN;
+}
+
 /* Internal implementation - do not call directly */
 static Type check_expression_impl(ASTNode *expr, Environment *env);
 
@@ -445,6 +488,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     Type arg_type = check_expression(expr->as.prefix_op.args[0], env);
                     if (arg_type == TYPE_INT) return TYPE_INT;
                     if (arg_type == TYPE_FLOAT) return TYPE_FLOAT;
+                    if (arg_type == TYPE_ARRAY) {
+                        Type elem = infer_array_element_type(expr->as.prefix_op.args[0], env);
+                        if (elem == TYPE_UNKNOWN || elem == TYPE_INT || elem == TYPE_ENUM || elem == TYPE_FLOAT) {
+                            return TYPE_ARRAY;
+                        }
+                        fprintf(stderr, "Error at line %d, column %d: Unary minus requires array<int> or array<float>\n", expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
                     fprintf(stderr, "Error at line %d, column %d: Unary minus requires numeric type\n", expr->line, expr->column);
                     return TYPE_UNKNOWN;
                 }
@@ -456,6 +507,47 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
                 Type right = check_expression(expr->as.prefix_op.args[1], env);
+
+                if (left == TYPE_ARRAY || right == TYPE_ARRAY) {
+                    ASTNode *left_expr = expr->as.prefix_op.args[0];
+                    ASTNode *right_expr = expr->as.prefix_op.args[1];
+                    bool left_is_array = (left == TYPE_ARRAY);
+                    bool right_is_array = (right == TYPE_ARRAY);
+
+                    Type left_elem = left_is_array ? infer_array_element_type(left_expr, env) : left;
+                    Type right_elem = right_is_array ? infer_array_element_type(right_expr, env) : right;
+
+                    /* If both element types are unknown, allow and defer to runtime */
+                    if (left_is_array && right_is_array && left_elem == TYPE_UNKNOWN && right_elem == TYPE_UNKNOWN) {
+                        return TYPE_ARRAY;
+                    }
+
+                    /* If one side's element type is unknown, allow and defer to runtime */
+                    if ((left_is_array && left_elem == TYPE_UNKNOWN) || (right_is_array && right_elem == TYPE_UNKNOWN)) {
+                        return TYPE_ARRAY;
+                    }
+
+                    /* Normalize enums to int for array arithmetic */
+                    if (left_elem == TYPE_ENUM) left_elem = TYPE_INT;
+                    if (right_elem == TYPE_ENUM) right_elem = TYPE_INT;
+
+                    if (op == TOKEN_PLUS && left_elem == TYPE_STRING && right_elem == TYPE_STRING) {
+                        return TYPE_ARRAY;
+                    }
+
+                    if (op == TOKEN_PERCENT) {
+                        if (left_elem == TYPE_INT && right_elem == TYPE_INT) return TYPE_ARRAY;
+                        fprintf(stderr, "Error at line %d, column %d: %% only supported on array<int>\n", expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+
+                    if (left_elem == TYPE_INT && right_elem == TYPE_INT) return TYPE_ARRAY;
+                    if (left_elem == TYPE_FLOAT && right_elem == TYPE_FLOAT) return TYPE_ARRAY;
+
+                    fprintf(stderr, "Error at line %d, column %d: Type mismatch in array arithmetic operation\n", expr->line, expr->column);
+                    fprintf(stderr, "  Got: %s and %s\n", type_to_string(left), type_to_string(right));
+                    return TYPE_UNKNOWN;
+                }
 
                 /* Enums are compatible with ints in arithmetic */
                 if ((left == TYPE_INT || left == TYPE_ENUM) && (right == TYPE_INT || right == TYPE_ENUM)) return TYPE_INT;
