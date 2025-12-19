@@ -141,7 +141,7 @@ After completing the tutorials, explore these examples:
 ### Intermediate Examples
 - `examples/nl_union_types.nano` - Union types and pattern matching
 - `examples/nl_first_class_functions.nano` - Higher-order functions
-- `examples/nl_arrays_test.nano` - Array operations
+- `examples/nl_array_complete.nano` - Array operations
 - `examples/nl_map_reduce.nano` - Functional programming
 
 ### Advanced Examples

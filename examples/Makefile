@@ -49,7 +49,6 @@ NL_EXAMPLES = \
 	$(BIN_DIR)/nl_function_factories_v2 \
 	$(BIN_DIR)/nl_array_bounds \
 	$(BIN_DIR)/nl_array_complete \
-	$(BIN_DIR)/nl_arrays_test \
 	$(BIN_DIR)/nl_falling_sand \
 	$(BIN_DIR)/nl_game_of_life \
 	$(BIN_DIR)/nl_snake
@@ -57,7 +56,7 @@ NL_EXAMPLES = \
 # Temporarily disabled due to module import context bug (nanolang-6h9):
 # - nl_demo_selfhosting (imports math_helper with 'as' alias)
 
-# Note: 28 of 49 nl_* examples compile successfully!
+# Note: 27 of 48 nl_* examples compile successfully!
 # The remaining 21 require the interpreter due to:
 # - Dynamic arrays: array_new(), array_push() not in transpiler
 # - Generic types: typedef conflicts and scope issues  
@@ -114,7 +113,7 @@ ALL_EXAMPLES = \
 
 # === Targets ===
 
-.PHONY: all build nl sdl ncurses opengl clean help launcher launcher-simple
+.PHONY: all build nl sdl ncurses opengl clean help launcher
 
 # Default: build all examples
 all: build
@@ -124,14 +123,14 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo ""
 	@echo "All examples built successfully!"
 	@echo ""
-	@echo "Nanolang-only examples (nl_*) - 28 COMPILED EXAMPLES!"
+	@echo "Nanolang-only examples (nl_*) - 27 COMPILED EXAMPLES!"
 	@echo "  Basic:"
 	@echo "    ./bin/nl_hello, nl_calculator, nl_factorial, nl_fibonacci, nl_primes"
 	@echo "  Language Features:"
 	@echo "    ./bin/nl_enum, nl_struct, nl_types, nl_comparisons, nl_logical"
 	@echo "    ./bin/nl_operators, nl_floats, nl_mutable"
 	@echo "  Arrays:"
-	@echo "    ./bin/nl_arrays_test, nl_array_bounds, nl_array_complete"
+	@echo "    ./bin/nl_array_bounds, nl_array_complete"
 	@echo "  External Functions:"
 	@echo "    ./bin/nl_extern_char, nl_extern_math, nl_extern_string, nl_advanced_math"
 	@echo "  Advanced:"
@@ -192,10 +191,6 @@ launcher: $(COMPILER)
 	@cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_example_launcher.nano -o bin/sdl_example_launcher
 	@echo "Launching... (ESC or Quit to exit)"
 	@cd .. && ./bin/sdl_example_launcher
-
-# Fallback text launcher
-launcher-simple: $(INTERPRETER)
-	@cd .. && ./bin/nano examples/example_launcher_simple.nano
 
 # Category targets
 nl: $(COMPILER) $(NL_EXAMPLES)

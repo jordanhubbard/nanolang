@@ -112,7 +112,6 @@ For advanced language features and metaprogramming:
 |---------|------------|--------|------|
 | `nl_array_complete.nano` | ⭐⭐ Intermediate | Arrays (comprehensive) | 30 min |
 | `nl_array_bounds.nano` | ⭐⭐ Intermediate | Bounds checking | 15 min |
-| `nl_arrays_test.nano` | ⭐⭐ Intermediate | Array testing | 20 min |
 | `nl_list_int.nano` | ⭐⭐ Intermediate | Dynamic int lists | 20 min |
 | `vector2d_demo.nano` | ⭐⭐ Intermediate | 2D vectors | 20 min |
 
@@ -281,8 +280,7 @@ For advanced language features and metaprogramming:
 | Example | Difficulty | Topics | Time |
 |---------|------------|--------|------|
 | `sdl_nanoviz.nano` | ⭐⭐⭐⭐⭐ Expert | 3D music visualizer | 90 min |
-| `sdl_import_test.nano` | ⭐⭐ Intermediate | Module testing | 10 min |
-| `example_launcher.nano` | ⭐⭐ Intermediate | Utility launcher | 20 min |
+| `sdl_example_launcher.nano` | ⭐⭐ Intermediate | Example browser/launcher (SDL UI) | 20 min |
 
 ---
 
