@@ -51,11 +51,40 @@ pub use std_io::FILE_MODE_READ_WRITE
  */
 
 /* Re-export extended math functions from std::math */
+pub use std_math::asin
+pub use std_math::acos
+pub use std_math::atan
 pub use std_math::atan2
 pub use std_math::log
+pub use std_math::log10
+pub use std_math::log2
+pub use std_math::log1p
 pub use std_math::exp
-pub use std_math::PI
-pub use std_math::E
+pub use std_math::exp2
+pub use std_math::expm1
+pub use std_math::sinh
+pub use std_math::cosh
+pub use std_math::tanh
+pub use std_math::asinh
+pub use std_math::acosh
+pub use std_math::atanh
+pub use std_math::fmod
+pub use std_math::fabs
+pub use std_math::cbrt
+pub use std_math::hypot
+pub use std_math::trunc
+pub use std_math::rint
+pub use std_math::nearbyint
+pub use std_math::remainder
+pub use std_math::fmin
+pub use std_math::fmax
+pub use std_math::copysign
+pub use std_math::pi
+pub use std_math::e
+pub use std_math::deg_to_rad
+pub use std_math::rad_to_deg
+pub use std_math::clamp
+pub use std_math::lerp
 
 /* Re-export vector math from std::math::vector2d */
 pub use std_math_vector2d::Vector2D
@@ -65,6 +94,44 @@ pub use std_math_vector2d::vec_sub
 pub use std_math_vector2d::vec_scale
 pub use std_math_vector2d::vec_length
 pub use std_math_vector2d::vec_normalize
+
+/* Re-export vector math from std::math::vector3d */
+pub use std_math_vector3d::Vector3D
+pub use std_math_vector3d::vec3_new
+pub use std_math_vector3d::vec3_add
+pub use std_math_vector3d::vec3_sub
+pub use std_math_vector3d::vec3_scale
+pub use std_math_vector3d::vec3_dot
+pub use std_math_vector3d::vec3_cross
+pub use std_math_vector3d::vec3_length
+pub use std_math_vector3d::vec3_normalize
+
+/* Re-export quaternion + matrix4 for 3D transforms */
+pub use std_math_quaternion::Quat
+pub use std_math_quaternion::quat_identity
+pub use std_math_quaternion::quat_from_axis_angle
+pub use std_math_quaternion::quat_rotate_vec3
+
+pub use std_math_matrix4::Mat4
+pub use std_math_matrix4::mat4_identity
+pub use std_math_matrix4::mat4_mul
+pub use std_math_matrix4::mat4_translation
+pub use std_math_matrix4::mat4_scale
+pub use std_math_matrix4::mat4_rotation_x
+pub use std_math_matrix4::mat4_rotation_y
+pub use std_math_matrix4::mat4_rotation_z
+pub use std_math_matrix4::mat4_transform_point
+pub use std_math_matrix4::mat4_transform_dir
+
+/* Re-export complex */
+pub use std_math_complex::Complex
+pub use std_math_complex::complex_new
+pub use std_math_complex::complex_add
+pub use std_math_complex::complex_sub
+pub use std_math_complex::complex_mul
+pub use std_math_complex::complex_div
+pub use std_math_complex::complex_abs
+pub use std_math_complex::complex_arg
 
 /* Re-export basic array math from std::math::array_ops */
 pub use std_math_array::array_add
@@ -77,6 +144,14 @@ pub use std_math_array::array_dot
 pub use std_math_array::array_norm
 pub use std_math_array::array_normalize
 pub use std_math_array::array_lerp
+pub use std_math_array::array_sum
+pub use std_math_array::array_mean
+pub use std_math_array::array_min
+pub use std_math_array::array_max
+pub use std_math_array::array_distance
+pub use std_math_array::array_sum_int
+pub use std_math_array::array_min_int
+pub use std_math_array::array_max_int
 
 /* =============================================================================
  * Library Information

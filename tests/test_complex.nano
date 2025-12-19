@@ -1,0 +1,21 @@
+from "std/math/complex.nano" import Complex, complex_new, complex_mul, complex_abs
+
+fn test_complex_basic() -> int {
+    let a: Complex = (complex_new 1.0 1.0)
+    let b: Complex = (complex_new 1.0 (- 1.0))
+    let p: Complex = (complex_mul a b)
+    assert (== p.re 2.0)
+    assert (== p.im 0.0)
+    assert (== (complex_abs (complex_new 3.0 4.0)) 5.0)
+    return 0
+}
+
+shadow test_complex_basic {
+    assert (== (test_complex_basic) 0)
+}
+
+fn main() -> int { return 0 }
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,65 @@
+/* =============================================================================
+ * std::math::vector4d Module - 4D Vector Mathematics
+ * =============================================================================
+ * Useful for homogeneous coordinates (mat4 transforms).
+ */
+
+module std_math_vector4d
+
+from "std/math/vector3d.nano" import Vector3D, vec3_new
+
+pub struct Vector4D {
+    x: float,
+    y: float,
+    z: float,
+    w: float
+}
+
+pub fn vec4_new(x: float, y: float, z: float, w: float) -> Vector4D {
+    return Vector4D { x: x, y: y, z: z, w: w }
+}
+
+pub fn vec4_zero() -> Vector4D {
+    return Vector4D { x: 0.0, y: 0.0, z: 0.0, w: 0.0 }
+}
+
+pub fn vec4_add(a: Vector4D, b: Vector4D) -> Vector4D {
+    return Vector4D { x: (+ a.x b.x), y: (+ a.y b.y), z: (+ a.z b.z), w: (+ a.w b.w) }
+}
+
+pub fn vec4_sub(a: Vector4D, b: Vector4D) -> Vector4D {
+    return Vector4D { x: (- a.x b.x), y: (- a.y b.y), z: (- a.z b.z), w: (- a.w b.w) }
+}
+
+pub fn vec4_scale(v: Vector4D, s: float) -> Vector4D {
+    return Vector4D { x: (* v.x s), y: (* v.y s), z: (* v.z s), w: (* v.w s) }
+}
+
+pub fn vec4_dot(a: Vector4D, b: Vector4D) -> float {
+    return (+ (+ (+ (* a.x b.x) (* a.y b.y)) (* a.z b.z)) (* a.w b.w))
+}
+
+pub fn vec4_length(v: Vector4D) -> float {
+    return (sqrt (vec4_dot v v))
+}
+
+pub fn vec4_normalize(v: Vector4D) -> Vector4D {
+    let len: float = (vec4_length v)
+    if (> len 0.0) {
+        return (vec4_scale v (/ 1.0 len))
+    } else {
+        return (vec4_zero)
+    }
+}
+
+pub fn vec4_from_vec3(v: Vector3D, w: float) -> Vector4D {
+    return Vector4D { x: v.x, y: v.y, z: v.z, w: w }
+}
+
+pub fn vec4_to_vec3_div_w(v: Vector4D) -> Vector3D {
+    if (> (abs v.w) 0.0000001) {
+        return (vec3_new (/ v.x v.w) (/ v.y v.w) (/ v.z v.w))
+    } else {
+        return (vec3_new v.x v.y v.z)
+    }
+}

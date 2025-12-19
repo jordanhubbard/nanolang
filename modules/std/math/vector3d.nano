@@ -1,0 +1,88 @@
+/* =============================================================================
+ * std::math::vector3d Module - 3D Vector Mathematics
+ * =============================================================================
+ * Intended for graphics/physics workloads.
+ */
+
+module std_math_vector3d
+
+pub struct Vector3D {
+    x: float,
+    y: float,
+    z: float
+}
+
+pub fn vec3_new(x: float, y: float, z: float) -> Vector3D {
+    return Vector3D { x: x, y: y, z: z }
+}
+
+pub fn vec3_zero() -> Vector3D {
+    return Vector3D { x: 0.0, y: 0.0, z: 0.0 }
+}
+
+pub fn vec3_add(a: Vector3D, b: Vector3D) -> Vector3D {
+    return Vector3D { x: (+ a.x b.x), y: (+ a.y b.y), z: (+ a.z b.z) }
+}
+
+pub fn vec3_sub(a: Vector3D, b: Vector3D) -> Vector3D {
+    return Vector3D { x: (- a.x b.x), y: (- a.y b.y), z: (- a.z b.z) }
+}
+
+pub fn vec3_scale(v: Vector3D, s: float) -> Vector3D {
+    return Vector3D { x: (* v.x s), y: (* v.y s), z: (* v.z s) }
+}
+
+pub fn vec3_dot(a: Vector3D, b: Vector3D) -> float {
+    return (+ (+ (* a.x b.x) (* a.y b.y)) (* a.z b.z))
+}
+
+pub fn vec3_cross(a: Vector3D, b: Vector3D) -> Vector3D {
+    return Vector3D {
+        x: (- (* a.y b.z) (* a.z b.y)),
+        y: (- (* a.z b.x) (* a.x b.z)),
+        z: (- (* a.x b.y) (* a.y b.x))
+    }
+}
+
+pub fn vec3_length_squared(v: Vector3D) -> float {
+    return (vec3_dot v v)
+}
+
+pub fn vec3_length(v: Vector3D) -> float {
+    return (sqrt (vec3_length_squared v))
+}
+
+pub fn vec3_distance(a: Vector3D, b: Vector3D) -> float {
+    return (vec3_length (vec3_sub b a))
+}
+
+pub fn vec3_normalize(v: Vector3D) -> Vector3D {
+    let len: float = (vec3_length v)
+    if (> len 0.0) {
+        return (vec3_scale v (/ 1.0 len))
+    } else {
+        return (vec3_zero)
+    }
+}
+
+pub fn vec3_lerp(a: Vector3D, b: Vector3D, t: float) -> Vector3D {
+    return Vector3D {
+        x: (+ a.x (* (- b.x a.x) t)),
+        y: (+ a.y (* (- b.y a.y) t)),
+        z: (+ a.z (* (- b.z a.z) t))
+    }
+}
+
+pub fn vec3_reflect(v: Vector3D, normal: Vector3D) -> Vector3D {
+    let d: float = (vec3_dot v normal)
+    return (vec3_sub v (vec3_scale normal (* 2.0 d)))
+}
+
+pub fn vec3_clamp_length(v: Vector3D, max_len: float) -> Vector3D {
+    let len: float = (vec3_length v)
+    if (> len max_len) {
+        return (vec3_scale (vec3_normalize v) max_len)
+    } else {
+        return v
+    }
+}

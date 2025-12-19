@@ -717,6 +717,7 @@ char *find_module_in_paths(const char *module_name);
 char *unpack_module_package(const char *package_path, char *temp_dir_out, size_t temp_dir_size);
 ASTNode *load_module(const char *module_path, Environment *env);
 ASTNode *load_module_from_package(const char *package_path, Environment *env, char *temp_dir_out, size_t temp_dir_size);
+ASTNode *get_cached_module_ast(const char *module_path);
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
 void clear_module_cache(void);
 bool compile_module_to_object(const char *module_path, const char *output_obj, Environment *env, bool verbose);

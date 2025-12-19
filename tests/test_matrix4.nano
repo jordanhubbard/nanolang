@@ -1,0 +1,38 @@
+from "std/math/matrix4.nano" import Mat4, mat4_identity, mat4_translation, mat4_mul, mat4_transform_point
+from "std/math/vector3d.nano" import Vector3D, vec3_new
+
+fn test_mat4_translation() -> int {
+    let p: Vector3D = (vec3_new 1.0 2.0 3.0)
+    let t: Mat4 = (mat4_translation 10.0 0.0 (- 2.0))
+    let r: Vector3D = (mat4_transform_point t p)
+    assert (== r.x 11.0)
+    assert (== r.y 2.0)
+    assert (== r.z 1.0)
+    return 0
+}
+
+shadow test_mat4_translation {
+    assert (== (test_mat4_translation) 0)
+}
+
+fn test_mat4_mul_identity() -> int {
+    let id: Mat4 = (mat4_identity)
+    let t: Mat4 = (mat4_translation 1.0 2.0 3.0)
+    let m: Mat4 = (mat4_mul id t)
+    let p: Vector3D = (vec3_new 0.0 0.0 0.0)
+    let r: Vector3D = (mat4_transform_point m p)
+    assert (== r.x 1.0)
+    assert (== r.y 2.0)
+    assert (== r.z 3.0)
+    return 0
+}
+
+shadow test_mat4_mul_identity {
+    assert (== (test_mat4_mul_identity) 0)
+}
+
+fn main() -> int { return 0 }
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,23 @@
+from "std/math/quaternion.nano" import Quat, quat_from_axis_angle, quat_rotate_vec3
+from "std/math/vector3d.nano" import Vector3D, vec3_new
+
+fn test_quat_rotate_z_90() -> int {
+    let axis: Vector3D = (vec3_new 0.0 0.0 1.0)
+    let q: Quat = (quat_from_axis_angle axis 1.5707963267948966)
+    let v: Vector3D = (vec3_new 1.0 0.0 0.0)
+    let r: Vector3D = (quat_rotate_vec3 q v)
+    assert (< (abs r.x) 0.01)
+    assert (> r.y 0.99)
+    assert (< (abs r.z) 0.01)
+    return 0
+}
+
+shadow test_quat_rotate_z_90 {
+    assert (== (test_quat_rotate_z_90) 0)
+}
+
+fn main() -> int { return 0 }
+
+shadow main {
+    assert (== (main) 0)
+}

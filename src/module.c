@@ -44,7 +44,7 @@ static bool is_module_cached(const char *module_path) {
     return false;
 }
 
-static ASTNode *get_cached_module_ast(const char *module_path) {
+ASTNode *get_cached_module_ast(const char *module_path) {
     if (!module_cache) return NULL;
     for (int i = 0; i < module_cache->count; i++) {
         if (strcmp(module_cache->loaded_paths[i], module_path) == 0) {
@@ -288,8 +288,10 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
         return strdup(module_path);
     }
     
-    /* Check if this is a project-relative path (starts with "examples/" or "src/") */
-    if (strncmp(module_path, "examples/", 9) == 0 || strncmp(module_path, "src/", 4) == 0) {
+    /* Check if this is a project-relative path (common prefixes like std/, examples/, src/) */
+    if (strncmp(module_path, "examples/", 9) == 0 ||
+        strncmp(module_path, "src/", 4) == 0 ||
+        strncmp(module_path, "std/", 4) == 0) {
         /* Try to find project root by walking up from current_file */
         if (current_file) {
             char current_dir[1024];
@@ -310,11 +312,14 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
                     if (dir) {
                         closedir(dir);
                         /* Found project root - resolve path from here */
-                        snprintf(test_path, sizeof(test_path), "%s/%s", current_dir, module_path);
-                        FILE *test = fopen(test_path, "r");
-                        if (test) {
-                            fclose(test);
-                            return strdup(test_path);
+                        const char *prefixes[] = {"", "stdlib/", "modules/", NULL};
+                        for (int p = 0; prefixes[p] != NULL; p++) {
+                            snprintf(test_path, sizeof(test_path), "%s/%s%s", current_dir, prefixes[p], module_path);
+                            FILE *test = fopen(test_path, "r");
+                            if (test) {
+                                fclose(test);
+                                return strdup(test_path);
+                            }
                         }
                         break;
                     }
@@ -325,11 +330,14 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
                     if (dir) {
                         closedir(dir);
                         /* Found project root - resolve path from here */
-                        snprintf(test_path, sizeof(test_path), "%s/%s", current_dir, module_path);
-                        FILE *test = fopen(test_path, "r");
-                        if (test) {
-                            fclose(test);
-                            return strdup(test_path);
+                        const char *prefixes[] = {"", "stdlib/", "modules/", NULL};
+                        for (int p = 0; prefixes[p] != NULL; p++) {
+                            snprintf(test_path, sizeof(test_path), "%s/%s%s", current_dir, prefixes[p], module_path);
+                            FILE *test = fopen(test_path, "r");
+                            if (test) {
+                                fclose(test);
+                                return strdup(test_path);
+                            }
                         }
                         break;
                     }
@@ -365,6 +373,22 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
             resolved = NULL;
         }
     }
+
+    /* Next, try common project-relative locations from current working directory.
+     * This enables imports like "std/math/vector2d.nano" to resolve to
+     * "stdlib/std/math/vector2d.nano" during tests (where current_file is often relative). */
+    {
+        const char *prefixes[] = {"", "stdlib/", "modules/", NULL};
+        char test_path[2048];
+        for (int p = 0; prefixes[p] != NULL; p++) {
+            snprintf(test_path, sizeof(test_path), "%s%s", prefixes[p], module_path);
+            FILE *test = fopen(test_path, "r");
+            if (test) {
+                fclose(test);
+                return strdup(test_path);
+            }
+        }
+    }
     
     /* If not found relative to current file, try module search paths */
     /* Extract module name (remove .nano extension if present) */
@@ -389,7 +413,7 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
 }
 
 /* Load and parse a module file */
-static ASTNode *load_module_internal(const char *module_path, Environment *env, bool use_cache) {
+static ASTNode *load_module_internal(const char *module_path, Environment *env, bool use_cache, ModuleList *modules_to_track) {
     if (!module_path) return NULL;
     
     /* Check if module is already loaded (only if using cache) */
@@ -441,7 +465,7 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     }
     
     /* Process imports first - modules may depend on symbols from imported modules */
-    if (!process_imports(module_ast, env, NULL, module_path)) {
+    if (!process_imports(module_ast, env, modules_to_track, module_path)) {
         fprintf(stderr, "Error: Failed to process imports for module '%s'\n", module_path);
         free_ast(module_ast);
         free_tokens(tokens, token_count);
@@ -576,7 +600,7 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
 
 /* Public wrapper for load_module that uses cache */
 ASTNode *load_module(const char *module_path, Environment *env) {
-    return load_module_internal(module_path, env, true);
+    return load_module_internal(module_path, env, true, NULL);
 }
 
 /* Load module from a package file */
@@ -698,8 +722,9 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                     return false;
                 }
                 fclose(test);
-                
-                module_ast = load_module(module_path, env);
+
+                /* Load module and track transitive imports for compilation */
+                module_ast = load_module_internal(module_path, env, true, modules);
             }
             
             /* NULL return means module was already loaded - this is OK */
@@ -716,15 +741,18 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 return false;
             }
             
-            /* If module was already cached, skip processing */
-            if (module_ast == NULL) {
-                free(module_path);
-                continue;
-            }
-            
-            /* Add to module list */
+            /* Add to module list (even if already cached) */
             if (modules) {
                 module_list_add(modules, module_path);
+            }
+
+            /* If module was already cached and returned NULL, try to grab cached AST for alias handling */
+            if (module_ast == NULL) {
+                module_ast = get_cached_module_ast(module_path);
+                if (!module_ast) {
+                    free(module_path);
+                    continue;
+                }
             }
             
             /* Register namespace if module has an alias */

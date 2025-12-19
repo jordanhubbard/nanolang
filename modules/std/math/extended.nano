@@ -38,16 +38,7 @@ pub extern fn acos(x: float) -> float
  */
 pub extern fn atan(x: float) -> float
 
-/* Two-argument arctangent (critical for vector-to-angle conversion)
- * Returns: angle in radians [-π, π]
- * Handles all quadrants correctly
- * 
- * Example:
- *   let dx: float = (- target_x current_x)
- *   let dy: float = (- target_y current_y)
- *   let angle: float = (atan2 dy dx)
- */
-pub extern fn atan2(y: float, x: float) -> float
+/* Note: atan2 is a language built-in, so we don't redeclare it here. */
 
 /* =============================================================================
  * Logarithmic and Exponential Functions
@@ -66,10 +57,27 @@ pub extern fn log(x: float) -> float
  */
 pub extern fn log10(x: float) -> float
 
+/* Base-2 logarithm
+ * Returns: log₂(x)
+ * Domain: (0, ∞)
+ */
+pub extern fn log2(x: float) -> float
+
+/* log(1 + x), accurate for small x */
+pub extern fn log1p(x: float) -> float
+
 /* Exponential function
  * Returns: e^x
  */
 pub extern fn exp(x: float) -> float
+
+/* Base-2 exponential
+ * Returns: 2^x
+ */
+pub extern fn exp2(x: float) -> float
+
+/* exp(x) - 1, accurate for small x */
+pub extern fn expm1(x: float) -> float
 
 /* =============================================================================
  * Hyperbolic Functions
@@ -91,6 +99,11 @@ pub extern fn cosh(x: float) -> float
  */
 pub extern fn tanh(x: float) -> float
 
+/* Inverse hyperbolic functions */
+pub extern fn asinh(x: float) -> float
+pub extern fn acosh(x: float) -> float
+pub extern fn atanh(x: float) -> float
+
 /* =============================================================================
  * Utility Functions
  * =============================================================================
@@ -109,16 +122,40 @@ pub extern fn fmod(x: float, y: float) -> float
  */
 pub extern fn fabs(x: float) -> float
 
+/* Cube root */
+pub extern fn cbrt(x: float) -> float
+
+/* Hypotenuse (sqrt(x*x + y*y)) with improved numerical stability */
+pub extern fn hypot(x: float, y: float) -> float
+
+/* Rounding (toward zero / nearest integer variants) */
+pub extern fn trunc(x: float) -> float
+pub extern fn rint(x: float) -> float
+pub extern fn nearbyint(x: float) -> float
+
+/* IEEE remainder */
+pub extern fn remainder(x: float, y: float) -> float
+
+/* Floating-point min/max */
+pub extern fn fmin(x: float, y: float) -> float
+pub extern fn fmax(x: float, y: float) -> float
+
+/* Copy sign of y onto magnitude of x */
+pub extern fn copysign(x: float, y: float) -> float
+
 /* =============================================================================
  * Constants
  * =============================================================================
  */
 
-/* Pi (π) constant */
+/* Pi (π) constant (kept private; use pi() accessor) */
 let PI: float = 3.141592653589793
 
-/* Euler's number (e) constant */
+/* Euler's number (e) constant (kept private; use e() accessor) */
 let E: float = 2.718281828459045
+
+pub fn pi() -> float { return PI }
+pub fn e() -> float { return E }
 
 /* =============================================================================
  * Helper Functions

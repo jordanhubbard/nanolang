@@ -1,0 +1,33 @@
+from "std/math/vector3d.nano" import Vector3D, vec3_new, vec3_dot, vec3_cross, vec3_length, vec3_normalize
+
+let EPS: float = 0.00001
+
+fn approx(a: float, b: float) -> bool {
+    return (< (abs (- a b)) EPS)
+}
+
+fn test_vec3() -> int {
+    let a: Vector3D = (vec3_new 1.0 0.0 0.0)
+    let b: Vector3D = (vec3_new 0.0 1.0 0.0)
+    let c: Vector3D = (vec3_cross a b)
+    assert (approx (vec3_dot a b) 0.0)
+    assert (approx c.z 1.0)
+
+    let v: Vector3D = (vec3_new 3.0 4.0 0.0)
+    assert (approx (vec3_length v) 5.0)
+
+    let n: Vector3D = (vec3_normalize v)
+    assert (approx n.x 0.6)
+    assert (approx n.y 0.8)
+    return 0
+}
+
+shadow test_vec3 {
+    assert (== (test_vec3) 0)
+}
+
+fn main() -> int { return 0 }
+
+shadow main {
+    assert (== (main) 0)
+}

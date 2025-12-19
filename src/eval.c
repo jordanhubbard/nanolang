@@ -20,6 +20,193 @@ static Value eval_expression(ASTNode *expr, Environment *env);
 static Value eval_statement(ASTNode *stmt, Environment *env);
 static Value create_dyn_array(DynArray *arr);
 
+static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op);
+static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenType op);
+static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType op);
+
+static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op) {
+    if (!a || !b) return NULL;
+    int64_t len = dyn_array_length(a);
+    if (len != dyn_array_length(b)) return NULL;
+    ElementType t = dyn_array_get_elem_type(a);
+    if (t != dyn_array_get_elem_type(b)) return NULL;
+
+    DynArray *out = dyn_array_new(t);
+    for (int64_t i = 0; i < len; i++) {
+        switch (t) {
+            case ELEM_INT: {
+                int64_t x = dyn_array_get_int(a, i);
+                int64_t y = dyn_array_get_int(b, i);
+                int64_t r = 0;
+                switch (op) {
+                    case TOKEN_PLUS: r = x + y; break;
+                    case TOKEN_MINUS: r = x - y; break;
+                    case TOKEN_STAR: r = x * y; break;
+                    case TOKEN_SLASH: r = x / y; break;
+                    case TOKEN_PERCENT: r = x % y; break;
+                    default: break;
+                }
+                dyn_array_push_int(out, r);
+                break;
+            }
+            case ELEM_FLOAT: {
+                double x = dyn_array_get_float(a, i);
+                double y = dyn_array_get_float(b, i);
+                double r = 0.0;
+                switch (op) {
+                    case TOKEN_PLUS: r = x + y; break;
+                    case TOKEN_MINUS: r = x - y; break;
+                    case TOKEN_STAR: r = x * y; break;
+                    case TOKEN_SLASH: r = x / y; break;
+                    default: break;
+                }
+                dyn_array_push_float(out, r);
+                break;
+            }
+            case ELEM_STRING: {
+                if (op != TOKEN_PLUS) return NULL;
+                const char *x = dyn_array_get_string(a, i);
+                const char *y = dyn_array_get_string(b, i);
+                size_t lx = strlen(x);
+                size_t ly = strlen(y);
+                char *buf = malloc(lx + ly + 1);
+                memcpy(buf, x, lx);
+                memcpy(buf + lx, y, ly);
+                buf[lx + ly] = '\0';
+                dyn_array_push_string(out, buf);
+                break;
+            }
+            case ELEM_ARRAY: {
+                DynArray *x = dyn_array_get_array(a, i);
+                DynArray *y = dyn_array_get_array(b, i);
+                DynArray *r = eval_dyn_array_binop(x, y, op);
+                if (!r) return NULL;
+                dyn_array_push_array(out, r);
+                break;
+            }
+            default:
+                return NULL;
+        }
+    }
+    return out;
+}
+
+static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenType op) {
+    if (!a) return NULL;
+    int64_t len = dyn_array_length(a);
+    ElementType t = dyn_array_get_elem_type(a);
+    DynArray *out = dyn_array_new(t);
+
+    for (int64_t i = 0; i < len; i++) {
+        if (t == ELEM_ARRAY) {
+            DynArray *inner = dyn_array_get_array(a, i);
+            DynArray *r = eval_dyn_array_scalar_right(inner, scalar, op);
+            if (!r) return NULL;
+            dyn_array_push_array(out, r);
+            continue;
+        }
+
+        if (t == ELEM_INT && scalar.type == VAL_INT) {
+            int64_t x = dyn_array_get_int(a, i);
+            int64_t s = scalar.as.int_val;
+            int64_t r = 0;
+            switch (op) {
+                case TOKEN_PLUS: r = x + s; break;
+                case TOKEN_MINUS: r = x - s; break;
+                case TOKEN_STAR: r = x * s; break;
+                case TOKEN_SLASH: r = x / s; break;
+                case TOKEN_PERCENT: r = x % s; break;
+                default: break;
+            }
+            dyn_array_push_int(out, r);
+        } else if (t == ELEM_FLOAT && scalar.type == VAL_FLOAT) {
+            double x = dyn_array_get_float(a, i);
+            double s = scalar.as.float_val;
+            double r = 0.0;
+            switch (op) {
+                case TOKEN_PLUS: r = x + s; break;
+                case TOKEN_MINUS: r = x - s; break;
+                case TOKEN_STAR: r = x * s; break;
+                case TOKEN_SLASH: r = x / s; break;
+                default: break;
+            }
+            dyn_array_push_float(out, r);
+        } else if (t == ELEM_STRING && scalar.type == VAL_STRING) {
+            if (op != TOKEN_PLUS) return NULL;
+            const char *x = dyn_array_get_string(a, i);
+            const char *s = scalar.as.string_val;
+            size_t lx = strlen(x);
+            size_t ls = strlen(s);
+            char *buf = malloc(lx + ls + 1);
+            memcpy(buf, x, lx);
+            memcpy(buf + lx, s, ls);
+            buf[lx + ls] = '\0';
+            dyn_array_push_string(out, buf);
+        } else {
+            return NULL;
+        }
+    }
+    return out;
+}
+
+static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType op) {
+    if (!a) return NULL;
+    int64_t len = dyn_array_length(a);
+    ElementType t = dyn_array_get_elem_type(a);
+    DynArray *out = dyn_array_new(t);
+
+    for (int64_t i = 0; i < len; i++) {
+        if (t == ELEM_ARRAY) {
+            DynArray *inner = dyn_array_get_array(a, i);
+            DynArray *r = eval_dyn_array_scalar_left(scalar, inner, op);
+            if (!r) return NULL;
+            dyn_array_push_array(out, r);
+            continue;
+        }
+
+        if (t == ELEM_INT && scalar.type == VAL_INT) {
+            int64_t s = scalar.as.int_val;
+            int64_t y = dyn_array_get_int(a, i);
+            int64_t r = 0;
+            switch (op) {
+                case TOKEN_PLUS: r = s + y; break;
+                case TOKEN_MINUS: r = s - y; break;
+                case TOKEN_STAR: r = s * y; break;
+                case TOKEN_SLASH: r = s / y; break;
+                case TOKEN_PERCENT: r = s % y; break;
+                default: break;
+            }
+            dyn_array_push_int(out, r);
+        } else if (t == ELEM_FLOAT && scalar.type == VAL_FLOAT) {
+            double s = scalar.as.float_val;
+            double y = dyn_array_get_float(a, i);
+            double r = 0.0;
+            switch (op) {
+                case TOKEN_PLUS: r = s + y; break;
+                case TOKEN_MINUS: r = s - y; break;
+                case TOKEN_STAR: r = s * y; break;
+                case TOKEN_SLASH: r = s / y; break;
+                default: break;
+            }
+            dyn_array_push_float(out, r);
+        } else if (t == ELEM_STRING && scalar.type == VAL_STRING) {
+            if (op != TOKEN_PLUS) return NULL;
+            const char *s = scalar.as.string_val;
+            const char *y = dyn_array_get_string(a, i);
+            size_t ls = strlen(s);
+            size_t ly = strlen(y);
+            char *buf = malloc(ls + ly + 1);
+            memcpy(buf, s, ls);
+            memcpy(buf + ls, y, ly);
+            buf[ls + ly] = '\0';
+            dyn_array_push_string(out, buf);
+        } else {
+            return NULL;
+        }
+    }
+    return out;
+}
+
 /* ==========================================================================
  * Built-in OS Functions Implementation
  * ========================================================================== */
@@ -1818,62 +2005,10 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         fprintf(stderr, "Error: Array element type mismatch in operator\n");
                         return create_void();
                     }
-                    DynArray *out = dyn_array_new(t);
-                    for (int64_t i = 0; i < len; i++) {
-                        switch (t) {
-                            case ELEM_INT: {
-                                int64_t x = dyn_array_get_int(a, i);
-                                int64_t y = dyn_array_get_int(b, i);
-                                int64_t r = 0;
-                                switch (op) {
-                                    case TOKEN_PLUS: r = x + y; break;
-                                    case TOKEN_MINUS: r = x - y; break;
-                                    case TOKEN_STAR: r = x * y; break;
-                                    case TOKEN_SLASH: r = x / y; break;
-                                    case TOKEN_PERCENT: r = x % y; break;
-                                    default: break;
-                                }
-                                dyn_array_push_int(out, r);
-                                break;
-                            }
-                            case ELEM_FLOAT: {
-                                double x = dyn_array_get_float(a, i);
-                                double y = dyn_array_get_float(b, i);
-                                double r = 0.0;
-                                switch (op) {
-                                    case TOKEN_PLUS: r = x + y; break;
-                                    case TOKEN_MINUS: r = x - y; break;
-                                    case TOKEN_STAR: r = x * y; break;
-                                    case TOKEN_SLASH: r = x / y; break;
-                                    default: break;
-                                }
-                                dyn_array_push_float(out, r);
-                                break;
-                            }
-                            case ELEM_STRING: {
-                                if (op != TOKEN_PLUS) {
-                                    fprintf(stderr, "Error: string arrays only support +\n");
-                                    return create_void();
-                                }
-                                const char *x = dyn_array_get_string(a, i);
-                                const char *y = dyn_array_get_string(b, i);
-                                size_t lx = strlen(x);
-                                size_t ly = strlen(y);
-                                char *buf = malloc(lx + ly + 1);
-                                memcpy(buf, x, lx);
-                                memcpy(buf + lx, y, ly);
-                                buf[lx + ly] = '\0';
-                                dyn_array_push_string(out, buf);
-                                break;
-                            }
-                            case ELEM_ARRAY: {
-                                fprintf(stderr, "Error: nested array operators not supported in interpreter yet\n");
-                                return create_void();
-                            }
-                            default:
-                                fprintf(stderr, "Error: unsupported array element type in operator\n");
-                                return create_void();
-                        }
+                    DynArray *out = eval_dyn_array_binop(a, b, op);
+                    if (!out) {
+                        fprintf(stderr, "Error: Array mismatch in operator\n");
+                        return create_void();
                     }
                     return create_dyn_array(out);
                 }
@@ -1881,104 +2016,18 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 /* Broadcast scalar over array */
                 if (left.type == VAL_DYN_ARRAY) {
                     DynArray *a = left.as.dyn_array_val;
-                    int64_t len = dyn_array_length(a);
-                    ElementType t = dyn_array_get_elem_type(a);
-                    DynArray *out = dyn_array_new(t);
-                    for (int64_t i = 0; i < len; i++) {
-                        if (t == ELEM_INT && right.type == VAL_INT) {
-                            int64_t x = dyn_array_get_int(a, i);
-                            int64_t s = right.as.int_val;
-                            int64_t r = 0;
-                            switch (op) {
-                                case TOKEN_PLUS: r = x + s; break;
-                                case TOKEN_MINUS: r = x - s; break;
-                                case TOKEN_STAR: r = x * s; break;
-                                case TOKEN_SLASH: r = x / s; break;
-                                case TOKEN_PERCENT: r = x % s; break;
-                                default: break;
-                            }
-                            dyn_array_push_int(out, r);
-                        } else if (t == ELEM_FLOAT && right.type == VAL_FLOAT) {
-                            double x = dyn_array_get_float(a, i);
-                            double s = right.as.float_val;
-                            double r = 0.0;
-                            switch (op) {
-                                case TOKEN_PLUS: r = x + s; break;
-                                case TOKEN_MINUS: r = x - s; break;
-                                case TOKEN_STAR: r = x * s; break;
-                                case TOKEN_SLASH: r = x / s; break;
-                                default: break;
-                            }
-                            dyn_array_push_float(out, r);
-                        } else if (t == ELEM_STRING && right.type == VAL_STRING) {
-                            if (op != TOKEN_PLUS) {
-                                fprintf(stderr, "Error: string arrays only support +\n");
-                                return create_void();
-                            }
-                            const char *x = dyn_array_get_string(a, i);
-                            const char *s = right.as.string_val;
-                            size_t lx = strlen(x);
-                            size_t ls = strlen(s);
-                            char *buf = malloc(lx + ls + 1);
-                            memcpy(buf, x, lx);
-                            memcpy(buf + lx, s, ls);
-                            buf[lx + ls] = '\0';
-                            dyn_array_push_string(out, buf);
-                        } else {
-                            fprintf(stderr, "Error: Type mismatch in array-scalar operator\n");
-                            return create_void();
-                        }
+                    DynArray *out = eval_dyn_array_scalar_right(a, right, op);
+                    if (!out) {
+                        fprintf(stderr, "Error: Type mismatch in array-scalar operator\n");
+                        return create_void();
                     }
                     return create_dyn_array(out);
                 } else if (right.type == VAL_DYN_ARRAY) {
                     DynArray *a = right.as.dyn_array_val;
-                    int64_t len = dyn_array_length(a);
-                    ElementType t = dyn_array_get_elem_type(a);
-                    DynArray *out = dyn_array_new(t);
-                    for (int64_t i = 0; i < len; i++) {
-                        if (t == ELEM_INT && left.type == VAL_INT) {
-                            int64_t x = left.as.int_val;
-                            int64_t y = dyn_array_get_int(a, i);
-                            int64_t r = 0;
-                            switch (op) {
-                                case TOKEN_PLUS: r = x + y; break;
-                                case TOKEN_MINUS: r = x - y; break;
-                                case TOKEN_STAR: r = x * y; break;
-                                case TOKEN_SLASH: r = x / y; break;
-                                case TOKEN_PERCENT: r = x % y; break;
-                                default: break;
-                            }
-                            dyn_array_push_int(out, r);
-                        } else if (t == ELEM_FLOAT && left.type == VAL_FLOAT) {
-                            double x = left.as.float_val;
-                            double y = dyn_array_get_float(a, i);
-                            double r = 0.0;
-                            switch (op) {
-                                case TOKEN_PLUS: r = x + y; break;
-                                case TOKEN_MINUS: r = x - y; break;
-                                case TOKEN_STAR: r = x * y; break;
-                                case TOKEN_SLASH: r = x / y; break;
-                                default: break;
-                            }
-                            dyn_array_push_float(out, r);
-                        } else if (t == ELEM_STRING && left.type == VAL_STRING) {
-                            if (op != TOKEN_PLUS) {
-                                fprintf(stderr, "Error: string arrays only support +\n");
-                                return create_void();
-                            }
-                            const char *s = left.as.string_val;
-                            const char *y = dyn_array_get_string(a, i);
-                            size_t ls = strlen(s);
-                            size_t ly = strlen(y);
-                            char *buf = malloc(ls + ly + 1);
-                            memcpy(buf, s, ls);
-                            memcpy(buf + ls, y, ly);
-                            buf[ls + ly] = '\0';
-                            dyn_array_push_string(out, buf);
-                        } else {
-                            fprintf(stderr, "Error: Type mismatch in scalar-array operator\n");
-                            return create_void();
-                        }
+                    DynArray *out = eval_dyn_array_scalar_left(left, a, op);
+                    if (!out) {
+                        fprintf(stderr, "Error: Type mismatch in scalar-array operator\n");
+                        return create_void();
                     }
                     return create_dyn_array(out);
                 }
@@ -3086,6 +3135,20 @@ static Value eval_call(ASTNode *node, Environment *env) {
         }
         return create_float(log2(args[0].as.float_val));
     }
+    if (strcmp(name, "log1p") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: log1p requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(log1p(args[0].as.float_val));
+    }
+    if (strcmp(name, "expm1") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: expm1 requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(expm1(args[0].as.float_val));
+    }
     if (strcmp(name, "cbrt") == 0) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: cbrt requires 1 float argument\n");
@@ -3121,6 +3184,27 @@ static Value eval_call(ASTNode *node, Environment *env) {
         }
         return create_float(tanh(args[0].as.float_val));
     }
+    if (strcmp(name, "asinh") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: asinh requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(asinh(args[0].as.float_val));
+    }
+    if (strcmp(name, "acosh") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: acosh requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(acosh(args[0].as.float_val));
+    }
+    if (strcmp(name, "atanh") == 0) {
+        if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: atanh requires 1 float argument\n");
+            return create_void();
+        }
+        return create_float(atanh(args[0].as.float_val));
+    }
     if (strcmp(name, "fmod") == 0) {
         if (node->as.call.arg_count < 2 || args[0].type != VAL_FLOAT || args[1].type != VAL_FLOAT) {
             fprintf(stderr, "Error: fmod requires 2 float arguments\n");
@@ -3155,6 +3239,27 @@ static Value eval_call(ASTNode *node, Environment *env) {
             return create_void();
         }
         return create_float(remainder(args[0].as.float_val, args[1].as.float_val));
+    }
+    if (strcmp(name, "fmin") == 0) {
+        if (node->as.call.arg_count < 2 || args[0].type != VAL_FLOAT || args[1].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: fmin requires 2 float arguments\n");
+            return create_void();
+        }
+        return create_float(fmin(args[0].as.float_val, args[1].as.float_val));
+    }
+    if (strcmp(name, "fmax") == 0) {
+        if (node->as.call.arg_count < 2 || args[0].type != VAL_FLOAT || args[1].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: fmax requires 2 float arguments\n");
+            return create_void();
+        }
+        return create_float(fmax(args[0].as.float_val, args[1].as.float_val));
+    }
+    if (strcmp(name, "copysign") == 0) {
+        if (node->as.call.arg_count < 2 || args[0].type != VAL_FLOAT || args[1].type != VAL_FLOAT) {
+            fprintf(stderr, "Error: copysign requires 2 float arguments\n");
+            return create_void();
+        }
+        return create_float(copysign(args[0].as.float_val, args[1].as.float_val));
     }
     if (strcmp(name, "fabs") == 0) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {

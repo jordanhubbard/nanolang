@@ -313,30 +313,3 @@ shadow vec_reflect {
     assert (== reflected.y 1.0)
 }
 
-/* Main function for testing */
-fn main() -> int {
-    (println "=== std::math::vector2d Tests ===")
-    let v1: Vector2D = (vec_new 3.0 4.0)
-    let v2: Vector2D = (vec_new 1.0 2.0)
-    let sum: Vector2D = (vec_add v1 v2)
-    (print "Vector addition: (")
-    (print (float_to_string v1.x))
-    (print ", ")
-    (print (float_to_string v1.y))
-    (print ") + (")
-    (print (float_to_string v2.x))
-    (print ", ")
-    (print (float_to_string v2.y))
-    (print ") = (")
-    (print (float_to_string sum.x))
-    (print ", ")
-    (print (float_to_string sum.y))
-    (println ")")
-    (println "✅ All tests passed!")
-    return 0
-}
-
-shadow main {
-    assert (== (main) 0)
-}
-

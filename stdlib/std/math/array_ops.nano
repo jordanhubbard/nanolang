@@ -4,7 +4,8 @@
  * Lightweight array arithmetic helpers intended for graphics use-cases.
  *
  * Notes:
- * - Focuses on array<float> (nanolang float).
+ * - Primarily focuses on array<float> (nanolang float).
+ * - Also provides a few small helpers for array<int> (reductions).
  * - Uses explicit functions (no operator overloading / compiler changes).
  * - On length mismatch, functions assert.
  */
@@ -125,6 +126,103 @@ pub fn array_lerp(a: array<float>, b: array<float>, t: float) -> array<float> {
         set i (+ i 1)
     }
     return out
+}
+
+pub fn array_sum(a: array<float>) -> float {
+    let n: int = (array_length a)
+    let mut acc: float = 0.0
+    let mut i: int = 0
+    while (< i n) {
+        set acc (+ acc (at a i))
+        set i (+ i 1)
+    }
+    return acc
+}
+
+pub fn array_mean(a: array<float>) -> float {
+    let n: int = (array_length a)
+    if (== n 0) { return 0.0 }
+    return (/ (array_sum a) (cast_float n))
+}
+
+pub fn array_min(a: array<float>) -> float {
+    let n: int = (array_length a)
+    assert (> n 0)
+    let mut m: float = (at a 0)
+    let mut i: int = 1
+    while (< i n) {
+        let v: float = (at a i)
+        if (< v m) { set m v }
+        set i (+ i 1)
+    }
+    return m
+}
+
+pub fn array_max(a: array<float>) -> float {
+    let n: int = (array_length a)
+    assert (> n 0)
+    let mut m: float = (at a 0)
+    let mut i: int = 1
+    while (< i n) {
+        let v: float = (at a i)
+        if (> v m) { set m v }
+        set i (+ i 1)
+    }
+    return m
+}
+
+pub fn array_distance_squared(a: array<float>, b: array<float>) -> float {
+    (assert_same_length a b)
+    let n: int = (array_length a)
+    let mut acc: float = 0.0
+    let mut i: int = 0
+    while (< i n) {
+        let d: float = (- (at a i) (at b i))
+        set acc (+ acc (* d d))
+        set i (+ i 1)
+    }
+    return acc
+}
+
+pub fn array_distance(a: array<float>, b: array<float>) -> float {
+    return (sqrt (array_distance_squared a b))
+}
+
+pub fn array_sum_int(a: array<int>) -> int {
+    let n: int = (array_length a)
+    let mut acc: int = 0
+    let mut i: int = 0
+    while (< i n) {
+        set acc (+ acc (at a i))
+        set i (+ i 1)
+    }
+    return acc
+}
+
+pub fn array_min_int(a: array<int>) -> int {
+    let n: int = (array_length a)
+    assert (> n 0)
+    let mut m: int = (at a 0)
+    let mut i: int = 1
+    while (< i n) {
+        let v: int = (at a i)
+        if (< v m) { set m v }
+        set i (+ i 1)
+    }
+    return m
+}
+
+pub fn array_max_int(a: array<int>) -> int {
+    let n: int = (array_length a)
+    assert (> n 0)
+    let mut m: int = (at a 0)
+    let mut i: int = 1
+    while (< i n) {
+        let v: int = (at a i)
+        if (> v m) { set m v }
+        set i (+ i 1)
+    }
+    return m
 }
 
 shadow array_add {
