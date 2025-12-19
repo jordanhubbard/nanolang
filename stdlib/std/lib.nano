@@ -66,6 +66,18 @@ pub use std_math_vector2d::vec_scale
 pub use std_math_vector2d::vec_length
 pub use std_math_vector2d::vec_normalize
 
+/* Re-export basic array math from std::math::array_ops */
+pub use std_math_array::array_add
+pub use std_math_array::array_sub
+pub use std_math_array::array_mul
+pub use std_math_array::array_div
+pub use std_math_array::array_add_scalar
+pub use std_math_array::array_mul_scalar
+pub use std_math_array::array_dot
+pub use std_math_array::array_norm
+pub use std_math_array::array_normalize
+pub use std_math_array::array_lerp
+
 /* =============================================================================
  * Library Information
  * =============================================================================
