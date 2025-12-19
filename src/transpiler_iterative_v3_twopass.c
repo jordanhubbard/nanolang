@@ -417,8 +417,32 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, "nl_println_float(");
                 } else if (arg_type == TYPE_BOOL) {
                     emit_literal(list, "nl_println_bool(");
-                } else {
+                } else if (arg_type == TYPE_INT) {
                     emit_literal(list, "nl_println_int(");
+                } else {
+                    emit_literal(list, "nl_println_string(");
+                    if (arg_type == TYPE_ARRAY) {
+                        emit_literal(list, "nl_to_string_array(");
+                        build_expr(list, expr->as.call.args[0], env);
+                        emit_literal(list, ")");
+                    } else if (arg_type == TYPE_STRUCT || arg_type == TYPE_UNION) {
+                        const char *type_name = get_struct_type_name(expr->as.call.args[0], env);
+                        if (type_name) {
+                            emit_formatted(list, "nl_to_string_%s(", type_name);
+                            build_expr(list, expr->as.call.args[0], env);
+                            emit_literal(list, ")");
+                        } else {
+                            emit_literal(list, "\"<struct>\"");
+                        }
+                    } else if (arg_type == TYPE_ENUM) {
+                        emit_literal(list, "nl_to_string_int(");
+                        build_expr(list, expr->as.call.args[0], env);
+                        emit_literal(list, ")");
+                    } else {
+                        emit_literal(list, "\"<unknown>\"");
+                    }
+                    emit_literal(list, ")");
+                    break;
                 }
                 build_expr(list, expr->as.call.args[0], env);
                 emit_literal(list, ")");
@@ -432,11 +456,80 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, "nl_print_float(");
                 } else if (arg_type == TYPE_BOOL) {
                     emit_literal(list, "nl_print_bool(");
-                } else {
+                } else if (arg_type == TYPE_INT) {
                     emit_literal(list, "nl_print_int(");
+                } else {
+                    emit_literal(list, "nl_print_string(");
+                    if (arg_type == TYPE_ARRAY) {
+                        emit_literal(list, "nl_to_string_array(");
+                        build_expr(list, expr->as.call.args[0], env);
+                        emit_literal(list, ")");
+                    } else if (arg_type == TYPE_STRUCT || arg_type == TYPE_UNION) {
+                        const char *type_name = get_struct_type_name(expr->as.call.args[0], env);
+                        if (type_name) {
+                            emit_formatted(list, "nl_to_string_%s(", type_name);
+                            build_expr(list, expr->as.call.args[0], env);
+                            emit_literal(list, ")");
+                        } else {
+                            emit_literal(list, "\"<struct>\"");
+                        }
+                    } else if (arg_type == TYPE_ENUM) {
+                        emit_literal(list, "nl_to_string_int(");
+                        build_expr(list, expr->as.call.args[0], env);
+                        emit_literal(list, ")");
+                    } else {
+                        emit_literal(list, "\"<unknown>\"");
+                    }
+                    emit_literal(list, ")");
+                    break;
                 }
                 build_expr(list, expr->as.call.args[0], env);
                 emit_literal(list, ")");
+            }
+
+            /* Special handling for to_string/cast_string */
+            else if ((strcmp(func_name, "to_string") == 0 || strcmp(func_name, "cast_string") == 0) &&
+                     expr->as.call.arg_count == 1) {
+                ASTNode *arg = expr->as.call.args[0];
+                Type arg_type = check_expression(arg, env);
+
+                if (arg_type == TYPE_STRING) {
+                    emit_literal(list, "nl_to_string_string(");
+                    build_expr(list, arg, env);
+                    emit_literal(list, ")");
+                } else if (arg_type == TYPE_INT) {
+                    emit_literal(list, "nl_to_string_int(");
+                    build_expr(list, arg, env);
+                    emit_literal(list, ")");
+                } else if (arg_type == TYPE_FLOAT) {
+                    emit_literal(list, "nl_to_string_float(");
+                    build_expr(list, arg, env);
+                    emit_literal(list, ")");
+                } else if (arg_type == TYPE_BOOL) {
+                    emit_literal(list, "nl_to_string_bool(");
+                    build_expr(list, arg, env);
+                    emit_literal(list, ")");
+                } else if (arg_type == TYPE_ARRAY) {
+                    emit_literal(list, "nl_to_string_array(");
+                    build_expr(list, arg, env);
+                    emit_literal(list, ")");
+                } else if (arg_type == TYPE_STRUCT || arg_type == TYPE_UNION) {
+                    const char *type_name = get_struct_type_name(arg, env);
+                    if (type_name) {
+                        emit_formatted(list, "nl_to_string_%s(", type_name);
+                        build_expr(list, arg, env);
+                        emit_literal(list, ")");
+                    } else {
+                        emit_literal(list, "\"<struct>\"");
+                    }
+                } else if (arg_type == TYPE_ENUM) {
+                    /* Best-effort: print as int when enum name isn't known */
+                    emit_literal(list, "nl_to_string_int(");
+                    build_expr(list, arg, env);
+                    emit_literal(list, ")");
+                } else {
+                    emit_literal(list, "\"<unknown>\"");
+                }
             }
 
             /* Special handling for filter() - compiled lowering */

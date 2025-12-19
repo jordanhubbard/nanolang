@@ -1473,6 +1473,192 @@ static void generate_union_definitions(Environment *env, StringBuilder *sb) {
     }
 }
 
+static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
+    sb_append(sb, "/* ========== To-String Helpers ========== */\n\n");
+
+    /* Enums */
+    for (int i = 0; i < env->enum_count; i++) {
+        EnumDef *edef = &env->enums[i];
+        if (!edef || !edef->name) continue;
+        if (is_runtime_typedef(edef->name)) continue;
+
+        const char *prefixed_enum = get_prefixed_type_name(edef->name);
+        sb_appendf(sb, "static const char* nl_to_string_%s(%s v) {\n", edef->name, prefixed_enum);
+        sb_append(sb, "    switch (v) {\n");
+        for (int j = 0; j < edef->variant_count; j++) {
+            sb_appendf(sb, "        case nl_%s_%s: return \"%s.%s\";\n",
+                       edef->name, edef->variant_names[j], edef->name, edef->variant_names[j]);
+        }
+        sb_appendf(sb, "        default: return \"%s.<unknown>\";\n", edef->name);
+        sb_append(sb, "    }\n");
+        sb_append(sb, "}\n\n");
+    }
+
+    /* Structs */
+    for (int i = 0; i < env->struct_count; i++) {
+        StructDef *sdef = &env->structs[i];
+        if (!sdef || !sdef->name) continue;
+        if (is_runtime_typedef(sdef->name)) continue;
+
+        const char *prefixed_struct = get_prefixed_type_name(sdef->name);
+        sb_appendf(sb, "static const char* nl_to_string_%s(%s v) {\n", sdef->name, prefixed_struct);
+        sb_append(sb, "    nl_sb_t sb = nl_sb_new(256);\n");
+        sb_appendf(sb, "    nl_sb_append_cstr(&sb, \"%s { \");\n", sdef->name);
+
+        for (int j = 0; j < sdef->field_count; j++) {
+            if (j > 0) {
+                sb_append(sb, "    nl_sb_append_cstr(&sb, \", \");\n");
+            }
+
+            sb_appendf(sb, "    nl_sb_append_cstr(&sb, \"%s: \");\n", sdef->field_names[j]);
+
+            Type ft = sdef->field_types[j];
+            if (ft == TYPE_INT) {
+                sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_int(v.%s));\n", sdef->field_names[j]);
+            } else if (ft == TYPE_FLOAT) {
+                sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_float(v.%s));\n", sdef->field_names[j]);
+            } else if (ft == TYPE_BOOL) {
+                sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_bool(v.%s));\n", sdef->field_names[j]);
+            } else if (ft == TYPE_STRING) {
+                sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_string(v.%s));\n", sdef->field_names[j]);
+            } else if (ft == TYPE_ARRAY) {
+                sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_array(v.%s));\n", sdef->field_names[j]);
+            } else if (ft == TYPE_ENUM) {
+                if (sdef->field_type_names && sdef->field_type_names[j]) {
+                    sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_%s(v.%s));\n",
+                               sdef->field_type_names[j], sdef->field_names[j]);
+                } else {
+                    sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_int(v.%s));\n", sdef->field_names[j]);
+                }
+            } else if (ft == TYPE_STRUCT || ft == TYPE_UNION) {
+                if (sdef->field_type_names && sdef->field_type_names[j]) {
+                    sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_%s(v.%s));\n",
+                               sdef->field_type_names[j], sdef->field_names[j]);
+                } else {
+                    sb_append(sb, "    nl_sb_append_cstr(&sb, \"<struct>\");\n");
+                }
+            } else {
+                sb_append(sb, "    nl_sb_append_cstr(&sb, \"?\");\n");
+            }
+        }
+
+        sb_append(sb, "    nl_sb_append_cstr(&sb, \" }\");\n");
+        sb_append(sb, "    return nl_sb_build(&sb);\n");
+        sb_append(sb, "}\n\n");
+    }
+
+    /* Unions (non-generic) */
+    for (int i = 0; i < env->union_count; i++) {
+        UnionDef *udef = &env->unions[i];
+        if (!udef || !udef->name) continue;
+        if (udef->generic_param_count > 0) continue;
+        if (is_runtime_typedef(udef->name)) continue;
+
+        const char *prefixed_union = get_prefixed_type_name(udef->name);
+        sb_appendf(sb, "static const char* nl_to_string_%s(%s u) {\n", udef->name, prefixed_union);
+        sb_append(sb, "    nl_sb_t sb = nl_sb_new(256);\n");
+        sb_append(sb, "    switch (u.tag) {\n");
+
+        for (int j = 0; j < udef->variant_count; j++) {
+            sb_appendf(sb, "        case nl_%s_TAG_%s: {\n", udef->name, udef->variant_names[j]);
+            sb_appendf(sb, "            nl_sb_append_cstr(&sb, \"%s.%s\");\n", udef->name, udef->variant_names[j]);
+            if (udef->variant_field_counts[j] > 0) {
+                sb_append(sb, "            nl_sb_append_cstr(&sb, \" { \");\n");
+                for (int k = 0; k < udef->variant_field_counts[j]; k++) {
+                    if (k > 0) sb_append(sb, "            nl_sb_append_cstr(&sb, \", \");\n");
+                    sb_appendf(sb, "            nl_sb_append_cstr(&sb, \"%s: \");\n",
+                               udef->variant_field_names[j][k]);
+
+                    Type ft = udef->variant_field_types[j][k];
+                    if (ft == TYPE_INT) {
+                        sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_int(u.data.%s.%s));\n",
+                                   udef->variant_names[j], udef->variant_field_names[j][k]);
+                    } else if (ft == TYPE_FLOAT) {
+                        sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_float(u.data.%s.%s));\n",
+                                   udef->variant_names[j], udef->variant_field_names[j][k]);
+                    } else if (ft == TYPE_BOOL) {
+                        sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_bool(u.data.%s.%s));\n",
+                                   udef->variant_names[j], udef->variant_field_names[j][k]);
+                    } else if (ft == TYPE_STRING) {
+                        sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_string(u.data.%s.%s));\n",
+                                   udef->variant_names[j], udef->variant_field_names[j][k]);
+                    } else if (ft == TYPE_ARRAY) {
+                        sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_array(u.data.%s.%s));\n",
+                                   udef->variant_names[j], udef->variant_field_names[j][k]);
+                    } else if (ft == TYPE_ENUM) {
+                        if (udef->variant_field_type_names && udef->variant_field_type_names[j] &&
+                            udef->variant_field_type_names[j][k]) {
+                            sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_%s(u.data.%s.%s));\n",
+                                       udef->variant_field_type_names[j][k],
+                                       udef->variant_names[j],
+                                       udef->variant_field_names[j][k]);
+                        } else {
+                            sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_int(u.data.%s.%s));\n",
+                                       udef->variant_names[j],
+                                       udef->variant_field_names[j][k]);
+                        }
+                    } else if (ft == TYPE_STRUCT || ft == TYPE_UNION) {
+                        if (udef->variant_field_type_names && udef->variant_field_type_names[j] &&
+                            udef->variant_field_type_names[j][k]) {
+                            sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_%s(u.data.%s.%s));\n",
+                                       udef->variant_field_type_names[j][k],
+                                       udef->variant_names[j],
+                                       udef->variant_field_names[j][k]);
+                        } else {
+                            sb_append(sb, "            nl_sb_append_cstr(&sb, \"<struct>\");\n");
+                        }
+                    } else {
+                        sb_append(sb, "            nl_sb_append_cstr(&sb, \"?\");\n");
+                    }
+                }
+                sb_append(sb, "            nl_sb_append_cstr(&sb, \" }\");\n");
+            }
+            sb_append(sb, "            break;\n");
+            sb_append(sb, "        }\n");
+        }
+        sb_append(sb, "        default: nl_sb_append_cstr(&sb, \"<union>\");\n");
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    return nl_sb_build(&sb);\n");
+        sb_append(sb, "}\n\n");
+    }
+
+    /* Generic union instantiations (tag-only) */
+    if (env && env->generic_instances) {
+        for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
+            GenericInstantiation *inst = &env->generic_instances[i];
+            if (!inst || !inst->generic_name || !inst->type_arg_names) continue;
+
+            UnionDef *udef = env_get_union(env, inst->generic_name);
+            if (!udef || udef->generic_param_count == 0) continue;
+            if (inst->type_arg_count != udef->generic_param_count) continue;
+
+            char monomorphized_name[256];
+            if (!build_monomorphized_name(monomorphized_name, sizeof(monomorphized_name),
+                                          inst->generic_name,
+                                          (const char **)inst->type_arg_names,
+                                          inst->type_arg_count)) {
+                continue;
+            }
+
+            const char *prefixed_union = get_prefixed_type_name(monomorphized_name);
+            sb_appendf(sb, "static const char* nl_to_string_%s(%s u) {\n", monomorphized_name, prefixed_union);
+            sb_append(sb, "    switch (u.tag) {\n");
+            for (int j = 0; j < udef->variant_count; j++) {
+                sb_appendf(sb, "        case nl_%s_TAG_%s: return \"%s.%s\";\n",
+                           monomorphized_name,
+                           udef->variant_names[j],
+                           inst->generic_name,
+                           udef->variant_names[j]);
+            }
+            sb_appendf(sb, "        default: return \"%s.<unknown>\";\n", inst->generic_name);
+            sb_append(sb, "    }\n");
+            sb_append(sb, "}\n\n");
+        }
+    }
+
+    sb_append(sb, "/* ========== End To-String Helpers ========== */\n\n");
+}
+
 /* Generate forward declarations for module functions */
 static void generate_module_function_declarations(StringBuilder *sb, Environment *env, 
                                                    bool *program_functions) {
@@ -2328,6 +2514,9 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     /* Generate union definitions */
     generate_union_definitions(env, sb);
+
+    /* Generate to_string helpers for user-defined types */
+    generate_to_string_helpers(env, sb);
 
     /* ========== Function Type Typedefs ========== */
     /* Collect all function signatures and tuple types used in the program */

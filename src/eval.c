@@ -577,24 +577,216 @@ static Value builtin_cast_bool(Value *args) {
     }
 }
 
-static Value builtin_cast_string(Value *args) {
-    Value arg = args[0];
-    char buffer[128];
-    
-    if (arg.type == VAL_STRING) {
-        return arg;  /* Already a string */
-    } else if (arg.type == VAL_INT) {
-        snprintf(buffer, sizeof(buffer), "%lld", (long long)arg.as.int_val);
-        return create_string(buffer);
-    } else if (arg.type == VAL_FLOAT) {
-        snprintf(buffer, sizeof(buffer), "%g", arg.as.float_val);
-        return create_string(buffer);
-    } else if (arg.type == VAL_BOOL) {
-        return create_string(arg.as.bool_val ? "true" : "false");
-    } else {
-        fprintf(stderr, "Error: cast_string cannot convert type to string\n");
-        return create_void();
+typedef struct {
+    char *buf;
+    size_t len;
+    size_t cap;
+} EvalSB;
+
+static void eval_sb_ensure(EvalSB *sb, size_t extra) {
+    if (!sb) return;
+    size_t needed = sb->len + extra + 1;
+    if (needed <= sb->cap) return;
+    size_t new_cap = sb->cap ? sb->cap : 128;
+    while (new_cap < needed) new_cap *= 2;
+    char *new_buf = realloc(sb->buf, new_cap);
+    if (!new_buf) return;
+    sb->buf = new_buf;
+    sb->cap = new_cap;
+}
+
+static EvalSB eval_sb_new(size_t initial_cap) {
+    EvalSB sb = {0};
+    sb.cap = initial_cap ? initial_cap : 128;
+    sb.buf = malloc(sb.cap);
+    sb.len = 0;
+    if (sb.buf) sb.buf[0] = '\0';
+    return sb;
+}
+
+static void eval_sb_append_cstr(EvalSB *sb, const char *s) {
+    if (!sb || !s) return;
+    size_t n = strlen(s);
+    eval_sb_ensure(sb, n);
+    if (!sb->buf) return;
+    memcpy(sb->buf + sb->len, s, n);
+    sb->len += n;
+    sb->buf[sb->len] = '\0';
+}
+
+static void eval_sb_append_char(EvalSB *sb, char c) {
+    if (!sb) return;
+    eval_sb_ensure(sb, 1);
+    if (!sb->buf) return;
+    sb->buf[sb->len++] = c;
+    sb->buf[sb->len] = '\0';
+}
+
+static void eval_sb_append_value(EvalSB *sb, Value val);
+
+static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr) {
+    eval_sb_append_char(sb, '[');
+    int64_t len = dyn_array_length(arr);
+    ElementType elem_type = dyn_array_get_elem_type(arr);
+    for (int64_t i = 0; i < len; i++) {
+        if (i > 0) eval_sb_append_cstr(sb, ", ");
+        switch (elem_type) {
+            case ELEM_INT: {
+                char tmp[64];
+                snprintf(tmp, sizeof(tmp), "%lld", (long long)dyn_array_get_int(arr, i));
+                eval_sb_append_cstr(sb, tmp);
+                break;
+            }
+            case ELEM_FLOAT: {
+                char tmp[64];
+                snprintf(tmp, sizeof(tmp), "%g", dyn_array_get_float(arr, i));
+                eval_sb_append_cstr(sb, tmp);
+                break;
+            }
+            case ELEM_BOOL:
+                eval_sb_append_cstr(sb, dyn_array_get_bool(arr, i) ? "true" : "false");
+                break;
+            case ELEM_STRING:
+                eval_sb_append_char(sb, '"');
+                eval_sb_append_cstr(sb, dyn_array_get_string(arr, i));
+                eval_sb_append_char(sb, '"');
+                break;
+            case ELEM_ARRAY:
+                eval_sb_append_dyn_array(sb, dyn_array_get_array(arr, i));
+                break;
+            default:
+                eval_sb_append_cstr(sb, "?");
+                break;
+        }
     }
+    eval_sb_append_char(sb, ']');
+}
+
+static void eval_sb_append_value(EvalSB *sb, Value val) {
+    switch (val.type) {
+        case VAL_INT: {
+            char tmp[64];
+            snprintf(tmp, sizeof(tmp), "%lld", (long long)val.as.int_val);
+            eval_sb_append_cstr(sb, tmp);
+            break;
+        }
+        case VAL_FLOAT: {
+            char tmp[64];
+            snprintf(tmp, sizeof(tmp), "%g", val.as.float_val);
+            eval_sb_append_cstr(sb, tmp);
+            break;
+        }
+        case VAL_BOOL:
+            eval_sb_append_cstr(sb, val.as.bool_val ? "true" : "false");
+            break;
+        case VAL_STRING:
+            eval_sb_append_cstr(sb, val.as.string_val ? val.as.string_val : "");
+            break;
+        case VAL_ARRAY: {
+            Array *arr = val.as.array_val;
+            eval_sb_append_char(sb, '[');
+            for (int i = 0; i < arr->length; i++) {
+                if (i > 0) eval_sb_append_cstr(sb, ", ");
+                switch (arr->element_type) {
+                    case VAL_INT: {
+                        char tmp[64];
+                        snprintf(tmp, sizeof(tmp), "%lld", (long long)((long long*)arr->data)[i]);
+                        eval_sb_append_cstr(sb, tmp);
+                        break;
+                    }
+                    case VAL_FLOAT: {
+                        char tmp[64];
+                        snprintf(tmp, sizeof(tmp), "%g", ((double*)arr->data)[i]);
+                        eval_sb_append_cstr(sb, tmp);
+                        break;
+                    }
+                    case VAL_BOOL:
+                        eval_sb_append_cstr(sb, ((bool*)arr->data)[i] ? "true" : "false");
+                        break;
+                    case VAL_STRING:
+                        eval_sb_append_char(sb, '"');
+                        eval_sb_append_cstr(sb, ((char**)arr->data)[i]);
+                        eval_sb_append_char(sb, '"');
+                        break;
+                    default:
+                        eval_sb_append_cstr(sb, "?");
+                        break;
+                }
+            }
+            eval_sb_append_char(sb, ']');
+            break;
+        }
+        case VAL_DYN_ARRAY: {
+            DynArray *arr = val.as.dyn_array_val;
+            eval_sb_append_dyn_array(sb, arr);
+            break;
+        }
+        case VAL_STRUCT: {
+            StructValue *sv = val.as.struct_val;
+            eval_sb_append_cstr(sb, sv->struct_name);
+            eval_sb_append_cstr(sb, " { ");
+            for (int i = 0; i < sv->field_count; i++) {
+                if (i > 0) eval_sb_append_cstr(sb, ", ");
+                eval_sb_append_cstr(sb, sv->field_names[i]);
+                eval_sb_append_cstr(sb, ": ");
+                eval_sb_append_value(sb, sv->field_values[i]);
+            }
+            eval_sb_append_cstr(sb, " }");
+            break;
+        }
+        case VAL_UNION: {
+            UnionValue *uv = val.as.union_val;
+            eval_sb_append_cstr(sb, uv->union_name);
+            eval_sb_append_char(sb, '.');
+            eval_sb_append_cstr(sb, uv->variant_name);
+            if (uv->field_count > 0) {
+                eval_sb_append_cstr(sb, " { ");
+                for (int i = 0; i < uv->field_count; i++) {
+                    if (i > 0) eval_sb_append_cstr(sb, ", ");
+                    eval_sb_append_cstr(sb, uv->field_names[i]);
+                    eval_sb_append_cstr(sb, ": ");
+                    eval_sb_append_value(sb, uv->field_values[i]);
+                }
+                eval_sb_append_cstr(sb, " }");
+            }
+            break;
+        }
+        case VAL_TUPLE: {
+            TupleValue *tv = val.as.tuple_val;
+            eval_sb_append_char(sb, '(');
+            for (int i = 0; i < tv->element_count; i++) {
+                if (i > 0) eval_sb_append_cstr(sb, ", ");
+                eval_sb_append_value(sb, tv->elements[i]);
+            }
+            eval_sb_append_char(sb, ')');
+            break;
+        }
+        case VAL_FUNCTION:
+            eval_sb_append_cstr(sb, "<function>");
+            break;
+        case VAL_GC_STRUCT:
+            eval_sb_append_cstr(sb, "<gc_struct>");
+            break;
+        case VAL_VOID:
+            eval_sb_append_cstr(sb, "void");
+            break;
+    }
+}
+
+static Value builtin_to_string(Value *args) {
+    Value arg = args[0];
+    if (arg.type == VAL_STRING) return arg;
+
+    EvalSB sb = eval_sb_new(256);
+    eval_sb_append_value(&sb, arg);
+    const char *out = sb.buf ? sb.buf : "";
+    Value v = create_string(out);
+    free(sb.buf);
+    return v;
+}
+
+static Value builtin_cast_string(Value *args) {
+    return builtin_to_string(args);
 }
 
 static Value builtin_print(Value *args) {
@@ -1909,6 +2101,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "cast_float") == 0) return builtin_cast_float(args);
     if (strcmp(name, "cast_bool") == 0) return builtin_cast_bool(args);
     if (strcmp(name, "cast_string") == 0) return builtin_cast_string(args);
+    if (strcmp(name, "to_string") == 0) return builtin_to_string(args);
     
     /* String operations */
     if (strcmp(name, "str_length") == 0) return builtin_str_length(args);
