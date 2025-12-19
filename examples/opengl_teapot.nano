@@ -18,6 +18,7 @@
 
 import "modules/glfw/glfw.nano"
 import "modules/glew/glew.nano"
+import "modules/opengl/opengl.nano"
 import "modules/glut/glut.nano"
 
 # Window dimensions

@@ -7,9 +7,9 @@
 
 import "modules/glfw/glfw.nano"
 import "modules/glew/glew.nano"
+import "modules/opengl/opengl.nano"
 
-# Note: All OpenGL and GLFW constants are now automatically loaded from C headers
-# No manual declarations needed!
+# Note: OpenGL/GLFW constants are provided by the modules.
 
 # Window dimensions
 let WINDOW_WIDTH: int = 800

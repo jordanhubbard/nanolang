@@ -12,30 +12,88 @@
 #
 # IMPORTANT: Call glewInit() AFTER creating OpenGL context with GLFW!
 
+# === Common Constants ===
+
+# GLEW status codes
+let GLEW_OK: int = 0
+
+# OpenGL error codes
+let GL_NO_ERROR: int = 0
+
+# Capability constants
+let GL_DEPTH_TEST: int = 2929
+let GL_LIGHTING: int = 2896
+let GL_LIGHT0: int = 16384
+let GL_COLOR_MATERIAL: int = 2903
+let GL_BLEND: int = 3042
+let GL_CULL_FACE: int = 2884
+let GL_NORMALIZE: int = 2977
+
+# Matrix modes
+let GL_MODELVIEW: int = 5888
+let GL_PROJECTION: int = 5889
+
+# Clear bits
+let GL_COLOR_BUFFER_BIT: int = 16384
+let GL_DEPTH_BUFFER_BIT: int = 256
+
+# Drawing modes
+let GL_POINTS: int = 0
+let GL_LINES: int = 1
+let GL_LINE_LOOP: int = 2
+let GL_LINE_STRIP: int = 3
+let GL_TRIANGLES: int = 4
+let GL_TRIANGLE_STRIP: int = 5
+let GL_TRIANGLE_FAN: int = 6
+let GL_QUADS: int = 7
+let GL_QUAD_STRIP: int = 8
+let GL_POLYGON: int = 9
+
+# Polygon mode
+let GL_LINE: int = 6913
+let GL_FILL: int = 6914
+
+# Lighting / material
+let GL_POSITION: int = 4611
+let GL_AMBIENT: int = 4608
+let GL_DIFFUSE: int = 4609
+let GL_SPECULAR: int = 4610
+let GL_FRONT: int = 1028
+let GL_BACK: int = 1029
+let GL_FRONT_AND_BACK: int = 1032
+let GL_AMBIENT_AND_DIFFUSE: int = 5634
+let GL_SHININESS: int = 5633
+
+# Shading
+let GL_SMOOTH: int = 7425
+let GL_FLAT: int = 7424
+
+# Blending
+let GL_SRC_ALPHA: int = 770
+let GL_ONE_MINUS_SRC_ALPHA: int = 771
+
+# Depth
+let GL_LESS: int = 513
+
+# Attribute stack
+let GL_ENABLE_BIT: int = 8192
+
 # === Initialization ===
 
-# Initialize GLEW - must be called after creating OpenGL context
-# Returns GLEW_OK (0) on success, error code otherwise
 extern fn glewInit() -> int
 
 # === Extension Queries ===
 
-# Check if an OpenGL extension is supported
-# Returns 1 if supported, 0 otherwise
 extern fn glewIsSupported(extension: string) -> int
 
-# Get GLEW version string
 extern fn glewGetString(name: int) -> string
 
-# Get OpenGL error string from error code
 extern fn glewGetErrorString(error: int) -> string
 
 # === OpenGL Error Checking ===
 
-# Get current OpenGL error code (GL_NO_ERROR if no error)
 extern fn glGetError() -> int
 
-# Get OpenGL string info
 extern fn glGetString(name: int) -> string
 
 # === Constants ===
@@ -62,7 +120,7 @@ extern fn glGetString(name: int) -> string
 # (Available after glewInit())
 
 extern fn glClear(mask: int) -> void
-extern fn glClearColor(r: float, g: float, b: float, a: float) -> void
+extern fn nlg_glClearColor(r: float, g: float, b: float, a: float) -> void
 extern fn glViewport(x: int, y: int, width: int, height: int) -> void
 extern fn glFlush() -> void
 extern fn glFinish() -> void
@@ -70,19 +128,19 @@ extern fn glFinish() -> void
 # OpenGL drawing
 extern fn glBegin(mode: int) -> void
 extern fn glEnd() -> void
-extern fn glVertex2f(x: float, y: float) -> void
-extern fn glVertex3f(x: float, y: float, z: float) -> void
-extern fn glColor3f(r: float, g: float, b: float) -> void
-extern fn glColor4f(r: float, g: float, b: float, a: float) -> void
+extern fn nlg_glVertex2f(x: float, y: float) -> void
+extern fn nlg_glVertex3f(x: float, y: float, z: float) -> void
+extern fn nlg_glColor3f(r: float, g: float, b: float) -> void
+extern fn nlg_glColor4f(r: float, g: float, b: float, a: float) -> void
 
 # Matrix operations
 extern fn glMatrixMode(mode: int) -> void
 extern fn glLoadIdentity() -> void
 extern fn glOrtho(left: float, right: float, bottom: float, top: float, near: float, far: float) -> void
 extern fn glFrustum(left: float, right: float, bottom: float, top: float, near: float, far: float) -> void
-extern fn glTranslatef(x: float, y: float, z: float) -> void
-extern fn glRotatef(angle: float, x: float, y: float, z: float) -> void
-extern fn glScalef(x: float, y: float, z: float) -> void
+extern fn nlg_glTranslatef(x: float, y: float, z: float) -> void
+extern fn nlg_glRotatef(angle: float, x: float, y: float, z: float) -> void
+extern fn nlg_glScalef(x: float, y: float, z: float) -> void
 
 # Rendering modes
 extern fn glShadeModel(mode: int) -> void
@@ -104,19 +162,19 @@ extern fn glPopMatrix() -> void
 
 # Polygon rendering
 extern fn glPolygonMode(face: int, mode: int) -> void
-extern fn glLineWidth(width: float) -> void
-extern fn glPointSize(size: float) -> void
+extern fn nlg_glLineWidth(width: float) -> void
+extern fn nlg_glPointSize(size: float) -> void
 
 # Blending
 extern fn glBlendFunc(sfactor: int, dfactor: int) -> void
 
 # Normal vectors for lighting
-extern fn glNormal3f(nx: float, ny: float, nz: float) -> void
+extern fn nlg_glNormal3f(nx: float, ny: float, nz: float) -> void
 
 # Lighting functions (custom wrappers in glew.c)
 extern fn nl_glLightfv4(light: int, pname: int, x: float, y: float, z: float, w: float) -> void
 extern fn nl_glMaterialfv4(face: int, pname: int, x: float, y: float, z: float, w: float) -> void
-extern fn glMaterialf(face: int, pname: int, param: float) -> void
+extern fn nlg_glMaterialf(face: int, pname: int, param: float) -> void
 
 # Depth testing
 extern fn glDepthFunc(func: int) -> void
@@ -125,7 +183,7 @@ extern fn glDepthFunc(func: int) -> void
 extern fn glCullFace(mode: int) -> void
 
 # Text rendering (raster position)
-extern fn glRasterPos2f(x: float, y: float) -> void
+extern fn nlg_glRasterPos2f(x: float, y: float) -> void
 
 # === OpenGL Constants ===
 # Define in your program:

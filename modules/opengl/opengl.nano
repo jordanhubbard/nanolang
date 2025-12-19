@@ -1,0 +1,60 @@
+# OpenGL convenience wrappers for nanolang
+#
+# nanolang's FFI uses `double` for `float`. Many classic OpenGL functions
+# take `float` (GLfloat) parameters; calling them directly via extern can
+# break ABI. The glew C module provides `nlg_*` wrappers that cast to the
+# correct OpenGL types.
+
+import "modules/glew/glew.nano" as GL
+
+pub fn glClearColor(r: float, g: float, b: float, a: float) -> void {
+    (GL.nlg_glClearColor r g b a)
+}
+
+pub fn glVertex2f(x: float, y: float) -> void {
+    (GL.nlg_glVertex2f x y)
+}
+
+pub fn glVertex3f(x: float, y: float, z: float) -> void {
+    (GL.nlg_glVertex3f x y z)
+}
+
+pub fn glColor3f(r: float, g: float, b: float) -> void {
+    (GL.nlg_glColor3f r g b)
+}
+
+pub fn glColor4f(r: float, g: float, b: float, a: float) -> void {
+    (GL.nlg_glColor4f r g b a)
+}
+
+pub fn glTranslatef(x: float, y: float, z: float) -> void {
+    (GL.nlg_glTranslatef x y z)
+}
+
+pub fn glRotatef(angle: float, x: float, y: float, z: float) -> void {
+    (GL.nlg_glRotatef angle x y z)
+}
+
+pub fn glScalef(x: float, y: float, z: float) -> void {
+    (GL.nlg_glScalef x y z)
+}
+
+pub fn glLineWidth(width: float) -> void {
+    (GL.nlg_glLineWidth width)
+}
+
+pub fn glPointSize(size: float) -> void {
+    (GL.nlg_glPointSize size)
+}
+
+pub fn glNormal3f(nx: float, ny: float, nz: float) -> void {
+    (GL.nlg_glNormal3f nx ny nz)
+}
+
+pub fn glRasterPos2f(x: float, y: float) -> void {
+    (GL.nlg_glRasterPos2f x y)
+}
+
+pub fn glMaterialf(face: int, pname: int, param: float) -> void {
+    (GL.nlg_glMaterialf face pname param)
+}

@@ -2,7 +2,7 @@
   "name": "glfw",
   "version": "1.0.0",
   "description": "GLFW - Modern OpenGL window and input library for creating windows with OpenGL contexts",
-  "headers": ["GLFW/glfw3.h"],
+  "headers": [],
   "pkg_config": ["glfw3"],
   "apt_packages": ["libglfw3-dev"],
   "dnf_packages": ["glfw-devel"],

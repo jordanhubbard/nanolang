@@ -873,8 +873,25 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     /* Extract module metadata - TODO: Fix bus error in extract_module_metadata */
     ModuleMetadata *meta = NULL;  // extract_module_metadata(env, module_name);
     
-    /* Transpile module to C using the shared environment */
+    /*
+     * Transpile module to C.
+     *
+     * IMPORTANT: We reuse the shared Environment to avoid module reload/AST corruption,
+     * but that environment may contain a program-level `main` from the top-level compile.
+     * When generating a module object, we must NOT emit a C main() wrapper.
+     */
+    Function *saved_main = env_get_function(env, "main");
+    bool saved_main_is_extern = false;
+    if (saved_main) {
+        saved_main_is_extern = saved_main->is_extern;
+        saved_main->is_extern = true;
+    }
+
     char *c_code = transpile_to_c(module_ast, env);
+
+    if (saved_main) {
+        saved_main->is_extern = saved_main_is_extern;
+    }
     if (!c_code) {
         fprintf(stderr, "Error: Failed to transpile module '%s'\n", module_path);
         if (meta) free_module_metadata(meta);

@@ -2,7 +2,7 @@
   "name": "glut",
   "version": "1.0.0",
   "description": "OpenGL Utility Toolkit - 3D shapes, text rendering, and the famous Utah Teapot",
-  "headers": ["glut_platform.h"],
+  "headers": [],
   "cflags": ["-Imodules/glut"],
   "ldflags": ["-framework GLUT", "-Wno-deprecated-declarations"],
   "c_sources": [],

@@ -84,30 +84,36 @@ extern fn glfwGetTime() -> float
 extern fn glfwSetTime(time: float) -> void
 
 # === Constants (commonly used) ===
-# Note: These would be defined as let constants in nanolang code:
-#
-# Window hints:
-# let GLFW_CONTEXT_VERSION_MAJOR: int = 0x00022002
-# let GLFW_CONTEXT_VERSION_MINOR: int = 0x00022003
-# let GLFW_OPENGL_PROFILE: int = 0x00022008
-# let GLFW_OPENGL_CORE_PROFILE: int = 0x00032001
-# let GLFW_RESIZABLE: int = 0x00020003
-#
-# Input constants:
-# let GLFW_PRESS: int = 1
-# let GLFW_RELEASE: int = 0
-# let GLFW_REPEAT: int = 2
-#
-# Keys:
-# let GLFW_KEY_ESCAPE: int = 256
-# let GLFW_KEY_SPACE: int = 32
-# let GLFW_KEY_W: int = 87
-# let GLFW_KEY_A: int = 65
-# let GLFW_KEY_S: int = 83
-# let GLFW_KEY_D: int = 68
-#
-# Mouse buttons:
-# let GLFW_MOUSE_BUTTON_LEFT: int = 0
-# let GLFW_MOUSE_BUTTON_RIGHT: int = 1
-# let GLFW_MOUSE_BUTTON_MIDDLE: int = 2
+# (Defined here so examples compile even when system headers aren't present at typecheck time)
+
+# Input actions
+let GLFW_PRESS: int = 1
+let GLFW_RELEASE: int = 0
+let GLFW_REPEAT: int = 2
+
+# Keys (GLFW key codes)
+let GLFW_KEY_SPACE: int = 32
+let GLFW_KEY_MINUS: int = 45
+let GLFW_KEY_EQUAL: int = 61
+let GLFW_KEY_1: int = 49
+let GLFW_KEY_2: int = 50
+let GLFW_KEY_3: int = 51
+let GLFW_KEY_4: int = 52
+let GLFW_KEY_5: int = 53
+let GLFW_KEY_6: int = 54
+let GLFW_KEY_R: int = 82
+
+let GLFW_KEY_ESCAPE: int = 256
+let GLFW_KEY_LEFT: int = 263
+let GLFW_KEY_RIGHT: int = 262
+let GLFW_KEY_DOWN: int = 264
+let GLFW_KEY_UP: int = 265
+
+let GLFW_KEY_KP_SUBTRACT: int = 333
+let GLFW_KEY_KP_ADD: int = 334
+
+# Mouse buttons
+let GLFW_MOUSE_BUTTON_LEFT: int = 0
+let GLFW_MOUSE_BUTTON_RIGHT: int = 1
+let GLFW_MOUSE_BUTTON_MIDDLE: int = 2
 
