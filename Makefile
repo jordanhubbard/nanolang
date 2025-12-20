@@ -57,6 +57,13 @@ NANOC_SOURCE = $(SRC_NANO_DIR)/nanoc_v05.nano
 NANOC_STAGE1 = $(BIN_DIR)/nanoc_stage1
 NANOC_STAGE2 = $(BIN_DIR)/nanoc_stage2
 
+# When enabled, make bootstrap stage artifacts deterministic (Mach-O LC_UUID + signature)
+BOOTSTRAP_DETERMINISTIC ?= 0
+BOOTSTRAP_ENV :=
+ifeq ($(BOOTSTRAP_DETERMINISTIC),1)
+BOOTSTRAP_ENV := NANO_DETERMINISTIC=1
+endif
+
 # Source files
 COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/eval.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/interpreter_ffi.c
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
@@ -519,7 +526,7 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 	@echo "=========================================="
 	@echo "Compiling nanoc_v05.nano with C compiler..."
 	@if [ -f $(NANOC_SOURCE) ]; then \
-		$(COMPILER_C) $(NANOC_SOURCE) -o $(NANOC_STAGE1) && \
+		$(BOOTSTRAP_ENV) $(COMPILER_C) $(NANOC_SOURCE) -o $(NANOC_STAGE1) && \
 		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
 		echo "" && \
 		echo "Testing stage 1 compiler..." && \
@@ -544,7 +551,7 @@ $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
 	@echo "Bootstrap Stage 2: Recompilation"
 	@echo "=========================================="
 	@echo "Compiling nanoc_v05.nano with stage 1 compiler..."
-	@$(NANOC_STAGE1) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
+	@$(BOOTSTRAP_ENV) $(NANOC_STAGE1) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
 	@echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)"
 	@echo ""
 	@echo "Testing stage 2 compiler..."
@@ -595,6 +602,10 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 		echo "by itself. This is TRUE SELF-HOSTING!"; \
 		echo ""; \
 	else \
+		if [ "$(BOOTSTRAP_DETERMINISTIC)" = "1" ]; then \
+			echo "❌ BOOTSTRAP FAILED: Expected identical binaries (BOOTSTRAP_DETERMINISTIC=1)"; \
+			exit 1; \
+		fi; \
 		echo "⚠️  Bootstrap verification: Binaries differ"; \
 		echo ""; \
 		echo "Stage 1 size: $$(stat -f%z $(NANOC_STAGE1) 2>/dev/null || stat -c%s $(NANOC_STAGE1))"; \

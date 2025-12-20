@@ -1,6 +1,12 @@
 #include "nanolang.h"
 #include "version.h"
 
+#ifdef __APPLE__
+#include <mach-o/loader.h>
+#include <fcntl.h>
+#include <unistd.h>
+#endif
+
 /* Global argc/argv for runtime access by transpiled programs */
 int g_argc = 0;
 char **g_argv = NULL;
@@ -17,6 +23,67 @@ typedef struct {
     char **libraries;         /* -l flags */
     int library_count;
 } CompilerOptions;
+
+static bool deterministic_outputs_enabled(void) {
+    const char *v = getenv("NANO_DETERMINISTIC");
+    return v && (strcmp(v, "1") == 0 || strcmp(v, "true") == 0 || strcmp(v, "yes") == 0);
+}
+
+#ifdef __APPLE__
+static int determinize_macho_uuid_and_signature(const char *path) {
+    /* On modern macOS, Mach-O binaries are ad-hoc signed and include a randomized LC_UUID.
+     * For deterministic bootstrap verification we:
+     *  1) overwrite the LC_UUID bytes with a fixed value
+     *  2) re-sign with a fixed identifier so the LC_CODE_SIGNATURE blob is deterministic
+     */
+    int fd = open(path, O_RDWR);
+    if (fd < 0) return -1;
+
+    struct mach_header_64 hdr;
+    ssize_t n = pread(fd, &hdr, sizeof(hdr), 0);
+    if (n != (ssize_t)sizeof(hdr) || hdr.magic != MH_MAGIC_64) {
+        close(fd);
+        return -1;
+    }
+
+    off_t off = (off_t)sizeof(hdr);
+    for (uint32_t i = 0; i < hdr.ncmds; i++) {
+        struct load_command lc;
+        if (pread(fd, &lc, sizeof(lc), off) != (ssize_t)sizeof(lc) || lc.cmdsize < sizeof(lc)) {
+            close(fd);
+            return -1;
+        }
+
+        if (lc.cmd == LC_UUID) {
+            struct uuid_command uc;
+            if (lc.cmdsize < sizeof(uc) || pread(fd, &uc, sizeof(uc), off) != (ssize_t)sizeof(uc)) {
+                close(fd);
+                return -1;
+            }
+
+            static const uint8_t fixed_uuid[16] = {
+                0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF,
+                0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10
+            };
+            memcpy(uc.uuid, fixed_uuid, sizeof(fixed_uuid));
+
+            if (pwrite(fd, &uc, sizeof(uc), off) != (ssize_t)sizeof(uc)) {
+                close(fd);
+                return -1;
+            }
+            break;
+        }
+
+        off += (off_t)lc.cmdsize;
+    }
+
+    close(fd);
+
+    char cmd[1024];
+    snprintf(cmd, sizeof(cmd), "codesign -s - --force -i nanolang.deterministic '%s' >/dev/null 2>&1", path);
+    return system(cmd);
+}
+#endif
 
 /* Compile nanolang source to executable */
 static int compile_file(const char *input_file, const char *output_file, CompilerOptions *opts) {
@@ -376,6 +443,11 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     int result = system(compile_cmd);
 
     if (result == 0) {
+        if (deterministic_outputs_enabled()) {
+#ifdef __APPLE__
+            (void)determinize_macho_uuid_and_signature(output_file);
+#endif
+        }
         if (opts->verbose) printf("✓ Compilation successful: %s\n", output_file);
     } else {
         fprintf(stderr, "C compilation failed\n");
