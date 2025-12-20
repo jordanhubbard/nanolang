@@ -39,31 +39,34 @@ NL_EXAMPLES = \
 	$(BIN_DIR)/nl_floats \
 	$(BIN_DIR)/nl_types \
 	$(BIN_DIR)/nl_mutable \
+	$(BIN_DIR)/nl_union_types \
 	$(BIN_DIR)/nl_extern_char \
 	$(BIN_DIR)/nl_extern_math \
 	$(BIN_DIR)/nl_extern_string \
 	$(BIN_DIR)/nl_advanced_math \
+	$(BIN_DIR)/nl_string_operations \
+	$(BIN_DIR)/nl_matrix_operations \
 	$(BIN_DIR)/nl_filter_map_fold \
 	$(BIN_DIR)/nl_first_class_functions \
+	$(BIN_DIR)/nl_function_variables \
 	$(BIN_DIR)/nl_function_return_values \
 	$(BIN_DIR)/nl_function_factories_v2 \
 	$(BIN_DIR)/nl_array_bounds \
 	$(BIN_DIR)/nl_array_complete \
+	$(BIN_DIR)/nl_tracing \
 	$(BIN_DIR)/nl_falling_sand \
+	$(BIN_DIR)/nl_tictactoe \
 	$(BIN_DIR)/nl_game_of_life \
 	$(BIN_DIR)/nl_snake
 
 # Temporarily disabled due to module import context bug (nanolang-6h9):
 # - nl_demo_selfhosting (imports math_helper with 'as' alias)
 
-# Note: 27 of 48 nl_* examples compile successfully!
-# The remaining 21 require the interpreter due to:
-# - Dynamic arrays: array_new(), array_push() not in transpiler
-# - Generic types: typedef conflicts and scope issues  
-# - Complex runtime features still in development
-#
-# This is a massive improvement from earlier versions where only 3 compiled.
-# Recent fixes: print statement bug (nl_ prefix) + NULL function pointer handling!
+# Derive interpreter-only list from current source set vs known-to-compile list.
+NL_ALL_SOURCES := $(wildcard nl_*.nano)
+NL_ALL_NAMES := $(sort $(basename $(NL_ALL_SOURCES)))
+NL_COMPILED_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NL_EXAMPLES)))
+NL_INTERPRETER_ONLY_NAMES := $(sort $(filter-out $(NL_COMPILED_NAMES),$(NL_ALL_NAMES)))
 
 # === SDL Examples (sdl_*) ===
 # Require SDL2 library
@@ -123,21 +126,8 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo ""
 	@echo "All examples built successfully!"
 	@echo ""
-	@echo "Nanolang-only examples (nl_*) - 27 COMPILED EXAMPLES!"
-	@echo "  Basic:"
-	@echo "    ./bin/nl_hello, nl_calculator, nl_factorial, nl_fibonacci, nl_primes"
-	@echo "  Language Features:"
-	@echo "    ./bin/nl_enum, nl_struct, nl_types, nl_comparisons, nl_logical"
-	@echo "    ./bin/nl_operators, nl_floats, nl_mutable"
-	@echo "  Arrays:"
-	@echo "    ./bin/nl_array_bounds, nl_array_complete"
-	@echo "  External Functions:"
-	@echo "    ./bin/nl_extern_char, nl_extern_math, nl_extern_string, nl_advanced_math"
-	@echo "  Advanced:"
-	@echo "    ./bin/nl_filter_map_fold, nl_first_class_functions, nl_function_return_values"
-	@echo "    ./bin/nl_function_factories_v2, nl_demo_selfhosting"
-	@echo "  Games/Simulations:"
-	@echo "    ./bin/nl_snake, nl_game_of_life, nl_falling_sand"
+	@echo "Nanolang-only examples (nl_*) - $(words $(NL_COMPILED_NAMES)) compiled:"
+	@$(if $(strip $(NL_COMPILED_NAMES)),$(foreach ex,$(NL_COMPILED_NAMES),echo "  ./bin/$(ex)";),:)
 	@echo ""
 	@echo "SDL examples (sdl_*):"
 	@echo "  ./bin/sdl_pong              - Table tennis (1972)"
@@ -168,21 +158,12 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  ./bin/opengl_teapot         - Utah teapot with multiple shaders"
 	@echo ""
 	@echo "Interpreter-only examples (run with: ./bin/nano examples/<file>):"
-	@echo "  Examples requiring interpreter (21 total):"
-	@echo "    - Arrays: (None - all array examples now compile!)"
-	@echo "    - Generics: nl_generic_* (8 examples - list, stack, queue, demo, etc.)"
-	@echo "    - Functions: nl_function_variables (interpreter double-free)"
-	@echo "    - Math/Strings: nl_matrix_operations, nl_string_operations, nl_math_utils, etc."
-	@echo "    - Games: nl_tictactoe, nl_tictactoe_simple, nl_maze, nl_boids"
-	@echo "    - Other: nl_tracing, nl_union_types, nl_os_basic, and more"
-	@echo ""
-	@echo "  Reason: These use features not yet in transpiler:"
-	@echo "    - Generic types (typedef conflicts)"
-	@echo "    - Complex runtime features"
-	@echo "    - First-class function edge cases"
+	@echo "  $(words $(NL_INTERPRETER_ONLY_NAMES)) nl_* file(s) not built by default:"
+	@$(if $(strip $(NL_INTERPRETER_ONLY_NAMES)),$(foreach ex,$(NL_INTERPRETER_ONLY_NAMES),echo "    - $(ex).nano";),:)
 	@echo ""
 	@echo "To launch the example browser:"
-	@echo "  cd examples && make"
+	@echo "  cd examples && make launcher"
+	@echo "  # or from repo root: make examples-launcher"
 	@echo ""
 
 # Example launcher (SDL app-store style)
