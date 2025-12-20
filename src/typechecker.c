@@ -2071,6 +2071,90 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             
             return TYPE_VOID;
         }
+
+        case AST_MATCH: {
+            /* Match used as a statement: type check arms as statements so return statements
+             * inside match arms are checked against the current function's return type.
+             * (The expression-mode match checker uses a temporary TypeChecker without
+             * current_function_return_type initialized, which can produce spurious errors.)
+             */
+            Type match_type = check_expression(stmt->as.match_expr.expr, tc->env);
+            if (match_type != TYPE_UNION) {
+                fprintf(stderr, "Error at line %d, column %d: Match expression must be a union type\n",
+                        stmt->line, stmt->column);
+                tc->has_error = true;
+                return TYPE_VOID;
+            }
+
+            /* Infer and store union type name for transpiler + variant binding metadata */
+            const char *union_type_name = NULL;
+            ASTNode *match_expr_node = stmt->as.match_expr.expr;
+
+            if (match_expr_node->type == AST_IDENTIFIER) {
+                Symbol *sym = env_get_var(tc->env, match_expr_node->as.identifier);
+                if (sym && sym->struct_type_name) {
+                    union_type_name = sym->struct_type_name;
+                }
+            } else if (match_expr_node->type == AST_UNION_CONSTRUCT) {
+                union_type_name = match_expr_node->as.union_construct.union_name;
+            } else if (match_expr_node->type == AST_CALL) {
+                Function *func = env_get_function(tc->env, match_expr_node->as.call.name);
+                if (func && func->return_struct_type_name) {
+                    union_type_name = func->return_struct_type_name;
+                }
+            } else if (match_expr_node->type == AST_FIELD_ACCESS) {
+                const char *struct_name = get_struct_type_name(match_expr_node->as.field_access.object, tc->env);
+                if (struct_name) {
+                    StructDef *sdef = env_get_struct(tc->env, struct_name);
+                    if (sdef && sdef->field_type_names) {
+                        const char *field_name = match_expr_node->as.field_access.field_name;
+                        for (int i = 0; i < sdef->field_count; i++) {
+                            if (strcmp(sdef->field_names[i], field_name) == 0) {
+                                if (sdef->field_types[i] == TYPE_UNION && sdef->field_type_names[i]) {
+                                    union_type_name = sdef->field_type_names[i];
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (union_type_name) {
+                if (stmt->as.match_expr.union_type_name) {
+                    free(stmt->as.match_expr.union_type_name);
+                }
+                stmt->as.match_expr.union_type_name = strdup(union_type_name);
+            }
+
+            for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
+                int saved_symbol_count = tc->env->symbol_count;
+
+                Value binding_val = create_void();
+                env_define_var_with_element_type(tc->env,
+                    stmt->as.match_expr.pattern_bindings[i],
+                    TYPE_STRUCT, TYPE_UNKNOWN, false, binding_val);
+
+                if (union_type_name && tc->env->symbol_count > 0) {
+                    Symbol *binding_sym = &tc->env->symbols[tc->env->symbol_count - 1];
+                    const char *variant_name = stmt->as.match_expr.pattern_variants[i];
+                    char *type_name = malloc(strlen(union_type_name) + strlen(variant_name) + 2);
+                    sprintf(type_name, "%s.%s", union_type_name, variant_name);
+                    binding_sym->struct_type_name = type_name;
+                }
+
+                ASTNode *arm = stmt->as.match_expr.arm_bodies[i];
+                if (arm && arm->type == AST_BLOCK) {
+                    check_statement(tc, arm);
+                } else {
+                    check_expression(arm, tc->env);
+                }
+
+                tc->env->symbol_count = saved_symbol_count;
+            }
+
+            return TYPE_VOID;
+        }
         
         case AST_PREFIX_OP:
         case AST_CALL:

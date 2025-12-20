@@ -466,7 +466,17 @@ static void generate_tuple_typedef(StringBuilder *sb, TypeInfo *info, const char
     sb_appendf(sb, "typedef struct { ");
     for (int i = 0; i < info->tuple_element_count; i++) {
         if (i > 0) sb_append(sb, "; ");
-        sb_appendf(sb, "%s _%d", type_to_c(info->tuple_types[i]), i);
+        Type t = info->tuple_types[i];
+        if (t == TYPE_STRUCT || t == TYPE_UNION || t == TYPE_ENUM) {
+            if (info->tuple_type_names && info->tuple_type_names[i]) {
+                const char *prefixed = get_prefixed_type_name(info->tuple_type_names[i]);
+                sb_appendf(sb, "%s _%d", prefixed, i);
+            } else {
+                sb_appendf(sb, "void* /* tuple composite */ _%d", i);
+            }
+        } else {
+            sb_appendf(sb, "%s _%d", type_to_c(t), i);
+        }
     }
     sb_appendf(sb, "; } %s;\n", typedef_name);
 }
@@ -1218,7 +1228,7 @@ static void generate_enum_definitions(Environment *env, StringBuilder *sb) {
 }
 
 /* Generate struct definitions */
-static void generate_struct_definitions(Environment *env, StringBuilder *sb) {
+static void __attribute__((unused)) generate_struct_definitions(Environment *env, StringBuilder *sb) {
     sb_append(sb, "/* ========== Struct Definitions ========== */\n\n");
     for (int i = 0; i < env->struct_count; i++) {
         StructDef *sdef = &env->structs[i];
@@ -1264,7 +1274,7 @@ static void generate_struct_definitions(Environment *env, StringBuilder *sb) {
 }
 
 /* Generate union definitions */
-static void generate_union_definitions(Environment *env, StringBuilder *sb) {
+static void __attribute__((unused)) generate_union_definitions(Environment *env, StringBuilder *sb) {
     sb_append(sb, "/* ========== Union Definitions ========== */\n\n");
     for (int i = 0; i < env->union_count; i++) {
         UnionDef *udef = &env->unions[i];
@@ -1285,7 +1295,18 @@ static void generate_union_definitions(Environment *env, StringBuilder *sb) {
                 sb_appendf(sb, "typedef struct {\n");
                 for (int k = 0; k < udef->variant_field_counts[j]; k++) {
                     sb_append(sb, "    ");
-                    sb_append(sb, type_to_c(udef->variant_field_types[j][k]));
+                    Type ft = udef->variant_field_types[j][k];
+                    if (ft == TYPE_STRUCT || ft == TYPE_UNION || ft == TYPE_ENUM) {
+                        if (udef->variant_field_type_names && udef->variant_field_type_names[j] &&
+                            udef->variant_field_type_names[j][k]) {
+                            const char *field_type_name = get_prefixed_type_name(udef->variant_field_type_names[j][k]);
+                            sb_append(sb, field_type_name);
+                        } else {
+                            sb_append(sb, "void* /* composite type field */");
+                        }
+                    } else {
+                        sb_append(sb, type_to_c(ft));
+                    }
                     sb_appendf(sb, " %s;\n", udef->variant_field_names[j][k]);
                 }
                 sb_appendf(sb, "} %s;\n\n", variant_struct);
@@ -1420,11 +1441,33 @@ static void generate_union_definitions(Environment *env, StringBuilder *sb) {
                             
                             if (!substituted) {
                                 /* Fallback: use original type */
-                                sb_append(sb, type_to_c(field_type));
+                                if (field_type == TYPE_STRUCT || field_type == TYPE_UNION || field_type == TYPE_ENUM) {
+                                    if (udef->variant_field_type_names && udef->variant_field_type_names[j] &&
+                                        udef->variant_field_type_names[j][k]) {
+                                        const char *prefixed_type = get_prefixed_type_name(udef->variant_field_type_names[j][k]);
+                                        sb_append(sb, prefixed_type);
+                                    } else {
+                                        sb_append(sb, "void* /* composite type field */");
+                                    }
+                                } else if (field_type == TYPE_GENERIC) {
+                                    sb_append(sb, "void* /* generic type field */");
+                                } else {
+                                    sb_append(sb, type_to_c(field_type));
+                                }
                             }
                         } else {
                             /* Non-generic field type */
-                            sb_append(sb, type_to_c(field_type));
+                            if (field_type == TYPE_STRUCT || field_type == TYPE_UNION || field_type == TYPE_ENUM) {
+                                if (udef->variant_field_type_names && udef->variant_field_type_names[j] &&
+                                    udef->variant_field_type_names[j][k]) {
+                                    const char *prefixed_type = get_prefixed_type_name(udef->variant_field_type_names[j][k]);
+                                    sb_append(sb, prefixed_type);
+                                } else {
+                                    sb_append(sb, "void* /* composite type field */");
+                                }
+                            } else {
+                                sb_append(sb, type_to_c(field_type));
+                            }
                         }
                         
                         sb_appendf(sb, " %s;\n", udef->variant_field_names[j][k]);
@@ -1473,8 +1516,491 @@ static void generate_union_definitions(Environment *env, StringBuilder *sb) {
     }
 }
 
+typedef enum {
+    NL_CT_STRUCT = 0,
+    NL_CT_UNION = 1,
+    NL_CT_GENERIC_UNION_INSTANTIATION = 2
+} NLCompositeTypeKind;
+
+typedef struct {
+    NLCompositeTypeKind kind;
+    const char *name;                /* nanolang type name (unprefixed) */
+    int index;                       /* env->structs/env->unions/env->generic_instances index */
+    UnionDef *generic_union_def;     /* only for instantiations */
+} NLCompositeTypeItem;
+
+static int find_composite_type_item(NLCompositeTypeItem *items, int count, const char *name) {
+    if (!name) return -1;
+    for (int i = 0; i < count; i++) {
+        if (items[i].name && strcmp(items[i].name, name) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static void emit_struct_definition_single(Environment *env, StringBuilder *sb, StructDef *sdef) {
+    (void)env;
+    if (!sdef || !sdef->name) return;
+
+    const char *prefixed_name_dup = strdup(get_prefixed_type_name(sdef->name));
+    if (!prefixed_name_dup) {
+        fprintf(stderr, "Error: Out of memory duplicating struct name\n");
+        exit(1);
+    }
+
+    sb_appendf(sb, "typedef struct %s {\n", prefixed_name_dup);
+    for (int j = 0; j < sdef->field_count; j++) {
+        sb_append(sb, "    ");
+        if (sdef->field_types[j] == TYPE_LIST_GENERIC) {
+            if (sdef->field_type_names && sdef->field_type_names[j]) {
+                sb_appendf(sb, "List_%s*", sdef->field_type_names[j]);
+            } else {
+                sb_append(sb, "void* /* List field */");
+            }
+        } else if (sdef->field_types[j] == TYPE_STRUCT || sdef->field_types[j] == TYPE_UNION || sdef->field_types[j] == TYPE_ENUM) {
+            if (sdef->field_type_names && sdef->field_type_names[j]) {
+                const char *field_type_name = get_prefixed_type_name(sdef->field_type_names[j]);
+                sb_append(sb, field_type_name);
+            } else {
+                sb_append(sb, "void* /* composite type field */");
+            }
+        } else {
+            sb_append(sb, type_to_c(sdef->field_types[j]));
+        }
+        sb_appendf(sb, " %s;\n", sdef->field_names[j]);
+    }
+    sb_appendf(sb, "} %s;\n\n", prefixed_name_dup);
+    free((void*)prefixed_name_dup);
+}
+
+static void emit_union_definition_single(Environment *env, StringBuilder *sb, UnionDef *udef) {
+    (void)env;
+    if (!udef || !udef->name) return;
+    if (udef->generic_param_count > 0) return;
+
+    const char *prefixed_union = strdup(get_prefixed_type_name(udef->name));
+    if (!prefixed_union) {
+        fprintf(stderr, "Error: Out of memory duplicating union name\n");
+        exit(1);
+    }
+
+    for (int j = 0; j < udef->variant_count; j++) {
+        if (udef->variant_field_counts[j] > 0) {
+            const char *variant_struct = get_prefixed_variant_struct_name(udef->name, udef->variant_names[j]);
+            sb_appendf(sb, "typedef struct {\n");
+            for (int k = 0; k < udef->variant_field_counts[j]; k++) {
+                sb_append(sb, "    ");
+                Type ft = udef->variant_field_types[j][k];
+                if (ft == TYPE_STRUCT || ft == TYPE_UNION || ft == TYPE_ENUM) {
+                    if (udef->variant_field_type_names && udef->variant_field_type_names[j] &&
+                        udef->variant_field_type_names[j][k]) {
+                        const char *field_type_name = get_prefixed_type_name(udef->variant_field_type_names[j][k]);
+                        sb_append(sb, field_type_name);
+                    } else {
+                        sb_append(sb, "void* /* composite type field */");
+                    }
+                } else {
+                    sb_append(sb, type_to_c(ft));
+                }
+                sb_appendf(sb, " %s;\n", udef->variant_field_names[j][k]);
+            }
+            sb_appendf(sb, "} %s;\n\n", variant_struct);
+        }
+    }
+
+    sb_appendf(sb, "typedef enum {\n");
+    for (int j = 0; j < udef->variant_count; j++) {
+        sb_appendf(sb, "    nl_%s_TAG_%s = %d", udef->name, udef->variant_names[j], j);
+        if (j < udef->variant_count - 1) sb_append(sb, ",\n");
+        else sb_append(sb, "\n");
+    }
+    sb_appendf(sb, "} %s_Tag;\n\n", prefixed_union);
+
+    sb_appendf(sb, "typedef struct %s {\n", prefixed_union);
+    sb_appendf(sb, "    %s_Tag tag;\n", prefixed_union);
+    sb_append(sb, "    union {\n");
+    for (int j = 0; j < udef->variant_count; j++) {
+        if (udef->variant_field_counts[j] > 0) {
+            const char *variant_struct = get_prefixed_variant_struct_name(udef->name, udef->variant_names[j]);
+            sb_appendf(sb, "        %s %s;\n", variant_struct, udef->variant_names[j]);
+        } else {
+            sb_appendf(sb, "        int %s; /* empty variant */\n", udef->variant_names[j]);
+        }
+    }
+    sb_append(sb, "    } data;\n");
+    sb_appendf(sb, "} %s;\n\n", prefixed_union);
+
+    free((void*)prefixed_union);
+}
+
+static void emit_generic_union_instantiation(Environment *env, StringBuilder *sb, UnionDef *udef, GenericInstantiation *inst, const char *monomorphized_name) {
+    if (!env || !sb || !udef || !inst || !monomorphized_name) return;
+
+    const char *prefixed_union = strdup(get_prefixed_type_name(monomorphized_name));
+    if (!prefixed_union) {
+        fprintf(stderr, "Error: Out of memory duplicating union name\n");
+        exit(1);
+    }
+
+    for (int j = 0; j < udef->variant_count; j++) {
+        if (udef->variant_field_counts[j] <= 0) continue;
+
+        const char *variant_struct = get_prefixed_variant_struct_name(monomorphized_name, udef->variant_names[j]);
+        sb_appendf(sb, "typedef struct {\n");
+
+        for (int k = 0; k < udef->variant_field_counts[j]; k++) {
+            sb_append(sb, "    ");
+
+            Type field_type = udef->variant_field_types[j][k];
+
+            /* Check if field type is a generic parameter and substitute */
+            bool substituted = false;
+            if (field_type == TYPE_GENERIC || field_type == TYPE_STRUCT || field_type == TYPE_UNION || field_type == TYPE_ENUM) {
+                if (udef->variant_field_type_names && udef->variant_field_type_names[j] &&
+                    udef->variant_field_type_names[j][k]) {
+                    const char *type_name = udef->variant_field_type_names[j][k];
+                    for (int p = 0; p < udef->generic_param_count; p++) {
+                        if (strcmp(type_name, udef->generic_params[p]) == 0) {
+                            const char *concrete_type = inst->type_arg_names[p];
+                            if (strcmp(concrete_type, "int") == 0) {
+                                sb_append(sb, "int64_t");
+                            } else if (strcmp(concrete_type, "string") == 0) {
+                                sb_append(sb, "const char*");
+                            } else if (strcmp(concrete_type, "bool") == 0) {
+                                sb_append(sb, "bool");
+                            } else if (strcmp(concrete_type, "float") == 0) {
+                                sb_append(sb, "double");
+                            } else {
+                                const char *prefixed_type = get_prefixed_type_name(concrete_type);
+                                sb_append(sb, prefixed_type);
+                            }
+                            substituted = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!substituted) {
+                if ((field_type == TYPE_STRUCT || field_type == TYPE_UNION || field_type == TYPE_ENUM) &&
+                    udef->variant_field_type_names && udef->variant_field_type_names[j] &&
+                    udef->variant_field_type_names[j][k]) {
+                    const char *prefixed_type = get_prefixed_type_name(udef->variant_field_type_names[j][k]);
+                    sb_append(sb, prefixed_type);
+                } else if (field_type == TYPE_GENERIC) {
+                    sb_append(sb, "void* /* generic type field */");
+                } else {
+                    sb_append(sb, type_to_c(field_type));
+                }
+            }
+
+            sb_appendf(sb, " %s;\n", udef->variant_field_names[j][k]);
+        }
+
+        sb_appendf(sb, "} %s;\n\n", variant_struct);
+    }
+
+    sb_appendf(sb, "typedef enum {\n");
+    for (int j = 0; j < udef->variant_count; j++) {
+        sb_appendf(sb, "    nl_%s_TAG_%s = %d", monomorphized_name, udef->variant_names[j], j);
+        if (j < udef->variant_count - 1) sb_append(sb, ",\n");
+        else sb_append(sb, "\n");
+    }
+    sb_appendf(sb, "} %s_Tag;\n\n", prefixed_union);
+
+    sb_appendf(sb, "typedef struct %s {\n", prefixed_union);
+    sb_appendf(sb, "    %s_Tag tag;\n", prefixed_union);
+    sb_append(sb, "    union {\n");
+
+    for (int j = 0; j < udef->variant_count; j++) {
+        if (udef->variant_field_counts[j] > 0) {
+            const char *variant_struct = get_prefixed_variant_struct_name(monomorphized_name, udef->variant_names[j]);
+            sb_appendf(sb, "        %s %s;\n", variant_struct, udef->variant_names[j]);
+        } else {
+            sb_appendf(sb, "        int %s; /* empty variant */\n", udef->variant_names[j]);
+        }
+    }
+
+    sb_append(sb, "    } data;\n");
+    sb_appendf(sb, "} %s;\n\n", prefixed_union);
+
+    free((void*)prefixed_union);
+}
+
+static void generate_struct_and_union_definitions_ordered(Environment *env, StringBuilder *sb) {
+    if (!env || !sb) return;
+
+    sb_append(sb, "/* ========== Struct and Union Definitions ========== */\n\n");
+
+    int capacity = env->struct_count + env->union_count + (env->generic_instance_count > 0 ? env->generic_instance_count : 0);
+    NLCompositeTypeItem *items = malloc(sizeof(NLCompositeTypeItem) * capacity);
+    if (!items) {
+        fprintf(stderr, "Error: Out of memory allocating composite type list\n");
+        exit(1);
+    }
+    int count = 0;
+
+    for (int i = 0; i < env->struct_count; i++) {
+        if (!env->structs[i].name) continue;
+        items[count++] = (NLCompositeTypeItem){ .kind = NL_CT_STRUCT, .name = env->structs[i].name, .index = i, .generic_union_def = NULL };
+    }
+
+    for (int i = 0; i < env->union_count; i++) {
+        UnionDef *udef = &env->unions[i];
+        if (!udef || !udef->name) continue;
+        if (udef->generic_param_count > 0) continue;
+        items[count++] = (NLCompositeTypeItem){ .kind = NL_CT_UNION, .name = udef->name, .index = i, .generic_union_def = NULL };
+    }
+
+    /* Add generic union instantiations (monomorphized names) */
+    char **generated = NULL;
+    int generated_count = 0;
+    if (env->generic_instances && env->generic_instance_count > 0) {
+        generated = malloc(sizeof(char*) * env->generic_instance_count);
+        if (!generated) {
+            fprintf(stderr, "Error: Out of memory allocating generic instantiation set\n");
+            exit(1);
+        }
+
+        for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
+            GenericInstantiation *inst = &env->generic_instances[i];
+            if (!inst || !inst->generic_name || !inst->type_arg_names) continue;
+            if (strcmp(inst->generic_name, "List") == 0) continue;
+
+            UnionDef *udef = env_get_union(env, inst->generic_name);
+            if (!udef || udef->generic_param_count == 0) continue;
+            if (inst->type_arg_count != udef->generic_param_count) continue;
+
+            char monomorphized_name_buf[256];
+            if (!build_monomorphized_name(monomorphized_name_buf, sizeof(monomorphized_name_buf),
+                                          inst->generic_name,
+                                          (const char **)inst->type_arg_names,
+                                          inst->type_arg_count)) {
+                continue;
+            }
+
+            bool already = false;
+            for (int j = 0; j < generated_count; j++) {
+                if (strcmp(generated[j], monomorphized_name_buf) == 0) {
+                    already = true;
+                    break;
+                }
+            }
+            if (already) continue;
+
+            generated[generated_count++] = strdup(monomorphized_name_buf);
+            items[count++] = (NLCompositeTypeItem){
+                .kind = NL_CT_GENERIC_UNION_INSTANTIATION,
+                .name = generated[generated_count - 1],
+                .index = i,
+                .generic_union_def = udef
+            };
+        }
+    }
+
+    /* Dependency edges: edge[from][to] means 'from' must be defined before 'to' */
+    bool *edges = calloc((size_t)count * (size_t)count, sizeof(bool));
+    int *indegree = calloc((size_t)count, sizeof(int));
+    bool *emitted = calloc((size_t)count, sizeof(bool));
+    if (!edges || !indegree || !emitted) {
+        fprintf(stderr, "Error: Out of memory allocating composite type graph\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < count; i++) {
+        NLCompositeTypeItem *it = &items[i];
+        if (it->kind == NL_CT_STRUCT) {
+            StructDef *sdef = &env->structs[it->index];
+            for (int f = 0; f < sdef->field_count; f++) {
+                if (sdef->field_types[f] == TYPE_STRUCT || sdef->field_types[f] == TYPE_UNION || sdef->field_types[f] == TYPE_ENUM) {
+                    if (!sdef->field_type_names || !sdef->field_type_names[f]) continue;
+                    int dep = find_composite_type_item(items, count, sdef->field_type_names[f]);
+                    if (dep >= 0 && dep != i && !edges[(size_t)dep * (size_t)count + (size_t)i]) {
+                        edges[(size_t)dep * (size_t)count + (size_t)i] = true;
+                        indegree[i]++;
+                    }
+                }
+            }
+        } else if (it->kind == NL_CT_UNION) {
+            UnionDef *udef = &env->unions[it->index];
+            for (int v = 0; v < udef->variant_count; v++) {
+                for (int f = 0; f < udef->variant_field_counts[v]; f++) {
+                    Type ft = udef->variant_field_types[v][f];
+                    if (ft != TYPE_STRUCT && ft != TYPE_UNION && ft != TYPE_ENUM) continue;
+                    if (!udef->variant_field_type_names || !udef->variant_field_type_names[v] ||
+                        !udef->variant_field_type_names[v][f]) {
+                        continue;
+                    }
+                    int dep = find_composite_type_item(items, count, udef->variant_field_type_names[v][f]);
+                    if (dep >= 0 && dep != i && !edges[(size_t)dep * (size_t)count + (size_t)i]) {
+                        edges[(size_t)dep * (size_t)count + (size_t)i] = true;
+                        indegree[i]++;
+                    }
+                }
+            }
+        } else {
+            /* Generic union instantiation depends on any composite type used as a concrete type argument */
+            GenericInstantiation *inst = &env->generic_instances[it->index];
+            UnionDef *udef = it->generic_union_def;
+            if (!inst || !udef) continue;
+
+            for (int v = 0; v < udef->variant_count; v++) {
+                for (int f = 0; f < udef->variant_field_counts[v]; f++) {
+                    Type ft = udef->variant_field_types[v][f];
+                    if (!udef->variant_field_type_names || !udef->variant_field_type_names[v] ||
+                        !udef->variant_field_type_names[v][f]) {
+                        continue;
+                    }
+
+                    const char *type_name = udef->variant_field_type_names[v][f];
+                    const char *concrete_type = NULL;
+                    if (ft == TYPE_GENERIC || ft == TYPE_STRUCT || ft == TYPE_UNION || ft == TYPE_ENUM) {
+                        for (int p = 0; p < udef->generic_param_count; p++) {
+                            if (strcmp(type_name, udef->generic_params[p]) == 0) {
+                                concrete_type = inst->type_arg_names[p];
+                                break;
+                            }
+                        }
+                    }
+                    if (!concrete_type) {
+                        /* Non-generic composite field */
+                        if (ft == TYPE_STRUCT || ft == TYPE_UNION || ft == TYPE_ENUM) {
+                            concrete_type = type_name;
+                        }
+                    }
+
+                    if (!concrete_type) continue;
+                    if (strcmp(concrete_type, "int") == 0 || strcmp(concrete_type, "float") == 0 ||
+                        strcmp(concrete_type, "bool") == 0 || strcmp(concrete_type, "string") == 0) {
+                        continue;
+                    }
+
+                    int dep = find_composite_type_item(items, count, concrete_type);
+                    if (dep >= 0 && dep != i && !edges[(size_t)dep * (size_t)count + (size_t)i]) {
+                        edges[(size_t)dep * (size_t)count + (size_t)i] = true;
+                        indegree[i]++;
+                    }
+                }
+            }
+        }
+    }
+
+    /* Emit in topological order (stable: first match wins) */
+    for (int step = 0; step < count; step++) {
+        int pick = -1;
+        for (int i = 0; i < count; i++) {
+            if (!emitted[i] && indegree[i] == 0) {
+                pick = i;
+                break;
+            }
+        }
+
+        if (pick < 0) {
+            /* Cycle or missing type info; emit remaining in original order */
+            for (int i = 0; i < count; i++) {
+                if (emitted[i]) continue;
+                NLCompositeTypeItem *it = &items[i];
+                if (it->kind == NL_CT_STRUCT) {
+                    emit_struct_definition_single(env, sb, &env->structs[it->index]);
+                } else if (it->kind == NL_CT_UNION) {
+                    emit_union_definition_single(env, sb, &env->unions[it->index]);
+                } else {
+                    GenericInstantiation *inst = &env->generic_instances[it->index];
+                    emit_generic_union_instantiation(env, sb, it->generic_union_def, inst, it->name);
+                }
+                emitted[i] = true;
+            }
+            break;
+        }
+
+        NLCompositeTypeItem *it = &items[pick];
+        if (it->kind == NL_CT_STRUCT) {
+            emit_struct_definition_single(env, sb, &env->structs[it->index]);
+        } else if (it->kind == NL_CT_UNION) {
+            emit_union_definition_single(env, sb, &env->unions[it->index]);
+        } else {
+            GenericInstantiation *inst = &env->generic_instances[it->index];
+            emit_generic_union_instantiation(env, sb, it->generic_union_def, inst, it->name);
+        }
+
+        emitted[pick] = true;
+        for (int j = 0; j < count; j++) {
+            if (edges[(size_t)pick * (size_t)count + (size_t)j]) {
+                indegree[j]--;
+            }
+        }
+    }
+
+    sb_append(sb, "/* ========== End Struct and Union Definitions ========== */\n\n");
+
+    /* Clean up */
+    if (generated) {
+        for (int i = 0; i < generated_count; i++) {
+            free(generated[i]);
+        }
+        free(generated);
+    }
+    free(items);
+    free(edges);
+    free(indegree);
+    free(emitted);
+}
+
 static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     sb_append(sb, "/* ========== To-String Helpers ========== */\n\n");
+
+    /* Forward declarations (structs/unions can reference each other in to_string) */
+    sb_append(sb, "/* To-String forward declarations */\n");
+
+    for (int i = 0; i < env->enum_count; i++) {
+        EnumDef *edef = &env->enums[i];
+        if (!edef || !edef->name) continue;
+        if (is_runtime_typedef(edef->name)) continue;
+        const char *prefixed_enum = get_prefixed_type_name(edef->name);
+        sb_appendf(sb, "static const char* nl_to_string_%s(%s v);\n", edef->name, prefixed_enum);
+    }
+
+    for (int i = 0; i < env->struct_count; i++) {
+        StructDef *sdef = &env->structs[i];
+        if (!sdef || !sdef->name) continue;
+        if (is_runtime_typedef(sdef->name)) continue;
+        const char *prefixed_struct = get_prefixed_type_name(sdef->name);
+        sb_appendf(sb, "static const char* nl_to_string_%s(%s v);\n", sdef->name, prefixed_struct);
+    }
+
+    for (int i = 0; i < env->union_count; i++) {
+        UnionDef *udef = &env->unions[i];
+        if (!udef || !udef->name) continue;
+        if (is_runtime_typedef(udef->name)) continue;
+        if (udef->generic_param_count > 0) continue;
+        const char *prefixed_union = get_prefixed_type_name(udef->name);
+        sb_appendf(sb, "static const char* nl_to_string_%s(%s u);\n", udef->name, prefixed_union);
+    }
+
+    if (env && env->generic_instances) {
+        for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
+            GenericInstantiation *inst = &env->generic_instances[i];
+            if (!inst || !inst->generic_name || !inst->type_arg_names) continue;
+
+            UnionDef *udef = env_get_union(env, inst->generic_name);
+            if (!udef || udef->generic_param_count == 0) continue;
+            if (inst->type_arg_count != udef->generic_param_count) continue;
+
+            char monomorphized_name[256];
+            if (!build_monomorphized_name(monomorphized_name, sizeof(monomorphized_name),
+                                          inst->generic_name,
+                                          (const char **)inst->type_arg_names,
+                                          inst->type_arg_count)) {
+                continue;
+            }
+
+            const char *prefixed_union = get_prefixed_type_name(monomorphized_name);
+            sb_appendf(sb, "static const char* nl_to_string_%s(%s u);\n", monomorphized_name, prefixed_union);
+        }
+    }
+
+    sb_append(sb, "\n");
 
     /* Enums */
     for (int i = 0; i < env->enum_count; i++) {
@@ -2539,14 +3065,11 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     /* Forward declare List types BEFORE structs */
     generate_list_specializations(env, sb);
 
-    /* Generate struct typedefs */
-    generate_struct_definitions(env, sb);
+    /* Generate struct + union definitions in dependency-safe order */
+    generate_struct_and_union_definitions_ordered(env, sb);
 
     /* Generate List implementations and includes */
     generate_list_implementations(env, sb);
-
-    /* Generate union definitions */
-    generate_union_definitions(env, sb);
 
     /* Generate to_string helpers for user-defined types */
     generate_to_string_helpers(env, sb);

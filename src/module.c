@@ -863,31 +863,30 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
 /* Compile a single module to an object file */
 bool compile_module_to_object(const char *module_path, const char *output_obj, Environment *env, bool verbose) {
     if (!module_path || !output_obj) return false;
-    
-    /* Reuse the environment passed in - avoids reloading and AST corruption */
-    if (!env) {
-        fprintf(stderr, "Error: Environment required for module compilation\n");
+
+    /* env is intentionally unused: module compilation is done in an isolated environment */
+    (void)env;
+
+    /*
+     * IMPORTANT:
+     * Module objects must be compiled in an isolated environment so that the
+     * generated C does not accidentally include types/externs from the top-level
+     * program (e.g. SDL externs leaking into stdlib objects).
+     */
+    Environment *module_env = create_environment();
+    if (!module_env) {
+        fprintf(stderr, "Error: Failed to create environment for module compilation\n");
         return false;
     }
-    
-    /* Check if module AST is already cached - if so, reuse it */
-    /* This prevents the AST corruption bug (nanolang-6h9) that occurred */
-    /* when modules were loaded twice with different environments */
-    ASTNode *module_ast = get_cached_module_ast(module_path);
-    
-    if (module_ast && verbose) {
-        printf("[Module] Using cached AST for '%s'\n", module_path);
-    }
-    
-    /* If not in cache, load it now (but only once!) */
+
+    /* Use a fresh module cache per module compilation to avoid cross-env AST reuse */
+    clear_module_cache();
+
+    ASTNode *module_ast = load_module_internal(module_path, module_env, true, NULL);
     if (!module_ast) {
-        module_ast = load_module(module_path, env);
-        if (!module_ast) {
-            fprintf(stderr, "Error: Failed to load module '%s' for compilation\n", module_path);
-            return false;
-        }
-        /* Cache the AST for future reuse */
-        cache_module_with_ast(module_path, module_ast);
+        fprintf(stderr, "Error: Failed to load module '%s' for compilation\n", module_path);
+        free_environment(module_env);
+        return false;
     }
     
     /* Extract module metadata before transpiling */
@@ -908,14 +907,14 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
      * but that environment may contain a program-level `main` from the top-level compile.
      * When generating a module object, we must NOT emit a C main() wrapper.
      */
-    Function *saved_main = env_get_function(env, "main");
+    Function *saved_main = env_get_function(module_env, "main");
     bool saved_main_is_extern = false;
     if (saved_main) {
         saved_main_is_extern = saved_main->is_extern;
         saved_main->is_extern = true;
     }
 
-    char *c_code = transpile_to_c(module_ast, env);
+    char *c_code = transpile_to_c(module_ast, module_env);
 
     if (saved_main) {
         saved_main->is_extern = saved_main_is_extern;
@@ -923,6 +922,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     if (!c_code) {
         fprintf(stderr, "Error: Failed to transpile module '%s'\n", module_path);
         if (meta) free_module_metadata(meta);
+        free_environment(module_env);
         return false;
     }
     
@@ -952,6 +952,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
         fprintf(stderr, "Error: Could not create C file '%s'\n", temp_c_file);
         free(c_code);
         /* Don't free AST - it's owned by the cache */
+        free_environment(module_env);
         return false;
     }
     
@@ -1011,6 +1012,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
         fprintf(stderr, "C file kept at: %s\n", temp_c_file);
         free(c_code);
         /* Don't free AST or environment - they're owned by the cache/caller */
+        free_environment(module_env);
         return false;
     }
     
@@ -1023,6 +1025,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     
     free(c_code);
     /* Don't free AST or environment - they're owned by the cache/caller */
+    free_environment(module_env);
     return true;
 }
 
