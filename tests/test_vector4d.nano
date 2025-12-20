@@ -1,0 +1,63 @@
+from "std/math/vector4d.nano" import Vector4D, vec4_new, vec4_zero, vec4_add, vec4_sub, vec4_scale, vec4_dot, vec4_length, vec4_normalize, vec4_from_vec3, vec4_to_vec3_div_w
+from "std/math/vector3d.nano" import Vector3D, vec3_new
+
+let EPS: float = 0.00001
+
+fn approx(a: float, b: float) -> bool {
+    return (< (abs (- a b)) EPS)
+}
+
+fn test_vec4() -> int {
+    let z: Vector4D = (vec4_zero)
+    assert (approx z.x 0.0)
+    assert (approx z.w 0.0)
+
+    let a: Vector4D = (vec4_new 1.0 2.0 3.0 4.0)
+    let b: Vector4D = (vec4_new 1.0 1.0 1.0 1.0)
+
+    let s: Vector4D = (vec4_add a b)
+    assert (approx s.x 2.0)
+    assert (approx s.y 3.0)
+    assert (approx s.z 4.0)
+    assert (approx s.w 5.0)
+
+    let d: Vector4D = (vec4_sub a b)
+    assert (approx d.x 0.0)
+    assert (approx d.y 1.0)
+    assert (approx d.z 2.0)
+    assert (approx d.w 3.0)
+
+    let sc: Vector4D = (vec4_scale a 0.5)
+    assert (approx sc.x 0.5)
+    assert (approx sc.w 2.0)
+
+    assert (approx (vec4_dot (vec4_new 1.0 0.0 0.0 0.0) (vec4_new 0.0 1.0 0.0 0.0)) 0.0)
+    assert (approx (vec4_length (vec4_new 2.0 0.0 0.0 0.0)) 2.0)
+
+    let n: Vector4D = (vec4_normalize (vec4_new 0.0 3.0 0.0 4.0))
+    assert (approx n.y 0.6)
+    assert (approx n.w 0.8)
+
+    let v3: Vector3D = (vec3_new 1.0 2.0 3.0)
+    let v4: Vector4D = (vec4_from_vec3 v3 1.0)
+    assert (approx v4.x 1.0)
+    assert (approx v4.y 2.0)
+    assert (approx v4.z 3.0)
+    assert (approx v4.w 1.0)
+
+    let p: Vector3D = (vec4_to_vec3_div_w (vec4_new 2.0 4.0 6.0 2.0))
+    assert (approx p.x 1.0)
+    assert (approx p.y 2.0)
+    assert (approx p.z 3.0)
+    return 0
+}
+
+shadow test_vec4 {
+    assert (== (test_vec4) 0)
+}
+
+fn main() -> int { return 0 }
+
+shadow main {
+    assert (== (main) 0)
+}

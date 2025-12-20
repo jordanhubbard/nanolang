@@ -1,4 +1,4 @@
-from "std/math/vector3d.nano" import Vector3D, vec3_new, vec3_dot, vec3_cross, vec3_length, vec3_normalize
+from "std/math/vector3d.nano" import Vector3D, vec3_new, vec3_add, vec3_sub, vec3_scale, vec3_dot, vec3_cross, vec3_length, vec3_distance, vec3_normalize, vec3_reflect, vec3_clamp_length
 
 let EPS: float = 0.00001
 
@@ -13,12 +13,32 @@ fn test_vec3() -> int {
     assert (approx (vec3_dot a b) 0.0)
     assert (approx c.z 1.0)
 
+    let sum: Vector3D = (vec3_add a b)
+    assert (approx sum.x 1.0)
+    assert (approx sum.y 1.0)
+
+    let diff: Vector3D = (vec3_sub a b)
+    assert (approx diff.x 1.0)
+    assert (approx diff.y (- 1.0))
+
+    let scaled: Vector3D = (vec3_scale (vec3_new 1.0 2.0 3.0) 2.0)
+    assert (approx scaled.x 2.0)
+    assert (approx scaled.z 6.0)
+
     let v: Vector3D = (vec3_new 3.0 4.0 0.0)
     assert (approx (vec3_length v) 5.0)
+    assert (approx (vec3_distance (vec3_new 0.0 0.0 0.0) v) 5.0)
 
     let n: Vector3D = (vec3_normalize v)
     assert (approx n.x 0.6)
     assert (approx n.y 0.8)
+
+    let r: Vector3D = (vec3_reflect (vec3_new 1.0 (- 1.0) 0.0) (vec3_new 0.0 1.0 0.0))
+    assert (approx r.x 1.0)
+    assert (approx r.y 1.0)
+
+    let cl: Vector3D = (vec3_clamp_length v 3.0)
+    assert (approx (vec3_length cl) 3.0)
     return 0
 }
 

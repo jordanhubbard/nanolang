@@ -1,0 +1,73 @@
+from "std/math/extended.nano" import pi, e, deg_to_rad, rad_to_deg, clamp, lerp
+from "std/math/extended.nano" import asin, acos, atan
+from "std/math/extended.nano" import log, log10, exp
+from "std/math/extended.nano" import sinh, cosh, tanh, asinh, acosh, atanh
+from "std/math/extended.nano" import fmod, fabs, trunc, rint, nearbyint, remainder
+from "std/math/extended.nano" import fmin, fmax, copysign
+
+let EPS: float = 0.00001
+
+fn approx(a: float, b: float) -> bool {
+    return (< (abs (- a b)) EPS)
+}
+
+fn test_extended_misc() -> int {
+    assert (approx (pi) 3.141592653589793)
+    assert (approx (e) 2.718281828459045)
+
+    assert (approx (deg_to_rad 180.0) (pi))
+    assert (approx (rad_to_deg (pi)) 180.0)
+
+    assert (approx (clamp 5.0 0.0 10.0) 5.0)
+    assert (approx (clamp -1.0 0.0 10.0) 0.0)
+    assert (approx (clamp 12.0 0.0 10.0) 10.0)
+
+    assert (approx (lerp 0.0 10.0 0.25) 2.5)
+
+    /* Inverse trig basics */
+    assert (approx (sin (asin 0.5)) 0.5)
+    assert (approx (cos (acos 0.25)) 0.25)
+    assert (approx (tan (atan 1.0)) 1.0)
+
+    /* log/exp round trip */
+    assert (approx (exp (log 2.5)) 2.5)
+    assert (approx (log10 1000.0) 3.0)
+
+    /* hyperbolic */
+    assert (approx (sinh 0.0) 0.0)
+    assert (approx (cosh 0.0) 1.0)
+    assert (approx (tanh 0.0) 0.0)
+
+    assert (approx (asinh 0.0) 0.0)
+    assert (approx (acosh 1.0) 0.0)
+    assert (approx (atanh 0.0) 0.0)
+    assert (approx (cosh (acosh 2.0)) 2.0)
+
+    /* IEEE-ish helpers */
+    assert (approx (fmod 370.0 360.0) 10.0)
+    assert (approx (fabs (- 3.5)) 3.5)
+    assert (approx (trunc 2.9) 2.0)
+    assert (approx (trunc (- 2.9)) (- 2.0))
+
+    assert (approx (rint 2.3) 2.0)
+    assert (approx (rint 2.7) 3.0)
+    assert (approx (nearbyint (- 1.2)) (- 1.0))
+
+    /* remainder uses rint(x/y) rounding; 7/2=3.5 -> 4, remainder = -1 */
+    assert (approx (remainder 7.0 2.0) (- 1.0))
+
+    assert (approx (fmin 3.0 4.0) 3.0)
+    assert (approx (fmax 3.0 4.0) 4.0)
+    assert (approx (copysign 1.0 (- 2.0)) (- 1.0))
+    return 0
+}
+
+shadow test_extended_misc {
+    assert (== (test_extended_misc) 0)
+}
+
+fn main() -> int { return 0 }
+
+shadow main {
+    assert (== (main) 0)
+}

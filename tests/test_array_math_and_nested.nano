@@ -1,4 +1,6 @@
-from "std/math/array_ops.nano" import array_sum, array_mean, array_min, array_max, array_sum_int
+from "std/math/array_ops.nano" import array_sum, array_mean, array_min, array_max
+from "std/math/array_ops.nano" import array_sum_int, array_min_int, array_max_int
+from "std/math/array_ops.nano" import array_dot, array_norm, array_normalize, array_lerp, array_distance, array_distance_squared
 
 let EPS: float = 0.00001
 
@@ -15,6 +17,8 @@ fn test_array_reductions() -> int {
 
     let ai: array<int> = [1, 2, 3]
     assert (== (array_sum_int ai) 6)
+    assert (== (array_min_int ai) 1)
+    assert (== (array_max_int ai) 3)
     return 0
 }
 
@@ -42,6 +46,30 @@ fn test_array_elementwise_ops() -> int {
 
 shadow test_array_elementwise_ops {
     assert (== (test_array_elementwise_ops) 0)
+}
+
+fn test_array_linalg() -> int {
+    let a: array<float> = [3.0, 4.0]
+    let b: array<float> = [1.0, 0.0]
+
+    assert (approx (array_dot a b) 3.0)
+    assert (approx (array_norm a) 5.0)
+
+    let n: array<float> = (array_normalize a)
+    assert (approx (at n 0) 0.6)
+    assert (approx (at n 1) 0.8)
+
+    let l: array<float> = (array_lerp [0.0, 0.0] [10.0, 20.0] 0.25)
+    assert (approx (at l 0) 2.5)
+    assert (approx (at l 1) 5.0)
+
+    assert (approx (array_distance [0.0, 0.0] [3.0, 4.0]) 5.0)
+    assert (approx (array_distance_squared [0.0, 0.0] [3.0, 4.0]) 25.0)
+    return 0
+}
+
+shadow test_array_linalg {
+    assert (== (test_array_linalg) 0)
 }
 
 fn main() -> int { return 0 }
