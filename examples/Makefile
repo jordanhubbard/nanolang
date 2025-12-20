@@ -124,7 +124,7 @@ all: build
 # Build all examples
 build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo ""
-	@echo "All examples built successfully!"
+	@echo "Default examples built successfully!"
 	@echo ""
 	@echo "Nanolang-only examples (nl_*) - $(words $(NL_COMPILED_NAMES)) compiled:"
 	@$(if $(strip $(NL_COMPILED_NAMES)),$(foreach ex,$(NL_COMPILED_NAMES),echo "  ./bin/$(ex)";),:)
@@ -153,11 +153,13 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  ./bin/ncurses_game_of_life  - Conway's Game of Life"
 	@echo "  ./bin/ncurses_matrix_rain   - Matrix digital rain"
 	@echo ""
-	@echo "OpenGL examples (opengl_*):"
-	@echo "  ./bin/opengl_cube           - Rotating textured cube"
-	@echo "  ./bin/opengl_teapot         - Utah teapot with multiple shaders"
+	@echo "OpenGL examples (opengl_*) (not built by default):"
+	@echo "  ./bin/opengl_cube           - Rotating textured cube (build: cd examples && make opengl)"
+	@echo "  ./bin/opengl_teapot         - Utah teapot with multiple shaders (build: cd examples && make opengl)"
 	@echo ""
-	@echo "Interpreter-only examples (run with: ./bin/nano examples/<file>):"
+	@echo "Other nl_* examples (not built by default):"
+	@echo "  Run with interpreter: ./bin/nano examples/<file>"
+	@echo "  Or try compiling individually: ./bin/nanoc examples/<file> -o bin/<name>"
 	@echo "  $(words $(NL_INTERPRETER_ONLY_NAMES)) nl_* file(s) not built by default:"
 	@$(if $(strip $(NL_INTERPRETER_ONLY_NAMES)),$(foreach ex,$(NL_INTERPRETER_ONLY_NAMES),echo "    - $(ex).nano";),:)
 	@echo ""
