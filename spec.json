@@ -454,7 +454,7 @@
     "unions": "See examples/nl_union_types.nano",
     "generics": "See examples/nl_generics_demo.nano",
     "first_class_functions": "See examples/nl_first_class_functions.nano",
-    "map_reduce": "See examples/nl_map_reduce.nano",
+    "map_reduce": "See examples/nl_filter_map_fold.nano",
     "data_analytics": "See examples/nl_data_analytics.nano"
   },
   

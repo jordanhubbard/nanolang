@@ -1,8 +1,8 @@
 # NanoLang Examples Index
-## Complete Guide to All 88 Examples
+## Complete Guide to All 78 Examples
 
-**Last Updated**: 2025-12-16  
-**Total Examples**: 88  
+**Last Updated**: 2025-12-20  
+**Total Examples**: 78  
 **Organization**: By difficulty and topic
 
 ---
@@ -17,10 +17,10 @@ Follow this sequence to learn NanoLang basics:
 4. `nl_comparisons.nano` - Comparison operators
 5. `nl_types.nano` - Type system basics
 6. `nl_mutable.nano` - Immutable vs mutable
-7. `nl_for_loop_patterns.nano` - Loops and iteration
-8. `nl_array_complete.nano` - Arrays and collections
-9. `nl_struct.nano` - User-defined types
-10. `nl_factorial.nano` - Recursion
+7. `nl_array_complete.nano` - Arrays and collections
+8. `nl_struct.nano` - User-defined types
+9. `nl_factorial.nano` - Recursion
+10. `nl_fibonacci.nano` - Iteration and recursion
 11. `namespace_demo.nano` - Module system and visibility ⭐ NEW
 
 **Estimated Time**: 4-7 hours
@@ -91,7 +91,6 @@ For advanced language features and metaprogramming:
 #### Control Flow
 | Example | Difficulty | Topics | Time |
 |---------|------------|--------|------|
-| `nl_for_loop_patterns.nano` | ⭐⭐ Intermediate | For loops, ranges | 20 min |
 | `nl_factorial.nano` | ⭐⭐ Intermediate | Recursion | 15 min |
 | `nl_fibonacci.nano` | ⭐⭐ Intermediate | Recursion, memoization | 20 min |
 | `nl_primes.nano` | ⭐⭐ Intermediate | Algorithms | 20 min |
@@ -99,8 +98,6 @@ For advanced language features and metaprogramming:
 #### Language Features
 | Example | Difficulty | Topics | Time |
 |---------|------------|--------|------|
-| `nl_language_features.nano` | ⭐⭐ Intermediate | Feature showcase | 30 min |
-| `nl_new_features.nano` | ⭐⭐ Intermediate | Recent additions | 20 min |
 | `nl_random_sentence.nano` | ⭐ Beginner | RNG, strings | 15 min |
 
 ---
@@ -112,7 +109,6 @@ For advanced language features and metaprogramming:
 |---------|------------|--------|------|
 | `nl_array_complete.nano` | ⭐⭐ Intermediate | Arrays (comprehensive) | 30 min |
 | `nl_array_bounds.nano` | ⭐⭐ Intermediate | Bounds checking | 15 min |
-| `nl_list_int.nano` | ⭐⭐ Intermediate | Dynamic int lists | 20 min |
 | `vector2d_demo.nano` | ⭐⭐ Intermediate | 2D vectors | 20 min |
 
 #### User-Defined Types
@@ -121,14 +117,11 @@ For advanced language features and metaprogramming:
 | `nl_struct.nano` | ⭐⭐ Intermediate | Structs | 20 min |
 | `nl_enum.nano` | ⭐⭐ Intermediate | Enumerations | 20 min |
 | `nl_union_types.nano` | ⭐⭐⭐ Advanced | Tagged unions | 30 min |
-| `nl_tuple_coordinates.nano` | ⭐⭐ Intermediate | Tuples | 15 min |
 
 #### Generics
 | Example | Difficulty | Topics | Time |
 |---------|------------|--------|------|
 | `nl_generics_demo.nano` | ⭐⭐⭐ Advanced | Generic List<T> | 40 min |
-| `nl_generic_stack.nano` | ⭐⭐⭐ Advanced | Generic Stack<T> | 30 min |
-| `nl_generic_queue.nano` | ⭐⭐⭐ Advanced | Generic Queue<T> | 30 min |
 
 ---
 
@@ -157,7 +150,6 @@ For advanced language features and metaprogramming:
 | Example | Difficulty | Topics | Time |
 |---------|------------|--------|------|
 | `nl_advanced_math.nano` | ⭐⭐ Intermediate | Trig, logarithms | 25 min |
-| `nl_math_utils.nano` | ⭐⭐ Intermediate | Math utilities | 20 min |
 | `nl_extern_math.nano` | ⭐⭐ Intermediate | C math FFI | 20 min |
 | `nl_extern_char.nano` | ⭐⭐ Intermediate | C char FFI | 15 min |
 | `nl_matrix_operations.nano` | ⭐⭐⭐⭐⭐ Expert | Linear algebra ⭐ SHOWCASE | 60 min |
@@ -165,12 +157,10 @@ For advanced language features and metaprogramming:
 
 ---
 
-### 6. STANDARD LIBRARY (4 examples)
+### 6. STANDARD LIBRARY (2 examples)
 
 | Example | Difficulty | Topics | Time |
 |---------|------------|--------|------|
-| `nl_stdlib.nano` | ⭐⭐ Intermediate | Stdlib overview | 30 min |
-| `nl_os_basic.nano` | ⭐⭐ Intermediate | File I/O, paths | 30 min |
 | `stdlib_ast_demo.nano` | ⭐⭐⭐⭐⭐ Expert | AST manipulation ⭐ SHOWCASE | 60 min |
 | `nl_tracing.nano` | ⭐⭐ Intermediate | Execution tracing | 25 min |
 
@@ -293,12 +283,10 @@ For advanced language features and metaprogramming:
 
 ---
 
-### 11. ADVANCED FEATURES (3 examples)
+### 11. ADVANCED FEATURES (1 example)
 
 | Example | Difficulty | Topics | Time |
 |---------|------------|--------|------|
-| `nl_language_features.nano` | ⭐⭐ Intermediate | Feature showcase | 30 min |
-| `nl_new_features.nano` | ⭐⭐ Intermediate | Recent features | 20 min |
 | `nl_demo_selfhosting.nano` | ⭐⭐⭐⭐⭐ Expert | Self-hosting demo | 60 min |
 
 ---
@@ -355,9 +343,9 @@ See `docs/SHOWCASE_APPLICATIONS.md` for detailed analysis.
 
 Find examples by topic:
 
-**Language Core**: hello, calculator, operators, types, mutable, loops, factorial, fibonacci
+**Language Core**: hello, calculator, operators, types, mutable, factorial, fibonacci
 
-**Data Structures**: arrays, structs, enums, unions, tuples, generics
+**Data Structures**: arrays, structs, enums, unions, generics
 
 **Functions**: first-class, factories (no captured closures), map/reduce
 
@@ -365,7 +353,7 @@ Find examples by topic:
 
 **Math**: advanced math, matrix operations, pi calculator, extern math
 
-**I/O & OS**: stdlib, os_basic, file operations
+**I/O & OS**: file operations, paths
 
 **FFI & External**: curl, sqlite, uv, event, onnx
 
@@ -396,7 +384,6 @@ LEVEL 2 (Hello World only):
 
 LEVEL 3 (Basics + Types):
 ├─ nl_mutable.nano
-├─ nl_for_loop_patterns.nano
 ├─ nl_array_complete.nano
 └─ nl_struct.nano
 

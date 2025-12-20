@@ -34,8 +34,6 @@
 # - Understanding of polymorphism
 #
 # Next Steps:
-# - nl_generic_stack.nano - Stack data structure
-# - nl_generic_queue.nano - Queue data structure
 # - Implement your own generic types
 
 # ==============================================================================

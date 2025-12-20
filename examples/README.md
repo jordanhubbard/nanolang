@@ -89,12 +89,8 @@ cd examples && make
   - Real-world analytics pipeline architecture
   - 19 comprehensive shadow tests
 
-- **nl_map_reduce.nano** - Map/Reduce demonstrations
-  - First-class functions with map() and reduce()
-  - Multiple transformation examples
-  - Function composition patterns
-  - Conditional returns
-  - Edge case handling (0! = 1)
+- **nl_filter_map_fold.nano** - Filter/Map/Fold patterns
+  - Canonical functional-programming example (higher-order functions)
 
 - **fibonacci.nano** - Fibonacci sequence
   - Classic recursive algorithm
