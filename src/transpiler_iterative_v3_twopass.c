@@ -286,6 +286,16 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env);
 static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *env, 
                        FunctionTypeRegistry *fn_registry);
 
+static bool is_generic_list_runtime_fn(const char *name) {
+    if (!name) return false;
+    if (strncmp(name, "list_", 5) != 0) return false;
+    /* Built-in runtime lists (do NOT get nl_ prefix) */
+    if (strncmp(name, "list_int_", 9) == 0) return false;
+    if (strncmp(name, "list_string_", 12) == 0) return false;
+    if (strncmp(name, "list_token_", 11) == 0) return false;
+    return true;
+}
+
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
     if (!expr) return;
     
@@ -1300,7 +1310,13 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
             else {
                 /* Regular function call */
-                const char *mapped_name = map_function_name(func_name, env);
+                const char *mapped_name = func_name;
+                if (is_generic_list_runtime_fn(func_name)) {
+                    static _Thread_local char buf[512];
+                    snprintf(buf, sizeof(buf), "nl_%s", func_name);
+                    mapped_name = buf;
+                }
+                mapped_name = map_function_name(mapped_name, env);
                 
                 emit_literal(list, mapped_name);
                 emit_literal(list, "(");
@@ -1649,6 +1665,15 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                 const char *typedef_name = register_function_signature(fn_registry, stmt->as.let.fn_sig);
                 emit_formatted(list, "%s %s", typedef_name, stmt->as.let.name);
                 
+                if (stmt->as.let.value) {
+                    emit_literal(list, " = ");
+                    build_expr(list, stmt->as.let.value, env);
+                }
+                emit_literal(list, ";\n");
+            }
+            /* Handle List<T> (generic lists) */
+            else if (stmt->as.let.var_type == TYPE_LIST_GENERIC && stmt->as.let.type_name) {
+                emit_formatted(list, "List_%s* %s", stmt->as.let.type_name, stmt->as.let.name);
                 if (stmt->as.let.value) {
                     emit_literal(list, " = ");
                     build_expr(list, stmt->as.let.value, env);

@@ -389,30 +389,37 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1)
 	@echo "=========================================="
 	@echo "Compiling components with stage1..."
 	@echo ""
-	@# Compile each self-hosted component
-	@success=0; \
+	@# Compile each self-hosted component (STRICT: must produce an executable binary)
+	@success=0; fail=0; \
 	for comp in $(SELFHOST_COMPONENTS); do \
+		out="$(BIN_DIR)/$$comp"; \
+		log="/tmp/nanolang_stage2_$$comp.log"; \
 		echo "  Building $$comp..."; \
-		if $(COMPILER) $(SRC_NANO_DIR)/$$comp.nano -o $(BIN_DIR)/$$comp 2>&1 | tail -3 | grep -q "passed"; then \
-			echo "    ✓ $$comp compiled successfully"; \
-			success=$$((success + 1)); \
+		rm -f "$$out" "$$log"; \
+		if $(COMPILER) "$(SRC_NANO_DIR)/$$comp.nano" -o "$$out" >"$$log" 2>&1; then \
+			if [ -x "$$out" ]; then \
+				echo "    ✓ $$comp compiled successfully"; \
+				success=$$((success + 1)); \
+			else \
+				echo "    ❌ $$comp: compiler returned success but binary missing/not executable: $$out"; \
+				tail -80 "$$log" || true; \
+				fail=$$((fail + 1)); \
+			fi; \
 		else \
-			echo "    ⚠️  $$comp compilation had warnings"; \
+			echo "    ❌ $$comp compilation failed"; \
+			tail -80 "$$log" || true; \
+			fail=$$((fail + 1)); \
 		fi; \
+		echo ""; \
 	done; \
-	echo ""; \
-	if [ $$success -eq 3 ]; then \
+	if [ $$fail -eq 0 ] && [ $$success -eq 3 ]; then \
 		echo "✓ Stage 2: $$success/3 components built successfully"; \
 		touch $(SENTINEL_STAGE2); \
 	else \
-		echo "❌ Stage 2: FAILED - Only $$success/3 components built successfully"; \
+		echo "❌ Stage 2: FAILED - $$success/3 components built (failures: $$fail)"; \
 		echo ""; \
-		echo "Self-hosted components are optional. The C reference compiler still works."; \
-		echo "To use nanolang without self-hosted features, this is fine."; \
-		echo "To fix: Check errors above or run 'make clean && make' to retry."; \
-		echo ""; \
-		echo "Continuing with C reference compiler only..."; \
-		touch $(SENTINEL_STAGE2); \
+		echo "Fix the failing component(s) above (see /tmp/nanolang_stage2_<component>.log)."; \
+		exit 1; \
 	fi
 
 # ============================================================================
@@ -430,51 +437,35 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 	@echo "=========================================="
 	@echo "Validating self-hosted components..."
 	@echo ""
-	@# Run shadow tests on compiled components
-	@success=0; \
+	@# Run each component (they are expected to run their own shadow tests and exit 0)
+	@success=0; fail=0; missing=0; \
 	for comp in $(SELFHOST_COMPONENTS); do \
-		if [ -f $(BIN_DIR)/$$comp ]; then \
-			echo "  Testing $$comp..."; \
-			if $(BIN_DIR)/$$comp >/dev/null 2>&1; then \
-				echo "    ✓ $$comp tests passed"; \
-				success=$$((success + 1)); \
-			else \
-				echo "    ⚠️  $$comp tests had issues"; \
-			fi; \
+		bin="$(BIN_DIR)/$$comp"; \
+		log="/tmp/nanolang_stage3_$$comp.log"; \
+		if [ ! -x "$$bin" ]; then \
+			echo "  ❌ Missing component binary: $$bin"; \
+			missing=$$((missing + 1)); \
+			continue; \
+		fi; \
+		echo "  Testing $$comp..."; \
+		if "$$bin" >"$$log" 2>&1; then \
+			echo "    ✓ $$comp tests passed"; \
+			success=$$((success + 1)); \
+		else \
+			echo "    ❌ $$comp tests failed"; \
+			tail -120 "$$log" || true; \
+			fail=$$((fail + 1)); \
 		fi; \
 	done; \
 	echo ""; \
-	if [ $$success -eq 3 ]; then \
+	if [ $$missing -eq 0 ] && [ $$fail -eq 0 ] && [ $$success -eq 3 ]; then \
 		echo "✓ Stage 3: $$success/3 components validated"; \
+		touch $(SENTINEL_STAGE3); \
 	else \
-		echo "⚠️  Stage 3: Only $$success/3 components validated (self-hosted features incomplete)"; \
-	fi; \
-	echo ""; \
-	echo "==========================================";\
-	echo "Bootstrap Status Summary"; \
-	echo "==========================================";\
-	echo "✅ Stage 1: C reference compiler working"; \
-	if [ $$success -eq 3 ]; then \
-		echo "✅ Stage 2: Self-hosted components compile"; \
-		echo "✅ Stage 3: Components pass tests"; \
-		echo ""; \
-		echo "📊 Self-Hosted Code Statistics:"; \
-		echo "  • Parser:       2,767 lines"; \
-		echo "  • Type Checker:   797 lines"; \
-		echo "  • Transpiler:   1,081 lines"; \
-		echo "  • Total:        4,645+ lines"; \
-		echo ""; \
-		echo "🎯 Status: Phase 1 Complete (85%)"; \
-	else \
-		echo "⚠️  Stage 2: Self-hosted components incomplete (using C reference only)"; \
-		echo "⚠️  Stage 3: Component validation skipped"; \
-		echo ""; \
-		echo "✓ C reference compiler is fully functional"; \
-		echo "✓ All language features work via C implementation"; \
-		echo "✓ Self-hosted features are optional/experimental"; \
-	fi; \
-	echo ""; \
-	touch $(SENTINEL_STAGE3)
+		echo "❌ Stage 3: FAILED - validated $$success/3 (missing: $$missing, failures: $$fail)"; \
+		echo "See /tmp/nanolang_stage3_<component>.log for details."; \
+		exit 1; \
+	fi
 
 # ============================================================================
 # TRUE Bootstrap (GCC-style: Stage 0 → 1 → 2 → 3)
@@ -532,7 +523,7 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
 		echo "" && \
 		echo "Testing stage 1 compiler..." && \
-		if $(NANOC_STAGE1) examples/nl_hello.nano /tmp/bootstrap_test && /tmp/bootstrap_test >/dev/null 2>&1; then \
+		if $(NANOC_STAGE1) examples/nl_hello.nano -o /tmp/bootstrap_test && /tmp/bootstrap_test >/dev/null 2>&1; then \
 			echo "✓ Stage 1 compiler works!"; \
 			touch $(SENTINEL_BOOTSTRAP1); \
 		else \
@@ -553,10 +544,36 @@ $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
 	@echo "Bootstrap Stage 2: Recompilation"
 	@echo "=========================================="
 	@echo "Compiling nanoc_v05.nano with stage 1 compiler..."
-	@$(NANOC_STAGE1) $(NANOC_SOURCE) $(NANOC_STAGE2) && \
-	echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)" && \
-	echo "" && \
-	touch $(SENTINEL_BOOTSTRAP2)
+	@$(NANOC_STAGE1) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
+	@echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)"
+	@echo ""
+	@echo "Testing stage 2 compiler..."
+	@if $(NANOC_STAGE2) examples/nl_hello.nano -o /tmp/bootstrap_test2 && /tmp/bootstrap_test2 >/dev/null 2>&1; then \
+		echo "✓ Stage 2 compiler works!"; \
+		touch $(SENTINEL_BOOTSTRAP2); \
+	else \
+		echo "❌ Stage 2 compiler test failed"; \
+		exit 1; \
+	fi
+
+# Verify that each bootstrap stage produced stand-alone compilers that can compile and run a smoke test
+.PHONY: verify-bootstrap
+verify-bootstrap: bootstrap
+	@echo ""
+	@echo "=========================================="
+	@echo "Verifying Bootstrap Artifacts"
+	@echo "=========================================="
+	@test -x $(NANOC_STAGE1) || { echo "❌ Missing: $(NANOC_STAGE1)"; exit 1; }
+	@test -x $(NANOC_STAGE2) || { echo "❌ Missing: $(NANOC_STAGE2)"; exit 1; }
+	@echo "✓ Found stage compilers:"
+	@ls -lh $(NANOC_STAGE1) $(NANOC_STAGE2)
+	@echo ""
+	@echo "Smoke test: stage1 compiles + runs nl_hello.nano..."
+	@$(NANOC_STAGE1) examples/nl_hello.nano -o /tmp/bootstrap_verify_stage1 && /tmp/bootstrap_verify_stage1 >/dev/null
+	@echo "✓ stage1 ok"
+	@echo "Smoke test: stage2 compiles + runs nl_hello.nano..."
+	@$(NANOC_STAGE2) examples/nl_hello.nano -o /tmp/bootstrap_verify_stage2 && /tmp/bootstrap_verify_stage2 >/dev/null
+	@echo "✓ stage2 ok"
 
 # Bootstrap Stage 3: Verify reproducible build
 bootstrap3: $(SENTINEL_BOOTSTRAP3)
@@ -598,6 +615,14 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 	rm -f $(COMPILER); \
 	ln -sf nanoc_stage2 $(COMPILER); \
 	echo "✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)"; \
+	echo ""; \
+	echo "Smoke test: installed bin/nanoc compiles + runs nl_hello.nano..."; \
+	if $(COMPILER) examples/nl_hello.nano -o /tmp/bootstrap_installed_test && /tmp/bootstrap_installed_test >/dev/null 2>&1; then \
+		echo "✓ installed compiler works"; \
+	else \
+		echo "❌ installed compiler smoke test failed"; \
+		exit 1; \
+	fi; \
 	echo ""; \
 	echo "All subsequent builds (test, examples) will use the self-hosted compiler!"; \
 	echo ""; \
