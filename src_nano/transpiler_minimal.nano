@@ -17,6 +17,8 @@
  * - Generate flat C (minimal helper functions)
  */
 
+import "src_nano/compiler/ir.nano"
+
 /* =============================================================================
  * CODE GENERATION STATE
  * ============================================================================= */
@@ -470,111 +472,7 @@ shadow gen_c_program {
     assert (== 1 1)
 }
 
-/* =============================================================================
- * PARSER AST TYPE DEFINITIONS (for transpiler)
- * ============================================================================= */
-
-struct ASTFunction {
-    node_type: int,
-    line: int,
-    column: int,
-    name: string,
-    param_count: int,
-    return_type: string,
-    body: int
-}
-
-struct Parser {
-    functions_count: int
-}
-
-/* Additional AST node types needed for code generation */
-struct ASTNumber {
-    node_type: int,
-    line: int,
-    column: int,
-    value: string
-}
-
-struct ASTIdentifier {
-    node_type: int,
-    line: int,
-    column: int,
-    name: string
-}
-
-struct ASTBinaryOp {
-    node_type: int,
-    line: int,
-    column: int,
-    op: int,
-    left: int,
-    right: int,
-    left_type: int,
-    right_type: int
-}
-
-struct ASTCall {
-    node_type: int,
-    line: int,
-    column: int,
-    function: int,
-    arg_count: int
-}
-
-struct ASTReturn {
-    node_type: int,
-    line: int,
-    column: int,
-    value: int,
-    value_type: int
-}
-
-struct ASTBlock {
-    node_type: int,
-    line: int,
-    column: int,
-    statement_count: int
-}
-
-struct ASTLet {
-    node_type: int,
-    line: int,
-    column: int,
-    name: string,
-    var_type: string,
-    value: int,
-    value_type: int,
-    is_mut: bool
-}
-
-struct ASTSet {
-    node_type: int,
-    line: int,
-    column: int,
-    target: string,
-    value: int,
-    value_type: int
-}
-
-struct ASTIf {
-    node_type: int,
-    line: int,
-    column: int,
-    condition: int,
-    condition_type: int,
-    then_body: int,
-    else_body: int
-}
-
-struct ASTWhile {
-    node_type: int,
-    line: int,
-    column: int,
-    condition: int,
-    condition_type: int,
-    body: int
-}
+/* AST and Parser IR types are provided by src_nano/compiler/ir.nano */
 
 /* Parser accessor function declarations */
 extern fn parser_get_function_count(p: Parser) -> int
