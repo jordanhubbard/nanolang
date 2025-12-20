@@ -2,6 +2,8 @@
 # Using: Structs, Unary operators, Top-level constants, Type casting, Dynamic arrays, GC!
 # MODERNIZED: Added Boid struct for cleaner data organization
 
+from "std/math/vector2d.nano" import vec_new, vec_length
+
 # === STRUCTS ===
 struct Boid {
     x: float,
@@ -17,16 +19,6 @@ let PERCEPTION_RADIUS: float = 40.0
 let MAX_SPEED: float = 20.0
 let DT: float = 0.2
 let MAX_FRAMES: int = 40
-
-# === VECTOR MATH ===
-
-fn vec_length(x: float, y: float) -> float {
-    return (sqrt (+ (* x x) (* y y)))
-}
-
-shadow vec_length {
-    assert (== (vec_length 3.0 4.0) 5.0)
-}
 
 # === BOID SIMULATION ===
 
@@ -134,7 +126,7 @@ fn main() -> int {
             let new_vy_val: float = (+ vy (* to_y 0.08))
             
             # Speed limiting using constant
-            let speed: float = (vec_length new_vx_val new_vy_val)
+            let speed: float = (vec_length (vec_new new_vx_val new_vy_val))
             if (> speed MAX_SPEED) {
                 set new_vx_val (* new_vx_val 0.85)
                 set new_vy_val (* new_vy_val 0.85)
@@ -216,7 +208,7 @@ fn main() -> int {
     while (< i NUM_BOIDS) {
         let vx: float = (at boid_vx i)
         let vy: float = (at boid_vy i)
-        let speed: float = (vec_length vx vy)
+        let speed: float = (vec_length (vec_new vx vy))
         set avg_speed (+ avg_speed speed)
         set i (+ i 1)
     }

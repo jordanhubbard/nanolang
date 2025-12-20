@@ -5,7 +5,7 @@
  * Shows: vector creation, operations, normalization, rotation.
  */
 
-from "modules/std/math/vector2d.nano" import Vector2D, vec_new, vec_length, vec_add, vec_normalize, vec_rotate
+from "std/math/vector2d.nano" import Vector2D, vec_new, vec_length, vec_add, vec_normalize, vec_rotate
 
 fn main() -> int {
     (println "Testing Vector2D module...")

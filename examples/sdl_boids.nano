@@ -8,6 +8,8 @@ import "modules/sdl_ttf/sdl_ttf.nano"
 import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 import "modules/ui_widgets/ui_widgets.nano"
 
+from "std/math/vector2d.nano" import vec_new, vec_length
+
 # === STRUCTS ===
 struct Boid {
     x: float,
@@ -31,45 +33,6 @@ let MIN_DISTANCE: float = 20.0
 let COHESION_FACTOR: float = 0.005
 let SEPARATION_FACTOR: float = 0.05
 let ALIGNMENT_FACTOR: float = 0.05
-
-# === VECTOR MATH ===
-
-fn vec_length(dx: float, dy: float) -> float {
-    return (sqrt (+ (* dx dx) (* dy dy)))
-}
-
-shadow vec_length {
-    assert (== (vec_length 3.0 4.0) 5.0)
-}
-
-fn vec_normalize(dx: float, dy: float, length: float) -> float {
-    if (> length 0.0) {
-        return (/ dx length)
-    } else {
-        return 0.0
-    }
-}
-
-shadow vec_normalize {
-    let nx: float = (vec_normalize 3.0 4.0 5.0)
-    assert (> nx 0.59)
-    assert (< nx 0.61)
-}
-
-fn limit_speed(vx: float, vy: float, max_speed: float) -> float {
-    let speed: float = (vec_length vx vy)
-    if (> speed max_speed) {
-        let scale: float = (/ max_speed speed)
-        return (* vx scale)
-    } else {
-        return vx
-    }
-}
-
-shadow limit_speed {
-    let limited: float = (limit_speed 100.0 100.0 50.0)
-    assert (< limited 50.0)
-}
 
 # === SIMPLIFIED BOID UPDATE (JUST WRAPPING FOR NOW) ===
 
@@ -229,7 +192,7 @@ fn main() -> int {
                     let other_y: float = (at boid_y j)
                     let dx: float = (- other_x x)
                     let dy: float = (- other_y y)
-                    let dist: float = (vec_length dx dy)
+                    let dist: float = (vec_length (vec_new dx dy))
                     
                     if (< dist VISUAL_RANGE) {
                         # Cohesion: steer towards average position
@@ -274,7 +237,7 @@ fn main() -> int {
             set new_vy_val (+ new_vy_val (* separation_y separation_factor))
             
             # Limit speed
-            let speed: float = (vec_length new_vx_val new_vy_val)
+            let speed: float = (vec_length (vec_new new_vx_val new_vy_val))
             if (> speed MAX_SPEED) {
                 let scale: float = (/ MAX_SPEED speed)
                 set new_vx_val (* new_vx_val scale)
