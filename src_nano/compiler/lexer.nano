@@ -24,45 +24,116 @@ fn is_digit_char(c: int) -> bool {
     return (and (>= c 48) (<= c 57))
 }
 
-fn keyword_or_identifier(s: string) -> int {
+fn keyword_group1(s: string) -> int {
     if (== s "module") { return NLTokenType.NL_TOKEN_MODULE } else {
-    if (== s "pub") { return NLTokenType.NL_TOKEN_PUB } else {
-    if (== s "from") { return NLTokenType.NL_TOKEN_FROM } else {
-    if (== s "use") { return NLTokenType.NL_TOKEN_USE } else {
+        if (== s "pub") { return NLTokenType.NL_TOKEN_PUB } else {
+            if (== s "from") { return NLTokenType.NL_TOKEN_FROM } else {
+                if (== s "use") { return NLTokenType.NL_TOKEN_USE } else {
+                    return -1
+                }
+            }
+        }
+    }
+}
+
+fn keyword_group2(s: string) -> int {
     if (== s "extern") { return NLTokenType.NL_TOKEN_EXTERN } else {
-    if (== s "fn") { return NLTokenType.NL_TOKEN_FN } else {
-    if (== s "let") { return NLTokenType.NL_TOKEN_LET } else {
-    if (== s "mut") { return NLTokenType.NL_TOKEN_MUT } else {
-    if (== s "set") { return NLTokenType.NL_TOKEN_SET } else {
-    if (== s "if") { return NLTokenType.NL_TOKEN_IF } else {
-    if (== s "else") { return NLTokenType.NL_TOKEN_ELSE } else {
-    if (== s "while") { return NLTokenType.NL_TOKEN_WHILE } else {
-    if (== s "for") { return NLTokenType.NL_TOKEN_FOR } else {
-    if (== s "in") { return NLTokenType.NL_TOKEN_IN } else {
-    if (== s "return") { return NLTokenType.NL_TOKEN_RETURN } else {
-    if (== s "assert") { return NLTokenType.NL_TOKEN_ASSERT } else {
-    if (== s "shadow") { return NLTokenType.NL_TOKEN_SHADOW } else {
-    if (== s "array") { return NLTokenType.NL_TOKEN_ARRAY } else {
-    if (== s "struct") { return NLTokenType.NL_TOKEN_STRUCT } else {
-    if (== s "enum") { return NLTokenType.NL_TOKEN_ENUM } else {
-    if (== s "union") { return NLTokenType.NL_TOKEN_UNION } else {
-    if (== s "match") { return NLTokenType.NL_TOKEN_MATCH } else {
-    if (== s "import") { return NLTokenType.NL_TOKEN_IMPORT } else {
-    if (== s "as") { return NLTokenType.NL_TOKEN_AS } else {
-    if (== s "opaque") { return NLTokenType.NL_TOKEN_OPAQUE } else {
-    if (== s "true") { return NLTokenType.NL_TOKEN_TRUE } else {
-    if (== s "false") { return NLTokenType.NL_TOKEN_FALSE } else {
+        if (== s "fn") { return NLTokenType.NL_TOKEN_FN } else {
+            if (== s "let") { return NLTokenType.NL_TOKEN_LET } else {
+                if (== s "mut") { return NLTokenType.NL_TOKEN_MUT } else {
+                    if (== s "set") { return NLTokenType.NL_TOKEN_SET } else {
+                        if (== s "if") { return NLTokenType.NL_TOKEN_IF } else {
+                            if (== s "else") { return NLTokenType.NL_TOKEN_ELSE } else {
+                                if (== s "while") { return NLTokenType.NL_TOKEN_WHILE } else {
+                                    if (== s "for") { return NLTokenType.NL_TOKEN_FOR } else {
+                                        if (== s "in") { return NLTokenType.NL_TOKEN_IN } else {
+                                            if (== s "return") { return NLTokenType.NL_TOKEN_RETURN } else {
+                                                if (== s "assert") { return NLTokenType.NL_TOKEN_ASSERT } else {
+                                                    if (== s "shadow") { return NLTokenType.NL_TOKEN_SHADOW } else {
+                                                        if (== s "array") { return NLTokenType.NL_TOKEN_ARRAY } else {
+                                                            if (== s "struct") { return NLTokenType.NL_TOKEN_STRUCT } else {
+                                                                if (== s "enum") { return NLTokenType.NL_TOKEN_ENUM } else {
+                                                                    if (== s "union") { return NLTokenType.NL_TOKEN_UNION } else {
+                                                                        if (== s "match") { return NLTokenType.NL_TOKEN_MATCH } else {
+                                                                            if (== s "import") { return NLTokenType.NL_TOKEN_IMPORT } else {
+                                                                                if (== s "as") { return NLTokenType.NL_TOKEN_AS } else {
+                                                                                    if (== s "opaque") { return NLTokenType.NL_TOKEN_OPAQUE } else {
+                                                                                        if (== s "true") { return NLTokenType.NL_TOKEN_TRUE } else {
+                                                                                            if (== s "false") { return NLTokenType.NL_TOKEN_FALSE } else {
+                                                                                                return -1
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn keyword_group3(s: string) -> int {
     if (== s "int") { return NLTokenType.NL_TOKEN_TYPE_INT } else {
-    if (== s "float") { return NLTokenType.NL_TOKEN_TYPE_FLOAT } else {
-    if (== s "bool") { return NLTokenType.NL_TOKEN_TYPE_BOOL } else {
-    if (== s "string") { return NLTokenType.NL_TOKEN_TYPE_STRING } else {
-    if (== s "bstring") { return NLTokenType.NL_TOKEN_TYPE_BSTRING } else {
-    if (== s "void") { return NLTokenType.NL_TOKEN_TYPE_VOID } else {
+        if (== s "float") { return NLTokenType.NL_TOKEN_TYPE_FLOAT } else {
+            if (== s "bool") { return NLTokenType.NL_TOKEN_TYPE_BOOL } else {
+                if (== s "string") { return NLTokenType.NL_TOKEN_TYPE_STRING } else {
+                    if (== s "bstring") { return NLTokenType.NL_TOKEN_TYPE_BSTRING } else {
+                        if (== s "void") { return NLTokenType.NL_TOKEN_TYPE_VOID } else {
+                            return -1
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn keyword_group4(s: string) -> int {
     if (== s "and") { return NLTokenType.NL_TOKEN_AND } else {
-    if (== s "or") { return NLTokenType.NL_TOKEN_OR } else {
-    if (== s "not") { return NLTokenType.NL_TOKEN_NOT } else {
-        return NLTokenType.NL_TOKEN_IDENTIFIER
-    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+        if (== s "or") { return NLTokenType.NL_TOKEN_OR } else {
+            if (== s "not") { return NLTokenType.NL_TOKEN_NOT } else {
+                return -1
+            }
+        }
+    }
+}
+
+fn keyword_or_identifier(s: string) -> int {
+    let t1: int = (keyword_group1 s)
+    if (!= t1 -1) {
+        return t1
+    } else {
+        let t2: int = (keyword_group2 s)
+        if (!= t2 -1) {
+            return t2
+        } else {
+            let t3: int = (keyword_group3 s)
+            if (!= t3 -1) {
+                return t3
+            } else {
+                let t4: int = (keyword_group4 s)
+                if (!= t4 -1) {
+                    return t4
+                } else {
+                    return NLTokenType.NL_TOKEN_IDENTIFIER
+                }
+            }
+        }
+    }
 }
 
 fn push_tok(tokens: List<LexToken>, token_type: int, value: string, line: int, column: int) -> void {
@@ -179,7 +250,7 @@ fn process_char_literal(source: string, i: int, len: int, tokens: List<LexToken>
     }
 }
 
-fn tokenize_string(source: string) -> List<LexToken> {
+pub fn tokenize_string(source: string) -> List<LexToken> {
     let mut tokens: List<LexToken> = (list_LexToken_new)
     let mut i: int = 0
     let len: int = (str_length source)
@@ -209,7 +280,8 @@ fn tokenize_string(source: string) -> List<LexToken> {
                 /* Block comment */
                 if (and (== c 47) (and (< (+ i 1) len) (== (char_at source (+ i 1)) 42))) {
                     set i (+ i 2)
-                    while (< i len) {
+                    let mut done_comment: bool = false
+                    while (and (< i len) (not done_comment)) {
                         let cc: int = (char_at source i)
                         if (== cc 10) {
                             set line (+ line 1)
@@ -219,7 +291,7 @@ fn tokenize_string(source: string) -> List<LexToken> {
                         }
                         if (and (== cc 42) (and (< (+ i 1) len) (== (char_at source (+ i 1)) 47))) {
                             set i (+ i 2)
-                            break
+                            set done_comment true
                         } else {
                             set i (+ i 1)
                         }
@@ -273,31 +345,94 @@ fn tokenize_string(source: string) -> List<LexToken> {
                                         if (is_identifier_start c) {
                                             set new_pos (process_identifier source i len tokens line column)
                                         } else {
-                                            if (== c 40) { (push_tok tokens NLTokenType.NL_TOKEN_LPAREN "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 41) { (push_tok tokens NLTokenType.NL_TOKEN_RPAREN "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 123) { (push_tok tokens NLTokenType.NL_TOKEN_LBRACE "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 125) { (push_tok tokens NLTokenType.NL_TOKEN_RBRACE "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 91) { (push_tok tokens NLTokenType.NL_TOKEN_LBRACKET "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 93) { (push_tok tokens NLTokenType.NL_TOKEN_RBRACKET "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 44) { (push_tok tokens NLTokenType.NL_TOKEN_COMMA "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 58) { (push_tok tokens NLTokenType.NL_TOKEN_COLON "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 46) { (push_tok tokens NLTokenType.NL_TOKEN_DOT "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 43) { (push_tok tokens NLTokenType.NL_TOKEN_PLUS "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 45) { (push_tok tokens NLTokenType.NL_TOKEN_MINUS "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 42) { (push_tok tokens NLTokenType.NL_TOKEN_STAR "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 47) { (push_tok tokens NLTokenType.NL_TOKEN_SLASH "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 37) { (push_tok tokens NLTokenType.NL_TOKEN_PERCENT "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 60) { (push_tok tokens NLTokenType.NL_TOKEN_LT "" line column); set new_pos (+ i 1) } else {
-                                            if (== c 62) { (push_tok tokens NLTokenType.NL_TOKEN_GT "" line column); set new_pos (+ i 1) } else {
+                                            if (== c 40) {
+                                                (push_tok tokens NLTokenType.NL_TOKEN_LPAREN "" line column)
                                                 set new_pos (+ i 1)
-                                            }}}}}}}}}}}}}}}}}
+                                            } else {
+                                                if (== c 41) {
+                                                    (push_tok tokens NLTokenType.NL_TOKEN_RPAREN "" line column)
+                                                    set new_pos (+ i 1)
+                                                } else {
+                                                    if (== c 123) {
+                                                        (push_tok tokens NLTokenType.NL_TOKEN_LBRACE "" line column)
+                                                        set new_pos (+ i 1)
+                                                    } else {
+                                                        if (== c 125) {
+                                                            (push_tok tokens NLTokenType.NL_TOKEN_RBRACE "" line column)
+                                                            set new_pos (+ i 1)
+                                                        } else {
+                                                            if (== c 91) {
+                                                                (push_tok tokens NLTokenType.NL_TOKEN_LBRACKET "" line column)
+                                                                set new_pos (+ i 1)
+                                                            } else {
+                                                                if (== c 93) {
+                                                                    (push_tok tokens NLTokenType.NL_TOKEN_RBRACKET "" line column)
+                                                                    set new_pos (+ i 1)
+                                                                } else {
+                                                                    if (== c 44) {
+                                                                        (push_tok tokens NLTokenType.NL_TOKEN_COMMA "" line column)
+                                                                        set new_pos (+ i 1)
+                                                                    } else {
+                                                                        if (== c 58) {
+                                                                            (push_tok tokens NLTokenType.NL_TOKEN_COLON "" line column)
+                                                                            set new_pos (+ i 1)
+                                                                        } else {
+                                                                            if (== c 46) {
+                                                                                (push_tok tokens NLTokenType.NL_TOKEN_DOT "" line column)
+                                                                                set new_pos (+ i 1)
+                                                                            } else {
+                                                                                if (== c 43) {
+                                                                                    (push_tok tokens NLTokenType.NL_TOKEN_PLUS "" line column)
+                                                                                    set new_pos (+ i 1)
+                                                                                } else {
+                                                                                    if (== c 45) {
+                                                                                        (push_tok tokens NLTokenType.NL_TOKEN_MINUS "" line column)
+                                                                                        set new_pos (+ i 1)
+                                                                                    } else {
+                                                                                        if (== c 42) {
+                                                                                            (push_tok tokens NLTokenType.NL_TOKEN_STAR "" line column)
+                                                                                            set new_pos (+ i 1)
+                                                                                        } else {
+                                                                                            if (== c 47) {
+                                                                                                (push_tok tokens NLTokenType.NL_TOKEN_SLASH "" line column)
+                                                                                                set new_pos (+ i 1)
+                                                                                            } else {
+                                                                                                if (== c 37) {
+                                                                                                    (push_tok tokens NLTokenType.NL_TOKEN_PERCENT "" line column)
+                                                                                                    set new_pos (+ i 1)
+                                                                                                } else {
+                                                                                                    if (== c 60) {
+                                                                                                        (push_tok tokens NLTokenType.NL_TOKEN_LT "" line column)
+                                                                                                        set new_pos (+ i 1)
+                                                                                                    } else {
+                                                                                                        if (== c 62) {
+                                                                                                            (push_tok tokens NLTokenType.NL_TOKEN_GT "" line column)
+                                                                                                            set new_pos (+ i 1)
+                                                                                                        } else {
+                                                                                                            set new_pos (+ i 1)
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
 
                             if (== new_pos -1) {
-                                break
+                                set i len
                             } else {
                                 set i new_pos
                             }
@@ -312,15 +447,9 @@ fn tokenize_string(source: string) -> List<LexToken> {
     return tokens
 }
 
-fn tokenize_file(path: string) -> List<LexToken> {
-    if (not (file_exists path)) {
-        let mut tokens: List<LexToken> = (list_LexToken_new)
-        (push_tok tokens NLTokenType.NL_TOKEN_EOF "" 0 0)
-        return tokens
-    } else {
-        let source: string = (file_read path)
-        return (tokenize_string source)
-    }
+pub fn tokenize_file(path: string) -> List<LexToken> {
+    let source: string = (file_read path)
+    return (tokenize_string source)
 }
 
 shadow tokenize_string {

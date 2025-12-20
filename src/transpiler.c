@@ -2221,7 +2221,6 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                 break;
             }
         }
-        if (!module_name) continue;
 
         for (int j = 0; j < module_ast->as.program.count; j++) {
             ASTNode *mi = module_ast->as.program.items[j];
@@ -2230,8 +2229,14 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
             if (mi->as.function.is_extern) continue;
             if (strcmp(mi->as.function.name, "main") == 0) continue;
 
-            char c_name[512];
-            snprintf(c_name, sizeof(c_name), "%s__%s", module_name, mi->as.function.name);
+            const char *c_name = NULL;
+            char c_name_buf[512];
+            if (module_name) {
+                snprintf(c_name_buf, sizeof(c_name_buf), "%s__%s", module_name, mi->as.function.name);
+                c_name = c_name_buf;
+            } else {
+                c_name = get_c_func_name_with_module(mi->as.function.name, NULL);
+            }
 
             /* De-dupe */
             bool seen = false;

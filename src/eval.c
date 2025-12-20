@@ -2933,6 +2933,10 @@ static Value eval_call(ASTNode *node, Environment *env) {
                     for (int i = 0; i < sv_copy->field_count; i++) {
                         sv_copy->field_names[i] = strdup(args[1].as.struct_val->field_names[i]);
                         sv_copy->field_values[i] = args[1].as.struct_val->field_values[i];
+                        /* Deep-copy strings so they outlive the caller's stack frame */
+                        if (sv_copy->field_values[i].type == VAL_STRING && sv_copy->field_values[i].as.string_val) {
+                            sv_copy->field_values[i].as.string_val = strdup(sv_copy->field_values[i].as.string_val);
+                        }
                     }
                     list_int_push(list, (int64_t)sv_copy);
                 } else {
@@ -2961,6 +2965,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
                     StructValue *sv = (StructValue*)stored_val;
                     Value result;
                     result.type = VAL_STRUCT;
+                    result.is_return = false;
                     result.as.struct_val = sv;
                     free(type_name);
                     return result;
@@ -2990,6 +2995,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
                     StructValue *sv = (StructValue*)stored_val;
                     Value result;
                     result.type = VAL_STRUCT;
+                    result.is_return = false;
                     result.as.struct_val = sv;
                     free(type_name);
                     return result;
@@ -3500,10 +3506,38 @@ static Value eval_call(ASTNode *node, Environment *env) {
     /* Pop call stack */
     tracing_pop_call();
 
-    /* Make a copy of the result if it's a string BEFORE cleaning up parameters */
+    /*
+     * Make a copy of the result BEFORE cleaning up parameters.
+     *
+     * Function-local variables (including string temporaries) are freed when we
+     * unwind the call frame, so any returned value that references them must
+     * deep-copy those strings.
+     */
     Value return_value = result;
     if (result.type == VAL_STRING) {
         return_value = create_string(result.as.string_val);
+    } else if (result.type == VAL_STRUCT && result.as.struct_val) {
+        StructValue *src = result.as.struct_val;
+        StructValue *dst = malloc(sizeof(StructValue));
+        if (!dst) {
+            fprintf(stderr, "Error: Out of memory copying struct return value\n");
+            exit(1);
+        }
+        dst->struct_name = strdup(src->struct_name);
+        dst->field_count = src->field_count;
+        dst->field_names = malloc(sizeof(char*) * dst->field_count);
+        dst->field_values = malloc(sizeof(Value) * dst->field_count);
+        for (int i = 0; i < dst->field_count; i++) {
+            dst->field_names[i] = strdup(src->field_names[i]);
+            dst->field_values[i] = src->field_values[i];
+            if (dst->field_values[i].type == VAL_STRING && dst->field_values[i].as.string_val) {
+                dst->field_values[i].as.string_val = strdup(dst->field_values[i].as.string_val);
+            }
+        }
+
+        return_value.type = VAL_STRUCT;
+        return_value.is_return = false;
+        return_value.as.struct_val = dst;
     }
 
     /* Clean up parameter strings and restore environment */

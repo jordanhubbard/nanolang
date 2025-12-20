@@ -1,7 +1,6 @@
 /* Backwards-compatible wrapper that exposes tokenize(source) from the lexer lib. */
 
 import "src_nano/compiler/lexer.nano"
-import "src_nano/compiler/ir.nano"
 
 fn tokenize(source: string) -> List<LexToken> {
     return (tokenize_string source)

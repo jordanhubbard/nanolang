@@ -1188,11 +1188,17 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                 *dot = '\0';
             }
             
-            /* Generate object file path */
-            snprintf(obj_file, sizeof(obj_file), "obj/%s.o", base_without_ext);
-            
+            /*
+             * IMPORTANT:
+             * Keep NanoLang-compiled module objects separate from C-compiled objects.
+             * The C reference compiler builds src/lexer.c -> obj/lexer.o, etc.
+             * If we also emit modules to obj/<name>.o (e.g. lexer.nano -> obj/lexer.o),
+             * we can clobber C objects and break linking.
+             */
+            snprintf(obj_file, sizeof(obj_file), "obj/nano_modules/%s.o", base_without_ext);
+
             /* Ensure obj directory exists */
-            system("mkdir -p obj 2>/dev/null");
+            system("mkdir -p obj/nano_modules 2>/dev/null");
             
             /* Compile module to object file */
             if (!compile_module_to_object(module_path, obj_file, env, verbose)) {
