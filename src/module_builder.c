@@ -558,6 +558,20 @@ bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta) {
         return true;
     }
 
+    /* If the shared library is missing, rebuild so interpreter FFI can load it */
+    char shared_lib[1024];
+    #ifdef __APPLE__
+    snprintf(shared_lib, sizeof(shared_lib), "%s/.build/lib%s.dylib", module_dir, meta->name);
+    #else
+    snprintf(shared_lib, sizeof(shared_lib), "%s/.build/lib%s.so", module_dir, meta->name);
+    #endif
+    if (!file_exists(shared_lib)) {
+        if (module_builder_verbose) {
+            printf("[Module] %s needs build: shared library missing\n", meta->name);
+        }
+        return true;
+    }
+
     time_t object_mtime = get_mtime(object_file);
 
     // Check if any C source is newer
@@ -794,8 +808,12 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         size_t lib_pos = 0;
         
         #ifdef __APPLE__
+        /* On macOS, allow unresolved symbols so modules can reference symbols
+         * provided by the host process (compiler/interpreter) at dlopen() time.
+         */
         lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                           "%s -shared -fPIC -o %s", cc, shared_lib);
+                           "%s -dynamiclib -undefined dynamic_lookup -fPIC -o %s",
+                           cc, shared_lib);
         #else
         lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
                            "%s -shared -fPIC -o %s", cc, shared_lib);

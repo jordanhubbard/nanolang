@@ -2239,7 +2239,11 @@ static bool is_builtin_name(const char *name) {
 
 /* Register built-in functions in environment */
 static void register_builtin_functions(Environment *env) {
-    Function func;
+    /* Important: zero-init so visibility/module_name pointers don't contain garbage.
+     * Module-aware typechecking calls strcmp() on module_name. */
+    Function func = (Function){0};
+    func.is_pub = true;      /* Builtins are always accessible */
+    func.module_name = NULL; /* Builtins are global */
     
     /* range(start: int, end: int) -> void (special - only for for-loops) */
     func.name = "range";

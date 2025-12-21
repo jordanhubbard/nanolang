@@ -833,8 +833,14 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     
     /* Register specialized functions in environment for type checking */
     char func_name[512];  /* Increased to handle long type names + suffixes */
-    Function func;
+    /* Important: zero-init so module/visibility pointers don't contain garbage.
+     * These generated externs are treated like builtins during typechecking. */
+    Function func = (Function){0};
     Parameter *params;
+
+    func.is_extern = true;
+    func.is_pub = false;
+    func.module_name = NULL;
     
     /* List_T_new() -> List<T>* */
     snprintf(func_name, sizeof(func_name), "%s_new", specialized);
@@ -847,9 +853,6 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.return_type_info = NULL;
     func.body = NULL;  /* Built-in */
     func.shadow_test = NULL;
-    func.is_extern = true;
-    func.is_pub = false;
-    func.module_name = NULL;
     env_define_function(env, func);
     
     /* List_T_push(list: List<T>*, value: T) -> void */
@@ -911,8 +914,6 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = true;
-    func.is_pub = false;
-    func.module_name = NULL;
     env_define_function(env, func);
 }
 

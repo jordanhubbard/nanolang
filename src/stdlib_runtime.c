@@ -369,9 +369,9 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    char *buf;\n");
     sb_append(sb, "    size_t len;\n");
     sb_append(sb, "    size_t cap;\n");
-    sb_append(sb, "} nl_sb_t;\n\n");
+    sb_append(sb, "} nl_fmt_sb_t;\n\n");
 
-    sb_append(sb, "static void nl_sb_ensure(nl_sb_t *sb, size_t extra) {\n");
+    sb_append(sb, "static void nl_fmt_sb_ensure(nl_fmt_sb_t *sb, size_t extra) {\n");
     sb_append(sb, "    if (!sb) return;\n");
     sb_append(sb, "    size_t needed = sb->len + extra + 1;\n");
     sb_append(sb, "    if (needed <= sb->cap) return;\n");
@@ -383,8 +383,8 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    sb->cap = new_cap;\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "static nl_sb_t nl_sb_new(size_t initial_cap) {\n");
-    sb_append(sb, "    nl_sb_t sb = {0};\n");
+    sb_append(sb, "static nl_fmt_sb_t nl_fmt_sb_new(size_t initial_cap) {\n");
+    sb_append(sb, "    nl_fmt_sb_t sb = {0};\n");
     sb_append(sb, "    sb.cap = initial_cap ? initial_cap : 128;\n");
     sb_append(sb, "    sb.buf = malloc(sb.cap);\n");
     sb_append(sb, "    sb.len = 0;\n");
@@ -392,25 +392,25 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    return sb;\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "static void nl_sb_append_cstr(nl_sb_t *sb, const char *s) {\n");
+    sb_append(sb, "static void nl_fmt_sb_append_cstr(nl_fmt_sb_t *sb, const char *s) {\n");
     sb_append(sb, "    if (!sb || !s) return;\n");
     sb_append(sb, "    size_t n = strlen(s);\n");
-    sb_append(sb, "    nl_sb_ensure(sb, n);\n");
+    sb_append(sb, "    nl_fmt_sb_ensure(sb, n);\n");
     sb_append(sb, "    if (!sb->buf) return;\n");
     sb_append(sb, "    memcpy(sb->buf + sb->len, s, n);\n");
     sb_append(sb, "    sb->len += n;\n");
     sb_append(sb, "    sb->buf[sb->len] = '\\0';\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "static void nl_sb_append_char(nl_sb_t *sb, char c) {\n");
+    sb_append(sb, "static void nl_fmt_sb_append_char(nl_fmt_sb_t *sb, char c) {\n");
     sb_append(sb, "    if (!sb) return;\n");
-    sb_append(sb, "    nl_sb_ensure(sb, 1);\n");
+    sb_append(sb, "    nl_fmt_sb_ensure(sb, 1);\n");
     sb_append(sb, "    if (!sb->buf) return;\n");
     sb_append(sb, "    sb->buf[sb->len++] = c;\n");
     sb_append(sb, "    sb->buf[sb->len] = '\\0';\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "static char* nl_sb_build(nl_sb_t *sb) {\n");
+    sb_append(sb, "static char* nl_fmt_sb_build(nl_fmt_sb_t *sb) {\n");
     sb_append(sb, "    if (!sb || !sb->buf) return \"\";\n");
     sb_append(sb, "    return sb->buf;\n");
     sb_append(sb, "}\n\n");
@@ -422,50 +422,50 @@ void generate_string_operations(StringBuilder *sb) {
 
     sb_append(sb, "static const char* nl_to_string_array(DynArray* arr) {\n");
     sb_append(sb, "    if (!arr) return \"[]\";\n");
-    sb_append(sb, "    nl_sb_t sb = nl_sb_new(256);\n");
-    sb_append(sb, "    nl_sb_append_char(&sb, '[');\n");
+    sb_append(sb, "    nl_fmt_sb_t sb = nl_fmt_sb_new(256);\n");
+    sb_append(sb, "    nl_fmt_sb_append_char(&sb, '[');\n");
     sb_append(sb, "    int64_t len = dyn_array_length(arr);\n");
     sb_append(sb, "    ElementType t = dyn_array_get_elem_type(arr);\n");
     sb_append(sb, "    for (int64_t i = 0; i < len; i++) {\n");
-    sb_append(sb, "        if (i > 0) nl_sb_append_cstr(&sb, \", \");\n");
+    sb_append(sb, "        if (i > 0) nl_fmt_sb_append_cstr(&sb, \", \");\n");
     sb_append(sb, "        switch (t) {\n");
     sb_append(sb, "            case ELEM_INT: {\n");
     sb_append(sb, "                const char* s = nl_to_string_int(dyn_array_get_int(arr, i));\n");
-    sb_append(sb, "                nl_sb_append_cstr(&sb, s);\n");
+    sb_append(sb, "                nl_fmt_sb_append_cstr(&sb, s);\n");
     sb_append(sb, "                break;\n");
     sb_append(sb, "            }\n");
     sb_append(sb, "            case ELEM_FLOAT: {\n");
     sb_append(sb, "                const char* s = nl_to_string_float(dyn_array_get_float(arr, i));\n");
-    sb_append(sb, "                nl_sb_append_cstr(&sb, s);\n");
+    sb_append(sb, "                nl_fmt_sb_append_cstr(&sb, s);\n");
     sb_append(sb, "                break;\n");
     sb_append(sb, "            }\n");
     sb_append(sb, "            case ELEM_BOOL: {\n");
-    sb_append(sb, "                nl_sb_append_cstr(&sb, nl_to_string_bool(dyn_array_get_bool(arr, i)));\n");
+    sb_append(sb, "                nl_fmt_sb_append_cstr(&sb, nl_to_string_bool(dyn_array_get_bool(arr, i)));\n");
     sb_append(sb, "                break;\n");
     sb_append(sb, "            }\n");
     sb_append(sb, "            case ELEM_STRING: {\n");
-    sb_append(sb, "                nl_sb_append_char(&sb, '\"');\n");
-    sb_append(sb, "                nl_sb_append_cstr(&sb, nl_to_string_string(dyn_array_get_string(arr, i)));\n");
-    sb_append(sb, "                nl_sb_append_char(&sb, '\"');\n");
+    sb_append(sb, "                nl_fmt_sb_append_char(&sb, '\"');\n");
+    sb_append(sb, "                nl_fmt_sb_append_cstr(&sb, nl_to_string_string(dyn_array_get_string(arr, i)));\n");
+    sb_append(sb, "                nl_fmt_sb_append_char(&sb, '\"');\n");
     sb_append(sb, "                break;\n");
     sb_append(sb, "            }\n");
     sb_append(sb, "            case ELEM_ARRAY: {\n");
     sb_append(sb, "                const char* s = nl_to_string_array(dyn_array_get_array(arr, i));\n");
-    sb_append(sb, "                nl_sb_append_cstr(&sb, s);\n");
+    sb_append(sb, "                nl_fmt_sb_append_cstr(&sb, s);\n");
     sb_append(sb, "                break;\n");
     sb_append(sb, "            }\n");
     sb_append(sb, "            case ELEM_STRUCT: {\n");
-    sb_append(sb, "                nl_sb_append_cstr(&sb, \"<struct>\");\n");
+    sb_append(sb, "                nl_fmt_sb_append_cstr(&sb, \"<struct>\");\n");
     sb_append(sb, "                break;\n");
     sb_append(sb, "            }\n");
     sb_append(sb, "            default: {\n");
-    sb_append(sb, "                nl_sb_append_cstr(&sb, \"?\");\n");
+    sb_append(sb, "                nl_fmt_sb_append_cstr(&sb, \"?\");\n");
     sb_append(sb, "                break;\n");
     sb_append(sb, "            }\n");
     sb_append(sb, "        }\n");
     sb_append(sb, "    }\n");
-    sb_append(sb, "    nl_sb_append_char(&sb, ']');\n");
-    sb_append(sb, "    return nl_sb_build(&sb);\n");
+    sb_append(sb, "    nl_fmt_sb_append_char(&sb, ']');\n");
+    sb_append(sb, "    return nl_fmt_sb_build(&sb);\n");
     sb_append(sb, "}\n\n");
 
     /* Array operators (elementwise) */

@@ -742,6 +742,67 @@ fn parse_qualified_name(p: Parser) -> NameParseResult {
     }
 }
 
+/* Parse a call target name, allowing both namespace separators (::) and
+ * module alias separators (.) in the *function position* of prefix calls.
+ *
+ * NOTE: This is intentionally narrower than general identifier parsing;
+ * we do NOT want to consume postfix field access like `x.y` in expression
+ * position.
+ */
+fn parse_call_name(p: Parser) -> NameParseResult {
+    if (parser_is_at_end p) {
+        return NameParseResult { p: p, name: "", ok: false }
+    } else {
+        let tok: LexToken = (parser_current p)
+        if (!= tok.token_type (token_identifier)) {
+            return NameParseResult { p: p, name: "", ok: false }
+        } else {
+            let mut name: string = tok.value
+            let mut cur: Parser = (parser_advance p)
+
+            while (not (parser_is_at_end cur)) {
+                let td: LexToken = (parser_current cur)
+                if (== td.token_type (token_double_colon)) {
+                    let p_dc: Parser = (parser_advance cur)
+                    if (parser_is_at_end p_dc) {
+                        return NameParseResult { p: p_dc, name: name, ok: false }
+                    } else {
+                        let tid: LexToken = (parser_current p_dc)
+                        if (!= tid.token_type (token_identifier)) {
+                            return NameParseResult { p: p_dc, name: name, ok: false }
+                        } else {
+                            set name (str_concat name "::")
+                            set name (str_concat name tid.value)
+                            set cur (parser_advance p_dc)
+                        }
+                    }
+                } else {
+                    if (== td.token_type (token_dot)) {
+                        let p_dot: Parser = (parser_advance cur)
+                        if (parser_is_at_end p_dot) {
+                            return NameParseResult { p: p_dot, name: name, ok: false }
+                        } else {
+                            let tid: LexToken = (parser_current p_dot)
+                            if (!= tid.token_type (token_identifier)) {
+                                /* Do not consume tuple index (t.0) or invalid call target */
+                                return NameParseResult { p: cur, name: name, ok: true }
+                            } else {
+                                set name (str_concat name ".")
+                                set name (str_concat name tid.value)
+                                set cur (parser_advance p_dot)
+                            }
+                        }
+                    } else {
+                        return NameParseResult { p: cur, name: name, ok: true }
+                    }
+                }
+            }
+
+            return NameParseResult { p: cur, name: name, ok: true }
+        }
+    }
+}
+
 struct TypeParseResult {
     p: Parser,
     type_name: string,
@@ -2004,7 +2065,7 @@ fn parse_primary(p: Parser) -> Parser {
                                     } else {
                                         /* If identifier, it's a function call: (funcname args...) */
                                         if (== tok2.token_type (token_identifier)) {
-                                            let name_res: NameParseResult = (parse_qualified_name p1)
+                                            let name_res: NameParseResult = (parse_call_name p1)
                                             if (not name_res.ok) {
                                                 return (parser_with_error name_res.p true)
                                             } else {

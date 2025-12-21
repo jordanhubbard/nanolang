@@ -1,0 +1,57 @@
+/* =============================================================================
+ * std::peg - Minimal PEG engine
+ * =============================================================================
+ * Pattern syntax (subset):
+ *   "literal"   - string literal
+ *   .           - any char
+ *   [a-z0-9_]   - character class (supports ranges, ^ inversion)
+ *   e1 e2       - sequence
+ *   e1 / e2     - ordered choice
+ *   e* e+ e?    - repetition
+ *   (e)         - capturing group
+ */
+
+module std_peg
+
+opaque type NlPeg
+
+extern fn nl_peg_compile(pattern: string) -> NlPeg
+extern fn nl_peg_match(peg: NlPeg, input: string) -> int
+extern fn nl_peg_captures(peg: NlPeg, input: string) -> array<string>
+extern fn nl_peg_free(peg: NlPeg) -> void
+
+pub fn compile(pattern: string) -> NlPeg {
+    return (nl_peg_compile pattern)
+}
+
+pub fn matches(peg: NlPeg, input: string) -> bool {
+    return (== (nl_peg_match peg input) 1)
+}
+
+pub fn captures(peg: NlPeg, input: string) -> array<string> {
+    return (nl_peg_captures peg input)
+}
+
+pub fn free(peg: NlPeg) -> void {
+    (nl_peg_free peg)
+}
+
+pub fn quick_match(pattern: string, input: string) -> bool {
+    let peg: NlPeg = (compile pattern)
+    if (== peg 0) {
+        return false
+    }
+    let ok: bool = (matches peg input)
+    (free peg)
+    return ok
+}
+
+pub fn quick_captures(pattern: string, input: string) -> array<string> {
+    let peg: NlPeg = (compile pattern)
+    if (== peg 0) {
+        return []
+    }
+    let out: array<string> = (captures peg input)
+    (free peg)
+    return out
+}

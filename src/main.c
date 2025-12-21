@@ -1,5 +1,7 @@
 #include "nanolang.h"
 #include "version.h"
+#include "interpreter_ffi.h"
+#include "module_builder.h"
 
 #ifdef __APPLE__
 #include <mach-o/loader.h>
@@ -142,6 +144,10 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         printf("✓ Loaded %d module(s)\n", modules->count);
     }
 
+    /* Compile modules early so extern C functions are available for shadow tests (via FFI). */
+    char module_objs[2048] = "";
+    char module_compile_flags[2048] = "";
+
     /* Phase 4: Type Checking */
     if (!type_check(program, env)) {
         fprintf(stderr, "Type checking failed\n");
@@ -154,6 +160,53 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     }
     if (opts->verbose) printf("✓ Type checking complete\n");
 
+    /* Phase 4.5: Build imported modules (object + shared libs) */
+    if (modules->count > 0) {
+        if (!compile_modules(modules, env, module_objs, sizeof(module_objs),
+                             module_compile_flags, sizeof(module_compile_flags),
+                             opts->verbose)) {
+            fprintf(stderr, "Error: Failed to compile modules\n");
+            free_ast(program);
+            free_tokens(tokens, token_count);
+            free_environment(env);
+            free_module_list(modules);
+            free(source);
+            return 1;
+        }
+    }
+
+    /* Phase 4.6: Initialize FFI and load module shared libraries for shadow tests */
+    (void)ffi_init(opts->verbose);
+    for (int i = 0; i < modules->count; i++) {
+        const char *module_path = modules->module_paths[i];
+
+        char *module_dir = strdup(module_path);
+        char *last_slash = strrchr(module_dir, '/');
+        if (last_slash) {
+            *last_slash = '\0';
+        } else {
+            free(module_dir);
+            module_dir = strdup(".");
+        }
+
+        ModuleBuildMetadata *meta = module_load_metadata(module_dir);
+
+        char mod_name[256];
+        if (meta && meta->name) {
+            snprintf(mod_name, sizeof(mod_name), "%s", meta->name);
+        } else {
+            const char *base_name = last_slash ? last_slash + 1 : module_path;
+            snprintf(mod_name, sizeof(mod_name), "%s", base_name);
+            char *dot = strrchr(mod_name, '.');
+            if (dot) *dot = '\0';
+        }
+
+        (void)ffi_load_module(mod_name, module_path, env, opts->verbose);
+
+        if (meta) module_metadata_free(meta);
+        free(module_dir);
+    }
+
     /* Phase 5: Shadow-Test Execution */
     if (!run_shadow_tests(program, env)) {
         fprintf(stderr, "Shadow tests failed\n");
@@ -162,6 +215,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_environment(env);
         free_module_list(modules);
         free(source);
+        ffi_cleanup();
         return 1;
     }
     if (opts->verbose) printf("✓ Shadow tests passed\n");
@@ -233,23 +287,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     fclose(c_file);
     if (opts->verbose) printf("✓ Generated C code: %s\n", temp_c_file);
 
-    /* Compile modules to object files */
     char compile_cmd[16384];  /* Increased to handle long command lines with many modules */
-    char module_objs[2048] = "";
-    char module_compile_flags[2048] = "";
-    
-    if (modules->count > 0) {
-        if (!compile_modules(modules, env, module_objs, sizeof(module_objs), module_compile_flags, sizeof(module_compile_flags), opts->verbose)) {
-            fprintf(stderr, "Error: Failed to compile modules\n");
-            free(c_code);
-            free_ast(program);
-            free_tokens(tokens, token_count);
-            free_environment(env);
-            free_module_list(modules);
-            free(source);
-            return 1;
-        }
-    }
     
     /* Build include flags */
     char include_flags[2048] = "-Isrc";
@@ -380,6 +418,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                         fprintf(wrapper, "#include <stdlib.h>\n");
                         fprintf(wrapper, "#include <stdio.h>\n");
                         fprintf(wrapper, "#include <string.h>\n\n");
+                        /* Needed for DynArray/nl_string_t/Token used by extracted structs */
+                        fprintf(wrapper, "#include \"nanolang.h\"\n\n");
                         fprintf(wrapper, "/* Struct definition extracted from main file */\n");
                         fprintf(wrapper, "%.*s\n\n", (int)(struct_end - struct_start), struct_start);
                         fprintf(wrapper, "/* Include list implementation */\n");

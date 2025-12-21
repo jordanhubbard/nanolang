@@ -1552,7 +1552,12 @@ static void emit_struct_definition_single(Environment *env, StringBuilder *sb, S
     sb_appendf(sb, "typedef struct %s {\n", prefixed_name_dup);
     for (int j = 0; j < sdef->field_count; j++) {
         sb_append(sb, "    ");
-        if (sdef->field_types[j] == TYPE_LIST_GENERIC) {
+
+        /* Opaque types are represented as TYPE_STRUCT with a registered opaque type name */
+        if (sdef->field_types[j] == TYPE_STRUCT && sdef->field_type_names && sdef->field_type_names[j] &&
+            env_get_opaque_type(env, sdef->field_type_names[j])) {
+            sb_append(sb, "void*");
+        } else if (sdef->field_types[j] == TYPE_LIST_GENERIC) {
             if (sdef->field_type_names && sdef->field_type_names[j]) {
                 sb_appendf(sb, "List_%s*", sdef->field_type_names[j]);
             } else {
@@ -1592,7 +1597,12 @@ static void emit_union_definition_single(Environment *env, StringBuilder *sb, Un
             for (int k = 0; k < udef->variant_field_counts[j]; k++) {
                 sb_append(sb, "    ");
                 Type ft = udef->variant_field_types[j][k];
-                if (ft == TYPE_STRUCT || ft == TYPE_UNION || ft == TYPE_ENUM) {
+
+                if (ft == TYPE_STRUCT && udef->variant_field_type_names && udef->variant_field_type_names[j] &&
+                    udef->variant_field_type_names[j][k] &&
+                    env_get_opaque_type(env, udef->variant_field_type_names[j][k])) {
+                    sb_append(sb, "void*");
+                } else if (ft == TYPE_STRUCT || ft == TYPE_UNION || ft == TYPE_ENUM) {
                     if (udef->variant_field_type_names && udef->variant_field_type_names[j] &&
                         udef->variant_field_type_names[j][k]) {
                         const char *field_type_name = get_prefixed_type_name(udef->variant_field_type_names[j][k]);
@@ -2028,48 +2038,53 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
 
         const char *prefixed_struct = get_prefixed_type_name(sdef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s v) {\n", sdef->name, prefixed_struct);
-        sb_append(sb, "    nl_sb_t sb = nl_sb_new(256);\n");
-        sb_appendf(sb, "    nl_sb_append_cstr(&sb, \"%s { \");\n", sdef->name);
+        sb_append(sb, "    nl_fmt_sb_t sb = nl_fmt_sb_new(256);\n");
+        sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, \"%s { \");\n", sdef->name);
 
         for (int j = 0; j < sdef->field_count; j++) {
             if (j > 0) {
-                sb_append(sb, "    nl_sb_append_cstr(&sb, \", \");\n");
+                sb_append(sb, "    nl_fmt_sb_append_cstr(&sb, \", \");\n");
             }
 
-            sb_appendf(sb, "    nl_sb_append_cstr(&sb, \"%s: \");\n", sdef->field_names[j]);
+            sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, \"%s: \");\n", sdef->field_names[j]);
 
             Type ft = sdef->field_types[j];
             if (ft == TYPE_INT) {
-                sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_int(v.%s));\n", sdef->field_names[j]);
+                sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, nl_to_string_int(v.%s));\n", sdef->field_names[j]);
             } else if (ft == TYPE_FLOAT) {
-                sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_float(v.%s));\n", sdef->field_names[j]);
+                sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, nl_to_string_float(v.%s));\n", sdef->field_names[j]);
             } else if (ft == TYPE_BOOL) {
-                sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_bool(v.%s));\n", sdef->field_names[j]);
+                sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, nl_to_string_bool(v.%s));\n", sdef->field_names[j]);
             } else if (ft == TYPE_STRING) {
-                sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_string(v.%s));\n", sdef->field_names[j]);
+                sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, nl_to_string_string(v.%s));\n", sdef->field_names[j]);
             } else if (ft == TYPE_ARRAY) {
-                sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_array(v.%s));\n", sdef->field_names[j]);
+                sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, nl_to_string_array(v.%s));\n", sdef->field_names[j]);
             } else if (ft == TYPE_ENUM) {
                 if (sdef->field_type_names && sdef->field_type_names[j]) {
-                    sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_%s(v.%s));\n",
+                    sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, nl_to_string_%s(v.%s));\n",
                                sdef->field_type_names[j], sdef->field_names[j]);
                 } else {
-                    sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_int(v.%s));\n", sdef->field_names[j]);
+                    sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, nl_to_string_int(v.%s));\n", sdef->field_names[j]);
                 }
             } else if (ft == TYPE_STRUCT || ft == TYPE_UNION) {
                 if (sdef->field_type_names && sdef->field_type_names[j]) {
-                    sb_appendf(sb, "    nl_sb_append_cstr(&sb, nl_to_string_%s(v.%s));\n",
-                               sdef->field_type_names[j], sdef->field_names[j]);
+                    OpaqueTypeDef *opaque = env_get_opaque_type(env, sdef->field_type_names[j]);
+                    if (opaque) {
+                        sb_append(sb, "    nl_fmt_sb_append_cstr(&sb, \"<opaque>\");\n");
+                    } else {
+                        sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, nl_to_string_%s(v.%s));\n",
+                                   sdef->field_type_names[j], sdef->field_names[j]);
+                    }
                 } else {
-                    sb_append(sb, "    nl_sb_append_cstr(&sb, \"<struct>\");\n");
+                    sb_append(sb, "    nl_fmt_sb_append_cstr(&sb, \"<struct>\");\n");
                 }
             } else {
-                sb_append(sb, "    nl_sb_append_cstr(&sb, \"?\");\n");
+                sb_append(sb, "    nl_fmt_sb_append_cstr(&sb, \"?\");\n");
             }
         }
 
-        sb_append(sb, "    nl_sb_append_cstr(&sb, \" }\");\n");
-        sb_append(sb, "    return nl_sb_build(&sb);\n");
+        sb_append(sb, "    nl_fmt_sb_append_cstr(&sb, \" }\");\n");
+        sb_append(sb, "    return nl_fmt_sb_build(&sb);\n");
         sb_append(sb, "}\n\n");
     }
 
@@ -2082,69 +2097,74 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
 
         const char *prefixed_union = get_prefixed_type_name(udef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s u) {\n", udef->name, prefixed_union);
-        sb_append(sb, "    nl_sb_t sb = nl_sb_new(256);\n");
+        sb_append(sb, "    nl_fmt_sb_t sb = nl_fmt_sb_new(256);\n");
         sb_append(sb, "    switch (u.tag) {\n");
 
         for (int j = 0; j < udef->variant_count; j++) {
             sb_appendf(sb, "        case nl_%s_TAG_%s: {\n", udef->name, udef->variant_names[j]);
-            sb_appendf(sb, "            nl_sb_append_cstr(&sb, \"%s.%s\");\n", udef->name, udef->variant_names[j]);
+            sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, \"%s.%s\");\n", udef->name, udef->variant_names[j]);
             if (udef->variant_field_counts[j] > 0) {
-                sb_append(sb, "            nl_sb_append_cstr(&sb, \" { \");\n");
+                sb_append(sb, "            nl_fmt_sb_append_cstr(&sb, \" { \");\n");
                 for (int k = 0; k < udef->variant_field_counts[j]; k++) {
-                    if (k > 0) sb_append(sb, "            nl_sb_append_cstr(&sb, \", \");\n");
-                    sb_appendf(sb, "            nl_sb_append_cstr(&sb, \"%s: \");\n",
+                    if (k > 0) sb_append(sb, "            nl_fmt_sb_append_cstr(&sb, \", \");\n");
+                    sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, \"%s: \");\n",
                                udef->variant_field_names[j][k]);
 
                     Type ft = udef->variant_field_types[j][k];
                     if (ft == TYPE_INT) {
-                        sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_int(u.data.%s.%s));\n",
+                        sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, nl_to_string_int(u.data.%s.%s));\n",
                                    udef->variant_names[j], udef->variant_field_names[j][k]);
                     } else if (ft == TYPE_FLOAT) {
-                        sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_float(u.data.%s.%s));\n",
+                        sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, nl_to_string_float(u.data.%s.%s));\n",
                                    udef->variant_names[j], udef->variant_field_names[j][k]);
                     } else if (ft == TYPE_BOOL) {
-                        sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_bool(u.data.%s.%s));\n",
+                        sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, nl_to_string_bool(u.data.%s.%s));\n",
                                    udef->variant_names[j], udef->variant_field_names[j][k]);
                     } else if (ft == TYPE_STRING) {
-                        sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_string(u.data.%s.%s));\n",
+                        sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, nl_to_string_string(u.data.%s.%s));\n",
                                    udef->variant_names[j], udef->variant_field_names[j][k]);
                     } else if (ft == TYPE_ARRAY) {
-                        sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_array(u.data.%s.%s));\n",
+                        sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, nl_to_string_array(u.data.%s.%s));\n",
                                    udef->variant_names[j], udef->variant_field_names[j][k]);
                     } else if (ft == TYPE_ENUM) {
                         if (udef->variant_field_type_names && udef->variant_field_type_names[j] &&
                             udef->variant_field_type_names[j][k]) {
-                            sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_%s(u.data.%s.%s));\n",
+                            sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, nl_to_string_%s(u.data.%s.%s));\n",
                                        udef->variant_field_type_names[j][k],
                                        udef->variant_names[j],
                                        udef->variant_field_names[j][k]);
                         } else {
-                            sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_int(u.data.%s.%s));\n",
+                            sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, nl_to_string_int(u.data.%s.%s));\n",
                                        udef->variant_names[j],
                                        udef->variant_field_names[j][k]);
                         }
                     } else if (ft == TYPE_STRUCT || ft == TYPE_UNION) {
                         if (udef->variant_field_type_names && udef->variant_field_type_names[j] &&
                             udef->variant_field_type_names[j][k]) {
-                            sb_appendf(sb, "            nl_sb_append_cstr(&sb, nl_to_string_%s(u.data.%s.%s));\n",
-                                       udef->variant_field_type_names[j][k],
-                                       udef->variant_names[j],
-                                       udef->variant_field_names[j][k]);
+                            OpaqueTypeDef *opaque = env_get_opaque_type(env, udef->variant_field_type_names[j][k]);
+                            if (opaque) {
+                                sb_append(sb, "            nl_fmt_sb_append_cstr(&sb, \"<opaque>\");\n");
+                            } else {
+                                sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, nl_to_string_%s(u.data.%s.%s));\n",
+                                           udef->variant_field_type_names[j][k],
+                                           udef->variant_names[j],
+                                           udef->variant_field_names[j][k]);
+                            }
                         } else {
-                            sb_append(sb, "            nl_sb_append_cstr(&sb, \"<struct>\");\n");
+                            sb_append(sb, "            nl_fmt_sb_append_cstr(&sb, \"<struct>\");\n");
                         }
                     } else {
-                        sb_append(sb, "            nl_sb_append_cstr(&sb, \"?\");\n");
+                        sb_append(sb, "            nl_fmt_sb_append_cstr(&sb, \"?\");\n");
                     }
                 }
-                sb_append(sb, "            nl_sb_append_cstr(&sb, \" }\");\n");
+                sb_append(sb, "            nl_fmt_sb_append_cstr(&sb, \" }\");\n");
             }
             sb_append(sb, "            break;\n");
             sb_append(sb, "        }\n");
         }
-        sb_append(sb, "        default: nl_sb_append_cstr(&sb, \"<union>\");\n");
+        sb_append(sb, "        default: nl_fmt_sb_append_cstr(&sb, \"<union>\");\n");
         sb_append(sb, "    }\n");
-        sb_append(sb, "    return nl_sb_build(&sb);\n");
+        sb_append(sb, "    return nl_fmt_sb_build(&sb);\n");
         sb_append(sb, "}\n\n");
     }
 

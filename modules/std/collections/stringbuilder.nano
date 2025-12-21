@@ -4,183 +4,158 @@
  * Efficient string building without O(n²) concatenation.
  * 
  * Usage:
- *   from "std/collections/stringbuilder.nano" import StringBuilder, new, append
- *   let sb: StringBuilder = (new)
- *   let sb2: StringBuilder = (append sb "Hello World")
- *   let result: string = (to_string sb2)
+ *   from "std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append
+ *   let sb: StringBuilder = (sb_new)
+ *   let sb2: StringBuilder = (sb_append sb "Hello World")
+ *   let result: string = (sb_to_string sb2)
  */
 
 module std_collections_stringbuilder
 
-/* StringBuilder state */
+opaque type NLStringBuilder
+
+extern fn nl_sb_new() -> NLStringBuilder
+extern fn nl_sb_with_capacity(capacity: int) -> NLStringBuilder
+extern fn nl_sb_append(sb: NLStringBuilder, text: string) -> void
+extern fn nl_sb_append_char(sb: NLStringBuilder, ch: int) -> void
+extern fn nl_sb_clear(sb: NLStringBuilder) -> void
+extern fn nl_sb_length(sb: NLStringBuilder) -> int
+extern fn nl_sb_capacity(sb: NLStringBuilder) -> int
+extern fn nl_sb_to_string(sb: NLStringBuilder) -> string
+extern fn nl_sb_free(sb: NLStringBuilder) -> void
+
 pub struct StringBuilder {
-    buffer: string,      /* Current content */
-    length: int,         /* Current length */
-    capacity: int        /* Allocated capacity */
+    handle: NLStringBuilder
 }
-
-/* Initial capacity for new StringBuilder */
-let INITIAL_CAPACITY: int = 256
-
-/* Growth factor when expanding */
-let GROWTH_FACTOR: int = 2
 
 /* Create a new StringBuilder with default capacity */
-pub fn new() -> StringBuilder {
-    return StringBuilder {
-        buffer: "",
-        length: 0,
-        capacity: INITIAL_CAPACITY
-    }
+pub fn sb_new() -> StringBuilder {
+    return StringBuilder { handle: (nl_sb_new) }
 }
 
-shadow new {
-    let sb: StringBuilder = (new)
-    assert (== sb.length 0)
-    assert (== sb.capacity INITIAL_CAPACITY)
+shadow sb_new {
+    let sb: StringBuilder = (sb_new)
+    assert (== (sb_length sb) 0)
 }
 
 /* Create a new StringBuilder with specific initial capacity */
-pub fn with_capacity(capacity: int) -> StringBuilder {
-    return StringBuilder {
-        buffer: "",
-        length: 0,
-        capacity: capacity
-    }
+pub fn sb_with_capacity(capacity: int) -> StringBuilder {
+    return StringBuilder { handle: (nl_sb_with_capacity capacity) }
 }
 
-shadow with_capacity {
-    let sb: StringBuilder = (with_capacity 1024)
-    assert (== sb.capacity 1024)
+shadow sb_with_capacity {
+    let sb: StringBuilder = (sb_with_capacity 1024)
+    assert (== (sb_capacity sb) 1024)
 }
 
-/* Append a string to the StringBuilder (returns new StringBuilder) */
-pub fn append(sb: StringBuilder, text: string) -> StringBuilder {
-    let text_len: int = (str_length text)
-    
-    if (== text_len 0) {
-        return sb
-    }
-    
-    /* Calculate new length and capacity */
-    let new_length: int = (+ sb.length text_len)
-    let mut new_capacity: int = sb.capacity
-    
-    if (>= new_length new_capacity) {
-        /* Need to expand - double capacity until we have enough space */
-        while (< new_capacity new_length) {
-            set new_capacity (* new_capacity GROWTH_FACTOR)
-        }
-    }
-    
-    /* Concatenate strings */
-    let new_buffer: string = (str_concat sb.buffer text)
-    
-    /* Create new StringBuilder with appended text */
-    return StringBuilder {
-        buffer: new_buffer,
-        length: new_length,
-        capacity: new_capacity
-    }
+/* Append a string to the StringBuilder (returns same StringBuilder) */
+pub fn sb_append(sb: StringBuilder, text: string) -> StringBuilder {
+    (nl_sb_append sb.handle text)
+    return sb
 }
 
-shadow append {
-    let sb1: StringBuilder = (new)
-    let sb2: StringBuilder = (append sb1 "Hello")
-    assert (== sb2.length 5)
-    assert (== (str_equals sb2.buffer "Hello") true)
+shadow sb_append {
+    let sb1: StringBuilder = (sb_new)
+    let sb2: StringBuilder = (sb_append sb1 "Hello")
+    assert (== (sb_length sb2) 5)
+    assert (== (str_equals (sb_to_string sb2) "Hello") true)
 }
 
 /* Append a string with a newline */
-pub fn append_line(sb: StringBuilder, text: string) -> StringBuilder {
-    let sb2: StringBuilder = (append sb text)
-    return (append sb2 "\n")
+pub fn sb_append_line(sb: StringBuilder, text: string) -> StringBuilder {
+    let sb2: StringBuilder = (sb_append sb text)
+    return (sb_append sb2 "\n")
 }
 
 /* Append an integer (converted to string) */
-pub fn append_int(sb: StringBuilder, n: int) -> StringBuilder {
+pub fn sb_append_int(sb: StringBuilder, n: int) -> StringBuilder {
     let s: string = (int_to_string n)
-    return (append sb s)
+    return (sb_append sb s)
 }
 
 /* Append a character (ASCII value) */
-pub fn append_char(sb: StringBuilder, c: int) -> StringBuilder {
-    let s: string = (string_from_char c)
-    return (append sb s)
+pub fn sb_append_char(sb: StringBuilder, c: int) -> StringBuilder {
+    (nl_sb_append_char sb.handle c)
+    return sb
 }
 
 /* Get the current content as a string */
-pub fn to_string(sb: StringBuilder) -> string {
-    return sb.buffer
+pub fn sb_to_string(sb: StringBuilder) -> string {
+    return (nl_sb_to_string sb.handle)
 }
 
 /* Get current length */
-pub fn length(sb: StringBuilder) -> int {
-    return sb.length
+pub fn sb_length(sb: StringBuilder) -> int {
+    return (nl_sb_length sb.handle)
+}
+
+pub fn sb_capacity(sb: StringBuilder) -> int {
+    return (nl_sb_capacity sb.handle)
 }
 
 /* Clear the StringBuilder (reset to empty) */
-pub fn clear(sb: StringBuilder) -> StringBuilder {
-    return StringBuilder {
-        buffer: "",
-        length: 0,
-        capacity: sb.capacity
-    }
+pub fn sb_clear(sb: StringBuilder) -> StringBuilder {
+    (nl_sb_clear sb.handle)
+    return sb
 }
 
 /* Check if StringBuilder is empty */
-pub fn is_empty(sb: StringBuilder) -> bool {
-    return (== sb.length 0)
+pub fn sb_is_empty(sb: StringBuilder) -> bool {
+    return (== (sb_length sb) 0)
+}
+
+pub fn sb_free(sb: StringBuilder) -> void {
+    (nl_sb_free sb.handle)
 }
 
 /* Build a string from multiple parts efficiently */
-pub fn from_parts(parts: array<string>) -> string {
-    let sb_start: StringBuilder = (new)
+pub fn sb_from_parts(parts: array<string>) -> string {
+    let sb_start: StringBuilder = (sb_new)
     let count: int = (array_length parts)
     let mut sb: StringBuilder = sb_start
     let mut part_val: string = ""
     
     for idx in (range 0 count) {
         set part_val (at parts idx)
-        set sb (append sb part_val)
+        set sb (sb_append sb part_val)
     }
     
-    return (to_string sb)
+    return (sb_to_string sb)
 }
 
 /* Join strings with a separator */
-pub fn join(parts: array<string>, separator: string) -> string {
-    let sb_start: StringBuilder = (new)
+pub fn sb_join(parts: array<string>, separator: string) -> string {
+    let sb_start: StringBuilder = (sb_new)
     let count: int = (array_length parts)
     let mut sb: StringBuilder = sb_start
     let mut part_val: string = ""
     
     for idx in (range 0 count) {
         if (!= idx 0) {
-            set sb (append sb separator)
+            set sb (sb_append sb separator)
         }
         set part_val (at parts idx)
-        set sb (append sb part_val)
+        set sb (sb_append sb part_val)
     }
     
-    return (to_string sb)
+    return (sb_to_string sb)
 }
 
 /* Repeat a string n times */
-pub fn repeat(text: string, n: int) -> string {
-    let sb_start: StringBuilder = (new)
+pub fn sb_repeat(text: string, n: int) -> string {
+    let sb_start: StringBuilder = (sb_new)
     let mut sb: StringBuilder = sb_start
     
     for i in (range 0 n) {
-        set sb (append sb text)
+        set sb (sb_append sb text)
     }
     
-    return (to_string sb)
+    return (sb_to_string sb)
 }
 
 /* Build indentation string (spaces) */
-pub fn indent(level: int, spaces_per_level: int) -> string {
+pub fn sb_indent(level: int, spaces_per_level: int) -> string {
     let total_spaces: int = (* level spaces_per_level)
-    return (repeat " " total_spaces)
+    return (sb_repeat " " total_spaces)
 }
 

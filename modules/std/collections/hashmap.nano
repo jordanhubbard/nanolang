@@ -1,0 +1,74 @@
+/* =============================================================================
+ * std::collections::HashMap (string -> string)
+ * =============================================================================
+ */
+
+module std_collections_hashmap
+
+opaque type NLHashMap
+
+extern fn nl_hm_new() -> NLHashMap
+extern fn nl_hm_put(hm: NLHashMap, key: string, value: string) -> void
+extern fn nl_hm_has(hm: NLHashMap, key: string) -> bool
+extern fn nl_hm_get(hm: NLHashMap, key: string) -> string
+extern fn nl_hm_size(hm: NLHashMap) -> int
+extern fn nl_hm_keys(hm: NLHashMap) -> array<string>
+extern fn nl_hm_remove(hm: NLHashMap, key: string) -> void
+extern fn nl_hm_clear(hm: NLHashMap) -> void
+extern fn nl_hm_free(hm: NLHashMap) -> void
+
+pub struct HashMap {
+    handle: NLHashMap
+}
+
+pub fn map_new() -> HashMap {
+    return HashMap { handle: (nl_hm_new) }
+}
+
+pub fn map_put(hm: HashMap, key: string, value: string) -> HashMap {
+    (nl_hm_put hm.handle key value)
+    return hm
+}
+
+pub fn map_has(hm: HashMap, key: string) -> bool {
+    return (nl_hm_has hm.handle key)
+}
+
+/* Returns "" if missing; use has() if you need to disambiguate. */
+pub fn map_get(hm: HashMap, key: string) -> string {
+    return (nl_hm_get hm.handle key)
+}
+
+pub fn map_size(hm: HashMap) -> int {
+    return (nl_hm_size hm.handle)
+}
+
+pub fn map_keys(hm: HashMap) -> array<string> {
+    return (nl_hm_keys hm.handle)
+}
+
+pub fn map_remove(hm: HashMap, key: string) -> HashMap {
+    (nl_hm_remove hm.handle key)
+    return hm
+}
+
+pub fn map_clear(hm: HashMap) -> HashMap {
+    (nl_hm_clear hm.handle)
+    return hm
+}
+
+pub fn map_free(hm: HashMap) -> void {
+    (nl_hm_free hm.handle)
+}
+
+shadow map_new {
+    let hm: HashMap = (map_new)
+    assert (== (map_size hm) 0)
+}
+
+shadow map_put {
+    let hm0: HashMap = (map_new)
+    let hm1: HashMap = (map_put hm0 "a" "1")
+    assert (map_has hm1 "a")
+    assert (== (map_get hm1 "a") "1")
+}

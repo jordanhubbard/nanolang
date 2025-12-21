@@ -1,0 +1,8 @@
+{
+  "name": "std_collections",
+  "version": "1.0.0",
+  "description": "C-backed core collections for std (StringBuilder/HashMap/Set)",
+  "c_sources": ["collections.c"],
+  "headers": ["collections.h"],
+  "cflags": ["-Imodules/std/collections", "-Isrc"]
+}

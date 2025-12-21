@@ -1,0 +1,33 @@
+from "std/peg/peg.nano" import quick_match, quick_captures
+
+fn peg_literal_sequence() -> int {
+    return 0
+}
+
+fn peg_choice() -> int {
+    return 0
+}
+
+fn peg_class_plus_capture() -> int {
+    return 0
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow peg_literal_sequence {
+    assert (quick_match "\"a\" \"b\"" "ab")
+    assert (== (quick_match "\"a\" \"b\"" "ac") false)
+}
+
+shadow peg_choice {
+    assert (quick_match "\"a\" / \"b\"" "b")
+    assert (== (quick_match "\"a\" / \"b\"" "c") false)
+}
+
+shadow peg_class_plus_capture {
+    let caps: array<string> = (quick_captures "(\"a\" [0-9]+) \"z\"" "a123z")
+    assert (== (array_length caps) 1)
+    assert (str_equals (at caps 0) "a123")
+}

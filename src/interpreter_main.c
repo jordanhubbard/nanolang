@@ -8,6 +8,7 @@ char **g_argv = NULL;
 #include "tracing.h"
 #include "runtime/gc.h"
 #include "interpreter_ffi.h"
+#include "module_builder.h"
 
 /* Interpreter options */
 typedef struct {
@@ -103,17 +104,36 @@ static int interpret_file(const char *input_file, InterpreterOptions *opts, int 
     
     /* Load each module's shared library for FFI access */
     for (int i = 0; i < modules->count; i++) {
-        const char *module_name = modules->module_paths[i];
-        /* Extract module name from path (last component without .nano) */
-        const char *last_slash = strrchr(module_name, '/');
-        const char *base_name = last_slash ? last_slash + 1 : module_name;
+        const char *module_path = modules->module_paths[i];
+
+        /* Determine module name from module.json when present (supports nested modules) */
+        char *module_dir = strdup(module_path);
+        char *last_slash = strrchr(module_dir, '/');
+        if (last_slash) {
+            *last_slash = '\0';
+        } else {
+            free(module_dir);
+            module_dir = strdup(".");
+        }
+
+        ModuleBuildMetadata *meta = module_load_metadata(module_dir);
+
         char mod_name[256];
-        snprintf(mod_name, sizeof(mod_name), "%s", base_name);
-        char *dot = strrchr(mod_name, '.');
-        if (dot) *dot = '\0';
-        
+        if (meta && meta->name) {
+            snprintf(mod_name, sizeof(mod_name), "%s", meta->name);
+        } else {
+            /* Fallback: last path component without extension */
+            const char *base_name = last_slash ? last_slash + 1 : module_path;
+            snprintf(mod_name, sizeof(mod_name), "%s", base_name);
+            char *dot = strrchr(mod_name, '.');
+            if (dot) *dot = '\0';
+        }
+
         /* Try to load module shared library (may not exist for pure nanolang modules) */
-        ffi_load_module(mod_name, module_name, env, opts->verbose);
+        ffi_load_module(mod_name, module_path, env, opts->verbose);
+
+        if (meta) module_metadata_free(meta);
+        free(module_dir);
     }
 
     /* Phase 4: Type Checking */

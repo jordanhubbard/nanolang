@@ -125,6 +125,154 @@ shadow mangle_name {
     assert (== (mangle_name "std::math::sin") "std_math_sin")
 }
 
+fn str_starts_with(s: string, prefix: string) -> bool {
+    let ls: int = (str_length s)
+    let lp: int = (str_length prefix)
+    if (< ls lp) {
+        return false
+    } else {
+        return (str_equals (str_substring s 0 lp) prefix)
+    }
+}
+
+fn str_ends_with(s: string, suffix: string) -> bool {
+    let ls: int = (str_length s)
+    let lf: int = (str_length suffix)
+    if (< ls lf) {
+        return false
+    } else {
+        return (str_equals (str_substring s (- ls lf) lf) suffix)
+    }
+}
+
+fn last_double_colon_index(s: string) -> int {
+    let len: int = (str_length s)
+    let mut i: int = 0
+    let mut last: int = -1
+    while (< (+ i 1) len) {
+        let c1: string = (str_substring s i 1)
+        let c2: string = (str_substring s (+ i 1) 1)
+        if (and (str_equals c1 ":") (str_equals c2 ":")) {
+            set last i
+            set i (+ i 2)
+        } else {
+            set i (+ i 1)
+        }
+    }
+    return last
+}
+
+fn last_dot_index(s: string) -> int {
+    let len: int = (str_length s)
+    let mut i: int = 0
+    let mut last: int = -1
+    while (< i len) {
+        if (str_equals (str_substring s i 1) ".") {
+            set last i
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return last
+}
+
+fn mangle_module_ident(name: string) -> string {
+    let mut out: string = ""
+    let len: int = (str_length name)
+    let mut i: int = 0
+
+    while (< i len) {
+        let ch: string = (str_substring name i 1)
+
+        if (and (str_equals ch ":") (< (+ i 1) len)) {
+            let ch2: string = (str_substring name (+ i 1) 1)
+            if (str_equals ch2 ":") {
+                set out (str_concat out "__")
+                set i (+ i 2)
+            } else {
+                set out (str_concat out "_")
+                set i (+ i 1)
+            }
+        } else {
+            if (str_equals ch ".") {
+                set out (str_concat out "__")
+            } else {
+                if (or (or (str_equals ch "<") (str_equals ch ">"))
+                        (or (str_equals ch ",") (str_equals ch "("))) {
+                    set out (str_concat out "_")
+                } else {
+                    if (str_equals ch ")") {
+                        set out (str_concat out "_")
+                    } else {
+                        set out (str_concat out ch)
+                    }
+                }
+            }
+            set i (+ i 1)
+        }
+    }
+
+    return out
+}
+
+fn is_builtin_list_runtime_fn(name: string) -> bool {
+    return (or
+        (str_starts_with name "list_int_")
+        (or
+            (str_starts_with name "list_string_")
+            (str_starts_with name "list_token_")
+        )
+    )
+}
+
+fn is_generic_list_runtime_fn(name: string) -> bool {
+    return (and (str_starts_with name "list_") (not (is_builtin_list_runtime_fn name)))
+}
+
+fn c_name_for_qualified_function(func_name: string) -> string {
+    let len: int = (str_length func_name)
+    let dc: int = (last_double_colon_index func_name)
+    if (>= dc 0) {
+        let mod_part: string = (str_substring func_name 0 dc)
+        let base: string = (str_substring func_name (+ dc 2) (- len (+ dc 2)))
+        let mm: string = (mangle_module_ident mod_part)
+        return (str_concat (str_concat mm "__") (mangle_name base))
+    } else {
+        let dot: int = (last_dot_index func_name)
+        if (>= dot 0) {
+            let mod_part: string = (str_substring func_name 0 dot)
+            let base: string = (str_substring func_name (+ dot 1) (- len (+ dot 1)))
+            let mm: string = (mangle_module_ident mod_part)
+            return (str_concat (str_concat mm "__") (mangle_name base))
+        } else {
+            return func_name
+        }
+    }
+}
+
+fn c_func_name_for_call(func_name: string) -> string {
+    if (is_builtin_list_runtime_fn func_name) {
+        return func_name
+    } else {
+        if (is_generic_list_runtime_fn func_name) {
+            return (str_concat "nl_" func_name)
+        } else {
+            if (or (str_contains func_name "::") (str_contains func_name ".")) {
+                return (c_name_for_qualified_function func_name)
+            } else {
+                return (str_concat "nl_" (mangle_name func_name))
+            }
+        }
+    }
+}
+
+fn c_func_name_for_definition(func_name: string) -> string {
+    if (or (str_contains func_name "::") (str_contains func_name ".")) {
+        return (c_name_for_qualified_function func_name)
+    } else {
+        return (str_concat "nl_" (mangle_name func_name))
+    }
+}
+
 /* =============================================================================
  * TYPE ENV (minimal) - track variable types for array lowering
  * ============================================================================= */
@@ -139,10 +287,9 @@ fn genenv_new() -> GenEnv {
 }
 
 fn genenv_put(env: GenEnv, name: string, t: string) -> GenEnv {
-    let mut out: GenEnv = env
-    set out.names (array_push out.names name)
-    set out.types (array_push out.types t)
-    return out
+    let new_names: array<string> = (array_push env.names name)
+    let new_types: array<string> = (array_push env.types t)
+    return GenEnv { names: new_names, types: new_types }
 }
 
 fn genenv_get(env: GenEnv, name: string) -> string {
@@ -255,10 +402,13 @@ fn mangle_type_name(name: string) -> string {
                 set i (+ i 1)
             }
         } else {
-            if (or (or (or (str_equals ch ".") (str_equals ch "<"))
-                        (or (str_equals ch ">") (str_equals ch ",")))
-                    (or (or (str_equals ch "(") (str_equals ch ")"))
-                        (str_equals ch " ")))) {
+            if (or (str_equals ch ".")
+                    (or (str_equals ch "<")
+                        (or (str_equals ch ">")
+                            (or (str_equals ch ",")
+                                (or (str_equals ch "(")
+                                    (or (str_equals ch ")")
+                                        (str_equals ch " "))))))) {
                 set out (str_concat out "_")
             } else {
                 set out (str_concat out ch)
@@ -296,6 +446,22 @@ fn type_to_c(nano_type: string) -> string {
                     if (== nano_type "void") {
                         return "void"
                     } else {
+                        if (str_starts_with nano_type "List<") {
+                            let elem: string = (str_substring nano_type 5 (- (str_length nano_type) 6))
+                            if (== elem "int") {
+                                return "List_int*"
+                            } else {
+                                if (== elem "string") {
+                                    return "List_string*"
+                                } else {
+                                    if (or (== elem "token") (== elem "Token")) {
+                                        return "List_token*"
+                                    } else {
+                                        return (str_concat (str_concat "List_" (mangle_type_name elem)) "*")
+                                    }
+                                }
+                            }
+                        } else {
                         if (str_contains nano_type "array<") {
                             return "DynArray*"
                         } else {
@@ -304,6 +470,7 @@ fn type_to_c(nano_type: string) -> string {
                             } else {
                                 return (str_concat "nl_" (mangle_name nano_type))
                             }
+                        }
                         }
                     }
                 }
@@ -757,9 +924,14 @@ fn gen_c_includes() -> string {
     set result (str_concat result "#include <stdio.h>\n")
     set result (str_concat result "#include <stdlib.h>\n")
     set result (str_concat result "#include <stdint.h>\n")
+    set result (str_concat result "#include <stdbool.h>\n")
     set result (str_concat result "#include <string.h>\n")
     set result (str_concat result "#include <assert.h>\n")
     set result (str_concat result "#include \"runtime/dyn_array.h\"\n")
+    set result (str_concat result "#include \"runtime/list_int.h\"\n")
+    set result (str_concat result "#include \"runtime/list_string.h\"\n")
+    set result (str_concat result "#include \"runtime/list_token.h\"\n")
+    set result (str_concat result "#include \"runtime/token_helpers.h\"\n")
     set result (str_concat result "\n")
     
     return result

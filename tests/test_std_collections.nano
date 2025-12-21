@@ -1,0 +1,52 @@
+from "std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string, sb_length
+from "std/collections/hashmap.nano" import HashMap, map_new, map_put, map_get, map_has, map_size, map_remove
+from "std/collections/set.nano" import Set, set_new, set_add, set_has, set_size, set_remove
+
+fn stringbuilder_basic() -> int {
+    return 0
+}
+
+fn hashmap_basic() -> int {
+    return 0
+}
+
+fn set_basic() -> int {
+    return 0
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow stringbuilder_basic {
+    let sb0: StringBuilder = (sb_new)
+    let sb1: StringBuilder = (sb_append sb0 "hi")
+    let sb2: StringBuilder = (sb_append sb1 "!")
+    assert (== (sb_length sb2) 3)
+    assert (str_equals (sb_to_string sb2) "hi!")
+}
+
+shadow hashmap_basic {
+    let hm0: HashMap = (map_new)
+    let hm1: HashMap = (map_put hm0 "k" "v")
+    assert (map_has hm1 "k")
+    assert (str_equals (map_get hm1 "k") "v")
+    assert (== (map_size hm1) 1)
+
+    let hm2: HashMap = (map_remove hm1 "k")
+    assert (== (map_has hm2 "k") false)
+    assert (== (map_size hm2) 0)
+}
+
+shadow set_basic {
+    let s0: Set = (set_new)
+    let s1: Set = (set_add s0 "a")
+    let s2: Set = (set_add s1 "b")
+    assert (set_has s2 "a")
+    assert (set_has s2 "b")
+    assert (== (set_size s2) 2)
+
+    let s3: Set = (set_remove s2 "a")
+    assert (== (set_has s3 "a") false)
+    assert (== (set_size s3) 1)
+}

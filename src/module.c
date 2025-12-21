@@ -867,6 +867,13 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     /* env is intentionally unused: module compilation is done in an isolated environment */
     (void)env;
 
+    /* Module loading uses a global cache. Compile module objects with a fresh
+     * cache, but restore the caller's cache afterward (needed for transpilation
+     * and forward declarations in the main compilation).
+     */
+    ModuleCache *saved_cache = module_cache;
+    module_cache = NULL;
+
     /*
      * IMPORTANT:
      * Module objects must be compiled in an isolated environment so that the
@@ -876,15 +883,17 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     Environment *module_env = create_environment();
     if (!module_env) {
         fprintf(stderr, "Error: Failed to create environment for module compilation\n");
+        module_cache = saved_cache;
         return false;
     }
 
     /* Use a fresh module cache per module compilation to avoid cross-env AST reuse */
-    clear_module_cache();
 
     ASTNode *module_ast = load_module_internal(module_path, module_env, true, NULL);
     if (!module_ast) {
         fprintf(stderr, "Error: Failed to load module '%s' for compilation\n", module_path);
+        clear_module_cache();
+        module_cache = saved_cache;
         free_environment(module_env);
         return false;
     }
@@ -922,6 +931,8 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     if (!c_code) {
         fprintf(stderr, "Error: Failed to transpile module '%s'\n", module_path);
         if (meta) free_module_metadata(meta);
+        clear_module_cache();
+        module_cache = saved_cache;
         free_environment(module_env);
         return false;
     }
@@ -952,6 +963,8 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
         fprintf(stderr, "Error: Could not create C file '%s'\n", temp_c_file);
         free(c_code);
         /* Don't free AST - it's owned by the cache */
+        clear_module_cache();
+        module_cache = saved_cache;
         free_environment(module_env);
         return false;
     }
@@ -1071,6 +1084,8 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
         /* Keep C file for debugging */
         fprintf(stderr, "C file kept at: %s\n", temp_c_file);
         free(c_code);
+        clear_module_cache();
+        module_cache = saved_cache;
         /* Don't free AST or environment - they're owned by the cache/caller */
         free_environment(module_env);
         return false;
@@ -1084,6 +1099,8 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     }
     
     free(c_code);
+    clear_module_cache();
+    module_cache = saved_cache;
     /* Don't free AST or environment - they're owned by the cache/caller */
     free_environment(module_env);
     return true;

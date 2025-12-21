@@ -1052,18 +1052,38 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             else if ((strcmp(func_name, "at") == 0 || strcmp(func_name, "array_set") == 0) && 
                      expr->as.call.arg_count >= 2) {
                 /* Detect element type from array argument (first arg) */
-                Type elem_type = TYPE_INT;  /* Default to int */
                 const char *struct_name = NULL;
-                
                 ASTNode *array_arg = expr->as.call.args[0];
-                if (array_arg->type == AST_IDENTIFIER) {
-                    /* Array is a variable - look up its element type */
-                    const char *array_name = array_arg->as.identifier;
-                    Symbol *sym = env_get_var(env, array_name);
-                    if (sym && sym->element_type != TYPE_UNKNOWN) {
-                        elem_type = sym->element_type;
-                        if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
+
+                Type elem_type = infer_array_element_type(array_arg, env);
+                if (elem_type == TYPE_UNKNOWN) {
+                    elem_type = TYPE_INT;  /* Fallback */
+                }
+
+                /* If this is an array of structs, try to recover the element struct name */
+                if (elem_type == TYPE_STRUCT) {
+                    if (array_arg->type == AST_IDENTIFIER) {
+                        Symbol *sym = env_get_var(env, array_arg->as.identifier);
+                        if (sym && sym->struct_type_name) {
                             struct_name = sym->struct_type_name;
+                        }
+                    } else if (array_arg->type == AST_FIELD_ACCESS) {
+                        const char *container_struct = get_struct_type_name(array_arg->as.field_access.object, env);
+                        if (container_struct) {
+                            StructDef *sdef = env_get_struct(env, container_struct);
+                            if (sdef && sdef->field_type_names && sdef->field_element_types) {
+                                const char *field_name = array_arg->as.field_access.field_name;
+                                for (int i = 0; i < sdef->field_count; i++) {
+                                    if (strcmp(sdef->field_names[i], field_name) == 0) {
+                                        if (sdef->field_types[i] == TYPE_ARRAY &&
+                                            sdef->field_element_types[i] == TYPE_STRUCT &&
+                                            sdef->field_type_names[i]) {
+                                            struct_name = sdef->field_type_names[i];
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     }
                 }

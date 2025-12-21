@@ -25,6 +25,25 @@ pub use std_collections_stringbuilder::StringBuilder
 pub use std_collections_stringbuilder::new as sb_new
 pub use std_collections_stringbuilder::append as sb_append
 pub use std_collections_stringbuilder::to_string as sb_to_string
+pub use std_collections_stringbuilder::length as sb_length
+
+/* Re-export HashMap/Set from std::collections */
+pub use std_collections_hashmap::HashMap
+pub use std_collections_hashmap::new as map_new
+pub use std_collections_hashmap::put as map_put
+pub use std_collections_hashmap::get as map_get
+pub use std_collections_hashmap::has as map_has
+pub use std_collections_hashmap::keys as map_keys
+pub use std_collections_hashmap::size as map_size
+pub use std_collections_hashmap::remove as map_remove
+
+pub use std_collections_set::Set
+pub use std_collections_set::new as set_new
+pub use std_collections_set::add as set_add
+pub use std_collections_set::has as set_has
+pub use std_collections_set::values as set_values
+pub use std_collections_set::size as set_size
+pub use std_collections_set::remove as set_remove
 
 /* =============================================================================
  * Re-export I/O module

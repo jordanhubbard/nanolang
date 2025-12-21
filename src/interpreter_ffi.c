@@ -107,26 +107,43 @@ static bool add_loaded_module(const char *name, const char *path, void *handle) 
 }
 
 /* Build shared library path for a module */
-static bool get_module_library_path(const char *module_name, char *out_path, size_t path_size) {
-    /* Try .build/libmodule.dylib (macOS) */
+static bool get_module_library_path(const char *module_name, const char *module_path,
+                                   char *out_path, size_t path_size) {
+    /* Prefer module_path (supports nested modules like modules/std/collections/...) */
+    if (module_path && module_path[0] != '\0') {
+        char dir[512];
+        snprintf(dir, sizeof(dir), "%s", module_path);
+
+        /* If it's a .nano file path, strip to directory */
+        if (strstr(dir, ".nano") != NULL) {
+            char *last_slash = strrchr(dir, '/');
+            if (last_slash) *last_slash = '\0';
+        }
+
+        #ifdef __APPLE__
+        snprintf(out_path, path_size, "%s/.build/lib%s.dylib", dir, module_name);
+        if (access(out_path, F_OK) == 0) return true;
+        #endif
+
+        snprintf(out_path, path_size, "%s/.build/lib%s.so", dir, module_name);
+        if (access(out_path, F_OK) == 0) return true;
+    }
+
+    /* Back-compat: modules/<name>/.build/lib<name>.(so|dylib) */
     #ifdef __APPLE__
-    snprintf(out_path, path_size, "modules/%s/.build/lib%s.dylib", 
-             module_name, module_name);
+    snprintf(out_path, path_size, "modules/%s/.build/lib%s.dylib", module_name, module_name);
     if (access(out_path, F_OK) == 0) return true;
     #endif
-    
-    /* Try .build/libmodule.so (Linux) */
-    snprintf(out_path, path_size, "modules/%s/.build/lib%s.so", 
-             module_name, module_name);
+
+    snprintf(out_path, path_size, "modules/%s/.build/lib%s.so", module_name, module_name);
     if (access(out_path, F_OK) == 0) return true;
-    
+
     return false;
 }
 
 /* Load a module's shared library */
 bool ffi_load_module(const char *module_name, const char *module_path, 
                      Environment *env, bool verbose) {
-    (void)module_path;  /* Reserved for future use */
     (void)env;          /* Reserved for future use */
     
     if (!ffi_initialized) {
@@ -144,7 +161,7 @@ bool ffi_load_module(const char *module_name, const char *module_path,
     
     /* Get shared library path */
     char lib_path[512];
-    if (!get_module_library_path(module_name, lib_path, sizeof(lib_path))) {
+    if (!get_module_library_path(module_name, module_path, lib_path, sizeof(lib_path))) {
         if (verbose) {
             printf("[FFI] No shared library found for module '%s'\n", module_name);
         }
@@ -197,6 +214,12 @@ static size_t marshal_value_to_c(Value val, Type expected_type,
             if (buffer_size < sizeof(const char*)) return 0;
             *((const char**)buffer) = val.as.string_val;
             return sizeof(const char*);
+
+        case TYPE_OPAQUE:
+            /* Opaque values are represented as pointer-sized ints in the interpreter */
+            if (buffer_size < sizeof(int64_t)) return 0;
+            *((int64_t*)buffer) = val.as.int_val;
+            return sizeof(int64_t);
             
         case TYPE_VOID:
             return 0;  /* No marshaling needed */
@@ -226,6 +249,20 @@ static Value marshal_c_to_value(void *c_result, Type return_type) {
             
         case TYPE_VOID:
             return create_void();
+
+        case TYPE_OPAQUE:
+            return create_int(*((int64_t*)c_result));
+
+        case TYPE_ARRAY: {
+            /* Arrays are represented as DynArray* in the C runtime/stdlib. */
+            int64_t raw = *((int64_t*)c_result);
+            DynArray *arr = (DynArray*)(intptr_t)raw;
+            Value v;
+            v.type = VAL_DYN_ARRAY;
+            v.is_return = false;
+            v.as.dyn_array_val = arr;
+            return v;
+        }
             
         default:
             fprintf(stderr, "Error: Unsupported FFI return type: %d\n", return_type);
@@ -236,8 +273,6 @@ static Value marshal_c_to_value(void *c_result, Type return_type) {
 /* Call an extern function via FFI */
 Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
                       Function *func_info, Environment *env) {
-    (void)env;  /* Reserved for future use */
-    
     if (!ffi_initialized) {
         fprintf(stderr, "Error: FFI not initialized\n");
         return create_void();
@@ -280,7 +315,15 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
     
     for (int i = 0; i < arg_count; i++) {
         arg_offsets[i] = total_size;
-        size_t size = marshal_value_to_c(args[i], func_info->params[i].type,
+
+        Type param_type = func_info->params[i].type;
+        if (param_type == TYPE_STRUCT && func_info->params[i].struct_type_name) {
+            if (env_get_opaque_type(env, func_info->params[i].struct_type_name)) {
+                param_type = TYPE_OPAQUE;
+            }
+        }
+
+        size_t size = marshal_value_to_c(args[i], param_type,
                                          arg_buffer + total_size,
                                          sizeof(arg_buffer) - total_size);
         if (size == 0) {
@@ -300,6 +343,11 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
     void *arg_ptrs[16];  /* Actual values to pass */
     for (int i = 0; i < arg_count; i++) {
         Type param_type = func_info->params[i].type;
+        if (param_type == TYPE_STRUCT && func_info->params[i].struct_type_name) {
+            if (env_get_opaque_type(env, func_info->params[i].struct_type_name)) {
+                param_type = TYPE_OPAQUE;
+            }
+        }
         switch (param_type) {
             case TYPE_INT:
                 /* Pass int64_t by value (cast to pointer-sized int) */
@@ -317,6 +365,11 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
             case TYPE_STRING:
                 /* Strings are already pointers - extract the pointer */
                 arg_ptrs[i] = (void*)(*((const char**)(arg_buffer + arg_offsets[i])));
+                break;
+
+            case TYPE_OPAQUE:
+                /* Pass opaque pointer by value */
+                arg_ptrs[i] = (void*)(intptr_t)(*((int64_t*)(arg_buffer + arg_offsets[i])));
                 break;
             default:
                 arg_ptrs[i] = NULL;
@@ -362,6 +415,13 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
     
     /* Marshal result back */
     *((int64_t*)result_buffer) = result;
-    return marshal_c_to_value(result_buffer, func_info->return_type);
+
+    Type ret_type = func_info->return_type;
+    if (ret_type == TYPE_STRUCT && func_info->return_struct_type_name) {
+        if (env_get_opaque_type(env, func_info->return_struct_type_name)) {
+            ret_type = TYPE_OPAQUE;
+        }
+    }
+    return marshal_c_to_value(result_buffer, ret_type);
 }
 
