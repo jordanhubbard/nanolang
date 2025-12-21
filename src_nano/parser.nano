@@ -1576,21 +1576,62 @@ shadow parser_store_array_element {
 fn parse_union_construct(p: Parser, union_name: string, variant_name: string, start_line: int, start_column: int) -> Parser {
     /* p should be positioned after { */
     let mut field_count: int = 0
-    /* Simplified: just expect } for MVP */
-    let tok: LexToken = (parser_current p)
-    if (== tok.token_type (token_rbrace)) {
-        let p1: Parser = (parser_advance p)
-        return (parser_store_union_construct p1 union_name variant_name field_count start_line start_column)
-    } else {
-        /* TODO: Parse actual fields */
-        return (parser_with_error p true)
+    let mut field_names: array<string> = []
+    let mut field_value_ids: array<int> = []
+    let mut field_value_types: array<int> = []
+    let mut pcur: Parser = p
+
+    while (not (parser_is_at_end pcur)) {
+        let tok: LexToken = (parser_current pcur)
+        if (== tok.token_type (token_rbrace)) {
+            let p1: Parser = (parser_advance pcur)
+            return (parser_store_union_construct p1 union_name variant_name field_names field_value_ids field_value_types field_count start_line start_column)
+        } else {
+            if (== tok.token_type (token_identifier)) {
+                let fname: string = tok.value
+                let p1: Parser = (parser_advance pcur)
+                let p2: Parser = (parser_expect p1 (token_colon))
+                if (parser_has_error p2) {
+                    return p2
+                } else {
+                    let p3: Parser = (parse_expression p2)
+                    if (parser_has_error p3) {
+                        return p3
+                    } else {
+                        set field_names (array_push field_names fname)
+                        set field_value_ids (array_push field_value_ids p3.last_expr_node_id)
+                        set field_value_types (array_push field_value_types p3.last_expr_node_type)
+                        set field_count (+ field_count 1)
+                        set pcur p3
+
+                        if (parser_is_at_end pcur) {
+                            return (parser_with_error pcur true)
+                        } else {
+                            let tnext: LexToken = (parser_current pcur)
+                            if (== tnext.token_type (token_comma)) {
+                                set pcur (parser_advance pcur)
+                            } else {
+                                (print "")
+                            }
+                        }
+                    }
+                }
+            } else {
+                return (parser_with_error pcur true)
+            }
+        }
     }
+
+    return (parser_with_error pcur true)
 }
 
 /* Parse struct literal: StructName{field1: val1, field2: val2} */
 fn parse_struct_literal(p: Parser, struct_name: string, start_line: int, start_column: int) -> Parser {
     /* p should be positioned after the { */
     let mut field_count: int = 0
+    let mut field_names: array<string> = []
+    let mut field_value_ids: array<int> = []
+    let mut field_value_types: array<int> = []
     let mut pcur: Parser = p
     
     /* Parse fields */
@@ -1599,10 +1640,11 @@ fn parse_struct_literal(p: Parser, struct_name: string, start_line: int, start_c
         if (== tcur.token_type (token_rbrace)) {
             /* End of struct literal */
             let p_final: Parser = (parser_advance pcur)
-            return (parser_store_struct_literal p_final struct_name field_count start_line start_column)
+            return (parser_store_struct_literal p_final struct_name field_names field_value_ids field_value_types field_count start_line start_column)
         } else {
             /* Expect field name */
             if (== tcur.token_type (token_identifier)) {
+                let fname: string = tcur.value
                 let p1: Parser = (parser_advance pcur)  /* consume field name */
                 
                 /* Expect colon */
@@ -1618,6 +1660,9 @@ fn parse_struct_literal(p: Parser, struct_name: string, start_line: int, start_c
                         if (parser_has_error p3) {
                             return p3
                         } else {
+                            set field_names (array_push field_names fname)
+                            set field_value_ids (array_push field_value_ids p3.last_expr_node_id)
+                            set field_value_types (array_push field_value_types p3.last_expr_node_type)
                             set field_count (+ field_count 1)
                             set pcur p3
                             
@@ -1628,7 +1673,7 @@ fn parse_struct_literal(p: Parser, struct_name: string, start_line: int, start_c
                             } else {
                                 if (== tnext.token_type (token_rbrace)) {
                                     let p_final: Parser = (parser_advance pcur)
-                                    return (parser_store_struct_literal p_final struct_name field_count start_line start_column)
+                                    return (parser_store_struct_literal p_final struct_name field_names field_value_ids field_value_types field_count start_line start_column)
                                 } else {
                                     return (parser_with_error pcur true)
                                 }
@@ -1656,25 +1701,90 @@ fn parse_match(p: Parser) -> Parser {
     if (parser_has_error p2) {
         return p2
     } else {
-        let matched_expr_id: int = p2.last_expr_node_id
-        
+        let scrutinee_id: int = p2.last_expr_node_id
+        let scrutinee_type: int = p2.last_expr_node_type
+
         /* Expect lbrace */
-        let tok3: LexToken = (parser_current p2)
-        if (== tok3.token_type (token_lbrace)) {
-            let p3: Parser = (parser_advance p2)  /* consume { */
-            
-            /* Parse match arms - simplified for MVP */
-            /* For now, just expect rbrace */
-            let tok4: LexToken = (parser_current p3)
-            if (== tok4.token_type (token_rbrace)) {
-                let p4: Parser = (parser_advance p3)
-                return (parser_store_match p4 matched_expr_id 0 tok.line tok.column)
-            } else {
-                /* TODO: Parse actual match arms */
-                return (parser_with_error p3 true)
-            }
-        } else {
+        if (parser_is_at_end p2) {
             return (parser_with_error p2 true)
+        } else {
+            let tok3: LexToken = (parser_current p2)
+            if (!= tok3.token_type (token_lbrace)) {
+                return (parser_with_error p2 true)
+            } else {
+                let mut pcur: Parser = (parser_advance p2)  /* consume { */
+                let mut arm_variants: array<string> = []
+                let mut arm_bindings: array<string> = []
+                let mut arm_body_ids: array<int> = []
+                let mut arm_body_types: array<int> = []
+                let mut arm_count: int = 0
+
+                while (not (parser_is_at_end pcur)) {
+                    let tcur: LexToken = (parser_current pcur)
+                    if (== tcur.token_type (token_rbrace)) {
+                        let p_end: Parser = (parser_advance pcur)
+                        return (parser_store_match p_end scrutinee_id scrutinee_type arm_variants arm_bindings arm_body_ids arm_body_types arm_count tok.line tok.column)
+                    } else {
+                        if (!= tcur.token_type (token_identifier)) {
+                            return (parser_with_error pcur true)
+                        } else {
+                            let variant_name: string = tcur.value
+                            let p1a: Parser = (parser_advance pcur)
+                            let p1b: Parser = (parser_expect p1a (token_lparen))
+                            if (parser_has_error p1b) { return p1b } else {
+                                if (parser_is_at_end p1b) { return (parser_with_error p1b true) } else {
+                                    let tbind: LexToken = (parser_current p1b)
+                                    if (!= tbind.token_type (token_identifier)) {
+                                        return (parser_with_error p1b true)
+                                    } else {
+                                        let binding_name: string = tbind.value
+                                        let p1c: Parser = (parser_advance p1b)
+                                        let p1d: Parser = (parser_expect p1c (token_rparen))
+                                        if (parser_has_error p1d) { return p1d } else {
+                                            let p1e: Parser = (parser_expect p1d (token_arrow))
+                                            if (parser_has_error p1e) { return p1e } else {
+                                                /* Arm body: block (preferred) or expression */
+                                                if (parser_is_at_end p1e) {
+                                                    return (parser_with_error p1e true)
+                                                } else {
+                                                    let tbody: LexToken = (parser_current p1e)
+                                                    if (== tbody.token_type (token_lbrace)) {
+                                                        let pbody: Parser = (parse_block p1e)
+                                                        if (parser_has_error pbody) {
+                                                            return pbody
+                                                        } else {
+                                                            set arm_variants (array_push arm_variants variant_name)
+                                                            set arm_bindings (array_push arm_bindings binding_name)
+                                                            set arm_body_ids (array_push arm_body_ids pbody.last_expr_node_id)
+                                                            set arm_body_types (array_push arm_body_types ParseNodeType.PNODE_BLOCK)
+                                                            set arm_count (+ arm_count 1)
+                                                            set pcur pbody
+                                                        }
+                                                    } else {
+                                                        let pexpr: Parser = (parse_expression p1e)
+                                                        if (parser_has_error pexpr) {
+                                                            return pexpr
+                                                        } else {
+                                                            set arm_variants (array_push arm_variants variant_name)
+                                                            set arm_bindings (array_push arm_bindings binding_name)
+                                                            set arm_body_ids (array_push arm_body_ids pexpr.last_expr_node_id)
+                                                            set arm_body_types (array_push arm_body_types pexpr.last_expr_node_type)
+                                                            set arm_count (+ arm_count 1)
+                                                            set pcur pexpr
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return (parser_with_error pcur true)
+            }
         }
     }
 }
@@ -1686,8 +1796,14 @@ fn parse_primary(p: Parser) -> Parser {
     } else {
         let tok: LexToken = (parser_current p)
         
-        /* Number literal */
-                /* Array literals */
+        /* match expression */
+        if (== tok.token_type (token_match)) {
+            return (parse_match p)
+        } else {
+            (print "")
+        }
+
+        /* Array literals */
         if (== tok.token_type (token_lbracket)) {
             let p1: Parser = (parser_advance p)  /* consume '[' */
             let element_start: int = (list_ASTStmtRef_length p1.array_elements)
@@ -1761,53 +1877,8 @@ fn parse_primary(p: Parser) -> Parser {
                                 let tnext: LexToken = (parser_current p_after_name)
                                 if (== tnext.token_type (token_lbrace)) {
                                     /* Struct literal: Type { field: value, ... } */
-                                    let t1: int = (parser_peek p_after_name 1)
-                                    let t2: int = (parser_peek p_after_name 2)
-                                    if (and (== t1 (token_identifier)) (== t2 (token_colon))) {
-                                        let mut field_count: int = 0
-                                        let mut pcur: Parser = (parser_advance p_after_name)
-
-                                        while (not (parser_is_at_end pcur)) {
-                                            let tcur: LexToken = (parser_current pcur)
-                                            if (== tcur.token_type (token_rbrace)) {
-                                                let p_end: Parser = (parser_advance pcur)
-                                                return (parser_store_struct_literal p_end name field_count tok.line tok.column)
-                                            } else {
-                                                if (== tcur.token_type (token_identifier)) {
-                                                    let pf1: Parser = (parser_advance pcur)
-                                                    let pf2: Parser = (parser_expect pf1 (token_colon))
-                                                    if (parser_has_error pf2) {
-                                                        return pf2
-                                                    } else {
-                                                        let pf3: Parser = (parse_expression pf2)
-                                                        if (parser_has_error pf3) {
-                                                            return pf3
-                                                        } else {
-                                                            set field_count (+ field_count 1)
-                                                            set pcur pf3
-
-                                                            if (parser_is_at_end pcur) {
-                                                                return (parser_with_error pcur true)
-                                                            } else {
-                                                                let tafter: LexToken = (parser_current pcur)
-                                                                if (== tafter.token_type (token_comma)) {
-                                                                    set pcur (parser_advance pcur)
-                                                                } else {
-                                                                    (print "")
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                } else {
-                                                    return (parser_with_error pcur true)
-                                                }
-                                            }
-                                        }
-
-                                        return (parser_with_error pcur true)
-                                    } else {
-                                        (print "")
-                                    }
+                                    let p_lbrace: Parser = (parser_advance p_after_name) /* consume '{' */
+                                    return (parse_struct_literal p_lbrace name tok.line tok.column)
                                 } else {
                                     (print "")
                                 }
@@ -2069,58 +2140,20 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
                                             let tok_brace: LexToken = (parser_current p_field)
                                             if (== tok_brace.token_type (token_lbrace)) {
                                                 /* Union construction with fields */
-                                                let p_lbrace: Parser = (parser_advance p_field)
-                                                
-                                                /* Parse fields until rbrace */
-                                                let mut puc: Parser = p_lbrace
-                                                let mut done: bool = false
-                                                while (and (not (parser_is_at_end puc)) (not done)) {
-                                                    let tuc: LexToken = (parser_current puc)
-                                                    if (== tuc.token_type (token_rbrace)) {
-                                                        set p_postfix (parser_advance puc)
-                                                        set done true
-                                                    } else {
-                                                        /* Parse field: name: value */
-                                                        if (== tuc.token_type (token_identifier)) {
-                                                            let pf1: Parser = (parser_advance puc)
-                                                            let tf2: LexToken = (parser_current pf1)
-                                                            if (== tf2.token_type (token_colon)) {
-                                                                let pf2: Parser = (parser_advance pf1)
-                                                                let pf3: Parser = (parse_expression pf2)
-                                                                if (parser_has_error pf3) {
-                                                                    return pf3
-                                                                } else {
-                                                                    set puc pf3
-                                                                    let tf4: LexToken = (parser_current puc)
-                                                                    if (== tf4.token_type (token_comma)) {
-                                                                        set puc (parser_advance puc)
-                                                                    } else {
-                                                                        /* No comma, check for rbrace */
-                                                                        if (== tf4.token_type (token_rbrace)) {
-                                                                            set p_postfix (parser_advance puc)
-                                                                            set done true
-                                                                        } else {
-                                                                            set puc (parser_advance puc)
-                                                                        }
-                                                                    }
-                                                                }
-                                                            } else {
-                                                                set puc (parser_advance puc)
-                                                            }
-                                                        } else {
-                                                            set puc (parser_advance puc)
-                                                        }
-                                                    }
-                                                }
-                                                if (not done) {
-                                                    let tuc_final: LexToken = (parser_current puc)
-                                                    if (== tuc_final.token_type (token_rbrace)) {
-                                                        set p_postfix (parser_advance puc)
-                                                    } else {
-                                                        set p_postfix puc
-                                                    }
+                                                let obj_id: int = p_postfix.last_expr_node_id
+                                                let obj_type: int = p_postfix.last_expr_node_type
+                                                if (!= obj_type 1) {
+                                                    return (parser_with_error p_postfix true)
                                                 } else {
-                                                    (print "")
+                                                    let obj_ident: ASTIdentifier = (parser_get_identifier p_postfix obj_id)
+                                                    let union_name: string = obj_ident.name
+                                                    let p_lbrace: Parser = (parser_advance p_field) /* consume '{' */
+                                                    let p_uc: Parser = (parse_union_construct p_lbrace union_name field_name tok_post.line tok_post.column)
+                                                    if (parser_has_error p_uc) {
+                                                        return p_uc
+                                                    } else {
+                                                        set p_postfix p_uc
+                                                    }
                                                 }
                                             } else {
                                                 /* Regular field access */
@@ -4329,19 +4362,107 @@ shadow parser_store_union {
     assert (== 1 1)
 }
 
-/* Stub: Store union construction (not yet implemented) */
-fn parser_store_union_construct(p: Parser, union_name: string, variant_name: string, field_count: int, line: int, column: int) -> Parser {
-    /* TODO: Implement union construction storage */
-    return (parser_with_error p false)
+/* Helper: Store union construction */
+fn parser_store_union_construct(p: Parser, union_name: string, variant_name: string, field_names: array<string>, field_value_ids: array<int>, field_value_types: array<int>, field_count: int, line: int, column: int) -> Parser {
+    let node: ASTUnionConstruct = ASTUnionConstruct {
+        node_type: ParseNodeType.PNODE_UNION_CONSTRUCT,
+        line: line,
+        column: column,
+        union_name: union_name,
+        variant_name: variant_name,
+        field_names: field_names,
+        field_value_ids: field_value_ids,
+        field_value_types: field_value_types,
+        field_count: field_count
+    }
+    let node_id: int = p.union_constructs_count
+    (list_ASTUnionConstruct_push p.union_constructs node)
+
+    return Parser {
+        tokens: p.tokens,
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        calls: p.calls,
+        call_args: p.call_args,
+        array_elements: p.array_elements,
+        array_literals: p.array_literals,
+        lets: p.lets,
+        sets: p.sets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        fors: p.fors,
+        returns: p.returns,
+        blocks: p.blocks,
+        block_statements: p.block_statements,
+        prints: p.prints,
+        asserts: p.asserts,
+        functions: p.functions,
+        shadows: p.shadows,
+        structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
+        enums: p.enums,
+        unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
+        numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
+        lets_count: p.lets_count,
+        sets_count: p.sets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        block_statements_count: p.block_statements_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
+        functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
+        structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        union_constructs_count: (+ p.union_constructs_count 1),
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
+        next_node_id: (+ p.next_node_id 1),
+        last_expr_node_id: node_id,
+        last_expr_node_type: ParseNodeType.PNODE_UNION_CONSTRUCT
+    }
 }
 
-/* Stub: Store struct literal (not yet implemented) */
-fn parser_store_struct_literal(p: Parser, type_name: string, field_count: int, line: int, column: int) -> Parser {
+/* Helper: Store struct literal */
+fn parser_store_struct_literal(p: Parser, type_name: string, field_names: array<string>, field_value_ids: array<int>, field_value_types: array<int>, field_count: int, line: int, column: int) -> Parser {
     let node: ASTStructLiteral = ASTStructLiteral {
         node_type: ParseNodeType.PNODE_STRUCT_LITERAL,
         line: line,
         column: column,
         struct_name: type_name,
+        field_names: field_names,
+        field_value_ids: field_value_ids,
+        field_value_types: field_value_types,
         field_count: field_count
     }
     let node_id: int = p.struct_literals_count
@@ -4418,14 +4539,100 @@ fn parser_store_struct_literal(p: Parser, type_name: string, field_count: int, l
         tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
         last_expr_node_id: node_id,
-        last_expr_node_type: -1
+        last_expr_node_type: ParseNodeType.PNODE_STRUCT_LITERAL
     }
 }
 
-/* Stub: Store match expression (not yet implemented) */
-fn parser_store_match(p: Parser, target_id: int, branch_count: int, line: int, column: int) -> Parser {
-    /* TODO: Implement match expression storage */
-    return (parser_with_error p false)
+/* Helper: Store match expression */
+fn parser_store_match(p: Parser, scrutinee_id: int, scrutinee_type: int, arm_variants: array<string>, arm_bindings: array<string>, arm_body_ids: array<int>, arm_body_types: array<int>, arm_count: int, line: int, column: int) -> Parser {
+    let node: ASTMatch = ASTMatch {
+        node_type: ParseNodeType.PNODE_MATCH,
+        line: line,
+        column: column,
+        scrutinee: scrutinee_id,
+        scrutinee_type: scrutinee_type,
+        arm_variants: arm_variants,
+        arm_bindings: arm_bindings,
+        arm_body_ids: arm_body_ids,
+        arm_body_types: arm_body_types,
+        arm_count: arm_count
+    }
+    let node_id: int = p.matches_count
+    (list_ASTMatch_push p.matches node)
+
+    return Parser {
+        tokens: p.tokens,
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        calls: p.calls,
+        call_args: p.call_args,
+        array_elements: p.array_elements,
+        array_literals: p.array_literals,
+        lets: p.lets,
+        sets: p.sets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        fors: p.fors,
+        returns: p.returns,
+        blocks: p.blocks,
+        block_statements: p.block_statements,
+        prints: p.prints,
+        asserts: p.asserts,
+        functions: p.functions,
+        shadows: p.shadows,
+        structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
+        enums: p.enums,
+        unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
+        numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
+        lets_count: p.lets_count,
+        sets_count: p.sets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        block_statements_count: p.block_statements_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
+        functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
+        structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: (+ p.matches_count 1),
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
+        next_node_id: (+ p.next_node_id 1),
+        last_expr_node_id: node_id,
+        last_expr_node_type: ParseNodeType.PNODE_MATCH
+    }
 }
 
 struct ParamParseResult {
@@ -5429,5 +5636,35 @@ pub fn parser_get_array_element_count(p: Parser) -> int {
 /* Get an array element ref by index */
 pub fn parser_get_array_element(p: Parser, idx: int) -> ASTStmtRef {
     return (list_ASTStmtRef_get p.array_elements idx)
+}
+
+/* Get number of struct literals */
+pub fn parser_get_struct_literal_count(p: Parser) -> int {
+    return (list_ASTStructLiteral_length p.struct_literals)
+}
+
+/* Get a struct literal by index */
+pub fn parser_get_struct_literal(p: Parser, idx: int) -> ASTStructLiteral {
+    return (list_ASTStructLiteral_get p.struct_literals idx)
+}
+
+/* Get number of union constructions */
+pub fn parser_get_union_construct_count(p: Parser) -> int {
+    return (list_ASTUnionConstruct_length p.union_constructs)
+}
+
+/* Get a union construction by index */
+pub fn parser_get_union_construct(p: Parser, idx: int) -> ASTUnionConstruct {
+    return (list_ASTUnionConstruct_get p.union_constructs idx)
+}
+
+/* Get number of match expressions */
+pub fn parser_get_match_count(p: Parser) -> int {
+    return (list_ASTMatch_length p.matches)
+}
+
+/* Get a match expression by index */
+pub fn parser_get_match(p: Parser, idx: int) -> ASTMatch {
+    return (list_ASTMatch_get p.matches idx)
 }
 

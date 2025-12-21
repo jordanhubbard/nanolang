@@ -325,6 +325,9 @@ struct ASTStructLiteral {
     line: int,
     column: int,
     struct_name: string,
+    field_names: array<string>,
+    field_value_ids: array<int>,
+    field_value_types: array<int>,
     field_count: int
 }
 
@@ -343,13 +346,17 @@ struct ASTUnionConstruct {
     column: int,
     union_name: string,
     variant_name: string,
+    field_names: array<string>,
+    field_value_ids: array<int>,
+    field_value_types: array<int>,
     field_count: int
 }
 
 struct ASTMatchArm {
-    pattern: string,
-    guard_expr: int,
-    body_expr: int
+    variant_name: string,
+    binding_name: string,
+    body_id: int,
+    body_type: int
 }
 
 struct ASTMatch {
@@ -358,6 +365,10 @@ struct ASTMatch {
     column: int,
     scrutinee: int,
     scrutinee_type: int,
+    arm_variants: array<string>,
+    arm_bindings: array<string>,
+    arm_body_ids: array<int>,
+    arm_body_types: array<int>,
     arm_count: int
 }
 

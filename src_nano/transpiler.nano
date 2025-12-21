@@ -651,6 +651,9 @@ extern fn parser_get_call(p: Parser, idx: int) -> ASTCall
 extern fn parser_get_call_arg(p: Parser, idx: int) -> ASTStmtRef
 extern fn parser_get_array_literal(p: Parser, idx: int) -> ASTArrayLiteral
 extern fn parser_get_array_element(p: Parser, idx: int) -> ASTStmtRef
+extern fn parser_get_struct_literal(p: Parser, idx: int) -> ASTStructLiteral
+extern fn parser_get_union_construct(p: Parser, idx: int) -> ASTUnionConstruct
+extern fn parser_get_match(p: Parser, idx: int) -> ASTMatch
 extern fn parser_get_call_count(p: Parser) -> int
 extern fn parser_get_set(p: Parser, idx: int) -> ASTSet
 extern fn parser_get_set_count(p: Parser) -> int
@@ -1182,8 +1185,81 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             set result (str_concat result "_arr; })")
                             return result
                         } else {
-                            /* Unknown type - return 0 */
-                            return "0"
+                            if (== node_type 21) {
+                                /* Struct literal -> compound literal */
+                                let sl: ASTStructLiteral = (parser_get_struct_literal parser node_id)
+                                let c_type: string = (str_concat "nl_" (mangle_name sl.struct_name))
+                                let mut result: string = "(("
+                                set result (str_concat result c_type)
+                                set result (str_concat result "){ ")
+
+                                let mut i: int = 0
+                                while (< i sl.field_count) {
+                                    if (> i 0) {
+                                        set result (str_concat result ", ")
+                                    } else { (print "") }
+
+                                    let fname: string = (at sl.field_names i)
+                                    let vid: int = (at sl.field_value_ids i)
+                                    let vty: int = (at sl.field_value_types i)
+                                    let vcode: string = (generate_expression parser vid vty env "")
+
+                                    set result (str_concat result ".")
+                                    set result (str_concat result (mangle_name fname))
+                                    set result (str_concat result " = ")
+                                    set result (str_concat result vcode)
+
+                                    set i (+ i 1)
+                                }
+
+                                set result (str_concat result " })")
+                                return result
+                            } else {
+                                if (== node_type 24) {
+                                    /* Union construction -> compound literal */
+                                    let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
+                                    let union_c: string = (str_concat "nl_" (mangle_name uc.union_name))
+                                    let tag_name: string = (str_concat (str_concat "nl_" (mangle_name uc.union_name)) (str_concat "_TAG_" uc.variant_name))
+
+                                    let mut result: string = "(("
+                                    set result (str_concat result union_c)
+                                    set result (str_concat result "){ .tag = ")
+                                    set result (str_concat result tag_name)
+                                    set result (str_concat result ", .data.")
+                                    set result (str_concat result uc.variant_name)
+                                    set result (str_concat result " = ")
+
+                                    if (== uc.field_count 0) {
+                                        set result (str_concat result "{0}")
+                                    } else {
+                                        set result (str_concat result "{")
+                                        let mut i: int = 0
+                                        while (< i uc.field_count) {
+                                            if (> i 0) {
+                                                set result (str_concat result ", ")
+                                            } else { (print "") }
+
+                                            let fname: string = (at uc.field_names i)
+                                            let vid: int = (at uc.field_value_ids i)
+                                            let vty: int = (at uc.field_value_types i)
+                                            let vcode: string = (generate_expression parser vid vty env "")
+
+                                            set result (str_concat result ".")
+                                            set result (str_concat result (mangle_name fname))
+                                            set result (str_concat result " = ")
+                                            set result (str_concat result vcode)
+                                            set i (+ i 1)
+                                        }
+                                        set result (str_concat result "}")
+                                    }
+
+                                    set result (str_concat result " })")
+                                    return result
+                                } else {
+                                    /* Unknown type - return 0 */
+                                    return "0"
+                                }
+                            }
                         }
                     }
                 }
@@ -1266,6 +1342,89 @@ fn generate_assert_stmt(parser: Parser, a: ASTAssert, indent: int, env: GenEnv) 
     return code
 }
 
+fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, return_type: string) -> string {
+    let scr_code: string = (generate_expression parser m.scrutinee m.scrutinee_type env "")
+
+    /* Infer union name from scrutinee identifier type in env (common case). */
+    let mut union_name: string = ""
+    if (== m.scrutinee_type 1) {
+        let sid: ASTIdentifier = (parser_get_identifier parser m.scrutinee)
+        set union_name (genenv_get env sid.name)
+    } else {
+        if (== m.scrutinee_type 24) {
+            let uc: ASTUnionConstruct = (parser_get_union_construct parser m.scrutinee)
+            set union_name uc.union_name
+        } else {
+            (print "")
+        }
+    }
+
+    if (== union_name "") {
+        set union_name "UNKNOWN"
+    } else { (print "") }
+
+    let union_c: string = (str_concat "nl_" (mangle_name union_name))
+
+    let mut code: string = (gen_indent indent)
+    set code (str_concat code "{\n")
+    set code (str_concat code (gen_indent (+ indent 1)))
+    set code (str_concat code union_c)
+    set code (str_concat code " _m = ")
+    set code (str_concat code scr_code)
+    set code (str_concat code ";\n")
+
+    set code (str_concat code (gen_indent (+ indent 1)))
+    set code (str_concat code "switch (_m.tag) {\n")
+
+    let mut i: int = 0
+    while (< i m.arm_count) {
+        let variant: string = (at m.arm_variants i)
+        let binding: string = (at m.arm_bindings i)
+        let body_id: int = (at m.arm_body_ids i)
+        let body_type: int = (at m.arm_body_types i)
+
+        let tag_name: string = (str_concat (str_concat "nl_" (mangle_name union_name)) (str_concat "_TAG_" variant))
+        let variant_type: string = (str_concat (str_concat "nl_" (mangle_name union_name)) (str_concat "_" variant))
+
+        set code (str_concat code (gen_indent (+ indent 2)))
+        set code (str_concat code "case ")
+        set code (str_concat code tag_name)
+        set code (str_concat code ": {\n")
+
+        set code (str_concat code (gen_indent (+ indent 3)))
+        set code (str_concat code variant_type)
+        set code (str_concat code " nl_")
+        set code (str_concat code (mangle_name binding))
+        set code (str_concat code " = _m.data.")
+        set code (str_concat code variant)
+        set code (str_concat code ";\n")
+
+        let env_arm: GenEnv = (genenv_put env binding (str_concat union_name (str_concat "." variant)))
+
+        if (== body_type ParseNodeType.PNODE_BLOCK) {
+            set code (str_concat code (generate_block parser body_id (+ indent 3) env_arm return_type))
+        } else {
+            let expr_code: string = (generate_expression parser body_id body_type env_arm "")
+            set code (str_concat code (gen_indent (+ indent 3)))
+            set code (str_concat code expr_code)
+            set code (str_concat code ";\n")
+        }
+
+        set code (str_concat code (gen_indent (+ indent 3)))
+        set code (str_concat code "break;\n")
+
+        set code (str_concat code (gen_indent (+ indent 2)))
+        set code (str_concat code "}\n")
+        set i (+ i 1)
+    }
+
+    set code (str_concat code (gen_indent (+ indent 1)))
+    set code (str_concat code "}\n")
+    set code (str_concat code (gen_indent indent))
+    set code (str_concat code "}\n")
+    return code
+}
+
 struct StmtGenResult {
     code: string,
     env: GenEnv
@@ -1303,6 +1462,11 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
                             let code: string = (generate_assert_stmt parser a indent env)
                             return StmtGenResult { code: code, env: env }
                         } else {
+                            if (== stmt.node_type ParseNodeType.PNODE_MATCH) {
+                                let m: ASTMatch = (parser_get_match parser stmt.node_id)
+                                let code: string = (generate_match_stmt parser m indent env return_type)
+                                return StmtGenResult { code: code, env: env }
+                            } else {
                             /* Expression statement (e.g. call) */
                             if (== stmt.node_type 3) {
                                 let expr_code: string = (generate_expression parser stmt.node_id stmt.node_type env "")
@@ -1314,6 +1478,7 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
                                 let mut code: string = (gen_indent indent)
                                 set code (str_concat code "/* unsupported stmt */\n")
                                 return StmtGenResult { code: code, env: env }
+                            }
                             }
                         }
                     }
