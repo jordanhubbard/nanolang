@@ -1,0 +1,7 @@
+import "src_nano/parser_mvp.nano"
+
+fn main() -> int {
+    return 0
+}
+
+shadow main { assert (== (main) 0) }

@@ -962,6 +962,66 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     if (verbose) {
         printf("✓ Generated module C code: %s\n", temp_c_file);
     }
+
+    /* Ensure any generic list headers needed by this module exist before compilation.
+     * (The top-level compilation generates list runtimes later, but module objects
+     * must be able to include the headers during their own cc -c step.)
+     */
+    {
+        const char *scan_ptr = c_code;
+        char detected_types[64][64];
+        int detected_count = 0;
+
+        while ((scan_ptr = strstr(scan_ptr, "List_")) != NULL) {
+            scan_ptr += 5;
+            const char *end_ptr = scan_ptr;
+
+            while ((*end_ptr >= 'A' && *end_ptr <= 'Z') ||
+                   (*end_ptr >= 'a' && *end_ptr <= 'z') ||
+                   (*end_ptr >= '0' && *end_ptr <= '9') ||
+                   *end_ptr == '_') {
+                end_ptr++;
+            }
+
+            if (*end_ptr == '*' || *end_ptr == ' ' || *end_ptr == '\n') {
+                int len = (int)(end_ptr - scan_ptr);
+                if (len <= 0 || len >= 63) continue;
+
+                char type_name[64];
+                strncpy(type_name, scan_ptr, (size_t)len);
+                type_name[len] = '\0';
+
+                if (strcmp(type_name, "int") == 0 ||
+                    strcmp(type_name, "string") == 0 ||
+                    strcmp(type_name, "token") == 0) {
+                    continue;
+                }
+
+                bool already_detected = false;
+                for (int i = 0; i < detected_count; i++) {
+                    if (strcmp(detected_types[i], type_name) == 0) {
+                        already_detected = true;
+                        break;
+                    }
+                }
+
+                if (!already_detected && detected_count < 64) {
+                    strncpy(detected_types[detected_count], type_name, 63);
+                    detected_types[detected_count][63] = '\0';
+                    detected_count++;
+
+                    char gen_cmd[512];
+                    snprintf(gen_cmd, sizeof(gen_cmd),
+                             "./scripts/generate_list.sh %s /tmp > /dev/null 2>&1",
+                             type_name);
+                    if (verbose) {
+                        printf("[Modules] Generating List<%s> runtime...\n", type_name);
+                    }
+                    (void)system(gen_cmd);
+                }
+            }
+        }
+    }
     
     /* Compile C code to object file */
     /* Note: Runtime files are linked separately, not compiled into module objects */

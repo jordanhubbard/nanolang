@@ -219,10 +219,19 @@ struct ASTSet {
     value_type: int
 }
 
+/* Reference to a statement node stored in the Parser's node lists.
+ * node_type is a ParseNodeType value (PNODE_LET, PNODE_IF, etc.).
+ */
+struct ASTStmtRef {
+    node_id: int,
+    node_type: int
+}
+
 struct ASTBlock {
     node_type: int,
     line: int,
     column: int,
+    statement_start: int,
     statement_count: int
 }
 
@@ -231,6 +240,7 @@ struct ASTFunction {
     line: int,
     column: int,
     name: string,
+    param_start: int,
     param_count: int,
     return_type: string,
     body: int
@@ -401,6 +411,7 @@ struct Parser {
     fors: List<ASTFor>,
     returns: List<ASTReturn>,
     blocks: List<ASTBlock>,
+    block_statements: List<ASTStmtRef>,
     prints: List<ASTPrint>,
     asserts: List<ASTAssert>,
     functions: List<ASTFunction>,
@@ -432,6 +443,7 @@ struct Parser {
     fors_count: int,
     returns_count: int,
     blocks_count: int,
+    block_statements_count: int,
     prints_count: int,
     asserts_count: int,
     functions_count: int,

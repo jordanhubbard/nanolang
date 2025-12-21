@@ -1,0 +1,7 @@
+import "src_nano/typechecker_minimal.nano"
+
+fn main() -> int {
+    return 0
+}
+
+shadow main { assert (== (main) 0) }

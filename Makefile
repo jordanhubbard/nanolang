@@ -399,11 +399,14 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1)
 	@# Compile each self-hosted component (STRICT: must produce an executable binary)
 	@success=0; fail=0; \
 	for comp in $(SELFHOST_COMPONENTS); do \
+		src="$$comp"; \
+		if [ "$$comp" = "parser_mvp" ]; then src="parser_mvp_driver"; fi; \
+		if [ "$$comp" = "typechecker_minimal" ]; then src="typechecker_minimal_driver"; fi; \
 		out="$(BIN_DIR)/$$comp"; \
 		log="/tmp/nanolang_stage2_$$comp.log"; \
 		echo "  Building $$comp..."; \
 		rm -f "$$out" "$$log"; \
-		if $(COMPILER) "$(SRC_NANO_DIR)/$$comp.nano" -o "$$out" >"$$log" 2>&1; then \
+		if $(COMPILER) "$(SRC_NANO_DIR)/$$src.nano" -o "$$out" >"$$log" 2>&1; then \
 			if [ -x "$$out" ]; then \
 				echo "    ✓ $$comp compiled successfully"; \
 				success=$$((success + 1)); \
