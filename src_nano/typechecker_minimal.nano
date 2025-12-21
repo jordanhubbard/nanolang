@@ -19,7 +19,7 @@
  * - Module system
  */
 
-import "src_nano/compiler/ir.nano"
+import "src_nano/parser_mvp.nano"
 
 /* =============================================================================
  * TYPE SYSTEM
@@ -412,15 +412,6 @@ shadow check_binary_op {
 /* AST and Parser IR types are provided by src_nano/compiler/ir.nano */
 
 /* =============================================================================
- * PARSER ACCESSOR FUNCTION DECLARATIONS (for expressions)
- * =============================================================================
- */
-
-extern fn parser_get_number(p: Parser, idx: int) -> ASTNumber
-extern fn parser_get_identifier(p: Parser, idx: int) -> ASTIdentifier
-extern fn parser_get_binary_op(p: Parser, idx: int) -> ASTBinaryOp
-
-/* =============================================================================
  * AST TYPE CHECKING - Expression evaluation
  * ============================================================================= */
 
@@ -570,15 +561,6 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>) -> 
 }
 
 /* =============================================================================
- * PARSER ACCESSOR FUNCTION DECLARATIONS
- * =============================================================================
- * These extern declarations allow us to call parser accessor functions
- */
-
-extern fn parser_get_function_count(p: Parser) -> int
-extern fn parser_get_function(p: Parser, idx: int) -> ASTFunction
-
-/* =============================================================================
  * TYPE CHECKING WRAPPER - Top-level entry point for type checking a program
  * ============================================================================= */
 
@@ -595,7 +577,7 @@ extern fn parser_get_function(p: Parser, idx: int) -> ASTFunction
  * 
  * Returns: 0 for success, 1 for type error
  */
-fn typecheck_parser(parser: Parser) -> int {
+pub fn typecheck_parser(parser: Parser) -> int {
     (println "=== Type Checking (Full AST Walk) ===")
     
     let env: TypeEnvironment = (env_new)
@@ -681,32 +663,4 @@ fn typecheck() -> int {
 
 shadow typecheck {
     assert (== (typecheck) 0)
-}
-
-/* =============================================================================
- * MAIN ENTRY POINT (For Testing)
- * ============================================================================= */
-
-fn main() -> int {
-    (println "=== nanolang Type Checker (Minimal) ===")
-    (println "")
-    (println "Phase 1 Scope:")
-    (println "  ✓ Basic types: int, float, bool, string, void")
-    (println "  ✓ Type equality checking")
-    (println "  ✓ Type representation")
-    (println "  ✓ Binary operator type checking")
-    (println "")
-    (println "Next Steps:")
-    (println "  - Implement symbol table/environment")
-    (println "  - Add expression type checking from AST")
-    (println "  - Add statement type checking")
-    (println "  - Add function signature validation")
-    (println "")
-    (println "All basic infrastructure tests passed!")
-    
-    return 0
-}
-
-shadow main {
-    assert (== (main) 0)
 }
