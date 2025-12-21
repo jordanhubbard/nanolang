@@ -282,6 +282,7 @@ struct ASTArrayLiteral {
     node_type: int,
     line: int,
     column: int,
+    element_start: int,
     element_count: int
 }
 
@@ -405,6 +406,7 @@ struct Parser {
     binary_ops: List<ASTBinaryOp>,
     calls: List<ASTCall>,
     call_args: List<ASTStmtRef>,
+    array_elements: List<ASTStmtRef>,
     array_literals: List<ASTArrayLiteral>,
     lets: List<ASTLet>,
     sets: List<ASTSet>,

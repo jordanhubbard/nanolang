@@ -87,6 +87,44 @@ shadow codegen_next_temp {
     assert (== state2.temp_var_counter 1)
 }
 
+/* Mangle qualified names (e.g. "std::math::sin") into valid C identifiers.
+ * Replaces separators like "::" and "." with "_".
+ */
+fn mangle_name(name: string) -> string {
+    let mut out: string = ""
+    let len: int = (str_length name)
+    let mut i: int = 0
+
+    while (< i len) {
+        let ch: string = (str_substring name i 1)
+
+        if (and (str_equals ch ":") (< (+ i 1) len)) {
+            let ch2: string = (str_substring name (+ i 1) 1)
+            if (str_equals ch2 ":") {
+                set out (str_concat out "_")
+                set i (+ i 2)
+            } else {
+                set out (str_concat out "_")
+                set i (+ i 1)
+            }
+        } else {
+            if (or (or (str_equals ch ".") (str_equals ch "<"))
+                    (or (str_equals ch ">") (str_equals ch ","))) {
+                set out (str_concat out "_")
+            } else {
+                set out (str_concat out ch)
+            }
+            set i (+ i 1)
+        }
+    }
+
+    return out
+}
+
+shadow mangle_name {
+    assert (== (mangle_name "std::math::sin") "std_math_sin")
+}
+
 /* Helper: convert nanolang type to C type */
 fn type_to_c(nano_type: string) -> string {
     if (== nano_type "int") {
@@ -104,7 +142,12 @@ fn type_to_c(nano_type: string) -> string {
                     if (== nano_type "void") {
                         return "void"
                     } else {
-                        return nano_type  /* Keep struct types as-is */
+                        /* Keep as a simple pointer until array runtime parity is implemented */
+                        if (str_contains nano_type "array<") {
+                            return "void*"
+                        } else {
+                            return (mangle_name nano_type)
+                        }
                     }
                 }
             }
@@ -162,7 +205,7 @@ shadow gen_bool {
 /* Generate code for an identifier */
 fn gen_identifier(name: string) -> string {
     /* Add nl_ prefix for namespacing */
-    return (str_concat "nl_" name)
+    return (str_concat "nl_" (mangle_name name))
 }
 
 shadow gen_identifier {
@@ -207,7 +250,7 @@ shadow gen_binary_op {
 /* Generate code for a function call */
 fn gen_call(func_name: string, args: array<string>) -> string {
     let mut result: string = "nl_"
-    set result (str_concat result func_name)
+    set result (str_concat result (mangle_name func_name))
     set result (str_concat result "(")
     
     /* Add arguments */
@@ -347,7 +390,7 @@ fn gen_function_signature(name: string, params: array<string>, param_types: arra
     
     set result (str_concat result c_ret_type)
     set result (str_concat result " nl_")
-    set result (str_concat result name)
+    set result (str_concat result (mangle_name name))
     set result (str_concat result "(")
     
     /* Add parameters */
@@ -366,7 +409,7 @@ fn gen_function_signature(name: string, params: array<string>, param_types: arra
         set result (str_concat result (at param_types i))
         set result (str_concat result " nl_")
         /* Use param name directly */
-        set result (str_concat result (at params i))
+        set result (str_concat result (mangle_name (at params i)))
         
         set i (+ i 1)
     }
@@ -487,6 +530,7 @@ extern fn parser_get_binary_op(p: Parser, idx: int) -> ASTBinaryOp
 extern fn parser_get_return(p: Parser, idx: int) -> ASTReturn
 extern fn parser_get_block(p: Parser, idx: int) -> ASTBlock
 extern fn parser_get_block_statement(p: Parser, idx: int) -> ASTStmtRef
+extern fn parser_get_field_access(p: Parser, idx: int) -> ASTFieldAccess
 extern fn parser_get_return_count(p: Parser) -> int
 extern fn parser_get_let(p: Parser, idx: int) -> ASTLet
 extern fn parser_get_let_count(p: Parser) -> int
@@ -494,6 +538,8 @@ extern fn parser_get_if(p: Parser, idx: int) -> ASTIf
 extern fn parser_get_while(p: Parser, idx: int) -> ASTWhile
 extern fn parser_get_call(p: Parser, idx: int) -> ASTCall
 extern fn parser_get_call_arg(p: Parser, idx: int) -> ASTStmtRef
+extern fn parser_get_array_literal(p: Parser, idx: int) -> ASTArrayLiteral
+extern fn parser_get_array_element(p: Parser, idx: int) -> ASTStmtRef
 extern fn parser_get_call_count(p: Parser) -> int
 extern fn parser_get_set(p: Parser, idx: int) -> ASTSet
 extern fn parser_get_set_count(p: Parser) -> int
@@ -565,7 +611,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int) -> string {
             /* Identifier */
             let id: ASTIdentifier = (parser_get_identifier parser node_id)
             /* Prefix with nl_ for nanolang identifiers */
-            return (str_concat "nl_" id.name)
+            return (str_concat "nl_" (mangle_name id.name))
         } else {
             if (== node_type 2) {
                 /* Binary operation - RECURSIVE! */
@@ -614,7 +660,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int) -> string {
                     
                     /* Build call: nl_funcname(args...) */
                     let mut result: string = "nl_"
-                    set result (str_concat result func_name)
+                    set result (str_concat result (mangle_name func_name))
                     set result (str_concat result "(")
 
                     /* Generate arguments */
@@ -635,8 +681,40 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int) -> string {
                     set result (str_concat result ")")
                     return result
                 } else {
-                    /* Unknown type - return 0 */
-                    return "0"
+                    if (== node_type 7) {
+                        /* Field access */
+                        let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
+                        let obj_code: string = (generate_expression parser fa.object fa.object_type)
+                        let mut result: string = "("
+                        set result (str_concat result obj_code)
+                        set result (str_concat result ").")
+                        set result (str_concat result (mangle_name fa.field_name))
+                        return result
+                    } else {
+                        if (== node_type 8) {
+                            /* Array literal (not yet lowered to real C runtime) */
+                            let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
+                            let mut result: string = "(0 /* ["
+                            let mut i: int = 0
+                            while (< i arr.element_count) {
+                                if (> i 0) {
+                                    set result (str_concat result ", ")
+                                } else {
+                                    (print "")
+                                }
+
+                                let eref: ASTStmtRef = (parser_get_array_element parser (+ arr.element_start i))
+                                let ecode: string = (generate_expression parser eref.node_id eref.node_type)
+                                set result (str_concat result ecode)
+                                set i (+ i 1)
+                            }
+                            set result (str_concat result "] */)")
+                            return result
+                        } else {
+                            /* Unknown type - return 0 */
+                            return "0"
+                        }
+                    }
                 }
             }
         }
@@ -691,7 +769,7 @@ fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int) -> string {
     
     /* Add variable name with nl_ prefix */
     set code (str_concat code "nl_")
-    set code (str_concat code let_stmt.name)
+    set code (str_concat code (mangle_name let_stmt.name))
     set code (str_concat code " = ")
     
     /* Generate initialization expression */
@@ -783,7 +861,7 @@ fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int) -> string {
     
     /* Add target variable with nl_ prefix */
     set code (str_concat code "nl_")
-    set code (str_concat code set_stmt.target)
+    set code (str_concat code (mangle_name set_stmt.target))
     set code (str_concat code " = ")
     
     /* Generate value expression */
