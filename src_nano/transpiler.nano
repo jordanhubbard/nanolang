@@ -415,6 +415,7 @@ fn gen_c_includes() -> string {
     set result (str_concat result "#include <stdlib.h>\n")
     set result (str_concat result "#include <stdint.h>\n")
     set result (str_concat result "#include <string.h>\n")
+    set result (str_concat result "#include <assert.h>\n")
     set result (str_concat result "\n")
     
     return result
@@ -478,21 +479,27 @@ shadow gen_c_program {
 extern fn parser_get_function_count(p: Parser) -> int
 extern fn parser_get_function(p: Parser, idx: int) -> ASTFunction
 extern fn parser_get_number(p: Parser, idx: int) -> ASTNumber
+extern fn parser_get_float(p: Parser, idx: int) -> ASTFloat
+extern fn parser_get_string(p: Parser, idx: int) -> ASTString
+extern fn parser_get_bool(p: Parser, idx: int) -> ASTBool
 extern fn parser_get_identifier(p: Parser, idx: int) -> ASTIdentifier
 extern fn parser_get_binary_op(p: Parser, idx: int) -> ASTBinaryOp
 extern fn parser_get_return(p: Parser, idx: int) -> ASTReturn
 extern fn parser_get_block(p: Parser, idx: int) -> ASTBlock
+extern fn parser_get_block_statement(p: Parser, idx: int) -> ASTStmtRef
 extern fn parser_get_return_count(p: Parser) -> int
 extern fn parser_get_let(p: Parser, idx: int) -> ASTLet
 extern fn parser_get_let_count(p: Parser) -> int
 extern fn parser_get_if(p: Parser, idx: int) -> ASTIf
 extern fn parser_get_while(p: Parser, idx: int) -> ASTWhile
 extern fn parser_get_call(p: Parser, idx: int) -> ASTCall
+extern fn parser_get_call_arg(p: Parser, idx: int) -> ASTStmtRef
 extern fn parser_get_call_count(p: Parser) -> int
 extern fn parser_get_set(p: Parser, idx: int) -> ASTSet
 extern fn parser_get_set_count(p: Parser) -> int
 extern fn parser_get_if_count(p: Parser) -> int
 extern fn parser_get_while_count(p: Parser) -> int
+extern fn parser_get_assert(p: Parser, idx: int) -> ASTAssert
 
 /* =============================================================================
  * EXPRESSION CODE GENERATION
@@ -506,23 +513,20 @@ extern fn parser_get_while_count(p: Parser) -> int
  * Returns: C operator string
  */
 fn operator_to_string(op: int) -> string {
-    /* Token types for operators (from lexer) */
-    /* 11=+, 12=-, 13=*, 14=/, 15==, 16=<, 17=>, 18=<=, 19=>=, 20=!=, 21=and, 22=or, 23=not */
-    
-    if (== op 11) { return "+" }
-    else { if (== op 12) { return "-" }
-    else { if (== op 13) { return "*" }
-    else { if (== op 14) { return "/" }
-    else { if (== op 15) { return "==" }
-    else { if (== op 16) { return "<" }
-    else { if (== op 17) { return ">" }
-    else { if (== op 18) { return "<=" }
-    else { if (== op 19) { return ">=" }
-    else { if (== op 20) { return "!=" }
-    else { if (== op 21) { return "&&" }
-    else { if (== op 22) { return "||" }
-    else { if (== op 23) { return "!" }
-    else { return "+" }  /* Fallback */
+    if (== op NLTokenType.NL_TOKEN_PLUS) { return "+" }
+    else { if (== op NLTokenType.NL_TOKEN_MINUS) { return "-" }
+    else { if (== op NLTokenType.NL_TOKEN_STAR) { return "*" }
+    else { if (== op NLTokenType.NL_TOKEN_SLASH) { return "/" }
+    else { if (== op NLTokenType.NL_TOKEN_PERCENT) { return "%" }
+    else { if (== op NLTokenType.NL_TOKEN_EQ) { return "==" }
+    else { if (== op NLTokenType.NL_TOKEN_NE) { return "!=" }
+    else { if (== op NLTokenType.NL_TOKEN_LT) { return "<" }
+    else { if (== op NLTokenType.NL_TOKEN_LE) { return "<=" }
+    else { if (== op NLTokenType.NL_TOKEN_GT) { return ">" }
+    else { if (== op NLTokenType.NL_TOKEN_GE) { return ">=" }
+    else { if (== op NLTokenType.NL_TOKEN_AND) { return "&&" }
+    else { if (== op NLTokenType.NL_TOKEN_OR) { return "||" }
+    else { return "+" }
     }}}}}}}}}}}}
 }
 
@@ -541,6 +545,22 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int) -> string {
         let num: ASTNumber = (parser_get_number parser node_id)
         return num.value
     } else {
+        if (== node_type 6) {
+            let f: ASTFloat = (parser_get_float parser node_id)
+            return f.value
+        } else {
+        if (== node_type 4) {
+            let s: ASTString = (parser_get_string parser node_id)
+            return (str_concat "\"" (str_concat s.value "\""))
+        } else {
+        if (== node_type 5) {
+            let b: ASTBool = (parser_get_bool parser node_id)
+            if b.value {
+                return "1"
+            } else {
+                return "0"
+            }
+        } else {
         if (== node_type 1) {
             /* Identifier */
             let id: ASTIdentifier = (parser_get_identifier parser node_id)
@@ -578,14 +598,39 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int) -> string {
                     /* Get function name from identifier */
                     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
                     let func_name: string = func_id.name
+
+                    /* Special-case: unary not is represented as a call */
+                    if (== func_name "not") {
+                        if (== call.arg_count 1) {
+                            let a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                            let a0_code: string = (generate_expression parser a0.node_id a0.node_type)
+                            return (str_concat "(!" (str_concat a0_code ")"))
+                        } else {
+                            return "(!0)"
+                        }
+                    } else {
+                        (print "")
+                    }
                     
                     /* Build call: nl_funcname(args...) */
                     let mut result: string = "nl_"
                     set result (str_concat result func_name)
                     set result (str_concat result "(")
-                    
-                    /* TODO: Generate arguments */
-                    /* For now, generate with no arguments */
+
+                    /* Generate arguments */
+                    let mut i: int = 0
+                    while (< i call.arg_count) {
+                        if (> i 0) {
+                            set result (str_concat result ", ")
+                        } else {
+                            (print "")
+                        }
+
+                        let aref: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+                        let arg_code: string = (generate_expression parser aref.node_id aref.node_type)
+                        set result (str_concat result arg_code)
+                        set i (+ i 1)
+                    }
                     
                     set result (str_concat result ")")
                     return result
@@ -594,6 +639,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int) -> string {
                     return "0"
                 }
             }
+        }
+        }
+        }
         }
     }
 }
@@ -636,10 +684,10 @@ fn generate_return_stmt(parser: Parser, ret: ASTReturn, indent: int) -> string {
  */
 fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int) -> string {
     let mut code: string = (gen_indent indent)
-    
-    /* TODO: Get actual type from let_stmt - currently defaults to int64_t */
-    /* Workaround: Cannot access struct field from function parameter during transpilation */
-    set code (str_concat code "int64_t ")
+
+    let c_type: string = (type_to_c let_stmt.var_type)
+    set code (str_concat code c_type)
+    set code (str_concat code " ")
     
     /* Add variable name with nl_ prefix */
     set code (str_concat code "nl_")
@@ -658,6 +706,67 @@ fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int) -> string {
     
     set code (str_concat code ";\n")
     return code
+}
+
+fn generate_assert_stmt(parser: Parser, a: ASTAssert, indent: int) -> string {
+    let mut code: string = (gen_indent indent)
+    let cond_code: string = (generate_expression parser a.condition a.condition_type)
+    set code (str_concat code "assert(")
+    set code (str_concat code cond_code)
+    set code (str_concat code ");\n")
+    return code
+}
+
+fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int) -> string {
+    if (== stmt.node_type ParseNodeType.PNODE_LET) {
+        let let_stmt: ASTLet = (parser_get_let parser stmt.node_id)
+        return (generate_let_stmt parser let_stmt indent)
+    } else {
+        if (== stmt.node_type ParseNodeType.PNODE_SET) {
+            let set_stmt: ASTSet = (parser_get_set parser stmt.node_id)
+            return (generate_set_stmt parser set_stmt indent)
+        } else {
+            if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
+                let ret: ASTReturn = (parser_get_return parser stmt.node_id)
+                return (generate_return_stmt parser ret indent)
+            } else {
+                if (== stmt.node_type ParseNodeType.PNODE_IF) {
+                    let if_stmt: ASTIf = (parser_get_if parser stmt.node_id)
+                    return (generate_if_stmt parser if_stmt indent)
+                } else {
+                    if (== stmt.node_type ParseNodeType.PNODE_WHILE) {
+                        let while_stmt: ASTWhile = (parser_get_while parser stmt.node_id)
+                        return (generate_while_stmt parser while_stmt indent)
+                    } else {
+                        if (== stmt.node_type ParseNodeType.PNODE_ASSERT) {
+                            let a: ASTAssert = (parser_get_assert parser stmt.node_id)
+                            return (generate_assert_stmt parser a indent)
+                        } else {
+                            let mut code: string = (gen_indent indent)
+                            set code (str_concat code "/* unsupported stmt */\n")
+                            return code
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn generate_block(parser: Parser, block_id: int, indent: int) -> string {
+    if (< block_id 0) {
+        return ""
+    } else {
+        let block: ASTBlock = (parser_get_block parser block_id)
+        let mut code: string = ""
+        let mut i: int = 0
+        while (< i block.statement_count) {
+            let stmt: ASTStmtRef = (parser_get_block_statement parser (+ block.statement_start i))
+            set code (str_concat code (generate_statement parser stmt indent))
+            set i (+ i 1)
+        }
+        return code
+    }
 }
 
 /* Generate C code for a set statement (assignment)
@@ -702,10 +811,8 @@ fn generate_if_stmt(parser: Parser, if_stmt: ASTIf, indent: int) -> string {
     let cond_code: string = (generate_expression parser if_stmt.condition if_stmt.condition_type)
     set code (str_concat code cond_code)
     set code (str_concat code ") {\n")
-    
-    /* TODO: Generate then body */
-    set code (str_concat code (gen_indent (+ indent 1)))
-    set code (str_concat code "/* then body */\n")
+
+    set code (str_concat code (generate_block parser if_stmt.then_body (+ indent 1)))
     
     set code (str_concat code (gen_indent indent))
     set code (str_concat code "}")
@@ -715,8 +822,7 @@ fn generate_if_stmt(parser: Parser, if_stmt: ASTIf, indent: int) -> string {
         set code (str_concat code "\n")
     } else {
         set code (str_concat code " else {\n")
-        set code (str_concat code (gen_indent (+ indent 1)))
-        set code (str_concat code "/* else body */\n")
+        set code (str_concat code (generate_block parser if_stmt.else_body (+ indent 1)))
         set code (str_concat code (gen_indent indent))
         set code (str_concat code "}\n")
     }
@@ -741,10 +847,8 @@ fn generate_while_stmt(parser: Parser, while_stmt: ASTWhile, indent: int) -> str
     let cond_code: string = (generate_expression parser while_stmt.condition while_stmt.condition_type)
     set code (str_concat code cond_code)
     set code (str_concat code ") {\n")
-    
-    /* TODO: Generate body */
-    set code (str_concat code (gen_indent (+ indent 1)))
-    set code (str_concat code "/* loop body */\n")
+
+    set code (str_concat code (generate_block parser while_stmt.body (+ indent 1)))
     
     set code (str_concat code (gen_indent indent))
     set code (str_concat code "}\n")
@@ -752,70 +856,8 @@ fn generate_while_stmt(parser: Parser, while_stmt: ASTWhile, indent: int) -> str
     return code
 }
 
-/* Generate C code for a statement by iterating through parser lists
- * 
- * Since we don't have explicit block->statement mapping, we generate
- * all statement types found in the parser and filter by position heuristics
- * This is a simplified approach that works for single-function programs
- */
-fn generate_statements_simple(parser: Parser, indent: int) -> string {
-    let mut code: string = ""
-    
-    /* Generate all let statements */
-    let let_count: int = (parser_get_let_count parser)
-    let mut i: int = 0
-    while (< i let_count) {
-        let let_stmt: ASTLet = (parser_get_let parser i)
-        set code (str_concat code (generate_let_stmt parser let_stmt indent))
-        set i (+ i 1)
-    }
-    
-    /* Generate all set statements */
-    let set_count: int = (parser_get_set_count parser)
-    set i 0
-    while (< i set_count) {
-        let set_stmt: ASTSet = (parser_get_set parser i)
-        set code (str_concat code (generate_set_stmt parser set_stmt indent))
-        set i (+ i 1)
-    }
-    
-    /* Generate all if statements */
-    let if_count: int = (parser_get_if_count parser)
-    set i 0
-    while (< i if_count) {
-        let if_stmt: ASTIf = (parser_get_if parser i)
-        set code (str_concat code (generate_if_stmt parser if_stmt indent))
-        set i (+ i 1)
-    }
-    
-    /* Generate all while statements */
-    let while_count: int = (parser_get_while_count parser)
-    set i 0
-    while (< i while_count) {
-        let while_stmt: ASTWhile = (parser_get_while parser i)
-        set code (str_concat code (generate_while_stmt parser while_stmt indent))
-        set i (+ i 1)
-    }
-    
-    /* Generate all return statements */
-    let ret_count: int = (parser_get_return_count parser)
-    set i 0
-    while (< i ret_count) {
-        let ret: ASTReturn = (parser_get_return parser i)
-        set code (str_concat code (generate_return_stmt parser ret indent))
-        set i (+ i 1)
-    }
-    
-    return code
-}
-
-/* Generate C code for a function body
- *
- * Generates all statements in the function body
- */
 fn generate_function_body(parser: Parser, body_id: int) -> string {
-    /* Generate all statements */
-    return (generate_statements_simple parser 1)
+    return (generate_block parser body_id 1)
 }
 
 /* =============================================================================
@@ -854,14 +896,26 @@ fn transpile_parser(parser: Parser) -> string {
         (print func.return_type)
         (println ")")
         
-        /* Generate function body from AST */
-        let body: string = (generate_function_body parser func.body)
-        
-        /* Generate function with proper signature */
-        let params: array<string> = []
-        let types: array<string> = []
-        let func_code: string = (gen_function func.name params types func.return_type body)
-        
+        /* Collect params (stored as lets) */
+        let mut params: array<string> = []
+        let mut types: array<string> = []
+        let mut j: int = 0
+        while (< j func.param_count) {
+            let param: ASTLet = (parser_get_let parser (+ func.param_start j))
+            set params (array_push params param.name)
+            set types (array_push types (type_to_c param.var_type))
+            set j (+ j 1)
+        }
+
+        let mut func_code: string = ""
+        if (< func.body 0) {
+            let sig: string = (gen_function_signature func.name params types func.return_type)
+            set func_code (str_concat sig ";\n\n")
+        } else {
+            let body: string = (generate_function_body parser func.body)
+            set func_code (gen_function func.name params types func.return_type body)
+        }
+
         set all_functions (str_concat all_functions func_code)
         set all_functions (str_concat all_functions "\n")
         set i (+ i 1)

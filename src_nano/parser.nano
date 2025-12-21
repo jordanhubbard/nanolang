@@ -24,6 +24,7 @@ fn parser_init_ast_lists() -> Parser {
     let identifiers: List<ASTIdentifier> = (list_ASTIdentifier_new)
     let binary_ops: List<ASTBinaryOp> = (list_ASTBinaryOp_new)
     let calls: List<ASTCall> = (list_ASTCall_new)
+    let call_args: List<ASTStmtRef> = (list_ASTStmtRef_new)
     let array_literals: List<ASTArrayLiteral> = (list_ASTArrayLiteral_new)
     let lets: List<ASTLet> = (list_ASTLet_new)
     let sets: List<ASTSet> = (list_ASTSet_new)
@@ -64,6 +65,7 @@ fn parser_init_ast_lists() -> Parser {
         identifiers: identifiers,
         binary_ops: binary_ops,
         calls: calls,
+        call_args: call_args,
         array_literals: array_literals,
         lets: lets,
         sets: sets,
@@ -148,6 +150,7 @@ fn parser_new(tokens: List<LexToken>, token_count: int) -> Parser {
         identifiers: init_parser.identifiers,
         binary_ops: init_parser.binary_ops,
         calls: init_parser.calls,
+        call_args: init_parser.call_args,
         array_literals: init_parser.array_literals,
         lets: init_parser.lets,
         sets: init_parser.sets,
@@ -259,6 +262,7 @@ fn parser_with_position(p: Parser, new_position: int) -> Parser {
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -434,6 +438,7 @@ fn parser_with_error(p: Parser, error: bool) -> Parser {
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -861,6 +866,7 @@ fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Pars
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -950,6 +956,7 @@ fn parser_store_string(p: Parser, value: string, line: int, column: int) -> Pars
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -1038,6 +1045,7 @@ fn parser_store_bool(p: Parser, value: bool, line: int, column: int) -> Parser {
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -1126,6 +1134,7 @@ fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> P
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -1219,6 +1228,7 @@ fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -1288,12 +1298,13 @@ shadow parser_store_binary_op {
 /* Helper: Store function call node */
 
 /* Helper: Store call node */
-fn parser_store_call(p: Parser, function_id: int, arg_count: int, line: int, column: int) -> Parser {
+fn parser_store_call(p: Parser, function_id: int, arg_start: int, arg_count: int, line: int, column: int) -> Parser {
     let node: ASTCall = ASTCall {
         node_type: ParseNodeType.PNODE_CALL,
         line: line,
         column: column,
         function: function_id,
+        arg_start: arg_start,
         arg_count: arg_count
     }
     let node_id: int = p.calls_count
@@ -1311,6 +1322,7 @@ fn parser_store_call(p: Parser, function_id: int, arg_count: int, line: int, col
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -1372,6 +1384,92 @@ fn parser_store_call(p: Parser, function_id: int, arg_count: int, line: int, col
     }
 }
 shadow parser_store_call {
+    assert (== 1 1)
+}
+
+/* Helper: Store a call argument reference (expression node id + expression kind) */
+fn parser_store_call_arg(p: Parser, node_id: int, node_type: int) -> Parser {
+    let r: ASTStmtRef = ASTStmtRef {
+        node_id: node_id,
+        node_type: node_type
+    }
+    (list_ASTStmtRef_push p.call_args r)
+
+    return Parser {
+        tokens: p.tokens,
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        calls: p.calls,
+        call_args: p.call_args,
+        array_literals: p.array_literals,
+        lets: p.lets,
+        sets: p.sets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        fors: p.fors,
+        returns: p.returns,
+        blocks: p.blocks,
+        block_statements: p.block_statements,
+        prints: p.prints,
+        asserts: p.asserts,
+        functions: p.functions,
+        shadows: p.shadows,
+        structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
+        enums: p.enums,
+        unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
+        numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
+        lets_count: p.lets_count,
+        sets_count: p.sets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        block_statements_count: p.block_statements_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
+        functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
+        structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
+        next_node_id: p.next_node_id,
+        last_expr_node_id: p.last_expr_node_id,
+        last_expr_node_type: p.last_expr_node_type
+    }
+}
+
+shadow parser_store_call_arg {
     assert (== 1 1)
 }
 
@@ -1656,15 +1754,19 @@ fn parse_primary(p: Parser) -> Parser {
                                         let p_op: Parser = (parser_advance p1)
                                         let p_id: Parser = (parser_store_identifier p_op tok2.value tok2.line tok2.column)
                                         let func_id: int = p_id.last_expr_node_id
+                                        let arg_start: int = (list_ASTStmtRef_length p_id.call_args)
                                         let p_arg: Parser = (parse_expression p_id)
                                         if (parser_has_error p_arg) {
                                             return p_arg
                                         } else {
-                                            let p_end: Parser = (parser_expect p_arg (token_rparen))
+                                            let arg_id: int = p_arg.last_expr_node_id
+                                            let arg_type: int = p_arg.last_expr_node_type
+                                            let p_arg2: Parser = (parser_store_call_arg p_arg arg_id arg_type)
+                                            let p_end: Parser = (parser_expect p_arg2 (token_rparen))
                                             if (parser_has_error p_end) {
                                                 return p_end
                                             } else {
-                                                return (parser_store_call p_end func_id 1 tok.line tok.column)
+                                                return (parser_store_call p_end func_id arg_start 1 tok.line tok.column)
                                             }
                                         }
                                     } else {
@@ -1678,6 +1780,7 @@ fn parse_primary(p: Parser) -> Parser {
                                                 let p_after_name: Parser = name_res.p
                                                 let p2: Parser = (parser_store_identifier p_after_name func_name tok2.line tok2.column)
                                                 let func_id: int = p2.last_expr_node_id
+                                                let arg_start: int = (list_ASTStmtRef_length p2.call_args)
 
                                                 /* Parse arguments until ')' */
                                                 let mut arg_count: int = 0
@@ -1686,11 +1789,18 @@ fn parse_primary(p: Parser) -> Parser {
                                                     let tcur: LexToken = (parser_current pcur)
                                                     if (== tcur.token_type (token_rparen)) {
                                                         let p4: Parser = (parser_advance pcur)
-                                                        return (parser_store_call p4 func_id arg_count tok.line tok.column)
+                                                        return (parser_store_call p4 func_id arg_start arg_count tok.line tok.column)
                                                     } else {
                                                         let parg: Parser = (parse_expression pcur)
-                                                        set arg_count (+ arg_count 1)
-                                                        set pcur parg
+                                                        if (parser_has_error parg) {
+                                                            return parg
+                                                        } else {
+                                                            let arg_id: int = parg.last_expr_node_id
+                                                            let arg_type: int = parg.last_expr_node_type
+                                                            let pcur2: Parser = (parser_store_call_arg parg arg_id arg_type)
+                                                            set arg_count (+ arg_count 1)
+                                                            set pcur pcur2
+                                                        }
                                                     }
                                                 }
                                                 return (parser_with_error pcur true)
@@ -1983,6 +2093,7 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -2074,6 +2185,7 @@ fn parser_store_set(p: Parser, target: string, value_id: int, value_type: int, l
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -2166,6 +2278,7 @@ fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -2257,6 +2370,7 @@ fn parser_store_while(p: Parser, condition_id: int, condition_type: int, body_id
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -2347,6 +2461,7 @@ fn parser_store_for(p: Parser, var_name: string, iterable_id: int, iterable_type
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -2431,6 +2546,7 @@ fn parser_store_array_literal(p: Parser, element_count: int, line: int, column: 
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -2516,6 +2632,7 @@ fn parser_store_import(p: Parser, module_path: string, module_name: string, line
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -2600,6 +2717,7 @@ fn parser_store_opaque_type(p: Parser, type_name: string, line: int, column: int
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -2685,6 +2803,7 @@ fn parser_store_shadow(p: Parser, target_name: string, body_id: int, line: int, 
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -2771,6 +2890,7 @@ fn parser_store_field_access(p: Parser, object_id: int, object_type: int, field_
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -2855,6 +2975,7 @@ fn parser_store_float(p: Parser, value: string, line: int, column: int) -> Parse
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -2946,6 +3067,7 @@ fn parser_store_return(p: Parser, value_id: int, value_type: int, line: int, col
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -3034,6 +3156,7 @@ fn parser_store_assert(p: Parser, condition_id: int, condition_type: int, line: 
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -3119,6 +3242,7 @@ fn parser_store_block_statement(p: Parser, node_id: int, node_type: int) -> Pars
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -3208,6 +3332,7 @@ fn parser_store_block(p: Parser, statement_start: int, statement_count: int, lin
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -3743,6 +3868,7 @@ fn parser_store_function(p: Parser, name: string, param_start: int, param_count:
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -3833,6 +3959,7 @@ fn parser_store_struct(p: Parser, name: string, field_count: int, line: int, col
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -3923,6 +4050,7 @@ fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, col
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -4013,6 +4141,7 @@ fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, co
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -4107,6 +4236,7 @@ fn parser_store_struct_literal(p: Parser, type_name: string, field_count: int, l
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        call_args: p.call_args,
         array_literals: p.array_literals,
         lets: p.lets,
         sets: p.sets,
@@ -5017,6 +5147,16 @@ pub fn parser_get_number(p: Parser, idx: int) -> ASTNumber {
     return (list_ASTNumber_get p.numbers idx)
 }
 
+/* Get number of floats */
+pub fn parser_get_float_count(p: Parser) -> int {
+    return (list_ASTFloat_length p.floats)
+}
+
+/* Get a float by index */
+pub fn parser_get_float(p: Parser, idx: int) -> ASTFloat {
+    return (list_ASTFloat_get p.floats idx)
+}
+
 /* Get number of binary operations */
 pub fn parser_get_binary_op_count(p: Parser) -> int {
     return (list_ASTBinaryOp_length p.binary_ops)
@@ -5075,6 +5215,16 @@ pub fn parser_get_call(p: Parser, idx: int) -> ASTCall {
 /* Get number of calls */
 pub fn parser_get_call_count(p: Parser) -> int {
     return (list_ASTCall_length p.calls)
+}
+
+/* Get number of call argument refs */
+pub fn parser_get_call_arg_count(p: Parser) -> int {
+    return (list_ASTStmtRef_length p.call_args)
+}
+
+/* Get a call argument ref by index */
+pub fn parser_get_call_arg(p: Parser, idx: int) -> ASTStmtRef {
+    return (list_ASTStmtRef_get p.call_args idx)
 }
 
 /* Get a set statement by index */

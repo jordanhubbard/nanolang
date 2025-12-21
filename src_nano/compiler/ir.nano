@@ -169,6 +169,7 @@ struct ASTCall {
     line: int,
     column: int,
     function: int,
+    arg_start: int,
     arg_count: int
 }
 
@@ -403,6 +404,7 @@ struct Parser {
     identifiers: List<ASTIdentifier>,
     binary_ops: List<ASTBinaryOp>,
     calls: List<ASTCall>,
+    call_args: List<ASTStmtRef>,
     array_literals: List<ASTArrayLiteral>,
     lets: List<ASTLet>,
     sets: List<ASTSet>,
