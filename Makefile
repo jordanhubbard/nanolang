@@ -11,8 +11,8 @@
 #
 # BOOTSTRAP TARGETS (Classic GCC-style):
 # - Stage 0: C Reference Compiler (bin/nanoc from C sources)
-# - Stage 1: Self-Hosted Compiler (nanoc_v05.nano compiled by stage 0)
-# - Stage 2: Recompiled Compiler (nanoc_v05.nano compiled by stage 1)
+# - Stage 1: Self-Hosted Compiler (nanoc.nano compiled by stage 0)
+# - Stage 2: Recompiled Compiler (nanoc.nano compiled by stage 1)
 # - Stage 3: Verify stage1 == stage2, auto-install nanoc_stage2 as bin/nanoc
 #
 # Sentinel files track build progress (.stage*.built) to avoid rebuilds.
@@ -53,7 +53,7 @@ SENTINEL_BOOTSTRAP2 = .bootstrap2.built
 SENTINEL_BOOTSTRAP3 = .bootstrap3.built
 
 # Bootstrap binaries
-NANOC_SOURCE = $(SRC_NANO_DIR)/nanoc_v05.nano
+NANOC_SOURCE = $(SRC_NANO_DIR)/nanoc.nano
 NANOC_STAGE1 = $(BIN_DIR)/nanoc_stage1
 NANOC_STAGE2 = $(BIN_DIR)/nanoc_stage2
 
@@ -74,9 +74,9 @@ INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/tracing.o 
 
 # Self-hosted components
 SELFHOST_COMPONENTS = \
-	parser_mvp \
-	typechecker_minimal \
-	transpiler_minimal
+	parser \
+	typecheck \
+	transpiler
 
 # Header dependencies
 HEADERS = $(SRC_DIR)/nanolang.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_token.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(SRC_DIR)/module_builder.h
@@ -400,8 +400,8 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1)
 	@success=0; fail=0; \
 	for comp in $(SELFHOST_COMPONENTS); do \
 		src="$$comp"; \
-		if [ "$$comp" = "parser_mvp" ]; then src="parser_mvp_driver"; fi; \
-		if [ "$$comp" = "typechecker_minimal" ]; then src="typechecker_minimal_driver"; fi; \
+		if [ "$$comp" = "parser" ]; then src="parser_driver"; fi; \
+		if [ "$$comp" = "typecheck" ]; then src="typecheck_driver"; fi; \
 		out="$(BIN_DIR)/$$comp"; \
 		log="/tmp/nanolang_stage2_$$comp.log"; \
 		echo "  Building $$comp..."; \
@@ -527,7 +527,7 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 	@echo "=========================================="
 	@echo "Bootstrap Stage 1: Self-Hosted Compiler"
 	@echo "=========================================="
-	@echo "Compiling nanoc_v05.nano with C compiler..."
+	@echo "Compiling nanoc.nano with C compiler..."
 	@if [ -f $(NANOC_SOURCE) ]; then \
 		$(BOOTSTRAP_ENV) $(COMPILER_C) $(NANOC_SOURCE) -o $(NANOC_STAGE1) && \
 		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
@@ -553,7 +553,7 @@ $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
 	@echo "=========================================="
 	@echo "Bootstrap Stage 2: Recompilation"
 	@echo "=========================================="
-	@echo "Compiling nanoc_v05.nano with stage 1 compiler..."
+	@echo "Compiling nanoc.nano with stage 1 compiler..."
 	@$(BOOTSTRAP_ENV) $(NANOC_STAGE1) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
 	@echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)"
 	@echo ""
@@ -847,8 +847,8 @@ help:
 	@echo ""
 	@echo "TRUE Bootstrap Process:"
 	@echo "  Stage 0: C sources → bin/nanoc_c (C-based)"
-	@echo "  Stage 1: nanoc_c compiles nanoc_v05.nano → nanoc_stage1"
-	@echo "  Stage 2: nanoc_stage1 recompiles nanoc_v05.nano → nanoc_stage2"
+	@echo "  Stage 1: nanoc_c compiles nanoc.nano → nanoc_stage1"
+	@echo "  Stage 2: nanoc_stage1 recompiles nanoc.nano → nanoc_stage2"
 	@echo "  Stage 3: Verify stage1 == stage2, install nanoc_stage2 as bin/nanoc"
 	@echo ""
 	@echo "After bootstrap: bin/nanoc → nanoc_stage2 (self-hosted compiler)"

@@ -16,9 +16,9 @@
  * Pipeline:
  *   1. Read source file
  *   2. Tokenize (lexer_main.nano - 610 lines)
- *   3. Parse (parser_mvp.nano - 2,772 lines)
- *   4. Type check (typechecker_minimal.nano - 796 lines)
- *   5. Generate C code (transpiler_minimal.nano - 1,069 lines)
+ *   3. Parse (parser.nano - 2,772 lines)
+ *   4. Type check (typecheck.nano - 796 lines)
+ *   5. Generate C code (transpiler.nano - 1,069 lines)
  *   6. Invoke system gcc to compile C → binary (this is OK!)
  * 
  * Using gcc to compile generated C is NOT cheating - it's standard practice:
@@ -29,9 +29,9 @@
  * 
  * Components integrated from:
  *   - lexer_main.nano
- *   - parser_mvp.nano
- *   - typechecker_minimal.nano
- *   - transpiler_minimal.nano
+ *   - parser.nano
+ *   - typecheck.nano
+ *   - transpiler.nano
  *   - compiler.nano (CLI framework)
  * 
  * Total: ~6,000 lines of NanoLang compiler code
@@ -880,7 +880,7 @@ shadow main {
 
 /* ============================================================================
  * PHASE: PARSER - AST Construction
- * Source: src_nano/parser_mvp.nano
+ * Source: src_nano/parser.nano
  * ============================================================================ */
 
 /* =============================================================================
@@ -3461,7 +3461,7 @@ shadow main {
 
 /* ============================================================================
  * PHASE: TYPE CHECKER - Type Validation
- * Source: src_nano/typechecker_minimal.nano
+ * Source: src_nano/typecheck.nano
  * ============================================================================ */
 
 /* =============================================================================
@@ -3864,7 +3864,7 @@ shadow check_binary_op {
 /* =============================================================================
  * PARSER AST TYPE DEFINITIONS
  * =============================================================================
- * These mirror the types from parser_mvp.nano so we can access Parser fields
+ * These mirror the types from parser.nano so we can access Parser fields
  */
 
 
@@ -4183,7 +4183,7 @@ shadow main {
 
 /* ============================================================================
  * PHASE: TRANSPILER - C Code Generation
- * Source: src_nano/transpiler_minimal.nano
+ * Source: src_nano/transpiler.nano
  * ============================================================================ */
 
 /* =============================================================================

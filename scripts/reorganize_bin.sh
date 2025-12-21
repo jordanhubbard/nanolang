@@ -110,9 +110,9 @@ echo ""
 echo "Moving component binaries to build/..."
 
 COMPONENTS=(
-    "parser_mvp"
-    "typechecker_minimal"
-    "transpiler_minimal"
+    "parser"
+    "typecheck"
+    "transpiler"
     "type_adapters"
 )
 

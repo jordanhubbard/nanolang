@@ -79,7 +79,7 @@ echo "  Time: ${TEST_TIME}ms"
 
 # Benchmark 5: Self-Hosting Compilation
 echo -e "${GREEN}Benchmark 5: Self-Hosting Parser Compilation${NC}"
-SELFHOST_TIME=$(time_ms ./bin/nanoc src_nano/parser_mvp.nano -o .benchmark_parser_test)
+SELFHOST_TIME=$(time_ms ./bin/nanoc src_nano/parser.nano -o .benchmark_parser_test)
 echo "  Time: ${SELFHOST_TIME}ms"
 rm -f .benchmark_parser_test .benchmark_parser_test.c
 

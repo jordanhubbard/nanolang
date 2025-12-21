@@ -19,7 +19,7 @@
  * - Module system
  */
 
-import "src_nano/parser_mvp.nano"
+import "src_nano/parser.nano"
 
 /* =============================================================================
  * TYPE SYSTEM

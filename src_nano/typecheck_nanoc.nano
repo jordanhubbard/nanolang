@@ -1,9 +1,9 @@
 import "src_nano/compiler/lexer.nano"
-import "src_nano/parser_mvp.nano"
-import "src_nano/typechecker_minimal.nano"
+import "src_nano/parser.nano"
+import "src_nano/typecheck.nano"
 
-fn typecheck_nanoc_v05() -> int {
-    let tokens: List<LexToken> = (tokenize_file "src_nano/nanoc_v05.nano")
+fn typecheck_nanoc() -> int {
+    let tokens: List<LexToken> = (tokenize_file "src_nano/nanoc.nano")
     let count: int = (list_LexToken_length tokens)
     let p: Parser = (parse_program tokens count)
     if (parser_has_error p) {
@@ -25,10 +25,10 @@ fn typecheck_nanoc_v05() -> int {
     }
 }
 
-shadow typecheck_nanoc_v05 { assert (== 1 1) }
+shadow typecheck_nanoc { assert (== 1 1) }
 
 fn main() -> int {
-    return (typecheck_nanoc_v05)
+    return (typecheck_nanoc)
 }
 
 shadow main { assert (== 1 1) }

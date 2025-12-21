@@ -26,9 +26,9 @@ import "src_nano/ast_shared.nano"
 import "src_nano/file_io.nano" as IO
 import "src_nano/cli_args.nano" as CLI  
 import "src_nano/lexer_main.nano" as Lexer
-import "src_nano/parser_mvp.nano" as Parser
-import "src_nano/typechecker_minimal.nano" as TypeChecker
-import "src_nano/transpiler_minimal.nano" as Transpiler
+import "src_nano/parser.nano" as Parser
+import "src_nano/typecheck.nano" as TypeChecker
+import "src_nano/transpiler.nano" as Transpiler
 */
 
 /* For now, import without aliases until we fix the type checker issue */

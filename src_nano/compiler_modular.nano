@@ -13,9 +13,9 @@
  */
 
 import "lexer_main.nano" as Lexer
-import "parser_mvp.nano" as Parser  
-import "typechecker_minimal.nano" as TypeCheck
-import "transpiler_minimal.nano" as Transpile
+import "parser.nano" as Parser  
+import "typecheck.nano" as TypeCheck
+import "transpiler.nano" as Transpile
 
 /* Command line argument parsing */
 struct CompilerArgs {
@@ -54,9 +54,9 @@ fn show_usage() -> void {
     (println "")
     (println "Components:")
     (println "  Lexer:       lexer_main.nano")
-    (println "  Parser:      parser_mvp.nano")
-    (println "  TypeChecker: typechecker_minimal.nano")
-    (println "  Transpiler:  transpiler_minimal.nano")
+    (println "  Parser:      parser.nano")
+    (println "  TypeChecker: typecheck.nano")
+    (println "  Transpiler:  transpiler.nano")
     (println "")
     (println "All components written in NanoLang!")
     (println "")

@@ -11,9 +11,9 @@
  * 
  * Components:
  * - lexer_main.nano: tokenize(source) -> List<Token>
- * - parser_mvp.nano: parse_program(tokens, count) -> Parser
- * - typechecker_minimal.nano: typecheck_parser(parser) -> int
- * - transpiler_minimal.nano: transpile_parser(parser) -> string
+ * - parser.nano: parse_program(tokens, count) -> Parser
+ * - typecheck.nano: typecheck_parser(parser) -> int
+ * - transpiler.nano: transpile_parser(parser) -> string
  */
 
 /* CLI argument functions */
@@ -49,9 +49,9 @@ fn show_usage() -> void {
     (println "")
     (println "Components:")
     (println "  - Lexer:       lexer_main.nano")
-    (println "  - Parser:      parser_mvp.nano")
-    (println "  - TypeChecker: typechecker_minimal.nano")
-    (println "  - Transpiler:  transpiler_minimal.nano")
+    (println "  - Parser:      parser.nano")
+    (println "  - TypeChecker: typecheck.nano")
+    (println "  - Transpiler:  transpiler.nano")
     (println "")
 }
 

@@ -6,9 +6,9 @@
 #
 # Pipeline:
 #   1. Lexer (lexer_main.nano) - tokenizes source
-#   2. Parser (parser_mvp.nano) - builds AST  
-#   3. Type Checker (typechecker_minimal.nano) - validates types
-#   4. Transpiler (transpiler_minimal.nano) - generates C code
+#   2. Parser (parser.nano) - builds AST  
+#   3. Type Checker (typecheck.nano) - validates types
+#   4. Transpiler (transpiler.nano) - generates C code
 #
 # Note: This is a demonstration test showing the components work individually.
 # Full integration requires a module system for linking .nano files together.
@@ -22,7 +22,7 @@ echo "=========================================="
 echo ""
 
 # Check that all components exist
-COMPONENTS="parser_mvp typechecker_minimal transpiler_minimal"
+COMPONENTS="parser typecheck transpiler"
 for comp in $COMPONENTS; do
     if [ ! -f "bin/$comp" ]; then
         echo "❌ Error: bin/$comp not found"
@@ -36,8 +36,8 @@ echo ""
 
 # Test 1: Parser can parse a simple program
 echo "Test 1: Parser"
-echo "  Testing parser_mvp with sample code..."
-if bin/parser_mvp > /dev/null 2>&1; then
+echo "  Testing parser with sample code..."
+if bin/parser > /dev/null 2>&1; then
     echo "  ✓ Parser tests passed"
 else
     echo "  ❌ Parser tests failed"
@@ -47,8 +47,8 @@ fi
 # Test 2: Type checker works
 echo ""
 echo "Test 2: Type Checker"
-echo "  Testing typechecker_minimal..."
-if bin/typechecker_minimal > /dev/null 2>&1; then
+echo "  Testing typecheck..."
+if bin/typecheck > /dev/null 2>&1; then
     echo "  ✓ Type checker tests passed"
 else
     echo "  ❌ Type checker tests failed"
@@ -58,8 +58,8 @@ fi
 # Test 3: Transpiler generates code
 echo ""
 echo "Test 3: Transpiler"
-echo "  Testing transpiler_minimal..."
-if bin/transpiler_minimal > /dev/null 2>&1; then
+echo "  Testing transpiler..."
+if bin/transpiler > /dev/null 2>&1; then
     echo "  ✓ Transpiler tests passed"
 else
     echo "  ❌ Transpiler tests failed"

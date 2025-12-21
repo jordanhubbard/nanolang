@@ -1,4 +1,4 @@
-import "src_nano/parser_mvp.nano"
+import "src_nano/typecheck.nano"
 
 fn main() -> int {
     return 0
