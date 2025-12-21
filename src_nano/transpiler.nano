@@ -142,9 +142,8 @@ fn type_to_c(nano_type: string) -> string {
                     if (== nano_type "void") {
                         return "void"
                     } else {
-                        /* Keep as a simple pointer until array runtime parity is implemented */
                         if (str_contains nano_type "array<") {
-                            return "void*"
+                            return "DynArray*"
                         } else {
                             return (mangle_name nano_type)
                         }
@@ -459,6 +458,7 @@ fn gen_c_includes() -> string {
     set result (str_concat result "#include <stdint.h>\n")
     set result (str_concat result "#include <string.h>\n")
     set result (str_concat result "#include <assert.h>\n")
+    set result (str_concat result "#include \"runtime/dyn_array.h\"\n")
     set result (str_concat result "\n")
     
     return result
@@ -692,23 +692,60 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int) -> string {
                         return result
                     } else {
                         if (== node_type 8) {
-                            /* Array literal (not yet lowered to real C runtime) */
+                            /* Array literal -> DynArray* */
                             let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
-                            let mut result: string = "(0 /* ["
+
+                            /* Infer element type from first element (fallback to int) */
+                            let mut elem_type: int = 0
+                            if (> arr.element_count 0) {
+                                let first: ASTStmtRef = (parser_get_array_element parser arr.element_start)
+                                set elem_type first.node_type
+                            } else {
+                                (print "")
+                            }
+
+                            let mut elem_enum: string = "ELEM_INT"
+                            let mut push_fn: string = "dyn_array_push_int"
+
+                            if (== elem_type 6) {
+                                set elem_enum "ELEM_FLOAT"
+                                set push_fn "dyn_array_push_float"
+                            } else {
+                                if (== elem_type 4) {
+                                    set elem_enum "ELEM_STRING"
+                                    set push_fn "dyn_array_push_string"
+                                } else {
+                                    if (== elem_type 5) {
+                                        set elem_enum "ELEM_BOOL"
+                                        set push_fn "dyn_array_push_bool"
+                                    } else {
+                                        if (== elem_type 8) {
+                                            set elem_enum "ELEM_ARRAY"
+                                            set push_fn "dyn_array_push_array"
+                                        } else {
+                                            (print "")
+                                        }
+                                    }
+                                }
+                            }
+
+                            let mut result: string = "({ DynArray* _arr = dyn_array_new("
+                            set result (str_concat result elem_enum)
+                            set result (str_concat result "); ")
+
                             let mut i: int = 0
                             while (< i arr.element_count) {
-                                if (> i 0) {
-                                    set result (str_concat result ", ")
-                                } else {
-                                    (print "")
-                                }
-
                                 let eref: ASTStmtRef = (parser_get_array_element parser (+ arr.element_start i))
                                 let ecode: string = (generate_expression parser eref.node_id eref.node_type)
+
+                                set result (str_concat result push_fn)
+                                set result (str_concat result "(_arr, ")
                                 set result (str_concat result ecode)
+                                set result (str_concat result "); ")
                                 set i (+ i 1)
                             }
-                            set result (str_concat result "] */)")
+
+                            set result (str_concat result "_arr; })")
                             return result
                         } else {
                             /* Unknown type - return 0 */

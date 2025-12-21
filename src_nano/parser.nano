@@ -3062,7 +3062,7 @@ fn parser_store_field_access(p: Parser, object_id: int, object_type: int, field_
         tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
         last_expr_node_id: node_id,
-        last_expr_node_type: -1
+        last_expr_node_type: 7
     }
 }
 
