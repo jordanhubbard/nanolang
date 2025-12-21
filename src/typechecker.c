@@ -2200,6 +2200,8 @@ static const char *builtin_function_names[] = {
     /* File I/O (stdlib functions) */
     "file_read", "file_read_bytes", "file_write", "file_append", "file_remove", "file_rename",
     "file_exists", "file_size",
+    /* Temp helpers */
+    "tmp_dir", "mktemp", "mktemp_dir",
     /* Directory operations */
     "dir_create", "dir_remove", "dir_list", "dir_exists", "chdir",
     /* Path operations */

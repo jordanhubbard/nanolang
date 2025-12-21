@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L  /* For mkstemp/mkdtemp */
+
 #include "nanolang.h"
 #include "runtime/list_int.h"
 #include "runtime/list_string.h"
@@ -14,6 +16,7 @@
 #include <unistd.h>
 #include <libgen.h>
 #include <math.h>
+
 
 /* Forward declarations */
 static Value eval_expression(ASTNode *expr, Environment *env);
@@ -274,6 +277,47 @@ static Value builtin_file_size(Value *args) {
     struct stat st;
     if (stat(path, &st) != 0) return create_int(-1);
     return create_int(st.st_size);
+}
+
+static Value builtin_tmp_dir(Value *args) {
+    (void)args;
+    const char *tmp = getenv("TMPDIR");
+    if (!tmp || tmp[0] == '\0') tmp = "/tmp";
+    return create_string(tmp);
+}
+
+static Value builtin_mktemp(Value *args) {
+    const char *prefix = args[0].as.string_val;
+    const char *tmp = getenv("TMPDIR");
+    if (!tmp || tmp[0] == '\0') tmp = "/tmp";
+
+    char templ[1024];
+    const char *p = (prefix && prefix[0] != '\0') ? prefix : "nanolang_";
+    snprintf(templ, sizeof(templ), "%s/%sXXXXXX", tmp, p);
+
+    int fd = mkstemp(templ);
+    if (fd < 0) return create_string("");
+    close(fd);
+    return create_string(templ);
+}
+
+static Value builtin_mktemp_dir(Value *args) {
+    const char *prefix = args[0].as.string_val;
+    const char *tmp = getenv("TMPDIR");
+    if (!tmp || tmp[0] == '\0') tmp = "/tmp";
+
+    char path[1024];
+    const char *p = (prefix && prefix[0] != '\0') ? prefix : "nanolang_dir_";
+
+    for (int i = 0; i < 100; i++) {
+        /* Best-effort: unique-ish name; mkdir is atomic */
+        snprintf(path, sizeof(path), "%s/%s%lld_%d", tmp, p, (long long)time(NULL), i);
+        if (mkdir(path, 0700) == 0) {
+            return create_string(path);
+        }
+    }
+
+    return create_string("");
 }
 
 /* Directory Operations */
@@ -2509,6 +2553,11 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "file_rename") == 0) return builtin_file_rename(args);
     if (strcmp(name, "file_exists") == 0) return builtin_file_exists(args);
     if (strcmp(name, "file_size") == 0) return builtin_file_size(args);
+
+    /* Temp helpers */
+    if (strcmp(name, "tmp_dir") == 0) return builtin_tmp_dir(args);
+    if (strcmp(name, "mktemp") == 0) return builtin_mktemp(args);
+    if (strcmp(name, "mktemp_dir") == 0) return builtin_mktemp_dir(args);
 
     /* Directory operations */
     if (strcmp(name, "dir_create") == 0) return builtin_dir_create(args);

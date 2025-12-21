@@ -78,7 +78,7 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
     if verbose {
         (println "Reading source file...")
     }
-    let source: string = (read_file input)
+    let source: string = (file_read input)
     
     /* Step 2: Lexer - Tokenize */
     if verbose {

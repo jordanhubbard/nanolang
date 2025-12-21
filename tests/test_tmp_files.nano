@@ -1,0 +1,21 @@
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    let dir: string = (tmp_dir)
+    assert (!= dir "")
+
+    let path: string = (mktemp "nanolang_test_")
+    assert (!= path "")
+    assert (== (file_exists path) true)
+    assert (== (file_write path "hello") 0)
+    let s: string = (file_read path)
+    assert (str_equals s "hello")
+    assert (== (file_remove path) 0)
+
+    let dpath: string = (mktemp_dir "nanolang_dir_")
+    assert (!= dpath "")
+    assert (== (dir_exists dpath) true)
+    assert (== (dir_remove dpath) 0)
+}

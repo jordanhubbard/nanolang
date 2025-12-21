@@ -854,6 +854,54 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "    struct stat st;\n");
     sb_append(sb, "    return stat(path, &st) == 0;\n");
     sb_append(sb, "}\n\n");
+
+    /* Temp helpers */
+    sb_append(sb, "static char* nl_os_tmp_dir(void) {\n");
+    sb_append(sb, "    const char* tmp = getenv(\"TMPDIR\");\n");
+    sb_append(sb, "    if (!tmp || tmp[0] == '\\0') tmp = \"/tmp\";\n");
+    sb_append(sb, "    size_t len = strlen(tmp);\n");
+    sb_append(sb, "    char* out = malloc(len + 1);\n");
+    sb_append(sb, "    if (!out) return \"\";\n");
+    sb_append(sb, "    memcpy(out, tmp, len);\n");
+    sb_append(sb, "    out[len] = '\\0';\n");
+    sb_append(sb, "    return out;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static char* nl_os_mktemp(const char* prefix) {\n");
+    sb_append(sb, "    const char* tmp = getenv(\"TMPDIR\");\n");
+    sb_append(sb, "    if (!tmp || tmp[0] == '\\0') tmp = \"/tmp\";\n");
+    sb_append(sb, "    const char* p = (prefix && prefix[0]) ? prefix : \"nanolang_\";\n");
+    sb_append(sb, "    char templ[1024];\n");
+    sb_append(sb, "    snprintf(templ, sizeof(templ), \"%s/%sXXXXXX\", tmp, p);\n");
+    sb_append(sb, "    int fd = mkstemp(templ);\n");
+    sb_append(sb, "    if (fd < 0) return \"\";\n");
+    sb_append(sb, "    close(fd);\n");
+    sb_append(sb, "    size_t len = strlen(templ);\n");
+    sb_append(sb, "    char* out = malloc(len + 1);\n");
+    sb_append(sb, "    if (!out) return \"\";\n");
+    sb_append(sb, "    memcpy(out, templ, len);\n");
+    sb_append(sb, "    out[len] = '\\0';\n");
+    sb_append(sb, "    return out;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static char* nl_os_mktemp_dir(const char* prefix) {\n");
+    sb_append(sb, "    const char* tmp = getenv(\"TMPDIR\");\n");
+    sb_append(sb, "    if (!tmp || tmp[0] == '\\0') tmp = \"/tmp\";\n");
+    sb_append(sb, "    const char* p = (prefix && prefix[0]) ? prefix : \"nanolang_dir_\";\n");
+    sb_append(sb, "    char path[1024];\n");
+    sb_append(sb, "    for (int i = 0; i < 100; i++) {\n");
+    sb_append(sb, "        snprintf(path, sizeof(path), \"%s/%s%lld_%d\", tmp, p, (long long)time(NULL), i);\n");
+    sb_append(sb, "        if (mkdir(path, 0700) == 0) {\n");
+    sb_append(sb, "            size_t len = strlen(path);\n");
+    sb_append(sb, "            char* out = malloc(len + 1);\n");
+    sb_append(sb, "            if (!out) return \"\";\n");
+    sb_append(sb, "            memcpy(out, path, len);\n");
+    sb_append(sb, "            out[len] = '\\0';\n");
+    sb_append(sb, "            return out;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return \"\";\n");
+    sb_append(sb, "}\n\n");
 }
 
 /* Generate complete stdlib runtime (convenience function) */

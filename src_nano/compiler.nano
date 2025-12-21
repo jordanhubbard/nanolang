@@ -162,7 +162,7 @@ fn compile(input: string, output: string, keep_c: bool, verbose: bool) -> int {
     } else {
         (print "")
     }
-    let source: string = (read_file input)
+    let source: string = (file_read input)
     
     /* TODO: Once import aliases work, use the nanolang components:
     

@@ -4,11 +4,17 @@
  * Extern declarations for reading and writing files
  */
 
-/* Read entire file into a string */
-extern fn read_file(path: string) -> string
+/* Thin wrappers over built-in file_* primitives.
+ * Kept as a module so callers can use IO.read_file/IO.write_file.
+ */
 
-/* Write string to file */
-extern fn write_file(path: string, content: string) -> int
+pub fn read_file(path: string) -> string {
+    return (file_read path)
+}
+
+pub fn write_file(path: string, content: string) -> int {
+    return (file_write path content)
+}
 
 /* Note: file_exists is a builtin function, no need to declare it here */
 
