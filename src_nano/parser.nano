@@ -763,7 +763,10 @@ fn is_type_start_token_type(token_type: int) -> bool {
                             (== token_type (token_type_string))
                             (or
                                 (== token_type (token_type_bstring))
-                                (== token_type (token_type_void))
+                                (or
+                                    (== token_type (token_type_void))
+                                    (== token_type (token_lparen))
+                                )
                             )
                         )
                     )
@@ -784,6 +787,44 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
             let mut type_name: string = ""
             let mut cur: Parser = p
 
+            if (== tok.token_type (token_lparen)) {
+                /* Tuple type: (T1,T2,...) */
+                let mut type_name: string = "("
+                let mut cur: Parser = (parser_advance p)
+
+                let arg1: TypeParseResult = (parse_type_string cur)
+                if (not arg1.ok) {
+                    return TypeParseResult { p: arg1.p, type_name: type_name, ok: false }
+                } else {
+                    set type_name (str_concat type_name arg1.type_name)
+                    set cur arg1.p
+                }
+
+                while (not (parser_is_at_end cur)) {
+                    let tc: LexToken = (parser_current cur)
+                    if (== tc.token_type (token_comma)) {
+                        set type_name (str_concat type_name ",")
+                        set cur (parser_advance cur)
+                        let argn: TypeParseResult = (parse_type_string cur)
+                        if (not argn.ok) {
+                            return TypeParseResult { p: argn.p, type_name: type_name, ok: false }
+                        } else {
+                            set type_name (str_concat type_name argn.type_name)
+                            set cur argn.p
+                        }
+                    } else {
+                        if (== tc.token_type (token_rparen)) {
+                            set type_name (str_concat type_name ")")
+                            set cur (parser_advance cur)
+                            return TypeParseResult { p: cur, type_name: type_name, ok: true }
+                        } else {
+                            return TypeParseResult { p: cur, type_name: type_name, ok: false }
+                        }
+                    }
+                }
+
+                return TypeParseResult { p: cur, type_name: type_name, ok: false }
+            } else {
             if (== tok.token_type (token_identifier)) {
                 let name_res: NameParseResult = (parse_qualified_name p)
                 if (not name_res.ok) {
@@ -843,6 +884,7 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
                 }
             } else {
                 return TypeParseResult { p: cur, type_name: type_name, ok: true }
+            }
             }
         }
     }
@@ -1759,6 +1801,14 @@ fn parse_match(p: Parser) -> Parser {
                                                             set arm_body_types (array_push arm_body_types ParseNodeType.PNODE_BLOCK)
                                                             set arm_count (+ arm_count 1)
                                                             set pcur pbody
+
+                                                            /* Optional comma between arms */
+                                                            if (not (parser_is_at_end pcur)) {
+                                                                let tnext: LexToken = (parser_current pcur)
+                                                                if (== tnext.token_type (token_comma)) {
+                                                                    set pcur (parser_advance pcur)
+                                                                } else { (print "") }
+                                                            } else { (print "") }
                                                         }
                                                     } else {
                                                         let pexpr: Parser = (parse_expression p1e)
@@ -1771,6 +1821,14 @@ fn parse_match(p: Parser) -> Parser {
                                                             set arm_body_types (array_push arm_body_types pexpr.last_expr_node_type)
                                                             set arm_count (+ arm_count 1)
                                                             set pcur pexpr
+
+                                                            /* Optional comma between arms */
+                                                            if (not (parser_is_at_end pcur)) {
+                                                                let tnext: LexToken = (parser_current pcur)
+                                                                if (== tnext.token_type (token_comma)) {
+                                                                    set pcur (parser_advance pcur)
+                                                                } else { (print "") }
+                                                            } else { (print "") }
                                                         }
                                                     }
                                                 }
@@ -1989,27 +2047,35 @@ fn parse_primary(p: Parser) -> Parser {
                                                 let tok_after: LexToken = (parser_current p2)
                                                 if (== tok_after.token_type (token_comma)) {
                                                     /* Tuple literal: (expr, expr, ...) */
-                                                    let mut tuple_count: int = 1
-                                                    let mut ptup: Parser = (parser_advance p2)
+                                                    let mut elem_ids: array<int> = []
+                                                    let mut elem_types: array<int> = []
+                                                    let mut elem_count: int = 1
+                                                    set elem_ids (array_push elem_ids p2.last_expr_node_id)
+                                                    set elem_types (array_push elem_types p2.last_expr_node_type)
+                                                    let mut ptup: Parser = (parser_advance p2) /* consume ',' */
 
                                                     while (not (parser_is_at_end ptup)) {
                                                         let ttup: LexToken = (parser_current ptup)
                                                         if (== ttup.token_type (token_rparen)) {
-                                                            return (parser_advance ptup)
+                                                            let p_end: Parser = (parser_advance ptup)
+                                                            return (parser_store_tuple_literal p_end elem_ids elem_types elem_count tok.line tok.column)
                                                         } else {
                                                             let pelem: Parser = (parse_expression ptup)
                                                             if (parser_has_error pelem) {
                                                                 return pelem
                                                             } else {
-                                                                set tuple_count (+ tuple_count 1)
+                                                                set elem_ids (array_push elem_ids pelem.last_expr_node_id)
+                                                                set elem_types (array_push elem_types pelem.last_expr_node_type)
+                                                                set elem_count (+ elem_count 1)
                                                                 set ptup pelem
+
                                                                 let tnext: LexToken = (parser_current ptup)
                                                                 if (== tnext.token_type (token_comma)) {
                                                                     set ptup (parser_advance ptup)
                                                                 } else {
-                                                                    /* No comma, should be rparen - exit loop by returning */
                                                                     if (== tnext.token_type (token_rparen)) {
-                                                                        return (parser_advance ptup)
+                                                                        let p_end: Parser = (parser_advance ptup)
+                                                                        return (parser_store_tuple_literal p_end elem_ids elem_types elem_count tok.line tok.column)
                                                                     } else {
                                                                         return (parser_with_error ptup true)
                                                                     }
@@ -2017,7 +2083,7 @@ fn parse_primary(p: Parser) -> Parser {
                                                             }
                                                         }
                                                     }
-                                                    /* Loop ended without finding rparen */
+
                                                     return (parser_with_error ptup true)
                                                 } else {
                                                     /* Regular parenthesized expression */
@@ -2131,6 +2197,14 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
                                 } else {
                                     let tok_field: LexToken = (parser_current p_dot)
                                     
+                                    if (== tok_field.token_type (token_number)) {
+                                        /* Tuple index: t.0 */
+                                        let idx: int = (string_to_int tok_field.value)
+                                        let p_idx: Parser = (parser_advance p_dot)
+                                        let obj_id: int = p_postfix.last_expr_node_id
+                                        let obj_type: int = p_postfix.last_expr_node_type
+                                        set p_postfix (parser_store_tuple_index p_idx obj_id obj_type idx tok_post.line tok_post.column)
+                                    } else {
                                     if (== tok_field.token_type (token_identifier)) {
                                         let field_name: string = tok_field.value
                                         let p_field: Parser = (parser_advance p_dot)
@@ -2169,6 +2243,7 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
                                         }
                                     } else {
                                         set done true
+                                    }
                                     }
                                 }
                             } else {
@@ -4635,6 +4710,182 @@ fn parser_store_match(p: Parser, scrutinee_id: int, scrutinee_type: int, arm_var
     }
 }
 
+/* Helper: Store tuple literal */
+fn parser_store_tuple_literal(p: Parser, element_ids: array<int>, element_types: array<int>, element_count: int, line: int, column: int) -> Parser {
+    let node: ASTTupleLiteral = ASTTupleLiteral {
+        node_type: ParseNodeType.PNODE_TUPLE_LITERAL,
+        line: line,
+        column: column,
+        element_ids: element_ids,
+        element_types: element_types,
+        element_count: element_count
+    }
+    let node_id: int = p.tuple_literals_count
+    (list_ASTTupleLiteral_push p.tuple_literals node)
+
+    return Parser {
+        tokens: p.tokens,
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        calls: p.calls,
+        call_args: p.call_args,
+        array_elements: p.array_elements,
+        array_literals: p.array_literals,
+        lets: p.lets,
+        sets: p.sets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        fors: p.fors,
+        returns: p.returns,
+        blocks: p.blocks,
+        block_statements: p.block_statements,
+        prints: p.prints,
+        asserts: p.asserts,
+        functions: p.functions,
+        shadows: p.shadows,
+        structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
+        enums: p.enums,
+        unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
+        numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
+        lets_count: p.lets_count,
+        sets_count: p.sets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        block_statements_count: p.block_statements_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
+        functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
+        structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: (+ p.tuple_literals_count 1),
+        tuple_indices_count: p.tuple_indices_count,
+        next_node_id: (+ p.next_node_id 1),
+        last_expr_node_id: node_id,
+        last_expr_node_type: ParseNodeType.PNODE_TUPLE_LITERAL
+    }
+}
+
+/* Helper: Store tuple index */
+fn parser_store_tuple_index(p: Parser, tuple_id: int, tuple_type: int, index: int, line: int, column: int) -> Parser {
+    let node: ASTTupleIndex = ASTTupleIndex {
+        node_type: ParseNodeType.PNODE_TUPLE_INDEX,
+        line: line,
+        column: column,
+        tuple: tuple_id,
+        tuple_type: tuple_type,
+        index: index
+    }
+    let node_id: int = p.tuple_indices_count
+    (list_ASTTupleIndex_push p.tuple_indices node)
+
+    return Parser {
+        tokens: p.tokens,
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        calls: p.calls,
+        call_args: p.call_args,
+        array_elements: p.array_elements,
+        array_literals: p.array_literals,
+        lets: p.lets,
+        sets: p.sets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        fors: p.fors,
+        returns: p.returns,
+        blocks: p.blocks,
+        block_statements: p.block_statements,
+        prints: p.prints,
+        asserts: p.asserts,
+        functions: p.functions,
+        shadows: p.shadows,
+        structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
+        enums: p.enums,
+        unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
+        numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
+        lets_count: p.lets_count,
+        sets_count: p.sets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        block_statements_count: p.block_statements_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
+        functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
+        structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: (+ p.tuple_indices_count 1),
+        next_node_id: (+ p.next_node_id 1),
+        last_expr_node_id: node_id,
+        last_expr_node_type: ParseNodeType.PNODE_TUPLE_INDEX
+    }
+}
+
 struct ParamParseResult {
     p: Parser,
     param_count: int
@@ -5666,5 +5917,25 @@ pub fn parser_get_match_count(p: Parser) -> int {
 /* Get a match expression by index */
 pub fn parser_get_match(p: Parser, idx: int) -> ASTMatch {
     return (list_ASTMatch_get p.matches idx)
+}
+
+/* Get number of tuple literals */
+pub fn parser_get_tuple_literal_count(p: Parser) -> int {
+    return (list_ASTTupleLiteral_length p.tuple_literals)
+}
+
+/* Get a tuple literal by index */
+pub fn parser_get_tuple_literal(p: Parser, idx: int) -> ASTTupleLiteral {
+    return (list_ASTTupleLiteral_get p.tuple_literals idx)
+}
+
+/* Get number of tuple indices */
+pub fn parser_get_tuple_index_count(p: Parser) -> int {
+    return (list_ASTTupleIndex_length p.tuple_indices)
+}
+
+/* Get a tuple index by index */
+pub fn parser_get_tuple_index(p: Parser, idx: int) -> ASTTupleIndex {
+    return (list_ASTTupleIndex_get p.tuple_indices idx)
 }
 

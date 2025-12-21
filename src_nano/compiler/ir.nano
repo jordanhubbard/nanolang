@@ -391,6 +391,8 @@ struct ASTTupleLiteral {
     node_type: int,
     line: int,
     column: int,
+    element_ids: array<int>,
+    element_types: array<int>,
     element_count: int
 }
 

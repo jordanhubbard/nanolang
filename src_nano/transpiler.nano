@@ -226,6 +226,60 @@ fn c_type_from_elem_type(elem_type: string) -> string {
 }
 
 /* Helper: convert nanolang type to C type */
+fn is_tuple_type(nano_type: string) -> bool {
+    let len: int = (str_length nano_type)
+    if (< len 2) {
+        return false
+    } else {
+        let first: string = (str_substring nano_type 0 1)
+        let last: string = (str_substring nano_type (- len 1) 1)
+        return (and (str_equals first "(") (str_equals last ")"))
+    }
+}
+
+fn mangle_type_name(name: string) -> string {
+    let mut out: string = ""
+    let len: int = (str_length name)
+    let mut i: int = 0
+
+    while (< i len) {
+        let ch: string = (str_substring name i 1)
+
+        if (and (str_equals ch ":") (< (+ i 1) len)) {
+            let ch2: string = (str_substring name (+ i 1) 1)
+            if (str_equals ch2 ":") {
+                set out (str_concat out "_")
+                set i (+ i 2)
+            } else {
+                set out (str_concat out "_")
+                set i (+ i 1)
+            }
+        } else {
+            if (or (or (or (str_equals ch ".") (str_equals ch "<"))
+                        (or (str_equals ch ">") (str_equals ch ",")))
+                    (or (or (str_equals ch "(") (str_equals ch ")"))
+                        (str_equals ch " ")))) {
+                set out (str_concat out "_")
+            } else {
+                set out (str_concat out ch)
+            }
+            set i (+ i 1)
+        }
+    }
+
+    return out
+}
+
+fn tuple_typedef_name(tuple_type: string) -> string {
+    let len: int = (str_length tuple_type)
+    if (< len 2) {
+        return "Tuple"
+    } else {
+        let inner: string = (str_substring tuple_type 1 (- len 2))
+        return (str_concat "Tuple_" (mangle_type_name inner))
+    }
+}
+
 fn type_to_c(nano_type: string) -> string {
     if (== nano_type "int") {
         return "int64_t"
@@ -245,7 +299,11 @@ fn type_to_c(nano_type: string) -> string {
                         if (str_contains nano_type "array<") {
                             return "DynArray*"
                         } else {
-                            return (mangle_name nano_type)
+                            if (is_tuple_type nano_type) {
+                                return (tuple_typedef_name nano_type)
+                            } else {
+                                return (str_concat "nl_" (mangle_name nano_type))
+                            }
                         }
                     }
                 }
@@ -257,7 +315,150 @@ fn type_to_c(nano_type: string) -> string {
 shadow type_to_c {
     assert (== (type_to_c "int") "int64_t")
     assert (== (type_to_c "bool") "int")
-    assert (== (type_to_c "MyStruct") "MyStruct")
+    assert (== (type_to_c "MyStruct") "nl_MyStruct")
+}
+
+fn array_contains_string(items: array<string>, s: string) -> bool {
+    let mut i: int = 0
+    while (< i (array_length items)) {
+        if (str_equals (at items i) s) {
+            return true
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return false
+}
+
+fn tuple_split_types(tuple_type: string) -> array<string> {
+    let len: int = (str_length tuple_type)
+    if (< len 2) {
+        return []
+    } else {
+        let inner: string = (str_substring tuple_type 1 (- len 2))
+        let mut parts: array<string> = []
+        let mut cur: string = ""
+
+        let mut i: int = 0
+        let inner_len: int = (str_length inner)
+        let mut depth_angle: int = 0
+        let mut depth_paren: int = 0
+
+        while (< i inner_len) {
+            let ch: string = (str_substring inner i 1)
+            let mut is_sep: bool = false
+            if (str_equals ch "<") {
+                set depth_angle (+ depth_angle 1)
+            } else {
+                if (str_equals ch ">") {
+                    set depth_angle (- depth_angle 1)
+                } else {
+                    if (str_equals ch "(") {
+                        set depth_paren (+ depth_paren 1)
+                    } else {
+                        if (str_equals ch ")") {
+                            set depth_paren (- depth_paren 1)
+                        } else {
+                            if (and (str_equals ch ",") (and (== depth_angle 0) (== depth_paren 0))) {
+                                set parts (array_push parts cur)
+                                set cur ""
+                                set is_sep true
+                            } else {
+                                (print "")
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (not is_sep) {
+                set cur (str_concat cur ch)
+            } else { (print "") }
+            set i (+ i 1)
+        }
+
+        set parts (array_push parts cur)
+        return parts
+    }
+}
+
+fn collect_tuple_types_from_type(t: string, acc: array<string>) -> array<string> {
+    if (not (is_tuple_type t)) {
+        return acc
+    } else {
+        let elems: array<string> = (tuple_split_types t)
+        let mut acc2: array<string> = acc
+
+        let mut i: int = 0
+        while (< i (array_length elems)) {
+            set acc2 (collect_tuple_types_from_type (at elems i) acc2)
+            set i (+ i 1)
+        }
+
+        if (array_contains_string acc2 t) {
+            return acc2
+        } else {
+            return (array_push acc2 t)
+        }
+    }
+}
+
+fn gen_tuple_typedef(tuple_type: string) -> string {
+    let name: string = (tuple_typedef_name tuple_type)
+    let elems: array<string> = (tuple_split_types tuple_type)
+    let mut out: string = "typedef struct { "
+
+    let mut i: int = 0
+    while (< i (array_length elems)) {
+        if (> i 0) {
+            set out (str_concat out "; ")
+        } else { (print "") }
+
+        let ct: string = (type_to_c (at elems i))
+        set out (str_concat out ct)
+        set out (str_concat out " _")
+        set out (str_concat out (int_to_string i))
+        set i (+ i 1)
+    }
+
+    set out (str_concat out "; } ")
+    set out (str_concat out name)
+    set out (str_concat out ";\n")
+    return out
+}
+
+fn gen_tuple_typedefs(parser: Parser) -> string {
+    let mut tuple_types: array<string> = []
+
+    /* Walk all lets (params and locals) */
+    let let_count: int = (parser_get_let_count parser)
+    let mut i: int = 0
+    while (< i let_count) {
+        let l: ASTLet = (parser_get_let parser i)
+        set tuple_types (collect_tuple_types_from_type l.var_type tuple_types)
+        set i (+ i 1)
+    }
+
+    /* Walk function return types */
+    let fn_count: int = (parser_get_function_count parser)
+    let mut j: int = 0
+    while (< j fn_count) {
+        let f: ASTFunction = (parser_get_function parser j)
+        set tuple_types (collect_tuple_types_from_type f.return_type tuple_types)
+        set j (+ j 1)
+    }
+
+    let mut out: string = ""
+    let mut k: int = 0
+    while (< k (array_length tuple_types)) {
+        set out (str_concat out (gen_tuple_typedef (at tuple_types k)))
+        set k (+ k 1)
+    }
+
+    if (== out "") {
+        return ""
+    } else {
+        return (str_concat "/* Tuple typedefs */\n" out)
+    }
 }
 
 /* Note: For Phase 1, we avoid complex array<string> type inference issues */
@@ -654,6 +855,8 @@ extern fn parser_get_array_element(p: Parser, idx: int) -> ASTStmtRef
 extern fn parser_get_struct_literal(p: Parser, idx: int) -> ASTStructLiteral
 extern fn parser_get_union_construct(p: Parser, idx: int) -> ASTUnionConstruct
 extern fn parser_get_match(p: Parser, idx: int) -> ASTMatch
+extern fn parser_get_tuple_literal(p: Parser, idx: int) -> ASTTupleLiteral
+extern fn parser_get_tuple_index(p: Parser, idx: int) -> ASTTupleIndex
 extern fn parser_get_call_count(p: Parser) -> int
 extern fn parser_get_set(p: Parser, idx: int) -> ASTSet
 extern fn parser_get_set_count(p: Parser) -> int
@@ -1256,8 +1459,65 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                     set result (str_concat result " })")
                                     return result
                                 } else {
-                                    /* Unknown type - return 0 */
-                                    return "0"
+                                    if (== node_type ParseNodeType.PNODE_MATCH) {
+                                        let m: ASTMatch = (parser_get_match parser node_id)
+                                        return (generate_match_expr parser m env expected_type)
+                                    } else {
+                                        if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) {
+                                            let tl: ASTTupleLiteral = (parser_get_tuple_literal parser node_id)
+                                            let tuple_t: string = expected_type
+                                            let mut tuple_name: string = "Tuple"
+                                            if (is_tuple_type tuple_t) {
+                                                set tuple_name (tuple_typedef_name tuple_t)
+                                            } else {
+                                                (print "")
+                                            }
+
+                                            let elem_expected: array<string> = (tuple_split_types tuple_t)
+
+                                            let mut result: string = "(("
+                                            set result (str_concat result tuple_name)
+                                            set result (str_concat result "){ ")
+
+                                            let mut i: int = 0
+                                            while (< i tl.element_count) {
+                                                if (> i 0) {
+                                                    set result (str_concat result ", ")
+                                                } else { (print "") }
+
+                                                let vid: int = (at tl.element_ids i)
+                                                let vty: int = (at tl.element_types i)
+                                                let mut exp_i: string = ""
+                                                if (< i (array_length elem_expected)) {
+                                                    set exp_i (at elem_expected i)
+                                                } else { (print "") }
+
+                                                let vcode: string = (generate_expression parser vid vty env exp_i)
+                                                set result (str_concat result "._")
+                                                set result (str_concat result (int_to_string i))
+                                                set result (str_concat result " = ")
+                                                set result (str_concat result vcode)
+                                                set i (+ i 1)
+                                            }
+
+                                            set result (str_concat result " })")
+                                            return result
+                                        } else {
+                                            if (== node_type ParseNodeType.PNODE_TUPLE_INDEX) {
+                                                let ti: ASTTupleIndex = (parser_get_tuple_index parser node_id)
+                                                let tcode: string = (generate_expression parser ti.tuple ti.tuple_type env "")
+                                                let mut result: string = "(("
+                                                set result (str_concat result tcode)
+                                                set result (str_concat result ")._")
+                                                set result (str_concat result (int_to_string ti.index))
+                                                set result (str_concat result ")")
+                                                return result
+                                            } else {
+                                                /* Unknown type - return 0 */
+                                                return "0"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1339,6 +1599,82 @@ fn generate_assert_stmt(parser: Parser, a: ASTAssert, indent: int, env: GenEnv) 
     set code (str_concat code "assert(")
     set code (str_concat code cond_code)
     set code (str_concat code ");\n")
+    return code
+}
+
+fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: string) -> string {
+    let scr_code: string = (generate_expression parser m.scrutinee m.scrutinee_type env "")
+
+    /* Infer union name from scrutinee identifier type in env (common case). */
+    let mut union_name: string = ""
+    if (== m.scrutinee_type 1) {
+        let sid: ASTIdentifier = (parser_get_identifier parser m.scrutinee)
+        set union_name (genenv_get env sid.name)
+    } else {
+        if (== m.scrutinee_type 24) {
+            let uc: ASTUnionConstruct = (parser_get_union_construct parser m.scrutinee)
+            set union_name uc.union_name
+        } else {
+            (print "")
+        }
+    }
+
+    if (== union_name "") {
+        set union_name "UNKNOWN"
+    } else { (print "") }
+
+    let union_c: string = (str_concat "nl_" (mangle_name union_name))
+    let mut out_c: string = "int64_t"
+    if (!= expected_type "") {
+        set out_c (type_to_c expected_type)
+    } else { (print "") }
+
+    let mut code: string = "({ "
+    set code (str_concat code union_c)
+    set code (str_concat code " _m = ")
+    set code (str_concat code scr_code)
+    set code (str_concat code "; ")
+    set code (str_concat code out_c)
+    set code (str_concat code " _out; switch (_m.tag) { ")
+
+    let mut i: int = 0
+    while (< i m.arm_count) {
+        let variant: string = (at m.arm_variants i)
+        let binding: string = (at m.arm_bindings i)
+        let body_id: int = (at m.arm_body_ids i)
+        let body_type: int = (at m.arm_body_types i)
+
+        let tag_name: string = (str_concat (str_concat "nl_" (mangle_name union_name)) (str_concat "_TAG_" variant))
+        let variant_type: string = (str_concat (str_concat "nl_" (mangle_name union_name)) (str_concat "_" variant))
+
+        set code (str_concat code "case ")
+        set code (str_concat code tag_name)
+        set code (str_concat code ": { ")
+
+        set code (str_concat code variant_type)
+        set code (str_concat code " nl_")
+        set code (str_concat code (mangle_name binding))
+        set code (str_concat code " = _m.data.")
+        set code (str_concat code variant)
+        set code (str_concat code "; ")
+
+        let env_arm: GenEnv = (genenv_put env binding (str_concat union_name (str_concat "." variant)))
+
+        if (== body_type ParseNodeType.PNODE_BLOCK) {
+            /* Block bodies in expression match aren't supported here; assume they return */
+            set code (str_concat code "/* unsupported match arm block */ ")
+        } else {
+            let expr_code: string = (generate_expression parser body_id body_type env_arm expected_type)
+            set code (str_concat code "_out = ")
+            set code (str_concat code expr_code)
+            set code (str_concat code "; ")
+        }
+
+        set code (str_concat code "break; } ")
+        set i (+ i 1)
+    }
+
+    set code (str_concat code "} _out; })")
     return code
 }
 
@@ -1625,7 +1961,7 @@ fn transpile_parser(parser: Parser) -> string {
     (println " functions")
     
     /* Generate all functions */
-    let mut all_functions: string = ""
+    let mut all_functions: string = (gen_tuple_typedefs parser)
     let mut i: int = 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
