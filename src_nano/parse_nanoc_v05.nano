@@ -1,0 +1,33 @@
+import "src_nano/compiler/lexer.nano"
+import "src_nano/parser_mvp.nano"
+
+fn parse_nanoc_v05() -> int {
+    let tokens: List<LexToken> = (tokenize_file "src_nano/nanoc_v05.nano")
+    let count: int = (list_LexToken_length tokens)
+    let p: Parser = (parse_program tokens count)
+    if (parser_has_error p) {
+        let tok: LexToken = (parser_current p)
+        (print "Parse failed at token #")
+        (print (int_to_string (parser_position p)))
+        (print ": line ")
+        (print (int_to_string tok.line))
+        (print ", col ")
+        (print (int_to_string tok.column))
+        (print ", type ")
+        (print (int_to_string tok.token_type))
+        (print ", value='")
+        (print tok.value)
+        (println "'")
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow parse_nanoc_v05 { assert (== 1 1) }
+
+fn main() -> int {
+    return (parse_nanoc_v05)
+}
+
+shadow main { assert (== 1 1) }

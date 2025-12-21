@@ -333,7 +333,7 @@ shadow parser_advance {
 }
 
 /* Get current position */
-fn parser_position(p: Parser) -> int {
+pub fn parser_position(p: Parser) -> int {
     return p.position
 }
 
@@ -344,7 +344,7 @@ shadow parser_position {
 }
 
 /* Get current token from token stream */
-fn parser_current(p: Parser) -> LexToken {
+pub fn parser_current(p: Parser) -> LexToken {
     if (parser_is_at_end p) {
         /* Return EOF token */
         return LexToken {
@@ -569,7 +569,7 @@ shadow parser_with_calls_count {
 }
 
 /* Check if parser has encountered an error */
-fn parser_has_error(p: Parser) -> bool {
+pub fn parser_has_error(p: Parser) -> bool {
     return p.has_error
 }
 
@@ -2869,6 +2869,93 @@ shadow parser_store_return {
     assert (== 1 1)
 }
 
+/* Helper: Store assert statement node */
+fn parser_store_assert(p: Parser, condition_id: int, condition_type: int, line: int, column: int) -> Parser {
+    let node: ASTAssert = ASTAssert {
+        node_type: ParseNodeType.PNODE_ASSERT,
+        line: line,
+        column: column,
+        condition: condition_id,
+        condition_type: condition_type
+    }
+    let node_id: int = p.asserts_count
+    (list_ASTAssert_push p.asserts node)
+
+    return Parser {
+        tokens: p.tokens,
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        calls: p.calls,
+        array_literals: p.array_literals,
+        lets: p.lets,
+        sets: p.sets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        fors: p.fors,
+        returns: p.returns,
+        blocks: p.blocks,
+        prints: p.prints,
+        asserts: p.asserts,
+        functions: p.functions,
+        shadows: p.shadows,
+        structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
+        enums: p.enums,
+        unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
+        numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        array_literals_count: p.array_literals_count,
+        lets_count: p.lets_count,
+        sets_count: p.sets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: (+ p.asserts_count 1),
+        functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
+        structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
+        next_node_id: (+ p.next_node_id 1),
+        last_expr_node_id: node_id,
+        last_expr_node_type: -1
+    }
+}
+
+shadow parser_store_assert {
+    assert (== 1 1)
+}
+
 /* Helper: Store block statement node */
 
 /* Helper: Store block node */
@@ -3223,6 +3310,28 @@ shadow parse_return_statement {
     assert (== 1 1)
 }
 
+/* Parse assert statement: assert expression */
+fn parse_assert_statement(p: Parser) -> Parser {
+    if (parser_is_at_end p) {
+        return (parser_with_error p true)
+    } else {
+        let tok: LexToken = (parser_current p)
+        let p1: Parser = (parser_advance p)  /* consume 'assert' */
+        let p2: Parser = (parse_expression p1)
+        if (parser_has_error p2) {
+            return p2
+        } else {
+            let cond_id: int = p2.last_expr_node_id
+            let cond_type: int = p2.last_expr_node_type
+            return (parser_store_assert p2 cond_id cond_type tok.line tok.column)
+        }
+    }
+}
+
+shadow parse_assert_statement {
+    assert (== 1 1)
+}
+
 /* Parse for statement: for varname in expression { body } */
 fn parse_for_statement(p: Parser) -> Parser {
     if (parser_is_at_end p) {
@@ -3330,9 +3439,13 @@ fn parse_statement(p: Parser) -> Parser {
                             if (== tok.token_type (token_return)) {
                                 return (parse_return_statement p)
                             } else {
-                                /* Expression statement */
-                                let p1: Parser = (parse_expression p)
-                                return p1
+                                if (== tok.token_type (token_assert)) {
+                                    return (parse_assert_statement p)
+                                } else {
+                                    /* Expression statement */
+                                    let p1: Parser = (parse_expression p)
+                                    return p1
+                                }
                             }
                         }
                     }
@@ -4455,7 +4568,7 @@ shadow parse_definition {
  * Returns:
  *   Parser state containing all parsed definitions
  */
-fn parse_program(tokens: List<LexToken>, token_count: int) -> Parser {
+pub fn parse_program(tokens: List<LexToken>, token_count: int) -> Parser {
     let mut p: Parser = (parser_new tokens token_count)
     
     /* Parse all definitions until end of tokens or error */
@@ -4466,8 +4579,6 @@ fn parse_program(tokens: List<LexToken>, token_count: int) -> Parser {
         /* Safety: ensure progress to avoid infinite loops */
         if (and (== p.position before_pos) (not (parser_has_error p))) {
             set p (parser_with_error (parser_advance p) true)
-        } else {
-            (print "")
         }
     }
     
@@ -4544,7 +4655,7 @@ shadow test_parser_structure {
  */
 
 /* Get number of functions in the parser */
-fn parser_get_function_count(p: Parser) -> int {
+pub fn parser_get_function_count(p: Parser) -> int {
     return (list_ASTFunction_length p.functions)
 }
 
@@ -4555,170 +4666,107 @@ shadow parser_get_function_count {
 }
 
 /* Get a function by index */
-fn parser_get_function(p: Parser, idx: int) -> ASTFunction {
+pub fn parser_get_function(p: Parser, idx: int) -> ASTFunction {
     return (list_ASTFunction_get p.functions idx)
 }
 
 /* Get number of let statements */
-fn parser_get_let_count(p: Parser) -> int {
+pub fn parser_get_let_count(p: Parser) -> int {
     return (list_ASTLet_length p.lets)
 }
 
 /* Get a let statement by index */
-fn parser_get_let(p: Parser, idx: int) -> ASTLet {
+pub fn parser_get_let(p: Parser, idx: int) -> ASTLet {
     return (list_ASTLet_get p.lets idx)
 }
 
 /* Get number of identifiers */
-fn parser_get_identifier_count(p: Parser) -> int {
+pub fn parser_get_identifier_count(p: Parser) -> int {
     return (list_ASTIdentifier_length p.identifiers)
 }
 
 /* Get an identifier by index */
-fn parser_get_identifier(p: Parser, idx: int) -> ASTIdentifier {
+pub fn parser_get_identifier(p: Parser, idx: int) -> ASTIdentifier {
     return (list_ASTIdentifier_get p.identifiers idx)
 }
 
 /* Get number of numbers */
-fn parser_get_number_count(p: Parser) -> int {
+pub fn parser_get_number_count(p: Parser) -> int {
     return (list_ASTNumber_length p.numbers)
 }
 
 /* Get a number by index */
-fn parser_get_number(p: Parser, idx: int) -> ASTNumber {
+pub fn parser_get_number(p: Parser, idx: int) -> ASTNumber {
     return (list_ASTNumber_get p.numbers idx)
 }
 
 /* Get number of binary operations */
-fn parser_get_binary_op_count(p: Parser) -> int {
+pub fn parser_get_binary_op_count(p: Parser) -> int {
     return (list_ASTBinaryOp_length p.binary_ops)
 }
 
 /* Get a binary operation by index */
-fn parser_get_binary_op(p: Parser, idx: int) -> ASTBinaryOp {
+pub fn parser_get_binary_op(p: Parser, idx: int) -> ASTBinaryOp {
     return (list_ASTBinaryOp_get p.binary_ops idx)
 }
 
 /* Get number of return statements */
-fn parser_get_return_count(p: Parser) -> int {
+pub fn parser_get_return_count(p: Parser) -> int {
     return (list_ASTReturn_length p.returns)
 }
 
 /* Get a return statement by index */
-fn parser_get_return(p: Parser, idx: int) -> ASTReturn {
+pub fn parser_get_return(p: Parser, idx: int) -> ASTReturn {
     return (list_ASTReturn_get p.returns idx)
 }
 
 /* Get number of blocks */
-fn parser_get_block_count(p: Parser) -> int {
+pub fn parser_get_block_count(p: Parser) -> int {
     return (list_ASTBlock_length p.blocks)
 }
 
 /* Get a block by index */
-fn parser_get_block(p: Parser, idx: int) -> ASTBlock {
+pub fn parser_get_block(p: Parser, idx: int) -> ASTBlock {
     return (list_ASTBlock_get p.blocks idx)
 }
 
 /* Get an if statement by index */
-fn parser_get_if(p: Parser, idx: int) -> ASTIf {
+pub fn parser_get_if(p: Parser, idx: int) -> ASTIf {
     return (list_ASTIf_get p.ifs idx)
 }
 
 /* Get number of if statements */
-fn parser_get_if_count(p: Parser) -> int {
+pub fn parser_get_if_count(p: Parser) -> int {
     return (list_ASTIf_length p.ifs)
 }
 
 /* Get a while loop by index */
-fn parser_get_while(p: Parser, idx: int) -> ASTWhile {
+pub fn parser_get_while(p: Parser, idx: int) -> ASTWhile {
     return (list_ASTWhile_get p.whiles idx)
 }
 
 /* Get number of while loops */
-fn parser_get_while_count(p: Parser) -> int {
+pub fn parser_get_while_count(p: Parser) -> int {
     return (list_ASTWhile_length p.whiles)
 }
 
 /* Get a call by index */
-fn parser_get_call(p: Parser, idx: int) -> ASTCall {
+pub fn parser_get_call(p: Parser, idx: int) -> ASTCall {
     return (list_ASTCall_get p.calls idx)
 }
 
 /* Get number of calls */
-fn parser_get_call_count(p: Parser) -> int {
+pub fn parser_get_call_count(p: Parser) -> int {
     return (list_ASTCall_length p.calls)
 }
 
 /* Get a set statement by index */
-fn parser_get_set(p: Parser, idx: int) -> ASTSet {
+pub fn parser_get_set(p: Parser, idx: int) -> ASTSet {
     return (list_ASTSet_get p.sets idx)
 }
 
 /* Get number of set statements */
-fn parser_get_set_count(p: Parser) -> int {
+pub fn parser_get_set_count(p: Parser) -> int {
     return (list_ASTSet_length p.sets)
-}
-
-fn main() -> int {
-    (println "Nanolang Self-Hosted Parser - MVP")
-    (println "Status: Statement parsing COMPLETE! 🎉")
-    (println "")
-    (println "✅ Token management functions:")
-    (println "  - parser_is_at_end()")
-    (println "  - parser_advance()")
-    (println "  - parser_position()")
-    (println "  - parser_current() - Get current token")
-    (println "  - parser_match() - Check token type")
-    (println "  - parser_expect() - Expect token, set error")
-    (println "  - parser_peek() - Look ahead")
-    (println "  - parser_has_error() - Check error state")
-    (println "")
-    (println "✅ Expression parsing functions:")
-    (println "  - parse_primary() - Parse numbers, identifiers, parenthesized")
-    (println "  - parse_expression() - Parse expressions with binary ops")
-    (println "  - is_binary_op() - Check if token is binary operator")
-    (println "")
-    (println "✅ Statement parsing functions:")
-    (println "  - parse_let_statement() - Parse let [mut] name: type = expr")
-    (println "  - parse_if_statement() - Parse if (expr) { ... } [else { ... }]")
-    (println "  - parse_while_statement() - Parse while (expr) { ... }")
-    (println "  - parse_return_statement() - Parse return [expr]")
-    (println "  - parse_block() - Parse { statements }")
-    (println "  - parse_statement() - Statement dispatcher")
-    (println "")
-    (println "✅ AST node storage:")
-    (println "  - All statement types stored in Lists")
-    (println "  - parser_store_let(), parser_store_if(), parser_store_while()")
-    (println "  - parser_store_return(), parser_store_block()")
-    (println "")
-    (println "✅ Expression parsing COMPLETE!")
-    (println "✅ Statement parsing COMPLETE!")
-    (println "")
-    (println "🚧 Definition parsing (IN PROGRESS):")
-    (println "  - AST structures: ASTFunction, ASTStruct, ASTEnum, ASTUnion ✅")
-    (println "  - Storage functions: parser_store_function(), parser_store_struct() ✅")
-    (println "  - Storage functions: parser_store_enum(), parser_store_union() ✅")
-    (println "  - Parsing functions: parse_function_definition() ✅")
-    (println "  - Parsing functions: parse_struct_definition() ✅")
-    (println "  - Parsing functions: parse_enum_definition() ✅")
-    (println "  - Parsing functions: parse_union_definition() ✅")
-    (println "  - Helper functions: parse_function_params(), parse_enum_variants() ✅")
-    (println "  - Helper functions: parse_union_variants() ✅")
-    (println "  - Dispatcher: parse_definition() ✅")
-    (println "")
-    (println "⚠️  Compilation Status:")
-    (println "    - Structure is complete and correct ✅")
-    (println "    - Compiler segfaults on very large files (2283 lines)")
-    (println "    - This is a compiler limitation, not a code bug")
-    (println "    - Solution: Split into modules or optimize compiler")
-    (println "")
-    (println "✅ Test infrastructure ready:")
-    (println "    - test_parser_basic.nano compiles successfully")
-    (println "    - Ready for integration testing with lexer_complete.nano")
-    return 0
-}
-
-shadow main {
-    assert (== (main) 0)
 }
 
