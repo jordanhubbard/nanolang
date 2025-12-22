@@ -737,55 +737,103 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
             }
         }
 
-        // Build compile command
-        char compile_cmd[8192];
-        int pos = 0;
-
         // Get CC from environment or use POSIX cc
         const char *cc = getenv("NANO_CC");
         if (!cc) cc = getenv("CC");
         if (!cc) cc = "cc";
 
-        pos += snprintf(compile_cmd + pos, sizeof(compile_cmd) - pos, "%s -c -fPIC", cc);
+        // Build a reusable compile prefix (flags only)
+        char compile_prefix[4096];
+        int prefix_pos = 0;
+        prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, "%s -c -fPIC", cc);
 
         // Add pkg-config cflags
         for (size_t i = 0; i < meta->pkg_config_count; i++) {
             char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
             if (pkg_cflags) {
-                pos += snprintf(compile_cmd + pos, sizeof(compile_cmd) - pos, " %s", pkg_cflags);
+                prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", pkg_cflags);
                 free(pkg_cflags);
             }
         }
 
         // Add include dirs
         for (size_t i = 0; i < meta->include_dirs_count; i++) {
-            pos += snprintf(compile_cmd + pos, sizeof(compile_cmd) - pos, " -I%s", meta->include_dirs[i]);
+            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " -I%s", meta->include_dirs[i]);
         }
 
         // Add custom cflags
         for (size_t i = 0; i < meta->cflags_count; i++) {
-            pos += snprintf(compile_cmd + pos, sizeof(compile_cmd) - pos, " %s", meta->cflags[i]);
+            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", meta->cflags[i]);
         }
 
-        // Add source files
-        for (size_t i = 0; i < meta->c_sources_count; i++) {
-            pos += snprintf(compile_cmd + pos, sizeof(compile_cmd) - pos, " %s/%s", 
-                          meta->module_dir, meta->c_sources[i]);
-        }
+        if (meta->c_sources_count == 1) {
+            // Single source can compile directly to the module object.
+            char compile_cmd[8192];
+            snprintf(compile_cmd, sizeof(compile_cmd), "%s %s/%s -o %s",
+                     compile_prefix, meta->module_dir, meta->c_sources[0], object_file);
 
-        // Add output file
-        pos += snprintf(compile_cmd + pos, sizeof(compile_cmd) - pos, " -o %s", object_file);
+            if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+                printf("[Module] %s\n", compile_cmd);
+            }
 
-        // Run compile command
-        if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-            printf("[Module] %s\n", compile_cmd);
-        }
+            int result = system(compile_cmd);
+            if (result != 0) {
+                fprintf(stderr, "Error: Failed to compile module %s\n", meta->name);
+                free(build_dir);
+                return NULL;
+            }
+        } else {
+            // Multiple sources: compile each to its own object, then combine.
+            char **src_objects = calloc(meta->c_sources_count, sizeof(char*));
+            if (!src_objects) {
+                fprintf(stderr, "Error: Out of memory building module %s\n", meta->name);
+                free(build_dir);
+                return NULL;
+            }
 
-        int result = system(compile_cmd);
-        if (result != 0) {
-            fprintf(stderr, "Error: Failed to compile module %s\n", meta->name);
-            free(build_dir);
-            return NULL;
+            for (size_t i = 0; i < meta->c_sources_count; i++) {
+                char obj_path[1024];
+                snprintf(obj_path, sizeof(obj_path), "%s/%s_%zu.o", build_dir, meta->name, i);
+                src_objects[i] = strdup(obj_path);
+
+                char compile_cmd[8192];
+                snprintf(compile_cmd, sizeof(compile_cmd), "%s %s/%s -o %s",
+                         compile_prefix, meta->module_dir, meta->c_sources[i], obj_path);
+
+                if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+                    printf("[Module] %s\n", compile_cmd);
+                }
+
+                int result = system(compile_cmd);
+                if (result != 0) {
+                    fprintf(stderr, "Error: Failed to compile module %s (%s)\n", meta->name, meta->c_sources[i]);
+                    for (size_t j = 0; j < meta->c_sources_count; j++) free(src_objects[j]);
+                    free(src_objects);
+                    free(build_dir);
+                    return NULL;
+                }
+            }
+
+            char combine_cmd[8192];
+            int combine_pos = 0;
+            combine_pos += snprintf(combine_cmd + combine_pos, sizeof(combine_cmd) - combine_pos, "%s -r -o %s", cc, object_file);
+            for (size_t i = 0; i < meta->c_sources_count; i++) {
+                combine_pos += snprintf(combine_cmd + combine_pos, sizeof(combine_cmd) - combine_pos, " %s", src_objects[i]);
+            }
+
+            if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+                printf("[Module] %s\n", combine_cmd);
+            }
+
+            int combine_result = system(combine_cmd);
+            for (size_t i = 0; i < meta->c_sources_count; i++) free(src_objects[i]);
+            free(src_objects);
+
+            if (combine_result != 0) {
+                fprintf(stderr, "Error: Failed to combine objects for module %s\n", meta->name);
+                free(build_dir);
+                return NULL;
+            }
         }
 
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
@@ -819,11 +867,8 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                            "%s -shared -fPIC -o %s", cc, shared_lib);
         #endif
         
-        /* Add source files */
-        for (size_t i = 0; i < meta->c_sources_count; i++) {
-            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, 
-                               " %s/%s", meta->module_dir, meta->c_sources[i]);
-        }
+        /* Link the shared library from the module object (supports multi-source modules) */
+        lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", object_file);
         
         /* Add pkg-config flags (deduplicated) */
         char *shared_cflags[1024] = {0};

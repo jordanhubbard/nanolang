@@ -2,7 +2,7 @@
   "name": "std_json",
   "version": "0.1.0",
   "description": "JSON parsing and manipulation via cJSON",
-  "c_sources": ["json.c"],
+  "c_sources": ["json.c", "../../../src/cJSON.c"],
   "headers": ["json.h"],
   "cflags": ["-Imodules/std/json", "-Isrc"]
 }

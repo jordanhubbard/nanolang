@@ -5,11 +5,6 @@
 
 #include "cJSON.h"
 
-/* Build this module as a single translation unit to avoid multi-source
- * compilation limitations in the module builder.
- */
-#include "../../../src/cJSON.c"
-
 static const char* nl_strdup_or_empty(const char* s) {
     if (!s) return "";
     char* out = strdup(s);
