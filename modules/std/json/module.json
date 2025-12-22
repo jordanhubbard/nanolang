@@ -4,5 +4,6 @@
   "description": "JSON parsing and manipulation via cJSON",
   "c_sources": ["json.c", "../../../src/cJSON.c"],
   "headers": ["json.h"],
-  "cflags": ["-Imodules/std/json", "-Isrc"]
+  "cflags": ["-Imodules/std/json", "-Isrc"],
+  "owned_string_returns": ["nl_json_stringify", "nl_json_as_string"]
 }

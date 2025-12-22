@@ -26,6 +26,43 @@ static struct {
     .initialized = false
 };
 
+static void gc_destroy_object(GCHeader *header, bool release_children) {
+    if (!header) return;
+    void *obj = gc_header_to_ptr(header);
+    switch (header->type) {
+        case GC_TYPE_ARRAY: {
+            DynArray *arr = (DynArray *)obj;
+            if (arr && arr->data) {
+                free(arr->data);
+                arr->data = NULL;
+            }
+            break;
+        }
+        case GC_TYPE_STRUCT: {
+            GCStruct *s = (GCStruct *)obj;
+            if (!s) break;
+
+            if (release_children) {
+                gc_struct_free(s);
+            } else {
+                for (int i = 0; i < s->field_count; i++) {
+                    if (s->field_names && s->field_names[i]) {
+                        free(s->field_names[i]);
+                    }
+                }
+                if (s->struct_name) free(s->struct_name);
+                if (s->field_names) free(s->field_names);
+                if (s->field_values) free(s->field_values);
+                if (s->field_gc_flags) free(s->field_gc_flags);
+                if (s->field_types) free(s->field_types);
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 /* Initialize GC */
 void gc_init(void) {
     if (gc_state.initialized) {
@@ -49,6 +86,7 @@ void gc_shutdown(void) {
     GCHeader* current = gc_state.all_objects;
     while (current != NULL) {
         GCHeader* next = (GCHeader*)current->next;
+        gc_destroy_object(current, false);
         free(current);
         current = next;
     }
@@ -141,16 +179,7 @@ void gc_release(void* ptr) {
         gc_state.stats.current_usage -= header->size;
         gc_state.stats.num_objects--;
         
-        /* Call type-specific destructor before freeing */
-        void* obj = gc_header_to_ptr(header);
-        switch (header->type) {
-            case GC_TYPE_STRUCT:
-                gc_struct_free((GCStruct*)obj);
-                break;
-            default:
-                /* Other types don't need special cleanup */
-                break;
-        }
+        gc_destroy_object(header, true);
         
         /* Free the object */
         free(header);
@@ -226,6 +255,7 @@ static void gc_sweep(void) {
             gc_state.stats.current_usage -= header->size;
             gc_state.stats.num_objects--;
             
+            gc_destroy_object(header, true);
             free(header);
         } else {
             /* Clear mark for next collection */

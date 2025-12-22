@@ -254,7 +254,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             return expr->as.struct_literal.struct_name;
             
         case AST_IDENTIFIER: {
-            Symbol *sym = env_get_var(env, expr->as.identifier);
+            Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
             if (sym && (sym->type == TYPE_STRUCT || sym->type == TYPE_UNION)) {
                 return sym->struct_type_name;
             }
@@ -346,7 +346,7 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     }
 
     if (array_expr->type == AST_IDENTIFIER) {
-        Symbol *sym = env_get_var(env, array_expr->as.identifier);
+        Symbol *sym = env_get_var_visible_at(env, array_expr->as.identifier, array_expr->line, array_expr->column);
         if (sym && sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
             return sym->element_type;
         }
@@ -412,7 +412,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             return TYPE_BOOL;
 
         case AST_IDENTIFIER: {
-            Symbol *sym = env_get_var(env, expr->as.identifier);
+            Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
             if (!sym) {
                 /* Not a variable - check if it's a function name */
                 Function *func = env_get_function(env, expr->as.identifier);
@@ -456,7 +456,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
                 
                 /* Try looking up as variable (for module-level constants) */
-                Symbol *sym = env_get_var(env, symbol_name);
+                Symbol *sym = env_get_var_visible_at(env, symbol_name, expr->line, expr->column);
                 if (sym) {
                     /* TODO: Check if symbol belongs to the specified module */
                     /* TODO: Check visibility */
@@ -700,7 +700,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             
             /* If not a function, check if it's a function-typed variable (parameter) */
             if (!func) {
-                Symbol *sym = env_get_var(env, expr->as.call.name);
+                Symbol *sym = env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column);
                 if (sym && sym->type == TYPE_FUNCTION) {
                     /* Mark the variable as used */
                     sym->is_used = true;
@@ -742,7 +742,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         
                         /* Try to infer element type from array */
                         if (array_arg->type == AST_IDENTIFIER) {
-                            Symbol *sym = env_get_var(env, array_arg->as.identifier);
+                            Symbol *sym = env_get_var_visible_at(env, array_arg->as.identifier, array_arg->line, array_arg->column);
                             if (sym && sym->element_type != TYPE_UNKNOWN) {
                                 return sym->element_type;
                             }
@@ -828,7 +828,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         
                         /* Try to infer element type from array */
                         if (array_arg->type == AST_IDENTIFIER) {
-                            Symbol *sym = env_get_var(env, array_arg->as.identifier);
+                            Symbol *sym = env_get_var_visible_at(env, array_arg->as.identifier, array_arg->line, array_arg->column);
                             if (sym && sym->element_type != TYPE_UNKNOWN) {
                                 return sym->element_type;
                             }
@@ -939,7 +939,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                         
                         /* First check if it's a function-typed variable */
-                        Symbol *sym = env_get_var(env, arg->as.identifier);
+                        Symbol *sym = env_get_var_visible_at(env, arg->as.identifier, arg->line, arg->column);
                         if (sym && sym->type == TYPE_FUNCTION) {
                             /* It's a function-typed variable - mark as used and allow it */
                             sym->is_used = true;
@@ -1006,7 +1006,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         if (func->params[i].type == TYPE_INT && arg_type == TYPE_STRUCT) {
                             /* Check if the argument is a variable with an opaque type */
                             if (arg->type == AST_IDENTIFIER) {
-                                Symbol *sym = env_get_var(env, arg->as.identifier);
+                                Symbol *sym = env_get_var_visible_at(env, arg->as.identifier, arg->line, arg->column);
                                 if (sym && sym->type == TYPE_STRUCT && sym->struct_type_name) {
                                     OpaqueTypeDef *opaque = env_get_opaque_type(env, sym->struct_type_name);
                                     if (opaque) {
@@ -1053,7 +1053,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     
                     /* Check if it's a variable - look up its element type */
                     if (array_arg->type == AST_IDENTIFIER) {
-                        Symbol *sym = env_get_var(env, array_arg->as.identifier);
+                        Symbol *sym = env_get_var_visible_at(env, array_arg->as.identifier, array_arg->line, array_arg->column);
                         if (sym && sym->type == TYPE_ARRAY) {
                             /* Get element type from Symbol if stored */
                             if (sym->element_type != TYPE_UNKNOWN) {
@@ -1440,7 +1440,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             ASTNode *match_expr_node = expr->as.match_expr.expr;
             
             if (match_expr_node->type == AST_IDENTIFIER) {
-                Symbol *sym = env_get_var(env, match_expr_node->as.identifier);
+                Symbol *sym = env_get_var_visible_at(env, match_expr_node->as.identifier, match_expr_node->line, match_expr_node->column);
                 if (sym && sym->struct_type_name) {
                     union_type_name = sym->struct_type_name;
                 }
@@ -1612,7 +1612,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
             /* If the tuple is a variable, look up TypeInfo */
             else if (tuple_expr->type == AST_IDENTIFIER) {
-                Symbol *sym = env_get_var(env, tuple_expr->as.identifier);
+                Symbol *sym = env_get_var_visible_at(env, tuple_expr->as.identifier, tuple_expr->line, tuple_expr->column);
                 if (sym && sym->type == TYPE_TUPLE && sym->type_info) {
                     TypeInfo *type_info = sym->type_info;
                     
@@ -1940,7 +1940,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
 
         case AST_SET: {
-            Symbol *sym = env_get_var(tc->env, stmt->as.set.name);
+            Symbol *sym = env_get_var_visible_at(tc->env, stmt->as.set.name, stmt->line, stmt->column);
             if (!sym) {
                 fprintf(stderr, "Error at line %d, column %d: Undefined variable '%s'\n",
                         stmt->line, stmt->column, stmt->as.set.name);
@@ -3640,6 +3640,12 @@ bool type_check(ASTNode *program, Environment *env) {
                 /* Store type name for struct/union parameters */
                 Symbol *param_sym = env_get_var(env, item->as.function.params[j].name);
                 if (param_sym) {
+                    /* Mark parameter as defined at the function definition line so later passes
+                     * (e.g., transpilation) can disambiguate identical local names across functions.
+                     */
+                    param_sym->def_line = item->line;
+                    param_sym->def_column = item->column;
+
                     if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION) && 
                         item->as.function.params[j].struct_type_name) {
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
@@ -4141,6 +4147,9 @@ bool type_check_module(ASTNode *program, Environment *env) {
                 /* If parameter is a struct or union, store the type name */
                 Symbol *param_sym = env_get_var(env, item->as.function.params[j].name);
                 if (param_sym) {
+                    param_sym->def_line = item->line;
+                    param_sym->def_column = item->column;
+
                     if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION) && 
                         item->as.function.params[j].struct_type_name) {
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);

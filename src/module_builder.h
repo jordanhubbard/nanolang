@@ -69,6 +69,12 @@ typedef struct {
     
     // Module directory path
     char *module_dir;
+
+    // FFI ownership metadata (optional)
+    // Functions listed here return heap-allocated strings that the interpreter should free
+    // after copying into a nanolang Value.
+    char **owned_string_returns;
+    size_t owned_string_returns_count;
 } ModuleBuildMetadata;
 
 // Build information for tracking

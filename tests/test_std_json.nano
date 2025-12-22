@@ -15,6 +15,10 @@ fn json_basic() -> int {
     return 0
 }
 
+fn json_stringify_many() -> int {
+    return 0
+}
+
 fn main() -> int {
     return 0
 }
@@ -58,6 +62,17 @@ shadow get_string {
     let j: Json = (parse "{\"b\": \"hi\"}")
     assert (str_equals (get_string j "b") "hi")
     assert (str_equals (get_string j "missing") "")
+    (free j)
+}
+
+shadow json_stringify_many {
+    let j: Json = (parse "{\"a\": 1, \"b\": [1, 2, 3], \"c\": {\"x\": true}}")
+    let mut i: int = 0
+    while (< i 2000) {
+        let s: string = (stringify j)
+        assert (> (str_length s) 0)
+        set i (+ i 1)
+    }
     (free j)
 }
 

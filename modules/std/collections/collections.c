@@ -96,9 +96,10 @@ int64_t nl_sb_capacity(void* sb_ptr) {
 
 const char* nl_sb_to_string(void* sb_ptr) {
     NLStringBuilder *sb = (NLStringBuilder*)sb_ptr;
-    if (!sb || !sb->buf) return "";
+    if (!sb || !sb->buf) return strdup("");
     char *out = strdup(sb->buf);
-    return out ? out : "";
+    if (!out) out = strdup("");
+    return out;
 }
 
 void nl_sb_free(void* sb_ptr) {

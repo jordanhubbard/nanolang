@@ -656,6 +656,7 @@ void env_define_var(Environment *env, const char *name, Type type, bool is_mut, 
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value);
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value);
 Symbol *env_get_var(Environment *env, const char *name);
+Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column);
 void env_set_var(Environment *env, const char *name, Value value);
 void env_define_function(Environment *env, Function func);
 Function *env_get_function(Environment *env, const char *name);

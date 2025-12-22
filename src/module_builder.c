@@ -468,6 +468,7 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
     PARSE_STRING_ARRAY("apt_packages", apt_packages, apt_packages_count);
     PARSE_STRING_ARRAY("dnf_packages", dnf_packages, dnf_packages_count);
     PARSE_STRING_ARRAY("brew_packages", brew_packages, brew_packages_count);
+    PARSE_STRING_ARRAY("owned_string_returns", owned_string_returns, owned_string_returns_count);
 
     #undef PARSE_STRING_ARRAY
 
@@ -512,6 +513,7 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
     FREE_STRING_ARRAY(apt_packages, apt_packages_count);
     FREE_STRING_ARRAY(dnf_packages, dnf_packages_count);
     FREE_STRING_ARRAY(brew_packages, brew_packages_count);
+    FREE_STRING_ARRAY(owned_string_returns, owned_string_returns_count);
 
     #undef FREE_STRING_ARRAY
 

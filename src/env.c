@@ -124,6 +124,34 @@ Environment *create_environment(void) {
     return env;
 }
 
+static void env_free_value(Value v) {
+    if (v.type == VAL_STRING) {
+        free(v.as.string_val);
+        return;
+    }
+    if (v.type == VAL_STRUCT) {
+        StructValue *sv = v.as.struct_val;
+        if (!sv) return;
+        free(sv->struct_name);
+        for (int j = 0; j < sv->field_count; j++) {
+            free(sv->field_names[j]);
+        }
+        free(sv->field_names);
+        free(sv->field_values);
+        free(sv);
+        return;
+    }
+    if (v.type == VAL_FUNCTION) {
+        if (v.as.function_val.function_name) {
+            free((char*)v.as.function_val.function_name);
+        }
+        if (v.as.function_val.signature) {
+            free_function_signature(v.as.function_val.signature);
+        }
+        return;
+    }
+}
+
 /* Free environment */
 void free_environment(Environment *env) {
     for (int i = 0; i < env->symbol_count; i++) {
@@ -131,28 +159,7 @@ void free_environment(Environment *env) {
         if (env->symbols[i].struct_type_name) {
             free(env->symbols[i].struct_type_name);
         }
-        if (env->symbols[i].value.type == VAL_STRING) {
-            free(env->symbols[i].value.as.string_val);
-        }
-        if (env->symbols[i].value.type == VAL_STRUCT) {
-            StructValue *sv = env->symbols[i].value.as.struct_val;
-            free(sv->struct_name);
-            for (int j = 0; j < sv->field_count; j++) {
-                free(sv->field_names[j]);
-            }
-            free(sv->field_names);
-            free(sv->field_values);
-            free(sv);
-        }
-        if (env->symbols[i].value.type == VAL_FUNCTION) {
-            /* Free function value - strdup'd strings and signature */
-            if (env->symbols[i].value.as.function_val.function_name) {
-                free((char*)env->symbols[i].value.as.function_val.function_name);
-            }
-            if (env->symbols[i].value.as.function_val.signature) {
-                free_function_signature(env->symbols[i].value.as.function_val.signature);
-            }
-        }
+        env_free_value(env->symbols[i].value);
     }
     free(env->symbols);
 
@@ -320,23 +327,44 @@ Symbol *env_get_var(Environment *env, const char *name) {
     return NULL;
 }
 
+Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column) {
+    if (!env || !name) return NULL;
+    if (line <= 0) return env_get_var(env, name);
+
+    /* Pick the most recently-defined symbol that is "visible" at this source location.
+     * "Visible" here is a best-effort approximation used by later compilation stages
+     * (e.g., transpilation) to avoid picking locals from later functions.
+     */
+    Symbol *best = NULL;
+
+    for (int i = 0; i < env->symbol_count; i++) {
+        Symbol *sym = &env->symbols[i];
+        if (!sym->name) continue;
+        if (safe_strcmp(sym->name, name) != 0) continue;
+
+        int sline = sym->def_line;
+        int scol = sym->def_column;
+
+        /* If we have a definition location, require it to be before (or at) the lookup site.
+         * Symbols without locations (e.g., params in some paths) are always considered visible.
+         */
+        if (sline > 0) {
+            if (sline > line) continue;
+            if (sline == line && column > 0 && scol > column) continue;
+        }
+
+        /* Last visible wins (preserves insertion order within the current compilation context). */
+        best = sym;
+    }
+
+    return best;
+}
+
 /* Set variable value */
 void env_set_var(Environment *env, const char *name, Value value) {
     Symbol *sym = env_get_var(env, name);
     if (sym) {
-        /* Free old string value if needed */
-        if (sym->value.type == VAL_STRING) {
-            free(sym->value.as.string_val);
-        }
-        /* Free old function value if needed */
-        if (sym->value.type == VAL_FUNCTION) {
-            if (sym->value.as.function_val.function_name) {
-                free((char*)sym->value.as.function_val.function_name);
-            }
-            if (sym->value.as.function_val.signature) {
-                free_function_signature(sym->value.as.function_val.signature);
-            }
-        }
+        env_free_value(sym->value);
         sym->value = value;
     }
 }

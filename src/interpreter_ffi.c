@@ -5,6 +5,7 @@
  */
 
 #include "interpreter_ffi.h"
+#include "module_builder.h"
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +17,7 @@ typedef struct {
     char *name;
     char *path;
     void *handle;  /* dlopen handle */
+    ModuleBuildMetadata *meta; /* parsed module.json (optional) */
 } LoadedModule;
 
 static LoadedModule *loaded_modules = NULL;
@@ -57,6 +59,9 @@ void ffi_cleanup(void) {
         }
         free(loaded_modules[i].name);
         free(loaded_modules[i].path);
+        if (loaded_modules[i].meta) {
+            module_metadata_free(loaded_modules[i].meta);
+        }
     }
     
     free(loaded_modules);
@@ -101,9 +106,47 @@ static bool add_loaded_module(const char *name, const char *path, void *handle) 
     loaded_modules[loaded_module_count].name = strdup(name);
     loaded_modules[loaded_module_count].path = strdup(path);
     loaded_modules[loaded_module_count].handle = handle;
+    loaded_modules[loaded_module_count].meta = NULL;
     loaded_module_count++;
     
     return true;
+}
+
+static bool module_owns_string_return(const ModuleBuildMetadata *meta, const char *function_name) {
+    if (!meta || !function_name) return false;
+    for (size_t i = 0; i < meta->owned_string_returns_count; i++) {
+        if (meta->owned_string_returns[i] && strcmp(meta->owned_string_returns[i], function_name) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static char* derive_module_dir_from_path(const char *module_path, const char *lib_path) {
+    if (module_path && module_path[0] != '\0') {
+        char *dir = strdup(module_path);
+        if (!dir) return NULL;
+        if (strstr(dir, ".nano") != NULL) {
+            char *last_slash = strrchr(dir, '/');
+            if (last_slash) *last_slash = '\0';
+        }
+        return dir;
+    }
+
+    if (lib_path && lib_path[0] != '\0') {
+        char *dir = strdup(lib_path);
+        if (!dir) return NULL;
+        char *build = strstr(dir, "/.build/");
+        if (build) {
+            *build = '\0';
+        } else {
+            char *last_slash = strrchr(dir, '/');
+            if (last_slash) *last_slash = '\0';
+        }
+        return dir;
+    }
+
+    return NULL;
 }
 
 /* Build shared library path for a module */
@@ -181,6 +224,16 @@ bool ffi_load_module(const char *module_name, const char *module_path,
     if (!add_loaded_module(module_name, lib_path, handle)) {
         dlclose(handle);
         return false;
+    }
+
+    /* Parse module.json for FFI ownership metadata (optional) */
+    LoadedModule *m = find_loaded_module(module_name);
+    if (m) {
+        char *module_dir = derive_module_dir_from_path(module_path, lib_path);
+        if (module_dir) {
+            m->meta = module_load_metadata(module_dir);
+            free(module_dir);
+        }
     }
     
     if (verbose) {
@@ -422,6 +475,16 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
             ret_type = TYPE_OPAQUE;
         }
     }
+
+    if (ret_type == TYPE_STRING) {
+        const char *str = (const char*)(intptr_t)result;
+        Value v = str ? create_string(str) : create_void();
+        if (str && module_owns_string_return(module->meta, function_name)) {
+            free((void*)str);
+        }
+        return v;
+    }
+
     return marshal_c_to_value(result_buffer, ret_type);
 }
 
