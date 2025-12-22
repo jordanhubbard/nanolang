@@ -135,6 +135,7 @@ Type token_to_type(TokenType token) {
 const char *type_to_string(Type type) {
     switch (type) {
         case TYPE_INT: return "int";
+        case TYPE_U8: return "u8";
         case TYPE_FLOAT: return "float";
         case TYPE_BOOL: return "bool";
         case TYPE_STRING: return "string";
@@ -222,6 +223,12 @@ static bool contains_extern_calls(ASTNode *node, Environment *env) {
 /* Check if types are compatible */
 static bool types_match(Type t1, Type t2) {
     if (t1 == t2) return true;
+
+    /* u8 is assignment-compatible with int (u8 is codegen'd as uint8_t). */
+    if ((t1 == TYPE_U8 && t2 == TYPE_INT) ||
+        (t1 == TYPE_INT && t2 == TYPE_U8)) {
+        return true;
+    }
     
     /* Generic lists match with int (list functions return int handles) */
     if ((t1 == TYPE_LIST_GENERIC && t2 == TYPE_INT) ||
@@ -239,6 +246,12 @@ static bool types_match(Type t1, Type t2) {
     /* Enums match with int (enums are represented as integers in C) */
     if ((t1 == TYPE_ENUM && t2 == TYPE_INT) ||
         (t1 == TYPE_INT && t2 == TYPE_ENUM)) {
+        return true;
+    }
+
+    /* Enums are also assignment-compatible with u8 (useful for byte-sized tags). */
+    if ((t1 == TYPE_ENUM && t2 == TYPE_U8) ||
+        (t1 == TYPE_U8 && t2 == TYPE_ENUM)) {
         return true;
     }
     
@@ -531,13 +544,17 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     if (left_elem == TYPE_ENUM) left_elem = TYPE_INT;
                     if (right_elem == TYPE_ENUM) right_elem = TYPE_INT;
 
+                    /* Treat u8 like int for arithmetic purposes. */
+                    if (left_elem == TYPE_U8) left_elem = TYPE_INT;
+                    if (right_elem == TYPE_U8) right_elem = TYPE_INT;
+
                     if (op == TOKEN_PLUS && left_elem == TYPE_STRING && right_elem == TYPE_STRING) {
                         return TYPE_ARRAY;
                     }
 
                     if (op == TOKEN_PERCENT) {
                         if (left_elem == TYPE_INT && right_elem == TYPE_INT) return TYPE_ARRAY;
-                        fprintf(stderr, "Error at line %d, column %d: %% only supported on array<int>\n", expr->line, expr->column);
+                        fprintf(stderr, "Error at line %d, column %d: %% only supported on array<int> or array<u8>\n", expr->line, expr->column);
                         return TYPE_UNKNOWN;
                     }
 
@@ -550,11 +567,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
 
                 /* Enums are compatible with ints in arithmetic */
-                if ((left == TYPE_INT || left == TYPE_ENUM) && (right == TYPE_INT || right == TYPE_ENUM)) return TYPE_INT;
+                if ((left == TYPE_INT || left == TYPE_ENUM || left == TYPE_U8) &&
+                    (right == TYPE_INT || right == TYPE_ENUM || right == TYPE_U8)) return TYPE_INT;
                 if (left == TYPE_FLOAT && right == TYPE_FLOAT) return TYPE_FLOAT;
 
                 fprintf(stderr, "Error at line %d, column %d: Type mismatch in arithmetic operation\n", expr->line, expr->column);
-                fprintf(stderr, "  Expected: numeric types (int or float)\n");
+                fprintf(stderr, "  Expected: numeric types (int, u8, or float)\n");
                 fprintf(stderr, "  Got: %s and %s\n", type_to_string(left), type_to_string(right));
                 fprintf(stderr, "  Hint: Both operands must be the same numeric type\n");
                 return TYPE_UNKNOWN;
@@ -747,6 +765,22 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 return sym->element_type;
                             }
                         }
+
+                        if (array_arg->type == AST_CALL && array_arg->as.call.name) {
+                            if (strcmp(array_arg->as.call.name, "file_read_bytes") == 0 ||
+                                strcmp(array_arg->as.call.name, "bytes_from_string") == 0) {
+                                return TYPE_U8;
+                            }
+                            if (strcmp(array_arg->as.call.name, "array_slice") == 0 && array_arg->as.call.arg_count >= 1) {
+                                ASTNode *inner = array_arg->as.call.args[0];
+                                if (inner && inner->type == AST_IDENTIFIER) {
+                                    Symbol *sym = env_get_var_visible_at(env, inner->as.identifier, inner->line, inner->column);
+                                    if (sym && sym->element_type != TYPE_UNKNOWN) {
+                                        return sym->element_type;
+                                    }
+                                }
+                            }
+                        }
                     }
                     return TYPE_INT;  /* Default fallback */
                 }
@@ -764,9 +798,38 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 
                 /* Special handling for file_read_bytes builtin */
                 if (strcmp(expr->as.call.name, "file_read_bytes") == 0) {
-                    /* file_read_bytes(filename) -> array<int> of bytes */
+                    /* file_read_bytes(filename) -> array<u8> of bytes */
                     if (expr->as.call.arg_count >= 1) {
                         check_expression(expr->as.call.args[0], env);
+                    }
+                    return TYPE_ARRAY;
+                }
+
+                /* Special handling for bytes_from_string/string_from_bytes */
+                if (strcmp(expr->as.call.name, "bytes_from_string") == 0) {
+                    if (expr->as.call.arg_count >= 1) {
+                        check_expression(expr->as.call.args[0], env);
+                    }
+                    return TYPE_ARRAY;
+                }
+
+                if (strcmp(expr->as.call.name, "string_from_bytes") == 0) {
+                    if (expr->as.call.arg_count >= 1) {
+                        check_expression(expr->as.call.args[0], env);
+                    }
+                    return TYPE_STRING;
+                }
+
+                /* Special handling for array_slice */
+                if (strcmp(expr->as.call.name, "array_slice") == 0) {
+                    if (expr->as.call.arg_count >= 1) {
+                        check_expression(expr->as.call.args[0], env);
+                    }
+                    if (expr->as.call.arg_count >= 2) {
+                        check_expression(expr->as.call.args[1], env);
+                    }
+                    if (expr->as.call.arg_count >= 3) {
+                        check_expression(expr->as.call.args[2], env);
                     }
                     return TYPE_ARRAY;
                 }
@@ -831,6 +894,13 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             Symbol *sym = env_get_var_visible_at(env, array_arg->as.identifier, array_arg->line, array_arg->column);
                             if (sym && sym->element_type != TYPE_UNKNOWN) {
                                 return sym->element_type;
+                            }
+                        }
+
+                        if (array_arg->type == AST_CALL && array_arg->as.call.name) {
+                            if (strcmp(array_arg->as.call.name, "file_read_bytes") == 0 ||
+                                strcmp(array_arg->as.call.name, "bytes_from_string") == 0) {
+                                return TYPE_U8;
                             }
                         }
                     }
@@ -1092,6 +1162,54 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             }
                         }
                     }
+
+                    /* Calls that return byte arrays */
+                    if (array_arg->type == AST_CALL && array_arg->as.call.name) {
+                        if (strcmp(array_arg->as.call.name, "file_read_bytes") == 0 ||
+                            strcmp(array_arg->as.call.name, "bytes_from_string") == 0) {
+                            return TYPE_U8;
+                        }
+
+                        /* array_slice(arr, start, length) preserves element type */
+                        if (strcmp(array_arg->as.call.name, "array_slice") == 0 && array_arg->as.call.arg_count >= 1) {
+                            ASTNode *inner = array_arg->as.call.args[0];
+                            if (inner) {
+                                if (inner->type == AST_IDENTIFIER) {
+                                    Symbol *sym = env_get_var_visible_at(env, inner->as.identifier, inner->line, inner->column);
+                                    if (sym && sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
+                                        return sym->element_type;
+                                    }
+                                } else if (inner->type == AST_ARRAY_LITERAL) {
+                                    if (inner->as.array_literal.element_type != TYPE_UNKNOWN) {
+                                        return inner->as.array_literal.element_type;
+                                    }
+                                    if (inner->as.array_literal.element_count > 0) {
+                                        return check_expression(inner->as.array_literal.elements[0], env);
+                                    }
+                                } else if (inner->type == AST_FIELD_ACCESS) {
+                                    const char *struct_name = get_struct_type_name(inner->as.field_access.object, env);
+                                    if (struct_name) {
+                                        StructDef *sdef = env_get_struct(env, struct_name);
+                                        if (sdef && sdef->field_element_types) {
+                                            const char *field_name = inner->as.field_access.field_name;
+                                            for (int i = 0; i < sdef->field_count; i++) {
+                                                if (strcmp(sdef->field_names[i], field_name) == 0) {
+                                                    if (sdef->field_types[i] == TYPE_ARRAY && sdef->field_element_types[i] != TYPE_UNKNOWN) {
+                                                        return sdef->field_element_types[i];
+                                                    }
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else if (inner->type == AST_CALL && inner->as.call.name &&
+                                           (strcmp(inner->as.call.name, "file_read_bytes") == 0 ||
+                                            strcmp(inner->as.call.name, "bytes_from_string") == 0)) {
+                                    return TYPE_U8;
+                                }
+                            }
+                        }
+                    }
                     
                     /* Fallback: try to infer from the array_literal's stored element_type */
                     Type array_type = check_expression(array_arg, env);
@@ -1101,13 +1219,40 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
 
-            /* Special handling for file_read_bytes - returns array<int> */
+            /* Special handling for file_read_bytes - returns array<u8> */
             if (strcmp(expr->as.call.name, "file_read_bytes") == 0) {
                 /* Check arguments */
                 if (expr->as.call.arg_count >= 1) {
                     check_expression(expr->as.call.args[0], env);
                 }
-                return TYPE_ARRAY;  /* Returns array<int> of bytes */
+                return TYPE_ARRAY;  /* Returns array<u8> of bytes */
+            }
+
+            if (strcmp(expr->as.call.name, "bytes_from_string") == 0) {
+                if (expr->as.call.arg_count >= 1) {
+                    check_expression(expr->as.call.args[0], env);
+                }
+                return TYPE_ARRAY;
+            }
+
+            if (strcmp(expr->as.call.name, "string_from_bytes") == 0) {
+                if (expr->as.call.arg_count >= 1) {
+                    check_expression(expr->as.call.args[0], env);
+                }
+                return TYPE_STRING;
+            }
+
+            if (strcmp(expr->as.call.name, "array_slice") == 0) {
+                if (expr->as.call.arg_count >= 1) {
+                    check_expression(expr->as.call.args[0], env);
+                }
+                if (expr->as.call.arg_count >= 2) {
+                    check_expression(expr->as.call.args[1], env);
+                }
+                if (expr->as.call.arg_count >= 3) {
+                    check_expression(expr->as.call.args[2], env);
+                }
+                return TYPE_ARRAY;
             }
             
             /* Special handling for polymorphic built-in functions (abs, min, max) */
@@ -1837,6 +1982,19 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     } else if (array_lit->as.array_literal.element_type != TYPE_UNKNOWN) {
                         element_type = array_lit->as.array_literal.element_type;
                     }
+                } else if (stmt->as.let.value->type == AST_CALL && stmt->as.let.value->as.call.name) {
+                    const char *name = stmt->as.let.value->as.call.name;
+                    if (strcmp(name, "file_read_bytes") == 0 || strcmp(name, "bytes_from_string") == 0) {
+                        element_type = TYPE_U8;
+                    } else if (strcmp(name, "array_slice") == 0 && stmt->as.let.value->as.call.arg_count >= 1) {
+                        ASTNode *inner = stmt->as.let.value->as.call.args[0];
+                        if (inner && inner->type == AST_IDENTIFIER) {
+                            Symbol *sym = env_get_var_visible_at(tc->env, inner->as.identifier, inner->line, inner->column);
+                            if (sym && sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
+                                element_type = sym->element_type;
+                            }
+                        }
+                    }
                 }
             }
             
@@ -1844,10 +2002,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             if (declared_type == TYPE_ARRAY && element_type != TYPE_UNKNOWN) {
                 if (stmt->as.let.value->type == AST_ARRAY_LITERAL) {
                     ASTNode *array_lit = stmt->as.let.value;
-                    if (array_lit->as.array_literal.element_count == 0) {
-                        /* Set element type on empty array literal so transpiler knows what to generate */
-                        array_lit->as.array_literal.element_type = element_type;
-                    }
+                    /* Set element type on array literal so transpiler knows what to generate */
+                    array_lit->as.array_literal.element_type = element_type;
                 }
             }
             
@@ -1954,18 +2110,16 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 tc->has_error = true;
             }
 
-            /* Propagate element type to empty array literals for correct transpilation */
+            Type value_type = check_expression(stmt->as.set.value, tc->env);
+
+            /* Propagate element type to array literals for correct transpilation */
             if (sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
                 if (stmt->as.set.value->type == AST_ARRAY_LITERAL) {
                     ASTNode *array_lit = stmt->as.set.value;
-                    if (array_lit->as.array_literal.element_count == 0) {
-                        /* Set element type on empty array literal so transpiler knows what to generate */
-                        array_lit->as.array_literal.element_type = sym->element_type;
-                    }
+                    array_lit->as.array_literal.element_type = sym->element_type;
                 }
             }
-            
-            Type value_type = check_expression(stmt->as.set.value, tc->env);
+
             if (!types_match(value_type, sym->type)) {
                 fprintf(stderr, "Error at line %d, column %d: Type mismatch in assignment\n", stmt->line, stmt->column);
                 tc->has_error = true;
@@ -2181,6 +2335,8 @@ static const char *builtin_function_names[] = {
     "cast_int", "cast_float", "cast_bool", "cast_string", "cast_bstring", "to_string",
     /* String (C strings) */
     "str_length", "str_concat", "str_substring", "str_contains", "str_equals",
+    /* Bytes (array<u8>) */
+    "bytes_from_string", "string_from_bytes",
     /* Binary strings (nl_string_t) */
     "bstr_new", "bstr_new_binary", "bstr_length", "bstr_concat", "bstr_substring",
     "bstr_equals", "bstr_byte_at", "bstr_validate_utf8", "bstr_utf8_length",
@@ -2193,6 +2349,7 @@ static const char *builtin_function_names[] = {
     "int_to_string", "string_to_int", "digit_value", "char_to_lower", "char_to_upper",
     /* Array */
     "at", "array_get", "array_length", "array_new", "array_set",
+    "array_slice",
     /* Higher-order array functions */
     "map", "reduce",
     /* OS */

@@ -74,6 +74,7 @@ typedef enum {
 
     /* Types */
     TOKEN_TYPE_INT,
+    TOKEN_TYPE_U8,
     TOKEN_TYPE_FLOAT,
     TOKEN_TYPE_BOOL,
     TOKEN_TYPE_STRING,
@@ -165,6 +166,7 @@ typedef struct {
 /* Type information */
 typedef enum {
     TYPE_INT,
+    TYPE_U8,          /* Unsigned 8-bit integer (byte) */
     TYPE_FLOAT,
     TYPE_BOOL,
     TYPE_STRING,

@@ -664,6 +664,7 @@ static const char *get_sdl_c_type(const char *func_name, int param_index, bool i
 static const char *type_to_c(Type type) {
     switch (type) {
         case TYPE_INT: return "int64_t";
+        case TYPE_U8: return "uint8_t";
         case TYPE_FLOAT: return "double";
         case TYPE_BOOL: return "bool";
         case TYPE_STRING: return "const char*";

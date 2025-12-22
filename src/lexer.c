@@ -55,6 +55,8 @@ static TokenType keyword_or_identifier(const char *str) {
 
     /* Types */
     if (strcmp(str, "int") == 0) return TOKEN_TYPE_INT;
+    if (strcmp(str, "u8") == 0) return TOKEN_TYPE_U8;
+    if (strcmp(str, "byte") == 0) return TOKEN_TYPE_U8;
     if (strcmp(str, "float") == 0) return TOKEN_TYPE_FLOAT;
     if (strcmp(str, "bool") == 0) return TOKEN_TYPE_BOOL;
     if (strcmp(str, "string") == 0) return TOKEN_TYPE_STRING;
@@ -371,6 +373,7 @@ const char *token_type_name(TokenType type) {
         case TOKEN_MATCH: return "MATCH";
         case TOKEN_OPAQUE: return "OPAQUE";
         case TOKEN_TYPE_INT: return "TYPE_INT";
+        case TOKEN_TYPE_U8: return "TYPE_U8";
         case TOKEN_TYPE_FLOAT: return "TYPE_FLOAT";
         case TOKEN_TYPE_BOOL: return "TYPE_BOOL";
         case TOKEN_TYPE_STRING: return "TYPE_STRING";

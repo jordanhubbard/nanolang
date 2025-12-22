@@ -1,0 +1,25 @@
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    let b: u8 = 200
+    let c: u8 = (+ b 1)
+    assert (str_equals (to_string b) "200")
+    assert (== c 201)
+
+    let d: byte = 7
+    assert (== d 7)
+
+    let mut arr: array<u8> = []
+    set arr (array_push arr 1)
+    set arr (array_push arr 2)
+    set arr (array_push arr 255)
+    assert (== (array_length arr) 3)
+    assert (== (at arr 0) 1)
+    assert (== (at arr 2) 255)
+
+    let v: u8 = (array_pop arr)
+    assert (== v 255)
+    assert (== (array_length arr) 2)
+}

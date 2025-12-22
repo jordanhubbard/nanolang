@@ -234,6 +234,80 @@ static Value builtin_file_read(Value *args) {
     return result;
 }
 
+static Value builtin_file_read_bytes(Value *args) {
+    const char *path = args[0].as.string_val;
+    FILE *f = fopen(path, "rb");
+    if (!f) {
+        return create_dyn_array(dyn_array_new(ELEM_INT));
+    }
+
+    DynArray *bytes = dyn_array_new(ELEM_INT);
+    int c;
+    while ((c = fgetc(f)) != EOF) {
+        dyn_array_push_int(bytes, (int64_t)(unsigned char)c);
+    }
+    fclose(f);
+    return create_dyn_array(bytes);
+}
+
+static Value builtin_bytes_from_string(Value *args) {
+    if (args[0].type != VAL_STRING) {
+        fprintf(stderr, "Error: bytes_from_string requires a string argument\n");
+        return create_void();
+    }
+
+    const char *s = args[0].as.string_val;
+    size_t len = strlen(s);
+    DynArray *out = dyn_array_new(ELEM_INT);
+    for (size_t i = 0; i < len; i++) {
+        dyn_array_push_int(out, (int64_t)(unsigned char)s[i]);
+    }
+    return create_dyn_array(out);
+}
+
+static Value builtin_string_from_bytes(Value *args) {
+    if (args[0].type != VAL_ARRAY && args[0].type != VAL_DYN_ARRAY) {
+        fprintf(stderr, "Error: string_from_bytes requires an array argument\n");
+        return create_void();
+    }
+
+    int64_t len = 0;
+    char *buf = NULL;
+
+    if (args[0].type == VAL_ARRAY) {
+        Array *arr = args[0].as.array_val;
+        if (arr->element_type != VAL_INT) {
+            fprintf(stderr, "Error: string_from_bytes requires array<int>\n");
+            return create_void();
+        }
+        len = arr->length;
+        buf = malloc((size_t)len + 1);
+        for (int64_t i = 0; i < len; i++) {
+            long long v = ((long long*)arr->data)[i];
+            buf[i] = (char)(unsigned char)v;
+        }
+    } else {
+        DynArray *arr = args[0].as.dyn_array_val;
+        ElementType t = dyn_array_get_elem_type(arr);
+        if (t != ELEM_INT && t != ELEM_U8) {
+            fprintf(stderr, "Error: string_from_bytes requires array<u8> (represented as int/u8)\n");
+            return create_void();
+        }
+        len = dyn_array_length(arr);
+        buf = malloc((size_t)len + 1);
+        for (int64_t i = 0; i < len; i++) {
+            int64_t v = (t == ELEM_U8) ? (int64_t)dyn_array_get_u8(arr, i) : dyn_array_get_int(arr, i);
+            buf[i] = (char)(unsigned char)v;
+        }
+    }
+
+    if (!buf) return create_string("");
+    buf[len] = '\0';
+    Value result = create_string(buf);
+    free(buf);
+    return result;
+}
+
 static Value builtin_file_write(Value *args) {
     const char *path = args[0].as.string_val;
     const char *content = args[1].as.string_val;
@@ -1317,6 +1391,83 @@ static Value builtin_array_set(Value *args) {
             break;
     }
     
+    return create_void();
+}
+
+static Value builtin_array_slice(Value *args) {
+    /* array_slice(array, start, length) -> array */
+    if (args[1].type != VAL_INT || args[2].type != VAL_INT) {
+        fprintf(stderr, "Error: array_slice() requires integer start and length\n");
+        return create_void();
+    }
+
+    int64_t start = args[1].as.int_val;
+    int64_t length = args[2].as.int_val;
+    if (start < 0) start = 0;
+    if (length < 0) length = 0;
+
+    if (args[0].type == VAL_ARRAY) {
+        Array *arr = args[0].as.array_val;
+        int64_t len = arr->length;
+        if (start > len) start = len;
+        int64_t end = start + length;
+        if (end > len) end = len;
+        int64_t out_len = end - start;
+
+        Value out = create_array(arr->element_type, out_len, out_len);
+        switch (arr->element_type) {
+            case VAL_INT:
+                for (int64_t i = 0; i < out_len; i++) {
+                    ((long long*)out.as.array_val->data)[i] = ((long long*)arr->data)[start + i];
+                }
+                break;
+            case VAL_FLOAT:
+                for (int64_t i = 0; i < out_len; i++) {
+                    ((double*)out.as.array_val->data)[i] = ((double*)arr->data)[start + i];
+                }
+                break;
+            case VAL_BOOL:
+                for (int64_t i = 0; i < out_len; i++) {
+                    ((bool*)out.as.array_val->data)[i] = ((bool*)arr->data)[start + i];
+                }
+                break;
+            case VAL_STRING:
+                for (int64_t i = 0; i < out_len; i++) {
+                    ((char**)out.as.array_val->data)[i] = strdup(((char**)arr->data)[start + i]);
+                }
+                break;
+            default:
+                break;
+        }
+        return out;
+    }
+
+    if (args[0].type == VAL_DYN_ARRAY) {
+        DynArray *arr = args[0].as.dyn_array_val;
+        int64_t len = dyn_array_length(arr);
+        if (start > len) start = len;
+        int64_t end = start + length;
+        if (end > len) end = len;
+
+        ElementType t = dyn_array_get_elem_type(arr);
+        DynArray *out = dyn_array_new(t);
+        for (int64_t i = start; i < end; i++) {
+            switch (t) {
+                case ELEM_INT: dyn_array_push_int(out, dyn_array_get_int(arr, i)); break;
+                case ELEM_U8: dyn_array_push_int(out, (int64_t)dyn_array_get_u8(arr, i)); break;
+                case ELEM_FLOAT: dyn_array_push_float(out, dyn_array_get_float(arr, i)); break;
+                case ELEM_BOOL: dyn_array_push_bool(out, dyn_array_get_bool(arr, i)); break;
+                case ELEM_STRING: dyn_array_push_string(out, dyn_array_get_string(arr, i)); break;
+                case ELEM_ARRAY: dyn_array_push_array(out, dyn_array_get_array(arr, i)); break;
+                default:
+                    fprintf(stderr, "Error: array_slice unsupported element type\n");
+                    return create_void();
+            }
+        }
+        return create_dyn_array(out);
+    }
+
+    fprintf(stderr, "Error: array_slice() requires an array argument\n");
     return create_void();
 }
 
@@ -2547,6 +2698,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
 
     /* File operations */
     if (strcmp(name, "file_read") == 0) return builtin_file_read(args);
+    if (strcmp(name, "file_read_bytes") == 0) return builtin_file_read_bytes(args);
     if (strcmp(name, "file_write") == 0) return builtin_file_write(args);
     if (strcmp(name, "file_append") == 0) return builtin_file_append(args);
     if (strcmp(name, "file_remove") == 0) return builtin_file_remove(args);
@@ -2612,6 +2764,10 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "str_substring") == 0) return builtin_str_substring(args);
     if (strcmp(name, "str_contains") == 0) return builtin_str_contains(args);
     if (strcmp(name, "str_equals") == 0) return builtin_str_equals(args);
+
+    /* Bytes helpers */
+    if (strcmp(name, "bytes_from_string") == 0) return builtin_bytes_from_string(args);
+    if (strcmp(name, "string_from_bytes") == 0) return builtin_string_from_bytes(args);
     
     /* Advanced string operations */
     if (strcmp(name, "char_at") == 0) {
@@ -2730,6 +2886,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "array_length") == 0) return builtin_array_length(args);
     if (strcmp(name, "array_new") == 0) return builtin_array_new(args);
     if (strcmp(name, "array_set") == 0) return builtin_array_set(args);
+    if (strcmp(name, "array_slice") == 0) return builtin_array_slice(args);
     
     /* Higher-order array functions */
     if (strcmp(name, "map") == 0) return builtin_map(args, env);

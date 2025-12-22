@@ -1,0 +1,22 @@
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    let bytes: array<u8> = (bytes_from_string "Hi")
+    assert (== (array_length bytes) 2)
+    assert (== (at bytes 0) 72)
+    assert (== (at bytes 1) 105)
+    let s: string = (string_from_bytes bytes)
+    assert (str_equals s "Hi")
+
+    let path: string = (mktemp "nanolang_bytes_")
+    assert (!= path "")
+    assert (== (file_write path "ABC") 0)
+    let b2: array<u8> = (file_read_bytes path)
+    assert (== (array_length b2) 3)
+    assert (== (at b2 0) 65)
+    assert (== (at b2 1) 66)
+    assert (== (at b2 2) 67)
+    assert (== (file_remove path) 0)
+}

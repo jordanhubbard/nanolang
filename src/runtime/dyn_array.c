@@ -16,6 +16,7 @@
 static size_t get_element_size(ElementType type) {
     switch (type) {
         case ELEM_INT:    return sizeof(int64_t);
+        case ELEM_U8:     return sizeof(uint8_t);
         case ELEM_FLOAT:  return sizeof(double);
         case ELEM_STRING: return sizeof(char*);
         case ELEM_BOOL:   return sizeof(bool);
@@ -77,6 +78,21 @@ DynArray* dyn_array_push_int(DynArray* arr, int64_t value) {
     ((int64_t*)arr->data)[arr->length] = value;
     arr->length++;
     
+    return arr;
+}
+
+/* Push u8 */
+DynArray* dyn_array_push_u8(DynArray* arr, uint8_t value) {
+    assert(arr != NULL && "DynArray: NULL array");
+    assert(arr->elem_type == ELEM_U8 && "DynArray: Type mismatch");
+
+    if (arr->length >= arr->capacity) {
+        dyn_array_grow(arr);
+    }
+
+    ((uint8_t*)arr->data)[arr->length] = value;
+    arr->length++;
+
     return arr;
 }
 
@@ -156,6 +172,21 @@ int64_t dyn_array_pop_int(DynArray* arr, bool* success) {
     return ((int64_t*)arr->data)[arr->length];
 }
 
+/* Pop u8 */
+uint8_t dyn_array_pop_u8(DynArray* arr, bool* success) {
+    assert(arr != NULL && "DynArray: NULL array");
+    assert(arr->elem_type == ELEM_U8 && "DynArray: Type mismatch");
+
+    if (arr->length == 0) {
+        if (success) *success = false;
+        return 0;
+    }
+
+    arr->length--;
+    if (success) *success = true;
+    return ((uint8_t*)arr->data)[arr->length];
+}
+
 /* Pop float */
 double dyn_array_pop_float(DynArray* arr, bool* success) {
     assert(arr != NULL && "DynArray: NULL array");
@@ -224,6 +255,15 @@ int64_t dyn_array_get_int(DynArray* arr, int64_t index) {
     return ((int64_t*)arr->data)[index];
 }
 
+/* Get u8 */
+uint8_t dyn_array_get_u8(DynArray* arr, int64_t index) {
+    assert(arr != NULL && "DynArray: NULL array");
+    assert(arr->elem_type == ELEM_U8 && "DynArray: Type mismatch");
+    assert(index >= 0 && index < arr->length && "DynArray: Index out of bounds");
+
+    return ((uint8_t*)arr->data)[index];
+}
+
 /* Get float */
 double dyn_array_get_float(DynArray* arr, int64_t index) {
     assert(arr != NULL && "DynArray: NULL array");
@@ -266,6 +306,15 @@ void dyn_array_set_int(DynArray* arr, int64_t index, int64_t value) {
     assert(index >= 0 && index < arr->length && "DynArray: Index out of bounds");
     
     ((int64_t*)arr->data)[index] = value;
+}
+
+/* Set u8 */
+void dyn_array_set_u8(DynArray* arr, int64_t index, uint8_t value) {
+    assert(arr != NULL && "DynArray: NULL array");
+    assert(arr->elem_type == ELEM_U8 && "DynArray: Type mismatch");
+    assert(index >= 0 && index < arr->length && "DynArray: Index out of bounds");
+
+    ((uint8_t*)arr->data)[index] = value;
 }
 
 /* Set float */

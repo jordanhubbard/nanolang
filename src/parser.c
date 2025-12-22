@@ -281,6 +281,7 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
 
     switch (tok->token_type) {
         case TOKEN_TYPE_INT: type = TYPE_INT; break;
+        case TOKEN_TYPE_U8: type = TYPE_U8; break;
         case TOKEN_TYPE_FLOAT: type = TYPE_FLOAT; break;
         case TOKEN_TYPE_BOOL: type = TYPE_BOOL; break;
         case TOKEN_TYPE_STRING: type = TYPE_STRING; break;
@@ -328,6 +329,9 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
                         /* Parse single type parameter */
                     Token *type_param_tok = current_token(p);
                     if (type_param_tok->token_type == TOKEN_TYPE_INT) {
+                        type = TYPE_LIST_INT;
+                        advance(p);
+                    } else if (type_param_tok->token_type == TOKEN_TYPE_U8) {
                         type = TYPE_LIST_INT;
                         advance(p);
                     } else if (type_param_tok->token_type == TOKEN_TYPE_STRING) {
@@ -404,6 +408,9 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
                             Token *param_tok = current_token(p);
                             if (param_tok->token_type == TOKEN_TYPE_INT) {
                                 param_info->base_type = TYPE_INT;
+                                advance(p);
+                            } else if (param_tok->token_type == TOKEN_TYPE_U8) {
+                                param_info->base_type = TYPE_U8;
                                 advance(p);
                             } else if (param_tok->token_type == TOKEN_TYPE_STRING) {
                                 param_info->base_type = TYPE_STRING;

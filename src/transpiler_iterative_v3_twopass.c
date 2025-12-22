@@ -157,6 +157,7 @@ static const FunctionMapping function_map[] = {
     {"cast_int", "nl_cast_int"},
     {"cast_float", "nl_cast_float"},
     {"file_read", "nl_os_file_read"},
+    {"file_read_bytes", "nl_os_file_read_bytes"},
     {"file_write", "nl_os_file_write"},
     {"tmp_dir", "nl_os_tmp_dir"},
     {"mktemp", "nl_os_mktemp"},
@@ -174,6 +175,9 @@ static const FunctionMapping function_map[] = {
     {"str_substring", "nl_str_substring"},
     {"str_contains", "nl_str_contains"},
     {"str_equals", "nl_str_equals"},
+    {"bytes_from_string", "nl_bytes_from_string"},
+    {"string_from_bytes", "nl_string_from_bytes"},
+    {"array_slice", "nl_array_slice"},
     {"char_at", "char_at"},                     /* Generated inline, no prefix */
     {"string_from_char", "string_from_char"},   /* Generated inline, no prefix */
     {"int_to_string", "int_to_string"},         /* Generated inline, no prefix */
@@ -449,17 +453,20 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                             Type elem2 = infer_array_element_type(right_expr, env);
 
                             if (elem != TYPE_UNKNOWN && elem2 != TYPE_UNKNOWN && elem == elem2 &&
-                                (elem == TYPE_INT || elem == TYPE_FLOAT || elem == TYPE_STRING || elem == TYPE_ARRAY)) {
+                                (elem == TYPE_INT || elem == TYPE_U8 || elem == TYPE_FLOAT || elem == TYPE_STRING || elem == TYPE_ARRAY)) {
                                 const char *elem_enum = (elem == TYPE_INT) ? "ELEM_INT" :
+                                                        (elem == TYPE_U8) ? "ELEM_U8" :
                                                         (elem == TYPE_FLOAT) ? "ELEM_FLOAT" :
                                                         (elem == TYPE_STRING) ? "ELEM_STRING" :
                                                         "ELEM_ARRAY";
                                 const char *get_suffix = (elem == TYPE_INT) ? "int" :
+                                                         (elem == TYPE_U8) ? "u8" :
                                                          (elem == TYPE_FLOAT) ? "float" :
                                                          (elem == TYPE_STRING) ? "string" :
                                                          "array";
                                 const char *push_suffix = get_suffix;
                                 const char *c_type = (elem == TYPE_INT) ? "int64_t" :
+                                                     (elem == TYPE_U8) ? "uint8_t" :
                                                      (elem == TYPE_FLOAT) ? "double" :
                                                      (elem == TYPE_STRING) ? "const char*" :
                                                      "DynArray*";
@@ -502,11 +509,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         ASTNode *scalar_expr = left_is_array ? right_expr : left_expr;
                         Type elem = infer_array_element_type(arr_expr, env);
 
-                        if (elem == TYPE_INT || elem == TYPE_FLOAT || elem == TYPE_STRING) {
-                            const char *elem_enum = (elem == TYPE_INT) ? "ELEM_INT" : (elem == TYPE_FLOAT) ? "ELEM_FLOAT" : "ELEM_STRING";
-                            const char *get_suffix = (elem == TYPE_INT) ? "int" : (elem == TYPE_FLOAT) ? "float" : "string";
+                        if (elem == TYPE_INT || elem == TYPE_U8 || elem == TYPE_FLOAT || elem == TYPE_STRING) {
+                            const char *elem_enum = (elem == TYPE_INT) ? "ELEM_INT" : (elem == TYPE_U8) ? "ELEM_U8" : (elem == TYPE_FLOAT) ? "ELEM_FLOAT" : "ELEM_STRING";
+                            const char *get_suffix = (elem == TYPE_INT) ? "int" : (elem == TYPE_U8) ? "u8" : (elem == TYPE_FLOAT) ? "float" : "string";
                             const char *push_suffix = get_suffix;
-                            const char *c_type = (elem == TYPE_INT) ? "int64_t" : (elem == TYPE_FLOAT) ? "double" : "const char*";
+                            const char *c_type = (elem == TYPE_INT) ? "int64_t" : (elem == TYPE_U8) ? "uint8_t" : (elem == TYPE_FLOAT) ? "double" : "const char*";
                             const char *op_str = (op == TOKEN_PLUS) ? "+" :
                                                 (op == TOKEN_MINUS) ? "-" :
                                                 (op == TOKEN_STAR) ? "*" :
@@ -667,7 +674,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, "nl_println_float(");
                 } else if (arg_type == TYPE_BOOL) {
                     emit_literal(list, "nl_println_bool(");
-                } else if (arg_type == TYPE_INT) {
+                } else if (arg_type == TYPE_INT || arg_type == TYPE_U8) {
                     emit_literal(list, "nl_println_int(");
                 } else {
                     emit_literal(list, "nl_println_string(");
@@ -706,7 +713,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, "nl_print_float(");
                 } else if (arg_type == TYPE_BOOL) {
                     emit_literal(list, "nl_print_bool(");
-                } else if (arg_type == TYPE_INT) {
+                } else if (arg_type == TYPE_INT || arg_type == TYPE_U8) {
                     emit_literal(list, "nl_print_int(");
                 } else {
                     emit_literal(list, "nl_print_string(");
@@ -747,7 +754,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, "nl_to_string_string(");
                     build_expr(list, arg, env);
                     emit_literal(list, ")");
-                } else if (arg_type == TYPE_INT) {
+                } else if (arg_type == TYPE_INT || arg_type == TYPE_U8) {
                     emit_literal(list, "nl_to_string_int(");
                     build_expr(list, arg, env);
                     emit_literal(list, ")");
@@ -1110,6 +1117,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 } else {
                     /* Map element type to suffix for primitive types */
                     const char *type_suffix = "int";
+                    if (elem_type == TYPE_U8) {
+                        type_suffix = "u8";
+                    }
                     if (elem_type == TYPE_FLOAT) {
                         type_suffix = "float";
                     } else if (elem_type == TYPE_STRING) {
@@ -1161,6 +1171,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 
                 /* Map element type to ElementType enum */
                 const char *elem_type_str = "ELEM_INT";
+                if (elem_type == TYPE_U8) {
+                    elem_type_str = "ELEM_U8";
+                }
                 if (elem_type == TYPE_FLOAT) {
                     elem_type_str = "ELEM_FLOAT";
                 } else if (elem_type == TYPE_STRING) {
@@ -1189,6 +1202,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 } else {
                     /* For primitives: dyn_array_push_<type>(_arr, value) */
                     const char *type_suffix = "int";
+                    if (elem_type == TYPE_U8) {
+                        type_suffix = "u8";
+                    }
                     if (elem_type == TYPE_FLOAT) {
                         type_suffix = "float";
                     } else if (elem_type == TYPE_STRING) {
@@ -1259,6 +1275,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 } else {
                     /* Map element type to suffix for primitive types */
                     const char *type_suffix = "int";
+                    if (elem_type == TYPE_U8) {
+                        type_suffix = "u8";
+                    }
                     if (elem_type == TYPE_FLOAT) {
                         type_suffix = "float";
                     } else if (elem_type == TYPE_STRING) {
@@ -1307,6 +1326,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 } else {
                     /* Map element type to suffix for primitive types */
                     const char *type_suffix = "int";
+                    if (elem_type == TYPE_U8) {
+                        type_suffix = "u8";
+                    }
                     if (elem_type == TYPE_FLOAT) {
                         type_suffix = "float";
                     } else if (elem_type == TYPE_STRING) {
@@ -1321,7 +1343,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     char func_buf[128];
                     snprintf(func_buf, sizeof(func_buf), 
                              "({ bool _s; %s _v = dyn_array_pop_%s(", 
-                             (elem_type == TYPE_FLOAT ? "double" : 
+                             (elem_type == TYPE_U8 ? "uint8_t" :
+                              elem_type == TYPE_FLOAT ? "double" : 
                               elem_type == TYPE_STRING ? "const char*" :
                               elem_type == TYPE_BOOL ? "bool" :
                               elem_type == TYPE_ARRAY ? "DynArray*" : "int64_t"),
@@ -1590,6 +1613,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 /* Generate call to appropriate constructor */
                 if (elem_type == TYPE_INT) {
                     emit_literal(list, "dynarray_literal_int(0)");
+                } else if (elem_type == TYPE_U8) {
+                    emit_literal(list, "dynarray_literal_u8(0)");
                 } else if (elem_type == TYPE_FLOAT) {
                     emit_literal(list, "dynarray_literal_float(0)");
                 } else if (elem_type == TYPE_ARRAY) {
@@ -1607,12 +1632,22 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, "dyn_array_new(ELEM_INT)");
                 }
             } else {
-                /* Non-empty array - determine type from first element */
-                Type elem_type = check_expression(expr->as.array_literal.elements[0], env);
+                /* Non-empty array - prefer stored element type (possibly set from type context) */
+                Type elem_type = expr->as.array_literal.element_type;
+                if (elem_type == TYPE_UNKNOWN) {
+                    elem_type = check_expression(expr->as.array_literal.elements[0], env);
+                }
                 
                 /* Generate call to appropriate helper function */
                 if (elem_type == TYPE_INT) {
                     emit_formatted(list, "dynarray_literal_int(%d", count);
+                    for (int i = 0; i < count; i++) {
+                        emit_literal(list, ", ");
+                        build_expr(list, expr->as.array_literal.elements[i], env);
+                    }
+                    emit_literal(list, ")");
+                } else if (elem_type == TYPE_U8) {
+                    emit_formatted(list, "dynarray_literal_u8(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
                         build_expr(list, expr->as.array_literal.elements[i], env);

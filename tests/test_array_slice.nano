@@ -1,0 +1,26 @@
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    let a: array<int> = [1, 2, 3, 4, 5]
+    let s: array<int> = (array_slice a 1 3)
+    assert (== (array_length s) 3)
+    assert (== (at s 0) 2)
+    assert (== (at s 1) 3)
+    assert (== (at s 2) 4)
+
+    let b: array<u8> = [10, 20, 30, 40, 50]
+    let sb: array<u8> = (array_slice b 2 10)
+    assert (== (array_length sb) 3)
+    assert (== (at sb 0) 30)
+    assert (== (at sb 2) 50)
+
+    let e: array<int> = (array_slice a 10 2)
+    assert (== (array_length e) 0)
+
+    let n: array<int> = (array_slice a -2 2)
+    assert (== (array_length n) 2)
+    assert (== (at n 0) 1)
+    assert (== (at n 1) 2)
+}

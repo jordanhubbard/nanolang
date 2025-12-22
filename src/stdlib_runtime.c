@@ -86,6 +86,18 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    va_end(args);\n");
     sb_append(sb, "    return arr;\n");
     sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static DynArray* dynarray_literal_u8(int count, ...) {\n");
+    sb_append(sb, "    DynArray* arr = dyn_array_new(ELEM_U8);\n");
+    sb_append(sb, "    va_list args;\n");
+    sb_append(sb, "    va_start(args, count);\n");
+    sb_append(sb, "    for (int i = 0; i < count; i++) {\n");
+    sb_append(sb, "        int val = va_arg(args, int); /* default promotion */\n");
+    sb_append(sb, "        dyn_array_push_u8(arr, (uint8_t)val);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    va_end(args);\n");
+    sb_append(sb, "    return arr;\n");
+    sb_append(sb, "}\n\n");
     
     sb_append(sb, "static DynArray* dynarray_literal_float(int count, ...) {\n");
     sb_append(sb, "    DynArray* arr = dyn_array_new(ELEM_FLOAT);\n");
@@ -101,7 +113,9 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     
     /* Array operations - renamed to avoid conflicts */
     sb_append(sb, "static DynArray* dynarray_push(DynArray* arr, double val) {\n");
-    sb_append(sb, "    if (arr->elem_type == ELEM_INT) {\n");
+    sb_append(sb, "    if (arr->elem_type == ELEM_U8) {\n");
+    sb_append(sb, "        return dyn_array_push_u8(arr, (uint8_t)val);\n");
+    sb_append(sb, "    } else if (arr->elem_type == ELEM_INT) {\n");
     sb_append(sb, "        return dyn_array_push_int(arr, (int64_t)val);\n");
     sb_append(sb, "    } else {\n");
     sb_append(sb, "        return dyn_array_push_float(arr, val);\n");
@@ -110,7 +124,9 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     
     /* Wrappers for array push/pop that work with GC dynamic arrays */
     sb_append(sb, "static DynArray* nl_array_push(DynArray* arr, double val) {\n");
-    sb_append(sb, "    if (arr->elem_type == ELEM_INT) {\n");
+    sb_append(sb, "    if (arr->elem_type == ELEM_U8) {\n");
+    sb_append(sb, "        return dyn_array_push_u8(arr, (uint8_t)val);\n");
+    sb_append(sb, "    } else if (arr->elem_type == ELEM_INT) {\n");
     sb_append(sb, "        return dyn_array_push_int(arr, (int64_t)val);\n");
     sb_append(sb, "    } else {\n");
     sb_append(sb, "        return dyn_array_push_float(arr, val);\n");
@@ -119,7 +135,9 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     
     sb_append(sb, "static double nl_array_pop(DynArray* arr) {\n");
     sb_append(sb, "    bool success = false;\n");
-    sb_append(sb, "    if (arr->elem_type == ELEM_INT) {\n");
+    sb_append(sb, "    if (arr->elem_type == ELEM_U8) {\n");
+    sb_append(sb, "        return (double)dyn_array_pop_u8(arr, &success);\n");
+    sb_append(sb, "    } else if (arr->elem_type == ELEM_INT) {\n");
     sb_append(sb, "        return (double)dyn_array_pop_int(arr, &success);\n");
     sb_append(sb, "    } else {\n");
     sb_append(sb, "        return dyn_array_pop_float(arr, &success);\n");
@@ -140,6 +158,10 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "static int64_t nl_array_at_int(DynArray* arr, int64_t idx) {\n");
     sb_append(sb, "    return dyn_array_get_int(arr, idx);\n");
     sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static uint8_t nl_array_at_u8(DynArray* arr, int64_t idx) {\n");
+    sb_append(sb, "    return dyn_array_get_u8(arr, idx);\n");
+    sb_append(sb, "}\n\n");
     
     sb_append(sb, "static double nl_array_at_float(DynArray* arr, int64_t idx) {\n");
     sb_append(sb, "    return dyn_array_get_float(arr, idx);\n");
@@ -156,6 +178,10 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     /* Array set wrapper */
     sb_append(sb, "static void nl_array_set_int(DynArray* arr, int64_t idx, int64_t val) {\n");
     sb_append(sb, "    dyn_array_set_int(arr, idx, val);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static void nl_array_set_u8(DynArray* arr, int64_t idx, uint8_t val) {\n");
+    sb_append(sb, "    dyn_array_set_u8(arr, idx, val);\n");
     sb_append(sb, "}\n\n");
     
     sb_append(sb, "static void nl_array_set_float(DynArray* arr, int64_t idx, double val) {\n");
@@ -217,7 +243,9 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
     
     sb_append(sb, "static double dynarray_at_for_transpiler(DynArray* arr, int64_t idx) {\n");
-    sb_append(sb, "    if (arr->elem_type == ELEM_INT) {\n");
+    sb_append(sb, "    if (arr->elem_type == ELEM_U8) {\n");
+    sb_append(sb, "        return (double)dyn_array_get_u8(arr, idx);\n");
+    sb_append(sb, "    } else if (arr->elem_type == ELEM_INT) {\n");
     sb_append(sb, "        return (double)dyn_array_get_int(arr, idx);\n");
     sb_append(sb, "    } else {\n");
     sb_append(sb, "        return dyn_array_get_float(arr, idx);\n");
@@ -261,6 +289,59 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    return strcmp(s1, s2) == 0;\n");
     sb_append(sb, "}\n\n");
 
+    /* Bytes (array<u8>) helpers */
+    sb_append(sb, "static DynArray* nl_bytes_from_string(const char* s) {\n");
+    sb_append(sb, "    DynArray* out = dyn_array_new(ELEM_U8);\n");
+    sb_append(sb, "    if (!out) return NULL;\n");
+    sb_append(sb, "    if (!s) return out;\n");
+    sb_append(sb, "    size_t len = strnlen(s, 1024*1024);\n");
+    sb_append(sb, "    for (size_t i = 0; i < len; i++) {\n");
+    sb_append(sb, "        dyn_array_push_u8(out, (uint8_t)(unsigned char)s[i]);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return out;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static const char* nl_string_from_bytes(DynArray* bytes) {\n");
+    sb_append(sb, "    if (!bytes) return \"\";\n");
+    sb_append(sb, "    if (dyn_array_get_elem_type(bytes) != ELEM_U8) return \"\";\n");
+    sb_append(sb, "    int64_t len = dyn_array_length(bytes);\n");
+    sb_append(sb, "    if (len < 0) return \"\";\n");
+    sb_append(sb, "    char* out = malloc((size_t)len + 1);\n");
+    sb_append(sb, "    if (!out) return \"\";\n");
+    sb_append(sb, "    for (int64_t i = 0; i < len; i++) {\n");
+    sb_append(sb, "        out[i] = (char)dyn_array_get_u8(bytes, i);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    out[len] = '\\0';\n");
+    sb_append(sb, "    return out;\n");
+    sb_append(sb, "}\n\n");
+
+    /* Array slicing: returns a copy of [start, start+length) */
+    sb_append(sb, "static DynArray* nl_array_slice(DynArray* arr, int64_t start, int64_t length) {\n");
+    sb_append(sb, "    if (!arr) return dyn_array_new(ELEM_INT);\n");
+    sb_append(sb, "    if (start < 0) start = 0;\n");
+    sb_append(sb, "    if (length < 0) length = 0;\n");
+    sb_append(sb, "    int64_t len = dyn_array_length(arr);\n");
+    sb_append(sb, "    if (start > len) start = len;\n");
+    sb_append(sb, "    int64_t end = start + length;\n");
+    sb_append(sb, "    if (end > len) end = len;\n");
+    sb_append(sb, "    ElementType t = dyn_array_get_elem_type(arr);\n");
+    sb_append(sb, "    DynArray* out = dyn_array_new(t);\n");
+    sb_append(sb, "    if (!out) return NULL;\n");
+    sb_append(sb, "    for (int64_t i = start; i < end; i++) {\n");
+    sb_append(sb, "        switch (t) {\n");
+    sb_append(sb, "            case ELEM_U8: dyn_array_push_u8(out, dyn_array_get_u8(arr, i)); break;\n");
+    sb_append(sb, "            case ELEM_INT: dyn_array_push_int(out, dyn_array_get_int(arr, i)); break;\n");
+    sb_append(sb, "            case ELEM_FLOAT: dyn_array_push_float(out, dyn_array_get_float(arr, i)); break;\n");
+    sb_append(sb, "            case ELEM_BOOL: dyn_array_push_bool(out, dyn_array_get_bool(arr, i)); break;\n");
+    sb_append(sb, "            case ELEM_STRING: dyn_array_push_string(out, dyn_array_get_string(arr, i)); break;\n");
+    sb_append(sb, "            case ELEM_ARRAY: dyn_array_push_array(out, dyn_array_get_array(arr, i)); break;\n");
+    sb_append(sb, "            case ELEM_STRUCT: dyn_array_push_struct(out, dyn_array_get_struct(arr, i), (size_t)arr->elem_size); break;\n");
+    sb_append(sb, "            default: assert(false && \"nl_array_slice: unsupported element type\");\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return out;\n");
+    sb_append(sb, "}\n\n");
+
     sb_append(sb, "static void nl_println_bool(bool value) {\n");
     sb_append(sb, "    printf(\"%s\\n\", value ? \"true\" : \"false\");\n");
     sb_append(sb, "}\n\n");
@@ -273,6 +354,9 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "        switch (arr->elem_type) {\n");
     sb_append(sb, "            case ELEM_INT:\n");
     sb_append(sb, "                printf(\"%lld\", (long long)((int64_t*)arr->data)[i]);\n");
+    sb_append(sb, "                break;\n");
+    sb_append(sb, "            case ELEM_U8:\n");
+    sb_append(sb, "                printf(\"%u\", (unsigned)((uint8_t*)arr->data)[i]);\n");
     sb_append(sb, "                break;\n");
     sb_append(sb, "            case ELEM_FLOAT:\n");
     sb_append(sb, "                printf(\"%g\", ((double*)arr->data)[i]);\n");
@@ -431,6 +515,11 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "        switch (t) {\n");
     sb_append(sb, "            case ELEM_INT: {\n");
     sb_append(sb, "                const char* s = nl_to_string_int(dyn_array_get_int(arr, i));\n");
+    sb_append(sb, "                nl_fmt_sb_append_cstr(&sb, s);\n");
+    sb_append(sb, "                break;\n");
+    sb_append(sb, "            }\n");
+    sb_append(sb, "            case ELEM_U8: {\n");
+    sb_append(sb, "                const char* s = nl_to_string_int((int64_t)dyn_array_get_u8(arr, i));\n");
     sb_append(sb, "                nl_fmt_sb_append_cstr(&sb, s);\n");
     sb_append(sb, "                break;\n");
     sb_append(sb, "            }\n");
@@ -808,7 +897,7 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "    FILE* f = fopen(path, \"rb\");\n");
     sb_append(sb, "    if (!f) {\n");
     sb_append(sb, "        /* Return empty array on error */\n");
-    sb_append(sb, "        return dyn_array_new(ELEM_INT);\n");
+    sb_append(sb, "        return dyn_array_new(ELEM_U8);\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    \n");
     sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
@@ -816,14 +905,13 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "    fseek(f, 0, SEEK_SET);\n");
     sb_append(sb, "    \n");
     sb_append(sb, "    /* Create dynamic array for bytes */\n");
-    sb_append(sb, "    DynArray* bytes = dyn_array_new(ELEM_INT);\n");
+    sb_append(sb, "    DynArray* bytes = dyn_array_new(ELEM_U8);\n");
     sb_append(sb, "    \n");
     sb_append(sb, "    /* Read bytes and add to array */\n");
     sb_append(sb, "    for (long i = 0; i < size; i++) {\n");
     sb_append(sb, "        int c = fgetc(f);\n");
     sb_append(sb, "        if (c == EOF) break;\n");
-    sb_append(sb, "        int64_t byte_val = (int64_t)(unsigned char)c;\n");
-    sb_append(sb, "        dyn_array_push_int(bytes, byte_val);\n");
+    sb_append(sb, "        dyn_array_push_u8(bytes, (uint8_t)(unsigned char)c);\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    \n");
     sb_append(sb, "    fclose(f);\n");
