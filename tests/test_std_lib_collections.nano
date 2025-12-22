@@ -1,0 +1,26 @@
+from "std/lib.nano" import StringBuilder, sb_new, sb_append, sb_length, sb_to_string
+from "std/lib.nano" import HashMap, map_new, map_put, map_get, map_has, map_size, map_keys, map_values
+from "std/lib.nano" import Set, set_new, set_add, set_has, set_size, set_values
+
+fn main() -> int { return 0 }
+
+shadow main {
+    let sb: StringBuilder = (sb_new)
+    let sb2: StringBuilder = (sb_append sb "hi")
+    assert (== (sb_length sb2) 2)
+    assert (str_equals (sb_to_string sb2) "hi")
+
+    let hm0: HashMap = (map_new)
+    let hm1: HashMap = (map_put hm0 "k" "v")
+    assert (map_has hm1 "k")
+    assert (str_equals (map_get hm1 "k") "v")
+    assert (== (map_size hm1) 1)
+    assert (== (array_length (map_keys hm1)) 1)
+    assert (== (array_length (map_values hm1)) 1)
+
+    let s0: Set = (set_new)
+    let s1: Set = (set_add s0 "x")
+    assert (set_has s1 "x")
+    assert (== (set_size s1) 1)
+    assert (== (array_length (set_values s1)) 1)
+}

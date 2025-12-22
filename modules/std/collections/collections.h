@@ -26,6 +26,7 @@ bool nl_hm_has(void* hm, const char* key);
 const char* nl_hm_get(void* hm, const char* key);
 int64_t nl_hm_size(void* hm);
 DynArray* nl_hm_keys(void* hm);
+DynArray* nl_hm_values(void* hm);
 void nl_hm_remove(void* hm, const char* key);
 void nl_hm_clear(void* hm);
 void nl_hm_free(void* hm);

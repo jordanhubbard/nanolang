@@ -1,0 +1,78 @@
+from "std/collections/hashmap.nano" import HashMap, map_new, map_put, map_get, map_has, map_size, map_keys, map_values, map_remove
+from "std/collections/set.nano" import Set, set_new, set_add, set_has, set_size, set_values, set_remove
+
+fn main() -> int { return 0 }
+
+shadow main {
+    /* Collision test: FNV-1a("d")%64 == FNV-1a("aa")%64 */
+    let mut hm: HashMap = (map_new)
+    set hm (map_put hm "d" "1")
+    set hm (map_put hm "aa" "2")
+    assert (str_equals (map_get hm "d") "1")
+    assert (str_equals (map_get hm "aa") "2")
+    assert (== (map_size hm) 2)
+
+    set hm (map_remove hm "d")
+    assert (== (map_has hm "d") false)
+    assert (== (map_has hm "aa") true)
+    assert (str_equals (map_get hm "aa") "2")
+    assert (== (map_size hm) 1)
+
+    /* Resize + delete/tombstone stress */
+    let mut i: int = 0
+    while (< i 200) {
+        let k: string = (str_concat "k" (to_string i))
+        let v: string = (to_string (* i 2))
+        set hm (map_put hm k v)
+        set i (+ i 1)
+    }
+    assert (== (map_size hm) 201)
+    assert (str_equals (map_get hm "k0") "0")
+    assert (str_equals (map_get hm "k199") "398")
+
+    let mut j: int = 0
+    while (< j 100) {
+        let k: string = (str_concat "k" (to_string j))
+        set hm (map_remove hm k)
+        set j (+ j 1)
+    }
+    assert (== (map_size hm) 101)
+    assert (== (map_has hm "k0") false)
+    assert (== (map_has hm "k99") false)
+    assert (== (map_has hm "k100") true)
+
+    /* Iteration: keys/values aligned and stable */
+    let ks1: array<string> = (map_keys hm)
+    let vs1: array<string> = (map_values hm)
+    assert (== (array_length ks1) (map_size hm))
+    assert (== (array_length vs1) (map_size hm))
+
+    let mut idx: int = 0
+    while (< idx (array_length ks1)) {
+        let k: string = (at ks1 idx)
+        let v: string = (at vs1 idx)
+        assert (str_equals (map_get hm k) v)
+        set idx (+ idx 1)
+    }
+
+    let ks2: array<string> = (map_keys hm)
+    assert (str_equals (to_string ks1) (to_string ks2))
+
+    /* Set iteration + delete */
+    let mut s: Set = (set_new)
+    set s (set_add s "a")
+    set s (set_add s "b")
+    set s (set_add s "aa")
+    set s (set_add s "d")
+    assert (== (set_size s) 4)
+    assert (set_has s "aa")
+    assert (set_has s "d")
+
+    let vals1: array<string> = (set_values s)
+    let vals2: array<string> = (set_values s)
+    assert (str_equals (to_string vals1) (to_string vals2))
+
+    set s (set_remove s "b")
+    assert (== (set_has s "b") false)
+    assert (== (set_size s) 3)
+}

@@ -13,6 +13,7 @@ extern fn nl_hm_has(hm: NLHashMap, key: string) -> bool
 extern fn nl_hm_get(hm: NLHashMap, key: string) -> string
 extern fn nl_hm_size(hm: NLHashMap) -> int
 extern fn nl_hm_keys(hm: NLHashMap) -> array<string>
+extern fn nl_hm_values(hm: NLHashMap) -> array<string>
 extern fn nl_hm_remove(hm: NLHashMap, key: string) -> void
 extern fn nl_hm_clear(hm: NLHashMap) -> void
 extern fn nl_hm_free(hm: NLHashMap) -> void
@@ -45,6 +46,10 @@ pub fn map_size(hm: HashMap) -> int {
 
 pub fn map_keys(hm: HashMap) -> array<string> {
     return (nl_hm_keys hm.handle)
+}
+
+pub fn map_values(hm: HashMap) -> array<string> {
+    return (nl_hm_values hm.handle)
 }
 
 pub fn map_remove(hm: HashMap, key: string) -> HashMap {

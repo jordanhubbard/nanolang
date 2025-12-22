@@ -296,6 +296,20 @@ DynArray* nl_hm_keys(void* hm_ptr) {
     return out;
 }
 
+DynArray* nl_hm_values(void* hm_ptr) {
+    NLHashMap *hm = (NLHashMap*)hm_ptr;
+    if (!hm) return dyn_array_new(ELEM_STRING);
+    DynArray *out = dyn_array_new(ELEM_STRING);
+    for (int64_t i = 0; i < hm->capacity; i++) {
+        HMEntry *e = &hm->entries[i];
+        if (e->key && !e->tombstone) {
+            char *v = strdup(e->value ? e->value : "");
+            dyn_array_push_string(out, v ? v : "");
+        }
+    }
+    return out;
+}
+
 void nl_hm_remove(void* hm_ptr, const char* key) {
     NLHashMap *hm = (NLHashMap*)hm_ptr;
     if (!hm || !key) return;

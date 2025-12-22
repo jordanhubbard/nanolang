@@ -1058,7 +1058,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
 
     char compile_cmd[1024];
     snprintf(compile_cmd, sizeof(compile_cmd),
-            "%s -std=c99 -Isrc -Imodules/sdl_helpers %s -c -o %s %s",
+            "%s -std=c99 -Isrc -Imodules/std/collections -Imodules/std/json -Imodules/std/io -Imodules/std/math -Imodules/std/peg -Imodules/std/string -Imodules/sdl_helpers %s -c -o %s %s",
             cc, sdl_flags, output_obj, temp_c_file);
     
     if (verbose) {
