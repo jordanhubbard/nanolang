@@ -46,6 +46,20 @@ pub use std_collections_set::size as set_size
 pub use std_collections_set::remove as set_remove
 
 /* =============================================================================
+ * Re-export JSON module
+ * =============================================================================
+ */
+
+pub use std_json::Json
+pub use std_json::parse as json_parse
+pub use std_json::stringify as json_stringify
+pub use std_json::free as json_free
+pub use std_json::get as json_get
+pub use std_json::get_string as json_get_string
+pub use std_json::get_int as json_get_int
+pub use std_json::keys as json_keys
+
+/* =============================================================================
  * Re-export I/O module
  * =============================================================================
  */

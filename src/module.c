@@ -312,7 +312,8 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
                     if (dir) {
                         closedir(dir);
                         /* Found project root - resolve path from here */
-                        const char *prefixes[] = {"", "stdlib/", "modules/", NULL};
+                        /* Prefer canonical stdlib/modules over legacy root-level paths */
+                        const char *prefixes[] = {"stdlib/", "modules/", "", NULL};
                         for (int p = 0; prefixes[p] != NULL; p++) {
                             snprintf(test_path, sizeof(test_path), "%s/%s%s", current_dir, prefixes[p], module_path);
                             FILE *test = fopen(test_path, "r");
@@ -330,7 +331,8 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
                     if (dir) {
                         closedir(dir);
                         /* Found project root - resolve path from here */
-                        const char *prefixes[] = {"", "stdlib/", "modules/", NULL};
+                        /* Prefer canonical stdlib/modules over legacy root-level paths */
+                        const char *prefixes[] = {"stdlib/", "modules/", "", NULL};
                         for (int p = 0; prefixes[p] != NULL; p++) {
                             snprintf(test_path, sizeof(test_path), "%s/%s%s", current_dir, prefixes[p], module_path);
                             FILE *test = fopen(test_path, "r");
@@ -378,7 +380,8 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
      * This enables imports like "std/math/vector2d.nano" to resolve to
      * "stdlib/std/math/vector2d.nano" during tests (where current_file is often relative). */
     {
-        const char *prefixes[] = {"", "stdlib/", "modules/", NULL};
+        /* Prefer canonical stdlib/modules over legacy root-level paths */
+        const char *prefixes[] = {"stdlib/", "modules/", "", NULL};
         char test_path[2048];
         for (int p = 0; prefixes[p] != NULL; p++) {
             snprintf(test_path, sizeof(test_path), "%s%s", prefixes[p], module_path);

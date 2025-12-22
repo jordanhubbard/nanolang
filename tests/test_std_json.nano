@@ -1,0 +1,35 @@
+from "std/json/json.nano" import Json, parse, free, object_has, get, as_int, as_string, is_number, keys, stringify
+
+fn json_basic() -> int {
+    return 0
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow json_basic {
+    let j: Json = (parse "{\"a\": 1, \"b\": \"hi\"}")
+    assert (!= j 0)
+
+    assert (object_has j "a")
+
+    let a: Json = (get j "a")
+    assert (!= a 0)
+    assert (is_number a)
+    assert (== (as_int a) 1)
+    (free a)
+
+    let b: Json = (get j "b")
+    assert (!= b 0)
+    assert (str_equals (as_string b) "hi")
+    (free b)
+
+    let ks: array<string> = (keys j)
+    assert (== (array_length ks) 2)
+
+    let s: string = (stringify j)
+    assert (> (str_length s) 0)
+
+    (free j)
+}
