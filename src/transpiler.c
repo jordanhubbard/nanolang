@@ -2688,6 +2688,11 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "    return value ? (char*)value : \"\";\n");
     sb_append(sb, "}\n\n");
 
+    sb_append(sb, "/* system() wrapper - stdlib system() available via stdlib.h */\n");
+    sb_append(sb, "static inline int64_t nl_exec_shell(const char* cmd) {\n");
+    sb_append(sb, "    return (int64_t)system(cmd);\n");
+    sb_append(sb, "}\n\n");
+
     sb_append(sb, "static char* nl_os_read_all_fd(int fd) {\n");
     sb_append(sb, "    size_t cap = 4096;\n");
     sb_append(sb, "    size_t len = 0;\n");
