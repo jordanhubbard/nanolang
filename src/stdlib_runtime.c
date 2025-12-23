@@ -1123,6 +1123,11 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     sb_append(sb, "    const char* value = getenv(name);\n");
     sb_append(sb, "    return value ? (char*)value : \"\";\n");
     sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "/* system() wrapper - stdlib system() available via stdlib.h */\n");
+    sb_append(sb, "static int64_t nl_exec_shell(const char* cmd) {\n");
+    sb_append(sb, "    return (int64_t)system(cmd);\n");
+    sb_append(sb, "}\n\n");
 
     sb_append(sb, "/* ========== End OS Standard Library ========== */\n\n");
 
@@ -1131,5 +1136,41 @@ void generate_stdlib_runtime(StringBuilder *sb) {
 
     /* Math and utility built-in functions */
     generate_math_utility_builtins(sb);
+}
+
+/* =============================================================================
+ * Module system stubs for runtime-only compilation
+ * =============================================================================
+ * These functions provide fallback implementations when the full module
+ * system (module.c) isn't linked. Programs using imports will need the
+ * full compiler linked.
+ */
+
+void generate_module_system_stubs(StringBuilder *sb) {
+    sb_append(sb, "/* ========== Module System Stubs (runtime-only fallbacks) ========== */\n\n");
+    
+    sb_append(sb, "#ifndef MODULE_SYSTEM_AVAILABLE\n");
+    sb_append(sb, "int64_t module_get_import_count(const char *module_path) {\n");
+    sb_append(sb, "    (void)module_path;\n");
+    sb_append(sb, "    return 0;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "const char *module_get_import_path(const char *module_path, int64_t index) {\n");
+    sb_append(sb, "    (void)module_path; (void)index;\n");
+    sb_append(sb, "    return \"\";\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "const char *module_generate_forward_declarations(const char *module_path) {\n");
+    sb_append(sb, "    (void)module_path;\n");
+    sb_append(sb, "    return \"\";\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "const char *resolve_module_path(const char *module_path, const char *current_file) {\n");
+    sb_append(sb, "    (void)module_path; (void)current_file;\n");
+    sb_append(sb, "    return \"\";\n");
+    sb_append(sb, "}\n");
+    sb_append(sb, "#endif\n\n");
+    
+    sb_append(sb, "/* ========== End Module System Stubs ========== */\n\n");
 }
 

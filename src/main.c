@@ -421,7 +421,16 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                         /* Needed for DynArray/nl_string_t/Token used by extracted structs */
                         fprintf(wrapper, "#include \"nanolang.h\"\n\n");
                         fprintf(wrapper, "/* Struct definition extracted from main file */\n");
-                        fprintf(wrapper, "%.*s\n\n", (int)(struct_end - struct_start), struct_start);
+                        fprintf(wrapper, "%.*s\n", (int)(struct_end - struct_start), struct_start);
+                        /* Set guard macro to prevent typedef redefinition in list header */
+                        char type_upper[128];
+                        strncpy(type_upper, type_name, sizeof(type_upper) - 1);
+                        type_upper[sizeof(type_upper) - 1] = '\0';
+                        for (char *p = type_upper; *p; p++) {
+                            *p = (char)toupper((unsigned char)*p);
+                        }
+                        fprintf(wrapper, "\n/* Guard macro set - typedef already defined above */\n");
+                        fprintf(wrapper, "#define NL_%s_DEFINED\n\n", type_upper);
                         fprintf(wrapper, "/* Include list implementation */\n");
                         fprintf(wrapper, "#include \"/tmp/list_%s.c\"\n", type_name);
                     } else {

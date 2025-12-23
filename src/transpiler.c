@@ -1069,7 +1069,17 @@ static void generate_list_specializations(Environment *env, StringBuilder *sb) {
     if (detected_list_count_early > 0) {
         sb_append(sb, "/* ========== Generic List Forward Declarations ========== */\n");
         for (int i = 0; i < detected_list_count_early; i++) {
+            /* Convert type name to uppercase for guard macro */
+            char type_upper[128];
+            strncpy(type_upper, detected_list_types_early[i], sizeof(type_upper) - 1);
+            type_upper[sizeof(type_upper) - 1] = '\0';
+            for (char *p = type_upper; *p; p++) {
+                *p = (char)toupper((unsigned char)*p);
+            }
+            sb_appendf(sb, "#ifndef LIST_%s_TYPE_DEFINED\n", type_upper);
+            sb_appendf(sb, "#define LIST_%s_TYPE_DEFINED\n", type_upper);
             sb_appendf(sb, "typedef struct List_%s List_%s;\n", detected_list_types_early[i], detected_list_types_early[i]);
+            sb_append(sb, "#endif\n");
         }
         sb_append(sb, "/* ========== End Generic List Forward Declarations ========== */\n\n");
     }

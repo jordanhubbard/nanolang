@@ -29,14 +29,25 @@ cat > "$HEADER_FILE" << EOF
 #include <stdbool.h>
 
 /* Forward declaration - actual struct defined elsewhere */
+/* Note: Using 'struct nl_$TYPE_NAME' to avoid typedef conflicts */
+struct nl_$TYPE_NAME;
+
+/* Guard typedef to prevent redefinition warnings */
+#ifndef NL_${TYPE_NAME_UPPER}_DEFINED
+#define NL_${TYPE_NAME_UPPER}_DEFINED
 typedef struct nl_$TYPE_NAME nl_$TYPE_NAME;
+#endif
 
 /* Dynamic list of $TYPE_NAME */
+/* Guard typedef to prevent redefinition warnings */
+#ifndef LIST_${TYPE_NAME_UPPER}_TYPE_DEFINED
+#define LIST_${TYPE_NAME_UPPER}_TYPE_DEFINED
 typedef struct List_$TYPE_NAME {
     nl_$TYPE_NAME *data;      /* Array of elements */
     int length;               /* Current number of elements */
     int capacity;             /* Allocated capacity */
 } List_$TYPE_NAME;
+#endif
 
 /* Create a new empty list */
 List_$TYPE_NAME* nl_list_${TYPE_NAME}_new(void);

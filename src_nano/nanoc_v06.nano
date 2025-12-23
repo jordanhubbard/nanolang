@@ -28,8 +28,8 @@ extern fn file_read(path: string) -> string
 extern fn file_write(path: string, content: string) -> int
 extern fn file_exists(path: string) -> bool
 
-/* System commands */
-extern fn system(cmd: string) -> int
+/* System commands - wrapper to avoid stdlib.h system() conflict */
+extern fn nl_exec_shell(cmd: string) -> int
 
 /* =============================================================================
  * CLI ARGUMENT PARSING
@@ -303,7 +303,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
-            let cc_result: int = (system cc_cmd)
+            let cc_result: int = (nl_exec_shell cc_cmd)
             if (!= cc_result 0) {
                 (println "Error: C compilation failed")
                 return 1
@@ -325,7 +325,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             /* Clean up temp file unless --keep-c */
             if (not keep_c) {
                 let rm_cmd: string = (str_concat "rm -f " c_file)
-                let rm_result: int = (system rm_cmd)
+                let rm_result: int = (nl_exec_shell rm_cmd)
                 /* Ignore result - cleanup is non-critical */
                 (print "")
             } else {

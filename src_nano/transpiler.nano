@@ -985,200 +985,9 @@ shadow gen_c_runtime {
     assert (== 1 1)
 }
 
-/* Topological sort helper structures and functions */
-
-struct ModuleDependency {
-    module_path: string,
-    dependencies: array<string>
-}
-
-/* Build dependency graph for all imported modules
- * Returns array of ModuleDependency structs
- */
-fn build_module_dependency_graph(parser: Parser) -> array<ModuleDependency> {
-    let mut graph: array<ModuleDependency> = []
-    let mut visited: array<string> = []
-    let mut to_visit: array<string> = []
-    
-    /* Start with direct imports from the main program */
-    let import_count: int = (parser_get_import_count parser)
-    let mut i: int = 0
-    while (< i import_count) {
-        let imp: ASTImport = (parser_get_import parser i)
-        let resolved: string = (resolve_module_path imp.module_path "")
-        if (!= resolved "") {
-            set to_visit (array_push to_visit resolved)
-        } else {
-            (print "")
-        }
-        set i (+ i 1)
-    }
-    
-    /* Traverse dependency graph (BFS) */
-    while (> (array_length to_visit) 0) {
-        let current: string = (at to_visit 0)
-        
-        /* Remove from to_visit (shift array) */
-        let mut new_to_visit: array<string> = []
-        let mut j: int = 1
-        while (< j (array_length to_visit)) {
-            set new_to_visit (array_push new_to_visit (at to_visit j))
-            set j (+ j 1)
-        }
-        set to_visit new_to_visit
-        
-        /* Skip if already visited */
-        let mut already_visited: bool = false
-        let mut k: int = 0
-        while (< k (array_length visited)) {
-            if (str_equals (at visited k) current) {
-                set already_visited true
-                set k (array_length visited)
-            } else {
-                (print "")
-            }
-            set k (+ k 1)
-        }
-        
-        if (not already_visited) {
-        
-            set visited (array_push visited current)
-            
-            /* Get dependencies of current module */
-        let mut deps: array<string> = []
-        let dep_count: int = (module_get_import_count current)
-        if (> dep_count 0) {
-            let mut d: int = 0
-            while (< d dep_count) {
-                let dep_path: string = (module_get_import_path current d)
-                if (!= dep_path "") {
-                    set deps (array_push deps dep_path)
-                    
-                    /* Add to to_visit if not already visited */
-                    let mut dep_visited: bool = false
-                    let mut v: int = 0
-                    while (< v (array_length visited)) {
-                        if (str_equals (at visited v) dep_path) {
-                            set dep_visited true
-                            set v (array_length visited)
-                        } else {
-                            (print "")
-                        }
-                        set v (+ v 1)
-                    }
-                    
-                    if (not dep_visited) {
-                        set to_visit (array_push to_visit dep_path)
-                    } else {
-                        (print "")
-                    }
-                } else {
-                    (print "")
-                }
-                set d (+ d 1)
-            }
-        } else {
-            (print "")
-        }
-        
-            /* Add to graph */
-            let node: ModuleDependency = ModuleDependency { 
-                module_path: current, 
-                dependencies: deps 
-            }
-            set graph (array_push graph node)
-        } else {
-            (print "")
-        }
-    }
-    
-    return graph
-}
-
-/* Topological sort using Kahn's algorithm
- * Returns modules in dependency order (dependencies first)
- */
-fn topological_sort_modules(graph: array<ModuleDependency>) -> array<string> {
-    let mut sorted: array<string> = []
-    let mut remaining: array<ModuleDependency> = graph
-    
-    /* Keep processing until no modules remain */
-    while (> (array_length remaining) 0) {
-        /* Find a module with no unsatisfied dependencies */
-        let mut found_idx: int = -1
-        let mut i: int = 0
-        while (< i (array_length remaining)) {
-            let node: ModuleDependency = (at remaining i)
-            
-            /* Check if all dependencies are in sorted list */
-            let mut all_satisfied: bool = true
-            let mut j: int = 0
-            while (< j (array_length node.dependencies)) {
-                let dep: string = (at node.dependencies j)
-                
-                /* Check if dep is in sorted */
-                let mut in_sorted: bool = false
-                let mut k: int = 0
-                while (< k (array_length sorted)) {
-                    if (str_equals (at sorted k) dep) {
-                        set in_sorted true
-                        set k (array_length sorted)
-                    } else {
-                        (print "")
-                    }
-                    set k (+ k 1)
-                }
-                
-                if (not in_sorted) {
-                    set all_satisfied false
-                    set j (array_length node.dependencies)
-                } else {
-                    (print "")
-                }
-                set j (+ j 1)
-            }
-            
-            if all_satisfied {
-                set found_idx i
-                set i (array_length remaining)
-            } else {
-                (print "")
-            }
-            set i (+ i 1)
-        }
-        
-        if (>= found_idx 0) {
-            /* Add to sorted and remove from remaining */
-            let node: ModuleDependency = (at remaining found_idx)
-            set sorted (array_push sorted node.module_path)
-            
-            /* Remove from remaining */
-            let mut new_remaining: array<ModuleDependency> = []
-            let mut i: int = 0
-            while (< i (array_length remaining)) {
-                if (!= i found_idx) {
-                    set new_remaining (array_push new_remaining (at remaining i))
-                } else {
-                    (print "")
-                }
-                set i (+ i 1)
-            }
-            set remaining new_remaining
-        } else {
-            /* No module without dependencies found - circular dependency or done */
-            /* Add remaining modules in arbitrary order */
-            let mut i: int = 0
-            while (< i (array_length remaining)) {
-                let node: ModuleDependency = (at remaining i)
-                set sorted (array_push sorted node.module_path)
-                set i (+ i 1)
-            }
-            set remaining []
-        }
-    }
-    
     return sorted
 }
+*/
 
 /* Generate forward declarations for imported module functions
  * 
@@ -1192,36 +1001,17 @@ fn topological_sort_modules(graph: array<ModuleDependency>) -> array<string> {
  * Returns: C code string with forward declarations
  */
 fn generate_module_forward_declarations(parser: Parser) -> string {
+    /* TODO: Module forward declarations with toposort
+     * This feature requires linking module.c which has many dependencies.
+     * Temporarily disabled for stage2 bootstrap.
+     * Will be re-enabled once module system is available as a standalone library.
+     */
     let import_count: int = (parser_get_import_count parser)
-    if (== import_count 0) {
-        return ""
+    if (> import_count 0) {
+        return "/* Module forward declarations: pending module system refactor */\n"
     } else {
-        (print "")
+        return ""
     }
-    
-    /* Build dependency graph and sort topologically */
-    let graph: array<ModuleDependency> = (build_module_dependency_graph parser)
-    let sorted_modules: array<string> = (topological_sort_modules graph)
-    
-    let mut result: string = "/* Forward declarations for imported modules (dependency order) */\n"
-    
-    /* Emit forward declarations in dependency order */
-    let mut i: int = 0
-    while (< i (array_length sorted_modules)) {
-        let module_path: string = (at sorted_modules i)
-        
-        /* Generate forward declarations for this module */
-        let decls: string = (module_generate_forward_declarations module_path)
-        if (!= decls "") {
-            set result (str_concat result decls)
-        } else {
-            (print "")
-        }
-        
-        set i (+ i 1)
-    }
-    
-    return result
 }
 
 /* Generate complete C program */
@@ -1254,10 +1044,8 @@ shadow gen_c_program {
 /* AST and Parser IR types are provided by src_nano/compiler/ir.nano */
 
 /* Module access functions (C runtime) */
-extern fn resolve_module_path(module_path: string, current_file: string) -> string
-extern fn module_get_import_count(module_path: string) -> int
-extern fn module_get_import_path(module_path: string, index: int) -> string
-extern fn module_generate_forward_declarations(module_path: string) -> string
+/* Note: These functions require full module.c linked - not available in stage2 */
+/* TODO: Re-enable toposort once module system is available in standalone builds */
 
 /* Parser accessor functions are now available by importing src_nano/parser.nano */
 
@@ -2348,7 +2136,7 @@ fn generate_function_body(parser: Parser, body_id: int, env: GenEnv, return_type
  * 
  * Returns: Generated C code as a string
  */
-fn transpile_parser(parser: Parser) -> string {
+pub fn transpile_parser(parser: Parser) -> string {
     (println "=== Code Generation (Full AST Walk) ===")
     
     /* Get function count using accessor */
