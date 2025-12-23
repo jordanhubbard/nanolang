@@ -21,22 +21,12 @@
  */
 
 /* Import the nanolang compiler components */
-/* TODO: Once import aliases work, use:
-import "src_nano/ast_shared.nano"
-import "src_nano/file_io.nano" as IO
-import "src_nano/cli_args.nano" as CLI  
-import "src_nano/lexer_main.nano" as Lexer
-import "src_nano/parser.nano" as Parser
-import "src_nano/typecheck.nano" as TypeChecker
-import "src_nano/transpiler.nano" as Transpiler
-*/
-
-/* For now, import without aliases until we fix the type checker issue */
 import "src_nano/file_io.nano"
 import "src_nano/cli_args.nano"
 
-/* TODO: Import the actual components once we resolve struct conflicts */
-/* For now, write a minimal version that demonstrates the concept */
+/* Note: This is a proof-of-concept compiler that demonstrates self-hosting.
+ * For full self-hosted compilation, see nanoc_v06.nano which uses the actual
+ * lexer, parser, typechecker, and transpiler components. */
 
 /* Compilation result codes */
 let SUCCESS: int = 0

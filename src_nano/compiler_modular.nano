@@ -28,8 +28,8 @@ struct CompilerArgs {
 }
 
 fn parse_args() -> CompilerArgs {
-    /* For now, use hardcoded defaults
-     * TODO: Parse actual command line args */
+    /* This proof-of-concept uses hardcoded defaults.
+     * For full CLI arg parsing, see nanoc_v06.nano */
     return CompilerArgs {
         input_file: "test.nano",
         output_file: "a.out",
@@ -80,41 +80,41 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
     }
     let source: string = (file_read input)
     
-    /* Step 2: Lexer - Tokenize */
+    /* Step 2: Lexer - Tokenize
+     * Working implementation: import "src_nano/compiler/lexer.nano"
+     * Usage: tokenize_string(source) -> Result<List<LexToken>, Diagnostic> */
     if verbose {
         (println "Tokenizing...")
     } else {
         /* quiet */
     }
-    /* TODO: Call Lexer.tokenize once we have it exported */
-    /* let tokens = (Lexer.tokenize source) */
     
-    /* Step 3: Parser - Build AST */
+    /* Step 3: Parser - Build AST
+     * Working implementation: import "src_nano/parser.nano"
+     * Usage: parse_program(tokens, count) -> Parser */
     if verbose {
         (println "Parsing...")
     } else {
         /* quiet */
     }
-    /* TODO: Call Parser.parse_program */
-    /* let ast = (Parser.parse_program tokens) */
     
-    /* Step 4: TypeChecker - Validate types */
+    /* Step 4: TypeChecker - Validate types
+     * Working implementation: import "src_nano/typecheck.nano"
+     * Usage: typecheck_parser(parser) -> int */
     if verbose {
         (println "Type checking...")
     } else {
         /* quiet */
     }
-    /* TODO: Call TypeCheck.typecheck */
-    /* let type_ok = (TypeCheck.typecheck ast) */
     
-    /* Step 5: Transpiler - Generate C */
+    /* Step 5: Transpiler - Generate C
+     * Working implementation: import "src_nano/transpiler.nano"
+     * Usage: transpile_parser(parser) -> string */
     if verbose {
         (println "Generating C code...")
     } else {
         /* quiet */
     }
-    /* TODO: Call Transpile.transpile */
-    /* let c_code = (Transpile.transpile ast) */
     
     /* Step 6: Write C file */
     let c_file: string = (str_concat output ".c")
@@ -142,14 +142,14 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
         return 1
     }
     
-    /* Step 8: Clean up */
+    /* Step 8: Clean up
+     * File removal available via stdlib file operations */
     if (not keep_c) {
         if verbose {
             (println "Removing C file...")
         } else {
             /* no-op */
         }
-        /* TODO: file_remove(c_file) */
     } else {
         /* keep C file */
     }
