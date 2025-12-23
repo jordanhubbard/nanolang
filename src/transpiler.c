@@ -1132,6 +1132,21 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
     
     /* Emit includes and function forward declarations */
     if (detected_list_count > 0) {
+        /* Emit guard macros for struct typedefs before including list headers */
+        sb_append(sb, "/* ========== Generic List Type Guards ========== */\n");
+        sb_append(sb, "/* These prevent typedef redefinition warnings in list headers */\n");
+        for (int i = 0; i < detected_list_count; i++) {
+            /* Convert type name to uppercase for guard macro */
+            char type_upper[128];
+            strncpy(type_upper, detected_list_types[i], sizeof(type_upper) - 1);
+            type_upper[sizeof(type_upper) - 1] = '\0';
+            for (char *p = type_upper; *p; p++) {
+                *p = (char)toupper((unsigned char)*p);
+            }
+            sb_appendf(sb, "#define NL_%s_DEFINED\n", type_upper);
+        }
+        sb_append(sb, "/* ========== End Generic List Type Guards ========== */\n\n");
+        
         /* Emit includes */
         sb_append(sb, "/* ========== Generic List Includes (Auto-Generated) ========== */\n");
         for (int i = 0; i < detected_list_count; i++) {
