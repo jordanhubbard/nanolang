@@ -1,0 +1,50 @@
+/* =============================================================================
+ * std::diagnostics - Location/Span + Diagnostic primitives
+ * =============================================================================
+ */
+
+module std_diagnostics
+
+pub struct Loc {
+    file: string
+    line: int
+    column: int
+}
+
+pub struct Span {
+    start: Loc
+    end: Loc
+}
+
+pub enum Severity {
+    Error
+    Warning
+    Note
+}
+
+pub struct Diagnostic {
+    severity: Severity
+    message: string
+    span: Span
+}
+
+pub fn loc(file: string, line: int, column: int) -> Loc {
+    return Loc { file: file, line: line, column: column }
+}
+
+pub fn span_single(file: string, line: int, column: int) -> Span {
+    let l: Loc = (loc file line column)
+    return Span { start: l, end: l }
+}
+
+pub fn diag_error(message: string, span: Span) -> Diagnostic {
+    return Diagnostic { severity: Severity.Error, message: message, span: span }
+}
+
+pub fn diag_warning(message: string, span: Span) -> Diagnostic {
+    return Diagnostic { severity: Severity.Warning, message: message, span: span }
+}
+
+pub fn diag_note(message: string, span: Span) -> Diagnostic {
+    return Diagnostic { severity: Severity.Note, message: message, span: span }
+}

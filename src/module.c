@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkdtemp */
 #include "nanolang.h"
 #include "module_builder.h"
+#include "stdlib_runtime.h"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -8,6 +9,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <libgen.h>
+#include <stdio.h>
 
 /* mkdtemp declaration (if not available via headers) */
 #ifndef _DARWIN_C_SOURCE
@@ -279,8 +281,11 @@ char *unpack_module_package(const char *package_path, char *temp_dir_out, size_t
     return strdup(temp_dir);
 }
 
-/* Resolve module path relative to current file or in module search paths */
-char *resolve_module_path(const char *module_path, const char *current_file) {
+/* Resolve module path relative to current file or in module search paths
+ * Returns a malloc'd string that caller must free
+ * Note: Returns const char* to match NanoLang's string type mapping
+ */
+const char *resolve_module_path(const char *module_path, const char *current_file) {
     if (!module_path) return NULL;
     
     /* If module_path is absolute or starts with ./, use as-is */
@@ -371,7 +376,7 @@ char *resolve_module_path(const char *module_path, const char *current_file) {
                 fclose(test);
                 return resolved;
             }
-            free(resolved);
+            free((char*)resolved);
             resolved = NULL;
         }
     }
@@ -672,7 +677,7 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
         ASTNode *item = program->as.program.items[i];
         
         if (item->type == AST_IMPORT) {
-            char *module_path = resolve_module_path(item->as.import_stmt.module_path, current_file);
+            char *module_path = (char*)resolve_module_path(item->as.import_stmt.module_path, current_file);
             char *module_alias = item->as.import_stmt.module_alias;  /* NULL if no alias */
             
             if (!module_path) {
@@ -1574,6 +1579,235 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
 }
 
 /* Free module metadata */
+/* Get number of imports in a cached module
+ * Returns -1 if module not found
+ * Note: Returns int64_t to match NanoLang's int type mapping
+ */
+int64_t module_get_import_count(const char *module_path) {
+    if (!module_path) return -1;
+    
+    ASTNode *module_ast = get_cached_module_ast(module_path);
+    if (!module_ast || module_ast->type != AST_PROGRAM) {
+        return -1;
+    }
+    
+    int64_t count = 0;
+    for (int i = 0; i < module_ast->as.program.count; i++) {
+        ASTNode *item = module_ast->as.program.items[i];
+        if (item && item->type == AST_IMPORT) {
+            count++;
+        }
+    }
+    
+    return count;
+}
+
+/* Get the path of the nth import in a cached module
+ * Returns a malloc'd string that caller must free, or NULL on error
+ * Note: Returns const char* to match NanoLang's string type mapping
+ * Note: index is int64_t to match NanoLang's int type mapping
+ */
+const char *module_get_import_path(const char *module_path, int64_t index) {
+    if (!module_path || index < 0) return NULL;
+    
+    ASTNode *module_ast = get_cached_module_ast(module_path);
+    if (!module_ast || module_ast->type != AST_PROGRAM) {
+        return NULL;
+    }
+    
+    int count = 0;
+    for (int i = 0; i < module_ast->as.program.count; i++) {
+        ASTNode *item = module_ast->as.program.items[i];
+        if (item && item->type == AST_IMPORT) {
+            if (count == index) {
+                /* Resolve the import path */
+                const char *resolved = resolve_module_path(
+                    item->as.import_stmt.module_path, 
+                    module_path
+                );
+                return resolved;
+            }
+            count++;
+        }
+    }
+    
+    return NULL;
+}
+
+/* Generate forward declarations for a module's public functions
+ * Returns a malloc'd string with C forward declarations, or NULL on error
+ * Caller must free the returned string
+ * Note: Returns const char* to match NanoLang's string type mapping
+ */
+const char *module_generate_forward_declarations(const char *module_path) {
+    if (!module_path) return NULL;
+    
+    ASTNode *module_ast = get_cached_module_ast(module_path);
+    if (!module_ast || module_ast->type != AST_PROGRAM) {
+        return NULL;
+    }
+    
+    /* Find module name */
+    const char *module_name = NULL;
+    for (int i = 0; i < module_ast->as.program.count; i++) {
+        ASTNode *item = module_ast->as.program.items[i];
+        if (item && item->type == AST_MODULE_DECL && item->as.module_decl.name) {
+            module_name = item->as.module_decl.name;
+            break;
+        }
+    }
+    
+    /* Build forward declarations string */
+    StringBuilder *sb = sb_create();
+    if (!sb) return NULL;
+    
+    sb_append(sb, "/* Forward declarations from ");
+    sb_append(sb, module_path);
+    sb_append(sb, " */\n");
+    
+    /* Track emitted function names to avoid duplicates */
+    int emitted_count = 0;
+    int emitted_capacity = 64;
+    char **emitted = malloc(sizeof(char*) * emitted_capacity);
+    if (!emitted) {
+        free(sb->buffer);
+        free(sb);
+        return NULL;
+    }
+    
+    /* Iterate through functions in module */
+    for (int i = 0; i < module_ast->as.program.count; i++) {
+        ASTNode *item = module_ast->as.program.items[i];
+        if (!item || item->type != AST_FUNCTION) continue;
+        if (!item->as.function.is_pub) continue;  /* Only public functions */
+        if (item->as.function.is_extern) continue;  /* Skip extern functions */
+        if (strcmp(item->as.function.name, "main") == 0) continue;  /* Skip main */
+        
+        /* Build C function name with module prefix */
+        char c_name_buf[512];
+        const char *c_name = NULL;
+        if (module_name) {
+            snprintf(c_name_buf, sizeof(c_name_buf), "%s__%s", module_name, item->as.function.name);
+            c_name = c_name_buf;
+        } else {
+            snprintf(c_name_buf, sizeof(c_name_buf), "nl_%s", item->as.function.name);
+            c_name = c_name_buf;
+        }
+        
+        /* Check if already emitted */
+        bool seen = false;
+        for (int j = 0; j < emitted_count; j++) {
+            if (strcmp(emitted[j], c_name) == 0) {
+                seen = true;
+                break;
+            }
+        }
+        if (seen) continue;
+        
+        /* Add to emitted list */
+        if (emitted_count >= emitted_capacity) {
+            emitted_capacity *= 2;
+            char **new_emitted = realloc(emitted, sizeof(char*) * emitted_capacity);
+            if (!new_emitted) {
+                for (int j = 0; j < emitted_count; j++) free(emitted[j]);
+                free(emitted);
+                free(sb->buffer);
+                free(sb);
+                return NULL;
+            }
+            emitted = new_emitted;
+        }
+        emitted[emitted_count++] = strdup(c_name);
+        
+        /* Generate forward declaration */
+        sb_append(sb, "extern ");
+        
+        /* Return type - simplified version */
+        Type ret_type = item->as.function.return_type;
+        if (ret_type == TYPE_INT) {
+            sb_append(sb, "int64_t");
+        } else if (ret_type == TYPE_FLOAT) {
+            sb_append(sb, "double");
+        } else if (ret_type == TYPE_BOOL) {
+            sb_append(sb, "int");
+        } else if (ret_type == TYPE_STRING) {
+            sb_append(sb, "char*");
+        } else if (ret_type == TYPE_VOID) {
+            sb_append(sb, "void");
+        } else if (ret_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
+            char buf[256];
+            snprintf(buf, sizeof(buf), "nl_%s", item->as.function.return_struct_type_name);
+            sb_append(sb, buf);
+        } else if (ret_type == TYPE_UNION && item->as.function.return_struct_type_name) {
+            char buf[256];
+            snprintf(buf, sizeof(buf), "nl_%s", item->as.function.return_struct_type_name);
+            sb_append(sb, buf);
+        } else if (ret_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
+            char buf[256];
+            snprintf(buf, sizeof(buf), "List_%s*", item->as.function.return_struct_type_name);
+            sb_append(sb, buf);
+        } else {
+            sb_append(sb, "void");  /* Fallback */
+        }
+        
+        char name_buf[512];
+        snprintf(name_buf, sizeof(name_buf), " %s(", c_name);
+        sb_append(sb, name_buf);
+        
+        /* Parameters */
+        for (int p = 0; p < item->as.function.param_count; p++) {
+            if (p > 0) sb_append(sb, ", ");
+            Parameter *param = &item->as.function.params[p];
+            char param_buf[256];
+            
+            if (param->type == TYPE_INT) {
+                sb_append(sb, "int64_t");
+            } else if (param->type == TYPE_FLOAT) {
+                sb_append(sb, "double");
+            } else if (param->type == TYPE_BOOL) {
+                sb_append(sb, "int");
+            } else if (param->type == TYPE_STRING) {
+                sb_append(sb, "char*");
+            } else if (param->type == TYPE_STRUCT && param->struct_type_name) {
+                snprintf(param_buf, sizeof(param_buf), "nl_%s", param->struct_type_name);
+                sb_append(sb, param_buf);
+            } else if (param->type == TYPE_UNION && param->struct_type_name) {
+                snprintf(param_buf, sizeof(param_buf), "nl_%s", param->struct_type_name);
+                sb_append(sb, param_buf);
+            } else if (param->type == TYPE_LIST_GENERIC && param->struct_type_name) {
+                snprintf(param_buf, sizeof(param_buf), "List_%s*", param->struct_type_name);
+                sb_append(sb, param_buf);
+            } else {
+                sb_append(sb, "void");  /* Fallback */
+            }
+            
+            if (param->name) {
+                snprintf(param_buf, sizeof(param_buf), " %s", param->name);
+                sb_append(sb, param_buf);
+            } else {
+                snprintf(param_buf, sizeof(param_buf), " param%d", p);
+                sb_append(sb, param_buf);
+            }
+        }
+        
+        sb_append(sb, ");\n");
+    }
+    
+    /* Cleanup */
+    for (int i = 0; i < emitted_count; i++) {
+        free(emitted[i]);
+    }
+    free(emitted);
+    
+    sb_append(sb, "\n");
+    
+    /* Return the string (caller must free) */
+    char *result = strdup(sb->buffer);
+    free(sb->buffer);
+    free(sb);
+    return result;
+}
+
 void free_module_metadata(ModuleMetadata *meta) {
     if (!meta) return;
     

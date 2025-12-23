@@ -1,0 +1,248 @@
+/* =============================================================================
+ * std::binary - tiny binary encode/decode helpers
+ * =============================================================================
+ */
+
+module std_binary
+
+import "std/result.nano"
+
+pub struct ReadVarint {
+    value: int
+    pos: int
+}
+
+pub struct ReadInt {
+    value: int
+    pos: int
+}
+
+pub struct ReadString {
+    value: string
+    pos: int
+}
+
+pub struct ReadBytes {
+    value: array<u8>
+    pos: int
+}
+
+pub struct ReadIntArray {
+    value: array<int>
+    pos: int
+}
+
+pub fn version() -> int { return 1 }
+
+fn push_u8(buf: array<u8>, b: int) -> array<u8> {
+    return (array_push buf b)
+}
+
+fn write_varint(buf: array<u8>, n: int) -> array<u8> {
+    let mut out: array<u8> = buf
+    let mut x: int = n
+
+    while (>= x 128) {
+        set out (push_u8 out (+ (% x 128) 128))
+        set x (/ x 128)
+    }
+
+    set out (push_u8 out x)
+    return out
+}
+
+pub fn read_varint(buf: array<u8>, pos: int) -> Result<ReadVarint, string> {
+    let len: int = (array_length buf)
+    let mut i: int = pos
+    let mut value: int = 0
+    let mut scale: int = 1
+    let mut count: int = 0
+
+    while true {
+        if (>= i len) {
+            return Result.Err { error: "eof" }
+        }
+
+        let b: int = (at buf i)
+        let payload: int = (% b 128)
+        set value (+ value (* payload scale))
+        set i (+ i 1)
+
+        if (< b 128) {
+            return Result.Ok { value: ReadVarint { value: value, pos: i } }
+        }
+
+        set scale (* scale 128)
+        set count (+ count 1)
+        if (> count 10) {
+            return Result.Err { error: "varint overflow" }
+        }
+    }
+}
+
+fn write_i64_payload(buf: array<u8>, v: int) -> array<u8> {
+    let mut out: array<u8> = buf
+    if (< v 0) {
+        set out (push_u8 out 1)
+        return (write_varint out (abs v))
+    }
+    set out (push_u8 out 0)
+    return (write_varint out v)
+}
+
+fn read_i64_payload(buf: array<u8>, pos: int) -> Result<ReadInt, string> {
+    let len: int = (array_length buf)
+    if (>= pos len) {
+        return Result.Err { error: "eof" }
+    }
+
+    let sign: int = (at buf pos)
+    let vr: Result<ReadVarint, string> = (read_varint buf (+ pos 1))
+
+    match vr {
+        Ok(v) => {
+            let n: int = v.value.value
+            let p: int = v.value.pos
+            if (== sign 0) {
+                return Result.Ok { value: ReadInt { value: n, pos: p } }
+            }
+            return Result.Ok { value: ReadInt { value: (- 0 n), pos: p } }
+        }
+        Err(e) => { return Result.Err { error: e.error } }
+    }
+}
+
+pub fn encode_int(v: int) -> array<u8> {
+    let mut out: array<u8> = []
+    set out (push_u8 out (version))
+    return (write_i64_payload out v)
+}
+
+pub fn decode_int(buf: array<u8>) -> Result<int, string> {
+    if (== (array_length buf) 0) {
+        return Result.Err { error: "empty" }
+    }
+
+    if (!= (at buf 0) (version)) {
+        return Result.Err { error: "bad version" }
+    }
+
+    let r: Result<ReadInt, string> = (read_i64_payload buf 1)
+    match r {
+        Ok(v) => { return Result.Ok { value: v.value.value } }
+        Err(e) => { return Result.Err { error: e.error } }
+    }
+}
+
+pub fn encode_bool(v: bool) -> array<u8> {
+    let mut out: array<u8> = []
+    set out (push_u8 out (version))
+    if v {
+        set out (push_u8 out 1)
+    } else {
+        set out (push_u8 out 0)
+    }
+    return out
+}
+
+pub fn decode_bool(buf: array<u8>) -> Result<bool, string> {
+    if (< (array_length buf) 2) {
+        return Result.Err { error: "eof" }
+    }
+
+    if (!= (at buf 0) (version)) {
+        return Result.Err { error: "bad version" }
+    }
+
+    return Result.Ok { value: (!= (at buf 1) 0) }
+}
+
+fn write_bytes(buf: array<u8>, bytes: array<u8>) -> array<u8> {
+    let mut out: array<u8> = buf
+    let n: int = (array_length bytes)
+    let mut i: int = 0
+    while (< i n) {
+        set out (push_u8 out (at bytes i))
+        set i (+ i 1)
+    }
+    return out
+}
+
+pub fn encode_string(s: string) -> array<u8> {
+    let mut out: array<u8> = []
+    set out (push_u8 out (version))
+    let bytes: array<u8> = (bytes_from_string s)
+    set out (write_varint out (array_length bytes))
+    return (write_bytes out bytes)
+}
+
+pub fn decode_string(buf: array<u8>) -> Result<string, string> {
+    if (== (array_length buf) 0) {
+        return Result.Err { error: "empty" }
+    }
+
+    if (!= (at buf 0) (version)) {
+        return Result.Err { error: "bad version" }
+    }
+
+    let vr: Result<ReadVarint, string> = (read_varint buf 1)
+    match vr {
+        Ok(v) => {
+            let n: int = v.value.value
+            let p: int = v.value.pos
+            if (< (- (array_length buf) p) n) {
+                return Result.Err { error: "eof" }
+            }
+            let bytes: array<u8> = (array_slice buf p n)
+            return Result.Ok { value: (string_from_bytes bytes) }
+        }
+        Err(e) => { return Result.Err { error: e.error } }
+    }
+}
+
+pub fn encode_int_array(a: array<int>) -> array<u8> {
+    let mut out: array<u8> = []
+    set out (push_u8 out (version))
+    set out (write_varint out (array_length a))
+
+    let n: int = (array_length a)
+    let mut i: int = 0
+    while (< i n) {
+        set out (write_i64_payload out (at a i))
+        set i (+ i 1)
+    }
+
+    return out
+}
+
+pub fn decode_int_array(buf: array<u8>) -> Result<array<int>, string> {
+    if (== (array_length buf) 0) {
+        return Result.Err { error: "empty" }
+    }
+    if (!= (at buf 0) (version)) {
+        return Result.Err { error: "bad version" }
+    }
+
+    let vr: Result<ReadVarint, string> = (read_varint buf 1)
+    match vr {
+        Ok(v) => {
+            let count: int = v.value.value
+            let mut pos: int = v.value.pos
+            let mut out: array<int> = []
+            let mut i: int = 0
+            while (< i count) {
+                let ir: Result<ReadInt, string> = (read_i64_payload buf pos)
+                match ir {
+                    Ok(r) => {
+                        set out (array_push out r.value.value)
+                        set pos r.value.pos
+                    }
+                    Err(e) => { return Result.Err { error: e.error } }
+                }
+                set i (+ i 1)
+            }
+            return Result.Ok { value: out }
+        }
+        Err(e) => { return Result.Err { error: e.error } }
+    }
+}

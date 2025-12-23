@@ -1,14 +1,16 @@
 /* Simple test module for import alias testing */
 
-fn add(a: int, b: int) -> int {
+module math
+
+pub fn add(a: int, b: int) -> int {
     return (+ a b)
 }
 
-fn multiply(a: int, b: int) -> int {
+pub fn multiply(a: int, b: int) -> int {
     return (* a b)
 }
 
-fn square(x: int) -> int {
+pub fn square(x: int) -> int {
     return (* x x)
 }
 

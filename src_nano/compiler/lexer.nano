@@ -7,6 +7,8 @@
  */
 
 import "src_nano/compiler/ir.nano"
+import "std/diagnostics.nano"
+import "std/result.nano"
 
 fn is_identifier_start(c: int) -> bool {
     return (or (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122))) (== c 95))
@@ -450,6 +452,21 @@ pub fn tokenize_string(source: string) -> List<LexToken> {
 pub fn tokenize_file(path: string) -> List<LexToken> {
     let source: string = (file_read path)
     return (tokenize_string source)
+}
+
+pub struct TokenList {
+    tokens: List<LexToken>
+}
+
+pub fn tokenize_file_result(path: string) -> Result<TokenList, Diagnostic> {
+    if (== (file_exists path) false) {
+        let s: Span = (span_single path 1 1)
+        let d: Diagnostic = (diag_error (str_concat "file not found: " path) s)
+        return Result.Err { error: d }
+    }
+
+    let source: string = (file_read path)
+    return Result.Ok { value: TokenList { tokens: (tokenize_string source) } }
 }
 
 shadow tokenize_string {

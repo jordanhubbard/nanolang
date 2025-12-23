@@ -6000,3 +6000,13 @@ pub fn parser_get_tuple_index(p: Parser, idx: int) -> ASTTupleIndex {
     return (list_ASTTupleIndex_get p.tuple_indices idx)
 }
 
+/* Get number of imports */
+pub fn parser_get_import_count(p: Parser) -> int {
+    return (list_ASTImport_length p.imports)
+}
+
+/* Get an import by index */
+pub fn parser_get_import(p: Parser, idx: int) -> ASTImport {
+    return (list_ASTImport_get p.imports idx)
+}
+

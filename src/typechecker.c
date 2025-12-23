@@ -119,6 +119,30 @@ static void check_unused_variables(TypeChecker *tc, int start_index) {
     }
 }
 
+static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
+    if (!expr) return NULL;
+    if (expr->type == AST_IDENTIFIER) {
+        Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
+        if (sym) return sym->type_info;
+    }
+    if (expr->type == AST_CALL && expr->as.call.name) {
+        Function *func = env_get_function(env, expr->as.call.name);
+        if (func && func->return_type_info) return func->return_type_info;
+    }
+    return NULL;
+}
+
+static Type type_from_typeinfo(TypeInfo *info, const char **out_struct_name) {
+    if (out_struct_name) *out_struct_name = NULL;
+    if (!info) return TYPE_UNKNOWN;
+
+    if (info->base_type == TYPE_STRUCT && info->generic_name) {
+        if (out_struct_name) *out_struct_name = info->generic_name;
+        return TYPE_STRUCT;
+    }
+    return info->base_type;
+}
+
 /* Utility functions */
 Type token_to_type(TokenType token) {
     switch (token) {
@@ -706,6 +730,71 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return initial_type;  /* Return same type as initial value */
                 }
                 return TYPE_UNKNOWN;
+            }
+
+            /* Result<T, E> helper intrinsics (generic-function stopgap) */
+            if (strcmp(expr->as.call.name, "result_is_ok") == 0 || strcmp(expr->as.call.name, "result_is_err") == 0) {
+                if (expr->as.call.arg_count != 1) {
+                    fprintf(stderr, "Error at line %d, column %d: %s requires 1 argument\n",
+                            expr->line, expr->column, expr->as.call.name);
+                    return TYPE_UNKNOWN;
+                }
+                check_expression(expr->as.call.args[0], env);
+                return TYPE_BOOL;
+            }
+
+            if (strcmp(expr->as.call.name, "result_unwrap") == 0 ||
+                strcmp(expr->as.call.name, "result_unwrap_err") == 0 ||
+                strcmp(expr->as.call.name, "result_unwrap_or") == 0) {
+                int expected = (strcmp(expr->as.call.name, "result_unwrap_or") == 0) ? 2 : 1;
+                if (expr->as.call.arg_count != expected) {
+                    fprintf(stderr, "Error at line %d, column %d: %s requires %d argument(s)\n",
+                            expr->line, expr->column, expr->as.call.name, expected);
+                    return TYPE_UNKNOWN;
+                }
+
+                ASTNode *res_expr = expr->as.call.args[0];
+                Type res_type = check_expression(res_expr, env);
+                if (res_type != TYPE_UNION) {
+                    fprintf(stderr, "Error at line %d, column %d: %s requires a Result<T, E> union value\n",
+                            expr->line, expr->column, expr->as.call.name);
+                    return TYPE_UNKNOWN;
+                }
+
+                TypeInfo *res_info = try_get_expr_type_info(res_expr, env);
+                if (!res_info || res_info->base_type != TYPE_UNION || !res_info->generic_name || strcmp(res_info->generic_name, "Result") != 0 || res_info->type_param_count < 2) {
+                    return TYPE_UNKNOWN;
+                }
+
+                int idx = (strcmp(expr->as.call.name, "result_unwrap_err") == 0) ? 1 : 0;
+                TypeInfo *param = res_info->type_params[idx];
+                const char *struct_name = NULL;
+                Type out_type = type_from_typeinfo(param, &struct_name);
+                if (out_type == TYPE_STRUCT && struct_name) {
+                    if (expr->as.call.return_struct_type_name) free(expr->as.call.return_struct_type_name);
+                    expr->as.call.return_struct_type_name = strdup(struct_name);
+                }
+
+                if (strcmp(expr->as.call.name, "result_unwrap_or") == 0) {
+                    Type default_type = check_expression(expr->as.call.args[1], env);
+                    if (default_type != out_type) {
+                        fprintf(stderr, "Error at line %d, column %d: result_unwrap_or default value type mismatch\n",
+                                expr->line, expr->column);
+                    }
+                }
+
+                return out_type;
+            }
+
+            if (strcmp(expr->as.call.name, "result_map") == 0 || strcmp(expr->as.call.name, "result_and_then") == 0) {
+                if (expr->as.call.arg_count != 2) {
+                    fprintf(stderr, "Error at line %d, column %d: %s requires 2 arguments\n",
+                            expr->line, expr->column, expr->as.call.name);
+                    return TYPE_UNKNOWN;
+                }
+                check_expression(expr->as.call.args[0], env);
+                check_expression(expr->as.call.args[1], env);
+                return TYPE_UNION;
             }
             
             /* Check if function exists */
@@ -1852,6 +1941,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                             TypeInfo *param = info->type_params[i];
                             if (param->base_type == TYPE_INT) {
                                 type_names[i] = strdup("int");
+                            } else if (param->base_type == TYPE_U8) {
+                                type_names[i] = strdup("u8");
                             } else if (param->base_type == TYPE_STRING) {
                                 type_names[i] = strdup("string");
                             } else if (param->base_type == TYPE_BOOL) {
@@ -4270,6 +4361,47 @@ bool type_check_module(ASTNode *program, Environment *env) {
             
             /* Set current function return type for return statement checking */
             tc.current_function_return_type = item->as.function.return_type;
+
+            /* Register generic union instantiation for function return type */
+            if (item->as.function.return_type == TYPE_UNION &&
+                item->as.function.return_type_info &&
+                item->as.function.return_type_info->generic_name &&
+                item->as.function.return_type_info->type_param_count > 0) {
+                TypeInfo *info = item->as.function.return_type_info;
+
+                /* Best-effort: only register if the generic union exists */
+                UnionDef *udef = env_get_union(env, info->generic_name);
+                if (udef && udef->generic_param_count == info->type_param_count) {
+                    char **type_names = malloc(sizeof(char*) * info->type_param_count);
+                    for (int ti = 0; ti < info->type_param_count; ti++) {
+                        TypeInfo *param = info->type_params[ti];
+                        if (param->base_type == TYPE_INT) {
+                            type_names[ti] = strdup("int");
+                        } else if (param->base_type == TYPE_U8) {
+                            type_names[ti] = strdup("u8");
+                        } else if (param->base_type == TYPE_STRING) {
+                            type_names[ti] = strdup("string");
+                        } else if (param->base_type == TYPE_BOOL) {
+                            type_names[ti] = strdup("bool");
+                        } else if (param->base_type == TYPE_FLOAT) {
+                            type_names[ti] = strdup("float");
+                        } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
+                            type_names[ti] = strdup(param->generic_name);
+                        } else {
+                            type_names[ti] = strdup("unknown");
+                        }
+                    }
+
+                    env_register_union_instantiation(env, info->generic_name,
+                                                    (const char**)type_names,
+                                                    info->type_param_count);
+
+                    for (int ti = 0; ti < info->type_param_count; ti++) {
+                        free(type_names[ti]);
+                    }
+                    free(type_names);
+                }
+            }
             
             /* Add function parameters to environment */
             for (int j = 0; j < item->as.function.param_count; j++) {

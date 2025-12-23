@@ -1,0 +1,98 @@
+/* =============================================================================
+ * std::fs - traversal + glob + path utilities
+ * =============================================================================
+ */
+
+module std_fs
+
+pub fn walkdir(root: string) -> array<string> {
+    return (fs_walkdir root)
+}
+
+pub fn normalize(path: string) -> string {
+    return (path_normalize path)
+}
+
+pub fn join(a: string, b: string) -> string {
+    return (path_join a b)
+}
+
+pub fn basename(path: string) -> string {
+    return (path_basename path)
+}
+
+pub fn dirname(path: string) -> string {
+    return (path_dirname path)
+}
+
+fn glob_match_impl(pattern: string, pi: int, text: string, ti: int) -> bool {
+    let plen: int = (str_length pattern)
+    let tlen: int = (str_length text)
+
+    if (== pi plen) {
+        return (== ti tlen)
+    }
+
+    let pc: int = (char_at pattern pi)
+
+    /* '*' */
+    if (== pc 42) {
+        let mut pi2: int = pi
+        while (and (< pi2 plen) (== (char_at pattern pi2) 42)) {
+            set pi2 (+ pi2 1)
+        }
+
+        /* Trailing '*' matches everything */
+        if (== pi2 plen) {
+            return true
+        }
+
+        let mut t: int = ti
+        while (<= t tlen) {
+            if (glob_match_impl pattern pi2 text t) {
+                return true
+            }
+            set t (+ t 1)
+        }
+
+        return false
+    }
+
+    if (== ti tlen) {
+        return false
+    }
+
+    /* '?' */
+    if (== pc 63) {
+        return (glob_match_impl pattern (+ pi 1) text (+ ti 1))
+    }
+
+    if (== pc (char_at text ti)) {
+        return (glob_match_impl pattern (+ pi 1) text (+ ti 1))
+    }
+
+    return false
+}
+
+pub fn glob_match(pattern: string, text: string) -> bool {
+    return (glob_match_impl pattern 0 text 0)
+}
+
+pub fn glob(root: string, pattern: string) -> array<string> {
+    let files: array<string> = (walkdir root)
+    let mut out: array<string> = []
+
+    let n: int = (array_length files)
+    let mut i: int = 0
+
+    while (< i n) {
+        let p: string = (at files i)
+        let b: string = (basename p)
+        if (glob_match pattern b) {
+            set out (array_push out p)
+        }
+        set i (+ i 1)
+    }
+
+    return out
+}

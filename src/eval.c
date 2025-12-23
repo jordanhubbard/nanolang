@@ -15,6 +15,8 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <libgen.h>
+#include <sys/wait.h>
+#include <spawn.h>
 #include <math.h>
 
 
@@ -500,6 +502,103 @@ static Value builtin_path_dirname(Value *args) {
     return result;
 }
 
+static char* nl_path_normalize(const char* path) {
+    if (!path) return strdup("");
+    bool abs = (path[0] == '/');
+    char* copy = strdup(path);
+    if (!copy) return strdup("");
+
+    const char* parts[512];
+    int count = 0;
+    char* save = NULL;
+    char* tok = strtok_r(copy, "/", &save);
+    while (tok) {
+        if (tok[0] == '\0' || strcmp(tok, ".") == 0) {
+            /* skip */
+        } else if (strcmp(tok, "..") == 0) {
+            if (count > 0 && strcmp(parts[count - 1], "..") != 0) {
+                count--;
+            } else if (!abs) {
+                parts[count++] = tok;
+            }
+        } else {
+            if (count < 512) parts[count++] = tok;
+        }
+        tok = strtok_r(NULL, "/", &save);
+    }
+
+    size_t cap = strlen(path) + 3;
+    char* out = malloc(cap);
+    if (!out) { free(copy); return strdup(""); }
+    size_t pos = 0;
+    if (abs) out[pos++] = '/';
+    for (int i = 0; i < count; i++) {
+        size_t len = strlen(parts[i]);
+        if (pos + len + 2 > cap) {
+            cap = (pos + len + 2) * 2;
+            char* n = realloc(out, cap);
+            if (!n) { free(out); free(copy); return strdup(""); }
+            out = n;
+        }
+        if (pos > 0 && out[pos - 1] != '/') out[pos++] = '/';
+        memcpy(out + pos, parts[i], len);
+        pos += len;
+    }
+    if (pos == 0) {
+        if (abs) out[pos++] = '/';
+        else out[pos++] = '.';
+    }
+    out[pos] = '\0';
+
+    free(copy);
+    return out;
+}
+
+static Value builtin_path_normalize(Value *args) {
+    char* norm = nl_path_normalize(args[0].as.string_val);
+    Value v = create_string(norm);
+    free(norm);
+    return v;
+}
+
+static void nl_walkdir_rec(const char* root, DynArray* out) {
+    DIR* dir = opendir(root);
+    if (!dir) return;
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
+        size_t root_len = strlen(root);
+        size_t name_len = strlen(entry->d_name);
+        bool needs_slash = (root_len > 0 && root[root_len - 1] != '/');
+        size_t cap = root_len + (needs_slash ? 1 : 0) + name_len + 1;
+        char* path = malloc(cap);
+        if (!path) continue;
+        if (needs_slash) snprintf(path, cap, "%s/%s", root, entry->d_name);
+        else snprintf(path, cap, "%s%s", root, entry->d_name);
+
+        struct stat st;
+        if (stat(path, &st) != 0) { free(path); continue; }
+        if (S_ISDIR(st.st_mode)) {
+            nl_walkdir_rec(path, out);
+            free(path);
+        } else if (S_ISREG(st.st_mode)) {
+            dyn_array_push_string(out, path);
+        } else {
+            free(path);
+        }
+    }
+    closedir(dir);
+}
+
+static Value builtin_fs_walkdir(Value *args) {
+    const char* root = args[0].as.string_val;
+    DynArray* out = dyn_array_new(ELEM_STRING);
+    if (root && root[0] != '\0') {
+        nl_walkdir_rec(root, out);
+    }
+    return create_dyn_array(out);
+}
+
 /* Process Operations */
 static Value builtin_system(Value *args) {
     const char *command = args[0].as.string_val;
@@ -516,6 +615,185 @@ static Value builtin_getenv(Value *args) {
     const char *name = args[0].as.string_val;
     const char *value = getenv(name);
     return create_string(value ? value : "");
+}
+
+static Value builtin_setenv(Value *args) {
+    const char *name = args[0].as.string_val;
+    const char *value = args[1].as.string_val;
+    int overwrite = (int)args[2].as.int_val;
+    return create_int(setenv(name, value, overwrite) == 0 ? 0 : -1);
+}
+
+static Value builtin_unsetenv(Value *args) {
+    const char *name = args[0].as.string_val;
+    return create_int(unsetenv(name) == 0 ? 0 : -1);
+}
+
+static char* nl_read_all_fd(int fd) {
+    size_t cap = 4096;
+    size_t len = 0;
+    char* buf = malloc(cap);
+    if (!buf) return strdup("");
+    while (1) {
+        if (len + 1 >= cap) {
+            cap *= 2;
+            char* n = realloc(buf, cap);
+            if (!n) { free(buf); return strdup(""); }
+            buf = n;
+        }
+        ssize_t r = read(fd, buf + len, cap - len - 1);
+        if (r <= 0) break;
+        len += (size_t)r;
+    }
+    buf[len] = '\0';
+    return buf;
+}
+
+static Value builtin_process_run(Value *args) {
+    const char* command = args[0].as.string_val;
+    DynArray* out = dyn_array_new(ELEM_STRING);
+
+    int out_pipe[2];
+    int err_pipe[2];
+    if (pipe(out_pipe) != 0 || pipe(err_pipe) != 0) {
+        dyn_array_push_string(out, strdup("-1"));
+        dyn_array_push_string(out, strdup(""));
+        dyn_array_push_string(out, strdup(""));
+        return create_dyn_array(out);
+    }
+
+    posix_spawn_file_actions_t actions;
+    posix_spawn_file_actions_init(&actions);
+    posix_spawn_file_actions_adddup2(&actions, out_pipe[1], STDOUT_FILENO);
+    posix_spawn_file_actions_adddup2(&actions, err_pipe[1], STDERR_FILENO);
+    posix_spawn_file_actions_addclose(&actions, out_pipe[0]);
+    posix_spawn_file_actions_addclose(&actions, err_pipe[0]);
+
+    pid_t pid = 0;
+    char* argv[] = { "sh", "-c", (char*)command, NULL };
+    extern char **environ;
+    int rc = posix_spawn(&pid, "/bin/sh", &actions, NULL, argv, environ);
+    posix_spawn_file_actions_destroy(&actions);
+
+    close(out_pipe[1]);
+    close(err_pipe[1]);
+
+    char* out_s = nl_read_all_fd(out_pipe[0]);
+    char* err_s = nl_read_all_fd(err_pipe[0]);
+    close(out_pipe[0]);
+    close(err_pipe[0]);
+
+    int code = -1;
+    if (rc != 0) {
+        code = rc;
+    } else {
+        int status = 0;
+        (void)waitpid(pid, &status, 0);
+        if (WIFEXITED(status)) code = WEXITSTATUS(status);
+        else if (WIFSIGNALED(status)) code = 128 + WTERMSIG(status);
+        else code = -1;
+    }
+
+    char code_buf[64];
+    snprintf(code_buf, sizeof(code_buf), "%d", code);
+    dyn_array_push_string(out, strdup(code_buf));
+    dyn_array_push_string(out, out_s);
+    dyn_array_push_string(out, err_s);
+    return create_dyn_array(out);
+}
+
+static Value builtin_result_is_ok(Value *args) {
+    if (args[0].type != VAL_UNION) return create_bool(false);
+    UnionValue *uv = args[0].as.union_val;
+    return create_bool(uv && strcmp(uv->variant_name, "Ok") == 0);
+}
+
+static Value builtin_result_is_err(Value *args) {
+    if (args[0].type != VAL_UNION) return create_bool(false);
+    UnionValue *uv = args[0].as.union_val;
+    return create_bool(uv && strcmp(uv->variant_name, "Err") == 0);
+}
+
+static Value builtin_result_unwrap(Value *args) {
+    if (args[0].type != VAL_UNION) {
+        fprintf(stderr, "panic: result_unwrap called on non-union\n");
+        exit(1);
+    }
+    UnionValue *uv = args[0].as.union_val;
+    if (!uv || strcmp(uv->variant_name, "Ok") != 0 || uv->field_count < 1) {
+        fprintf(stderr, "panic: result_unwrap on non-Ok\n");
+        exit(1);
+    }
+    return uv->field_values[0];
+}
+
+static Value builtin_result_unwrap_err(Value *args) {
+    if (args[0].type != VAL_UNION) {
+        fprintf(stderr, "panic: result_unwrap_err called on non-union\n");
+        exit(1);
+    }
+    UnionValue *uv = args[0].as.union_val;
+    if (!uv || strcmp(uv->variant_name, "Err") != 0 || uv->field_count < 1) {
+        fprintf(stderr, "panic: result_unwrap_err on non-Err\n");
+        exit(1);
+    }
+    return uv->field_values[0];
+}
+
+static Value builtin_result_unwrap_or(Value *args) {
+    if (args[0].type != VAL_UNION) return args[1];
+    UnionValue *uv = args[0].as.union_val;
+    if (uv && strcmp(uv->variant_name, "Ok") == 0 && uv->field_count >= 1) {
+        return uv->field_values[0];
+    }
+    return args[1];
+}
+
+static Value builtin_result_map(Value *args, Environment *env) {
+    if (args[0].type != VAL_UNION) return args[0];
+    if (args[1].type != VAL_FUNCTION) {
+        fprintf(stderr, "panic: result_map requires a function\n");
+        exit(1);
+    }
+
+    UnionValue *uv = args[0].as.union_val;
+    if (!uv || strcmp(uv->variant_name, "Ok") != 0 || uv->field_count < 1) {
+        return args[0];
+    }
+
+    Value call_args[1];
+    call_args[0] = uv->field_values[0];
+    const char *fn_name = args[1].as.function_val.function_name;
+    Value mapped = call_function(fn_name, call_args, 1, env);
+    mapped.is_return = false;
+
+    char *field_names[1] = { "value" };
+    Value field_values[1] = { mapped };
+    return create_union(uv->union_name, 0, "Ok", field_names, field_values, 1);
+}
+
+static Value builtin_result_and_then(Value *args, Environment *env) {
+    if (args[0].type != VAL_UNION) return args[0];
+    if (args[1].type != VAL_FUNCTION) {
+        fprintf(stderr, "panic: result_and_then requires a function\n");
+        exit(1);
+    }
+
+    UnionValue *uv = args[0].as.union_val;
+    if (!uv || strcmp(uv->variant_name, "Ok") != 0 || uv->field_count < 1) {
+        return args[0];
+    }
+
+    Value call_args[1];
+    call_args[0] = uv->field_values[0];
+    const char *fn_name = args[1].as.function_val.function_name;
+    Value next = call_function(fn_name, call_args, 1, env);
+    next.is_return = false;
+    if (next.type != VAL_UNION) {
+        fprintf(stderr, "panic: result_and_then callback did not return a Result\n");
+        exit(1);
+    }
+    return next;
 }
 
 /* ==========================================================================
@@ -2718,6 +2996,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "dir_exists") == 0) return builtin_dir_exists(args);
     if (strcmp(name, "getcwd") == 0) return builtin_getcwd(args);
     if (strcmp(name, "chdir") == 0) return builtin_chdir(args);
+    if (strcmp(name, "fs_walkdir") == 0) return builtin_fs_walkdir(args);
 
     /* Path operations */
     if (strcmp(name, "path_isfile") == 0) return builtin_path_isfile(args);
@@ -2725,11 +3004,24 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "path_join") == 0) return builtin_path_join(args);
     if (strcmp(name, "path_basename") == 0) return builtin_path_basename(args);
     if (strcmp(name, "path_dirname") == 0) return builtin_path_dirname(args);
+    if (strcmp(name, "path_normalize") == 0) return builtin_path_normalize(args);
 
     /* Process operations */
     if (strcmp(name, "system") == 0) return builtin_system(args);
     if (strcmp(name, "exit") == 0) return builtin_exit(args);
     if (strcmp(name, "getenv") == 0) return builtin_getenv(args);
+    if (strcmp(name, "setenv") == 0) return builtin_setenv(args);
+    if (strcmp(name, "unsetenv") == 0) return builtin_unsetenv(args);
+    if (strcmp(name, "process_run") == 0) return builtin_process_run(args);
+
+    /* Result helpers */
+    if (strcmp(name, "result_is_ok") == 0) return builtin_result_is_ok(args);
+    if (strcmp(name, "result_is_err") == 0) return builtin_result_is_err(args);
+    if (strcmp(name, "result_unwrap") == 0) return builtin_result_unwrap(args);
+    if (strcmp(name, "result_unwrap_err") == 0) return builtin_result_unwrap_err(args);
+    if (strcmp(name, "result_unwrap_or") == 0) return builtin_result_unwrap_or(args);
+    if (strcmp(name, "result_map") == 0) return builtin_result_map(args, env);
+    if (strcmp(name, "result_and_then") == 0) return builtin_result_and_then(args, env);
 
     /* Math and utility functions */
     if (strcmp(name, "abs") == 0) return builtin_abs(args);

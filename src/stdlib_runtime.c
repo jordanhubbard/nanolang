@@ -815,6 +815,59 @@ void generate_path_operations(StringBuilder *sb) {
     sb_append(sb, "    free(path_copy);\n");
     sb_append(sb, "    return result;\n");
     sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static char* nl_os_path_normalize(const char* path) {\n");
+    sb_append(sb, "    if (!path) return \"\";\n");
+    sb_append(sb, "    bool abs = (path[0] == '/');\n");
+    sb_append(sb, "    char* copy = strdup(path);\n");
+    sb_append(sb, "    if (!copy) return \"\";\n");
+    sb_append(sb, "\n");
+    sb_append(sb, "    const char* parts[512];\n");
+    sb_append(sb, "    int count = 0;\n");
+    sb_append(sb, "    char* save = NULL;\n");
+    sb_append(sb, "    char* tok = strtok_r(copy, \"/\", &save);\n");
+    sb_append(sb, "    while (tok) {\n");
+    sb_append(sb, "        if (strcmp(tok, \"\") == 0 || strcmp(tok, \".\") == 0) {\n");
+    sb_append(sb, "            /* skip */\n");
+    sb_append(sb, "        } else if (strcmp(tok, \"..\") == 0) {\n");
+    sb_append(sb, "            if (count > 0 && strcmp(parts[count - 1], \"..\") != 0) {\n");
+    sb_append(sb, "                count--;\n");
+    sb_append(sb, "            } else if (!abs) {\n");
+    sb_append(sb, "                parts[count++] = tok;\n");
+    sb_append(sb, "            }\n");
+    sb_append(sb, "        } else {\n");
+    sb_append(sb, "            if (count < 512) parts[count++] = tok;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        tok = strtok_r(NULL, \"/\", &save);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "\n");
+    sb_append(sb, "    size_t cap = strlen(path) + 3;\n");
+    sb_append(sb, "    char* out = malloc(cap);\n");
+    sb_append(sb, "    if (!out) { free(copy); return \"\"; }\n");
+    sb_append(sb, "    size_t pos = 0;\n");
+    sb_append(sb, "    if (abs) out[pos++] = '/';\n");
+    sb_append(sb, "\n");
+    sb_append(sb, "    for (int i = 0; i < count; i++) {\n");
+    sb_append(sb, "        size_t len = strlen(parts[i]);\n");
+    sb_append(sb, "        if (pos + len + 2 > cap) {\n");
+    sb_append(sb, "            cap = (pos + len + 2) * 2;\n");
+    sb_append(sb, "            char* n = realloc(out, cap);\n");
+    sb_append(sb, "            if (!n) { free(out); free(copy); return \"\"; }\n");
+    sb_append(sb, "            out = n;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        if (pos > 0 && out[pos - 1] != '/') out[pos++] = '/';\n");
+    sb_append(sb, "        memcpy(out + pos, parts[i], len);\n");
+    sb_append(sb, "        pos += len;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "\n");
+    sb_append(sb, "    if (pos == 0) {\n");
+    sb_append(sb, "        if (abs) { out[pos++] = '/'; } else { out[pos++] = '.'; }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    out[pos] = '\\0';\n");
+    sb_append(sb, "\n");
+    sb_append(sb, "    free(copy);\n");
+    sb_append(sb, "    return out;\n");
+    sb_append(sb, "}\n\n");
 }
 
 /* Generate directory operations for OS stdlib */
@@ -872,6 +925,42 @@ void generate_dir_operations(StringBuilder *sb) {
 
     sb_append(sb, "static int64_t nl_os_chdir(const char* path) {\n");
     sb_append(sb, "    return chdir(path) == 0 ? 0 : -1;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static void nl_os_walkdir_rec(const char* root, DynArray* out) {\n");
+    sb_append(sb, "    DIR* dir = opendir(root);\n");
+    sb_append(sb, "    if (!dir) return;\n");
+    sb_append(sb, "    struct dirent* entry;\n");
+    sb_append(sb, "    while ((entry = readdir(dir)) != NULL) {\n");
+    sb_append(sb, "        if (strcmp(entry->d_name, \".\") == 0 || strcmp(entry->d_name, \"..\") == 0) continue;\n");
+    sb_append(sb, "        size_t root_len = strlen(root);\n");
+    sb_append(sb, "        size_t name_len = strlen(entry->d_name);\n");
+    sb_append(sb, "        bool needs_slash = (root_len > 0 && root[root_len - 1] != '/');\n");
+    sb_append(sb, "        size_t cap = root_len + (needs_slash ? 1 : 0) + name_len + 1;\n");
+    sb_append(sb, "        char* path = malloc(cap);\n");
+    sb_append(sb, "        if (!path) continue;\n");
+    sb_append(sb, "        if (needs_slash) snprintf(path, cap, \"%s/%s\", root, entry->d_name);\n");
+    sb_append(sb, "        else snprintf(path, cap, \"%s%s\", root, entry->d_name);\n");
+    sb_append(sb, "\n");
+    sb_append(sb, "        struct stat st;\n");
+    sb_append(sb, "        if (stat(path, &st) != 0) { free(path); continue; }\n");
+    sb_append(sb, "        if (S_ISDIR(st.st_mode)) {\n");
+    sb_append(sb, "            nl_os_walkdir_rec(path, out);\n");
+    sb_append(sb, "            free(path);\n");
+    sb_append(sb, "        } else if (S_ISREG(st.st_mode)) {\n");
+    sb_append(sb, "            dyn_array_push_string(out, path);\n");
+    sb_append(sb, "        } else {\n");
+    sb_append(sb, "            free(path);\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    closedir(dir);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static DynArray* nl_os_walkdir(const char* root) {\n");
+    sb_append(sb, "    DynArray* out = dyn_array_new(ELEM_STRING);\n");
+    sb_append(sb, "    if (!root || root[0] == '\\0') return out;\n");
+    sb_append(sb, "    nl_os_walkdir_rec(root, out);\n");
+    sb_append(sb, "    return out;\n");
     sb_append(sb, "}\n\n");
 }
 
@@ -934,8 +1023,23 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "    return 0;\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "static int64_t nl_os_file_delete(const char* path) {\n");
+    sb_append(sb, "static int64_t nl_os_file_remove(const char* path) {\n");
     sb_append(sb, "    return remove(path) == 0 ? 0 : -1;\n");
+    sb_append(sb, "}\n\n");
+
+    /* Backwards-compat alias */
+    sb_append(sb, "static int64_t nl_os_file_delete(const char* path) {\n");
+    sb_append(sb, "    return nl_os_file_remove(path);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static int64_t nl_os_file_rename(const char* old_path, const char* new_path) {\n");
+    sb_append(sb, "    return rename(old_path, new_path) == 0 ? 0 : -1;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static int64_t nl_os_file_size(const char* path) {\n");
+    sb_append(sb, "    struct stat st;\n");
+    sb_append(sb, "    if (stat(path, &st) != 0) return -1;\n");
+    sb_append(sb, "    return (int64_t)st.st_size;\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static bool nl_os_file_exists(const char* path) {\n");

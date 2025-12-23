@@ -3,11 +3,13 @@
 /* This module also has functions with same names as math_helper */
 /* to test that aliases prevent naming conflicts */
 
-fn cube(s: string) -> string {
+module strings
+
+pub fn cube(s: string) -> string {
     return (str_concat s (str_concat s s))
 }
 
-fn test_strings() -> int {
+pub fn test_strings() -> int {
     let result: string = (cube "Hi")
     if (str_equals result "HiHiHi") {
         return 1

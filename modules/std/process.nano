@@ -1,0 +1,25 @@
+/* =============================================================================
+ * std::process
+ * =============================================================================
+ */
+
+module std_process
+
+pub struct Output {
+    code: int
+    stdout: string
+    stderr: string
+}
+
+pub fn run(command: string) -> Output {
+    let raw: array<string> = (process_run command)
+    let code_s: string = (at raw 0)
+    let out: string = (at raw 1)
+    let err: string = (at raw 2)
+    let code: int = (string_to_int code_s)
+    return Output { code: code, stdout: out, stderr: err }
+}
+
+pub fn exec(command: string) -> int {
+    return (system command)
+}

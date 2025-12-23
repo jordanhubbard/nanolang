@@ -159,9 +159,31 @@ static const FunctionMapping function_map[] = {
     {"file_read", "nl_os_file_read"},
     {"file_read_bytes", "nl_os_file_read_bytes"},
     {"file_write", "nl_os_file_write"},
+    {"file_append", "nl_os_file_append"},
+    {"file_remove", "nl_os_file_remove"},
+    {"file_rename", "nl_os_file_rename"},
+    {"file_exists", "nl_os_file_exists"},
+    {"file_size", "nl_os_file_size"},
     {"tmp_dir", "nl_os_tmp_dir"},
     {"mktemp", "nl_os_mktemp"},
     {"mktemp_dir", "nl_os_mktemp_dir"},
+    {"dir_create", "nl_os_dir_create"},
+    {"dir_remove", "nl_os_dir_remove"},
+    {"dir_list", "nl_os_dir_list"},
+    {"dir_exists", "nl_os_dir_exists"},
+    {"getcwd", "nl_os_getcwd"},
+    {"chdir", "nl_os_chdir"},
+    {"fs_walkdir", "nl_os_walkdir"},
+    {"path_isfile", "nl_os_path_isfile"},
+    {"path_isdir", "nl_os_path_isdir"},
+    {"path_join", "nl_os_path_join"},
+    {"path_basename", "nl_os_path_basename"},
+    {"path_dirname", "nl_os_path_dirname"},
+    {"path_normalize", "nl_os_path_normalize"},
+    {"system", "nl_os_system"},
+    {"exit", "nl_os_exit"},
+    {"getenv", "nl_os_getenv"},
+    {"process_run", "nl_os_process_run"},
     {"abs", "nl_abs"},
     {"min", "nl_min"},
     {"max", "nl_max"},
@@ -787,6 +809,49 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 } else {
                     emit_literal(list, "\"<unknown>\"");
                 }
+            }
+
+            /* Result<T,E> helpers (intrinsics; generic-function stopgap) */
+            else if (strcmp(func_name, "result_is_ok") == 0 && expr->as.call.arg_count == 1) {
+                emit_literal(list, "({ __auto_type _r = ");
+                build_expr(list, expr->as.call.args[0], env);
+                emit_literal(list, "; (_r.tag == 0); })");
+            }
+            else if (strcmp(func_name, "result_is_err") == 0 && expr->as.call.arg_count == 1) {
+                emit_literal(list, "({ __auto_type _r = ");
+                build_expr(list, expr->as.call.args[0], env);
+                emit_literal(list, "; (_r.tag != 0); })");
+            }
+            else if (strcmp(func_name, "result_unwrap") == 0 && expr->as.call.arg_count == 1) {
+                emit_literal(list, "({ __auto_type _r = ");
+                build_expr(list, expr->as.call.args[0], env);
+                emit_literal(list, "; if (_r.tag != 0) { fprintf(stderr, \"panic: unwrap Err\\n\"); exit(1); } _r.data.Ok.value; })");
+            }
+            else if (strcmp(func_name, "result_unwrap_err") == 0 && expr->as.call.arg_count == 1) {
+                emit_literal(list, "({ __auto_type _r = ");
+                build_expr(list, expr->as.call.args[0], env);
+                emit_literal(list, "; if (_r.tag == 0) { fprintf(stderr, \"panic: unwrap_err Ok\\n\"); exit(1); } _r.data.Err.error; })");
+            }
+            else if (strcmp(func_name, "result_unwrap_or") == 0 && expr->as.call.arg_count == 2) {
+                emit_literal(list, "({ __auto_type _r = ");
+                build_expr(list, expr->as.call.args[0], env);
+                emit_literal(list, "; __auto_type _d = ");
+                build_expr(list, expr->as.call.args[1], env);
+                emit_literal(list, "; (_r.tag == 0) ? _r.data.Ok.value : _d; })");
+            }
+            else if (strcmp(func_name, "result_map") == 0 && expr->as.call.arg_count == 2) {
+                emit_literal(list, "({ __auto_type _r = ");
+                build_expr(list, expr->as.call.args[0], env);
+                emit_literal(list, "; __auto_type _f = ");
+                build_expr(list, expr->as.call.args[1], env);
+                emit_literal(list, "; if (_r.tag == 0) { _r.data.Ok.value = _f(_r.data.Ok.value); } _r; })");
+            }
+            else if (strcmp(func_name, "result_and_then") == 0 && expr->as.call.arg_count == 2) {
+                emit_literal(list, "({ __auto_type _r = ");
+                build_expr(list, expr->as.call.args[0], env);
+                emit_literal(list, "; __auto_type _f = ");
+                build_expr(list, expr->as.call.args[1], env);
+                emit_literal(list, "; (_r.tag == 0) ? _f(_r.data.Ok.value) : _r; })");
             }
 
             /* Special handling for filter() - compiled lowering */

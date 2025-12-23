@@ -402,6 +402,7 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1)
 		src="$$comp"; \
 		if [ "$$comp" = "parser" ]; then src="parser_driver"; fi; \
 		if [ "$$comp" = "typecheck" ]; then src="typecheck_driver"; fi; \
+		if [ "$$comp" = "transpiler" ]; then src="transpiler_driver"; fi; \
 		out="$(BIN_DIR)/$$comp"; \
 		log="/tmp/nanolang_stage2_$$comp.log"; \
 		echo "  Building $$comp..."; \

@@ -1,26 +1,39 @@
 import "src_nano/compiler/lexer.nano"
 import "src_nano/parser.nano"
+import "std/diagnostics.nano"
+import "std/result.nano"
 
 fn parse_nanoc() -> int {
-    let tokens: List<LexToken> = (tokenize_file "src_nano/nanoc.nano")
-    let count: int = (list_LexToken_length tokens)
-    let p: Parser = (parse_program tokens count)
-    if (parser_has_error p) {
-        let tok: LexToken = (parser_current p)
-        (print "Parse failed at token #")
-        (print (int_to_string (parser_position p)))
-        (print ": line ")
-        (print (int_to_string tok.line))
-        (print ", col ")
-        (print (int_to_string tok.column))
-        (print ", type ")
-        (print (int_to_string tok.token_type))
-        (print ", value='")
-        (print tok.value)
-        (println "'")
-        return 1
-    } else {
-        return 0
+    let r: Result<TokenList, Diagnostic> = (tokenize_file_result "src_nano/nanoc.nano")
+    match r {
+        Ok(v) => {
+            let tokens: List<LexToken> = v.value.tokens
+            let count: int = (list_LexToken_length tokens)
+            let p: Parser = (parse_program tokens count)
+            if (parser_has_error p) {
+                let tok: LexToken = (parser_current p)
+                (print "Parse failed at token #")
+                (print (int_to_string (parser_position p)))
+                (print ": line ")
+                (print (int_to_string tok.line))
+                (print ", col ")
+                (print (int_to_string tok.column))
+                (print ", type ")
+                (print (int_to_string tok.token_type))
+                (print ", value='")
+                (print tok.value)
+                (println "'")
+                return 1
+            } else {
+                return 0
+            }
+        }
+        Err(e) => {
+            let d: Diagnostic = e.error
+            (print "Lex error: ")
+            (println d.message)
+            return 1
+        }
     }
 }
 

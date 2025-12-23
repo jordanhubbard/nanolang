@@ -113,6 +113,8 @@ static bool build_monomorphized_name_from_typeinfo(char *dest, size_t dest_size,
         
         if (param->base_type == TYPE_INT) {
             type_names[i] = "int";
+        } else if (param->base_type == TYPE_U8) {
+            type_names[i] = "u8";
         } else if (param->base_type == TYPE_STRING) {
             type_names[i] = "string";
         } else if (param->base_type == TYPE_BOOL) {
@@ -991,6 +993,8 @@ static void generate_c_headers(StringBuilder *sb) {
     sb_append(sb, "#include <stdarg.h>\n");
     sb_append(sb, "#include <math.h>\n");
     sb_append(sb, "#include \"runtime/nl_string.h\"\n");
+    sb_append(sb, "#include \"runtime/gc.h\"\n");
+    sb_append(sb, "#include \"runtime/dyn_array.h\"\n");
     
     /* Include headers from imported modules (generic C library support) */
     if (g_module_headers_count > 0) {
@@ -1015,6 +1019,9 @@ static void generate_c_headers(StringBuilder *sb) {
     sb_append(sb, "#include <dirent.h>\n");
     sb_append(sb, "#include <unistd.h>\n");
     sb_append(sb, "#include <libgen.h>\n");
+    sb_append(sb, "#include <sys/wait.h>\n");
+    sb_append(sb, "#include <spawn.h>\n");
+    sb_append(sb, "#include <fcntl.h>\n");
     sb_append(sb, "\n");
 }
 
@@ -2227,11 +2234,11 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
         ASTNode *item = program->as.program.items[i];
         if (!item || item->type != AST_IMPORT) continue;
 
-        char *resolved = resolve_module_path(item->as.import_stmt.module_path, NULL);
+        const char *resolved = resolve_module_path(item->as.import_stmt.module_path, NULL);
         if (!resolved) continue;
 
         ASTNode *module_ast = get_cached_module_ast(resolved);
-        free(resolved);
+        free((char*)resolved);  /* Cast away const for free() */
         if (!module_ast || module_ast->type != AST_PROGRAM) continue;
 
         const char *module_name = NULL;
@@ -2287,8 +2294,25 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                 } else {
                     sb_append(sb, get_prefixed_type_name(mi->as.function.return_struct_type_name));
                 }
-            } else if (mi->as.function.return_type == TYPE_UNION && mi->as.function.return_struct_type_name) {
-                sb_append(sb, get_prefixed_type_name(mi->as.function.return_struct_type_name));
+            } else if (mi->as.function.return_type == TYPE_UNION) {
+                if (mi->as.function.return_type_info &&
+                    mi->as.function.return_type_info->generic_name &&
+                    mi->as.function.return_type_info->type_param_count > 0) {
+                    char monomorphized_name[256];
+                    if (!build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            mi->as.function.return_type_info->generic_name,
+                            mi->as.function.return_type_info->type_params,
+                            mi->as.function.return_type_info->type_param_count)) {
+                        sb_append(sb, type_to_c(mi->as.function.return_type));
+                    } else {
+                        sb_append(sb, get_prefixed_type_name(monomorphized_name));
+                    }
+                } else if (mi->as.function.return_struct_type_name) {
+                    sb_append(sb, get_prefixed_type_name(mi->as.function.return_struct_type_name));
+                } else {
+                    sb_append(sb, type_to_c(mi->as.function.return_type));
+                }
             } else if (mi->as.function.return_type == TYPE_LIST_GENERIC && mi->as.function.return_struct_type_name) {
                 sb_appendf(sb, "List_%s*", mi->as.function.return_struct_type_name);
             } else if (mi->as.function.return_type == TYPE_FUNCTION) {
@@ -2638,6 +2662,84 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "    const char* value = getenv(name);\n");
     sb_append(sb, "    return value ? (char*)value : \"\";\n");
     sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static char* nl_os_read_all_fd(int fd) {\n");
+    sb_append(sb, "    size_t cap = 4096;\n");
+    sb_append(sb, "    size_t len = 0;\n");
+    sb_append(sb, "    char* buf = malloc(cap);\n");
+    sb_append(sb, "    if (!buf) return strdup(\"\");\n");
+    sb_append(sb, "    while (1) {\n");
+    sb_append(sb, "        if (len + 1 >= cap) {\n");
+    sb_append(sb, "            cap *= 2;\n");
+    sb_append(sb, "            char* n = realloc(buf, cap);\n");
+    sb_append(sb, "            if (!n) { free(buf); return strdup(\"\"); }\n");
+    sb_append(sb, "            buf = n;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        ssize_t r = read(fd, buf + len, cap - len - 1);\n");
+    sb_append(sb, "        if (r <= 0) break;\n");
+    sb_append(sb, "        len += (size_t)r;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    buf[len] = '\\0';\n");
+    sb_append(sb, "    return buf;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static DynArray* nl_os_process_run(const char* command) {\n");
+    sb_append(sb, "    DynArray* out = dyn_array_new(ELEM_STRING);\n");
+    sb_append(sb, "    if (!command) {\n");
+    sb_append(sb, "        dyn_array_push_string(out, strdup(\"-1\"));\n");
+    sb_append(sb, "        dyn_array_push_string(out, strdup(\"\"));\n");
+    sb_append(sb, "        dyn_array_push_string(out, strdup(\"\"));\n");
+    sb_append(sb, "        return out;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "\n");
+    sb_append(sb, "    int out_pipe[2];\n");
+    sb_append(sb, "    int err_pipe[2];\n");
+    sb_append(sb, "    if (pipe(out_pipe) != 0 || pipe(err_pipe) != 0) {\n");
+    sb_append(sb, "        dyn_array_push_string(out, strdup(\"-1\"));\n");
+    sb_append(sb, "        dyn_array_push_string(out, strdup(\"\"));\n");
+    sb_append(sb, "        dyn_array_push_string(out, strdup(\"\"));\n");
+    sb_append(sb, "        return out;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "\n");
+    sb_append(sb, "    posix_spawn_file_actions_t actions;\n");
+    sb_append(sb, "    posix_spawn_file_actions_init(&actions);\n");
+    sb_append(sb, "    posix_spawn_file_actions_adddup2(&actions, out_pipe[1], STDOUT_FILENO);\n");
+    sb_append(sb, "    posix_spawn_file_actions_adddup2(&actions, err_pipe[1], STDERR_FILENO);\n");
+    sb_append(sb, "    posix_spawn_file_actions_addclose(&actions, out_pipe[0]);\n");
+    sb_append(sb, "    posix_spawn_file_actions_addclose(&actions, err_pipe[0]);\n");
+    sb_append(sb, "\n");
+    sb_append(sb, "    pid_t pid = 0;\n");
+    sb_append(sb, "    char* argv[] = { \"sh\", \"-c\", (char*)command, NULL };\n");
+    sb_append(sb, "    extern char **environ;\n");
+    sb_append(sb, "    int rc = posix_spawn(&pid, \"/bin/sh\", &actions, NULL, argv, environ);\n");
+    sb_append(sb, "    posix_spawn_file_actions_destroy(&actions);\n");
+    sb_append(sb, "\n");
+    sb_append(sb, "    close(out_pipe[1]);\n");
+    sb_append(sb, "    close(err_pipe[1]);\n");
+    sb_append(sb, "\n");
+    sb_append(sb, "    char* out_s = nl_os_read_all_fd(out_pipe[0]);\n");
+    sb_append(sb, "    char* err_s = nl_os_read_all_fd(err_pipe[0]);\n");
+    sb_append(sb, "    close(out_pipe[0]);\n");
+    sb_append(sb, "    close(err_pipe[0]);\n");
+    sb_append(sb, "\n");
+    sb_append(sb, "    int code = -1;\n");
+    sb_append(sb, "    if (rc != 0) {\n");
+    sb_append(sb, "        code = rc;\n");
+    sb_append(sb, "    } else {\n");
+    sb_append(sb, "        int status = 0;\n");
+    sb_append(sb, "        (void)waitpid(pid, &status, 0);\n");
+    sb_append(sb, "        if (WIFEXITED(status)) code = WEXITSTATUS(status);\n");
+    sb_append(sb, "        else if (WIFSIGNALED(status)) code = 128 + WTERMSIG(status);\n");
+    sb_append(sb, "        else code = -1;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "\n");
+    sb_append(sb, "    char code_buf[64];\n");
+    sb_append(sb, "    snprintf(code_buf, sizeof(code_buf), \"%d\", code);\n");
+    sb_append(sb, "    dyn_array_push_string(out, strdup(code_buf));\n");
+    sb_append(sb, "    dyn_array_push_string(out, out_s);\n");
+    sb_append(sb, "    dyn_array_push_string(out, err_s);\n");
+    sb_append(sb, "    return out;\n");
+    sb_append(sb, "}\n\n");
 }
 
 /* Generate C main() wrapper that calls nanolang main() */
@@ -2692,10 +2794,10 @@ static void collect_module_headers_from_imports(ASTNode *program) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_IMPORT) {
             /* Resolve module path and collect headers */
-            char *module_path = resolve_module_path(item->as.import_stmt.module_path, NULL);
+            const char *module_path = resolve_module_path(item->as.import_stmt.module_path, NULL);
             if (module_path) {
                 collect_headers_from_module(module_path);
-                free(module_path);
+                free((char*)module_path);  /* Cast away const for free() */
             }
         }
     }

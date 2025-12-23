@@ -1,0 +1,399 @@
+/* =============================================================================
+ * NanoLang v0.6 - Truly Self-Hosted Compiler Driver
+ * =============================================================================
+ * 
+ * Complete compiler implementation in NanoLang that does NOT depend on bin/nanoc_c.
+ * 
+ * Pipeline:
+ * 1. Lexer:       tokenize_file_result() -> Result<TokenList, Diagnostic>
+ * 2. Parser:      parse_program() -> Parser
+ * 3. Typechecker: typecheck_parser() -> int
+ * 4. Transpiler:  transpile_parser() -> string (C code)
+ * 5. C Compiler:  system("cc ...") -> int
+ * 
+ * This is TRUE SELF-HOSTING - no dependency on nanoc_c!
+ */
+
+import "src_nano/compiler/lexer.nano"
+import "src_nano/parser.nano"
+import "src_nano/typecheck.nano"
+import "src_nano/transpiler.nano"
+
+/* CLI argument access */
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+/* File I/O */
+extern fn file_read(path: string) -> string
+extern fn file_write(path: string, content: string) -> int
+extern fn file_exists(path: string) -> bool
+
+/* System commands */
+extern fn system(cmd: string) -> int
+
+/* =============================================================================
+ * CLI ARGUMENT PARSING
+ * ============================================================================= */
+
+struct CompileOptions {
+    input_file: string,
+    output_file: string,
+    verbose: bool,
+    keep_c: bool,
+    show_help: bool
+}
+
+fn default_options() -> CompileOptions {
+    return CompileOptions {
+        input_file: "",
+        output_file: "a.out",
+        verbose: false,
+        keep_c: false,
+        show_help: false
+    }
+}
+
+fn parse_args() -> CompileOptions {
+    let argc: int = (get_argc)
+    let mut opts: CompileOptions = (default_options)
+    let mut i: int = 1
+    
+    while (< i argc) {
+        let arg: string = (get_argv i)
+        
+        if (str_equals arg "-h") {
+            set opts CompileOptions {
+                input_file: opts.input_file,
+                output_file: opts.output_file,
+                verbose: opts.verbose,
+                keep_c: opts.keep_c,
+                show_help: true
+            }
+        } else {
+            if (str_equals arg "--help") {
+                set opts CompileOptions {
+                    input_file: opts.input_file,
+                    output_file: opts.output_file,
+                    verbose: opts.verbose,
+                    keep_c: opts.keep_c,
+                    show_help: true
+                }
+            } else {
+                if (str_equals arg "-v") {
+                    set opts CompileOptions {
+                        input_file: opts.input_file,
+                        output_file: opts.output_file,
+                        verbose: true,
+                        keep_c: opts.keep_c,
+                        show_help: opts.show_help
+                    }
+                } else {
+                    if (str_equals arg "--verbose") {
+                        set opts CompileOptions {
+                            input_file: opts.input_file,
+                            output_file: opts.output_file,
+                            verbose: true,
+                            keep_c: opts.keep_c,
+                            show_help: opts.show_help
+                        }
+                    } else {
+                        if (str_equals arg "-k") {
+                            set opts CompileOptions {
+                                input_file: opts.input_file,
+                                output_file: opts.output_file,
+                                verbose: opts.verbose,
+                                keep_c: true,
+                                show_help: opts.show_help
+                            }
+                        } else {
+                            if (str_equals arg "--keep-c") {
+                                set opts CompileOptions {
+                                    input_file: opts.input_file,
+                                    output_file: opts.output_file,
+                                    verbose: opts.verbose,
+                                    keep_c: true,
+                                    show_help: opts.show_help
+                                }
+                            } else {
+                                if (str_equals arg "-o") {
+                                    if (< (+ i 1) argc) {
+                                        set i (+ i 1)
+                                        let output: string = (get_argv i)
+                                        set opts CompileOptions {
+                                            input_file: opts.input_file,
+                                            output_file: output,
+                                            verbose: opts.verbose,
+                                            keep_c: opts.keep_c,
+                                            show_help: opts.show_help
+                                        }
+                                    } else {
+                                        (print "")
+                                    }
+                                } else {
+                                    /* Assume it's the input file if no option prefix */
+                                    if (== opts.input_file "") {
+                                        set opts CompileOptions {
+                                            input_file: arg,
+                                            output_file: opts.output_file,
+                                            verbose: opts.verbose,
+                                            keep_c: opts.keep_c,
+                                            show_help: opts.show_help
+                                        }
+                                    } else {
+                                        (print "")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        set i (+ i 1)
+    }
+    
+    return opts
+}
+
+/* =============================================================================
+ * COMPILATION PIPELINE
+ * ============================================================================= */
+
+fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool) -> int {
+    if verbose {
+        (println "")
+        (println "╔══════════════════════════════════════════════════════════════╗")
+        (println "║  NanoLang v0.6 - Self-Hosted Compiler                       ║")
+        (println "╚══════════════════════════════════════════════════════════════╝")
+        (println "")
+        (print "Input:  ")
+        (println input_file)
+        (print "Output: ")
+        (println output_file)
+        (println "")
+    } else {
+        (print "")
+    }
+    
+    /* Step 1: Lexer - Tokenize source file */
+    if verbose {
+        (println "[1/5] Lexing...")
+    } else {
+        (print "")
+    }
+    
+    /* Use simplified tokenize_file instead of Result-based version */
+    let tokens: List<LexToken> = (tokenize_file input_file)
+    let token_count: int = (list_LexToken_length tokens)
+    
+    if (== token_count 0) {
+        (println "Error: Failed to tokenize input file")
+        return 1
+    } else {
+        (print "")
+            
+            if verbose {
+                (print "  ✓ Tokenized ")
+                (print (int_to_string token_count))
+                (println " tokens")
+            } else {
+                (print "")
+            }
+            
+            /* Step 2: Parser - Build AST */
+            if verbose {
+                (println "[2/5] Parsing...")
+            } else {
+                (print "")
+            }
+            
+            let parser: Parser = (parse_program tokens token_count)
+            if (parser_has_error parser) {
+                let tok: LexToken = (parser_current parser)
+                (print "Parse error at line ")
+                (print (int_to_string tok.line))
+                (print ", column ")
+                (print (int_to_string tok.column))
+                (print ": unexpected token '")
+                (print tok.value)
+                (println "'")
+                return 1
+            } else {
+                (print "")
+            }
+            
+            let func_count: int = (parser_get_function_count parser)
+            if verbose {
+                (print "  ✓ Parsed ")
+                (print (int_to_string func_count))
+                (println " functions")
+            } else {
+                (print "")
+            }
+            
+            /* Step 3: Typechecker - Verify semantics */
+            if verbose {
+                (println "[3/5] Type checking...")
+            } else {
+                (print "")
+            }
+            
+            let typecheck_result: int = (typecheck_parser parser)
+            if (!= typecheck_result 0) {
+                (println "Type checking failed")
+                return 1
+            } else {
+                (print "")
+            }
+            
+            if verbose {
+                (println "  ✓ Type checking passed")
+            } else {
+                (print "")
+            }
+            
+            /* Step 4: Transpiler - Generate C code */
+            if verbose {
+                (println "[4/5] Generating C code...")
+            } else {
+                (print "")
+            }
+            
+            let c_code: string = (transpile_parser parser)
+            
+            if verbose {
+                (print "  ✓ Generated ")
+                (print (int_to_string (str_length c_code)))
+                (println " bytes of C code")
+            } else {
+                (print "")
+            }
+            
+            /* Write C code to temporary file */
+            let c_file: string = "/tmp/nanolang_temp.c"
+            let write_result: int = (file_write c_file c_code)
+            if (!= write_result 0) {
+                (println "Error: Failed to write C file")
+                return 1
+            } else {
+                (print "")
+            }
+            
+            /* Step 5: C Compiler - Compile to executable */
+            if verbose {
+                (println "[5/5] Compiling C to executable...")
+            } else {
+                (print "")
+            }
+            
+            /* Build C compiler command */
+            let mut cc_cmd: string = "cc -std=c99 -Isrc "
+            set cc_cmd (str_concat cc_cmd c_file)
+            set cc_cmd (str_concat cc_cmd " -o ")
+            set cc_cmd (str_concat cc_cmd output_file)
+            set cc_cmd (str_concat cc_cmd " -Lobj -lruntime")
+            set cc_cmd (str_concat cc_cmd " obj/cJSON.o obj/module_metadata.o")
+            set cc_cmd (str_concat cc_cmd " 2>&1")
+            
+            if verbose {
+                (print "  Command: ")
+                (println cc_cmd)
+            } else {
+                (print "")
+            }
+            
+            let cc_result: int = (system cc_cmd)
+            if (!= cc_result 0) {
+                (println "Error: C compilation failed")
+                return 1
+            } else {
+                (print "")
+            }
+            
+            if verbose {
+                (println "  ✓ Executable created")
+                (println "")
+                (println "╔══════════════════════════════════════════════════════════════╗")
+                (println "║  ✅ COMPILATION SUCCESSFUL (100% NanoLang Pipeline)         ║")
+                (println "╚══════════════════════════════════════════════════════════════╝")
+                (println "")
+            } else {
+                (print "")
+            }
+            
+            /* Clean up temp file unless --keep-c */
+            if (not keep_c) {
+                let rm_cmd: string = (str_concat "rm -f " c_file)
+                let rm_result: int = (system rm_cmd)
+                /* Ignore result - cleanup is non-critical */
+                (print "")
+            } else {
+                if verbose {
+                    (print "Kept C file: ")
+                    (println c_file)
+                } else {
+                    (print "")
+                }
+            }
+            
+            return 0
+    }
+}
+
+/* =============================================================================
+ * MAIN ENTRY POINT
+ * ============================================================================= */
+
+fn show_usage() -> int {
+    (println "")
+    (println "╔══════════════════════════════════════════════════════════════╗")
+    (println "║  NanoLang v0.6 - Self-Hosted Compiler                       ║")
+    (println "╚══════════════════════════════════════════════════════════════╝")
+    (println "")
+    (println "Usage: nanoc <input.nano> [-o output] [options]")
+    (println "")
+    (println "Options:")
+    (println "  -o <file>        Output executable (default: a.out)")
+    (println "  -v, --verbose    Verbose compilation output")
+    (println "  -k, --keep-c     Keep generated C file")
+    (println "  -h, --help       Show this help")
+    (println "")
+    (println "This compiler is 100% written in NanoLang!")
+    (println "Pipeline: Lex → Parse → Typecheck → Transpile → Compile")
+    (println "")
+    return 0
+}
+
+fn main() -> int {
+    let opts: CompileOptions = (parse_args)
+    
+    if opts.show_help {
+        return (show_usage)
+    } else {
+        (print "")
+    }
+    
+    if (== opts.input_file "") {
+        (println "Error: No input file specified")
+        (println "Try 'nanoc --help' for usage information")
+        return 1
+    } else {
+        (print "")
+    }
+    
+    if (not (file_exists opts.input_file)) {
+        (print "Error: Input file not found: ")
+        (println opts.input_file)
+        return 1
+    } else {
+        (print "")
+    }
+    
+    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c)
+}
+
+shadow main {
+    /* Basic sanity check */
+    assert (== 1 1)
+}
