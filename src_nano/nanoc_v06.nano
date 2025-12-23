@@ -287,13 +287,16 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
-            /* Build C compiler command */
+            /* Build C compiler command
+             * Note: Generated C code is self-contained with inline runtime.
+             * We only need to link with the C file itself - no external libs required.
+             * For programs using modules, the module system is linked separately.
+             */
             let mut cc_cmd: string = "cc -std=c99 -Isrc "
             set cc_cmd (str_concat cc_cmd c_file)
             set cc_cmd (str_concat cc_cmd " -o ")
             set cc_cmd (str_concat cc_cmd output_file)
-            set cc_cmd (str_concat cc_cmd " -Lobj -lruntime")
-            set cc_cmd (str_concat cc_cmd " obj/cJSON.o obj/module_metadata.o")
+            /* TODO: Add -Lobj -lruntime obj/cJSON.o obj/module_metadata.o only for programs using modules/GC */
             set cc_cmd (str_concat cc_cmd " 2>&1")
             
             if verbose {
