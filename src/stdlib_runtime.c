@@ -1125,7 +1125,7 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
     
     sb_append(sb, "/* system() wrapper - stdlib system() available via stdlib.h */\n");
-    sb_append(sb, "static int64_t nl_exec_shell(const char* cmd) {\n");
+    sb_append(sb, "int64_t nl_exec_shell(const char* cmd) {\n");
     sb_append(sb, "    return (int64_t)system(cmd);\n");
     sb_append(sb, "}\n\n");
 
