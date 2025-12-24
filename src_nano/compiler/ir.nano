@@ -490,12 +490,23 @@ enum TypeKind {
     TYPE_BOOL,
     TYPE_STRING,
     TYPE_VOID,
-    TYPE_FUNCTION,
+    TYPE_ARRAY,
     TYPE_STRUCT,
+    TYPE_ENUM,
+    TYPE_UNION,
+    TYPE_GENERIC,      /* Generic type (e.g., List<T> before instantiation) */
+    TYPE_LIST_INT,
+    TYPE_LIST_STRING,
+    TYPE_LIST_GENERIC, /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
+    TYPE_FUNCTION,     /* Function type: fn(int, int) -> int */
+    TYPE_TUPLE,        /* Tuple type: (int, string, bool) */
+    TYPE_OPAQUE,       /* Opaque C pointer type: GLFWwindow, SDL_Window, etc. */
     TYPE_UNKNOWN
 }
 
 struct Type {
     kind: int,
-    name: string
+    name: string,
+    element_type_kind: int,  /* For TYPE_ARRAY/TYPE_LIST_GENERIC: element type kind */
+    element_type_name: string /* For complex element types: struct/union name */
 }

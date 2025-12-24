@@ -66,7 +66,9 @@ struct TypeEnvironment {
 fn type_int() -> Type {
     return Type {
         kind: TypeKind.TYPE_INT,
-        name: ""
+        name: "",
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
     }
 }
 
@@ -78,7 +80,9 @@ shadow type_int {
 fn type_float() -> Type {
     return Type {
         kind: TypeKind.TYPE_FLOAT,
-        name: ""
+        name: "",
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
     }
 }
 
@@ -90,7 +94,9 @@ shadow type_float {
 fn type_bool() -> Type {
     return Type {
         kind: TypeKind.TYPE_BOOL,
-        name: ""
+        name: "",
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
     }
 }
 
@@ -102,7 +108,9 @@ shadow type_bool {
 fn type_string() -> Type {
     return Type {
         kind: TypeKind.TYPE_STRING,
-        name: ""
+        name: "",
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
     }
 }
 
@@ -114,7 +122,9 @@ shadow type_string {
 fn type_void() -> Type {
     return Type {
         kind: TypeKind.TYPE_VOID,
-        name: ""
+        name: "",
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
     }
 }
 
@@ -123,16 +133,98 @@ shadow type_void {
     assert (== t.kind TypeKind.TYPE_VOID)
 }
 
+/* Create array type */
+fn type_array(elem_kind: int, elem_name: string) -> Type {
+    return Type {
+        kind: TypeKind.TYPE_ARRAY,
+        name: "",
+        element_type_kind: elem_kind,
+        element_type_name: elem_name
+    }
+}
+
+shadow type_array {
+    let t: Type = (type_array TypeKind.TYPE_INT "")
+    assert (== t.kind TypeKind.TYPE_ARRAY)
+    assert (== t.element_type_kind TypeKind.TYPE_INT)
+}
+
+/* Create generic list type */
+fn type_list_generic(elem_name: string) -> Type {
+    return Type {
+        kind: TypeKind.TYPE_LIST_GENERIC,
+        name: "",
+        element_type_kind: TypeKind.TYPE_STRUCT,
+        element_type_name: elem_name
+    }
+}
+
+shadow type_list_generic {
+    let t: Type = (type_list_generic "Point")
+    assert (== t.kind TypeKind.TYPE_LIST_GENERIC)
+    assert (== t.element_type_name "Point")
+}
+
+/* Create union type */
+fn type_union(union_name: string) -> Type {
+    return Type {
+        kind: TypeKind.TYPE_UNION,
+        name: union_name,
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
+    }
+}
+
+shadow type_union {
+    let t: Type = (type_union "Result")
+    assert (== t.kind TypeKind.TYPE_UNION)
+    assert (== t.name "Result")
+}
+
+/* Create tuple type */
+fn type_tuple() -> Type {
+    return Type {
+        kind: TypeKind.TYPE_TUPLE,
+        name: "",
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
+    }
+}
+
+shadow type_tuple {
+    let t: Type = (type_tuple)
+    assert (== t.kind TypeKind.TYPE_TUPLE)
+}
+
 /* Check if two types are equal */
 fn types_equal(t1: Type, t2: Type) -> bool {
     if (!= t1.kind t2.kind) {
         return false
     } else {
-        /* For struct types, also check name */
-        if (== t1.kind TypeKind.TYPE_STRUCT) {
+        /* For struct/union types, also check name */
+        if (or (== t1.kind TypeKind.TYPE_STRUCT) (== t1.kind TypeKind.TYPE_UNION)) {
             return (== t1.name t2.name)
         } else {
-            return true
+            /* For array types, check element type */
+            if (== t1.kind TypeKind.TYPE_ARRAY) {
+                if (!= t1.element_type_kind t2.element_type_kind) {
+                    return false
+                } else {
+                    /* If element is struct, check name */
+                    if (== t1.element_type_kind TypeKind.TYPE_STRUCT) {
+                        return (== t1.element_type_name t2.element_type_name)
+                    } else {
+                        return true
+                    }
+                }
+            } else {
+                /* For List<T>, check element type name */
+                if (== t1.kind TypeKind.TYPE_LIST_GENERIC) {
+                    return (== t1.element_type_name t2.element_type_name)
+                } else {
+                    return true
+                }
+            }
         }
     }
 }
@@ -163,16 +255,197 @@ fn type_from_string(s: string) -> Type {
                     if (== s "void") {
                         return (type_void)
                     } else {
-                        /* Assume it's a struct type */
-                        return Type {
-                            kind: TypeKind.TYPE_STRUCT,
-                            name: s
+                        /* Check for array<T> syntax */
+                        if (str_contains s "array<") {
+                            /* Parse element type from array<int>, array<string>, etc. */
+                            let elem_type_str: string = (array_elem_type_from_array_decl s)
+                            if (== elem_type_str "int") {
+                                return (type_array TypeKind.TYPE_INT "")
+                            } else {
+                                if (== elem_type_str "string") {
+                                    return (type_array TypeKind.TYPE_STRING "")
+                                } else {
+                                    if (== elem_type_str "float") {
+                                        return (type_array TypeKind.TYPE_FLOAT "")
+                                    } else {
+                                        if (== elem_type_str "bool") {
+                                            return (type_array TypeKind.TYPE_BOOL "")
+                                        } else {
+                                            /* Struct element type */
+                                            return (type_array TypeKind.TYPE_STRUCT elem_type_str)
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            /* Check for List<T> syntax */
+                            if (str_contains s "List<") {
+                                /* Extract element type: "List<Point>" -> "Point" */
+                                let elem_name: string = (extract_list_element_type s)
+                                return (type_list_generic elem_name)
+                            } else {
+                                /* Assume it's a struct or union type */
+                                return Type {
+                                    kind: TypeKind.TYPE_STRUCT,
+                                    name: s,
+                                    element_type_kind: TypeKind.TYPE_UNKNOWN,
+                                    element_type_name: ""
+                                }
+                            }
                         }
                     }
                 }
             }
         }
     }
+}
+
+/* Extract element type from List<T> string */
+fn extract_list_element_type(s: string) -> string {
+    /* "List<Point>" -> "Point" */
+    let start: int = (+ (str_index_of s "<") 1)
+    let end: int = (str_index_of s ">")
+    if (and (> start 0) (> end start)) {
+        return (str_substring s start (- end start))
+    } else {
+        return ""
+    }
+}
+
+shadow extract_list_element_type {
+    assert (== (extract_list_element_type "List<Point>") "Point")
+    assert (== (extract_list_element_type "List<int>") "int")
+}
+
+/* Check if string starts with prefix */
+fn str_starts_with(s: string, prefix: string) -> bool {
+    let prefix_len: int = (str_length prefix)
+    if (> prefix_len (str_length s)) {
+        return false
+    } else {
+        let sub: string = (str_substring s 0 prefix_len)
+        return (== sub prefix)
+    }
+}
+
+shadow str_starts_with {
+    assert (str_starts_with "list_int_new" "list_")
+    assert (not (str_starts_with "hello" "list_"))
+}
+
+/* Find last occurrence of character in string */
+fn str_last_index_of(s: string, ch: string) -> int {
+    let len: int = (str_length s)
+    let mut i: int = (- len 1)
+    
+    while (>= i 0) {
+        let char_at: string = (str_substring s i 1)
+        if (== char_at ch) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (- i 1)
+    }
+    
+    return -1
+}
+
+shadow str_last_index_of {
+    assert (== (str_last_index_of "list_Point_new" "_") 11)
+    assert (== (str_last_index_of "hello" "x") -1)
+}
+
+/* Check type of a generic list function call
+ * Handles: list_T_new, list_T_push, list_T_get, list_T_length
+ * Returns: Appropriate type based on operation
+ */
+fn check_list_function_call(fn_name: string, arg_count: int) -> Type {
+    /* Extract type name: "list_Point_new" -> "Point" */
+    let elem_type: string = (extract_list_type_from_function fn_name)
+    
+    /* Determine operation: _new, _push, _get, _length */
+    if (str_contains fn_name "_new") {
+        /* list_T_new() -> List<T> */
+        return (type_list_generic elem_type)
+    } else {
+        if (str_contains fn_name "_push") {
+            /* list_T_push(list, elem) -> void */
+            return (type_void)
+        } else {
+            if (str_contains fn_name "_get") {
+                /* list_T_get(list, index) -> T */
+                return (type_from_element_name elem_type)
+            } else {
+                if (str_contains fn_name "_length") {
+                    /* list_T_length(list) -> int */
+                    return (type_int)
+                } else {
+                    /* Unknown list operation */
+                    return Type { kind: TypeKind.TYPE_UNKNOWN, name: "unknown_list_op", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                }
+            }
+        }
+    }
+}
+
+/* Extract element type from list function name
+ * "list_Point_new" -> "Point"
+ * "list_int_push" -> "int"
+ */
+fn extract_list_type_from_function(fn_name: string) -> string {
+    /* Skip "list_" prefix */
+    let after_prefix: string = (str_substring fn_name 5 (- (str_length fn_name) 5))
+    
+    /* Find last underscore to separate type from operation */
+    let last_underscore: int = (str_last_index_of after_prefix "_")
+    if (> last_underscore 0) {
+        return (str_substring after_prefix 0 last_underscore)
+    } else {
+        return after_prefix
+    }
+}
+
+shadow extract_list_type_from_function {
+    assert (== (extract_list_type_from_function "list_Point_new") "Point")
+    assert (== (extract_list_type_from_function "list_int_push") "int")
+    assert (== (extract_list_type_from_function "list_string_get") "string")
+}
+
+/* Create type from element name (for list element types) */
+fn type_from_element_name(elem_name: string) -> Type {
+    if (== elem_name "int") {
+        return (type_int)
+    } else {
+        if (== elem_name "string") {
+            return (type_string)
+        } else {
+            if (== elem_name "float") {
+                return (type_float)
+            } else {
+                if (== elem_name "bool") {
+                    return (type_bool)
+                } else {
+                    /* Struct type */
+                    return Type {
+                        kind: TypeKind.TYPE_STRUCT,
+                        name: elem_name,
+                        element_type_kind: TypeKind.TYPE_UNKNOWN,
+                        element_type_name: ""
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow type_from_element_name {
+    let t1: Type = (type_from_element_name "int")
+    assert (== t1.kind TypeKind.TYPE_INT)
+    
+    let t2: Type = (type_from_element_name "Point")
+    assert (== t2.kind TypeKind.TYPE_STRUCT)
+    assert (== t2.name "Point")
 }
 
 shadow type_from_string {
@@ -202,16 +475,43 @@ fn type_to_string(t: Type) -> string {
                     if (== t.kind TypeKind.TYPE_VOID) {
                         return "void"
                     } else {
-                        if (== t.kind TypeKind.TYPE_STRUCT) {
-                            return t.name
+                        if (== t.kind TypeKind.TYPE_ARRAY) {
+                            let elem_str: string = (type_kind_to_string t.element_type_kind t.element_type_name)
+                            return (str_concat "array<" (str_concat elem_str ">"))
                         } else {
-                            return "unknown"
+                            if (== t.kind TypeKind.TYPE_LIST_GENERIC) {
+                                return (str_concat "List<" (str_concat t.element_type_name ">"))
+                            } else {
+                                if (== t.kind TypeKind.TYPE_STRUCT) {
+                                    return t.name
+                                } else {
+                                    if (== t.kind TypeKind.TYPE_UNION) {
+                                        return t.name
+                                    } else {
+                                        if (== t.kind TypeKind.TYPE_TUPLE) {
+                                            return "tuple"
+                                        } else {
+                                            return "unknown"
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
         }
     }
+}
+
+/* Convert type kind to string */
+fn type_kind_to_string(kind: int, name: string) -> string {
+    if (== kind TypeKind.TYPE_INT) { return "int" }
+    else { if (== kind TypeKind.TYPE_FLOAT) { return "float" }
+    else { if (== kind TypeKind.TYPE_BOOL) { return "bool" }
+    else { if (== kind TypeKind.TYPE_STRING) { return "string" }
+    else { if (== kind TypeKind.TYPE_STRUCT) { return name }
+    else { return "unknown" } } } } }
 }
 
 shadow type_to_string {
@@ -503,27 +803,34 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                         if (== node_type 3) {
                             let call: ASTCall = (parser_get_call parser node_id)
                             let fn_id: ASTIdentifier = (parser_get_identifier parser call.function)
-                            let idx: int = (env_lookup symbols fn_id.name)
-
-                            if (< idx 0) {
-                                (print "Type error: Undefined function ")
-                                (println fn_id.name)
-                                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "undefined_fn" }
+                            let fn_name: string = fn_id.name
+                            
+                            /* Check for generic list functions: list_TypeName_operation */
+                            if (str_starts_with fn_name "list_") {
+                                return (check_list_function_call fn_name call.arg_count)
                             } else {
-                                let sym: Symbol = (at symbols idx)
+                                let idx: int = (env_lookup symbols fn_name)
 
-                                if (and (>= sym.param_count 0) (!= sym.param_count call.arg_count)) {
-                                    (print "Type error: Wrong arg count for ")
-                                    (print fn_id.name)
-                                    (print ", expected ")
-                                    (print (int_to_string sym.param_count))
-                                    (print ", got ")
-                                    (println (int_to_string call.arg_count))
+                                if (< idx 0) {
+                                    (print "Type error: Undefined function ")
+                                    (println fn_name)
+                                    return Type { kind: TypeKind.TYPE_UNKNOWN, name: "undefined_fn", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
                                 } else {
-                                    (print "")
-                                }
+                                    let sym: Symbol = (at symbols idx)
 
-                                return sym.sym_type
+                                    if (and (>= sym.param_count 0) (!= sym.param_count call.arg_count)) {
+                                        (print "Type error: Wrong arg count for ")
+                                        (print fn_name)
+                                        (print ", expected ")
+                                        (print (int_to_string sym.param_count))
+                                        (print ", got ")
+                                        (println (int_to_string call.arg_count))
+                                    } else {
+                                        (print "")
+                                    }
+
+                                    return sym.sym_type
+                                }
                             }
                         } else {
                             if (== node_type 2) {
