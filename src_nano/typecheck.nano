@@ -300,6 +300,30 @@ fn type_from_string(s: string) -> Type {
     }
 }
 
+/* Find first occurrence of character in string */
+fn str_index_of(s: string, ch: string) -> int {
+    let len: int = (str_length s)
+    let mut i: int = 0
+    
+    while (< i len) {
+        let char_at: string = (str_substring s i 1)
+        if (== char_at ch) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    
+    return -1
+}
+
+shadow str_index_of {
+    assert (== (str_index_of "hello" "e") 1)
+    assert (== (str_index_of "List<Point>" "<") 4)
+    assert (== (str_index_of "hello" "x") -1)
+}
+
 /* Extract element type from List<T> string */
 fn extract_list_element_type(s: string) -> string {
     /* "List<Point>" -> "Point" */
@@ -608,7 +632,7 @@ fn env_get_type(symbols: array<Symbol>, name: string) -> Type {
         return sym.sym_type
     } else {
         /* Return unknown type for undefined symbols */
-        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "undefined" }
+        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "undefined", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
     }
 }
 
@@ -665,7 +689,7 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
                 return (type_float)
             } else {
                 /* Type error */
-                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
             }
         }
     } else {
@@ -675,7 +699,7 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
             if (types_equal left_type right_type) {
                 return (type_bool)
             } else {
-                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
             }
         } else {
             /* Logical ops: and, or */
@@ -684,11 +708,11 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
                 if (and (== left_type.kind TypeKind.TYPE_BOOL) (== right_type.kind TypeKind.TYPE_BOOL)) {
                     return (type_bool)
                 } else {
-                    return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+                    return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
                 }
             } else {
                 /* Unknown operator */
-                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
             }
         }
     }
@@ -848,13 +872,67 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 
                                 return result
                             } else {
-                                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "unknown_node_type" }
+                                /* Check for union construction: Option.Some { value: 42 } */
+                                if (== node_type 7) {
+                                    return (check_union_construct parser node_id)
+                                } else {
+                                    /* Check for match expression */
+                                    if (== node_type 8) {
+                                        return (check_match_expr parser node_id symbols)
+                                    } else {
+                                        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "unknown_node_type", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+/* Check union construction expression
+ * Example: Option.Some { value: 42 }
+ * Returns: The union type (TYPE_UNION with union name)
+ */
+fn check_union_construct(parser: Parser, node_id: int) -> Type {
+    let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
+    
+    /* Return union type */
+    return Type {
+        kind: TypeKind.TYPE_UNION,
+        name: uc.union_name,
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
+    }
+}
+
+/* Check match expression  
+ * Example: match opt { Some(s) => s.value, None(n) => 0 }
+ * Returns: Type of the match arms (must all match)
+ */
+fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>) -> Type {
+    let m: ASTMatch = (parser_get_match parser node_id)
+    
+    /* Check scrutinee (expression being matched) */
+    let scrutinee_type: Type = (check_expr_node parser m.scrutinee m.scrutinee_type symbols)
+    
+    if (!= scrutinee_type.kind TypeKind.TYPE_UNION) {
+        (println "Type error: match expression must match on union type")
+        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "match_error", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+    } else {
+        (print "")
+    }
+    
+    /* Type check first arm to get return type */
+    if (> m.arm_count 0) {
+        /* For now, assume all arms have the same type */
+        /* In full implementation, would check all arms match */
+        let first_arm_type: Type = (check_expr_node parser (at m.arm_body_ids 0) (at m.arm_body_types 0) symbols)
+        return first_arm_type
+    } else {
+        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "empty_match", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
     }
 }
 
@@ -1008,7 +1086,9 @@ fn expr_kind_from_pnode(pnode_type: int) -> int {
     else { if (== pnode_type ParseNodeType.PNODE_STRING) { return 4 }
     else { if (== pnode_type ParseNodeType.PNODE_BOOL) { return 5 }
     else { if (== pnode_type ParseNodeType.PNODE_FLOAT) { return 6 }
-    else { return (- 0 1) } } } } } } }
+    else { if (== pnode_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return 7 }
+    else { if (== pnode_type ParseNodeType.PNODE_MATCH) { return 8 }
+    else { return (- 0 1) } } } } } } } } }
 }
 
 fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: Type) -> bool {
