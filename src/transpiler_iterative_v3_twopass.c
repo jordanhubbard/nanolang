@@ -1738,6 +1738,106 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
             break;
         }
+        
+        case AST_MATCH: {
+            /* Match expression: match opt { Some(s) => s.value, None(n) => 0 } */
+            /* Generate: ({ UnionType _m = scrutinee; int64_t _out = 0; switch(_m.tag) { case TAG_V: { VariantType nl_binding = _m.data.V; _out = body; break; } } _out; }) */
+            
+            const char *union_type_name = expr->as.match_expr.union_type_name;
+            if (!union_type_name) {
+                emit_literal(list, "/* match: unknown union type */0");
+                break;
+            }
+            
+            /* Look up union definition to check variant field counts */
+            UnionDef *udef = NULL;
+            for (int u = 0; u < env->union_count; u++) {
+                if (strcmp(env->unions[u].name, union_type_name) == 0) {
+                    udef = &env->unions[u];
+                    break;
+                }
+            }
+            
+            const char *prefixed_union = get_prefixed_type_name(union_type_name);
+            
+            /* Start compound expression */
+            emit_literal(list, "({ ");
+            emit_literal(list, prefixed_union);
+            emit_literal(list, " _m = ");
+            build_expr(list, expr->as.match_expr.expr, env);
+            emit_literal(list, "; int64_t _out = 0; switch (_m.tag) { ");
+            
+            /* Generate each match arm */
+            for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                const char *variant_name = expr->as.match_expr.pattern_variants[i];
+                const char *binding_name = expr->as.match_expr.pattern_bindings[i];
+                ASTNode *arm_body = expr->as.match_expr.arm_bodies[i];
+                
+                /* case nl_UnionName_TAG_Variant: { */
+                emit_literal(list, "case nl_");
+                emit_literal(list, union_type_name);
+                emit_literal(list, "_TAG_");
+                emit_literal(list, variant_name);
+                emit_literal(list, ": { ");
+                
+                /* Find variant index to check field count */
+                int variant_field_count = 0;
+                if (udef) {
+                    for (int v = 0; v < udef->variant_count; v++) {
+                        if (strcmp(udef->variant_names[v], variant_name) == 0) {
+                            variant_field_count = udef->variant_field_counts[v];
+                            break;
+                        }
+                    }
+                }
+                
+                /* Declare binding only if variant has fields */
+                if (variant_field_count > 0) {
+                    /* Binding uses unprefixed name to match AST references */
+                    emit_literal(list, "nl_");
+                    emit_literal(list, union_type_name);
+                    emit_literal(list, "_");
+                    emit_literal(list, variant_name);
+                    emit_literal(list, " ");
+                    emit_literal(list, binding_name);
+                    emit_literal(list, " = _m.data.");
+                    emit_literal(list, variant_name);
+                    emit_literal(list, "; ");
+                } else {
+                    /* Empty variant - just suppress unused warning */
+                    emit_literal(list, "(void)_m.data.");
+                    emit_literal(list, variant_name);
+                    emit_literal(list, "; ");
+                }
+                
+                /* Handle arm body */
+                if (arm_body) {
+                    if (arm_body->type == AST_BLOCK) {
+                        /* For block bodies, find return statement */
+                        for (int j = 0; j < arm_body->as.block.count; j++) {
+                            ASTNode *stmt = arm_body->as.block.statements[j];
+                            if (stmt && stmt->type == AST_RETURN && stmt->as.return_stmt.value) {
+                                emit_literal(list, "_out = ");
+                                build_expr(list, stmt->as.return_stmt.value, env);
+                                emit_literal(list, "; ");
+                                break;
+                            }
+                        }
+                    } else {
+                        /* Expression body */
+                        emit_literal(list, "_out = ");
+                        build_expr(list, arm_body, env);
+                        emit_literal(list, "; ");
+                    }
+                }
+                
+                emit_literal(list, "break; } ");
+            }
+            
+            /* Close switch and compound expression */
+            emit_literal(list, "} _out; })");
+            break;
+        }
             
         default:
             emit_formatted(list, "/* unsupported expr type %d */", expr->type);
