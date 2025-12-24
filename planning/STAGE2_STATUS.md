@@ -19,29 +19,31 @@ without any dependency on the C reference compiler, using all language features.
 - [x] List<T> monomorphization - detect instantiations, generate specialized code
 - [x] List<T> codegen - `List_T` struct and functions (new, push, get, length)
 - [x] Union codegen - basic union type definitions
-- [x] Match expression codegen - **fully implemented** in `src_nano/transpiler.nano` lines 2041-2115
-- [ ] Match codegen in C transpiler - **BLOCKING** (see nanolang-bjd)
+- [x] Match expression codegen - **fully implemented** in both transpilers
+  - Self-hosted: `src_nano/transpiler.nano` lines 2041-2115
+  - C reference: `src/transpiler_iterative_v3_twopass.c` (commit 4dda4a2)
 - [ ] Generic union monomorphization - not yet implemented
 - [ ] Tuple codegen - not yet implemented
 
-## Critical Blocker
+## Current Blocker
 
-**Match expressions cannot be compiled by the C reference transpiler.**
+**Match arm bindings not in typechecker scope** (nanolang-wsc)
 
-The C transpiler emits `/* unsupported expr type 26 */` for AST_MATCH nodes (see nanolang-bjd).
-This prevents compiling any program (including tests) that uses match expressions, even though:
-- The self-hosted typechecker fully supports match typing
-- The self-hosted transpiler has complete match codegen implementation
+The typechecker doesn't add match arm bindings to the symbol table, causing errors like:
+- `Undefined variable 's'` in nested expressions like `(* s.value 2)`
+- `Field access requires a struct` for binding field access
 
-Once match codegen is implemented in the C transpiler, match expressions will work end-to-end.
+This prevents `tests/nl_control_match.nano` from compiling, even though:
+- Match expression transpilation works correctly
+- Simple match cases (direct field access) compile fine
 
 ## What Remains
 
 ### High Priority (Blocking Stage 2)
-1. **Match codegen in C transpiler** (nanolang-bjd) - must be implemented
+1. **Match arm binding scope** (nanolang-wsc) - typechecker must add bindings to scope
 
 ### Medium Priority (Enhances Stage 2)
-2. Generic union instantiation parsing - enables `Result<T,E>` in user code
+2. Generic union instantiation parsing (nanolang-nh1) - enables `Result<T,E>` syntax
 3. Generic union monomorphization - codegen for instantiated generic unions
 
 ### Lower Priority (Full feature parity)
@@ -62,9 +64,11 @@ features are needed for compiling user programs that use advanced language featu
 
 ## Recent Commits
 
+- `4dda4a2` - transpiler: implement match expression codegen in C transpiler ✅
+- `c9dcb0f` - docs: add Stage 2 self-hosting status summary
 - `83b9911` - selfhost: add union definition stub to transpiler
 - `1475c65` - selfhost: add union and match expression type checking
 - `a74e816` - selfhost: add List<T> and array typing support
 
 ---
-Last Updated: 2025-12-24
+Last Updated: 2025-12-24 (Session 2)
