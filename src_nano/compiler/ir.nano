@@ -282,6 +282,7 @@ struct ASTArrayLiteral {
     node_type: int,
     line: int,
     column: int,
+    element_type: string,
     element_start: int,
     element_count: int
 }
