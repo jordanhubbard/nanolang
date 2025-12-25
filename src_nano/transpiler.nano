@@ -126,13 +126,42 @@ shadow mangle_name {
     assert (== (mangle_name "std::math::sin") "std_math_sin")
 }
 
-fn str_starts_with(s: string, prefix: string) -> bool {
+/* String utility functions for transpiler */
+fn transp_str_starts_with(s: string, prefix: string) -> bool {
     let ls: int = (str_length s)
     let lp: int = (str_length prefix)
     if (< ls lp) {
         return false
     } else {
         return (str_equals (str_substring s 0 lp) prefix)
+    }
+}
+
+fn transp_str_index_of(s: string, ch: string) -> int {
+    let len: int = (str_length s)
+    let mut i: int = 0
+    
+    while (< i len) {
+        let char_at: string = (str_substring s i 1)
+        if (== char_at ch) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    
+    return -1
+}
+
+fn transp_extract_list_element_type(s: string) -> string {
+    /* "List<Point>" -> "Point" */
+    let start: int = (+ (transp_str_index_of s "<") 1)
+    let end: int = (transp_str_index_of s ">")
+    if (and (> start 0) (> end start)) {
+        return (str_substring s start (- end start))
+    } else {
+        return ""
     }
 }
 
@@ -217,16 +246,16 @@ fn mangle_module_ident(name: string) -> string {
 
 fn is_builtin_list_runtime_fn(name: string) -> bool {
     return (or
-        (str_starts_with name "list_int_")
+        (transp_str_starts_with name "list_int_")
         (or
-            (str_starts_with name "list_string_")
-            (str_starts_with name "list_token_")
+            (transp_str_starts_with name "list_string_")
+            (transp_str_starts_with name "list_token_")
         )
     )
 }
 
 fn is_generic_list_runtime_fn(name: string) -> bool {
-    return (and (str_starts_with name "list_") (not (is_builtin_list_runtime_fn name)))
+    return (and (transp_str_starts_with name "list_") (not (is_builtin_list_runtime_fn name)))
 }
 
 fn c_name_for_qualified_function(func_name: string) -> string {
@@ -447,7 +476,7 @@ fn type_to_c(nano_type: string) -> string {
                     if (== nano_type "void") {
                         return "void"
                     } else {
-                        if (str_starts_with nano_type "List<") {
+                        if (transp_str_starts_with nano_type "List<") {
                             let elem: string = (str_substring nano_type 5 (- (str_length nano_type) 6))
                             if (== elem "int") {
                                 return "List_int*"
@@ -1035,6 +1064,17 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
     set result (str_concat result "/* User functions */\n")
     set result (str_concat result functions)
     
+    /* Add C main() wrapper that calls nl_main() */
+    set result (str_concat result "\n/* C main() entry point - calls nanolang main */\n")
+    set result (str_concat result "/* Global argc/argv for CLI runtime support */\n")
+    set result (str_concat result "int g_argc = 0;\n")
+    set result (str_concat result "char **g_argv = NULL;\n\n")
+    set result (str_concat result "int main(int argc, char **argv) {\n")
+    set result (str_concat result "    g_argc = argc;\n")
+    set result (str_concat result "    g_argv = argv;\n")
+    set result (str_concat result "    return (int)nl_main();\n")
+    set result (str_concat result "}\n")
+    
     return result
 }
 
@@ -1086,7 +1126,7 @@ fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>
             
             /* Check if type is List<T> */
             if (str_contains let_node.var_type "List<") {
-                let elem_type: string = (extract_list_element_type let_node.var_type)
+                let elem_type: string = (transp_extract_list_element_type let_node.var_type)
                 
                 /* Add to list if not already present */
                 if (not (array_contains_string result elem_type)) {
@@ -1123,47 +1163,6 @@ fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>
     }
     
     return result
-}
-
-/* Find first occurrence of character in string */
-fn str_index_of(s: string, ch: string) -> int {
-    let len: int = (str_length s)
-    let mut i: int = 0
-    
-    while (< i len) {
-        let char_at: string = (str_substring s i 1)
-        if (== char_at ch) {
-            return i
-        } else {
-            (print "")
-        }
-        set i (+ i 1)
-    }
-    
-    return -1
-}
-
-shadow str_index_of {
-    assert (== (str_index_of "hello" "e") 1)
-    assert (== (str_index_of "List<Point>" "<") 4)
-    assert (== (str_index_of "hello" "x") -1)
-}
-
-/* Extract element type from List<T> string */
-fn extract_list_element_type(s: string) -> string {
-    /* "List<Point>" -> "Point" */
-    let start: int = (+ (str_index_of s "<") 1)
-    let end: int = (str_index_of s ">")
-    if (and (> start 0) (> end start)) {
-        return (str_substring s start (- end start))
-    } else {
-        return ""
-    }
-}
-
-shadow extract_list_element_type {
-    assert (== (extract_list_element_type "List<Point>") "Point")
-    assert (== (extract_list_element_type "List<int>") "int")
 }
 
 /* Check if array contains a string */
