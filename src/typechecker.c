@@ -2371,12 +2371,21 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
             /* Infer and store union type name for transpiler + variant binding metadata */
             const char *union_type_name = NULL;
+            TypeInfo *union_type_info = NULL;  /* For generic unions: Result<int, string> */
             ASTNode *match_expr_node = stmt->as.match_expr.expr;
 
             if (match_expr_node->type == AST_IDENTIFIER) {
                 Symbol *sym = env_get_var(tc->env, match_expr_node->as.identifier);
                 if (sym && sym->struct_type_name) {
                     union_type_name = sym->struct_type_name;
+                }
+                /* For generic unions, also extract TypeInfo */
+                if (sym && sym->type_info) {
+                    union_type_info = sym->type_info;
+                    /* If the union has generic parameters, use the generic name as the base */
+                    if (union_type_info->generic_name) {
+                        union_type_name = union_type_info->generic_name;
+                    }
                 }
             } else if (match_expr_node->type == AST_UNION_CONSTRUCT) {
                 union_type_name = match_expr_node->as.union_construct.union_name;
@@ -2412,9 +2421,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
             for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
                 Value binding_val = create_void();
-                env_define_var_with_element_type(tc->env,
+                env_define_var_with_type_info(tc->env,
                     stmt->as.match_expr.pattern_bindings[i],
-                    TYPE_STRUCT, TYPE_UNKNOWN, false, binding_val);
+                    TYPE_STRUCT, TYPE_UNKNOWN, union_type_info, false, binding_val);
 
                 if (union_type_name && tc->env->symbol_count > 0) {
                     Symbol *binding_sym = &tc->env->symbols[tc->env->symbol_count - 1];
@@ -3907,14 +3916,19 @@ bool type_check(ASTNode *program, Environment *env) {
                 Value val = create_void();
                 Type param_type = item->as.function.params[j].type;
                 Type element_type = item->as.function.params[j].element_type;  /* Get actual element type from parameter */
+                TypeInfo *param_type_info = item->as.function.params[j].type_info;  /* Get TypeInfo for generic types */
                 
                 /* For array parameters, use the element type from the parameter definition */
                 if (param_type == TYPE_ARRAY && element_type == TYPE_UNKNOWN) {
                     element_type = TYPE_INT;  /* Fallback to TYPE_INT if not specified */
                 }
                 
+                /* For parameters with TypeInfo (generics, function types, etc.), use full type info */
+                if (param_type_info) {
+                    env_define_var_with_type_info(env, item->as.function.params[j].name, param_type, element_type, param_type_info, false, val);
+                }
                 /* For function parameters, create TypeInfo with signature */
-                if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
+                else if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
                     TypeInfo *type_info = malloc(sizeof(TypeInfo));
                     memset(type_info, 0, sizeof(TypeInfo));
                     type_info->base_type = TYPE_FUNCTION;
@@ -3937,6 +3951,10 @@ bool type_check(ASTNode *program, Environment *env) {
                     if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION) && 
                         item->as.function.params[j].struct_type_name) {
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
+                    }
+                    /* For generic unions with TypeInfo, use the generic_name as struct_type_name */
+                    else if (param_type == TYPE_UNION && param_type_info && param_type_info->generic_name) {
+                        param_sym->struct_type_name = strdup(param_type_info->generic_name);
                     }
                 }
             }
@@ -4491,6 +4509,10 @@ bool type_check_module(ASTNode *program, Environment *env) {
                     if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION) && 
                         item->as.function.params[j].struct_type_name) {
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
+                    }
+                    /* For generic unions with TypeInfo, use the generic_name as struct_type_name */
+                    else if (param_type == TYPE_UNION && param_type_info && param_type_info->generic_name) {
+                        param_sym->struct_type_name = strdup(param_type_info->generic_name);
                     }
                 }
             }

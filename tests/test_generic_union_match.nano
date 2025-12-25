@@ -1,0 +1,56 @@
+/* Test match expressions with generic union instantiation */
+
+union Result<T, E> {
+    Ok { value: T },
+    Err { error: E }
+}
+
+fn test_local_match() -> int {
+    /* Direct match on local variable */
+    let r: Result<int, string> = Result<int, string>.Ok { value: 42 }
+    
+    match r {
+        Ok(v) => {
+            return v.value
+        }
+        Err(e) => {
+            return 0
+        }
+    }
+}
+
+fn divide(a: int, b: int) -> Result<int, string> {
+    if (== b 0) {
+        return Result<int, string>.Err { error: "Division by zero" }
+    } else {
+        return Result<int, string>.Ok { value: (/ a b) }
+    }
+}
+
+fn unwrap_or(r: Result<int, string>, default: int) -> int {
+    match r {
+        Ok(v) => {
+            return v.value
+        }
+        Err(e) => {
+            return default
+        }
+    }
+}
+
+fn main() -> int {
+    let val1: int = (test_local_match)
+    
+    let r1: Result<int, string> = (divide 10 2)
+    let val2: int = (unwrap_or r1 0)
+    
+    let r2: Result<int, string> = (divide 10 0)
+    let val3: int = (unwrap_or r2 -1)
+    
+    return (+ val1 (+ val2 val3))
+}
+
+shadow main {
+    assert (== (main) 46)  /* 42 + 5 + (-1) = 46 */
+}
+
