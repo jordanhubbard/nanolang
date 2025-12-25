@@ -796,22 +796,20 @@ fn op_token_to_string(op: int) -> string {
  * Returns: The type of the expression, or TYPE_UNKNOWN on error
  */
 fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>) -> Type {
-    /* Expression-kind encoding:
-     * 0=number, 1=identifier, 2=binary_op, 3=call, 4=string, 5=bool, 6=float
-     */
-    if (== node_type 0) {
+    /* Use ParseNodeType enum values */
+    if (== node_type ParseNodeType.PNODE_NUMBER) {
         return (type_int)
     } else {
-        if (== node_type 4) {
+        if (== node_type ParseNodeType.PNODE_STRING) {
             return (type_string)
         } else {
-            if (== node_type 5) {
+            if (== node_type ParseNodeType.PNODE_BOOL) {
                 return (type_bool)
             } else {
-                if (== node_type 6) {
+                if (== node_type ParseNodeType.PNODE_FLOAT) {
                     return (type_float)
                 } else {
-                    if (== node_type 1) {
+                    if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
                         let id_node: ASTIdentifier = (parser_get_identifier parser node_id)
                         let var_type: Type = (env_get_type symbols id_node.name)
 
@@ -824,7 +822,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 
                         return var_type
                     } else {
-                        if (== node_type 3) {
+                        if (== node_type ParseNodeType.PNODE_CALL) {
                             let call: ASTCall = (parser_get_call parser node_id)
                             let fn_id: ASTIdentifier = (parser_get_identifier parser call.function)
                             let fn_name: string = fn_id.name
@@ -857,7 +855,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                 }
                             }
                         } else {
-                            if (== node_type 2) {
+                            if (== node_type ParseNodeType.PNODE_BINARY_OP) {
                                 let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
                                 let left_t: Type = (check_expr_node parser binop.left binop.left_type symbols)
                                 let right_t: Type = (check_expr_node parser binop.right binop.right_type symbols)
@@ -1004,7 +1002,7 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>)
     }
     
     /* If initializer is an empty array literal, propagate element_type from declared type */
-    if (and (>= let_node.value 0) (== let_node.value_type 8)) {
+    if (and (>= let_node.value 0) (== let_node.value_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
         let arr: ASTArrayLiteral = (parser_get_array_literal parser let_node.value)
         if (and (== arr.element_count 0) (== arr.element_type "")) {
             let elem_t: string = (array_elem_type_from_array_decl let_node.var_type)
