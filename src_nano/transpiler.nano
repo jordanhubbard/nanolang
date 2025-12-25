@@ -1360,20 +1360,20 @@ fn operator_to_string(op: int) -> string {
  * Returns: C code string for the expression
  */
 fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv, expected_type: string) -> string {
-    if (== node_type 0) {
+    if (== node_type ParseNodeType.PNODE_NUMBER) {
         /* Number literal */
         let num: ASTNumber = (parser_get_number parser node_id)
         return num.value
     } else {
-        if (== node_type 6) {
+        if (== node_type ParseNodeType.PNODE_FLOAT) {
             let f: ASTFloat = (parser_get_float parser node_id)
             return f.value
         } else {
-        if (== node_type 4) {
+        if (== node_type ParseNodeType.PNODE_STRING) {
             let s: ASTString = (parser_get_string parser node_id)
             return (str_concat "\"" (str_concat s.value "\""))
         } else {
-        if (== node_type 5) {
+        if (== node_type ParseNodeType.PNODE_BOOL) {
             let b: ASTBool = (parser_get_bool parser node_id)
             if b.value {
                 return "1"
@@ -1381,13 +1381,13 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 return "0"
             }
         } else {
-        if (== node_type 1) {
+        if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
             /* Identifier */
             let id: ASTIdentifier = (parser_get_identifier parser node_id)
             /* Prefix with nl_ for nanolang identifiers */
             return (str_concat "nl_" (mangle_name id.name))
         } else {
-            if (== node_type 2) {
+            if (== node_type ParseNodeType.PNODE_BINARY_OP) {
                 /* Binary operation - RECURSIVE! */
                 let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
                 
@@ -1549,7 +1549,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 
                 return result
             } else {
-                if (== node_type 3) {
+                if (== node_type ParseNodeType.PNODE_CALL) {
                     /* Function call */
                     let call: ASTCall = (parser_get_call parser node_id)
                     
@@ -1778,7 +1778,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     set result (str_concat result ")")
                     return result
                 } else {
-                    if (== node_type 7) {
+                    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
                         /* Field access */
                         let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
                         let obj_code: string = (generate_expression parser fa.object fa.object_type env "")
@@ -1788,7 +1788,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         set result (str_concat result (mangle_name fa.field_name))
                         return result
                     } else {
-                        if (== node_type 8) {
+                        if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
                             /* Array literal -> DynArray* */
                             let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
 
@@ -1854,7 +1854,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             set result (str_concat result "_arr; })")
                             return result
                         } else {
-                            if (== node_type 21) {
+                            if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
                                 /* Struct literal -> compound literal */
                                 let sl: ASTStructLiteral = (parser_get_struct_literal parser node_id)
                                 let c_type: string = (str_concat "nl_" (mangle_name sl.struct_name))
@@ -1884,7 +1884,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 set result (str_concat result " })")
                                 return result
                             } else {
-                                if (== node_type 24) {
+                                if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
                                     /* Union construction -> compound literal */
                                     let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
                                     let union_c: string = (str_concat "nl_" (mangle_name uc.union_name))
@@ -2270,7 +2270,7 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
                                 return StmtGenResult { code: code, env: env }
                             } else {
                             /* Expression statement (e.g. call) */
-                            if (== stmt.node_type 3) {
+                            if (== stmt.node_type ParseNodeType.PNODE_CALL) {
                                 let expr_code: string = (generate_expression parser stmt.node_id stmt.node_type env "")
                                 let mut code: string = (gen_indent indent)
                                 set code (str_concat code expr_code)
@@ -2278,7 +2278,9 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
                                 return StmtGenResult { code: code, env: env }
                             } else {
                                 let mut code: string = (gen_indent indent)
-                                set code (str_concat code "/* unsupported stmt */\n")
+                                set code (str_concat code "/* unsupported stmt: ")
+                                set code (str_concat code (int_to_string stmt.node_type))
+                                set code (str_concat code " */\n")
                                 return StmtGenResult { code: code, env: env }
                             }
                             }
