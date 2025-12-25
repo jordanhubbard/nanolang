@@ -413,6 +413,139 @@ fn check_list_function_call(fn_name: string, arg_count: int) -> Type {
     }
 }
 
+/* Check if a function name is a built-in function
+ * Returns true if the function is a built-in (e.g., array_push, at, str_concat)
+ */
+fn is_builtin_function(fn_name: string) -> bool {
+    /* Core */
+    if (== fn_name "range") { return true } else { (print "") }
+    if (== fn_name "print") { return true } else { (print "") }
+    if (== fn_name "println") { return true } else { (print "") }
+    if (== fn_name "assert") { return true } else { (print "") }
+    
+    /* Math */
+    if (== fn_name "abs") { return true } else { (print "") }
+    if (== fn_name "min") { return true } else { (print "") }
+    if (== fn_name "max") { return true } else { (print "") }
+    if (== fn_name "sqrt") { return true } else { (print "") }
+    if (== fn_name "pow") { return true } else { (print "") }
+    if (== fn_name "floor") { return true } else { (print "") }
+    if (== fn_name "ceil") { return true } else { (print "") }
+    if (== fn_name "round") { return true } else { (print "") }
+    
+    /* String operations */
+    if (== fn_name "str_length") { return true } else { (print "") }
+    if (== fn_name "str_concat") { return true } else { (print "") }
+    if (== fn_name "str_substring") { return true } else { (print "") }
+    if (== fn_name "str_contains") { return true } else { (print "") }
+    if (== fn_name "str_equals") { return true } else { (print "") }
+    if (== fn_name "char_at") { return true } else { (print "") }
+    if (== fn_name "string_from_char") { return true } else { (print "") }
+    if (== fn_name "str_starts_with") { return true } else { (print "") }
+    if (== fn_name "str_ends_with") { return true } else { (print "") }
+    if (== fn_name "str_index_of") { return true } else { (print "") }
+    if (== fn_name "str_last_index_of") { return true } else { (print "") }
+    
+    /* Type conversions */
+    if (== fn_name "int_to_string") { return true } else { (print "") }
+    if (== fn_name "string_to_int") { return true } else { (print "") }
+    if (== fn_name "cast_int") { return true } else { (print "") }
+    if (== fn_name "cast_float") { return true } else { (print "") }
+    if (== fn_name "cast_bool") { return true } else { (print "") }
+    if (== fn_name "cast_string") { return true } else { (print "") }
+    if (== fn_name "to_string") { return true } else { (print "") }
+    
+    /* Array operations */
+    if (== fn_name "at") { return true } else { (print "") }
+    if (== fn_name "array_get") { return true } else { (print "") }
+    if (== fn_name "array_length") { return true } else { (print "") }
+    if (== fn_name "array_new") { return true } else { (print "") }
+    if (== fn_name "array_set") { return true } else { (print "") }
+    if (== fn_name "array_push") { return true } else { (print "") }
+    if (== fn_name "array_slice") { return true } else { (print "") }
+    if (== fn_name "map") { return true } else { (print "") }
+    if (== fn_name "reduce") { return true } else { (print "") }
+    
+    /* OS operations */
+    if (== fn_name "getcwd") { return true } else { (print "") }
+    if (== fn_name "getenv") { return true } else { (print "") }
+    if (== fn_name "exit") { return true } else { (print "") }
+    
+    return false
+}
+
+shadow is_builtin_function {
+    assert (is_builtin_function "array_push")
+    assert (is_builtin_function "at")
+    assert (is_builtin_function "println")
+    assert (not (is_builtin_function "my_custom_function"))
+}
+
+/* Check return type for built-in functions
+ * Returns the appropriate type based on the function name
+ */
+fn check_builtin_function(fn_name: string, arg_count: int) -> Type {
+    /* Core functions */
+    if (== fn_name "print") { return (type_void) } else { (print "") }
+    if (== fn_name "println") { return (type_void) } else { (print "") }
+    if (== fn_name "assert") { return (type_void) } else { (print "") }
+    
+    /* Math functions */
+    if (== fn_name "abs") { return (type_int) } else { (print "") }
+    if (== fn_name "min") { return (type_int) } else { (print "") }
+    if (== fn_name "max") { return (type_int) } else { (print "") }
+    if (== fn_name "sqrt") { return (type_float) } else { (print "") }
+    if (== fn_name "pow") { return (type_float) } else { (print "") }
+    if (== fn_name "floor") { return (type_float) } else { (print "") }
+    if (== fn_name "ceil") { return (type_float) } else { (print "") }
+    if (== fn_name "round") { return (type_float) } else { (print "") }
+    
+    /* String operations */
+    if (== fn_name "str_length") { return (type_int) } else { (print "") }
+    if (== fn_name "str_concat") { return (type_string) } else { (print "") }
+    if (== fn_name "str_substring") { return (type_string) } else { (print "") }
+    if (== fn_name "str_contains") { return (type_bool) } else { (print "") }
+    if (== fn_name "str_equals") { return (type_bool) } else { (print "") }
+    if (== fn_name "char_at") { return (type_int) } else { (print "") }
+    if (== fn_name "string_from_char") { return (type_string) } else { (print "") }
+    if (== fn_name "str_starts_with") { return (type_bool) } else { (print "") }
+    if (== fn_name "str_ends_with") { return (type_bool) } else { (print "") }
+    if (== fn_name "str_index_of") { return (type_int) } else { (print "") }
+    if (== fn_name "str_last_index_of") { return (type_int) } else { (print "") }
+    
+    /* Type conversions */
+    if (== fn_name "int_to_string") { return (type_string) } else { (print "") }
+    if (== fn_name "string_to_int") { return (type_int) } else { (print "") }
+    if (== fn_name "cast_int") { return (type_int) } else { (print "") }
+    if (== fn_name "cast_float") { return (type_float) } else { (print "") }
+    if (== fn_name "cast_bool") { return (type_bool) } else { (print "") }
+    if (== fn_name "cast_string") { return (type_string) } else { (print "") }
+    if (== fn_name "to_string") { return (type_string) } else { (print "") }
+    
+    /* Array operations */
+    if (== fn_name "array_length") { return (type_int) } else { (print "") }
+    if (== fn_name "array_set") { return (type_void) } else { (print "") }
+    if (== fn_name "array_push") { return (type_array 0 "") } else { (print "") }
+    if (== fn_name "at") { return Type { kind: TypeKind.TYPE_UNKNOWN, name: "array_elem", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" } } else { (print "") }
+    if (== fn_name "array_get") { return Type { kind: TypeKind.TYPE_UNKNOWN, name: "array_elem", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" } } else { (print "") }
+    
+    /* OS operations */
+    if (== fn_name "getcwd") { return (type_string) } else { (print "") }
+    if (== fn_name "getenv") { return (type_string) } else { (print "") }
+    if (== fn_name "exit") { return (type_void) } else { (print "") }
+    
+    /* Default: unknown */
+    return Type { kind: TypeKind.TYPE_UNKNOWN, name: "builtin", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+}
+
+shadow check_builtin_function {
+    let t1: Type = (check_builtin_function "println" 1)
+    assert (== t1.kind TypeKind.TYPE_VOID)
+    
+    let t2: Type = (check_builtin_function "array_length" 1)
+    assert (== t2.kind TypeKind.TYPE_INT)
+}
+
 /* Extract element type from list function name
  * "list_Point_new" -> "Point"
  * "list_int_push" -> "int"
@@ -827,31 +960,37 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                             let fn_id: ASTIdentifier = (parser_get_identifier parser call.function)
                             let fn_name: string = fn_id.name
                             
-                            /* Check for generic list functions: list_TypeName_operation */
-                            if (str_starts_with fn_name "list_") {
-                                return (check_list_function_call fn_name call.arg_count)
+                            /* Check for built-in functions first */
+                            if (is_builtin_function fn_name) {
+                                return (check_builtin_function fn_name call.arg_count)
                             } else {
-                                let idx: int = (env_lookup symbols fn_name)
-
-                                if (< idx 0) {
-                                    (print "Type error: Undefined function ")
-                                    (println fn_name)
-                                    return Type { kind: TypeKind.TYPE_UNKNOWN, name: "undefined_fn", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                                /* Check for generic list functions: list_TypeName_operation */
+                                if (str_contains fn_name "list_") {
+                                    return (check_list_function_call fn_name call.arg_count)
                                 } else {
-                                    let sym: Symbol = (at symbols idx)
+                                    let idx: int = (env_lookup symbols fn_name)
 
-                                    if (and (>= sym.param_count 0) (!= sym.param_count call.arg_count)) {
-                                        (print "Type error: Wrong arg count for ")
-                                        (print fn_name)
-                                        (print ", expected ")
-                                        (print (int_to_string sym.param_count))
-                                        (print ", got ")
-                                        (println (int_to_string call.arg_count))
+                                    if (< idx 0) {
+                                        (print "Type error: Undefined function ")
+                                        (println fn_name)
+                                        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "undefined_fn", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
                                     } else {
-                                        (print "")
-                                    }
+                                        let sym: Symbol = (at symbols idx)
 
-                                    return sym.sym_type
+                                        if (and (>= sym.param_count 0) (!= sym.param_count call.arg_count)) {
+                                            (print "Type error: Wrong arg count for ")
+                                            (print fn_name)
+                                            (print ", expected ")
+                                            (print (int_to_string sym.param_count))
+                                            (print ", got ")
+                                            (println (int_to_string call.arg_count))
+                                        } else {
+                                            (print "")
+                                        }
+
+                                        return sym.sym_type
+                                    }
+                                }
                                 }
                             }
                         } else {
