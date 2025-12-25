@@ -1009,15 +1009,39 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 
                                 return result
                             } else {
-                                /* Check for union construction: Option.Some { value: 42 } */
-                                if (== node_type 7) {
-                                    return (check_union_construct parser node_id)
-                                } else {
-                                    /* Check for match expression */
-                                    if (== node_type 8) {
-                                        return (check_match_expr parser node_id symbols)
+                                /* Check for array literal */
+                                if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+                                    let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
+                                    /* Use propagated element_type if available */
+                                    if (!= arr.element_type "") {
+                                        return (type_array 0 arr.element_type)
                                     } else {
-                                        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "unknown_node_type", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                                        /* For empty arrays without type info, return generic array */
+                                        return (type_array 0 "")
+                                    }
+                                } else {
+                                    /* Check for field access */
+                                    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+                                        /* TODO: implement field access type checking */
+                                        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "field_access", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                                    } else {
+                                        /* Check for struct literal */
+                                        if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
+                                            /* TODO: implement struct literal type checking */
+                                            return Type { kind: TypeKind.TYPE_UNKNOWN, name: "struct_literal", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                                        } else {
+                                            /* Check for union construction */
+                                            if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
+                                                return (check_union_construct parser node_id)
+                                            } else {
+                                                /* Check for match expression */
+                                                if (== node_type ParseNodeType.PNODE_MATCH) {
+                                                    return (check_match_expr parser node_id symbols)
+                                                } else {
+                                                    return Type { kind: TypeKind.TYPE_UNKNOWN, name: "unknown_node_type", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
