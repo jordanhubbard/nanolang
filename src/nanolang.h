@@ -288,6 +288,7 @@ typedef struct {
     char *struct_type_name;  /* For TYPE_STRUCT: which struct (e.g., "Point") */
     Type element_type;       /* For TYPE_ARRAY: element type (e.g., TYPE_INT for array<int>) */
     FunctionSignature *fn_sig;   /* For TYPE_FUNCTION: function signature */
+    TypeInfo *type_info;     /* For generic types: Result<int, string> */
 } Parameter;
 
 /* AST node structure */

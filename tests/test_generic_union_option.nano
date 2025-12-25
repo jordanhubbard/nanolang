@@ -1,0 +1,25 @@
+/* Test generic union with Option type */
+
+union Option<T> {
+    Some { value: T },
+    None {}
+}
+
+fn get_value(has_value: bool) -> Option<int> {
+    if has_value {
+        return Option<int>.Some { value: 42 }
+    } else {
+        return Option<int>.None {}
+    }
+}
+
+fn main() -> int {
+    let opt1: Option<int> = (get_value true)
+    let opt2: Option<int> = (get_value false)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

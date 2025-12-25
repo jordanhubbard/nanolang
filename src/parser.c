@@ -645,10 +645,12 @@ static bool parse_parameters(Parser *p, Parameter **params, int *param_count) {
             Type element_type = TYPE_UNKNOWN;
             char *type_param_name = NULL;
             FunctionSignature *fn_sig = NULL;
-            param_list[count].type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig, NULL);
+            TypeInfo *type_info = NULL;
+            param_list[count].type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig, &type_info);
             param_list[count].struct_type_name = type_param_name;  /* Store generic type param here */
             param_list[count].element_type = element_type;
             param_list[count].fn_sig = fn_sig;  /* Store function signature if it's a function type */
+            param_list[count].type_info = type_info;  /* Store full type info for generic types */
             
             /* If it's a struct type, save the struct name */
             if (param_list[count].type == TYPE_STRUCT && struct_name) {
@@ -768,6 +770,87 @@ static ASTNode *parse_prefix_op(Parser *p) {
         fprintf(stderr, "Error at line %d, column %d: Invalid prefix operation\n", line, column);
         return NULL;
     }
+}
+
+/* Helper function to parse generic type arguments: <T, E, ...>
+ * Returns a TypeInfo structure with the parsed type parameters.
+ * Assumes the '<' has NOT been consumed yet.
+ * Returns NULL on error.
+ */
+static TypeInfo *parse_generic_type_args(Parser *p, const char *base_name) {
+    if (!match(p, TOKEN_LT)) {
+        return NULL;  /* No generic args */
+    }
+    
+    advance(p);  /* consume '<' */
+    
+    /* Allocate TypeInfo for the generic type */
+    TypeInfo *type_info = calloc(1, sizeof(TypeInfo));
+    if (!type_info) {
+        fprintf(stderr, "Error: Failed to allocate memory for TypeInfo\n");
+        return NULL;
+    }
+    
+    type_info->base_type = TYPE_GENERIC;
+    type_info->generic_name = strdup(base_name);
+    
+    /* Parse type parameters */
+    int capacity = 4;
+    int count = 0;
+    TypeInfo **type_params = malloc(sizeof(TypeInfo*) * capacity);
+    
+    while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
+        if (count >= capacity) {
+            capacity *= 2;
+            type_params = realloc(type_params, sizeof(TypeInfo*) * capacity);
+        }
+        
+        /* Parse a type parameter */
+        TypeInfo *param_type_info = NULL;
+        Type param_type = parse_type_with_element(p, NULL, NULL, NULL, &param_type_info);
+        
+        if (param_type == TYPE_UNKNOWN) {
+            fprintf(stderr, "Error at line %d, column %d: Failed to parse generic type parameter\n",
+                    current_token(p)->line, current_token(p)->column);
+            /* Cleanup */
+            for (int i = 0; i < count; i++) {
+                free(type_params[i]);
+            }
+            free(type_params);
+            free(type_info->generic_name);
+            free(type_info);
+            return NULL;
+        }
+        
+        /* Create TypeInfo for this parameter if not already created */
+        if (!param_type_info) {
+            param_type_info = calloc(1, sizeof(TypeInfo));
+            param_type_info->base_type = param_type;
+        }
+        
+        type_params[count++] = param_type_info;
+        
+        /* Optional comma between parameters */
+        if (match(p, TOKEN_COMMA)) {
+            advance(p);
+        }
+    }
+    
+    if (!expect(p, TOKEN_GT, "Expected '>' after generic type parameters")) {
+        /* Cleanup */
+        for (int i = 0; i < count; i++) {
+            free(type_params[i]);
+        }
+        free(type_params);
+        free(type_info->generic_name);
+        free(type_info);
+        return NULL;
+    }
+    
+    type_info->type_params = type_params;
+    type_info->type_param_count = count;
+    
+    return type_info;
 }
 
 /* Parse primary expression */
@@ -966,10 +1049,137 @@ static ASTNode *parse_primary(Parser *p) {
                 }
                 
                 if (count == 1) {
-                    /* Simple identifier */
+                    /* Simple identifier - check for generic type args: Type<T, E> */
+                    /* This is needed for generic union construction: Result<int, string>.Ok { ... } */
+                    TypeInfo *generic_type_info = NULL;
+                    
+                    /* Check if followed by '<' for generic type instantiation */
+                    if (match(p, TOKEN_LT)) {
+                        generic_type_info = parse_generic_type_args(p, name_parts[0]);
+                        if (!generic_type_info) {
+                            /* Error already reported by parse_generic_type_args */
+                            free(name_parts[0]);
+                            free(name_parts);
+                            return NULL;
+                        }
+                    }
+                    
                     node = create_node(AST_IDENTIFIER, line, column);
                     node->as.identifier = name_parts[0];
                     free(name_parts);
+                    
+                    /* If we parsed generic args, we need to pass this info to parse_postfix.
+                     * We'll store it in the node temporarily. However, AST_IDENTIFIER doesn't
+                     * have a field for TypeInfo. We need a different approach.
+                     * 
+                     * Solution: Create a new AST node type or use a wrapper.
+                     * For now, let's use a different approach: store the TypeInfo in the
+                     * Parser struct as temporary state, and parse_postfix will check for it.
+                     */
+                    
+                    /* Actually, let's use a cleaner approach: if we have generic type args,
+                     * we'll handle the complete union construction here if followed by .Variant.
+                     * Otherwise, it's an error (generic types in expressions must be for union construction).
+                     */
+                    if (generic_type_info) {
+                        /* Must be followed by .Variant for union construction */
+                        if (!match(p, TOKEN_DOT)) {
+                            fprintf(stderr, "Error at line %d, column %d: Generic type instantiation '%s<...>' must be followed by '.Variant' for union construction\n",
+                                    line, column, name_parts[0]);
+                            free(node->as.identifier);
+                            free(node);
+                            /* TODO: free generic_type_info */
+                            return NULL;
+                        }
+                        
+                        advance(p);  /* consume '.' */
+                        
+                        if (!match(p, TOKEN_IDENTIFIER)) {
+                            fprintf(stderr, "Error at line %d, column %d: Expected variant name after '.'\n",
+                                    current_token(p)->line, current_token(p)->column);
+                            free(node->as.identifier);
+                            free(node);
+                            /* TODO: free generic_type_info */
+                            return NULL;
+                        }
+                        
+                        char *variant_name = strdup(current_token(p)->value);
+                        advance(p);
+                        
+                        /* Expect '{' for variant fields */
+                        if (!expect(p, TOKEN_LBRACE, "Expected '{' after variant name")) {
+                            free(node->as.identifier);
+                            free(node);
+                            free(variant_name);
+                            /* TODO: free generic_type_info */
+                            return NULL;
+                        }
+                        
+                        /* Parse variant fields */
+                        int field_capacity = 4;
+                        int field_count = 0;
+                        char **field_names = malloc(sizeof(char*) * field_capacity);
+                        ASTNode **field_values = malloc(sizeof(ASTNode*) * field_capacity);
+                        
+                        while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+                            if (field_count >= field_capacity) {
+                                field_capacity *= 2;
+                                field_names = realloc(field_names, sizeof(char*) * field_capacity);
+                                field_values = realloc(field_values, sizeof(ASTNode*) * field_capacity);
+                            }
+                            
+                            /* Parse field name */
+                            if (!match(p, TOKEN_IDENTIFIER)) {
+                                fprintf(stderr, "Error at line %d, column %d: Expected field name in union construction\n",
+                                        current_token(p)->line, current_token(p)->column);
+                                break;
+                            }
+                            field_names[field_count] = strdup(current_token(p)->value);
+                            advance(p);
+                            
+                            /* Expect colon */
+                            if (!expect(p, TOKEN_COLON, "Expected ':' after field name")) {
+                                break;
+                            }
+                            
+                            /* Parse field value */
+                            field_values[field_count] = parse_expression(p);
+                            field_count++;
+                            
+                            /* Optional comma */
+                            if (match(p, TOKEN_COMMA)) {
+                                advance(p);
+                            }
+                        }
+                        
+                        if (!expect(p, TOKEN_RBRACE, "Expected '}' after union fields")) {
+                            for (int i = 0; i < field_count; i++) {
+                                free(field_names[i]);
+                                free_ast(field_values[i]);
+                            }
+                            free(field_names);
+                            free(field_values);
+                            free(node->as.identifier);
+                            free(node);
+                            free(variant_name);
+                            /* TODO: free generic_type_info */
+                            return NULL;
+                        }
+                        
+                        /* Create union construction node */
+                        char *union_name = node->as.identifier;
+                        free(node);  /* Free the temporary identifier node */
+                        
+                        node = create_node(AST_UNION_CONSTRUCT, line, column);
+                        node->as.union_construct.union_name = union_name;
+                        node->as.union_construct.variant_name = variant_name;
+                        node->as.union_construct.field_names = field_names;
+                        node->as.union_construct.field_values = field_values;
+                        node->as.union_construct.field_count = field_count;
+                        node->as.union_construct.type_info = generic_type_info;
+                        
+                        return node;
+                    }
                 } else {
                     /* Qualified name */
                     node = create_node(AST_QUALIFIED_NAME, line, column);

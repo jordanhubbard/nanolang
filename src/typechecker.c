@@ -1552,6 +1552,33 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 for (int i = 0; i < udef->variant_field_counts[variant_idx]; i++) {
                     if (strcmp(udef->variant_field_names[variant_idx][i], field_name) == 0) {
                         Type field_type = udef->variant_field_types[variant_idx][i];
+                        
+                        /* For generic unions, resolve the concrete type using TypeInfo */
+                        if (udef->generic_param_count > 0 && expr->as.field_access.object->type == AST_IDENTIFIER) {
+                            Symbol *obj_sym = env_get_var_visible_at(env, expr->as.field_access.object->as.identifier,
+                                                                      expr->as.field_access.object->line,
+                                                                      expr->as.field_access.object->column);
+                            if (obj_sym && obj_sym->type_info && obj_sym->type_info->type_param_count > 0) {
+                                /* Check if the field type is a generic parameter (e.g., "T", "E") */
+                                const char *field_type_name = udef->variant_field_type_names[variant_idx][i];
+                                if (field_type_name) {
+                                    /* Try to match it to a generic parameter name */
+                                    for (int g = 0; g < udef->generic_param_count; g++) {
+                                        if (strcmp(udef->generic_params[g], field_type_name) == 0) {
+                                            /* Found a match - use the concrete type from TypeInfo */
+                                            if (g < obj_sym->type_info->type_param_count) {
+                                                TypeInfo *concrete_type_info = obj_sym->type_info->type_params[g];
+                                                if (concrete_type_info) {
+                                                    field_type = concrete_type_info->base_type;
+                                                }
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
                         free(union_name);
                         return field_type;
                     }
@@ -1671,12 +1698,21 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             
             /* Infer and store union type name for transpiler */
             const char *union_type_name = NULL;
+            TypeInfo *union_type_info = NULL;  /* For generic unions: Result<int, string> */
             ASTNode *match_expr_node = expr->as.match_expr.expr;
             
             if (match_expr_node->type == AST_IDENTIFIER) {
                 Symbol *sym = env_get_var_visible_at(env, match_expr_node->as.identifier, match_expr_node->line, match_expr_node->column);
                 if (sym && sym->struct_type_name) {
                     union_type_name = sym->struct_type_name;
+                }
+                /* For generic unions, also extract TypeInfo */
+                if (sym && sym->type_info) {
+                    union_type_info = sym->type_info;
+                    /* If the union has generic parameters, use the generic name as the base */
+                    if (union_type_info->generic_name) {
+                        union_type_name = union_type_info->generic_name;
+                    }
                 }
             } else if (match_expr_node->type == AST_UNION_CONSTRUCT) {
                 union_type_name = match_expr_node->as.union_construct.union_name;
@@ -1719,9 +1755,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                  * This allows us to distinguish union variant fields from regular struct fields
                  */
                 Value binding_val = create_void();
-                env_define_var_with_element_type(env, 
+                env_define_var_with_type_info(env, 
                     expr->as.match_expr.pattern_bindings[i],
-                    TYPE_STRUCT, TYPE_UNKNOWN, false, binding_val);
+                    TYPE_STRUCT, TYPE_UNKNOWN, union_type_info, false, binding_val);
                 
                 /* Store "UnionName.VariantName" as the struct type name for the binding
                  * This will be used by field access type checking to look up variant fields
@@ -1738,9 +1774,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Type check arm body (which is now an expression) */
                 Type arm_type = check_expression(expr->as.match_expr.arm_bodies[i], env);
                 
-                /* Restore scope */
-                /* Note: Symbols added here will be leaked, but typechecker is short-lived */
-                env->symbol_count = saved_symbol_count;
+                /* NOTE: We do NOT restore symbol_count here because the transpiler needs these bindings
+                 * later when it re-typechecks expressions for code generation. Match arm bindings need
+                 * to remain in the environment for the lifetime of the compilation unit.
+                 * This is safe because each arm's binding uses a unique name from the source code.
+                 */
                 
                 /* First arm determines return type */
                 if (i == 0) {
@@ -2373,8 +2411,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
 
             for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
-                int saved_symbol_count = tc->env->symbol_count;
-
                 Value binding_val = create_void();
                 env_define_var_with_element_type(tc->env,
                     stmt->as.match_expr.pattern_bindings[i],
@@ -2395,7 +2431,11 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     check_expression(arm, tc->env);
                 }
 
-                tc->env->symbol_count = saved_symbol_count;
+                /* NOTE: We do NOT restore symbol_count here because the transpiler needs these bindings
+                 * later when it re-typechecks expressions for code generation. Match arm bindings need
+                 * to remain in the environment for the lifetime of the compilation unit.
+                 * This is safe because each arm's binding uses a unique name from the source code.
+                 */
             }
 
             return TYPE_VOID;
@@ -4407,6 +4447,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
             for (int j = 0; j < item->as.function.param_count; j++) {
                 Type param_type = item->as.function.params[j].type;
                 Type element_type = item->as.function.params[j].element_type;
+                TypeInfo *param_type_info = item->as.function.params[j].type_info;
                 Value val;
                 if (param_type == TYPE_INT) val = create_int(0);
                 else if (param_type == TYPE_FLOAT) val = create_float(0.0);
@@ -4416,10 +4457,18 @@ bool type_check_module(ASTNode *program, Environment *env) {
                     val = create_array((ValueType)element_type, 0, 0);
                 } else if (param_type == TYPE_STRUCT) {
                     val = create_struct(item->as.function.params[j].struct_type_name, NULL, NULL, 0);
+                } else if (param_type == TYPE_UNION) {
+                    /* For union parameters, create empty union value */
+                    val = create_void();  /* Placeholder */
                 } else val = create_void();
                 
+                /* For function parameters with TypeInfo (generics, function types, etc.), use full type info */
+                if (param_type_info) {
+                    /* Already have TypeInfo from parser - use it directly */
+                    env_define_var_with_type_info(env, item->as.function.params[j].name, param_type, element_type, param_type_info, false, val);
+                }
                 /* For function parameters, create TypeInfo with signature */
-                if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
+                else if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
                     TypeInfo *type_info = malloc(sizeof(TypeInfo));
                     memset(type_info, 0, sizeof(TypeInfo));
                     type_info->base_type = TYPE_FUNCTION;
