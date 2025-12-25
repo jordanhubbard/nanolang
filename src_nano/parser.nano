@@ -1123,7 +1123,7 @@ fn parser_store_string(p: Parser, value: string, line: int, column: int) -> Pars
         tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
         last_expr_node_id: node_id,
-        last_expr_node_type: 4
+        last_expr_node_type: ParseNodeType.PNODE_STRING
     }
 }
 
@@ -1213,7 +1213,7 @@ fn parser_store_bool(p: Parser, value: bool, line: int, column: int) -> Parser {
         tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
         last_expr_node_id: node_id,
-        last_expr_node_type: 5
+        last_expr_node_type: ParseNodeType.PNODE_BOOL
     }
 }
 
@@ -1303,7 +1303,7 @@ fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> P
         tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
         last_expr_node_id: node_id,
-        last_expr_node_type: 1
+        last_expr_node_type: ParseNodeType.PNODE_IDENTIFIER
     }
 }
 
@@ -1398,7 +1398,7 @@ fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_
         tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
         last_expr_node_id: node_id,
-        last_expr_node_type: 2
+        last_expr_node_type: ParseNodeType.PNODE_BINARY_OP
     }
 }
 
@@ -1493,7 +1493,7 @@ fn parser_store_call(p: Parser, function_id: int, arg_start: int, arg_count: int
         tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
         last_expr_node_id: node_id,
-        last_expr_node_type: 3
+        last_expr_node_type: ParseNodeType.PNODE_CALL
     }
 }
 shadow parser_store_call {
@@ -3718,15 +3718,9 @@ fn parse_block_recursive(p: Parser, statement_start: int, statement_count: int, 
                     return p2
                 } else {
                     let stmt_id: int = p2.last_expr_node_id
-                    let raw_type: int = p2.last_expr_node_type
-                    let mut stmt_type: int = raw_type
+                    let stmt_type: int = p2.last_expr_node_type
 
-                    /* Expression statements use the expression-kind encoding (0..).
-                     * Convert them to ParseNodeType for block statement refs.
-                     */
-                    if (< raw_type ParseNodeType.PNODE_LET) {
-                        set stmt_type (expr_kind_to_pnode raw_type)
-                    } else { (print "") }
+                    /* last_expr_node_type is already a ParseNodeType value, no conversion needed */
 
                     let p3: Parser = (parser_store_block_statement p2 stmt_id stmt_type)
                     /* Continue parsing more statements */
