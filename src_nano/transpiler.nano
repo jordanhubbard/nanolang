@@ -486,17 +486,6 @@ shadow type_to_c {
     assert (== (type_to_c "MyStruct") "nl_MyStruct")
 }
 
-fn array_contains_string(items: array<string>, s: string) -> bool {
-    let mut i: int = 0
-    while (< i (array_length items)) {
-        if (str_equals (at items i) s) {
-            return true
-        } else { (print "") }
-        set i (+ i 1)
-    }
-    return false
-}
-
 fn tuple_split_types(tuple_type: string) -> array<string> {
     let len: int = (str_length tuple_type)
     if (< len 2) {
@@ -985,6 +974,7 @@ shadow gen_c_runtime {
     assert (== 1 1)
 }
 
+/*
     return sorted
 }
 */
@@ -1133,6 +1123,47 @@ fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>
     }
     
     return result
+}
+
+/* Find first occurrence of character in string */
+fn str_index_of(s: string, ch: string) -> int {
+    let len: int = (str_length s)
+    let mut i: int = 0
+    
+    while (< i len) {
+        let char_at: string = (str_substring s i 1)
+        if (== char_at ch) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    
+    return -1
+}
+
+shadow str_index_of {
+    assert (== (str_index_of "hello" "e") 1)
+    assert (== (str_index_of "List<Point>" "<") 4)
+    assert (== (str_index_of "hello" "x") -1)
+}
+
+/* Extract element type from List<T> string */
+fn extract_list_element_type(s: string) -> string {
+    /* "List<Point>" -> "Point" */
+    let start: int = (+ (str_index_of s "<") 1)
+    let end: int = (str_index_of s ">")
+    if (and (> start 0) (> end start)) {
+        return (str_substring s start (- end start))
+    } else {
+        return ""
+    }
+}
+
+shadow extract_list_element_type {
+    assert (== (extract_list_element_type "List<Point>") "Point")
+    assert (== (extract_list_element_type "List<int>") "int")
 }
 
 /* Check if array contains a string */
