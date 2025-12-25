@@ -134,6 +134,20 @@ shadow type_void {
 }
 
 /* Create array type */
+fn type_kind_from_string(type_str: string) -> int {
+    if (== type_str "int") { return TypeKind.TYPE_INT }
+    else { if (== type_str "float") { return TypeKind.TYPE_FLOAT }
+    else { if (== type_str "bool") { return TypeKind.TYPE_BOOL }
+    else { if (== type_str "string") { return TypeKind.TYPE_STRING }
+    else { if (== type_str "void") { return TypeKind.TYPE_VOID }
+    else { return TypeKind.TYPE_UNKNOWN } } } } }
+}
+
+shadow type_kind_from_string {
+    assert (== (type_kind_from_string "int") TypeKind.TYPE_INT)
+    assert (== (type_kind_from_string "string") TypeKind.TYPE_STRING)
+}
+
 fn type_array(elem_kind: int, elem_name: string) -> Type {
     return Type {
         kind: TypeKind.TYPE_ARRAY,
@@ -1014,10 +1028,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                     let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
                                     /* Use propagated element_type if available */
                                     if (!= arr.element_type "") {
-                                        return (type_array 0 arr.element_type)
+                                        /* Convert element_type string to TypeKind */
+                                        let elem_kind: int = (type_kind_from_string arr.element_type)
+                                        return (type_array elem_kind arr.element_type)
                                     } else {
                                         /* For empty arrays without type info, return generic array */
-                                        return (type_array 0 "")
+                                        return (type_array TypeKind.TYPE_INT "")
                                     }
                                 } else {
                                     /* Check for field access */
