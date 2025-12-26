@@ -304,7 +304,7 @@ fn get_ray(x: int, y: int, yaw: float, pitch: float, cam_pos: Vec3) -> Ray {
     let aspect: float = (/ (cast_float RENDER_W) (cast_float RENDER_H))
     let scale: float = (tan (/ (* 60.0 3.14159) 360.0))
     
-    let cam_x: float = (* ndc_x aspect scale)
+    let cam_x: float = (* (* ndc_x aspect) scale)
     let cam_y: float = (* ndc_y scale)
     let cam_z: float = -1.0
     
@@ -382,11 +382,11 @@ fn main() -> int {
         
         if (> pitch 89.0) { set pitch 89.0 }
         if (< pitch -89.0) { set pitch -89.0 }
-        
-        let mut y: int = 0
-        while (< y RENDER_H) {
-            let mut x: int = 0
-            while (< x RENDER_W) {
+
+    let mut y: int = 0
+    while (< y RENDER_H) {
+        let mut x: int = 0
+        while (< x RENDER_W) {
                 let ray: Ray = (get_ray x y yaw pitch cam_pos)
                 let color: Vec3 = (trace ray spheres light_pos 0)
                 
@@ -395,15 +395,15 @@ fn main() -> int {
                 let b: int = (cast_int (clamp (* color.z 255.0) 0.0 255.0))
                 
                 (SDL_SetRenderDrawColor renderer r g b 255)
-                (SDL_RenderFillRect renderer (* x RENDER_SCALE) (* y RENDER_SCALE) RENDER_SCALE RENDER_SCALE)
+                (nl_sdl_render_fill_rect renderer (* x RENDER_SCALE) (* y RENDER_SCALE) RENDER_SCALE RENDER_SCALE)
                 
-                set x (+ x 1)
-            }
-            set y (+ y 1)
+            set x (+ x 1)
         }
+        set y (+ y 1)
+    }
         
-        (SDL_RenderPresent renderer)
-        
+    (SDL_RenderPresent renderer)
+
         if (== (nl_sdl_poll_event_quit) 1) { set running 0 }
     }
     
