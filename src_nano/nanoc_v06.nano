@@ -165,49 +165,15 @@ fn parse_args() -> CompileOptions {
  * Once we're self-hosting, we can rewrite this properly in NanoLang
  */
 fn merge_with_imports_via_shell(input_file: string) -> string {
-    /* Create a shell script to merge files */
-    let script: string = "/tmp/merge_imports.sh"
-    let mut cmd: string = "#!/bin/bash\n"
-    set cmd (str_concat cmd "# Merge NanoLang source with imports\n")
-    set cmd (str_concat cmd "while IFS= read -r line || [ -n \"$line\" ]; do\n")
-    set cmd (str_concat cmd "  if [[ \"$line\" =~ ^import\\ \\\"(.*)\\\" ]]; then\n")
-    set cmd (str_concat cmd "    import_path=\"${BASH_REMATCH[1]}\"\n")
-    set cmd (str_concat cmd "    if [ -f \"$import_path\" ]; then\n")
-    set cmd (str_concat cmd "      while IFS= read -r iline || [ -n \"$iline\" ]; do\n")
-    set cmd (str_concat cmd "        if [[ ! \"$iline\" =~ ^import\\ ]]; then\n")
-    set cmd (str_concat cmd "          echo \"$iline\" | sed 's/^pub fn /fn /' | sed 's/^pub struct /struct /'\n")
-    set cmd (str_concat cmd "        fi\n")
-    set cmd (str_concat cmd "      done < \"$import_path\"\n")
-    set cmd (str_concat cmd "    fi\n")
-    set cmd (str_concat cmd "  else\n")
-    set cmd (str_concat cmd "    echo \"$line\" | sed 's/^pub fn /fn /' | sed 's/^pub struct /struct /'\n")
-    set cmd (str_concat cmd "  fi\n")
-    set cmd (str_concat cmd "done < ")
-    set cmd (str_concat cmd input_file)
-    set cmd (str_concat cmd "\n")
-    
-    let write_result: int = (file_write script cmd)
-    if (!= write_result 0) {
-        return ""
-    } else {
-        (print "")
-    }
-    
-    /* Make executable and run */
-    let chmod_result: int = (nl_exec_shell "chmod +x /tmp/merge_imports.sh")
-    if (!= chmod_result 0) {
-        return ""
-    } else {
-        (print "")
-    }
-    
-    /* Execute and capture output to temp file */
+    /* Use Python merge script for proper dependency resolution */
     let output_file: string = "/tmp/nanolang_merged.nano"
-    let mut exec_cmd: string = "/tmp/merge_imports.sh > "
-    set exec_cmd (str_concat exec_cmd output_file)
-    set exec_cmd (str_concat exec_cmd " 2>&1")
+    let mut cmd: string = "python3 tools/merge_imports.py "
+    set cmd (str_concat cmd input_file)
+    set cmd (str_concat cmd " > ")
+    set cmd (str_concat cmd output_file)
+    set cmd (str_concat cmd " 2>&1")
     
-    let exec_result: int = (nl_exec_shell exec_cmd)
+    let exec_result: int = (nl_exec_shell cmd)
     if (!= exec_result 0) {
         return ""
     } else {

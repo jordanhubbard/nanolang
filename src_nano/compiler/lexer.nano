@@ -452,21 +452,6 @@ pub fn tokenize_file(path: string) -> List<LexToken> {
     return (tokenize_string source)
 }
 
-pub struct TokenList {
-    tokens: List<LexToken>
-}
-
-pub fn tokenize_file_result(path: string) -> Result<TokenList, Diagnostic> {
-    if (== (file_exists path) false) {
-        let s: Span = (span_single path 1 1)
-        let d: Diagnostic = (diag_error (str_concat "file not found: " path) s)
-        return Result.Err { error: d }
-    }
-
-    let source: string = (file_read path)
-    return Result.Ok { value: TokenList { tokens: (tokenize_string source) } }
-}
-
 shadow tokenize_string {
     let source: string = "import \"x.nano\" as X\nfn main() -> int { return 0 }"
     let toks: List<LexToken> = (tokenize_string source)
