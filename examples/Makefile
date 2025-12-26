@@ -80,7 +80,6 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/sdl_particles \
 	$(BIN_DIR)/sdl_mod_visualizer \
 	$(BIN_DIR)/sdl_nanoamp \
-	$(BIN_DIR)/sdl_raytracer \
 	$(BIN_DIR)/sdl_asteroids \
 	$(BIN_DIR)/sdl_terrain_explorer \
 	$(BIN_DIR)/sdl_falling_sand \
