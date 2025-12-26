@@ -287,16 +287,25 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
-            /* Build C compiler command
-             * Note: Generated C code is self-contained with inline runtime.
-             * We only need to link with the C file itself - no external libs required.
-             * For programs using modules, the module system is linked separately.
+            /* Build C compiler command with runtime library files
+             * The transpiler generates calls to runtime functions (dyn_array_*, gc_*, etc.)
+             * We must link with the runtime C sources to provide these implementations.
+             * This matches what the C compiler does in src/main.c line 461.
              */
             let mut cc_cmd: string = "cc -std=c99 -Isrc "
             set cc_cmd (str_concat cc_cmd c_file)
             set cc_cmd (str_concat cc_cmd " -o ")
             set cc_cmd (str_concat cc_cmd output_file)
-            /* TODO: Add -Lobj -lruntime obj/cJSON.o obj/module_metadata.o only for programs using modules/GC */
+            /* Add runtime library sources */
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_int.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_string.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_token.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/token_helpers.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/gc.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/dyn_array.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/gc_struct.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/nl_string.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/cli.c")
             set cc_cmd (str_concat cc_cmd " 2>&1")
             
             if verbose {
