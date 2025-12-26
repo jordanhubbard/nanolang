@@ -7,8 +7,6 @@
  */
 
 import "src_nano/compiler/ir.nano"
-import "std/diagnostics.nano"
-import "std/result.nano"
 
 fn is_identifier_start(c: int) -> bool {
     return (or (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122))) (== c 95))

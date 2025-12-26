@@ -157,6 +157,69 @@ fn parse_args() -> CompileOptions {
 }
 
 /* =============================================================================
+ * IMPORT RESOLUTION (SIMPLIFIED)
+ * ============================================================================= */
+
+/* For bootstrap, we use a HACK: shell out to create a merged file
+ * This is NOT elegant, but it gets us to 100% self-hosting
+ * Once we're self-hosting, we can rewrite this properly in NanoLang
+ */
+fn merge_with_imports_via_shell(input_file: string) -> string {
+    /* Create a shell script to merge files */
+    let script: string = "/tmp/merge_imports.sh"
+    let mut cmd: string = "#!/bin/bash\n"
+    set cmd (str_concat cmd "# Merge NanoLang source with imports\n")
+    set cmd (str_concat cmd "while IFS= read -r line || [ -n \"$line\" ]; do\n")
+    set cmd (str_concat cmd "  if [[ \"$line\" =~ ^import\\ \\\"(.*)\\\" ]]; then\n")
+    set cmd (str_concat cmd "    import_path=\"${BASH_REMATCH[1]}\"\n")
+    set cmd (str_concat cmd "    if [ -f \"$import_path\" ]; then\n")
+    set cmd (str_concat cmd "      while IFS= read -r iline || [ -n \"$iline\" ]; do\n")
+    set cmd (str_concat cmd "        if [[ ! \"$iline\" =~ ^import\\ ]]; then\n")
+    set cmd (str_concat cmd "          echo \"$iline\" | sed 's/^pub fn /fn /' | sed 's/^pub struct /struct /'\n")
+    set cmd (str_concat cmd "        fi\n")
+    set cmd (str_concat cmd "      done < \"$import_path\"\n")
+    set cmd (str_concat cmd "    fi\n")
+    set cmd (str_concat cmd "  else\n")
+    set cmd (str_concat cmd "    echo \"$line\" | sed 's/^pub fn /fn /' | sed 's/^pub struct /struct /'\n")
+    set cmd (str_concat cmd "  fi\n")
+    set cmd (str_concat cmd "done < ")
+    set cmd (str_concat cmd input_file)
+    set cmd (str_concat cmd "\n")
+    
+    let write_result: int = (file_write script cmd)
+    if (!= write_result 0) {
+        return ""
+    } else {
+        (print "")
+    }
+    
+    /* Make executable and run */
+    let chmod_result: int = (nl_exec_shell "chmod +x /tmp/merge_imports.sh")
+    if (!= chmod_result 0) {
+        return ""
+    } else {
+        (print "")
+    }
+    
+    /* Execute and capture output to temp file */
+    let output_file: string = "/tmp/nanolang_merged.nano"
+    let mut exec_cmd: string = "/tmp/merge_imports.sh > "
+    set exec_cmd (str_concat exec_cmd output_file)
+    set exec_cmd (str_concat exec_cmd " 2>&1")
+    
+    let exec_result: int = (nl_exec_shell exec_cmd)
+    if (!= exec_result 0) {
+        return ""
+    } else {
+        (print "")
+    }
+    
+    /* Read merged result */
+    let merged: string = (file_read output_file)
+    return merged
+}
+
+/* =============================================================================
  * COMPILATION PIPELINE
  * ============================================================================= */
 
@@ -176,6 +239,36 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
         (print "")
     }
     
+    /* Step 0: Merge imports into single source */
+    if verbose {
+        (println "[0/5] Resolving imports...")
+    } else {
+        (print "")
+    }
+    
+    let merged_source: string = (merge_with_imports_via_shell input_file)
+    let temp_source_file: string = "/tmp/nanolang_merged.nano"
+    let mut source_to_compile: string = input_file
+    
+    if (!= merged_source "") {
+        /* Imports resolved - use merged file */
+        if verbose {
+            (print "  ✓ Merged source: ")
+            (print (int_to_string (str_length merged_source)))
+            (println " bytes")
+        } else {
+            (print "")
+        }
+        set source_to_compile temp_source_file
+    } else {
+        /* No imports or merge failed - use original file */
+        if verbose {
+            (println "  ✓ No imports to resolve")
+        } else {
+            (print "")
+        }
+    }
+    
     /* Step 1: Lexer - Tokenize source file */
     if verbose {
         (println "[1/5] Lexing...")
@@ -183,8 +276,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
         (print "")
     }
     
-    /* Use simplified tokenize_file instead of Result-based version */
-    let tokens: List<LexToken> = (tokenize_file input_file)
+    let tokens: List<LexToken> = (tokenize_file source_to_compile)
     let token_count: int = (list_LexToken_length tokens)
     
     if (== token_count 0) {
