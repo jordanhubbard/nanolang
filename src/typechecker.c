@@ -1749,7 +1749,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             Type return_type = TYPE_UNKNOWN;
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                 /* Save symbol count for scope */
-                int saved_symbol_count = env->symbol_count;
+                int saved_symbol_count __attribute__((unused)) = env->symbol_count;
                 
                 /* Add pattern binding to environment - bind as STRUCT type with "UnionName.VariantName"
                  * This allows us to distinguish union variant fields from regular struct fields
