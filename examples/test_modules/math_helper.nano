@@ -1,0 +1,29 @@
+/* Math helper module for nl_demo_selfhosting.nano */
+
+pub fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+    assert (== (add 10 20) 30)
+}
+
+pub fn multiply(a: int, b: int) -> int {
+    return (* a b)
+}
+
+shadow multiply {
+    assert (== (multiply 2 3) 6)
+    assert (== (multiply 12 8) 96)
+}
+
+pub fn square(n: int) -> int {
+    return (* n n)
+}
+
+shadow square {
+    assert (== (square 5) 25)
+    assert (== (square 11) 121)
+}
+

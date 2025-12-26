@@ -50,6 +50,13 @@ fn fibonacci(n: int) -> int {
     }
 }
 
+shadow fibonacci {
+    assert (== (fibonacci 0) 0)
+    assert (== (fibonacci 1) 1)
+    assert (== (fibonacci 5) 5)
+    assert (== (fibonacci 10) 55)
+}
+
 fn factorial(n: int) -> int {
     if (< n 2) {
         return 1
@@ -57,6 +64,13 @@ fn factorial(n: int) -> int {
         let prev: int = (factorial (- n 1))
         return (Math.multiply n prev)  /* Using imported module! */
     }
+}
+
+shadow factorial {
+    assert (== (factorial 0) 1)
+    assert (== (factorial 1) 1)
+    assert (== (factorial 5) 120)
+    assert (== (factorial 6) 720)
 }
 
 fn power(base: int, exp: int) -> int {
@@ -70,6 +84,13 @@ fn power(base: int, exp: int) -> int {
             return (Math.multiply base prev)
         }
     }
+}
+
+shadow power {
+    assert (== (power 2 0) 1)
+    assert (== (power 2 1) 2)
+    assert (== (power 2 8) 256)
+    assert (== (power 10 3) 1000)
 }
 
 fn main() -> int {

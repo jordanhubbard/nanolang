@@ -90,6 +90,14 @@ fn get_viz_name(mode: int) -> string {
     }
 }
 
+shadow get_viz_name {
+    assert (== (get_viz_name VIZ_TUNNEL) "Tunnel")
+    assert (== (get_viz_name VIZ_SPECTRUM_SPHERE) "Spectrum Sphere")
+    assert (== (get_viz_name VIZ_PARTICLES) "Particles")
+    assert (== (get_viz_name VIZ_WAVEFORM_3D) "3D Waveform")
+    assert (== (get_viz_name VIZ_FREQUENCY_CUBES) "Frequency Cubes")
+}
+
 # Initialize OpenGL for 3D rendering
 fn setup_opengl_3d() -> void {
     # Enable depth testing
