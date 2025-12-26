@@ -309,6 +309,9 @@ fn main() -> int {
         let particle_count: int = (array_length particle_x)
         (draw_ui_overlay renderer font particle_count)
         
+        # Draw on-screen help
+        (nl_draw_text_blended renderer font "Click: Spawn Explosion | ESC: Quit" 10 10 255 255 255 255)
+        
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)
         

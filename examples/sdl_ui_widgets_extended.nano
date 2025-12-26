@@ -295,6 +295,9 @@ fn main() -> int {
         # Instructions
         (nl_ui_label renderer font "Press ESC to quit • All widgets are interactive!" 230 765 150 150 150 255)
         
+        # Draw on-screen help
+        (nl_draw_text_blended renderer font "Interact with widgets | ESC: Quit" 10 10 255 255 255 255)
+        
         # Present
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)

@@ -320,6 +320,9 @@ fn main() -> int {
         # Draw UI overlay
         (draw_ui_overlay renderer font NUM_BOIDS)
         
+        # Draw on-screen help
+        (nl_draw_text_blended renderer font "ESC: Quit" 10 10 255 255 255 255)
+        
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)
         

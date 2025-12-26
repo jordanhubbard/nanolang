@@ -3,17 +3,19 @@
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 let WINDOW_WIDTH: int = 800
 let WINDOW_HEIGHT: int = 600
 
 fn main() -> int {
-    (println "SDL Drawing Primitives - Press ESC to quit")
-    
     # Initialize
     (SDL_Init SDL_INIT_VIDEO)
+    (TTF_Init)
     let window: SDL_Window = (SDL_CreateWindow "Drawing Primitives" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+    let font: TTF_Font = (nl_open_font_portable "Arial" 12)
     
     # Main loop
     let mut running: bool = true
@@ -68,6 +70,9 @@ fn main() -> int {
             set i (+ i 10)
         }
         
+        # Draw on-screen help
+        (nl_draw_text_blended renderer font "ESC: Quit" 10 10 255 255 255 255)
+        
         # Present
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)
@@ -75,8 +80,10 @@ fn main() -> int {
     }
     
     # Cleanup
+    (TTF_CloseFont font)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
+    (TTF_Quit)
     (SDL_Quit)
     
     return 0

@@ -838,6 +838,9 @@ fn main() -> int {
         # Draw UI overlay
         (draw_ui_overlay renderer font view_mode)
         
+        # Draw on-screen help
+        (nl_draw_text_blended renderer font "WASD: Move | V: View Mode | ESC: Quit" 10 10 255 255 255 255)
+        
         (SDL_RenderPresent renderer)
         
         # Frame delay

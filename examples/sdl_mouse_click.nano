@@ -4,20 +4,22 @@
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 fn main() -> int {
     # Initialize SDL
     (SDL_Init 32)
+    (TTF_Init)
     
     let window: SDL_Window = (SDL_CreateWindow "Mouse Click Test" 100 100 400 300 4)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 12)
     
     if (== renderer 0) {
         (println "Failed to create renderer")
         return 1
-    } else {
-        (println "✓ SDL initialized")
-    }
+    } else {}
     
     # Disable mouse motion events
     (SDL_EventState 1024 0)
@@ -105,6 +107,10 @@ fn main() -> int {
                 }
                 set dy (+ dy 1)
             }
+            
+            # Draw on-screen help
+            (nl_draw_text_blended renderer font "Click anywhere | ESC: Quit" 10 10 255 255 255 255)
+            
             (SDL_RenderPresent renderer)
         } else {
             (print "")
@@ -112,14 +118,6 @@ fn main() -> int {
         
         (SDL_Delay 16)
     }
-    
-    (println "")
-    (println "=== TEST RESULTS ===")
-    (print "Total mouse clicks detected: ")
-    (println click_count)
-    (print "Total keyboard events detected: ")
-    (println key_count)
-    (println "")
     
     if (> click_count 0) {
         (println "✅ PASS: Mouse clicks were successfully detected!")

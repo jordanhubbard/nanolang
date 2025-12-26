@@ -4,6 +4,8 @@
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 let WINDOW_WIDTH: int = 640
 let WINDOW_HEIGHT: int = 480
@@ -11,14 +13,13 @@ let TEXTURE_WIDTH: int = 256
 let TEXTURE_HEIGHT: int = 256
 
 fn main() -> int {
-    (println "SDL Texture Demo - Dynamic pixel manipulation")
-    (println "Press ESC to quit")
-    
     # Initialize SDL
     (SDL_Init SDL_INIT_VIDEO)
+    (TTF_Init)
     
     let window: SDL_Window = (SDL_CreateWindow "Texture Demo" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+    let font: TTF_Font = (nl_open_font_portable "Arial" 12)
     
     # Create a streaming texture (format: ARGB8888 = 372645892)
     let texture: SDL_Texture = (SDL_CreateTexture renderer 372645892 1 TEXTURE_WIDTH TEXTURE_HEIGHT)
@@ -89,6 +90,9 @@ fn main() -> int {
         # Right
         (SDL_RenderDrawLine renderer (+ tex_x TEXTURE_WIDTH) tex_y (+ tex_x TEXTURE_WIDTH) (+ tex_y TEXTURE_HEIGHT))
         
+        # Draw on-screen help
+        (nl_draw_text_blended renderer font "ESC: Quit" 10 10 255 255 255 255)
+        
         # Present
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)
@@ -97,9 +101,11 @@ fn main() -> int {
     }
     
     # Cleanup
+    (TTF_CloseFont font)
     (SDL_DestroyTexture texture)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
+    (TTF_Quit)
     (SDL_Quit)
     
     (println "Done!")

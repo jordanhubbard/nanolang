@@ -5,6 +5,8 @@ import "modules/sdl/sdl.nano"
 import "modules/sdl_mixer/sdl_mixer.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
 import "modules/audio_viz/audio_viz.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 let WINDOW_WIDTH: int = 800
 let WINDOW_HEIGHT: int = 600
@@ -98,12 +100,9 @@ fn main() -> int {
         (println "")
     }
     
-    # Display controls
-    (println "Controls:")
-    (println "  SPACE - Play/Pause")
-    (println "  TAB   - Cycle Visualizer Mode")
-    (println "  ESC   - Quit")
-    (println "")
+    # Initialize TTF
+    (TTF_Init)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 12)
     
     # Set volume to 80% (100 out of 128 max)
     (Mix_VolumeMusic 100)
@@ -423,6 +422,9 @@ fn main() -> int {
         }
         (nl_sdl_render_fill_rect renderer 540 (- 500 vu4) 30 vu4)
         
+        # Draw on-screen help
+        (nl_draw_text_blended renderer font "Space: Play/Pause | Tab: Cycle Mode | ESC: Quit" 10 10 255 255 255 255)
+        
         # Present
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)
@@ -431,7 +433,7 @@ fn main() -> int {
     }
     
     # Cleanup
-    (println "Cleaning up...")
+    (TTF_CloseFont font)
     (Mix_HaltMusic)
     (Mix_FreeMusic music)
     (nl_audio_viz_shutdown)
@@ -439,10 +441,8 @@ fn main() -> int {
     (SDL_DestroyWindow window)
     (Mix_CloseAudio)
     (Mix_Quit)
+    (TTF_Quit)
     (SDL_Quit)
-    
-    (println "✓ Done")
-    (println "")
     return 0
 }
 

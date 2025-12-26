@@ -206,14 +206,6 @@ fn main() -> int {
     } else {}
     
     (println "")
-    (println "Controls:")
-    (println "  Transport buttons: Prev/Play/Pause/Stop/Next")
-    (println "  Click playlist tracks to play")
-    (println "  Click/drag progress bar to seek")
-    (println "  TAB: cycle visualizer modes")
-    (println "  ESC: quit and save playlist")
-    (println "")
-    
     # State variables
     let mut running: bool = true
     let mut playback_state: int = STATE_STOPPED
@@ -800,6 +792,9 @@ fn main() -> int {
             # Version info
             (nl_ui_label renderer tiny_font "NanoAmp v2.0" 510 630 100 140 160 255)
         }
+        
+        # Draw on-screen help
+        (nl_draw_text_blended renderer font "Space: Play/Pause | N: Next | P: Prev | ESC: Quit" 10 10 255 255 255 255)
         
         # Present frame
         (SDL_RenderPresent renderer)
