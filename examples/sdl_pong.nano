@@ -69,12 +69,12 @@ fn main() -> int {
     (println "")
     
     while running {
+        # Check for quit event FIRST (before consuming other events)
+        if (== (nl_sdl_poll_event_quit) 1) { set running false }
+        
         # Handle keyboard input
         let key: int = (nl_sdl_poll_keypress)
         if (== key 41) { set running false }  # ESC
-        
-        # Check for quit event
-        if (== (nl_sdl_poll_event_quit) 1) { set running false }
         
         # Calculate delta time
         let current_time: int = (SDL_GetTicks)
