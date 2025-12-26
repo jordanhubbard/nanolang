@@ -42,8 +42,23 @@ bd link <blocker-id> --blocks <blocked-id>   # Blocker blocks another issue
 1. **Interpreter/Compiler Parity**: Both must support same features
 2. **Warning-Free Code**: Compile with `-Wall -Wextra -Werror`
 3. **Dual Implementation**: C reference in `src/`, NanoLang self-hosted in `src_nano/`
-4. **Test-First**: Shadow tests required for all functions
+4. **⚠️ Shadow Tests MANDATORY**: Required for ALL functions (including examples) - NO EXCEPTIONS except `extern`
 5. **Minimal Comments**: Code should be self-documenting
+
+### Shadow Test Policy (CRITICAL)
+**Shadow tests are a CORE DESIGN PRINCIPLE of NanoLang.**
+
+ALL functions MUST have shadow tests:
+- ✅ Library functions
+- ✅ Application code
+- ✅ **Example code**
+- ✅ Utility functions
+- ✅ Demo programs
+- ❌ ONLY EXCEPTION: `extern` functions
+
+**"Missing shadow test" warnings are NOT false positives - they are TODOs that must be addressed.**
+
+When generating NanoLang code, ALWAYS include shadow tests. This is non-negotiable.
 
 ### Testing
 ```bash

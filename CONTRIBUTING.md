@@ -72,12 +72,33 @@ src_nano/     - NanoLang self-hosted implementation
   transpiler_minimal.nano - Transpiler in NanoLang
 ```
 
-### 4. **Test-First Development**
+### 4. **Test-First Development: Shadow Tests Are MANDATORY**
 
 **RULE**: Every feature must have tests BEFORE being marked complete.
 
+**⚠️ CRITICAL: Shadow Tests Are NOT Optional ⚠️**
+
+Shadow tests are a **core design principle** of NanoLang, not a "nice to have". They must be included for:
+
+- ✅ **ALL functions in library code**
+- ✅ **ALL functions in application code**  
+- ✅ **ALL functions in example code**
+- ✅ **ALL utility/helper functions**
+- ✅ **ALL demonstration programs**
+- ❌ **ONLY EXCEPTION:** `extern` functions (C FFI)
+
+**Why This Matters:**
+- Shadow tests validate correctness at compile time
+- They serve as executable documentation
+- They enable self-hosting (the compiler validates itself)
+- They force proper design (functions that are hard to test are poorly designed)
+
+**For Contributors:** When you see "missing shadow test" warnings, these are NOT false positives. Add the tests.
+
+**For LLMs:** When generating any NanoLang code, include shadow tests for every function. No exceptions.
+
 **Test Hierarchy**:
-1. **Shadow Tests** (inline tests in NanoLang functions)
+1. **Shadow Tests** (inline tests in NanoLang functions) - **MANDATORY**
    - Unit tests for individual functions
    - Run in interpreter during compilation
    - Mandatory for all exported functions

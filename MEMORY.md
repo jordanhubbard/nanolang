@@ -17,8 +17,17 @@ x * y
 println("hello")
 ```
 
-### 2. ALWAYS Include Shadow Tests
-Every function MUST have a shadow test. No exceptions.
+### 2. ALWAYS Include Shadow Tests ⚠️ MANDATORY ⚠️
+**Every function MUST have a shadow test. This is a CORE DESIGN PRINCIPLE of NanoLang.**
+
+**NO EXCEPTIONS: This applies to:**
+- ✅ Core library functions
+- ✅ Application code
+- ✅ **Example code**
+- ✅ **Utility functions**
+- ✅ **Demo programs**
+- ✅ **Test files**
+- ❌ ONLY EXCEPTION: `extern` functions (C FFI)
 
 ```nano
 fn double(x: int) -> int {
@@ -32,7 +41,15 @@ shadow double {
 }
 ```
 
-**If you forget shadow tests, compilation will fail.**
+**Why Shadow Tests Are Mandatory:**
+1. **Correctness:** Code is tested at compile time, not runtime
+2. **Documentation:** Tests show how to use functions
+3. **LLM-Friendly:** Forces AI to think through edge cases
+4. **Self-Hosting:** Enables the compiler to validate itself
+
+**If you forget shadow tests, compilation will show warnings. This is intentional.**
+
+**For LLMs:** When generating NanoLang code, ALWAYS include shadow tests for every function you write. This is not optional - it's part of the language design.
 
 ### 3. ALWAYS Use Explicit Types
 ```nano
