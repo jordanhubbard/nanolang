@@ -79,9 +79,28 @@ fn v3_mul(a: Vector3D, b: Vector3D) -> Vector3D {
     return Vector3D { x: (* a.x b.x), y: (* a.y b.y), z: (* a.z b.z) }
 }
 
+shadow v3_mul {
+    let a: Vector3D = (vec3_new 2.0 3.0 4.0)
+    let b: Vector3D = (vec3_new 5.0 6.0 7.0)
+    let result: Vector3D = (v3_mul a b)
+    assert (== result.x 10.0)
+    assert (== result.y 18.0)
+    assert (== result.z 28.0)
+}
+
 fn v3_near_zero(v: Vector3D) -> bool {
     let s: float = 0.0000001
     return (and (and (< (abs v.x) s) (< (abs v.y) s)) (< (abs v.z) s))
+}
+
+shadow v3_near_zero {
+    /* Test truly near-zero vector */
+    let near: Vector3D = (vec3_new 0.00000001 0.00000001 0.00000001)
+    assert (v3_near_zero near)
+    
+    /* Test non-near-zero vector */
+    let far: Vector3D = (vec3_new 0.1 0.0 0.0)
+    assert (not (v3_near_zero far))
 }
 
 fn random_float() -> float {
@@ -131,6 +150,14 @@ fn ray_at(r: Ray, t: float) -> Vector3D {
     return (vec3_add r.origin (vec3_scale r.direction t))
 }
 
+shadow ray_at {
+    let r: Ray = Ray { origin: (vec3_new 0.0 0.0 0.0), direction: (vec3_new 1.0 0.0 0.0) }
+    let p: Vector3D = (ray_at r 2.0)
+    assert (== p.x 2.0)
+    assert (== p.y 0.0)
+    assert (== p.z 0.0)
+}
+
 fn set_face_normal(r: Ray, outward: Vector3D) -> (bool, Vector3D) {
     let front: bool = (< (vec3_dot r.direction outward) 0.0)
     if front {
@@ -138,6 +165,22 @@ fn set_face_normal(r: Ray, outward: Vector3D) -> (bool, Vector3D) {
     } else {
         return (false, (vec3_scale outward -1.0))
     }
+}
+
+shadow set_face_normal {
+    /* Test front face (ray and outward pointing opposite) */
+    let r1: Ray = Ray { origin: (vec3_new 0.0 0.0 0.0), direction: (vec3_new 1.0 0.0 0.0) }
+    let outward1: Vector3D = (vec3_new -1.0 0.0 0.0)
+    let result1: (bool, Vector3D) = (set_face_normal r1 outward1)
+    assert result1.0
+    assert (== result1.1.x -1.0)
+    
+    /* Test back face (ray and outward pointing same direction) */
+    let r2: Ray = Ray { origin: (vec3_new 0.0 0.0 0.0), direction: (vec3_new 1.0 0.0 0.0) }
+    let outward2: Vector3D = (vec3_new 1.0 0.0 0.0)
+    let result2: (bool, Vector3D) = (set_face_normal r2 outward2)
+    assert (not result2.0)
+    assert (== result2.1.x -1.0)
 }
 
 fn sphere_hit(s: Sphere, r: Ray, t_min: float, t_max: float) -> HitRecord {
@@ -211,6 +254,13 @@ fn checker_at(m: Material, p: Vector3D) -> Vector3D {
     return (vec3_new 0.0 0.0 0.0)
 }
 
+/* shadow checker_at {
+    NOTE: Shadow test disabled - match expressions on unions don't work in interpreter
+    let diel_mat: Material = Material.Dielectric { ir: 1.5 }
+    let color_diel: Vector3D = (checker_at diel_mat (vec3_new 0.0 0.0 0.0))
+    assert (== color_diel.x 1.0)
+} */
+
 fn refract(uv: Vector3D, n: Vector3D, etai_over_etat: float) -> Vector3D {
     let cos_theta: float = (min 1.0 (- (vec3_dot (vec3_scale uv -1.0) n) 0.0))
     let r_out_perp: Vector3D = (vec3_scale (vec3_add uv (vec3_scale n cos_theta)) etai_over_etat)
@@ -219,10 +269,32 @@ fn refract(uv: Vector3D, n: Vector3D, etai_over_etat: float) -> Vector3D {
     return (vec3_add r_out_perp r_out_parallel)
 }
 
+shadow refract {
+    /* Test refraction at perpendicular incidence */
+    let uv: Vector3D = (vec3_new 0.0 -1.0 0.0)
+    let n: Vector3D = (vec3_new 0.0 1.0 0.0)
+    let refracted: Vector3D = (refract uv n 1.5)
+    /* Result should be a valid vector */
+    assert (not (isnan refracted.x))
+    assert (not (isnan refracted.y))
+    assert (not (isnan refracted.z))
+}
+
 fn reflectance(cosine: float, ref_idx: float) -> float {
     let mut r0: float = (/ (- 1.0 ref_idx) (+ 1.0 ref_idx))
     set r0 (* r0 r0)
     return (+ r0 (* (- 1.0 r0) (pow (- 1.0 cosine) 5.0)))
+}
+
+shadow reflectance {
+    /* Test Schlick approximation at normal incidence */
+    let r_normal: float = (reflectance 1.0 1.5)
+    assert (> r_normal 0.0)
+    assert (< r_normal 1.0)
+    
+    /* Test at grazing angle */
+    let r_grazing: float = (reflectance 0.0 1.5)
+    assert (== r_grazing 1.0)
 }
 
 fn hit_world(r: Ray, t_min: float, t_max: float, light_center: Vector3D) -> HitRecord {
@@ -386,6 +458,22 @@ fn camera_new(lookfrom: Vector3D, lookat: Vector3D, vup: Vector3D, vfov_deg: flo
     }
 }
 
+shadow camera_new {
+    /* Test basic camera creation */
+    let lookfrom: Vector3D = (vec3_new 0.0 0.0 10.0)
+    let lookat: Vector3D = (vec3_new 0.0 0.0 0.0)
+    let vup: Vector3D = (vec3_new 0.0 1.0 0.0)
+    let cam: Camera = (camera_new lookfrom lookat vup 90.0 1.5 0.1 10.0)
+    
+    /* Verify camera position */
+    assert (== cam.origin.x 0.0)
+    assert (== cam.origin.y 0.0)
+    assert (== cam.origin.z 10.0)
+    
+    /* Verify lens radius */
+    assert (== cam.lens_radius 0.05)
+}
+
 fn camera_get_ray(cam: Camera, s: float, t: float) -> Ray {
     let rd: Vector3D = (vec3_scale (random_in_unit_disk) cam.lens_radius)
     let offset: Vector3D = (vec3_add (vec3_scale cam.u rd.x) (vec3_scale cam.v rd.y))
@@ -396,6 +484,19 @@ fn camera_get_ray(cam: Camera, s: float, t: float) -> Ray {
 fn to_srgb8(x: float) -> int {
     let c: float = (sqrt (clamp x 0.0 0.999))
     return (cast_int (* 256.0 c))
+}
+
+shadow to_srgb8 {
+    /* Test sRGB conversion */
+    let black: int = (to_srgb8 0.0)
+    assert (== black 0)
+    
+    let white: int = (to_srgb8 1.0)
+    assert (== white 255)
+    
+    let mid: int = (to_srgb8 0.25)
+    assert (> mid 0)
+    assert (< mid 256)
 }
 
 fn draw_ui(renderer: SDL_Renderer, font: TTF_Font, samples: int, yaw: float, pitch: float, dist: float) -> void {
