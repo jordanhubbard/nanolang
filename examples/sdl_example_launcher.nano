@@ -121,81 +121,82 @@ fn main() -> int {
     set example_names (array_push example_names "Pong")
     set example_descs (array_push example_descs "Classic Pong (SDL)")
     set example_categories (array_push example_categories ExampleCategory.GAMES)
-    set example_commands (array_push example_commands "./bin/sdl_pong")
+    set example_commands (array_push example_commands "make -C examples ../bin/sdl_pong && ./bin/sdl_pong")
 
     set example_names (array_push example_names "Asteroids")
     set example_descs (array_push example_descs "Asteroids (SDL)")
     set example_categories (array_push example_categories ExampleCategory.GAMES)
-    set example_commands (array_push example_commands "./bin/sdl_asteroids")
+    set example_commands (array_push example_commands "make -C examples ../bin/sdl_asteroids && ./bin/sdl_asteroids")
 
     set example_names (array_push example_names "Checkers")
     set example_descs (array_push example_descs "Checkers (SDL)")
     set example_categories (array_push example_categories ExampleCategory.GAMES)
-    set example_commands (array_push example_commands "./bin/sdl_checkers")
+    set example_commands (array_push example_commands "make -C examples ../bin/sdl_checkers && ./bin/sdl_checkers")
 
     # === Graphics (SDL) ===
     set example_names (array_push example_names "Falling Sand")
     set example_descs (array_push example_descs "Cellular automata sandbox (SDL)")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "./bin/sdl_falling_sand")
+    set example_commands (array_push example_commands "make -C examples ../bin/sdl_falling_sand && ./bin/sdl_falling_sand")
 
     set example_names (array_push example_names "Boids")
     set example_descs (array_push example_descs "Flocking simulation (SDL)")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "./bin/sdl_boids")
+    set example_commands (array_push example_commands "make -C examples ../bin/sdl_boids && ./bin/sdl_boids")
 
     set example_names (array_push example_names "Particles")
     set example_descs (array_push example_descs "Particle system demo (SDL)")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "./bin/sdl_particles")
+    set example_commands (array_push example_commands "make -C examples ../bin/sdl_particles && ./bin/sdl_particles")
 
     set example_names (array_push example_names "Raytracer")
     set example_descs (array_push example_descs "CPU raytracer (SDL)")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "./bin/sdl_raytracer")
+    set example_commands (array_push example_commands "make -C examples ../bin/sdl_raytracer && ./bin/sdl_raytracer")
 
     set example_names (array_push example_names "Fire")
     set example_descs (array_push example_descs "Doom fire effect (SDL)")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "./bin/sdl_fire")
+    set example_commands (array_push example_commands "make -C examples ../bin/sdl_fire && ./bin/sdl_fire")
 
     set example_names (array_push example_names "Starfield")
     set example_descs (array_push example_descs "Starfield demo (SDL)")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "./bin/sdl_starfield")
+    set example_commands (array_push example_commands "make -C examples ../bin/sdl_starfield && ./bin/sdl_starfield")
 
     set example_names (array_push example_names "Terrain Explorer")
     set example_descs (array_push example_descs "Pseudo-3D terrain (SDL)")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "./bin/sdl_terrain_explorer")
+    set example_commands (array_push example_commands "make -C examples ../bin/sdl_terrain_explorer && ./bin/sdl_terrain_explorer")
 
     # === Audio (SDL) ===
     set example_names (array_push example_names "NanoAmp")
     set example_descs (array_push example_descs "Winamp-style MP3 player (SDL)")
     set example_categories (array_push example_categories ExampleCategory.AUDIO)
-    set example_commands (array_push example_commands "./bin/sdl_nanoamp")
+    set example_commands (array_push example_commands "make -C examples ../bin/sdl_nanoamp && ./bin/sdl_nanoamp")
 
     set example_names (array_push example_names "MOD Visualizer")
     set example_descs (array_push example_descs "MOD playback + viz (SDL)")
     set example_categories (array_push example_categories ExampleCategory.AUDIO)
-    set example_commands (array_push example_commands "./bin/sdl_mod_visualizer examples/gabba-studies-12.mod")
+    set example_commands (array_push example_commands "make -C examples ../bin/sdl_mod_visualizer && ./bin/sdl_mod_visualizer examples/gabba-studies-12.mod")
 
     # === OpenGL ===
     set example_names (array_push example_names "OpenGL Teapot")
     set example_descs (array_push example_descs "Utah teapot (OpenGL)")
     set example_categories (array_push example_categories ExampleCategory.OPENGL)
-    set example_commands (array_push example_commands "./bin/opengl_teapot")
+    # OpenGL examples aren't built by default; build on-demand to keep the launcher usable.
+    set example_commands (array_push example_commands "make -C examples ../bin/opengl_teapot && ./bin/opengl_teapot")
 
     # === Terminal ===
     set example_names (array_push example_names "NCurses Snake")
     set example_descs (array_push example_descs "Snake (terminal)")
     set example_categories (array_push example_categories ExampleCategory.TERMINAL)
-    set example_commands (array_push example_commands "./bin/nl_snake")
+    set example_commands (array_push example_commands "make -C examples ../bin/nl_snake && ./bin/nl_snake")
 
     set example_names (array_push example_names "NCurses Game of Life")
     set example_descs (array_push example_descs "Conway's Game of Life (terminal)")
     set example_categories (array_push example_categories ExampleCategory.TERMINAL)
-    set example_commands (array_push example_commands "./bin/ncurses_game_of_life")
+    set example_commands (array_push example_commands "make -C examples ../bin/ncurses_game_of_life && ./bin/ncurses_game_of_life")
 
     let mut selected_category: int = ExampleCategory.ALL
     let mut indices: array<int> = (build_filtered_indices example_categories selected_category)
