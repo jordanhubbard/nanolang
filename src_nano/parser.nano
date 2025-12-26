@@ -656,6 +656,9 @@ shadow token_import { assert (== (token_import) NLTokenType.NL_TOKEN_IMPORT) }
 fn token_as() -> int { return NLTokenType.NL_TOKEN_AS }
 shadow token_as { assert (== (token_as) NLTokenType.NL_TOKEN_AS) }
 
+fn token_pub() -> int { return NLTokenType.NL_TOKEN_PUB }
+shadow token_pub { assert (== (token_pub) NLTokenType.NL_TOKEN_PUB) }
+
 fn token_opaque() -> int { return NLTokenType.NL_TOKEN_OPAQUE }
 shadow token_opaque { assert (== (token_opaque) NLTokenType.NL_TOKEN_OPAQUE) }
 
@@ -5592,34 +5595,47 @@ fn parse_definition(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
-        let tok: LexToken = (parser_current p)
+        let mut tok: LexToken = (parser_current p)
+        let mut p_work: Parser = p
+        
+        /* Handle optional 'pub' modifier */
+        if (== tok.token_type (token_pub)) {
+            set p_work (parser_advance p_work)
+            if (parser_is_at_end p_work) {
+                return (parser_with_error p_work true)
+            } else {
+                set tok (parser_current p_work)
+            }
+        } else {
+            (print "")
+        }
         
         /* Dispatch based on token type */
         if (== tok.token_type (token_extern)) {
-            return (parse_extern_function_definition p)
+            return (parse_extern_function_definition p_work)
         } else {
             if (== tok.token_type (token_fn)) {
-                return (parse_function_definition p)
+                return (parse_function_definition p_work)
             } else {
                 if (== tok.token_type (token_struct)) {
-                return (parse_struct_definition p)
+                return (parse_struct_definition p_work)
             } else {
                 if (== tok.token_type (token_enum)) {
-                    return (parse_enum_definition p)
+                    return (parse_enum_definition p_work)
                 } else {
                     if (== tok.token_type (token_union)) {
-                        return (parse_union_definition p)
+                        return (parse_union_definition p_work)
                     } else {
                         if (== tok.token_type (token_import)) {
-                        return (parse_import p)
+                        return (parse_import p_work)
                     } else {
                         if (== tok.token_type (token_opaque)) {
-                            return (parse_opaque_type p)
+                            return (parse_opaque_type p_work)
                         } else {
                             if (== tok.token_type (token_shadow)) {
-                                return (parse_shadow p)
+                                return (parse_shadow p_work)
                             } else {
-                                return (parser_with_error p true)
+                                return (parser_with_error p_work true)
                             }
                         }
                     }
