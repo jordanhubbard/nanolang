@@ -1574,6 +1574,36 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             const char *prefixed = get_prefixed_type_name(struct_name);
             int field_count = expr->as.struct_literal.field_count;
             
+            /* Look up struct definition to propagate types to empty array fields */
+            StructDef *sdef = env_get_struct(env, struct_name);
+            
+            /* Propagate element types to empty array literals in struct fields */
+            if (sdef) {
+                for (int i = 0; i < field_count; i++) {
+                    ASTNode *field_value = expr->as.struct_literal.field_values[i];
+                    const char *field_name = expr->as.struct_literal.field_names[i];
+                    
+                    /* Check if this field value is an empty array literal */
+                    if (field_value && 
+                        field_value->type == AST_ARRAY_LITERAL &&
+                        field_value->as.array_literal.element_count == 0 &&
+                        field_value->as.array_literal.element_type == TYPE_UNKNOWN) {
+                        
+                        /* Find matching field in struct definition */
+                        for (int j = 0; j < sdef->field_count; j++) {
+                            if (strcmp(field_name, sdef->field_names[j]) == 0) {
+                                /* Found matching field - check if it's an array type */
+                                if (sdef->field_types[j] == TYPE_ARRAY) {
+                                    /* Propagate the element type from struct definition */
+                                    field_value->as.array_literal.element_type = sdef->field_element_types[j];
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
             emit_formatted(list, "(%s){", prefixed);
             for (int i = 0; i < field_count; i++) {
                 if (i > 0) emit_literal(list, ", ");
