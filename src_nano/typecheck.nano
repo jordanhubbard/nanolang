@@ -1043,8 +1043,15 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                     } else {
                                         /* Check for struct literal */
                                         if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
-                                            /* TODO: implement struct literal type checking */
-                                            return Type { kind: TypeKind.TYPE_UNKNOWN, name: "struct_literal", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                                            /* Get struct literal from parser */
+                                            let struct_lit: ASTStructLiteral = (parser_get_struct_literal parser node_id)
+                                            /* Return struct type with the struct name */
+                                            return Type { 
+                                                kind: TypeKind.TYPE_STRUCT, 
+                                                name: struct_lit.struct_name, 
+                                                element_type_kind: TypeKind.TYPE_UNKNOWN, 
+                                                element_type_name: "" 
+                                            }
                                         } else {
                                             /* Check for union construction */
                                             if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
