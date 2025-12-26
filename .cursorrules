@@ -39,11 +39,28 @@ bd link <blocker-id> --blocks <blocked-id>   # Blocker blocks another issue
 ## Code Standards
 
 ### Development Rules
-1. **Interpreter/Compiler Parity**: Both must support same features
-2. **Warning-Free Code**: Compile with `-Wall -Wextra -Werror`
-3. **Dual Implementation**: C reference in `src/`, NanoLang self-hosted in `src_nano/`
+1. **⚠️ Dual Implementation REQUIRED**: ALL language features must be implemented TWICE (C + NanoLang)
+2. **Interpreter/Compiler Parity**: Both must support same features
+3. **Warning-Free Code**: Compile with `-Wall -Wextra -Werror`
 4. **⚠️ Shadow Tests MANDATORY**: Required for ALL functions (including examples) - NO EXCEPTIONS except `extern`
 5. **Minimal Comments**: Code should be self-documenting
+
+### Dual Implementation Constraint (CRITICAL)
+**Every language feature requires 2× implementation effort:**
+- C reference compiler: `src/lexer.c`, `src/parser_iterative.c`, `src/typechecker.c`, `src/transpiler_iterative_v3_twopass.c`
+- NanoLang self-hosted: `src_nano/compiler/lexer.nano`, `parser.nano`, `typecheck.nano`, `transpiler.nano`
+
+**Cost Analysis Example:**
+Adding `[Type; size]` syntax = 8 major changes (4 components × 2 implementations)
+
+**Design Philosophy:**
+- ✅ Library functions over new syntax
+- ✅ Simple, regular grammar
+- ✅ Explicit over implicit
+- ❌ Avoid syntax sugar requiring parser changes
+- ❌ Avoid complex type inference
+
+**Before proposing language features, ask:** Is it worth 2× the implementation cost?
 
 ### Shadow Test Policy (CRITICAL)
 **Shadow tests are a CORE DESIGN PRINCIPLE of NanoLang.**
