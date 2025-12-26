@@ -413,24 +413,6 @@ fn render_grid(renderer: SDL_Renderer, grid: array<int>) -> void {
 # === MAIN ===
 
 fn main() -> int {
-    (println "")
-    (println "╔════════════════════════════════════════════╗")
-    (println "║     FALLING SAND - Physics Sandbox       ║")
-    (println "╚════════════════════════════════════════════╝")
-    (println "")
-    (println "Controls:")
-    (println "  Left Click + Drag - Draw material continuously")
-    (println "  1 - Sand   2 - Water   3 - Stone")
-    (println "  4 - Wood   5 - Fire    6 - Smoke")
-    (println "  SPACE - Pause/Play")
-    (println "  C - Clear grid")
-    (println "  ESC - Quit")
-    (println "")
-    (println "UI Indicators:")
-    (println "  Top-left box - Current material (colored)")
-    (println "  Top-right box - Pause status (yellow when paused)")
-    (println "")
-    
     # Initialize SDL
     if (< (SDL_Init 32) 0) {
         (println "SDL initialization failed")

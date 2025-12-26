@@ -11,6 +11,8 @@
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 # === ENUMS ===
 enum PieceType {
@@ -649,7 +651,7 @@ shadow is_play_again_button_click {
 }
 
 # Render the game board with flash animation
-fn render_board(renderer: SDL_Renderer, board: array<int>, selected_row: int, selected_col: int, has_selection: bool, flash_row: int, flash_col: int, flash_frame: int) -> void {
+fn render_board(renderer: SDL_Renderer, board: array<int>, selected_row: int, selected_col: int, has_selection: bool, flash_row: int, flash_col: int, flash_frame: int, font: TTF_Font) -> void {
     let board_size: int = BOARD_SIZE
     let square_size: int = SQUARE_SIZE
     
@@ -725,6 +727,9 @@ fn render_board(renderer: SDL_Renderer, board: array<int>, selected_row: int, se
                     }
                     set i (+ i 1)
                 }
+                
+                # Draw on-screen help
+                (nl_draw_text_blended renderer font "Click to select/move | ESC: Quit" 10 10 255 255 255 255)
                 
                 (SDL_RenderPresent renderer)
 }
@@ -1014,6 +1019,10 @@ fn main() -> int {
         } else {}
     } else {}
     
+    # Initialize TTF
+    (TTF_Init)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 12)
+    
     # Initialize game
     let mut board: array<int> = (init_board)
     let mut game_state: int = 0  # PLAYER_TURN
@@ -1150,7 +1159,7 @@ fn main() -> int {
         } else {}
         
         # Render
-        (render_board renderer board selected_row selected_col has_selection flash_row flash_col flash_frame)
+        (render_board renderer board selected_row selected_col has_selection flash_row flash_col flash_frame font)
         
         # Draw UI overlay
         let player_count: int = (count_player_pieces board)
@@ -1161,6 +1170,7 @@ fn main() -> int {
         if (== game_state 2) {  # GAME_OVER
             let player_won: bool = (> (count_player_pieces board) 0)
             (draw_game_over_screen renderer player_won)
+            (nl_draw_text_blended renderer font "Click to select/move | ESC: Quit" 10 10 255 255 255 255)
             (SDL_RenderPresent renderer)
         } else {}
         
@@ -1170,8 +1180,10 @@ fn main() -> int {
     }
                 
                 # Cleanup
+                (TTF_CloseFont font)
                 (SDL_DestroyRenderer renderer)
                 (SDL_DestroyWindow window)
+                (TTF_Quit)
                 (SDL_Quit)
                 
                 return 0
