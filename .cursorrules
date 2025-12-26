@@ -79,10 +79,18 @@ When generating NanoLang code, ALWAYS include shadow tests. This is non-negotiab
 
 ### Testing
 ```bash
-make test                # Run all tests (must be 100%)
-./bin/nanoc file.nano    # Test compilation
-./bin/nano file.nano     # Test interpretation
+make test                                           # Run all tests (must be 100%)
+perl -e 'alarm 30; exec @ARGV' ./bin/nanoc file.nano -o bin/output   # Compile with timeout
+./bin/nano file.nano                                # Test interpretation
 ```
+
+**⚠️ CRITICAL: All compilations MUST use timeout to detect infinite loops!**
+
+The compiler can loop infinitely on errors, printing the same message repeatedly.
+Never use `head` or `tail` on compile output - they hide loops. Always:
+1. Use timeout (30-60s)
+2. Check for repeated identical errors (indicates loop)
+3. Verify binary creation, not just exit code
 
 ### Key Resources
 - `MEMORY.md` - LLM reference for patterns and idioms

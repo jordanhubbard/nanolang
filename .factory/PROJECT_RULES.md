@@ -120,6 +120,74 @@ These design constraints reflect the dual-implementation reality:
 4. Verify self-hosting still works: `make bootstrap`
 5. Both implementations must pass `make test`
 
+## Build Timeout Requirements ⚠️ CRITICAL ⚠️
+
+### Infinite Loop Detection
+
+**RULE**: ALL compilation commands MUST include timeout detection to catch infinite loops.
+
+### The Problem
+
+The NanoLang compiler can enter infinite loops during:
+- Lexer tokenization errors
+- Parser error recovery
+- Type inference cycles
+- Code generation recursion
+
+These loops print the same error repeatedly and appear to succeed if you only check truncated output.
+
+### Required Build Pattern
+
+```bash
+# WRONG - can hang forever
+./bin/nanoc file.nano -o output
+
+# WRONG - truncating output hides the loop
+./bin/nanoc file.nano 2>&1 | head -20
+
+# CORRECT - with timeout detection
+perl -e 'alarm 30; exec @ARGV' ./bin/nanoc file.nano -o output
+
+# OR check for repeated errors
+./bin/nanoc file.nano 2>&1 | tee /tmp/build.log
+if grep -q "Error.*Error.*Error" /tmp/build.log; then
+    echo "ERROR: Infinite loop detected in compilation"
+    exit 1
+fi
+```
+
+### For AI Assistants
+
+When running ANY compilation:
+1. **Set a timeout**: 30 seconds for simple files, 60s for complex
+2. **Check for loops**: Look for repeated identical error lines
+3. **Verify success**: Check exit code AND output for errors
+4. **Never use head/tail**: These hide infinite loops
+
+**Example Safe Build:**
+```bash
+# Compile with timeout and loop detection
+COMPILE_OUTPUT=$(perl -e 'alarm 30; exec @ARGV' \
+    ./bin/nanoc examples/file.nano -o bin/output 2>&1) || {
+    echo "ERROR: Compilation failed or timed out"
+    echo "$COMPILE_OUTPUT" | head -20
+    exit 1
+}
+
+# Check for infinite loops (same error repeated)
+if echo "$COMPILE_OUTPUT" | grep -E "^Error.*column.*Unexpected" | \
+   uniq -c | grep -q " [3-9][0-9]* "; then
+    echo "ERROR: Infinite loop detected"
+    exit 1
+fi
+
+# Verify binary was created
+if [ ! -f bin/output ]; then
+    echo "ERROR: Binary not created despite exit 0"
+    exit 1
+fi
+```
+
 ## Shadow Test Policy ⚠️ MANDATORY ⚠️
 
 ### Critical Design Principle
