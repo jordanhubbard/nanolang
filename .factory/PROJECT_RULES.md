@@ -43,6 +43,83 @@ Use descriptive labels: `transpiler`, `module-system`, `metadata`, `testing`, `m
 5. Complete: `bd close <id> --reason "Brief completion summary"`
 6. Create follow-ups if needed: `bd create ... --depends-on <parent-id>`
 
+## Dual Implementation Requirement ⚠️ CRITICAL ⚠️
+
+### Every Language Feature Must Be Implemented TWICE
+
+**RULE**: ALL new language features, syntax additions, or compiler capabilities MUST be implemented in BOTH:
+1. **C Reference Compiler** (`src/`)
+2. **Self-Hosted NanoLang Compiler** (`src_nano/`)
+
+### Why This Matters
+- **Self-Hosting Parity**: The NanoLang compiler must be able to compile itself
+- **Reference Implementation**: C version is the definitive specification
+- **Validation**: Each implementation validates the other
+- **Maintenance**: Changes must be synchronized across both
+
+### Components Requiring Dual Implementation
+
+For each new feature, expect changes in **both** implementations:
+
+| Component | C Implementation | NanoLang Implementation |
+|-----------|------------------|-------------------------|
+| **Lexer** | `src/lexer.c` | `src_nano/compiler/lexer.nano` |
+| **Parser** | `src/parser_iterative.c` | `src_nano/compiler/parser.nano` |
+| **Type System** | `src/typechecker.c` | `src_nano/compiler/typecheck.nano` |
+| **Code Generator** | `src/transpiler_iterative_v3_twopass.c` | `src_nano/compiler/transpiler.nano` |
+
+### Cost Analysis for New Features
+
+Before proposing new syntax or language features, consider:
+
+**Example: Adding Rust-style `[Type; size]` array syntax**
+- Lexer changes: `;` token in array context (2 implementations)
+- Parser changes: New grammar rules (2 implementations)
+- Type system: Fixed-size array types (2 implementations)
+- Code gen: Initialization logic (2 implementations)
+- **Total: 8 substantial changes + testing**
+
+**Question to ask:** Is the syntax sugar worth 2× the implementation and maintenance cost?
+
+### Guidelines for Feature Proposals
+
+1. **Justify Complexity**: New features must provide significant value
+2. **Consider Alternatives**: Can existing syntax solve the problem?
+3. **Implementation Cost**: Estimate dual-implementation effort
+4. **Breaking Changes**: Will this break self-hosting?
+5. **Test Coverage**: Shadow tests required in both implementations
+
+### Current Constraints
+
+These design constraints reflect the dual-implementation reality:
+
+✅ **Simple Designs Win**
+- Prefer library functions over new syntax
+- Keep grammar minimal and regular
+- Avoid complex type inference
+- Favor explicit over implicit
+
+❌ **Avoid These**
+- Syntax sugar that requires parser changes
+- Complex type system features
+- Inference requiring sophisticated algorithms
+- Features that complicate code generation
+
+### For AI Assistants
+
+**Before proposing a language feature:**
+1. Estimate implementation effort × 2
+2. Check if existing features can solve the problem
+3. Consider helper functions or library additions instead
+4. If language change is necessary, create a bead with full analysis
+
+**When implementing a language feature:**
+1. Implement in C first (reference implementation)
+2. Test thoroughly with bootstrap process
+3. Implement in NanoLang (self-hosted)
+4. Verify self-hosting still works: `make bootstrap`
+5. Both implementations must pass `make test`
+
 ## Shadow Test Policy ⚠️ MANDATORY ⚠️
 
 ### Critical Design Principle
