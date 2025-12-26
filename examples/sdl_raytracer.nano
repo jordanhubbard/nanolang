@@ -12,13 +12,13 @@ import "modules/sdl_helpers/sdl_helpers.nano"
 
 from "std/math/extended.nano" import sqrt, sin, cos, tan, deg_to_rad, clamp, max
 
-let WINDOW_WIDTH: int = 640
-let WINDOW_HEIGHT: int = 480
-let RENDER_SCALE: int = 4  # Render at quarter resolution
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+let RENDER_SCALE: int = 2  # Render at half resolution for balance
 let RENDER_W: int = (/ WINDOW_WIDTH RENDER_SCALE)
 let RENDER_H: int = (/ WINDOW_HEIGHT RENDER_SCALE)
 
-let MAX_DEPTH: int = 3
+let MAX_DEPTH: int = 4  # More bounces for better reflections
 
 # === Simple 3D Vector Operations ===
 struct Vec3 {
@@ -107,44 +107,60 @@ fn create_scene() -> array<Sphere> {
     # Create empty array and build incrementally
     let mut spheres: array<Sphere> = []
     
-    # Add ground sphere (reflective gold)
+    # Ground plane (large sphere below)
     set spheres (array_push spheres Sphere {
-        center: Vec3 { x: 0.0, y: 0.0, z: -3.0 },
+        center: Vec3 { x: 0.0, y: -1000.5, z: 0.0 },
+        radius: 1000.0,
+        r: 0.5, g: 0.5, b: 0.5,
+        reflectivity: 0.0
+    })
+    
+    # Center sphere (gold, highly reflective)
+    set spheres (array_push spheres Sphere {
+        center: Vec3 { x: 0.0, y: 0.0, z: -3.5 },
         radius: 0.5,
-        r: 0.8, g: 0.6, b: 0.2,
-        reflectivity: 0.8
+        r: 0.9, g: 0.8, b: 0.3,
+        reflectivity: 0.9
     })
     
-    # Add left sphere (matte red)
+    # Left sphere (red metal)
     set spheres (array_push spheres Sphere {
-        center: Vec3 { x: -1.0, y: 0.0, z: -2.5 },
+        center: Vec3 { x: -1.2, y: 0.0, z: -3.0 },
         radius: 0.5,
-        r: 0.9, g: 0.2, b: 0.2,
-        reflectivity: 0.1
+        r: 0.95, g: 0.2, b: 0.15,
+        reflectivity: 0.3
     })
     
-    # Add right sphere (matte blue)
+    # Right sphere (blue glass-like)
     set spheres (array_push spheres Sphere {
-        center: Vec3 { x: 1.0, y: 0.0, z: -2.5 },
+        center: Vec3 { x: 1.2, y: 0.0, z: -3.0 },
         radius: 0.5,
-        r: 0.2, g: 0.4, b: 0.9,
-        reflectivity: 0.1
+        r: 0.15, g: 0.4, b: 0.95,
+        reflectivity: 0.85
     })
     
-    # Add back large sphere (mirror)
+    # Back large sphere (chrome mirror)
     set spheres (array_push spheres Sphere {
-        center: Vec3 { x: 0.0, y: -0.3, z: -4.5 },
-        radius: 1.0,
-        r: 0.9, g: 0.9, b: 0.9,
-        reflectivity: 0.95
+        center: Vec3 { x: 0.0, y: 0.7, z: -5.5 },
+        radius: 1.2,
+        r: 0.95, g: 0.95, b: 0.95,
+        reflectivity: 0.98
     })
     
-    # Add small green sphere (semi-reflective)
+    # Small front sphere (green metallic)
     set spheres (array_push spheres Sphere {
-        center: Vec3 { x: 0.7, y: -0.3, z: -1.8 },
+        center: Vec3 { x: -0.5, y: -0.25, z: -1.5 },
+        radius: 0.25,
+        r: 0.2, g: 0.95, b: 0.3,
+        reflectivity: 0.7
+    })
+    
+    # Small right sphere (purple)
+    set spheres (array_push spheres Sphere {
+        center: Vec3 { x: 0.8, y: -0.3, z: -2.0 },
         radius: 0.2,
-        r: 0.2, g: 0.9, b: 0.3,
-        reflectivity: 0.5
+        r: 0.8, g: 0.2, b: 0.9,
+        reflectivity: 0.4
     })
     
     return spheres
@@ -357,7 +373,7 @@ fn main() -> int {
     (println (str_concat "✓ Ray tracer initialized with " (str_concat (int_to_string sphere_count) " spheres!")))
     (println "")
     
-    let light_pos: Vec3 = Vec3 { x: 2.0, y: 3.0, z: -1.0 }
+    let light_pos: Vec3 = Vec3 { x: 3.0, y: 5.0, z: 0.0 }
     
     let mut cam_pos: Vec3 = Vec3 { x: 0.0, y: 0.5, z: 2.0 }
     let mut yaw: float = 0.0
