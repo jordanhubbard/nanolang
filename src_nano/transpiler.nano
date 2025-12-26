@@ -2101,7 +2101,7 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
     set code (str_concat code scr_code)
     set code (str_concat code "; ")
     set code (str_concat code out_c)
-    set code (str_concat code " _out; switch (_m.tag) { ")
+    set code (str_concat code " _out = 0; switch (_m.tag) { ")
 
     let mut i: int = 0
     while (< i m.arm_count) {
@@ -2118,7 +2118,7 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         set code (str_concat code ": { ")
 
         set code (str_concat code variant_type)
-        set code (str_concat code " nl_")
+        set code (str_concat code " ")
         set code (str_concat code (mangle_name binding))
         set code (str_concat code " = _m.data.")
         set code (str_concat code variant)

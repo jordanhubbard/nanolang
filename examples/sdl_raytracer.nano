@@ -205,7 +205,7 @@ fn checker_at(m: Material, p: Vector3D) -> Vector3D {
         Lambertian(l) => { return l.albedo }
         Metal(mm) => { return mm.albedo }
         Dielectric(d) => { return (vec3_new 1.0 1.0 1.0) }
-        Emissive(e) => { return e.color }
+        Emissive(em) => { return em.color }
     }
 
     return (vec3_new 0.0 0.0 0.0)
@@ -296,8 +296,8 @@ fn ray_color(r_in: Ray, light_center: Vector3D) -> Vector3D {
         let rec: HitRecord = (hit_world r 0.001 1000000.0 light_center)
         if rec.hit {
             match rec.mat {
-                Emissive(e) => {
-                    set out (vec3_add out (v3_mul throughput e.color))
+                Emissive(em) => {
+                    set out (vec3_add out (v3_mul throughput em.color))
                     return out
                 }
                 Checker(c) => {

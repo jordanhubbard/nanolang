@@ -1788,6 +1788,18 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
             
+            /* Determine output type - check if we're in a function returning a struct */
+            const char *out_type = "int64_t";  /* Default fallback */
+            char out_type_buf[256] = "int64_t";  /* Buffer to save out_type */
+            if (g_current_function && 
+                g_current_function->as.function.return_type == TYPE_STRUCT &&
+                g_current_function->as.function.return_struct_type_name) {
+                const char *temp = get_prefixed_type_name(g_current_function->as.function.return_struct_type_name);
+                strncpy(out_type_buf, temp, sizeof(out_type_buf) - 1);
+                out_type_buf[sizeof(out_type_buf) - 1] = '\0';
+                out_type = out_type_buf;
+            }
+            
             const char *prefixed_union = get_prefixed_type_name(union_type_name);
             
             /* Start compound expression */
@@ -1795,7 +1807,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             emit_literal(list, prefixed_union);
             emit_literal(list, " _m = ");
             build_expr(list, expr->as.match_expr.expr, env);
-            emit_literal(list, "; int64_t _out = 0; switch (_m.tag) { ");
+            emit_literal(list, "; ");
+            emit_literal(list, out_type);
+            emit_literal(list, " _out = {0}; switch (_m.tag) { ");
             
             /* Generate each match arm */
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
@@ -1823,7 +1837,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 
                 /* Declare binding only if variant has fields */
                 if (variant_field_count > 0) {
-                    /* Binding uses unprefixed name to match AST references */
+                    /* Binding name should NOT have nl_ prefix - it's referenced directly in code */
                     emit_literal(list, "nl_");
                     emit_literal(list, union_type_name);
                     emit_literal(list, "_");
