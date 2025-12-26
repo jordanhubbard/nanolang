@@ -95,25 +95,6 @@ fn get_asteroid_score(size: int) -> int {
 # === MAIN GAME ===
 
 fn main() -> int {
-    (println "╔════════════════════════════════════════════╗")
-    (println "║   ASTEROIDS COMPLETE - Nanolang           ║")
-    (println "╚════════════════════════════════════════════╝")
-    (println "")
-    (println "Controls:")
-    (println "  Up Arrow    - Thrust")
-    (println "  Left/Right  - Rotate")
-    (println "  Space       - Shoot")
-    (println "  R           - Restart (after game over)")
-    (println "  ESC         - Quit")
-    (println "")
-    (println "Features:")
-    (println "  • 3 Lives!")
-    (println "  • Score: Large=10, Medium=30, Small=50")
-    (println "  • Game Over screen with restart")
-    (println "  • Live score display")
-    (println "")
-    (println "Initializing...")
-    
     # Initialize SDL
     (SDL_Init SDL_INIT_VIDEO)
     let window: SDL_Window = (SDL_CreateWindow "Asteroids Complete" 100 100 WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
@@ -122,6 +103,7 @@ fn main() -> int {
     # Initialize SDL_TTF
     (TTF_Init)
     let font: TTF_Font = (nl_open_font_portable "Arial" 24)
+    let help_font: TTF_Font = (nl_open_font_portable "Arial" 12)
     if (== font 0) {
         (println "Warning: Failed to load font. HUD text will not display.")
     } else {
@@ -766,21 +748,20 @@ fn main() -> int {
             }
         }
         
+        # Draw on-screen help
+        (nl_draw_text_blended renderer help_font "Up: Thrust | Left/Right: Rotate | Space: Shoot | R: Restart | ESC: Quit" 10 10 255 255 255 255)
+        
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)
     }
     
     (TTF_CloseFont font)
     (TTF_CloseFont font_large)
+    (TTF_CloseFont help_font)
     (TTF_Quit)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
     (SDL_Quit)
-    
-    (println "")
-    (println "Game Over!")
-    (print "Final Score: ")
-    (println score)
     
     return 0
 }

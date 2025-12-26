@@ -4,6 +4,8 @@
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 # === CONSTANTS ===
 let WINDOW_WIDTH: int = 320
@@ -165,8 +167,12 @@ fn main() -> int {
     
     # Initialize SDL
     (SDL_Init SDL_INIT_VIDEO)
+    (TTF_Init)
     let window: SDL_Window = (SDL_CreateWindow "Fire Effect" 100 100 WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
+    
+    # Load font for help text
+    let font: TTF_Font = (nl_open_font_portable "Arial" 12)
     
     # Initialize fire buffer
     let mut fire_buffer: array<int> = (init_fire_buffer FIRE_WIDTH FIRE_HEIGHT)
@@ -239,6 +245,9 @@ fn main() -> int {
             set y (+ y 1)
         }
         
+        # Draw on-screen help
+        (nl_draw_text_blended renderer font "ESC: Quit" 10 10 255 255 255 255)
+        
         (SDL_RenderPresent renderer)
         
         # Small delay
@@ -246,8 +255,10 @@ fn main() -> int {
     }
     
     # Cleanup
+    (TTF_CloseFont font)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
+    (TTF_Quit)
     (SDL_Quit)
     
     (println "Fire extinguished.")

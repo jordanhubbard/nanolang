@@ -9,6 +9,8 @@
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 from "std/math/extended.nano" import sqrt, sin, cos, tan, deg_to_rad, clamp, max
 
@@ -346,34 +348,22 @@ shadow get_ray { assert true }
 
 # === Main ===
 fn main() -> int {
-    (println "╔════════════════════════════════════════════╗")
-    (println "║         Simple Ray Tracer (Whitted)       ║")
-    (println "╚════════════════════════════════════════════╝")
-    (println "")
-    (println "Demonstrating NanoLang dynamic arrays:")
-    (println "  - array_push for scene creation")
-    (println "  - array_length and at for iteration")
-    (println "  - Clean, idiomatic array handling")
-    (println "")
-    (println "Controls:")
-    (println "  Arrow Keys: Rotate camera")
-    (println "  R: Reset camera")
-    (println "  ESC: Quit")
-    (println "")
-    
     (SDL_Init SDL_INIT_VIDEO)
+    (TTF_Init)
     
     let window: SDL_Window = (SDL_CreateWindow "Ray Tracer" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
     
+    # Load font for on-screen help
+    let font: TTF_Font = (nl_open_font_portable "Arial" 12)
+    
     # Create scene using dynamic arrays (NanoLang idiom)
     let spheres: array<Sphere> = (create_scene)
-    let sphere_count: int = (array_length spheres)
     
-    (println (str_concat "✓ Ray tracer initialized with " (str_concat (int_to_string sphere_count) " spheres!")))
-    (println "")
-    
-    let light_pos: Vec3 = Vec3 { x: 3.0, y: 5.0, z: 0.0 }
+    # Light position (mouse-controlled)
+    let mut light_x: float = 3.0
+    let mut light_y: float = 5.0
+    let mut light_z: float = 0.0
     
     let mut cam_pos: Vec3 = Vec3 { x: 0.0, y: 0.5, z: 2.0 }
     let mut yaw: float = 0.0
@@ -382,15 +372,19 @@ fn main() -> int {
     let mut running: int = 1
     
     while (== running 1) {
-        let key: int = (nl_sdl_poll_keypress)
+        (SDL_SetRenderDrawColor renderer 50 50 80 255)
+        (SDL_RenderClear renderer)
         
-        if (== key 41) { set running 0 }
-        if (== key 21) {
+        # Handle keyboard
+        let key: int = (nl_sdl_poll_keypress)
+        if (== key 41) { set running 0 }  # ESC
+        if (== key 21) {  # R - reset
             set cam_pos Vec3 { x: 0.0, y: 0.5, z: 2.0 }
             set yaw 0.0
             set pitch 0.0
         }
         
+        # Arrow keys for camera rotation
         if (== (nl_sdl_key_state 79) 1) { set yaw (- yaw 2.0) }
         if (== (nl_sdl_key_state 80) 1) { set yaw (+ yaw 2.0) }
         if (== (nl_sdl_key_state 82) 1) { set pitch (+ pitch 1.0) }
@@ -398,11 +392,24 @@ fn main() -> int {
         
         if (> pitch 89.0) { set pitch 89.0 }
         if (< pitch -89.0) { set pitch -89.0 }
+        
+        # Handle mouse clicks to move light
+        let mouse_result: int = (nl_sdl_poll_mouse_click)
+        if (!= mouse_result -1) {
+            let mouse_x: int = (/ mouse_result 65536)
+            let mouse_y: int = (% mouse_result 65536)
+            
+            # Map mouse position to 3D light position
+            set light_x (- (/ (cast_float mouse_x) 100.0) 4.0)
+            set light_y (- 6.0 (/ (cast_float mouse_y) 100.0))
+        }
+        
+        let light_pos: Vec3 = Vec3 { x: light_x, y: light_y, z: light_z }
 
-    let mut y: int = 0
-    while (< y RENDER_H) {
-        let mut x: int = 0
-        while (< x RENDER_W) {
+        let mut y: int = 0
+        while (< y RENDER_H) {
+            let mut x: int = 0
+            while (< x RENDER_W) {
                 let ray: Ray = (get_ray x y yaw pitch cam_pos)
                 let color: Vec3 = (trace ray spheres light_pos 0)
                 
@@ -413,21 +420,24 @@ fn main() -> int {
                 (SDL_SetRenderDrawColor renderer r g b 255)
                 (nl_sdl_render_fill_rect renderer (* x RENDER_SCALE) (* y RENDER_SCALE) RENDER_SCALE RENDER_SCALE)
                 
-            set x (+ x 1)
+                set x (+ x 1)
+            }
+            set y (+ y 1)
         }
-        set y (+ y 1)
-    }
         
-    (SDL_RenderPresent renderer)
+        # Draw on-screen help (standard position: top-left, white text)
+        (nl_draw_text_blended renderer font "Arrow Keys: Rotate | R: Reset | Click: Move Light | ESC: Quit" 10 10 255 255 255 255)
+        
+        (SDL_RenderPresent renderer)
 
         if (== (nl_sdl_poll_event_quit) 1) { set running 0 }
     }
     
-    (println "Shutting down...")
+    (TTF_CloseFont font)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
+    (TTF_Quit)
     (SDL_Quit)
-    (println "✓ Done")
     
     return 0
 }

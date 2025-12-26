@@ -21,19 +21,6 @@ let BALL_SPEED: float = 300.0
 let WINNING_SCORE: int = 11
 
 fn main() -> int {
-    (println "╔════════════════════════════════════════════╗")
-    (println "║              PONG (1972)                  ║")
-    (println "╚════════════════════════════════════════════╝")
-    (println "")
-    (println "Controls:")
-    (println "  Player 1 (Left):  W/S")
-    (println "  Player 2 (Right): Up/Down arrows")
-    (println "  Start/Pause/Reset: Click buttons")
-    (println "  ESC: Quit")
-    (println "")
-    (println "First to 11 points wins!")
-    (println "")
-    
     # Initialize SDL
     (SDL_Init SDL_INIT_VIDEO)
     (TTF_Init)
@@ -41,8 +28,9 @@ fn main() -> int {
     let window: SDL_Window = (SDL_CreateWindow "PONG (1972)" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
     
-    # Load font for UI widgets
+    # Load fonts
     let font: TTF_Font = (nl_open_font_portable "Arial" 14)
+    let help_font: TTF_Font = (nl_open_font_portable "Arial" 12)
     
     # Game state
     let mut running: bool = true
@@ -64,9 +52,6 @@ fn main() -> int {
     
     # Timing
     let mut last_time: int = (SDL_GetTicks)
-    
-    (println "✓ Pong initialized - Click START to begin!")
-    (println "")
     
     while running {
         # Check for quit event FIRST (before consuming other events)
@@ -265,6 +250,9 @@ fn main() -> int {
             }
         }
         
+        # Draw on-screen help
+        (nl_draw_text_blended renderer help_font "W/S: P1 | Arrows: P2 | ESC: Quit" 10 10 255 255 255 255)
+        
         (SDL_RenderPresent renderer)
         (SDL_Delay 16)
     }
@@ -272,11 +260,12 @@ fn main() -> int {
     # Cleanup
     (println "Shutting down...")
     (TTF_CloseFont font)
+    (TTF_CloseFont font)
+    (TTF_CloseFont help_font)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
     (TTF_Quit)
     (SDL_Quit)
-    (println "✓ Done")
     return 0
 }
 
