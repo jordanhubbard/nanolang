@@ -23,6 +23,13 @@
 CC = cc
 CFLAGS = -Wall -Wextra -std=c99 -g -Isrc
 LDFLAGS = -lm
+
+# On Linux, dlopened module shared libraries rely on host-exported runtime symbols
+# (e.g. dyn_array_new). Ensure the main binaries export their symbols.
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+LDFLAGS += -rdynamic
+endif
 SANITIZE_FLAGS = -fsanitize=address,undefined -fno-omit-frame-pointer
 COVERAGE_FLAGS = -fprofile-arcs -ftest-coverage
 
