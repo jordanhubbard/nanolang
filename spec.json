@@ -53,7 +53,16 @@
         "syntax": "array<element_type>",
         "element_type": "any",
         "dynamic": true,
-        "description": "Static array type with fixed element type"
+        "description": "Dynamic array type with automatic resizing and garbage collection",
+        "literals": {
+          "empty": "[]",
+          "with_elements": "[elem1, elem2, elem3]"
+        },
+        "examples": [
+          "let empty: array<int> = []",
+          "let nums: array<int> = [1, 2, 3, 4, 5]",
+          "let nested: array<array<int>> = [[1, 2], [3, 4]]"
+        ]
       },
       "struct": {
         "kind": "struct",
@@ -174,11 +183,30 @@
   },
   
   "features": {
+    "modules": {
+      "description": "Module system with FFI support and automatic dependency resolution",
+      "import_syntax": "import \"path/to/module.nano\"",
+      "import_alias": "import \"path/to/module.nano\" as Alias",
+      "qualified_names": "Alias.function_name or Alias.TypeName",
+      "extern_functions": "extern fn c_function(param: type) -> return_type",
+      "public_exports": "pub fn exported_function() or pub extern fn ffi_wrapper()",
+      "module_json": "module.json defines dependencies, C sources, and compiler flags"
+    },
+    "namespaces": {
+      "description": "All user-defined types prefixed with nl_ in generated C code",
+      "prefix": "nl_",
+      "examples": {
+        "struct": "Point -> nl_Point",
+        "enum": "Status -> nl_Status, Status.Active -> nl_Status_Active",
+        "union": "Result -> nl_Result, Result.Ok -> nl_Result_Ok"
+      }
+    },
     "shadow_tests": {
       "mandatory": true,
       "description": "Every function must have a shadow-test block with assertions",
       "syntax": "shadow function_name { assert ... }",
-      "execution": "Compile-time (during transpilation and type checking)"
+      "execution": "Compile-time (during transpilation and type checking)",
+      "exception": "extern functions do not require shadow tests"
     },
     "static_typing": {
       "mandatory": true,
@@ -211,15 +239,19 @@
       "variants": "Each variant can have named fields",
       "pattern_matching": "match expression destructures unions safely"
     },
-    "namespacing": {
-      "description": "All user-defined types are prefixed with nl_ in generated C code",
-      "prefix": "nl_",
-      "examples": {
-        "struct": "Point -> nl_Point",
-        "enum": "Status -> nl_Status, Status.Active -> nl_Status_Active",
-        "union": "Result -> nl_Result"
-      },
-      "purpose": "Prevent name collisions with C runtime and enable clean C interop"
+    "garbage_collection": {
+      "description": "Automatic memory management for dynamic arrays and strings",
+      "strategy": "Reference counting with cycle detection",
+      "deterministic": true,
+      "no_pauses": "No stop-the-world GC pauses",
+      "operations": "Automatic retain/release on assignment and scope exit"
+    },
+    "dynamic_arrays": {
+      "description": "Built-in dynamic arrays with automatic resizing",
+      "growth_strategy": "2x geometric growth for amortized O(1) append",
+      "type_safe": true,
+      "bounds_checked": true,
+      "gc_integrated": "Automatically garbage collected"
     }
   },
   
@@ -279,8 +311,11 @@
     "array": {
       "at": { "signature": "at(array<T>, int) -> T", "description": "Get element (bounds-checked)" },
       "array_length": { "signature": "array_length(array<T>) -> int", "description": "Get array length" },
-      "array_new": { "signature": "array_new(int, T) -> array<T>", "description": "Create new array" },
+      "array_new": { "signature": "array_new(int, T) -> array<T>", "description": "Create new array with size and default value" },
       "array_set": { "signature": "array_set(array<T>, int, T) -> void", "description": "Set element (bounds-checked)" },
+      "array_push": { "signature": "array_push(array<T>, T) -> array<T>", "description": "Append element to end (returns new array)" },
+      "array_pop": { "signature": "array_pop(array<T>) -> T", "description": "Remove and return last element" },
+      "array_remove_at": { "signature": "array_remove_at(array<T>, int) -> array<T>", "description": "Remove element at index (returns new array)" },
       "filter": {
         "signature": "filter(array<T>, fn(T) -> bool) -> array<T>",
         "description": "Keep elements that satisfy a predicate and return a new array (compiled + interpreted)"
@@ -323,7 +358,17 @@
       "executable": "Compiled binary from generated C code",
       "intermediate": "Optional .c file output with --keep-c flag"
     },
-    "optimization": "Relies on C compiler optimizations"
+    "optimization": "Relies on C compiler optimizations",
+    "timeouts": {
+      "recommended": "30-60 seconds per compilation to detect infinite loops",
+      "command": "perl -e 'alarm 60; exec @ARGV' env NANO_MODULE_PATH=modules ./bin/nanoc file.nano -o output",
+      "rationale": "Compiler can loop infinitely on syntax errors, printing same message repeatedly"
+    },
+    "module_system": {
+      "module_path": "NANO_MODULE_PATH environment variable",
+      "auto_install": "Modules automatically compile C dependencies via module.json",
+      "c_linking": "Automatic linking of shared libraries specified in module.json"
+    }
   },
   
   "tooling": {
@@ -500,14 +545,20 @@
       "Generics (List<T>) with monomorphization for all types",
       "First-class functions",
       "Mutability tracking (mut keyword)",
-      "Standard library (49+ functions: 3 I/O, 11 math, 18 string, 12 bstring, 4 array, 4 generics)",
+      "Standard library (55+ functions: 3 I/O, 11 math, 18 string, 12 bstring, 10 array, 4 generics)",
       "C transpilation with nl_ namespacing",
       "Module system with FFI support",
       "Import system for code organization",
       "Binary strings (bstring) with UTF-8 support",
       "Self-hosted compiler (nanoc written in NanoLang)",
       "Dual execution (interpreter + compiler)",
-      "Comprehensive error messages with line/column tracking"
+      "Comprehensive error messages with line/column tracking",
+      "Dynamic arrays with push/pop/remove operations",
+      "Garbage collection (reference counting + cycle detection)",
+      "Module system with import aliases and qualified names",
+      "Array literals [] and [elem1, elem2, elem3]",
+      "FFI (Foreign Function Interface) with extern keyword",
+      "Public exports (pub) for module interfaces"
     ],
     "features_in_development": [
     ],

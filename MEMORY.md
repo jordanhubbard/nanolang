@@ -88,6 +88,14 @@ extern fn function_name(param: type) -> return_type
 
 # Public external functions (for modules)
 pub extern fn module_function(param: type) -> return_type
+
+# Import module with alias
+import "modules/math_helper.nano" as Math
+let result: int = (Math.add 2 3)
+
+# Import without alias
+import "modules/utilities.nano"
+(some_function arg)
 ```
 
 ### Control Flow
@@ -161,10 +169,15 @@ match result {
     Error(e) => { (println e.message) }
 }
 
-# Array
+# Array (dynamic, garbage-collected)
 array<int>  # Fixed type, dynamic size
-let arr: array<int> = [1, 2, 3, 4]
-let first: int = (at arr 0)
+let arr: array<int> = [1, 2, 3, 4]          # Array literal
+let empty: array<int> = []                   # Empty array
+let first: int = (at arr 0)                  # Access element
+let mut nums: array<int> = []
+set nums (array_push nums 42)                # Append element
+let val: int = (array_pop nums)              # Remove last
+set nums (array_remove_at nums 0)            # Remove at index
 
 # Generic List
 List<int>, List<string>, List<Point>
@@ -745,6 +758,91 @@ Before generating nanolang code, verify:
 - [ ] Struct field access uses dot notation: `point.x`
 - [ ] Function calls use prefix: `(function arg1 arg2)`
 - [ ] Range loops use proper syntax: `for i in (range 0 10)`
+
+## Dynamic Array Operations
+
+NanoLang arrays are dynamic and garbage-collected. They can grow and shrink as needed.
+
+### Creating Arrays
+```nano
+let empty: array<int> = []                   # Empty array
+let nums: array<int> = [1, 2, 3, 4, 5]       # Array literal
+let strings: array<string> = ["a", "b"]      # String array
+let nested: array<array<int>> = [[1], [2]]   # Nested arrays
+```
+
+### Adding Elements
+```nano
+let mut arr: array<int> = []
+set arr (array_push arr 42)                  # Append to end
+set arr (array_push arr 43)                  # arr is now [42, 43]
+```
+
+**Important:** `array_push` returns a new array. You must assign it back to the variable.
+
+### Removing Elements
+```nano
+let mut arr: array<int> = [10, 20, 30, 40]
+
+# Remove last element
+let val: int = (array_pop arr)               # val = 40, arr unchanged
+# Note: array_pop doesn't modify the array in place
+
+# Remove at specific index
+set arr (array_remove_at arr 1)              # Remove index 1
+# arr becomes [10, 30, 40] (removed 20)
+```
+
+### Accessing Elements
+```nano
+let first: int = (at arr 0)                  # Get element (bounds-checked)
+(array_set arr 0 100)                        # Set element (bounds-checked)
+let len: int = (array_length arr)            # Get length
+```
+
+### Complete Example
+```nano
+fn array_demo() -> int {
+    # Create empty array
+    let mut numbers: array<int> = []
+    
+    # Add elements
+    set numbers (array_push numbers 10)
+    set numbers (array_push numbers 20)
+    set numbers (array_push numbers 30)
+    # numbers = [10, 20, 30]
+    
+    # Remove last
+    let last: int = (array_pop numbers)
+    # last = 30, but numbers still [10, 20, 30]
+    
+    # Remove at index
+    set numbers (array_remove_at numbers 0)
+    # numbers = [20, 30]
+    
+    # Access and modify
+    let first: int = (at numbers 0)          # first = 20
+    (array_set numbers 0 99)                 # numbers = [99, 30]
+    
+    return (array_length numbers)            # Returns 2
+}
+
+shadow array_demo {
+    assert (== (array_demo) 2)
+}
+```
+
+### Array Operations Summary
+| Operation | Function | Returns | Modifies Array? |
+|-----------|----------|---------|-----------------|
+| Append | `array_push(arr, elem)` | new array | No |
+| Remove last | `array_pop(arr)` | removed element | No |
+| Remove at index | `array_remove_at(arr, idx)` | new array | No |
+| Get element | `at(arr, idx)` | element value | No |
+| Set element | `array_set(arr, idx, val)` | void | Yes |
+| Get length | `array_length(arr)` | int | No |
+
+**Key Point:** Most array operations return new arrays due to the functional design. Use `set` to update your variables.
 
 ## Advanced Features
 
