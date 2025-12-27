@@ -102,6 +102,7 @@ static bool build_monomorphized_name_from_typeinfo(char *dest, size_t dest_size,
     
     /* Extract type names from TypeInfo structures */
     const char *type_names[32];  /* Max 32 type parameters */
+    char tmp_names[32][128];
     if (type_param_count > 32) return false;
     
     for (int i = 0; i < type_param_count; i++) {
@@ -121,6 +122,20 @@ static bool build_monomorphized_name_from_typeinfo(char *dest, size_t dest_size,
             type_names[i] = "bool";
         } else if (param->base_type == TYPE_FLOAT) {
             type_names[i] = "float";
+        } else if (param->base_type == TYPE_ARRAY) {
+            /* Name arrays as array_<elem>, e.g. array_int, array_u8, array_Point */
+            const char *elem = "unknown";
+            if (param->element_type) {
+                TypeInfo *et = param->element_type;
+                if (et->base_type == TYPE_INT) elem = "int";
+                else if (et->base_type == TYPE_U8) elem = "u8";
+                else if (et->base_type == TYPE_STRING) elem = "string";
+                else if (et->base_type == TYPE_BOOL) elem = "bool";
+                else if (et->base_type == TYPE_FLOAT) elem = "float";
+                else if ((et->base_type == TYPE_STRUCT || et->base_type == TYPE_UNION || et->base_type == TYPE_ENUM) && et->generic_name) elem = et->generic_name;
+            }
+            snprintf(tmp_names[i], sizeof(tmp_names[i]), "array_%s", elem);
+            type_names[i] = tmp_names[i];
         } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
             type_names[i] = param->generic_name;
         } else {
@@ -1455,12 +1470,16 @@ static void __attribute__((unused)) generate_union_definitions(Environment *env,
                                         /* Map to C type */
                                         if (strcmp(concrete_type, "int") == 0) {
                                             sb_append(sb, "int64_t");
+                                        } else if (strcmp(concrete_type, "u8") == 0) {
+                                            sb_append(sb, "uint8_t");
                                         } else if (strcmp(concrete_type, "string") == 0) {
                                             sb_append(sb, "const char*");
                                         } else if (strcmp(concrete_type, "bool") == 0) {
                                             sb_append(sb, "bool");
                                         } else if (strcmp(concrete_type, "float") == 0) {
                                             sb_append(sb, "double");
+                                        } else if (strcmp(concrete_type, "array") == 0 || strncmp(concrete_type, "array_", 6) == 0) {
+                                            sb_append(sb, "DynArray*");
                                         } else {
                                             /* User-defined type */
                                             const char *prefixed_type = get_prefixed_type_name(concrete_type);
@@ -1708,12 +1727,16 @@ static void emit_generic_union_instantiation(Environment *env, StringBuilder *sb
                             const char *concrete_type = inst->type_arg_names[p];
                             if (strcmp(concrete_type, "int") == 0) {
                                 sb_append(sb, "int64_t");
+                            } else if (strcmp(concrete_type, "u8") == 0) {
+                                sb_append(sb, "uint8_t");
                             } else if (strcmp(concrete_type, "string") == 0) {
                                 sb_append(sb, "const char*");
                             } else if (strcmp(concrete_type, "bool") == 0) {
                                 sb_append(sb, "bool");
                             } else if (strcmp(concrete_type, "float") == 0) {
                                 sb_append(sb, "double");
+                            } else if (strcmp(concrete_type, "array") == 0 || strncmp(concrete_type, "array_", 6) == 0) {
+                                sb_append(sb, "DynArray*");
                             } else {
                                 const char *prefixed_type = get_prefixed_type_name(concrete_type);
                                 sb_append(sb, prefixed_type);
@@ -1914,8 +1937,10 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
                     }
 
                     if (!concrete_type) continue;
-                    if (strcmp(concrete_type, "int") == 0 || strcmp(concrete_type, "float") == 0 ||
-                        strcmp(concrete_type, "bool") == 0 || strcmp(concrete_type, "string") == 0) {
+                    if (strcmp(concrete_type, "int") == 0 || strcmp(concrete_type, "u8") == 0 ||
+                        strcmp(concrete_type, "float") == 0 || strcmp(concrete_type, "bool") == 0 ||
+                        strcmp(concrete_type, "string") == 0 || strcmp(concrete_type, "array") == 0 ||
+                        strncmp(concrete_type, "array_", 6) == 0) {
                         continue;
                     }
 

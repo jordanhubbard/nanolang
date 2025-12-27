@@ -9,6 +9,75 @@ typedef struct {
     bool warnings_enabled;
 } TypeChecker;
 
+static char *typeinfo_to_generic_arg_name(TypeInfo *param) {
+    if (!param) return strdup("unknown");
+
+    switch (param->base_type) {
+        case TYPE_INT:
+            return strdup("int");
+        case TYPE_U8:
+            return strdup("u8");
+        case TYPE_STRING:
+            return strdup("string");
+        case TYPE_BOOL:
+            return strdup("bool");
+        case TYPE_FLOAT:
+            return strdup("float");
+        case TYPE_STRUCT:
+        case TYPE_UNION:
+        case TYPE_ENUM:
+            if (param->generic_name) return strdup(param->generic_name);
+            return strdup("unknown");
+        case TYPE_ARRAY: {
+            char *elem = typeinfo_to_generic_arg_name(param->element_type);
+            if (!elem) return strdup("array_unknown");
+            size_t n = strlen(elem) + 7;
+            char *out = malloc(n);
+            if (!out) {
+                free(elem);
+                return strdup("array_unknown");
+            }
+            snprintf(out, n, "array_%s", elem);
+            free(elem);
+            return out;
+        }
+        default:
+            return strdup("unknown");
+    }
+}
+
+static char *typeinfo_to_monomorphized_generic_name(TypeInfo *info) {
+    if (!info || !info->generic_name) return NULL;
+    if (info->type_param_count <= 0) return strdup(info->generic_name);
+
+    size_t cap = 256;
+    char *out = malloc(cap);
+    if (!out) return NULL;
+    out[0] = '\0';
+
+    snprintf(out, cap, "%s", info->generic_name);
+    for (int i = 0; i < info->type_param_count; i++) {
+        char *arg = typeinfo_to_generic_arg_name(info->type_params[i]);
+        if (!arg) arg = strdup("unknown");
+        size_t need = strlen(out) + 1 + strlen(arg) + 1;
+        if (need > cap) {
+            cap = need * 2;
+            char *bigger = realloc(out, cap);
+            if (!bigger) {
+                free(arg);
+                free(out);
+                return NULL;
+            }
+            out = bigger;
+        }
+        strcat(out, "_");
+        strcat(out, arg);
+        free(arg);
+    }
+
+    return out;
+}
+
 /* Helper: Check if symbol was explicitly imported via selective import
  * NOTE: Currently unused - reserved for future selective import enforcement
  */
@@ -343,6 +412,67 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             /* Get the struct type of the object */
             const char *object_struct_name = get_struct_type_name(expr->as.field_access.object, env);
             if (!object_struct_name) return NULL;
+
+            /* Union variant field access (object type name format: "UnionName.VariantName") */
+            const char *dot = strchr(object_struct_name, '.');
+            if (dot) {
+                int union_name_len = (int)(dot - object_struct_name);
+                char *union_name = malloc((size_t)union_name_len + 1);
+                strncpy(union_name, object_struct_name, (size_t)union_name_len);
+                union_name[union_name_len] = '\0';
+                const char *variant_name = dot + 1;
+
+                UnionDef *udef = env_get_union(env, union_name);
+                if (udef) {
+                    int variant_idx = env_get_union_variant_index(env, union_name, variant_name);
+                    if (variant_idx >= 0) {
+                        const char *field_name = expr->as.field_access.field_name;
+                        for (int i = 0; i < udef->variant_field_counts[variant_idx]; i++) {
+                            if (strcmp(udef->variant_field_names[variant_idx][i], field_name) != 0) {
+                                continue;
+                            }
+
+                            Type field_type = udef->variant_field_types[variant_idx][i];
+                            const char *field_type_name = NULL;
+                            if (udef->variant_field_type_names) {
+                                field_type_name = udef->variant_field_type_names[variant_idx][i];
+                            }
+
+                            /* For generic unions, resolve concrete struct/union type name from TypeInfo */
+                            if (udef->generic_param_count > 0 && field_type_name &&
+                                expr->as.field_access.object->type == AST_IDENTIFIER) {
+                                ASTNode *obj = expr->as.field_access.object;
+                                Symbol *obj_sym = env_get_var_visible_at(env, obj->as.identifier, obj->line, obj->column);
+                                if (obj_sym && obj_sym->type_info && obj_sym->type_info->type_param_count > 0) {
+                                    for (int g = 0; g < udef->generic_param_count; g++) {
+                                        if (strcmp(udef->generic_params[g], field_type_name) == 0) {
+                                            if (g < obj_sym->type_info->type_param_count) {
+                                                TypeInfo *concrete = obj_sym->type_info->type_params[g];
+                                                if (concrete) {
+                                                    if ((concrete->base_type == TYPE_STRUCT || concrete->base_type == TYPE_UNION) &&
+                                                        concrete->generic_name) {
+                                                        free(union_name);
+                                                        return strdup(concrete->generic_name);
+                                                    }
+                                                }
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            /* Non-generic union (or unresolved generic): return declared struct/union name when available */
+                            if ((field_type == TYPE_STRUCT || field_type == TYPE_UNION) && field_type_name) {
+                                free(union_name);
+                                return strdup(field_type_name);
+                            }
+                        }
+                    }
+                }
+
+                free(union_name);
+            }
             
             /* Look up the struct definition */
             StructDef *sdef = env_get_struct(env, object_struct_name);
@@ -1697,8 +1827,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
             
             /* Infer and store union type name for transpiler */
-            const char *union_type_name = NULL;
-            TypeInfo *union_type_info = NULL;  /* For generic unions: Result<int, string> */
+            const char *union_type_name = NULL;      /* base name for variant-field lookup: Result */
+            const char *union_base_name = NULL;      /* kept for binding metadata */
+            char *union_concrete_name = NULL;        /* for transpiler: Result_int_string */
+            TypeInfo *union_type_info = NULL;        /* For generic unions: Result<int, string> */
             ASTNode *match_expr_node = expr->as.match_expr.expr;
             
             if (match_expr_node->type == AST_IDENTIFIER) {
@@ -1709,10 +1841,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* For generic unions, also extract TypeInfo */
                 if (sym && sym->type_info) {
                     union_type_info = sym->type_info;
-                    /* If the union has generic parameters, use the generic name as the base */
-                    if (union_type_info->generic_name) {
-                        union_type_name = union_type_info->generic_name;
-                    }
+                    /* Prefer the generic name as the base for variant lookup */
+                    if (union_type_info->generic_name) union_type_name = union_type_info->generic_name;
                 }
             } else if (match_expr_node->type == AST_UNION_CONSTRUCT) {
                 union_type_name = match_expr_node->as.union_construct.union_name;
@@ -1740,9 +1870,21 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
                 }
             }
+
+            union_base_name = union_type_name;
+            if (union_type_info && union_type_info->generic_name && union_type_info->type_param_count > 0) {
+                union_base_name = union_type_info->generic_name;
+                union_concrete_name = typeinfo_to_monomorphized_generic_name(union_type_info);
+            }
             
-            if (union_type_name) {
-                expr->as.match_expr.union_type_name = strdup(union_type_name);
+            if (expr->as.match_expr.union_type_name) {
+                free(expr->as.match_expr.union_type_name);
+                expr->as.match_expr.union_type_name = NULL;
+            }
+            if (union_concrete_name) {
+                expr->as.match_expr.union_type_name = union_concrete_name;
+            } else if (union_base_name) {
+                expr->as.match_expr.union_type_name = strdup(union_base_name);
             }
             
             /* Check each arm and infer return type from first arm */
@@ -1762,12 +1904,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Store "UnionName.VariantName" as the struct type name for the binding
                  * This will be used by field access type checking to look up variant fields
                  */
-                if (union_type_name && env->symbol_count > 0) {
+                if (union_base_name && env->symbol_count > 0) {
                     Symbol *binding_sym = &env->symbols[env->symbol_count - 1];
                     const char *variant_name = expr->as.match_expr.pattern_variants[i];
                     /* Format: "UnionName.VariantName" */
-                    char *type_name = malloc(strlen(union_type_name) + strlen(variant_name) + 2);
-                    sprintf(type_name, "%s.%s", union_type_name, variant_name);
+                    char *type_name = malloc(strlen(union_base_name) + strlen(variant_name) + 2);
+                    sprintf(type_name, "%s.%s", union_base_name, variant_name);
                     binding_sym->struct_type_name = type_name;
                 }
                 
@@ -1976,22 +2118,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         /* Build concrete type names for registration */
                         char **type_names = malloc(sizeof(char*) * info->type_param_count);
                         for (int i = 0; i < info->type_param_count; i++) {
-                            TypeInfo *param = info->type_params[i];
-                            if (param->base_type == TYPE_INT) {
-                                type_names[i] = strdup("int");
-                            } else if (param->base_type == TYPE_U8) {
-                                type_names[i] = strdup("u8");
-                            } else if (param->base_type == TYPE_STRING) {
-                                type_names[i] = strdup("string");
-                            } else if (param->base_type == TYPE_BOOL) {
-                                type_names[i] = strdup("bool");
-                            } else if (param->base_type == TYPE_FLOAT) {
-                                type_names[i] = strdup("float");
-                            } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
-                                type_names[i] = strdup(param->generic_name);
-                            } else {
-                                type_names[i] = strdup("unknown");
-                            }
+                            type_names[i] = typeinfo_to_generic_arg_name(info->type_params[i]);
                         }
                         
                         /* Register this instantiation for code generation */
@@ -2370,8 +2497,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
 
             /* Infer and store union type name for transpiler + variant binding metadata */
-            const char *union_type_name = NULL;
-            TypeInfo *union_type_info = NULL;  /* For generic unions: Result<int, string> */
+            const char *union_type_name = NULL;      /* base name for variant-field lookup */
+            const char *union_base_name = NULL;      /* kept for binding metadata */
+            char *union_concrete_name = NULL;        /* for transpiler: Result_int_string */
+            TypeInfo *union_type_info = NULL;        /* For generic unions: Result<int, string> */
             ASTNode *match_expr_node = stmt->as.match_expr.expr;
 
             if (match_expr_node->type == AST_IDENTIFIER) {
@@ -2382,10 +2511,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 /* For generic unions, also extract TypeInfo */
                 if (sym && sym->type_info) {
                     union_type_info = sym->type_info;
-                    /* If the union has generic parameters, use the generic name as the base */
-                    if (union_type_info->generic_name) {
-                        union_type_name = union_type_info->generic_name;
-                    }
+                    if (union_type_info->generic_name) union_type_name = union_type_info->generic_name;
                 }
             } else if (match_expr_node->type == AST_UNION_CONSTRUCT) {
                 union_type_name = match_expr_node->as.union_construct.union_name;
@@ -2412,11 +2538,20 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
             }
 
-            if (union_type_name) {
-                if (stmt->as.match_expr.union_type_name) {
-                    free(stmt->as.match_expr.union_type_name);
-                }
-                stmt->as.match_expr.union_type_name = strdup(union_type_name);
+            union_base_name = union_type_name;
+            if (union_type_info && union_type_info->generic_name && union_type_info->type_param_count > 0) {
+                union_base_name = union_type_info->generic_name;
+                union_concrete_name = typeinfo_to_monomorphized_generic_name(union_type_info);
+            }
+
+            if (stmt->as.match_expr.union_type_name) {
+                free(stmt->as.match_expr.union_type_name);
+                stmt->as.match_expr.union_type_name = NULL;
+            }
+            if (union_concrete_name) {
+                stmt->as.match_expr.union_type_name = union_concrete_name;
+            } else if (union_base_name) {
+                stmt->as.match_expr.union_type_name = strdup(union_base_name);
             }
 
             for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
@@ -2425,11 +2560,11 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     stmt->as.match_expr.pattern_bindings[i],
                     TYPE_STRUCT, TYPE_UNKNOWN, union_type_info, false, binding_val);
 
-                if (union_type_name && tc->env->symbol_count > 0) {
+                if (union_base_name && tc->env->symbol_count > 0) {
                     Symbol *binding_sym = &tc->env->symbols[tc->env->symbol_count - 1];
                     const char *variant_name = stmt->as.match_expr.pattern_variants[i];
-                    char *type_name = malloc(strlen(union_type_name) + strlen(variant_name) + 2);
-                    sprintf(type_name, "%s.%s", union_type_name, variant_name);
+                    char *type_name = malloc(strlen(union_base_name) + strlen(variant_name) + 2);
+                    sprintf(type_name, "%s.%s", union_base_name, variant_name);
                     binding_sym->struct_type_name = type_name;
                 }
 
@@ -3880,20 +4015,7 @@ bool type_check(ASTNode *program, Environment *env) {
                 char **type_names = malloc(sizeof(char*) * info->type_param_count);
                 
                 for (int ti = 0; ti < info->type_param_count; ti++) {
-                    TypeInfo *param = info->type_params[ti];
-                    if (param->base_type == TYPE_INT) {
-                        type_names[ti] = strdup("int");
-                    } else if (param->base_type == TYPE_STRING) {
-                        type_names[ti] = strdup("string");
-                    } else if (param->base_type == TYPE_BOOL) {
-                        type_names[ti] = strdup("bool");
-                    } else if (param->base_type == TYPE_FLOAT) {
-                        type_names[ti] = strdup("float");
-                    } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
-                        type_names[ti] = strdup(param->generic_name);
-                    } else {
-                        type_names[ti] = strdup("unknown");
-                    }
+                    type_names[ti] = typeinfo_to_generic_arg_name(info->type_params[ti]);
                 }
                 
                 /* Register this instantiation for code generation */
@@ -4432,22 +4554,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
                 if (udef && udef->generic_param_count == info->type_param_count) {
                     char **type_names = malloc(sizeof(char*) * info->type_param_count);
                     for (int ti = 0; ti < info->type_param_count; ti++) {
-                        TypeInfo *param = info->type_params[ti];
-                        if (param->base_type == TYPE_INT) {
-                            type_names[ti] = strdup("int");
-                        } else if (param->base_type == TYPE_U8) {
-                            type_names[ti] = strdup("u8");
-                        } else if (param->base_type == TYPE_STRING) {
-                            type_names[ti] = strdup("string");
-                        } else if (param->base_type == TYPE_BOOL) {
-                            type_names[ti] = strdup("bool");
-                        } else if (param->base_type == TYPE_FLOAT) {
-                            type_names[ti] = strdup("float");
-                        } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
-                            type_names[ti] = strdup(param->generic_name);
-                        } else {
-                            type_names[ti] = strdup("unknown");
-                        }
+                        type_names[ti] = typeinfo_to_generic_arg_name(info->type_params[ti]);
                     }
 
                     env_register_union_instantiation(env, info->generic_name,

@@ -23,6 +23,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_ROOT"
 
+mkdir -p .test_output
+rm -f .test_output/*.compile.log
+
 # Colors
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -89,11 +92,12 @@ run_test() {
         return 0
     fi
     
-    # Run the test
-    local result=$(./bin/nanoc "$test_file" 2>&1)
-    
-    if echo "$result" | grep -q "All shadow tests passed"; then
+    local log_file=".test_output/${category}_${test_name}.compile.log"
+    ./bin/nanoc "$test_file" >"$log_file" 2>&1
+
+    if grep -q "All shadow tests passed" "$log_file"; then
         echo -e "${GREEN}✅${NC} $test_name"
+        rm -f "$log_file"
         TOTAL_PASS=$((TOTAL_PASS + 1))
         case "$category" in
             "nl") NL_PASS=$((NL_PASS + 1)) ;;

@@ -23,12 +23,19 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential valgrind
+          sudo apt-get install -y \
+            build-essential \
+            valgrind \
+            pkg-config \
+            libsdl2-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev \
+            libncurses-dev
 
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install gcc
+          brew install gcc pkg-config sdl2 sdl2_mixer sdl2_ttf
 
       - name: Check dependencies
         run: make check-deps
@@ -135,7 +142,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential lcov
+          sudo apt-get install -y build-essential lcov bc
 
       - name: Build with coverage
         run: make coverage

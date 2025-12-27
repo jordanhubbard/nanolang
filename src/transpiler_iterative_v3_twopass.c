@@ -20,6 +20,83 @@
 
 extern ASTNode *g_current_function;  /* Current function being transpiled */
 
+/* =========================================================================
+ * GENERIC TYPE NAME HELPERS
+ * ========================================================================= */
+
+static bool typeinfo_to_monomorph_segment(TypeInfo *ti, char *out, size_t out_size) {
+    if (!out || out_size == 0) return false;
+    if (!ti) return snprintf(out, out_size, "unknown") < (int)out_size;
+
+    switch (ti->base_type) {
+        case TYPE_INT:
+            return snprintf(out, out_size, "int") < (int)out_size;
+        case TYPE_U8:
+            return snprintf(out, out_size, "u8") < (int)out_size;
+        case TYPE_STRING:
+            return snprintf(out, out_size, "string") < (int)out_size;
+        case TYPE_BOOL:
+            return snprintf(out, out_size, "bool") < (int)out_size;
+        case TYPE_FLOAT:
+            return snprintf(out, out_size, "float") < (int)out_size;
+        case TYPE_STRUCT:
+        case TYPE_UNION:
+        case TYPE_ENUM:
+            if (ti->generic_name) return snprintf(out, out_size, "%s", ti->generic_name) < (int)out_size;
+            return snprintf(out, out_size, "unknown") < (int)out_size;
+        case TYPE_ARRAY: {
+            char elem[128];
+            if (!typeinfo_to_monomorph_segment(ti->element_type, elem, sizeof(elem))) {
+                return snprintf(out, out_size, "array_unknown") < (int)out_size;
+            }
+            return snprintf(out, out_size, "array_%s", elem) < (int)out_size;
+        }
+        default:
+            return snprintf(out, out_size, "unknown") < (int)out_size;
+    }
+}
+
+static bool build_monomorphized_name_from_typeinfo_iter(char *dest, size_t dest_size, TypeInfo *info) {
+    if (!dest || dest_size == 0) return false;
+    if (!info || !info->generic_name || info->type_param_count <= 0) return false;
+
+    int written = snprintf(dest, dest_size, "%s", info->generic_name);
+    if (written < 0 || (size_t)written >= dest_size) return false;
+
+    size_t pos = (size_t)written;
+    for (int i = 0; i < info->type_param_count; i++) {
+        char seg[128];
+        if (!typeinfo_to_monomorph_segment(info->type_params[i], seg, sizeof(seg))) {
+            return false;
+        }
+
+        written = snprintf(dest + pos, dest_size - pos, "_%s", seg);
+        if (written < 0 || (size_t)written >= dest_size - pos) return false;
+        pos += (size_t)written;
+    }
+
+    return true;
+}
+
+static const char *match_union_c_name(ASTNode *match, Environment *env, char *buf, size_t buf_size) {
+    if (!match || !env) return NULL;
+    const char *base = match->as.match_expr.union_type_name;
+    if (!base) return NULL;
+
+    ASTNode *scrutinee = match->as.match_expr.expr;
+    if (scrutinee && scrutinee->type == AST_IDENTIFIER) {
+        Symbol *sym = env_get_var_visible_at(env, scrutinee->as.identifier, match->line, match->column);
+        if (sym && sym->type == TYPE_UNION && sym->type_info && sym->type_info->generic_name &&
+            sym->type_info->type_param_count > 0 && strcmp(sym->type_info->generic_name, base) == 0) {
+            if (build_monomorphized_name_from_typeinfo_iter(buf, buf_size, sym->type_info)) {
+                return buf;
+            }
+        }
+    }
+
+    return base;
+}
+
 /* ============================================================================
  * WORK ITEM TYPES - Describe what output to generate
  * ============================================================================ */
@@ -1631,26 +1708,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 g_current_function->as.function.return_type_info->type_param_count > 0 &&
                 strcmp(union_name, g_current_function->as.function.return_type_info->generic_name) == 0) {
                 /* Build monomorphized name: Result<int, string> -> Result_int_string */
-                snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", 
-                        g_current_function->as.function.return_type_info->generic_name);
-                
-                for (int ti = 0; ti < g_current_function->as.function.return_type_info->type_param_count; ti++) {
-                    TypeInfo *param = g_current_function->as.function.return_type_info->type_params[ti];
-                    strcat(monomorphized_name, "_");
-                    
-                    if (param->base_type == TYPE_INT) {
-                        strcat(monomorphized_name, "int");
-                    } else if (param->base_type == TYPE_STRING) {
-                        strcat(monomorphized_name, "string");
-                    } else if (param->base_type == TYPE_BOOL) {
-                        strcat(monomorphized_name, "bool");
-                    } else if (param->base_type == TYPE_FLOAT) {
-                        strcat(monomorphized_name, "float");
-                    } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
-                        strcat(monomorphized_name, param->generic_name);
-                    } else {
-                        strcat(monomorphized_name, "unknown");
-                    }
+                if (!build_monomorphized_name_from_typeinfo_iter(monomorphized_name, sizeof(monomorphized_name),
+                                                                g_current_function->as.function.return_type_info)) {
+                    snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", union_name);
                 }
                 
                 prefixed_union = get_prefixed_type_name(monomorphized_name);
@@ -1773,18 +1833,27 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             /* Match expression: match opt { Some(s) => s.value, None(n) => 0 } */
             /* Generate: ({ UnionType _m = scrutinee; int64_t _out = 0; switch(_m.tag) { case TAG_V: { VariantType nl_binding = _m.data.V; _out = body; break; } } _out; }) */
             
-            const char *union_type_name = expr->as.match_expr.union_type_name;
-            if (!union_type_name) {
+            const char *union_c_name = expr->as.match_expr.union_type_name;
+            if (!union_c_name) {
                 emit_literal(list, "/* match: unknown union type */0");
                 break;
             }
             
-            /* Look up union definition to check variant field counts */
-            UnionDef *udef = NULL;
-            for (int u = 0; u < env->union_count; u++) {
-                if (strcmp(env->unions[u].name, union_type_name) == 0) {
-                    udef = &env->unions[u];
-                    break;
+            /* Look up union definition to check variant field counts.
+             * For generic unions, union_c_name is monomorphized; use the base name for lookup. */
+            const char *base_union_name = union_c_name;
+            char base_buf[256];
+            UnionDef *udef = env_get_union(env, base_union_name);
+            if (!udef) {
+                const char *us = strchr(union_c_name, '_');
+                if (us) {
+                    size_t n = (size_t)(us - union_c_name);
+                    if (n < sizeof(base_buf)) {
+                        memcpy(base_buf, union_c_name, n);
+                        base_buf[n] = '\0';
+                        base_union_name = base_buf;
+                        udef = env_get_union(env, base_union_name);
+                    }
                 }
             }
             
@@ -1800,7 +1869,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 out_type = out_type_buf;
             }
             
-            const char *prefixed_union = get_prefixed_type_name(union_type_name);
+            const char *prefixed_union = get_prefixed_type_name(union_c_name);
             
             /* Start compound expression */
             emit_literal(list, "({ ");
@@ -1819,7 +1888,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 
                 /* case nl_UnionName_TAG_Variant: { */
                 emit_literal(list, "case nl_");
-                emit_literal(list, union_type_name);
+                emit_literal(list, union_c_name);
                 emit_literal(list, "_TAG_");
                 emit_literal(list, variant_name);
                 emit_literal(list, ": { ");
@@ -1839,7 +1908,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 if (variant_field_count > 0) {
                     /* Binding name should NOT have nl_ prefix - it's referenced directly in code */
                     emit_literal(list, "nl_");
-                    emit_literal(list, union_type_name);
+                    emit_literal(list, union_c_name);
                     emit_literal(list, "_");
                     emit_literal(list, variant_name);
                     emit_literal(list, " ");
@@ -1907,6 +1976,120 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             emit_indent_item(list, indent);
             emit_literal(list, "}\n");
             break;
+
+        case AST_MATCH: {
+            const char *union_c_name = stmt->as.match_expr.union_type_name;
+            if (!union_c_name) {
+                emit_indent_item(list, indent);
+                emit_literal(list, "/* match: unknown union type */;\n");
+                break;
+            }
+
+            /* For generic unions, typechecker stores the monomorphized name (e.g. Result_int_string).
+             * We still need the base name (e.g. Result) to look up the union definition. */
+            const char *base_union_name = union_c_name;
+            char base_buf[256];
+            UnionDef *udef = env_get_union(env, base_union_name);
+            if (!udef) {
+                const char *us = strchr(union_c_name, '_');
+                if (us) {
+                    size_t n = (size_t)(us - union_c_name);
+                    if (n < sizeof(base_buf)) {
+                        memcpy(base_buf, union_c_name, n);
+                        base_buf[n] = '\0';
+                        base_union_name = base_buf;
+                        udef = env_get_union(env, base_union_name);
+                    }
+                }
+            }
+
+            const char *prefixed_union = get_prefixed_type_name(union_c_name);
+
+            emit_indent_item(list, indent);
+            emit_literal(list, "{\n");
+
+            emit_indent_item(list, indent + 1);
+            emit_literal(list, prefixed_union);
+            emit_literal(list, " _m = ");
+            build_expr(list, stmt->as.match_expr.expr, env);
+            emit_literal(list, ";\n");
+
+            emit_indent_item(list, indent + 1);
+            emit_literal(list, "switch (_m.tag) {\n");
+
+            for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
+                const char *variant_name = stmt->as.match_expr.pattern_variants[i];
+                const char *binding_name = stmt->as.match_expr.pattern_bindings[i];
+                ASTNode *arm_body = stmt->as.match_expr.arm_bodies[i];
+
+                emit_indent_item(list, indent + 2);
+                emit_literal(list, "case nl_");
+                emit_literal(list, union_c_name);
+                emit_literal(list, "_TAG_");
+                emit_literal(list, variant_name);
+                emit_literal(list, ": {\n");
+
+                int variant_field_count = 0;
+                if (udef) {
+                    for (int v = 0; v < udef->variant_count; v++) {
+                        if (strcmp(udef->variant_names[v], variant_name) == 0) {
+                            variant_field_count = udef->variant_field_counts[v];
+                            break;
+                        }
+                    }
+                }
+
+                if (variant_field_count > 0) {
+                    if (binding_name && strcmp(binding_name, "_") != 0) {
+                        emit_indent_item(list, indent + 3);
+                        emit_literal(list, "nl_");
+                        emit_literal(list, union_c_name);
+                        emit_literal(list, "_");
+                        emit_literal(list, variant_name);
+                        emit_literal(list, " ");
+                        emit_literal(list, binding_name);
+                        emit_literal(list, " = _m.data.");
+                        emit_literal(list, variant_name);
+                        emit_literal(list, ";\n");
+                    } else {
+                        emit_indent_item(list, indent + 3);
+                        emit_literal(list, "(void)_m.data.");
+                        emit_literal(list, variant_name);
+                        emit_literal(list, ";\n");
+                    }
+                } else {
+                    emit_indent_item(list, indent + 3);
+                    emit_literal(list, "(void)_m.data.");
+                    emit_literal(list, variant_name);
+                    emit_literal(list, ";\n");
+                }
+
+                if (arm_body) {
+                    if (arm_body->type == AST_BLOCK) {
+                        for (int j = 0; j < arm_body->as.block.count; j++) {
+                            build_stmt(list, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
+                        }
+                    } else {
+                        emit_indent_item(list, indent + 3);
+                        build_expr(list, arm_body, env);
+                        emit_literal(list, ";\n");
+                    }
+                }
+
+                emit_indent_item(list, indent + 3);
+                emit_literal(list, "break;\n");
+                emit_indent_item(list, indent + 2);
+                emit_literal(list, "}\n");
+            }
+
+            emit_indent_item(list, indent + 2);
+            emit_literal(list, "default: break;\n");
+            emit_indent_item(list, indent + 1);
+            emit_literal(list, "}\n");
+            emit_indent_item(list, indent);
+            emit_literal(list, "}\n");
+            break;
+        }
             
         case AST_RETURN:
             emit_indent_item(list, indent);
@@ -1954,25 +2137,9 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                     stmt->as.let.type_info->generic_name && stmt->as.let.type_info->type_param_count > 0) {
                     /* Build monomorphized name: Result<int, string> -> Result_int_string */
                     char monomorphized_name[256];
-                    snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", stmt->as.let.type_info->generic_name);
-                    
-                    for (int i = 0; i < stmt->as.let.type_info->type_param_count; i++) {
-                        TypeInfo *param = stmt->as.let.type_info->type_params[i];
-                        strcat(monomorphized_name, "_");
-                        
-                        if (param->base_type == TYPE_INT) {
-                            strcat(monomorphized_name, "int");
-                        } else if (param->base_type == TYPE_STRING) {
-                            strcat(monomorphized_name, "string");
-                        } else if (param->base_type == TYPE_BOOL) {
-                            strcat(monomorphized_name, "bool");
-                        } else if (param->base_type == TYPE_FLOAT) {
-                            strcat(monomorphized_name, "float");
-                        } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
-                            strcat(monomorphized_name, param->generic_name);
-                        } else {
-                            strcat(monomorphized_name, "unknown");
-                        }
+                    if (!build_monomorphized_name_from_typeinfo_iter(monomorphized_name, sizeof(monomorphized_name),
+                                                                    stmt->as.let.type_info)) {
+                        snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", stmt->as.let.type_info->generic_name);
                     }
                     
                     const char *prefixed = get_prefixed_type_name(monomorphized_name);

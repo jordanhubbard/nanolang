@@ -397,7 +397,12 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1)
 	@echo "Compiling components with stage1..."
 	@echo ""
 	@# Compile each self-hosted component (STRICT: must produce an executable binary)
-	@success=0; fail=0; \
+	@# If compiler is ASan-instrumented, disable leak detection during compilation.
+	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
+		echo "  (ASan build detected - disabling leak detection for stage2 compiler runs)"; \
+		export ASAN_OPTIONS=detect_leaks=0; \
+	fi; \
+	success=0; fail=0; \
 	for comp in $(SELFHOST_COMPONENTS); do \
 		src="$$comp"; \
 		if [ "$$comp" = "parser" ]; then src="parser_driver"; fi; \

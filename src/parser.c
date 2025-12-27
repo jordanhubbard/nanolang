@@ -421,6 +421,81 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
                             } else if (param_tok->token_type == TOKEN_TYPE_FLOAT) {
                                 param_info->base_type = TYPE_FLOAT;
                                 advance(p);
+                            } else if (param_tok->token_type == TOKEN_ARRAY) {
+                                /* Support array<T> as a generic type parameter (e.g., Result<array<int>, string>) */
+                                param_info->base_type = TYPE_ARRAY;
+                                advance(p);  /* consume 'array' */
+
+                                if (!expect(p, TOKEN_LT, "Expected '<' after 'array' in type parameter")) {
+                                    free(param_info);
+                                    for (int i = 0; i < info->type_param_count; i++) {
+                                        free(info->type_params[i]);
+                                    }
+                                    free(info->type_params);
+                                    free(info->generic_name);
+                                    free(info);
+                                    return TYPE_UNKNOWN;
+                                }
+
+                                TypeInfo *elem_info = malloc(sizeof(TypeInfo));
+                                elem_info->element_type = NULL;
+                                elem_info->generic_name = NULL;
+                                elem_info->type_params = NULL;
+                                elem_info->type_param_count = 0;
+                                elem_info->tuple_types = NULL;
+                                elem_info->tuple_type_names = NULL;
+                                elem_info->tuple_element_count = 0;
+                                elem_info->opaque_type_name = NULL;
+                                elem_info->fn_sig = NULL;
+
+                                Token *elem_tok = current_token(p);
+                                if (elem_tok->token_type == TOKEN_TYPE_INT) {
+                                    elem_info->base_type = TYPE_INT;
+                                    advance(p);
+                                } else if (elem_tok->token_type == TOKEN_TYPE_U8) {
+                                    elem_info->base_type = TYPE_U8;
+                                    advance(p);
+                                } else if (elem_tok->token_type == TOKEN_TYPE_STRING) {
+                                    elem_info->base_type = TYPE_STRING;
+                                    advance(p);
+                                } else if (elem_tok->token_type == TOKEN_TYPE_BOOL) {
+                                    elem_info->base_type = TYPE_BOOL;
+                                    advance(p);
+                                } else if (elem_tok->token_type == TOKEN_TYPE_FLOAT) {
+                                    elem_info->base_type = TYPE_FLOAT;
+                                    advance(p);
+                                } else if (elem_tok->token_type == TOKEN_IDENTIFIER) {
+                                    elem_info->base_type = TYPE_STRUCT;
+                                    elem_info->generic_name = strdup(elem_tok->value);
+                                    advance(p);
+                                } else {
+                                    fprintf(stderr, "Error at line %d, column %d: Expected array element type in type parameter\n",
+                                            elem_tok->line, elem_tok->column);
+                                    free(elem_info);
+                                    free(param_info);
+                                    for (int i = 0; i < info->type_param_count; i++) {
+                                        free(info->type_params[i]);
+                                    }
+                                    free(info->type_params);
+                                    free(info->generic_name);
+                                    free(info);
+                                    return TYPE_UNKNOWN;
+                                }
+
+                                if (!expect(p, TOKEN_GT, "Expected '>' after array element type in type parameter")) {
+                                    if (elem_info->generic_name) free(elem_info->generic_name);
+                                    free(elem_info);
+                                    free(param_info);
+                                    for (int i = 0; i < info->type_param_count; i++) {
+                                        free(info->type_params[i]);
+                                    }
+                                    free(info->type_params);
+                                    free(info->generic_name);
+                                    free(info);
+                                    return TYPE_UNKNOWN;
+                                }
+
+                                param_info->element_type = elem_info;
                             } else if (param_tok->token_type == TOKEN_IDENTIFIER) {
                                 param_info->base_type = TYPE_STRUCT;
                                 param_info->generic_name = strdup(param_tok->value);
@@ -934,7 +1009,8 @@ static ASTNode *parse_primary(Parser *p) {
             return node;
         }
 
-        case TOKEN_IDENTIFIER: {
+        case TOKEN_IDENTIFIER:
+        case TOKEN_SET: {
             /* Check if this is a struct literal: StructName { ... } */
             /* Only parse as struct literal if identifier starts with uppercase (type convention) */
             /* AND it's not followed by code keywords that indicate it's a condition */
@@ -1030,7 +1106,7 @@ static ASTNode *parse_primary(Parser *p) {
                 while (match(p, TOKEN_DOUBLE_COLON)) {
                     advance(p);  /* consume :: */
                     
-                    if (!match(p, TOKEN_IDENTIFIER)) {
+                    if (!(match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_SET))) {
                         fprintf(stderr, "Error at line %d, column %d: Expected identifier after '::'\n",
                                 current_token(p)->line, current_token(p)->column);
                         for (int i = 0; i < count; i++) {
@@ -2657,7 +2733,7 @@ static ASTNode *parse_function(Parser *p, bool is_extern, bool is_pub) {
         return NULL;
     }
 
-    if (!match(p, TOKEN_IDENTIFIER)) {
+    if (!(match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_SET))) {
         fprintf(stderr, "Error at line %d, column %d: Expected function name\n", line, column);
         return NULL;
     }
@@ -2825,7 +2901,7 @@ static ASTNode *parse_import(Parser *p) {
             import_symbols = malloc(sizeof(char*) * capacity);
             
             while (true) {
-                if (!match(p, TOKEN_IDENTIFIER)) {
+                if (!(match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_SET))) {
                     fprintf(stderr, "Error at line %d, column %d: Expected symbol name after 'import'\n",
                             current_token(p)->line, current_token(p)->column);
                     free(module_path);
