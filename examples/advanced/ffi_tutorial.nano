@@ -1,0 +1,219 @@
+# Example: FFI (Foreign Function Interface) Tutorial
+# Purpose: Step-by-step guide to calling C functions from NanoLang
+# Features: extern keyword, C interop, opaque types, type mapping
+# Difficulty: Advanced
+# Usage: ./bin/nanoc examples/advanced/ffi_tutorial.nano -o /tmp/ffi && /tmp/ffi
+# Expected Output: Demonstrates various FFI patterns
+#
+# Learning Objectives:
+# 1. Declare extern functions to call C library functions
+# 2. Understand type mappings (int→int64_t, string→char*, etc.)
+# 3. Work with opaque C types (pointers you can't inspect)
+# 4. Use pub extern for module exports
+# 5. Handle C return values and error codes
+#
+# FFI Basics:
+# - extern fn declares a C function without implementing it
+# - NanoLang types map to C types automatically
+# - Shadow tests are NOT required for extern functions
+# - Use pub extern to export FFI wrappers from modules
+
+# ==================================================================
+# Part 1: Basic C Standard Library Functions
+# ==================================================================
+
+# Math functions from <math.h>
+extern fn sqrt(x: float) -> float
+extern fn pow(base: float, exp: float) -> float
+extern fn sin(x: float) -> float
+extern fn cos(x: float) -> float
+
+# String functions from <string.h>
+extern fn strlen(s: string) -> int
+
+# Memory functions from <stdlib.h>
+extern fn abs(x: int) -> int
+
+# ==================================================================
+# Part 2: Wrapper Functions (Add Shadow Tests)
+# ==================================================================
+
+# Wrapper functions CAN have shadow tests (they're regular NanoLang functions)
+fn safe_sqrt(x: float) -> float {
+    if (< x 0.0) {
+        return 0.0  # Return 0 for negative input
+    } else {}
+    return (sqrt x)
+}
+
+shadow safe_sqrt {
+    assert (== (safe_sqrt 4.0) 2.0)
+    assert (== (safe_sqrt 9.0) 3.0)
+    assert (== (safe_sqrt -1.0) 0.0)  # Negative handled
+}
+
+fn power(base: float, exp: float) -> float {
+    return (pow base exp)
+}
+
+shadow power {
+    assert (== (power 2.0 3.0) 8.0)
+    assert (== (power 10.0 2.0) 100.0)
+    assert (== (power 5.0 0.0) 1.0)
+}
+
+# ==================================================================
+# Part 3: Type Mappings
+# ==================================================================
+
+# NanoLang Type → C Type Mapping:
+# int           → int64_t
+# float         → double
+# bool          → bool
+# string        → char*
+# void          → void
+# array<T>      → (internal GC type)
+# struct Foo    → nl_Foo (with nl_ prefix)
+
+fn demonstrate_type_mapping() -> int {
+    # int → int64_t
+    let i: int = (abs -42)
+    (println i)  # 42
+    
+    # float → double
+    let f: float = (sqrt 16.0)
+    (println f)  # 4.0
+    
+    # string → char*
+    let s: string = "Hello"
+    let len: int = (strlen s)
+    (println len)  # 5
+    
+    return 0
+}
+
+shadow demonstrate_type_mapping {
+    assert (== (demonstrate_type_mapping) 0)
+}
+
+# ==================================================================
+# Part 4: Working with C Return Values
+# ==================================================================
+
+# Many C functions return error codes or special values
+# You must check these in your wrapper functions
+
+fn check_math_result(x: float) -> bool {
+    let result: float = (sqrt x)
+    
+    # In real code, you'd check for NaN, infinity, etc.
+    # For this example, just check if result is positive
+    return (> result 0.0)
+}
+
+shadow check_math_result {
+    assert (== (check_math_result 4.0) true)
+    assert (== (check_math_result 0.0) false)
+}
+
+# ==================================================================
+# Part 5: Best Practices for FFI
+# ==================================================================
+
+# 1. Always wrap extern functions in NanoLang functions
+#    - Adds type safety
+#    - Allows shadow testing
+#    - Handles error cases
+#    - Provides better API
+
+# 2. Document C function behavior
+fn documented_wrapper(x: float) -> float {
+    # C function: double sqrt(double x)
+    # Returns: square root of x
+    # Special cases: sqrt(negative) returns NaN
+    # Our wrapper: returns 0.0 for negative input
+    
+    if (< x 0.0) {
+        return 0.0
+    } else {}
+    
+    return (sqrt x)
+}
+
+shadow documented_wrapper {
+    assert (== (documented_wrapper 16.0) 4.0)
+    assert (== (documented_wrapper -1.0) 0.0)
+}
+
+# 3. Use pub extern for module exports
+# (This would go in a module file like modules/math_ext/math_ext.nano)
+# pub extern fn special_function(x: int) -> int
+
+# 4. Handle C error codes explicitly
+fn safe_division(a: int, b: int) -> int {
+    # If this were calling a C function that returns error codes:
+    # - Check return value
+    # - Convert to NanoLang error convention
+    # - Document error cases in shadow tests
+    
+    if (== b 0) {
+        return -1  # Error code
+    } else {}
+    
+    return (/ a b)
+}
+
+shadow safe_division {
+    assert (== (safe_division 10 2) 5)
+    assert (== (safe_division 10 0) -1)  # Error case
+}
+
+# ==================================================================
+# Part 6: Common Pitfalls
+# ==================================================================
+
+# PITFALL 1: Forgetting extern functions don't need shadow tests
+# extern fn some_c_function(x: int) -> int
+# # NO shadow test needed! (would cause error)
+
+# PITFALL 2: Not checking C function error returns
+# Always check return values from C functions that can fail
+
+# PITFALL 3: String lifetime issues
+# C strings (char*) must remain valid for the duration of use
+# NanoLang handles this automatically for you
+
+# PITFALL 4: Opaque types
+# Some C types are opaque (you can't see inside them)
+# Example: FILE*, SDL_Window*, etc.
+# Just pass them around, don't try to inspect them
+
+fn main() -> int {
+    (println "FFI Tutorial Demo")
+    (println "")
+    
+    (println "Part 1: Basic C Functions")
+    (println (sqrt 16.0))  # 4.0
+    (println (pow 2.0 8.0))  # 256.0
+    (println "")
+    
+    (println "Part 2: Wrapper Functions")
+    (println (safe_sqrt 25.0))  # 5.0
+    (println (safe_sqrt -1.0))  # 0.0 (handled)
+    (println "")
+    
+    (println "Part 3: Type Mappings")
+    (demonstrate_type_mapping)
+    (println "")
+    
+    (println "Part 4: Error Handling")
+    (println (safe_division 10 2))  # 5
+    (println (safe_division 10 0))  # -1 (error)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

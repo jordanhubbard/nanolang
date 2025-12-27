@@ -1,0 +1,358 @@
+# Example: Large Project Structure and Organization
+# Purpose: Demonstrate how to organize a large NanoLang project
+# Features: Module imports, code organization, separation of concerns
+# Difficulty: Advanced
+# Usage: ./bin/nanoc examples/advanced/large_project_structure.nano -o /tmp/project && /tmp/project
+# Expected Output: Shows project organization patterns
+#
+# Learning Objectives:
+# 1. Organize code into logical modules
+# 2. Use import statements effectively
+# 3. Separate concerns (data, logic, UI)
+# 4. Design clean module interfaces
+# 5. Scale from small to large projects
+#
+# Project Organization Philosophy:
+# - Start simple, refactor as you grow
+# - Each module should have ONE responsibility
+# - Use clear naming conventions
+# - Document module interfaces
+# - Keep related code together
+
+# ==================================================================
+# Part 1: Project Structure Overview
+# ==================================================================
+
+# Recommended Directory Structure for Large Projects:
+#
+# my_project/
+# ├── main.nano                 # Entry point
+# ├── src/
+# │   ├── core/
+# │   │   ├── types.nano        # Core data types
+# │   │   ├── constants.nano    # Global constants
+# │   │   └── utils.nano        # Utility functions
+# │   ├── data/
+# │   │   ├── models.nano       # Data models
+# │   │   ├── validation.nano   # Input validation
+# │   │   └── storage.nano      # Data persistence
+# │   ├── logic/
+# │   │   ├── calculator.nano   # Business logic
+# │   │   ├── processor.nano    # Data processing
+# │   │   └── algorithms.nano   # Core algorithms
+# │   └── ui/
+# │       ├── display.nano      # Display functions
+# │       ├── input.nano        # Input handling
+# │       └── formatting.nano   # Output formatting
+# └── tests/
+#     ├── test_core.nano
+#     ├── test_data.nano
+#     └── test_logic.nano
+
+# ==================================================================
+# Part 2: Module Design Patterns
+# ==================================================================
+
+# Pattern 1: Data Module (Types and Structures)
+# File: src/data/models.nano
+
+struct User {
+    id: int,
+    name: string,
+    age: int
+}
+
+struct Product {
+    id: int,
+    name: string,
+    price: int
+}
+
+# Constructor functions for structs
+fn create_user(id: int, name: string, age: int) -> User {
+    return User { id: id, name: name, age: age }
+}
+
+shadow create_user {
+    let u: User = (create_user 1 "Alice" 30)
+    assert (== u.id 1)
+    assert (== u.age 30)
+}
+
+fn create_product(id: int, name: string, price: int) -> Product {
+    return Product { id: id, name: name, price: price }
+}
+
+shadow create_product {
+    let p: Product = (create_product 1 "Widget" 100)
+    assert (== p.id 1)
+    assert (== p.price 100)
+}
+
+# ==================================================================
+# Pattern 2: Validation Module (Input Checking)
+# File: src/data/validation.nano
+# ==================================================================
+
+fn is_valid_user_age(age: int) -> bool {
+    return (and (>= age 0) (<= age 150))
+}
+
+shadow is_valid_user_age {
+    assert (== (is_valid_user_age 25) true)
+    assert (== (is_valid_user_age -1) false)
+    assert (== (is_valid_user_age 151) false)
+}
+
+fn is_valid_product_price(price: int) -> bool {
+    return (>= price 0)
+}
+
+shadow is_valid_product_price {
+    assert (== (is_valid_product_price 100) true)
+    assert (== (is_valid_product_price 0) true)
+    assert (== (is_valid_product_price -1) false)
+}
+
+fn validate_user(user: User) -> bool {
+    return (is_valid_user_age user.age)
+}
+
+shadow validate_user {
+    let valid: User = (create_user 1 "Alice" 30)
+    assert (== (validate_user valid) true)
+    
+    let invalid: User = (create_user 2 "Bob" -5)
+    assert (== (validate_user invalid) false)
+}
+
+# ==================================================================
+# Pattern 3: Business Logic Module
+# File: src/logic/calculator.nano
+# ==================================================================
+
+fn calculate_total_price(products: array<Product>) -> int {
+    let len: int = (array_length products)
+    let mut total: int = 0
+    let mut i: int = 0
+    
+    while (< i len) {
+        let product: Product = (at products i)
+        set total (+ total product.price)
+        set i (+ i 1)
+    }
+    
+    return total
+}
+
+shadow calculate_total_price {
+    let p1: Product = (create_product 1 "Widget" 100)
+    let p2: Product = (create_product 2 "Gadget" 200)
+    let p3: Product = (create_product 3 "Tool" 50)
+    
+    let products: array<Product> = [p1, p2, p3]
+    assert (== (calculate_total_price products) 350)
+}
+
+fn apply_discount(price: int, discount_percent: int) -> int {
+    if (< discount_percent 0) {
+        return price  # Invalid discount
+    } else {}
+    
+    if (> discount_percent 100) {
+        return price  # Invalid discount
+    } else {}
+    
+    let discount: int = (/ (* price discount_percent) 100)
+    return (- price discount)
+}
+
+shadow apply_discount {
+    assert (== (apply_discount 100 10) 90)   # 10% off
+    assert (== (apply_discount 100 50) 50)   # 50% off
+    assert (== (apply_discount 100 0) 100)   # No discount
+    assert (== (apply_discount 100 -5) 100)  # Invalid
+    assert (== (apply_discount 100 150) 100) # Invalid
+}
+
+# ==================================================================
+# Pattern 4: Utility Module (Helper Functions)
+# File: src/core/utils.nano
+# ==================================================================
+
+fn max_value(a: int, b: int) -> int {
+    if (> a b) {
+        return a
+    } else {
+        return b
+    }
+}
+
+shadow max_value {
+    assert (== (max_value 5 3) 5)
+    assert (== (max_value 3 5) 5)
+    assert (== (max_value 5 5) 5)
+}
+
+fn min_value(a: int, b: int) -> int {
+    if (< a b) {
+        return a
+    } else {
+        return b
+    }
+}
+
+shadow min_value {
+    assert (== (min_value 5 3) 3)
+    assert (== (min_value 3 5) 3)
+    assert (== (min_value 5 5) 5)
+}
+
+fn clamp(value: int, min_val: int, max_val: int) -> int {
+    if (< value min_val) {
+        return min_val
+    } else {}
+    
+    if (> value max_val) {
+        return max_val
+    } else {}
+    
+    return value
+}
+
+shadow clamp {
+    assert (== (clamp 5 0 10) 5)
+    assert (== (clamp -5 0 10) 0)
+    assert (== (clamp 15 0 10) 10)
+}
+
+# ==================================================================
+# Pattern 5: Display/UI Module
+# File: src/ui/display.nano
+# ==================================================================
+
+fn display_user(user: User) -> void {
+    (println "User:")
+    (println user.name)
+    (println user.age)
+}
+
+shadow display_user {
+    # UI functions that print can't be easily tested
+    # But we can test the data they use
+    let u: User = (create_user 1 "Alice" 30)
+    assert (== u.name "Alice")
+    assert true  # Just verify it doesn't crash
+}
+
+fn display_product(product: Product) -> void {
+    (println "Product:")
+    (println product.name)
+    (println product.price)
+}
+
+shadow display_product {
+    let p: Product = (create_product 1 "Widget" 100)
+    assert (== p.name "Widget")
+    assert true
+}
+
+# ==================================================================
+# Part 3: Main Application (Ties Everything Together)
+# ==================================================================
+
+fn main() -> int {
+    (println "Large Project Structure Demo")
+    (println "")
+    
+    # Part 1: Data Layer
+    (println "=== Data Layer ===")
+    let user: User = (create_user 1 "Alice" 30)
+    let product1: Product = (create_product 1 "Widget" 100)
+    let product2: Product = (create_product 2 "Gadget" 200)
+    (println "Created user and products")
+    (println "")
+    
+    # Part 2: Validation Layer
+    (println "=== Validation Layer ===")
+    if (validate_user user) {
+        (println "User is valid")
+    } else {
+        (println "User is invalid")
+    }
+    (println "")
+    
+    # Part 3: Business Logic Layer
+    (println "=== Business Logic Layer ===")
+    let products: array<Product> = [product1, product2]
+    let total: int = (calculate_total_price products)
+    (println "Total price:")
+    (println total)
+    
+    let discounted: int = (apply_discount total 10)
+    (println "After 10% discount:")
+    (println discounted)
+    (println "")
+    
+    # Part 4: UI Layer
+    (println "=== UI Layer ===")
+    (display_user user)
+    (println "")
+    (display_product product1)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
+# ==================================================================
+# Best Practices for Large Projects
+# ==================================================================
+
+# 1. ✅ Separate Concerns
+#    - Data (structs, types)
+#    - Validation (input checking)
+#    - Logic (business rules)
+#    - UI (display, formatting)
+
+# 2. ✅ Module Organization
+#    - One responsibility per module
+#    - Clear module names
+#    - Logical directory structure
+
+# 3. ✅ Interface Design
+#    - Public functions are the module interface
+#    - Use constructor functions for structs
+#    - Validation functions return bool
+#    - Logic functions are pure when possible
+
+# 4. ✅ Testing Strategy
+#    - Test each module independently
+#    - Shadow tests for all functions
+#    - Integration tests for workflows
+
+# 5. ✅ Naming Conventions
+#    - Modules: lowercase_with_underscores
+#    - Functions: verb_noun (create_user, validate_input)
+#    - Types: PascalCase (User, Product)
+#    - Constants: UPPER_CASE
+
+# 6. ✅ Documentation
+#    - Comment module purpose at top
+#    - Document function behavior
+#    - Shadow tests show usage examples
+
+# 7. ✅ Scaling Strategy
+#    - Start with single file
+#    - Split when file > 500 lines
+#    - Group related functions
+#    - Refactor as project grows
+
+# 8. ✅ Import Strategy
+#    - Import only what you need
+#    - Use aliases for clarity
+#    - Avoid circular dependencies
+#    - Keep dependency tree shallow
+
