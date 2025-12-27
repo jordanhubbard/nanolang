@@ -170,6 +170,9 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer 0 0 0 255)
         (SDL_RenderClear renderer)
         (SDL_SetRenderDrawColor renderer 255 255 255 255)
+
+        # Update widget mouse state once per frame before any widget calls
+        (nl_ui_update_mouse_state)
         
         # UI Buttons at bottom
         if (== (nl_ui_button renderer font "Start" 250 560 70 30) 1) {
@@ -259,11 +262,10 @@ fn main() -> int {
     
     # Cleanup
     (println "Shutting down...")
-    (TTF_CloseFont font)
-    (TTF_CloseFont font)
-    (TTF_CloseFont help_font)
-    (SDL_DestroyRenderer renderer)
-    (SDL_DestroyWindow window)
+    if (!= font 0) { (TTF_CloseFont font) } else {}
+    if (!= help_font 0) { (TTF_CloseFont help_font) } else {}
+    if (!= renderer 0) { (SDL_DestroyRenderer renderer) } else {}
+    if (!= window 0) { (SDL_DestroyWindow window) } else {}
     (TTF_Quit)
     (SDL_Quit)
     return 0

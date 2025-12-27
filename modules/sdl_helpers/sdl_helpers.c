@@ -12,6 +12,35 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#define NL_SDL_EVENT_BUF_CAP 256
+
+static SDL_Event nl_sdl_event_buf[NL_SDL_EVENT_BUF_CAP];
+static int nl_sdl_event_buf_len = 0;
+
+static void nl__sdl_drain_events(void) {
+    SDL_Event event;
+    SDL_PumpEvents();
+    while (SDL_PollEvent(&event)) {
+        if (nl_sdl_event_buf_len < NL_SDL_EVENT_BUF_CAP) {
+            nl_sdl_event_buf[nl_sdl_event_buf_len++] = event;
+        }
+    }
+}
+
+static int nl__sdl_take_first_event(uint32_t type, SDL_Event *out) {
+    for (int i = 0; i < nl_sdl_event_buf_len; i++) {
+        if (nl_sdl_event_buf[i].type == type) {
+            if (out) *out = nl_sdl_event_buf[i];
+            memmove(&nl_sdl_event_buf[i],
+                    &nl_sdl_event_buf[i + 1],
+                    (size_t)(nl_sdl_event_buf_len - i - 1) * sizeof(SDL_Event));
+            nl_sdl_event_buf_len--;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static void nl__write_u32_be(FILE *f, uint32_t v) {
     unsigned char b[4];
     b[0] = (unsigned char)((v >> 24) & 0xff);
@@ -166,16 +195,8 @@ int64_t nl_sdl_render_fill_rect(int64_t renderer_ptr, int64_t x, int64_t y, int6
 
 /* Helper to poll SDL events and return 1 if quit, 0 otherwise */
 int64_t nl_sdl_poll_event_quit(void) {
-    SDL_Event event;
-    /* Check all events in the queue, not just one */
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            return 1;
-        }
-        /* Push non-quit events back so other functions can process them */
-        SDL_PushEvent(&event);
-    }
-    return 0;
+    nl__sdl_drain_events();
+    return nl__sdl_take_first_event(SDL_QUIT, NULL) ? 1 : 0;
 }
 
 /* Helper to poll for mouse button down events
@@ -184,21 +205,16 @@ int64_t nl_sdl_poll_event_quit(void) {
  * This version returns x * 10000 + y if left button clicked, -1 otherwise
  */
 int64_t nl_sdl_poll_mouse_click(void) {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            /* Store quit event for next poll_event_quit call */
-            SDL_PushEvent(&event);
-            return -1;
+    nl__sdl_drain_events();
+    for (int i = 0; i < nl_sdl_event_buf_len; i++) {
+        SDL_Event event = nl_sdl_event_buf[i];
+        if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+            memmove(&nl_sdl_event_buf[i],
+                    &nl_sdl_event_buf[i + 1],
+                    (size_t)(nl_sdl_event_buf_len - i - 1) * sizeof(SDL_Event));
+            nl_sdl_event_buf_len--;
+            return (int64_t)event.button.x * 10000 + (int64_t)event.button.y;
         }
-        if (event.type == SDL_MOUSEBUTTONDOWN) {
-            if (event.button.button == SDL_BUTTON_LEFT) {
-                /* Encode x and y into single return value: x * 10000 + y */
-                return (int64_t)event.button.x * 10000 + (int64_t)event.button.y;
-            }
-        }
-        /* Push back unhandled events so other functions can process them */
-        SDL_PushEvent(&event);
     }
     return -1;
 }
@@ -219,21 +235,16 @@ int64_t nl_sdl_poll_mouse_state(void) {
  * Returns x * 10000 + y if left button was released, -1 otherwise
  */
 int64_t nl_sdl_poll_mouse_up(void) {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            /* Store quit event for next poll_event_quit call */
-            SDL_PushEvent(&event);
-            return -1;
+    nl__sdl_drain_events();
+    for (int i = 0; i < nl_sdl_event_buf_len; i++) {
+        SDL_Event event = nl_sdl_event_buf[i];
+        if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) {
+            memmove(&nl_sdl_event_buf[i],
+                    &nl_sdl_event_buf[i + 1],
+                    (size_t)(nl_sdl_event_buf_len - i - 1) * sizeof(SDL_Event));
+            nl_sdl_event_buf_len--;
+            return (int64_t)event.button.x * 10000 + (int64_t)event.button.y;
         }
-        if (event.type == SDL_MOUSEBUTTONUP) {
-            if (event.button.button == SDL_BUTTON_LEFT) {
-                /* Encode x and y into single return value: x * 10000 + y */
-                return (int64_t)event.button.x * 10000 + (int64_t)event.button.y;
-            }
-        }
-        /* Push back unhandled events so other functions can process them */
-        SDL_PushEvent(&event);
     }
     return -1;
 }
@@ -243,18 +254,9 @@ int64_t nl_sdl_poll_mouse_up(void) {
  */
 int64_t nl_sdl_poll_mouse_motion(void) {
     SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            /* Store quit event for next poll_event_quit call */
-            SDL_PushEvent(&event);
-            return -1;
-        }
-        if (event.type == SDL_MOUSEMOTION) {
-            /* Encode x and y into single return value: x * 10000 + y */
-            return (int64_t)event.motion.x * 10000 + (int64_t)event.motion.y;
-        }
-        /* Push back unhandled events so other functions can process them */
-        SDL_PushEvent(&event);
+    nl__sdl_drain_events();
+    if (nl__sdl_take_first_event(SDL_MOUSEMOTION, &event)) {
+        return (int64_t)event.motion.x * 10000 + (int64_t)event.motion.y;
     }
     return -1;
 }
@@ -267,17 +269,9 @@ int64_t nl_sdl_poll_mouse_motion(void) {
  */
 int64_t nl_sdl_poll_keypress(void) {
     SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            /* Store quit event for next poll_event_quit call */
-            SDL_PushEvent(&event);
-            return -1;
-        }
-        if (event.type == SDL_KEYDOWN) {
-            return event.key.keysym.scancode;
-        }
-        /* Push back unhandled events so other functions can process them */
-        SDL_PushEvent(&event);
+    nl__sdl_drain_events();
+    if (nl__sdl_take_first_event(SDL_KEYDOWN, &event)) {
+        return event.key.keysym.scancode;
     }
     return -1;
 }
@@ -288,18 +282,9 @@ int64_t nl_sdl_poll_keypress(void) {
  */
 int64_t nl_sdl_poll_mouse_wheel(void) {
     SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            /* Store quit event for next poll_event_quit call */
-            SDL_PushEvent(&event);
-            return 0;
-        }
-        if (event.type == SDL_MOUSEWHEEL) {
-            /* Return vertical scroll amount (positive = up, negative = down) */
-            return (int64_t)event.wheel.y;
-        }
-        /* Push back unhandled events so other functions can process them */
-        SDL_PushEvent(&event);
+    nl__sdl_drain_events();
+    if (nl__sdl_take_first_event(SDL_MOUSEWHEEL, &event)) {
+        return (int64_t)event.wheel.y;
     }
     return 0;
 }
@@ -312,6 +297,7 @@ int64_t nl_sdl_poll_mouse_wheel(void) {
  *   SPACE = 44, ESC = 41
  */
 int64_t nl_sdl_key_state(int64_t scancode) {
+    SDL_PumpEvents();
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     return state[scancode] ? 1 : 0;
 }
