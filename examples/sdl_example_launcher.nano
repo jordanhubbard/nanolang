@@ -20,11 +20,18 @@ let WINDOW_WIDTH: int = 1100
 let WINDOW_HEIGHT: int = 800
 
 let SIDEBAR_WIDTH: int = 260
-let LIST_X: int = (+ SIDEBAR_WIDTH 20)
-let LIST_Y: int = 110
+let LIST_X: int = (+ SIDEBAR_WIDTH 30)
+let LIST_Y: int = 150
 let LIST_W: int = (- (- WINDOW_WIDTH LIST_X) 20)
-let LIST_H: int = 560
-let ITEM_HEIGHT: int = 20
+let LIST_H: int = 500
+let ITEM_HEIGHT: int = 24
+
+let TOP_BTN_Y: int = 22
+let TOP_BTN_H: int = 32
+let QUIT_BTN_W: int = 80
+let LAUNCH_BTN_W: int = 110
+let QUIT_BTN_X: int = (- WINDOW_WIDTH 100)
+let LAUNCH_BTN_X: int = (- QUIT_BTN_X 122)
 
 fn build_filtered_indices(categories: array<int>, category: int) -> array<int> {
     let mut out: array<int> = []
@@ -219,16 +226,29 @@ fn main() -> int {
             set running false
         } else {}
 
+        # Enter launches the selected example
+        if (or (== key 40) (== key 88)) {  # Return / KP Enter
+            if (>= selected_index 0) {
+                let ex_idx: int = (at indices selected_index)
+                set launch_cmd (at example_commands ex_idx)
+                set should_launch true
+                set running false
+            } else {}
+        } else {}
+
         (nl_ui_update_mouse_state)
 
         # Background
-        (SDL_SetRenderDrawColor renderer 20 20 28 255)
+        (SDL_SetRenderDrawColor renderer 14 14 20 255)
         (SDL_RenderClear renderer)
 
         # Sidebar
-        (nl_ui_panel renderer 10 10 (- SIDEBAR_WIDTH 20) (- WINDOW_HEIGHT 20) 30 30 40 220)
-        (nl_ui_label renderer title_font "Examples" 28 22 230 230 255 255)
+        (nl_ui_panel renderer 10 10 (- SIDEBAR_WIDTH 20) (- WINDOW_HEIGHT 20) 26 26 36 235)
+        (nl_ui_label renderer title_font "Examples" 28 24 235 235 255 255)
         (nl_ui_label renderer font "Categories" 28 60 200 200 220 255)
+
+        # Category group panel
+        (nl_ui_panel renderer 20 78 (- SIDEBAR_WIDTH 40) 190 20 20 28 235)
 
         # Category selectors (radio buttons)
         let mut sel_all: int = 0
@@ -245,36 +265,42 @@ fn main() -> int {
         if (== selected_category ExampleCategory.OPENGL) { set sel_opengl 1 } else { set sel_opengl 0 }
         if (== selected_category ExampleCategory.TERMINAL) { set sel_terminal 1 } else { set sel_terminal 0 }
 
-        if (== (nl_ui_radio_button renderer font "All" 28 85 sel_all) 1) {
+        if (== (nl_ui_radio_button renderer font "All" 28 92 sel_all) 1) {
             set selected_category ExampleCategory.ALL
             set scroll_offset 0
             set selected_index -1
         } else {}
-        if (== (nl_ui_radio_button renderer font "Games" 28 115 sel_games) 1) {
+        if (== (nl_ui_radio_button renderer font "Games" 28 124 sel_games) 1) {
             set selected_category ExampleCategory.GAMES
             set scroll_offset 0
             set selected_index -1
         } else {}
-        if (== (nl_ui_radio_button renderer font "Graphics" 28 145 sel_graphics) 1) {
+        if (== (nl_ui_radio_button renderer font "Graphics" 28 156 sel_graphics) 1) {
             set selected_category ExampleCategory.GRAPHICS
             set scroll_offset 0
             set selected_index -1
         } else {}
-        if (== (nl_ui_radio_button renderer font "Audio" 28 175 sel_audio) 1) {
+        if (== (nl_ui_radio_button renderer font "Audio" 28 188 sel_audio) 1) {
             set selected_category ExampleCategory.AUDIO
             set scroll_offset 0
             set selected_index -1
         } else {}
-        if (== (nl_ui_radio_button renderer font "OpenGL" 28 205 sel_opengl) 1) {
+        if (== (nl_ui_radio_button renderer font "OpenGL" 28 220 sel_opengl) 1) {
             set selected_category ExampleCategory.OPENGL
             set scroll_offset 0
             set selected_index -1
         } else {}
-        if (== (nl_ui_radio_button renderer font "Terminal" 28 235 sel_terminal) 1) {
+        if (== (nl_ui_radio_button renderer font "Terminal" 28 252 sel_terminal) 1) {
             set selected_category ExampleCategory.TERMINAL
             set scroll_offset 0
             set selected_index -1
         } else {}
+
+        # Sidebar footer help
+        (nl_ui_label renderer font "Shortcuts" 28 (- WINDOW_HEIGHT 140) 200 200 220 255)
+        (nl_ui_label renderer font "↑/↓  Navigate" 28 (- WINDOW_HEIGHT 112) 150 150 180 255)
+        (nl_ui_label renderer font "Enter Launch" 28 (- WINDOW_HEIGHT 88) 150 150 180 255)
+        (nl_ui_label renderer font "Esc   Quit" 28 (- WINDOW_HEIGHT 64) 150 150 180 255)
 
         # Rebuild list when category changes (simple + cheap)
         set indices (build_filtered_indices example_categories selected_category)
@@ -288,18 +314,78 @@ fn main() -> int {
         } else {}
         set scroll_offset (clamp_int scroll_offset 0 max_scroll)
 
+        # Keyboard navigation for the list
+        if (== item_count 0) {
+            set selected_index -1
+        } else {
+            if (== key 82) {  # Up
+                if (< selected_index 0) {
+                    set selected_index 0
+                } else {
+                    set selected_index (clamp_int (- selected_index 1) 0 (- item_count 1))
+                }
+            } else {
+                if (== key 81) {  # Down
+                    if (< selected_index 0) {
+                        set selected_index 0
+                    } else {
+                        set selected_index (clamp_int (+ selected_index 1) 0 (- item_count 1))
+                    }
+                } else {}
+            }
+
+            # Keep selection visible
+            if (>= selected_index 0) {
+                if (< selected_index scroll_offset) {
+                    set scroll_offset selected_index
+                } else {
+                    if (> selected_index (+ scroll_offset (- visible_count 1))) {
+                        set scroll_offset (clamp_int (- selected_index (- visible_count 1)) 0 max_scroll)
+                    } else {}
+                }
+            } else {}
+        }
+
+        # Main area container
+        (nl_ui_panel renderer (- LIST_X 16) 10 (+ LIST_W 32) (- WINDOW_HEIGHT 20) 22 22 30 235)
+
         # Main area header
-        (nl_ui_label renderer title_font "Launch an example" LIST_X 28 230 230 255 255)
-        (nl_ui_label renderer font "Select one, then click Launch." LIST_X 62 170 170 200 255)
+        (nl_ui_label renderer title_font "Launch an example" LIST_X 26 235 235 255 255)
+        (nl_ui_label renderer font "Select one, then press Enter or click Launch." LIST_X 62 170 170 200 255)
+        let mut cat_name: string = "All"
+        if (== selected_category ExampleCategory.GAMES) { set cat_name "Games" } else {}
+        if (== selected_category ExampleCategory.GRAPHICS) { set cat_name "Graphics" } else {}
+        if (== selected_category ExampleCategory.AUDIO) { set cat_name "Audio" } else {}
+        if (== selected_category ExampleCategory.OPENGL) { set cat_name "OpenGL" } else {}
+        if (== selected_category ExampleCategory.TERMINAL) { set cat_name "Terminal" } else {}
+        (nl_ui_label renderer font (str_concat "Category: " cat_name) LIST_X 98 140 140 170 255)
+
+        # Top actions
+        let top_launch_clicked: int = (nl_ui_button renderer font "Launch" LAUNCH_BTN_X TOP_BTN_Y LAUNCH_BTN_W TOP_BTN_H)
+        if (== top_launch_clicked 1) {
+            if (>= selected_index 0) {
+                let ex_idx: int = (at indices selected_index)
+                set launch_cmd (at example_commands ex_idx)
+                set should_launch true
+                set running false
+            } else {}
+        } else {}
+        if (< selected_index 0) {
+            (nl_ui_tooltip renderer font "Select an example first" LAUNCH_BTN_X TOP_BTN_Y LAUNCH_BTN_W TOP_BTN_H)
+        } else {}
+
+        if (== (nl_ui_button renderer font "Quit" QUIT_BTN_X TOP_BTN_Y QUIT_BTN_W TOP_BTN_H) 1) {
+            set running false
+        } else {}
 
         # Scroll controls
-        if (== (nl_ui_button renderer font "Up" LIST_X 78 80 26) 1) {
+        if (== (nl_ui_button renderer font "Up" LIST_X 96 80 28) 1) {
             set scroll_offset (clamp_int (- scroll_offset 1) 0 max_scroll)
         } else {}
-        if (== (nl_ui_button renderer font "Down" (+ LIST_X 90) 78 80 26) 1) {
+        if (== (nl_ui_button renderer font "Down" (+ LIST_X 90) 96 80 28) 1) {
             set scroll_offset (clamp_int (+ scroll_offset 1) 0 max_scroll)
         } else {}
-        (nl_ui_label renderer font (str_concat "Items: " (int_to_string item_count)) (+ LIST_X 190) 82 160 160 190 255)
+        (nl_ui_label renderer font (str_concat "Items: " (int_to_string item_count)) (+ LIST_X 190) 102 160 160 190 255)
 
         # Scrollable list
         let clicked: int = (nl_ui_scrollable_list renderer font
@@ -316,23 +402,23 @@ fn main() -> int {
             let ex_name: string = (at example_names ex_idx)
             let ex_desc: string = (at example_descs ex_idx)
             let ex_cmd: string = (at example_commands ex_idx)
-            (nl_ui_label renderer font "Selected:" LIST_X (+ (+ LIST_Y LIST_H) 18) 200 200 220 255)
-            (nl_ui_label renderer font ex_name (+ LIST_X 80) (+ (+ LIST_Y LIST_H) 18) 230 230 255 255)
-            (nl_ui_label renderer font ex_desc LIST_X (+ (+ LIST_Y LIST_H) 42) 170 170 200 255)
-            (nl_ui_label renderer font (str_concat "Cmd: " ex_cmd) LIST_X (+ (+ LIST_Y LIST_H) 66) 140 140 170 255)
 
-            if (== (nl_ui_button renderer font "Launch" LIST_X (+ (+ LIST_Y LIST_H) 95) 120 34) 1) {
+            (nl_ui_panel renderer LIST_X (+ (+ LIST_Y LIST_H) 12) LIST_W 120 18 18 26 235)
+            (nl_ui_label renderer font "Selected:" (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 26) 200 200 220 255)
+            (nl_ui_label renderer font ex_name (+ LIST_X 98) (+ (+ LIST_Y LIST_H) 26) 235 235 255 255)
+            (nl_ui_label renderer font ex_desc (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 52) 170 170 200 255)
+            (nl_ui_label renderer font (str_concat "Cmd: " ex_cmd) (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 76) 140 140 170 255)
+
+            if (== (nl_ui_button renderer font "Launch" (- (- (+ LIST_X LIST_W) 14) 120) (+ (+ LIST_Y LIST_H) 100) 120 34) 1) {
                 set launch_cmd ex_cmd
                 set should_launch true
                 set running false
             } else {}
         } else {
-            (nl_ui_label renderer font "(No selection)" LIST_X (+ (+ LIST_Y LIST_H) 18) 140 140 170 255)
+            (nl_ui_panel renderer LIST_X (+ (+ LIST_Y LIST_H) 12) LIST_W 120 18 18 26 235)
+            (nl_ui_label renderer font "(No selection)" (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 30) 140 140 170 255)
+            (nl_ui_label renderer font "Tip: Click an item, then press Enter." (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 56) 120 120 150 255)
         }
-
-        if (== (nl_ui_button renderer font "Quit" (- WINDOW_WIDTH 100) 20 80 30) 1) {
-            set running false
-        } else {}
 
         (SDL_RenderPresent renderer)
     }

@@ -451,16 +451,19 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
     
     // Draw background
     SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
-    SDL_SetRenderDrawColor(renderer, 25, 25, 35, 255);
+    SDL_SetRenderDrawColor(renderer, 18, 18, 26, 255);
     SDL_RenderFillRect(renderer, &bg);
     
     // Draw border
-    SDL_SetRenderDrawColor(renderer, 80, 80, 100, 255);
+    SDL_SetRenderDrawColor(renderer, 70, 70, 90, 255);
     SDL_RenderDrawRect(renderer, &bg);
     
     // Calculate visible items
-    int item_height = 20;
+    int item_height = 24;
     int visible_count = (int)h / item_height;
+
+    // Clip list contents to its rectangle
+    SDL_RenderSetClipRect(renderer, &bg);
     
     // Draw items
     for (int i = 0; i < visible_count && (scroll_offset + i) < item_count; i++) {
@@ -481,37 +484,52 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
         }
         
         // Choose background color
+        SDL_Color row_even = (SDL_Color){22, 22, 30, 255};
+        SDL_Color row_odd  = (SDL_Color){18, 18, 26, 255};
         SDL_Color bg_color;
         if (item_idx == selected_index) {
-            bg_color = (SDL_Color){60, 100, 180, 255};  // Selected
+            bg_color = (SDL_Color){65, 110, 210, 255};  // Selected
         } else if (is_hovered) {
-            bg_color = (SDL_Color){50, 50, 70, 255};    // Hovered
+            bg_color = (SDL_Color){40, 40, 56, 255};    // Hovered
         } else {
-            bg_color = (SDL_Color){25, 25, 35, 255};    // Normal
+            bg_color = ((i % 2) == 0) ? row_even : row_odd;
         }
         
         // Draw item background
         SDL_Rect item_rect = {(int)x + 2, item_y, (int)w - 4, item_height};
         SDL_SetRenderDrawColor(renderer, bg_color.r, bg_color.g, bg_color.b, bg_color.a);
         SDL_RenderFillRect(renderer, &item_rect);
+
+        // Subtle separator
+        SDL_SetRenderDrawColor(renderer, 28, 28, 38, 255);
+        SDL_RenderDrawLine(renderer, item_rect.x, item_rect.y + item_rect.h - 1,
+                           item_rect.x + item_rect.w, item_rect.y + item_rect.h - 1);
+
+        // Selected accent bar
+        if (item_idx == selected_index) {
+            SDL_Rect accent = {item_rect.x, item_rect.y, 4, item_rect.h};
+            SDL_SetRenderDrawColor(renderer, 140, 200, 255, 255);
+            SDL_RenderFillRect(renderer, &accent);
+        }
         
         // Draw item text
-        SDL_Color text_color = {220, 220, 220, 255};
+        SDL_Color text_color = (item_idx == selected_index) ? (SDL_Color){255, 255, 255, 255}
+                                                            : (SDL_Color){225, 225, 235, 255};
         SDL_Surface* surface = TTF_RenderText_Blended(font, item_text, text_color);
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                SDL_Rect dest = {(int)x + 5, item_y + 2, surface->w, surface->h};
-                // Clip text if too wide
-                if (dest.w > (int)w - 10) {
-                    dest.w = (int)w - 10;
-                }
+                int text_x = (int)x + 10;
+                int text_y = item_y + (item_height - surface->h) / 2;
+                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
                 SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
         }
     }
+
+    SDL_RenderSetClipRect(renderer, NULL);
     
     list_prev_mouse_down = mouse_down;
     return clicked_index;

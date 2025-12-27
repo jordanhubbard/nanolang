@@ -1,5 +1,18 @@
 # Factorial calculator with comprehensive shadow-tests
 
+# Example: Factorial (Recursion)
+# Purpose: Demonstrate recursive function calls and shadow testing
+# Features: Recursion, conditional logic, base case, shadow tests
+# Difficulty: Beginner
+# Usage: ./bin/nanoc examples/nl_factorial.nano -o /tmp/factorial && /tmp/factorial
+# Expected Output: Prints factorials from 0! to 10!
+#
+# Learning Objectives:
+# 1. Understand recursive function calls
+# 2. Implement base case to prevent infinite recursion
+# 3. See how shadow tests verify correctness at compile time
+# 4. Learn the mathematical definition of factorial
+
 fn factorial(n: int) -> int {
     if (<= n 1) {
         return 1
