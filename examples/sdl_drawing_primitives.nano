@@ -26,7 +26,7 @@ fn main() -> int {
         if (!= (nl_sdl_poll_event_quit) 0) {
             set running false
         } else {
-            if (== (nl_sdl_poll_keypress) 27) {
+            if (== (nl_sdl_poll_keypress) 41) {
                 set running false
             } else {
                 # continue

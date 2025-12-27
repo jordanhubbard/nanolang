@@ -16,11 +16,35 @@
 
 static SDL_Event nl_sdl_event_buf[NL_SDL_EVENT_BUF_CAP];
 static int nl_sdl_event_buf_len = 0;
+static uint32_t nl_sdl_event_buf_last_ticks = UINT32_MAX;
+
+static SDL_Event nl_sdl_last_mousemotion;
+static int nl_sdl_has_mousemotion = 0;
 
 static void nl__sdl_drain_events(void) {
     SDL_Event event;
+
+    /*
+     * These helpers are called from tight render loops.
+     * To avoid unbounded growth when callers don't consume every event type
+     * (e.g. mouse motion), we treat the internal buffer as per-frame-ish and
+     * discard stale events when time advances.
+     */
+    uint32_t now = (uint32_t)SDL_GetTicks();
+    if (now != nl_sdl_event_buf_last_ticks) {
+        nl_sdl_event_buf_last_ticks = now;
+        nl_sdl_event_buf_len = 0;
+        nl_sdl_has_mousemotion = 0;
+    }
+
     SDL_PumpEvents();
     while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_MOUSEMOTION) {
+            nl_sdl_last_mousemotion = event;
+            nl_sdl_has_mousemotion = 1;
+            continue;
+        }
+
         if (nl_sdl_event_buf_len < NL_SDL_EVENT_BUF_CAP) {
             nl_sdl_event_buf[nl_sdl_event_buf_len++] = event;
         }
@@ -253,10 +277,10 @@ int64_t nl_sdl_poll_mouse_up(void) {
  * Returns x * 10000 + y if mouse moved, -1 otherwise
  */
 int64_t nl_sdl_poll_mouse_motion(void) {
-    SDL_Event event;
     nl__sdl_drain_events();
-    if (nl__sdl_take_first_event(SDL_MOUSEMOTION, &event)) {
-        return (int64_t)event.motion.x * 10000 + (int64_t)event.motion.y;
+    if (nl_sdl_has_mousemotion) {
+        nl_sdl_has_mousemotion = 0;
+        return (int64_t)nl_sdl_last_mousemotion.motion.x * 10000 + (int64_t)nl_sdl_last_mousemotion.motion.y;
     }
     return -1;
 }
