@@ -20,6 +20,8 @@ let LEFT_W: int = 310
 
 let LIST_ITEM_H: int = 22
 
+let DEFAULT_MOD_PATH: string = "examples/gabba-studies-12.mod"
+
 # --- PT-ish palette ---
 let PT_BG_R: int = 10
 let PT_BG_G: int = 20
@@ -105,6 +107,77 @@ fn build_browser_items(current_dir: string) -> array<string> {
     return out
 }
 
+fn hex_digit(n: int) -> string {
+    let x: int = (clamp_int n 0 15)
+    if (== x 0) { return "0" } else {
+    if (== x 1) { return "1" } else {
+    if (== x 2) { return "2" } else {
+    if (== x 3) { return "3" } else {
+    if (== x 4) { return "4" } else {
+    if (== x 5) { return "5" } else {
+    if (== x 6) { return "6" } else {
+    if (== x 7) { return "7" } else {
+    if (== x 8) { return "8" } else {
+    if (== x 9) { return "9" } else {
+    if (== x 10) { return "A" } else {
+    if (== x 11) { return "B" } else {
+    if (== x 12) { return "C" } else {
+    if (== x 13) { return "D" } else {
+    if (== x 14) { return "E" } else {
+        return "F"
+    }}}}}}}}}}}}}}}
+}
+
+fn byte_to_hex(n: int) -> string {
+    let hi: int = (clamp_int (/ n 16) 0 15)
+    let lo: int = (clamp_int (% n 16) 0 15)
+    return (str_concat (hex_digit hi) (hex_digit lo))
+}
+
+fn period_to_note(period: int) -> string {
+    if (== period 0) { return "---" } else {}
+    if (== period 1712) { return "C-1" } else {}
+    if (== period 1616) { return "C#1" } else {}
+    if (== period 1524) { return "D-1" } else {}
+    if (== period 1440) { return "D#1" } else {}
+    if (== period 1356) { return "E-1" } else {}
+    if (== period 1280) { return "F-1" } else {}
+    if (== period 1208) { return "F#1" } else {}
+    if (== period 1140) { return "G-1" } else {}
+    if (== period 1076) { return "G#1" } else {}
+    if (== period 1016) { return "A-1" } else {}
+    if (== period 960) { return "A#1" } else {}
+    if (== period 906) { return "B-1" } else {}
+
+    if (== period 856) { return "C-2" } else {}
+    if (== period 808) { return "C#2" } else {}
+    if (== period 762) { return "D-2" } else {}
+    if (== period 720) { return "D#2" } else {}
+    if (== period 678) { return "E-2" } else {}
+    if (== period 640) { return "F-2" } else {}
+    if (== period 604) { return "F#2" } else {}
+    if (== period 570) { return "G-2" } else {}
+    if (== period 538) { return "G#2" } else {}
+    if (== period 508) { return "A-2" } else {}
+    if (== period 480) { return "A#2" } else {}
+    if (== period 453) { return "B-2" } else {}
+
+    if (== period 428) { return "C-3" } else {}
+    if (== period 404) { return "C#3" } else {}
+    if (== period 381) { return "D-3" } else {}
+    if (== period 360) { return "D#3" } else {}
+    if (== period 339) { return "E-3" } else {}
+    if (== period 320) { return "F-3" } else {}
+    if (== period 302) { return "F#3" } else {}
+    if (== period 285) { return "G-3" } else {}
+    if (== period 269) { return "G#3" } else {}
+    if (== period 254) { return "A-3" } else {}
+    if (== period 240) { return "A#3" } else {}
+    if (== period 226) { return "B-3" } else {}
+
+    return "???"
+}
+
 shadow build_browser_items {
     let xs: array<string> = (build_browser_items "examples")
     assert (>= (array_length xs) 0)
@@ -184,8 +257,8 @@ fn main() -> int {
     let mut selected_idx: int = 0
     let mut scroll_offset: int = 0
 
-    let mut loaded_path: string = ""
-    let mut music: Mix_Music = (Mix_LoadMUS "examples/gabba-studies-12.mod")
+    let mut loaded_path: string = DEFAULT_MOD_PATH
+    let mut music: Mix_Music = (Mix_LoadMUS DEFAULT_MOD_PATH)
     let mut has_music: bool = false
 
     let mut mod_loaded: bool = false
@@ -205,10 +278,38 @@ fn main() -> int {
     let mut volume: float = 0.78
     (Mix_VolumeMusic (cast_int (* volume 128.0)))
 
+    # Default module on startup
+    if (== (pt2_module_load DEFAULT_MOD_PATH) 0) {
+        set mod_loaded true
+        set mod_name (pt2_module_get_name)
+        set song_length (pt2_module_get_song_length)
+        set pattern_count (pt2_module_get_pattern_count)
+    } else {
+        set mod_loaded false
+    }
+
+    if (!= music 0) {
+        set has_music true
+    } else {
+        set has_music false
+    }
+
     # If a file path was passed, try to auto-load it
     if (and (>= argc 2) (== (nl_fs_is_directory start_path) 0)) {
         if (== (nl_fs_file_exists start_path) 1) {
             set loaded_path start_path
+
+            if has_music {
+                (Mix_HaltMusic)
+                (Mix_FreeMusic music)
+                set has_music false
+            } else {}
+
+            if mod_loaded {
+                (pt2_module_free)
+                set mod_loaded false
+            } else {}
+
             if (== (pt2_module_load loaded_path) 0) {
                 set mod_loaded true
                 set mod_name (pt2_module_get_name)
@@ -224,7 +325,12 @@ fn main() -> int {
             }
 
             set music (Mix_LoadMUS loaded_path)
-            if (!= music 0) { set has_music true } else { set has_music false }
+            if (!= music 0) {
+                set has_music true
+                (Mix_VolumeMusic (cast_int (* volume 128.0)))
+            } else {
+                set has_music false
+            }
         } else {}
     } else {}
 
@@ -338,6 +444,9 @@ fn main() -> int {
                                         if (== (Mix_PlayingMusic) 1) {
                                             (Mix_PauseMusic)
                                         } else {
+                                            set pos_order 0
+                                            set pos_row 0
+                                            set pos_accum_ms 0.0
                                             (Mix_PlayMusic music -1)
                                             set play_last_update_ms (SDL_GetTicks)
                                         }
@@ -348,6 +457,9 @@ fn main() -> int {
                                 if (== key 22) {
                                     if has_music {
                                         (Mix_HaltMusic)
+                                        set pos_order 0
+                                        set pos_row 0
+                                        set pos_accum_ms 0.0
                                         set play_last_update_ms (SDL_GetTicks)
                                     } else {}
                                 } else {}
@@ -522,6 +634,9 @@ fn main() -> int {
         let stop_clicked: int = (nl_ui_button renderer font "Stop" (+ main_x 170) btn_y 70 28)
 
         if (and (== play_clicked 1) has_music) {
+            set pos_order 0
+            set pos_row 0
+            set pos_accum_ms 0.0
             (Mix_PlayMusic music -1)
             set play_last_update_ms (SDL_GetTicks)
         } else {}
@@ -531,6 +646,9 @@ fn main() -> int {
         } else {}
         if (and (== stop_clicked 1) has_music) {
             (Mix_HaltMusic)
+            set pos_order 0
+            set pos_row 0
+            set pos_accum_ms 0.0
             set play_last_update_ms (SDL_GetTicks)
         } else {}
 
@@ -565,7 +683,74 @@ fn main() -> int {
             set c (+ c 1)
         }
 
-        (nl_ui_label renderer font "Keys: Up/Down select | Enter open/load | Wheel scroll | Space pause | S stop | Esc quit" (+ main_x 10) (+ main_y 270) 160 160 200 255)
+        # Pattern view (read-only)
+        let bottom_y: int = (+ main_y main_h)
+        let pat_x: int = (+ main_x 10)
+        let pat_y: int = (+ main_y 226)
+        let pat_w: int = (- main_w 20)
+        let pat_h: int = (- (- bottom_y 30) pat_y)
+
+        (pt_fill renderer pat_x pat_y pat_w pat_h PT_INNER_R PT_INNER_G PT_INNER_B)
+        (nl_ui_label renderer font "Pattern (read-only)" (+ pat_x 8) (+ pat_y 6) 220 220 255 255)
+
+        if mod_loaded {
+            let line_h: int = 16
+            let mut rows_visible: int = (/ (- pat_h 26) line_h)
+            set rows_visible (clamp_int rows_visible 8 24)
+
+            let mut max_start: int = (- 64 rows_visible)
+            if (< max_start 0) { set max_start 0 } else {}
+            let mut start_row: int = (- pos_row (/ rows_visible 2))
+            set start_row (clamp_int start_row 0 max_start)
+
+            (nl_ui_label renderer font "Row  CH1            CH2            CH3            CH4" (+ pat_x 8) (+ pat_y 22) 180 180 220 255)
+
+            let mut i: int = 0
+            while (< i rows_visible) {
+                let row: int = (+ start_row i)
+                let y: int = (+ pat_y (+ 38 (* i line_h)))
+
+                if (== row pos_row) {
+                    (pt_fill renderer (+ pat_x 2) (- y 2) (- pat_w 4) (+ line_h 2) 58 90 200)
+                } else {}
+
+                let row_txt: string = (byte_to_hex row)
+                (nl_ui_label renderer font (str_concat row_txt ":") (+ pat_x 8) y 230 230 255 255)
+
+                let mut ch: int = 0
+                while (< ch 4) {
+                    let period: int = (pt2_module_get_note_period cur_pat row ch)
+                    let sample: int = (pt2_module_get_note_sample cur_pat row ch)
+                    let cmd: int = (pt2_module_get_note_command cur_pat row ch)
+                    let par: int = (pt2_module_get_note_param cur_pat row ch)
+
+                    let note_s: string = (period_to_note period)
+                    let mut samp_s: string = ".."
+                    if (!= sample 0) { set samp_s (byte_to_hex sample) } else {}
+
+                    let mut eff_s: string = "..."
+                    if (or (!= cmd 0) (!= par 0)) {
+                        set eff_s (str_concat (hex_digit cmd) (byte_to_hex par))
+                    } else {}
+
+                    let t1: string = (str_concat note_s " ")
+                    let t2: string = (str_concat t1 samp_s)
+                    let t3: string = (str_concat t2 " ")
+                    let cell: string = (str_concat t3 eff_s)
+
+                    let col_x: int = (+ (+ pat_x 52) (* ch 140))
+                    (nl_ui_label renderer font cell col_x y 230 230 255 255)
+                    set ch (+ ch 1)
+                }
+
+                set i (+ i 1)
+            }
+        } else {
+            (nl_ui_label renderer font "Load a MOD to view pattern data" (+ pat_x 8) (+ pat_y 28) 180 180 220 255)
+        }
+
+        let key_y: int = (- bottom_y 18)
+        (nl_ui_label renderer font "Keys: Up/Down select | Enter open/load | Wheel scroll | Space pause | S stop | Esc quit" (+ main_x 10) key_y 160 160 200 255)
 
         (SDL_RenderPresent renderer)
     }
