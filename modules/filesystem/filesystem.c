@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <ctype.h>
 
 // Helper: Create nanolang array for strings
 static DynArray* create_string_array(int64_t initial_capacity) {
@@ -46,6 +47,20 @@ static void array_append_string(DynArray* arr, const char* str) {
     }
 }
 
+static int cmp_cstr_ptr(const void *a, const void *b) {
+    const char *sa = *(const char * const *)a;
+    const char *sb = *(const char * const *)b;
+    if (!sa && !sb) return 0;
+    if (!sa) return -1;
+    if (!sb) return 1;
+    return strcmp(sa, sb);
+}
+
+static void sort_string_array(DynArray *arr) {
+    if (!arr || arr->length <= 1) return;
+    qsort(arr->data, (size_t)arr->length, sizeof(char*), cmp_cstr_ptr);
+}
+
 // Helper: Check if string ends with extension
 static int ends_with(const char* str, const char* suffix) {
     if (!str || !suffix) return 0;
@@ -56,6 +71,20 @@ static int ends_with(const char* str, const char* suffix) {
     if (suffix_len > str_len) return 0;
     
     return strcmp(str + str_len - suffix_len, suffix) == 0;
+}
+
+static int ends_with_ci(const char *str, const char *suffix) {
+    if (!str || !suffix) return 0;
+    size_t str_len = strlen(str);
+    size_t suffix_len = strlen(suffix);
+    if (suffix_len > str_len) return 0;
+    const char *a = str + (str_len - suffix_len);
+    for (size_t i = 0; i < suffix_len; i++) {
+        unsigned char ca = (unsigned char)a[i];
+        unsigned char cb = (unsigned char)suffix[i];
+        if (tolower(ca) != tolower(cb)) return 0;
+    }
+    return 1;
 }
 
 // List files in directory
@@ -95,6 +124,42 @@ DynArray* nl_fs_list_files(const char* path, const char* extension) {
     }
     
     closedir(dir);
+    sort_string_array(result);
+    return result;
+}
+
+DynArray* nl_fs_list_files_ci(const char* path, const char* extension) {
+    DynArray* result = create_string_array(32);
+    if (!result) return NULL;
+
+    DIR* dir = opendir(path);
+    if (!dir) {
+        return result;
+    }
+
+    struct dirent* entry;
+    int filter_by_ext = (extension && strlen(extension) > 0);
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+
+        char full_path[1024];
+        snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
+
+        struct stat st;
+        if (stat(full_path, &st) == 0) {
+            if (S_ISREG(st.st_mode)) {
+                if (!filter_by_ext || ends_with_ci(entry->d_name, extension)) {
+                    array_append_string(result, entry->d_name);
+                }
+            }
+        }
+    }
+
+    closedir(dir);
+    sort_string_array(result);
     return result;
 }
 
@@ -130,7 +195,42 @@ DynArray* nl_fs_list_dirs(const char* path) {
     }
     
     closedir(dir);
+    sort_string_array(result);
     return result;
+}
+
+const char* nl_fs_parent_dir(const char* path) {
+    static char out[2048];
+    if (!path || path[0] == 0) {
+        snprintf(out, sizeof(out), ".");
+        return out;
+    }
+
+    /* Copy and trim trailing slashes (except root). */
+    snprintf(out, sizeof(out), "%s", path);
+    size_t n = strlen(out);
+    while (n > 1 && out[n - 1] == '/') {
+        out[n - 1] = 0;
+        n--;
+    }
+
+    char *last = strrchr(out, '/');
+    if (!last) {
+        snprintf(out, sizeof(out), ".");
+        return out;
+    }
+
+    if (last == out) {
+        /* Parent of "/x" is "/" */
+        out[1] = 0;
+        return out;
+    }
+
+    *last = 0;
+    if (out[0] == 0) {
+        snprintf(out, sizeof(out), ".");
+    }
+    return out;
 }
 
 // Check if path is directory
