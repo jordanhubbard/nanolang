@@ -7,6 +7,22 @@ static int point_in_rect(int px, int py, int rx, int ry, int rw, int rh) {
     return px >= rx && px <= rx + rw && py >= ry && py <= ry + rh;
 }
 
+static double g_ui_scale = 1.0;
+
+void nl_ui_set_scale(double scale) {
+    if (scale <= 0.01) scale = 1.0;
+    g_ui_scale = scale;
+}
+
+static void get_mouse_scaled(int *out_x, int *out_y) {
+    int mx, my;
+    SDL_GetMouseState(&mx, &my);
+    mx = (int)((double)mx / g_ui_scale);
+    my = (int)((double)my / g_ui_scale);
+    if (out_x) *out_x = mx;
+    if (out_y) *out_y = my;
+}
+
 // Static state for widget click detection (separate for each widget type)
 // We track both CURRENT and PREVIOUS to detect transitions
 static int button_current_mouse_down = 0;
@@ -89,7 +105,7 @@ int64_t nl_ui_button(SDL_Renderer* renderer, TTF_Font* font,
     
     // Get mouse position (state is tracked by nl_ui_update_mouse_state())
     int mouse_x, mouse_y;
-    SDL_GetMouseState(&mouse_x, &mouse_y);
+    get_mouse_scaled(&mouse_x, &mouse_y);
     
     int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, (int)w, (int)h);
     int clicked = 0;
@@ -187,6 +203,8 @@ double nl_ui_slider(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    mouse_x = (int)((double)mouse_x / g_ui_scale);
+    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     // If mouse is down and over slider, update value
@@ -256,7 +274,7 @@ int64_t nl_ui_checkbox(SDL_Renderer* renderer, TTF_Font* font,
     
     // Get mouse position (state tracked by nl_ui_update_mouse_state())
     int mouse_x, mouse_y;
-    SDL_GetMouseState(&mouse_x, &mouse_y);
+    get_mouse_scaled(&mouse_x, &mouse_y);
     
     int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, box_size, box_size);
     
@@ -335,7 +353,7 @@ int64_t nl_ui_radio_button(SDL_Renderer* renderer, TTF_Font* font,
     
     // Get mouse position (state tracked by nl_ui_update_mouse_state())
     int mouse_x, mouse_y;
-    SDL_GetMouseState(&mouse_x, &mouse_y);
+    get_mouse_scaled(&mouse_x, &mouse_y);
     
     int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, circle_size, circle_size);
     
@@ -443,6 +461,8 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    mouse_x = (int)((double)mouse_x / g_ui_scale);
+    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     // Detect click
@@ -577,6 +597,8 @@ double nl_ui_seekable_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    mouse_x = (int)((double)mouse_x / g_ui_scale);
+    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int seek_prev_mouse_down = 0;
@@ -632,6 +654,8 @@ int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    mouse_x = (int)((double)mouse_x / g_ui_scale);
+    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int input_prev_mouse_down = 0;
@@ -726,6 +750,8 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    mouse_x = (int)((double)mouse_x / g_ui_scale);
+    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int dropdown_prev_mouse_down = 0;
@@ -868,6 +894,8 @@ int64_t nl_ui_number_spinner(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    mouse_x = (int)((double)mouse_x / g_ui_scale);
+    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int spinner_prev_mouse_down = 0;
@@ -963,6 +991,8 @@ int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    mouse_x = (int)((double)mouse_x / g_ui_scale);
+    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int file_selector_prev_mouse_down = 0;
@@ -1043,7 +1073,7 @@ void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
     
     // Get mouse state
     int mouse_x, mouse_y;
-    SDL_GetMouseState(&mouse_x, &mouse_y);
+    get_mouse_scaled(&mouse_x, &mouse_y);
     
     // Check if mouse is over the widget area
     if (!point_in_rect(mouse_x, mouse_y, (int)widget_x, (int)widget_y, (int)widget_w, (int)widget_h)) {

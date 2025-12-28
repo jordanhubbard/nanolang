@@ -20,7 +20,6 @@ let LEFT_W: int = 310
 
 let LIST_ITEM_H: int = 22
 
-let DEFAULT_MOD_PATH: string = "examples/gabba-studies-12.mod"
 
 # --- PT-ish palette ---
 let PT_BG_R: int = 10
@@ -200,6 +199,9 @@ fn main() -> int {
         return 1
     } else {}
 
+    # Prefer crisp integer scaling when using logical sizing
+    (SDL_SetHint "SDL_RENDER_SCALE_QUALITY" "0")
+
     let mixer_init: int = (Mix_Init MIX_INIT_MOD)
     if (!= mixer_init MIX_INIT_MOD) {
         (println "✗ SDL_mixer failed to initialize MOD support")
@@ -230,7 +232,11 @@ fn main() -> int {
         return 1
     } else {}
 
-    let window: SDL_Window = (SDL_CreateWindow "Tracker Shell (PT-style)" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
+    let mut ui_scale: int = 1
+    let mut win_w: int = (* WINDOW_WIDTH ui_scale)
+    let mut win_h: int = (* WINDOW_HEIGHT ui_scale)
+
+    let window: SDL_Window = (SDL_CreateWindow "Tracker Shell (PT-style)" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED win_w win_h SDL_WINDOW_SHOWN)
     if (== window 0) {
         (println "✗ SDL_CreateWindow failed")
         (Mix_CloseAudio)
@@ -251,14 +257,19 @@ fn main() -> int {
         return 1
     } else {}
 
+    (SDL_RenderSetLogicalSize renderer WINDOW_WIDTH WINDOW_HEIGHT)
+    (nl_ui_set_scale (cast_float ui_scale))
+
     (Mix_VolumeMusic 100)
+
+    let default_mod_path: string = "examples/gabba-studies-12.mod"
 
     let mut browser_items: array<string> = (build_browser_items current_dir)
     let mut selected_idx: int = 0
     let mut scroll_offset: int = 0
 
-    let mut loaded_path: string = DEFAULT_MOD_PATH
-    let mut music: Mix_Music = (Mix_LoadMUS DEFAULT_MOD_PATH)
+    let mut loaded_path: string = default_mod_path
+    let mut music: Mix_Music = (Mix_LoadMUS default_mod_path)
     let mut has_music: bool = false
 
     let mut mod_loaded: bool = false
@@ -279,7 +290,7 @@ fn main() -> int {
     (Mix_VolumeMusic (cast_int (* volume 128.0)))
 
     # Default module on startup
-    if (== (pt2_module_load DEFAULT_MOD_PATH) 0) {
+    if (== (pt2_module_load default_mod_path) 0) {
         set mod_loaded true
         set mod_name (pt2_module_get_name)
         set song_length (pt2_module_get_song_length)
@@ -354,6 +365,15 @@ fn main() -> int {
             if (== key 41) {
                 set running false
             } else {
+                # 1/2: UI scale
+                if (or (== key 30) (== key 31)) {
+                    if (== key 30) { set ui_scale 1 } else { set ui_scale 2 }
+                    set win_w (* WINDOW_WIDTH ui_scale)
+                    set win_h (* WINDOW_HEIGHT ui_scale)
+                    (SDL_SetWindowSize window win_w win_h)
+                    (SDL_RenderSetLogicalSize renderer WINDOW_WIDTH WINDOW_HEIGHT)
+                    (nl_ui_set_scale (cast_float ui_scale))
+                } else {
                 # Up
                 if (== key 82) {
                     if (> selected_idx 0) { set selected_idx (- selected_idx 1) } else {}
@@ -466,6 +486,7 @@ fn main() -> int {
                             }
                         }
                     }
+                }
                 }
             }
         } else {}

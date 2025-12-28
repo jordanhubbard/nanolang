@@ -59,6 +59,7 @@ extern fn SDL_Delay(ms: int) -> void
 extern fn SDL_CreateWindow(title: string, x: int, y: int, w: int, h: int, flags: int) -> SDL_Window
 extern fn SDL_DestroyWindow(window: SDL_Window) -> void
 extern fn SDL_SetWindowTitle(window: SDL_Window, title: string) -> void
+extern fn SDL_SetWindowSize(window: SDL_Window, w: int, h: int) -> void
 extern fn SDL_GetWindowSize(window: SDL_Window, w_ptr: int, h_ptr: int) -> void
 
 # SDL2 OpenGL Functions
@@ -74,6 +75,8 @@ extern fn SDL_CreateRenderer(window: SDL_Window, index: int, flags: int) -> SDL_
 extern fn SDL_DestroyRenderer(renderer: SDL_Renderer) -> void
 extern fn SDL_RenderClear(renderer: SDL_Renderer) -> int
 extern fn SDL_RenderPresent(renderer: SDL_Renderer) -> void
+extern fn SDL_RenderSetLogicalSize(renderer: SDL_Renderer, w: int, h: int) -> int
+extern fn SDL_RenderSetScale(renderer: SDL_Renderer, scale_x: float, scale_y: float) -> int
 extern fn SDL_SetRenderDrawColor(renderer: SDL_Renderer, r: int, g: int, b: int, a: int) -> int
 extern fn SDL_RenderFillRect(renderer: SDL_Renderer, rect_ptr: int) -> int
 extern fn SDL_RenderDrawPoint(renderer: SDL_Renderer, x: int, y: int) -> int
@@ -93,6 +96,9 @@ extern fn SDL_FreeSurface(surface: SDL_Surface) -> void
 # SDL2 Event Functions
 extern fn SDL_PollEvent(event_ptr: int) -> int
 extern fn SDL_EventState(type: int, state: int) -> int
+
+# SDL2 Hints
+extern fn SDL_SetHint(name: string, value: string) -> int
 
 # SDL_ttf integration has been moved to modules/sdl_ttf/
 # Use: import "modules/sdl_ttf/sdl_ttf.nano" for TTF font rendering

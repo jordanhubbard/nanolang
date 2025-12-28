@@ -10,6 +10,9 @@
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();
 
+// Set UI scale factor used for input hit-testing (mouse coordinates are divided by this value).
+void nl_ui_set_scale(double scale);
+
 // Create a button and check for mouse interaction
 // Returns: 1 if clicked (mouse released over button), 0 otherwise
 // Uses SDL mouse state internally
