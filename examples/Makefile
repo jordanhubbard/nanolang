@@ -79,6 +79,7 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/sdl_boids \
 	$(BIN_DIR)/sdl_particles \
 	$(BIN_DIR)/sdl_mod_visualizer \
+	$(BIN_DIR)/sdl_tracker_shell \
 	$(BIN_DIR)/sdl_nanoamp \
 	$(BIN_DIR)/sdl_raytracer \
 	$(BIN_DIR)/sdl_asteroids \
@@ -141,6 +142,7 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  ./bin/sdl_terrain_explorer  - 3D terrain"
 	@echo "  ./bin/sdl_falling_sand      - Cellular automata sandbox"
 	@echo "  ./bin/sdl_mod_visualizer    - MOD music player with visualizer"
+	@echo "  ./bin/sdl_tracker_shell     - PT-style MOD player UI shell"
 	@echo "  ./bin/sdl_nanoamp           - MP3 player (Winamp tribute)"
 	@echo "  ./bin/sdl_ui_widgets_extended - Extended UI widgets demo (all widgets)"
 	@echo "  ./bin/sdl_texture_demo      - Texture loading and rendering"

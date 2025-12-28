@@ -1,0 +1,377 @@
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_mixer/sdl_mixer.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+import "modules/filesystem/filesystem.nano"
+
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+let WINDOW_WIDTH: int = 960
+let WINDOW_HEIGHT: int = 540
+
+let PANEL_MARGIN: int = 12
+let TOPBAR_H: int = 26
+let LEFT_W: int = 310
+
+let LIST_ITEM_H: int = 20
+
+fn clamp_int(v: int, lo: int, hi: int) -> int {
+    if (< v lo) {
+        return lo
+    } else {
+        if (> v hi) {
+            return hi
+        } else {
+            return v
+        }
+    }
+}
+
+shadow clamp_int {
+    assert (== (clamp_int 5 0 10) 5)
+    assert (== (clamp_int (- 1) 0 10) 0)
+    assert (== (clamp_int 99 0 10) 10)
+}
+
+fn build_mod_list(dir: string) -> array<string> {
+    let mut files: array<string> = (nl_fs_list_files dir ".mod")
+    return files
+}
+
+shadow build_mod_list {
+    let xs: array<string> = (build_mod_list "examples")
+    assert (>= (array_length xs) 0)
+}
+
+fn draw_panel(renderer: SDL_Renderer, x: int, y: int, w: int, h: int, r: int, g: int, b: int) -> void {
+    (SDL_SetRenderDrawColor renderer r g b 255)
+    (nl_sdl_render_fill_rect renderer x y w h)
+}
+
+fn main() -> int {
+    let argc: int = (get_argc)
+    let mut start_path: string = "examples"
+    if (>= argc 2) {
+        set start_path (get_argv 1)
+    } else {}
+
+    let mut current_dir: string = start_path
+    if (== (nl_fs_is_directory start_path) 0) {
+        set current_dir "examples"
+    } else {}
+
+    if (!= (SDL_Init (+ SDL_INIT_VIDEO SDL_INIT_AUDIO)) 0) {
+        (println "SDL_Init failed")
+        return 1
+    } else {}
+
+    let mixer_init: int = (Mix_Init MIX_INIT_MOD)
+    if (!= mixer_init MIX_INIT_MOD) {
+        (println "✗ SDL_mixer failed to initialize MOD support")
+        (SDL_Quit)
+        return 1
+    } else {}
+
+    if (!= (Mix_OpenAudio 44100 MIX_DEFAULT_FORMAT 2 2048) 0) {
+        (println "✗ Mix_OpenAudio failed")
+        (println (Mix_GetError))
+        (Mix_Quit)
+        (SDL_Quit)
+        return 1
+    } else {}
+
+    (TTF_Init)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 14)
+    let title_font: TTF_Font = (nl_open_font_portable "Arial" 18)
+    if (== font 0) {
+        (println "✗ Failed to load font")
+        (Mix_CloseAudio)
+        (Mix_Quit)
+        (TTF_Quit)
+        (SDL_Quit)
+        return 1
+    } else {}
+
+    let window: SDL_Window = (SDL_CreateWindow "Tracker Shell (PT-style)" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
+    if (== window 0) {
+        (println "✗ SDL_CreateWindow failed")
+        (Mix_CloseAudio)
+        (Mix_Quit)
+        (TTF_Quit)
+        (SDL_Quit)
+        return 1
+    } else {}
+
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+    if (== renderer 0) {
+        (println "✗ SDL_CreateRenderer failed")
+        (SDL_DestroyWindow window)
+        (Mix_CloseAudio)
+        (Mix_Quit)
+        (TTF_Quit)
+        (SDL_Quit)
+        return 1
+    } else {}
+
+    (Mix_VolumeMusic 100)
+
+    let mut mod_files: array<string> = (build_mod_list current_dir)
+    let mut selected_idx: int = 0
+    let mut scroll_offset: int = 0
+    let mut loaded_path: string = ""
+
+    let mut music: Mix_Music = (Mix_LoadMUS "examples/gabba-studies-12.mod")
+    let mut has_music: bool = false
+    let mut is_paused: bool = false
+
+    if (!= music 0) {
+        set has_music true
+        set loaded_path "examples/gabba-studies-12.mod"
+    } else {
+        set has_music false
+    }
+
+    let mut play_time_ms: int = 0
+    let mut play_last_update_ms: int = (SDL_GetTicks)
+
+    # If a file path was passed, try to auto-load it
+    if (and (>= argc 2) (== (nl_fs_is_directory start_path) 0)) {
+        if (== (nl_fs_file_exists start_path) 1) {
+            set loaded_path start_path
+            set music (Mix_LoadMUS loaded_path)
+            if (!= music 0) {
+                set has_music true
+                (Mix_PlayMusic music -1)
+                set is_paused false
+                set play_time_ms 0
+                set play_last_update_ms (SDL_GetTicks)
+            } else {
+                set has_music false
+            }
+        } else {}
+    } else {}
+
+    let mut running: bool = true
+    while running {
+        if (== (nl_sdl_poll_event_quit) 1) {
+            set running false
+        } else {}
+
+        let key: int = (nl_sdl_poll_keypress)
+        if (> key -1) {
+            # ESC
+            if (== key 41) {
+                set running false
+            } else {
+                # Up
+                if (== key 82) {
+                    if (> selected_idx 0) { set selected_idx (- selected_idx 1) } else {}
+                } else {
+                    # Down
+                    if (== key 81) {
+                        let n: int = (array_length mod_files)
+                        if (and (> n 0) (< selected_idx (- n 1))) { set selected_idx (+ selected_idx 1) } else {}
+                    } else {
+                        # Enter / KP Enter
+                        if (or (== key 40) (== key 88)) {
+                            let n: int = (array_length mod_files)
+                            if (> n 0) {
+                                let filename: string = (at mod_files selected_idx)
+                                let full_path: string = (nl_fs_join_path current_dir filename)
+
+                                if has_music {
+                                    (Mix_HaltMusic)
+                                    (Mix_FreeMusic music)
+                                    set has_music false
+                                } else {}
+
+                                set loaded_path full_path
+                                set music (Mix_LoadMUS loaded_path)
+                                if (== music 0) {
+                                    set has_music false
+                                } else {
+                                    set has_music true
+                                    (Mix_PlayMusic music -1)
+                                    set is_paused false
+                                    set play_time_ms 0
+                                    set play_last_update_ms (SDL_GetTicks)
+                                }
+                            } else {}
+                        } else {
+                            # Space: play/pause
+                            if (== key 44) {
+                                if has_music {
+                                    if (== (Mix_PausedMusic) 1) {
+                                        (Mix_ResumeMusic)
+                                        set is_paused false
+                                        set play_last_update_ms (SDL_GetTicks)
+                                    } else {
+                                        if (== (Mix_PlayingMusic) 1) {
+                                            (Mix_PauseMusic)
+                                            set is_paused true
+                                        } else {
+                                            (Mix_PlayMusic music -1)
+                                            set is_paused false
+                                            set play_time_ms 0
+                                            set play_last_update_ms (SDL_GetTicks)
+                                        }
+                                    }
+                                } else {}
+                            } else {
+                                # S: stop
+                                if (== key 22) {
+                                    if has_music {
+                                        (Mix_HaltMusic)
+                                        set is_paused false
+                                        set play_time_ms 0
+                                        set play_last_update_ms (SDL_GetTicks)
+                                    } else {}
+                                } else {}
+                            }
+                        }
+                    }
+                }
+            }
+        } else {}
+
+        # Keep selection visible
+        let visible_h: int = (- (- WINDOW_HEIGHT TOPBAR_H) (* PANEL_MARGIN 2))
+        let list_h: int = (- visible_h 12)
+        let visible_count: int = (/ list_h LIST_ITEM_H)
+        let item_count: int = (array_length mod_files)
+        let mut max_scroll: int = (- item_count visible_count)
+        if (< max_scroll 0) { set max_scroll 0 } else {}
+
+        if (< selected_idx scroll_offset) {
+            set scroll_offset selected_idx
+        } else {
+            if (> selected_idx (+ scroll_offset (- visible_count 1))) {
+                set scroll_offset (clamp_int (- selected_idx (- visible_count 1)) 0 max_scroll)
+            } else {}
+        }
+        set scroll_offset (clamp_int scroll_offset 0 max_scroll)
+
+        # Track play time (for row/pattern display)
+        let now_ms: int = (SDL_GetTicks)
+        if (and has_music (== (Mix_PlayingMusic) 1)) {
+            if (== (Mix_PausedMusic) 0) {
+                set play_time_ms (+ play_time_ms (- now_ms play_last_update_ms))
+                set play_last_update_ms now_ms
+            } else {}
+        } else {
+            set play_last_update_ms now_ms
+        }
+
+        # --- Render ---
+        # Background (PT-ish blue)
+        (SDL_SetRenderDrawColor renderer 10 20 60 255)
+        (SDL_RenderClear renderer)
+
+        # Top bar
+        (draw_panel renderer 0 0 WINDOW_WIDTH TOPBAR_H 30 50 120)
+        (nl_draw_text_blended renderer title_font "NANOLANG TRACKER SHELL (Phase 1)" 12 4 240 240 255 255)
+
+        # Left file browser
+        let left_x: int = PANEL_MARGIN
+        let left_y: int = (+ TOPBAR_H PANEL_MARGIN)
+        let left_h: int = (- (- WINDOW_HEIGHT TOPBAR_H) (* PANEL_MARGIN 2))
+        (draw_panel renderer left_x left_y LEFT_W left_h 18 28 76)
+
+        (nl_draw_text_blended renderer font "MOD Browser" (+ left_x 10) (+ left_y 8) 230 230 255 255)
+        (nl_draw_text_blended renderer font (str_concat "Dir: " current_dir) (+ left_x 10) (+ left_y 28) 180 180 220 255)
+
+        let list_x: int = (+ left_x 10)
+        let list_y: int = (+ left_y 52)
+        let list_w: int = (- LEFT_W 20)
+
+        # List backdrop
+        (draw_panel renderer list_x list_y list_w (- left_h 62) 10 16 44)
+
+        # Items
+        let mut i: int = 0
+        while (< i visible_count) {
+            let idx: int = (+ scroll_offset i)
+            if (< idx item_count) {
+                let y: int = (+ list_y (+ 4 (* i LIST_ITEM_H)))
+
+                if (== idx selected_idx) {
+                    (draw_panel renderer (+ list_x 2) (- y 2) (- list_w 4) (+ LIST_ITEM_H 2) 58 90 200)
+                } else {}
+
+                let name: string = (at mod_files idx)
+                (nl_draw_text_blended renderer font name (+ list_x 8) y 230 230 255 255)
+            } else {}
+            set i (+ i 1)
+        }
+
+        # Right main area
+        let main_x: int = (+ (+ left_x LEFT_W) 12)
+        let main_y: int = left_y
+        let main_w: int = (- (- WINDOW_WIDTH main_x) PANEL_MARGIN)
+        let main_h: int = left_h
+        (draw_panel renderer main_x main_y main_w main_h 18 28 76)
+
+        (nl_draw_text_blended renderer font "Player" (+ main_x 10) (+ main_y 8) 230 230 255 255)
+        let mut status: string = "Stopped"
+        if has_music {
+            if (== (Mix_PlayingMusic) 1) {
+                if (== (Mix_PausedMusic) 1) {
+                    set status "Paused"
+                } else {
+                    set status "Playing"
+                }
+            } else {
+                set status "Stopped"
+            }
+        } else {
+            set status "No file loaded"
+        }
+
+        (nl_draw_text_blended renderer font (str_concat "Status: " status) (+ main_x 10) (+ main_y 30) 200 200 240 255)
+        if (!= loaded_path "") {
+            (nl_draw_text_blended renderer font (str_concat "File: " loaded_path) (+ main_x 10) (+ main_y 52) 180 180 220 255)
+        } else {}
+
+        # Pattern/row position (approx. tempo 125/speed 6)
+        let bpm: float = 125.0
+        let speed: float = 6.0
+        let tick_ms: float = (/ 2500.0 bpm)
+        let row_ms: float = (* tick_ms speed)
+        let rows_total: int = (cast_int (/ (cast_float play_time_ms) row_ms))
+        let row: int = (% rows_total 64)
+        let pattern: int = (% (/ rows_total 64) 128)
+
+        (draw_panel renderer (+ main_x 10) (+ main_y 84) (- main_w 20) 88 10 16 44)
+        (nl_draw_text_blended renderer font "Position (read-only)" (+ main_x 18) (+ main_y 92) 220 220 255 255)
+        (nl_draw_text_blended renderer title_font (str_concat "PAT " (int_to_string pattern)) (+ main_x 18) (+ main_y 116) 240 240 255 255)
+        (nl_draw_text_blended renderer title_font (str_concat "ROW " (int_to_string row)) (+ main_x 160) (+ main_y 116) 240 240 255 255)
+
+        (nl_draw_text_blended renderer font "Controls:" (+ main_x 10) (+ main_y 190) 230 230 255 255)
+        (nl_draw_text_blended renderer font "Up/Down: select MOD" (+ main_x 10) (+ main_y 210) 180 180 220 255)
+        (nl_draw_text_blended renderer font "Enter: load + play" (+ main_x 10) (+ main_y 230) 180 180 220 255)
+        (nl_draw_text_blended renderer font "Space: play/pause" (+ main_x 10) (+ main_y 250) 180 180 220 255)
+        (nl_draw_text_blended renderer font "S: stop    ESC: quit" (+ main_x 10) (+ main_y 270) 180 180 220 255)
+
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 1)
+    }
+
+    if has_music {
+        (Mix_HaltMusic)
+        (Mix_FreeMusic music)
+    } else {}
+
+    (TTF_CloseFont font)
+    (TTF_CloseFont title_font)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (Mix_CloseAudio)
+    (Mix_Quit)
+    (TTF_Quit)
+    (SDL_Quit)
+    return 0
+}
+
+shadow main { assert true }
