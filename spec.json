@@ -339,6 +339,38 @@
       "List_push": { "signature": "List_<T>_push(List<T>, T) -> void", "description": "Push element to end of list" },
       "List_get": { "signature": "List_<T>_get(List<T>, int) -> T", "description": "Get list element at index (bounds-checked)" },
       "List_length": { "signature": "List_<T>_length(List<T>) -> int", "description": "Get number of elements in list" }
+    },
+    "checked_math": {
+      "checked_add": {
+        "signature": "checked_add(int, int) -> Result<int, string>",
+        "description": "Safe addition with overflow detection (MISRA Rule 12.4 compliant)",
+        "module": "modules/stdlib/checked_math.nano",
+        "errors": ["Integer overflow in addition", "Integer underflow in addition"]
+      },
+      "checked_sub": {
+        "signature": "checked_sub(int, int) -> Result<int, string>",
+        "description": "Safe subtraction with underflow detection (MISRA Rule 12.4 compliant)",
+        "module": "modules/stdlib/checked_math.nano",
+        "errors": ["Integer overflow in subtraction", "Integer underflow in subtraction"]
+      },
+      "checked_mul": {
+        "signature": "checked_mul(int, int) -> Result<int, string>",
+        "description": "Safe multiplication with overflow detection (MISRA Rule 12.4 compliant)",
+        "module": "modules/stdlib/checked_math.nano",
+        "errors": ["Integer overflow in multiplication", "Integer underflow in multiplication"]
+      },
+      "checked_div": {
+        "signature": "checked_div(int, int) -> Result<int, string>",
+        "description": "Safe division with zero-divisor check (JSF AV Rule 204 compliant)",
+        "module": "modules/stdlib/checked_math.nano",
+        "errors": ["Division by zero", "Integer overflow in division (INT64_MIN / -1)"]
+      },
+      "checked_mod": {
+        "signature": "checked_mod(int, int) -> Result<int, string>",
+        "description": "Safe modulo with zero-divisor check",
+        "module": "modules/stdlib/checked_math.nano",
+        "errors": ["Modulo by zero"]
+      }
     }
   },
   

@@ -578,6 +578,97 @@ Modules automatically install dependencies:
 
 Check `modules/` directory for full list.
 
+## Checked Arithmetic Operations (SAFETY)
+
+**NEW**: NanoLang provides checked arithmetic operations that detect overflow, underflow, and division by zero at runtime, returning `Result<int, string>` instead of crashing or wrapping silently.
+
+**MISRA Rule 12.4 Compliance**: These functions satisfy safety-critical requirements for overflow detection.  
+**JSF AV Rule 204 Compliance**: Division operations check for zero divisor.
+
+### Available Functions
+
+Import the module:
+```nano
+import "modules/stdlib/checked_math.nano"
+```
+
+Then use:
+
+```nano
+/* Safe addition - catches overflow/underflow */
+fn example_addition() -> int {
+    let result: Result<int, string> = (checked_add 1000000 2000000)
+    match result {
+        Ok(v) => {
+            (println v.value)  /* 3000000 */
+        },
+        Err(e) => {
+            (println e.error)  /* "Integer overflow in addition" */
+        }
+    }
+    return 0
+}
+
+/* Safe division - catches division by zero */
+fn example_division() -> int {
+    let result: Result<int, string> = (checked_div 100 0)
+    match result {
+        Ok(v) => {
+            (println v.value)
+        },
+        Err(e) => {
+            (println e.error)  /* "Division by zero" */
+        }
+    }
+    return 0
+}
+```
+
+### All Checked Operations
+
+| Function | Returns | Catches |
+|----------|---------|---------|
+| `checked_add(a, b)` | `Result<int, string>` | Overflow, underflow |
+| `checked_sub(a, b)` | `Result<int, string>` | Overflow, underflow |
+| `checked_mul(a, b)` | `Result<int, string>` | Overflow, underflow |
+| `checked_div(a, b)` | `Result<int, string>` | Division by zero, INT64_MIN / -1 |
+| `checked_mod(a, b)` | `Result<int, string>` | Modulo by zero |
+
+### When to Use
+
+- **Safety-critical applications**: Avionics, medical devices, automotive
+- **Financial calculations**: Money arithmetic must not overflow silently
+- **User input validation**: Prevent malicious overflow attacks
+- **Production code**: When correctness matters more than performance
+
+### When NOT to Use
+
+- **Performance-critical inner loops**: Checked ops are slower (~2-3x)
+- **Proven-safe calculations**: E.g., loop counters with known bounds
+- **Compiler-optimized code**: When overflow is mathematically impossible
+
+### Example: Safe Calculator
+
+See `examples/nl_checked_math_demo.nano` for a complete demonstration.
+
+```nano
+import "modules/stdlib/checked_math.nano"
+
+fn safe_calculator(a: int, op: string, b: int) -> Result<int, string> {
+    if (str_equals op "+") {
+        return (checked_add a b)
+    } else { if (str_equals op "-") {
+        return (checked_sub a b)
+    } else { if (str_equals op "*") {
+        return (checked_mul a b)
+    } else { if (str_equals op "/") {
+        return (checked_div a b)
+    } else {
+        return Result.Err { error: "Unknown operator" }
+    }}}}
+}
+```
+
 ## Performance Tips
 
 ### 1. Use Primitives Over Structs When Possible
