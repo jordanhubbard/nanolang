@@ -160,28 +160,202 @@ fn parse_args() -> CompileOptions {
  * IMPORT RESOLUTION (SIMPLIFIED)
  * ============================================================================= */
 
-/* For bootstrap, we use a HACK: shell out to create a merged file
- * This is NOT elegant, but it gets us to 100% self-hosting
- * Once we're self-hosting, we can rewrite this properly in NanoLang
- */
-fn merge_with_imports_via_shell(input_file: string) -> string {
-    /* Use Python merge script for proper dependency resolution */
-    let output_file: string = "/tmp/nanolang_merged.nano"
-    let mut cmd: string = "python3 tools/merge_imports.py "
-    set cmd (str_concat cmd input_file)
-    set cmd (str_concat cmd " > ")
-    set cmd (str_concat cmd output_file)
-    set cmd (str_concat cmd " 2>&1")
-    
-    let exec_result: int = (nl_exec_shell cmd)
-    if (!= exec_result 0) {
+fn path_dirname(path: string) -> string {
+    let mut p: string = path
+    if (str_ends_with p "/") {
+        set p (str_substring p 0 (- (str_length p) 1))
+    } else { (print "") }
+
+    let idx: int = (str_last_index_of p "/")
+    if (== idx -1) {
+        return "."
+    } else {
+        if (== idx 0) { return "/" } else { return (str_substring p 0 idx) }
+    }
+}
+
+fn path_join(dir: string, rel: string) -> string {
+    if (or (== dir "") (== dir ".")) {
+        return rel
+    } else {
+        if (str_ends_with dir "/") {
+            return (str_concat dir rel)
+        } else {
+            return (str_concat (str_concat dir "/") rel)
+        }
+    }
+}
+
+fn find_repo_root(start_dir: string) -> string {
+    let mut dir: string = start_dir
+    let mut i: int = 0
+    while (< i 25) {
+        let marker1: string = (path_join dir ".beads/issues.jsonl")
+        let marker2: string = (path_join dir "src_nano/nanoc_v06.nano")
+        if (or (file_exists marker1) (file_exists marker2)) {
+            return dir
+        } else {
+            let parent: string = (path_dirname dir)
+            if (or (== parent dir) (== parent "")) {
+                return ""
+            } else {
+                set dir parent
+            }
+        }
+        set i (+ i 1)
+    }
+    return ""
+}
+
+fn split_lines(s: string) -> array<string> {
+    let len: int = (str_length s)
+    let mut out: array<string> = []
+    let mut start: int = 0
+    let mut i: int = 0
+
+    while (< i len) {
+        if (str_equals (str_substring s i 1) "\n") {
+            set out (array_push out (str_substring s start (- i start)))
+            set start (+ i 1)
+        } else { (print "") }
+        set i (+ i 1)
+    }
+
+    if (<= start len) {
+        set out (array_push out (str_substring s start (- len start)))
+    } else { (print "") }
+    return out
+}
+
+fn parse_import_path_from_line(line: string) -> string {
+    if (not (str_starts_with line "import \"")) {
         return ""
     } else {
-        (print "")
+        let first_q: int = (str_index_of line "\"")
+        let last_q: int = (str_last_index_of line "\"")
+        if (and (>= first_q 0) (> last_q first_q)) {
+            return (str_substring line (+ first_q 1) (- last_q (+ first_q 1)))
+        } else {
+            return ""
+        }
     }
-    
-    /* Read merged result */
-    let merged: string = (file_read output_file)
+}
+
+fn strip_pub_decl(line: string) -> string {
+    if (str_starts_with line "pub fn ") {
+        return (str_concat "fn " (str_substring line 7 (- (str_length line) 7)))
+    } else {
+        if (str_starts_with line "pub struct ") {
+            return (str_concat "struct " (str_substring line 11 (- (str_length line) 11)))
+        } else {
+            if (str_starts_with line "pub enum ") {
+                return (str_concat "enum " (str_substring line 9 (- (str_length line) 9)))
+            } else {
+                if (str_starts_with line "pub union ") {
+                    return (str_concat "union " (str_substring line 10 (- (str_length line) 10)))
+                } else {
+                    return line
+                }
+            }
+        }
+    }
+}
+
+fn resolve_import_path(current_file: string, import_path: string, repo_root: string) -> string {
+    if (== import_path "") {
+        return ""
+    } else {
+        if (str_starts_with import_path "/") {
+            return import_path
+        } else {
+            if (or (str_starts_with import_path "./") (str_starts_with import_path "../")) {
+                return (path_join (path_dirname current_file) import_path)
+            } else {
+                if (!= repo_root "") {
+                    return (path_join repo_root import_path)
+                } else {
+                    return import_path
+                }
+            }
+        }
+    }
+}
+
+fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, order: array<string>, ok: bool) -> (array<string>, array<string>, bool) {
+    if (not ok) {
+        return (visited, order, false)
+    } else { (print "") }
+
+    if (array_contains_string visited path) {
+        return (visited, order, true)
+    } else {
+        let mut visited2: array<string> = (array_push visited path)
+        let src: string = (file_read path)
+        let lines: array<string> = (split_lines src)
+
+        let mut order2: array<string> = order
+        let mut ok2: bool = true
+        let mut i: int = 0
+        while (< i (array_length lines)) {
+            let imp: string = (parse_import_path_from_line (at lines i))
+            if (!= imp "") {
+                let dep: string = (resolve_import_path path imp repo_root)
+                if (== dep "") {
+                    (print "Error: bad import path in ")
+                    (println path)
+                    set ok2 false
+                } else {
+                    if (file_exists dep) {
+                        let res: (array<string>, array<string>, bool) = (collect_files_dfs dep repo_root visited2 order2 ok2)
+                        set visited2 res.0
+                        set order2 res.1
+                        set ok2 res.2
+                    } else {
+                        (print "Error: import not found: ")
+                        (println dep)
+                        set ok2 false
+                    }
+                }
+            } else { (print "") }
+            set i (+ i 1)
+        }
+
+        if ok2 {
+            set order2 (array_push order2 path)
+        } else { (print "") }
+        return (visited2, order2, ok2)
+    }
+}
+
+fn merge_with_imports(input_file: string) -> string {
+    let repo_root: string = (find_repo_root (path_dirname input_file))
+    let start: string = input_file
+
+    let res: (array<string>, array<string>, bool) = (collect_files_dfs start repo_root [] [] true)
+    let files: array<string> = res.1
+    if (not res.2) {
+        return ""
+    } else { (print "") }
+
+    let mut merged: string = ""
+    let mut i: int = 0
+    while (< i (array_length files)) {
+        let src: string = (file_read (at files i))
+        let lines: array<string> = (split_lines src)
+        let mut j: int = 0
+        while (< j (array_length lines)) {
+            let line: string = (at lines j)
+            let imp: string = (parse_import_path_from_line line)
+            if (== imp "") {
+                set merged (str_concat merged (strip_pub_decl line))
+                set merged (str_concat merged "\n")
+            } else {
+                (print "")
+            }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
     return merged
 }
 
@@ -212,7 +386,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
         (print "")
     }
     
-    let merged_source: string = (merge_with_imports_via_shell input_file)
+    let merged_source: string = (merge_with_imports input_file)
     let temp_source_file: string = "/tmp/nanolang_merged.nano"
     let mut source_to_compile: string = input_file
     
@@ -225,7 +399,12 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
         } else {
             (print "")
         }
-        set source_to_compile temp_source_file
+        let write_merged: int = (file_write temp_source_file merged_source)
+        if (== write_merged 0) {
+            set source_to_compile temp_source_file
+        } else {
+            set source_to_compile input_file
+        }
     } else {
         /* No imports or merge failed - use original file */
         if verbose {
