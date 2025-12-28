@@ -4,8 +4,25 @@
 import "modules/sdl/sdl.nano"
 import "modules/sdl_mixer/sdl_mixer.nano"
 
+# Command-line argument support
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
 fn main() -> int {
     (println "Testing WAV playback...")
+
+    # This example plays a user-provided .wav file.
+    # (Older versions expected a pt2-clone/"ProTracker" sample export step that no longer exists.)
+    let argc: int = (get_argc)
+    if (< argc 2) {
+        (println "")
+        (println "No WAV file specified.")
+        (println "Usage: ./bin/sdl_audio_wav path/to/file.wav")
+        (println "")
+        (println "Tip: to quickly verify audio output works with a bundled file, run:")
+        (println "  ./bin/sdl_mod_visualizer   (plays examples/gabba-studies-12.mod)")
+        return 1
+    } else {}
     
     # Initialize SDL
     if (!= (SDL_Init SDL_INIT_AUDIO) 0) {
@@ -25,14 +42,15 @@ fn main() -> int {
     (println (Mix_AllocateChannels (-1)))
     
     # Load a sample WAV file
-    let sample_file: string = "/tmp/pt2_sample_1.wav"
+    let sample_file: string = (get_argv 1)
     (print "Loading: ")
     (println sample_file)
     
     let sample: Mix_Chunk = (Mix_LoadWAV sample_file)
     if (== sample 0) {
         (println "ERROR: Failed to load WAV file")
-        (println "Make sure to run ProTracker first to generate WAV files!")
+        (println (Mix_GetError))
+        (println "Make sure the path is correct and the file is a supported .wav.")
         (Mix_CloseAudio)
         (SDL_Quit)
         return 1
