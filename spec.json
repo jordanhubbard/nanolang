@@ -540,28 +540,232 @@
   },
   
   "compiler_internals": {
-    "location": "stdlib/",
-    "description": "Self-hosted compiler components written in NanoLang",
-    "modules": [
-      {
-        "name": "StringBuilder",
-        "file": "stdlib/StringBuilder.nano",
-        "description": "String building utility for efficient concatenation",
-        "functions": 14
-      },
-      {
-        "name": "ast",
-        "file": "stdlib/ast.nano",
-        "description": "Abstract Syntax Tree data structures and operations",
-        "functions": 13
-      },
-      {
-        "name": "lalr",
-        "file": "stdlib/lalr.nano",
-        "description": "LALR parser tables and algorithms",
-        "functions": 20
+    "description": "Internal compiler representations and implementation details",
+    "schema_location": "schema/compiler_schema.json",
+    "validation_tool": "tools/validate_schema_sync.py",
+    
+    "ast_nodes": {
+      "description": "Abstract Syntax Tree node types used by both C and NanoLang compilers",
+      "c_definition": "src/nanolang.h (ASTNodeType enum, ASTNode struct)",
+      "nano_definition": "src_nano/generated/compiler_ast.nano",
+      "node_types": [
+        {"name": "AST_NUMBER", "description": "Integer literal"},
+        {"name": "AST_FLOAT", "description": "Floating-point literal"},
+        {"name": "AST_STRING", "description": "String literal"},
+        {"name": "AST_BOOL", "description": "Boolean literal (true/false)"},
+        {"name": "AST_IDENTIFIER", "description": "Variable or function name"},
+        {"name": "AST_PREFIX_OP", "description": "Prefix operation (+ - * / == < > etc.)"},
+        {"name": "AST_CALL", "description": "Function call"},
+        {"name": "AST_ARRAY_LITERAL", "description": "Array literal [elem1, elem2, ...]"},
+        {"name": "AST_LET", "description": "Variable declaration"},
+        {"name": "AST_SET", "description": "Variable assignment (mutable only)"},
+        {"name": "AST_IF", "description": "Conditional expression"},
+        {"name": "AST_WHILE", "description": "While loop"},
+        {"name": "AST_FOR", "description": "For loop with range"},
+        {"name": "AST_RETURN", "description": "Return statement"},
+        {"name": "AST_BLOCK", "description": "Code block { statements }"},
+        {"name": "AST_UNSAFE_BLOCK", "description": "Unsafe block for FFI calls"},
+        {"name": "AST_FUNCTION", "description": "Function definition"},
+        {"name": "AST_SHADOW", "description": "Shadow test block"},
+        {"name": "AST_PROGRAM", "description": "Top-level program node"},
+        {"name": "AST_PRINT", "description": "Print statement"},
+        {"name": "AST_ASSERT", "description": "Assertion"},
+        {"name": "AST_STRUCT_DEF", "description": "Struct type definition"},
+        {"name": "AST_STRUCT_LITERAL", "description": "Struct instance creation"},
+        {"name": "AST_FIELD_ACCESS", "description": "Struct field access"},
+        {"name": "AST_ENUM_DEF", "description": "Enum type definition"},
+        {"name": "AST_UNION_DEF", "description": "Union type definition"},
+        {"name": "AST_UNION_CONSTRUCT", "description": "Union variant construction"},
+        {"name": "AST_MATCH", "description": "Pattern matching on unions"},
+        {"name": "AST_IMPORT", "description": "Module import"},
+        {"name": "AST_MODULE_DECL", "description": "Module declaration"},
+        {"name": "AST_OPAQUE_TYPE", "description": "Opaque type declaration"},
+        {"name": "AST_TUPLE_LITERAL", "description": "Tuple literal (val1, val2, ...)"},
+        {"name": "AST_TUPLE_INDEX", "description": "Tuple element access tuple.0"},
+        {"name": "AST_QUALIFIED_NAME", "description": "Qualified name Module::symbol"}
+      ],
+      "common_fields": {
+        "type": "ASTNodeType enum value",
+        "line": "Source line number (1-indexed)",
+        "column": "Source column number (1-indexed)"
       }
-    ]
+    },
+    
+    "type_info": {
+      "description": "Type system representation",
+      "c_definition": "src/nanolang.h (Type enum, TypeInfo struct)",
+      "nano_definition": "src_nano/generated/compiler_ast.nano (TypeKind enum, Type struct)",
+      "primitive_types": [
+        {"name": "TYPE_INT", "c_type": "int64_t", "size": 8, "description": "64-bit signed integer"},
+        {"name": "TYPE_U8", "c_type": "uint8_t", "size": 1, "description": "8-bit unsigned integer (byte)"},
+        {"name": "TYPE_FLOAT", "c_type": "double", "size": 8, "description": "64-bit IEEE 754 float"},
+        {"name": "TYPE_BOOL", "c_type": "bool", "size": 1, "description": "Boolean (true/false)"},
+        {"name": "TYPE_STRING", "c_type": "char*", "size": 8, "description": "Null-terminated C string"},
+        {"name": "TYPE_BSTRING", "c_type": "nl_string_t*", "size": 8, "description": "Binary string (length + data)"},
+        {"name": "TYPE_VOID", "c_type": "void", "size": 0, "description": "No value (return type only)"}
+      ],
+      "composite_types": [
+        {"name": "TYPE_ARRAY", "description": "Dynamic array array<T>"},
+        {"name": "TYPE_STRUCT", "description": "Product type with named fields"},
+        {"name": "TYPE_ENUM", "description": "Enumeration with integer values"},
+        {"name": "TYPE_UNION", "description": "Tagged union (sum type)"},
+        {"name": "TYPE_TUPLE", "description": "Fixed-size heterogeneous tuple"},
+        {"name": "TYPE_FUNCTION", "description": "Function type fn(T1, T2) -> R"},
+        {"name": "TYPE_GENERIC", "description": "Generic type parameter T"},
+        {"name": "TYPE_OPAQUE", "description": "Opaque type (FFI)"}
+      ],
+      "type_info_struct": {
+        "description": "Extended type information for generics and complex types",
+        "fields": [
+          {"name": "name", "type": "string", "description": "Type name (e.g., 'Result', 'List')"},
+          {"name": "type_params", "type": "array<TypeInfo*>", "description": "Generic type parameters"},
+          {"name": "param_count", "type": "int", "description": "Number of type parameters"}
+        ],
+        "example": "Result<int, string> has name='Result', param_count=2, type_params=[int, string]"
+      }
+    },
+    
+    "memory_model": {
+      "description": "Memory layout and management",
+      "stack_allocation": {
+        "primitives": "All primitive types (int, float, bool) are stack-allocated",
+        "strings": "String pointers on stack, data on heap",
+        "structs": "Small structs on stack, large structs on heap via GC",
+        "arrays": "Array pointers on stack, DynArray structure on heap"
+      },
+      "heap_allocation": {
+        "strings": "Heap-allocated via malloc, manually managed",
+        "bstrings": "Heap-allocated nl_string_t with length + data",
+        "arrays": "DynArray structure with capacity, count, and element array",
+        "structs": "GCStruct with reference counting when heap-allocated",
+        "unions": "Tagged unions with variant tag + data"
+      },
+      "garbage_collection": {
+        "strategy": "Reference counting with cycle detection",
+        "rc_increment": "nl_gc_retain(ptr) on assignment/copy",
+        "rc_decrement": "nl_gc_release(ptr) on scope exit",
+        "cycle_detection": "Mark-and-sweep for circular references",
+        "integration_points": [
+          "Variable assignment (set)",
+          "Function call arguments",
+          "Return values",
+          "Array element storage",
+          "Struct field storage"
+        ]
+      },
+      "alignment": {
+        "int": 8,
+        "float": 8,
+        "bool": 1,
+        "pointer": 8,
+        "struct": "Largest field alignment",
+        "padding": "Inserted to maintain alignment"
+      }
+    },
+    
+    "ffi_abi": {
+      "description": "Foreign Function Interface calling convention",
+      "c_to_nanolang": {
+        "int": "int64_t",
+        "float": "double",
+        "bool": "bool (C99)",
+        "string": "const char*",
+        "bstring": "nl_string_t*",
+        "array": "DynArray*",
+        "struct": "nl_StructName*",
+        "void": "void"
+      },
+      "nanolang_to_c": {
+        "description": "NanoLang functions transpile to C with nl_ prefix",
+        "naming": "fn my_function -> int64_t nl_my_function(...)",
+        "parameters": "Passed by value for primitives, by pointer for complex types",
+        "return_values": "Returned directly for primitives, via pointer for large structs"
+      },
+      "extern_functions": {
+        "declaration": "extern fn c_function(param: type) -> return_type",
+        "safety": "Must be called inside unsafe { } blocks",
+        "type_mapping": "NanoLang types map to C types as above",
+        "example": "extern fn getpid() -> int maps to pid_t getpid(void)"
+      },
+      "name_mangling": {
+        "user_functions": "nl_function_name",
+        "structs": "nl_StructName",
+        "enums": "nl_EnumName, nl_EnumName_Variant",
+        "unions": "nl_UnionName, nl_UnionName_Variant",
+        "no_mangling": "extern functions keep original C names"
+      }
+    },
+    
+    "compilation_phases": {
+      "description": "Compiler pipeline stages",
+      "phases": [
+        {
+          "name": "Lexical Analysis",
+          "input": "Source code (*.nano files)",
+          "output": "Token stream (LexerToken array)",
+          "implementation": "src/lexer.c, src_nano/compiler/lexer.nano",
+          "data_structures": ["LexerToken", "LexerTokenType enum"]
+        },
+        {
+          "name": "Parsing",
+          "input": "Token stream",
+          "output": "Abstract Syntax Tree (AST)",
+          "implementation": "src/parser.c, src_nano/parser.nano",
+          "data_structures": ["ASTNode", "Parser struct with node arrays"]
+        },
+        {
+          "name": "Type Checking",
+          "input": "AST",
+          "output": "Type-annotated AST + symbol table",
+          "implementation": "src/typechecker.c, src_nano/typecheck.nano",
+          "data_structures": ["TypeInfo", "Symbol table", "Environment"],
+          "checks": [
+            "Type compatibility",
+            "Variable mutability",
+            "Function signatures",
+            "Extern function safety (unsafe blocks)",
+            "Generic type instantiation"
+          ]
+        },
+        {
+          "name": "Transpilation",
+          "input": "Type-annotated AST",
+          "output": "C source code",
+          "implementation": "src/transpiler_iterative_v3_twopass.c, src_nano/transpiler.nano",
+          "passes": [
+            "Pass 1: Collect type definitions (structs, enums, unions)",
+            "Pass 2: Generate function bodies and main program"
+          ]
+        },
+        {
+          "name": "C Compilation",
+          "input": "Generated C code",
+          "output": "Native executable",
+          "implementation": "gcc or clang",
+          "flags": "-std=c99 -Wall -Wextra -O2"
+        }
+      ]
+    },
+    
+    "dual_implementation": {
+      "description": "C and NanoLang compilers must stay synchronized",
+      "c_compiler": {
+        "location": "src/",
+        "files": ["lexer.c", "parser.c", "typechecker.c", "transpiler.c"],
+        "purpose": "Bootstrap compiler, reference implementation"
+      },
+      "nanolang_compiler": {
+        "location": "src_nano/",
+        "files": ["compiler/lexer.nano", "parser.nano", "typecheck.nano", "transpiler.nano"],
+        "purpose": "Self-hosted compiler, production implementation"
+      },
+      "synchronization": {
+        "schema": "schema/compiler_schema.json defines canonical AST/IR",
+        "validation": "tools/validate_schema_sync.py checks for drift",
+        "testing": "Differential testing compares outputs",
+        "bootstrap": "make bootstrap verifies equivalence"
+      }
+    }
   },
   
   "status": {
