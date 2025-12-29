@@ -8,8 +8,28 @@
   "dependencies": {
     "c_libraries": ["utf8proc"],
     "pkg_config": "libutf8proc",
-    "brew_package": "utf8proc",
-    "apt_package": "libutf8proc-dev"
+    "platforms": {
+      "macos": {
+        "package_manager": "brew",
+        "package": "utf8proc",
+        "verify": "brew list utf8proc"
+      },
+      "linux_debian": {
+        "package_manager": "apt-get",
+        "package": "libutf8proc-dev",
+        "verify": "dpkg -l | grep libutf8proc-dev"
+      },
+      "linux_fedora": {
+        "package_manager": "yum",
+        "package": "utf8proc-devel",
+        "verify": "rpm -q utf8proc-devel"
+      },
+      "linux_arch": {
+        "package_manager": "pacman",
+        "package": "libutf8proc",
+        "verify": "pacman -Q libutf8proc"
+      }
+    }
   },
   "functions": [
     {
