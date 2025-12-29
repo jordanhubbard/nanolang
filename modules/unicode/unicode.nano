@@ -2,245 +2,27 @@
  * 
  * All string operations in NanoLang now use UTF-8 encoding by default.
  * This module provides grapheme-aware operations for proper Unicode handling.
+ * 
+ * This is an FFI-only module - all functions are extern declarations
+ * that link to the C utf8proc library via unicode_ffi.c
  */
 
-/* FFI declarations - calls to C utf8proc library */
+/* String Measurement */
 extern fn nl_str_byte_length(s: string) -> int
 extern fn nl_str_grapheme_length(s: string) -> int
+
+/* String Access */
 extern fn nl_str_codepoint_at(s: string, byte_idx: int) -> int
 extern fn nl_str_grapheme_at(s: string, grapheme_idx: int) -> string
+
+/* Case Conversion */
 extern fn nl_str_to_lowercase(s: string) -> string
 extern fn nl_str_to_uppercase(s: string) -> string
+
+/* Normalization (forms: 0=NFC, 1=NFD, 2=NFKC, 3=NFKD) */
 extern fn nl_str_normalize(s: string, form: int) -> string
+
+/* Validation */
 extern fn nl_str_is_ascii(s: string) -> bool
 extern fn nl_str_is_valid_utf8(s: string) -> bool
-
-/* Public API - Safe wrappers with shadow tests */
-
-fn str_byte_length(s: string) -> int {
-    unsafe {
-        return (nl_str_byte_length s)
-    }
-}
-
-fn str_grapheme_length(s: string) -> int {
-    unsafe {
-        return (nl_str_grapheme_length s)
-    }
-}
-
-fn str_codepoint_at(s: string, byte_idx: int) -> int {
-    unsafe {
-        return (nl_str_codepoint_at s byte_idx)
-    }
-}
-
-fn str_grapheme_at(s: string, grapheme_idx: int) -> string {
-    unsafe {
-        return (nl_str_grapheme_at s grapheme_idx)
-    }
-}
-
-fn str_to_lowercase(s: string) -> string {
-    unsafe {
-        return (nl_str_to_lowercase s)
-    }
-}
-
-fn str_to_uppercase(s: string) -> string {
-    unsafe {
-        return (nl_str_to_uppercase s)
-    }
-}
-
-/* Unicode normalization forms */
-enum NormalizationForm {
-    NFC = 0,   /* Canonical Composition */
-    NFD = 1,   /* Canonical Decomposition */
-    NFKC = 2,  /* Compatibility Composition */
-    NFKD = 3   /* Compatibility Decomposition */
-}
-
-fn str_normalize(s: string, form: int) -> string {
-    unsafe {
-        return (nl_str_normalize s form)
-    }
-}
-
-fn str_normalize_nfc(s: string) -> string {
-    return (str_normalize s NormalizationForm.NFC)
-}
-
-fn str_normalize_nfd(s: string) -> string {
-    return (str_normalize s NormalizationForm.NFD)
-}
-
-fn str_normalize_nfkc(s: string) -> string {
-    return (str_normalize s NormalizationForm.NFKC)
-}
-
-fn str_normalize_nfkd(s: string) -> string {
-    return (str_normalize s NormalizationForm.NFKD)
-}
-
-fn str_is_ascii(s: string) -> bool {
-    unsafe {
-        return (nl_str_is_ascii s)
-    }
-}
-
-fn str_is_valid_utf8(s: string) -> bool {
-    unsafe {
-        return (nl_str_is_valid_utf8 s)
-    }
-}
-
-/* Helper: Get grapheme length with ASCII fast-path */
-fn str_length_optimized(s: string) -> int {
-    if (str_is_ascii s) {
-        return (str_byte_length s)  /* O(1) for ASCII */
-    } else {
-        return (str_grapheme_length s)  /* O(n) for Unicode */
-    }
-}
-
-/* Shadow tests - comprehensive Unicode coverage */
-
-shadow str_byte_length {
-    /* ASCII strings */
-    assert (== (str_byte_length "hello") 5)
-    assert (== (str_byte_length "") 0)
-    
-    /* UTF-8 emoji (family emoji is 25 bytes) */
-    let family: string = "👨‍👩‍👧‍👦"
-    assert (> (str_byte_length family) 20)
-}
-
-shadow str_grapheme_length {
-    /* ASCII strings */
-    assert (== (str_grapheme_length "hello") 5)
-    assert (== (str_grapheme_length "") 0)
-    
-    /* UTF-8 emoji - should be 1 grapheme */
-    let family: string = "👨‍👩‍👧‍👦"
-    assert (== (str_grapheme_length family) 1)
-    
-    /* Multiple emoji */
-    let multiple: string = "😀😁😂"
-    assert (== (str_grapheme_length multiple) 3)
-    
-    /* Combining characters - é (e + combining acute) */
-    let e_acute: string = "e\u0301"
-    assert (== (str_grapheme_length e_acute) 1)
-}
-
-shadow str_is_ascii {
-    assert (str_is_ascii "hello")
-    assert (str_is_ascii "")
-    assert (str_is_ascii "Hello123!")
-    
-    let emoji: string = "😀"
-    assert (not (str_is_ascii emoji))
-    
-    let mixed: string = "hello😀"
-    assert (not (str_is_ascii mixed))
-}
-
-shadow str_is_valid_utf8 {
-    assert (str_is_valid_utf8 "hello")
-    assert (str_is_valid_utf8 "")
-    
-    let emoji: string = "😀"
-    assert (str_is_valid_utf8 emoji)
-}
-
-shadow str_to_lowercase {
-    assert (str_equals (str_to_lowercase "HELLO") "hello")
-    assert (str_equals (str_to_lowercase "Hello") "hello")
-    assert (str_equals (str_to_lowercase "hello") "hello")
-    assert (str_equals (str_to_lowercase "") "")
-}
-
-shadow str_to_uppercase {
-    assert (str_equals (str_to_uppercase "hello") "HELLO")
-    assert (str_equals (str_to_uppercase "Hello") "HELLO")
-    assert (str_equals (str_to_uppercase "HELLO") "HELLO")
-    assert (str_equals (str_to_uppercase "") "")
-}
-
-shadow str_normalize_nfc {
-    /* Normalization often doesn't change ASCII */
-    let ascii: string = "hello"
-    assert (str_equals (str_normalize_nfc ascii) "hello")
-}
-
-shadow str_length_optimized {
-    /* ASCII fast path */
-    assert (== (str_length_optimized "hello") 5)
-    
-    /* Unicode path */
-    let emoji: string = "😀"
-    assert (== (str_length_optimized emoji) 1)
-}
-
-/* Main function for standalone testing */
-fn main() -> int {
-    (println "=== Unicode String Operations Test ===")
-    (println "")
-    
-    /* Test ASCII */
-    (println "ASCII Tests:")
-    let ascii: string = "Hello, World!"
-    (print "  String: ")
-    (println ascii)
-    (print "  Byte length: ")
-    (println (str_byte_length ascii))
-    (print "  Grapheme length: ")
-    (println (str_grapheme_length ascii))
-    (print "  Is ASCII: ")
-    (println (str_is_ascii ascii))
-    (println "")
-    
-    /* Test emoji */
-    (println "Emoji Tests:")
-    let emoji: string = "😀😁😂🤣"
-    (print "  String: ")
-    (println emoji)
-    (print "  Byte length: ")
-    (println (str_byte_length emoji))
-    (print "  Grapheme length: ")
-    (println (str_grapheme_length emoji))
-    (print "  Is ASCII: ")
-    (println (str_is_ascii emoji))
-    (println "")
-    
-    /* Test family emoji (complex grapheme) */
-    (println "Complex Grapheme Test:")
-    let family: string = "👨‍👩‍👧‍👦"
-    (print "  String: ")
-    (println family)
-    (print "  Byte length: ")
-    (println (str_byte_length family))
-    (print "  Grapheme length: ")
-    (println (str_grapheme_length family))
-    (println "")
-    
-    /* Test case conversion */
-    (println "Case Conversion Tests:")
-    let mixed: string = "Hello World"
-    (print "  Original: ")
-    (println mixed)
-    (print "  Lowercase: ")
-    (println (str_to_lowercase mixed))
-    (print "  Uppercase: ")
-    (println (str_to_uppercase mixed))
-    (println "")
-    
-    (println "All tests completed successfully!")
-    return 0
-}
-
-shadow main {
-    assert (== (main) 0)
-}
 
