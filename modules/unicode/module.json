@@ -53,7 +53,15 @@
       "description": "Check if string contains only ASCII (fast-path optimization)"
     }
   ],
-  "status": "planned",
+  "status": "implemented",
+  "sources": {
+    "nanolang": "unicode.nano",
+    "c_ffi": "unicode_ffi.c"
+  },
+  "build": {
+    "cflags": "-I/opt/homebrew/Cellar/utf8proc/2.11.2/include",
+    "ldflags": "-L/opt/homebrew/Cellar/utf8proc/2.11.2/lib -lutf8proc"
+  },
   "implementation_plan": "IMPLEMENTATION_PLAN.md",
   "estimated_effort_hours": 28,
   "breaking_changes": true,
