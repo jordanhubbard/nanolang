@@ -1,0 +1,53 @@
+/*
+ * Bullet Physics Module for NanoLang
+ * 
+ * Soft body and rigid body physics simulation
+ * FFI-only module - all functions are extern declarations
+ */
+
+/* World Management */
+extern fn nl_bullet_init() -> int
+extern fn nl_bullet_cleanup() -> void
+extern fn nl_bullet_step(time_step: float) -> void
+
+/* Soft Body Creation */
+extern fn nl_bullet_create_soft_sphere(
+    x: float, y: float, z: float,
+    radius: float,
+    resolution: int
+) -> int
+
+/* Rigid Body Creation */
+extern fn nl_bullet_create_rigid_box(
+    x: float, y: float, z: float,
+    half_width: float, half_height: float, half_depth: float,
+    mass: float,
+    restitution: float
+) -> int
+
+extern fn nl_bullet_create_rigid_box_rotated(
+    x: float, y: float, z: float,
+    half_width: float, half_height: float, half_depth: float,
+    angle_degrees: float,
+    mass: float,
+    restitution: float
+) -> int
+
+/* Soft Body Queries */
+extern fn nl_bullet_get_soft_body_count() -> int
+extern fn nl_bullet_get_soft_body_node_count(handle: int) -> int
+extern fn nl_bullet_get_soft_body_node_x(handle: int, node_idx: int) -> float
+extern fn nl_bullet_get_soft_body_node_y(handle: int, node_idx: int) -> float
+extern fn nl_bullet_get_soft_body_node_z(handle: int, node_idx: int) -> float
+extern fn nl_bullet_remove_soft_body(handle: int) -> void
+
+/* Rigid Body Queries */
+extern fn nl_bullet_get_rigid_body_count() -> int
+extern fn nl_bullet_get_rigid_body_x(handle: int) -> float
+extern fn nl_bullet_get_rigid_body_y(handle: int) -> float
+extern fn nl_bullet_get_rigid_body_z(handle: int) -> float
+extern fn nl_bullet_get_rigid_body_rot_x(handle: int) -> float
+extern fn nl_bullet_get_rigid_body_rot_y(handle: int) -> float
+extern fn nl_bullet_get_rigid_body_rot_z(handle: int) -> float
+extern fn nl_bullet_get_rigid_body_rot_w(handle: int) -> float
+
