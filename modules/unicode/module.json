@@ -1,0 +1,68 @@
+{
+  "name": "unicode",
+  "version": "0.1.0",
+  "description": "Unicode-aware string operations (grapheme-aware length, indexing, normalization)",
+  "author": "NanoLang Team",
+  "license": "MIT",
+  "main": "unicode.nano",
+  "dependencies": {
+    "c_libraries": ["utf8proc"],
+    "pkg_config": "libutf8proc",
+    "brew_package": "utf8proc",
+    "apt_package": "libutf8proc-dev"
+  },
+  "functions": [
+    {
+      "name": "str_byte_length",
+      "signature": "str_byte_length(string) -> int",
+      "description": "Get byte length of UTF-8 string (explicit, replaces ambiguous str_length)"
+    },
+    {
+      "name": "str_grapheme_length",
+      "signature": "str_grapheme_length(string) -> int",
+      "description": "Get grapheme cluster count (user-perceived characters)"
+    },
+    {
+      "name": "str_char_at",
+      "signature": "str_char_at(string, int) -> int",
+      "description": "Get Unicode codepoint at index (returns int codepoint)"
+    },
+    {
+      "name": "str_grapheme_at",
+      "signature": "str_grapheme_at(string, int) -> string",
+      "description": "Get grapheme cluster at index (returns string)"
+    },
+    {
+      "name": "str_to_lowercase",
+      "signature": "str_to_lowercase(string) -> string",
+      "description": "Convert to lowercase (Unicode-aware, handles Turkish İ/i)"
+    },
+    {
+      "name": "str_to_uppercase",
+      "signature": "str_to_uppercase(string) -> string",
+      "description": "Convert to uppercase (Unicode-aware, handles German ß)"
+    },
+    {
+      "name": "str_normalize",
+      "signature": "str_normalize(string, int) -> string",
+      "description": "Unicode normalization (forms: 0=NFC, 1=NFD, 2=NFKC, 3=NFKD)"
+    },
+    {
+      "name": "str_is_ascii",
+      "signature": "str_is_ascii(string) -> bool",
+      "description": "Check if string contains only ASCII (fast-path optimization)"
+    }
+  ],
+  "status": "planned",
+  "implementation_plan": "IMPLEMENTATION_PLAN.md",
+  "estimated_effort_hours": 28,
+  "breaking_changes": true,
+  "breaking_change_details": "Deprecates ambiguous str_length, adds explicit str_byte_length and str_grapheme_length",
+  "notes": [
+    "Uses utf8proc library for Unicode operations",
+    "Provides ASCII fast-path for performance",
+    "Follows Unicode Standard Annex #29 (Text Segmentation)",
+    "Critical for international users and emoji support"
+  ]
+}
+
