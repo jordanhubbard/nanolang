@@ -472,6 +472,12 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
 
     #undef PARSE_STRING_ARRAY
 
+    // Parse c_compiler (optional)
+    cJSON *c_compiler = cJSON_GetObjectItem(json, "c_compiler");
+    if (c_compiler && cJSON_IsString(c_compiler)) {
+        meta->c_compiler = strdup(c_compiler->valuestring);
+    }
+
     // Parse header_priority (default = 0)
     cJSON *header_priority = cJSON_GetObjectItem(json, "header_priority");
     if (header_priority && cJSON_IsNumber(header_priority)) {
@@ -493,6 +499,7 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
     free(meta->version);
     free(meta->description);
     free(meta->module_dir);
+    free(meta->c_compiler);
 
     #define FREE_STRING_ARRAY(arr, count) do { \
         for (size_t i = 0; i < meta->count; i++) { \
@@ -739,9 +746,10 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
             }
         }
 
-        // Get CC from environment or use POSIX cc
+        // Get CC from environment, module.json, or use POSIX cc
         const char *cc = getenv("NANO_CC");
         if (!cc) cc = getenv("CC");
+        if (!cc && meta->c_compiler) cc = meta->c_compiler;
         if (!cc) cc = "cc";
 
         // Build a reusable compile prefix (flags only)

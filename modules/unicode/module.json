@@ -4,21 +4,18 @@
   "description": "Unicode-aware string operations (grapheme-aware length, indexing, normalization)",
   "author": "NanoLang Team",
   "license": "MIT",
-  "source_file": "unicode.nano",
-  "ffi_source": "unicode_ffi.c",
-  "dependencies": {
-    "system": {
-      "macos": {
-        "brew": ["utf8proc"]
-      },
-      "linux": {
-        "apt": ["libutf8proc-dev"]
-      }
+  "headers": ["utf8proc.h"],
+  "c_sources": ["unicode_ffi.c"],
+  "pkg_config": ["libutf8proc"],
+  "install": {
+    "macos": {
+      "brew": "utf8proc",
+      "command": "brew install utf8proc"
+    },
+    "linux": {
+      "apt": "libutf8proc-dev",
+      "command": "sudo apt-get install libutf8proc-dev"
     }
-  },
-  "compilation": {
-    "library_name": "utf8proc",
-    "pkg_config": "libutf8proc"
   },
   "functions": [
     {

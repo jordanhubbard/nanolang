@@ -31,6 +31,9 @@ typedef struct {
     char **c_sources;
     size_t c_sources_count;
     
+    // C compiler to use (e.g., "c++" for C++ sources)
+    char *c_compiler;
+    
     // System libraries to link (-l flags)
     char **system_libs;
     size_t system_libs_count;

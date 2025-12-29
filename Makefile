@@ -11,8 +11,8 @@
 #
 # BOOTSTRAP TARGETS (Classic GCC-style):
 # - Stage 0: C Reference Compiler (bin/nanoc from C sources)
-# - Stage 1: Self-Hosted Compiler (nanoc.nano compiled by stage 0)
-# - Stage 2: Recompiled Compiler (nanoc.nano compiled by stage 1)
+# - Stage 1: Self-Hosted Compiler (nanoc_v06.nano compiled by stage 0)
+# - Stage 2: Recompiled Compiler (nanoc_v06.nano compiled by stage 1)
 # - Stage 3: Verify stage1 == stage2, auto-install nanoc_stage2 as bin/nanoc
 #
 # Sentinel files track build progress (.stage*.built) to avoid rebuilds.
@@ -60,9 +60,11 @@ SENTINEL_BOOTSTRAP2 = .bootstrap2.built
 SENTINEL_BOOTSTRAP3 = .bootstrap3.built
 
 # Bootstrap binaries
-NANOC_SOURCE = $(SRC_NANO_DIR)/nanoc.nano
+NANOC_SOURCE = $(SRC_NANO_DIR)/nanoc_v06.nano
 NANOC_STAGE1 = $(BIN_DIR)/nanoc_stage1
 NANOC_STAGE2 = $(BIN_DIR)/nanoc_stage2
+VERIFY_SCRIPT = scripts/verify_no_nanoc_c.sh
+VERIFY_SMOKE_SOURCE = examples/nl_hello.nano
 
 # When enabled, make bootstrap stage artifacts deterministic (Mach-O LC_UUID + signature)
 BOOTSTRAP_DETERMINISTIC ?= 0
@@ -86,7 +88,20 @@ SELFHOST_COMPONENTS = \
 	transpiler
 
 # Header dependencies
-HEADERS = $(SRC_DIR)/nanolang.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_token.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(SRC_DIR)/module_builder.h
+SCHEMA_JSON = schema/compiler_schema.json
+SCHEMA_OUTPUTS = $(SRC_NANO_DIR)/generated/compiler_schema.nano $(SRC_NANO_DIR)/generated/compiler_ast.nano $(SRC_DIR)/generated/compiler_schema.h
+
+HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_token.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(SRC_DIR)/module_builder.h
+
+.PHONY: schema schema-check
+schema: $(SCHEMA_OUTPUTS)
+
+schema-check:
+	@./scripts/check_compiler_schema.sh
+
+$(SCHEMA_OUTPUTS): $(SCHEMA_JSON) scripts/gen_compiler_schema.py
+	@echo "[schema] Generating compiler schema artifacts..."
+	@python3 scripts/gen_compiler_schema.py
 
 # Hybrid compiler objects
 HYBRID_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/lexer_bridge.o $(OBJ_DIR)/lexer_nano.o $(OBJ_DIR)/main_stage1_5.o
@@ -102,7 +117,7 @@ PREFIX ?= /usr/local
 .PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps status
 
 # Build: 3-stage bootstrap (uses sentinels to skip completed stages)
-build: $(SENTINEL_STAGE3)
+build: schema $(SENTINEL_STAGE3)
 	@echo ""
 	@echo "=========================================="
 	@echo "✅ Build Complete (3-Stage Bootstrap)"
@@ -145,6 +160,7 @@ test-units:
 # Core test implementation (used by all test variants)
 .PHONY: test-impl
 test-impl: test-units
+	@./scripts/check_compiler_schema.sh
 	@echo ""
 	@echo "=========================================="
 	@echo "Running Complete Test Suite"
@@ -174,10 +190,18 @@ test: build
 		echo "   Bootstrap not complete - using baseline version"; \
 	fi
 	@echo ""
+	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
+		$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
+	fi
+	@echo ""
 	@$(MAKE) test-impl
 
 # Alias for backwards compatibility
 test-full: test
+
+.PHONY: check-schema
+check-schema:
+	@./scripts/check_compiler_schema.sh
 
 # Performance benchmarking
 benchmark:
@@ -535,12 +559,13 @@ $(SENTINEL_BOOTSTRAP0): $(COMPILER_C)
 # Bootstrap Stage 1: Compile nanoc_v04.nano with C compiler
 bootstrap1: $(SENTINEL_BOOTSTRAP1)
 
+
 $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 	@echo ""
 	@echo "=========================================="
 	@echo "Bootstrap Stage 1: Self-Hosted Compiler"
 	@echo "=========================================="
-	@echo "Compiling nanoc.nano with C compiler..."
+	@echo "Compiling nanoc_v06.nano with C compiler..."
 	@if [ -f $(NANOC_SOURCE) ]; then \
 		$(BOOTSTRAP_ENV) $(COMPILER_C) $(NANOC_SOURCE) -o $(NANOC_STAGE1) && \
 		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
@@ -561,12 +586,13 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 # Bootstrap Stage 2: Recompile nanoc_v04.nano with stage 1 compiler
 bootstrap2: $(SENTINEL_BOOTSTRAP2)
 
+
 $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
 	@echo ""
 	@echo "=========================================="
 	@echo "Bootstrap Stage 2: Recompilation"
 	@echo "=========================================="
-	@echo "Compiling nanoc.nano with stage 1 compiler..."
+	@echo "Compiling nanoc_v06.nano with stage 1 compiler..."
 	@$(BOOTSTRAP_ENV) $(NANOC_STAGE1) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
 	@echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)"
 	@echo ""
@@ -597,6 +623,14 @@ verify-bootstrap: bootstrap
 	@echo "Smoke test: stage2 compiles + runs nl_hello.nano..."
 	@$(NANOC_STAGE2) examples/nl_hello.nano -o /tmp/bootstrap_verify_stage2 && /tmp/bootstrap_verify_stage2 >/dev/null
 	@echo "✓ stage2 ok"
+
+.PHONY: verify-no-nanoc_c verify-no-nanoc_c-check
+
+verify-no-nanoc_c: $(SENTINEL_BOOTSTRAP3)
+	@$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
+
+verify-no-nanoc_c-check:
+	@$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
 
 # Bootstrap Stage 3: Verify reproducible build
 bootstrap3: $(SENTINEL_BOOTSTRAP3)
@@ -650,6 +684,9 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 		echo "❌ installed compiler smoke test failed"; \
 		exit 1; \
 	fi; \
+	echo ""; \
+	echo "Verifying bin/nanoc does not depend on bin/nanoc_c..."; \
+	$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
 	echo ""; \
 	echo "All subsequent builds (test, examples) will use the self-hosted compiler!"; \
 	echo ""; \
@@ -844,6 +881,7 @@ help:
 	@echo "  make bootstrap2        - Stage 2: stage1 → nanoc_stage2"
 	@echo "  make bootstrap3        - Stage 3: Verify + install nanoc_stage2"
 	@echo "  make bootstrap-status  - Show bootstrap status"
+	@echo "  make verify-no-nanoc_c - Ensure self-hosted compiler never shells out to nanoc_c"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "Development:"
@@ -860,8 +898,8 @@ help:
 	@echo ""
 	@echo "TRUE Bootstrap Process:"
 	@echo "  Stage 0: C sources → bin/nanoc_c (C-based)"
-	@echo "  Stage 1: nanoc_c compiles nanoc.nano → nanoc_stage1"
-	@echo "  Stage 2: nanoc_stage1 recompiles nanoc.nano → nanoc_stage2"
+	@echo "  Stage 1: nanoc_c compiles nanoc_v06.nano → nanoc_stage1"
+	@echo "  Stage 2: nanoc_stage1 recompiles nanoc_v06.nano → nanoc_stage2"
 	@echo "  Stage 3: Verify stage1 == stage2, install nanoc_stage2 as bin/nanoc"
 	@echo ""
 	@echo "After bootstrap: bin/nanoc → nanoc_stage2 (self-hosted compiler)"
