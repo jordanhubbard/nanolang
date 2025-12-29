@@ -20,6 +20,8 @@
  */
 
 import "src_nano/parser.nano"
+import "src_nano/compiler/ir.nano"
+import "src_nano/compiler/diagnostics.nano" as Diagnostics
 
 /* =============================================================================
  * TYPE SYSTEM
@@ -47,12 +49,6 @@ struct Symbol {
     is_function: bool,
     param_count: int,
     defined: bool
-}
-
-/* Environment for type checking */
-struct TypeEnvironment {
-    error_count: int,
-    has_error: bool
 }
 
 /* Global storage for symbols - using arrays for Phase 1 */
@@ -131,6 +127,29 @@ fn type_void() -> Type {
 shadow type_void {
     let t: Type = (type_void)
     assert (== t.kind TypeKind.TYPE_VOID)
+}
+
+fn type_unknown_named(label: string) -> Type {
+    return Type {
+        kind: TypeKind.TYPE_UNKNOWN,
+        name: label,
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
+    }
+}
+
+fn option_type_some(value: Type) -> OptionType {
+    return OptionType {
+        has_value: true,
+        value: value
+    }
+}
+
+fn option_type_none() -> OptionType {
+    return OptionType {
+        has_value: false,
+        value: (type_unknown_named "none")
+    }
 }
 
 /* Create array type */
@@ -422,7 +441,7 @@ fn check_list_function_call(fn_name: string, arg_count: int) -> Type {
                     return (type_int)
                 } else {
                     /* Unknown list operation */
-                    return Type { kind: TypeKind.TYPE_UNKNOWN, name: "unknown_list_op", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                    return (type_unknown_named "unknown_list_op")
                 }
             }
         }
@@ -542,8 +561,8 @@ fn check_builtin_function(fn_name: string, arg_count: int) -> Type {
     if (== fn_name "array_length") { return (type_int) } else { (print "") }
     if (== fn_name "array_set") { return (type_void) } else { (print "") }
     if (== fn_name "array_push") { return (type_array 0 "") } else { (print "") }
-    if (== fn_name "at") { return Type { kind: TypeKind.TYPE_UNKNOWN, name: "array_elem", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" } } else { (print "") }
-    if (== fn_name "array_get") { return Type { kind: TypeKind.TYPE_UNKNOWN, name: "array_elem", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" } } else { (print "") }
+    if (== fn_name "at") { return (type_unknown_named "array_elem") } else { (print "") }
+    if (== fn_name "array_get") { return (type_unknown_named "array_elem") } else { (print "") }
     
     /* OS operations */
     if (== fn_name "getcwd") { return (type_string) } else { (print "") }
@@ -551,7 +570,7 @@ fn check_builtin_function(fn_name: string, arg_count: int) -> Type {
     if (== fn_name "exit") { return (type_void) } else { (print "") }
     
     /* Default: unknown */
-    return Type { kind: TypeKind.TYPE_UNKNOWN, name: "builtin", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+    return (type_unknown_named "builtin")
 }
 
 shadow check_builtin_function {
@@ -774,14 +793,13 @@ shadow env_has_symbol {
 }
 
 /* Get symbol type */
-fn env_get_type(symbols: array<Symbol>, name: string) -> Type {
+fn env_get_type(symbols: array<Symbol>, name: string) -> OptionType {
     let idx: int = (env_lookup symbols name)
     if (>= idx 0) {
         let sym: Symbol = (at symbols idx)
-        return sym.sym_type
+        return (option_type_some sym.sym_type)
     } else {
-        /* Return unknown type for undefined symbols */
-        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "undefined", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+        return (option_type_none)
     }
 }
 
@@ -838,7 +856,7 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
                 return (type_float)
             } else {
                 /* Type error */
-                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                return (type_unknown_named "error")
             }
         }
     } else {
@@ -848,7 +866,7 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
             if (types_equal left_type right_type) {
                 return (type_bool)
             } else {
-                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                return (type_unknown_named "error")
             }
         } else {
             /* Logical ops: and, or */
@@ -857,11 +875,11 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
                 if (and (== left_type.kind TypeKind.TYPE_BOOL) (== right_type.kind TypeKind.TYPE_BOOL)) {
                     return (type_bool)
                 } else {
-                    return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                    return (type_unknown_named "error")
                 }
             } else {
                 /* Unknown operator */
-                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                return (type_unknown_named "error")
             }
         }
     }
@@ -891,31 +909,31 @@ shadow check_binary_op {
  * ============================================================================= */
 
 fn op_token_to_string(op: int) -> string {
-    if (== op NLTokenType.NL_TOKEN_PLUS) { return "+" }
+    if (== op LexerTokenType.TOKEN_PLUS) { return "+" }
     else {
-        if (== op NLTokenType.NL_TOKEN_MINUS) { return "-" }
+        if (== op LexerTokenType.TOKEN_MINUS) { return "-" }
         else {
-            if (== op NLTokenType.NL_TOKEN_STAR) { return "*" }
+            if (== op LexerTokenType.TOKEN_STAR) { return "*" }
             else {
-                if (== op NLTokenType.NL_TOKEN_SLASH) { return "/" }
+                if (== op LexerTokenType.TOKEN_SLASH) { return "/" }
                 else {
-                    if (== op NLTokenType.NL_TOKEN_PERCENT) { return "%" }
+                    if (== op LexerTokenType.TOKEN_PERCENT) { return "%" }
                     else {
-                        if (== op NLTokenType.NL_TOKEN_EQ) { return "==" }
+                        if (== op LexerTokenType.TOKEN_EQ) { return "==" }
                         else {
-                            if (== op NLTokenType.NL_TOKEN_NE) { return "!=" }
+                            if (== op LexerTokenType.TOKEN_NE) { return "!=" }
                             else {
-                                if (== op NLTokenType.NL_TOKEN_LT) { return "<" }
+                                if (== op LexerTokenType.TOKEN_LT) { return "<" }
                                 else {
-                                    if (== op NLTokenType.NL_TOKEN_GT) { return ">" }
+                                    if (== op LexerTokenType.TOKEN_GT) { return ">" }
                                     else {
-                                        if (== op NLTokenType.NL_TOKEN_LE) { return "<=" }
+                                        if (== op LexerTokenType.TOKEN_LE) { return "<=" }
                                         else {
-                                            if (== op NLTokenType.NL_TOKEN_GE) { return ">=" }
+                                            if (== op LexerTokenType.TOKEN_GE) { return ">=" }
                                             else {
-                                                if (== op NLTokenType.NL_TOKEN_AND) { return "and" }
+                                                if (== op LexerTokenType.TOKEN_AND) { return "and" }
                                                 else {
-                                                    if (== op NLTokenType.NL_TOKEN_OR) { return "or" }
+                                                    if (== op LexerTokenType.TOKEN_OR) { return "or" }
                                                     else { return "?" }
                                                 }
                                             }
@@ -944,7 +962,25 @@ fn op_token_to_string(op: int) -> string {
  * 
  * Returns: The type of the expression, or TYPE_UNKNOWN on error
  */
+fn ensure_known_expr_node(node_type: int) -> bool {
+    if (== node_type ParseNodeType.PNODE_NUMBER) { return true }
+    if (== node_type ParseNodeType.PNODE_STRING) { return true }
+    if (== node_type ParseNodeType.PNODE_BOOL) { return true }
+    if (== node_type ParseNodeType.PNODE_FLOAT) { return true }
+    if (== node_type ParseNodeType.PNODE_IDENTIFIER) { return true }
+    if (== node_type ParseNodeType.PNODE_CALL) { return true }
+    if (== node_type ParseNodeType.PNODE_BINARY_OP) { return true }
+    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) { return true }
+    if (== node_type ParseNodeType.PNODE_MATCH) { return true }
+    return false
+}
+
 fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>) -> Type {
+    if (not (ensure_known_expr_node node_type)) {
+        (print "Warning: Unknown expression node type ")
+        (println (int_to_string node_type))
+        return (type_unknown_named "unknown_expr_node")
+    }
     /* Use ParseNodeType enum values */
     if (== node_type ParseNodeType.PNODE_NUMBER) {
         return (type_int)
@@ -960,16 +996,16 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 } else {
                     if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
                         let id_node: ASTIdentifier = (parser_get_identifier parser node_id)
-                        let var_type: Type = (env_get_type symbols id_node.name)
+                        let lookup: OptionType = (env_get_type symbols id_node.name)
 
-                        if (== var_type.kind TypeKind.TYPE_UNKNOWN) {
+                        if (not lookup.has_value) {
                             (print "Type error: Undefined identifier ")
                             (println id_node.name)
+                            return (type_unknown_named "undefined_identifier")
                         } else {
-                            (print "")
+                            let var_type: Type = lookup.value
+                            return var_type
                         }
-
-                        return var_type
                     } else {
                         if (== node_type ParseNodeType.PNODE_CALL) {
                             let call: ASTCall = (parser_get_call parser node_id)
@@ -989,7 +1025,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                     if (< idx 0) {
                                         (print "Type error: Undefined function ")
                                         (println fn_name)
-                                        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "undefined_fn", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                                        return (type_unknown_named "undefined_fn")
                                     } else {
                                         let sym: Symbol = (at symbols idx)
 
@@ -1040,7 +1076,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                     /* Check for field access */
                                     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
                                         /* TODO: implement field access type checking */
-                                        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "field_access", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                                        return (type_unknown_named "field_access")
                                     } else {
                                         /* Check for struct literal */
                                         if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
@@ -1062,7 +1098,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                                 if (== node_type ParseNodeType.PNODE_MATCH) {
                                                     return (check_match_expr parser node_id symbols)
                                                 } else {
-                                                    return Type { kind: TypeKind.TYPE_UNKNOWN, name: "unknown_node_type", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+                                                    return (type_unknown_named "unknown_node_type")
                                                 }
                                             }
                                         }
@@ -1105,7 +1141,7 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>) -> Typ
     
     if (!= scrutinee_type.kind TypeKind.TYPE_UNION) {
         (println "Type error: match expression must match on union type")
-        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "match_error", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+        return (type_unknown_named "match_error")
     } else {
         (print "")
     }
@@ -1117,7 +1153,7 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>) -> Typ
         let first_arm_type: Type = (check_expr_node parser (at m.arm_body_ids 0) (at m.arm_body_types 0) symbols)
         return first_arm_type
     } else {
-        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "empty_match", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+        return (type_unknown_named "empty_match")
     }
 }
 
@@ -1389,24 +1425,26 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>) -> 
  * TYPE CHECKING WRAPPER - Top-level entry point for type checking a program
  * ============================================================================= */
 
-/* Typecheck a parsed program with full AST walking
- * 
- * This version walks through the actual Parser AST and validates:
- * 1. All function signatures are valid
- * 2. Function bodies are well-typed
- * 3. Return types match declarations
- * 4. All identifiers are defined
- * 
- * Args:
- *   parser: The parsed AST from the parser
- * 
- * Returns: 0 for success, 1 for type error
- */
-pub fn typecheck_parser(parser: Parser) -> int {
+fn typecheck_output(diagnostics: List<CompilerDiagnostic>, error_count: int, had_error: bool) -> TypecheckPhaseOutput {
+    let env: TypeEnvironment = TypeEnvironment {
+        error_count: error_count,
+        has_error: had_error
+    }
+    return TypecheckPhaseOutput {
+        environment: env,
+        diagnostics: diagnostics,
+        had_error: had_error
+    }
+}
+
+/* Typecheck a parsed program with full AST walking */
+pub fn typecheck_phase(parser: Parser) -> TypecheckPhaseOutput {
     (println "=== Type Checking (Full AST Walk) ===")
     
     let env: TypeEnvironment = (env_new)
     let mut symbols: array<Symbol> = []
+    let diagnostics: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let mut error_count: int = 0
     
     /* Get function count using accessor */
     let func_count: int = (parser_get_function_count parser)
@@ -1417,7 +1455,9 @@ pub fn typecheck_parser(parser: Parser) -> int {
     /* Validate we have at least one function */
     if (<= func_count 0) {
         (println "Error: No functions found")
-        return 1
+        let diag: CompilerDiagnostic = (Diagnostics.diag_simple CompilerPhase.PHASE_TYPECHECK DiagnosticSeverity.DIAG_ERROR "TC0001" "No functions found")
+        (list_CompilerDiagnostic_push diagnostics diag)
+        return (typecheck_output diagnostics (+ error_count 1) true)
     } else {
         (print "")
     }
@@ -1429,7 +1469,7 @@ pub fn typecheck_parser(parser: Parser) -> int {
     let print_sym: Symbol = (symbol_new "print" (type_void) false true (- 0 1))
     set symbols (env_add_symbol env symbols print_sym)
 
-    /* Minimal builtins used by nanoc_v05 */
+    /* Minimal builtins used by nanoc_v06 */
     let system_sym: Symbol = (symbol_new "system" (type_int) false true (- 0 1))
     set symbols (env_add_symbol env symbols system_sym)
 
@@ -1461,9 +1501,10 @@ pub fn typecheck_parser(parser: Parser) -> int {
         
         let valid: bool = (check_function parser func symbols)
         if (not valid) {
-            /* TODO: Add function name to error message */
             (println "Error: Type error in function")
-            return 1
+            let diag: CompilerDiagnostic = (Diagnostics.diag_simple CompilerPhase.PHASE_TYPECHECK DiagnosticSeverity.DIAG_ERROR "TC0002" "Type error in function")
+            (list_CompilerDiagnostic_push diagnostics diag)
+            return (typecheck_output diagnostics (+ error_count 1) true)
         } else {
             (print "")
         }
@@ -1471,7 +1512,17 @@ pub fn typecheck_parser(parser: Parser) -> int {
     }
     
     (println "✓ Type checking complete - All functions valid!")
-    return 0
+    return (typecheck_output diagnostics error_count false)
+}
+
+/* Compatibility wrapper returning legacy status code */
+pub fn typecheck_parser(parser: Parser) -> int {
+    let output: TypecheckPhaseOutput = (typecheck_phase parser)
+    if output.had_error {
+        return 1
+    } else {
+        return 0
+    }
 }
 
 /* Simplified typecheck for count-based validation */

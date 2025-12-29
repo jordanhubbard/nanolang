@@ -47,6 +47,7 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "match") == 0) return TOKEN_MATCH;
     if (strcmp(str, "opaque") == 0) return TOKEN_OPAQUE;
     if (strcmp(str, "import") == 0) return TOKEN_IMPORT;
+    if (strcmp(str, "unsafe") == 0) return TOKEN_UNSAFE;
 
     if (strcmp(str, "as") == 0) return TOKEN_AS;
     /* Boolean literals */

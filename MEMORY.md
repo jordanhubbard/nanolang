@@ -83,8 +83,17 @@ shadow name {
     assert (== (name arg1 arg2) expected)
 }
 
-# External C Functions
+# External C Functions (FFI)
 extern fn function_name(param: type) -> return_type
+
+# ⚠️ Extern calls MUST be inside unsafe blocks
+fn call_extern() -> int {
+    let mut result: int = 0
+    unsafe {
+        set result (function_name arg)
+    }
+    return result
+}
 
 # Public external functions (for modules)
 pub extern fn module_function(param: type) -> return_type
@@ -115,6 +124,12 @@ while condition {
 # For loop (range only)
 for i in (range 0 10) {
     # i goes from 0 to 9
+}
+
+# Unsafe blocks (for FFI and unchecked operations)
+unsafe {
+    # Mark explicit trust boundaries
+    # Used for extern function calls and unchecked ops
 }
 ```
 
@@ -577,6 +592,89 @@ Modules automatically install dependencies:
 - **onnx** - Neural network inference
 
 Check `modules/` directory for full list.
+
+## Unsafe Blocks
+
+**Purpose**: Explicitly mark code that performs potentially dangerous operations, requiring conscious safety decisions by programmers.
+
+### What Requires `unsafe`
+- **FFI calls**: All `extern` function calls MUST be inside `unsafe` blocks
+- **Future**: Unchecked arithmetic, raw pointer operations, inline assembly
+
+### Basic Syntax
+```nano
+fn call_external_function() -> int {
+    let mut result: int = 0
+    unsafe {
+        set result (some_extern_function)
+    }
+    return result
+}
+```
+
+### Multiple and Nested Unsafe Blocks
+```nano
+fn complex_operation() -> int {
+    let mut total: int = 0
+    
+    /* First unsafe operation */
+    unsafe {
+        set total (extern_func_1)
+    }
+    
+    /* Safe code in between */
+    let x: int = (+ total 10)
+    
+    /* Second unsafe operation */
+    unsafe {
+        set total (+ x (extern_func_2))
+    }
+    
+    /* Nested unsafe blocks are allowed */
+    unsafe {
+        unsafe {
+            set total (+ total 1)
+        }
+    }
+    
+    return total
+}
+```
+
+### Why Unsafe Blocks Matter
+1. **Explicit Safety Boundaries**: Clear visual markers for code review
+2. **Compiler Enforcement**: Can't call `extern` functions without `unsafe`
+3. **Audit Trail**: Easy to find all potentially dangerous operations
+4. **MISRA/JSF Alignment**: Explicit unsafe operations satisfy coding standards
+5. **Gradual Safety**: Safe by default, unsafe by choice
+
+### Example: Wrapping External Libraries
+```nano
+/* Declare external C function */
+extern fn nl_os_getpid() -> int
+
+/* Safe wrapper - encapsulates the unsafe call */
+fn get_process_id() -> int {
+    let mut pid: int = 0
+    unsafe {
+        set pid (nl_os_getpid)
+    }
+    return pid
+}
+
+/* Now users can call the safe wrapper */
+fn main() -> int {
+    let pid: int = (get_process_id)  /* Safe! */
+    (println pid)
+    return 0
+}
+```
+
+### Best Practices
+- **Minimize unsafe scope**: Keep `unsafe` blocks as small as possible
+- **Encapsulate in safe functions**: Wrap extern calls in safe interfaces
+- **Document invariants**: Comment why the unsafe operation is actually safe
+- **Validate inputs**: Check preconditions before unsafe operations
 
 ## Checked Arithmetic Operations (SAFETY)
 

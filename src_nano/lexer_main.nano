@@ -1,15 +1,17 @@
 /* Backwards-compatible wrapper that exposes tokenize(source) from the lexer lib. */
 
+import "src_nano/compiler/ir.nano"
 import "src_nano/compiler/lexer.nano"
+import "src_nano/compiler/diagnostics.nano" as Diagnostics
 
-fn tokenize(source: string) -> List<LexToken> {
+fn tokenize(source: string) -> List<LexerToken> {
     return (tokenize_string source)
 }
 
 shadow tokenize {
     let source1: string = "fn main() -> int { return 0 }"
-    let tokens1: List<LexToken> = (tokenize source1)
-    assert (> (list_LexToken_length tokens1) 0)
+    let tokens1: List<LexerToken> = (tokenize source1)
+    assert (> (list_LexerToken_length tokens1) 0)
 }
 
 fn main() -> int {
@@ -17,4 +19,22 @@ fn main() -> int {
 }
 
 shadow main { assert (== (main) 0) }
+
+pub fn lex_phase_run(source: string, file_name: string) -> LexPhaseOutput {
+    let tokens: List<LexerToken> = (tokenize_string source)
+    let token_count: int = (list_LexerToken_length tokens)
+    let diagnostics: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    return LexPhaseOutput {
+        tokens: tokens,
+        token_count: token_count,
+        diagnostics: diagnostics,
+        had_error: false
+    }
+}
+
+shadow lex_phase_run {
+    let output: LexPhaseOutput = (lex_phase_run "fn main() -> int { return 0 }" "test.nano")
+    assert (== output.had_error false)
+    assert (> output.token_count 0)
+}
 

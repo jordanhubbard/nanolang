@@ -11,6 +11,8 @@
 #include <stdarg.h>
 #include <assert.h>
 
+#include "generated/compiler_schema.h"
+
 /* Backtrace support for assertions */
 #ifdef __APPLE__
 #include <execinfo.h>
@@ -19,93 +21,6 @@
 #include <execinfo.h>
 #include <unistd.h>
 #endif
-
-/* Token types */
-typedef enum {
-    TOKEN_EOF,
-    TOKEN_NUMBER,
-    TOKEN_FLOAT,
-    TOKEN_STRING,
-    TOKEN_IDENTIFIER,
-    TOKEN_TRUE,
-    TOKEN_FALSE,
-
-    /* Delimiters */
-    TOKEN_LPAREN,
-    TOKEN_RPAREN,
-    TOKEN_LBRACE,
-    TOKEN_RBRACE,
-    TOKEN_LBRACKET,
-    TOKEN_RBRACKET,
-    TOKEN_COMMA,
-    TOKEN_COLON,
-    TOKEN_DOUBLE_COLON,  /* :: for namespace qualification */
-    TOKEN_ARROW,
-    TOKEN_ASSIGN,
-    TOKEN_DOT,
-
-    /* Keywords */
-    TOKEN_MODULE,    /* module keyword for explicit module declaration */
-    TOKEN_PUB,       /* pub keyword for visibility */
-    TOKEN_FROM,      /* from keyword for selective imports */
-    TOKEN_USE,       /* use keyword for re-exports */
-    TOKEN_EXTERN,
-    TOKEN_FN,
-    TOKEN_LET,
-    TOKEN_MUT,
-    TOKEN_SET,
-    TOKEN_IF,
-    TOKEN_ELSE,
-    TOKEN_WHILE,
-    TOKEN_FOR,
-    TOKEN_IN,
-    TOKEN_RETURN,
-    TOKEN_ASSERT,
-    TOKEN_SHADOW,
-    /* TOKEN_PRINT removed - print/println are regular built-in functions */
-    TOKEN_ARRAY,
-    TOKEN_STRUCT,
-    TOKEN_ENUM,
-    TOKEN_UNION,
-    TOKEN_MATCH,
-    TOKEN_IMPORT,
-    TOKEN_AS,       /* "as" keyword for import aliases */
-    TOKEN_OPAQUE,
-
-    /* Types */
-    TOKEN_TYPE_INT,
-    TOKEN_TYPE_U8,
-    TOKEN_TYPE_FLOAT,
-    TOKEN_TYPE_BOOL,
-    TOKEN_TYPE_STRING,
-    TOKEN_TYPE_BSTRING,
-    TOKEN_TYPE_VOID,
-
-    /* Operators (as identifiers in prefix position) */
-    TOKEN_PLUS,
-    TOKEN_MINUS,
-    TOKEN_STAR,
-    TOKEN_SLASH,
-    TOKEN_PERCENT,
-    TOKEN_EQ,
-    TOKEN_NE,
-    TOKEN_LT,
-    TOKEN_LE,
-    TOKEN_GT,
-    TOKEN_GE,
-    TOKEN_AND,
-    TOKEN_OR,
-    TOKEN_NOT
-    /* TOKEN_RANGE removed - range is a regular built-in function */
-} TokenType;
-
-/* Token structure */
-typedef struct {
-    TokenType token_type;  /* Changed from 'type' to match NanoLang transpiler output */
-    char *value;
-    int line;
-    int column;
-} Token;
 
 /* Forward declarations */
 typedef struct Value Value;
@@ -265,7 +180,8 @@ typedef enum {
     AST_OPAQUE_TYPE,       /* Opaque type declaration: opaque type TypeName */
     AST_TUPLE_LITERAL,     /* Tuple literal: (1, "hello", true) */
     AST_TUPLE_INDEX,       /* Tuple index access: tuple.0, tuple.1 */
-    AST_QUALIFIED_NAME     /* Qualified name: module::symbol or std::io::read_file */
+    AST_QUALIFIED_NAME,    /* Qualified name: module::symbol or std::io::read_file */
+    AST_UNSAFE_BLOCK       /* Unsafe block: unsafe { ... } */
 } ASTNodeType;
 
 /* Forward declaration */
@@ -475,6 +391,11 @@ struct ASTNode {
             ASTNode *tuple;        /* The tuple expression */
             int index;             /* The index being accessed (0, 1, 2, ...) */
         } tuple_index;
+        /* Unsafe block: unsafe { ... } */
+        struct {
+            ASTNode **statements;  /* Statements in the unsafe block */
+            int count;             /* Number of statements */
+        } unsafe_block;
     } as;
 };
 

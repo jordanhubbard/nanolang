@@ -2074,6 +2074,47 @@ static ASTNode *parse_statement(Parser *p) {
             return node;
         }
 
+        case TOKEN_UNSAFE: {
+            int line = tok->line;
+            int column = tok->column;
+            advance(p);
+
+            /* Expect opening brace */
+            if (!expect(p, TOKEN_LBRACE, "Expected '{' after 'unsafe'")) {
+                return NULL;
+            }
+
+            /* Parse statements in the unsafe block */
+            int capacity = 8;
+            int count = 0;
+            ASTNode **statements = malloc(sizeof(ASTNode*) * capacity);
+
+            while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+                if (count >= capacity) {
+                    capacity *= 2;
+                    statements = realloc(statements, sizeof(ASTNode*) * capacity);
+                }
+
+                ASTNode *stmt = parse_statement(p);
+                if (stmt) {
+                    statements[count++] = stmt;
+                } else {
+                    /* Parsing failed - advance to avoid infinite loop */
+                    advance(p);
+                }
+            }
+
+            if (!expect(p, TOKEN_RBRACE, "Expected '}' after unsafe block")) {
+                free(statements);
+                return NULL;
+            }
+
+            node = create_node(AST_UNSAFE_BLOCK, line, column);
+            node->as.unsafe_block.statements = statements;
+            node->as.unsafe_block.count = count;
+            return node;
+        }
+
         case TOKEN_IF: {
             /* IF statement: if (condition) { ... } else { ... } */
             /* Parse as if-expression (same AST structure) */

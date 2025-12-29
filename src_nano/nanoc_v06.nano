@@ -157,16 +157,108 @@ fn parse_args() -> CompileOptions {
 }
 
 /* =============================================================================
+ * TOOLCHAIN CONFIGURATION
+ * ============================================================================= */
+
+fn resolve_cc_binary() -> string {
+    let nano_cc: string = (getenv "NANO_CC")
+    if (!= nano_cc "") {
+        return nano_cc
+    } else {
+        let cc_env: string = (getenv "CC")
+        if (!= cc_env "") {
+            return cc_env
+        } else {
+            return "cc"
+        }
+    }
+}
+
+/* =============================================================================
+ * STRING HELPERS
+ * ============================================================================= */
+
+fn nlc_str_starts_with(s: string, prefix: string) -> bool {
+    let len_s: int = (str_length s)
+    let len_p: int = (str_length prefix)
+    if (< len_s len_p) {
+        return false
+    } else {
+        return (str_equals (str_substring s 0 len_p) prefix)
+    }
+}
+
+fn nlc_str_ends_with(s: string, suffix: string) -> bool {
+    let len_s: int = (str_length s)
+    let len_x: int = (str_length suffix)
+    if (< len_s len_x) {
+        return false
+    } else {
+        return (str_equals (str_substring s (- len_s len_x) len_x) suffix)
+    }
+}
+
+fn nlc_str_index_of(s: string, needle: string) -> int {
+    let len_s: int = (str_length s)
+    let len_n: int = (str_length needle)
+    if (== len_n 0) {
+        return 0
+    } else {
+        let mut i: int = 0
+        while (<= (+ i len_n) len_s) {
+            if (str_equals (str_substring s i len_n) needle) {
+                return i
+            } else {
+                (print "")
+            }
+            set i (+ i 1)
+        }
+        return -1
+    }
+}
+
+fn nlc_str_last_index_of(s: string, needle: string) -> int {
+    let len_s: int = (str_length s)
+    let len_n: int = (str_length needle)
+    if (== len_n 0) {
+        return len_s
+    } else {
+        let mut i: int = (- len_s len_n)
+        while (>= i 0) {
+            if (str_equals (str_substring s i len_n) needle) {
+                return i
+            } else {
+                set i (- i 1)
+            }
+        }
+        return -1
+    }
+}
+
+fn nlc_array_contains_string(arr: array<string>, needle: string) -> bool {
+    let mut i: int = 0
+    while (< i (array_length arr)) {
+        if (str_equals (at arr i) needle) {
+            return true
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return false
+}
+
+/* =============================================================================
  * IMPORT RESOLUTION (SIMPLIFIED)
  * ============================================================================= */
 
-fn path_dirname(path: string) -> string {
+fn nl_path_dirname(path: string) -> string {
     let mut p: string = path
-    if (str_ends_with p "/") {
+    if (nlc_str_ends_with p "/") {
         set p (str_substring p 0 (- (str_length p) 1))
     } else { (print "") }
 
-    let idx: int = (str_last_index_of p "/")
+    let idx: int = (nlc_str_last_index_of p "/")
     if (== idx -1) {
         return "."
     } else {
@@ -174,11 +266,11 @@ fn path_dirname(path: string) -> string {
     }
 }
 
-fn path_join(dir: string, rel: string) -> string {
+fn nl_path_join(dir: string, rel: string) -> string {
     if (or (== dir "") (== dir ".")) {
         return rel
     } else {
-        if (str_ends_with dir "/") {
+        if (nlc_str_ends_with dir "/") {
             return (str_concat dir rel)
         } else {
             return (str_concat (str_concat dir "/") rel)
@@ -190,12 +282,12 @@ fn find_repo_root(start_dir: string) -> string {
     let mut dir: string = start_dir
     let mut i: int = 0
     while (< i 25) {
-        let marker1: string = (path_join dir ".beads/issues.jsonl")
-        let marker2: string = (path_join dir "src_nano/nanoc_v06.nano")
+        let marker1: string = (nl_path_join dir ".beads/issues.jsonl")
+        let marker2: string = (nl_path_join dir "src_nano/nanoc_v06.nano")
         if (or (file_exists marker1) (file_exists marker2)) {
             return dir
         } else {
-            let parent: string = (path_dirname dir)
+            let parent: string = (nl_path_dirname dir)
             if (or (== parent dir) (== parent "")) {
                 return ""
             } else {
@@ -228,11 +320,11 @@ fn split_lines(s: string) -> array<string> {
 }
 
 fn parse_import_path_from_line(line: string) -> string {
-    if (not (str_starts_with line "import \"")) {
+    if (not (nlc_str_starts_with line "import \"")) {
         return ""
     } else {
-        let first_q: int = (str_index_of line "\"")
-        let last_q: int = (str_last_index_of line "\"")
+        let first_q: int = (nlc_str_index_of line "\"")
+        let last_q: int = (nlc_str_last_index_of line "\"")
         if (and (>= first_q 0) (> last_q first_q)) {
             return (str_substring line (+ first_q 1) (- last_q (+ first_q 1)))
         } else {
@@ -242,16 +334,16 @@ fn parse_import_path_from_line(line: string) -> string {
 }
 
 fn strip_pub_decl(line: string) -> string {
-    if (str_starts_with line "pub fn ") {
+    if (nlc_str_starts_with line "pub fn ") {
         return (str_concat "fn " (str_substring line 7 (- (str_length line) 7)))
     } else {
-        if (str_starts_with line "pub struct ") {
+        if (nlc_str_starts_with line "pub struct ") {
             return (str_concat "struct " (str_substring line 11 (- (str_length line) 11)))
         } else {
-            if (str_starts_with line "pub enum ") {
+            if (nlc_str_starts_with line "pub enum ") {
                 return (str_concat "enum " (str_substring line 9 (- (str_length line) 9)))
             } else {
-                if (str_starts_with line "pub union ") {
+                if (nlc_str_starts_with line "pub union ") {
                     return (str_concat "union " (str_substring line 10 (- (str_length line) 10)))
                 } else {
                     return line
@@ -265,14 +357,14 @@ fn resolve_import_path(current_file: string, import_path: string, repo_root: str
     if (== import_path "") {
         return ""
     } else {
-        if (str_starts_with import_path "/") {
+        if (nlc_str_starts_with import_path "/") {
             return import_path
         } else {
-            if (or (str_starts_with import_path "./") (str_starts_with import_path "../")) {
-                return (path_join (path_dirname current_file) import_path)
+            if (or (nlc_str_starts_with import_path "./") (nlc_str_starts_with import_path "../")) {
+                return (nl_path_join (nl_path_dirname current_file) import_path)
             } else {
                 if (!= repo_root "") {
-                    return (path_join repo_root import_path)
+                    return (nl_path_join repo_root import_path)
                 } else {
                     return import_path
                 }
@@ -286,7 +378,7 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, or
         return (visited, order, false)
     } else { (print "") }
 
-    if (array_contains_string visited path) {
+    if (nlc_array_contains_string visited path) {
         return (visited, order, true)
     } else {
         let mut visited2: array<string> = (array_push visited path)
@@ -328,10 +420,12 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, or
 }
 
 fn merge_with_imports(input_file: string) -> string {
-    let repo_root: string = (find_repo_root (path_dirname input_file))
+    let repo_root: string = (find_repo_root (nl_path_dirname input_file))
     let start: string = input_file
 
-    let res: (array<string>, array<string>, bool) = (collect_files_dfs start repo_root [] [] true)
+    let visited0: array<string> = []
+    let order0: array<string> = []
+    let res: (array<string>, array<string>, bool) = (collect_files_dfs start repo_root visited0 order0 true)
     let files: array<string> = res.1
     if (not res.2) {
         return ""
@@ -421,8 +515,8 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
         (print "")
     }
     
-    let tokens: List<LexToken> = (tokenize_file source_to_compile)
-    let token_count: int = (list_LexToken_length tokens)
+    let tokens: List<LexerToken> = (tokenize_file source_to_compile)
+    let token_count: int = (list_LexerToken_length tokens)
     
     if (== token_count 0) {
         (println "Error: Failed to tokenize input file")
@@ -447,7 +541,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             
             let parser: Parser = (parse_program tokens token_count)
             if (parser_has_error parser) {
-                let tok: LexToken = (parser_current parser)
+                let tok: LexerToken = (parser_current parser)
                 (print "Parse error at line ")
                 (print (int_to_string tok.line))
                 (print ", column ")
@@ -529,7 +623,15 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
              * We must link with the runtime C sources to provide these implementations.
              * This matches what the C compiler does in src/main.c line 461.
              */
-            let mut cc_cmd: string = "cc -std=c99 -Isrc "
+            let cc_bin: string = (resolve_cc_binary)
+            let mut cc_cmd: string = (str_concat cc_bin " -std=c99 -Isrc ")
+            let extra_cflags: string = (getenv "NANO_CFLAGS")
+            if (!= extra_cflags "") {
+                set cc_cmd (str_concat cc_cmd extra_cflags)
+                set cc_cmd (str_concat cc_cmd " ")
+            } else {
+                (print "")
+            }
             set cc_cmd (str_concat cc_cmd c_file)
             set cc_cmd (str_concat cc_cmd " -o ")
             set cc_cmd (str_concat cc_cmd output_file)
@@ -543,6 +645,14 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             set cc_cmd (str_concat cc_cmd " src/runtime/gc_struct.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/nl_string.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/cli.c")
+            set cc_cmd (str_concat cc_cmd " -lm")
+            let extra_ldflags: string = (getenv "NANO_LDFLAGS")
+            if (!= extra_ldflags "") {
+                set cc_cmd (str_concat cc_cmd " ")
+                set cc_cmd (str_concat cc_cmd extra_ldflags)
+            } else {
+                (print "")
+            }
             set cc_cmd (str_concat cc_cmd " 2>&1")
             
             if verbose {

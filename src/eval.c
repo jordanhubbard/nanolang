@@ -4602,6 +4602,19 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             return create_void();
         }
 
+        case AST_UNSAFE_BLOCK: {
+            /* Unsafe blocks are treated like regular blocks in the interpreter */
+            Value result = create_void();
+            for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
+                result = eval_statement(stmt->as.unsafe_block.statements[i], env);
+                /* If statement returned a value, propagate it immediately */
+                if (result.is_return) {
+                    return result;
+                }
+            }
+            return result;
+        }
+
         case AST_STRUCT_DEF:
             /* Struct definitions are handled at program level (typechecker) */
             return create_void();

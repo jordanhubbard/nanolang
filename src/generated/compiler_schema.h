@@ -1,0 +1,141 @@
+/* AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY. */
+
+#ifndef NANOLANG_GENERATED_COMPILER_SCHEMA_H
+#define NANOLANG_GENERATED_COMPILER_SCHEMA_H
+
+typedef enum {
+    TOKEN_EOF = 0,
+    TOKEN_NUMBER = 1,
+    TOKEN_FLOAT = 2,
+    TOKEN_STRING = 3,
+    TOKEN_IDENTIFIER = 4,
+    TOKEN_TRUE = 5,
+    TOKEN_FALSE = 6,
+    TOKEN_LPAREN = 7,
+    TOKEN_RPAREN = 8,
+    TOKEN_LBRACE = 9,
+    TOKEN_RBRACE = 10,
+    TOKEN_LBRACKET = 11,
+    TOKEN_RBRACKET = 12,
+    TOKEN_COMMA = 13,
+    TOKEN_COLON = 14,
+    TOKEN_DOUBLE_COLON = 15,
+    TOKEN_ARROW = 16,
+    TOKEN_ASSIGN = 17,
+    TOKEN_DOT = 18,
+    TOKEN_MODULE = 19,
+    TOKEN_PUB = 20,
+    TOKEN_FROM = 21,
+    TOKEN_USE = 22,
+    TOKEN_EXTERN = 23,
+    TOKEN_FN = 24,
+    TOKEN_LET = 25,
+    TOKEN_MUT = 26,
+    TOKEN_SET = 27,
+    TOKEN_IF = 28,
+    TOKEN_ELSE = 29,
+    TOKEN_WHILE = 30,
+    TOKEN_FOR = 31,
+    TOKEN_IN = 32,
+    TOKEN_RETURN = 33,
+    TOKEN_ASSERT = 34,
+    TOKEN_SHADOW = 35,
+    TOKEN_PRINT = 36,
+    TOKEN_ARRAY = 37,
+    TOKEN_STRUCT = 38,
+    TOKEN_ENUM = 39,
+    TOKEN_UNION = 40,
+    TOKEN_MATCH = 41,
+    TOKEN_IMPORT = 42,
+    TOKEN_AS = 43,
+    TOKEN_OPAQUE = 44,
+    TOKEN_TYPE_INT = 45,
+    TOKEN_TYPE_U8 = 46,
+    TOKEN_TYPE_FLOAT = 47,
+    TOKEN_TYPE_BOOL = 48,
+    TOKEN_TYPE_STRING = 49,
+    TOKEN_TYPE_BSTRING = 50,
+    TOKEN_TYPE_VOID = 51,
+    TOKEN_PLUS = 52,
+    TOKEN_MINUS = 53,
+    TOKEN_STAR = 54,
+    TOKEN_SLASH = 55,
+    TOKEN_PERCENT = 56,
+    TOKEN_EQ = 57,
+    TOKEN_NE = 58,
+    TOKEN_LT = 59,
+    TOKEN_LE = 60,
+    TOKEN_GT = 61,
+    TOKEN_GE = 62,
+    TOKEN_AND = 63,
+    TOKEN_OR = 64,
+    TOKEN_NOT = 65,
+    TOKEN_RANGE = 66,
+    TOKEN_UNSAFE = 67
+} TokenType;
+
+typedef struct {
+    TokenType token_type;
+    char * value;
+    int line;
+    int column;
+} Token;
+
+typedef enum {
+    PNODE_NUMBER = 0,
+    PNODE_FLOAT = 1,
+    PNODE_STRING = 2,
+    PNODE_BOOL = 3,
+    PNODE_IDENTIFIER = 4,
+    PNODE_BINARY_OP = 5,
+    PNODE_CALL = 6,
+    PNODE_ARRAY_LITERAL = 7,
+    PNODE_LET = 8,
+    PNODE_SET = 9,
+    PNODE_IF = 10,
+    PNODE_WHILE = 11,
+    PNODE_FOR = 12,
+    PNODE_RETURN = 13,
+    PNODE_BLOCK = 14,
+    PNODE_PRINT = 15,
+    PNODE_ASSERT = 16,
+    PNODE_PROGRAM = 17,
+    PNODE_FUNCTION = 18,
+    PNODE_SHADOW = 19,
+    PNODE_STRUCT_DEF = 20,
+    PNODE_STRUCT_LITERAL = 21,
+    PNODE_FIELD_ACCESS = 22,
+    PNODE_ENUM_DEF = 23,
+    PNODE_UNION_DEF = 24,
+    PNODE_UNION_CONSTRUCT = 25,
+    PNODE_MATCH = 26,
+    PNODE_IMPORT = 27,
+    PNODE_OPAQUE_TYPE = 28,
+    PNODE_TUPLE_LITERAL = 29,
+    PNODE_TUPLE_INDEX = 30,
+    PNODE_STRUCT = 31,
+    PNODE_ENUM = 32,
+    PNODE_UNION = 33,
+    PNODE_UNSAFE_BLOCK = 34
+} ParseNodeType;
+
+typedef struct {
+    int error_count;
+    bool has_error;
+} TypeEnvironment;
+
+typedef struct nl_CompilerSourceLocation {
+    char * file;
+    int line;
+    int column;
+} CompilerSourceLocation;
+
+typedef struct nl_CompilerDiagnostic {
+    int phase;
+    int severity;
+    char * code;
+    char * message;
+    CompilerSourceLocation location;
+} CompilerDiagnostic;
+
+#endif /* NANOLANG_GENERATED_COMPILER_SCHEMA_H */

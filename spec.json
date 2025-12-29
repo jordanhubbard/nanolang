@@ -179,6 +179,10 @@
     "match": {
       "syntax": "match expression { Variant(binding) => body, ... }",
       "description": "Pattern matching on union types"
+    },
+    "unsafe": {
+      "syntax": "unsafe { statements }",
+      "description": "Unsafe block for FFI calls and unchecked operations - marks explicit trust boundaries"
     }
   },
   

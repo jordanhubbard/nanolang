@@ -12,6 +12,7 @@
  * Usage: nanoc input.nano -o output
  */
 
+import "src_nano/compiler/ir.nano"
 import "lexer_main.nano" as Lexer
 import "parser.nano" as Parser  
 import "typecheck.nano" as TypeCheck
@@ -62,6 +63,77 @@ fn show_usage() -> void {
     (println "")
 }
 
+fn severity_to_string(severity: int) -> string {
+    if (== severity DiagnosticSeverity.DIAG_ERROR) {
+        return "error"
+    } else {
+        if (== severity DiagnosticSeverity.DIAG_WARNING) {
+            return "warning"
+        } else {
+            return "info"
+        }
+    }
+}
+
+fn phase_to_string(phase: int) -> string {
+    if (== phase CompilerPhase.PHASE_LEXER) { return "lexer" }
+    else { if (== phase CompilerPhase.PHASE_PARSER) { return "parser" }
+    else { if (== phase CompilerPhase.PHASE_TYPECHECK) { return "typecheck" }
+    else { if (== phase CompilerPhase.PHASE_TRANSPILER) { return "transpiler" }
+    else { if (== phase CompilerPhase.PHASE_RUNTIME) { return "runtime" }
+    else { return "unknown" } } } } }
+}
+
+fn print_single_diagnostic(diag: CompilerDiagnostic) -> void {
+    let severity_label: string = (severity_to_string diag.severity)
+    let phase_label: string = (phase_to_string diag.phase)
+    (print "  [")
+    (print phase_label)
+    (print "] ")
+    (print severity_label)
+    (print " ")
+    (print diag.code)
+    (print ": ")
+    (println diag.message)
+    if (!= diag.location.file "") {
+        (print "      at ")
+        (print diag.location.file)
+        (print ":")
+        (print (int_to_string diag.location.line))
+        (print ":")
+        (println (int_to_string diag.location.column))
+    }
+}
+
+fn print_phase_diagnostics(phase_label: string, diagnostics: List<CompilerDiagnostic>) -> void {
+    let count: int = (list_CompilerDiagnostic_length diagnostics)
+    if (<= count 0) {
+        return
+    } else {
+        (print "[")
+        (print phase_label)
+        (println "] diagnostics:")
+        let mut i: int = 0
+        while (< i count) {
+            let diag: CompilerDiagnostic = (list_CompilerDiagnostic_get diagnostics i)
+            (print_single_diagnostic diag)
+            set i (+ i 1)
+        }
+    }
+}
+
+fn phase_failed(phase_label: string, had_error: bool, diagnostics: List<CompilerDiagnostic>) -> bool {
+    (print_phase_diagnostics phase_label diagnostics)
+    if had_error {
+        (print "[")
+        (print phase_label)
+        (println "] failed.")
+        return true
+    } else {
+        return false
+    }
+}
+
 fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> int {
     if verbose {
         (println "=== NanoLang Modular Compiler ===")
@@ -80,44 +152,57 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
     }
     let source: string = (file_read input)
     
-    /* Step 2: Lexer - Tokenize
-     * Working implementation: import "src_nano/compiler/lexer.nano"
-     * Usage: tokenize_string(source) -> Result<List<LexToken>, Diagnostic> */
+    /* Step 2: Lexer - Tokenize */
     if verbose {
         (println "Tokenizing...")
-    } else {
-        /* quiet */
+    }
+    let lex_output: LexPhaseOutput = (Lexer.lex_phase_run source input)
+    if verbose {
+        (print "  Tokens: ")
+        (println (int_to_string lex_output.token_count))
+    }
+    if (phase_failed "Lexer" lex_output.had_error lex_output.diagnostics) {
+        return 1
     }
     
-    /* Step 3: Parser - Build AST
-     * Working implementation: import "src_nano/parser.nano"
-     * Usage: parse_program(tokens, count) -> Parser */
+    /* Step 3: Parser - Build AST */
     if verbose {
         (println "Parsing...")
-    } else {
-        /* quiet */
+    }
+    let parse_output: ParsePhaseOutput = (Parser.parse_phase_run lex_output)
+    let parser_state: Parser = parse_output.parser
+    if verbose {
+        (print "  Functions: ")
+        (println (int_to_string parser_state.functions_count))
+    }
+    if (phase_failed "Parser" parse_output.had_error parse_output.diagnostics) {
+        return 1
     }
     
-    /* Step 4: TypeChecker - Validate types
-     * Working implementation: import "src_nano/typecheck.nano"
-     * Usage: typecheck_parser(parser) -> int */
+    /* Step 4: TypeChecker - Validate types */
     if verbose {
         (println "Type checking...")
-    } else {
-        /* quiet */
+    }
+    let type_output: TypecheckPhaseOutput = (TypeCheck.typecheck_phase parser_state)
+    if verbose {
+        (println "  Type check complete")
+    }
+    if (phase_failed "Typecheck" type_output.had_error type_output.diagnostics) {
+        return 1
     }
     
-    /* Step 5: Transpiler - Generate C
-     * Working implementation: import "src_nano/transpiler.nano"
-     * Usage: transpile_parser(parser) -> string */
+    /* Step 5: Transpiler - Generate C */
     if verbose {
         (println "Generating C code...")
-    } else {
-        /* quiet */
     }
+    let c_file: string = (str_concat output ".c")
+    let transpile_output: TranspilePhaseOutput = (Transpile.transpile_phase parser_state c_file)
+    if (phase_failed "Transpiler" transpile_output.had_error transpile_output.diagnostics) {
+        return 1
+    }
+    let c_code: string = transpile_output.c_source
     
     /* Step 6: Write C file */
-    let c_file: string = (str_concat output ".c")
     if verbose {
         (println "Writing C file: ")
         (println c_file)

@@ -1977,6 +1977,17 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             emit_literal(list, "}\n");
             break;
 
+        case AST_UNSAFE_BLOCK:
+            /* Unsafe blocks transpile to regular C blocks */
+            emit_indent_item(list, indent);
+            emit_literal(list, "/* unsafe */ {\n");
+            for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
+                build_stmt(list, stmt->as.unsafe_block.statements[i], indent + 1, env, fn_registry);
+            }
+            emit_indent_item(list, indent);
+            emit_literal(list, "}\n");
+            break;
+
         case AST_MATCH: {
             const char *union_c_name = stmt->as.match_expr.union_type_name;
             if (!union_c_name) {

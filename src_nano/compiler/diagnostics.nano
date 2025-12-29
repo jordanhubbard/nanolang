@@ -1,0 +1,33 @@
+import "src_nano/compiler/ir.nano"
+
+pub fn diag_location(file: string, line: int, column: int) -> CompilerSourceLocation {
+    return CompilerSourceLocation {
+        file: file,
+        line: line,
+        column: column
+    }
+}
+
+pub fn diag_new(phase: int, severity: int, code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
+    return CompilerDiagnostic {
+        phase: phase,
+        severity: severity,
+        code: code,
+        message: message,
+        location: location
+    }
+}
+
+pub fn diag_simple(phase: int, severity: int, code: string, message: string) -> CompilerDiagnostic {
+    let loc: CompilerSourceLocation = (diag_location "" 0 0)
+    return (diag_new phase severity code message loc)
+}
+
+pub fn diag_list_new() -> List<CompilerDiagnostic> {
+    return (list_CompilerDiagnostic_new)
+}
+
+shadow diag_list_new {
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    assert (== (list_CompilerDiagnostic_length diags) 0)
+}

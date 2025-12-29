@@ -7,6 +7,7 @@ typedef struct {
     Type current_function_return_type;
     bool has_error;
     bool warnings_enabled;
+    bool in_unsafe_block;   /* Track if we're inside an unsafe block */
 } TypeChecker;
 
 static char *typeinfo_to_generic_arg_name(TypeInfo *param) {
@@ -2460,6 +2461,21 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             return TYPE_VOID;
         }
 
+        case AST_UNSAFE_BLOCK: {
+            /* Mark that we're entering an unsafe block */
+            bool prev_unsafe = tc->in_unsafe_block;
+            tc->in_unsafe_block = true;
+            
+            /* Type check all statements in the unsafe block */
+            for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
+                check_statement(tc, stmt->as.unsafe_block.statements[i]);
+            }
+            
+            /* Restore previous unsafe state */
+            tc->in_unsafe_block = prev_unsafe;
+            return TYPE_VOID;
+        }
+
         case AST_IF: {
             /* Type check if statement */
             Type cond_type = check_expression(stmt->as.if_stmt.condition, tc->env);
@@ -2586,10 +2602,25 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
         
         case AST_PREFIX_OP:
-        case AST_CALL:
-            /* Expression statements */
+            /* Expression statement */
             check_expression(stmt, tc->env);
             return TYPE_VOID;
+            
+        case AST_CALL: {
+            /* Check if this is a call to an extern function outside unsafe block */
+            if (stmt->as.call.name) {
+                Function *func = env_get_function(tc->env, stmt->as.call.name);
+                if (func && func->is_extern && !tc->in_unsafe_block) {
+                    fprintf(stderr, "Error at line %d, column %d: Call to extern function '%s' requires unsafe block\n",
+                            stmt->line, stmt->column, stmt->as.call.name);
+                    fprintf(stderr, "  Note: Extern functions can perform arbitrary operations and must be wrapped in 'unsafe { ... }'\n");
+                    tc->has_error = true;
+                }
+            }
+            /* Type check the call expression */
+            check_expression(stmt, tc->env);
+            return TYPE_VOID;
+        }
 
         default:
             /* Literals and identifiers as statements */
@@ -3518,6 +3549,7 @@ bool type_check(ASTNode *program, Environment *env) {
     tc.env = env;
     tc.has_error = false;
     tc.warnings_enabled = true;  /* Enable unused variable warnings */
+    tc.in_unsafe_block = false;  /* Start outside unsafe blocks */
 
     /* Register built-in functions */
     register_builtin_functions(env);
@@ -4134,6 +4166,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
     tc.env = env;
     tc.has_error = false;
     tc.warnings_enabled = true;
+    tc.in_unsafe_block = false;  /* Start outside unsafe blocks */
 
     /* Register built-in functions */
     register_builtin_functions(env);

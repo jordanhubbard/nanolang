@@ -1,0 +1,45 @@
+/* Test unsafe block syntax */
+
+fn test_unsafe_syntax() -> int {
+    /* Unsafe blocks can contain regular code */
+    unsafe {
+        let x: int = 10
+        let y: int = 20
+        return (+ x y)
+    }
+}
+
+shadow test_unsafe_syntax {
+    assert (== (test_unsafe_syntax) 30)
+}
+
+fn test_nested_unsafe() -> int {
+    let a: int = 5
+    unsafe {
+        let b: int = 10
+        unsafe {
+            let c: int = 15
+            return (+ (+ a b) c)
+        }
+    }
+}
+
+shadow test_nested_unsafe {
+    assert (== (test_nested_unsafe) 30)
+}
+
+fn main() -> int {
+    (println "Testing unsafe block syntax...")
+    let r1: int = (test_unsafe_syntax)
+    let r2: int = (test_nested_unsafe)
+    (print "Results: ")
+    (print r1)
+    (print ", ")
+    (println r2)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

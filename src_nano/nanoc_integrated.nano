@@ -39,44 +39,12 @@
 
 
 /* ============================================================================
+/* =========================================================================
  * SHARED TYPE DEFINITIONS (Canonical - used by all phases)
- * ============================================================================ */
+ * ========================================================================= */
 
-/* Token from lexer */
-
-/* Token and TokenType are defined in C runtime (src/nanolang.h) */
-/* Removed duplicate definitions to avoid typedef redefinition errors */
-
-    PNODE_CALL = 6,
-    PNODE_ARRAY_LITERAL = 7,
-    PNODE_LET = 8,
-    PNODE_SET = 9,
-    PNODE_IF = 10,
-    PNODE_WHILE = 11,
-    PNODE_FOR = 12,
-    PNODE_RETURN = 13,
-    PNODE_BLOCK = 14,
-    PNODE_PRINT = 15,
-    PNODE_ASSERT = 16,
-    PNODE_PROGRAM = 17,
-    PNODE_FUNCTION = 18,
-    PNODE_SHADOW = 19,
-    PNODE_STRUCT_DEF = 20,
-    PNODE_STRUCT_LITERAL = 21,
-    PNODE_FIELD_ACCESS = 22,
-    PNODE_ENUM = 23,
-    PNODE_UNION_DEF = 24,
-    PNODE_UNION_CONSTRUCT = 25,
-    PNODE_MATCH = 26,
-    PNODE_IMPORT = 27,
-    PNODE_OPAQUE_TYPE = 28,
-    PNODE_TUPLE_LITERAL = 29,
-    PNODE_TUPLE_INDEX = 30,
-    PNODE_STRUCT = 20,
-    PNODE_ENUM = 23,
-    PNODE_UNION = 24
-}
-
+import "src_nano/generated/compiler_schema.nano"
+import "src_nano/generated/compiler_contracts.nano"
 /* AST Node structures (matching ast_shared.nano with node_type field) */
 struct ASTNumber {
     node_type: int,
@@ -215,8 +183,8 @@ struct ASTUnion {
 
 
 struct Parser {
-    /* Token stream */
-    tokens: List<Token>,
+    /* LexerToken stream */
+    tokens: List<LexerToken>,
     position: int,
     token_count: int,
     has_error: bool,
@@ -264,22 +232,6 @@ struct Parser {
 }
 
 
-/* Type system structures */
-enum TypeKind {
-    TYPE_INT = 0,
-    TYPE_FLOAT = 1,
-    TYPE_BOOL = 2,
-    TYPE_STRING = 3,
-    TYPE_VOID = 4,
-    TYPE_UNKNOWN = 5,
-    TYPE_STRUCT = 6
-}
-
-struct Type {
-    kind: int,
-    name: string
-}
-
 struct FunctionType {
     name: string,
     param_types: array<Type>,
@@ -292,15 +244,6 @@ struct Symbol {
     sym_type: Type,
     is_mut: bool,
     is_fn: bool
-}
-
-struct TypeEnvironment {
-}
-
-/* Type checking state (was TypeEnvironment in typechecker) */
-struct TypeCheckState {
-    error_count: int,
-    has_error: bool
 }
 
 /* Code generation state */
@@ -320,6 +263,97 @@ struct CompilerArgs {
 }
 
 
+/* Diagnostic helpers */
+fn diag_location(file: string, line: int, column: int) -> CompilerSourceLocation {
+    return CompilerSourceLocation {
+        file: file,
+        line: line,
+        column: column
+    }
+}
+
+fn diag_new(phase: int, severity: int, code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
+    return CompilerDiagnostic {
+        phase: phase,
+        severity: severity,
+        code: code,
+        message: message,
+        location: location
+    }
+}
+
+fn diag_simple(phase: int, severity: int, code: string, message: string) -> CompilerDiagnostic {
+    return (diag_new phase severity code message (diag_location "" 0 0))
+}
+
+fn diag_list_new() -> List<CompilerDiagnostic> {
+    return (list_CompilerDiagnostic_new)
+}
+
+fn severity_to_string(severity: int) -> string {
+    if (== severity DiagnosticSeverity.DIAG_ERROR) { return "error" }
+    else { if (== severity DiagnosticSeverity.DIAG_WARNING) { return "warning" }
+    else { return "info" } }
+}
+
+fn phase_to_string(phase: int) -> string {
+    if (== phase CompilerPhase.PHASE_LEXER) { return "lexer" }
+    else { if (== phase CompilerPhase.PHASE_PARSER) { return "parser" }
+    else { if (== phase CompilerPhase.PHASE_TYPECHECK) { return "typecheck" }
+    else { if (== phase CompilerPhase.PHASE_TRANSPILER) { return "transpiler" }
+    else { if (== phase CompilerPhase.PHASE_RUNTIME) { return "runtime" }
+    else { return "unknown" } } } } }
+}
+
+fn print_single_diagnostic(diag: CompilerDiagnostic) -> void {
+    (print "  [")
+    (print (phase_to_string diag.phase))
+    (print "] ")
+    (print (severity_to_string diag.severity))
+    (print " ")
+    (print diag.code)
+    (print ": ")
+    (println diag.message)
+    if (!= diag.location.file "") {
+        (print "      at ")
+        (print diag.location.file)
+        (print ":")
+        (print (int_to_string diag.location.line))
+        (print ":")
+        (println (int_to_string diag.location.column))
+    }
+}
+
+fn print_phase_diagnostics(phase_label: string, diagnostics: List<CompilerDiagnostic>) -> void {
+    let count: int = (list_CompilerDiagnostic_length diagnostics)
+    if (<= count 0) {
+        return
+    } else {
+        (print "[")
+        (print phase_label)
+        (println "] diagnostics:")
+        let mut i: int = 0
+        while (< i count) {
+            let diag: CompilerDiagnostic = (list_CompilerDiagnostic_get diagnostics i)
+            (print_single_diagnostic diag)
+            set i (+ i 1)
+        }
+    }
+}
+
+fn phase_failed(phase_label: string, had_error: bool, diagnostics: List<CompilerDiagnostic>) -> bool {
+    (print_phase_diagnostics phase_label diagnostics)
+    if had_error {
+        (print "[")
+        (print phase_label)
+        (println "] failed.")
+        return true
+    } else {
+        return false
+    }
+}
+
+
 /* ============================================================================
  * PHASE: LEXER - Tokenization
  * Source: src_nano/lexer_main.nano
@@ -328,7 +362,7 @@ struct CompilerArgs {
 # Main lexer implementation - combines all helper functions
 # This file implements the complete tokenize function
 
-/* Token struct is defined above in SHARED TYPE DEFINITIONS section */
+/* LexerToken struct is defined above in SHARED TYPE DEFINITIONS section */
 
 fn is_identifier_start(c: int) -> bool {
     return (or (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122))) (== c 95))
@@ -374,11 +408,11 @@ shadow is_digit_char {
 }
 
 fn check_keyword_group1(s: string) -> int {
-    if (== s "extern") { return TokenType.TOKEN_EXTERN } else {
-        if (== s "fn") { return TokenType.TOKEN_FN } else {
-            if (== s "let") { return TokenType.TOKEN_LET } else {
-                if (== s "mut") { return TokenType.TOKEN_MUT } else {
-                    if (== s "set") { return TokenType.TOKEN_SET } else {
+    if (== s "extern") { return LexerTokenType.TOKEN_EXTERN } else {
+        if (== s "fn") { return LexerTokenType.TOKEN_FN } else {
+            if (== s "let") { return LexerTokenType.TOKEN_LET } else {
+                if (== s "mut") { return LexerTokenType.TOKEN_MUT } else {
+                    if (== s "set") { return LexerTokenType.TOKEN_SET } else {
                         return -1
                     }
                 }
@@ -388,17 +422,17 @@ fn check_keyword_group1(s: string) -> int {
 }
 
 shadow check_keyword_group1 {
-    assert (== (check_keyword_group1 "extern") TokenType.TOKEN_EXTERN)
-    assert (== (check_keyword_group1 "fn") TokenType.TOKEN_FN)
+    assert (== (check_keyword_group1 "extern") LexerTokenType.TOKEN_EXTERN)
+    assert (== (check_keyword_group1 "fn") LexerTokenType.TOKEN_FN)
     assert (== (check_keyword_group1 "x") -1)
 }
 
 fn check_keyword_group2(s: string) -> int {
-    if (== s "if") { return TokenType.TOKEN_IF } else {
-        if (== s "else") { return TokenType.TOKEN_ELSE } else {
-            if (== s "while") { return TokenType.TOKEN_WHILE } else {
-                if (== s "for") { return TokenType.TOKEN_FOR } else {
-                    if (== s "in") { return TokenType.TOKEN_IN } else {
+    if (== s "if") { return LexerTokenType.TOKEN_IF } else {
+        if (== s "else") { return LexerTokenType.TOKEN_ELSE } else {
+            if (== s "while") { return LexerTokenType.TOKEN_WHILE } else {
+                if (== s "for") { return LexerTokenType.TOKEN_FOR } else {
+                    if (== s "in") { return LexerTokenType.TOKEN_IN } else {
                         return -1
                     }
                 }
@@ -408,16 +442,16 @@ fn check_keyword_group2(s: string) -> int {
 }
 
 shadow check_keyword_group2 {
-    assert (== (check_keyword_group2 "if") TokenType.TOKEN_IF)
+    assert (== (check_keyword_group2 "if") LexerTokenType.TOKEN_IF)
     assert (== (check_keyword_group2 "x") -1)
 }
 
 fn check_keyword_group3(s: string) -> int {
-    if (== s "return") { return TokenType.TOKEN_RETURN } else {
-        if (== s "assert") { return TokenType.TOKEN_ASSERT } else {
-            if (== s "shadow") { return TokenType.TOKEN_SHADOW } else {
-                if (== s "print") { return TokenType.TOKEN_PRINT } else {
-                    if (== s "array") { return TokenType.TOKEN_ARRAY } else {
+    if (== s "return") { return LexerTokenType.TOKEN_RETURN } else {
+        if (== s "assert") { return LexerTokenType.TOKEN_ASSERT } else {
+            if (== s "shadow") { return LexerTokenType.TOKEN_SHADOW } else {
+                if (== s "print") { return LexerTokenType.TOKEN_PRINT } else {
+                    if (== s "array") { return LexerTokenType.TOKEN_ARRAY } else {
                         return -1
                     }
                 }
@@ -427,15 +461,15 @@ fn check_keyword_group3(s: string) -> int {
 }
 
 shadow check_keyword_group3 {
-    assert (== (check_keyword_group3 "return") TokenType.TOKEN_RETURN)
+    assert (== (check_keyword_group3 "return") LexerTokenType.TOKEN_RETURN)
     assert (== (check_keyword_group3 "x") -1)
 }
 
 fn check_keyword_group4(s: string) -> int {
-    if (== s "struct") { return TokenType.TOKEN_STRUCT } else {
-        if (== s "enum") { return TokenType.TOKEN_ENUM } else {
-            if (== s "true") { return TokenType.TOKEN_TRUE } else {
-                if (== s "false") { return TokenType.TOKEN_FALSE } else {
+    if (== s "struct") { return LexerTokenType.TOKEN_STRUCT } else {
+        if (== s "enum") { return LexerTokenType.TOKEN_ENUM } else {
+            if (== s "true") { return LexerTokenType.TOKEN_TRUE } else {
+                if (== s "false") { return LexerTokenType.TOKEN_FALSE } else {
                     return -1
                 }
             }
@@ -444,16 +478,16 @@ fn check_keyword_group4(s: string) -> int {
 }
 
 shadow check_keyword_group4 {
-    assert (== (check_keyword_group4 "struct") TokenType.TOKEN_STRUCT)
+    assert (== (check_keyword_group4 "struct") LexerTokenType.TOKEN_STRUCT)
     assert (== (check_keyword_group4 "x") -1)
 }
 
 fn check_keyword_group5(s: string) -> int {
-    if (== s "int") { return TokenType.TOKEN_TYPE_INT } else {
-        if (== s "float") { return TokenType.TOKEN_TYPE_FLOAT } else {
-            if (== s "bool") { return TokenType.TOKEN_TYPE_BOOL } else {
-                if (== s "string") { return TokenType.TOKEN_TYPE_STRING } else {
-                    if (== s "void") { return TokenType.TOKEN_TYPE_VOID } else {
+    if (== s "int") { return LexerTokenType.TOKEN_TYPE_INT } else {
+        if (== s "float") { return LexerTokenType.TOKEN_TYPE_FLOAT } else {
+            if (== s "bool") { return LexerTokenType.TOKEN_TYPE_BOOL } else {
+                if (== s "string") { return LexerTokenType.TOKEN_TYPE_STRING } else {
+                    if (== s "void") { return LexerTokenType.TOKEN_TYPE_VOID } else {
                         return -1
                     }
                 }
@@ -463,15 +497,15 @@ fn check_keyword_group5(s: string) -> int {
 }
 
 shadow check_keyword_group5 {
-    assert (== (check_keyword_group5 "int") TokenType.TOKEN_TYPE_INT)
+    assert (== (check_keyword_group5 "int") LexerTokenType.TOKEN_TYPE_INT)
     assert (== (check_keyword_group5 "x") -1)
 }
 
 fn check_keyword_group6(s: string) -> int {
-    if (== s "and") { return TokenType.TOKEN_AND } else {
-        if (== s "or") { return TokenType.TOKEN_OR } else {
-            if (== s "not") { return TokenType.TOKEN_NOT } else {
-                if (== s "range") { return TokenType.TOKEN_RANGE } else {
+    if (== s "and") { return LexerTokenType.TOKEN_AND } else {
+        if (== s "or") { return LexerTokenType.TOKEN_OR } else {
+            if (== s "not") { return LexerTokenType.TOKEN_NOT } else {
+                if (== s "range") { return LexerTokenType.TOKEN_RANGE } else {
                     return -1
                 }
             }
@@ -480,7 +514,7 @@ fn check_keyword_group6(s: string) -> int {
 }
 
 shadow check_keyword_group6 {
-    assert (== (check_keyword_group6 "and") TokenType.TOKEN_AND)
+    assert (== (check_keyword_group6 "and") LexerTokenType.TOKEN_AND)
     assert (== (check_keyword_group6 "x") -1)
 }
 
@@ -509,7 +543,7 @@ fn keyword_or_identifier(s: string) -> int {
                         if (!= g6 -1) {
                             return g6
                         } else {
-                            return TokenType.TOKEN_IDENTIFIER
+                            return LexerTokenType.TOKEN_IDENTIFIER
                         }
                     }
                 }
@@ -519,15 +553,15 @@ fn keyword_or_identifier(s: string) -> int {
 }
 
 shadow keyword_or_identifier {
-    assert (== (keyword_or_identifier "fn") TokenType.TOKEN_FN)
-    assert (== (keyword_or_identifier "let") TokenType.TOKEN_LET)
-    assert (== (keyword_or_identifier "if") TokenType.TOKEN_IF)
-    assert (== (keyword_or_identifier "my_var") TokenType.TOKEN_IDENTIFIER)
-    assert (== (keyword_or_identifier "int") TokenType.TOKEN_TYPE_INT)
+    assert (== (keyword_or_identifier "fn") LexerTokenType.TOKEN_FN)
+    assert (== (keyword_or_identifier "let") LexerTokenType.TOKEN_LET)
+    assert (== (keyword_or_identifier "if") LexerTokenType.TOKEN_IF)
+    assert (== (keyword_or_identifier "my_var") LexerTokenType.TOKEN_IDENTIFIER)
+    assert (== (keyword_or_identifier "int") LexerTokenType.TOKEN_TYPE_INT)
 }
 
 # Process string literal - returns new position or -1 on error
-fn process_string(source: string, i: int, len: int, tokens: List<Token>, line: int, column: int) -> int {
+fn process_string(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = (+ i 1)
     let start: int = pos
     while (and (< pos len) (!= (char_at source pos) 34)) {
@@ -542,21 +576,21 @@ fn process_string(source: string, i: int, len: int, tokens: List<Token>, line: i
     } else {
         let str_length: int = (- pos start)
         let str_value: string = (str_substring source start str_length)
-        let tok: Token = Token { token_type: TokenType.TOKEN_STRING, value: str_value, line: line, column: column }
-        (List_Token_push tokens tok)
+        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_STRING, value: str_value, line: line, column: column }
+        (list_LexerToken_push tokens tok)
         return (+ pos 1)
     }
 }
 
 shadow process_string {
-    let mut tokens: List<Token> = (List_Token_new)
+    let mut tokens: List<LexerToken> = (list_LexerToken_new)
     let result: int = (process_string "\"hello\"" 0 7 tokens 1 1)
     assert (> result 0)
-    assert (> (list_token_length tokens) 0)
+    assert (> (list_LexerToken_length tokens) 0)
 }
 
 # Process number - returns new position
-fn process_number(source: string, i: int, len: int, tokens: List<Token>, line: int, column: int) -> int {
+fn process_number(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = i
     let start: int = pos
     let c: int = (char_at source pos)
@@ -576,27 +610,27 @@ fn process_number(source: string, i: int, len: int, tokens: List<Token>, line: i
         }
         let float_length: int = (- pos start)
         let float_value: string = (str_substring source start float_length)
-        let tok: Token = Token { token_type: TokenType.TOKEN_FLOAT, value: float_value, line: line, column: column }
-        (List_Token_push tokens tok)
+        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_FLOAT, value: float_value, line: line, column: column }
+        (list_LexerToken_push tokens tok)
         return pos
     } else {
         let num_length: int = (- pos start)
         let num_value: string = (str_substring source start num_length)
-        let tok: Token = Token { token_type: TokenType.TOKEN_NUMBER, value: num_value, line: line, column: column }
-        (List_Token_push tokens tok)
+        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_NUMBER, value: num_value, line: line, column: column }
+        (list_LexerToken_push tokens tok)
         return pos
     }
 }
 
 shadow process_number {
-    let mut tokens: List<Token> = (List_Token_new)
+    let mut tokens: List<LexerToken> = (list_LexerToken_new)
     let result: int = (process_number "42" 0 2 tokens 1 1)
     assert (> result 0)
-    assert (> (list_token_length tokens) 0)
+    assert (> (list_LexerToken_length tokens) 0)
 }
 
 # Process identifier/keyword - returns new position
-fn process_identifier(source: string, i: int, len: int, tokens: List<Token>, line: int, column: int) -> int {
+fn process_identifier(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = i
     let start: int = pos
     while (and (< pos len) (is_identifier_char (char_at source pos))) {
@@ -605,98 +639,98 @@ fn process_identifier(source: string, i: int, len: int, tokens: List<Token>, lin
     let id_length: int = (- pos start)
     let id_value: string = (str_substring source start id_length)
     let token_type: int = (keyword_or_identifier id_value)
-    let tok: Token = Token { token_type: token_type, value: id_value, line: line, column: column }
-    (List_Token_push tokens tok)
+    let tok: LexerToken = LexerToken { token_type: token_type, value: id_value, line: line, column: column }
+    (list_LexerToken_push tokens tok)
     return pos
 }
 
 shadow process_identifier {
-    let mut tokens: List<Token> = (List_Token_new)
+    let mut tokens: List<LexerToken> = (list_LexerToken_new)
     let result: int = (process_identifier "fn" 0 2 tokens 1 1)
     assert (> result 0)
-    assert (> (list_token_length tokens) 0)
+    assert (> (list_LexerToken_length tokens) 0)
 }
 
 # Process single character token - returns new position
-fn process_single_char(c: int, tokens: List<Token>, line: int, column: int, i: int) -> int {
+fn process_single_char(c: int, tokens: List<LexerToken>, line: int, column: int, i: int) -> int {
     if (== c 40) {
-        let tok: Token = Token { token_type: TokenType.TOKEN_LPAREN, value: "", line: line, column: column }
-        (List_Token_push tokens tok)
+        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LPAREN, value: "", line: line, column: column }
+        (list_LexerToken_push tokens tok)
         return (+ i 1)
     } else {
         if (== c 41) {
-            let tok: Token = Token { token_type: TokenType.TOKEN_RPAREN, value: "", line: line, column: column }
-            (List_Token_push tokens tok)
+            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_RPAREN, value: "", line: line, column: column }
+            (list_LexerToken_push tokens tok)
             return (+ i 1)
         } else {
             if (== c 123) {
-                let tok: Token = Token { token_type: TokenType.TOKEN_LBRACE, value: "", line: line, column: column }
-                (List_Token_push tokens tok)
+                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LBRACE, value: "", line: line, column: column }
+                (list_LexerToken_push tokens tok)
                 return (+ i 1)
             } else {
                 if (== c 125) {
-                    let tok: Token = Token { token_type: TokenType.TOKEN_RBRACE, value: "", line: line, column: column }
-                    (List_Token_push tokens tok)
+                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_RBRACE, value: "", line: line, column: column }
+                    (list_LexerToken_push tokens tok)
                     return (+ i 1)
                 } else {
                     if (== c 91) {
-                        let tok: Token = Token { token_type: TokenType.TOKEN_LBRACKET, value: "", line: line, column: column }
-                        (List_Token_push tokens tok)
+                        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LBRACKET, value: "", line: line, column: column }
+                        (list_LexerToken_push tokens tok)
                         return (+ i 1)
                     } else {
                         if (== c 93) {
-                            let tok: Token = Token { token_type: TokenType.TOKEN_RBRACKET, value: "", line: line, column: column }
-                            (List_Token_push tokens tok)
+                            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_RBRACKET, value: "", line: line, column: column }
+                            (list_LexerToken_push tokens tok)
                             return (+ i 1)
                         } else {
                             if (== c 44) {
-                                let tok: Token = Token { token_type: TokenType.TOKEN_COMMA, value: "", line: line, column: column }
-                                (List_Token_push tokens tok)
+                                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_COMMA, value: "", line: line, column: column }
+                                (list_LexerToken_push tokens tok)
                                 return (+ i 1)
                             } else {
                                 if (== c 58) {
-                                    let tok: Token = Token { token_type: TokenType.TOKEN_COLON, value: "", line: line, column: column }
-                                    (List_Token_push tokens tok)
+                                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_COLON, value: "", line: line, column: column }
+                                    (list_LexerToken_push tokens tok)
                                     return (+ i 1)
                                 } else {
                                     if (== c 46) {
-                                        let tok: Token = Token { token_type: TokenType.TOKEN_DOT, value: "", line: line, column: column }
-                                        (List_Token_push tokens tok)
+                                        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_DOT, value: "", line: line, column: column }
+                                        (list_LexerToken_push tokens tok)
                                         return (+ i 1)
                                     } else {
                                         if (== c 43) {
-                                            let tok: Token = Token { token_type: TokenType.TOKEN_PLUS, value: "", line: line, column: column }
-                                            (List_Token_push tokens tok)
+                                            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_PLUS, value: "", line: line, column: column }
+                                            (list_LexerToken_push tokens tok)
                                             return (+ i 1)
                                         } else {
                                             if (== c 45) {
-                                                let tok: Token = Token { token_type: TokenType.TOKEN_MINUS, value: "", line: line, column: column }
-                                                (List_Token_push tokens tok)
+                                                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_MINUS, value: "", line: line, column: column }
+                                                (list_LexerToken_push tokens tok)
                                                 return (+ i 1)
                                             } else {
                                                 if (== c 42) {
-                                                    let tok: Token = Token { token_type: TokenType.TOKEN_STAR, value: "", line: line, column: column }
-                                                    (List_Token_push tokens tok)
+                                                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_STAR, value: "", line: line, column: column }
+                                                    (list_LexerToken_push tokens tok)
                                                     return (+ i 1)
                                                 } else {
                                                     if (== c 47) {
-                                                        let tok: Token = Token { token_type: TokenType.TOKEN_SLASH, value: "", line: line, column: column }
-                                                        (List_Token_push tokens tok)
+                                                        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_SLASH, value: "", line: line, column: column }
+                                                        (list_LexerToken_push tokens tok)
                                                         return (+ i 1)
                                                     } else {
                                                         if (== c 37) {
-                                                            let tok: Token = Token { token_type: TokenType.TOKEN_PERCENT, value: "", line: line, column: column }
-                                                            (List_Token_push tokens tok)
+                                                            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_PERCENT, value: "", line: line, column: column }
+                                                            (list_LexerToken_push tokens tok)
                                                             return (+ i 1)
                                                         } else {
                                                             if (== c 60) {
-                                                                let tok: Token = Token { token_type: TokenType.TOKEN_LT, value: "", line: line, column: column }
-                                                                (List_Token_push tokens tok)
+                                                                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LT, value: "", line: line, column: column }
+                                                                (list_LexerToken_push tokens tok)
                                                                 return (+ i 1)
                                                             } else {
                                                                 if (== c 62) {
-                                                                    let tok: Token = Token { token_type: TokenType.TOKEN_GT, value: "", line: line, column: column }
-                                                                    (List_Token_push tokens tok)
+                                                                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_GT, value: "", line: line, column: column }
+                                                                    (list_LexerToken_push tokens tok)
                                                                     return (+ i 1)
                                                                 } else {
                                                                     return (+ i 1)
@@ -719,14 +753,14 @@ fn process_single_char(c: int, tokens: List<Token>, line: int, column: int, i: i
 }
 
 shadow process_single_char {
-    let mut tokens: List<Token> = (List_Token_new)
+    let mut tokens: List<LexerToken> = (list_LexerToken_new)
     let result: int = (process_single_char 40 tokens 1 1 0)
     assert (> result 0)
-    assert (> (list_token_length tokens) 0)
+    assert (> (list_LexerToken_length tokens) 0)
 }
 
 # Process two-character operators - returns new position or -1
-fn process_two_char(source: string, i: int, len: int, tokens: List<Token>, line: int, column: int) -> int {
+fn process_two_char(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     if (>= (+ i 1) len) {
         return -1
     } else {
@@ -736,28 +770,28 @@ fn process_two_char(source: string, i: int, len: int, tokens: List<Token>, line:
     let next: int = (char_at source (+ i 1))
     
     if (and (== c 45) (== next 62)) {
-        let tok: Token = Token { token_type: TokenType.TOKEN_ARROW, value: "", line: line, column: column }
-        (List_Token_push tokens tok)
+        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_ARROW, value: "", line: line, column: column }
+        (list_LexerToken_push tokens tok)
         return (+ i 2)
     } else {
         if (and (== c 61) (== next 61)) {
-            let tok: Token = Token { token_type: TokenType.TOKEN_EQ, value: "", line: line, column: column }
-            (List_Token_push tokens tok)
+            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_EQ, value: "", line: line, column: column }
+            (list_LexerToken_push tokens tok)
             return (+ i 2)
         } else {
             if (and (== c 33) (== next 61)) {
-                let tok: Token = Token { token_type: TokenType.TOKEN_NE, value: "", line: line, column: column }
-                (List_Token_push tokens tok)
+                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_NE, value: "", line: line, column: column }
+                (list_LexerToken_push tokens tok)
                 return (+ i 2)
             } else {
                 if (and (== c 60) (== next 61)) {
-                    let tok: Token = Token { token_type: TokenType.TOKEN_LE, value: "", line: line, column: column }
-                    (List_Token_push tokens tok)
+                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LE, value: "", line: line, column: column }
+                    (list_LexerToken_push tokens tok)
                     return (+ i 2)
                 } else {
                     if (and (== c 62) (== next 61)) {
-                        let tok: Token = Token { token_type: TokenType.TOKEN_GE, value: "", line: line, column: column }
-                        (List_Token_push tokens tok)
+                        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_GE, value: "", line: line, column: column }
+                        (list_LexerToken_push tokens tok)
                         return (+ i 2)
                     } else {
                         return -1
@@ -769,15 +803,15 @@ fn process_two_char(source: string, i: int, len: int, tokens: List<Token>, line:
 }
 
 shadow process_two_char {
-    let mut tokens: List<Token> = (List_Token_new)
+    let mut tokens: List<LexerToken> = (list_LexerToken_new)
     let result: int = (process_two_char "->" 0 2 tokens 1 1)
     assert (> result 0)
-    assert (> (list_token_length tokens) 0)
+    assert (> (list_LexerToken_length tokens) 0)
 }
 
 # Main tokenization function
-fn tokenize(source: string) -> List<Token> {
-    let mut tokens: List<Token> = (List_Token_new)
+fn tokenize(source: string) -> List<LexerToken> {
+    let mut tokens: List<LexerToken> = (list_LexerToken_new)
     let mut i: int = 0
     let len: int = (str_length source)
     let mut line: int = 1
@@ -814,8 +848,8 @@ fn tokenize(source: string) -> List<Token> {
                 
                 # Try assignment operator
                 if (and (== new_pos -1) (== c 61)) {
-                    let tok: Token = Token { token_type: TokenType.TOKEN_ASSIGN, value: "", line: line, column: column }
-                    (List_Token_push tokens tok)
+                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_ASSIGN, value: "", line: line, column: column }
+                    (list_LexerToken_push tokens tok)
                     set new_pos (+ i 1)
                 } else {
                     # Not assignment operator, continue
@@ -826,7 +860,8 @@ fn tokenize(source: string) -> List<Token> {
                     if (== c 34) {
                         set new_pos (process_string source i len tokens line column)
                         if (== new_pos -1) {
-                            break
+                            set new_pos len
+                            set i len
                         } else {
                             # String processed successfully
                         }
@@ -845,25 +880,30 @@ fn tokenize(source: string) -> List<Token> {
                     # Two-char operator or assignment processed
                 }
                 
+                if (== new_pos -1) {
+                    set new_pos (+ i 1)
+                } else {
+                    # New position already set
+                }
                 set i new_pos
             }
         }
     }
     
     # Add EOF token
-    let eof_tok: Token = Token { token_type: TokenType.TOKEN_EOF, value: "", line: line, column: column }
-    (List_Token_push tokens eof_tok)
+    let eof_tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_EOF, value: "", line: line, column: column }
+    (list_LexerToken_push tokens eof_tok)
     return tokens
 }
 
 shadow tokenize {
     let source1: string = "fn main() -> int { return 0 }"
-    let tokens1: List<Token> = (tokenize source1)
-    assert (> (List_Token_length tokens1) 0)
+    let tokens1: List<LexerToken> = (tokenize source1)
+    assert (> (list_LexerToken_length tokens1) 0)
     
     let source2: string = "42 3.14"
-    let tokens2: List<Token> = (tokenize source2)
-    assert (> (List_Token_length tokens2) 0)
+    let tokens2: List<LexerToken> = (tokenize source2)
+    assert (> (list_LexerToken_length tokens2) 0)
 }
 
 # Dummy main for compilation - Stage 1.5 uses C main instead
@@ -896,10 +936,10 @@ shadow main {
  * - Basic error reporting
  */
 
-/* Import lexer types - we need Token and TokenType */
+/* Import lexer types - we need LexerToken and LexerTokenType */
 /* Note: In practice, these would be in a shared module */
 
-/* Token structure - matches lexer_complete.nano */
+/* LexerToken structure - matches lexer_complete.nano */
 
 /* AST Node Types - renamed to avoid runtime conflicts */
 
@@ -944,7 +984,7 @@ fn parser_init_ast_lists() -> Parser {
     
     /* Return a temporary parser with initialized lists */
     /* Note: This is a workaround - we'll extract the lists */
-    let empty_tokens: List<Token> = (List_Token_new)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
     return Parser {
         tokens: empty_tokens,
         position: 0,
@@ -993,7 +1033,7 @@ shadow parser_init_ast_lists {
 
 /* Create new parser from token list */
 /* Note: token_count is calculated externally to avoid generic instantiation issues */
-fn parser_new(tokens: List<Token>, token_count: int) -> Parser {
+fn parser_new(tokens: List<LexerToken>, token_count: int) -> Parser {
     /* Initialize AST lists using helper (triggers generic instantiation) */
     let init_parser: Parser = (parser_init_ast_lists)
     
@@ -1039,7 +1079,7 @@ fn parser_new(tokens: List<Token>, token_count: int) -> Parser {
 }
 
 shadow parser_new {
-    let empty_tokens: List<Token> = (list_Token_new)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
     let p: Parser = (parser_new empty_tokens 0)
     assert (== p.position 0)
     assert (== p.token_count 0)
@@ -1137,23 +1177,23 @@ fn parser_position(p: Parser) -> int {
 }
 
 shadow parser_position {
-    let empty_tokens: List<Token> = (list_Token_new)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
     let p: Parser = (parser_new empty_tokens 0)
     assert (== (parser_position p) 0)
 }
 
 /* Get current token from token stream */
-fn parser_current(p: Parser) -> Token {
+fn parser_current(p: Parser) -> LexerToken {
     if (parser_is_at_end p) {
         /* Return EOF token */
-        return Token {
+        return LexerToken {
             token_type: 0,  /* EOF */
             value: "",
             line: 0,
             column: 0
         }
     } else {
-        return (list_Token_get p.tokens p.position)
+        return (list_LexerToken_get p.tokens p.position)
     }
 }
 
@@ -1167,7 +1207,7 @@ fn parser_match(p: Parser, token_type: int) -> bool {
     if (parser_is_at_end p) {
         return false
     } else {
-        let tok: Token = (parser_current p)
+        let tok: LexerToken = (parser_current p)
         return (== tok.token_type token_type)
     }
 }
@@ -1179,13 +1219,13 @@ shadow parser_match {
 
 /* Expect a specific token type - advance if matched, set error if not */
 fn parser_expect(p: Parser, token_type: int) -> Parser {
-    /* TODO: Get current token from List<Token> and check type */
+    /* TODO: Get current token from List<LexerToken> and check type */
     /* For now, placeholder logic: */
     if (parser_match p token_type) {
-        /* Token matches - advance and return */
+        /* LexerToken matches - advance and return */
         return (parser_advance p)
     } else {
-        /* Token doesn't match - set error flag */
+        /* LexerToken doesn't match - set error flag */
         return (parser_with_error p true)
     }
 }
@@ -1202,7 +1242,7 @@ fn parser_peek(p: Parser, offset: int) -> int {
     if (>= peek_pos p.token_count) {
         return 0  /* EOF */
     } else {
-        let tok: Token = (list_Token_get p.tokens peek_pos)
+        let tok: LexerToken = (list_LexerToken_get p.tokens peek_pos)
         return tok.token_type
     }
 }
@@ -1313,122 +1353,122 @@ fn parser_has_error(p: Parser) -> bool {
 }
 
 shadow parser_has_error {
-    let empty_tokens: List<Token> = (list_Token_new)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
     let p: Parser = (parser_new empty_tokens 0)
     assert (== (parser_has_error p) false)
 }
 
 /* ========== Expression Parsing ========== */
 
-/* Token type helper functions - match runtime TokenType enum */
+/* LexerToken type helper functions - match runtime LexerTokenType enum */
 /* Note: These return hardcoded values to avoid enum transpilation issues */
-fn token_number() -> int { return 0 }
-shadow token_number { assert (== (token_number) 0) }
+fn token_number() -> int { return LexerTokenType.TOKEN_NUMBER }
+shadow token_number { assert (== (token_number) LexerTokenType.TOKEN_NUMBER) }
 
-fn token_identifier() -> int { return 3 }
-shadow token_identifier { assert (== (token_identifier) 3) }
+fn token_identifier() -> int { return LexerTokenType.TOKEN_IDENTIFIER }
+shadow token_identifier { assert (== (token_identifier) LexerTokenType.TOKEN_IDENTIFIER) }
 
-fn token_string() -> int { return 2 }
-shadow token_string { assert (== (token_string) 2) }
+fn token_string() -> int { return LexerTokenType.TOKEN_STRING }
+shadow token_string { assert (== (token_string) LexerTokenType.TOKEN_STRING) }
 
-fn token_true() -> int { return 4 }
-shadow token_true { assert (== (token_true) 4) }
+fn token_true() -> int { return LexerTokenType.TOKEN_TRUE }
+shadow token_true { assert (== (token_true) LexerTokenType.TOKEN_TRUE) }
 
-fn token_false() -> int { return 5 }
-shadow token_false { assert (== (token_false) 5) }
+fn token_false() -> int { return LexerTokenType.TOKEN_FALSE }
+shadow token_false { assert (== (token_false) LexerTokenType.TOKEN_FALSE) }
 
-fn token_lparen() -> int { return 6 }
-shadow token_lparen { assert (== (token_lparen) 6) }
+fn token_lparen() -> int { return LexerTokenType.TOKEN_LPAREN }
+shadow token_lparen { assert (== (token_lparen) LexerTokenType.TOKEN_LPAREN) }
 
-fn token_rparen() -> int { return 7 }
-shadow token_rparen { assert (== (token_rparen) 7) }
+fn token_rparen() -> int { return LexerTokenType.TOKEN_RPAREN }
+shadow token_rparen { assert (== (token_rparen) LexerTokenType.TOKEN_RPAREN) }
 
-fn token_plus() -> int { return 65 }
-shadow token_plus { assert (== (token_plus) 65) }
+fn token_plus() -> int { return LexerTokenType.TOKEN_PLUS }
+shadow token_plus { assert (== (token_plus) LexerTokenType.TOKEN_PLUS) }
 
-fn token_minus() -> int { return 66 }
-shadow token_minus { assert (== (token_minus) 66) }
+fn token_minus() -> int { return LexerTokenType.TOKEN_MINUS }
+shadow token_minus { assert (== (token_minus) LexerTokenType.TOKEN_MINUS) }
 
-fn token_star() -> int { return 67 }
-shadow token_star { assert (== (token_star) 67) }
+fn token_star() -> int { return LexerTokenType.TOKEN_STAR }
+shadow token_star { assert (== (token_star) LexerTokenType.TOKEN_STAR) }
 
-fn token_slash() -> int { return 68 }
-shadow token_slash { assert (== (token_slash) 68) }
+fn token_slash() -> int { return LexerTokenType.TOKEN_SLASH }
+shadow token_slash { assert (== (token_slash) LexerTokenType.TOKEN_SLASH) }
 
-fn token_eq() -> int { return 70 }
-shadow token_eq { assert (== (token_eq) 70) }
+fn token_eq() -> int { return LexerTokenType.TOKEN_EQ }
+shadow token_eq { assert (== (token_eq) LexerTokenType.TOKEN_EQ) }
 
-fn token_ne() -> int { return 71 }
-shadow token_ne { assert (== (token_ne) 71) }
+fn token_ne() -> int { return LexerTokenType.TOKEN_NE }
+shadow token_ne { assert (== (token_ne) LexerTokenType.TOKEN_NE) }
 
-fn token_lt() -> int { return 72 }
-shadow token_lt { assert (== (token_lt) 72) }
+fn token_lt() -> int { return LexerTokenType.TOKEN_LT }
+shadow token_lt { assert (== (token_lt) LexerTokenType.TOKEN_LT) }
 
-fn token_le() -> int { return 73 }
-shadow token_le { assert (== (token_le) 73) }
+fn token_le() -> int { return LexerTokenType.TOKEN_LE }
+shadow token_le { assert (== (token_le) LexerTokenType.TOKEN_LE) }
 
-fn token_gt() -> int { return 74 }
-shadow token_gt { assert (== (token_gt) 74) }
+fn token_gt() -> int { return LexerTokenType.TOKEN_GT }
+shadow token_gt { assert (== (token_gt) LexerTokenType.TOKEN_GT) }
 
-fn token_ge() -> int { return 75 }
-shadow token_ge { assert (== (token_ge) 75) }
+fn token_ge() -> int { return LexerTokenType.TOKEN_GE }
+shadow token_ge { assert (== (token_ge) LexerTokenType.TOKEN_GE) }
 
-fn token_and() -> int { return 76 }
-shadow token_and { assert (== (token_and) 76) }
+fn token_and() -> int { return LexerTokenType.TOKEN_AND }
+shadow token_and { assert (== (token_and) LexerTokenType.TOKEN_AND) }
 
-fn token_or() -> int { return 77 }
-shadow token_or { assert (== (token_or) 77) }
+fn token_or() -> int { return LexerTokenType.TOKEN_OR }
+shadow token_or { assert (== (token_or) LexerTokenType.TOKEN_OR) }
 
-fn token_comma() -> int { return 29 }
-shadow token_comma { assert (== (token_comma) 29) }
+fn token_comma() -> int { return LexerTokenType.TOKEN_COMMA }
+shadow token_comma { assert (== (token_comma) LexerTokenType.TOKEN_COMMA) }
 
-fn token_lbrace() -> int { return 25 }
-shadow token_lbrace { assert (== (token_lbrace) 25) }
+fn token_lbrace() -> int { return LexerTokenType.TOKEN_LBRACE }
+shadow token_lbrace { assert (== (token_lbrace) LexerTokenType.TOKEN_LBRACE) }
 
-fn token_rbrace() -> int { return 26 }
-shadow token_rbrace { assert (== (token_rbrace) 26) }
+fn token_rbrace() -> int { return LexerTokenType.TOKEN_RBRACE }
+shadow token_rbrace { assert (== (token_rbrace) LexerTokenType.TOKEN_RBRACE) }
 
-fn token_let() -> int { return 38 }
-shadow token_let { assert (== (token_let) 38) }
+fn token_let() -> int { return LexerTokenType.TOKEN_LET }
+shadow token_let { assert (== (token_let) LexerTokenType.TOKEN_LET) }
 
-fn token_if() -> int { return 41 }
-shadow token_if { assert (== (token_if) 41) }
+fn token_if() -> int { return LexerTokenType.TOKEN_IF }
+shadow token_if { assert (== (token_if) LexerTokenType.TOKEN_IF) }
 
-fn token_else() -> int { return 42 }
-shadow token_else { assert (== (token_else) 42) }
+fn token_else() -> int { return LexerTokenType.TOKEN_ELSE }
+shadow token_else { assert (== (token_else) LexerTokenType.TOKEN_ELSE) }
 
-fn token_while() -> int { return 43 }
-shadow token_while { assert (== (token_while) 43) }
+fn token_while() -> int { return LexerTokenType.TOKEN_WHILE }
+shadow token_while { assert (== (token_while) LexerTokenType.TOKEN_WHILE) }
 
-fn token_return() -> int { return 46 }
-shadow token_return { assert (== (token_return) 46) }
+fn token_return() -> int { return LexerTokenType.TOKEN_RETURN }
+shadow token_return { assert (== (token_return) LexerTokenType.TOKEN_RETURN) }
 
-fn token_colon() -> int { return 30 }
-shadow token_colon { assert (== (token_colon) 30) }
+fn token_colon() -> int { return LexerTokenType.TOKEN_COLON }
+shadow token_colon { assert (== (token_colon) LexerTokenType.TOKEN_COLON) }
 
-fn token_mut() -> int { return 39 }
-shadow token_mut { assert (== (token_mut) 39) }
+fn token_mut() -> int { return LexerTokenType.TOKEN_MUT }
+shadow token_mut { assert (== (token_mut) LexerTokenType.TOKEN_MUT) }
 
-fn token_assign() -> int { return 32 }
-shadow token_assign { assert (== (token_assign) 32) }
+fn token_assign() -> int { return LexerTokenType.TOKEN_ASSIGN }
+shadow token_assign { assert (== (token_assign) LexerTokenType.TOKEN_ASSIGN) }
 
-fn token_arrow() -> int { return 31 }
-shadow token_arrow { assert (== (token_arrow) 31) }
+fn token_arrow() -> int { return LexerTokenType.TOKEN_ARROW }
+shadow token_arrow { assert (== (token_arrow) LexerTokenType.TOKEN_ARROW) }
 
-fn token_fn() -> int { return 37 }
-shadow token_fn { assert (== (token_fn) 37) }
+fn token_fn() -> int { return LexerTokenType.TOKEN_FN }
+shadow token_fn { assert (== (token_fn) LexerTokenType.TOKEN_FN) }
 
-fn token_set() -> int { return 40 }
-shadow token_set { assert (== (token_set) 40) }
+fn token_set() -> int { return LexerTokenType.TOKEN_SET }
+shadow token_set { assert (== (token_set) LexerTokenType.TOKEN_SET) }
 
-fn token_struct() -> int { return 51 }
-shadow token_struct { assert (== (token_struct) 51) }
+fn token_struct() -> int { return LexerTokenType.TOKEN_STRUCT }
+shadow token_struct { assert (== (token_struct) LexerTokenType.TOKEN_STRUCT) }
 
-fn token_enum() -> int { return 52 }
-shadow token_enum { assert (== (token_enum) 52) }
+fn token_enum() -> int { return LexerTokenType.TOKEN_ENUM }
+shadow token_enum { assert (== (token_enum) LexerTokenType.TOKEN_ENUM) }
 
-fn token_union() -> int { return 53 }
-shadow token_union { assert (== (token_union) 53) }
+fn token_union() -> int { return LexerTokenType.TOKEN_UNION }
+shadow token_union { assert (== (token_union) LexerTokenType.TOKEN_UNION) }
 
 /* Helper: Store number node and return node ID */
 fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Parser {
@@ -1683,7 +1723,7 @@ fn parse_primary(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
-        let tok: Token = (parser_current p)
+        let tok: LexerToken = (parser_current p)
         
         /* Number literal */
         if (== tok.token_type (token_number)) {
@@ -1713,7 +1753,7 @@ fn parse_primary(p: Parser) -> Parser {
                             if (parser_is_at_end p1) {
                                 return (parser_with_error p1 true)
                             } else {
-                                let tok2: Token = (parser_current p1)
+                                let tok2: LexerToken = (parser_current p1)
                                 
                                 /* If identifier, it's a function call: (funcname args...) */
                                 if (== tok2.token_type (token_identifier)) {
@@ -1726,7 +1766,7 @@ fn parse_primary(p: Parser) -> Parser {
                                     let mut arg_count: int = 0
                                     let mut pcur: Parser = p3
                                     while (and (not (parser_is_at_end pcur)) (not (parser_has_error pcur))) {
-                                        let tcur: Token = (parser_current pcur)
+                                        let tcur: LexerToken = (parser_current pcur)
                                         if (== tcur.token_type (token_rparen)) {
                                             let p4: Parser = (parser_advance pcur)
                                             return (parser_store_call p4 func_id arg_count tok.line tok.column)
@@ -1790,7 +1830,7 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
         if (parser_is_at_end p) {
             return p
         } else {
-            let tok: Token = (parser_current p)
+            let tok: LexerToken = (parser_current p)
             
             if (is_binary_op tok.token_type) {
                 /* Found binary operator - need left side already parsed */
@@ -2210,7 +2250,7 @@ fn parse_block_recursive(p: Parser, statement_count: int, start_line: int, start
         if (parser_is_at_end p) {
             return (parser_with_error p true)
         } else {
-            let tok: Token = (parser_current p)
+            let tok: LexerToken = (parser_current p)
             
             if (== tok.token_type (token_rbrace)) {
                 /* End of block */
@@ -2234,7 +2274,7 @@ fn parse_block(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
-        let tok: Token = (parser_current p)
+        let tok: LexerToken = (parser_current p)
         
         if (== tok.token_type (token_lbrace)) {
             let p1: Parser = (parser_advance p)  /* consume '{' */
@@ -2263,7 +2303,7 @@ fn parse_let_body(p: Parser, is_mut: bool, start_line: int, start_column: int) -
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
-        let tok: Token = (parser_current p)
+        let tok: LexerToken = (parser_current p)
         if (== tok.token_type (token_identifier)) {
             let name: string = tok.value
             let p1: Parser = (parser_advance p)  /* consume identifier */
@@ -2277,7 +2317,7 @@ fn parse_let_body(p: Parser, is_mut: bool, start_line: int, start_column: int) -
                 if (parser_is_at_end p2) {
                     return (parser_with_error p2 true)
                 } else {
-                    let tok2: Token = (parser_current p2)
+                    let tok2: LexerToken = (parser_current p2)
                     if (== tok2.token_type (token_identifier)) {
                         let var_type: string = tok2.value
                         let p3: Parser = (parser_advance p2)  /* consume type */
@@ -2313,7 +2353,7 @@ fn parse_let_statement(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
-        let tok: Token = (parser_current p)
+        let tok: LexerToken = (parser_current p)
         
         if (== tok.token_type (token_let)) {
             let p1: Parser = (parser_advance p)  /* consume 'let' */
@@ -2322,7 +2362,7 @@ fn parse_let_statement(p: Parser) -> Parser {
             if (parser_is_at_end p1) {
                 return (parser_with_error p1 true)
             } else {
-                let tok2: Token = (parser_current p1)
+                let tok2: LexerToken = (parser_current p1)
                 
                 if (== tok2.token_type (token_mut)) {
                     /* Has 'mut' keyword */
@@ -2348,7 +2388,7 @@ fn parse_if_statement(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
-        let tok: Token = (parser_current p)
+        let tok: LexerToken = (parser_current p)
         
         if (== tok.token_type (token_if)) {
             let p1: Parser = (parser_advance p)  /* consume 'if' */
@@ -2382,7 +2422,7 @@ fn parse_if_statement(p: Parser) -> Parser {
                             if (parser_is_at_end p5) {
                                 return (parser_store_if p5 condition_id condition_type then_body_id -1 tok.line tok.column)
                             } else {
-                                let tok2: Token = (parser_current p5)
+                                let tok2: LexerToken = (parser_current p5)
                                 if (== tok2.token_type (token_else)) {
                                     let p6: Parser = (parser_advance p5)  /* consume 'else' */
                                     let p7: Parser = (parse_block p6)
@@ -2415,7 +2455,7 @@ fn parse_while_statement(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
-        let tok: Token = (parser_current p)
+        let tok: LexerToken = (parser_current p)
         
         if (== tok.token_type (token_while)) {
             let p1: Parser = (parser_advance p)  /* consume 'while' */
@@ -2464,7 +2504,7 @@ fn parse_return_statement(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
-        let tok: Token = (parser_current p)
+        let tok: LexerToken = (parser_current p)
         
         if (== tok.token_type (token_return)) {
             let p1: Parser = (parser_advance p)  /* consume 'return' */
@@ -2473,7 +2513,7 @@ fn parse_return_statement(p: Parser) -> Parser {
             if (parser_is_at_end p1) {
                 return (parser_store_return p1 -1 -1 tok.line tok.column)
             } else {
-                let tok2: Token = (parser_current p1)
+                let tok2: LexerToken = (parser_current p1)
                 /* If next token is '}' or end, no expression */
                 if (or (== tok2.token_type (token_rbrace)) (parser_is_at_end p1)) {
                     return (parser_store_return p1 -1 -1 tok.line tok.column)
@@ -2504,7 +2544,7 @@ fn parse_statement(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
-        let tok: Token = (parser_current p)
+        let tok: LexerToken = (parser_current p)
         
         /* Dispatch based on token type */
         if (== tok.token_type (token_let)) {
@@ -2516,7 +2556,7 @@ fn parse_statement(p: Parser) -> Parser {
                 if (parser_is_at_end p1) {
                     return (parser_with_error p1 true)
                 } else {
-                    let tok2: Token = (parser_current p1)
+                    let tok2: LexerToken = (parser_current p1)
                     if (== tok2.token_type (token_identifier)) {
                         let var_name: string = tok2.value
                         let p2: Parser = (parser_advance p1)  /* consume identifier */
@@ -2797,7 +2837,7 @@ fn parse_function_params(p: Parser, param_count: int) -> Parser {
         if (parser_is_at_end p) {
             return (parser_with_error p true)
         } else {
-            let tok: Token = (parser_current p)
+            let tok: LexerToken = (parser_current p)
             
             if (== tok.token_type (token_rparen)) {
                 /* End of parameters - no params */
@@ -2808,7 +2848,7 @@ fn parse_function_params(p: Parser, param_count: int) -> Parser {
                 /* Just advance until we find ')' */
                 let mut current: Parser = p
                 while (and (not (parser_is_at_end current)) (not (parser_has_error current))) {
-                    let tok2: Token = (parser_current current)
+                    let tok2: LexerToken = (parser_current current)
                     if (== tok2.token_type (token_rparen)) {
                         let p2: Parser = (parser_advance current)  /* consume ')' */
                         /* TODO: Count parameters properly */
@@ -2832,7 +2872,7 @@ fn parse_function_definition(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
-        let tok: Token = (parser_current p)
+        let tok: LexerToken = (parser_current p)
         
         if (== tok.token_type (token_fn)) {
             let p1: Parser = (parser_advance p)  /* consume 'fn' */
@@ -2841,7 +2881,7 @@ fn parse_function_definition(p: Parser) -> Parser {
             if (parser_is_at_end p1) {
                 return (parser_with_error p1 true)
             } else {
-                let tok2: Token = (parser_current p1)
+                let tok2: LexerToken = (parser_current p1)
                 if (== tok2.token_type (token_identifier)) {
                     let name: string = tok2.value
                     let p2: Parser = (parser_advance p1)  /* consume name */
@@ -2871,7 +2911,7 @@ fn parse_function_definition(p: Parser) -> Parser {
                             if (parser_is_at_end p10) {
                                 return (parser_with_error p10 true)
                             } else {
-                                let tok7: Token = (parser_current p10)
+                                let tok7: LexerToken = (parser_current p10)
                                 if (== tok7.token_type (token_identifier)) {
                                     let return_type: string = tok7.value
                                     let p11: Parser = (parser_advance p10)  /* consume return type */
@@ -2910,7 +2950,7 @@ fn parse_struct_definition(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
-        let tok: Token = (parser_current p)
+        let tok: LexerToken = (parser_current p)
         
         if (== tok.token_type (token_struct)) {
             let p1: Parser = (parser_advance p)  /* consume 'struct' */
@@ -2919,7 +2959,7 @@ fn parse_struct_definition(p: Parser) -> Parser {
             if (parser_is_at_end p1) {
                 return (parser_with_error p1 true)
             } else {
-                let tok2: Token = (parser_current p1)
+                let tok2: LexerToken = (parser_current p1)
                 if (== tok2.token_type (token_identifier)) {
                     let name: string = tok2.value
                     let p2: Parser = (parser_advance p1)  /* consume name */
@@ -2955,7 +2995,7 @@ fn parse_enum_variants(p: Parser, variant_count: int, name: string, start_line: 
         if (parser_is_at_end p) {
             return (parser_with_error p true)
         } else {
-            let tok: Token = (parser_current p)
+            let tok: LexerToken = (parser_current p)
             
             if (== tok.token_type (token_rbrace)) {
                 /* End of enum */
@@ -2970,7 +3010,7 @@ fn parse_enum_variants(p: Parser, variant_count: int, name: string, start_line: 
                     if (parser_is_at_end p2) {
                         return (parser_with_error p2 true)
                     } else {
-                        let tok2: Token = (parser_current p2)
+                        let tok2: LexerToken = (parser_current p2)
                         if (== tok2.token_type (token_comma)) {
                             let p3: Parser = (parser_advance p2)  /* consume ',' */
                             /* Continue parsing more variants */
@@ -2997,7 +3037,7 @@ fn parse_enum_definition(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
-        let tok: Token = (parser_current p)
+        let tok: LexerToken = (parser_current p)
         
         if (== tok.token_type (token_enum)) {
             let p1: Parser = (parser_advance p)  /* consume 'enum' */
@@ -3006,7 +3046,7 @@ fn parse_enum_definition(p: Parser) -> Parser {
             if (parser_is_at_end p1) {
                 return (parser_with_error p1 true)
             } else {
-                let tok2: Token = (parser_current p1)
+                let tok2: LexerToken = (parser_current p1)
                 if (== tok2.token_type (token_identifier)) {
                     let name: string = tok2.value
                     let p2: Parser = (parser_advance p1)  /* consume name */
@@ -3041,7 +3081,7 @@ fn parse_union_variants(p: Parser, variant_count: int, name: string, start_line:
         if (parser_is_at_end p) {
             return (parser_with_error p true)
         } else {
-            let tok: Token = (parser_current p)
+            let tok: LexerToken = (parser_current p)
             
             if (== tok.token_type (token_rbrace)) {
                 /* End of union */
@@ -3056,7 +3096,7 @@ fn parse_union_variants(p: Parser, variant_count: int, name: string, start_line:
                     if (parser_is_at_end p2) {
                         return (parser_with_error p2 true)
                     } else {
-                        let tok2: Token = (parser_current p2)
+                        let tok2: LexerToken = (parser_current p2)
                         if (== tok2.token_type (token_lparen)) {
                             let p3: Parser = (parser_advance p2)  /* consume '(' */
                             
@@ -3064,7 +3104,7 @@ fn parse_union_variants(p: Parser, variant_count: int, name: string, start_line:
                             if (parser_is_at_end p3) {
                                 return (parser_with_error p3 true)
                             } else {
-                                let tok3: Token = (parser_current p3)
+                                let tok3: LexerToken = (parser_current p3)
                                 if (== tok3.token_type (token_identifier)) {
                                     let p4: Parser = (parser_advance p3)  /* consume type */
                                     
@@ -3077,7 +3117,7 @@ fn parse_union_variants(p: Parser, variant_count: int, name: string, start_line:
                                         if (parser_is_at_end p5) {
                                             return (parser_with_error p5 true)
                                         } else {
-                                            let tok4: Token = (parser_current p5)
+                                            let tok4: LexerToken = (parser_current p5)
                                             if (== tok4.token_type (token_comma)) {
                                                 let p6: Parser = (parser_advance p5)  /* consume ',' */
                                                 /* Continue parsing more variants */
@@ -3113,7 +3153,7 @@ fn parse_union_definition(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
-        let tok: Token = (parser_current p)
+        let tok: LexerToken = (parser_current p)
         
         if (== tok.token_type (token_union)) {
             let p1: Parser = (parser_advance p)  /* consume 'union' */
@@ -3122,7 +3162,7 @@ fn parse_union_definition(p: Parser) -> Parser {
             if (parser_is_at_end p1) {
                 return (parser_with_error p1 true)
             } else {
-                let tok2: Token = (parser_current p1)
+                let tok2: LexerToken = (parser_current p1)
                 if (== tok2.token_type (token_identifier)) {
                     let name: string = tok2.value
                     let p2: Parser = (parser_advance p1)  /* consume name */
@@ -3154,7 +3194,7 @@ fn parse_definition(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
-        let tok: Token = (parser_current p)
+        let tok: LexerToken = (parser_current p)
         
         /* Dispatch based on token type */
         if (== tok.token_type (token_fn)) {
@@ -3198,17 +3238,11 @@ shadow parse_definition {
  * Returns:
  *   Parser state containing all parsed definitions
  */
-fn parse_program(tokens: List<Token>, token_count: int) -> Parser {
+fn parse_program(tokens: List<LexerToken>, token_count: int) -> Parser {
     let mut p: Parser = (parser_new tokens token_count)
     
     /* Parse all definitions until end of tokens or error */
-    while (not (parser_is_at_end p)) {
-        if (parser_has_error p) {
-            break
-        } else {
-            (print "")
-        }
-        
+    while (and (not (parser_is_at_end p)) (not (parser_has_error p))) {
         set p (parse_definition p)
     }
     
@@ -3217,7 +3251,7 @@ fn parse_program(tokens: List<Token>, token_count: int) -> Parser {
 
 shadow parse_program {
     /* Test with empty token list */
-    let empty_tokens: List<Token> = (list_Token_new)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
     let p: Parser = (parse_program empty_tokens 0)
     assert (== p.position 0)
 }
@@ -3254,7 +3288,7 @@ shadow create_identifier_node {
 
 fn test_parser_structure() -> int {
     /* Test that we can create parser state */
-    let empty_tokens: List<Token> = (List_Token_new)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
     let p: Parser = (parser_new empty_tokens 0)
     
     /* Test that we can create AST nodes */
@@ -3283,7 +3317,7 @@ fn parser_get_function_count(p: Parser) -> int {
 }
 
 shadow parser_get_function_count {
-    let empty_tokens: List<Token> = (list_Token_new)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
     let p: Parser = (parser_new empty_tokens 0)
     assert (== (parser_get_function_count p) 0)
 }
@@ -3398,7 +3432,7 @@ fn main() -> int {
     (println "Nanolang Self-Hosted Parser - MVP")
     (println "Status: Statement parsing COMPLETE! 🎉")
     (println "")
-    (println "✅ Token management functions:")
+    (println "✅ LexerToken management functions:")
     (println "  - parser_is_at_end()")
     (println "  - parser_advance()")
     (println "  - parser_position()")
@@ -3511,11 +3545,17 @@ shadow main {
  * ============================================================================= */
 
 /* Create a new type */
-fn type_int() -> Type {
+fn make_type(kind: int, name: string) -> Type {
     return Type {
-        kind: TypeKind.TYPE_INT,
-        name: ""
+        kind: kind,
+        name: name,
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
     }
+}
+
+fn type_int() -> Type {
+    return (make_type TypeKind.TYPE_INT "")
 }
 
 shadow type_int {
@@ -3524,10 +3564,7 @@ shadow type_int {
 }
 
 fn type_float() -> Type {
-    return Type {
-        kind: TypeKind.TYPE_FLOAT,
-        name: ""
-    }
+    return (make_type TypeKind.TYPE_FLOAT "")
 }
 
 shadow type_float {
@@ -3536,10 +3573,7 @@ shadow type_float {
 }
 
 fn type_bool() -> Type {
-    return Type {
-        kind: TypeKind.TYPE_BOOL,
-        name: ""
-    }
+    return (make_type TypeKind.TYPE_BOOL "")
 }
 
 shadow type_bool {
@@ -3548,10 +3582,7 @@ shadow type_bool {
 }
 
 fn type_string() -> Type {
-    return Type {
-        kind: TypeKind.TYPE_STRING,
-        name: ""
-    }
+    return (make_type TypeKind.TYPE_STRING "")
 }
 
 shadow type_string {
@@ -3560,9 +3591,29 @@ shadow type_string {
 }
 
 fn type_void() -> Type {
+    return (make_type TypeKind.TYPE_VOID "")
+}
+
+fn type_unknown_named(label: string) -> Type {
     return Type {
-        kind: TypeKind.TYPE_VOID,
-        name: ""
+        kind: TypeKind.TYPE_UNKNOWN,
+        name: label,
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
+    }
+}
+
+fn option_type_some(value: Type) -> OptionType {
+    return OptionType {
+        has_value: true,
+        value: value
+    }
+}
+
+fn option_type_none() -> OptionType {
+    return OptionType {
+        has_value: false,
+        value: (type_unknown_named "none")
     }
 }
 
@@ -3575,14 +3626,22 @@ shadow type_void {
 fn types_equal(t1: Type, t2: Type) -> bool {
     if (!= t1.kind t2.kind) {
         return false
-    } else {
-        /* For struct types, also check name */
-        if (== t1.kind TypeKind.TYPE_STRUCT) {
-            return (== t1.name t2.name)
-        } else {
-            return true
+    }
+    if (!= t1.element_type_kind t2.element_type_kind) {
+        return false
+    }
+    if (!= t1.element_type_name t2.element_type_name) {
+        return false
+    }
+    if (!= t1.name t2.name) {
+        /* Struct/enum/union names must match; scalars keep empty string */
+        if (or (== t1.kind TypeKind.TYPE_STRUCT)
+               (or (== t1.kind TypeKind.TYPE_ENUM)
+                   (== t1.kind TypeKind.TYPE_UNION))) {
+            return false
         }
     }
+    return true
 }
 
 shadow types_equal {
@@ -3612,10 +3671,7 @@ fn type_from_string(s: string) -> Type {
                         return (type_void)
                     } else {
                         /* Assume it's a struct type */
-                        return Type {
-                            kind: TypeKind.TYPE_STRUCT,
-                            name: s
-                        }
+                        return (make_type TypeKind.TYPE_STRUCT s)
                     }
                 }
             }
@@ -3652,8 +3708,28 @@ fn type_to_string(t: Type) -> string {
                     } else {
                         if (== t.kind TypeKind.TYPE_STRUCT) {
                             return t.name
+                    } else {
+                        if (== t.kind TypeKind.TYPE_ENUM) {
+                            return t.name
                         } else {
-                            return "unknown"
+                            if (== t.kind TypeKind.TYPE_UNION) {
+                                return t.name
+                            } else {
+                                if (== t.kind TypeKind.TYPE_ARRAY) {
+                                    return "array"
+                                } else {
+                                    if (== t.kind TypeKind.TYPE_TUPLE) {
+                                        return "tuple"
+                                    } else {
+                                        if (== t.kind TypeKind.TYPE_FUNCTION) {
+                                            return "fn"
+                                        } else {
+                                            return "unknown"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         }
                     }
                 }
@@ -3672,20 +3748,12 @@ shadow type_to_string {
  * ============================================================================= */
 
 /* Create new empty environment */
-fn typecheck_state_new() -> TypeCheckState {
-    return TypeCheckState {
+fn env_new() -> TypeEnvironment {
+    return TypeEnvironment {
         error_count: 0,
         has_error: false
     }
 }
-
-/* REMOVED: Shadow test for undefined function
-shadow env_new {
-    let env: TypeEnvironment = (typecheck_state_new)
-    assert (== env.error_count 0)
-    assert (== env.has_error false)
-}
-*/
 
 /* Create a new symbol */
 fn symbol_new(name: string, sym_type: Type, is_mut: bool, is_fn: bool) -> Symbol {
@@ -3751,14 +3819,14 @@ shadow env_has_symbol {
 }
 
 /* Get symbol type */
-fn env_get_type(symbols: array<Symbol>, name: string) -> Type {
+fn env_get_type(symbols: array<Symbol>, name: string) -> OptionType {
     let idx: int = (env_lookup symbols name)
     if (>= idx 0) {
         let sym: Symbol = (at symbols idx)
-        return sym.sym_type
+        return (option_type_some sym.sym_type)
     } else {
         /* Return unknown type for undefined symbols */
-        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "undefined" }
+        return (option_type_none)
     }
 }
 
@@ -3815,7 +3883,7 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
                 return (type_float)
             } else {
                 /* Type error */
-                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+                return (type_unknown_named "error")
             }
         }
     } else {
@@ -3825,7 +3893,7 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
             if (types_equal left_type right_type) {
                 return (type_bool)
             } else {
-                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+                return (type_unknown_named "error")
             }
         } else {
             /* Logical ops: and, or */
@@ -3834,11 +3902,11 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
                 if (and (== left_type.kind TypeKind.TYPE_BOOL) (== right_type.kind TypeKind.TYPE_BOOL)) {
                     return (type_bool)
                 } else {
-                    return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+                    return (type_unknown_named "error")
                 }
             } else {
                 /* Unknown operator */
-                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+                return (type_unknown_named "error")
             }
         }
     }
@@ -3903,7 +3971,22 @@ extern fn parser_get_binary_op(p: Parser, idx: int) -> ASTBinaryOp
  * 
  * Returns: The type of the expression, or TYPE_UNKNOWN on error
  */
+fn ensure_known_expr_node(node_type: int) -> bool {
+    if (== node_type ParseNodeType.PNODE_NUMBER) { return true }
+    if (== node_type ParseNodeType.PNODE_STRING) { return true }
+    if (== node_type ParseNodeType.PNODE_BOOL) { return true }
+    if (== node_type ParseNodeType.PNODE_FLOAT) { return true }
+    if (== node_type ParseNodeType.PNODE_IDENTIFIER) { return true }
+    if (== node_type ParseNodeType.PNODE_BINARY_OP) { return true }
+    return false
+}
+
 fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>) -> Type {
+    if (not (ensure_known_expr_node node_type)) {
+        (print "Warning: Unknown expression node type ")
+        (println (int_to_string node_type))
+        return (type_unknown_named "unknown_expr_node")
+    }
     if (== node_type 0) {
         /* Number literal - always int */
         return (type_int)
@@ -3911,16 +3994,14 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         if (== node_type 1) {
             /* Identifier - look up in symbol table */
             let id_node: ASTIdentifier = (parser_get_identifier parser node_id)
-            let var_type: Type = (env_get_type symbols id_node.name)
-            
-            if (== var_type.kind TypeKind.TYPE_UNKNOWN) {
+            let lookup: OptionType = (env_get_type symbols id_node.name)
+            if (not lookup.has_value) {
                 (print "Type error: Undefined variable ")
                 (println id_node.name)
+                return (type_unknown_named "undefined_identifier")
             } else {
-                (print "")
+                return lookup.value
             }
-            
-            return var_type
         } else {
             if (== node_type 2) {
                 /* Binary operation - check both operands and validate operator */
@@ -3931,7 +4012,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 /* and validate operator compatibility */
                 return (type_int)
             } else {
-                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "unknown_node_type" }
+                return (type_unknown_named "unknown_node_type")
             }
         }
     }
@@ -3986,7 +4067,7 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>)
     /* TODO: Type check the initialization expression */
     /* For now, just add the symbol */
     let sym: Symbol = (symbol_new let_node.name declared_type let_node.is_mut false)
-    return (env_add_symbol (typecheck_state_new) symbols sym)
+    return (env_add_symbol (env_new) symbols sym)
 }
 
 /* Type check a return statement
@@ -4066,7 +4147,7 @@ extern fn parser_get_function(p: Parser, idx: int) -> ASTFunction
 fn typecheck_parser(parser: Parser) -> int {
     (println "=== Type Checking (Full AST Walk) ===")
     
-    let env: TypeEnvironment = (typecheck_state_new)
+    let env: TypeEnvironment = (env_new)
     let mut symbols: array<Symbol> = []
     
     /* Get function count using accessor */
@@ -4697,12 +4778,12 @@ extern fn parser_get_while_count(p: Parser) -> int
 /* Map operator token type to C operator string
  * 
  * Args:
- *   op: Token type of operator
+ *   op: LexerToken type of operator
  * 
  * Returns: C operator string
  */
 fn operator_to_string(op: int) -> string {
-    /* Token types for operators (from lexer) */
+    /* LexerToken types for operators (from lexer) */
     /* 11=+, 12=-, 13=*, 14=/, 15==, 16=<, 17=>, 18=<=, 19=>=, 20=!=, 21=and, 22=or, 23=not */
     
     if (== op 11) { return "+" }
@@ -5206,6 +5287,72 @@ fn parse_args() -> CompilerArgs {
     }
 }
 
+fn lex_phase_run(source: string, file_name: string) -> LexPhaseOutput {
+    let tokens: List<LexerToken> = (tokenize source)
+    let token_count: int = (list_LexerToken_length tokens)
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    return LexPhaseOutput {
+        tokens: tokens,
+        token_count: token_count,
+        diagnostics: diagnostics,
+        had_error: false
+    }
+}
+
+fn parse_phase_run(lex_output: LexPhaseOutput) -> ParsePhaseOutput {
+    let parser: Parser = (parse_program lex_output.tokens lex_output.token_count)
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    if parser.has_error {
+        let diag: CompilerDiagnostic = (diag_simple CompilerPhase.PHASE_PARSER DiagnosticSeverity.DIAG_ERROR "P0001" "Parser reported errors")
+        (list_CompilerDiagnostic_push diagnostics diag)
+    }
+    return ParsePhaseOutput {
+        parser: parser,
+        diagnostics: diagnostics,
+        had_error: parser.has_error
+    }
+}
+
+fn typecheck_phase_run(parser: Parser) -> TypecheckPhaseOutput {
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let status: int = (typecheck_parser parser)
+    let env: TypeEnvironment = TypeEnvironment {
+        error_count: status,
+        has_error: (!= status 0)
+    }
+    if (!= status 0) {
+        let diag: CompilerDiagnostic = (diag_simple CompilerPhase.PHASE_TYPECHECK DiagnosticSeverity.DIAG_ERROR "T0001" "Type checking failed")
+        (list_CompilerDiagnostic_push diagnostics diag)
+    }
+    return TypecheckPhaseOutput {
+        environment: env,
+        diagnostics: diagnostics,
+        had_error: (!= status 0)
+    }
+}
+
+fn transpile_phase_run(parser: Parser, output_path: string) -> TranspilePhaseOutput {
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let c_source: string = (transpile_parser parser)
+    if (== (str_length c_source) 0) {
+        let diag: CompilerDiagnostic = (diag_simple CompilerPhase.PHASE_TRANSPILER DiagnosticSeverity.DIAG_ERROR "C0001" "Generated C source was empty")
+        (list_CompilerDiagnostic_push diagnostics diag)
+        return TranspilePhaseOutput {
+            c_source: c_source,
+            diagnostics: diagnostics,
+            had_error: true,
+            output_path: output_path
+        }
+    } else {
+        return TranspilePhaseOutput {
+            c_source: c_source,
+            diagnostics: diagnostics,
+            had_error: false,
+            output_path: output_path
+        }
+    }
+}
+
 /* Main compilation function */
 fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> int {
     if verbose {
@@ -5231,63 +5378,54 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
     /* Step 2: Tokenize */
     if verbose {
         (println "Step 2: Tokenizing...")
-    } else {
-        (print "")
     }
-    let tokens: List<Token> = (tokenize source)
-    let token_count: int = (list_token_length tokens)
-    
+    let lex_output: LexPhaseOutput = (lex_phase_run source input)
     if verbose {
         (print "  Tokens: ")
-        (println (int_to_string token_count))
-    } else {
-        (print "")
+        (println (int_to_string lex_output.token_count))
+    }
+    if (phase_failed "Lexer" lex_output.had_error lex_output.diagnostics) {
+        return 1
     }
     
     /* Step 3: Parse */
     if verbose {
         (println "Step 3: Parsing...")
-    } else {
-        (print "")
     }
-    let parser: Parser = (parse_program tokens token_count)
-    
+    let parse_output: ParsePhaseOutput = (parse_phase_run lex_output)
+    let parser: Parser = parse_output.parser
     if verbose {
         (print "  Functions: ")
         (println (int_to_string parser.functions_count))
-    } else {
-        (print "")
+    }
+    if (phase_failed "Parser" parse_output.had_error parse_output.diagnostics) {
+        return 1
     }
     
     /* Step 4: Type check */
     if verbose {
         (println "Step 4: Type checking...")
-    } else {
-        (print "")
     }
-    let tc_result: int = (typecheck_parser parser)
-    
-    if (!= tc_result 0) {
-        (println "Type checking failed!")
+    let type_output: TypecheckPhaseOutput = (typecheck_phase_run parser)
+    if verbose {
+        (println "  Type check complete")
+    }
+    if (phase_failed "Typecheck" type_output.had_error type_output.diagnostics) {
         return 1
-    } else {
-        if verbose {
-            (println "  Type check: PASSED")
-        } else {
-            (print "")
-        }
     }
     
     /* Step 5: Generate C code */
     if verbose {
         (println "Step 5: Generating C code...")
-    } else {
-        (print "")
     }
-    let c_code: string = (transpile_parser parser)
+    let c_file: string = (str_concat output ".c")
+    let transpile_output: TranspilePhaseOutput = (transpile_phase_run parser c_file)
+    if (phase_failed "Transpiler" transpile_output.had_error transpile_output.diagnostics) {
+        return 1
+    }
+    let c_code: string = transpile_output.c_source
     
     /* Step 6: Write C file */
-    let c_file: string = (str_concat output ".c")
     if verbose {
         (print "  C file: ")
         (println c_file)
@@ -5366,11 +5504,10 @@ shadow parse_args {
 
 /* TEMPORARILY DISABLED: Shadow test crashes
 shadow main {
-    /* Integration test - just verify it runs */
+    # Integration test - just verify it runs
     assert (== (main) 0)
 }
 */
-
 
 /* ============================================================================
  * REQUIRED STDLIB FUNCTIONS (extern declarations)
@@ -5378,11 +5515,11 @@ shadow main {
  * These are provided by the C runtime and used by the compiler.
  * ============================================================================ */
 
-/* Generic List<Token> functions - generated by compiler */
-extern fn list_token_new() -> List<Token>
-extern fn list_token_push(list: List<Token>, value: Token) -> void
-extern fn list_token_get(list: List<Token>, index: int) -> Token
-extern fn list_token_length(list: List<Token>) -> int
+/* Generic List<LexerToken> functions - generated by compiler */
+extern fn list_LexerToken_new() -> List<LexerToken>
+extern fn list_LexerToken_push(list: List<LexerToken>, value: LexerToken) -> void
+extern fn list_LexerToken_get(list: List<LexerToken>, index: int) -> LexerToken
+extern fn list_LexerToken_length(list: List<LexerToken>) -> int
 
 /* File I/O functions */
 extern fn read_file(filename: string) -> string

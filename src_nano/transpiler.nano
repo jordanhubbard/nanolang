@@ -19,6 +19,7 @@
 
 import "src_nano/compiler/ir.nano"
 import "src_nano/parser.nano"
+import "src_nano/compiler/diagnostics.nano" as Diagnostics
 
 /* =============================================================================
  * CODE GENERATION STATE
@@ -1333,19 +1334,19 @@ fn generate_union_definitions(parser: Parser) -> string {
  * Returns: C operator string
  */
 fn operator_to_string(op: int) -> string {
-    if (== op NLTokenType.NL_TOKEN_PLUS) { return "+" }
-    else { if (== op NLTokenType.NL_TOKEN_MINUS) { return "-" }
-    else { if (== op NLTokenType.NL_TOKEN_STAR) { return "*" }
-    else { if (== op NLTokenType.NL_TOKEN_SLASH) { return "/" }
-    else { if (== op NLTokenType.NL_TOKEN_PERCENT) { return "%" }
-    else { if (== op NLTokenType.NL_TOKEN_EQ) { return "==" }
-    else { if (== op NLTokenType.NL_TOKEN_NE) { return "!=" }
-    else { if (== op NLTokenType.NL_TOKEN_LT) { return "<" }
-    else { if (== op NLTokenType.NL_TOKEN_LE) { return "<=" }
-    else { if (== op NLTokenType.NL_TOKEN_GT) { return ">" }
-    else { if (== op NLTokenType.NL_TOKEN_GE) { return ">=" }
-    else { if (== op NLTokenType.NL_TOKEN_AND) { return "&&" }
-    else { if (== op NLTokenType.NL_TOKEN_OR) { return "||" }
+    if (== op LexerTokenType.TOKEN_PLUS) { return "+" }
+    else { if (== op LexerTokenType.TOKEN_MINUS) { return "-" }
+    else { if (== op LexerTokenType.TOKEN_STAR) { return "*" }
+    else { if (== op LexerTokenType.TOKEN_SLASH) { return "/" }
+    else { if (== op LexerTokenType.TOKEN_PERCENT) { return "%" }
+    else { if (== op LexerTokenType.TOKEN_EQ) { return "==" }
+    else { if (== op LexerTokenType.TOKEN_NE) { return "!=" }
+    else { if (== op LexerTokenType.TOKEN_LT) { return "<" }
+    else { if (== op LexerTokenType.TOKEN_LE) { return "<=" }
+    else { if (== op LexerTokenType.TOKEN_GT) { return ">" }
+    else { if (== op LexerTokenType.TOKEN_GE) { return ">=" }
+    else { if (== op LexerTokenType.TOKEN_AND) { return "&&" }
+    else { if (== op LexerTokenType.TOKEN_OR) { return "||" }
     else { return "+" }
     }}}}}}}}}}}}
 }
@@ -1411,9 +1412,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                 let left_is_arr: bool = (is_array_type left_arr_t)
                 let right_is_arr: bool = (is_array_type right_arr_t)
-                let is_arith: bool = (or (or (== binop.op NLTokenType.NL_TOKEN_PLUS) (== binop.op NLTokenType.NL_TOKEN_MINUS))
-                                      (or (or (== binop.op NLTokenType.NL_TOKEN_STAR) (== binop.op NLTokenType.NL_TOKEN_SLASH))
-                                          (== binop.op NLTokenType.NL_TOKEN_PERCENT)))
+                let is_arith: bool = (or (or (== binop.op LexerTokenType.TOKEN_PLUS) (== binop.op LexerTokenType.TOKEN_MINUS))
+                                      (or (or (== binop.op LexerTokenType.TOKEN_STAR) (== binop.op LexerTokenType.TOKEN_SLASH))
+                                          (== binop.op LexerTokenType.TOKEN_PERCENT)))
 
                 if (and is_arith (or left_is_arr right_is_arr)) {
                     let mut elem_t: string = "int"
@@ -1453,7 +1454,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         set result (str_concat result "(_out, ")
 
                         if (== elem_t "string") {
-                            if (== binop.op NLTokenType.NL_TOKEN_PLUS) {
+                            if (== binop.op LexerTokenType.TOKEN_PLUS) {
                                 set result (str_concat result "nl_str_concat(_x, _y)")
                             } else {
                                 set result (str_concat result "0")
@@ -1487,7 +1488,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         set result (str_concat result push_fn)
                         set result (str_concat result "(_out, ")
                         if (== elem_t "string") {
-                            if (== binop.op NLTokenType.NL_TOKEN_PLUS) {
+                            if (== binop.op LexerTokenType.TOKEN_PLUS) {
                                 set result (str_concat result "nl_str_concat(_x, _s)")
                             } else {
                                 set result (str_concat result "0")
@@ -1518,7 +1519,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         set result (str_concat result push_fn)
                         set result (str_concat result "(_out, ")
                         if (== elem_t "string") {
-                            if (== binop.op NLTokenType.NL_TOKEN_PLUS) {
+                            if (== binop.op LexerTokenType.TOKEN_PLUS) {
                                 set result (str_concat result "nl_str_concat(_s, _x)")
                             } else {
                                 set result (str_concat result "0")
@@ -2475,6 +2476,23 @@ pub fn transpile_parser(parser: Parser) -> string {
     
     (println "✓ Code generation complete!")
     return (gen_c_program_with_modules parser all_functions)
+}
+
+pub fn transpile_phase(parser: Parser, output_path: string) -> TranspilePhaseOutput {
+    let c_source: string = (transpile_parser parser)
+    let diagnostics: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    return TranspilePhaseOutput {
+        c_source: c_source,
+        diagnostics: diagnostics,
+        had_error: false,
+        output_path: output_path
+    }
+}
+
+shadow transpile_phase {
+    let parser: Parser = (parser_init_ast_lists)
+    let output: TranspilePhaseOutput = (transpile_phase parser "a.out.c")
+    assert (== output.had_error false)
 }
 
 /* Simplified transpile for count-based code generation */
