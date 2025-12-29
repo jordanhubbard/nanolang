@@ -1,0 +1,674 @@
+{
+  "token": {
+    "fields": [
+      {"name": "token_type", "type": "enum"},
+      {"name": "value", "type": "string"},
+      {"name": "line", "type": "int"},
+      {"name": "column", "type": "int"}
+    ]
+  },
+  "tokens": [
+    "TOKEN_EOF",
+    "TOKEN_NUMBER",
+    "TOKEN_FLOAT",
+    "TOKEN_STRING",
+    "TOKEN_IDENTIFIER",
+    "TOKEN_TRUE",
+    "TOKEN_FALSE",
+    "TOKEN_LPAREN",
+    "TOKEN_RPAREN",
+    "TOKEN_LBRACE",
+    "TOKEN_RBRACE",
+    "TOKEN_LBRACKET",
+    "TOKEN_RBRACKET",
+    "TOKEN_COMMA",
+    "TOKEN_COLON",
+    "TOKEN_DOUBLE_COLON",
+    "TOKEN_ARROW",
+    "TOKEN_ASSIGN",
+    "TOKEN_DOT",
+    "TOKEN_MODULE",
+    "TOKEN_PUB",
+    "TOKEN_FROM",
+    "TOKEN_USE",
+    "TOKEN_EXTERN",
+    "TOKEN_FN",
+    "TOKEN_LET",
+    "TOKEN_MUT",
+    "TOKEN_SET",
+    "TOKEN_IF",
+    "TOKEN_ELSE",
+    "TOKEN_WHILE",
+    "TOKEN_FOR",
+    "TOKEN_IN",
+    "TOKEN_RETURN",
+    "TOKEN_ASSERT",
+    "TOKEN_SHADOW",
+    "TOKEN_PRINT",
+    "TOKEN_ARRAY",
+    "TOKEN_STRUCT",
+    "TOKEN_ENUM",
+    "TOKEN_UNION",
+    "TOKEN_MATCH",
+    "TOKEN_IMPORT",
+    "TOKEN_AS",
+    "TOKEN_OPAQUE",
+    "TOKEN_TYPE_INT",
+    "TOKEN_TYPE_U8",
+    "TOKEN_TYPE_FLOAT",
+    "TOKEN_TYPE_BOOL",
+    "TOKEN_TYPE_STRING",
+    "TOKEN_TYPE_BSTRING",
+    "TOKEN_TYPE_VOID",
+    "TOKEN_PLUS",
+    "TOKEN_MINUS",
+    "TOKEN_STAR",
+    "TOKEN_SLASH",
+    "TOKEN_PERCENT",
+    "TOKEN_EQ",
+    "TOKEN_NE",
+    "TOKEN_LT",
+    "TOKEN_LE",
+    "TOKEN_GT",
+    "TOKEN_GE",
+    "TOKEN_AND",
+    "TOKEN_OR",
+    "TOKEN_NOT",
+    "TOKEN_RANGE",
+    "TOKEN_UNSAFE"
+  ],
+  "parse_nodes": [
+    "PNODE_NUMBER",
+    "PNODE_FLOAT",
+    "PNODE_STRING",
+    "PNODE_BOOL",
+    "PNODE_IDENTIFIER",
+    "PNODE_BINARY_OP",
+    "PNODE_CALL",
+    "PNODE_ARRAY_LITERAL",
+    "PNODE_LET",
+    "PNODE_SET",
+    "PNODE_IF",
+    "PNODE_WHILE",
+    "PNODE_FOR",
+    "PNODE_RETURN",
+    "PNODE_BLOCK",
+    "PNODE_PRINT",
+    "PNODE_ASSERT",
+    "PNODE_PROGRAM",
+    "PNODE_FUNCTION",
+    "PNODE_SHADOW",
+    "PNODE_STRUCT_DEF",
+    "PNODE_STRUCT_LITERAL",
+    "PNODE_FIELD_ACCESS",
+    "PNODE_ENUM_DEF",
+    "PNODE_UNION_DEF",
+    "PNODE_UNION_CONSTRUCT",
+    "PNODE_MATCH",
+    "PNODE_IMPORT",
+    "PNODE_OPAQUE_TYPE",
+    "PNODE_TUPLE_LITERAL",
+    "PNODE_TUPLE_INDEX",
+    "PNODE_STRUCT",
+    "PNODE_ENUM",
+    "PNODE_UNION",
+    "PNODE_UNSAFE_BLOCK"
+  ],
+  "nano_enums": [
+    {
+      "name": "TypeKind",
+      "contracts": true,
+      "values": [
+        "TYPE_INT",
+        "TYPE_FLOAT",
+        "TYPE_BOOL",
+        "TYPE_STRING",
+        "TYPE_VOID",
+        "TYPE_ARRAY",
+        "TYPE_STRUCT",
+        "TYPE_ENUM",
+        "TYPE_UNION",
+        "TYPE_GENERIC",
+        "TYPE_LIST_INT",
+        "TYPE_LIST_STRING",
+        "TYPE_LIST_GENERIC",
+        "TYPE_FUNCTION",
+        "TYPE_TUPLE",
+        "TYPE_OPAQUE",
+        "TYPE_UNKNOWN"
+      ]
+    },
+    {
+      "name": "DiagnosticSeverity",
+      "contracts": true,
+      "values": [
+        "DIAG_INFO",
+        "DIAG_WARNING",
+        "DIAG_ERROR"
+      ]
+    },
+    {
+      "name": "CompilerPhase",
+      "contracts": true,
+      "values": [
+        "PHASE_LEXER",
+        "PHASE_PARSER",
+        "PHASE_TYPECHECK",
+        "PHASE_TRANSPILER",
+        "PHASE_RUNTIME"
+      ]
+    }
+  ],
+  "nano_structs": [
+    {
+      "name": "ParseNode",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"]
+      ]
+    },
+    {
+      "name": "ASTNumber",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["value", "string"]
+      ]
+    },
+    {
+      "name": "ASTFloat",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["value", "string"]
+      ]
+    },
+    {
+      "name": "ASTString",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["value", "string"]
+      ]
+    },
+    {
+      "name": "ASTBool",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["value", "bool"]
+      ]
+    },
+    {
+      "name": "ASTIdentifier",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["name", "string"]
+      ]
+    },
+    {
+      "name": "ASTBinaryOp",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["op", "int"],
+        ["left", "int"],
+        ["right", "int"],
+        ["left_type", "int"],
+        ["right_type", "int"]
+      ]
+    },
+    {
+      "name": "ASTCall",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["function", "int"],
+        ["arg_start", "int"],
+        ["arg_count", "int"]
+      ]
+    },
+    {
+      "name": "ASTArrayLiteral",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["element_type", "string"],
+        ["element_start", "int"],
+        ["element_count", "int"]
+      ]
+    },
+    {
+      "name": "ASTLet",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["name", "string"],
+        ["var_type", "string"],
+        ["value", "int"],
+        ["value_type", "int"],
+        ["is_mut", "bool"]
+      ]
+    },
+    {
+      "name": "ASTSet",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["target", "string"],
+        ["value", "int"],
+        ["value_type", "int"]
+      ]
+    },
+    {
+      "name": "ASTStmtRef",
+      "fields": [
+        ["node_id", "int"],
+        ["node_type", "int"]
+      ]
+    },
+    {
+      "name": "ASTIf",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["condition", "int"],
+        ["condition_type", "int"],
+        ["then_body", "int"],
+        ["else_body", "int"]
+      ]
+    },
+    {
+      "name": "ASTWhile",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["condition", "int"],
+        ["condition_type", "int"],
+        ["body", "int"]
+      ]
+    },
+    {
+      "name": "ASTFor",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["var_name", "string"],
+        ["iterable", "int"],
+        ["iterable_type", "int"],
+        ["body", "int"]
+      ]
+    },
+    {
+      "name": "ASTReturn",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["value", "int"],
+        ["value_type", "int"]
+      ]
+    },
+    {
+      "name": "ASTBlock",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["statement_start", "int"],
+        ["statement_count", "int"]
+      ]
+    },
+    {
+      "name": "ASTUnsafeBlock",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["statement_start", "int"],
+        ["statement_count", "int"]
+      ]
+    },
+    {
+      "name": "ASTPrint",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["value", "int"],
+        ["value_type", "int"]
+      ]
+    },
+    {
+      "name": "ASTAssert",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["condition", "int"],
+        ["condition_type", "int"]
+      ]
+    },
+    {
+      "name": "ASTFunction",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["name", "string"],
+        ["param_start", "int"],
+        ["param_count", "int"],
+        ["return_type", "string"],
+        ["body", "int"]
+      ]
+    },
+    {
+      "name": "ASTStruct",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["name", "string"],
+        ["field_count", "int"]
+      ]
+    },
+    {
+      "name": "ASTStructLiteral",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["struct_name", "string"],
+        ["field_names", "array<string>"],
+        ["field_value_ids", "array<int>"],
+        ["field_value_types", "array<int>"],
+        ["field_count", "int"]
+      ]
+    },
+    {
+      "name": "ASTFieldAccess",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["object", "int"],
+        ["object_type", "int"],
+        ["field_name", "string"]
+      ]
+    },
+    {
+      "name": "ASTEnum",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["name", "string"],
+        ["variant_count", "int"]
+      ]
+    },
+    {
+      "name": "ASTUnion",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["name", "string"],
+        ["variant_count", "int"]
+      ]
+    },
+    {
+      "name": "ASTUnionConstruct",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["union_name", "string"],
+        ["variant_name", "string"],
+        ["field_names", "array<string>"],
+        ["field_value_ids", "array<int>"],
+        ["field_value_types", "array<int>"],
+        ["field_count", "int"]
+      ]
+    },
+    {
+      "name": "ASTMatchArm",
+      "fields": [
+        ["variant_name", "string"],
+        ["binding_name", "string"],
+        ["body_id", "int"],
+        ["body_type", "int"]
+      ]
+    },
+    {
+      "name": "ASTMatch",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["scrutinee", "int"],
+        ["scrutinee_type", "int"],
+        ["arm_variants", "array<string>"],
+        ["arm_bindings", "array<string>"],
+        ["arm_body_ids", "array<int>"],
+        ["arm_body_types", "array<int>"],
+        ["arm_count", "int"]
+      ]
+    },
+    {
+      "name": "ASTImport",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["module_path", "string"],
+        ["module_name", "string"]
+      ]
+    },
+    {
+      "name": "ASTOpaqueType",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["type_name", "string"]
+      ]
+    },
+    {
+      "name": "ASTTupleLiteral",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["element_ids", "array<int>"],
+        ["element_types", "array<int>"],
+        ["element_count", "int"]
+      ]
+    },
+    {
+      "name": "ASTTupleIndex",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["tuple", "int"],
+        ["tuple_type", "int"],
+        ["index", "int"]
+      ]
+    },
+    {
+      "name": "Parser",
+      "fields": [
+        ["tokens", "List<LexerToken>"],
+        ["position", "int"],
+        ["token_count", "int"],
+        ["has_error", "bool"],
+        ["numbers", "List<ASTNumber>"],
+        ["floats", "List<ASTFloat>"],
+        ["strings", "List<ASTString>"],
+        ["bools", "List<ASTBool>"],
+        ["identifiers", "List<ASTIdentifier>"],
+        ["binary_ops", "List<ASTBinaryOp>"],
+        ["calls", "List<ASTCall>"],
+        ["call_args", "List<ASTStmtRef>"],
+        ["array_elements", "List<ASTStmtRef>"],
+        ["array_literals", "List<ASTArrayLiteral>"],
+        ["lets", "List<ASTLet>"],
+        ["sets", "List<ASTSet>"],
+        ["ifs", "List<ASTIf>"],
+        ["whiles", "List<ASTWhile>"],
+        ["fors", "List<ASTFor>"],
+        ["returns", "List<ASTReturn>"],
+        ["blocks", "List<ASTBlock>"],
+        ["unsafe_blocks", "List<ASTUnsafeBlock>"],
+        ["block_statements", "List<ASTStmtRef>"],
+        ["prints", "List<ASTPrint>"],
+        ["asserts", "List<ASTAssert>"],
+        ["functions", "List<ASTFunction>"],
+        ["shadows", "List<ASTShadow>"],
+        ["structs", "List<ASTStruct>"],
+        ["struct_literals", "List<ASTStructLiteral>"],
+        ["field_accesses", "List<ASTFieldAccess>"],
+        ["enums", "List<ASTEnum>"],
+        ["unions", "List<ASTUnion>"],
+        ["union_constructs", "List<ASTUnionConstruct>"],
+        ["matches", "List<ASTMatch>"],
+        ["imports", "List<ASTImport>"],
+        ["opaque_types", "List<ASTOpaqueType>"],
+        ["tuple_literals", "List<ASTTupleLiteral>"],
+        ["tuple_indices", "List<ASTTupleIndex>"],
+        ["numbers_count", "int"],
+        ["floats_count", "int"],
+        ["strings_count", "int"],
+        ["bools_count", "int"],
+        ["identifiers_count", "int"],
+        ["binary_ops_count", "int"],
+        ["calls_count", "int"],
+        ["array_literals_count", "int"],
+        ["lets_count", "int"],
+        ["sets_count", "int"],
+        ["ifs_count", "int"],
+        ["whiles_count", "int"],
+        ["fors_count", "int"],
+        ["returns_count", "int"],
+        ["blocks_count", "int"],
+        ["unsafe_blocks_count", "int"],
+        ["block_statements_count", "int"],
+        ["prints_count", "int"],
+        ["asserts_count", "int"],
+        ["functions_count", "int"],
+        ["shadows_count", "int"],
+        ["structs_count", "int"],
+        ["struct_literals_count", "int"],
+        ["field_accesses_count", "int"],
+        ["enums_count", "int"],
+        ["unions_count", "int"],
+        ["union_constructs_count", "int"],
+        ["matches_count", "int"],
+        ["imports_count", "int"],
+        ["opaque_types_count", "int"],
+        ["tuple_literals_count", "int"],
+        ["tuple_indices_count", "int"],
+        ["next_node_id", "int"],
+        ["last_expr_node_id", "int"],
+        ["last_expr_node_type", "int"]
+      ]
+    },
+    {
+      "name": "Type",
+      "contracts": true,
+      "fields": [
+        ["kind", "int"],
+        ["name", "string"],
+        ["element_type_kind", "int"],
+        ["element_type_name", "string"]
+      ]
+    },
+    {
+      "name": "OptionType",
+      "contracts": true,
+      "fields": [
+        ["has_value", "bool"],
+        ["value", "Type"]
+      ]
+    },
+    {
+      "name": "CompilerSourceLocation",
+      "emit_c": true,
+      "contracts": true,
+      "fields": [
+        ["file", "string"],
+        ["line", "int"],
+        ["column", "int"]
+      ]
+    },
+    {
+      "name": "CompilerDiagnostic",
+      "emit_c": true,
+      "contracts": true,
+      "fields": [
+        ["phase", "int"],
+        ["severity", "int"],
+        ["code", "string"],
+        ["message", "string"],
+        ["location", "CompilerSourceLocation"]
+      ]
+    },
+    {
+      "name": "LexPhaseOutput",
+      "contracts": true,
+      "fields": [
+        ["tokens", "List<LexerToken>"],
+        ["token_count", "int"],
+        ["diagnostics", "List<CompilerDiagnostic>"],
+        ["had_error", "bool"]
+      ]
+    },
+    {
+      "name": "ParsePhaseOutput",
+      "contracts": true,
+      "fields": [
+        ["parser", "Parser"],
+        ["diagnostics", "List<CompilerDiagnostic>"],
+        ["had_error", "bool"]
+      ]
+    },
+    {
+      "name": "TypecheckPhaseOutput",
+      "contracts": true,
+      "fields": [
+        ["environment", "TypeEnvironment"],
+        ["diagnostics", "List<CompilerDiagnostic>"],
+        ["had_error", "bool"]
+      ]
+    },
+    {
+      "name": "TranspilePhaseOutput",
+      "contracts": true,
+      "fields": [
+        ["c_source", "string"],
+        ["diagnostics", "List<CompilerDiagnostic>"],
+        ["had_error", "bool"],
+        ["output_path", "string"]
+      ]
+    }
+  ],
+  "type_environment": [
+    {"name": "error_count", "type": "int"},
+    {"name": "has_error", "type": "bool"}
+  ]
+}
