@@ -950,6 +950,8 @@ Before generating nanolang code, verify:
 
 ## Dynamic Array Operations
 
+**SEMANTICS:** NanoLang arrays use **pure functional semantics** - all operations return new arrays, original arrays are unchanged. This matches the immutable-by-default philosophy.
+
 NanoLang arrays are dynamic and garbage-collected. They can grow and shrink as needed.
 
 ### Creating Arrays
@@ -1009,9 +1011,9 @@ fn array_demo() -> int {
     set numbers (array_remove_at numbers 0)
     # numbers = [20, 30]
     
-    # Access and modify
+    # Access and create modified version
     let first: int = (at numbers 0)          # first = 20
-    (array_set numbers 0 99)                 # numbers = [99, 30]
+    set numbers (array_set numbers 0 99)     # numbers = [99, 30] (new array)
     
     return (array_length numbers)            # Returns 2
 }
@@ -1022,16 +1024,32 @@ shadow array_demo {
 ```
 
 ### Array Operations Summary
-| Operation | Function | Returns | Modifies Array? |
-|-----------|----------|---------|-----------------|
-| Append | `array_push(arr, elem)` | new array | No |
-| Remove last | `array_pop(arr)` | removed element | No |
-| Remove at index | `array_remove_at(arr, idx)` | new array | No |
-| Get element | `at(arr, idx)` | element value | No |
-| Set element | `array_set(arr, idx, val)` | void | Yes |
-| Get length | `array_length(arr)` | int | No |
 
-**Key Point:** Most array operations return new arrays due to the functional design. Use `set` to update your variables.
+**CHOSEN SEMANTICS: Fully Functional (Immutable by Default)**
+
+All array operations return new arrays and leave the original unchanged. This matches NanoLang's immutable-by-default philosophy.
+
+| Operation | Function | Returns | Original Array | Performance |
+|-----------|----------|---------|----------------|-------------|
+| Append | `array_push(arr, elem)` | new array | unchanged | O(1) amortized |
+| Remove last | `array_pop(arr)` | removed element | unchanged | O(1) |
+| Remove at index | `array_remove_at(arr, idx)` | new array | unchanged | O(n) |
+| Get element | `at(arr, idx)` | element value | unchanged | O(1) |
+| Set element | `array_set(arr, idx, val)` | new array | unchanged | O(n) copy |
+| Get length | `array_length(arr)` | int | unchanged | O(1) |
+
+**Implementation Detail:** Under the hood, operations use structural sharing and copy-on-write for efficiency. You don't pay for full array copies unless you actually modify elements.
+
+**Best Practice:** If you need to make many modifications, collect them and create a new array. Or consider using a mutable algorithm with explicit copies:
+
+```nano
+let mut working_copy: array<int> = arr  # Shallow copy
+set working_copy (array_push working_copy 1)
+set working_copy (array_push working_copy 2)
+# Original arr is still unchanged
+```
+
+**Key Principle:** Pure functional semantics → no hidden mutations → easier to reason about → fewer bugs.
 
 ## Advanced Features
 

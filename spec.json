@@ -316,9 +316,9 @@
       "at": { "signature": "at(array<T>, int) -> T", "description": "Get element (bounds-checked)" },
       "array_length": { "signature": "array_length(array<T>) -> int", "description": "Get array length" },
       "array_new": { "signature": "array_new(int, T) -> array<T>", "description": "Create new array with size and default value" },
-      "array_set": { "signature": "array_set(array<T>, int, T) -> void", "description": "Set element (bounds-checked)" },
-      "array_push": { "signature": "array_push(array<T>, T) -> array<T>", "description": "Append element to end (returns new array)" },
-      "array_pop": { "signature": "array_pop(array<T>) -> T", "description": "Remove and return last element" },
+      "array_set": { "signature": "array_set(array<T>, int, T) -> array<T>", "description": "Set element at index (returns new array, original unchanged)" },
+      "array_push": { "signature": "array_push(array<T>, T) -> array<T>", "description": "Append element to end (returns new array, original unchanged)" },
+      "array_pop": { "signature": "array_pop(array<T>) -> T", "description": "Remove and return last element (original array unchanged)" },
       "array_remove_at": { "signature": "array_remove_at(array<T>, int) -> array<T>", "description": "Remove element at index (returns new array)" },
       "filter": {
         "signature": "filter(array<T>, fn(T) -> bool) -> array<T>",
