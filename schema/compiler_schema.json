@@ -511,6 +511,7 @@
     },
     {
       "name": "ASTTupleIndex",
+      "emit_c": false,
       "fields": [
         ["node_type", "int"],
         ["line", "int"],
@@ -620,7 +621,6 @@
       "name": "CompilerSourceLocation",
       "emit_c": false,
       "contracts": true,
-      "comment": "Defined in compiler_ast.nano for self-hosting, emitted to C from there",
       "fields": [
         ["file", "string"],
         ["line", "int"],
@@ -631,7 +631,6 @@
       "name": "CompilerDiagnostic",
       "emit_c": false,
       "contracts": true,
-      "comment": "Defined in compiler_ast.nano for self-hosting, emitted to C from there",
       "fields": [
         ["phase", "int"],
         ["severity", "int"],

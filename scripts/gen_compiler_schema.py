@@ -78,6 +78,17 @@ def gen_nano_schema(schema: dict) -> str:
     lines.append("}")
     lines.append("")
 
+    # Add extern declarations for C-emitted types
+    for struct in schema.get("nano_structs", []):
+        if not struct.get("emit_c"):
+            continue
+        lines.append(f"extern struct {struct['name']} {{")
+        for idx, (field_name, field_type) in enumerate(struct["fields"]):
+            comma = "," if idx < len(struct["fields"]) - 1 else ""
+            lines.append(f"    {field_name}: {field_type}{comma}")
+        lines.append("}")
+        lines.append("")
+
     return "\n".join(lines)
 
 
@@ -93,6 +104,9 @@ def gen_nano_ast(schema: dict) -> str:
         lines.append("")
 
     for struct in schema.get("nano_structs", []):
+        # Skip structs that are emitted to C - they're available via C header
+        if struct.get("emit_c"):
+            continue
         lines.append(f"struct {struct['name']} {{")
         for idx, (field_name, field_type) in enumerate(struct["fields"]):
             comma = "," if idx < len(struct["fields"]) - 1 else ""
