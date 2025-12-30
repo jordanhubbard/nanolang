@@ -96,12 +96,12 @@ fn get_asteroid_score(size: int) -> int {
 
 fn main() -> int {
     # Initialize SDL
-    (SDL_Init SDL_INIT_VIDEO)
+    unsafe {     (SDL_Init SDL_INIT_VIDEO) }
     let window: SDL_Window = (SDL_CreateWindow "Asteroids Complete" 100 100 WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
     
     # Initialize SDL_TTF
-    (TTF_Init)
+    unsafe {     (TTF_Init) }
     let font: TTF_Font = (nl_open_font_portable "Arial" 24)
     let help_font: TTF_Font = (nl_open_font_portable "Arial" 12)
     if (== font 0) {
@@ -528,12 +528,12 @@ fn main() -> int {
         }
         
         # Render
-        (SDL_SetRenderDrawColor renderer 0 0 0 255)
-        (SDL_RenderClear renderer)
+        unsafe {         (SDL_SetRenderDrawColor renderer 0 0 0 255) }
+        unsafe {         (SDL_RenderClear renderer) }
         
         # Draw ship (only if alive)
         if ship_alive {
-            (SDL_SetRenderDrawColor renderer 255 255 255 255)
+            unsafe {             (SDL_SetRenderDrawColor renderer 255 255 255 255) }
             
             let cos_a: float = (cos ship_angle)
             let sin_a: float = (sin ship_angle)
@@ -549,15 +549,15 @@ fn main() -> int {
             let bx2: int = (cast_int (+ ship_x (* (cos back_angle2) (* SHIP_SIZE 0.6))))
             let by2: int = (cast_int (+ ship_y (* (sin back_angle2) (* SHIP_SIZE 0.6))))
             
-            (SDL_RenderDrawLine renderer (cast_int ship_x) (cast_int ship_y) fx fy)
-            (SDL_RenderDrawLine renderer fx fy bx1 by1)
-            (SDL_RenderDrawLine renderer bx1 by1 bx2 by2)
-            (SDL_RenderDrawLine renderer bx2 by2 fx fy)
+            unsafe {             (SDL_RenderDrawLine renderer (cast_int ship_x) (cast_int ship_y) fx fy) }
+            unsafe {             (SDL_RenderDrawLine renderer fx fy bx1 by1) }
+            unsafe {             (SDL_RenderDrawLine renderer bx1 by1 bx2 by2) }
+            unsafe {             (SDL_RenderDrawLine renderer bx2 by2 fx fy) }
             
             # Draw thrust cone if thrusting (only when playing)
             if (== game_state STATE_PLAYING) {
                 if thrust {
-                    (SDL_SetRenderDrawColor renderer 255 200 0 255)
+                    unsafe {                     (SDL_SetRenderDrawColor renderer 255 200 0 255) }
                     
                     # Thrust cone points backward from ship center
                     let thrust_length: float = (* SHIP_SIZE 0.8)
@@ -567,9 +567,9 @@ fn main() -> int {
                     let ty: int = (cast_int (+ ship_y (* (sin thrust_angle) thrust_length)))
                     
                     # Draw thrust cone as lines
-                    (SDL_RenderDrawLine renderer (cast_int ship_x) (cast_int ship_y) tx ty)
-                    (SDL_RenderDrawLine renderer bx1 by1 tx ty)
-                    (SDL_RenderDrawLine renderer bx2 by2 tx ty)
+                    unsafe {                     (SDL_RenderDrawLine renderer (cast_int ship_x) (cast_int ship_y) tx ty) }
+                    unsafe {                     (SDL_RenderDrawLine renderer bx1 by1 tx ty) }
+                    unsafe {                     (SDL_RenderDrawLine renderer bx2 by2 tx ty) }
                 }
             }
         }
@@ -583,12 +583,12 @@ fn main() -> int {
                 
                 # Color by size
                 if (== asize ASTEROID_SIZE_LARGE) {
-                    (SDL_SetRenderDrawColor renderer 180 180 180 255)
+                    unsafe {                     (SDL_SetRenderDrawColor renderer 180 180 180 255) }
                 } else {
                     if (== asize ASTEROID_SIZE_MEDIUM) {
-                        (SDL_SetRenderDrawColor renderer 150 150 150 255)
+                        unsafe {                         (SDL_SetRenderDrawColor renderer 150 150 150 255) }
                     } else {
-                        (SDL_SetRenderDrawColor renderer 120 120 120 255)
+                        unsafe {                         (SDL_SetRenderDrawColor renderer 120 120 120 255) }
                     }
                 }
                 
@@ -602,7 +602,7 @@ fn main() -> int {
                     let rad: float = (* (cast_float angle) DEG_TO_RAD)
                     let px: int = (cast_int (+ (cast_float ax) (* aradius (cos rad))))
                     let py: int = (cast_int (+ (cast_float ay) (* aradius (sin rad))))
-                    (SDL_RenderDrawPoint renderer px py)
+                    unsafe {                     (SDL_RenderDrawPoint renderer px py) }
                     set angle (+ angle 10)
                 }
             }
@@ -614,13 +614,13 @@ fn main() -> int {
         while (< i (array_length bullet_x)) {
             let active: bool = (at bullet_active i)
             if active {
-                (SDL_SetRenderDrawColor renderer 255 255 0 255)
+                unsafe {                 (SDL_SetRenderDrawColor renderer 255 255 0 255) }
                 let bx: int = (cast_int (at bullet_x i))
                 let by: int = (cast_int (at bullet_y i))
-                (SDL_RenderDrawPoint renderer bx by)
-                (SDL_RenderDrawPoint renderer (+ bx 1) by)
-                (SDL_RenderDrawPoint renderer bx (+ by 1))
-                (SDL_RenderDrawPoint renderer (+ bx 1) (+ by 1))
+                unsafe {                 (SDL_RenderDrawPoint renderer bx by) }
+                unsafe {                 (SDL_RenderDrawPoint renderer (+ bx 1) by) }
+                unsafe {                 (SDL_RenderDrawPoint renderer bx (+ by 1)) }
+                unsafe {                 (SDL_RenderDrawPoint renderer (+ bx 1) (+ by 1)) }
             }
             set i (+ i 1)
         }
@@ -631,8 +631,8 @@ fn main() -> int {
             let plife: float = (at particle_life i)
             if (> plife 0.0) {
                 let alpha: int = (cast_int (* plife 255.0))
-                (SDL_SetRenderDrawColor renderer 255 150 0 alpha)
-                (SDL_RenderDrawPoint renderer (cast_int (at particle_x i)) (cast_int (at particle_y i)))
+                unsafe {                 (SDL_SetRenderDrawColor renderer 255 150 0 alpha) }
+                unsafe {                 (SDL_RenderDrawPoint renderer (cast_int (at particle_x i)) (cast_int (at particle_y i))) }
             }
             set i (+ i 1)
         }
@@ -641,11 +641,11 @@ fn main() -> int {
         if (!= font 0) {
             # Draw Lives (top left)
             let lives_text: string = (str_concat "Lives: " (int_to_string lives))
-            (nl_draw_text_blended renderer font lives_text 10 10 255 255 255 255)
+            unsafe {             (nl_draw_text_blended renderer font lives_text 10 10 255 255 255 255) }
             
             # Draw Score (top center)
             let score_text: string = (str_concat "Score: " (int_to_string score))
-            (nl_draw_text_blended renderer font score_text 350 10 255 255 0 255)
+            unsafe {             (nl_draw_text_blended renderer font score_text 350 10 255 255 0 255) }
             
             # Debug mode checkbox (bottom left)
             set debug_mode (nl_ui_checkbox renderer font "Debug" 10 560 debug_mode)
@@ -657,40 +657,40 @@ fn main() -> int {
                 let mut debug_text: string = (str_concat "Asteroids: " (int_to_string asteroid_count))
                 set debug_text (str_concat debug_text " Bullets: ")
                 set debug_text (str_concat debug_text (int_to_string bullet_count))
-                (nl_draw_text_blended renderer font debug_text 150 563 100 255 100 255)
+                unsafe {                 (nl_draw_text_blended renderer font debug_text 150 563 100 255 100 255) }
             }
         } else {
             # Fallback: Draw simple HUD with rectangles if font didn't load
-            (SDL_SetRenderDrawColor renderer 255 255 255 255)
+            unsafe {             (SDL_SetRenderDrawColor renderer 255 255 255 255) }
             
             # Lives indicator (top left) - draw small rectangles for each life
             let mut life_i: int = 0
             while (< life_i lives) {
                 let lx: int = (+ 10 (* life_i 20))
-                (nl_sdl_render_fill_rect renderer lx 10 15 15)
+                unsafe {                 (nl_sdl_render_fill_rect renderer lx 10 15 15) }
                 set life_i (+ life_i 1)
             }
             
             # Score indicator (bottom right) - draw rectangles proportional to score
-            (SDL_SetRenderDrawColor renderer 255 255 0 255)
+            unsafe {             (SDL_SetRenderDrawColor renderer 255 255 0 255) }
             let mut score_width: int = (/ score 10)
             if (> score_width 200) { set score_width 200 }
-            (nl_sdl_render_fill_rect renderer (- 790 score_width) 570 score_width 20)
+            unsafe {             (nl_sdl_render_fill_rect renderer (- 790 score_width) 570 score_width 20) }
         }
         
         # Draw GAME OVER screen
         if (== game_state STATE_GAME_OVER) {
             # Draw semi-transparent overlay
-            (SDL_SetRenderDrawColor renderer 0 0 0 128)
-            (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH WINDOW_HEIGHT)
+            unsafe {             (SDL_SetRenderDrawColor renderer 0 0 0 128) }
+            unsafe {             (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH WINDOW_HEIGHT) }
             
             if (!= font 0) {
                 # Draw GAME OVER text with fonts
-                (nl_draw_text_blended renderer font_large "GAME OVER" 250 250 255 0 0 255)
+                unsafe {                 (nl_draw_text_blended renderer font_large "GAME OVER" 250 250 255 0 0 255) }
                 
                 # Draw final score
                 let final_score_text: string = (str_concat "Final Score: " (int_to_string score))
-                (nl_draw_text_blended renderer font final_score_text 280 320 255 255 255 255)
+                unsafe {                 (nl_draw_text_blended renderer font final_score_text 280 320 255 255 255 255) }
                 
                 # Restart button
                 if (== (nl_ui_button renderer font "Restart Game" 325 380 150 40) 1) {
@@ -736,32 +736,32 @@ fn main() -> int {
                 }
             } else {
                 # Fallback: Draw large red rectangle for GAME OVER
-                (SDL_SetRenderDrawColor renderer 255 0 0 255)
-                (nl_sdl_render_fill_rect renderer 250 250 300 50)
+                unsafe {                 (SDL_SetRenderDrawColor renderer 255 0 0 255) }
+                unsafe {                 (nl_sdl_render_fill_rect renderer 250 250 300 50) }
                 
                 # Draw white border
-                (SDL_SetRenderDrawColor renderer 255 255 255 255)
-                (SDL_RenderDrawLine renderer 250 250 550 250)
-                (SDL_RenderDrawLine renderer 550 250 550 300)
-                (SDL_RenderDrawLine renderer 550 300 250 300)
-                (SDL_RenderDrawLine renderer 250 300 250 250)
+                unsafe {                 (SDL_SetRenderDrawColor renderer 255 255 255 255) }
+                unsafe {                 (SDL_RenderDrawLine renderer 250 250 550 250) }
+                unsafe {                 (SDL_RenderDrawLine renderer 550 250 550 300) }
+                unsafe {                 (SDL_RenderDrawLine renderer 550 300 250 300) }
+                unsafe {                 (SDL_RenderDrawLine renderer 250 300 250 250) }
             }
         }
         
         # Draw on-screen help
-        (nl_draw_text_blended renderer help_font "Up: Thrust | Left/Right: Rotate | Space: Shoot | R: Restart | ESC: Quit" 10 10 255 255 255 255)
+        unsafe {         (nl_draw_text_blended renderer help_font "Up: Thrust | Left/Right: Rotate | Space: Shoot | R: Restart | ESC: Quit" 10 10 255 255 255 255) }
         
-        (SDL_RenderPresent renderer)
-        (SDL_Delay 16)
+        unsafe {         (SDL_RenderPresent renderer) }
+        unsafe {         (SDL_Delay 16) }
     }
     
-    (TTF_CloseFont font)
-    (TTF_CloseFont font_large)
-    (TTF_CloseFont help_font)
-    (TTF_Quit)
-    (SDL_DestroyRenderer renderer)
-    (SDL_DestroyWindow window)
-    (SDL_Quit)
+    unsafe {     (TTF_CloseFont font) }
+    unsafe {     (TTF_CloseFont font_large) }
+    unsafe {     (TTF_CloseFont help_font) }
+    unsafe {     (TTF_Quit) }
+    unsafe {     (SDL_DestroyRenderer renderer) }
+    unsafe {     (SDL_DestroyWindow window) }
+    unsafe {     (SDL_Quit) }
     
     return 0
 }

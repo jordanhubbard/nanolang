@@ -453,14 +453,14 @@ fn main() -> int {
     (println "✓ OpenGL 3D setup complete")
     
     # Initialize SDL for audio
-    (SDL_Init SDL_INIT_AUDIO)
+    unsafe {     (SDL_Init SDL_INIT_AUDIO) }
     
     # Initialize SDL_mixer
     let mixer_init: int = (Mix_Init 8)  # MP3 support
     if (!= mixer_init 8) {
         (println "✗ SDL_mixer initialization failed")
         (glfwTerminate)
-        (SDL_Quit)
+        unsafe {         (SDL_Quit) }
         return 1
     } else {
         (println "✓ SDL_mixer initialized")
@@ -469,20 +469,20 @@ fn main() -> int {
     let audio_result: int = (Mix_OpenAudio 44100 32784 2 2048)
     if (!= audio_result 0) {
         (println "✗ Failed to open audio device")
-        (Mix_Quit)
+        unsafe {         (Mix_Quit) }
         (glfwTerminate)
-        (SDL_Quit)
+        unsafe {         (SDL_Quit) }
         return 1
     } else {
         (println "✓ Audio device opened")
     }
     
     # Initialize audio visualization
-    (nl_audio_viz_init 32784 2)
+    unsafe {     (nl_audio_viz_init 32784 2) }
     (println "✓ Audio visualization initialized")
     
     # Initialize SDL_TTF for UI
-    (TTF_Init)
+    unsafe {     (TTF_Init) }
     
     # Load font (needed for UI even though we're using OpenGL)
     let font: TTF_Font = (nl_open_font_portable "Arial" 14)
@@ -511,7 +511,7 @@ fn main() -> int {
     }
     
     # Set volume
-    (Mix_VolumeMusic 80)
+    unsafe {     (Mix_VolumeMusic 80) }
     
     # State variables
     let mut running: bool = true
@@ -545,14 +545,14 @@ fn main() -> int {
             if (not space_was_pressed) {
                 if has_music {
                     if is_playing {
-                        (Mix_PauseMusic)
+                        unsafe {                         (Mix_PauseMusic) }
                         set is_playing false
                         (println "Paused")
                     } else {
                         if (== frame 0) {
-                            (Mix_PlayMusic music -1)
+                            unsafe {                             (Mix_PlayMusic music -1) }
                         } else {
-                            (Mix_ResumeMusic)
+                            unsafe {                             (Mix_ResumeMusic) }
                         }
                         set is_playing true
                         (println "Playing")
@@ -566,27 +566,27 @@ fn main() -> int {
         if (== (glfwGetKey window GLFW_KEY_1) 1) {
             set viz_mode VIZ_TUNNEL
             (println "Mode: Tunnel")
-            (SDL_Delay 200)
+            unsafe {             (SDL_Delay 200) }
         } else {}
         if (== (glfwGetKey window GLFW_KEY_2) 1) {
             set viz_mode VIZ_SPECTRUM_SPHERE
             (println "Mode: Spectrum Sphere")
-            (SDL_Delay 200)
+            unsafe {             (SDL_Delay 200) }
         } else {}
         if (== (glfwGetKey window GLFW_KEY_3) 1) {
             set viz_mode VIZ_PARTICLES
             (println "Mode: Particles")
-            (SDL_Delay 200)
+            unsafe {             (SDL_Delay 200) }
         } else {}
         if (== (glfwGetKey window GLFW_KEY_4) 1) {
             set viz_mode VIZ_WAVEFORM_3D
             (println "Mode: 3D Waveform")
-            (SDL_Delay 200)
+            unsafe {             (SDL_Delay 200) }
         } else {}
         if (== (glfwGetKey window GLFW_KEY_5) 1) {
             set viz_mode VIZ_FREQUENCY_CUBES
             (println "Mode: Frequency Cubes")
-            (SDL_Delay 200)
+            unsafe {             (SDL_Delay 200) }
         } else {}
         
         # Update rotation and time
@@ -635,17 +635,17 @@ fn main() -> int {
     (println "")
     (println "Shutting down...")
     if has_music {
-        (Mix_HaltMusic)
-        (Mix_FreeMusic music)
+        unsafe {         (Mix_HaltMusic) }
+        unsafe {         (Mix_FreeMusic music) }
     } else {}
-    (nl_audio_viz_shutdown)
-    (TTF_CloseFont font)
-    (TTF_Quit)
-    (Mix_CloseAudio)
-    (Mix_Quit)
+    unsafe {     (nl_audio_viz_shutdown) }
+    unsafe {     (TTF_CloseFont font) }
+    unsafe {     (TTF_Quit) }
+    unsafe {     (Mix_CloseAudio) }
+    unsafe {     (Mix_Quit) }
     (glfwDestroyWindow window)
     (glfwTerminate)
-    (SDL_Quit)
+    unsafe {     (SDL_Quit) }
     
     (println "✓ Cleanup complete")
     (print "Total frames rendered: ")

@@ -33,7 +33,7 @@ fn main() -> int {
     # Initialize SDL_mixer
     if (!= (Mix_OpenAudio 44100 MIX_DEFAULT_FORMAT 2 2048) 0) {
         (println "Mix_OpenAudio failed")
-        (SDL_Quit)
+        unsafe {         (SDL_Quit) }
         return 1
     } else {}
     
@@ -51,8 +51,8 @@ fn main() -> int {
         (println "ERROR: Failed to load WAV file")
         (println (Mix_GetError))
         (println "Make sure the path is correct and the file is a supported .wav.")
-        (Mix_CloseAudio)
-        (SDL_Quit)
+        unsafe {         (Mix_CloseAudio) }
+        unsafe {         (SDL_Quit) }
         return 1
     } else {}
     
@@ -71,13 +71,13 @@ fn main() -> int {
         (println "Listening for 2 seconds...")
         
         # Wait for playback
-        (SDL_Delay 2000)
+        unsafe {         (SDL_Delay 2000) }
     }
     
     # Cleanup
     # (Mix_FreeChunk sample)  # TODO: Fix void function issue
-    (Mix_CloseAudio)
-    (SDL_Quit)
+    unsafe {     (Mix_CloseAudio) }
+    unsafe {     (SDL_Quit) }
     
     (println "")
     (println "✓ Test complete!")

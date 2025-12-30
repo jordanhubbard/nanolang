@@ -87,7 +87,7 @@ fn draw_border(width: int, height: int) -> void {
 }
 
 fn draw_game(snake_x: array<int>, snake_y: array<int>, food_x: int, food_y: int, length: int, score: int) -> void {
-    (clear_wrapper)
+    unsafe {     (clear_wrapper) }
     
     # Draw border
     (draw_border GRID_WIDTH GRID_HEIGHT)
@@ -115,10 +115,10 @@ fn draw_game(snake_x: array<int>, snake_y: array<int>, food_x: int, food_y: int,
     (mvaddch_wrapper food_screen_y food_screen_x (cast_int '*'))
     
     # Draw score
-    (mvprintw_wrapper (+ GRID_HEIGHT 3) 0 (str_concat "Score: " (int_to_string score)))
-    (mvprintw_wrapper (+ GRID_HEIGHT 4) 0 "Arrow Keys = Move  |  Q = Quit")
+    unsafe {     (mvprintw_wrapper (+ GRID_HEIGHT 3) 0 (str_concat "Score: " (int_to_string score))) }
+    unsafe {     (mvprintw_wrapper (+ GRID_HEIGHT 4) 0 "Arrow Keys = Move  |  Q = Quit") }
     
-    (refresh_wrapper)
+    unsafe {     (refresh_wrapper) }
 }
 
 fn place_food(old_food_x: int, old_food_y: int, length: int) -> int {
@@ -152,7 +152,7 @@ fn main() -> int {
     
     # Initialize ncurses
     let win: int = (initscr_wrapper)
-    (curs_set_wrapper 0)        # Hide cursor
+    unsafe { (curs_set_wrapper 0)        } # Hide cursor 
     (nl_nodelay win 1)          # Non-blocking input
     (nl_keypad win 1)           # Enable arrow keys
     (timeout_wrapper 100)       # 100ms timeout for getch
@@ -296,15 +296,15 @@ fn main() -> int {
         (draw_game snake_x snake_y food_x food_y snake_length score)
         
         if game_over {
-            (mvprintw_wrapper (/ GRID_HEIGHT 2) (/ GRID_WIDTH 2) "GAME OVER!")
-            (mvprintw_wrapper (+ GRID_HEIGHT 5) 0 (str_concat "Final Score: " (int_to_string score)))
-            (mvprintw_wrapper (+ GRID_HEIGHT 6) 0 "Press Q to quit")
-            (refresh_wrapper)
+            unsafe {             (mvprintw_wrapper (/ GRID_HEIGHT 2) (/ GRID_WIDTH 2) "GAME OVER!") }
+            unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 5) 0 (str_concat "Final Score: " (int_to_string score))) }
+            unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 6) 0 "Press Q to quit") }
+            unsafe {             (refresh_wrapper) }
         } else {}
     }
     
     # Cleanup
-    (endwin_wrapper)
+    unsafe {     (endwin_wrapper) }
     
     (println "")
     (println "Game Over!")

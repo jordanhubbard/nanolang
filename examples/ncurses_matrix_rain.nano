@@ -43,15 +43,15 @@ fn main() -> int {
     
     # Initialize ncurses
     let win: int = (initscr_wrapper)
-    (curs_set_wrapper 0)        # Hide cursor
+    unsafe { (curs_set_wrapper 0)        } # Hide cursor 
     (nl_nodelay win 1)           # Non-blocking input
     (timeout_wrapper UPDATE_DELAY_MS)
     
     # Try to enable colors
-    (start_color_wrapper)
+    unsafe {     (start_color_wrapper) }
     
     # Define green color pair (pair 1 = green on black)
-    (init_pair_wrapper 1 2 0)  # COLOR_GREEN=2, COLOR_BLACK=0
+    unsafe { (init_pair_wrapper 1 2 0)  } # COLOR_GREEN=2, COLOR_BLACK=0 
     
     # Get screen dimensions
     let max_x: int = (getmaxx_wrapper win)
@@ -91,7 +91,7 @@ fn main() -> int {
         } else {}
         
         # Clear screen
-        (clear_wrapper)
+        unsafe {         (clear_wrapper) }
         
         # Color pair attribute value (pair * 256) - needed for green text
         let COLOR_PAIR_GREEN: int = (* 1 256)
@@ -117,24 +117,24 @@ fn main() -> int {
                             # Brightest at head, dimmer down the trail
                             if (== trail_idx 0) {
                                 # Head - bright white/green
-                                (attron_wrapper COLOR_PAIR_GREEN)
-                                (attron_wrapper A_BOLD)
+                                unsafe {                                 (attron_wrapper COLOR_PAIR_GREEN) }
+                                unsafe {                                 (attron_wrapper A_BOLD) }
                                 (mvaddch_wrapper char_y i (random_char))
-                                (attroff_wrapper A_BOLD)
-                                (attroff_wrapper COLOR_PAIR_GREEN)
+                                unsafe {                                 (attroff_wrapper A_BOLD) }
+                                unsafe {                                 (attroff_wrapper COLOR_PAIR_GREEN) }
                             } else {
                                 if (< trail_idx 3) {
                                     # Near head - bright green
-                                    (attron_wrapper COLOR_PAIR_GREEN)
-                                    (attron_wrapper A_BOLD)
+                                    unsafe {                                     (attron_wrapper COLOR_PAIR_GREEN) }
+                                    unsafe {                                     (attron_wrapper A_BOLD) }
                                     (mvaddch_wrapper char_y i (random_char))
-                                    (attroff_wrapper A_BOLD)
-                                    (attroff_wrapper COLOR_PAIR_GREEN)
+                                    unsafe {                                     (attroff_wrapper A_BOLD) }
+                                    unsafe {                                     (attroff_wrapper COLOR_PAIR_GREEN) }
                                 } else {
                                     # Trail - normal green
-                                    (attron_wrapper COLOR_PAIR_GREEN)
+                                    unsafe {                                     (attron_wrapper COLOR_PAIR_GREEN) }
                                     (mvaddch_wrapper char_y i (random_char))
-                                    (attroff_wrapper COLOR_PAIR_GREEN)
+                                    unsafe {                                     (attroff_wrapper COLOR_PAIR_GREEN) }
                                 }
                             }
                         } else {}
@@ -167,13 +167,13 @@ fn main() -> int {
             set i (+ i 1)
         }
         
-        (refresh_wrapper)
+        unsafe {         (refresh_wrapper) }
         
         set frame (+ frame 1)
     }
     
     # Cleanup
-    (endwin_wrapper)
+    unsafe {     (endwin_wrapper) }
     
     (println "")
     (println "Matrix disconnected.")

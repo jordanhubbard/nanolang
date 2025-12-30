@@ -76,17 +76,17 @@ shadow is_particle_offscreen {
 
 fn draw_ui_overlay(renderer: SDL_Renderer, font: TTF_Font, particle_count: int) -> void {
     # Draw semi-transparent bar at bottom
-    (SDL_SetRenderDrawColor renderer 0 0 0 200)
-    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 40) WINDOW_WIDTH 40)
+    unsafe {     (SDL_SetRenderDrawColor renderer 0 0 0 200) }
+    unsafe {     (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 40) WINDOW_WIDTH 40) }
     
     # Draw help text using SDL_ttf
     let mut count_text: string = "Particles: "
     set count_text (str_concat count_text (int_to_string particle_count))
-    (nl_draw_text_blended renderer font count_text 10 (- WINDOW_HEIGHT 30) 255 150 50 255)
+    unsafe {     (nl_draw_text_blended renderer font count_text 10 (- WINDOW_HEIGHT 30) 255 150 50 255) }
     
-    (nl_draw_text_blended renderer font "Click to spawn explosions" (- (/ WINDOW_WIDTH 2) 100) (- WINDOW_HEIGHT 30) 100 200 255 255)
+    unsafe {     (nl_draw_text_blended renderer font "Click to spawn explosions" (- (/ WINDOW_WIDTH 2) 100) (- WINDOW_HEIGHT 30) 100 200 255 255) }
     
-    (nl_draw_text_blended renderer font "ESC = Quit" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 30) 200 50 50 255)
+    unsafe {     (nl_draw_text_blended renderer font "ESC = Quit" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 30) 200 50 50 255) }
 }
 
 # === MAIN ===
@@ -94,7 +94,7 @@ fn draw_ui_overlay(renderer: SDL_Renderer, font: TTF_Font, particle_count: int) 
 fn main() -> int {
     
     # Initialize SDL
-    (SDL_Init 32)
+    unsafe {     (SDL_Init 32) }
     
     let window: SDL_Window = (SDL_CreateWindow "Nanolang Particles" 100 100 WINDOW_WIDTH WINDOW_HEIGHT 4)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
@@ -107,15 +107,15 @@ fn main() -> int {
     }
     
     # Initialize SDL_ttf
-    (TTF_Init)
+    unsafe {     (TTF_Init) }
     
     # Load font
     let font: TTF_Font = (nl_open_font_portable "Arial" 16)
     if (== font 0) {
         (println "Failed to load font")
-        (SDL_DestroyRenderer renderer)
-        (SDL_DestroyWindow window)
-        (SDL_Quit)
+        unsafe {         (SDL_DestroyRenderer renderer) }
+        unsafe {         (SDL_DestroyWindow window) }
+        unsafe {         (SDL_Quit) }
         return 1
     } else {
         (println "✓ Font loaded")
@@ -123,7 +123,7 @@ fn main() -> int {
     
     # Disable mouse motion events to prevent event queue flooding
     # SDL_MOUSEMOTION = 0x400 = 1024
-    (SDL_EventState 1024 0)
+    unsafe {     (SDL_EventState 1024 0) }
     
     # Particle data (parallel arrays)
     let mut particle_x: array<float> = []
@@ -280,27 +280,27 @@ fn main() -> int {
         set particle_life new_life
         
         # Render
-        (SDL_SetRenderDrawColor renderer 10 10 20 255)
-        (SDL_RenderClear renderer)
+        unsafe {         (SDL_SetRenderDrawColor renderer 10 10 20 255) }
+        unsafe {         (SDL_RenderClear renderer) }
         
         # Gravity slider in a panel
-        (nl_ui_panel renderer 10 530 240 65 25 25 35 220)
-        (nl_ui_label renderer font "Physics Controls" 20 535 150 200 255 255)
+        unsafe {         (nl_ui_panel renderer 10 530 240 65 25 25 35 220) }
+        unsafe {         (nl_ui_label renderer font "Physics Controls" 20 535 150 200 255 255) }
         
         # Gravity slider (bottom of screen) - range 0 to 300
         let gravity_norm: float = (/ gravity 300.0)
         let gravity_slider: float = (nl_ui_slider renderer 20 565 200 20 gravity_norm)
         set gravity (* gravity_slider 300.0)
-        (nl_ui_label renderer font "Gravity" 20 548 200 200 200 255)
+        unsafe {         (nl_ui_label renderer font "Gravity" 20 548 200 200 200 255) }
         
         # Draw particles
-        (SDL_SetRenderDrawColor renderer 255 200 100 255)
+        unsafe {         (SDL_SetRenderDrawColor renderer 255 200 100 255) }
         set i 0
         while (< i alive_count) {
             let px: int = (cast_int (at particle_x i))
             let py: int = (cast_int (at particle_y i))
             
-            (nl_sdl_render_fill_rect renderer px py PARTICLE_SIZE PARTICLE_SIZE)
+            unsafe {             (nl_sdl_render_fill_rect renderer px py PARTICLE_SIZE PARTICLE_SIZE) }
             
             set i (+ i 1)
         }
@@ -310,10 +310,10 @@ fn main() -> int {
         (draw_ui_overlay renderer font particle_count)
         
         # Draw on-screen help
-        (nl_draw_text_blended renderer font "Click: Spawn Explosion | ESC: Quit" 10 10 255 255 255 255)
+        unsafe {         (nl_draw_text_blended renderer font "Click: Spawn Explosion | ESC: Quit" 10 10 255 255 255 255) }
         
-        (SDL_RenderPresent renderer)
-        (SDL_Delay 16)
+        unsafe {         (SDL_RenderPresent renderer) }
+        unsafe {         (SDL_Delay 16) }
         
         set frame (+ frame 1)
     }
@@ -334,11 +334,11 @@ fn main() -> int {
     (println "🎆 Particles exploded beautifully!")
     
     # Cleanup
-    (TTF_CloseFont font)
-    (TTF_Quit)
-    (SDL_DestroyRenderer renderer)
-    (SDL_DestroyWindow window)
-    (SDL_Quit)
+    unsafe {     (TTF_CloseFont font) }
+    unsafe {     (TTF_Quit) }
+    unsafe {     (SDL_DestroyRenderer renderer) }
+    unsafe {     (SDL_DestroyWindow window) }
+    unsafe {     (SDL_Quit) }
     
     return 0
 }

@@ -339,19 +339,19 @@ shadow read_material_name {
 
 fn render_ui(renderer: SDL_Renderer, font: TTF_Font, current_material: Material, paused: bool) -> void {
     # Draw semi-transparent overlay at top
-    (SDL_SetRenderDrawColor renderer 0 0 0 180)
-    (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH 50)
+    unsafe {     (SDL_SetRenderDrawColor renderer 0 0 0 180) }
+    unsafe {     (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH 50) }
     
     # Draw material name using SDL_ttf
     let material_name: string = (read_material_name current_material)
-    (nl_draw_text_blended renderer font material_name 10 10 255 255 255 255)
+    unsafe {     (nl_draw_text_blended renderer font material_name 10 10 255 255 255 255) }
     
     # Draw help text
-    (nl_draw_text_blended renderer font "1-6 = Material  SPACE = Pause  C = Clear  ESC = Quit" 10 30 200 200 200 255)
+    unsafe {     (nl_draw_text_blended renderer font "1-6 = Material  SPACE = Pause  C = Clear  ESC = Quit" 10 30 200 200 200 255) }
     
     # Draw pause indicator if paused
     if paused {
-        (nl_draw_text_blended renderer font "PAUSED" (- WINDOW_WIDTH 80) 10 255 200 0 255)
+        unsafe {         (nl_draw_text_blended renderer font "PAUSED" (- WINDOW_WIDTH 80) 10 255 200 0 255) }
     } else {
         (print "")
     }
@@ -375,22 +375,22 @@ fn render_grid(renderer: SDL_Renderer, grid: array<int>) -> void {
                 
                 # Set color based on material
                 if (== color 1) {
-                    (SDL_SetRenderDrawColor renderer 194 178 128 255)  # Sand
+                    unsafe { (SDL_SetRenderDrawColor renderer 194 178 128 255)  } # Sand 
                 } else {
                     if (== color 2) {
-                        (SDL_SetRenderDrawColor renderer 64 164 223 255)  # Water
+                        unsafe { (SDL_SetRenderDrawColor renderer 64 164 223 255)  } # Water 
                     } else {
                         if (== color 3) {
-                            (SDL_SetRenderDrawColor renderer 128 128 128 255)  # Stone
+                            unsafe { (SDL_SetRenderDrawColor renderer 128 128 128 255)  } # Stone 
                         } else {
                             if (== color 4) {
-                                (SDL_SetRenderDrawColor renderer 139 69 19 255)  # Wood
+                                unsafe { (SDL_SetRenderDrawColor renderer 139 69 19 255)  } # Wood 
                             } else {
                                 if (== color 5) {
-                                    (SDL_SetRenderDrawColor renderer 255 100 0 255)  # Fire
+                                    unsafe { (SDL_SetRenderDrawColor renderer 255 100 0 255)  } # Fire 
                                 } else {
                                     if (== color 6) {
-                                        (SDL_SetRenderDrawColor renderer 64 64 64 255)  # Smoke
+                                        unsafe { (SDL_SetRenderDrawColor renderer 64 64 64 255)  } # Smoke 
                                     } else {}
                                 }
                             }
@@ -401,7 +401,7 @@ fn render_grid(renderer: SDL_Renderer, grid: array<int>) -> void {
                 # Draw cell
                 let pixel_x: int = (* x CELL_SIZE)
                 let pixel_y: int = (* y CELL_SIZE)
-                (nl_sdl_render_fill_rect renderer pixel_x pixel_y CELL_SIZE CELL_SIZE)
+                unsafe {                 (nl_sdl_render_fill_rect renderer pixel_x pixel_y CELL_SIZE CELL_SIZE) }
             } else {}
             
             set x (+ x 1)
@@ -425,7 +425,7 @@ fn main() -> int {
     let window: SDL_Window = (SDL_CreateWindow "Falling Sand" 536805376 536805376 WINDOW_WIDTH WINDOW_HEIGHT 4)
     if (== window 0) {
         (println "Window creation failed")
-        (SDL_Quit)
+        unsafe {         (SDL_Quit) }
         return 1
     } else {
         (print "")
@@ -435,23 +435,23 @@ fn main() -> int {
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
     if (== renderer 0) {
         (println "Renderer creation failed")
-        (SDL_DestroyWindow window)
-        (SDL_Quit)
+        unsafe {         (SDL_DestroyWindow window) }
+        unsafe {         (SDL_Quit) }
         return 1
     } else {
         (print "")
     }
     
     # Initialize SDL_ttf
-    (TTF_Init)
+    unsafe {     (TTF_Init) }
     
     # Load font
     let font: TTF_Font = (nl_open_font_portable "Arial" 16)
     if (== font 0) {
         (println "Failed to load font")
-        (SDL_DestroyRenderer renderer)
-        (SDL_DestroyWindow window)
-        (SDL_Quit)
+        unsafe {         (SDL_DestroyRenderer renderer) }
+        unsafe {         (SDL_DestroyWindow window) }
+        unsafe {         (SDL_Quit) }
         return 1
     } else {
         (print "")
@@ -459,7 +459,7 @@ fn main() -> int {
     
     # Disable mouse motion events to prevent event queue flooding
     # SDL_MOUSEMOTION = 0x400 = 1024
-    (SDL_EventState 1024 0)
+    unsafe {     (SDL_EventState 1024 0) }
     
     # Initialize grid
     let grid_size: int = (* GRID_WIDTH GRID_HEIGHT)
@@ -545,7 +545,7 @@ fn main() -> int {
         }
         
         # Material selector using radio buttons - now in a panel!
-        (nl_ui_panel renderer 40 545 550 50 20 20 30 200)
+        unsafe {         (nl_ui_panel renderer 40 545 550 50 20 20 30 200) }
         
         # Radio buttons for material selection (convert bool to int for selected state)
         let mut sand_selected: int = 0
@@ -667,23 +667,23 @@ fn main() -> int {
         } else {}
         
         # Render
-        (SDL_SetRenderDrawColor renderer 0 0 0 255)
-        (SDL_RenderClear renderer)
+        unsafe {         (SDL_SetRenderDrawColor renderer 0 0 0 255) }
+        unsafe {         (SDL_RenderClear renderer) }
         (render_grid renderer grid)
         (render_ui renderer font current_material paused)
-        (SDL_RenderPresent renderer)
+        unsafe {         (SDL_RenderPresent renderer) }
         
         # Frame delay
-        (SDL_Delay 16)
+        unsafe {         (SDL_Delay 16) }
         set frame_count (+ frame_count 1)
     }
     
     # Cleanup
-    (TTF_CloseFont font)
-    (TTF_Quit)
-    (SDL_DestroyRenderer renderer)
-    (SDL_DestroyWindow window)
-    (SDL_Quit)
+    unsafe {     (TTF_CloseFont font) }
+    unsafe {     (TTF_Quit) }
+    unsafe {     (SDL_DestroyRenderer renderer) }
+    unsafe {     (SDL_DestroyWindow window) }
+    unsafe {     (SDL_Quit) }
     
     (println "")
     (println "✅ Simulation complete!")

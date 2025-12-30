@@ -96,8 +96,8 @@ shadow clamp_int {
 }
 
 fn main() -> int {
-    (SDL_Init SDL_INIT_VIDEO)
-    (TTF_Init)
+    unsafe {     (SDL_Init SDL_INIT_VIDEO) }
+    unsafe {     (TTF_Init) }
 
     let window: SDL_Window = (SDL_CreateWindow "NanoLang Example Launcher"
                                                 SDL_WINDOWPOS_CENTERED
@@ -112,10 +112,10 @@ fn main() -> int {
 
     if (== font 0) {
         (println "✗ Failed to load font")
-        (SDL_DestroyRenderer renderer)
-        (SDL_DestroyWindow window)
-        (TTF_Quit)
-        (SDL_Quit)
+        unsafe {         (SDL_DestroyRenderer renderer) }
+        unsafe {         (SDL_DestroyWindow window) }
+        unsafe {         (TTF_Quit) }
+        unsafe {         (SDL_Quit) }
         return 1
     } else {}
 
@@ -241,19 +241,19 @@ fn main() -> int {
             } else {}
         } else {}
 
-        (nl_ui_update_mouse_state)
+        unsafe {         (nl_ui_update_mouse_state) }
 
         # Background
-        (SDL_SetRenderDrawColor renderer 14 14 20 255)
-        (SDL_RenderClear renderer)
+        unsafe {         (SDL_SetRenderDrawColor renderer 14 14 20 255) }
+        unsafe {         (SDL_RenderClear renderer) }
 
         # Sidebar
-        (nl_ui_panel renderer 10 10 (- SIDEBAR_WIDTH 20) (- WINDOW_HEIGHT 20) 26 26 36 235)
-        (nl_ui_label renderer title_font "Examples" 28 24 235 235 255 255)
-        (nl_ui_label renderer font "Categories" 28 60 200 200 220 255)
+        unsafe {         (nl_ui_panel renderer 10 10 (- SIDEBAR_WIDTH 20) (- WINDOW_HEIGHT 20) 26 26 36 235) }
+        unsafe {         (nl_ui_label renderer title_font "Examples" 28 24 235 235 255 255) }
+        unsafe {         (nl_ui_label renderer font "Categories" 28 60 200 200 220 255) }
 
         # Category group panel
-        (nl_ui_panel renderer 20 78 (- SIDEBAR_WIDTH 40) 190 20 20 28 235)
+        unsafe {         (nl_ui_panel renderer 20 78 (- SIDEBAR_WIDTH 40) 190 20 20 28 235) }
 
         # Category selectors (radio buttons)
         let mut sel_all: int = 0
@@ -302,10 +302,10 @@ fn main() -> int {
         } else {}
 
         # Sidebar footer help
-        (nl_ui_label renderer font "Shortcuts" 28 (- WINDOW_HEIGHT 140) 200 200 220 255)
-        (nl_ui_label renderer font "↑/↓  Navigate" 28 (- WINDOW_HEIGHT 112) 150 150 180 255)
-        (nl_ui_label renderer font "Enter Launch" 28 (- WINDOW_HEIGHT 88) 150 150 180 255)
-        (nl_ui_label renderer font "Esc   Quit" 28 (- WINDOW_HEIGHT 64) 150 150 180 255)
+        unsafe {         (nl_ui_label renderer font "Shortcuts" 28 (- WINDOW_HEIGHT 140) 200 200 220 255) }
+        unsafe {         (nl_ui_label renderer font "↑/↓  Navigate" 28 (- WINDOW_HEIGHT 112) 150 150 180 255) }
+        unsafe {         (nl_ui_label renderer font "Enter Launch" 28 (- WINDOW_HEIGHT 88) 150 150 180 255) }
+        unsafe {         (nl_ui_label renderer font "Esc   Quit" 28 (- WINDOW_HEIGHT 64) 150 150 180 255) }
 
         # Rebuild list when category changes (simple + cheap)
         set indices (build_filtered_indices example_categories selected_category)
@@ -352,18 +352,18 @@ fn main() -> int {
         }
 
         # Main area container
-        (nl_ui_panel renderer (- LIST_X 16) 10 (+ LIST_W 32) (- WINDOW_HEIGHT 20) 22 22 30 235)
+        unsafe {         (nl_ui_panel renderer (- LIST_X 16) 10 (+ LIST_W 32) (- WINDOW_HEIGHT 20) 22 22 30 235) }
 
         # Main area header
-        (nl_ui_label renderer title_font "Launch an example" LIST_X 26 235 235 255 255)
-        (nl_ui_label renderer font "Select one, then press Enter or click Launch." LIST_X 62 170 170 200 255)
+        unsafe {         (nl_ui_label renderer title_font "Launch an example" LIST_X 26 235 235 255 255) }
+        unsafe {         (nl_ui_label renderer font "Select one, then press Enter or click Launch." LIST_X 62 170 170 200 255) }
         let mut cat_name: string = "All"
         if (== selected_category ExampleCategory.GAMES) { set cat_name "Games" } else {}
         if (== selected_category ExampleCategory.GRAPHICS) { set cat_name "Graphics" } else {}
         if (== selected_category ExampleCategory.AUDIO) { set cat_name "Audio" } else {}
         if (== selected_category ExampleCategory.OPENGL) { set cat_name "OpenGL" } else {}
         if (== selected_category ExampleCategory.TERMINAL) { set cat_name "Terminal" } else {}
-        (nl_ui_label renderer font (str_concat "Category: " cat_name) LIST_X 98 140 140 170 255)
+        unsafe {         (nl_ui_label renderer font (str_concat "Category: " cat_name) LIST_X 98 140 140 170 255) }
 
         # Top actions
         let top_launch_clicked: int = (nl_ui_button renderer font "Launch" LAUNCH_BTN_X TOP_BTN_Y LAUNCH_BTN_W TOP_BTN_H)
@@ -376,7 +376,7 @@ fn main() -> int {
             } else {}
         } else {}
         if (< selected_index 0) {
-            (nl_ui_tooltip renderer font "Select an example first" LAUNCH_BTN_X TOP_BTN_Y LAUNCH_BTN_W TOP_BTN_H)
+            unsafe {             (nl_ui_tooltip renderer font "Select an example first" LAUNCH_BTN_X TOP_BTN_Y LAUNCH_BTN_W TOP_BTN_H) }
         } else {}
 
         if (== (nl_ui_button renderer font "Quit" QUIT_BTN_X TOP_BTN_Y QUIT_BTN_W TOP_BTN_H) 1) {
@@ -390,7 +390,7 @@ fn main() -> int {
         if (== (nl_ui_button renderer font "Down" (+ LIST_X 90) 96 80 28) 1) {
             set scroll_offset (clamp_int (+ scroll_offset 1) 0 max_scroll)
         } else {}
-        (nl_ui_label renderer font (str_concat "Items: " (int_to_string item_count)) (+ LIST_X 190) 102 160 160 190 255)
+        unsafe {         (nl_ui_label renderer font (str_concat "Items: " (int_to_string item_count)) (+ LIST_X 190) 102 160 160 190 255) }
 
         # Scrollable list
         let clicked: int = (nl_ui_scrollable_list renderer font
@@ -408,11 +408,11 @@ fn main() -> int {
             let ex_desc: string = (at example_descs ex_idx)
             let ex_cmd: string = (at example_commands ex_idx)
 
-            (nl_ui_panel renderer LIST_X (+ (+ LIST_Y LIST_H) 12) LIST_W 120 18 18 26 235)
-            (nl_ui_label renderer font "Selected:" (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 26) 200 200 220 255)
-            (nl_ui_label renderer font ex_name (+ LIST_X 98) (+ (+ LIST_Y LIST_H) 26) 235 235 255 255)
-            (nl_ui_label renderer font ex_desc (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 52) 170 170 200 255)
-            (nl_ui_label renderer font (str_concat "Cmd: " ex_cmd) (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 76) 140 140 170 255)
+            unsafe {             (nl_ui_panel renderer LIST_X (+ (+ LIST_Y LIST_H) 12) LIST_W 120 18 18 26 235) }
+            unsafe {             (nl_ui_label renderer font "Selected:" (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 26) 200 200 220 255) }
+            unsafe {             (nl_ui_label renderer font ex_name (+ LIST_X 98) (+ (+ LIST_Y LIST_H) 26) 235 235 255 255) }
+            unsafe {             (nl_ui_label renderer font ex_desc (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 52) 170 170 200 255) }
+            unsafe {             (nl_ui_label renderer font (str_concat "Cmd: " ex_cmd) (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 76) 140 140 170 255) }
 
             if (== (nl_ui_button renderer font "Launch" (- (- (+ LIST_X LIST_W) 14) 120) (+ (+ LIST_Y LIST_H) 100) 120 34) 1) {
                 set launch_cmd ex_cmd
@@ -420,20 +420,20 @@ fn main() -> int {
                 set running false
             } else {}
         } else {
-            (nl_ui_panel renderer LIST_X (+ (+ LIST_Y LIST_H) 12) LIST_W 120 18 18 26 235)
-            (nl_ui_label renderer font "(No selection)" (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 30) 140 140 170 255)
-            (nl_ui_label renderer font "Tip: Click an item, then press Enter." (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 56) 120 120 150 255)
+            unsafe {             (nl_ui_panel renderer LIST_X (+ (+ LIST_Y LIST_H) 12) LIST_W 120 18 18 26 235) }
+            unsafe {             (nl_ui_label renderer font "(No selection)" (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 30) 140 140 170 255) }
+            unsafe {             (nl_ui_label renderer font "Tip: Click an item, then press Enter." (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 56) 120 120 150 255) }
         }
 
-        (SDL_RenderPresent renderer)
+        unsafe {         (SDL_RenderPresent renderer) }
     }
 
-    (TTF_CloseFont font)
-    (TTF_CloseFont title_font)
-    (SDL_DestroyRenderer renderer)
-    (SDL_DestroyWindow window)
-    (TTF_Quit)
-    (SDL_Quit)
+    unsafe {     (TTF_CloseFont font) }
+    unsafe {     (TTF_CloseFont title_font) }
+    unsafe {     (SDL_DestroyRenderer renderer) }
+    unsafe {     (SDL_DestroyWindow window) }
+    unsafe {     (TTF_Quit) }
+    unsafe {     (SDL_Quit) }
 
     if should_launch {
         (nl_system launch_cmd)

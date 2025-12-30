@@ -377,7 +377,7 @@ fn draw_circle(renderer: SDL_Renderer, center_x: int, center_y: int, radius: int
         let mut dx: int = (- 0 radius)
         while (<= dx radius) {
             if (<= (+ (* dx dx) (* dy dy)) (* radius radius)) {
-                (SDL_RenderDrawPoint renderer (+ center_x dx) (+ center_y dy))
+                unsafe {                 (SDL_RenderDrawPoint renderer (+ center_x dx) (+ center_y dy)) }
             } else {}
             set dx (+ dx 1)
         }
@@ -398,8 +398,8 @@ fn draw_game_over_screen(renderer: SDL_Renderer, player_won: bool) -> void {
     let board_height: int = (* board_size square_size)
     
     # Draw semi-transparent overlay
-    (SDL_SetRenderDrawColor renderer 0 0 0 200)
-    (nl_sdl_render_fill_rect renderer 0 0 window_width board_height)
+    unsafe {     (SDL_SetRenderDrawColor renderer 0 0 0 200) }
+    unsafe {     (nl_sdl_render_fill_rect renderer 0 0 window_width board_height) }
     
     # Draw winner message box (centered)
     let msg_width: int = 400
@@ -408,18 +408,18 @@ fn draw_game_over_screen(renderer: SDL_Renderer, player_won: bool) -> void {
     let msg_y: int = (/ (- board_height msg_height) 2)
     
     # Message background
-    (SDL_SetRenderDrawColor renderer 40 40 40 255)
-    (nl_sdl_render_fill_rect renderer msg_x msg_y msg_width msg_height)
+    unsafe {     (SDL_SetRenderDrawColor renderer 40 40 40 255) }
+    unsafe {     (nl_sdl_render_fill_rect renderer msg_x msg_y msg_width msg_height) }
     
     # Border
-    (SDL_SetRenderDrawColor renderer 255 215 0 255)
-    (nl_sdl_render_fill_rect renderer msg_x msg_y msg_width 4)  # Top
-    (nl_sdl_render_fill_rect renderer msg_x (+ msg_y (- msg_height 4)) msg_width 4)  # Bottom
-    (nl_sdl_render_fill_rect renderer msg_x msg_y 4 msg_height)  # Left
-    (nl_sdl_render_fill_rect renderer (+ msg_x (- msg_width 4)) msg_y 4 msg_height)  # Right
+    unsafe {     (SDL_SetRenderDrawColor renderer 255 215 0 255) }
+    unsafe { (nl_sdl_render_fill_rect renderer msg_x msg_y msg_width 4)  } # Top 
+    unsafe { (nl_sdl_render_fill_rect renderer msg_x (+ msg_y (- msg_height 4)) msg_width 4)  } # Bottom 
+    unsafe { (nl_sdl_render_fill_rect renderer msg_x msg_y 4 msg_height)  } # Left 
+    unsafe { (nl_sdl_render_fill_rect renderer (+ msg_x (- msg_width 4)) msg_y 4 msg_height)  } # Right 
     
     # Draw winner text using simple block letters at top of message box
-    (SDL_SetRenderDrawColor renderer 255 255 255 255)  # White text
+    unsafe { (SDL_SetRenderDrawColor renderer 255 255 255 255)  } # White text 
     
     let text_y: int = (+ msg_y 30)
     let text_x_start: int = (+ msg_x 80)
@@ -428,111 +428,111 @@ fn draw_game_over_screen(renderer: SDL_Renderer, player_won: bool) -> void {
     if player_won {
         # Draw "RED WINS!" in block letters
         # R (0,0)
-        (nl_sdl_render_fill_rect renderer text_x_start text_y 8 40)
-        (nl_sdl_render_fill_rect renderer text_x_start text_y 24 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 16) text_y 8 20)
-        (nl_sdl_render_fill_rect renderer text_x_start (+ text_y 16) 24 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 16) (+ text_y 24) 8 16)
+        unsafe {         (nl_sdl_render_fill_rect renderer text_x_start text_y 8 40) }
+        unsafe {         (nl_sdl_render_fill_rect renderer text_x_start text_y 24 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 16) text_y 8 20) }
+        unsafe {         (nl_sdl_render_fill_rect renderer text_x_start (+ text_y 16) 24 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 16) (+ text_y 24) 8 16) }
         
         # E (32,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 32) text_y 24 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 32) text_y 8 40)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 32) (+ text_y 16) 20 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 32) (+ text_y 32) 24 8)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 32) text_y 24 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 32) text_y 8 40) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 32) (+ text_y 16) 20 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 32) (+ text_y 32) 24 8) }
         
         # D (64,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 64) text_y 8 40)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 64) text_y 20 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 76) (+ text_y 8) 8 24)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 64) (+ text_y 32) 20 8)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 64) text_y 8 40) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 64) text_y 20 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 76) (+ text_y 8) 8 24) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 64) (+ text_y 32) 20 8) }
         
         # W (100,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 100) text_y 8 40)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 112) (+ text_y 24) 8 16)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 124) text_y 8 40)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 100) text_y 8 40) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 112) (+ text_y 24) 8 16) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 124) text_y 8 40) }
         
         # I (140,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 140) text_y 8 40)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 140) text_y 8 40) }
         
         # N (156,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 156) text_y 8 40)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 164) (+ text_y 8) 8 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 172) (+ text_y 16) 8 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 180) text_y 8 40)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 156) text_y 8 40) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 164) (+ text_y 8) 8 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 172) (+ text_y 16) 8 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 180) text_y 8 40) }
         
         # S (196,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 196) text_y 24 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 196) text_y 8 20)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 196) (+ text_y 16) 24 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 212) (+ text_y 20) 8 12)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 196) (+ text_y 32) 24 8)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 196) text_y 24 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 196) text_y 8 20) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 196) (+ text_y 16) 24 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 212) (+ text_y 20) 8 12) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 196) (+ text_y 32) 24 8) }
         
         # ! (228,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 228) text_y 8 24)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 228) (+ text_y 32) 8 8)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 228) text_y 8 24) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 228) (+ text_y 32) 8 8) }
     } else {
         # Draw "BLACK WINS!" in block letters
         # B (0,0)
-        (nl_sdl_render_fill_rect renderer text_x_start text_y 8 40)
-        (nl_sdl_render_fill_rect renderer text_x_start text_y 20 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 12) (+ text_y 8) 8 8)
-        (nl_sdl_render_fill_rect renderer text_x_start (+ text_y 16) 20 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 12) (+ text_y 24) 8 8)
-        (nl_sdl_render_fill_rect renderer text_x_start (+ text_y 32) 20 8)
+        unsafe {         (nl_sdl_render_fill_rect renderer text_x_start text_y 8 40) }
+        unsafe {         (nl_sdl_render_fill_rect renderer text_x_start text_y 20 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 12) (+ text_y 8) 8 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer text_x_start (+ text_y 16) 20 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 12) (+ text_y 24) 8 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer text_x_start (+ text_y 32) 20 8) }
         
         # L (28,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 28) text_y 8 40)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 28) (+ text_y 32) 20 8)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 28) text_y 8 40) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 28) (+ text_y 32) 20 8) }
         
         # A (56,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 56) text_y 24 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 56) (+ text_y 8) 8 32)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 72) (+ text_y 8) 8 32)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 56) (+ text_y 20) 24 8)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 56) text_y 24 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 56) (+ text_y 8) 8 32) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 72) (+ text_y 8) 8 32) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 56) (+ text_y 20) 24 8) }
         
         # C (88,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 88) text_y 24 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 88) (+ text_y 8) 8 24)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 88) (+ text_y 32) 24 8)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 88) text_y 24 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 88) (+ text_y 8) 8 24) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 88) (+ text_y 32) 24 8) }
         
         # K (120,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 120) text_y 8 40)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 128) (+ text_y 16) 8 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 136) text_y 8 16)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 136) (+ text_y 24) 8 16)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 120) text_y 8 40) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 128) (+ text_y 16) 8 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 136) text_y 8 16) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 136) (+ text_y 24) 8 16) }
         
         # W (156,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 156) text_y 8 40)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 168) (+ text_y 24) 8 16)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 180) text_y 8 40)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 156) text_y 8 40) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 168) (+ text_y 24) 8 16) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 180) text_y 8 40) }
         
         # I (196,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 196) text_y 8 40)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 196) text_y 8 40) }
         
         # N (212,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 212) text_y 8 40)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 220) (+ text_y 8) 8 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 228) (+ text_y 16) 8 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 236) text_y 8 40)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 212) text_y 8 40) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 220) (+ text_y 8) 8 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 228) (+ text_y 16) 8 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 236) text_y 8 40) }
         
         # S (252,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 252) text_y 24 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 252) text_y 8 20)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 252) (+ text_y 16) 24 8)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 268) (+ text_y 20) 8 12)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 252) (+ text_y 32) 24 8)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 252) text_y 24 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 252) text_y 8 20) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 252) (+ text_y 16) 24 8) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 268) (+ text_y 20) 8 12) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 252) (+ text_y 32) 24 8) }
         
         # ! (284,0)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 284) text_y 8 24)
-        (nl_sdl_render_fill_rect renderer (+ text_x_start 284) (+ text_y 32) 8 8)
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 284) text_y 8 24) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (+ text_x_start 284) (+ text_y 32) 8 8) }
     }
     
     # Draw winner indicator (large colored circle below text)
     let circle_y: int = (+ msg_y 100)
     if player_won {
-        (SDL_SetRenderDrawColor renderer 220 20 60 255)  # Red for player
+        unsafe { (SDL_SetRenderDrawColor renderer 220 20 60 255) }  # Red for player
     } else {
-        (SDL_SetRenderDrawColor renderer 30 30 30 255)   # Black for AI
+        unsafe { (SDL_SetRenderDrawColor renderer 30 30 30 255) }  # Black for AI
     }
     (draw_circle renderer (/ window_width 2) circle_y 25)
     
@@ -544,15 +544,15 @@ fn draw_game_over_screen(renderer: SDL_Renderer, player_won: bool) -> void {
     let play_button_x: int = (+ (/ window_width 2) 10)
     
     # Quit button (red with X symbol)
-    (SDL_SetRenderDrawColor renderer 180 30 30 255)
-    (nl_sdl_render_fill_rect renderer quit_button_x button_y button_width button_height)
-    (SDL_SetRenderDrawColor renderer 255 255 255 255)
-    (nl_sdl_render_fill_rect renderer (+ quit_button_x 2) (+ button_y 2) (- button_width 4) (- button_height 4))
-    (SDL_SetRenderDrawColor renderer 180 30 30 255)
-    (nl_sdl_render_fill_rect renderer (+ quit_button_x 10) (+ button_y 10) (- button_width 20) (- button_height 20))
+    unsafe {     (SDL_SetRenderDrawColor renderer 180 30 30 255) }
+    unsafe {     (nl_sdl_render_fill_rect renderer quit_button_x button_y button_width button_height) }
+    unsafe {     (SDL_SetRenderDrawColor renderer 255 255 255 255) }
+    unsafe {     (nl_sdl_render_fill_rect renderer (+ quit_button_x 2) (+ button_y 2) (- button_width 4) (- button_height 4)) }
+    unsafe {     (SDL_SetRenderDrawColor renderer 180 30 30 255) }
+    unsafe {     (nl_sdl_render_fill_rect renderer (+ quit_button_x 10) (+ button_y 10) (- button_width 20) (- button_height 20)) }
     
     # Draw X symbol on quit button
-    (SDL_SetRenderDrawColor renderer 255 255 255 255)
+    unsafe {     (SDL_SetRenderDrawColor renderer 255 255 255 255) }
     let x_center_x: int = (+ quit_button_x (/ button_width 2))
     let x_center_y: int = (+ button_y (/ button_height 2))
     let x_size: int = 20
@@ -564,26 +564,26 @@ fn draw_game_over_screen(renderer: SDL_Renderer, player_won: bool) -> void {
             # Top-left to bottom-right diagonal
             let x1: int = (+ (+ x_center_x x_offset) thickness)
             let y1: int = (+ x_center_y x_offset)
-            (nl_sdl_render_fill_rect renderer x1 y1 2 2)
+            unsafe {             (nl_sdl_render_fill_rect renderer x1 y1 2 2) }
             # Top-right to bottom-left diagonal  
             let x2: int = (+ (+ x_center_x (- 0 x_offset)) thickness)
             let y2: int = (+ x_center_y x_offset)
-            (nl_sdl_render_fill_rect renderer x2 y2 2 2)
+            unsafe {             (nl_sdl_render_fill_rect renderer x2 y2 2 2) }
             set thickness (+ thickness 1)
         }
         set x_offset (+ x_offset 2)
     }
     
     # Play Again button (green with circular arrow)
-    (SDL_SetRenderDrawColor renderer 30 180 30 255)
-    (nl_sdl_render_fill_rect renderer play_button_x button_y button_width button_height)
-    (SDL_SetRenderDrawColor renderer 255 255 255 255)
-    (nl_sdl_render_fill_rect renderer (+ play_button_x 2) (+ button_y 2) (- button_width 4) (- button_height 4))
-    (SDL_SetRenderDrawColor renderer 30 180 30 255)
-    (nl_sdl_render_fill_rect renderer (+ play_button_x 10) (+ button_y 10) (- button_width 20) (- button_height 20))
+    unsafe {     (SDL_SetRenderDrawColor renderer 30 180 30 255) }
+    unsafe {     (nl_sdl_render_fill_rect renderer play_button_x button_y button_width button_height) }
+    unsafe {     (SDL_SetRenderDrawColor renderer 255 255 255 255) }
+    unsafe {     (nl_sdl_render_fill_rect renderer (+ play_button_x 2) (+ button_y 2) (- button_width 4) (- button_height 4)) }
+    unsafe {     (SDL_SetRenderDrawColor renderer 30 180 30 255) }
+    unsafe {     (nl_sdl_render_fill_rect renderer (+ play_button_x 10) (+ button_y 10) (- button_width 20) (- button_height 20)) }
     
     # Draw circular arrow symbol on play button (simplified checkmark)
-    (SDL_SetRenderDrawColor renderer 255 255 255 255)
+    unsafe {     (SDL_SetRenderDrawColor renderer 255 255 255 255) }
     let check_center_x: int = (+ play_button_x (/ button_width 2))
     let check_center_y: int = (+ button_y (/ button_height 2))
     # Draw checkmark: short vertical, then longer diagonal
@@ -597,7 +597,7 @@ fn draw_game_over_screen(renderer: SDL_Renderer, player_won: bool) -> void {
         }
         let check_x_pos: int = (+ (+ check_center_x final_check_x) -5)
         let check_y_pos: int = (+ check_center_y check_y)
-        (nl_sdl_render_fill_rect renderer check_x_pos check_y_pos 4 4)
+        unsafe {         (nl_sdl_render_fill_rect renderer check_x_pos check_y_pos 4 4) }
         set check_y (+ check_y 2)
     }
 }
@@ -656,8 +656,8 @@ fn render_board(renderer: SDL_Renderer, board: array<int>, selected_row: int, se
     let square_size: int = SQUARE_SIZE
     
     # Clear screen (light gray)
-                (SDL_SetRenderDrawColor renderer 240 240 240 255)
-                (SDL_RenderClear renderer)
+                unsafe {                 (SDL_SetRenderDrawColor renderer 240 240 240 255) }
+                unsafe {                 (SDL_RenderClear renderer) }
                 
     # Draw board squares
                 let mut i: int = 0
@@ -666,16 +666,16 @@ fn render_board(renderer: SDL_Renderer, board: array<int>, selected_row: int, se
         while (< j board_size) {
             # Set square color
                         if (is_dark_square i j) {
-                (SDL_SetRenderDrawColor renderer 139 69 19 255)  # Brown
+                unsafe { (SDL_SetRenderDrawColor renderer 139 69 19 255)  } # Brown 
             } else {
-                (SDL_SetRenderDrawColor renderer 255 248 220 255)  # Beige
+                unsafe { (SDL_SetRenderDrawColor renderer 255 248 220 255)  } # Beige 
             }
-            (nl_sdl_render_fill_rect renderer (* j square_size) (* i square_size) square_size square_size)
+            unsafe {             (nl_sdl_render_fill_rect renderer (* j square_size) (* i square_size) square_size square_size) }
             
             # Highlight selected square
             if (and has_selection (and (== selected_row i) (== selected_col j))) {
-                (SDL_SetRenderDrawColor renderer 255 255 0 180)  # Yellow
-                (nl_sdl_render_fill_rect renderer (* j square_size) (* i square_size) square_size square_size)
+                unsafe { (SDL_SetRenderDrawColor renderer 255 255 0 180)  } # Yellow 
+                unsafe {                 (nl_sdl_render_fill_rect renderer (* j square_size) (* i square_size) square_size square_size) }
             } else {}
             
             # Flash animation for recently moved piece
@@ -684,8 +684,8 @@ fn render_board(renderer: SDL_Renderer, board: array<int>, selected_row: int, se
                 let pulse_cycle: int = (% flash_frame 20)
                 let pulse_intensity: int = (- 10 (abs_int (- pulse_cycle 10)))  # 0-10-0 pattern
                 let glow_alpha: int = (+ 100 (* pulse_intensity 15))  # 100-250-100 alpha
-                (SDL_SetRenderDrawColor renderer 0 255 255 glow_alpha)  # Cyan glow
-                (nl_sdl_render_fill_rect renderer (* j square_size) (* i square_size) square_size square_size)
+                unsafe { (SDL_SetRenderDrawColor renderer 0 255 255 glow_alpha)  } # Cyan glow 
+                unsafe {                 (nl_sdl_render_fill_rect renderer (* j square_size) (* i square_size) square_size square_size) }
             } else {}
             
             # Draw piece
@@ -700,15 +700,15 @@ fn render_board(renderer: SDL_Renderer, board: array<int>, selected_row: int, se
                 
                 if (is_player_piece piece) {
                     if is_flashing {
-                        (SDL_SetRenderDrawColor renderer 255 100 130 255)  # Brighter red
+                        unsafe { (SDL_SetRenderDrawColor renderer 255 100 130 255)  } # Brighter red 
                     } else {
-                        (SDL_SetRenderDrawColor renderer 220 20 60 255)  # Normal red
+                        unsafe { (SDL_SetRenderDrawColor renderer 220 20 60 255)  } # Normal red 
                     }
                         } else {
                     if is_flashing {
-                        (SDL_SetRenderDrawColor renderer 80 80 80 255)  # Brighter black
+                        unsafe { (SDL_SetRenderDrawColor renderer 80 80 80 255)  } # Brighter black 
                     } else {
-                        (SDL_SetRenderDrawColor renderer 30 30 30 255)   # Normal black
+                        unsafe { (SDL_SetRenderDrawColor renderer 30 30 30 255)   } # Normal black 
                     }
                 }
                 
@@ -716,7 +716,7 @@ fn render_board(renderer: SDL_Renderer, board: array<int>, selected_row: int, se
                 
                 # Draw king indicator
                 if (is_king piece) {
-                    (SDL_SetRenderDrawColor renderer 255 215 0 255)  # Gold
+                    unsafe { (SDL_SetRenderDrawColor renderer 255 215 0 255)  } # Gold 
                     let king_radius: int = (/ radius 2)
                     let king_y: int = (- center_y (/ radius 2))
                     (draw_circle renderer center_x king_y king_radius)
@@ -729,9 +729,9 @@ fn render_board(renderer: SDL_Renderer, board: array<int>, selected_row: int, se
                 }
                 
                 # Draw on-screen help
-                (nl_draw_text_blended renderer font "Click to select/move | ESC: Quit" 10 10 255 255 255 255)
+                unsafe {                 (nl_draw_text_blended renderer font "Click to select/move | ESC: Quit" 10 10 255 255 255 255) }
                 
-                (SDL_RenderPresent renderer)
+                unsafe {                 (SDL_RenderPresent renderer) }
 }
 
 shadow render_board {
@@ -744,31 +744,31 @@ fn draw_ui_overlay(renderer: SDL_Renderer, game_state: int, player_pieces: int, 
     let square_size: int = SQUARE_SIZE
     
     # Draw semi-transparent bar at top
-    (SDL_SetRenderDrawColor renderer 0 0 0 200)
-    (nl_sdl_render_fill_rect renderer 0 0 (* board_size square_size) 40)
+    unsafe {     (SDL_SetRenderDrawColor renderer 0 0 0 200) }
+    unsafe {     (nl_sdl_render_fill_rect renderer 0 0 (* board_size square_size) 40) }
     
     # Player pieces indicator (left side - red)
-    (SDL_SetRenderDrawColor renderer 220 20 60 255)
-    (nl_sdl_render_fill_rect renderer 10 10 20 20)
+    unsafe {     (SDL_SetRenderDrawColor renderer 220 20 60 255) }
+    unsafe {     (nl_sdl_render_fill_rect renderer 10 10 20 20) }
     # Count boxes
     let mut i: int = 0
     while (< i player_pieces) {
         if (< i 12) {
-            (SDL_SetRenderDrawColor renderer 180 180 180 255)
-            (nl_sdl_render_fill_rect renderer (+ 40 (* i 8)) 15 6 10)
+            unsafe {             (SDL_SetRenderDrawColor renderer 180 180 180 255) }
+            unsafe {             (nl_sdl_render_fill_rect renderer (+ 40 (* i 8)) 15 6 10) }
         } else {}
         set i (+ i 1)
     }
     
     # AI pieces indicator (right side - black)
-    (SDL_SetRenderDrawColor renderer 30 30 30 255)
-    (nl_sdl_render_fill_rect renderer (- (* board_size square_size) 130) 10 20 20)
+    unsafe {     (SDL_SetRenderDrawColor renderer 30 30 30 255) }
+    unsafe {     (nl_sdl_render_fill_rect renderer (- (* board_size square_size) 130) 10 20 20) }
     # Count boxes
     set i 0
     while (< i ai_pieces) {
         if (< i 12) {
-            (SDL_SetRenderDrawColor renderer 180 180 180 255)
-            (nl_sdl_render_fill_rect renderer (- (* board_size square_size) (+ 100 (* i 8))) 15 6 10)
+            unsafe {             (SDL_SetRenderDrawColor renderer 180 180 180 255) }
+            unsafe {             (nl_sdl_render_fill_rect renderer (- (* board_size square_size) (+ 100 (* i 8))) 15 6 10) }
         } else {}
         set i (+ i 1)
     }
@@ -776,17 +776,17 @@ fn draw_ui_overlay(renderer: SDL_Renderer, game_state: int, player_pieces: int, 
     # Game state indicator (center)
     if (== game_state 0) {
         # Player turn - red glow
-        (SDL_SetRenderDrawColor renderer 220 20 60 255)
-        (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 30) 5 60 30)
-        (SDL_SetRenderDrawColor renderer 255 100 120 255)
-        (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 28) 7 56 26)
+        unsafe {         (SDL_SetRenderDrawColor renderer 220 20 60 255) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 30) 5 60 30) }
+        unsafe {         (SDL_SetRenderDrawColor renderer 255 100 120 255) }
+        unsafe {         (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 28) 7 56 26) }
     } else {
         if (== game_state 1) {
             # AI turn - dark glow
-            (SDL_SetRenderDrawColor renderer 30 30 30 255)
-            (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 30) 5 60 30)
-            (SDL_SetRenderDrawColor renderer 80 80 80 255)
-            (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 28) 7 56 26)
+            unsafe {             (SDL_SetRenderDrawColor renderer 30 30 30 255) }
+            unsafe {             (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 30) 5 60 30) }
+            unsafe {             (SDL_SetRenderDrawColor renderer 80 80 80 255) }
+            unsafe {             (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 28) 7 56 26) }
         } else {}
     }
 }
@@ -1002,7 +1002,7 @@ fn main() -> int {
     let window: SDL_Window = (SDL_CreateWindow "Checkers" SDL_WINDOWPOS_UNDEFINED SDL_WINDOWPOS_UNDEFINED window_width window_height SDL_WINDOW_SHOWN)
     if (== window 0) {
         (println "Window creation failed")
-        (SDL_Quit)
+        unsafe {         (SDL_Quit) }
         return 1
     } else {}
     
@@ -1013,14 +1013,14 @@ fn main() -> int {
         set renderer (SDL_CreateRenderer window -1 SDL_RENDERER_SOFTWARE)
         if (== renderer 0) {
             (println "Renderer creation failed")
-            (SDL_DestroyWindow window)
-            (SDL_Quit)
+            unsafe {             (SDL_DestroyWindow window) }
+            unsafe {             (SDL_Quit) }
             return 1
         } else {}
     } else {}
     
     # Initialize TTF
-    (TTF_Init)
+    unsafe {     (TTF_Init) }
     let font: TTF_Font = (nl_open_font_portable "Arial" 12)
     
     # Initialize game
@@ -1170,21 +1170,21 @@ fn main() -> int {
         if (== game_state 2) {  # GAME_OVER
             let player_won: bool = (> (count_player_pieces board) 0)
             (draw_game_over_screen renderer player_won)
-            (nl_draw_text_blended renderer font "Click to select/move | ESC: Quit" 10 10 255 255 255 255)
-            (SDL_RenderPresent renderer)
+            unsafe {             (nl_draw_text_blended renderer font "Click to select/move | ESC: Quit" 10 10 255 255 255 255) }
+            unsafe {             (SDL_RenderPresent renderer) }
         } else {}
         
         # Simple delay (~60 FPS)
-        (SDL_Delay 16)
+        unsafe {         (SDL_Delay 16) }
         set frame_count (+ frame_count 1)
     }
                 
                 # Cleanup
-                (TTF_CloseFont font)
-                (SDL_DestroyRenderer renderer)
-                (SDL_DestroyWindow window)
-                (TTF_Quit)
-                (SDL_Quit)
+                unsafe {                 (TTF_CloseFont font) }
+                unsafe {                 (SDL_DestroyRenderer renderer) }
+                unsafe {                 (SDL_DestroyWindow window) }
+                unsafe {                 (TTF_Quit) }
+                unsafe {                 (SDL_Quit) }
                 
                 return 0
 }

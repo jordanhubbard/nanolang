@@ -348,8 +348,8 @@ shadow get_ray { assert true }
 
 # === Main ===
 fn main() -> int {
-    (SDL_Init SDL_INIT_VIDEO)
-    (TTF_Init)
+    unsafe {     (SDL_Init SDL_INIT_VIDEO) }
+    unsafe {     (TTF_Init) }
     
     let window: SDL_Window = (SDL_CreateWindow "Ray Tracer" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
@@ -372,8 +372,8 @@ fn main() -> int {
     let mut running: int = 1
     
     while (== running 1) {
-        (SDL_SetRenderDrawColor renderer 50 50 80 255)
-        (SDL_RenderClear renderer)
+        unsafe {         (SDL_SetRenderDrawColor renderer 50 50 80 255) }
+        unsafe {         (SDL_RenderClear renderer) }
         
         # Handle keyboard
         let key: int = (nl_sdl_poll_keypress)
@@ -417,8 +417,8 @@ fn main() -> int {
                 let g: int = (cast_int (clamp (* color.y 255.0) 0.0 255.0))
                 let b: int = (cast_int (clamp (* color.z 255.0) 0.0 255.0))
                 
-                (SDL_SetRenderDrawColor renderer r g b 255)
-                (nl_sdl_render_fill_rect renderer (* x RENDER_SCALE) (* y RENDER_SCALE) RENDER_SCALE RENDER_SCALE)
+                unsafe {                 (SDL_SetRenderDrawColor renderer r g b 255) }
+                unsafe {                 (nl_sdl_render_fill_rect renderer (* x RENDER_SCALE) (* y RENDER_SCALE) RENDER_SCALE RENDER_SCALE) }
                 
                 set x (+ x 1)
             }
@@ -426,18 +426,18 @@ fn main() -> int {
         }
         
         # Draw on-screen help (standard position: top-left, white text)
-        (nl_draw_text_blended renderer font "Arrow Keys: Rotate | R: Reset | Click: Move Light | ESC: Quit" 10 10 255 255 255 255)
+        unsafe {         (nl_draw_text_blended renderer font "Arrow Keys: Rotate | R: Reset | Click: Move Light | ESC: Quit" 10 10 255 255 255 255) }
         
-        (SDL_RenderPresent renderer)
+        unsafe {         (SDL_RenderPresent renderer) }
 
         if (== (nl_sdl_poll_event_quit) 1) { set running 0 }
     }
     
-    (TTF_CloseFont font)
-    (SDL_DestroyRenderer renderer)
-    (SDL_DestroyWindow window)
-    (TTF_Quit)
-    (SDL_Quit)
+    unsafe {     (TTF_CloseFont font) }
+    unsafe {     (SDL_DestroyRenderer renderer) }
+    unsafe {     (SDL_DestroyWindow window) }
+    unsafe {     (TTF_Quit) }
+    unsafe {     (SDL_Quit) }
     
     return 0
 }

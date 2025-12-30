@@ -236,15 +236,15 @@ shadow draw_grid_ncurses {
 fn main() -> int {
     # Initialize ncurses
     let win: int = (initscr_wrapper)
-    (curs_set_wrapper 0)        # Hide cursor
+    unsafe { (curs_set_wrapper 0)        } # Hide cursor 
     (cbreak_wrapper)
-    (noecho_wrapper)
+    unsafe {     (noecho_wrapper) }
     (nl_keypad win 1)
     (timeout_wrapper UPDATE_DELAY_MS)
     
     # Initialize grid with random population (~30% alive)
     # Seed random number generator
-    unsafe { (srand 42)  # Use fixed seed for reproducibility, or (time 0) for varying }
+    unsafe { (srand 42) }   # Use fixed seed for reproducibility, or (time 0) for varying
     
     let mut grid: array<int> = []
     let grid_size: int = (* GRID_WIDTH GRID_HEIGHT)
@@ -271,11 +271,11 @@ fn main() -> int {
     let mut paused: bool = false
 
     # Draw an initial frame before entering the loop so the screen isn't blank
-    (clear_wrapper)
+    unsafe {     (clear_wrapper) }
     (draw_grid_ncurses grid GRID_WIDTH GRID_HEIGHT)
-    (mvprintw_wrapper (+ GRID_HEIGHT 1) 0 (str_concat "Generation: " (int_to_string generation)))
-    (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "SPACE=Pause  Q=Quit")
-    (refresh_wrapper)
+    unsafe {     (mvprintw_wrapper (+ GRID_HEIGHT 1) 0 (str_concat "Generation: " (int_to_string generation))) }
+    unsafe {     (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "SPACE=Pause  Q=Quit") }
+    unsafe {     (refresh_wrapper) }
     
     # Game loop
     while running {
@@ -301,23 +301,23 @@ fn main() -> int {
         } else {}
         
         # Draw
-        (clear_wrapper)
+        unsafe {         (clear_wrapper) }
         (draw_grid_ncurses grid GRID_WIDTH GRID_HEIGHT)
         
         # Draw UI
-        (mvprintw_wrapper (+ GRID_HEIGHT 1) 0 (str_concat "Generation: " (int_to_string generation)))
+        unsafe {         (mvprintw_wrapper (+ GRID_HEIGHT 1) 0 (str_concat "Generation: " (int_to_string generation))) }
         
         if paused {
-            (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "PAUSED - SPACE=Resume  Q=Quit")
+            unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "PAUSED - SPACE=Resume  Q=Quit") }
         } else {
-            (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "SPACE=Pause  Q=Quit")
+            unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "SPACE=Pause  Q=Quit") }
         }
         
-        (refresh_wrapper)
+        unsafe {         (refresh_wrapper) }
     }
     
     # Cleanup
-    (endwin_wrapper)
+    unsafe {     (endwin_wrapper) }
     
     (println "")
     (println "Game of Life finished!")

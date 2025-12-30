@@ -14,8 +14,8 @@ let TEXTURE_HEIGHT: int = 256
 
 fn main() -> int {
     # Initialize SDL
-    (SDL_Init SDL_INIT_VIDEO)
-    (TTF_Init)
+    unsafe {     (SDL_Init SDL_INIT_VIDEO) }
+    unsafe {     (TTF_Init) }
     
     let window: SDL_Window = (SDL_CreateWindow "Texture Demo" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
@@ -33,7 +33,7 @@ fn main() -> int {
     }
     
     # Set texture blend mode
-    (SDL_SetTextureBlendMode texture SDL_BLENDMODE_BLEND)
+    unsafe {     (SDL_SetTextureBlendMode texture SDL_BLENDMODE_BLEND) }
     
     # Create pixel buffer (will be updated each frame)
     let mut pixels: array<int> = []
@@ -61,8 +61,8 @@ fn main() -> int {
         }
         
         # Clear screen
-        (SDL_SetRenderDrawColor renderer 30 30 40 255)
-        (SDL_RenderClear renderer)
+        unsafe {         (SDL_SetRenderDrawColor renderer 30 30 40 255) }
+        unsafe {         (SDL_RenderClear renderer) }
         
         # Generate animated pattern
         # (In real code, would update pixels array and call SDL_UpdateTexture)
@@ -76,37 +76,37 @@ fn main() -> int {
         let r: int = (+ 128 (cast_int (* 127.0 (sin (* 0.05 (cast_float frame))))))
         let g: int = (+ 128 (cast_int (* 127.0 (sin (* 0.07 (cast_float frame))))))
         let b: int = (+ 128 (cast_int (* 127.0 (sin (* 0.03 (cast_float frame))))))
-        (SDL_SetRenderDrawColor renderer r g b 255)
-        (nl_sdl_render_fill_rect renderer tex_x tex_y TEXTURE_WIDTH TEXTURE_HEIGHT)
+        unsafe {         (SDL_SetRenderDrawColor renderer r g b 255) }
+        unsafe {         (nl_sdl_render_fill_rect renderer tex_x tex_y TEXTURE_WIDTH TEXTURE_HEIGHT) }
         
         # Draw border around texture area
-        (SDL_SetRenderDrawColor renderer 255 255 255 255)
+        unsafe {         (SDL_SetRenderDrawColor renderer 255 255 255 255) }
         # Top
-        (SDL_RenderDrawLine renderer tex_x tex_y (+ tex_x TEXTURE_WIDTH) tex_y)
+        unsafe {         (SDL_RenderDrawLine renderer tex_x tex_y (+ tex_x TEXTURE_WIDTH) tex_y) }
         # Bottom  
-        (SDL_RenderDrawLine renderer tex_x (+ tex_y TEXTURE_HEIGHT) (+ tex_x TEXTURE_WIDTH) (+ tex_y TEXTURE_HEIGHT))
+        unsafe {         (SDL_RenderDrawLine renderer tex_x (+ tex_y TEXTURE_HEIGHT) (+ tex_x TEXTURE_WIDTH) (+ tex_y TEXTURE_HEIGHT)) }
         # Left
-        (SDL_RenderDrawLine renderer tex_x tex_y tex_x (+ tex_y TEXTURE_HEIGHT))
+        unsafe {         (SDL_RenderDrawLine renderer tex_x tex_y tex_x (+ tex_y TEXTURE_HEIGHT)) }
         # Right
-        (SDL_RenderDrawLine renderer (+ tex_x TEXTURE_WIDTH) tex_y (+ tex_x TEXTURE_WIDTH) (+ tex_y TEXTURE_HEIGHT))
+        unsafe {         (SDL_RenderDrawLine renderer (+ tex_x TEXTURE_WIDTH) tex_y (+ tex_x TEXTURE_WIDTH) (+ tex_y TEXTURE_HEIGHT)) }
         
         # Draw on-screen help
-        (nl_draw_text_blended renderer font "ESC: Quit" 10 10 255 255 255 255)
+        unsafe {         (nl_draw_text_blended renderer font "ESC: Quit" 10 10 255 255 255 255) }
         
         # Present
-        (SDL_RenderPresent renderer)
-        (SDL_Delay 16)
+        unsafe {         (SDL_RenderPresent renderer) }
+        unsafe {         (SDL_Delay 16) }
         
         set frame (+ frame 1)
     }
     
     # Cleanup
-    (TTF_CloseFont font)
-    (SDL_DestroyTexture texture)
-    (SDL_DestroyRenderer renderer)
-    (SDL_DestroyWindow window)
-    (TTF_Quit)
-    (SDL_Quit)
+    unsafe {     (TTF_CloseFont font) }
+    unsafe {     (SDL_DestroyTexture texture) }
+    unsafe {     (SDL_DestroyRenderer renderer) }
+    unsafe {     (SDL_DestroyWindow window) }
+    unsafe {     (TTF_Quit) }
+    unsafe {     (SDL_Quit) }
     
     (println "Done!")
     return 0

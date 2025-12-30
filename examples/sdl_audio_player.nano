@@ -19,12 +19,12 @@ let WINDOW_HEIGHT: int = 480
 
 fn render_help_text(renderer: SDL_Renderer, font: TTF_Font) -> void {
     # Draw semi-transparent bar at bottom
-    (SDL_SetRenderDrawColor renderer 0 0 0 200)
-    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 50) WINDOW_WIDTH 50)
+    unsafe {     (SDL_SetRenderDrawColor renderer 0 0 0 200) }
+    unsafe {     (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 50) WINDOW_WIDTH 50) }
     
     # Draw help text using SDL_ttf
-    (nl_draw_text_blended renderer font "SPACE = Play/Pause  P = Sound  +/- = Volume" 10 (- WINDOW_HEIGHT 40) 200 200 200 255)
-    (nl_draw_text_blended renderer font "F = Fade In  S = Fade Out  R = Restart  ESC = Quit" 10 (- WINDOW_HEIGHT 25) 200 200 200 255)
+    unsafe {     (nl_draw_text_blended renderer font "SPACE = Play/Pause  P = Sound  +/- = Volume" 10 (- WINDOW_HEIGHT 40) 200 200 200 255) }
+    unsafe {     (nl_draw_text_blended renderer font "F = Fade In  S = Fade Out  R = Restart  ESC = Quit" 10 (- WINDOW_HEIGHT 25) 200 200 200 255) }
 }
 
 # === MAIN ===
@@ -40,13 +40,13 @@ fn main() -> int {
     
     # Initialize SDL
     (println "Initializing SDL...")
-    (SDL_Init 32)
+    unsafe {     (SDL_Init 32) }
     
     # Initialize SDL_mixer
     (println "Initializing SDL_mixer...")
-    (Mix_Init (+ MIX_INIT_OGG MIX_INIT_MP3))
+    unsafe {     (Mix_Init (+ MIX_INIT_OGG MIX_INIT_MP3)) }
     let audio_result: int = (Mix_OpenAudio 44100 MIX_DEFAULT_FORMAT 2 2048)
-    (Mix_AllocateChannels 16)
+    unsafe {     (Mix_AllocateChannels 16) }
     if (== audio_result 0) {
         (println "✓ Audio system initialized")
         (println "  - Sample rate: 44100 Hz")
@@ -56,7 +56,7 @@ fn main() -> int {
     } else {
         (println "✗ Failed to initialize audio")
         (println (Mix_GetError))
-        (SDL_Quit)
+        unsafe {         (SDL_Quit) }
         return 1
     }
     
@@ -64,9 +64,9 @@ fn main() -> int {
     let window: SDL_Window = (SDL_CreateWindow "Audio Player" 100 100 WINDOW_WIDTH WINDOW_HEIGHT 4)
     if (== window 0) {
         (println "✗ Failed to create window")
-        (Mix_CloseAudio)
-    (Mix_Quit)
-        (SDL_Quit)
+        unsafe {         (Mix_CloseAudio) }
+    unsafe {     (Mix_Quit) }
+        unsafe {         (SDL_Quit) }
         return 1
     } else {}
     
@@ -74,10 +74,10 @@ fn main() -> int {
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 6)
     if (== renderer 0) {
         (println "✗ Failed to create renderer")
-        (SDL_DestroyWindow window)
-        (Mix_CloseAudio)
-    (Mix_Quit)
-        (SDL_Quit)
+        unsafe {         (SDL_DestroyWindow window) }
+        unsafe {         (Mix_CloseAudio) }
+    unsafe {     (Mix_Quit) }
+        unsafe {         (SDL_Quit) }
         return 1
     } else {}
     
@@ -85,17 +85,17 @@ fn main() -> int {
     (println "")
     
     # Initialize SDL_ttf
-    (TTF_Init)
+    unsafe {     (TTF_Init) }
     
     # Load font
     let font: TTF_Font = (nl_open_font_portable "Arial" 14)
     if (== font 0) {
         (println "Failed to load font")
-        (SDL_DestroyRenderer renderer)
-        (SDL_DestroyWindow window)
-        (Mix_CloseAudio)
-    (Mix_Quit)
-        (SDL_Quit)
+        unsafe {         (SDL_DestroyRenderer renderer) }
+        unsafe {         (SDL_DestroyWindow window) }
+        unsafe {         (Mix_CloseAudio) }
+    unsafe {     (Mix_Quit) }
+        unsafe {         (SDL_Quit) }
         return 1
     } else {
         (print "")
@@ -137,7 +137,7 @@ fn main() -> int {
     
     if music_loaded {
         (println "▶ Starting music playback...")
-        (Mix_PlayMusic music -1)
+        unsafe {         (Mix_PlayMusic music -1) }
     } else {
         (println "⚠ No music loaded - keyboard controls limited")
     }
@@ -146,7 +146,7 @@ fn main() -> int {
     (println "Running...")
     
     # Disable mouse motion events
-    (SDL_EventState 1024 0)
+    unsafe {     (SDL_EventState 1024 0) }
     
     # Main loop
     let mut running: bool = true
@@ -162,11 +162,11 @@ fn main() -> int {
                 if music_loaded {
                     let paused: int = (Mix_PausedMusic)
                     if (== paused 1) {
-                        (Mix_ResumeMusic)
+                        unsafe {                         (Mix_ResumeMusic) }
                         set is_paused false
                         (println "▶ Playing")
                     } else {
-                        (Mix_PauseMusic)
+                        unsafe {                         (Mix_PauseMusic) }
                         set is_paused true
                         (println "⏸ Paused")
                     }
@@ -175,7 +175,7 @@ fn main() -> int {
                 # P = 19
                 if (== key 19) {
                     if sound_loaded {
-                        (Mix_PlayChannel -1 sound 0)
+                        unsafe {                         (Mix_PlayChannel -1 sound 0) }
                         (println "🔊 Playing sound effect")
                     } else {}
                 } else {
@@ -183,8 +183,8 @@ fn main() -> int {
                     if (== key 46) {
                         if (< volume 128) {
                             set volume (+ volume 8)
-                            (Mix_VolumeMusic volume)
-                            (Mix_Volume -1 volume)
+                            unsafe {                             (Mix_VolumeMusic volume) }
+                            unsafe {                             (Mix_Volume -1 volume) }
                             (print "🔊 Volume: ")
                             (print volume)
                             (println "/128")
@@ -194,8 +194,8 @@ fn main() -> int {
                         if (== key 45) {
                             if (> volume 0) {
                                 set volume (- volume 8)
-                                (Mix_VolumeMusic volume)
-                                (Mix_Volume -1 volume)
+                                unsafe {                                 (Mix_VolumeMusic volume) }
+                                unsafe {                                 (Mix_Volume -1 volume) }
                                 (print "🔉 Volume: ")
                                 (print volume)
                                 (println "/128")
@@ -204,23 +204,23 @@ fn main() -> int {
                             # F = 9
                             if (== key 9) {
                                 if music_loaded {
-                                    (Mix_HaltMusic)
-                                    (Mix_FadeInMusic music -1 2000)
+                                    unsafe {                                     (Mix_HaltMusic) }
+                                    unsafe {                                     (Mix_FadeInMusic music -1 2000) }
                                     (println "📈 Fade in (2 seconds)")
                                 } else {}
                             } else {
                                 # S = 22
                                 if (== key 22) {
                                     if music_loaded {
-                                        (Mix_FadeOutMusic 2000)
+                                        unsafe {                                         (Mix_FadeOutMusic 2000) }
                                         (println "📉 Fade out (2 seconds)")
                                     } else {}
                                 } else {
                                     # R = 21
                                     if (== key 21) {
                                         if music_loaded {
-                                            (Mix_RewindMusic)
-                                            (Mix_PlayMusic music -1)
+                                            unsafe {                                             (Mix_RewindMusic) }
+                                            unsafe {                                             (Mix_PlayMusic music -1) }
                                             (println "⏮ Restarted")
                                         } else {}
                                     } else {
@@ -243,8 +243,8 @@ fn main() -> int {
         } else {}
         
         # Render
-        (SDL_SetRenderDrawColor renderer 20 20 40 255)
-        (SDL_RenderClear renderer)
+        unsafe {         (SDL_SetRenderDrawColor renderer 20 20 40 255) }
+        unsafe {         (SDL_RenderClear renderer) }
         
         # Draw audio visualization bars (mock)
         let mut i: int = 0
@@ -258,8 +258,8 @@ fn main() -> int {
             let g: int = (+ 100 (/ (* volume 100) 128))
             let b: int = 200
             
-            (SDL_SetRenderDrawColor renderer r g b 255)
-            (nl_sdl_render_fill_rect renderer x y 15 bar_height)
+            unsafe {             (SDL_SetRenderDrawColor renderer r g b 255) }
+            unsafe {             (nl_sdl_render_fill_rect renderer x y 15 bar_height) }
             
             set i (+ i 1)
         }
@@ -267,25 +267,25 @@ fn main() -> int {
         # Draw status indicator
         if music_loaded {
             if is_paused {
-                (SDL_SetRenderDrawColor renderer 255 150 0 255)
+                unsafe {                 (SDL_SetRenderDrawColor renderer 255 150 0 255) }
             } else {
                 if (!= (Mix_PlayingMusic) 0) {
-                    (SDL_SetRenderDrawColor renderer 0 255 0 255)
+                    unsafe {                     (SDL_SetRenderDrawColor renderer 0 255 0 255) }
                 } else {
-                    (SDL_SetRenderDrawColor renderer 255 0 0 255)
+                    unsafe {                     (SDL_SetRenderDrawColor renderer 255 0 0 255) }
                 }
             }
-            (nl_sdl_render_fill_rect renderer 300 20 40 40)
+            unsafe {             (nl_sdl_render_fill_rect renderer 300 20 40 40) }
         } else {}
         
         # Draw help text
         (render_help_text renderer font)
         
         # Draw on-screen help
-        (nl_draw_text_blended renderer font "Space: Play/Pause | +/-: Volume | F: Fade | S: Stop | ESC: Quit" 10 10 255 255 255 255)
+        unsafe {         (nl_draw_text_blended renderer font "Space: Play/Pause | +/-: Volume | F: Fade | S: Stop | ESC: Quit" 10 10 255 255 255 255) }
         
-        (SDL_RenderPresent renderer)
-        (SDL_Delay 16)
+        unsafe {         (SDL_RenderPresent renderer) }
+        unsafe {         (SDL_Delay 16) }
     }
     
     # Cleanup
@@ -293,20 +293,20 @@ fn main() -> int {
     (println "Shutting down...")
     
     if music_loaded {
-        (Mix_FreeMusic music)
+        unsafe {         (Mix_FreeMusic music) }
     } else {}
     
     if sound_loaded {
-        (Mix_FreeChunk sound)
+        unsafe {         (Mix_FreeChunk sound) }
     } else {}
     
-    (TTF_CloseFont font)
-    (TTF_Quit)
-    (SDL_DestroyRenderer renderer)
-    (SDL_DestroyWindow window)
-    (Mix_CloseAudio)
-    (Mix_Quit)
-    (SDL_Quit)
+    unsafe {     (TTF_CloseFont font) }
+    unsafe {     (TTF_Quit) }
+    unsafe {     (SDL_DestroyRenderer renderer) }
+    unsafe {     (SDL_DestroyWindow window) }
+    unsafe {     (Mix_CloseAudio) }
+    unsafe {     (Mix_Quit) }
+    unsafe {     (SDL_Quit) }
     
     (println "✓ Cleanup complete")
     return 0
