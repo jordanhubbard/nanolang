@@ -175,8 +175,8 @@ fn main() -> int {
     unsafe { (srand t) }
     
     # Initialize SDL
-    (SDL_Init SDL_INIT_VIDEO)
-    (TTF_Init)
+    unsafe { (SDL_Init SDL_INIT_VIDEO) }
+    unsafe { (TTF_Init) }
     let window: SDL_Window = (SDL_CreateWindow "Starfield" 100 100 WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
     
@@ -211,8 +211,8 @@ fn main() -> int {
         
         # Render
         # Clear screen (black)
-        (SDL_SetRenderDrawColor renderer 0 0 0 255)
-        (SDL_RenderClear renderer)
+        unsafe { (SDL_SetRenderDrawColor renderer 0 0 0 255) }
+        unsafe { (SDL_RenderClear renderer) }
         
         # Draw stars
         let mut i: int = 0
@@ -243,8 +243,8 @@ fn main() -> int {
                     let sy: int = (cast_int screen_y)
                     if (>= sy 0) {
                         if (< sy WINDOW_HEIGHT) {
-                            (SDL_SetRenderDrawColor renderer brightness brightness brightness 255)
-                            (nl_sdl_render_fill_rect renderer sx sy size size)
+                            unsafe { (SDL_SetRenderDrawColor renderer brightness brightness brightness 255) }
+                            unsafe { (nl_sdl_render_fill_rect renderer sx sy size size) }
                         } else {}
                     } else {}
                 } else {}
@@ -254,20 +254,20 @@ fn main() -> int {
         }
         
         # Draw on-screen help
-        (nl_draw_text_blended renderer font "ESC: Quit" 10 10 255 255 255 255)
+        unsafe { (nl_draw_text_blended renderer font "ESC: Quit" 10 10 255 255 255 255) }
         
-        (SDL_RenderPresent renderer)
+        unsafe { (SDL_RenderPresent renderer) }
         
         # Small delay
-        (SDL_Delay 16)
+        unsafe { (SDL_Delay 16) }
     }
     
     # Cleanup
-    (TTF_CloseFont font)
-    (SDL_DestroyRenderer renderer)
-    (SDL_DestroyWindow window)
-    (TTF_Quit)
-    (SDL_Quit)
+    unsafe { (TTF_CloseFont font) }
+    unsafe { (SDL_DestroyRenderer renderer) }
+    unsafe { (SDL_DestroyWindow window) }
+    unsafe { (TTF_Quit) }
+    unsafe { (SDL_Quit) }
     
     return 0
 }
