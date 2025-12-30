@@ -411,7 +411,7 @@ fn main() -> int {
         (println "Using default: examples/audio/demo.mp3")
         (println "")
     } else {
-        set audio_file (get_argv 1)
+        unsafe { set audio_file (get_argv 1) }
         (print "Loading: ")
         (println audio_file)
         (println "")

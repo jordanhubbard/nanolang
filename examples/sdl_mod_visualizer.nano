@@ -36,7 +36,7 @@ fn main() -> int {
         (println "       (defaults to examples/gabba-studies-12.mod)")
         (println "")
     } else {
-        set mod_file (get_argv 1)
+        unsafe { set mod_file (get_argv 1) }
     }
     
     (println "")

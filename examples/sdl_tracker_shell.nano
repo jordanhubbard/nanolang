@@ -186,7 +186,7 @@ fn main() -> int {
     let argc: int = (get_argc)
     let mut start_path: string = "examples"
     if (>= argc 2) {
-        set start_path (get_argv 1)
+        unsafe { set start_path (get_argv 1) }
     } else {}
 
     let mut current_dir: string = start_path

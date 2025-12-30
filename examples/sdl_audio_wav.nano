@@ -42,7 +42,7 @@ fn main() -> int {
     (println (Mix_AllocateChannels (-1)))
     
     # Load a sample WAV file
-    let sample_file: string = (get_argv 1)
+    unsafe { let sample_file: string = (get_argv 1) }
     (print "Loading: ")
     (println sample_file)
     

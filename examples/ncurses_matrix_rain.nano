@@ -38,7 +38,7 @@ fn main() -> int {
     (println "")
     
     # Seed random
-    let t: int = (time 0)
+    unsafe { let t: int = (time 0) }
     unsafe { (srand t) }
     
     # Initialize ncurses

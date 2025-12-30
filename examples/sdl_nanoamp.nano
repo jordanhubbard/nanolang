@@ -117,7 +117,7 @@ fn main() -> int {
     
     # Load from command line or preferences
     if (>= argc 2) {
-        let music_dir: string = (get_argv 1)
+        unsafe { let music_dir: string = (get_argv 1) }
         (print "Loading from: ")
         (println music_dir)
         
