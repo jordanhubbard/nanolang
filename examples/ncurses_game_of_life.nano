@@ -218,9 +218,9 @@ fn draw_grid_ncurses(grid: array<int>, width: int, height: int) -> void {
             let idx: int = (grid_index x y width)
             
             if (== (at grid idx) alive) {
-                (mvaddch_wrapper y x (cast_int '#'))
+                unsafe { (mvaddch_wrapper y x (cast_int '#')) }
             } else {
-                (mvaddch_wrapper y x (cast_int ' '))
+                unsafe { (mvaddch_wrapper y x (cast_int ' ')) }
             }
         }
     }

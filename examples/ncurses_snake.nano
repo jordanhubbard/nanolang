@@ -66,24 +66,24 @@ shadow check_self_collision {
 
 fn draw_border(width: int, height: int) -> void {
     # Draw top border (modern for loop)
-    (mvaddch_wrapper 0 0 (cast_int '+'))
+    unsafe { (mvaddch_wrapper 0 0 (cast_int '+')) }
     for x in (range 1 (+ width 1)) {
-        (mvaddch_wrapper 0 x (cast_int '-'))
+        unsafe { (mvaddch_wrapper 0 x (cast_int '-')) }
     }
-    (mvaddch_wrapper 0 (+ width 1) (cast_int '+'))
+    unsafe { (mvaddch_wrapper 0 (+ width 1) (cast_int '+')) }
     
     # Draw sides (modern for loop)
     for y in (range 1 (+ height 1)) {
-        (mvaddch_wrapper y 0 (cast_int '|'))
-        (mvaddch_wrapper y (+ width 1) (cast_int '|'))
+        unsafe { (mvaddch_wrapper y 0 (cast_int '|')) }
+        unsafe { (mvaddch_wrapper y (+ width 1) (cast_int '|')) }
     }
     
     # Draw bottom border (modern for loop)
-    (mvaddch_wrapper (+ height 1) 0 (cast_int '+'))
+    unsafe { (mvaddch_wrapper (+ height 1) 0 (cast_int '+')) }
     for x in (range 1 (+ width 1)) {
-        (mvaddch_wrapper (+ height 1) x (cast_int '-'))
+        unsafe { (mvaddch_wrapper (+ height 1) x (cast_int '-')) }
     }
-    (mvaddch_wrapper (+ height 1) (+ width 1) (cast_int '+'))
+    unsafe { (mvaddch_wrapper (+ height 1) (+ width 1) (cast_int '+')) }
 }
 
 fn draw_game(snake_x: array<int>, snake_y: array<int>, food_x: int, food_y: int, length: int, score: int) -> void {
@@ -102,17 +102,17 @@ fn draw_game(snake_x: array<int>, snake_y: array<int>, food_x: int, food_y: int,
         
         if (== i 0) {
             # Head
-            (mvaddch_wrapper screen_y screen_x (cast_int 'O'))
+            unsafe { (mvaddch_wrapper screen_y screen_x (cast_int 'O')) }
         } else {
             # Body
-            (mvaddch_wrapper screen_y screen_x (cast_int 'o'))
+            unsafe { (mvaddch_wrapper screen_y screen_x (cast_int 'o')) }
         }
     }
     
     # Draw food
     let food_screen_x: int = (+ food_x 1)
     let food_screen_y: int = (+ food_y 1)
-    (mvaddch_wrapper food_screen_y food_screen_x (cast_int '*'))
+    unsafe { (mvaddch_wrapper food_screen_y food_screen_x (cast_int '*')) }
     
     # Draw score
     unsafe {     (mvprintw_wrapper (+ GRID_HEIGHT 3) 0 (str_concat "Score: " (int_to_string score))) }
@@ -152,10 +152,10 @@ fn main() -> int {
     
     # Initialize ncurses
     let win: int = (initscr_wrapper)
-    unsafe { (curs_set_wrapper 0)        } # Hide cursor 
-    (nl_nodelay win 1)          # Non-blocking input
-    (nl_keypad win 1)           # Enable arrow keys
-    (timeout_wrapper 100)       # 100ms timeout for getch
+    unsafe { (curs_set_wrapper 0) } # Hide cursor 
+    unsafe { (nl_nodelay win 1) }   # Non-blocking input
+    unsafe { (nl_keypad win 1) }    # Enable arrow keys
+    unsafe { (timeout_wrapper 100) } # 100ms timeout for getch
     
     # Initialize game state
     let mut snake_x: array<int> = []
