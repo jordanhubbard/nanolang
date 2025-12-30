@@ -39,7 +39,7 @@ fn main() -> int {
     
     # Seed random
     let t: int = (time 0)
-    (srand t)
+    unsafe { (srand t) }
     
     # Initialize ncurses
     let win: int = (initscr_wrapper)

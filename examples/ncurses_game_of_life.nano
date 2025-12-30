@@ -244,7 +244,7 @@ fn main() -> int {
     
     # Initialize grid with random population (~30% alive)
     # Seed random number generator
-    (srand 42)  # Use fixed seed for reproducibility, or (time 0) for varying
+    unsafe { (srand 42)  # Use fixed seed for reproducibility, or (time 0) for varying }
     
     let mut grid: array<int> = []
     let grid_size: int = (* GRID_WIDTH GRID_HEIGHT)
