@@ -662,7 +662,7 @@ fn main() -> int {
             set play_last_update_ms (SDL_GetTicks)
         } else {}
         if (and (== pause_clicked 1) has_music) {
-            if (== (Mix_PausedMusic) 1) { (Mix_ResumeMusic) } else { (Mix_PauseMusic) }
+            unsafe { if (== (Mix_PausedMusic) 1) { (Mix_ResumeMusic) } else { (Mix_PauseMusic) } }
             set play_last_update_ms (SDL_GetTicks)
         } else {}
         if (and (== stop_clicked 1) has_music) {
