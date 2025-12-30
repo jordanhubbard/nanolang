@@ -13,6 +13,7 @@
 
 /* Lexer entrypoints (used by shadow tests) */
 import "src_nano/compiler/lexer.nano"
+import "src_nano/generated/compiler_ast.nano"
 
 /* Helper: Initialize AST lists (triggers generic instantiation) */
 fn parser_init_ast_lists() -> Parser {

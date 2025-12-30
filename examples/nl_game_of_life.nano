@@ -170,7 +170,7 @@ fn main() -> int {
     
     # Initialize grid with random population (~30% alive)
     # Seed random number generator with current time
-    (srand 42)  # Use fixed seed for reproducibility, or (time 0) for varying results
+    unsafe { (srand 42) }  # Use fixed seed for reproducibility, or (time 0) for varying results
     
     let mut grid: array<int> = []
     let mut i: int = 0
