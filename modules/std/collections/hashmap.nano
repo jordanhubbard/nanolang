@@ -27,7 +27,9 @@ pub fn map_new() -> HashMap {
 }
 
 pub fn map_put(hm: HashMap, key: string, value: string) -> HashMap {
-    (nl_hm_put hm.handle key value)
+    unsafe {
+        (nl_hm_put hm.handle key value)
+    }
     return hm
 }
 
@@ -53,17 +55,23 @@ pub fn map_values(hm: HashMap) -> array<string> {
 }
 
 pub fn map_remove(hm: HashMap, key: string) -> HashMap {
-    (nl_hm_remove hm.handle key)
+    unsafe {
+        (nl_hm_remove hm.handle key)
+    }
     return hm
 }
 
 pub fn map_clear(hm: HashMap) -> HashMap {
-    (nl_hm_clear hm.handle)
+    unsafe {
+        (nl_hm_clear hm.handle)
+    }
     return hm
 }
 
 pub fn map_free(hm: HashMap) -> void {
-    (nl_hm_free hm.handle)
+    unsafe {
+        (nl_hm_free hm.handle)
+    }
 }
 
 shadow map_new {

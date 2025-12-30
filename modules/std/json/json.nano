@@ -43,7 +43,9 @@ pub fn parse(text: string) -> Json {
 }
 
 pub fn free(json: Json) -> void {
-    (nl_json_free json)
+    unsafe {
+        (nl_json_free json)
+    }
 }
 
 pub fn stringify(json: Json) -> string {

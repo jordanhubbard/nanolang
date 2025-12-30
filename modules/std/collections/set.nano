@@ -25,7 +25,9 @@ pub fn set_new() -> Set {
 }
 
 pub fn set_add(s: Set, key: string) -> Set {
-    (nl_set_add s.handle key)
+    unsafe {
+        (nl_set_add s.handle key)
+    }
     return s
 }
 
@@ -42,17 +44,23 @@ pub fn set_values(s: Set) -> array<string> {
 }
 
 pub fn set_remove(s: Set, key: string) -> Set {
-    (nl_set_remove s.handle key)
+    unsafe {
+        (nl_set_remove s.handle key)
+    }
     return s
 }
 
 pub fn set_clear(s: Set) -> Set {
-    (nl_set_clear s.handle)
+    unsafe {
+        (nl_set_clear s.handle)
+    }
     return s
 }
 
 pub fn set_free(s: Set) -> void {
-    (nl_set_free s.handle)
+    unsafe {
+        (nl_set_free s.handle)
+    }
 }
 
 shadow set_new {

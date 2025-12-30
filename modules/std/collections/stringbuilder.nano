@@ -50,7 +50,9 @@ shadow sb_with_capacity {
 
 /* Append a string to the StringBuilder (returns same StringBuilder) */
 pub fn sb_append(sb: StringBuilder, text: string) -> StringBuilder {
-    (nl_sb_append sb.handle text)
+    unsafe {
+        (nl_sb_append sb.handle text)
+    }
     return sb
 }
 
@@ -75,7 +77,9 @@ pub fn sb_append_int(sb: StringBuilder, n: int) -> StringBuilder {
 
 /* Append a character (ASCII value) */
 pub fn sb_append_char(sb: StringBuilder, c: int) -> StringBuilder {
-    (nl_sb_append_char sb.handle c)
+    unsafe {
+        (nl_sb_append_char sb.handle c)
+    }
     return sb
 }
 
@@ -95,7 +99,9 @@ pub fn sb_capacity(sb: StringBuilder) -> int {
 
 /* Clear the StringBuilder (reset to empty) */
 pub fn sb_clear(sb: StringBuilder) -> StringBuilder {
-    (nl_sb_clear sb.handle)
+    unsafe {
+        (nl_sb_clear sb.handle)
+    }
     return sb
 }
 
@@ -105,7 +111,9 @@ pub fn sb_is_empty(sb: StringBuilder) -> bool {
 }
 
 pub fn sb_free(sb: StringBuilder) -> void {
-    (nl_sb_free sb.handle)
+    unsafe {
+        (nl_sb_free sb.handle)
+    }
 }
 
 /* Build a string from multiple parts efficiently */

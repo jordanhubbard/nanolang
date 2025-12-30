@@ -33,7 +33,9 @@ pub fn captures(peg: NlPeg, input: string) -> array<string> {
 }
 
 pub fn free(peg: NlPeg) -> void {
-    (nl_peg_free peg)
+    unsafe {
+        (nl_peg_free peg)
+    }
 }
 
 pub fn quick_match(pattern: string, input: string) -> bool {
