@@ -116,8 +116,9 @@ fn main() -> int {
     let mut playlist_count: int = 0
     
     # Load from command line or preferences
+    let mut music_dir: string = ""
     if (>= argc 2) {
-        unsafe { let music_dir: string = (get_argv 1) }
+        unsafe { set music_dir (get_argv 1) }
         (print "Loading from: ")
         (println music_dir)
         
@@ -127,7 +128,7 @@ fn main() -> int {
         let mut i: int = 0
         while (< i file_count) {
             let filename: string = (at files i)
-            let full_path: string = (nl_fs_join_path music_dir filename)
+            let full_path: string = (nl_fs_join_path pref_path filename)
             set playlist (array_push playlist full_path)
             set i (+ i 1)
         }

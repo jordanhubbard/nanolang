@@ -436,7 +436,7 @@ fn main() -> int {
     unsafe {     (SDL_Quit) }
 
     if should_launch {
-        (nl_system launch_cmd)
+        unsafe { (nl_system launch_cmd) }
     } else {}
 
     return 0

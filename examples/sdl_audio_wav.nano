@@ -39,10 +39,11 @@ fn main() -> int {
     
     (println "SDL_mixer initialized")
     (print "Channels: ")
-    (println (Mix_AllocateChannels (-1)))
+    (println (Mix_AllocateChannels (- 0 1)))
     
     # Load a sample WAV file
-    unsafe { let sample_file: string = (get_argv 1) }
+    let mut sample_file: string = ""
+    unsafe { set sample_file (get_argv 1) }
     (print "Loading: ")
     (println sample_file)
     
