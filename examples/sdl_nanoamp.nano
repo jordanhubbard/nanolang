@@ -723,7 +723,7 @@ fn main() -> int {
             } else {}
             
             if (== (nl_ui_button renderer font "Save" 165 playlist_btn_y 50 22) 1) {
-                (nl_prefs_save_playlist pref_path playlist playlist_count)
+                unsafe { (nl_prefs_save_playlist pref_path playlist playlist_count) }
                 (println "✓ Saved")
             } else {}
             
