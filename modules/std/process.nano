@@ -5,6 +5,10 @@
 
 module std_process
 
+/* FFI declarations */
+extern fn process_run(command: string) -> array<string>
+extern fn system(command: string) -> int
+
 pub struct Output {
     code: int
     stdout: string
@@ -12,7 +16,10 @@ pub struct Output {
 }
 
 pub fn run(command: string) -> Output {
-    let raw: array<string> = (process_run command)
+    let mut raw: array<string> = []
+    unsafe {
+        set raw (process_run command)
+    }
     let code_s: string = (at raw 0)
     let out: string = (at raw 1)
     let err: string = (at raw 2)
@@ -20,6 +27,20 @@ pub fn run(command: string) -> Output {
     return Output { code: code, stdout: out, stderr: err }
 }
 
+shadow run {
+    let result: Output = (run "echo hello")
+    assert (== result.code 0)
+}
+
 pub fn exec(command: string) -> int {
-    return (system command)
+    let mut code: int = 0
+    unsafe {
+        set code (system command)
+    }
+    return code
+}
+
+shadow exec {
+    let code: int = (exec "true")
+    assert (== code 0)
 }

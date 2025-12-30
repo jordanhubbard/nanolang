@@ -5,24 +5,53 @@
 
 module std_fs
 
+from "modules/std/fs_ffi.nano" import fs_walkdir, path_normalize, path_join, path_basename, path_dirname
+
 pub fn walkdir(root: string) -> array<string> {
-    return (fs_walkdir root)
+    return unsafe { (fs_walkdir root) }
+}
+
+shadow walkdir {
+    let files: array<string> = (walkdir "modules")
+    assert (> (array_length files) 0)
 }
 
 pub fn normalize(path: string) -> string {
-    return (path_normalize path)
+    return unsafe { (path_normalize path) }
+}
+
+shadow normalize {
+    assert (== (normalize "/foo/./bar/../baz") "/foo/baz")
+    assert (== (normalize "foo/bar/..") "foo")
+    assert (== (normalize "./foo") "foo")
 }
 
 pub fn join(a: string, b: string) -> string {
-    return (path_join a b)
+    return unsafe { (path_join a b) }
+}
+
+shadow join {
+    assert (== (join "foo" "bar") "foo/bar")
+    assert (== (join "foo/" "bar") "foo/bar")
+    assert (== (join "" "bar") "bar")
 }
 
 pub fn basename(path: string) -> string {
-    return (path_basename path)
+    return unsafe { (path_basename path) }
+}
+
+shadow basename {
+    assert (== (basename "/foo/bar/baz.txt") "baz.txt")
+    assert (== (basename "baz.txt") "baz.txt")
 }
 
 pub fn dirname(path: string) -> string {
-    return (path_dirname path)
+    return unsafe { (path_dirname path) }
+}
+
+shadow dirname {
+    assert (== (dirname "/foo/bar/baz.txt") "/foo/bar")
+    assert (== (dirname "foo/bar") "foo")
 }
 
 fn glob_match_impl(pattern: string, pi: int, text: string, ti: int) -> bool {
@@ -78,6 +107,13 @@ pub fn glob_match(pattern: string, text: string) -> bool {
     return (glob_match_impl pattern 0 text 0)
 }
 
+shadow glob_match {
+    assert (glob_match "*.txt" "foo.txt")
+    assert (glob_match "test_*.c" "test_foo.c")
+    assert (glob_match "???.txt" "foo.txt")
+    assert (not (glob_match "*.c" "foo.txt"))
+}
+
 pub fn glob(root: string, pattern: string) -> array<string> {
     let files: array<string> = (walkdir root)
     let mut out: array<string> = []
@@ -95,4 +131,9 @@ pub fn glob(root: string, pattern: string) -> array<string> {
     }
 
     return out
+}
+
+shadow glob {
+    let nanos: array<string> = (glob "modules/std" "*.nano")
+    assert (> (array_length nanos) 0)
 }

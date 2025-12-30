@@ -1,0 +1,29 @@
+/* Simple test for path operations */
+
+extern fn path_normalize(path: string) -> string
+extern fn path_join(a: string, b: string) -> string
+extern fn path_basename(path: string) -> string
+extern fn path_dirname(path: string) -> string
+
+fn main() -> int {
+    (println "Testing path operations")
+    
+    let p1: string = unsafe { (path_normalize "/foo/bar") }
+    (println p1)
+    
+    let p2: string = unsafe { (path_join "foo" "bar") }
+    (println p2)
+    
+    let p3: string = unsafe { (path_basename "/foo/bar/baz.txt") }
+    (println p3)
+    
+    let p4: string = unsafe { (path_dirname "/foo/bar/baz.txt") }
+    (println p4)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

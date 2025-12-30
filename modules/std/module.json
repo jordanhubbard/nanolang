@@ -1,0 +1,15 @@
+{
+  "name": "std",
+  "version": "0.1.0",
+  "description": "NanoLang standard library - filesystem utilities",
+  "modules": [
+    {
+      "name": "fs",
+      "source": "fs.nano",
+      "c_sources": ["fs.c"],
+      "headers": ["fs.h"],
+      "dependencies": []
+    }
+  ]
+}
+

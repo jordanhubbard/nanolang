@@ -1,0 +1,8 @@
+/* FFI declarations for filesystem operations */
+
+extern fn fs_walkdir(root: string) -> array<string>
+extern fn path_normalize(path: string) -> string
+extern fn path_join(a: string, b: string) -> string
+extern fn path_basename(path: string) -> string
+extern fn path_dirname(path: string) -> string
+

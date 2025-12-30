@@ -1,0 +1,127 @@
+/* Test std::fs module */
+
+from "modules/std/fs.nano" import walkdir, normalize, join, basename, dirname, glob_match, glob
+
+fn test_path_operations() -> int {
+    /* Test normalize */
+    let p1: string = (normalize "/foo/./bar/../baz")
+    (print "normalize /foo/./bar/../baz = ")
+    (println p1)
+    
+    /* Test join */
+    let p2: string = (join "foo" "bar")
+    (print "join foo bar = ")
+    (println p2)
+    
+    /* Test basename */
+    let p3: string = (basename "/foo/bar/baz.txt")
+    (print "basename /foo/bar/baz.txt = ")
+    (println p3)
+    
+    /* Test dirname */
+    let p4: string = (dirname "/foo/bar/baz.txt")
+    (print "dirname /foo/bar/baz.txt = ")
+    (println p4)
+    
+    return 0
+}
+
+shadow test_path_operations {
+    assert (== (test_path_operations) 0)
+}
+
+fn test_glob_matching() -> int {
+    (println "Testing glob patterns:")
+    
+    if (glob_match "*.txt" "foo.txt") {
+        (println "  *.txt matches foo.txt OK")
+    }
+    
+    if (glob_match "test_*.c" "test_foo.c") {
+        (println "  test_*.c matches test_foo.c OK")
+    }
+    
+    if (glob_match "???.txt" "foo.txt") {
+        (println "  ???.txt matches foo.txt OK")
+    }
+    
+    if (not (glob_match "*.c" "foo.txt")) {
+        (println "  *.c does not match foo.txt OK")
+    }
+    
+    return 0
+}
+
+shadow test_glob_matching {
+    assert (== (test_glob_matching) 0)
+}
+
+fn test_walkdir() -> int {
+    (println "Walking modules/std:")
+    let files: array<string> = (walkdir "modules/std")
+    let n: int = (array_length files)
+    (print "  Found ")
+    (print (int_to_string n))
+    (println " files")
+    
+    /* Show first few files */
+    let mut i: int = 0
+    while (and (< i n) (< i 5)) {
+        (print "  - ")
+        (println (at files i))
+        set i (+ i 1)
+    }
+    
+    return 0
+}
+
+shadow test_walkdir {
+    assert (== (test_walkdir) 0)
+}
+
+fn test_glob_files() -> int {
+    (println "Globbing *.nano in modules/std:")
+    let nanos: array<string> = (glob "modules/std" "*.nano")
+    let n: int = (array_length nanos)
+    (print "  Found ")
+    (print (int_to_string n))
+    (println " .nano files")
+    
+    let mut i: int = 0
+    while (< i n) {
+        (print "  - ")
+        (println (at nanos i))
+        set i (+ i 1)
+    }
+    
+    return 0
+}
+
+shadow test_glob_files {
+    assert (== (test_glob_files) 0)
+}
+
+fn main() -> int {
+    (println "=== Testing std::fs module ===")
+    (println "")
+    
+    (test_path_operations)
+    (println "")
+    
+    (test_glob_matching)
+    (println "")
+    
+    (test_walkdir)
+    (println "")
+    
+    (test_glob_files)
+    (println "")
+    
+    (println "All tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
