@@ -470,7 +470,7 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "static nl_fmt_sb_t nl_fmt_sb_new(size_t initial_cap) {\n");
     sb_append(sb, "    nl_fmt_sb_t sb = {0};\n");
     sb_append(sb, "    sb.cap = initial_cap ? initial_cap : 128;\n");
-    sb_append(sb, "    sb.buf = malloc(sb.cap);\n");
+    sb_append(sb, "    sb.buf = (char*)malloc(sb.cap);\n");
     sb_append(sb, "    sb.len = 0;\n");
     sb_append(sb, "    if (sb.buf) sb.buf[0] = '\\0';\n");
     sb_append(sb, "    return sb;\n");
@@ -1121,7 +1121,7 @@ void generate_stdlib_runtime(StringBuilder *sb) {
 
     sb_append(sb, "static char* nl_os_getenv(const char* name) {\n");
     sb_append(sb, "    const char* value = getenv(name);\n");
-    sb_append(sb, "    return value ? (char*)value : \"\";\n");
+    sb_append(sb, "    return value ? (char*)value : (char*)\"\";\n");
     sb_append(sb, "}\n\n");
     
     sb_append(sb, "/* system() wrapper - stdlib system() available via stdlib.h */\n");

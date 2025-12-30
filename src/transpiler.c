@@ -2710,7 +2710,7 @@ static void generate_process_operations(StringBuilder *sb) {
 
     sb_append(sb, "static char* nl_os_getenv(const char* name) {\n");
     sb_append(sb, "    const char* value = getenv(name);\n");
-    sb_append(sb, "    return value ? (char*)value : \"\";\n");
+    sb_append(sb, "    return value ? (char*)value : (char*)\"\";\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "/* system() wrapper - stdlib system() available via stdlib.h */\n");

@@ -793,6 +793,7 @@ fn main() -> int {
     (TTF_Quit)
     (SDL_Quit)
     return 0
+    }  # end unsafe
 }
 
 shadow main { assert true }

@@ -45,6 +45,7 @@ fn main() -> int {
     (println "╚════════════════════════════════════════════════════════╝")
     (println "")
     
+    unsafe {
     # Initialize SDL
     (SDL_Init (+ SDL_INIT_VIDEO SDL_INIT_AUDIO))
     
@@ -444,6 +445,7 @@ fn main() -> int {
     (TTF_Quit)
     (SDL_Quit)
     return 0
+    }  # end unsafe
 }
 
 shadow main { assert true }
