@@ -124,18 +124,4 @@ typedef struct {
     bool has_error;
 } TypeEnvironment;
 
-typedef struct nl_CompilerSourceLocation {
-    char * file;
-    int line;
-    int column;
-} CompilerSourceLocation;
-
-typedef struct nl_CompilerDiagnostic {
-    int phase;
-    int severity;
-    char * code;
-    char * message;
-    CompilerSourceLocation location;
-} CompilerDiagnostic;
-
 #endif /* NANOLANG_GENERATED_COMPILER_SCHEMA_H */

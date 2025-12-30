@@ -1443,7 +1443,7 @@ pub fn typecheck_phase(parser: Parser) -> TypecheckPhaseOutput {
     
     let env: TypeEnvironment = (env_new)
     let mut symbols: array<Symbol> = []
-    let diagnostics: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let mut error_count: int = 0
     
     /* Get function count using accessor */

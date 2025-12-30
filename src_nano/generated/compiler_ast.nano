@@ -211,6 +211,14 @@ struct ASTFunction {
     body: int
 }
 
+struct ASTShadow {
+    node_type: int,
+    line: int,
+    column: int,
+    target_name: string,
+    body: int
+}
+
 struct ASTStruct {
     node_type: int,
     line: int,

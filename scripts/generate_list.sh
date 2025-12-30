@@ -29,23 +29,17 @@ cat > "$HEADER_FILE" << EOF
 #include <stdbool.h>
 
 /* Forward declaration - actual struct defined elsewhere */
-/* Note: Using 'struct nl_$TYPE_NAME' to avoid typedef conflicts */
+/* Note: Using 'struct nl_$TYPE_NAME' explicitly for C99 compatibility */
 struct nl_$TYPE_NAME;
-
-/* Guard typedef to prevent redefinition warnings */
-#ifndef NL_${TYPE_NAME_UPPER}_DEFINED
-#define NL_${TYPE_NAME_UPPER}_DEFINED
-typedef struct nl_$TYPE_NAME nl_$TYPE_NAME;
-#endif
 
 /* Dynamic list of $TYPE_NAME */
 /* Guard typedef to prevent redefinition warnings */
 #ifndef LIST_${TYPE_NAME_UPPER}_TYPE_DEFINED
 #define LIST_${TYPE_NAME_UPPER}_TYPE_DEFINED
 typedef struct List_$TYPE_NAME {
-    nl_$TYPE_NAME *data;      /* Array of elements */
-    int length;               /* Current number of elements */
-    int capacity;             /* Allocated capacity */
+    struct nl_$TYPE_NAME *data;      /* Array of elements */
+    int length;                       /* Current number of elements */
+    int capacity;                     /* Allocated capacity */
 } List_$TYPE_NAME;
 #endif
 
@@ -56,22 +50,22 @@ List_$TYPE_NAME* nl_list_${TYPE_NAME}_new(void);
 List_$TYPE_NAME* nl_list_${TYPE_NAME}_with_capacity(int capacity);
 
 /* Append an element to the end of the list */
-void nl_list_${TYPE_NAME}_push(List_$TYPE_NAME *list, nl_$TYPE_NAME value);
+void nl_list_${TYPE_NAME}_push(List_$TYPE_NAME *list, struct nl_$TYPE_NAME value);
 
 /* Remove and return the last element */
-nl_$TYPE_NAME nl_list_${TYPE_NAME}_pop(List_$TYPE_NAME *list);
+struct nl_$TYPE_NAME nl_list_${TYPE_NAME}_pop(List_$TYPE_NAME *list);
 
 /* Insert an element at the specified index */
-void nl_list_${TYPE_NAME}_insert(List_$TYPE_NAME *list, int index, nl_$TYPE_NAME value);
+void nl_list_${TYPE_NAME}_insert(List_$TYPE_NAME *list, int index, struct nl_$TYPE_NAME value);
 
 /* Remove and return the element at the specified index */
-nl_$TYPE_NAME nl_list_${TYPE_NAME}_remove(List_$TYPE_NAME *list, int index);
+struct nl_$TYPE_NAME nl_list_${TYPE_NAME}_remove(List_$TYPE_NAME *list, int index);
 
 /* Set the value at the specified index */
-void nl_list_${TYPE_NAME}_set(List_$TYPE_NAME *list, int index, nl_$TYPE_NAME value);
+void nl_list_${TYPE_NAME}_set(List_$TYPE_NAME *list, int index, struct nl_$TYPE_NAME value);
 
 /* Get the value at the specified index */
-nl_$TYPE_NAME nl_list_${TYPE_NAME}_get(List_$TYPE_NAME *list, int index);
+struct nl_$TYPE_NAME nl_list_${TYPE_NAME}_get(List_$TYPE_NAME *list, int index);
 
 /* Clear all elements from the list */
 void nl_list_${TYPE_NAME}_clear(List_$TYPE_NAME *list);

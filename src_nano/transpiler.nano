@@ -2480,7 +2480,7 @@ pub fn transpile_parser(parser: Parser) -> string {
 
 pub fn transpile_phase(parser: Parser, output_path: string) -> TranspilePhaseOutput {
     let c_source: string = (transpile_parser parser)
-    let diagnostics: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     return TranspilePhaseOutput {
         c_source: c_source,
         diagnostics: diagnostics,

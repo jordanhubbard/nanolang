@@ -1171,8 +1171,8 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
         for (int i = 0; i < detected_list_count; i++) {
             const char *type_name = detected_list_types[i];
             sb_appendf(sb, "List_%s* nl_list_%s_new(void);\n", type_name, type_name);
-            sb_appendf(sb, "void nl_list_%s_push(List_%s *list, nl_%s value);\n", type_name, type_name, type_name);
-            sb_appendf(sb, "nl_%s nl_list_%s_get(List_%s *list, int index);\n", type_name, type_name, type_name);
+            sb_appendf(sb, "void nl_list_%s_push(List_%s *list, struct nl_%s value);\n", type_name, type_name, type_name);
+            sb_appendf(sb, "struct nl_%s nl_list_%s_get(List_%s *list, int index);\n", type_name, type_name, type_name);
             sb_appendf(sb, "int nl_list_%s_length(List_%s *list);\n", type_name, type_name);
         }
         sb_append(sb, "/* ========== End Generic List Includes ========== */\n\n");

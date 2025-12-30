@@ -378,6 +378,16 @@
       ]
     },
     {
+      "name": "ASTShadow",
+      "fields": [
+        ["node_type", "int"],
+        ["line", "int"],
+        ["column", "int"],
+        ["target_name", "string"],
+        ["body", "int"]
+      ]
+    },
+    {
       "name": "ASTStruct",
       "fields": [
         ["node_type", "int"],
@@ -608,8 +618,9 @@
     },
     {
       "name": "CompilerSourceLocation",
-      "emit_c": true,
+      "emit_c": false,
       "contracts": true,
+      "comment": "Defined in compiler_ast.nano for self-hosting, emitted to C from there",
       "fields": [
         ["file", "string"],
         ["line", "int"],
@@ -618,8 +629,9 @@
     },
     {
       "name": "CompilerDiagnostic",
-      "emit_c": true,
+      "emit_c": false,
       "contracts": true,
+      "comment": "Defined in compiler_ast.nano for self-hosting, emitted to C from there",
       "fields": [
         ["phase", "int"],
         ["severity", "int"],
