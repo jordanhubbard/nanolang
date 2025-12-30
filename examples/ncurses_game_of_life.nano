@@ -236,11 +236,11 @@ shadow draw_grid_ncurses {
 fn main() -> int {
     # Initialize ncurses
     let win: int = (initscr_wrapper)
-    unsafe { (curs_set_wrapper 0)        } # Hide cursor 
-    (cbreak_wrapper)
-    unsafe {     (noecho_wrapper) }
-    (nl_keypad win 1)
-    (timeout_wrapper UPDATE_DELAY_MS)
+    unsafe { (curs_set_wrapper 0) } # Hide cursor 
+    unsafe { (cbreak_wrapper) }
+    unsafe { (noecho_wrapper) }
+    unsafe { (nl_keypad win 1) }
+    unsafe { (timeout_wrapper UPDATE_DELAY_MS) }
     
     # Initialize grid with random population (~30% alive)
     # Seed random number generator
