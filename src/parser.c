@@ -675,17 +675,12 @@ static Type parse_type_with_element(Parser *p, Type *element_type_out, char **ty
             fprintf(stderr, "Error at line %d, column %d: Expected type annotation\n", tok->line, tok->column);
             return TYPE_UNKNOWN;
     }
-<<<<<<< HEAD:src/parser.c
-
-    advance(p);
-=======
     
     /* For simple types (int, float, etc.), we need to advance past the type token */
     if (type != TYPE_UNKNOWN) {
         advance(p);
     }
     
->>>>>>> 57735c1 (fix: Critical parser regression - restore type token advancement):src/parser.cpp
     return type;
 }
 

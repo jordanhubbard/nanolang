@@ -467,39 +467,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     const char *cc = getenv("NANO_CC");
     if (!cc) cc = getenv("CC");
-<<<<<<< HEAD:src/main.c
     if (!cc) cc = "cc";
-=======
-    
-    /* NanoLang runtime is now C++, so always use C++ compiler */
-    bool needs_cpp = true;  /* Always true since runtime is C++ */
-    for (int i = 0; i < modules->count; i++) {
-        const char *module_path = modules->module_paths[i];
-        char *module_dir = strdup(module_path);
-        char *last_slash = strrchr(module_dir, '/');
-        if (last_slash) {
-            *last_slash = '\0';
-        } else {
-            free(module_dir);
-            module_dir = strdup(".");
-        }
-        
-        ModuleBuildMetadata *meta = module_load_metadata(module_dir);
-        if (meta && meta->c_compiler && strcmp(meta->c_compiler, "c++") == 0) {
-            needs_cpp = true;
-            module_metadata_free(meta);
-            free(module_dir);
-            break;
-        }
-        if (meta) module_metadata_free(meta);
-        free(module_dir);
-    }
-    
-    if (!cc) cc = "c++";  /* Always use C++ */
-    
-    /* Use -std=c++11 for C++ compilation */
-    const char *std_flag = "-std=c++11";
->>>>>>> 57735c1 (fix: Critical parser regression - restore type token advancement):src/main.cpp
 
     int cmd_len = snprintf(compile_cmd, sizeof(compile_cmd),
             "%s -std=c99 %s -o %s %s %s %s %s %s",
