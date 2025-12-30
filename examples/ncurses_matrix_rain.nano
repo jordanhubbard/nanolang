@@ -38,14 +38,14 @@ fn main() -> int {
     (println "")
     
     # Seed random
-    unsafe { let t: int = (time 0) }
+    let t: int = (time 0)
     unsafe { (srand t) }
     
     # Initialize ncurses
     let win: int = (initscr_wrapper)
-    unsafe { (curs_set_wrapper 0)        } # Hide cursor 
-    (nl_nodelay win 1)           # Non-blocking input
-    (timeout_wrapper UPDATE_DELAY_MS)
+    unsafe { (curs_set_wrapper 0) } # Hide cursor 
+    unsafe { (nl_nodelay win 1) }   # Non-blocking input
+    unsafe { (timeout_wrapper UPDATE_DELAY_MS) }
     
     # Try to enable colors
     unsafe {     (start_color_wrapper) }
@@ -119,7 +119,7 @@ fn main() -> int {
                                 # Head - bright white/green
                                 unsafe {                                 (attron_wrapper COLOR_PAIR_GREEN) }
                                 unsafe {                                 (attron_wrapper A_BOLD) }
-                                (mvaddch_wrapper char_y i (random_char))
+                                unsafe { (mvaddch_wrapper char_y i (random_char)) }
                                 unsafe {                                 (attroff_wrapper A_BOLD) }
                                 unsafe {                                 (attroff_wrapper COLOR_PAIR_GREEN) }
                             } else {
@@ -127,13 +127,13 @@ fn main() -> int {
                                     # Near head - bright green
                                     unsafe {                                     (attron_wrapper COLOR_PAIR_GREEN) }
                                     unsafe {                                     (attron_wrapper A_BOLD) }
-                                    (mvaddch_wrapper char_y i (random_char))
+                                    unsafe { (mvaddch_wrapper char_y i (random_char)) }
                                     unsafe {                                     (attroff_wrapper A_BOLD) }
                                     unsafe {                                     (attroff_wrapper COLOR_PAIR_GREEN) }
                                 } else {
                                     # Trail - normal green
                                     unsafe {                                     (attron_wrapper COLOR_PAIR_GREEN) }
-                                    (mvaddch_wrapper char_y i (random_char))
+                                    unsafe { (mvaddch_wrapper char_y i (random_char)) }
                                     unsafe {                                     (attroff_wrapper COLOR_PAIR_GREEN) }
                                 }
                             }
