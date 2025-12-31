@@ -15,9 +15,7 @@ extern fn get_argv(index: int) -> string
 fn compile_file(input: string, output: string) -> int {
     /* Build the command: bin/nanoc_c input -o output */
     /* We call nanoc_c (the C reference compiler) to avoid infinite recursion */
-    let cmd1: string = (str_concat "bin/nanoc_c " input)
-    let cmd2: string = (str_concat cmd1 " -o ")
-    let cmd: string = (str_concat cmd2 output)
+    let cmd: string = (+ (+ (+ "bin/nanoc_c " input) " -o ") output)
     
     let result: int = (system cmd)
     
@@ -56,7 +54,7 @@ fn main() -> int {
         if (== argc 2) {
             /* Shadow test mode: just call nanoc_c to run tests */
             let input: string = (get_argv 1)
-            let cmd: string = (str_concat "bin/nanoc_c " input)
+            let cmd: string = (+ "bin/nanoc_c " input)
             let result: int = (system cmd)
             return result
         } else {

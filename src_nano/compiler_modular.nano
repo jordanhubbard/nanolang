@@ -195,7 +195,7 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
     if verbose {
         (println "Generating C code...")
     }
-    let c_file: string = (str_concat output ".c")
+    let c_file: string = (+ output ".c")
     let transpile_output: TranspilePhaseOutput = (Transpile.transpile_phase parser_state c_file)
     if (phase_failed "Transpiler" transpile_output.had_error transpile_output.diagnostics) {
         return 1
@@ -217,10 +217,8 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
     } else {
         /* quiet */
     }
-    let gcc_cmd: string = (str_concat "gcc " c_file)
-    let gcc_cmd2: string = (str_concat gcc_cmd " -o ")
-    let gcc_cmd3: string = (str_concat gcc_cmd2 output)
-    let gcc_result: int = (system gcc_cmd3)
+    let gcc_cmd: string = (+ (+ (+ "gcc " c_file) " -o ") output)
+    let gcc_result: int = (system gcc_cmd)
     
     if (!= gcc_result 0) {
         (println "ERROR: C compilation failed!")

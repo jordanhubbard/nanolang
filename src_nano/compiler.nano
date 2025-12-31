@@ -189,18 +189,12 @@ fn compile(input: string, output: string, keep_c: bool, verbose: bool) -> int {
     }
     
     /* Build command to use C compiler */
-    let cmd: string = (str_concat "bin/nanoc " input)
-    let cmd2: string = (str_concat cmd " -o ")
-    let cmd3: string = (str_concat cmd2 output)
+    let base_cmd: string = (+ (+ (+ "bin/nanoc " input) " -o ") output)
+    let final_cmd: string = (cond
+        (keep_c (+ base_cmd " --keep-c"))
+        (else base_cmd))
     
-    if keep_c {
-        let cmd4: string = (str_concat cmd3 " --keep-c")
-        let result: int = (system cmd4)
-        return result
-    } else {
-        let result: int = (system cmd3)
-        return result
-    }
+    return (system final_cmd)
 }
 
 /* Main entry point */

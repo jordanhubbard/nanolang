@@ -342,11 +342,11 @@ fn run_cc(c_file: string, output_file: string, verbose: bool) -> CompilationPhas
     let runtime_files: string = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_token.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/runtime/cli.c src/runtime/schema_lists.c"
     
     let mut cc_cmd: string = "cc -o "
-    set cc_cmd (str_concat cc_cmd output_file)
-    set cc_cmd (str_concat cc_cmd " ")
-    set cc_cmd (str_concat cc_cmd c_file)
-    set cc_cmd (str_concat cc_cmd " -Isrc ")
-    set cc_cmd (str_concat cc_cmd runtime_files)
+    set cc_cmd (+ cc_cmd output_file)
+    set cc_cmd (+ cc_cmd " ")
+    set cc_cmd (+ cc_cmd c_file)
+    set cc_cmd (+ cc_cmd " -Isrc ")
+    set cc_cmd (+ cc_cmd runtime_files)
     
     if verbose {
         (println "  Command:")
@@ -360,8 +360,7 @@ fn run_cc(c_file: string, output_file: string, verbose: bool) -> CompilationPhas
     }
     
     if (!= exit_code 0) {
-        let mut error_msg: string = "C compilation failed with exit code: "
-        set error_msg (str_concat error_msg (int_to_string exit_code))
+        let error_msg: string = (+ "C compilation failed with exit code: " (int_to_string exit_code))
         return CompilationPhaseResult.Error {
             message: error_msg,
             phase: 5  # PHASE_CC
@@ -405,7 +404,7 @@ fn compile(args: CompilerArgs) -> int {
                     match type_result {
                         TypeCheckResult(type_out) => {
                             /* Phase 4: Transpile */
-                            let c_file: string = (str_concat args.output_file ".c")
+                            let c_file: string = (+ args.output_file ".c")
                             let transpile_result: CompilationPhaseResult = (run_transpiler parse.output.parser c_file args.verbose)
                             match transpile_result {
                                 CCompileResult(c_out) => {
