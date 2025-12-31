@@ -22,3 +22,9 @@ const char* get_argv(int64_t index) {
     }
     return g_argv[index];
 }
+
+/* Wrapper for system() to avoid conflicts with stdlib.h declaration */
+int64_t nl_system_exec(const char* command) {
+    extern int system(const char*);  /* Forward declaration */
+    return (int64_t)system(command);
+}

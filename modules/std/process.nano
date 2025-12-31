@@ -44,11 +44,3 @@ shadow exec {
     let code: int = (exec "true")
     assert (== code 0)
 }
-
-/* Dummy main for standalone compilation - not exported */
-fn main() -> int {
-    (println "std::process module - use run() or exec() functions")
-    return 0
-}
-
-shadow main { assert (== (main) 0) }

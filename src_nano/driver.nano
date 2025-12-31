@@ -26,13 +26,11 @@ import "src_nano/compiler/error_messages.nano" as ErrorMsg
 from "src_nano/lexer_main.nano" import lex_phase_run
 from "src_nano/parser.nano" import parse_phase_run
 from "src_nano/typecheck.nano" import typecheck_phase
-# TODO: Enable transpiler once transpile_phase wrapper exists
-# from "src_nano/transpiler.nano" import transpile_phase
+from "src_nano/transpiler.nano" import transpile_phase
 
 /* Import process execution for C compiler */
-# TODO: Re-enable once process.nano extern conflicts are resolved
-# from "modules/std/process.nano" import exec
-extern fn system(command: string) -> int
+# NOTE: nl_system_exec is a wrapper to avoid conflicts with stdlib.h
+extern fn nl_system_exec(command: string) -> int
 
 /* Temporary extern declarations until imports work */
 extern fn get_argc() -> int
@@ -78,21 +76,23 @@ shadow args_new {
     assert (not args.verbose)
 }
 
-/* Parse command-line arguments - simplified version 
- * TODO: Fix unsafe block syntax to enable actual arg parsing
- * For now using placeholders to test driver structure
- */
+/* Parse command-line arguments */
 fn parse_args() -> ResultArgs {
-    let argc: int = 2  # TODO: unsafe { (get_argc) }
+    let mut argc: int = 0
+    unsafe {
+        set argc (get_argc)
+    }
     
     # Check if we have any arguments
     if (< argc 2) {
         return ResultArgs.Err { error: "No input file specified. Use --help for usage." }
     }
     
-    # For now, just parse the first few arguments
-    # TODO: Full argument parsing with loops
-    let arg1: string = "--help"  # TODO: unsafe { (get_argv 1) }
+    # Parse first argument
+    let mut arg1: string = ""
+    unsafe {
+        set arg1 (get_argv 1)
+    }
     
     # Check for --help
     if (== arg1 "--help") {
@@ -293,11 +293,37 @@ fn run_transpiler(parser_state: Parser, c_file: string, verbose: bool) -> Compil
         (println "Phase 4: Transpiling to C...")
     }
     
-    # TODO: Wire up transpiler (Step 6)
-    # For now, return placeholder error
-    return CompilationPhaseResult.Error {
-        message: "Transpiler not yet wired up (Step 6 TODO)",
-        phase: 4  # PHASE_TRANSPILE
+    /* Run transpiler */
+    let transpile_output: TranspilePhaseOutput = (transpile_phase parser_state c_file)
+    
+    if transpile_output.had_error {
+        /* Format error message from diagnostics */
+        let error_msg: string = "Transpiler errors detected"
+        # TODO: Use error_messages.nano to format diagnostics nicely
+        return CompilationPhaseResult.Error {
+            message: error_msg,
+            phase: 4  # PHASE_TRANSPILE
+        }
+    }
+    
+    /* Write generated C code to file */
+    let write_result: int = (file_write c_file transpile_output.c_source)
+    if (!= write_result 0) {
+        let error_msg: string = "Failed to write C file"
+        return CompilationPhaseResult.Error {
+            message: error_msg,
+            phase: 4  # PHASE_TRANSPILE
+        }
+    }
+    
+    if verbose {
+        (println "  C file created:")
+        (println c_file)
+    }
+    
+    /* Return success - we don't have a TranspileResult variant, so we'll continue to CC phase */
+    return CompilationPhaseResult.CCompileResult {
+        binary_path: c_file
     }
 }
 
@@ -330,7 +356,7 @@ fn run_cc(c_file: string, output_file: string, verbose: bool) -> CompilationPhas
     /* Execute C compiler */
     let mut exit_code: int = 0
     unsafe {
-        set exit_code (system cc_cmd)
+        set exit_code (nl_system_exec cc_cmd)
     }
     
     if (!= exit_code 0) {
@@ -358,9 +384,7 @@ shadow run_cc {
 }
 
 /* Run the complete compilation pipeline 
- * Phases 1-3 implemented: Lex -> Parse -> TypeCheck ✅
- * Phase 4 blocked: Transpile (needs transpile_phase wrapper)
- * Phase 5 ready: CC (uses std::process::exec) ✅
+ * All 5 phases now wired: Lex -> Parse -> TypeCheck -> Transpile -> CC ✅
  */
 fn compile(args: CompilerArgs) -> int {
     if args.verbose {
@@ -371,52 +395,63 @@ fn compile(args: CompilerArgs) -> int {
     /* Phase 1: Lex */
     let lex_result: CompilationPhaseResult = (run_lexer args.input_file args.verbose)
     match lex_result {
-        Error(e) => {
-            (println "Compilation failed:")
-            (println e.message)
-            return 1
-        }
         LexResult(lex) => {
             /* Phase 2: Parse */
             let parse_result: CompilationPhaseResult = (run_parser lex.output args.verbose)
             match parse_result {
-                Error(e) => {
-                    (println "Compilation failed:")
-                    (println e.message)
-                    return 1
-                }
                 ParseResult(parse) => {
                     /* Phase 3: Type check */
                     let type_result: CompilationPhaseResult = (run_typechecker parse.output.parser args.verbose)
                     match type_result {
-                        Error(e) => {
-                            (println "Compilation failed:")
-                            (println e.message)
-                            return 1
-                        }
                         TypeCheckResult(type_out) => {
-                            /* Steps 1-5 complete! */
-                            if args.verbose {
-                                (println "")
-                                (println "✅ Phases 1-3 complete (Lex/Parse/TypeCheck)")
-                                (println "TODO: Phase 4-5 (Transpile/CC)")
+                            /* Phase 4: Transpile */
+                            let c_file: string = (str_concat args.output_file ".c")
+                            let transpile_result: CompilationPhaseResult = (run_transpiler parse.output.parser c_file args.verbose)
+                            match transpile_result {
+                                CCompileResult(c_out) => {
+                                    /* Phase 5: Compile C to binary */
+                                    let cc_result: CompilationPhaseResult = (run_cc c_file args.output_file args.verbose)
+                                    match cc_result {
+                                        CCompileResult(binary) => {
+                                            /* Success! */
+                                            if args.verbose {
+                                                (println "")
+                                                (println "✅ Compilation complete!")
+                                                (println binary.binary_path)
+                                            }
+                                            return 0
+                                        }
+                                        Error(e5) => {
+                                            (println "Compilation failed:")
+                                            (println e5.message)
+                                            return 1
+                                        }
+                                    }
+                                }
+                                Error(e4) => {
+                                    (println "Compilation failed:")
+                                    (println e4.message)
+                                    return 1
+                                }
                             }
-                            return 0
                         }
-                        _ => {
-                            (println "Unexpected result type")
+                        Error(e3) => {
+                            (println "Compilation failed:")
+                            (println e3.message)
                             return 1
                         }
                     }
                 }
-                _ => {
-                    (println "Unexpected result type")
+                Error(e2) => {
+                    (println "Compilation failed:")
+                    (println e2.message)
                     return 1
                 }
             }
         }
-        _ => {
-            (println "Unexpected result type")
+        Error(e1) => {
+            (println "Compilation failed:")
+            (println e1.message)
             return 1
         }
     }
