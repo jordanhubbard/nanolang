@@ -1175,4 +1175,184 @@ When generating nanolang code:
 
 ---
 
+## Advanced Features (v0.3+)
+
+### Affine Types for Resource Safety
+
+**Affine types** ensure resources (files, sockets, etc.) are used **at most once**, preventing use-after-free/close bugs at compile time.
+
+```nano
+# Declare a resource struct
+resource struct FileHandle {
+    fd: int
+}
+
+# FFI functions that work with resources
+extern fn open_file(path: string) -> FileHandle
+extern fn close_file(f: FileHandle) -> void
+extern fn read_file(f: FileHandle) -> string
+
+fn safe_file_usage() -> int {
+    # Create resource
+    let f: FileHandle = unsafe { (open_file "data.txt") }
+    
+    # Use resource (can use multiple times before consuming)
+    let data: string = unsafe { (read_file f) }
+    
+    # Consume resource (transfers ownership, resource is "moved")
+    unsafe { (close_file f) }
+    
+    # ERROR: Cannot use 'f' after it has been consumed!
+    # let more: string = unsafe { (read_file f) }  # Compile error!
+    
+    return 0
+}
+
+shadow safe_file_usage {
+    assert (== (safe_file_usage) 0)
+}
+```
+
+**Key Rules**:
+1. **Resources must be consumed** before end of scope (or compile error)
+2. **Cannot use after consume** (compile-time error)
+3. **Cannot consume twice** (compile-time error)
+4. Resources transition through states: `UNUSED` → `USED` → `CONSUMED`
+
+**When to Use**:
+- File handles
+- Network sockets
+- Database connections
+- GPU resources
+- Anything that requires cleanup
+
+---
+
+### Self-Hosted Compiler Architecture
+
+NanoLang is now **self-hosted** - the compiler is written in NanoLang!
+
+**Two Compilers**:
+1. **`bin/nanoc`** (symlink to `bin/nanoc_c`) - C reference compiler (Stage 1)
+2. **`bin/nanoc_nano`** - Self-hosted NanoLang compiler (Stage 2)
+
+**Compilation Pipeline** (both compilers):
+```
+Source → Lex → Parse → TypeCheck → Transpile → C Compiler → Binary
+```
+
+**Bootstrap Process**:
+1. **Stage 1**: C compiler (`nanoc_c`) compiles self-hosted components
+2. **Stage 2**: Self-hosted compiler compiles itself
+3. **Stage 3**: Stage 2 compiler validates its output matches Stage 1
+
+**Compiler Phase Interfaces** (for self-hosted development):
+
+```nano
+# Phase 1: Lexer
+fn lex_phase_run(source: string, filename: string) -> LexPhaseOutput {
+    # Returns: { tokens, token_count, had_error, diagnostics }
+}
+
+# Phase 2: Parser
+fn parse_phase_run(lex_output: LexPhaseOutput) -> ParsePhaseOutput {
+    # Returns: { parser, had_error, diagnostics }
+}
+
+# Phase 3: Type Checker
+fn typecheck_phase(parser_state: Parser) -> TypecheckPhaseOutput {
+    # Returns: { had_error, diagnostics }
+}
+
+# Phase 4: Transpiler
+fn transpile_phase(parser_state: Parser, c_file: string) -> TranspilePhaseOutput {
+    # Returns: { c_source, had_error, diagnostics, output_path }
+}
+```
+
+All phase outputs include:
+- `had_error: bool`
+- `diagnostics: List<CompilerDiagnostic>`
+
+---
+
+### Diagnostic System (Self-Hosted)
+
+The self-hosted compiler uses a structured diagnostic system:
+
+```nano
+struct CompilerDiagnostic {
+    severity: int,      # DIAG_ERROR, DIAG_WARNING, DIAG_INFO
+    phase: int,         # PHASE_LEX, PHASE_PARSE, PHASE_TYPECHECK, PHASE_TRANSPILE
+    code: string,       # Error code (e.g., "E001")
+    message: string,    # Human-readable message
+    location: CompilerSourceLocation
+}
+
+struct CompilerSourceLocation {
+    file: string,
+    line: int,
+    column: int
+}
+
+# Create diagnostics
+fn diag_error(phase: int, code: string, msg: string, loc: CompilerSourceLocation) -> CompilerDiagnostic
+fn diag_warning(phase: int, code: string, msg: string, loc: CompilerSourceLocation) -> CompilerDiagnostic
+```
+
+**Elm-Style Error Messages** (in development):
+- Show source code context
+- Highlight problematic code
+- Suggest fixes
+- Explain *why* something is wrong
+
+---
+
+### Result Type Pattern (Error Handling)
+
+For functions that can fail, use the `Result` union pattern:
+
+```nano
+union ResultInt {
+    Ok { value: int },
+    Err { error: string }
+}
+
+fn divide(a: int, b: int) -> ResultInt {
+    if (== b 0) {
+        return ResultInt.Err { error: "Division by zero" }
+    }
+    return ResultInt.Ok { value: (/ a b) }
+}
+
+shadow divide {
+    match (divide 10 2) {
+        Ok(v) => { assert (== v.value 5) }
+        Err(e) => { assert false }
+    }
+    match (divide 10 0) {
+        Ok(v) => { assert false }
+        Err(e) => { assert true }
+    }
+}
+```
+
+---
+
+## LLM Development Guidelines (Updated 2025)
+
+When generating NanoLang code, remember:
+
+- Think "What would the simplest, clearest version look like?"
+- Make types explicit
+- **Write shadow tests that verify correctness** (MANDATORY)
+- Use prefix notation for all operations
+- Leverage the type system to catch errors early
+- **Use `resource struct` for types that require cleanup**
+- **Wrap FFI calls in `unsafe { ... }` blocks**
+- Use `Result` unions for fallible operations
+- Check for resource leaks in complex functions
+
+---
+
 **For complete language reference, always consult `spec.json` in the root directory.**
