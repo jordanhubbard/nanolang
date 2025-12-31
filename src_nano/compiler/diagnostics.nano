@@ -280,12 +280,4 @@ shadow diag_list_get {
     assert (== retrieved.code "E001")
 }
 
-/* Main function for standalone compilation */
-fn main() -> int {
-    (println "Diagnostics module loaded successfully")
-    return 0
-}
-
-shadow main {
-    assert (== (main) 0)
-}
+/* Note: This module is designed to be imported, not run standalone */

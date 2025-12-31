@@ -306,15 +306,7 @@ shadow cache_is_valid {
     assert (not (cache_is_valid header 99))
 }
 
-/* Main function for standalone testing */
-fn main() -> int {
-    (println "Serialization module loaded successfully")
-    return 0
-}
-
-shadow main {
-    assert (== (main) 0)
-}
+/* Note: This module is designed to be imported, not run standalone */
 
 /* =============================================================================
  * USAGE NOTES
