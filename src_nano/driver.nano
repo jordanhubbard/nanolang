@@ -13,10 +13,9 @@
  *   nanoc_nano --version
  */
 
-/* TODO: Re-enable these imports once module system is stable (blocked by nanolang-14m0)
- * from "modules/std/env.nano" import argc, argv
- * from "modules/std/fs.nano" import read, write
- */
+/* Import standard library functions */
+from "modules/std/env.nano" import argc, argv
+from "modules/std/fs.nano" import read, write
 
 /* Import compiler phases - these already have clean interfaces */
 import "src_nano/compiler/ir.nano"
@@ -27,12 +26,6 @@ from "src_nano/lexer_main.nano" import lex_phase_run
 from "src_nano/parser.nano" import parse_phase_run
 from "src_nano/typecheck.nano" import typecheck_phase
 from "src_nano/transpiler.nano" import transpile_phase
-
-/* Extern declarations (until module imports are stable) */
-extern fn get_argc() -> int
-extern fn get_argv(index: int) -> string
-extern fn file_file_read(path: string) -> string
-extern fn file_write(path: string, content: string) -> int
 
 /* Import process execution for C compiler */
 # NOTE: nl_system_exec is a wrapper to avoid conflicts with stdlib.h

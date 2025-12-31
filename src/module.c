@@ -768,12 +768,16 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 /* Extract function names, struct names, enum names, union names from module */
                 /* Count them first */
                 int func_count = 0, struct_count = 0, enum_count = 0, union_count = 0;
+                char *orig_module_name = NULL;
                 for (int j = 0; j < module_ast->as.program.count; j++) {
                     ASTNode *node = module_ast->as.program.items[j];
                     if (node->type == AST_FUNCTION) func_count++;
                     else if (node->type == AST_STRUCT_DEF) struct_count++;
                     else if (node->type == AST_ENUM_DEF) enum_count++;
                     else if (node->type == AST_UNION_DEF) union_count++;
+                    else if (node->type == AST_MODULE_DECL && !orig_module_name) {
+                        orig_module_name = node->as.module_decl.name;
+                    }
                 }
                 
                 /* Allocate arrays */
@@ -798,7 +802,7 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 }
                 
                 /* Register the namespace */
-                env_register_namespace(env, module_alias,
+                env_register_namespace(env, module_alias, orig_module_name,
                                       func_names, func_count,
                                       struct_names, struct_count,
                                       enum_names, enum_count,

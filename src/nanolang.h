@@ -510,6 +510,7 @@ typedef struct {
 /* Module namespace for import aliases */
 typedef struct {
     char *alias;               /* Module alias name (e.g., "Math", "Lexer") */
+    char *module_name;         /* Original module name */
     char **function_names;     /* Functions from this module */
     int function_count;
     char **struct_names;       /* Structs from this module */
@@ -563,6 +564,7 @@ typedef struct {
     int namespace_capacity;
     char *current_module;  /* Currently active module name (NULL for global scope) */
     ImportTracker *import_tracker;  /* Track selective imports */
+    bool builtins_registered;  /* Flag to prevent duplicate builtin registration */
 } Environment;
 
 /* Function declarations */
@@ -605,7 +607,7 @@ Function *env_get_function(Environment *env, const char *name);
 bool is_builtin_function(const char *name);
 void env_define_struct(Environment *env, StructDef struct_def);
 StructDef *env_get_struct(Environment *env, const char *name);
-void env_register_namespace(Environment *env, const char *alias,
+void env_register_namespace(Environment *env, const char *alias, const char *module_name,
                             char **function_names, int function_count,
                             char **struct_names, int struct_count,
                             char **enum_names, int enum_count,

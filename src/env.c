@@ -135,6 +135,8 @@ Environment *create_environment(void) {
     env->import_tracker->import_count = 0;
     env->import_tracker->import_capacity = 8;
     
+    env->builtins_registered = false;
+    
     return env;
 }
 
@@ -436,8 +438,17 @@ Function *env_get_function(Environment *env, const char *name) {
                 /* Check if function is in this namespace */
                 for (int j = 0; j < env->namespaces[i].function_count; j++) {
                     if (strcmp(env->namespaces[i].function_names[j], func_name) == 0) {
-                        /* Look up the actual function by its original name */
-                        return env_get_function(env, func_name);
+                        /* Look up the actual function by its original name AND module name */
+                        const char *orig_mod = env->namespaces[i].module_name;
+                        for (int k = 0; k < env->function_count; k++) {
+                            if (safe_strcmp(env->functions[k].name, func_name) == 0) {
+                                /* If module name matches, or if one is NULL (global/builtin) */
+                                if (!orig_mod || !env->functions[k].module_name ||
+                                    strcmp(env->functions[k].module_name, orig_mod) == 0) {
+                                    return &env->functions[k];
+                                }
+                            }
+                        }
                     }
                 }
                 /* Function not found in this module's namespace */
@@ -470,6 +481,19 @@ Function *env_get_function(Environment *env, const char *name) {
     }
 
     /* Check user-defined functions */
+    /* First pass: prefer functions in the current module */
+    if (env->current_module) {
+        for (int i = 0; i < env->function_count; i++) {
+            if (env->functions[i].name && safe_strcmp(env->functions[i].name, name) == 0) {
+                if (env->functions[i].module_name && 
+                    strcmp(env->functions[i].module_name, env->current_module) == 0) {
+                    return &env->functions[i];
+                }
+            }
+        }
+    }
+
+    /* Second pass: check all functions (global or other modules) */
     for (int i = 0; i < env->function_count; i++) {
         /* Skip functions with NULL names */
         if (!env->functions[i].name) {
@@ -635,8 +659,16 @@ StructDef *env_get_struct(Environment *env, const char *name) {
                 /* Check if struct is in this namespace */
                 for (int j = 0; j < env->namespaces[i].struct_count; j++) {
                     if (strcmp(env->namespaces[i].struct_names[j], type_name) == 0) {
-                        /* Look up the actual struct by its original name */
-                        return env_get_struct(env, type_name);
+                        /* Look up the actual struct by its original name AND module name */
+                        const char *orig_mod = env->namespaces[i].module_name;
+                        for (int k = 0; k < env->struct_count; k++) {
+                            if (safe_strcmp(env->structs[k].name, type_name) == 0) {
+                                if (!orig_mod || !env->structs[k].module_name ||
+                                    strcmp(env->structs[k].module_name, orig_mod) == 0) {
+                                    return &env->structs[k];
+                                }
+                            }
+                        }
                     }
                 }
                 return NULL;
@@ -645,6 +677,18 @@ StructDef *env_get_struct(Environment *env, const char *name) {
         return NULL;
     }
     
+    /* First pass: prefer structs in the current module */
+    if (env->current_module) {
+        for (int i = 0; i < env->struct_count; i++) {
+            if (env->structs[i].name && safe_strcmp(env->structs[i].name, name) == 0) {
+                if (env->structs[i].module_name && 
+                    strcmp(env->structs[i].module_name, env->current_module) == 0) {
+                    return &env->structs[i];
+                }
+            }
+        }
+    }
+
     for (int i = 0; i < env->struct_count; i++) {
         if (safe_strcmp(env->structs[i].name, name) == 0) {
             return &env->structs[i];
@@ -707,7 +751,16 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
             if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
                 for (int j = 0; j < env->namespaces[i].enum_count; j++) {
                     if (strcmp(env->namespaces[i].enum_names[j], type_name) == 0) {
-                        return env_get_enum(env, type_name);
+                        /* Look up the actual enum by its original name AND module name */
+                        const char *orig_mod = env->namespaces[i].module_name;
+                        for (int k = 0; k < env->enum_count; k++) {
+                            if (safe_strcmp(env->enums[k].name, type_name) == 0) {
+                                if (!orig_mod || !env->enums[k].module_name ||
+                                    strcmp(env->enums[k].module_name, orig_mod) == 0) {
+                                    return &env->enums[k];
+                                }
+                            }
+                        }
                     }
                 }
                 return NULL;
@@ -716,6 +769,18 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
         return NULL;
     }
     
+    /* First pass: prefer enums in the current module */
+    if (env->current_module) {
+        for (int i = 0; i < env->enum_count; i++) {
+            if (env->enums[i].name && safe_strcmp(env->enums[i].name, name) == 0) {
+                if (env->enums[i].module_name && 
+                    strcmp(env->enums[i].module_name, env->current_module) == 0) {
+                    return &env->enums[i];
+                }
+            }
+        }
+    }
+
     for (int i = 0; i < env->enum_count; i++) {
         /* Use safe_strcmp which handles NULL pointers */
         if (safe_strcmp(env->enums[i].name, name) == 0) {
@@ -774,7 +839,16 @@ UnionDef *env_get_union(Environment *env, const char *name) {
             if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
                 for (int j = 0; j < env->namespaces[i].union_count; j++) {
                     if (strcmp(env->namespaces[i].union_names[j], type_name) == 0) {
-                        return env_get_union(env, type_name);
+                        /* Look up the actual union by its original name AND module name */
+                        const char *orig_mod = env->namespaces[i].module_name;
+                        for (int k = 0; k < env->union_count; k++) {
+                            if (safe_strcmp(env->unions[k].name, type_name) == 0) {
+                                if (!orig_mod || !env->unions[k].module_name ||
+                                    strcmp(env->unions[k].module_name, orig_mod) == 0) {
+                                    return &env->unions[k];
+                                }
+                            }
+                        }
                     }
                 }
                 return NULL;
@@ -783,6 +857,18 @@ UnionDef *env_get_union(Environment *env, const char *name) {
         return NULL;
     }
     
+    /* First pass: prefer unions in the current module */
+    if (env->current_module) {
+        for (int i = 0; i < env->union_count; i++) {
+            if (env->unions[i].name && safe_strcmp(env->unions[i].name, name) == 0) {
+                if (env->unions[i].module_name && 
+                    strcmp(env->unions[i].module_name, env->current_module) == 0) {
+                    return &env->unions[i];
+                }
+            }
+        }
+    }
+
     for (int i = 0; i < env->union_count; i++) {
         if (safe_strcmp(env->unions[i].name, name) == 0) {
             return &env->unions[i];
@@ -832,6 +918,25 @@ void env_define_opaque_type(Environment *env, const char *name) {
 /* Get opaque type definition */
 OpaqueTypeDef *env_get_opaque_type(Environment *env, const char *name) {
     if (!env || !name) return NULL;
+    
+    /* Check for Module.Type pattern */
+    const char *dot = strchr(name, '.');
+    if (dot) {
+        char module_alias[256];
+        size_t module_len = dot - name;
+        if (module_len >= sizeof(module_alias)) {
+            module_len = sizeof(module_alias) - 1;
+        }
+        strncpy(module_alias, name, module_len);
+        module_alias[module_len] = '\0';
+        const char *type_name = dot + 1;
+        
+        /* Opaque types aren't explicitly tracked in namespaces yet, 
+         * but we can still search for them globally with module matching if we add it.
+         * For now, just search globally by short name as a fallback.
+         */
+        return env_get_opaque_type(env, type_name);
+    }
     
     for (int i = 0; i < env->opaque_type_count; i++) {
         if (safe_strcmp(env->opaque_types[i].name, name) == 0) {
@@ -1179,7 +1284,7 @@ void free_tuple(TupleValue *tuple) {
 }
 
 /* Register a module namespace (for import aliases) */
-void env_register_namespace(Environment *env, const char *alias, 
+void env_register_namespace(Environment *env, const char *alias, const char *module_name,
                             char **function_names, int function_count,
                             char **struct_names, int struct_count,
                             char **enum_names, int enum_count,
@@ -1198,13 +1303,14 @@ void env_register_namespace(Environment *env, const char *alias,
     
     /* Expand capacity if needed */
     if (env->namespace_count >= env->namespace_capacity) {
-        env->namespace_capacity *= 2;
+        env->namespace_capacity = env->namespace_capacity == 0 ? 4 : env->namespace_capacity * 2;
         env->namespaces = realloc(env->namespaces, sizeof(ModuleNamespace) * env->namespace_capacity);
     }
     
     /* Register the namespace */
     ModuleNamespace *ns = &env->namespaces[env->namespace_count++];
     ns->alias = strdup(alias);
+    ns->module_name = module_name ? strdup(module_name) : NULL;
     ns->function_names = function_names;
     ns->function_count = function_count;
     ns->struct_names = struct_names;

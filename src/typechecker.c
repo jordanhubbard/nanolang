@@ -2777,9 +2777,14 @@ static bool is_builtin_name(const char *name) {
 
 /* Register built-in functions in environment */
 static void register_builtin_functions(Environment *env) {
-    /* Important: zero-init so visibility/module_name pointers don't contain garbage.
-     * Module-aware typechecking calls strcmp() on module_name. */
+    /* Check if already initialized to avoid duplicate registration */
+    if (env->builtins_registered) {
+        return;
+    }
+    env->builtins_registered = true;
+
     Function func = (Function){0};
+    /* Important: zero-init so visibility/module_name pointers don't contain garbage. */
     func.is_pub = true;      /* Builtins are always accessible */
     func.module_name = NULL; /* Builtins are global */
     
@@ -3614,6 +3619,18 @@ static void register_builtin_functions(Environment *env) {
     env_define_function(env, func);
 }
 
+/* Check if two functions have matching signatures */
+static bool functions_match(Function *f1, Function *f2) {
+    if (f1->param_count != f2->param_count) return false;
+    if (f1->return_type != f2->return_type) return false;
+    
+    for (int i = 0; i < f1->param_count; i++) {
+        if (f1->params[i].type != f2->params[i].type) return false;
+    }
+    
+    return true;
+}
+
 bool type_check(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
@@ -3927,6 +3944,20 @@ bool type_check(ASTNode *program, Environment *env) {
             /* Check if function is already defined */
             Function *existing = env_get_function(env, func_name);
             if (existing) {
+                /* If both are extern and signatures match, it's fine (idempotent) */
+                if (item->as.function.is_extern && existing->is_extern) {
+                    /* Create a temporary function object for matching */
+                    Function current;
+                    current.param_count = item->as.function.param_count;
+                    current.params = item->as.function.params;
+                    current.return_type = item->as.function.return_type;
+                    /* Note: return_struct_type_name match not fully implemented here */
+                    
+                    if (functions_match(&current, existing)) {
+                        continue; /* Skip registration, already there and matches */
+                    }
+                }
+
                 /* Extern functions cannot be redefined or shadowed */
                 if (existing->is_extern) {
                     fprintf(stderr, "Error at line %d, column %d: Extern function '%s' cannot be redefined\n",
@@ -4525,6 +4556,18 @@ bool type_check_module(ASTNode *program, Environment *env) {
             /* Check for duplicate function definitions */
             Function *existing = env_get_function(env, func_name);
             if (existing) {
+                /* If both are extern and signatures match, it's fine (idempotent) */
+                if (item->as.function.is_extern && existing->is_extern) {
+                    Function current;
+                    current.param_count = item->as.function.param_count;
+                    current.params = item->as.function.params;
+                    current.return_type = item->as.function.return_type;
+                    
+                    if (functions_match(&current, existing)) {
+                        continue; /* Skip registration, already there and matches */
+                    }
+                }
+
                 /* Extern functions cannot be redefined or shadowed */
                 if (existing->is_extern) {
                     fprintf(stderr, "Error at line %d, column %d: Extern function '%s' cannot be redefined\n",
