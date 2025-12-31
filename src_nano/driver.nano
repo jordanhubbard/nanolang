@@ -13,10 +13,10 @@
  *   nanoc_nano --version
  */
 
-# TODO: Re-enable these imports once module system is stable
-# import "modules/std/env.nano"
-# import "modules/std/process.nano"
-# import "modules/std/fs.nano"
+/* TODO: Re-enable these imports once module system is stable (blocked by nanolang-14m0)
+ * from "modules/std/env.nano" import argc, argv
+ * from "modules/std/fs.nano" import read, write
+ */
 
 /* Import compiler phases - these already have clean interfaces */
 import "src_nano/compiler/ir.nano"
@@ -28,15 +28,15 @@ from "src_nano/parser.nano" import parse_phase_run
 from "src_nano/typecheck.nano" import typecheck_phase
 from "src_nano/transpiler.nano" import transpile_phase
 
+/* Extern declarations (until module imports are stable) */
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+extern fn file_file_read(path: string) -> string
+extern fn file_write(path: string, content: string) -> int
+
 /* Import process execution for C compiler */
 # NOTE: nl_system_exec is a wrapper to avoid conflicts with stdlib.h
 extern fn nl_system_exec(command: string) -> int
-
-/* Temporary extern declarations until imports work */
-extern fn get_argc() -> int
-extern fn get_argv(index: int) -> string
-extern fn file_read(path: string) -> string
-extern fn file_write(path: string, content: string) -> int
 
 /* =============================================================================
  * RESULT TYPE FOR ARGUMENT PARSING
@@ -78,13 +78,13 @@ shadow args_new {
 
 /* Parse command-line arguments */
 fn parse_args() -> ResultArgs {
-    let mut argc: int = 0
+    let mut arg_count: int = 0
     unsafe {
-        set argc (get_argc)
+        set arg_count (get_argc)
     }
     
     # Check if we have any arguments
-    if (< argc 2) {
+    if (< arg_count 2) {
         return ResultArgs.Err { error: "No input file specified. Use --help for usage." }
     }
     
@@ -130,7 +130,7 @@ fn parse_args() -> ResultArgs {
 }
 
 shadow parse_args {
-    # Test requires mocking get_argc/get_argv
+    # Test requires mocking argc/argv from std::env
     # For now, just test that it compiles
     (println "parse_args shadow test: OK")
 }
@@ -143,7 +143,7 @@ shadow parse_args {
  * PHASE INTERFACES (from existing compiler_modular.nano)
  * =============================================================================
  * 
- * These interfaces already exist and are tested. The driver will call them:
+ * These interfaces alfile_ready exist and are tested. The driver will call them:
  * 
  * 1. Lexer Phase:
  *    fn lex_phase_run(source: string, filename: string) -> LexPhaseOutput
@@ -623,10 +623,10 @@ shadow main {
  * 1. It's a NEW file, not modifying existing compiler
  * 2. It DOCUMENTS existing interfaces (from compiler_modular.nano)
  * 3. Current placeholders allow compilation without breaking CI/CD
- * 4. Integration is opt-in (imports commented out until ready)
+ * 4. Integration is opt-in (imports commented out until file_ready)
  * 5. Won't affect Stage 1/2/3 builds until we explicitly switch
  * 
- * The existing modular compiler (compiler_modular.nano) already has:
+ * The existing modular compiler (compiler_modular.nano) alfile_ready has:
  * - Working phase interfaces
  * - Error handling with diagnostics
  * - Full compilation pipeline

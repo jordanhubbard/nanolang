@@ -1,11 +1,21 @@
 /* =============================================================================
- * std::fs - traversal + glob + path utilities
+ * std::fs - File system operations: I/O + traversal + glob + path utilities
  * =============================================================================
  */
 
 module std_fs
 
-from "modules/std/fs_ffi.nano" import fs_walkdir, path_normalize, path_join, path_basename, path_dirname
+/* FFI declarations for filesystem operations */
+extern fn fs_walkdir(root: string) -> array<string>
+extern fn path_normalize(path: string) -> string
+extern fn path_join(a: string, b: string) -> string
+extern fn path_basename(path: string) -> string
+extern fn path_dirname(path: string) -> string
+extern fn file_read(path: string) -> string
+extern fn file_write(path: string, content: string) -> int
+extern fn file_append(path: string, content: string) -> int
+extern fn file_exists(path: string) -> bool
+extern fn file_delete(path: string) -> int
 
 pub fn walkdir(root: string) -> array<string> {
     unsafe {
@@ -146,4 +156,80 @@ pub fn glob(root: string, pattern: string) -> array<string> {
 shadow glob {
     let nanos: array<string> = (glob "modules/std" "*.nano")
     assert (> (array_length nanos) 0)
+}
+
+/* =============================================================================
+ * FILE I/O OPERATIONS
+ * ============================================================================= */
+
+pub fn read(path: string) -> string {
+    unsafe {
+        return (file_read path)
+    }
+}
+
+shadow read {
+    /* Test with a known file */
+    let content: string = (read "README.md")
+    assert (> (str_length content) 0)
+}
+
+pub fn write(path: string, content: string) -> int {
+    unsafe {
+        return (file_write path content)
+    }
+}
+
+shadow write {
+    /* Test write and read round-trip */
+    let test_path: string = "/tmp/nanolang_test_write.txt"
+    let test_content: string = "test content"
+    let write_result: int = (write test_path test_content)
+    assert (== write_result 0)
+    let read_back: string = (read test_path)
+    assert (str_equals read_back test_content)
+    /* Clean up */
+    (file_delete test_path)
+}
+
+pub fn append(path: string, content: string) -> int {
+    unsafe {
+        return (file_append path content)
+    }
+}
+
+shadow append {
+    /* Test append functionality */
+    let test_path: string = "/tmp/nanolang_test_append.txt"
+    (write test_path "line1\n")
+    (append test_path "line2\n")
+    let content: string = (read test_path)
+    assert (str_equals content "line1\nline2\n")
+    (file_delete test_path)
+}
+
+pub fn exists(path: string) -> bool {
+    unsafe {
+        return (file_exists path)
+    }
+}
+
+shadow exists {
+    assert (exists "README.md")
+    assert (not (exists "/nonexistent/path/that/does/not/exist"))
+}
+
+pub fn delete(path: string) -> int {
+    unsafe {
+        return (file_delete path)
+    }
+}
+
+shadow delete {
+    /* Test delete */
+    let test_path: string = "/tmp/nanolang_test_delete.txt"
+    (write test_path "temp")
+    assert (exists test_path)
+    (delete test_path)
+    assert (not (exists test_path))
 }
