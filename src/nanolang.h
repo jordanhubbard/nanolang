@@ -159,6 +159,7 @@ typedef enum {
     AST_LET,
     AST_SET,
     AST_IF,
+    AST_COND,
     AST_WHILE,
     AST_FOR,
     AST_RETURN,
@@ -254,6 +255,12 @@ struct ASTNode {
             ASTNode *then_branch;
             ASTNode *else_branch;
         } if_stmt;
+        struct {
+            ASTNode **conditions;   /* Array of condition expressions */
+            ASTNode **values;       /* Array of value expressions */
+            int clause_count;       /* Number of (condition, value) pairs */
+            ASTNode *else_value;    /* Mandatory else clause */
+        } cond_expr;
         struct {
             ASTNode *condition;
             ASTNode *body;

@@ -1528,6 +1528,25 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             emit_literal(list, ")");
             break;
         }
+
+        case AST_COND: {
+            /* Transpile cond expression to nested ternary operators */
+            emit_literal(list, "(");
+            for (int i = 0; i < expr->as.cond_expr.clause_count; i++) {
+                if (i > 0) {
+                    emit_literal(list, " : (");
+                }
+                build_expr(list, expr->as.cond_expr.conditions[i], env);
+                emit_literal(list, " ? ");
+                build_expr(list, expr->as.cond_expr.values[i], env);
+            }
+            emit_literal(list, " : ");
+            build_expr(list, expr->as.cond_expr.else_value, env);
+            for (int i = 0; i < expr->as.cond_expr.clause_count; i++) {
+                emit_literal(list, ")");
+            }
+            break;
+        }
         
         case AST_TUPLE_LITERAL: {
             int element_count = expr->as.tuple_literal.element_count;
@@ -2314,6 +2333,37 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                 build_stmt(list, stmt->as.if_stmt.else_branch, indent, env, fn_registry);
             }
             break;
+
+        case AST_COND: {
+            /* Transpile cond to nested if/else */
+            for (int i = 0; i < stmt->as.cond_expr.clause_count; i++) {
+                emit_indent_item(list, indent);
+                if (i == 0) {
+                    emit_literal(list, "if (");
+                } else {
+                    emit_literal(list, "else if (");
+                }
+                build_expr(list, stmt->as.cond_expr.conditions[i], env);
+                emit_literal(list, ") {\n");
+                
+                /* Emit the value as a statement (usually a return) */
+                emit_indent_item(list, indent + 1);
+                build_expr(list, stmt->as.cond_expr.values[i], env);
+                emit_literal(list, ";\n");
+                
+                emit_indent_item(list, indent);
+                emit_literal(list, "} ");
+            }
+            
+            /* Emit else clause */
+            emit_literal(list, "else {\n");
+            emit_indent_item(list, indent + 1);
+            build_expr(list, stmt->as.cond_expr.else_value, env);
+            emit_literal(list, ";\n");
+            emit_indent_item(list, indent);
+            emit_literal(list, "}\n");
+            break;
+        }
             
         case AST_PRINT: {
             emit_indent_item(list, indent);

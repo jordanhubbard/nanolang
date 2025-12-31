@@ -33,6 +33,7 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "set") == 0) return TOKEN_SET;
     if (strcmp(str, "if") == 0) return TOKEN_IF;
     if (strcmp(str, "else") == 0) return TOKEN_ELSE;
+    if (strcmp(str, "cond") == 0) return TOKEN_COND;
     if (strcmp(str, "while") == 0) return TOKEN_WHILE;
     if (strcmp(str, "for") == 0) return TOKEN_FOR;
     if (strcmp(str, "in") == 0) return TOKEN_IN;
@@ -360,6 +361,7 @@ const char *token_type_name(TokenType type) {
         case TOKEN_SET: return "SET";
         case TOKEN_IF: return "IF";
         case TOKEN_ELSE: return "ELSE";
+        case TOKEN_COND: return "COND";
         case TOKEN_WHILE: return "WHILE";
         case TOKEN_FOR: return "FOR";
         case TOKEN_IN: return "IN";

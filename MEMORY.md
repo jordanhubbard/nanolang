@@ -116,6 +116,32 @@ if condition {
     # else branch
 }
 
+# Cond expression (multi-branch conditional - cleaner than nested if/else)
+(cond
+    (condition1 value1)
+    (condition2 value2)
+    (condition3 value3)
+    (else default_value))
+
+# Example: Number classification
+fn classify(n: int) -> string {
+    return (cond
+        ((< n 0) "negative")
+        ((== n 0) "zero")
+        ((< n 10) "small")
+        (else "large"))
+}
+
+# Example: Letter grade
+fn grade(score: int) -> string {
+    return (cond
+        ((>= score 90) "A")
+        ((>= score 80) "B")
+        ((>= score 70) "C")
+        ((>= score 60) "D")
+        (else "F"))
+}
+
 # While loop
 while condition {
     # body

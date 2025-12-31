@@ -1546,6 +1546,115 @@ static ASTNode *parse_primary(Parser *p) {
 }
 
 /* Parse if expression */
+/* Parse cond expression: (cond (pred1 val1) (pred2 val2) ... (else valN)) */
+static ASTNode *parse_cond_expression(Parser *p) {
+    Token *tok = current_token(p);
+    if (!tok) {
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parse_cond_expression\n");
+        return NULL;
+    }
+    int line = tok->line;
+    int column = tok->column;
+    
+    if (!expect(p, TOKEN_COND, "Expected 'cond'")) {
+        return NULL;
+    }
+    
+    /* Allocate arrays for conditions and values (start with capacity for 8 clauses) */
+    int capacity = 8;
+    ASTNode **conditions = (ASTNode **)malloc(capacity * sizeof(ASTNode *));
+    ASTNode **values = (ASTNode **)malloc(capacity * sizeof(ASTNode *));
+    int clause_count = 0;
+    
+    /* Parse clauses until we hit '(else' */
+    while (true) {
+        Token *current = current_token(p);
+        if (!current) {
+            fprintf(stderr, "Error: Unexpected end of input in cond expression\n");
+            free(conditions);
+            free(values);
+            return NULL;
+        }
+        
+        /* Expect opening paren for clause */
+        if (!expect(p, TOKEN_LPAREN, "Expected '(' for cond clause or else clause")) {
+            free(conditions);
+            free(values);
+            return NULL;
+        }
+        
+        /* Check if this is the else clause */
+        Token *next = current_token(p);
+        if (next && next->token_type == TOKEN_ELSE) {
+            /* This is the else clause - consume 'else' and break */
+            advance(p);  /* consume 'else' */
+            break;
+        }
+        
+        /* Parse condition */
+        ASTNode *condition = parse_expression(p);
+        if (!condition) {
+            fprintf(stderr, "Error: Failed to parse condition in cond clause at line %d\n", line);
+            free(conditions);
+            free(values);
+            return NULL;
+        }
+        
+        /* Parse value */
+        ASTNode *value = parse_expression(p);
+        if (!value) {
+            fprintf(stderr, "Error: Failed to parse value in cond clause at line %d\n", line);
+            free(conditions);
+            free(values);
+            return NULL;
+        }
+        
+        /* Expect closing paren */
+        if (!expect(p, TOKEN_RPAREN, "Expected ')' after cond clause")) {
+            free(conditions);
+            free(values);
+            return NULL;
+        }
+        
+        /* Grow arrays if needed */
+        if (clause_count >= capacity) {
+            capacity *= 2;
+            conditions = (ASTNode **)realloc(conditions, capacity * sizeof(ASTNode *));
+            values = (ASTNode **)realloc(values, capacity * sizeof(ASTNode *));
+        }
+        
+        /* Store clause */
+        conditions[clause_count] = condition;
+        values[clause_count] = value;
+        clause_count++;
+    }
+    
+    /* Parse else value (we've already consumed 'else') */
+    ASTNode *else_value = parse_expression(p);
+    if (!else_value) {
+        fprintf(stderr, "Error: Failed to parse else value in cond expression at line %d\n", line);
+        free(conditions);
+        free(values);
+        return NULL;
+    }
+    
+    /* Expect closing paren for else clause */
+    if (!expect(p, TOKEN_RPAREN, "Expected ')' after else clause")) {
+        free(conditions);
+        free(values);
+        return NULL;
+    }
+    
+    /* Create AST node */
+    ASTNode *node = create_node(AST_COND, line, column);
+    node->as.cond_expr.conditions = conditions;
+    node->as.cond_expr.values = values;
+    node->as.cond_expr.clause_count = clause_count;
+    node->as.cond_expr.else_value = else_value;
+    
+    return node;
+}
+
 static ASTNode *parse_if_expression(Parser *p) {
     Token *tok = current_token(p);
     if (!tok) {
@@ -1624,6 +1733,12 @@ static ASTNode *parse_expression(Parser *p) {
     
     if (match(p, TOKEN_IF)) {
         ASTNode *result = parse_if_expression(p);
+        p->recursion_depth--;
+        return result;
+    }
+    
+    if (match(p, TOKEN_COND)) {
+        ASTNode *result = parse_cond_expression(p);
         p->recursion_depth--;
         return result;
     }

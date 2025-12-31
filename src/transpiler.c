@@ -917,6 +917,14 @@ static void collect_tuple_types_from_expr(ASTNode *expr, TupleTypeRegistry *reg)
             }
             break;
 
+        case AST_COND:
+            for (int i = 0; i < expr->as.cond_expr.clause_count; i++) {
+                collect_tuple_types_from_expr(expr->as.cond_expr.conditions[i], reg);
+                collect_tuple_types_from_expr(expr->as.cond_expr.values[i], reg);
+            }
+            collect_tuple_types_from_expr(expr->as.cond_expr.else_value, reg);
+            break;
+
         default:
             break;
     }
@@ -951,6 +959,13 @@ static void collect_tuple_types_from_stmt(ASTNode *stmt, TupleTypeRegistry *reg)
                 collect_tuple_types_from_stmt(stmt->as.if_stmt.else_branch, reg);
             }
             break;
+        case AST_COND:
+            for (int i = 0; i < stmt->as.cond_expr.clause_count; i++) {
+                collect_tuple_types_from_expr(stmt->as.cond_expr.conditions[i], reg);
+                collect_tuple_types_from_expr(stmt->as.cond_expr.values[i], reg);
+            }
+            collect_tuple_types_from_expr(stmt->as.cond_expr.else_value, reg);
+            break;
         case AST_WHILE:
             if (stmt->as.while_stmt.condition) {
                 collect_tuple_types_from_expr(stmt->as.while_stmt.condition, reg);
@@ -984,6 +999,9 @@ static void collect_fn_sigs(ASTNode *stmt, FunctionTypeRegistry *reg) {
             if (stmt->as.if_stmt.else_branch) {
                 collect_fn_sigs(stmt->as.if_stmt.else_branch, reg);
             }
+            break;
+        case AST_COND:
+            /* Cond values are expressions, not statements, so no function signatures to collect */
             break;
         case AST_WHILE:
             collect_fn_sigs(stmt->as.while_stmt.body, reg);

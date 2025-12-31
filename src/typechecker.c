@@ -287,6 +287,13 @@ static bool contains_extern_calls(ASTNode *node, Environment *env) {
             if (contains_extern_calls(node->as.if_stmt.then_branch, env)) return true;
             if (node->as.if_stmt.else_branch && contains_extern_calls(node->as.if_stmt.else_branch, env)) return true;
             return false;
+        case AST_COND:
+            for (int i = 0; i < node->as.cond_expr.clause_count; i++) {
+                if (contains_extern_calls(node->as.cond_expr.conditions[i], env)) return true;
+                if (contains_extern_calls(node->as.cond_expr.values[i], env)) return true;
+            }
+            if (contains_extern_calls(node->as.cond_expr.else_value, env)) return true;
+            return false;
         case AST_WHILE:
             if (contains_extern_calls(node->as.while_stmt.condition, env)) return true;
             if (contains_extern_calls(node->as.while_stmt.body, env)) return true;
@@ -1563,6 +1570,39 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             return TYPE_UNKNOWN;
         }
 
+        case AST_COND: {
+            /* Type check all conditions (must be bool) */
+            for (int i = 0; i < expr->as.cond_expr.clause_count; i++) {
+                Type cond_type = check_expression(expr->as.cond_expr.conditions[i], env);
+                if (cond_type != TYPE_BOOL) {
+                    fprintf(stderr, "Error at line %d, column %d: Cond clause condition must be bool\n", 
+                            expr->line, expr->column);
+                }
+            }
+            
+            /* Type check all values and ensure they have the same type */
+            Type result_type = TYPE_UNKNOWN;
+            if (expr->as.cond_expr.clause_count > 0) {
+                result_type = check_expression(expr->as.cond_expr.values[0], env);
+                for (int i = 1; i < expr->as.cond_expr.clause_count; i++) {
+                    Type val_type = check_expression(expr->as.cond_expr.values[i], env);
+                    if (val_type != result_type && result_type != TYPE_UNKNOWN && val_type != TYPE_UNKNOWN) {
+                        fprintf(stderr, "Error at line %d, column %d: All cond clause values must have the same type\n",
+                                expr->line, expr->column);
+                    }
+                }
+            }
+            
+            /* Type check else value (must match clause values) */
+            Type else_type = check_expression(expr->as.cond_expr.else_value, env);
+            if (else_type != result_type && result_type != TYPE_UNKNOWN && else_type != TYPE_UNKNOWN) {
+                fprintf(stderr, "Error at line %d, column %d: Cond else value must have the same type as clause values\n",
+                        expr->line, expr->column);
+            }
+            
+            return result_type != TYPE_UNKNOWN ? result_type : else_type;
+        }
+
         case AST_STRUCT_LITERAL: {
             /* Check that struct is defined */
             StructDef *sdef = env_get_struct(env, expr->as.struct_literal.struct_name);
@@ -2519,6 +2559,12 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 check_statement(tc, stmt->as.if_stmt.else_branch);
             }
             
+            return TYPE_VOID;
+        }
+
+        case AST_COND: {
+            /* Type check cond statement (just check as expression) */
+            check_expression(stmt, tc->env);
             return TYPE_VOID;
         }
 
