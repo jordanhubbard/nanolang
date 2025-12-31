@@ -7,7 +7,7 @@ module std_process
 
 /* FFI declarations */
 extern fn process_run(command: string) -> array<string>
-extern fn system(command: string) -> int
+/* Note: system() is from stdlib.h - no explicit extern needed */
 
 pub struct Output {
     code: int
