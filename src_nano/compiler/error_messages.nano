@@ -1,0 +1,411 @@
+/* =============================================================================
+ * Elm-Style Error Messages for NanoLang
+ * =============================================================================
+ * High-quality, helpful error messages that guide users to solutions.
+ * 
+ * Design Principles (from Elm):
+ * 1. **Be clear and specific** - Tell exactly what went wrong
+ * 2. **Show the code** - Display the problematic code with highlighting
+ * 3. **Suggest fixes** - Provide actionable recommendations
+ * 4. **Be friendly** - Use encouraging, non-judgmental language
+ * 5. **Add context** - Explain why this is an error
+ * 
+ * Example:
+ *   -- TYPE MISMATCH ---------------------------------------- src/Main.nano
+ *   
+ *   The function `add` expects 2 arguments, but I see 3:
+ *   
+ *   12| let result: int = (add 1 2 3)
+ *                           ^^^^^^^^^^
+ *   
+ *   This `add` function has type:
+ *   
+ *       fn(int, int) -> int
+ *   
+ *   But you are calling it with 3 arguments. Did you mean to use a
+ *   different function?
+ */
+
+import "src_nano/compiler/diagnostics.nano"
+import "src_nano/compiler/ir.nano"
+
+/* =============================================================================
+ * ERROR MESSAGE STRUCTURE
+ * ============================================================================= */
+
+struct ErrorMessage {
+    title: string,           # e.g., "TYPE MISMATCH"
+    file: string,            # e.g., "src/Main.nano"
+    line: int,
+    column: int,
+    problem: string,         # Main description
+    code_snippet: string,    # The problematic code
+    explanation: string,     # Why this is an error
+    suggestion: string       # How to fix it
+}
+
+pub fn error_message_new(title: string, file: string, line: int, column: int) -> ErrorMessage {
+    return ErrorMessage {
+        title: title,
+        file: file,
+        line: line,
+        column: column,
+        problem: "",
+        code_snippet: "",
+        explanation: "",
+        suggestion: ""
+    }
+}
+
+shadow error_message_new {
+    let err: ErrorMessage = (error_message_new "TEST ERROR" "test.nano" 10 5)
+    assert (== err.title "TEST ERROR")
+    assert (== err.file "test.nano")
+    assert (== err.line 10)
+}
+
+/* =============================================================================
+ * ERROR FORMATTING
+ * ============================================================================= */
+
+/* Format an error message in Elm style */
+pub fn format_error_elm_style(err: ErrorMessage) -> string {
+    # TODO: This would be much easier with string interpolation
+    # For now, we return a simplified version
+    
+    # Build the header line
+    # "-- TYPE MISMATCH ---------------------------------------- src/Main.nano"
+    
+    # Build the problem description
+    # "The function `add` expects 2 arguments, but I see 3:"
+    
+    # Build the code snippet with highlighting
+    # "12| let result: int = (add 1 2 3)"
+    # "                        ^^^^^^^^^^"
+    
+    # Build the explanation
+    
+    # Build the suggestion
+    
+    return "Error formatting placeholder"
+}
+
+shadow format_error_elm_style {
+    let err: ErrorMessage = (error_message_new "TYPE MISMATCH" "test.nano" 10 5)
+    let formatted: string = (format_error_elm_style err)
+    (println formatted)
+}
+
+/* =============================================================================
+ * COMMON ERROR PATTERNS
+ * ============================================================================= */
+
+/* Type mismatch error */
+pub fn error_type_mismatch(
+    file: string,
+    line: int,
+    column: int,
+    expected: string,
+    found: string,
+    context: string
+) -> ErrorMessage {
+    let err: ErrorMessage = (error_message_new "TYPE MISMATCH" file line column)
+    
+    # TODO: Build problem string with expected vs found
+    # "I expected a value of type `int`, but found `string`"
+    
+    # TODO: Build explanation based on context
+    # If context is "function_argument":
+    #   "The function signature declares this parameter as `int`"
+    # If context is "variable_assignment":
+    #   "The variable was declared with type `int`"
+    
+    # TODO: Build suggestion
+    # "Did you mean to use (string_to_int ...)?""
+    
+    return err
+}
+
+shadow error_type_mismatch {
+    let err: ErrorMessage = (error_type_mismatch "test.nano" 10 5 "int" "string" "argument")
+    assert (== err.title "TYPE MISMATCH")
+}
+
+/* Undefined variable error */
+pub fn error_undefined_variable(
+    file: string,
+    line: int,
+    column: int,
+    var_name: string,
+    similar_names: List<string>
+) -> ErrorMessage {
+    let err: ErrorMessage = (error_message_new "UNDEFINED VARIABLE" file line column)
+    
+    # TODO: Build problem string
+    # "I cannot find a variable named `countr`"
+    
+    # TODO: Build suggestion based on similar names
+    # If similar_names has entries:
+    #   "Did you mean one of these?"
+    #   "    counter"
+    #   "    count"
+    # Else:
+    #   "Make sure to declare `countr` with `let` before using it"
+    
+    return err
+}
+
+shadow error_undefined_variable {
+    let similar: List<string> = (list_string_new)
+    let err: ErrorMessage = (error_undefined_variable "test.nano" 10 5 "countr" similar)
+    assert (== err.title "UNDEFINED VARIABLE")
+}
+
+/* Arity mismatch error */
+pub fn error_arity_mismatch(
+    file: string,
+    line: int,
+    column: int,
+    function_name: string,
+    expected_args: int,
+    found_args: int
+) -> ErrorMessage {
+    let err: ErrorMessage = (error_message_new "WRONG NUMBER OF ARGUMENTS" file line column)
+    
+    # TODO: Build problem string
+    # "The function `add` expects 2 arguments, but I see 3"
+    
+    # TODO: Build explanation
+    # "This `add` function has type:"
+    # "    fn(int, int) -> int"
+    
+    # TODO: Build suggestion
+    # If found_args > expected_args:
+    #   "Remove the extra arguments"
+    # If found_args < expected_args:
+    #   "Add the missing arguments"
+    
+    return err
+}
+
+shadow error_arity_mismatch {
+    let err: ErrorMessage = (error_arity_mismatch "test.nano" 10 5 "add" 2 3)
+    assert (== err.title "WRONG NUMBER OF ARGUMENTS")
+}
+
+/* Missing return error */
+pub fn error_missing_return(
+    file: string,
+    line: int,
+    column: int,
+    function_name: string,
+    expected_type: string
+) -> ErrorMessage {
+    let err: ErrorMessage = (error_message_new "MISSING RETURN" file line column)
+    
+    # TODO: Build problem string
+    # "The function `calculate` is declared to return `int`, but some branches don't return a value"
+    
+    # TODO: Build explanation
+    # "All execution paths in a function must return a value of the declared type."
+    # "Right now, if the condition is false, the function doesn't return anything."
+    
+    # TODO: Build suggestion
+    # "Add a return statement to the else branch:"
+    # "    } else {"
+    # "        return 0  # or some other default value"
+    # "    }"
+    
+    return err
+}
+
+shadow error_missing_return {
+    let err: ErrorMessage = (error_missing_return "test.nano" 20 1 "calculate" "int")
+    assert (== err.title "MISSING RETURN")
+}
+
+/* Immutable assignment error */
+pub fn error_immutable_assignment(
+    file: string,
+    line: int,
+    column: int,
+    var_name: string
+) -> ErrorMessage {
+    let err: ErrorMessage = (error_message_new "CANNOT ASSIGN TO IMMUTABLE VARIABLE" file line column)
+    
+    # TODO: Build problem string
+    # "I cannot assign to `count` because it was declared as immutable"
+    
+    # TODO: Build explanation
+    # "In NanoLang, variables are immutable by default. Once you assign a value"
+    # "to an immutable variable, you cannot change it later."
+    
+    # TODO: Build suggestion
+    # "To make this variable mutable, add the `mut` keyword:"
+    # "    let mut count: int = 0"
+    
+    return err
+}
+
+shadow error_immutable_assignment {
+    let err: ErrorMessage = (error_immutable_assignment "test.nano" 15 5 "count")
+    assert (== err.title "CANNOT ASSIGN TO IMMUTABLE VARIABLE")
+}
+
+/* Unsafe call outside unsafe block */
+pub fn error_unsafe_required(
+    file: string,
+    line: int,
+    column: int,
+    function_name: string
+) -> ErrorMessage {
+    let err: ErrorMessage = (error_message_new "UNSAFE OPERATION" file line column)
+    
+    # TODO: Build problem string
+    # "The function `malloc` is marked as unsafe and must be called inside an unsafe block"
+    
+    # TODO: Build explanation
+    # "Unsafe functions can cause memory errors or undefined behavior if used incorrectly."
+    # "NanoLang requires you to explicitly mark where unsafe code is used."
+    
+    # TODO: Build suggestion
+    # "Wrap the call in an unsafe block:"
+    # "    unsafe {"
+    # "        (malloc 100)"
+    # "    }"
+    
+    return err
+}
+
+shadow error_unsafe_required {
+    let err: ErrorMessage = (error_unsafe_required "test.nano" 25 10 "malloc")
+    assert (== err.title "UNSAFE OPERATION")
+}
+
+/* Resource use-after-consume error (for affine types) */
+pub fn error_use_after_consume(
+    file: string,
+    line: int,
+    column: int,
+    resource_name: string,
+    consumed_at_line: int
+) -> ErrorMessage {
+    let err: ErrorMessage = (error_message_new "USE AFTER CONSUME" file line column)
+    
+    # TODO: Build problem string
+    # "I cannot use `file` because it was already consumed at line 42"
+    
+    # TODO: Build explanation
+    # "`file` is a resource type (FileHandle). Resource types can only be used once."
+    # "After you pass it to a consuming function like `close_file`, you cannot use it again."
+    
+    # TODO: Build suggestion
+    # "If you need to use the resource multiple times, consider:"
+    # "1. Restructure your code so the resource is consumed last"
+    # "2. Use a function that borrows instead of consuming"
+    
+    return err
+}
+
+shadow error_use_after_consume {
+    let err: ErrorMessage = (error_use_after_consume "test.nano" 50 5 "file" 42)
+    assert (== err.title "USE AFTER CONSUME")
+}
+
+/* Resource leak error (for affine types) */
+pub fn error_resource_leak(
+    file: string,
+    line: int,
+    column: int,
+    resource_name: string,
+    resource_type: string
+) -> ErrorMessage {
+    let err: ErrorMessage = (error_message_new "RESOURCE LEAK" file line column)
+    
+    # TODO: Build problem string
+    # "The resource `file` of type `FileHandle` was not consumed before the function returns"
+    
+    # TODO: Build explanation
+    # "Resource types like `FileHandle` must be explicitly closed or consumed."
+    # "This prevents resource leaks (like leaving files open)."
+    
+    # TODO: Build suggestion
+    # "Add a call to consume the resource:"
+    # "    unsafe { (close_file file) }"
+    
+    return err
+}
+
+shadow error_resource_leak {
+    let err: ErrorMessage = (error_resource_leak "test.nano" 60 1 "file" "FileHandle")
+    assert (== err.title "RESOURCE LEAK")
+}
+
+/* =============================================================================
+ * ERROR TEMPLATES
+ * ============================================================================= */
+
+/* Get a friendly error template for common mistakes */
+pub fn get_error_template(error_code: string) -> string {
+    # TODO: Return helpful templates for common errors
+    # E0001: Type mismatch
+    # E0002: Undefined variable
+    # E0003: Arity mismatch
+    # etc.
+    
+    return "Error template placeholder"
+}
+
+shadow get_error_template {
+    let template: string = (get_error_template "E0001")
+    (println template)
+}
+
+/* =============================================================================
+ * MAIN (for standalone compilation)
+ * ============================================================================= */
+
+fn main() -> int {
+    (println "Error messages module loaded successfully")
+    (println "This module provides Elm-style helpful error messages")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
+/* =============================================================================
+ * USAGE EXAMPLES
+ * =============================================================================
+ * 
+ * Instead of:
+ *   Error at line 42: Type mismatch
+ * 
+ * We show:
+ *   -- TYPE MISMATCH ---------------------------------------- src/main.nano
+ *   
+ *   I expected a value of type `int`, but found `string`:
+ *   
+ *   42| let count: int = "hello"
+ *                        ^^^^^^^
+ *   
+ *   The variable `count` was declared with type `int` on line 42.
+ *   
+ *   Hint: If you want to convert a string to an integer, try:
+ *       (string_to_int "hello")
+ * 
+ * This makes errors:
+ * 1. **Easier to understand** - Clear description of what went wrong
+ * 2. **Easier to locate** - Shows the exact code
+ * 3. **Easier to fix** - Provides concrete suggestions
+ * 4. **Less intimidating** - Friendly, helpful tone
+ * 
+ * Future Enhancements:
+ * - Color highlighting (when terminal supports it)
+ * - Multi-line code snippets
+ * - Links to documentation
+ * - Similar error grouping (show all type mismatches together)
+ * - Interactive error browser (for IDEs)
+ */
+

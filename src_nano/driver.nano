@@ -1,0 +1,419 @@
+/* =============================================================================
+ * NanoLang Compiler Driver (Self-Hosted)
+ * =============================================================================
+ * Pure NanoLang implementation of the compiler driver that orchestrates
+ * the entire compilation pipeline: lex → parse → typecheck → transpile → cc
+ * 
+ * This replaces bin/nanoc (C implementation) with a self-hosted version.
+ * 
+ * Usage:
+ *   nanoc_nano input.nano -o output
+ *   nanoc_nano input.nano -o output -I include_path
+ *   nanoc_nano --help
+ *   nanoc_nano --version
+ */
+
+# TODO: Re-enable these imports once module system is stable
+# import "modules/std/env.nano"
+# import "modules/std/process.nano"
+# import "modules/std/fs.nano"
+# import "src_nano/compiler/diagnostics.nano"
+
+/* Temporary extern declarations until imports work */
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+/* =============================================================================
+ * RESULT TYPE FOR ARGUMENT PARSING
+ * ============================================================================= */
+
+union ResultArgs {
+    Ok { value: CompilerArgs },
+    Err { error: string }
+}
+
+/* =============================================================================
+ * COMMAND-LINE ARGUMENTS
+ * ============================================================================= */
+
+struct CompilerArgs {
+    input_file: string,
+    output_file: string,
+    verbose: bool,
+    help: bool,
+    version: bool
+}
+
+/* Create default compiler arguments */
+fn args_new() -> CompilerArgs {
+    return CompilerArgs {
+        input_file: "",
+        output_file: "",
+        verbose: false,
+        help: false,
+        version: false
+    }
+}
+
+shadow args_new {
+    let args: CompilerArgs = (args_new)
+    assert (== args.input_file "")
+    assert (not args.verbose)
+}
+
+/* Parse command-line arguments - simplified version */
+fn parse_args() -> ResultArgs {
+    # TODO: These extern calls need unsafe blocks once parser supports it
+    let argc: int = 2  # Placeholder: (get_argc)
+    
+    # Check if we have any arguments
+    if (< argc 2) {
+        return ResultArgs.Err { error: "No input file specified. Use --help for usage." }
+    }
+    
+    # For now, just parse the first few arguments
+    # TODO: Full argument parsing with loops
+    let arg1: string = "--help"  # Placeholder: (get_argv 1)
+    
+    # Check for --help
+    if (== arg1 "--help") {
+        let args: CompilerArgs = CompilerArgs {
+            input_file: "",
+            output_file: "",
+            verbose: false,
+            help: true,
+            version: false
+        }
+        return ResultArgs.Ok { value: args }
+    }
+    
+    # Check for --version
+    if (== arg1 "--version") {
+        let args: CompilerArgs = CompilerArgs {
+            input_file: "",
+            output_file: "",
+            verbose: false,
+            help: false,
+            version: true
+        }
+        return ResultArgs.Ok { value: args }
+    }
+    
+    # Otherwise, treat it as input file
+    let args: CompilerArgs = CompilerArgs {
+        input_file: arg1,
+        output_file: "a.out",
+        verbose: false,
+        help: false,
+        version: false
+    }
+    return ResultArgs.Ok { value: args }
+}
+
+shadow parse_args {
+    # Test requires mocking get_argc/get_argv
+    # For now, just test that it compiles
+    (println "parse_args shadow test: OK")
+}
+
+/* =============================================================================
+ * COMPILATION PIPELINE
+ * ============================================================================= */
+
+enum CompilationPhase {
+    PHASE_LEX,
+    PHASE_PARSE,
+    PHASE_TYPECHECK,
+    PHASE_TRANSPILE,
+    PHASE_CC
+}
+
+struct CompilationResult {
+    success: bool,
+    output: string,
+    error: string,
+    phase: int  # CompilationPhase
+}
+
+/* Run the lexer phase */
+fn run_lexer(input_file: string, verbose: bool) -> CompilationResult {
+    if verbose {
+        (println "Phase 1: Lexing...")
+    }
+    
+    # TODO: Invoke src_nano/lexer.nano
+    # For now, return placeholder
+    return CompilationResult {
+        success: true,
+        output: "",
+        error: "",
+        phase: CompilationPhase.PHASE_LEX
+    }
+}
+
+shadow run_lexer {
+    let result: CompilationResult = (run_lexer "test.nano" false)
+    assert result.success
+}
+
+/* Run the parser phase */
+fn run_parser(tokens: string, verbose: bool) -> CompilationResult {
+    if verbose {
+        (println "Phase 2: Parsing...")
+    }
+    
+    # TODO: Invoke src_nano/parser.nano
+    # For now, return placeholder
+    return CompilationResult {
+        success: true,
+        output: "",
+        error: "",
+        phase: CompilationPhase.PHASE_PARSE
+    }
+}
+
+shadow run_parser {
+    let result: CompilationResult = (run_parser "" false)
+    assert result.success
+}
+
+/* Run the type checker phase */
+fn run_typechecker(ast: string, verbose: bool) -> CompilationResult {
+    if verbose {
+        (println "Phase 3: Type checking...")
+    }
+    
+    # TODO: Invoke src_nano/typecheck.nano
+    # For now, return placeholder
+    return CompilationResult {
+        success: true,
+        output: "",
+        error: "",
+        phase: CompilationPhase.PHASE_TYPECHECK
+    }
+}
+
+shadow run_typechecker {
+    let result: CompilationResult = (run_typechecker "" false)
+    assert result.success
+}
+
+/* Run the transpiler phase */
+fn run_transpiler(ast: string, verbose: bool) -> CompilationResult {
+    if verbose {
+        (println "Phase 4: Transpiling to C...")
+    }
+    
+    # TODO: Invoke src_nano/transpiler.nano
+    # For now, return placeholder
+    return CompilationResult {
+        success: true,
+        output: "",
+        error: "",
+        phase: CompilationPhase.PHASE_TRANSPILE
+    }
+}
+
+shadow run_transpiler {
+    let result: CompilationResult = (run_transpiler "" false)
+    assert result.success
+}
+
+/* Run the C compiler phase */
+fn run_cc(c_code: string, output_file: string, verbose: bool) -> CompilationResult {
+    if verbose {
+        (println "Phase 5: Compiling C code...")
+    }
+    
+    # TODO: Build cc command and invoke via std::process
+    # cc -o output_file /tmp/generated.c src/runtime/*.c
+    
+    # For now, return placeholder
+    return CompilationResult {
+        success: true,
+        output: output_file,
+        error: "",
+        phase: CompilationPhase.PHASE_CC
+    }
+}
+
+shadow run_cc {
+    let result: CompilationResult = (run_cc "" "test_output" false)
+    assert result.success
+}
+
+/* Run the complete compilation pipeline */
+fn compile(args: CompilerArgs) -> CompilationResult {
+    if args.verbose {
+        (println "Compiling:")
+        (println args.input_file)
+    }
+    
+    # Phase 1: Lex
+    let lex_result: CompilationResult = (run_lexer args.input_file args.verbose)
+    if (not lex_result.success) {
+        return lex_result
+    }
+    
+    # Phase 2: Parse
+    let parse_result: CompilationResult = (run_parser lex_result.output args.verbose)
+    if (not parse_result.success) {
+        return parse_result
+    }
+    
+    # Phase 3: Type check
+    let typecheck_result: CompilationResult = (run_typechecker parse_result.output args.verbose)
+    if (not typecheck_result.success) {
+        return typecheck_result
+    }
+    
+    # Phase 4: Transpile
+    let transpile_result: CompilationResult = (run_transpiler typecheck_result.output args.verbose)
+    if (not transpile_result.success) {
+        return transpile_result
+    }
+    
+    # Phase 5: Compile C
+    let cc_result: CompilationResult = (run_cc transpile_result.output args.output_file args.verbose)
+    return cc_result
+}
+
+shadow compile {
+    let args: CompilerArgs = CompilerArgs {
+        input_file: "test.nano",
+        output_file: "test_output",
+        verbose: false,
+        help: false,
+        version: false
+    }
+    let result: CompilationResult = (compile args)
+    assert result.success
+}
+
+/* =============================================================================
+ * HELP & VERSION
+ * ============================================================================= */
+
+fn print_help() -> void {
+    (println "")
+    (println "NanoLang Compiler (Self-Hosted)")
+    (println "Usage: nanoc_nano [options] input.nano")
+    (println "")
+    (println "Options:")
+    (println "  -o <file>        Output file name")
+    (println "  -I <path>        Add include path")
+    (println "  -L <path>        Add library path")
+    (println "  -l <lib>         Link library")
+    (println "  -v               Verbose output")
+    (println "  --help           Show this help")
+    (println "  --version        Show version")
+    (println "")
+    (println "Examples:")
+    (println "  nanoc_nano hello.nano -o hello")
+    (println "  nanoc_nano game.nano -o game -I modules/ -l SDL2")
+    (println "")
+}
+
+shadow print_help {
+    (print_help)
+}
+
+fn print_version() -> void {
+    (println "nanoc_nano 0.1.0 (self-hosted)")
+    (println "NanoLang Compiler - Pure NanoLang Implementation")
+}
+
+shadow print_version {
+    (print_version)
+}
+
+/* =============================================================================
+ * MAIN ENTRY POINT
+ * ============================================================================= */
+
+fn main() -> int {
+    # Parse command-line arguments
+    let args_result: ResultArgs = (parse_args)
+    
+    match args_result {
+        Ok(result) => {
+            let args: CompilerArgs = result.value
+            
+            # Handle --help
+            if args.help {
+                (print_help)
+                return 0
+            }
+            
+            # Handle --version
+            if args.version {
+                (print_version)
+                return 0
+            }
+            
+            # Validate input file
+            if (== args.input_file "") {
+                (println "Error: No input file specified")
+                (println "Use --help for usage information")
+                return 1
+            }
+            
+            # Run compilation
+            let compile_result: CompilationResult = (compile args)
+            
+            if compile_result.success {
+                if args.verbose {
+                    (println "Compilation successful!")
+                }
+                return 0
+            } else {
+                (println "Compilation failed:")
+                (println compile_result.error)
+                return 1
+            }
+        }
+        Err(err) => {
+            (println "Error:")
+            (println err.error)
+            (println "")
+            (println "Use --help for usage information")
+            return 1
+        }
+    }
+}
+
+shadow main {
+    # This requires mocking command-line args
+    # For now, just verify it compiles
+    (println "driver.nano shadow test: OK")
+}
+
+/* =============================================================================
+ * FUTURE ENHANCEMENTS
+ * =============================================================================
+ * 
+ * TODO List:
+ * 1. Implement actual phase invocations (currently placeholders)
+ * 2. Add support for -I (include paths)
+ * 3. Add support for -L (library paths)
+ * 4. Add support for -l (libraries)
+ * 5. Add support for -g (debug symbols)
+ * 6. Add support for -O (optimization levels)
+ * 7. Implement proper error reporting with diagnostics
+ * 8. Add support for multiple source files
+ * 9. Add caching/incremental compilation
+ * 10. Add --ast, --tokens flags for debugging
+ * 
+ * Integration Points:
+ * - src_nano/lexer.nano (TODO: define interface)
+ * - src_nano/parser.nano (TODO: define interface)
+ * - src_nano/typecheck.nano (TODO: define interface)
+ * - src_nano/transpiler.nano (TODO: define interface)
+ * 
+ * Design Decisions:
+ * - Pipeline is sequential (no parallelization yet)
+ * - Each phase takes string input/output (simple but inefficient)
+ * - Future: Pass structured data (AST objects) between phases
+ * - Error handling uses Result types for ergonomic propagation
+ */
+
