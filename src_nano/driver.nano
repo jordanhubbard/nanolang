@@ -17,11 +17,20 @@
 # import "modules/std/env.nano"
 # import "modules/std/process.nano"
 # import "modules/std/fs.nano"
-# import "src_nano/compiler/diagnostics.nano"
+
+/* Import compiler phases - these already have clean interfaces */
+import "src_nano/compiler/ir.nano"
+# TODO: Enable these once driver is ready to invoke them
+# import "lexer_main.nano" as Lexer
+# import "parser.nano" as Parser  
+# import "typecheck.nano" as TypeCheck
+# import "transpiler.nano" as Transpile
 
 /* Temporary extern declarations until imports work */
 extern fn get_argc() -> int
 extern fn get_argv(index: int) -> string
+extern fn file_read(path: string) -> string
+extern fn file_write(path: string, content: string) -> int
 
 /* =============================================================================
  * RESULT TYPE FOR ARGUMENT PARSING
@@ -118,6 +127,35 @@ shadow parse_args {
 
 /* =============================================================================
  * COMPILATION PIPELINE
+ * ============================================================================= */
+
+/* =============================================================================
+ * PHASE INTERFACES (from existing compiler_modular.nano)
+ * =============================================================================
+ * 
+ * These interfaces already exist and are tested. The driver will call them:
+ * 
+ * 1. Lexer Phase:
+ *    fn lex_phase_run(source: string, filename: string) -> LexPhaseOutput
+ *    - Returns: { tokens, token_count, had_error, diagnostics }
+ * 
+ * 2. Parser Phase:
+ *    fn parse_phase_run(lex_output: LexPhaseOutput) -> ParsePhaseOutput
+ *    - Returns: { parser, had_error, diagnostics }
+ * 
+ * 3. TypeChecker Phase:
+ *    fn typecheck_phase(parser_state: Parser) -> TypecheckPhaseOutput
+ *    - Returns: { had_error, diagnostics }
+ * 
+ * 4. Transpiler Phase:
+ *    fn transpile_phase(parser_state: Parser, c_file: string) -> TranspilePhaseOutput
+ *    - Returns: { c_source, had_error, diagnostics }
+ * 
+ * All phase outputs include:
+ *    - had_error: bool
+ *    - diagnostics: List<CompilerDiagnostic>
+ * 
+ * This allows uniform error handling across all phases.
  * ============================================================================= */
 
 enum CompilationPhase {
@@ -220,15 +258,30 @@ shadow run_transpiler {
 }
 
 /* Run the C compiler phase */
-fn run_cc(c_code: string, output_file: string, verbose: bool) -> CompilationResult {
+fn run_cc(c_file: string, output_file: string, verbose: bool) -> CompilationResult {
     if verbose {
         (println "Phase 5: Compiling C code...")
     }
     
-    # TODO: Build cc command and invoke via std::process
-    # cc -o output_file /tmp/generated.c src/runtime/*.c
+    /* Build the cc command:
+     * 
+     * cc -o {output_file} {c_file} \
+     *    -Isrc \
+     *    src/runtime/list_int.c \
+     *    src/runtime/list_string.c \
+     *    src/runtime/list_token.c \
+     *    src/runtime/token_helpers.c \
+     *    src/runtime/gc.c \
+     *    src/runtime/dyn_array.c \
+     *    src/runtime/gc_struct.c \
+     *    src/runtime/nl_string.c \
+     *    src/runtime/cli.c \
+     *    src/runtime/schema_lists.c
+     * 
+     * TODO: Use std::process module to execute this
+     * For now, return placeholder
+     */
     
-    # For now, return placeholder
     return CompilationResult {
         success: true,
         output: output_file,
@@ -389,31 +442,90 @@ shadow main {
 }
 
 /* =============================================================================
- * FUTURE ENHANCEMENTS
+ * INTEGRATION STRATEGY
  * =============================================================================
  * 
- * TODO List:
- * 1. Implement actual phase invocations (currently placeholders)
- * 2. Add support for -I (include paths)
- * 3. Add support for -L (library paths)
- * 4. Add support for -l (libraries)
- * 5. Add support for -g (debug symbols)
- * 6. Add support for -O (optimization levels)
- * 7. Implement proper error reporting with diagnostics
- * 8. Add support for multiple source files
- * 9. Add caching/incremental compilation
- * 10. Add --ast, --tokens flags for debugging
+ * Phase 1: INTERFACE DOCUMENTATION (✅ COMPLETE)
+ * -----------------------------------------------
+ * - Document existing phase interfaces
+ * - Create CompilerArgs, CompilationResult types
+ * - Build argument parsing skeleton
+ * - Add help/version displays
  * 
- * Integration Points:
- * - src_nano/lexer.nano (TODO: define interface)
- * - src_nano/parser.nano (TODO: define interface)
- * - src_nano/typecheck.nano (TODO: define interface)
- * - src_nano/transpiler.nano (TODO: define interface)
+ * Phase 2: STUB INTEGRATION (NEXT)
+ * ---------------------------------
+ * To wire up actual compiler phases:
  * 
- * Design Decisions:
- * - Pipeline is sequential (no parallelization yet)
- * - Each phase takes string input/output (simple but inefficient)
- * - Future: Pass structured data (AST objects) between phases
- * - Error handling uses Result types for ergonomic propagation
+ * 1. Enable imports (uncomment):
+ *    import "lexer_main.nano" as Lexer
+ *    import "parser.nano" as Parser  
+ *    import "typecheck.nano" as TypeCheck
+ *    import "transpiler.nano" as Transpile
+ * 
+ * 2. Update run_lexer():
+ *    let source: string = (file_read input_file)
+ *    let lex_output: LexPhaseOutput = (Lexer.lex_phase_run source input_file)
+ *    if lex_output.had_error {
+ *        return CompilationResult { success: false, error: "Lex failed", ... }
+ *    }
+ *    return CompilationResult { success: true, output: lex_output, ... }
+ * 
+ * 3. Update run_parser():
+ *    let parse_output: ParsePhaseOutput = (Parser.parse_phase_run tokens)
+ *    if parse_output.had_error { ... error handling ... }
+ *    return CompilationResult { success: true, output: parse_output, ... }
+ * 
+ * 4. Update run_typechecker():
+ *    let type_output: TypecheckPhaseOutput = (TypeCheck.typecheck_phase ast)
+ *    if type_output.had_error { ... error handling ... }
+ *    return CompilationResult { success: true, ... }
+ * 
+ * 5. Update run_transpiler():
+ *    let c_file: string = (str_concat output_file ".c")
+ *    let transpile_output: TranspilePhaseOutput = (Transpile.transpile_phase ast c_file)
+ *    if transpile_output.had_error { ... error handling ... }
+ *    return CompilationResult { success: true, output: c_file, ... }
+ * 
+ * 6. Update run_cc():
+ *    Build cc command string
+ *    Execute via std::process module
+ *    Check exit code
+ * 
+ * Phase 3: FULL INTEGRATION
+ * --------------------------
+ * - Replace CompilationResult.output (string) with actual phase output types
+ * - Add support for -I, -L, -l flags
+ * - Add support for -g, -O flags
+ * - Implement incremental compilation
+ * - Add --ast, --tokens debug flags
+ * 
+ * Phase 4: REPLACE C COMPILER (nanolang-alp.11)
+ * ----------------------------------------------
+ * Once this driver is complete and tested:
+ * - Update bin/nanoc to call this driver instead of bin/nanoc_c
+ * - Update Makefile to use self-hosted driver for Stage 2
+ * - Add verify-no-nanoc_c target to enforce self-hosting
+ * 
+ * =============================================================================
+ * SAFETY NOTES
+ * =============================================================================
+ * 
+ * This driver is SAFE to develop because:
+ * 1. It's a NEW file, not modifying existing compiler
+ * 2. It DOCUMENTS existing interfaces (from compiler_modular.nano)
+ * 3. Current placeholders allow compilation without breaking CI/CD
+ * 4. Integration is opt-in (imports commented out until ready)
+ * 5. Won't affect Stage 1/2/3 builds until we explicitly switch
+ * 
+ * The existing modular compiler (compiler_modular.nano) already has:
+ * - Working phase interfaces
+ * - Error handling with diagnostics
+ * - Full compilation pipeline
+ * 
+ * This driver is essentially a cleaned-up, standalone version with:
+ * - Better argument parsing
+ * - Cleaner error reporting (using error_messages.nano)
+ * - More maintainable structure
+ * - Preparation for full self-hosting
  */
 
