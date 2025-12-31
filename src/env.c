@@ -297,6 +297,8 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     sym.is_mut = is_mut;
     sym.value = value;
     sym.is_used = false;  /* Initialize as unused */
+    sym.is_resource = false;  /* Will be set by type checker if type is a resource struct */
+    sym.resource_state = RESOURCE_UNUSED;  /* Initialize resource state */
     sym.from_c_header = false;  /* Not from C header (normal nanolang variable) */
     sym.def_line = 0;     /* Will be set by type checker if needed */
     sym.def_column = 0;
