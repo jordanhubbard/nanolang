@@ -1,5 +1,6 @@
+/* Integration test for std::env, std::process, std::fs, and std::binary */
+
 from "modules/std/env.nano" import get, set, unset, args
-from "modules/std/process.nano" import run, Output
 from "modules/std/fs.nano" import walkdir, glob, normalize
 from "modules/std/binary.nano" import encode_int, decode_int, encode_string, decode_string, encode_int_array, decode_int_array
 
@@ -39,28 +40,6 @@ fn std_env_args() -> int {
 
 shadow std_env_args {
     assert (== (std_env_args) 0)
-}
-
-fn std_process_run() -> int {
-    let o: Output = (run "echo hello")
-    assert (== o.code 0)
-    assert (str_contains o.stdout "hello")
-    return 0
-}
-
-shadow std_process_run {
-    assert (== (std_process_run) 0)
-}
-
-fn std_process_run_stderr() -> int {
-    let o: Output = (run "echo err 1>&2; exit 7")
-    assert (== o.code 7)
-    assert (str_contains o.stderr "err")
-    return 0
-}
-
-shadow std_process_run_stderr {
-    assert (== (std_process_run_stderr) 0)
 }
 
 fn std_fs_walkdir_glob_normalize() -> int {

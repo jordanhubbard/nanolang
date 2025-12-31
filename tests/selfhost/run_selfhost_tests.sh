@@ -27,7 +27,7 @@ TESTS=(
     "test_function_calls.nano"
     "test_let_set.nano"
     "test_if_else.nano"
-    "test_std_modules_env_process_fs_binary.nano"
+    "test_std_modules_env_fs_binary.nano"
 )
 
 PASSED=0

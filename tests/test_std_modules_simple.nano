@@ -1,0 +1,33 @@
+/* Simplified std modules integration test */
+
+from "modules/std/env.nano" import get, set, unset, args
+
+fn test_env() -> int {
+    let k: string = "NANOLANG_TEST_ENV"
+    assert (== (set k "test_value") 0)
+    assert (str_equals (get k) "test_value")
+    assert (== (unset k) 0)
+    assert (str_equals (get k) "")
+    return 0
+}
+
+shadow test_env {
+    assert (== (test_env) 0)
+}
+
+fn test_args() -> int {
+    let a: array<string> = (args)
+    assert (>= (array_length a) 0)
+    return 0
+}
+
+shadow test_args {
+    assert (== (test_args) 0)
+}
+
+fn main() -> int {
+    assert (== (test_env) 0)
+    assert (== (test_args) 0)
+    return 0
+}
+
