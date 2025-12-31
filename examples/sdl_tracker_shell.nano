@@ -11,8 +11,8 @@ import "modules/pt2_module/pt2_module.nano"
 extern fn get_argc() -> int
 extern fn get_argv(index: int) -> string
 
-let WINDOW_WIDTH: int = 960
-let WINDOW_HEIGHT: int = 540
+let WINDOW_WIDTH: int = 1280
+let WINDOW_HEIGHT: int = 720
 
 let PANEL_MARGIN: int = 12
 let TOPBAR_H: int = 26
@@ -99,7 +99,7 @@ fn build_browser_items(current_dir: string) -> array<string> {
     set i 0
     while (< i (array_length files)) {
         let name: string = (at files i)
-        set out (array_push out (str_concat "    " name))
+        set out (array_push out name)
         set i (+ i 1)
     }
 
@@ -107,296 +107,284 @@ fn build_browser_items(current_dir: string) -> array<string> {
 }
 
 fn hex_digit(n: int) -> string {
-    let x: int = (clamp_int n 0 15)
-    if (== x 0) { return "0" } else {
-    if (== x 1) { return "1" } else {
-    if (== x 2) { return "2" } else {
-    if (== x 3) { return "3" } else {
-    if (== x 4) { return "4" } else {
-    if (== x 5) { return "5" } else {
-    if (== x 6) { return "6" } else {
-    if (== x 7) { return "7" } else {
-    if (== x 8) { return "8" } else {
-    if (== x 9) { return "9" } else {
-    if (== x 10) { return "A" } else {
-    if (== x 11) { return "B" } else {
-    if (== x 12) { return "C" } else {
-    if (== x 13) { return "D" } else {
-    if (== x 14) { return "E" } else {
-        return "F"
-    }}}}}}}}}}}}}}}
+    if (== n 0) { return "0" } else {}
+    if (== n 1) { return "1" } else {}
+    if (== n 2) { return "2" } else {}
+    if (== n 3) { return "3" } else {}
+    if (== n 4) { return "4" } else {}
+    if (== n 5) { return "5" } else {}
+    if (== n 6) { return "6" } else {}
+    if (== n 7) { return "7" } else {}
+    if (== n 8) { return "8" } else {}
+    if (== n 9) { return "9" } else {}
+    if (== n 10) { return "A" } else {}
+    if (== n 11) { return "B" } else {}
+    if (== n 12) { return "C" } else {}
+    if (== n 13) { return "D" } else {}
+    if (== n 14) { return "E" } else {}
+    if (== n 15) { return "F" } else {}
+    return "?"
 }
 
-fn byte_to_hex(n: int) -> string {
-    let hi: int = (clamp_int (/ n 16) 0 15)
-    let lo: int = (clamp_int (% n 16) 0 15)
+fn byte_to_hex(b: int) -> string {
+    let hi: int = (/ b 16)
+    let lo: int = (% b 16)
     return (str_concat (hex_digit hi) (hex_digit lo))
 }
 
-fn period_to_note(period: int) -> string {
-    if (== period 0) { return "---" } else {}
-    if (== period 1712) { return "C-1" } else {}
-    if (== period 1616) { return "C#1" } else {}
-    if (== period 1524) { return "D-1" } else {}
-    if (== period 1440) { return "D#1" } else {}
-    if (== period 1356) { return "E-1" } else {}
-    if (== period 1280) { return "F-1" } else {}
-    if (== period 1208) { return "F#1" } else {}
-    if (== period 1140) { return "G-1" } else {}
-    if (== period 1076) { return "G#1" } else {}
-    if (== period 1016) { return "A-1" } else {}
-    if (== period 960) { return "A#1" } else {}
-    if (== period 906) { return "B-1" } else {}
+let NOTE_NAMES: array<string> = ["C-","C#","D-","D#","E-","F-","F#","G-","G#","A-","A#","B-"]
 
-    if (== period 856) { return "C-2" } else {}
-    if (== period 808) { return "C#2" } else {}
-    if (== period 762) { return "D-2" } else {}
-    if (== period 720) { return "D#2" } else {}
-    if (== period 678) { return "E-2" } else {}
-    if (== period 640) { return "F-2" } else {}
-    if (== period 604) { return "F#2" } else {}
-    if (== period 570) { return "G-2" } else {}
-    if (== period 538) { return "G#2" } else {}
-    if (== period 508) { return "A-2" } else {}
-    if (== period 480) { return "A#2" } else {}
-    if (== period 453) { return "B-2" } else {}
-
-    if (== period 428) { return "C-3" } else {}
-    if (== period 404) { return "C#3" } else {}
-    if (== period 381) { return "D-3" } else {}
-    if (== period 360) { return "D#3" } else {}
-    if (== period 339) { return "E-3" } else {}
-    if (== period 320) { return "F-3" } else {}
-    if (== period 302) { return "F#3" } else {}
-    if (== period 285) { return "G-3" } else {}
-    if (== period 269) { return "G#3" } else {}
-    if (== period 254) { return "A-3" } else {}
-    if (== period 240) { return "A#3" } else {}
-    if (== period 226) { return "B-3" } else {}
-
+fn period_to_note(per: int) -> string {
+    if (== per 0) { return "---" } else {}
+    if (== per 1712) { return "C-1" } else {}
+    if (== per 1616) { return "C#1" } else {}
+    if (== per 1525) { return "D-1" } else {}
+    if (== per 1440) { return "D#1" } else {}
+    if (== per 1357) { return "E-1" } else {}
+    if (== per 1281) { return "F-1" } else {}
+    if (== per 1209) { return "F#1" } else {}
+    if (== per 1141) { return "G-1" } else {}
+    if (== per 1077) { return "G#1" } else {}
+    if (== per 1017) { return "A-1" } else {}
+    if (== per 961) { return "A#1" } else {}
+    if (== per 907) { return "B-1" } else {}
+    if (== per 856) { return "C-2" } else {}
+    if (== per 808) { return "C#2" } else {}
+    if (== per 762) { return "D-2" } else {}
+    if (== per 720) { return "D#2" } else {}
+    if (== per 678) { return "E-2" } else {}
+    if (== per 640) { return "F-2" } else {}
+    if (== per 604) { return "F#2" } else {}
+    if (== per 570) { return "G-2" } else {}
+    if (== per 538) { return "G#2" } else {}
+    if (== per 508) { return "A-2" } else {}
+    if (== per 480) { return "A#2" } else {}
+    if (== per 453) { return "B-2" } else {}
+    if (== per 428) { return "C-3" } else {}
+    if (== per 404) { return "C#3" } else {}
+    if (== per 381) { return "D-3" } else {}
+    if (== per 360) { return "D#3" } else {}
+    if (== per 339) { return "E-3" } else {}
+    if (== per 320) { return "F-3" } else {}
+    if (== per 302) { return "F#3" } else {}
+    if (== per 285) { return "G-3" } else {}
+    if (== per 269) { return "G#3" } else {}
+    if (== per 254) { return "A-3" } else {}
+    if (== per 240) { return "A#3" } else {}
+    if (== per 226) { return "B-3" } else {}
+    if (== per 214) { return "C-4" } else {}
     return "???"
 }
 
-shadow build_browser_items {
-    let xs: array<string> = (build_browser_items "examples")
-    assert (>= (array_length xs) 0)
+shadow period_to_note {
+    assert (str_equals (period_to_note 0) "---")
+    assert (str_equals (period_to_note 1712) "C-1")
+    assert (str_equals (period_to_note 428) "C-3")
 }
 
+# Visualization rendering functions
+fn draw_waveform_oscilloscope(renderer: SDL_Renderer, x: int, y: int, w: int, h: int, frame: int) -> void {
+    let waveform_size: int = (nl_audio_viz_get_waveform_size)
+    let mut i: int = 0
+    let waveform_step: int = (/ waveform_size w)
+    
+    # Draw waveform with glow effect
+    unsafe {     (SDL_SetRenderDrawColor renderer 0 255 255 200) }  # Cyan
+    while (< i w) {
+        let sample_idx: int = (* i waveform_step)
+        # Mix left and right channels for full audio representation
+        let left: float = (nl_audio_viz_get_waveform_sample 0 sample_idx)
+        let right: float = (nl_audio_viz_get_waveform_sample 1 sample_idx)
+        let mixed: float = (* (+ left right) 0.5)
+        let py: int = (+ y (+ (/ h 2) (cast_int (* mixed (cast_float (/ h 3))))))
+        
+        # Draw thicker line for visibility
+        unsafe {         (SDL_RenderDrawPoint renderer (+ x i) py) }
+        unsafe {         (SDL_RenderDrawPoint renderer (+ x i) (+ py 1)) }
+        set i (+ i 1)
+    }
+}
+
+shadow draw_waveform_oscilloscope { assert true }
+
+fn draw_viz_circular(renderer: SDL_Renderer, center_x: int, center_y: int, waveform_size: int, frame: int) -> void {
+    let mut angle: int = 0
+    while (< angle 360) {
+        let idx: int = (* angle 2)
+        if (< idx waveform_size) {
+            let left_sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
+            let right_sample: float = (nl_audio_viz_get_waveform_sample 1 idx)
+            let amplitude: float = (+ (abs left_sample) (abs right_sample))
+            let radius: int = (+ 50 (cast_int (* amplitude 60.0)))
+            
+            let angle_float: float = (cast_float angle)
+            let rad: float = (* angle_float 0.01745)
+            let x: int = (+ center_x (cast_int (* (cast_float radius) (cos rad))))
+            let y: int = (+ center_y (cast_int (* (cast_float radius) (sin rad))))
+            
+            let color_offset: int = (+ angle frame)
+            let r: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float color_offset) 0.05)))))
+            let g: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 120)) 0.05)))))
+            let b: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 240)) 0.05)))))
+            
+            unsafe {             (SDL_SetRenderDrawColor renderer r g b 255) }
+            unsafe {             (SDL_RenderDrawPoint renderer x y) }
+            unsafe {             (SDL_RenderDrawPoint renderer (+ x 1) y) }
+        } else {}
+        set angle (+ angle 3)
+    }
+}
+
+shadow draw_viz_circular { assert true }
+
+fn draw_viz_bars(renderer: SDL_Renderer, x: int, y: int, w: int, h: int, waveform_size: int, frame: int) -> void {
+    let num_bars: int = 48
+    let bar_width: int = (/ w num_bars)
+    let mut bar: int = 0
+    while (< bar num_bars) {
+        let idx: int = (* bar (/ waveform_size num_bars))
+        let left_sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
+        let right_sample: float = (nl_audio_viz_get_waveform_sample 1 idx)
+        let amplitude: float = (+ (abs left_sample) (abs right_sample))
+        let bar_h: int = (+ 10 (cast_int (* amplitude (cast_float (- h 20)))))
+        
+        let bar_x: int = (+ x (* bar bar_width))
+        let bar_y: int = (- (+ y h) bar_h)
+        
+        # Color based on height
+        let color_val: int = (+ bar frame)
+        let r: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float color_val) 0.1)))))
+        let g: int = (+ 128 (cast_int (* 127.0 (cos (* (cast_float color_val) 0.08)))))
+        let b: int = 255
+        
+        unsafe {         (SDL_SetRenderDrawColor renderer r g b 255) }
+        unsafe {         (nl_sdl_render_fill_rect renderer bar_x bar_y bar_width bar_h) }
+        set bar (+ bar 1)
+    }
+}
+
+shadow draw_viz_bars { assert true }
+
+fn draw_viz_spiral(renderer: SDL_Renderer, center_x: int, center_y: int, waveform_size: int, frame: int) -> void {
+    let mut angle: int = 0
+    while (< angle 540) {
+        let idx: int = (% (* angle 3) waveform_size)
+        let sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
+        let amplitude: float = (abs sample)
+        
+        # Spiral grows outward
+        let spiral_radius: float = (+ 20.0 (* 0.15 (cast_float angle)))
+        let spiral_amp: float = (+ spiral_radius (* amplitude 50.0))
+        
+        let angle_float: float = (cast_float angle)
+        let rad: float = (* angle_float 0.01745)
+        let x: int = (+ center_x (cast_int (* spiral_amp (cos rad))))
+        let y: int = (+ center_y (cast_int (* spiral_amp (sin rad))))
+        
+        let color_offset: int = (+ angle frame)
+        let r: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float color_offset) 0.03)))))
+        let g: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 90)) 0.03)))))
+        let b: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 180)) 0.03)))))
+        
+        unsafe {         (SDL_SetRenderDrawColor renderer r g b 255) }
+        unsafe {         (SDL_RenderDrawPoint renderer x y) }
+        unsafe {         (SDL_RenderDrawPoint renderer (+ x 1) y) }
+        unsafe {         (SDL_RenderDrawPoint renderer x (+ y 1)) }
+        set angle (+ angle 5)
+    }
+}
+
+shadow draw_viz_spiral { assert true }
+
 fn main() -> int {
+    unsafe {
+    let mut current_dir: string = "."
     let argc: int = (get_argc)
-    let mut start_path: string = "examples"
-    if (>= argc 2) {
-        unsafe { set start_path (get_argv 1) }
+    if (> argc 1) {
+        set current_dir (get_argv 1)
     } else {}
 
-    let mut current_dir: string = start_path
-    if (== (nl_fs_is_directory start_path) 0) {
-        set current_dir "examples"
-    } else {}
+    (SDL_Init (+ SDL_INIT_VIDEO SDL_INIT_AUDIO))
+    let mixer_init: int = (Mix_Init 2)
+    (Mix_OpenAudio 44100 32784 2 2048)
+    
+    # Initialize audio visualization
+    (nl_audio_viz_init 32784 2)  # MIX_DEFAULT_FORMAT, stereo
 
-    if (!= (SDL_Init (+ SDL_INIT_VIDEO SDL_INIT_AUDIO)) 0) {
-        (println "SDL_Init failed")
-        return 1
-    } else {}
-
-    # Prefer crisp integer scaling when using logical sizing
-    unsafe {     (SDL_SetHint "SDL_RENDER_SCALE_QUALITY" "0") }
-
-    let mixer_init: int = (Mix_Init MIX_INIT_MOD)
-    if (!= mixer_init MIX_INIT_MOD) {
-        (println "✗ SDL_mixer failed to initialize MOD support")
-        unsafe {         (SDL_Quit) }
-        return 1
-    } else {}
-
-    if (!= (Mix_OpenAudio 44100 MIX_DEFAULT_FORMAT 2 2048) 0) {
-        (println "✗ Mix_OpenAudio failed")
-        (println (Mix_GetError))
-        unsafe {         (Mix_Quit) }
-        unsafe {         (SDL_Quit) }
-        return 1
-    } else {}
-
-    unsafe {     (nl_audio_viz_init MIX_DEFAULT_FORMAT 2) }
-
-    unsafe {     (TTF_Init) }
-    # Prefer a fixed-width font for tracker-like alignment
-    let font: TTF_Font = (nl_open_font_portable "Menlo" 14)
-    let title_font: TTF_Font = (nl_open_font_portable "Menlo" 18)
-    if (== font 0) {
-        (println "✗ Failed to load font")
-        unsafe {         (Mix_CloseAudio) }
-        unsafe {         (Mix_Quit) }
-        unsafe {         (TTF_Quit) }
-        unsafe {         (SDL_Quit) }
-        return 1
-    } else {}
-
-    let mut ui_scale: int = 1
-    let mut win_w: int = (* WINDOW_WIDTH ui_scale)
-    let mut win_h: int = (* WINDOW_HEIGHT ui_scale)
-
-    let window: SDL_Window = (SDL_CreateWindow "Tracker Shell (PT-style)" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED win_w win_h SDL_WINDOW_SHOWN)
-    if (== window 0) {
-        (println "✗ SDL_CreateWindow failed")
-        unsafe {         (Mix_CloseAudio) }
-        unsafe {         (Mix_Quit) }
-        unsafe {         (TTF_Quit) }
-        unsafe {         (SDL_Quit) }
-        return 1
-    } else {}
-
+    let window: SDL_Window = (SDL_CreateWindow "NANOLANG PROTRACKER CLONE" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
-    if (== renderer 0) {
-        (println "✗ SDL_CreateRenderer failed")
-        unsafe {         (SDL_DestroyWindow window) }
-        unsafe {         (Mix_CloseAudio) }
-        unsafe {         (Mix_Quit) }
-        unsafe {         (TTF_Quit) }
-        unsafe {         (SDL_Quit) }
-        return 1
-    } else {}
 
-    unsafe {     (SDL_RenderSetLogicalSize renderer WINDOW_WIDTH WINDOW_HEIGHT) }
-    unsafe {     (nl_ui_set_scale (cast_float ui_scale)) }
-
-    unsafe {     (Mix_VolumeMusic 100) }
-
-    let default_mod_path: string = "examples/gabba-studies-12.mod"
+    (TTF_Init)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 11)
+    let title_font: TTF_Font = (nl_open_font_portable "Arial" 14)
 
     let mut browser_items: array<string> = (build_browser_items current_dir)
     let mut selected_idx: int = 0
     let mut scroll_offset: int = 0
 
-    let mut loaded_path: string = default_mod_path
-    let mut music: Mix_Music = (Mix_LoadMUS default_mod_path)
+    let mut music: Mix_Music = (Mix_LoadMUS "")
     let mut has_music: bool = false
+    let mut loaded_path: string = ""
+
+    let mut volume: float = 0.8
 
     let mut mod_loaded: bool = false
     let mut mod_name: string = ""
     let mut song_length: int = 0
     let mut pattern_count: int = 0
 
-    # Position tracker state (best-effort PT-like sequencing)
     let mut pos_order: int = 0
     let mut pos_row: int = 0
     let mut pos_speed: int = 6
     let mut pos_bpm: int = 125
     let mut pos_accum_ms: float = 0.0
+    let mut play_last_update_ms: int = 0
 
-    let mut play_last_update_ms: int = (SDL_GetTicks)
-
-    let mut volume: float = 0.78
-    unsafe {     (Mix_VolumeMusic (cast_int (* volume 128.0))) }
-
-    # Default module on startup
-    if (== (pt2_module_load default_mod_path) 0) {
-        set mod_loaded true
-        set mod_name (pt2_module_get_name)
-        set song_length (pt2_module_get_song_length)
-        set pattern_count (pt2_module_get_pattern_count)
-    } else {
-        set mod_loaded false
-    }
-
-    if (!= music 0) {
-        set has_music true
-    } else {
-        set has_music false
-    }
-
-    # If a file path was passed, try to auto-load it
-    if (and (>= argc 2) (== (nl_fs_is_directory start_path) 0)) {
-        if (== (nl_fs_file_exists start_path) 1) {
-            set loaded_path start_path
-
-            if has_music {
-                unsafe {                 (Mix_HaltMusic) }
-                unsafe {                 (Mix_FreeMusic music) }
-                set has_music false
-            } else {}
-
-            if mod_loaded {
-                unsafe {                 (pt2_module_free) }
-                set mod_loaded false
-            } else {}
-
-            if (== (pt2_module_load loaded_path) 0) {
-                set mod_loaded true
-                set mod_name (pt2_module_get_name)
-                set song_length (pt2_module_get_song_length)
-                set pattern_count (pt2_module_get_pattern_count)
-                set pos_order 0
-                set pos_row 0
-                set pos_speed 6
-                set pos_bpm 125
-                set pos_accum_ms 0.0
-            } else {
-                set mod_loaded false
-            }
-
-            set music (Mix_LoadMUS loaded_path)
-            if (!= music 0) {
-                set has_music true
-                unsafe {                 (Mix_VolumeMusic (cast_int (* volume 128.0))) }
-            } else {
-                set has_music false
-            }
-        } else {}
-    } else {}
+    let mut viz_mode: int = 0  # 0=Circular, 1=Bars, 2=Spiral
+    let num_viz_modes: int = 3
+    let mut viz_frame: int = 0
 
     let mut running: bool = true
     while running {
-        unsafe {         (nl_ui_update_mouse_state) }
-
-        if (== (nl_sdl_poll_event_quit) 1) {
-            set running false
-        } else {}
-
-        # Mouse wheel scroll list
-        let wheel: int = (nl_sdl_poll_mouse_wheel)
-        if (!= wheel 0) {
-            set scroll_offset (clamp_int (- scroll_offset wheel) 0 999999)
-        } else {}
+        # Poll events
+        let event_quit: int = (nl_sdl_poll_event_quit)
+        if (== event_quit 1) { set running false } else {}
 
         let key: int = (nl_sdl_poll_keypress)
+        let mouse_wheel: int = (nl_sdl_poll_mouse_wheel)
+
+        if (> mouse_wheel 0) {
+            set selected_idx (clamp_int (- selected_idx mouse_wheel) 0 (- (array_length browser_items) 1))
+        } else {
+            if (< mouse_wheel 0) {
+                set selected_idx (clamp_int (- selected_idx mouse_wheel) 0 (- (array_length browser_items) 1))
+            } else {}
+        }
+
         if (> key -1) {
-            # ESC
-            if (== key 41) {
-                set running false
-            } else {
-                # 1/2: UI scale
-                if (or (== key 30) (== key 31)) {
-                    if (== key 30) { set ui_scale 1 } else { set ui_scale 2 }
-                    set win_w (* WINDOW_WIDTH ui_scale)
-                    set win_h (* WINDOW_HEIGHT ui_scale)
-                    unsafe {                     (SDL_SetWindowSize window win_w win_h) }
-                    unsafe {                     (SDL_RenderSetLogicalSize renderer WINDOW_WIDTH WINDOW_HEIGHT) }
-                    unsafe {                     (nl_ui_set_scale (cast_float ui_scale)) }
-                } else {
+            # Esc
+            if (== key 41) { set running false } else {
                 # Up
                 if (== key 82) {
-                    if (> selected_idx 0) { set selected_idx (- selected_idx 1) } else {}
+                    set selected_idx (clamp_int (- selected_idx 1) 0 (- (array_length browser_items) 1))
                 } else {
                     # Down
                     if (== key 81) {
-                        let n: int = (array_length browser_items)
-                        if (and (> n 0) (< selected_idx (- n 1))) { set selected_idx (+ selected_idx 1) } else {}
+                        set selected_idx (clamp_int (+ selected_idx 1) 0 (- (array_length browser_items) 1))
                     } else {
-                        # Enter / KP Enter
-                        if (or (== key 40) (== key 88)) {
-                            # Treat Enter as: activate selection (dir or file)
-                            let parent: string = (nl_fs_parent_dir current_dir)
-                            let show_parent: bool = (!= parent current_dir)
-                            let dirs: array<string> = (nl_fs_list_dirs current_dir)
-                            let files: array<string> = (nl_fs_list_files_ci current_dir ".mod")
-                            let dir_count: int = (array_length dirs)
-                            let file_count: int = (array_length files)
-                            let mut base: int = 0
-                            if show_parent { set base 1 } else {}
-                            let total: int = (+ (+ dir_count file_count) base)
+                        # Tab - cycle visualization mode
+                        if (== key 43) {
+                            set viz_mode (% (+ viz_mode 1) num_viz_modes)
+                        } else {
+                            # Enter
+                            if (== key 40) {
+                                let parent: string = (nl_fs_parent_dir current_dir)
+                                let show_parent: bool = (!= parent current_dir)
+                                let dirs: array<string> = (nl_fs_list_dirs current_dir)
+                                let files: array<string> = (nl_fs_list_files_ci current_dir ".mod")
+                                let dir_count: int = (array_length dirs)
+                                let file_count: int = (array_length files)
 
-                            if (> total 0) {
                                 let idx: int = selected_idx
                                 if (and show_parent (== idx 0)) {
                                     set current_dir parent
@@ -404,7 +392,7 @@ fn main() -> int {
                                     set selected_idx 0
                                     set scroll_offset 0
                                 } else {
-                                    set base 0
+                                    let mut base: int = 0
                                     if show_parent { set base 1 } else {}
                                     if (< idx (+ base dir_count)) {
                                         let dir_idx: int = (- idx base)
@@ -420,12 +408,12 @@ fn main() -> int {
                                             let full_path: string = (nl_fs_join_path current_dir file_name)
 
                                             if has_music {
-                                                unsafe {                                                 (Mix_HaltMusic) }
-                                                unsafe {                                                 (Mix_FreeMusic music) }
+                                                (Mix_HaltMusic)
+                                                (Mix_FreeMusic music)
                                                 set has_music false
                                             } else {}
 
-                                            unsafe {                                             (pt2_module_free) }
+                                            (pt2_module_free)
                                             set mod_loaded false
                                             if (== (pt2_module_load full_path) 0) {
                                                 set mod_loaded true
@@ -443,8 +431,8 @@ fn main() -> int {
                                             set music (Mix_LoadMUS loaded_path)
                                             if (!= music 0) {
                                                 set has_music true
-                                                unsafe {                                                 (Mix_VolumeMusic (cast_int (* volume 128.0))) }
-                                                unsafe {                                                 (Mix_PlayMusic music -1) }
+                                                (Mix_VolumeMusic (cast_int (* volume 128.0)))
+                                                (Mix_PlayMusic music -1)
                                                 set play_last_update_ms (SDL_GetTicks)
                                             } else {
                                                 set has_music false
@@ -452,41 +440,40 @@ fn main() -> int {
                                         } else {}
                                     }
                                 }
-                            } else {}
-                        } else {
-                            # Space: play/pause
-                            if (== key 44) {
-                                if has_music {
-                                    if (== (Mix_PausedMusic) 1) {
-                                        unsafe {                                         (Mix_ResumeMusic) }
-                                        set play_last_update_ms (SDL_GetTicks)
-                                    } else {
-                                        if (== (Mix_PlayingMusic) 1) {
-                                            unsafe {                                             (Mix_PauseMusic) }
+                            } else {
+                                # Space: play/pause
+                                if (== key 44) {
+                                    if has_music {
+                                        if (== (Mix_PausedMusic) 1) {
+                                            (Mix_ResumeMusic)
+                                            set play_last_update_ms (SDL_GetTicks)
                                         } else {
+                                            if (== (Mix_PlayingMusic) 1) {
+                                                (Mix_PauseMusic)
+                                            } else {
+                                                set pos_order 0
+                                                set pos_row 0
+                                                set pos_accum_ms 0.0
+                                                (Mix_PlayMusic music -1)
+                                                set play_last_update_ms (SDL_GetTicks)
+                                            }
+                                        }
+                                    } else {}
+                                } else {
+                                    # S: stop
+                                    if (== key 22) {
+                                        if has_music {
+                                            (Mix_HaltMusic)
                                             set pos_order 0
                                             set pos_row 0
                                             set pos_accum_ms 0.0
-                                            unsafe {                                             (Mix_PlayMusic music -1) }
                                             set play_last_update_ms (SDL_GetTicks)
-                                        }
-                                    }
-                                } else {}
-                            } else {
-                                # S: stop
-                                if (== key 22) {
-                                    if has_music {
-                                        unsafe {                                         (Mix_HaltMusic) }
-                                        set pos_order 0
-                                        set pos_row 0
-                                        set pos_accum_ms 0.0
-                                        set play_last_update_ms (SDL_GetTicks)
+                                        } else {}
                                     } else {}
-                                } else {}
+                                }
                             }
                         }
                     }
-                }
                 }
             }
         } else {}
@@ -587,12 +574,12 @@ fn main() -> int {
         set play_last_update_ms now_ms
 
         # --- Render ---
-        unsafe {         (SDL_SetRenderDrawColor renderer PT_BG_R PT_BG_G PT_BG_B 255) }
-        unsafe {         (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer PT_BG_R PT_BG_G PT_BG_B 255)
+        (SDL_RenderClear renderer)
 
         # Top bar
         (pt_fill renderer 0 0 WINDOW_WIDTH TOPBAR_H 30 50 120)
-        unsafe {         (nl_draw_text_blended renderer title_font "NANOLANG TRACKER SHELL (Phase 2)" 12 4 240 240 255 255) }
+        (nl_draw_text_blended renderer title_font "NANOLANG PROTRACKER CLONE" 12 4 240 240 255 255)
 
         # Left file browser
         let left_x: int = PANEL_MARGIN
@@ -600,8 +587,8 @@ fn main() -> int {
         let left_h: int = (- (- WINDOW_HEIGHT TOPBAR_H) (* PANEL_MARGIN 2))
         (pt_panel renderer left_x left_y LEFT_W left_h)
 
-        unsafe {         (nl_ui_label renderer font "Browser" (+ left_x 10) (+ left_y 8) 230 230 255 255) }
-        unsafe {         (nl_ui_label renderer font (str_concat "Dir: " current_dir) (+ left_x 10) (+ left_y 28) 180 180 220 255) }
+        (nl_ui_label renderer font "Browser" (+ left_x 10) (+ left_y 8) 230 230 255 255)
+        (nl_ui_label renderer font (str_concat "Dir: " current_dir) (+ left_x 10) (+ left_y 28) 180 180 220 255)
 
         let list_x: int = (+ left_x 10)
         let list_y: int = (+ left_y 52)
@@ -625,7 +612,7 @@ fn main() -> int {
         let main_h: int = left_h
         (pt_panel renderer main_x main_y main_w main_h)
 
-        unsafe {         (nl_ui_label renderer font "Player" (+ main_x 10) (+ main_y 8) 230 230 255 255) }
+        (nl_ui_label renderer font "Player" (+ main_x 10) (+ main_y 8) 230 230 255 255)
         let mut status: string = "Stopped"
         if has_music {
             if (== (Mix_PlayingMusic) 1) {
@@ -637,14 +624,14 @@ fn main() -> int {
             set status "No file loaded"
         }
 
-        unsafe {         (nl_ui_label renderer font (str_concat "Status: " status) (+ main_x 10) (+ main_y 30) 200 200 240 255) }
+        (nl_ui_label renderer font (str_concat "Status: " status) (+ main_x 10) (+ main_y 30) 200 200 240 255)
         if mod_loaded {
-            unsafe {             (nl_ui_label renderer font (str_concat "Song: " mod_name) (+ main_x 10) (+ main_y 52) 230 230 255 255) }
-            unsafe {             (nl_ui_label renderer font (str_concat "Len: " (int_to_string song_length)) (+ main_x 10) (+ main_y 72) 180 180 220 255) }
-            unsafe {             (nl_ui_label renderer font (str_concat "Patterns: " (int_to_string pattern_count)) (+ main_x 160) (+ main_y 72) 180 180 220 255) }
+            (nl_ui_label renderer font (str_concat "Song: " mod_name) (+ main_x 10) (+ main_y 52) 230 230 255 255)
+            (nl_ui_label renderer font (str_concat "Len: " (int_to_string song_length)) (+ main_x 10) (+ main_y 72) 180 180 220 255)
+            (nl_ui_label renderer font (str_concat "Patterns: " (int_to_string pattern_count)) (+ main_x 160) (+ main_y 72) 180 180 220 255)
         } else {
             if (!= loaded_path "") {
-                unsafe {                 (nl_ui_label renderer font (str_concat "File: " loaded_path) (+ main_x 10) (+ main_y 52) 180 180 220 255) }
+                (nl_ui_label renderer font (str_concat "File: " loaded_path) (+ main_x 10) (+ main_y 52) 180 180 220 255)
             } else {}
         }
 
@@ -658,15 +645,15 @@ fn main() -> int {
             set pos_order 0
             set pos_row 0
             set pos_accum_ms 0.0
-            unsafe {             (Mix_PlayMusic music -1) }
+            (Mix_PlayMusic music -1)
             set play_last_update_ms (SDL_GetTicks)
         } else {}
         if (and (== pause_clicked 1) has_music) {
-            unsafe { if (== (Mix_PausedMusic) 1) { (Mix_ResumeMusic) } else { (Mix_PauseMusic) } }
+            if (== (Mix_PausedMusic) 1) { (Mix_ResumeMusic) } else { (Mix_PauseMusic) }
             set play_last_update_ms (SDL_GetTicks)
         } else {}
         if (and (== stop_clicked 1) has_music) {
-            unsafe {             (Mix_HaltMusic) }
+            (Mix_HaltMusic)
             set pos_order 0
             set pos_row 0
             set pos_accum_ms 0.0
@@ -674,69 +661,116 @@ fn main() -> int {
         } else {}
 
         # Volume
-        unsafe {         (nl_ui_label renderer font "Vol" (+ main_x 260) (+ main_y 100) 180 180 220 255) }
+        (nl_ui_label renderer font "Vol" (+ main_x 260) (+ main_y 100) 180 180 220 255)
         let new_vol: float = (nl_ui_slider renderer (+ main_x 300) (+ main_y 98) 160 22 volume)
         if (!= new_vol volume) {
             set volume new_vol
-            unsafe {             (Mix_VolumeMusic (cast_int (* volume 128.0))) }
+            (Mix_VolumeMusic (cast_int (* volume 128.0)))
         } else {}
 
         # Position + meters
-        (pt_fill renderer (+ main_x 10) (+ main_y 132) (- main_w 20) 120 PT_INNER_R PT_INNER_G PT_INNER_B)
-        unsafe {         (nl_ui_label renderer font "Position (read-only)" (+ main_x 18) (+ main_y 140) 220 220 255 255) }
+        (pt_fill renderer (+ main_x 10) (+ main_y 132) (- main_w 20) 100 PT_INNER_R PT_INNER_G PT_INNER_B)
+        (nl_ui_label renderer font "Position (read-only)" (+ main_x 18) (+ main_y 140) 220 220 255 255)
 
         let cur_pat: int = (pt2_module_get_pattern_table pos_order)
-        unsafe {         (nl_draw_text_blended renderer title_font (str_concat "ORD " (int_to_string pos_order)) (+ main_x 18) (+ main_y 162) 240 240 255 255) }
-        unsafe {         (nl_draw_text_blended renderer title_font (str_concat "PAT " (int_to_string cur_pat)) (+ main_x 150) (+ main_y 162) 240 240 255 255) }
-        unsafe {         (nl_draw_text_blended renderer title_font (str_concat "ROW " (int_to_string pos_row)) (+ main_x 280) (+ main_y 162) 240 240 255 255) }
-        unsafe {         (nl_ui_label renderer font (str_concat "SPD " (int_to_string pos_speed)) (+ main_x 410) (+ main_y 168) 180 180 220 255) }
-        unsafe {         (nl_ui_label renderer font (str_concat "BPM " (int_to_string pos_bpm)) (+ main_x 500) (+ main_y 168) 180 180 220 255) }
+        (nl_draw_text_blended renderer title_font (str_concat "ORD " (int_to_string pos_order)) (+ main_x 18) (+ main_y 162) 240 240 255 255)
+        (nl_draw_text_blended renderer title_font (str_concat "PAT " (int_to_string cur_pat)) (+ main_x 150) (+ main_y 162) 240 240 255 255)
+        (nl_draw_text_blended renderer title_font (str_concat "ROW " (int_to_string pos_row)) (+ main_x 280) (+ main_y 162) 240 240 255 255)
+        (nl_ui_label renderer font (str_concat "SPD " (int_to_string pos_speed)) (+ main_x 410) (+ main_y 168) 180 180 220 255)
+        (nl_ui_label renderer font (str_concat "BPM " (int_to_string pos_bpm)) (+ main_x 500) (+ main_y 168) 180 180 220 255)
 
-        # 4-channel meters (approx from postmix)
+        # 4-channel meters (improved)
         let mut c: int = 0
         while (< c 4) {
             let v: int = (nl_audio_viz_get_channel_volume_int c)
             let bar_w: int = 90
             let x: int = (+ (+ main_x 18) (* c (+ bar_w 10)))
-            let y: int = (+ main_y 206)
-            (pt_fill renderer x y bar_w 10 30 40 90)
-            (pt_fill renderer x y (clamp_int (/ (* bar_w v) 100) 0 bar_w) 10 80 200 120)
+            let y: int = (+ main_y 196)
+            (pt_fill renderer x y bar_w 16 30 40 90)
+            let vu_w: int = (clamp_int (/ (* bar_w v) 100) 0 bar_w)
+            # Color based on volume level
+            if (> v 70) {
+                (pt_fill renderer x y vu_w 16 255 0 0)  # Red - HOT!
+            } else {
+                if (> v 40) {
+                    (pt_fill renderer x y vu_w 16 255 200 0)  # Yellow - Warm
+                } else {
+                    (pt_fill renderer x y vu_w 16 80 200 120)  # Green - Good
+                }
+            }
             set c (+ c 1)
         }
 
-        # Pattern view (read-only)
+        # === VISUALIZATION PANEL ===
+        let viz_x: int = (+ main_x 10)
+        let viz_y: int = (+ main_y 242)
+        let viz_w: int = (- main_w 20)
+        let viz_h: int = 200
+        (pt_fill renderer viz_x viz_y viz_w viz_h PT_INNER_R PT_INNER_G PT_INNER_B)
+        
+        # Viz mode indicator
+        let mut viz_mode_name: string = "Circular Spectrum"
+        if (== viz_mode 1) { set viz_mode_name "Frequency Bars" } else {}
+        if (== viz_mode 2) { set viz_mode_name "Spiral Vortex" } else {}
+        (nl_ui_label renderer font (str_concat "Visualizer: " viz_mode_name) (+ viz_x 8) (+ viz_y 6) 220 220 255 255)
+        (nl_ui_label renderer font "(Tab to cycle)" (+ viz_x (- viz_w 140)) (+ viz_y 6) 160 160 200 255)
+        
+        # Waveform oscilloscope at top
+        (draw_waveform_oscilloscope renderer (+ viz_x 8) (+ viz_y 26) (- viz_w 16) 40 viz_frame)
+        
+        # Main visualization
+        let waveform_size: int = (nl_audio_viz_get_waveform_size)
+        if (== viz_mode 0) {
+            let center_x: int = (+ viz_x (/ viz_w 2))
+            let center_y: int = (+ viz_y 120)
+            (draw_viz_circular renderer center_x center_y waveform_size viz_frame)
+        } else {}
+        
+        if (== viz_mode 1) {
+            (draw_viz_bars renderer (+ viz_x 8) (+ viz_y 76) (- viz_w 16) 116 waveform_size viz_frame)
+        } else {}
+        
+        if (== viz_mode 2) {
+            let center_x: int = (+ viz_x (/ viz_w 2))
+            let center_y: int = (+ viz_y 120)
+            (draw_viz_spiral renderer center_x center_y waveform_size viz_frame)
+        } else {}
+        
+        set viz_frame (+ viz_frame 1)
+
+        # Pattern view (compact, read-only)
         let bottom_y: int = (+ main_y main_h)
         let pat_x: int = (+ main_x 10)
-        let pat_y: int = (+ main_y 226)
+        let pat_y: int = (+ (+ viz_y viz_h) 10)
         let pat_w: int = (- main_w 20)
         let pat_h: int = (- (- bottom_y 30) pat_y)
 
         (pt_fill renderer pat_x pat_y pat_w pat_h PT_INNER_R PT_INNER_G PT_INNER_B)
-        unsafe {         (nl_ui_label renderer font "Pattern (read-only)" (+ pat_x 8) (+ pat_y 6) 220 220 255 255) }
+        (nl_ui_label renderer font "Pattern (read-only)" (+ pat_x 8) (+ pat_y 6) 220 220 255 255)
 
         if mod_loaded {
-            let line_h: int = 16
+            let line_h: int = 14
             let mut rows_visible: int = (/ (- pat_h 26) line_h)
-            set rows_visible (clamp_int rows_visible 8 24)
+            set rows_visible (clamp_int rows_visible 6 16)
 
             let mut max_start: int = (- 64 rows_visible)
             if (< max_start 0) { set max_start 0 } else {}
             let mut start_row: int = (- pos_row (/ rows_visible 2))
             set start_row (clamp_int start_row 0 max_start)
 
-            unsafe {             (nl_ui_label renderer font "Row  CH1            CH2            CH3            CH4" (+ pat_x 8) (+ pat_y 22) 180 180 220 255) }
+            (nl_ui_label renderer font "Row  CH1            CH2            CH3            CH4" (+ pat_x 8) (+ pat_y 22) 180 180 220 255)
 
             let mut i: int = 0
             while (< i rows_visible) {
                 let row: int = (+ start_row i)
-                let y: int = (+ pat_y (+ 38 (* i line_h)))
+                let y: int = (+ pat_y (+ 36 (* i line_h)))
 
                 if (== row pos_row) {
-                    (pt_fill renderer (+ pat_x 2) (- y 2) (- pat_w 4) (+ line_h 2) 58 90 200)
+                    (pt_fill renderer (+ pat_x 2) (- y 2) (- pat_w 4) (+ line_h 1) 58 90 200)
                 } else {}
 
                 let row_txt: string = (byte_to_hex row)
-                unsafe {                 (nl_ui_label renderer font (str_concat row_txt ":") (+ pat_x 8) y 230 230 255 255) }
+                (nl_ui_label renderer font (str_concat row_txt ":") (+ pat_x 8) y 230 230 255 255)
 
                 let mut ch: int = 0
                 while (< ch 4) {
@@ -760,38 +794,38 @@ fn main() -> int {
                     let cell: string = (str_concat t3 eff_s)
 
                     let col_x: int = (+ (+ pat_x 52) (* ch 140))
-                    unsafe {                     (nl_ui_label renderer font cell col_x y 230 230 255 255) }
+                    (nl_ui_label renderer font cell col_x y 230 230 255 255)
                     set ch (+ ch 1)
                 }
 
                 set i (+ i 1)
             }
         } else {
-            unsafe {             (nl_ui_label renderer font "Load a MOD to view pattern data" (+ pat_x 8) (+ pat_y 28) 180 180 220 255) }
+            (nl_ui_label renderer font "Load a MOD to view pattern data" (+ pat_x 8) (+ pat_y 28) 180 180 220 255)
         }
 
         let key_y: int = (- bottom_y 18)
-        unsafe {         (nl_ui_label renderer font "Keys: Up/Down select | Enter open/load | Wheel scroll | Space pause | S stop | Esc quit" (+ main_x 10) key_y 160 160 200 255) }
+        (nl_ui_label renderer font "Keys: Up/Down select | Enter open/load | Tab cycle viz | Space pause | S stop | Esc quit" (+ main_x 10) key_y 160 160 200 255)
 
-        unsafe {         (SDL_RenderPresent renderer) }
+        (SDL_RenderPresent renderer)
     }
 
     if has_music {
-        unsafe {         (Mix_HaltMusic) }
-        unsafe {         (Mix_FreeMusic music) }
+        (Mix_HaltMusic)
+        (Mix_FreeMusic music)
     } else {}
 
-    unsafe {     (pt2_module_free) }
-    unsafe {     (nl_audio_viz_shutdown) }
+    (pt2_module_free)
+    (nl_audio_viz_shutdown)
 
-    unsafe {     (TTF_CloseFont font) }
-    unsafe {     (TTF_CloseFont title_font) }
-    unsafe {     (SDL_DestroyRenderer renderer) }
-    unsafe {     (SDL_DestroyWindow window) }
-    unsafe {     (Mix_CloseAudio) }
-    unsafe {     (Mix_Quit) }
-    unsafe {     (TTF_Quit) }
-    unsafe {     (SDL_Quit) }
+    (TTF_CloseFont font)
+    (TTF_CloseFont title_font)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (Mix_CloseAudio)
+    (Mix_Quit)
+    (TTF_Quit)
+    (SDL_Quit)
     return 0
     }  # end unsafe
 }
