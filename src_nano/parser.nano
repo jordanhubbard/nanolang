@@ -6271,3 +6271,51 @@ pub fn parser_get_import(p: Parser, idx: int) -> ASTImport {
     return (list_ASTImport_get p.imports idx)
 }
 
+/* =============================================================================
+ * PHASE WRAPPER for Driver Integration
+ * ============================================================================= */
+
+from "src_nano/compiler/diagnostics.nano" import diag_list_new
+
+/* Parse phase wrapper for driver
+ * Takes lex output, returns parser state + diagnostics
+ */
+pub fn parse_phase_run(lex_output: LexPhaseOutput) -> ParsePhaseOutput {
+    /* Run parser on tokens */
+    let parser_state: Parser = (parse_program lex_output.tokens lex_output.token_count)
+    
+    /* Create empty diagnostics list (TODO: add actual parser errors) */
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    
+    /* Check if parser encountered errors */
+    let had_error: bool = (parser_has_error parser_state)
+    
+    return ParsePhaseOutput {
+        parser: parser_state,
+        had_error: had_error,
+        diagnostics: diagnostics
+    }
+}
+
+shadow parse_phase_run {
+    /* Create test lex output */
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let eof: LexerToken = LexerToken {
+        token_type: LexerTokenType.TOKEN_EOF,
+        value: "",
+        line: 1,
+        column: 1
+    }
+    (list_LexerToken_push tokens eof)
+    
+    let lex_out: LexPhaseOutput = LexPhaseOutput {
+        tokens: tokens,
+        token_count: 1,
+        had_error: false,
+        diagnostics: (diag_list_new)
+    }
+    
+    let parse_out: ParsePhaseOutput = (parse_phase_run lex_out)
+    assert (not parse_out.had_error)
+}
+

@@ -1,0 +1,19 @@
+/* Simple test file for testing driver */
+
+fn hello() -> int {
+    (println "Hello from test!")
+    return 42
+}
+
+shadow hello {
+    assert (== (hello) 42)
+}
+
+fn main() -> int {
+    return (hello)
+}
+
+shadow main {
+    assert (== (main) 42)
+}
+

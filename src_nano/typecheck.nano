@@ -1550,4 +1550,3 @@ fn typecheck() -> int {
 shadow typecheck {
     assert (== (typecheck) 0)
 }
-

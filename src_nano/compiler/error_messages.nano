@@ -362,20 +362,6 @@ shadow get_error_template {
 }
 
 /* =============================================================================
- * MAIN (for standalone compilation)
- * ============================================================================= */
-
-fn main() -> int {
-    (println "Error messages module loaded successfully")
-    (println "This module provides Elm-style helpful error messages")
-    return 0
-}
-
-shadow main {
-    assert (== (main) 0)
-}
-
-/* =============================================================================
  * USAGE EXAMPLES
  * =============================================================================
  * 

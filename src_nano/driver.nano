@@ -20,17 +20,17 @@
 
 /* Import compiler phases - these already have clean interfaces */
 import "src_nano/compiler/ir.nano"
+import "src_nano/compiler/error_messages.nano" as ErrorMsg
 
-/* TODO: Import phase functions once wrapper interfaces are complete
- * Currently the modular components don't have *_phase_run wrappers yet.
- * These need to be created based on nanoc_integrated.nano
- * 
- * For now, we'll use placeholder implementations to test the driver structure.
- */
-# from "src_nano/lexer_main.nano" import lex_phase_run
-# from "src_nano/parser.nano" import parse_phase_run
-# from "src_nano/typecheck.nano" import typecheck_phase
+/* Import phase wrapper functions */
+from "src_nano/lexer_main.nano" import lex_phase_run
+from "src_nano/parser.nano" import parse_phase_run
+from "src_nano/typecheck.nano" import typecheck_phase
+# TODO: Enable transpiler once transpile_phase wrapper exists
 # from "src_nano/transpiler.nano" import transpile_phase
+
+/* Import process execution for C compiler */
+from "modules/std/process.nano" import exec
 
 /* Temporary extern declarations until imports work */
 extern fn get_argc() -> int
@@ -178,33 +178,38 @@ union CompilationPhaseResult {
     LexResult { output: LexPhaseOutput },
     ParseResult { output: ParsePhaseOutput },
     TypeCheckResult { output: TypecheckPhaseOutput },
+    CCompileResult { binary_path: string },
     Error { message: string, phase: int }
 }
 
-/* Run the lexer phase 
- * TODO (Step 3): Wire up actual lexer once lex_phase_run wrapper exists
- * Required:
- *   - Import: from "lexer_main.nano" import lex_phase_run  
- *   - Call: let lex_output: LexPhaseOutput = (lex_phase_run source input_file)
- *   - Check: if lex_output.had_error { return Error }
- */
+/* Run the lexer phase */
 fn run_lexer(input_file: string, verbose: bool) -> CompilationPhaseResult {
     if verbose {
         (println "Phase 1: Lexing...")
-        (println "  TODO: Wire up actual lexer")
     }
     
-    /* TODO: Read source file */
-    /* let source: string = (file_read input_file) */
+    /* Read source file */
+    let source: string = (file_read input_file)
     
-    /* TODO: Run lexer */
-    /* let lex_output: LexPhaseOutput = (lex_phase_run source input_file) */
+    /* Run lexer */
+    let lex_output: LexPhaseOutput = (lex_phase_run source input_file)
     
-    /* Placeholder: Return error for now */
-    return CompilationPhaseResult.Error {
-        message: "Lexer not yet wired up (Step 3 TODO)",
-        phase: 1  # PHASE_LEX
+    if lex_output.had_error {
+        /* Format error message from diagnostics */
+        let error_msg: string = "Lexer errors detected"
+        # TODO: Use error_messages.nano to format diagnostics nicely
+        return CompilationPhaseResult.Error {
+            message: error_msg,
+            phase: 1  # PHASE_LEX
+        }
     }
+    
+    if verbose {
+        (print "  Tokens: ")
+        (println (int_to_string lex_output.token_count))
+    }
+    
+    return CompilationPhaseResult.LexResult { output: lex_output }
 }
 
 shadow run_lexer {
@@ -213,27 +218,31 @@ shadow run_lexer {
     (println "run_lexer: shadow test OK")
 }
 
-/* Run the parser phase  
- * TODO (Step 4): Wire up actual parser once parse_phase_run wrapper exists
- * Required:
- *   - Import: from "parser.nano" import parse_phase_run
- *   - Call: let parse_output: ParsePhaseOutput = (parse_phase_run lex_output)
- *   - Check: if parse_output.had_error { return Error }
- */
+/* Run the parser phase */
 fn run_parser(lex_output: LexPhaseOutput, verbose: bool) -> CompilationPhaseResult {
     if verbose {
         (println "Phase 2: Parsing...")
-        (println "  TODO: Wire up actual parser")
     }
     
-    /* TODO: Run parser */
-    /* let parse_output: ParsePhaseOutput = (parse_phase_run lex_output) */
+    /* Run parser */
+    let parse_output: ParsePhaseOutput = (parse_phase_run lex_output)
     
-    /* Placeholder: Return error for now */
-    return CompilationPhaseResult.Error {
-        message: "Parser not yet wired up (Step 4 TODO)",
-        phase: 2  # PHASE_PARSE
+    if parse_output.had_error {
+        /* Format error message from diagnostics */
+        let error_msg: string = "Parser errors detected"
+        # TODO: Use error_messages.nano to format diagnostics nicely
+        return CompilationPhaseResult.Error {
+            message: error_msg,
+            phase: 2  # PHASE_PARSE
+        }
     }
+    
+    if verbose {
+        (print "  Functions: ")
+        (println (int_to_string parse_output.parser.functions_count))
+    }
+    
+    return CompilationPhaseResult.ParseResult { output: parse_output }
 }
 
 shadow run_parser {
@@ -242,27 +251,30 @@ shadow run_parser {
     (println "run_parser: shadow test OK")
 }
 
-/* Run the type checker phase 
- * TODO (Step 5): Wire up actual typechecker once typecheck_phase wrapper exists
- * Required:
- *   - Import: from "typecheck.nano" import typecheck_phase
- *   - Call: let type_output: TypecheckPhaseOutput = (typecheck_phase parser_state)
- *   - Check: if type_output.had_error { return Error }
- */
+/* Run the type checker phase */
 fn run_typechecker(parser_state: Parser, verbose: bool) -> CompilationPhaseResult {
     if verbose {
         (println "Phase 3: Type checking...")
-        (println "  TODO: Wire up actual typechecker")
     }
     
-    /* TODO: Run typechecker */
-    /* let type_output: TypecheckPhaseOutput = (typecheck_phase parser_state) */
+    /* Run typechecker */
+    let type_output: TypecheckPhaseOutput = (typecheck_phase parser_state)
     
-    /* Placeholder: Return error for now */
-    return CompilationPhaseResult.Error {
-        message: "TypeChecker not yet wired up (Step 5 TODO)",
-        phase: 3  # PHASE_TYPECHECK
+    if type_output.had_error {
+        /* Format error message from diagnostics */
+        let error_msg: string = "Type checker errors detected"
+        # TODO: Use error_messages.nano to format diagnostics nicely
+        return CompilationPhaseResult.Error {
+            message: error_msg,
+            phase: 3  # PHASE_TYPECHECK
+        }
     }
+    
+    if verbose {
+        (println "  Type check complete")
+    }
+    
+    return CompilationPhaseResult.TypeCheckResult { output: type_output }
 }
 
 shadow run_typechecker {
@@ -296,28 +308,40 @@ fn run_cc(c_file: string, output_file: string, verbose: bool) -> CompilationPhas
         (println "Phase 5: Compiling C code...")
     }
     
-    /* Build the cc command:
-     * 
-     * cc -o {output_file} {c_file} \
-     *    -Isrc \
-     *    src/runtime/list_int.c \
-     *    src/runtime/list_string.c \
-     *    src/runtime/list_token.c \
-     *    src/runtime/token_helpers.c \
-     *    src/runtime/gc.c \
-     *    src/runtime/dyn_array.c \
-     *    src/runtime/gc_struct.c \
-     *    src/runtime/nl_string.c \
-     *    src/runtime/cli.c \
-     *    src/runtime/schema_lists.c
-     * 
-     * TODO: Use std::process module to execute this (Step 7)
-     * For now, return placeholder error
-     */
+    /* Build the cc command */
+    let runtime_files: string = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_token.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/runtime/cli.c src/runtime/schema_lists.c"
     
-    return CompilationPhaseResult.Error {
-        message: "C compiler not yet wired up (Step 7 TODO)",
-        phase: 5  # PHASE_CC
+    let mut cc_cmd: string = "cc -o "
+    set cc_cmd (str_concat cc_cmd output_file)
+    set cc_cmd (str_concat cc_cmd " ")
+    set cc_cmd (str_concat cc_cmd c_file)
+    set cc_cmd (str_concat cc_cmd " -Isrc ")
+    set cc_cmd (str_concat cc_cmd runtime_files)
+    
+    if verbose {
+        (println "  Command:")
+        (println cc_cmd)
+    }
+    
+    /* Execute C compiler */
+    let exit_code: int = (exec cc_cmd)
+    
+    if (!= exit_code 0) {
+        let mut error_msg: string = "C compilation failed with exit code: "
+        set error_msg (str_concat error_msg (int_to_string exit_code))
+        return CompilationPhaseResult.Error {
+            message: error_msg,
+            phase: 5  # PHASE_CC
+        }
+    }
+    
+    if verbose {
+        (println "  Binary created:")
+        (println output_file)
+    }
+    
+    return CompilationPhaseResult.CCompileResult {
+        binary_path: output_file
     }
 }
 
@@ -327,8 +351,9 @@ shadow run_cc {
 }
 
 /* Run the complete compilation pipeline 
- * Steps 1-5 implemented: Lex -> Parse -> TypeCheck
- * Steps 6-7 TODO: Transpile -> CC
+ * Phases 1-3 implemented: Lex -> Parse -> TypeCheck ✅
+ * Phase 4 blocked: Transpile (needs transpile_phase wrapper)
+ * Phase 5 ready: CC (uses std::process::exec) ✅
  */
 fn compile(args: CompilerArgs) -> int {
     if args.verbose {
