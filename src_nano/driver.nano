@@ -30,7 +30,9 @@ from "src_nano/typecheck.nano" import typecheck_phase
 # from "src_nano/transpiler.nano" import transpile_phase
 
 /* Import process execution for C compiler */
-from "modules/std/process.nano" import exec
+# TODO: Re-enable once process.nano extern conflicts are resolved
+# from "modules/std/process.nano" import exec
+extern fn system(command: string) -> int
 
 /* Temporary extern declarations until imports work */
 extern fn get_argc() -> int
@@ -76,10 +78,12 @@ shadow args_new {
     assert (not args.verbose)
 }
 
-/* Parse command-line arguments - simplified version */
+/* Parse command-line arguments - simplified version 
+ * TODO: Fix unsafe block syntax to enable actual arg parsing
+ * For now using placeholders to test driver structure
+ */
 fn parse_args() -> ResultArgs {
-    # TODO: These extern calls need unsafe blocks once parser supports it
-    let argc: int = 2  # Placeholder: (get_argc)
+    let argc: int = 2  # TODO: unsafe { (get_argc) }
     
     # Check if we have any arguments
     if (< argc 2) {
@@ -88,7 +92,7 @@ fn parse_args() -> ResultArgs {
     
     # For now, just parse the first few arguments
     # TODO: Full argument parsing with loops
-    let arg1: string = "--help"  # Placeholder: (get_argv 1)
+    let arg1: string = "--help"  # TODO: unsafe { (get_argv 1) }
     
     # Check for --help
     if (== arg1 "--help") {
@@ -324,7 +328,10 @@ fn run_cc(c_file: string, output_file: string, verbose: bool) -> CompilationPhas
     }
     
     /* Execute C compiler */
-    let exit_code: int = (exec cc_cmd)
+    let mut exit_code: int = 0
+    unsafe {
+        set exit_code (system cc_cmd)
+    }
     
     if (!= exit_code 0) {
         let mut error_msg: string = "C compilation failed with exit code: "
