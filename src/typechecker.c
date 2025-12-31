@@ -1,5 +1,6 @@
 #include "nanolang.h"
 #include "tracing.h"
+#include "resource_tracking.h"
 
 /* Type checking context */
 typedef struct {
@@ -593,6 +594,15 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
             sym->is_used = true;  /* Mark variable as used */
+            
+            /* Track resource usage - this is a READ/USE (not consumption) */
+            /* Note: We'll track consumption separately when passing to functions */
+            /* For now, just mark as used to detect use-after-consume */
+            if (sym->is_resource) {
+                bool dummy_error = false;  /* We'll get the real error flag from context later */
+                check_resource_use(env, expr->as.identifier, expr->line, expr->column, &dummy_error);
+            }
+            
             return sym->type;
         }
 
@@ -1273,6 +1283,17 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     } else {
                         /* Regular argument type checking */
                         Type arg_type = check_expression(arg, env);
+                        
+                        /* Track resource consumption when passing to functions */
+                        /* If argument is a resource variable passed by value, mark as consumed */
+                        if (arg->type == AST_IDENTIFIER) {
+                            Symbol *arg_sym = env_get_var_visible_at(env, arg->as.identifier, arg->line, arg->column);
+                            if (arg_sym && arg_sym->is_resource) {
+                                /* Resource is being passed to function - mark as consumed */
+                                bool dummy_error = false;
+                                check_resource_consume(env, arg->as.identifier, arg->line, arg->column, &dummy_error);
+                            }
+                        }
                         
                         /* Check for opaque type parameters - allow 0 (null) as argument */
                         bool is_opaque_param = false;
@@ -2320,6 +2341,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     /* Use the declared type name */
                     if (sym->struct_type_name) free(sym->struct_type_name);  /* Free old value if any */
                     sym->struct_type_name = strdup(stmt->as.let.type_name);
+                    
+                    /* Mark as resource if the struct type is a resource */
+                    mark_variable_as_resource_if_needed(tc->env, stmt->as.let.name, stmt->as.let.type_name);
                 }
             }
             
