@@ -164,6 +164,10 @@ unsafe {
 # Arithmetic
 (+ a b)  (- a b)  (* a b)  (/ a b)  (% a b)
 
+# String concatenation (+ works for strings too!)
+(+ "hello" " world")  # Returns "hello world"
+(+ (+ "nano" "lang") "!")  # Returns "nanolang!"
+
 # Comparison
 (== a b)  (!= a b)  (< a b)  (<= a b)  (> a b)  (>= a b)
 

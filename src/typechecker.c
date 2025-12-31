@@ -738,15 +738,20 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return TYPE_UNKNOWN;
                 }
 
+                /* String concatenation with + operator */
+                if (op == TOKEN_PLUS && left == TYPE_STRING && right == TYPE_STRING) {
+                    return TYPE_STRING;
+                }
+
                 /* Enums are compatible with ints in arithmetic */
                 if ((left == TYPE_INT || left == TYPE_ENUM || left == TYPE_U8) &&
                     (right == TYPE_INT || right == TYPE_ENUM || right == TYPE_U8)) return TYPE_INT;
                 if (left == TYPE_FLOAT && right == TYPE_FLOAT) return TYPE_FLOAT;
 
                 fprintf(stderr, "Error at line %d, column %d: Type mismatch in arithmetic operation\n", expr->line, expr->column);
-                fprintf(stderr, "  Expected: numeric types (int, u8, or float)\n");
+                fprintf(stderr, "  Expected: numeric types (int, u8, or float) or strings (for + only)\n");
                 fprintf(stderr, "  Got: %s and %s\n", type_to_string(left), type_to_string(right));
-                fprintf(stderr, "  Hint: Both operands must be the same numeric type\n");
+                fprintf(stderr, "  Hint: Both operands must be the same numeric type, or both strings for concatenation\n");
                 return TYPE_UNKNOWN;
             }
 

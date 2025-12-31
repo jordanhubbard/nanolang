@@ -663,13 +663,18 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                 }
 
+                /* Check for string operations */
+                Type op_t1 = check_expression(expr->as.prefix_op.args[0], env);
+                Type op_t2 = check_expression(expr->as.prefix_op.args[1], env);
+                
                 bool is_string_comp = false;
-                if (op == TOKEN_EQ || op == TOKEN_NE) {
-                    Type t1 = check_expression(expr->as.prefix_op.args[0], env);
-                    Type t2 = check_expression(expr->as.prefix_op.args[1], env);
-                    if (t1 == TYPE_STRING && t2 == TYPE_STRING) {
-                        is_string_comp = true;
-                    }
+                if ((op == TOKEN_EQ || op == TOKEN_NE) && op_t1 == TYPE_STRING && op_t2 == TYPE_STRING) {
+                    is_string_comp = true;
+                }
+                
+                bool is_string_concat = false;
+                if (op == TOKEN_PLUS && op_t1 == TYPE_STRING && op_t2 == TYPE_STRING) {
+                    is_string_concat = true;
                 }
                 
                 if (is_string_comp) {
@@ -683,6 +688,13 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     } else {
                         emit_literal(list, ") != 0)");
                     }
+                } else if (is_string_concat) {
+                    /* String concatenation: nl_str_concat(a, b) */
+                    emit_literal(list, "nl_str_concat(");
+                    build_expr(list, expr->as.prefix_op.args[0], env);
+                    emit_literal(list, ", ");
+                    build_expr(list, expr->as.prefix_op.args[1], env);
+                    emit_literal(list, ")");
                 } else {
                     /* Regular binary operator */
                     bool needs_parens = (op == TOKEN_PLUS || op == TOKEN_MINUS || 
