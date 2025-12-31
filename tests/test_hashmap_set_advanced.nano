@@ -21,7 +21,7 @@ shadow main {
     /* Resize + delete/tombstone stress */
     let mut i: int = 0
     while (< i 200) {
-        let k: string = (str_concat "k" (to_string i))
+        let k: string = (+ "k" (to_string i))
         let v: string = (to_string (* i 2))
         set hm (map_put hm k v)
         set i (+ i 1)
@@ -32,7 +32,7 @@ shadow main {
 
     let mut j: int = 0
     while (< j 100) {
-        let k: string = (str_concat "k" (to_string j))
+        let k: string = (+ "k" (to_string j))
         set hm (map_remove hm k)
         set j (+ j 1)
     }
