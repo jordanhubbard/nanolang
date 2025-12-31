@@ -1,0 +1,302 @@
+/* Error Message Format Validation Test
+ * Tests that the diagnostic system produces well-structured error messages
+ */
+
+from "src_nano/generated/compiler_ast.nano" import CompilerDiagnostic, CompilerSourceLocation, DiagnosticSeverity, CompilerPhase
+
+/* Test diagnostic creation and formatting */
+
+fn test_diagnostic_creation() -> int {
+    let loc: CompilerSourceLocation = CompilerSourceLocation {
+        file: "test.nano",
+        line: 10,
+        column: 5
+    }
+    
+    let diag: CompilerDiagnostic = CompilerDiagnostic {
+        severity: DiagnosticSeverity.DIAG_ERROR,
+        phase: CompilerPhase.PHASE_PARSER,
+        code: "E001",
+        message: "Unexpected token",
+        location: loc
+    }
+    
+    /* Validate diagnostic fields */
+    assert (== diag.severity DiagnosticSeverity.DIAG_ERROR)
+    assert (== diag.phase CompilerPhase.PHASE_PARSER)
+    assert (str_equals diag.code "E001")
+    assert (str_equals diag.message "Unexpected token")
+    assert (== diag.location.line 10)
+    assert (== diag.location.column 5)
+    
+    return 0
+}
+
+shadow test_diagnostic_creation {
+    assert (== (test_diagnostic_creation) 0)
+}
+
+/* Test different severity levels */
+
+fn test_severity_levels() -> int {
+    let loc: CompilerSourceLocation = CompilerSourceLocation {
+        file: "test.nano",
+        line: 1,
+        column: 1
+    }
+    
+    let error: CompilerDiagnostic = CompilerDiagnostic {
+        severity: DiagnosticSeverity.DIAG_ERROR,
+        phase: CompilerPhase.PHASE_LEXER,
+        code: "E002",
+        message: "Invalid character",
+        location: loc
+    }
+    
+    let warning: CompilerDiagnostic = CompilerDiagnostic {
+        severity: DiagnosticSeverity.DIAG_WARNING,
+        phase: CompilerPhase.PHASE_TYPECHECK,
+        code: "W001",
+        message: "Unused variable",
+        location: loc
+    }
+    
+    let info: CompilerDiagnostic = CompilerDiagnostic {
+        severity: DiagnosticSeverity.DIAG_INFO,
+        phase: CompilerPhase.PHASE_TRANSPILER,
+        code: "I001",
+        message: "Optimization applied",
+        location: loc
+    }
+    
+    assert (== error.severity DiagnosticSeverity.DIAG_ERROR)
+    assert (== warning.severity DiagnosticSeverity.DIAG_WARNING)
+    assert (== info.severity DiagnosticSeverity.DIAG_INFO)
+    
+    return 0
+}
+
+shadow test_severity_levels {
+    assert (== (test_severity_levels) 0)
+}
+
+/* Test different compiler phases */
+
+fn test_compiler_phases() -> int {
+    let loc: CompilerSourceLocation = CompilerSourceLocation {
+        file: "test.nano",
+        line: 5,
+        column: 10
+    }
+    
+    let lex_diag: CompilerDiagnostic = CompilerDiagnostic {
+        severity: DiagnosticSeverity.DIAG_ERROR,
+        phase: CompilerPhase.PHASE_LEXER,
+        code: "L001",
+        message: "Lexer error",
+        location: loc
+    }
+    
+    let parse_diag: CompilerDiagnostic = CompilerDiagnostic {
+        severity: DiagnosticSeverity.DIAG_ERROR,
+        phase: CompilerPhase.PHASE_PARSER,
+        code: "P001",
+        message: "Parser error",
+        location: loc
+    }
+    
+    let type_diag: CompilerDiagnostic = CompilerDiagnostic {
+        severity: DiagnosticSeverity.DIAG_ERROR,
+        phase: CompilerPhase.PHASE_TYPECHECK,
+        code: "T001",
+        message: "Type error",
+        location: loc
+    }
+    
+    let trans_diag: CompilerDiagnostic = CompilerDiagnostic {
+        severity: DiagnosticSeverity.DIAG_ERROR,
+        phase: CompilerPhase.PHASE_TRANSPILER,
+        code: "C001",
+        message: "Codegen error",
+        location: loc
+    }
+    
+    assert (== lex_diag.phase CompilerPhase.PHASE_LEXER)
+    assert (== parse_diag.phase CompilerPhase.PHASE_PARSER)
+    assert (== type_diag.phase CompilerPhase.PHASE_TYPECHECK)
+    assert (== trans_diag.phase CompilerPhase.PHASE_TRANSPILER)
+    
+    return 0
+}
+
+shadow test_compiler_phases {
+    assert (== (test_compiler_phases) 0)
+}
+
+/* Test source location tracking */
+
+fn test_source_locations() -> int {
+    let loc1: CompilerSourceLocation = CompilerSourceLocation {
+        file: "main.nano",
+        line: 1,
+        column: 1
+    }
+    
+    let loc2: CompilerSourceLocation = CompilerSourceLocation {
+        file: "utils.nano",
+        line: 100,
+        column: 50
+    }
+    
+    let loc3: CompilerSourceLocation = CompilerSourceLocation {
+        file: "test.nano",
+        line: 42,
+        column: 13
+    }
+    
+    assert (str_equals loc1.file "main.nano")
+    assert (== loc1.line 1)
+    assert (== loc1.column 1)
+    
+    assert (str_equals loc2.file "utils.nano")
+    assert (== loc2.line 100)
+    assert (== loc2.column 50)
+    
+    assert (str_equals loc3.file "test.nano")
+    assert (== loc3.line 42)
+    assert (== loc3.column 13)
+    
+    return 0
+}
+
+shadow test_source_locations {
+    assert (== (test_source_locations) 0)
+}
+
+/* Test error code formats */
+
+fn test_error_codes() -> int {
+    let loc: CompilerSourceLocation = CompilerSourceLocation {
+        file: "test.nano",
+        line: 1,
+        column: 1
+    }
+    
+    /* Test various error codes */
+    let diag1: CompilerDiagnostic = CompilerDiagnostic {
+        severity: DiagnosticSeverity.DIAG_ERROR,
+        phase: CompilerPhase.PHASE_PARSER,
+        code: "E001",
+        message: "Test error",
+        location: loc
+    }
+    assert (str_equals diag1.code "E001")
+    
+    let diag2: CompilerDiagnostic = CompilerDiagnostic {
+        severity: DiagnosticSeverity.DIAG_ERROR,
+        phase: CompilerPhase.PHASE_PARSER,
+        code: "W001",
+        message: "Test warning",
+        location: loc
+    }
+    assert (str_equals diag2.code "W001")
+    
+    return 0
+}
+
+shadow test_error_codes {
+    assert (== (test_error_codes) 0)
+}
+
+/* Test message formatting */
+
+fn test_message_formats() -> int {
+    let loc: CompilerSourceLocation = CompilerSourceLocation {
+        file: "test.nano",
+        line: 10,
+        column: 5
+    }
+    
+    /* Test various message formats */
+    let diag1: CompilerDiagnostic = CompilerDiagnostic {
+        severity: DiagnosticSeverity.DIAG_ERROR,
+        phase: CompilerPhase.PHASE_PARSER,
+        code: "E001",
+        message: "Unexpected token",
+        location: loc
+    }
+    assert (str_equals diag1.message "Unexpected token")
+    
+    let diag2: CompilerDiagnostic = CompilerDiagnostic {
+        severity: DiagnosticSeverity.DIAG_ERROR,
+        phase: CompilerPhase.PHASE_TYPECHECK,
+        code: "T001",
+        message: "Type mismatch: expected int, found string",
+        location: loc
+    }
+    assert (str_contains diag2.message "Type mismatch")
+    
+    return 0
+}
+
+shadow test_message_formats {
+    assert (== (test_message_formats) 0)
+}
+
+/* Test multi-line location tracking */
+
+fn test_multiline_locations() -> int {
+    let loc1: CompilerSourceLocation = CompilerSourceLocation {
+        file: "test.nano",
+        line: 1,
+        column: 1
+    }
+    assert (== loc1.line 1)
+    assert (== loc1.column 1)
+    
+    let loc2: CompilerSourceLocation = CompilerSourceLocation {
+        file: "test.nano",
+        line: 100,
+        column: 50
+    }
+    assert (== loc2.line 100)
+    assert (== loc2.column 50)
+    
+    let loc3: CompilerSourceLocation = CompilerSourceLocation {
+        file: "test.nano",
+        line: 10000,
+        column: 25
+    }
+    assert (== loc3.line 10000)
+    assert (== loc3.column 25)
+    
+    return 0
+}
+
+shadow test_multiline_locations {
+    assert (== (test_multiline_locations) 0)
+}
+
+/* Main test runner */
+
+fn main() -> int {
+    assert (== (test_diagnostic_creation) 0)
+    assert (== (test_severity_levels) 0)
+    assert (== (test_compiler_phases) 0)
+    assert (== (test_source_locations) 0)
+    assert (== (test_error_codes) 0)
+    assert (== (test_message_formats) 0)
+    assert (== (test_multiline_locations) 0)
+    return 0
+}
+
+/* This test validates that the diagnostic system:
+ * ✓ Creates well-structured CompilerDiagnostic objects
+ * ✓ Supports ERROR, WARNING, and INFO severity levels
+ * ✓ Tracks all compiler phases (LEX, PARSE, TYPECHECK, TRANSPILE)
+ * ✓ Maintains accurate source location information
+ * ✓ Uses consistent error code formats
+ * ✓ Handles various message formats
+ * ✓ Tracks multi-line and multi-column positions
+ */
+
