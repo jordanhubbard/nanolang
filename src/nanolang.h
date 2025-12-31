@@ -304,6 +304,7 @@ struct ASTNode {
             Type *field_element_types;  // For TYPE_ARRAY fields: element type
             int field_count;          // Number of fields
             bool is_pub;              // Visibility: public (pub) vs private
+            bool is_resource;         // Resource type: affine semantics (use at most once)
         } struct_def;
         struct {
             char *struct_name;        // Name of struct type
@@ -439,6 +440,7 @@ typedef struct {
     Type *field_element_types;  /* For TYPE_ARRAY fields: element type (e.g., TYPE_STRING for array<string>) */
     int field_count;
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
+    bool is_resource;  /* Resource type: affine semantics (use at most once) */
     char *module_name;  /* Module this struct belongs to (NULL for global) */
 } StructDef;
 

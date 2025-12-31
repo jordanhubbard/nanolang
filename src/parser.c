@@ -2263,6 +2263,7 @@ static ASTNode *parse_struct_def(Parser *p) {
     node->as.struct_def.field_type_names = field_type_names;
     node->as.struct_def.field_element_types = field_element_types;
     node->as.struct_def.field_count = count;
+    node->as.struct_def.is_resource = false;  /* Default to non-resource, will be set by caller if needed */
     
     return node;
 }
@@ -3113,6 +3114,21 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                             err_tok->line, err_tok->column);
                 }
                 continue;
+            }
+        } else if (match(&parser, TOKEN_RESOURCE)) {
+            /* resource struct declarations */
+            advance(&parser);  /* Skip 'resource' token */
+            if (!match(&parser, TOKEN_STRUCT)) {
+                Token *err_tok = current_token(&parser);
+                if (err_tok) {
+                    fprintf(stderr, "Error at line %d, column %d: 'resource' keyword must be followed by 'struct'\n",
+                            err_tok->line, err_tok->column);
+                }
+                continue;
+            }
+            parsed = parse_struct_def(&parser);
+            if (parsed && parsed->type == AST_STRUCT_DEF) {
+                parsed->as.struct_def.is_resource = true;
             }
         } else if (match(&parser, TOKEN_STRUCT)) {
             parsed = parse_struct_def(&parser);

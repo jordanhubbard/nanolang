@@ -3634,6 +3634,8 @@ bool type_check(ASTNode *program, Environment *env) {
                 }
             }
             
+            sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
+            
             env_define_struct(env, sdef);
             
         } else if (item->type == AST_UNION_DEF) {
@@ -4250,6 +4252,8 @@ bool type_check_module(ASTNode *program, Environment *env) {
                     env_register_list_instantiation(env, sdef.field_type_names[j]);
                 }
             }
+            
+            sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
             
             env_define_struct(env, sdef);
             
