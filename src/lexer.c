@@ -48,6 +48,7 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "opaque") == 0) return TOKEN_OPAQUE;
     if (strcmp(str, "import") == 0) return TOKEN_IMPORT;
     if (strcmp(str, "unsafe") == 0) return TOKEN_UNSAFE;
+    if (strcmp(str, "resource") == 0) return TOKEN_RESOURCE;
 
     if (strcmp(str, "as") == 0) return TOKEN_AS;
     /* Boolean literals */
@@ -394,6 +395,8 @@ const char *token_type_name(TokenType type) {
         case TOKEN_OR: return "OR";
         case TOKEN_NOT: return "NOT";
         /* TOKEN_RANGE removed */
+        case TOKEN_UNSAFE: return "UNSAFE";
+        case TOKEN_RESOURCE: return "RESOURCE";
         default: return "UNKNOWN";
     }
 }

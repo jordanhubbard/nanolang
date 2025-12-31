@@ -75,7 +75,8 @@
     "TOKEN_OR",
     "TOKEN_NOT",
     "TOKEN_RANGE",
-    "TOKEN_UNSAFE"
+    "TOKEN_UNSAFE",
+    "TOKEN_RESOURCE"
   ],
   "parse_nodes": [
     "PNODE_NUMBER",

@@ -71,7 +71,8 @@ typedef enum {
     TOKEN_OR = 64,
     TOKEN_NOT = 65,
     TOKEN_RANGE = 66,
-    TOKEN_UNSAFE = 67
+    TOKEN_UNSAFE = 67,
+    TOKEN_RESOURCE = 68
 } TokenType;
 
 typedef struct {
