@@ -8,7 +8,9 @@ module std_fs
 from "modules/std/fs_ffi.nano" import fs_walkdir, path_normalize, path_join, path_basename, path_dirname
 
 pub fn walkdir(root: string) -> array<string> {
-    return unsafe { (fs_walkdir root) }
+    unsafe {
+        return (fs_walkdir root)
+    }
 }
 
 shadow walkdir {
@@ -17,7 +19,9 @@ shadow walkdir {
 }
 
 pub fn normalize(path: string) -> string {
-    return unsafe { (path_normalize path) }
+    unsafe {
+        return (path_normalize path)
+    }
 }
 
 shadow normalize {
@@ -27,7 +31,9 @@ shadow normalize {
 }
 
 pub fn join(a: string, b: string) -> string {
-    return unsafe { (path_join a b) }
+    unsafe {
+        return (path_join a b)
+    }
 }
 
 shadow join {
@@ -37,7 +43,9 @@ shadow join {
 }
 
 pub fn basename(path: string) -> string {
-    return unsafe { (path_basename path) }
+    unsafe {
+        return (path_basename path)
+    }
 }
 
 shadow basename {
@@ -46,7 +54,9 @@ shadow basename {
 }
 
 pub fn dirname(path: string) -> string {
-    return unsafe { (path_dirname path) }
+    unsafe {
+        return (path_dirname path)
+    }
 }
 
 shadow dirname {
