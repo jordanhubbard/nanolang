@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTTupleLiteral */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTTupleLiteral
-#define DEFINED_List_ASTTupleLiteral
+#ifndef FORWARD_DEFINED_List_ASTTupleLiteral
+#define FORWARD_DEFINED_List_ASTTupleLiteral
 typedef struct List_ASTTupleLiteral {
     struct nl_ASTTupleLiteral *data;      /* Array of elements */
     int length;                       /* Current number of elements */

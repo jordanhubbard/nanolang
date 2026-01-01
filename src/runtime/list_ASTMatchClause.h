@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTMatchClause */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTMatchClause
-#define DEFINED_List_ASTMatchClause
+#ifndef FORWARD_DEFINED_List_ASTMatchClause
+#define FORWARD_DEFINED_List_ASTMatchClause
 typedef struct List_ASTMatchClause {
     struct nl_ASTMatchClause *data;      /* Array of elements */
     int length;                       /* Current number of elements */

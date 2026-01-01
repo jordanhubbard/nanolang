@@ -6,8 +6,8 @@
 
 /* Dynamic list of CompilerSourceLocation */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_CompilerSourceLocation
-#define DEFINED_List_CompilerSourceLocation
+#ifndef FORWARD_DEFINED_List_CompilerSourceLocation
+#define FORWARD_DEFINED_List_CompilerSourceLocation
 typedef struct List_CompilerSourceLocation {
     struct nl_CompilerSourceLocation *data;      /* Array of elements */
     int length;                       /* Current number of elements */

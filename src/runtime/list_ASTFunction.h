@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTFunction */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTFunction
-#define DEFINED_List_ASTFunction
+#ifndef FORWARD_DEFINED_List_ASTFunction
+#define FORWARD_DEFINED_List_ASTFunction
 typedef struct List_ASTFunction {
     struct nl_ASTFunction *data;      /* Array of elements */
     int length;                       /* Current number of elements */

@@ -6,7 +6,7 @@
  */
 
 #include "nanolang.h"
-#include "runtime/list_Token.h"
+#include "runtime/list_token.h"
 
 /* External reference to nanolang tokenize function
  * This will be linked from the compiled lexer_main.nano.o object file

@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTShadow */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTShadow
-#define DEFINED_List_ASTShadow
+#ifndef FORWARD_DEFINED_List_ASTShadow
+#define FORWARD_DEFINED_List_ASTShadow
 typedef struct List_ASTShadow {
     struct nl_ASTShadow *data;      /* Array of elements */
     int length;                       /* Current number of elements */

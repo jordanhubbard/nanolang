@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTBlock */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTBlock
-#define DEFINED_List_ASTBlock
+#ifndef FORWARD_DEFINED_List_ASTBlock
+#define FORWARD_DEFINED_List_ASTBlock
 typedef struct List_ASTBlock {
     struct nl_ASTBlock *data;      /* Array of elements */
     int length;                       /* Current number of elements */

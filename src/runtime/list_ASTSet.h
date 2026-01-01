@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTSet */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTSet
-#define DEFINED_List_ASTSet
+#ifndef FORWARD_DEFINED_List_ASTSet
+#define FORWARD_DEFINED_List_ASTSet
 typedef struct List_ASTSet {
     struct nl_ASTSet *data;      /* Array of elements */
     int length;                       /* Current number of elements */

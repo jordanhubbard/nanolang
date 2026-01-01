@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTNumber */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTNumber
-#define DEFINED_List_ASTNumber
+#ifndef FORWARD_DEFINED_List_ASTNumber
+#define FORWARD_DEFINED_List_ASTNumber
 typedef struct List_ASTNumber {
     struct nl_ASTNumber *data;      /* Array of elements */
     int length;                       /* Current number of elements */

@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTAssert */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTAssert
-#define DEFINED_List_ASTAssert
+#ifndef FORWARD_DEFINED_List_ASTAssert
+#define FORWARD_DEFINED_List_ASTAssert
 typedef struct List_ASTAssert {
     struct nl_ASTAssert *data;      /* Array of elements */
     int length;                       /* Current number of elements */

@@ -6,8 +6,8 @@
 
 /* Dynamic list of CompilerDiagnostic */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_CompilerDiagnostic
-#define DEFINED_List_CompilerDiagnostic
+#ifndef FORWARD_DEFINED_List_CompilerDiagnostic
+#define FORWARD_DEFINED_List_CompilerDiagnostic
 typedef struct List_CompilerDiagnostic {
     struct nl_CompilerDiagnostic *data;      /* Array of elements */
     int length;                       /* Current number of elements */

@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTBinaryOp */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTBinaryOp
-#define DEFINED_List_ASTBinaryOp
+#ifndef FORWARD_DEFINED_List_ASTBinaryOp
+#define FORWARD_DEFINED_List_ASTBinaryOp
 typedef struct List_ASTBinaryOp {
     struct nl_ASTBinaryOp *data;      /* Array of elements */
     int length;                       /* Current number of elements */

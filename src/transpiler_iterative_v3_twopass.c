@@ -78,6 +78,7 @@ static bool build_monomorphized_name_from_typeinfo_iter(char *dest, size_t dest_
     return true;
 }
 
+__attribute__((unused))
 static const char *match_union_c_name(ASTNode *match, Environment *env, char *buf, size_t buf_size) {
     if (!match || !env) return NULL;
     const char *base = match->as.match_expr.union_type_name;

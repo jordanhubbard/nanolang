@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTImport */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTImport
-#define DEFINED_List_ASTImport
+#ifndef FORWARD_DEFINED_List_ASTImport
+#define FORWARD_DEFINED_List_ASTImport
 typedef struct List_ASTImport {
     struct nl_ASTImport *data;      /* Array of elements */
     int length;                       /* Current number of elements */

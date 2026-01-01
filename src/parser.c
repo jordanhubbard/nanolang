@@ -78,7 +78,7 @@ static bool match(Stage1Parser *p, TokenType type) {
     if (!tok) {
         return false;
     }
-    return tok->token_type == type;
+    return tok->token_type == (int)type;
 }
 
 static bool expect(Stage1Parser *p, TokenType type, const char *msg) {
@@ -3055,7 +3055,7 @@ static ASTNode *parse_import(Stage1Parser *p) {
         advance(p);
     } else if (match(p, TOKEN_IDENTIFIER)) {
         /* import module (treat as "module.nano") */
-        char *ident = current_token(p)->value;
+        const char *ident = current_token(p)->value;
         char *path = malloc(strlen(ident) + 6);  /* +6 for ".nano\0" */
         snprintf(path, strlen(ident) + 6, "%s.nano", ident);
         module_path = path;

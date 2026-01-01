@@ -9,8 +9,8 @@ struct Token;
 
 /* Dynamic list of Token */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef LIST_TOKEN_TYPE_DEFINED
-#define LIST_TOKEN_TYPE_DEFINED
+#ifndef FORWARD_DEFINED_List_Token
+#define FORWARD_DEFINED_List_Token
 typedef struct List_Token {
     struct nl_LexerToken *data;      /* Array of elements */
     int length;                       /* Current number of elements */

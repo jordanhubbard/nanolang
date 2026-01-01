@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTOpaqueType */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTOpaqueType
-#define DEFINED_List_ASTOpaqueType
+#ifndef FORWARD_DEFINED_List_ASTOpaqueType
+#define FORWARD_DEFINED_List_ASTOpaqueType
 typedef struct List_ASTOpaqueType {
     struct nl_ASTOpaqueType *data;      /* Array of elements */
     int length;                       /* Current number of elements */

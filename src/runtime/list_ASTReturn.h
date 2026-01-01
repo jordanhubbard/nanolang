@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTReturn */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTReturn
-#define DEFINED_List_ASTReturn
+#ifndef FORWARD_DEFINED_List_ASTReturn
+#define FORWARD_DEFINED_List_ASTReturn
 typedef struct List_ASTReturn {
     struct nl_ASTReturn *data;      /* Array of elements */
     int length;                       /* Current number of elements */

@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTArrayLiteral */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTArrayLiteral
-#define DEFINED_List_ASTArrayLiteral
+#ifndef FORWARD_DEFINED_List_ASTArrayLiteral
+#define FORWARD_DEFINED_List_ASTArrayLiteral
 typedef struct List_ASTArrayLiteral {
     struct nl_ASTArrayLiteral *data;      /* Array of elements */
     int length;                       /* Current number of elements */

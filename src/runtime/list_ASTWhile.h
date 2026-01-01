@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTWhile */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTWhile
-#define DEFINED_List_ASTWhile
+#ifndef FORWARD_DEFINED_List_ASTWhile
+#define FORWARD_DEFINED_List_ASTWhile
 typedef struct List_ASTWhile {
     struct nl_ASTWhile *data;      /* Array of elements */
     int length;                       /* Current number of elements */

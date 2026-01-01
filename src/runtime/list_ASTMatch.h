@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTMatch */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTMatch
-#define DEFINED_List_ASTMatch
+#ifndef FORWARD_DEFINED_List_ASTMatch
+#define FORWARD_DEFINED_List_ASTMatch
 typedef struct List_ASTMatch {
     struct nl_ASTMatch *data;      /* Array of elements */
     int length;                       /* Current number of elements */

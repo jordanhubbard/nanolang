@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTPrint */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTPrint
-#define DEFINED_List_ASTPrint
+#ifndef FORWARD_DEFINED_List_ASTPrint
+#define FORWARD_DEFINED_List_ASTPrint
 typedef struct List_ASTPrint {
     struct nl_ASTPrint *data;      /* Array of elements */
     int length;                       /* Current number of elements */

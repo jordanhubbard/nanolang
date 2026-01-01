@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTString */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTString
-#define DEFINED_List_ASTString
+#ifndef FORWARD_DEFINED_List_ASTString
+#define FORWARD_DEFINED_List_ASTString
 typedef struct List_ASTString {
     struct nl_ASTString *data;      /* Array of elements */
     int length;                       /* Current number of elements */

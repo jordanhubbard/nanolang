@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTStmtRef */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTStmtRef
-#define DEFINED_List_ASTStmtRef
+#ifndef FORWARD_DEFINED_List_ASTStmtRef
+#define FORWARD_DEFINED_List_ASTStmtRef
 typedef struct List_ASTStmtRef {
     struct nl_ASTStmtRef *data;      /* Array of elements */
     int length;                       /* Current number of elements */

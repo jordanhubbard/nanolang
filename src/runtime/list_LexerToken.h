@@ -6,8 +6,8 @@
 
 /* Dynamic list of LexerToken */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_LexerToken
-#define DEFINED_List_LexerToken
+#ifndef FORWARD_DEFINED_List_LexerToken
+#define FORWARD_DEFINED_List_LexerToken
 typedef struct List_LexerToken {
     struct nl_LexerToken *data;      /* Array of elements */
     int length;                       /* Current number of elements */

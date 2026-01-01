@@ -324,7 +324,7 @@ Token *tokenize(const char *source, int *token_count) {
 /* Free token array */
 void free_tokens(Token *tokens, int count) {
     for (int i = 0; i < count; i++) {
-        free(tokens[i].value);
+        free((void*)tokens[i].value);
     }
     free(tokens);
 }

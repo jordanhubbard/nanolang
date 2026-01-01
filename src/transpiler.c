@@ -1106,7 +1106,7 @@ static void generate_c_headers(StringBuilder *sb) {
     sb_append(sb, "\n/* nanolang runtime */\n");
     sb_append(sb, "#include \"runtime/list_int.h\"\n");
     sb_append(sb, "#include \"runtime/list_string.h\"\n");
-    sb_append(sb, "#include \"runtime/list_Token.h\"\n");
+    sb_append(sb, "#include \"runtime/list_token.h\"\n");
     sb_append(sb, "#include \"runtime/token_helpers.h\"\n");
     sb_append(sb, "#include <sys/stat.h>\n");
     sb_append(sb, "#include <sys/types.h>\n");

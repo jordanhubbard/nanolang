@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTFloat */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTFloat
-#define DEFINED_List_ASTFloat
+#ifndef FORWARD_DEFINED_List_ASTFloat
+#define FORWARD_DEFINED_List_ASTFloat
 typedef struct List_ASTFloat {
     struct nl_ASTFloat *data;      /* Array of elements */
     int length;                       /* Current number of elements */

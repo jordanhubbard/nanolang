@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTCall */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTCall
-#define DEFINED_List_ASTCall
+#ifndef FORWARD_DEFINED_List_ASTCall
+#define FORWARD_DEFINED_List_ASTCall
 typedef struct List_ASTCall {
     struct nl_ASTCall *data;      /* Array of elements */
     int length;                       /* Current number of elements */

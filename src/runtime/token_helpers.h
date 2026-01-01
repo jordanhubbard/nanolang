@@ -1,7 +1,7 @@
 #ifndef TOKEN_HELPERS_H
 #define TOKEN_HELPERS_H
 
-#include "list_Token.h"
+#include "list_token.h"
 #include "../nanolang.h"
 #include <stdint.h>
 

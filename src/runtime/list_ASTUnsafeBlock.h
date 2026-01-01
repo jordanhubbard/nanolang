@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTUnsafeBlock */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTUnsafeBlock
-#define DEFINED_List_ASTUnsafeBlock
+#ifndef FORWARD_DEFINED_List_ASTUnsafeBlock
+#define FORWARD_DEFINED_List_ASTUnsafeBlock
 typedef struct List_ASTUnsafeBlock {
     struct nl_ASTUnsafeBlock *data;      /* Array of elements */
     int length;                       /* Current number of elements */

@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTBool */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTBool
-#define DEFINED_List_ASTBool
+#ifndef FORWARD_DEFINED_List_ASTBool
+#define FORWARD_DEFINED_List_ASTBool
 typedef struct List_ASTBool {
     struct nl_ASTBool *data;      /* Array of elements */
     int length;                       /* Current number of elements */

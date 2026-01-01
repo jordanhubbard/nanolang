@@ -3,7 +3,7 @@
 #include "nanolang.h"
 #include "runtime/list_int.h"
 #include "runtime/list_string.h"
-#include "runtime/list_Token.h"
+#include "runtime/list_token.h"
 #include "runtime/gc.h"
 #include "runtime/dyn_array.h"
 #include "tracing.h"

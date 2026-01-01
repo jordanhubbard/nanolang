@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTUnion */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTUnion
-#define DEFINED_List_ASTUnion
+#ifndef FORWARD_DEFINED_List_ASTUnion
+#define FORWARD_DEFINED_List_ASTUnion
 typedef struct List_ASTUnion {
     struct nl_ASTUnion *data;      /* Array of elements */
     int length;                       /* Current number of elements */

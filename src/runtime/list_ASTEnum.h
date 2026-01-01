@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTEnum */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTEnum
-#define DEFINED_List_ASTEnum
+#ifndef FORWARD_DEFINED_List_ASTEnum
+#define FORWARD_DEFINED_List_ASTEnum
 typedef struct List_ASTEnum {
     struct nl_ASTEnum *data;      /* Array of elements */
     int length;                       /* Current number of elements */

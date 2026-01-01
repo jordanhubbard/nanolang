@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTTupleIndex */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTTupleIndex
-#define DEFINED_List_ASTTupleIndex
+#ifndef FORWARD_DEFINED_List_ASTTupleIndex
+#define FORWARD_DEFINED_List_ASTTupleIndex
 typedef struct List_ASTTupleIndex {
     struct nl_ASTTupleIndex *data;      /* Array of elements */
     int length;                       /* Current number of elements */

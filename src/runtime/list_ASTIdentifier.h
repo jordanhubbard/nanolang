@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTIdentifier */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTIdentifier
-#define DEFINED_List_ASTIdentifier
+#ifndef FORWARD_DEFINED_List_ASTIdentifier
+#define FORWARD_DEFINED_List_ASTIdentifier
 typedef struct List_ASTIdentifier {
     struct nl_ASTIdentifier *data;      /* Array of elements */
     int length;                       /* Current number of elements */

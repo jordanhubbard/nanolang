@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTFieldAccess */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTFieldAccess
-#define DEFINED_List_ASTFieldAccess
+#ifndef FORWARD_DEFINED_List_ASTFieldAccess
+#define FORWARD_DEFINED_List_ASTFieldAccess
 typedef struct List_ASTFieldAccess {
     struct nl_ASTFieldAccess *data;      /* Array of elements */
     int length;                       /* Current number of elements */

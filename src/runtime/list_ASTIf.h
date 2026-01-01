@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTIf */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTIf
-#define DEFINED_List_ASTIf
+#ifndef FORWARD_DEFINED_List_ASTIf
+#define FORWARD_DEFINED_List_ASTIf
 typedef struct List_ASTIf {
     struct nl_ASTIf *data;      /* Array of elements */
     int length;                       /* Current number of elements */
