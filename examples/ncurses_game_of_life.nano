@@ -272,16 +272,12 @@ fn main() -> int {
         # Get input
         let key: int = (getch_wrapper)
         
-        if (== key KEY_ESC) {
-            set running false
+        if (or (== key KEY_SPACE) (== key (cast_int ' '))) {
+            set paused (not paused)
         } else {
-            if (or (== key KEY_SPACE) (== key (cast_int ' '))) {
-                set paused (not paused)
-            } else {
-                if (or (== key (cast_int 'q')) (== key (cast_int 'Q'))) {
-                    set running false
-                } else {}
-            }
+            if (or (== key (cast_int 'q')) (== key (cast_int 'Q'))) {
+                set running false
+            } else {}
         }
         
         # Update simulation (if not paused)

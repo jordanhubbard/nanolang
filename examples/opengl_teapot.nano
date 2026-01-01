@@ -520,7 +520,6 @@ fn main() -> int {
     (println "  + / -       Zoom in/out")
     (println "  SPACE       Toggle auto-rotation")
     (println "  R           Reset view")
-    (println "  ESC         Quit")
     (println "")
     (println "SHADER MODES:")
     (println "  1  Smooth Phong     - Classic smooth shading with specular")
@@ -672,11 +671,6 @@ fn main() -> int {
             (println "View reset")
         } else {}
         set last_r_state r_state
-        
-        # ESC to quit
-        if (== (glfwGetKey window GLFW_KEY_ESCAPE) 1) {
-            (glfwSetWindowShouldClose window 1)
-        } else {}
         
         set frame_count (+ frame_count 1)
     }

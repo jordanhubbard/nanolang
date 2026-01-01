@@ -183,7 +183,6 @@ fn main() -> int {
         
         # Check for keypresses (one-time events)
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 41) { set running false }           # ESC
         if (== key 21) {                                       # R key
             if (== game_state STATE_GAME_OVER) {
                 # Restart game
@@ -741,7 +740,6 @@ fn main() -> int {
         }
         
         # Draw on-screen help
-        unsafe {         (nl_draw_text_blended renderer help_font "Up: Thrust | Left/Right: Rotate | Space: Shoot | R: Restart | ESC: Quit" 10 10 255 255 255 255) }
         
         unsafe {         (SDL_RenderPresent renderer) }
         unsafe {         (SDL_Delay 16) }

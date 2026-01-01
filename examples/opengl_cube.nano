@@ -163,7 +163,6 @@ fn main() -> int {
     
     (println "✓ OpenGL setup complete")
     (println "✓ Starting render loop...")
-    (println "Press ESC to exit")
     (println "")
     
     # Animation state
@@ -184,11 +183,6 @@ fn main() -> int {
         # Swap buffers and poll events
         (glfwSwapBuffers window)
         (glfwPollEvents)
-        
-        # Check for ESC key
-        if (== (glfwGetKey window GLFW_KEY_ESCAPE) 1) {
-            (glfwSetWindowShouldClose window 1)
-        } else {}
         
         # Frame counter
         set frame_count (+ frame_count 1)

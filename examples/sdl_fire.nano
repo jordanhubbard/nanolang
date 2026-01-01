@@ -1,6 +1,5 @@
 # FIRE EFFECT - Classic Demoscene Effect
 # Mesmerizing fire simulation with palette animation
-# ESC to exit
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
@@ -146,7 +145,6 @@ fn main() -> int {
     (println "║        FIRE EFFECT - Demoscene Classic    ║")
     (println "╚════════════════════════════════════════════╝")
     (println "")
-    (println "Press ESC to exit")
     (println "")
     
     # Seed random
@@ -171,7 +169,6 @@ fn main() -> int {
     while running {
         # Check for quit
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 41) { set running false } else {}  # ESC
         if (== (nl_sdl_poll_event_quit) 1) { set running false } else {}
         
         # Update fire
@@ -234,7 +231,6 @@ fn main() -> int {
         }
         
         # Draw on-screen help
-        unsafe { (nl_draw_text_blended renderer font "ESC: Quit" 10 10 255 255 255 255) }
         
         unsafe { (SDL_RenderPresent renderer) }
         

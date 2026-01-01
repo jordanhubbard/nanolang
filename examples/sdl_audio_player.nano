@@ -24,7 +24,6 @@ fn render_help_text(renderer: SDL_Renderer, font: TTF_Font) -> void {
     
     # Draw help text using SDL_ttf
     unsafe {     (nl_draw_text_blended renderer font "SPACE = Play/Pause  P = Sound  +/- = Volume" 10 (- WINDOW_HEIGHT 40) 200 200 200 255) }
-    unsafe {     (nl_draw_text_blended renderer font "F = Fade In  S = Fade Out  R = Restart  ESC = Quit" 10 (- WINDOW_HEIGHT 25) 200 200 200 255) }
 }
 
 # === MAIN ===
@@ -132,7 +131,6 @@ fn main() -> int {
     (println "  F - Fade in music")
     (println "  S - Stop with fade out")
     (println "  R - Restart music")
-    (println "  ESC - Quit")
     (println "")
     
     if music_loaded {
@@ -224,8 +222,6 @@ fn main() -> int {
                                             (println "⏮ Restarted")
                                         } else {}
                                     } else {
-                                        # ESC = 41
-                                        if (== key 41) {
                                             set running false
                                         } else {}
                                     }
@@ -282,7 +278,6 @@ fn main() -> int {
         (render_help_text renderer font)
         
         # Draw on-screen help
-        unsafe {         (nl_draw_text_blended renderer font "Space: Play/Pause | +/-: Volume | F: Fade | S: Stop | ESC: Quit" 10 10 255 255 255 255) }
         
         unsafe {         (SDL_RenderPresent renderer) }
         unsafe {         (SDL_Delay 16) }

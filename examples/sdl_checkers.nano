@@ -729,7 +729,6 @@ fn render_board(renderer: SDL_Renderer, board: array<int>, selected_row: int, se
                 }
                 
                 # Draw on-screen help
-                unsafe {                 (nl_draw_text_blended renderer font "Click to select/move | ESC: Quit" 10 10 255 255 255 255) }
                 
                 unsafe {                 (SDL_RenderPresent renderer) }
 }
@@ -1171,7 +1170,6 @@ fn main() -> int {
         if (== game_state 2) {  # GAME_OVER
             let player_won: bool = (> (count_player_pieces board) 0)
             (draw_game_over_screen renderer player_won)
-            unsafe {             (nl_draw_text_blended renderer font "Click to select/move | ESC: Quit" 10 10 255 255 255 255) }
             unsafe {             (SDL_RenderPresent renderer) }
         } else {}
         

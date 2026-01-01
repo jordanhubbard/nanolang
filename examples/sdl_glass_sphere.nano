@@ -568,7 +568,6 @@ fn main() -> int {
         unsafe { (SDL_RenderClear renderer) }
         
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 41) { set running 0 }  # ESC
         if (== key 21) {  # R
             set cam_pos (vec3 0.0 0.2 3.0)
             set yaw 0.0
@@ -628,7 +627,6 @@ fn main() -> int {
         # HUD
         let frame_str: string = (+ "Glass Sphere Raytracer | Frame: " (int_to_string frame))
         unsafe { (nl_draw_text_blended renderer font frame_str 10 10 255 255 200 255) }
-        unsafe { (nl_draw_text_blended renderer font "WASD: Move | Arrows: Rotate | R: Reset | ESC: Quit" 10 30 200 255 200 255) }
         
         unsafe { (SDL_RenderPresent renderer) }
         

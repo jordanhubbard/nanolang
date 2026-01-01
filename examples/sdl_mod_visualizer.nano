@@ -110,7 +110,6 @@ fn main() -> int {
     
     # Play music  
     (Mix_PlayMusic music -1)  # -1 = loop forever
-    (println "▶ Playing... Press ESC to quit")
     (println "")
     
     # Main loop
@@ -145,8 +144,6 @@ fn main() -> int {
                     if (== viz_mode 3) { (println "✨ Visualizer: Starburst") } else {}
                     if (== viz_mode 4) { (println "🎆 Visualizer: Tunnel") } else {}
                 } else {
-                    # ESC = 41
-                    if (== key 41) {
                         set running false
                         (println "")
                         (println "Stopping playback...")
@@ -424,7 +421,6 @@ fn main() -> int {
         (nl_sdl_render_fill_rect renderer 540 (- 500 vu4) 30 vu4)
         
         # Draw on-screen help
-        (nl_draw_text_blended renderer font "Space: Play/Pause | Tab: Cycle Mode | ESC: Quit" 10 10 255 255 255 255)
         
         # Present
         (SDL_RenderPresent renderer)

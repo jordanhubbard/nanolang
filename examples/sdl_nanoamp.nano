@@ -244,7 +244,6 @@ fn main() -> int {
         } else {}
         
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 41) {  # ESC
             set running false
         } else {}
         
@@ -795,7 +794,6 @@ fn main() -> int {
         }
         
         # Draw on-screen help
-        unsafe {         (nl_draw_text_blended renderer font "Space: Play/Pause | N: Next | P: Prev | ESC: Quit" 10 10 255 255 255 255) }
         
         # Present frame
         unsafe {         (SDL_RenderPresent renderer) }

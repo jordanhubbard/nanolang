@@ -227,7 +227,6 @@ fn main() -> int {
         } else {}
 
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 41) {  # ESC
             set running false
         } else {}
 

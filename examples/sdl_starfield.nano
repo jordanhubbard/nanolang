@@ -1,6 +1,5 @@
 # STARFIELD - 3D Space Travel Effect
 # Classic effect from every 80s/90s game intro
-# ESC to exit
 
 import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
@@ -167,7 +166,6 @@ fn main() -> int {
     (println "║          STARFIELD - Space Travel         ║")
     (println "╚════════════════════════════════════════════╝")
     (println "")
-    (println "Press ESC to exit")
     (println "")
     
     # Seed random
@@ -203,7 +201,6 @@ fn main() -> int {
         
         # Check for quit
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 41) { set running false } else {}  # ESC
         if (== (nl_sdl_poll_event_quit) 1) { set running false } else {}
         
         # Update stars
@@ -259,7 +256,6 @@ fn main() -> int {
         }
         
         # Draw on-screen help
-        unsafe { (nl_draw_text_blended renderer font "ESC: Quit" 10 10 255 255 255 255) }
         
         unsafe { (SDL_RenderPresent renderer) }
         

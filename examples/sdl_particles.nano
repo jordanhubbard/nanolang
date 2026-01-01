@@ -86,7 +86,6 @@ fn draw_ui_overlay(renderer: SDL_Renderer, font: TTF_Font, particle_count: int) 
     
     unsafe {     (nl_draw_text_blended renderer font "Click to spawn explosions" (- (/ WINDOW_WIDTH 2) 100) (- WINDOW_HEIGHT 30) 100 200 255 255) }
     
-    unsafe {     (nl_draw_text_blended renderer font "ESC = Quit" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 30) 200 50 50 255) }
 }
 
 # === MAIN ===
@@ -173,15 +172,12 @@ fn main() -> int {
     # Adjustable gravity (slider controls this)
     let mut gravity: float = 100.0
     
-    (println "Click to spawn explosions! Press ESC or close window to quit.")
     (println "")
     
     while running {
         # Handle keyboard input (ESC to quit)
         let key: int = (nl_sdl_poll_keypress)
         if (> key -1) {
-            if (== key 41) {
-                # ESC key = quit
                 set running false
             } else {
                 (print "")
@@ -310,7 +306,6 @@ fn main() -> int {
         (draw_ui_overlay renderer font particle_count)
         
         # Draw on-screen help
-        unsafe {         (nl_draw_text_blended renderer font "Click: Spawn Explosion | ESC: Quit" 10 10 255 255 255 255) }
         
         unsafe {         (SDL_RenderPresent renderer) }
         unsafe {         (SDL_Delay 16) }

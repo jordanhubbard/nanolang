@@ -347,7 +347,6 @@ fn render_ui(renderer: SDL_Renderer, font: TTF_Font, current_material: Material,
     unsafe {     (nl_draw_text_blended renderer font material_name 10 10 255 255 255 255) }
     
     # Draw help text
-    unsafe {     (nl_draw_text_blended renderer font "1-6 = Material  SPACE = Pause  C = Clear  ESC = Quit" 10 30 200 200 200 255) }
     
     # Draw pause indicator if paused
     if paused {
@@ -526,8 +525,6 @@ fn main() -> int {
                                                 set clear_i (+ clear_i 1)
                                             }
                                         } else {
-                                            if (== key 41) {
-                                                # ESC = quit
                                                 set running false
                                             } else {
                                                 (print "")

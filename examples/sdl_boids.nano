@@ -61,7 +61,6 @@ fn draw_ui_overlay(renderer: SDL_Renderer, font: TTF_Font, boid_count: int) -> v
     unsafe {     (nl_draw_text_blended renderer font "Boids: 50" 10 (- WINDOW_HEIGHT 25) 100 200 100 255) }
     
     # Draw "ESC = Quit" text
-    unsafe {     (nl_draw_text_blended renderer font "ESC = Quit" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 25) 200 100 100 255) }
 }
 
 # === MAIN ===
@@ -134,8 +133,6 @@ fn main() -> int {
         # Handle events - keypress drains the event queue
         let key: int = (nl_sdl_poll_keypress)
         if (> key -1) {
-            if (== key 41) {
-                # ESC key = quit
                 set running false
             } else {
                 (print "")
@@ -317,7 +314,6 @@ fn main() -> int {
         (draw_ui_overlay renderer font NUM_BOIDS)
         
         # Draw on-screen help
-        unsafe {         (nl_draw_text_blended renderer font "ESC: Quit" 10 10 255 255 255 255) }
         
         unsafe {         (SDL_RenderPresent renderer) }
         unsafe {         (SDL_Delay 16) }

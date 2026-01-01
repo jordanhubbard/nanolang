@@ -363,7 +363,6 @@ fn main() -> int {
 
         if (> key -1) {
             # Esc
-            if (== key 41) { set running false } else {
                 # Up
                 if (== key 82) {
                     set selected_idx (clamp_int (- selected_idx 1) 0 (- (array_length browser_items) 1))

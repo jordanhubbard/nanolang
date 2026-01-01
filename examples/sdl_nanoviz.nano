@@ -503,7 +503,6 @@ fn main() -> int {
         (println "Controls:")
         (println "  SPACE - Play/Pause")
         (println "  1-5   - Switch visualization modes")
-        (println "  ESC   - Quit")
         (println "")
     } else {
         (println "✗ Failed to load audio file")

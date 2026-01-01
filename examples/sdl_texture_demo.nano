@@ -91,7 +91,6 @@ fn main() -> int {
         unsafe {         (SDL_RenderDrawLine renderer (+ tex_x TEXTURE_WIDTH) tex_y (+ tex_x TEXTURE_WIDTH) (+ tex_y TEXTURE_HEIGHT)) }
         
         # Draw on-screen help
-        unsafe {         (nl_draw_text_blended renderer font "ESC: Quit" 10 10 255 255 255 255) }
         
         # Present
         unsafe {         (SDL_RenderPresent renderer) }

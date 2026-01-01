@@ -105,7 +105,6 @@ fn main() -> int {
         } else {}
         
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 41) {  # ESC
             set running false
         } else {}
         
@@ -296,7 +295,6 @@ fn main() -> int {
         unsafe {         (nl_ui_label renderer font "Press ESC to quit • All widgets are interactive!" 230 765 150 150 150 255) }
         
         # Draw on-screen help
-        unsafe {         (nl_draw_text_blended renderer font "Interact with widgets | ESC: Quit" 10 10 255 255 255 255) }
         
         # Present
         unsafe {         (SDL_RenderPresent renderer) }

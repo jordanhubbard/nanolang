@@ -377,7 +377,6 @@ fn main() -> int {
         
         # Handle keyboard
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 41) { set running 0 }  # ESC
         if (== key 21) {  # R - reset
             set cam_pos Vec3 { x: 0.0, y: 0.5, z: 2.0 }
             set yaw 0.0
@@ -426,7 +425,6 @@ fn main() -> int {
         }
         
         # Draw on-screen help (standard position: top-left, white text)
-        unsafe {         (nl_draw_text_blended renderer font "Arrow Keys: Rotate | R: Reset | Click: Move Light | ESC: Quit" 10 10 255 255 255 255) }
         
         unsafe {         (SDL_RenderPresent renderer) }
 

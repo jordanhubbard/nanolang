@@ -59,7 +59,6 @@ fn main() -> int {
         
         # Handle keyboard input
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 41) { set running false }  # ESC
         
         # Calculate delta time
         let current_time: int = (SDL_GetTicks)
@@ -254,7 +253,6 @@ fn main() -> int {
         }
         
         # Draw on-screen help
-        unsafe { (nl_draw_text_blended renderer help_font "W/S: P1 | Arrows: P2 | ESC: Quit" 10 10 255 255 255 255) }
         
         unsafe { (SDL_RenderPresent renderer) }
         unsafe { (SDL_Delay 16) }
