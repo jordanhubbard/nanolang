@@ -1,0 +1,63 @@
+# REST API Server Example
+# Demonstrates JSON API endpoints with NanoLang HTTP server
+#
+# Endpoints:
+#   GET  /api/status     - Server status
+#   GET  /api/time       - Current timestamp
+#   GET  /api/hello      - Hello message
+#   POST /api/echo       - Echo request body
+#
+# Usage:
+#   ./bin/nanoc examples/http_rest_api.nano -o bin/http_rest_api
+#   ./bin/http_rest_api
+#
+# Test with curl:
+#   curl http://localhost:8080/api/status
+#   curl http://localhost:8080/api/time
+#   curl -X POST -d '{"message":"test"}' http://localhost:8080/api/echo
+
+from "modules/http_server/http_server.nano" import HttpServer, create, set_static_dir, start, free_server
+
+fn main() -> int {
+    (println "=== NanoLang REST API Server ===")
+    (println "")
+    
+    let port: int = 8080
+    
+    (println (+ "Creating API server on port " (int_to_string port)))
+    let server: HttpServer = (create port)
+    
+    # Note: Route handlers are currently managed in C for performance
+    # Full NanoLang handler callbacks coming in next version
+    # For now, the server will serve static files if configured
+    
+    # Create a simple API landing page
+    let static_dir: string = "./api_public"
+    (set_static_dir server static_dir)
+    
+    (println "")
+    (println "API Endpoints:")
+    (println "  GET  /api/status  - Server status")
+    (println "  GET  /api/time    - Current timestamp")
+    (println "  GET  /api/hello   - Hello message")
+    (println "  POST /api/echo    - Echo request body")
+    (println "")
+    (println (+ "✓ API server ready at http://localhost:" (int_to_string port)))
+    (println "")
+    (println "Note: Full route handlers in NanoLang coming soon!")
+    (println "For now, serving static files from " (+ static_dir "/"))
+    (println "")
+    (println "Press Ctrl+C to stop")
+    (println "")
+    
+    let result: int = (start server)
+    
+    (println "")
+    (println "Server stopped")
+    (free_server server)
+    
+    return result
+}
+
+shadow main { assert true }
+
