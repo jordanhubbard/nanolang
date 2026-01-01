@@ -8,44 +8,9 @@
 #include <unistd.h>
 #include <ctype.h>
 
-// Helper: Create nanolang array for strings
-static DynArray* create_string_array(int64_t initial_capacity) {
-    DynArray* arr = (DynArray*)malloc(sizeof(DynArray));
-    if (!arr) return NULL;
-    
-    arr->length = 0;
-    arr->capacity = initial_capacity;
-    arr->elem_type = ELEM_STRING;  // ElementType enum from dyn_array.h
-    arr->elem_size = sizeof(char*);
-    arr->data = calloc(initial_capacity, sizeof(char*));
-    
-    if (!arr->data) {
-        free(arr);
-        return NULL;
-    }
-    
-    return arr;
-}
-
-// Helper: Append string to array
-static void array_append_string(DynArray* arr, const char* str) {
-    if (!arr || !str) return;
-    
-    // Grow if needed
-    if (arr->length >= arr->capacity) {
-        int64_t new_capacity = arr->capacity * 2;
-        char** new_data = (char**)realloc(arr->data, new_capacity * sizeof(char*));
-        if (!new_data) return;
-        arr->data = new_data;
-        arr->capacity = new_capacity;
-    }
-    
-    // Duplicate string and add to array
-    char* dup = strdup(str);
-    if (dup) {
-        ((char**)arr->data)[arr->length++] = dup;
-    }
-}
+/* Use runtime DynArray API - no manual memory management needed */
+extern DynArray* dyn_array_new_with_capacity(ElementType elem_type, int64_t initial_capacity);
+extern DynArray* dyn_array_push_string_copy(DynArray* arr, const char* value);
 
 static int cmp_cstr_ptr(const void *a, const void *b) {
     const char *sa = *(const char * const *)a;
@@ -89,7 +54,7 @@ static int ends_with_ci(const char *str, const char *suffix) {
 
 // List files in directory
 DynArray* nl_fs_list_files(const char* path, const char* extension) {
-    DynArray* result = create_string_array(32);
+    DynArray* result = dyn_array_new_with_capacity(ELEM_STRING, 32);
     if (!result) return NULL;
     
     DIR* dir = opendir(path);
@@ -117,7 +82,7 @@ DynArray* nl_fs_list_files(const char* path, const char* extension) {
             if (S_ISREG(st.st_mode)) {
                 // Filter by extension if specified
                 if (!filter_by_ext || ends_with(entry->d_name, extension)) {
-                    array_append_string(result, entry->d_name);
+                    dyn_array_push_string_copy(result, entry->d_name);
                 }
             }
         }
@@ -129,7 +94,7 @@ DynArray* nl_fs_list_files(const char* path, const char* extension) {
 }
 
 DynArray* nl_fs_list_files_ci(const char* path, const char* extension) {
-    DynArray* result = create_string_array(32);
+    DynArray* result = dyn_array_new_with_capacity(ELEM_STRING, 32);
     if (!result) return NULL;
 
     DIR* dir = opendir(path);
@@ -152,7 +117,7 @@ DynArray* nl_fs_list_files_ci(const char* path, const char* extension) {
         if (stat(full_path, &st) == 0) {
             if (S_ISREG(st.st_mode)) {
                 if (!filter_by_ext || ends_with_ci(entry->d_name, extension)) {
-                    array_append_string(result, entry->d_name);
+                    dyn_array_push_string_copy(result, entry->d_name);
                 }
             }
         }
@@ -165,7 +130,7 @@ DynArray* nl_fs_list_files_ci(const char* path, const char* extension) {
 
 // List directories in directory
 DynArray* nl_fs_list_dirs(const char* path) {
-    DynArray* result = create_string_array(32);
+    DynArray* result = dyn_array_new_with_capacity(ELEM_STRING, 32);
     if (!result) return NULL;
     
     DIR* dir = opendir(path);
@@ -189,7 +154,7 @@ DynArray* nl_fs_list_dirs(const char* path) {
         if (stat(full_path, &st) == 0) {
             // Only include directories
             if (S_ISDIR(st.st_mode)) {
-                array_append_string(result, entry->d_name);
+                dyn_array_push_string_copy(result, entry->d_name);
             }
         }
     }

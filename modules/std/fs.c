@@ -8,47 +8,10 @@
 #include <unistd.h>
 #include <libgen.h>
 
-/* Forward declaration for nl_str_concat (provided by runtime) */
+/* Forward declarations */
 extern char* nl_str_concat(const char* s1, const char* s2);
-
-/* Helper: Create nanolang array for strings */
-static DynArray* create_string_array(int64_t initial_capacity) {
-    DynArray* arr = (DynArray*)malloc(sizeof(DynArray));
-    if (!arr) return NULL;
-    
-    arr->length = 0;
-    arr->capacity = initial_capacity;
-    arr->elem_type = ELEM_STRING;
-    arr->elem_size = sizeof(char*);
-    arr->data = calloc(initial_capacity, sizeof(char*));
-    
-    if (!arr->data) {
-        free(arr);
-        return NULL;
-    }
-    
-    return arr;
-}
-
-/* Helper: Append string to array */
-static void array_append_string(DynArray* arr, const char* str) {
-    if (!arr || !str) return;
-    
-    /* Grow if needed */
-    if (arr->length >= arr->capacity) {
-        int64_t new_capacity = arr->capacity * 2;
-        char** new_data = (char**)realloc(arr->data, new_capacity * sizeof(char*));
-        if (!new_data) return;
-        arr->data = new_data;
-        arr->capacity = new_capacity;
-    }
-    
-    /* Duplicate string and add to array */
-    char* dup = strdup(str);
-    if (dup) {
-        ((char**)arr->data)[arr->length++] = dup;
-    }
-}
+extern DynArray* dyn_array_new_with_capacity(ElementType elem_type, int64_t initial_capacity);
+extern DynArray* dyn_array_push_string_copy(DynArray* arr, const char* value);
 
 /* Recursive directory walker */
 static void walkdir_recursive(const char* path, DynArray* result) {
@@ -70,7 +33,7 @@ static void walkdir_recursive(const char* path, DynArray* result) {
         if (stat(full_path, &st) == 0) {
             if (S_ISREG(st.st_mode)) {
                 /* Add file to result */
-                array_append_string(result, full_path);
+                dyn_array_push_string_copy(result, full_path);
             } else if (S_ISDIR(st.st_mode)) {
                 /* Recurse into directory */
                 walkdir_recursive(full_path, result);
@@ -83,7 +46,7 @@ static void walkdir_recursive(const char* path, DynArray* result) {
 
 /* Walk directory tree, returning all file paths */
 DynArray* fs_walkdir(const char* root) {
-    DynArray* result = create_string_array(128);
+    DynArray* result = dyn_array_new_with_capacity(ELEM_STRING, 128);
     if (!result) return NULL;
     
     walkdir_recursive(root, result);

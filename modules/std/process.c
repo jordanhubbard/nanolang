@@ -5,50 +5,15 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-/* Helper: Create nanolang array for strings */
-static DynArray* create_string_array(int64_t initial_capacity) {
-    DynArray* arr = (DynArray*)malloc(sizeof(DynArray));
-    if (!arr) return NULL;
-    
-    arr->length = 0;
-    arr->capacity = initial_capacity;
-    arr->elem_type = ELEM_STRING;
-    arr->elem_size = sizeof(char*);
-    arr->data = calloc(initial_capacity, sizeof(char*));
-    
-    if (!arr->data) {
-        free(arr);
-        return NULL;
-    }
-    
-    return arr;
-}
-
-/* Helper: Append string to array */
-static void array_append_string(DynArray* arr, const char* str) {
-    if (!arr || !str) return;
-    
-    /* Grow if needed */
-    if (arr->length >= arr->capacity) {
-        int64_t new_capacity = arr->capacity * 2;
-        char** new_data = (char**)realloc(arr->data, new_capacity * sizeof(char*));
-        if (!new_data) return;
-        arr->data = new_data;
-        arr->capacity = new_capacity;
-    }
-    
-    /* Duplicate string and add to array */
-    char* dup = strdup(str);
-    if (dup) {
-        ((char**)arr->data)[arr->length++] = dup;
-    }
-}
+/* Use runtime DynArray API */
+extern DynArray* dyn_array_new_with_capacity(ElementType elem_type, int64_t initial_capacity);
+extern DynArray* dyn_array_push_string_copy(DynArray* arr, const char* value);
 
 /* Run a command and capture stdout/stderr
  * Returns array<string> with [exit_code, stdout, stderr]
  */
 DynArray* nl_os_process_run(const char* command) {
-    DynArray* result = create_string_array(3);
+    DynArray* result = dyn_array_new_with_capacity(ELEM_STRING, 3);
     if (!result) return NULL;
     
     /* Create temporary files for stdout and stderr */
@@ -67,9 +32,9 @@ DynArray* nl_os_process_run(const char* command) {
             close(stderr_fd);
             unlink(stderr_file);
         }
-        array_append_string(result, "-1");
-        array_append_string(result, "");
-        array_append_string(result, "Failed to create temp files");
+        dyn_array_push_string_copy(result, "-1");
+        dyn_array_push_string_copy(result, "");
+        dyn_array_push_string_copy(result, "Failed to create temp files");
         return result;
     }
     
@@ -86,9 +51,9 @@ DynArray* nl_os_process_run(const char* command) {
     if (exit_code == -1) {
         unlink(stdout_file);
         unlink(stderr_file);
-        array_append_string(result, "-1");
-        array_append_string(result, "");
-        array_append_string(result, "Failed to execute command");
+        dyn_array_push_string_copy(result, "-1");
+        dyn_array_push_string_copy(result, "");
+        dyn_array_push_string_copy(result, "Failed to execute command");
         return result;
     }
     
@@ -138,9 +103,9 @@ DynArray* nl_os_process_run(const char* command) {
     /* Build result array */
     char exit_code_str[32];
     snprintf(exit_code_str, sizeof(exit_code_str), "%d", actual_exit);
-    array_append_string(result, exit_code_str);
-    array_append_string(result, stdout_content ? stdout_content : "");
-    array_append_string(result, stderr_content ? stderr_content : "");
+    dyn_array_push_string_copy(result, exit_code_str);
+    dyn_array_push_string_copy(result, stdout_content ? stdout_content : "");
+    dyn_array_push_string_copy(result, stderr_content ? stderr_content : "");
     
     if (stdout_content) free(stdout_content);
     if (stderr_content) free(stderr_content);
