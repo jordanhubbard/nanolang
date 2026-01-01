@@ -3,7 +3,7 @@
 #include "nanolang.h"
 #include "runtime/list_int.h"
 #include "runtime/list_string.h"
-#include "runtime/list_token.h"
+#include "runtime/list_Token.h"
 #include "runtime/gc.h"
 #include "runtime/dyn_array.h"
 #include "tracing.h"
@@ -3317,86 +3317,88 @@ static Value eval_call(ASTNode *node, Environment *env) {
         return create_void();
     }
 
-    /* list_token operations - delegate to C runtime */
+    /* list_Token operations - delegate to C runtime */
     /* Note: Token structs are stored as pointers for now */
     /* When we rewrite lexer in nanolang, we'll use proper Token struct values */
-    if (strcmp(name, "list_token_new") == 0) {
-        List_token *list = list_token_new();
+    if (strcmp(name, "nl_list_Token_new") == 0) {
+        List_Token *list = nl_list_Token_new();
         Value result = create_int((long long)list);
         return result;
     }
-    if (strcmp(name, "list_token_with_capacity") == 0) {
-        List_token *list = list_token_with_capacity(args[0].as.int_val);
+    if (strcmp(name, "nl_list_Token_with_capacity") == 0) {
+        List_Token *list = nl_list_Token_with_capacity(args[0].as.int_val);
         return create_int((long long)list);
     }
-    if (strcmp(name, "list_token_push") == 0) {
-        List_token *list = (List_token*)args[0].as.int_val;
+    if (strcmp(name, "nl_list_Token_push") == 0) {
+        List_Token *list = (List_Token*)args[0].as.int_val;
         /* For now, args[1] should be a Token struct pointer */
         /* When we have proper Token struct support, this will change */
         Token *token = (Token*)args[1].as.int_val;
         if (token) {
-            list_token_push(list, *token);
+            nl_list_Token_push(list, *token);
         }
         return create_void();
     }
-    if (strcmp(name, "list_token_pop") == 0) {
-        List_token *list = (List_token*)args[0].as.int_val;
-        Token token = list_token_pop(list);
+    if (strcmp(name, "nl_list_Token_pop") == 0) {
+        List_Token *list = (List_Token*)args[0].as.int_val;
+        Token token = nl_list_Token_pop(list);
         /* Return token as struct value - for now return pointer */
         /* TODO: Convert Token to proper struct value when we have Token struct support */
         Token *token_ptr = malloc(sizeof(Token));
         *token_ptr = token;
         return create_int((long long)token_ptr);
     }
-    if (strcmp(name, "list_token_get") == 0) {
-        List_token *list = (List_token*)args[0].as.int_val;
-        Token *token = list_token_get(list, args[1].as.int_val);
-        /* Return token pointer for now */
-        return create_int((long long)token);
-    }
-    if (strcmp(name, "list_token_set") == 0) {
-        List_token *list = (List_token*)args[0].as.int_val;
-        Token *token = (Token*)args[2].as.int_val;
-        if (token) {
-            list_token_set(list, args[1].as.int_val, *token);
-        }
-        return create_void();
-    }
-    if (strcmp(name, "list_token_insert") == 0) {
-        List_token *list = (List_token*)args[0].as.int_val;
-        Token *token = (Token*)args[2].as.int_val;
-        if (token) {
-            list_token_insert(list, args[1].as.int_val, *token);
-        }
-        return create_void();
-    }
-    if (strcmp(name, "list_token_remove") == 0) {
-        List_token *list = (List_token*)args[0].as.int_val;
-        Token token = list_token_remove(list, args[1].as.int_val);
+    if (strcmp(name, "nl_list_Token_get") == 0) {
+        List_Token *list = (List_Token*)args[0].as.int_val;
+        Token token = nl_list_Token_get(list, args[1].as.int_val);
+        /* Return token as struct value - for now return pointer */
         Token *token_ptr = malloc(sizeof(Token));
         *token_ptr = token;
         return create_int((long long)token_ptr);
     }
-    if (strcmp(name, "list_token_length") == 0) {
-        List_token *list = (List_token*)args[0].as.int_val;
-        return create_int(list_token_length(list));
-    }
-    if (strcmp(name, "list_token_capacity") == 0) {
-        List_token *list = (List_token*)args[0].as.int_val;
-        return create_int(list_token_capacity(list));
-    }
-    if (strcmp(name, "list_token_is_empty") == 0) {
-        List_token *list = (List_token*)args[0].as.int_val;
-        return create_bool(list_token_is_empty(list));
-    }
-    if (strcmp(name, "list_token_clear") == 0) {
-        List_token *list = (List_token*)args[0].as.int_val;
-        list_token_clear(list);
+    if (strcmp(name, "nl_list_Token_set") == 0) {
+        List_Token *list = (List_Token*)args[0].as.int_val;
+        Token *token = (Token*)args[2].as.int_val;
+        if (token) {
+            nl_list_Token_set(list, args[1].as.int_val, *token);
+        }
         return create_void();
     }
-    if (strcmp(name, "list_token_free") == 0) {
-        List_token *list = (List_token*)args[0].as.int_val;
-        list_token_free(list);
+    if (strcmp(name, "nl_list_Token_insert") == 0) {
+        List_Token *list = (List_Token*)args[0].as.int_val;
+        Token *token = (Token*)args[2].as.int_val;
+        if (token) {
+            nl_list_Token_insert(list, args[1].as.int_val, *token);
+        }
+        return create_void();
+    }
+    if (strcmp(name, "nl_list_Token_remove") == 0) {
+        List_Token *list = (List_Token*)args[0].as.int_val;
+        Token token = nl_list_Token_remove(list, args[1].as.int_val);
+        Token *token_ptr = malloc(sizeof(Token));
+        *token_ptr = token;
+        return create_int((long long)token_ptr);
+    }
+    if (strcmp(name, "nl_list_Token_length") == 0) {
+        List_Token *list = (List_Token*)args[0].as.int_val;
+        return create_int(nl_list_Token_length(list));
+    }
+    if (strcmp(name, "nl_list_Token_capacity") == 0) {
+        List_Token *list = (List_Token*)args[0].as.int_val;
+        return create_int(nl_list_Token_capacity(list));
+    }
+    if (strcmp(name, "nl_list_Token_is_empty") == 0) {
+        List_Token *list = (List_Token*)args[0].as.int_val;
+        return create_bool(nl_list_Token_is_empty(list));
+    }
+    if (strcmp(name, "nl_list_Token_clear") == 0) {
+        List_Token *list = (List_Token*)args[0].as.int_val;
+        nl_list_Token_clear(list);
+        return create_void();
+    }
+    if (strcmp(name, "nl_list_Token_free") == 0) {
+        List_Token *list = (List_Token*)args[0].as.int_val;
+        nl_list_Token_free(list);
         return create_void();
     }
 

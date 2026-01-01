@@ -935,7 +935,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
         saved_main->is_extern = true;
     }
 
-    char *c_code = transpile_to_c(module_ast, module_env);
+    char *c_code = transpile_to_c(module_ast, module_env, module_path);
 
     if (saved_main) {
         saved_main->is_extern = saved_main_is_extern;
@@ -1035,10 +1035,14 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
                     detected_types[detected_count][63] = '\0';
                     detected_count++;
 
+                    const char *c_type = type_name;
+                    if (strcmp(type_name, "LexerToken") == 0) c_type = "Token";
+                    else if (strcmp(type_name, "NSType") == 0) c_type = "NSType";
+
                     char gen_cmd[512];
                     snprintf(gen_cmd, sizeof(gen_cmd),
-                             "./scripts/generate_list.sh %s /tmp > /dev/null 2>&1",
-                             type_name);
+                             "./scripts/generate_list.sh %s /tmp %s > /dev/null 2>&1",
+                             type_name, c_type);
                     if (verbose) {
                         printf("[Modules] Generating List<%s> runtime...\n", type_name);
                     }
@@ -1067,7 +1071,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
 
     char compile_cmd[1024];
     snprintf(compile_cmd, sizeof(compile_cmd),
-            "%s -std=c99 -Isrc -Imodules/std/collections -Imodules/std/json -Imodules/std/io -Imodules/std/math -Imodules/std/peg -Imodules/std/string -Imodules/sdl_helpers %s -c -o %s %s",
+            "%s -std=c99 -Isrc -Imodules/std -Imodules/std/collections -Imodules/std/json -Imodules/std/io -Imodules/std/math -Imodules/std/peg -Imodules/std/string -Imodules/sdl_helpers %s -c -o %s %s",
             cc, sdl_flags, output_obj, temp_c_file);
     
     if (verbose) {
@@ -1242,11 +1246,41 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                 return false;
             }
             
-            /* Note: object file is included in link_flags, so we don't add it here */
-            /* It will be added below when we collect all link flags */
-            
             build_infos[build_info_count++] = info;
             c_modules_built++;
+
+            /* 
+             * IMPORTANT: If the module ALSO has a .nano file with implementations 
+             * (not just externs), we must compile it too!
+             */
+            if (!is_ffi_only_module(module_path)) {
+                if (verbose) {
+                    printf("[Modules] Also compiling nanolang parts of C module '%s'\n", meta->name);
+                }
+                
+                char nano_obj[512];
+                snprintf(nano_obj, sizeof(nano_obj), "obj/nano_modules/%s_nano.o", meta->name);
+                
+                if (!compile_module_to_object(module_path, nano_obj, env, verbose)) {
+                    fprintf(stderr, "Error: Failed to compile nanolang parts of module '%s'\n", meta->name);
+                    module_metadata_free(meta);
+                    free(module_dir);
+                    module_builder_free(builder);
+                    for (int j = 0; j < build_info_count; j++) {
+                        module_build_info_free(build_infos[j]);
+                    }
+                    free(build_infos);
+                    return false;
+                }
+                
+                if (strlen(module_objs_buffer) + strlen(nano_obj) + 2 < buffer_size) {
+                    if (module_objs_buffer[0] != '\0') {
+                        strcat(module_objs_buffer, " ");
+                    }
+                    strcat(module_objs_buffer, nano_obj);
+                }
+            }
+            
             module_metadata_free(meta);
         } else {
             /* No module.json - check if it's FFI-only (just extern declarations) */

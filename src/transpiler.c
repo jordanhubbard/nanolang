@@ -162,22 +162,61 @@ static void emit_indent(StringBuilder *sb, int indent) {
 /* Check if a struct/enum name is a runtime-provided typedef (not a user-defined type) */
 static bool is_runtime_typedef(const char *name) {
     /* Runtime typedefs that don't use 'struct' keyword */
-    return strcmp(name, "List_int") == 0 ||
-           strcmp(name, "List_string") == 0 ||
-           strcmp(name, "List_token") == 0;
+    if (strncmp(name, "List_", 5) == 0) {
+        return true;
+    }
+    
+    if (strcmp(name, "LexerToken") == 0) {
+        return true;
+    }
+    
+    /* Schema types defined in compiler_schema.h are also considered runtime typedefs
+     * to avoid redefinition errors when self-hosting. */
+    if (strncmp(name, "AST", 3) == 0 ||
+        strcmp(name, "ParseNode") == 0 ||
+        strcmp(name, "Parser") == 0 ||
+        strcmp(name, "CompilerPhase") == 0 ||
+        strncmp(name, "Compiler", 8) == 0 ||
+        strcmp(name, "Token") == 0 ||
+        strcmp(name, "Type") == 0 ||
+        strcmp(name, "NSType") == 0 ||
+        strcmp(name, "DiagnosticSeverity") == 0 ||
+        strcmp(name, "OptionType") == 0 ||
+        strstr(name, "PhaseOutput") != NULL) {
+        return true;
+    }
+    
+    return false;
 }
 
 /* Check if an enum/struct name would conflict with C runtime types */
 static bool conflicts_with_runtime(const char *name) {
     /* These are defined in nanolang.h and would cause conflicts */
-    return strcmp(name, "TokenType") == 0 ||
-           strcmp(name, "Token") == 0;
+    if (strcmp(name, "TokenType") == 0 ||
+        strcmp(name, "Token") == 0) {
+        return true;
+    }
+    
+    /* Schema types should also avoid nl_ prefix to match compiler_schema.h */
+    return is_runtime_typedef(name);
 }
 
 /* Get prefixed type name for user-defined types */
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_type_name(const char *name) {
     static _Thread_local char buffer[512];
+    
+    /* Native types */
+    if (strcmp(name, "int") == 0) return "int64_t";
+    if (strcmp(name, "u8") == 0) return "uint8_t";
+    if (strcmp(name, "float") == 0) return "double";
+    if (strcmp(name, "bool") == 0) return "bool";
+    if (strcmp(name, "string") == 0) return "const char *";
+    if (strcmp(name, "void") == 0) return "void";
+    
+    /* Special mappings for runtime types */
+    if (strcmp(name, "Token") == 0) return "Token";
+    if (strcmp(name, "NSType") == 0) return "NSType";
     
     /* Runtime types: no prefix */
     if (is_runtime_typedef(name) || conflicts_with_runtime(name)) {
@@ -193,7 +232,11 @@ static const char *get_prefixed_type_name(const char *name) {
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_variant_name(const char *enum_name, const char *variant_name) {
     static _Thread_local char buffer[512];
-    snprintf(buffer, sizeof(buffer), "nl_%s_%s", enum_name, variant_name);
+    if (is_runtime_typedef(enum_name)) {
+        snprintf(buffer, sizeof(buffer), "%s_%s", enum_name, variant_name);
+    } else {
+        snprintf(buffer, sizeof(buffer), "nl_%s_%s", enum_name, variant_name);
+    }
     return buffer;
 }
 
@@ -202,6 +245,18 @@ static const char *get_prefixed_variant_name(const char *enum_name, const char *
 static const char *get_prefixed_variant_struct_name(const char *union_name, const char *variant_name) {
     static _Thread_local char buffer[512];
     snprintf(buffer, sizeof(buffer), "nl_%s_%s", union_name, variant_name);
+    return buffer;
+}
+
+/* Get prefixed union tag name: nl_UnionName_TAG_Variant */
+/* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
+static const char *get_prefixed_tag_name(const char *union_name, const char *variant_name) {
+    static _Thread_local char buffer[512];
+    if (is_runtime_typedef(union_name)) {
+        snprintf(buffer, sizeof(buffer), "%s_TAG_%s", union_name, variant_name);
+    } else {
+        snprintf(buffer, sizeof(buffer), "nl_%s_TAG_%s", union_name, variant_name);
+    }
     return buffer;
 }
 
@@ -694,7 +749,7 @@ static const char *type_to_c(Type type) {
         case TYPE_FUNCTION: return ""; /* Will be handled with typedef */
         case TYPE_LIST_INT: return "List_int*";
         case TYPE_LIST_STRING: return "List_string*";
-        case TYPE_LIST_TOKEN: return "List_token*";
+        case TYPE_LIST_TOKEN: return "List_Token*";
         case TYPE_LIST_GENERIC: return ""; /* Will be handled specially with type_name */
         case TYPE_OPAQUE: return "void*"; /* Opaque pointers stored as void* */
         default: return "void";
@@ -736,14 +791,19 @@ static void mangle_module_name(char *dest, size_t dest_size, const char *module_
 }
 
 /* Helper: Get C function name with namespace mangling support */
-static const char *get_c_func_name_with_module(const char *nano_name, const char *module_name) {
+static const char *get_c_func_name_with_module(const char *nano_name, const char *module_name, bool is_extern) {
     /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
     static _Thread_local char buffer[512];
+    
+    /* Extern functions use their original name without any mangling or nl_ prefix */
+    if (is_extern) {
+        return nano_name;
+    }
     
     /* Don't prefix list runtime functions */
     if (strncmp(nano_name, "list_int_", 9) == 0 || 
         strncmp(nano_name, "list_string_", 12) == 0 ||
-        strncmp(nano_name, "list_token_", 11) == 0) {
+        strncmp(nano_name, "nl_list_Token_", 11) == 0) {
         return nano_name;
     }
     
@@ -1028,6 +1088,7 @@ static void generate_c_headers(StringBuilder *sb) {
     sb_append(sb, "#include \"runtime/nl_string.h\"\n");
     sb_append(sb, "#include \"runtime/gc.h\"\n");
     sb_append(sb, "#include \"runtime/dyn_array.h\"\n");
+    sb_append(sb, "#include \"nanolang.h\"\n");
     
     /* Include headers from imported modules (generic C library support) */
     if (g_module_headers_count > 0) {
@@ -1045,7 +1106,7 @@ static void generate_c_headers(StringBuilder *sb) {
     sb_append(sb, "\n/* nanolang runtime */\n");
     sb_append(sb, "#include \"runtime/list_int.h\"\n");
     sb_append(sb, "#include \"runtime/list_string.h\"\n");
-    sb_append(sb, "#include \"runtime/list_token.h\"\n");
+    sb_append(sb, "#include \"runtime/list_Token.h\"\n");
     sb_append(sb, "#include \"runtime/token_helpers.h\"\n");
     sb_append(sb, "#include <sys/stat.h>\n");
     sb_append(sb, "#include <sys/types.h>\n");
@@ -1188,9 +1249,16 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
         sb_append(sb, "\n/* Function forward declarations */\n");
         for (int i = 0; i < detected_list_count; i++) {
             const char *type_name = detected_list_types[i];
+            const char *c_type = get_prefixed_type_name(type_name);
+            
+            /* Check if we should use 'struct' keyword. 
+             * For runtime types (no prefix), we should NOT use 'struct' because they are typedefs. 
+             * But for user types (nl_ prefix), they are ALSO typedefs now.
+             * Wait! The generated list functions expect the struct type. */
+             
             sb_appendf(sb, "List_%s* nl_list_%s_new(void);\n", type_name, type_name);
-            sb_appendf(sb, "void nl_list_%s_push(List_%s *list, struct nl_%s value);\n", type_name, type_name, type_name);
-            sb_appendf(sb, "struct nl_%s nl_list_%s_get(List_%s *list, int index);\n", type_name, type_name, type_name);
+            sb_appendf(sb, "void nl_list_%s_push(List_%s *list, %s value);\n", type_name, type_name, c_type);
+            sb_appendf(sb, "%s nl_list_%s_get(List_%s *list, int index);\n", c_type, type_name, type_name);
             sb_appendf(sb, "int nl_list_%s_length(List_%s *list);\n", type_name, type_name);
         }
         sb_append(sb, "/* ========== End Generic List Includes ========== */\n\n");
@@ -1269,6 +1337,11 @@ static void generate_enum_definitions(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->enum_count; i++) {
         EnumDef *edef = &env->enums[i];
         
+        /* Skip external C types */
+        if (edef->is_extern) {
+            continue;
+        }
+        
         /* Skip runtime-provided enums - they're already defined in nanolang.h */
         if (is_runtime_typedef(edef->name)) {
             continue;
@@ -1299,6 +1372,13 @@ static void __attribute__((unused)) generate_struct_definitions(Environment *env
     for (int i = 0; i < env->struct_count; i++) {
         StructDef *sdef = &env->structs[i];
         
+        /* Skip external C types */
+        if (sdef->is_extern) {
+            printf("Skipping extern struct: %s\n", sdef->name);
+            continue;
+        }
+        printf("Emitting struct: %s (is_extern=%d)\n", sdef->name, sdef->is_extern);
+        
         /* Get prefixed name (adds nl_ for user types, keeps runtime types as-is) */
         /* IMPORTANT: Save a copy since get_prefixed_type_name uses a static buffer */
         const char *prefixed_name = strdup(get_prefixed_type_name(sdef->name));
@@ -1307,7 +1387,9 @@ static void __attribute__((unused)) generate_struct_definitions(Environment *env
             exit(1);
         }
         
-        /* Generate typedef struct */
+        /* Generate typedef struct with guards to prevent redefinition errors with compiler_schema.h */
+        sb_appendf(sb, "#ifndef DEFINED_%s\n", prefixed_name);
+        sb_appendf(sb, "#define DEFINED_%s\n", prefixed_name);
         sb_appendf(sb, "typedef struct %s {\n", prefixed_name);
         for (int j = 0; j < sdef->field_count; j++) {
             sb_append(sb, "    ");
@@ -1333,7 +1415,8 @@ static void __attribute__((unused)) generate_struct_definitions(Environment *env
             }
             sb_appendf(sb, " %s;\n", sdef->field_names[j]);
         }
-        sb_appendf(sb, "} %s;\n\n", prefixed_name);
+        sb_appendf(sb, "} %s;\n", prefixed_name);
+        sb_append(sb, "#endif\n\n");
         free((void*)prefixed_name);  /* Free the duplicated name */
     }
     sb_append(sb, "/* ========== End Struct Definitions ========== */\n\n");
@@ -1344,6 +1427,11 @@ static void __attribute__((unused)) generate_union_definitions(Environment *env,
     sb_append(sb, "/* ========== Union Definitions ========== */\n\n");
     for (int i = 0; i < env->union_count; i++) {
         UnionDef *udef = &env->unions[i];
+        
+        /* Skip external C types */
+        if (udef->is_extern) {
+            continue;
+        }
         
         /* Skip generic union definitions - they'll be generated as instantiations */
         if (udef->generic_param_count > 0) {
@@ -1619,6 +1707,12 @@ static void emit_struct_definition_single(Environment *env, StringBuilder *sb, S
         exit(1);
     }
 
+    /* Generate typedef struct with guards to prevent redefinition errors */
+    sb_appendf(sb, "#ifndef DEFINED_%s\n", prefixed_name_dup);
+    sb_appendf(sb, "#define DEFINED_%s\n", prefixed_name_dup);
+    
+    /* For runtime types, use the name without struct keyword if possible, 
+     * but we need to define it if it's not already defined. */
     sb_appendf(sb, "typedef struct %s {\n", prefixed_name_dup);
     for (int j = 0; j < sdef->field_count; j++) {
         sb_append(sb, "    ");
@@ -1645,7 +1739,8 @@ static void emit_struct_definition_single(Environment *env, StringBuilder *sb, S
         }
         sb_appendf(sb, " %s;\n", sdef->field_names[j]);
     }
-    sb_appendf(sb, "} %s;\n\n", prefixed_name_dup);
+    sb_appendf(sb, "} %s;\n", prefixed_name_dup);
+    sb_append(sb, "#endif\n\n");
     free((void*)prefixed_name_dup);
 }
 
@@ -1827,6 +1922,7 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
 
     for (int i = 0; i < env->struct_count; i++) {
         if (!env->structs[i].name) continue;
+        if (env->structs[i].is_extern) continue;
         items[count++] = (NLCompositeTypeItem){ .kind = NL_CT_STRUCT, .name = env->structs[i].name, .index = i, .generic_union_def = NULL };
     }
 
@@ -1834,6 +1930,7 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
         UnionDef *udef = &env->unions[i];
         if (!udef || !udef->name) continue;
         if (udef->generic_param_count > 0) continue;
+        if (udef->is_extern) continue;
         items[count++] = (NLCompositeTypeItem){ .kind = NL_CT_UNION, .name = udef->name, .index = i, .generic_union_def = NULL };
     }
 
@@ -2042,7 +2139,6 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->enum_count; i++) {
         EnumDef *edef = &env->enums[i];
         if (!edef || !edef->name) continue;
-        if (is_runtime_typedef(edef->name)) continue;
         const char *prefixed_enum = get_prefixed_type_name(edef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s v);\n", edef->name, prefixed_enum);
     }
@@ -2050,7 +2146,6 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->struct_count; i++) {
         StructDef *sdef = &env->structs[i];
         if (!sdef || !sdef->name) continue;
-        if (is_runtime_typedef(sdef->name)) continue;
         const char *prefixed_struct = get_prefixed_type_name(sdef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s v);\n", sdef->name, prefixed_struct);
     }
@@ -2058,7 +2153,6 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->union_count; i++) {
         UnionDef *udef = &env->unions[i];
         if (!udef || !udef->name) continue;
-        if (is_runtime_typedef(udef->name)) continue;
         if (udef->generic_param_count > 0) continue;
         const char *prefixed_union = get_prefixed_type_name(udef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s u);\n", udef->name, prefixed_union);
@@ -2092,14 +2186,14 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->enum_count; i++) {
         EnumDef *edef = &env->enums[i];
         if (!edef || !edef->name) continue;
-        if (is_runtime_typedef(edef->name)) continue;
 
         const char *prefixed_enum = get_prefixed_type_name(edef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s v) {\n", edef->name, prefixed_enum);
         sb_append(sb, "    switch (v) {\n");
         for (int j = 0; j < edef->variant_count; j++) {
-            sb_appendf(sb, "        case nl_%s_%s: return \"%s.%s\";\n",
-                       edef->name, edef->variant_names[j], edef->name, edef->variant_names[j]);
+            const char *prefixed_variant = get_prefixed_variant_name(edef->name, edef->variant_names[j]);
+            sb_appendf(sb, "        case %s: return \"%s.%s\";\n",
+                       prefixed_variant, edef->name, edef->variant_names[j]);
         }
         sb_appendf(sb, "        default: return \"%s.<unknown>\";\n", edef->name);
         sb_append(sb, "    }\n");
@@ -2110,7 +2204,6 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->struct_count; i++) {
         StructDef *sdef = &env->structs[i];
         if (!sdef || !sdef->name) continue;
-        if (is_runtime_typedef(sdef->name)) continue;
 
         const char *prefixed_struct = get_prefixed_type_name(sdef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s v) {\n", sdef->name, prefixed_struct);
@@ -2169,7 +2262,6 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
         UnionDef *udef = &env->unions[i];
         if (!udef || !udef->name) continue;
         if (udef->generic_param_count > 0) continue;
-        if (is_runtime_typedef(udef->name)) continue;
 
         const char *prefixed_union = get_prefixed_type_name(udef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s u) {\n", udef->name, prefixed_union);
@@ -2177,7 +2269,8 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
         sb_append(sb, "    switch (u.tag) {\n");
 
         for (int j = 0; j < udef->variant_count; j++) {
-            sb_appendf(sb, "        case nl_%s_TAG_%s: {\n", udef->name, udef->variant_names[j]);
+            const char *prefixed_tag = get_prefixed_tag_name(udef->name, udef->variant_names[j]);
+            sb_appendf(sb, "        case %s: {\n", prefixed_tag);
             sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, \"%s.%s\");\n", udef->name, udef->variant_names[j]);
             if (udef->variant_field_counts[j] > 0) {
                 sb_append(sb, "            nl_fmt_sb_append_cstr(&sb, \" { \");\n");
@@ -2284,7 +2377,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
 /* Generate forward declarations for functions defined in imported nanolang modules.
  * These modules are compiled into separate .o files (see compile_modules()), so the
  * main translation unit needs prototypes to avoid implicit-declaration errors. */
-static void generate_module_function_declarations(StringBuilder *sb, ASTNode *program, Environment *env) {
+static void generate_module_function_declarations(StringBuilder *sb, ASTNode *program, Environment *env, const char *current_file) {
     if (!program || program->type != AST_PROGRAM) return;
 
     sb_append(sb, "/* Forward declarations for imported module functions */\n");
@@ -2302,7 +2395,7 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
         ASTNode *item = program->as.program.items[i];
         if (!item || item->type != AST_IMPORT) continue;
 
-        const char *resolved = resolve_module_path(item->as.import_stmt.module_path, NULL);
+        const char *resolved = resolve_module_path(item->as.import_stmt.module_path, current_file);
         if (!resolved) continue;
 
         ASTNode *module_ast = get_cached_module_ast(resolved);
@@ -2322,16 +2415,19 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
             ASTNode *mi = module_ast->as.program.items[j];
             if (!mi || mi->type != AST_FUNCTION) continue;
             if (!mi->as.function.is_pub) continue;
-            if (mi->as.function.is_extern) continue;
+            /* main is always entry point, not a module function to be imported */
             if (strcmp(mi->as.function.name, "main") == 0) continue;
 
             const char *c_name = NULL;
             char c_name_buf[512];
-            if (module_name) {
+            if (mi->as.function.is_extern) {
+                /* Extern functions use their literal name */
+                c_name = mi->as.function.name;
+            } else if (module_name) {
                 snprintf(c_name_buf, sizeof(c_name_buf), "%s__%s", module_name, mi->as.function.name);
                 c_name = c_name_buf;
             } else {
-                c_name = get_c_func_name_with_module(mi->as.function.name, NULL);
+                c_name = get_c_func_name_with_module(mi->as.function.name, NULL, mi->as.function.is_extern);
             }
 
             /* De-dupe */
@@ -2511,7 +2607,7 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                 module_name = func->module_name;
             }
             /* Use namespace-aware function name (handles module::function -> module__function) */
-            const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name);
+            const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name, item->as.function.is_extern);
             sb_appendf(sb, " %s(", c_func_name);
             
             /* Function parameters */
@@ -2635,7 +2731,7 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                 module_name = func->module_name;
             }
             /* Use namespace-aware function name (handles module::function -> module__function) */
-            const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name);
+            const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name, item->as.function.is_extern);
             sb_appendf(sb, " %s(", c_func_name);
             
             /* Function parameters */
@@ -2824,7 +2920,7 @@ static void generate_main_wrapper(StringBuilder *sb, Environment *env) {
     }
     
     /* Get the mangled name for main (could be module__main) */
-    const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name);
+    const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name, main_func->is_extern);
     
     sb_append(sb, "\n/* C main() entry point - calls nanolang main */\n");
     sb_append(sb, "/* Global argc/argv for CLI runtime support */\n");
@@ -3093,7 +3189,7 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
         /* Skip runtime list functions - they're declared in runtime headers */ \
         if (strncmp(func_name, "list_int_", 9) == 0 || \
             strncmp(func_name, "list_string_", 12) == 0 || \
-            strncmp(func_name, "list_token_", 11) == 0) { \
+            strncmp(func_name, "nl_list_Token_", 11) == 0) { \
             break; \
         } \
         \
@@ -3216,7 +3312,7 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
 }
 
 /* Transpile program to C */
-char *transpile_to_c(ASTNode *program, Environment *env) {
+char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file) {
     if (!program || program->type != AST_PROGRAM) {
         return NULL;
     }
@@ -3293,7 +3389,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     generate_module_extern_declarations(sb, program, env);
 
     /* Forward declare imported module functions */
-    generate_module_function_declarations(sb, program, env);
+    generate_module_function_declarations(sb, program, env, input_file);
     
     /* Emit top-level constants */
     generate_toplevel_constants(sb, program, env);

@@ -23,8 +23,25 @@ const char* get_argv(int64_t index) {
     return g_argv[index];
 }
 
+#include <stdlib.h>
+
 /* Wrapper for system() to avoid conflicts with stdlib.h declaration */
-int64_t nl_system_exec(const char* command) {
-    extern int system(const char*);  /* Forward declaration */
+int64_t nl_os_system(const char* command) {
     return (int64_t)system(command);
+}
+
+/* Wrapper for getenv() */
+const char* nl_os_getenv(const char* name) {
+    const char* val = getenv(name);
+    return val ? val : "";
+}
+
+/* Wrapper for setenv() */
+int64_t nl_os_setenv(const char* name, const char* value, int64_t overwrite) {
+    return (int64_t)setenv(name, value, (int)overwrite);
+}
+
+/* Wrapper for unsetenv() */
+int64_t nl_os_unsetenv(const char* name) {
+    return (int64_t)unsetenv(name);
 }

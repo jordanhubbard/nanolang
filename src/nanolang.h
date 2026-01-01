@@ -282,6 +282,7 @@ struct ASTNode {
             Parameter *params;
             int param_count;
             Type return_type;
+            Type return_element_type;       /* For TYPE_ARRAY returns */
             char *return_struct_type_name;  /* For TYPE_STRUCT returns */
             FunctionSignature *return_fn_sig;  /* For TYPE_FUNCTION returns */
             TypeInfo *return_type_info;  /* For TYPE_TUPLE returns: stores element types */
@@ -312,6 +313,7 @@ struct ASTNode {
             int field_count;          // Number of fields
             bool is_pub;              // Visibility: public (pub) vs private
             bool is_resource;         // Resource type: affine semantics (use at most once)
+            bool is_extern;           // External C type: do not emit definition
         } struct_def;
         struct {
             char *struct_name;        // Name of struct type
@@ -329,6 +331,7 @@ struct ASTNode {
             int *variant_values;      // Array of variant values (or NULL for auto)
             int variant_count;        // Number of variants
             bool is_pub;              // Visibility: public (pub) vs private
+            bool is_extern;           // External C type: do not emit definition
         } enum_def;
         
         /* Union definition: union Color { Red {}, Blue { intensity: int } } 
@@ -342,6 +345,7 @@ struct ASTNode {
             Type **variant_field_types;
             char ***variant_field_type_names;  // For TYPE_STRUCT/TYPE_UNION fields: actual type names
             bool is_pub;              // Visibility: public (pub) vs private
+            bool is_extern;           // External C type: do not emit definition
             char **generic_params;    // Generic parameter names: ["T", "E"]
             int generic_param_count;  // Number of generic parameters
         } union_def;
@@ -437,6 +441,7 @@ typedef struct {
     Parameter *params;
     int param_count;
     Type return_type;
+    Type return_element_type;       /* For TYPE_ARRAY returns */
     char *return_struct_type_name;  /* For TYPE_STRUCT returns: which struct */
     FunctionSignature *return_fn_sig;  /* For TYPE_FUNCTION returns: function signature */
     TypeInfo *return_type_info;  /* For TYPE_TUPLE returns: tuple element types */
@@ -457,6 +462,7 @@ typedef struct {
     int field_count;
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     bool is_resource;  /* Resource type: affine semantics (use at most once) */
+    bool is_extern;    /* External C type: do not emit definition */
     char *module_name;  /* Module this struct belongs to (NULL for global) */
 } StructDef;
 
@@ -467,6 +473,7 @@ typedef struct {
     int *variant_values;
     int variant_count;
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
+    bool is_extern;   /* External C type: do not emit definition */
     char *module_name;  /* Module this enum belongs to (NULL for global) */
 } EnumDef;
 
@@ -480,6 +487,7 @@ typedef struct {
     Type **variant_field_types;
     char ***variant_field_type_names;  /* For TYPE_STRUCT/TYPE_UNION fields: actual type names */
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
+    bool is_extern;   /* External C type: do not emit definition */
     char *module_name;  /* Module this union belongs to (NULL for global) */
     char **generic_params;    /* Generic parameter names: ["T", "E"] for Result<T, E> */
     int generic_param_count;  /* Number of generic parameters (0 for non-generic) */
@@ -575,6 +583,13 @@ void free_tokens(Token *tokens, int count);
 const char *token_type_name(TokenType type);
 
 /* Parser */
+typedef struct {
+    Token *tokens;
+    int count;
+    int pos;
+    int recursion_depth;  /* Track recursion depth to prevent stack overflow */
+} Stage1Parser;
+
 ASTNode *parse_program(Token *tokens, int token_count);
 void free_ast(ASTNode *node);
 
@@ -591,7 +606,7 @@ bool run_program(ASTNode *program, Environment *env);
 Value call_function(const char *name, Value *args, int arg_count, Environment *env);
 
 /* C Transpiler */
-char *transpile_to_c(ASTNode *program, Environment *env);
+char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file);
 
 /* Environment */
 Environment *create_environment(void);

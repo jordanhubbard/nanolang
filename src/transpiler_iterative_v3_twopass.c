@@ -333,10 +333,10 @@ static const char *map_function_name(const char *name, Environment *env) {
     /* User-defined function? Look up to get module context */
     Function *func = env_get_function(env, name);
     
-    if (func && !func->is_extern && func->body != NULL) {
+    if (func) {
         /* Use get_c_func_name_with_module for namespace mangling */
-        extern const char *get_c_func_name_with_module(const char *nano_name, const char *module_name);
-        return get_c_func_name_with_module(name, func->module_name);
+        extern const char *get_c_func_name_with_module(const char *nano_name, const char *module_name, bool is_extern);
+        return get_c_func_name_with_module(name, func->module_name, func->is_extern);
     }
     
     return name;

@@ -1,32 +1,17 @@
-#define _POSIX_C_SOURCE 200809L
-#include "list_token.h"
+#include "list_Token.h"
+#include "generated/compiler_schema.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
+/* Note: The actual struct nl_LexerToken definition must be included */
+/* before this file in the compilation */
+
 #define INITIAL_CAPACITY 8
 #define GROWTH_FACTOR 2
 
-/* Helper: Copy a token (deep copy of value string) */
-static Token token_copy(const Token *src) {
-    Token dst;
-    dst.token_type = src->token_type;
-    dst.value = src->value ? strdup(src->value) : NULL;
-    dst.line = src->line;
-    dst.column = src->column;
-    return dst;
-}
-
-/* Helper: Free a token's value string */
-static void token_free_value(Token *token) {
-    if (token->value) {
-        free(token->value);
-        token->value = NULL;
-    }
-}
-
 /* Helper: Ensure the list has enough capacity */
-static void ensure_capacity(List_token *list, int min_capacity) {
+static void ensure_capacity(List_Token *list, int min_capacity) {
     if (list->capacity >= min_capacity) {
         return;
     }
@@ -40,9 +25,9 @@ static void ensure_capacity(List_token *list, int min_capacity) {
         new_capacity *= GROWTH_FACTOR;
     }
     
-    Token *new_data = realloc(list->data, sizeof(Token) * new_capacity);
+    struct nl_LexerToken *new_data = realloc(list->data, sizeof(struct nl_LexerToken) * new_capacity);
     if (!new_data) {
-        fprintf(stderr, "Error: Failed to allocate memory for list_token\n");
+        fprintf(stderr, "Error: Failed to allocate memory for list\n");
         exit(1);
     }
     
@@ -51,21 +36,21 @@ static void ensure_capacity(List_token *list, int min_capacity) {
 }
 
 /* Create a new empty list */
-List_token* list_token_new(void) {
-    return list_token_with_capacity(INITIAL_CAPACITY);
+List_Token* nl_list_Token_new(void) {
+    return nl_list_Token_with_capacity(INITIAL_CAPACITY);
 }
 
 /* Create a new list with specified initial capacity */
-List_token* list_token_with_capacity(int capacity) {
-    List_token *list = malloc(sizeof(List_token));
+List_Token* nl_list_Token_with_capacity(int capacity) {
+    List_Token *list = malloc(sizeof(List_Token));
     if (!list) {
-        fprintf(stderr, "Error: Failed to allocate memory for list_token\n");
+        fprintf(stderr, "Error: Failed to allocate memory for list\n");
         exit(1);
     }
     
-    list->data = malloc(sizeof(Token) * capacity);
+    list->data = malloc(sizeof(struct nl_LexerToken) * capacity);
     if (!list->data) {
-        fprintf(stderr, "Error: Failed to allocate memory for list_token data\n");
+        fprintf(stderr, "Error: Failed to allocate memory for list data\n");
         exit(1);
     }
     
@@ -75,17 +60,17 @@ List_token* list_token_with_capacity(int capacity) {
     return list;
 }
 
-/* Append an element to the end of the list (copies the token) */
-void list_token_push(List_token *list, Token token) {
+/* Append an element to the end of the list */
+void nl_list_Token_push(List_Token *list, struct nl_LexerToken value) {
     ensure_capacity(list, list->length + 1);
-    list->data[list->length] = token_copy(&token);
+    list->data[list->length] = value;
     list->length++;
 }
 
-/* Remove and return the last element (caller must free token.value) */
-Token list_token_pop(List_token *list) {
+/* Remove and return the last element */
+struct nl_LexerToken nl_list_Token_pop(List_Token *list) {
     if (list->length == 0) {
-        fprintf(stderr, "Error: Cannot pop from empty list_token\n");
+        fprintf(stderr, "Error: Cannot pop from empty list\n");
         exit(1);
     }
     
@@ -93,10 +78,10 @@ Token list_token_pop(List_token *list) {
     return list->data[list->length];
 }
 
-/* Insert an element at the specified index (copies the token) */
-void list_token_insert(List_token *list, int index, Token token) {
+/* Insert an element at the specified index */
+void nl_list_Token_insert(List_Token *list, int index, struct nl_LexerToken value) {
     if (index < 0 || index > list->length) {
-        fprintf(stderr, "Error: Index %d out of bounds for list_token of length %d\n", 
+        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
         exit(1);
     }
@@ -105,96 +90,76 @@ void list_token_insert(List_token *list, int index, Token token) {
     
     /* Shift elements to the right */
     memmove(&list->data[index + 1], &list->data[index], 
-            sizeof(Token) * (list->length - index));
+            sizeof(struct nl_LexerToken) * (list->length - index));
     
-    list->data[index] = token_copy(&token);
+    list->data[index] = value;
     list->length++;
 }
 
-/* Remove and return the element at the specified index (caller must free token.value) */
-Token list_token_remove(List_token *list, int index) {
+/* Remove and return the element at the specified index */
+struct nl_LexerToken nl_list_Token_remove(List_Token *list, int index) {
     if (index < 0 || index >= list->length) {
-        fprintf(stderr, "Error: Index %d out of bounds for list_token of length %d\n", 
+        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
         exit(1);
     }
     
-    Token removed = list->data[index];
+    struct nl_LexerToken value = list->data[index];
     
     /* Shift elements to the left */
     memmove(&list->data[index], &list->data[index + 1], 
-            sizeof(Token) * (list->length - index - 1));
+            sizeof(struct nl_LexerToken) * (list->length - index - 1));
     
     list->length--;
-    return removed;
+    return value;
 }
 
-/* Set the value at the specified index (copies the token, frees old token.value) */
-void list_token_set(List_token *list, int index, Token token) {
+/* Set the value at the specified index */
+void nl_list_Token_set(List_Token *list, int index, struct nl_LexerToken value) {
     if (index < 0 || index >= list->length) {
-        fprintf(stderr, "Error: Index %d out of bounds for list_token of length %d\n", 
+        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
         exit(1);
     }
     
-    /* Free old token's value */
-    token_free_value(&list->data[index]);
-    
-    /* Copy new token */
-    list->data[index] = token_copy(&token);
+    list->data[index] = value;
 }
 
-/* Get the value at the specified index (returns pointer to internal token) */
-Token* list_token_get(List_token *list, int index) {
+/* Get the value at the specified index */
+struct nl_LexerToken nl_list_Token_get(List_Token *list, int index) {
     if (index < 0 || index >= list->length) {
-        fprintf(stderr, "Error: Index %d out of bounds for list_token of length %d\n", 
+        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
         exit(1);
     }
     
-    return &list->data[index];
+    return list->data[index];
 }
 
-/* Clear all elements from the list (frees all token.value strings) */
-void list_token_clear(List_token *list) {
-    for (int i = 0; i < list->length; i++) {
-        token_free_value(&list->data[i]);
-    }
+/* Clear all elements from the list */
+void nl_list_Token_clear(List_Token *list) {
     list->length = 0;
 }
 
 /* Get the current length of the list */
-int list_token_length(List_token *list) {
+int nl_list_Token_length(List_Token *list) {
     return list->length;
 }
 
 /* Get the current capacity of the list */
-int list_token_capacity(List_token *list) {
+int nl_list_Token_capacity(List_Token *list) {
     return list->capacity;
 }
 
 /* Check if the list is empty */
-bool list_token_is_empty(List_token *list) {
+bool nl_list_Token_is_empty(List_Token *list) {
     return list->length == 0;
 }
 
-/* Free the list and all its resources (frees all token.value strings) */
-void list_token_free(List_token *list) {
-    if (!list) {
-        return;
-    }
-    
-    /* Free all token values */
-    for (int i = 0; i < list->length; i++) {
-        token_free_value(&list->data[i]);
-    }
-    
-    /* Free data array */
-    if (list->data) {
+/* Free the list and all its resources */
+void nl_list_Token_free(List_Token *list) {
+    if (list) {
         free(list->data);
+        free(list);
     }
-    
-    /* Free list structure */
-    free(list);
 }
-

@@ -1187,6 +1187,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 
                                 /* Return appropriate type based on operation */
                                 if (strcmp(operation, "new") == 0 || strcmp(operation, "with_capacity") == 0) {
+                                    /* Register this instantiation for code generation */
+                                    env_register_list_instantiation(env, type_name);
                                     free(type_name);
                                     return TYPE_LIST_GENERIC;  /* Returns List<Type> */
                                 } else if (strcmp(operation, "get") == 0) {
@@ -2756,11 +2758,11 @@ static const char *builtin_function_names[] = {
     "list_string_get", "list_string_set", "list_string_insert", "list_string_remove",
     "list_string_length", "list_string_capacity", "list_string_is_empty", "list_string_clear",
     "list_string_free",
-    /* List operations - list_token */
-    "list_token_new", "list_token_with_capacity", "list_token_push", "list_token_pop",
-    "list_token_get", "list_token_set", "list_token_insert", "list_token_remove",
-    "list_token_length", "list_token_capacity", "list_token_is_empty", "list_token_clear",
-    "list_token_free"
+    /* List operations - list_Token */
+    "nl_list_Token_new", "nl_list_Token_with_capacity", "nl_list_Token_push", "nl_list_Token_pop",
+    "nl_list_Token_get", "nl_list_Token_set", "nl_list_Token_insert", "nl_list_Token_remove",
+    "nl_list_Token_length", "nl_list_Token_capacity", "nl_list_Token_is_empty", "nl_list_Token_clear",
+    "nl_list_Token_free"
 };
 
 static const int builtin_function_name_count = sizeof(builtin_function_names) / sizeof(char*);
@@ -3487,8 +3489,8 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    /* list_token operations */
-    func.name = "list_token_new";
+    /* list_Token operations */
+    func.name = "nl_list_Token_new";
     func.params = NULL;
     func.param_count = 0;
     func.return_type = TYPE_LIST_TOKEN;
@@ -3498,7 +3500,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_with_capacity";
+    func.name = "nl_list_Token_with_capacity";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_LIST_TOKEN;
@@ -3508,7 +3510,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_push";
+    func.name = "nl_list_Token_push";
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_VOID;
@@ -3518,7 +3520,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_pop";
+    func.name = "nl_list_Token_pop";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_STRUCT;  /* Returns Token struct */
@@ -3528,7 +3530,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_get";
+    func.name = "nl_list_Token_get";
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_STRUCT;  /* Returns Token struct */
@@ -3538,7 +3540,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_set";
+    func.name = "nl_list_Token_set";
     func.params = NULL;
     func.param_count = 3;
     func.return_type = TYPE_VOID;
@@ -3548,7 +3550,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_insert";
+    func.name = "nl_list_Token_insert";
     func.params = NULL;
     func.param_count = 3;
     func.return_type = TYPE_VOID;
@@ -3558,7 +3560,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_remove";
+    func.name = "nl_list_Token_remove";
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_STRUCT;  /* Returns Token struct */
@@ -3568,7 +3570,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_length";
+    func.name = "nl_list_Token_length";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
@@ -3578,7 +3580,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_capacity";
+    func.name = "nl_list_Token_capacity";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
@@ -3588,7 +3590,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_is_empty";
+    func.name = "nl_list_Token_is_empty";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_BOOL;
@@ -3598,7 +3600,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_clear";
+    func.name = "nl_list_Token_clear";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_VOID;
@@ -3608,7 +3610,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_free";
+    func.name = "nl_list_Token_free";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_VOID;
@@ -3727,6 +3729,7 @@ bool type_check(ASTNode *program, Environment *env) {
             }
             
             sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
+            sdef.is_extern = item->as.struct_def.is_extern;      /* Propagate extern flag */
             
             env_define_struct(env, sdef);
             
@@ -3806,6 +3809,7 @@ bool type_check(ASTNode *program, Environment *env) {
             /* Set module visibility */
             udef.is_pub = item->as.union_def.is_pub;
             udef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            udef.is_extern = item->as.union_def.is_extern;
             
             env_define_union(env, udef);
             
@@ -3925,6 +3929,11 @@ bool type_check(ASTNode *program, Environment *env) {
                     edef.variant_values[j] = j;
                 }
             }
+            
+            /* Set module visibility */
+            edef.is_pub = item->as.enum_def.is_pub;
+            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.is_extern = item->as.enum_def.is_extern;
             
             env_define_enum(env, edef);
             
@@ -4360,6 +4369,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
             }
             
             sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
+            sdef.is_extern = item->as.struct_def.is_extern;      /* Propagate extern flag */
             
             env_define_struct(env, sdef);
             
@@ -4439,6 +4449,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
             /* Set module visibility */
             udef.is_pub = item->as.union_def.is_pub;
             udef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            udef.is_extern = item->as.union_def.is_extern;
             
             env_define_union(env, udef);
             
@@ -4547,6 +4558,11 @@ bool type_check_module(ASTNode *program, Environment *env) {
                     edef.variant_values[j] = j;
                 }
             }
+            
+            /* Set module visibility */
+            edef.is_pub = item->as.enum_def.is_pub;
+            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.is_extern = item->as.enum_def.is_extern;
             
             env_define_enum(env, edef);
             
