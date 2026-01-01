@@ -40,19 +40,6 @@ def gen_nano_schema(schema: dict) -> str:
     tokens = prepare_tokens(schema)
     lines: list[str] = [HEADER_COMMENT.strip(), ""]
 
-    lines.append("/* Shared lexer token definition */")
-    lines.append("struct LexerToken {")
-    for idx, field in enumerate(schema["token"]["fields"]):
-        ftype = field["type"]
-        if ftype == "enum":
-            nano_type = "int"
-        else:
-            nano_type = ftype
-        comma = "," if idx < len(schema["token"]["fields"]) - 1 else ""
-        lines.append(f"    {field['name']}: {nano_type}{comma}")
-    lines.append("}")
-    lines.append("")
-
     lines.append("enum LexerTokenType {")
     for idx, token in enumerate(tokens):
         comment = token.get("comment")
@@ -71,24 +58,6 @@ def gen_nano_schema(schema: dict) -> str:
     lines.append("}")
     lines.append("")
 
-    lines.append("struct TypeEnvironment {")
-    for idx, field in enumerate(schema["type_environment"]):
-        comma = "," if idx < len(schema["type_environment"]) - 1 else ""
-        lines.append(f"    {field['name']}: {field['type']}{comma}")
-    lines.append("}")
-    lines.append("")
-
-    # Add extern declarations for C-emitted types
-    for struct in schema.get("nano_structs", []):
-        if not struct.get("emit_c"):
-            continue
-        lines.append(f"extern struct {struct['name']} {{")
-        for idx, (field_name, field_type) in enumerate(struct["fields"]):
-            comma = "," if idx < len(struct["fields"]) - 1 else ""
-            lines.append(f"    {field_name}: {field_type}{comma}")
-        lines.append("}")
-        lines.append("")
-
     return "\n".join(lines)
 
 
@@ -104,10 +73,12 @@ def gen_nano_ast(schema: dict) -> str:
         lines.append("")
 
     for struct in schema.get("nano_structs", []):
-        # Skip structs that are emitted to C - they're available via C header
-        if struct.get("emit_c"):
-            continue
-        lines.append(f"struct {struct['name']} {{")
+        # Use extern struct for types that are emitted to C - they're available via C header
+        prefix = "extern " if struct.get("emit_c") else ""
+            
+        struct_name = struct['name']
+            
+        lines.append(f"{prefix}struct {struct_name} {{")
         for idx, (field_name, field_type) in enumerate(struct["fields"]):
             comma = "," if idx < len(struct["fields"]) - 1 else ""
             lines.append(f"    {field_name}: {field_type}{comma}")
@@ -148,6 +119,43 @@ C_GUARD = "NANOLANG_GENERATED_COMPILER_SCHEMA_H"
 
 def gen_c(schema: dict) -> str:
     lines: list[str] = [HEADER_COMMENT.strip(), "", f"#ifndef {C_GUARD}", f"#define {C_GUARD}", ""]
+    
+    lines.append("#include <stdint.h>")
+    lines.append("#include <stdbool.h>")
+    lines.append("#include \"runtime/dyn_array.h\"")
+    lines.append("")
+    
+    # Forward declare List types
+    detected_lists = set()
+    for struct in schema.get("nano_structs", []):
+        for _, ftype in struct["fields"]:
+            if ftype.startswith("List<"):
+                detected_lists.add(ftype[5:-1])
+    
+    if detected_lists:
+        lines.append("/* Forward declare List types */")
+        for inner in sorted(detected_lists):
+            lines.append(f"#ifndef FORWARD_DEFINED_List_{inner}")
+            lines.append(f"#define FORWARD_DEFINED_List_{inner}")
+            lines.append(f"typedef struct List_{inner} List_{inner};")
+            lines.append("#endif")
+        lines.append("")
+
+    # Add enum declarations for C-emitted enums
+    for enum in schema.get("nano_enums", []):
+        if not enum.get("emit_c"):
+            continue
+            
+        enum_name = enum['name']
+        lines.append(f"#ifndef DEFINED_{enum_name}")
+        lines.append(f"#define DEFINED_{enum_name}")
+        lines.append(f"typedef enum {enum_name} {{")
+        for idx, val in enumerate(enum["values"]):
+            suffix = "," if idx < len(enum["values"]) - 1 else ""
+            lines.append(f"    {enum_name}_{val}{suffix}")
+        lines.append(f"}} {enum_name};")
+        lines.append("#endif")
+        lines.append("")
 
     tokens = prepare_tokens(schema)
     lines.append("typedef enum {")
@@ -161,15 +169,6 @@ def gen_c(schema: dict) -> str:
     lines.append("} TokenType;")
     lines.append("")
 
-    lines.append("typedef struct {")
-    for field in schema["token"]["fields"]:
-        c_type = "TokenType" if field["type"] == "enum" else field["type"]
-        if c_type == "string":
-            c_type = "char *"
-        lines.append(f"    {c_type} {field['name']};")
-    lines.append("} Token;")
-    lines.append("")
-
     lines.append("typedef enum {")
     for idx, name in enumerate(schema["parse_nodes"]):
         suffix = "," if idx < len(schema["parse_nodes"]) - 1 else ""
@@ -177,25 +176,41 @@ def gen_c(schema: dict) -> str:
     lines.append("} ParseNodeType;")
     lines.append("")
 
-    lines.append("typedef struct {")
-    for field in schema["type_environment"]:
-        c_type = "bool" if field["type"] == "bool" else field["type"]
-        lines.append(f"    {c_type} {field['name']};")
-    lines.append("} TypeEnvironment;")
-    lines.append("")
-
     for struct in schema.get("nano_structs", []):
         if not struct.get("emit_c"):
             continue
-        lines.append(f"typedef struct nl_{struct['name']} {{")
+        
+        # Schema types should match their NanoLang names in C to avoid redefinition errors
+        struct_name = struct['name']
+        c_struct_name = f"nl_{struct_name}"
+            
+        lines.append(f"#ifndef DEFINED_{c_struct_name}")
+        lines.append(f"#define DEFINED_{c_struct_name}")
+        lines.append(f"typedef struct {c_struct_name} {{")
         for field_name, field_type in struct["fields"]:
             c_type = field_type
             if c_type == "string":
-                c_type = "char *"
+                c_type = "const char *"
             elif c_type == "bool":
                 c_type = "bool"
+            elif c_type.startswith("array<"):
+                c_type = "DynArray *"
+            elif c_type.startswith("List<"):
+                # Extract T from List<T>
+                inner = c_type[5:-1]
+                c_type = f"List_{inner} *"
+            elif c_type == "Parser" or c_type == "TypeEnvironment":
+                c_type = f"{c_type}" # Use value instead of pointer to match NanoLang semantics
+            elif c_type == "Type":
+                c_type = "NSType" # Special case for 'Type' conflict
             lines.append(f"    {c_type} {field_name};")
-        lines.append(f"}} {struct['name']};")
+        lines.append(f"}} {c_struct_name};")
+        lines.append(f"typedef {c_struct_name} {struct_name};")
+        if struct_name == "LexerToken":
+            lines.append("typedef nl_LexerToken Token;")
+        if struct_name == "Type":
+            lines.append("typedef Type NSType;") # Backwards compatibility if needed
+        lines.append("#endif")
         lines.append("")
 
     lines.append(f"#endif /* {C_GUARD} */")
