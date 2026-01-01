@@ -25,8 +25,7 @@ fn main() -> int {
     let texture: SDL_Texture = (SDL_CreateTexture renderer 372645892 1 TEXTURE_WIDTH TEXTURE_HEIGHT)
     
     if (== texture 0) {
-        (print "Failed to create texture: ")
-        (println (SDL_GetError))
+        (println (+ "Failed to create texture: " (SDL_GetError)))
         return 1
     } else {
         (println "✓ Texture created successfully")

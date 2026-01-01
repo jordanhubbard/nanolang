@@ -74,19 +74,18 @@ shadow count_primes {
 }
 
 fn main() -> int {
-    print "Prime numbers up to 50:"
+    (println "Prime numbers up to 50:")
 
     let mut n: int = 2
     while (< n 51) {
         if (is_prime n) {
-            print n
+            (println (+ "  " (int_to_string n)))
         }
         set n (+ n 1)
     }
 
-    print ""
-    print "Total primes up to 100:"
-    print (count_primes 100)
+    (println "")
+    (println (+ "Total primes up to 100: " (int_to_string (count_primes 100))))
 
     return 0
 }

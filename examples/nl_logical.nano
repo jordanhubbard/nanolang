@@ -76,12 +76,13 @@ shadow xor_sim {
 }
 
 fn main() -> int {
-    (print (and_op true false))
-    (print (or_op true false))
-    (print (not_op true))
-    (print (complex_logic true true false))
-    (print (is_in_range 7 5 10))
-    (print (xor_sim true false))
+    (println "=== Logical Operations ===")
+    (println (+ "and(true, false): " (bool_to_string (and_op true false))))
+    (println (+ "or(true, false): " (bool_to_string (or_op true false))))
+    (println (+ "not(true): " (bool_to_string (not_op true))))
+    (println (+ "complex_logic(true, true, false): " (bool_to_string (complex_logic true true false))))
+    (println (+ "is_in_range(7, 5, 10): " (bool_to_string (is_in_range 7 5 10))))
+    (println (+ "xor_sim(true, false): " (bool_to_string (xor_sim true false))))
     return 0
 }
 

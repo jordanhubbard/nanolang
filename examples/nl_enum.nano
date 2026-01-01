@@ -76,16 +76,14 @@ shadow is_error {
 
 fn main() -> int {
     let color: Color = Color.Green
-    print "Color value:"
-    print color
+    (println (+ "Color value: " (int_to_string color)))
     
     let status: Status = Status.Done
-    print "Status value:"
-    print status
+    (println (+ "Status value: " (int_to_string status)))
     
     let http: HttpStatus = HttpStatus.NotFound
-    print "HTTP status:"
-    print http
+    (println (+ "HTTP status: " (int_to_string http)))
+    (println (+ "Is error? " (bool_to_string (is_error http))))
     
     return 0
 }

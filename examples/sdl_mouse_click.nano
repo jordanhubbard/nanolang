@@ -56,12 +56,9 @@ fn main() -> int {
                 if (== key 44) {
                     # SPACE pressed
                     set key_count (+ key_count 1)
-                    (print "✓ Keyboard event detected! (SPACE press #")
-                    (print key_count)
-                    (println ")")
+                    (println (+ "✓ Keyboard event detected! (SPACE press #" (+ (int_to_string key_count) ")")))
                 } else {
-                    (print "Key pressed: ")
-                    (println key)
+                    (println (+ "Key pressed: " (int_to_string key)))
                 }
             }
         } else {
@@ -84,12 +81,7 @@ fn main() -> int {
             let mouse_y: int = (% mouse 10000)
             set click_count (+ click_count 1)
             
-            (print "✓ Mouse click detected at (")
-            (print mouse_x)
-            (print ", ")
-            (print mouse_y)
-            (print ") - click #")
-            (println click_count)
+            (println (+ "✓ Mouse click detected at (" (+ (int_to_string mouse_x) (+ ", " (+ (int_to_string mouse_y) (+ ") - click #" (int_to_string click_count)))))))
             
             # Draw a circle at click position
             unsafe { (SDL_SetRenderDrawColor renderer 100 200 255 255) }

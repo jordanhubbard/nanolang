@@ -76,20 +76,13 @@ shadow greater_or_equal {
 
 fn main() -> int {
     (println "=== Comparison Operations ===")
-    (println "equals(10, 10):")
-    (println (equals 10 10))
-    (println "not_equals(5, 7):")
-    (println (not_equals 5 7))
-    (println "less_than(3, 8):")
-    (println (less_than 3 8))
-    (println "greater_than(15, 10):")
-    (println (greater_than 15 10))
-    (println "max(20, 30):")
-    (println (max 20 30))
-    (println "min(20, 30):")
-    (println (min 20 30))
-    (println "abs(-42):")
-    (println (abs (- 0 42)))
+    (println (+ "equals(10, 10): " (bool_to_string (equals 10 10))))
+    (println (+ "not_equals(5, 7): " (bool_to_string (not_equals 5 7))))
+    (println (+ "less_than(3, 8): " (bool_to_string (less_than 3 8))))
+    (println (+ "greater_than(15, 10): " (bool_to_string (greater_than 15 10))))
+    (println (+ "max(20, 30): " (int_to_string (max 20 30))))
+    (println (+ "min(20, 30): " (int_to_string (min 20 30))))
+    (println (+ "abs(-42): " (int_to_string (abs (- 0 42)))))
     return 0
 }
 
