@@ -1,0 +1,417 @@
+/* =============================================================================
+ * Word Frequency Counter - Practical Map/Filter/Fold Example
+ * =============================================================================
+ * Problem: Given text, count how many times each word appears and find the
+ *          most common words. This is a fundamental text processing task used
+ *          in search engines, log analysis, and natural language processing.
+ * 
+ * Concept: Demonstrates map/filter/fold solving a REAL problem
+ * Topics: string operations, higher-order functions, data pipelines
+ * Difficulty: Intermediate
+ * 
+ * Real-World Applications:
+ * - Search engine indexing (TF-IDF scoring)
+ * - Log file analysis (error pattern detection)
+ * - Sentiment analysis preprocessing
+ * - Spam detection
+ * - Document similarity
+ * 
+ * Functional Programming Pipeline:
+ * 1. Split text into words (map)
+ * 2. Normalize words (map: lowercase, trim)
+ * 3. Filter stopwords (filter: remove "the", "a", "is", etc.)
+ * 4. Count frequencies (fold: accumulate counts)
+ * 5. Sort by frequency (sort)
+ * 6. Take top N (filter/slice)
+ * 
+ * Learning Objectives:
+ * - See map/filter/fold solve a concrete problem
+ * - Understand data transformation pipelines
+ * - Learn text processing techniques
+ * - Practice with higher-order functions
+ * =============================================================================
+ */
+
+/* =============================================================================
+ * Helper Functions - String Processing
+ * =============================================================================
+ */
+
+fn is_letter(c: int) -> bool {
+    /* Check if character is a letter (A-Z or a-z) */
+    return (or (and (>= c 65) (<= c 90))    /* A-Z */
+               (and (>= c 97) (<= c 122)))  /* a-z */
+}
+
+shadow is_letter {
+    assert (== (is_letter 65) true)   /* 'A' */
+    assert (== (is_letter 122) true)  /* 'z' */
+    assert (== (is_letter 48) false)  /* '0' */
+    assert (== (is_letter 32) false)  /* space */
+}
+
+fn char_to_lowercase(c: int) -> int {
+    /* Convert uppercase letter to lowercase */
+    if (and (>= c 65) (<= c 90)) {
+        return (+ c 32)  /* Convert A-Z to a-z */
+    } else {
+        return c
+    }
+}
+
+shadow char_to_lowercase {
+    assert (== (char_to_lowercase 65) 97)   /* 'A' -> 'a' */
+    assert (== (char_to_lowercase 90) 122)  /* 'Z' -> 'z' */
+    assert (== (char_to_lowercase 97) 97)   /* 'a' -> 'a' */
+}
+
+fn normalize_word(word: string) -> string {
+    /* Convert word to lowercase and clean it */
+    let len: int = (str_length word)
+    let mut result: string = ""
+    let mut i: int = 0
+    
+    while (< i len) {
+        let c: int = (char_at word i)
+        if (is_letter c) {
+            let lower: int = (char_to_lowercase c)
+            set result (+ result (string_from_char lower))
+        } else {}
+        set i (+ i 1)
+    }
+    
+    return result
+}
+
+shadow normalize_word {
+    assert (str_equals (normalize_word "Hello") "hello")
+    assert (str_equals (normalize_word "WORLD") "world")
+    assert (str_equals (normalize_word "Test123") "test")
+}
+
+fn is_stopword(word: string) -> bool {
+    /* Check if word is a common stopword (articles, prepositions, etc.) */
+    return (or (str_equals word "the")
+           (or (str_equals word "a")
+           (or (str_equals word "an")
+           (or (str_equals word "is")
+           (or (str_equals word "it")
+           (or (str_equals word "to")
+           (or (str_equals word "of")
+           (or (str_equals word "and")
+           (or (str_equals word "in")
+           (or (str_equals word "on")
+           (or (str_equals word "at")
+           (or (str_equals word "for")
+               false))))))))))))
+}
+
+shadow is_stopword {
+    assert (== (is_stopword "the") true)
+    assert (== (is_stopword "hello") false)
+    assert (== (is_stopword "and") true)
+}
+
+/* =============================================================================
+ * Word Counting - Using Arrays (NanoLang current approach)
+ * =============================================================================
+ * Note: In a language with HashMap/Dictionary, this would be simpler.
+ * This demonstrates using arrays for word counting, which is educational.
+ */
+
+struct WordCount {
+    word: string,
+    count: int
+}
+
+fn find_word_index(words: array<WordCount>, word: string) -> int {
+    /* Linear search for word in array, return index or -1 */
+    let words_len: int = (array_length words)
+    let mut i: int = 0
+    
+    while (< i words_len) {
+        let wc: WordCount = (at words i)
+        if (str_equals wc.word word) {
+            return i
+        } else {}
+        set i (+ i 1)
+    }
+    
+    return -1
+}
+
+shadow find_word_index {
+    let words: array<WordCount> = [
+        WordCount { word: "hello", count: 5 },
+        WordCount { word: "world", count: 3 }
+    ]
+    assert (== (find_word_index words "hello") 0)
+    assert (== (find_word_index words "world") 1)
+    assert (== (find_word_index words "missing") -1)
+}
+
+/* Note: word comparison uses str_equals internally */
+
+fn increment_word_count(words: array<WordCount>, word: string) -> array<WordCount> {
+    /* Add word or increment its count */
+    let idx: int = (find_word_index words word)
+    
+    if (== idx -1) {
+        /* Word not found - add new entry */
+        return (array_push words WordCount { word: word, count: 1 })
+    } else {
+        /* Word found - increment count */
+        let wc: WordCount = (at words idx)
+        let updated: WordCount = WordCount { word: wc.word, count: (+ wc.count 1) }
+        let mut result: array<WordCount> = words
+        (array_set result idx updated)
+        return result
+    }
+}
+
+shadow increment_word_count {
+    let empty: array<WordCount> = []
+    let with_hello: array<WordCount> = (increment_word_count empty "hello")
+    assert (== (array_length with_hello) 1)
+    
+    let wc: WordCount = (at with_hello 0)
+    assert (str_equals wc.word "hello")
+    assert (== wc.count 1)
+    
+    /* Increment existing */
+    let incremented: array<WordCount> = (increment_word_count with_hello "hello")
+    let wc2: WordCount = (at incremented 0)
+    assert (== wc2.count 2)
+}
+
+/* =============================================================================
+ * Text Processing Pipeline
+ * =============================================================================
+ */
+
+fn split_into_words(text: string) -> array<string> {
+    /* Split text on whitespace into array of words */
+    let mut words: array<string> = []
+    let mut current_word: string = ""
+    let text_len: int = (str_length text)
+    let mut i: int = 0
+    
+    while (< i text_len) {
+        let c: int = (char_at text i)
+        
+        if (or (== c 32) (== c 10)) {  /* space or newline */
+            if (> (str_length current_word) 0) {
+                set words (array_push words current_word)
+                set current_word ""
+            } else {}
+        } else {
+            set current_word (+ current_word (string_from_char c))
+        }
+        
+        set i (+ i 1)
+    }
+    
+    /* Add last word if any */
+    if (> (str_length current_word) 0) {
+        set words (array_push words current_word)
+    } else {}
+    
+    return words
+}
+
+shadow split_into_words {
+    let text: string = "hello world test"
+    let words: array<string> = (split_into_words text)
+    assert (== (array_length words) 3)
+    assert (str_equals (at words 0) "hello")
+    assert (str_equals (at words 1) "world")
+    assert (str_equals (at words 2) "test")
+}
+
+fn count_words(text: string) -> array<WordCount> {
+    /* Main pipeline: text -> words -> normalized -> filtered -> counted */
+    
+    /* Step 1: Split into words */
+    let raw_words: array<string> = (split_into_words text)
+    
+    /* Step 2 & 3: Normalize and filter stopwords (combined for efficiency) */
+    let mut clean_words: array<string> = []
+    let raw_len: int = (array_length raw_words)
+    let mut i: int = 0
+    
+    while (< i raw_len) {
+        let word: string = (at raw_words i)
+        let normalized: string = (normalize_word word)
+        
+        /* Only keep non-empty, non-stopwords */
+        if (and (> (str_length normalized) 0)
+                (not (is_stopword normalized))) {
+            set clean_words (array_push clean_words normalized)
+        } else {}
+        
+        set i (+ i 1)
+    }
+    
+    /* Step 4: Count frequencies (fold operation) */
+    let mut counts: array<WordCount> = []
+    let clean_len: int = (array_length clean_words)
+    let mut j: int = 0
+    
+    while (< j clean_len) {
+        let word: string = (at clean_words j)
+        set counts (increment_word_count counts word)
+        set j (+ j 1)
+    }
+    
+    return counts
+}
+
+shadow count_words {
+    let text: string = "the quick brown fox jumps over the lazy dog"
+    let counts: array<WordCount> = (count_words text)
+    
+    /* 'the' is a stopword and should be filtered out */
+    let the_idx: int = (find_word_index counts "the")
+    assert (== the_idx -1)
+    
+    /* Other words should be present */
+    assert (> (find_word_index counts "quick") -1)
+    assert (> (find_word_index counts "fox") -1)
+}
+
+fn get_top_words(counts: array<WordCount>, n: int) -> array<WordCount> {
+    /* Get top N most frequent words (simple selection sort for demonstration) */
+    let counts_len: int = (array_length counts)
+    
+    if (== counts_len 0) {
+        return counts
+    } else {}
+    
+    /* Simple selection sort - find top N */
+    let mut result: array<WordCount> = []
+    let mut remaining: array<WordCount> = counts
+    let mut count: int = 0
+    
+    while (and (< count n) (> (array_length remaining) 0)) {
+        /* Find max in remaining */
+        let mut max_idx: int = 0
+        let mut max_count: int = 0
+        let rem_len: int = (array_length remaining)
+        let mut i: int = 0
+        
+        while (< i rem_len) {
+            let wc: WordCount = (at remaining i)
+            if (> wc.count max_count) {
+                set max_count wc.count
+                set max_idx i
+            } else {}
+            set i (+ i 1)
+        }
+        
+        /* Add max to result */
+        let max_word: WordCount = (at remaining max_idx)
+        set result (array_push result max_word)
+        
+        /* Remove from remaining (rebuild array without max_idx) */
+        let mut new_remaining: array<WordCount> = []
+        let mut j: int = 0
+        while (< j rem_len) {
+            if (!= j max_idx) {
+                set new_remaining (array_push new_remaining (at remaining j))
+            } else {}
+            set j (+ j 1)
+        }
+        set remaining new_remaining
+        
+        set count (+ count 1)
+    }
+    
+    return result
+}
+
+shadow get_top_words {
+    let counts: array<WordCount> = [
+        WordCount { word: "apple", count: 5 },
+        WordCount { word: "banana", count: 3 },
+        WordCount { word: "cherry", count: 8 }
+    ]
+    
+    let top2: array<WordCount> = (get_top_words counts 2)
+    assert (== (array_length top2) 2)
+    
+    let first: WordCount = (at top2 0)
+    assert (str_equals first.word "cherry")
+    assert (== first.count 8)
+    
+    let second: WordCount = (at top2 1)
+    assert (str_equals second.word "apple")
+}
+
+/* =============================================================================
+ * Main Program - Demonstration
+ * =============================================================================
+ */
+
+fn main() -> int {
+    (println "===========================================")
+    (println "Word Frequency Counter")
+    (println "Map/Filter/Fold Applied to Real Problem")
+    (println "===========================================")
+    (println "")
+    
+    /* Example text - simulating a document or log */
+    let text: string = "the quick brown fox jumps over the lazy dog the dog was sleeping the fox was quick and clever the brown fox is a symbol of speed and agility in the animal kingdom"
+    
+    (println "Original Text:")
+    (println text)
+    (println "")
+    
+    /* Count all words */
+    (println "STEP 1: Count Word Frequencies")
+    (println "-------------------------------")
+    let all_counts: array<WordCount> = (count_words text)
+    let total_words: int = (array_length all_counts)
+    (println (+ "Total unique words (after filtering stopwords): " (int_to_string total_words)))
+    (println "")
+    
+    /* Show all word counts */
+    (println "All Word Frequencies:")
+    let mut i: int = 0
+    while (< i total_words) {
+        let wc: WordCount = (at all_counts i)
+        (println (+ "  " (+ wc.word (+ ": " (int_to_string wc.count)))))
+        set i (+ i 1)
+    }
+    (println "")
+    
+    /* Get top 5 most common words */
+    (println "STEP 2: Find Most Common Words")
+    (println "-------------------------------")
+    let top5: array<WordCount> = (get_top_words all_counts 5)
+    (println "Top 5 Most Frequent Words:")
+    
+    let mut j: int = 0
+    let top_len: int = (array_length top5)
+    while (< j top_len) {
+        let wc: WordCount = (at top5 j)
+        let rank: int = (+ j 1)
+        (println (+ (int_to_string rank) (+ ". " (+ wc.word (+ " (" (+ (int_to_string wc.count) (+ " occurrence" (+ (cond ((== wc.count 1) "") (else "s")) ")"))))))))
+        set j (+ j 1)
+    }
+    (println "")
+    
+    (println "===========================================")
+    (println "Real-World Applications:")
+    (println "- Search engines use this for TF-IDF scoring")
+    (println "- Log analyzers find error patterns")
+    (println "- NLP pipelines extract keywords")
+    (println "- Spam detectors identify suspicious words")
+    (println "===========================================")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
