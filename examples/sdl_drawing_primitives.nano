@@ -23,15 +23,16 @@ fn main() -> int {
     
     while running {
         # Events
-        if (!= (nl_sdl_poll_event_quit) 0) {
+        let quit_event: int = (nl_sdl_poll_event_quit)
+        let key: int = (nl_sdl_poll_keypress)
+        let should_quit: bool = (cond
+            ((!= quit_event 0) true)
+            ((== key 41) true)
+            (else false)
+        )
+        if should_quit {
             set running false
-        } else {
-            if (== (nl_sdl_poll_keypress) 41) {
-                set running false
-            } else {
-                # continue
-            }
-        }
+        } else {}
         
         # Clear
         unsafe {         (SDL_SetRenderDrawColor renderer 20 20 30 255) }
