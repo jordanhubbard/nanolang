@@ -53,18 +53,22 @@ struct BeadState {
 
 /* Project 3D to 2D */
 fn project_x(x: float) -> int {
-    let screen_x: float = (+ (/ (* x CAMERA_SCALE) 1.0) (/ (int_to_float WINDOW_WIDTH) 2.0))
-    return (float_to_int screen_x)
+    let screen_x: float = (+ (/ (* x CAMERA_SCALE) 1.0) (/ (cast_float WINDOW_WIDTH) 2.0))
+    return (cast_int screen_x)
 }
+
+shadow project_x { assert true }
 
 fn project_y(y: float) -> int {
     let adjusted_y: float = (- y CAMERA_OFFSET_Y)
-    let screen_y: float = (- (/ (int_to_float WINDOW_HEIGHT) 2.0) (/ (* adjusted_y CAMERA_SCALE) 1.0))
-    return (float_to_int screen_y)
+    let screen_y: float = (- (/ (cast_float WINDOW_HEIGHT) 2.0) (/ (* adjusted_y CAMERA_SCALE) 1.0))
+    return (cast_int screen_y)
 }
 
+shadow project_y { assert true }
+
 /* Draw a filled circle (soft body node) */
-fn draw_filled_circle(renderer: int, cx: int, cy: int, radius: int) -> int {
+fn draw_filled_circle(renderer: SDL.SDL_Renderer, cx: int, cy: int, radius: int) -> int {
     let mut y: int = (- 0 radius)
     while (<= y radius) {
         let mut x: int = (- 0 radius)
@@ -73,7 +77,7 @@ fn draw_filled_circle(renderer: int, cx: int, cy: int, radius: int) -> int {
             let radius_sq: int = (* radius radius)
             if (<= dist_sq radius_sq) {
                 unsafe {
-                    (SDL.nl_sdl_render_draw_point renderer (+ cx x) (+ cy y))
+                    (SDL.SDL_RenderDrawPoint renderer (+ cx x) (+ cy y))
                 }
             }
             set x (+ x 1)
@@ -85,7 +89,7 @@ fn draw_filled_circle(renderer: int, cx: int, cy: int, radius: int) -> int {
 
 /* Draw a rotated rectangle */
 fn draw_rotated_box(
-    renderer: int,
+    renderer: SDL.SDL_Renderer,
     cx: int, cy: int,
     width: int, height: int,
     angle: float
@@ -93,9 +97,10 @@ fn draw_rotated_box(
     /* Simple filled rect for now - rotation handled by physics */
     let x1: int = (- cx (/ width 2))
     let y1: int = (- cy (/ height 2))
+    let rect: SDL.SDL_Rect = SDL.SDL_Rect { x: x1, y: y1, w: width, h: height }
     unsafe {
-        (SDL.nl_sdl_set_render_draw_color renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
-        (SDL.nl_sdl_render_fill_rect renderer x1 y1 width height)
+        (SDL.SDL_SetRenderDrawColor renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
+        (SDL.SDL_RenderFillRect renderer rect)
     }
     return 0
 }
