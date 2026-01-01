@@ -18,14 +18,9 @@ fn test_strlen() -> int {
     let len2: int = (strlen str2)
     let len3: int = (strlen str3)
     
-    (println "Length of 'Hello':")
-    (println len1)  # Should be 5
-    
-    (println "Length of 'World!':")
-    (println len2)  # Should be 6
-    
-    (println "Length of empty string:")
-    (println len3)  # Should be 0
+    (println (+ "Length of 'Hello': " (int_to_string len1)))  # Should be 5
+    (println (+ "Length of 'World!': " (int_to_string len2)))  # Should be 6
+    (println (+ "Length of empty string: " (int_to_string len3)))  # Should be 0
     
     return 0
 }

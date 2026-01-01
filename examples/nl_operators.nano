@@ -74,20 +74,13 @@ shadow complex_expr {
 
 fn main() -> int {
     (println "=== Arithmetic Operations ===")
-    (println "10 + 20 =")
-    (println (add 10 20))
-    (println "50 - 15 =")
-    (println (subtract 50 15))
-    (println "7 * 8 =")
-    (println (multiply 7 8))
-    (println "100 / 4 =")
-    (println (divide 100 4))
-    (println "17 % 5 =")
-    (println (modulo 17 5))
-    (println "Complex: (3*4) + (8/2) =")
-    (println (complex_expr 3 4 8))
-    (println "Absolute value of -42:")
-    (println (abs (subtract 0 42)))
+    (println (+ "10 + 20 = " (int_to_string (add 10 20))))
+    (println (+ "50 - 15 = " (int_to_string (subtract 50 15))))
+    (println (+ "7 * 8 = " (int_to_string (multiply 7 8))))
+    (println (+ "100 / 4 = " (int_to_string (divide 100 4))))
+    (println (+ "17 % 5 = " (int_to_string (modulo 17 5))))
+    (println (+ "Complex: (3*4) + (8/2) = " (int_to_string (complex_expr 3 4 8))))
+    (println (+ "Absolute value of -42: " (int_to_string (abs (subtract 0 42)))))
     return 0
 }
 

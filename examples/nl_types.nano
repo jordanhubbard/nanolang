@@ -34,7 +34,8 @@ shadow return_string {
 }
 
 fn void_function() -> void {
-    (print "This function returns void")
+    (println "This function returns void")
+    return void
 }
 
 shadow void_function {
@@ -92,23 +93,27 @@ shadow mixed_types {
 }
 
 fn main() -> int {
+    (println "=== Type Demonstration ===")
+    
     let my_int: int = 100
     let my_float: float = 2.718
     let my_bool: bool = true
     let my_string: string = "nanolang"
 
-    (print my_int)
-    (print my_float)
-    (print my_bool)
-    (print my_string)
+    (println (+ "int: " (int_to_string my_int)))
+    (println (+ "float: " (float_to_string my_float)))
+    (println (+ "bool: " (bool_to_string my_bool)))
+    (println (+ "string: " my_string))
 
-    (print (process_int 25))
-    (print (process_float 50.0))
-    (print (process_bool false))
-    (print (process_string "types"))
+    (println (+ "\nprocess_int(25) = " (int_to_string (process_int 25))))
+    (println (+ "process_float(50.0) = " (float_to_string (process_float 50.0))))
+    (println (+ "process_bool(false) = " (bool_to_string (process_bool false))))
+    (println (+ "process_string(\"types\") = " (process_string "types")))
 
+    (println "")
     (void_function)
-
+    
+    (println "\n✓ All type operations working!")
     return 0
 }
 

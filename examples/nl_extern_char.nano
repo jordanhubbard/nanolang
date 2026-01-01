@@ -69,13 +69,11 @@ fn test_char_conversion() -> int {
     let ch_Z: int = 90   # 'Z'
     
     (println "Character Conversion:")
-    (println "Converting 'a' to uppercase:")
     let upper_a: int = (toupper ch_a)
-    (println upper_a)  # Should be 65 ('A')
+    (println (+ "Converting 'a' to uppercase: " (int_to_string upper_a)))  # Should be 65 ('A')
     
-    (println "Converting 'Z' to lowercase:")
     let lower_Z: int = (tolower ch_Z)
-    (println lower_Z)  # Should be 122 ('z')
+    (println (+ "Converting 'Z' to lowercase: " (int_to_string lower_Z)))  # Should be 122 ('z')
     
     return 0
 }

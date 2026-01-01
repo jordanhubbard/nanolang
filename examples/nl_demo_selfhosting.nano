@@ -107,34 +107,28 @@ fn main() -> int {
     /* Test basic math operations */
     (println "=== Basic Operations (via Math alias) ===")
     let sum: int = (Math.add 15 27)
-    (println "Math.add(15, 27) = ")
-    (println sum)
+    (println (+ "Math.add(15, 27) = " (int_to_string sum)))
     
     let product: int = (Math.multiply 12 8)
-    (println "Math.multiply(12, 8) = ")
-    (println product)
+    (println (+ "Math.multiply(12, 8) = " (int_to_string product)))
     
     let squared: int = (Math.square 11)
-    (println "Math.square(11) = ")
-    (println squared)
+    (println (+ "Math.square(11) = " (int_to_string squared)))
     
     (println "")
     (println "=== Advanced Algorithms (using imported functions) ===")
     
     /* Fibonacci using imported Math.add */
     let fib10: int = (fibonacci 10)
-    (println "fibonacci(10) [using Math.add] = ")
-    (println fib10)
+    (println (+ "fibonacci(10) [using Math.add] = " (int_to_string fib10)))
     
     /* Factorial using imported Math.multiply */
     let fact5: int = (factorial 5)
-    (println "factorial(5) [using Math.multiply] = ")
-    (println fact5)
+    (println (+ "factorial(5) [using Math.multiply] = " (int_to_string fact5)))
     
     /* Power using imported Math.multiply */
     let pow_result: int = (power 2 8)
-    (println "power(2, 8) [using Math.multiply] = ")
-    (println pow_result)
+    (println (+ "power(2, 8) [using Math.multiply] = " (int_to_string pow_result)))
     
     (println "")
     (println "✅ All operations successful!")

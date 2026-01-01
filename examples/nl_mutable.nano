@@ -67,11 +67,13 @@ shadow double_value {
 }
 
 fn main() -> int {
-    (print (immutable_example))
-    (print (mutable_counter))
-    (print (accumulator 7))
-    (print (swap_values 15 25))
-    (print (double_value 42))
+    (println "=== Mutable vs Immutable Variables ===\n")
+    (println (+ "Immutable example: " (int_to_string (immutable_example))))
+    (println (+ "Mutable counter: " (int_to_string (mutable_counter))))
+    (println (+ "Accumulator(7): " (int_to_string (accumulator 7))))
+    (println (+ "Swap values(15, 25): " (int_to_string (swap_values 15 25))))
+    (println (+ "Double value(42): " (int_to_string (double_value 42))))
+    (println "\n✓ All mutable operations working!")
     return 0
 }
 

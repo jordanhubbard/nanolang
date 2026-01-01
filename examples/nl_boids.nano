@@ -40,16 +40,10 @@ shadow wrap_position {
 }
 
 fn main() -> int {
-    (println "")
-    (println "╔════════════════════════════════════╗")
+    (println "\n╔════════════════════════════════════╗")
     (println "║    BOIDS - Flocking Simulation    ║")
-    (println "╚════════════════════════════════════╝")
-    (println "")
-    (print "Configuration: ")
-    (print NUM_BOIDS)
-    (print " boids, max speed ")
-    (println MAX_SPEED)
-    (println "")
+    (println "╚════════════════════════════════════╝\n")
+    (println (+ "Configuration: " (+ (int_to_string NUM_BOIDS) (+ " boids, max speed " (float_to_string MAX_SPEED)))))
     
     # Boid data (parallel arrays with GC)
     let mut boid_x: array<float> = []
@@ -79,12 +73,8 @@ fn main() -> int {
         set i (+ i 1)
     }
     
-    (print "✓ Spawned ")
-    (print NUM_BOIDS)
-    (println " boids")
-    (println "")
-    (println "Running flocking simulation...")
-    (println "")
+    (println (+ "✓ Spawned " (+ (int_to_string NUM_BOIDS) " boids")))
+    (println "\nRunning flocking simulation...\n")
     
     # === SIMULATION LOOP ===
     let mut frame: int = 0
@@ -172,17 +162,8 @@ fn main() -> int {
         
         # Status every 10 frames
         if (== (% frame 10) 0) {
-            (print "Frame ")
-            (print frame)
-            (print ": Center=(")
-            (print center_x)
-            (print ", ")
-            (print center_y)
-            (print "), Boid[0]=(")
-            (print (at boid_x 0))
-            (print ", ")
-            (print (at boid_y 0))
-            (println ")")
+            let status: string = (+ "Frame " (+ (int_to_string frame) (+ ": Center=(" (+ (float_to_string center_x) (+ ", " (+ (float_to_string center_y) (+ "), Boid[0]=(" (+ (float_to_string (at boid_x 0)) (+ ", " (+ (float_to_string (at boid_y 0)) ")"))))))))))
+            (println status)
         } else {
             (print "")
         }
@@ -191,15 +172,11 @@ fn main() -> int {
     }
     
     # === FINAL STATS ===
-    (println "")
-    (println "╔════════════════════════════════════╗")
+    (println "\n╔════════════════════════════════════╗")
     (println "║     SIMULATION COMPLETE ✓          ║")
-    (println "╚════════════════════════════════════╝")
-    (println "")
-    (print "Total frames: ")
-    (println frame)
-    (print "Boids simulated: ")
-    (println NUM_BOIDS)
+    (println "╚════════════════════════════════════╝\n")
+    (println (+ "Total frames: " (int_to_string frame)))
+    (println (+ "Boids simulated: " (int_to_string NUM_BOIDS)))
     (println "")
     
     # Calculate final stats
@@ -214,8 +191,7 @@ fn main() -> int {
     }
     set avg_speed (/ avg_speed num_boids_float)
     
-    (print "Average speed: ")
-    (println avg_speed)
+    (println (+ "Average speed: " (float_to_string avg_speed)))
     (println "")
     
     (println "✅ MODERN FEATURES USED:")

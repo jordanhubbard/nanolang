@@ -37,7 +37,7 @@ fn main() -> int {
     (test_string_building)
     (test_classification)
     (test_conversions)
-    print "All string operations working"
+    (println "✓ All string operations working!")
     return 0
 }
 

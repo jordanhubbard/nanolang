@@ -16,6 +16,10 @@ shadow test_bounds_valid {
 # }
 
 fn main() -> int {
+    let arr: array<int> = [10, 20, 30]
+    let value: int = (at arr 2)
+    (println (+ "Array [10, 20, 30] at index 2 = " (int_to_string value)))
+    (println "✓ Bounds checking passed!")
     return 0
 }
 

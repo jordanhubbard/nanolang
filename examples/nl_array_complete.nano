@@ -75,6 +75,17 @@ shadow test_multi_ops {
 }
 
 fn main() -> int {
+    (println "=== Comprehensive Array Test Suite ===\n")
+    
+    (println (+ "✓ Array literal length: " (int_to_string (test_array_literal))))
+    (println (+ "✓ Array access [10,20,30,40][2]: " (int_to_string (test_array_access))))
+    (println (+ "✓ Array sum [5,10,15]: " (int_to_string (array_sum))))
+    (println (+ "✓ Array with vars [100,200,300]: " (int_to_string (test_with_vars))))
+    (println (+ "✓ Array length operations: " (int_to_string (test_length))))
+    (println (+ "✓ Array new(7, 0) length: " (int_to_string (test_array_new))))
+    (println (+ "✓ Multiple operations: " (int_to_string (test_multi_ops))))
+    
+    (println "\n✓ All array tests passed!")
     return 0
 }
 

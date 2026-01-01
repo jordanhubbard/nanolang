@@ -121,9 +121,7 @@ shadow transform_dataset {
 fn compute_sum(data: array<int>) -> int {
     (println "➕ Computing sum of all values...")
     let total: int = (reduce data 0 add)
-    (print "✓ Sum: ")
-    (print total)
-    (println "")
+    (println (+ "✓ Sum: " (int_to_string total)))
     return total
 }
 
@@ -136,9 +134,7 @@ shadow compute_sum {
 fn compute_product(data: array<int>) -> int {
     (println "✖️  Computing product of all values...")
     let result: int = (reduce data 1 multiply)
-    (print "✓ Product: ")
-    (print result)
-    (println "")
+    (println (+ "✓ Product: " (int_to_string result)))
     return result
 }
 
@@ -151,9 +147,7 @@ shadow compute_product {
 fn find_maximum(data: array<int>) -> int {
     (println "⬆️  Finding maximum value...")
     let max_val: int = (reduce data -999999 max_of_two)
-    (print "✓ Maximum: ")
-    (print max_val)
-    (println "")
+    (println (+ "✓ Maximum: " (int_to_string max_val)))
     return max_val
 }
 
@@ -166,9 +160,7 @@ shadow find_maximum {
 fn find_minimum(data: array<int>) -> int {
     (println "⬇️  Finding minimum value...")
     let min_val: int = (reduce data 999999 min_of_two)
-    (print "✓ Minimum: ")
-    (print min_val)
-    (println "")
+    (println (+ "✓ Minimum: " (int_to_string min_val)))
     return min_val
 }
 
@@ -184,9 +176,7 @@ fn compute_sum_of_squares(data: array<int>) -> int {
     (println "📐 Computing sum of squares...")
     let squared: array<int> = (map data square)
     let result: int = (reduce squared 0 add)
-    (print "✓ Sum of squares: ")
-    (print result)
-    (println "")
+    (println (+ "✓ Sum of squares: " (int_to_string result)))
     return result
 }
 
@@ -197,9 +187,7 @@ shadow compute_sum_of_squares {
 }
 
 fn apply_scaling_factor(data: array<int>, factor: int) -> array<int> {
-    (print "🔢 Applying scaling factor: ")
-    (print factor)
-    (println "")
+    (println (+ "🔢 Applying scaling factor: " (int_to_string factor)))
     
     /* We would use a capturing closure here, but NanoLang currently doesn't support captures; use a named function. */
     let result: array<int> = (map data triple)
@@ -294,15 +282,11 @@ fn demonstrate_paradigms() -> int {
     let test_data: array<int> = [1, 2, 3, 4, 5]
     
     (println "🔄 Imperative Style (loops, mutations):")
-    (print "   Result: ")
-    (print (sum_imperative test_data))
-    (println "")
+    (println (+ "   Result: " (int_to_string (sum_imperative test_data))))
     (println "")
     
     (println "🎯 Functional Style (map/reduce):")
-    (print "   Result: ")
-    (print (sum_functional test_data))
-    (println "")
+    (println (+ "   Result: " (int_to_string (sum_functional test_data))))
     (println "")
     
     (println "✓ Both approaches produce the same result!")

@@ -17,12 +17,10 @@ fn demo_safe_addition() -> int {
     let r1: Result<int, string> = (checked_add 1000000 2000000)
     match r1 {
         Ok(v) => {
-            (print "1000000 + 2000000 = ")
-            (println v.value)
+            (println (+ "1000000 + 2000000 = " (int_to_string v.value)))
         },
         Err(e) => {
-            (print "Error: ")
-            (println e.error)
+            (println (+ "Error: " e.error))
         }
     }
     
@@ -30,12 +28,10 @@ fn demo_safe_addition() -> int {
     let r2: Result<int, string> = (checked_add -500 300)
     match r2 {
         Ok(v) => {
-            (print "-500 + 300 = ")
-            (println v.value)
+            (println (+ "-500 + 300 = " (int_to_string v.value)))
         },
         Err(e) => {
-            (print "Error: ")
-            (println e.error)
+            (println (+ "Error: " e.error))
         }
     }
     
@@ -54,12 +50,10 @@ fn demo_safe_division() -> int {
     let r1: Result<int, string> = (checked_div 100 2)
     match r1 {
         Ok(v) => {
-            (print "100 / 2 = ")
-            (println v.value)
+            (println (+ "100 / 2 = " (int_to_string v.value)))
         },
         Err(e) => {
-            (print "Error: ")
-            (println e.error)
+            (println (+ "Error: " e.error))
         }
     }
     
@@ -67,12 +61,10 @@ fn demo_safe_division() -> int {
     let r2: Result<int, string> = (checked_div 100 0)
     match r2 {
         Ok(v) => {
-            (print "100 / 0 = ")
-            (println v.value)
+            (println (+ "100 / 0 = " (int_to_string v.value)))
         },
         Err(e) => {
-            (print "100 / 0 -> Error: ")
-            (println e.error)
+            (println (+ "100 / 0 -> Error: " e.error))
         }
     }
     
@@ -80,12 +72,10 @@ fn demo_safe_division() -> int {
     let r3: Result<int, string> = (checked_div -100 4)
     match r3 {
         Ok(v) => {
-            (print "-100 / 4 = ")
-            (println v.value)
+            (println (+ "-100 / 4 = " (int_to_string v.value)))
         },
         Err(e) => {
-            (print "Error: ")
-            (println e.error)
+            (println (+ "Error: " e.error))
         }
     }
     
@@ -104,12 +94,10 @@ fn demo_safe_multiplication() -> int {
     let r1: Result<int, string> = (checked_mul 1000 2000)
     match r1 {
         Ok(v) => {
-            (print "1000 * 2000 = ")
-            (println v.value)
+            (println (+ "1000 * 2000 = " (int_to_string v.value)))
         },
         Err(e) => {
-            (print "Error: ")
-            (println e.error)
+            (println (+ "Error: " e.error))
         }
     }
     
@@ -117,12 +105,10 @@ fn demo_safe_multiplication() -> int {
     let r2: Result<int, string> = (checked_mul 999999 0)
     match r2 {
         Ok(v) => {
-            (print "999999 * 0 = ")
-            (println v.value)
+            (println (+ "999999 * 0 = " (int_to_string v.value)))
         },
         Err(e) => {
-            (print "Error: ")
-            (println e.error)
+            (println (+ "Error: " e.error))
         }
     }
     
@@ -141,12 +127,10 @@ fn demo_safe_subtraction() -> int {
     let r1: Result<int, string> = (checked_sub 5000 3000)
     match r1 {
         Ok(v) => {
-            (print "5000 - 3000 = ")
-            (println v.value)
+            (println (+ "5000 - 3000 = " (int_to_string v.value)))
         },
         Err(e) => {
-            (print "Error: ")
-            (println e.error)
+            (println (+ "Error: " e.error))
         }
     }
     
@@ -154,12 +138,10 @@ fn demo_safe_subtraction() -> int {
     let r2: Result<int, string> = (checked_sub 100 200)
     match r2 {
         Ok(v) => {
-            (print "100 - 200 = ")
-            (println v.value)
+            (println (+ "100 - 200 = " (int_to_string v.value)))
         },
         Err(e) => {
-            (print "Error: ")
-            (println e.error)
+            (println (+ "Error: " e.error))
         }
     }
     
@@ -178,12 +160,10 @@ fn demo_safe_modulo() -> int {
     let r1: Result<int, string> = (checked_mod 17 5)
     match r1 {
         Ok(v) => {
-            (print "17 % 5 = ")
-            (println v.value)
+            (println (+ "17 % 5 = " (int_to_string v.value)))
         },
         Err(e) => {
-            (print "Error: ")
-            (println e.error)
+            (println (+ "Error: " e.error))
         }
     }
     
@@ -191,12 +171,10 @@ fn demo_safe_modulo() -> int {
     let r2: Result<int, string> = (checked_mod 100 0)
     match r2 {
         Ok(v) => {
-            (print "100 % 0 = ")
-            (println v.value)
+            (println (+ "100 % 0 = " (int_to_string v.value)))
         },
         Err(e) => {
-            (print "100 % 0 -> Error: ")
-            (println e.error)
+            (println (+ "100 % 0 -> Error: " e.error))
         }
     }
     

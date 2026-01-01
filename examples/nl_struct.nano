@@ -57,21 +57,17 @@ fn main() -> int {
     let origin: Point = Point { x: 0, y: 0 }
     let p: Point = Point { x: 10, y: 20 }
     
-    print "Point x:"
-    print p.x
-    print "Point y:"
-    print p.y
+    (println (+ "Point x: " (int_to_string p.x)))
+    (println (+ "Point y: " (int_to_string p.y)))
     
     let red: Color = Color { r: 255, g: 0, b: 0 }
-    print "Red value:"
-    print red.r
+    (println (+ "Red value: " (int_to_string red.r)))
     
     let sum: Point = (add_points origin p)
-    print "Sum x:"
-    print sum.x
-    print "Sum y:"
-    print sum.y
+    (println (+ "Sum x: " (int_to_string sum.x)))
+    (println (+ "Sum y: " (int_to_string sum.y)))
     
+    (println "✓ All struct operations working!")
     return 0
 }
 
