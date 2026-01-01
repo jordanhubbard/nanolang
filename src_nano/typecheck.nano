@@ -1,7 +1,7 @@
 /* =============================================================================
- * nanolang Type Checker (Self-Hosted) - Minimal Version
+ * nanolang NSType Checker (Self-Hosted) - Minimal Version
  * =============================================================================
- * Type checking for the self-hosted nanolang compiler
+ * NSType checking for the self-hosted nanolang compiler
  * 
  * Phase 1 Scope (Minimal):
  * - Basic types: int, float, bool, string, void
@@ -20,6 +20,7 @@
  */
 
 import "src_nano/parser.nano"
+import "src_nano/ast_shared.nano"
 import "src_nano/compiler/ir.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 
@@ -27,13 +28,13 @@ import "src_nano/compiler/diagnostics.nano" as Diagnostics
  * TYPE SYSTEM
  * ============================================================================= */
 
-/* TypeKind and Type are provided by src_nano/compiler/ir.nano */
+/* TypeKind and NSType are provided by src_nano/compiler/ir.nano */
 
 /* Function signature for type checking */
 struct FunctionType {
     name: string,
     param_count: int,
-    return_type: Type
+    return_type: NSType
     /* Note: param types stored separately in environment */
 }
 
@@ -44,7 +45,7 @@ struct FunctionType {
 /* Symbol in the environment (variable or function) */
 struct Symbol {
     name: string,
-    sym_type: Type,
+    sym_type: NSType,
     is_mutable: bool,
     is_function: bool,
     param_count: int,
@@ -59,8 +60,8 @@ struct Symbol {
  * ============================================================================= */
 
 /* Create a new type */
-fn type_int() -> Type {
-    return Type {
+fn type_int() -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_INT,
         name: "",
         element_type_kind: TypeKind.TYPE_UNKNOWN,
@@ -69,12 +70,12 @@ fn type_int() -> Type {
 }
 
 shadow type_int {
-    let t: Type = (type_int)
+    let t: NSType = (type_int)
     assert (== t.kind TypeKind.TYPE_INT)
 }
 
-fn type_float() -> Type {
-    return Type {
+fn type_float() -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_FLOAT,
         name: "",
         element_type_kind: TypeKind.TYPE_UNKNOWN,
@@ -83,12 +84,12 @@ fn type_float() -> Type {
 }
 
 shadow type_float {
-    let t: Type = (type_float)
+    let t: NSType = (type_float)
     assert (== t.kind TypeKind.TYPE_FLOAT)
 }
 
-fn type_bool() -> Type {
-    return Type {
+fn type_bool() -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_BOOL,
         name: "",
         element_type_kind: TypeKind.TYPE_UNKNOWN,
@@ -97,12 +98,12 @@ fn type_bool() -> Type {
 }
 
 shadow type_bool {
-    let t: Type = (type_bool)
+    let t: NSType = (type_bool)
     assert (== t.kind TypeKind.TYPE_BOOL)
 }
 
-fn type_string() -> Type {
-    return Type {
+fn type_string() -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_STRING,
         name: "",
         element_type_kind: TypeKind.TYPE_UNKNOWN,
@@ -111,12 +112,12 @@ fn type_string() -> Type {
 }
 
 shadow type_string {
-    let t: Type = (type_string)
+    let t: NSType = (type_string)
     assert (== t.kind TypeKind.TYPE_STRING)
 }
 
-fn type_void() -> Type {
-    return Type {
+fn type_void() -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_VOID,
         name: "",
         element_type_kind: TypeKind.TYPE_UNKNOWN,
@@ -125,12 +126,12 @@ fn type_void() -> Type {
 }
 
 shadow type_void {
-    let t: Type = (type_void)
+    let t: NSType = (type_void)
     assert (== t.kind TypeKind.TYPE_VOID)
 }
 
-fn type_unknown_named(label: string) -> Type {
-    return Type {
+fn type_unknown_named(label: string) -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_UNKNOWN,
         name: label,
         element_type_kind: TypeKind.TYPE_UNKNOWN,
@@ -138,7 +139,7 @@ fn type_unknown_named(label: string) -> Type {
     }
 }
 
-fn option_type_some(value: Type) -> OptionType {
+fn option_type_some(value: NSType) -> OptionType {
     return OptionType {
         has_value: true,
         value: value
@@ -167,8 +168,8 @@ shadow type_kind_from_string {
     assert (== (type_kind_from_string "string") TypeKind.TYPE_STRING)
 }
 
-fn type_array(elem_kind: int, elem_name: string) -> Type {
-    return Type {
+fn type_array(elem_kind: int, elem_name: string) -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_ARRAY,
         name: "",
         element_type_kind: elem_kind,
@@ -177,14 +178,14 @@ fn type_array(elem_kind: int, elem_name: string) -> Type {
 }
 
 shadow type_array {
-    let t: Type = (type_array TypeKind.TYPE_INT "")
+    let t: NSType = (type_array TypeKind.TYPE_INT "")
     assert (== t.kind TypeKind.TYPE_ARRAY)
     assert (== t.element_type_kind TypeKind.TYPE_INT)
 }
 
 /* Create generic list type */
-fn type_list_generic(elem_name: string) -> Type {
-    return Type {
+fn type_list_generic(elem_name: string) -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_LIST_GENERIC,
         name: "",
         element_type_kind: TypeKind.TYPE_STRUCT,
@@ -193,14 +194,14 @@ fn type_list_generic(elem_name: string) -> Type {
 }
 
 shadow type_list_generic {
-    let t: Type = (type_list_generic "Point")
+    let t: NSType = (type_list_generic "Point")
     assert (== t.kind TypeKind.TYPE_LIST_GENERIC)
     assert (== t.element_type_name "Point")
 }
 
 /* Create union type */
-fn type_union(union_name: string) -> Type {
-    return Type {
+fn type_union(union_name: string) -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_UNION,
         name: union_name,
         element_type_kind: TypeKind.TYPE_UNKNOWN,
@@ -209,14 +210,14 @@ fn type_union(union_name: string) -> Type {
 }
 
 shadow type_union {
-    let t: Type = (type_union "Result")
+    let t: NSType = (type_union "Result")
     assert (== t.kind TypeKind.TYPE_UNION)
     assert (== t.name "Result")
 }
 
 /* Create tuple type */
-fn type_tuple() -> Type {
-    return Type {
+fn type_tuple() -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_TUPLE,
         name: "",
         element_type_kind: TypeKind.TYPE_UNKNOWN,
@@ -225,12 +226,12 @@ fn type_tuple() -> Type {
 }
 
 shadow type_tuple {
-    let t: Type = (type_tuple)
+    let t: NSType = (type_tuple)
     assert (== t.kind TypeKind.TYPE_TUPLE)
 }
 
 /* Check if two types are equal */
-fn types_equal(t1: Type, t2: Type) -> bool {
+fn types_equal(t1: NSType, t2: NSType) -> bool {
     if (!= t1.kind t2.kind) {
         return false
     } else {
@@ -263,16 +264,16 @@ fn types_equal(t1: Type, t2: Type) -> bool {
 }
 
 shadow types_equal {
-    let int1: Type = (type_int)
-    let int2: Type = (type_int)
-    let float1: Type = (type_float)
+    let int1: NSType = (type_int)
+    let int2: NSType = (type_int)
+    let float1: NSType = (type_float)
     
     assert (types_equal int1 int2)
     assert (not (types_equal int1 float1))
 }
 
 /* Create type from string representation */
-fn type_from_string(s: string) -> Type {
+fn type_from_string(s: string) -> NSType {
     if (== s "int") {
         return (type_int)
     } else {
@@ -318,7 +319,7 @@ fn type_from_string(s: string) -> Type {
                                 return (type_list_generic elem_name)
                             } else {
                                 /* Assume it's a struct or union type */
-                                return Type {
+                                return NSType {
                                     kind: TypeKind.TYPE_STRUCT,
                                     name: s,
                                     element_type_kind: TypeKind.TYPE_UNKNOWN,
@@ -419,7 +420,7 @@ shadow str_last_index_of {
  * Handles: list_T_new, list_T_push, list_T_get, list_T_length
  * Returns: Appropriate type based on operation
  */
-fn check_list_function_call(fn_name: string, arg_count: int) -> Type {
+fn check_list_function_call(fn_name: string, arg_count: int) -> NSType {
     /* Extract type name: "list_Point_new" -> "Point" */
     let elem_type: string = (extract_list_type_from_function fn_name)
     
@@ -481,7 +482,7 @@ fn is_builtin_function(fn_name: string) -> bool {
     if (== fn_name "str_index_of") { return true } else { (print "") }
     if (== fn_name "str_last_index_of") { return true } else { (print "") }
     
-    /* Type conversions */
+    /* NSType conversions */
     if (== fn_name "int_to_string") { return true } else { (print "") }
     if (== fn_name "string_to_int") { return true } else { (print "") }
     if (== fn_name "cast_int") { return true } else { (print "") }
@@ -519,7 +520,7 @@ shadow is_builtin_function {
 /* Check return type for built-in functions
  * Returns the appropriate type based on the function name
  */
-fn check_builtin_function(fn_name: string, arg_count: int) -> Type {
+fn check_builtin_function(fn_name: string, arg_count: int) -> NSType {
     /* Core functions */
     if (== fn_name "print") { return (type_void) } else { (print "") }
     if (== fn_name "println") { return (type_void) } else { (print "") }
@@ -548,7 +549,7 @@ fn check_builtin_function(fn_name: string, arg_count: int) -> Type {
     if (== fn_name "str_index_of") { return (type_int) } else { (print "") }
     if (== fn_name "str_last_index_of") { return (type_int) } else { (print "") }
     
-    /* Type conversions */
+    /* NSType conversions */
     if (== fn_name "int_to_string") { return (type_string) } else { (print "") }
     if (== fn_name "string_to_int") { return (type_int) } else { (print "") }
     if (== fn_name "cast_int") { return (type_int) } else { (print "") }
@@ -574,10 +575,10 @@ fn check_builtin_function(fn_name: string, arg_count: int) -> Type {
 }
 
 shadow check_builtin_function {
-    let t1: Type = (check_builtin_function "println" 1)
+    let t1: NSType = (check_builtin_function "println" 1)
     assert (== t1.kind TypeKind.TYPE_VOID)
     
-    let t2: Type = (check_builtin_function "array_length" 1)
+    let t2: NSType = (check_builtin_function "array_length" 1)
     assert (== t2.kind TypeKind.TYPE_INT)
 }
 
@@ -605,7 +606,7 @@ shadow extract_list_type_from_function {
 }
 
 /* Create type from element name (for list element types) */
-fn type_from_element_name(elem_name: string) -> Type {
+fn type_from_element_name(elem_name: string) -> NSType {
     if (== elem_name "int") {
         return (type_int)
     } else {
@@ -619,7 +620,7 @@ fn type_from_element_name(elem_name: string) -> Type {
                     return (type_bool)
                 } else {
                     /* Struct type */
-                    return Type {
+                    return NSType {
                         kind: TypeKind.TYPE_STRUCT,
                         name: elem_name,
                         element_type_kind: TypeKind.TYPE_UNKNOWN,
@@ -632,26 +633,26 @@ fn type_from_element_name(elem_name: string) -> Type {
 }
 
 shadow type_from_element_name {
-    let t1: Type = (type_from_element_name "int")
+    let t1: NSType = (type_from_element_name "int")
     assert (== t1.kind TypeKind.TYPE_INT)
     
-    let t2: Type = (type_from_element_name "Point")
+    let t2: NSType = (type_from_element_name "Point")
     assert (== t2.kind TypeKind.TYPE_STRUCT)
     assert (== t2.name "Point")
 }
 
 shadow type_from_string {
-    let t: Type = (type_from_string "int")
+    let t: NSType = (type_from_string "int")
     assert (== t.kind TypeKind.TYPE_INT)
     
-    let t2: Type = (type_from_string "MyStruct")
+    let t2: NSType = (type_from_string "MyStruct")
     assert (== t2.kind TypeKind.TYPE_STRUCT)
     /* String comparison in struct might not work as expected */
     /* Just check the kind for now */
 }
 
-/* Type to string for error messages */
-fn type_to_string(t: Type) -> string {
+/* NSType to string for error messages */
+fn type_to_string(t: NSType) -> string {
     if (== t.kind TypeKind.TYPE_INT) {
         return "int"
     } else {
@@ -719,7 +720,8 @@ shadow type_to_string {
 fn env_new() -> TypeEnvironment {
     return TypeEnvironment {
         error_count: 0,
-        has_error: false
+        has_error: false,
+        diagnostics: (Diagnostics.diag_list_new)
     }
 }
 
@@ -730,7 +732,7 @@ shadow env_new {
 }
 
 /* Create a new symbol */
-fn symbol_new(name: string, sym_type: Type, is_mut: bool, is_fn: bool, param_count: int) -> Symbol {
+fn symbol_new(name: string, sym_type: NSType, is_mut: bool, is_fn: bool, param_count: int) -> Symbol {
     return Symbol {
         name: name,
         sym_type: sym_type,
@@ -813,39 +815,39 @@ shadow env_get_type {
  * ============================================================================= */
 
 /* Check type of a literal number */
-fn check_number_literal(value: string) -> Type {
+fn check_number_literal(value: string) -> NSType {
     /* For now, all numbers are int */
     /* TODO: detect floats by checking for '.' */
     return (type_int)
 }
 
 shadow check_number_literal {
-    let t: Type = (check_number_literal "42")
+    let t: NSType = (check_number_literal "42")
     assert (== t.kind TypeKind.TYPE_INT)
 }
 
 /* Check type of a string literal */
-fn check_string_literal() -> Type {
+fn check_string_literal() -> NSType {
     return (type_string)
 }
 
 shadow check_string_literal {
-    let t: Type = (check_string_literal)
+    let t: NSType = (check_string_literal)
     assert (== t.kind TypeKind.TYPE_STRING)
 }
 
 /* Check type of a boolean literal */
-fn check_bool_literal() -> Type {
+fn check_bool_literal() -> NSType {
     return (type_bool)
 }
 
 shadow check_bool_literal {
-    let t: Type = (check_bool_literal)
+    let t: NSType = (check_bool_literal)
     assert (== t.kind TypeKind.TYPE_BOOL)
 }
 
 /* Check if operator is valid for given types */
-fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
+fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType {
     /* Arithmetic ops: +, -, *, /, % */
     if (or (or (or (or (== op "+") (== op "-")) (== op "*")) (== op "/")) (== op "%")) {
         /* Both operands must be int or float */
@@ -855,7 +857,7 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
             if (or (== left_type.kind TypeKind.TYPE_FLOAT) (== right_type.kind TypeKind.TYPE_FLOAT)) {
                 return (type_float)
             } else {
-                /* Type error */
+                /* NSType error */
                 return (type_unknown_named "error")
             }
         }
@@ -886,19 +888,19 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
 }
 
 shadow check_binary_op {
-    let int_t: Type = (type_int)
-    let bool_t: Type = (type_bool)
+    let int_t: NSType = (type_int)
+    let bool_t: NSType = (type_bool)
     
     /* Test arithmetic */
-    let result1: Type = (check_binary_op "+" int_t int_t)
+    let result1: NSType = (check_binary_op "+" int_t int_t)
     assert (== result1.kind TypeKind.TYPE_INT)
     
     /* Test comparison */
-    let result2: Type = (check_binary_op "==" int_t int_t)
+    let result2: NSType = (check_binary_op "==" int_t int_t)
     assert (== result2.kind TypeKind.TYPE_BOOL)
     
     /* Test logical */
-    let result3: Type = (check_binary_op "and" bool_t bool_t)
+    let result3: NSType = (check_binary_op "and" bool_t bool_t)
     assert (== result3.kind TypeKind.TYPE_BOOL)
 }
 
@@ -949,7 +951,7 @@ fn op_token_to_string(op: int) -> string {
     }
 }
 
-/* Type check an expression node by ID
+/* NSType check an expression node by ID
  * 
  * This recursively evaluates the type of an expression node.
  * Node IDs are used to reference nodes in the Parser's storage lists.
@@ -975,10 +977,10 @@ fn ensure_known_expr_node(node_type: int) -> bool {
     return false
 }
 
-fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>) -> Type {
+fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     if (not (ensure_known_expr_node node_type)) {
-        (print "Warning: Unknown expression node type ")
-        (println (int_to_string node_type))
+        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "T0001" "Unknown expression node type" (Diagnostics.diag_location file_name 0 0))
+        (Diagnostics.diag_list_add diags diag)
         return (type_unknown_named "unknown_expr_node")
     }
     /* Use ParseNodeType enum values */
@@ -999,11 +1001,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                         let lookup: OptionType = (env_get_type symbols id_node.name)
 
                         if (not lookup.has_value) {
-                            (print "Type error: Undefined identifier ")
-                            (println id_node.name)
+                            let msg: string = (+ "Undefined identifier: " id_node.name)
+                            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name id_node.line id_node.column))
+                            (Diagnostics.diag_list_add diags diag)
                             return (type_unknown_named "undefined_identifier")
                         } else {
-                            let var_type: Type = lookup.value
+                            let var_type: NSType = lookup.value
                             return var_type
                         }
                     } else {
@@ -1023,19 +1026,17 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                     let idx: int = (env_lookup symbols fn_name)
 
                                     if (< idx 0) {
-                                        (print "Type error: Undefined function ")
-                                        (println fn_name)
+                                        let msg: string = (+ "Undefined function: " fn_name)
+                                        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name fn_id.line fn_id.column))
+                                        (Diagnostics.diag_list_add diags diag)
                                         return (type_unknown_named "undefined_fn")
                                     } else {
                                         let sym: Symbol = (at symbols idx)
 
                                         if (and (>= sym.param_count 0) (!= sym.param_count call.arg_count)) {
-                                            (print "Type error: Wrong arg count for ")
-                                            (print fn_name)
-                                            (print ", expected ")
-                                            (print (int_to_string sym.param_count))
-                                            (print ", got ")
-                                            (println (int_to_string call.arg_count))
+                                            let msg: string = (+ "Wrong arg count for " (+ fn_name (+ " expects " (+ (int_to_string sym.param_count) (+ " arguments, but got " (int_to_string call.arg_count))))))
+                                            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0003" msg (Diagnostics.diag_location file_name call.line call.column))
+                                            (Diagnostics.diag_list_add diags diag)
                                         } else {
                                             (print "")
                                         }
@@ -1047,13 +1048,14 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                         } else {
                             if (== node_type ParseNodeType.PNODE_BINARY_OP) {
                                 let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
-                                let left_t: Type = (check_expr_node parser binop.left binop.left_type symbols)
-                                let right_t: Type = (check_expr_node parser binop.right binop.right_type symbols)
+                                let left_t: NSType = (check_expr_node parser binop.left binop.left_type symbols diags file_name)
+                                let right_t: NSType = (check_expr_node parser binop.right binop.right_type symbols diags file_name)
                                 let op_str: string = (op_token_to_string binop.op)
-                                let result: Type = (check_binary_op op_str left_t right_t)
+                                let result: NSType = (check_binary_op op_str left_t right_t)
 
                                 if (== result.kind TypeKind.TYPE_UNKNOWN) {
-                                    (println "Type error: Invalid binary operation")
+                                    let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "Invalid binary operation" (Diagnostics.diag_location file_name binop.line binop.column))
+                                    (Diagnostics.diag_list_add diags diag)
                                 } else {
                                     (print "")
                                 }
@@ -1083,7 +1085,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                             /* Get struct literal from parser */
                                             let struct_lit: ASTStructLiteral = (parser_get_struct_literal parser node_id)
                                             /* Return struct type with the struct name */
-                                            return Type { 
+                                            return NSType { 
                                                 kind: TypeKind.TYPE_STRUCT, 
                                                 name: struct_lit.struct_name, 
                                                 element_type_kind: TypeKind.TYPE_UNKNOWN, 
@@ -1094,12 +1096,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                             if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
                                                 return (check_union_construct parser node_id)
                                             } else {
-                                                /* Check for match expression */
-                                                if (== node_type ParseNodeType.PNODE_MATCH) {
-                                                    return (check_match_expr parser node_id symbols)
-                                                } else {
-                                                    return (type_unknown_named "unknown_node_type")
-                                                }
+                                    /* Check for match expression */
+                                    if (== node_type ParseNodeType.PNODE_MATCH) {
+                                        return (check_match_expr parser node_id symbols diags file_name)
+                                    } else {
+                                        return (type_unknown_named "unknown_node_type")
+                                    }
                                             }
                                         }
                                     }
@@ -1117,11 +1119,11 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
  * Example: Option.Some { value: 42 }
  * Returns: The union type (TYPE_UNION with union name)
  */
-fn check_union_construct(parser: Parser, node_id: int) -> Type {
+fn check_union_construct(parser: Parser, node_id: int) -> NSType {
     let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
     
     /* Return union type */
-    return Type {
+    return NSType {
         kind: TypeKind.TYPE_UNION,
         name: uc.union_name,
         element_type_kind: TypeKind.TYPE_UNKNOWN,
@@ -1131,43 +1133,45 @@ fn check_union_construct(parser: Parser, node_id: int) -> Type {
 
 /* Check match expression  
  * Example: match opt { Some(s) => s.value, None(n) => 0 }
- * Returns: Type of the match arms (must all match)
+ * Returns: NSType of the match arms (must all match)
  */
-fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>) -> Type {
+fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     let m: ASTMatch = (parser_get_match parser node_id)
     
     /* Check scrutinee (expression being matched) */
-    let scrutinee_type: Type = (check_expr_node parser m.scrutinee m.scrutinee_type symbols)
+    let scrutinee_type: NSType = (check_expr_node parser m.scrutinee m.scrutinee_type symbols diags file_name)
     
     if (!= scrutinee_type.kind TypeKind.TYPE_UNION) {
-        (println "Type error: match expression must match on union type")
+        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "match expression must match on union type" (Diagnostics.diag_location file_name m.line m.column))
+        (Diagnostics.diag_list_add diags diag)
         return (type_unknown_named "match_error")
     } else {
         (print "")
     }
     
-    /* Type check first arm to get return type */
+    /* NSType check first arm to get return type */
     if (> m.arm_count 0) {
         /* For now, assume all arms have the same type */
         /* In full implementation, would check all arms match */
-        let first_arm_type: Type = (check_expr_node parser (at m.arm_body_ids 0) (at m.arm_body_types 0) symbols)
+        let first_arm_type: NSType = (check_expr_node parser (at m.arm_body_ids 0) (at m.arm_body_types 0) symbols diags file_name)
         return first_arm_type
     } else {
         return (type_unknown_named "empty_match")
     }
 }
 
-/* Type check a return statement expression
+/* NSType check a return statement expression
  * 
  * Validates that the return expression type matches the expected function return type
  */
-fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: Type, symbols: array<Symbol>) -> bool {
+fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>) -> bool {
     if (< ret_node.value 0) {
         /* No return value - expect void */
         if (== expected_type.kind TypeKind.TYPE_VOID) {
             return true
         } else {
-            (println "Type error: Missing return value")
+            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "Missing return value" (Diagnostics.diag_location "" ret_node.line ret_node.column))
+            (Diagnostics.diag_list_add diags diag)
             return false
         }
     } else {
@@ -1206,7 +1210,7 @@ fn array_elem_type_from_array_decl(t: string) -> string {
     }
 }
 
-/* Type check a let statement
+/* NSType check a let statement
  * 
  * Validates that:
  * 1. The variable is not already defined
@@ -1214,11 +1218,12 @@ fn array_elem_type_from_array_decl(t: string) -> string {
  * 
  * Returns: Updated symbols array with the new variable
  */
-fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>) -> array<Symbol> {
+fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> array<Symbol> {
     /* Check if variable already exists in current scope */
     if (env_has_symbol symbols let_node.name) {
-        /* TODO: Better error reporting with variable name */
-        (println "Type error: Variable already defined")
+        let msg: string = (+ "Variable already defined: " let_node.name)
+        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0004" msg (Diagnostics.diag_location file_name let_node.line let_node.column))
+        (Diagnostics.diag_list_add diags diag)
         return symbols
     } else {
         (print "")
@@ -1236,17 +1241,14 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>)
     } else { (print "") }
 
     /* Get declared type */
-    let declared_type: Type = (type_from_string let_node.var_type)
+    let declared_type: NSType = (type_from_string let_node.var_type)
 
     if (>= let_node.value 0) {
-        let init_type: Type = (check_expr_node parser let_node.value let_node.value_type symbols)
+        let init_type: NSType = (check_expr_node parser let_node.value let_node.value_type symbols diags file_name)
         if (not (types_equal init_type declared_type)) {
-            (print "Type error: let initializer type mismatch for ")
-            (println let_node.name)
-            (print "  declared: ")
-            (println (type_to_string declared_type))
-            (print "  init: ")
-            (println (type_to_string init_type))
+            let msg: string = (+ "NSType mismatch in let: " (+ let_node.name (+ ", expected " (+ (type_to_string declared_type) (+ ", got " (type_to_string init_type))))))
+            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name let_node.line let_node.column))
+            (Diagnostics.diag_list_add diags diag)
         } else {
             (print "")
         }
@@ -1258,39 +1260,55 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>)
     return (env_add_symbol (env_new) symbols sym)
 }
 
-/* Type check a return statement
+/* NSType check a return statement
  * 
  * Validates that the return expression type matches the function's return type
  * 
  * Returns: true if valid, false if type error
  */
-fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: Type, symbols: array<Symbol>) -> bool {
+fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
     /* If no return value, expect void */
     if (< ret_node.value 0) {
-        return (== expected_type.kind TypeKind.TYPE_VOID)
+        if (== expected_type.kind TypeKind.TYPE_VOID) {
+            return true
+        } else {
+            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "Expected return value" (Diagnostics.diag_location file_name ret_node.line ret_node.column))
+            (Diagnostics.diag_list_add diags diag)
+            return false
+        }
     } else {
-        let expr_t: Type = (check_expr_node parser ret_node.value ret_node.value_type symbols)
-        return (types_equal expr_t expected_type)
+        let expr_t: NSType = (check_expr_node parser ret_node.value ret_node.value_type symbols diags file_name)
+        if (not (types_equal expr_t expected_type)) {
+            let msg: string = (+ "NSType mismatch in return: expected " (+ (type_to_string expected_type) (+ ", got " (type_to_string expr_t))))
+            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name ret_node.line ret_node.column))
+            (Diagnostics.diag_list_add diags diag)
+            return false
+        } else {
+            return true
+        }
     }
 }
 
-fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>) -> bool {
+fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
     let idx: int = (env_lookup symbols set_node.target)
     if (< idx 0) {
-        (print "Type error: Undefined variable in set: ")
-        (println set_node.target)
+        let msg: string = (+ "Undefined variable in set: " set_node.target)
+        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name set_node.line set_node.column))
+        (Diagnostics.diag_list_add diags diag)
         return false
     } else {
         let sym: Symbol = (at symbols idx)
         if (not sym.is_mutable) {
-            (print "Type error: Cannot assign to immutable variable: ")
-            (println set_node.target)
+            let msg: string = (+ "Cannot assign to immutable variable: " set_node.target)
+            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0005" msg (Diagnostics.diag_location file_name set_node.line set_node.column))
+            (Diagnostics.diag_list_add diags diag)
             return false
         } else {
-            let rhs_t: Type = (check_expr_node parser set_node.value set_node.value_type symbols)
+            let rhs_t: NSType = (check_expr_node parser set_node.value set_node.value_type symbols diags file_name)
             if (not (types_equal rhs_t sym.sym_type)) {
-                (print "Type error: set type mismatch for ")
-                (println set_node.target)
+                let msg: string = (+ "NSType mismatch in set: " (+ set_node.target (+ ", expected " (+ (type_to_string sym.sym_type) (+ ", got " (type_to_string rhs_t))))))
+                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name set_node.line set_node.column))
+                (Diagnostics.diag_list_add diags diag)
                 return false
             } else {
                 return true
@@ -1312,7 +1330,7 @@ fn expr_kind_from_pnode(pnode_type: int) -> int {
     else { return (- 0 1) } } } } } } } } }
 }
 
-fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: Type) -> bool {
+fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
     let block: ASTBlock = (parser_get_block parser block_id)
     let mut local_symbols: array<Symbol> = symbols
     let mut ok: bool = true
@@ -1323,54 +1341,56 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
 
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let let_node: ASTLet = (parser_get_let parser stmt.node_id)
-            set local_symbols (check_let_statement parser let_node local_symbols)
+            set local_symbols (check_let_statement parser let_node local_symbols diags file_name)
         } else { if (== stmt.node_type ParseNodeType.PNODE_SET) {
             let set_node: ASTSet = (parser_get_set parser stmt.node_id)
-            if (not (check_set_statement parser set_node local_symbols)) { set ok false } else { (print "") }
+            if (not (check_set_statement parser set_node local_symbols diags file_name)) { set ok false } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_IF) {
             let if_node: ASTIf = (parser_get_if parser stmt.node_id)
-            let cond_t: Type = (check_expr_node parser if_node.condition if_node.condition_type local_symbols)
+            let cond_t: NSType = (check_expr_node parser if_node.condition if_node.condition_type local_symbols diags file_name)
             if (!= cond_t.kind TypeKind.TYPE_BOOL) {
-                (println "Type error: if condition must be bool")
+                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "if condition must be bool" (Diagnostics.diag_location file_name if_node.line if_node.column))
+                (Diagnostics.diag_list_add diags diag)
                 set ok false
             } else { (print "") }
 
             if (>= if_node.then_body 0) {
-                if (not (check_block parser if_node.then_body local_symbols expected_return)) { set ok false } else { (print "") }
+                if (not (check_block parser if_node.then_body local_symbols expected_return diags file_name)) { set ok false } else { (print "") }
             } else { (print "") }
 
             if (>= if_node.else_body 0) {
-                if (not (check_block parser if_node.else_body local_symbols expected_return)) { set ok false } else { (print "") }
+                if (not (check_block parser if_node.else_body local_symbols expected_return diags file_name)) { set ok false } else { (print "") }
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_WHILE) {
             let while_node: ASTWhile = (parser_get_while parser stmt.node_id)
-            let cond_t: Type = (check_expr_node parser while_node.condition while_node.condition_type local_symbols)
+            let cond_t: NSType = (check_expr_node parser while_node.condition while_node.condition_type local_symbols diags file_name)
             if (!= cond_t.kind TypeKind.TYPE_BOOL) {
-                (println "Type error: while condition must be bool")
+                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "while condition must be bool" (Diagnostics.diag_location file_name while_node.line while_node.column))
+                (Diagnostics.diag_list_add diags diag)
                 set ok false
             } else { (print "") }
 
             if (>= while_node.body 0) {
-                if (not (check_block parser while_node.body local_symbols expected_return)) { set ok false } else { (print "") }
+                if (not (check_block parser while_node.body local_symbols expected_return diags file_name)) { set ok false } else { (print "") }
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
             let ret_node: ASTReturn = (parser_get_return parser stmt.node_id)
-            if (not (check_return_statement parser ret_node expected_return local_symbols)) {
-                (println "Type error: return type mismatch")
+            if (not (check_return_statement parser ret_node expected_return local_symbols diags file_name)) {
                 set ok false
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_ASSERT) {
             let a: ASTAssert = (parser_get_assert parser stmt.node_id)
-            let cond_t: Type = (check_expr_node parser a.condition a.condition_type local_symbols)
+            let cond_t: NSType = (check_expr_node parser a.condition a.condition_type local_symbols diags file_name)
             if (!= cond_t.kind TypeKind.TYPE_BOOL) {
-                (println "Type error: assert condition must be bool")
+                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "assert condition must be bool" (Diagnostics.diag_location file_name a.line a.column))
+                (Diagnostics.diag_list_add diags diag)
                 set ok false
             } else { (print "") }
         } else {
             /* Expression statement */
             let kind: int = (expr_kind_from_pnode stmt.node_type)
             if (>= kind 0) {
-                let _t: Type = (check_expr_node parser stmt.node_id kind local_symbols)
+                let _t: NSType = (check_expr_node parser stmt.node_id kind local_symbols diags file_name)
                 (print "")
             } else {
                 (print "")
@@ -1387,7 +1407,7 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
  * AST TYPE CHECKING - Function validation
  * ============================================================================= */
 
-/* Type check a function definition
+/* NSType check a function definition
  * 
  * Validates:
  * 1. Parameters are valid types
@@ -1396,18 +1416,18 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
  * 
  * Returns: true if valid, false if type errors
  */
-fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>) -> bool {
-    (print "Type checking function ")
+fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
+    (print "NSType checking function ")
     (println func.name)
 
-    let return_type: Type = (type_from_string func.return_type)
+    let return_type: NSType = (type_from_string func.return_type)
     let mut func_symbols: array<Symbol> = symbols
 
     /* Add parameters as symbols (stored as lets starting at func.param_start) */
     let mut i: int = 0
     while (< i func.param_count) {
         let param_let: ASTLet = (parser_get_let parser (+ func.param_start i))
-        let ptype: Type = (type_from_string param_let.var_type)
+        let ptype: NSType = (type_from_string param_let.var_type)
         let psym: Symbol = (symbol_new param_let.name ptype param_let.is_mut false 0)
         set func_symbols (env_add_symbol (env_new) func_symbols psym)
         set i (+ i 1)
@@ -1417,7 +1437,7 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>) -> 
         /* extern fn */
         return true
     } else {
-        return (check_block parser func.body func_symbols return_type)
+        return (check_block parser func.body func_symbols return_type diags file_name)
     }
 }
 
@@ -1428,7 +1448,8 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>) -> 
 fn typecheck_output(diagnostics: List<CompilerDiagnostic>, error_count: int, had_error: bool) -> TypecheckPhaseOutput {
     let env: TypeEnvironment = TypeEnvironment {
         error_count: error_count,
-        has_error: had_error
+        has_error: had_error,
+        diagnostics: diagnostics
     }
     return TypecheckPhaseOutput {
         environment: env,
@@ -1438,26 +1459,25 @@ fn typecheck_output(diagnostics: List<CompilerDiagnostic>, error_count: int, had
 }
 
 /* Typecheck a parsed program with full AST walking */
-pub fn typecheck_phase(parser: Parser) -> TypecheckPhaseOutput {
-    (println "=== Type Checking (Full AST Walk) ===")
+pub fn typecheck_phase(parser: Parser, file_name: string) -> TypecheckPhaseOutput {
+    (println "=== NSType Checking (Full AST Walk) ===")
     
     let env: TypeEnvironment = (env_new)
     let mut symbols: array<Symbol> = []
-    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let mut error_count: int = 0
     
     /* Get function count using accessor */
     let func_count: int = (parser_get_function_count parser)
-    (print "Type checking ")
+    (print "NSType checking ")
     (print (int_to_string func_count))
     (println " functions")
     
     /* Validate we have at least one function */
     if (<= func_count 0) {
         (println "Error: No functions found")
-        let diag: CompilerDiagnostic = (Diagnostics.diag_simple CompilerPhase.PHASE_TYPECHECK DiagnosticSeverity.DIAG_ERROR "TC0001" "No functions found")
-        (list_CompilerDiagnostic_push diagnostics diag)
-        return (typecheck_output diagnostics (+ error_count 1) true)
+        let diag: CompilerDiagnostic = (Diagnostics.diag_error CompilerPhase.PHASE_TYPECHECK "TC0001" "No functions found" (Diagnostics.diag_location file_name 0 0))
+        (Diagnostics.diag_list_add env.diagnostics diag)
+        return (typecheck_output env.diagnostics (+ error_count 1) true)
     } else {
         (print "")
     }
@@ -1486,38 +1506,40 @@ pub fn typecheck_phase(parser: Parser) -> TypecheckPhaseOutput {
         /* TODO: Add function name to debug output */
         (println "  Registering function...")
         
-        let return_type: Type = (type_from_string func.return_type)
+        let return_type: NSType = (type_from_string func.return_type)
         let func_sym: Symbol = (symbol_new func.name return_type false true func.param_count)
         set symbols (env_add_symbol env symbols func_sym)
         set i (+ i 1)
     }
     
-    /* Phase 2: Type check each function body */
+    /* Phase 2: NSType check each function body */
     set i 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
         /* TODO: Add function name to debug output */
-        (println "  Type checking function...")
+        (println "  NSType checking function...")
         
-        let valid: bool = (check_function parser func symbols)
+        let valid: bool = (check_function parser func symbols env.diagnostics file_name)
         if (not valid) {
-            (println "Error: Type error in function")
-            let diag: CompilerDiagnostic = (Diagnostics.diag_simple CompilerPhase.PHASE_TYPECHECK DiagnosticSeverity.DIAG_ERROR "TC0002" "Type error in function")
-            (list_CompilerDiagnostic_push diagnostics diag)
-            return (typecheck_output diagnostics (+ error_count 1) true)
+            set error_count (+ error_count 1)
         } else {
             (print "")
         }
         set i (+ i 1)
     }
     
-    (println "✓ Type checking complete - All functions valid!")
-    return (typecheck_output diagnostics error_count false)
+    let had_error: bool = (Diagnostics.diag_list_has_errors env.diagnostics)
+    if had_error {
+        (println "✓ NSType checking complete - errors found")
+    } else {
+        (println "✓ NSType checking complete - All functions valid!")
+    }
+    return (typecheck_output env.diagnostics error_count had_error)
 }
 
 /* Compatibility wrapper returning legacy status code */
 pub fn typecheck_parser(parser: Parser) -> int {
-    let output: TypecheckPhaseOutput = (typecheck_phase parser)
+    let output: TypecheckPhaseOutput = (typecheck_phase parser "")
     if output.had_error {
         return 1
     } else {
@@ -1527,7 +1549,7 @@ pub fn typecheck_parser(parser: Parser) -> int {
 
 /* Simplified typecheck for count-based validation */
 fn typecheck_with_count(func_count: int) -> int {
-    (println "=== Type Checking (Count-based) ===")
+    (println "=== NSType Checking (Count-based) ===")
     (print "Validating ")
     (print (int_to_string func_count))
     (println " functions")
@@ -1536,7 +1558,7 @@ fn typecheck_with_count(func_count: int) -> int {
         (println "Error: No functions found")
         return 1
     } else {
-        (println "Type checking complete!")
+        (println "NSType checking complete!")
         return 0
     }
 }

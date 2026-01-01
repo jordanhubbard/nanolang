@@ -194,12 +194,12 @@ shadow diag_list_has_errors {
 pub fn diag_make_type_error(expected_type: string, found_type: string) -> string {
     # For now, just return a simple error message
     # In the future, this could use string formatting
-    return "Type mismatch"
+    return "NSType mismatch"
 }
 
 shadow diag_make_type_error {
     let msg: string = (diag_make_type_error "int" "string")
-    assert (== msg "Type mismatch")
+    assert (== msg "NSType mismatch")
 }
 
 /* Helper to create undefined reference messages */
@@ -226,7 +226,7 @@ shadow diag_simple {
 }
 
 shadow diag_error_simple {
-    let diag: CompilerDiagnostic = (diag_error_simple CompilerPhase.PHASE_TYPECHECK "E002" "Type error")
+    let diag: CompilerDiagnostic = (diag_error_simple CompilerPhase.PHASE_TYPECHECK "E002" "NSType error")
     assert (== diag.severity DiagnosticSeverity.DIAG_ERROR)
 }
 
@@ -254,7 +254,7 @@ shadow diag_lexer_error {
 
 shadow diag_typecheck_error {
     let loc: CompilerSourceLocation = (diag_location "input.nano" 10 5)
-    let diag: CompilerDiagnostic = (diag_typecheck_error "T001" "Type error" loc)
+    let diag: CompilerDiagnostic = (diag_typecheck_error "T001" "NSType error" loc)
     assert (== diag.phase CompilerPhase.PHASE_TYPECHECK)
 }
 

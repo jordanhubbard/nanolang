@@ -6,7 +6,7 @@
  * 
  * Design Philosophy:
  * - Simple binary format (not portable across architectures yet)
- * - Type-tagged values for safety
+ * - NSType-tagged values for safety
  * - Minimal dependencies
  * - Extensible for future needs
  */
@@ -163,8 +163,8 @@ shadow serialize_tagged_bool {
  * TYPE-SPECIFIC SERIALIZATION
  * ============================================================================= */
 
-/* Serialize a Type struct */
-pub fn serialize_type(buf: SerializeBuffer, t: Type) -> SerializeBuffer {
+/* Serialize a NSType struct */
+pub fn serialize_type(buf: SerializeBuffer, t: NSType) -> SerializeBuffer {
     let buf2: SerializeBuffer = (serialize_tag buf SerializeTag.TAG_STRUCT)
     let buf3: SerializeBuffer = (serialize_int buf2 t.kind)
     let buf4: SerializeBuffer = (serialize_string buf3 t.name)
@@ -174,7 +174,7 @@ pub fn serialize_type(buf: SerializeBuffer, t: Type) -> SerializeBuffer {
 }
 
 shadow serialize_type {
-    let t: Type = Type {
+    let t: NSType = NSType {
         kind: TypeKind.TYPE_INT,
         name: "int",
         element_type_kind: TypeKind.TYPE_UNKNOWN,
@@ -315,7 +315,7 @@ shadow cache_is_valid {
  * Future Enhancements:
  * 1. Implement actual binary I/O (need byte array support)
  * 2. Add file system integration for cache storage
- * 3. Implement full Type serialization including nested types
+ * 3. Implement full NSType serialization including nested types
  * 4. Add compression (optional)
  * 5. Add checksums for data integrity
  * 6. Support for List serialization

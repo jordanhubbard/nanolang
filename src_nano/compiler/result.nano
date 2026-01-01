@@ -33,9 +33,9 @@ union ResultString {
     Err { error: string }
 }
 
-/* Result for operations that return Type or error */
+/* Result for operations that return NSType or error */
 union ResultType {
-    Ok { value: Type },
+    Ok { value: NSType },
     Err { error: string }
 }
 
@@ -121,12 +121,12 @@ shadow result_string_err {
     }
 }
 
-pub fn result_type_ok(value: Type) -> ResultType {
+pub fn result_type_ok(value: NSType) -> ResultType {
     return ResultType.Ok { value: value }
 }
 
 shadow result_type_ok {
-    let t: Type = Type { kind: TypeKind.TYPE_INT, name: "", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+    let t: NSType = NSType { kind: TypeKind.TYPE_INT, name: "", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
     let r: ResultType = (result_type_ok t)
     match r {
         Ok(v) => {
@@ -422,7 +422,7 @@ shadow result_string_unwrap_or {
 }
 
 shadow result_type_is_ok {
-    let t: Type = Type { kind: TypeKind.TYPE_INT, name: "", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+    let t: NSType = NSType { kind: TypeKind.TYPE_INT, name: "", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
     let r1: ResultType = (result_type_ok t)
     assert (result_type_is_ok r1)
 }

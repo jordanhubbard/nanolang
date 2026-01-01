@@ -181,11 +181,11 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
     
     /* Step 4: TypeChecker - Validate types */
     if verbose {
-        (println "Type checking...")
+        (println "NSType checking...")
     }
     let type_output: TypecheckPhaseOutput = (TypeCheck.typecheck_phase parser_state)
     if verbose {
-        (println "  Type check complete")
+        (println "  NSType check complete")
     }
     if (phase_failed "Typecheck" type_output.had_error type_output.diagnostics) {
         return 1

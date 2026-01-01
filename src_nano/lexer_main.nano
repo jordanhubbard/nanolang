@@ -5,7 +5,8 @@ import "src_nano/compiler/lexer.nano"
 from "src_nano/compiler/diagnostics.nano" import diag_list_new
 
 fn tokenize(source: string) -> List<LexerToken> {
-    return (tokenize_string source)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    return (tokenize_string source "test.nano" diags)
 }
 
 shadow tokenize {
@@ -15,14 +16,22 @@ shadow tokenize {
 }
 
 pub fn lex_phase_run(source: string, file_name: string) -> LexPhaseOutput {
-    let tokens: List<LexerToken> = (tokenize_string source)
-    let token_count: int = (list_LexerToken_length tokens)
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string source file_name diagnostics)
+    let token_count: int = (list_LexerToken_length tokens)
+    let had_error: bool = (diag_list_has_errors diagnostics)
+    
+    if had_error {
+        (println "Lexer detected errors!")
+    } else {
+        (print "")
+    }
+    
     return LexPhaseOutput {
         tokens: tokens,
         token_count: token_count,
         diagnostics: diagnostics,
-        had_error: false
+        had_error: had_error
     }
 }
 

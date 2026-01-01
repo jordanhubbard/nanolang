@@ -565,21 +565,21 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             
             /* Step 3: Typechecker - Verify semantics */
             if verbose {
-                (println "[3/5] Type checking...")
+                (println "[3/5] NSType checking...")
             } else {
                 (print "")
             }
             
             let typecheck_result: int = (typecheck_parser parser)
             if (!= typecheck_result 0) {
-                (println "Type checking failed")
+                (println "NSType checking failed")
                 return 1
             } else {
                 (print "")
             }
             
             if verbose {
-                (println "  ✓ Type checking passed")
+                (println "  ✓ NSType checking passed")
             } else {
                 (print "")
             }

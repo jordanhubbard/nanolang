@@ -13,6 +13,7 @@
 
 /* Lexer entrypoints (used by shadow tests) */
 import "src_nano/compiler/lexer.nano"
+import "src_nano/ast_shared.nano"
 import "src_nano/generated/compiler_ast.nano"
 
 /* Helper: Initialize AST lists (triggers generic instantiation) */
@@ -52,14 +53,17 @@ fn parser_init_ast_lists() -> Parser {
     let opaque_types: List<ASTOpaqueType> = (list_ASTOpaqueType_new)
     let tuple_literals: List<ASTTupleLiteral> = (list_ASTTupleLiteral_new)
     let tuple_indices: List<ASTTupleIndex> = (list_ASTTupleIndex_new)
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     
     /* Return parser with initialized lists */
     let empty_tokens: List<LexerToken> = (list_LexerToken_new)
     return Parser {
         tokens: empty_tokens,
+        file_name: "",
         position: 0,
         token_count: 0,
         has_error: false,
+        diagnostics: diagnostics,
         numbers: numbers,
         floats: floats,
         strings: strings,
@@ -139,15 +143,17 @@ shadow parser_init_ast_lists {
 
 /* Create new parser from token list */
 /* Note: token_count is calculated externally to avoid generic instantiation issues */
-fn parser_new(tokens: List<LexerToken>, token_count: int) -> Parser {
+fn parser_new(tokens: List<LexerToken>, token_count: int, file_name: string) -> Parser {
     /* Initialize AST lists using helper (triggers generic instantiation) */
     let init_parser: Parser = (parser_init_ast_lists)
     
     return Parser {
         tokens: tokens,
+        file_name: file_name,
         position: 0,
         token_count: token_count,
         has_error: false,
+        diagnostics: init_parser.diagnostics,
         numbers: init_parser.numbers,
         floats: init_parser.floats,
         strings: init_parser.strings,
@@ -222,7 +228,7 @@ fn parser_new(tokens: List<LexerToken>, token_count: int) -> Parser {
 
 shadow parser_new {
     let empty_tokens: List<LexerToken> = (list_LexerToken_new)
-    let p: Parser = (parser_new empty_tokens 0)
+    let p: Parser = (parser_new empty_tokens 0 "test.nano")
     assert (== p.position 0)
     assert (== p.token_count 0)
     assert (== p.next_node_id 0)
@@ -259,10 +265,11 @@ shadow parser_is_at_end {
 /* Helper: Copy parser with new position */
 fn parser_with_position(p: Parser, new_position: int) -> Parser {
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
         position: new_position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -361,7 +368,7 @@ pub fn parser_position(p: Parser) -> int {
 
 shadow parser_position {
     let empty_tokens: List<LexerToken> = (list_LexerToken_new)
-    let p: Parser = (parser_new empty_tokens 0)
+    let p: Parser = (parser_new empty_tokens 0 "test.nano")
     assert (== (parser_position p) 0)
 }
 
@@ -405,10 +412,10 @@ fn parser_expect(p: Parser, token_type: int) -> Parser {
     /* TODO: Get current token from List<LexerToken> and check type */
     /* For now, placeholder logic: */
     if (parser_match p token_type) {
-        /* Token matches - advance and return */
+        /* LexerToken matches - advance and return */
         return (parser_advance p)
     } else {
-        /* Token doesn't match - set error flag */
+        /* LexerToken doesn't match - set error flag */
         return (parser_with_error p true)
     }
 }
@@ -438,10 +445,12 @@ shadow parser_peek {
 /* Helper: Copy parser with error flag set */
 fn parser_with_error(p: Parser, error: bool) -> Parser {
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -526,13 +535,13 @@ pub fn parser_has_error(p: Parser) -> bool {
 
 shadow parser_has_error {
     let empty_tokens: List<LexerToken> = (list_LexerToken_new)
-    let p: Parser = (parser_new empty_tokens 0)
+    let p: Parser = (parser_new empty_tokens 0 "test.nano")
     assert (== (parser_has_error p) false)
 }
 
 /* ========== Expression Parsing ========== */
 
-/* Token type helper functions - match LexerTokenType (src_nano/generated/compiler_schema.nano) */
+/* LexerToken type helper functions - match LexerTokenType (src_nano/generated/compiler_schema.nano) */
 fn token_number() -> int { return LexerTokenType.TOKEN_NUMBER }
 shadow token_number { assert (== (token_number) LexerTokenType.TOKEN_NUMBER) }
 
@@ -914,7 +923,7 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
                 set cur (parser_advance p)
             }
 
-            /* Parse optional generic args: Type<Arg1,Arg2> */
+            /* Parse optional generic args: NSType<Arg1,Arg2> */
             if (not (parser_is_at_end cur)) {
                 let tgen: LexerToken = (parser_current cur)
                 if (== tgen.token_type (token_lt)) {
@@ -978,10 +987,12 @@ fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Pars
     (list_ASTNumber_push p.numbers node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -1071,10 +1082,12 @@ fn parser_store_string(p: Parser, value: string, line: int, column: int) -> Pars
     (list_ASTString_push p.strings node)
 
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -1163,10 +1176,12 @@ fn parser_store_bool(p: Parser, value: bool, line: int, column: int) -> Parser {
     (list_ASTBool_push p.bools node)
 
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -1255,10 +1270,12 @@ fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> P
     (list_ASTIdentifier_push p.identifiers node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -1352,10 +1369,12 @@ fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_
     (list_ASTBinaryOp_push p.binary_ops node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -1449,10 +1468,12 @@ fn parser_store_call(p: Parser, function_id: int, arg_start: int, arg_count: int
     (list_ASTCall_push p.calls node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -1537,10 +1558,12 @@ fn parser_store_call_arg(p: Parser, node_id: int, node_type: int) -> Parser {
     (list_ASTStmtRef_push p.call_args r)
 
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -1626,10 +1649,12 @@ fn parser_store_array_element(p: Parser, node_id: int, node_type: int) -> Parser
     (list_ASTStmtRef_push p.array_elements r)
 
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -2026,7 +2051,7 @@ fn parse_primary(p: Parser) -> Parser {
                             if (not (parser_is_at_end p_after_name)) {
                                 let tnext: LexerToken = (parser_current p_after_name)
                                 if (== tnext.token_type (token_lbrace)) {
-                                    /* Struct literal: Type { field: value, ... } */
+                                    /* Struct literal: NSType { field: value, ... } */
                                     let p_lbrace: Parser = (parser_advance p_after_name) /* consume '{' */
                                     return (parse_struct_literal p_lbrace name tok.line tok.column)
                                 } else {
@@ -2301,7 +2326,7 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
                                         let field_name: string = tok_field.value
                                         let p_field: Parser = (parser_advance p_dot)
                                         
-                                        /* Check for union construction: Type.Variant{...} */
+                                        /* Check for union construction: NSType.Variant{...} */
                                         if (not (parser_is_at_end p_field)) {
                                             let tok_brace: LexerToken = (parser_current p_field)
                                             if (== tok_brace.token_type (token_lbrace)) {
@@ -2385,10 +2410,12 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
     (list_ASTLet_push p.lets node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -2480,10 +2507,12 @@ fn parser_store_set(p: Parser, target: string, value_id: int, value_type: int, l
     (list_ASTSet_push p.sets node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -2576,10 +2605,12 @@ fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_
     (list_ASTIf_push p.ifs node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -2671,10 +2702,12 @@ fn parser_store_while(p: Parser, condition_id: int, condition_type: int, body_id
     (list_ASTWhile_push p.whiles node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -2765,10 +2798,12 @@ fn parser_store_for(p: Parser, var_name: string, iterable_id: int, iterable_type
     (list_ASTFor_push p.fors node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -2855,10 +2890,12 @@ fn parser_store_array_literal(p: Parser, element_start: int, element_count: int,
     (list_ASTArrayLiteral_push p.array_literals node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -2944,10 +2981,12 @@ fn parser_store_import(p: Parser, module_path: string, module_name: string, line
     (list_ASTImport_push p.imports node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -3032,10 +3071,12 @@ fn parser_store_opaque_type(p: Parser, type_name: string, line: int, column: int
     (list_ASTOpaqueType_push p.opaque_types node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -3121,10 +3162,12 @@ fn parser_store_shadow(p: Parser, target_name: string, body_id: int, line: int, 
     (list_ASTShadow_push p.shadows node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -3211,10 +3254,12 @@ fn parser_store_field_access(p: Parser, object_id: int, object_type: int, field_
     (list_ASTFieldAccess_push p.field_accesses node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -3299,10 +3344,12 @@ fn parser_store_float(p: Parser, value: string, line: int, column: int) -> Parse
     (list_ASTFloat_push p.floats node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -3394,10 +3441,12 @@ fn parser_store_return(p: Parser, value_id: int, value_type: int, line: int, col
     (list_ASTReturn_push p.returns node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -3486,10 +3535,12 @@ fn parser_store_assert(p: Parser, condition_id: int, condition_type: int, line: 
     (list_ASTAssert_push p.asserts node)
 
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -3575,10 +3626,12 @@ fn parser_store_block_statement(p: Parser, node_id: int, node_type: int) -> Pars
     (list_ASTStmtRef_push p.block_statements r)
 
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -3668,10 +3721,12 @@ fn parser_store_block(p: Parser, statement_start: int, statement_count: int, lin
     (list_ASTBlock_push p.blocks node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -3830,10 +3885,12 @@ fn parser_store_unsafe_block(p: Parser, statement_start: int, statement_count: i
     (list_ASTUnsafeBlock_push p.unsafe_blocks node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -4360,10 +4417,12 @@ fn parser_store_function(p: Parser, name: string, param_start: int, param_count:
     (list_ASTFunction_push p.functions node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -4454,10 +4513,12 @@ fn parser_store_struct(p: Parser, name: string, field_count: int, line: int, col
     (list_ASTStruct_push p.structs node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -4548,10 +4609,12 @@ fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, col
     (list_ASTEnum_push p.enums node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -4642,10 +4705,12 @@ fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, co
     (list_ASTUnion_push p.unions node)
     
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -4738,10 +4803,12 @@ fn parser_store_union_construct(p: Parser, union_name: string, variant_name: str
     (list_ASTUnionConstruct_push p.union_constructs node)
 
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -4830,10 +4897,12 @@ fn parser_store_struct_literal(p: Parser, type_name: string, field_names: array<
     (list_ASTStructLiteral_push p.struct_literals node)
 
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -4924,10 +4993,12 @@ fn parser_store_match(p: Parser, scrutinee_id: int, scrutinee_type: int, arm_var
     (list_ASTMatch_push p.matches node)
 
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -5014,10 +5085,12 @@ fn parser_store_tuple_literal(p: Parser, element_ids: array<int>, element_types:
     (list_ASTTupleLiteral_push p.tuple_literals node)
 
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -5104,10 +5177,12 @@ fn parser_store_tuple_index(p: Parser, tuple_id: int, tuple_type: int, index: in
     (list_ASTTupleIndex_push p.tuple_indices node)
 
     return Parser {
-        tokens: p.tokens,
+        tokens: p.tokens, file_name: p.file_name, 
+        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
+        diagnostics: p.diagnostics,
         numbers: p.numbers,
         floats: p.floats,
         strings: p.strings,
@@ -5904,8 +5979,8 @@ shadow parse_definition {
  * Returns:
  *   Parser state containing all parsed definitions
  */
-pub fn parse_program(tokens: List<LexerToken>, token_count: int) -> Parser {
-    let mut p: Parser = (parser_new tokens token_count)
+pub fn parse_program(tokens: List<LexerToken>, token_count: int, file_name: string) -> Parser {
+    let mut p: Parser = (parser_new tokens token_count file_name)
     
     /* Parse all definitions until end of tokens or error */
     while (and (not (parser_is_at_end p)) (not (parser_has_error p))) {
@@ -5968,7 +6043,7 @@ shadow create_identifier_node {
 fn test_parser_structure() -> int {
     /* Test that we can create parser state */
     let empty_tokens: List<LexerToken> = (list_LexerToken_new)
-    let p: Parser = (parser_new empty_tokens 0)
+    let p: Parser = (parser_new empty_tokens 0 "test.nano")
     
     /* Test that we can create AST nodes */
     let num: ASTNumber = (create_number_node "42" 1 1)
@@ -5997,7 +6072,7 @@ pub fn parser_get_function_count(p: Parser) -> int {
 
 shadow parser_get_function_count {
     let empty_tokens: List<LexerToken> = (list_LexerToken_new)
-    let p: Parser = (parser_new empty_tokens 0)
+    let p: Parser = (parser_new empty_tokens 0 "test.nano")
     assert (== (parser_get_function_count p) 0)
 }
 
@@ -6280,15 +6355,35 @@ from "src_nano/compiler/diagnostics.nano" import diag_list_new
 /* Parse phase wrapper for driver
  * Takes lex output, returns parser state + diagnostics
  */
-pub fn parse_phase_run(lex_output: LexPhaseOutput) -> ParsePhaseOutput {
+pub fn parse_phase_run(lex_output: LexPhaseOutput, file_name: string) -> ParsePhaseOutput {
     /* Run parser on tokens */
-    let parser_state: Parser = (parse_program lex_output.tokens lex_output.token_count)
-    
-    /* Create empty diagnostics list (TODO: add actual parser errors) */
-    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let parser_state: Parser = (parse_program lex_output.tokens lex_output.token_count file_name)
     
     /* Check if parser encountered errors */
     let had_error: bool = (parser_has_error parser_state)
+    
+    /* Create diagnostics list */
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    
+    if had_error {
+        # Try to find location of error (at current position)
+        let mut line: int = 0
+        let mut col: int = 0
+        if (< parser_state.position parser_state.token_count) {
+            let tok: LexerToken = (list_LexerToken_get parser_state.tokens parser_state.position)
+            set line tok.line
+            set col tok.column
+        } else {
+            if (> parser_state.token_count 0) {
+                let last_tok: LexerToken = (list_LexerToken_get parser_state.tokens (- parser_state.token_count 1))
+                set line last_tok.line
+                set col last_tok.column
+            }
+        }
+        
+        let diag: CompilerDiagnostic = (diag_parser_error "P0001" "Syntax error: Unexpected token" (diag_location file_name line col))
+        (diag_list_add diagnostics diag)
+    }
     
     return ParsePhaseOutput {
         parser: parser_state,

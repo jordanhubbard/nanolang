@@ -65,34 +65,154 @@ shadow error_message_new {
 }
 
 /* =============================================================================
+ * STRING HELPERS FOR FORMATTING
+ * ============================================================================= */
+
+fn repeat_string(s: string, count: int) -> string {
+    let mut out: string = ""
+    let mut i: int = 0
+    while (< i count) {
+        set out (+ out s)
+        set i (+ i 1)
+    }
+    return out
+}
+
+fn pad_right(s: string, target_len: int) -> string {
+    let len: int = (str_length s)
+    if (>= len target_len) {
+        return s
+    }
+    return (+ s (repeat_string " " (- target_len len)))
+}
+
+fn get_line_from_source(source: string, target_line: int) -> string {
+    let mut current_line: int = 1
+    let mut start_idx: int = 0
+    let mut i: int = 0
+    let total_len: int = (str_length source)
+    
+    while (< i total_len) {
+        if (== (char_at source i) 10) { # 10 is '\n'
+            if (== current_line target_line) {
+                return (str_substring source start_idx (- i start_idx))
+            }
+            set current_line (+ current_line 1)
+            set start_idx (+ i 1)
+        }
+        set i (+ i 1)
+    }
+    
+    if (== current_line target_line) {
+        return (str_substring source start_idx (- total_len start_idx))
+    }
+    
+    return ""
+}
+
+shadow get_line_from_source {
+    let source: string = "line 1
+line 2
+line 3"
+    let l1: string = (get_line_from_source source 1)
+    # (print "Line 1: [") (print l1) (println "]")
+    assert (== l1 "line 1")
+    let l2: string = (get_line_from_source source 2)
+    # (print "Line 2: [") (print l2) (println "]")
+    assert (== l2 "line 2")
+    let l3: string = (get_line_from_source source 3)
+    # (print "Line 3: [") (print l3) (println "]")
+    assert (== l3 "line 3")
+}
+
+/* =============================================================================
  * ERROR FORMATTING
  * ============================================================================= */
 
 /* Format an error message in Elm style */
-pub fn format_error_elm_style(err: ErrorMessage) -> string {
-    # TODO: This would be much easier with string interpolation
-    # For now, we return a simplified version
+pub fn format_error_elm_style(err: ErrorMessage, source: string) -> string {
+    let mut out: string = ""
     
-    # Build the header line
-    # "-- TYPE MISMATCH ---------------------------------------- src/Main.nano"
+    # 1. Header line: -- TITLE ---------------------------------------- FILE
+    let mut header_base: string = (+ "-- " (+ err.title " "))
+    let mut dash_count: int = (- 60 (str_length header_base))
+    if (< dash_count 5) { set dash_count 5 }
+    let mut full_header: string = (+ header_base (+ (repeat_string "-" dash_count) (+ " " err.file)))
     
-    # Build the problem description
-    # "The function `add` expects 2 arguments, but I see 3:"
+    set out (+ full_header "\n\n")
     
-    # Build the code snippet with highlighting
-    # "12| let result: int = (add 1 2 3)"
-    # "                        ^^^^^^^^^^"
+    # 2. Problem description
+    set out (+ out (+ err.problem "\n\n"))
     
-    # Build the explanation
+    # 3. Code snippet with highlighting
+    if (> err.line 0) {
+        let line_content: string = (get_line_from_source source err.line)
+        let line_num_str: string = (int_to_string err.line)
+        let padding: string = (repeat_string " " (str_length line_num_str))
+        
+        set out (+ out (+ line_num_str (+ "| " (+ line_content "\n"))))
+        set out (+ out (+ padding (+ "| " (+ (repeat_string " " (- err.column 1)) "^\n\n"))))
+    }
     
-    # Build the suggestion
+    # 4. Explanation
+    if (!= err.explanation "") {
+        set out (+ out (+ err.explanation "\n\n"))
+    }
     
-    return "Error formatting placeholder"
+    # 5. Suggestion
+    if (!= err.suggestion "") {
+        set out (+ out (+ "Hint: " (+ err.suggestion "\n")))
+    }
+    
+    return out
+}
+
+/* =============================================================================
+ * CONVERT DIAGNOSTICS TO ELM ERRORS
+ * ============================================================================= */
+
+pub fn diagnostic_to_elm_error(diag: CompilerDiagnostic) -> ErrorMessage {
+    let mut title: string = (cond
+        ((str_equals diag.code "E0001") "TYPE MISMATCH")
+        ((str_equals diag.code "E0002") "UNDEFINED VARIABLE")
+        ((== diag.severity 2) "ERROR")
+        ((== diag.severity 1) "WARNING")
+        (else "INFO")
+    )
+    
+    let loc: CompilerSourceLocation = diag.location
+    return ErrorMessage {
+        title: title,
+        file: loc.file,
+        line: loc.line,
+        column: loc.column,
+        problem: diag.message,
+        code_snippet: "",
+        explanation: "",
+        suggestion: ""
+    }
+}
+
+pub fn format_diagnostics_elm_style(diags: List<CompilerDiagnostic>, source: string) -> string {
+    let mut out: string = ""
+    let count: int = (diag_list_count diags)
+    let mut i: int = 0
+    
+    while (< i count) {
+        let diag: CompilerDiagnostic = (diag_list_get diags i)
+        let elm_err: ErrorMessage = (diagnostic_to_elm_error diag)
+        set out (+ out (format_error_elm_style elm_err source))
+        set out (+ out "\n")
+        set i (+ i 1)
+    }
+    
+    return out
 }
 
 shadow format_error_elm_style {
-    let err: ErrorMessage = (error_message_new "TYPE MISMATCH" "test.nano" 10 5)
-    let formatted: string = (format_error_elm_style err)
+    let err: ErrorMessage = (error_message_new "TYPE MISMATCH" "test.nano" 1 1)
+    let source: string = "let x: int = \"hello\""
+    let formatted: string = (format_error_elm_style err source)
     (println formatted)
 }
 
@@ -100,7 +220,7 @@ shadow format_error_elm_style {
  * COMMON ERROR PATTERNS
  * ============================================================================= */
 
-/* Type mismatch error */
+/* NSType mismatch error */
 pub fn error_type_mismatch(
     file: string,
     line: int,
@@ -348,7 +468,7 @@ shadow error_resource_leak {
 /* Get a friendly error template for common mistakes */
 pub fn get_error_template(error_code: string) -> string {
     # TODO: Return helpful templates for common errors
-    # E0001: Type mismatch
+    # E0001: NSType mismatch
     # E0002: Undefined variable
     # E0003: Arity mismatch
     # etc.
@@ -366,7 +486,7 @@ shadow get_error_template {
  * =============================================================================
  * 
  * Instead of:
- *   Error at line 42: Type mismatch
+ *   Error at line 42: NSType mismatch
  * 
  * We show:
  *   -- TYPE MISMATCH ---------------------------------------- src/main.nano
@@ -394,4 +514,5 @@ shadow get_error_template {
  * - Similar error grouping (show all type mismatches together)
  * - Interactive error browser (for IDEs)
  */
+
 

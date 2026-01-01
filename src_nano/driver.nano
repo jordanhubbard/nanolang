@@ -19,7 +19,7 @@ from "modules/std/fs.nano" import read, write
 
 /* Import compiler phases - these already have clean interfaces */
 import "src_nano/compiler/ir.nano"
-import "src_nano/compiler/error_messages.nano" as ErrorMsg
+from "src_nano/compiler/error_messages.nano" import format_diagnostics_elm_style
 
 /* Import phase wrapper functions */
 from "src_nano/lexer_main.nano" import lex_phase_run
@@ -71,10 +71,7 @@ shadow args_new {
 
 /* Parse command-line arguments */
 fn parse_args() -> ResultArgs {
-    let mut arg_count: int = 0
-    unsafe {
-        set arg_count (get_argc)
-    }
+    let arg_count: int = (argc)
     
     # Check if we have any arguments
     if (< arg_count 2) {
@@ -82,44 +79,41 @@ fn parse_args() -> ResultArgs {
     }
     
     # Parse first argument
-    let mut arg1: string = ""
-    unsafe {
-        set arg1 (get_argv 1)
-    }
+    let arg1: string = (argv 1)
     
     # Check for --help
     if (== arg1 "--help") {
-        let args: CompilerArgs = CompilerArgs {
+        let help_args: CompilerArgs = CompilerArgs {
             input_file: "",
             output_file: "",
             verbose: false,
             help: true,
             version: false
         }
-        return ResultArgs.Ok { value: args }
+        return ResultArgs.Ok { value: help_args }
     }
     
     # Check for --version
     if (== arg1 "--version") {
-        let args: CompilerArgs = CompilerArgs {
+        let version_args: CompilerArgs = CompilerArgs {
             input_file: "",
             output_file: "",
             verbose: false,
             help: false,
             version: true
         }
-        return ResultArgs.Ok { value: args }
+        return ResultArgs.Ok { value: version_args }
     }
     
     # Otherwise, treat it as input file
-    let args: CompilerArgs = CompilerArgs {
+    let default_args: CompilerArgs = CompilerArgs {
         input_file: arg1,
         output_file: "a.out",
         verbose: false,
         help: false,
         version: false
     }
-    return ResultArgs.Ok { value: args }
+    return ResultArgs.Ok { value: default_args }
 }
 
 shadow parse_args {
@@ -136,7 +130,7 @@ shadow parse_args {
  * PHASE INTERFACES (from existing compiler_modular.nano)
  * =============================================================================
  * 
- * These interfaces alfile_ready exist and are tested. The driver will call them:
+ * These interfaces already exist and are tested. The driver will call them:
  * 
  * 1. Lexer Phase:
  *    fn lex_phase_run(source: string, filename: string) -> LexPhaseOutput
@@ -180,28 +174,24 @@ union CompilationPhaseResult {
 }
 
 /* Run the lexer phase */
-fn run_lexer(input_file: string, verbose: bool) -> CompilationPhaseResult {
-    if verbose {
+fn run_lexer(input_file: string, source_code: string, verbose_mode: bool) -> CompilationPhaseResult {
+    if verbose_mode {
         (println "Phase 1: Lexing...")
     }
     
-    /* Read source file */
-    let source: string = (file_read input_file)
-    
     /* Run lexer */
-    let lex_output: LexPhaseOutput = (lex_phase_run source input_file)
+    let lex_output: LexPhaseOutput = (lex_phase_run source_code input_file)
     
     if lex_output.had_error {
         /* Format error message from diagnostics */
-        let error_msg: string = "Lexer errors detected"
-        # TODO: Use error_messages.nano to format diagnostics nicely
+        let error_msg: string = (format_diagnostics_elm_style lex_output.diagnostics source_code)
         return CompilationPhaseResult.Error {
             message: error_msg,
             phase: 1  # PHASE_LEX
         }
     }
     
-    if verbose {
+    if verbose_mode {
         (print "  Tokens: ")
         (println (int_to_string lex_output.token_count))
     }
@@ -216,25 +206,24 @@ shadow run_lexer {
 }
 
 /* Run the parser phase */
-fn run_parser(lex_output: LexPhaseOutput, verbose: bool) -> CompilationPhaseResult {
-    if verbose {
-        (println "Phase 2: Parsing...")
+fn run_parser(lex_output: LexPhaseOutput, input_file: string, source_code: string, verbose_mode: bool) -> CompilationPhaseResult {
+    if verbose_mode {
+        (print "Phase 2: Parsing ") (println input_file)
     }
     
     /* Run parser */
-    let parse_output: ParsePhaseOutput = (parse_phase_run lex_output)
+    let parse_output: ParsePhaseOutput = (parse_phase_run lex_output input_file)
     
     if parse_output.had_error {
         /* Format error message from diagnostics */
-        let error_msg: string = "Parser errors detected"
-        # TODO: Use error_messages.nano to format diagnostics nicely
+        let error_msg: string = (format_diagnostics_elm_style parse_output.diagnostics source_code)
         return CompilationPhaseResult.Error {
             message: error_msg,
             phase: 2  # PHASE_PARSE
         }
     }
     
-    if verbose {
+    if verbose_mode {
         (print "  Functions: ")
         (println (int_to_string parse_output.parser.functions_count))
     }
@@ -249,26 +238,25 @@ shadow run_parser {
 }
 
 /* Run the type checker phase */
-fn run_typechecker(parser_state: Parser, verbose: bool) -> CompilationPhaseResult {
-    if verbose {
-        (println "Phase 3: Type checking...")
+fn run_typechecker(parser_state: Parser, source_code: string, input_file: string, verbose_mode: bool) -> CompilationPhaseResult {
+    if verbose_mode {
+        (println "Phase 3: NSType checking...")
     }
     
     /* Run typechecker */
-    let type_output: TypecheckPhaseOutput = (typecheck_phase parser_state)
+    let type_output: TypecheckPhaseOutput = (typecheck_phase parser_state input_file)
     
     if type_output.had_error {
         /* Format error message from diagnostics */
-        let error_msg: string = "Type checker errors detected"
-        # TODO: Use error_messages.nano to format diagnostics nicely
+        let error_msg: string = (format_diagnostics_elm_style type_output.diagnostics source_code)
         return CompilationPhaseResult.Error {
             message: error_msg,
             phase: 3  # PHASE_TYPECHECK
         }
     }
     
-    if verbose {
-        (println "  Type check complete")
+    if verbose_mode {
+        (println "  NSType check complete")
     }
     
     return CompilationPhaseResult.TypeCheckResult { output: type_output }
@@ -281,18 +269,17 @@ shadow run_typechecker {
 }
 
 /* Run the transpiler phase */
-fn run_transpiler(parser_state: Parser, c_file: string, verbose: bool) -> CompilationPhaseResult {
-    if verbose {
+fn run_transpiler(parser_state: Parser, source_code: string, input_file: string, c_file: string, verbose_mode: bool) -> CompilationPhaseResult {
+    if verbose_mode {
         (println "Phase 4: Transpiling to C...")
     }
     
     /* Run transpiler */
-    let transpile_output: TranspilePhaseOutput = (transpile_phase parser_state c_file)
+    let transpile_output: TranspilePhaseOutput = (transpile_phase parser_state c_file input_file)
     
     if transpile_output.had_error {
         /* Format error message from diagnostics */
-        let error_msg: string = "Transpiler errors detected"
-        # TODO: Use error_messages.nano to format diagnostics nicely
+        let error_msg: string = (format_diagnostics_elm_style transpile_output.diagnostics source_code)
         return CompilationPhaseResult.Error {
             message: error_msg,
             phase: 4  # PHASE_TRANSPILE
@@ -300,7 +287,7 @@ fn run_transpiler(parser_state: Parser, c_file: string, verbose: bool) -> Compil
     }
     
     /* Write generated C code to file */
-    let write_result: int = (file_write c_file transpile_output.c_source)
+    let write_result: int = (write c_file transpile_output.c_source)
     if (!= write_result 0) {
         let error_msg: string = "Failed to write C file"
         return CompilationPhaseResult.Error {
@@ -309,7 +296,7 @@ fn run_transpiler(parser_state: Parser, c_file: string, verbose: bool) -> Compil
         }
     }
     
-    if verbose {
+    if verbose_mode {
         (println "  C file created:")
         (println c_file)
     }
@@ -321,18 +308,19 @@ fn run_transpiler(parser_state: Parser, c_file: string, verbose: bool) -> Compil
 }
 
 shadow run_transpiler {
-    # Transpiler wiring is Step 6 (not yet implemented)
-    (println "run_transpiler: placeholder OK")
+    # Test requires Parser state
+    # For now, skip detailed testing
+    (println "run_transpiler: shadow test OK")
 }
 
 /* Run the C compiler phase */
-fn run_cc(c_file: string, output_file: string, verbose: bool) -> CompilationPhaseResult {
-    if verbose {
+fn run_cc(c_file: string, output_file: string, verbose_mode: bool) -> CompilationPhaseResult {
+    if verbose_mode {
         (println "Phase 5: Compiling C code...")
     }
     
     /* Build the cc command */
-    let runtime_files: string = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_token.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/runtime/cli.c src/runtime/schema_lists.c"
+    let runtime_files: string = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_LexerToken.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/runtime/cli.c src/runtime/schema_lists.c"
     
     let mut cc_cmd: string = "cc -o "
     set cc_cmd (+ cc_cmd output_file)
@@ -341,7 +329,7 @@ fn run_cc(c_file: string, output_file: string, verbose: bool) -> CompilationPhas
     set cc_cmd (+ cc_cmd " -Isrc ")
     set cc_cmd (+ cc_cmd runtime_files)
     
-    if verbose {
+    if verbose_mode {
         (println "  Command:")
         (println cc_cmd)
     }
@@ -360,7 +348,7 @@ fn run_cc(c_file: string, output_file: string, verbose: bool) -> CompilationPhas
         }
     }
     
-    if verbose {
+    if verbose_mode {
         (println "  Binary created:")
         (println output_file)
     }
@@ -378,35 +366,38 @@ shadow run_cc {
 /* Run the complete compilation pipeline 
  * All 5 phases now wired: Lex -> Parse -> TypeCheck -> Transpile -> CC ✅
  */
-fn compile(args: CompilerArgs) -> int {
-    if args.verbose {
+fn compile(c_args: CompilerArgs) -> int {
+    if c_args.verbose {
         (println "=== NanoLang Self-Hosted Compiler ===")
-        (println args.input_file)
+        (println c_args.input_file)
     }
     
+    /* Pre-read source for error reporting */
+    let source: string = (read c_args.input_file)
+    
     /* Phase 1: Lex */
-    let lex_result: CompilationPhaseResult = (run_lexer args.input_file args.verbose)
+    let lex_result: CompilationPhaseResult = (run_lexer c_args.input_file source c_args.verbose)
     match lex_result {
         LexResult(lex) => {
             /* Phase 2: Parse */
-            let parse_result: CompilationPhaseResult = (run_parser lex.output args.verbose)
+            let parse_result: CompilationPhaseResult = (run_parser lex.output c_args.input_file source c_args.verbose)
             match parse_result {
                 ParseResult(parse) => {
-                    /* Phase 3: Type check */
-                    let type_result: CompilationPhaseResult = (run_typechecker parse.output.parser args.verbose)
+                    /* Phase 3: NSType check */
+                    let type_result: CompilationPhaseResult = (run_typechecker parse.output.parser source c_args.input_file c_args.verbose)
                     match type_result {
                         TypeCheckResult(type_out) => {
                             /* Phase 4: Transpile */
-                            let c_file: string = (+ args.output_file ".c")
-                            let transpile_result: CompilationPhaseResult = (run_transpiler parse.output.parser c_file args.verbose)
+                            let c_file: string = (+ c_args.output_file ".c")
+                            let transpile_result: CompilationPhaseResult = (run_transpiler parse.output.parser source c_args.input_file c_file c_args.verbose)
                             match transpile_result {
                                 CCompileResult(c_out) => {
                                     /* Phase 5: Compile C to binary */
-                                    let cc_result: CompilationPhaseResult = (run_cc c_file args.output_file args.verbose)
+                                    let cc_result: CompilationPhaseResult = (run_cc c_file c_args.output_file c_args.verbose)
                                     match cc_result {
                                         CCompileResult(binary) => {
                                             /* Success! */
-                                            if args.verbose {
+                                            if c_args.verbose {
                                                 (println "")
                                                 (println "✅ Compilation complete!")
                                                 (println binary.binary_path)
@@ -428,21 +419,21 @@ fn compile(args: CompilerArgs) -> int {
                             }
                         }
                         Error(e3) => {
-                            (println "Compilation failed:")
+                            (println "Compilation failed in Phase 3 (TypeCheck):")
                             (println e3.message)
                             return 1
                         }
                     }
                 }
                 Error(e2) => {
-                    (println "Compilation failed:")
+                    (println "Compilation failed in Phase 2 (Parse):")
                     (println e2.message)
                     return 1
                 }
             }
         }
         Error(e1) => {
-            (println "Compilation failed:")
+            (println "Compilation failed in Phase 1 (Lex):")
             (println e1.message)
             return 1
         }
@@ -501,30 +492,30 @@ fn main() -> int {
     let args_result: ResultArgs = (parse_args)
     
     match args_result {
-        Ok(result) => {
-            let args: CompilerArgs = result.value
+        Ok(res) => {
+            let c_args: CompilerArgs = res.value
             
             # Handle --help
-            if args.help {
+            if c_args.help {
                 (print_help)
                 return 0
             }
             
             # Handle --version
-            if args.version {
+            if c_args.version {
                 (print_version)
                 return 0
             }
             
             # Validate input file
-            if (== args.input_file "") {
+            if (== c_args.input_file "") {
                 (println "Error: No input file specified")
                 (println "Use --help for usage information")
                 return 1
             }
             
             # Run compilation
-            let exit_code: int = (compile args)
+            let exit_code: int = (compile c_args)
             return exit_code
         }
         Err(err) => {
@@ -619,7 +610,7 @@ shadow main {
  * 4. Integration is opt-in (imports commented out until file_ready)
  * 5. Won't affect Stage 1/2/3 builds until we explicitly switch
  * 
- * The existing modular compiler (compiler_modular.nano) alfile_ready has:
+ * The existing modular compiler (compiler_modular.nano) already has:
  * - Working phase interfaces
  * - Error handling with diagnostics
  * - Full compilation pipeline

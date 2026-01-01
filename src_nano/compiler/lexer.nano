@@ -7,6 +7,8 @@
  */
 
 import "src_nano/compiler/ir.nano"
+from "src_nano/compiler/diagnostics.nano" import diag_lexer_error, diag_location, diag_list_add, diag_list_has_errors
+from "modules/std/fs.nano" import read
 
 fn is_identifier_start(c: int) -> bool {
     return (or (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122))) (== c 95))
@@ -252,7 +254,7 @@ fn process_char_literal(source: string, i: int, len: int, tokens: List<LexerToke
     }
 }
 
-pub fn tokenize_string(source: string) -> List<LexerToken> {
+pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDiagnostic>) -> List<LexerToken> {
     let mut tokens: List<LexerToken> = (list_LexerToken_new)
     let mut i: int = 0
     let len: int = (str_length source)
@@ -337,9 +339,17 @@ pub fn tokenize_string(source: string) -> List<LexerToken> {
                             let mut new_pos: int = -1
                             if (== c 39) {
                                 set new_pos (process_char_literal source i len tokens line column)
+                                if (== new_pos -1) {
+                                    let diag: CompilerDiagnostic = (diag_lexer_error "L0001" "Unterminated or invalid character literal" (diag_location file_name line column))
+                                    (diag_list_add diags diag)
+                                } else { (print "") }
                             } else {
                                 if (== c 34) {
                                     set new_pos (process_string source i len tokens line column)
+                                    if (== new_pos -1) {
+                                        let diag: CompilerDiagnostic = (diag_lexer_error "L0002" "Unterminated string literal" (diag_location file_name line column))
+                                        (diag_list_add diags diag)
+                                    } else { (print "") }
                                 } else {
                                     if (or (is_digit_char c) (and (and (== c 45) (< (+ i 1) len)) (is_digit_char (char_at source (+ i 1))))) {
                                         set new_pos (process_number source i len tokens line column)
@@ -411,6 +421,9 @@ pub fn tokenize_string(source: string) -> List<LexerToken> {
                                                                                                             (push_tok tokens LexerTokenType.TOKEN_GT "" line column)
                                                                                                             set new_pos (+ i 1)
                                                                                                         } else {
+                                                                                                            /* Unexpected character */
+                                                                                                            let diag: CompilerDiagnostic = (diag_lexer_error "L0003" "Unexpected character" (diag_location file_name line column))
+                                                                                                            (diag_list_add diags diag)
                                                                                                             set new_pos (+ i 1)
                                                                                                         }
                                                                                                     }
@@ -449,13 +462,15 @@ pub fn tokenize_string(source: string) -> List<LexerToken> {
     return tokens
 }
 
-pub fn tokenize_file(path: string) -> List<LexerToken> {
-    let source: string = (file_read path)
-    return (tokenize_string source)
+pub fn tokenize_file(path: string, diags: List<CompilerDiagnostic>) -> List<LexerToken> {
+    let source: string = (read path)
+    return (tokenize_string source path diags)
 }
 
 shadow tokenize_string {
     let source: string = "import \"x.nano\" as X\nfn main() -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string source)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let toks: List<LexerToken> = (tokenize_string source "test.nano" diags)
     assert (> (list_LexerToken_length toks) 0)
+    assert (not (diag_list_has_errors diags))
 }

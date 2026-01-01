@@ -168,7 +168,7 @@ fn compile(input: string, output: string, keep_c: bool, verbose: bool) -> int {
     let parser = (Parser.parse_program tokens token_count)
     
     if verbose {
-        (println "Step 4: Type checking...")
+        (println "Step 4: NSType checking...")
     }
     let result = (TypeChecker.typecheck_parser parser)
     

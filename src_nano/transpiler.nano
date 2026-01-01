@@ -18,6 +18,7 @@
  */
 
 import "src_nano/compiler/ir.nano"
+import "src_nano/ast_shared.nano"
 import "src_nano/parser.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 
@@ -250,7 +251,7 @@ fn is_builtin_list_runtime_fn(name: string) -> bool {
         (transp_str_starts_with name "list_int_")
         (or
             (transp_str_starts_with name "list_string_")
-            (transp_str_starts_with name "list_token_")
+            (transp_str_starts_with name "list_LexerToken_")
         )
     )
 }
@@ -485,7 +486,7 @@ fn type_to_c(nano_type: string) -> string {
                                 if (== elem "string") {
                                     return "List_string*"
                                 } else {
-                                    if (or (== elem "token") (== elem "Token")) {
+                                    if (or (== elem "token") (== elem "LexerToken")) {
                                         return "List_token*"
                                     } else {
                                         return (str_concat (str_concat "List_" (mangle_type_name elem)) "*")
@@ -950,7 +951,7 @@ fn gen_c_includes() -> string {
     set result (str_concat result "#include \"runtime/dyn_array.h\"\n")
     set result (str_concat result "#include \"runtime/list_int.h\"\n")
     set result (str_concat result "#include \"runtime/list_string.h\"\n")
-    set result (str_concat result "#include \"runtime/list_token.h\"\n")
+    set result (str_concat result "#include \"runtime/list_LexerToken.h\"\n")
     set result (str_concat result "#include \"runtime/token_helpers.h\"\n")
     set result (str_concat result "\n")
     
@@ -1329,7 +1330,7 @@ fn generate_union_definitions(parser: Parser) -> string {
 /* Map operator token type to C operator string
  * 
  * Args:
- *   op: Token type of operator
+ *   op: LexerToken type of operator
  * 
  * Returns: C operator string
  */
@@ -2478,13 +2479,21 @@ pub fn transpile_parser(parser: Parser) -> string {
     return (gen_c_program_with_modules parser all_functions)
 }
 
-pub fn transpile_phase(parser: Parser, output_path: string) -> TranspilePhaseOutput {
+pub fn transpile_phase(parser: Parser, output_path: string, file_name: string) -> TranspilePhaseOutput {
     let c_source: string = (transpile_parser parser)
     let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    
+    # Check if parser has errors before proceeding
+    let had_err: bool = (parser_has_error parser)
+    if had_err {
+        let diag: CompilerDiagnostic = (Diagnostics.diag_transpiler_error "TR0001" "Cannot transpile: parser has errors" (Diagnostics.diag_location file_name 0 0))
+        (Diagnostics.diag_list_add diagnostics diag)
+    } else { (print "") }
+
     return TranspilePhaseOutput {
         c_source: c_source,
         diagnostics: diagnostics,
-        had_error: false,
+        had_error: had_err,
         output_path: output_path
     }
 }
@@ -2525,7 +2534,7 @@ fn transpile_with_count(func_count: int) -> string {
     set body (str_concat body (gen_indent 1))
     set body (str_concat body "nl_println(\"\");\n")
     set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"Type checking: PASSED\");\n")
+    set body (str_concat body "nl_println(\"NSType checking: PASSED\");\n")
     set body (str_concat body (gen_indent 1))
     set body (str_concat body "nl_println(\"Code generation: COMPLETE\");\n")
     set body (str_concat body (gen_indent 1))

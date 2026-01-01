@@ -6,3 +6,4 @@
 
 import "src_nano/generated/compiler_schema.nano"
 import "src_nano/generated/compiler_ast.nano"
+import "src_nano/ast_shared.nano"

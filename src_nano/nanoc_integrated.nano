@@ -17,7 +17,7 @@
  *   1. Read source file
  *   2. Tokenize (lexer_main.nano - 610 lines)
  *   3. Parse (parser.nano - 2,772 lines)
- *   4. Type check (typecheck.nano - 796 lines)
+ *   4. NSType check (typecheck.nano - 796 lines)
  *   5. Generate C code (transpiler.nano - 1,069 lines)
  *   6. Invoke system gcc to compile C → binary (this is OK!)
  * 
@@ -234,14 +234,14 @@ struct Parser {
 
 struct FunctionType {
     name: string,
-    param_types: array<Type>,
+    param_types: array<NSType>,
     param_count: int,
-    return_type: Type
+    return_type: NSType
 }
 
 struct Symbol {
     name: string,
-    sym_type: Type,
+    sym_type: NSType,
     is_mut: bool,
     is_fn: bool
 }
@@ -3494,14 +3494,14 @@ shadow main {
 
 
 /* ============================================================================
- * PHASE: TYPE CHECKER - Type Validation
+ * PHASE: TYPE CHECKER - NSType Validation
  * Source: src_nano/typecheck.nano
  * ============================================================================ */
 
 /* =============================================================================
- * nanolang Type Checker (Self-Hosted) - Minimal Version
+ * nanolang NSType Checker (Self-Hosted) - Minimal Version
  * =============================================================================
- * Type checking for the self-hosted nanolang compiler
+ * NSType checking for the self-hosted nanolang compiler
  * 
  * Phase 1 Scope (Minimal):
  * - Basic types: int, float, bool, string, void
@@ -3525,7 +3525,7 @@ shadow main {
 
 /* Basic type kinds */
 
-/* Type representation */
+/* NSType representation */
 
 /* Function signature for type checking */
 
@@ -3545,8 +3545,8 @@ shadow main {
  * ============================================================================= */
 
 /* Create a new type */
-fn make_type(kind: int, name: string) -> Type {
-    return Type {
+fn make_type(kind: int, name: string) -> NSType {
+    return NSType {
         kind: kind,
         name: name,
         element_type_kind: TypeKind.TYPE_UNKNOWN,
@@ -3554,48 +3554,48 @@ fn make_type(kind: int, name: string) -> Type {
     }
 }
 
-fn type_int() -> Type {
+fn type_int() -> NSType {
     return (make_type TypeKind.TYPE_INT "")
 }
 
 shadow type_int {
-    let t: Type = (type_int)
+    let t: NSType = (type_int)
     assert (== t.kind TypeKind.TYPE_INT)
 }
 
-fn type_float() -> Type {
+fn type_float() -> NSType {
     return (make_type TypeKind.TYPE_FLOAT "")
 }
 
 shadow type_float {
-    let t: Type = (type_float)
+    let t: NSType = (type_float)
     assert (== t.kind TypeKind.TYPE_FLOAT)
 }
 
-fn type_bool() -> Type {
+fn type_bool() -> NSType {
     return (make_type TypeKind.TYPE_BOOL "")
 }
 
 shadow type_bool {
-    let t: Type = (type_bool)
+    let t: NSType = (type_bool)
     assert (== t.kind TypeKind.TYPE_BOOL)
 }
 
-fn type_string() -> Type {
+fn type_string() -> NSType {
     return (make_type TypeKind.TYPE_STRING "")
 }
 
 shadow type_string {
-    let t: Type = (type_string)
+    let t: NSType = (type_string)
     assert (== t.kind TypeKind.TYPE_STRING)
 }
 
-fn type_void() -> Type {
+fn type_void() -> NSType {
     return (make_type TypeKind.TYPE_VOID "")
 }
 
-fn type_unknown_named(label: string) -> Type {
-    return Type {
+fn type_unknown_named(label: string) -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_UNKNOWN,
         name: label,
         element_type_kind: TypeKind.TYPE_UNKNOWN,
@@ -3603,7 +3603,7 @@ fn type_unknown_named(label: string) -> Type {
     }
 }
 
-fn option_type_some(value: Type) -> OptionType {
+fn option_type_some(value: NSType) -> OptionType {
     return OptionType {
         has_value: true,
         value: value
@@ -3618,12 +3618,12 @@ fn option_type_none() -> OptionType {
 }
 
 shadow type_void {
-    let t: Type = (type_void)
+    let t: NSType = (type_void)
     assert (== t.kind TypeKind.TYPE_VOID)
 }
 
 /* Check if two types are equal */
-fn types_equal(t1: Type, t2: Type) -> bool {
+fn types_equal(t1: NSType, t2: NSType) -> bool {
     if (!= t1.kind t2.kind) {
         return false
     }
@@ -3645,16 +3645,16 @@ fn types_equal(t1: Type, t2: Type) -> bool {
 }
 
 shadow types_equal {
-    let int1: Type = (type_int)
-    let int2: Type = (type_int)
-    let float1: Type = (type_float)
+    let int1: NSType = (type_int)
+    let int2: NSType = (type_int)
+    let float1: NSType = (type_float)
     
     assert (types_equal int1 int2)
     assert (not (types_equal int1 float1))
 }
 
 /* Create type from string representation */
-fn type_from_string(s: string) -> Type {
+fn type_from_string(s: string) -> NSType {
     if (== s "int") {
         return (type_int)
     } else {
@@ -3680,17 +3680,17 @@ fn type_from_string(s: string) -> Type {
 }
 
 shadow type_from_string {
-    let t: Type = (type_from_string "int")
+    let t: NSType = (type_from_string "int")
     assert (== t.kind TypeKind.TYPE_INT)
     
-    let t2: Type = (type_from_string "MyStruct")
+    let t2: NSType = (type_from_string "MyStruct")
     assert (== t2.kind TypeKind.TYPE_STRUCT)
     /* String comparison in struct might not work as expected */
     /* Just check the kind for now */
 }
 
-/* Type to string for error messages */
-fn type_to_string(t: Type) -> string {
+/* NSType to string for error messages */
+fn type_to_string(t: NSType) -> string {
     if (== t.kind TypeKind.TYPE_INT) {
         return "int"
     } else {
@@ -3756,7 +3756,7 @@ fn env_new() -> TypeEnvironment {
 }
 
 /* Create a new symbol */
-fn symbol_new(name: string, sym_type: Type, is_mut: bool, is_fn: bool) -> Symbol {
+fn symbol_new(name: string, sym_type: NSType, is_mut: bool, is_fn: bool) -> Symbol {
     return Symbol {
         name: name,
         sym_type: sym_type,
@@ -3840,39 +3840,39 @@ shadow env_get_type {
  * ============================================================================= */
 
 /* Check type of a literal number */
-fn check_number_literal(value: string) -> Type {
+fn check_number_literal(value: string) -> NSType {
     /* For now, all numbers are int */
     /* TODO: detect floats by checking for '.' */
     return (type_int)
 }
 
 shadow check_number_literal {
-    let t: Type = (check_number_literal "42")
+    let t: NSType = (check_number_literal "42")
     assert (== t.kind TypeKind.TYPE_INT)
 }
 
 /* Check type of a string literal */
-fn check_string_literal() -> Type {
+fn check_string_literal() -> NSType {
     return (type_string)
 }
 
 shadow check_string_literal {
-    let t: Type = (check_string_literal)
+    let t: NSType = (check_string_literal)
     assert (== t.kind TypeKind.TYPE_STRING)
 }
 
 /* Check type of a boolean literal */
-fn check_bool_literal() -> Type {
+fn check_bool_literal() -> NSType {
     return (type_bool)
 }
 
 shadow check_bool_literal {
-    let t: Type = (check_bool_literal)
+    let t: NSType = (check_bool_literal)
     assert (== t.kind TypeKind.TYPE_BOOL)
 }
 
 /* Check if operator is valid for given types */
-fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
+fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType {
     /* Arithmetic ops: +, -, *, /, % */
     if (or (or (or (or (== op "+") (== op "-")) (== op "*")) (== op "/")) (== op "%")) {
         /* Both operands must be int or float */
@@ -3882,7 +3882,7 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
             if (or (== left_type.kind TypeKind.TYPE_FLOAT) (== right_type.kind TypeKind.TYPE_FLOAT)) {
                 return (type_float)
             } else {
-                /* Type error */
+                /* NSType error */
                 return (type_unknown_named "error")
             }
         }
@@ -3913,19 +3913,19 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
 }
 
 shadow check_binary_op {
-    let int_t: Type = (type_int)
-    let bool_t: Type = (type_bool)
+    let int_t: NSType = (type_int)
+    let bool_t: NSType = (type_bool)
     
     /* Test arithmetic */
-    let result1: Type = (check_binary_op "+" int_t int_t)
+    let result1: NSType = (check_binary_op "+" int_t int_t)
     assert (== result1.kind TypeKind.TYPE_INT)
     
     /* Test comparison */
-    let result2: Type = (check_binary_op "==" int_t int_t)
+    let result2: NSType = (check_binary_op "==" int_t int_t)
     assert (== result2.kind TypeKind.TYPE_BOOL)
     
     /* Test logical */
-    let result3: Type = (check_binary_op "and" bool_t bool_t)
+    let result3: NSType = (check_binary_op "and" bool_t bool_t)
     assert (== result3.kind TypeKind.TYPE_BOOL)
 }
 
@@ -3958,7 +3958,7 @@ extern fn parser_get_binary_op(p: Parser, idx: int) -> ASTBinaryOp
  * AST TYPE CHECKING - Expression evaluation
  * ============================================================================= */
 
-/* Type check an expression node by ID
+/* NSType check an expression node by ID
  * 
  * This recursively evaluates the type of an expression node.
  * Node IDs are used to reference nodes in the Parser's storage lists.
@@ -3981,7 +3981,7 @@ fn ensure_known_expr_node(node_type: int) -> bool {
     return false
 }
 
-fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>) -> Type {
+fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>) -> NSType {
     if (not (ensure_known_expr_node node_type)) {
         (print "Warning: Unknown expression node type ")
         (println (int_to_string node_type))
@@ -3996,7 +3996,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             let id_node: ASTIdentifier = (parser_get_identifier parser node_id)
             let lookup: OptionType = (env_get_type symbols id_node.name)
             if (not lookup.has_value) {
-                (print "Type error: Undefined variable ")
+                (print "NSType error: Undefined variable ")
                 (println id_node.name)
                 return (type_unknown_named "undefined_identifier")
             } else {
@@ -4018,17 +4018,17 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     }
 }
 
-/* Type check a return statement expression
+/* NSType check a return statement expression
  * 
  * Validates that the return expression type matches the expected function return type
  */
-fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: Type, symbols: array<Symbol>) -> bool {
+fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: NSType, symbols: array<Symbol>) -> bool {
     if (< ret_node.value 0) {
         /* No return value - expect void */
         if (== expected_type.kind TypeKind.TYPE_VOID) {
             return true
         } else {
-            (println "Type error: Missing return value")
+            (println "NSType error: Missing return value")
             return false
         }
     } else {
@@ -4043,7 +4043,7 @@ fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: Typ
  * AST TYPE CHECKING - Statement validation
  * ============================================================================= */
 
-/* Type check a let statement
+/* NSType check a let statement
  * 
  * Validates that:
  * 1. The variable is not already defined
@@ -4055,33 +4055,33 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>)
     /* Check if variable already exists in current scope */
     if (env_has_symbol symbols let_node.name) {
         /* TODO: Better error reporting with variable name */
-        (println "Type error: Variable already defined")
+        (println "NSType error: Variable already defined")
         return symbols
     } else {
         (print "")
     }
     
     /* Get declared type */
-    let declared_type: Type = (type_from_string let_node.var_type)
+    let declared_type: NSType = (type_from_string let_node.var_type)
     
-    /* TODO: Type check the initialization expression */
+    /* TODO: NSType check the initialization expression */
     /* For now, just add the symbol */
     let sym: Symbol = (symbol_new let_node.name declared_type let_node.is_mut false)
     return (env_add_symbol (env_new) symbols sym)
 }
 
-/* Type check a return statement
+/* NSType check a return statement
  * 
  * Validates that the return expression type matches the function's return type
  * 
  * Returns: true if valid, false if type error
  */
-fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: Type, symbols: array<Symbol>) -> bool {
+fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NSType, symbols: array<Symbol>) -> bool {
     /* If no return value, expect void */
     if (< ret_node.value 0) {
         return (== expected_type.kind TypeKind.TYPE_VOID)
     } else {
-        /* TODO: Type check the return expression */
+        /* TODO: NSType check the return expression */
         /* For now, just return true */
         return true
     }
@@ -4091,7 +4091,7 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: Ty
  * AST TYPE CHECKING - Function validation
  * ============================================================================= */
 
-/* Type check a function definition
+/* NSType check a function definition
  * 
  * Validates:
  * 1. Parameters are valid types
@@ -4102,16 +4102,16 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: Ty
  */
 fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>) -> bool {
     /* TODO: Add function name to debug output */
-    (println "Type checking function...")
+    (println "NSType checking function...")
     
     /* Build symbol table with parameters */
     /* TODO: Extract parameters from Parser storage */
     let mut func_symbols: array<Symbol> = symbols
     
     /* Get expected return type */
-    let return_type: Type = (type_from_string func.return_type)
+    let return_type: NSType = (type_from_string func.return_type)
     
-    /* TODO: Type check function body statements */
+    /* TODO: NSType check function body statements */
     /* For now, just return true */
     return true
 }
@@ -4145,14 +4145,14 @@ extern fn parser_get_function(p: Parser, idx: int) -> ASTFunction
  * Returns: 0 for success, 1 for type error
  */
 fn typecheck_parser(parser: Parser) -> int {
-    (println "=== Type Checking (Full AST Walk) ===")
+    (println "=== NSType Checking (Full AST Walk) ===")
     
     let env: TypeEnvironment = (env_new)
     let mut symbols: array<Symbol> = []
     
     /* Get function count using accessor */
     let func_count: int = (parser_get_function_count parser)
-    (print "Type checking ")
+    (print "NSType checking ")
     (print (int_to_string func_count))
     (println " functions")
     
@@ -4178,23 +4178,23 @@ fn typecheck_parser(parser: Parser) -> int {
         /* TODO: Add function name to debug output */
         (println "  Registering function...")
         
-        let return_type: Type = (type_from_string func.return_type)
+        let return_type: NSType = (type_from_string func.return_type)
         let func_sym: Symbol = (symbol_new func.name return_type false true)
         set symbols (env_add_symbol env symbols func_sym)
         set i (+ i 1)
     }
     
-    /* Phase 2: Type check each function body */
+    /* Phase 2: NSType check each function body */
     set i 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
         /* TODO: Add function name to debug output */
-        (println "  Type checking function...")
+        (println "  NSType checking function...")
         
         let valid: bool = (check_function parser func symbols)
         if (not valid) {
             /* TODO: Add function name to error message */
-            (println "Error: Type error in function")
+            (println "Error: NSType error in function")
             return 1
         } else {
             (print "")
@@ -4202,13 +4202,13 @@ fn typecheck_parser(parser: Parser) -> int {
         set i (+ i 1)
     }
     
-    (println "✓ Type checking complete - All functions valid!")
+    (println "✓ NSType checking complete - All functions valid!")
     return 0
 }
 
 /* Simplified typecheck for count-based validation */
 fn typecheck_with_count(func_count: int) -> int {
-    (println "=== Type Checking (Count-based) ===")
+    (println "=== NSType Checking (Count-based) ===")
     (print "Validating ")
     (print (int_to_string func_count))
     (println " functions")
@@ -4217,7 +4217,7 @@ fn typecheck_with_count(func_count: int) -> int {
         (println "Error: No functions found")
         return 1
     } else {
-        (println "Type checking complete!")
+        (println "NSType checking complete!")
         return 0
     }
 }
@@ -4238,12 +4238,12 @@ shadow typecheck {
 
 /* REMOVED: Duplicate main from typechecker component
 fn main() -> int {
-    (println "=== nanolang Type Checker (Minimal) ===")
+    (println "=== nanolang NSType Checker (Minimal) ===")
     (println "")
     (println "Phase 1 Scope:")
     (println "  ✓ Basic types: int, float, bool, string, void")
-    (println "  ✓ Type equality checking")
-    (println "  ✓ Type representation")
+    (println "  ✓ NSType equality checking")
+    (println "  ✓ NSType representation")
     (println "  ✓ Binary operator type checking")
     (println "")
     (println "Next Steps:")
@@ -5178,7 +5178,7 @@ fn transpile_with_count(func_count: int) -> string {
     set body (str_concat body (gen_indent 1))
     set body (str_concat body "nl_println(\"\");\n")
     set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"Type checking: PASSED\");\n")
+    set body (str_concat body "nl_println(\"NSType checking: PASSED\");\n")
     set body (str_concat body (gen_indent 1))
     set body (str_concat body "nl_println(\"Code generation: COMPLETE\");\n")
     set body (str_concat body (gen_indent 1))
@@ -5267,7 +5267,7 @@ fn show_usage() -> void {
     (println "Pipeline:")
     (println "  1. Tokenize  (NanoLang lexer)")
     (println "  2. Parse     (NanoLang parser)")
-    (println "  3. Type check (NanoLang type checker)")
+    (println "  3. NSType check (NanoLang type checker)")
     (println "  4. Generate C (NanoLang transpiler)")
     (println "  5. Compile C  (system gcc - this is OK!)")
     (println "")
@@ -5321,7 +5321,7 @@ fn typecheck_phase_run(parser: Parser) -> TypecheckPhaseOutput {
         has_error: (!= status 0)
     }
     if (!= status 0) {
-        let diag: CompilerDiagnostic = (diag_simple CompilerPhase.PHASE_TYPECHECK DiagnosticSeverity.DIAG_ERROR "T0001" "Type checking failed")
+        let diag: CompilerDiagnostic = (diag_simple CompilerPhase.PHASE_TYPECHECK DiagnosticSeverity.DIAG_ERROR "T0001" "NSType checking failed")
         (list_CompilerDiagnostic_push diagnostics diag)
     }
     return TypecheckPhaseOutput {
@@ -5402,13 +5402,13 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
         return 1
     }
     
-    /* Step 4: Type check */
+    /* Step 4: NSType check */
     if verbose {
-        (println "Step 4: Type checking...")
+        (println "Step 4: NSType checking...")
     }
     let type_output: TypecheckPhaseOutput = (typecheck_phase_run parser)
     if verbose {
-        (println "  Type check complete")
+        (println "  NSType check complete")
     }
     if (phase_failed "Typecheck" type_output.had_error type_output.diagnostics) {
         return 1
