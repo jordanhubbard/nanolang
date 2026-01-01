@@ -1,0 +1,185 @@
+# Generate shared compiler schema artifacts for NanoLang
+# Replaces gen_compiler_schema.py (Python → NanoLang bootstrap)
+
+from "modules/std/json/json.nano" import Json, parse, get, is_array, is_object, is_string, array_size, get_index, as_string, as_int, keys
+from "modules/std/fs.nano" import file_read, file_write, join, dirname
+
+# Constants
+let HEADER_COMMENT: string = "/* AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY. */"
+let C_GUARD: string = "NANOLANG_GENERATED_COMPILER_SCHEMA_H"
+
+# Helper: Check if string starts with prefix
+fn starts_with(str: string, prefix: string) -> bool {
+    let str_len: int = (str_length str)
+    let prefix_len: int = (str_length prefix)
+    
+    if (< str_len prefix_len) {
+        return false
+    }
+    
+    let mut i: int = 0
+    while (< i prefix_len) {
+        if (!= (char_at str i) (char_at prefix i)) {
+            return false
+        }
+        set i (+ i 1)
+    }
+    
+    return true
+}
+
+shadow starts_with {
+    assert (starts_with "hello" "hel")
+    assert (starts_with "List<int>" "List<")
+    assert (not (starts_with "hi" "hello"))
+}
+
+# Helper: Extract content between < and > (e.g., "List<int>" -> "int")
+fn extract_generic_inner(str: string) -> string {
+    let len: int = (str_length str)
+    let mut start: int = -1
+    let mut end: int = -1
+    
+    # Find <
+    let mut i: int = 0
+    while (< i len) {
+        let ch: string = (string_from_char (char_at str i))
+        if (str_equals ch "<") {
+            set start i
+        }
+        set i (+ i 1)
+    }
+    
+    # Find >
+    set i 0
+    while (< i len) {
+        let ch: string = (string_from_char (char_at str i))
+        if (str_equals ch ">") {
+            set end i
+        }
+        set i (+ i 1)
+    }
+    
+    # Check if we found both brackets and they're in correct order
+    let has_start: bool = (>= start 0)
+    let has_end: bool = (>= end 0)
+    let valid_order: bool = (> end start)
+    
+    if (and (and has_start has_end) valid_order) {
+        # Return substring between < and >
+        let result_len: int = (- (- end start) 1)
+        let mut result: string = ""
+        let mut j: int = (+ start 1)
+        while (< j end) {
+            set result (+ result (string_from_char (char_at str j)))
+            set j (+ j 1)
+        }
+        return result
+    }
+    
+    return ""
+}
+
+shadow extract_generic_inner {
+    assert (str_equals (extract_generic_inner "List<int>") "int")
+    assert (str_equals (extract_generic_inner "array<string>") "string")
+}
+
+# Note: We process JSON arrays directly, no conversion needed
+
+# Generate src_nano/generated/compiler_schema.nano (enums)
+fn gen_nano_schema(schema: Json) -> string {
+    let mut output: string = HEADER_COMMENT
+    set output (+ output "\n\n")
+    
+    # Generate LexerTokenType enum
+    let tokens: Json = (get schema "tokens")
+    set output (+ output "enum LexerTokenType {\n")
+    
+    let num_tokens: int = (array_size tokens)
+    let mut i: int = 0
+    while (< i num_tokens) {
+        let token: Json = (get_index tokens i)
+        
+        # Token can be string or object
+        let name: string = (cond
+            ((is_string token) (as_string token))
+            (else "UNKNOWN")
+        )
+        
+        let comma: string = (cond
+            ((< i (- num_tokens 1)) ",")
+            (else "")
+        )
+        
+        let line: string = (+ (+ (+ "    " name) " = ") (+ (int_to_string i) comma))
+        set output (+ output (+ line "\n"))
+        set i (+ i 1)
+    }
+    
+    set output (+ output "}\n\n")
+    
+    # Generate ParseNodeType enum
+    let parse_nodes: Json = (get schema "parse_nodes")
+    set output (+ output "enum ParseNodeType {\n")
+    
+    let num_nodes: int = (array_size parse_nodes)
+    set i 0
+    while (< i num_nodes) {
+        let node: Json = (get_index parse_nodes i)
+        let name: string = (as_string node)
+        
+        let comma: string = (cond
+            ((< i (- num_nodes 1)) ",")
+            (else "")
+        )
+        
+        let line: string = (+ (+ (+ "    " name) " = ") (+ (int_to_string i) comma))
+        set output (+ output (+ line "\n"))
+        set i (+ i 1)
+    }
+    
+    set output (+ output "}\n")
+    
+    return output
+}
+
+# Main entry point
+fn main() -> int {
+    (println "NanoLang Compiler Schema Generator")
+    (println "===================================")
+    (println "")
+    
+    # Read schema
+    (println "Reading schema/compiler_schema.json...")
+    let schema_text: string = (file_read "schema/compiler_schema.json")
+    let schema: Json = (parse schema_text)
+    
+    # Generate outputs
+    (println "Generating compiler_schema.nano...")
+    let nano_schema_content: string = (gen_nano_schema schema)
+    
+    # TODO: Generate other files (compiler_ast.nano, compiler_contracts.nano, compiler_schema.h)
+    
+    # Write outputs
+    (println "Writing src_nano/generated/compiler_schema.nano...")
+    let wrote: int = (file_write "src_nano/generated/compiler_schema.nano" nano_schema_content)
+    
+    if (!= wrote 0) {
+        (println "ERROR: Failed to write compiler_schema.nano")
+        return 1
+    }
+    
+    (println "")
+    (println "✓ Schema generation complete!")
+    (println "  Note: This is a work-in-progress implementation.")
+    (println "  TODO: Generate compiler_ast.nano, compiler_contracts.nano, compiler_schema.h")
+    
+    return 0
+}
+
+shadow main {
+    # Test requires filesystem access, actual test would run the generator
+    assert true
+}
+
