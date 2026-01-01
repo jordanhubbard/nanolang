@@ -98,15 +98,11 @@ fn demo_list_int() -> int {
     
     # Access and display
     let len: int = (list_int_length numbers)
-    (print "  Length: ")
-    (println len)
+    (println (+ "  Length: " (int_to_string len)))
+    (println (+ "  First element: " (int_to_string (list_int_get numbers 0))))
     
-    (print "  First element: ")
-    (println (list_int_get numbers 0))
-    
-    (print "  Last element: ")
     let last_idx: int = (- len 1)
-    (println (list_int_get numbers last_idx))
+    (println (+ "  Last element: " (int_to_string (list_int_get numbers last_idx))))
     
     # Type safety: This list can ONLY hold integers
     # (list_int_push numbers "string") # Would be a compile error!

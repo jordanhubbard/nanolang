@@ -156,43 +156,19 @@ shadow fractal_noise {
 # === BIOME GENERATION ===
 
 fn elevation_to_biome(elevation: float) -> int {
-    if (< elevation 0.25) {
-        return BiomeType.DEEP_OCEAN
-    } else {
-        if (< elevation 0.35) {
-            return BiomeType.OCEAN
-        } else {
-            if (< elevation 0.42) {
-                return BiomeType.BEACH
-            } else {
-                if (< elevation 0.48) {
-                    return BiomeType.WETLANDS
-                } else {
-                    if (< elevation 0.58) {
-                        return BiomeType.PLAINS
-                    } else {
-                        if (< elevation 0.68) {
-                            return BiomeType.FOREST
-                        } else {
-                            if (< elevation 0.76) {
-                                return BiomeType.HILLS
-                            } else {
-                                if (< elevation 0.84) {
-                                    return BiomeType.MOUNTAIN
-                                } else {
-                                    if (< elevation 0.92) {
-                                        return BiomeType.HIGH_MOUNTAIN
-                                    } else {
-                                        return BiomeType.SNOW
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    # Use cond for clean multi-branch biome selection
+    return (cond
+        ((< elevation 0.25) BiomeType.DEEP_OCEAN)
+        ((< elevation 0.35) BiomeType.OCEAN)
+        ((< elevation 0.42) BiomeType.BEACH)
+        ((< elevation 0.48) BiomeType.WETLANDS)
+        ((< elevation 0.58) BiomeType.PLAINS)
+        ((< elevation 0.68) BiomeType.FOREST)
+        ((< elevation 0.76) BiomeType.HILLS)
+        ((< elevation 0.84) BiomeType.MOUNTAIN)
+        ((< elevation 0.92) BiomeType.HIGH_MOUNTAIN)
+        (else BiomeType.SNOW)
+    )
 }
 
 shadow elevation_to_biome {
