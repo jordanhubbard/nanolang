@@ -123,6 +123,14 @@ $(SCHEMA_OUTPUTS): $(SCHEMA_JSON) scripts/gen_compiler_schema.py
 	@echo "[schema] Generating compiler schema artifacts..."
 	@python3 scripts/gen_compiler_schema.py
 
+# ============================================================================
+# Module Index Generation
+# ============================================================================
+.PHONY: modules-index
+modules-index:
+	@echo "[modules] Generating module index from manifests..."
+	@python3 tools/generate_module_index.py
+
 # Hybrid compiler objects
 HYBRID_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/lexer_bridge.o $(OBJ_DIR)/lexer_nano.o $(OBJ_DIR)/main_stage1_5.o
 
@@ -134,10 +142,10 @@ PREFIX ?= /usr/local
 
 .DEFAULT_GOAL := build
 
-.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps status
+.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps status modules-index
 
 # Build: 3-stage bootstrap (uses sentinels to skip completed stages)
-build: schema $(SENTINEL_STAGE3)
+build: schema modules-index $(SENTINEL_STAGE3)
 	@echo ""
 	@echo "=========================================="
 	@echo "✅ Build Complete (3-Stage Bootstrap)"
@@ -920,4 +928,4 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark
+.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index
