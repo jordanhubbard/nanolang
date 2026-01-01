@@ -37,15 +37,11 @@ let ALIGNMENT_FACTOR: float = 0.05
 # === SIMPLIFIED BOID UPDATE (JUST WRAPPING FOR NOW) ===
 
 fn wrap_coord(val: float, max: float) -> float {
-    if (> val max) {
-        return 0.0
-    } else {
-        if (< val 0.0) {
-            return max
-        } else {
-            return val
-        }
-    }
+    return (cond
+        ((> val max) 0.0)
+        ((< val 0.0) max)
+        (else val)
+    )
 }
 
 shadow wrap_coord {

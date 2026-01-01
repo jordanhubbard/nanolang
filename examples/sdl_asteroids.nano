@@ -69,27 +69,19 @@ fn circles_collide(x1: float, y1: float, r1: float, x2: float, y2: float, r2: fl
 }
 
 fn get_asteroid_radius(size: int) -> float {
-    if (== size ASTEROID_SIZE_LARGE) {
-        return ASTEROID_RADIUS_LARGE
-    } else {
-        if (== size ASTEROID_SIZE_MEDIUM) {
-            return ASTEROID_RADIUS_MEDIUM
-        } else {
-            return ASTEROID_RADIUS_SMALL
-        }
-    }
+    return (cond
+        ((== size ASTEROID_SIZE_LARGE) ASTEROID_RADIUS_LARGE)
+        ((== size ASTEROID_SIZE_MEDIUM) ASTEROID_RADIUS_MEDIUM)
+        (else ASTEROID_RADIUS_SMALL)
+    )
 }
 
 fn get_asteroid_score(size: int) -> int {
-    if (== size ASTEROID_SIZE_LARGE) {
-        return SCORE_LARGE
-    } else {
-        if (== size ASTEROID_SIZE_MEDIUM) {
-            return SCORE_MEDIUM
-        } else {
-            return SCORE_SMALL
-        }
-    }
+    return (cond
+        ((== size ASTEROID_SIZE_LARGE) SCORE_LARGE)
+        ((== size ASTEROID_SIZE_MEDIUM) SCORE_MEDIUM)
+        (else SCORE_SMALL)
+    )
 }
 
 # === MAIN GAME ===
