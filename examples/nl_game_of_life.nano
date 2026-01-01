@@ -226,9 +226,7 @@ fn main() -> int {
         set grid new_grid
         set gen (+ gen 1)
         
-        (print "Generation ")
-        (print gen)
-        (println ":")
+        (println (+ "Generation " (+ (int_to_string gen) ":")))
         (print_grid grid GRID_WIDTH GRID_HEIGHT)
         (println "")
     }
