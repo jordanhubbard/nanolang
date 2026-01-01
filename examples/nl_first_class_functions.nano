@@ -63,13 +63,11 @@ fn main() -> int {
     
     /* Apply twice */
     let result1: int = (apply_twice 5 double)
-    (print "apply_twice(5, double) = ")
-    (println result1)  /* Should be 20 */
+    (println (+ "apply_twice(5, double) = " (int_to_string result1)))  /* Should be 20 */
     
     /* Combine */
     let result2: int = (combine 10 7 add)
-    (print "combine(10, 7, add) = ")
-    (println result2)  /* Should be 17 */
+    (println (+ "combine(10, 7, add) = " (int_to_string result2)))  /* Should be 17 */
     
     (println "")
     (println "✓ All function calls successful!")

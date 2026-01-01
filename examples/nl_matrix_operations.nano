@@ -169,17 +169,14 @@ fn main() -> int {
     
     # Access individual elements
     (println "Element access:")
-    (print "matrix[0][0] = ")
-    (println (matrix_get matrix 0 0))
-    (print "matrix[1][2] = ")
-    (println (matrix_get matrix 1 2))
+    (println (+ "matrix[0][0] = " (int_to_string (matrix_get matrix 0 0))))
+    (println (+ "matrix[1][2] = " (int_to_string (matrix_get matrix 1 2))))
     (println "")
     
     # Sum all elements
     (println "Matrix operations:")
     let sum: int = (matrix_sum matrix)
-    (print "Sum of all elements: ")
-    (println sum)
+    (println (+ "Sum of all elements: " (int_to_string sum)))
     (println "")
     
     # Scale matrix

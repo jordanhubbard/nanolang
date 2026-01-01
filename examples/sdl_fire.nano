@@ -122,27 +122,15 @@ fn update_fire(buffer: array<int>, width: int, height: int) -> array<int> {
 # Fire palette: black -> red -> orange -> yellow -> white
 
 fn get_fire_color(intensity: int, r: int, g: int, b: int) -> int {
-    # Returns packed RGB color
+    # Returns packed RGB color using cond for cleaner branching
     # intensity 0-255
     
-    if (< intensity 64) {
-        # Black to dark red
-        let red: int = (* intensity 4)
-        return red  # Just return R for now, will set RGB separately
-    } else {
-        if (< intensity 128) {
-            # Dark red to bright red
-            return 255  # Red = 255
-        } else {
-            if (< intensity 192) {
-                # Red to orange (add green)
-                return 255  # Red = 255, will add green
-            } else {
-                # Orange to yellow/white
-                return 255  # Red = 255, green = 255
-            }
-        }
-    }
+    return (cond
+        ((< intensity 64) (* intensity 4))      # Black to dark red
+        ((< intensity 128) 255)                 # Dark red to bright red  
+        ((< intensity 192) 255)                 # Red to orange (add green)
+        (else 255)                              # Orange to yellow/white
+    )
 }
 
 shadow get_fire_color {

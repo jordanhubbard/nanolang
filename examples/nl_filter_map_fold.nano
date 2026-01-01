@@ -179,44 +179,36 @@ fn main() -> int {
     /* Count matching examples */
     (println "COUNT MATCHING:")
     let positive_count: int = (count_matching numbers is_positive)
-    (print "Positive numbers: ")
-    (println positive_count)  /* Should be 6: [1, 3, 5, 6, 8, 9] */
+    (println (+ "Positive numbers: " (int_to_string positive_count)))  /* Should be 6: [1, 3, 5, 6, 8, 9] */
     
     let even_count: int = (count_matching numbers is_even)
-    (print "Even numbers: ")
-    (println even_count)  /* Should be 5: [-2, -4, 6, 8, -10] */
+    (println (+ "Even numbers: " (int_to_string even_count)))  /* Should be 5: [-2, -4, 6, 8, -10] */
     
     let big_count: int = (count_matching numbers is_greater_than_5)
-    (print "Numbers > 5: ")
-    (println big_count)  /* Should be 3: [6, 8, 9] */
+    (println (+ "Numbers > 5: " (int_to_string big_count)))  /* Should be 3: [6, 8, 9] */
     (println "")
     
     /* Apply transform examples */
     (println "APPLY TRANSFORM:")
     let first_doubled: int = (apply_first numbers double)
-    (print "First element doubled: ")
-    (println first_doubled)  /* 1 * 2 = 2 */
+    (println (+ "First element doubled: " (int_to_string first_doubled)))  /* 1 * 2 = 2 */
     
     let first_squared: int = (apply_first numbers square)
-    (print "First element squared: ")
-    (println first_squared)  /* 1 * 1 = 1 */
+    (println (+ "First element squared: " (int_to_string first_squared)))  /* 1 * 1 = 1 */
     (println "")
     
     /* Fold examples */
     (println "FOLD:")
     let positives: array<int> = [1, 3, 5, 6, 8, 9]
     let sum: int = (fold positives 0 add)
-    (print "Sum of positives: ")
-    (println sum)  /* Should be 1+3+5+6+8+9 = 32 */
+    (println (+ "Sum of positives: " (int_to_string sum)))  /* Should be 1+3+5+6+8+9 = 32 */
     
     let first_three: array<int> = [1, 3, 5]
     let product: int = (fold first_three 1 multiply)
-    (print "Product of [1,3,5]: ")
-    (println product)  /* Should be 1*3*5 = 15 */
+    (println (+ "Product of [1,3,5]: " (int_to_string product)))  /* Should be 1*3*5 = 15 */
     
     let max_value: int = (fold positives 0 maximum)
-    (print "Maximum: ")
-    (println max_value)  /* Should be 9 */
+    (println (+ "Maximum: " (int_to_string max_value)))  /* Should be 9 */
     (println "")
     
     (println "✓ All higher-order functions working!")
