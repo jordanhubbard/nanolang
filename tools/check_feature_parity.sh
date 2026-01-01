@@ -48,7 +48,7 @@ echo ""
 
 # 1. Schema validation
 echo -e "${BLUE}[1/6]${NC} Checking schema synchronization..."
-if python3 "$ROOT_DIR/tools/validate_schema_sync.py" > /tmp/schema_check.log 2>&1; then
+if "$ROOT_DIR/scripts/validate_schema_sync.sh" > /tmp/schema_check.log 2>&1; then
     check_pass "Schema validation passed"
 else
     check_fail "Schema validation failed (see /tmp/schema_check.log)"
