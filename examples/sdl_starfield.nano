@@ -220,16 +220,21 @@ fn main() -> int {
             let x: float = (get_star_x stars i)
             let z: float = (get_star_z stars i)
             
-            # Size based on distance (closer = bigger)
-            let mut size: int = (cast_int (/ 400.0 z))
-            if (< size 1) { set size 1 } else {}
-            if (> size 4) { set size 4 } else {}
+            # Size based on distance (closer = bigger) - clamped 1-4
+            let size_raw: int = (cast_int (/ 400.0 z))
+            let size: int = (cond
+                ((< size_raw 1) 1)
+                ((> size_raw 4) 4)
+                (else size_raw)
+            )
             
-            # Brightness based on distance (closer = brighter)
-            let brightness_f: float = (/ 400.0 z)
-            let mut brightness: int = (cast_int (* brightness_f 255.0))
-            if (> brightness 255) { set brightness 255 } else {}
-            if (< brightness 50) { set brightness 50 } else {}
+            # Brightness based on distance (closer = brighter) - clamped 50-255
+            let brightness_raw: int = (cast_int (* (/ 400.0 z) 255.0))
+            let brightness: int = (cond
+                ((> brightness_raw 255) 255)
+                ((< brightness_raw 50) 50)
+                (else brightness_raw)
+            )
             
             # 3D projection X - check if star is visible horizontally
             let screen_x: float = (+ center_x (/ x z))

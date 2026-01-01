@@ -77,25 +77,15 @@ fn apply_rules(current: CellState, neighbors: int) -> CellState {
     let dead: CellState = CellState.DEAD
     let alive: CellState = CellState.ALIVE
     
-    if (== current alive) {
+    return (cond
         # Cell is alive
-        if (< neighbors 2) {
-            return dead
-        } else {
-            if (> neighbors 3) {
-                return dead
-            } else {
-                return alive
-            }
-        }
-    } else {
+        ((and (== current alive) (< neighbors 2)) dead)      # Underpopulation
+        ((and (== current alive) (> neighbors 3)) dead)      # Overpopulation
+        ((== current alive) alive)                            # Survival (2-3 neighbors)
         # Cell is dead
-        if (== neighbors 3) {
-            return alive
-        } else {
-            return dead
-        }
-    }
+        ((== neighbors 3) alive)                              # Reproduction
+        (else dead)                                           # Stay dead
+    )
 }
 
 shadow apply_rules {
