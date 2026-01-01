@@ -637,7 +637,6 @@ Modules automatically install dependencies:
 - **sdl_mixer** - Audio playback
 - **sdl_ttf** - Font rendering
 - **glfw** - OpenGL windowing
-- **onnx** - Neural network inference
 
 Check `modules/` directory for full list.
 

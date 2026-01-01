@@ -16,9 +16,8 @@
 | `tools/estimate_feature_cost.py` | 290 | ❌ No | Utility | **Rewrite in NanoLang** (P3) |
 | `tools/merge_imports.py` | 124 | ❌ No | Utility | **Rewrite in NanoLang** (P3) |
 | `scripts/check_markdown_links.py` | 130 | ❌ No | Documentation | **Rewrite in shell** or remove (P4) |
-| `examples/models/create_test_model.py` | 158 | ❌ No | ONNX test data | **Keep** (external tool) |
 
-**Total to eliminate:** 1,264 lines (excluding ONNX test tool)
+**Total to eliminate:** 1,264 lines
 
 ---
 
@@ -111,18 +110,6 @@
 - **Option B:** Shell script with `find` + `grep`
 - **Option C:** Remove (not critical)
 - **Recommendation:** Simple shell script or remove
-
----
-
-### KEEP (External Tool)
-
-#### 7. `examples/models/create_test_model.py` (158 lines)
-**What it does:**
-- Creates ONNX test models using PyTorch
-- Test data generation for ONNX module
-
-**Status:** ✅ **Keep as-is**  
-**Reason:** External tool dependency (PyTorch). Not part of NanoLang build. Only needed for ONNX module development.
 
 ---
 
@@ -287,9 +274,9 @@ Shell scripts are **acceptable** per the bootstrap principle (`/bin/sh` is unive
 - **Runtime dependency:** None
 
 ### Target State (After Phase 3)
-- **Python LOC total:** 158 lines (ONNX test tool only)
+- **Python LOC total:** 0 lines
 - **Build dependency:** 0 Python scripts
-- **Runtime dependency:** None (except ONNX dev)
+- **Runtime dependency:** None
 
 ---
 
@@ -302,21 +289,6 @@ Shell scripts are **acceptable** per the bootstrap principle (`/bin/sh` is unive
 | Phase 3 | Developer utilities | 4 days | **P3 - Nice-to-have** |
 | Phase 4 | Doc tools | 1 day | **P4 - Optional** |
 | **Total** | | **8-10 days** | |
-
----
-
-## Decision: ONNX Test Tool
-
-**Keep `examples/models/create_test_model.py`**
-
-**Rationale:**
-- External tool (PyTorch) for test data generation
-- Only used during ONNX module development
-- Not part of build system
-- Not a bootstrap dependency
-- Users can skip ONNX if they don't have PyTorch
-
-**Alternative:** Could rewrite in C with ONNX C API, but low ROI.
 
 ---
 

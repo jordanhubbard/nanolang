@@ -225,9 +225,6 @@ NanoLang includes several modules with **automatic dependency management**:
 - **sdl_ttf** - Font rendering (`brew install sdl2_ttf`)
 - **glfw** - OpenGL window management (`brew install glfw`)
 
-### AI/ML
-- **onnx** - Neural network inference (`brew install onnxruntime`)
-
 Modules automatically install dependencies via package managers (Homebrew, apt, etc.) when first used. See **[docs/MODULE_SYSTEM.md](docs/MODULE_SYSTEM.md)** for details.
 
 ## Building & Testing
