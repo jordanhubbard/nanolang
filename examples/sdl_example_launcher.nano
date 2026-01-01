@@ -62,7 +62,7 @@ fn build_display_names(names_src: array<string>, descs_src: array<string>, indic
         let ex_idx: int = (at indices i)
         let name: string = (at names_src ex_idx)
         let desc: string = (at descs_src ex_idx)
-        set names (array_push names (str_concat name (str_concat " - " desc)))
+        set names (array_push names (+ name (+ " - " desc)))
         set i (+ i 1)
     }
 
@@ -363,7 +363,7 @@ fn main() -> int {
         if (== selected_category ExampleCategory.AUDIO) { set cat_name "Audio" } else {}
         if (== selected_category ExampleCategory.OPENGL) { set cat_name "OpenGL" } else {}
         if (== selected_category ExampleCategory.TERMINAL) { set cat_name "Terminal" } else {}
-        unsafe {         (nl_ui_label renderer font (str_concat "Category: " cat_name) LIST_X 98 140 140 170 255) }
+        unsafe {         (nl_ui_label renderer font (+ "Category: " cat_name) LIST_X 98 140 140 170 255) }
 
         # Top actions
         let top_launch_clicked: int = (nl_ui_button renderer font "Launch" LAUNCH_BTN_X TOP_BTN_Y LAUNCH_BTN_W TOP_BTN_H)
@@ -390,7 +390,7 @@ fn main() -> int {
         if (== (nl_ui_button renderer font "Down" (+ LIST_X 90) 96 80 28) 1) {
             set scroll_offset (clamp_int (+ scroll_offset 1) 0 max_scroll)
         } else {}
-        unsafe {         (nl_ui_label renderer font (str_concat "Items: " (int_to_string item_count)) (+ LIST_X 190) 102 160 160 190 255) }
+        unsafe {         (nl_ui_label renderer font (+ "Items: " (int_to_string item_count)) (+ LIST_X 190) 102 160 160 190 255) }
 
         # Scrollable list
         let clicked: int = (nl_ui_scrollable_list renderer font
@@ -412,7 +412,7 @@ fn main() -> int {
             unsafe {             (nl_ui_label renderer font "Selected:" (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 26) 200 200 220 255) }
             unsafe {             (nl_ui_label renderer font ex_name (+ LIST_X 98) (+ (+ LIST_Y LIST_H) 26) 235 235 255 255) }
             unsafe {             (nl_ui_label renderer font ex_desc (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 52) 170 170 200 255) }
-            unsafe {             (nl_ui_label renderer font (str_concat "Cmd: " ex_cmd) (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 76) 140 140 170 255) }
+            unsafe {             (nl_ui_label renderer font (+ "Cmd: " ex_cmd) (+ LIST_X 14) (+ (+ LIST_Y LIST_H) 76) 140 140 170 255) }
 
             if (== (nl_ui_button renderer font "Launch" (- (- (+ LIST_X LIST_W) 14) 120) (+ (+ LIST_Y LIST_H) 100) 120 34) 1) {
                 set launch_cmd ex_cmd

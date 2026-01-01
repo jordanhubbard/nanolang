@@ -115,7 +115,7 @@ fn draw_game(snake_x: array<int>, snake_y: array<int>, food_x: int, food_y: int,
     unsafe { (mvaddch_wrapper food_screen_y food_screen_x (cast_int '*')) }
     
     # Draw score
-    unsafe {     (mvprintw_wrapper (+ GRID_HEIGHT 3) 0 (str_concat "Score: " (int_to_string score))) }
+    unsafe {     (mvprintw_wrapper (+ GRID_HEIGHT 3) 0 (+ "Score: " (int_to_string score))) }
     unsafe {     (mvprintw_wrapper (+ GRID_HEIGHT 4) 0 "Arrow Keys = Move  |  Q = Quit") }
     
     unsafe {     (refresh_wrapper) }
@@ -290,7 +290,7 @@ fn main() -> int {
         
         if game_over {
             unsafe {             (mvprintw_wrapper (/ GRID_HEIGHT 2) (/ GRID_WIDTH 2) "GAME OVER!") }
-            unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 5) 0 (str_concat "Final Score: " (int_to_string score))) }
+            unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 5) 0 (+ "Final Score: " (int_to_string score))) }
             unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 6) 0 "Press Q to quit") }
             unsafe {             (refresh_wrapper) }
         } else {}

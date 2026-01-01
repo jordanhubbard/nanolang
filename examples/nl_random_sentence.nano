@@ -123,15 +123,15 @@ fn generate_sentence(content: string, word_count: int) -> string {
                 set sentence word
             } else {
                 # Add space and word
-                set sentence (str_concat sentence " ")
-                set sentence (str_concat sentence word)
+                set sentence (+ sentence " ")
+                set sentence (+ sentence word)
             }
             
             set i (+ i 1)
         }
         
         # Add period at end
-        set sentence (str_concat sentence ".")
+        set sentence (+ sentence ".")
         
         return sentence
     }

@@ -263,7 +263,7 @@ fn main() -> int {
     # Draw an initial frame before entering the loop so the screen isn't blank
     unsafe {     (clear_wrapper) }
     (draw_grid_ncurses grid GRID_WIDTH GRID_HEIGHT)
-    unsafe {     (mvprintw_wrapper (+ GRID_HEIGHT 1) 0 (str_concat "Generation: " (int_to_string generation))) }
+    unsafe {     (mvprintw_wrapper (+ GRID_HEIGHT 1) 0 (+ "Generation: " (int_to_string generation))) }
     unsafe {     (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "SPACE=Pause  Q=Quit") }
     unsafe {     (refresh_wrapper) }
     
@@ -295,7 +295,7 @@ fn main() -> int {
         (draw_grid_ncurses grid GRID_WIDTH GRID_HEIGHT)
         
         # Draw UI
-        unsafe {         (mvprintw_wrapper (+ GRID_HEIGHT 1) 0 (str_concat "Generation: " (int_to_string generation))) }
+        unsafe {         (mvprintw_wrapper (+ GRID_HEIGHT 1) 0 (+ "Generation: " (int_to_string generation))) }
         
         if paused {
             unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "PAUSED - SPACE=Resume  Q=Quit") }

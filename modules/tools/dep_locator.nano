@@ -54,8 +54,8 @@ fn find_include_dir(prefixes: array<string>, lib_name: string) -> string {
     let mut i: int = 0
     while (< i (array_length prefixes)) {
         let prefix: string = (at prefixes i)
-        let temp1: string = (str_concat prefix "/include/")
-        let include_path: string = (str_concat temp1 lib_name)
+        let temp1: string = (+ prefix "/include/")
+        let include_path: string = (+ temp1 lib_name)
         
         if (file_exists include_path) {
             return include_path
@@ -78,7 +78,7 @@ fn find_lib_dir(prefixes: array<string>) -> string {
     let mut i: int = 0
     while (< i (array_length prefixes)) {
         let prefix: string = (at prefixes i)
-        let temp2: string = (str_concat prefix "/lib")
+        let temp2: string = (+ prefix "/lib")
         
         if (file_exists temp2) {
             return temp2
@@ -98,8 +98,8 @@ shadow find_lib_dir {
 # Output JSON result
 fn output_result(lib_name: string, include_dir: string, lib_dir: string) -> int {
     (println "{")
-    let name_part: string = (str_concat lib_name "\",")
-    let name_line: string = (str_concat "  \"name\": \"" name_part)
+    let name_part: string = (+ lib_name "\",")
+    let name_line: string = (+ "  \"name\": \"" name_part)
     (println name_line)
     
     if (and (!= (str_length include_dir) 0) (!= (str_length lib_dir) 0)) {
@@ -112,8 +112,8 @@ fn output_result(lib_name: string, include_dir: string, lib_dir: string) -> int 
     
     (println "  \"include_dirs\": [")
     if (!= (str_length include_dir) 0) {
-        let include_part: string = (str_concat include_dir "\"")
-        let include_line: string = (str_concat "    \"" include_part)
+        let include_part: string = (+ include_dir "\"")
+        let include_line: string = (+ "    \"" include_part)
         (println include_line)
     } else {
         set include_dir include_dir
@@ -122,8 +122,8 @@ fn output_result(lib_name: string, include_dir: string, lib_dir: string) -> int 
     
     (println "  \"library_dirs\": [")
     if (!= (str_length lib_dir) 0) {
-        let lib_dir_part: string = (str_concat lib_dir "\"")
-        let lib_dir_line: string = (str_concat "    \"" lib_dir_part)
+        let lib_dir_part: string = (+ lib_dir "\"")
+        let lib_dir_line: string = (+ "    \"" lib_dir_part)
         (println lib_dir_line)
     } else {
         set lib_dir lib_dir
@@ -132,8 +132,8 @@ fn output_result(lib_name: string, include_dir: string, lib_dir: string) -> int 
     
     (println "  \"libraries\": [")
     if (!= (str_length lib_dir) 0) {
-        let lib_part: string = (str_concat lib_name "\"")
-        let lib_line: string = (str_concat "    \"" lib_part)
+        let lib_part: string = (+ lib_name "\"")
+        let lib_line: string = (+ "    \"" lib_part)
         (println lib_line)
     } else {
         set lib_dir lib_dir

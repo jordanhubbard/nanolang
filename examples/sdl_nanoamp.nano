@@ -464,8 +464,8 @@ fn main() -> int {
             let mut track_pos_text: string = ""
             if (> playlist_count 0) {
                 set track_pos_text (int_to_string (+ current_track_index 1))
-                set track_pos_text (str_concat track_pos_text " of ")
-                set track_pos_text (str_concat track_pos_text (int_to_string playlist_count))
+                set track_pos_text (+ track_pos_text " of ")
+                set track_pos_text (+ track_pos_text (int_to_string playlist_count))
             } else {
                 set track_pos_text "0 of 0"
             }

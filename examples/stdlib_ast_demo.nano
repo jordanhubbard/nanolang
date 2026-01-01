@@ -106,9 +106,9 @@ fn demo_program_structure() -> void {
     let body: AST = (ast_block 2)
     
     (println "Built program structure:")
-    (println (str_concat "  " (ast_to_string prog)))
-    (println (str_concat "    " (ast_to_string main_func)))
-    (println (str_concat "      " (ast_to_string body)))
+    (println (+ "  " (ast_to_string prog)))
+    (println (+ "    " (ast_to_string main_func)))
+    (println (+ "      " (ast_to_string body)))
     (println "")
 }
 
@@ -126,11 +126,11 @@ fn demo_ast_queries() -> void {
     let type1: string = (ast_type_name node1)
     let type2: string = (ast_type_name node2)
     
-    (println (str_concat "Node 1 type: " type1))
-    (println (str_concat "Node 2 type: " type2))
+    (println (+ "Node 1 type: " type1))
+    (println (+ "Node 2 type: " type2))
     
     /* Check child counts */
-    (println (str_concat "Node 2 has " (str_concat (cast_string node2.child_count) " children")))
+    (println (+ "Node 2 has " (+ (cast_string node2.child_count) " children")))
     (println "")
 }
 

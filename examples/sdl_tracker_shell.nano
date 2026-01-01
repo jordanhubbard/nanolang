@@ -92,7 +92,7 @@ fn build_browser_items(current_dir: string) -> array<string> {
     let mut i: int = 0
     while (< i (array_length dirs)) {
         let name: string = (at dirs i)
-        set out (array_push out (str_concat "[D] " name))
+        set out (array_push out (+ "[D] " name))
         set i (+ i 1)
     }
 
@@ -129,7 +129,7 @@ fn hex_digit(n: int) -> string {
 fn byte_to_hex(b: int) -> string {
     let hi: int = (/ b 16)
     let lo: int = (% b 16)
-    return (str_concat (hex_digit hi) (hex_digit lo))
+    return (+ (hex_digit hi) (hex_digit lo))
 }
 
 let NOTE_NAMES: array<string> = ["C-","C#","D-","D#","E-","F-","F#","G-","G#","A-","A#","B-"]
@@ -588,7 +588,7 @@ fn main() -> int {
         (pt_panel renderer left_x left_y LEFT_W left_h)
 
         (nl_ui_label renderer font "Browser" (+ left_x 10) (+ left_y 8) 230 230 255 255)
-        (nl_ui_label renderer font (str_concat "Dir: " current_dir) (+ left_x 10) (+ left_y 28) 180 180 220 255)
+        (nl_ui_label renderer font (+ "Dir: " current_dir) (+ left_x 10) (+ left_y 28) 180 180 220 255)
 
         let list_x: int = (+ left_x 10)
         let list_y: int = (+ left_y 52)
@@ -624,14 +624,14 @@ fn main() -> int {
             set status "No file loaded"
         }
 
-        (nl_ui_label renderer font (str_concat "Status: " status) (+ main_x 10) (+ main_y 30) 200 200 240 255)
+        (nl_ui_label renderer font (+ "Status: " status) (+ main_x 10) (+ main_y 30) 200 200 240 255)
         if mod_loaded {
-            (nl_ui_label renderer font (str_concat "Song: " mod_name) (+ main_x 10) (+ main_y 52) 230 230 255 255)
-            (nl_ui_label renderer font (str_concat "Len: " (int_to_string song_length)) (+ main_x 10) (+ main_y 72) 180 180 220 255)
-            (nl_ui_label renderer font (str_concat "Patterns: " (int_to_string pattern_count)) (+ main_x 160) (+ main_y 72) 180 180 220 255)
+            (nl_ui_label renderer font (+ "Song: " mod_name) (+ main_x 10) (+ main_y 52) 230 230 255 255)
+            (nl_ui_label renderer font (+ "Len: " (int_to_string song_length)) (+ main_x 10) (+ main_y 72) 180 180 220 255)
+            (nl_ui_label renderer font (+ "Patterns: " (int_to_string pattern_count)) (+ main_x 160) (+ main_y 72) 180 180 220 255)
         } else {
             if (!= loaded_path "") {
-                (nl_ui_label renderer font (str_concat "File: " loaded_path) (+ main_x 10) (+ main_y 52) 180 180 220 255)
+                (nl_ui_label renderer font (+ "File: " loaded_path) (+ main_x 10) (+ main_y 52) 180 180 220 255)
             } else {}
         }
 
@@ -673,11 +673,11 @@ fn main() -> int {
         (nl_ui_label renderer font "Position (read-only)" (+ main_x 18) (+ main_y 140) 220 220 255 255)
 
         let cur_pat: int = (pt2_module_get_pattern_table pos_order)
-        (nl_draw_text_blended renderer title_font (str_concat "ORD " (int_to_string pos_order)) (+ main_x 18) (+ main_y 162) 240 240 255 255)
-        (nl_draw_text_blended renderer title_font (str_concat "PAT " (int_to_string cur_pat)) (+ main_x 150) (+ main_y 162) 240 240 255 255)
-        (nl_draw_text_blended renderer title_font (str_concat "ROW " (int_to_string pos_row)) (+ main_x 280) (+ main_y 162) 240 240 255 255)
-        (nl_ui_label renderer font (str_concat "SPD " (int_to_string pos_speed)) (+ main_x 410) (+ main_y 168) 180 180 220 255)
-        (nl_ui_label renderer font (str_concat "BPM " (int_to_string pos_bpm)) (+ main_x 500) (+ main_y 168) 180 180 220 255)
+        (nl_draw_text_blended renderer title_font (+ "ORD " (int_to_string pos_order)) (+ main_x 18) (+ main_y 162) 240 240 255 255)
+        (nl_draw_text_blended renderer title_font (+ "PAT " (int_to_string cur_pat)) (+ main_x 150) (+ main_y 162) 240 240 255 255)
+        (nl_draw_text_blended renderer title_font (+ "ROW " (int_to_string pos_row)) (+ main_x 280) (+ main_y 162) 240 240 255 255)
+        (nl_ui_label renderer font (+ "SPD " (int_to_string pos_speed)) (+ main_x 410) (+ main_y 168) 180 180 220 255)
+        (nl_ui_label renderer font (+ "BPM " (int_to_string pos_bpm)) (+ main_x 500) (+ main_y 168) 180 180 220 255)
 
         # 4-channel meters (improved)
         let mut c: int = 0
@@ -712,7 +712,7 @@ fn main() -> int {
         let mut viz_mode_name: string = "Circular Spectrum"
         if (== viz_mode 1) { set viz_mode_name "Frequency Bars" } else {}
         if (== viz_mode 2) { set viz_mode_name "Spiral Vortex" } else {}
-        (nl_ui_label renderer font (str_concat "Visualizer: " viz_mode_name) (+ viz_x 8) (+ viz_y 6) 220 220 255 255)
+        (nl_ui_label renderer font (+ "Visualizer: " viz_mode_name) (+ viz_x 8) (+ viz_y 6) 220 220 255 255)
         (nl_ui_label renderer font "(Tab to cycle)" (+ viz_x (- viz_w 140)) (+ viz_y 6) 160 160 200 255)
         
         # Waveform oscilloscope at top
@@ -770,7 +770,7 @@ fn main() -> int {
                 } else {}
 
                 let row_txt: string = (byte_to_hex row)
-                (nl_ui_label renderer font (str_concat row_txt ":") (+ pat_x 8) y 230 230 255 255)
+                (nl_ui_label renderer font (+ row_txt ":") (+ pat_x 8) y 230 230 255 255)
 
                 let mut ch: int = 0
                 while (< ch 4) {
@@ -785,13 +785,13 @@ fn main() -> int {
 
                     let mut eff_s: string = "..."
                     if (or (!= cmd 0) (!= par 0)) {
-                        set eff_s (str_concat (hex_digit cmd) (byte_to_hex par))
+                        set eff_s (+ (hex_digit cmd) (byte_to_hex par))
                     } else {}
 
-                    let t1: string = (str_concat note_s " ")
-                    let t2: string = (str_concat t1 samp_s)
-                    let t3: string = (str_concat t2 " ")
-                    let cell: string = (str_concat t3 eff_s)
+                    let t1: string = (+ note_s " ")
+                    let t2: string = (+ t1 samp_s)
+                    let t3: string = (+ t2 " ")
+                    let cell: string = (+ t3 eff_s)
 
                     let col_x: int = (+ (+ pat_x 52) (* ch 140))
                     (nl_ui_label renderer font cell col_x y 230 230 255 255)
