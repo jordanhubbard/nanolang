@@ -37,11 +37,14 @@ shadow factorial {
 
 fn main() -> int {
     (println "Factorials from 0 to 10:")
+    (println "")
     
     let mut i: int = 0
     while (<= i 10) {
-        (println i)
-        (println (factorial i))
+        # Modern string concatenation using +
+        let result: int = (factorial i)
+        let msg: string = (+ (+ (int_to_string i) "! = ") (int_to_string result))
+        (println msg)
         set i (+ i 1)
     }
     

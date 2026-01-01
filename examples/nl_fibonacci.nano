@@ -40,10 +40,14 @@ shadow fib {
 
 fn main() -> int {
     (println "Fibonacci sequence (first 15 numbers):")
+    (println "")
 
     let mut i: int = 0
     while (< i 15) {
-        (println (fib i))
+        # Modern string concatenation using +
+        let result: int = (fib i)
+        let msg: string = (+ (+ "fib(" (int_to_string i)) (+ ") = " (int_to_string result)))
+        (println msg)
         set i (+ i 1)
     }
 
