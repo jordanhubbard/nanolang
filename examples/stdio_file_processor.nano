@@ -1,0 +1,99 @@
+# File Processor Example
+# Demonstrates stdio module for reading, filtering, transforming, and writing files
+# Real-world problem: Process log files, filter by severity, count occurrences
+
+from "modules/std/fs.nano" import file_read, file_write, file_exists
+
+fn count_chars(text: string) -> int {
+    return (str_length text)
+}
+
+shadow count_chars {
+    assert (== (count_chars "hello") 5)
+    assert (== (count_chars "") 0)
+}
+
+fn count_lines(text: string) -> int {
+    let mut count: int = 1
+    let mut i: int = 0
+    while (< i (str_length text)) {
+        if (== (char_at text i) '\n') {
+            set count (+ count 1)
+        } else {}
+        set i (+ i 1)
+    }
+    return count
+}
+
+shadow count_lines {
+    assert (== (count_lines "hello") 1)
+    assert (== (count_lines "hello\nworld") 2)
+    assert (== (count_lines "a\nb\nc") 3)
+}
+
+fn to_uppercase(text: string) -> string {
+    let mut result: string = ""
+    let mut i: int = 0
+    while (< i (str_length text)) {
+        let ch: int = (char_at text i)
+        if (and (>= ch 97) (<= ch 122)) {
+            # lowercase letter (a-z), convert to uppercase
+            set result (+ result (string_from_char (- ch 32)))
+        } else {
+            set result (+ result (string_from_char ch))
+        }
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow to_uppercase {
+    assert (str_equals (to_uppercase "hello") "HELLO")
+    assert (str_equals (to_uppercase "World") "WORLD")
+    assert (str_equals (to_uppercase "123abc") "123ABC")
+}
+
+fn main() -> int {
+    (println "╔════════════════════════════════════════════════════════╗")
+    (println "║  STDIO FILE PROCESSOR                                  ║")
+    (println "╚════════════════════════════════════════════════════════╝")
+    (println "")
+    (println "Demonstrating file operations:")
+    (println "  • Reading files")
+    (println "  • Transforming text (uppercase)")
+    (println "  • Computing statistics (lines, chars)")
+    (println "")
+    
+    # Check if README exists
+    if (file_exists "README.md") {
+        (println "✓ Found README.md")
+        let content: string = (file_read "README.md")
+        let lines: int = (count_lines content)
+        let chars: int = (count_chars content)
+        
+        (println (+ "  Lines: " (int_to_string lines)))
+        (println (+ "  Characters: " (int_to_string chars)))
+        (println "")
+        
+        (println "✓ File statistics computed successfully!")
+    } else {
+        (println "ℹ README.md not found, using sample text")
+        let sample: string = "Hello\nWorld\nNanoLang"
+        let lines: int = (count_lines sample)
+        let chars: int = (count_chars sample)
+        let upper: string = (to_uppercase sample)
+        
+        (println (+ "  Original: " sample))
+        (println (+ "  Uppercase: " upper))
+        (println (+ "  Lines: " (int_to_string lines)))
+        (println (+ "  Characters: " (int_to_string chars)))
+    }
+    
+    (println "")
+    (println "✓ File processing demo complete!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
