@@ -43,13 +43,20 @@ shadow circle_area {
 
 fn main() -> int {
     (println "=== Float Operations ===")
-    (println (+ "3.14 + 2.86 = " (float_to_string (add_floats 3.14 2.86))))
-    (println (+ "2.5 * 4.0 = " (float_to_string (multiply_floats 2.5 4.0))))
-    (println (+ "15.0 / 3.0 = " (float_to_string (divide_floats 15.0 3.0))))
-    (println (+ "Circle area (radius=5.0): " (float_to_string (circle_area 5.0))))
-    (println (+ "abs(-3.14): " (float_to_string (abs -3.14))))
-    (println (+ "min(2.5, 7.8): " (float_to_string (min 2.5 7.8))))
-    (println (+ "max(2.5, 7.8): " (float_to_string (max 2.5 7.8))))
+    (println "3.14 + 2.86 =")
+    (println (add_floats 3.14 2.86))
+    (println "2.5 * 4.0 =")
+    (println (multiply_floats 2.5 4.0))
+    (println "15.0 / 3.0 =")
+    (println (divide_floats 15.0 3.0))
+    (println "Circle area (radius=5.0):")
+    (println (circle_area 5.0))
+    (println "abs(-3.14):")
+    (println (abs -3.14))
+    (println "min(2.5, 7.8):")
+    (println (min 2.5 7.8))
+    (println "max(2.5, 7.8):")
+    (println (max 2.5 7.8))
     return 0
 }
 
