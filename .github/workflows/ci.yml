@@ -67,15 +67,15 @@ jobs:
       - name: Verify binaries exist
         run: |
           test -f ./bin/nanoc || exit 1
-          test -f ./bin/nano || exit 1
-          echo "✓ Binaries built successfully"
+          echo "✓ Compiler binary built successfully"
 
       - name: Test basic examples
         run: |
-          ./bin/nano examples/nl_hello.nano
+          ./bin/nanoc examples/nl_hello.nano -o hello_test
+          ./hello_test
           ./bin/nanoc examples/nl_factorial.nano -o factorial_test
           ./factorial_test
-          rm -f factorial_test
+          rm -f hello_test factorial_test
 
       # Valgrind checks disabled - small leaks acceptable for short-lived compiler
       # - name: Check for memory leaks (Linux only)

@@ -93,20 +93,42 @@ run_test() {
     fi
     
     local log_file=".test_output/${category}_${test_name}.compile.log"
-    ./bin/nanoc "$test_file" >"$log_file" 2>&1
-
-    if grep -q "All shadow tests passed" "$log_file"; then
-        echo -e "${GREEN}✅${NC} $test_name"
-        rm -f "$log_file"
-        TOTAL_PASS=$((TOTAL_PASS + 1))
-        case "$category" in
-            "nl") NL_PASS=$((NL_PASS + 1)) ;;
-            "app") APP_PASS=$((APP_PASS + 1)) ;;
-            "unit") UNIT_PASS=$((UNIT_PASS + 1)) ;;
-        esac
-        return 0
+    local out_file=".test_output/${category}_${test_name}.out"
+    local run_log=".test_output/${category}_${test_name}.run.log"
+    
+    # Compile the test
+    ./bin/nanoc "$test_file" -o "$out_file" >"$log_file" 2>&1
+    
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}❌${NC} $test_name ${RED}(compilation failed)${NC}"
+        return 1
+    fi
+    
+    # Run the compiled binary (shadow tests execute at runtime now)
+    if [ -f "$out_file" ]; then
+        "$out_file" >"$run_log" 2>&1
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}✅${NC} $test_name"
+            rm -f "$log_file" "$out_file" "$run_log"
+            TOTAL_PASS=$((TOTAL_PASS + 1))
+            case "$category" in
+                "nl") NL_PASS=$((NL_PASS + 1)) ;;
+                "app") APP_PASS=$((APP_PASS + 1)) ;;
+                "unit") UNIT_PASS=$((UNIT_PASS + 1)) ;;
+            esac
+            return 0
+        else
+            echo -e "${RED}❌${NC} $test_name ${RED}(runtime failure)${NC}"
+            TOTAL_FAIL=$((TOTAL_FAIL + 1))
+            case "$category" in
+                "nl") NL_FAIL=$((NL_FAIL + 1)) ;;
+                "app") APP_FAIL=$((APP_FAIL + 1)) ;;
+                "unit") UNIT_FAIL=$((UNIT_FAIL + 1)) ;;
+            esac
+            return 1
+        fi
     else
-        echo -e "${RED}❌${NC} $test_name"
+        echo -e "${RED}❌${NC} $test_name ${RED}(binary not created)${NC}"
         TOTAL_FAIL=$((TOTAL_FAIL + 1))
         case "$category" in
             "nl") NL_FAIL=$((NL_FAIL + 1)) ;;
