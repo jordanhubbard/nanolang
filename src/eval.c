@@ -4179,6 +4179,19 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             }
         }
 
+        case AST_COND: {
+            /* Evaluate cond expression: (cond (pred1 val1) (pred2 val2) ... (else valN)) */
+            /* Check each condition in order and return the corresponding value */
+            for (int i = 0; i < expr->as.cond_expr.clause_count; i++) {
+                Value cond = eval_expression(expr->as.cond_expr.conditions[i], env);
+                if (is_truthy(cond)) {
+                    return eval_expression(expr->as.cond_expr.values[i], env);
+                }
+            }
+            /* If no condition matched, return the else value */
+            return eval_expression(expr->as.cond_expr.else_value, env);
+        }
+
         case AST_STRUCT_LITERAL: {
             /* Evaluate struct literal: Point { x: 10, y: 20 } */
             
