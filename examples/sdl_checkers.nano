@@ -773,20 +773,21 @@ fn draw_ui_overlay(renderer: SDL_Renderer, game_state: int, player_pieces: int, 
         set i (+ i 1)
     }
     
-    # Game state indicator (center)
+    # Game state indicator (center) - visual feedback for whose turn
+    let center_x: int = (- (/ (* board_size square_size) 2) 30)
     if (== game_state 0) {
         # Player turn - red glow
-        unsafe {         (SDL_SetRenderDrawColor renderer 220 20 60 255) }
-        unsafe {         (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 30) 5 60 30) }
-        unsafe {         (SDL_SetRenderDrawColor renderer 255 100 120 255) }
-        unsafe {         (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 28) 7 56 26) }
+        unsafe { (SDL_SetRenderDrawColor renderer 220 20 60 255) }
+        unsafe { (nl_sdl_render_fill_rect renderer center_x 5 60 30) }
+        unsafe { (SDL_SetRenderDrawColor renderer 255 100 120 255) }
+        unsafe { (nl_sdl_render_fill_rect renderer (+ center_x 2) 7 56 26) }
     } else {
         if (== game_state 1) {
             # AI turn - dark glow
-            unsafe {             (SDL_SetRenderDrawColor renderer 30 30 30 255) }
-            unsafe {             (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 30) 5 60 30) }
-            unsafe {             (SDL_SetRenderDrawColor renderer 80 80 80 255) }
-            unsafe {             (nl_sdl_render_fill_rect renderer (- (/ (* board_size square_size) 2) 28) 7 56 26) }
+            unsafe { (SDL_SetRenderDrawColor renderer 30 30 30 255) }
+            unsafe { (nl_sdl_render_fill_rect renderer center_x 5 60 30) }
+            unsafe { (SDL_SetRenderDrawColor renderer 80 80 80 255) }
+            unsafe { (nl_sdl_render_fill_rect renderer (+ center_x 2) 7 56 26) }
         } else {}
     }
 }
