@@ -44,7 +44,6 @@ RUNTIME_DIR = $(SRC_DIR)/runtime
 # Binaries
 COMPILER = $(BIN_DIR)/nanoc
 COMPILER_C = $(BIN_DIR)/nanoc_c
-INTERPRETER = $(BIN_DIR)/nano
 HYBRID_COMPILER = $(BIN_DIR)/nanoc_stage1_5
 FFI_BINDGEN = $(BIN_DIR)/nanoc-ffi
 
@@ -74,7 +73,7 @@ BOOTSTRAP_ENV := NANO_DETERMINISTIC=1
 endif
 
 # Source files
-COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/eval.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/resource_tracking.c
+COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/shadow_tests_stub.c
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
 RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_LexerToken.c $(RUNTIME_DIR)/list_token.c \
@@ -100,7 +99,7 @@ RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/gc_struct.c $(RUNTIME_DIR)/nl_string.c $(RUNTIME_DIR)/cli.c
 RUNTIME_OBJECTS = $(patsubst $(RUNTIME_DIR)/%.c,$(OBJ_DIR)/runtime/%.o,$(RUNTIME_SOURCES))
 COMPILER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o
-INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/tracing.o $(OBJ_DIR)/interpreter_main.o
+# Interpreter removed - NanoLang is a compiled language
 
 # Self-hosted components
 SELFHOST_COMPONENTS = \
@@ -327,15 +326,8 @@ examples-no-sdl: build
 	@echo "=========================================="
 	@echo "⚠️  SDL examples will be skipped (SDL2 development libraries not installed)"
 	@echo ""
-	@echo "Interpreter-only examples are available:"
-	@echo "  ./bin/nano examples/hello.nano"
-	@echo "  ./bin/nano examples/factorial.nano"
-	@echo "  ./bin/nano examples/fibonacci.nano"
-	@echo "  ./bin/nano examples/primes.nano"
-	@echo "  ./bin/nano examples/calculator.nano"
-	@echo "  ./bin/nano examples/game_of_life.nano"
-	@echo "  ./bin/nano examples/snake.nano"
-	@echo "  ./bin/nano examples/maze.nano"
+	@echo "To run examples, compile them first:"
+	@echo "  ./bin/nanoc examples/nl_hello.nano -o bin/nl_hello && ./bin/nl_hello"
 	@echo ""
 	@echo "To build SDL examples, install SDL2 development libraries:"
 	@echo "  Ubuntu/Debian: sudo apt-get install libsdl2-dev libsdl2-mixer-dev libsdl2-ttf-dev"
@@ -370,7 +362,7 @@ rebuild: clean build
 
 stage1: $(SENTINEL_STAGE1)
 
-$(SENTINEL_STAGE1): $(COMPILER) $(INTERPRETER) $(FFI_BINDGEN)
+$(SENTINEL_STAGE1): $(COMPILER) $(FFI_BINDGEN)
 	@echo "✓ Stage 1 complete (C reference binaries)"
 	@touch $(SENTINEL_STAGE1)
 
@@ -399,26 +391,13 @@ $(COMPILER): $(COMPILER_C) | $(BIN_DIR)
 		echo "✓ Compiler: $(COMPILER) -> $(COMPILER_C) (C reference)"; \
 	fi
 
-$(INTERPRETER): $(INTERPRETER_OBJECTS) | $(BIN_DIR)
-	@echo "Stage 1: Building reference interpreter..."
-	@# If objects were built with sanitizers/coverage, ensure we link with matching flags.
-	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
-		echo "  (Sanitizer instrumentation detected in objects - linking with sanitizer flags)"; \
-		$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -DNANO_INTERPRETER -o $(INTERPRETER) $(INTERPRETER_OBJECTS) $(LDFLAGS) $(SANITIZE_FLAGS); \
-	elif ls obj/*.gcno >/dev/null 2>&1; then \
-		echo "  (Coverage instrumentation detected in objects - linking with coverage flags)"; \
-		$(CC) $(CFLAGS) $(COVERAGE_FLAGS) -DNANO_INTERPRETER -o $(INTERPRETER) $(INTERPRETER_OBJECTS) $(LDFLAGS) $(COVERAGE_FLAGS); \
-	else \
-		$(CC) $(CFLAGS) -DNANO_INTERPRETER -o $(INTERPRETER) $(INTERPRETER_OBJECTS) $(LDFLAGS); \
-	fi
-	@echo "✓ Interpreter: $(INTERPRETER)"
+# Interpreter removed - NanoLang is a compiled language
 
 $(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o $(LDFLAGS)
 
 # Object file compilation
 $(COMPILER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime
-$(INTERPRETER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime
 
 $(OBJ_DIR)/ffi_bindgen.o: src/ffi_bindgen.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c src/ffi_bindgen.c -o $(OBJ_DIR)/ffi_bindgen.o
@@ -837,19 +816,17 @@ coverage-report: coverage test
 	@echo "Coverage report generated in $(COV_DIR)/index.html"
 
 # Install binaries
-install: $(COMPILER) $(INTERPRETER)
+install: $(COMPILER)
 	install -d $(PREFIX)/bin
 	install -m 755 $(COMPILER) $(PREFIX)/bin/nanoc
-	install -m 755 $(INTERPRETER) $(PREFIX)/bin/nano
 	@echo "Installed to $(PREFIX)/bin"
 
 uninstall:
 	rm -f $(PREFIX)/bin/nanoc
-	rm -f $(PREFIX)/bin/nano
 	@echo "Uninstalled from $(PREFIX)/bin"
 
 # Valgrind checks
-valgrind: $(COMPILER) $(INTERPRETER)
+valgrind: $(COMPILER)
 	@echo "Running valgrind on test suite..."
 	@for example in examples/*.nano; do \
 		echo "Checking $$example..."; \

@@ -1,6 +1,5 @@
 #include "nanolang.h"
 #include "version.h"
-#include "interpreter_ffi.h"
 #include "module_builder.h"
 
 #ifdef __APPLE__
@@ -175,37 +174,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         }
     }
 
-    /* Phase 4.6: Initialize FFI and load module shared libraries for shadow tests */
-    (void)ffi_init(opts->verbose);
-    for (int i = 0; i < modules->count; i++) {
-        const char *module_path = modules->module_paths[i];
-
-        char *module_dir = strdup(module_path);
-        char *last_slash = strrchr(module_dir, '/');
-        if (last_slash) {
-            *last_slash = '\0';
-        } else {
-            free(module_dir);
-            module_dir = strdup(".");
-        }
-
-        ModuleBuildMetadata *meta = module_load_metadata(module_dir);
-
-        char mod_name[256];
-        if (meta && meta->name) {
-            snprintf(mod_name, sizeof(mod_name), "%s", meta->name);
-        } else {
-            const char *base_name = last_slash ? last_slash + 1 : module_path;
-            snprintf(mod_name, sizeof(mod_name), "%s", base_name);
-            char *dot = strrchr(mod_name, '.');
-            if (dot) *dot = '\0';
-        }
-
-        (void)ffi_load_module(mod_name, module_path, env, opts->verbose);
-
-        if (meta) module_metadata_free(meta);
-        free(module_dir);
-    }
+    /* Phase 4.6: FFI removed - interpreter deleted, shadow tests now compile to C */
+    /* No dynamic FFI loading needed - modules compile statically */
 
     /* Phase 5: Shadow-Test Execution */
     if (!run_shadow_tests(program, env)) {
@@ -215,7 +185,6 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_environment(env);
         free_module_list(modules);
         free(source);
-        ffi_cleanup();
         return 1;
     }
     if (opts->verbose) printf("✓ Shadow tests passed\n");
