@@ -227,24 +227,17 @@ fn main() -> int {
             let head_x: int = (at snake_x 0)
             let head_y: int = (at snake_y 0)
             
-            let mut new_head_x: int = head_x
-            let mut new_head_y: int = head_y
-            
-            if (== direction Direction.UP) {
-                set new_head_y (- head_y 1)
-            } else {
-                if (== direction Direction.DOWN) {
-                    set new_head_y (+ head_y 1)
-                } else {
-                    if (== direction Direction.LEFT) {
-                        set new_head_x (- head_x 1)
-                    } else {
-                        if (== direction Direction.RIGHT) {
-                            set new_head_x (+ head_x 1)
-                        } else {}
-                    }
-                }
-            }
+            # Calculate new head position based on direction
+            let new_head_x: int = (cond
+                ((== direction Direction.LEFT) (- head_x 1))
+                ((== direction Direction.RIGHT) (+ head_x 1))
+                (else head_x)
+            )
+            let new_head_y: int = (cond
+                ((== direction Direction.UP) (- head_y 1))
+                ((== direction Direction.DOWN) (+ head_y 1))
+                (else head_y)
+            )
             
             # Check wall collision
             if (not (is_valid_pos new_head_x new_head_y GRID_WIDTH GRID_HEIGHT)) {
