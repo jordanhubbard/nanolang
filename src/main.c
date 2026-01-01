@@ -266,6 +266,60 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         strncat(include_flags, temp, sizeof(include_flags) - strlen(include_flags) - 1);
     }
     
+    /* Add module directories to include path (for FFI headers) */
+    /* This enables standalone tools to import modules like "modules/std/fs.nano" */
+    /* and have the C compiler find the corresponding "fs.h" header */
+    if (modules && modules->count > 0) {
+        /* Track unique directories to avoid duplicates */
+        char **unique_dirs = malloc(sizeof(char*) * modules->count);
+        int unique_count = 0;
+        
+        for (int i = 0; i < modules->count; i++) {
+            const char *module_path = modules->module_paths[i];
+            if (!module_path) continue;
+            
+            /* Extract directory from module path */
+            char dir_path[512];
+            strncpy(dir_path, module_path, sizeof(dir_path) - 1);
+            dir_path[sizeof(dir_path) - 1] = '\0';
+            
+            /* Find last slash to get directory */
+            char *last_slash = strrchr(dir_path, '/');
+            if (last_slash) {
+                *last_slash = '\0';  /* Trim filename to get directory */
+                
+                /* Check if this directory is already in the list */
+                bool already_added = false;
+                for (int j = 0; j < unique_count; j++) {
+                    if (strcmp(unique_dirs[j], dir_path) == 0) {
+                        already_added = true;
+                        break;
+                    }
+                }
+                
+                if (!already_added) {
+                    unique_dirs[unique_count] = strdup(dir_path);
+                    unique_count++;
+                    
+                    /* Add -I flag for this directory */
+                    char temp[512];
+                    snprintf(temp, sizeof(temp), " -I%s", dir_path);
+                    strncat(include_flags, temp, sizeof(include_flags) - strlen(include_flags) - 1);
+                    
+                    if (opts->verbose) {
+                        printf("Adding module include path: %s\n", dir_path);
+                    }
+                }
+            }
+        }
+        
+        /* Free unique_dirs */
+        for (int i = 0; i < unique_count; i++) {
+            free(unique_dirs[i]);
+        }
+        free(unique_dirs);
+    }
+    
     /* Add module compile flags (include paths from pkg-config) */
     if (module_compile_flags[0] != '\0') {
         strncat(include_flags, " ", sizeof(include_flags) - strlen(include_flags) - 1);
