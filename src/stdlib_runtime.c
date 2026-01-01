@@ -26,6 +26,22 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    double: (double)((a) > (b) ? (a) : (b)), \\\n");
     sb_append(sb, "    default: (int64_t)((a) > (b) ? (a) : (b)))\n\n");
 
+    /* Math functions - wrappers around C standard library math.h */
+    sb_append(sb, "/* Trigonometric functions */\n");
+    sb_append(sb, "static double nl_sin(double x) { return sin(x); }\n");
+    sb_append(sb, "static double nl_cos(double x) { return cos(x); }\n");
+    sb_append(sb, "static double nl_tan(double x) { return tan(x); }\n");
+    sb_append(sb, "static double nl_atan2(double y, double x) { return atan2(y, x); }\n\n");
+    
+    sb_append(sb, "/* Power and root functions */\n");
+    sb_append(sb, "static double nl_sqrt(double x) { return sqrt(x); }\n");
+    sb_append(sb, "static double nl_pow(double base, double exp) { return pow(base, exp); }\n\n");
+    
+    sb_append(sb, "/* Rounding functions */\n");
+    sb_append(sb, "static double nl_floor(double x) { return floor(x); }\n");
+    sb_append(sb, "static double nl_ceil(double x) { return ceil(x); }\n");
+    sb_append(sb, "static double nl_round(double x) { return round(x); }\n\n");
+
     /* Type casting functions */
     sb_append(sb, "static int64_t nl_cast_int(double x) { return (int64_t)x; }\n");
     sb_append(sb, "static int64_t nl_cast_int_from_int(int64_t x) { return x; }\n");
