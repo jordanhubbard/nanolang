@@ -1,0 +1,268 @@
+/* =============================================================================
+ * Extended Math Functions Demo - Practical Scientific Calculator
+ * =============================================================================
+ * Problem: Perform scientific calculations using extended math functions
+ * 
+ * Demonstrates:
+ * - Trigonometric functions (sin, cos, tan, asin, acos, atan, atan2)
+ * - Hyperbolic functions (sinh, cosh, tanh)
+ * - Exponential and logarithmic functions (exp, log, log10, log2)
+ * - Power and root functions (pow, sqrt, cbrt)
+ * - Rounding functions (ceil, floor, round, trunc)
+ * - Special functions (fabs, fmod, remainder)
+ * 
+ * Real-World Applications:
+ * - Physics calculations (projectile motion, wave equations)
+ * - Financial calculations (compound interest, present value)
+ * - Engineering (signal processing, control systems)
+ * - Game development (rotation, trajectory, collision)
+ * - Scientific computing (statistical analysis, numerical methods)
+ * =============================================================================
+ */
+
+from "modules/math_ext/math_ext.nano" import asin, acos, atan
+from "modules/math_ext/math_ext.nano" import sinh, cosh, tanh
+from "modules/math_ext/math_ext.nano" import exp, log, log10
+from "modules/math_ext/math_ext.nano" import fabs, fmod
+
+/* Note: sin, cos, tan, atan2, pow, sqrt, ceil, floor, round are built-ins */
+
+/* =============================================================================
+ * Example 1: Projectile Motion (Physics)
+ * =============================================================================
+ * Calculate trajectory of a projectile given initial velocity and angle
+ */
+
+fn projectile_max_height(velocity: float, angle_degrees: float, gravity: float) -> float {
+    /* Convert angle to radians */
+    let pi: float = 3.14159265359
+    let angle_rad: float = (* angle_degrees (/ pi 180.0))
+    
+    /* Vertical component of velocity */
+    let vy: float = (* velocity (sin angle_rad))
+    
+    /* Max height = (vy^2) / (2 * g) */
+    return (/ (* vy vy) (* 2.0 gravity))
+}
+
+shadow projectile_max_height {
+    /* 45 degrees, 20 m/s, 9.8 m/s^2 should give ~10.2m */
+    let height: float = (projectile_max_height 20.0 45.0 9.8)
+    assert (and (> height 10.0) (< height 11.0))
+}
+
+fn projectile_range(velocity: float, angle_degrees: float, gravity: float) -> float {
+    /* Convert angle to radians */
+    let pi: float = 3.14159265359
+    let angle_rad: float = (* angle_degrees (/ pi 180.0))
+    
+    /* Range = (v^2 * sin(2*angle)) / g */
+    let sin_2angle: float = (sin (* 2.0 angle_rad))
+    return (/ (* velocity (* velocity sin_2angle)) gravity)
+}
+
+shadow projectile_range {
+    /* 45 degrees gives maximum range */
+    let range: float = (projectile_range 20.0 45.0 9.8)
+    assert (and (> range 40.0) (< range 41.0))
+}
+
+/* =============================================================================
+ * Example 2: Compound Interest (Finance)
+ * =============================================================================
+ * Calculate future value with compound interest
+ */
+
+fn compound_interest(principal: float, rate: float, time: float, compounds_per_year: float) -> float {
+    /* FV = P * (1 + r/n)^(n*t) */
+    let rate_per_period: float = (/ rate compounds_per_year)
+    let num_periods: float = (* compounds_per_year time)
+    let base: float = (+ 1.0 rate_per_period)
+    return (* principal (pow base num_periods))
+}
+
+shadow compound_interest {
+    /* $1000 at 5% for 10 years, quarterly compounding */
+    let future_value: float = (compound_interest 1000.0 0.05 10.0 4.0)
+    /* Should be around $1643 */
+    assert (and (> future_value 1640.0) (< future_value 1650.0))
+}
+
+fn continuous_compound_interest(principal: float, rate: float, time: float) -> float {
+    /* FV = P * e^(r*t) */
+    return (* principal (exp (* rate time)))
+}
+
+shadow continuous_compound_interest {
+    /* $1000 at 5% for 10 years, continuous compounding */
+    let future_value: float = (continuous_compound_interest 1000.0 0.05 10.0)
+    /* Should be around $1649 */
+    assert (and (> future_value 1645.0) (< future_value 1655.0))
+}
+
+/* =============================================================================
+ * Example 3: Distance and Angle Calculations (Geometry)
+ * =============================================================================
+ */
+
+fn distance_2d(x1: float, y1: float, x2: float, y2: float) -> float {
+    /* Distance = sqrt((x2-x1)^2 + (y2-y1)^2) */
+    let dx: float = (- x2 x1)
+    let dy: float = (- y2 y1)
+    return (sqrt (+ (* dx dx) (* dy dy)))
+}
+
+shadow distance_2d {
+    /* Distance from (0,0) to (3,4) should be 5 */
+    let dist: float = (distance_2d 0.0 0.0 3.0 4.0)
+    assert (and (> dist 4.9) (< dist 5.1))
+}
+
+fn angle_between_points(x1: float, y1: float, x2: float, y2: float) -> float {
+    /* Angle in radians from point 1 to point 2 */
+    let dx: float = (- x2 x1)
+    let dy: float = (- y2 y1)
+    return (atan2 dy dx)
+}
+
+shadow angle_between_points {
+    /* Angle from (0,0) to (1,1) should be pi/4 (~0.785 radians) */
+    let angle: float = (angle_between_points 0.0 0.0 1.0 1.0)
+    assert (and (> angle 0.78) (< angle 0.79))
+}
+
+/* =============================================================================
+ * Example 4: Wave Functions (Signal Processing)
+ * =============================================================================
+ */
+
+fn sine_wave(time: float, frequency: float, amplitude: float, phase: float) -> float {
+    /* y = A * sin(2*pi*f*t + phase) */
+    let pi: float = 3.14159265359
+    let omega: float = (* (* 2.0 pi) frequency)
+    return (* amplitude (sin (+ (* omega time) phase)))
+}
+
+shadow sine_wave {
+    /* At t=0, phase=0, should be 0 */
+    let y1: float = (sine_wave 0.0 1.0 1.0 0.0)
+    assert (and (> y1 -0.1) (< y1 0.1))
+    
+    /* At t=0.25, f=1, should be at peak (amplitude) */
+    let y2: float = (sine_wave 0.25 1.0 2.0 0.0)
+    assert (and (> y2 1.9) (< y2 2.1))
+}
+
+fn wave_interference(amp1: float, freq1: float, amp2: float, freq2: float, time: float) -> float {
+    /* Superposition of two waves */
+    let wave1: float = (sine_wave time freq1 amp1 0.0)
+    let wave2: float = (sine_wave time freq2 amp2 0.0)
+    return (+ wave1 wave2)
+}
+
+shadow wave_interference {
+    /* Two identical waves should add constructively */
+    let result: float = (wave_interference 1.0 1.0 1.0 1.0 0.25)
+    assert (and (> result 1.9) (< result 2.1))
+}
+
+/* =============================================================================
+ * Example 5: Logarithmic Scales (Data Analysis)
+ * =============================================================================
+ */
+
+fn decibels(power: float, reference: float) -> float {
+    /* dB = 10 * log10(P / P_ref) */
+    return (* 10.0 (log10 (/ power reference)))
+}
+
+shadow decibels {
+    /* Power ratio of 100 should be 20 dB */
+    let db: float = (decibels 100.0 1.0)
+    assert (and (> db 19.9) (< db 20.1))
+}
+
+fn ph_from_concentration(h_concentration: float) -> float {
+    /* pH = -log10([H+]) */
+    return (- 0.0 (log10 h_concentration))
+}
+
+shadow ph_from_concentration {
+    /* [H+] = 0.0001 should give pH = 4 */
+    let ph: float = (ph_from_concentration 0.0001)
+    assert (and (> ph 3.9) (< ph 4.1))
+}
+
+/* =============================================================================
+ * Example 6: Rounding and Precision (Practical Math)
+ * =============================================================================
+ */
+
+fn round_to_places(value: float, places: int) -> float {
+    /* Round to N decimal places */
+    let multiplier: float = (pow 10.0 (cast_float places))
+    return (/ (round (* value multiplier)) multiplier)
+}
+
+shadow round_to_places {
+    /* 3.14159 rounded to 2 places should be 3.14 */
+    let rounded: float = (round_to_places 3.14159 2)
+    assert (and (> rounded 3.13) (< rounded 3.15))
+}
+
+/* =============================================================================
+ * Main Demo
+ * =============================================================================
+ */
+
+fn main() -> int {
+    println "=== Extended Math Functions Demo ==="
+    println ""
+    
+    /* Physics */
+    println "1. Projectile Motion (20 m/s at 45 degrees):"
+    let height: float = (projectile_max_height 20.0 45.0 9.8)
+    let range: float = (projectile_range 20.0 45.0 9.8)
+    println (+ "   Max height: " (+ (float_to_string height) " meters"))
+    println (+ "   Range: " (+ (float_to_string range) " meters"))
+    println ""
+    
+    /* Finance */
+    println "2. Compound Interest ($1000 at 5% for 10 years):"
+    let quarterly: float = (compound_interest 1000.0 0.05 10.0 4.0)
+    let continuous: float = (continuous_compound_interest 1000.0 0.05 10.0)
+    println (+ "   Quarterly: $" (float_to_string quarterly))
+    println (+ "   Continuous: $" (float_to_string continuous))
+    println ""
+    
+    /* Geometry */
+    println "3. Distance and Angle:"
+    let dist: float = (distance_2d 0.0 0.0 3.0 4.0)
+    let angle: float = (angle_between_points 0.0 0.0 1.0 1.0)
+    println (+ "   Distance (0,0) to (3,4): " (float_to_string dist))
+    println (+ "   Angle (0,0) to (1,1): " (+ (float_to_string angle) " radians"))
+    println ""
+    
+    /* Signal Processing */
+    println "4. Wave Functions:"
+    let wave_t0: float = (sine_wave 0.0 1.0 1.0 0.0)
+    let wave_t025: float = (sine_wave 0.25 1.0 1.0 0.0)
+    println (+ "   Sine wave at t=0: " (float_to_string wave_t0))
+    println (+ "   Sine wave at t=0.25: " (float_to_string wave_t025))
+    println ""
+    
+    /* Logarithmic Scales */
+    println "5. Logarithmic Scales:"
+    let db: float = (decibels 100.0 1.0)
+    let ph: float = (ph_from_concentration 0.0001)
+    println (+ "   Power ratio 100:1 = " (+ (float_to_string db) " dB"))
+    println (+ "   [H+] = 0.0001 M = pH " (float_to_string ph))
+    println ""
+    
+    println "All calculations complete!"
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
