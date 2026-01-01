@@ -1,0 +1,25 @@
+{
+  "name": "opengl",
+  "version": "1.0.0",
+  "stability": "stable",
+  "summary": "OpenGL graphics API bindings for 3D rendering.",
+  "use_when": [
+    "User wants 3D graphics with OpenGL",
+    "User says '3d rendering', 'opengl', 'shaders', 'meshes'",
+    "User needs low-level graphics control"
+  ],
+  "avoid_when": [
+    "User wants 2D only (use sdl)",
+    "User needs simplified 3D (consider higher-level wrapper)"
+  ],
+  "capabilities": ["render_3d", "shaders", "textures", "buffers", "opengl_api"],
+  "keywords": ["opengl", "3d", "graphics", "rendering", "shaders"],
+  "examples": ["examples/opengl_cube.nano", "examples/opengl_teapot.nano"],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["glfw"],
+    "system": [{"id": "opengl", "install": {"apt": "libgl1-mesa-dev", "brew": "mesa"}}]
+  },
+  "io_surfaces": ["window"],
+  "alternatives": [{"when": "2D graphics", "module": "sdl"}]
+}

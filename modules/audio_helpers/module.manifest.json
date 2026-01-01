@@ -1,0 +1,22 @@
+{
+  "name": "audio_helpers",
+  "version": "1.0.0",
+  "stability": "experimental",
+  "summary": "Audio utility functions for common audio tasks.",
+  "use_when": [
+    "User needs audio utilities",
+    "User says 'audio processing', 'waveform', 'audio analysis'",
+    "User wants simplified audio operations"
+  ],
+  "avoid_when": ["User wants raw audio control (use sdl_mixer)"],
+  "capabilities": ["audio_processing", "waveform_analysis"],
+  "keywords": ["audio", "utilities", "processing", "analysis"],
+  "examples": [],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["sdl_mixer"],
+    "system": []
+  },
+  "io_surfaces": ["audio"],
+  "alternatives": [{"when": "direct audio", "module": "sdl_mixer"}]
+}

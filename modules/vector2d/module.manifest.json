@@ -1,0 +1,32 @@
+{
+  "name": "vector2d",
+  "version": "1.0.0",
+  "stability": "stable",
+  "summary": "2D vector mathematics (add, subtract, normalize, dot product, etc.).",
+  "use_when": [
+    "User needs 2D vector operations",
+    "User says 'vector math', '2d vectors', 'normalize', 'dot product'",
+    "User is building 2D physics or game logic"
+  ],
+  "avoid_when": [
+    "User needs 3D vectors (extend this module or create vector3d)",
+    "User only needs basic arithmetic (use built-in operators)"
+  ],
+  "capabilities": [
+    "vector_add",
+    "vector_subtract",
+    "vector_multiply",
+    "vector_normalize",
+    "dot_product",
+    "vector_length",
+    "vector_distance"
+  ],
+  "keywords": ["math", "vector", "2d", "physics", "geometry"],
+  "examples": ["examples/sdl_boids.nano"],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "system": []
+  },
+  "io_surfaces": [],
+  "alternatives": []
+}
