@@ -8,6 +8,9 @@
 #include <unistd.h>
 #include <libgen.h>
 
+/* Forward declaration for nl_str_concat (provided by runtime) */
+extern char* nl_str_concat(const char* s1, const char* s2);
+
 /* Helper: Create nanolang array for strings */
 static DynArray* create_string_array(int64_t initial_capacity) {
     DynArray* arr = (DynArray*)malloc(sizeof(DynArray));
@@ -222,5 +225,59 @@ const char* path_dirname(const char* path) {
     free(copy);
     
     return result;
+}
+
+/* Read file content as string */
+char* file_read(const char* path) {
+    FILE* f = fopen(path, "r");
+    if (!f) return "";
+    
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    
+    char* buffer = malloc(size + 1);
+    if (!buffer) {
+        fclose(f);
+        return "";
+    }
+    
+    size_t read = fread(buffer, 1, size, f);
+    buffer[read] = '\0';
+    fclose(f);
+    
+    return buffer;
+}
+
+/* Write string to file */
+int64_t file_write(const char* path, const char* content) {
+    FILE* f = fopen(path, "w");
+    if (!f) return -1;
+    
+    size_t written = fwrite(content, 1, strlen(content), f);
+    fclose(f);
+    
+    return (written == strlen(content)) ? 0 : -1;
+}
+
+/* Append string to file */
+int64_t file_append(const char* path, const char* content) {
+    FILE* f = fopen(path, "a");
+    if (!f) return -1;
+    
+    size_t written = fwrite(content, 1, strlen(content), f);
+    fclose(f);
+    
+    return (written == strlen(content)) ? 0 : -1;
+}
+
+/* Check if file exists */
+bool file_exists(const char* path) {
+    return access(path, F_OK) == 0;
+}
+
+/* Delete file */
+int64_t file_delete(const char* path) {
+    return remove(path);
 }
 

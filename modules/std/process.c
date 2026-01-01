@@ -47,7 +47,7 @@ static void array_append_string(DynArray* arr, const char* str) {
 /* Run a command and capture stdout/stderr
  * Returns array<string> with [exit_code, stdout, stderr]
  */
-DynArray* process_run(const char* command) {
+DynArray* nl_os_process_run(const char* command) {
     DynArray* result = create_string_array(3);
     if (!result) return NULL;
     

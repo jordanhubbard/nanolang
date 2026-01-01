@@ -6,8 +6,8 @@
 module std_process
 
 /* FFI declarations */
-extern fn process_run(command: string) -> array<string>
-/* Note: system() is from stdlib.h - no explicit extern needed */
+extern fn nl_os_process_run(command: string) -> array<string>
+extern fn nl_os_system(command: string) -> int
 
 pub struct Output {
     code: int
@@ -18,7 +18,7 @@ pub struct Output {
 pub fn run(command: string) -> Output {
     let mut raw: array<string> = []
     unsafe {
-        set raw (process_run command)
+        set raw (nl_os_process_run command)
     }
     let code_s: string = (at raw 0)
     let out: string = (at raw 1)
@@ -35,7 +35,7 @@ shadow run {
 pub fn exec(command: string) -> int {
     let mut code: int = 0
     unsafe {
-        set code (system command)
+        set code (nl_os_system command)
     }
     return code
 }
