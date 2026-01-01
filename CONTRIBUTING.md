@@ -4,23 +4,22 @@
 
 These rules ensure the long-term maintainability and self-hosting capability of NanoLang.
 
-### 1. **Interpreter/Compiler Feature Parity**
+### 1. **Compiled Language - Single Implementation**
 
-**RULE**: The interpreter and compiler must ALWAYS support the same features.
+**RULE**: NanoLang is a compiled language. All features are implemented in the compiler.
 
-**Why**: Shadow tests run in the interpreter to validate code correctness. If the interpreter doesn't support a feature that the compiler does, shadow tests will fail and we lose our testing infrastructure.
+**Why**: NanoLang transpiles to C for native performance. The interpreter was removed to eliminate the dual implementation burden (80 hours/year maintenance cost).
 
 **Implementation**:
-- When adding a new language feature (operators, types, built-ins), implement it in BOTH:
+- When adding a new language feature (operators, types, built-ins), implement it in:
   - Compiler (`src/transpiler.c`, `src/parser.c`, `src/typechecker.c`)
-  - Interpreter (`src/eval.c`)
-- Before marking a feature complete, verify shadow tests work for that feature
-- Shadow tests are NOT optional - they're our quality guarantee
+- Shadow tests compile into the final binary and execute at runtime
+- Before marking a feature complete, verify shadow tests compile and pass
 
 **Example**: Generic `List<T>` support
 - ✅ Compiler: Generates C code with `list_TypeName_*` functions
-- ✅ Interpreter: Generic handler in `eval.c` delegates to `list_int_*` as backing store
-- ✅ Result: Shadow tests work, feature parity achieved
+- ✅ Shadow tests: Compile into binary, validate at runtime
+- ✅ Result: Clean, single implementation
 
 ### 2. **Warning-Free, Clean Sources**
 
@@ -64,7 +63,6 @@ src/          - C reference implementation (bootstrap compiler)
   parser.c    - C parser
   typechecker.c - C typechecker
   transpiler.c  - C transpiler
-  eval.c      - C interpreter
 
 src_nano/     - NanoLang self-hosted implementation
   parser_mvp.nano - Parser in NanoLang
@@ -243,7 +241,6 @@ Brief description of the feature/fix
 ## Implementation
 - C Reference: <files modified>
 - NanoLang Self-Hosted: <files modified>
-- Interpreter Parity: ✅ YES / ❌ NO / ⚠️ N/A
 
 ## Testing
 - Shadow tests: ✅ Added / ⚠️ Updated / ❌ None
@@ -256,7 +253,7 @@ YES / NO - if yes, describe migration path
 ## Checklist
 - [ ] Builds warning-free
 - [ ] All tests pass (100%)
-- [ ] Interpreter/compiler parity maintained
+- [ ] Shadow tests compile and pass
 - [ ] Documentation updated (if needed)
 - [ ] Self-hosted components updated (if needed)
 ```

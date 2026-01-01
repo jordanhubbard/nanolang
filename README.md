@@ -7,7 +7,7 @@
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Bootstrap](https://img.shields.io/badge/bootstrap-100%25%20self--hosting-success.svg)
 ![Type System](https://img.shields.io/badge/type%20system-100%25%20functional-success.svg)
-![Parity](https://img.shields.io/badge/compiler%2Finterpreter-100%25%20parity-success.svg)
+![Language](https://img.shields.io/badge/language-compiled-success.svg)
 
 **A minimal, LLM-friendly programming language with mandatory testing and unambiguous syntax.**
 
@@ -25,9 +25,8 @@ cd nanolang
 make
 ```
 
-This builds two tools:
-- `bin/nano` - Interactive interpreter
-- `bin/nanoc` - Compiler (transpiles to C)
+This builds the compiler:
+- `bin/nanoc` - NanoLang compiler (transpiles to C)
 
 ### Hello World
 
@@ -56,10 +55,7 @@ shadow main {
 Run it:
 
 ```bash
-# Option 1: Interpret (instant execution)
-./bin/nano hello.nano
-
-# Option 2: Compile to native binary
+# Compile to native binary
 ./bin/nanoc hello.nano -o hello
 ./hello
 ```
@@ -70,7 +66,7 @@ Run it:
 - **Mandatory Testing** - Every function requires a `shadow` test block
 - **Static Typing** - Catch errors at compile time
 - **Generic Types** - Generic unions like `Result<T, E>` for error handling
-- **100% Parity** - Compiler and interpreter support identical features
+- **Compiled Language** - Transpiles to C for native performance
 - **Immutable by Default** - Use `let mut` for mutability
 - **C Interop** - Easy FFI via modules with automatic package management
 - **Module System** - Automatic dependency installation via `module.json`
@@ -237,7 +233,7 @@ Modules automatically install dependencies via package managers (Homebrew, apt, 
 ## Building & Testing
 
 ```bash
-# Build compiler and interpreter
+# Build compiler
 make
 
 # Run test suite
@@ -290,7 +286,7 @@ See **[CONTRIBUTING.md](CONTRIBUTING.md)** for guidelines.
 ### Completed Features
 
 - ✅ Complete language implementation (lexer, parser, typechecker, transpiler)
-- ✅ Dual execution (interpreter + compiler)
+- ✅ Compiled language (transpiles to C for native performance)
 - ✅ Static typing with inference
 - ✅ Structs, enums, unions, generics
 - ✅ Module system with auto-dependency management

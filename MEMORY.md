@@ -434,22 +434,20 @@ Error at line 42, column 15: Type mismatch
 ```
 Look at line 42, character 15 to find the issue.
 
-### Step 2: Use the Interpreter for Testing
+### Step 2: Compile and Test
 ```bash
-# Quick test without compilation
-./bin/nano mycode.nano
+# Compile to binary
+./bin/nanoc mycode.nano -o mycode
 
-# Trace execution
-./bin/nano mycode.nano --trace-all
-./bin/nano mycode.nano --trace-function=myfunc
-./bin/nano mycode.nano --trace-var=counter
+# Run the binary
+./mycode
 ```
 
 ### Step 3: Check Shadow Tests
-Shadow tests run at compile time. If they fail, fix them first:
+Shadow tests compile into the binary and run at runtime. If they fail, fix them first:
 ```nano
 shadow factorial {
-    assert (== (factorial 5) 120)  # This runs during compilation!
+    assert (== (factorial 5) 120)  # This runs when the binary executes!
 }
 ```
 
@@ -1265,6 +1263,8 @@ NanoLang is now **self-hosted** - the compiler is written in NanoLang!
 **Two Compilers**:
 1. **`bin/nanoc`** (symlink to `bin/nanoc_c`) - C reference compiler (Stage 1)
 2. **`bin/nanoc_nano`** - Self-hosted NanoLang compiler (Stage 2)
+
+**Note**: NanoLang is a compiled language. The interpreter was removed to eliminate dual implementation burden.
 
 **Compilation Pipeline** (both compilers):
 ```

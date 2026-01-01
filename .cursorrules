@@ -40,7 +40,7 @@ bd link <blocker-id> --blocks <blocked-id>   # Blocker blocks another issue
 
 ### Development Rules
 1. **⚠️ Dual Implementation REQUIRED**: ALL language features must be implemented TWICE (C + NanoLang)
-2. **Interpreter/Compiler Parity**: Both must support same features
+2. **Compiled Language**: NanoLang transpiles to C for native performance
 3. **Warning-Free Code**: Compile with `-Wall -Wextra -Werror`
 4. **⚠️ Shadow Tests MANDATORY**: Required for ALL functions (including examples) - NO EXCEPTIONS except `extern`
 5. **Minimal Comments**: Code should be self-documenting
@@ -81,7 +81,7 @@ When generating NanoLang code, ALWAYS include shadow tests. This is non-negotiab
 ```bash
 make test                                           # Run all tests (must be 100%)
 perl -e 'alarm 30; exec @ARGV' ./bin/nanoc file.nano -o bin/output   # Compile with timeout
-./bin/nano file.nano                                # Test interpretation
+./bin/output                                         # Run compiled binary
 ```
 
 **⚠️ CRITICAL: All compilations MUST use timeout to detect infinite loops!**
