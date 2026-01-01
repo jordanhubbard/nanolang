@@ -65,18 +65,13 @@ shadow get_cell_display {
     assert (str_equals (get_cell_display board 1) "O")
 }
 
-# Check if position is valid and empty
+# Check if position is valid and empty using cond
 fn is_valid_move(board: array<int>, pos: int) -> bool {
-    if (< pos 0) {
-        return false
-    } else {
-        if (> pos 8) {
-            return false
-        } else {
-            let cell: int = (at board pos)
-            return (== cell 0)
-        }
-    }
+    return (cond
+        ((< pos 0) false)
+        ((> pos 8) false)
+        (else (== (at board pos) 0))
+    )
 }
 
 shadow is_valid_move {

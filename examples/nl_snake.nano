@@ -198,24 +198,13 @@ fn main() -> int {
         let head_x: int = (at snake_x 0)
         let head_y: int = (at snake_y 0)
         
-        # Decide direction based on food position
-        if (< head_x food_x) {
-            set direction Direction.RIGHT
-        } else {
-            if (> head_x food_x) {
-                set direction Direction.LEFT
-            } else {
-                if (< head_y food_y) {
-                    set direction Direction.DOWN
-                } else {
-                    if (> head_y food_y) {
-                        set direction Direction.UP
-                    } else {
-                        (print "")
-                    }
-                }
-            }
-        }
+        # Decide direction based on food position using cond
+        set direction (cond
+            ((< head_x food_x) Direction.RIGHT)
+            ((> head_x food_x) Direction.LEFT)
+            ((< head_y food_y) Direction.DOWN)
+            (else Direction.UP)  # (> head_y food_y) or equal
+        )
         
         # Calculate new head position using modern tuple return
         let new_pos: (int, int) = (move_in_direction head_x head_y direction)
