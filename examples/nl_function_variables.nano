@@ -107,8 +107,7 @@ fn main() -> int {
     (println "Test 1: Store function in variable")
     let my_op: fn(int, int) -> int = add
     let result1: int = (my_op 10 20)
-    (print "  my_op(10, 20) = ")
-    (println result1)
+    (println (+ "  my_op(10, 20) = " (int_to_string result1)))
     /* assert (== result1 30) */
     (println "  ✓ Stored function works!")
     (println "")
@@ -123,12 +122,9 @@ fn main() -> int {
     let r2: int = (op_mul 5 3)
     let r3: int = (op_sub 5 3)
     
-    (print "  add(5,3) = ")
-    (println r1)
-    (print "  mul(5,3) = ")
-    (println r2)
-    (print "  sub(5,3) = ")
-    (println r3)
+    (println (+ "  add(5,3) = " (int_to_string r1)))
+    (println (+ "  mul(5,3) = " (int_to_string r2)))
+    (println (+ "  sub(5,3) = " (int_to_string r3)))
     
     /* assert (== r1 8) */
     /* assert (== r2 15) */
@@ -139,8 +135,7 @@ fn main() -> int {
     /* Test 3: Calculator */
     (println "Test 3: Calculator with dispatch")
     let calc_result: int = (calculator 100 25 0)
-    (print "  calculator(100, 25, ADD) = ")
-    (println calc_result)
+    (println (+ "  calculator(100, 25, ADD) = " (int_to_string calc_result)))
     /* assert (== calc_result 125) */
     (println "  ✓ Calculator works!")
     (println "")
