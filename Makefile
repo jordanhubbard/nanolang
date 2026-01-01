@@ -126,10 +126,23 @@ $(SCHEMA_OUTPUTS): $(SCHEMA_JSON) scripts/gen_compiler_schema.py
 # ============================================================================
 # Module Index Generation
 # ============================================================================
+# Build C tool for generating module index
+GENERATE_MODULE_INDEX = bin/generate_module_index
+$(GENERATE_MODULE_INDEX): tools/generate_module_index.c modules/std/fs.c src/cJSON.c src/runtime/dyn_array.c src/runtime/gc.c src/runtime/gc_struct.c
+	@echo "[tool] Building module index generator (C)..."
+	@$(CC) $(CFLAGS) -Isrc -Isrc/runtime -Imodules/std \
+		tools/generate_module_index.c \
+		modules/std/fs.c \
+		src/cJSON.c \
+		src/runtime/dyn_array.c \
+		src/runtime/gc.c \
+		src/runtime/gc_struct.c \
+		-o $(GENERATE_MODULE_INDEX)
+
 .PHONY: modules-index
-modules-index:
+modules-index: $(GENERATE_MODULE_INDEX)
 	@echo "[modules] Generating module index from manifests..."
-	@python3 tools/generate_module_index.py
+	@./$(GENERATE_MODULE_INDEX)
 
 # Hybrid compiler objects
 HYBRID_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/lexer_bridge.o $(OBJ_DIR)/lexer_nano.o $(OBJ_DIR)/main_stage1_5.o
