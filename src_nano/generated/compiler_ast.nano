@@ -15,6 +15,7 @@ enum TypeKind {
     TYPE_GENERIC,
     TYPE_LIST_INT,
     TYPE_LIST_STRING,
+    TYPE_LIST_TOKEN,
     TYPE_LIST_GENERIC,
     TYPE_FUNCTION,
     TYPE_TUPLE,
@@ -36,48 +37,55 @@ enum CompilerPhase {
     PHASE_RUNTIME
 }
 
-struct ParseNode {
+extern struct LexerToken {
+    token_type: int,
+    value: string,
+    line: int,
+    column: int
+}
+
+extern struct ParseNode {
     node_type: int,
     line: int,
     column: int
 }
 
-struct ASTNumber {
+extern struct ASTNumber {
     node_type: int,
     line: int,
     column: int,
     value: string
 }
 
-struct ASTFloat {
+extern struct ASTFloat {
     node_type: int,
     line: int,
     column: int,
     value: string
 }
 
-struct ASTString {
+extern struct ASTString {
     node_type: int,
     line: int,
     column: int,
     value: string
 }
 
-struct ASTBool {
+extern struct ASTBool {
     node_type: int,
     line: int,
     column: int,
     value: bool
 }
 
-struct ASTIdentifier {
+extern struct ASTIdentifier {
     node_type: int,
     line: int,
     column: int,
     name: string
 }
 
-struct ASTBinaryOp {
+extern struct ASTBinaryOp {
     node_type: int,
     line: int,
     column: int,
@@ -88,7 +96,7 @@ struct ASTBinaryOp {
     right_type: int
 }
 
-struct ASTCall {
+extern struct ASTCall {
     node_type: int,
     line: int,
     column: int,
@@ -97,7 +105,7 @@ struct ASTCall {
     arg_count: int
 }
 
-struct ASTArrayLiteral {
+extern struct ASTArrayLiteral {
     node_type: int,
     line: int,
     column: int,
@@ -106,7 +114,7 @@ struct ASTArrayLiteral {
     element_count: int
 }
 
-struct ASTLet {
+extern struct ASTLet {
     node_type: int,
     line: int,
     column: int,
@@ -117,7 +125,7 @@ struct ASTLet {
     is_mut: bool
 }
 
-struct ASTSet {
+extern struct ASTSet {
     node_type: int,
     line: int,
     column: int,
@@ -126,12 +134,12 @@ struct ASTSet {
     value_type: int
 }
 
-struct ASTStmtRef {
+extern struct ASTStmtRef {
     node_id: int,
     node_type: int
 }
 
-struct ASTIf {
+extern struct ASTIf {
     node_type: int,
     line: int,
     column: int,
@@ -141,7 +149,7 @@ struct ASTIf {
     else_body: int
 }
 
-struct ASTWhile {
+extern struct ASTWhile {
     node_type: int,
     line: int,
     column: int,
@@ -150,7 +158,7 @@ struct ASTWhile {
     body: int
 }
 
-struct ASTFor {
+extern struct ASTFor {
     node_type: int,
     line: int,
     column: int,
@@ -160,7 +168,7 @@ struct ASTFor {
     body: int
 }
 
-struct ASTReturn {
+extern struct ASTReturn {
     node_type: int,
     line: int,
     column: int,
@@ -168,7 +176,7 @@ struct ASTReturn {
     value_type: int
 }
 
-struct ASTBlock {
+extern struct ASTBlock {
     node_type: int,
     line: int,
     column: int,
@@ -176,7 +184,7 @@ struct ASTBlock {
     statement_count: int
 }
 
-struct ASTUnsafeBlock {
+extern struct ASTUnsafeBlock {
     node_type: int,
     line: int,
     column: int,
@@ -184,7 +192,7 @@ struct ASTUnsafeBlock {
     statement_count: int
 }
 
-struct ASTPrint {
+extern struct ASTPrint {
     node_type: int,
     line: int,
     column: int,
@@ -192,7 +200,7 @@ struct ASTPrint {
     value_type: int
 }
 
-struct ASTAssert {
+extern struct ASTAssert {
     node_type: int,
     line: int,
     column: int,
@@ -200,7 +208,7 @@ struct ASTAssert {
     condition_type: int
 }
 
-struct ASTFunction {
+extern struct ASTFunction {
     node_type: int,
     line: int,
     column: int,
@@ -211,7 +219,7 @@ struct ASTFunction {
     body: int
 }
 
-struct ASTShadow {
+extern struct ASTShadow {
     node_type: int,
     line: int,
     column: int,
@@ -219,7 +227,7 @@ struct ASTShadow {
     body: int
 }
 
-struct ASTStruct {
+extern struct ASTStruct {
     node_type: int,
     line: int,
     column: int,
@@ -227,7 +235,7 @@ struct ASTStruct {
     field_count: int
 }
 
-struct ASTStructLiteral {
+extern struct ASTStructLiteral {
     node_type: int,
     line: int,
     column: int,
@@ -238,7 +246,7 @@ struct ASTStructLiteral {
     field_count: int
 }
 
-struct ASTFieldAccess {
+extern struct ASTFieldAccess {
     node_type: int,
     line: int,
     column: int,
@@ -247,7 +255,7 @@ struct ASTFieldAccess {
     field_name: string
 }
 
-struct ASTEnum {
+extern struct ASTEnum {
     node_type: int,
     line: int,
     column: int,
@@ -255,7 +263,7 @@ struct ASTEnum {
     variant_count: int
 }
 
-struct ASTUnion {
+extern struct ASTUnion {
     node_type: int,
     line: int,
     column: int,
@@ -263,7 +271,7 @@ struct ASTUnion {
     variant_count: int
 }
 
-struct ASTUnionConstruct {
+extern struct ASTUnionConstruct {
     node_type: int,
     line: int,
     column: int,
@@ -275,14 +283,14 @@ struct ASTUnionConstruct {
     field_count: int
 }
 
-struct ASTMatchArm {
+extern struct ASTMatchArm {
     variant_name: string,
     binding_name: string,
     body_id: int,
     body_type: int
 }
 
-struct ASTMatch {
+extern struct ASTMatch {
     node_type: int,
     line: int,
     column: int,
@@ -295,7 +303,7 @@ struct ASTMatch {
     arm_count: int
 }
 
-struct ASTImport {
+extern struct ASTImport {
     node_type: int,
     line: int,
     column: int,
@@ -303,14 +311,14 @@ struct ASTImport {
     module_name: string
 }
 
-struct ASTOpaqueType {
+extern struct ASTOpaqueType {
     node_type: int,
     line: int,
     column: int,
     type_name: string
 }
 
-struct ASTTupleLiteral {
+extern struct ASTTupleLiteral {
     node_type: int,
     line: int,
     column: int,
@@ -319,7 +327,7 @@ struct ASTTupleLiteral {
     element_count: int
 }
 
-struct ASTTupleIndex {
+extern struct ASTTupleIndex {
     node_type: int,
     line: int,
     column: int,
@@ -328,11 +336,13 @@ struct ASTTupleIndex {
     index: int
 }
 
-struct Parser {
+extern struct Parser {
     tokens: List<LexerToken>,
+    file_name: string,
     position: int,
     token_count: int,
     has_error: bool,
+    diagnostics: List<CompilerDiagnostic>,
     numbers: List<ASTNumber>,
     floats: List<ASTFloat>,
     strings: List<ASTString>,
@@ -404,25 +414,25 @@ struct Parser {
     last_expr_node_type: int
 }
 
-struct Type {
+extern struct NSType {
     kind: int,
     name: string,
     element_type_kind: int,
     element_type_name: string
 }
 
-struct OptionType {
+extern struct OptionType {
     has_value: bool,
-    value: Type
+    value: NSType
 }
 
-struct CompilerSourceLocation {
+extern struct CompilerSourceLocation {
     file: string,
     line: int,
     column: int
 }
 
-struct CompilerDiagnostic {
+extern struct CompilerDiagnostic {
     phase: int,
     severity: int,
     code: string,
@@ -430,7 +440,7 @@ struct CompilerDiagnostic {
     location: CompilerSourceLocation
 }
 
-struct LexPhaseOutput {
+extern struct LexPhaseOutput {
     tokens: List<LexerToken>,
     token_count: int,
     diagnostics: List<CompilerDiagnostic>,
@@ -443,13 +453,19 @@ struct ParsePhaseOutput {
     had_error: bool
 }
 
-struct TypecheckPhaseOutput {
+extern struct TypeEnvironment {
+    error_count: int,
+    has_error: bool,
+    diagnostics: List<CompilerDiagnostic>
+}
+
+extern struct TypecheckPhaseOutput {
     environment: TypeEnvironment,
     diagnostics: List<CompilerDiagnostic>,
     had_error: bool
 }
 
-struct TranspilePhaseOutput {
+extern struct TranspilePhaseOutput {
     c_source: string,
     diagnostics: List<CompilerDiagnostic>,
     had_error: bool,

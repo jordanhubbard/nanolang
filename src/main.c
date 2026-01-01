@@ -222,7 +222,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     /* Phase 6: C Transpilation */
     if (opts->verbose) printf("Transpiling to C...\n");
-    char *c_code = transpile_to_c(program, env);
+    char *c_code = transpile_to_c(program, env, input_file);
     if (!c_code) {
         fprintf(stderr, "Transpilation failed\n");
         free_ast(program);
@@ -319,13 +319,56 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         strncat(lib_flags, temp, sizeof(lib_flags) - strlen(lib_flags) - 1);
     }
     
-    /* Detect and generate generic list types from the C code */
+    /* Detect and generate generic list types from the C code AND compiler_schema.h */
     char generated_lists[1024] = "";
-    const char *scan_ptr = c_code;
-    char detected_types[32][64]; /* Track up to 32 unique list types */
+    char detected_types[64][64]; /* Increased to handle more types */
     int detected_count = 0;
     
-    /* Scan for List_TypeName* patterns */
+    /* First, scan compiler_schema.h if it exists */
+    FILE *schema_h = fopen("src/generated/compiler_schema.h", "r");
+    if (schema_h) {
+        fseek(schema_h, 0, SEEK_END);
+        long size = ftell(schema_h);
+        fseek(schema_h, 0, SEEK_SET);
+        char *schema_content = malloc(size + 1);
+        if (schema_content) {
+            fread(schema_content, 1, size, schema_h);
+            schema_content[size] = '\0';
+            
+            const char *ptr = schema_content;
+            while ((ptr = strstr(ptr, "List_")) != NULL) {
+                ptr += 5;
+                const char *end = ptr;
+                while ((*end >= 'A' && *end <= 'Z') || (*end >= 'a' && *end <= 'z') || (*end >= '0' && *end <= '9') || *end == '_') {
+                    end++;
+                }
+                if (*end == '*' || *end == ' ' || *end == '\n' || *end == ';') {
+                    int len = end - ptr;
+                    char type_name[64];
+                    strncpy(type_name, ptr, len);
+                    type_name[len] = '\0';
+                    
+                    if (strcmp(type_name, "int") != 0 && strcmp(type_name, "string") != 0 && strcmp(type_name, "token") != 0 && strcmp(type_name, "Generic") != 0) {
+                        bool found = false;
+                        for (int i = 0; i < detected_count; i++) {
+                            if (strcmp(detected_types[i], type_name) == 0) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found && detected_count < 64) {
+                            strcpy(detected_types[detected_count++], type_name);
+                        }
+                    }
+                }
+            }
+            free(schema_content);
+        }
+        fclose(schema_h);
+    }
+
+    const char *scan_ptr = c_code;
+    /* Scan for List_TypeName* patterns in generated code too */
     while ((scan_ptr = strstr(scan_ptr, "List_")) != NULL) {
         scan_ptr += 5; /* Skip "List_" */
         const char *end_ptr = scan_ptr;
@@ -367,10 +410,19 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                 detected_count++;
                 
                 /* Generate list runtime files */
+                const char *c_type = type_name;
+                if (strcmp(type_name, "LexerToken") == 0) c_type = "Token";
+                else if (strcmp(type_name, "NSType") == 0) c_type = "NSType";
+                else if (strncmp(type_name, "AST", 3) == 0 || strncmp(type_name, "Compiler", 8) == 0) {
+                    /* For schema types, use the typedef name.
+                     * We'll ensure compiler_schema.h is included. */
+                    c_type = type_name;
+                }
+                
                 char gen_cmd[512];
                 snprintf(gen_cmd, sizeof(gen_cmd), 
-                        "./scripts/generate_list.sh %s /tmp > /dev/null 2>&1", 
-                        type_name);
+                        "./scripts/generate_list.sh %s /tmp %s > /dev/null 2>&1", 
+                        type_name, c_type);
                 if (opts->verbose) {
                     printf("Generating List<%s> runtime...\n", type_name);
                 }
@@ -389,6 +441,15 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                     char struct_pattern[128];
                     snprintf(struct_pattern, sizeof(struct_pattern), "typedef struct nl_%s {", type_name);
                     const char *struct_start = strstr(struct_search, struct_pattern);
+                    const char *struct_start_original = struct_start;
+                    
+                    /* Try to find guards if they exist */
+                    char guard_pattern[128];
+                    snprintf(guard_pattern, sizeof(guard_pattern), "#ifndef DEFINED_nl_%s", type_name);
+                    const char *guard_start = strstr(struct_search, guard_pattern);
+                    if (guard_start && guard_start < struct_start) {
+                        struct_start = guard_start;
+                    }
                     
                     if (struct_start) {
                         /* Find the end of the struct (closing brace + semicolon) */
@@ -406,6 +467,14 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                                     struct_end++;
                                     while (*struct_end && *struct_end != ';') struct_end++;
                                     if (*struct_end == ';') struct_end++;
+                                    
+                                    /* Look for #endif if we started with a guard */
+                                    if (guard_start && guard_start < struct_start_original) {
+                                        const char *endif_search = strstr(struct_end, "#endif");
+                                        if (endif_search) {
+                                            struct_end = endif_search + 6;
+                                        }
+                                    }
                                     break;
                                 }
                             }
@@ -419,7 +488,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                         fprintf(wrapper, "#include <stdio.h>\n");
                         fprintf(wrapper, "#include <string.h>\n\n");
                         /* Needed for DynArray/nl_string_t/Token used by extracted structs */
-                        fprintf(wrapper, "#include \"nanolang.h\"\n\n");
+                        fprintf(wrapper, "#include \"nanolang.h\"\n");
+                        fprintf(wrapper, "#include \"generated/compiler_schema.h\"\n\n");
                         fprintf(wrapper, "/* Struct definition extracted from main file */\n");
                         fprintf(wrapper, "%.*s\n", (int)(struct_end - struct_start), struct_start);
                         /* Set guard macro to prevent typedef redefinition in list header */
@@ -434,7 +504,15 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                         fprintf(wrapper, "/* Include list implementation */\n");
                         fprintf(wrapper, "#include \"/tmp/list_%s.c\"\n", type_name);
                     } else {
-                        /* Fallback: just include the list file */
+                        /* Fallback: just include the list file.
+                         * We include schema headers in case it's a schema type. */
+                        fprintf(wrapper, "#include <stdint.h>\n");
+                        fprintf(wrapper, "#include <stdbool.h>\n");
+                        fprintf(wrapper, "#include <stdlib.h>\n");
+                        fprintf(wrapper, "#include <stdio.h>\n");
+                        fprintf(wrapper, "#include <string.h>\n\n");
+                        fprintf(wrapper, "#include \"nanolang.h\"\n");
+                        fprintf(wrapper, "#include \"generated/compiler_schema.h\"\n\n");
                         fprintf(wrapper, "#include \"/tmp/list_%s.c\"\n", type_name);
                     }
                     fclose(wrapper);
@@ -458,7 +536,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     /* Build runtime files string */
     /* Note: sdl_helpers.c is NOT included here - it's provided by the sdl_helpers module */
-    char runtime_files[1536] = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_token.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/runtime/cli.c src/runtime/schema_lists.c";
+    char runtime_files[4096] = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_LexerToken.c src/runtime/list_Token.c src/runtime/list_CompilerDiagnostic.c src/runtime/list_CompilerSourceLocation.c src/runtime/list_ASTNumber.c src/runtime/list_ASTFloat.c src/runtime/list_ASTString.c src/runtime/list_ASTBool.c src/runtime/list_ASTIdentifier.c src/runtime/list_ASTBinaryOp.c src/runtime/list_ASTCall.c src/runtime/list_ASTArrayLiteral.c src/runtime/list_ASTLet.c src/runtime/list_ASTSet.c src/runtime/list_ASTStmtRef.c src/runtime/list_ASTIf.c src/runtime/list_ASTWhile.c src/runtime/list_ASTFor.c src/runtime/list_ASTReturn.c src/runtime/list_ASTBlock.c src/runtime/list_ASTUnsafeBlock.c src/runtime/list_ASTPrint.c src/runtime/list_ASTAssert.c src/runtime/list_ASTFunction.c src/runtime/list_ASTShadow.c src/runtime/list_ASTStruct.c src/runtime/list_ASTStructLiteral.c src/runtime/list_ASTFieldAccess.c src/runtime/list_ASTEnum.c src/runtime/list_ASTUnion.c src/runtime/list_ASTUnionConstruct.c src/runtime/list_ASTMatch.c src/runtime/list_ASTImport.c src/runtime/list_ASTOpaqueType.c src/runtime/list_ASTTupleLiteral.c src/runtime/list_ASTTupleIndex.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/runtime/cli.c";
     strncat(runtime_files, generated_lists, sizeof(runtime_files) - strlen(runtime_files) - 1);
     
     /* Add /tmp to include path for generated list headers */

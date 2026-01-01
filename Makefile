@@ -76,7 +76,28 @@ endif
 # Source files
 COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/eval.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/resource_tracking.c
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
-RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c $(RUNTIME_DIR)/list_token.c $(RUNTIME_DIR)/token_helpers.c $(RUNTIME_DIR)/gc.c $(RUNTIME_DIR)/dyn_array.c $(RUNTIME_DIR)/gc_struct.c $(RUNTIME_DIR)/nl_string.c $(RUNTIME_DIR)/cli.c $(RUNTIME_DIR)/schema_lists.c
+RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
+	$(RUNTIME_DIR)/list_LexerToken.c $(RUNTIME_DIR)/list_Token.c \
+	$(RUNTIME_DIR)/list_CompilerDiagnostic.c $(RUNTIME_DIR)/list_CompilerSourceLocation.c \
+	$(RUNTIME_DIR)/list_ASTNumber.c $(RUNTIME_DIR)/list_ASTFloat.c \
+	$(RUNTIME_DIR)/list_ASTString.c $(RUNTIME_DIR)/list_ASTBool.c \
+	$(RUNTIME_DIR)/list_ASTIdentifier.c \
+	$(RUNTIME_DIR)/list_ASTBinaryOp.c $(RUNTIME_DIR)/list_ASTCall.c \
+	$(RUNTIME_DIR)/list_ASTArrayLiteral.c $(RUNTIME_DIR)/list_ASTLet.c \
+	$(RUNTIME_DIR)/list_ASTSet.c $(RUNTIME_DIR)/list_ASTStmtRef.c \
+	$(RUNTIME_DIR)/list_ASTIf.c $(RUNTIME_DIR)/list_ASTWhile.c \
+	$(RUNTIME_DIR)/list_ASTFor.c $(RUNTIME_DIR)/list_ASTReturn.c \
+	$(RUNTIME_DIR)/list_ASTBlock.c $(RUNTIME_DIR)/list_ASTUnsafeBlock.c \
+	$(RUNTIME_DIR)/list_ASTPrint.c $(RUNTIME_DIR)/list_ASTAssert.c \
+	$(RUNTIME_DIR)/list_ASTFunction.c $(RUNTIME_DIR)/list_ASTShadow.c \
+	$(RUNTIME_DIR)/list_ASTStruct.c $(RUNTIME_DIR)/list_ASTStructLiteral.c \
+	$(RUNTIME_DIR)/list_ASTFieldAccess.c $(RUNTIME_DIR)/list_ASTEnum.c \
+	$(RUNTIME_DIR)/list_ASTUnion.c $(RUNTIME_DIR)/list_ASTUnionConstruct.c \
+	$(RUNTIME_DIR)/list_ASTMatch.c $(RUNTIME_DIR)/list_ASTImport.c \
+	$(RUNTIME_DIR)/list_ASTOpaqueType.c $(RUNTIME_DIR)/list_ASTTupleLiteral.c \
+	$(RUNTIME_DIR)/list_ASTTupleIndex.c \
+	$(RUNTIME_DIR)/token_helpers.c $(RUNTIME_DIR)/gc.c $(RUNTIME_DIR)/dyn_array.c \
+	$(RUNTIME_DIR)/gc_struct.c $(RUNTIME_DIR)/nl_string.c $(RUNTIME_DIR)/cli.c
 RUNTIME_OBJECTS = $(patsubst $(RUNTIME_DIR)/%.c,$(OBJ_DIR)/runtime/%.o,$(RUNTIME_SOURCES))
 COMPILER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o
 INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/tracing.o $(OBJ_DIR)/interpreter_main.o
@@ -91,7 +112,7 @@ SELFHOST_COMPONENTS = \
 SCHEMA_JSON = schema/compiler_schema.json
 SCHEMA_OUTPUTS = $(SRC_NANO_DIR)/generated/compiler_schema.nano $(SRC_NANO_DIR)/generated/compiler_ast.nano $(SRC_DIR)/generated/compiler_schema.h
 
-HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_token.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(SRC_DIR)/module_builder.h
+HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(SRC_DIR)/module_builder.h
 
 .PHONY: schema schema-check
 schema: $(SCHEMA_OUTPUTS)

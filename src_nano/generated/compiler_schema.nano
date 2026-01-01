@@ -1,13 +1,5 @@
 /* AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY. */
 
-/* Shared lexer token definition */
-struct LexerToken {
-    token_type: int,
-    value: string,
-    line: int,
-    column: int
-}
-
 enum LexerTokenType {
     TOKEN_EOF = 0,
     TOKEN_NUMBER = 1,
@@ -118,9 +110,4 @@ enum ParseNodeType {
     PNODE_ENUM = 33,
     PNODE_UNION = 34,
     PNODE_UNSAFE_BLOCK = 35
-}
-
-struct TypeEnvironment {
-    error_count: int,
-    has_error: bool
 }

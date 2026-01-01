@@ -1,14 +1,17 @@
-#include "list_CompilerDiagnostic.h"
+#include "list_ASTTupleLiteral.h"
 #include "../generated/compiler_schema.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
+/* Note: The actual struct nl_ASTTupleLiteral definition must be included */
+/* before this file in the compilation */
+
 #define INITIAL_CAPACITY 8
 #define GROWTH_FACTOR 2
 
 /* Helper: Ensure the list has enough capacity */
-static void ensure_capacity_CompilerDiagnostic(List_CompilerDiagnostic *list, int min_capacity) {
+static void ensure_capacity_ASTTupleLiteral(List_ASTTupleLiteral *list, int min_capacity) {
     if (list->capacity >= min_capacity) {
         return;
     }
@@ -22,7 +25,7 @@ static void ensure_capacity_CompilerDiagnostic(List_CompilerDiagnostic *list, in
         new_capacity *= GROWTH_FACTOR;
     }
     
-    struct nl_CompilerDiagnostic *new_data = realloc(list->data, sizeof(struct nl_CompilerDiagnostic) * new_capacity);
+    struct nl_ASTTupleLiteral *new_data = realloc(list->data, sizeof(struct nl_ASTTupleLiteral) * new_capacity);
     if (!new_data) {
         fprintf(stderr, "Error: Failed to allocate memory for list\n");
         exit(1);
@@ -33,19 +36,19 @@ static void ensure_capacity_CompilerDiagnostic(List_CompilerDiagnostic *list, in
 }
 
 /* Create a new empty list */
-List_CompilerDiagnostic* nl_list_CompilerDiagnostic_new(void) {
-    return nl_list_CompilerDiagnostic_with_capacity(INITIAL_CAPACITY);
+List_ASTTupleLiteral* nl_list_ASTTupleLiteral_new(void) {
+    return nl_list_ASTTupleLiteral_with_capacity(INITIAL_CAPACITY);
 }
 
 /* Create a new list with specified initial capacity */
-List_CompilerDiagnostic* nl_list_CompilerDiagnostic_with_capacity(int capacity) {
-    List_CompilerDiagnostic *list = malloc(sizeof(List_CompilerDiagnostic));
+List_ASTTupleLiteral* nl_list_ASTTupleLiteral_with_capacity(int capacity) {
+    List_ASTTupleLiteral *list = malloc(sizeof(List_ASTTupleLiteral));
     if (!list) {
         fprintf(stderr, "Error: Failed to allocate memory for list\n");
         exit(1);
     }
     
-    list->data = malloc(sizeof(struct nl_CompilerDiagnostic) * capacity);
+    list->data = malloc(sizeof(struct nl_ASTTupleLiteral) * capacity);
     if (!list->data) {
         fprintf(stderr, "Error: Failed to allocate memory for list data\n");
         exit(1);
@@ -58,14 +61,14 @@ List_CompilerDiagnostic* nl_list_CompilerDiagnostic_with_capacity(int capacity) 
 }
 
 /* Append an element to the end of the list */
-void nl_list_CompilerDiagnostic_push(List_CompilerDiagnostic *list, struct nl_CompilerDiagnostic value) {
-    ensure_capacity_CompilerDiagnostic(list, list->length + 1);
+void nl_list_ASTTupleLiteral_push(List_ASTTupleLiteral *list, struct nl_ASTTupleLiteral value) {
+    ensure_capacity_ASTTupleLiteral(list, list->length + 1);
     list->data[list->length] = value;
     list->length++;
 }
 
 /* Remove and return the last element */
-struct nl_CompilerDiagnostic nl_list_CompilerDiagnostic_pop(List_CompilerDiagnostic *list) {
+struct nl_ASTTupleLiteral nl_list_ASTTupleLiteral_pop(List_ASTTupleLiteral *list) {
     if (list->length == 0) {
         fprintf(stderr, "Error: Cannot pop from empty list\n");
         exit(1);
@@ -76,43 +79,43 @@ struct nl_CompilerDiagnostic nl_list_CompilerDiagnostic_pop(List_CompilerDiagnos
 }
 
 /* Insert an element at the specified index */
-void nl_list_CompilerDiagnostic_insert(List_CompilerDiagnostic *list, int index, struct nl_CompilerDiagnostic value) {
+void nl_list_ASTTupleLiteral_insert(List_ASTTupleLiteral *list, int index, struct nl_ASTTupleLiteral value) {
     if (index < 0 || index > list->length) {
         fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
         exit(1);
     }
     
-    ensure_capacity_CompilerDiagnostic(list, list->length + 1);
+    ensure_capacity_ASTTupleLiteral(list, list->length + 1);
     
     /* Shift elements to the right */
     memmove(&list->data[index + 1], &list->data[index], 
-            sizeof(struct nl_CompilerDiagnostic) * (list->length - index));
+            sizeof(struct nl_ASTTupleLiteral) * (list->length - index));
     
     list->data[index] = value;
     list->length++;
 }
 
 /* Remove and return the element at the specified index */
-struct nl_CompilerDiagnostic nl_list_CompilerDiagnostic_remove(List_CompilerDiagnostic *list, int index) {
+struct nl_ASTTupleLiteral nl_list_ASTTupleLiteral_remove(List_ASTTupleLiteral *list, int index) {
     if (index < 0 || index >= list->length) {
         fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
         exit(1);
     }
     
-    struct nl_CompilerDiagnostic value = list->data[index];
+    struct nl_ASTTupleLiteral value = list->data[index];
     
     /* Shift elements to the left */
     memmove(&list->data[index], &list->data[index + 1], 
-            sizeof(struct nl_CompilerDiagnostic) * (list->length - index - 1));
+            sizeof(struct nl_ASTTupleLiteral) * (list->length - index - 1));
     
     list->length--;
     return value;
 }
 
 /* Set the value at the specified index */
-void nl_list_CompilerDiagnostic_set(List_CompilerDiagnostic *list, int index, struct nl_CompilerDiagnostic value) {
+void nl_list_ASTTupleLiteral_set(List_ASTTupleLiteral *list, int index, struct nl_ASTTupleLiteral value) {
     if (index < 0 || index >= list->length) {
         fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
@@ -123,7 +126,7 @@ void nl_list_CompilerDiagnostic_set(List_CompilerDiagnostic *list, int index, st
 }
 
 /* Get the value at the specified index */
-struct nl_CompilerDiagnostic nl_list_CompilerDiagnostic_get(List_CompilerDiagnostic *list, int index) {
+struct nl_ASTTupleLiteral nl_list_ASTTupleLiteral_get(List_ASTTupleLiteral *list, int index) {
     if (index < 0 || index >= list->length) {
         fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
@@ -134,27 +137,27 @@ struct nl_CompilerDiagnostic nl_list_CompilerDiagnostic_get(List_CompilerDiagnos
 }
 
 /* Clear all elements from the list */
-void nl_list_CompilerDiagnostic_clear(List_CompilerDiagnostic *list) {
+void nl_list_ASTTupleLiteral_clear(List_ASTTupleLiteral *list) {
     list->length = 0;
 }
 
 /* Get the current length of the list */
-int nl_list_CompilerDiagnostic_length(List_CompilerDiagnostic *list) {
+int nl_list_ASTTupleLiteral_length(List_ASTTupleLiteral *list) {
     return list->length;
 }
 
 /* Get the current capacity of the list */
-int nl_list_CompilerDiagnostic_capacity(List_CompilerDiagnostic *list) {
+int nl_list_ASTTupleLiteral_capacity(List_ASTTupleLiteral *list) {
     return list->capacity;
 }
 
 /* Check if the list is empty */
-bool nl_list_CompilerDiagnostic_is_empty(List_CompilerDiagnostic *list) {
+bool nl_list_ASTTupleLiteral_is_empty(List_ASTTupleLiteral *list) {
     return list->length == 0;
 }
 
 /* Free the list and all its resources */
-void nl_list_CompilerDiagnostic_free(List_CompilerDiagnostic *list) {
+void nl_list_ASTTupleLiteral_free(List_ASTTupleLiteral *list) {
     if (list) {
         free(list->data);
         free(list);

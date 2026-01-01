@@ -15,6 +15,7 @@ enum TypeKind {
     TYPE_GENERIC,
     TYPE_LIST_INT,
     TYPE_LIST_STRING,
+    TYPE_LIST_TOKEN,
     TYPE_LIST_GENERIC,
     TYPE_FUNCTION,
     TYPE_TUPLE,
@@ -36,7 +37,7 @@ enum CompilerPhase {
     PHASE_RUNTIME
 }
 
-struct Type {
+struct NSType {
     kind: int,
     name: string,
     element_type_kind: int,
@@ -45,7 +46,7 @@ struct Type {
 
 struct OptionType {
     has_value: bool,
-    value: Type
+    value: NSType
 }
 
 struct CompilerSourceLocation {

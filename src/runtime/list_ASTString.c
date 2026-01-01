@@ -1,14 +1,17 @@
-#include "list_CompilerDiagnostic.h"
+#include "list_ASTString.h"
 #include "../generated/compiler_schema.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
+/* Note: The actual struct nl_ASTString definition must be included */
+/* before this file in the compilation */
+
 #define INITIAL_CAPACITY 8
 #define GROWTH_FACTOR 2
 
 /* Helper: Ensure the list has enough capacity */
-static void ensure_capacity_CompilerDiagnostic(List_CompilerDiagnostic *list, int min_capacity) {
+static void ensure_capacity_ASTString(List_ASTString *list, int min_capacity) {
     if (list->capacity >= min_capacity) {
         return;
     }
@@ -22,7 +25,7 @@ static void ensure_capacity_CompilerDiagnostic(List_CompilerDiagnostic *list, in
         new_capacity *= GROWTH_FACTOR;
     }
     
-    struct nl_CompilerDiagnostic *new_data = realloc(list->data, sizeof(struct nl_CompilerDiagnostic) * new_capacity);
+    struct nl_ASTString *new_data = realloc(list->data, sizeof(struct nl_ASTString) * new_capacity);
     if (!new_data) {
         fprintf(stderr, "Error: Failed to allocate memory for list\n");
         exit(1);
@@ -33,19 +36,19 @@ static void ensure_capacity_CompilerDiagnostic(List_CompilerDiagnostic *list, in
 }
 
 /* Create a new empty list */
-List_CompilerDiagnostic* nl_list_CompilerDiagnostic_new(void) {
-    return nl_list_CompilerDiagnostic_with_capacity(INITIAL_CAPACITY);
+List_ASTString* nl_list_ASTString_new(void) {
+    return nl_list_ASTString_with_capacity(INITIAL_CAPACITY);
 }
 
 /* Create a new list with specified initial capacity */
-List_CompilerDiagnostic* nl_list_CompilerDiagnostic_with_capacity(int capacity) {
-    List_CompilerDiagnostic *list = malloc(sizeof(List_CompilerDiagnostic));
+List_ASTString* nl_list_ASTString_with_capacity(int capacity) {
+    List_ASTString *list = malloc(sizeof(List_ASTString));
     if (!list) {
         fprintf(stderr, "Error: Failed to allocate memory for list\n");
         exit(1);
     }
     
-    list->data = malloc(sizeof(struct nl_CompilerDiagnostic) * capacity);
+    list->data = malloc(sizeof(struct nl_ASTString) * capacity);
     if (!list->data) {
         fprintf(stderr, "Error: Failed to allocate memory for list data\n");
         exit(1);
@@ -58,14 +61,14 @@ List_CompilerDiagnostic* nl_list_CompilerDiagnostic_with_capacity(int capacity) 
 }
 
 /* Append an element to the end of the list */
-void nl_list_CompilerDiagnostic_push(List_CompilerDiagnostic *list, struct nl_CompilerDiagnostic value) {
-    ensure_capacity_CompilerDiagnostic(list, list->length + 1);
+void nl_list_ASTString_push(List_ASTString *list, struct nl_ASTString value) {
+    ensure_capacity_ASTString(list, list->length + 1);
     list->data[list->length] = value;
     list->length++;
 }
 
 /* Remove and return the last element */
-struct nl_CompilerDiagnostic nl_list_CompilerDiagnostic_pop(List_CompilerDiagnostic *list) {
+struct nl_ASTString nl_list_ASTString_pop(List_ASTString *list) {
     if (list->length == 0) {
         fprintf(stderr, "Error: Cannot pop from empty list\n");
         exit(1);
@@ -76,43 +79,43 @@ struct nl_CompilerDiagnostic nl_list_CompilerDiagnostic_pop(List_CompilerDiagnos
 }
 
 /* Insert an element at the specified index */
-void nl_list_CompilerDiagnostic_insert(List_CompilerDiagnostic *list, int index, struct nl_CompilerDiagnostic value) {
+void nl_list_ASTString_insert(List_ASTString *list, int index, struct nl_ASTString value) {
     if (index < 0 || index > list->length) {
         fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
         exit(1);
     }
     
-    ensure_capacity_CompilerDiagnostic(list, list->length + 1);
+    ensure_capacity_ASTString(list, list->length + 1);
     
     /* Shift elements to the right */
     memmove(&list->data[index + 1], &list->data[index], 
-            sizeof(struct nl_CompilerDiagnostic) * (list->length - index));
+            sizeof(struct nl_ASTString) * (list->length - index));
     
     list->data[index] = value;
     list->length++;
 }
 
 /* Remove and return the element at the specified index */
-struct nl_CompilerDiagnostic nl_list_CompilerDiagnostic_remove(List_CompilerDiagnostic *list, int index) {
+struct nl_ASTString nl_list_ASTString_remove(List_ASTString *list, int index) {
     if (index < 0 || index >= list->length) {
         fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
         exit(1);
     }
     
-    struct nl_CompilerDiagnostic value = list->data[index];
+    struct nl_ASTString value = list->data[index];
     
     /* Shift elements to the left */
     memmove(&list->data[index], &list->data[index + 1], 
-            sizeof(struct nl_CompilerDiagnostic) * (list->length - index - 1));
+            sizeof(struct nl_ASTString) * (list->length - index - 1));
     
     list->length--;
     return value;
 }
 
 /* Set the value at the specified index */
-void nl_list_CompilerDiagnostic_set(List_CompilerDiagnostic *list, int index, struct nl_CompilerDiagnostic value) {
+void nl_list_ASTString_set(List_ASTString *list, int index, struct nl_ASTString value) {
     if (index < 0 || index >= list->length) {
         fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
@@ -123,7 +126,7 @@ void nl_list_CompilerDiagnostic_set(List_CompilerDiagnostic *list, int index, st
 }
 
 /* Get the value at the specified index */
-struct nl_CompilerDiagnostic nl_list_CompilerDiagnostic_get(List_CompilerDiagnostic *list, int index) {
+struct nl_ASTString nl_list_ASTString_get(List_ASTString *list, int index) {
     if (index < 0 || index >= list->length) {
         fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
@@ -134,27 +137,27 @@ struct nl_CompilerDiagnostic nl_list_CompilerDiagnostic_get(List_CompilerDiagnos
 }
 
 /* Clear all elements from the list */
-void nl_list_CompilerDiagnostic_clear(List_CompilerDiagnostic *list) {
+void nl_list_ASTString_clear(List_ASTString *list) {
     list->length = 0;
 }
 
 /* Get the current length of the list */
-int nl_list_CompilerDiagnostic_length(List_CompilerDiagnostic *list) {
+int nl_list_ASTString_length(List_ASTString *list) {
     return list->length;
 }
 
 /* Get the current capacity of the list */
-int nl_list_CompilerDiagnostic_capacity(List_CompilerDiagnostic *list) {
+int nl_list_ASTString_capacity(List_ASTString *list) {
     return list->capacity;
 }
 
 /* Check if the list is empty */
-bool nl_list_CompilerDiagnostic_is_empty(List_CompilerDiagnostic *list) {
+bool nl_list_ASTString_is_empty(List_ASTString *list) {
     return list->length == 0;
 }
 
 /* Free the list and all its resources */
-void nl_list_CompilerDiagnostic_free(List_CompilerDiagnostic *list) {
+void nl_list_ASTString_free(List_ASTString *list) {
     if (list) {
         free(list->data);
         free(list);
