@@ -38,12 +38,36 @@ bd link <blocker-id> --blocks <blocked-id>   # Blocker blocks another issue
 
 ## Code Standards
 
+### LLM-First Design (CRITICAL)
+**NanoLang is designed for LLM code generation. There is EXACTLY ONE canonical way to write each construct.**
+
+**Core Principle:** When LLMs see multiple equivalent forms, they guess wrong ~50% of the time.
+
+**MUST READ:**
+- `docs/CANONICAL_STYLE.md` - The One True Way™ to write NanoLang
+- `docs/LLM_CORE_SUBSET.md` - The 50-primitive subset to learn first
+
+**Key Rules for LLM Code Generation:**
+1. **ONE syntax per operation** - No alternatives, no sugar, no shortcuts
+2. **Prefix notation ONLY** - `(+ a b)` never `a + b`
+3. **Explicit types** - Always annotate, minimize inference
+4. **Core subset first** - Use advanced features only when asked
+5. **Canonical forms** - Always use `(+ str1 str2)` not `str_concat`
+
+**When generating code:**
+- ✅ Use `(cond ...)` for expressions
+- ✅ Use `(+ "a" "b")` for string concatenation
+- ✅ Use `(array_get arr i)` for array access
+- ❌ Never use `str_concat` (deprecated)
+- ❌ Never invent C-like syntax (`arr[i]`, `a + b`)
+
 ### Development Rules
 1. **⚠️ Dual Implementation REQUIRED**: ALL language features must be implemented TWICE (C + NanoLang)
 2. **Compiled Language**: NanoLang transpiles to C for native performance
 3. **Warning-Free Code**: Compile with `-Wall -Wextra -Werror`
 4. **⚠️ Shadow Tests MANDATORY**: Required for ALL functions (including examples) - NO EXCEPTIONS except `extern`
 5. **Minimal Comments**: Code should be self-documenting
+6. **⚠️ LLM-First**: ONE canonical way per operation - see `docs/CANONICAL_STYLE.md`
 
 ### Dual Implementation Constraint (CRITICAL)
 **Every language feature requires 2× implementation effort:**

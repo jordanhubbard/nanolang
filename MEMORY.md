@@ -2,6 +2,26 @@
 
 > **Purpose:** This file is designed specifically for Large Language Model consumption. It contains the essential knowledge needed to generate, debug, and understand NanoLang code. Pair this with `spec.json` for complete language coverage.
 
+## 🚨 READ FIRST: LLM-First Design
+
+**NanoLang has EXACTLY ONE canonical way to write each construct.**
+
+**REQUIRED READING:**
+1. **`docs/CANONICAL_STYLE.md`** - The One True Way™ for every operation
+2. **`docs/LLM_CORE_SUBSET.md`** - The 50-primitive core to learn first
+
+**Quick Rules:**
+- ✅ **ONE syntax per operation** - No alternatives
+- ✅ **Prefix notation ONLY** - `(f x y)` never `f(x, y)` or `x + y`
+- ✅ **Explicit types** - Always annotate
+- ✅ **Core subset first** - Advanced features only when asked
+- ✅ **Use `(+ str1 str2)`** not `str_concat` (deprecated)
+- ✅ **Use `(cond ...)`** for expressions, `if/else` for statements
+
+**Why this matters:** When there's only one way to do it, LLMs can't get it wrong.
+
+---
+
 ## Critical First Principles
 
 ### 1. ALWAYS Use Prefix Notation
