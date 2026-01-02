@@ -244,9 +244,6 @@ fn main() -> int {
         } else {}
         
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 41) {  # ESC
-            set running false
-        } else {}
         
         if (== key 43) {  # TAB
             set viz_mode (% (+ viz_mode 1) num_viz_modes)

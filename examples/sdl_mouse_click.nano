@@ -47,16 +47,12 @@ fn main() -> int {
         # Poll keyboard FIRST (this is what was breaking mouse clicks before)
         let key: int = (nl_sdl_poll_keypress)
         if (> key -1) {
-            if (== key 41) {  # ESC
-                set running false
+            if (== key 44) {
+                # SPACE pressed
+                set key_count (+ key_count 1)
+                (println (+ "✓ Keyboard event detected! (SPACE press #" (+ (int_to_string key_count) ")")))
             } else {
-                if (== key 44) {
-                    # SPACE pressed
-                    set key_count (+ key_count 1)
-                    (println (+ "✓ Keyboard event detected! (SPACE press #" (+ (int_to_string key_count) ")")))
-                } else {
-                    (println (+ "Key pressed: " (int_to_string key)))
-                }
+                (println (+ "Key pressed: " (int_to_string key)))
             }
         } else {
             (print "")

@@ -227,8 +227,6 @@ fn main() -> int {
         } else {}
 
         let key: int = (nl_sdl_poll_keypress)
-            set running false
-        } else {}
 
         # Enter launches the selected example
         if (or (== key 40) (== key 88)) {  # Return / KP Enter

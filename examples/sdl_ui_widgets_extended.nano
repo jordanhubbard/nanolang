@@ -105,9 +105,6 @@ fn main() -> int {
         } else {}
         
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 41) {  # ESC
-            set running false
-        } else {}
         
         # Clear screen
         unsafe {         (SDL_SetRenderDrawColor renderer 25 25 35 255) }
