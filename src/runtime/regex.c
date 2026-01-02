@@ -3,6 +3,8 @@
  * Built-in runtime support (not a module)
  */
 
+#define _POSIX_C_SOURCE 200809L  /* For strdup() */
+
 #include <regex.h>
 #include <stdlib.h>
 #include <string.h>
