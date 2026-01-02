@@ -234,6 +234,7 @@ static const FunctionMapping function_map[] = {
     {"print", "print"},
     {"cast_int", "nl_cast_int"},
     {"cast_float", "nl_cast_float"},
+    {"null_opaque", "nl_null_opaque"},
     {"file_read", "nl_os_file_read"},
     {"file_read_bytes", "nl_os_file_read_bytes"},
     {"file_write", "nl_os_file_write"},
@@ -1893,6 +1894,20 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_FLOAT) {
                     emit_formatted(list, "dynarray_literal_float(%d", count);
+                    for (int i = 0; i < count; i++) {
+                        emit_literal(list, ", ");
+                        build_expr(list, expr->as.array_literal.elements[i], env);
+                    }
+                    emit_literal(list, ")");
+                } else if (elem_type == TYPE_STRING) {
+                    emit_formatted(list, "dynarray_literal_string(%d", count);
+                    for (int i = 0; i < count; i++) {
+                        emit_literal(list, ", ");
+                        build_expr(list, expr->as.array_literal.elements[i], env);
+                    }
+                    emit_literal(list, ")");
+                } else if (elem_type == TYPE_BOOL) {
+                    emit_formatted(list, "dynarray_literal_bool(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
                         build_expr(list, expr->as.array_literal.elements[i], env);

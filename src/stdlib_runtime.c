@@ -47,6 +47,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "static int64_t nl_cast_int_from_int(int64_t x) { return x; }\n");
     sb_append(sb, "static double nl_cast_float(int64_t x) { return (double)x; }\n");
     sb_append(sb, "static double nl_cast_float_from_float(double x) { return x; }\n");
+    sb_append(sb, "static void* nl_null_opaque() { return NULL; }\n");
     sb_append(sb, "static int64_t nl_cast_bool_to_int(bool x) { return x ? 1 : 0; }\n");
     sb_append(sb, "static bool nl_cast_bool(int64_t x) { return x != 0; }\n\n");
 
@@ -122,6 +123,30 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    for (int i = 0; i < count; i++) {\n");
     sb_append(sb, "        double val = va_arg(args, double);\n");
     sb_append(sb, "        dyn_array_push_float(arr, val);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    va_end(args);\n");
+    sb_append(sb, "    return arr;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static DynArray* dynarray_literal_string(int count, ...) {\n");
+    sb_append(sb, "    DynArray* arr = dyn_array_new(ELEM_STRING);\n");
+    sb_append(sb, "    va_list args;\n");
+    sb_append(sb, "    va_start(args, count);\n");
+    sb_append(sb, "    for (int i = 0; i < count; i++) {\n");
+    sb_append(sb, "        const char* val = va_arg(args, const char*);\n");
+    sb_append(sb, "        dyn_array_push_string(arr, val);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    va_end(args);\n");
+    sb_append(sb, "    return arr;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static DynArray* dynarray_literal_bool(int count, ...) {\n");
+    sb_append(sb, "    DynArray* arr = dyn_array_new(ELEM_BOOL);\n");
+    sb_append(sb, "    va_list args;\n");
+    sb_append(sb, "    va_start(args, count);\n");
+    sb_append(sb, "    for (int i = 0; i < count; i++) {\n");
+    sb_append(sb, "        int val = va_arg(args, int); /* bool promotes to int */\n");
+    sb_append(sb, "        dyn_array_push_bool(arr, val);\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    va_end(args);\n");
     sb_append(sb, "    return arr;\n");

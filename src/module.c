@@ -1273,7 +1273,21 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                     return false;
                 }
                 
-                if (strlen(module_objs_buffer) + strlen(nano_obj) + 2 < buffer_size) {
+                /* Check if this object file is already in the buffer (avoid duplicates) */
+                bool already_added = false;
+                if (module_objs_buffer[0] != '\0') {
+                    char *found = strstr(module_objs_buffer, nano_obj);
+                    if (found) {
+                        /* Verify it's a complete match, not a substring */
+                        size_t nano_obj_len = strlen(nano_obj);
+                        if ((found == module_objs_buffer || found[-1] == ' ') &&
+                            (found[nano_obj_len] == '\0' || found[nano_obj_len] == ' ')) {
+                            already_added = true;
+                        }
+                    }
+                }
+                
+                if (!already_added && strlen(module_objs_buffer) + strlen(nano_obj) + 2 < buffer_size) {
                     if (module_objs_buffer[0] != '\0') {
                         strcat(module_objs_buffer, " ");
                     }
@@ -1337,8 +1351,21 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
             
             nanolang_compiled++;
             
-            /* Add to module_objs buffer */
-            if (strlen(module_objs_buffer) + strlen(obj_file) + 2 < buffer_size) {
+            /* Add to module_objs buffer (check for duplicates) */
+            bool already_added = false;
+            if (module_objs_buffer[0] != '\0') {
+                char *found = strstr(module_objs_buffer, obj_file);
+                if (found) {
+                    /* Verify it's a complete match, not a substring */
+                    size_t obj_file_len = strlen(obj_file);
+                    if ((found == module_objs_buffer || found[-1] == ' ') &&
+                        (found[obj_file_len] == '\0' || found[obj_file_len] == ' ')) {
+                        already_added = true;
+                    }
+                }
+            }
+            
+            if (!already_added && strlen(module_objs_buffer) + strlen(obj_file) + 2 < buffer_size) {
                 if (module_objs_buffer[0] != '\0') {
                     strcat(module_objs_buffer, " ");
                 }

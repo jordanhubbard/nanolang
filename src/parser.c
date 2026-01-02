@@ -279,6 +279,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
         case TOKEN_TYPE_STRING: type = TYPE_STRING; break;
         case TOKEN_TYPE_BSTRING: type = TYPE_BSTRING; break;
         case TOKEN_TYPE_VOID: type = TYPE_VOID; break;
+        case TOKEN_OPAQUE: type = TYPE_OPAQUE; break;
         
         case TOKEN_FN: {
             /* Function type: fn(type1, type2) -> return_type */
@@ -1012,6 +1013,48 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             node->as.array_literal.elements = elements;
             node->as.array_literal.element_count = count;
             node->as.array_literal.element_type = TYPE_UNKNOWN;  /* Will be inferred by type checker */
+            return node;
+        }
+
+        case TOKEN_UNSAFE: {
+            /* Unsafe block as expression: unsafe { expr } */
+            int line = tok->line;
+            int column = tok->column;
+            advance(p);  /* consume 'unsafe' */
+
+            /* Expect opening brace */
+            if (!expect(p, TOKEN_LBRACE, "Expected '{' after 'unsafe'")) {
+                return NULL;
+            }
+
+            /* Parse statements in the unsafe block */
+            int capacity = 8;
+            int count = 0;
+            ASTNode **statements = malloc(sizeof(ASTNode*) * capacity);
+
+            while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+                if (count >= capacity) {
+                    capacity *= 2;
+                    statements = realloc(statements, sizeof(ASTNode*) * capacity);
+                }
+
+                ASTNode *stmt = parse_statement(p);
+                if (stmt) {
+                    statements[count++] = stmt;
+                } else {
+                    /* Parsing failed - advance to avoid infinite loop */
+                    advance(p);
+                }
+            }
+
+            if (!expect(p, TOKEN_RBRACE, "Expected '}' after unsafe block")) {
+                free(statements);
+                return NULL;
+            }
+
+            node = create_node(AST_UNSAFE_BLOCK, line, column);
+            node->as.unsafe_block.statements = statements;
+            node->as.unsafe_block.count = count;
             return node;
         }
 

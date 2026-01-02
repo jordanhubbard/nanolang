@@ -2715,7 +2715,7 @@ static const char *builtin_function_names[] = {
     "abs", "min", "max", "sqrt", "pow", "floor", "ceil", "round",
     "sin", "cos", "tan", "atan2",
     /* Type casting */
-    "cast_int", "cast_float", "cast_bool", "cast_string", "cast_bstring", "to_string",
+    "cast_int", "cast_float", "cast_bool", "cast_string", "cast_bstring", "to_string", "null_opaque",
     /* String (C strings) */
     "str_length", "str_concat", "str_substring", "str_contains", "str_equals",
     /* Bytes (array<u8>) */

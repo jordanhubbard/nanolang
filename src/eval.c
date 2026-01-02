@@ -1160,6 +1160,12 @@ static Value builtin_cast_bool(Value *args) {
     }
 }
 
+static Value builtin_null_opaque(Value *args) {
+    (void)args;  /* No arguments needed */
+    /* Opaque types are represented as integers (pointers cast to int64_t) */
+    return create_int(0);
+}
+
 typedef struct {
     char *buf;
     size_t len;
@@ -2736,6 +2742,26 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 default: result = 0.0;
             }
             return create_float(result);
+        } else if (left.type == VAL_STRING && right.type == VAL_STRING) {
+            /* String concatenation with + operator */
+            if (op == TOKEN_PLUS) {
+                size_t len1 = safe_strlen(left.as.string_val);
+                size_t len2 = safe_strlen(right.as.string_val);
+                char *result = malloc(len1 + len2 + 1);
+                if (!result) {
+                    safe_fprintf(stderr, "Error: Memory allocation failed in string concatenation\n");
+                    return create_void();
+                }
+                safe_strncpy(result, left.as.string_val, len1 + len2 + 1);
+                safe_strncat(result, right.as.string_val, len1 + len2 + 1);
+                result[len1 + len2] = '\0';
+                Value v = create_string(result);
+                free(result);
+                return v;
+            } else {
+                fprintf(stderr, "Error: Strings only support + operator\n");
+                return create_void();
+            }
         }
     }
 
@@ -3048,6 +3074,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "cast_float") == 0) return builtin_cast_float(args);
     if (strcmp(name, "cast_bool") == 0) return builtin_cast_bool(args);
     if (strcmp(name, "cast_string") == 0) return builtin_cast_string(args);
+    if (strcmp(name, "null_opaque") == 0) return builtin_null_opaque(args);
     if (strcmp(name, "to_string") == 0) return builtin_to_string(args);
     
     /* String operations */

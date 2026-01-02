@@ -157,7 +157,7 @@ fn discount_price(price: int, member_years: int) -> int {
         ((>= member_years 1) 10)
         (else 0))
     
-    return (- price (* price (/ discount 100)))
+    return (- price (/ (* price discount) 100))
 }
 
 shadow discount_price {

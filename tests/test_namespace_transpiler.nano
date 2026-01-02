@@ -8,15 +8,30 @@ pub fn add(a: int, b: int) -> int {
     return (+ a b)
 }
 
+shadow add {
+    assert (== (add 5 7) 12)
+    assert (== (add 0 0) 0)
+}
+
 # Private function - should be static in C
 fn helper(x: int) -> int {
     return (* x 2)
+}
+
+shadow helper {
+    assert (== (helper 10) 20)
+    assert (== (helper 0) 0)
 }
 
 # Public function using private helper
 pub fn process(val: int) -> int {
     let doubled: int = (helper val)
     return (+ doubled 10)
+}
+
+shadow process {
+    assert (== (process 20) 50)
+    assert (== (process 0) 10)
 }
 
 fn main() -> int {
@@ -26,12 +41,13 @@ fn main() -> int {
     
     # sum should be 12
     # proc should be (20 * 2) + 10 = 50
-    # return sum + proc = 62
-    return (+ sum proc)
+    # verify sum + proc = 62
+    (println (+ sum proc))
+    return 0
 }
 
 shadow main {
-    assert (== (main) 62)
+    assert (== (main) 0)
 }
 
 

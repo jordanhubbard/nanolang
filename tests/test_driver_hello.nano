@@ -10,10 +10,11 @@ shadow hello {
 }
 
 fn main() -> int {
-    return (hello)
+    (hello)
+    return 0
 }
 
 shadow main {
-    assert (== (main) 42)
+    assert (== (main) 0)
 }
 

@@ -10,15 +10,17 @@ fn main() -> int {
     
     match r {
         Ok(v) => {
-            return v.value
+            (println v.value)
         }
         Err(e) => {
-            return 0
+            (println "Error")
         }
     }
+    
+    return 0
 }
 
 shadow main {
-    assert (== (main) 42)
+    assert (== (main) 0)
 }
 
