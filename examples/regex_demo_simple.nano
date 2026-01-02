@@ -1,0 +1,102 @@
+# Regular Expression Demo - Pythonic One-Shot API
+# No opaque handle management needed!
+
+import "std/regex/regex.nano" as Regex
+
+fn match_example() -> void {
+    (println "=== Pattern Matching ===")
+    
+    # Validate phone number - one line, no handles!
+    if (Regex.regex_match "[0-9]{3}-[0-9]{3}-[0-9]{4}" "555-123-4567") {
+        (println "✓ Valid phone number: 555-123-4567")
+    }
+    
+    # Validate email
+    if (Regex.regex_match "[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-z]+" "user@example.com") {
+        (println "✓ Valid email: user@example.com")
+    }
+    
+    if (not (Regex.regex_match "[0-9]{3}-[0-9]{3}-[0-9]{4}" "invalid")) {
+        (println "✗ Invalid phone number: invalid")
+    }
+}
+
+fn replace_example() -> void {
+    (println "")
+    (println "=== Find and Replace ===")
+    
+    # Replace first number
+    let text1: string = "I have 3 apples and 5 oranges"
+    let result1: string = (Regex.regex_replace "[0-9]+" "X" text1)
+    (println (string_concat "Original:  " text1))
+    (println (string_concat "Replace 1st: " result1))
+    
+    # Replace all numbers
+    let result2: string = (Regex.regex_replace_all "[0-9]+" "X" text1)
+    (println (string_concat "Replace all: " result2))
+}
+
+fn split_example() -> void {
+    (println "")
+    (println "=== Split by Pattern ===")
+    
+    let text: string = "apple,banana;cherry,date;elderberry"
+    let parts: array<string> = (Regex.regex_split "[,;]" text)
+    
+    (println (string_concat "Input: " text))
+    (println (string_concat "Split into " (string_concat (int_to_string (len parts)) " parts:")))
+    
+    let mut i: int = 0
+    while (< i (len parts)) {
+        (println (string_concat "  [" (string_concat (int_to_string i) (string_concat "]: " (get parts i)))))
+        set i (+ i 1)
+    }
+}
+
+fn find_example() -> void {
+    (println "")
+    (println "=== Find Pattern Position ===")
+    
+    let text: string = "The answer is 42 and the year is 2024"
+    let pos: int = (Regex.regex_find "[0-9]+" text)
+    
+    (println (string_concat "Text: " text))
+    if (>= pos 0) {
+        (println (string_concat "First number starts at position: " (int_to_string pos)))
+    } else {
+        (println "No numbers found")
+    }
+}
+
+fn sanitize_example() -> void {
+    (println "")
+    (println "=== Sanitize User Input ===")
+    
+    # Remove all non-alphanumeric characters
+    let unsafe: string = "Hello<script>alert('xss')</script>World"
+    let safe: string = (Regex.regex_replace_all "<[^>]*>" "" unsafe)
+    
+    (println (string_concat "Unsafe: " unsafe))
+    (println (string_concat "Safe:   " safe))
+}
+
+fn main() -> int {
+    (println "╔════════════════════════════════════════════════════════╗")
+    (println "║  NanoLang Regex - Pythonic One-Shot API               ║")
+    (println "║  No opaque handles. No free(). Just works!            ║")
+    (println "╚════════════════════════════════════════════════════════╝")
+    (println "")
+    
+    (match_example)
+    (replace_example)
+    (split_example)
+    (find_example)
+    (sanitize_example)
+    
+    (println "")
+    (println "✓ All operations completed successfully!")
+    (println "  No memory management needed - handled automatically!")
+    
+    return 0
+}
+

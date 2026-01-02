@@ -1,0 +1,214 @@
+# Employee Data Processor
+# Demonstrates map/filter/fold for real-world data processing
+# Problem: Filter employees, transform salaries, compute aggregates
+#
+# This example shows how functional programming patterns (map/filter/fold)
+# solve real business problems like payroll processing and data analysis.
+#
+# Real-world applications:
+# - HR analytics (filter by department, age, salary)
+# - Payroll processing (apply raises, compute totals)
+# - Business intelligence (aggregate metrics across filtered datasets)
+
+struct Employee {
+    name: string,
+    age: int,
+    salary: int,
+    department: string
+}
+
+# Create sample employee data
+fn create_sample_data() -> array<Employee> {
+    let mut employees: array<Employee> = []
+    set employees (array_push employees (Employee { name: "Alice", age: 30, salary: 75000, department: "Engineering" }))
+    set employees (array_push employees (Employee { name: "Bob", age: 25, salary: 65000, department: "Engineering" }))
+    set employees (array_push employees (Employee { name: "Carol", age: 35, salary: 85000, department: "Sales" }))
+    set employees (array_push employees (Employee { name: "Dave", age: 28, salary: 70000, department: "Engineering" }))
+    set employees (array_push employees (Employee { name: "Eve", age: 32, salary: 90000, department: "Sales" }))
+    return employees
+}
+
+shadow create_sample_data {
+    let employees: array<Employee> = (create_sample_data)
+    assert (== (array_length employees) 5)
+    let first: Employee = (array_get employees 0)
+    assert (str_equals first.name "Alice")
+}
+
+# Filter: Keep only employees in a specific department
+fn is_in_department(emp: Employee, dept: string) -> bool {
+    return (str_equals emp.department dept)
+}
+
+shadow is_in_department {
+    let emp: Employee = Employee { name: "Alice", age: 30, salary: 75000, department: "Engineering" }
+    assert (is_in_department emp "Engineering")
+    assert (not (is_in_department emp "Sales"))
+}
+
+# Filter: Keep only employees above age threshold
+fn is_above_age(emp: Employee, min_age: int) -> bool {
+    return (>= emp.age min_age)
+}
+
+shadow is_above_age {
+    let emp: Employee = Employee { name: "Alice", age: 30, salary: 75000, department: "Engineering" }
+    assert (is_above_age emp 25)
+    assert (is_above_age emp 30)
+    assert (not (is_above_age emp 35))
+}
+
+# Map: Apply a salary raise (percentage)
+fn apply_raise(emp: Employee, percent: int) -> Employee {
+    let raise_amount: int = (/ (* emp.salary percent) 100)
+    let new_salary: int = (+ emp.salary raise_amount)
+    return Employee { name: emp.name, age: emp.age, salary: new_salary, department: emp.department }
+}
+
+shadow apply_raise {
+    let emp: Employee = Employee { name: "Alice", age: 30, salary: 100000, department: "Engineering" }
+    let raised: Employee = (apply_raise emp 10)
+    assert (== raised.salary 110000)
+    assert (str_equals raised.name "Alice")
+}
+
+# Fold: Sum all salaries
+fn sum_salaries(employees: array<Employee>) -> int {
+    let mut total: int = 0
+    let mut i: int = 0
+    while (< i (array_length employees)) {
+        let emp: Employee = (array_get employees i)
+        set total (+ total emp.salary)
+        set i (+ i 1)
+    }
+    return total
+}
+
+shadow sum_salaries {
+    let mut employees: array<Employee> = []
+    set employees (array_push employees (Employee { name: "Alice", age: 30, salary: 75000, department: "Engineering" }))
+    set employees (array_push employees (Employee { name: "Bob", age: 25, salary: 65000, department: "Engineering" }))
+    assert (== (sum_salaries employees) 140000)
+}
+
+# Fold: Count employees
+fn count_employees(employees: array<Employee>) -> int {
+    return (array_length employees)
+}
+
+shadow count_employees {
+    let mut employees: array<Employee> = []
+    set employees (array_push employees (Employee { name: "Alice", age: 30, salary: 75000, department: "Engineering" }))
+    set employees (array_push employees (Employee { name: "Bob", age: 25, salary: 65000, department: "Engineering" }))
+    assert (== (count_employees employees) 2)
+}
+
+# Fold: Compute average salary
+fn average_salary(employees: array<Employee>) -> int {
+    let count: int = (array_length employees)
+    if (== count 0) {
+        return 0
+    } else {}
+    
+    let total: int = (sum_salaries employees)
+    return (/ total count)
+}
+
+shadow average_salary {
+    let mut employees: array<Employee> = []
+    set employees (array_push employees (Employee { name: "Alice", age: 30, salary: 80000, department: "Engineering" }))
+    set employees (array_push employees (Employee { name: "Bob", age: 25, salary: 60000, department: "Engineering" }))
+    assert (== (average_salary employees) 70000)
+}
+
+# Full pipeline: Filter → Map → Aggregate
+fn process_employees(employees: array<Employee>, target_dept: string, min_age: int, raise_percent: int) -> int {
+    
+    # Filter by department
+    let mut filtered_dept: array<Employee> = []
+    set i 0
+    while (< i (array_length employees)) {
+        let emp: Employee = (array_get employees i)
+        if (is_in_department emp target_dept) {
+            set filtered_dept (array_push filtered_dept emp)
+        } else {}
+        set i (+ i 1)
+    }
+    
+    # Filter by age
+    let mut filtered_age: array<Employee> = []
+    set i 0
+    while (< i (array_length filtered_dept)) {
+        let emp: Employee = (array_get filtered_dept i)
+        if (is_above_age emp min_age) {
+            set filtered_age (array_push filtered_age emp)
+        } else {}
+        set i (+ i 1)
+    }
+    
+    # Apply raise
+    let mut raised: array<Employee> = []
+    set i 0
+    while (< i (array_length filtered_age)) {
+        let emp: Employee = (array_get filtered_age i)
+        let raised_emp: Employee = (apply_raise emp raise_percent)
+        set raised (array_push raised raised_emp)
+        set i (+ i 1)
+    }
+    
+    # Compute aggregate
+    return (sum_salaries raised)
+}
+
+shadow process_employees {
+    let employees: array<Employee> = (create_sample_data)
+    
+    # Filter Engineering, age >= 28, apply 10% raise
+    let total: int = (process_employees employees "Engineering" 28 10)
+    # Should include: Alice (75000) and Dave (70000) = 145,000
+    # After 10% raise: 82,500 + 77,000 = 159,500
+    assert (== total 159500)
+}
+
+fn main() -> int {
+    (println "╔════════════════════════════════════════════════════════╗")
+    (println "║  DATA PROCESSOR - Map/Filter/Fold Demo                ║")
+    (println "╚════════════════════════════════════════════════════════╝")
+    (println "")
+    (println "Demonstrating map/filter/fold on employee data:")
+    (println "")
+    
+    let employees: array<Employee> = (create_sample_data)
+    
+    (println "Input data: 5 employees")
+    (println "  Alice, 30, $75000, Engineering")
+    (println "  Bob, 25, $65000, Engineering")
+    (println "  Carol, 35, $85000, Sales")
+    (println "  Dave, 28, $70000, Engineering")
+    (println "  Eve, 32, $90000, Sales")
+    (println "")
+    
+    # Process: Filter Engineering dept, age >= 28, apply 10% raise
+    (println "Processing pipeline:")
+    (println "  1. Filter: department = Engineering")
+    (println "  2. Filter: age >= 28")
+    (println "  3. Map: Apply 10% salary raise")
+    (println "  4. Fold: Sum total salaries")
+    (println "")
+    
+    let result: int = (process_employees employees "Engineering" 28 10)
+    
+    (println (+ "Result: Total salaries after raise: $" (int_to_string result)))
+    (println "  (Alice: $75000 → $82500)")
+    (println "  (Dave: $70000 → $77000)")
+    (println "  Total: $159,500")
+    (println "")
+    (println "✓ Real-world map/filter/fold pipeline complete!")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
