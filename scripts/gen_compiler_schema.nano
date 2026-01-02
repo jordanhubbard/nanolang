@@ -91,7 +91,7 @@ fn gen_nano_ast(schema: Json) -> string {
     if (object_has schema "nano_enums") {
         let enums: Json = (get schema "nano_enums")
         let enum_count: int = (array_size enums)
-        let mut i: int = 0
+    let mut i: int = 0
         
         while (< i enum_count) {
             let enum_obj: Json = (get_index enums i)
@@ -155,8 +155,8 @@ fn gen_nano_ast(schema: Json) -> string {
                 set j (+ j 1)
             }
             set output (+ output "}\n\n")
-            set i (+ i 1)
-        }
+        set i (+ i 1)
+    }
     } else {}
     
     return output
@@ -169,6 +169,83 @@ shadow gen_nano_ast {
     (free schema)
 }
 
+# Helper: Check if string starts with prefix
+fn str_starts_with(s: string, prefix: string) -> bool {
+    let s_len: int = (str_length s)
+    let p_len: int = (str_length prefix)
+    if (> p_len s_len) {
+        return false
+    } else {}
+    let sub: string = (str_substring s 0 p_len)
+    return (str_equals sub prefix)
+}
+
+shadow str_starts_with {
+    assert (str_starts_with "List<int>" "List<")
+    assert (not (str_starts_with "array<int>" "List<"))
+}
+
+# Helper: Extract content between delimiters (e.g., "List<int>" -> "int")
+fn extract_between(s: string, start: string, end: string) -> string {
+    let start_len: int = (str_length start)
+    let s_len: int = (str_length s)
+    let end_len: int = (str_length end)
+    if (< s_len (+ start_len end_len)) {
+        return ""
+    } else {}
+    # str_substring(string, start_position, length)
+    let inner_len: int = (- (- s_len start_len) end_len)
+    return (str_substring s start_len inner_len)
+}
+
+shadow extract_between {
+    assert (str_equals (extract_between "List<int>" "List<" ">") "int")
+    assert (str_equals (extract_between "array<string>" "array<" ">") "string")
+}
+
+# Helper: Map NanoLang type to C type
+fn map_type_to_c(nano_type: string) -> string {
+    if (str_equals nano_type "string") {
+        return "const char *"
+    } else {
+        if (str_equals nano_type "bool") {
+            return "bool"
+        } else {
+            if (str_equals nano_type "int") {
+                return "int64_t"
+            } else {
+                if (str_starts_with nano_type "array<") {
+                    return "DynArray *"
+                } else {
+                    if (str_starts_with nano_type "List<") {
+                        let inner: string = (extract_between nano_type "List<" ">")
+                        return (+ "List_" (+ inner " *"))
+                    } else {
+                        if (or (str_equals nano_type "Parser") (str_equals nano_type "TypeEnvironment")) {
+                            return nano_type
+                        } else {
+                            if (str_equals nano_type "Type") {
+                                return "NSType"
+                            } else {
+                                return nano_type
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow map_type_to_c {
+    assert (str_equals (map_type_to_c "string") "const char *")
+    assert (str_equals (map_type_to_c "bool") "bool")
+    assert (str_equals (map_type_to_c "int") "int64_t")
+    assert (str_equals (map_type_to_c "array<int>") "DynArray *")
+    assert (str_equals (map_type_to_c "List<Token>") "List_Token *")
+    assert (str_equals (map_type_to_c "Type") "NSType")
+}
+
 # Generate C header
 fn gen_c(schema: Json) -> string {
     let mut output: string = (+ HEADER_COMMENT "\n\n")
@@ -177,6 +254,85 @@ fn gen_c(schema: Json) -> string {
     set output (+ output "#include <stdint.h>\n")
     set output (+ output "#include <stdbool.h>\n")
     set output (+ output "#include \"runtime/dyn_array.h\"\n\n")
+    
+    # Detect and forward declare List<T> types
+    # We'll generate declarations inline - #ifndef guards prevent duplicates
+    let mut has_lists: bool = false
+    if (object_has schema "nano_structs") {
+        let structs: Json = (get schema "nano_structs")
+        let struct_count: int = (array_size structs)
+        let mut i: int = 0
+        
+        # First pass: collect all List<T> types
+        let mut list_decls: string = ""
+        while (< i struct_count) {
+            let struct_obj: Json = (get_index structs i)
+            let fields: Json = (get struct_obj "fields")
+            let field_count: int = (array_size fields)
+            let mut j: int = 0
+            
+            while (< j field_count) {
+                let field: Json = (get_index fields j)
+                let field_type: string = (as_string (get_index field 1))
+                if (str_starts_with field_type "List<") {
+                    set has_lists true
+                    let inner: string = (extract_between field_type "List<" ">")
+                    # Generate declaration (duplicates handled by #ifndef)
+                    set list_decls (+ list_decls (+ "#ifndef FORWARD_DEFINED_List_" (+ inner "\n")))
+                    set list_decls (+ list_decls (+ "#define FORWARD_DEFINED_List_" (+ inner "\n")))
+                    set list_decls (+ list_decls (+ "typedef struct List_" (+ inner (+ " List_" (+ inner ";\n")))))
+                    set list_decls (+ list_decls "#endif\n")
+                } else {}
+                set j (+ j 1)
+            }
+            set i (+ i 1)
+        }
+        
+        if has_lists {
+            set output (+ output "/* Forward declare List types */\n")
+            set output (+ output list_decls)
+            set output (+ output "\n")
+        } else {}
+    } else {}
+    
+    # Generate C-emitted enums
+    if (object_has schema "nano_enums") {
+        let enums: Json = (get schema "nano_enums")
+        let enum_count: int = (array_size enums)
+        let mut i: int = 0
+        
+        while (< i enum_count) {
+            let enum_obj: Json = (get_index enums i)
+            if (object_has enum_obj "emit_c") {
+                let emit_c: bool = (nl_json_as_bool (get enum_obj "emit_c"))
+                if emit_c {
+                    let enum_name: string = (as_string (get enum_obj "name"))
+                    let values: Json = (get enum_obj "values")
+                    let value_count: int = (array_size values)
+                    
+                    set output (+ output (+ "#ifndef DEFINED_" (+ enum_name "\n")))
+                    set output (+ output (+ "#define DEFINED_" (+ enum_name "\n")))
+                    set output (+ output (+ "typedef enum " (+ enum_name " {\n")))
+                    
+                    let mut j: int = 0
+                    while (< j value_count) {
+                        let val: Json = (get_index values j)
+                        let val_name: string = (as_string val)
+                        let suffix: string = (cond
+                            ((< j (- value_count 1)) ",")
+                            (else "")
+                        )
+                        set output (+ output (+ "    " (+ enum_name (+ "_" (+ val_name (+ suffix "\n"))))))
+                        set j (+ j 1)
+                    }
+                    
+                    set output (+ output (+ "} " (+ enum_name ";\n")))
+                    set output (+ output "#endif\n\n")
+                } else {}
+            } else {}
+            set i (+ i 1)
+        }
+    } else {}
     
     # TokenType enum
     set output (+ output "typedef enum {\n")
@@ -216,6 +372,54 @@ fn gen_c(schema: Json) -> string {
         set i (+ i 1)
     }
     set output (+ output "} ParseNodeType;\n\n")
+    
+    # Generate C-emitted structs
+    if (object_has schema "nano_structs") {
+        let structs: Json = (get schema "nano_structs")
+        let struct_count: int = (array_size structs)
+        let mut i: int = 0
+        
+        while (< i struct_count) {
+            let struct_obj: Json = (get_index structs i)
+            if (object_has struct_obj "emit_c") {
+                let emit_c: bool = (nl_json_as_bool (get struct_obj "emit_c"))
+                if emit_c {
+                    let struct_name: string = (as_string (get struct_obj "name"))
+                    let c_struct_name: string = (+ "nl_" struct_name)
+                    let fields: Json = (get struct_obj "fields")
+                    let field_count: int = (array_size fields)
+                    
+                    set output (+ output (+ "#ifndef DEFINED_" (+ c_struct_name "\n")))
+                    set output (+ output (+ "#define DEFINED_" (+ c_struct_name "\n")))
+                    set output (+ output (+ "typedef struct " (+ c_struct_name " {\n")))
+                    
+                    let mut j: int = 0
+                    while (< j field_count) {
+                        let field: Json = (get_index fields j)
+                        let field_name: string = (as_string (get_index field 0))
+                        let field_type: string = (as_string (get_index field 1))
+                        let c_type: string = (map_type_to_c field_type)
+                        set output (+ output (+ "    " (+ c_type (+ " " (+ field_name ";\n")))))
+                        set j (+ j 1)
+                    }
+                    
+                    set output (+ output (+ "} " (+ c_struct_name ";\n")))
+                    set output (+ output (+ "typedef " (+ c_struct_name (+ " " (+ struct_name ";\n")))))
+                    
+                    # Special typedefs
+                    if (str_equals struct_name "LexerToken") {
+                        set output (+ output "typedef nl_LexerToken Token;\n")
+                    } else {}
+                    if (str_equals struct_name "Type") {
+                        set output (+ output "typedef Type NSType;\n")
+                    } else {}
+                    
+                    set output (+ output "#endif\n\n")
+                } else {}
+            } else {}
+            set i (+ i 1)
+        }
+    } else {}
     
     set output (+ output (+ "#endif /* " (+ C_GUARD " */\n")))
     return output
