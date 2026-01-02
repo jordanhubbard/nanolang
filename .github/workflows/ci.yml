@@ -12,12 +12,23 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-13, macos-14, windows-latest]
+        include:
+          - os: macos-13
+            arch: x86_64
+          - os: macos-14
+            arch: arm64
       fail-fast: false
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Show platform info
+        run: |
+          echo "OS: ${{ runner.os }}"
+          echo "Architecture: ${{ matrix.arch || 'default' }}"
+          uname -a || systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"System Type"
 
       - name: Install dependencies (Ubuntu)
         if: runner.os == 'Linux'
@@ -36,6 +47,12 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install gcc pkg-config sdl2 sdl2_mixer sdl2_ttf
+
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          choco install -y mingw make
+          echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $GITHUB_PATH
 
       - name: Check dependencies
         run: make check-deps
