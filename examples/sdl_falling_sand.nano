@@ -525,6 +525,7 @@ fn main() -> int {
                                                 set clear_i (+ clear_i 1)
                                             }
                                         } else {
+                                            if (== key 41) {  # ESC
                                                 set running false
                                             } else {
                                                 (print "")

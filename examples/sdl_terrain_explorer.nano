@@ -337,7 +337,7 @@ fn render_world(renderer: SDL_Renderer, world: array<Tile>, camera_x: int, camer
             let tile: Tile = (get_tile world world_x world_y)
             
             # Render based on exploration status
-            if (tile.explored) {
+            if (== tile.explored true) {
                 let color: int = (get_biome_color tile.biome)
                 
                 if (== color 0) {
@@ -397,7 +397,7 @@ fn render_world_animated(renderer: SDL_Renderer, world: array<Tile>, camera_x: i
             let tile: Tile = (get_tile world world_x world_y)
             
             # Render based on exploration status
-            if (tile.explored) {
+            if (== tile.explored true) {
                 let color: int = (get_biome_color tile.biome)
                 
                 # Simplified animation - only for water biomes
@@ -479,7 +479,7 @@ fn render_world_3d(renderer: SDL_Renderer, world: array<Tile>, camera_x: int, ca
             
             let tile: Tile = (get_tile world world_x world_y)
             
-            if (tile.explored) {
+            if (== tile.explored true) {
                 let base_color: int = (get_biome_color tile.biome)
                 
                 # Simplified animation - only water biomes
