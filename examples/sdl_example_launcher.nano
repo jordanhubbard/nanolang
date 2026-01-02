@@ -460,35 +460,63 @@ fn main() -> int {
             let max_chars: int = (clamp_int (str_length source_code) 0 2000)
             let preview_text: string = (str_substring source_code 0 max_chars)
             
-            # Display source code line by line (up to max_lines)
+            # Display source code with smart line breaking
             let mut char_idx: int = 0
             let mut line_start: int = 0
             let mut line_count: int = 0
             let max_lines: int = (/ source_h 18)
-            let max_line_width: int = 80
+            let max_line_width: int = 85  # Characters per line
             
             while (and (< char_idx max_chars) (< line_count max_lines)) {
-                let c_char: string = (str_substring preview_text char_idx (+ char_idx 1))
-                # Check for newline (ASCII 10) or if we've hit max line width
+                # Look for line break opportunities
+                let mut found_break: bool = false
                 let line_len: int = (- char_idx line_start)
-                let is_newline: bool = (str_equals c_char "\n")
-                let is_long_line: bool = (>= line_len max_line_width)
                 
-                if (or is_newline is_long_line) {
-                    if (> line_len 0) {
+                # Check current character
+                if (< char_idx max_chars) {
+                    let c: string = (str_substring preview_text char_idx 1)
+                    
+                    # Always break on actual newlines
+                    if (str_equals c "\n") {
                         let line: string = (str_substring preview_text line_start char_idx)
                         unsafe { (nl_draw_text_blended renderer small_font line (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
+                        set line_y (+ line_y 18)
+                        set line_count (+ line_count 1)
+                        set line_start (+ char_idx 1)
+                        set found_break true
                     } else {
-                        unsafe { (nl_draw_text_blended renderer small_font "" (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
+                        # If line too long, find good break point
+                        if (>= line_len max_line_width) {
+                            # Look backwards for a space or operator to break at
+                            let mut break_pos: int = char_idx
+                            let mut search_back: int = 0
+                            while (and (< search_back 20) (> break_pos line_start)) {
+                                let check_char: string = (str_substring preview_text break_pos 1)
+                                if (or (str_equals check_char " ") (or (str_equals check_char "(") (or (str_equals check_char ")") (or (str_equals check_char "{") (or (str_equals check_char "}") (str_equals check_char ",")))))) {
+                                    set char_idx break_pos
+                                    set search_back 999  # Exit loop
+                                } else {
+                                    set break_pos (- break_pos 1)
+                                    set search_back (+ search_back 1)
+                                }
+                            }
+                            
+                            let line: string = (str_substring preview_text line_start char_idx)
+                            unsafe { (nl_draw_text_blended renderer small_font line (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
+                            set line_y (+ line_y 18)
+                            set line_count (+ line_count 1)
+                            set line_start char_idx
+                            set found_break true
+                        } else {}
                     }
-                    set line_y (+ line_y 18)
-                    set line_count (+ line_count 1)
-                    set line_start (+ char_idx 1)
                 } else {}
-                set char_idx (+ char_idx 1)
+                
+                if (not found_break) {
+                    set char_idx (+ char_idx 1)
+                } else {}
             }
             
-            # Draw last partial line if needed
+            # Draw last partial line if space available
             if (and (< line_count max_lines) (< line_start max_chars)) {
                 let remaining: string = (str_substring preview_text line_start max_chars)
                 if (> (str_length remaining) 0) {

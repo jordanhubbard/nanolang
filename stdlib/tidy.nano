@@ -17,7 +17,7 @@ pub fn format_with_wrap(source: string, max_width: int) -> string {
     let len: int = (str_length source)
     
     while (< i len) {
-        let c: string = (str_substring source i (+ i 1))
+        let c: string = (str_substring source i 1)  # FIX: length=1, not end=i+1
         
         # Always break on existing newlines
         if (str_equals c "\n") {
@@ -47,6 +47,63 @@ pub fn format_with_wrap(source: string, max_width: int) -> string {
     return result
 }
 
+# Format with proper indentation and brace handling
+pub fn format_pretty(source: string) -> string {
+    let mut result: string = ""
+    let mut indent_level: int = 0
+    let mut i: int = 0
+    let len: int = (str_length source)
+    let mut at_line_start: bool = true
+    let indent_size: int = 4
+    
+    while (< i len) {
+        let c: string = (str_substring source i 1)  # FIX: length=1
+        
+        # Opening brace: add space, brace, newline, increase indent
+        if (str_equals c "{") {
+            set result (+ result " {\n")
+            set indent_level (+ indent_level 1)
+            set at_line_start true
+        } else {
+            # Closing brace: decrease indent, add indent, brace, newline
+            if (str_equals c "}") {
+                set indent_level (- indent_level 1)
+                if (< indent_level 0) {
+                    set indent_level 0
+                } else {}
+                set result (+ result (make_indent indent_level indent_size))
+                set result (+ result "}\n")
+                set at_line_start true
+            } else {
+                # Newline: add it and mark line start
+                if (str_equals c "\n") {
+                    set result (+ result "\n")
+                    set at_line_start true
+                } else {
+                    # Skip multiple whitespace
+                    if (or (str_equals c " ") (or (str_equals c "\t") (str_equals c "\r"))) {
+                        # Skip whitespace at line start
+                        if (not at_line_start) {
+                            set result (+ result " ")
+                        } else {}
+                    } else {
+                        # Regular character: add indent if needed, then char
+                        if at_line_start {
+                            set result (+ result (make_indent indent_level indent_size))
+                            set at_line_start false
+                        } else {}
+                        set result (+ result c)
+                    }
+                }
+            }
+        }
+        
+        set i (+ i 1)
+    }
+    
+    return result
+}
+
 # Helper: Create indentation string
 fn make_indent(level: int, size: int) -> string {
     let total_spaces: int = (* level size)
@@ -68,25 +125,41 @@ shadow make_indent {
 }
 
 shadow format {
-    # Test simple function formatting
+    # Test passthrough (currently just returns input)
     let input1: string = "fn test() -> int { return 42 }"
     let output1: string = (format input1)
-    assert (> (str_length output1) 0)
-    
-    # Test that formatting creates reasonable output
-    assert (str_contains output1 "{")
-    assert (str_contains output1 "}")
+    assert (str_equals input1 output1)
 }
 
+shadow format_with_wrap {
+    # Test that wrap creates reasonable output
+    let input: string = "This is a very long line that should be wrapped at some point when it exceeds the maximum width"
+    let wrapped: string = (format_with_wrap input 40)
+    assert (> (str_length wrapped) (str_length input))  # Should be longer (added newlines)
+}
+
+shadow format_pretty {
+    # Test that pretty formatting works
+    let input: string = "fn test() -> int { return 42 }"
+    let output: string = (format_pretty input)
+    assert (> (str_length output) 0)
+    assert (str_contains output "{")
+    assert (str_contains output "}")
+}
+
+# Example/test main function
 fn main() -> int {
-    # Example usage
     let sample: string = "fn hello() -> int { let x: int = 42 return x }"
-    let formatted: string = (format sample)
-    (println "Original:")
-    (println sample)
+    
+    (println "=== Testing format_with_wrap ===")
+    let wrapped: string = (format_with_wrap sample 40)
+    (println wrapped)
     (println "")
-    (println "Formatted:")
-    (println formatted)
+    
+    (println "=== Testing format_pretty ===")
+    let pretty: string = (format_pretty sample)
+    (println pretty)
+    
     return 0
 }
 
