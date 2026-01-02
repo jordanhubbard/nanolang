@@ -419,7 +419,8 @@ static bool install_system_packages(ModuleBuildMetadata *meta) {
     PackageManager pm = detect_package_manager();
     
     if (pm == PKG_MGR_UNKNOWN) {
-        if (meta->apt_packages_count > 0 || meta->dnf_packages_count > 0 || meta->brew_packages_count > 0) {
+        if (meta->system_packages_count > 0 || meta->apt_packages_count > 0 || 
+            meta->dnf_packages_count > 0 || meta->brew_packages_count > 0) {
             fprintf(stderr, "[Module] ⚠️  No supported package manager found\n");
             fprintf(stderr, "[Module]    Please install system packages manually for module '%s'\n", meta->name);
             return false;
@@ -429,18 +430,26 @@ static bool install_system_packages(ModuleBuildMetadata *meta) {
 
     bool all_installed = true;
 
-    // Collect all package names from legacy arrays (these are logical names)
+    // Collect all package names (logical names for registry lookup)
     const char *pkg_names[256];
     size_t pkg_count = 0;
 
-    for (size_t i = 0; i < meta->apt_packages_count && pkg_count < 256; i++) {
-        pkg_names[pkg_count++] = meta->apt_packages[i];
-    }
-    for (size_t i = 0; i < meta->dnf_packages_count && pkg_count < 256; i++) {
-        pkg_names[pkg_count++] = meta->dnf_packages[i];
-    }
-    for (size_t i = 0; i < meta->brew_packages_count && pkg_count < 256; i++) {
-        pkg_names[pkg_count++] = meta->brew_packages[i];
+    // Priority 1: Use new unified system_packages format (preferred)
+    if (meta->system_packages_count > 0) {
+        for (size_t i = 0; i < meta->system_packages_count && pkg_count < 256; i++) {
+            pkg_names[pkg_count++] = meta->system_packages[i];
+        }
+    } else {
+        // Priority 2: Fall back to legacy platform-specific arrays (deprecated)
+        for (size_t i = 0; i < meta->apt_packages_count && pkg_count < 256; i++) {
+            pkg_names[pkg_count++] = meta->apt_packages[i];
+        }
+        for (size_t i = 0; i < meta->dnf_packages_count && pkg_count < 256; i++) {
+            pkg_names[pkg_count++] = meta->dnf_packages[i];
+        }
+        for (size_t i = 0; i < meta->brew_packages_count && pkg_count < 256; i++) {
+            pkg_names[pkg_count++] = meta->brew_packages[i];
+        }
     }
 
     if (pkg_count > 0) {
@@ -449,7 +458,7 @@ static bool install_system_packages(ModuleBuildMetadata *meta) {
         for (size_t i = 0; i < pkg_count; i++) {
             const char *logical_name = pkg_names[i];
             
-            // Look up actual package name for this platform
+            // Look up actual package name for this platform in registry
             const char *actual_name = lookup_package_name(logical_name, pm);
             
             if (!actual_name) {
@@ -671,6 +680,7 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
     PARSE_STRING_ARRAY("ldflags", ldflags, ldflags_count);
     PARSE_STRING_ARRAY("frameworks", frameworks, frameworks_count);
     PARSE_STRING_ARRAY("dependencies", dependencies, dependencies_count);
+    PARSE_STRING_ARRAY("system_packages", system_packages, system_packages_count);
     PARSE_STRING_ARRAY("apt_packages", apt_packages, apt_packages_count);
     PARSE_STRING_ARRAY("dnf_packages", dnf_packages, dnf_packages_count);
     PARSE_STRING_ARRAY("brew_packages", brew_packages, brew_packages_count);
@@ -723,6 +733,7 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
     FREE_STRING_ARRAY(ldflags, ldflags_count);
     FREE_STRING_ARRAY(frameworks, frameworks_count);
     FREE_STRING_ARRAY(dependencies, dependencies_count);
+    FREE_STRING_ARRAY(system_packages, system_packages_count);
     FREE_STRING_ARRAY(apt_packages, apt_packages_count);
     FREE_STRING_ARRAY(dnf_packages, dnf_packages_count);
     FREE_STRING_ARRAY(brew_packages, brew_packages_count);

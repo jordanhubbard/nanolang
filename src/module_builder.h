@@ -63,6 +63,11 @@ typedef struct {
     size_t dependencies_count;
     
     // System package dependencies (for auto-installation)
+    // New unified format (logical names, looked up in packages.json)
+    char **system_packages;    // Logical package names (e.g., "sdl2", "sqlite3")
+    size_t system_packages_count;
+    
+    // Legacy platform-specific format (deprecated, but still supported)
     char **apt_packages;       // Debian/Ubuntu package names
     size_t apt_packages_count;
     char **dnf_packages;       // Fedora/RHEL package names

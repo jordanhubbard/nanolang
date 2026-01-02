@@ -8,9 +8,7 @@
   "c_sources": ["glew.c"],
   "pkg_config": ["glew"],
   "frameworks": ["OpenGL"],
-  "apt_packages": ["libglew-dev"],
-  "dnf_packages": ["glew-devel"],
-  "brew_packages": ["glew"],
+  "system_packages": ["glew"],
   "notes": "GLEW's Homebrew pkg-config on macOS doesn't include the OpenGL framework dependency, so we add it explicitly. On Linux, 'frameworks' is ignored and pkg-config provides -lGL instead."
 }
 
