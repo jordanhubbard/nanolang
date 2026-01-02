@@ -3,9 +3,11 @@
 ## Session Start Protocol
 **CRITICAL**: At the start of every coding session, run:
 ```bash
-bd ready --json
+~/.local/bin/bd ready --json
 ```
 This command shows all open issues ready to be worked on. Use this to understand project priorities.
+
+**IMPORTANT**: Always use the full path `~/.local/bin/bd` to avoid conflicts with other `bd` executables (e.g., droid's `bd` command). Never use just `bd` in commands.
 
 ## Project Management via Beads
 
@@ -13,27 +15,27 @@ This command shows all open issues ready to be worked on. Use this to understand
 
 ### Creating Issues
 ```bash
-bd create --title "Issue title" --description "Details" --priority [0-4] --type [feature|bug|task|chore|epic] --labels "label1,label2"
+~/.local/bin/bd create --title "Issue title" --description "Details" --priority [0-4] --type [feature|bug|task|chore|epic] --labels "label1,label2"
 ```
 
 ### Viewing Work
 ```bash
-bd ready --json          # Show ready-to-work issues
-bd list --json           # Show all issues  
-bd show <id>             # Show specific issue details
+~/.local/bin/bd ready --json          # Show ready-to-work issues
+~/.local/bin/bd list --json           # Show all issues  
+~/.local/bin/bd show <id>             # Show specific issue details
 ```
 
 ### Working on Issues
 ```bash
-bd update <id> --status in_progress    # Start work
-bd update <id> --notes "Progress..."   # Add progress notes
-bd close <id> --reason "Done because..." # Complete issue
+~/.local/bin/bd update <id> --status in_progress    # Start work
+~/.local/bin/bd update <id> --notes "Progress..."   # Add progress notes
+~/.local/bin/bd close <id> --reason "Done because..." # Complete issue
 ```
 
 ### Dependencies
 ```bash
-bd link <child-id> --depends-on <parent-id>  # Child depends on parent
-bd link <blocker-id> --blocks <blocked-id>   # Blocker blocks another issue
+~/.local/bin/bd link <child-id> --depends-on <parent-id>  # Child depends on parent
+~/.local/bin/bd link <blocker-id> --blocks <blocked-id>   # Blocker blocks another issue
 ```
 
 ## Code Standards
