@@ -138,22 +138,21 @@ fn main() -> int {
                 # TAB = 43
                 if (== key 43) {
                     set viz_mode (% (+ viz_mode 1) num_viz_modes)
-                    if (== viz_mode 0) { (println "🌀 Visualizer: Circular Spectrum") } else {}
-                    if (== viz_mode 1) { (println "📊 Visualizer: Frequency Bars") } else {}
-                    if (== viz_mode 2) { (println "🌊 Visualizer: Spiral Vortex") } else {}
-                    if (== viz_mode 3) { (println "✨ Visualizer: Starburst") } else {}
-                    if (== viz_mode 4) { (println "🎆 Visualizer: Tunnel") } else {}
+                    if (== viz_mode 0) { (println "🌀 Visualizer: Circular Spectrum") }
+                    if (== viz_mode 1) { (println "📊 Visualizer: Frequency Bars") }
+                    if (== viz_mode 2) { (println "🌊 Visualizer: Spiral Vortex") }
+                    if (== viz_mode 3) { (println "✨ Visualizer: Starburst") }
+                    if (== viz_mode 4) { (println "🎆 Visualizer: Tunnel") }
                 } else {
-                        set running false
-                        (println "")
-                        (println "Stopping playback...")
-                    } else {}
+                    set running false
+                    (println "")
+                    (println "Stopping playback...")
                 }
             }
-        } else {}
+        }
         
         # Check for window close button
-        if (== (nl_sdl_poll_event_quit) 1) { set running false } else {}
+        if (== (nl_sdl_poll_event_quit) 1) { set running false }
         
         # Check if music is still playing
         let is_playing: int = (Mix_PlayingMusic)

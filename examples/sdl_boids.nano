@@ -133,12 +133,7 @@ fn main() -> int {
         # Handle events - keypress drains the event queue
         let key: int = (nl_sdl_poll_keypress)
         if (> key -1) {
-                set running false
-            } else {
-                (print "")
-            }
-        } else {
-            (print "")
+            set running false
         }
         
         # Note: nl_sdl_poll_keypress already handles SDL_QUIT by pushing it back
@@ -146,8 +141,6 @@ fn main() -> int {
         let quit: int = (nl_sdl_poll_event_quit)
         if (== quit 1) {
             set running false
-        } else {
-            (print "")
         }
         
         # Apply flocking rules - pre-allocate arrays

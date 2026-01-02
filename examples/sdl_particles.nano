@@ -178,20 +178,13 @@ fn main() -> int {
         # Handle keyboard input (ESC to quit)
         let key: int = (nl_sdl_poll_keypress)
         if (> key -1) {
-                set running false
-            } else {
-                (print "")
-            }
-        } else {
-            (print "")
+            set running false
         }
         
         # Check for quit event (window close)
         let quit: int = (nl_sdl_poll_event_quit)
         if (== quit 1) {
             set running false
-        } else {
-            (print "")
         }
         
         # Check for mouse click to spawn explosion
