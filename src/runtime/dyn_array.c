@@ -2,6 +2,8 @@
  * Dynamic Array Implementation
  */
 
+#define _POSIX_C_SOURCE 200809L  /* For strdup() */
+
 #include "dyn_array.h"
 #include <stdlib.h>
 #include <string.h>

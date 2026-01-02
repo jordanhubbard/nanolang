@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L  /* For strdup(), strtok_r() */
+
 #include "fs.h"
 #include <stdio.h>
 #include <stdlib.h>
