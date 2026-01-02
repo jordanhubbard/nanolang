@@ -16,6 +16,204 @@
 
 bool module_builder_verbose = false;
 
+// ============================================================================
+// Package Registry System - Central database of system package mappings
+// ============================================================================
+
+// Package manager enumeration
+typedef enum {
+    PKG_MGR_UNKNOWN = 0,
+    PKG_MGR_APT,        // Debian/Ubuntu
+    PKG_MGR_DNF,        // Fedora/RHEL (modern)
+    PKG_MGR_YUM,        // Fedora/RHEL (legacy)
+    PKG_MGR_PACMAN,     // Arch Linux
+    PKG_MGR_ZYPPER,     // openSUSE
+    PKG_MGR_APK,        // Alpine Linux
+    PKG_MGR_BREW,       // macOS Homebrew
+    PKG_MGR_CHOCOLATEY, // Windows Chocolatey
+    PKG_MGR_WINGET,     // Windows Package Manager
+    PKG_MGR_SCOOP       // Windows Scoop
+} PackageManager;
+
+// Cached package registry (loaded once from packages.json)
+static cJSON *package_registry = NULL;
+static PackageManager detected_pkg_manager = PKG_MGR_UNKNOWN;
+
+// Load packages.json into memory (cached)
+static cJSON* load_package_registry(void) {
+    if (package_registry) {
+        return package_registry;
+    }
+
+    // Try to find packages.json
+    const char* paths[] = {
+        "packages.json",
+        "../packages.json",
+        "../../packages.json",
+        NULL
+    };
+
+    FILE *fp = NULL;
+    for (int i = 0; paths[i]; i++) {
+        fp = fopen(paths[i], "r");
+        if (fp) break;
+    }
+
+    if (!fp) {
+        if (module_builder_verbose) {
+            fprintf(stderr, "[PackageRegistry] Warning: packages.json not found, falling back to legacy package names\n");
+        }
+        return NULL;
+    }
+
+    // Read file
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    char *content = malloc(size + 1);
+    if (!content) {
+        fclose(fp);
+        return NULL;
+    }
+
+    fread(content, 1, size, fp);
+    content[size] = '\0';
+    fclose(fp);
+
+    // Parse JSON
+    cJSON *root = cJSON_Parse(content);
+    free(content);
+
+    if (!root) {
+        fprintf(stderr, "[PackageRegistry] Error: Failed to parse packages.json\n");
+        return NULL;
+    }
+
+    package_registry = root;
+    if (module_builder_verbose) {
+        printf("[PackageRegistry] Loaded packages.json\n");
+    }
+
+    return package_registry;
+}
+
+// Detect which package manager is available on this system
+static PackageManager detect_package_manager(void) {
+    if (detected_pkg_manager != PKG_MGR_UNKNOWN) {
+        return detected_pkg_manager;
+    }
+
+    #ifdef _WIN32
+    // Windows: Try chocolatey, winget, scoop
+    if (access("C:\\ProgramData\\chocolatey\\bin\\choco.exe", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_CHOCOLATEY;
+    } else if (system("where winget >nul 2>&1") == 0) {
+        detected_pkg_manager = PKG_MGR_WINGET;
+    } else if (system("where scoop >nul 2>&1") == 0) {
+        detected_pkg_manager = PKG_MGR_SCOOP;
+    }
+    #elif defined(__APPLE__)
+    // macOS: Homebrew
+    if (access("/opt/homebrew/bin/brew", F_OK) == 0 || access("/usr/local/bin/brew", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_BREW;
+    }
+    #else
+    // Linux: Try apt, dnf, yum, pacman, zypper, apk (in preference order)
+    if (access("/usr/bin/apt-get", F_OK) == 0 || access("/usr/bin/apt", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_APT;
+    } else if (access("/usr/bin/dnf", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_DNF;
+    } else if (access("/usr/bin/yum", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_YUM;
+    } else if (access("/usr/bin/pacman", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_PACMAN;
+    } else if (access("/usr/bin/zypper", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_ZYPPER;
+    } else if (access("/sbin/apk", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_APK;
+    }
+    #endif
+
+    if (module_builder_verbose && detected_pkg_manager != PKG_MGR_UNKNOWN) {
+        const char *names[] = {"unknown", "apt", "dnf", "yum", "pacman", "zypper", "apk", "brew", "chocolatey", "winget", "scoop"};
+        printf("[PackageRegistry] Detected package manager: %s\n", names[detected_pkg_manager]);
+    }
+
+    return detected_pkg_manager;
+}
+
+// Get package manager name string (for JSON lookup)
+static const char* get_package_manager_name(PackageManager pm) {
+    switch (pm) {
+        case PKG_MGR_APT: return "apt";
+        case PKG_MGR_DNF: return "dnf";
+        case PKG_MGR_YUM: return "yum";
+        case PKG_MGR_PACMAN: return "pacman";
+        case PKG_MGR_ZYPPER: return "zypper";
+        case PKG_MGR_APK: return "apk";
+        case PKG_MGR_BREW: return "brew";
+        case PKG_MGR_CHOCOLATEY: return "chocolatey";
+        case PKG_MGR_WINGET: return "winget";
+        case PKG_MGR_SCOOP: return "scoop";
+        default: return NULL;
+    }
+}
+
+// Look up a package name in the registry for the current platform
+// Returns NULL if not found or registry not available
+static const char* lookup_package_name(const char *logical_name, PackageManager pm) {
+    cJSON *registry = load_package_registry();
+    if (!registry) {
+        // No registry - return logical name as-is (legacy fallback)
+        return logical_name;
+    }
+
+    cJSON *packages = cJSON_GetObjectItem(registry, "packages");
+    if (!packages) {
+        return logical_name;
+    }
+
+    cJSON *package = cJSON_GetObjectItem(packages, logical_name);
+    if (!package) {
+        if (module_builder_verbose) {
+            fprintf(stderr, "[PackageRegistry] Warning: Package '%s' not found in registry\n", logical_name);
+        }
+        return logical_name;
+    }
+
+    cJSON *install = cJSON_GetObjectItem(package, "install");
+    if (!install) {
+        return logical_name;
+    }
+
+    const char *pm_name = get_package_manager_name(pm);
+    if (!pm_name) {
+        return logical_name;
+    }
+
+    cJSON *pm_entry = cJSON_GetObjectItem(install, pm_name);
+    if (!pm_entry) {
+        // Package not available for this package manager
+        if (module_builder_verbose) {
+            fprintf(stderr, "[PackageRegistry] Warning: Package '%s' not available for %s\n", logical_name, pm_name);
+        }
+        return NULL;
+    }
+
+    // Can be either a string or an object with "package" field
+    if (cJSON_IsString(pm_entry)) {
+        return pm_entry->valuestring;
+    } else if (cJSON_IsObject(pm_entry)) {
+        cJSON *pkg_name = cJSON_GetObjectItem(pm_entry, "package");
+        if (pkg_name && cJSON_IsString(pkg_name)) {
+            return pkg_name->valuestring;
+        }
+    }
+
+    return logical_name;
+}
+
 static void append_flag_move_to_end(char **out_flags, size_t *out_count, size_t out_cap, const char *flag) {
     if (!flag || flag[0] == '\0' || !out_flags || !out_count) return;
 
@@ -145,119 +343,127 @@ static char* run_command(const char *cmd) {
     return output;
 }
 
-// Install system packages from module metadata
-static bool install_system_packages(ModuleBuildMetadata *meta) {
-    bool all_installed = true;
+// Install a single package using the detected package manager
+static bool install_single_package(const char *package_name, PackageManager pm) {
     char cmd[2048];
-    
-    #ifdef __APPLE__
-    // macOS: Install Homebrew packages
-    if (meta->brew_packages_count > 0) {
-        if (access("/opt/homebrew/bin/brew", F_OK) == 0 || access("/usr/local/bin/brew", F_OK) == 0) {
-            printf("[Module] Installing Homebrew packages for '%s'...\n", meta->name);
-            for (size_t i = 0; i < meta->brew_packages_count; i++) {
-                // Check if already installed
-                snprintf(cmd, sizeof(cmd), "brew list %s >/dev/null 2>&1", meta->brew_packages[i]);
-                if (system(cmd) == 0) {
-                    printf("[Module]   ✓ %s already installed\n", meta->brew_packages[i]);
-                    continue;
-                }
-                
-                // Install package
-                snprintf(cmd, sizeof(cmd), "brew install %s", meta->brew_packages[i]);
-                printf("[Module]   Installing %s...\n", meta->brew_packages[i]);
-                int result = system(cmd);
-                if (result == 0) {
-                    printf("[Module]   ✓ Successfully installed %s\n", meta->brew_packages[i]);
-                } else {
-                    fprintf(stderr, "[Module]   ❌ Failed to install %s\n", meta->brew_packages[i]);
-                    all_installed = false;
-                }
+    int result;
+
+    switch (pm) {
+        case PKG_MGR_APT:
+            // Check if already installed
+            snprintf(cmd, sizeof(cmd), "dpkg -l %s 2>/dev/null | grep -q '^ii'", package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
             }
-        } else {
-            fprintf(stderr, "[Module] ⚠️  Homebrew not found, cannot auto-install packages\n");
-            fprintf(stderr, "[Module]    Install Homebrew: /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\n");
-            all_installed = false;
-        }
+            snprintf(cmd, sizeof(cmd), "sudo apt-get update -qq && sudo apt-get install -y %s", package_name);
+            printf("[Module]   Running: sudo apt-get install -y %s\n", package_name);
+            break;
+
+        case PKG_MGR_DNF:
+        case PKG_MGR_YUM:
+            snprintf(cmd, sizeof(cmd), "rpm -q %s >/dev/null 2>&1", package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
+            }
+            snprintf(cmd, sizeof(cmd), "sudo %s install -y %s", 
+                     pm == PKG_MGR_DNF ? "dnf" : "yum", package_name);
+            break;
+
+        case PKG_MGR_BREW:
+            snprintf(cmd, sizeof(cmd), "brew list %s >/dev/null 2>&1", package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
+            }
+            snprintf(cmd, sizeof(cmd), "brew install %s", package_name);
+            break;
+
+        case PKG_MGR_CHOCOLATEY:
+            snprintf(cmd, sizeof(cmd), "choco list --local-only %s 2>nul | findstr /C:\"%s\" >nul", package_name, package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
+            }
+            snprintf(cmd, sizeof(cmd), "choco install -y %s", package_name);
+            break;
+
+        case PKG_MGR_WINGET:
+            snprintf(cmd, sizeof(cmd), "winget list %s >nul 2>&1", package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
+            }
+            snprintf(cmd, sizeof(cmd), "winget install --silent %s", package_name);
+            break;
+
+        default:
+            fprintf(stderr, "[Module]   ❌ Unknown package manager\n");
+            return false;
     }
-    #else
-    // Linux: Install apt or dnf packages
-    if (access("/usr/bin/apt-get", F_OK) == 0 || access("/usr/bin/apt", F_OK) == 0) {
-        // Debian/Ubuntu
-        if (meta->apt_packages_count > 0) {
-            printf("[Module] Installing apt packages for '%s'...\n", meta->name);
-            
-            // Build list of packages to install
-            char packages[1024] = "";
-            for (size_t i = 0; i < meta->apt_packages_count; i++) {
-                // Check if already installed
-                snprintf(cmd, sizeof(cmd), "dpkg -l %s 2>/dev/null | grep -q '^ii'", meta->apt_packages[i]);
-                if (system(cmd) == 0) {
-                    printf("[Module]   ✓ %s already installed\n", meta->apt_packages[i]);
-                    continue;
-                }
-                
-                // Add to install list
-                if (strlen(packages) > 0) strcat(packages, " ");
-                strncat(packages, meta->apt_packages[i], sizeof(packages) - strlen(packages) - 1);
-            }
-            
-            // Install all needed packages at once
-            if (strlen(packages) > 0) {
-                snprintf(cmd, sizeof(cmd), "sudo apt-get update -qq && sudo apt-get install -y %s", packages);
-                printf("[Module]   Running: sudo apt-get install -y %s\n", packages);
-                printf("[Module]   (You may be prompted for your password)\n");
-                int result = system(cmd);
-                if (result == 0) {
-                    printf("[Module]   ✓ Successfully installed packages\n");
-                } else {
-                    fprintf(stderr, "[Module]   ❌ Failed to install packages\n");
-                    all_installed = false;
-                }
-            }
-        }
-    } else if (access("/usr/bin/dnf", F_OK) == 0) {
-        // Fedora/RHEL
-        if (meta->dnf_packages_count > 0) {
-            printf("[Module] Installing dnf packages for '%s'...\n", meta->name);
-            
-            // Build list of packages to install
-            char packages[1024] = "";
-            for (size_t i = 0; i < meta->dnf_packages_count; i++) {
-                // Check if already installed
-                snprintf(cmd, sizeof(cmd), "rpm -q %s >/dev/null 2>&1", meta->dnf_packages[i]);
-                if (system(cmd) == 0) {
-                    printf("[Module]   ✓ %s already installed\n", meta->dnf_packages[i]);
-                    continue;
-                }
-                
-                // Add to install list
-                if (strlen(packages) > 0) strcat(packages, " ");
-                strncat(packages, meta->dnf_packages[i], sizeof(packages) - strlen(packages) - 1);
-            }
-            
-            // Install all needed packages at once
-            if (strlen(packages) > 0) {
-                snprintf(cmd, sizeof(cmd), "sudo dnf install -y %s", packages);
-                printf("[Module]   Running: sudo dnf install -y %s\n", packages);
-                printf("[Module]   (You may be prompted for your password)\n");
-                int result = system(cmd);
-                if (result == 0) {
-                    printf("[Module]   ✓ Successfully installed packages\n");
-                } else {
-                    fprintf(stderr, "[Module]   ❌ Failed to install packages\n");
-                    all_installed = false;
-                }
-            }
-        }
+
+    printf("[Module]   Installing %s...\n", package_name);
+    result = system(cmd);
+    if (result == 0) {
+        printf("[Module]   ✓ Successfully installed %s\n", package_name);
+        return true;
     } else {
-        if (meta->apt_packages_count > 0 || meta->dnf_packages_count > 0) {
-            fprintf(stderr, "[Module] ⚠️  No supported package manager found (apt-get/dnf)\n");
-            all_installed = false;
+        fprintf(stderr, "[Module]   ❌ Failed to install %s\n", package_name);
+        return false;
+    }
+}
+
+// Install system packages from module metadata (with registry support)
+static bool install_system_packages(ModuleBuildMetadata *meta) {
+    PackageManager pm = detect_package_manager();
+    
+    if (pm == PKG_MGR_UNKNOWN) {
+        if (meta->apt_packages_count > 0 || meta->dnf_packages_count > 0 || meta->brew_packages_count > 0) {
+            fprintf(stderr, "[Module] ⚠️  No supported package manager found\n");
+            fprintf(stderr, "[Module]    Please install system packages manually for module '%s'\n", meta->name);
+            return false;
+        }
+        return true;
+    }
+
+    bool all_installed = true;
+
+    // Collect all package names from legacy arrays (these are logical names)
+    const char *pkg_names[256];
+    size_t pkg_count = 0;
+
+    for (size_t i = 0; i < meta->apt_packages_count && pkg_count < 256; i++) {
+        pkg_names[pkg_count++] = meta->apt_packages[i];
+    }
+    for (size_t i = 0; i < meta->dnf_packages_count && pkg_count < 256; i++) {
+        pkg_names[pkg_count++] = meta->dnf_packages[i];
+    }
+    for (size_t i = 0; i < meta->brew_packages_count && pkg_count < 256; i++) {
+        pkg_names[pkg_count++] = meta->brew_packages[i];
+    }
+
+    if (pkg_count > 0) {
+        printf("[Module] Installing system packages for '%s'...\n", meta->name);
+        
+        for (size_t i = 0; i < pkg_count; i++) {
+            const char *logical_name = pkg_names[i];
+            
+            // Look up actual package name for this platform
+            const char *actual_name = lookup_package_name(logical_name, pm);
+            
+            if (!actual_name) {
+                fprintf(stderr, "[Module]   ⚠️  Package '%s' not available for this platform\n", logical_name);
+                all_installed = false;
+                continue;
+            }
+
+            if (!install_single_package(actual_name, pm)) {
+                all_installed = false;
+            }
         }
     }
-    #endif
-    
+
     return all_installed;
 }
 
