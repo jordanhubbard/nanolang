@@ -22,16 +22,15 @@ struct Token {
 }
 
 # Helper: Create a token
-fn make_token(type: int, text: string) -> Token {
-    let mut token: Token
-    set token.type type
-    set token.text text
-    return token
+fn make_token(tok_type: int, tok_text: string) -> Token {
+    # NanoLang already supports named struct literals!
+    # Syntax: StructName { field: value, field: value }
+    return Token { type: tok_type, text: tok_text }
 }
 
 # Tokenize source code into array of tokens
 pub fn tokenize(source: string) -> array<Token> {
-    let mut tokens: array<Token> = []
+    let mut tokens: array<Token> = (array_new 0 (make_token 0 ""))
     let mut i: int = 0
     let len: int = (str_length source)
     

@@ -1058,6 +1058,87 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             return node;
         }
 
+        case TOKEN_LBRACE: {
+            /* Check if this is an anonymous struct literal: { field: value, ... } */
+            /* We need to distinguish from code blocks */
+            /* Look ahead to see if pattern looks like { identifier : expression, ... } */
+            Token *first_tok = peek_token(p, 1);
+            Token *second_tok = peek_token(p, 2);
+            
+            /* Heuristic: if we see IDENTIFIER followed by COLON, it's likely a struct literal */
+            bool looks_like_struct_literal = first_tok && second_tok &&
+                first_tok->token_type == TOKEN_IDENTIFIER &&
+                second_tok->token_type == TOKEN_COLON;
+            
+            if (looks_like_struct_literal) {
+                /* Parse anonymous struct literal */
+                int line = tok->line;
+                int column = tok->column;
+                advance(p);  /* consume '{' */
+                
+                int capacity = 4;
+                int count = 0;
+                char **field_names = malloc(sizeof(char*) * capacity);
+                ASTNode **field_values = malloc(sizeof(ASTNode*) * capacity);
+                
+                while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+                    if (count >= capacity) {
+                        capacity *= 2;
+                        field_names = realloc(field_names, sizeof(char*) * capacity);
+                        field_values = realloc(field_values, sizeof(ASTNode*) * capacity);
+                    }
+                    
+                    /* Parse field name */
+                    if (!match(p, TOKEN_IDENTIFIER)) {
+                        fprintf(stderr, "Error at line %d, column %d: Expected field name in anonymous struct literal\n",
+                                current_token(p)->line, current_token(p)->column);
+                        break;
+                    }
+                    field_names[count] = strdup(current_token(p)->value);
+                    advance(p);
+                    
+                    /* Expect ':' */
+                    if (!expect(p, TOKEN_COLON, "Expected ':' after field name in struct literal")) {
+                        free(field_names[count]);
+                        break;
+                    }
+                    
+                    /* Parse field value */
+                    field_values[count] = parse_expression(p);
+                    if (!field_values[count]) {
+                        free(field_names[count]);
+                        break;
+                    }
+                    count++;
+                    
+                    /* Check for comma (optional before '}') */
+                    if (match(p, TOKEN_COMMA)) {
+                        advance(p);
+                    }
+                }
+                
+                if (!expect(p, TOKEN_RBRACE, "Expected '}' after struct literal fields")) {
+                    for (int i = 0; i < count; i++) {
+                        free(field_names[i]);
+                        free_ast(field_values[i]);
+                    }
+                    free(field_names);
+                    free(field_values);
+                    return NULL;
+                }
+                
+                node = create_node(AST_STRUCT_LITERAL, line, column);
+                node->as.struct_literal.struct_name = NULL;  /* Anonymous - will be inferred by typechecker */
+                node->as.struct_literal.field_names = field_names;
+                node->as.struct_literal.field_values = field_values;
+                node->as.struct_literal.field_count = count;
+                return node;
+            }
+            
+            /* Otherwise, fall through to error */
+            break;
+        }
+
         case TOKEN_IDENTIFIER:
         case TOKEN_SET: {
             /* Check if this is a struct literal: StructName { ... } */

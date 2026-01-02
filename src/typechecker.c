@@ -6,6 +6,7 @@
 typedef struct {
     Environment *env;
     Type current_function_return_type;
+    const char *current_function_return_struct_name;  /* For struct return types */
     bool has_error;
     bool warnings_enabled;
     bool in_unsafe_block;   /* Track if we're inside an unsafe block */
@@ -1611,6 +1612,13 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         }
 
         case AST_STRUCT_LITERAL: {
+            /* Check if struct name was inferred (should happen in let/return/call context) */
+            if (expr->as.struct_literal.struct_name == NULL) {
+                fprintf(stderr, "Error at line %d, column %d: Anonymous struct literal requires type context\n",
+                        expr->line, expr->column);
+                return TYPE_UNKNOWN;
+            }
+            
             /* Check that struct is defined */
             StructDef *sdef = env_get_struct(env, expr->as.struct_literal.struct_name);
             if (!sdef) {
@@ -2204,6 +2212,22 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
             }
             
+            /* Handle anonymous struct literals: infer struct name from declared type */
+            if (stmt->as.let.value && stmt->as.let.value->type == AST_STRUCT_LITERAL) {
+                ASTNode *struct_lit = stmt->as.let.value;
+                if (struct_lit->as.struct_literal.struct_name == NULL) {
+                    /* Anonymous struct literal - infer name from declared type */
+                    if (declared_type == TYPE_STRUCT && stmt->as.let.type_name) {
+                        /* Fill in the struct name for type checking */
+                        struct_lit->as.struct_literal.struct_name = strdup(stmt->as.let.type_name);
+                    } else {
+                        fprintf(stderr, "Error at line %d, column %d: Cannot infer struct type for anonymous literal\n",
+                                struct_lit->line, struct_lit->column);
+                        tc->has_error = true;
+                    }
+                }
+            }
+            
             /* Now check the expression - the specialized functions are registered */
             Type value_type = check_expression(stmt->as.let.value, tc->env);
             
@@ -2496,6 +2520,22 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
         case AST_RETURN: {
             if (stmt->as.return_stmt.value) {
+                /* Handle anonymous struct literals: infer struct name from function return type */
+                if (stmt->as.return_stmt.value->type == AST_STRUCT_LITERAL) {
+                    ASTNode *struct_lit = stmt->as.return_stmt.value;
+                    if (struct_lit->as.struct_literal.struct_name == NULL) {
+                        /* Anonymous struct literal - infer name from function return type */
+                        if (tc->current_function_return_type == TYPE_STRUCT && tc->current_function_return_struct_name) {
+                            /* Fill in the struct name for type checking */
+                            struct_lit->as.struct_literal.struct_name = strdup(tc->current_function_return_struct_name);
+                        } else {
+                            fprintf(stderr, "Error at line %d, column %d: Cannot infer struct type for anonymous literal in return\n",
+                                    struct_lit->line, struct_lit->column);
+                            tc->has_error = true;
+                        }
+                    }
+                }
+                
                 Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
                 if (!types_match(return_type, tc->current_function_return_type)) {
                     fprintf(stderr, "Error at line %d, column %d: Return type mismatch\n", stmt->line, stmt->column);
@@ -3644,6 +3684,8 @@ bool type_check(ASTNode *program, Environment *env) {
     tc.has_error = false;
     tc.warnings_enabled = true;  /* Enable unused variable warnings */
     tc.in_unsafe_block = false;  /* Start outside unsafe blocks */
+    tc.current_function_return_type = TYPE_VOID;
+    tc.current_function_return_struct_name = NULL;
 
     /* Register built-in functions */
     register_builtin_functions(env);
@@ -4153,6 +4195,7 @@ bool type_check(ASTNode *program, Environment *env) {
             /* Get the resolved return type from the function definition in env */
             Function *func_def = env_get_function(env, item->as.function.name);
             tc.current_function_return_type = func_def ? func_def->return_type : item->as.function.return_type;
+            tc.current_function_return_struct_name = func_def ? func_def->return_struct_type_name : NULL;
             
             /* Register generic union instantiation for function return type */
             if (item->as.function.return_type == TYPE_UNION &&
