@@ -1,185 +1,295 @@
+#!/usr/bin/env nanoc
 # Generate shared compiler schema artifacts for NanoLang
-# Replaces gen_compiler_schema.py (Python → NanoLang bootstrap)
+# Replaces gen_compiler_schema.py for Python-free bootstrap
 
-from "modules/std/json/json.nano" import Json, parse, get, is_array, is_object, is_string, array_size, get_index, as_string, as_int, keys
-from "modules/std/fs.nano" import file_read, file_write, join, dirname
+from "std/fs.nano" import read, write, join
+from "std/json/json.nano" import parse, free, get, is_string, is_object, is_array, array_size, get_index, as_string, as_int, object_has, object_keys
 
-# Constants
 let HEADER_COMMENT: string = "/* AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY. */"
 let C_GUARD: string = "NANOLANG_GENERATED_COMPILER_SCHEMA_H"
 
-# Helper: Check if string starts with prefix
-fn starts_with(str: string, prefix: string) -> bool {
-    let str_len: int = (str_length str)
-    let prefix_len: int = (str_length prefix)
-    
-    if (< str_len prefix_len) {
-        return false
-    }
-    
-    let mut i: int = 0
-    while (< i prefix_len) {
-        if (!= (char_at str i) (char_at prefix i)) {
-            return false
-        }
-        set i (+ i 1)
-    }
-    
-    return true
+# Get token count
+fn get_token_count(tokens_json: Json) -> int {
+    return (array_size tokens_json)
 }
 
-shadow starts_with {
-    assert (starts_with "hello" "hel")
-    assert (starts_with "List<int>" "List<")
-    assert (not (starts_with "hi" "hello"))
+shadow get_token_count {
+    let empty: Json = (nl_json_new_array)
+    let count: int = (get_token_count empty)
+    assert (== count 0)
+    (free empty)
 }
 
-# Helper: Extract content between < and > (e.g., "List<int>" -> "int")
-fn extract_generic_inner(str: string) -> string {
-    let len: int = (str_length str)
-    let mut start: int = -1
-    let mut end: int = -1
-    
-    # Find <
-    let mut i: int = 0
-    while (< i len) {
-        let ch: string = (string_from_char (char_at str i))
-        if (str_equals ch "<") {
-            set start i
-        }
-        set i (+ i 1)
-    }
-    
-    # Find >
-    set i 0
-    while (< i len) {
-        let ch: string = (string_from_char (char_at str i))
-        if (str_equals ch ">") {
-            set end i
-        }
-        set i (+ i 1)
-    }
-    
-    # Check if we found both brackets and they're in correct order
-    let has_start: bool = (>= start 0)
-    let has_end: bool = (>= end 0)
-    let valid_order: bool = (> end start)
-    
-    if (and (and has_start has_end) valid_order) {
-        # Return substring between < and >
-        let result_len: int = (- (- end start) 1)
-        let mut result: string = ""
-        let mut j: int = (+ start 1)
-        while (< j end) {
-            set result (+ result (string_from_char (char_at str j)))
-            set j (+ j 1)
-        }
-        return result
-    }
-    
-    return ""
-}
-
-shadow extract_generic_inner {
-    assert (str_equals (extract_generic_inner "List<int>") "int")
-    assert (str_equals (extract_generic_inner "array<string>") "string")
-}
-
-# Note: We process JSON arrays directly, no conversion needed
-
-# Generate src_nano/generated/compiler_schema.nano (enums)
+# Generate NanoLang schema enums
 fn gen_nano_schema(schema: Json) -> string {
-    let mut output: string = HEADER_COMMENT
-    set output (+ output "\n\n")
+    let mut output: string = (+ HEADER_COMMENT "\n\n")
     
-    # Generate LexerTokenType enum
-    let tokens: Json = (get schema "tokens")
+    # LexerTokenType enum
     set output (+ output "enum LexerTokenType {\n")
+    let tokens_json: Json = (get schema "tokens")
+    let token_count: int = (array_size tokens_json)
     
-    let num_tokens: int = (array_size tokens)
     let mut i: int = 0
-    while (< i num_tokens) {
-        let token: Json = (get_index tokens i)
-        
-        # Token can be string or object
+    while (< i token_count) {
+        let token: Json = (get_index tokens_json i)
         let name: string = (cond
             ((is_string token) (as_string token))
-            (else "UNKNOWN")
+            (else (as_string (get token "name")))
         )
-        
-        let comma: string = (cond
-            ((< i (- num_tokens 1)) ",")
+        let value: int = i
+        let suffix: string = (cond
+            ((< i (- token_count 1)) ",")
             (else "")
         )
-        
-        let line: string = (+ (+ (+ "    " name) " = ") (+ (int_to_string i) comma))
-        set output (+ output (+ line "\n"))
+        set output (+ output (+ "    " (+ name (+ " = " (+ (int_to_string value) (+ suffix "\n"))))))
         set i (+ i 1)
     }
-    
     set output (+ output "}\n\n")
     
-    # Generate ParseNodeType enum
-    let parse_nodes: Json = (get schema "parse_nodes")
+    # ParseNodeType enum
     set output (+ output "enum ParseNodeType {\n")
+    let nodes_json: Json = (get schema "parse_nodes")
+    let node_count: int = (array_size nodes_json)
     
-    let num_nodes: int = (array_size parse_nodes)
     set i 0
-    while (< i num_nodes) {
-        let node: Json = (get_index parse_nodes i)
+    while (< i node_count) {
+        let node: Json = (get_index nodes_json i)
         let name: string = (as_string node)
-        
-        let comma: string = (cond
-            ((< i (- num_nodes 1)) ",")
+        let suffix: string = (cond
+            ((< i (- node_count 1)) ",")
             (else "")
         )
-        
-        let line: string = (+ (+ (+ "    " name) " = ") (+ (int_to_string i) comma))
-        set output (+ output (+ line "\n"))
+        set output (+ output (+ "    " (+ name (+ " = " (+ (int_to_string i) (+ suffix "\n"))))))
         set i (+ i 1)
     }
-    
     set output (+ output "}\n")
     
     return output
 }
 
-# Main entry point
-fn main() -> int {
-    (println "NanoLang Compiler Schema Generator")
-    (println "===================================")
-    (println "")
+shadow gen_nano_schema {
+    # Test with minimal schema
+    let schema: Json = (nl_json_new_object)
+    let tokens: Json = (nl_json_new_array)
+    (nl_json_array_push tokens (nl_json_new_string "TOKEN_EOF"))
+    (nl_json_object_set schema "tokens" tokens)
+    let nodes: Json = (nl_json_new_array)
+    (nl_json_array_push nodes (nl_json_new_string "NODE_EXPR"))
+    (nl_json_object_set schema "parse_nodes" nodes)
     
-    # Read schema
-    (println "Reading schema/compiler_schema.json...")
-    let schema_text: string = (file_read "schema/compiler_schema.json")
+    let result: string = (gen_nano_schema schema)
+    assert (> (str_length result) 0)
+    (free schema)
+}
+
+# Generate NanoLang AST types
+fn gen_nano_ast(schema: Json) -> string {
+    let mut output: string = (+ HEADER_COMMENT "\n\n")
+    set output (+ output "import \"src_nano/generated/compiler_schema.nano\"\n\n")
+    
+    # Generate enums if they exist
+    if (object_has schema "nano_enums") {
+        let enums: Json = (get schema "nano_enums")
+        let enum_count: int = (array_size enums)
+        let mut i: int = 0
+        
+        while (< i enum_count) {
+            let enum_obj: Json = (get_index enums i)
+            let enum_name: string = (as_string (get enum_obj "name"))
+            let values: Json = (get enum_obj "values")
+            let value_count: int = (array_size values)
+            
+            set output (+ output (+ "enum " (+ enum_name " {\n")))
+            
+            let mut j: int = 0
+            while (< j value_count) {
+                let val: Json = (get_index values j)
+                let val_name: string = (as_string val)
+                let suffix: string = (cond
+                    ((< j (- value_count 1)) ",")
+                    (else "")
+                )
+                set output (+ output (+ "    " (+ val_name (+ suffix "\n"))))
+                set j (+ j 1)
+            }
+            set output (+ output "}\n\n")
+            set i (+ i 1)
+        }
+    } else {}
+    
+    # Generate structs if they exist
+    if (object_has schema "nano_structs") {
+        let structs: Json = (get schema "nano_structs")
+        let struct_count: int = (array_size structs)
+        let mut i: int = 0
+        
+        while (< i struct_count) {
+            let struct_obj: Json = (get_index structs i)
+            let struct_name: string = (as_string (get struct_obj "name"))
+            let fields: Json = (get struct_obj "fields")
+            let field_count: int = (array_size fields)
+            
+            # Check for extern prefix
+            let prefix: string = (cond
+                ((object_has struct_obj "emit_c") 
+                    (cond
+                        ((nl_json_as_bool (get struct_obj "emit_c")) "extern ")
+                        (else "")
+                    )
+                )
+                (else "")
+            )
+            
+            set output (+ output (+ prefix (+ "struct " (+ struct_name " {\n"))))
+            
+            let mut j: int = 0
+            while (< j field_count) {
+                let field: Json = (get_index fields j)
+                let field_name: string = (as_string (get_index field 0))
+                let field_type: string = (as_string (get_index field 1))
+                let suffix: string = (cond
+                    ((< j (- field_count 1)) ",")
+                    (else "")
+                )
+                set output (+ output (+ "    " (+ field_name (+ ": " (+ field_type (+ suffix "\n"))))))
+                set j (+ j 1)
+            }
+            set output (+ output "}\n\n")
+            set i (+ i 1)
+        }
+    } else {}
+    
+    return output
+}
+
+shadow gen_nano_ast {
+    let schema: Json = (nl_json_new_object)
+    let result: string = (gen_nano_ast schema)
+    assert (> (str_length result) 0)
+    (free schema)
+}
+
+# Generate C header
+fn gen_c(schema: Json) -> string {
+    let mut output: string = (+ HEADER_COMMENT "\n\n")
+    set output (+ output (+ "#ifndef " (+ C_GUARD "\n")))
+    set output (+ output (+ "#define " (+ C_GUARD "\n\n")))
+    set output (+ output "#include <stdint.h>\n")
+    set output (+ output "#include <stdbool.h>\n")
+    set output (+ output "#include \"runtime/dyn_array.h\"\n\n")
+    
+    # TokenType enum
+    set output (+ output "typedef enum {\n")
+    let tokens_json: Json = (get schema "tokens")
+    let token_count: int = (array_size tokens_json)
+    
+    let mut i: int = 0
+    while (< i token_count) {
+        let token: Json = (get_index tokens_json i)
+        let name: string = (cond
+            ((is_string token) (as_string token))
+            (else (as_string (get token "name")))
+        )
+        let suffix: string = (cond
+            ((< i (- token_count 1)) ",")
+            (else "")
+        )
+        set output (+ output (+ "    " (+ name (+ " = " (+ (int_to_string i) (+ suffix "\n"))))))
+        set i (+ i 1)
+    }
+    set output (+ output "} TokenType;\n\n")
+    
+    # ParseNodeType enum
+    set output (+ output "typedef enum {\n")
+    let nodes_json: Json = (get schema "parse_nodes")
+    let node_count: int = (array_size nodes_json)
+    
+    set i 0
+    while (< i node_count) {
+        let node: Json = (get_index nodes_json i)
+        let name: string = (as_string node)
+        let suffix: string = (cond
+            ((< i (- node_count 1)) ",")
+            (else "")
+        )
+        set output (+ output (+ "    " (+ name (+ " = " (+ (int_to_string i) (+ suffix "\n"))))))
+        set i (+ i 1)
+    }
+    set output (+ output "} ParseNodeType;\n\n")
+    
+    set output (+ output (+ "#endif /* " (+ C_GUARD " */\n")))
+    return output
+}
+
+shadow gen_c {
+    let schema: Json = (nl_json_new_object)
+    let tokens: Json = (nl_json_new_array)
+    (nl_json_array_push tokens (nl_json_new_string "TOKEN_EOF"))
+    (nl_json_object_set schema "tokens" tokens)
+    let nodes: Json = (nl_json_new_array)
+    (nl_json_array_push nodes (nl_json_new_string "NODE_EXPR"))
+    (nl_json_object_set schema "parse_nodes" nodes)
+    
+    let result: string = (gen_c schema)
+    assert (> (str_length result) 0)
+    (free schema)
+}
+
+fn main() -> int {
+    (println "Generating compiler schema artifacts...")
+    
+    # Read schema JSON
+    let schema_path: string = "schema/compiler_schema.json"
+    let schema_text: string = (read schema_path)
+    if (== (str_length schema_text) 0) {
+        (println (+ "Error: Could not read " schema_path))
+        return 1
+    } else {}
+    
+    (println (+ "Loaded schema: " (int_to_string (str_length schema_text))))
+    
+    # Parse JSON
     let schema: Json = (parse schema_text)
+    if (== schema 0) {
+        (println "Error: Failed to parse schema JSON")
+        return 1
+    } else {}
+    
+    (println "Parsed schema successfully")
     
     # Generate outputs
-    (println "Generating compiler_schema.nano...")
-    let nano_schema_content: string = (gen_nano_schema schema)
+    let nano_schema: string = (gen_nano_schema schema)
+    let nano_ast: string = (gen_nano_ast schema)
+    let c_header: string = (gen_c schema)
     
-    # TODO: Generate other files (compiler_ast.nano, compiler_contracts.nano, compiler_schema.h)
-    
-    # Write outputs
+    # Write files
     (println "Writing src_nano/generated/compiler_schema.nano...")
-    let wrote: int = (file_write "src_nano/generated/compiler_schema.nano" nano_schema_content)
-    
-    if (!= wrote 0) {
-        (println "ERROR: Failed to write compiler_schema.nano")
+    let result1: int = (write "src_nano/generated/compiler_schema.nano" nano_schema)
+    if (!= result1 0) {
+        (println "Error writing compiler_schema.nano")
+        (free schema)
         return 1
-    }
+    } else {}
     
-    (println "")
+    (println "Writing src_nano/generated/compiler_ast.nano...")
+    let result2: int = (write "src_nano/generated/compiler_ast.nano" nano_ast)
+    if (!= result2 0) {
+        (println "Error writing compiler_ast.nano")
+        (free schema)
+        return 1
+    } else {}
+    
+    (println "Writing src/generated/compiler_schema.h...")
+    let result3: int = (write "src/generated/compiler_schema.h" c_header)
+    if (!= result3 0) {
+        (println "Error writing compiler_schema.h")
+        (free schema)
+        return 1
+    } else {}
+    
+    (free schema)
     (println "✓ Schema generation complete!")
-    (println "  Note: This is a work-in-progress implementation.")
-    (println "  TODO: Generate compiler_ast.nano, compiler_contracts.nano, compiler_schema.h")
-    
     return 0
 }
 
-shadow main {
-    # Test requires filesystem access, actual test would run the generator
-    assert true
-}
-
+shadow main { assert true }

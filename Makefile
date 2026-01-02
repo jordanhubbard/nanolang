@@ -96,7 +96,8 @@ RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_ASTOpaqueType.c $(RUNTIME_DIR)/list_ASTTupleLiteral.c \
 	$(RUNTIME_DIR)/list_ASTTupleIndex.c \
 	$(RUNTIME_DIR)/token_helpers.c $(RUNTIME_DIR)/gc.c $(RUNTIME_DIR)/dyn_array.c \
-	$(RUNTIME_DIR)/gc_struct.c $(RUNTIME_DIR)/nl_string.c $(RUNTIME_DIR)/cli.c
+	$(RUNTIME_DIR)/gc_struct.c $(RUNTIME_DIR)/nl_string.c $(RUNTIME_DIR)/cli.c \
+	$(RUNTIME_DIR)/regex.c
 RUNTIME_OBJECTS = $(patsubst $(RUNTIME_DIR)/%.c,$(OBJ_DIR)/runtime/%.o,$(RUNTIME_SOURCES))
 COMPILER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o
 # Interpreter removed - NanoLang is a compiled language
@@ -119,9 +120,25 @@ schema: $(SCHEMA_OUTPUTS)
 schema-check:
 	@./scripts/check_compiler_schema.sh
 
-$(SCHEMA_OUTPUTS): $(SCHEMA_JSON) scripts/gen_compiler_schema.py
+# Schema generation: Use NanoLang if compiler exists, fallback to Python for bootstrap
+bin/gen_compiler_schema: scripts/gen_compiler_schema.nano
+	@if [ -f ./bin/nanoc ]; then \
+		echo "[schema] Compiling schema generator (NanoLang)..."; \
+		./bin/nanoc scripts/gen_compiler_schema.nano -o bin/gen_compiler_schema; \
+	else \
+		echo "[schema] Compiler not built yet, will use Python for bootstrap"; \
+		touch bin/gen_compiler_schema; \
+	fi
+
+$(SCHEMA_OUTPUTS): $(SCHEMA_JSON) scripts/gen_compiler_schema.py scripts/gen_compiler_schema.nano
 	@echo "[schema] Generating compiler schema artifacts..."
-	@python3 scripts/gen_compiler_schema.py
+	@if [ -f ./bin/gen_compiler_schema ] && [ -x ./bin/gen_compiler_schema ]; then \
+		echo "[schema] Using NanoLang version..."; \
+		./bin/gen_compiler_schema; \
+	else \
+		echo "[schema] Using Python version (bootstrap)..."; \
+		python3 scripts/gen_compiler_schema.py; \
+	fi
 
 # ============================================================================
 # Module Index Generation
