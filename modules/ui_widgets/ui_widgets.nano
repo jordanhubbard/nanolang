@@ -10,7 +10,7 @@ extern fn nl_ui_update_mouse_state() -> void
 
 # Set a UI scale factor for input hit-testing when using logical render sizes.
 # Most apps can leave this at 1.0.
-extern fn nl_ui_set_scale(scale: float) -> void
+extern fn nl_ui_set_scale(_scale: float) -> void
 
 # Button widget - draws a button with text and detects clicks
 # Returns: 1 if button was clicked (mouse released over button), 0 otherwise

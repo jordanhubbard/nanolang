@@ -25,18 +25,18 @@ module std_math
  * Returns: angle in radians [-π/2, π/2]
  * Domain: [-1, 1]
  */
-pub extern fn asin(x: float) -> float
+pub extern fn asin(_x: float) -> float
 
 /* Arccosine (inverse cosine)
  * Returns: angle in radians [0, π]
  * Domain: [-1, 1]
  */
-pub extern fn acos(x: float) -> float
+pub extern fn acos(_x: float) -> float
 
 /* Arctangent (inverse tangent)
  * Returns: angle in radians [-π/2, π/2]
  */
-pub extern fn atan(x: float) -> float
+pub extern fn atan(_x: float) -> float
 
 /* Note: atan2 is a language built-in, so we don't redeclare it here. */
 
@@ -49,35 +49,35 @@ pub extern fn atan(x: float) -> float
  * Returns: ln(x)
  * Domain: (0, ∞)
  */
-pub extern fn log(x: float) -> float
+pub extern fn log(_x: float) -> float
 
 /* Base-10 logarithm
  * Returns: log₁₀(x)
  * Domain: (0, ∞)
  */
-pub extern fn log10(x: float) -> float
+pub extern fn log10(_x: float) -> float
 
 /* Base-2 logarithm
  * Returns: log₂(x)
  * Domain: (0, ∞)
  */
-pub extern fn log2(x: float) -> float
+pub extern fn log2(_x: float) -> float
 
 /* log(1 + x), accurate for small x */
-pub extern fn log1p(x: float) -> float
+pub extern fn log1p(_x: float) -> float
 
 /* Exponential function
  * Returns: e^x
  */
-pub extern fn exp(x: float) -> float
+pub extern fn exp(_x: float) -> float
 
 /* Base-2 exponential
  * Returns: 2^x
  */
-pub extern fn exp2(x: float) -> float
+pub extern fn exp2(_x: float) -> float
 
 /* exp(x) - 1, accurate for small x */
-pub extern fn expm1(x: float) -> float
+pub extern fn expm1(_x: float) -> float
 
 /* =============================================================================
  * Hyperbolic Functions
@@ -87,22 +87,22 @@ pub extern fn expm1(x: float) -> float
 /* Hyperbolic sine
  * Returns: sinh(x) = (e^x - e^(-x)) / 2
  */
-pub extern fn sinh(x: float) -> float
+pub extern fn sinh(_x: float) -> float
 
 /* Hyperbolic cosine
  * Returns: cosh(x) = (e^x + e^(-x)) / 2
  */
-pub extern fn cosh(x: float) -> float
+pub extern fn cosh(_x: float) -> float
 
 /* Hyperbolic tangent
  * Returns: tanh(x) = sinh(x) / cosh(x)
  */
-pub extern fn tanh(x: float) -> float
+pub extern fn tanh(_x: float) -> float
 
 /* Inverse hyperbolic functions */
-pub extern fn asinh(x: float) -> float
-pub extern fn acosh(x: float) -> float
-pub extern fn atanh(x: float) -> float
+pub extern fn asinh(_x: float) -> float
+pub extern fn acosh(_x: float) -> float
+pub extern fn atanh(_x: float) -> float
 
 /* =============================================================================
  * Utility Functions
@@ -115,33 +115,33 @@ pub extern fn atanh(x: float) -> float
  * Example (wrap angle to range):
  *   let wrapped: float = (fmod angle 360.0)
  */
-pub extern fn fmod(x: float, y: float) -> float
+pub extern fn fmod(_x: float, _y: float) -> float
 
 /* Floating-point absolute value
  * Returns: |x|
  */
-pub extern fn fabs(x: float) -> float
+pub extern fn fabs(_x: float) -> float
 
 /* Cube root */
-pub extern fn cbrt(x: float) -> float
+pub extern fn cbrt(_x: float) -> float
 
 /* Hypotenuse (sqrt(x*x + y*y)) with improved numerical stability */
-pub extern fn hypot(x: float, y: float) -> float
+pub extern fn hypot(_x: float, _y: float) -> float
 
 /* Rounding (toward zero / nearest integer variants) */
-pub extern fn trunc(x: float) -> float
-pub extern fn rint(x: float) -> float
-pub extern fn nearbyint(x: float) -> float
+pub extern fn trunc(_x: float) -> float
+pub extern fn rint(_x: float) -> float
+pub extern fn nearbyint(_x: float) -> float
 
 /* IEEE remainder */
-pub extern fn remainder(x: float, y: float) -> float
+pub extern fn remainder(_x: float, _y: float) -> float
 
 /* Floating-point min/max */
-pub extern fn fmin(x: float, y: float) -> float
-pub extern fn fmax(x: float, y: float) -> float
+pub extern fn fmin(_x: float, _y: float) -> float
+pub extern fn fmax(_x: float, _y: float) -> float
 
 /* Copy sign of y onto magnitude of x */
-pub extern fn copysign(x: float, y: float) -> float
+pub extern fn copysign(_x: float, _y: float) -> float
 
 /* =============================================================================
  * Constants

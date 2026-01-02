@@ -8,7 +8,7 @@
 /* World Management */
 extern fn nl_bullet_init() -> int
 extern fn nl_bullet_cleanup() -> void
-extern fn nl_bullet_step(time_step: float) -> void
+extern fn nl_bullet_step(_time_step: float) -> void
 
 /* Soft Body Creation */
 extern fn nl_bullet_create_soft_sphere(
@@ -35,19 +35,19 @@ extern fn nl_bullet_create_rigid_box_rotated(
 
 /* Soft Body Queries */
 extern fn nl_bullet_get_soft_body_count() -> int
-extern fn nl_bullet_get_soft_body_node_count(handle: int) -> int
-extern fn nl_bullet_get_soft_body_node_x(handle: int, node_idx: int) -> float
-extern fn nl_bullet_get_soft_body_node_y(handle: int, node_idx: int) -> float
-extern fn nl_bullet_get_soft_body_node_z(handle: int, node_idx: int) -> float
-extern fn nl_bullet_remove_soft_body(handle: int) -> void
+extern fn nl_bullet_get_soft_body_node_count(_handle: int) -> int
+extern fn nl_bullet_get_soft_body_node_x(_handle: int, _node_idx: int) -> float
+extern fn nl_bullet_get_soft_body_node_y(_handle: int, _node_idx: int) -> float
+extern fn nl_bullet_get_soft_body_node_z(_handle: int, _node_idx: int) -> float
+extern fn nl_bullet_remove_soft_body(_handle: int) -> void
 
 /* Rigid Body Queries */
 extern fn nl_bullet_get_rigid_body_count() -> int
-extern fn nl_bullet_get_rigid_body_x(handle: int) -> float
-extern fn nl_bullet_get_rigid_body_y(handle: int) -> float
-extern fn nl_bullet_get_rigid_body_z(handle: int) -> float
-extern fn nl_bullet_get_rigid_body_rot_x(handle: int) -> float
-extern fn nl_bullet_get_rigid_body_rot_y(handle: int) -> float
-extern fn nl_bullet_get_rigid_body_rot_z(handle: int) -> float
-extern fn nl_bullet_get_rigid_body_rot_w(handle: int) -> float
+extern fn nl_bullet_get_rigid_body_x(_handle: int) -> float
+extern fn nl_bullet_get_rigid_body_y(_handle: int) -> float
+extern fn nl_bullet_get_rigid_body_z(_handle: int) -> float
+extern fn nl_bullet_get_rigid_body_rot_x(_handle: int) -> float
+extern fn nl_bullet_get_rigid_body_rot_y(_handle: int) -> float
+extern fn nl_bullet_get_rigid_body_rot_z(_handle: int) -> float
+extern fn nl_bullet_get_rigid_body_rot_w(_handle: int) -> float
 

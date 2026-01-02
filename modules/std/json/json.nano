@@ -6,37 +6,37 @@ module std_json
 
 opaque type Json
 
-extern fn nl_json_parse(text: string) -> Json
-extern fn nl_json_free(json: Json) -> void
-extern fn nl_json_stringify(json: Json) -> string
+extern fn nl_json_parse(_text: string) -> Json
+extern fn nl_json_free(_json: Json) -> void
+extern fn nl_json_stringify(_json: Json) -> string
 
-extern fn nl_json_is_null(json: Json) -> bool
-extern fn nl_json_is_bool(json: Json) -> bool
-extern fn nl_json_is_number(json: Json) -> bool
-extern fn nl_json_is_string(json: Json) -> bool
-extern fn nl_json_is_array(json: Json) -> bool
-extern fn nl_json_is_object(json: Json) -> bool
+extern fn nl_json_is_null(_json: Json) -> bool
+extern fn nl_json_is_bool(_json: Json) -> bool
+extern fn nl_json_is_number(_json: Json) -> bool
+extern fn nl_json_is_string(_json: Json) -> bool
+extern fn nl_json_is_array(_json: Json) -> bool
+extern fn nl_json_is_object(_json: Json) -> bool
 
-extern fn nl_json_as_int(json: Json) -> int
-extern fn nl_json_as_bool(json: Json) -> bool
-extern fn nl_json_as_string(json: Json) -> string
+extern fn nl_json_as_int(_json: Json) -> int
+extern fn nl_json_as_bool(_json: Json) -> bool
+extern fn nl_json_as_string(_json: Json) -> string
 
-extern fn nl_json_object_has(obj: Json, key: string) -> bool
-extern fn nl_json_get(obj: Json, key: string) -> Json
-extern fn nl_json_object_keys(obj: Json) -> array<string>
+extern fn nl_json_object_has(_obj: Json, _key: string) -> bool
+extern fn nl_json_get(_obj: Json, _key: string) -> Json
+extern fn nl_json_object_keys(_obj: Json) -> array<string>
 
-extern fn nl_json_array_size(arr: Json) -> int
-extern fn nl_json_get_index(arr: Json, idx: int) -> Json
+extern fn nl_json_array_size(_arr: Json) -> int
+extern fn nl_json_get_index(_arr: Json, _idx: int) -> Json
 
 extern fn nl_json_new_object() -> Json
 extern fn nl_json_new_array() -> Json
-extern fn nl_json_new_string(s: string) -> Json
-extern fn nl_json_new_int(v: int) -> Json
-extern fn nl_json_new_bool(v: bool) -> Json
+extern fn nl_json_new_string(_s: string) -> Json
+extern fn nl_json_new_int(_v: int) -> Json
+extern fn nl_json_new_bool(_v: bool) -> Json
 extern fn nl_json_new_null() -> Json
 
-extern fn nl_json_object_set(obj: Json, key: string, val: Json) -> bool
-extern fn nl_json_array_push(arr: Json, val: Json) -> bool
+extern fn nl_json_object_set(_obj: Json, _key: string, _val: Json) -> bool
+extern fn nl_json_array_push(_arr: Json, _val: Json) -> bool
 
 pub fn parse(text: string) -> Json {
     return (nl_json_parse text)

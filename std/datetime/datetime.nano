@@ -12,66 +12,66 @@ opaque DateTime
 extern fn nl_datetime_now() -> DateTime
 
 // Parse ISO 8601 string (YYYY-MM-DDTHH:MM:SS or YYYY-MM-DD)
-extern fn nl_datetime_parse_iso(datetime_str: string) -> DateTime
+extern fn nl_datetime_parse_iso(_datetime_str: string) -> DateTime
 
 // Parse custom format (strptime-style)
-extern fn nl_datetime_parse_format(datetime_str: string, format: string) -> DateTime
+extern fn nl_datetime_parse_format(_datetime_str: string, _format: string) -> DateTime
 
 // Create from components (year, month, day, hour, minute, second)
-extern fn nl_datetime_create(year: int, month: int, day: int, hour: int, minute: int, second: int) -> DateTime
+extern fn nl_datetime_create(_year: int, _month: int, _day: int, _hour: int, _minute: int, _second: int) -> DateTime
 
 // Create from Unix timestamp
-extern fn nl_datetime_from_timestamp(timestamp: int) -> DateTime
+extern fn nl_datetime_from_timestamp(_timestamp: int) -> DateTime
 
 // --- Formatters ---
 
 // Format as ISO 8601 (YYYY-MM-DDTHH:MM:SS)
-extern fn nl_datetime_to_iso(dt: DateTime) -> string
+extern fn nl_datetime_to_iso(_dt: DateTime) -> string
 
 // Format with custom format (strftime-style)
-extern fn nl_datetime_format(dt: DateTime, format: string) -> string
+extern fn nl_datetime_format(_dt: DateTime, _format: string) -> string
 
 // Convert to Unix timestamp
-extern fn nl_datetime_to_timestamp(dt: DateTime) -> int
+extern fn nl_datetime_to_timestamp(_dt: DateTime) -> int
 
 // --- Component Accessors ---
 
-extern fn nl_datetime_year(dt: DateTime) -> int
-extern fn nl_datetime_month(dt: DateTime) -> int
-extern fn nl_datetime_day(dt: DateTime) -> int
-extern fn nl_datetime_hour(dt: DateTime) -> int
-extern fn nl_datetime_minute(dt: DateTime) -> int
-extern fn nl_datetime_second(dt: DateTime) -> int
-extern fn nl_datetime_weekday(dt: DateTime) -> int  // 0=Sunday, 6=Saturday
-extern fn nl_datetime_day_of_year(dt: DateTime) -> int
+extern fn nl_datetime_year(_dt: DateTime) -> int
+extern fn nl_datetime_month(_dt: DateTime) -> int
+extern fn nl_datetime_day(_dt: DateTime) -> int
+extern fn nl_datetime_hour(_dt: DateTime) -> int
+extern fn nl_datetime_minute(_dt: DateTime) -> int
+extern fn nl_datetime_second(_dt: DateTime) -> int
+extern fn nl_datetime_weekday(_dt: DateTime) -> int  // 0=Sunday, 6=Saturday
+extern fn nl_datetime_day_of_year(_dt: DateTime) -> int
 
 // --- Arithmetic ---
 
 // Add/subtract seconds
-extern fn nl_datetime_add_seconds(dt: DateTime, seconds: int) -> DateTime
-extern fn nl_datetime_add_minutes(dt: DateTime, minutes: int) -> DateTime
-extern fn nl_datetime_add_hours(dt: DateTime, hours: int) -> DateTime
-extern fn nl_datetime_add_days(dt: DateTime, days: int) -> DateTime
+extern fn nl_datetime_add_seconds(_dt: DateTime, _seconds: int) -> DateTime
+extern fn nl_datetime_add_minutes(_dt: DateTime, _minutes: int) -> DateTime
+extern fn nl_datetime_add_hours(_dt: DateTime, _hours: int) -> DateTime
+extern fn nl_datetime_add_days(_dt: DateTime, _days: int) -> DateTime
 
 // Difference in seconds
-extern fn nl_datetime_diff_seconds(dt1: DateTime, dt2: DateTime) -> int
+extern fn nl_datetime_diff_seconds(_dt1: DateTime, _dt2: DateTime) -> int
 
 // --- Comparison ---
 
-extern fn nl_datetime_equals(dt1: DateTime, dt2: DateTime) -> int
-extern fn nl_datetime_before(dt1: DateTime, dt2: DateTime) -> int
-extern fn nl_datetime_after(dt1: DateTime, dt2: DateTime) -> int
+extern fn nl_datetime_equals(_dt1: DateTime, _dt2: DateTime) -> int
+extern fn nl_datetime_before(_dt1: DateTime, _dt2: DateTime) -> int
+extern fn nl_datetime_after(_dt1: DateTime, _dt2: DateTime) -> int
 
 // --- Utilities ---
 
 // Check if year is leap year
-extern fn nl_datetime_is_leap_year(year: int) -> int
+extern fn nl_datetime_is_leap_year(_year: int) -> int
 
 // Days in month (1-12)
-extern fn nl_datetime_days_in_month(year: int, month: int) -> int
+extern fn nl_datetime_days_in_month(_year: int, _month: int) -> int
 
 // Free datetime
-extern fn nl_datetime_free(dt: DateTime) -> void
+extern fn nl_datetime_free(_dt: DateTime) -> void
 
 // --- High-Level API ---
 

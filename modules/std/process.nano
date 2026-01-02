@@ -6,8 +6,8 @@
 module std_process
 
 /* FFI declarations */
-extern fn nl_os_process_run(command: string) -> array<string>
-extern fn nl_os_system(command: string) -> int
+extern fn nl_os_process_run(_command: string) -> array<string>
+extern fn nl_os_system(_command: string) -> int
 
 pub struct Output {
     code: int

@@ -3,35 +3,35 @@
 
 // Compile a regex pattern
 // Returns opaque handle to compiled regex, or null on error
-extern fn nl_regex_compile(pattern: string) -> opaque
+extern fn nl_regex_compile(_pattern: string) -> opaque
 
 // Test if string matches pattern
 // Returns 1 if match, 0 if no match, -1 on error
-extern fn nl_regex_match(regex: opaque, text: string) -> int
+extern fn nl_regex_match(_regex: opaque, _text: string) -> int
 
 // Find first match in text
 // Returns match position or -1 if not found
-extern fn nl_regex_find(regex: opaque, text: string) -> int
+extern fn nl_regex_find(_regex: opaque, _text: string) -> int
 
 // Find all matches in text
 // Returns array of match positions
-extern fn nl_regex_find_all(regex: opaque, text: string) -> array<int>
+extern fn nl_regex_find_all(_regex: opaque, _text: string) -> array<int>
 
 // Extract capture groups from last match
 // Returns array of captured strings
-extern fn nl_regex_groups(regex: opaque, text: string) -> array<string>
+extern fn nl_regex_groups(_regex: opaque, _text: string) -> array<string>
 
 // Replace first occurrence
-extern fn nl_regex_replace(regex: opaque, text: string, replacement: string) -> string
+extern fn nl_regex_replace(_regex: opaque, _text: string, _replacement: string) -> string
 
 // Replace all occurrences
-extern fn nl_regex_replace_all(regex: opaque, text: string, replacement: string) -> string
+extern fn nl_regex_replace_all(_regex: opaque, _text: string, _replacement: string) -> string
 
 // Split string by regex pattern
-extern fn nl_regex_split(regex: opaque, text: string) -> array<string>
+extern fn nl_regex_split(_regex: opaque, _text: string) -> array<string>
 
 // Free compiled regex
-extern fn nl_regex_free(regex: opaque) -> void
+extern fn nl_regex_free(_regex: opaque) -> void
 
 // High-level convenience API
 

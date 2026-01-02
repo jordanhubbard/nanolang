@@ -25,28 +25,28 @@ extern fn nl_curl_global_cleanup() -> void
 # ============================================================================
 
 extern fn nl_curl_easy_init() -> int
-extern fn nl_curl_easy_cleanup(handle: int) -> void
+extern fn nl_curl_easy_cleanup(_handle: int) -> void
 
 # ============================================================================
 # Simple HTTP functions (recommended for most use cases)
 # ============================================================================
 
-extern fn nl_curl_simple_get(url: string) -> string
-extern fn nl_curl_simple_post(url: string, data: string) -> string
-extern fn nl_curl_download_file(url: string, output_path: string) -> int
+extern fn nl_curl_simple_get(_url: string) -> string
+extern fn nl_curl_simple_post(_url: string, _data: string) -> string
+extern fn nl_curl_download_file(_url: string, _output_path: string) -> int
 
 # ============================================================================
 # Advanced configuration (for custom requests)
 # ============================================================================
 
-extern fn nl_curl_easy_setopt_url(handle: int, url: string) -> int
-extern fn nl_curl_easy_setopt_follow_location(handle: int, follow: int) -> int
-extern fn nl_curl_easy_setopt_timeout(handle: int, timeout_secs: int) -> int
-extern fn nl_curl_easy_setopt_useragent(handle: int, useragent: string) -> int
+extern fn nl_curl_easy_setopt_url(_handle: int, _url: string) -> int
+extern fn nl_curl_easy_setopt_follow_location(_handle: int, _follow: int) -> int
+extern fn nl_curl_easy_setopt_timeout(_handle: int, _timeout_secs: int) -> int
+extern fn nl_curl_easy_setopt_useragent(_handle: int, _useragent: string) -> int
 
 # ============================================================================
 # Request execution and info
 # ============================================================================
 
-extern fn nl_curl_easy_perform(handle: int) -> int
-extern fn nl_curl_easy_getinfo_response_code(handle: int) -> int
+extern fn nl_curl_easy_perform(_handle: int) -> int
+extern fn nl_curl_easy_getinfo_response_code(_handle: int) -> int

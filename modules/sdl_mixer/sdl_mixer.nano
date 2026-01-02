@@ -11,7 +11,7 @@ opaque type Mix_Music
 
 # Initialize SDL_mixer with format flags
 # Returns 0 on success
-extern fn Mix_Init(flags: int) -> int
+extern fn Mix_Init(_flags: int) -> int
 
 # Shutdown SDL_mixer
 extern fn Mix_Quit() -> void
@@ -21,7 +21,7 @@ extern fn Mix_Quit() -> void
 # format: audio format (use MIX_DEFAULT_FORMAT)
 # channels: 1 = mono, 2 = stereo
 # chunksize: buffer size (e.g., 2048)
-extern fn Mix_OpenAudio(frequency: int, format: int, channels: int, chunksize: int) -> int
+extern fn Mix_OpenAudio(_frequency: int, _format: int, _channels: int, _chunksize: int) -> int
 
 # Close audio device
 extern fn Mix_CloseAudio() -> void
@@ -44,38 +44,38 @@ let MIX_DEFAULT_FORMAT: int = 32784  # AUDIO_S16SYS
 
 # Allocate number of mixing channels
 # Returns number of channels allocated
-extern fn Mix_AllocateChannels(numchans: int) -> int
+extern fn Mix_AllocateChannels(_numchans: int) -> int
 
 # === Sound Effect Functions ===
 
 # Load WAV file
 # Returns Mix_Chunk handle or 0 on failure
-extern fn Mix_LoadWAV(file: string) -> Mix_Chunk
+extern fn Mix_LoadWAV(_file: string) -> Mix_Chunk
 
 # Free Mix_Chunk
-extern fn Mix_FreeChunk(chunk: Mix_Chunk) -> int
+extern fn Mix_FreeChunk(_chunk: Mix_Chunk) -> int
 
 # Play sound effect on channel
 # channel: -1 for first available channel
 # chunk: sound chunk to play
 # loops: 0 = play once, -1 = loop forever, N = play N+1 times
 # Returns channel number or -1 on error
-extern fn Mix_PlayChannel(channel: int, chunk: Mix_Chunk, loops: int) -> int
+extern fn Mix_PlayChannel(_channel: int, _chunk: Mix_Chunk, _loops: int) -> int
 
 # Play sound effect on channel for specified time
 # ticks: maximum milliseconds to play (-1 = no limit)
-extern fn Mix_PlayChannelTimed(channel: int, chunk: Mix_Chunk, loops: int, ticks: int) -> int
+extern fn Mix_PlayChannelTimed(_channel: int, _chunk: Mix_Chunk, _loops: int, _ticks: int) -> int
 
 # Fade in sound effect
 # ms: milliseconds for fade in
-extern fn Mix_FadeInChannel(channel: int, chunk: Mix_Chunk, loops: int, ms: int) -> int
+extern fn Mix_FadeInChannel(_channel: int, _chunk: Mix_Chunk, _loops: int, _ms: int) -> int
 
 # Halt playing on channel
-extern fn Mix_HaltChannel(channel: int) -> int
+extern fn Mix_HaltChannel(_channel: int) -> int
 
 # Fade out channel
 # ms: milliseconds for fade out
-extern fn Mix_FadeOutChannel(channel: int, ms: int) -> int
+extern fn Mix_FadeOutChannel(_channel: int, _ms: int) -> int
 
 # === Volume Control ===
 
@@ -83,41 +83,41 @@ extern fn Mix_FadeOutChannel(channel: int, ms: int) -> int
 # channel: -1 = all channels
 # volume: 0-128 (MIX_MAX_VOLUME)
 # Returns previous volume
-extern fn Mix_Volume(channel: int, volume: int) -> int
+extern fn Mix_Volume(_channel: int, _volume: int) -> int
 
 let MIX_MAX_VOLUME: int = 128
 
 # Set volume for chunk
-extern fn Mix_VolumeChunk(chunk: Mix_Chunk, volume: int) -> int
+extern fn Mix_VolumeChunk(_chunk: Mix_Chunk, _volume: int) -> int
 
 # === Music Functions ===
 
 # Load music file (supports MP3, OGG, FLAC, MOD, MIDI, etc.)
 # Returns Mix_Music handle or 0 on failure
-extern fn Mix_LoadMUS(file: string) -> Mix_Music
+extern fn Mix_LoadMUS(_file: string) -> Mix_Music
 
 # Free Mix_Music
-extern fn Mix_FreeMusic(music: Mix_Music) -> void
+extern fn Mix_FreeMusic(_music: Mix_Music) -> void
 
 # Play music
 # loops: 0 = play once, -1 = loop forever, N = play N+1 times
 # Returns 0 on success, -1 on error
-extern fn Mix_PlayMusic(music: Mix_Music, loops: int) -> int
+extern fn Mix_PlayMusic(_music: Mix_Music, _loops: int) -> int
 
 # Fade in music
 # ms: milliseconds for fade in
-extern fn Mix_FadeInMusic(music: Mix_Music, loops: int, ms: int) -> int
+extern fn Mix_FadeInMusic(_music: Mix_Music, _loops: int, _ms: int) -> int
 
 # Fade in music starting at position
 # position: starting position (interpretation depends on music type)
-extern fn Mix_FadeInMusicPos(music: Mix_Music, loops: int, ms: int, position: float) -> int
+extern fn Mix_FadeInMusicPos(_music: Mix_Music, _loops: int, _ms: int, _position: float) -> int
 
 # Halt music playback
 extern fn Mix_HaltMusic() -> int
 
 # Fade out music
 # ms: milliseconds for fade out
-extern fn Mix_FadeOutMusic(ms: int) -> int
+extern fn Mix_FadeOutMusic(_ms: int) -> int
 
 # Rewind music to start
 extern fn Mix_RewindMusic() -> int
@@ -131,16 +131,16 @@ extern fn Mix_ResumeMusic() -> void
 # Set music volume
 # volume: 0-128 (MIX_MAX_VOLUME)
 # Returns previous volume
-extern fn Mix_VolumeMusic(volume: int) -> int
+extern fn Mix_VolumeMusic(_volume: int) -> int
 
 # === Status Queries ===
 
 # Check if channel is playing
 # Returns 1 if playing, 0 if not
-extern fn Mix_Playing(channel: int) -> int
+extern fn Mix_Playing(_channel: int) -> int
 
 # Check if channel is paused
-extern fn Mix_Paused(channel: int) -> int
+extern fn Mix_Paused(_channel: int) -> int
 
 # Check if music is playing
 extern fn Mix_PlayingMusic() -> int
@@ -154,7 +154,7 @@ extern fn Mix_PausedMusic() -> int
 # This callback receives the final mixed audio stream
 # callback: function to process audio data
 # arg: user data passed to callback
-extern fn Mix_SetPostMix(callback: fn(void, int) -> void, arg: void) -> void
+extern fn Mix_SetPostMix(_callback: fn(void, int) -> void, arg: void) -> void
 
 # Query mixing channels
 # Returns number of channels in use

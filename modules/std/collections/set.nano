@@ -8,13 +8,13 @@ module std_collections_set
 opaque type NLStringSet
 
 extern fn nl_set_new() -> NLStringSet
-extern fn nl_set_add(s: NLStringSet, key: string) -> void
-extern fn nl_set_has(s: NLStringSet, key: string) -> bool
-extern fn nl_set_size(s: NLStringSet) -> int
-extern fn nl_set_values(s: NLStringSet) -> array<string>
-extern fn nl_set_remove(s: NLStringSet, key: string) -> void
-extern fn nl_set_clear(s: NLStringSet) -> void
-extern fn nl_set_free(s: NLStringSet) -> void
+extern fn nl_set_add(_s: NLStringSet, _key: string) -> void
+extern fn nl_set_has(_s: NLStringSet, _key: string) -> bool
+extern fn nl_set_size(_s: NLStringSet) -> int
+extern fn nl_set_values(_s: NLStringSet) -> array<string>
+extern fn nl_set_remove(_s: NLStringSet, _key: string) -> void
+extern fn nl_set_clear(_s: NLStringSet) -> void
+extern fn nl_set_free(_s: NLStringSet) -> void
 
 pub struct Set {
     handle: NLStringSet

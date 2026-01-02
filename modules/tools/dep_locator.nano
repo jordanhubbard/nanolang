@@ -5,8 +5,8 @@
 # Usage: DEP_LOCATOR_NAME=<library> ./dep_locator.nano
 # Example: DEP_LOCATOR_NAME=SDL2 ./bin/nano dep_locator.nano --call main
 
-extern fn getenv(name: string) -> string
-extern fn file_exists(path: string) -> bool
+extern fn getenv(_name: string) -> string
+extern fn file_exists(_path: string) -> bool
 
 # Get library name from environment or default
 fn get_library_name() -> string {

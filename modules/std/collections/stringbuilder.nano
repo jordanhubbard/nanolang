@@ -15,14 +15,14 @@ module std_collections_stringbuilder
 opaque type NLStringBuilder
 
 extern fn nl_sb_new() -> NLStringBuilder
-extern fn nl_sb_with_capacity(capacity: int) -> NLStringBuilder
-extern fn nl_sb_append(sb: NLStringBuilder, text: string) -> void
-extern fn nl_sb_append_char(sb: NLStringBuilder, ch: int) -> void
-extern fn nl_sb_clear(sb: NLStringBuilder) -> void
-extern fn nl_sb_length(sb: NLStringBuilder) -> int
-extern fn nl_sb_capacity(sb: NLStringBuilder) -> int
-extern fn nl_sb_to_string(sb: NLStringBuilder) -> string
-extern fn nl_sb_free(sb: NLStringBuilder) -> void
+extern fn nl_sb_with_capacity(_capacity: int) -> NLStringBuilder
+extern fn nl_sb_append(_sb: NLStringBuilder, _text: string) -> void
+extern fn nl_sb_append_char(_sb: NLStringBuilder, _ch: int) -> void
+extern fn nl_sb_clear(_sb: NLStringBuilder) -> void
+extern fn nl_sb_length(_sb: NLStringBuilder) -> int
+extern fn nl_sb_capacity(_sb: NLStringBuilder) -> int
+extern fn nl_sb_to_string(_sb: NLStringBuilder) -> string
+extern fn nl_sb_free(_sb: NLStringBuilder) -> void
 
 pub struct StringBuilder {
     handle: NLStringBuilder
