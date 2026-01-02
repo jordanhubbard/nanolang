@@ -199,9 +199,6 @@ fn main() -> int {
         
         /* Handle events */
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 41) {  /* ESC */
-            set running false
-        }
         
         if (== (nl_sdl_poll_event_quit) 1) {
             set running false

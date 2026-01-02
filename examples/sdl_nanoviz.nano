@@ -534,11 +534,6 @@ fn main() -> int {
         # Poll GLFW events
         unsafe {         (glfwPollEvents) }
         
-        # Handle keyboard input
-        if (== (glfwGetKey window GLFW_KEY_ESCAPE) 1) {
-            set running false
-        } else {}
-        
         # Space to play/pause (with debounce)
         let space_pressed: bool = (== (glfwGetKey window GLFW_KEY_SPACE) 1)
         if space_pressed {
