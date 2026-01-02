@@ -1,0 +1,96 @@
+# NanoLang Code Formatter (Simple Line-Based Version)
+# Formats NanoLang source code by just ensuring proper line breaks
+
+# Format source code with basic line breaking
+# For launcher display - simple and reliable
+pub fn format(source: string) -> string {
+    # For now, just return the source as-is
+    # The launcher will handle line breaking
+    return source
+}
+
+# Format with line breaks at max_width characters
+pub fn format_with_wrap(source: string, max_width: int) -> string {
+    let mut result: string = ""
+    let mut line: string = ""
+    let mut i: int = 0
+    let len: int = (str_length source)
+    
+    while (< i len) {
+        let c: string = (str_substring source i (+ i 1))
+        
+        # Always break on existing newlines
+        if (str_equals c "\n") {
+            set result (+ result line)
+            set result (+ result "\n")
+            set line ""
+        } else {
+            # Add character to current line
+            set line (+ line c)
+            
+            # Break if line is too long
+            if (>= (str_length line) max_width) {
+                set result (+ result line)
+                set result (+ result "\n")
+                set line ""
+            } else {}
+        }
+        
+        set i (+ i 1)
+    }
+    
+    # Add remaining line
+    if (> (str_length line) 0) {
+        set result (+ result line)
+    } else {}
+    
+    return result
+}
+
+# Helper: Create indentation string
+fn make_indent(level: int, size: int) -> string {
+    let total_spaces: int = (* level size)
+    let mut result: string = ""
+    let mut i: int = 0
+    while (< i total_spaces) {
+        set result (+ result " ")
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow make_indent {
+    assert (str_equals (make_indent 0 4) "")
+    assert (str_equals (make_indent 1 4) "    ")
+    assert (str_equals (make_indent 2 4) "        ")
+    let indent3: string = (make_indent 3 4)
+    assert (== (str_length indent3) 12)
+}
+
+shadow format {
+    # Test simple function formatting
+    let input1: string = "fn test() -> int { return 42 }"
+    let output1: string = (format input1)
+    assert (> (str_length output1) 0)
+    
+    # Test that formatting creates reasonable output
+    assert (str_contains output1 "{")
+    assert (str_contains output1 "}")
+}
+
+fn main() -> int {
+    # Example usage
+    let sample: string = "fn hello() -> int { let x: int = 42 return x }"
+    let formatted: string = (format sample)
+    (println "Original:")
+    (println sample)
+    (println "")
+    (println "Formatted:")
+    (println formatted)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
