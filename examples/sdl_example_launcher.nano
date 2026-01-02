@@ -84,6 +84,32 @@ shadow get_category_color {
     assert (!= (get_category_color ExampleCategory.GRAPHICS) (get_category_color ExampleCategory.AUDIO))
 }
 
+# Generate unique color for each example by index (for visual distinction)
+fn get_icon_color(index: int) -> int {
+    # 12 vibrant colors cycling through the spectrum
+    let colors: array<int> = [
+        (+ (* 100 65536) (+ (* 150 256) 255)),  # Blue
+        (+ (* 255 65536) (+ (* 120 256) 100)),  # Red-Orange
+        (+ (* 120 65536) (+ (* 255 256) 120)),  # Green
+        (+ (* 200 65536) (+ (* 100 256) 255)),  # Purple
+        (+ (* 255 65536) (+ (* 200 256) 80)),   # Orange
+        (+ (* 100 65536) (+ (* 255 256) 255)),  # Cyan
+        (+ (* 255 65536) (+ (* 100 256) 180)),  # Pink
+        (+ (* 180 65536) (+ (* 255 256) 100)),  # Yellow-Green
+        (+ (* 255 65536) (+ (* 150 256) 0)),    # Dark Orange
+        (+ (* 150 65536) (+ (* 100 256) 255)),  # Indigo
+        (+ (* 255 65536) (+ (* 255 256) 100)),  # Yellow
+        (+ (* 100 65536) (+ (* 200 256) 200))   # Teal
+    ]
+    return (at colors (% index 12))
+}
+
+shadow get_icon_color {
+    assert (!= (get_icon_color 0) 0)
+    assert (!= (get_icon_color 0) (get_icon_color 1))
+    assert (!= (get_icon_color 1) (get_icon_color 2))
+}
+
 fn build_filtered_indices(categories: array<int>, category: int) -> array<int> {
     let mut out: array<int> = []
     let mut i: int = 0
@@ -343,30 +369,34 @@ fn main() -> int {
             let icon_x: int = (+ LEFT_PANEL_X (+ 15 (* col (+ ICON_SIZE ICON_MARGIN))))
             let icon_y: int = (+ grid_start_y (* row (+ ICON_TOTAL_SIZE ICON_MARGIN)))
             
-            # Get category color
-            let cat: int = (at example_categories ex_idx)
-            let color: int = (get_category_color cat)
+            # Get unique color for this example by index
+            let color: int = (get_icon_color ex_idx)
             let r: int = (/ color 65536)
             let g: int = (% (/ color 256) 256)
             let b: int = (% color 256)
             
             # Draw icon box (colored square) with selection border
             if (== grid_idx selected_index) {
-                # Selected: brighter border
-                let bright_r: int = (clamp_int (+ r 30) 0 255)
-                let bright_g: int = (clamp_int (+ g 30) 0 255)
-                let bright_b: int = (clamp_int (+ b 30) 0 255)
-                unsafe { (SDL_SetRenderDrawColor renderer bright_r bright_g bright_b 255) }
-                unsafe { (nl_sdl_render_fill_rect renderer (- icon_x 2) (- icon_y 2) (+ ICON_SIZE 4) (+ ICON_SIZE 4)) }
+                # Selected: white glow border
+                unsafe { (SDL_SetRenderDrawColor renderer 255 255 255 255) }
+                unsafe { (nl_sdl_render_fill_rect renderer (- icon_x 3) (- icon_y 3) (+ ICON_SIZE 6) (+ ICON_SIZE 6)) }
             } else {}
             
+            # Draw main icon background
             unsafe { (SDL_SetRenderDrawColor renderer r g b 255) }
             unsafe { (nl_sdl_render_fill_rect renderer icon_x icon_y ICON_SIZE ICON_SIZE) }
             
-            # Draw first letter of name as "icon"
+            # Draw darker inner rectangle for depth effect
+            let shadow_r: int = (/ (* r 7) 10)
+            let shadow_g: int = (/ (* g 7) 10)
+            let shadow_b: int = (/ (* b 7) 10)
+            unsafe { (SDL_SetRenderDrawColor renderer shadow_r shadow_g shadow_b 255) }
+            unsafe { (nl_sdl_render_fill_rect renderer (+ icon_x 3) (+ icon_y 3) (- ICON_SIZE 6) (- ICON_SIZE 6)) }
+            
+            # Draw first letter of name as "icon" (white, large, centered)
             let name: string = (at example_names ex_idx)
             let first_letter: string = (str_substring name 0 1)
-            unsafe { (nl_draw_text_blended renderer title_font first_letter (+ icon_x 28) (+ icon_y 22) 255 255 255 255) }
+            unsafe { (nl_draw_text_blended renderer title_font first_letter (+ icon_x 30) (+ icon_y 28) 255 255 255 255) }
             
             # Draw label below icon
             let truncated: string = (str_truncate name 10)
