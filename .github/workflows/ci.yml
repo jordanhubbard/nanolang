@@ -52,7 +52,9 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           choco install -y mingw make
+          choco install -y sdl2 sdl2_mixer sdl2_ttf
           echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $GITHUB_PATH
+          echo "C:\ProgramData\chocolatey\lib\SDL2\tools" >> $GITHUB_PATH
 
       - name: Check dependencies
         run: make check-deps
