@@ -63,6 +63,9 @@ static DynArray* find_manifests(const char* modules_dir) {
 }
 
 int main(int argc, char** argv) {
+    (void)argc;  /* Unused - no command line args needed */
+    (void)argv;  /* Unused - no command line args needed */
+    
     const char* modules_dir = "modules";
     const char* output_path = "modules/index.json";
     
