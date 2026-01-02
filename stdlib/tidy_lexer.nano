@@ -1,5 +1,16 @@
 # Lexer-Based NanoLang Formatter
 # Processes tokens for better formatting than char-by-char
+#
+# ⚠️  CURRENTLY BLOCKED: This formatter requires array<Token> support,
+#     which is not yet implemented in the NanoLang transpiler.
+#
+#     Error: "Unsupported array element type"
+#     Reason: Arrays of user-defined structs are not yet supported
+#
+#     Once array<Struct> support is added to the transpiler, this
+#     formatter will work as designed.
+#
+#     Meanwhile, use stdlib/tidy.nano for basic pretty printing.
 
 # Token types (simplified for formatting)
 enum TokenType {
