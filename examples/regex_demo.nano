@@ -1,113 +1,189 @@
-// Regular Expression Demo
-import "std/regex/regex.nano" as Regex
+# NanoLang Regex Demo - Pythonic API
+# Showcases one-shot operations (Tier 1) and compiled patterns (Tier 2)
 
-fn match_example() -> void {
-    (println "=== Match Example ===")
-    
-    // Email pattern (simplified)
-    let pattern: string = "[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-z]+"
-    let regex: opaque = (Regex.compile pattern)
-    
-    if (== regex (cast 0 opaque)) {
-        (println "Failed to compile regex")
-        return
-    }
-    
-    let email1: string = "user@example.com"
-    let email2: string = "invalid.email"
-    
-    if (Regex.matches regex email1) {
-        (println (string_concat "✓ " (string_concat email1 " is valid")))
-    } else {
-        (println (string_concat "✗ " (string_concat email1 " is invalid")))
-    }
-    
-    if (Regex.matches regex email2) {
-        (println (string_concat "✓ " (string_concat email2 " is valid")))
-    } else {
-        (println (string_concat "✗ " (string_concat email2 " is invalid")))
-    }
-    
-    (Regex.free regex)
-}
+from "std/regex/regex.nano" import regex_match, regex_find, regex_replace, regex_replace_all, regex_split, compile, matches, free
 
-fn find_example() -> void {
+# =============================================================================
+# TIER 1 DEMOS: Simple One-Shot API (90% of use cases)
+# =============================================================================
+
+fn demo_validation() -> void {
+    (println "╔════════════════════════════════════════╗")
+    (println "║  TIER 1: Simple Validation (No Handles!)  ║")
+    (println "╚════════════════════════════════════════╝")
     (println "")
-    (println "=== Find Example ===")
     
-    let pattern: string = "[0-9]+"
-    let text: string = "The answer is 42 and the year is 2024"
+    # Email validation - one line, no memory management!
+    if (regex_match "[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-z]+" "user@example.com") {
+        (println "✓ Valid email: user@example.com")
+    }
     
-    let pos: int = (Regex.quick_find pattern text)
-    if (>= pos 0) {
-        (println (string_concat "First number found at position: " (int_to_string pos)))
-    } else {
-        (println "No numbers found")
+    # Phone validation
+    if (regex_match "^[0-9]{3}-[0-9]{3}-[0-9]{4}$" "555-123-4567") {
+        (println "✓ Valid phone: 555-123-4567")
+    }
+    
+    if (not (regex_match "^[0-9]{3}-[0-9]{3}-[0-9]{4}$" "invalid")) {
+        (println "✗ Invalid phone: invalid")
     }
 }
 
-fn replace_example() -> void {
+fn demo_replacement() -> void {
     (println "")
-    (println "=== Replace Example ===")
+    (println "╔════════════════════════════════════════╗")
+    (println "║  TIER 1: Text Replacement              ║")
+    (println "╚════════════════════════════════════════╝")
+    (println "")
     
-    let pattern: string = "[0-9]+"
     let text: string = "I have 3 apples and 5 oranges"
+    (println (+ "Original:  " text))
     
-    // Replace first number
-    let result1: string = (Regex.quick_replace pattern text "X")
-    (println (string_concat "Replace first: " result1))
+    # Replace first number - one line!
+    let r1: string = (regex_replace "[0-9]+" "X" text)
+    (println (+ "First:     " r1))
     
-    // Replace all numbers
-    let regex: opaque = (Regex.compile pattern)
-    let result2: string = (Regex.replace_all regex text "X")
-    (println (string_concat "Replace all: " result2))
-    (Regex.free regex)
+    # Replace all numbers - still one line!
+    let r2: string = (regex_replace_all "[0-9]+" "X" text)
+    (println (+ "All:       " r2))
 }
 
-fn split_example() -> void {
+fn demo_split() -> void {
     (println "")
-    (println "=== Split Example ===")
+    (println "╔════════════════════════════════════════╗")
+    (println "║  TIER 1: Split by Pattern              ║")
+    (println "╚════════════════════════════════════════╝")
+    (println "")
     
-    let pattern: string = "[,;]"
-    let text: string = "apple,banana;cherry,date;elderberry"
+    let csv: string = "apple,banana;cherry,date;elderberry"
+    let parts: array<string> = (regex_split "[,;]" csv)
     
-    let parts: array<string> = (Regex.quick_split pattern text)
-    (println (string_concat "Split into " (string_concat (int_to_string (len parts)) " parts:")))
+    (println (+ "Input: " csv))
+    (println (+ "Split into " (+ (int_to_string (array_length parts)) " parts:")))
     
     let mut i: int = 0
-    while (< i (len parts)) {
-        (println (string_concat "  " (get parts i)))
+    while (< i (array_length parts)) {
+        (println (+ "  [" (+ (int_to_string i) (+ "] " (array_get parts i)))))
         set i (+ i 1)
     }
 }
 
-fn validation_example() -> void {
+fn demo_find() -> void {
     (println "")
-    (println "=== Validation Example ===")
+    (println "╔════════════════════════════════════════╗")
+    (println "║  TIER 1: Find Pattern Position         ║")
+    (println "╚════════════════════════════════════════╝")
+    (println "")
     
-    // Phone number pattern (US format)
-    let phone_pattern: string = "^[0-9]{3}-[0-9]{3}-[0-9]{4}$"
+    let text: string = "The answer is 42 and the year is 2024"
+    let pos: int = (regex_find "[0-9]+" text)
     
-    let phones: array<string> = ["555-123-4567", "123-456-7890", "invalid", "555-12-3456"]
-    
-    let mut i: int = 0
-    while (< i (len phones)) {
-        let phone: string = (get phones i)
-        if (Regex.quick_match phone_pattern phone) {
-            (println (string_concat "✓ Valid: " phone))
-        } else {
-            (println (string_concat "✗ Invalid: " phone))
-        }
-        set i (+ i 1)
+    (println (+ "Text: " text))
+    if (>= pos 0) {
+        (println (+ "First number at position: " (int_to_string pos)))
     }
 }
+
+# =============================================================================
+# TIER 2 DEMOS: Compiled Patterns (Power Users - for performance)
+# =============================================================================
+
+fn demo_compiled_loop() -> void {
+    (println "")
+    (println "╔════════════════════════════════════════╗")
+    (println "║  TIER 2: Compiled Pattern in Loop      ║")
+    (println "╚════════════════════════════════════════╝")
+    (println "")
+    (println "Validating 5 emails with ONE compiled pattern...")
+    (println "")
+    
+    # Compile once - efficient for loops
+    let email_pattern: opaque = (compile "[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-z]+")
+    
+    # Test valid email
+    if (matches email_pattern "alice@example.com") {
+        (println "  ✓ Valid:   alice@example.com")
+    } else {
+        (println "  ✗ Invalid: alice@example.com")
+    }
+    
+    # Test another valid
+    if (matches email_pattern "bob@test.org") {
+        (println "  ✓ Valid:   bob@test.org")
+    } else {
+        (println "  ✗ Invalid: bob@test.org")
+    }
+    
+    # Test invalid
+    if (matches email_pattern "invalid.email") {
+        (println "  ✓ Valid:   invalid.email")
+    } else {
+        (println "  ✗ Invalid: invalid.email")
+    }
+    
+    # Test valid
+    if (matches email_pattern "charlie@company.net") {
+        (println "  ✓ Valid:   charlie@company.net")
+    } else {
+        (println "  ✗ Invalid: charlie@company.net")
+    }
+    
+    # Test invalid
+    if (matches email_pattern "not-an-email") {
+        (println "  ✓ Valid:   not-an-email")
+    } else {
+        (println "  ✗ Invalid: not-an-email")
+    }
+    
+    # Don't forget to free!
+    (free email_pattern)
+    (println "")
+    (println "✓ Pattern freed - no memory leaks")
+}
+
+fn demo_comparison() -> void {
+    (println "")
+    (println "╔════════════════════════════════════════╗")
+    (println "║  API Comparison                         ║")
+    (println "╚════════════════════════════════════════╝")
+    (println "")
+    (println "TIER 1 (Simple): One line, automatic cleanup")
+    (println "  if (regex_match pattern text) { ... }")
+    (println "")
+    (println "TIER 2 (Power): Compile once, use many times")
+    (println "  let re: opaque = (compile pattern)")
+    (println "  if (matches re text1) { ... }")
+    (println "  if (matches re text2) { ... }")
+    (println "  (free re)")
+}
+
+# =============================================================================
+# MAIN
+# =============================================================================
 
 fn main() -> int {
-    (match_example)
-    (find_example)
-    (replace_example)
-    (split_example)
-    (validation_example)
+    (println "")
+    (println "═══════════════════════════════════════════════════")
+    (println "    NanoLang Regex - Pythonic API Demo")
+    (println "    No Manual Memory Management Required!")
+    (println "═══════════════════════════════════════════════════")
+    (println "")
+    
+    # Tier 1: Simple one-shot operations
+    (demo_validation)
+    (demo_replacement)
+    (demo_split)
+    (demo_find)
+    
+    # Tier 2: Power user API
+    (demo_compiled_loop)
+    
+    # Comparison
+    (demo_comparison)
+    
+    (println "")
+    (println "═══════════════════════════════════════════════════")
+    (println "✓ All demos completed successfully!")
+    (println "═══════════════════════════════════════════════════")
+    
     return 0
 }
-

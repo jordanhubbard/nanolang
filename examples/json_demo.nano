@@ -6,7 +6,7 @@ fn parse_example() -> int {
     let json_str: string = "{\"name\": \"Alice\", \"age\": 30, \"active\": true}"
     let obj: opaque = (JSON.parse json_str)
     
-    if (== obj (cast 0 opaque)) {
+    if (== obj (null_opaque)) {
         (println "Failed to parse JSON")
         return 1
     }
@@ -71,7 +71,7 @@ fn array_example() -> int {
     let json_str: string = "[1, 2, 3, 4, 5]"
     let arr: opaque = (JSON.parse json_str)
     
-    if (== arr (cast 0 opaque)) {
+    if (== arr (null_opaque)) {
         (println "Failed to parse JSON array")
         return 1
     }
