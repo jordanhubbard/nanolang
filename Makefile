@@ -147,6 +147,7 @@ $(SCHEMA_OUTPUTS): $(SCHEMA_JSON) scripts/gen_compiler_schema.py scripts/gen_com
 GENERATE_MODULE_INDEX = bin/generate_module_index
 $(GENERATE_MODULE_INDEX): tools/generate_module_index.c modules/std/fs.c src/cJSON.c src/runtime/dyn_array.c src/runtime/gc.c src/runtime/gc_struct.c
 	@echo "[tool] Building module index generator (C)..."
+	@mkdir -p bin
 	@$(CC) $(CFLAGS) -Isrc -Isrc/runtime -Imodules/std \
 		tools/generate_module_index.c \
 		modules/std/fs.c \
