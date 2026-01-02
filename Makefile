@@ -231,12 +231,9 @@ test-impl: test-units
 		./tests/selfhost/run_selfhost_tests.sh; \
 	fi
 	@echo ""
-	@echo "=========================================="
-	@echo "Building Examples"
-	@echo "=========================================="
-	@$(MAKE) examples
+	@echo "✅ All tests completed!"
 	@echo ""
-	@echo "✅ All tests and examples completed!"
+	@echo "To build examples, run: make examples"
 
 # Default test: Use most evolved compiler available
 test: build
