@@ -4,6 +4,8 @@
  * Provides argc/argv access to transpiled NanoLang programs
  */
 
+#define _POSIX_C_SOURCE 200809L  /* For setenv(), unsetenv() */
+
 #include <stdint.h>
 
 /* These are set by main.c during program startup */
