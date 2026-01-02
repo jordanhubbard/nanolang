@@ -87,27 +87,30 @@ shadow get_category_color {
 # Generate unique color for each example by index (for visual distinction)
 fn get_icon_color(index: int) -> int {
     # 12 vibrant colors cycling through the spectrum
-    let colors: array<int> = [
-        (+ (* 100 65536) (+ (* 150 256) 255)),  # Blue
-        (+ (* 255 65536) (+ (* 120 256) 100)),  # Red-Orange
-        (+ (* 120 65536) (+ (* 255 256) 120)),  # Green
-        (+ (* 200 65536) (+ (* 100 256) 255)),  # Purple
-        (+ (* 255 65536) (+ (* 200 256) 80)),   # Orange
-        (+ (* 100 65536) (+ (* 255 256) 255)),  # Cyan
-        (+ (* 255 65536) (+ (* 100 256) 180)),  # Pink
-        (+ (* 180 65536) (+ (* 255 256) 100)),  # Yellow-Green
-        (+ (* 255 65536) (+ (* 150 256) 0)),    # Dark Orange
-        (+ (* 150 65536) (+ (* 100 256) 255)),  # Indigo
-        (+ (* 255 65536) (+ (* 255 256) 100)),  # Yellow
-        (+ (* 100 65536) (+ (* 200 256) 200))   # Teal
-    ]
+    let colors: array<int> = (array_new 12 0)
+    (array_set colors 0 (+ (* 100 65536) (+ (* 150 256) 255)))  # Blue
+    (array_set colors 1 (+ (* 255 65536) (+ (* 120 256) 100)))  # Red-Orange
+    (array_set colors 2 (+ (* 120 65536) (+ (* 255 256) 120)))  # Green
+    (array_set colors 3 (+ (* 200 65536) (+ (* 100 256) 255)))  # Purple
+    (array_set colors 4 (+ (* 255 65536) (+ (* 200 256) 80)))   # Orange
+    (array_set colors 5 (+ (* 100 65536) (+ (* 255 256) 255)))  # Cyan
+    (array_set colors 6 (+ (* 255 65536) (+ (* 100 256) 180)))  # Pink
+    (array_set colors 7 (+ (* 180 65536) (+ (* 255 256) 100)))  # Yellow-Green
+    (array_set colors 8 (+ (* 255 65536) (+ (* 150 256) 0)))    # Dark Orange
+    (array_set colors 9 (+ (* 150 65536) (+ (* 100 256) 255)))  # Indigo
+    (array_set colors 10 (+ (* 255 65536) (+ (* 255 256) 100))) # Yellow
+    (array_set colors 11 (+ (* 100 65536) (+ (* 200 256) 200))) # Teal
     return (at colors (% index 12))
 }
 
 shadow get_icon_color {
-    assert (!= (get_icon_color 0) 0)
-    assert (!= (get_icon_color 0) (get_icon_color 1))
-    assert (!= (get_icon_color 1) (get_icon_color 2))
+    let c0: int = (get_icon_color 0)
+    let c1: int = (get_icon_color 1)
+    let c2: int = (get_icon_color 2)
+    assert (!= c0 0)
+    assert (> c0 1000)
+    assert (!= c0 c1)
+    assert (!= c1 c2)
 }
 
 fn build_filtered_indices(categories: array<int>, category: int) -> array<int> {
@@ -457,20 +460,24 @@ fn main() -> int {
             let max_chars: int = (clamp_int (str_length source_code) 0 2000)
             let preview_text: string = (str_substring source_code 0 max_chars)
             
-            # Simple display: show first N characters split into lines
+            # Display source code line by line (up to max_lines)
             let mut char_idx: int = 0
             let mut line_start: int = 0
             let mut line_count: int = 0
             let max_lines: int = (/ source_h 18)
+            let max_line_width: int = 80
             
             while (and (< char_idx max_chars) (< line_count max_lines)) {
-                let c: string = (str_substring preview_text char_idx (+ char_idx 1))
-                if (str_equals c "\n") {
-                    let line_len: int = (- char_idx line_start)
+                let c_char: string = (str_substring preview_text char_idx (+ char_idx 1))
+                # Check for newline (ASCII 10) or if we've hit max line width
+                let line_len: int = (- char_idx line_start)
+                let is_newline: bool = (str_equals c_char "\n")
+                let is_long_line: bool = (>= line_len max_line_width)
+                
+                if (or is_newline is_long_line) {
                     if (> line_len 0) {
                         let line: string = (str_substring preview_text line_start char_idx)
-                        let display_line: string = (str_truncate line 95)
-                        unsafe { (nl_draw_text_blended renderer small_font display_line (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
+                        unsafe { (nl_draw_text_blended renderer small_font line (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
                     } else {
                         unsafe { (nl_draw_text_blended renderer small_font "" (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
                     }
@@ -481,11 +488,12 @@ fn main() -> int {
                 set char_idx (+ char_idx 1)
             }
             
-            # Draw last line if needed
+            # Draw last partial line if needed
             if (and (< line_count max_lines) (< line_start max_chars)) {
                 let remaining: string = (str_substring preview_text line_start max_chars)
-                let display_line: string = (str_truncate remaining 95)
-                unsafe { (nl_draw_text_blended renderer small_font display_line (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
+                if (> (str_length remaining) 0) {
+                    unsafe { (nl_draw_text_blended renderer small_font remaining (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
+                } else {}
             } else {}
             
             # Launch button
