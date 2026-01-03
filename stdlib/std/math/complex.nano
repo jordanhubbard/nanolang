@@ -63,3 +63,132 @@ pub fn complex_exp(z: Complex) -> Complex {
     let er: float = (exp z.re)
     return Complex { re: (* er (cos z.im)), im: (* er (sin z.im)) }
 }
+
+/* ============================================================================
+ * Shadow Tests
+ * ============================================================================ */
+
+shadow complex_new {
+    let c: Complex = (complex_new 3.0 4.0)
+    assert (== c.re 3.0)
+    assert (== c.im 4.0)
+    
+    let zero: Complex = (complex_new 0.0 0.0)
+    assert (== zero.re 0.0)
+    assert (== zero.im 0.0)
+}
+
+shadow complex_add {
+    let a: Complex = (complex_new 1.0 2.0)
+    let b: Complex = (complex_new 3.0 4.0)
+    let c: Complex = (complex_add a b)
+    assert (== c.re 4.0)
+    assert (== c.im 6.0)
+}
+
+shadow complex_sub {
+    let a: Complex = (complex_new 5.0 6.0)
+    let b: Complex = (complex_new 2.0 3.0)
+    let c: Complex = (complex_sub a b)
+    assert (== c.re 3.0)
+    assert (== c.im 3.0)
+}
+
+shadow complex_mul {
+    # (3 + 4i) * (2 + i) = 6 + 3i + 8i + 4i^2 = 6 + 11i - 4 = 2 + 11i
+    let a: Complex = (complex_new 3.0 4.0)
+    let b: Complex = (complex_new 2.0 1.0)
+    let c: Complex = (complex_mul a b)
+    assert (== c.re 2.0)
+    assert (== c.im 11.0)
+    
+    # Test with i * i = -1
+    let i: Complex = (complex_new 0.0 1.0)
+    let i_squared: Complex = (complex_mul i i)
+    assert (== i_squared.re -1.0)
+    assert (== i_squared.im 0.0)
+}
+
+shadow complex_conj {
+    let c: Complex = (complex_new 3.0 4.0)
+    let conj: Complex = (complex_conj c)
+    assert (== conj.re 3.0)
+    assert (== conj.im -4.0)
+    
+    # Real number should be unchanged
+    let real: Complex = (complex_new 5.0 0.0)
+    let real_conj: Complex = (complex_conj real)
+    assert (== real_conj.re 5.0)
+    assert (== real_conj.im 0.0)
+}
+
+shadow complex_abs {
+    # |3 + 4i| = sqrt(9 + 16) = 5
+    let c: Complex = (complex_new 3.0 4.0)
+    let mag: float = (complex_abs c)
+    assert (== mag 5.0)
+    
+    # |1 + 0i| = 1
+    let real: Complex = (complex_new 1.0 0.0)
+    let real_mag: float = (complex_abs real)
+    assert (== real_mag 1.0)
+}
+
+shadow complex_arg {
+    # arg(1 + 0i) = 0
+    let real: Complex = (complex_new 1.0 0.0)
+    let angle_real: float = (complex_arg real)
+    assert (== angle_real 0.0)
+    
+    # arg(0 + i) = π/2
+    let imag: Complex = (complex_new 0.0 1.0)
+    let angle_imag: float = (complex_arg imag)
+    let pi_half: float = 1.5707963267948966
+    let diff: float = (abs (- angle_imag pi_half))
+    assert (< diff 0.0001)
+}
+
+shadow complex_div {
+    # (4 + 2i) / (3 + i) = (4 + 2i)(3 - i) / (9 + 1) = (12 + 2 - 4i + 6i) / 10 = (14 + 2i) / 10 = 1.4 + 0.2i
+    let a: Complex = (complex_new 4.0 2.0)
+    let b: Complex = (complex_new 3.0 1.0)
+    let c: Complex = (complex_div a b)
+    let re_diff: float = (abs (- c.re 1.4))
+    let im_diff: float = (abs (- c.im 0.2))
+    assert (< re_diff 0.0001)
+    assert (< im_diff 0.0001)
+    
+    # Division by zero should return zero
+    let zero: Complex = (complex_new 0.0 0.0)
+    let div_zero: Complex = (complex_div a zero)
+    assert (== div_zero.re 0.0)
+    assert (== div_zero.im 0.0)
+}
+
+shadow complex_from_polar {
+    # r=1, theta=0 should give (1, 0)
+    let c1: Complex = (complex_from_polar 1.0 0.0)
+    assert (< (abs (- c1.re 1.0)) 0.0001)
+    assert (< (abs c1.im) 0.0001)
+    
+    # r=1, theta=π/2 should give (0, 1)
+    let pi_half: float = 1.5707963267948966
+    let c2: Complex = (complex_from_polar 1.0 pi_half)
+    assert (< (abs c2.re) 0.0001)
+    assert (< (abs (- c2.im 1.0)) 0.0001)
+}
+
+shadow complex_exp {
+    # e^0 = 1
+    let zero: Complex = (complex_new 0.0 0.0)
+    let exp_zero: Complex = (complex_exp zero)
+    assert (< (abs (- exp_zero.re 1.0)) 0.0001)
+    assert (< (abs exp_zero.im) 0.0001)
+    
+    # e^(iπ) = -1 (Euler's formula)
+    let pi: float = 3.14159265358979323846
+    let i_pi: Complex = (complex_new 0.0 pi)
+    let exp_i_pi: Complex = (complex_exp i_pi)
+    assert (< (abs (+ exp_i_pi.re 1.0)) 0.0001)
+    assert (< (abs exp_i_pi.im) 0.0001)
+}
