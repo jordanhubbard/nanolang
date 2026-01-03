@@ -435,7 +435,7 @@ fn main() -> int {
         if (== (nl_ui_button renderer font "Quit" quit_btn_x (+ RIGHT_PANEL_Y 14) 70 28) 1) {
             set running false
         } else {}
-        
+
         if (>= selected_index 0) {
             let ex_idx: int = (at indices selected_index)
             let ex_name: string = (at example_names ex_idx)
@@ -478,7 +478,7 @@ fn main() -> int {
                     
                     # Always break on actual newlines
                     if (str_equals c "\n") {
-                        let line: string = (str_substring preview_text line_start char_idx)
+                        let line: string = (str_substring preview_text line_start (- char_idx line_start))
                         unsafe { (nl_draw_text_blended renderer small_font line (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
                         set line_y (+ line_y 18)
                         set line_count (+ line_count 1)
@@ -501,7 +501,7 @@ fn main() -> int {
                                 }
                             }
                             
-                            let line: string = (str_substring preview_text line_start char_idx)
+                            let line: string = (str_substring preview_text line_start (- char_idx line_start))
                             unsafe { (nl_draw_text_blended renderer small_font line (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
                             set line_y (+ line_y 18)
                             set line_count (+ line_count 1)
@@ -518,7 +518,7 @@ fn main() -> int {
             
             # Draw last partial line if space available
             if (and (< line_count max_lines) (< line_start max_chars)) {
-                let remaining: string = (str_substring preview_text line_start max_chars)
+                let remaining: string = (str_substring preview_text line_start (- max_chars line_start))
                 if (> (str_length remaining) 0) {
                     unsafe { (nl_draw_text_blended renderer small_font remaining (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
                 } else {}
