@@ -1135,8 +1135,18 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 return node;
             }
             
-            /* Otherwise, fall through to error */
-            break;
+            /* Otherwise, this is an unexpected '{' in expression context */
+            Token *current_tok = current_token(p);
+            if (!current_tok) {
+                fprintf(stderr, "Error: Unexpected LBRACE in NULL token state\n");
+                return NULL;
+            }
+            const char *type_name = token_type_name(current_tok->token_type);
+            fprintf(stderr, "Error at line %d, column %d: Unexpected token in expression: %s (type=%d)\n",
+                    current_tok->line, current_tok->column, 
+                    type_name ? type_name : "UNKNOWN", 
+                    current_tok->token_type);
+            return NULL;
         }
 
         case TOKEN_IDENTIFIER:
