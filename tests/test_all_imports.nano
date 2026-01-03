@@ -1,0 +1,12 @@
+from "modules/std/env.nano" import get, set_env
+from "modules/std/fs.nano" import walkdir, normalize
+from "modules/std/binary.nano" import encode_int, decode_int
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

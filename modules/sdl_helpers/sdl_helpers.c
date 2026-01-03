@@ -17,6 +17,7 @@
 static SDL_Event nl_sdl_event_buf[NL_SDL_EVENT_BUF_CAP];
 static int nl_sdl_event_buf_len = 0;
 static uint32_t nl_sdl_event_buf_last_ticks = UINT32_MAX;
+static int nl_sdl_events_drained_this_tick = 0;
 
 static SDL_Event nl_sdl_last_mousemotion;
 static int nl_sdl_has_mousemotion = 0;
@@ -28,14 +29,30 @@ static void nl__sdl_drain_events(void) {
      * These helpers are called from tight render loops.
      * To avoid unbounded growth when callers don't consume every event type
      * (e.g. mouse motion), we treat the internal buffer as per-frame-ish and
-     * discard stale events when time advances.
+     * discard stale events when time advances by at least 16ms (one frame).
+     * 
+     * IMPORTANT: We only drain events ONCE per frame to prevent buffer clearing
+     * between sequential event poll calls within the same frame.
      */
     uint32_t now = (uint32_t)SDL_GetTicks();
-    if (now != nl_sdl_event_buf_last_ticks) {
+    
+    /* Only drain if we haven't drained yet this tick, OR if significant time passed (16ms+) */
+    int time_advanced = (now >= nl_sdl_event_buf_last_ticks + 16);
+    
+    if (time_advanced) {
+        /* New frame - reset state */
         nl_sdl_event_buf_last_ticks = now;
         nl_sdl_event_buf_len = 0;
         nl_sdl_has_mousemotion = 0;
+        nl_sdl_events_drained_this_tick = 0;
     }
+    
+    /* Only drain if not already drained this tick */
+    if (nl_sdl_events_drained_this_tick) {
+        return;  /* Already drained, reuse buffered events */
+    }
+    
+    nl_sdl_events_drained_this_tick = 1;
 
     SDL_PumpEvents();
     while (SDL_PollEvent(&event)) {

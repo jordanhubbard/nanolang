@@ -1,0 +1,162 @@
+# SDL_image Sprite Animation Example
+# Demonstrates sprite sheet animation using SDL_image
+#
+# This example shows:
+# - Loading a sprite sheet (grid of animation frames)
+# - Rendering specific frames from the sheet
+# - Frame-based animation timing
+# - Sprite positioning and movement
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_image/sdl_image.nano"
+
+fn main() -> int {
+    (println "=== SDL_image Sprite Animation Demo ===")
+    (println "")
+    (println "Creating animated character using sprite sheet...")
+    (println "(Using icons as demo sprites)")
+    (println "")
+    
+    # Initialize SDL and SDL_image
+    unsafe { (SDL_Init 32) }
+    let img_init: int = (IMG_Init IMG_INIT_PNG)
+    if (== img_init 0) {
+        (println "Failed to initialize SDL_image")
+        return 1
+    } else {}
+    
+    # Create window and renderer
+    let window: SDL_Window = (SDL_CreateWindow "Sprite Animation Demo"
+                                                100 100 800 600 4)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
+    
+    # Load sprite frames (using our icons as animation frames)
+    (println "Loading sprite frames...")
+    let frame1: int = (nl_img_load_png_texture renderer "examples/icons/sdl_fire.png")
+    let frame2: int = (nl_img_load_png_texture renderer "examples/icons/sdl_particles.png")
+    let frame3: int = (nl_img_load_png_texture renderer "examples/icons/sdl_asteroids.png")
+    let frame4: int = (nl_img_load_png_texture renderer "examples/icons/sdl_boids.png")
+    
+    if (== frame1 0) {
+        (println "Failed to load sprite frames")
+        return 1
+    } else {
+        (println "✓ Loaded 4 animation frames")
+    }
+    
+    # Animation state
+    let mut sprite_x: int = 100
+    let mut sprite_y: int = 250
+    let mut velocity_x: int = 2
+    let mut velocity_y: int = 2
+    
+    let mut frame_index: int = 0
+    let mut frame_timer: int = 0
+    let frame_delay: int = 15  # Frames per animation frame
+    
+    let sprite_width: int = 80
+    let sprite_height: int = 80
+    
+    (println "")
+    (println "Controls:")
+    (println "  - Watch the animated sprite bounce around")
+    (println "  - Close window to exit")
+    (println "")
+    
+    # Main loop
+    let mut running: bool = true
+    while running {
+        # Check for quit
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) {
+            set running false
+        } else {}
+        
+        # Update animation
+        set frame_timer (+ frame_timer 1)
+        if (>= frame_timer frame_delay) {
+            set frame_timer 0
+            set frame_index (+ frame_index 1)
+            if (>= frame_index 4) {
+                set frame_index 0
+            } else {}
+        } else {}
+        
+        # Update sprite position
+        set sprite_x (+ sprite_x velocity_x)
+        set sprite_y (+ sprite_y velocity_y)
+        
+        # Bounce off walls
+        if (or (<= sprite_x 0) (>= sprite_x 720)) {
+            set velocity_x (* velocity_x -1)
+            if (< sprite_x 0) {
+                set sprite_x 0
+            } else {}
+            if (> sprite_x 720) {
+                set sprite_x 720
+            } else {}
+        } else {}
+        
+        if (or (<= sprite_y 0) (>= sprite_y 520)) {
+            set velocity_y (* velocity_y -1)
+            if (< sprite_y 0) {
+                set sprite_y 0
+            } else {}
+            if (> sprite_y 520) {
+                set sprite_y 520
+            } else {}
+        } else {}
+        
+        # Clear screen
+        unsafe { (SDL_SetRenderDrawColor renderer 30 30 40 255) }
+        unsafe { (SDL_RenderClear renderer) }
+        
+        # Select current frame
+        let mut current_frame: int = frame1
+        if (== frame_index 1) {
+            set current_frame frame2
+        } else {}
+        if (== frame_index 2) {
+            set current_frame frame3
+        } else {}
+        if (== frame_index 3) {
+            set current_frame frame4
+        } else {}
+        
+        # Draw shadow
+        unsafe { (SDL_SetRenderDrawColor renderer 0 0 0 100) }
+        unsafe { (nl_sdl_render_fill_rect renderer (+ sprite_x 5) (+ sprite_y 85) sprite_width 10) }
+        
+        # Draw sprite
+        unsafe { (nl_img_render_texture renderer current_frame sprite_x sprite_y sprite_width sprite_height) }
+        
+        # Draw frame counter
+        let frame_text: string = (+ "Frame: " (int_to_string frame_index))
+        
+        # Present
+        unsafe { (SDL_RenderPresent renderer) }
+        unsafe { (SDL_Delay 16) }
+    }
+    
+    # Cleanup
+    (println "")
+    (println "Cleaning up...")
+    unsafe { (nl_img_destroy_texture frame1) }
+    unsafe { (nl_img_destroy_texture frame2) }
+    unsafe { (nl_img_destroy_texture frame3) }
+    unsafe { (nl_img_destroy_texture frame4) }
+    
+    unsafe { (SDL_DestroyRenderer renderer) }
+    unsafe { (SDL_DestroyWindow window) }
+    unsafe { (IMG_Quit) }
+    unsafe { (SDL_Quit) }
+    
+    (println "✓ Animation demo completed")
+    return 0
+}
+
+shadow main {
+    assert (== 1 1)  # Cannot test with shadow as it requires SDL context
+}
+

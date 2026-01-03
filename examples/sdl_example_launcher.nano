@@ -5,6 +5,7 @@ import "modules/sdl/sdl.nano"
 import "modules/sdl_helpers/sdl_helpers.nano"
 import "modules/sdl_ttf/sdl_ttf.nano"
 import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+import "modules/sdl_image/sdl_image.nano"
 import "modules/ui_widgets/ui_widgets.nano"
 from "std/fs.nano" import read, join
 
@@ -168,6 +169,13 @@ shadow str_truncate {
 fn main() -> int {
     unsafe { (SDL_Init SDL_INIT_VIDEO) }
     unsafe { (TTF_Init) }
+    
+    # Initialize SDL_image for loading PNG icons
+    let img_result: int = (IMG_Init IMG_INIT_PNG)
+    if (== img_result 0) {
+        (println "✗ Failed to initialize SDL_image")
+        return 1
+    } else {}
 
     let window: SDL_Window = (SDL_CreateWindow "NanoLang Examples - App Store"
                                                 SDL_WINDOWPOS_CENTERED
@@ -185,6 +193,7 @@ fn main() -> int {
         (println "✗ Failed to load font")
         unsafe { (SDL_DestroyRenderer renderer) }
         unsafe { (SDL_DestroyWindow window) }
+        unsafe { (IMG_Quit) }
         unsafe { (TTF_Quit) }
         unsafe { (SDL_Quit) }
         return 1
@@ -196,6 +205,7 @@ fn main() -> int {
     let mut example_categories: array<int> = []
     let mut example_commands: array<string> = []
     let mut example_files: array<string> = []
+    let mut example_icons: array<string> = []
 
     # === Games (SDL) ===
     set example_names (array_push example_names "Pong")
@@ -203,18 +213,21 @@ fn main() -> int {
     set example_categories (array_push example_categories ExampleCategory.GAMES)
     set example_commands (array_push example_commands "make -C examples ../bin/sdl_pong && ./bin/sdl_pong")
     set example_files (array_push example_files "examples/sdl_pong.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_pong.png")
 
     set example_names (array_push example_names "Asteroids")
     set example_descs (array_push example_descs "Space shooter with physics")
     set example_categories (array_push example_categories ExampleCategory.GAMES)
     set example_commands (array_push example_commands "make -C examples ../bin/sdl_asteroids && ./bin/sdl_asteroids")
     set example_files (array_push example_files "examples/sdl_asteroids.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_asteroids.png")
 
     set example_names (array_push example_names "Checkers")
     set example_descs (array_push example_descs "Board game with AI")
     set example_categories (array_push example_categories ExampleCategory.GAMES)
     set example_commands (array_push example_commands "make -C examples ../bin/sdl_checkers && ./bin/sdl_checkers")
     set example_files (array_push example_files "examples/sdl_checkers.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_checkers.png")
 
     # === Graphics (SDL) ===
     set example_names (array_push example_names "Sand")
@@ -222,42 +235,49 @@ fn main() -> int {
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
     set example_commands (array_push example_commands "make -C examples ../bin/sdl_falling_sand && ./bin/sdl_falling_sand")
     set example_files (array_push example_files "examples/sdl_falling_sand.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_falling_sand.png")
 
     set example_names (array_push example_names "Boids")
     set example_descs (array_push example_descs "Flocking simulation")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
     set example_commands (array_push example_commands "make -C examples ../bin/sdl_boids && ./bin/sdl_boids")
     set example_files (array_push example_files "examples/sdl_boids.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_boids.png")
 
     set example_names (array_push example_names "Particles")
     set example_descs (array_push example_descs "Particle system demo")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
     set example_commands (array_push example_commands "make -C examples ../bin/sdl_particles && ./bin/sdl_particles")
     set example_files (array_push example_files "examples/sdl_particles.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_particles.png")
 
     set example_names (array_push example_names "Raytracer")
     set example_descs (array_push example_descs "CPU raytracer with spheres")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
     set example_commands (array_push example_commands "make -C examples ../bin/sdl_raytracer && ./bin/sdl_raytracer")
     set example_files (array_push example_files "examples/sdl_raytracer.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_raytracer.png")
 
     set example_names (array_push example_names "Fire")
     set example_descs (array_push example_descs "Doom fire effect")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
     set example_commands (array_push example_commands "make -C examples ../bin/sdl_fire && ./bin/sdl_fire")
     set example_files (array_push example_files "examples/sdl_fire.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_fire.png")
 
     set example_names (array_push example_names "Stars")
     set example_descs (array_push example_descs "Starfield parallax effect")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
     set example_commands (array_push example_commands "make -C examples ../bin/sdl_starfield && ./bin/sdl_starfield")
     set example_files (array_push example_files "examples/sdl_starfield.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_starfield.png")
 
     set example_names (array_push example_names "Terrain")
     set example_descs (array_push example_descs "Pseudo-3D terrain explorer")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
     set example_commands (array_push example_commands "make -C examples ../bin/sdl_terrain_explorer && ./bin/sdl_terrain_explorer")
     set example_files (array_push example_files "examples/sdl_terrain_explorer.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_terrain_explorer.png")
 
     # === Audio (SDL) ===
     set example_names (array_push example_names "NanoAmp")
@@ -265,18 +285,21 @@ fn main() -> int {
     set example_categories (array_push example_categories ExampleCategory.AUDIO)
     set example_commands (array_push example_commands "make -C examples ../bin/sdl_nanoamp && ./bin/sdl_nanoamp")
     set example_files (array_push example_files "examples/sdl_nanoamp.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_nanoamp.png")
 
     set example_names (array_push example_names "MOD Viz")
     set example_descs (array_push example_descs "MOD music visualizer")
     set example_categories (array_push example_categories ExampleCategory.AUDIO)
     set example_commands (array_push example_commands "make -C examples ../bin/sdl_mod_visualizer && ./bin/sdl_mod_visualizer examples/gabba-studies-12.mod")
     set example_files (array_push example_files "examples/sdl_mod_visualizer.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_mod_visualizer.png")
 
     set example_names (array_push example_names "Tracker")
     set example_descs (array_push example_descs "ProTracker-style shell")
     set example_categories (array_push example_categories ExampleCategory.AUDIO)
     set example_commands (array_push example_commands "make -C examples ../bin/sdl_tracker_shell && ./bin/sdl_tracker_shell")
     set example_files (array_push example_files "examples/sdl_tracker_shell.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_tracker_shell.png")
 
     # === OpenGL ===
     set example_names (array_push example_names "Teapot")
@@ -284,6 +307,7 @@ fn main() -> int {
     set example_categories (array_push example_categories ExampleCategory.OPENGL)
     set example_commands (array_push example_commands "make -C examples ../bin/opengl_teapot && ./bin/opengl_teapot")
     set example_files (array_push example_files "examples/opengl_teapot.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_glass_sphere.png")
 
     # === Terminal ===
     set example_names (array_push example_names "Snake")
@@ -291,12 +315,25 @@ fn main() -> int {
     set example_categories (array_push example_categories ExampleCategory.TERMINAL)
     set example_commands (array_push example_commands "make -C examples ../bin/nl_snake && ./bin/nl_snake")
     set example_files (array_push example_files "examples/nl_snake.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_snake.png")
 
     set example_names (array_push example_names "Life")
     set example_descs (array_push example_descs "Conway's Game of Life")
     set example_categories (array_push example_categories ExampleCategory.TERMINAL)
     set example_commands (array_push example_commands "make -C examples ../bin/ncurses_game_of_life && ./bin/ncurses_game_of_life")
     set example_files (array_push example_files "examples/ncurses_game_of_life.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_particles.png")
+
+    # Load all icon textures
+    let icon_count: int = (array_length example_icons)
+    let mut icon_textures: array<int> = []
+    let mut icon_idx: int = 0
+    while (< icon_idx icon_count) {
+        let icon_path: string = (at example_icons icon_idx)
+        let texture: int = (nl_img_load_png_texture renderer icon_path)
+        set icon_textures (array_push icon_textures texture)
+        set icon_idx (+ icon_idx 1)
+    }
 
     let mut selected_category: int = ExampleCategory.ALL
     let mut indices: array<int> = (build_filtered_indices example_categories selected_category)
@@ -516,27 +553,33 @@ fn main() -> int {
             let icon_x: int = (+ LEFT_PANEL_X (+ 15 (* col (+ ICON_SIZE ICON_MARGIN))))
             let icon_y: int = (+ grid_start_y (* row (+ ICON_TOTAL_SIZE ICON_MARGIN)))
             
-            # Get unique color for this example by index
-            let color: int = (get_icon_color ex_idx)
-            let r: int = (/ color 65536)
-            let g: int = (% (/ color 256) 256)
-            let b: int = (% color 256)
-            
-            # Draw icon box (colored square) with selection border
+            # Draw selection border if selected
             if (== grid_idx selected_index) {
                 # Selected: white glow border
                 unsafe { (SDL_SetRenderDrawColor renderer 255 255 255 255) }
                 unsafe { (nl_sdl_render_fill_rect renderer (- icon_x 3) (- icon_y 3) (+ ICON_SIZE 6) (+ ICON_SIZE 6)) }
             } else {}
             
-            # Draw solid colored icon background
-            unsafe { (SDL_SetRenderDrawColor renderer r g b 255) }
-            unsafe { (nl_sdl_render_fill_rect renderer icon_x icon_y ICON_SIZE ICON_SIZE) }
-            
-            # Draw first letter of name as "icon" (white, large, centered)
+            # Get example name for label
             let name: string = (at example_names ex_idx)
-            let first_letter: string = (str_substring name 0 1)
-            unsafe { (nl_draw_text_blended renderer title_font first_letter (+ icon_x 30) (+ icon_y 28) 255 255 255 255) }
+            
+            # Draw PNG icon
+            let icon_texture: int = (at icon_textures ex_idx)
+            if (!= icon_texture 0) {
+                unsafe { (nl_img_render_texture renderer icon_texture icon_x icon_y ICON_SIZE ICON_SIZE) }
+            } else {
+                # Fallback to colored square if icon failed to load
+                let color: int = (get_icon_color ex_idx)
+                let r: int = (/ color 65536)
+                let g: int = (% (/ color 256) 256)
+                let b: int = (% color 256)
+                unsafe { (SDL_SetRenderDrawColor renderer r g b 255) }
+                unsafe { (nl_sdl_render_fill_rect renderer icon_x icon_y ICON_SIZE ICON_SIZE) }
+                
+                # Draw first letter as fallback
+                let first_letter: string = (str_substring name 0 1)
+                unsafe { (nl_draw_text_blended renderer title_font first_letter (+ icon_x 30) (+ icon_y 28) 255 255 255 255) }
+            }
             
             # Draw label below icon
             let truncated: string = (str_truncate name 10)
@@ -665,11 +708,22 @@ fn main() -> int {
     }
 
     # Cleanup
+    # Destroy icon textures
+    let mut cleanup_idx: int = 0
+    while (< cleanup_idx icon_count) {
+        let tex: int = (at icon_textures cleanup_idx)
+        if (!= tex 0) {
+            unsafe { (nl_img_destroy_texture tex) }
+        } else {}
+        set cleanup_idx (+ cleanup_idx 1)
+    }
+    
     unsafe { (TTF_CloseFont font) }
     unsafe { (TTF_CloseFont title_font) }
     unsafe { (TTF_CloseFont small_font) }
     unsafe { (SDL_DestroyRenderer renderer) }
     unsafe { (SDL_DestroyWindow window) }
+    unsafe { (IMG_Quit) }
     unsafe { (TTF_Quit) }
     unsafe { (SDL_Quit) }
 

@@ -1,0 +1,12 @@
+{
+  "name": "sdl_image",
+  "version": "1.0.0",
+  "description": "SDL_image - Load PNG, JPG, and other image formats into SDL textures",
+  "headers": ["sdl_image_helpers.h"],
+  "cflags": ["-Imodules/sdl_image"],
+  "c_sources": ["sdl_image_helpers.c"],
+  "pkg_config": ["SDL2", "SDL2_image"],
+  "system_packages": ["sdl2", "sdl2_image"],
+  "dependencies": ["sdl"]
+}
+
