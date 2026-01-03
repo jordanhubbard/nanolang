@@ -66,6 +66,7 @@ Run it:
 NanoLang is actively tested and supported on:
 
 - **Ubuntu 22.04+** (x86_64)
+- **Ubuntu 24.04** (ARM64) - Raspberry Pi, AWS Graviton, etc.
 - **macOS 14+** (ARM64/Apple Silicon)
 
 ### Tier 2: Windows via WSL 🪟
