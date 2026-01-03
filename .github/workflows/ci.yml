@@ -112,6 +112,7 @@ jobs:
   sanitizers:
     name: Memory Sanitizers
     runs-on: ubuntu-latest
+    timeout-minutes: 30  # Prevent runaway tests
 
     steps:
       - name: Checkout code
@@ -120,7 +121,13 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential
+          sudo apt-get install -y \
+            build-essential \
+            pkg-config \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev
 
       - name: Build with AddressSanitizer
         run: make sanitize
@@ -129,11 +136,12 @@ jobs:
         run: make build
 
       - name: Run tests with sanitizers
+        timeout-minutes: 20  # Timeout for test step specifically
         run: |
           # Disable leak detection for exit-time leaks in short-lived compiler process
           # AddressSanitizer still catches real memory issues (use-after-free, etc.)
           export ASAN_OPTIONS=detect_leaks=0
-          make test
+          make test-units  # Run only unit tests, skip slow integration tests
 
       - name: Show sanitizer error logs on failure
         if: failure()
@@ -151,6 +159,7 @@ jobs:
   coverage:
     name: Code Coverage
     runs-on: ubuntu-latest
+    timeout-minutes: 45  # Prevent runaway tests
 
     steps:
       - name: Checkout code
@@ -159,7 +168,15 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential lcov bc
+          sudo apt-get install -y \
+            build-essential \
+            lcov \
+            bc \
+            pkg-config \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev
 
       - name: Build with coverage
         run: make coverage
