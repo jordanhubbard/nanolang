@@ -5,17 +5,20 @@
 fn test_string_ops() -> bool {
     # Test str_length
     let empty: string = ""
-    if (not (== (str_length empty) 0)) {
+    let empty_len: int = (str_length empty)
+    if (!= empty_len 0) {
         return false
     } else {}
     
     let hello: string = "hello"
-    if (not (== (str_length hello) 5)) {
+    let hello_len: int = (str_length hello)
+    if (!= hello_len 5) {
         return false
     } else {}
     
     # Test str_equals
-    if (not (str_equals hello "hello")) {
+    let equals_result: bool = (str_equals hello "hello")
+    if (not equals_result) {
         return false
     } else {}
     
@@ -24,7 +27,8 @@ fn test_string_ops() -> bool {
     } else {}
     
     # Test str_contains
-    if (not (str_contains hello "ell")) {
+    let contains_result: bool = (str_contains hello "ell")
+    if (not contains_result) {
         return false
     } else {}
     
@@ -35,13 +39,15 @@ fn test_string_ops() -> bool {
     # Test string concatenation
     let world: string = "world"
     let combined: string = (+ hello world)
-    if (not (str_equals combined "helloworld")) {
+    let concat_result: bool = (str_equals combined "helloworld")
+    if (not concat_result) {
         return false
     } else {}
     
     # Test str_substring
     let sub: string = (str_substring hello 1 3)
-    if (not (str_equals sub "ell")) {
+    let sub_result: bool = (str_equals sub "ell")
+    if (not sub_result) {
         return false
     } else {}
     
@@ -52,7 +58,8 @@ fn test_string_ops() -> bool {
 fn test_array_ops() -> bool {
     # Test array_new
     let arr: array<int> = (array_new 5 0)
-    if (not (== (array_length arr) 5)) {
+    let arr_len: int = (array_length arr)
+    if (!= arr_len 5) {
         return false
     } else {}
     
@@ -63,23 +70,28 @@ fn test_array_ops() -> bool {
     (array_set arr 3 40)
     (array_set arr 4 50)
     
-    if (not (== (at arr 0) 10)) {
+    let val0: int = (at arr 0)
+    if (!= val0 10) {
         return false
     } else {}
     
-    if (not (== (at arr 1) 20)) {
+    let val1: int = (at arr 1)
+    if (!= val1 20) {
         return false
     } else {}
     
-    if (not (== (at arr 2) 30)) {
+    let val2: int = (at arr 2)
+    if (!= val2 30) {
         return false
     } else {}
     
-    if (not (== (at arr 3) 40)) {
+    let val3: int = (at arr 3)
+    if (!= val3 40) {
         return false
     } else {}
     
-    if (not (== (at arr 4) 50)) {
+    let val4: int = (at arr 4)
+    if (!= val4 50) {
         return false
     } else {}
     
@@ -153,27 +165,32 @@ fn test_int_to_string() -> bool {
 # Test arithmetic operations
 fn test_arithmetic() -> bool {
     # Addition
-    if (not (== (+ 5 3) 8)) {
+    let add_result: int = (+ 5 3)
+    if (!= add_result 8) {
         return false
     } else {}
     
     # Subtraction
-    if (not (== (- 10 4) 6)) {
+    let sub_result: int = (- 10 4)
+    if (!= sub_result 6) {
         return false
     } else {}
     
     # Multiplication
-    if (not (== (* 7 6) 42)) {
+    let mul_result: int = (* 7 6)
+    if (!= mul_result 42) {
         return false
     } else {}
     
     # Division
-    if (not (== (/ 20 5) 4)) {
+    let div_result: int = (/ 20 5)
+    if (!= div_result 4) {
         return false
     } else {}
     
     # Modulo
-    if (not (== (% 17 5) 2)) {
+    let mod_result: int = (% 17 5)
+    if (!= mod_result 2) {
         return false
     } else {}
     
@@ -182,8 +199,9 @@ fn test_arithmetic() -> bool {
 
 # Test comparison operations
 fn test_comparisons() -> bool {
-    # Equality
-    if (not (== 5 5)) {
+    # Equality - use positive assertions
+    let eq_result: bool = (== 5 5)
+    if (not eq_result) {
         return false
     } else {}
     
@@ -192,7 +210,8 @@ fn test_comparisons() -> bool {
     } else {}
     
     # Inequality
-    if (not (!= 5 6)) {
+    let ne_result: bool = (!= 5 6)
+    if (not ne_result) {
         return false
     } else {}
     
@@ -201,7 +220,8 @@ fn test_comparisons() -> bool {
     } else {}
     
     # Less than
-    if (not (< 3 5)) {
+    let lt_result: bool = (< 3 5)
+    if (not lt_result) {
         return false
     } else {}
     
@@ -210,7 +230,8 @@ fn test_comparisons() -> bool {
     } else {}
     
     # Greater than
-    if (not (> 7 3)) {
+    let gt_result: bool = (> 7 3)
+    if (not gt_result) {
         return false
     } else {}
     
@@ -219,11 +240,13 @@ fn test_comparisons() -> bool {
     } else {}
     
     # Less than or equal
-    if (not (<= 3 5)) {
+    let le1_result: bool = (<= 3 5)
+    if (not le1_result) {
         return false
     } else {}
     
-    if (not (<= 5 5)) {
+    let le2_result: bool = (<= 5 5)
+    if (not le2_result) {
         return false
     } else {}
     
@@ -232,11 +255,13 @@ fn test_comparisons() -> bool {
     } else {}
     
     # Greater than or equal
-    if (not (>= 7 5)) {
+    let ge1_result: bool = (>= 7 5)
+    if (not ge1_result) {
         return false
     } else {}
     
-    if (not (>= 5 5)) {
+    let ge2_result: bool = (>= 5 5)
+    if (not ge2_result) {
         return false
     } else {}
     
@@ -250,7 +275,8 @@ fn test_comparisons() -> bool {
 # Test logical operations
 fn test_logical() -> bool {
     # AND
-    if (not (and true true)) {
+    let and1: bool = (and true true)
+    if (not and1) {
         return false
     } else {}
     
@@ -267,15 +293,18 @@ fn test_logical() -> bool {
     } else {}
     
     # OR
-    if (not (or true true)) {
+    let or1: bool = (or true true)
+    if (not or1) {
         return false
     } else {}
     
-    if (not (or true false)) {
+    let or2: bool = (or true false)
+    if (not or2) {
         return false
     } else {}
     
-    if (not (or false true)) {
+    let or3: bool = (or false true)
+    if (not or3) {
         return false
     } else {}
     
@@ -284,7 +313,8 @@ fn test_logical() -> bool {
     } else {}
     
     # NOT
-    if (not (not false)) {
+    let not1: bool = (not false)
+    if (not not1) {
         return false
     } else {}
     
@@ -319,11 +349,13 @@ fn test_float_ops() -> bool {
     } else {}
     
     # Float comparisons
-    if (not (> 5.5 3.3)) {
+    let cmp1: bool = (> 5.5 3.3)
+    if (not cmp1) {
         return false
     } else {}
     
-    if (not (< 2.1 4.7)) {
+    let cmp2: bool = (< 2.1 4.7)
+    if (not cmp2) {
         return false
     } else {}
     
@@ -345,7 +377,7 @@ fn test_casts() -> bool {
     # float to int
     let fi: float = 3.7
     let ii: int = (cast_int fi)
-    if (not (== ii 3)) {
+    if (!= ii 3) {
         return false
     } else {}
     
