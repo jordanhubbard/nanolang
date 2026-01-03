@@ -86,20 +86,20 @@ shadow get_category_color {
 
 # Generate unique color for each example by index (for visual distinction)
 fn get_icon_color(index: int) -> int {
-    # 12 vibrant colors cycling through the spectrum
+    # Super bright primary colors for maximum visibility
     let colors: array<int> = (array_new 12 0)
-    (array_set colors 0 (+ (* 100 65536) (+ (* 150 256) 255)))  # Blue
-    (array_set colors 1 (+ (* 255 65536) (+ (* 120 256) 100)))  # Red-Orange
-    (array_set colors 2 (+ (* 120 65536) (+ (* 255 256) 120)))  # Green
-    (array_set colors 3 (+ (* 200 65536) (+ (* 100 256) 255)))  # Purple
-    (array_set colors 4 (+ (* 255 65536) (+ (* 200 256) 80)))   # Orange
-    (array_set colors 5 (+ (* 100 65536) (+ (* 255 256) 255)))  # Cyan
-    (array_set colors 6 (+ (* 255 65536) (+ (* 100 256) 180)))  # Pink
-    (array_set colors 7 (+ (* 180 65536) (+ (* 255 256) 100)))  # Yellow-Green
-    (array_set colors 8 (+ (* 255 65536) (+ (* 150 256) 0)))    # Dark Orange
-    (array_set colors 9 (+ (* 150 65536) (+ (* 100 256) 255)))  # Indigo
-    (array_set colors 10 (+ (* 255 65536) (+ (* 255 256) 100))) # Yellow
-    (array_set colors 11 (+ (* 100 65536) (+ (* 200 256) 200))) # Teal
+    (array_set colors 0 (+ (* 255 65536) (+ (* 0 256) 0)))      # Pure Red
+    (array_set colors 1 (+ (* 0 65536) (+ (* 255 256) 0)))      # Pure Green
+    (array_set colors 2 (+ (* 0 65536) (+ (* 0 256) 255)))      # Pure Blue
+    (array_set colors 3 (+ (* 255 65536) (+ (* 255 256) 0)))    # Pure Yellow
+    (array_set colors 4 (+ (* 255 65536) (+ (* 0 256) 255)))    # Pure Magenta
+    (array_set colors 5 (+ (* 0 65536) (+ (* 255 256) 255)))    # Pure Cyan
+    (array_set colors 6 (+ (* 255 65536) (+ (* 128 256) 0)))    # Orange
+    (array_set colors 7 (+ (* 128 65536) (+ (* 0 256) 255)))    # Purple
+    (array_set colors 8 (+ (* 0 65536) (+ (* 255 256) 128)))    # Spring Green
+    (array_set colors 9 (+ (* 255 65536) (+ (* 0 256) 128)))    # Rose
+    (array_set colors 10 (+ (* 128 65536) (+ (* 255 256) 0)))   # Chartreuse
+    (array_set colors 11 (+ (* 0 65536) (+ (* 128 256) 255)))   # Sky Blue
     return (at colors (% index 12))
 }
 
@@ -317,13 +317,134 @@ fn main() -> int {
 
         let key: int = (nl_sdl_poll_keypress)
 
+        # Up arrow (82) - scroll source code up
+        if (== key 82) {
+            if (> source_scroll 0) {
+                set source_scroll (- source_scroll 1)
+            } else {}
+        } else {}
+        
+        # Down arrow (81) - scroll source code down
+        if (== key 81) {
+            set source_scroll (+ source_scroll 1)
+        } else {}
+        
+        # Mouse wheel / trackpad scrolling
+        let wheel: int = (nl_sdl_poll_mouse_wheel)
+        if (> wheel 0) {
+            # Scroll up (wheel up or trackpad two-finger swipe up)
+            if (> source_scroll 0) {
+                set source_scroll (- source_scroll 3)  # Scroll 3 lines at a time for smoother trackpad feel
+                if (< source_scroll 0) {
+                    set source_scroll 0
+                } else {}
+            } else {}
+        } else {}
+        if (< wheel 0) {
+            # Scroll down (wheel down or trackpad two-finger swipe down)
+            set source_scroll (+ source_scroll 3)  # Scroll 3 lines at a time
+        } else {}
+
         # Enter launches the selected example
         if (or (== key 40) (== key 88)) {  # Return / KP Enter
             if (>= selected_index 0) {
                 let ex_idx: int = (at indices selected_index)
                 set launch_cmd (at example_commands ex_idx)
                 set should_launch true
+            } else {}
+        } else {}
+
+        # Handle mouse clicks
+        let mouse_click: int = (nl_sdl_poll_mouse_click)
+        if (> mouse_click -1) {
+            let click_x: int = (/ mouse_click 10000)
+            let click_y: int = (% mouse_click 10000)
+            
+            # Check if click is on category tabs
+            let cat_tab_y: int = (+ LEFT_PANEL_Y 10)
+            let cat_tab_w: int = (/ LEFT_PANEL_WIDTH 3)
+            let cat_tab_h: int = 24
+            let all_btn_x: int = (+ LEFT_PANEL_X 10)
+            let all_btn_w: int = (- cat_tab_w 5)
+            let games_btn_x: int = (+ LEFT_PANEL_X (+ cat_tab_w 5))
+            let games_btn_w: int = (- cat_tab_w 5)
+            let gfx_btn_x: int = (+ LEFT_PANEL_X (* cat_tab_w 2))
+            let gfx_btn_w: int = (- cat_tab_w 10)
+            
+            # Check All button
+            if (and (>= click_x all_btn_x) (and (< click_x (+ all_btn_x all_btn_w)) (and (>= click_y cat_tab_y) (< click_y (+ cat_tab_y cat_tab_h))))) {
+            set selected_category ExampleCategory.ALL
+            set selected_index -1
+        } else {}
+            
+            # Check Games button
+            if (and (>= click_x games_btn_x) (and (< click_x (+ games_btn_x games_btn_w)) (and (>= click_y cat_tab_y) (< click_y (+ cat_tab_y cat_tab_h))))) {
+            set selected_category ExampleCategory.GAMES
+            set selected_index -1
+        } else {}
+            
+            # Check Gfx button
+            if (and (>= click_x gfx_btn_x) (and (< click_x (+ gfx_btn_x gfx_btn_w)) (and (>= click_y cat_tab_y) (< click_y (+ cat_tab_y cat_tab_h))))) {
+                set selected_category ExampleCategory.GRAPHICS
+                set selected_index -1
+            } else {}
+            
+            # Check Quit button
+            let quit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 90)
+            let quit_btn_y: int = (+ RIGHT_PANEL_Y 14)
+            let quit_btn_w: int = 70
+            let quit_btn_h: int = 28
+            if (and (>= click_x quit_btn_x) (and (< click_x (+ quit_btn_x quit_btn_w)) (and (>= click_y quit_btn_y) (< click_y (+ quit_btn_y quit_btn_h))))) {
                 set running false
+            } else {}
+            
+            # Check if click is on an icon
+            let mut clicked_icon: int = -1
+            let mut check_idx: int = 0
+            while (< check_idx (array_length indices)) {
+                let row: int = (/ check_idx ICONS_PER_ROW)
+                let col: int = (% check_idx ICONS_PER_ROW)
+                let icon_x: int = (+ LEFT_PANEL_X (+ 15 (* col (+ ICON_SIZE ICON_MARGIN))))
+                let grid_start_y: int = (+ LEFT_PANEL_Y 150)
+                let icon_y: int = (+ grid_start_y (* row (+ ICON_TOTAL_SIZE ICON_MARGIN)))
+                
+                # Check if click is within icon bounds
+                if (and (>= click_x icon_x) (and (< click_x (+ icon_x ICON_SIZE)) (and (>= click_y icon_y) (< click_y (+ icon_y ICON_SIZE))))) {
+                    set clicked_icon check_idx
+                    set check_idx 9999  # Break loop
+                } else {}
+                
+                set check_idx (+ check_idx 1)
+            }
+            
+            # Handle click on icon
+            if (>= clicked_icon 0) {
+                if (== selected_index clicked_icon) {
+                    # Double-click: launch example
+                    let ex_idx: int = (at indices clicked_icon)
+                    set launch_cmd (at example_commands ex_idx)
+                    set should_launch true
+                } else {
+                    # First click: select and load source
+                    set selected_index clicked_icon
+                    let ex_idx: int = (at indices clicked_icon)
+                    let file_path: string = (at example_files ex_idx)
+                    set source_code (read file_path)
+                    set source_scroll 0
+                }
+            } else {}
+            
+            # Check Launch button (only if an example is selected)
+            if (>= selected_index 0) {
+                let launch_btn_x: int = (+ RIGHT_PANEL_X 20)
+                let launch_btn_y: int = (- WINDOW_HEIGHT 60)
+                let launch_btn_w: int = 180
+                let launch_btn_h: int = 36
+                if (and (>= click_x launch_btn_x) (and (< click_x (+ launch_btn_x launch_btn_w)) (and (>= click_y launch_btn_y) (< click_y (+ launch_btn_y launch_btn_h))))) {
+                    let ex_idx: int = (at indices selected_index)
+                    set launch_cmd (at example_commands ex_idx)
+                    set should_launch true
+                } else {}
             } else {}
         } else {}
 
@@ -339,22 +460,45 @@ fn main() -> int {
         # Category tabs at top of left panel
         let cat_tab_y: int = (+ LEFT_PANEL_Y 10)
         let cat_tab_w: int = (/ LEFT_PANEL_WIDTH 3)
+        let cat_tab_h: int = 24
         
-        if (== (nl_ui_button renderer small_font "All" (+ LEFT_PANEL_X 10) cat_tab_y (- cat_tab_w 5) 24) 1) {
-            set selected_category ExampleCategory.ALL
-            set selected_index -1
-            set scroll_offset 0
-        } else {}
-        if (== (nl_ui_button renderer small_font "Games" (+ LEFT_PANEL_X (+ cat_tab_w 5)) cat_tab_y (- cat_tab_w 5) 24) 1) {
-            set selected_category ExampleCategory.GAMES
-            set selected_index -1
-            set scroll_offset 0
-        } else {}
-        if (== (nl_ui_button renderer small_font "Gfx" (+ LEFT_PANEL_X (* cat_tab_w 2)) cat_tab_y (- cat_tab_w 10) 24) 1) {
-            set selected_category ExampleCategory.GRAPHICS
-            set selected_index -1
-            set scroll_offset 0
-        } else {}
+        # Draw category buttons manually (no nl_ui_button for better click detection)
+        let all_btn_x: int = (+ LEFT_PANEL_X 10)
+        let all_btn_w: int = (- cat_tab_w 5)
+        let games_btn_x: int = (+ LEFT_PANEL_X (+ cat_tab_w 5))
+        let games_btn_w: int = (- cat_tab_w 5)
+        let gfx_btn_x: int = (+ LEFT_PANEL_X (* cat_tab_w 2))
+        let gfx_btn_w: int = (- cat_tab_w 10)
+        
+        # Draw All button
+        let all_active: bool = (== selected_category ExampleCategory.ALL)
+        if all_active {
+            unsafe { (SDL_SetRenderDrawColor renderer 80 80 120 255) }
+        } else {
+            unsafe { (SDL_SetRenderDrawColor renderer 50 50 70 255) }
+        }
+        unsafe { (nl_sdl_render_fill_rect renderer all_btn_x cat_tab_y all_btn_w cat_tab_h) }
+        unsafe { (nl_draw_text_blended renderer small_font "All" (+ all_btn_x 15) (+ cat_tab_y 5) 220 220 240 255) }
+        
+        # Draw Games button
+        let games_active: bool = (== selected_category ExampleCategory.GAMES)
+        if games_active {
+            unsafe { (SDL_SetRenderDrawColor renderer 80 80 120 255) }
+        } else {
+            unsafe { (SDL_SetRenderDrawColor renderer 50 50 70 255) }
+        }
+        unsafe { (nl_sdl_render_fill_rect renderer games_btn_x cat_tab_y games_btn_w cat_tab_h) }
+        unsafe { (nl_draw_text_blended renderer small_font "Games" (+ games_btn_x 10) (+ cat_tab_y 5) 220 220 240 255) }
+        
+        # Draw Gfx button
+        let gfx_active: bool = (== selected_category ExampleCategory.GRAPHICS)
+        if gfx_active {
+            unsafe { (SDL_SetRenderDrawColor renderer 80 80 120 255) }
+        } else {
+            unsafe { (SDL_SetRenderDrawColor renderer 50 50 70 255) }
+        }
+        unsafe { (nl_sdl_render_fill_rect renderer gfx_btn_x cat_tab_y gfx_btn_w cat_tab_h) }
+        unsafe { (nl_draw_text_blended renderer small_font "Gfx" (+ gfx_btn_x 15) (+ cat_tab_y 5) 220 220 240 255) }
 
         # Rebuild filtered indices
         set indices (build_filtered_indices example_categories selected_category)
@@ -385,16 +529,9 @@ fn main() -> int {
                 unsafe { (nl_sdl_render_fill_rect renderer (- icon_x 3) (- icon_y 3) (+ ICON_SIZE 6) (+ ICON_SIZE 6)) }
             } else {}
             
-            # Draw main icon background
+            # Draw solid colored icon background
             unsafe { (SDL_SetRenderDrawColor renderer r g b 255) }
             unsafe { (nl_sdl_render_fill_rect renderer icon_x icon_y ICON_SIZE ICON_SIZE) }
-            
-            # Draw darker inner rectangle for depth effect
-            let shadow_r: int = (/ (* r 7) 10)
-            let shadow_g: int = (/ (* g 7) 10)
-            let shadow_b: int = (/ (* b 7) 10)
-            unsafe { (SDL_SetRenderDrawColor renderer shadow_r shadow_g shadow_b 255) }
-            unsafe { (nl_sdl_render_fill_rect renderer (+ icon_x 3) (+ icon_y 3) (- ICON_SIZE 6) (- ICON_SIZE 6)) }
             
             # Draw first letter of name as "icon" (white, large, centered)
             let name: string = (at example_names ex_idx)
@@ -405,22 +542,6 @@ fn main() -> int {
             let truncated: string = (str_truncate name 10)
             unsafe { (nl_draw_text_blended renderer small_font truncated (+ icon_x 5) (+ icon_y (+ ICON_SIZE 4)) 220 220 240 255) }
             
-            # Use button for click detection (invisible button over the icon)
-            if (== (nl_ui_button renderer small_font "" icon_x icon_y ICON_SIZE (+ ICON_SIZE ICON_LABEL_HEIGHT)) 1) {
-                if (== selected_index grid_idx) {
-                    # Already selected: launch
-                    set launch_cmd (at example_commands ex_idx)
-                    set should_launch true
-                    set running false
-                } else {
-                    # Select and load source
-                    set selected_index grid_idx
-                    let file_path: string = (at example_files ex_idx)
-                    set source_code (read file_path)
-                    set source_scroll 0
-                }
-            } else {}
-            
             set grid_idx (+ grid_idx 1)
         }
 
@@ -430,11 +551,14 @@ fn main() -> int {
         # Header
         unsafe { (nl_ui_label renderer title_font "Example Preview" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 18) 240 240 255 255) }
         
-        # Quit button (top right)
+        # Quit button (top right) - drawn manually
         let quit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 90)
-        if (== (nl_ui_button renderer font "Quit" quit_btn_x (+ RIGHT_PANEL_Y 14) 70 28) 1) {
-            set running false
-        } else {}
+        let quit_btn_y: int = (+ RIGHT_PANEL_Y 14)
+        let quit_btn_w: int = 70
+        let quit_btn_h: int = 28
+        unsafe { (SDL_SetRenderDrawColor renderer 100 50 50 255) }
+        unsafe { (nl_sdl_render_fill_rect renderer quit_btn_x quit_btn_y quit_btn_w quit_btn_h) }
+        unsafe { (nl_draw_text_blended renderer font "Quit" (+ quit_btn_x 15) (+ quit_btn_y 6) 240 220 220 255) }
 
         if (>= selected_index 0) {
             let ex_idx: int = (at indices selected_index)
@@ -460,77 +584,68 @@ fn main() -> int {
             let max_chars: int = (clamp_int (str_length source_code) 0 2000)
             let preview_text: string = (str_substring source_code 0 max_chars)
             
-            # Display source code with smart line breaking
+            # Display source code with scrolling support
             let mut char_idx: int = 0
             let mut line_start: int = 0
-            let mut line_count: int = 0
+            let mut total_line_num: int = 0
+            let mut displayed_lines: int = 0
             let max_lines: int = (/ source_h 18)
-            let max_line_width: int = 85  # Characters per line
+            let mut keep_scanning: bool = true
             
-            while (and (< char_idx max_chars) (< line_count max_lines)) {
-                # Look for line break opportunities
-                let mut found_break: bool = false
-                let line_len: int = (- char_idx line_start)
+            # Clamp scroll to valid range
+            if (< source_scroll 0) {
+                set source_scroll 0
+            } else {}
+            
+            while (and (< char_idx max_chars) keep_scanning) {
+                let c: string = (str_substring preview_text char_idx 1)
                 
-                # Check current character
-                if (< char_idx max_chars) {
-                    let c: string = (str_substring preview_text char_idx 1)
-                    
-                    # Always break on actual newlines
-                    if (str_equals c "\n") {
-                        let line: string = (str_substring preview_text line_start (- char_idx line_start))
-                        unsafe { (nl_draw_text_blended renderer small_font line (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
+                # Found a newline - process the line
+                if (str_equals c "\n") {
+                    # Only display if we're past the scroll offset and haven't filled the screen
+                    if (and (>= total_line_num source_scroll) (< displayed_lines max_lines)) {
+                        let line_content: string = (str_substring preview_text line_start (- char_idx line_start))
+                        unsafe { (nl_draw_text_blended renderer small_font line_content (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
                         set line_y (+ line_y 18)
-                        set line_count (+ line_count 1)
-                        set line_start (+ char_idx 1)
-                        set found_break true
-                    } else {
-                        # If line too long, find good break point
-                        if (>= line_len max_line_width) {
-                            # Look backwards for a space or operator to break at
-                            let mut break_pos: int = char_idx
-                            let mut search_back: int = 0
-                            while (and (< search_back 20) (> break_pos line_start)) {
-                                let check_char: string = (str_substring preview_text break_pos 1)
-                                if (or (str_equals check_char " ") (or (str_equals check_char "(") (or (str_equals check_char ")") (or (str_equals check_char "{") (or (str_equals check_char "}") (str_equals check_char ",")))))) {
-                                    set char_idx break_pos
-                                    set search_back 999  # Exit loop
-                                } else {
-                                    set break_pos (- break_pos 1)
-                                    set search_back (+ search_back 1)
-                                }
-                            }
-                            
-                            let line: string = (str_substring preview_text line_start (- char_idx line_start))
-                            unsafe { (nl_draw_text_blended renderer small_font line (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
-                            set line_y (+ line_y 18)
-                            set line_count (+ line_count 1)
-                            set line_start char_idx
-                            set found_break true
-                        } else {}
-                    }
+                        set displayed_lines (+ displayed_lines 1)
+                    } else {}
+                    
+                    set total_line_num (+ total_line_num 1)
+                    set line_start (+ char_idx 1)
+                    
+                    # Stop if we've filled the screen
+                    if (>= displayed_lines max_lines) {
+                        set keep_scanning false
+                    } else {}
                 } else {}
                 
-                if (not found_break) {
-                    set char_idx (+ char_idx 1)
-                } else {}
+                set char_idx (+ char_idx 1)
             }
             
-            # Draw last partial line if space available
-            if (and (< line_count max_lines) (< line_start max_chars)) {
+            # Draw final line if we reached end without a newline
+            if (and (< displayed_lines max_lines) (and (< line_start max_chars) (>= total_line_num source_scroll))) {
                 let remaining: string = (str_substring preview_text line_start (- max_chars line_start))
                 if (> (str_length remaining) 0) {
                     unsafe { (nl_draw_text_blended renderer small_font remaining (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
                 } else {}
             } else {}
             
-            # Launch button
-            let launch_btn_y: int = (- WINDOW_HEIGHT 60)
-            if (== (nl_ui_button renderer font "Launch Example" (+ RIGHT_PANEL_X 20) launch_btn_y 180 36) 1) {
-                set launch_cmd (at example_commands ex_idx)
-                set should_launch true
-                set running false
+            # Draw scroll indicator if there's more content
+            if (> source_scroll 0) {
+                let scroll_text: string = (+ "Line " (+ (int_to_string (+ source_scroll 1)) " ↑↓"))
+                let scroll_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 120)
+                let scroll_y: int = (- (+ source_y source_h) 20)
+                unsafe { (nl_draw_text_blended renderer small_font scroll_text scroll_x scroll_y 180 180 200 255) }
             } else {}
+            
+            # Launch button - drawn manually
+            let launch_btn_x: int = (+ RIGHT_PANEL_X 20)
+            let launch_btn_y: int = (- WINDOW_HEIGHT 60)
+            let launch_btn_w: int = 180
+            let launch_btn_h: int = 36
+            unsafe { (SDL_SetRenderDrawColor renderer 50 100 50 255) }
+            unsafe { (nl_sdl_render_fill_rect renderer launch_btn_x launch_btn_y launch_btn_w launch_btn_h) }
+            unsafe { (nl_draw_text_blended renderer font "Launch Example" (+ launch_btn_x 15) (+ launch_btn_y 8) 220 240 220 255) }
         } else {
             # No selection message
             unsafe { (nl_ui_label renderer font "Select an example from the left panel" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 100) 180 180 200 255) }
@@ -539,8 +654,17 @@ fn main() -> int {
         }
 
         unsafe { (SDL_RenderPresent renderer) }
+        
+        # Launch example if requested (inside main loop so launcher stays open)
+    if should_launch {
+            (println (+ "🚀 Launching: " launch_cmd))
+        unsafe { (nl_system launch_cmd) }
+            (println "✅ Example closed, launcher still running...")
+            set should_launch false
+    } else {}
     }
 
+    # Cleanup
     unsafe { (TTF_CloseFont font) }
     unsafe { (TTF_CloseFont title_font) }
     unsafe { (TTF_CloseFont small_font) }
@@ -548,10 +672,6 @@ fn main() -> int {
     unsafe { (SDL_DestroyWindow window) }
     unsafe { (TTF_Quit) }
     unsafe { (SDL_Quit) }
-
-    if should_launch {
-        unsafe { (nl_system launch_cmd) }
-    } else {}
 
     return 0
 }
