@@ -1,8 +1,8 @@
 # nanolang
 
 [![CI](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml/badge.svg)](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml)
-![Tests](https://img.shields.io/badge/tests-74%2F74%20passing-brightgreen.svg)
-![Coverage](https://img.shields.io/badge/coverage-%3E60%25-brightgreen.svg)
+![Tests](https://img.shields.io/badge/tests-92%2F92%20passing-brightgreen.svg)
+![Coverage](https://img.shields.io/badge/coverage-52.2%25-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Bootstrap](https://img.shields.io/badge/bootstrap-100%25%20self--hosting-success.svg)
@@ -59,6 +59,45 @@ Run it:
 ./bin/nanoc hello.nano -o hello
 ./hello
 ```
+
+## Platform Support
+
+### Tier 1: Fully Supported ✅
+NanoLang is actively tested and supported on:
+
+- **Ubuntu 22.04+** (x86_64)
+- **macOS 14+** (ARM64/Apple Silicon)
+
+### Tier 2: Windows via WSL 🪟
+**Windows 10/11 users:** NanoLang runs perfectly on Windows via WSL2 (Windows Subsystem for Linux).
+
+#### Install WSL2:
+```powershell
+# In PowerShell (as Administrator)
+wsl --install -d Ubuntu
+```
+
+After installation, restart your computer, then:
+
+```bash
+# Inside WSL Ubuntu terminal
+git clone https://github.com/jordanhubbard/nanolang.git
+cd nanolang
+make
+./bin/nanoc examples/nl_hello.nano -o hello
+./hello
+```
+
+**Why WSL?** NanoLang's dependencies (SDL2, ncurses, pkg-config) are Unix/POSIX libraries. WSL2 provides a full Linux environment with near-native performance on Windows.
+
+**Note:** Native Windows binaries (`.exe`) are not currently supported, but may be added in a future release via cross-compilation.
+
+### Tier 3: Experimental 🧪
+These platforms should work but are not actively tested in CI:
+
+- macOS Intel (via Rosetta 2 on Apple Silicon, or native on older Macs)
+- Other Linux distributions (Arch, Fedora, Debian, etc.)
+- FreeBSD/OpenBSD (requires manual dependency installation)
 
 ## Key Features
 

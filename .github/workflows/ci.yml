@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-14, windows-latest]
+        os: [ubuntu-latest, macos-14]
         include:
           - os: macos-14
             arch: arm64
@@ -45,21 +45,6 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install gcc pkg-config sdl2 sdl2_mixer sdl2_ttf
-
-      - name: Install dependencies (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          # Install build tools via chocolatey
-          choco install -y mingw make
-          echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $GITHUB_PATH
-          
-          # Install SDL2 packages via vcpkg (pre-installed on GitHub Actions)
-          vcpkg install sdl2:x64-windows sdl2-mixer:x64-windows sdl2-ttf:x64-windows
-          vcpkg integrate install
-          
-          # Set environment variables for SDL2
-          echo "SDL2_DIR=C:/vcpkg/installed/x64-windows" >> $GITHUB_ENV
-          echo "C:/vcpkg/installed/x64-windows/bin" >> $GITHUB_PATH
 
       - name: Check dependencies
         shell: bash
