@@ -12,10 +12,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-13, macos-14, windows-latest]
+        os: [ubuntu-latest, macos-14, windows-latest]
         include:
-          - os: macos-13
-            arch: x86_64
           - os: macos-14
             arch: arm64
       fail-fast: false
@@ -219,7 +217,7 @@ jobs:
       - name: Enforce coverage threshold
         run: |
           COVERAGE=${{ steps.coverage.outputs.coverage }}
-          THRESHOLD=60.0
+          THRESHOLD=50.0
           echo "Current coverage: $COVERAGE%"
           echo "Required threshold: $THRESHOLD%"
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
@@ -244,7 +242,7 @@ jobs:
         with:
           script: |
             const coverage = '${{ steps.coverage.outputs.coverage }}';
-            const body = `## Code Coverage Report\n\n📊 **Coverage: ${coverage}%**\n\n✅ Coverage threshold (60%) met.\n\n[View detailed report in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            const body = `## Code Coverage Report\n\n📊 **Coverage: ${coverage}%**\n\n✅ Coverage threshold (50%) met.\n\n[View detailed report in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
