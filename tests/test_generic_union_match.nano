@@ -27,13 +27,13 @@ fn divide(a: int, b: int) -> Result<int, string> {
     }
 }
 
-fn unwrap_or(r: Result<int, string>, default: int) -> int {
+fn unwrap_or(r: Result<int, string>, default_value: int) -> int {
     match r {
         Ok(v) => {
             return v.value
         }
         Err(e) => {
-            return default
+            return default_value
         }
     }
 }

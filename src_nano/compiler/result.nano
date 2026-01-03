@@ -247,13 +247,13 @@ shadow result_int_is_err {
 }
 
 /* Unwrap with default value */
-pub fn result_int_unwrap_or(r: ResultInt, default: int) -> int {
+pub fn result_int_unwrap_or(r: ResultInt, default_value: int) -> int {
     match r {
         Ok(v) => {
             return v.value
         }
         Err(e) => {
-            return default
+            return default_value
         }
     }
 }
@@ -281,13 +281,13 @@ pub fn result_bool_is_err(r: ResultBool) -> bool {
     }
 }
 
-pub fn result_bool_unwrap_or(r: ResultBool, default: bool) -> bool {
+pub fn result_bool_unwrap_or(r: ResultBool, default_value: bool) -> bool {
     match r {
         Ok(v) => {
             return v.value
         }
         Err(e) => {
-            return default
+            return default_value
         }
     }
 }
@@ -315,13 +315,13 @@ pub fn result_string_is_err(r: ResultString) -> bool {
     }
 }
 
-pub fn result_string_unwrap_or(r: ResultString, default: string) -> string {
+pub fn result_string_unwrap_or(r: ResultString, default_value: string) -> string {
     match r {
         Ok(v) => {
             return v.value
         }
         Err(e) => {
-            return default
+            return default_value
         }
     }
 }
