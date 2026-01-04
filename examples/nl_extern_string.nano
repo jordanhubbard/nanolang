@@ -50,7 +50,7 @@ fn test_strcmp() -> int {
     
     let cmp3: int = (strcmp str1 str4)
     (println "Compare 'apple' with 'aardvark':")
-    (println cmp3)  # Should be positive (apple > aardvark)
+    (println cmp3)  # 15: strcmp returns ASCII diff ('p' - 'a'), not just +1
     
     return 0
 }
@@ -75,7 +75,7 @@ fn test_strncmp() -> int {
     # Compare first 6 characters
     let cmp2: int = (strncmp str1 str2 6)
     (println "Compare first 6 chars of 'Hello World' and 'Hello There':")
-    (println cmp2)  # Should be non-zero (different at char 6)
+    (println cmp2)  # Should be 0 (both have "Hello " - same first 6 chars)
     
     # Compare full strings
     let cmp3: int = (strncmp str1 str3 11)
@@ -84,7 +84,7 @@ fn test_strncmp() -> int {
     
     let cmp4: int = (strncmp str1 str3 12)
     (println "Compare first 12 chars of 'Hello World' and 'Hello World!':")
-    (println cmp4)  # Should be negative (shorter string)
+    (println cmp4)  # -33: strncmp compares '\0' with '!' at position 11 (raw bytes)
     
     return 0
 }
@@ -152,7 +152,7 @@ fn test_edge_cases() -> int {
     
     let cmp_empty_nonempty: int = (strcmp empty1 nonempty)
     (println "Compare empty with non-empty:")
-    (println cmp_empty_nonempty)  # Should be negative
+    (println cmp_empty_nonempty)  # -97: strcmp compares '\0' with 'a' (raw ASCII diff)
     
     # Single character strings
     let single1: string = "x"

@@ -18,6 +18,7 @@ static SDL_Event nl_sdl_event_buf[NL_SDL_EVENT_BUF_CAP];
 static int nl_sdl_event_buf_len = 0;
 static uint32_t nl_sdl_event_buf_last_ticks = UINT32_MAX;
 static int nl_sdl_events_drained_this_tick = 0;
+static int nl_sdl_quit_received = 0;  /* Track if quit was received this frame */
 
 static SDL_Event nl_sdl_last_mousemotion;
 static int nl_sdl_has_mousemotion = 0;
@@ -45,6 +46,7 @@ static void nl__sdl_drain_events(void) {
         nl_sdl_event_buf_len = 0;
         nl_sdl_has_mousemotion = 0;
         nl_sdl_events_drained_this_tick = 0;
+        nl_sdl_quit_received = 0;  /* Reset quit flag for new frame */
     }
     
     /* Only drain if not already drained this tick */
@@ -56,6 +58,12 @@ static void nl__sdl_drain_events(void) {
 
     SDL_PumpEvents();
     while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
+            nl_sdl_quit_received = 1;  /* Mark quit as received */
+            /* Don't add to buffer, handle separately */
+            continue;
+        }
+        
         if (event.type == SDL_MOUSEMOTION) {
             nl_sdl_last_mousemotion = event;
             nl_sdl_has_mousemotion = 1;
@@ -234,10 +242,13 @@ int64_t nl_sdl_render_fill_rect(int64_t renderer_ptr, int64_t x, int64_t y, int6
     return SDL_RenderFillRect(renderer, &rect);
 }
 
-/* Helper to poll SDL events and return 1 if quit, 0 otherwise */
+/* Helper to poll SDL events and return 1 if quit, 0 otherwise 
+ * QUIT events are handled specially - they persist for the entire frame
+ * so multiple calls within the same frame will all return 1
+ */
 int64_t nl_sdl_poll_event_quit(void) {
     nl__sdl_drain_events();
-    return nl__sdl_take_first_event(SDL_QUIT, NULL) ? 1 : 0;
+    return nl_sdl_quit_received ? 1 : 0;
 }
 
 /* Helper to poll for mouse button down events

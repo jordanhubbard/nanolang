@@ -1111,3 +1111,372 @@ void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
         SDL_FreeSurface(surface);
     }
 }
+
+// Image button widget - clickable button with image texture
+// Returns: 1 if button was clicked (mouse released over button), 0 otherwise
+// Handles hover effect and click detection
+//
+// Parameters:
+//   renderer: SDL renderer
+//   texture_id: SDL texture ID (from SDL_image or similar, cast to int64_t)
+//   x, y: button position
+//   w, h: button size (image will be scaled to fit)
+//   hover_brightness: brightness multiplier on hover (1.0 = no change, 1.2 = 20% brighter)
+int64_t nl_ui_image_button(SDL_Renderer* renderer, int64_t texture_id,
+                             int64_t x, int64_t y, int64_t w, int64_t h,
+                             double hover_brightness) {
+    
+    SDL_Texture* texture = (SDL_Texture*)texture_id;
+    if (!texture) return 0;  // Invalid texture
+    
+    // Get mouse state
+    int mouse_x, mouse_y;
+    get_mouse_scaled(&mouse_x, &mouse_y);
+    
+    // Check if mouse is over button
+    int hover = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, (int)w, (int)h);
+    
+    // Detect click: mouse was down last frame, up this frame, and over button
+    int clicked = 0;
+    if (button_prev_mouse_down && !button_current_mouse_down && hover) {
+        clicked = 1;
+    }
+    
+    // Draw the image texture
+    SDL_Rect dest = {(int)x, (int)y, (int)w, (int)h};
+    
+    if (hover && hover_brightness > 1.0) {
+        // Apply brightness modulation for hover effect
+        Uint8 brightness = (Uint8)(255 * hover_brightness);
+        if (brightness > 255) brightness = 255;
+        SDL_SetTextureColorMod(texture, brightness, brightness, brightness);
+    } else {
+        // Normal brightness
+        SDL_SetTextureColorMod(texture, 255, 255, 255);
+    }
+    
+    SDL_RenderCopy(renderer, texture, NULL, &dest);
+    
+    // Draw border on hover
+    if (hover) {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 180);
+        SDL_RenderDrawRect(renderer, &dest);
+        
+        // Draw inner highlight for more pronounced effect
+        SDL_Rect inner = {(int)x + 1, (int)y + 1, (int)w - 2, (int)h - 2};
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
+        SDL_RenderDrawRect(renderer, &inner);
+    }
+    
+    // Draw pressed effect
+    if (button_current_mouse_down && hover) {
+        // Darken slightly when pressed
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 40);
+        SDL_RenderFillRect(renderer, &dest);
+    }
+    
+    return clicked ? 1 : 0;
+}
+
+// ============================================================================
+// Code Display Widget - Syntax-Highlighted Code Viewer
+// ============================================================================
+
+// Token types for syntax highlighting
+typedef enum {
+    TOKEN_KEYWORD,      // fn, let, if, while, etc.
+    TOKEN_TYPE,         // int, string, bool, etc.
+    TOKEN_STRING,       // String literals
+    TOKEN_NUMBER,       // Numeric literals
+    TOKEN_COMMENT,      // Comments
+    TOKEN_OPERATOR,     // Operators: +, -, *, /, ==, etc.
+    TOKEN_PAREN,        // Parentheses: ( )
+    TOKEN_IDENTIFIER,   // Variables, functions
+    TOKEN_WHITESPACE,   // Spaces, tabs
+    TOKEN_TEXT          // Everything else
+} TokenType;
+
+// Token color scheme (RGB)
+static void get_token_color(TokenType type, int* r, int* g, int* b) {
+    switch (type) {
+        case TOKEN_KEYWORD:
+            *r = 220; *g = 120; *b = 255;  // Purple
+            break;
+        case TOKEN_TYPE:
+            *r = 100; *g = 200; *b = 255;  // Cyan
+            break;
+        case TOKEN_STRING:
+            *r = 255; *g = 200; *b = 100;  // Orange
+            break;
+        case TOKEN_NUMBER:
+            *r = 150; *g = 255; *b = 150;  // Light green
+            break;
+        case TOKEN_COMMENT:
+            *r = 120; *g = 120; *b = 120;  // Gray
+            break;
+        case TOKEN_OPERATOR:
+            *r = 255; *g = 180; *b = 180;  // Light red
+            break;
+        case TOKEN_PAREN:
+            *r = 200; *g = 200; *b = 100;  // Yellow
+            break;
+        case TOKEN_IDENTIFIER:
+            *r = 220; *g = 220; *b = 240;  // Light gray
+            break;
+        default:
+            *r = 200; *g = 200; *b = 200;  // Default gray
+            break;
+    }
+}
+
+// Check if character is part of an identifier
+static int is_ident_char(char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || 
+           (c >= '0' && c <= '9') || c == '_';
+}
+
+// Check if string is a NanoLang keyword
+static int is_keyword(const char* word, int len) {
+    static const char* keywords[] = {
+        "fn", "let", "mut", "if", "else", "while", "for", "return",
+        "unsafe", "extern", "import", "from", "module", "struct", "enum",
+        "pub", "assert", "shadow", "cond", "and", "or", "not", "set"
+    };
+    
+    for (size_t i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
+        if (strlen(keywords[i]) == (size_t)len && 
+            strncmp(word, keywords[i], len) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Check if string is a NanoLang type
+static int is_type(const char* word, int len) {
+    static const char* types[] = {
+        "int", "float", "string", "bool", "void", "u8", "u16", "u32", "u64",
+        "i8", "i16", "i32", "i64", "f32", "f64", "array"
+    };
+    
+    for (size_t i = 0; i < sizeof(types) / sizeof(types[0]); i++) {
+        if (strlen(types[i]) == (size_t)len && 
+            strncmp(word, types[i], len) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Simple tokenizer for NanoLang syntax
+static TokenType get_token_type(const char* code, int pos, int* token_len) {
+    char c = code[pos];
+    
+    // Whitespace
+    if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+        *token_len = 1;
+        return TOKEN_WHITESPACE;
+    }
+    
+    // Comments
+    if (c == '#') {
+        int len = 0;
+        while (code[pos + len] && code[pos + len] != '\n') {
+            len++;
+        }
+        *token_len = len;
+        return TOKEN_COMMENT;
+    }
+    
+    // String literals
+    if (c == '"') {
+        int len = 1;
+        while (code[pos + len] && code[pos + len] != '"') {
+            if (code[pos + len] == '\\' && code[pos + len + 1]) {
+                len += 2;  // Skip escaped character
+            } else {
+                len++;
+            }
+        }
+        if (code[pos + len] == '"') len++;  // Include closing quote
+        *token_len = len;
+        return TOKEN_STRING;
+    }
+    
+    // Numbers
+    if ((c >= '0' && c <= '9') || (c == '-' && code[pos+1] >= '0' && code[pos+1] <= '9')) {
+        int len = (c == '-') ? 1 : 0;
+        len++;
+        while (code[pos + len] >= '0' && code[pos + len] <= '9') len++;
+        if (code[pos + len] == '.') {
+            len++;
+            while (code[pos + len] >= '0' && code[pos + len] <= '9') len++;
+        }
+        *token_len = len;
+        return TOKEN_NUMBER;
+    }
+    
+    // Parentheses
+    if (c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}') {
+        *token_len = 1;
+        return TOKEN_PAREN;
+    }
+    
+    // Operators
+    if (c == '+' || c == '-' || c == '*' || c == '/' || c == '%' ||
+        c == '=' || c == '!' || c == '<' || c == '>' || c == ':' ||
+        c == ',' || c == '.' || c == ';') {
+        int len = 1;
+        // Handle multi-character operators
+        char next = code[pos + 1];
+        if ((c == '=' && next == '=') || (c == '!' && next == '=') ||
+            (c == '<' && next == '=') || (c == '>' && next == '=') ||
+            (c == '-' && next == '>')) {
+            len = 2;
+        }
+        *token_len = len;
+        return TOKEN_OPERATOR;
+    }
+    
+    // Identifiers and keywords
+    if (is_ident_char(c) && !(c >= '0' && c <= '9')) {
+        int len = 0;
+        while (is_ident_char(code[pos + len])) len++;
+        
+        if (is_keyword(code + pos, len)) {
+            *token_len = len;
+            return TOKEN_KEYWORD;
+        }
+        if (is_type(code + pos, len)) {
+            *token_len = len;
+            return TOKEN_TYPE;
+        }
+        
+        *token_len = len;
+        return TOKEN_IDENTIFIER;
+    }
+    
+    // Default: single character
+    *token_len = 1;
+    return TOKEN_TEXT;
+}
+
+// Code display widget - shows syntax-highlighted code with scrolling
+// Parameters:
+//   renderer: SDL renderer
+//   font: TTF font for text
+//   code: source code string to display
+//   x, y, w, h: display area rectangle
+//   scroll_offset: number of lines to scroll from top
+//   line_height: height of each line in pixels (typically font size + padding)
+void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
+                         const char* code, int64_t x, int64_t y, 
+                         int64_t w, int64_t h, int64_t scroll_offset,
+                         int64_t line_height) {
+    
+    if (!font || !code) return;
+    
+    // Draw background
+    SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
+    SDL_SetRenderDrawColor(renderer, 20, 20, 28, 255);
+    SDL_RenderFillRect(renderer, &bg);
+    
+    // Draw border
+    SDL_SetRenderDrawColor(renderer, 60, 60, 70, 255);
+    SDL_RenderDrawRect(renderer, &bg);
+    
+    // Set up clipping rectangle to prevent text overflow
+    SDL_Rect clip = {(int)x + 2, (int)y + 2, (int)w - 4, (int)h - 4};
+    SDL_RenderSetClipRect(renderer, &clip);
+    
+    int current_x = (int)x + 5;
+    int current_y = (int)y + 5 - ((int)scroll_offset * (int)line_height);
+    int pos = 0;
+    int code_len = strlen(code);
+    
+    // Render tokens line by line
+    while (pos < code_len) {
+        char c = code[pos];
+        
+        // Handle newline
+        if (c == '\n') {
+            current_x = (int)x + 5;
+            current_y += (int)line_height;
+            pos++;
+            
+            // Early exit if we're past the visible area
+            if (current_y > (int)y + (int)h) break;
+            continue;
+        }
+        
+        // Get token type and length
+        int token_len = 0;
+        TokenType token_type = get_token_type(code, pos, &token_len);
+        
+        if (token_len == 0) {
+            pos++;
+            continue;
+        }
+        
+        // Skip rendering if above visible area
+        if (current_y + (int)line_height < (int)y) {
+            pos += token_len;
+            continue;
+        }
+        
+        // Skip whitespace rendering but advance position
+        if (token_type == TOKEN_WHITESPACE) {
+            if (c == ' ') {
+                // Measure space width
+                int space_w;
+                TTF_SizeText(font, " ", &space_w, NULL);
+                current_x += space_w;
+            } else if (c == '\t') {
+                int space_w;
+                TTF_SizeText(font, " ", &space_w, NULL);
+                current_x += space_w * 4;  // Tab = 4 spaces
+            }
+            pos++;
+            continue;
+        }
+        
+        // Extract token text
+        char token_text[256];
+        int copy_len = token_len < 255 ? token_len : 255;
+        strncpy(token_text, code + pos, copy_len);
+        token_text[copy_len] = '\0';
+        
+        // Get color for token type
+        int r, g, b;
+        get_token_color(token_type, &r, &g, &b);
+        
+        // Render token
+        SDL_Color color = {(Uint8)r, (Uint8)g, (Uint8)b, 255};
+        SDL_Surface* surface = TTF_RenderText_Blended(font, token_text, color);
+        if (surface) {
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+            if (texture) {
+                SDL_Rect dest = {current_x, current_y, surface->w, surface->h};
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                current_x += surface->w;
+                SDL_DestroyTexture(texture);
+            }
+            SDL_FreeSurface(surface);
+        }
+        
+        pos += token_len;
+        
+        // Wrap to next line if exceeds width
+        if (current_x > (int)x + (int)w - 10) {
+            current_x = (int)x + 5;
+            current_y += (int)line_height;
+            
+            // Early exit if past visible area
+            if (current_y > (int)y + (int)h) break;
+        }
+    }
+    
+    // Clear clipping
+    SDL_RenderSetClipRect(renderer, NULL);
+}

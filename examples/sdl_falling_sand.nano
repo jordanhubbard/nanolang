@@ -347,6 +347,7 @@ fn render_ui(renderer: SDL_Renderer, font: TTF_Font, current_material: Material,
     unsafe {     (nl_draw_text_blended renderer font material_name 10 10 255 255 255 255) }
     
     # Draw help text
+    unsafe {     (nl_draw_text_blended renderer font "ESC or Q to quit | SPACE to pause | 1-6 select material" 10 28 180 180 200 255) }
     
     # Draw pause indicator if paused
     if paused {
@@ -490,42 +491,56 @@ fn main() -> int {
     
     # Main loop
     while running {
+        # Update mouse state FIRST (required for UI widgets to work!)
+        unsafe { (nl_ui_update_mouse_state) }
+        
         # Handle keyboard input
         let key: int = (nl_sdl_poll_keypress)
         if (> key -1) {
-            # Material selection: 1=30, 2=31, 3=32, 4=33, 5=34, 6=35
-            if (== key 30) {
-                set current_material Material.SAND
+            # ESC or Q key to quit
+            if (== key 41) {
+                # ESC key
+                set running false
             } else {
-                if (== key 31) {
-                    set current_material Material.WATER
+                if (== key 20) {
+                    # Q key (also handles Cmd+Q on macOS)
+                    set running false
                 } else {
-                    if (== key 32) {
-                        set current_material Material.STONE
+                    # Material selection: 1=30, 2=31, 3=32, 4=33, 5=34, 6=35
+                    if (== key 30) {
+                        set current_material Material.SAND
                     } else {
-                        if (== key 33) {
-                            set current_material Material.WOOD
+                        if (== key 31) {
+                            set current_material Material.WATER
                         } else {
-                            if (== key 34) {
-                                set current_material Material.FIRE
+                            if (== key 32) {
+                                set current_material Material.STONE
                             } else {
-                                if (== key 35) {
-                                    set current_material Material.SMOKE
+                                if (== key 33) {
+                                    set current_material Material.WOOD
                                 } else {
-                                    if (== key 44) {
-                                        # SPACE = toggle pause
-                                        set paused (not paused)
+                                    if (== key 34) {
+                                        set current_material Material.FIRE
                                     } else {
-                                        if (== key 6) {
-                                            # C = clear
-                                            let mut clear_i: int = 0
-                                            while (< clear_i grid_size) {
-                                                (array_set grid clear_i Material.EMPTY)
-                                                (array_set fire_life clear_i 0)
-                                                set clear_i (+ clear_i 1)
-                                            }
+                                        if (== key 35) {
+                                            set current_material Material.SMOKE
                                         } else {
-                                            (print "")
+                                            if (== key 44) {
+                                                # SPACE = toggle pause
+                                                set paused (not paused)
+                                            } else {
+                                                if (== key 6) {
+                                                    # C = clear
+                                                    let mut clear_i: int = 0
+                                                    while (< clear_i grid_size) {
+                                                        (array_set grid clear_i Material.EMPTY)
+                                                        (array_set fire_life clear_i 0)
+                                                        set clear_i (+ clear_i 1)
+                                                    }
+                                                } else {
+                                                    (print "")
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -537,6 +552,12 @@ fn main() -> int {
         } else {
             (print "")
         }
+        
+        # Check for quit event (window close button or menu Quit)
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) {
+            set running false
+        } else {}
         
         # Material selector using radio buttons - now in a panel!
         unsafe {         (nl_ui_panel renderer 40 545 550 50 20 20 30 200) }
@@ -587,14 +608,6 @@ fn main() -> int {
                 set clear_i (+ clear_i 1)
             }
         } else {}
-        
-        # Handle quit event
-        let quit_event: int = (nl_sdl_poll_event_quit)
-        if (== quit_event 1) {
-            set running false
-        } else {
-            (print "")
-        }
         
         # Handle mouse input (continuous drawing while held)
         let mouse_state: int = (nl_sdl_poll_mouse_state)

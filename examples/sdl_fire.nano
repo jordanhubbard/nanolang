@@ -167,9 +167,26 @@ fn main() -> int {
     
     # Main loop
     while running {
-        # Check for quit
+        # Poll keyboard first
         let key: int = (nl_sdl_poll_keypress)
-        if (== (nl_sdl_poll_event_quit) 1) { set running false } else {}
+        if (> key -1) {
+            # ESC or Q key to quit
+            if (== key 41) {
+                # ESC key
+                set running false
+            } else {
+                if (== key 20) {
+                    # Q key (also handles Cmd+Q on macOS)
+                    set running false
+                } else {}
+            }
+        } else {}
+        
+        # Check for quit event (window close button or menu Quit)
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) {
+            set running false
+        } else {}
         
         # Update fire
         set fire_buffer (update_fire fire_buffer FIRE_WIDTH FIRE_HEIGHT)
@@ -231,6 +248,7 @@ fn main() -> int {
         }
         
         # Draw on-screen help
+        unsafe { (nl_draw_text_blended renderer font "Press ESC or Q to quit" 10 10 200 200 220 255) }
         
         unsafe { (SDL_RenderPresent renderer) }
         

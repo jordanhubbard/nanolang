@@ -346,6 +346,11 @@ fn main() -> int {
     let mut browser_items: array<string> = (build_browser_items current_dir)
     let mut selected_idx: int = 0
     let mut scroll_offset: int = 0
+    
+    # Double-click detection for directory navigation
+    let mut last_click_time: int = 0
+    let mut last_click_idx: int = -1
+    let double_click_threshold_ms: int = 500
 
     let mut music: Mix_Music = (Mix_LoadMUS "")
     let mut has_music: bool = false
@@ -371,6 +376,9 @@ fn main() -> int {
 
     let mut running: bool = true
     while running {
+        # Update mouse state FIRST (required for UI widgets to work!)
+        unsafe { (nl_ui_update_mouse_state) }
+        
         # Poll events
         let event_quit: int = (nl_sdl_poll_event_quit)
         if (== event_quit 1) { set running false } else {}
@@ -632,7 +640,80 @@ fn main() -> int {
                                                  list_x list_y list_w (- left_h 62)
                                                  scroll_offset selected_idx)
         if (>= clicked 0) {
-            set selected_idx clicked
+            # Detect double-click for mouse-based directory navigation
+            let current_time: int = (SDL_GetTicks)
+            let is_double_click: bool = (and (== clicked last_click_idx) 
+                                             (< (- current_time last_click_time) double_click_threshold_ms))
+            
+            if is_double_click {
+                # Double-click detected - navigate into directory or load file
+                let parent: string = (nl_fs_parent_dir current_dir)
+                let show_parent: bool = (!= parent current_dir)
+                let dirs: array<string> = (nl_fs_list_dirs current_dir)
+                let files: array<string> = (nl_fs_list_files_ci current_dir ".mod")
+                let dir_count: int = (array_length dirs)
+                let file_count: int = (array_length files)
+                
+                let idx: int = clicked
+                if (and show_parent (== idx 0)) {
+                    # Double-clicked on ".." - go up
+                    set current_dir parent
+                    set browser_items (build_browser_items current_dir)
+                    set selected_idx 0
+                    set scroll_offset 0
+                } else {
+                    let mut base: int = 0
+                    if show_parent { set base 1 } else {}
+                    if (< idx (+ base dir_count)) {
+                        # Double-clicked on directory - navigate into it
+                        let dir_idx: int = (- idx base)
+                        let dir_name: string = (at dirs dir_idx)
+                        set current_dir (nl_fs_join_path current_dir dir_name)
+                        set browser_items (build_browser_items current_dir)
+                        set selected_idx 0
+                        set scroll_offset 0
+                    } else {
+                        # Double-clicked on file - load it
+                        let file_idx: int = (- idx (+ base dir_count))
+                        if (and (>= file_idx 0) (< file_idx file_count)) {
+                            let file_name: string = (at files file_idx)
+                            let full_path: string = (nl_fs_join_path current_dir file_name)
+                            
+                            if has_music {
+                                unsafe { (Mix_HaltMusic) }
+                                unsafe { (Mix_FreeMusic music) }
+                                set has_music false
+                            } else {}
+                            
+                            unsafe { (pt2_module_free) }
+                            set mod_loaded false
+                            if (== (pt2_module_load full_path) 0) {
+                                set mod_loaded true
+                                set mod_name (pt2_module_get_name)
+                                set song_length (pt2_module_get_song_length)
+                                set pattern_count (pt2_module_get_pattern_count)
+                                set pos_order 0
+                                set pos_row 0
+                                set pos_speed 6
+                                set pos_bpm 125
+                                
+                                (println (+ "Loaded: " mod_name))
+                            } else {
+                                (println (+ "Failed to load MOD file: " full_path))
+                            }
+                        } else {}
+                    }
+                }
+                
+                # Reset double-click tracking after action
+                set last_click_idx -1
+                set last_click_time 0
+            } else {
+                # Single click - just update selection and track for double-click
+                set selected_idx clicked
+                set last_click_idx clicked
+                set last_click_time current_time
+            }
         } else {}
 
         # Right main area

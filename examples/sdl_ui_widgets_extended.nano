@@ -99,12 +99,19 @@ fn main() -> int {
     
     # Main loop
     while running {
+        # Update mouse state FIRST (required for all interactive widgets!)
+        unsafe { (nl_ui_update_mouse_state) }
+        
         # Poll events
         if (== (nl_sdl_poll_event_quit) 1) {
             set running false
         } else {}
         
         let key: int = (nl_sdl_poll_keypress)
+        if (== key 41) {
+            # ESC key to quit
+            set running false
+        } else {}
         
         # Clear screen
         unsafe {         (SDL_SetRenderDrawColor renderer 25 25 35 255) }

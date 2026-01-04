@@ -7,7 +7,11 @@ import "modules/sdl_ttf/sdl_ttf.nano"
 import "modules/sdl_ttf/sdl_ttf_helpers.nano"
 import "modules/sdl_image/sdl_image.nano"
 import "modules/ui_widgets/ui_widgets.nano"
-from "std/fs.nano" import read, join
+from "modules/std/fs.nano" import file_read
+from "modules/std/process.nano" import spawn
+
+# Forward declare extern to avoid module issues
+extern fn file_read(_path: string) -> string
 
 enum ExampleCategory {
     ALL = 0,
@@ -339,7 +343,6 @@ fn main() -> int {
     let mut indices: array<int> = (build_filtered_indices example_categories selected_category)
 
     let mut selected_index: int = -1
-    let mut scroll_offset: int = 0
     let mut source_code: string = ""
     let mut source_scroll: int = 0
 
@@ -438,12 +441,13 @@ fn main() -> int {
             # Check if click is on an icon
             let mut clicked_icon: int = -1
             let mut check_idx: int = 0
+            let cat_tab_y_click: int = (+ LEFT_PANEL_Y 10)
+            let grid_start_y_click: int = (+ cat_tab_y_click 40)
             while (< check_idx (array_length indices)) {
                 let row: int = (/ check_idx ICONS_PER_ROW)
                 let col: int = (% check_idx ICONS_PER_ROW)
                 let icon_x: int = (+ LEFT_PANEL_X (+ 15 (* col (+ ICON_SIZE ICON_MARGIN))))
-                let grid_start_y: int = (+ LEFT_PANEL_Y 150)
-                let icon_y: int = (+ grid_start_y (* row (+ ICON_TOTAL_SIZE ICON_MARGIN)))
+                let icon_y: int = (+ grid_start_y_click (* row (+ ICON_TOTAL_SIZE ICON_MARGIN)))
                 
                 # Check if click is within icon bounds
                 if (and (>= click_x icon_x) (and (< click_x (+ icon_x ICON_SIZE)) (and (>= click_y icon_y) (< click_y (+ icon_y ICON_SIZE))))) {
@@ -466,7 +470,7 @@ fn main() -> int {
                     set selected_index clicked_icon
                     let ex_idx: int = (at indices clicked_icon)
                     let file_path: string = (at example_files ex_idx)
-                    set source_code (read file_path)
+                    set source_code (file_read file_path)
                     set source_scroll 0
                 }
             } else {}
@@ -619,61 +623,24 @@ fn main() -> int {
             let source_y: int = (+ info_y 90)
             let source_h: int = (- (- WINDOW_HEIGHT source_y) 100)
             
-            unsafe { (nl_ui_panel renderer (+ RIGHT_PANEL_X 20) source_y (- RIGHT_PANEL_WIDTH 40) source_h 20 20 28 240) }
             unsafe { (nl_ui_label renderer font "Source Code:" (+ RIGHT_PANEL_X 30) (+ source_y 10) 200 200 220 255) }
             
-            # Display first few lines of source (simple version)
-            let mut line_y: int = (+ source_y 40)
-            let max_chars: int = (clamp_int (str_length source_code) 0 2000)
-            let preview_text: string = (str_substring source_code 0 max_chars)
-            
-            # Display source code with scrolling support
-            let mut char_idx: int = 0
-            let mut line_start: int = 0
-            let mut total_line_num: int = 0
-            let mut displayed_lines: int = 0
-            let max_lines: int = (/ source_h 18)
-            let mut keep_scanning: bool = true
-            
+            # Use new syntax-highlighted code display widget
             # Clamp scroll to valid range
             if (< source_scroll 0) {
                 set source_scroll 0
             } else {}
             
-            while (and (< char_idx max_chars) keep_scanning) {
-                let c: string = (str_substring preview_text char_idx 1)
-                
-                # Found a newline - process the line
-                if (str_equals c "\n") {
-                    # Only display if we're past the scroll offset and haven't filled the screen
-                    if (and (>= total_line_num source_scroll) (< displayed_lines max_lines)) {
-                        let line_content: string = (str_substring preview_text line_start (- char_idx line_start))
-                        unsafe { (nl_draw_text_blended renderer small_font line_content (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
-                        set line_y (+ line_y 18)
-                        set displayed_lines (+ displayed_lines 1)
-                    } else {}
-                    
-                    set total_line_num (+ total_line_num 1)
-                    set line_start (+ char_idx 1)
-                    
-                    # Stop if we've filled the screen
-                    if (>= displayed_lines max_lines) {
-                        set keep_scanning false
-                    } else {}
-                } else {}
-                
-                set char_idx (+ char_idx 1)
-            }
+            let code_display_x: int = (+ RIGHT_PANEL_X 20)
+            let code_display_y: int = (+ source_y 35)
+            let code_display_w: int = (- RIGHT_PANEL_WIDTH 40)
+            let code_display_h: int = (- source_h 65)
             
-            # Draw final line if we reached end without a newline
-            if (and (< displayed_lines max_lines) (and (< line_start max_chars) (>= total_line_num source_scroll))) {
-                let remaining: string = (str_substring preview_text line_start (- max_chars line_start))
-                if (> (str_length remaining) 0) {
-                    unsafe { (nl_draw_text_blended renderer small_font remaining (+ RIGHT_PANEL_X 30) line_y 200 200 210 255) }
-                } else {}
-            } else {}
+            unsafe { (nl_ui_code_display renderer small_font source_code 
+                     code_display_x code_display_y code_display_w code_display_h 
+                     source_scroll 18) }
             
-            # Draw scroll indicator if there's more content
+            # Draw scroll indicator if scrolled
             if (> source_scroll 0) {
                 let scroll_text: string = (+ "Line " (+ (int_to_string (+ source_scroll 1)) " ↑↓"))
                 let scroll_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 120)
@@ -698,13 +665,18 @@ fn main() -> int {
 
         unsafe { (SDL_RenderPresent renderer) }
         
-        # Launch example if requested (inside main loop so launcher stays open)
-    if should_launch {
+        # Launch example if requested (non-blocking spawn so launcher stays responsive)
+        if should_launch {
             (println (+ "🚀 Launching: " launch_cmd))
-        unsafe { (nl_system launch_cmd) }
-            (println "✅ Example closed, launcher still running...")
+            let pid: int = (spawn launch_cmd)
+            if (> pid 0) {
+                let pid_str: string = (int_to_string pid)
+                (println (+ "✅ Launched with PID: " pid_str))
+            } else {
+                (println "❌ Failed to launch example")
+            }
             set should_launch false
-    } else {}
+        } else {}
     }
 
     # Cleanup

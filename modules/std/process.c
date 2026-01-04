@@ -113,3 +113,69 @@ DynArray* nl_os_process_run(const char* command) {
     return result;
 }
 
+
+/* Spawn a process non-blocking
+ * Returns process ID (pid) or -1 on error
+ */
+int64_t nl_os_process_spawn(const char* command) {
+    pid_t pid = fork();
+    
+    if (pid < 0) {
+        /* Fork failed */
+        return -1;
+    } else if (pid == 0) {
+        /* Child process */
+        /* Use sh -c to execute command string */
+        execl("/bin/sh", "sh", "-c", command, (char*)NULL);
+        /* If exec fails, exit child */
+        _exit(127);
+    } else {
+        /* Parent process - return child PID */
+        return (int64_t)pid;
+    }
+}
+
+/* Check if a process is still running
+ * Returns 1 if running, 0 if exited, -1 on error
+ */
+int64_t nl_os_process_is_running(int64_t pid) {
+    if (pid <= 0) return -1;
+    
+    int status;
+    pid_t result = waitpid((pid_t)pid, &status, WNOHANG);
+    
+    if (result == 0) {
+        /* Process is still running */
+        return 1;
+    } else if (result == (pid_t)pid) {
+        /* Process has exited */
+        return 0;
+    } else {
+        /* Error (e.g., no such process) */
+        return -1;
+    }
+}
+
+/* Wait for a process to complete
+ * Returns exit code of the process, or -1 on error
+ */
+int64_t nl_os_process_wait(int64_t pid) {
+    if (pid <= 0) return -1;
+    
+    int status;
+    pid_t result = waitpid((pid_t)pid, &status, 0);
+    
+    if (result == (pid_t)pid) {
+        if (WIFEXITED(status)) {
+            return (int64_t)WEXITSTATUS(status);
+        } else if (WIFSIGNALED(status)) {
+            /* Process terminated by signal - return negative signal number */
+            return -(int64_t)WTERMSIG(status);
+        } else {
+            return -1;
+        }
+    } else {
+        /* waitpid failed */
+        return -1;
+    }
+}

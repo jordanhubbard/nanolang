@@ -26,8 +26,8 @@ extern fn nl_ui_set_scale(_scale: float) -> void
 #   if (== (nl_ui_button renderer font "Play" 100 100 80 40) 1) {
 #       (println "Play clicked!")
 #   }
-extern fn nl_ui_button(renderer: SDL_Renderer, font: TTF_Font, text: string,
-                       x: int, y: int, w: int, h: int) -> int
+extern fn nl_ui_button(_renderer: SDL_Renderer, _font: TTF_Font, _text: string,
+                       _x: int, _y: int, _w: int, _h: int) -> int
 
 # Label widget - draws text at position
 # 
@@ -37,8 +37,8 @@ extern fn nl_ui_button(renderer: SDL_Renderer, font: TTF_Font, text: string,
 #   text: label text
 #   x, y: position
 #   r, g, b, a: text color (0-255)
-extern fn nl_ui_label(renderer: SDL_Renderer, font: TTF_Font, text: string,
-                      x: int, y: int, r: int, g: int, b: int, a: int) -> void
+extern fn nl_ui_label(_renderer: SDL_Renderer, _font: TTF_Font, _text: string,
+                      _x: int, _y: int, _r: int, _g: int, _b: int, _a: int) -> void
 
 # Slider widget - horizontal slider control
 # Returns: new value (0.0 to 1.0)
@@ -51,8 +51,8 @@ extern fn nl_ui_label(renderer: SDL_Renderer, font: TTF_Font, text: string,
 #
 # Usage:
 #   set volume (nl_ui_slider renderer 50 50 200 20 volume)
-extern fn nl_ui_slider(renderer: SDL_Renderer, x: int, y: int, w: int, h: int,
-                       value: float) -> float
+extern fn nl_ui_slider(_renderer: SDL_Renderer, _x: int, _y: int, _w: int, _h: int,
+                       _value: float) -> float
 
 # Progress bar widget - shows progress (non-interactive)
 #
@@ -60,8 +60,8 @@ extern fn nl_ui_slider(renderer: SDL_Renderer, x: int, y: int, w: int, h: int,
 #   renderer: SDL renderer
 #   x, y, w, h: progress bar rectangle
 #   progress: current progress (0.0 to 1.0)
-extern fn nl_ui_progress_bar(renderer: SDL_Renderer, x: int, y: int, w: int, h: int,
-                              progress: float) -> void
+extern fn nl_ui_progress_bar(_renderer: SDL_Renderer, _x: int, _y: int, _w: int, _h: int,
+                              _progress: float) -> void
 
 # Checkbox widget - toggleable boolean state
 # Returns: new checked state (1 for checked, 0 for unchecked)
@@ -76,8 +76,8 @@ extern fn nl_ui_progress_bar(renderer: SDL_Renderer, x: int, y: int, w: int, h: 
 #
 # Usage:
 #   set paused (nl_ui_checkbox renderer font "Paused" 10 10 paused)
-extern fn nl_ui_checkbox(renderer: SDL_Renderer, font: TTF_Font, label: string,
-                         x: int, y: int, checked: int) -> int
+extern fn nl_ui_checkbox(_renderer: SDL_Renderer, _font: TTF_Font, _label: string,
+                         _x: int, _y: int, _checked: int) -> int
 
 # Radio button widget - selectable option in a group
 # Returns: 1 if this button was clicked (should become selected), 0 otherwise
@@ -95,8 +95,8 @@ extern fn nl_ui_checkbox(renderer: SDL_Renderer, font: TTF_Font, label: string,
 #   if (== (nl_ui_radio_button renderer font "Sand" 10 10 (== material SAND)) 1) {
 #       set material SAND
 #   }
-extern fn nl_ui_radio_button(renderer: SDL_Renderer, font: TTF_Font, label: string,
-                              x: int, y: int, selected: int) -> int
+extern fn nl_ui_radio_button(_renderer: SDL_Renderer, _font: TTF_Font, _label: string,
+                              _x: int, _y: int, _selected: int) -> int
 
 # Panel widget - styled container for grouping widgets
 # Draws a background panel with border for visual grouping
@@ -110,8 +110,8 @@ extern fn nl_ui_radio_button(renderer: SDL_Renderer, font: TTF_Font, label: stri
 # Usage:
 #   (nl_ui_panel renderer 10 10 200 150 30 30 40 200)
 #   # Then draw widgets inside...
-extern fn nl_ui_panel(renderer: SDL_Renderer, x: int, y: int, w: int, h: int,
-                      r: int, g: int, b: int, a: int) -> void
+extern fn nl_ui_panel(_renderer: SDL_Renderer, _x: int, _y: int, _w: int, _h: int,
+                      _r: int, _g: int, _b: int, _a: int) -> void
 
 # Scrollable list widget - displays a list of items with scrolling
 # Returns: index of clicked item (0-based), or -1 if none clicked
@@ -128,10 +128,10 @@ extern fn nl_ui_panel(renderer: SDL_Renderer, x: int, y: int, w: int, h: int,
 #
 # Usage:
 #   let clicked: int = (nl_ui_scrollable_list renderer font items count 10 50 300 200 0 current_index)
-extern fn nl_ui_scrollable_list(renderer: SDL_Renderer, font: TTF_Font,
-                                 items: array<string>, item_count: int,
-                                 x: int, y: int, w: int, h: int,
-                                 scroll_offset: int, selected_index: int) -> int
+extern fn nl_ui_scrollable_list(_renderer: SDL_Renderer, _font: TTF_Font,
+                                 _items: array<string>, _item_count: int,
+                                 _x: int, _y: int, _w: int, _h: int,
+                                 _scroll_offset: int, _selected_index: int) -> int
 
 # Time display widget - shows time in MM:SS format
 # Displays formatted time string
@@ -145,9 +145,9 @@ extern fn nl_ui_scrollable_list(renderer: SDL_Renderer, font: TTF_Font,
 #
 # Usage:
 #   (nl_ui_time_display renderer font 125 50 50 150 200 255 255)  # Shows "02:05"
-extern fn nl_ui_time_display(renderer: SDL_Renderer, font: TTF_Font,
-                              seconds: int, x: int, y: int,
-                              r: int, g: int, b: int, a: int) -> void
+extern fn nl_ui_time_display(_renderer: SDL_Renderer, _font: TTF_Font,
+                              _seconds: int, _x: int, _y: int,
+                              _r: int, _g: int, _b: int, _a: int) -> void
 
 # Seekable progress bar - interactive progress bar with click-to-seek
 # Returns: new position (0.0 to 1.0) if clicked, or -1.0 if not clicked
@@ -163,8 +163,8 @@ extern fn nl_ui_time_display(renderer: SDL_Renderer, font: TTF_Font,
 #   if (> new_pos -0.5) {
 #       # User clicked, seek to new_pos
 #   }
-extern fn nl_ui_seekable_progress_bar(renderer: SDL_Renderer, x: int, y: int, w: int, h: int,
-                                       progress: float) -> float
+extern fn nl_ui_seekable_progress_bar(_renderer: SDL_Renderer, _x: int, _y: int, _w: int, _h: int,
+                                       _progress: float) -> float
 
 # Text input field - single line text input widget
 # Returns: 1 if Enter was pressed, 0 otherwise
@@ -181,10 +181,10 @@ extern fn nl_ui_seekable_progress_bar(renderer: SDL_Renderer, x: int, y: int, w:
 #
 # Usage:
 #   (nl_ui_text_input renderer font username 64 50 200 300 40 focused)
-extern fn nl_ui_text_input(renderer: SDL_Renderer, font: TTF_Font,
-                            buffer: string, buffer_size: int,
-                            x: int, y: int, w: int, h: int,
-                            is_focused: int) -> int
+extern fn nl_ui_text_input(_renderer: SDL_Renderer, _font: TTF_Font,
+                            _buffer: string, _buffer_size: int,
+                            _x: int, _y: int, _w: int, _h: int,
+                            _is_focused: int) -> int
 
 # Dropdown/Combo box widget - shows selected item, expands to show list when clicked
 # Returns: index of newly selected item, -1 for no change, -2 to toggle open, -3 to close
@@ -213,10 +213,10 @@ extern fn nl_ui_text_input(renderer: SDL_Renderer, font: TTF_Font,
 #           } else {}
 #       }
 #   }
-extern fn nl_ui_dropdown(renderer: SDL_Renderer, font: TTF_Font,
-                         items: array<string>, item_count: int,
-                         x: int, y: int, w: int, h: int,
-                         selected_index: int, is_open: int) -> int
+extern fn nl_ui_dropdown(_renderer: SDL_Renderer, _font: TTF_Font,
+                         _items: array<string>, _item_count: int,
+                         _x: int, _y: int, _w: int, _h: int,
+                         _selected_index: int, _is_open: int) -> int
 
 # Number spinner widget - increment/decrement numeric value with +/- buttons
 # Returns: new value (clamped between min and max)
@@ -232,9 +232,9 @@ extern fn nl_ui_dropdown(renderer: SDL_Renderer, font: TTF_Font,
 #
 # Usage:
 #   set volume (nl_ui_number_spinner renderer font volume 0 100 50 150 120 30)
-extern fn nl_ui_number_spinner(renderer: SDL_Renderer, font: TTF_Font,
-                                value: int, min_val: int, max_val: int,
-                                x: int, y: int, w: int, h: int) -> int
+extern fn nl_ui_number_spinner(_renderer: SDL_Renderer, _font: TTF_Font,
+                                _value: int, _min_val: int, _max_val: int,
+                                _x: int, _y: int, _w: int, _h: int) -> int
 
 # Tooltip widget - shows informational text when hovering over a widget area
 # Call this after drawing the widget you want to add a tooltip to
@@ -249,9 +249,9 @@ extern fn nl_ui_number_spinner(renderer: SDL_Renderer, font: TTF_Font,
 # Usage:
 #   (nl_ui_button renderer font "Save" 100 100 80 40)
 #   (nl_ui_tooltip renderer font "Save your work" 100 100 80 40)
-extern fn nl_ui_tooltip(renderer: SDL_Renderer, font: TTF_Font,
-                        text: string, widget_x: int, widget_y: int,
-                        widget_w: int, widget_h: int) -> void
+extern fn nl_ui_tooltip(_renderer: SDL_Renderer, _font: TTF_Font,
+                        _text: string, _widget_x: int, _widget_y: int,
+                        _widget_w: int, _widget_h: int) -> void
 
 # File selector widget - browse and select files from a directory
 # Returns: index of selected file in the array, or -1 if no change
@@ -273,7 +273,60 @@ extern fn nl_ui_tooltip(renderer: SDL_Renderer, font: TTF_Font,
 #       set current clicked
 #       # Process selected file...
 #   }
-extern fn nl_ui_file_selector(renderer: SDL_Renderer, font: TTF_Font,
-                               files: array<string>, file_count: int,
-                               x: int, y: int, w: int, h: int,
-                               scroll_offset: int, selected_index: int) -> int
+extern fn nl_ui_file_selector(_renderer: SDL_Renderer, _font: TTF_Font,
+                               _files: array<string>, _file_count: int,
+                               _x: int, _y: int, _w: int, _h: int,
+                               _scroll_offset: int, _selected_index: int) -> int
+
+# Image button widget - clickable button with image texture
+# Returns: 1 if button was clicked (mouse released over button), 0 otherwise
+# Handles hover effect and click detection
+#
+# Parameters:
+#   renderer: SDL renderer
+#   texture_id: SDL texture ID (from SDL_image, e.g. nl_img_load_texture)
+#   x, y: button position
+#   w, h: button size (image will be scaled to fit)
+#   hover_brightness: brightness multiplier on hover (1.0 = normal, 1.2 = 20% brighter)
+#
+# Usage:
+#   let texture: int = unsafe { (nl_img_load_texture renderer "icon.png") }
+#   unsafe { (nl_ui_update_mouse_state) }
+#   let clicked: int = unsafe { (nl_ui_image_button renderer texture 100 100 80 80 1.2) }
+#   if (== clicked 1) {
+#       (println "Button clicked!")
+#   }
+extern fn nl_ui_image_button(_renderer: SDL_Renderer, _texture_id: int,
+                               _x: int, _y: int, _w: int, _h: int,
+                               _hover_brightness: float) -> int
+
+# Code display widget - syntax-highlighted code viewer for NanoLang source
+# Shows source code with colorized syntax highlighting and scrolling support
+#
+# Parameters:
+#   renderer: SDL renderer
+#   font: TTF font for text rendering  
+#   code: source code string to display
+#   x, y, w, h: display area rectangle
+#   scroll_offset: number of lines to scroll from top (0 = show from beginning)
+#   line_height: height of each line in pixels (typically 16-20)
+#
+# Color scheme:
+#   - Keywords (fn, let, if): Purple
+#   - Types (int, string, bool): Cyan
+#   - Strings: Orange
+#   - Numbers: Light green
+#   - Comments: Gray
+#   - Operators: Light red
+#   - Parentheses: Yellow
+#   - Identifiers: Light gray
+#
+# Usage:
+#   let code: string = (read "examples/hello.nano")
+#   unsafe { (nl_ui_code_display renderer font code 10 10 600 400 0 18) }
+extern fn nl_ui_code_display(_renderer: SDL_Renderer, _font: TTF_Font,
+                               _code: string, _x: int, _y: int,
+                               _w: int, _h: int, _scroll_offset: int,
+                               _line_height: int) -> void
+
+
