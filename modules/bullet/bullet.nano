@@ -12,25 +12,25 @@ extern fn nl_bullet_step(_time_step: float) -> void
 
 /* Soft Body Creation */
 extern fn nl_bullet_create_soft_sphere(
-    x: float, y: float, z: float,
-    radius: float,
-    resolution: int
+    _x: float, _y: float, _z: float,
+    _radius: float,
+    _resolution: int
 ) -> int
 
 /* Rigid Body Creation */
 extern fn nl_bullet_create_rigid_box(
-    x: float, y: float, z: float,
-    half_width: float, half_height: float, half_depth: float,
-    mass: float,
-    restitution: float
+    _x: float, _y: float, _z: float,
+    _half_width: float, _half_height: float, _half_depth: float,
+    _mass: float,
+    _restitution: float
 ) -> int
 
 extern fn nl_bullet_create_rigid_box_rotated(
-    x: float, y: float, z: float,
-    half_width: float, half_height: float, half_depth: float,
-    angle_degrees: float,
-    mass: float,
-    restitution: float
+    _x: float, _y: float, _z: float,
+    _half_width: float, _half_height: float, _half_depth: float,
+    _angle_degrees: float,
+    _mass: float,
+    _restitution: float
 ) -> int
 
 /* Soft Body Queries */

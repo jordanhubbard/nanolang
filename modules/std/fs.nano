@@ -123,6 +123,12 @@ fn glob_match_impl(pattern: string, pi: int, text: string, ti: int) -> bool {
     return false
 }
 
+shadow glob_match_impl {
+    assert (glob_match_impl "*" 0 "nanolang" 0)
+    assert (glob_match_impl "a?c" 0 "abc" 0)
+    assert (not (glob_match_impl "abc" 0 "ab" 0))
+}
+
 pub fn glob_match(pattern: string, text: string) -> bool {
     return (glob_match_impl pattern 0 text 0)
 }

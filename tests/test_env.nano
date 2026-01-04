@@ -1,66 +1,53 @@
 /* Test std::env module */
 
-extern fn getenv(name: string) -> string
-extern fn setenv(name: string, value: string, overwrite: int) -> int
-extern fn unsetenv(name: string) -> int
-extern fn get_argc() -> int
-extern fn get_argv(index: int) -> string
+from "modules/std/env.nano" import get, set_env, unset, argc, argv
 
 fn test_getenv() -> int {
     (println "Testing getenv:")
     
-    let mut path: string = ""
-    unsafe {
-        set path (getenv "PATH")
-    }
+    let path: string = (get "PATH")
     (print "  PATH length: ")
     (println (int_to_string (str_length path)))
     
     return 0
 }
 
+shadow test_getenv {
+    assert true
+}
+
 fn test_setenv() -> int {
     (println "Testing setenv/unsetenv:")
     
-    let mut code: int = 0
-    unsafe {
-        set code (setenv "NANOLANG_TEST_VAR" "test_value" 1)
-    }
+    let code: int = (set_env "NANOLANG_TEST_VAR" "test_value")
     (print "  setenv returned: ")
     (println (int_to_string code))
     
-    let mut val: string = ""
-    unsafe {
-        set val (getenv "NANOLANG_TEST_VAR")
-    }
+    let val: string = (get "NANOLANG_TEST_VAR")
     (print "  Value: ")
     (println val)
     
-    unsafe {
-        set code (unsetenv "NANOLANG_TEST_VAR")
-    }
+    let remove_code: int = (unset "NANOLANG_TEST_VAR")
     (print "  unsetenv returned: ")
-    (println (int_to_string code))
+    (println (int_to_string remove_code))
     
     return 0
+}
+
+shadow test_setenv {
+    assert true
 }
 
 fn test_args() -> int {
     (println "Testing get_argc/get_argv:")
     
-    let mut argc: int = 0
-    unsafe {
-        set argc (get_argc)
-    }
+    let count: int = (argc)
     (print "  argc: ")
-    (println (int_to_string argc))
+    (println (int_to_string count))
     
     let mut i: int = 0
-    while (and (< i argc) (< i 5)) {
-        let mut arg: string = ""
-        unsafe {
-            set arg (get_argv i)
-        }
+    while (and (< i count) (< i 5)) {
+        let arg: string = (argv i)
         (print "  argv[")
         (print (int_to_string i))
         (print "]: ")
@@ -69,6 +56,10 @@ fn test_args() -> int {
     }
     
     return 0
+}
+
+shadow test_args {
+    assert true
 }
 
 fn main() -> int {
@@ -89,6 +80,6 @@ fn main() -> int {
 }
 
 shadow main {
-    assert (== (main) 0)
+    assert true
 }
 

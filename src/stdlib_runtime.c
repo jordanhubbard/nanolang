@@ -89,7 +89,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     /* Dynamic array runtime - LEGACY (for old array<T> type) */
     sb_append(sb, "/* Dynamic array runtime (using GC) - LEGACY */\n");
     sb_append(sb, "#include \"runtime/gc.h\"\n");
-    sb_append(sb, "#include \"runtime/dyn_array.h\"\n\n");
+    sb_append(sb, "#include \"runtime/dyn_array.h\"\n");
+    sb_append(sb, "#include \"runtime/nl_string.h\"\n\n");
     
     /* Array literals create dynamic arrays - renamed to avoid conflicts */
     sb_append(sb, "static DynArray* dynarray_literal_int(int count, ...) {\n");
@@ -293,6 +294,97 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    }\n");
     sb_append(sb, "}\n\n");
     
+    /* bstring helpers (nl_string_t wrappers) */
+    sb_append(sb, "/* bstring helpers (nl_string_t wrappers) */\n");
+    sb_append(sb, "static nl_string_t* bstr_new(const char* cstr) {\n");
+    sb_append(sb, "    if (!cstr) cstr = \"\";\n");
+    sb_append(sb, "    return nl_string_new(cstr);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static nl_string_t* bstr_new_binary(DynArray* bytes) {\n");
+    sb_append(sb, "    if (!bytes || dyn_array_get_elem_type(bytes) != ELEM_U8) {\n");
+    sb_append(sb, "        return nl_string_new_binary(\"\", 0);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    int64_t len = dyn_array_length(bytes);\n");
+    sb_append(sb, "    if (len <= 0) {\n");
+    sb_append(sb, "        return nl_string_new_binary(\"\", 0);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    uint8_t* buffer = malloc((size_t)len);\n");
+    sb_append(sb, "    if (!buffer) {\n");
+    sb_append(sb, "        return nl_string_new_binary(\"\", 0);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    for (int64_t i = 0; i < len; i++) {\n");
+    sb_append(sb, "        buffer[i] = dyn_array_get_u8(bytes, i);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    nl_string_t* result = nl_string_new_binary(buffer, (size_t)len);\n");
+    sb_append(sb, "    free(buffer);\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static size_t bstr_length(nl_string_t* str) {\n");
+    sb_append(sb, "    if (!str) return 0;\n");
+    sb_append(sb, "    return nl_string_length(str);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static int64_t bstr_byte_at(nl_string_t* str, int64_t index) {\n");
+    sb_append(sb, "    if (!str || index < 0 || (size_t)index >= nl_string_length(str)) {\n");
+    sb_append(sb, "        return 0;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return (unsigned char)nl_string_byte_at(str, (size_t)index);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static nl_string_t* bstr_concat(nl_string_t* a, nl_string_t* b) {\n");
+    sb_append(sb, "    if (!a && !b) return nl_string_new(\"\");\n");
+    sb_append(sb, "    if (!a) return nl_string_clone(b);\n");
+    sb_append(sb, "    if (!b) return nl_string_clone(a);\n");
+    sb_append(sb, "    return nl_string_concat(a, b);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static nl_string_t* bstr_substring(nl_string_t* str, int64_t start, int64_t length) {\n");
+    sb_append(sb, "    if (!str || start < 0 || length < 0) {\n");
+    sb_append(sb, "        return nl_string_new(\"\");\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    size_t len = nl_string_length(str);\n");
+    sb_append(sb, "    if ((size_t)start > len) {\n");
+    sb_append(sb, "        start = (int64_t)len;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    if ((size_t)(start + length) > len) {\n");
+    sb_append(sb, "        length = (int64_t)len - start;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return nl_string_substring(str, (size_t)start, (size_t)length);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static bool bstr_equals(nl_string_t* a, nl_string_t* b) {\n");
+    sb_append(sb, "    if (!a || !b) return a == b;\n");
+    sb_append(sb, "    return nl_string_equals(a, b);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static bool bstr_validate_utf8(nl_string_t* str) {\n");
+    sb_append(sb, "    if (!str) return false;\n");
+    sb_append(sb, "    return nl_string_validate_utf8(str);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static int64_t bstr_utf8_length(nl_string_t* str) {\n");
+    sb_append(sb, "    if (!str) return 0;\n");
+    sb_append(sb, "    return nl_string_utf8_length(str);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static int64_t bstr_utf8_char_at(nl_string_t* str, int64_t char_index) {\n");
+    sb_append(sb, "    if (!str || char_index < 0) return -1;\n");
+    sb_append(sb, "    return nl_string_utf8_char_at(str, (size_t)char_index);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static const char* bstr_to_cstr(nl_string_t* str) {\n");
+    sb_append(sb, "    if (!str) return \"\";\n");
+    sb_append(sb, "    return nl_string_to_cstr(str);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static void bstr_free(nl_string_t* str) {\n");
+    sb_append(sb, "    if (str) {\n");
+    sb_append(sb, "        nl_string_free(str);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "}\n\n");
+
     /* String operations */
     sb_append(sb, "/* String concatenation - use strnlen for safety */\n");
     sb_append(sb, "static const char* nl_str_concat(const char* s1, const char* s2) {\n");

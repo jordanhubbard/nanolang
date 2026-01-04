@@ -1224,107 +1224,60 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
         }
     }
     
-    /* Emit includes and function forward declarations */
     if (detected_list_count > 0) {
-        /* Emit guard macros for struct typedefs before including list headers */
-        sb_append(sb, "/* ========== Generic List Type Guards ========== */\n");
-        sb_append(sb, "/* These prevent typedef redefinition warnings in list headers */\n");
-        for (int i = 0; i < detected_list_count; i++) {
-            /* Convert type name to uppercase for guard macro */
-            char type_upper[128];
-            strncpy(type_upper, detected_list_types[i], sizeof(type_upper) - 1);
-            type_upper[sizeof(type_upper) - 1] = '\0';
-            for (char *p = type_upper; *p; p++) {
-                *p = (char)toupper((unsigned char)*p);
-            }
-            sb_appendf(sb, "#define NL_%s_DEFINED\n", type_upper);
-        }
-        sb_append(sb, "/* ========== End Generic List Type Guards ========== */\n\n");
-        
-        /* Emit includes */
-        sb_append(sb, "/* ========== Generic List Includes (Auto-Generated) ========== */\n");
-        for (int i = 0; i < detected_list_count; i++) {
-            sb_appendf(sb, "#include \"/tmp/list_%s.h\"\n", detected_list_types[i]);
-        }
-        sb_append(sb, "\n/* Function forward declarations */\n");
+        sb_append(sb, "/* ========== Generic List Specializations ========== */\n\n");
         for (int i = 0; i < detected_list_count; i++) {
             const char *type_name = detected_list_types[i];
-            const char *c_type = get_prefixed_type_name(type_name);
-            
-            /* Check if we should use 'struct' keyword. 
-             * For runtime types (no prefix), we should NOT use 'struct' because they are typedefs. 
-             * But for user types (nl_ prefix), they are ALSO typedefs now.
-             * Wait! The generated list functions expect the struct type. */
-             
-            sb_appendf(sb, "List_%s* nl_list_%s_new(void);\n", type_name, type_name);
-            sb_appendf(sb, "void nl_list_%s_push(List_%s *list, %s value);\n", type_name, type_name, c_type);
-            sb_appendf(sb, "%s nl_list_%s_get(List_%s *list, int index);\n", c_type, type_name, type_name);
-            sb_appendf(sb, "int nl_list_%s_length(List_%s *list);\n", type_name, type_name);
-        }
-        sb_append(sb, "/* ========== End Generic List Includes ========== */\n\n");
-    }
+            const char *prefixed = get_prefixed_type_name(type_name);
+            char *prefixed_elem_type = prefixed ? strdup(prefixed) : NULL;
+            if (!prefixed_elem_type) {
+                fprintf(stderr, "Error: Out of memory duplicating prefixed list type for %s\n", type_name);
+                exit(1);
+            }
+            char specialized_name[256];
+            snprintf(specialized_name, sizeof(specialized_name), "List_%s", type_name);
 
-    /* Generate specialized generic list types (skip if using external files) */
-    if (detected_list_count == 0) {
-        /* Only generate inline if no external list files are being used */
-        sb_append(sb, "/* ========== Generic List Specializations ========== */\n\n");
-        for (int i = 0; i < env->generic_instance_count; i++) {
-            GenericInstantiation *inst = &env->generic_instances[i];
-            if (strcmp(inst->generic_name, "List") == 0 && inst->type_arg_names) {
-            const char *elem_type = inst->type_arg_names[0];
-            const char *specialized_name = inst->concrete_name;
-            
-            /* Get prefixed struct name (adds nl_ prefix for user types) */
-            const char *prefixed_elem_type = get_prefixed_type_name(elem_type);
-            
-            /* Generate struct definition */
-            sb_appendf(sb, "typedef struct {\n");
+            sb_appendf(sb, "struct %s {\n", specialized_name);
             sb_appendf(sb, "    %s *data;\n", prefixed_elem_type);
             sb_appendf(sb, "    int count;\n");
             sb_appendf(sb, "    int capacity;\n");
-            sb_appendf(sb, "} %s;\n\n", specialized_name);
-            
-            /* Generate constructor */
-            sb_appendf(sb, "%s* %s_new() {\n", specialized_name, specialized_name);
+            sb_appendf(sb, "};\n\n");
+
+            sb_appendf(sb, "List_%s* nl_list_%s_new(void) {\n", type_name, type_name);
             sb_appendf(sb, "    %s *list = malloc(sizeof(%s));\n", specialized_name, specialized_name);
             sb_appendf(sb, "    if (!list) return NULL;\n");
-            sb_appendf(sb, "    list->data = malloc(sizeof(%s) * 4);\n", prefixed_elem_type);
-            sb_appendf(sb, "    if (!list->data) { free(list); return NULL; }\n");
-            sb_appendf(sb, "    list->count = 0;\n");
             sb_appendf(sb, "    list->capacity = 4;\n");
+            sb_appendf(sb, "    list->count = 0;\n");
+            sb_appendf(sb, "    list->data = malloc(sizeof(%s) * list->capacity);\n", prefixed_elem_type);
+            sb_appendf(sb, "    if (!list->data) { free(list); return NULL; }\n");
             sb_appendf(sb, "    return list;\n");
             sb_appendf(sb, "}\n\n");
-            
-            /* Generate push function */
-            sb_appendf(sb, "void %s_push(%s *list, %s value) {\n",
-                      specialized_name, specialized_name, prefixed_elem_type);
+
+            sb_appendf(sb, "void nl_list_%s_push(List_%s *list, %s value) {\n",
+                      type_name, type_name, prefixed_elem_type);
+            sb_appendf(sb, "    if (!list) return;\n");
             sb_appendf(sb, "    if (list->count >= list->capacity) {\n");
-            sb_appendf(sb, "        list->capacity *= 2;\n");
-            sb_appendf(sb, "        %s *new_data = realloc(list->data, sizeof(%s) * list->capacity);\n",
+            sb_appendf(sb, "        int new_capacity = list->capacity * 2;\n");
+            sb_appendf(sb, "        %s *new_data = realloc(list->data, sizeof(%s) * new_capacity);\n",
                       prefixed_elem_type, prefixed_elem_type);
-            sb_appendf(sb, "        if (!new_data) return; /* Out of memory */\n");
+            sb_appendf(sb, "        if (!new_data) return;\n");
             sb_appendf(sb, "        list->data = new_data;\n");
+            sb_appendf(sb, "        list->capacity = new_capacity;\n");
             sb_appendf(sb, "    }\n");
             sb_appendf(sb, "    list->data[list->count++] = value;\n");
             sb_appendf(sb, "}\n\n");
-            
-            /* Generate get function */
-            sb_appendf(sb, "%s %s_get(%s *list, int index) {\n",
-                      prefixed_elem_type, specialized_name, specialized_name);
+
+            sb_appendf(sb, "%s nl_list_%s_get(List_%s *list, int index) {\n",
+                      prefixed_elem_type, type_name, type_name);
             sb_appendf(sb, "    return list->data[index];\n");
             sb_appendf(sb, "}\n\n");
-            
-            /* Generate length function */
-            sb_appendf(sb, "int %s_length(%s *list) {\n", specialized_name, specialized_name);
-            sb_appendf(sb, "    return list->count;\n");
+
+            sb_appendf(sb, "int nl_list_%s_length(List_%s *list) {\n", type_name, type_name);
+            sb_appendf(sb, "    return list ? list->count : 0;\n");
             sb_appendf(sb, "}\n\n");
-            }
+
+            free(prefixed_elem_type);
         }
-        sb_append(sb, "/* ========== End Generic List Specializations ========== */\n\n");
-    } else {
-        /* Using external list implementations */
-        sb_append(sb, "/* ========== Generic List Specializations ========== */\n");
-        sb_append(sb, "/* (Using external implementations from /tmp/list_*.h) */\n");
         sb_append(sb, "/* ========== End Generic List Specializations ========== */\n\n");
     }
     
