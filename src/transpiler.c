@@ -189,6 +189,21 @@ static bool is_runtime_typedef(const char *name) {
     return false;
 }
 
+/* Schema-defined list element types have dedicated runtime list implementations */
+static bool is_schema_list_type(const char *name) {
+    if (!name) return false;
+    if (strncmp(name, "AST", 3) == 0) {
+        return true;
+    }
+    if (strcmp(name, "LexerToken") == 0) {
+        return true;
+    }
+    if (strcmp(name, "CompilerDiagnostic") == 0) {
+        return true;
+    }
+    return false;
+}
+
 /* Check if an enum/struct name would conflict with C runtime types */
 static bool conflicts_with_runtime(const char *name) {
     /* These are defined in nanolang.h and would cause conflicts */
@@ -1163,15 +1178,8 @@ static void generate_list_specializations(Environment *env, StringBuilder *sb) {
     if (detected_list_count_early > 0) {
         sb_append(sb, "/* ========== Generic List Forward Declarations ========== */\n");
         for (int i = 0; i < detected_list_count_early; i++) {
-            /* Convert type name to uppercase for guard macro */
-            char type_upper[128];
-            strncpy(type_upper, detected_list_types_early[i], sizeof(type_upper) - 1);
-            type_upper[sizeof(type_upper) - 1] = '\0';
-            for (char *p = type_upper; *p; p++) {
-                *p = (char)toupper((unsigned char)*p);
-            }
-            sb_appendf(sb, "#ifndef LIST_%s_TYPE_DEFINED\n", type_upper);
-            sb_appendf(sb, "#define LIST_%s_TYPE_DEFINED\n", type_upper);
+            sb_appendf(sb, "#ifndef FORWARD_DEFINED_List_%s\n", detected_list_types_early[i]);
+            sb_appendf(sb, "#define FORWARD_DEFINED_List_%s\n", detected_list_types_early[i]);
             sb_appendf(sb, "typedef struct List_%s List_%s;\n", detected_list_types_early[i], detected_list_types_early[i]);
             sb_append(sb, "#endif\n");
         }
@@ -1225,9 +1233,33 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
     }
     
     if (detected_list_count > 0) {
-        sb_append(sb, "/* ========== Generic List Specializations ========== */\n\n");
+        bool emitted_runtime_includes = false;
         for (int i = 0; i < detected_list_count; i++) {
             const char *type_name = detected_list_types[i];
+            if (is_schema_list_type(type_name)) {
+                if (!emitted_runtime_includes) {
+                    sb_append(sb, "/* ========== Schema List Runtime Includes ========== */\n");
+                    emitted_runtime_includes = true;
+                }
+                sb_appendf(sb, "#include \"runtime/list_%s.h\"\n", type_name);
+            }
+        }
+        if (emitted_runtime_includes) {
+            sb_append(sb, "/* ========== End Schema List Runtime Includes ========== */\n\n");
+        }
+
+        bool emitted_specializations = false;
+        for (int i = 0; i < detected_list_count; i++) {
+            const char *type_name = detected_list_types[i];
+            if (is_schema_list_type(type_name)) {
+                continue;
+            }
+
+            if (!emitted_specializations) {
+                sb_append(sb, "/* ========== Generic List Specializations ========== */\n\n");
+                emitted_specializations = true;
+            }
+
             const char *prefixed = get_prefixed_type_name(type_name);
             char *prefixed_elem_type = prefixed ? strdup(prefixed) : NULL;
             if (!prefixed_elem_type) {
@@ -1272,13 +1304,23 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
             sb_appendf(sb, "    return list->data[index];\n");
             sb_appendf(sb, "}\n\n");
 
+            sb_appendf(sb, "void nl_list_%s_set(List_%s *list, int index, %s value) {\n",
+                      type_name, type_name, prefixed_elem_type);
+            sb_appendf(sb, "    if (!list) return;\n");
+            sb_appendf(sb, "    if (index < 0 || index >= list->count) return;\n");
+            sb_appendf(sb, "    list->data[index] = value;\n");
+            sb_appendf(sb, "}\n\n");
+
             sb_appendf(sb, "int nl_list_%s_length(List_%s *list) {\n", type_name, type_name);
             sb_appendf(sb, "    return list ? list->count : 0;\n");
             sb_appendf(sb, "}\n\n");
 
             free(prefixed_elem_type);
         }
-        sb_append(sb, "/* ========== End Generic List Specializations ========== */\n\n");
+
+        if (emitted_specializations) {
+            sb_append(sb, "/* ========== End Generic List Specializations ========== */\n\n");
+        }
     }
     
     free(detected_list_types);

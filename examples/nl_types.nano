@@ -35,7 +35,7 @@ shadow return_string {
 
 fn void_function() -> void {
     (println "This function returns void")
-    return void
+    return
 }
 
 shadow void_function {
@@ -79,7 +79,7 @@ shadow process_string {
     assert (== (process_string "") "")
 }
 
-fn mixed_types(i: int, f: float, b: bool, s: string) -> int {
+fn mixed_types(i: int, _f: float, b: bool, _s: string) -> int {
     if b {
         return i
     } else {

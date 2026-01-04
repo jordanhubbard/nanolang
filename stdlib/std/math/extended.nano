@@ -155,7 +155,15 @@ let PI: float = 3.141592653589793
 let E: float = 2.718281828459045
 
 pub fn pi() -> float { return PI }
+shadow pi {
+    assert (> (pi) 3.14)
+    assert (< (pi) 3.15)
+}
 pub fn e() -> float { return E }
+shadow e {
+    assert (> (e) 2.71)
+    assert (< (e) 2.72)
+}
 
 /* =============================================================================
  * Helper Functions
@@ -166,10 +174,28 @@ pub fn e() -> float { return E }
 pub fn deg_to_rad(degrees: float) -> float {
     return (* degrees (/ PI 180.0))
 }
+shadow deg_to_rad {
+    assert (== (deg_to_rad 0.0) 0.0)
+    let half_circle: float = (deg_to_rad 180.0)
+    assert (> half_circle 3.14)
+    assert (< half_circle 3.15)
+    let quarter_circle: float = (deg_to_rad 90.0)
+    assert (> quarter_circle 1.57)
+    assert (< quarter_circle 1.58)
+}
 
 /* Convert radians to degrees */
 pub fn rad_to_deg(radians: float) -> float {
     return (* radians (/ 180.0 PI))
+}
+shadow rad_to_deg {
+    assert (== (rad_to_deg 0.0) 0.0)
+    let half_circle: float = (rad_to_deg PI)
+    assert (> half_circle 179.9)
+    assert (< half_circle 180.1)
+    let quarter_circle: float = (rad_to_deg (/ PI 2.0))
+    assert (> quarter_circle 89.9)
+    assert (< quarter_circle 90.1)
 }
 
 /* Clamp value between min and max */

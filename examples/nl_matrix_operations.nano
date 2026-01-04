@@ -88,6 +88,11 @@ fn print_matrix(matrix: array<array<int>>) -> int {
     return 0
 }
 
+shadow print_matrix {
+    let m: array<array<int>> = (create_matrix_2x3)
+    assert (== (print_matrix m) 0)
+}
+
 /* ============================================================================
  * Matrix Operations
  * ============================================================================

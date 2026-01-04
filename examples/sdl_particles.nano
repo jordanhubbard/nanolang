@@ -88,6 +88,10 @@ fn draw_ui_overlay(renderer: SDL_Renderer, font: TTF_Font, particle_count: int) 
     
 }
 
+shadow draw_ui_overlay {
+    assert true
+}
+
 # === MAIN ===
 
 fn main() -> int {

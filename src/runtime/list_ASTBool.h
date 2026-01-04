@@ -1,5 +1,5 @@
-#ifndef LIST_ASTNUMBER_H
-#define LIST_ASTNUMBER_H
+#ifndef LIST_ASTBOOL_H
+#define LIST_ASTBOOL_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -54,4 +54,4 @@ bool nl_list_ASTBool_is_empty(List_ASTBool *list);
 /* Free the list and all its resources */
 void nl_list_ASTBool_free(List_ASTBool *list);
 
-#endif /* LIST_ASTNUMBER_H */
+#endif /* LIST_ASTBOOL_H */

@@ -113,7 +113,7 @@ shadow make_empty_grid {
     assert (== (at grid 0) CellState.DEAD)
 }
 
-fn add_glider(grid: array<int>, width: int, height: int, start_x: int, start_y: int) -> array<int> {
+fn add_glider(grid: array<int>, width: int, _height: int, start_x: int, start_y: int) -> array<int> {
     # Glider pattern:
     #   █
     #    █
@@ -141,7 +141,7 @@ shadow add_glider {
     assert true
 }
 
-fn add_blinker(grid: array<int>, width: int, height: int, start_x: int, start_y: int) -> array<int> {
+fn add_blinker(grid: array<int>, width: int, _height: int, start_x: int, start_y: int) -> array<int> {
     # Blinker pattern (oscillator):
     # ███
     

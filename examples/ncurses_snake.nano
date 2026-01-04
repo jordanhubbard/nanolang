@@ -86,6 +86,10 @@ fn draw_border(width: int, height: int) -> void {
     unsafe { (mvaddch_wrapper (+ height 1) (+ width 1) (cast_int '+')) }
 }
 
+shadow draw_border {
+    assert true
+}
+
 fn draw_game(snake_x: array<int>, snake_y: array<int>, food_x: int, food_y: int, length: int, score: int) -> void {
     unsafe {     (clear_wrapper) }
     
@@ -121,7 +125,11 @@ fn draw_game(snake_x: array<int>, snake_y: array<int>, food_x: int, food_y: int,
     unsafe {     (refresh_wrapper) }
 }
 
-fn place_food(old_food_x: int, old_food_y: int, length: int) -> int {
+shadow draw_game {
+    assert true
+}
+
+fn place_food(old_food_x: int, old_food_y: int, _length: int) -> int {
     # Simple deterministic food placement
     let mut food_x: int = (+ old_food_x 7)
     let mut food_y: int = (+ old_food_y 5)

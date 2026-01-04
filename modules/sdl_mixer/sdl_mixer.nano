@@ -154,7 +154,7 @@ extern fn Mix_PausedMusic() -> int
 # This callback receives the final mixed audio stream
 # callback: function to process audio data
 # arg: user data passed to callback
-extern fn Mix_SetPostMix(_callback: fn(void, int) -> void, arg: void) -> void
+extern fn Mix_SetPostMix(_callback: fn(void, int) -> void, _arg: void) -> void
 
 # Query mixing channels
 # Returns number of channels in use

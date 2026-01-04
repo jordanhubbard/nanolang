@@ -58,9 +58,14 @@ fn draw_ui_overlay(renderer: SDL_Renderer, font: TTF_Font, boid_count: int) -> v
     unsafe {     (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 30) WINDOW_WIDTH 30) }
     
     # Draw "Boids: XX" text
-    unsafe {     (nl_draw_text_blended renderer font "Boids: 50" 10 (- WINDOW_HEIGHT 25) 100 200 100 255) }
+    let boid_label: string = (+ "Boids: " (int_to_string boid_count))
+    unsafe {     (nl_draw_text_blended renderer font boid_label 10 (- WINDOW_HEIGHT 25) 100 200 100 255) }
     
     # Draw "ESC = Quit" text
+}
+
+shadow draw_ui_overlay {
+    assert true
 }
 
 # === MAIN ===

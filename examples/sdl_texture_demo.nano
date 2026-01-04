@@ -50,7 +50,7 @@ fn main() -> int {
     while running {
         # Events
         let quit_event: int = (nl_sdl_poll_event_quit)
-        let key: int = (nl_sdl_poll_keypress)
+        unsafe {         (nl_sdl_poll_keypress) }
         let should_quit: bool = (cond
             ((!= quit_event 0) true)
             (else false)

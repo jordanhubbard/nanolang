@@ -14,7 +14,7 @@ fn main() -> int {
     
     let window: SDL_Window = (SDL_CreateWindow "Mouse Click Test" 100 100 400 300 4)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
-    let font: TTF_Font = (nl_open_font_portable "Arial" 12)
+    let _font: TTF_Font = (nl_open_font_portable "Arial" 12)
     
     if (== renderer 0) {
         (println "Failed to create renderer")

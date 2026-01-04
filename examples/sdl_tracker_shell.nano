@@ -209,7 +209,7 @@ shadow period_to_note {
 }
 
 # Visualization rendering functions
-fn draw_waveform_oscilloscope(renderer: SDL_Renderer, x: int, y: int, w: int, h: int, frame: int) -> void {
+fn draw_waveform_oscilloscope(renderer: SDL_Renderer, x: int, y: int, w: int, h: int, _frame: int) -> void {
     let waveform_size: int = (nl_audio_viz_get_waveform_size)
     let mut i: int = 0
     let waveform_step: int = (/ waveform_size w)

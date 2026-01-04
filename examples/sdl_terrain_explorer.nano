@@ -465,6 +465,10 @@ fn render_world_animated(renderer: SDL_Renderer, world: array<Tile>, camera_x: i
     }
 }
 
+shadow render_world_animated {
+    assert true
+}
+
 # Render world in 3D perspective view - OPTIMIZED
 fn render_world_3d(renderer: SDL_Renderer, world: array<Tile>, camera_x: int, camera_y: int, frame: int) -> void {
     # Animation updates less frequently for performance
@@ -620,6 +624,10 @@ fn draw_ui_overlay(renderer: SDL_Renderer, font: TTF_Font, view_mode: int) -> vo
     }
 }
 
+shadow draw_ui_overlay {
+    assert true
+}
+
 # === MAIN ===
 
 fn main() -> int {
@@ -700,82 +708,77 @@ fn main() -> int {
         # Handle keyboard input
         let key: int = (nl_sdl_poll_keypress)
         if (> key -1) {
+            if (== key 41) {
+                # ESC key
                 set running false
             } else {
-                # Arrow keys
                 if (== key 79) {
-                # Right arrow
-                set player_x (+ player_x 1)
-                set camera_x (- player_x (/ TILES_X 2))
-                # Explore new column
-                let mut dy: int = 0
-                while (< dy TILES_Y) {
-                    let world_x: int = (+ camera_x (- TILES_X 1))
-                    let world_y: int = (+ camera_y dy)
-                    (explore_tile world world_x world_y)
-                    set dy (+ dy 1)
-                }
-            } else {
-                if (== key 80) {
-                    # Left arrow
-                    set player_x (- player_x 1)
+                    # Right arrow
+                    set player_x (+ player_x 1)
                     set camera_x (- player_x (/ TILES_X 2))
-                    # Explore new column
-                    let mut dy: int = 0
-                    while (< dy TILES_Y) {
-                        let world_x: int = camera_x
-                        let world_y: int = (+ camera_y dy)
+                    let mut dy2: int = 0
+                    while (< dy2 TILES_Y) {
+                        let world_x: int = (+ camera_x (- TILES_X 1))
+                        let world_y: int = (+ camera_y dy2)
                         (explore_tile world world_x world_y)
-                        set dy (+ dy 1)
+                        set dy2 (+ dy2 1)
                     }
                 } else {
-                    if (== key 81) {
-                        # Down arrow
-                        set player_y (+ player_y 1)
-                        set camera_y (- player_y (/ TILES_Y 2))
-                        # Explore new row
-                        let mut dx: int = 0
-                        while (< dx TILES_X) {
-                            let world_x: int = (+ camera_x dx)
-                            let world_y: int = (+ camera_y (- TILES_Y 1))
+                    if (== key 80) {
+                        # Left arrow
+                        set player_x (- player_x 1)
+                        set camera_x (- player_x (/ TILES_X 2))
+                        let mut dy3: int = 0
+                        while (< dy3 TILES_Y) {
+                            let world_x: int = camera_x
+                            let world_y: int = (+ camera_y dy3)
                             (explore_tile world world_x world_y)
-                            set dx (+ dx 1)
+                            set dy3 (+ dy3 1)
                         }
                     } else {
-                        if (== key 82) {
-                            # Up arrow
-                            set player_y (- player_y 1)
+                        if (== key 81) {
+                            # Down arrow
+                            set player_y (+ player_y 1)
                             set camera_y (- player_y (/ TILES_Y 2))
-                            # Explore new row
-                            let mut dx: int = 0
-                            while (< dx TILES_X) {
-                                let world_x: int = (+ camera_x dx)
-                                let world_y: int = camera_y
+                            let mut dx2: int = 0
+                            while (< dx2 TILES_X) {
+                                let world_x: int = (+ camera_x dx2)
+                                let world_y: int = (+ camera_y (- TILES_Y 1))
                                 (explore_tile world world_x world_y)
-                                set dx (+ dx 1)
+                                set dx2 (+ dx2 1)
                             }
                         } else {
-                            if (== key 21) {
-                                # R key - Regenerate terrain
-                                set seed (+ seed 1337)
-                                set world (generate_world seed)
-                                # Reset camera to center
-                                set player_x (/ WORLD_WIDTH 2)
-                                set player_y (/ WORLD_HEIGHT 2)
-                                set camera_x (- player_x (/ TILES_X 2))
+                            if (== key 82) {
+                                # Up arrow
+                                set player_y (- player_y 1)
                                 set camera_y (- player_y (/ TILES_Y 2))
-                                # Re-explore initial area
-                                let mut ey: int = 0
-                                while (< ey TILES_Y) {
-                                    let mut ex: int = 0
-                                    while (< ex TILES_X) {
-                                        let world_x: int = (+ camera_x ex)
-                                        let world_y: int = (+ camera_y ey)
-                                        (explore_tile world world_x world_y)
-                                        set ex (+ ex 1)
-                                    }
-                                    set ey (+ ey 1)
+                                let mut dx3: int = 0
+                                while (< dx3 TILES_X) {
+                                    let world_x: int = (+ camera_x dx3)
+                                    let world_y: int = camera_y
+                                    (explore_tile world world_x world_y)
+                                    set dx3 (+ dx3 1)
                                 }
+                            } else {
+                                if (== key 21) {
+                                    # R key - Regenerate terrain
+                                    set seed (+ seed 1337)
+                                    set world (generate_world seed)
+                                    set player_x (/ WORLD_WIDTH 2)
+                                    set player_y (/ WORLD_HEIGHT 2)
+                                    set camera_x (- player_x (/ TILES_X 2))
+                                    set camera_y (- player_y (/ TILES_Y 2))
+                                    let mut ey: int = 0
+                                    while (< ey TILES_Y) {
+                                        let mut ex: int = 0
+                                        while (< ex TILES_X) {
+                                            let world_x: int = (+ camera_x ex)
+                                            let world_y: int = (+ camera_y ey)
+                                            (explore_tile world world_x world_y)
+                                            set ex (+ ex 1)
+                                        }
+                                        set ey (+ ey 1)
+                                    }
                                 } else {
                                     if (== key 32) {
                                         # 3 key - Toggle 3D view

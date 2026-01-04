@@ -49,7 +49,8 @@ struct Symbol {
     is_mutable: bool,
     is_function: bool,
     param_count: int,
-    defined: bool
+    defined: bool,
+    param_types: array<NSType>
 }
 
 /* Global storage for symbols - using arrays for Phase 1 */
@@ -732,21 +733,33 @@ shadow env_new {
 }
 
 /* Create a new symbol */
-fn symbol_new(name: string, sym_type: NSType, is_mut: bool, is_fn: bool, param_count: int) -> Symbol {
+fn symbol_new(name: string, sym_type: NSType, is_mut: bool, is_fn: bool, param_count: int, param_types: array<NSType>) -> Symbol {
     return Symbol {
         name: name,
         sym_type: sym_type,
         is_mutable: is_mut,
         is_function: is_fn,
         param_count: param_count,
-        defined: true
+        defined: true,
+        param_types: param_types
     }
 }
 
 shadow symbol_new {
-    let sym: Symbol = (symbol_new "x" (type_int) true false 0)
+    let empty_params: array<NSType> = []
+    let sym: Symbol = (symbol_new "x" (type_int) true false 0 empty_params)
     assert (== sym.is_mutable true)
     assert (== sym.is_function false)
+}
+
+fn empty_param_types() -> array<NSType> {
+    let params: array<NSType> = []
+    return params
+}
+
+shadow empty_param_types {
+    let params: array<NSType> = (empty_param_types)
+    assert (== (array_length params) 0)
 }
 
 /* Add symbol to environment (using array) */
@@ -1014,6 +1027,14 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                             let call: ASTCall = (parser_get_call parser node_id)
                             let fn_id: ASTIdentifier = (parser_get_identifier parser call.function)
                             let fn_name: string = fn_id.name
+                            let mut arg_types: array<NSType> = []
+                            let mut arg_index: int = 0
+                            while (< arg_index call.arg_count) {
+                                let arg_ref: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start arg_index))
+                                let arg_type: NSType = (check_expr_node parser arg_ref.node_id arg_ref.node_type symbols diags file_name)
+                                set arg_types (array_push arg_types arg_type)
+                                set arg_index (+ arg_index 1)
+                            }
                             
                             /* Check for built-in functions first */
                             if (is_builtin_function fn_name) {
@@ -1037,6 +1058,29 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                             let msg: string = (+ "Wrong arg count for " (+ fn_name (+ " expects " (+ (int_to_string sym.param_count) (+ " arguments, but got " (int_to_string call.arg_count))))))
                                             let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0003" msg (Diagnostics.diag_location file_name call.line call.column))
                                             (Diagnostics.diag_list_add diags diag)
+                                        } else {
+                                            (print "")
+                                        }
+
+                                        let expected_param_len: int = (array_length sym.param_types)
+                                        if (and sym.is_function (> expected_param_len 0)) {
+                                            let mut j: int = 0
+                                            let mut limit: int = expected_param_len
+                                            if (< call.arg_count limit) {
+                                                set limit call.arg_count
+                                            } else { (print "") }
+                                            while (< j limit) {
+                                                let expected_type: NSType = (at sym.param_types j)
+                                                let actual_type: NSType = (at arg_types j)
+                                                if (not (types_equal actual_type expected_type)) {
+                                                    let msg: string = (+ "Argument " (+ (int_to_string (+ j 1)) (+ " of " (+ fn_name (+ " expected " (+ (type_to_string expected_type) (+ ", got " (type_to_string actual_type))))))))
+                                                    let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0004" msg (Diagnostics.diag_location file_name call.line call.column))
+                                                    (Diagnostics.diag_list_add diags diag)
+                                                } else {
+                                                    (print "")
+                                                }
+                                                set j (+ j 1)
+                                            }
                                         } else {
                                             (print "")
                                         }
@@ -1149,15 +1193,59 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
         (print "")
     }
     
-    /* NSType check first arm to get return type */
-    if (> m.arm_count 0) {
-        /* For now, assume all arms have the same type */
-        /* In full implementation, would check all arms match */
-        let first_arm_type: NSType = (check_expr_node parser (at m.arm_body_ids 0) (at m.arm_body_types 0) symbols diags file_name)
-        return first_arm_type
-    } else {
+    if (<= m.arm_count 0) {
         return (type_unknown_named "empty_match")
+    } else {
+        (print "")
     }
+
+    let mut i: int = 0
+    let mut first_arm_type: NSType = (type_unknown_named "match_arm")
+    let union_name: string = scrutinee_type.name
+
+    while (< i m.arm_count) {
+        let mut arm_symbols: array<Symbol> = symbols
+        let has_bindings: bool = (< i (array_length m.arm_bindings))
+        if has_bindings {
+            let binding_name: string = (at m.arm_bindings i)
+            if (and (!= binding_name "") (!= binding_name "_")) {
+                let variant_name: string = (at m.arm_variants i)
+                let variant_label: string = (+ union_name (+ "." variant_name))
+                let binding_type: NSType = NSType {
+                    kind: TypeKind.TYPE_STRUCT,
+                    name: variant_label,
+                    element_type_kind: TypeKind.TYPE_UNKNOWN,
+                    element_type_name: ""
+                }
+                let binding_sym: Symbol = (symbol_new binding_name binding_type false false 0 (empty_param_types))
+                set arm_symbols (env_add_symbol (env_new) arm_symbols binding_sym)
+            } else {
+                (print "")
+            }
+        } else {
+            (print "")
+        }
+
+        let body_id: int = (at m.arm_body_ids i)
+        let body_type: int = (at m.arm_body_types i)
+        let arm_type: NSType = (check_expr_node parser body_id body_type arm_symbols diags file_name)
+
+        if (== i 0) {
+            set first_arm_type arm_type
+        } else {
+            if (not (types_equal arm_type first_arm_type)) {
+                let msg: string = (+ "match arms must return same type (expected " (+ (type_to_string first_arm_type) (+ ", got " (+ (type_to_string arm_type) ")")))))
+                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name m.line m.column))
+                (Diagnostics.diag_list_add diags diag)
+            } else {
+                (print "")
+            }
+        }
+
+        set i (+ i 1)
+    }
+
+    return first_arm_type
 }
 
 /* NSType check a return statement expression
@@ -1256,7 +1344,7 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>,
         (print "")
     }
 
-    let sym: Symbol = (symbol_new let_node.name declared_type let_node.is_mut false 0)
+    let sym: Symbol = (symbol_new let_node.name declared_type let_node.is_mut false 0 (empty_param_types))
     return (env_add_symbol (env_new) symbols sym)
 }
 
@@ -1428,7 +1516,7 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
     while (< i func.param_count) {
         let param_let: ASTLet = (parser_get_let parser (+ func.param_start i))
         let ptype: NSType = (type_from_string param_let.var_type)
-        let psym: Symbol = (symbol_new param_let.name ptype param_let.is_mut false 0)
+        let psym: Symbol = (symbol_new param_let.name ptype param_let.is_mut false 0 (empty_param_types))
         set func_symbols (env_add_symbol (env_new) func_symbols psym)
         set i (+ i 1)
     }
@@ -1483,20 +1571,17 @@ pub fn typecheck_phase(parser: Parser, file_name: string) -> TypecheckPhaseOutpu
     }
     
     /* Add built-in functions to symbol table */
-    let println_sym: Symbol = (symbol_new "println" (type_void) false true (- 0 1))
+    let println_sym: Symbol = (symbol_new "println" (type_void) false true (- 0 1) (empty_param_types))
     set symbols (env_add_symbol env symbols println_sym)
-    
-    let print_sym: Symbol = (symbol_new "print" (type_void) false true (- 0 1))
+    let print_sym: Symbol = (symbol_new "print" (type_void) false true (- 0 1) (empty_param_types))
     set symbols (env_add_symbol env symbols print_sym)
 
     /* Minimal builtins used by nanoc_v06 */
-    let system_sym: Symbol = (symbol_new "system" (type_int) false true (- 0 1))
+    let system_sym: Symbol = (symbol_new "system" (type_int) false true (- 0 1) (empty_param_types))
     set symbols (env_add_symbol env symbols system_sym)
-
-    let str_concat_sym: Symbol = (symbol_new "str_concat" (type_string) false true (- 0 1))
+    let str_concat_sym: Symbol = (symbol_new "str_concat" (type_string) false true (- 0 1) (empty_param_types))
     set symbols (env_add_symbol env symbols str_concat_sym)
-
-    let str_equals_sym: Symbol = (symbol_new "str_equals" (type_bool) false true (- 0 1))
+    let str_equals_sym: Symbol = (symbol_new "str_equals" (type_bool) false true (- 0 1) (empty_param_types))
     set symbols (env_add_symbol env symbols str_equals_sym)
     
     /* Phase 1: Add all user function signatures to symbol table */
@@ -1507,7 +1592,20 @@ pub fn typecheck_phase(parser: Parser, file_name: string) -> TypecheckPhaseOutpu
         (println "  Registering function...")
         
         let return_type: NSType = (type_from_string func.return_type)
-        let func_sym: Symbol = (symbol_new func.name return_type false true func.param_count)
+        let mut param_types: array<NSType> = []
+        if (and (> func.param_count 0) (>= func.param_start 0)) {
+            let mut pidx: int = 0
+            while (< pidx func.param_count) {
+                let param_let: ASTLet = (parser_get_let parser (+ func.param_start pidx))
+                let param_type: NSType = (type_from_string param_let.var_type)
+                set param_types (array_push param_types param_type)
+                set pidx (+ pidx 1)
+            }
+        } else {
+            (print "")
+        }
+
+        let func_sym: Symbol = (symbol_new func.name return_type false true func.param_count param_types)
         set symbols (env_add_symbol env symbols func_sym)
         set i (+ i 1)
     }

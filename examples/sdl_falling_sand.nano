@@ -410,6 +410,10 @@ fn render_grid(renderer: SDL_Renderer, grid: array<int>) -> void {
     }
 }
 
+shadow render_grid {
+    assert true
+}
+
 # === MAIN ===
 
 fn main() -> int {

@@ -17,7 +17,7 @@ if [ ! -f "$NANOC" ]; then
     exit 1
 fi
 
-# Test files
+# Positive tests (should compile and run)
 TESTS=(
     "test_arithmetic_ops.nano"
     "test_comparison_ops.nano"
@@ -27,11 +27,17 @@ TESTS=(
     "test_function_calls.nano"
     "test_let_set.nano"
     "test_if_else.nano"
+    "test_match_bindings.nano"
     # NOTE: test_std_modules_env_fs_binary.nano disabled due to Ubuntu linking issue
     # Works on macOS but fails on Ubuntu with undefined references to std_env__* functions
     # Regular test suite already covers this functionality (tests/test_std_modules_env_fs_binary.nano works)
     # TODO: Investigate module linking differences between platforms in selfhost tests
     #"test_std_modules_env_fs_binary.nano"
+)
+
+# Negative tests (compiler should reject)
+NEGATIVE_TESTS=(
+    "test_function_arg_type_errors.nano"
 )
 
 PASSED=0
@@ -59,6 +65,24 @@ for test in "${TESTS[@]}"; do
     fi
 done
 
+for test in "${NEGATIVE_TESTS[@]}"; do
+    TEST_PATH="$TESTS_DIR/$test"
+    TEST_BIN="bin/selfhost_$(basename $test .nano)"
+
+    printf "Testing %-30s ... " "$test"
+
+    if $NANOC "$TEST_PATH" -o "$TEST_BIN" > /dev/null 2>&1; then
+        echo "❌ FAIL (expected compilation error)"
+        FAILED=$((FAILED + 1))
+        if [ -f "$TEST_BIN" ]; then
+            rm -f "$TEST_BIN"
+        fi
+    else
+        echo "✅ EXPECTED FAIL"
+        PASSED=$((PASSED + 1))
+    fi
+done
+
 echo ""
 echo "========================================"
 echo "Results: $PASSED passed, $FAILED failed"
@@ -67,7 +91,7 @@ echo "========================================"
 # Cleanup intermediate test binaries
 echo ""
 echo "Cleaning up test binaries..."
-for test in "${TESTS[@]}"; do
+for test in "${TESTS[@]}" "${NEGATIVE_TESTS[@]}"; do
     TEST_BIN="bin/selfhost_$(basename $test .nano)"
     if [ -f "$TEST_BIN" ]; then
         rm -f "$TEST_BIN"

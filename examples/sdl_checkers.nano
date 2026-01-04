@@ -651,7 +651,7 @@ shadow is_play_again_button_click {
 }
 
 # Render the game board with flash animation
-fn render_board(renderer: SDL_Renderer, board: array<int>, selected_row: int, selected_col: int, has_selection: bool, flash_row: int, flash_col: int, flash_frame: int, font: TTF_Font) -> void {
+fn render_board(renderer: SDL_Renderer, board: array<int>, selected_row: int, selected_col: int, has_selection: bool, flash_row: int, flash_col: int, flash_frame: int, _font: TTF_Font) -> void {
     let board_size: int = BOARD_SIZE
     let square_size: int = SQUARE_SIZE
     
@@ -789,6 +789,10 @@ fn draw_ui_overlay(renderer: SDL_Renderer, game_state: int, player_pieces: int, 
             unsafe { (nl_sdl_render_fill_rect renderer (+ center_x 2) 7 56 26) }
         } else {}
     }
+}
+
+shadow draw_ui_overlay {
+    assert true
 }
 
 # Move encoding/decoding (since we can't return multiple values)

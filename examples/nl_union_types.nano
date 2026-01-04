@@ -57,18 +57,18 @@ shadow create_pair {
 
 fn main() -> int {
     /* Create generic union values */
-    let result1: Result<int, string> = (divide 10 2)
-    let result2: Result<int, string> = (divide 10 0)
+    let _result_ok: Result<int, string> = (divide 10 2)
+    let _result_err: Result<int, string> = (divide 10 0)
     
     (println "Generic Result<int, string> types created successfully")
     
     /* Non-generic unions still work too */
-    let status: Status = (get_status)
+    let _status: Status = (get_status)
     
-    let data1: Data = Data.Empty {}
-    let data2: Data = Data.Integer { value: 42 }
-    let data3: Data = Data.Text { message: "Hello" }
-    let data4: Data = (create_pair 5 10)
+    let _data1: Data = Data.Empty {}
+    let _data2: Data = Data.Integer { value: 42 }
+    let _data3: Data = Data.Text { message: "Hello" }
+    let _data4: Data = (create_pair 5 10)
     
     (println "Union types demonstration complete!")
     (println "✓ Generic unions (Result<T,E>): Working")

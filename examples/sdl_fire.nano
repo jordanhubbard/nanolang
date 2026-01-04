@@ -120,7 +120,7 @@ fn update_fire(buffer: array<int>, width: int, height: int) -> array<int> {
 # === PALETTE ===
 # Fire palette: black -> red -> orange -> yellow -> white
 
-fn get_fire_color(intensity: int, r: int, g: int, b: int) -> int {
+fn get_fire_color(intensity: int) -> int {
     # Returns packed RGB color using cond for cleaner branching
     # intensity 0-255
     
@@ -133,9 +133,9 @@ fn get_fire_color(intensity: int, r: int, g: int, b: int) -> int {
 }
 
 shadow get_fire_color {
-    assert (== (get_fire_color 0 0 0 0) 0)
-    assert (== (get_fire_color 10 0 0 0) 40)
-    assert (== (get_fire_color 100 0 0 0) 255)
+    assert (== (get_fire_color 0) 0)
+    assert (== (get_fire_color 10) 40)
+    assert (== (get_fire_color 100) 255)
 }
 
 # === MAIN ===

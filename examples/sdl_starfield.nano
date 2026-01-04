@@ -200,7 +200,7 @@ fn main() -> int {
         set last_time current_time
         
         # Check for quit
-        let key: int = (nl_sdl_poll_keypress)
+        unsafe {         (nl_sdl_poll_keypress) }
         if (== (nl_sdl_poll_event_quit) 1) { set running false } else {}
         
         # Update stars
