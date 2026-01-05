@@ -663,6 +663,9 @@ shadow token_in { assert (== (token_in) LexerTokenType.TOKEN_IN) }
 fn token_assert() -> int { return LexerTokenType.TOKEN_ASSERT }
 shadow token_assert { assert (== (token_assert) LexerTokenType.TOKEN_ASSERT) }
 
+fn token_requires() -> int { return LexerTokenType.TOKEN_REQUIRES }
+shadow token_requires { assert (== (token_requires) LexerTokenType.TOKEN_REQUIRES) }
+
 fn token_unsafe() -> int { return LexerTokenType.TOKEN_UNSAFE }
 shadow token_unsafe { assert (== (token_unsafe) LexerTokenType.TOKEN_UNSAFE) }
 
@@ -2129,7 +2132,9 @@ fn parse_primary(p: Parser) -> Parser {
                                                 let p_after_name: Parser = name_res.p
                                                 let p2: Parser = (parser_store_identifier p_after_name func_name tok2.line tok2.column)
                                                 let func_id: int = p2.last_expr_node_id
-                                                let arg_start: int = (list_ASTStmtRef_length p2.call_args)
+                                                
+                                                /* arg_start will be set after parsing first argument */
+                                                let mut arg_start: int = (- 0 1)
 
                                                 /* Parse arguments until ')' */
                                                 let mut arg_count: int = 0
@@ -2138,12 +2143,25 @@ fn parse_primary(p: Parser) -> Parser {
                                                     let tcur: LexerToken = (parser_current pcur)
                                                     if (== tcur.token_type (token_rparen)) {
                                                         let p4: Parser = (parser_advance pcur)
+                                                        /* Handle zero-argument calls */
+                                                        if (== arg_count 0) {
+                                                            set arg_start (list_ASTStmtRef_length p4.call_args)
+                                                        } else {
+                                                            (print "")
+                                                        }
                                                         return (parser_store_call p4 func_id arg_start arg_count tok.line tok.column)
                                                     } else {
                                                         let parg: Parser = (parse_expression pcur)
                                                         if (parser_has_error parg) {
                                                             return parg
                                                         } else {
+                                                            /* Set arg_start AFTER parsing nested expression, BEFORE storing arg */
+                                                            if (== arg_count 0) {
+                                                                set arg_start (list_ASTStmtRef_length parg.call_args)
+                                                            } else {
+                                                                (print "")
+                                                            }
+                                                            
                                                             let arg_id: int = parg.last_expr_node_id
                                                             let arg_type: int = parg.last_expr_node_type
                                                             let pcur2: Parser = (parser_store_call_arg parg arg_id arg_type)
@@ -5488,13 +5506,62 @@ fn parse_function_definition(p: Parser) -> Parser {
                                 let return_type: string = type_res.type_name
                                 let p11: Parser = type_res.p
                                 
+                                /* Parse optional 'requires' clauses */
+                                let mut p_contract: Parser = p11
+                                let mut precondition_asserts: array<int> = []
+
+                                while (and (not (parser_is_at_end p_contract)) (== (parser_current p_contract).token_type (token_requires))) {
+                                    let req_tok: LexerToken = (parser_current p_contract)
+                                    let p_after_kw: Parser = (parser_advance p_contract)
+                                    let p_expr: Parser = (parse_expression p_after_kw)
+                                    if (parser_has_error p_expr) {
+                                        return p_expr
+                                    } else {
+                                        let cond_id: int = p_expr.last_expr_node_id
+                                        let cond_type: int = p_expr.last_expr_node_type
+                                        let p_assert: Parser = (parser_store_assert p_expr cond_id cond_type req_tok.line req_tok.column)
+                                        let assert_id: int = p_assert.last_expr_node_id
+                                        set precondition_asserts (array_push precondition_asserts assert_id)
+                                        set p_contract p_assert
+                                    }
+                                }
+
                                 /* Parse body (block) */
-                                let p12: Parser = (parse_block p11)
+                                let p12: Parser = (parse_block p_contract)
                                 if (parser_has_error p12) {
                                     return p12
                                 } else {
-                                    let body_id: int = p12.last_expr_node_id
-                                    return (parser_store_function p12 name param_start param_count return_type body_id tok.line tok.column)
+                                    let mut final_parser: Parser = p12
+                                    let mut body_id: int = p12.last_expr_node_id
+
+                                    if (> (array_length precondition_asserts) 0) {
+                                        let body_block: ASTBlock = (parser_get_block final_parser body_id)
+                                        let mut p_with_contracts: Parser = final_parser
+                                        let statement_start: int = p_with_contracts.block_statements_count
+
+                                        let mut idx: int = 0
+                                        while (< idx (array_length precondition_asserts)) {
+                                            let assert_id: int = (at precondition_asserts idx)
+                                            let p_stmt: Parser = (parser_store_block_statement p_with_contracts assert_id ParseNodeType.PNODE_ASSERT)
+                                            set p_with_contracts p_stmt
+                                            set idx (+ idx 1)
+                                        }
+
+                                        let mut stmt_idx: int = 0
+                                        while (< stmt_idx body_block.statement_count) {
+                                            let stmt: ASTStmtRef = (parser_get_block_statement final_parser (+ body_block.statement_start stmt_idx))
+                                            let p_stmt: Parser = (parser_store_block_statement p_with_contracts stmt.node_id stmt.node_type)
+                                            set p_with_contracts p_stmt
+                                            set stmt_idx (+ stmt_idx 1)
+                                        }
+
+                                        let new_count: int = (+ (array_length precondition_asserts) body_block.statement_count)
+                                        let p_block: Parser = (parser_store_block p_with_contracts statement_start new_count body_block.line body_block.column)
+                                        set final_parser p_block
+                                        set body_id p_block.last_expr_node_id
+                                    }
+
+                                    return (parser_store_function final_parser name param_start param_count return_type body_id tok.line tok.column)
                                 }
                             }
                             }

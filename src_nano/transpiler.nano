@@ -1780,6 +1780,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     
                     /* Build call: proper function name (handles list runtime) */
                     let c_func_name: string = (c_func_name_for_call func_name)
+                    
                     let mut result: string = c_func_name
                     set result (str_concat result "(")
 
