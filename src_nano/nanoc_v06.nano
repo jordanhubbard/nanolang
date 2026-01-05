@@ -515,7 +515,10 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
         (print "")
     }
     
-    let tokens: List<LexerToken> = (tokenize_file source_to_compile)
+    /* Create diagnostics list for lexer */
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    
+    let tokens: List<LexerToken> = (tokenize_file source_to_compile diags)
     let token_count: int = (list_LexerToken_length tokens)
     
     if (== token_count 0) {
@@ -539,7 +542,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
-            let parser: Parser = (parse_program tokens token_count)
+            let parser: Parser = (parse_program tokens token_count source_to_compile)
             if (parser_has_error parser) {
                 let tok: LexerToken = (parser_current parser)
                 (print "Parse error at line ")
