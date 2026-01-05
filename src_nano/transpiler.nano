@@ -999,6 +999,17 @@ fn gen_c_runtime() -> string {
     set result (str_concat result "    return out;\n")
     set result (str_concat result "}\n\n")
     
+    /* string length function */
+    set result (str_concat result "int64_t nl_str_length(const char* s) {\n")
+    set result (str_concat result "    return (int64_t)strlen(s);\n")
+    set result (str_concat result "}\n\n")
+    
+    /* min function */
+    set result (str_concat result "#define nl_min(a, b) ((a) < (b) ? (a) : (b))\n\n")
+    
+    /* max function */
+    set result (str_concat result "#define nl_max(a, b) ((a) > (b) ? (a) : (b))\n\n")
+    
     return result
 }
 

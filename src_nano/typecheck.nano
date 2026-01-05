@@ -23,6 +23,7 @@ import "src_nano/parser.nano"
 import "src_nano/ast_shared.nano"
 import "src_nano/compiler/ir.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
+from "src_nano/compiler/error_messages.nano" import encode_type_mismatch_message, encode_undefined_name_message, encode_wrong_arg_count_message, encode_missing_return_message, encode_immutable_assignment_message
 
 /* =============================================================================
  * TYPE SYSTEM
@@ -507,6 +508,75 @@ fn is_builtin_function(fn_name: string) -> bool {
     if (== fn_name "getcwd") { return true } else { (print "") }
     if (== fn_name "getenv") { return true } else { (print "") }
     if (== fn_name "exit") { return true } else { (print "") }
+    if (== fn_name "system") { return true } else { (print "") }
+    
+    /* File I/O operations */
+    if (== fn_name "file_read") { return true } else { (print "") }
+    if (== fn_name "file_read_bytes") { return true } else { (print "") }
+    if (== fn_name "file_write") { return true } else { (print "") }
+    if (== fn_name "file_append") { return true } else { (print "") }
+    if (== fn_name "file_remove") { return true } else { (print "") }
+    if (== fn_name "file_rename") { return true } else { (print "") }
+    if (== fn_name "file_exists") { return true } else { (print "") }
+    if (== fn_name "file_size") { return true } else { (print "") }
+    
+    /* Directory operations */
+    if (== fn_name "dir_create") { return true } else { (print "") }
+    if (== fn_name "dir_remove") { return true } else { (print "") }
+    if (== fn_name "dir_list") { return true } else { (print "") }
+    if (== fn_name "dir_exists") { return true } else { (print "") }
+    if (== fn_name "chdir") { return true } else { (print "") }
+    
+    /* Path operations */
+    if (== fn_name "path_isfile") { return true } else { (print "") }
+    if (== fn_name "path_isdir") { return true } else { (print "") }
+    if (== fn_name "path_join") { return true } else { (print "") }
+    if (== fn_name "path_basename") { return true } else { (print "") }
+    if (== fn_name "path_dirname") { return true } else { (print "") }
+    
+    /* Temp helpers */
+    if (== fn_name "tmp_dir") { return true } else { (print "") }
+    if (== fn_name "mktemp") { return true } else { (print "") }
+    if (== fn_name "mktemp_dir") { return true } else { (print "") }
+    
+    /* Character classification */
+    if (== fn_name "is_digit") { return true } else { (print "") }
+    if (== fn_name "is_alpha") { return true } else { (print "") }
+    if (== fn_name "is_alnum") { return true } else { (print "") }
+    if (== fn_name "is_whitespace") { return true } else { (print "") }
+    if (== fn_name "is_upper") { return true } else { (print "") }
+    if (== fn_name "is_lower") { return true } else { (print "") }
+    if (== fn_name "digit_value") { return true } else { (print "") }
+    if (== fn_name "char_to_lower") { return true } else { (print "") }
+    if (== fn_name "char_to_upper") { return true } else { (print "") }
+    
+    /* Binary string operations */
+    if (== fn_name "bstr_new") { return true } else { (print "") }
+    if (== fn_name "bstr_new_binary") { return true } else { (print "") }
+    if (== fn_name "bstr_length") { return true } else { (print "") }
+    if (== fn_name "bstr_concat") { return true } else { (print "") }
+    if (== fn_name "bstr_substring") { return true } else { (print "") }
+    if (== fn_name "bstr_equals") { return true } else { (print "") }
+    if (== fn_name "bstr_byte_at") { return true } else { (print "") }
+    if (== fn_name "bstr_validate_utf8") { return true } else { (print "") }
+    if (== fn_name "bstr_utf8_length") { return true } else { (print "") }
+    if (== fn_name "bstr_utf8_char_at") { return true } else { (print "") }
+    if (== fn_name "bstr_to_cstr") { return true } else { (print "") }
+    if (== fn_name "bstr_free") { return true } else { (print "") }
+    
+    /* Bytes operations */
+    if (== fn_name "bytes_from_string") { return true } else { (print "") }
+    if (== fn_name "string_from_bytes") { return true } else { (print "") }
+    
+    /* Math operations (trig) */
+    if (== fn_name "sin") { return true } else { (print "") }
+    if (== fn_name "cos") { return true } else { (print "") }
+    if (== fn_name "tan") { return true } else { (print "") }
+    if (== fn_name "atan2") { return true } else { (print "") }
+    
+    /* Additional type casts */
+    if (== fn_name "cast_bstring") { return true } else { (print "") }
+    if (== fn_name "null_opaque") { return true } else { (print "") }
     
     return false
 }
@@ -570,6 +640,75 @@ fn check_builtin_function(fn_name: string, arg_count: int) -> NSType {
     if (== fn_name "getcwd") { return (type_string) } else { (print "") }
     if (== fn_name "getenv") { return (type_string) } else { (print "") }
     if (== fn_name "exit") { return (type_void) } else { (print "") }
+    if (== fn_name "system") { return (type_int) } else { (print "") }
+    
+    /* File I/O operations */
+    if (== fn_name "file_read") { return (type_string) } else { (print "") }
+    if (== fn_name "file_read_bytes") { return (type_array TypeKind.TYPE_INT "u8") } else { (print "") }
+    if (== fn_name "file_write") { return (type_void) } else { (print "") }
+    if (== fn_name "file_append") { return (type_void) } else { (print "") }
+    if (== fn_name "file_remove") { return (type_void) } else { (print "") }
+    if (== fn_name "file_rename") { return (type_void) } else { (print "") }
+    if (== fn_name "file_exists") { return (type_bool) } else { (print "") }
+    if (== fn_name "file_size") { return (type_int) } else { (print "") }
+    
+    /* Directory operations */
+    if (== fn_name "dir_create") { return (type_void) } else { (print "") }
+    if (== fn_name "dir_remove") { return (type_void) } else { (print "") }
+    if (== fn_name "dir_list") { return (type_array TypeKind.TYPE_STRING "string") } else { (print "") }
+    if (== fn_name "dir_exists") { return (type_bool) } else { (print "") }
+    if (== fn_name "chdir") { return (type_void) } else { (print "") }
+    
+    /* Path operations */
+    if (== fn_name "path_isfile") { return (type_bool) } else { (print "") }
+    if (== fn_name "path_isdir") { return (type_bool) } else { (print "") }
+    if (== fn_name "path_join") { return (type_string) } else { (print "") }
+    if (== fn_name "path_basename") { return (type_string) } else { (print "") }
+    if (== fn_name "path_dirname") { return (type_string) } else { (print "") }
+    
+    /* Temp helpers */
+    if (== fn_name "tmp_dir") { return (type_string) } else { (print "") }
+    if (== fn_name "mktemp") { return (type_string) } else { (print "") }
+    if (== fn_name "mktemp_dir") { return (type_string) } else { (print "") }
+    
+    /* Character classification */
+    if (== fn_name "is_digit") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_alpha") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_alnum") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_whitespace") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_upper") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_lower") { return (type_bool) } else { (print "") }
+    if (== fn_name "digit_value") { return (type_int) } else { (print "") }
+    if (== fn_name "char_to_lower") { return (type_int) } else { (print "") }
+    if (== fn_name "char_to_upper") { return (type_int) } else { (print "") }
+    
+    /* Binary string operations */
+    if (== fn_name "bstr_new") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_new_binary") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_length") { return (type_int) } else { (print "") }
+    if (== fn_name "bstr_concat") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_substring") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_equals") { return (type_bool) } else { (print "") }
+    if (== fn_name "bstr_byte_at") { return (type_int) } else { (print "") }
+    if (== fn_name "bstr_validate_utf8") { return (type_bool) } else { (print "") }
+    if (== fn_name "bstr_utf8_length") { return (type_int) } else { (print "") }
+    if (== fn_name "bstr_utf8_char_at") { return (type_int) } else { (print "") }
+    if (== fn_name "bstr_to_cstr") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_free") { return (type_void) } else { (print "") }
+    
+    /* Bytes operations */
+    if (== fn_name "bytes_from_string") { return (type_array TypeKind.TYPE_INT "u8") } else { (print "") }
+    if (== fn_name "string_from_bytes") { return (type_string) } else { (print "") }
+    
+    /* Math operations (trig) */
+    if (== fn_name "sin") { return (type_float) } else { (print "") }
+    if (== fn_name "cos") { return (type_float) } else { (print "") }
+    if (== fn_name "tan") { return (type_float) } else { (print "") }
+    if (== fn_name "atan2") { return (type_float) } else { (print "") }
+    
+    /* Additional type casts */
+    if (== fn_name "cast_bstring") { return (type_string) } else { (print "") }
+    if (== fn_name "null_opaque") { return (type_int) } else { (print "") }
     
     /* Default: unknown */
     return (type_unknown_named "builtin")
@@ -1014,7 +1153,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                         let lookup: OptionType = (env_get_type symbols id_node.name)
 
                         if (not lookup.has_value) {
-                            let msg: string = (+ "Undefined identifier: " id_node.name)
+                            let msg: string = (encode_undefined_name_message id_node.name)
                             let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name id_node.line id_node.column))
                             (Diagnostics.diag_list_add diags diag)
                             return (type_unknown_named "undefined_identifier")
@@ -1047,7 +1186,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                     let idx: int = (env_lookup symbols fn_name)
 
                                     if (< idx 0) {
-                                        let msg: string = (+ "Undefined function: " fn_name)
+                                        let msg: string = (encode_undefined_name_message fn_name)
                                         let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name fn_id.line fn_id.column))
                                         (Diagnostics.diag_list_add diags diag)
                                         return (type_unknown_named "undefined_fn")
@@ -1055,7 +1194,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                         let sym: Symbol = (at symbols idx)
 
                                         if (and (>= sym.param_count 0) (!= sym.param_count call.arg_count)) {
-                                            let msg: string = (+ "Wrong arg count for " (+ fn_name (+ " expects " (+ (int_to_string sym.param_count) (+ " arguments, but got " (int_to_string call.arg_count))))))
+                                            let msg: string = (encode_wrong_arg_count_message fn_name sym.param_count call.arg_count)
                                             let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0003" msg (Diagnostics.diag_location file_name call.line call.column))
                                             (Diagnostics.diag_list_add diags diag)
                                         } else {
@@ -1073,7 +1212,8 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                                 let expected_type: NSType = (at sym.param_types j)
                                                 let actual_type: NSType = (at arg_types j)
                                                 if (not (types_equal actual_type expected_type)) {
-                                                    let msg: string = (+ "Argument " (+ (int_to_string (+ j 1)) (+ " of " (+ fn_name (+ " expected " (+ (type_to_string expected_type) (+ ", got " (type_to_string actual_type))))))))
+                                                    let detail: string = (+ "Argument " (+ (int_to_string (+ j 1)) (+ " of " fn_name)))
+                                                    let msg: string = (encode_type_mismatch_message "function_argument" (type_to_string expected_type) (type_to_string actual_type) detail)
                                                     let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0004" msg (Diagnostics.diag_location file_name call.line call.column))
                                                     (Diagnostics.diag_list_add diags diag)
                                                 } else {
@@ -1258,7 +1398,8 @@ fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: NST
         if (== expected_type.kind TypeKind.TYPE_VOID) {
             return true
         } else {
-            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "Missing return value" (Diagnostics.diag_location "" ret_node.line ret_node.column))
+            let msg: string = (encode_missing_return_message "<unnamed>" (type_to_string expected_type))
+            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location "" ret_node.line ret_node.column))
             (Diagnostics.diag_list_add diags diag)
             return false
         }
@@ -1334,7 +1475,8 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>,
     if (>= let_node.value 0) {
         let init_type: NSType = (check_expr_node parser let_node.value let_node.value_type symbols diags file_name)
         if (not (types_equal init_type declared_type)) {
-            let msg: string = (+ "NSType mismatch in let: " (+ let_node.name (+ ", expected " (+ (type_to_string declared_type) (+ ", got " (type_to_string init_type))))))
+            let detail: string = (+ "Variable " let_node.name)
+            let msg: string = (encode_type_mismatch_message "variable_assignment" (type_to_string declared_type) (type_to_string init_type) detail)
             let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name let_node.line let_node.column))
             (Diagnostics.diag_list_add diags diag)
         } else {
@@ -1354,20 +1496,22 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>,
  * 
  * Returns: true if valid, false if type error
  */
-fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
+fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> bool {
     /* If no return value, expect void */
     if (< ret_node.value 0) {
         if (== expected_type.kind TypeKind.TYPE_VOID) {
             return true
         } else {
-            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "Expected return value" (Diagnostics.diag_location file_name ret_node.line ret_node.column))
+            let msg: string = (encode_missing_return_message current_function (type_to_string expected_type))
+            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name ret_node.line ret_node.column))
             (Diagnostics.diag_list_add diags diag)
             return false
         }
     } else {
         let expr_t: NSType = (check_expr_node parser ret_node.value ret_node.value_type symbols diags file_name)
         if (not (types_equal expr_t expected_type)) {
-            let msg: string = (+ "NSType mismatch in return: expected " (+ (type_to_string expected_type) (+ ", got " (type_to_string expr_t))))
+            let detail: string = (+ "Return value of " current_function)
+            let msg: string = (encode_type_mismatch_message "return" (type_to_string expected_type) (type_to_string expr_t) detail)
             let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name ret_node.line ret_node.column))
             (Diagnostics.diag_list_add diags diag)
             return false
@@ -1380,21 +1524,22 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
 fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
     let idx: int = (env_lookup symbols set_node.target)
     if (< idx 0) {
-        let msg: string = (+ "Undefined variable in set: " set_node.target)
+        let msg: string = (encode_undefined_name_message set_node.target)
         let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name set_node.line set_node.column))
         (Diagnostics.diag_list_add diags diag)
         return false
     } else {
         let sym: Symbol = (at symbols idx)
         if (not sym.is_mutable) {
-            let msg: string = (+ "Cannot assign to immutable variable: " set_node.target)
+            let msg: string = (encode_immutable_assignment_message set_node.target)
             let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0005" msg (Diagnostics.diag_location file_name set_node.line set_node.column))
             (Diagnostics.diag_list_add diags diag)
             return false
         } else {
             let rhs_t: NSType = (check_expr_node parser set_node.value set_node.value_type symbols diags file_name)
             if (not (types_equal rhs_t sym.sym_type)) {
-                let msg: string = (+ "NSType mismatch in set: " (+ set_node.target (+ ", expected " (+ (type_to_string sym.sym_type) (+ ", got " (type_to_string rhs_t))))))
+                let detail: string = (+ "Assignment to " set_node.target)
+                let msg: string = (encode_type_mismatch_message "variable_assignment" (type_to_string sym.sym_type) (type_to_string rhs_t) detail)
                 let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name set_node.line set_node.column))
                 (Diagnostics.diag_list_add diags diag)
                 return false
@@ -1418,7 +1563,7 @@ fn expr_kind_from_pnode(pnode_type: int) -> int {
     else { return (- 0 1) } } } } } } } } }
 }
 
-fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
+fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> bool {
     let block: ASTBlock = (parser_get_block parser block_id)
     let mut local_symbols: array<Symbol> = symbols
     let mut ok: bool = true
@@ -1443,11 +1588,11 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
             } else { (print "") }
 
             if (>= if_node.then_body 0) {
-                if (not (check_block parser if_node.then_body local_symbols expected_return diags file_name)) { set ok false } else { (print "") }
+                if (not (check_block parser if_node.then_body local_symbols expected_return diags file_name current_function)) { set ok false } else { (print "") }
             } else { (print "") }
 
             if (>= if_node.else_body 0) {
-                if (not (check_block parser if_node.else_body local_symbols expected_return diags file_name)) { set ok false } else { (print "") }
+                if (not (check_block parser if_node.else_body local_symbols expected_return diags file_name current_function)) { set ok false } else { (print "") }
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_WHILE) {
             let while_node: ASTWhile = (parser_get_while parser stmt.node_id)
@@ -1459,11 +1604,11 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
             } else { (print "") }
 
             if (>= while_node.body 0) {
-                if (not (check_block parser while_node.body local_symbols expected_return diags file_name)) { set ok false } else { (print "") }
+                if (not (check_block parser while_node.body local_symbols expected_return diags file_name current_function)) { set ok false } else { (print "") }
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
             let ret_node: ASTReturn = (parser_get_return parser stmt.node_id)
-            if (not (check_return_statement parser ret_node expected_return local_symbols diags file_name)) {
+            if (not (check_return_statement parser ret_node expected_return local_symbols diags file_name current_function)) {
                 set ok false
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_ASSERT) {
@@ -1509,7 +1654,20 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
     (println func.name)
 
     let return_type: NSType = (type_from_string func.return_type)
-    let mut func_symbols: array<Symbol> = symbols
+    
+    /* Create a fresh symbol table for this function */
+    /* Copy only function and built-in symbols (those with is_function = true) */
+    let mut func_symbols: array<Symbol> = []
+    let mut j: int = 0
+    while (< j (array_length symbols)) {
+        let sym: Symbol = (at symbols j)
+        if sym.is_function {
+            set func_symbols (array_push func_symbols sym)
+        } else {
+            (print "")
+        }
+        set j (+ j 1)
+    }
 
     /* Add parameters as symbols (stored as lets starting at func.param_start) */
     let mut i: int = 0
@@ -1525,7 +1683,7 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
         /* extern fn */
         return true
     } else {
-        return (check_block parser func.body func_symbols return_type diags file_name)
+    return (check_block parser func.body func_symbols return_type diags file_name func.name)
     }
 }
 
@@ -1639,6 +1797,17 @@ pub fn typecheck_phase(parser: Parser, file_name: string) -> TypecheckPhaseOutpu
 pub fn typecheck_parser(parser: Parser) -> int {
     let output: TypecheckPhaseOutput = (typecheck_phase parser "")
     if output.had_error {
+        (println "Diagnostics:")
+        let count: int = (Diagnostics.diag_list_count output.diagnostics)
+        let mut i: int = 0
+        while (< i count) {
+            let diag: CompilerDiagnostic = (Diagnostics.diag_list_get output.diagnostics i)
+            (print "  [")
+            (print diag.code)
+            (print "] ")
+            (println diag.message)
+            set i (+ i 1)
+        }
         return 1
     } else {
         return 0

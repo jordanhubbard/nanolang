@@ -18,6 +18,7 @@ import "src_nano/compiler/lexer.nano"
 import "src_nano/parser.nano"
 import "src_nano/typecheck.nano"
 import "src_nano/transpiler.nano"
+import "src_nano/compiler/diagnostics.nano" as Diagnostics
 
 /* CLI argument access */
 extern fn get_argc() -> int
