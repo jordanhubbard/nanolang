@@ -251,7 +251,10 @@ fn is_builtin_list_runtime_fn(name: string) -> bool {
         (transp_str_starts_with name "list_int_")
         (or
             (transp_str_starts_with name "list_string_")
-            (transp_str_starts_with name "list_LexerToken_")
+            (or
+                (transp_str_starts_with name "list_token_")
+                (transp_str_starts_with name "list_LexerToken_")
+            )
         )
     )
 }
@@ -951,7 +954,7 @@ fn gen_c_includes() -> string {
     set result (str_concat result "#include \"runtime/dyn_array.h\"\n")
     set result (str_concat result "#include \"runtime/list_int.h\"\n")
     set result (str_concat result "#include \"runtime/list_string.h\"\n")
-    set result (str_concat result "#include \"runtime/list_LexerToken.h\"\n")
+    set result (str_concat result "#include \"runtime/list_token.h\"\n")
     set result (str_concat result "#include \"runtime/token_helpers.h\"\n")
     set result (str_concat result "\n")
     
@@ -1203,8 +1206,15 @@ fn generate_list_specializations(parser: Parser) -> string {
         let mut i: int = 0
         while (< i type_count) {
             let elem_type: string = (at list_types i)
-            set result (str_concat result (generate_list_for_type elem_type))
-            set result (str_concat result "\n")
+            
+            /* Skip built-in types that already have C runtime implementations */
+            if (or (== elem_type "int") (or (== elem_type "string") (== elem_type "LexerToken"))) {
+                (print "")
+            } else {
+                set result (str_concat result (generate_list_for_type elem_type))
+                set result (str_concat result "\n")
+            }
+            
             set i (+ i 1)
         }
         
@@ -1757,9 +1767,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         (print "")
                     }
                     
-                    /* Build call: nl_funcname(args...) */
-                    let mut result: string = "nl_"
-                    set result (str_concat result (mangle_name func_name))
+                    /* Build call: proper function name (handles list runtime) */
+                    let c_func_name: string = (c_func_name_for_call func_name)
+                    let mut result: string = c_func_name
                     set result (str_concat result "(")
 
                     /* Generate arguments */

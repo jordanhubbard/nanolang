@@ -641,7 +641,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             /* Add runtime library sources */
             set cc_cmd (str_concat cc_cmd " src/runtime/list_int.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/list_string.c")
-            set cc_cmd (str_concat cc_cmd " src/runtime/list_token.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_LexerToken.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/token_helpers.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/gc.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/dyn_array.c")
