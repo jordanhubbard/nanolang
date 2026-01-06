@@ -321,9 +321,11 @@ fn split_lines(s: string) -> array<string> {
 }
 
 fn parse_import_path_from_line(line: string) -> string {
-    if (not (nlc_str_starts_with line "import \"")) {
-        return ""
-    } else {
+    /* Handle both: import "path" and from "path" import ... */
+    let has_import: bool = (nlc_str_starts_with line "import \"")
+    let has_from: bool = (nlc_str_starts_with line "from \"")
+    
+    if (or has_import has_from) {
         let first_q: int = (nlc_str_index_of line "\"")
         let last_q: int = (nlc_str_last_index_of line "\"")
         if (and (>= first_q 0) (> last_q first_q)) {
@@ -331,6 +333,8 @@ fn parse_import_path_from_line(line: string) -> string {
         } else {
             return ""
         }
+    } else {
+        return ""
     }
 }
 
@@ -495,6 +499,9 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             (print "")
         }
         let write_merged: int = (file_write temp_source_file merged_source)
+        /* DEBUG: Also write to /tmp/merged_debug.nano for inspection */
+        let debug_write: int = (file_write "/tmp/merged_debug.nano" merged_source)
+        (print "")  /* Suppress unused variable warning */
         if (== write_merged 0) {
             set source_to_compile temp_source_file
         } else {
