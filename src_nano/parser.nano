@@ -2470,29 +2470,36 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
                                         let p_field: Parser = (parser_advance p_dot)
                                         
                                         /* Check for union construction: NSType.Variant{...} */
+                                        /* Only treat as union construction if object is a type name (starts with uppercase) */
                                         if (not (parser_is_at_end p_field)) {
                                             let tok_brace: LexerToken = (parser_current p_field)
-                                            if (== tok_brace.token_type (token_lbrace)) {
+                                            let obj_id: int = p_postfix.last_expr_node_id
+                                            let obj_type: int = p_postfix.last_expr_node_type
+                                            
+                                            /* Check if this could be a union construction */
+                                            let mut is_union_construct: bool = false
+                                            if (and (== tok_brace.token_type (token_lbrace)) (== obj_type 1)) {
+                                                let obj_ident: ASTIdentifier = (parser_get_identifier p_postfix obj_id)
+                                                let first_char: int = (char_at obj_ident.name 0)
+                                                /* Union type names start with uppercase (65-90 = A-Z) */
+                                                set is_union_construct (and (>= first_char 65) (<= first_char 90))
+                                            } else {
+                                                (print "")
+                                            }
+                                            
+                                            if is_union_construct {
                                                 /* Union construction with fields */
-                                                let obj_id: int = p_postfix.last_expr_node_id
-                                                let obj_type: int = p_postfix.last_expr_node_type
-                                                if (!= obj_type 1) {
-                                                    return (parser_with_error p_postfix true)
+                                                let obj_ident: ASTIdentifier = (parser_get_identifier p_postfix obj_id)
+                                                let union_name: string = obj_ident.name
+                                                let p_lbrace: Parser = (parser_advance p_field) /* consume '{' */
+                                                let p_uc: Parser = (parse_union_construct p_lbrace union_name field_name tok_post.line tok_post.column)
+                                                if (parser_has_error p_uc) {
+                                                    return p_uc
                                                 } else {
-                                                    let obj_ident: ASTIdentifier = (parser_get_identifier p_postfix obj_id)
-                                                    let union_name: string = obj_ident.name
-                                                    let p_lbrace: Parser = (parser_advance p_field) /* consume '{' */
-                                                    let p_uc: Parser = (parse_union_construct p_lbrace union_name field_name tok_post.line tok_post.column)
-                                                    if (parser_has_error p_uc) {
-                                                        return p_uc
-                                                    } else {
-                                                        set p_postfix p_uc
-                                                    }
+                                                    set p_postfix p_uc
                                                 }
                                             } else {
                                                 /* Regular field access */
-                                                let obj_id: int = p_postfix.last_expr_node_id
-                                                let obj_type: int = p_postfix.last_expr_node_type
                                                 set p_postfix (parser_store_field_access p_field obj_id obj_type field_name tok_post.line tok_post.column)
                                             }
                                         } else {
