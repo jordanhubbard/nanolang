@@ -1853,6 +1853,106 @@ fn parse_struct_literal(p: Parser, struct_name: string, start_line: int, start_c
     return (parser_with_error pcur true)
 }
 
+/* Parse cond expression: (cond ((test) val)+ (else default))
+ * Converts to nested if-else during parsing */
+fn parse_cond_expression(p: Parser) -> Parser {
+    let tok: LexerToken = (parser_current p)
+    let p1: Parser = (parser_advance p)  /* consume '(' */
+    
+    if (parser_is_at_end p1) {
+        return (parser_with_error p1 true)
+    } else {
+        let tok2: LexerToken = (parser_current p1)
+        /* Verify 'cond' keyword */
+        if (or (!= tok2.token_type (token_identifier)) (not (str_equals tok2.value "cond"))) {
+            return (parser_with_error p1 true)
+        } else {
+            let p2: Parser = (parser_advance p1)  /* consume 'cond' */
+            /* Parse clauses and build nested if-else */
+            let p3: Parser = (parse_cond_clauses p2 tok.line tok.column)
+            return p3
+        }
+    }
+}
+
+/* Helper: Parse cond clauses recursively */
+fn parse_cond_clauses(p: Parser, line: int, column: int) -> Parser {
+    if (parser_is_at_end p) {
+        return (parser_with_error p true)
+    } else {
+        let tok: LexerToken = (parser_current p)
+        if (!= tok.token_type (token_lparen)) {
+            return (parser_with_error p true)
+        } else {
+            let p1: Parser = (parser_advance p)  /* consume '(' */
+            if (parser_is_at_end p1) {
+                return (parser_with_error p1 true)
+            } else {
+                let tok2: LexerToken = (parser_current p1)
+                /* Check if else clause */
+                if (== tok2.token_type (token_else)) {
+                    let p2: Parser = (parser_advance p1)  /* consume 'else' */
+                    let p3: Parser = (parse_expression p2)
+                    if (parser_has_error p3) {
+                        return p3
+                    } else {
+                        let p4: Parser = (parser_expect p3 (token_rparen))  /* close else clause */
+                        let p5: Parser = (parser_expect p4 (token_rparen))  /* close cond */
+                        return p5
+                    }
+                } else {
+                    /* Regular clause: (condition value) */
+                    let p_cond: Parser = (parse_expression p1)
+                    if (parser_has_error p_cond) {
+                        return p_cond
+                    } else {
+                        let cond_id: int = p_cond.last_expr_node_id
+                        let cond_type: int = p_cond.last_expr_node_type
+                        let p_val: Parser = (parse_expression p_cond)
+                        if (parser_has_error p_val) {
+                            return p_val
+                        } else {
+                            let val_id: int = p_val.last_expr_node_id
+                            let val_type: int = p_val.last_expr_node_type
+                            let p_close: Parser = (parser_expect p_val (token_rparen))
+                            if (parser_has_error p_close) {
+                                return p_close
+                            } else {
+                                /* Parse rest of clauses */
+                                let p_rest: Parser = (parse_cond_clauses p_close line column)
+                                if (parser_has_error p_rest) {
+                                    return p_rest
+                                } else {
+                                    let else_id: int = p_rest.last_expr_node_id
+                                    let else_type: int = p_rest.last_expr_node_type
+                                    /* Build if expression with single-statement blocks */
+                                    let then_start: int = p_rest.block_statements_count
+                                    let p_then_stmt: Parser = (parser_store_block_statement p_rest val_id val_type)
+                                    let p_then_block: Parser = (parser_store_block p_then_stmt then_start 1 line column)
+                                    let then_id: int = p_then_block.last_expr_node_id
+                                    let else_start: int = p_then_block.block_statements_count
+                                    let p_else_stmt: Parser = (parser_store_block_statement p_then_block else_id else_type)
+                                    let p_else_block: Parser = (parser_store_block p_else_stmt else_start 1 line column)
+                                    let else_block_id: int = p_else_block.last_expr_node_id
+                                    return (parser_store_if p_else_block cond_id cond_type then_id else_block_id line column)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow parse_cond_expression {
+    assert (== 1 1)
+}
+
+shadow parse_cond_clauses {
+    assert (== 1 1)
+}
+
 /* Parse match expression: match expr { pattern => body, ... } */
 fn parse_match(p: Parser) -> Parser {
     let tok: LexerToken = (parser_current p)
@@ -1977,6 +2077,25 @@ fn parse_primary(p: Parser) -> Parser {
         /* match expression */
         if (== tok.token_type (token_match)) {
             return (parse_match p)
+        } else {
+            (print "")
+        }
+
+        /* cond expression: (cond ((test1) val1) ((test2) val2) (else default)) */
+        if (== tok.token_type (token_lparen)) {
+            let p_lookahead: Parser = (parser_advance p)  /* consume '(' */
+            if (not (parser_is_at_end p_lookahead)) {
+                let tok_next: LexerToken = (parser_current p_lookahead)
+                if (and (== tok_next.token_type (token_identifier)) (str_equals tok_next.value "cond")) {
+                    /* This is a cond expression */
+                    return (parse_cond_expression p)
+                } else {
+                    /* Not cond, continue normal parsing */
+                    (print "")
+                }
+            } else {
+                (print "")
+            }
         } else {
             (print "")
         }
