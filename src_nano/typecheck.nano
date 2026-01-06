@@ -1385,7 +1385,7 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
             set first_arm_type arm_type
         } else {
             if (not (types_equal arm_type first_arm_type)) {
-                let msg: string = (+ "match arms must return same type (expected " (+ (type_to_string first_arm_type) (+ ", got " (+ (type_to_string arm_type) ")")))))
+                let msg: string = (+ "match arms must return same type (expected " (+ (type_to_string first_arm_type) (+ ", got " (+ (type_to_string arm_type) ")"))))
                 let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name m.line m.column))
                 (Diagnostics.diag_list_add diags diag)
             } else {
