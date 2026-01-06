@@ -1000,6 +1000,17 @@ shadow check_bool_literal {
 
 /* Check if operator is valid for given types */
 fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType {
+    /* Special case: + for string concatenation */
+    if (== op "+") {
+        if (and (== left_type.kind TypeKind.TYPE_STRING) (== right_type.kind TypeKind.TYPE_STRING)) {
+            return (type_string)
+        } else {
+            (print "")
+        }
+    } else {
+        (print "")
+    }
+    
     /* Arithmetic ops: +, -, *, /, % */
     if (or (or (or (or (== op "+") (== op "-")) (== op "*")) (== op "/")) (== op "%")) {
         /* Both operands must be int or float */

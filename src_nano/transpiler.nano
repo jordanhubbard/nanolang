@@ -1558,6 +1558,41 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     (print "")
                 }
                 
+                /* Special case: + for string concatenation */
+                if (== binop.op LexerTokenType.TOKEN_PLUS) {
+                    /* Check if either operand looks like a string (starts with ") */
+                    let left_is_str: bool = (and (> (str_length left_code) 0) (== (char_at left_code 0) 34))
+                    let right_is_str: bool = (and (> (str_length right_code) 0) (== (char_at right_code 0) 34))
+                    
+                    /* Check if operands are obviously numeric literals */
+                    let left_first: int = (cond
+                        ((> (str_length left_code) 0) (char_at left_code 0))
+                        (else 0)
+                    )
+                    let right_first: int = (cond
+                        ((> (str_length right_code) 0) (char_at right_code 0))
+                        (else 0)
+                    )
+                    let left_is_num: bool = (or (and (>= left_first 48) (<= left_first 57)) (== left_first 45))
+                    let right_is_num: bool = (or (and (>= right_first 48) (<= right_first 57)) (== right_first 45))
+                    
+                    /* Use nl_str_concat if: any operand is string literal, OR neither is obviously numeric */
+                    let use_str_concat: bool = (or (or left_is_str right_is_str) (not (and left_is_num right_is_num)))
+                    
+                    if use_str_concat {
+                        let mut result: string = "nl_str_concat("
+                        set result (str_concat result left_code)
+                        set result (str_concat result ", ")
+                        set result (str_concat result right_code)
+                        set result (str_concat result ")")
+                        return result
+                    } else {
+                        (print "")
+                    }
+                } else {
+                    (print "")
+                }
+                
                 /* Get operator string */
                 let op_str: string = (operator_to_string binop.op)
                 
