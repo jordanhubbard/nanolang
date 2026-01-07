@@ -85,11 +85,11 @@ SDL_EXAMPLES = \
 	$(BIN_DIR)/sdl_asteroids \
 	$(BIN_DIR)/sdl_terrain_explorer \
 	$(BIN_DIR)/sdl_falling_sand \
-	$(BIN_DIR)/sdl_ui_widgets_extended \
 	$(BIN_DIR)/sdl_texture_demo \
 	$(BIN_DIR)/sdl_drawing_primitives \
 	$(BIN_DIR)/sdl_audio_wav \
-	$(BIN_DIR)/sdl_mouse_click
+	$(BIN_DIR)/sdl_mouse_click \
+	$(BIN_DIR)/sdl_game_of_life
 
 # === NCurses Examples (ncurses_*) ===
 # Require ncurses library

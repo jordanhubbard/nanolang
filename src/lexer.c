@@ -40,6 +40,8 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "return") == 0) return TOKEN_RETURN;
     if (strcmp(str, "assert") == 0) return TOKEN_ASSERT;
     if (strcmp(str, "shadow") == 0) return TOKEN_SHADOW;
+    if (strcmp(str, "requires") == 0) return TOKEN_REQUIRES;
+    if (strcmp(str, "ensures") == 0) return TOKEN_ENSURES;
     /* "print" and "println" are builtin functions, not keywords */
     if (strcmp(str, "array") == 0) return TOKEN_ARRAY;
     if (strcmp(str, "struct") == 0) return TOKEN_STRUCT;

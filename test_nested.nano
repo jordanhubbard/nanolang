@@ -1,0 +1,30 @@
+fn test_nested_call() -> void {
+    (println (int_to_string 42))
+}
+
+shadow test_nested_call {
+    (test_nested_call)
+    assert (== 1 1)
+}
+
+fn test_nested_expr() -> int {
+    let a: int = 10
+    let b: int = 20
+    return (* (+ a b) 2)
+}
+
+shadow test_nested_expr {
+    assert (== (test_nested_expr) 60)
+}
+
+fn main() -> int {
+    (test_nested_call)
+    let result: int = (test_nested_expr)
+    (println (int_to_string result))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

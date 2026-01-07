@@ -13,8 +13,7 @@
  *   nanoc_nano --version
  */
 
-/* Import standard library functions */
-from "modules/std/env.nano" import argc, argv
+/* Import filesystem helpers */
 from "modules/std/fs.nano" import read, write
 
 /* Import compiler phases - these already have clean interfaces */
@@ -28,8 +27,10 @@ from "src_nano/typecheck.nano" import typecheck_phase
 from "src_nano/transpiler.nano" import transpile_phase
 
 /* Import process execution for C compiler */
-# NOTE: nl_system_exec is a wrapper to avoid conflicts with stdlib.h
-extern fn nl_system_exec(command: string) -> int
+/* FFI bindings for CLI + process control */
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+extern fn nl_os_system(command: string) -> int
 
 /* =============================================================================
  * RESULT TYPE FOR ARGUMENT PARSING
@@ -44,22 +45,48 @@ union ResultArgs {
  * COMMAND-LINE ARGUMENTS
  * ============================================================================= */
 
+fn runtime_argc() -> int {
+    let mut count: int = 0
+    unsafe {
+        set count (get_argc)
+    }
+    return count
+}
+
+shadow runtime_argc {
+    assert true
+}
+
+fn runtime_argv(index: int) -> string {
+    let mut arg: string = ""
+    unsafe {
+        set arg (get_argv index)
+    }
+    return arg
+}
+
+shadow runtime_argv {
+    assert true
+}
+
 struct CompilerArgs {
     input_file: string,
     output_file: string,
     verbose: bool,
     help: bool,
-    version: bool
+    version: bool,
+    extra_cc_args: string
 }
 
 /* Create default compiler arguments */
 fn args_new() -> CompilerArgs {
     return CompilerArgs {
         input_file: "",
-        output_file: "",
+        output_file: "a.out",
         verbose: false,
         help: false,
-        version: false
+        version: false,
+        extra_cc_args: ""
     }
 }
 
@@ -67,59 +94,129 @@ shadow args_new {
     let args: CompilerArgs = (args_new)
     assert (== args.input_file "")
     assert (not args.verbose)
+    assert (== args.output_file "a.out")
+    assert (== args.extra_cc_args "")
 }
 
 /* Parse command-line arguments */
 fn parse_args() -> ResultArgs {
-    let arg_count: int = (argc)
-    
-    # Check if we have any arguments
+    let arg_count: int = (runtime_argc)
     if (< arg_count 2) {
         return ResultArgs.Err { error: "No input file specified. Use --help for usage." }
     }
     
-    # Parse first argument
-    let arg1: string = (argv 1)
-    
-    # Check for --help
-    if (== arg1 "--help") {
-        let help_args: CompilerArgs = CompilerArgs {
-            input_file: "",
-            output_file: "",
-            verbose: false,
-            help: true,
-            version: false
+    let mut input_file: string = ""
+    let mut output_file: string = "a.out"
+    let mut verbose_flag: bool = false
+    let mut extra_cc_args: string = ""
+    let mut i: int = 1
+    while (< i arg_count) {
+        let token: string = (runtime_argv i)
+        if (str_equals token "--help") {
+            return ResultArgs.Ok { value: CompilerArgs {
+                input_file: "",
+                output_file: output_file,
+                verbose: verbose_flag,
+                help: true,
+                version: false,
+                extra_cc_args: extra_cc_args
+            } }
         }
-        return ResultArgs.Ok { value: help_args }
+        if (str_equals token "--version") {
+            return ResultArgs.Ok { value: CompilerArgs {
+                input_file: "",
+                output_file: output_file,
+                verbose: verbose_flag,
+                help: false,
+                version: true,
+                extra_cc_args: extra_cc_args
+            } }
+        }
+        if (str_equals token "-v") {
+            set verbose_flag true
+        } else {
+            if (str_equals token "-o") {
+                set i (+ i 1)
+                if (>= i arg_count) {
+                    return ResultArgs.Err { error: "Missing output file after -o" }
+                }
+                let out_path: string = (runtime_argv i)
+                if (== out_path "") {
+                    return ResultArgs.Err { error: "Invalid output file path" }
+                }
+                set output_file out_path
+            } else {
+                if (str_equals token "-I") {
+                    set i (+ i 1)
+                    if (>= i arg_count) {
+                        return ResultArgs.Err { error: "Missing include path after -I" }
+                    }
+                    let include_path: string = (runtime_argv i)
+                    set extra_cc_args (+ extra_cc_args (+ " -I " include_path))
+                } else {
+                    if (str_equals token "-L") {
+                        set i (+ i 1)
+                        if (>= i arg_count) {
+                            return ResultArgs.Err { error: "Missing library path after -L" }
+                        }
+                        let lib_path: string = (runtime_argv i)
+                        set extra_cc_args (+ extra_cc_args (+ " -L " lib_path))
+                    } else {
+                        if (str_equals token "-l") {
+                            set i (+ i 1)
+                            if (>= i arg_count) {
+                                return ResultArgs.Err { error: "Missing library name after -l" }
+                            }
+                            let lib_name: string = (runtime_argv i)
+                            set extra_cc_args (+ extra_cc_args (+ " -l " lib_name))
+                        } else {
+                            if (str_equals token "--") {
+                                set i (+ i 1)
+                                if (>= i arg_count) {
+                                    return ResultArgs.Err { error: "Expected input file after --" }
+                                }
+                                let remainder: string = (runtime_argv i)
+                                if (!= input_file "") {
+                                    return ResultArgs.Err { error: "Multiple input files specified" }
+                                }
+                                set input_file remainder
+                            } else {
+                                if (== input_file "") {
+                                    if (and (> (str_length token) 0) (str_equals (str_substring token 0 1) "-")) {
+                                        let err_flag: string = (+ "Unknown flag: " token)
+                                        return ResultArgs.Err { error: err_flag }
+                                    }
+                                    set input_file token
+                                } else {
+                                    let err: string = "Multiple input files specified"
+                                    return ResultArgs.Err { error: err }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        set i (+ i 1)
     }
     
-    # Check for --version
-    if (== arg1 "--version") {
-        let version_args: CompilerArgs = CompilerArgs {
-            input_file: "",
-            output_file: "",
-            verbose: false,
-            help: false,
-            version: true
-        }
-        return ResultArgs.Ok { value: version_args }
+    if (== input_file "") {
+        return ResultArgs.Err { error: "No input file specified. Use --help for usage." }
     }
     
-    # Otherwise, treat it as input file
-    let default_args: CompilerArgs = CompilerArgs {
-        input_file: arg1,
-        output_file: "a.out",
-        verbose: false,
+    return ResultArgs.Ok { value: CompilerArgs {
+        input_file: input_file,
+        output_file: output_file,
+        verbose: verbose_flag,
         help: false,
-        version: false
-    }
-    return ResultArgs.Ok { value: default_args }
+        version: false,
+        extra_cc_args: extra_cc_args
+    } }
 }
 
 shadow parse_args {
-    # Test requires mocking argc/argv from std::env
-    # For now, just test that it compiles
-    (println "parse_args shadow test: OK")
+    # Test requires mocking CLI args provided by runtime
+    assert true
 }
 
 /* =============================================================================
@@ -314,7 +411,7 @@ shadow run_transpiler {
 }
 
 /* Run the C compiler phase */
-fn run_cc(c_file: string, output_file: string, verbose_mode: bool) -> CompilationPhaseResult {
+fn run_cc(c_file: string, output_file: string, verbose_mode: bool, extra_cc_args: string) -> CompilationPhaseResult {
     if verbose_mode {
         (println "Phase 5: Compiling C code...")
     }
@@ -328,6 +425,10 @@ fn run_cc(c_file: string, output_file: string, verbose_mode: bool) -> Compilatio
     set cc_cmd (+ cc_cmd c_file)
     set cc_cmd (+ cc_cmd " -Isrc ")
     set cc_cmd (+ cc_cmd runtime_files)
+    if (!= extra_cc_args "") {
+        set cc_cmd (+ cc_cmd " ")
+        set cc_cmd (+ cc_cmd extra_cc_args)
+    }
     
     if verbose_mode {
         (println "  Command:")
@@ -337,7 +438,7 @@ fn run_cc(c_file: string, output_file: string, verbose_mode: bool) -> Compilatio
     /* Execute C compiler */
     let mut exit_code: int = 0
     unsafe {
-        set exit_code (nl_system_exec cc_cmd)
+        set exit_code (nl_os_system cc_cmd)
     }
     
     if (!= exit_code 0) {
@@ -393,7 +494,7 @@ fn compile(c_args: CompilerArgs) -> int {
                             match transpile_result {
                                 CCompileResult(c_out) => {
                                     /* Phase 5: Compile C to binary */
-                                    let cc_result: CompilationPhaseResult = (run_cc c_file c_args.output_file c_args.verbose)
+                                    let cc_result: CompilationPhaseResult = (run_cc c_file c_args.output_file c_args.verbose c_args.extra_cc_args)
                                     match cc_result {
                                         CCompileResult(binary) => {
                                             /* Success! */

@@ -1,0 +1,196 @@
+from "modules/proptest/proptest.nano" import int_range, int_pair, int_array, forall_int, forall_int_pair, forall_int_array, forall_int_with_config, forall_int_pair_with_config, forall_int_array_with_config, prop_pass, prop_fail, prop_discard, config, config_default, report_passed, report_summary, RunConfig, PropertyReport, IntPairGenerator, IntArrayGenerator, IntRangeGenerator
+
+fn always_pass(_: int) -> string {
+    return (prop_pass)
+}
+
+fn always_fail(_: int) -> string {
+    return (prop_fail "forced failure")
+}
+
+fn pair_must_match(a: int, b: int) -> string {
+    if (== a b) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "pair mismatch")
+    }
+}
+
+fn array_requires_zero(values: array<int>) -> string {
+    if (== (array_length values) 0) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "expected empty array")
+    }
+}
+
+fn fail_if_gt_three(value: int) -> string {
+    if (> value 3) {
+        return (prop_fail "gt3")
+    } else {
+        return (prop_pass)
+    }
+}
+
+fn fail_sum_over_five(a: int, b: int) -> string {
+    if (> (+ a b) 5) {
+        return (prop_fail "sum")
+    } else {
+        return (prop_pass)
+    }
+}
+
+fn fail_on_empty(values: array<int>) -> string {
+    if (== (array_length values) 0) {
+        return (prop_fail "empty")
+    } else {
+        return (prop_pass)
+    }
+}
+
+fn even_only(value: int) -> string {
+    if (== (% value 2) 0) {
+        return (prop_pass)
+    } else {
+        return (prop_discard "odd")
+    }
+}
+
+shadow always_pass {
+    assert (str_equals (always_pass 0) (prop_pass))
+}
+
+shadow always_fail {
+    let expected: string = (prop_fail "forced failure")
+    assert (str_equals (always_fail 0) expected)
+}
+
+shadow pair_must_match {
+    assert (str_equals (pair_must_match 1 1) (prop_pass))
+    assert (not (str_equals (pair_must_match 1 2) (prop_pass)))
+}
+
+shadow array_requires_zero {
+    let empty: array<int> = []
+    assert (str_equals (array_requires_zero empty) (prop_pass))
+}
+
+shadow fail_if_gt_three {
+    assert (str_equals (fail_if_gt_three 4) (prop_fail "gt3"))
+}
+
+shadow fail_sum_over_five {
+    assert (str_equals (fail_sum_over_five 3 3) (prop_fail "sum"))
+}
+
+shadow fail_on_empty {
+    let empty: array<int> = []
+    assert (str_equals (fail_on_empty empty) (prop_fail "empty"))
+}
+
+shadow even_only {
+    assert (str_equals (even_only 1) (prop_discard "odd"))
+}
+
+fn test_forall_pass() -> bool {
+    let report: PropertyReport = (forall_int "ok" (int_range 0 5) always_pass)
+    if (not (report_passed report)) {
+        return false
+    }
+    if (!= report.case_count 100) {
+        return false
+    }
+    if (!= report.discard_count 0) {
+        return false
+    }
+    if (!= report.shrink_count 0) {
+        return false
+    }
+    return (str_equals report.counterexample "")
+}
+
+shadow test_forall_pass {
+    assert true
+}
+
+fn test_forall_fail() -> bool {
+    let gen: IntRangeGenerator = (int_range 5 5)
+    let report: PropertyReport = (forall_int "gt3_shrink" gen fail_if_gt_three)
+    if (report_passed report) {
+        return false
+    }
+    if (!= report.case_count 0) {
+        return false
+    }
+    if (!= report.shrink_count 1) {
+        return false
+    }
+    return (str_equals report.counterexample "gt3_shrink failed with x=4 :: gt3")
+}
+
+shadow test_forall_fail {
+    assert true
+}
+
+fn test_pair_fail() -> bool {
+    let gen: IntPairGenerator = (int_pair (int_range 3 3) (int_range 3 3))
+    let report: PropertyReport = (forall_int_pair "pair_limit" gen fail_sum_over_five)
+    if (report_passed report) {
+        return false
+    }
+    if (!= report.shrink_count 0) {
+        return false
+    }
+    return (str_equals report.counterexample "pair_limit failed with (a=3, b=3) :: sum")
+}
+
+shadow test_pair_fail {
+    assert true
+}
+
+fn test_array_fail() -> bool {
+    let gen: IntArrayGenerator = (int_array (int_range 0 0) 0)
+    let report: PropertyReport = (forall_int_array "array_empty" gen fail_on_empty)
+    if (report_passed report) {
+        return false
+    }
+    return (str_equals report.counterexample "array_empty failed with values=[] :: empty")
+}
+
+shadow test_array_fail {
+    assert true
+}
+
+fn test_discard_tracking() -> bool {
+    let cfg: RunConfig = (config 10 5 20 11)
+    let report: PropertyReport = (forall_int_with_config "even" (int_range 0 5) even_only cfg)
+    if (not (report_passed report)) {
+        return false
+    }
+    if (!= report.case_count 10) {
+        return false
+    }
+    return (> report.discard_count 0)
+}
+
+shadow test_discard_tracking {
+    assert true
+}
+
+fn main() -> int {
+    let mut all_passed: bool = true
+    if (not (test_forall_pass)) { set all_passed false }
+    if (not (test_forall_fail)) { set all_passed false }
+    if (not (test_pair_fail)) { set all_passed false }
+    if (not (test_array_fail)) { set all_passed false }
+    if (not (test_discard_tracking)) { set all_passed false }
+    if (== all_passed true) {
+        return 0
+    } else {
+        return 1
+    }
+}
+
+shadow main {
+    assert true
+}

@@ -471,3 +471,4 @@ extern struct TranspilePhaseOutput {
     had_error: bool,
     output_path: string
 }
+

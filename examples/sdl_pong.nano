@@ -20,6 +20,95 @@ let PADDLE_SPEED: float = 400.0
 let BALL_SPEED: float = 300.0
 let WINNING_SCORE: int = 11
 
+fn clamp_paddle_position(y: float) -> float {
+    let min_y: float = 0.0
+    let max_y: float = (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))
+    return (cond
+        ((< y min_y) min_y)
+        ((> y max_y) max_y)
+        (else y)
+    )
+}
+
+shadow clamp_paddle_position {
+    let low: float = (clamp_paddle_position -10.0)
+    assert (== low 0.0)
+    let max_val: float = (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))
+    let high: float = (clamp_paddle_position (+ max_val 50.0))
+    assert (== high max_val)
+}
+
+fn winner_banner_x(player1_score: int, player2_score: int) -> int {
+    return (cond
+        ((>= player1_score WINNING_SCORE) 250)
+        ((>= player2_score WINNING_SCORE) 450)
+        (else 250)
+    )
+}
+
+shadow winner_banner_x {
+    assert (== (winner_banner_x WINNING_SCORE 0) 250)
+    assert (== (winner_banner_x 0 WINNING_SCORE) 450)
+}
+
+struct VerticalBounceResult {
+    y: float,
+    vy: float
+}
+
+struct PaddleCollisionResult {
+    x: float,
+    vx: float,
+    vy: float
+}
+
+fn resolve_vertical_bounce(y: float, vy: float) -> VerticalBounceResult {
+    let min_y: float = 0.0
+    let max_y: float = (cast_float (- WINDOW_HEIGHT BALL_SIZE))
+    return (cond
+        ((< y min_y) VerticalBounceResult { y: min_y, vy: (- 0.0 vy) })
+        ((> y max_y) VerticalBounceResult { y: max_y, vy: (- 0.0 vy) })
+        (else VerticalBounceResult { y: y, vy: vy })
+    )
+}
+
+shadow resolve_vertical_bounce {
+    let low: VerticalBounceResult = (resolve_vertical_bounce -5.0 10.0)
+    assert (== low.y 0.0)
+    assert (== low.vy -10.0)
+    let high: VerticalBounceResult = (resolve_vertical_bounce 900.0 5.0)
+    let clamp: float = (cast_float (- WINDOW_HEIGHT BALL_SIZE))
+    assert (== high.y clamp)
+}
+
+fn resolve_paddle_collision(ball_x: float, ball_y: float, ball_vx: float, ball_vy: float, paddle_y: float, is_left: bool) -> PaddleCollisionResult {
+    let paddle_top: float = paddle_y
+    let paddle_bottom: float = (+ paddle_y (cast_float PADDLE_HEIGHT))
+    let ball_center_y: float = (+ ball_y (/ (cast_float BALL_SIZE) 2.0))
+    let left_zone_start: float = 10.0
+    let left_zone_end: float = 40.0
+    let right_zone_start: float = (cast_float (- WINDOW_WIDTH 40))
+    let right_zone_end: float = (cast_float (- WINDOW_WIDTH 10))
+    let hit_pos: float = (/ (- ball_center_y paddle_y) (cast_float PADDLE_HEIGHT))
+    let spin_vy: float = (* (* (- hit_pos 0.5) 2.0) BALL_SPEED)
+    return (cond
+        ((and is_left (> ball_x left_zone_start) (< ball_x left_zone_end) (>= ball_center_y paddle_top) (<= ball_center_y paddle_bottom)))
+            PaddleCollisionResult { x: left_zone_end, vx: (- 0.0 ball_vx), vy: spin_vy }
+        ((and (not is_left) (> ball_x right_zone_start) (< ball_x right_zone_end) (>= ball_center_y paddle_top) (<= ball_center_y paddle_bottom)))
+            PaddleCollisionResult { x: right_zone_start, vx: (- 0.0 ball_vx), vy: spin_vy }
+        (else PaddleCollisionResult { x: ball_x, vx: ball_vx, vy: ball_vy })
+    )
+}
+
+shadow resolve_paddle_collision {
+    let left_hit: PaddleCollisionResult = (resolve_paddle_collision 20.0 100.0 300.0 0.0 90.0 true)
+    assert (== left_hit.x 40.0)
+    assert (< left_hit.vx 0.0)
+    let right_hit: PaddleCollisionResult = (resolve_paddle_collision 780.0 120.0 -300.0 0.0 100.0 false)
+    let right_zone_start: float = (cast_float (- WINDOW_WIDTH 40))
+    assert (== right_hit.x right_zone_start)
+}
+
 fn main() -> int {
     # Initialize SDL
     unsafe { (SDL_Init SDL_INIT_VIDEO) }
@@ -83,58 +172,29 @@ fn main() -> int {
                 if p2_up { set paddle2_y (- paddle2_y (* PADDLE_SPEED dt)) }
                 if p2_down { set paddle2_y (+ paddle2_y (* PADDLE_SPEED dt)) }
                 
-                # Clamp paddles to screen
-                if (< paddle1_y 0.0) { set paddle1_y 0.0 }
-                if (> paddle1_y (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))) {
-                    set paddle1_y (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))
-                }
-                if (< paddle2_y 0.0) { set paddle2_y 0.0 }
-                if (> paddle2_y (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))) {
-                    set paddle2_y (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))
-                }
+                # Clamp paddles to screen using cond helper
+                set paddle1_y (clamp_paddle_position paddle1_y)
+                set paddle2_y (clamp_paddle_position paddle2_y)
                 
                 # Move ball
                 set ball_x (+ ball_x (* ball_vx dt))
                 set ball_y (+ ball_y (* ball_vy dt))
                 
-                # Ball collision with top/bottom
-                if (< ball_y 0.0) {
-                    set ball_y 0.0
-                    set ball_vy (- 0.0 ball_vy)
-                }
-                if (> ball_y (cast_float (- WINDOW_HEIGHT BALL_SIZE))) {
-                    set ball_y (cast_float (- WINDOW_HEIGHT BALL_SIZE))
-                    set ball_vy (- 0.0 ball_vy)
-                }
+                # Ball collision with top/bottom using cond helper
+                let vertical_hit: VerticalBounceResult = (resolve_vertical_bounce ball_y ball_vy)
+                set ball_y vertical_hit.y
+                set ball_vy vertical_hit.vy
                 
-                # Ball collision with paddles
-                if (< ball_x 40.0) {
-                    if (> ball_x 10.0) {
-                        let ball_center_y: float = (+ ball_y (/ (cast_float BALL_SIZE) 2.0))
-                        if (>= ball_center_y paddle1_y) {
-                            if (<= ball_center_y (+ paddle1_y (cast_float PADDLE_HEIGHT))) {
-                                set ball_vx (- 0.0 ball_vx)
-                                set ball_x 40.0
-                                let hit_pos: float = (/ (- ball_center_y paddle1_y) (cast_float PADDLE_HEIGHT))
-                                set ball_vy (* (* (- hit_pos 0.5) 2.0) BALL_SPEED)
-                            }
-                        }
-                    }
-                }
+                # Ball collision with paddles using cond helper
+                let left_hit: PaddleCollisionResult = (resolve_paddle_collision ball_x ball_y ball_vx ball_vy paddle1_y true)
+                set ball_x left_hit.x
+                set ball_vx left_hit.vx
+                set ball_vy left_hit.vy
                 
-                if (> ball_x (cast_float (- WINDOW_WIDTH 40))) {
-                    if (< ball_x (cast_float (- WINDOW_WIDTH 10))) {
-                        let ball_center_y: float = (+ ball_y (/ (cast_float BALL_SIZE) 2.0))
-                        if (>= ball_center_y paddle2_y) {
-                            if (<= ball_center_y (+ paddle2_y (cast_float PADDLE_HEIGHT))) {
-                                set ball_vx (- 0.0 ball_vx)
-                                set ball_x (cast_float (- WINDOW_WIDTH 40))
-                                let hit_pos: float = (/ (- ball_center_y paddle2_y) (cast_float PADDLE_HEIGHT))
-                                set ball_vy (* (* (- hit_pos 0.5) 2.0) BALL_SPEED)
-                            }
-                        }
-                    }
-                }
+                let right_hit: PaddleCollisionResult = (resolve_paddle_collision ball_x ball_y ball_vx ball_vy paddle2_y false)
+                set ball_x right_hit.x
+                set ball_vx right_hit.vx
+                set ball_vy right_hit.vy
                 
                 # Ball out of bounds - score
                 if (< ball_x 0.0) {
@@ -241,15 +301,10 @@ fn main() -> int {
         # Game over message
         if game_over {
             let msg_y: int = 270
-            if (>= player1_score WINNING_SCORE) {
-                unsafe { (nl_sdl_render_fill_rect renderer 250 msg_y 80 15) }
-                unsafe { (nl_sdl_render_fill_rect renderer 250 msg_y 15 50) }
-                unsafe { (nl_sdl_render_fill_rect renderer 250 (+ msg_y 35) 80 15) }
-            } else {
-                unsafe { (nl_sdl_render_fill_rect renderer 450 msg_y 80 15) }
-                unsafe { (nl_sdl_render_fill_rect renderer 450 msg_y 15 50) }
-                unsafe { (nl_sdl_render_fill_rect renderer 450 (+ msg_y 35) 80 15) }
-            }
+            let banner_x: int = (winner_banner_x player1_score player2_score)
+            unsafe { (nl_sdl_render_fill_rect renderer banner_x msg_y 80 15) }
+            unsafe { (nl_sdl_render_fill_rect renderer banner_x msg_y 15 50) }
+            unsafe { (nl_sdl_render_fill_rect renderer banner_x (+ msg_y 35) 80 15) }
         }
         
         # Draw on-screen help

@@ -61,26 +61,29 @@ fn get_shader_name(mode: int) -> string {
 
 # Setup lighting for the scene
 fn setup_lighting() -> void {
-    # Enable lighting
-    (glEnable GL_LIGHTING)
-    (glEnable GL_LIGHT0)
-    
-    # Light position (top-right-front)
-    (nl_glLightfv4 GL_LIGHT0 GL_POSITION 5.0 5.0 5.0 1.0)
-    
-    # Light colors
-    (nl_glLightfv4 GL_LIGHT0 GL_AMBIENT 0.3 0.3 0.3 1.0)
-    (nl_glLightfv4 GL_LIGHT0 GL_DIFFUSE 1.0 1.0 1.0 1.0)
-    (nl_glLightfv4 GL_LIGHT0 GL_SPECULAR 1.0 1.0 1.0 1.0)
-    
-    # Enable color material
-    (glEnable GL_COLOR_MATERIAL)
-    (glColorMaterial GL_FRONT_AND_BACK GL_AMBIENT_AND_DIFFUSE)
+    unsafe {
+        # Enable lighting
+        (glEnable GL_LIGHTING)
+        (glEnable GL_LIGHT0)
+        
+        # Light position (top-right-front)
+        (nl_glLightfv4 GL_LIGHT0 GL_POSITION 5.0 5.0 5.0 1.0)
+        
+        # Light colors
+        (nl_glLightfv4 GL_LIGHT0 GL_AMBIENT 0.3 0.3 0.3 1.0)
+        (nl_glLightfv4 GL_LIGHT0 GL_DIFFUSE 1.0 1.0 1.0 1.0)
+        (nl_glLightfv4 GL_LIGHT0 GL_SPECULAR 1.0 1.0 1.0 1.0)
+        
+        # Enable color material
+        (glEnable GL_COLOR_MATERIAL)
+        (glColorMaterial GL_FRONT_AND_BACK GL_AMBIENT_AND_DIFFUSE)
+    }
 }
 
 # Apply material properties based on shader mode
 fn apply_material(mode: int) -> void {
-    if (== mode SHADER_SMOOTH_PHONG) {
+    unsafe {
+        if (== mode SHADER_SMOOTH_PHONG) {
         # Classic Phong shading - moderate shininess
         (glColor3f 0.8 0.3 0.2)
         (nl_glMaterialfv4 GL_FRONT GL_AMBIENT 0.2 0.1 0.05 1.0)
@@ -88,8 +91,8 @@ fn apply_material(mode: int) -> void {
         (nl_glMaterialfv4 GL_FRONT GL_SPECULAR 0.8 0.8 0.8 1.0)
         (glMaterialf GL_FRONT GL_SHININESS 64.0)
         (glShadeModel GL_SMOOTH)
-    } else {
-        if (== mode SHADER_FLAT_SHADING) {
+        } else {
+            if (== mode SHADER_FLAT_SHADING) {
             # Flat shading - faceted look
             (glColor3f 0.2 0.6 0.8)
             (nl_glMaterialfv4 GL_FRONT GL_AMBIENT 0.05 0.15 0.2 1.0)
@@ -97,13 +100,13 @@ fn apply_material(mode: int) -> void {
             (nl_glMaterialfv4 GL_FRONT GL_SPECULAR 0.5 0.5 0.5 1.0)
             (glMaterialf GL_FRONT GL_SHININESS 32.0)
             (glShadeModel GL_FLAT)
-        } else {
-            if (== mode SHADER_WIREFRAME) {
+            } else {
+                if (== mode SHADER_WIREFRAME) {
                 # Wireframe only - disable lighting
                 (glDisable GL_LIGHTING)
                 (glColor3f 0.0 1.0 0.0)
-            } else {
-                if (== mode SHADER_SOLID_WIREFRAME) {
+                } else {
+                    if (== mode SHADER_SOLID_WIREFRAME) {
                     # Solid with wireframe overlay
                     (glColor3f 0.6 0.5 0.8)
                     (nl_glMaterialfv4 GL_FRONT GL_AMBIENT 0.15 0.125 0.2 1.0)
@@ -111,8 +114,8 @@ fn apply_material(mode: int) -> void {
                     (nl_glMaterialfv4 GL_FRONT GL_SPECULAR 0.5 0.5 0.5 1.0)
                     (glMaterialf GL_FRONT GL_SHININESS 32.0)
                     (glShadeModel GL_SMOOTH)
-                } else {
-                    if (== mode SHADER_HIGH_SHININESS) {
+                    } else {
+                        if (== mode SHADER_HIGH_SHININESS) {
                         # Very shiny - metallic look
                         (glColor3f 0.7 0.7 0.8)
                         (nl_glMaterialfv4 GL_FRONT GL_AMBIENT 0.2 0.2 0.25 1.0)
@@ -120,14 +123,15 @@ fn apply_material(mode: int) -> void {
                         (nl_glMaterialfv4 GL_FRONT GL_SPECULAR 1.0 1.0 1.0 1.0)
                         (glMaterialf GL_FRONT GL_SHININESS 128.0)
                         (glShadeModel GL_SMOOTH)
-                    } else {
-                        # Matte material - no specular
-                        (glColor3f 0.9 0.7 0.3)
-                        (nl_glMaterialfv4 GL_FRONT GL_AMBIENT 0.225 0.175 0.075 1.0)
-                        (nl_glMaterialfv4 GL_FRONT GL_DIFFUSE 0.9 0.7 0.3 1.0)
-                        (nl_glMaterialfv4 GL_FRONT GL_SPECULAR 0.0 0.0 0.0 1.0)
-                        (glMaterialf GL_FRONT GL_SHININESS 0.0)
-                        (glShadeModel GL_SMOOTH)
+                        } else {
+                            # Matte material - no specular
+                            (glColor3f 0.9 0.7 0.3)
+                            (nl_glMaterialfv4 GL_FRONT GL_AMBIENT 0.225 0.175 0.075 1.0)
+                            (nl_glMaterialfv4 GL_FRONT GL_DIFFUSE 0.9 0.7 0.3 1.0)
+                            (nl_glMaterialfv4 GL_FRONT GL_SPECULAR 0.0 0.0 0.0 1.0)
+                            (glMaterialf GL_FRONT GL_SHININESS 0.0)
+                            (glShadeModel GL_SMOOTH)
+                        }
                     }
                 }
             }
@@ -137,87 +141,88 @@ fn apply_material(mode: int) -> void {
 
 # Draw the teapot with current shader mode
 fn draw_teapot(rot_x: float, rot_y: float, zoom: float, mode: int) -> void {
-    # Clear buffers
-    (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
-    
-    # Setup lighting (re-enable if disabled by wireframe mode)
-    if (!= mode SHADER_WIREFRAME) {
-        (setup_lighting)
-    } else {}
-    
-    # Reset modelview matrix
-    (glLoadIdentity)
-    
-    # Position camera with zoom
-    (glTranslatef 0.0 -0.3 (* -8.0 zoom))
-    
-    # Apply rotations
-    (glRotatef rot_x 1.0 0.0 0.0)
-    (glRotatef rot_y 0.0 1.0 0.0)
-    
-    # Apply material
-    (apply_material mode)
-    
-    # Draw the Utah teapot
-    if (== mode SHADER_WIREFRAME) {
-        # Wireframe only
-        (glutWireTeapot 2.0)
-    } else {
-        if (== mode SHADER_SOLID_WIREFRAME) {
-            # Draw solid teapot first
-            (glutSolidTeapot 2.0)
-            
-            # Then draw wireframe on top
-            (glDisable GL_LIGHTING)
-            (glColor3f 0.0 0.0 0.0)
-            (glPolygonMode GL_FRONT_AND_BACK GL_LINE)
-            (glLineWidth 1.5)
-            (glutSolidTeapot 2.01)
-            (glPolygonMode GL_FRONT_AND_BACK GL_FILL)
-            (glLineWidth 1.0)
+    unsafe {
+        # Clear buffers
+        (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
+        
+        # Setup lighting (re-enable if disabled by wireframe mode)
+        if (!= mode SHADER_WIREFRAME) {
+            (setup_lighting)
+        } else {}
+        
+        # Reset modelview matrix
+        (glLoadIdentity)
+        
+        # Position camera with zoom
+        (glTranslatef 0.0 -0.3 (* -8.0 zoom))
+        
+        # Apply rotations
+        (glRotatef rot_x 1.0 0.0 0.0)
+        (glRotatef rot_y 0.0 1.0 0.0)
+        
+        # Apply material
+        (apply_material mode)
+        
+        # Draw the Utah teapot
+        if (== mode SHADER_WIREFRAME) {
+            # Wireframe only
+            (glutWireTeapot 2.0)
         } else {
-            # Solid teapot with lighting
-            (glutSolidTeapot 2.0)
+            if (== mode SHADER_SOLID_WIREFRAME) {
+                # Draw solid teapot first
+                (glutSolidTeapot 2.0)
+                
+                # Then draw wireframe on top
+                (glDisable GL_LIGHTING)
+                (glColor3f 0.0 0.0 0.0)
+                (glPolygonMode GL_FRONT_AND_BACK GL_LINE)
+                (glLineWidth 1.5)
+                (glutSolidTeapot 2.01)
+                (glPolygonMode GL_FRONT_AND_BACK GL_FILL)
+                (glLineWidth 1.0)
+            } else {
+                # Solid teapot with lighting
+                (glutSolidTeapot 2.0)
+            }
         }
     }
 }
 
 # Render text on screen (using immediate mode)
-fn render_text(x: float, y: float, r: float, g: float, b: float, text: string) -> void {
-    # Switch to 2D orthographic projection
-    (glMatrixMode GL_PROJECTION)
-    (glPushMatrix)
-    (glLoadIdentity)
-    (glOrtho 0.0 (cast_float WINDOW_WIDTH) 0.0 (cast_float WINDOW_HEIGHT) -1.0 1.0)
-    
-    (glMatrixMode GL_MODELVIEW)
-    (glPushMatrix)
-    (glLoadIdentity)
-    
-    # Disable lighting for text
-    (glDisable GL_LIGHTING)
-    (glColor3f r g b)
-    
-    # Position raster for text
-    (glRasterPos2f x y)
-    
-    # Render each character
-    # Note: This is a placeholder - GLUT bitmap rendering requires iteration
-    # For now, we'll just position the raster
-    
-    # Restore matrices
-    (glPopMatrix)
-    (glMatrixMode GL_PROJECTION)
-    (glPopMatrix)
-    (glMatrixMode GL_MODELVIEW)
+fn render_text(x: float, y: float, r: float, g: float, b: float, _text: string) -> void {
+    unsafe {
+        # Switch to 2D orthographic projection
+        (glMatrixMode GL_PROJECTION)
+        (glPushMatrix)
+        (glLoadIdentity)
+        (glOrtho 0.0 (cast_float WINDOW_WIDTH) 0.0 (cast_float WINDOW_HEIGHT) -1.0 1.0)
+        
+        (glMatrixMode GL_MODELVIEW)
+        (glPushMatrix)
+        (glLoadIdentity)
+        
+        # Disable lighting for text
+        (glDisable GL_LIGHTING)
+        (glColor3f r g b)
+        
+        # Position raster for text
+        (glRasterPos2f x y)
+        
+        # Restore matrices
+        (glPopMatrix)
+        (glMatrixMode GL_PROJECTION)
+        (glPopMatrix)
+        (glMatrixMode GL_MODELVIEW)
+    }
 }
 
 # Draw status overlay with visual indicators
-fn draw_status_overlay(shader_mode: int, rot_x: float, rot_y: float, zoom: float, auto_rotate: int) -> void {
-    # Save state
-    (glPushAttrib GL_ENABLE_BIT)
-    (glDisable GL_DEPTH_TEST)
-    (glDisable GL_LIGHTING)
+fn draw_status_overlay(shader_mode: int, _rot_x: float, rot_y: float, zoom: float, auto_rotate: int) -> void {
+    unsafe {
+        # Save state
+        (glPushAttrib GL_ENABLE_BIT)
+        (glDisable GL_DEPTH_TEST)
+        (glDisable GL_LIGHTING)
     
     # Setup 2D orthographic projection
     (glMatrixMode GL_PROJECTION)
@@ -428,43 +433,47 @@ fn draw_status_overlay(shader_mode: int, rot_x: float, rot_y: float, zoom: float
     (glMatrixMode GL_MODELVIEW)
     
     # Restore state
-    (glPopAttrib)
+        (glPopAttrib)
+    }
 }
 
 # Setup OpenGL state
 fn setup_opengl() -> void {
-    # Enable depth testing
-    (glEnable GL_DEPTH_TEST)
-    (glDepthFunc GL_LESS)
-    
-    # Enable back-face culling
-    (glEnable GL_CULL_FACE)
-    (glCullFace GL_BACK)
-    
-    # Set up perspective projection
-    (glMatrixMode GL_PROJECTION)
-    (glLoadIdentity)
-    
-    # Calculate aspect ratio
-    let aspect: float = (/ (cast_float WINDOW_WIDTH) (cast_float WINDOW_HEIGHT))
-    
-    # Perspective projection (FOV, aspect, near, far)
-    (glFrustum (* -0.5 aspect) (* 0.5 aspect) -0.5 0.5 1.0 100.0)
-    
-    # Switch to modelview
-    (glMatrixMode GL_MODELVIEW)
-    
-    # Enable smooth shading by default
-    (glShadeModel GL_SMOOTH)
-    
-    # Set clear color (dark background)
-    (glClearColor 0.05 0.05 0.1 1.0)
-    
-    # Enable normalize for proper lighting with scaling
-    (glEnable GL_NORMALIZE)
+    unsafe {
+        # Enable depth testing
+        (glEnable GL_DEPTH_TEST)
+        (glDepthFunc GL_LESS)
+        
+        # Enable back-face culling
+        (glEnable GL_CULL_FACE)
+        (glCullFace GL_BACK)
+        
+        # Set up perspective projection
+        (glMatrixMode GL_PROJECTION)
+        (glLoadIdentity)
+        
+        # Calculate aspect ratio
+        let aspect: float = (/ (cast_float WINDOW_WIDTH) (cast_float WINDOW_HEIGHT))
+        
+        # Perspective projection (FOV, aspect, near, far)
+        (glFrustum (* -0.5 aspect) (* 0.5 aspect) -0.5 0.5 1.0 100.0)
+        
+        # Switch to modelview
+        (glMatrixMode GL_MODELVIEW)
+        
+        # Enable smooth shading by default
+        (glShadeModel GL_SMOOTH)
+        
+        # Set clear color (dark background)
+        (glClearColor 0.05 0.05 0.1 1.0)
+        
+        # Enable normalize for proper lighting with scaling
+        (glEnable GL_NORMALIZE)
+    }
 }
 
 fn main() -> int {
+    unsafe {
     (println "")
     (println "╔═══════════════════════════════════════════════════════════════╗")
     (println "║          UTAH TEAPOT - The Iconic 3D Test Object             ║")
@@ -687,7 +696,20 @@ fn main() -> int {
     (println "")
     
     return 0
+    }
 }
+
+shadow setup_lighting { assert true }
+
+shadow apply_material { assert true }
+
+shadow draw_teapot { assert true }
+
+shadow render_text { assert true }
+
+shadow draw_status_overlay { assert true }
+
+shadow setup_opengl { assert true }
 
 shadow get_shader_name {
     assert (str_equals (get_shader_name SHADER_SMOOTH_PHONG) "1: Smooth Phong")

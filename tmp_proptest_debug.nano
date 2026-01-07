@@ -1,0 +1,16 @@
+from "modules/proptest/proptest.nano" import int_range, forall_int, prop_pass, report_passed, report_summary, PropertyReport
+
+fn always_pass(_: int) -> string {
+    return (prop_pass)
+}
+
+fn main() -> int {
+    let report: PropertyReport = (forall_int "ok" (int_range 0 5) always_pass)
+    (println (report_summary report))
+    if (report_passed report) {
+        return 0
+    } else {
+        return 1
+    }
+}
+

@@ -25,14 +25,22 @@ struct Cell {
     updated: bool
 }
 
+struct MaterialRenderColor {
+    r: int,
+    g: int,
+    b: int
+}
+
 # === CONSTANTS ===
 let WINDOW_WIDTH: int = 800
 let WINDOW_HEIGHT: int = 600
 let CELL_SIZE: int = 1
 let GRID_WIDTH: int = (/ WINDOW_WIDTH CELL_SIZE)
 let GRID_HEIGHT: int = (/ WINDOW_HEIGHT CELL_SIZE)
-let BRUSH_SIZE: int = 5
+let BRUSH_RADIUS: int = 2
 let FIRE_LIFETIME: int = 30
+let PHYSICS_STEPS_PER_FRAME: int = 3
+let FRAME_DELAY_MS: int = 8
 
 # === GRID OPERATIONS ===
 
@@ -268,31 +276,15 @@ shadow update_smoke {
 # === RENDERING ===
 
 fn read_material_color(mat: Material) -> int {
-    if (== mat Material.SAND) {
-        return 1  # Yellow
-    } else {
-        if (== mat Material.WATER) {
-            return 2  # Blue
-        } else {
-            if (== mat Material.STONE) {
-                return 3  # Gray
-            } else {
-                if (== mat Material.WOOD) {
-                    return 4  # Brown
-                } else {
-                    if (== mat Material.FIRE) {
-                        return 5  # Red/Orange
-                    } else {
-                        if (== mat Material.SMOKE) {
-                            return 6  # Dark gray
-                        } else {
-                            return 0  # Black (empty)
-                        }
-                    }
-                }
-            }
-        }
-    }
+    return (cond
+        ((== mat Material.SAND) 1)
+        ((== mat Material.WATER) 2)
+        ((== mat Material.STONE) 3)
+        ((== mat Material.WOOD) 4)
+        ((== mat Material.FIRE) 5)
+        ((== mat Material.SMOKE) 6)
+        (else 0)
+    )
 }
 
 shadow read_material_color {
@@ -301,35 +293,16 @@ shadow read_material_color {
 }
 
 fn read_material_name(mat: Material) -> string {
-    if (== mat Material.EMPTY) {
-        return "EMPTY"
-    } else {
-        if (== mat Material.SAND) {
-            return "SAND"
-        } else {
-            if (== mat Material.WATER) {
-                return "WATER"
-            } else {
-                if (== mat Material.STONE) {
-                    return "STONE"
-                } else {
-                    if (== mat Material.WOOD) {
-                        return "WOOD"
-                    } else {
-                        if (== mat Material.FIRE) {
-                            return "FIRE"
-                        } else {
-                            if (== mat Material.SMOKE) {
-                                return "SMOKE"
-                            } else {
-                                return "UNKNOWN"
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    return (cond
+        ((== mat Material.EMPTY) "EMPTY")
+        ((== mat Material.SAND) "SAND")
+        ((== mat Material.WATER) "WATER")
+        ((== mat Material.STONE) "STONE")
+        ((== mat Material.WOOD) "WOOD")
+        ((== mat Material.FIRE) "FIRE")
+        ((== mat Material.SMOKE) "SMOKE")
+        (else "UNKNOWN")
+    )
 }
 
 shadow read_material_name {
@@ -362,6 +335,25 @@ shadow render_ui {
     (print "")
 }
 
+fn material_render_color(mat: Material) -> MaterialRenderColor {
+    return (cond
+        ((== mat Material.SAND) MaterialRenderColor { r: 194, g: 178, b: 128 })
+        ((== mat Material.WATER) MaterialRenderColor { r: 64, g: 164, b: 223 })
+        ((== mat Material.STONE) MaterialRenderColor { r: 128, g: 128, b: 128 })
+        ((== mat Material.WOOD) MaterialRenderColor { r: 139, g: 69, b: 19 })
+        ((== mat Material.FIRE) MaterialRenderColor { r: 255, g: 100, b: 0 })
+        ((== mat Material.SMOKE) MaterialRenderColor { r: 64, g: 64, b: 64 })
+        (else MaterialRenderColor { r: 0, g: 0, b: 0 })
+    )
+}
+
+shadow material_render_color {
+    let sand: MaterialRenderColor = (material_render_color Material.SAND)
+    assert (== sand.r 194)
+    assert (== sand.g 178)
+    assert (== sand.b 128)
+}
+
 fn render_grid(renderer: SDL_Renderer, grid: array<int>) -> void {
     let mut y: int = 0
     while (< y GRID_HEIGHT) {
@@ -371,32 +363,8 @@ fn render_grid(renderer: SDL_Renderer, grid: array<int>) -> void {
             
             # Only render non-empty cells for performance
             if (!= mat Material.EMPTY) {
-                let color: int = (read_material_color mat)
-                
-                # Set color based on material
-                if (== color 1) {
-                    unsafe { (SDL_SetRenderDrawColor renderer 194 178 128 255)  } # Sand 
-                } else {
-                    if (== color 2) {
-                        unsafe { (SDL_SetRenderDrawColor renderer 64 164 223 255)  } # Water 
-                    } else {
-                        if (== color 3) {
-                            unsafe { (SDL_SetRenderDrawColor renderer 128 128 128 255)  } # Stone 
-                        } else {
-                            if (== color 4) {
-                                unsafe { (SDL_SetRenderDrawColor renderer 139 69 19 255)  } # Wood 
-                            } else {
-                                if (== color 5) {
-                                    unsafe { (SDL_SetRenderDrawColor renderer 255 100 0 255)  } # Fire 
-                                } else {
-                                    if (== color 6) {
-                                        unsafe { (SDL_SetRenderDrawColor renderer 64 64 64 255)  } # Smoke 
-                                    } else {}
-                                }
-                            }
-                        }
-                    }
-                }
+                let color: MaterialRenderColor = (material_render_color mat)
+                unsafe { (SDL_SetRenderDrawColor renderer color.r color.g color.b 255) }
                 
                 # Draw cell
                 let pixel_x: int = (* x CELL_SIZE)
@@ -625,10 +593,10 @@ fn main() -> int {
             let grid_y: int = (/ mouse_y CELL_SIZE)
             
             # Draw brush
-            let mut dy: int = (- 0 BRUSH_SIZE)
-            while (< dy BRUSH_SIZE) {
-                let mut dx: int = (- 0 BRUSH_SIZE)
-                while (< dx BRUSH_SIZE) {
+            let mut dy: int = (- 0 BRUSH_RADIUS)
+            while (< dy BRUSH_RADIUS) {
+                let mut dx: int = (- 0 BRUSH_RADIUS)
+                while (< dx BRUSH_RADIUS) {
                     set grid (write_material grid (+ grid_x dx) (+ grid_y dy) current_material)
                     
                     # Initialize fire lifetime if placing fire
@@ -645,35 +613,39 @@ fn main() -> int {
         
         # Update simulation (if not paused)
         if (not paused) {
-            # Update from bottom to top to avoid double-updates
-            let mut y: int = (- GRID_HEIGHT 1)
-            while (>= y 0) {
-                let mut x: int = 0
-                while (< x GRID_WIDTH) {
-                    let mat: Material = (read_material grid x y)
-                    
-                    # Skip empty cells for performance
-                    if (!= mat Material.EMPTY) {
-                        if (== mat Material.SAND) {
-                            (update_sand grid x y)
-                        } else {
-                            if (== mat Material.WATER) {
-                                (update_water grid x y)
+            let mut step: int = 0
+            while (< step PHYSICS_STEPS_PER_FRAME) {
+                # Update from bottom to top to avoid double-updates
+                let mut y: int = (- GRID_HEIGHT 1)
+                while (>= y 0) {
+                    let mut x: int = 0
+                    while (< x GRID_WIDTH) {
+                        let mat: Material = (read_material grid x y)
+                        
+                        # Skip empty cells for performance
+                        if (!= mat Material.EMPTY) {
+                            if (== mat Material.SAND) {
+                                (update_sand grid x y)
                             } else {
-                                if (== mat Material.FIRE) {
-                                    (update_fire grid x y fire_life)
+                                if (== mat Material.WATER) {
+                                    (update_water grid x y)
                                 } else {
-                                    if (== mat Material.SMOKE) {
-                                        (update_smoke grid x y)
-                                    } else {}
+                                    if (== mat Material.FIRE) {
+                                        (update_fire grid x y fire_life)
+                                    } else {
+                                        if (== mat Material.SMOKE) {
+                                            (update_smoke grid x y)
+                                        } else {}
+                                    }
                                 }
                             }
-                        }
-                    } else {}
-                    
-                    set x (+ x 1)
+                        } else {}
+                        
+                        set x (+ x 1)
+                    }
+                    set y (- y 1)
                 }
-                set y (- y 1)
+                set step (+ step 1)
             }
         } else {}
         
@@ -684,8 +656,8 @@ fn main() -> int {
         (render_ui renderer font current_material paused)
         unsafe {         (SDL_RenderPresent renderer) }
         
-        # Frame delay
-        unsafe {         (SDL_Delay 16) }
+        # Frame delay (faster animation)
+        unsafe {         (SDL_Delay FRAME_DELAY_MS) }
         set frame_count (+ frame_count 1)
     }
     

@@ -47,23 +47,15 @@ shadow compute_vertical_position {
 }
 
 fn is_particle_offscreen(x: float, y: float, width: int, height: int) -> bool {
-    if (< x 0.0) {
-        return true
-    } else {
-        if (> x (cast_float width)) {
-            return true
-        } else {
-            if (< y 0.0) {
-                return true
-            } else {
-                if (> y (cast_float height)) {
-                    return true
-                } else {
-                    return false
-                }
-            }
-        }
-    }
+    let max_x: float = (cast_float width)
+    let max_y: float = (cast_float height)
+    return (cond
+        ((< x 0.0) true)
+        ((> x max_x) true)
+        ((< y 0.0) true)
+        ((> y max_y) true)
+        (else false)
+    )
 }
 
 shadow is_particle_offscreen {

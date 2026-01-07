@@ -3040,6 +3040,19 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
     return match_node;
 }
 
+/* Helper to free precondition assert nodes on error */
+static void free_precondition_asserts(ASTNode **nodes, int count) {
+    if (!nodes) {
+        return;
+    }
+    for (int i = 0; i < count; i++) {
+        if (nodes[i]) {
+            free_ast(nodes[i]);
+        }
+    }
+    free(nodes);
+}
+
 /* Parse function definition */
 static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
     Token *tok = current_token(p);
@@ -3103,6 +3116,43 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
         }
     }
 
+    ASTNode **preconditions = NULL;
+    int precondition_count = 0;
+    int precondition_capacity = 0;
+
+    while (match(p, TOKEN_REQUIRES)) {
+        Token *req_tok = current_token(p);
+        advance(p);  /* consume 'requires' */
+
+        ASTNode *condition = parse_expression(p);
+        if (!condition) {
+            free(name);
+            free(params);
+            if (return_struct_name) free(return_struct_name);
+            free_precondition_asserts(preconditions, precondition_count);
+            return NULL;
+        }
+
+        ASTNode *assert_node = create_node(AST_ASSERT, req_tok->line, req_tok->column);
+        assert_node->as.assert.condition = condition;
+
+        if (precondition_count >= precondition_capacity) {
+            precondition_capacity = precondition_capacity ? precondition_capacity * 2 : 4;
+            preconditions = realloc(preconditions, sizeof(ASTNode*) * precondition_capacity);
+        }
+        preconditions[precondition_count++] = assert_node;
+    }
+
+    if (is_extern && precondition_count > 0) {
+        fprintf(stderr, "Error at line %d, column %d: Extern functions cannot have 'requires' clauses\n",
+                line, column);
+        free(name);
+        free(params);
+        if (return_struct_name) free(return_struct_name);
+        free_precondition_asserts(preconditions, precondition_count);
+        return NULL;
+    }
+
     ASTNode *body = NULL;
     if (!is_extern) {
         /* Regular functions must have a body */
@@ -3111,10 +3161,35 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
             free(name);
             free(params);
             if (return_struct_name) free(return_struct_name);
+            free_precondition_asserts(preconditions, precondition_count);
             return NULL;
+        }
+
+        if (precondition_count > 0) {
+            int original_count = body->as.block.count;
+            ASTNode **new_statements = malloc(sizeof(ASTNode*) * (precondition_count + original_count));
+            for (int i = 0; i < precondition_count; i++) {
+                new_statements[i] = preconditions[i];
+            }
+            for (int i = 0; i < original_count; i++) {
+                new_statements[precondition_count + i] = body->as.block.statements[i];
+            }
+            if (body->as.block.statements) {
+                free(body->as.block.statements);
+            }
+            body->as.block.statements = new_statements;
+            body->as.block.count = precondition_count + original_count;
         }
     }
     /* Extern functions have no body - declaration only */
+
+    if (!is_extern && precondition_count > 0) {
+        free(preconditions);
+        preconditions = NULL;
+    } else {
+        free_precondition_asserts(preconditions, precondition_count);
+        preconditions = NULL;
+    }
 
     ASTNode *node = create_node(AST_FUNCTION, line, column);
     node->as.function.name = name;

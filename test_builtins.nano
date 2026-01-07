@@ -1,0 +1,62 @@
+fn test_string_ops() -> int {
+    let s: string = "hello"
+    let len: int = (str_length s)
+    let concat: string = (str_concat s " world")
+    (println concat)
+    return len
+}
+
+shadow test_string_ops {
+    assert (== (test_string_ops) 5)
+}
+
+fn test_array_ops() -> int {
+    let mut arr: array<int> = []
+    set arr (array_push arr 10)
+    set arr (array_push arr 20)
+    set arr (array_push arr 30)
+    
+    let len: int = (array_length arr)
+    let first: int = (at arr 0)
+    let second: int = (at arr 1)
+    
+    return (+ first second)
+}
+
+shadow test_array_ops {
+    assert (== (test_array_ops) 30)
+}
+
+fn test_conversions() -> string {
+    let num: int = 42
+    let s: string = (int_to_string num)
+    return s
+}
+
+shadow test_conversions {
+    let result: string = (test_conversions)
+    assert (== (str_length result) 2)
+}
+
+fn main() -> int {
+    (println "Testing built-in functions...")
+    
+    let str_test: int = (test_string_ops)
+    (print "String test result: ")
+    (println (int_to_string str_test))
+    
+    let arr_test: int = (test_array_ops)
+    (print "Array test result: ")
+    (println (int_to_string arr_test))
+    
+    let conv_test: string = (test_conversions)
+    (print "Conversion test result: ")
+    (println conv_test)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

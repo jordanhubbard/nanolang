@@ -2372,7 +2372,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
 /* Generate forward declarations for functions defined in imported nanolang modules.
  * These modules are compiled into separate .o files (see compile_modules()), so the
  * main translation unit needs prototypes to avoid implicit-declaration errors. */
-static void generate_module_function_declarations(StringBuilder *sb, ASTNode *program, Environment *env, const char *current_file) {
+static void generate_module_function_declarations(StringBuilder *sb, ASTNode *program, Environment *env, const char *current_file, FunctionTypeRegistry *fn_registry) {
     if (!program || program->type != AST_PROGRAM) return;
 
     sb_append(sb, "/* Forward declarations for imported module functions */\n");
@@ -2498,6 +2498,9 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                     sb_append(sb, get_prefixed_type_name(param->struct_type_name));
                 } else if (param->type == TYPE_LIST_GENERIC && param->struct_type_name) {
                     sb_appendf(sb, "List_%s*", param->struct_type_name);
+                } else if (param->type == TYPE_FUNCTION && param->fn_sig && fn_registry) {
+                    const char *typedef_name = register_function_signature(fn_registry, param->fn_sig);
+                    sb_append(sb, typedef_name);
                 } else {
                     sb_append(sb, type_to_c(param->type));
                 }
@@ -3029,6 +3032,39 @@ static void collect_function_and_tuple_types(ASTNode *program, FunctionTypeRegis
     }
 }
 
+/* Collect function type signatures referenced by imported modules so their typedefs
+ * are available before emitting module forward declarations. */
+static void collect_module_function_types(ASTNode *program, FunctionTypeRegistry *fn_registry, const char *current_file) {
+    if (!program || !fn_registry) return;
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (!item || item->type != AST_IMPORT) continue;
+
+        const char *resolved = resolve_module_path(item->as.import_stmt.module_path, current_file);
+        if (!resolved) continue;
+
+        ASTNode *module_ast = get_cached_module_ast(resolved);
+        free((char*)resolved);  /* Cast away const for free() */
+        if (!module_ast || module_ast->type != AST_PROGRAM) continue;
+
+        for (int j = 0; j < module_ast->as.program.count; j++) {
+            ASTNode *mi = module_ast->as.program.items[j];
+            if (!mi || mi->type != AST_FUNCTION) continue;
+            if (!mi->as.function.is_pub) continue;
+
+            for (int p = 0; p < mi->as.function.param_count; p++) {
+                if (mi->as.function.params[p].type == TYPE_FUNCTION && mi->as.function.params[p].fn_sig) {
+                    register_function_signature(fn_registry, mi->as.function.params[p].fn_sig);
+                }
+            }
+
+            if (mi->as.function.return_type == TYPE_FUNCTION && mi->as.function.return_fn_sig) {
+                register_function_signature(fn_registry, mi->as.function.return_fn_sig);
+            }
+        }
+    }
+}
+
 /* Generate module extern declarations (extern functions from imported modules) */
 static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env) {
     /* Generate extern declarations for module wrapper functions (e.g., nl_sqlite3_*)
@@ -3372,6 +3408,7 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     TupleTypeRegistry *tuple_registry = create_tuple_type_registry();
     g_tuple_registry = tuple_registry;  /* Set global registry for expression transpilation */
     
+    collect_module_function_types(program, fn_registry, input_file);
     collect_function_and_tuple_types(program, fn_registry, tuple_registry);
     
     /* Generate typedef declarations */
@@ -3384,7 +3421,7 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     generate_module_extern_declarations(sb, program, env);
 
     /* Forward declare imported module functions */
-    generate_module_function_declarations(sb, program, env, input_file);
+    generate_module_function_declarations(sb, program, env, input_file, fn_registry);
     
     /* Emit top-level constants */
     generate_toplevel_constants(sb, program, env);

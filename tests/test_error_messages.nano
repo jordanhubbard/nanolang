@@ -3,6 +3,8 @@
  */
 
 from "src_nano/generated/compiler_ast.nano" import CompilerDiagnostic, CompilerSourceLocation, DiagnosticSeverity, CompilerPhase
+from "src_nano/compiler/diagnostics.nano" import diag_list_new, diag_list_add
+from "src_nano/compiler/error_messages.nano" import format_diagnostics_elm_style, encode_type_mismatch_message
 
 /* Test diagnostic creation and formatting */
 
@@ -277,6 +279,60 @@ shadow test_multiline_locations {
     assert (== (test_multiline_locations) 0)
 }
 
+fn test_format_diagnostics_output() -> int {
+    let loc: CompilerSourceLocation = CompilerSourceLocation {
+        file: "sample.nano",
+        line: 2,
+        column: 18
+    }
+    let diag: CompilerDiagnostic = CompilerDiagnostic {
+        severity: DiagnosticSeverity.DIAG_ERROR,
+        phase: CompilerPhase.PHASE_TYPECHECK,
+        code: "E0002",
+        message: "Undefined identifier: countr",
+        location: loc
+    }
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    (diag_list_add diags diag)
+    let source: string = "let count: int = 0\nlet result: int = (+ countr 1)\n"
+    let formatted: string = (format_diagnostics_elm_style diags source)
+    assert (str_contains formatted "UNDEFINED IDENTIFIER")
+    assert (str_contains formatted "countr")
+    assert (str_contains formatted "Hint")
+    return 0
+}
+
+shadow test_format_diagnostics_output {
+    assert (== (test_format_diagnostics_output) 0)
+}
+
+fn test_encoded_payload_roundtrip() -> int {
+    let loc: CompilerSourceLocation = CompilerSourceLocation {
+        file: "functions.nano",
+        line: 3,
+        column: 12
+    }
+    let payload: string = (encode_type_mismatch_message "function_argument" "int" "string" "Argument 1 of add")
+    let diag: CompilerDiagnostic = CompilerDiagnostic {
+        severity: DiagnosticSeverity.DIAG_ERROR,
+        phase: CompilerPhase.PHASE_TYPECHECK,
+        code: "E0004",
+        message: payload,
+        location: loc
+    }
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    (diag_list_add diags diag)
+    let source: string = "fn add(x: int, y: int) -> int {\n    return (+ x y)\n}\nlet result: int = (add 1 \"2\")\n"
+    let formatted: string = (format_diagnostics_elm_style diags source)
+    assert (str_contains formatted "Argument 1 of add")
+    assert (str_contains formatted "Convert the argument")
+    return 0
+}
+
+shadow test_encoded_payload_roundtrip {
+    assert (== (test_encoded_payload_roundtrip) 0)
+}
+
 /* Main test runner */
 
 fn main() -> int {
@@ -287,7 +343,13 @@ fn main() -> int {
     assert (== (test_error_codes) 0)
     assert (== (test_message_formats) 0)
     assert (== (test_multiline_locations) 0)
+    assert (== (test_format_diagnostics_output) 0)
+    assert (== (test_encoded_payload_roundtrip) 0)
     return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }
 
 /* This test validates that the diagnostic system:

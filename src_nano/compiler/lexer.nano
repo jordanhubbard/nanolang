@@ -52,6 +52,8 @@ fn keyword_group2(s: string) -> int {
                                             if (== s "return") { return LexerTokenType.TOKEN_RETURN } else {
                                                 if (== s "assert") { return LexerTokenType.TOKEN_ASSERT } else {
                                                     if (== s "shadow") { return LexerTokenType.TOKEN_SHADOW } else {
+                                if (== s "requires") { return LexerTokenType.TOKEN_REQUIRES } else {
+                                    if (== s "ensures") { return LexerTokenType.TOKEN_ENSURES } else {
                                                         if (== s "array") { return LexerTokenType.TOKEN_ARRAY } else {
                                                             if (== s "struct") { return LexerTokenType.TOKEN_STRUCT } else {
                                                                 if (== s "enum") { return LexerTokenType.TOKEN_ENUM } else {
@@ -66,6 +68,7 @@ fn keyword_group2(s: string) -> int {
                                                                 return -1
                                                             }
                                                         }
+                                    }
                                                     }
                                                 }
                                                                                 }
@@ -80,6 +83,7 @@ fn keyword_group2(s: string) -> int {
                                             }
                                         }
                                     }
+                                }
                                 }
                             }
                         }
@@ -269,10 +273,8 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
             if (== c 10) {
                 set line (+ line 1)
                 set line_start (+ i 1)
-                set column 1
-            } else {
-                set column (+ column 1)
             }
+            /* Don't manually track column - it's recalculated below when tokens are created */
             set i (+ i 1)
         } else {
             /* Line comment */

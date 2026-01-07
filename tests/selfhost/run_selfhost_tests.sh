@@ -38,6 +38,7 @@ TESTS=(
 # Negative tests (compiler should reject)
 NEGATIVE_TESTS=(
     "test_function_arg_type_errors.nano"
+    "test_requires_bool.nano"
 )
 
 PASSED=0

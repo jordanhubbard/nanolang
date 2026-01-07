@@ -76,6 +76,21 @@ fn vec_reflect(v: Vec3, n: Vec3) -> Vec3 {
 
 shadow vec_reflect { assert true }
 
+fn light_from_mouse(encoded: int, current_z: float) -> Vec3 {
+    let mouse_x: int = (/ encoded 10000)
+    let mouse_y: int = (% encoded 10000)
+    let lx: float = (- (/ (cast_float mouse_x) 100.0) 4.0)
+    let ly: float = (- 6.0 (/ (cast_float mouse_y) 100.0))
+    return Vec3 { x: lx, y: ly, z: current_z }
+}
+
+shadow light_from_mouse {
+    let encoded: int = (+ (* 200 10000) 100)
+    let pos: Vec3 = (light_from_mouse encoded 0.0)
+    assert (== pos.x -2.0)
+    assert (> pos.y -7.1)
+}
+
 # === Ray ===
 struct Ray {
     origin: Vec3,
@@ -392,15 +407,19 @@ fn main() -> int {
         if (> pitch 89.0) { set pitch 89.0 }
         if (< pitch -89.0) { set pitch -89.0 }
         
-        # Handle mouse clicks to move light
-        let mouse_result: int = (nl_sdl_poll_mouse_click)
-        if (!= mouse_result -1) {
-            let mouse_x: int = (/ mouse_result 65536)
-            let mouse_y: int = (% mouse_result 65536)
-            
-            # Map mouse position to 3D light position
-            set light_x (- (/ (cast_float mouse_x) 100.0) 4.0)
-            set light_y (- 6.0 (/ (cast_float mouse_y) 100.0))
+        # Handle mouse drag input to move light interactively
+        let drag_state: int = (nl_sdl_poll_mouse_state)
+        if (!= drag_state -1) {
+            let light_pos_drag: Vec3 = (light_from_mouse drag_state light_z)
+            set light_x light_pos_drag.x
+            set light_y light_pos_drag.y
+        } else {
+            let mouse_result: int = (nl_sdl_poll_mouse_click)
+            if (!= mouse_result -1) {
+                let light_pos_click: Vec3 = (light_from_mouse mouse_result light_z)
+                set light_x light_pos_click.x
+                set light_y light_pos_click.y
+            } else {}
         }
         
         let light_pos: Vec3 = Vec3 { x: light_x, y: light_y, z: light_z }

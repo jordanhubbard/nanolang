@@ -2231,11 +2231,12 @@ fn parse_primary(p: Parser) -> Parser {
                                         let p_op: Parser = (parser_advance p1)
                                         let p_id: Parser = (parser_store_identifier p_op tok2.value tok2.line tok2.column)
                                         let func_id: int = p_id.last_expr_node_id
-                                        let arg_start: int = (list_ASTStmtRef_length p_id.call_args)
                                         let p_arg: Parser = (parse_expression p_id)
                                         if (parser_has_error p_arg) {
                                             return p_arg
                                         } else {
+                                            /* Calculate arg_start AFTER parsing nested expression, BEFORE storing arg */
+                                            let arg_start: int = (list_ASTStmtRef_length p_arg.call_args)
                                             let arg_id: int = p_arg.last_expr_node_id
                                             let arg_type: int = p_arg.last_expr_node_type
                                             let p_arg2: Parser = (parser_store_call_arg p_arg arg_id arg_type)

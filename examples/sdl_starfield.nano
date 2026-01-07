@@ -199,9 +199,17 @@ fn main() -> int {
         let dt: float = (/ (cast_float (- current_time last_time)) 1000.0)
         set last_time current_time
         
-        # Check for quit
-        unsafe {         (nl_sdl_poll_keypress) }
-        if (== (nl_sdl_poll_event_quit) 1) { set running false } else {}
+        # Check for quit events and keyboard input
+        if (== (nl_sdl_poll_event_quit) 1) {
+            set running false
+        } else {
+            let mut key: int = -1
+            unsafe {             set key (nl_sdl_poll_keypress) }
+            if (== key 41) {
+                # ESC key
+                set running false
+            } else {}
+        }
         
         # Update stars
         set stars (update_stars stars NUM_STARS dt)
@@ -217,11 +225,11 @@ fn main() -> int {
             let x: float = (get_star_x stars i)
             let z: float = (get_star_z stars i)
             
-            # Size based on distance (closer = bigger) - clamped 1-4
-            let size_raw: int = (cast_int (/ 400.0 z))
+            # Size based on distance (closer = bigger) - clamped 1-2 for sharper look
+            let size_raw: int = (cast_int (/ 250.0 z))
             let size: int = (cond
                 ((< size_raw 1) 1)
-                ((> size_raw 4) 4)
+                ((> size_raw 2) 2)
                 (else size_raw)
             )
             
