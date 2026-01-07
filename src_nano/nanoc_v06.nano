@@ -572,6 +572,8 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             }
             
             let func_count: int = (parser_get_function_count parser)
+            let lets_count: int = (parser_get_let_count parser)
+            (println (+ "DEBUG: Parser has " (+ (int_to_string lets_count) (+ " lets, " (+ (int_to_string func_count) " functions")))))
             if verbose {
                 (print "  ✓ Parsed ")
                 (print (int_to_string func_count))

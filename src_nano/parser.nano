@@ -4569,6 +4569,10 @@ shadow parse_statement {
 
 /* Helper: Store function node */
 fn parser_store_function(p: Parser, name: string, param_start: int, param_count: int, return_type: string, body_id: int, line: int, column: int) -> Parser {
+    let lets_count_now: int = (list_ASTLet_length p.lets)
+    if (> param_start 150) {
+        (println (+ "DEBUG store_function: name=" (+ name (+ ", param_start=" (+ (int_to_string param_start) (+ ", lets_count=" (int_to_string lets_count_now)))))))
+    } else { (print "") }
     let node: ASTFunction = ASTFunction {
         node_type: ParseNodeType.PNODE_FUNCTION,
         line: line,

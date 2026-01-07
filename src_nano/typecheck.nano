@@ -1757,7 +1757,6 @@ pub fn typecheck_phase(parser: Parser, file_name: string) -> TypecheckPhaseOutpu
     let mut i: int = 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
-        /* TODO: Add function name to debug output */
         (println "  Registering function...")
         
         let return_type: NSType = (type_from_string func.return_type)
@@ -1783,7 +1782,6 @@ pub fn typecheck_phase(parser: Parser, file_name: string) -> TypecheckPhaseOutpu
     set i 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
-        /* TODO: Add function name to debug output */
         (println "  NSType checking function...")
         
         let valid: bool = (check_function parser func symbols env.diagnostics file_name)
