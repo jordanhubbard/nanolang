@@ -141,6 +141,144 @@ fn type_unknown_named(label: string) -> NSType {
     }
 }
 
+/* =============================================================================
+ * STRUCT METADATA REGISTRY - For accurate field type inference
+ * ============================================================================= */
+
+/* Struct field metadata entry */
+struct FieldMetadata {
+    struct_name: string,
+    field_name: string,
+    field_type_kind: int,  /* TypeKind value */
+    field_type_is_list: bool
+}
+
+/* Initialize struct metadata registry with common compiler structs */
+fn init_struct_metadata() -> array<FieldMetadata> {
+    let mut m: array<FieldMetadata> = []
+    
+    /* Parser fields (most common) */
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tokens", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "file_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "position", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "token_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "has_error", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "lets", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "functions", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "numbers", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "identifiers", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "binary_ops", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    
+    /* ASTFunction fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "param_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "param_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "return_type", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTLet fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "var_type", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "is_mut", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    
+    /* ASTIdentifier fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTIdentifier", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTIdentifier", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTCall fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "function_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "arg_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "arg_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTBinaryOp fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "op", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "left", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "right", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTFieldAccess fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTFieldAccess", field_name: "object", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFieldAccess", field_name: "field_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    
+    /* LexerToken fields */
+    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "token_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* NSType fields */
+    set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "kind", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    
+    /* Symbol fields */
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "is_mut", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "is_function", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    
+    return m
+}
+
+/* Capitalize first letter of string (parser → Parser) */
+fn capitalize_first(s: string) -> string {
+    if (== (str_length s) 0) {
+        return s
+    } else {
+        let first: int = (char_at s 0)
+        /* If already uppercase, return as-is */
+        if (and (>= first 65) (<= first 90)) {
+            return s
+        } else {
+            /* Convert lowercase to uppercase (a=97 → A=65, difference = 32) */
+            if (and (>= first 97) (<= first 122)) {
+                /* We can't easily modify strings, so try common patterns */
+                if (str_equals s "parser") { return "Parser" } else {
+                if (str_equals s "func") { return "ASTFunction" } else {
+                if (str_equals s "let_node") { return "ASTLet" } else {
+                if (str_equals s "ident") { return "ASTIdentifier" } else {
+                if (str_equals s "call") { return "ASTCall" } else {
+                if (str_equals s "binop") { return "ASTBinaryOp" } else {
+                if (str_equals s "fa") { return "ASTFieldAccess" } else {
+                if (str_equals s "tok") { return "LexerToken" } else {
+                if (str_equals s "token") { return "LexerToken" } else {
+                    return s
+                }}}}}}}}}
+            } else {
+                return s
+            }
+        }
+    }
+}
+
+/* Lookup field type given struct name and field name */
+fn lookup_field_type_kind(metadata: array<FieldMetadata>, struct_name: string, field_name: string) -> int {
+    /* Try exact match first */
+    let mut i: int = 0
+    while (< i (array_length metadata)) {
+        let entry: FieldMetadata = (at metadata i)
+        if (and (str_equals entry.struct_name struct_name) (str_equals entry.field_name field_name)) {
+            return entry.field_type_kind
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    
+    /* Try capitalized version (parser → Parser) */
+    let capitalized: string = (capitalize_first struct_name)
+    set i 0
+    while (< i (array_length metadata)) {
+        let entry: FieldMetadata = (at metadata i)
+        if (and (str_equals entry.struct_name capitalized) (str_equals entry.field_name field_name)) {
+            return entry.field_type_kind
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    
+    return TypeKind.TYPE_UNKNOWN
+}
+
 fn option_type_some(value: NSType) -> OptionType {
     return OptionType {
         has_value: true,
@@ -1279,30 +1417,62 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                 } else {
                                     /* Check for field access */
                                     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
-                                        /* Field access type inference */
+                                        /* Field access type inference with struct metadata */
                                         let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
                                         
-                                        /* CRITICAL: Enum field access (e.g., DiagnosticSeverity.ERROR) */
-                                        /* Parser treats enum values as field access on the enum type */
+                                        /* Check if object is an enum type (e.g., DiagnosticSeverity.ERROR) */
                                         if (== fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
                                             let ident: ASTIdentifier = (parser_get_identifier parser fa.object)
-                                            /* Check if identifier is a known enum TYPE (not a variable) */
-                                            /* Enum types: start with uppercase and are not in symbol table as variables */
                                             let first_char: int = (char_at ident.name 0)
                                             let is_uppercase: bool = (and (>= first_char 65) (<= first_char 90))
-                                            /* Check if it's NOT a variable (enum types aren't in symbol table) */
                                             let is_variable: bool = (env_has_symbol symbols ident.name)
                                             
                                             if (and is_uppercase (not is_variable)) {
-                                                /* Likely an enum type - return int */
+                                                /* Enum type - enum values are ints */
                                                 return (type_int)
                                             } else {
-                                                /* Variable field access - conservative void */
-                                                return (type_void)
+                                                /* Variable - lookup struct field type */
+                                                let metadata: array<FieldMetadata> = (init_struct_metadata)
+                                                /* Assume identifier name is the struct type (e.g., parser.lets → "Parser") */
+                                                /* For proper inference, we'd need to track variable types in symbol table */
+                                                /* For now, use identifier name as struct name (works for parameter names) */
+                                                let field_kind: int = (lookup_field_type_kind metadata ident.name fa.field_name)
+                                                
+                                                if (== field_kind TypeKind.TYPE_INT) {
+                                                    return (type_int)
+                                                } else { if (== field_kind TypeKind.TYPE_STRING) {
+                                                    return (type_string)
+                                                } else { if (== field_kind TypeKind.TYPE_BOOL) {
+                                                    return (type_bool)
+                                                } else { if (== field_kind TypeKind.TYPE_VOID) {
+                                                    return (type_void)
+                                                } else {
+                                                    /* Unknown or complex type - return void */
+                                                    return (type_void)
+                                                }}}}
                                             }
                                         } else {
-                                            /* Complex expression field access - return void */
-                                            return (type_void)
+                                            /* Complex expression field access */
+                                            /* Get object type recursively */
+                                            let obj_type: NSType = (check_expr_node parser fa.object fa.object_type symbols diags file_name)
+                                            
+                                            /* Try to lookup field type using struct name from object type */
+                                            if (!= obj_type.name "") {
+                                                let metadata: array<FieldMetadata> = (init_struct_metadata)
+                                                let field_kind: int = (lookup_field_type_kind metadata obj_type.name fa.field_name)
+                                                
+                                                if (== field_kind TypeKind.TYPE_INT) {
+                                                    return (type_int)
+                                                } else { if (== field_kind TypeKind.TYPE_STRING) {
+                                                    return (type_string)
+                                                } else { if (== field_kind TypeKind.TYPE_BOOL) {
+                                                    return (type_bool)
+                                                } else {
+                                                    return (type_void)
+                                                }}}
+                                            } else {
+                                                return (type_void)
+                                            }
                                         }
                                     } else {
                                         /* Check for struct literal */
@@ -1889,3 +2059,4 @@ fn typecheck() -> int {
 shadow typecheck {
     assert (== (typecheck) 0)
 }
+
