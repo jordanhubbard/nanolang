@@ -378,13 +378,19 @@ fn resolve_import_path(current_file: string, import_path: string, repo_root: str
     }
 }
 
-fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, order: array<string>, ok: bool) -> (array<string>, array<string>, bool) {
+struct CollectResult {
+    visited: array<string>,
+    order: array<string>,
+    ok: bool
+}
+
+fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, order: array<string>, ok: bool) -> CollectResult {
     if (not ok) {
-        return (visited, order, false)
+        return CollectResult { visited: visited, order: order, ok: false }
     } else { (print "") }
 
     if (nlc_array_contains_string visited path) {
-        return (visited, order, true)
+        return CollectResult { visited: visited, order: order, ok: true }
     } else {
         let mut visited2: array<string> = (array_push visited path)
         let src: string = (file_read path)
@@ -403,10 +409,10 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, or
                     set ok2 false
                 } else {
                     if (file_exists dep) {
-                        let res: (array<string>, array<string>, bool) = (collect_files_dfs dep repo_root visited2 order2 ok2)
-                        set visited2 res.0
-                        set order2 res.1
-                        set ok2 res.2
+                        let res: CollectResult = (collect_files_dfs dep repo_root visited2 order2 ok2)
+                        set visited2 res.visited
+                        set order2 res.order
+                        set ok2 res.ok
                     } else {
                         (print "Error: import not found: ")
                         (println dep)
@@ -420,7 +426,7 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, or
         if ok2 {
             set order2 (array_push order2 path)
         } else { (print "") }
-        return (visited2, order2, ok2)
+        return CollectResult { visited: visited2, order: order2, ok: ok2 }
     }
 }
 
@@ -430,9 +436,9 @@ fn merge_with_imports(input_file: string) -> string {
 
     let visited0: array<string> = []
     let order0: array<string> = []
-    let res: (array<string>, array<string>, bool) = (collect_files_dfs start repo_root visited0 order0 true)
-    let files: array<string> = res.1
-    if (not res.2) {
+    let res: CollectResult = (collect_files_dfs start repo_root visited0 order0 true)
+    let files: array<string> = res.order
+    if (not res.ok) {
         return ""
     } else { (print "") }
 
