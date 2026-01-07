@@ -1137,6 +1137,13 @@ fn ensure_known_expr_node(node_type: int) -> bool {
     if (== node_type ParseNodeType.PNODE_BINARY_OP) { return true }
     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) { return true }
     if (== node_type ParseNodeType.PNODE_MATCH) { return true }
+    if (== node_type ParseNodeType.PNODE_IF) { return true }
+    if (== node_type ParseNodeType.PNODE_BLOCK) { return true }
+    if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) { return true }
+    if (== node_type ParseNodeType.PNODE_UNSAFE_BLOCK) { return true }
+    if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) { return true }
+    if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) { return true }
+    if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return true }
     return false
 }
 
@@ -1295,7 +1302,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                     if (== node_type ParseNodeType.PNODE_MATCH) {
                                         return (check_match_expr parser node_id symbols diags file_name)
                                     } else {
-                                        return (type_unknown_named "unknown_node_type")
+                                        /* Check for if, block, tuple, unsafe - treat as void for now */
+                                        if (or (or (or (== node_type ParseNodeType.PNODE_IF) (== node_type ParseNodeType.PNODE_BLOCK)) (== node_type ParseNodeType.PNODE_TUPLE_LITERAL)) (== node_type ParseNodeType.PNODE_UNSAFE_BLOCK)) {
+                                            return (type_void)
+                                        } else {
+                                            return (type_unknown_named "unknown_node_type")
+                                        }
                                     }
                                             }
                                         }
