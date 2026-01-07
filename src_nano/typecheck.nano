@@ -1279,8 +1279,31 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                 } else {
                                     /* Check for field access */
                                     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
-                                        /* TODO: implement field access type checking */
-                                        return (type_unknown_named "field_access")
+                                        /* Field access type inference */
+                                        let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
+                                        
+                                        /* CRITICAL: Enum field access (e.g., DiagnosticSeverity.ERROR) */
+                                        /* Parser treats enum values as field access on the enum type */
+                                        if (== fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
+                                            let ident: ASTIdentifier = (parser_get_identifier parser fa.object)
+                                            /* Check if identifier is a known enum TYPE (not a variable) */
+                                            /* Enum types: start with uppercase and are not in symbol table as variables */
+                                            let first_char: int = (char_at ident.name 0)
+                                            let is_uppercase: bool = (and (>= first_char 65) (<= first_char 90))
+                                            /* Check if it's NOT a variable (enum types aren't in symbol table) */
+                                            let is_variable: bool = (env_has_symbol symbols ident.name)
+                                            
+                                            if (and is_uppercase (not is_variable)) {
+                                                /* Likely an enum type - return int */
+                                                return (type_int)
+                                            } else {
+                                                /* Variable field access - conservative void */
+                                                return (type_void)
+                                            }
+                                        } else {
+                                            /* Complex expression field access - return void */
+                                            return (type_void)
+                                        }
                                     } else {
                                         /* Check for struct literal */
                                         if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
@@ -1764,6 +1787,12 @@ pub fn typecheck_phase(parser: Parser, file_name: string) -> TypecheckPhaseOutpu
     set symbols (env_add_symbol env symbols str_concat_sym)
     let str_equals_sym: Symbol = (symbol_new "str_equals" (type_bool) false true (- 0 1) (empty_param_types))
     set symbols (env_add_symbol env symbols str_equals_sym)
+    let not_sym: Symbol = (symbol_new "not" (type_bool) false true (- 0 1) (empty_param_types))
+    set symbols (env_add_symbol env symbols not_sym)
+    let and_sym: Symbol = (symbol_new "and" (type_bool) false true (- 0 1) (empty_param_types))
+    set symbols (env_add_symbol env symbols and_sym)
+    let or_sym: Symbol = (symbol_new "or" (type_bool) false true (- 0 1) (empty_param_types))
+    set symbols (env_add_symbol env symbols or_sym)
     
     /* Phase 1: Add all user function signatures to symbol table */
     let mut i: int = 0
