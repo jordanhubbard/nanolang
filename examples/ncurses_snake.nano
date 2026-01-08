@@ -1,7 +1,7 @@
 # Snake Game - NCurses Version
 # Interactive terminal snake game with proper UI
 
-import "modules/ncurses/ncurses.nano"
+module "modules/ncurses/ncurses.nano"
 
 # === ENUMS ===
 enum Direction {

@@ -1,5 +1,5 @@
 // Datetime Library Demo
-import "std/datetime/datetime.nano" as DT
+module "std/datetime/datetime.nano as DT" as DT
 
 fn current_time_example() -> void {
     (println "=== Current Time Example ===")

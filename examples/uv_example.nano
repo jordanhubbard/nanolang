@@ -81,7 +81,7 @@
 # - Ideal for I/O-bound workloads, not CPU-bound
 # - Callback overhead: ~10-50μs per callback
 
-import "modules/uv/uv.nano"
+module "modules/uv/uv.nano"
 
 # =============================================================================
 # Example 1: Version and Capabilities

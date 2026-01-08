@@ -13,9 +13,9 @@
  * - Modern NanoLang APIs (string +, cast_int, proper SDL)
  */
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/bullet/bullet.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/bullet/bullet.nano"
 
 /* Constants */
 let WINDOW_WIDTH: int = 1200
@@ -77,9 +77,7 @@ fn draw_filled_circle(renderer: SDL_Renderer, cx: int, cy: int, radius: int) -> 
             let dist_sq: int = (+ (* x x) (* y y))
             let radius_sq: int = (* radius radius)
             if (<= dist_sq radius_sq) {
-                unsafe {
-                    (SDL_RenderDrawPoint renderer (+ cx x) (+ cy y))
-                }
+                (SDL_RenderDrawPoint renderer (+ cx x) (+ cy y))
             }
             set x (+ x 1)
         }
@@ -99,10 +97,8 @@ fn draw_rotated_box(
     /* Simple filled rect for now */
     let x1: int = (- cx (/ width 2))
     let y1: int = (- cy (/ height 2))
-    unsafe {
-        (SDL_SetRenderDrawColor renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
-        (nl_sdl_render_fill_rect renderer x1 y1 width height)
-    }
+    (SDL_SetRenderDrawColor renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
+    (nl_sdl_render_fill_rect renderer x1 y1 width height)
     return
 }
 
@@ -118,7 +114,7 @@ fn main() -> int {
     (println "")
     
     /* Initialize SDL */
-    unsafe { (SDL_Init SDL_INIT_VIDEO) }
+    (SDL_Init SDL_INIT_VIDEO) 
     
     /* Create window and renderer */
     let window: SDL_Window = (SDL_CreateWindow 
@@ -131,16 +127,12 @@ fn main() -> int {
     
     /* Initialize Bullet Physics */
     let mut bullet_init: int = 0
-    unsafe {
-        set bullet_init (nl_bullet_init)
-    }
+    set bullet_init (nl_bullet_init)
     if (== bullet_init 0) {
         (println "Error: Failed to initialize Bullet Physics")
-        unsafe {
-            (SDL_DestroyRenderer renderer)
-            (SDL_DestroyWindow window)
-            (SDL_Quit)
-        }
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
         return 1
     }
     
@@ -150,11 +142,9 @@ fn main() -> int {
     let mut obstacle_handles: array<int> = []
     
     /* Ground */
-    unsafe {
-        let ground: int = (nl_bullet_create_rigid_box 
-            0.0 (- 0.0 50.0) 0.0 100.0 1.0 50.0 0.0 0.3)
-        set obstacle_handles (array_push obstacle_handles ground)
-    }
+    let ground: int = (nl_bullet_create_rigid_box 
+        0.0 (- 0.0 50.0) 0.0 100.0 1.0 50.0 0.0 0.3)
+    set obstacle_handles (array_push obstacle_handles ground)
     
     /* Rotating obstacles in plinko pattern */
     let obstacle_y: float = 30.0
@@ -173,11 +163,9 @@ fn main() -> int {
             let x: float = (+ (- 0.0 32.0) (+ (* (cast_float col) 16.0) offset))
             let angle: float = (+ 20.0 (* (cast_float (% (+ row col) 3)) 10.0))
             
-            unsafe {
-                let obs: int = (nl_bullet_create_rigid_box_rotated 
-                    x row_y 0.0 6.0 0.8 1.0 angle 0.0 0.4)
-                set obstacle_handles (array_push obstacle_handles obs)
-            }
+            let obs: int = (nl_bullet_create_rigid_box_rotated 
+                x row_y 0.0 6.0 0.8 1.0 angle 0.0 0.4)
+            set obstacle_handles (array_push obstacle_handles obs)
             set col (+ col 1)
         }
         set row (+ row 1)
@@ -195,7 +183,7 @@ fn main() -> int {
     let mut running: bool = true
     while running {
         let mut frame_start: int = 0
-        unsafe { set frame_start (SDL_GetTicks) }
+        set frame_start (SDL_GetTicks) 
         
         /* Handle events */
         let key: int = (nl_sdl_poll_keypress)
@@ -205,7 +193,7 @@ fn main() -> int {
         }
         
         /* Step physics */
-        unsafe { (nl_bullet_step FRAME_TIME) }
+        (nl_bullet_step FRAME_TIME) 
         
         set total_time (+ total_time FRAME_TIME)
         set time_since_spawn (+ time_since_spawn FRAME_TIME)
@@ -217,10 +205,8 @@ fn main() -> int {
             let spawn_z: float = 0.0
             
             let mut bead_handle: int = 0
-            unsafe {
-                set bead_handle (nl_bullet_create_soft_sphere 
-                    spawn_x spawn_y spawn_z BEAD_RADIUS BEAD_RESOLUTION)
-            }
+            set bead_handle (nl_bullet_create_soft_sphere 
+                spawn_x spawn_y spawn_z BEAD_RADIUS BEAD_RESOLUTION)
             
             if (!= bead_handle (- 0 1)) {
                 let new_bead: BeadState = BeadState {
@@ -234,10 +220,8 @@ fn main() -> int {
         }
         
         /* Clear screen */
-        unsafe {
-            (SDL_SetRenderDrawColor renderer COLOR_BG_R COLOR_BG_G COLOR_BG_B 255)
-            (SDL_RenderClear renderer)
-        }
+        (SDL_SetRenderDrawColor renderer COLOR_BG_R COLOR_BG_G COLOR_BG_B 255)
+        (SDL_RenderClear renderer)
         
         /* Draw obstacles */
         let mut i: int = 0
@@ -245,10 +229,8 @@ fn main() -> int {
             let handle: int = (at obstacle_handles i)
             let mut x: float = 0.0
             let mut y: float = 0.0
-            unsafe {
-                set x (nl_bullet_get_rigid_body_x handle)
-                set y (nl_bullet_get_rigid_body_y handle)
-            }
+            set x (nl_bullet_get_rigid_body_x handle)
+            set y (nl_bullet_get_rigid_body_y handle)
             
             let screen_x: int = (project_x x)
             let screen_y: int = (project_y y)
@@ -267,9 +249,7 @@ fn main() -> int {
         }
         
         /* Draw soft body beads */
-        unsafe {
-            (SDL_SetRenderDrawColor renderer COLOR_BEAD_R COLOR_BEAD_G COLOR_BEAD_B 255)
-        }
+        (SDL_SetRenderDrawColor renderer COLOR_BEAD_R COLOR_BEAD_G COLOR_BEAD_B 255)
         
         set i 0
         while (< i (array_length beads)) {
@@ -277,19 +257,15 @@ fn main() -> int {
             if bead.active {
                 let bead_handle: int = bead.handle
                 let mut node_count: int = 0
-                unsafe {
-                    set node_count (nl_bullet_get_soft_body_node_count bead_handle)
-                }
+                set node_count (nl_bullet_get_soft_body_node_count bead_handle)
                 
                 /* Draw each node as a small circle */
                 let mut node_idx: int = 0
                 while (< node_idx node_count) {
                     let mut x: float = 0.0
                     let mut y: float = 0.0
-                    unsafe {
-                        set x (nl_bullet_get_soft_body_node_x bead_handle node_idx)
-                        set y (nl_bullet_get_soft_body_node_y bead_handle node_idx)
-                    }
+                    set x (nl_bullet_get_soft_body_node_x bead_handle node_idx)
+                    set y (nl_bullet_get_soft_body_node_y bead_handle node_idx)
                     
                     let screen_x: int = (project_x x)
                     let screen_y: int = (project_y y)
@@ -304,18 +280,18 @@ fn main() -> int {
         }
         
         /* Present */
-        unsafe { (SDL_RenderPresent renderer) }
+        (SDL_RenderPresent renderer) 
         
         set frame_count (+ frame_count 1)
         
         /* Frame rate limiting */
         let mut frame_end: int = 0
-        unsafe { set frame_end (SDL_GetTicks) }
+        set frame_end (SDL_GetTicks) 
         let frame_duration: int = (- frame_end frame_start)
         let target_frame_time: int = (/ 1000 TARGET_FPS)
         if (< frame_duration target_frame_time) {
             let delay: int = (- target_frame_time frame_duration)
-            unsafe { (SDL_Delay delay) }
+            (SDL_Delay delay) 
         }
     }
     
@@ -323,12 +299,10 @@ fn main() -> int {
     (println "")
     (println (+ "Simulated " (+ (int_to_string (array_length beads)) " beads total")))
     
-    unsafe {
-        (nl_bullet_cleanup)
-        (SDL_DestroyRenderer renderer)
-        (SDL_DestroyWindow window)
-        (SDL_Quit)
-    }
+    (nl_bullet_cleanup)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
     
     (println "Demo complete!")
     return 0

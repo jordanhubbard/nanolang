@@ -1,10 +1,10 @@
 # FIRE EFFECT - Classic Demoscene Effect
 # Mesmerizing fire simulation with palette animation
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 # === CONSTANTS ===
 let WINDOW_WIDTH: int = 320
@@ -149,11 +149,11 @@ fn main() -> int {
     
     # Seed random
     let t: int = (time 0)
-    unsafe { (srand t) }
+    (srand t) 
     
     # Initialize SDL
-    unsafe { (SDL_Init SDL_INIT_VIDEO) }
-    unsafe { (TTF_Init) }
+    (SDL_Init SDL_INIT_VIDEO) 
+    (TTF_Init) 
     let window: SDL_Window = (SDL_CreateWindow "Fire Effect" 100 100 WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
     
@@ -193,8 +193,8 @@ fn main() -> int {
         
         # Render fire
         # Clear screen (black)
-        unsafe { (SDL_SetRenderDrawColor renderer 0 0 0 255) }
-        unsafe { (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer 0 0 0 255) 
+        (SDL_RenderClear renderer) 
         
         # Draw fire pixels
         let mut y: int = 0
@@ -238,8 +238,8 @@ fn main() -> int {
                         }
                     }
                     
-                    unsafe { (SDL_SetRenderDrawColor renderer r g b 255) }
-                    unsafe { (nl_sdl_render_fill_rect renderer x y 1 1) }
+                    (SDL_SetRenderDrawColor renderer r g b 255) 
+                    (nl_sdl_render_fill_rect renderer x y 1 1) 
                 } else {}
                 
                 set x (+ x 1)
@@ -248,20 +248,20 @@ fn main() -> int {
         }
         
         # Draw on-screen help
-        unsafe { (nl_draw_text_blended renderer font "Press ESC or Q to quit" 10 10 200 200 220 255) }
+        (nl_draw_text_blended renderer font "Press ESC or Q to quit" 10 10 200 200 220 255) 
         
-        unsafe { (SDL_RenderPresent renderer) }
+        (SDL_RenderPresent renderer) 
         
         # Small delay
-        unsafe { (SDL_Delay 16) }
+        (SDL_Delay 16) 
     }
     
     # Cleanup
-    unsafe { (TTF_CloseFont font) }
-    unsafe { (SDL_DestroyRenderer renderer) }
-    unsafe { (SDL_DestroyWindow window) }
-    unsafe { (TTF_Quit) }
-    unsafe { (SDL_Quit) }
+    (TTF_CloseFont font) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (TTF_Quit) 
+    (SDL_Quit) 
     
     (println "Fire extinguished.")
     

@@ -12,8 +12,8 @@
  * - Performance metrics
  */
 
-import "modules/sdl/sdl.nano" as SDL
-import "modules/bullet/bullet.nano" as Bullet
+unsafe module "modules/sdl/sdl.nano as SDL" as SDL
+unsafe module "modules/bullet/bullet.nano as Bullet" as Bullet
 
 /* Constants */
 let WINDOW_WIDTH: int = 1200
@@ -76,9 +76,7 @@ fn draw_filled_circle(renderer: SDL.SDL_Renderer, cx: int, cy: int, radius: int)
             let dist_sq: int = (+ (* x x) (* y y))
             let radius_sq: int = (* radius radius)
             if (<= dist_sq radius_sq) {
-                unsafe {
-                    (SDL.SDL_RenderDrawPoint renderer (+ cx x) (+ cy y))
-                }
+                (SDL.SDL_RenderDrawPoint renderer (+ cx x) (+ cy y))
             }
             set x (+ x 1)
         }
@@ -98,10 +96,8 @@ fn draw_rotated_box(
     let x1: int = (- cx (/ width 2))
     let y1: int = (- cy (/ height 2))
     let rect: SDL.SDL_Rect = SDL.SDL_Rect { x: x1, y: y1, w: width, h: height }
-    unsafe {
-        (SDL.SDL_SetRenderDrawColor renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
-        (SDL.SDL_RenderFillRect renderer rect)
-    }
+    (SDL.SDL_SetRenderDrawColor renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
+    (SDL.SDL_RenderFillRect renderer rect)
     return 0
 }
 
@@ -116,9 +112,7 @@ fn main() -> int {
     
     /* Initialize SDL */
     let sdl_init: int = 0
-    unsafe {
-        set sdl_init (SDL.nl_sdl_init)
-    }
+    set sdl_init (SDL.nl_sdl_init)
     if (!= sdl_init 0) {
         (println "Error: Failed to initialize SDL")
         return 1
@@ -127,41 +121,31 @@ fn main() -> int {
     /* Create window and renderer */
     let window: int = 0
     let renderer: int = 0
-    unsafe {
-        set window (SDL.nl_sdl_create_window 
-            "Soft Body Beads - Bullet Physics" 
-            WINDOW_WIDTH WINDOW_HEIGHT)
-    }
+    set window (SDL.nl_sdl_create_window 
+        "Soft Body Beads - Bullet Physics" 
+        WINDOW_WIDTH WINDOW_HEIGHT)
     if (== window 0) {
         (println "Error: Failed to create window")
-        unsafe { (SDL.nl_sdl_quit) }
+        (SDL.nl_sdl_quit) 
         return 1
     }
     
-    unsafe {
-        set renderer (SDL.nl_sdl_create_renderer window)
-    }
+    set renderer (SDL.nl_sdl_create_renderer window)
     if (== renderer 0) {
         (println "Error: Failed to create renderer")
-        unsafe {
-            (SDL.nl_sdl_destroy_window window)
-            (SDL.nl_sdl_quit)
-        }
+        (SDL.nl_sdl_destroy_window window)
+        (SDL.nl_sdl_quit)
         return 1
     }
     
     /* Initialize Bullet Physics */
     let bullet_init: int = 0
-    unsafe {
-        set bullet_init (Bullet.nl_bullet_init)
-    }
+    set bullet_init (Bullet.nl_bullet_init)
     if (== bullet_init 0) {
         (println "Error: Failed to initialize Bullet Physics")
-        unsafe {
-            (SDL.nl_sdl_destroy_renderer renderer)
-            (SDL.nl_sdl_destroy_window window)
-            (SDL.nl_sdl_quit)
-        }
+        (SDL.nl_sdl_destroy_renderer renderer)
+        (SDL.nl_sdl_destroy_window window)
+        (SDL.nl_sdl_quit)
         return 1
     }
     
@@ -171,11 +155,9 @@ fn main() -> int {
     let mut obstacle_handles: array<int> = (array_new)
     
     /* Ground */
-    unsafe {
-        let ground: int = (Bullet.nl_bullet_create_rigid_box 
-            0.0 (- 0.0 50.0) 0.0 100.0 1.0 50.0 0.0 0.3)
-        set obstacle_handles (array_push obstacle_handles ground)
-    }
+    let ground: int = (Bullet.nl_bullet_create_rigid_box 
+        0.0 (- 0.0 50.0) 0.0 100.0 1.0 50.0 0.0 0.3)
+    set obstacle_handles (array_push obstacle_handles ground)
     
     /* Rotating obstacles in plinko pattern */
     let obstacle_y: float = 30.0
@@ -194,11 +176,9 @@ fn main() -> int {
             let x: float = (+ (- 0.0 32.0) (+ (* (int_to_float col) 16.0) offset))
             let angle: float = (+ 20.0 (* (int_to_float (% (+ row col) 3)) 10.0))
             
-            unsafe {
-                let obs: int = (Bullet.nl_bullet_create_rigid_box_rotated 
-                    x row_y 0.0 6.0 0.8 1.0 angle 0.0 0.4)
-                set obstacle_handles (array_push obstacle_handles obs)
-            }
+            let obs: int = (Bullet.nl_bullet_create_rigid_box_rotated 
+                x row_y 0.0 6.0 0.8 1.0 angle 0.0 0.4)
+            set obstacle_handles (array_push obstacle_handles obs)
             set col (+ col 1)
         }
         set row (+ row 1)
@@ -218,17 +198,13 @@ fn main() -> int {
     let mut running: bool = true
     while running {
         let frame_start: int = 0
-        unsafe {
-            set frame_start (SDL.nl_sdl_get_ticks)
-        }
+        set frame_start (SDL.nl_sdl_get_ticks)
         
         /* Handle events */
         let mut has_event: bool = true
         while has_event {
             let event_type: int = 0
-            unsafe {
-                set event_type (SDL.nl_sdl_poll_event)
-            }
+            set event_type (SDL.nl_sdl_poll_event)
             
             if (== event_type 0) {
                 set has_event false
@@ -238,9 +214,7 @@ fn main() -> int {
                 }
                 if (== event_type 768) {  /* SDL_KEYDOWN */
                     let key: int = 0
-                    unsafe {
-                        set key (SDL.nl_sdl_get_key_code)
-                    }
+                    set key (SDL.nl_sdl_get_key_code)
                     if (== key 27) {  /* ESC */
                         set running false
                     }
@@ -249,9 +223,7 @@ fn main() -> int {
         }
         
         /* Step physics */
-        unsafe {
-            (Bullet.nl_bullet_step FRAME_TIME)
-        }
+        (Bullet.nl_bullet_step FRAME_TIME)
         
         set total_time (+ total_time FRAME_TIME)
         set time_since_spawn (+ time_since_spawn FRAME_TIME)
@@ -263,10 +235,8 @@ fn main() -> int {
             let spawn_z: float = 0.0
             
             let bead_handle: int = 0
-            unsafe {
-                set bead_handle (Bullet.nl_bullet_create_soft_sphere 
-                    spawn_x spawn_y spawn_z BEAD_RADIUS BEAD_RESOLUTION)
-            }
+            set bead_handle (Bullet.nl_bullet_create_soft_sphere 
+                spawn_x spawn_y spawn_z BEAD_RADIUS BEAD_RESOLUTION)
             
             if (!= bead_handle (- 0 1)) {
                 let new_bead: BeadState = BeadState {
@@ -280,25 +250,19 @@ fn main() -> int {
         }
         
         /* Clear screen */
-        unsafe {
-            (SDL.nl_sdl_set_render_draw_color renderer COLOR_BG_R COLOR_BG_G COLOR_BG_B 255)
-            (SDL.nl_sdl_render_clear renderer)
-        }
+        (SDL.nl_sdl_set_render_draw_color renderer COLOR_BG_R COLOR_BG_G COLOR_BG_B 255)
+        (SDL.nl_sdl_render_clear renderer)
         
         /* Draw obstacles */
-        unsafe {
-            (SDL.nl_sdl_set_render_draw_color renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
-        }
+        (SDL.nl_sdl_set_render_draw_color renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
         
         let mut i: int = 0
         while (< i (array_length obstacle_handles)) {
             let handle: int = (at obstacle_handles i)
             let x: float = 0.0
             let y: float = 0.0
-            unsafe {
-                set x (Bullet.nl_bullet_get_rigid_body_x handle)
-                set y (Bullet.nl_bullet_get_rigid_body_y handle)
-            }
+            set x (Bullet.nl_bullet_get_rigid_body_x handle)
+            set y (Bullet.nl_bullet_get_rigid_body_y handle)
             
             let screen_x: int = (project_x x)
             let screen_y: int = (project_y y)
@@ -317,9 +281,7 @@ fn main() -> int {
         }
         
         /* Draw soft body beads */
-        unsafe {
-            (SDL.nl_sdl_set_render_draw_color renderer COLOR_BEAD_R COLOR_BEAD_G COLOR_BEAD_B 255)
-        }
+        (SDL.nl_sdl_set_render_draw_color renderer COLOR_BEAD_R COLOR_BEAD_G COLOR_BEAD_B 255)
         
         set i 0
         while (< i (array_length beads)) {
@@ -327,19 +289,15 @@ fn main() -> int {
             if bead.active {
                 let bead_handle: int = bead.handle
                 let node_count: int = 0
-                unsafe {
-                    set node_count (Bullet.nl_bullet_get_soft_body_node_count bead_handle)
-                }
+                set node_count (Bullet.nl_bullet_get_soft_body_node_count bead_handle)
                 
                 /* Draw each node as a small circle */
                 let mut node_idx: int = 0
                 while (< node_idx node_count) {
                     let x: float = 0.0
                     let y: float = 0.0
-                    unsafe {
-                        set x (Bullet.nl_bullet_get_soft_body_node_x bead_handle node_idx)
-                        set y (Bullet.nl_bullet_get_soft_body_node_y bead_handle node_idx)
-                    }
+                    set x (Bullet.nl_bullet_get_soft_body_node_x bead_handle node_idx)
+                    set y (Bullet.nl_bullet_get_soft_body_node_y bead_handle node_idx)
                     
                     let screen_x: int = (project_x x)
                     let screen_y: int = (project_y y)
@@ -354,24 +312,18 @@ fn main() -> int {
         }
         
         /* Present */
-        unsafe {
-            (SDL.nl_sdl_render_present renderer)
-        }
+        (SDL.nl_sdl_render_present renderer)
         
         set frame_count (+ frame_count 1)
         
         /* Frame rate limiting */
         let frame_end: int = 0
-        unsafe {
-            set frame_end (SDL.nl_sdl_get_ticks)
-        }
+        set frame_end (SDL.nl_sdl_get_ticks)
         let frame_duration: int = (- frame_end frame_start)
         let target_frame_time: int = (/ 1000 TARGET_FPS)
         if (< frame_duration target_frame_time) {
             let delay: int = (- target_frame_time frame_duration)
-            unsafe {
-                (SDL.nl_sdl_delay delay)
-            }
+            (SDL.nl_sdl_delay delay)
         }
     }
     
@@ -381,12 +333,10 @@ fn main() -> int {
     (print (array_length beads))
     (println " beads total")
     
-    unsafe {
-        (Bullet.nl_bullet_cleanup)
-        (SDL.nl_sdl_destroy_renderer renderer)
-        (SDL.nl_sdl_destroy_window window)
-        (SDL.nl_sdl_quit)
-    }
+    (Bullet.nl_bullet_cleanup)
+    (SDL.nl_sdl_destroy_renderer renderer)
+    (SDL.nl_sdl_destroy_window window)
+    (SDL.nl_sdl_quit)
     
     (println "Demo complete!")
     return 0

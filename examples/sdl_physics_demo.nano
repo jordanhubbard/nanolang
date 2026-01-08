@@ -2,10 +2,10 @@
 # Real-time bouncing balls with gravity, collisions, and elasticity
 # Demonstrates: Physics simulation, particle systems, vector math
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 # === CONSTANTS ===
 let WINDOW_WIDTH: int = 1200
@@ -220,7 +220,7 @@ fn draw_ball(renderer: SDL_Renderer, ball: Ball, radius: int) -> void {
         let ix: int = (cast_int ball.x)
         let iy: int = (cast_int ball.y)
         
-        unsafe { (SDL_SetRenderDrawColor renderer ball.r ball.g ball.b 255) }
+        (SDL_SetRenderDrawColor renderer ball.r ball.g ball.b 255) 
         
         # Draw filled circle using midpoint circle algorithm
         let mut dy: int = (- 0 radius)
@@ -229,7 +229,7 @@ fn draw_ball(renderer: SDL_Renderer, ball: Ball, radius: int) -> void {
             while (<= dx radius) {
                 let dist_sq: int = (+ (* dx dx) (* dy dy))
                 if (<= dist_sq (* radius radius)) {
-                    unsafe { (SDL_RenderDrawPoint renderer (+ ix dx) (+ iy dy)) }
+                    (SDL_RenderDrawPoint renderer (+ ix dx) (+ iy dy)) 
                 } else {}
                 set dx (+ dx 1)
             }
@@ -258,8 +258,8 @@ fn main() -> int {
     (println "")
     
     # Initialize SDL
-    unsafe { (SDL_Init SDL_INIT_VIDEO) }
-    unsafe { (TTF_Init) }
+    (SDL_Init SDL_INIT_VIDEO) 
+    (TTF_Init) 
     
     let window: SDL_Window = (SDL_CreateWindow "2D Physics Demo"
                                                SDL_WINDOWPOS_CENTERED
@@ -382,8 +382,8 @@ fn main() -> int {
         }
         
         # Clear screen
-        unsafe { (SDL_SetRenderDrawColor renderer 15 15 25 255) }
-        unsafe { (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer 15 15 25 255) 
+        (SDL_RenderClear renderer) 
         
         # Draw all balls
         let mut d: int = 0
@@ -394,21 +394,21 @@ fn main() -> int {
         }
         
         # Draw UI
-        unsafe { (nl_draw_text_blended renderer font "2D Physics Simulation" 10 10 200 200 255 255) }
-        unsafe { (nl_draw_text_blended renderer font (+ "Balls: " (+ (int_to_string ball_count) (+ "/" (int_to_string MAX_BALLS)))) 10 35 150 200 150 255) }
-        unsafe { (nl_draw_text_blended renderer font "Click to spawn | SPACE for random | C to clear | ESC to quit" 10 60 150 150 200 255) }
+        (nl_draw_text_blended renderer font "2D Physics Simulation" 10 10 200 200 255 255) 
+        (nl_draw_text_blended renderer font (+ "Balls: " (+ (int_to_string ball_count) (+ "/" (int_to_string MAX_BALLS)))) 10 35 150 200 150 255) 
+        (nl_draw_text_blended renderer font "Click to spawn | SPACE for random | C to clear | ESC to quit" 10 60 150 150 200 255) 
         
         # Present
-        unsafe { (SDL_RenderPresent renderer) }
-        unsafe { (SDL_Delay 16) }
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
     }
     
     # Cleanup
-    unsafe { (TTF_CloseFont font) }
-    unsafe { (TTF_Quit) }
-    unsafe { (SDL_DestroyRenderer renderer) }
-    unsafe { (SDL_DestroyWindow window) }
-    unsafe { (SDL_Quit) }
+    (TTF_CloseFont font) 
+    (TTF_Quit) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (SDL_Quit) 
     
     (println "")
     (println "✅ Physics simulation complete!")

@@ -1,8 +1,8 @@
 # Test WAV Playback
 # Simple test to verify our converted samples play with SDL_mixer
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_mixer/sdl_mixer.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_mixer/sdl_mixer.nano"
 
 # Command-line argument support
 extern fn get_argc() -> int
@@ -33,7 +33,7 @@ fn main() -> int {
     # Initialize SDL_mixer
     if (!= (Mix_OpenAudio 44100 MIX_DEFAULT_FORMAT 2 2048) 0) {
         (println "Mix_OpenAudio failed")
-        unsafe {         (SDL_Quit) }
+        (SDL_Quit) 
         return 1
     } else {}
     
@@ -43,7 +43,7 @@ fn main() -> int {
     
     # Load a sample WAV file
     let mut sample_file: string = ""
-    unsafe { set sample_file (get_argv 1) }
+    set sample_file (get_argv 1) 
     (print "Loading: ")
     (println sample_file)
     
@@ -52,8 +52,8 @@ fn main() -> int {
         (println "ERROR: Failed to load WAV file")
         (println (Mix_GetError))
         (println "Make sure the path is correct and the file is a supported .wav.")
-        unsafe {         (Mix_CloseAudio) }
-        unsafe {         (SDL_Quit) }
+        (Mix_CloseAudio) 
+        (SDL_Quit) 
         return 1
     } else {}
     
@@ -72,13 +72,13 @@ fn main() -> int {
         (println "Listening for 2 seconds...")
         
         # Wait for playback
-        unsafe {         (SDL_Delay 2000) }
+        (SDL_Delay 2000) 
     }
     
     # Cleanup
     # (Mix_FreeChunk sample)  # TODO: Fix void function issue
-    unsafe {     (Mix_CloseAudio) }
-    unsafe {     (SDL_Quit) }
+    (Mix_CloseAudio) 
+    (SDL_Quit) 
     
     (println "")
     (println "✓ Test complete!")

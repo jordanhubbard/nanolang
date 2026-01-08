@@ -1,5 +1,5 @@
 // JSON Library Demo
-import "std/json/json.nano" as JSON
+module "std/json/json.nano as JSON" as JSON
 
 fn parse_example() -> int {
     // Parse JSON string

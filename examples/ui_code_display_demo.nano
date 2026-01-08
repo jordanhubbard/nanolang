@@ -1,7 +1,7 @@
-import "modules/sdl/sdl.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/ui_widgets/ui_widgets.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+module "modules/ui_widgets/ui_widgets.nano"
 
 # Build sample code with line breaks
 fn build_sample_code() -> string {
@@ -50,8 +50,8 @@ shadow build_sample_code {
 # Demo of the nl_ui_code_display widget with syntax highlighting
 fn main() -> int {
     # Initialize SDL and TTF
-    unsafe { (SDL_Init SDL_INIT_VIDEO) }
-    unsafe { (TTF_Init) }
+    (SDL_Init SDL_INIT_VIDEO) 
+    (TTF_Init) 
     
     # Create window
     let window: SDL_Window = (SDL_CreateWindow "Code Display Widget Demo" 100 100 1000 700 SDL_WINDOW_SHOWN)
@@ -96,34 +96,34 @@ fn main() -> int {
             set running false
         } else {}
         
-        unsafe { (nl_ui_update_mouse_state) }
+        (nl_ui_update_mouse_state) 
         
         # Clear screen
-        unsafe { (SDL_SetRenderDrawColor renderer 25 25 35 255) }
-        unsafe { (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer 25 25 35 255) 
+        (SDL_RenderClear renderer) 
         
         # Title
-        unsafe { (nl_ui_label renderer title_font "Code Display Widget - Syntax Highlighting Demo" 20 10 220 220 255 255) }
-        unsafe { (nl_ui_label renderer font "Use UP/DOWN arrows to scroll" 20 40 180 180 200 255) }
+        (nl_ui_label renderer title_font "Code Display Widget - Syntax Highlighting Demo" 20 10 220 220 255 255) 
+        (nl_ui_label renderer font "Use UP/DOWN arrows to scroll" 20 40 180 180 200 255) 
         
         # Display the code with syntax highlighting
-        unsafe { (nl_ui_code_display renderer font sample_code 20 70 960 600 scroll_offset 18) }
+        (nl_ui_code_display renderer font sample_code 20 70 960 600 scroll_offset 18) 
         
         # Scroll indicator
         let scroll_text: string = (+ "Scroll: " (int_to_string scroll_offset))
-        unsafe { (nl_ui_label renderer font scroll_text 850 40 160 160 180 255) }
+        (nl_ui_label renderer font scroll_text 850 40 160 160 180 255) 
         
-        unsafe { (SDL_RenderPresent renderer) }
-        unsafe { (SDL_Delay 16) }
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
     }
     
     # Cleanup
-    unsafe { (TTF_CloseFont font) }
-    unsafe { (TTF_CloseFont title_font) }
-    unsafe { (TTF_Quit) }
-    unsafe { (SDL_DestroyRenderer renderer) }
-    unsafe { (SDL_DestroyWindow window) }
-    unsafe { (SDL_Quit) }
+    (TTF_CloseFont font) 
+    (TTF_CloseFont title_font) 
+    (TTF_Quit) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (SDL_Quit) 
     
     return 0
 }

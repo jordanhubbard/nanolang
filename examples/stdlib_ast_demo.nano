@@ -37,7 +37,7 @@
  * =============================================================================
  */
 
-import "stdlib/ast.nano"
+module "stdlib/ast.nano"
 
 fn demo_basic_nodes() -> void {
     (println "=== Demo 1: Basic Node Creation ===")

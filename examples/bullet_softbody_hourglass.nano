@@ -4,9 +4,9 @@
  * particle documentation and Jason Huang's SPH fluid project.
  */
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/bullet/bullet.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/bullet/bullet.nano"
 
 /* Window */
 let WINDOW_WIDTH: int = 1200
@@ -69,7 +69,7 @@ fn draw_filled_circle(renderer: SDL_Renderer, cx: int, cy: int, radius: int) -> 
             let dist_sq: int = (+ (* x x) (* y y))
             let limit: int = (* radius radius)
             if (<= dist_sq limit) {
-                unsafe { (SDL_RenderDrawPoint renderer (+ cx x) (+ cy y)) }
+                (SDL_RenderDrawPoint renderer (+ cx x) (+ cy y)) 
             }
             set x (+ x 1)
         }
@@ -107,7 +107,7 @@ fn main() -> int {
     (println "SPACE toggles emitter, ESC exits")
     (println "")
 
-    unsafe { (SDL_Init SDL_INIT_VIDEO) }
+    (SDL_Init SDL_INIT_VIDEO) 
     let window: SDL_Window = (SDL_CreateWindow
         "Bullet Soft Body Hourglass"
         SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED
@@ -116,26 +116,22 @@ fn main() -> int {
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
 
     let mut bullet_ok: int = 0
-    unsafe { set bullet_ok (nl_bullet_init) }
+    set bullet_ok (nl_bullet_init) 
     if (== bullet_ok 0) {
         (println "Failed to init Bullet")
-        unsafe {
-            (SDL_DestroyRenderer renderer)
-            (SDL_DestroyWindow window)
-            (SDL_Quit)
-        }
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
         return 1
     }
 
     /* Static world */
-    unsafe {
-        (nl_bullet_create_rigid_box 0.0 (- 0.0 48.0) 0.0 80.0 2.0 60.0 0.0 0.4)
-        (nl_bullet_create_rigid_box_rotated (- 0.0 14.0) 0.0 0.0 24.0 1.0 6.0 25.0 0.0 0.3)
-        (nl_bullet_create_rigid_box_rotated 14.0 0.0 0.0 24.0 1.0 6.0 (- 25.0) 0.0 0.3)
-        (nl_bullet_create_rigid_box_rotated (- 0.0 10.0) (- 0.0 18.0) 0.0 18.0 1.0 6.0 (- 25.0) 0.0 0.3)
-        (nl_bullet_create_rigid_box_rotated 10.0 (- 0.0 18.0) 0.0 18.0 1.0 6.0 25.0 0.0 0.3)
-        (nl_bullet_create_rigid_box 0.0 (- 0.0 30.0) 0.0 4.0 10.0 6.0 0.0 0.2)
-    }
+    (nl_bullet_create_rigid_box 0.0 (- 0.0 48.0) 0.0 80.0 2.0 60.0 0.0 0.4)
+    (nl_bullet_create_rigid_box_rotated (- 0.0 14.0) 0.0 0.0 24.0 1.0 6.0 25.0 0.0 0.3)
+    (nl_bullet_create_rigid_box_rotated 14.0 0.0 0.0 24.0 1.0 6.0 (- 25.0) 0.0 0.3)
+    (nl_bullet_create_rigid_box_rotated (- 0.0 10.0) (- 0.0 18.0) 0.0 18.0 1.0 6.0 (- 25.0) 0.0 0.3)
+    (nl_bullet_create_rigid_box_rotated 10.0 (- 0.0 18.0) 0.0 18.0 1.0 6.0 25.0 0.0 0.3)
+    (nl_bullet_create_rigid_box 0.0 (- 0.0 30.0) 0.0 4.0 10.0 6.0 0.0 0.2)
 
     let mut particles: array<SoftParticle> = []
     let mut active_count: int = 0
@@ -148,7 +144,7 @@ fn main() -> int {
 
     while running {
         let mut frame_start: int = 0
-        unsafe { set frame_start (SDL_GetTicks) }
+        set frame_start (SDL_GetTicks) 
 
         if (== (nl_sdl_poll_event_quit) 1) {
             set running false
@@ -162,7 +158,7 @@ fn main() -> int {
             (println (cond ((== emitter_enabled true) "Emitter resumed") (else "Emitter paused")))
         }
 
-        unsafe { (nl_bullet_step FRAME_TIME) }
+        (nl_bullet_step FRAME_TIME) 
 
         set spawn_timer (+ spawn_timer FRAME_TIME)
         if (and emitter_enabled (> spawn_timer SPAWN_INTERVAL)) {
@@ -172,9 +168,7 @@ fn main() -> int {
                 let lane_offset: float = (+ (- 0.0 4.0) (* (cast_float (% (+ frame_count spawned) 6)) 1.4))
                 let spawn_x: float = (+ lane_offset (cond ((== (% spawned 2) 0) 1.2) (else (- 0.0 1.2))))
                 let mut handle: int = 0
-                unsafe {
-                    set handle (nl_bullet_create_soft_sphere spawn_x PARTICLE_SPAWN_Y 0.0 PARTICLE_RADIUS PARTICLE_RESOLUTION)
-                }
+                set handle (nl_bullet_create_soft_sphere spawn_x PARTICLE_SPAWN_Y 0.0 PARTICLE_RADIUS PARTICLE_RESOLUTION)
                 if (!= handle (- 0 1)) {
                     let particle: SoftParticle = SoftParticle {
                         handle: handle,
@@ -194,9 +188,7 @@ fn main() -> int {
             let particle: SoftParticle = (at particles index)
             if particle.active {
                 let mut sample_y: float = 0.0
-                unsafe {
-                    set sample_y (nl_bullet_get_soft_body_node_y particle.handle 0)
-                }
+                set sample_y (nl_bullet_get_soft_body_node_y particle.handle 0)
                 if (and (< sample_y (- 0.0 5.0)) (not particle.crossed)) {
                     set crossed_count (+ crossed_count 1)
                     let updated: SoftParticle = SoftParticle {
@@ -207,7 +199,7 @@ fn main() -> int {
                     (array_set particles index updated)
                 }
                 if (< sample_y (- 0.0 45.0)) {
-                    unsafe { (nl_bullet_remove_soft_body particle.handle) }
+                    (nl_bullet_remove_soft_body particle.handle) 
                     let updated2: SoftParticle = SoftParticle {
                         handle: particle.handle,
                         active: false,
@@ -233,37 +225,27 @@ fn main() -> int {
         }
 
         /* Rendering */
-        unsafe {
-            (SDL_SetRenderDrawColor renderer COLOR_BG_R COLOR_BG_G COLOR_BG_B 255)
-            (SDL_RenderClear renderer)
-        }
+        (SDL_SetRenderDrawColor renderer COLOR_BG_R COLOR_BG_G COLOR_BG_B 255)
+        (SDL_RenderClear renderer)
 
-        unsafe {
-            (SDL_SetRenderDrawColor renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
-        }
+        (SDL_SetRenderDrawColor renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
         /* Simple funnel visualization */
         let funnel_top_y: int = (project_y 0.0)
-        unsafe {
-            (nl_sdl_render_fill_rect renderer 0 (+ funnel_top_y 120) WINDOW_WIDTH 10)
-        }
+        (nl_sdl_render_fill_rect renderer 0 (+ funnel_top_y 120) WINDOW_WIDTH 10)
 
-        unsafe {
-            (SDL_SetRenderDrawColor renderer COLOR_PARTICLE_R COLOR_PARTICLE_G COLOR_PARTICLE_B 255)
-        }
+        (SDL_SetRenderDrawColor renderer COLOR_PARTICLE_R COLOR_PARTICLE_G COLOR_PARTICLE_B 255)
         let mut draw_index: int = 0
         while (< draw_index (array_length particles)) {
             let particle: SoftParticle = (at particles draw_index)
             if particle.active {
                 let mut node_count: int = 0
-                unsafe { set node_count (nl_bullet_get_soft_body_node_count particle.handle) }
+                set node_count (nl_bullet_get_soft_body_node_count particle.handle) 
                 let mut node_idx: int = 0
                 while (< node_idx node_count) {
                     let mut node_x: float = 0.0
                     let mut node_y: float = 0.0
-                    unsafe {
-                        set node_x (nl_bullet_get_soft_body_node_x particle.handle node_idx)
-                        set node_y (nl_bullet_get_soft_body_node_y particle.handle node_idx)
-                    }
+                    set node_x (nl_bullet_get_soft_body_node_x particle.handle node_idx)
+                    set node_y (nl_bullet_get_soft_body_node_y particle.handle node_idx)
                     let sx: int = (project_x node_x)
                     let sy: int = (project_y node_y)
                     (draw_filled_circle renderer sx sy 2)
@@ -273,25 +255,23 @@ fn main() -> int {
             set draw_index (+ draw_index 1)
         }
 
-        unsafe { (SDL_RenderPresent renderer) }
+        (SDL_RenderPresent renderer) 
 
         set frame_count (+ frame_count 1)
 
         let mut frame_end: int = 0
-        unsafe { set frame_end (SDL_GetTicks) }
+        set frame_end (SDL_GetTicks) 
         let duration: int = (- frame_end frame_start)
         let frame_budget: int = (/ 1000 TARGET_FPS)
         if (< duration frame_budget) {
-            unsafe { (SDL_Delay (- frame_budget duration)) }
+            (SDL_Delay (- frame_budget duration)) 
         }
     }
 
-    unsafe {
-        (nl_bullet_cleanup)
-        (SDL_DestroyRenderer renderer)
-        (SDL_DestroyWindow window)
-        (SDL_Quit)
-    }
+    (nl_bullet_cleanup)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
 
     (println "Hourglass demo finished")
     return 0

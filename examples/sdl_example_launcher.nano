@@ -1,12 +1,12 @@
 # SDL Example Launcher - App Store Model
 # Two-panel layout: Left (icon grid) + Right (source preview)
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
-import "modules/sdl_image/sdl_image.nano"
-import "modules/ui_widgets/ui_widgets.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+unsafe module "modules/sdl_image/sdl_image.nano"
+module "modules/ui_widgets/ui_widgets.nano"
 from "modules/std/fs.nano" import file_read
 from "modules/std/process.nano" import spawn
 
@@ -171,8 +171,8 @@ shadow str_truncate {
 }
 
 fn main() -> int {
-    unsafe { (SDL_Init SDL_INIT_VIDEO) }
-    unsafe { (TTF_Init) }
+    (SDL_Init SDL_INIT_VIDEO) 
+    (TTF_Init) 
     
     # Initialize SDL_image for loading PNG icons
     let img_result: int = (IMG_Init IMG_INIT_PNG)
@@ -195,11 +195,11 @@ fn main() -> int {
 
     if (== font 0) {
         (println "✗ Failed to load font")
-        unsafe { (SDL_DestroyRenderer renderer) }
-        unsafe { (SDL_DestroyWindow window) }
-        unsafe { (IMG_Quit) }
-        unsafe { (TTF_Quit) }
-        unsafe { (SDL_Quit) }
+        (SDL_DestroyRenderer renderer) 
+        (SDL_DestroyWindow window) 
+        (IMG_Quit) 
+        (TTF_Quit) 
+        (SDL_Quit) 
         return 1
     } else {}
 
@@ -502,14 +502,14 @@ fn main() -> int {
             } else {}
         } else {}
 
-        unsafe { (nl_ui_update_mouse_state) }
+        (nl_ui_update_mouse_state) 
 
         # Background
-        unsafe { (SDL_SetRenderDrawColor renderer 18 18 24 255) }
-        unsafe { (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer 18 18 24 255) 
+        (SDL_RenderClear renderer) 
 
         # Left panel background
-        unsafe { (nl_ui_panel renderer LEFT_PANEL_X LEFT_PANEL_Y LEFT_PANEL_WIDTH (- WINDOW_HEIGHT 20) 28 28 38 240) }
+        (nl_ui_panel renderer LEFT_PANEL_X LEFT_PANEL_Y LEFT_PANEL_WIDTH (- WINDOW_HEIGHT 20) 28 28 38 240) 
         
         # Category tabs at top of left panel
         let cat_tab_y: int = (+ LEFT_PANEL_Y 10)
@@ -527,32 +527,32 @@ fn main() -> int {
         # Draw All button
         let all_active: bool = (== selected_category ExampleCategory.ALL)
         if all_active {
-            unsafe { (SDL_SetRenderDrawColor renderer 80 80 120 255) }
+            (SDL_SetRenderDrawColor renderer 80 80 120 255) 
         } else {
-            unsafe { (SDL_SetRenderDrawColor renderer 50 50 70 255) }
+            (SDL_SetRenderDrawColor renderer 50 50 70 255) 
         }
-        unsafe { (nl_sdl_render_fill_rect renderer all_btn_x cat_tab_y all_btn_w cat_tab_h) }
-        unsafe { (nl_draw_text_blended renderer small_font "All" (+ all_btn_x 15) (+ cat_tab_y 5) 220 220 240 255) }
+        (nl_sdl_render_fill_rect renderer all_btn_x cat_tab_y all_btn_w cat_tab_h) 
+        (nl_draw_text_blended renderer small_font "All" (+ all_btn_x 15) (+ cat_tab_y 5) 220 220 240 255) 
         
         # Draw Games button
         let games_active: bool = (== selected_category ExampleCategory.GAMES)
         if games_active {
-            unsafe { (SDL_SetRenderDrawColor renderer 80 80 120 255) }
+            (SDL_SetRenderDrawColor renderer 80 80 120 255) 
         } else {
-            unsafe { (SDL_SetRenderDrawColor renderer 50 50 70 255) }
+            (SDL_SetRenderDrawColor renderer 50 50 70 255) 
         }
-        unsafe { (nl_sdl_render_fill_rect renderer games_btn_x cat_tab_y games_btn_w cat_tab_h) }
-        unsafe { (nl_draw_text_blended renderer small_font "Games" (+ games_btn_x 10) (+ cat_tab_y 5) 220 220 240 255) }
+        (nl_sdl_render_fill_rect renderer games_btn_x cat_tab_y games_btn_w cat_tab_h) 
+        (nl_draw_text_blended renderer small_font "Games" (+ games_btn_x 10) (+ cat_tab_y 5) 220 220 240 255) 
         
         # Draw Gfx button
         let gfx_active: bool = (== selected_category ExampleCategory.GRAPHICS)
         if gfx_active {
-            unsafe { (SDL_SetRenderDrawColor renderer 80 80 120 255) }
+            (SDL_SetRenderDrawColor renderer 80 80 120 255) 
         } else {
-            unsafe { (SDL_SetRenderDrawColor renderer 50 50 70 255) }
+            (SDL_SetRenderDrawColor renderer 50 50 70 255) 
         }
-        unsafe { (nl_sdl_render_fill_rect renderer gfx_btn_x cat_tab_y gfx_btn_w cat_tab_h) }
-        unsafe { (nl_draw_text_blended renderer small_font "Gfx" (+ gfx_btn_x 15) (+ cat_tab_y 5) 220 220 240 255) }
+        (nl_sdl_render_fill_rect renderer gfx_btn_x cat_tab_y gfx_btn_w cat_tab_h) 
+        (nl_draw_text_blended renderer small_font "Gfx" (+ gfx_btn_x 15) (+ cat_tab_y 5) 220 220 240 255) 
 
         # Rebuild filtered indices
         set indices (build_filtered_indices example_categories selected_category)
@@ -573,8 +573,8 @@ fn main() -> int {
             # Draw selection border if selected
             if (== grid_idx selected_index) {
                 # Selected: white glow border
-                unsafe { (SDL_SetRenderDrawColor renderer 255 255 255 255) }
-                unsafe { (nl_sdl_render_fill_rect renderer (- icon_x 3) (- icon_y 3) (+ ICON_SIZE 6) (+ ICON_SIZE 6)) }
+                (SDL_SetRenderDrawColor renderer 255 255 255 255) 
+                (nl_sdl_render_fill_rect renderer (- icon_x 3) (- icon_y 3) (+ ICON_SIZE 6) (+ ICON_SIZE 6)) 
             } else {}
             
             # Get example name for label
@@ -583,42 +583,42 @@ fn main() -> int {
             # Draw PNG icon
             let icon_texture: int = (at icon_textures ex_idx)
             if (!= icon_texture 0) {
-                unsafe { (nl_img_render_texture renderer icon_texture icon_x icon_y ICON_SIZE ICON_SIZE) }
+                (nl_img_render_texture renderer icon_texture icon_x icon_y ICON_SIZE ICON_SIZE) 
             } else {
                 # Fallback to colored square if icon failed to load
                 let color: int = (get_icon_color ex_idx)
                 let r: int = (/ color 65536)
                 let g: int = (% (/ color 256) 256)
                 let b: int = (% color 256)
-                unsafe { (SDL_SetRenderDrawColor renderer r g b 255) }
-                unsafe { (nl_sdl_render_fill_rect renderer icon_x icon_y ICON_SIZE ICON_SIZE) }
+                (SDL_SetRenderDrawColor renderer r g b 255) 
+                (nl_sdl_render_fill_rect renderer icon_x icon_y ICON_SIZE ICON_SIZE) 
                 
                 # Draw first letter as fallback
                 let first_letter: string = (str_substring name 0 1)
-                unsafe { (nl_draw_text_blended renderer title_font first_letter (+ icon_x 30) (+ icon_y 28) 255 255 255 255) }
+                (nl_draw_text_blended renderer title_font first_letter (+ icon_x 30) (+ icon_y 28) 255 255 255 255) 
             }
             
             # Draw label below icon
             let truncated: string = (str_truncate name 10)
-            unsafe { (nl_draw_text_blended renderer small_font truncated (+ icon_x 5) (+ icon_y (+ ICON_SIZE 4)) 220 220 240 255) }
+            (nl_draw_text_blended renderer small_font truncated (+ icon_x 5) (+ icon_y (+ ICON_SIZE 4)) 220 220 240 255) 
             
             set grid_idx (+ grid_idx 1)
         }
 
         # Right panel background
-        unsafe { (nl_ui_panel renderer RIGHT_PANEL_X RIGHT_PANEL_Y RIGHT_PANEL_WIDTH (- WINDOW_HEIGHT 20) 28 28 38 240) }
+        (nl_ui_panel renderer RIGHT_PANEL_X RIGHT_PANEL_Y RIGHT_PANEL_WIDTH (- WINDOW_HEIGHT 20) 28 28 38 240) 
         
         # Header
-        unsafe { (nl_ui_label renderer title_font "Example Preview" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 18) 240 240 255 255) }
+        (nl_ui_label renderer title_font "Example Preview" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 18) 240 240 255 255) 
         
         # Quit button (top right) - drawn manually
         let quit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 90)
         let quit_btn_y: int = (+ RIGHT_PANEL_Y 14)
         let quit_btn_w: int = 70
         let quit_btn_h: int = 28
-        unsafe { (SDL_SetRenderDrawColor renderer 100 50 50 255) }
-        unsafe { (nl_sdl_render_fill_rect renderer quit_btn_x quit_btn_y quit_btn_w quit_btn_h) }
-        unsafe { (nl_draw_text_blended renderer font "Quit" (+ quit_btn_x 15) (+ quit_btn_y 6) 240 220 220 255) }
+        (SDL_SetRenderDrawColor renderer 100 50 50 255) 
+        (nl_sdl_render_fill_rect renderer quit_btn_x quit_btn_y quit_btn_w quit_btn_h) 
+        (nl_draw_text_blended renderer font "Quit" (+ quit_btn_x 15) (+ quit_btn_y 6) 240 220 220 255) 
 
         if (>= selected_index 0) {
             let ex_idx: int = (at indices selected_index)
@@ -628,15 +628,15 @@ fn main() -> int {
             
             # Example info
             let info_y: int = (+ RIGHT_PANEL_Y 60)
-            unsafe { (nl_ui_label renderer font (+ "Name: " ex_name) (+ RIGHT_PANEL_X 20) info_y 240 240 255 255) }
-            unsafe { (nl_ui_label renderer font (+ "Description: " ex_desc) (+ RIGHT_PANEL_X 20) (+ info_y 24) 200 200 220 255) }
-            unsafe { (nl_ui_label renderer font (+ "File: " ex_file) (+ RIGHT_PANEL_X 20) (+ info_y 48) 160 160 180 255) }
+            (nl_ui_label renderer font (+ "Name: " ex_name) (+ RIGHT_PANEL_X 20) info_y 240 240 255 255) 
+            (nl_ui_label renderer font (+ "Description: " ex_desc) (+ RIGHT_PANEL_X 20) (+ info_y 24) 200 200 220 255) 
+            (nl_ui_label renderer font (+ "File: " ex_file) (+ RIGHT_PANEL_X 20) (+ info_y 48) 160 160 180 255) 
             
             # Source code area
             let source_y: int = (+ info_y 90)
             let source_h: int = (- (- WINDOW_HEIGHT source_y) 100)
             
-            unsafe { (nl_ui_label renderer font "Source Code:" (+ RIGHT_PANEL_X 30) (+ source_y 10) 200 200 220 255) }
+            (nl_ui_label renderer font "Source Code:" (+ RIGHT_PANEL_X 30) (+ source_y 10) 200 200 220 255) 
             
             # Use new syntax-highlighted code display widget
             # Clamp scroll to valid range
@@ -649,16 +649,14 @@ fn main() -> int {
             let code_display_w: int = (- RIGHT_PANEL_WIDTH 40)
             let code_display_h: int = (- source_h 65)
             
-            unsafe { (nl_ui_code_display renderer small_font source_code 
-                     code_display_x code_display_y code_display_w code_display_h 
-                     source_scroll 18) }
+                 code_display_x code_display_y code_display_w code_display_h 
             
             # Draw scroll indicator if scrolled
             if (> source_scroll 0) {
                 let scroll_text: string = (+ "Line " (+ (int_to_string (+ source_scroll 1)) " ↑↓"))
                 let scroll_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 120)
                 let scroll_y: int = (- (+ source_y source_h) 20)
-                unsafe { (nl_draw_text_blended renderer small_font scroll_text scroll_x scroll_y 180 180 200 255) }
+                (nl_draw_text_blended renderer small_font scroll_text scroll_x scroll_y 180 180 200 255) 
             } else {}
             
             # Launch button - drawn manually
@@ -666,17 +664,17 @@ fn main() -> int {
             let launch_btn_y: int = (- WINDOW_HEIGHT 60)
             let launch_btn_w: int = 180
             let launch_btn_h: int = 36
-            unsafe { (SDL_SetRenderDrawColor renderer 50 100 50 255) }
-            unsafe { (nl_sdl_render_fill_rect renderer launch_btn_x launch_btn_y launch_btn_w launch_btn_h) }
-            unsafe { (nl_draw_text_blended renderer font "Launch Example" (+ launch_btn_x 15) (+ launch_btn_y 8) 220 240 220 255) }
+            (SDL_SetRenderDrawColor renderer 50 100 50 255) 
+            (nl_sdl_render_fill_rect renderer launch_btn_x launch_btn_y launch_btn_w launch_btn_h) 
+            (nl_draw_text_blended renderer font "Launch Example" (+ launch_btn_x 15) (+ launch_btn_y 8) 220 240 220 255) 
         } else {
             # No selection message
-            unsafe { (nl_ui_label renderer font "Select an example from the left panel" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 100) 180 180 200 255) }
-            unsafe { (nl_ui_label renderer font "to preview its source code." (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 124) 160 160 180 255) }
-            unsafe { (nl_ui_label renderer font "Click again to launch!" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 160) 140 140 160 255) }
+            (nl_ui_label renderer font "Select an example from the left panel" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 100) 180 180 200 255) 
+            (nl_ui_label renderer font "to preview its source code." (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 124) 160 160 180 255) 
+            (nl_ui_label renderer font "Click again to launch!" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 160) 140 140 160 255) 
         }
 
-        unsafe { (SDL_RenderPresent renderer) }
+        (SDL_RenderPresent renderer) 
         
         # Launch example if requested (non-blocking spawn so launcher stays responsive)
         if should_launch {
@@ -698,19 +696,19 @@ fn main() -> int {
     while (< cleanup_idx icon_count) {
         let tex: int = (at icon_textures cleanup_idx)
         if (!= tex 0) {
-            unsafe { (nl_img_destroy_texture tex) }
+            (nl_img_destroy_texture tex) 
         } else {}
         set cleanup_idx (+ cleanup_idx 1)
     }
     
-    unsafe { (TTF_CloseFont font) }
-    unsafe { (TTF_CloseFont title_font) }
-    unsafe { (TTF_CloseFont small_font) }
-    unsafe { (SDL_DestroyRenderer renderer) }
-    unsafe { (SDL_DestroyWindow window) }
-    unsafe { (IMG_Quit) }
-    unsafe { (TTF_Quit) }
-    unsafe { (SDL_Quit) }
+    (TTF_CloseFont font) 
+    (TTF_CloseFont title_font) 
+    (TTF_CloseFont small_font) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (IMG_Quit) 
+    (TTF_Quit) 
+    (SDL_Quit) 
 
     return 0
 }

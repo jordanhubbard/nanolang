@@ -2,15 +2,15 @@
 # This program tests that mouse clicks are properly detected
 # even when keyboard events are polled first
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 fn main() -> int {
     # Initialize SDL
-    unsafe { (SDL_Init 32) }
-    unsafe { (TTF_Init) }
+    (SDL_Init 32) 
+    (TTF_Init) 
     
     let window: SDL_Window = (SDL_CreateWindow "Mouse Click Test" 100 100 400 300 4)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
@@ -22,7 +22,7 @@ fn main() -> int {
     } else {}
     
     # Disable mouse motion events
-    unsafe { (SDL_EventState 1024 0) }
+    (SDL_EventState 1024 0) 
     
     (println "")
     (println "=== MOUSE CLICK TEST ===")
@@ -38,9 +38,9 @@ fn main() -> int {
     let mut key_count: int = 0
     
     # Initial render
-    unsafe { (SDL_SetRenderDrawColor renderer 30 30 50 255) }
-    unsafe { (SDL_RenderClear renderer) }
-    unsafe { (SDL_RenderPresent renderer) }
+    (SDL_SetRenderDrawColor renderer 30 30 50 255) 
+    (SDL_RenderClear renderer) 
+    (SDL_RenderPresent renderer) 
     
     # Main loop - IMPORTANT: We poll keyboard BEFORE mouse to test the fix!
     while running {
@@ -77,14 +77,14 @@ fn main() -> int {
             (println (+ "✓ Mouse click detected at (" (+ (int_to_string mouse_x) (+ ", " (+ (int_to_string mouse_y) (+ ") - click #" (int_to_string click_count)))))))
             
             # Draw a circle at click position
-            unsafe { (SDL_SetRenderDrawColor renderer 100 200 255 255) }
+            (SDL_SetRenderDrawColor renderer 100 200 255 255) 
             let mut dy: int = -10
             while (<= dy 10) {
                 let mut dx: int = -10
                 while (<= dx 10) {
                     let dist_sq: int = (+ (* dx dx) (* dy dy))
                     if (<= dist_sq 100) {
-                        unsafe { (SDL_RenderDrawPoint renderer (+ mouse_x dx) (+ mouse_y dy)) }
+                        (SDL_RenderDrawPoint renderer (+ mouse_x dx) (+ mouse_y dy)) 
                     } else {
                         (print "")
                     }
@@ -95,12 +95,12 @@ fn main() -> int {
             
             # Draw on-screen help
             
-            unsafe { (SDL_RenderPresent renderer) }
+            (SDL_RenderPresent renderer) 
         } else {
             (print "")
         }
         
-        unsafe { (SDL_Delay 16) }
+        (SDL_Delay 16) 
     }
     
     if (> click_count 0) {
@@ -111,9 +111,9 @@ fn main() -> int {
     (println "")
     
     # Cleanup
-    unsafe { (SDL_DestroyRenderer renderer) }
-    unsafe { (SDL_DestroyWindow window) }
-    unsafe { (SDL_Quit) }
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (SDL_Quit) 
     
     return 0
 }

@@ -4,11 +4,11 @@
 # Authentic 1972 style with blocky score display (no fonts!)
 # Enhanced with UI widgets for game control
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
-import "modules/ui_widgets/ui_widgets.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+module "modules/ui_widgets/ui_widgets.nano"
 
 # === CONSTANTS ===
 let WINDOW_WIDTH: int = 800
@@ -111,8 +111,8 @@ shadow resolve_paddle_collision {
 
 fn main() -> int {
     # Initialize SDL
-    unsafe { (SDL_Init SDL_INIT_VIDEO) }
-    unsafe { (TTF_Init) }
+    (SDL_Init SDL_INIT_VIDEO) 
+    (TTF_Init) 
     
     let window: SDL_Window = (SDL_CreateWindow "PONG (1972)" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
@@ -147,7 +147,7 @@ fn main() -> int {
         if (== (nl_sdl_poll_event_quit) 1) { set running false }
         
         # Handle keyboard input
-        unsafe {         (nl_sdl_poll_keypress) }
+        (nl_sdl_poll_keypress) 
         
         # Calculate delta time
         let current_time: int = (SDL_GetTicks)
@@ -226,12 +226,12 @@ fn main() -> int {
         }
         
         # Render
-        unsafe { (SDL_SetRenderDrawColor renderer 0 0 0 255) }
-        unsafe { (SDL_RenderClear renderer) }
-        unsafe { (SDL_SetRenderDrawColor renderer 255 255 255 255) }
+        (SDL_SetRenderDrawColor renderer 0 0 0 255) 
+        (SDL_RenderClear renderer) 
+        (SDL_SetRenderDrawColor renderer 255 255 255 255) 
 
         # Update widget mouse state once per frame before any widget calls
-        unsafe { (nl_ui_update_mouse_state) }
+        (nl_ui_update_mouse_state) 
         
         # UI Buttons at bottom
         if (== (nl_ui_button renderer font "Start" 250 560 70 30) 1) {
@@ -262,22 +262,22 @@ fn main() -> int {
         
         # Display FPS if checkbox is enabled
         if (== show_fps 1) {
-            unsafe { (nl_ui_label renderer font "FPS: 60" 680 565 100 255 100 255) }
+            (nl_ui_label renderer font "FPS: 60" 680 565 100 255 100 255) 
         }
         
         # Draw center line (dashed)
         let mut line_y: int = 0
         while (< line_y WINDOW_HEIGHT) {
-            unsafe { (nl_sdl_render_fill_rect renderer (- (/ WINDOW_WIDTH 2) 2) line_y 4 10) }
+            (nl_sdl_render_fill_rect renderer (- (/ WINDOW_WIDTH 2) 2) line_y 4 10) 
             set line_y (+ line_y 20)
         }
         
         # Draw paddles (white)
-        unsafe { (nl_sdl_render_fill_rect renderer 10 (cast_int paddle1_y) PADDLE_WIDTH PADDLE_HEIGHT) }
-        unsafe { (nl_sdl_render_fill_rect renderer (- WINDOW_WIDTH 25) (cast_int paddle2_y) PADDLE_WIDTH PADDLE_HEIGHT) }
+        (nl_sdl_render_fill_rect renderer 10 (cast_int paddle1_y) PADDLE_WIDTH PADDLE_HEIGHT) 
+        (nl_sdl_render_fill_rect renderer (- WINDOW_WIDTH 25) (cast_int paddle2_y) PADDLE_WIDTH PADDLE_HEIGHT) 
         
         # Draw ball (white)
-        unsafe { (nl_sdl_render_fill_rect renderer (cast_int ball_x) (cast_int ball_y) BALL_SIZE BALL_SIZE) }
+        (nl_sdl_render_fill_rect renderer (cast_int ball_x) (cast_int ball_y) BALL_SIZE BALL_SIZE) 
         
         # Draw simple scores (just use rectangles)
         let score1_x: int = 280
@@ -287,14 +287,14 @@ fn main() -> int {
         # Player 1 score (left)
         let mut i: int = 0
         while (< i player1_score) {
-            unsafe { (nl_sdl_render_fill_rect renderer (+ score1_x (* i 12)) score_y 8 20) }
+            (nl_sdl_render_fill_rect renderer (+ score1_x (* i 12)) score_y 8 20) 
             set i (+ i 1)
         }
         
         # Player 2 score (right)
         set i 0
         while (< i player2_score) {
-            unsafe { (nl_sdl_render_fill_rect renderer (+ score2_x (* i 12)) score_y 8 20) }
+            (nl_sdl_render_fill_rect renderer (+ score2_x (* i 12)) score_y 8 20) 
             set i (+ i 1)
         }
         
@@ -302,15 +302,15 @@ fn main() -> int {
         if game_over {
             let msg_y: int = 270
             let banner_x: int = (winner_banner_x player1_score player2_score)
-            unsafe { (nl_sdl_render_fill_rect renderer banner_x msg_y 80 15) }
-            unsafe { (nl_sdl_render_fill_rect renderer banner_x msg_y 15 50) }
-            unsafe { (nl_sdl_render_fill_rect renderer banner_x (+ msg_y 35) 80 15) }
+            (nl_sdl_render_fill_rect renderer banner_x msg_y 80 15) 
+            (nl_sdl_render_fill_rect renderer banner_x msg_y 15 50) 
+            (nl_sdl_render_fill_rect renderer banner_x (+ msg_y 35) 80 15) 
         }
         
         # Draw on-screen help
         
-        unsafe { (SDL_RenderPresent renderer) }
-        unsafe { (SDL_Delay 16) }
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
     }
     
     # Cleanup
@@ -319,8 +319,8 @@ fn main() -> int {
     if (!= help_font 0) { unsafe { (TTF_CloseFont help_font) } } else {}
     if (!= renderer 0) { unsafe { (SDL_DestroyRenderer renderer) } } else {}
     if (!= window 0) { unsafe { (SDL_DestroyWindow window) } } else {}
-    unsafe { (TTF_Quit) }
-    unsafe { (SDL_Quit) }
+    (TTF_Quit) 
+    (SDL_Quit) 
     return 0
 }
 

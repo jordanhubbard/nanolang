@@ -39,7 +39,7 @@
 # - Build async HTTP client
 # - Compare with libuv approach
 
-import "modules/event/event.nano"
+module "modules/event/event.nano"
 
 fn show_version() -> void {
     (println "=== libevent Version ===")

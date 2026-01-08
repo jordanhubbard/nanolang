@@ -1,7 +1,7 @@
 # Regular Expression Demo - Pythonic One-Shot API
 # No opaque handle management needed!
 
-import "std/regex/regex.nano" as Regex
+module "std/regex/regex.nano as Regex" as Regex
 
 fn match_example() -> void {
     (println "=== Pattern Matching ===")

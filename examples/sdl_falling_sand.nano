@@ -2,11 +2,11 @@
 # Interactive particle simulation with SDL UI engine
 # Demonstrates: Cellular automata, state machines, pixel manipulation, optimization
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
-import "modules/ui_widgets/ui_widgets.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+module "modules/ui_widgets/ui_widgets.nano"
 
 # === ENUMS ===
 enum Material {
@@ -312,19 +312,19 @@ shadow read_material_name {
 
 fn render_ui(renderer: SDL_Renderer, font: TTF_Font, current_material: Material, paused: bool) -> void {
     # Draw semi-transparent overlay at top
-    unsafe {     (SDL_SetRenderDrawColor renderer 0 0 0 180) }
-    unsafe {     (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH 50) }
+    (SDL_SetRenderDrawColor renderer 0 0 0 180) 
+    (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH 50) 
     
     # Draw material name using SDL_ttf
     let material_name: string = (read_material_name current_material)
-    unsafe {     (nl_draw_text_blended renderer font material_name 10 10 255 255 255 255) }
+    (nl_draw_text_blended renderer font material_name 10 10 255 255 255 255) 
     
     # Draw help text
-    unsafe {     (nl_draw_text_blended renderer font "ESC or Q to quit | SPACE to pause | 1-6 select material" 10 28 180 180 200 255) }
+    (nl_draw_text_blended renderer font "ESC or Q to quit | SPACE to pause | 1-6 select material" 10 28 180 180 200 255) 
     
     # Draw pause indicator if paused
     if paused {
-        unsafe {         (nl_draw_text_blended renderer font "PAUSED" (- WINDOW_WIDTH 80) 10 255 200 0 255) }
+        (nl_draw_text_blended renderer font "PAUSED" (- WINDOW_WIDTH 80) 10 255 200 0 255) 
     } else {
         (print "")
     }
@@ -364,12 +364,12 @@ fn render_grid(renderer: SDL_Renderer, grid: array<int>) -> void {
             # Only render non-empty cells for performance
             if (!= mat Material.EMPTY) {
                 let color: MaterialRenderColor = (material_render_color mat)
-                unsafe { (SDL_SetRenderDrawColor renderer color.r color.g color.b 255) }
+                (SDL_SetRenderDrawColor renderer color.r color.g color.b 255) 
                 
                 # Draw cell
                 let pixel_x: int = (* x CELL_SIZE)
                 let pixel_y: int = (* y CELL_SIZE)
-                unsafe {                 (nl_sdl_render_fill_rect renderer pixel_x pixel_y CELL_SIZE CELL_SIZE) }
+                (nl_sdl_render_fill_rect renderer pixel_x pixel_y CELL_SIZE CELL_SIZE) 
             } else {}
             
             set x (+ x 1)
@@ -397,7 +397,7 @@ fn main() -> int {
     let window: SDL_Window = (SDL_CreateWindow "Falling Sand" 536805376 536805376 WINDOW_WIDTH WINDOW_HEIGHT 4)
     if (== window 0) {
         (println "Window creation failed")
-        unsafe {         (SDL_Quit) }
+        (SDL_Quit) 
         return 1
     } else {
         (print "")
@@ -407,23 +407,23 @@ fn main() -> int {
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
     if (== renderer 0) {
         (println "Renderer creation failed")
-        unsafe {         (SDL_DestroyWindow window) }
-        unsafe {         (SDL_Quit) }
+        (SDL_DestroyWindow window) 
+        (SDL_Quit) 
         return 1
     } else {
         (print "")
     }
     
     # Initialize SDL_ttf
-    unsafe {     (TTF_Init) }
+    (TTF_Init) 
     
     # Load font
     let font: TTF_Font = (nl_open_font_portable "Arial" 16)
     if (== font 0) {
         (println "Failed to load font")
-        unsafe {         (SDL_DestroyRenderer renderer) }
-        unsafe {         (SDL_DestroyWindow window) }
-        unsafe {         (SDL_Quit) }
+        (SDL_DestroyRenderer renderer) 
+        (SDL_DestroyWindow window) 
+        (SDL_Quit) 
         return 1
     } else {
         (print "")
@@ -431,7 +431,7 @@ fn main() -> int {
     
     # Disable mouse motion events to prevent event queue flooding
     # SDL_MOUSEMOTION = 0x400 = 1024
-    unsafe {     (SDL_EventState 1024 0) }
+    (SDL_EventState 1024 0) 
     
     # Initialize grid
     let grid_size: int = (* GRID_WIDTH GRID_HEIGHT)
@@ -464,7 +464,7 @@ fn main() -> int {
     # Main loop
     while running {
         # Update mouse state FIRST (required for UI widgets to work!)
-        unsafe { (nl_ui_update_mouse_state) }
+        (nl_ui_update_mouse_state) 
         
         # Handle keyboard input
         let key: int = (nl_sdl_poll_keypress)
@@ -532,7 +532,7 @@ fn main() -> int {
         } else {}
         
         # Material selector using radio buttons - now in a panel!
-        unsafe {         (nl_ui_panel renderer 40 545 550 50 20 20 30 200) }
+        (nl_ui_panel renderer 40 545 550 50 20 20 30 200) 
         
         # Radio buttons for material selection (convert bool to int for selected state)
         let mut sand_selected: int = 0
@@ -650,23 +650,23 @@ fn main() -> int {
         } else {}
         
         # Render
-        unsafe {         (SDL_SetRenderDrawColor renderer 0 0 0 255) }
-        unsafe {         (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer 0 0 0 255) 
+        (SDL_RenderClear renderer) 
         (render_grid renderer grid)
         (render_ui renderer font current_material paused)
-        unsafe {         (SDL_RenderPresent renderer) }
+        (SDL_RenderPresent renderer) 
         
         # Frame delay (faster animation)
-        unsafe {         (SDL_Delay FRAME_DELAY_MS) }
+        (SDL_Delay FRAME_DELAY_MS) 
         set frame_count (+ frame_count 1)
     }
     
     # Cleanup
-    unsafe {     (TTF_CloseFont font) }
-    unsafe {     (TTF_Quit) }
-    unsafe {     (SDL_DestroyRenderer renderer) }
-    unsafe {     (SDL_DestroyWindow window) }
-    unsafe {     (SDL_Quit) }
+    (TTF_CloseFont font) 
+    (TTF_Quit) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (SDL_Quit) 
     
     (println "")
     (println "✅ Simulation complete!")

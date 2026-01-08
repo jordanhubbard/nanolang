@@ -3,7 +3,7 @@
  * Shows deformable beads falling through obstacles
  */
 
-import "modules/bullet/bullet.nano"
+unsafe module "modules/bullet/bullet.nano"
 
 fn main() -> int {
     (println "╔════════════════════════════════════════════════════════════╗")
@@ -13,9 +13,7 @@ fn main() -> int {
     
     /* Initialize */
     let mut init_result: int = 0
-    unsafe {
-        set init_result (nl_bullet_init)
-    }
+    set init_result (nl_bullet_init)
     
     if (== init_result 0) {
         (println "Error: Failed to initialize Bullet Physics")
@@ -26,24 +24,18 @@ fn main() -> int {
     
     /* Create ground */
     let mut ground: int = 0
-    unsafe {
-        set ground (nl_bullet_create_rigid_box 0.0 (- 0.0 10.0) 0.0 50.0 1.0 50.0 0.0 0.5)
-    }
+    set ground (nl_bullet_create_rigid_box 0.0 (- 0.0 10.0) 0.0 50.0 1.0 50.0 0.0 0.5)
     (print "✓ Created ground (handle ")
     (print ground)
     (println ")")
     
     /* Create obstacle */
-    unsafe {
-        (nl_bullet_create_rigid_box_rotated 5.0 5.0 0.0 8.0 1.0 1.0 30.0 0.0 0.4)
-    }
+    (nl_bullet_create_rigid_box_rotated 5.0 5.0 0.0 8.0 1.0 1.0 30.0 0.0 0.4)
     (println "✓ Created obstacle")
     
     /* Create soft body bead */
     let mut bead: int = 0
-    unsafe {
-        set bead (nl_bullet_create_soft_sphere 0.0 20.0 0.0 1.5 24)
-    }
+    set bead (nl_bullet_create_soft_sphere 0.0 20.0 0.0 1.5 24)
     (print "✓ Created soft body bead (handle ")
     (print bead)
     (println ")")
@@ -54,18 +46,14 @@ fn main() -> int {
     
     let mut step: int = 0
     while (< step 100) {
-        unsafe {
-            (nl_bullet_step 0.016666)
-        }
+        (nl_bullet_step 0.016666)
         
         /* Print position every 10 steps */
         if (== (% step 10) 0) {
             let mut node_count: int = 0
             let mut y: float = 0.0
-            unsafe {
-                set node_count (nl_bullet_get_soft_body_node_count bead)
-                set y (nl_bullet_get_soft_body_node_y bead 0)
-            }
+            set node_count (nl_bullet_get_soft_body_node_count bead)
+            set y (nl_bullet_get_soft_body_node_y bead 0)
             (print "Step ")
             (print step)
             (print ": nodes=")
@@ -81,9 +69,7 @@ fn main() -> int {
     (println "✓ Simulation complete!")
     
     /* Cleanup */
-    unsafe {
-        (nl_bullet_cleanup)
-    }
+    (nl_bullet_cleanup)
     
     return 0
 }

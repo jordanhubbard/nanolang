@@ -2,7 +2,7 @@
 # Iconic falling green characters effect
 # Press any key to exit
 
-import "modules/ncurses/ncurses.nano"
+module "modules/ncurses/ncurses.nano"
 
 # === CONSTANTS ===
 let MAX_COLS: int = 120

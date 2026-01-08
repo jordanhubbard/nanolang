@@ -5,8 +5,8 @@
  * Run for 10 seconds showing physics simulation
  */
 
-import "modules/sdl/sdl.nano"
-import "modules/bullet/bullet.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/bullet/bullet.nano"
 
 /* Project world coords to screen */
 fn world_x(wx: float) -> int {
@@ -29,9 +29,7 @@ fn draw_circle(r: SDL_Renderer, cx: int, cy: int, radius: int) -> int {
         let mut dx: int = (- 0 radius)
         while (<= dx radius) {
             if (<= (+ (* dx dx) (* dy dy)) (* radius radius)) {
-                unsafe {
-                    (SDL_RenderDrawPoint r (+ cx dx) (+ cy dy))
-                }
+                (SDL_RenderDrawPoint r (+ cx dx) (+ cy dy))
             }
             set dx (+ dx 1)
         }
@@ -48,16 +46,12 @@ fn main() -> int {
     (println "")
     
     /* Init */
-    unsafe {
-        (SDL_Init SDL_INIT_VIDEO)
-    }
+    (SDL_Init SDL_INIT_VIDEO)
     let window: SDL_Window = (SDL_CreateWindow "Soft Body Beads" 100 100 1200 900 SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
     
     let mut ok: int = 0
-    unsafe {
-        set ok (nl_bullet_init)
-    }
+    set ok (nl_bullet_init)
     if (== ok 0) {
         (println "Physics init failed")
         return 1
@@ -65,9 +59,7 @@ fn main() -> int {
     (println "✓ Physics ready")
     
     /* Ground */
-    unsafe {
-        (nl_bullet_create_rigid_box 0.0 (- 0.0 55.0) 0.0 100.0 2.0 50.0 0.0 0.3)
-    }
+    (nl_bullet_create_rigid_box 0.0 (- 0.0 55.0) 0.0 100.0 2.0 50.0 0.0 0.3)
     
     /* Obstacles */
     let mut row: int = 0
@@ -82,9 +74,7 @@ fn main() -> int {
         while (< col 4) {
             let col_x: float = (+ (- 0.0 30.0) (+ (* (cast_float col) 20.0) offset))
             let angle: float = (+ 15.0 (* (cast_float (% (+ row col) 3)) 10.0))
-            unsafe {
-                (nl_bullet_create_rigid_box_rotated col_x row_y 0.0 7.0 1.0 1.0 angle 0.0 0.4)
-            }
+            (nl_bullet_create_rigid_box_rotated col_x row_y 0.0 7.0 1.0 1.0 angle 0.0 0.4)
             set col (+ col 1)
         }
         set row (+ row 1)
@@ -101,14 +91,10 @@ fn main() -> int {
     /* Main loop */
     while (< frame max_frames) {
         let mut now: int = 0
-        unsafe {
-            set now (SDL_GetTicks)
-        }
+        set now (SDL_GetTicks)
         
         /* Physics */
-        unsafe {
-            (nl_bullet_step 0.016666)
-        }
+        (nl_bullet_step 0.016666)
         
         /* Spawn */
         let time_since: int = (- now last_spawn)
@@ -118,9 +104,7 @@ fn main() -> int {
             let frame_offset: float = (cast_float frame_mult)
             let spawn_x: float = (+ (- 0.0 10.0) frame_offset)
             let mut bead: int = 0
-            unsafe {
-                set bead (nl_bullet_create_soft_sphere spawn_x 50.0 0.0 1.8 20)
-            }
+            set bead (nl_bullet_create_soft_sphere spawn_x 50.0 0.0 1.8 20)
             if (!= bead (- 0 1)) {
                 set beads (array_push beads bead)
                 set last_spawn now
@@ -128,11 +112,9 @@ fn main() -> int {
         }
         
         /* Render */
-        unsafe {
-            (SDL_SetRenderDrawColor renderer 15 15 25 255)
-            (SDL_RenderClear renderer)
-            (SDL_SetRenderDrawColor renderer 200 100 50 255)
-        }
+        (SDL_SetRenderDrawColor renderer 15 15 25 255)
+        (SDL_RenderClear renderer)
+        (SDL_SetRenderDrawColor renderer 200 100 50 255)
         
         /* Ground */
         let gy: int = (world_y (- 0.0 55.0))
@@ -140,34 +122,26 @@ fn main() -> int {
         while (< gx 1200) {
             let mut h: int = 0
             while (< h 30) {
-                unsafe {
-                    (SDL_RenderDrawPoint renderer gx (+ gy h))
-                }
+                (SDL_RenderDrawPoint renderer gx (+ gy h))
                 set h (+ h 1)
             }
             set gx (+ gx 2)
         }
         
         /* Beads */
-        unsafe {
-            (SDL_SetRenderDrawColor renderer 100 200 255 255)
-        }
+        (SDL_SetRenderDrawColor renderer 100 200 255 255)
         let mut i: int = 0
         while (< i (array_length beads)) {
             let bead: int = (at beads i)
             let mut node_count: int = 0
-            unsafe {
-                set node_count (nl_bullet_get_soft_body_node_count bead)
-            }
+            set node_count (nl_bullet_get_soft_body_node_count bead)
             
             let mut n: int = 0
             while (< n node_count) {
                 let mut nx: float = 0.0
                 let mut ny: float = 0.0
-                unsafe {
-                    set nx (nl_bullet_get_soft_body_node_x bead n)
-                    set ny (nl_bullet_get_soft_body_node_y bead n)
-                }
+                set nx (nl_bullet_get_soft_body_node_x bead n)
+                set ny (nl_bullet_get_soft_body_node_y bead n)
                 
                 let sx: int = (world_x nx)
                 let sy: int = (world_y ny)
@@ -177,10 +151,8 @@ fn main() -> int {
             set i (+ i 1)
         }
         
-        unsafe {
-            (SDL_RenderPresent renderer)
-            (SDL_Delay 16)
-        }
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
         set frame (+ frame 1)
     }
     
@@ -191,12 +163,10 @@ fn main() -> int {
     (println " beads total!")
     (println "Demo complete!")
     
-    unsafe {
-        (nl_bullet_cleanup)
-        (SDL_DestroyRenderer renderer)
-        (SDL_DestroyWindow window)
-        (SDL_Quit)
-    }
+    (nl_bullet_cleanup)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
     return 0
 }
 

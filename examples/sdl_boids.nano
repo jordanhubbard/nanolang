@@ -2,11 +2,11 @@
 # Demonstrates: Vector math, steering behaviors, emergent behavior, SDL graphics
 # MODERNIZED: Added Boid struct for cleaner data organization
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
-import "modules/ui_widgets/ui_widgets.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+module "modules/ui_widgets/ui_widgets.nano"
 
 from "std/math/vector2d.nano" import vec_new, vec_length
 
@@ -54,12 +54,12 @@ shadow wrap_coord {
 
 fn draw_ui_overlay(renderer: SDL_Renderer, font: TTF_Font, boid_count: int) -> void {
     # Draw semi-transparent bar at bottom
-    unsafe {     (SDL_SetRenderDrawColor renderer 0 0 0 200) }
-    unsafe {     (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 30) WINDOW_WIDTH 30) }
+    (SDL_SetRenderDrawColor renderer 0 0 0 200) 
+    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 30) WINDOW_WIDTH 30) 
     
     # Draw "Boids: XX" text
     let boid_label: string = (+ "Boids: " (int_to_string boid_count))
-    unsafe {     (nl_draw_text_blended renderer font boid_label 10 (- WINDOW_HEIGHT 25) 100 200 100 255) }
+    (nl_draw_text_blended renderer font boid_label 10 (- WINDOW_HEIGHT 25) 100 200 100 255) 
     
     # Draw "ESC = Quit" text
 }
@@ -73,7 +73,7 @@ shadow draw_ui_overlay {
 fn main() -> int {
     
     # Initialize SDL
-    unsafe {     (SDL_Init 32) }
+    (SDL_Init 32) 
     
     let window: SDL_Window = (SDL_CreateWindow "Nanolang Boids" 100 100 WINDOW_WIDTH WINDOW_HEIGHT 4)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
@@ -83,20 +83,20 @@ fn main() -> int {
     } else {}
     
     # Initialize SDL_ttf
-    unsafe {     (TTF_Init) }
+    (TTF_Init) 
     
     # Load font
     let font: TTF_Font = (nl_open_font_portable "Arial" 16)
     if (== font 0) {
-        unsafe {         (SDL_DestroyRenderer renderer) }
-        unsafe {         (SDL_DestroyWindow window) }
-        unsafe {         (SDL_Quit) }
+        (SDL_DestroyRenderer renderer) 
+        (SDL_DestroyWindow window) 
+        (SDL_Quit) 
         return 1
     } else {}
     
     # Disable mouse motion events to prevent event queue flooding
     # SDL_MOUSEMOTION = 0x400 = 1024
-    unsafe {     (SDL_EventState 1024 0) }
+    (SDL_EventState 1024 0) 
     
     # Initialize boids with random-ish positions - pre-allocate arrays
     let mut boid_x: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
@@ -273,37 +273,37 @@ fn main() -> int {
         set boid_y new_y
         
         # Render
-        unsafe {         (SDL_SetRenderDrawColor renderer 10 10 30 255) }
-        unsafe {         (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer 10 10 30 255) 
+        (SDL_RenderClear renderer) 
         
         # Parameter sliders in a panel
-        unsafe {         (nl_ui_panel renderer 10 530 550 65 25 25 35 220) }
-        unsafe {         (nl_ui_label renderer font "Flocking Parameters" 20 535 150 200 255 255) }
+        (nl_ui_panel renderer 10 530 550 65 25 25 35 220) 
+        (nl_ui_label renderer font "Flocking Parameters" 20 535 150 200 255 255) 
         
         # Parameter sliders (bottom of screen) - scale 0.0-1.0 to parameter ranges
         let cohesion_norm: float = (/ cohesion_factor 0.02)
         let cohesion_slider: float = (nl_ui_slider renderer 20 565 150 20 cohesion_norm)
         set cohesion_factor (* cohesion_slider 0.02)
-        unsafe {         (nl_ui_label renderer font "Cohesion" 20 548 200 200 200 255) }
+        (nl_ui_label renderer font "Cohesion" 20 548 200 200 200 255) 
         
         let separation_norm: float = (/ separation_factor 0.2)
         let separation_slider: float = (nl_ui_slider renderer 200 565 150 20 separation_norm)
         set separation_factor (* separation_slider 0.2)
-        unsafe {         (nl_ui_label renderer font "Separation" 200 548 200 200 200 255) }
+        (nl_ui_label renderer font "Separation" 200 548 200 200 200 255) 
         
         let alignment_norm: float = (/ alignment_factor 0.2)
         let alignment_slider: float = (nl_ui_slider renderer 380 565 150 20 alignment_norm)
         set alignment_factor (* alignment_slider 0.2)
-        unsafe {         (nl_ui_label renderer font "Alignment" 380 548 200 200 200 255) }
+        (nl_ui_label renderer font "Alignment" 380 548 200 200 200 255) 
         
         # Draw boids
-        unsafe {         (SDL_SetRenderDrawColor renderer 100 200 255 255) }
+        (SDL_SetRenderDrawColor renderer 100 200 255 255) 
         set i 0
         while (< i NUM_BOIDS) {
             let bx: int = (cast_int (at boid_x i))
             let by: int = (cast_int (at boid_y i))
             
-            unsafe {             (nl_sdl_render_fill_rect renderer bx by BOID_SIZE BOID_SIZE) }
+            (nl_sdl_render_fill_rect renderer bx by BOID_SIZE BOID_SIZE) 
             
             set i (+ i 1)
         }
@@ -313,8 +313,8 @@ fn main() -> int {
         
         # Draw on-screen help
         
-        unsafe {         (SDL_RenderPresent renderer) }
-        unsafe {         (SDL_Delay 16) }
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
         
         set frame (+ frame 1)
     }
@@ -325,11 +325,11 @@ fn main() -> int {
     (println frame)
     
     # Cleanup
-    unsafe {     (TTF_CloseFont font) }
-    unsafe {     (TTF_Quit) }
-    unsafe {     (SDL_DestroyRenderer renderer) }
-    unsafe {     (SDL_DestroyWindow window) }
-    unsafe {     (SDL_Quit) }
+    (TTF_CloseFont font) 
+    (TTF_Quit) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (SDL_Quit) 
     
     return 0
 }

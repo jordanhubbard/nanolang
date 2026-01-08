@@ -9,10 +9,10 @@
 #   R: Reset camera
 #   ESC: Quit
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 from "std/math/extended.nano" import deg_to_rad, clamp
 
@@ -544,8 +544,8 @@ shadow compute_camera_basis { assert true }
 
 # === Main ===
 fn main() -> int {
-    unsafe { (SDL_Init SDL_INIT_VIDEO) }
-    unsafe { (TTF_Init) }
+    (SDL_Init SDL_INIT_VIDEO) 
+    (TTF_Init) 
     
     let window: SDL_Window = (SDL_CreateWindow "Glass Sphere Raytracer" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
@@ -564,8 +564,8 @@ fn main() -> int {
     let mut frame: int = 0
     
     while (== running 1) {
-        unsafe { (SDL_SetRenderDrawColor renderer 40 50 70 255) }
-        unsafe { (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer 40 50 70 255) 
+        (SDL_RenderClear renderer) 
         
         let key: int = (nl_sdl_poll_keypress)
         if (== key 21) {  # R
@@ -616,8 +616,8 @@ fn main() -> int {
                 let g: int = (cast_int (clamp (* (pow color.y gamma_inv) 255.0) 0.0 255.0))
                 let b: int = (cast_int (clamp (* (pow color.z gamma_inv) 255.0) 0.0 255.0))
                 
-                unsafe { (SDL_SetRenderDrawColor renderer r g b 255) }
-                unsafe { (nl_sdl_render_fill_rect renderer (* x RENDER_SCALE) (* y RENDER_SCALE) RENDER_SCALE RENDER_SCALE) }
+                (SDL_SetRenderDrawColor renderer r g b 255) 
+                (nl_sdl_render_fill_rect renderer (* x RENDER_SCALE) (* y RENDER_SCALE) RENDER_SCALE RENDER_SCALE) 
                 
                 set x (+ x 1)
             }
@@ -626,19 +626,19 @@ fn main() -> int {
         
         # HUD
         let frame_str: string = (+ "Glass Sphere Raytracer | Frame: " (int_to_string frame))
-        unsafe { (nl_draw_text_blended renderer font frame_str 10 10 255 255 200 255) }
+        (nl_draw_text_blended renderer font frame_str 10 10 255 255 200 255) 
         
-        unsafe { (SDL_RenderPresent renderer) }
+        (SDL_RenderPresent renderer) 
         
         if (== (nl_sdl_poll_event_quit) 1) { set running 0 }
         set frame (+ frame 1)
     }
     
-    unsafe { (TTF_CloseFont font) }
-    unsafe { (SDL_DestroyRenderer renderer) }
-    unsafe { (SDL_DestroyWindow window) }
-    unsafe { (TTF_Quit) }
-    unsafe { (SDL_Quit) }
+    (TTF_CloseFont font) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (TTF_Quit) 
+    (SDL_Quit) 
     
     return 0
 }

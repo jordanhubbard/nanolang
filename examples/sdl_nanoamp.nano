@@ -12,15 +12,15 @@
 #
 # Usage: ./bin/sdl_nanoamp [optional: path/to/music/directory]
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_mixer/sdl_mixer.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
-import "modules/audio_viz/audio_viz.nano"
-import "modules/ui_widgets/ui_widgets.nano"
-import "modules/filesystem/filesystem.nano"
-import "modules/preferences/preferences.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_mixer/sdl_mixer.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+module "modules/audio_viz/audio_viz.nano"
+module "modules/ui_widgets/ui_widgets.nano"
+module "modules/filesystem/filesystem.nano"
+module "modules/preferences/preferences.nano"
 
 let WINDOW_WIDTH: int = 600
 let WINDOW_HEIGHT: int = 650
@@ -118,7 +118,7 @@ fn main() -> int {
     # Load from command line or preferences
     let mut music_dir: string = ""
     if (>= argc 2) {
-        unsafe { set music_dir (get_argv 1) }
+        set music_dir (get_argv 1) 
         (print "Loading from: ")
         (println music_dir)
         
@@ -153,32 +153,32 @@ fn main() -> int {
     (println "")
     
     # Initialize SDL
-    unsafe {     (SDL_Init (+ SDL_INIT_VIDEO SDL_INIT_AUDIO)) }
+    (SDL_Init (+ SDL_INIT_VIDEO SDL_INIT_AUDIO)) 
     
     # Initialize SDL_mixer
     let mixer_init: int = (Mix_Init 8)
     if (!= mixer_init 8) {
         (println "✗ SDL_mixer MP3 support failed")
-        unsafe {         (SDL_Quit) }
+        (SDL_Quit) 
         return 1
     } else {}
     
     let audio_result: int = (Mix_OpenAudio 44100 32784 2 2048)
     if (!= audio_result 0) {
         (println "✗ Failed to open audio")
-        unsafe {         (Mix_Quit) }
-        unsafe {         (SDL_Quit) }
+        (Mix_Quit) 
+        (SDL_Quit) 
         return 1
     } else {}
     
     (println "✓ SDL_mixer ready")
     
     # Initialize visualization
-    unsafe {     (nl_audio_viz_init 32784 2) }
+    (nl_audio_viz_init 32784 2) 
     (println "✓ Audio visualization ready")
     
     # Initialize SDL_ttf
-    unsafe {     (TTF_Init) }
+    (TTF_Init) 
     
     # Create window
     let window: SDL_Window = (SDL_CreateWindow "♫ NanoAmp - Winamp Tribute ♫"
@@ -197,12 +197,12 @@ fn main() -> int {
     
     if (== font 0) {
         (println "✗ Failed to load fonts")
-        unsafe {         (SDL_DestroyRenderer renderer) }
-        unsafe {         (SDL_DestroyWindow window) }
-        unsafe {         (TTF_Quit) }
-        unsafe {         (Mix_CloseAudio) }
-        unsafe {         (Mix_Quit) }
-        unsafe {         (SDL_Quit) }
+        (SDL_DestroyRenderer renderer) 
+        (SDL_DestroyWindow window) 
+        (TTF_Quit) 
+        (Mix_CloseAudio) 
+        (Mix_Quit) 
+        (SDL_Quit) 
         return 1
     } else {}
     
@@ -231,7 +231,7 @@ fn main() -> int {
     let mut repeat_mode: int = REPEAT_OFF
     
     # Set initial volume
-    unsafe {     (Mix_VolumeMusic 80) }
+    (Mix_VolumeMusic 80) 
     
     (println "Ready! Click Browse to add music or drag files to playlist")
     (println "")
@@ -253,7 +253,7 @@ fn main() -> int {
         } else {}
         
         # CRITICAL: Update widget mouse state ONCE per frame BEFORE rendering widgets
-        unsafe {         (nl_ui_update_mouse_state) }
+        (nl_ui_update_mouse_state) 
         
         # Update playback time
         if (== playback_state STATE_PLAYING) {
@@ -286,8 +286,8 @@ fn main() -> int {
         # === RENDERING ===
         
         # Clear with Winamp dark blue-gray
-        unsafe {         (SDL_SetRenderDrawColor renderer WINAMP_BG_R WINAMP_BG_G WINAMP_BG_B 255) }
-        unsafe {         (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer WINAMP_BG_R WINAMP_BG_G WINAMP_BG_B 255) 
+        (SDL_RenderClear renderer) 
         
         if (== ui_mode MODE_BROWSER) {
             # === DIRECTORY BROWSER MODE ===
@@ -302,8 +302,8 @@ fn main() -> int {
                 } else {}
             } else {}
             
-            unsafe {             (nl_ui_label renderer title_font "Browse Music Directory" 20 15 200 220 255 255) }
-            unsafe {             (nl_ui_label renderer tiny_font browser_path 20 45 180 180 200 255) }
+            (nl_ui_label renderer title_font "Browse Music Directory" 20 15 200 220 255 255) 
+            (nl_ui_label renderer tiny_font browser_path 20 45 180 180 200 255) 
             
             # Navigation buttons
             if (== (nl_ui_button renderer font ".." 20 70 60 25) 1) {
@@ -353,7 +353,7 @@ fn main() -> int {
             let total_items: int = (+ dir_count file_count)
             
             if (== total_items 0) {
-                unsafe {                 (nl_ui_label renderer small_font "No directories or MP3 files" 30 110 150 150 150 255) }
+                (nl_ui_label renderer small_font "No directories or MP3 files" 30 110 150 150 150 255) 
             } else {
                 let mut item_y: int = 110
                 let mut item_i: int = browser_scroll
@@ -374,7 +374,7 @@ fn main() -> int {
                         } else {}
                         
                         # Draw folder indicator [DIR] in cyan
-                        unsafe {                         (nl_ui_label renderer tiny_font "[DIR]" 480 item_y 100 200 255 255) }
+                        (nl_ui_label renderer tiny_font "[DIR]" 480 item_y 100 200 255 255) 
                         
                         set item_y (+ item_y 25)
                         set item_i (+ item_i 1)
@@ -408,7 +408,7 @@ fn main() -> int {
                             } else {}
                             
                             # Draw file indicator [MP3] in gray
-                            unsafe {                             (nl_ui_label renderer tiny_font "[MP3]" 480 item_y 150 150 150 255) }
+                            (nl_ui_label renderer tiny_font "[MP3]" 480 item_y 150 150 150 255) 
                             
                             set item_y (+ item_y 25)
                             set file_i (+ file_i 1)
@@ -419,12 +419,12 @@ fn main() -> int {
                 
                 # Show scroll position indicator
                 if (> total_items max_visible) {
-                    unsafe {                     (nl_ui_label renderer tiny_font "Scroll:" 565 145 150 150 150 255) }
+                    (nl_ui_label renderer tiny_font "Scroll:" 565 145 150 150 150 255) 
                     let scroll_pos: string = (int_to_string (+ browser_scroll 1))
                     let scroll_total: string = (int_to_string total_items)
-                    unsafe {                     (nl_ui_label renderer tiny_font scroll_pos 565 165 150 150 150 255) }
-                    unsafe {                     (nl_ui_label renderer tiny_font "/" 577 165 150 150 150 255) }
-                    unsafe {                     (nl_ui_label renderer tiny_font scroll_total 585 165 150 150 150 255) }
+                    (nl_ui_label renderer tiny_font scroll_pos 565 165 150 150 150 255) 
+                    (nl_ui_label renderer tiny_font "/" 577 165 150 150 150 255) 
+                    (nl_ui_label renderer tiny_font scroll_total 585 165 150 150 150 255) 
                 } else {}
             }
             
@@ -433,10 +433,10 @@ fn main() -> int {
             
             # === 1. TITLE BAR / TRACK INFO PANEL ===
             # Dark panel with track name prominently displayed
-            unsafe {             (nl_ui_panel renderer 5 5 590 70 WINAMP_PANEL_R WINAMP_PANEL_G WINAMP_PANEL_B 255) }
+            (nl_ui_panel renderer 5 5 590 70 WINAMP_PANEL_R WINAMP_PANEL_G WINAMP_PANEL_B 255) 
             
             # App title/logo
-            unsafe {             (nl_ui_label renderer title_font "♫ NanoAmp" 15 10 WINAMP_ACCENT_R WINAMP_ACCENT_G WINAMP_ACCENT_B 255) }
+            (nl_ui_label renderer title_font "♫ NanoAmp" 15 10 WINAMP_ACCENT_R WINAMP_ACCENT_G WINAMP_ACCENT_B 255) 
             
             # Track name (get filename only, no path)
             let mut current_track_display: string = ""
@@ -447,15 +447,15 @@ fn main() -> int {
             }
             
             # Show in smaller text under title
-            unsafe {             (nl_ui_label renderer small_font current_track_display 15 38 200 220 255 255) }
+            (nl_ui_label renderer small_font current_track_display 15 38 200 220 255 255) 
             
             # Track metadata (mock for now)
-            unsafe {             (nl_ui_label renderer tiny_font "128kbps • 44.1kHz • Stereo" 15 58 120 160 180 255) }
+            (nl_ui_label renderer tiny_font "128kbps • 44.1kHz • Stereo" 15 58 120 160 180 255) 
             
             # Time display - RIGHT ALIGNED, LARGE
-            unsafe {             (nl_ui_time_display renderer title_font playback_time 430 12 WINAMP_ACCENT_R WINAMP_ACCENT_G WINAMP_ACCENT_B 255) }
-            unsafe {             (nl_ui_label renderer title_font "/" 483 12 120 140 160 255) }
-            unsafe {             (nl_ui_time_display renderer title_font track_duration 500 12 WINAMP_ACCENT_R WINAMP_ACCENT_G WINAMP_ACCENT_B 255) }
+            (nl_ui_time_display renderer title_font playback_time 430 12 WINAMP_ACCENT_R WINAMP_ACCENT_G WINAMP_ACCENT_B 255) 
+            (nl_ui_label renderer title_font "/" 483 12 120 140 160 255) 
+            (nl_ui_time_display renderer title_font track_duration 500 12 WINAMP_ACCENT_R WINAMP_ACCENT_G WINAMP_ACCENT_B 255) 
             
             # Track position indicator
             let mut track_pos_text: string = ""
@@ -466,7 +466,7 @@ fn main() -> int {
             } else {
                 set track_pos_text "0 of 0"
             }
-            unsafe {             (nl_ui_label renderer tiny_font track_pos_text 495 58 150 160 180 255) }
+            (nl_ui_label renderer tiny_font track_pos_text 495 58 150 160 180 255) 
             
             # === 2. SEEKABLE PROGRESS BAR ===
             let mut progress: float = 0.0
@@ -526,7 +526,7 @@ fn main() -> int {
                         }
                     } else {
                         if (== playback_state STATE_PAUSED) {
-                            unsafe {                             (Mix_ResumeMusic) }
+                            (Mix_ResumeMusic) 
                             set playback_state STATE_PLAYING
                             set playback_start_ticks (- (SDL_GetTicks) (* playback_time 1000))
                             (println "[*] Resume")
@@ -538,7 +538,7 @@ fn main() -> int {
             # Pause
             if (== (nl_ui_button renderer font "||" 117 ctrl_y 42 btn_h) 1) {
                 if (== playback_state STATE_PLAYING) {
-                    unsafe {                     (Mix_PauseMusic) }
+                    (Mix_PauseMusic) 
                     set playback_state STATE_PAUSED
                     (println "[*] Pause")
                 } else {}
@@ -546,7 +546,7 @@ fn main() -> int {
             
             # Stop
             if (== (nl_ui_button renderer font "[]" 164 ctrl_y 42 btn_h) 1) {
-                unsafe {                 (Mix_HaltMusic) }
+                (Mix_HaltMusic) 
                 set playback_state STATE_STOPPED
                 set playback_time 0
                 (println "[*] Stop")
@@ -594,25 +594,25 @@ fn main() -> int {
             } else {}
             
             # === 5. VOLUME CONTROL ===
-            unsafe {             (nl_ui_label renderer small_font "Vol" 365 ctrl_y 120 180 220 255) }
+            (nl_ui_label renderer small_font "Vol" 365 ctrl_y 120 180 220 255) 
             set volume (nl_ui_slider renderer 395 (+ ctrl_y 6) 110 14 volume)
             let vol_int: int = (cast_int (* volume 128.0))
-            unsafe {             (Mix_VolumeMusic vol_int) }
+            (Mix_VolumeMusic vol_int) 
             
             # Volume percentage
             let vol_pct: int = (cast_int (* volume 100.0))
-            unsafe {             (nl_ui_label renderer small_font (int_to_string vol_pct) 510 ctrl_y 150 200 255 255) }
+            (nl_ui_label renderer small_font (int_to_string vol_pct) 510 ctrl_y 150 200 255 255) 
             
             # === 6. VISUALIZATION PANEL ===
-            unsafe {             (nl_ui_panel renderer 5 145 590 175 WINAMP_PANEL_R WINAMP_PANEL_G WINAMP_PANEL_B 255) }
+            (nl_ui_panel renderer 5 145 590 175 WINAMP_PANEL_R WINAMP_PANEL_G WINAMP_PANEL_B 255) 
             
             # Viz mode label
             let mut viz_label: string = ""
             if (== viz_mode 0) { set viz_label "[*] Circular Spectrum" } else {}
             if (== viz_mode 1) { set viz_label "[*] Frequency Analyzer" } else {}
             if (== viz_mode 2) { set viz_label "[*] Oscilloscope" } else {}
-            unsafe {             (nl_ui_label renderer tiny_font viz_label 15 150 120 160 180 255) }
-            unsafe {             (nl_ui_label renderer tiny_font "TAB: Change Mode" 450 150 100 140 160 255) }
+            (nl_ui_label renderer tiny_font viz_label 15 150 120 160 180 255) 
+            (nl_ui_label renderer tiny_font "TAB: Change Mode" 450 150 100 140 160 255) 
             
             # Get waveform data
             let waveform_size: int = (nl_audio_viz_get_waveform_size)
@@ -641,9 +641,9 @@ fn main() -> int {
                         let g: int = (+ 60 (cast_int (* 195.0 (sin (* (cast_float (+ col_off 120)) 0.03)))))
                         let b: int = 255
                         
-                        unsafe {                         (SDL_SetRenderDrawColor renderer r g b 255) }
-                        unsafe {                         (SDL_RenderDrawPoint renderer x y) }
-                        unsafe {                         (SDL_RenderDrawPoint renderer (+ x 1) y) }
+                        (SDL_SetRenderDrawColor renderer r g b 255) 
+                        (SDL_RenderDrawPoint renderer x y) 
+                        (SDL_RenderDrawPoint renderer (+ x 1) y) 
                     } else {}
                     set angle (+ angle 3)
                 }
@@ -671,8 +671,8 @@ fn main() -> int {
                     let g: int = (- 255 (/ color_val 2))
                     let b: int = 30
                     
-                    unsafe {                     (SDL_SetRenderDrawColor renderer r g b 255) }
-                    unsafe {                     (nl_sdl_render_fill_rect renderer bar_x bar_y (- bar_width 1) height) }
+                    (SDL_SetRenderDrawColor renderer r g b 255) 
+                    (nl_sdl_render_fill_rect renderer bar_x bar_y (- bar_width 1) height) 
                     set bar (+ bar 1)
                 }
             } else {}
@@ -683,7 +683,7 @@ fn main() -> int {
                 let wave_width: int = 560
                 let wave_step: int = (/ waveform_size wave_width)
                 
-                unsafe {                 (SDL_SetRenderDrawColor renderer 0 255 200 220) }
+                (SDL_SetRenderDrawColor renderer 0 255 200 220) 
                 while (< i wave_width) {
                     let sample_idx: int = (* i wave_step)
                     let left: float = (nl_audio_viz_get_waveform_sample 0 sample_idx)
@@ -691,8 +691,8 @@ fn main() -> int {
                     let mixed: float = (* (+ left right) 0.5)
                     let y: int = (+ 232 (cast_int (* mixed 85.0)))
                     
-                    unsafe {                     (SDL_RenderDrawPoint renderer (+ 20 i) y) }
-                    unsafe {                     (SDL_RenderDrawPoint renderer (+ 20 i) (+ y 1)) }
+                    (SDL_RenderDrawPoint renderer (+ 20 i) y) 
+                    (SDL_RenderDrawPoint renderer (+ 20 i) (+ y 1)) 
                     set i (+ i 1)
                 }
             } else {}
@@ -714,22 +714,22 @@ fn main() -> int {
                 set playlist_count 0
                 set current_track_index 0
                 if (!= playback_state STATE_STOPPED) {
-                    unsafe {                     (Mix_HaltMusic) }
+                    (Mix_HaltMusic) 
                     set playback_state STATE_STOPPED
                 } else {}
                 (println "Playlist cleared")
             } else {}
             
             if (== (nl_ui_button renderer font "Save" 165 playlist_btn_y 50 22) 1) {
-                unsafe { (nl_prefs_save_playlist pref_path playlist playlist_count) }
+                (nl_prefs_save_playlist pref_path playlist playlist_count) 
                 (println "✓ Saved")
             } else {}
             
             # === 8. PLAYLIST ===
-            unsafe {             (nl_ui_label renderer small_font "Playlist:" 10 358 180 200 220 255) }
+            (nl_ui_label renderer small_font "Playlist:" 10 358 180 200 220 255) 
             
             if (== playlist_count 0) {
-                unsafe {                 (nl_ui_label renderer tiny_font "No tracks - click Browse to add music" 20 380 150 150 150 255) }
+                (nl_ui_label renderer tiny_font "No tracks - click Browse to add music" 20 380 150 150 150 255) 
             } else {
                 let clicked: int = (nl_ui_scrollable_list renderer tiny_font playlist
                                                            playlist_count
@@ -758,14 +758,14 @@ fn main() -> int {
             }
             
             # === 9. STATUS BAR ===
-            unsafe {             (nl_ui_panel renderer 0 625 600 25 5 8 12 255) }
+            (nl_ui_panel renderer 0 625 600 25 5 8 12 255) 
             
             # Playback status
             let mut status_text: string = ""
             if (== playback_state STATE_PLAYING) { set status_text "> Playing" } else {}
             if (== playback_state STATE_PAUSED) { set status_text "|| Paused" } else {}
             if (== playback_state STATE_STOPPED) { set status_text "[] Stopped" } else {}
-            unsafe {             (nl_ui_label renderer tiny_font status_text 10 630 150 200 255 255) }
+            (nl_ui_label renderer tiny_font status_text 10 630 150 200 255 255) 
             
             # Shuffle/Repeat status
             let mut mode_status: string = ""
@@ -784,18 +784,18 @@ fn main() -> int {
             } else {}
             
             if (!= mode_status "") {
-                unsafe {                 (nl_ui_label renderer tiny_font mode_status 250 630 120 180 220 255) }
+                (nl_ui_label renderer tiny_font mode_status 250 630 120 180 220 255) 
             } else {}
             
             # Version info
-            unsafe {             (nl_ui_label renderer tiny_font "NanoAmp v2.0" 510 630 100 140 160 255) }
+            (nl_ui_label renderer tiny_font "NanoAmp v2.0" 510 630 100 140 160 255) 
         }
         
         # Draw on-screen help
         
         # Present frame
-        unsafe {         (SDL_RenderPresent renderer) }
-        unsafe {         (SDL_Delay 16) }
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
         
         set frame (+ frame 1)
     }
@@ -809,18 +809,18 @@ fn main() -> int {
     } else {}
     
     (println "Cleaning up...")
-    unsafe {     (Mix_HaltMusic) }
-    unsafe {     (nl_audio_viz_shutdown) }
-    unsafe {     (TTF_CloseFont font) }
-    unsafe {     (TTF_CloseFont title_font) }
-    unsafe {     (TTF_CloseFont small_font) }
-    unsafe {     (TTF_CloseFont tiny_font) }
-    unsafe {     (SDL_DestroyRenderer renderer) }
-    unsafe {     (SDL_DestroyWindow window) }
-    unsafe {     (TTF_Quit) }
-    unsafe {     (Mix_CloseAudio) }
-    unsafe {     (Mix_Quit) }
-    unsafe {     (SDL_Quit) }
+    (Mix_HaltMusic) 
+    (nl_audio_viz_shutdown) 
+    (TTF_CloseFont font) 
+    (TTF_CloseFont title_font) 
+    (TTF_CloseFont small_font) 
+    (TTF_CloseFont tiny_font) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (TTF_Quit) 
+    (Mix_CloseAudio) 
+    (Mix_Quit) 
+    (SDL_Quit) 
     
     (println "✓ Done")
     (println "")

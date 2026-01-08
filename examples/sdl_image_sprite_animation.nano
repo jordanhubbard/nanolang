@@ -7,9 +7,9 @@
 # - Frame-based animation timing
 # - Sprite positioning and movement
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_image/sdl_image.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_image/sdl_image.nano"
 
 fn main() -> int {
     (println "=== SDL_image Sprite Animation Demo ===")
@@ -19,7 +19,7 @@ fn main() -> int {
     (println "")
     
     # Initialize SDL and SDL_image
-    unsafe { (SDL_Init 32) }
+    (SDL_Init 32) 
     let img_init: int = (IMG_Init IMG_INIT_PNG)
     if (== img_init 0) {
         (println "Failed to initialize SDL_image")
@@ -109,8 +109,8 @@ fn main() -> int {
         } else {}
         
         # Clear screen
-        unsafe { (SDL_SetRenderDrawColor renderer 30 30 40 255) }
-        unsafe { (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer 30 30 40 255) 
+        (SDL_RenderClear renderer) 
         
         # Select current frame
         let mut current_frame: int = frame1
@@ -125,32 +125,32 @@ fn main() -> int {
         } else {}
         
         # Draw shadow
-        unsafe { (SDL_SetRenderDrawColor renderer 0 0 0 100) }
-        unsafe { (nl_sdl_render_fill_rect renderer (+ sprite_x 5) (+ sprite_y 85) sprite_width 10) }
+        (SDL_SetRenderDrawColor renderer 0 0 0 100) 
+        (nl_sdl_render_fill_rect renderer (+ sprite_x 5) (+ sprite_y 85) sprite_width 10) 
         
         # Draw sprite
-        unsafe { (nl_img_render_texture renderer current_frame sprite_x sprite_y sprite_width sprite_height) }
+        (nl_img_render_texture renderer current_frame sprite_x sprite_y sprite_width sprite_height) 
         
         # Draw frame counter
         let frame_text: string = (+ "Frame: " (int_to_string frame_index))
         
         # Present
-        unsafe { (SDL_RenderPresent renderer) }
-        unsafe { (SDL_Delay 16) }
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
     }
     
     # Cleanup
     (println "")
     (println "Cleaning up...")
-    unsafe { (nl_img_destroy_texture frame1) }
-    unsafe { (nl_img_destroy_texture frame2) }
-    unsafe { (nl_img_destroy_texture frame3) }
-    unsafe { (nl_img_destroy_texture frame4) }
+    (nl_img_destroy_texture frame1) 
+    (nl_img_destroy_texture frame2) 
+    (nl_img_destroy_texture frame3) 
+    (nl_img_destroy_texture frame4) 
     
-    unsafe { (SDL_DestroyRenderer renderer) }
-    unsafe { (SDL_DestroyWindow window) }
-    unsafe { (IMG_Quit) }
-    unsafe { (SDL_Quit) }
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (IMG_Quit) 
+    (SDL_Quit) 
     
     (println "✓ Animation demo completed")
     return 0

@@ -1,13 +1,13 @@
 # SDL_image Test - Load and display PNG icons
 # This example demonstrates loading PNG icons using SDL_image
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_image/sdl_image.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_image/sdl_image.nano"
 
 fn main() -> int {
     # Initialize SDL
-    unsafe { (SDL_Init 32) }
+    (SDL_Init 32) 
     
     # Initialize SDL_image with PNG support
     let img_flags: int = (IMG_Init IMG_INIT_PNG)
@@ -60,35 +60,35 @@ fn main() -> int {
         } else {}
         
         # Clear screen to dark blue
-        unsafe { (SDL_SetRenderDrawColor renderer 20 30 50 255) }
-        unsafe { (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer 20 30 50 255) 
+        (SDL_RenderClear renderer) 
         
         # Render icons in a 2x2 grid
         # Top left
-        unsafe { (nl_img_render_texture renderer icon1 50 50 100 100) }
+        (nl_img_render_texture renderer icon1 50 50 100 100) 
         # Top right
-        unsafe { (nl_img_render_texture renderer icon2 200 50 100 100) }
+        (nl_img_render_texture renderer icon2 200 50 100 100) 
         # Bottom left
-        unsafe { (nl_img_render_texture renderer icon3 50 200 100 100) }
+        (nl_img_render_texture renderer icon3 50 200 100 100) 
         # Bottom right
-        unsafe { (nl_img_render_texture renderer icon4 200 200 100 100) }
+        (nl_img_render_texture renderer icon4 200 200 100 100) 
         
         # Present
-        unsafe { (SDL_RenderPresent renderer) }
-        unsafe { (SDL_Delay 16) }
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
     }
     
     # Cleanup
     (println "Cleaning up...")
-    unsafe { (nl_img_destroy_texture icon1) }
-    unsafe { (nl_img_destroy_texture icon2) }
-    unsafe { (nl_img_destroy_texture icon3) }
-    unsafe { (nl_img_destroy_texture icon4) }
+    (nl_img_destroy_texture icon1) 
+    (nl_img_destroy_texture icon2) 
+    (nl_img_destroy_texture icon3) 
+    (nl_img_destroy_texture icon4) 
     
-    unsafe { (SDL_DestroyRenderer renderer) }
-    unsafe { (SDL_DestroyWindow window) }
-    unsafe { (IMG_Quit) }
-    unsafe { (SDL_Quit) }
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (IMG_Quit) 
+    (SDL_Quit) 
     
     (println "✓ SDL_image test completed successfully")
     return 0

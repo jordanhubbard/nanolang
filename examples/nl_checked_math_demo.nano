@@ -8,7 +8,7 @@
  * JSF AV Rule 204 compliant: Division operations check for zero divisor
  */
 
-import "modules/stdlib/checked_math.nano"
+module "modules/stdlib/checked_math.nano"
 
 fn demo_safe_addition() -> int {
     (println "=== SAFE ADDITION ===")

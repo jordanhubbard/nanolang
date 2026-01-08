@@ -28,7 +28,7 @@
 # ❌ UNSAFE: Concatenating user input into SQL string
 #            This would allow SQL injection attacks!
 
-import "modules/sqlite/sqlite.nano"
+module "modules/sqlite/sqlite.nano"
 
 fn main() -> int {
     (println "")

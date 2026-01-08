@@ -53,7 +53,7 @@
 # - Rate limiting: 10 req/sec = sustainable, 100 req/sec = burst
 # - HTTPS adds ~10-50ms latency vs HTTP
 
-import "modules/curl/curl.nano"
+unsafe module "modules/curl/curl.nano"
 
 # =============================================================================
 # Example 1: Simple GET Request

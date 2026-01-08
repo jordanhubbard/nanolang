@@ -8,11 +8,11 @@
 # - Sprite sheet rendering
 # - Batch loading
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_image/sdl_image.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_image/sdl_image.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 fn main() -> int {
     (println "")
@@ -20,8 +20,8 @@ fn main() -> int {
     (println "")
     
     # Initialize SDL
-    unsafe { (SDL_Init 32) }
-    unsafe { (TTF_Init) }
+    (SDL_Init 32) 
+    (TTF_Init) 
     
     # Initialize SDL_image with all format support
     (println "Initializing SDL_image...")
@@ -106,86 +106,86 @@ fn main() -> int {
         set frame (+ frame 1)
         
         # Clear screen
-        unsafe { (SDL_SetRenderDrawColor renderer 25 30 40 255) }
-        unsafe { (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer 25 30 40 255) 
+        (SDL_RenderClear renderer) 
         
         # Title
-        unsafe { (nl_draw_text_blended renderer font "SDL_image Feature Demonstrations" 20 20 255 255 255 255) }
+        (nl_draw_text_blended renderer font "SDL_image Feature Demonstrations" 20 20 255 255 255 255) 
         
         # Demo 1: Basic rendering (top-left)
-        unsafe { (nl_draw_text_blended renderer font "1. Basic Rendering" 20 60 200 200 255 255) }
-        unsafe { (nl_img_render_texture renderer icon1 20 85 100 100) }
+        (nl_draw_text_blended renderer font "1. Basic Rendering" 20 60 200 200 255 255) 
+        (nl_img_render_texture renderer icon1 20 85 100 100) 
         
         # Demo 2: Scaling (different sizes)
-        unsafe { (nl_draw_text_blended renderer font "2. Scaled Rendering" 150 60 200 200 255 255) }
-        unsafe { (nl_img_render_texture renderer icon1 150 85 50 50) }
-        unsafe { (nl_img_render_texture renderer icon1 210 85 80 80) }
-        unsafe { (nl_img_render_texture renderer icon1 300 85 120 120) }
+        (nl_draw_text_blended renderer font "2. Scaled Rendering" 150 60 200 200 255 255) 
+        (nl_img_render_texture renderer icon1 150 85 50 50) 
+        (nl_img_render_texture renderer icon1 210 85 80 80) 
+        (nl_img_render_texture renderer icon1 300 85 120 120) 
         
         # Demo 3: Rotation
-        unsafe { (nl_draw_text_blended renderer font "3. Rotation" 20 220 200 200 255 255) }
-        unsafe { (nl_img_render_texture_ex renderer icon2 70 270 80 80 angle SDL_FLIP_NONE) }
+        (nl_draw_text_blended renderer font "3. Rotation" 20 220 200 200 255 255) 
+        (nl_img_render_texture_ex renderer icon2 70 270 80 80 angle SDL_FLIP_NONE) 
         
         # Demo 4: Flipping
-        unsafe { (nl_draw_text_blended renderer font "4. Flipping" 180 220 200 200 255 255) }
-        unsafe { (nl_img_render_texture_ex renderer icon2 180 270 70 70 0.0 SDL_FLIP_NONE) }
-        unsafe { (nl_img_render_texture_ex renderer icon2 260 270 70 70 0.0 SDL_FLIP_HORIZONTAL) }
-        unsafe { (nl_img_render_texture_ex renderer icon2 340 270 70 70 0.0 SDL_FLIP_VERTICAL) }
-        unsafe { (nl_img_render_texture_ex renderer icon2 420 270 70 70 0.0 SDL_FLIP_BOTH) }
+        (nl_draw_text_blended renderer font "4. Flipping" 180 220 200 200 255 255) 
+        (nl_img_render_texture_ex renderer icon2 180 270 70 70 0.0 SDL_FLIP_NONE) 
+        (nl_img_render_texture_ex renderer icon2 260 270 70 70 0.0 SDL_FLIP_HORIZONTAL) 
+        (nl_img_render_texture_ex renderer icon2 340 270 70 70 0.0 SDL_FLIP_VERTICAL) 
+        (nl_img_render_texture_ex renderer icon2 420 270 70 70 0.0 SDL_FLIP_BOTH) 
         
         # Demo 5: Alpha transparency (fading)
-        unsafe { (nl_draw_text_blended renderer font "5. Alpha Fading" 520 220 200 200 255 255) }
-        unsafe { (nl_img_set_texture_alpha icon3 alpha) }
-        unsafe { (nl_img_render_texture renderer icon3 550 270 80 80) }
+        (nl_draw_text_blended renderer font "5. Alpha Fading" 520 220 200 200 255 255) 
+        (nl_img_set_texture_alpha icon3 alpha) 
+        (nl_img_render_texture renderer icon3 550 270 80 80) 
         
         # Demo 6: Color modulation (tinting)
-        unsafe { (nl_draw_text_blended renderer font "6. Color Tinting" 20 400 200 200 255 255) }
+        (nl_draw_text_blended renderer font "6. Color Tinting" 20 400 200 200 255 255) 
         let tint_r: int = (+ 128 (/ (* 127 (/ (% frame 120) 120)) 1))
         let tint_g: int = (+ 128 (/ (* 127 (/ (% (+ frame 40) 120) 120)) 1))
         let tint_b: int = (+ 128 (/ (* 127 (/ (% (+ frame 80) 120) 120)) 1))
-        unsafe { (nl_img_set_texture_color icon4 tint_r tint_g tint_b) }
-        unsafe { (nl_img_render_texture renderer icon4 70 450 80 80) }
+        (nl_img_set_texture_color icon4 tint_r tint_g tint_b) 
+        (nl_img_render_texture renderer icon4 70 450 80 80) 
         
         # Demo 7: Combined effects
-        unsafe { (nl_draw_text_blended renderer font "7. Combined: Rotate + Scale + Tint" 200 400 200 200 255 255) }
+        (nl_draw_text_blended renderer font "7. Combined: Rotate + Scale + Tint" 200 400 200 200 255 255) 
         let combo_size: int = 80
-        unsafe { (nl_img_set_texture_color icon3 255 200 100) }
-        unsafe { (nl_img_render_texture_ex renderer icon3 350 450 combo_size combo_size (/ angle 2.0) SDL_FLIP_HORIZONTAL) }
+        (nl_img_set_texture_color icon3 255 200 100) 
+        (nl_img_render_texture_ex renderer icon3 350 450 combo_size combo_size (/ angle 2.0) SDL_FLIP_HORIZONTAL) 
         
         # Demo 8: Multiple instances
-        unsafe { (nl_draw_text_blended renderer font "8. Multiple Instances" 550 400 200 200 255 255) }
+        (nl_draw_text_blended renderer font "8. Multiple Instances" 550 400 200 200 255 255) 
         let mut grid_i: int = 0
         while (< grid_i 9) {
             let grid_x: int = (+ 560 (* (% grid_i 3) 45))
             let grid_y: int = (+ 450 (* (/ grid_i 3) 45))
             let grid_angle: float = (+ angle (* 15.0 15.0))
-            unsafe { (nl_img_render_texture_ex renderer icon1 grid_x grid_y 40 40 grid_angle SDL_FLIP_NONE) }
+            (nl_img_render_texture_ex renderer icon1 grid_x grid_y 40 40 grid_angle SDL_FLIP_NONE) 
             set grid_i (+ grid_i 1)
         }
         
         # Stats footer
         let fps_text: string = (+ "Frame: " (int_to_string frame))
-        unsafe { (nl_draw_text_blended renderer font fps_text 20 660 150 150 150 255) }
+        (nl_draw_text_blended renderer font fps_text 20 660 150 150 150 255) 
         
         # Present
-        unsafe { (SDL_RenderPresent renderer) }
-        unsafe { (SDL_Delay 16) }
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
     }
     
     # Cleanup
     (println "")
     (println "Cleaning up...")
-    unsafe { (nl_img_destroy_texture icon1) }
-    unsafe { (nl_img_destroy_texture icon2) }
-    unsafe { (nl_img_destroy_texture icon3) }
-    unsafe { (nl_img_destroy_texture icon4) }
+    (nl_img_destroy_texture icon1) 
+    (nl_img_destroy_texture icon2) 
+    (nl_img_destroy_texture icon3) 
+    (nl_img_destroy_texture icon4) 
     
-    unsafe { (TTF_CloseFont font) }
-    unsafe { (SDL_DestroyRenderer renderer) }
-    unsafe { (SDL_DestroyWindow window) }
-    unsafe { (IMG_Quit) }
-    unsafe { (TTF_Quit) }
-    unsafe { (SDL_Quit) }
+    (TTF_CloseFont font) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (IMG_Quit) 
+    (TTF_Quit) 
+    (SDL_Quit) 
     
     (println "✓ SDL_image demo completed successfully")
     return 0

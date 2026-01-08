@@ -46,14 +46,14 @@
 # - Add more visualization presets
 # - Implement beat detection
 
-import "modules/glfw/glfw.nano"
-import "modules/glew/glew.nano"
-import "modules/sdl/sdl.nano"
-import "modules/sdl_mixer/sdl_mixer.nano"
-import "modules/audio_viz/audio_viz.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
-import "modules/ui_widgets/ui_widgets.nano"
+unsafe module "modules/glfw/glfw.nano"
+unsafe module "modules/glew/glew.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_mixer/sdl_mixer.nano"
+module "modules/audio_viz/audio_viz.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+module "modules/ui_widgets/ui_widgets.nano"
 
 # Window dimensions
 let WINDOW_WIDTH: int = 1280
@@ -101,16 +101,16 @@ shadow get_viz_name {
 # Initialize OpenGL for 3D rendering
 fn setup_opengl_3d() -> void {
     # Enable depth testing
-    unsafe {     (glEnable GL_DEPTH_TEST) }
-    unsafe {     (glDepthFunc GL_LESS) }
+    (glEnable GL_DEPTH_TEST) 
+    (glDepthFunc GL_LESS) 
     
     # Enable blending for transparency effects
-    unsafe {     (glEnable GL_BLEND) }
+    (glEnable GL_BLEND) 
     # glBlendFunc not currently available in GLEW bindings
     
     # Set up projection matrix (perspective)
-    unsafe {     (glMatrixMode GL_PROJECTION) }
-    unsafe {     (glLoadIdentity) }
+    (glMatrixMode GL_PROJECTION) 
+    (glLoadIdentity) 
     
     # Perspective projection for 3D
     let fov: float = 60.0
@@ -119,23 +119,23 @@ fn setup_opengl_3d() -> void {
     let far_plane: float = 100.0
     
     # Use simple orthographic for now (glFrustum has issues)
-    unsafe {     (glOrtho -5.0 5.0 -5.0 5.0 0.1 100.0) }
+    (glOrtho -5.0 5.0 -5.0 5.0 0.1 100.0) 
     
     # Switch to modelview
-    unsafe {     (glMatrixMode GL_MODELVIEW) }
-    unsafe {     (glLoadIdentity) }
+    (glMatrixMode GL_MODELVIEW) 
+    (glLoadIdentity) 
 }
 
 # Draw Tunnel visualization (classic demoscene effect)
 fn draw_tunnel(time: float, audio_bass: float, audio_mid: float) -> void {
-    unsafe {     (glLoadIdentity) }
+    (glLoadIdentity) 
     
     # Camera position
-    unsafe {     (glTranslatef 0.0 0.0 -5.0) }
+    (glTranslatef 0.0 0.0 -5.0) 
     
     # Rotate based on time and audio
-    unsafe {     (glRotatef (* time 20.0) 0.0 0.0 1.0) }
-    unsafe {     (glRotatef (* audio_bass 30.0) 1.0 0.0 0.0) }
+    (glRotatef (* time 20.0) 0.0 0.0 1.0) 
+    (glRotatef (* audio_bass 30.0) 1.0 0.0 0.0) 
     
     # Draw concentric rings
     let mut ring: int = 0
@@ -158,10 +158,10 @@ fn draw_tunnel(time: float, audio_bass: float, audio_mid: float) -> void {
         
         # Brightness modulated by audio
         let brightness: float = (+ 0.5 (* audio_mid 0.5))
-        unsafe {         (glColor4f (* r brightness) (* g brightness) (* b brightness) 0.8) }
+        (glColor4f (* r brightness) (* g brightness) (* b brightness) 0.8) 
         
         # Draw ring
-        unsafe {         (glBegin GL_QUAD_STRIP) }
+        (glBegin GL_QUAD_STRIP) 
         let mut angle: int = 0
         while (<= angle 360) {
             let rad: float = (* (cast_float angle) 0.0174533)
@@ -170,12 +170,12 @@ fn draw_tunnel(time: float, audio_bass: float, audio_mid: float) -> void {
             let x2: float = (* (+ radius 0.2) (cos rad))
             let y2: float = (* (+ radius 0.2) (sin rad))
             
-            unsafe {             (glVertex3f x1 y1 z) }
-            unsafe {             (glVertex3f x2 y2 z) }
+            (glVertex3f x1 y1 z) 
+            (glVertex3f x2 y2 z) 
             
             set angle (+ angle 20)
         }
-        unsafe {         (glEnd) }
+        (glEnd) 
         
         set ring (+ ring 1)
     }
@@ -183,10 +183,10 @@ fn draw_tunnel(time: float, audio_bass: float, audio_mid: float) -> void {
 
 # Draw Spectrum Sphere - audio frequencies mapped to sphere surface
 fn draw_spectrum_sphere(time: float, rotation: float) -> void {
-    unsafe {     (glLoadIdentity) }
-    unsafe {     (glTranslatef 0.0 0.0 -8.0) }
-    unsafe {     (glRotatef rotation 0.0 1.0 0.0) }
-    unsafe {     (glRotatef (* rotation 0.5) 1.0 0.0 0.0) }
+    (glLoadIdentity) 
+    (glTranslatef 0.0 0.0 -8.0) 
+    (glRotatef rotation 0.0 1.0 0.0) 
+    (glRotatef (* rotation 0.5) 1.0 0.0 0.0) 
     
     # Get waveform data
     let waveform_size: int = (nl_audio_viz_get_waveform_size)
@@ -200,7 +200,7 @@ fn draw_spectrum_sphere(time: float, rotation: float) -> void {
         let lat1: float = (* (/ (cast_float lat) (cast_float lat_bands)) 3.14159)
         let lat2: float = (* (/ (cast_float (+ lat 1)) (cast_float lat_bands)) 3.14159)
         
-        unsafe {         (glBegin GL_QUAD_STRIP) }
+        (glBegin GL_QUAD_STRIP) 
         
         let mut lon: int = 0
         while (<= lon long_bands) {
@@ -220,7 +220,7 @@ fn draw_spectrum_sphere(time: float, rotation: float) -> void {
             let r: float = (+ 0.5 (* 0.5 (sin hue)))
             let g: float = (+ 0.5 (* 0.5 (cos hue)))
             let b: float = (+ 0.5 (* 0.5 (sin (* hue 2.0))))
-            unsafe {             (glColor4f r g b 0.9) }
+            (glColor4f r g b 0.9) 
             
             # Calculate sphere coordinates
             let x1: float = (* radius (* (sin lat1) (cos lon_rad)))
@@ -231,12 +231,12 @@ fn draw_spectrum_sphere(time: float, rotation: float) -> void {
             let y2: float = (* radius (cos lat2))
             let z2: float = (* radius (* (sin lat2) (sin lon_rad)))
             
-            unsafe {             (glVertex3f x1 y1 z1) }
-            unsafe {             (glVertex3f x2 y2 z2) }
+            (glVertex3f x1 y1 z1) 
+            (glVertex3f x2 y2 z2) 
             
             set lon (+ lon 1)
         }
-        unsafe {         (glEnd) }
+        (glEnd) 
         
         set lat (+ lat 1)
     }
@@ -244,12 +244,12 @@ fn draw_spectrum_sphere(time: float, rotation: float) -> void {
 
 # Draw Particle System reacting to audio
 fn draw_audio_particles(time: float, bass: float, mid: float, treble: float) -> void {
-    unsafe {     (glLoadIdentity) }
-    unsafe {     (glTranslatef 0.0 0.0 -10.0) }
+    (glLoadIdentity) 
+    (glTranslatef 0.0 0.0 -10.0) 
     
     # Draw particles in 3D space
     # glPointSize not available - use small quads instead
-    unsafe {     (glBegin GL_POINTS) }
+    (glBegin GL_POINTS) 
     
     let mut i: int = 0
     while (< i 500) {
@@ -269,24 +269,24 @@ fn draw_audio_particles(time: float, bass: float, mid: float, treble: float) -> 
         let b: float = (+ 0.5 (* 0.5 (sin (* hue 1.5))))
         let alpha: float = (+ 0.6 (* treble 0.4))
         
-        unsafe {         (glColor4f r g b alpha) }
-        unsafe {         (glVertex3f x y z) }
+        (glColor4f r g b alpha) 
+        (glVertex3f x y z) 
         
         set i (+ i 1)
     }
-    unsafe {     (glEnd) }
+    (glEnd) 
 }
 
 # Draw 3D Waveform
 fn draw_waveform_3d(time: float, rotation: float) -> void {
-    unsafe {     (glLoadIdentity) }
-    unsafe {     (glTranslatef 0.0 0.0 -8.0) }
-    unsafe {     (glRotatef rotation 0.0 1.0 0.0) }
+    (glLoadIdentity) 
+    (glTranslatef 0.0 0.0 -8.0) 
+    (glRotatef rotation 0.0 1.0 0.0) 
     
     let waveform_size: int = (nl_audio_viz_get_waveform_size)
     
     # Draw waveform as 3D ribbon
-    unsafe {     (glBegin GL_LINE_STRIP) }
+    (glBegin GL_LINE_STRIP) 
     
     let mut i: int = 0
     while (< i waveform_size) {
@@ -306,21 +306,21 @@ fn draw_waveform_3d(time: float, rotation: float) -> void {
         let r: float = (+ 0.5 (* 0.5 (sin (* hue 6.28))))
         let g: float = (+ 0.5 (* 0.5 (cos (* hue 6.28))))
         let b: float = 1.0
-        unsafe {         (glColor4f r g b 1.0) }
+        (glColor4f r g b 1.0) 
         
-        unsafe {         (glVertex3f x y z) }
+        (glVertex3f x y z) 
         
         set i (+ i 4)
     }
-    unsafe {     (glEnd) }
+    (glEnd) 
 }
 
 # Draw Frequency Cubes - frequency bars as 3D cubes
 fn draw_frequency_cubes(time: float, rotation: float) -> void {
-    unsafe {     (glLoadIdentity) }
-    unsafe {     (glTranslatef 0.0 0.0 -15.0) }
-    unsafe {     (glRotatef rotation 0.0 1.0 0.0) }
-    unsafe {     (glRotatef 20.0 1.0 0.0 0.0) }
+    (glLoadIdentity) 
+    (glTranslatef 0.0 0.0 -15.0) 
+    (glRotatef rotation 0.0 1.0 0.0) 
+    (glRotatef 20.0 1.0 0.0 0.0) 
     
     let waveform_size: int = (nl_audio_viz_get_waveform_size)
     let num_cubes: int = 32
@@ -344,48 +344,48 @@ fn draw_frequency_cubes(time: float, rotation: float) -> void {
         let r: float = (+ 0.5 (* 0.5 (sin hue)))
         let g: float = (+ 0.5 (* 0.5 (cos hue)))
         let b: float = (+ 0.5 (* 0.5 (sin (* hue 2.0))))
-        unsafe {         (glColor4f r g b 0.9) }
+        (glColor4f r g b 0.9) 
         
         # Draw cube
-        unsafe {         (glPushMatrix) }
-        unsafe {         (glTranslatef x 0.0 z) }
-        unsafe {         (glScalef 0.5 height 0.5) }
+        (glPushMatrix) 
+        (glTranslatef x 0.0 z) 
+        (glScalef 0.5 height 0.5) 
         
         # Draw cube manually (6 faces)
-        unsafe {         (glBegin GL_QUADS) }
+        (glBegin GL_QUADS) 
         # Front
-        unsafe {         (glVertex3f -0.5 -0.5 0.5) }
-        unsafe {         (glVertex3f 0.5 -0.5 0.5) }
-        unsafe {         (glVertex3f 0.5 0.5 0.5) }
-        unsafe {         (glVertex3f -0.5 0.5 0.5) }
+        (glVertex3f -0.5 -0.5 0.5) 
+        (glVertex3f 0.5 -0.5 0.5) 
+        (glVertex3f 0.5 0.5 0.5) 
+        (glVertex3f -0.5 0.5 0.5) 
         # Back
-        unsafe {         (glVertex3f -0.5 -0.5 -0.5) }
-        unsafe {         (glVertex3f -0.5 0.5 -0.5) }
-        unsafe {         (glVertex3f 0.5 0.5 -0.5) }
-        unsafe {         (glVertex3f 0.5 -0.5 -0.5) }
+        (glVertex3f -0.5 -0.5 -0.5) 
+        (glVertex3f -0.5 0.5 -0.5) 
+        (glVertex3f 0.5 0.5 -0.5) 
+        (glVertex3f 0.5 -0.5 -0.5) 
         # Top
-        unsafe {         (glVertex3f -0.5 0.5 -0.5) }
-        unsafe {         (glVertex3f -0.5 0.5 0.5) }
-        unsafe {         (glVertex3f 0.5 0.5 0.5) }
-        unsafe {         (glVertex3f 0.5 0.5 -0.5) }
+        (glVertex3f -0.5 0.5 -0.5) 
+        (glVertex3f -0.5 0.5 0.5) 
+        (glVertex3f 0.5 0.5 0.5) 
+        (glVertex3f 0.5 0.5 -0.5) 
         # Bottom
-        unsafe {         (glVertex3f -0.5 -0.5 -0.5) }
-        unsafe {         (glVertex3f 0.5 -0.5 -0.5) }
-        unsafe {         (glVertex3f 0.5 -0.5 0.5) }
-        unsafe {         (glVertex3f -0.5 -0.5 0.5) }
+        (glVertex3f -0.5 -0.5 -0.5) 
+        (glVertex3f 0.5 -0.5 -0.5) 
+        (glVertex3f 0.5 -0.5 0.5) 
+        (glVertex3f -0.5 -0.5 0.5) 
         # Right
-        unsafe {         (glVertex3f 0.5 -0.5 -0.5) }
-        unsafe {         (glVertex3f 0.5 0.5 -0.5) }
-        unsafe {         (glVertex3f 0.5 0.5 0.5) }
-        unsafe {         (glVertex3f 0.5 -0.5 0.5) }
+        (glVertex3f 0.5 -0.5 -0.5) 
+        (glVertex3f 0.5 0.5 -0.5) 
+        (glVertex3f 0.5 0.5 0.5) 
+        (glVertex3f 0.5 -0.5 0.5) 
         # Left
-        unsafe {         (glVertex3f -0.5 -0.5 -0.5) }
-        unsafe {         (glVertex3f -0.5 -0.5 0.5) }
-        unsafe {         (glVertex3f -0.5 0.5 0.5) }
-        unsafe {         (glVertex3f -0.5 0.5 -0.5) }
-        unsafe {         (glEnd) }
+        (glVertex3f -0.5 -0.5 -0.5) 
+        (glVertex3f -0.5 -0.5 0.5) 
+        (glVertex3f -0.5 0.5 0.5) 
+        (glVertex3f -0.5 0.5 -0.5) 
+        (glEnd) 
         
-        unsafe {         (glPopMatrix) }
+        (glPopMatrix) 
         
         set i (+ i 1)
     }
@@ -411,7 +411,7 @@ fn main() -> int {
         (println "Using default: examples/audio/demo.mp3")
         (println "")
     } else {
-        unsafe { set audio_file (get_argv 1) }
+        set audio_file (get_argv 1) 
         (print "Loading: ")
         (println audio_file)
         (println "")
@@ -429,19 +429,19 @@ fn main() -> int {
     let window: GLFWwindow = (glfwCreateWindow WINDOW_WIDTH WINDOW_HEIGHT "NanoViz - 3D Music Visualizer" 0 0)
     if (== window 0) {
         (println "✗ Failed to create GLFW window")
-        unsafe {         (glfwTerminate) }
+        (glfwTerminate) 
         return 1
     } else {
         (println "✓ OpenGL window created")
     }
     
-    unsafe {     (glfwMakeContextCurrent window) }
+    (glfwMakeContextCurrent window) 
     
     # Initialize GLEW
     let glew_status: int = (glewInit)
     if (!= glew_status GLEW_OK) {
         (println "✗ Failed to initialize GLEW")
-        unsafe {         (glfwTerminate) }
+        (glfwTerminate) 
         return 1
     } else {
         (println "✓ GLEW initialized")
@@ -454,14 +454,14 @@ fn main() -> int {
     (println "✓ OpenGL 3D setup complete")
     
     # Initialize SDL for audio
-    unsafe {     (SDL_Init SDL_INIT_AUDIO) }
+    (SDL_Init SDL_INIT_AUDIO) 
     
     # Initialize SDL_mixer
     let mixer_init: int = (Mix_Init 8)  # MP3 support
     if (!= mixer_init 8) {
         (println "✗ SDL_mixer initialization failed")
-        unsafe {         (glfwTerminate) }
-        unsafe {         (SDL_Quit) }
+        (glfwTerminate) 
+        (SDL_Quit) 
         return 1
     } else {
         (println "✓ SDL_mixer initialized")
@@ -470,20 +470,20 @@ fn main() -> int {
     let audio_result: int = (Mix_OpenAudio 44100 32784 2 2048)
     if (!= audio_result 0) {
         (println "✗ Failed to open audio device")
-        unsafe {         (Mix_Quit) }
-        unsafe {         (glfwTerminate) }
-        unsafe {         (SDL_Quit) }
+        (Mix_Quit) 
+        (glfwTerminate) 
+        (SDL_Quit) 
         return 1
     } else {
         (println "✓ Audio device opened")
     }
     
     # Initialize audio visualization
-    unsafe {     (nl_audio_viz_init 32784 2) }
+    (nl_audio_viz_init 32784 2) 
     (println "✓ Audio visualization initialized")
     
     # Initialize SDL_TTF for UI
-    unsafe {     (TTF_Init) }
+    (TTF_Init) 
     
     # Load font (needed for UI even though we're using OpenGL)
     let font: TTF_Font = (nl_open_font_portable "Arial" 14)
@@ -511,7 +511,7 @@ fn main() -> int {
     }
     
     # Set volume
-    unsafe {     (Mix_VolumeMusic 80) }
+    (Mix_VolumeMusic 80) 
     
     # State variables
     let mut running: bool = true
@@ -528,11 +528,11 @@ fn main() -> int {
     # Main loop
     while (== (glfwWindowShouldClose window) 0) {
         if (not running) {
-            unsafe {             (glfwSetWindowShouldClose window 1) }
+            (glfwSetWindowShouldClose window 1) 
         } else {}
         
         # Poll GLFW events
-        unsafe {         (glfwPollEvents) }
+        (glfwPollEvents) 
         
         # Space to play/pause (with debounce)
         let space_pressed: bool = (== (glfwGetKey window GLFW_KEY_SPACE) 1)
@@ -540,14 +540,14 @@ fn main() -> int {
             if (not space_was_pressed) {
                 if has_music {
                     if is_playing {
-                        unsafe {                         (Mix_PauseMusic) }
+                        (Mix_PauseMusic) 
                         set is_playing false
                         (println "Paused")
                     } else {
                         if (== frame 0) {
-                            unsafe {                             (Mix_PlayMusic music -1) }
+                            (Mix_PlayMusic music -1) 
                         } else {
-                            unsafe {                             (Mix_ResumeMusic) }
+                            (Mix_ResumeMusic) 
                         }
                         set is_playing true
                         (println "Playing")
@@ -561,27 +561,27 @@ fn main() -> int {
         if (== (glfwGetKey window GLFW_KEY_1) 1) {
             set viz_mode VIZ_TUNNEL
             (println "Mode: Tunnel")
-            unsafe {             (SDL_Delay 200) }
+            (SDL_Delay 200) 
         } else {}
         if (== (glfwGetKey window GLFW_KEY_2) 1) {
             set viz_mode VIZ_SPECTRUM_SPHERE
             (println "Mode: Spectrum Sphere")
-            unsafe {             (SDL_Delay 200) }
+            (SDL_Delay 200) 
         } else {}
         if (== (glfwGetKey window GLFW_KEY_3) 1) {
             set viz_mode VIZ_PARTICLES
             (println "Mode: Particles")
-            unsafe {             (SDL_Delay 200) }
+            (SDL_Delay 200) 
         } else {}
         if (== (glfwGetKey window GLFW_KEY_4) 1) {
             set viz_mode VIZ_WAVEFORM_3D
             (println "Mode: 3D Waveform")
-            unsafe {             (SDL_Delay 200) }
+            (SDL_Delay 200) 
         } else {}
         if (== (glfwGetKey window GLFW_KEY_5) 1) {
             set viz_mode VIZ_FREQUENCY_CUBES
             (println "Mode: Frequency Cubes")
-            unsafe {             (SDL_Delay 200) }
+            (SDL_Delay 200) 
         } else {}
         
         # Update rotation and time
@@ -597,7 +597,7 @@ fn main() -> int {
         let treble: float = (/ (cast_float (nl_audio_viz_get_channel_volume_int 2)) 100.0)
         
         # Clear buffers
-        unsafe {         (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT)) }
+        (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT)) 
         
         # Render current visualization
         if (== viz_mode VIZ_TUNNEL) {
@@ -621,7 +621,7 @@ fn main() -> int {
         }
         
         # Swap buffers
-        unsafe {         (glfwSwapBuffers window) }
+        (glfwSwapBuffers window) 
         
         set frame (+ frame 1)
     }
@@ -630,17 +630,17 @@ fn main() -> int {
     (println "")
     (println "Shutting down...")
     if has_music {
-        unsafe {         (Mix_HaltMusic) }
-        unsafe {         (Mix_FreeMusic music) }
+        (Mix_HaltMusic) 
+        (Mix_FreeMusic music) 
     } else {}
-    unsafe {     (nl_audio_viz_shutdown) }
-    unsafe {     (TTF_CloseFont font) }
-    unsafe {     (TTF_Quit) }
-    unsafe {     (Mix_CloseAudio) }
-    unsafe {     (Mix_Quit) }
-    unsafe {     (glfwDestroyWindow window) }
-    unsafe {     (glfwTerminate) }
-    unsafe {     (SDL_Quit) }
+    (nl_audio_viz_shutdown) 
+    (TTF_CloseFont font) 
+    (TTF_Quit) 
+    (Mix_CloseAudio) 
+    (Mix_Quit) 
+    (glfwDestroyWindow window) 
+    (glfwTerminate) 
+    (SDL_Quit) 
     
     (println "✓ Cleanup complete")
     (print "Total frames rendered: ")

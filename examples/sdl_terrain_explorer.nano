@@ -2,10 +2,10 @@
 # Interactive terrain generation using Perlin noise with SDL UI engine
 # Demonstrates: Procedural generation, chunking, fog of war, camera systems
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 # === ENUMS ===
 enum BiomeType {
@@ -341,21 +341,21 @@ fn render_world(renderer: SDL_Renderer, world: array<Tile>, camera_x: int, camer
                 let color: int = (get_biome_color tile.biome)
                 
                 if (== color 0) {
-                    unsafe { (SDL_SetRenderDrawColor renderer 20 50 150 255)  } # Ocean 
+                    (SDL_SetRenderDrawColor renderer 20 50 150 255)   # Ocean 
                 } else {
                     if (== color 1) {
-                        unsafe { (SDL_SetRenderDrawColor renderer 238 214 175 255)  } # Beach 
+                        (SDL_SetRenderDrawColor renderer 238 214 175 255)   # Beach 
                     } else {
                         if (== color 2) {
-                            unsafe { (SDL_SetRenderDrawColor renderer 124 252 0 255)  } # Plains 
+                            (SDL_SetRenderDrawColor renderer 124 252 0 255)   # Plains 
                         } else {
                             if (== color 3) {
-                                unsafe { (SDL_SetRenderDrawColor renderer 34 139 34 255)  } # Forest 
+                                (SDL_SetRenderDrawColor renderer 34 139 34 255)   # Forest 
                             } else {
                                 if (== color 4) {
-                                    unsafe { (SDL_SetRenderDrawColor renderer 128 128 128 255)  } # Mountain 
+                                    (SDL_SetRenderDrawColor renderer 128 128 128 255)   # Mountain 
                                 } else {
-                                    unsafe { (SDL_SetRenderDrawColor renderer 255 255 255 255)  } # Snow 
+                                    (SDL_SetRenderDrawColor renderer 255 255 255 255)   # Snow 
                                 }
                             }
                         }
@@ -363,13 +363,13 @@ fn render_world(renderer: SDL_Renderer, world: array<Tile>, camera_x: int, camer
                 }
             } else {
                 # Fog of war - dark
-                unsafe {                 (SDL_SetRenderDrawColor renderer 20 20 20 255) }
+                (SDL_SetRenderDrawColor renderer 20 20 20 255) 
             }
             
             # Draw tile
             let pixel_x: int = (* screen_x TILE_SIZE)
             let pixel_y: int = (* screen_y TILE_SIZE)
-            unsafe {             (nl_sdl_render_fill_rect renderer pixel_x pixel_y TILE_SIZE TILE_SIZE) }
+            (nl_sdl_render_fill_rect renderer pixel_x pixel_y TILE_SIZE TILE_SIZE) 
             
             set screen_x (+ screen_x 1)
         }
@@ -405,42 +405,42 @@ fn render_world_animated(renderer: SDL_Renderer, world: array<Tile>, camera_x: i
                     # Deep ocean - very dark blue with shimmer
                     let wave_offset: int = (% (+ anim_frame (% (+ world_x world_y) 10)) 30)
                     if (< wave_offset 10) {
-                        unsafe {                         (SDL_SetRenderDrawColor renderer 15 35 85 255) }
+                        (SDL_SetRenderDrawColor renderer 15 35 85 255) 
                     } else {
-                        unsafe {                         (SDL_SetRenderDrawColor renderer 10 25 70 255) }
+                        (SDL_SetRenderDrawColor renderer 10 25 70 255) 
                     }
                 } else {
                     if (== color 1) {
                         # Ocean - dark blue with shimmer
                         let wave_offset: int = (% (+ anim_frame (% (+ world_x world_y) 10)) 30)
                         if (< wave_offset 10) {
-                            unsafe {                             (SDL_SetRenderDrawColor renderer 30 60 170 255) }
+                            (SDL_SetRenderDrawColor renderer 30 60 170 255) 
                         } else {
-                            unsafe {                             (SDL_SetRenderDrawColor renderer 20 50 150 255) }
+                            (SDL_SetRenderDrawColor renderer 20 50 150 255) 
                         }
                     } else {
                         if (== color 2) {
-                            unsafe { (SDL_SetRenderDrawColor renderer 238 214 175 255)  } # Beach - sand 
+                            (SDL_SetRenderDrawColor renderer 238 214 175 255)   # Beach - sand 
                         } else {
                             if (== color 3) {
-                                unsafe { (SDL_SetRenderDrawColor renderer 80 120 60 255)  } # Wetlands - muddy green 
+                                (SDL_SetRenderDrawColor renderer 80 120 60 255)   # Wetlands - muddy green 
                             } else {
                                 if (== color 4) {
-                                    unsafe { (SDL_SetRenderDrawColor renderer 124 252 0 255)  } # Plains - bright green 
+                                    (SDL_SetRenderDrawColor renderer 124 252 0 255)   # Plains - bright green 
                                 } else {
                                     if (== color 5) {
-                                        unsafe { (SDL_SetRenderDrawColor renderer 34 139 34 255)  } # Forest - dark green 
+                                        (SDL_SetRenderDrawColor renderer 34 139 34 255)   # Forest - dark green 
                                     } else {
                                         if (== color 6) {
-                                            unsafe { (SDL_SetRenderDrawColor renderer 139 90 43 255)  } # Hills - brown 
+                                            (SDL_SetRenderDrawColor renderer 139 90 43 255)   # Hills - brown 
                                         } else {
                                             if (== color 7) {
-                                                unsafe { (SDL_SetRenderDrawColor renderer 128 128 128 255)  } # Mountain - gray 
+                                                (SDL_SetRenderDrawColor renderer 128 128 128 255)   # Mountain - gray 
                                             } else {
                                                 if (== color 8) {
-                                                    unsafe { (SDL_SetRenderDrawColor renderer 90 90 90 255)  } # High mountain - dark gray 
+                                                    (SDL_SetRenderDrawColor renderer 90 90 90 255)   # High mountain - dark gray 
                                                 } else {
-                                                    unsafe { (SDL_SetRenderDrawColor renderer 255 255 255 255)  } # Snow - white 
+                                                    (SDL_SetRenderDrawColor renderer 255 255 255 255)   # Snow - white 
                                                 }
                                             }
                                         }
@@ -451,13 +451,13 @@ fn render_world_animated(renderer: SDL_Renderer, world: array<Tile>, camera_x: i
                     }
                 }
             } else {
-                unsafe {                 (SDL_SetRenderDrawColor renderer 20 20 20 255) }
+                (SDL_SetRenderDrawColor renderer 20 20 20 255) 
             }
             
             # Draw tile
             let pixel_x: int = (* screen_x TILE_SIZE)
             let pixel_y: int = (* screen_y TILE_SIZE)
-            unsafe {             (nl_sdl_render_fill_rect renderer pixel_x pixel_y TILE_SIZE TILE_SIZE) }
+            (nl_sdl_render_fill_rect renderer pixel_x pixel_y TILE_SIZE TILE_SIZE) 
             
             set screen_x (+ screen_x 1)
         }
@@ -505,33 +505,33 @@ fn render_world_3d(renderer: SDL_Renderer, world: array<Tile>, camera_x: int, ca
                 if (> height_offset 2) {
                     # Darker shades for vertical faces
                     if (== color 0) {
-                        unsafe { (SDL_SetRenderDrawColor renderer 5 15 40 255)  } # Deep ocean darker 
+                        (SDL_SetRenderDrawColor renderer 5 15 40 255)   # Deep ocean darker 
                     } else {
                         if (== color 1) {
-                            unsafe { (SDL_SetRenderDrawColor renderer 10 25 75 255)  } # Ocean darker 
+                            (SDL_SetRenderDrawColor renderer 10 25 75 255)   # Ocean darker 
                         } else {
                             if (== color 2) {
-                                unsafe { (SDL_SetRenderDrawColor renderer 180 160 130 255)  } # Beach darker 
+                                (SDL_SetRenderDrawColor renderer 180 160 130 255)   # Beach darker 
                             } else {
                                 if (== color 3) {
-                                    unsafe { (SDL_SetRenderDrawColor renderer 50 75 35 255)  } # Wetlands darker 
+                                    (SDL_SetRenderDrawColor renderer 50 75 35 255)   # Wetlands darker 
                                 } else {
                                     if (== color 4) {
-                                        unsafe { (SDL_SetRenderDrawColor renderer 90 180 0 255)  } # Plains darker 
+                                        (SDL_SetRenderDrawColor renderer 90 180 0 255)   # Plains darker 
                                     } else {
                                         if (== color 5) {
-                                            unsafe { (SDL_SetRenderDrawColor renderer 20 90 20 255)  } # Forest darker 
+                                            (SDL_SetRenderDrawColor renderer 20 90 20 255)   # Forest darker 
                                         } else {
                                             if (== color 6) {
-                                                unsafe { (SDL_SetRenderDrawColor renderer 90 60 30 255)  } # Hills darker 
+                                                (SDL_SetRenderDrawColor renderer 90 60 30 255)   # Hills darker 
                                             } else {
                                                 if (== color 7) {
-                                                    unsafe { (SDL_SetRenderDrawColor renderer 80 80 80 255)  } # Mountain darker 
+                                                    (SDL_SetRenderDrawColor renderer 80 80 80 255)   # Mountain darker 
                                                 } else {
                                                     if (== color 8) {
-                                                        unsafe { (SDL_SetRenderDrawColor renderer 60 60 60 255)  } # High mountain darker 
+                                                        (SDL_SetRenderDrawColor renderer 60 60 60 255)   # High mountain darker 
                                                     } else {
-                                                        unsafe { (SDL_SetRenderDrawColor renderer 200 200 200 255)  } # Snow darker 
+                                                        (SDL_SetRenderDrawColor renderer 200 200 200 255)   # Snow darker 
                                                     }
                                                 }
                                             }
@@ -541,41 +541,41 @@ fn render_world_3d(renderer: SDL_Renderer, world: array<Tile>, camera_x: int, ca
                             }
                         }
                     }
-                    unsafe {                     (nl_sdl_render_fill_rect renderer base_pixel_x pixel_y TILE_SIZE (+ height_offset 2)) }
+                    (nl_sdl_render_fill_rect renderer base_pixel_x pixel_y TILE_SIZE (+ height_offset 2)) 
                 } else {}
                 
                 # Draw top face
                 if (== color 0) {
-                    unsafe { (SDL_SetRenderDrawColor renderer 10 25 70 255)  } # Deep ocean 
+                    (SDL_SetRenderDrawColor renderer 10 25 70 255)   # Deep ocean 
                 } else {
                     if (== color 1) {
-                        unsafe { (SDL_SetRenderDrawColor renderer 20 50 150 255)  } # Ocean 
+                        (SDL_SetRenderDrawColor renderer 20 50 150 255)   # Ocean 
                     } else {
                         if (== color 2) {
-                            unsafe { (SDL_SetRenderDrawColor renderer 238 214 175 255)  } # Beach 
+                            (SDL_SetRenderDrawColor renderer 238 214 175 255)   # Beach 
                         } else {
                             if (== color 3) {
-                                unsafe { (SDL_SetRenderDrawColor renderer 80 120 60 255)  } # Wetlands 
+                                (SDL_SetRenderDrawColor renderer 80 120 60 255)   # Wetlands 
                             } else {
                                 if (== color 4) {
-                                    unsafe { (SDL_SetRenderDrawColor renderer 124 252 0 255)  } # Plains 
+                                    (SDL_SetRenderDrawColor renderer 124 252 0 255)   # Plains 
                                 } else {
                                     if (== color 5) {
-                                        unsafe { (SDL_SetRenderDrawColor renderer 34 139 34 255)  } # Forest 
+                                        (SDL_SetRenderDrawColor renderer 34 139 34 255)   # Forest 
                                     } else {
                                         if (== color 6) {
-                                            unsafe { (SDL_SetRenderDrawColor renderer 139 90 43 255)  } # Hills 
+                                            (SDL_SetRenderDrawColor renderer 139 90 43 255)   # Hills 
                                         } else {
                                             if (== color 7) {
-                                                unsafe { (SDL_SetRenderDrawColor renderer 128 128 128 255)  } # Mountain 
+                                                (SDL_SetRenderDrawColor renderer 128 128 128 255)   # Mountain 
                                             } else {
                                                 if (== color 8) {
-                                                    unsafe { (SDL_SetRenderDrawColor renderer 90 90 90 255)  } # High mountain 
+                                                    (SDL_SetRenderDrawColor renderer 90 90 90 255)   # High mountain 
                                                 } else {
                                                     if (== color 9) {
-                                                        unsafe { (SDL_SetRenderDrawColor renderer 255 255 255 255)  } # Snow 
+                                                        (SDL_SetRenderDrawColor renderer 255 255 255 255)   # Snow 
                                                     } else {
-                                                        unsafe { (SDL_SetRenderDrawColor renderer 30 60 170 255)  } # Animated water 
+                                                        (SDL_SetRenderDrawColor renderer 30 60 170 255)   # Animated water 
                                                     }
                                                 }
                                             }
@@ -586,12 +586,12 @@ fn render_world_3d(renderer: SDL_Renderer, world: array<Tile>, camera_x: int, ca
                         }
                     }
                 }
-                unsafe {                 (nl_sdl_render_fill_rect renderer base_pixel_x pixel_y TILE_SIZE TILE_SIZE) }
+                (nl_sdl_render_fill_rect renderer base_pixel_x pixel_y TILE_SIZE TILE_SIZE) 
             } else {
-                unsafe {                 (SDL_SetRenderDrawColor renderer 20 20 20 255) }
+                (SDL_SetRenderDrawColor renderer 20 20 20 255) 
                 let pixel_x: int = (* screen_x TILE_SIZE)
                 let pixel_y: int = (* screen_y TILE_SIZE)
-                unsafe {                 (nl_sdl_render_fill_rect renderer pixel_x pixel_y TILE_SIZE TILE_SIZE) }
+                (nl_sdl_render_fill_rect renderer pixel_x pixel_y TILE_SIZE TILE_SIZE) 
             }
             
             set screen_x (+ screen_x 1)
@@ -608,19 +608,19 @@ shadow render_world_3d {
 # Draw UI overlay with controls
 fn draw_ui_overlay(renderer: SDL_Renderer, font: TTF_Font, view_mode: int) -> void {
     # Draw semi-transparent dark bar at bottom
-    unsafe {     (SDL_SetRenderDrawColor renderer 0 0 0 200) }
-    unsafe {     (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 50) WINDOW_WIDTH 50) }
+    (SDL_SetRenderDrawColor renderer 0 0 0 200) 
+    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 50) WINDOW_WIDTH 50) 
     
     # Draw help text using SDL_ttf
-    unsafe {     (nl_draw_text_blended renderer font "Arrow Keys = Move" 10 (- WINDOW_HEIGHT 40) 50 100 200 255) }
-    unsafe {     (nl_draw_text_blended renderer font "R = Regenerate" 10 (- WINDOW_HEIGHT 25) 50 200 50 255) }
-    unsafe {     (nl_draw_text_blended renderer font "3 = Toggle 3D" 200 (- WINDOW_HEIGHT 40) 200 200 50 255) }
+    (nl_draw_text_blended renderer font "Arrow Keys = Move" 10 (- WINDOW_HEIGHT 40) 50 100 200 255) 
+    (nl_draw_text_blended renderer font "R = Regenerate" 10 (- WINDOW_HEIGHT 25) 50 200 50 255) 
+    (nl_draw_text_blended renderer font "3 = Toggle 3D" 200 (- WINDOW_HEIGHT 40) 200 200 50 255) 
     
     # Draw mode indicator on right side
     if (== view_mode VIEW_3D) {
-        unsafe {         (nl_draw_text_blended renderer font "3D View" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 32) 100 255 100 255) }
+        (nl_draw_text_blended renderer font "3D View" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 32) 100 255 100 255) 
     } else {
-        unsafe {         (nl_draw_text_blended renderer font "2D View" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 32) 100 100 255 255) }
+        (nl_draw_text_blended renderer font "2D View" (- WINDOW_WIDTH 100) (- WINDOW_HEIGHT 32) 100 100 255 255) 
     }
 }
 
@@ -641,27 +641,27 @@ fn main() -> int {
     # Create window
     let window: SDL_Window = (SDL_CreateWindow "Terrain Explorer v2.0" 536805376 536805376 WINDOW_WIDTH WINDOW_HEIGHT 4)
     if (== window 0) {
-        unsafe {         (SDL_Quit) }
+        (SDL_Quit) 
         return 1
     } else {}
     
     # Create renderer
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
     if (== renderer 0) {
-        unsafe {         (SDL_DestroyWindow window) }
-        unsafe {         (SDL_Quit) }
+        (SDL_DestroyWindow window) 
+        (SDL_Quit) 
         return 1
     } else {}
     
     # Initialize SDL_ttf
-    unsafe {     (TTF_Init) }
+    (TTF_Init) 
     
     # Load font
     let font: TTF_Font = (nl_open_font_portable "Arial" 16)
     if (== font 0) {
-        unsafe {         (SDL_DestroyRenderer renderer) }
-        unsafe {         (SDL_DestroyWindow window) }
-        unsafe {         (SDL_Quit) }
+        (SDL_DestroyRenderer renderer) 
+        (SDL_DestroyWindow window) 
+        (SDL_Quit) 
         return 1
     } else {}
     
@@ -801,8 +801,8 @@ fn main() -> int {
         }
         
         # Render
-        unsafe {         (SDL_SetRenderDrawColor renderer 0 0 0 255) }
-        unsafe {         (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer 0 0 0 255) 
+        (SDL_RenderClear renderer) 
         
         # Choose rendering mode
         if (== view_mode VIEW_3D) {
@@ -816,19 +816,19 @@ fn main() -> int {
         
         # Draw on-screen help
         
-        unsafe {         (SDL_RenderPresent renderer) }
+        (SDL_RenderPresent renderer) 
         
         # Frame delay
-        unsafe {         (SDL_Delay 16) }
+        (SDL_Delay 16) 
         set frame_count (+ frame_count 1)
     }
     
     # Cleanup
-    unsafe {     (TTF_CloseFont font) }
-    unsafe {     (TTF_Quit) }
-    unsafe {     (SDL_DestroyRenderer renderer) }
-    unsafe {     (SDL_DestroyWindow window) }
-    unsafe {     (SDL_Quit) }
+    (TTF_CloseFont font) 
+    (TTF_Quit) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (SDL_Quit) 
     
     return 0
 }

@@ -1,5 +1,5 @@
 // HTTP Client Demo
-import "std/http/http.nano" as HTTP
+module "std/http/http.nano as HTTP" as HTTP
 
 fn bool_to_string(b: bool) -> string {
     return (cond ((== b true) "true") (else "false"))

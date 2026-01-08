@@ -1,7 +1,7 @@
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 
 extern fn rand() -> int
 extern fn srand(seed: int) -> void
@@ -140,8 +140,8 @@ fn render_grid(renderer: SDL_Renderer, grid: array<int>, color_step: int, palett
         while (< x GRID_WIDTH) {
             let idx: int = (grid_index x y)
             if (== (at grid idx) 1) {
-                unsafe { (SDL_SetRenderDrawColor renderer r g b 255) }
-                unsafe { (nl_sdl_render_fill_rect renderer (* x CELL_SIZE) (* y CELL_SIZE) CELL_SIZE CELL_SIZE) }
+                (SDL_SetRenderDrawColor renderer r g b 255) 
+                (nl_sdl_render_fill_rect renderer (* x CELL_SIZE) (* y CELL_SIZE) CELL_SIZE CELL_SIZE) 
             } else {}
             set x (+ x 1)
         }
@@ -152,15 +152,15 @@ fn render_grid(renderer: SDL_Renderer, grid: array<int>, color_step: int, palett
 shadow render_grid { assert true }
 
 fn main() -> int {
-    unsafe { (SDL_Init SDL_INIT_VIDEO) }
-    unsafe { (TTF_Init) }
+    (SDL_Init SDL_INIT_VIDEO) 
+    (TTF_Init) 
 
     let window: SDL_Window = (SDL_CreateWindow "SDL Game of Life" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
     let font: TTF_Font = (nl_open_font_portable "Arial" 14)
 
     let t: int = (time 0)
-    unsafe { (srand t) }
+    (srand t) 
 
     let mut grid: array<int> = []
     let mut init_i: int = 0
@@ -187,7 +187,7 @@ fn main() -> int {
             set running false
         } else {
             let mut key: int = -1
-            unsafe { set key (nl_sdl_poll_keypress) }
+            set key (nl_sdl_poll_keypress) 
             if (== key 41) {
                 set running false
             } else {
@@ -205,24 +205,22 @@ fn main() -> int {
             set color_step (+ color_step 1)
         } else {}
 
-        unsafe { (SDL_SetRenderDrawColor renderer 4 4 8 255) }
-        unsafe { (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer 4 4 8 255) 
+        (SDL_RenderClear renderer) 
         (render_grid renderer grid color_step color_palette)
 
         let hud_text: string = (+ "Generation: " (+ (int_to_string generation) " (press Q to re-seed)"))
-        unsafe { (nl_draw_text_blended renderer font hud_text 10 10 230 230 240 255) }
+        (nl_draw_text_blended renderer font hud_text 10 10 230 230 240 255) 
 
-        unsafe { (SDL_RenderPresent renderer) }
-        unsafe { (SDL_Delay 60) }
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 60) 
     }
 
-    unsafe {
-        (TTF_CloseFont font)
-        (TTF_Quit)
-        (SDL_DestroyRenderer renderer)
-        (SDL_DestroyWindow window)
-        (SDL_Quit)
-    }
+    (TTF_CloseFont font)
+    (TTF_Quit)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
 
     return 0
 }

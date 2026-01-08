@@ -4,11 +4,11 @@
  * and Moby Motion's "Blender - Bullet Physics (HD)" tower cascade video.
  */
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
-import "modules/bullet/bullet.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+unsafe module "modules/bullet/bullet.nano"
 
 /* Window + camera */
 let WINDOW_WIDTH: int = 1400
@@ -109,11 +109,9 @@ fn build_tower_field() -> TowerField {
     let mut tower_ids: array<int> = []
     let mut tower_initial_tops: array<float> = []
 
-    unsafe {
-        (nl_bullet_create_rigid_box 0.0 TOWER_BASE_Y 0.0 120.0 GROUND_HALF_HEIGHT 60.0 0.0 0.4)
-        (nl_bullet_create_rigid_box (- 0.0 30.0) (- 0.0 40.0) 0.0 WALL_HALF_THICKNESS 25.0 60.0 0.0 0.3)
-        (nl_bullet_create_rigid_box 30.0 (- 0.0 40.0) 0.0 WALL_HALF_THICKNESS 25.0 60.0 0.0 0.3)
-    }
+    (nl_bullet_create_rigid_box 0.0 TOWER_BASE_Y 0.0 120.0 GROUND_HALF_HEIGHT 60.0 0.0 0.4)
+    (nl_bullet_create_rigid_box (- 0.0 30.0) (- 0.0 40.0) 0.0 WALL_HALF_THICKNESS 25.0 60.0 0.0 0.3)
+    (nl_bullet_create_rigid_box 30.0 (- 0.0 40.0) 0.0 WALL_HALF_THICKNESS 25.0 60.0 0.0 0.3)
 
     let tower_spacing: float = TOWER_SPACING
     let layer_step: float = (* BLOCK_HALF_HEIGHT 2.0)
@@ -132,9 +130,7 @@ fn build_tower_field() -> TowerField {
             let block_x: float = (+ tower_center_x lean_amount)
             let block_y: float = (+ base_y (* (cast_float layer) layer_step))
             let mut handle: int = 0
-            unsafe {
-                set handle (nl_bullet_create_rigid_box block_x block_y 0.0 BLOCK_HALF_WIDTH BLOCK_HALF_HEIGHT BLOCK_HALF_DEPTH BLOCK_MASS 0.15)
-            }
+            set handle (nl_bullet_create_rigid_box block_x block_y 0.0 BLOCK_HALF_WIDTH BLOCK_HALF_HEIGHT BLOCK_HALF_DEPTH BLOCK_MASS 0.15)
             set handles (array_push handles handle)
             set tower_ids (array_push tower_ids tower_index)
             set layer (+ layer 1)
@@ -150,10 +146,8 @@ shadow build_tower_field {
 }
 
 fn reset_tower_field() -> TowerField {
-    unsafe {
-        (nl_bullet_cleanup)
-        (nl_bullet_init)
-    }
+    (nl_bullet_cleanup)
+    (nl_bullet_init)
     return (build_tower_field)
 }
 
@@ -205,7 +199,7 @@ fn render_overlay(renderer: SDL_Renderer, font: TTF_Font, progress: float) -> vo
     }
     let clamped: float = (clamp_ratio progress)
     let message: string = (+ "Click to reset towers  ·  Collapse: " (format_percent clamped))
-    unsafe { (nl_draw_text_blended renderer font message 18 18 235 235 245 255) }
+    (nl_draw_text_blended renderer font message 18 18 235 235 245 255) 
 }
 
 shadow render_overlay {
@@ -220,25 +214,23 @@ fn main() -> int {
     (println "ESC to exit")
     (println "")
 
-    unsafe { (SDL_Init SDL_INIT_VIDEO) }
+    (SDL_Init SDL_INIT_VIDEO) 
     let window: SDL_Window = (SDL_CreateWindow
         "Bullet Mega Stack Collapse"
         SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED
         WINDOW_WIDTH WINDOW_HEIGHT
         SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
-    unsafe { (TTF_Init) }
+    (TTF_Init) 
     let font: TTF_Font = (nl_open_font_portable "Arial" 16)
 
     let mut bullet_ok: int = 0
-    unsafe { set bullet_ok (nl_bullet_init) }
+    set bullet_ok (nl_bullet_init) 
     if (== bullet_ok 0) {
         (println "Failed to initialize Bullet")
-        unsafe {
-            (SDL_DestroyRenderer renderer)
-            (SDL_DestroyWindow window)
-            (SDL_Quit)
-        }
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
         return 1
     }
 
@@ -256,7 +248,7 @@ fn main() -> int {
 
     while running {
         let mut frame_start: int = 0
-        unsafe { set frame_start (SDL_GetTicks) }
+        set frame_start (SDL_GetTicks) 
 
         if (== (nl_sdl_poll_event_quit) 1) {
             set running false
@@ -273,7 +265,7 @@ fn main() -> int {
             (println "↺ Towers reset")
         } else {}
 
-        unsafe { (nl_bullet_step FRAME_TIME) }
+        (nl_bullet_step FRAME_TIME) 
 
         if (== (% frame_count 120) 0) {
             let mut current_tops: array<float> = (array_new TOWER_COUNT (- 0.0 1000.0))
@@ -284,7 +276,7 @@ fn main() -> int {
                 let handle: int = (at handles i)
                 let tower_id: int = (at tower_ids i)
                 let mut y: float = 0.0
-                unsafe { set y (nl_bullet_get_rigid_body_y handle) }
+                set y (nl_bullet_get_rigid_body_y handle) 
                 let existing: float = (at current_tops tower_id)
                 if (> y existing) {
                     (array_set current_tops tower_id y)
@@ -296,18 +288,14 @@ fn main() -> int {
             (println (+ "Collapse completion: " (format_percent collapse_completion)))
         }
 
-        unsafe {
-            (SDL_SetRenderDrawColor renderer COLOR_BG_R COLOR_BG_G COLOR_BG_B 255)
-            (SDL_RenderClear renderer)
-        }
+        (SDL_SetRenderDrawColor renderer COLOR_BG_R COLOR_BG_G COLOR_BG_B 255)
+        (SDL_RenderClear renderer)
 
         /* Ground */
         let ground_screen_x: int = (project_x 0.0)
         let ground_screen_y: int = (project_y TOWER_BASE_Y)
-        unsafe {
-            (SDL_SetRenderDrawColor renderer COLOR_GROUND_R COLOR_GROUND_G COLOR_GROUND_B 255)
-            (nl_sdl_render_fill_rect renderer (- ground_screen_x 2000) (- ground_screen_y ground_height_px) 4000 (+ ground_height_px 40))
-        }
+        (SDL_SetRenderDrawColor renderer COLOR_GROUND_R COLOR_GROUND_G COLOR_GROUND_B 255)
+        (nl_sdl_render_fill_rect renderer (- ground_screen_x 2000) (- ground_screen_y ground_height_px) 4000 (+ ground_height_px 40))
 
         /* Blocks */
         let handles_draw: array<int> = field.handles
@@ -318,45 +306,39 @@ fn main() -> int {
             let tower_id: int = (at tower_ids_draw j)
             let mut x: float = 0.0
             let mut y: float = 0.0
-            unsafe {
-                set x (nl_bullet_get_rigid_body_x handle)
-                set y (nl_bullet_get_rigid_body_y handle)
-            }
+            set x (nl_bullet_get_rigid_body_x handle)
+            set y (nl_bullet_get_rigid_body_y handle)
             let screen_x: int = (project_x x)
             let screen_y: int = (project_y y)
             let brightness: int = (+ 60 (* (% tower_id 3) 30))
             let block_r: int = (clamp_int (+ COLOR_BLOCK_BASE_R (- brightness 10)) 0 255)
             let block_g: int = (clamp_int (+ COLOR_BLOCK_BASE_G brightness) 0 255)
             let block_b: int = (clamp_int (+ COLOR_BLOCK_BASE_B (/ brightness 2)) 0 255)
-            unsafe {
-                (SDL_SetRenderDrawColor renderer block_r block_g block_b 255)
-                (nl_sdl_render_fill_rect renderer (- screen_x (/ block_width_px 2)) (- screen_y (/ block_height_px 2)) block_width_px block_height_px)
-            }
+            (SDL_SetRenderDrawColor renderer block_r block_g block_b 255)
+            (nl_sdl_render_fill_rect renderer (- screen_x (/ block_width_px 2)) (- screen_y (/ block_height_px 2)) block_width_px block_height_px)
             set j (+ j 1)
         }
 
         (render_overlay renderer font collapse_completion)
-        unsafe { (SDL_RenderPresent renderer) }
+        (SDL_RenderPresent renderer) 
 
         set frame_count (+ frame_count 1)
 
         let mut frame_end: int = 0
-        unsafe { set frame_end (SDL_GetTicks) }
+        set frame_end (SDL_GetTicks) 
         let frame_duration: int = (- frame_end frame_start)
         let frame_budget: int = (/ 1000 TARGET_FPS)
         if (< frame_duration frame_budget) {
-            unsafe { (SDL_Delay (- frame_budget frame_duration)) }
+            (SDL_Delay (- frame_budget frame_duration)) 
         }
     }
 
-    unsafe {
-        (TTF_CloseFont font)
-        (TTF_Quit)
-        (nl_bullet_cleanup)
-        (SDL_DestroyRenderer renderer)
-        (SDL_DestroyWindow window)
-        (SDL_Quit)
-    }
+    (TTF_CloseFont font)
+    (TTF_Quit)
+    (nl_bullet_cleanup)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
 
     (println "Demo finished")
     return 0

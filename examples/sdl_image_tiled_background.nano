@@ -7,9 +7,9 @@
 # - Creating seamless tiled backgrounds
 # - Scrolling backgrounds
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_image/sdl_image.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_image/sdl_image.nano"
 
 fn main() -> int {
     (println "=== SDL_image Tiled Background Demo ===")
@@ -18,7 +18,7 @@ fn main() -> int {
     (println "")
     
     # Initialize SDL and SDL_image
-    unsafe { (SDL_Init 32) }
+    (SDL_Init 32) 
     let img_init: int = (IMG_Init IMG_INIT_PNG)
     if (== img_init 0) {
         (println "Failed to initialize SDL_image")
@@ -84,8 +84,8 @@ fn main() -> int {
         set frame (+ frame 1)
         
         # Clear screen
-        unsafe { (SDL_SetRenderDrawColor renderer 20 20 30 255) }
-        unsafe { (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer 20 20 30 255) 
+        (SDL_RenderClear renderer) 
         
         # Draw tiled background
         let mut tile_y_idx: int = 0
@@ -126,10 +126,10 @@ fn main() -> int {
                     set alpha 255
                 } else {}
                 
-                unsafe { (nl_img_set_texture_alpha current_tile alpha) }
+                (nl_img_set_texture_alpha current_tile alpha) 
                 
                 # Draw tile
-                unsafe { (nl_img_render_texture renderer current_tile tile_x tile_y tile_size tile_size) }
+                (nl_img_render_texture renderer current_tile tile_x tile_y tile_size tile_size) 
                 
                 set tile_x_idx (+ tile_x_idx 1)
             }
@@ -137,25 +137,25 @@ fn main() -> int {
         }
         
         # Draw info overlay
-        unsafe { (SDL_SetRenderDrawColor renderer 0 0 0 180) }
-        unsafe { (nl_sdl_render_fill_rect renderer 10 10 200 60) }
+        (SDL_SetRenderDrawColor renderer 0 0 0 180) 
+        (nl_sdl_render_fill_rect renderer 10 10 200 60) 
         
         # Present
-        unsafe { (SDL_RenderPresent renderer) }
-        unsafe { (SDL_Delay 16) }
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
     }
     
     # Cleanup
     (println "")
     (println "Cleaning up...")
-    unsafe { (nl_img_destroy_texture tile1) }
-    unsafe { (nl_img_destroy_texture tile2) }
-    unsafe { (nl_img_destroy_texture tile3) }
+    (nl_img_destroy_texture tile1) 
+    (nl_img_destroy_texture tile2) 
+    (nl_img_destroy_texture tile3) 
     
-    unsafe { (SDL_DestroyRenderer renderer) }
-    unsafe { (SDL_DestroyWindow window) }
-    unsafe { (IMG_Quit) }
-    unsafe { (SDL_Quit) }
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (IMG_Quit) 
+    (SDL_Quit) 
     
     (println "✓ Tiled background demo completed")
     return 0

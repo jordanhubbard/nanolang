@@ -1,11 +1,11 @@
 # Extended UI Widgets Demo
 # Showcases ALL widgets including new ones: text input, dropdown, number spinner, tooltips
 
-import "modules/sdl/sdl.nano"
-import "modules/sdl_helpers/sdl_helpers.nano"
-import "modules/sdl_ttf/sdl_ttf.nano"
-import "modules/sdl_ttf/sdl_ttf_helpers.nano"
-import "modules/ui_widgets/ui_widgets.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+module "modules/ui_widgets/ui_widgets.nano"
 
 let WINDOW_WIDTH: int = 1100
 let WINDOW_HEIGHT: int = 800
@@ -24,8 +24,8 @@ fn main() -> int {
     (println "")
     
     # Initialize SDL
-    unsafe {     (SDL_Init SDL_INIT_VIDEO) }
-    unsafe {     (TTF_Init) }
+    (SDL_Init SDL_INIT_VIDEO) 
+    (TTF_Init) 
     
     # Create window and renderer
     let window: SDL_Window = (SDL_CreateWindow "Extended UI Widgets Demo" 
@@ -42,10 +42,10 @@ fn main() -> int {
     
     if (== font 0) {
         (println "✗ Failed to load font")
-        unsafe {         (SDL_DestroyRenderer renderer) }
-        unsafe {         (SDL_DestroyWindow window) }
-        unsafe {         (TTF_Quit) }
-        unsafe {         (SDL_Quit) }
+        (SDL_DestroyRenderer renderer) 
+        (SDL_DestroyWindow window) 
+        (TTF_Quit) 
+        (SDL_Quit) 
         return 1
     } else {}
     
@@ -100,7 +100,7 @@ fn main() -> int {
     # Main loop
     while running {
         # Update mouse state FIRST (required for all interactive widgets!)
-        unsafe { (nl_ui_update_mouse_state) }
+        (nl_ui_update_mouse_state) 
         
         # Poll events
         if (== (nl_sdl_poll_event_quit) 1) {
@@ -114,18 +114,18 @@ fn main() -> int {
         } else {}
         
         # Clear screen
-        unsafe {         (SDL_SetRenderDrawColor renderer 25 25 35 255) }
-        unsafe {         (SDL_RenderClear renderer) }
+        (SDL_SetRenderDrawColor renderer 25 25 35 255) 
+        (SDL_RenderClear renderer) 
         
         # === TITLE ===
-        unsafe {         (nl_ui_label renderer title_font "Extended UI Widgets Demo" 160 20 200 200 255 255) }
+        (nl_ui_label renderer title_font "Extended UI Widgets Demo" 160 20 200 200 255 255) 
         
         # === LEFT COLUMN: Basic Widgets ===
-        unsafe {         (nl_ui_panel renderer 20 70 350 300 30 30 40 220) }
-        unsafe {         (nl_ui_label renderer font "Basic Widgets" 30 75 220 220 255 255) }
+        (nl_ui_panel renderer 20 70 350 300 30 30 40 220) 
+        (nl_ui_label renderer font "Basic Widgets" 30 75 220 220 255 255) 
         
         # Buttons
-        unsafe {         (nl_ui_label renderer font "Buttons:" 30 105 180 180 200 255) }
+        (nl_ui_label renderer font "Buttons:" 30 105 180 180 200 255) 
         if (== (nl_ui_button renderer font "Click Me!" 30 130 120 35) 1) {
             set click_count (+ click_count 1)
         } else {}
@@ -141,35 +141,35 @@ fn main() -> int {
         if (== (nl_ui_button renderer font "Quit" 250 130 100 35) 1) {
             set running false
         } else {}
-        unsafe {         (nl_ui_label renderer font "Clicks:" 30 180 80 200 150 255) }
-        unsafe {         (nl_ui_label renderer font (int_to_string click_count) 90 180 150 255 150 255) }
+        (nl_ui_label renderer font "Clicks:" 30 180 80 200 150 255) 
+        (nl_ui_label renderer font (int_to_string click_count) 90 180 150 255 150 255) 
         
         # Slider
-        unsafe {         (nl_ui_label renderer font "Slider:" 30 210 180 180 200 255) }
+        (nl_ui_label renderer font "Slider:" 30 210 180 180 200 255) 
         set volume (nl_ui_slider renderer 30 235 300 25 volume)
         let vol_percent: int = (cast_int (* volume 100.0))
-        unsafe {         (nl_ui_label renderer font "Volume:" 30 270 80 200 255 255) }
-        unsafe {         (nl_ui_label renderer font (int_to_string vol_percent) 95 270 100 255 255 255) }
+        (nl_ui_label renderer font "Volume:" 30 270 80 200 255 255) 
+        (nl_ui_label renderer font (int_to_string vol_percent) 95 270 100 255 255 255) 
         
         # Progress bar
-        unsafe {         (nl_ui_label renderer font "Progress:" 30 300 180 180 200 255) }
+        (nl_ui_label renderer font "Progress:" 30 300 180 180 200 255) 
         if (== auto_increment 1) {
             set progress (+ progress 0.002)
             if (> progress 1.0) { set progress 0.0 } else {}
         } else {}
-        unsafe {         (nl_ui_progress_bar renderer 30 325 300 20 progress) }
+        (nl_ui_progress_bar renderer 30 325 300 20 progress) 
         
         # === MIDDLE COLUMN: Input Widgets ===
-        unsafe {         (nl_ui_panel renderer 390 70 350 300 30 30 40 220) }
-        unsafe {         (nl_ui_label renderer font "Input Widgets" 400 75 220 220 255 255) }
+        (nl_ui_panel renderer 390 70 350 300 30 30 40 220) 
+        (nl_ui_label renderer font "Input Widgets" 400 75 220 220 255 255) 
         
         # Checkboxes
-        unsafe {         (nl_ui_label renderer font "Checkboxes:" 400 105 180 180 200 255) }
+        (nl_ui_label renderer font "Checkboxes:" 400 105 180 180 200 255) 
         set auto_increment (nl_ui_checkbox renderer font "Auto-increment progress" 400 130 auto_increment)
         set show_tooltips (nl_ui_checkbox renderer font "Show tooltips" 400 155 show_tooltips)
         
         # Radio buttons - FIXED!
-        unsafe {         (nl_ui_label renderer font "Color Mode:" 400 190 180 180 200 255) }
+        (nl_ui_label renderer font "Color Mode:" 400 190 180 180 200 255) 
         let mut red_sel: int = 0
         if (== color_mode 0) { set red_sel 1 } else {}
         if (== (nl_ui_radio_button renderer font "Red" 400 215 red_sel) 1) {
@@ -189,30 +189,30 @@ fn main() -> int {
         } else {}
         
         # Color preview
-        unsafe {         (nl_ui_label renderer font "Selected:" 400 250 80 150 150 255) }
+        (nl_ui_label renderer font "Selected:" 400 250 80 150 150 255) 
         if (== color_mode 0) {
-            unsafe {             (SDL_SetRenderDrawColor renderer 255 0 0 255) }
-            unsafe {             (nl_sdl_render_fill_rect renderer 485 250 40 20) }
+            (SDL_SetRenderDrawColor renderer 255 0 0 255) 
+            (nl_sdl_render_fill_rect renderer 485 250 40 20) 
         } else {}
         if (== color_mode 1) {
-            unsafe {             (SDL_SetRenderDrawColor renderer 0 255 0 255) }
-            unsafe {             (nl_sdl_render_fill_rect renderer 485 250 40 20) }
+            (SDL_SetRenderDrawColor renderer 0 255 0 255) 
+            (nl_sdl_render_fill_rect renderer 485 250 40 20) 
         } else {}
         if (== color_mode 2) {
-            unsafe {             (SDL_SetRenderDrawColor renderer 0 0 255 255) }
-            unsafe {             (nl_sdl_render_fill_rect renderer 485 250 40 20) }
+            (SDL_SetRenderDrawColor renderer 0 0 255 255) 
+            (nl_sdl_render_fill_rect renderer 485 250 40 20) 
         } else {}
         
         # Text Input (read-only for now)
-        unsafe {         (nl_ui_label renderer font "Text Input (read-only):" 400 285 180 180 200 255) }
-        unsafe {         (nl_ui_text_input renderer font username 64 400 310 300 30 input_focused) }
+        (nl_ui_label renderer font "Text Input (read-only):" 400 285 180 180 200 255) 
+        (nl_ui_text_input renderer font username 64 400 310 300 30 input_focused) 
         
         # === RIGHT COLUMN: Advanced Widgets ===
-        unsafe {         (nl_ui_panel renderer 760 70 320 300 30 30 40 220) }
-        unsafe {         (nl_ui_label renderer font "Advanced Widgets" 770 75 220 220 255 255) }
+        (nl_ui_panel renderer 760 70 320 300 30 30 40 220) 
+        (nl_ui_label renderer font "Advanced Widgets" 770 75 220 220 255 255) 
         
         # Dropdown (simplified - toggle open/close)
-        unsafe {         (nl_ui_label renderer font "Quality Dropdown:" 770 105 180 180 200 255) }
+        (nl_ui_label renderer font "Quality Dropdown:" 770 105 180 180 200 255) 
         let new_quality: int = (nl_ui_dropdown renderer font quality_options 
                                               (array_length quality_options)
                                               770 130 250 30 selected_quality dropdown_open)
@@ -222,15 +222,15 @@ fn main() -> int {
         } else {}
         
         # Number Spinners
-        unsafe {         (nl_ui_label renderer font "Difficulty:" 770 210 180 180 200 255) }
+        (nl_ui_label renderer font "Difficulty:" 770 210 180 180 200 255) 
         set difficulty (nl_ui_number_spinner renderer font difficulty 1 10 770 235 120 30)
         
-        unsafe {         (nl_ui_label renderer font "Players:" 770 280 180 180 200 255) }
+        (nl_ui_label renderer font "Players:" 770 280 180 180 200 255) 
         set player_count (nl_ui_number_spinner renderer font player_count 1 8 770 305 120 30)
         
         # === BOTTOM LEFT: Scrollable List ===
-        unsafe {         (nl_ui_panel renderer 20 390 480 380 30 30 40 220) }
-        unsafe {         (nl_ui_label renderer font "Scrollable List & Media Controls" 30 395 220 220 255 255) }
+        (nl_ui_panel renderer 20 390 480 380 30 30 40 220) 
+        (nl_ui_label renderer font "Scrollable List & Media Controls" 30 395 220 220 255 255) 
         
         let clicked_item: int = (nl_ui_scrollable_list renderer font playlist 
                                                        (array_length playlist)
@@ -240,13 +240,13 @@ fn main() -> int {
         } else {}
         
         # Time display
-        unsafe {         (nl_ui_label renderer font "Time:" 30 640 180 180 200 255) }
-        unsafe {         (nl_ui_time_display renderer font playback_time 80 640 100 200 255 255) }
-        unsafe {         (nl_ui_label renderer font "/" 130 640 150 150 150 255) }
-        unsafe {         (nl_ui_time_display renderer font track_duration 145 640 100 200 255 255) }
+        (nl_ui_label renderer font "Time:" 30 640 180 180 200 255) 
+        (nl_ui_time_display renderer font playback_time 80 640 100 200 255 255) 
+        (nl_ui_label renderer font "/" 130 640 150 150 150 255) 
+        (nl_ui_time_display renderer font track_duration 145 640 100 200 255 255) 
         
         # Seekable bar
-        unsafe {         (nl_ui_label renderer font "Seek:" 30 675 180 180 200 255) }
+        (nl_ui_label renderer font "Seek:" 30 675 180 180 200 255) 
         let new_seek: float = (nl_ui_seekable_progress_bar renderer 80 680 390 20 seek_progress)
         if (> new_seek -0.5) {
             set seek_progress new_seek
@@ -254,8 +254,8 @@ fn main() -> int {
         } else {}
         
         # Now playing
-        unsafe {         (nl_ui_label renderer font "Now Playing:" 30 715 120 150 150 255) }
-        unsafe {         (nl_ui_label renderer font (at playlist selected_track) 30 735 200 255 200 255) }
+        (nl_ui_label renderer font "Now Playing:" 30 715 120 150 150 255) 
+        (nl_ui_label renderer font (at playlist selected_track) 30 735 200 255 200 255) 
         
         # Update playback time
         if (== auto_increment 1) {
@@ -265,57 +265,57 @@ fn main() -> int {
         } else {}
         
         # === BOTTOM RIGHT: Widget Summary ===
-        unsafe {         (nl_ui_panel renderer 520 390 560 380 30 30 40 220) }
-        unsafe {         (nl_ui_label renderer font "Widget Summary & Status" 530 395 220 220 255 255) }
+        (nl_ui_panel renderer 520 390 560 380 30 30 40 220) 
+        (nl_ui_label renderer font "Widget Summary & Status" 530 395 220 220 255 255) 
         
-        unsafe {         (nl_ui_label renderer font "Available Widgets:" 530 430 200 200 255 255) }
-        unsafe {         (nl_ui_label renderer font "✓ Buttons (3 variations)" 540 455 150 220 200 255) }
-        unsafe {         (nl_ui_label renderer font "✓ Labels (colored text)" 540 480 150 220 200 255) }
-        unsafe {         (nl_ui_label renderer font "✓ Sliders (value input)" 540 505 150 220 200 255) }
-        unsafe {         (nl_ui_label renderer font "✓ Progress bars" 540 530 150 220 200 255) }
-        unsafe {         (nl_ui_label renderer font "✓ Checkboxes" 540 555 150 220 200 255) }
-        unsafe {         (nl_ui_label renderer font "✓ Radio buttons (FIXED!)" 540 580 100 255 100 255) }
-        unsafe {         (nl_ui_label renderer font "✓ Text input (read-only)" 540 605 150 220 200 255) }
-        unsafe {         (nl_ui_label renderer font "✓ Dropdowns" 540 630 150 220 200 255) }
-        unsafe {         (nl_ui_label renderer font "✓ Number spinners" 540 655 150 220 200 255) }
-        unsafe {         (nl_ui_label renderer font "✓ Panels (containers)" 540 680 150 220 200 255) }
-        unsafe {         (nl_ui_label renderer font "✓ Scrollable lists" 540 705 150 220 200 255) }
-        unsafe {         (nl_ui_label renderer font "✓ Time displays" 540 730 150 220 200 255) }
+        (nl_ui_label renderer font "Available Widgets:" 530 430 200 200 255 255) 
+        (nl_ui_label renderer font "✓ Buttons (3 variations)" 540 455 150 220 200 255) 
+        (nl_ui_label renderer font "✓ Labels (colored text)" 540 480 150 220 200 255) 
+        (nl_ui_label renderer font "✓ Sliders (value input)" 540 505 150 220 200 255) 
+        (nl_ui_label renderer font "✓ Progress bars" 540 530 150 220 200 255) 
+        (nl_ui_label renderer font "✓ Checkboxes" 540 555 150 220 200 255) 
+        (nl_ui_label renderer font "✓ Radio buttons (FIXED!)" 540 580 100 255 100 255) 
+        (nl_ui_label renderer font "✓ Text input (read-only)" 540 605 150 220 200 255) 
+        (nl_ui_label renderer font "✓ Dropdowns" 540 630 150 220 200 255) 
+        (nl_ui_label renderer font "✓ Number spinners" 540 655 150 220 200 255) 
+        (nl_ui_label renderer font "✓ Panels (containers)" 540 680 150 220 200 255) 
+        (nl_ui_label renderer font "✓ Scrollable lists" 540 705 150 220 200 255) 
+        (nl_ui_label renderer font "✓ Time displays" 540 730 150 220 200 255) 
         
-        unsafe {         (nl_ui_label renderer font "Current Settings:" 770 430 200 200 255 255) }
-        unsafe {         (nl_ui_label renderer font "Quality:" 780 455 180 180 200 255) }
-        unsafe {         (nl_ui_label renderer font (at quality_options selected_quality) 850 455 150 255 255 255) }
-        unsafe {         (nl_ui_label renderer font "Difficulty:" 780 480 180 180 200 255) }
-        unsafe {         (nl_ui_label renderer font (int_to_string difficulty) 870 480 150 255 255 255) }
-        unsafe {         (nl_ui_label renderer font "Players:" 780 505 180 180 200 255) }
-        unsafe {         (nl_ui_label renderer font (int_to_string player_count) 850 505 150 255 255 255) }
+        (nl_ui_label renderer font "Current Settings:" 770 430 200 200 255 255) 
+        (nl_ui_label renderer font "Quality:" 780 455 180 180 200 255) 
+        (nl_ui_label renderer font (at quality_options selected_quality) 850 455 150 255 255 255) 
+        (nl_ui_label renderer font "Difficulty:" 780 480 180 180 200 255) 
+        (nl_ui_label renderer font (int_to_string difficulty) 870 480 150 255 255 255) 
+        (nl_ui_label renderer font "Players:" 780 505 180 180 200 255) 
+        (nl_ui_label renderer font (int_to_string player_count) 850 505 150 255 255 255) 
         
         # Add tooltips if enabled
         if (== show_tooltips 1) {
             # We can't easily detect hover state per widget yet, so just show a note
-            unsafe {             (nl_ui_label renderer font "Tooltips enabled" 530 740 255 255 100 255) }
+            (nl_ui_label renderer font "Tooltips enabled" 530 740 255 255 100 255) 
         } else {}
         
         # Instructions
-        unsafe {         (nl_ui_label renderer font "Press ESC to quit • All widgets are interactive!" 230 765 150 150 150 255) }
+        (nl_ui_label renderer font "Press ESC to quit • All widgets are interactive!" 230 765 150 150 150 255) 
         
         # Draw on-screen help
         
         # Present
-        unsafe {         (SDL_RenderPresent renderer) }
-        unsafe {         (SDL_Delay 16) }
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
         set frame (+ frame 1)
     }
     
     # Cleanup
     (println "")
     (println "Cleaning up...")
-    unsafe {     (TTF_CloseFont font) }
-    unsafe {     (TTF_CloseFont title_font) }
-    unsafe {     (SDL_DestroyRenderer renderer) }
-    unsafe {     (SDL_DestroyWindow window) }
-    unsafe {     (TTF_Quit) }
-    unsafe {     (SDL_Quit) }
+    (TTF_CloseFont font) 
+    (TTF_CloseFont title_font) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (TTF_Quit) 
+    (SDL_Quit) 
     
     (println "✓ Demo completed successfully!")
     (println "")

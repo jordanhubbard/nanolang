@@ -38,7 +38,7 @@
  * =============================================================================
  */
 
-import "test_modules/math_helper.nano" as Math
+module "test_modules/math_helper.nano as Math" as Math
 
 fn fibonacci(n: int) -> int {
     if (< n 2) {
