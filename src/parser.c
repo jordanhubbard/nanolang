@@ -3440,13 +3440,13 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         if (match(&parser, TOKEN_UNSAFE)) {
             /* Could be 'unsafe module' import or 'unsafe module name { ... }' declaration */
             Token *next = peek_token(&parser, 1);
-            if (next && next->type == TOKEN_MODULE) {
+            if (next && next->token_type == TOKEN_MODULE) {
                 /* It's either 'unsafe module "path"' or 'unsafe module name { ... }' */
                 Token *after_module = peek_token(&parser, 2);
-                if (after_module && after_module->type == TOKEN_STRING) {
+                if (after_module && after_module->token_type == TOKEN_STRING) {
                     /* unsafe module "path" - import */
                     parsed = parse_import(&parser);
-                } else if (after_module && after_module->type == TOKEN_IDENTIFIER) {
+                } else if (after_module && after_module->token_type == TOKEN_IDENTIFIER) {
                     /* unsafe module name {...} - declaration (TODO: implement) */
                     advance(&parser); /* consume unsafe */
                     parsed = parse_module_decl(&parser);
@@ -3455,13 +3455,33 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                     parsed = parse_import(&parser);
                 }
             } else {
-                /* unsafe block or other unsafe construct */
-                parsed = parse_unsafe_block(&parser);
+                /* unsafe block - look for 'unsafe {' */
+                Token *next_tok = peek_token(&parser, 1);
+                if (next_tok && next_tok->token_type == TOKEN_LBRACE) {
+                    /* It's an unsafe block - but we can't parse it here at top level */
+                    /* This will be handled by the expression parser */
+                    fprintf(stderr, "Error: unsafe block can only appear inside functions, not at top level\n");
+                    advance(&parser); /* consume unsafe */
+                    advance(&parser); /* consume { */
+                    /* Skip to closing brace */
+                    int depth = 1;
+                    while (depth > 0 && !match(&parser, TOKEN_EOF)) {
+                        if (match(&parser, TOKEN_LBRACE)) depth++;
+                        if (match(&parser, TOKEN_RBRACE)) depth--;
+                        advance(&parser);
+                    }
+                    parsed = NULL;
+                } else {
+                    /* Unknown unsafe construct */
+                    fprintf(stderr, "Error: Expected 'module' or '{' after 'unsafe'\n");
+                    advance(&parser);
+                    parsed = NULL;
+                }
             }
         } else if (match(&parser, TOKEN_MODULE)) {
             /* Could be 'module name' declaration or 'module "path"' import */
             Token *next = peek_token(&parser, 1);
-            if (next && next->type == TOKEN_STRING) {
+            if (next && next->token_type == TOKEN_STRING) {
                 /* module "path" - import */
                 parsed = parse_import(&parser);
             } else {
