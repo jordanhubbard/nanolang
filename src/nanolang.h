@@ -155,6 +155,7 @@ typedef enum {
     AST_IDENTIFIER,
     AST_PREFIX_OP,
     AST_CALL,
+    AST_MODULE_QUALIFIED_CALL,  /* Module-qualified call: (Module.function args...) */
     AST_ARRAY_LITERAL,
     AST_LET,
     AST_SET,
@@ -231,6 +232,13 @@ struct ASTNode {
             int arg_count;
             char *return_struct_type_name;  /* For calls that return struct types (e.g., list_Point_get) */
         } call;
+        struct {
+            char *module_alias;       /* Module alias (e.g., "Vec" from "as Vec") */
+            char *function_name;      /* Function name (e.g., "add") */
+            ASTNode **args;
+            int arg_count;
+            char *return_struct_type_name;  /* For calls that return struct types */
+        } module_qualified_call;
         struct {
             ASTNode **elements;
             int element_count;
