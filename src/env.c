@@ -91,10 +91,10 @@ Environment *create_environment(void) {
     env->namespace_capacity = 8;
     env->current_module = NULL;  /* Start in global scope */
     
-    /* Initialize unsafe module tracking */
-    env->unsafe_modules = NULL;
-    env->unsafe_module_count = 0;
-    env->unsafe_module_capacity = 0;
+    /* Initialize module tracking for introspection */
+    env->modules = NULL;
+    env->module_count = 0;
+    env->module_capacity = 0;
     env->current_module_is_unsafe = false;
     
     /* Initialize import tracker */
@@ -240,12 +240,25 @@ void free_environment(Environment *env) {
     }
     free(env->namespaces);
 
-    /* Free unsafe modules list */
-    if (env->unsafe_modules) {
-        for (int i = 0; i < env->unsafe_module_count; i++) {
-            free(env->unsafe_modules[i]);
+    /* Free module metadata */
+    if (env->modules) {
+        for (int i = 0; i < env->module_count; i++) {
+            free(env->modules[i].name);
+            free(env->modules[i].path);
+            if (env->modules[i].exported_functions) {
+                for (int j = 0; j < env->modules[i].function_count; j++) {
+                    free(env->modules[i].exported_functions[j]);
+                }
+                free(env->modules[i].exported_functions);
+            }
+            if (env->modules[i].exported_structs) {
+                for (int j = 0; j < env->modules[i].struct_count; j++) {
+                    free(env->modules[i].exported_structs[j]);
+                }
+                free(env->modules[i].exported_structs);
+            }
         }
-        free(env->unsafe_modules);
+        free(env->modules);
     }
 
     free(env);
@@ -1295,4 +1308,58 @@ void env_register_namespace(Environment *env, const char *alias, const char *mod
     ns->enum_count = enum_count;
     ns->union_names = union_names;
     ns->union_count = union_count;
+}
+
+/* Module introspection helper functions */
+
+/* Register a module in the environment for introspection */
+void env_register_module(Environment *env, const char *name, const char *path, bool is_unsafe) {
+    /* Grow module array if needed */
+    if (env->module_count >= env->module_capacity) {
+        env->module_capacity = env->module_capacity == 0 ? 4 : env->module_capacity * 2;
+        env->modules = realloc(env->modules, sizeof(ModuleInfo) * env->module_capacity);
+    }
+    
+    /* Check if module already exists */
+    for (int i = 0; i < env->module_count; i++) {
+        if (strcmp(env->modules[i].name, name) == 0) {
+            /* Module already registered, update is_unsafe flag */
+            env->modules[i].is_unsafe = is_unsafe;
+            return;
+        }
+    }
+    
+    /* Register new module */
+    ModuleInfo *mod = &env->modules[env->module_count++];
+    mod->name = strdup(name);
+    mod->path = path ? strdup(path) : NULL;
+    mod->is_unsafe = is_unsafe;
+    mod->has_ffi = false;  /* Will be updated during typechecking */
+    mod->exported_functions = NULL;
+    mod->function_count = 0;
+    mod->exported_structs = NULL;
+    mod->struct_count = 0;
+}
+
+/* Get module info by name */
+ModuleInfo *env_get_module(Environment *env, const char *name) {
+    for (int i = 0; i < env->module_count; i++) {
+        if (strcmp(env->modules[i].name, name) == 0) {
+            return &env->modules[i];
+        }
+    }
+    return NULL;
+}
+
+/* Check if current module is unsafe */
+bool env_is_current_module_unsafe(Environment *env) {
+    return env->current_module_is_unsafe;
+}
+
+/* Mark module as having FFI (extern functions) */
+void env_mark_module_has_ffi(Environment *env, const char *name) {
+    ModuleInfo *mod = env_get_module(env, name);
+    if (mod) {
+        mod->has_ffi = true;
+    }
 }

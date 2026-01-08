@@ -530,6 +530,18 @@ typedef struct {
     int union_count;
 } ModuleNamespace;
 
+/* Module metadata for introspection */
+typedef struct {
+    char *name;                /* Module name (e.g., "sdl", "vector2d") */
+    char *path;                /* Module file path */
+    bool is_unsafe;            /* Is this module marked unsafe? */
+    bool has_ffi;              /* Does this module contain extern functions? */
+    char **exported_functions; /* List of exported function names */
+    int function_count;
+    char **exported_structs;   /* List of exported struct names */
+    int struct_count;
+} ModuleInfo;
+
 /* Selective import tracking */
 typedef struct {
     char *module_path;         /* Module file path */
@@ -574,9 +586,9 @@ typedef struct {
     char *current_module;  /* Currently active module name (NULL for global scope) */
     ImportTracker *import_tracker;  /* Track selective imports */
     bool builtins_registered;  /* Flag to prevent duplicate builtin registration */
-    char **unsafe_modules;  /* List of unsafe module paths */
-    int unsafe_module_count;
-    int unsafe_module_capacity;
+    ModuleInfo *modules;  /* Module metadata for introspection */
+    int module_count;
+    int module_capacity;
     bool current_module_is_unsafe;  /* Is the current module context unsafe? */
 } Environment;
 
@@ -632,6 +644,11 @@ void env_register_namespace(Environment *env, const char *alias, const char *mod
                             char **struct_names, int struct_count,
                             char **enum_names, int enum_count,
                             char **union_names, int union_count);
+/* Module introspection */
+void env_register_module(Environment *env, const char *name, const char *path, bool is_unsafe);
+ModuleInfo *env_get_module(Environment *env, const char *name);
+bool env_is_current_module_unsafe(Environment *env);
+void env_mark_module_has_ffi(Environment *env, const char *name);
 void env_define_enum(Environment *env, EnumDef enum_def);
 EnumDef *env_get_enum(Environment *env, const char *name);
 void env_register_list_instantiation(Environment *env, const char *element_type);

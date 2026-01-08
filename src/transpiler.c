@@ -2257,6 +2257,52 @@ static void generate_struct_metadata(Environment *env, StringBuilder *sb) {
     sb_append(sb, "/* ========== End Struct Metadata ========== */\n\n");
 }
 
+/* Generate compile-time module metadata introspection functions */
+static void generate_module_metadata(Environment *env, StringBuilder *sb) {
+    if (!env || !sb) return;
+    
+    sb_append(sb, "/* ========== Auto-Generated Module Metadata ========== */\n\n");
+    
+    for (int i = 0; i < env->module_count; i++) {
+        ModuleInfo *mod = &env->modules[i];
+        if (!mod || !mod->name) continue;
+        
+        const char *module_name = mod->name;
+        
+        /* Function: ___module_info_<NAME>() -> struct with module metadata */
+        sb_appendf(sb, "/* Module: %s (path: %s, unsafe: %s, has_ffi: %s) */\n",
+                  module_name, 
+                  mod->path ? mod->path : "unknown",
+                  mod->is_unsafe ? "yes" : "no",
+                  mod->has_ffi ? "yes" : "no");
+        
+        /* For now, generate simple metadata functions */
+        /* These can be called from NanoLang to introspect modules at compile-time */
+        
+        /* Function: ___module_is_unsafe_<NAME>() -> bool */
+        sb_appendf(sb, "inline bool ___module_is_unsafe_%s(void) {\n", module_name);
+        sb_appendf(sb, "    return %s;\n", mod->is_unsafe ? "1" : "0");
+        sb_append(sb, "}\n\n");
+        
+        /* Function: ___module_has_ffi_<NAME>() -> bool */
+        sb_appendf(sb, "inline bool ___module_has_ffi_%s(void) {\n", module_name);
+        sb_appendf(sb, "    return %s;\n", mod->has_ffi ? "1" : "0");
+        sb_append(sb, "}\n\n");
+        
+        /* Function: ___module_name_<NAME>() -> string */
+        sb_appendf(sb, "inline const char* ___module_name_%s(void) {\n", module_name);
+        sb_appendf(sb, "    return \"%s\";\n", module_name);
+        sb_append(sb, "}\n\n");
+        
+        /* Function: ___module_path_<NAME>() -> string */
+        sb_appendf(sb, "inline const char* ___module_path_%s(void) {\n", module_name);
+        sb_appendf(sb, "    return \"%s\";\n", mod->path ? mod->path : "");
+        sb_append(sb, "}\n\n");
+    }
+    
+    sb_append(sb, "/* ========== End Module Metadata ========== */\n\n");
+}
+
 static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     sb_append(sb, "/* ========== To-String Helpers ========== */\n\n");
 
@@ -3530,6 +3576,9 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
 
     /* Generate compile-time struct metadata reflection functions */
     generate_struct_metadata(env, sb);
+
+    /* Generate compile-time module metadata introspection functions */
+    generate_module_metadata(env, sb);
 
     /* Generate List implementations and includes */
     generate_list_implementations(env, sb);
