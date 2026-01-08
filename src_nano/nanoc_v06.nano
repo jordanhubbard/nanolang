@@ -664,6 +664,18 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             set cc_cmd (str_concat cc_cmd " src/runtime/gc_struct.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/nl_string.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/cli.c")
+            /* Add AST list runtime sources for compiler support */
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTLet.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTFunction.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTNumber.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTString.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTBool.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTIdentifier.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTBinaryOp.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTCall.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTStmtRef.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTBlock.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTFieldAccess.c")
             set cc_cmd (str_concat cc_cmd " -lm")
             let extra_ldflags: string = (getenv "NANO_LDFLAGS")
             if (!= extra_ldflags "") {

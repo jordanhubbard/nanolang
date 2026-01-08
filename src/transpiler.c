@@ -2125,6 +2125,138 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
     free(emitted);
 }
 
+/* Generate compile-time struct metadata reflection functions */
+static void generate_struct_metadata(Environment *env, StringBuilder *sb) {
+    if (!env || !sb) return;
+    
+    sb_append(sb, "/* ========== Auto-Generated Struct Metadata ========== */\n\n");
+    
+    for (int i = 0; i < env->struct_count; i++) {
+        StructDef *sdef = &env->structs[i];
+        if (!sdef || !sdef->name) continue;
+        if (sdef->is_extern) continue;  /* Skip extern structs */
+        
+        const char *struct_name = sdef->name;
+        int field_count = sdef->field_count;
+        
+        /* Function: __reflect_<StructName>_field_count() -> int */
+        sb_appendf(sb, "inline int64_t ___reflect_%s_field_count(void) {\n", struct_name);
+        sb_appendf(sb, "    return %d;\n", field_count);
+        sb_append(sb, "}\n\n");
+        
+        /* Function: __reflect_<StructName>_field_name(index) -> string */
+        sb_appendf(sb, "inline const char* ___reflect_%s_field_name(int64_t index) {\n", struct_name);
+        for (int j = 0; j < field_count; j++) {
+            if (j == 0) {
+                sb_appendf(sb, "    if (index == %d) { return \"%s\"; }\n", 
+                          j, sdef->field_names[j]);
+            } else {
+                sb_appendf(sb, "    else if (index == %d) { return \"%s\"; }\n", 
+                          j, sdef->field_names[j]);
+            }
+        }
+        sb_append(sb, "    else { return \"\"; }\n");
+        sb_append(sb, "}\n\n");
+        
+        /* Function: __reflect_<StructName>_field_type(index) -> string */
+        sb_appendf(sb, "inline const char* ___reflect_%s_field_type(int64_t index) {\n", struct_name);
+        for (int j = 0; j < field_count; j++) {
+            const char *type_str = NULL;
+            switch (sdef->field_types[j]) {
+                case TYPE_INT: type_str = "int"; break;
+                case TYPE_FLOAT: type_str = "float"; break;
+                case TYPE_STRING: type_str = "string"; break;
+                case TYPE_BOOL: type_str = "bool"; break;
+                case TYPE_VOID: type_str = "void"; break;
+                case TYPE_STRUCT:
+                    type_str = sdef->field_type_names[j] ? sdef->field_type_names[j] : "struct";
+                    break;
+                case TYPE_ARRAY: {
+                    /* Construct "array<T>" type string */
+                    static char array_type_buf[256];
+                    const char *elem_type = "unknown";
+                    if (sdef->field_element_types && sdef->field_element_types[j] == TYPE_INT) {
+                        elem_type = "int";
+                    } else if (sdef->field_element_types && sdef->field_element_types[j] == TYPE_STRING) {
+                        elem_type = "string";
+                    } else if (sdef->field_element_types && sdef->field_element_types[j] == TYPE_STRUCT) {
+                        elem_type = sdef->field_type_names[j] ? sdef->field_type_names[j] : "struct";
+                    }
+                    snprintf(array_type_buf, sizeof(array_type_buf), "array<%s>", elem_type);
+                    type_str = array_type_buf;
+                    break;
+                }
+                default: type_str = "unknown"; break;
+            }
+            
+            if (j == 0) {
+                sb_appendf(sb, "    if (index == %d) { return \"%s\"; }\n", j, type_str);
+            } else {
+                sb_appendf(sb, "    else if (index == %d) { return \"%s\"; }\n", j, type_str);
+            }
+        }
+        sb_append(sb, "    else { return \"\"; }\n");
+        sb_append(sb, "}\n\n");
+        
+        /* Function: __reflect_<StructName>_has_field(name) -> bool */
+        sb_appendf(sb, "inline bool ___reflect_%s_has_field(const char* name) {\n", struct_name);
+        for (int j = 0; j < field_count; j++) {
+            if (j == 0) {
+                sb_appendf(sb, "    if (strcmp(name, \"%s\") == 0) { return 1; }\n", 
+                          sdef->field_names[j]);
+            } else {
+                sb_appendf(sb, "    else if (strcmp(name, \"%s\") == 0) { return 1; }\n", 
+                          sdef->field_names[j]);
+            }
+        }
+        sb_append(sb, "    else { return 0; }\n");
+        sb_append(sb, "}\n\n");
+        
+        /* Function: __reflect_<StructName>_field_type_by_name(name) -> string */
+        sb_appendf(sb, "inline const char* ___reflect_%s_field_type_by_name(const char* name) {\n", struct_name);
+        for (int j = 0; j < field_count; j++) {
+            const char *type_str = NULL;
+            switch (sdef->field_types[j]) {
+                case TYPE_INT: type_str = "int"; break;
+                case TYPE_FLOAT: type_str = "float"; break;
+                case TYPE_STRING: type_str = "string"; break;
+                case TYPE_BOOL: type_str = "bool"; break;
+                case TYPE_VOID: type_str = "void"; break;
+                case TYPE_STRUCT:
+                    type_str = sdef->field_type_names[j] ? sdef->field_type_names[j] : "struct";
+                    break;
+                case TYPE_ARRAY: {
+                    static char array_type_buf2[256];
+                    const char *elem_type = "unknown";
+                    if (sdef->field_element_types && sdef->field_element_types[j] == TYPE_INT) {
+                        elem_type = "int";
+                    } else if (sdef->field_element_types && sdef->field_element_types[j] == TYPE_STRING) {
+                        elem_type = "string";
+                    } else if (sdef->field_element_types && sdef->field_element_types[j] == TYPE_STRUCT) {
+                        elem_type = sdef->field_type_names[j] ? sdef->field_type_names[j] : "struct";
+                    }
+                    snprintf(array_type_buf2, sizeof(array_type_buf2), "array<%s>", elem_type);
+                    type_str = array_type_buf2;
+                    break;
+                }
+                default: type_str = "unknown"; break;
+            }
+            
+            if (j == 0) {
+                sb_appendf(sb, "    if (strcmp(name, \"%s\") == 0) { return \"%s\"; }\n", 
+                          sdef->field_names[j], type_str);
+            } else {
+                sb_appendf(sb, "    else if (strcmp(name, \"%s\") == 0) { return \"%s\"; }\n", 
+                          sdef->field_names[j], type_str);
+            }
+        }
+        sb_append(sb, "    else { return \"\"; }\n");
+        sb_append(sb, "}\n\n");
+    }
+    
+    sb_append(sb, "/* ========== End Struct Metadata ========== */\n\n");
+}
+
 static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     sb_append(sb, "/* ========== To-String Helpers ========== */\n\n");
 
@@ -3395,6 +3527,9 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
 
     /* Generate struct + union definitions in dependency-safe order */
     generate_struct_and_union_definitions_ordered(env, sb);
+
+    /* Generate compile-time struct metadata reflection functions */
+    generate_struct_metadata(env, sb);
 
     /* Generate List implementations and includes */
     generate_list_implementations(env, sb);
