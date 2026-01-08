@@ -106,8 +106,22 @@ shadow name {
 # External C Functions (FFI)
 extern fn function_name(param: type) -> return_type
 
-# ⚠️ Extern calls MUST be inside unsafe blocks
+# ⚠️ Extern calls require either:
+#    1. unsafe module import (preferred), OR
+#    2. unsafe blocks (legacy)
+
+# PREFERRED: Module-level safety
+unsafe module "modules/ffi_lib/ffi_lib.nano"
+
 fn call_extern() -> int {
+    # No unsafe block needed with 'unsafe module'!
+    return (function_name arg)
+}
+
+# LEGACY: Individual unsafe blocks
+module "modules/ffi_lib/ffi_lib.nano"
+
+fn call_extern_legacy() -> int {
     let mut result: int = 0
     unsafe {
         set result (function_name arg)
@@ -118,13 +132,19 @@ fn call_extern() -> int {
 # Public external functions (for modules)
 pub extern fn module_function(param: type) -> return_type
 
-# Import module with alias
-import "modules/math_helper.nano" as Math
+# Import safe module with alias
+module "modules/math_helper.nano" as Math
 let result: int = (Math.add 2 3)
 
+# Import unsafe (FFI) module
+unsafe module "modules/sdl/sdl.nano"
+
 # Import without alias
-import "modules/utilities.nano"
+module "modules/utilities.nano"
 (some_function arg)
+
+# Legacy syntax (still supported, will be deprecated)
+import "modules/old_module.nano"
 ```
 
 ### Control Flow
@@ -598,12 +618,19 @@ fn get_product(id: ProductId) -> Product { ... }
 
 ### Using Modules
 ```nano
-# Import an FFI module (looks for module.json with FFI bindings)
-import sdl
+# Import a safe module (pure NanoLang)
+module "modules/vector2d/vector2d.nano"
 
-# Use module functions with namespace prefix
+# Import an unsafe FFI module (requires 'unsafe' prefix)
+unsafe module "modules/sdl/sdl.nano"
+
+# Import with alias
+unsafe module "modules/bullet/bullet.nano" as Physics
+
+# Use module functions
 fn main() -> int {
-    # SDL functions available directly
+    # SDL functions work without unsafe {} blocks
+    # because the module was imported as 'unsafe module'
     (SDL_Init 0)
     
     # stdlib functions use namespace
@@ -623,6 +650,37 @@ fn main() -> int {
     return 0
 }
 ```
+
+### Module Safety
+**Module-level safety eliminates scattered unsafe blocks:**
+
+```nano
+# OLD WAY (before module-level safety)
+import "modules/sdl/sdl.nano"
+
+fn render() -> void {
+    unsafe { (SDL_Init 0) }
+    unsafe { (SDL_CreateWindow "Game" 800 600) }
+    unsafe { (SDL_Quit) }
+}
+
+# NEW WAY (with module-level safety)
+unsafe module "modules/sdl/sdl.nano"
+
+fn render() -> void {
+    (SDL_Init 0)
+    (SDL_CreateWindow "Game" 800 600)
+    (SDL_Quit)
+}
+```
+
+**Key principle:** Mark modules as `unsafe` at import, not individual calls.
+
+**Benefits:**
+- ✅ 98% reduction in unsafe blocks (1,235 → 88 in examples/)
+- ✅ Clear safety declaration at module boundary
+- ✅ Cleaner, more readable code
+- ✅ Same compile-time safety guarantees
 
 ### Module Installation
 Modules automatically install dependencies:
@@ -734,7 +792,7 @@ fn main() -> int {
 
 Import the module:
 ```nano
-import "modules/stdlib/checked_math.nano"
+module "modules/stdlib/checked_math.nano"
 ```
 
 Then use:
@@ -797,7 +855,7 @@ fn example_division() -> int {
 See `examples/nl_checked_math_demo.nano` for a complete demonstration.
 
 ```nano
-import "modules/stdlib/checked_math.nano"
+module "modules/stdlib/checked_math.nano"
 
 fn safe_calculator(a: int, op: string, b: int) -> Result<int, string> {
     if (str_equals op "+") {
