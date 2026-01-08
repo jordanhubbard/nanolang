@@ -1,0 +1,47 @@
+/* Standard C Library (libc) Module
+ * 
+ * Provides access to essential C standard library functions.
+ * All functions are unsafe - use with caution.
+ * 
+ * Prefer NanoLang built-in functions when available:
+ * - Use (println) instead of printf for simple output
+ * - Use NanoLang strings instead of C char* when possible
+ * - Use NanoLang arrays instead of malloc/free
+ */
+
+unsafe module libc {
+    /* stdio.h - Input/Output */
+    extern fn printf(format: string) -> int
+    extern fn sprintf(buffer: string, format: string) -> int
+    extern fn puts(s: string) -> int
+    extern fn putchar(c: int) -> int
+    
+    /* stdlib.h - Memory and Utilities */
+    extern fn malloc(size: int) -> int
+    extern fn free(ptr: int) -> void
+    extern fn exit(status: int) -> void
+    extern fn atoi(s: string) -> int
+    extern fn atof(s: string) -> float
+    
+    /* string.h - String Manipulation */
+    extern fn strlen(s: string) -> int
+    extern fn strcmp(s1: string, s2: string) -> int
+    extern fn strncmp(s1: string, s2: string, n: int) -> int
+    extern fn strcpy(dest: string, src: string) -> string
+    extern fn strcat(dest: string, src: string) -> string
+    extern fn memcpy(dest: int, src: int, n: int) -> int
+    extern fn memset(ptr: int, value: int, n: int) -> int
+    
+    /* math.h - Mathematics (requires -lm) */
+    extern fn sqrt(x: float) -> float
+    extern fn pow(base: float, exp: float) -> float
+    extern fn sin(x: float) -> float
+    extern fn cos(x: float) -> float
+    extern fn tan(x: float) -> float
+    extern fn log(x: float) -> float
+    extern fn exp(x: float) -> float
+    extern fn abs(x: int) -> int
+    extern fn fabs(x: float) -> float
+}
+
+/* Note: No shadow tests for extern functions - they're from C */
