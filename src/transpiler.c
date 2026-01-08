@@ -2263,11 +2263,20 @@ static void generate_module_metadata(Environment *env, StringBuilder *sb) {
     
     sb_append(sb, "/* ========== Auto-Generated Module Metadata ========== */\n\n");
     
+    #ifdef DEBUG_MODULE_INTROSPECTION
+    fprintf(stderr, "DEBUG: Generating metadata for %d modules\n", env->module_count);
+    #endif
+    
     for (int i = 0; i < env->module_count; i++) {
         ModuleInfo *mod = &env->modules[i];
         if (!mod || !mod->name) continue;
         
         const char *module_name = mod->name;
+        
+        #ifdef DEBUG_MODULE_INTROSPECTION
+        fprintf(stderr, "DEBUG: Generating functions for module '%s' (unsafe=%d, has_ffi=%d)\n",
+                module_name, mod->is_unsafe, mod->has_ffi);
+        #endif
         
         /* Function: ___module_info_<NAME>() -> struct with module metadata */
         sb_appendf(sb, "/* Module: %s (path: %s, unsafe: %s, has_ffi: %s) */\n",
@@ -2280,22 +2289,22 @@ static void generate_module_metadata(Environment *env, StringBuilder *sb) {
         /* These can be called from NanoLang to introspect modules at compile-time */
         
         /* Function: ___module_is_unsafe_<NAME>() -> bool */
-        sb_appendf(sb, "inline bool ___module_is_unsafe_%s(void) {\n", module_name);
+        sb_appendf(sb, "bool ___module_is_unsafe_%s(void) {\n", module_name);
         sb_appendf(sb, "    return %s;\n", mod->is_unsafe ? "1" : "0");
         sb_append(sb, "}\n\n");
         
         /* Function: ___module_has_ffi_<NAME>() -> bool */
-        sb_appendf(sb, "inline bool ___module_has_ffi_%s(void) {\n", module_name);
+        sb_appendf(sb, "bool ___module_has_ffi_%s(void) {\n", module_name);
         sb_appendf(sb, "    return %s;\n", mod->has_ffi ? "1" : "0");
         sb_append(sb, "}\n\n");
         
         /* Function: ___module_name_<NAME>() -> string */
-        sb_appendf(sb, "inline const char* ___module_name_%s(void) {\n", module_name);
+        sb_appendf(sb, "const char* ___module_name_%s(void) {\n", module_name);
         sb_appendf(sb, "    return \"%s\";\n", module_name);
         sb_append(sb, "}\n\n");
         
         /* Function: ___module_path_<NAME>() -> string */
-        sb_appendf(sb, "inline const char* ___module_path_%s(void) {\n", module_name);
+        sb_appendf(sb, "const char* ___module_path_%s(void) {\n", module_name);
         sb_appendf(sb, "    return \"%s\";\n", mod->path ? mod->path : "");
         sb_append(sb, "}\n\n");
     }

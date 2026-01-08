@@ -3722,6 +3722,13 @@ bool type_check(ASTNode *program, Environment *env) {
             
             /* Register module for introspection */
             env_register_module(env, module_name, path, item->as.import_stmt.is_unsafe);
+            
+            /* Debug: Confirm registration */
+            #ifdef DEBUG_MODULE_INTROSPECTION
+            fprintf(stderr, "DEBUG: Registered module '%s' from path '%s' (unsafe=%d)\n", 
+                    module_name, path, item->as.import_stmt.is_unsafe);
+            #endif
+            
             free(module_name);
             
             /* Mark current context as unsafe if we're importing unsafe modules */
