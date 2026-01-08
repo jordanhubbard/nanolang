@@ -590,6 +590,10 @@ typedef struct {
     int module_count;
     int module_capacity;
     bool current_module_is_unsafe;  /* Is the current module context unsafe? */
+    /* Phase 3: Module safety warning flags */
+    bool warn_unsafe_imports;  /* Warn when importing unsafe modules */
+    bool warn_ffi;             /* Warn on any FFI call */
+    bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
 } Environment;
 
 /* Function declarations */

@@ -2727,12 +2727,22 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* Check if this is a call to an extern function outside unsafe context */
             if (stmt->as.call.name) {
                 Function *func = env_get_function(tc->env, stmt->as.call.name);
-                if (func && func->is_extern && !tc->in_unsafe_block && !tc->env->current_module_is_unsafe) {
-                    fprintf(stderr, "Error at line %d, column %d: Call to extern function '%s' requires unsafe block or unsafe module\n",
-                            stmt->line, stmt->column, stmt->as.call.name);
-                    fprintf(stderr, "  Note: Extern functions can perform arbitrary operations.\n");
-                    fprintf(stderr, "  Hint: Either wrap the call in 'unsafe { ... }' or declare the module as 'unsafe module name { ... }'\n");
-                    tc->has_error = true;
+                if (func && func->is_extern) {
+                    /* Phase 3: Warn on FFI calls if --warn-ffi is set */
+                    if (tc->env->warn_ffi) {
+                        fprintf(stderr, "Warning at line %d, column %d: FFI call to extern function '%s'\n",
+                                stmt->line, stmt->column, stmt->as.call.name);
+                        fprintf(stderr, "  Note: Extern functions perform arbitrary operations\n");
+                    }
+                    
+                    /* Check if unsafe context is required */
+                    if (!tc->in_unsafe_block && !tc->env->current_module_is_unsafe) {
+                        fprintf(stderr, "Error at line %d, column %d: Call to extern function '%s' requires unsafe block or unsafe module\n",
+                                stmt->line, stmt->column, stmt->as.call.name);
+                        fprintf(stderr, "  Note: Extern functions can perform arbitrary operations.\n");
+                        fprintf(stderr, "  Hint: Either wrap the call in 'unsafe { ... }' or declare the module as 'unsafe module name { ... }'\n");
+                        tc->has_error = true;
+                    }
                 }
             }
             /* Type check the call expression */
@@ -3722,6 +3732,24 @@ bool type_check(ASTNode *program, Environment *env) {
             
             /* Register module for introspection */
             env_register_module(env, module_name, path, item->as.import_stmt.is_unsafe);
+            
+            /* Phase 3: Check warning flags for unsafe imports */
+            if (item->as.import_stmt.is_unsafe) {
+                if (env->forbid_unsafe) {
+                    /* --forbid-unsafe: Error on unsafe module imports */
+                    fprintf(stderr, "Error at line %d, column %d: Unsafe module import forbidden: '%s'\n",
+                            item->line, item->column, path);
+                    fprintf(stderr, "  Note: Compiled with --forbid-unsafe flag\n");
+                    fprintf(stderr, "  Hint: Remove --forbid-unsafe or use safe modules only\n");
+                    tc.has_error = true;
+                } else if (env->warn_unsafe_imports) {
+                    /* --warn-unsafe-imports: Warn on unsafe module imports */
+                    fprintf(stderr, "Warning at line %d, column %d: Importing unsafe module: '%s'\n",
+                            item->line, item->column, path);
+                    fprintf(stderr, "  Note: This module requires unsafe context for FFI calls\n");
+                }
+            }
+            
             free(module_name);
             
             /* Mark current context as unsafe if we're importing unsafe modules */

@@ -97,6 +97,11 @@ Environment *create_environment(void) {
     env->module_capacity = 0;
     env->current_module_is_unsafe = false;
     
+    /* Initialize Phase 3: Module safety warning flags */
+    env->warn_unsafe_imports = false;
+    env->warn_ffi = false;
+    env->forbid_unsafe = false;
+    
     /* Initialize import tracker */
     env->import_tracker = malloc(sizeof(ImportTracker));
     env->import_tracker->imports = malloc(sizeof(SelectiveImport) * 8);

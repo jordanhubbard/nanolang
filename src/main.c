@@ -24,6 +24,10 @@ typedef struct {
     int library_path_count;
     char **libraries;         /* -l flags */
     int library_count;
+    /* Phase 3: Module safety warnings */
+    bool warn_unsafe_imports;  /* Warn when importing unsafe modules */
+    bool warn_ffi;             /* Warn on any FFI call */
+    bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
 } CompilerOptions;
 
 static bool deterministic_outputs_enabled(void) {
@@ -130,6 +134,12 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     /* Phase 3: Create environment and process imports */
     clear_module_cache();  /* Clear cache from any previous compilation */
     Environment *env = create_environment();
+    
+    /* Set warning flags from compiler options */
+    env->warn_unsafe_imports = opts->warn_unsafe_imports;
+    env->warn_ffi = opts->warn_ffi;
+    env->forbid_unsafe = opts->forbid_unsafe;
+    
     ModuleList *modules = create_module_list();
     if (!process_imports(program, env, modules, input_file)) {
         fprintf(stderr, "Module loading failed\n");
@@ -692,6 +702,10 @@ int main(int argc, char *argv[]) {
         printf("  -l <lib>       Link against library (e.g., -lSDL2)\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
+        printf("\nSafety Options:\n");
+        printf("  --warn-unsafe-imports  Warn when importing unsafe modules\n");
+        printf("  --warn-ffi             Warn on any FFI (extern function) call\n");
+        printf("  --forbid-unsafe        Error (not warn) on unsafe module imports\n");
         printf("\nExamples:\n");
         printf("  %s hello.nano -o hello\n", argv[0]);
         printf("  %s program.nano --verbose -S          # Show steps and save C code\n", argv[0]);
@@ -717,7 +731,10 @@ int main(int argc, char *argv[]) {
         .library_paths = NULL,
         .library_path_count = 0,
         .libraries = NULL,
-        .library_count = 0
+        .library_count = 0,
+        .warn_unsafe_imports = false,
+        .warn_ffi = false,
+        .forbid_unsafe = false
     };
     
     /* Allocate arrays for flags */
@@ -769,6 +786,12 @@ int main(int argc, char *argv[]) {
             if (library_count < 32) {
                 libraries[library_count++] = argv[i] + 2;
             }
+        } else if (strcmp(argv[i], "--warn-unsafe-imports") == 0) {
+            opts.warn_unsafe_imports = true;
+        } else if (strcmp(argv[i], "--warn-ffi") == 0) {
+            opts.warn_ffi = true;
+        } else if (strcmp(argv[i], "--forbid-unsafe") == 0) {
+            opts.forbid_unsafe = true;
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
