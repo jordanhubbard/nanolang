@@ -574,6 +574,10 @@ typedef struct {
     char *current_module;  /* Currently active module name (NULL for global scope) */
     ImportTracker *import_tracker;  /* Track selective imports */
     bool builtins_registered;  /* Flag to prevent duplicate builtin registration */
+    char **unsafe_modules;  /* List of unsafe module paths */
+    int unsafe_module_count;
+    int unsafe_module_capacity;
+    bool current_module_is_unsafe;  /* Is the current module context unsafe? */
 } Environment;
 
 /* Function declarations */

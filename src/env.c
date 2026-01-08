@@ -91,6 +91,12 @@ Environment *create_environment(void) {
     env->namespace_capacity = 8;
     env->current_module = NULL;  /* Start in global scope */
     
+    /* Initialize unsafe module tracking */
+    env->unsafe_modules = NULL;
+    env->unsafe_module_count = 0;
+    env->unsafe_module_capacity = 0;
+    env->current_module_is_unsafe = false;
+    
     /* Initialize import tracker */
     env->import_tracker = malloc(sizeof(ImportTracker));
     env->import_tracker->imports = malloc(sizeof(SelectiveImport) * 8);
@@ -233,6 +239,14 @@ void free_environment(Environment *env) {
         free(env->namespaces[i].union_names);
     }
     free(env->namespaces);
+
+    /* Free unsafe modules list */
+    if (env->unsafe_modules) {
+        for (int i = 0; i < env->unsafe_module_count; i++) {
+            free(env->unsafe_modules[i]);
+        }
+        free(env->unsafe_modules);
+    }
 
     free(env);
 }

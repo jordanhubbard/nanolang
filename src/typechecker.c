@@ -2724,13 +2724,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             return TYPE_VOID;
             
         case AST_CALL: {
-            /* Check if this is a call to an extern function outside unsafe block */
+            /* Check if this is a call to an extern function outside unsafe context */
             if (stmt->as.call.name) {
                 Function *func = env_get_function(tc->env, stmt->as.call.name);
-                if (func && func->is_extern && !tc->in_unsafe_block) {
-                    fprintf(stderr, "Error at line %d, column %d: Call to extern function '%s' requires unsafe block\n",
+                if (func && func->is_extern && !tc->in_unsafe_block && !tc->env->current_module_is_unsafe) {
+                    fprintf(stderr, "Error at line %d, column %d: Call to extern function '%s' requires unsafe block or unsafe module\n",
                             stmt->line, stmt->column, stmt->as.call.name);
-                    fprintf(stderr, "  Note: Extern functions can perform arbitrary operations and must be wrapped in 'unsafe { ... }'\n");
+                    fprintf(stderr, "  Note: Extern functions can perform arbitrary operations.\n");
+                    fprintf(stderr, "  Hint: Either wrap the call in 'unsafe { ... }' or declare the module as 'unsafe module name { ... }'\n");
                     tc->has_error = true;
                 }
             }
@@ -3690,6 +3691,23 @@ bool type_check(ASTNode *program, Environment *env) {
     /* Register built-in functions */
     register_builtin_functions(env);
 
+    /* Pre-pass: Process imports and track unsafe modules */
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        
+        if (item->type == AST_IMPORT && item->as.import_stmt.is_unsafe) {
+            /* Track this as an unsafe module */
+            if (env->unsafe_module_count >= env->unsafe_module_capacity) {
+                env->unsafe_module_capacity = env->unsafe_module_capacity == 0 ? 4 : env->unsafe_module_capacity * 2;
+                env->unsafe_modules = realloc(env->unsafe_modules, sizeof(char*) * env->unsafe_module_capacity);
+            }
+            env->unsafe_modules[env->unsafe_module_count++] = strdup(item->as.import_stmt.module_path);
+            
+            /* Mark current module as unsafe if we're importing unsafe modules */
+            env->current_module_is_unsafe = true;
+        }
+    }
+
     /* First pass: collect all struct, enum, and function definitions */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -3701,10 +3719,11 @@ bool type_check(ASTNode *program, Environment *env) {
                 free(env->current_module);
             }
             env->current_module = strdup(item->as.module_decl.name);
+            /* TODO: Check if module is declared as unsafe */
             continue;
         }
         
-        /* Skip imports - they're handled separately */
+        /* Skip imports - they're handled in pre-pass */
         if (item->type == AST_IMPORT) {
             continue;
         }
