@@ -3722,13 +3722,6 @@ bool type_check(ASTNode *program, Environment *env) {
             
             /* Register module for introspection */
             env_register_module(env, module_name, path, item->as.import_stmt.is_unsafe);
-            
-            /* Debug: Confirm registration */
-            #ifdef DEBUG_MODULE_INTROSPECTION
-            fprintf(stderr, "DEBUG: Registered module '%s' from path '%s' (unsafe=%d)\n", 
-                    module_name, path, item->as.import_stmt.is_unsafe);
-            #endif
-            
             free(module_name);
             
             /* Mark current context as unsafe if we're importing unsafe modules */
@@ -4351,6 +4344,22 @@ bool type_check(ASTNode *program, Environment *env) {
         }
     }
 
+    /* Post-pass: Update module FFI tracking based on loaded functions */
+    for (int i = 0; i < env->module_count; i++) {
+        ModuleInfo *mod = &env->modules[i];
+        if (!mod || !mod->name) continue;
+        
+        /* Check if any functions in this module are extern */
+        for (int f = 0; f < env->function_count; f++) {
+            Function *func = &env->functions[f];
+            if (func->is_extern && func->module_name && 
+                strcmp(func->module_name, mod->name) == 0) {
+                mod->has_ffi = true;
+                break;
+            }
+        }
+    }
+    
     /* Verify main function exists */
     Function *main_func = env_get_function(env, "main");
     if (!main_func) {

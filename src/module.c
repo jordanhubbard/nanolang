@@ -484,10 +484,29 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     /* Type check module (without requiring main) */
     /* Save current module context before processing imported module */
     char *saved_current_module = env->current_module;
-    env->current_module = NULL;  /* Reset to process module with its own context */
+    
+    /* Extract module name from path for function tagging */
+    /* e.g., "modules/sdl/sdl.nano" -> "sdl" */
+    char *module_name = NULL;
+    const char *last_slash = strrchr(module_path, '/');
+    const char *last_dot = strrchr(module_path, '.');
+    if (last_slash && last_dot && last_dot > last_slash) {
+        size_t name_len = last_dot - (last_slash + 1);
+        module_name = strndup(last_slash + 1, name_len);
+    } else if (last_slash) {
+        module_name = strdup(last_slash + 1);
+    } else if (last_dot) {
+        size_t name_len = last_dot - module_path;
+        module_name = strndup(module_path, name_len);
+    } else {
+        module_name = strdup(module_path);
+    }
+    
+    env->current_module = module_name;  /* Set module context for function tagging */
     
     if (!type_check_module(module_ast, env)) {
         fprintf(stderr, "Error: Type checking failed for module '%s'\n", module_path);
+        free(module_name);
         env->current_module = saved_current_module;  /* Restore context */
         free_ast(module_ast);
         free_tokens(tokens, token_count);
@@ -496,7 +515,7 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     }
     
     /* Restore original module context */
-    /* NOTE: We intentionally DON'T free env->current_module here because:
+    /* NOTE: We intentionally DON'T free module_name here because:
      * 1. Functions registered during type_check have module_name pointers that reference it
      * 2. Those pointers are just shallow copies from the struct assignment
      * 3. Freeing would create dangling pointers
