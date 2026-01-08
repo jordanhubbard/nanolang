@@ -372,7 +372,8 @@ struct ASTNode {
         /* Import statement: import "module.nano" as alias or from "module.nano" import sym1, sym2 */
         struct {
             char *module_path;      /* Path to module file (e.g., "math.nano" or "utils/math.nano") */
-            char *module_alias;     /* Optional module alias (for "import ... as alias") */
+            char *module_alias;     /* Optional module alias (for "module ... as alias") */
+            bool is_unsafe;         /* true for "unsafe module" */
             bool is_selective;      /* true for "from...import" syntax */
             bool is_wildcard;       /* true for "from...import *" syntax */
             bool is_pub_use;        /* true for "pub use" (re-export) */

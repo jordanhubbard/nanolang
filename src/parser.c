@@ -3228,18 +3228,27 @@ static ASTNode *parse_module_decl(Stage1Parser *p) {
     return node;
 }
 
-/* Parse import statement:
- *   - import "path.nano"
- *   - import "path.nano" as alias
- *   - from "path.nano" import sym1, sym2
- *   - from "path.nano" import *
- *   - pub use "path.nano" as alias  (re-export)
+/* Parse module import statement:
+ *   - module "path.nano"
+ *   - unsafe module "path.nano"
+ *   - module "path.nano" as alias
+ *   - unsafe module "path.nano" as alias
+ *   - from "path.nano" import sym1, sym2  (legacy, will be deprecated)
+ *   - from "path.nano" import *  (legacy, will be deprecated)
+ *   - pub use "path.nano" as alias  (re-export, will be deprecated)
  */
 static ASTNode *parse_import(Stage1Parser *p) {
     int line = current_token(p)->line;
     int column = current_token(p)->column;
 
+    bool is_unsafe = false;
     bool is_from = false;
+
+    /* Check for 'unsafe' prefix */
+    if (match(p, TOKEN_UNSAFE)) {
+        is_unsafe = true;
+        advance(p);  /* consume 'unsafe' */
+    }
 
     /* Check if this is 'use' (for pub use re-exports) */
     if (match(p, TOKEN_USE)) {
@@ -3250,27 +3259,31 @@ static ASTNode *parse_import(Stage1Parser *p) {
         is_from = true;
         advance(p);  /* consume 'from' */
     }
-    /* Otherwise it must be 'import' */
-    else if (!expect(p, TOKEN_IMPORT, "Expected 'import', 'from', or 'use'")) {
+    /* Otherwise it must be 'module' (new syntax) or 'import' (legacy) */
+    else if (!match(p, TOKEN_MODULE) && !match(p, TOKEN_IMPORT)) {
+        fprintf(stderr, "Error at line %d, column %d: Expected 'module', 'import', 'from', or 'use'\n", line, column);
         return NULL;
+    } else {
+        advance(p);  /* consume 'module' or 'import' */
     }
 
-    /* Parse import path: "module.nano" or module (identifier) */
+    /* Parse module path: "module.nano" or module (identifier) */
     char *module_path = NULL;
 
     if (match(p, TOKEN_STRING)) {
-        /* import "module.nano" */
+        /* module "module.nano" */
         module_path = strdup(current_token(p)->value);
         advance(p);
     } else if (match(p, TOKEN_IDENTIFIER)) {
-        /* import module (treat as "module.nano") */
+        /* module foo (treat as "modules/foo/foo.nano") */
         const char *ident = current_token(p)->value;
-        char *path = malloc(strlen(ident) + 6);  /* +6 for ".nano\0" */
-        snprintf(path, strlen(ident) + 6, "%s.nano", ident);
+        /* For bare identifiers, look in modules/ directory */
+        char *path = malloc(strlen(ident) * 2 + 20);  /* "modules/X/X.nano\0" */
+        snprintf(path, strlen(ident) * 2 + 20, "modules/%s/%s.nano", ident, ident);
         module_path = path;
         advance(p);
     } else {
-        fprintf(stderr, "Error at line %d, column %d: Expected string or identifier after 'import'\n", line, column);
+        fprintf(stderr, "Error at line %d, column %d: Expected string or identifier after 'module'\n", line, column);
         return NULL;
     }
 
@@ -3340,6 +3353,7 @@ static ASTNode *parse_import(Stage1Parser *p) {
     ASTNode *node = create_node(AST_IMPORT, line, column);
     node->as.import_stmt.module_path = module_path;
     node->as.import_stmt.module_alias = module_alias;
+    node->as.import_stmt.is_unsafe = is_unsafe;  /* NEW: Track unsafe modules */
     node->as.import_stmt.is_selective = is_selective;
     node->as.import_stmt.is_wildcard = is_wildcard;
     node->as.import_stmt.is_pub_use = false;  /* Set by caller if 'pub use' */
@@ -3422,9 +3436,40 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         }
 
         ASTNode *parsed = NULL;
-        if (match(&parser, TOKEN_MODULE)) {
-            parsed = parse_module_decl(&parser);
+        /* Check for unsafe prefix before module */
+        if (match(&parser, TOKEN_UNSAFE)) {
+            /* Could be 'unsafe module' import or 'unsafe module name { ... }' declaration */
+            Token *next = peek_token(&parser, 1);
+            if (next && next->type == TOKEN_MODULE) {
+                /* It's either 'unsafe module "path"' or 'unsafe module name { ... }' */
+                Token *after_module = peek_token(&parser, 2);
+                if (after_module && after_module->type == TOKEN_STRING) {
+                    /* unsafe module "path" - import */
+                    parsed = parse_import(&parser);
+                } else if (after_module && after_module->type == TOKEN_IDENTIFIER) {
+                    /* unsafe module name {...} - declaration (TODO: implement) */
+                    advance(&parser); /* consume unsafe */
+                    parsed = parse_module_decl(&parser);
+                } else {
+                    advance(&parser); /* consume unsafe */
+                    parsed = parse_import(&parser);
+                }
+            } else {
+                /* unsafe block or other unsafe construct */
+                parsed = parse_unsafe_block(&parser);
+            }
+        } else if (match(&parser, TOKEN_MODULE)) {
+            /* Could be 'module name' declaration or 'module "path"' import */
+            Token *next = peek_token(&parser, 1);
+            if (next && next->type == TOKEN_STRING) {
+                /* module "path" - import */
+                parsed = parse_import(&parser);
+            } else {
+                /* module name - declaration */
+                parsed = parse_module_decl(&parser);
+            }
         } else if (match(&parser, TOKEN_IMPORT) || match(&parser, TOKEN_FROM)) {
+            /* Legacy import syntax - still supported for now */
             parsed = parse_import(&parser);
         } else if (match(&parser, TOKEN_PUB)) {
             /* pub keyword before function or type definition */
