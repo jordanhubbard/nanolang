@@ -232,6 +232,25 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     }
     if (opts->verbose) printf("✓ Shadow tests passed\n");
 
+    /* Phase 5.5: Ensure module ASTs are in cache for declaration generation */
+    /* Module compilation uses isolated caches that get cleared, so we need to
+     * re-load modules into the main cache before transpilation so that
+     * generate_module_function_declarations() can find them. */
+    if (modules->count > 0) {
+        if (opts->verbose) printf("Ensuring module ASTs are cached for declaration generation...\n");
+        for (int i = 0; i < modules->count; i++) {
+            const char *module_path = modules->module_paths[i];
+            if (module_path) {
+                /* Load module into cache (won't re-parse if already loaded) */
+                ASTNode *module_ast = load_module(module_path, env);
+                if (!module_ast) {
+                    fprintf(stderr, "Warning: Failed to load module '%s' for declaration generation\n", module_path);
+                }
+            }
+        }
+        if (opts->verbose) printf("✓ Module ASTs cached\n");
+    }
+
     /* Phase 6: C Transpilation */
     if (opts->verbose) printf("Transpiling to C...\n");
     char *c_code = transpile_to_c(program, env, input_file);

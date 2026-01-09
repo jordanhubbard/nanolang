@@ -2580,10 +2580,19 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
         const char *resolved = resolve_module_path(item->as.import_stmt.module_path, current_file);
         if (!resolved) continue;
 
+        /* Extract module name from file path BEFORE freeing resolved */
+        char module_name_from_path[256];
+        const char *last_slash = strrchr(resolved, '/');
+        const char *base_name = last_slash ? last_slash + 1 : resolved;
+        snprintf(module_name_from_path, sizeof(module_name_from_path), "%s", base_name);
+        char *dot = strrchr(module_name_from_path, '.');
+        if (dot) *dot = '\0';
+
         ASTNode *module_ast = get_cached_module_ast(resolved);
         free((char*)resolved);  /* Cast away const for free() */
         if (!module_ast || module_ast->type != AST_PROGRAM) continue;
 
+        /* Check if module has an explicit module declaration */
         const char *module_name = NULL;
         for (int j = 0; j < module_ast->as.program.count; j++) {
             ASTNode *mi = module_ast->as.program.items[j];
@@ -2591,6 +2600,11 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                 module_name = mi->as.module_decl.name;
                 break;
             }
+        }
+        
+        /* If no module declaration, use name extracted from file path */
+        if (!module_name) {
+            module_name = module_name_from_path;
         }
 
         /* Check if module has a main function (if not, all functions are implicitly public) */
