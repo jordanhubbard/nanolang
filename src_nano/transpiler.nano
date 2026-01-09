@@ -956,6 +956,18 @@ fn gen_c_includes() -> string {
     set result (str_concat result "#include \"runtime/list_string.h\"\n")
     set result (str_concat result "#include \"runtime/list_token.h\"\n")
     set result (str_concat result "#include \"runtime/token_helpers.h\"\n")
+    /* Include all AST list type headers for compiler support */
+    set result (str_concat result "#include \"runtime/list_ASTLet.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTFunction.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTNumber.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTString.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTBool.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTIdentifier.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTBinaryOp.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTCall.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTStmtRef.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTBlock.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTFieldAccess.h\"\n")
     set result (str_concat result "\n")
     
     return result

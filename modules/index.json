@@ -1,7 +1,7 @@
 {
 	"version":	"1.0.0",
-	"generated_at":	"2026-01-05T06:44:49Z",
-	"total_modules":	32,
+	"generated_at":	"2026-01-08T18:54:45Z",
+	"total_modules":	33,
 	"modules":	[{
 			"name":	"vector2d",
 			"version":	"1.0.0",
@@ -222,6 +222,24 @@
 					"when":	"just stdio",
 					"module":	"stdio"
 				}]
+		}, {
+			"name":	"log",
+			"version":	"1.0.0",
+			"description":	"Structured logging and tracing with log levels, contexts, and machine-readable output",
+			"author":	"NanoLang Standard Library",
+			"license":	"MIT",
+			"stability":	"stable",
+			"module_type":	"nanolang",
+			"entry_point":	"log.nano",
+			"dependencies":	[],
+			"use_when":	["User needs logging functionality", "User wants debug tracing", "User needs structured logging output", "User wants JSON log format", "User says 'log', 'trace', 'debug output', 'logging'"],
+			"avoid_when":	["User only needs simple println", "Performance is absolutely critical (logging adds overhead)"],
+			"capabilities":	["structured_logging", "log_levels", "function_tracing", "json_output", "debug_tools"],
+			"keywords":	["logging", "tracing", "debug", "observability", "diagnostics"],
+			"io_surfaces":	["terminal"],
+			"examples":	["examples/logging_demo.nano"],
+			"public_api":	["set_log_level(level: int) -> void", "set_output_mode(mode: int) -> void", "set_log_file(path: string) -> void", "get_log_level() -> int", "log(level: int, message: string) -> void", "log_debug(message: string) -> void", "log_info(message: string) -> void", "log_warn(message: string) -> void", "log_error(message: string) -> void", "log_fatal(message: string) -> void", "trace_enter(fn_name: string) -> int", "trace_exit(trace_id: int, fn_name: string) -> void", "trace_event(name: string, data: string) -> void", "log_int(level: int, message: string, value: int) -> void", "log_debug_int(message: string, value: int) -> void", "log_info_int(message: string, value: int) -> void"],
+			"constants":	["LOG_LEVEL_DEBUG", "LOG_LEVEL_INFO", "LOG_LEVEL_WARN", "LOG_LEVEL_ERROR", "LOG_LEVEL_FATAL", "OUTPUT_MODE_TEXT", "OUTPUT_MODE_JSON"]
 		}, {
 			"name":	"filesystem",
 			"version":	"1.0.0",
