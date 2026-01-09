@@ -1554,6 +1554,24 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
             
+            /* Phase 3: Warn on calls to functions from unsafe modules if --warn-unsafe-calls is set */
+            if (env->warn_unsafe_calls && func->module_name) {
+                /* Check if the function's module is unsafe */
+                ModuleInfo *mod = env_get_module(env, func->module_name);
+                if (mod && mod->is_unsafe) {
+                    fprintf(stderr, "Warning at line %d, column %d: Calling function '%s.%s' from unsafe module '%s'\n",
+                            expr->line, expr->column, module_alias, function_name, func->module_name);
+                    fprintf(stderr, "  Note: Functions from unsafe modules may have safety implications\n");
+                }
+            }
+            
+            /* Phase 3: Warn on FFI calls if --warn-ffi is set */
+            if (func->is_extern && env->warn_ffi) {
+                fprintf(stderr, "Warning at line %d, column %d: FFI call to extern function '%s.%s'\n",
+                        expr->line, expr->column, module_alias, function_name);
+                fprintf(stderr, "  Note: Extern functions perform arbitrary operations\n");
+            }
+            
             free(qualified_name);
             
             /* Type check arguments (basic check - just verify count and type check expressions) */
@@ -2764,21 +2782,34 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* Check if this is a call to an extern function outside unsafe context */
             if (stmt->as.call.name) {
                 Function *func = env_get_function(tc->env, stmt->as.call.name);
-                if (func && func->is_extern) {
-                    /* Phase 3: Warn on FFI calls if --warn-ffi is set */
-                    if (tc->env->warn_ffi) {
-                        fprintf(stderr, "Warning at line %d, column %d: FFI call to extern function '%s'\n",
-                                stmt->line, stmt->column, stmt->as.call.name);
-                        fprintf(stderr, "  Note: Extern functions perform arbitrary operations\n");
+                if (func) {
+                    /* Phase 3: Warn on calls to functions from unsafe modules if --warn-unsafe-calls is set */
+                    if (tc->env->warn_unsafe_calls && func->module_name) {
+                        /* Check if the function's module is unsafe */
+                        ModuleInfo *mod = env_get_module(tc->env, func->module_name);
+                        if (mod && mod->is_unsafe) {
+                            fprintf(stderr, "Warning at line %d, column %d: Calling function '%s' from unsafe module '%s'\n",
+                                    stmt->line, stmt->column, stmt->as.call.name, func->module_name);
+                            fprintf(stderr, "  Note: Functions from unsafe modules may have safety implications\n");
+                        }
                     }
                     
-                    /* Check if unsafe context is required */
-                    if (!tc->in_unsafe_block && !tc->env->current_module_is_unsafe) {
-                        fprintf(stderr, "Error at line %d, column %d: Call to extern function '%s' requires unsafe block or unsafe module\n",
-                                stmt->line, stmt->column, stmt->as.call.name);
-                        fprintf(stderr, "  Note: Extern functions can perform arbitrary operations.\n");
-                        fprintf(stderr, "  Hint: Either wrap the call in 'unsafe { ... }' or declare the module as 'unsafe module name { ... }'\n");
-                        tc->has_error = true;
+                    if (func->is_extern) {
+                        /* Phase 3: Warn on FFI calls if --warn-ffi is set */
+                        if (tc->env->warn_ffi) {
+                            fprintf(stderr, "Warning at line %d, column %d: FFI call to extern function '%s'\n",
+                                    stmt->line, stmt->column, stmt->as.call.name);
+                            fprintf(stderr, "  Note: Extern functions perform arbitrary operations\n");
+                        }
+                        
+                        /* Check if unsafe context is required */
+                        if (!tc->in_unsafe_block && !tc->env->current_module_is_unsafe) {
+                            fprintf(stderr, "Error at line %d, column %d: Call to extern function '%s' requires unsafe block or unsafe module\n",
+                                    stmt->line, stmt->column, stmt->as.call.name);
+                            fprintf(stderr, "  Note: Extern functions can perform arbitrary operations.\n");
+                            fprintf(stderr, "  Hint: Either wrap the call in 'unsafe { ... }' or declare the module as 'unsafe module name { ... }'\n");
+                            tc->has_error = true;
+                        }
                     }
                 }
             }

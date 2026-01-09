@@ -99,6 +99,7 @@ Environment *create_environment(void) {
     
     /* Initialize Phase 3: Module safety warning flags */
     env->warn_unsafe_imports = false;
+    env->warn_unsafe_calls = false;
     env->warn_ffi = false;
     env->forbid_unsafe = false;
     

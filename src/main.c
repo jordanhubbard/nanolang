@@ -26,6 +26,7 @@ typedef struct {
     int library_count;
     /* Phase 3: Module safety warnings */
     bool warn_unsafe_imports;  /* Warn when importing unsafe modules */
+    bool warn_unsafe_calls;    /* Warn when calling functions from unsafe modules */
     bool warn_ffi;             /* Warn on any FFI call */
     bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
 } CompilerOptions;
@@ -137,6 +138,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     /* Set warning flags from compiler options */
     env->warn_unsafe_imports = opts->warn_unsafe_imports;
+    env->warn_unsafe_calls = opts->warn_unsafe_calls;
     env->warn_ffi = opts->warn_ffi;
     env->forbid_unsafe = opts->forbid_unsafe;
     
@@ -704,6 +706,7 @@ int main(int argc, char *argv[]) {
         printf("  --help, -h     Show this help message\n");
         printf("\nSafety Options:\n");
         printf("  --warn-unsafe-imports  Warn when importing unsafe modules\n");
+        printf("  --warn-unsafe-calls    Warn when calling functions from unsafe modules\n");
         printf("  --warn-ffi             Warn on any FFI (extern function) call\n");
         printf("  --forbid-unsafe        Error (not warn) on unsafe module imports\n");
         printf("\nExamples:\n");
@@ -733,6 +736,7 @@ int main(int argc, char *argv[]) {
         .libraries = NULL,
         .library_count = 0,
         .warn_unsafe_imports = false,
+        .warn_unsafe_calls = false,
         .warn_ffi = false,
         .forbid_unsafe = false
     };
@@ -788,6 +792,8 @@ int main(int argc, char *argv[]) {
             }
         } else if (strcmp(argv[i], "--warn-unsafe-imports") == 0) {
             opts.warn_unsafe_imports = true;
+        } else if (strcmp(argv[i], "--warn-unsafe-calls") == 0) {
+            opts.warn_unsafe_calls = true;
         } else if (strcmp(argv[i], "--warn-ffi") == 0) {
             opts.warn_ffi = true;
         } else if (strcmp(argv[i], "--forbid-unsafe") == 0) {
