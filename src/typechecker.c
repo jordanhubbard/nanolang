@@ -1535,6 +1535,43 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             return func->return_type;
         }
 
+        case AST_MODULE_QUALIFIED_CALL: {
+            /* Module-qualified function call: (Module.function args...) */
+            const char *module_alias = expr->as.module_qualified_call.module_alias;
+            const char *function_name = expr->as.module_qualified_call.function_name;
+            
+            /* For now, construct a qualified name "Module.function" and look it up */
+            /* TODO: Use proper module namespace lookup */
+            char *qualified_name = malloc(strlen(module_alias) + strlen(function_name) + 2);
+            sprintf(qualified_name, "%s.%s", module_alias, function_name);
+            
+            /* Look up function in environment */
+            Function *func = env_get_function(env, qualified_name);
+            if (!func) {
+                fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
+                        expr->line, expr->column, qualified_name);
+                free(qualified_name);
+                return TYPE_UNKNOWN;
+            }
+            
+            free(qualified_name);
+            
+            /* Type check arguments (basic check - just verify count and type check expressions) */
+            if (expr->as.module_qualified_call.arg_count != func->param_count) {
+                fprintf(stderr, "Error at line %d, column %d: Function '%s.%s' expects %d arguments, got %d\n",
+                        expr->line, expr->column, module_alias, function_name,
+                        func->param_count, expr->as.module_qualified_call.arg_count);
+                return TYPE_UNKNOWN;
+            }
+            
+            /* Type check each argument expression */
+            for (int i = 0; i < expr->as.module_qualified_call.arg_count; i++) {
+                check_expression(expr->as.module_qualified_call.args[i], env);
+            }
+            
+            return func->return_type;
+        }
+
         case AST_ARRAY_LITERAL: {
             /* Type check array literal */
             int element_count = expr->as.array_literal.element_count;

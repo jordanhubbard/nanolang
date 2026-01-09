@@ -1541,23 +1541,22 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     free(first_expr);
                     return node;
                 } else if (first_expr->type == AST_FIELD_ACCESS) {
-                    /* Module.function call with zero arguments - convert to qualified name */
+                    /* Module.function call with zero arguments - use AST_MODULE_QUALIFIED_CALL */
                     if (first_expr->as.field_access.object->type == AST_IDENTIFIER) {
                         char *module = first_expr->as.field_access.object->as.identifier;
                         char *field = first_expr->as.field_access.field_name;
-                        char *func_name = malloc(strlen(module) + strlen(field) + 2);
-                        sprintf(func_name, "%s.%s", module, field);
                         
                         advance(p);  /* consume ')' */
                         
-                        ASTNode *node = create_node(AST_CALL, line, column);
-                        node->as.call.name = func_name;
-                        node->as.call.func_expr = NULL;
-                        node->as.call.args = NULL;
-                        node->as.call.arg_count = 0;
-                        node->as.call.return_struct_type_name = NULL;
+                        ASTNode *node = create_node(AST_MODULE_QUALIFIED_CALL, line, column);
+                        node->as.module_qualified_call.module_alias = strdup(module);
+                        node->as.module_qualified_call.function_name = strdup(field);
+                        node->as.module_qualified_call.args = NULL;
+                        node->as.module_qualified_call.arg_count = 0;
+                        node->as.module_qualified_call.return_struct_type_name = NULL;
                         
-                        /* NOTE: Not freeing first_expr to avoid corruption, similar to line 1433 */
+                        /* Free the field_access node */
+                        free_ast(first_expr);
                         return node;
                     } else {
                         /* Parenthesized expression: (expr) */
@@ -1578,23 +1577,27 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 char *func_name = NULL;
                 ASTNode *func_expr = NULL;
                 
+                bool is_module_qualified = false;
+                char *module_alias = NULL;
+                char *qualified_func_name = NULL;
+                
                 if (first_expr->type == AST_IDENTIFIER) {
                     /* Regular function call */
                     func_name = first_expr->as.identifier;
                 } else if (first_expr->type == AST_FIELD_ACCESS) {
-                    /* Module.function call - convert to qualified name */
-                    /* e.g., Math.square becomes "Math.square" */
+                    /* Module.function call - use AST_MODULE_QUALIFIED_CALL */
                     if (first_expr->as.field_access.object->type == AST_IDENTIFIER) {
                         char *module = first_expr->as.field_access.object->as.identifier;
                         char *field = first_expr->as.field_access.field_name;
-                        func_name = malloc(strlen(module) + strlen(field) + 2);
-                        sprintf(func_name, "%s.%s", module, field);
                         
-                        /* BUGFIX: Don't free the field_access node at all!
-                         * The strings (module, field) are still in use by later AST nodes.
-                         * This causes a small memory leak but prevents use-after-free corruption.
-                         * TODO: Proper fix would be to copy strings or restructure AST lifecycle. */
-                        /* free_ast(first_expr);  -- DISABLED to prevent corruption */
+                        /* Mark as module-qualified for later processing */
+                        is_module_qualified = true;
+                        module_alias = strdup(module);
+                        qualified_func_name = strdup(field);
+                        
+                        /* Free the field_access node */
+                        free_ast(first_expr);
+                        first_expr = NULL;
                     } else {
                         fprintf(stderr, "Error at line %d, column %d: Complex field access not supported in function calls\n",
                                 line, column);
@@ -1632,6 +1635,8 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                         free(args);
                         if (func_name) free(func_name);
                         if (func_expr) free_ast(func_expr);
+                        if (module_alias) free(module_alias);
+                        if (qualified_func_name) free(qualified_func_name);
                         if (first_expr && first_expr->type == AST_IDENTIFIER) {
                             free(first_expr);  /* Don't use free_ast - we already extracted the identifier */
                         }
@@ -1647,6 +1652,8 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     free(args);
                     if (func_name) free(func_name);
                     if (func_expr) free_ast(func_expr);
+                    if (module_alias) free(module_alias);
+                    if (qualified_func_name) free(qualified_func_name);
                     if (first_expr && first_expr->type == AST_IDENTIFIER) {
                         free(first_expr);
                     }
@@ -1654,20 +1661,31 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 }
                 
                 /* Create function call node */
-                node = create_node(AST_CALL, line, column);
-                if (func_name) {
-                    node->as.call.name = func_name;
-                    node->as.call.func_expr = NULL;
-                    /* Free the first_expr struct but keep the identifier */
-                    free(first_expr);  /* Don't use free_ast - we're using the identifier */
+                if (is_module_qualified) {
+                    /* Create module-qualified call node */
+                    node = create_node(AST_MODULE_QUALIFIED_CALL, line, column);
+                    node->as.module_qualified_call.module_alias = module_alias;
+                    node->as.module_qualified_call.function_name = qualified_func_name;
+                    node->as.module_qualified_call.args = args;
+                    node->as.module_qualified_call.arg_count = count;
+                    node->as.module_qualified_call.return_struct_type_name = NULL;
                 } else {
-                    node->as.call.name = NULL;
-                    node->as.call.func_expr = func_expr;
-                    /* func_expr is already first_expr, don't free it again */
+                    /* Create regular call node */
+                    node = create_node(AST_CALL, line, column);
+                    if (func_name) {
+                        node->as.call.name = func_name;
+                        node->as.call.func_expr = NULL;
+                        /* Free the first_expr struct but keep the identifier */
+                        free(first_expr);  /* Don't use free_ast - we're using the identifier */
+                    } else {
+                        node->as.call.name = NULL;
+                        node->as.call.func_expr = func_expr;
+                        /* func_expr is already first_expr, don't free it again */
+                    }
+                    node->as.call.args = args;
+                    node->as.call.arg_count = count;
+                    node->as.call.return_struct_type_name = NULL;  /* Will be set by type checker if needed */
                 }
-                node->as.call.args = args;
-                node->as.call.arg_count = count;
-                node->as.call.return_struct_type_name = NULL;  /* Will be set by type checker if needed */
                 
                 return node;
             }

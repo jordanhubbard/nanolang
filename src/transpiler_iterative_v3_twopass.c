@@ -1582,6 +1582,33 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             break;
         }
         
+        case AST_MODULE_QUALIFIED_CALL: {
+            /* Module-qualified function call: (Module.function args...) */
+            const char *module_alias = expr->as.module_qualified_call.module_alias;
+            const char *function_name = expr->as.module_qualified_call.function_name;
+            
+            /* Generate qualified function name: "Module.function" */
+            char *qualified_name = malloc(strlen(module_alias) + strlen(function_name) + 2);
+            sprintf(qualified_name, "%s.%s", module_alias, function_name);
+            
+            /* Map to C function name */
+            const char *c_name = map_function_name(qualified_name, env);
+            
+            emit_literal(list, c_name);
+            emit_literal(list, "(");
+            
+            /* Emit arguments */
+            for (int i = 0; i < expr->as.module_qualified_call.arg_count; i++) {
+                if (i > 0) emit_literal(list, ", ");
+                build_expr(list, expr->as.module_qualified_call.args[i], env);
+            }
+            
+            emit_literal(list, ")");
+            
+            free(qualified_name);
+            break;
+        }
+        
         case AST_IF: {
             /* Ternary operator */
             emit_literal(list, "(");
