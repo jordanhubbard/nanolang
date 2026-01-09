@@ -1127,10 +1127,11 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     }
     
     /* Clean up temporary C file */
-    remove(temp_c_file);
-    
-    if (verbose) {
+    if (!verbose) {
+        remove(temp_c_file);
+    } else {
         printf("✓ Compiled module to object file: %s\n", output_obj);
+        printf("  C source kept at: %s\n", temp_c_file);
     }
     
     free(c_code);

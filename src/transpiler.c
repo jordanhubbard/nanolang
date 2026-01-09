@@ -2593,10 +2593,21 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
             }
         }
 
+        /* Check if module has a main function (if not, all functions are implicitly public) */
+        bool module_has_main = false;
+        for (int j = 0; j < module_ast->as.program.count; j++) {
+            ASTNode *check = module_ast->as.program.items[j];
+            if (check && check->type == AST_FUNCTION && strcmp(check->as.function.name, "main") == 0) {
+                module_has_main = true;
+                break;
+            }
+        }
+        
         for (int j = 0; j < module_ast->as.program.count; j++) {
             ASTNode *mi = module_ast->as.program.items[j];
             if (!mi || mi->type != AST_FUNCTION) continue;
-            if (!mi->as.function.is_pub) continue;
+            /* In modules (no main), all functions are implicitly public */
+            if (!mi->as.function.is_pub && module_has_main) continue;
             /* main is always entry point, not a module function to be imported */
             if (strcmp(mi->as.function.name, "main") == 0) continue;
 
@@ -2714,6 +2725,10 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                                                     Environment *env,
                                                     FunctionTypeRegistry *fn_registry,
                                                     TupleTypeRegistry *tuple_registry) {
+    /* Check if we're compiling a module (no main function) */
+    Function *main_func = env_get_function(env, "main");
+    bool is_module = (main_func == NULL);
+    
     /* Forward declare functions from current program */
     sb_append(sb, "/* Forward declarations for program functions */\n");
     for (int i = 0; i < program->as.program.count; i++) {
@@ -2724,8 +2739,11 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                 continue;
             }
             
-            /* Add static for private functions */
-            if (!item->as.function.is_pub) {
+            /* Add static for private functions 
+             * BUT: When compiling modules, export all functions by default
+             * (static functions can't be linked from other compilation units)
+             */
+            if (!item->as.function.is_pub && !is_module) {
                 sb_append(sb, "static ");
             }
             
@@ -2840,6 +2858,10 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
 /* Generate function implementations from program AST */
 static void generate_function_implementations(StringBuilder *sb, ASTNode *program, Environment *env,
                                               FunctionTypeRegistry *fn_registry, TupleTypeRegistry *tuple_registry) {
+    /* Check if we're compiling a module (no main function) */
+    Function *main_func = env_get_function(env, "main");
+    bool is_module = (main_func == NULL);
+    
     /* Transpile all functions (skip shadow tests and extern functions) */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -2849,8 +2871,11 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                 continue;
             }
             
-            /* Add static for private functions */
-            if (!item->as.function.is_pub) {
+            /* Add static for private functions 
+             * BUT: When compiling modules, export all functions by default
+             * (static functions can't be linked from other compilation units)
+             */
+            if (!item->as.function.is_pub && !is_module) {
                 sb_append(sb, "static ");
             }
             
