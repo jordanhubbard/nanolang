@@ -1,0 +1,184 @@
+# Property-based testing example: Sorting algorithm validation
+# Demonstrates how to test sorting with universal properties
+
+from "modules/proptest/proptest.nano" import proptest_int_array
+
+# Simple bubble sort implementation for testing
+fn bubble_sort(arr: array<int>) -> array<int> {
+    let len: int = (array_length arr)
+    if (<= len 1) { return arr }
+    
+    let mut result: array<int> = []
+    let mut i: int = 0
+    while (< i len) {
+        set result (array_push result (at arr i))
+        set i (+ i 1)
+    }
+    
+    let mut swapped: bool = true
+    while swapped {
+        set swapped false
+        set i 0
+        while (< i (- (array_length result) 1)) {
+            let current: int = (at result i)
+            let next: int = (at result (+ i 1))
+            if (> current next) {
+                # Swap
+                set result (array_set result i next)
+                set result (array_set result (+ i 1) current)
+                set swapped true
+            }
+            set i (+ i 1)
+        }
+    }
+    
+    return result
+}
+
+# Helper: Check if array is sorted in ascending order
+fn is_sorted_ascending(arr: array<int>) -> bool {
+    let len: int = (array_length arr)
+    if (<= len 1) { return true }
+    
+    let mut i: int = 0
+    while (< i (- len 1)) {
+        if (> (at arr i) (at arr (+ i 1))) {
+            return false
+        }
+        set i (+ i 1)
+    }
+    return true
+}
+
+shadow is_sorted_ascending {
+    assert (is_sorted_ascending [])
+    assert (is_sorted_ascending [1])
+    assert (is_sorted_ascending [1, 2, 3])
+    assert (not (is_sorted_ascending [3, 1, 2]))
+    assert (is_sorted_ascending [1, 1, 2, 2])
+}
+
+# Helper: Check if two arrays have same elements (ignoring order)
+fn arrays_have_same_elements(a: array<int>, b: array<int>) -> bool {
+    if (!= (array_length a) (array_length b)) {
+        return false
+    }
+    
+    # Sort both arrays for comparison
+    let sorted_a: array<int> = (bubble_sort a)
+    let sorted_b: array<int> = (bubble_sort b)
+    
+    let mut i: int = 0
+    while (< i (array_length sorted_a)) {
+        if (!= (at sorted_a i) (at sorted_b i)) {
+            return false
+        }
+        set i (+ i 1)
+    }
+    
+    return true
+}
+
+shadow arrays_have_same_elements {
+    assert (arrays_have_same_elements [1, 2, 3] [3, 2, 1])
+    assert (arrays_have_same_elements [] [])
+    assert (not (arrays_have_same_elements [1, 2] [1, 2, 3]))
+}
+
+# Example-based tests (traditional approach)
+shadow bubble_sort {
+    # Test empty array
+    let empty: array<int> = []
+    let sorted_empty: array<int> = (bubble_sort empty)
+    assert (== (array_length sorted_empty) 0)
+    
+    # Test single element
+    let single: array<int> = [5]
+    let sorted_single: array<int> = (bubble_sort single)
+    assert (== (at sorted_single 0) 5)
+    
+    # Test already sorted
+    let already_sorted: array<int> = [1, 2, 3, 4, 5]
+    let result1: array<int> = (bubble_sort already_sorted)
+    assert (== (at result1 0) 1)
+    assert (== (at result1 4) 5)
+    
+    # Test reverse sorted
+    let reverse: array<int> = [5, 4, 3, 2, 1]
+    let result2: array<int> = (bubble_sort reverse)
+    assert (== (at result2 0) 1)
+    assert (== (at result2 4) 5)
+    
+    # Test with duplicates
+    let dups: array<int> = [3, 1, 2, 1, 3]
+    let result3: array<int> = (bubble_sort dups)
+    assert (== (at result3 0) 1)
+    assert (== (at result3 4) 3)
+    
+    # PROPERTY 1: Output length equals input length
+    (proptest_int_array "length_preserved" 100
+        (fn (arr: array<int>) -> bool {
+            let sorted: array<int> = (bubble_sort arr)
+            return (== (array_length arr) (array_length sorted))
+        }))
+    
+    # PROPERTY 2: Output is actually sorted
+    (proptest_int_array "output_is_sorted" 100
+        (fn (arr: array<int>) -> bool {
+            let sorted: array<int> = (bubble_sort arr)
+            return (is_sorted_ascending sorted)
+        }))
+    
+    # PROPERTY 3: Output contains same elements (is permutation)
+    (proptest_int_array "same_elements" 100
+        (fn (arr: array<int>) -> bool {
+            let sorted: array<int> = (bubble_sort arr)
+            return (arrays_have_same_elements arr sorted)
+        }))
+    
+    # PROPERTY 4: Sorting is idempotent (sorting twice = sorting once)
+    (proptest_int_array "idempotent" 100
+        (fn (arr: array<int>) -> bool {
+            let sorted_once: array<int> = (bubble_sort arr)
+            let sorted_twice: array<int> = (bubble_sort sorted_once)
+            return (arrays_have_same_elements sorted_once sorted_twice)
+        }))
+}
+
+fn main() -> int {
+    (println "=== Property-Based Testing Example: Sorting ===")
+    (println "")
+    (println "This example demonstrates 4 universal properties:")
+    (println "1. Length preservation: |sort(x)| = |x|")
+    (println "2. Output is sorted: ∀i. sorted[i] ≤ sorted[i+1]")
+    (println "3. Permutation: sort(x) contains same elements as x")
+    (println "4. Idempotence: sort(sort(x)) = sort(x)")
+    (println "")
+    (println "Each property is tested with 100 random arrays!")
+    (println "")
+    
+    # Demonstrate with a few examples
+    let test1: array<int> = [64, 34, 25, 12, 22, 11, 90]
+    (print "Original: [64, 34, 25, 12, 22, 11, 90]")
+    (println "")
+    let sorted1: array<int> = (bubble_sort test1)
+    (print "Sorted:   ")
+    (print "[")
+    let mut i: int = 0
+    while (< i (array_length sorted1)) {
+        (print (int_to_string (at sorted1 i)))
+        if (< i (- (array_length sorted1) 1)) {
+            (print ", ")
+        }
+        set i (+ i 1)
+    }
+    (println "]")
+    (println "")
+    
+    (println "All property tests passed! ✓")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

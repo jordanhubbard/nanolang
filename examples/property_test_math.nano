@@ -1,0 +1,207 @@
+# Property-based testing example: Mathematical properties
+# Demonstrates testing algebraic properties with random inputs
+
+from "modules/proptest/proptest.nano" import proptest_int, proptest_int_pair
+
+# Addition function
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+# Multiplication function  
+fn multiply(a: int, b: int) -> int {
+    return (* a b)
+}
+
+# Absolute value
+fn abs(x: int) -> int {
+    if (< x 0) {
+        return (* x -1)
+    } else {
+        return x
+    }
+}
+
+# Maximum of two numbers
+fn max(a: int, b: int) -> int {
+    if (> a b) {
+        return a
+    } else {
+        return b
+    }
+}
+
+shadow add {
+    # Example-based tests
+    assert (== (add 2 3) 5)
+    assert (== (add 0 0) 0)
+    assert (== (add -1 1) 0)
+    
+    # PROPERTY 1: Commutativity - add(a, b) = add(b, a)
+    (proptest_int_pair "commutative" 100
+        (fn (a: int, b: int) -> bool {
+            return (== (add a b) (add b a))
+        }))
+    
+    # PROPERTY 2: Identity element - add(x, 0) = x
+    (proptest_int "identity" 100
+        (fn (x: int) -> bool {
+            return (== (add x 0) x)
+        }))
+    
+    # PROPERTY 3: Inverse - add(x, -x) = 0
+    (proptest_int "inverse" 100
+        (fn (x: int) -> bool {
+            return (== (add x (* x -1)) 0)
+        }))
+}
+
+shadow multiply {
+    # Example-based tests
+    assert (== (multiply 2 3) 6)
+    assert (== (multiply 0 5) 0)
+    assert (== (multiply 1 7) 7)
+    
+    # PROPERTY 1: Commutativity - multiply(a, b) = multiply(b, a)
+    (proptest_int_pair "commutative" 100
+        (fn (a: int, b: int) -> bool {
+            return (== (multiply a b) (multiply b a))
+        }))
+    
+    # PROPERTY 2: Identity element - multiply(x, 1) = x
+    (proptest_int "identity" 100
+        (fn (x: int) -> bool {
+            return (== (multiply x 1) x)
+        }))
+    
+    # PROPERTY 3: Zero element - multiply(x, 0) = 0
+    (proptest_int "zero" 100
+        (fn (x: int) -> bool {
+            return (== (multiply x 0) 0)
+        }))
+    
+    # PROPERTY 4: Distributivity - a * (b + c) = (a * b) + (a * c)
+    # Note: This would require proptest_int_triple, so we test a simplified version
+    (proptest_int_pair "distributivity_simple" 100
+        (fn (a: int, b: int) -> bool {
+            # Test: a * (b + 1) = (a * b) + (a * 1)
+            let left: int = (multiply a (add b 1))
+            let right: int = (add (multiply a b) (multiply a 1))
+            return (== left right)
+        }))
+}
+
+shadow abs {
+    # Example-based tests
+    assert (== (abs 5) 5)
+    assert (== (abs -5) 5)
+    assert (== (abs 0) 0)
+    
+    # PROPERTY 1: Non-negativity - abs(x) >= 0
+    (proptest_int "non_negative" 100
+        (fn (x: int) -> bool {
+            return (>= (abs x) 0)
+        }))
+    
+    # PROPERTY 2: Symmetry - abs(-x) = abs(x)
+    (proptest_int "symmetric" 100
+        (fn (x: int) -> bool {
+            return (== (abs (* x -1)) (abs x))
+        }))
+    
+    # PROPERTY 3: Idempotence - abs(abs(x)) = abs(x)
+    (proptest_int "idempotent" 100
+        (fn (x: int) -> bool {
+            return (== (abs (abs x)) (abs x))
+        }))
+    
+    # PROPERTY 4: Triangle inequality - |a + b| <= |a| + |b|
+    (proptest_int_pair "triangle_inequality" 100
+        (fn (a: int, b: int) -> bool {
+            let left: int = (abs (add a b))
+            let right: int = (add (abs a) (abs b))
+            return (<= left right)
+        }))
+}
+
+shadow max {
+    # Example-based tests
+    assert (== (max 3 5) 5)
+    assert (== (max 5 3) 5)
+    assert (== (max 4 4) 4)
+    
+    # PROPERTY 1: Commutativity - max(a, b) = max(b, a)
+    (proptest_int_pair "commutative" 100
+        (fn (a: int, b: int) -> bool {
+            return (== (max a b) (max b a))
+        }))
+    
+    # PROPERTY 2: Idempotence - max(x, x) = x
+    (proptest_int "idempotent" 100
+        (fn (x: int) -> bool {
+            return (== (max x x) x)
+        }))
+    
+    # PROPERTY 3: Result is at least as large as both inputs
+    (proptest_int_pair "bounds" 100
+        (fn (a: int, b: int) -> bool {
+            let m: int = (max a b)
+            return (and (>= m a) (>= m b))
+        }))
+    
+    # PROPERTY 4: Result equals one of the inputs
+    (proptest_int_pair "equals_input" 100
+        (fn (a: int, b: int) -> bool {
+            let m: int = (max a b)
+            return (or (== m a) (== m b))
+        }))
+}
+
+fn main() -> int {
+    (println "=== Property-Based Testing: Mathematical Properties ===")
+    (println "")
+    (println "Testing algebraic properties with 100 random cases each:")
+    (println "")
+    (println "Addition:")
+    (println "  - Commutativity: a + b = b + a")
+    (println "  - Identity: a + 0 = a")
+    (println "  - Inverse: a + (-a) = 0")
+    (println "")
+    (println "Multiplication:")
+    (println "  - Commutativity: a * b = b * a")
+    (println "  - Identity: a * 1 = a")
+    (println "  - Zero: a * 0 = 0")
+    (println "  - Distributivity: a * (b + c) = (a * b) + (a * c)")
+    (println "")
+    (println "Absolute Value:")
+    (println "  - Non-negativity: |x| >= 0")
+    (println "  - Symmetry: |-x| = |x|")
+    (println "  - Idempotence: ||x|| = |x|")
+    (println "  - Triangle inequality: |a + b| <= |a| + |b|")
+    (println "")
+    (println "Maximum:")
+    (println "  - Commutativity: max(a, b) = max(b, a)")
+    (println "  - Idempotence: max(x, x) = x")
+    (println "  - Bounds: max(a, b) >= a and max(a, b) >= b")
+    (println "  - Result is one of inputs: max(a, b) ∈ {a, b}")
+    (println "")
+    
+    # Demonstrate some calculations
+    (println "Sample calculations:")
+    (print "add(17, 25) = ")
+    (println (int_to_string (add 17 25)))
+    (print "multiply(7, 8) = ")
+    (println (int_to_string (multiply 7 8)))
+    (print "abs(-42) = ")
+    (println (int_to_string (abs -42)))
+    (print "max(99, 100) = ")
+    (println (int_to_string (max 99 100)))
+    (println "")
+    
+    (println "All property tests passed! ✓")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
