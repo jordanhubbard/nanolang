@@ -2289,23 +2289,33 @@ static void generate_module_metadata(Environment *env, StringBuilder *sb) {
         /* These can be called from NanoLang to introspect modules at compile-time */
         
         /* Function: ___module_is_unsafe_<NAME>() -> bool */
-        sb_appendf(sb, "bool ___module_is_unsafe_%s(void) {\n", module_name);
+        sb_appendf(sb, "static inline bool ___module_is_unsafe_%s(void) {\n", module_name);
         sb_appendf(sb, "    return %s;\n", mod->is_unsafe ? "1" : "0");
         sb_append(sb, "}\n\n");
         
         /* Function: ___module_has_ffi_<NAME>() -> bool */
-        sb_appendf(sb, "bool ___module_has_ffi_%s(void) {\n", module_name);
+        sb_appendf(sb, "static inline bool ___module_has_ffi_%s(void) {\n", module_name);
         sb_appendf(sb, "    return %s;\n", mod->has_ffi ? "1" : "0");
         sb_append(sb, "}\n\n");
         
         /* Function: ___module_name_<NAME>() -> string */
-        sb_appendf(sb, "const char* ___module_name_%s(void) {\n", module_name);
+        sb_appendf(sb, "static inline const char* ___module_name_%s(void) {\n", module_name);
         sb_appendf(sb, "    return \"%s\";\n", module_name);
         sb_append(sb, "}\n\n");
         
         /* Function: ___module_path_<NAME>() -> string */
-        sb_appendf(sb, "const char* ___module_path_%s(void) {\n", module_name);
+        sb_appendf(sb, "static inline const char* ___module_path_%s(void) {\n", module_name);
         sb_appendf(sb, "    return \"%s\";\n", mod->path ? mod->path : "");
+        sb_append(sb, "}\n\n");
+        
+        /* Function: ___module_function_count_<NAME>() -> int */
+        sb_appendf(sb, "static inline int64_t ___module_function_count_%s(void) {\n", module_name);
+        sb_appendf(sb, "    return %d;\n", mod->function_count);
+        sb_append(sb, "}\n\n");
+        
+        /* Function: ___module_struct_count_<NAME>() -> int */
+        sb_appendf(sb, "static inline int64_t ___module_struct_count_%s(void) {\n", module_name);
+        sb_appendf(sb, "    return %d;\n", mod->struct_count);
         sb_append(sb, "}\n\n");
     }
     

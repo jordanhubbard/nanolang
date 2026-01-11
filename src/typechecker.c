@@ -1682,6 +1682,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
             
+            /* Normalize qualified name (Math.Point) to actual struct name (Point) */
+            if (strcmp(expr->as.struct_literal.struct_name, sdef->name) != 0) {
+                free(expr->as.struct_literal.struct_name);
+                expr->as.struct_literal.struct_name = strdup(sdef->name);
+            }
+            
             /* Check that all fields are provided and types match */
             if (expr->as.struct_literal.field_count != sdef->field_count) {
                 fprintf(stderr, "Error at line %d, column %d: Struct '%s' expects %d fields, got %d\n",
@@ -2288,6 +2294,13 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             
             /* If declared type is STRUCT, check if it's actually an enum or union */
             if (declared_type == TYPE_STRUCT && stmt->as.let.type_name) {
+                /* Normalize qualified name (Math.Point) to actual struct name (Point) */
+                StructDef *sdef = env_get_struct(tc->env, stmt->as.let.type_name);
+                if (sdef && strcmp(stmt->as.let.type_name, sdef->name) != 0) {
+                    free((char*)stmt->as.let.type_name);
+                    stmt->as.let.type_name = strdup(sdef->name);
+                }
+                
                 /* Check if this is actually a union */
                 if (env_get_union(tc->env, stmt->as.let.type_name)) {
                     declared_type = TYPE_UNION;
@@ -3910,6 +3923,8 @@ bool type_check(ASTNode *program, Environment *env) {
             
             sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
             sdef.is_extern = item->as.struct_def.is_extern;      /* Propagate extern flag */
+            sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
+            sdef.module_name = env->current_module ? strdup(env->current_module) : NULL;  /* Set module context */
             
             env_define_struct(env, sdef);
             
@@ -4567,6 +4582,8 @@ bool type_check_module(ASTNode *program, Environment *env) {
             
             sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
             sdef.is_extern = item->as.struct_def.is_extern;      /* Propagate extern flag */
+            sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
+            sdef.module_name = env->current_module ? strdup(env->current_module) : NULL;  /* Set module context */
             
             env_define_struct(env, sdef);
             

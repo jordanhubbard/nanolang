@@ -504,6 +504,9 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     
     env->current_module = module_name;  /* Set module context for function tagging */
     
+    /* Register module for introspection BEFORE type checking so functions can be tracked */
+    env_register_module(env, module_name, module_path, false);  /* is_unsafe will be updated later */
+    
     if (!type_check_module(module_ast, env)) {
         fprintf(stderr, "Error: Type checking failed for module '%s'\n", module_path);
         free(module_name);

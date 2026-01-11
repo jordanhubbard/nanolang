@@ -313,6 +313,24 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                 char *type_name = strdup(tok->value);
                 advance(p);  /* consume type name */
                 
+                /* Check for Module.Type pattern */
+                if (current_token(p)->token_type == TOKEN_DOT) {
+                    advance(p);  /* consume '.' */
+                    Token *type_tok = current_token(p);
+                    if (type_tok->token_type != TOKEN_IDENTIFIER) {
+                        fprintf(stderr, "Error at line %d, column %d: Expected type name after '.'\n",
+                                type_tok->line, type_tok->column);
+                        free(type_name);
+                        return TYPE_UNKNOWN;
+                    }
+                    /* Build qualified name: Module.Type */
+                    char qualified_name[512];
+                    snprintf(qualified_name, sizeof(qualified_name), "%s.%s", type_name, type_tok->value);
+                    free(type_name);
+                    type_name = strdup(qualified_name);
+                    advance(p);  /* consume type name */
+                }
+                
                 /* Check if this is a generic type (followed by '<') */
                 if (current_token(p)->token_type == TOKEN_LT) {
                     advance(p);  /* consume '<' */
@@ -1151,12 +1169,21 @@ static ASTNode *parse_primary(Stage1Parser *p) {
 
         case TOKEN_IDENTIFIER:
         case TOKEN_SET: {
-            /* Check if this is a struct literal: StructName { ... } */
+            /* Check if this is a struct literal: StructName { ... } or Module.StructName { ... } */
             /* Only parse as struct literal if identifier starts with uppercase (type convention) */
             /* AND it's not followed by code keywords that indicate it's a condition */
             Token *next = peek_token(p, 1);
+            Token *after_next = peek_token(p, 2);
             Token *after_brace = peek_token(p, 2);
             bool looks_like_struct = tok->value && tok->value[0] >= 'A' && tok->value[0] <= 'Z';
+            
+            /* Check for Module.Type pattern */
+            bool is_qualified = next && next->token_type == TOKEN_DOT && 
+                               after_next && after_next->token_type == TOKEN_IDENTIFIER;
+            if (is_qualified) {
+                after_brace = peek_token(p, 3);  /* { comes after Module.Type */
+                looks_like_struct = after_next->value && after_next->value[0] >= 'A' && after_next->value[0] <= 'Z';
+            }
             
             /* Heuristic: if the token after { is a keyword like 'if', 'return', 'let', etc., 
                this is NOT a struct literal, it's a code block after a condition */
@@ -1168,12 +1195,34 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 after_brace->token_type == TOKEN_FOR
             );
             
-            if (next && next->token_type == TOKEN_LBRACE && looks_like_struct && !looks_like_code_block) {
+            bool has_lbrace = (next && next->token_type == TOKEN_LBRACE) || 
+                             (is_qualified && peek_token(p, 3) && peek_token(p, 3)->token_type == TOKEN_LBRACE);
+            
+            if (has_lbrace && looks_like_struct && !looks_like_code_block) {
                 /* Parse struct literal */
                 int line = tok->line;
                 int column = tok->column;
                 char *struct_name = strdup(tok->value);
                 advance(p);  /* consume struct name */
+                
+                /* Check for Module.StructName pattern */
+                if (current_token(p)->token_type == TOKEN_DOT) {
+                    advance(p);  /* consume '.' */
+                    Token *type_tok = current_token(p);
+                    if (type_tok->token_type != TOKEN_IDENTIFIER) {
+                        fprintf(stderr, "Error at line %d, column %d: Expected struct name after '.'\n",
+                                type_tok->line, type_tok->column);
+                        free(struct_name);
+                        return NULL;
+                    }
+                    /* Build qualified name: Module.StructName */
+                    char qualified_name[512];
+                    snprintf(qualified_name, sizeof(qualified_name), "%s.%s", struct_name, type_tok->value);
+                    free(struct_name);
+                    struct_name = strdup(qualified_name);
+                    advance(p);  /* consume struct name */
+                }
+                
                 advance(p);  /* consume '{' */
                 
                 int capacity = 4;
@@ -2230,9 +2279,13 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             Type type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig, &type_info);
 
             /* For generic lists, type_param_name contains the element type (e.g., "Point") */
-            /* For structs, type_name contains the struct name */
+            /* For structs, type_param_name contains the struct name (including qualified names like "Math.Point") */
             if (type == TYPE_LIST_GENERIC && type_param_name) {
                 /* Replace type_name with the generic parameter name */
+                if (type_name) free(type_name);
+                type_name = type_param_name;
+            } else if (type == TYPE_STRUCT && type_param_name) {
+                /* Use the struct name from parse_type_with_element (handles qualified names) */
                 if (type_name) free(type_name);
                 type_name = type_param_name;
             }

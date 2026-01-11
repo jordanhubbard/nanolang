@@ -8,105 +8,101 @@
 #include "runtime/dyn_array.h"
 
 /* Forward declare List types */
-#ifndef FORWARD_DEFINED_List_LexerToken
-#define FORWARD_DEFINED_List_LexerToken
-typedef struct List_LexerToken List_LexerToken;
-#endif
-#ifndef FORWARD_DEFINED_List_CompilerDiagnostic
-#define FORWARD_DEFINED_List_CompilerDiagnostic
-typedef struct List_CompilerDiagnostic List_CompilerDiagnostic;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTNumber
-#define FORWARD_DEFINED_List_ASTNumber
-typedef struct List_ASTNumber List_ASTNumber;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTFloat
-#define FORWARD_DEFINED_List_ASTFloat
-typedef struct List_ASTFloat List_ASTFloat;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTString
-#define FORWARD_DEFINED_List_ASTString
-typedef struct List_ASTString List_ASTString;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTBool
-#define FORWARD_DEFINED_List_ASTBool
-typedef struct List_ASTBool List_ASTBool;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTIdentifier
-#define FORWARD_DEFINED_List_ASTIdentifier
-typedef struct List_ASTIdentifier List_ASTIdentifier;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTBinaryOp
-#define FORWARD_DEFINED_List_ASTBinaryOp
-typedef struct List_ASTBinaryOp List_ASTBinaryOp;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTCall
-#define FORWARD_DEFINED_List_ASTCall
-typedef struct List_ASTCall List_ASTCall;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTStmtRef
-#define FORWARD_DEFINED_List_ASTStmtRef
-typedef struct List_ASTStmtRef List_ASTStmtRef;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTStmtRef
-#define FORWARD_DEFINED_List_ASTStmtRef
-typedef struct List_ASTStmtRef List_ASTStmtRef;
-#endif
 #ifndef FORWARD_DEFINED_List_ASTArrayLiteral
 #define FORWARD_DEFINED_List_ASTArrayLiteral
 typedef struct List_ASTArrayLiteral List_ASTArrayLiteral;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTLet
-#define FORWARD_DEFINED_List_ASTLet
-typedef struct List_ASTLet List_ASTLet;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTSet
-#define FORWARD_DEFINED_List_ASTSet
-typedef struct List_ASTSet List_ASTSet;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTIf
-#define FORWARD_DEFINED_List_ASTIf
-typedef struct List_ASTIf List_ASTIf;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTWhile
-#define FORWARD_DEFINED_List_ASTWhile
-typedef struct List_ASTWhile List_ASTWhile;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTFor
-#define FORWARD_DEFINED_List_ASTFor
-typedef struct List_ASTFor List_ASTFor;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTReturn
-#define FORWARD_DEFINED_List_ASTReturn
-typedef struct List_ASTReturn List_ASTReturn;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTBlock
-#define FORWARD_DEFINED_List_ASTBlock
-typedef struct List_ASTBlock List_ASTBlock;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTUnsafeBlock
-#define FORWARD_DEFINED_List_ASTUnsafeBlock
-typedef struct List_ASTUnsafeBlock List_ASTUnsafeBlock;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTStmtRef
-#define FORWARD_DEFINED_List_ASTStmtRef
-typedef struct List_ASTStmtRef List_ASTStmtRef;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTPrint
-#define FORWARD_DEFINED_List_ASTPrint
-typedef struct List_ASTPrint List_ASTPrint;
 #endif
 #ifndef FORWARD_DEFINED_List_ASTAssert
 #define FORWARD_DEFINED_List_ASTAssert
 typedef struct List_ASTAssert List_ASTAssert;
 #endif
+#ifndef FORWARD_DEFINED_List_ASTBinaryOp
+#define FORWARD_DEFINED_List_ASTBinaryOp
+typedef struct List_ASTBinaryOp List_ASTBinaryOp;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTBlock
+#define FORWARD_DEFINED_List_ASTBlock
+typedef struct List_ASTBlock List_ASTBlock;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTBool
+#define FORWARD_DEFINED_List_ASTBool
+typedef struct List_ASTBool List_ASTBool;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTCall
+#define FORWARD_DEFINED_List_ASTCall
+typedef struct List_ASTCall List_ASTCall;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTEnum
+#define FORWARD_DEFINED_List_ASTEnum
+typedef struct List_ASTEnum List_ASTEnum;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTFieldAccess
+#define FORWARD_DEFINED_List_ASTFieldAccess
+typedef struct List_ASTFieldAccess List_ASTFieldAccess;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTFloat
+#define FORWARD_DEFINED_List_ASTFloat
+typedef struct List_ASTFloat List_ASTFloat;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTFor
+#define FORWARD_DEFINED_List_ASTFor
+typedef struct List_ASTFor List_ASTFor;
+#endif
 #ifndef FORWARD_DEFINED_List_ASTFunction
 #define FORWARD_DEFINED_List_ASTFunction
 typedef struct List_ASTFunction List_ASTFunction;
 #endif
+#ifndef FORWARD_DEFINED_List_ASTIdentifier
+#define FORWARD_DEFINED_List_ASTIdentifier
+typedef struct List_ASTIdentifier List_ASTIdentifier;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTIf
+#define FORWARD_DEFINED_List_ASTIf
+typedef struct List_ASTIf List_ASTIf;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTImport
+#define FORWARD_DEFINED_List_ASTImport
+typedef struct List_ASTImport List_ASTImport;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTLet
+#define FORWARD_DEFINED_List_ASTLet
+typedef struct List_ASTLet List_ASTLet;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTMatch
+#define FORWARD_DEFINED_List_ASTMatch
+typedef struct List_ASTMatch List_ASTMatch;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTNumber
+#define FORWARD_DEFINED_List_ASTNumber
+typedef struct List_ASTNumber List_ASTNumber;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTOpaqueType
+#define FORWARD_DEFINED_List_ASTOpaqueType
+typedef struct List_ASTOpaqueType List_ASTOpaqueType;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTPrint
+#define FORWARD_DEFINED_List_ASTPrint
+typedef struct List_ASTPrint List_ASTPrint;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTReturn
+#define FORWARD_DEFINED_List_ASTReturn
+typedef struct List_ASTReturn List_ASTReturn;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTSet
+#define FORWARD_DEFINED_List_ASTSet
+typedef struct List_ASTSet List_ASTSet;
+#endif
 #ifndef FORWARD_DEFINED_List_ASTShadow
 #define FORWARD_DEFINED_List_ASTShadow
 typedef struct List_ASTShadow List_ASTShadow;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTStmtRef
+#define FORWARD_DEFINED_List_ASTStmtRef
+typedef struct List_ASTStmtRef List_ASTStmtRef;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTString
+#define FORWARD_DEFINED_List_ASTString
+typedef struct List_ASTString List_ASTString;
 #endif
 #ifndef FORWARD_DEFINED_List_ASTStruct
 #define FORWARD_DEFINED_List_ASTStruct
@@ -116,13 +112,13 @@ typedef struct List_ASTStruct List_ASTStruct;
 #define FORWARD_DEFINED_List_ASTStructLiteral
 typedef struct List_ASTStructLiteral List_ASTStructLiteral;
 #endif
-#ifndef FORWARD_DEFINED_List_ASTFieldAccess
-#define FORWARD_DEFINED_List_ASTFieldAccess
-typedef struct List_ASTFieldAccess List_ASTFieldAccess;
+#ifndef FORWARD_DEFINED_List_ASTTupleIndex
+#define FORWARD_DEFINED_List_ASTTupleIndex
+typedef struct List_ASTTupleIndex List_ASTTupleIndex;
 #endif
-#ifndef FORWARD_DEFINED_List_ASTEnum
-#define FORWARD_DEFINED_List_ASTEnum
-typedef struct List_ASTEnum List_ASTEnum;
+#ifndef FORWARD_DEFINED_List_ASTTupleLiteral
+#define FORWARD_DEFINED_List_ASTTupleLiteral
+typedef struct List_ASTTupleLiteral List_ASTTupleLiteral;
 #endif
 #ifndef FORWARD_DEFINED_List_ASTUnion
 #define FORWARD_DEFINED_List_ASTUnion
@@ -132,49 +128,21 @@ typedef struct List_ASTUnion List_ASTUnion;
 #define FORWARD_DEFINED_List_ASTUnionConstruct
 typedef struct List_ASTUnionConstruct List_ASTUnionConstruct;
 #endif
-#ifndef FORWARD_DEFINED_List_ASTMatch
-#define FORWARD_DEFINED_List_ASTMatch
-typedef struct List_ASTMatch List_ASTMatch;
+#ifndef FORWARD_DEFINED_List_ASTUnsafeBlock
+#define FORWARD_DEFINED_List_ASTUnsafeBlock
+typedef struct List_ASTUnsafeBlock List_ASTUnsafeBlock;
 #endif
-#ifndef FORWARD_DEFINED_List_ASTImport
-#define FORWARD_DEFINED_List_ASTImport
-typedef struct List_ASTImport List_ASTImport;
+#ifndef FORWARD_DEFINED_List_ASTWhile
+#define FORWARD_DEFINED_List_ASTWhile
+typedef struct List_ASTWhile List_ASTWhile;
 #endif
-#ifndef FORWARD_DEFINED_List_ASTOpaqueType
-#define FORWARD_DEFINED_List_ASTOpaqueType
-typedef struct List_ASTOpaqueType List_ASTOpaqueType;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTTupleLiteral
-#define FORWARD_DEFINED_List_ASTTupleLiteral
-typedef struct List_ASTTupleLiteral List_ASTTupleLiteral;
-#endif
-#ifndef FORWARD_DEFINED_List_ASTTupleIndex
-#define FORWARD_DEFINED_List_ASTTupleIndex
-typedef struct List_ASTTupleIndex List_ASTTupleIndex;
+#ifndef FORWARD_DEFINED_List_CompilerDiagnostic
+#define FORWARD_DEFINED_List_CompilerDiagnostic
+typedef struct List_CompilerDiagnostic List_CompilerDiagnostic;
 #endif
 #ifndef FORWARD_DEFINED_List_LexerToken
 #define FORWARD_DEFINED_List_LexerToken
 typedef struct List_LexerToken List_LexerToken;
-#endif
-#ifndef FORWARD_DEFINED_List_CompilerDiagnostic
-#define FORWARD_DEFINED_List_CompilerDiagnostic
-typedef struct List_CompilerDiagnostic List_CompilerDiagnostic;
-#endif
-#ifndef FORWARD_DEFINED_List_CompilerDiagnostic
-#define FORWARD_DEFINED_List_CompilerDiagnostic
-typedef struct List_CompilerDiagnostic List_CompilerDiagnostic;
-#endif
-#ifndef FORWARD_DEFINED_List_CompilerDiagnostic
-#define FORWARD_DEFINED_List_CompilerDiagnostic
-typedef struct List_CompilerDiagnostic List_CompilerDiagnostic;
-#endif
-#ifndef FORWARD_DEFINED_List_CompilerDiagnostic
-#define FORWARD_DEFINED_List_CompilerDiagnostic
-typedef struct List_CompilerDiagnostic List_CompilerDiagnostic;
-#endif
-#ifndef FORWARD_DEFINED_List_CompilerDiagnostic
-#define FORWARD_DEFINED_List_CompilerDiagnostic
-typedef struct List_CompilerDiagnostic List_CompilerDiagnostic;
 #endif
 
 #ifndef DEFINED_DiagnosticSeverity
@@ -314,10 +282,10 @@ typedef enum {
 #ifndef DEFINED_nl_LexerToken
 #define DEFINED_nl_LexerToken
 typedef struct nl_LexerToken {
-    int64_t token_type;
+    int token_type;
     const char * value;
-    int64_t line;
-    int64_t column;
+    int line;
+    int column;
 } nl_LexerToken;
 typedef nl_LexerToken LexerToken;
 typedef nl_LexerToken Token;
@@ -326,9 +294,9 @@ typedef nl_LexerToken Token;
 #ifndef DEFINED_nl_ParseNode
 #define DEFINED_nl_ParseNode
 typedef struct nl_ParseNode {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
 } nl_ParseNode;
 typedef nl_ParseNode ParseNode;
 #endif
@@ -336,9 +304,9 @@ typedef nl_ParseNode ParseNode;
 #ifndef DEFINED_nl_ASTNumber
 #define DEFINED_nl_ASTNumber
 typedef struct nl_ASTNumber {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * value;
 } nl_ASTNumber;
 typedef nl_ASTNumber ASTNumber;
@@ -347,9 +315,9 @@ typedef nl_ASTNumber ASTNumber;
 #ifndef DEFINED_nl_ASTFloat
 #define DEFINED_nl_ASTFloat
 typedef struct nl_ASTFloat {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * value;
 } nl_ASTFloat;
 typedef nl_ASTFloat ASTFloat;
@@ -358,9 +326,9 @@ typedef nl_ASTFloat ASTFloat;
 #ifndef DEFINED_nl_ASTString
 #define DEFINED_nl_ASTString
 typedef struct nl_ASTString {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * value;
 } nl_ASTString;
 typedef nl_ASTString ASTString;
@@ -369,9 +337,9 @@ typedef nl_ASTString ASTString;
 #ifndef DEFINED_nl_ASTBool
 #define DEFINED_nl_ASTBool
 typedef struct nl_ASTBool {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     bool value;
 } nl_ASTBool;
 typedef nl_ASTBool ASTBool;
@@ -380,9 +348,9 @@ typedef nl_ASTBool ASTBool;
 #ifndef DEFINED_nl_ASTIdentifier
 #define DEFINED_nl_ASTIdentifier
 typedef struct nl_ASTIdentifier {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * name;
 } nl_ASTIdentifier;
 typedef nl_ASTIdentifier ASTIdentifier;
@@ -391,14 +359,14 @@ typedef nl_ASTIdentifier ASTIdentifier;
 #ifndef DEFINED_nl_ASTBinaryOp
 #define DEFINED_nl_ASTBinaryOp
 typedef struct nl_ASTBinaryOp {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
-    int64_t op;
-    int64_t left;
-    int64_t right;
-    int64_t left_type;
-    int64_t right_type;
+    int node_type;
+    int line;
+    int column;
+    int op;
+    int left;
+    int right;
+    int left_type;
+    int right_type;
 } nl_ASTBinaryOp;
 typedef nl_ASTBinaryOp ASTBinaryOp;
 #endif
@@ -406,12 +374,12 @@ typedef nl_ASTBinaryOp ASTBinaryOp;
 #ifndef DEFINED_nl_ASTCall
 #define DEFINED_nl_ASTCall
 typedef struct nl_ASTCall {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
-    int64_t function;
-    int64_t arg_start;
-    int64_t arg_count;
+    int node_type;
+    int line;
+    int column;
+    int function;
+    int arg_start;
+    int arg_count;
 } nl_ASTCall;
 typedef nl_ASTCall ASTCall;
 #endif
@@ -419,12 +387,12 @@ typedef nl_ASTCall ASTCall;
 #ifndef DEFINED_nl_ASTArrayLiteral
 #define DEFINED_nl_ASTArrayLiteral
 typedef struct nl_ASTArrayLiteral {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * element_type;
-    int64_t element_start;
-    int64_t element_count;
+    int element_start;
+    int element_count;
 } nl_ASTArrayLiteral;
 typedef nl_ASTArrayLiteral ASTArrayLiteral;
 #endif
@@ -432,13 +400,13 @@ typedef nl_ASTArrayLiteral ASTArrayLiteral;
 #ifndef DEFINED_nl_ASTLet
 #define DEFINED_nl_ASTLet
 typedef struct nl_ASTLet {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * name;
     const char * var_type;
-    int64_t value;
-    int64_t value_type;
+    int value;
+    int value_type;
     bool is_mut;
 } nl_ASTLet;
 typedef nl_ASTLet ASTLet;
@@ -447,12 +415,12 @@ typedef nl_ASTLet ASTLet;
 #ifndef DEFINED_nl_ASTSet
 #define DEFINED_nl_ASTSet
 typedef struct nl_ASTSet {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * target;
-    int64_t value;
-    int64_t value_type;
+    int value;
+    int value_type;
 } nl_ASTSet;
 typedef nl_ASTSet ASTSet;
 #endif
@@ -460,8 +428,8 @@ typedef nl_ASTSet ASTSet;
 #ifndef DEFINED_nl_ASTStmtRef
 #define DEFINED_nl_ASTStmtRef
 typedef struct nl_ASTStmtRef {
-    int64_t node_id;
-    int64_t node_type;
+    int node_id;
+    int node_type;
 } nl_ASTStmtRef;
 typedef nl_ASTStmtRef ASTStmtRef;
 #endif
@@ -469,13 +437,13 @@ typedef nl_ASTStmtRef ASTStmtRef;
 #ifndef DEFINED_nl_ASTIf
 #define DEFINED_nl_ASTIf
 typedef struct nl_ASTIf {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
-    int64_t condition;
-    int64_t condition_type;
-    int64_t then_body;
-    int64_t else_body;
+    int node_type;
+    int line;
+    int column;
+    int condition;
+    int condition_type;
+    int then_body;
+    int else_body;
 } nl_ASTIf;
 typedef nl_ASTIf ASTIf;
 #endif
@@ -483,12 +451,12 @@ typedef nl_ASTIf ASTIf;
 #ifndef DEFINED_nl_ASTWhile
 #define DEFINED_nl_ASTWhile
 typedef struct nl_ASTWhile {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
-    int64_t condition;
-    int64_t condition_type;
-    int64_t body;
+    int node_type;
+    int line;
+    int column;
+    int condition;
+    int condition_type;
+    int body;
 } nl_ASTWhile;
 typedef nl_ASTWhile ASTWhile;
 #endif
@@ -496,13 +464,13 @@ typedef nl_ASTWhile ASTWhile;
 #ifndef DEFINED_nl_ASTFor
 #define DEFINED_nl_ASTFor
 typedef struct nl_ASTFor {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * var_name;
-    int64_t iterable;
-    int64_t iterable_type;
-    int64_t body;
+    int iterable;
+    int iterable_type;
+    int body;
 } nl_ASTFor;
 typedef nl_ASTFor ASTFor;
 #endif
@@ -510,11 +478,11 @@ typedef nl_ASTFor ASTFor;
 #ifndef DEFINED_nl_ASTReturn
 #define DEFINED_nl_ASTReturn
 typedef struct nl_ASTReturn {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
-    int64_t value;
-    int64_t value_type;
+    int node_type;
+    int line;
+    int column;
+    int value;
+    int value_type;
 } nl_ASTReturn;
 typedef nl_ASTReturn ASTReturn;
 #endif
@@ -522,11 +490,11 @@ typedef nl_ASTReturn ASTReturn;
 #ifndef DEFINED_nl_ASTBlock
 #define DEFINED_nl_ASTBlock
 typedef struct nl_ASTBlock {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
-    int64_t statement_start;
-    int64_t statement_count;
+    int node_type;
+    int line;
+    int column;
+    int statement_start;
+    int statement_count;
 } nl_ASTBlock;
 typedef nl_ASTBlock ASTBlock;
 #endif
@@ -534,11 +502,11 @@ typedef nl_ASTBlock ASTBlock;
 #ifndef DEFINED_nl_ASTUnsafeBlock
 #define DEFINED_nl_ASTUnsafeBlock
 typedef struct nl_ASTUnsafeBlock {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
-    int64_t statement_start;
-    int64_t statement_count;
+    int node_type;
+    int line;
+    int column;
+    int statement_start;
+    int statement_count;
 } nl_ASTUnsafeBlock;
 typedef nl_ASTUnsafeBlock ASTUnsafeBlock;
 #endif
@@ -546,11 +514,11 @@ typedef nl_ASTUnsafeBlock ASTUnsafeBlock;
 #ifndef DEFINED_nl_ASTPrint
 #define DEFINED_nl_ASTPrint
 typedef struct nl_ASTPrint {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
-    int64_t value;
-    int64_t value_type;
+    int node_type;
+    int line;
+    int column;
+    int value;
+    int value_type;
 } nl_ASTPrint;
 typedef nl_ASTPrint ASTPrint;
 #endif
@@ -558,11 +526,11 @@ typedef nl_ASTPrint ASTPrint;
 #ifndef DEFINED_nl_ASTAssert
 #define DEFINED_nl_ASTAssert
 typedef struct nl_ASTAssert {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
-    int64_t condition;
-    int64_t condition_type;
+    int node_type;
+    int line;
+    int column;
+    int condition;
+    int condition_type;
 } nl_ASTAssert;
 typedef nl_ASTAssert ASTAssert;
 #endif
@@ -570,14 +538,14 @@ typedef nl_ASTAssert ASTAssert;
 #ifndef DEFINED_nl_ASTFunction
 #define DEFINED_nl_ASTFunction
 typedef struct nl_ASTFunction {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * name;
-    int64_t param_start;
-    int64_t param_count;
+    int param_start;
+    int param_count;
     const char * return_type;
-    int64_t body;
+    int body;
 } nl_ASTFunction;
 typedef nl_ASTFunction ASTFunction;
 #endif
@@ -585,11 +553,11 @@ typedef nl_ASTFunction ASTFunction;
 #ifndef DEFINED_nl_ASTShadow
 #define DEFINED_nl_ASTShadow
 typedef struct nl_ASTShadow {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * target_name;
-    int64_t body;
+    int body;
 } nl_ASTShadow;
 typedef nl_ASTShadow ASTShadow;
 #endif
@@ -597,11 +565,11 @@ typedef nl_ASTShadow ASTShadow;
 #ifndef DEFINED_nl_ASTStruct
 #define DEFINED_nl_ASTStruct
 typedef struct nl_ASTStruct {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * name;
-    int64_t field_count;
+    int field_count;
 } nl_ASTStruct;
 typedef nl_ASTStruct ASTStruct;
 #endif
@@ -609,14 +577,14 @@ typedef nl_ASTStruct ASTStruct;
 #ifndef DEFINED_nl_ASTStructLiteral
 #define DEFINED_nl_ASTStructLiteral
 typedef struct nl_ASTStructLiteral {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * struct_name;
     DynArray * field_names;
     DynArray * field_value_ids;
     DynArray * field_value_types;
-    int64_t field_count;
+    int field_count;
 } nl_ASTStructLiteral;
 typedef nl_ASTStructLiteral ASTStructLiteral;
 #endif
@@ -624,11 +592,11 @@ typedef nl_ASTStructLiteral ASTStructLiteral;
 #ifndef DEFINED_nl_ASTFieldAccess
 #define DEFINED_nl_ASTFieldAccess
 typedef struct nl_ASTFieldAccess {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
-    int64_t object;
-    int64_t object_type;
+    int node_type;
+    int line;
+    int column;
+    int object;
+    int object_type;
     const char * field_name;
 } nl_ASTFieldAccess;
 typedef nl_ASTFieldAccess ASTFieldAccess;
@@ -637,11 +605,11 @@ typedef nl_ASTFieldAccess ASTFieldAccess;
 #ifndef DEFINED_nl_ASTEnum
 #define DEFINED_nl_ASTEnum
 typedef struct nl_ASTEnum {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * name;
-    int64_t variant_count;
+    int variant_count;
 } nl_ASTEnum;
 typedef nl_ASTEnum ASTEnum;
 #endif
@@ -649,11 +617,11 @@ typedef nl_ASTEnum ASTEnum;
 #ifndef DEFINED_nl_ASTUnion
 #define DEFINED_nl_ASTUnion
 typedef struct nl_ASTUnion {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * name;
-    int64_t variant_count;
+    int variant_count;
 } nl_ASTUnion;
 typedef nl_ASTUnion ASTUnion;
 #endif
@@ -661,15 +629,15 @@ typedef nl_ASTUnion ASTUnion;
 #ifndef DEFINED_nl_ASTUnionConstruct
 #define DEFINED_nl_ASTUnionConstruct
 typedef struct nl_ASTUnionConstruct {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * union_name;
     const char * variant_name;
     DynArray * field_names;
     DynArray * field_value_ids;
     DynArray * field_value_types;
-    int64_t field_count;
+    int field_count;
 } nl_ASTUnionConstruct;
 typedef nl_ASTUnionConstruct ASTUnionConstruct;
 #endif
@@ -679,8 +647,8 @@ typedef nl_ASTUnionConstruct ASTUnionConstruct;
 typedef struct nl_ASTMatchArm {
     const char * variant_name;
     const char * binding_name;
-    int64_t body_id;
-    int64_t body_type;
+    int body_id;
+    int body_type;
 } nl_ASTMatchArm;
 typedef nl_ASTMatchArm ASTMatchArm;
 #endif
@@ -688,16 +656,16 @@ typedef nl_ASTMatchArm ASTMatchArm;
 #ifndef DEFINED_nl_ASTMatch
 #define DEFINED_nl_ASTMatch
 typedef struct nl_ASTMatch {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
-    int64_t scrutinee;
-    int64_t scrutinee_type;
+    int node_type;
+    int line;
+    int column;
+    int scrutinee;
+    int scrutinee_type;
     DynArray * arm_variants;
     DynArray * arm_bindings;
     DynArray * arm_body_ids;
     DynArray * arm_body_types;
-    int64_t arm_count;
+    int arm_count;
 } nl_ASTMatch;
 typedef nl_ASTMatch ASTMatch;
 #endif
@@ -705,9 +673,9 @@ typedef nl_ASTMatch ASTMatch;
 #ifndef DEFINED_nl_ASTImport
 #define DEFINED_nl_ASTImport
 typedef struct nl_ASTImport {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * module_path;
     const char * module_name;
 } nl_ASTImport;
@@ -717,9 +685,9 @@ typedef nl_ASTImport ASTImport;
 #ifndef DEFINED_nl_ASTOpaqueType
 #define DEFINED_nl_ASTOpaqueType
 typedef struct nl_ASTOpaqueType {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     const char * type_name;
 } nl_ASTOpaqueType;
 typedef nl_ASTOpaqueType ASTOpaqueType;
@@ -728,12 +696,12 @@ typedef nl_ASTOpaqueType ASTOpaqueType;
 #ifndef DEFINED_nl_ASTTupleLiteral
 #define DEFINED_nl_ASTTupleLiteral
 typedef struct nl_ASTTupleLiteral {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
+    int node_type;
+    int line;
+    int column;
     DynArray * element_ids;
     DynArray * element_types;
-    int64_t element_count;
+    int element_count;
 } nl_ASTTupleLiteral;
 typedef nl_ASTTupleLiteral ASTTupleLiteral;
 #endif
@@ -741,12 +709,12 @@ typedef nl_ASTTupleLiteral ASTTupleLiteral;
 #ifndef DEFINED_nl_ASTTupleIndex
 #define DEFINED_nl_ASTTupleIndex
 typedef struct nl_ASTTupleIndex {
-    int64_t node_type;
-    int64_t line;
-    int64_t column;
-    int64_t tuple;
-    int64_t tuple_type;
-    int64_t index;
+    int node_type;
+    int line;
+    int column;
+    int tuple;
+    int tuple_type;
+    int index;
 } nl_ASTTupleIndex;
 typedef nl_ASTTupleIndex ASTTupleIndex;
 #endif
@@ -756,8 +724,8 @@ typedef nl_ASTTupleIndex ASTTupleIndex;
 typedef struct nl_Parser {
     List_LexerToken * tokens;
     const char * file_name;
-    int64_t position;
-    int64_t token_count;
+    int position;
+    int token_count;
     bool has_error;
     List_CompilerDiagnostic * diagnostics;
     List_ASTNumber * numbers;
@@ -794,41 +762,41 @@ typedef struct nl_Parser {
     List_ASTOpaqueType * opaque_types;
     List_ASTTupleLiteral * tuple_literals;
     List_ASTTupleIndex * tuple_indices;
-    int64_t numbers_count;
-    int64_t floats_count;
-    int64_t strings_count;
-    int64_t bools_count;
-    int64_t identifiers_count;
-    int64_t binary_ops_count;
-    int64_t calls_count;
-    int64_t array_literals_count;
-    int64_t lets_count;
-    int64_t sets_count;
-    int64_t ifs_count;
-    int64_t whiles_count;
-    int64_t fors_count;
-    int64_t returns_count;
-    int64_t blocks_count;
-    int64_t unsafe_blocks_count;
-    int64_t block_statements_count;
-    int64_t prints_count;
-    int64_t asserts_count;
-    int64_t functions_count;
-    int64_t shadows_count;
-    int64_t structs_count;
-    int64_t struct_literals_count;
-    int64_t field_accesses_count;
-    int64_t enums_count;
-    int64_t unions_count;
-    int64_t union_constructs_count;
-    int64_t matches_count;
-    int64_t imports_count;
-    int64_t opaque_types_count;
-    int64_t tuple_literals_count;
-    int64_t tuple_indices_count;
-    int64_t next_node_id;
-    int64_t last_expr_node_id;
-    int64_t last_expr_node_type;
+    int numbers_count;
+    int floats_count;
+    int strings_count;
+    int bools_count;
+    int identifiers_count;
+    int binary_ops_count;
+    int calls_count;
+    int array_literals_count;
+    int lets_count;
+    int sets_count;
+    int ifs_count;
+    int whiles_count;
+    int fors_count;
+    int returns_count;
+    int blocks_count;
+    int unsafe_blocks_count;
+    int block_statements_count;
+    int prints_count;
+    int asserts_count;
+    int functions_count;
+    int shadows_count;
+    int structs_count;
+    int struct_literals_count;
+    int field_accesses_count;
+    int enums_count;
+    int unions_count;
+    int union_constructs_count;
+    int matches_count;
+    int imports_count;
+    int opaque_types_count;
+    int tuple_literals_count;
+    int tuple_indices_count;
+    int next_node_id;
+    int last_expr_node_id;
+    int last_expr_node_type;
 } nl_Parser;
 typedef nl_Parser Parser;
 #endif
@@ -836,9 +804,9 @@ typedef nl_Parser Parser;
 #ifndef DEFINED_nl_NSType
 #define DEFINED_nl_NSType
 typedef struct nl_NSType {
-    int64_t kind;
+    int kind;
     const char * name;
-    int64_t element_type_kind;
+    int element_type_kind;
     const char * element_type_name;
 } nl_NSType;
 typedef nl_NSType NSType;
@@ -857,8 +825,8 @@ typedef nl_OptionType OptionType;
 #define DEFINED_nl_CompilerSourceLocation
 typedef struct nl_CompilerSourceLocation {
     const char * file;
-    int64_t line;
-    int64_t column;
+    int line;
+    int column;
 } nl_CompilerSourceLocation;
 typedef nl_CompilerSourceLocation CompilerSourceLocation;
 #endif
@@ -866,8 +834,8 @@ typedef nl_CompilerSourceLocation CompilerSourceLocation;
 #ifndef DEFINED_nl_CompilerDiagnostic
 #define DEFINED_nl_CompilerDiagnostic
 typedef struct nl_CompilerDiagnostic {
-    int64_t phase;
-    int64_t severity;
+    int phase;
+    int severity;
     const char * code;
     const char * message;
     CompilerSourceLocation location;
@@ -879,7 +847,7 @@ typedef nl_CompilerDiagnostic CompilerDiagnostic;
 #define DEFINED_nl_LexPhaseOutput
 typedef struct nl_LexPhaseOutput {
     List_LexerToken * tokens;
-    int64_t token_count;
+    int token_count;
     List_CompilerDiagnostic * diagnostics;
     bool had_error;
 } nl_LexPhaseOutput;
@@ -889,7 +857,7 @@ typedef nl_LexPhaseOutput LexPhaseOutput;
 #ifndef DEFINED_nl_TypeEnvironment
 #define DEFINED_nl_TypeEnvironment
 typedef struct nl_TypeEnvironment {
-    int64_t error_count;
+    int error_count;
     bool has_error;
     List_CompilerDiagnostic * diagnostics;
 } nl_TypeEnvironment;

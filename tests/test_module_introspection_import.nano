@@ -1,0 +1,52 @@
+// Test module introspection with imported module
+import "test_modules/simple_math.nano" as Math
+
+// Declare introspection functions for the imported module
+extern fn ___module_exported_functions_simple_math(count: int*) -> string*
+extern fn ___module_exported_structs_simple_math(count: int*) -> string*
+extern fn ___module_is_unsafe_simple_math() -> bool
+extern fn ___module_has_ffi_simple_math() -> bool
+
+fn main() -> int {
+    (println "=== Module Introspection Import Test ===")
+    
+    // Test that the imported module works
+    let result: int = (Math.add 5 3)
+    (print "Math.add(5, 3) = ")
+    (println (int_to_string result))
+    (assert (== result 8))
+    
+    // Test module safety flags
+    let is_unsafe: bool = (___module_is_unsafe_simple_math)
+    let has_ffi: bool = (___module_has_ffi_simple_math)
+    
+    (print "Module is unsafe: ")
+    (println (if is_unsafe "true" else "false"))
+    (assert (! is_unsafe))  // simple_math is safe
+    
+    (print "Module has FFI: ")
+    (println (if has_ffi "true" else "false"))
+    (assert (! has_ffi))  // simple_math has no FFI
+    
+    // Test exported functions list
+    let func_count: int = 0
+    let functions: string* = (___module_exported_functions_simple_math &func_count)
+    
+    (print "Exported functions count: ")
+    (println (int_to_string func_count))
+    (println "Expected: 4 functions (add, subtract, multiply, double)")
+    (assert (== func_count 4))
+    
+    // Test exported structs list
+    let struct_count: int = 0
+    let structs: string* = (___module_exported_structs_simple_math &struct_count)
+    
+    (print "Exported structs count: ")
+    (println (int_to_string struct_count))
+    (println "Expected: 2 structs (Point, Rectangle)")
+    (assert (== struct_count 2))
+    
+    (println "✓ All module introspection import tests passed!")
+    
+    return 0
+}

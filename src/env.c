@@ -407,6 +407,22 @@ void env_define_function(Environment *env, Function func) {
     }
 
     env->functions[env->function_count++] = func;
+    
+    /* Add to module's exported functions list if public and module exists */
+    if (func.is_pub && func.module_name) {
+        ModuleInfo *mod = env_get_module(env, func.module_name);
+        if (mod) {
+            /* Grow exported_functions array if needed */
+            if (mod->function_count == 0) {
+                mod->exported_functions = malloc(sizeof(char*) * 4);
+            } else if ((mod->function_count & (mod->function_count - 1)) == 0 && mod->function_count >= 4) {
+                /* Power of 2 growth */
+                int new_capacity = mod->function_count * 2;
+                mod->exported_functions = realloc(mod->exported_functions, sizeof(char*) * new_capacity);
+            }
+            mod->exported_functions[mod->function_count++] = strdup(func.name);
+        }
+    }
 }
 
 /* Get function */
@@ -632,6 +648,22 @@ void env_define_struct(Environment *env, StructDef struct_def) {
         env->structs = realloc(env->structs, sizeof(StructDef) * env->struct_capacity);
     }
     env->structs[env->struct_count++] = struct_def;
+    
+    /* Add to module's exported structs list if public and module exists */
+    if (struct_def.is_pub && struct_def.module_name) {
+        ModuleInfo *mod = env_get_module(env, struct_def.module_name);
+        if (mod) {
+            /* Grow exported_structs array if needed */
+            if (mod->struct_count == 0) {
+                mod->exported_structs = malloc(sizeof(char*) * 4);
+            } else if ((mod->struct_count & (mod->struct_count - 1)) == 0 && mod->struct_count >= 4) {
+                /* Power of 2 growth */
+                int new_capacity = mod->struct_count * 2;
+                mod->exported_structs = realloc(mod->exported_structs, sizeof(char*) * new_capacity);
+            }
+            mod->exported_structs[mod->struct_count++] = strdup(struct_def.name);
+        }
+    }
 }
 
 /* Get struct definition */
