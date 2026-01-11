@@ -1674,6 +1674,56 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
             
+            /* Check if this is a union variant construction (format: "UnionName.VariantName") */
+            const char *dot = strchr(expr->as.struct_literal.struct_name, '.');
+            if (dot) {
+                /* This is a union variant construction */
+                int union_name_len = dot - expr->as.struct_literal.struct_name;
+                char *union_name = malloc(union_name_len + 1);
+                strncpy(union_name, expr->as.struct_literal.struct_name, union_name_len);
+                union_name[union_name_len] = '\0';
+                const char *variant_name = dot + 1;
+                
+                /* Look up union definition */
+                UnionDef *udef = env_get_union(env, union_name);
+                if (!udef) {
+                    fprintf(stderr, "Error at line %d, column %d: Undefined union '%s'\n",
+                            expr->line, expr->column, union_name);
+                    free(union_name);
+                    return TYPE_UNKNOWN;
+                }
+                
+                /* Find the variant index */
+                int variant_idx = env_get_union_variant_index(env, union_name, variant_name);
+                if (variant_idx < 0) {
+                    fprintf(stderr, "Error at line %d, column %d: Unknown variant '%s' in union '%s'\n",
+                            expr->line, expr->column, variant_name, union_name);
+                    free(union_name);
+                    return TYPE_UNKNOWN;
+                }
+                
+                /* Verify field count matches */
+                if (expr->as.struct_literal.field_count != udef->variant_field_counts[variant_idx]) {
+                    fprintf(stderr, "Error at line %d, column %d: Variant '%s.%s' expects %d fields, got %d\n",
+                            expr->line, expr->column, union_name, variant_name,
+                            udef->variant_field_counts[variant_idx], expr->as.struct_literal.field_count);
+                    free(union_name);
+                    return TYPE_UNKNOWN;
+                }
+                
+                /* Type check fields */
+                for (int i = 0; i < expr->as.struct_literal.field_count; i++) {
+                    Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
+                    if (!types_match(field_type, udef->variant_field_types[variant_idx][i])) {
+                        fprintf(stderr, "Error at line %d, column %d: Field type mismatch in variant '%s.%s'\n",
+                                expr->line, expr->column, union_name, variant_name);
+                    }
+                }
+                
+                free(union_name);
+                return TYPE_UNION;
+            }
+            
             /* Check that struct is defined */
             StructDef *sdef = env_get_struct(env, expr->as.struct_literal.struct_name);
             if (!sdef) {
