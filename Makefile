@@ -63,7 +63,7 @@ NANOC_SOURCE = $(SRC_NANO_DIR)/nanoc_v06.nano
 NANOC_STAGE1 = $(BIN_DIR)/nanoc_stage1
 NANOC_STAGE2 = $(BIN_DIR)/nanoc_stage2
 VERIFY_SCRIPT = scripts/verify_no_nanoc_c.sh
-VERIFY_SMOKE_SOURCE = examples/nl_hello.nano
+VERIFY_SMOKE_SOURCE = examples/language/nl_hello.nano
 
 # When enabled, make bootstrap stage artifacts deterministic (Mach-O LC_UUID + signature)
 BOOTSTRAP_DETERMINISTIC ?= 0
@@ -611,7 +611,7 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
 		echo "" && \
 		echo "Testing stage 1 compiler..." && \
-		if $(NANOC_STAGE1) examples/nl_hello.nano -o /tmp/bootstrap_test && /tmp/bootstrap_test >/dev/null 2>&1; then \
+		if $(NANOC_STAGE1) examples/language/nl_hello.nano -o /tmp/bootstrap_test && /tmp/bootstrap_test >/dev/null 2>&1; then \
 			echo "✓ Stage 1 compiler works!"; \
 			touch $(SENTINEL_BOOTSTRAP1); \
 		else \
@@ -637,7 +637,7 @@ $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
 	@echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)"
 	@echo ""
 	@echo "Testing stage 2 compiler..."
-	@if $(NANOC_STAGE2) examples/nl_hello.nano -o /tmp/bootstrap_test2 && /tmp/bootstrap_test2 >/dev/null 2>&1; then \
+	@if $(NANOC_STAGE2) examples/language/nl_hello.nano -o /tmp/bootstrap_test2 && /tmp/bootstrap_test2 >/dev/null 2>&1; then \
 		echo "✓ Stage 2 compiler works!"; \
 		touch $(SENTINEL_BOOTSTRAP2); \
 	else \
@@ -658,10 +658,10 @@ verify-bootstrap: bootstrap
 	@ls -lh $(NANOC_STAGE1) $(NANOC_STAGE2)
 	@echo ""
 	@echo "Smoke test: stage1 compiles + runs nl_hello.nano..."
-	@$(NANOC_STAGE1) examples/nl_hello.nano -o /tmp/bootstrap_verify_stage1 && /tmp/bootstrap_verify_stage1 >/dev/null
+	@$(NANOC_STAGE1) examples/language/nl_hello.nano -o /tmp/bootstrap_verify_stage1 && /tmp/bootstrap_verify_stage1 >/dev/null
 	@echo "✓ stage1 ok"
 	@echo "Smoke test: stage2 compiles + runs nl_hello.nano..."
-	@$(NANOC_STAGE2) examples/nl_hello.nano -o /tmp/bootstrap_verify_stage2 && /tmp/bootstrap_verify_stage2 >/dev/null
+	@$(NANOC_STAGE2) examples/language/nl_hello.nano -o /tmp/bootstrap_verify_stage2 && /tmp/bootstrap_verify_stage2 >/dev/null
 	@echo "✓ stage2 ok"
 
 .PHONY: verify-no-nanoc_c verify-no-nanoc_c-check
@@ -718,7 +718,7 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 	echo "✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)"; \
 	echo ""; \
 	echo "Smoke test: installed bin/nanoc compiles + runs nl_hello.nano..."; \
-	if $(COMPILER) examples/nl_hello.nano -o /tmp/bootstrap_installed_test && /tmp/bootstrap_installed_test >/dev/null 2>&1; then \
+	if $(COMPILER) examples/language/nl_hello.nano -o /tmp/bootstrap_installed_test && /tmp/bootstrap_installed_test >/dev/null 2>&1; then \
 		echo "✓ installed compiler works"; \
 	else \
 		echo "❌ installed compiler smoke test failed"; \
