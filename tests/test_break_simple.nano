@@ -1,0 +1,25 @@
+# Simple test for break
+
+fn test_break() -> int {
+    let mut i: int = 0
+    while (< i 100) {
+        if (== i 5) {
+            break
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return i
+}
+
+shadow test_break {
+    let result: int = (test_break)
+    (println (int_to_string result))
+    assert (== result 5)
+}
+
+fn main() -> int {
+    let result: int = (test_break)
+    (print "Loop stopped at: ")
+    (println (int_to_string result))
+    return 0
+}

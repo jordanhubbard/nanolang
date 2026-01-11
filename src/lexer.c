@@ -38,6 +38,8 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "for") == 0) return TOKEN_FOR;
     if (strcmp(str, "in") == 0) return TOKEN_IN;
     if (strcmp(str, "return") == 0) return TOKEN_RETURN;
+    if (strcmp(str, "break") == 0) return TOKEN_BREAK;
+    if (strcmp(str, "continue") == 0) return TOKEN_CONTINUE;
     if (strcmp(str, "assert") == 0) return TOKEN_ASSERT;
     if (strcmp(str, "shadow") == 0) return TOKEN_SHADOW;
     if (strcmp(str, "requires") == 0) return TOKEN_REQUIRES;

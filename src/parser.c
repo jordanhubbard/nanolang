@@ -2437,6 +2437,24 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             return node;
         }
 
+        case TOKEN_BREAK: {
+            int line = tok->line;
+            int column = tok->column;
+            advance(p);
+
+            node = create_node(AST_BREAK, line, column);
+            return node;
+        }
+
+        case TOKEN_CONTINUE: {
+            int line = tok->line;
+            int column = tok->column;
+            advance(p);
+
+            node = create_node(AST_CONTINUE, line, column);
+            return node;
+        }
+
         /* TOKEN_PRINT case removed - print is now a regular built-in function */
 
         case TOKEN_ASSERT: {

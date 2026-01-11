@@ -2236,6 +2236,16 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             }
             emit_literal(list, ";\n");
             break;
+
+        case AST_BREAK:
+            emit_indent_item(list, indent);
+            emit_literal(list, "break;\n");
+            break;
+
+        case AST_CONTINUE:
+            emit_indent_item(list, indent);
+            emit_literal(list, "continue;\n");
+            break;
             
         case AST_LET: {
             emit_indent_item(list, indent);

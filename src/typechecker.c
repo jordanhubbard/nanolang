@@ -10,6 +10,7 @@ typedef struct {
     bool has_error;
     bool warnings_enabled;
     bool in_unsafe_block;   /* Track if we're inside an unsafe block */
+    int loop_depth;         /* Track if we're inside a loop (for break/continue validation) */
 } TypeChecker;
 
 static char *typeinfo_to_generic_arg_name(TypeInfo *param) {
@@ -2141,6 +2142,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             TypeChecker temp_tc;
             temp_tc.env = env;
             temp_tc.has_error = false;
+            temp_tc.loop_depth = 0;
             
             for (int i = 0; i < expr->as.block.count; i++) {
                 ASTNode *stmt = expr->as.block.statements[i];
@@ -2614,7 +2616,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 tc->has_error = true;
             }
 
+            /* Increment loop depth for break/continue validation */
+            tc->loop_depth++;
             check_statement(tc, stmt->as.while_stmt.body);
+            tc->loop_depth--;
             return TYPE_VOID;
         }
 
@@ -2629,8 +2634,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* Range expression should return a range */
             check_expression(stmt->as.for_stmt.range_expr, tc->env);
 
-            /* Check the loop body */
+            /* Check the loop body (increment loop depth for break/continue validation) */
+            tc->loop_depth++;
             check_statement(tc, stmt->as.for_stmt.body);
+            tc->loop_depth--;
 
             /* Restore symbol count (remove loop variable and any vars declared in body) */
             /* Free the names that were allocated */
@@ -2642,6 +2649,22 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
             tc->env->symbol_count = old_symbol_count;
 
+            return TYPE_VOID;
+        }
+
+        case AST_BREAK: {
+            if (tc->loop_depth == 0) {
+                fprintf(stderr, "Error at line %d, column %d: 'break' outside loop\n", stmt->line, stmt->column);
+                tc->has_error = true;
+            }
+            return TYPE_VOID;
+        }
+
+        case AST_CONTINUE: {
+            if (tc->loop_depth == 0) {
+                fprintf(stderr, "Error at line %d, column %d: 'continue' outside loop\n", stmt->line, stmt->column);
+                tc->has_error = true;
+            }
             return TYPE_VOID;
         }
 
@@ -3866,6 +3889,7 @@ bool type_check(ASTNode *program, Environment *env) {
     tc.has_error = false;
     tc.warnings_enabled = true;  /* Enable unused variable warnings */
     tc.in_unsafe_block = false;  /* Start outside unsafe blocks */
+    tc.loop_depth = 0;           /* Start outside loops */
     tc.current_function_return_type = TYPE_VOID;
     tc.current_function_return_struct_name = NULL;
 
@@ -4596,6 +4620,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
     tc.has_error = false;
     tc.warnings_enabled = true;
     tc.in_unsafe_block = false;  /* Start outside unsafe blocks */
+    tc.loop_depth = 0;           /* Start outside loops */
 
     /* Register built-in functions */
     register_builtin_functions(env);
