@@ -1,0 +1,499 @@
+import "examples/opl/opl_ast.nano"
+import "examples/opl/opl_parser.nano"
+import "examples/opl/opl_json.nano"
+
+module "modules/std/json/json.nano"
+
+fn expr_to_ir(e: Json) -> Json {
+    let kind: string = (get_string e "kind")
+
+    if (str_equals kind "lit") {
+        let o: Json = (new_object)
+        (opl_json_set_str o "kind" "lit")
+        let v: Json = (get e "v")
+        (opl_json_obj_set o "v" v)
+        (free v)
+        return o
+    } else {}
+
+    if (str_equals kind "id") {
+        let o: Json = (new_object)
+        (opl_json_set_str o "kind" "id")
+        (opl_json_set_str o "name" (get_string e "name"))
+        return o
+    } else {}
+
+    if (str_equals kind "un") {
+        let o: Json = (new_object)
+        (opl_json_set_str o "kind" "un")
+        (opl_json_set_str o "op" (get_string e "op"))
+        let a: Json = (get e "a")
+        let a_ir: Json = (expr_to_ir a)
+        (free a)
+        (opl_json_obj_set o "a" a_ir)
+        (free a_ir)
+        return o
+    } else {}
+
+    if (str_equals kind "bin") {
+        let o: Json = (new_object)
+        (opl_json_set_str o "kind" "bin")
+        (opl_json_set_str o "op" (get_string e "op"))
+        let a: Json = (get e "a")
+        let b: Json = (get e "b")
+        let a_ir: Json = (expr_to_ir a)
+        let b_ir: Json = (expr_to_ir b)
+        (free a)
+        (free b)
+        (opl_json_obj_set o "a" a_ir)
+        (opl_json_obj_set o "b" b_ir)
+        (free a_ir)
+        (free b_ir)
+        return o
+    } else {}
+
+    if (str_equals kind "member") {
+        let o: Json = (new_object)
+        (opl_json_set_str o "kind" "member")
+        (opl_json_set_str o "field" (get_string e "field"))
+        let base: Json = (get e "base")
+        let base_ir: Json = (expr_to_ir base)
+        (free base)
+        (opl_json_obj_set o "base" base_ir)
+        (free base_ir)
+        return o
+    } else {}
+
+    if (str_equals kind "list") {
+        let o: Json = (new_object)
+        (opl_json_set_str o "kind" "list")
+        let items_src: Json = (get e "items")
+        let items_out: Json = (new_array)
+        let mut i: int = 0
+        let n: int = (array_size items_src)
+        while (< i n) {
+            let it: Json = (get_index items_src i)
+            let it_ir: Json = (expr_to_ir it)
+            (free it)
+            (opl_json_arr_push items_out it_ir)
+            (free it_ir)
+            set i (+ i 1)
+        }
+        (free items_src)
+        (opl_json_obj_set o "items" items_out)
+        (free items_out)
+        return o
+    } else {}
+
+    if (str_equals kind "map") {
+        let o: Json = (new_object)
+        (opl_json_set_str o "kind" "map")
+        let entries_src: Json = (get e "entries")
+        let entries_out: Json = (new_array)
+        let mut i: int = 0
+        let n: int = (array_size entries_src)
+        while (< i n) {
+            let ent: Json = (get_index entries_src i)
+            let ent_out: Json = (new_object)
+            (opl_json_set_str ent_out "k" (get_string ent "k"))
+            let v: Json = (get ent "v")
+            let v_ir: Json = (expr_to_ir v)
+            (free v)
+            (opl_json_obj_set ent_out "v" v_ir)
+            (free v_ir)
+            (free ent)
+            (opl_json_arr_push entries_out ent_out)
+            (free ent_out)
+            set i (+ i 1)
+        }
+        (free entries_src)
+        (opl_json_obj_set o "entries" entries_out)
+        (free entries_out)
+        return o
+    } else {}
+
+    if (str_equals kind "callExpr") {
+        let o: Json = (new_object)
+        (opl_json_set_str o "kind" "callExpr")
+        (opl_json_set_str o "ref" (get_string e "ref"))
+        let args_src: Json = (get e "args")
+        let args_out: Json = (new_array)
+        let mut i: int = 0
+        let n: int = (array_size args_src)
+        while (< i n) {
+            let it: Json = (get_index args_src i)
+            let it_ir: Json = (expr_to_ir it)
+            (free it)
+            (opl_json_arr_push args_out it_ir)
+            (free it_ir)
+            set i (+ i 1)
+        }
+        (free args_src)
+        (opl_json_obj_set o "args" args_out)
+        (free args_out)
+        return o
+    } else {}
+
+    return (new_null)
+}
+
+shadow expr_to_ir {
+    let e: Json = (new_object)
+    (opl_json_set_str e "kind" "lit")
+    (opl_json_obj_set e "v" (new_int 3))
+    (opl_json_obj_set e "loc" (opl_json_loc 1 1))
+    let ir: Json = (expr_to_ir e)
+    assert (str_equals (get_string ir "kind") "lit")
+    let v: Json = (get ir "v")
+    assert (== (as_int v) 3)
+    (free v)
+    (free ir)
+    (free e)
+
+    let a: Json = (new_object)
+    (opl_json_set_str a "kind" "id")
+    (opl_json_set_str a "name" "x")
+    (opl_json_obj_set a "loc" (opl_json_loc 1 1))
+
+    let b: Json = (new_object)
+    (opl_json_set_str b "kind" "lit")
+    (opl_json_obj_set b "v" (new_null))
+    (opl_json_obj_set b "loc" (opl_json_loc 1 1))
+
+    let e2: Json = (new_object)
+    (opl_json_set_str e2 "kind" "bin")
+    (opl_json_set_str e2 "op" "!=")
+    (opl_json_obj_set e2 "a" a)
+    (opl_json_obj_set e2 "b" b)
+    (opl_json_obj_set e2 "loc" (opl_json_loc 1 1))
+
+    (free a)
+    (free b)
+
+    let ir2: Json = (expr_to_ir e2)
+    assert (not (object_has ir2 "loc"))
+    let ir2_a: Json = (get ir2 "a")
+    assert (not (object_has ir2_a "loc"))
+    (free ir2_a)
+    (free ir2)
+    (free e2)
+}
+
+fn encode_value(e: Json) -> Json {
+    let kind: string = (get_string e "kind")
+
+    if (str_equals kind "id") {
+        let o: Json = (new_object)
+        (opl_json_set_str o "$var" (get_string e "name"))
+        return o
+    } else {}
+
+    if (str_equals kind "lit") {
+        return (get e "v")
+    } else {}
+
+    let ir: Json = (expr_to_ir e)
+    let o: Json = (new_object)
+    (opl_json_obj_set o "$expr" ir)
+    (free ir)
+    return o
+}
+
+shadow encode_value {
+    let e: Json = (new_object)
+    (opl_json_set_str e "kind" "id")
+    (opl_json_set_str e "name" "q")
+    (opl_json_obj_set e "loc" (opl_json_loc 1 1))
+    let v: Json = (encode_value e)
+    assert (object_has v "$var")
+    assert (str_equals (get_string v "$var") "q")
+    (free v)
+    (free e)
+
+    let e2: Json = (new_object)
+    (opl_json_set_str e2 "kind" "lit")
+    (opl_json_obj_set e2 "v" (new_int 9))
+    (opl_json_obj_set e2 "loc" (opl_json_loc 1 1))
+    let v2: Json = (encode_value e2)
+    assert (== (as_int v2) 9)
+    (free v2)
+    (free e2)
+}
+
+fn compile_call_args(args: Json) -> Json {
+    let out: Json = (new_object)
+    let ks: array<string> = (keys args)
+    let mut i: int = 0
+    while (< i (array_length ks)) {
+        let k: string = (at ks i)
+        let ev: Json = (get args k)
+        let v: Json = (encode_value ev)
+        (free ev)
+        (opl_json_obj_set out k v)
+        (free v)
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow compile_call_args {
+    let args: Json = (new_object)
+    let a: Json = (new_object)
+    (opl_json_set_str a "kind" "id")
+    (opl_json_set_str a "name" "x")
+    (opl_json_obj_set a "loc" (opl_json_loc 1 1))
+    let b: Json = (new_object)
+    (opl_json_set_str b "kind" "lit")
+    (opl_json_obj_set b "v" (new_int 3))
+    (opl_json_obj_set b "loc" (opl_json_loc 1 1))
+    (opl_json_obj_set args "a" a)
+    (opl_json_obj_set args "b" b)
+    (free a)
+    (free b)
+
+    let out: Json = (compile_call_args args)
+    let ks: array<string> = (keys out)
+    assert (== (array_length ks) 2)
+    assert (str_equals (at ks 0) "a")
+    assert (str_equals (at ks 1) "b")
+    (free out)
+    (free args)
+}
+
+fn compile_step(node: Json) -> Json {
+    let kind: string = (get_string node "kind")
+
+    if (str_equals kind "call") {
+        let s: Json = (new_object)
+        (opl_json_set_str s "op" "call")
+        (opl_json_set_str s "tool" (get_string node "ref"))
+
+        let args_src: Json = (get node "args")
+        let args_out: Json = (compile_call_args args_src)
+        (free args_src)
+        (opl_json_obj_set s "args" args_out)
+        (free args_out)
+
+        if (object_has node "as") {
+            let asv: Json = (get node "as")
+            if (and (!= asv 0) (not (is_null asv))) {
+                (opl_json_set_str s "saveAs" (as_string asv))
+            } else {}
+            if (!= asv 0) { (free asv) } else {}
+        } else {}
+
+        return s
+    } else {}
+
+    if (str_equals kind "let") {
+        let s: Json = (new_object)
+        (opl_json_set_str s "op" "let")
+        (opl_json_set_str s "name" (get_string node "name"))
+        let e: Json = (get node "expr")
+        let v: Json = (encode_value e)
+        (free e)
+        (opl_json_obj_set s "expr" v)
+        (free v)
+        return s
+    } else {}
+
+    if (str_equals kind "assert") {
+        let s: Json = (new_object)
+        (opl_json_set_str s "op" "assert")
+        let c: Json = (get node "cond")
+        let v: Json = (encode_value c)
+        (free c)
+        (opl_json_obj_set s "cond" v)
+        (free v)
+
+        if (object_has node "message") {
+            let mv: Json = (get node "message")
+            if (and (!= mv 0) (not (is_null mv))) {
+                (opl_json_set_str s "message" (as_string mv))
+            } else {}
+            if (!= mv 0) { (free mv) } else {}
+        } else {}
+
+        return s
+    } else {}
+
+    if (str_equals kind "emit") {
+        let s: Json = (new_object)
+        (opl_json_set_str s "op" "emit")
+        (opl_json_set_str s "name" (get_string node "name"))
+        let e: Json = (get node "expr")
+        let v: Json = (encode_value e)
+        (free e)
+        (opl_json_obj_set s "value" v)
+        (free v)
+        return s
+    } else {}
+
+    if (str_equals kind "rule") {
+        let rt: string = (get_string node "ruleType")
+        if (str_equals rt "when") {
+            let s: Json = (new_object)
+            (opl_json_set_str s "op" "if")
+            let c: Json = (get node "cond")
+            let cv: Json = (encode_value c)
+            (free c)
+            (opl_json_obj_set s "cond" cv)
+            (free cv)
+
+            let then_steps: Json = (new_array)
+            let acts: Json = (get node "actions")
+            let mut i: int = 0
+            let n: int = (array_size acts)
+            while (< i n) {
+                let a: Json = (get_index acts i)
+                let st: Json = (compile_step a)
+                (free a)
+                (opl_json_arr_push then_steps st)
+                (free st)
+                set i (+ i 1)
+            }
+            (free acts)
+
+            let else_steps: Json = (new_array)
+            (opl_json_obj_set s "then" then_steps)
+            (opl_json_obj_set s "else" else_steps)
+            (free then_steps)
+            (free else_steps)
+            return s
+        } else {
+            return (new_null)
+        }
+    } else {}
+
+    return (new_null)
+}
+
+shadow compile_step {
+    let n: Json = (new_object)
+    (opl_json_set_str n "kind" "call")
+    (opl_json_set_str n "ref" "web.search")
+    let args: Json = (new_object)
+    let q: Json = (new_object)
+    (opl_json_set_str q "kind" "id")
+    (opl_json_set_str q "name" "query")
+    (opl_json_obj_set q "loc" (opl_json_loc 1 1))
+    (opl_json_obj_set args "query" q)
+    (free q)
+    (opl_json_obj_set n "args" args)
+    (free args)
+    (opl_json_obj_set n "loc" (opl_json_loc 1 1))
+    let st: Json = (compile_step n)
+    assert (str_equals (get_string st "op") "call")
+    assert (str_equals (get_string st "tool") "web.search")
+    let a: Json = (get st "args")
+    assert (object_has a "query")
+    let qv: Json = (get a "query")
+    assert (str_equals (get_string qv "$var") "query")
+    (free qv)
+    (free a)
+    (free st)
+    (free n)
+}
+
+fn compile_agent_block(block: Json) -> Json {
+    let out: Json = (new_object)
+    let block_name: string = (get_string block "name")
+    let for_name: string = (+ "agent." block_name)
+    (opl_json_set_str out "for" for_name)
+
+    let steps: Json = (new_array)
+    let body: Json = (get block "body")
+    let mut i: int = 0
+    let n: int = (array_size body)
+    while (< i n) {
+        let node: Json = (get_index body i)
+        let k: string = (get_string node "kind")
+        if (str_equals k "decl") {
+            (free node)
+        } else {
+            let st: Json = (compile_step node)
+            (free node)
+            if (not (is_null st)) {
+                (opl_json_arr_push steps st)
+            } else {}
+            (free st)
+        }
+        set i (+ i 1)
+    }
+    (free body)
+
+    (opl_json_obj_set out "steps" steps)
+    (free steps)
+    return out
+}
+
+shadow compile_agent_block {
+    let src: string = "agent a { uses web.search input q:string call web.search { query: q } as r emit r: r }"
+    let pr: OplParseResult = (opl_parse src)
+    assert pr.ok
+    let plan: Json = (opl_compile_ast pr.ast)
+    assert (!= plan 0)
+    (free plan)
+    (free pr.ast)
+}
+
+pub fn opl_compile_ast(ast: Json) -> Json {
+    let out: Json = (new_object)
+    (opl_json_set_str out "planVersion" "opl-plan-0.1")
+    let plans: Json = (new_array)
+
+    let nodes: Json = (get ast "nodes")
+    let mut i: int = 0
+    let n: int = (array_size nodes)
+    while (< i n) {
+        let node: Json = (get_index nodes i)
+        let k: string = (get_string node "kind")
+        if (str_equals k "block") {
+            let bt: string = (get_string node "blockType")
+            if (str_equals bt "agent") {
+                let p: Json = (compile_agent_block node)
+                (opl_json_arr_push plans p)
+                (free p)
+            } else {}
+        } else {}
+        (free node)
+        set i (+ i 1)
+    }
+    (free nodes)
+
+    (opl_json_obj_set out "plans" plans)
+    (free plans)
+    return out
+}
+
+shadow opl_compile_ast {
+    let src: string = (read "examples/opl/bundle/EXAMPLES.opl")
+    let pr: OplParseResult = (opl_parse src)
+    assert pr.ok
+    let plan: Json = (opl_compile_ast pr.ast)
+    assert (!= plan 0)
+    let ps: Json = (get plan "plans")
+    assert (== (array_size ps) 2)
+    (free ps)
+    (free plan)
+    (free pr.ast)
+}
+
+pub fn opl_compile(src: string) -> Json {
+    let pr: OplParseResult = (opl_parse src)
+    if (not pr.ok) {
+        return (new_null)
+    } else {}
+    let plan: Json = (opl_compile_ast pr.ast)
+    (free pr.ast)
+    return plan
+}
+
+shadow opl_compile {
+    let src: string = "agent a { uses web.search input q:string call web.search { query: q } as r emit r: r }"
+    let plan: Json = (opl_compile src)
+    assert (!= plan 0)
+    assert (str_equals (get_string plan "planVersion") "opl-plan-0.1")
+    (free plan)
+}
+

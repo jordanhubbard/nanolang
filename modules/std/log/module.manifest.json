@@ -44,7 +44,7 @@
     "set_output_mode(mode: int) -> void",
     "set_log_file(path: string) -> void",
     "get_log_level() -> int",
-    "log(level: int, message: string) -> void",
+    "log_write(level: int, message: string) -> void",
     "log_debug(message: string) -> void",
     "log_info(message: string) -> void",
     "log_warn(message: string) -> void",

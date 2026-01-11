@@ -84,6 +84,11 @@ run_test() {
     local test_file="$1"
     local test_name=$(basename "$test_file")
     local category="$2"
+
+    # Per-test timeouts (seconds). These prevent a single compiler hang from stalling the suite.
+    # Override via env if needed (e.g. CI).
+    local COMPILE_TIMEOUT="${NANOLANG_TEST_COMPILE_TIMEOUT:-60}"
+    local RUN_TIMEOUT="${NANOLANG_TEST_RUN_TIMEOUT:-60}"
     
     # Check for expected failures
     if is_expected_failure "$test_name"; then
@@ -97,16 +102,22 @@ run_test() {
     local run_log=".test_output/${category}_${test_name}.run.log"
     
     # Compile the test
-    ./bin/nanoc "$test_file" -o "$out_file" >"$log_file" 2>&1
+    perl -e "alarm $COMPILE_TIMEOUT; exec @ARGV" ./bin/nanoc "$test_file" -o "$out_file" >"$log_file" 2>&1
     
     if [ $? -ne 0 ]; then
         echo -e "${RED}❌${NC} $test_name ${RED}(compilation failed)${NC}"
+        TOTAL_FAIL=$((TOTAL_FAIL + 1))
+        case "$category" in
+            "nl") NL_FAIL=$((NL_FAIL + 1)) ;;
+            "app") APP_FAIL=$((APP_FAIL + 1)) ;;
+            "unit") UNIT_FAIL=$((UNIT_FAIL + 1)) ;;
+        esac
         return 1
     fi
     
     # Run the compiled binary (shadow tests execute at runtime now)
     if [ -f "$out_file" ]; then
-        "$out_file" >"$run_log" 2>&1
+        perl -e "alarm $RUN_TIMEOUT; exec @ARGV" "$out_file" >"$run_log" 2>&1
         if [ $? -eq 0 ]; then
             echo -e "${GREEN}✅${NC} $test_name"
             rm -f "$log_file" "$out_file" "$run_log"

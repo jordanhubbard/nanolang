@@ -122,6 +122,107 @@ static bool module_owns_string_return(const ModuleBuildMetadata *meta, const cha
     return false;
 }
 
+static bool ffi_try_module_introspection(const char *function_name,
+                                        Value *args,
+                                        int arg_count,
+                                        Function *func_info,
+                                        Environment *env,
+                                        Value *out) {
+    if (!function_name || !func_info || !env || !out) return false;
+
+    const char *module_name = NULL;
+
+    /* ___module_is_unsafe_<mod>() -> bool */
+    const char *pfx_is_unsafe = "___module_is_unsafe_";
+    if (strncmp(function_name, pfx_is_unsafe, strlen(pfx_is_unsafe)) == 0) {
+        module_name = function_name + strlen(pfx_is_unsafe);
+        ModuleInfo *mod = env_get_module(env, module_name);
+        *out = create_bool(mod ? mod->is_unsafe : false);
+        return true;
+    }
+
+    /* ___module_has_ffi_<mod>() -> bool */
+    const char *pfx_has_ffi = "___module_has_ffi_";
+    if (strncmp(function_name, pfx_has_ffi, strlen(pfx_has_ffi)) == 0) {
+        module_name = function_name + strlen(pfx_has_ffi);
+        ModuleInfo *mod = env_get_module(env, module_name);
+        *out = create_bool(mod ? mod->has_ffi : false);
+        return true;
+    }
+
+    /* ___module_name_<mod>() -> string */
+    const char *pfx_name = "___module_name_";
+    if (strncmp(function_name, pfx_name, strlen(pfx_name)) == 0) {
+        module_name = function_name + strlen(pfx_name);
+        *out = create_string(module_name);
+        return true;
+    }
+
+    /* ___module_path_<mod>() -> string */
+    const char *pfx_path = "___module_path_";
+    if (strncmp(function_name, pfx_path, strlen(pfx_path)) == 0) {
+        module_name = function_name + strlen(pfx_path);
+        ModuleInfo *mod = env_get_module(env, module_name);
+        *out = create_string((mod && mod->path) ? mod->path : "");
+        return true;
+    }
+
+    /* ___module_function_count_<mod>() -> int */
+    const char *pfx_fn_count = "___module_function_count_";
+    if (strncmp(function_name, pfx_fn_count, strlen(pfx_fn_count)) == 0) {
+        module_name = function_name + strlen(pfx_fn_count);
+        ModuleInfo *mod = env_get_module(env, module_name);
+        *out = create_int(mod ? mod->function_count : 0);
+        return true;
+    }
+
+    /* ___module_function_name_<mod>(idx: int) -> string */
+    const char *pfx_fn_name = "___module_function_name_";
+    if (strncmp(function_name, pfx_fn_name, strlen(pfx_fn_name)) == 0) {
+        module_name = function_name + strlen(pfx_fn_name);
+        ModuleInfo *mod = env_get_module(env, module_name);
+        int64_t idx = 0;
+        if (arg_count >= 1 && args) {
+            idx = args[0].as.int_val;
+        }
+        if (mod && mod->exported_functions && idx >= 0 && idx < mod->function_count) {
+            *out = create_string(mod->exported_functions[idx] ? mod->exported_functions[idx] : "");
+        } else {
+            *out = create_string("");
+        }
+        return true;
+    }
+
+    /* ___module_struct_count_<mod>() -> int */
+    const char *pfx_struct_count = "___module_struct_count_";
+    if (strncmp(function_name, pfx_struct_count, strlen(pfx_struct_count)) == 0) {
+        module_name = function_name + strlen(pfx_struct_count);
+        ModuleInfo *mod = env_get_module(env, module_name);
+        *out = create_int(mod ? mod->struct_count : 0);
+        return true;
+    }
+
+    /* ___module_struct_name_<mod>(idx: int) -> string */
+    const char *pfx_struct_name = "___module_struct_name_";
+    if (strncmp(function_name, pfx_struct_name, strlen(pfx_struct_name)) == 0) {
+        module_name = function_name + strlen(pfx_struct_name);
+        ModuleInfo *mod = env_get_module(env, module_name);
+        int64_t idx = 0;
+        if (arg_count >= 1 && args) {
+            idx = args[0].as.int_val;
+        }
+        if (mod && mod->exported_structs && idx >= 0 && idx < mod->struct_count) {
+            *out = create_string(mod->exported_structs[idx] ? mod->exported_structs[idx] : "");
+        } else {
+            *out = create_string("");
+        }
+        return true;
+    }
+
+    (void)func_info;
+    return false;
+}
+
 static char* derive_module_dir_from_path(const char *module_path, const char *lib_path) {
     if (module_path && module_path[0] != '\0') {
         char *dir = strdup(module_path);
@@ -343,17 +444,37 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
             break;
         }
     }
+
+    /* Fallback: allow extern functions linked into the main executable or already-loaded libraries */
+    if (!func_ptr) {
+        void *self_handle = dlopen(NULL, RTLD_LAZY);
+        if (self_handle) {
+            func_ptr = dlsym(self_handle, function_name);
+            dlclose(self_handle);
+            if (func_ptr) {
+                module = NULL;
+            }
+        }
+    }
     
     if (!func_ptr) {
         if (ffi_verbose) {
             fprintf(stderr, "[FFI] Function '%s' not found in loaded modules\n", 
                     function_name);
         }
+        Value v;
+        if (ffi_try_module_introspection(function_name, args, arg_count, func_info, env, &v)) {
+            return v;
+        }
         return create_void();
     }
     
     if (ffi_verbose) {
-        printf("[FFI] Calling %s from module %s\n", function_name, module->name);
+        if (module) {
+            printf("[FFI] Calling %s from module %s\n", function_name, module->name);
+        } else {
+            printf("[FFI] Calling %s from RTLD_DEFAULT\n", function_name);
+        }
     }
     
     /* Marshal arguments to C types */
@@ -479,7 +600,7 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
     if (ret_type == TYPE_STRING) {
         const char *str = (const char*)(intptr_t)result;
         Value v = str ? create_string(str) : create_void();
-        if (str && module_owns_string_return(module->meta, function_name)) {
+        if (module && str && module_owns_string_return(module->meta, function_name)) {
             free((void*)str);
         }
         return v;

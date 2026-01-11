@@ -91,12 +91,20 @@ fn resolve_paddle_collision(ball_x: float, ball_y: float, ball_vx: float, ball_v
     let right_zone_end: float = (cast_float (- WINDOW_WIDTH 10))
     let hit_pos: float = (/ (- ball_center_y paddle_y) (cast_float PADDLE_HEIGHT))
     let spin_vy: float = (* (* (- hit_pos 0.5) 2.0) BALL_SPEED)
+    let left_hit: bool =
+        (and is_left
+            (and (and (> ball_x left_zone_start) (< ball_x left_zone_end))
+                 (and (>= ball_center_y paddle_top) (<= ball_center_y paddle_bottom))))
+
+    let right_hit: bool =
+        (and (not is_left)
+            (and (and (> ball_x right_zone_start) (< ball_x right_zone_end))
+                 (and (>= ball_center_y paddle_top) (<= ball_center_y paddle_bottom))))
+
     return (cond
-        ((and is_left (> ball_x left_zone_start) (< ball_x left_zone_end) (>= ball_center_y paddle_top) (<= ball_center_y paddle_bottom)))
-            PaddleCollisionResult { x: left_zone_end, vx: (- 0.0 ball_vx), vy: spin_vy }
-        ((and (not is_left) (> ball_x right_zone_start) (< ball_x right_zone_end) (>= ball_center_y paddle_top) (<= ball_center_y paddle_bottom)))
-            PaddleCollisionResult { x: right_zone_start, vx: (- 0.0 ball_vx), vy: spin_vy }
-        (else PaddleCollisionResult { x: ball_x, vx: ball_vx, vy: ball_vy })
+        (left_hit (PaddleCollisionResult { x: left_zone_end, vx: (- 0.0 ball_vx), vy: spin_vy }))
+        (right_hit (PaddleCollisionResult { x: right_zone_start, vx: (- 0.0 ball_vx), vy: spin_vy }))
+        (else (PaddleCollisionResult { x: ball_x, vx: ball_vx, vy: ball_vy }))
     )
 }
 

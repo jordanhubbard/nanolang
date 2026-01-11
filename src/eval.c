@@ -19,6 +19,60 @@
 #include <spawn.h>
 #include <math.h>
 
+typedef struct {
+    const char *test_name;
+    int first_line;
+    int first_column;
+    int fail_count;
+} ShadowFailure;
+
+static bool g_in_shadow_tests = false;
+static const char *g_shadow_current_test = NULL;
+static int g_shadow_current_fail_count = 0;
+static int g_shadow_current_first_line = 0;
+static int g_shadow_current_first_column = 0;
+
+static void shadow_json_escape(FILE *out, const char *s) {
+    if (!s) return;
+    for (const unsigned char *p = (const unsigned char *)s; *p; p++) {
+        unsigned char c = *p;
+        switch (c) {
+            case '\\': fputs("\\\\", out); break;
+            case '"': fputs("\\\"", out); break;
+            case '\n': fputs("\\n", out); break;
+            case '\r': fputs("\\r", out); break;
+            case '\t': fputs("\\t", out); break;
+            default:
+                if (c < 0x20) fprintf(out, "\\u%04x", (unsigned int)c);
+                else fputc((int)c, out);
+        }
+    }
+}
+
+static void shadow_write_json_file(const char *path, const ShadowFailure *fails, int fail_len, bool success) {
+    if (!path || path[0] == '\0') return;
+    FILE *f = fopen(path, "w");
+    if (!f) return;
+
+    fprintf(f, "{");
+    fprintf(f, "\"tool\":\"nanoc_c\",");
+    fprintf(f, "\"success\":%s,", success ? "true" : "false");
+    fprintf(f, "\"failures\":[");
+    for (int i = 0; i < fail_len; i++) {
+        if (i > 0) fprintf(f, ",");
+        fprintf(f, "{");
+        fprintf(f, "\"test\":\""); shadow_json_escape(f, fails[i].test_name); fprintf(f, "\",");
+        fprintf(f, "\"fail_count\":%d,", fails[i].fail_count);
+        fprintf(f, "\"first_location\":{");
+        fprintf(f, "\"line\":%d,", fails[i].first_line);
+        fprintf(f, "\"column\":%d", fails[i].first_column);
+        fprintf(f, "}");
+        fprintf(f, "}");
+    }
+    fprintf(f, "]}");
+    fclose(f);
+}
+
 
 /* Forward declarations */
 static Value eval_expression(ASTNode *expr, Environment *env);
@@ -4638,49 +4692,16 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
         case AST_ASSERT: {
             Value cond = eval_expression(stmt->as.assert.condition, env);
             if (!is_truthy(cond)) {
-                fprintf(stderr, "\n========================================\n");
-                fprintf(stderr, "Shadow Test Assertion Failed\n");
-                fprintf(stderr, "========================================\n");
-                fprintf(stderr, "Location: line %d, column %d\n", stmt->line, stmt->column);
-                
-                /* Try to show the assertion expression if available */
-                if (stmt->as.assert.condition) {
-                    fprintf(stderr, "Expression type: ");
-                    /* Basic expression type reporting */
-                    ASTNode *expr = stmt->as.assert.condition;
-                    if (expr->type == AST_PREFIX_OP) {
-                        fprintf(stderr, "operator call with %d arguments\n", expr->as.prefix_op.arg_count);
-                    } else {
-                        fprintf(stderr, "complex expression\n");
+                if (g_in_shadow_tests) {
+                    g_shadow_current_fail_count++;
+                    if (g_shadow_current_first_line == 0) {
+                        g_shadow_current_first_line = stmt->line;
+                        g_shadow_current_first_column = stmt->column;
                     }
+                    return create_void();
                 }
-                
-                fprintf(stderr, "\nContext: Variables in current scope:\n");
-                /* Show some variable context from environment */
-                int vars_shown = 0;
-                for (int i = 0; i < env->symbol_count && vars_shown < 10; i++) {
-                    Symbol *sym = &env->symbols[i];
-                    if (sym->type != TYPE_FUNCTION) {
-                        fprintf(stderr, "  %s: ", sym->name);
-                        /* Show value if simple type */
-                        if (sym->value.type == VAL_INT) {
-                            fprintf(stderr, "int = %lld\n", (long long)sym->value.as.int_val);
-                        } else if (sym->value.type == VAL_FLOAT) {
-                            fprintf(stderr, "float = %f\n", sym->value.as.float_val);
-                        } else if (sym->value.type == VAL_BOOL) {
-                            fprintf(stderr, "bool = %s\n", sym->value.as.bool_val ? "true" : "false");
-                        } else if (sym->value.type == VAL_STRING) {
-                            fprintf(stderr, "string = \"%s\"\n", sym->value.as.string_val);
-                        } else {
-                            fprintf(stderr, "%s\n", type_to_string(sym->type));
-                        }
-                        vars_shown++;
-                    }
-                }
-                if (vars_shown == 0) {
-                    fprintf(stderr, "  (no local variables)\n");
-                }
-                fprintf(stderr, "========================================\n\n");
+
+                fprintf(stderr, "Assertion failed at line %d, column %d\n", stmt->line, stmt->column);
                 exit(1);
             }
             return create_void();
@@ -4909,6 +4930,12 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
     fprintf(stdout, "Running shadow tests...\n");
 
     bool all_passed = true;
+    g_in_shadow_tests = true;
+
+    ShadowFailure *failures = NULL;
+    int failure_count = 0;
+    int failure_cap = 0;
+    const char *shadow_json_path = getenv("NANO_LLM_SHADOW_JSON");
 
     /* First pass: Evaluate top-level constants */
     for (int i = 0; i < program->as.program.count; i++) {
@@ -4965,9 +4992,38 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
             fprintf(stdout, "Testing %s... ", func_name);
             
             /* Execute shadow test */
+            g_shadow_current_test = func_name;
+            g_shadow_current_fail_count = 0;
+            g_shadow_current_first_line = 0;
+            g_shadow_current_first_column = 0;
             eval_statement(item->as.shadow.body, env);
 
-            fprintf(stdout, "PASSED\n");
+            if (g_shadow_current_fail_count > 0) {
+                all_passed = false;
+                fprintf(stdout, "FAILED\n");
+                fprintf(stdout, "  Summary: %d assertion(s) failed\n", g_shadow_current_fail_count);
+                if (g_shadow_current_first_line > 0) {
+                    fprintf(stdout, "  First failure at line %d, column %d\n", g_shadow_current_first_line, g_shadow_current_first_column);
+                }
+
+                if (failure_count >= failure_cap) {
+                    int new_cap = failure_cap == 0 ? 8 : failure_cap * 2;
+                    ShadowFailure *new_arr = realloc(failures, sizeof(ShadowFailure) * (size_t)new_cap);
+                    if (new_arr) {
+                        failures = new_arr;
+                        failure_cap = new_cap;
+                    }
+                }
+                if (failure_count < failure_cap) {
+                    failures[failure_count].test_name = func_name;
+                    failures[failure_count].fail_count = g_shadow_current_fail_count;
+                    failures[failure_count].first_line = g_shadow_current_first_line;
+                    failures[failure_count].first_column = g_shadow_current_first_column;
+                    failure_count++;
+                }
+            } else {
+                fprintf(stdout, "PASSED\n");
+            }
         }
         /* Note: We do NOT execute non-shadow items here - they're already registered
          * in the environment by the type checker. Only shadow test bodies need execution. */
@@ -4976,6 +5032,10 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
     if (all_passed) {
         fprintf(stdout, "All shadow tests passed!\n");
     }
+
+    shadow_write_json_file(shadow_json_path, failures, failure_count, all_passed);
+    free(failures);
+    g_in_shadow_tests = false;
 
     return all_passed;
 }

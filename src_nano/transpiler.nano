@@ -247,16 +247,7 @@ fn mangle_module_ident(name: string) -> string {
 }
 
 fn is_builtin_list_runtime_fn(name: string) -> bool {
-    return (or
-        (transp_str_starts_with name "list_int_")
-        (or
-            (transp_str_starts_with name "list_string_")
-            (or
-                (transp_str_starts_with name "list_token_")
-                (transp_str_starts_with name "list_LexerToken_")
-            )
-        )
-    )
+    return (or (transp_str_starts_with name "list_int_") (transp_str_starts_with name "list_string_"))
 }
 
 fn is_generic_list_runtime_fn(name: string) -> bool {
@@ -315,6 +306,262 @@ fn c_func_name_for_definition(func_name: string) -> string {
 struct GenEnv {
     names: array<string>,
     types: array<string>
+}
+
+struct TypeCParseResult {
+    ok: bool,
+    c_type: string,
+    next_pos: int
+}
+
+fn is_schema_struct_name(name: string) -> bool {
+    if (str_equals name "Parser") { return true } else { (print "") }
+    if (str_equals name "NSType") { return true } else { (print "") }
+    if (str_equals name "OptionType") { return true } else { (print "") }
+    if (str_equals name "CompilerSourceLocation") { return true } else { (print "") }
+    if (str_equals name "CompilerDiagnostic") { return true } else { (print "") }
+    if (str_equals name "LexPhaseOutput") { return true } else { (print "") }
+    if (str_equals name "TypeEnvironment") { return true } else { (print "") }
+    if (str_equals name "TypecheckPhaseOutput") { return true } else { (print "") }
+    if (str_equals name "TranspilePhaseOutput") { return true } else { (print "") }
+    return false
+}
+
+shadow is_schema_struct_name {
+    assert (is_schema_struct_name "Parser")
+    assert (not (is_schema_struct_name "NameParseResult"))
+}
+
+fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult {
+    let n: int = parser.token_count
+    if (or (< start_pos 0) (>= start_pos n)) {
+        return TypeCParseResult { ok: false, c_type: "", next_pos: start_pos }
+    } else { (print "") }
+
+    let t0: LexerToken = (list_LexerToken_get parser.tokens start_pos)
+
+    if (== t0.token_type LexerTokenType.TOKEN_TYPE_INT) { return TypeCParseResult { ok: true, c_type: "int64_t", next_pos: (+ start_pos 1) } } else { (print "") }
+    if (== t0.token_type LexerTokenType.TOKEN_TYPE_FLOAT) { return TypeCParseResult { ok: true, c_type: "double", next_pos: (+ start_pos 1) } } else { (print "") }
+    if (== t0.token_type LexerTokenType.TOKEN_TYPE_BOOL) { return TypeCParseResult { ok: true, c_type: "bool", next_pos: (+ start_pos 1) } } else { (print "") }
+    if (== t0.token_type LexerTokenType.TOKEN_TYPE_STRING) { return TypeCParseResult { ok: true, c_type: "char*", next_pos: (+ start_pos 1) } } else { (print "") }
+
+    /* array<T> */
+    if (== t0.token_type LexerTokenType.TOKEN_ARRAY) {
+        return TypeCParseResult { ok: true, c_type: "DynArray*", next_pos: (+ start_pos 1) }
+    } else { (print "") }
+
+    if (== t0.token_type LexerTokenType.TOKEN_IDENTIFIER) {
+        let name: string = t0.value
+
+        /* List<T> */
+        if (str_equals name "List") {
+            if (< (+ start_pos 3) n) {
+                let t1: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 1))
+                let t2: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 2))
+                let t3: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 3))
+                if (and (== t1.token_type LexerTokenType.TOKEN_LT) (and (== t2.token_type LexerTokenType.TOKEN_IDENTIFIER) (== t3.token_type LexerTokenType.TOKEN_GT))) {
+                    let elem: string = t2.value
+                    if (str_equals elem "LexerToken") { return TypeCParseResult { ok: true, c_type: "List_LexerToken*", next_pos: (+ start_pos 4) } } else { (print "") }
+                    if (str_equals elem "CompilerDiagnostic") { return TypeCParseResult { ok: true, c_type: "List_CompilerDiagnostic*", next_pos: (+ start_pos 4) } } else { (print "") }
+                    return TypeCParseResult { ok: true, c_type: (str_concat (str_concat "List_" (mangle_type_name elem)) "*"), next_pos: (+ start_pos 4) }
+                } else { (print "") }
+            } else { (print "") }
+        } else { (print "") }
+
+        /* Direct schema / built-in types */
+        if (is_schema_struct_name name) {
+            return TypeCParseResult { ok: true, c_type: name, next_pos: (+ start_pos 1) }
+        } else { (print "") }
+
+        /* Fallback: treat as user-defined struct */
+        return TypeCParseResult { ok: true, c_type: (str_concat "nl_" (mangle_name name)), next_pos: (+ start_pos 1) }
+    } else { (print "") }
+
+    return TypeCParseResult { ok: false, c_type: "", next_pos: start_pos }
+}
+
+shadow parse_type_c_from_tokens {
+    /* Minimal sanity: require a token stream with `int` at position 0. */
+    let toks: List<LexerToken> = (tokenize_string "int")
+    let p: Parser = (parser_new toks (list_LexerToken_length toks))
+    let r: TypeCParseResult = (parse_type_c_from_tokens p 0)
+    assert r.ok
+}
+
+fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
+    let mut out: string = ""
+    let n: int = parser.token_count
+    let mut i: int = 0
+
+    while (< i n) {
+        let tok: LexerToken = (list_LexerToken_get parser.tokens i)
+
+        if (== tok.token_type LexerTokenType.TOKEN_STRUCT) {
+            /* Skip extern struct declarations */
+            if (> i 0) {
+                let prev: LexerToken = (list_LexerToken_get parser.tokens (- i 1))
+                if (== prev.token_type LexerTokenType.TOKEN_EXTERN) {
+                    set i (+ i 1)
+                    continue
+                } else { (print "") }
+            } else { (print "") }
+
+            if (>= (+ i 2) n) { return out } else { (print "") }
+
+            let name_tok: LexerToken = (list_LexerToken_get parser.tokens (+ i 1))
+            let brace_tok: LexerToken = (list_LexerToken_get parser.tokens (+ i 2))
+            if (and (== name_tok.token_type LexerTokenType.TOKEN_IDENTIFIER) (== brace_tok.token_type LexerTokenType.TOKEN_LBRACE)) {
+                let sname: string = name_tok.value
+                if (is_schema_struct_name sname) {
+                    set i (+ i 1)
+                    continue
+                } else { (print "") }
+
+                let c_name: string = (str_concat "nl_" (mangle_name sname))
+                let mut fields: string = ""
+
+                let mut j: int = (+ i 3)
+                while (< j n) {
+                    let tcur: LexerToken = (list_LexerToken_get parser.tokens j)
+                    if (== tcur.token_type LexerTokenType.TOKEN_RBRACE) {
+                        break
+                    } else { (print "") }
+
+                    if (== tcur.token_type LexerTokenType.TOKEN_IDENTIFIER) {
+                        /* field_name : type */
+                        if (>= (+ j 2) n) { break } else { (print "") }
+                        let tcolon: LexerToken = (list_LexerToken_get parser.tokens (+ j 1))
+                        if (!= tcolon.token_type LexerTokenType.TOKEN_COLON) {
+                            set j (+ j 1)
+                            continue
+                        } else { (print "") }
+
+                        let fname: string = tcur.value
+                        let tr: TypeCParseResult = (parse_type_c_from_tokens parser (+ j 2))
+                        if tr.ok {
+                            set fields (str_concat fields "    ")
+                            set fields (str_concat fields tr.c_type)
+                            set fields (str_concat fields " ")
+                            set fields (str_concat fields (mangle_name fname))
+                            set fields (str_concat fields ";\n")
+                            set j tr.next_pos
+
+                            if (< j n) {
+                                let tnext: LexerToken = (list_LexerToken_get parser.tokens j)
+                                if (== tnext.token_type LexerTokenType.TOKEN_COMMA) {
+                                    set j (+ j 1)
+                                } else { (print "") }
+                            } else { (print "") }
+                        } else {
+                            set j (+ j 1)
+                        }
+                    } else {
+                        set j (+ j 1)
+                    }
+                }
+
+                set out (str_concat out "\n/* Struct definition: ")
+                set out (str_concat out sname)
+                set out (str_concat out " */\n")
+                set out (str_concat out "typedef struct ")
+                set out (str_concat out c_name)
+                set out (str_concat out " {\n")
+                set out (str_concat out fields)
+                set out (str_concat out "} ")
+                set out (str_concat out c_name)
+                set out (str_concat out ";\n")
+                set out (str_concat out "typedef ")
+                set out (str_concat out c_name)
+                set out (str_concat out " ")
+                set out (str_concat out (mangle_name sname))
+                set out (str_concat out ";\n")
+
+                set i j
+            } else { (print "") }
+        } else { (print "") }
+
+        set i (+ i 1)
+    }
+
+    return out
+}
+
+shadow generate_struct_definitions_from_tokens {
+    let src: string = "struct Foo { x: int, y: bool }"
+    let toks: List<LexerToken> = (tokenize_string src)
+    let p: Parser = (parser_new toks (list_LexerToken_length toks))
+    let c: string = (generate_struct_definitions_from_tokens p)
+    assert (> (str_length c) 0)
+}
+
+fn has_function_named(parser: Parser, name: string) -> bool {
+    let n: int = (parser_get_function_count parser)
+    let mut i: int = 0
+    while (< i n) {
+        let f: ASTFunction = (parser_get_function parser i)
+        if (str_equals f.name name) { return true } else { (print "") }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow has_function_named {
+    let toks: List<LexerToken> = (tokenize_string "fn main() -> int { return 0 }")
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "test.nano")
+    assert (has_function_named p "main")
+}
+
+fn generate_function_prototypes(parser: Parser) -> string {
+    let mut out: string = "\n/* Function prototypes */\n"
+    let n: int = (parser_get_function_count parser)
+    let mut i: int = 0
+
+    while (< i n) {
+        let f: ASTFunction = (parser_get_function parser i)
+        let mut names: array<string> = []
+        let mut ctypes: array<string> = []
+
+        let mut j: int = 0
+        while (< j f.param_count) {
+            let let_node: ASTLet = (parser_get_let parser (+ f.param_start j))
+            set names (array_push names let_node.name)
+            set ctypes (array_push ctypes (type_to_c let_node.var_type))
+            set j (+ j 1)
+        }
+
+        let sig: string = (gen_function_signature f.name names ctypes f.return_type)
+        set out (str_concat out sig)
+        set out (str_concat out ";\n")
+
+        set i (+ i 1)
+    }
+
+    set out (str_concat out "\n")
+    return out
+}
+
+shadow generate_function_prototypes {
+    let toks: List<LexerToken> = (tokenize_string "fn f(x: int) -> int { return x }")
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let c: string = (generate_function_prototypes p)
+    assert (> (str_length c) 0)
+}
+
+fn is_extern_function(parser: Parser, name: string) -> bool {
+    let n: int = (parser_get_function_count parser)
+    let mut i: int = 0
+    while (< i n) {
+        let f: ASTFunction = (parser_get_function parser i)
+        if (and (str_equals f.name name) (< f.body 0)) { return true } else { (print "") }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow is_extern_function {
+    let toks: List<LexerToken> = (tokenize_string "extern fn foo() -> int")
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (is_extern_function p "foo")
 }
 
 fn genenv_new() -> GenEnv {
@@ -466,33 +713,44 @@ fn tuple_typedef_name(tuple_type: string) -> string {
 }
 
 fn type_to_c(nano_type: string) -> string {
-    if (== nano_type "int") {
+    if (str_equals nano_type "int") {
         return "int64_t"
     } else {
-        if (== nano_type "float") {
+        if (str_equals nano_type "float") {
             return "double"
         } else {
-            if (== nano_type "bool") {
+            if (str_equals nano_type "bool") {
                 return "int"
             } else {
-                if (== nano_type "string") {
+                if (str_equals nano_type "string") {
                     return "char*"
                 } else {
-                    if (== nano_type "void") {
+                    if (str_equals nano_type "void") {
                         return "void"
                     } else {
+                        /* Schema enums are not nl_-prefixed in generated/compiler_schema.h */
+                        if (str_equals nano_type "DiagnosticSeverity") { return "DiagnosticSeverity" } else { (print "") }
+                        if (str_equals nano_type "CompilerPhase") { return "CompilerPhase" } else { (print "") }
+                        if (str_equals nano_type "ParseNodeType") { return "ParseNodeType" } else { (print "") }
+                        /* Token enum is named TokenType in C schema; Nano uses LexerTokenType in places */
+                        if (or (str_equals nano_type "LexerTokenType") (str_equals nano_type "TokenType")) { return "TokenType" } else { (print "") }
+
                         if (transp_str_starts_with nano_type "List<") {
                             let elem: string = (str_substring nano_type 5 (- (str_length nano_type) 6))
-                            if (== elem "int") {
+                            if (str_equals elem "int") {
                                 return "List_int*"
                             } else {
-                                if (== elem "string") {
+                                if (str_equals elem "string") {
                                     return "List_string*"
                                 } else {
-                                    if (or (== elem "token") (== elem "LexerToken")) {
-                                        return "List_token*"
+                                    if (str_equals elem "LexerToken") {
+                                        return "List_LexerToken*"
                                     } else {
-                                        return (str_concat (str_concat "List_" (mangle_type_name elem)) "*")
+                                        if (or (str_equals elem "token") (str_equals elem "Token")) {
+                                            return "List_Token*"
+                                        } else {
+                                            return (str_concat (str_concat "List_" (mangle_type_name elem)) "*")
+                                        }
                                     }
                                 }
                             }
@@ -951,23 +1209,48 @@ fn gen_c_includes() -> string {
     set result (str_concat result "#include <stdbool.h>\n")
     set result (str_concat result "#include <string.h>\n")
     set result (str_concat result "#include <assert.h>\n")
+    set result (str_concat result "#include \"nanolang.h\"\n")
     set result (str_concat result "#include \"runtime/dyn_array.h\"\n")
     set result (str_concat result "#include \"runtime/list_int.h\"\n")
     set result (str_concat result "#include \"runtime/list_string.h\"\n")
     set result (str_concat result "#include \"runtime/list_token.h\"\n")
+    set result (str_concat result "#include \"runtime/list_LexerToken.h\"\n")
+    set result (str_concat result "#include \"runtime/list_CompilerDiagnostic.h\"\n")
+    set result (str_concat result "#include \"runtime/list_CompilerSourceLocation.h\"\n")
     set result (str_concat result "#include \"runtime/token_helpers.h\"\n")
     /* Include all AST list type headers for compiler support */
     set result (str_concat result "#include \"runtime/list_ASTLet.h\"\n")
     set result (str_concat result "#include \"runtime/list_ASTFunction.h\"\n")
     set result (str_concat result "#include \"runtime/list_ASTNumber.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTFloat.h\"\n")
     set result (str_concat result "#include \"runtime/list_ASTString.h\"\n")
     set result (str_concat result "#include \"runtime/list_ASTBool.h\"\n")
     set result (str_concat result "#include \"runtime/list_ASTIdentifier.h\"\n")
     set result (str_concat result "#include \"runtime/list_ASTBinaryOp.h\"\n")
     set result (str_concat result "#include \"runtime/list_ASTCall.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTArrayLiteral.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTSet.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTIf.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTWhile.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTFor.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTReturn.h\"\n")
     set result (str_concat result "#include \"runtime/list_ASTStmtRef.h\"\n")
     set result (str_concat result "#include \"runtime/list_ASTBlock.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTUnsafeBlock.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTPrint.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTAssert.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTShadow.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTStruct.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTStructLiteral.h\"\n")
     set result (str_concat result "#include \"runtime/list_ASTFieldAccess.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTEnum.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTUnion.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTUnionConstruct.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTMatch.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTImport.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTOpaqueType.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTTupleLiteral.h\"\n")
+    set result (str_concat result "#include \"runtime/list_ASTTupleIndex.h\"\n")
     set result (str_concat result "\n")
     
     return result
@@ -1015,6 +1298,39 @@ fn gen_c_runtime() -> string {
     set result (str_concat result "int64_t nl_str_length(const char* s) {\n")
     set result (str_concat result "    return (int64_t)strlen(s);\n")
     set result (str_concat result "}\n\n")
+
+    /* char_at: return byte at index (ASCII-safe) */
+    set result (str_concat result "int64_t nl_char_at(const char* s, int64_t i) {\n")
+    set result (str_concat result "    return (int64_t)((unsigned char)s[i]);\n")
+    set result (str_concat result "}\n\n")
+
+    /* substring: allocate a new null-terminated slice */
+    set result (str_concat result "char* nl_str_substring(const char* s, int64_t start, int64_t len) {\n")
+    set result (str_concat result "    if (!s) return NULL;\n")
+    set result (str_concat result "    int64_t n = (int64_t)strlen(s);\n")
+    set result (str_concat result "    if (start < 0) start = 0;\n")
+    set result (str_concat result "    if (len < 0) len = 0;\n")
+    set result (str_concat result "    if (start > n) start = n;\n")
+    set result (str_concat result "    if (start + len > n) len = n - start;\n")
+    set result (str_concat result "    char* out = (char*)malloc((size_t)len + 1);\n")
+    set result (str_concat result "    if (!out) return NULL;\n")
+    set result (str_concat result "    memcpy(out, s + start, (size_t)len);\n")
+    set result (str_concat result "    out[len] = 0;\n")
+    set result (str_concat result "    return out;\n")
+    set result (str_concat result "}\n\n")
+
+    /* Module std_fs FFI (unprefixed symbols when sources are merged directly) */
+    set result (str_concat result "/* std_fs externs (provided by modules/std/fs.c) */\n")
+    set result (str_concat result "extern DynArray* fs_walkdir(const char* root);\n")
+    set result (str_concat result "extern const char* path_normalize(const char* path);\n")
+    set result (str_concat result "extern const char* path_join(const char* a, const char* b);\n")
+    set result (str_concat result "extern const char* path_basename(const char* path);\n")
+    set result (str_concat result "extern const char* path_dirname(const char* path);\n")
+    set result (str_concat result "extern char* file_read(const char* path);\n")
+    set result (str_concat result "extern int64_t file_write(const char* path, const char* content);\n")
+    set result (str_concat result "extern int64_t file_append(const char* path, const char* content);\n")
+    set result (str_concat result "extern bool file_exists(const char* path);\n")
+    set result (str_concat result "extern int64_t file_delete(const char* path);\n\n")
     
     /* min function */
     set result (str_concat result "#define nl_min(a, b) ((a) < (b) ? (a) : (b))\n\n")
@@ -1088,9 +1404,22 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
     /* Generate List<T> specializations */
     let list_specs: string = (generate_list_specializations parser)
     set result (str_concat result list_specs)
+
+    /* Generate user-defined struct definitions by scanning tokens */
+    let struct_defs: string = (generate_struct_definitions_from_tokens parser)
+    set result (str_concat result struct_defs)
     
+    /* Forward declarations for all functions (avoid implicit declarations in C99) */
+    let protos: string = (generate_function_prototypes parser)
+    set result (str_concat result protos)
+
     set result (str_concat result "/* User functions */\n")
     set result (str_concat result functions)
+
+    /* If module has no Nano main(), provide a stub so the C wrapper can link. */
+    if (not (has_function_named parser "main")) {
+        set result (str_concat result "\nint64_t nl_main() { return 0; }\n")
+    } else { (print "") }
     
     /* Add C main() wrapper that calls nl_main() */
     set result (str_concat result "\n/* C main() entry point - calls nanolang main */\n")
@@ -1254,7 +1583,9 @@ fn generate_list_for_type(elem_type: string) -> string {
     let mut code: string = ""
     
     /* Struct definition */
-    set code (str_concat code "typedef struct {\n")
+    set code (str_concat code "typedef struct ")
+    set code (str_concat code list_name)
+    set code (str_concat code " {\n")
     set code (str_concat code "    ")
     set code (str_concat code c_elem_type)
     set code (str_concat code " *data;\n")
@@ -1426,11 +1757,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 /* Binary operation - RECURSIVE! */
                 let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
                 
-                /* Recursively generate left operand */
-                let left_code: string = (generate_expression parser binop.left binop.left_type env "")
-                
-                /* Recursively generate right operand */
-                let right_code: string = (generate_expression parser binop.right binop.right_type env "")
+                /* Recursively generate operands (propagate expected_type for nested string concatenation) */
+                let left_code: string = (generate_expression parser binop.left binop.left_type env expected_type)
+                let right_code: string = (generate_expression parser binop.right binop.right_type env expected_type)
 
                 /* Array arithmetic lowering for identifier operands */
                 let mut left_arr_t: string = ""
@@ -1575,23 +1904,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     /* Check if either operand looks like a string (starts with ") */
                     let left_is_str: bool = (and (> (str_length left_code) 0) (== (char_at left_code 0) 34))
                     let right_is_str: bool = (and (> (str_length right_code) 0) (== (char_at right_code 0) 34))
-                    
-                    /* Check if operands are obviously numeric literals */
-                    let left_first: int = (cond
-                        ((> (str_length left_code) 0) (char_at left_code 0))
-                        (else 0)
-                    )
-                    let right_first: int = (cond
-                        ((> (str_length right_code) 0) (char_at right_code 0))
-                        (else 0)
-                    )
-                    let left_is_num: bool = (or (and (>= left_first 48) (<= left_first 57)) (== left_first 45))
-                    let right_is_num: bool = (or (and (>= right_first 48) (<= right_first 57)) (== right_first 45))
-                    
-                    /* Use nl_str_concat if: any operand is string literal, OR neither is obviously numeric */
-                    let use_str_concat: bool = (or (or left_is_str right_is_str) (not (and left_is_num right_is_num)))
-                    
-                    if use_str_concat {
+
+                    /* Only emit nl_str_concat when string context is expected. */
+                    if (or (str_equals expected_type "string") (or left_is_str right_is_str)) {
                         let mut result: string = "nl_str_concat("
                         set result (str_concat result left_code)
                         set result (str_concat result ", ")
@@ -1826,7 +2141,10 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     }
                     
                     /* Build call: proper function name (handles list runtime) */
-                    let c_func_name: string = (c_func_name_for_call func_name)
+                    let c_func_name: string = (cond
+                        ((is_extern_function parser func_name) func_name)
+                        (else (c_func_name_for_call func_name))
+                    )
                     
                     let mut result: string = c_func_name
                     set result (str_concat result "(")
@@ -1841,7 +2159,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         }
 
                         let aref: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
-                        let arg_code: string = (generate_expression parser aref.node_id aref.node_type env "")
+                        let mut arg_expected: string = ""
+                        if (or (str_equals func_name "print") (str_equals func_name "println")) {
+                            set arg_expected "string"
+                        } else { (print "") }
+                        let arg_code: string = (generate_expression parser aref.node_id aref.node_type env arg_expected)
                         set result (str_concat result arg_code)
                         set i (+ i 1)
                     }
@@ -1852,6 +2174,20 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
                         /* Field access */
                         let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
+                        /* If the object is an enum identifier (e.g. DiagnosticSeverity.DIAG_ERROR),
+                         * emit a C enum constant rather than a struct field access. */
+                        if (== fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
+                            let ident: ASTIdentifier = (parser_get_identifier parser fa.object)
+                            /* Self-hosted MVP: recognize schema enums by name. */
+                            if (or (str_equals ident.name "DiagnosticSeverity") (str_equals ident.name "CompilerPhase")) {
+                                return (+ ident.name (+ "_" (mangle_name fa.field_name)))
+                            } else {
+                                if (or (str_equals ident.name "TokenType") (or (str_equals ident.name "ParseNodeType") (str_equals ident.name "LexerTokenType"))) {
+                                    return (mangle_name fa.field_name)
+                                } else { (print "") }
+                            }
+                        } else { (print "") }
+
                         let obj_code: string = (generate_expression parser fa.object fa.object_type env "")
                         let mut result: string = "("
                         set result (str_concat result obj_code)

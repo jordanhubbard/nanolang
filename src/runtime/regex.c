@@ -107,7 +107,8 @@ DynArray* nl_regex_groups(void* regex, const char* text) {
         if (group) {
             strncpy(group, text + matches[i].rm_so, len);
             group[len] = '\0';
-            groups = dyn_array_push_string(groups, group);
+            /* Copy into DynArray: `group` is freed below. */
+            groups = dyn_array_push_string_copy(groups, group);
             free(group);
         }
     }

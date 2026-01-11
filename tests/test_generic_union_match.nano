@@ -38,7 +38,7 @@ fn unwrap_or(r: Result<int, string>, default_value: int) -> int {
     }
 }
 
-fn main() -> int {
+fn compute() -> int {
     let val1: int = (test_local_match)
     
     let r1: Result<int, string> = (divide 10 2)
@@ -50,7 +50,16 @@ fn main() -> int {
     return (+ val1 (+ val2 val3))
 }
 
+shadow compute {
+    assert (== (compute) 46)  /* 42 + 5 + (-1) = 46 */
+}
+
+fn main() -> int {
+    assert (== (compute) 46)
+    return 0
+}
+
 shadow main {
-    assert (== (main) 46)  /* 42 + 5 + (-1) = 46 */
+    assert (== (main) 0)
 }
 

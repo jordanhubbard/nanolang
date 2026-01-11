@@ -1,4 +1,4 @@
-import "src_nano/compiler/ir.nano"
+import "src_nano/generated/compiler_ast.nano"
 
 /* =============================================================================
  * LOCATION HELPERS
@@ -136,26 +136,17 @@ pub fn diag_list_get(list: List<CompilerDiagnostic>, index: int) -> CompilerDiag
     return (list_CompilerDiagnostic_get list index)
 }
 
-fn diag_list_has_errors_helper(list: List<CompilerDiagnostic>, index: int, count: int) -> bool {
-    if (>= index count) {
-        return false
-    }
-    let diag: CompilerDiagnostic = (diag_list_get list index)
-    if (== diag.severity DiagnosticSeverity.DIAG_ERROR) {
-        return true
-    }
-    let next_index: int = (+ index 1)
-    return (diag_list_has_errors_helper list next_index count)
-}
-
-shadow diag_list_has_errors_helper {
-    let diags: List<CompilerDiagnostic> = (diag_list_new)
-    assert (not (diag_list_has_errors_helper diags 0 0))
-}
-
 pub fn diag_list_has_errors(list: List<CompilerDiagnostic>) -> bool {
     let count: int = (diag_list_count list)
-    return (diag_list_has_errors_helper list 0 count)
+    let mut i: int = 0
+    while (< i count) {
+        let diag: CompilerDiagnostic = (diag_list_get list i)
+        if (== diag.severity DiagnosticSeverity.DIAG_ERROR) {
+            return true
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return false
 }
 
 shadow diag_list_new {

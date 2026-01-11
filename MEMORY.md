@@ -71,6 +71,18 @@ shadow double {
 
 **For LLMs:** When generating NanoLang code, ALWAYS include shadow tests for every function you write. This is not optional - it's part of the language design.
 
+### 2.1 Examples are also stress tests (NO workarounds)
+If an example reveals a weakness (miscompile, memory/lifetime bug, nondeterminism, etc.), treat it as a **language/compiler/runtime defect**:
+- Create a bead for the defect (P0/P1 as appropriate)
+- Build a **minimal deterministic reproducer** (shadow test)
+- Fix root cause (no workarounds)
+- Add a regression test
+
+### 2.2 Agent-only compiler flags / machine-readable diagnostics
+NanoLang is LLM-first, so the compiler supports (and will continue to add) **agent-focused** debugging/tracing outputs (preferably machine-readable).
+
+See `docs/LLM_AGENT_FLAGS.md`.
+
 ### 3. ALWAYS Use Explicit Types
 ```nano
 # CORRECT

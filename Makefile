@@ -250,7 +250,11 @@ test: build
 		$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
 	fi
 	@echo ""
-	@$(MAKE) test-impl
+	@# Auto-file beads on failures.
+	@# Local default: per-failure beads. CI default: summary bead.
+	@MODE=per; \
+	if [ -n "$$CI" ]; then MODE=summary; fi; \
+	python3 scripts/autobeads.py --tests --mode $$MODE --close-on-success --timeout-seconds $${NANOLANG_TEST_TIMEOUT_SECONDS:-480}
 
 # Alias for backwards compatibility
 test-full: test
@@ -881,7 +885,9 @@ help:
 	@echo "  make build            - Build all components (default)"
 	@echo "  make bootstrap        - TRUE 3-stage bootstrap (GCC-style)"
 	@echo "  make test             - Build + run all tests (auto-detect best compiler)"
+	@echo "  make test-beads       - Run tests; on failures, auto-create/update beads"
 	@echo "  make examples         - Build all examples"
+	@echo "  make examples-beads   - Build examples; on failures, auto-create/update beads"
 	@echo "  make examples-launcher- Launch example browser"
 	@echo "  make clean            - Remove all artifacts"
 	@echo "  make rebuild          - Clean + build"
@@ -937,6 +943,20 @@ help:
 	@echo "  Stage 3: Verify stage1 == stage2, install nanoc_stage2 as bin/nanoc"
 	@echo ""
 	@echo "After bootstrap: bin/nanoc → nanoc_stage2 (self-hosted compiler)"
+
+# Auto-create/update Beads issues for failures
+test-beads:
+	@python3 scripts/autobeads.py --tests
+
+examples-beads:
+	@python3 scripts/autobeads.py --examples
+
+# CI-friendly: one summary bead per run (per branch), auto-closed when green
+test-beads-ci:
+	@python3 scripts/autobeads.py --tests --mode summary --close-on-success
+
+examples-beads-ci:
+	@python3 scripts/autobeads.py --examples --mode summary --close-on-success
 	@echo ""
 	@echo "Sentinels:"
 	@echo "  .stage{1,2,3}.built - Component build"

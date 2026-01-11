@@ -69,6 +69,10 @@ DEBUG_EXAMPLES = \
 	$(BIN_DIR)/property_test_sorting \
 	$(BIN_DIR)/property_test_math
 
+# === OPL DSL Toolchain Example (no external deps) ===
+OPL_EXAMPLES = \
+	$(BIN_DIR)/opl
+
 # Temporarily disabled due to module import context bug (nanolang-6h9):
 # - nl_demo_selfhosting (imports math_helper with 'as' alias)
 
@@ -123,12 +127,13 @@ OPENGL_EXAMPLES = \
 ALL_EXAMPLES = \
 	$(NL_EXAMPLES) \
 	$(DEBUG_EXAMPLES) \
+	$(OPL_EXAMPLES) \
 	$(SDL_EXAMPLES) \
 	$(NCURSES_EXAMPLES)
 
 # === Targets ===
 
-.PHONY: all build nl sdl ncurses opengl debug clean help launcher
+.PHONY: all build nl opl sdl ncurses opengl debug clean help launcher
 
 # Default: build all examples
 all: build
@@ -147,6 +152,9 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "  ./bin/coverage_demo              - Coverage tracking and tracing"
 	@echo "  ./bin/property_test_sorting      - Property testing for sorting"
 	@echo "  ./bin/property_test_math         - Property testing for math operations"
+	@echo ""
+	@echo "OPL examples:"
+	@echo "  ./bin/opl                  - OPL DSL toolchain CLI (parse/validate/compile/test/codegen/build)"
 	@echo ""
 	@echo "SDL examples (sdl_*):"
 	@echo "  ./bin/sdl_pong              - Table tennis (1972)"
@@ -207,6 +215,10 @@ debug: $(COMPILER) $(DEBUG_EXAMPLES)
 	@echo "  ./bin/property_test_sorting"
 	@echo "  ./bin/property_test_math"
 	@echo ""
+opl: $(COMPILER) $(OPL_EXAMPLES)
+	@echo ""
+	@echo "OPL DSL toolchain built successfully!"
+	@echo "Try: ./bin/opl --help"
 sdl: $(COMPILER) $(SDL_EXAMPLES)
 ncurses: $(COMPILER) $(NCURSES_EXAMPLES)
 opengl: $(COMPILER) $(OPENGL_EXAMPLES)
@@ -225,22 +237,6 @@ $(BIN_DIR)/nl_%: language/nl_%.nano $(COMPILER)
 	@echo "Building $@..."
 	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
-# Debugging & Validation examples (in debug/ subdirectory)
-$(BIN_DIR)/logging_%: debug/logging_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-$(BIN_DIR)/coverage_demo: debug/coverage_demo.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-$(BIN_DIR)/property_test_%: debug/property_test_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# SDL examples (in graphics/, games/, or audio/ subdirectories)
-# Games
-$(BIN_DIR)/sdl_pong: games/sdl_pong.nano $(COMPILER)
 	@echo "Building $@..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
 

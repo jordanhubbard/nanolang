@@ -15,6 +15,7 @@
 import "src_nano/compiler/lexer.nano"
 import "src_nano/ast_shared.nano"
 import "src_nano/generated/compiler_ast.nano"
+import "src_nano/compiler/diagnostics.nano" as Diagnostics
 
 /* Helper: Initialize AST lists (triggers generic instantiation) */
 fn parser_init_ast_lists() -> Parser {
@@ -3088,7 +3089,7 @@ fn parser_store_array_literal(p: Parser, element_start: int, element_count: int,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
-        array_literals_count: p.array_literals_count,
+        array_literals_count: (+ p.array_literals_count 1),
         lets_count: p.lets_count,
         sets_count: p.sets_count,
         ifs_count: p.ifs_count,
@@ -6682,8 +6683,6 @@ pub fn parser_get_import(p: Parser, idx: int) -> ASTImport {
  * PHASE WRAPPER for Driver Integration
  * ============================================================================= */
 
-from "src_nano/compiler/diagnostics.nano" import diag_list_new
-
 /* Parse phase wrapper for driver
  * Takes lex output, returns parser state + diagnostics
  */
@@ -6695,7 +6694,7 @@ pub fn parse_phase_run(lex_output: LexPhaseOutput, file_name: string) -> ParsePh
     let had_error: bool = (parser_has_error parser_state)
     
     /* Create diagnostics list */
-    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     
     if had_error {
         # Try to find location of error (at current position)
@@ -6713,8 +6712,8 @@ pub fn parse_phase_run(lex_output: LexPhaseOutput, file_name: string) -> ParsePh
             }
         }
         
-        let diag: CompilerDiagnostic = (diag_parser_error "P0001" "Syntax error: Unexpected token" (diag_location file_name line col))
-        (diag_list_add diagnostics diag)
+        let diag: CompilerDiagnostic = (Diagnostics.diag_parser_error "P0001" "Syntax error: Unexpected token" (Diagnostics.diag_location file_name line col))
+        (Diagnostics.diag_list_add diagnostics diag)
     }
     
     return ParsePhaseOutput {
@@ -6739,7 +6738,7 @@ shadow parse_phase_run {
         tokens: tokens,
         token_count: 1,
         had_error: false,
-        diagnostics: (diag_list_new)
+        diagnostics: (list_CompilerDiagnostic_new)
     }
     
     let parse_out: ParsePhaseOutput = (parse_phase_run lex_out)

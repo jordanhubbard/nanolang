@@ -920,6 +920,8 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
         module_cache = saved_cache;
         return false;
     }
+    module_env->emit_module_metadata = false;
+    module_env->emit_c_main = false;
 
     /* Use a fresh module cache per module compilation to avoid cross-env AST reuse */
 

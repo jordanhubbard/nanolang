@@ -20,15 +20,15 @@
  * ============================================================================= */
 
 /* Log Levels (0 = Debug, 1 = Info, 2 = Warn, 3 = Error, 4 = Fatal) */
-pub let LOG_LEVEL_DEBUG: int = 0
-pub let LOG_LEVEL_INFO: int = 1
-pub let LOG_LEVEL_WARN: int = 2
-pub let LOG_LEVEL_ERROR: int = 3
-pub let LOG_LEVEL_FATAL: int = 4
+let LOG_LEVEL_DEBUG: int = 0
+let LOG_LEVEL_INFO: int = 1
+let LOG_LEVEL_WARN: int = 2
+let LOG_LEVEL_ERROR: int = 3
+let LOG_LEVEL_FATAL: int = 4
 
 /* Output modes */
-pub let OUTPUT_MODE_TEXT: int = 0
-pub let OUTPUT_MODE_JSON: int = 1
+let OUTPUT_MODE_TEXT: int = 0
+let OUTPUT_MODE_JSON: int = 1
 
 /* =============================================================================
  * C BACKEND FUNCTIONS
@@ -49,7 +49,9 @@ extern fn nl_log_trace_event(name: string, data: string) -> void
  * ============================================================================= */
 
 pub fn set_log_level(level: int) -> void {
-    (nl_log_set_level level)
+    unsafe {
+        (nl_log_set_level level)
+    }
 }
 
 shadow set_log_level {
@@ -59,7 +61,9 @@ shadow set_log_level {
 }
 
 pub fn set_output_mode(mode: int) -> void {
-    (nl_log_set_output_mode mode)
+    unsafe {
+        (nl_log_set_output_mode mode)
+    }
 }
 
 shadow set_output_mode {
@@ -69,7 +73,9 @@ shadow set_output_mode {
 }
 
 pub fn set_log_file(path: string) -> void {
-    (nl_log_set_file path)
+    unsafe {
+        (nl_log_set_file path)
+    }
 }
 
 shadow set_log_file {
@@ -79,7 +85,9 @@ shadow set_log_file {
 }
 
 pub fn get_log_level() -> int {
-    return (nl_log_get_level)
+    unsafe {
+        return (nl_log_get_level)
+    }
 }
 
 shadow get_log_level {
@@ -138,7 +146,7 @@ shadow format_log_json {
 }
 
 fn should_log(level: int) -> bool {
-    return (>= level CURRENT_LOG_LEVEL)
+    return (>= level (get_log_level))
 }
 
 shadow should_log {
@@ -150,19 +158,18 @@ shadow should_log {
     (set_log_level LOG_LEVEL_INFO)  /* Reset */
 }
 
-pub fn log(level: int, message: string) -> void {
+pub fn log_write(level: int, message: string) -> void {
     if (should_log level) {
-        let formatted: string = (cond
-            ((== CURRENT_OUTPUT_MODE OUTPUT_MODE_JSON) (format_log_json level message))
-            (else (format_log_text level message))
-        )
-        (println formatted)
+        /* Let the C backend apply output mode formatting and file routing. */
+        unsafe {
+            (nl_log_write level message)
+        }
     }
 }
 
-shadow log {
+shadow log_write {
     (set_log_level LOG_LEVEL_DEBUG)
-    (log LOG_LEVEL_INFO "test")
+    (log_write LOG_LEVEL_INFO "test")
     (set_log_level LOG_LEVEL_INFO)  /* Reset */
     assert true
 }
@@ -172,7 +179,7 @@ shadow log {
  * ============================================================================= */
 
 pub fn log_debug(message: string) -> void {
-    (log LOG_LEVEL_DEBUG message)
+    (log_write LOG_LEVEL_DEBUG message)
 }
 
 shadow log_debug {
@@ -183,7 +190,7 @@ shadow log_debug {
 }
 
 pub fn log_info(message: string) -> void {
-    (log LOG_LEVEL_INFO message)
+    (log_write LOG_LEVEL_INFO message)
 }
 
 shadow log_info {
@@ -192,7 +199,7 @@ shadow log_info {
 }
 
 pub fn log_warn(message: string) -> void {
-    (log LOG_LEVEL_WARN message)
+    (log_write LOG_LEVEL_WARN message)
 }
 
 shadow log_warn {
@@ -201,7 +208,7 @@ shadow log_warn {
 }
 
 pub fn log_error(message: string) -> void {
-    (log LOG_LEVEL_ERROR message)
+    (log_write LOG_LEVEL_ERROR message)
 }
 
 shadow log_error {
@@ -210,7 +217,7 @@ shadow log_error {
 }
 
 pub fn log_fatal(message: string) -> void {
-    (log LOG_LEVEL_FATAL message)
+    (log_write LOG_LEVEL_FATAL message)
 }
 
 shadow log_fatal {
@@ -224,13 +231,9 @@ shadow log_fatal {
 
 /* Trace entry: returns unique trace ID */
 pub fn trace_enter(fn_name: string) -> int {
-    let trace_id: int = NEXT_TRACE_ID
-    set NEXT_TRACE_ID (+ NEXT_TRACE_ID 1)
-    
-    let message: string = (+ "ENTER " fn_name)
-    (log LOG_LEVEL_DEBUG message)
-    
-    return trace_id
+    unsafe {
+        return (nl_log_trace_enter fn_name)
+    }
 }
 
 shadow trace_enter {
@@ -243,8 +246,9 @@ shadow trace_enter {
 
 /* Trace exit */
 pub fn trace_exit(trace_id: int, fn_name: string) -> void {
-    let message: string = (+ "EXIT " fn_name)
-    (log LOG_LEVEL_DEBUG message)
+    unsafe {
+        (nl_log_trace_exit trace_id fn_name)
+    }
 }
 
 shadow trace_exit {
@@ -256,8 +260,9 @@ shadow trace_exit {
 
 /* Trace event (arbitrary named event) */
 pub fn trace_event(name: string, data: string) -> void {
-    let message: string = (+ "EVENT " (+ name (+ ": " data)))
-    (log LOG_LEVEL_DEBUG message)
+    unsafe {
+        (nl_log_trace_event name data)
+    }
 }
 
 shadow trace_event {
@@ -273,7 +278,7 @@ shadow trace_event {
 
 pub fn log_int(level: int, message: string, value: int) -> void {
     let full_message: string = (+ message (+ "=" (int_to_string value)))
-    (log level full_message)
+    (log_write level full_message)
 }
 
 shadow log_int {

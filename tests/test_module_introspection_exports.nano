@@ -1,0 +1,31 @@
+# Test: module introspection exposes exported functions and structs
+
+module "tests/fixture_module_exports.nano" as Exports
+
+extern fn ___module_function_count_fixture_module_exports() -> int
+extern fn ___module_function_name_fixture_module_exports(idx: int) -> string
+extern fn ___module_struct_count_fixture_module_exports() -> int
+extern fn ___module_struct_name_fixture_module_exports(idx: int) -> string
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    let mut fn_count: int = 0
+    unsafe { set fn_count (___module_function_count_fixture_module_exports) }
+    assert (== fn_count 1)
+
+    let mut fn0: string = ""
+    unsafe { set fn0 (___module_function_name_fixture_module_exports 0) }
+    assert (str_equals fn0 "exported_fn")
+
+    let mut struct_count: int = 0
+    unsafe { set struct_count (___module_struct_count_fixture_module_exports) }
+    assert (== struct_count 1)
+
+    let mut s0: string = ""
+    unsafe { set s0 (___module_struct_name_fixture_module_exports 0) }
+    assert (str_equals s0 "ExportedStruct")
+}
+

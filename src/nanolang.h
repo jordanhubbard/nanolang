@@ -597,6 +597,8 @@ typedef struct {
     ModuleInfo *modules;  /* Module metadata for introspection */
     int module_count;
     int module_capacity;
+    bool emit_module_metadata;  /* Emit ___module_* metadata functions in transpiled C (disable for module objects) */
+    bool emit_c_main;  /* Emit C main()/g_argc/g_argv wrapper in transpiled C (disable for module objects) */
     bool current_module_is_unsafe;  /* Is the current module context unsafe? */
     /* Phase 3: Module safety warning flags */
     bool warn_unsafe_imports;  /* Warn when importing unsafe modules */
@@ -662,6 +664,8 @@ void env_register_module(Environment *env, const char *name, const char *path, b
 ModuleInfo *env_get_module(Environment *env, const char *name);
 bool env_is_current_module_unsafe(Environment *env);
 void env_mark_module_has_ffi(Environment *env, const char *name);
+void env_add_module_exported_function(Environment *env, const char *module_name, const char *function_name);
+void env_add_module_exported_struct(Environment *env, const char *module_name, const char *struct_name);
 void env_define_enum(Environment *env, EnumDef enum_def);
 EnumDef *env_get_enum(Environment *env, const char *name);
 void env_register_list_instantiation(Environment *env, const char *element_type);

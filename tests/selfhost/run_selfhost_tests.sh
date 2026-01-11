@@ -50,10 +50,10 @@ for test in "${TESTS[@]}"; do
     
     printf "Testing %-30s ... " "$test"
     
-    # Compile
-    if $NANOC "$TEST_PATH" -o "$TEST_BIN" > /dev/null 2>&1; then
+    # Compile (timeout to avoid nanoc infinite loops)
+    if perl -e 'alarm 60; exec @ARGV' $NANOC "$TEST_PATH" -o "$TEST_BIN" > /dev/null 2>&1; then
         # Run
-        if $TEST_BIN > /dev/null 2>&1; then
+        if perl -e 'alarm 60; exec @ARGV' $TEST_BIN > /dev/null 2>&1; then
             echo "✅ PASS"
             PASSED=$((PASSED + 1))
         else
@@ -72,7 +72,7 @@ for test in "${NEGATIVE_TESTS[@]}"; do
 
     printf "Testing %-30s ... " "$test"
 
-    if $NANOC "$TEST_PATH" -o "$TEST_BIN" > /dev/null 2>&1; then
+    if perl -e 'alarm 60; exec @ARGV' $NANOC "$TEST_PATH" -o "$TEST_BIN" > /dev/null 2>&1; then
         echo "❌ FAIL (expected compilation error)"
         FAILED=$((FAILED + 1))
         if [ -f "$TEST_BIN" ]; then

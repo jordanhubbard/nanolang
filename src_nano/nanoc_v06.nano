@@ -41,6 +41,7 @@ struct CompileOptions {
     output_file: string,
     verbose: bool,
     keep_c: bool,
+    llm_diags_json_path: string,
     show_help: bool
 }
 
@@ -50,6 +51,7 @@ fn default_options() -> CompileOptions {
         output_file: "a.out",
         verbose: false,
         keep_c: false,
+        llm_diags_json_path: "",
         show_help: false
     }
 }
@@ -68,6 +70,7 @@ fn parse_args() -> CompileOptions {
                 output_file: opts.output_file,
                 verbose: opts.verbose,
                 keep_c: opts.keep_c,
+                llm_diags_json_path: opts.llm_diags_json_path,
                 show_help: true
             }
         } else {
@@ -77,6 +80,7 @@ fn parse_args() -> CompileOptions {
                     output_file: opts.output_file,
                     verbose: opts.verbose,
                     keep_c: opts.keep_c,
+                    llm_diags_json_path: opts.llm_diags_json_path,
                     show_help: true
                 }
             } else {
@@ -86,6 +90,7 @@ fn parse_args() -> CompileOptions {
                         output_file: opts.output_file,
                         verbose: true,
                         keep_c: opts.keep_c,
+                        llm_diags_json_path: opts.llm_diags_json_path,
                         show_help: opts.show_help
                     }
                 } else {
@@ -95,6 +100,7 @@ fn parse_args() -> CompileOptions {
                             output_file: opts.output_file,
                             verbose: true,
                             keep_c: opts.keep_c,
+                            llm_diags_json_path: opts.llm_diags_json_path,
                             show_help: opts.show_help
                         }
                     } else {
@@ -104,6 +110,7 @@ fn parse_args() -> CompileOptions {
                                 output_file: opts.output_file,
                                 verbose: opts.verbose,
                                 keep_c: true,
+                                llm_diags_json_path: opts.llm_diags_json_path,
                                 show_help: opts.show_help
                             }
                         } else {
@@ -113,9 +120,24 @@ fn parse_args() -> CompileOptions {
                                     output_file: opts.output_file,
                                     verbose: opts.verbose,
                                     keep_c: true,
+                                    llm_diags_json_path: opts.llm_diags_json_path,
                                     show_help: opts.show_help
                                 }
                             } else {
+                                if (str_equals arg "--llm-diags-json") {
+                                    if (< (+ i 1) argc) {
+                                        set i (+ i 1)
+                                        let p: string = (get_argv i)
+                                        set opts CompileOptions {
+                                            input_file: opts.input_file,
+                                            output_file: opts.output_file,
+                                            verbose: opts.verbose,
+                                            keep_c: opts.keep_c,
+                                            llm_diags_json_path: p,
+                                            show_help: opts.show_help
+                                        }
+                                    } else { (print "") }
+                                } else {
                                 if (str_equals arg "-o") {
                                     if (< (+ i 1) argc) {
                                         set i (+ i 1)
@@ -125,6 +147,7 @@ fn parse_args() -> CompileOptions {
                                             output_file: output,
                                             verbose: opts.verbose,
                                             keep_c: opts.keep_c,
+                                            llm_diags_json_path: opts.llm_diags_json_path,
                                             show_help: opts.show_help
                                         }
                                     } else {
@@ -138,11 +161,13 @@ fn parse_args() -> CompileOptions {
                                             output_file: opts.output_file,
                                             verbose: opts.verbose,
                                             keep_c: opts.keep_c,
+                                            llm_diags_json_path: opts.llm_diags_json_path,
                                             show_help: opts.show_help
                                         }
                                     } else {
                                         (print "")
                                     }
+                                }
                                 }
                             }
                         }
@@ -468,7 +493,150 @@ fn merge_with_imports(input_file: string) -> string {
  * COMPILATION PIPELINE
  * ============================================================================= */
 
-fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool) -> int {
+fn llm_escape_json(s: string) -> string {
+    let mut out: string = ""
+    let n: int = (str_length s)
+    let q: string = (string_from_char 34)
+    let mut i: int = 0
+    while (< i n) {
+        let c: int = (char_at s i)
+        if (== c 92) {
+            set out (str_concat out "\\\\")
+        } else {
+            if (== c 34) {
+                set out (str_concat out "\\")
+                set out (str_concat out q)
+            } else {
+                if (== c 10) {
+                    set out (str_concat out "\\n")
+                } else {
+                    if (== c 13) {
+                        set out (str_concat out "\\r")
+                    } else {
+                        if (== c 9) {
+                            set out (str_concat out "\\t")
+                        } else {
+                            set out (str_concat out (string_from_char c))
+                        }
+                    }
+                }
+            }
+        }
+        set i (+ i 1)
+    }
+    return out
+}
+
+fn llm_write_diags_json(path: string, input_file: string, output_file: string, exit_code: int, diags: List<CompilerDiagnostic>) -> int {
+    let mut s: string = ""
+    let q: string = (string_from_char 34)
+    set s (str_concat s "{")
+    set s (str_concat s q)
+    set s (str_concat s "tool")
+    set s (str_concat s q)
+    set s (str_concat s ":")
+    set s (str_concat s q)
+    set s (str_concat s "nanoc")
+    set s (str_concat s q)
+    set s (str_concat s ",")
+    set s (str_concat s q)
+    set s (str_concat s "success")
+    set s (str_concat s q)
+    set s (str_concat s ":")
+    if (== exit_code 0) { set s (str_concat s "true") } else { set s (str_concat s "false") }
+    set s (str_concat s ",")
+    set s (str_concat s q)
+    set s (str_concat s "exit_code")
+    set s (str_concat s q)
+    set s (str_concat s ":")
+    set s (str_concat s (int_to_string exit_code))
+    set s (str_concat s ",")
+    set s (str_concat s q)
+    set s (str_concat s "input_file")
+    set s (str_concat s q)
+    set s (str_concat s ":")
+    set s (str_concat s q)
+    set s (str_concat s (llm_escape_json input_file))
+    set s (str_concat s q)
+    set s (str_concat s ",")
+    set s (str_concat s q)
+    set s (str_concat s "output_file")
+    set s (str_concat s q)
+    set s (str_concat s ":")
+    set s (str_concat s q)
+    set s (str_concat s (llm_escape_json output_file))
+    set s (str_concat s q)
+    set s (str_concat s ",")
+    set s (str_concat s q)
+    set s (str_concat s "diagnostics")
+    set s (str_concat s q)
+    set s (str_concat s ":[")
+
+    let n: int = (list_CompilerDiagnostic_length diags)
+    let mut i: int = 0
+    while (< i n) {
+        let d: CompilerDiagnostic = (list_CompilerDiagnostic_get diags i)
+        if (> i 0) { set s (str_concat s ",") } else { (print "") }
+        set s (str_concat s "{")
+        set s (str_concat s q)
+        set s (str_concat s "code")
+        set s (str_concat s q)
+        set s (str_concat s ":")
+        set s (str_concat s q)
+        set s (str_concat s (llm_escape_json d.code))
+        set s (str_concat s q)
+        set s (str_concat s ",")
+        set s (str_concat s q)
+        set s (str_concat s "message")
+        set s (str_concat s q)
+        set s (str_concat s ":")
+        set s (str_concat s q)
+        set s (str_concat s (llm_escape_json d.message))
+        set s (str_concat s q)
+        set s (str_concat s ",")
+        set s (str_concat s q)
+        set s (str_concat s "phase")
+        set s (str_concat s q)
+        set s (str_concat s ":")
+        set s (str_concat s (int_to_string d.phase))
+        set s (str_concat s ",")
+        set s (str_concat s q)
+        set s (str_concat s "severity")
+        set s (str_concat s q)
+        set s (str_concat s ":")
+        set s (str_concat s (int_to_string d.severity))
+        set s (str_concat s ",")
+        set s (str_concat s q)
+        set s (str_concat s "location")
+        set s (str_concat s q)
+        set s (str_concat s ":{")
+        set s (str_concat s q)
+        set s (str_concat s "file")
+        set s (str_concat s q)
+        set s (str_concat s ":")
+        set s (str_concat s q)
+        set s (str_concat s (llm_escape_json d.location.file))
+        set s (str_concat s q)
+        set s (str_concat s ",")
+        set s (str_concat s q)
+        set s (str_concat s "line")
+        set s (str_concat s q)
+        set s (str_concat s ":")
+        set s (str_concat s (int_to_string d.location.line))
+        set s (str_concat s ",")
+        set s (str_concat s q)
+        set s (str_concat s "column")
+        set s (str_concat s q)
+        set s (str_concat s ":")
+        set s (str_concat s (int_to_string d.location.column))
+        set s (str_concat s "}}")
+        set i (+ i 1)
+    }
+    set s (str_concat s "]}")
+    return (file_write path s)
+}
+
+fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, llm_diags_json_path: string) -> int {
     if verbose {
         (println "")
         (println "╔══════════════════════════════════════════════════════════════╗")
@@ -529,7 +697,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
         (print "")
     }
     
-    /* Create diagnostics list for lexer */
+    /* Diagnostics list (start with lexer diags; may be replaced by later phase outputs) */
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     
     let tokens: List<LexerToken> = (tokenize_file source_to_compile diags)
@@ -537,6 +705,9 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     
     if (== token_count 0) {
         (println "Error: Failed to tokenize input file")
+        if (not (str_equals llm_diags_json_path "")) {
+            (llm_write_diags_json llm_diags_json_path input_file output_file 1 diags)
+        } else { (print "") }
         return 1
     } else {
         (print "")
@@ -566,6 +737,13 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print ": unexpected token '")
                 (print tok.value)
                 (println "'")
+                if (not (str_equals llm_diags_json_path "")) {
+                    let msg: string = (str_concat "Parse error: unexpected token " tok.value)
+                    let loc: CompilerSourceLocation = (Diagnostics.diag_location source_to_compile tok.line tok.column)
+                    let diag: CompilerDiagnostic = (Diagnostics.diag_parser_error "P0001" msg loc)
+                    (Diagnostics.diag_list_add diags diag)
+                    (llm_write_diags_json llm_diags_json_path input_file output_file 1 diags)
+                } else { (print "") }
                 return 1
             } else {
                 (print "")
@@ -589,13 +767,14 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
-            let typecheck_result: int = (typecheck_parser parser)
-            if (!= typecheck_result 0) {
+            let tc: TypecheckPhaseOutput = (typecheck_phase parser source_to_compile)
+            if tc.had_error {
                 (println "NSType checking failed")
+                if (not (str_equals llm_diags_json_path "")) {
+                    (llm_write_diags_json llm_diags_json_path input_file output_file 1 tc.diagnostics)
+                } else { (print "") }
                 return 1
-            } else {
-                (print "")
-            }
+            } else { (print "") }
             
             if verbose {
                 (println "  ✓ NSType checking passed")
@@ -625,6 +804,13 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             let write_result: int = (file_write c_file c_code)
             if (!= write_result 0) {
                 (println "Error: Failed to write C file")
+                if (not (str_equals llm_diags_json_path "")) {
+                    let msg: string = "Failed to write temporary C file"
+                    let loc: CompilerSourceLocation = (Diagnostics.diag_location source_to_compile 0 0)
+                    let diag: CompilerDiagnostic = (Diagnostics.diag_transpiler_error "C0001" msg loc)
+                    (Diagnostics.diag_list_add diags diag)
+                    (llm_write_diags_json llm_diags_json_path input_file output_file 1 diags)
+                } else { (print "") }
                 return 1
             } else {
                 (print "")
@@ -643,7 +829,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
              * This matches what the C compiler does in src/main.c line 461.
              */
             let cc_bin: string = (resolve_cc_binary)
-            let mut cc_cmd: string = (str_concat cc_bin " -std=c99 -Isrc ")
+            let mut cc_cmd: string = (str_concat cc_bin " -std=c99 -Isrc -Imodules/std ")
             let extra_cflags: string = (getenv "NANO_CFLAGS")
             if (!= extra_cflags "") {
                 set cc_cmd (str_concat cc_cmd extra_cflags)
@@ -658,24 +844,52 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             set cc_cmd (str_concat cc_cmd " src/runtime/list_int.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/list_string.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/list_LexerToken.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_token.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_CompilerDiagnostic.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_CompilerSourceLocation.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/token_helpers.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/gc.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/dyn_array.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/gc_struct.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/nl_string.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/cli.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/regex.c")
             /* Add AST list runtime sources for compiler support */
             set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTLet.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTFunction.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTNumber.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTFloat.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTString.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTBool.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTIdentifier.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTBinaryOp.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTCall.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTArrayLiteral.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTStmtRef.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTBlock.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTUnsafeBlock.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTPrint.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTAssert.c")
             set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTFieldAccess.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTSet.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTIf.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTWhile.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTFor.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTReturn.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTShadow.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTStruct.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTStructLiteral.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTEnum.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTUnion.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTUnionConstruct.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTMatch.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTImport.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTOpaqueType.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTTupleLiteral.c")
+            set cc_cmd (str_concat cc_cmd " src/runtime/list_ASTTupleIndex.c")
+
+            /* std/fs provides fs_walkdir + file_* used by modules/std/fs.nano */
+            set cc_cmd (str_concat cc_cmd " modules/std/fs.c")
             set cc_cmd (str_concat cc_cmd " -lm")
             let extra_ldflags: string = (getenv "NANO_LDFLAGS")
             if (!= extra_ldflags "") {
@@ -727,6 +941,10 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 }
             }
             
+            if (not (str_equals llm_diags_json_path "")) {
+                (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
+            } else { (print "") }
+
             return 0
     }
 }
@@ -748,6 +966,7 @@ fn show_usage() -> int {
     (println "  -v, --verbose    Verbose compilation output")
     (println "  -k, --keep-c     Keep generated C file")
     (println "  -h, --help       Show this help")
+    (println "  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)")
     (println "")
     (println "This compiler is 100% written in NanoLang!")
     (println "Pipeline: Lex → Parse → Typecheck → Transpile → Compile")
@@ -780,7 +999,7 @@ fn main() -> int {
         (print "")
     }
     
-    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c)
+    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.llm_diags_json_path)
 }
 
 shadow main {

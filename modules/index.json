@@ -1,6 +1,6 @@
 {
 	"version":	"1.0.0",
-	"generated_at":	"2026-01-11T08:07:21Z",
+	"generated_at":	"2026-01-11T09:20:17Z",
 	"total_modules":	33,
 	"modules":	[{
 			"name":	"vector2d",
@@ -238,7 +238,7 @@
 			"keywords":	["logging", "tracing", "debug", "observability", "diagnostics"],
 			"io_surfaces":	["terminal"],
 			"examples":	["examples/logging_demo.nano"],
-			"public_api":	["set_log_level(level: int) -> void", "set_output_mode(mode: int) -> void", "set_log_file(path: string) -> void", "get_log_level() -> int", "log(level: int, message: string) -> void", "log_debug(message: string) -> void", "log_info(message: string) -> void", "log_warn(message: string) -> void", "log_error(message: string) -> void", "log_fatal(message: string) -> void", "trace_enter(fn_name: string) -> int", "trace_exit(trace_id: int, fn_name: string) -> void", "trace_event(name: string, data: string) -> void", "log_int(level: int, message: string, value: int) -> void", "log_debug_int(message: string, value: int) -> void", "log_info_int(message: string, value: int) -> void"],
+			"public_api":	["set_log_level(level: int) -> void", "set_output_mode(mode: int) -> void", "set_log_file(path: string) -> void", "get_log_level() -> int", "log_write(level: int, message: string) -> void", "log_debug(message: string) -> void", "log_info(message: string) -> void", "log_warn(message: string) -> void", "log_error(message: string) -> void", "log_fatal(message: string) -> void", "trace_enter(fn_name: string) -> int", "trace_exit(trace_id: int, fn_name: string) -> void", "trace_event(name: string, data: string) -> void", "log_int(level: int, message: string, value: int) -> void", "log_debug_int(message: string, value: int) -> void", "log_info_int(message: string, value: int) -> void"],
 			"constants":	["LOG_LEVEL_DEBUG", "LOG_LEVEL_INFO", "LOG_LEVEL_WARN", "LOG_LEVEL_ERROR", "LOG_LEVEL_FATAL", "OUTPUT_MODE_TEXT", "OUTPUT_MODE_JSON"]
 		}, {
 			"name":	"filesystem",

@@ -2307,15 +2307,51 @@ static void generate_module_metadata(Environment *env, StringBuilder *sb) {
         sb_appendf(sb, "static inline const char* ___module_path_%s(void) {\n", module_name);
         sb_appendf(sb, "    return \"%s\";\n", mod->path ? mod->path : "");
         sb_append(sb, "}\n\n");
-        
+
         /* Function: ___module_function_count_<NAME>() -> int */
-        sb_appendf(sb, "static inline int64_t ___module_function_count_%s(void) {\n", module_name);
+        sb_appendf(sb, "int64_t ___module_function_count_%s(void) {\n", module_name);
         sb_appendf(sb, "    return %d;\n", mod->function_count);
         sb_append(sb, "}\n\n");
-        
+
+        /* Function: ___module_function_name_<NAME>(idx: int) -> string */
+        sb_appendf(sb, "const char* ___module_function_name_%s(int64_t idx) {\n", module_name);
+        if (mod->function_count > 0 && mod->exported_functions) {
+            for (int j = 0; j < mod->function_count; j++) {
+                const char *fname = mod->exported_functions[j] ? mod->exported_functions[j] : "";
+                if (j == 0) {
+                    sb_appendf(sb, "    if (idx == %d) { return \"%s\"; }\n", j, fname);
+                } else {
+                    sb_appendf(sb, "    else if (idx == %d) { return \"%s\"; }\n", j, fname);
+                }
+            }
+            sb_append(sb, "    else { return \"\"; }\n");
+        } else {
+            sb_append(sb, "    (void)idx;\n");
+            sb_append(sb, "    return \"\";\n");
+        }
+        sb_append(sb, "}\n\n");
+
         /* Function: ___module_struct_count_<NAME>() -> int */
-        sb_appendf(sb, "static inline int64_t ___module_struct_count_%s(void) {\n", module_name);
+        sb_appendf(sb, "int64_t ___module_struct_count_%s(void) {\n", module_name);
         sb_appendf(sb, "    return %d;\n", mod->struct_count);
+        sb_append(sb, "}\n\n");
+
+        /* Function: ___module_struct_name_<NAME>(idx: int) -> string */
+        sb_appendf(sb, "const char* ___module_struct_name_%s(int64_t idx) {\n", module_name);
+        if (mod->struct_count > 0 && mod->exported_structs) {
+            for (int j = 0; j < mod->struct_count; j++) {
+                const char *sname = mod->exported_structs[j] ? mod->exported_structs[j] : "";
+                if (j == 0) {
+                    sb_appendf(sb, "    if (idx == %d) { return \"%s\"; }\n", j, sname);
+                } else {
+                    sb_appendf(sb, "    else if (idx == %d) { return \"%s\"; }\n", j, sname);
+                }
+            }
+            sb_append(sb, "    else { return \"\"; }\n");
+        } else {
+            sb_append(sb, "    (void)idx;\n");
+            sb_append(sb, "    return \"\";\n");
+        }
         sb_append(sb, "}\n\n");
     }
     
@@ -2880,10 +2916,30 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                         const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
                         sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
                     }
+                } else if (item->as.function.params[j].type == TYPE_UNION &&
+                           item->as.function.params[j].type_info &&
+                           item->as.function.params[j].type_info->generic_name &&
+                           item->as.function.params[j].type_info->type_param_count > 0) {
+                    /* Generic union parameter: Result<int, string> -> Result_int_string */
+                    char monomorphized_name[256];
+                    if (!build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            item->as.function.params[j].type_info->generic_name,
+                            item->as.function.params[j].type_info->type_params,
+                            item->as.function.params[j].type_info->type_param_count)) {
+                        sb_appendf(sb, "int64_t %s", item->as.function.params[j].name);
+                    } else {
+                        const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
+                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                    }
                 } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
                     /* Use prefixed union name */
                     const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
                     sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_TUPLE && item->as.function.params[j].type_info) {
+                    /* Tuple parameter: use typedef name */
+                    const char *typedef_name = register_tuple_type(tuple_registry, item->as.function.params[j].type_info);
+                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
                 } else {
                     sb_appendf(sb, "%s %s",
                               type_to_c(item->as.function.params[j].type),
@@ -3011,10 +3067,30 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                         const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
                         sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
                     }
+                } else if (item->as.function.params[j].type == TYPE_UNION &&
+                           item->as.function.params[j].type_info &&
+                           item->as.function.params[j].type_info->generic_name &&
+                           item->as.function.params[j].type_info->type_param_count > 0) {
+                    /* Generic union parameter: Result<int, string> -> Result_int_string */
+                    char monomorphized_name[256];
+                    if (!build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            item->as.function.params[j].type_info->generic_name,
+                            item->as.function.params[j].type_info->type_params,
+                            item->as.function.params[j].type_info->type_param_count)) {
+                        sb_appendf(sb, "int64_t %s", item->as.function.params[j].name);
+                    } else {
+                        const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
+                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                    }
                 } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
                     /* Use prefixed union name */
                     const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
                     sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_TUPLE && item->as.function.params[j].type_info) {
+                    /* Tuple parameter: use typedef name */
+                    const char *typedef_name = register_tuple_type(tuple_registry, item->as.function.params[j].type_info);
+                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
                 } else {
                     sb_appendf(sb, "%s %s",
                               type_to_c(item->as.function.params[j].type),
@@ -3163,16 +3239,29 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 }
 
-/* Generate C main() wrapper that calls nanolang main() */
-static void generate_main_wrapper(StringBuilder *sb, Environment *env) {
-    /* Only generate if there's a non-extern main function */
-    Function *main_func = env_get_function(env, "main");
-    if (!main_func || main_func->is_extern) {
+/* Generate C main() wrapper that calls nanolang main().
+ * Important: Only emit this if THIS compilation unit defines a main().
+ * (If "main" only exists in an imported module, emitting a wrapper here causes
+ * undeclared-call/linkage issues and breaks test files that intentionally omit main.)
+ */
+static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environment *env) {
+    bool has_local_main = false;
+    if (program && program->type == AST_PROGRAM) {
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
+            if (!item || item->type != AST_FUNCTION) continue;
+            if (!item->as.function.name) continue;
+            if (strcmp(item->as.function.name, "main") != 0) continue;
+            if (item->as.function.is_extern) continue;
+            has_local_main = true;
+            break;
+        }
+    }
+    Function *main_func = has_local_main ? env_get_function(env, "main") : NULL;
+    if (has_local_main && (!main_func || main_func->is_extern)) {
+        /* If the program defines main(), it must resolve to a real function. */
         return;
     }
-    
-    /* Get the mangled name for main (could be module__main) */
-    const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name, main_func->is_extern);
     
     sb_append(sb, "\n/* C main() entry point - calls nanolang main */\n");
     sb_append(sb, "/* Global argc/argv for CLI runtime support */\n");
@@ -3181,7 +3270,14 @@ static void generate_main_wrapper(StringBuilder *sb, Environment *env) {
     sb_append(sb, "int main(int argc, char **argv) {\n");
     sb_append(sb, "    g_argc = argc;\n");
     sb_append(sb, "    g_argv = argv;\n");
-    sb_appendf(sb, "    return (int)%s();\n", c_main_name);
+    if (has_local_main) {
+        /* Get the mangled name for main (could be module__main) */
+        const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name, main_func->is_extern);
+        sb_appendf(sb, "    return (int)%s();\n", c_main_name);
+    } else {
+        /* Shadow tests are executed by the compiler; some test files intentionally omit main(). */
+        sb_append(sb, "    return 0;\n");
+    }
     sb_append(sb, "}\n");
 }
 
@@ -3485,6 +3581,8 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
             strcmp(func_name, "fprintf") == 0 || strcmp(func_name, "sprintf") == 0 || \
             strcmp(func_name, "strlen") == 0 || strcmp(func_name, "strcmp") == 0 || \
             strcmp(func_name, "strncmp") == 0 || strcmp(func_name, "strchr") == 0 || \
+            strcmp(func_name, "getenv") == 0 || strcmp(func_name, "setenv") == 0 || \
+            strcmp(func_name, "unsetenv") == 0 || \
             strcmp(func_name, "getchar") == 0 || strcmp(func_name, "putchar") == 0 || \
             strcmp(func_name, "isalpha") == 0 || strcmp(func_name, "isdigit") == 0 || \
             strcmp(func_name, "isalnum") == 0 || strcmp(func_name, "islower") == 0 || \
@@ -3654,7 +3752,9 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     generate_struct_metadata(env, sb);
 
     /* Generate compile-time module metadata introspection functions */
-    generate_module_metadata(env, sb);
+    if (env->emit_module_metadata) {
+        generate_module_metadata(env, sb);
+    }
 
     /* Generate List implementations and includes */
     generate_list_implementations(env, sb);
@@ -3692,8 +3792,10 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* Generate function implementations */
     generate_function_implementations(sb, program, env, fn_registry, tuple_registry);
 
-    /* Add C main() wrapper that calls nl_main() for standalone executables */
-    generate_main_wrapper(sb, env);
+    /* Add C main() wrapper for standalone executables (skip for module objects) */
+    if (env && env->emit_c_main) {
+        generate_main_wrapper(sb, program, env);
+    }
 
     /* Cleanup */
     free_fn_type_registry(fn_registry);

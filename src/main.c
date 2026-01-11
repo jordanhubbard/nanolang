@@ -2,6 +2,7 @@
 #include "version.h"
 #include "module_builder.h"
 #include "interpreter_ffi.h"
+#include "runtime/list_CompilerDiagnostic.h"
 
 #ifdef __APPLE__
 #include <mach-o/loader.h>
@@ -19,6 +20,8 @@ typedef struct {
     bool keep_c;
     bool save_asm;            /* -S flag: save generated C to .genC file */
     bool json_errors;         /* Output errors in JSON format for tooling */
+    const char *llm_diags_json_path; /* --llm-diags-json <path> (agent-only): write diagnostics as JSON */
+    const char *llm_shadow_json_path; /* --llm-shadow-json <path> (agent-only): write shadow failure summary as JSON */
     char **include_paths;      /* -I flags */
     int include_count;
     char **library_paths;     /* -L flags */
@@ -31,6 +34,99 @@ typedef struct {
     bool warn_ffi;             /* Warn on any FFI call */
     bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
 } CompilerOptions;
+
+static void json_escape(FILE *out, const char *s) {
+    if (!s) return;
+    for (const unsigned char *p = (const unsigned char *)s; *p; p++) {
+        unsigned char c = *p;
+        switch (c) {
+            case '\\': fputs("\\\\", out); break;
+            case '"': fputs("\\\"", out); break;
+            case '\n': fputs("\\n", out); break;
+            case '\r': fputs("\\r", out); break;
+            case '\t': fputs("\\t", out); break;
+            default:
+                if (c < 0x20) fprintf(out, "\\u%04x", (unsigned int)c);
+                else fputc((int)c, out);
+        }
+    }
+}
+
+static const char *phase_name(int phase) {
+    switch (phase) {
+        case CompilerPhase_PHASE_LEXER: return "lexer";
+        case CompilerPhase_PHASE_PARSER: return "parser";
+        case CompilerPhase_PHASE_TYPECHECK: return "typecheck";
+        case CompilerPhase_PHASE_TRANSPILER: return "transpiler";
+        case CompilerPhase_PHASE_RUNTIME: return "runtime";
+        default: return "unknown";
+    }
+}
+
+static const char *severity_name(int severity) {
+    switch (severity) {
+        case DiagnosticSeverity_DIAG_INFO: return "info";
+        case DiagnosticSeverity_DIAG_WARNING: return "warning";
+        case DiagnosticSeverity_DIAG_ERROR: return "error";
+        default: return "unknown";
+    }
+}
+
+static void llm_emit_diags_json(
+    const char *path,
+    const char *input_file,
+    const char *output_file,
+    int exit_code,
+    List_CompilerDiagnostic *diags
+) {
+    if (!path || path[0] == '\0') return;
+
+    FILE *f = fopen(path, "w");
+    if (!f) return; /* best-effort */
+
+    fprintf(f, "{");
+    fprintf(f, "\"tool\":\"nanoc_c\",");
+    fprintf(f, "\"success\":%s,", exit_code == 0 ? "true" : "false");
+    fprintf(f, "\"exit_code\":%d,", exit_code);
+    fprintf(f, "\"input_file\":\""); json_escape(f, input_file); fprintf(f, "\",");
+    fprintf(f, "\"output_file\":\""); json_escape(f, output_file); fprintf(f, "\",");
+    fprintf(f, "\"diagnostics\":[");
+
+    int n = diags ? nl_list_CompilerDiagnostic_length(diags) : 0;
+    for (int i = 0; i < n; i++) {
+        CompilerDiagnostic d = nl_list_CompilerDiagnostic_get(diags, i);
+        if (i > 0) fprintf(f, ",");
+        fprintf(f, "{");
+        fprintf(f, "\"code\":\""); json_escape(f, d.code); fprintf(f, "\",");
+        fprintf(f, "\"message\":\""); json_escape(f, d.message); fprintf(f, "\",");
+        fprintf(f, "\"phase\":%d,", d.phase);
+        fprintf(f, "\"phase_name\":\"%s\",", phase_name(d.phase));
+        fprintf(f, "\"severity\":%d,", d.severity);
+        fprintf(f, "\"severity_name\":\"%s\",", severity_name(d.severity));
+        fprintf(f, "\"location\":{");
+        fprintf(f, "\"file\":\""); json_escape(f, d.location.file); fprintf(f, "\",");
+        fprintf(f, "\"line\":%d,", d.location.line);
+        fprintf(f, "\"column\":%d", d.location.column);
+        fprintf(f, "}");
+        fprintf(f, "}");
+    }
+
+    fprintf(f, "]}");
+    fclose(f);
+}
+
+static void diags_push_simple(List_CompilerDiagnostic *diags, int phase, int severity, const char *code, const char *message) {
+    if (!diags) return;
+    CompilerDiagnostic d;
+    d.phase = phase;
+    d.severity = severity;
+    d.code = code ? code : "C0000";
+    d.message = message ? message : "";
+    d.location.file = "";
+    d.location.line = 0;
+    d.location.column = 0;
+    nl_list_CompilerDiagnostic_push(diags, d);
+}
 
 static bool deterministic_outputs_enabled(void) {
     const char *v = getenv("NANO_DETERMINISTIC");
@@ -95,10 +191,15 @@ static int determinize_macho_uuid_and_signature(const char *path) {
 
 /* Compile nanolang source to executable */
 static int compile_file(const char *input_file, const char *output_file, CompilerOptions *opts) {
+    List_CompilerDiagnostic *diags = nl_list_CompilerDiagnostic_new();
+
     /* Read source file */
     FILE *file = fopen(input_file, "r");
     if (!file) {
         fprintf(stderr, "Error: Could not open file '%s'\n", input_file);
+        diags_push_simple(diags, CompilerPhase_PHASE_LEXER, DiagnosticSeverity_DIAG_ERROR, "CIO01", "Could not open input file");
+        llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
 
@@ -118,7 +219,10 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     Token *tokens = tokenize(source, &token_count);
     if (!tokens) {
         fprintf(stderr, "Lexing failed\n");
+        diags_push_simple(diags, CompilerPhase_PHASE_LEXER, DiagnosticSeverity_DIAG_ERROR, "CLEX01", "Lexing failed");
         free(source);
+        llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
     if (opts->verbose) printf("✓ Lexing complete (%d tokens)\n", token_count);
@@ -127,8 +231,11 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     ASTNode *program = parse_program(tokens, token_count);
     if (!program) {
         fprintf(stderr, "Parsing failed\n");
+        diags_push_simple(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, "CPARSE01", "Parsing failed");
         free_tokens(tokens, token_count);
         free(source);
+        llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
     if (opts->verbose) printf("✓ Parsing complete\n");
@@ -146,11 +253,14 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     ModuleList *modules = create_module_list();
     if (!process_imports(program, env, modules, input_file)) {
         fprintf(stderr, "Module loading failed\n");
+        diags_push_simple(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, "CIMPORT01", "Module loading failed");
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
         free(source);
+        llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
     if (opts->verbose && modules->count > 0) {
@@ -164,11 +274,14 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     /* Phase 4: Type Checking */
     if (!type_check(program, env)) {
         fprintf(stderr, "Type checking failed\n");
+        diags_push_simple(diags, CompilerPhase_PHASE_TYPECHECK, DiagnosticSeverity_DIAG_ERROR, "CTYPE01", "Type checking failed");
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
         free(source);
+        llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
     if (opts->verbose) printf("✓ Type checking complete\n");
@@ -179,11 +292,14 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                              module_compile_flags, sizeof(module_compile_flags),
                              opts->verbose)) {
             fprintf(stderr, "Error: Failed to compile modules\n");
+            diags_push_simple(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, "CMOD01", "Failed to compile imported modules");
             free_ast(program);
             free_tokens(tokens, token_count);
             free_environment(env);
             free_module_list(modules);
             free(source);
+            llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+            nl_list_CompilerDiagnostic_free(diags);
             return 1;
         }
     }
@@ -221,17 +337,27 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     }
 
     /* Phase 5: Shadow-Test Execution (Compile-Time Function Execution) */
+    if (opts->llm_shadow_json_path && opts->llm_shadow_json_path[0] != '\0') {
+        setenv("NANO_LLM_SHADOW_JSON", opts->llm_shadow_json_path, 1);
+    } else {
+        unsetenv("NANO_LLM_SHADOW_JSON");
+    }
     if (!run_shadow_tests(program, env)) {
         fprintf(stderr, "Shadow tests failed\n");
+        diags_push_simple(diags, CompilerPhase_PHASE_RUNTIME, DiagnosticSeverity_DIAG_ERROR, "CSHADOW01", "Shadow tests failed");
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
         free(source);
         ffi_cleanup();
+        llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        nl_list_CompilerDiagnostic_free(diags);
+        unsetenv("NANO_LLM_SHADOW_JSON");
         return 1;
     }
     if (opts->verbose) printf("✓ Shadow tests passed\n");
+    unsetenv("NANO_LLM_SHADOW_JSON");
 
     /* Phase 5.5: Ensure module ASTs are in cache for declaration generation */
     /* Module compilation uses isolated caches that get cleared, so we need to
@@ -257,12 +383,15 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char *c_code = transpile_to_c(program, env, input_file);
     if (!c_code) {
         fprintf(stderr, "Transpilation failed\n");
+        diags_push_simple(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, "CTRANS01", "Transpilation failed");
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
         free(source);
         ffi_cleanup();
+        llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
     
@@ -307,12 +436,15 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     FILE *c_file = fopen(temp_c_file, "w");
     if (!c_file) {
         fprintf(stderr, "Error: Could not create C file '%s'\n", temp_c_file);
+        diags_push_simple(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, "CC01", "Could not create temporary C file");
         free(c_code);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
         free(source);
+        llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
 
@@ -641,6 +773,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (cmd_len >= (int)sizeof(compile_cmd)) {
         fprintf(stderr, "Error: Compile command too long (%d bytes, max %zu)\n", cmd_len, sizeof(compile_cmd));
         fprintf(stderr, "Try reducing the number of modules or shortening paths.\n");
+        diags_push_simple(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, "CCC02", "C compile command too long");
         free(c_code);
         free_ast(program);
         free_tokens(tokens, token_count);
@@ -650,6 +783,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         if (!opts->keep_c) {
             remove(temp_c_file);
         }
+        llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
 
@@ -665,6 +800,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         if (opts->verbose) printf("✓ Compilation successful: %s\n", output_file);
     } else {
         fprintf(stderr, "C compilation failed\n");
+        diags_push_simple(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, "CCC01", "C compilation failed");
         /* Cleanup */
         free(c_code);
         free_ast(program);
@@ -676,6 +812,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         if (!opts->keep_c) {
             remove(temp_c_file);
         }
+        llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        nl_list_CompilerDiagnostic_free(diags);
         return 1;  /* Return error if C compilation failed */
     }
 
@@ -683,6 +821,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (!opts->keep_c) {
         remove(temp_c_file);
     }
+
+    llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 0, diags);
+    nl_list_CompilerDiagnostic_free(diags);
 
     /* Cleanup */
     free(c_code);
@@ -730,6 +871,9 @@ int main(int argc, char *argv[]) {
         printf("  --warn-unsafe-calls    Warn when calling functions from unsafe modules\n");
         printf("  --warn-ffi             Warn on any FFI (extern function) call\n");
         printf("  --forbid-unsafe        Error (not warn) on unsafe module imports\n");
+        printf("\nAgent Options:\n");
+        printf("  --llm-diags-json <p>   Write machine-readable diagnostics JSON (agent-only)\n");
+        printf("  --llm-shadow-json <p>  Write machine-readable shadow failure summary JSON (agent-only)\n");
         printf("\nExamples:\n");
         printf("  %s hello.nano -o hello\n", argv[0]);
         printf("  %s program.nano --verbose -S          # Show steps and save C code\n", argv[0]);
@@ -751,6 +895,8 @@ int main(int argc, char *argv[]) {
         .keep_c = false,
         .save_asm = false,
         .json_errors = false,
+        .llm_diags_json_path = NULL,
+        .llm_shadow_json_path = NULL,
         .include_paths = NULL,
         .include_count = 0,
         .library_paths = NULL,
@@ -822,6 +968,12 @@ int main(int argc, char *argv[]) {
             opts.warn_ffi = true;
         } else if (strcmp(argv[i], "--forbid-unsafe") == 0) {
             opts.forbid_unsafe = true;
+        } else if (strcmp(argv[i], "--llm-diags-json") == 0 && i + 1 < argc) {
+            opts.llm_diags_json_path = argv[i + 1];
+            i++;
+        } else if (strcmp(argv[i], "--llm-shadow-json") == 0 && i + 1 < argc) {
+            opts.llm_shadow_json_path = argv[i + 1];
+            i++;
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);

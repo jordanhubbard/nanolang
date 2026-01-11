@@ -27,7 +27,7 @@ fn render_frame() -> int {
 
 **What Users Want:**
 ```nano
-import unsafe "modules/sdl/sdl.nano"  // or: unsafe module sdl { ... }
+unsafe module "modules/sdl/sdl.nano"  // or: unsafe module sdl { ... }
 
 fn render_frame() -> int {
     (SDL_Init SDL_INIT_VIDEO)      // Clean!
@@ -75,8 +75,8 @@ import "modules/sdl/sdl.nano"            // Both look identical
 
 **Desired:**
 ```nano
-import safe "modules/vector2d/vector2d.nano"    // Compiler verifies
-import unsafe "modules/sdl/sdl.nano"             // Explicit warning
+safe module "modules/vector2d/vector2d.nano"    // Compiler verifies
+unsafe module "modules/sdl/sdl.nano"             // Explicit warning
 ```
 
 ---

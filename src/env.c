@@ -95,6 +95,8 @@ Environment *create_environment(void) {
     env->modules = NULL;
     env->module_count = 0;
     env->module_capacity = 0;
+    env->emit_module_metadata = true;
+    env->emit_c_main = true;
     env->current_module_is_unsafe = false;
     
     /* Initialize Phase 3: Module safety warning flags */
@@ -1400,4 +1402,52 @@ void env_mark_module_has_ffi(Environment *env, const char *name) {
     if (mod) {
         mod->has_ffi = true;
     }
+}
+
+static bool module_string_list_contains(char **items, int count, const char *name) {
+    if (!items || count <= 0 || !name) return false;
+    for (int i = 0; i < count; i++) {
+        if (items[i] && strcmp(items[i], name) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void env_add_module_exported_function(Environment *env, const char *module_name, const char *function_name) {
+    if (!env || !module_name || !function_name) return;
+
+    ModuleInfo *mod = env_get_module(env, module_name);
+    if (!mod) {
+        /* Best-effort: ensure the module exists so we can track exports */
+        env_register_module(env, module_name, NULL, false);
+        mod = env_get_module(env, module_name);
+        if (!mod) return;
+    }
+
+    if (module_string_list_contains(mod->exported_functions, mod->function_count, function_name)) {
+        return;
+    }
+
+    mod->exported_functions = realloc(mod->exported_functions, sizeof(char*) * (mod->function_count + 1));
+    mod->exported_functions[mod->function_count++] = strdup(function_name);
+}
+
+void env_add_module_exported_struct(Environment *env, const char *module_name, const char *struct_name) {
+    if (!env || !module_name || !struct_name) return;
+
+    ModuleInfo *mod = env_get_module(env, module_name);
+    if (!mod) {
+        /* Best-effort: ensure the module exists so we can track exports */
+        env_register_module(env, module_name, NULL, false);
+        mod = env_get_module(env, module_name);
+        if (!mod) return;
+    }
+
+    if (module_string_list_contains(mod->exported_structs, mod->struct_count, struct_name)) {
+        return;
+    }
+
+    mod->exported_structs = realloc(mod->exported_structs, sizeof(char*) * (mod->struct_count + 1));
+    mod->exported_structs[mod->struct_count++] = strdup(struct_name);
 }

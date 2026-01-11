@@ -312,6 +312,19 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             {
                 char *type_name = strdup(tok->value);
                 advance(p);  /* consume type name */
+
+                /* Module-qualified type sugar: Alias.TypeName
+                 * For now, treat as TypeName (module structs are registered globally).
+                 */
+                if (current_token(p)->token_type == TOKEN_DOT) {
+                    Token *next_ident = peek_token(p, 1);
+                    if (next_ident && next_ident->token_type == TOKEN_IDENTIFIER) {
+                        advance(p);  /* consume '.' */
+                        free(type_name);
+                        type_name = strdup(next_ident->value);
+                        advance(p);  /* consume TypeName */
+                    }
+                }
                 
                 /* Check for Module.Type pattern */
                 if (current_token(p)->token_type == TOKEN_DOT) {
@@ -738,7 +751,14 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
             Token *type_token = current_token(p);
             char *struct_name = NULL;
             if (type_token->token_type == TOKEN_IDENTIFIER) {
-                struct_name = strdup(type_token->value);
+                /* Module-qualified type sugar: Alias.TypeName -> treat as TypeName */
+                Token *dot = peek_token(p, 1);
+                Token *rhs = peek_token(p, 2);
+                if (dot && rhs && dot->token_type == TOKEN_DOT && rhs->token_type == TOKEN_IDENTIFIER) {
+                    struct_name = strdup(rhs->value);
+                } else {
+                    struct_name = strdup(type_token->value);
+                }
             }
             
             /* Parse type with element_type support for arrays and generics */
@@ -2268,7 +2288,14 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             Token *type_token = current_token(p);
             char *type_name = NULL;
             if (type_token->token_type == TOKEN_IDENTIFIER) {
-                type_name = strdup(type_token->value);
+                /* Module-qualified type sugar: Alias.TypeName -> treat as TypeName */
+                Token *dot = peek_token(p, 1);
+                Token *rhs = peek_token(p, 2);
+                if (dot && rhs && dot->token_type == TOKEN_DOT && rhs->token_type == TOKEN_IDENTIFIER) {
+                    type_name = strdup(rhs->value);
+                } else {
+                    type_name = strdup(type_token->value);
+                }
             }
             
             /* Parse type with element_type support for arrays and generics */

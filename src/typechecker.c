@@ -739,9 +739,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return TYPE_UNKNOWN;
                 }
 
-                /* String concatenation with + operator */
-                if (op == TOKEN_PLUS && left == TYPE_STRING && right == TYPE_STRING) {
-                    return TYPE_STRING;
+                /* String concatenation with + operator
+                 *
+                 * Self-hosting uses nested concatenations heavily. If one side is
+                 * already known to be a string, allow the other side to be
+                 * TYPE_UNKNOWN and still treat the result as TYPE_STRING. This
+                 * preserves the "string context" through nested (+ a (+ b c)).
+                 */
+                if (op == TOKEN_PLUS) {
+                    if ((left == TYPE_STRING && (right == TYPE_STRING || right == TYPE_UNKNOWN)) ||
+                        (right == TYPE_STRING && (left == TYPE_STRING || left == TYPE_UNKNOWN))) {
+                        return TYPE_STRING;
+                    }
                 }
 
                 /* Enums are compatible with ints in arithmetic */
@@ -3275,6 +3284,37 @@ static void register_builtin_functions(Environment *env) {
     func.shadow_test = NULL;
     func.is_extern = false;
     env_define_function(env, func);
+
+    /* Temp helpers */
+    func.name = "tmp_dir";
+    func.params = NULL;
+    func.param_count = 0;
+    func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "mktemp";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "mktemp_dir";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
     
     /* Advanced string operations */
     func.name = "char_at";
@@ -3973,10 +4013,15 @@ bool type_check(ASTNode *program, Environment *env) {
             
             sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
             sdef.is_extern = item->as.struct_def.is_extern;      /* Propagate extern flag */
-            sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
+sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
             sdef.module_name = env->current_module ? strdup(env->current_module) : NULL;  /* Set module context */
             
             env_define_struct(env, sdef);
+
+            /* Module introspection: track exported structs (public only) */
+            if (sdef.is_pub && env->current_module) {
+                env_add_module_exported_struct(env, env->current_module, struct_name);
+            }
             
         } else if (item->type == AST_UNION_DEF) {
             const char *union_name = item->as.union_def.name;
@@ -4325,6 +4370,11 @@ bool type_check(ASTNode *program, Environment *env) {
             }
 
             env_define_function(env, func);
+
+            /* Module introspection: track exported functions (public only) */
+            if (item->as.function.is_pub && env->current_module) {
+                env_add_module_exported_function(env, env->current_module, func_name);
+            }
             
             /* Trace function definition */
             if (!func.is_extern) {
@@ -4632,10 +4682,15 @@ bool type_check_module(ASTNode *program, Environment *env) {
             
             sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
             sdef.is_extern = item->as.struct_def.is_extern;      /* Propagate extern flag */
-            sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
+sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
             sdef.module_name = env->current_module ? strdup(env->current_module) : NULL;  /* Set module context */
             
             env_define_struct(env, sdef);
+
+            /* Module introspection: track exported structs (public only) */
+            if (sdef.is_pub && env->current_module) {
+                env_add_module_exported_struct(env, env->current_module, struct_name);
+            }
             
         } else if (item->type == AST_UNION_DEF) {
             const char *union_name = item->as.union_def.name;
@@ -4900,6 +4955,11 @@ bool type_check_module(ASTNode *program, Environment *env) {
             f.module_name = env->current_module ? strdup(env->current_module) : NULL;
             
             env_define_function(env, f);
+
+            /* Module introspection: track exported functions (public only) */
+            if (item->as.function.is_pub && env->current_module) {
+                env_add_module_exported_function(env, env->current_module, func_name);
+            }
         }
     }
 

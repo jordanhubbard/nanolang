@@ -146,29 +146,16 @@ pub fn glob(root: string, pattern: string) -> array<string> {
 
     let n: int = (array_length files)
     let mut i: int = 0
-    let mut out_idx: int = 0
 
     while (< i n) {
         let p: string = (at files i)
         let b: string = (basename p)
         if (glob_match pattern b) {
-            if (< out_idx (array_length out)) {
-                (array_set out out_idx p)
-            }
-            set out_idx (+ out_idx 1)
+            set out (array_push out p)
         }
         set i (+ i 1)
     }
-
-    # Resize output array to actual size
-    let mut final_out: array<string> = (array_new out_idx "")
-    set i 0
-    while (< i out_idx) {
-        (array_set final_out i (at out i))
-        set i (+ i 1)
-    }
-
-    return final_out
+    return out
 }
 
 shadow glob {
