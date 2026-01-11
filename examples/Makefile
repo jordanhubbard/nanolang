@@ -73,8 +73,8 @@ DEBUG_EXAMPLES = \
 # - nl_demo_selfhosting (imports math_helper with 'as' alias)
 
 # Derive interpreter-only list from current source set vs known-to-compile list.
-NL_ALL_SOURCES := $(wildcard nl_*.nano)
-NL_ALL_NAMES := $(sort $(basename $(NL_ALL_SOURCES)))
+NL_ALL_SOURCES := $(wildcard language/nl_*.nano)
+NL_ALL_NAMES := $(sort $(basename $(notdir $(NL_ALL_SOURCES))))
 NL_COMPILED_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NL_EXAMPLES)))
 NL_INTERPRETER_ONLY_NAMES := $(sort $(filter-out $(NL_COMPILED_NAMES),$(NL_ALL_NAMES)))
 
@@ -220,53 +220,75 @@ $(INTERPRETER):
 
 # === Build Rules ===
 
-# Nanolang-only examples (no module path needed)
-$(BIN_DIR)/nl_%: nl_%.nano $(COMPILER)
+# Nanolang-only examples (now in language/ subdirectory)
+$(BIN_DIR)/nl_%: language/nl_%.nano $(COMPILER)
 	@echo "Building $@..."
 	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
-# Debugging & Validation examples (use stdlib)
-$(BIN_DIR)/logging_%: logging_%.nano $(COMPILER)
+# Debugging & Validation examples (in debug/ subdirectory)
+$(BIN_DIR)/logging_%: debug/logging_%.nano $(COMPILER)
 	@echo "Building $@..."
 	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
-$(BIN_DIR)/coverage_demo: coverage_demo.nano $(COMPILER)
+$(BIN_DIR)/coverage_demo: debug/coverage_demo.nano $(COMPILER)
 	@echo "Building $@..."
 	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
-$(BIN_DIR)/property_test_%: property_test_%.nano $(COMPILER)
+$(BIN_DIR)/property_test_%: debug/property_test_%.nano $(COMPILER)
 	@echo "Building $@..."
 	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
-# SDL examples
-$(BIN_DIR)/sdl_%: sdl_%.nano $(COMPILER)
+# SDL examples (in graphics/, games/, or audio/ subdirectories)
+# Games
+$(BIN_DIR)/sdl_pong: games/sdl_pong.nano $(COMPILER)
 	@echo "Building $@..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
-# NCurses examples
-$(BIN_DIR)/ncurses_%: ncurses_%.nano $(COMPILER)
+$(BIN_DIR)/sdl_asteroids: games/sdl_asteroids.nano $(COMPILER)
 	@echo "Building $@..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
-# OpenGL examples
-$(BIN_DIR)/opengl_cube: opengl_cube.nano $(COMPILER)
-	@echo "Building OpenGL Cube..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_cube.nano -o bin/opengl_cube
+$(BIN_DIR)/sdl_checkers: games/sdl_checkers.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
-$(BIN_DIR)/opengl_teapot: opengl_teapot.nano $(COMPILER)
-	@echo "Building OpenGL Teapot..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_teapot.nano -o bin/opengl_teapot
-	@echo "✓ OpenGL Teapot built: $@"
+# Graphics (pattern rule for remaining SDL graphics examples)
+$(BIN_DIR)/sdl_%: graphics/sdl_%.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
-$(BIN_DIR)/sdl_nanoamp: sdl_nanoamp.nano $(COMPILER)
+# Audio (pattern rule with fallback)
+$(BIN_DIR)/sdl_nanoamp: audio/sdl_nanoamp.nano $(COMPILER)
 	@echo "Building SDL NanoAmp - Pixel-perfect Winamp tribute..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_nanoamp.nano -o bin/sdl_nanoamp
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/sdl_nanoamp
 	@echo "✓ SDL NanoAmp built: $@"
 
-$(BIN_DIR)/sdl_ui_widgets_extended: sdl_ui_widgets_extended.nano $(COMPILER)
-	@echo "Building Extended UI Widgets Demo..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_ui_widgets_extended.nano -o bin/sdl_ui_widgets_extended
-	@echo "✓ UI Widgets Extended built: $@"
+$(BIN_DIR)/sdl_mod_visualizer: audio/sdl_mod_visualizer.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
+
+$(BIN_DIR)/sdl_tracker_shell: audio/sdl_tracker_shell.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
+
+$(BIN_DIR)/sdl_audio_%: audio/sdl_audio_%.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
+
+# NCurses examples (in terminal/ subdirectory)
+$(BIN_DIR)/ncurses_%: terminal/ncurses_%.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
+
+# OpenGL examples (in opengl/ subdirectory)
+$(BIN_DIR)/opengl_cube: opengl/opengl_cube.nano $(COMPILER)
+	@echo "Building OpenGL Cube..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/opengl_cube
+
+$(BIN_DIR)/opengl_teapot: opengl/opengl_teapot.nano $(COMPILER)
+	@echo "Building OpenGL Teapot..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/opengl_teapot
+	@echo "✓ OpenGL Teapot built: $@"
 
 # === Clean ===
 
