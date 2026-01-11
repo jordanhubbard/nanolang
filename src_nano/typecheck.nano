@@ -238,6 +238,16 @@ fn init_struct_metadata() -> array<FieldMetadata> {
     (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "code", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
     (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "message", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
     
+    /* ErrorMessage fields (from error_messages.nano) */
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "title", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "file", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "problem", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "code_snippet", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "explanation", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "suggestion", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    
     /* NSType fields */
     (array_push m FieldMetadata { struct_name: "NSType", field_name: "kind", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
     (array_push m FieldMetadata { struct_name: "NSType", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
