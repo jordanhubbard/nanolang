@@ -1,130 +1,44 @@
-/* =============================================================================
- * Logging and Tracing Demo
- * =============================================================================
- * Demonstrates the standard library logging module with various log levels,
- * tracing, and output modes.
- * ============================================================================= */
+# Demo of the structured logging API
 
-from "modules/std/log/log.nano" import log_debug, log_info, log_warn, log_error, log_fatal, trace_enter, trace_exit, trace_event, set_log_level, set_output_mode, log_info_int, LOG_LEVEL_DEBUG, LOG_LEVEL_INFO, LOG_LEVEL_WARN, OUTPUT_MODE_TEXT, OUTPUT_MODE_JSON
+from "stdlib/log.nano" import log_debug, log_info, log_trace, log_error
 
-/* Example function with tracing */
-fn process_data(count: int) -> int {
-    let trace_id: int = (trace_enter "process_data")
+fn calculate_fibonacci(n: int) -> int {
+    (log_debug "fibonacci" (+ "Calculating fibonacci(" (+ (int_to_string n) ")")))
     
-    (log_info_int "Processing items, count" count)
-    
-    let mut sum: int = 0
-    let mut i: int = 0
-    while (< i count) {
-        set sum (+ sum i)
-        if (== (% i 10) 0) {
-            (trace_event "progress" (int_to_string i))
-        }
-        set i (+ i 1)
+    if (<= n 1) {
+        (log_trace "fibonacci" (+ "Base case: n=" (int_to_string n)))
+        return n
+    } else {
+        (print "")
     }
     
-    (trace_exit trace_id "process_data")
-    return sum
+    let a: int = (calculate_fibonacci (- n 1))
+    let b: int = (calculate_fibonacci (- n 2))
+    let result: int = (+ a b)
+    
+    (log_debug "fibonacci" (+ "Result: fibonacci(" (+ (int_to_string n) (+ ") = " (int_to_string result)))))
+    return result
 }
 
-shadow process_data {
-    (set_log_level LOG_LEVEL_DEBUG)
-    let result: int = (process_data 5)
-    assert (== result 10)
-    (set_log_level LOG_LEVEL_INFO)  /* Reset */
-}
-
-/* Demonstrate different log levels */
-fn demonstrate_log_levels() -> void {
-    (log_debug "This is a debug message (usually filtered)")
-    (log_info "This is an informational message")
-    (log_warn "This is a warning - something might be wrong")
-    (log_error "This is an error - something went wrong")
-    (log_fatal "This is a fatal error - critical failure")
-}
-
-shadow demonstrate_log_levels {
-    (demonstrate_log_levels)
-    assert true
-}
-
-/* Simulate application with logging */
-fn simulate_application() -> int {
-    (log_info "Application starting...")
+fn main() -> int {
+    (log_info "app" "Starting logging demo")
     
-    /* Simulate some work with different outcomes */
-    let data_size: int = 100
-    (log_info_int "Input data size" data_size)
+    (log_info "math" "Calculating fibonacci sequence")
+    let fib10: int = (calculate_fibonacci 10)
     
-    if (> data_size 1000) {
-        (log_warn "Large data size detected, performance may be slow")
-    }
+    (log_info "result" (+ "Fibonacci(10) = " (int_to_string fib10)))
     
-    /* Process data with tracing */
-    let trace_id: int = (trace_enter "main_processing")
-    let result: int = (process_data data_size)
-    (trace_exit trace_id "main_processing")
-    
-    (log_info_int "Processing complete, result" result)
-    
-    /* Simulate error condition */
-    if (< result 0) {
-        (log_error "Invalid result: negative value")
+    if (!= fib10 55) {
+        (log_error "validation" (+ "Expected 55, got " (int_to_string fib10)))
         return 1
+    } else {
+        (print "")
     }
     
-    (log_info "Application finished successfully")
+    (log_info "app" "Demo complete - all tests passed!")
     return 0
 }
 
-shadow simulate_application {
-    let status: int = (simulate_application)
-    assert (== status 0)
-}
-
-/* Main entry point - demonstrate different modes */
-fn main() -> int {
-    (println "=== Logging Demo ===")
-    (println "")
-    
-    /* Default mode: Text output at INFO level */
-    (println "--- TEXT MODE (INFO level) ---")
-    (set_log_level LOG_LEVEL_INFO)
-    (set_output_mode OUTPUT_MODE_TEXT)
-    (demonstrate_log_levels)
-    (println "")
-    
-    /* Debug mode: Show all messages */
-    (println "--- TEXT MODE (DEBUG level) ---")
-    (set_log_level LOG_LEVEL_DEBUG)
-    (log_debug "Now you can see debug messages!")
-    (log_info "Debug mode enabled")
-    (println "")
-    
-    /* JSON output mode */
-    (println "--- JSON MODE (INFO level) ---")
-    (set_log_level LOG_LEVEL_INFO)
-    (set_output_mode OUTPUT_MODE_JSON)
-    (log_info "This is JSON formatted")
-    (log_error "Errors are also JSON")
-    (println "")
-    
-    /* Back to text mode for demo */
-    (set_output_mode OUTPUT_MODE_TEXT)
-    (println "--- FULL APPLICATION SIMULATION ---")
-    let status: int = (simulate_application)
-    (println "")
-    
-    if (== status 0) {
-        (println "✓ Demo completed successfully")
-        return 0
-    } else {
-        (println "✗ Demo failed")
-        return 1
-    }
-}
-
 shadow main {
-    let status: int = (main)
-    assert (== status 0)
+    assert (== (main) 0)
 }

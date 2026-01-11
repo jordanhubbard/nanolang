@@ -18,6 +18,7 @@ typedef struct {
     bool verbose;
     bool keep_c;
     bool save_asm;            /* -S flag: save generated C to .genC file */
+    bool json_errors;         /* Output errors in JSON format for tooling */
     char **include_paths;      /* -I flags */
     int include_count;
     char **library_paths;     /* -L flags */
@@ -718,6 +719,7 @@ int main(int argc, char *argv[]) {
         printf("  --verbose      Show detailed compilation steps and commands\n");
         printf("  --keep-c       Keep generated C file (saves to output dir instead of /tmp)\n");
         printf("  -S             Save generated C to <input>.genC (for inspection)\n");
+        printf("  --json-errors  Output errors in JSON format for tool integration\n");
         printf("  -I <path>      Add include path for C compilation\n");
         printf("  -L <path>      Add library path for C linking\n");
         printf("  -l <lib>       Link against library (e.g., -lSDL2)\n");
@@ -748,6 +750,7 @@ int main(int argc, char *argv[]) {
         .verbose = false,
         .keep_c = false,
         .save_asm = false,
+        .json_errors = false,
         .include_paths = NULL,
         .include_count = 0,
         .library_paths = NULL,
@@ -779,6 +782,8 @@ int main(int argc, char *argv[]) {
             opts.keep_c = true;
         } else if (strcmp(argv[i], "-S") == 0) {
             opts.save_asm = true;
+        } else if (strcmp(argv[i], "--json-errors") == 0) {
+            opts.json_errors = true;
         } else if (strcmp(argv[i], "-I") == 0 && i + 1 < argc) {
             if (include_count < 32) {
                 include_paths[include_count++] = argv[i + 1];
