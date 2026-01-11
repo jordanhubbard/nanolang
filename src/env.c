@@ -397,6 +397,17 @@ bool is_builtin_function(const char *name) {
     return false;
 }
 
+/* Helper function to check if a string is in a list */
+static bool module_string_list_contains(char **items, int count, const char *name) {
+    if (!items || count <= 0 || !name) return false;
+    for (int i = 0; i < count; i++) {
+        if (items[i] && strcmp(items[i], name) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /* Define function */
 void env_define_function(Environment *env, Function func) {
     if (env->function_count >= env->function_capacity) {
@@ -414,15 +425,12 @@ void env_define_function(Environment *env, Function func) {
     if (func.is_pub && func.module_name) {
         ModuleInfo *mod = env_get_module(env, func.module_name);
         if (mod) {
-            /* Grow exported_functions array if needed */
-            if (mod->function_count == 0) {
-                mod->exported_functions = malloc(sizeof(char*) * 4);
-            } else if ((mod->function_count & (mod->function_count - 1)) == 0 && mod->function_count >= 4) {
-                /* Power of 2 growth */
-                int new_capacity = mod->function_count * 2;
-                mod->exported_functions = realloc(mod->exported_functions, sizeof(char*) * new_capacity);
+            /* Check if function is already in the list (avoid duplicates) */
+            if (!module_string_list_contains(mod->exported_functions, mod->function_count, func.name)) {
+                /* Grow array to accommodate one more element */
+                mod->exported_functions = realloc(mod->exported_functions, sizeof(char*) * (mod->function_count + 1));
+                mod->exported_functions[mod->function_count++] = strdup(func.name);
             }
-            mod->exported_functions[mod->function_count++] = strdup(func.name);
         }
     }
 }
@@ -1402,16 +1410,6 @@ void env_mark_module_has_ffi(Environment *env, const char *name) {
     if (mod) {
         mod->has_ffi = true;
     }
-}
-
-static bool module_string_list_contains(char **items, int count, const char *name) {
-    if (!items || count <= 0 || !name) return false;
-    for (int i = 0; i < count; i++) {
-        if (items[i] && strcmp(items[i], name) == 0) {
-            return true;
-        }
-    }
-    return false;
 }
 
 void env_add_module_exported_function(Environment *env, const char *module_name, const char *function_name) {
