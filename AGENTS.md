@@ -107,6 +107,90 @@ for (let i: int = 0) (< i 10) (set i (+ i 1)) { body }
 
 ---
 
+## Debugging & Instrumentation Tools
+
+### When Code Doesn't Work: The 3-Layer Strategy
+
+#### Layer 1: Structured Logging (stdlib/log.nano)
+Use when you need to see what's happening at runtime.
+
+```nano
+from "stdlib/log.nano" import log_info, log_debug, log_error
+
+fn process_data(x: int) -> int {
+    (log_debug "processor" (+ "Input: " (int_to_string x)))
+    
+    if (< x 0) {
+        (log_error "processor" "Negative input detected")
+        return -1
+    }
+    
+    let result: int = (* x 2)
+    (log_info "processor" (+ "Result: " (int_to_string result)))
+    return result
+}
+```
+
+**6 log levels:** TRACE, DEBUG, INFO (default), WARN, ERROR, FATAL
+
+**See:** `stdlib/README.md`, `docs/DEBUGGING_GUIDE.md`, `examples/logging_levels_demo.nano`
+
+#### Layer 2: Shadow Tests (Mandatory)
+Every function MUST have shadow tests. No exceptions.
+
+When shadow tests fail, you'll see:
+```
+========================================
+Shadow Test Assertion Failed
+========================================
+Location: line 9, column 5
+Expression type: operator call with 2 arguments
+
+Context: Variables in current scope:
+  x: int = 5
+  y: int = 7
+  result: int = 12
+========================================
+```
+
+**Enhanced context shows variable values automatically.**
+
+#### Layer 3: Coverage & Tracing (stdlib/coverage.nano)
+Use when you need to verify code paths or find untested areas.
+
+```nano
+from "stdlib/coverage.nano" import coverage_init, coverage_record, coverage_report
+
+fn my_function(x: int) -> int {
+    (coverage_record "my_file.nano" 10 5)
+    return (* x 2)
+}
+
+fn main() -> int {
+    (coverage_init)
+    let result: int = (my_function 5)
+    (coverage_report)  # Shows which lines executed
+    return 0
+}
+```
+
+**See:** `stdlib/README.md`, `examples/coverage_demo.nano`
+
+### Error Recovery Protocol
+
+When compilation fails:
+
+1. **Read the error message carefully** - Line, column, type
+2. **Check error code** (if using JSON diagnostics)
+3. **Make MINIMAL fix** - One error at a time
+4. **Recompile and iterate**
+
+**Structured JSON errors** available via C API (see `src/json_diagnostics.h`)
+
+**Complete workflow:** `docs/SELF_VALIDATING_CODE_GENERATION.md`
+
+---
+
 ## Module Selection Protocol
 
 ### When Given a User Goal:
@@ -418,10 +502,43 @@ Working program ✓
 
 ## Resources
 
-- `docs/CANONICAL_STYLE.md` - Syntax reference
-- `docs/LLM_CORE_SUBSET.md` - 50-primitive core
-- `modules/index.json` - Searchable module index
+### Core Documentation (Read These First)
+- `AGENTS.md` **(this file)** - Your onboarding protocol
+- `docs/CANONICAL_STYLE.md` - Syntax reference (the ONE true way)
+- `docs/LLM_CORE_SUBSET.md` - 50-primitive core subset
 - `MEMORY.md` - Patterns and idioms
 - `spec.json` - Formal language specification
 
-**Start here. Follow the algorithm. Write canonical code.**
+### Debugging & Validation (Critical for Self-Correction)
+- `docs/DEBUGGING_GUIDE.md` - 3-layer debugging strategy
+- `docs/SELF_VALIDATING_CODE_GENERATION.md` - Complete error recovery workflow
+- `docs/PROPERTY_TESTING_GUIDE.md` - Property-based testing reference
+- `stdlib/README.md` - Standard library index (log, coverage, etc.)
+
+### Standard Library
+- `stdlib/log.nano` - Structured logging (6 levels, categories)
+- `stdlib/coverage.nano` - Coverage, timing, tracing APIs
+- `stdlib/regex.nano` - Regular expressions
+- `stdlib/StringBuilder.nano` - Efficient string building
+- `docs/STDLIB.md` - Built-in functions reference
+
+### Modules & Examples
+- `modules/index.json` - Searchable module index (SDL, ncurses, etc.)
+- `examples/` - Working demonstration programs
+- `docs/MODULE_SYSTEM.md` - Module creation guide
+
+### Quick Reference Card
+
+| Task | Resource |
+|------|----------|
+| **Syntax questions** | `docs/CANONICAL_STYLE.md` |
+| **Code not working** | `docs/DEBUGGING_GUIDE.md` → use `stdlib/log.nano` |
+| **Shadow test failure** | Read variable context in error output |
+| **Error recovery** | `docs/SELF_VALIDATING_CODE_GENERATION.md` |
+| **Property tests** | `docs/PROPERTY_TESTING_GUIDE.md` |
+| **Coverage tracking** | `stdlib/coverage.nano` |
+| **Find a module** | `modules/index.json` |
+| **Built-in functions** | `docs/STDLIB.md` |
+| **Examples** | `examples/` directory |
+
+**Start here. Follow the algorithm. Write canonical code. Use debugging tools when stuck.**
