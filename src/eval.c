@@ -4638,7 +4638,49 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
         case AST_ASSERT: {
             Value cond = eval_expression(stmt->as.assert.condition, env);
             if (!is_truthy(cond)) {
-                fprintf(stderr, "Assertion failed at line %d, column %d\n", stmt->line, stmt->column);
+                fprintf(stderr, "\n========================================\n");
+                fprintf(stderr, "Shadow Test Assertion Failed\n");
+                fprintf(stderr, "========================================\n");
+                fprintf(stderr, "Location: line %d, column %d\n", stmt->line, stmt->column);
+                
+                /* Try to show the assertion expression if available */
+                if (stmt->as.assert.condition) {
+                    fprintf(stderr, "Expression type: ");
+                    /* Basic expression type reporting */
+                    ASTNode *expr = stmt->as.assert.condition;
+                    if (expr->type == AST_PREFIX_OP) {
+                        fprintf(stderr, "operator call with %d arguments\n", expr->as.prefix_op.arg_count);
+                    } else {
+                        fprintf(stderr, "complex expression\n");
+                    }
+                }
+                
+                fprintf(stderr, "\nContext: Variables in current scope:\n");
+                /* Show some variable context from environment */
+                int vars_shown = 0;
+                for (int i = 0; i < env->symbol_count && vars_shown < 10; i++) {
+                    Symbol *sym = &env->symbols[i];
+                    if (sym->type != TYPE_FUNCTION) {
+                        fprintf(stderr, "  %s: ", sym->name);
+                        /* Show value if simple type */
+                        if (sym->value.type == VAL_INT) {
+                            fprintf(stderr, "int = %lld\n", (long long)sym->value.as.int_val);
+                        } else if (sym->value.type == VAL_FLOAT) {
+                            fprintf(stderr, "float = %f\n", sym->value.as.float_val);
+                        } else if (sym->value.type == VAL_BOOL) {
+                            fprintf(stderr, "bool = %s\n", sym->value.as.bool_val ? "true" : "false");
+                        } else if (sym->value.type == VAL_STRING) {
+                            fprintf(stderr, "string = \"%s\"\n", sym->value.as.string_val);
+                        } else {
+                            fprintf(stderr, "%s\n", type_to_string(sym->type));
+                        }
+                        vars_shown++;
+                    }
+                }
+                if (vars_shown == 0) {
+                    fprintf(stderr, "  (no local variables)\n");
+                }
+                fprintf(stderr, "========================================\n\n");
                 exit(1);
             }
             return create_void();
