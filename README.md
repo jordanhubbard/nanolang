@@ -85,7 +85,7 @@ After installation, restart your computer, then:
 git clone https://github.com/jordanhubbard/nanolang.git
 cd nanolang
 make
-./bin/nanoc examples/nl_hello.nano -o hello
+./bin/nanoc examples/language/nl_hello.nano -o hello
 ./hello
 ```
 
@@ -238,19 +238,19 @@ fn main() -> int {
 
 ### Core Examples
 
-- **[hello.nano](examples/nl_hello.nano)** - Basic structure
-- **[calculator.nano](examples/nl_calculator.nano)** - Arithmetic operations
-- **[factorial.nano](examples/nl_factorial.nano)** - Recursion
-- **[fibonacci.nano](examples/nl_fibonacci.nano)** - Multiple algorithms
-- **[primes.nano](examples/nl_primes.nano)** - Prime number sieve
+- **[hello.nano](examples/language/nl_hello.nano)** - Basic structure
+- **[calculator.nano](examples/language/nl_calculator.nano)** - Arithmetic operations
+- **[factorial.nano](examples/language/nl_factorial.nano)** - Recursion
+- **[fibonacci.nano](examples/language/nl_fibonacci.nano)** - Multiple algorithms
+- **[primes.nano](examples/language/nl_primes.nano)** - Prime number sieve
 
 ### Game Examples
 
-- **[snake_ncurses.nano](examples/ncurses_snake.nano)** - Classic snake with NCurses UI
-- **[game_of_life_ncurses.nano](examples/ncurses_game_of_life.nano)** - Conway's Game of Life
-- **[asteroids_complete.nano](examples/sdl_asteroids.nano)** - Full Asteroids game (SDL)
-- **[checkers.nano](examples/sdl_checkers.nano)** - Checkers with AI (SDL)
-- **[boids_sdl.nano](examples/sdl_boids.nano)** - Flocking simulation (SDL)
+- **[snake_ncurses.nano](examples/games/ncurses_snake.nano)** - Classic snake with NCurses UI
+- **[game_of_life_ncurses.nano](examples/games/ncurses_game_of_life.nano)** - Conway's Game of Life
+- **[asteroids_complete.nano](examples/games/sdl_asteroids.nano)** - Full Asteroids game (SDL)
+- **[checkers.nano](examples/games/sdl_checkers.nano)** - Checkers with AI (SDL)
+- **[boids_sdl.nano](examples/games/sdl_boids.nano)** - Flocking simulation (SDL)
 
 See **[examples/README.md](examples/README.md)** for the complete list.
 

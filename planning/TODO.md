@@ -457,9 +457,9 @@ Choose your path:
 - [SELF_HOSTING_CHECKLIST.md](SELF_HOSTING_CHECKLIST.md) - Implementation tracking
 
 ### Examples
-- [examples/nl_union_types.nano](../examples/nl_union_types.nano) - Union types demo
-- [examples/nl_struct.nano](../examples/nl_struct.nano) - Struct example
-- [examples/nl_enum.nano](../examples/nl_enum.nano) - Enum example
+- [examples/nl_union_types.nano](../examples/language/nl_union_types.nano) - Union types demo
+- [examples/nl_struct.nano](../examples/language/nl_struct.nano) - Struct example
+- [examples/nl_enum.nano](../examples/language/nl_enum.nano) - Enum example
 
 ### Test Infrastructure
 - `tests/unit/unions/` - 5 union tests
