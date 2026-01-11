@@ -17,6 +17,48 @@ cd examples && make
 
 ## Example Categories
 
+### 🔍 Debugging & Validation (NEW!)
+
+**Demonstrates feedback mechanisms for LLM-driven code generation**
+
+- **logging_levels_demo.nano** - Structured logging with 6 levels
+  - TRACE, DEBUG, INFO, WARN, ERROR, FATAL
+  - Threshold filtering (default: INFO)
+  - Demonstrates log levels in action
+  - Shows category-free convenience functions
+  
+- **logging_categories_demo.nano** - Category-based logging
+  - Multi-tier application simulation
+  - User registration workflow
+  - Categories: validation, database, email, registration
+  - Shows how categories help trace execution flow
+  
+- **coverage_demo.nano** - Runtime instrumentation
+  - Coverage tracking with coverage_record()
+  - Execution tracing with trace_record()
+  - Instrumented fibonacci, classify_number, sum_array
+  - Coverage and trace reports
+  
+- **property_test_sorting.nano** - Property-based testing for algorithms
+  - Bubble sort implementation
+  - 4 universal properties: length preservation, sorted output, permutation, idempotence
+  - 100 random test cases per property
+  
+- **property_test_math.nano** - Property-based testing for math
+  - 15+ mathematical properties
+  - Commutativity, identity, inverse, symmetry
+  - Triangle inequality for abs()
+  - Distributivity demonstration
+
+**See also:**
+- `stdlib/log.nano` - Logging API
+- `stdlib/coverage.nano` - Coverage/tracing API
+- `docs/DEBUGGING_GUIDE.md` - Complete debugging reference
+- `docs/PROPERTY_TESTING_GUIDE.md` - Property testing workflow
+- `docs/SELF_VALIDATING_CODE_GENERATION.md` - LLM agent self-correction tutorial
+
+---
+
 ### 🎮 Graphics & Games (SDL/OpenGL)
 
 **Compiled Examples** - Built with `make`:

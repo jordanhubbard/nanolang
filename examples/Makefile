@@ -59,6 +59,16 @@ NL_EXAMPLES = \
 	$(BIN_DIR)/nl_game_of_life \
 	$(BIN_DIR)/nl_snake
 
+# === Debugging & Validation Examples ===
+# Demonstrate logging, coverage, and property testing
+
+DEBUG_EXAMPLES = \
+	$(BIN_DIR)/logging_levels_demo \
+	$(BIN_DIR)/logging_categories_demo \
+	$(BIN_DIR)/coverage_demo \
+	$(BIN_DIR)/property_test_sorting \
+	$(BIN_DIR)/property_test_math
+
 # Temporarily disabled due to module import context bug (nanolang-6h9):
 # - nl_demo_selfhosting (imports math_helper with 'as' alias)
 
@@ -112,12 +122,13 @@ OPENGL_EXAMPLES = \
 
 ALL_EXAMPLES = \
 	$(NL_EXAMPLES) \
+	$(DEBUG_EXAMPLES) \
 	$(SDL_EXAMPLES) \
 	$(NCURSES_EXAMPLES)
 
 # === Targets ===
 
-.PHONY: all build nl sdl ncurses opengl clean help launcher
+.PHONY: all build nl sdl ncurses opengl debug clean help launcher
 
 # Default: build all examples
 all: build
@@ -129,6 +140,13 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo ""
 	@echo "Nanolang-only examples (nl_*) - $(words $(NL_COMPILED_NAMES)) compiled:"
 	@$(if $(strip $(NL_COMPILED_NAMES)),$(foreach ex,$(NL_COMPILED_NAMES),echo "  ./bin/$(ex)";),:)
+	@echo ""
+	@echo "Debugging & Validation examples:"
+	@echo "  ./bin/logging_levels_demo        - Structured logging with 6 levels"
+	@echo "  ./bin/logging_categories_demo    - Category-based logging"
+	@echo "  ./bin/coverage_demo              - Coverage tracking and tracing"
+	@echo "  ./bin/property_test_sorting      - Property testing for sorting"
+	@echo "  ./bin/property_test_math         - Property testing for math operations"
 	@echo ""
 	@echo "SDL examples (sdl_*):"
 	@echo "  ./bin/sdl_pong              - Table tennis (1972)"
@@ -179,6 +197,16 @@ launcher: $(COMPILER)
 
 # Category targets
 nl: $(COMPILER) $(NL_EXAMPLES)
+debug: $(COMPILER) $(DEBUG_EXAMPLES)
+	@echo ""
+	@echo "Debugging & Validation examples built successfully!"
+	@echo "Run them:"
+	@echo "  ./bin/logging_levels_demo"
+	@echo "  ./bin/logging_categories_demo"
+	@echo "  ./bin/coverage_demo"
+	@echo "  ./bin/property_test_sorting"
+	@echo "  ./bin/property_test_math"
+	@echo ""
 sdl: $(COMPILER) $(SDL_EXAMPLES)
 ncurses: $(COMPILER) $(NCURSES_EXAMPLES)
 opengl: $(COMPILER) $(OPENGL_EXAMPLES)
@@ -194,6 +222,19 @@ $(INTERPRETER):
 
 # Nanolang-only examples (no module path needed)
 $(BIN_DIR)/nl_%: nl_%.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
+
+# Debugging & Validation examples (use stdlib)
+$(BIN_DIR)/logging_%: logging_%.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
+
+$(BIN_DIR)/coverage_demo: coverage_demo.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
+
+$(BIN_DIR)/property_test_%: property_test_%.nano $(COMPILER)
 	@echo "Building $@..."
 	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
