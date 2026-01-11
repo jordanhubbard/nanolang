@@ -19,7 +19,8 @@ enum ExampleCategory {
     GRAPHICS = 2,
     AUDIO = 3,
     OPENGL = 4,
-    TERMINAL = 5
+    TERMINAL = 5,
+    DEBUG = 6
 }
 
 # Window layout
@@ -64,6 +65,10 @@ let COLOR_TERMINAL_R: int = 180
 let COLOR_TERMINAL_G: int = 180
 let COLOR_TERMINAL_B: int = 180
 
+let COLOR_DEBUG_R: int = 255
+let COLOR_DEBUG_G: int = 180
+let COLOR_DEBUG_B: int = 50
+
 fn get_category_color(category: int) -> int {
     if (== category ExampleCategory.GAMES) {
         return (+ (* COLOR_GAMES_R 65536) (+ (* COLOR_GAMES_G 256) COLOR_GAMES_B))
@@ -77,7 +82,11 @@ fn get_category_color(category: int) -> int {
                 if (== category ExampleCategory.OPENGL) {
                     return (+ (* COLOR_OPENGL_R 65536) (+ (* COLOR_OPENGL_G 256) COLOR_OPENGL_B))
                 } else {
-                    return (+ (* COLOR_TERMINAL_R 65536) (+ (* COLOR_TERMINAL_G 256) COLOR_TERMINAL_B))
+                    if (== category ExampleCategory.DEBUG) {
+                        return (+ (* COLOR_DEBUG_R 65536) (+ (* COLOR_DEBUG_G 256) COLOR_DEBUG_B))
+                    } else {
+                        return (+ (* COLOR_TERMINAL_R 65536) (+ (* COLOR_TERMINAL_G 256) COLOR_TERMINAL_B))
+                    }
                 }
             }
         }
@@ -341,6 +350,42 @@ fn main() -> int {
     set example_files (array_push example_files "examples/opengl_cube.nano")
     set example_icons (array_push example_icons "examples/icons/sdl_glass_sphere.png")
 
+    # === Debugging & Validation ===
+    set example_names (array_push example_names "Log Levels")
+    set example_descs (array_push example_descs "Structured logging with 6 levels")
+    set example_categories (array_push example_categories ExampleCategory.DEBUG)
+    set example_commands (array_push example_commands "make -C examples ../bin/logging_levels_demo && ./bin/logging_levels_demo")
+    set example_files (array_push example_files "examples/logging_levels_demo.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_fire.png")
+
+    set example_names (array_push example_names "Log Categories")
+    set example_descs (array_push example_descs "Category-based logging workflow")
+    set example_categories (array_push example_categories ExampleCategory.DEBUG)
+    set example_commands (array_push example_commands "make -C examples ../bin/logging_categories_demo && ./bin/logging_categories_demo")
+    set example_files (array_push example_files "examples/logging_categories_demo.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_fire.png")
+
+    set example_names (array_push example_names "Coverage")
+    set example_descs (array_push example_descs "Runtime instrumentation & tracing")
+    set example_categories (array_push example_categories ExampleCategory.DEBUG)
+    set example_commands (array_push example_commands "make -C examples ../bin/coverage_demo && ./bin/coverage_demo")
+    set example_files (array_push example_files "examples/coverage_demo.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_particles.png")
+
+    set example_names (array_push example_names "Prop: Sorting")
+    set example_descs (array_push example_descs "Property-based testing for algorithms")
+    set example_categories (array_push example_categories ExampleCategory.DEBUG)
+    set example_commands (array_push example_commands "make -C examples ../bin/property_test_sorting && ./bin/property_test_sorting")
+    set example_files (array_push example_files "examples/property_test_sorting.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_boids.png")
+
+    set example_names (array_push example_names "Prop: Math")
+    set example_descs (array_push example_descs "Property-based testing for math")
+    set example_categories (array_push example_categories ExampleCategory.DEBUG)
+    set example_commands (array_push example_commands "make -C examples ../bin/property_test_math && ./bin/property_test_math")
+    set example_files (array_push example_files "examples/property_test_math.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_boids.png")
+
     # Load all icon textures
     let icon_count: int = (array_length example_icons)
     let mut icon_textures: array<int> = []
@@ -442,6 +487,15 @@ fn main() -> int {
                 set selected_index -1
             } else {}
             
+            # Check Debug button (row 2)
+            let cat_tab_y2_click: int = (+ cat_tab_y 28)
+            let debug_btn_x_click: int = (+ LEFT_PANEL_X 10)
+            let debug_btn_w_click: int = (- (/ LEFT_PANEL_WIDTH 3) 5)
+            if (and (>= click_x debug_btn_x_click) (and (< click_x (+ debug_btn_x_click debug_btn_w_click)) (and (>= click_y cat_tab_y2_click) (< click_y (+ cat_tab_y2_click cat_tab_h))))) {
+                set selected_category ExampleCategory.DEBUG
+                set selected_index -1
+            } else {}
+            
             # Check Quit button
             let quit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 90)
             let quit_btn_y: int = (+ RIGHT_PANEL_Y 14)
@@ -455,7 +509,7 @@ fn main() -> int {
             let mut clicked_icon: int = -1
             let mut check_idx: int = 0
             let cat_tab_y_click: int = (+ LEFT_PANEL_Y 10)
-            let grid_start_y_click: int = (+ cat_tab_y_click 40)
+            let grid_start_y_click: int = (+ cat_tab_y_click 68)
             while (< check_idx (array_length indices)) {
                 let row: int = (/ check_idx ICONS_PER_ROW)
                 let col: int = (% check_idx ICONS_PER_ROW)
@@ -517,12 +571,18 @@ fn main() -> int {
         let cat_tab_h: int = 24
         
         # Draw category buttons manually (no nl_ui_button for better click detection)
+        # Row 1
         let all_btn_x: int = (+ LEFT_PANEL_X 10)
         let all_btn_w: int = (- cat_tab_w 5)
         let games_btn_x: int = (+ LEFT_PANEL_X (+ cat_tab_w 5))
         let games_btn_w: int = (- cat_tab_w 5)
         let gfx_btn_x: int = (+ LEFT_PANEL_X (* cat_tab_w 2))
         let gfx_btn_w: int = (- cat_tab_w 10)
+        
+        # Row 2
+        let cat_tab_y2: int = (+ cat_tab_y 28)
+        let debug_btn_x: int = (+ LEFT_PANEL_X 10)
+        let debug_btn_w: int = (- cat_tab_w 5)
         
         # Draw All button
         let all_active: bool = (== selected_category ExampleCategory.ALL)
@@ -552,14 +612,24 @@ fn main() -> int {
             (SDL_SetRenderDrawColor renderer 50 50 70 255) 
         }
         (nl_sdl_render_fill_rect renderer gfx_btn_x cat_tab_y gfx_btn_w cat_tab_h) 
-        (nl_draw_text_blended renderer small_font "Gfx" (+ gfx_btn_x 15) (+ cat_tab_y 5) 220 220 240 255) 
+        (nl_draw_text_blended renderer small_font "Gfx" (+ gfx_btn_x 15) (+ cat_tab_y 5) 220 220 240 255)
+        
+        # Draw Debug button (Row 2)
+        let debug_active: bool = (== selected_category ExampleCategory.DEBUG)
+        if debug_active {
+            (SDL_SetRenderDrawColor renderer 200 140 40 255) 
+        } else {
+            (SDL_SetRenderDrawColor renderer 120 80 30 255) 
+        }
+        (nl_sdl_render_fill_rect renderer debug_btn_x cat_tab_y2 debug_btn_w cat_tab_h) 
+        (nl_draw_text_blended renderer small_font "Debug" (+ debug_btn_x 8) (+ cat_tab_y2 5) 255 220 180 255) 
 
         # Rebuild filtered indices
         set indices (build_filtered_indices example_categories selected_category)
         let item_count: int = (array_length indices)
 
-        # Icon grid
-        let grid_start_y: int = (+ cat_tab_y 40)
+        # Icon grid (adjusted for second row of category buttons)
+        let grid_start_y: int = (+ cat_tab_y 68)
         let mut grid_idx: int = 0
         
         while (< grid_idx item_count) {
