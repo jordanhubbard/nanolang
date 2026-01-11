@@ -246,11 +246,11 @@ fn main() -> int {
 
 ### Game Examples
 
-- **[snake_ncurses.nano](examples/games/ncurses_snake.nano)** - Classic snake with NCurses UI
-- **[game_of_life_ncurses.nano](examples/games/ncurses_game_of_life.nano)** - Conway's Game of Life
+- **[snake_ncurses.nano](examples/terminal/ncurses_snake.nano)** - Classic snake with NCurses UI
+- **[game_of_life_ncurses.nano](examples/terminal/ncurses_game_of_life.nano)** - Conway's Game of Life
 - **[asteroids_complete.nano](examples/games/sdl_asteroids.nano)** - Full Asteroids game (SDL)
 - **[checkers.nano](examples/games/sdl_checkers.nano)** - Checkers with AI (SDL)
-- **[boids_sdl.nano](examples/games/sdl_boids.nano)** - Flocking simulation (SDL)
+- **[boids_sdl.nano](examples/graphics/sdl_boids.nano)** - Flocking simulation (SDL)
 
 See **[examples/README.md](examples/README.md)** for the complete list.
 
