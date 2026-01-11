@@ -85,7 +85,8 @@ shadow gen_nano_schema {
 # Generate NanoLang AST types
 fn gen_nano_ast(schema: Json) -> string {
     let mut output: string = (+ HEADER_COMMENT "\n\n")
-    set output (+ output "import \"src_nano/generated/compiler_schema.nano\"\n\n")
+    set output (+ output "import \"src_nano/generated/compiler_schema.nano\"\n")
+    set output (+ output "import \"src_nano/generated/compiler_contracts.nano\"\n\n")
     
     # Generate enums if they exist
     if (object_has schema "nano_enums") {
@@ -95,24 +96,32 @@ fn gen_nano_ast(schema: Json) -> string {
         
         while (< i enum_count) {
             let enum_obj: Json = (get_index enums i)
-            let enum_name: string = (as_string (get enum_obj "name"))
-            let values: Json = (get enum_obj "values")
-            let value_count: int = (array_size values)
-            
-            set output (+ output (+ "enum " (+ enum_name " {\n")))
-            
-            let mut j: int = 0
-            while (< j value_count) {
-                let val: Json = (get_index values j)
-                let val_name: string = (as_string val)
-                let suffix: string = (cond
-                    ((< j (- value_count 1)) ",")
-                    (else "")
-                )
-                set output (+ output (+ "    " (+ val_name (+ suffix "\n"))))
-                set j (+ j 1)
+            let is_contract: bool = (cond
+                ((object_has enum_obj "contracts") (nl_json_as_bool (get enum_obj "contracts")))
+                (else false)
+            )
+            if is_contract {
+                # Contract enums are emitted in compiler_contracts.nano
+            } else {
+                let enum_name: string = (as_string (get enum_obj "name"))
+                let values: Json = (get enum_obj "values")
+                let value_count: int = (array_size values)
+                
+                set output (+ output (+ "enum " (+ enum_name " {\n")))
+                
+                let mut j: int = 0
+                while (< j value_count) {
+                    let val: Json = (get_index values j)
+                    let val_name: string = (as_string val)
+                    let suffix: string = (cond
+                        ((< j (- value_count 1)) ",")
+                        (else "")
+                    )
+                    set output (+ output (+ "    " (+ val_name (+ suffix "\n"))))
+                    set j (+ j 1)
+                }
+                set output (+ output "}\n\n")
             }
-            set output (+ output "}\n\n")
             set i (+ i 1)
         }
     } else {}
@@ -125,38 +134,46 @@ fn gen_nano_ast(schema: Json) -> string {
         
         while (< i struct_count) {
             let struct_obj: Json = (get_index structs i)
-            let struct_name: string = (as_string (get struct_obj "name"))
-            let fields: Json = (get struct_obj "fields")
-            let field_count: int = (array_size fields)
-            
-            # Check for extern prefix
-            let prefix: string = (cond
-                ((object_has struct_obj "emit_c") 
-                    (cond
-                        ((nl_json_as_bool (get struct_obj "emit_c")) "extern ")
-                        (else "")
-                    )
-                )
-                (else "")
+            let is_contract: bool = (cond
+                ((object_has struct_obj "contracts") (nl_json_as_bool (get struct_obj "contracts")))
+                (else false)
             )
-            
-            set output (+ output (+ prefix (+ "struct " (+ struct_name " {\n"))))
-            
-            let mut j: int = 0
-            while (< j field_count) {
-                let field: Json = (get_index fields j)
-                let field_name: string = (as_string (get_index field 0))
-                let field_type: string = (as_string (get_index field 1))
-                let suffix: string = (cond
-                    ((< j (- field_count 1)) ",")
+            if is_contract {
+                # Contract structs are emitted in compiler_contracts.nano
+            } else {
+                let struct_name: string = (as_string (get struct_obj "name"))
+                let fields: Json = (get struct_obj "fields")
+                let field_count: int = (array_size fields)
+                
+                # Check for extern prefix
+                let prefix: string = (cond
+                    ((object_has struct_obj "emit_c") 
+                        (cond
+                            ((nl_json_as_bool (get struct_obj "emit_c")) "extern ")
+                            (else "")
+                        )
+                    )
                     (else "")
                 )
-                set output (+ output (+ "    " (+ field_name (+ ": " (+ field_type (+ suffix "\n"))))))
-                set j (+ j 1)
+                
+                set output (+ output (+ prefix (+ "struct " (+ struct_name " {\n"))))
+                
+                let mut j: int = 0
+                while (< j field_count) {
+                    let field: Json = (get_index fields j)
+                    let field_name: string = (as_string (get_index field 0))
+                    let field_type: string = (as_string (get_index field 1))
+                    let suffix: string = (cond
+                        ((< j (- field_count 1)) ",")
+                        (else "")
+                    )
+                    set output (+ output (+ "    " (+ field_name (+ ": " (+ field_type (+ suffix "\n"))))))
+                    set j (+ j 1)
+                }
+                set output (+ output "}\n\n")
             }
-            set output (+ output "}\n\n")
-        set i (+ i 1)
-    }
+            set i (+ i 1)
+        }
     } else {}
     
     return output
@@ -165,6 +182,106 @@ fn gen_nano_ast(schema: Json) -> string {
 shadow gen_nano_ast {
     let schema: Json = (nl_json_new_object)
     let result: string = (gen_nano_ast schema)
+    assert (> (str_length result) 0)
+    (free schema)
+}
+
+# Generate NanoLang contract types (shared interfaces between phases)
+fn gen_contracts(schema: Json) -> string {
+    let mut output: string = (+ HEADER_COMMENT "\n\n")
+    set output (+ output "import \"src_nano/generated/compiler_schema.nano\"\n\n")
+
+    # Contract enums
+    if (object_has schema "nano_enums") {
+        let enums: Json = (get schema "nano_enums")
+        let enum_count: int = (array_size enums)
+        let mut i: int = 0
+
+        while (< i enum_count) {
+            let enum_obj: Json = (get_index enums i)
+            let is_contract: bool = (cond
+                ((object_has enum_obj "contracts") (nl_json_as_bool (get enum_obj "contracts")))
+                (else false)
+            )
+            if is_contract {
+                let enum_name: string = (as_string (get enum_obj "name"))
+                let values: Json = (get enum_obj "values")
+                let value_count: int = (array_size values)
+
+                set output (+ output (+ "enum " (+ enum_name " {\n")))
+
+                let mut j: int = 0
+                while (< j value_count) {
+                    let val: Json = (get_index values j)
+                    let val_name: string = (as_string val)
+                    let suffix: string = (cond
+                        ((< j (- value_count 1)) ",")
+                        (else "")
+                    )
+                    set output (+ output (+ "    " (+ val_name (+ suffix "\n"))))
+                    set j (+ j 1)
+                }
+
+                set output (+ output "}\n\n")
+            } else {}
+            set i (+ i 1)
+        }
+    } else {}
+
+    # Contract structs
+    if (object_has schema "nano_structs") {
+        let structs: Json = (get schema "nano_structs")
+        let struct_count: int = (array_size structs)
+        let mut i: int = 0
+
+        while (< i struct_count) {
+            let struct_obj: Json = (get_index structs i)
+            let is_contract: bool = (cond
+                ((object_has struct_obj "contracts") (nl_json_as_bool (get struct_obj "contracts")))
+                (else false)
+            )
+            if is_contract {
+                let struct_name: string = (as_string (get struct_obj "name"))
+                let fields: Json = (get struct_obj "fields")
+                let field_count: int = (array_size fields)
+
+                let prefix: string = (cond
+                    ((object_has struct_obj "emit_c")
+                        (cond
+                            ((nl_json_as_bool (get struct_obj "emit_c")) "extern ")
+                            (else "")
+                        )
+                    )
+                    (else "")
+                )
+
+                set output (+ output (+ prefix (+ "struct " (+ struct_name " {\n"))))
+
+                let mut j: int = 0
+                while (< j field_count) {
+                    let field: Json = (get_index fields j)
+                    let field_name: string = (as_string (get_index field 0))
+                    let field_type: string = (as_string (get_index field 1))
+                    let suffix: string = (cond
+                        ((< j (- field_count 1)) ",")
+                        (else "")
+                    )
+                    set output (+ output (+ "    " (+ field_name (+ ": " (+ field_type (+ suffix "\n"))))))
+                    set j (+ j 1)
+                }
+
+                set output (+ output "}\n\n")
+            } else {}
+            set i (+ i 1)
+        }
+    } else {}
+
+    return output
+}
+
+shadow gen_contracts {
+    let schema: Json = (nl_json_new_object)
+    let result: string = (gen_contracts schema)
     assert (> (str_length result) 0)
     (free schema)
 }
@@ -464,6 +581,7 @@ fn main() -> int {
     # Generate outputs
     let nano_schema: string = (gen_nano_schema schema)
     let nano_ast: string = (gen_nano_ast schema)
+    let nano_contracts: string = (gen_contracts schema)
     let c_header: string = (gen_c schema)
     
     # Write files
@@ -479,6 +597,14 @@ fn main() -> int {
     let result2: int = (write "src_nano/generated/compiler_ast.nano" nano_ast)
     if (!= result2 0) {
         (println "Error writing compiler_ast.nano")
+        (free schema)
+        return 1
+    } else {}
+
+    (println "Writing src_nano/generated/compiler_contracts.nano...")
+    let result_contracts: int = (write "src_nano/generated/compiler_contracts.nano" nano_contracts)
+    if (!= result_contracts 0) {
+        (println "Error writing compiler_contracts.nano")
         (free schema)
         return 1
     } else {}

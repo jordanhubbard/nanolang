@@ -62,9 +62,21 @@ def gen_nano_schema(schema: dict) -> str:
 
 
 def gen_nano_ast(schema: dict) -> str:
-    lines: list[str] = [HEADER_COMMENT.strip(), "", 'import "src_nano/generated/compiler_schema.nano"', ""]
+    # compiler_ast.nano is intended to hold AST/IR struct definitions that are NOT part of
+    # the higher-level "contracts" layer. Contract types (diagnostics, phase outputs, etc.)
+    # live in compiler_contracts.nano.
+    lines: list[str] = [
+        HEADER_COMMENT.strip(),
+        "",
+        'import "src_nano/generated/compiler_schema.nano"',
+        'import "src_nano/generated/compiler_contracts.nano"',
+        "",
+    ]
 
     for enum in schema.get("nano_enums", []):
+        # Enums marked as contracts are emitted to compiler_contracts.nano.
+        if enum.get("contracts"):
+            continue
         lines.append(f"enum {enum['name']} {{")
         for idx, value in enumerate(enum["values"]):
             suffix = "," if idx < len(enum["values"]) - 1 else ""
@@ -73,6 +85,9 @@ def gen_nano_ast(schema: dict) -> str:
         lines.append("")
 
     for struct in schema.get("nano_structs", []):
+        # Structs marked as contracts are emitted to compiler_contracts.nano.
+        if struct.get("contracts"):
+            continue
         # Use extern struct for types that are emitted to C - they're available via C header
         prefix = "extern " if struct.get("emit_c") else ""
             
@@ -104,7 +119,8 @@ def gen_contracts(schema: dict) -> str:
     for struct in schema.get("nano_structs", []):
         if not struct.get("contracts"):
             continue
-        lines.append(f"struct {struct['name']} {{")
+        prefix = "extern " if struct.get("emit_c") else ""
+        lines.append(f"{prefix}struct {struct['name']} {{")
         for idx, (field_name, field_type) in enumerate(struct["fields"]):
             comma = "," if idx < len(struct["fields"]) - 1 else ""
             lines.append(f"    {field_name}: {field_type}{comma}")

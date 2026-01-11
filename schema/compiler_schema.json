@@ -1564,7 +1564,7 @@
           "bool"
         ]
       ],
-      "emit_c": false
+      "emit_c": true
     },
     {
       "name": "TypeEnvironment",

@@ -37,25 +37,25 @@ enum CompilerPhase {
     PHASE_RUNTIME
 }
 
-struct NSType {
+extern struct NSType {
     kind: int,
     name: string,
     element_type_kind: int,
     element_type_name: string
 }
 
-struct OptionType {
+extern struct OptionType {
     has_value: bool,
     value: NSType
 }
 
-struct CompilerSourceLocation {
+extern struct CompilerSourceLocation {
     file: string,
     line: int,
     column: int
 }
 
-struct CompilerDiagnostic {
+extern struct CompilerDiagnostic {
     phase: int,
     severity: int,
     code: string,
@@ -63,26 +63,26 @@ struct CompilerDiagnostic {
     location: CompilerSourceLocation
 }
 
-struct LexPhaseOutput {
+extern struct LexPhaseOutput {
     tokens: List<LexerToken>,
     token_count: int,
     diagnostics: List<CompilerDiagnostic>,
     had_error: bool
 }
 
-struct ParsePhaseOutput {
+extern struct ParsePhaseOutput {
     parser: Parser,
     diagnostics: List<CompilerDiagnostic>,
     had_error: bool
 }
 
-struct TypecheckPhaseOutput {
+extern struct TypecheckPhaseOutput {
     environment: TypeEnvironment,
     diagnostics: List<CompilerDiagnostic>,
     had_error: bool
 }
 
-struct TranspilePhaseOutput {
+extern struct TranspilePhaseOutput {
     c_source: string,
     diagnostics: List<CompilerDiagnostic>,
     had_error: bool,

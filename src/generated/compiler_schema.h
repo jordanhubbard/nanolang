@@ -854,6 +854,16 @@ typedef struct nl_LexPhaseOutput {
 typedef nl_LexPhaseOutput LexPhaseOutput;
 #endif
 
+#ifndef DEFINED_nl_ParsePhaseOutput
+#define DEFINED_nl_ParsePhaseOutput
+typedef struct nl_ParsePhaseOutput {
+    Parser parser;
+    List_CompilerDiagnostic * diagnostics;
+    bool had_error;
+} nl_ParsePhaseOutput;
+typedef nl_ParsePhaseOutput ParsePhaseOutput;
+#endif
+
 #ifndef DEFINED_nl_TypeEnvironment
 #define DEFINED_nl_TypeEnvironment
 typedef struct nl_TypeEnvironment {

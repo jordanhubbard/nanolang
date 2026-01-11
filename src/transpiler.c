@@ -2331,6 +2331,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->enum_count; i++) {
         EnumDef *edef = &env->enums[i];
         if (!edef || !edef->name) continue;
+        if (edef->is_extern) continue;
         const char *prefixed_enum = get_prefixed_type_name(edef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s v);\n", edef->name, prefixed_enum);
     }
@@ -2338,6 +2339,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->struct_count; i++) {
         StructDef *sdef = &env->structs[i];
         if (!sdef || !sdef->name) continue;
+        if (sdef->is_extern) continue;
         const char *prefixed_struct = get_prefixed_type_name(sdef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s v);\n", sdef->name, prefixed_struct);
     }
@@ -2346,6 +2348,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
         UnionDef *udef = &env->unions[i];
         if (!udef || !udef->name) continue;
         if (udef->generic_param_count > 0) continue;
+        if (udef->is_extern) continue;
         const char *prefixed_union = get_prefixed_type_name(udef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s u);\n", udef->name, prefixed_union);
     }
@@ -2378,6 +2381,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->enum_count; i++) {
         EnumDef *edef = &env->enums[i];
         if (!edef || !edef->name) continue;
+        if (edef->is_extern) continue;
 
         const char *prefixed_enum = get_prefixed_type_name(edef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s v) {\n", edef->name, prefixed_enum);
@@ -2396,6 +2400,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->struct_count; i++) {
         StructDef *sdef = &env->structs[i];
         if (!sdef || !sdef->name) continue;
+        if (sdef->is_extern) continue;
 
         const char *prefixed_struct = get_prefixed_type_name(sdef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s v) {\n", sdef->name, prefixed_struct);
@@ -2433,8 +2438,14 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
                     if (opaque) {
                         sb_append(sb, "    nl_fmt_sb_append_cstr(&sb, \"<opaque>\");\n");
                     } else {
-                        sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, nl_to_string_%s(v.%s));\n",
-                                   sdef->field_type_names[j], sdef->field_names[j]);
+                        StructDef *field_sdef = env_get_struct(env, sdef->field_type_names[j]);
+                        UnionDef *field_udef = env_get_union(env, sdef->field_type_names[j]);
+                        if ((field_sdef && field_sdef->is_extern) || (field_udef && field_udef->is_extern)) {
+                            sb_append(sb, "    nl_fmt_sb_append_cstr(&sb, \"<extern>\");\n");
+                        } else {
+                            sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, nl_to_string_%s(v.%s));\n",
+                                       sdef->field_type_names[j], sdef->field_names[j]);
+                        }
                     }
                 } else {
                     sb_append(sb, "    nl_fmt_sb_append_cstr(&sb, \"<struct>\");\n");
@@ -2454,6 +2465,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
         UnionDef *udef = &env->unions[i];
         if (!udef || !udef->name) continue;
         if (udef->generic_param_count > 0) continue;
+        if (udef->is_extern) continue;
 
         const char *prefixed_union = get_prefixed_type_name(udef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s u) {\n", udef->name, prefixed_union);
@@ -2506,10 +2518,16 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
                             if (opaque) {
                                 sb_append(sb, "            nl_fmt_sb_append_cstr(&sb, \"<opaque>\");\n");
                             } else {
-                                sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, nl_to_string_%s(u.data.%s.%s));\n",
-                                           udef->variant_field_type_names[j][k],
-                                           udef->variant_names[j],
-                                           udef->variant_field_names[j][k]);
+                                StructDef *field_sdef = env_get_struct(env, udef->variant_field_type_names[j][k]);
+                                UnionDef *field_udef = env_get_union(env, udef->variant_field_type_names[j][k]);
+                                if ((field_sdef && field_sdef->is_extern) || (field_udef && field_udef->is_extern)) {
+                                    sb_append(sb, "            nl_fmt_sb_append_cstr(&sb, \"<extern>\");\n");
+                                } else {
+                                    sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, nl_to_string_%s(u.data.%s.%s));\n",
+                                               udef->variant_field_type_names[j][k],
+                                               udef->variant_names[j],
+                                               udef->variant_field_names[j][k]);
+                                }
                             }
                         } else {
                             sb_append(sb, "            nl_fmt_sb_append_cstr(&sb, \"<struct>\");\n");

@@ -76,15 +76,6 @@ pub fn diag_info_simple(phase: int, code: string, message: string) -> CompilerDi
     return (diag_simple phase DiagnosticSeverity.DIAG_INFO code message)
 }
 
-/* Phase-specific error constructors for convenience */
-pub fn diag_typecheck_error(code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
-    return (diag_error CompilerPhase.PHASE_TYPECHECK code message location)
-}
-
-pub fn diag_transpiler_error(code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
-    return (diag_error CompilerPhase.PHASE_TRANSPILER code message location)
-}
-
 shadow diag_error {
     let loc: CompilerSourceLocation = (diag_location "test.nano" 10 5)
     let diag: CompilerDiagnostic = (diag_error CompilerPhase.PHASE_PARSER "E0001" "Syntax error" loc)
