@@ -1262,6 +1262,20 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     sb_append(sb, "    return (int64_t)system(cmd);\n");
     sb_append(sb, "}\n\n");
 
+    /* File I/O aliases for self-hosted compiler compatibility */
+    sb_append(sb, "/* File I/O aliases (without nl_os_ prefix for compiler use) */\n");
+    sb_append(sb, "static char* file_read(const char* path) {\n");
+    sb_append(sb, "    return nl_os_file_read(path);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static int64_t file_write(const char* path, const char* content) {\n");
+    sb_append(sb, "    return nl_os_file_write(path, content);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static bool file_exists(const char* path) {\n");
+    sb_append(sb, "    return nl_os_file_exists(path);\n");
+    sb_append(sb, "}\n\n");
+
     sb_append(sb, "/* ========== End OS Standard Library ========== */\n\n");
 
     /* String operations */
