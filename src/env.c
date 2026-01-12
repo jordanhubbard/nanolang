@@ -350,29 +350,44 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
      * "Visible" here is a best-effort approximation used by later compilation stages
      * (e.g., transpilation) to avoid picking locals from later functions.
      */
-    Symbol *best = NULL;
+    /* Prefer symbols that have a real source location (def_line > 0).
+     * Some symbols are inserted without locations (def_line == 0), and if we keep all
+     * function-locals across the compilation unit, those "unknown location" symbols can
+     * incorrectly shadow well-scoped locals in earlier functions.
+     */
+    Symbol *best_unknown = NULL;
 
-    for (int i = 0; i < env->symbol_count; i++) {
+    /* Pass 1: from most-recent to oldest, return first visible symbol WITH a source location. */
+    for (int i = env->symbol_count - 1; i >= 0; i--) {
         Symbol *sym = &env->symbols[i];
         if (!sym->name) continue;
         if (safe_strcmp(sym->name, name) != 0) continue;
 
         int sline = sym->def_line;
         int scol = sym->def_column;
-
-        /* If we have a definition location, require it to be before (or at) the lookup site.
-         * Symbols without locations (e.g., params in some paths) are always considered visible.
-         */
-        if (sline > 0) {
-            if (sline > line) continue;
-            if (sline == line && column > 0 && scol > column) continue;
+        if (sline <= 0) {
+            continue;
         }
 
-        /* Last visible wins (preserves insertion order within the current compilation context). */
-        best = sym;
+        if (sline > line) continue;
+        if (sline == line && column > 0 && scol > column) continue;
+
+        return sym;
     }
 
-    return best;
+    /* Pass 2: fall back to most-recent symbol without a source location. */
+    for (int i = env->symbol_count - 1; i >= 0; i--) {
+        Symbol *sym = &env->symbols[i];
+        if (!sym->name) continue;
+        if (safe_strcmp(sym->name, name) != 0) continue;
+
+        if (sym->def_line > 0) continue;
+
+        best_unknown = sym;
+        break;
+    }
+
+    return best_unknown;
 }
 
 /* Set variable value */
@@ -533,6 +548,8 @@ Value create_int(long long val) {
     Value v;
     v.type = VAL_INT;
     v.is_return = false;
+    v.is_break = false;
+    v.is_continue = false;
     v.as.int_val = val;
     return v;
 }
@@ -541,6 +558,8 @@ Value create_float(double val) {
     Value v;
     v.type = VAL_FLOAT;
     v.is_return = false;
+    v.is_break = false;
+    v.is_continue = false;
     v.as.float_val = val;
     return v;
 }
@@ -549,6 +568,8 @@ Value create_bool(bool val) {
     Value v;
     v.type = VAL_BOOL;
     v.is_return = false;
+    v.is_break = false;
+    v.is_continue = false;
     v.as.bool_val = val;
     return v;
 }
@@ -557,6 +578,8 @@ Value create_string(const char *val) {
     Value v;
     v.type = VAL_STRING;
     v.is_return = false;
+    v.is_break = false;
+    v.is_continue = false;
     v.as.string_val = strdup(val);
     return v;
 }
@@ -565,6 +588,8 @@ Value create_void(void) {
     Value v;
     v.type = VAL_VOID;
     v.is_return = false;
+    v.is_break = false;
+    v.is_continue = false;
     return v;
 }
 
@@ -572,6 +597,8 @@ Value create_array(ValueType elem_type, int length, int capacity) {
     Value v;
     v.type = VAL_ARRAY;
     v.is_return = false;
+    v.is_break = false;
+    v.is_continue = false;
     v.as.array_val = malloc(sizeof(Array));
     v.as.array_val->element_type = elem_type;
     v.as.array_val->length = length;
@@ -595,6 +622,8 @@ Value create_struct(const char *struct_name, char **field_names, Value *field_va
     Value v;
     v.type = VAL_STRUCT;
     v.is_return = false;
+    v.is_break = false;
+    v.is_continue = false;
     v.as.struct_val = malloc(sizeof(StructValue));
     v.as.struct_val->struct_name = strdup(struct_name);
     v.as.struct_val->field_count = field_count;
@@ -619,6 +648,8 @@ Value create_union(const char *union_name, int variant_index, const char *varian
     Value v;
     v.type = VAL_UNION;
     v.is_return = false;
+    v.is_break = false;
+    v.is_continue = false;
     v.as.union_val = malloc(sizeof(UnionValue));
     v.as.union_val->union_name = strdup(union_name);
     v.as.union_val->variant_index = variant_index;
@@ -658,22 +689,14 @@ void env_define_struct(Environment *env, StructDef struct_def) {
         env->structs = realloc(env->structs, sizeof(StructDef) * env->struct_capacity);
     }
     env->structs[env->struct_count++] = struct_def;
-    
-    /* Add to module's exported structs list if public and module exists */
+
+    /* Module introspection: track exported structs (public only).
+     * NOTE: Use the centralized helper to avoid mismatched allocation strategies.
+     */
     if (struct_def.is_pub && struct_def.module_name) {
-        ModuleInfo *mod = env_get_module(env, struct_def.module_name);
-        if (mod) {
-            /* Grow exported_structs array if needed */
-            if (mod->struct_count == 0) {
-                mod->exported_structs = malloc(sizeof(char*) * 4);
-            } else if ((mod->struct_count & (mod->struct_count - 1)) == 0 && mod->struct_count >= 4) {
-                /* Power of 2 growth */
-                int new_capacity = mod->struct_count * 2;
-                mod->exported_structs = realloc(mod->exported_structs, sizeof(char*) * new_capacity);
-            }
-            mod->exported_structs[mod->struct_count++] = strdup(struct_def.name);
-        }
+        env_add_module_exported_struct(env, struct_def.module_name, struct_def.name);
     }
+
 }
 
 /* Get struct definition */
@@ -1273,6 +1296,8 @@ Value create_function(const char *function_name, FunctionSignature *signature) {
     Value val;
     val.type = VAL_FUNCTION;
     val.is_return = false;
+    val.is_break = false;
+    val.is_continue = false;
     val.as.function_val.function_name = strdup(function_name);
     val.as.function_val.signature = signature;
     return val;
@@ -1283,6 +1308,8 @@ Value create_tuple(Value *elements, int element_count) {
     Value val;
     val.type = VAL_TUPLE;
     val.is_return = false;
+    val.is_break = false;
+    val.is_continue = false;
     val.as.tuple_val = malloc(sizeof(TupleValue));
     val.as.tuple_val->element_count = element_count;
     

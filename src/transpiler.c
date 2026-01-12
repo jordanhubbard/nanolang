@@ -3281,27 +3281,99 @@ static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environme
     sb_append(sb, "}\n");
 }
 
-/* Generate top-level constants */
-static void generate_toplevel_constants(StringBuilder *sb, ASTNode *program, Environment *env) {
-    sb_append(sb, "/* Top-level constants */\n");
+static bool is_c_constant_initializer(ASTNode *expr) {
+    if (!expr) return false;
+    switch (expr->type) {
+        case AST_NUMBER:
+        case AST_FLOAT:
+        case AST_BOOL:
+        case AST_STRING:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/* Generate top-level globals (constants + mutable globals).
+ * For non-constant initializers, emit a small runtime initializer.
+ */
+static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Environment *env) {
+    sb_append(sb, "/* Top-level globals */\n");
+
+    ASTNode **runtime_inits = NULL;
+    int runtime_init_count = 0;
+    int runtime_init_cap = 0;
+
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_LET && !item->as.let.is_mut) {
-            /* Skip constants that come from C headers - they're already defined in the headers */
-            Symbol *sym = env_get_var(env, item->as.let.name);
-            if (sym && sym->from_c_header) {
-                continue;  /* Skip - defined in C header */
-            }
-            
-            /* Emit as C constant */
+        if (item->type != AST_LET) continue;
+
+        /* Skip constants that come from C headers - they're already defined in the headers */
+        Symbol *sym = env_get_var(env, item->as.let.name);
+        if (sym && sym->from_c_header) {
+            continue;
+        }
+
+        bool is_const_init = is_c_constant_initializer(item->as.let.value);
+
+        if (!item->as.let.is_mut && is_const_init) {
+            /* Emit true constants as C constants */
             sb_append(sb, "static const ");
             sb_append(sb, type_to_c(item->as.let.var_type));
             sb_appendf(sb, " %s = ", item->as.let.name);
             transpile_expression(sb, item->as.let.value, env);
             sb_append(sb, ";\n");
+            continue;
+        }
+
+        /* Emit as a normal global (mutable or runtime-initialized constant) */
+        sb_append(sb, "static ");
+        sb_append(sb, type_to_c(item->as.let.var_type));
+        sb_appendf(sb, " %s", item->as.let.name);
+        if (is_const_init) {
+            sb_append(sb, " = ");
+            transpile_expression(sb, item->as.let.value, env);
+        }
+        sb_append(sb, ";\n");
+
+        if (!is_const_init) {
+            if (runtime_init_count >= runtime_init_cap) {
+                int new_cap = runtime_init_cap == 0 ? 8 : runtime_init_cap * 2;
+                ASTNode **new_arr = realloc(runtime_inits, sizeof(ASTNode*) * (size_t)new_cap);
+                if (!new_arr) {
+                    fprintf(stderr, "Error: Out of memory collecting top-level initializers\n");
+                    exit(1);
+                }
+                runtime_inits = new_arr;
+                runtime_init_cap = new_cap;
+            }
+            runtime_inits[runtime_init_count++] = item;
         }
     }
+
     sb_append(sb, "\n");
+
+    if (runtime_init_count > 0) {
+        sb_append(sb, "/* Top-level runtime initialization */\n");
+        sb_append(sb, "static bool nl_toplevel_initialized = false;\n");
+        sb_append(sb, "static void nl_init_toplevel(void) {\n");
+        sb_append(sb, "    if (nl_toplevel_initialized) return;\n");
+        sb_append(sb, "    nl_toplevel_initialized = true;\n");
+        for (int i = 0; i < runtime_init_count; i++) {
+            ASTNode *item = runtime_inits[i];
+            sb_appendf(sb, "    %s = ", item->as.let.name);
+            transpile_expression(sb, item->as.let.value, env);
+            sb_append(sb, ";\n");
+        }
+        sb_append(sb, "}\n");
+
+        sb_append(sb, "#if defined(__GNUC__) || defined(__clang__)\n");
+        sb_append(sb, "__attribute__((constructor))\n");
+        sb_append(sb, "#endif\n");
+        sb_append(sb, "static void nl_init_toplevel_ctor(void) { nl_init_toplevel(); }\n\n");
+    }
+
+    free(runtime_inits);
 }
 
 /* Collect module headers from all import statements */
@@ -3783,8 +3855,8 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* Forward declare imported module functions */
     generate_module_function_declarations(sb, program, env, input_file, fn_registry);
     
-    /* Emit top-level constants */
-    generate_toplevel_constants(sb, program, env);
+    /* Emit top-level globals */
+    generate_toplevel_globals(sb, program, env);
     
     /* Forward declare functions from current program */
     generate_program_function_declarations(sb, program, env, fn_registry, tuple_registry);

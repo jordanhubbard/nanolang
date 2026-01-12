@@ -509,7 +509,10 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     
     if (!type_check_module(module_ast, env)) {
         fprintf(stderr, "Error: Type checking failed for module '%s'\n", module_path);
-        free(module_name);
+        /* NOTE: module_name may have been freed/overwritten by the module's own
+         * `module <name>` declaration handler in the typechecker, so we must not
+         * free it here.
+         */
         env->current_module = saved_current_module;  /* Restore context */
         free_ast(module_ast);
         free_tokens(tokens, token_count);

@@ -24,12 +24,24 @@ import re
 import subprocess
 import sys
 import platform
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
 
-BD = os.path.expanduser("~/.local/bin/bd")
+def _resolve_bd() -> str:
+    # Prefer explicit override, then PATH, then legacy location.
+    override = os.environ.get("BD")
+    if override:
+        return os.path.expanduser(override)
+    which = shutil.which("bd")
+    if which:
+        return which
+    return os.path.expanduser("~/.local/bin/bd")
+
+
+BD = _resolve_bd()
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 TEST_OUTPUT_DIR = PROJECT_ROOT / ".test_output"
 
@@ -115,6 +127,7 @@ def _bd_create(title: str, description: str, priority: int, issue_type: str, lab
     cmd = [
         BD,
         "create",
+        "--silent",
         "--title",
         title,
         "--description",
@@ -132,9 +145,14 @@ def _bd_create(title: str, description: str, priority: int, issue_type: str, lab
     proc = _run(cmd, cwd=PROJECT_ROOT, timeout_s=30)
     if proc.returncode != 0:
         raise RuntimeError(f"bd create failed (exit={proc.returncode}):\n{proc.stdout}")
-    # bd prints "✓ Created issue: <id>" typically; parse if possible.
-    m = re.search(r"Created issue:\\s*([\\w-]+)", proc.stdout)
-    return m.group(1) if m else None
+    issue_id = (proc.stdout or "").strip()
+    if issue_id:
+        return issue_id
+
+    # Fallback: if output parsing fails, lookup by title.
+    issues = _load_bd_issues()
+    existing = _find_existing_issue_by_title(issues, title)
+    return existing["id"] if existing else None
 
 
 def _bd_add_note(issue_id: str, note: str, dry_run: bool) -> None:
@@ -382,51 +400,56 @@ def main(argv: list[str]) -> int:
     if not args.tests and not args.examples:
         ap.error("Must specify at least one of --tests or --examples")
 
-    if not Path(BD).exists():
-        print(f"Error: Beads CLI not found at {BD}", file=sys.stderr)
-        return 2
+    beads_enabled = Path(BD).exists()
+    if not beads_enabled:
+        # `make test` runs this script by default, but CI runners don't have the Beads
+        # CLI installed. We still want CI to run the full test suite even when we
+        # can't file issues.
+        print(f"Warning: Beads CLI not found at {BD}; running without filing beads.", file=sys.stderr)
 
     exit_code = 0
 
     if args.tests:
         code = _run_tests(args.timeout_seconds, dry_run=args.dry_run)
-        if args.mode == "per":
-            if code != 0 and not args.dry_run:
-                failures = _collect_test_failures()
-                _create_or_update_failures(failures, dry_run=args.dry_run, max_new=args.max_new)
-        else:
-            issue_id = _upsert_summary_bead("make test", args.job_name, dry_run=args.dry_run)
-            failures = _collect_test_failures() if (code != 0 and not args.dry_run) else []
-            log_path = TEST_OUTPUT_DIR / "make_test.log"
-            if issue_id:
-                _update_summary_bead(issue_id, "make test", code, failures, log_path, dry_run=args.dry_run)
-                if args.close_on_success and code == 0 and not args.dry_run:
-                    _bd_close(issue_id, "CI run is green; auto-closing summary bead.", dry_run=args.dry_run)
+        if beads_enabled:
+            if args.mode == "per":
+                if code != 0 and not args.dry_run:
+                    failures = _collect_test_failures()
+                    _create_or_update_failures(failures, dry_run=args.dry_run, max_new=args.max_new)
+            else:
+                issue_id = _upsert_summary_bead("make test", args.job_name, dry_run=args.dry_run)
+                failures = _collect_test_failures() if (code != 0 and not args.dry_run) else []
+                log_path = TEST_OUTPUT_DIR / "make_test.log"
+                if issue_id:
+                    _update_summary_bead(issue_id, "make test", code, failures, log_path, dry_run=args.dry_run)
+                    if args.close_on_success and code == 0 and not args.dry_run:
+                        _bd_close(issue_id, "CI run is green; auto-closing summary bead.", dry_run=args.dry_run)
         exit_code = exit_code or code
 
     if args.examples:
         code = _run_examples(args.timeout_seconds, dry_run=args.dry_run)
         log = TEST_OUTPUT_DIR / "make_examples.log"
-        if args.mode == "per":
-            if code != 0 and not args.dry_run:
-                # For examples, if make fails we currently create one bead with the log tail.
-                tail = _read_tail(log, max_chars=8000)
-                fp = _fingerprint_from_text(tail or "make examples failed")
-                failures = [
-                    Failure(kind="examples", name="make examples", log_paths=(log,), fingerprint=fp, summary="Examples build failed")
-                ]
-                _create_or_update_failures(failures, dry_run=args.dry_run, max_new=args.max_new)
-        else:
-            issue_id = _upsert_summary_bead("make examples", args.job_name, dry_run=args.dry_run)
-            failures: list[Failure] = []
-            if code != 0 and not args.dry_run:
-                tail = _read_tail(log, max_chars=8000)
-                fp = _fingerprint_from_text(tail or "make examples failed")
-                failures = [Failure(kind="examples", name="make examples", log_paths=(log,), fingerprint=fp, summary="Examples build failed")]
-            if issue_id:
-                _update_summary_bead(issue_id, "make examples", code, failures, log, dry_run=args.dry_run)
-                if args.close_on_success and code == 0 and not args.dry_run:
-                    _bd_close(issue_id, "CI run is green; auto-closing summary bead.", dry_run=args.dry_run)
+        if beads_enabled:
+            if args.mode == "per":
+                if code != 0 and not args.dry_run:
+                    # For examples, if make fails we currently create one bead with the log tail.
+                    tail = _read_tail(log, max_chars=8000)
+                    fp = _fingerprint_from_text(tail or "make examples failed")
+                    failures = [
+                        Failure(kind="examples", name="make examples", log_paths=(log,), fingerprint=fp, summary="Examples build failed")
+                    ]
+                    _create_or_update_failures(failures, dry_run=args.dry_run, max_new=args.max_new)
+            else:
+                issue_id = _upsert_summary_bead("make examples", args.job_name, dry_run=args.dry_run)
+                failures: list[Failure] = []
+                if code != 0 and not args.dry_run:
+                    tail = _read_tail(log, max_chars=8000)
+                    fp = _fingerprint_from_text(tail or "make examples failed")
+                    failures = [Failure(kind="examples", name="make examples", log_paths=(log,), fingerprint=fp, summary="Examples build failed")]
+                if issue_id:
+                    _update_summary_bead(issue_id, "make examples", code, failures, log, dry_run=args.dry_run)
+                    if args.close_on_success and code == 0 and not args.dry_run:
+                        _bd_close(issue_id, "CI run is green; auto-closing summary bead.", dry_run=args.dry_run)
         exit_code = exit_code or code
 
     return exit_code

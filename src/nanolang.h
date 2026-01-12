@@ -128,6 +128,8 @@ typedef struct TypeInfo {
 struct Value {
     ValueType type;
     bool is_return;  /* Flag to propagate return statements through control flow */
+    bool is_break;   /* Flag to propagate break statements through control flow */
+    bool is_continue;/* Flag to propagate continue statements through control flow */
     union {
         long long int_val;
         double float_val;

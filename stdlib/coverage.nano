@@ -31,9 +31,14 @@ fn coverage_record(file: string, line: int, column: int) -> void {
             let point: CoveragePoint = (at g_coverage_points i)
             if (and (str_equals point.file file)
                     (and (== point.line line) (== point.column column))) {
-                # Increment hit count
-                set point.hit_count (+ point.hit_count 1)
-                set g_coverage_points (array_set g_coverage_points i point)
+                # Increment hit count (struct values are immutable; rebuild the struct)
+                let updated: CoveragePoint = {
+                    file: point.file,
+                    line: point.line,
+                    column: point.column,
+                    hit_count: (+ point.hit_count 1)
+                }
+                (array_set g_coverage_points i updated)
                 set found true
             }
             set i (+ i 1)
@@ -135,9 +140,13 @@ fn timing_end(label: string, start_time: int) -> void {
     while (< i (array_length g_timing_points)) {
         let point: TimingPoint = (at g_timing_points i)
         if (str_equals point.label label) {
-            set point.total_time_ms (+ point.total_time_ms elapsed)
-            set point.call_count (+ point.call_count 1)
-            set g_timing_points (array_set g_timing_points i point)
+            let updated: TimingPoint = {
+                label: point.label,
+                start_time_ms: point.start_time_ms,
+                total_time_ms: (+ point.total_time_ms elapsed),
+                call_count: (+ point.call_count 1)
+            }
+            (array_set g_timing_points i updated)
             set found true
         }
         set i (+ i 1)
@@ -165,7 +174,7 @@ fn timing_report() -> void {
     let mut i: int = 0
     while (< i (array_length g_timing_points)) {
         let point: TimingPoint = (at g_timing_points i)
-        let avg: int = 0
+        let mut avg: int = 0
         if (> point.call_count 0) {
             set avg (/ point.total_time_ms point.call_count)
         }

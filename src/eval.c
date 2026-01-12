@@ -26,6 +26,42 @@ typedef struct {
     int fail_count;
 } ShadowFailure;
 
+static FunctionSignature *copy_function_signature(const FunctionSignature *sig) {
+    if (!sig) return NULL;
+
+    FunctionSignature *out = malloc(sizeof(FunctionSignature));
+    if (!out) {
+        fprintf(stderr, "Error: Out of memory copying function signature\n");
+        exit(1);
+    }
+
+    out->param_count = sig->param_count;
+    out->return_type = sig->return_type;
+    out->return_struct_name = sig->return_struct_name ? strdup(sig->return_struct_name) : NULL;
+    out->return_fn_sig = copy_function_signature(sig->return_fn_sig);
+
+    if (sig->param_count > 0) {
+        out->param_types = malloc(sizeof(Type) * sig->param_count);
+        out->param_struct_names = malloc(sizeof(char*) * sig->param_count);
+        if (!out->param_types || !out->param_struct_names) {
+            fprintf(stderr, "Error: Out of memory copying function signature\n");
+            exit(1);
+        }
+
+        for (int i = 0; i < sig->param_count; i++) {
+            out->param_types[i] = sig->param_types[i];
+            out->param_struct_names[i] = sig->param_struct_names && sig->param_struct_names[i]
+                ? strdup(sig->param_struct_names[i])
+                : NULL;
+        }
+    } else {
+        out->param_types = NULL;
+        out->param_struct_names = NULL;
+    }
+
+    return out;
+}
+
 static bool g_in_shadow_tests = false;
 static const char *g_shadow_current_test = NULL;
 static int g_shadow_current_fail_count = 0;
@@ -820,6 +856,8 @@ static Value builtin_result_map(Value *args, Environment *env) {
     const char *fn_name = args[1].as.function_val.function_name;
     Value mapped = call_function(fn_name, call_args, 1, env);
     mapped.is_return = false;
+    mapped.is_break = false;
+    mapped.is_continue = false;
 
     char *field_names[1] = { "value" };
     Value field_values[1] = { mapped };
@@ -843,6 +881,8 @@ static Value builtin_result_and_then(Value *args, Environment *env) {
     const char *fn_name = args[1].as.function_val.function_name;
     Value next = call_function(fn_name, call_args, 1, env);
     next.is_return = false;
+    next.is_break = false;
+    next.is_continue = false;
     if (next.type != VAL_UNION) {
         fprintf(stderr, "panic: result_and_then callback did not return a Result\n");
         exit(1);
@@ -1818,6 +1858,8 @@ static Value create_dyn_array(DynArray *arr) {
     Value val;
     val.type = VAL_DYN_ARRAY;
     val.is_return = false;
+    val.is_break = false;
+    val.is_continue = false;
     val.as.dyn_array_val = arr;
     return val;
 }
@@ -2015,6 +2057,8 @@ static Value builtin_map(Value *args, Environment *env) {
             Value elem;
             elem.type = input_arr->element_type;
             elem.is_return = false;
+            elem.is_break = false;
+            elem.is_continue = false;
             
             /* Get element from input array */
             switch (input_arr->element_type) {
@@ -2091,6 +2135,8 @@ static Value builtin_map(Value *args, Environment *env) {
         for (int64_t i = 0; i < len; i++) {
             Value elem;
             elem.is_return = false;
+            elem.is_break = false;
+            elem.is_continue = false;
             
             /* Get element from input array */
             switch (elem_type) {
@@ -2200,6 +2246,8 @@ static Value builtin_filter(Value *args, Environment *env) {
             Value elem;
             elem.type = input_arr->element_type;
             elem.is_return = false;
+            elem.is_break = false;
+            elem.is_continue = false;
 
             switch (input_arr->element_type) {
                 case VAL_INT:
@@ -2272,6 +2320,8 @@ static Value builtin_filter(Value *args, Environment *env) {
         for (int64_t i = 0; i < len; i++) {
             Value elem;
             elem.is_return = false;
+            elem.is_break = false;
+            elem.is_continue = false;
 
             switch (elem_type) {
                 case ELEM_INT:
@@ -2358,6 +2408,8 @@ static Value builtin_reduce(Value *args, Environment *env) {
             Value elem;
             elem.type = arr->element_type;
             elem.is_return = false;
+            elem.is_break = false;
+            elem.is_continue = false;
             
             /* Get element */
             switch (arr->element_type) {
@@ -2397,6 +2449,8 @@ static Value builtin_reduce(Value *args, Environment *env) {
         for (int64_t i = 0; i < len; i++) {
             Value elem;
             elem.is_return = false;
+            elem.is_break = false;
+            elem.is_continue = false;
             
             /* Get element */
             switch (elem_type) {
@@ -3547,6 +3601,8 @@ static Value eval_call(ASTNode *node, Environment *env) {
                     Value result;
                     result.type = VAL_STRUCT;
                     result.is_return = false;
+                    result.is_break = false;
+                    result.is_continue = false;
                     result.as.struct_val = sv;
                     free(type_name);
                     return result;
@@ -3577,6 +3633,8 @@ static Value eval_call(ASTNode *node, Environment *env) {
                     Value result;
                     result.type = VAL_STRUCT;
                     result.is_return = false;
+                    result.is_break = false;
+                    result.is_continue = false;
                     result.as.struct_val = sv;
                     free(type_name);
                     return result;
@@ -4004,6 +4062,8 @@ static Value eval_call(ASTNode *node, Environment *env) {
                     Value result;
                     result.type = VAL_STRUCT;
                     result.is_return = false;
+                    result.is_break = false;
+                    result.is_continue = false;
                     result.as.struct_val = sv;
                     free(type_name);
                     return result;
@@ -4063,6 +4123,10 @@ static Value eval_call(ASTNode *node, Environment *env) {
         if (param_value.type == VAL_STRING) {
             param_value = create_string(args[i].as.string_val);
         }
+        if (param_value.type == VAL_FUNCTION) {
+            FunctionSignature *sig_copy = copy_function_signature(param_value.as.function_val.signature);
+            param_value = create_function(param_value.as.function_val.function_name, sig_copy);
+        }
 
         env_define_var(env, func->params[i].name, func->params[i].type, false, param_value);
     }
@@ -4097,6 +4161,9 @@ static Value eval_call(ASTNode *node, Environment *env) {
     Value return_value = result;
     if (result.type == VAL_STRING) {
         return_value = create_string(result.as.string_val);
+    } else if (result.type == VAL_FUNCTION) {
+        FunctionSignature *sig_copy = copy_function_signature(result.as.function_val.signature);
+        return_value = create_function(result.as.function_val.function_name, sig_copy);
     } else if (result.type == VAL_STRUCT && result.as.struct_val) {
         StructValue *src = result.as.struct_val;
         StructValue *dst = malloc(sizeof(StructValue));
@@ -4118,8 +4185,15 @@ static Value eval_call(ASTNode *node, Environment *env) {
 
         return_value.type = VAL_STRUCT;
         return_value.is_return = false;
+        return_value.is_break = false;
+        return_value.is_continue = false;
         return_value.as.struct_val = dst;
     }
+
+    /* Return statements are handled inside the callee; don't let is_return escape. */
+    return_value.is_return = false;
+    return_value.is_break = false;
+    return_value.is_continue = false;
 
     /* Clean up parameter strings and restore environment */
     for (int i = old_symbol_count; i < env->symbol_count; i++) {
@@ -4206,6 +4280,29 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 
         case AST_CALL:
             return eval_call(expr, env);
+
+        case AST_MODULE_QUALIFIED_CALL: {
+            const char *module_alias = expr->as.module_qualified_call.module_alias;
+            const char *function_name = expr->as.module_qualified_call.function_name;
+            int arg_count = expr->as.module_qualified_call.arg_count;
+
+            size_t qlen = strlen(module_alias) + strlen(function_name) + 2;
+            char *qualified_name = malloc(qlen);
+            snprintf(qualified_name, qlen, "%s.%s", module_alias, function_name);
+
+            Value *args = NULL;
+            if (arg_count > 0) {
+                args = malloc(sizeof(Value) * (size_t)arg_count);
+                for (int i = 0; i < arg_count; i++) {
+                    args[i] = eval_expression(expr->as.module_qualified_call.args[i], env);
+                }
+            }
+
+            Value result = call_function(qualified_name, args, arg_count, env);
+            free(args);
+            free(qualified_name);
+            return result;
+        }
 
         case AST_ARRAY_LITERAL: {
             /* Evaluate array literal: [1, 2, 3] */
@@ -4536,6 +4633,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 if (result.is_return) {
                     /* Clear the return flag since we're handling it */
                     result.is_return = false;
+                    result.is_break = false;
+                    result.is_continue = false;
                     return result;
                 }
             }
@@ -4652,6 +4751,14 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 if (result.is_return) {
                     return result;
                 }
+                if (result.is_break) {
+                    result = create_void();
+                    break;
+                }
+                if (result.is_continue) {
+                    result = create_void();
+                    continue;
+                }
             }
             return result;
         }
@@ -4697,6 +4804,16 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     env->symbol_count = loop_var_index;  /* Clean up before return */
                     return result;
                 }
+
+                if (result.is_break) {
+                    result = create_void();
+                    break;
+                }
+
+                if (result.is_continue) {
+                    result = create_void();
+                    continue;
+                }
             }
 
             /* Remove loop variable from scope */
@@ -4713,6 +4830,8 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 result = create_void();
             }
             result.is_return = true;  /* Mark as return value */
+            result.is_break = false;
+            result.is_continue = false;
             return result;
         }
 
@@ -4721,11 +4840,23 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             for (int i = 0; i < stmt->as.block.count; i++) {
                 result = eval_statement(stmt->as.block.statements[i], env);
                 /* If statement returned a value, propagate it immediately */
-                if (result.is_return) {
+                if (result.is_return || result.is_break || result.is_continue) {
                     return result;
                 }
             }
             return result;
+        }
+
+        case AST_BREAK: {
+            Value v = create_void();
+            v.is_break = true;
+            return v;
+        }
+
+        case AST_CONTINUE: {
+            Value v = create_void();
+            v.is_continue = true;
+            return v;
         }
 
         case AST_PRINT: {
@@ -4759,7 +4890,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
                 result = eval_statement(stmt->as.unsafe_block.statements[i], env);
                 /* If statement returned a value, propagate it immediately */
-                if (result.is_return) {
+                if (result.is_return || result.is_break || result.is_continue) {
                     return result;
                 }
             }
@@ -5190,6 +5321,8 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
                 Value result;
                 result.type = VAL_STRUCT;
                 result.is_return = false;
+                result.is_break = false;
+                result.is_continue = false;
                 result.as.struct_val = sv;
                 free(type_name);
                 return result;
@@ -5247,6 +5380,8 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
     
     /* Clear is_return flag - we've exited the function */
     return_value.is_return = false;
+    return_value.is_break = false;
+    return_value.is_continue = false;
 
     /* Clean up parameter strings and restore environment */
     for (int i = original_symbol_count; i < env->symbol_count; i++) {

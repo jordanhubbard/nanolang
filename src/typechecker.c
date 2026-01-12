@@ -1687,7 +1687,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Check if this is a union variant construction (format: "UnionName.VariantName") */
             const char *dot = strchr(expr->as.struct_literal.struct_name, '.');
             if (dot) {
-                /* This is a union variant construction */
+                /* This may be a union variant construction OR a module-qualified struct literal.
+                 * Only treat it as a union if the prefix is a known union type.
+                 */
                 int union_name_len = dot - expr->as.struct_literal.struct_name;
                 char *union_name = malloc(union_name_len + 1);
                 strncpy(union_name, expr->as.struct_literal.struct_name, union_name_len);
@@ -1697,10 +1699,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Look up union definition */
                 UnionDef *udef = env_get_union(env, union_name);
                 if (!udef) {
-                    fprintf(stderr, "Error at line %d, column %d: Undefined union '%s'\n",
-                            expr->line, expr->column, union_name);
                     free(union_name);
-                    return TYPE_UNKNOWN;
+                    goto not_a_union_variant;
                 }
                 
                 /* Find the variant index */
@@ -1763,6 +1763,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 free(union_name);
                 return TYPE_UNION;
             }
+
+        not_a_union_variant:
+            ;
             
             /* Check that struct is defined */
             StructDef *sdef = env_get_struct(env, expr->as.struct_literal.struct_name);
@@ -1802,14 +1805,20 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 if (field_index == -1) {
                     fprintf(stderr, "Error at line %d, column %d: Unknown field '%s' in struct '%s'\n",
                             expr->line, expr->column, field_name, expr->as.struct_literal.struct_name);
+                    fprintf(stderr, "  Known fields:");
+                    for (int j = 0; j < sdef->field_count; j++) {
+                        fprintf(stderr, "%s%s", (j == 0 ? " " : ", "), sdef->field_names[j]);
+                    }
+                    fprintf(stderr, "\n");
                     continue;
                 }
                 
                 /* Check field type */
                 Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
                 if (!types_match(field_type, sdef->field_types[field_index])) {
-                    fprintf(stderr, "Error at line %d, column %d: Field '%s' type mismatch in struct '%s'\n",
-                            expr->line, expr->column, field_name, expr->as.struct_literal.struct_name);
+                    fprintf(stderr, "Error at line %d, column %d: Field '%s' type mismatch in struct '%s' (expected %s, got %s)\n",
+                            expr->line, expr->column, field_name, expr->as.struct_literal.struct_name,
+                            type_to_string(sdef->field_types[field_index]), type_to_string(field_type));
                 }
             }
             
@@ -1890,10 +1899,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Look up the union definition */
                 UnionDef *udef = env_get_union(env, union_name);
                 if (!udef) {
-                    fprintf(stderr, "Error at line %d, column %d: Undefined union '%s'\n",
-                            expr->line, expr->column, union_name);
+                    /* Likely a module-qualified struct name (e.g., Math.Point). */
                     free(union_name);
-                    return TYPE_UNKNOWN;
+                    goto not_a_union_variant_field_access;
                 }
                 
                 /* Find the variant */
@@ -1948,6 +1956,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 free(union_name);
                 return TYPE_UNKNOWN;
             }
+
+        not_a_union_variant_field_access:
+            ;
             
             /* Look up the struct definition */
             StructDef *sdef = env_get_struct(env, struct_name);
@@ -2139,6 +2150,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     char *type_name = malloc(strlen(union_base_name) + strlen(variant_name) + 2);
                     sprintf(type_name, "%s.%s", union_base_name, variant_name);
                     binding_sym->struct_type_name = type_name;
+
+                    /* Ensure bindings participate in visibility disambiguation */
+                    binding_sym->def_line = expr->line;
+                    binding_sym->def_column = expr->column;
                 }
                 
                 /* Type check arm body (which is now an expression) */
@@ -2584,8 +2599,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 const char *struct_name = get_struct_type_name(stmt->as.let.value, tc->env);
                 if (struct_name) {
                     sym->struct_type_name = strdup(struct_name);
-                    /* Free the temporary string returned by get_struct_type_name */
-                    free((void*)struct_name);
                 }
             }
             
@@ -2879,6 +2892,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     char *type_name = malloc(strlen(union_base_name) + strlen(variant_name) + 2);
                     sprintf(type_name, "%s.%s", union_base_name, variant_name);
                     binding_sym->struct_type_name = type_name;
+
+                    /* Ensure bindings participate in visibility disambiguation */
+                    binding_sym->def_line = stmt->line;
+                    binding_sym->def_column = stmt->column;
                 }
 
                 ASTNode *arm = stmt->as.match_expr.arm_bodies[i];
@@ -4466,7 +4483,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
         }
     }
     
-    /* Process top-level constants (before type checking functions) */
+    /* Process top-level constants/variables (before type checking functions) */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET) {
@@ -4486,7 +4503,33 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             
             /* Add constant to environment */
             Value val = create_void();  /* Placeholder value for type checking */
-            env_define_var(env, item->as.let.name, item->as.let.var_type, false, val);
+
+            /* Preserve element type / generic type info for arrays and other complex types */
+            env_define_var_with_type_info(env,
+                                         item->as.let.name,
+                                         item->as.let.var_type,
+                                         item->as.let.element_type,
+                                         item->as.let.type_info,
+                                         item->as.let.is_mut,
+                                         val);
+
+            /* Preserve struct/union type name metadata for globals */
+            Symbol *sym = env_get_var(env, item->as.let.name);
+            if (sym) {
+                sym->def_line = item->line;
+                sym->def_column = item->column;
+            }
+            if (sym && item->as.let.type_name) {
+                if (sym->struct_type_name) free(sym->struct_type_name);
+                sym->struct_type_name = NULL;
+
+                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION) {
+                    sym->struct_type_name = strdup(item->as.let.type_name);
+                    mark_variable_as_resource_if_needed(env, item->as.let.name, item->as.let.type_name);
+                } else if (item->as.let.var_type == TYPE_ARRAY && item->as.let.element_type == TYPE_STRUCT) {
+                    sym->struct_type_name = strdup(item->as.let.type_name);
+                }
+            }
         }
     }
 
@@ -5048,7 +5091,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
         }
     }
 
-    /* Process top-level constants (before type checking functions) */
+    /* Process top-level constants/variables (before type checking functions) */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET) {
@@ -5068,7 +5111,33 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             
             /* Add constant to environment */
             Value val = create_void();  /* Placeholder value for type checking */
-            env_define_var(env, item->as.let.name, item->as.let.var_type, false, val);
+
+            /* Preserve element type / generic type info for arrays and other complex types */
+            env_define_var_with_type_info(env,
+                                         item->as.let.name,
+                                         item->as.let.var_type,
+                                         item->as.let.element_type,
+                                         item->as.let.type_info,
+                                         item->as.let.is_mut,
+                                         val);
+
+            /* Preserve struct/union type name metadata for globals */
+            Symbol *sym = env_get_var(env, item->as.let.name);
+            if (sym) {
+                sym->def_line = item->line;
+                sym->def_column = item->column;
+            }
+            if (sym && item->as.let.type_name) {
+                if (sym->struct_type_name) free(sym->struct_type_name);
+                sym->struct_type_name = NULL;
+
+                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION) {
+                    sym->struct_type_name = strdup(item->as.let.type_name);
+                    mark_variable_as_resource_if_needed(env, item->as.let.name, item->as.let.type_name);
+                } else if (item->as.let.var_type == TYPE_ARRAY && item->as.let.element_type == TYPE_STRUCT) {
+                    sym->struct_type_name = strdup(item->as.let.type_name);
+                }
+            }
         }
     }
 

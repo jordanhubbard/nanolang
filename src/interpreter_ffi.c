@@ -414,6 +414,8 @@ static Value marshal_c_to_value(void *c_result, Type return_type) {
             Value v;
             v.type = VAL_DYN_ARRAY;
             v.is_return = false;
+            v.is_break = false;
+            v.is_continue = false;
             v.as.dyn_array_val = arr;
             return v;
         }
