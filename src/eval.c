@@ -4278,6 +4278,52 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             const char *struct_name = expr->as.struct_literal.struct_name;
             int field_count = expr->as.struct_literal.field_count;
+
+            /* Union variant construction is currently parsed as a struct literal with a dotted name:
+             *   UnionName.Variant { ... }
+             * If UnionName is a known union, evaluate it as a union value.
+             */
+            if (struct_name) {
+                const char *dot = strchr(struct_name, '.');
+                if (dot) {
+                    char union_name_buf[256];
+                    size_t union_len = (size_t)(dot - struct_name);
+                    if (union_len > 0 && union_len < sizeof(union_name_buf)) {
+                        memcpy(union_name_buf, struct_name, union_len);
+                        union_name_buf[union_len] = '\0';
+                        const char *variant_name = dot + 1;
+
+                        UnionDef *udef = env_get_union(env, union_name_buf);
+                        if (udef) {
+                            int variant_idx = env_get_union_variant_index(env, union_name_buf, variant_name);
+                            if (variant_idx < 0) {
+                                fprintf(stderr, "Error: Unknown variant '%s' in union '%s'\n", variant_name, union_name_buf);
+                                return create_void();
+                            }
+
+                            if (field_count != udef->variant_field_counts[variant_idx]) {
+                                fprintf(stderr, "Error: Variant '%s.%s' expects %d fields, got %d\n",
+                                        union_name_buf, variant_name, udef->variant_field_counts[variant_idx], field_count);
+                                return create_void();
+                            }
+
+                            Value *field_values = NULL;
+                            if (field_count > 0) {
+                                field_values = malloc(sizeof(Value) * field_count);
+                                for (int i = 0; i < field_count; i++) {
+                                    field_values[i] = eval_expression(expr->as.struct_literal.field_values[i], env);
+                                }
+                            }
+
+                            Value result = create_union(union_name_buf, variant_idx, variant_name,
+                                                      expr->as.struct_literal.field_names, field_values, field_count);
+
+                            if (field_values) free(field_values);
+                            return result;
+                        }
+                    }
+                }
+            }
             
             
             /* Get struct definition to verify field order */

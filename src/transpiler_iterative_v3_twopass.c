@@ -1759,8 +1759,75 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         case AST_STRUCT_LITERAL: {
             /* Struct literal: StructName { field1: val1, field2: val2 } */
             const char *struct_name = expr->as.struct_literal.struct_name;
-            const char *prefixed = get_prefixed_type_name(struct_name);
             int field_count = expr->as.struct_literal.field_count;
+
+            /* Union variant construction is currently parsed as a struct literal with a dotted name:
+             *   UnionName.Variant { ... }
+             * If UnionName is a known union, emit a tagged union literal instead of a struct literal.
+             */
+            if (struct_name) {
+                const char *dot = strchr(struct_name, '.');
+                if (dot) {
+                    char union_name_buf[256];
+                    size_t union_len = (size_t)(dot - struct_name);
+                    if (union_len > 0 && union_len < sizeof(union_name_buf)) {
+                        memcpy(union_name_buf, struct_name, union_len);
+                        union_name_buf[union_len] = '\0';
+                        const char *variant_name = dot + 1;
+
+                        if (env_get_union(env, union_name_buf)) {
+                            const char *prefixed_union;
+                            char monomorphized_name[256];
+                            bool is_generic = false;
+
+                            /* Generic unions: if we're returning Result<int, string>, emit nl_Result_int_string */
+                            if (g_current_function &&
+                                g_current_function->as.function.return_type == TYPE_UNION &&
+                                g_current_function->as.function.return_type_info &&
+                                g_current_function->as.function.return_type_info->generic_name &&
+                                g_current_function->as.function.return_type_info->type_param_count > 0 &&
+                                strcmp(union_name_buf, g_current_function->as.function.return_type_info->generic_name) == 0) {
+                                if (!build_monomorphized_name_from_typeinfo_iter(monomorphized_name, sizeof(monomorphized_name),
+                                                                                g_current_function->as.function.return_type_info)) {
+                                    snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", union_name_buf);
+                                }
+                                prefixed_union = get_prefixed_type_name(monomorphized_name);
+                                is_generic = true;
+                            } else {
+                                prefixed_union = get_prefixed_type_name(union_name_buf);
+                            }
+
+                            int variant_idx = env_get_union_variant_index(env, union_name_buf, variant_name);
+                            if (variant_idx < 0) {
+                                fprintf(stderr, "Error: Unknown variant '%s' in union '%s'\n", variant_name, union_name_buf);
+                                emit_literal(list, "/* ERROR: unknown variant */");
+                                break;
+                            }
+
+                            if (is_generic) {
+                                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", prefixed_union, monomorphized_name, variant_name);
+                            } else {
+                                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", prefixed_union, union_name_buf, variant_name);
+                            }
+
+                            if (field_count > 0) {
+                                emit_formatted(list, ", .data.%s = {", variant_name);
+                                for (int i = 0; i < field_count; i++) {
+                                    if (i > 0) emit_literal(list, ", ");
+                                    emit_formatted(list, ".%s = ", expr->as.struct_literal.field_names[i]);
+                                    build_expr(list, expr->as.struct_literal.field_values[i], env);
+                                }
+                                emit_literal(list, "}");
+                            }
+
+                            emit_literal(list, "}");
+                            break;
+                        }
+                    }
+                }
+            }
+
+            const char *prefixed = get_prefixed_type_name(struct_name);
             
             /* Look up struct definition to propagate types to empty array fields */
             StructDef *sdef = env_get_struct(env, struct_name);
@@ -2316,6 +2383,52 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                                 emit_literal(list, "}");
                             }
                             emit_literal(list, "}");
+                        } else if (stmt->as.let.value->type == AST_STRUCT_LITERAL) {
+                            /* UnionName.Variant { ... } is parsed as a dotted struct literal; handle it here so
+                             * generic unions use the monomorphized C type/tag.
+                             */
+                            ASTNode *sl = stmt->as.let.value;
+                            const char *sl_name = sl->as.struct_literal.struct_name;
+                            const char *dot = sl_name ? strchr(sl_name, '.') : NULL;
+                            if (dot) {
+                                char union_name_buf[256];
+                                size_t union_len = (size_t)(dot - sl_name);
+                                if (union_len > 0 && union_len < sizeof(union_name_buf)) {
+                                    memcpy(union_name_buf, sl_name, union_len);
+                                    union_name_buf[union_len] = '\0';
+                                    const char *variant_name = dot + 1;
+
+                                    if (stmt->as.let.type_info && stmt->as.let.type_info->generic_name &&
+                                        strcmp(union_name_buf, stmt->as.let.type_info->generic_name) == 0 &&
+                                        env_get_union(env, union_name_buf)) {
+
+                                        int variant_idx = env_get_union_variant_index(env, union_name_buf, variant_name);
+                                        (void)variant_idx;
+
+                                        emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", 
+                                                      prefixed, monomorphized_name, variant_name);
+
+                                        int field_count = sl->as.struct_literal.field_count;
+                                        if (field_count > 0) {
+                                            emit_formatted(list, ", .data.%s = {", variant_name);
+                                            for (int i = 0; i < field_count; i++) {
+                                                if (i > 0) emit_literal(list, ", ");
+                                                emit_formatted(list, ".%s = ", sl->as.struct_literal.field_names[i]);
+                                                build_expr(list, sl->as.struct_literal.field_values[i], env);
+                                            }
+                                            emit_literal(list, "}");
+                                        }
+
+                                        emit_literal(list, "}");
+                                    } else {
+                                        build_expr(list, stmt->as.let.value, env);
+                                    }
+                                } else {
+                                    build_expr(list, stmt->as.let.value, env);
+                                }
+                            } else {
+                                build_expr(list, stmt->as.let.value, env);
+                            }
                         } else {
                             build_expr(list, stmt->as.let.value, env);
                         }

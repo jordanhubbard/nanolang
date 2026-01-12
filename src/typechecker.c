@@ -1724,10 +1724,40 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Type check fields */
                 for (int i = 0; i < expr->as.struct_literal.field_count; i++) {
                     Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
-                    if (!types_match(field_type, udef->variant_field_types[variant_idx][i])) {
+                    Type expected = udef->variant_field_types[variant_idx][i];
+
+                    /* If the expected field type refers to a generic parameter name (T, E, etc.),
+                     * treat it as a wildcard here. This struct-literal path does not carry the
+                     * concrete instantiation needed for substitution.
+                     */
+                    if (udef->generic_param_count > 0 &&
+                        udef->variant_field_type_names &&
+                        udef->variant_field_type_names[variant_idx] &&
+                        udef->variant_field_type_names[variant_idx][i]) {
+                        const char *expected_name = udef->variant_field_type_names[variant_idx][i];
+                        for (int gp = 0; gp < udef->generic_param_count; gp++) {
+                            if (udef->generic_params && udef->generic_params[gp] &&
+                                strcmp(expected_name, udef->generic_params[gp]) == 0) {
+                                goto next_union_field;
+                            }
+                        }
+                    }
+
+                    /* Generic unions (e.g., Result<T, E>) store TYPE_GENERIC for variant fields.
+                     * If we don't have concrete substitution info at this node, treat TYPE_GENERIC
+                     * as a wildcard to avoid spurious type mismatch errors.
+                     */
+                    if (expected == TYPE_GENERIC) {
+                        goto next_union_field;
+                    }
+
+                    if (!types_match(field_type, expected)) {
                         fprintf(stderr, "Error at line %d, column %d: Field type mismatch in variant '%s.%s'\n",
                                 expr->line, expr->column, union_name, variant_name);
                     }
+
+                next_union_field:
+                    ;
                 }
                 
                 free(union_name);
