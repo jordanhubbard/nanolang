@@ -2602,10 +2602,14 @@ pub fn typecheck_phase(parser: Parser, file_name: string) -> TypecheckPhaseOutpu
     }
     
     /* Phase 2: NSType check each function body */
+    /* Note: Shadow tests are NOT type-checked - they are compile-time tests */
+    /* executed by the C runtime, not part of the type system */
     set i 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
-        (println "  NSType checking function...")
+        (print "  NSType checking function ")
+        (print func.name)
+        (println "...")
         
         let valid: bool = (check_function parser func symbols env.diagnostics file_name)
         if (not valid) {
