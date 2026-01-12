@@ -794,8 +794,20 @@
           "string"
         ],
         [
+          "field_start",
+          "int"
+        ],
+        [
           "field_count",
           "int"
+        ],
+        [
+          "field_names",
+          "array<string>"
+        ],
+        [
+          "field_types",
+          "array<string>"
         ]
       ],
       "emit_c": true

@@ -573,7 +573,10 @@ typedef struct nl_ASTStruct {
     int line;
     int column;
     const char * name;
+    int field_start;
     int field_count;
+    DynArray * field_names;
+    DynArray * field_types;
 } nl_ASTStruct;
 typedef nl_ASTStruct ASTStruct;
 #endif

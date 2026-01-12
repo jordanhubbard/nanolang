@@ -198,7 +198,10 @@ extern struct ASTStruct {
     line: int,
     column: int,
     name: string,
-    field_count: int
+    field_start: int,
+    field_count: int,
+    field_names: array<string>,
+    field_types: array<string>
 }
 
 extern struct ASTStructLiteral {

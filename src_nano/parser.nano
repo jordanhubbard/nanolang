@@ -4673,12 +4673,18 @@ shadow parser_store_function {
 
 /* Helper: Store struct node */
 fn parser_store_struct(p: Parser, name: string, field_count: int, line: int, column: int) -> Parser {
+    /* TODO: Collect actual field names and types during parsing */
+    let empty_strings: array<string> = (array_new 0 "")
+    
     let node: ASTStruct = ASTStruct {
         node_type: ParseNodeType.PNODE_STRUCT_DEF,
         line: line,
         column: column,
         name: name,
-        field_count: field_count
+        field_start: 0,
+        field_count: field_count,
+        field_names: empty_strings,
+        field_types: empty_strings
     }
     let node_id: int = p.structs_count
     (list_ASTStruct_push p.structs node)
