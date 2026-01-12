@@ -505,6 +505,56 @@ fn capitalize_first(s: string) -> string {
     }
 }
 
+/* Extract user-defined struct metadata from parser */
+fn extract_user_struct_metadata(parser: Parser) -> array<FieldMetadata> {
+    let mut metadata: array<FieldMetadata> = []
+    let struct_count: int = (list_ASTStruct_length parser.structs)
+    let mut i: int = 0
+    
+    while (< i struct_count) {
+        let s: ASTStruct = (list_ASTStruct_get parser.structs i)
+        let struct_name: string = s.name
+        let field_count: int = s.field_count
+        
+        /* Extract metadata for each field */
+        let mut j: int = 0
+        while (< j field_count) {
+            let field_name: string = (at s.field_names j)
+            let field_type: string = (at s.field_types j)
+            let field_type_kind: int = (type_kind_from_string field_type)
+            
+            set metadata (array_push metadata FieldMetadata {
+                struct_name: struct_name,
+                field_name: field_name,
+                field_type_kind: field_type_kind,
+                field_type_is_list: false
+            })
+            
+            set j (+ j 1)
+        }
+        
+        set i (+ i 1)
+    }
+    
+    return metadata
+}
+
+/* Merge built-in and user-defined struct metadata */
+fn merge_struct_metadata(parser: Parser) -> array<FieldMetadata> {
+    let builtin: array<FieldMetadata> = (init_struct_metadata)
+    let user: array<FieldMetadata> = (extract_user_struct_metadata parser)
+    
+    /* Combine both arrays */
+    let mut merged: array<FieldMetadata> = builtin
+    let mut i: int = 0
+    while (< i (array_length user)) {
+        set merged (array_push merged (at user i))
+        set i (+ i 1)
+    }
+    
+    return merged
+}
+
 /* Lookup field type given struct name and field name */
 fn lookup_field_type_kind(metadata: array<FieldMetadata>, struct_name: string, field_name: string) -> int {
     /* Try exact match first */
@@ -1890,7 +1940,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                                     let struct_type_name: string = var_type.name
                                                     
                                                     if (!= struct_type_name "") {
-                                                        let metadata: array<FieldMetadata> = (init_struct_metadata)
+                                                        let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
                                                         let field_kind: int = (lookup_field_type_kind metadata struct_type_name fa.field_name)
                                                         
                                                         if (== field_kind TypeKind.TYPE_INT) {
@@ -1908,7 +1958,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                                     } else {
                                                         /* No struct name - try capitalizing variable name as fallback */
                                                         let capitalized: string = (capitalize_first ident.name)
-                                                        let metadata: array<FieldMetadata> = (init_struct_metadata)
+                                                        let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
                                                         let field_kind: int = (lookup_field_type_kind metadata capitalized fa.field_name)
                                                         
                                                         if (== field_kind TypeKind.TYPE_INT) {
@@ -1933,7 +1983,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                             
                                             /* Try to lookup field type using struct name from object type */
                                             if (!= obj_type.name "") {
-                                                let metadata: array<FieldMetadata> = (init_struct_metadata)
+                                                let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
                                                 let field_kind: int = (lookup_field_type_kind metadata obj_type.name fa.field_name)
                                                 
                                                 if (== field_kind TypeKind.TYPE_INT) {

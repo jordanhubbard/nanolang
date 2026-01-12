@@ -4672,10 +4672,7 @@ shadow parser_store_function {
 /* Helper: Store struct definition node */
 
 /* Helper: Store struct node */
-fn parser_store_struct(p: Parser, name: string, field_count: int, line: int, column: int) -> Parser {
-    /* TODO: Collect actual field names and types during parsing */
-    let empty_strings: array<string> = (array_new 0 "")
-    
+fn parser_store_struct(p: Parser, name: string, field_count: int, field_names: array<string>, field_types: array<string>, line: int, column: int) -> Parser {
     let node: ASTStruct = ASTStruct {
         node_type: ParseNodeType.PNODE_STRUCT_DEF,
         line: line,
@@ -4683,8 +4680,8 @@ fn parser_store_struct(p: Parser, name: string, field_count: int, line: int, col
         name: name,
         field_start: 0,
         field_count: field_count,
-        field_names: empty_strings,
-        field_types: empty_strings
+        field_names: field_names,
+        field_types: field_types
     }
     let node_id: int = p.structs_count
     (list_ASTStruct_push p.structs node)
@@ -5740,51 +5737,69 @@ shadow parse_function_definition {
     assert (== 1 1)
 }
 
-/* Helper: Parse struct fields recursively */
-fn parse_struct_fields(p: Parser, field_count: int, name: string, start_line: int, start_column: int) -> Parser {
-    if (parser_has_error p) {
-        return p
-    } else {
-        if (parser_is_at_end p) {
-            return (parser_with_error p true)
+/* Helper: Parse struct fields iteratively, collecting field names and types */
+fn parse_struct_fields(p: Parser, name: string, start_line: int, start_column: int) -> Parser {
+    /* Initialize arrays for field names and types */
+    let mut field_names: array<string> = []
+    let mut field_types: array<string> = []
+    let mut field_count: int = 0
+    let mut p_work: Parser = p
+    
+    /* Parse fields until we hit '}' */
+    while (not (parser_is_at_end p_work)) {
+        if (parser_has_error p_work) {
+            return p_work
+        } else { (print "") }
+        
+        let tok: LexerToken = (parser_current p_work)
+        
+        /* Check for end of struct */
+        if (== tok.token_type (token_rbrace)) {
+            let p_final: Parser = (parser_advance p_work)  /* consume '}' */
+            return (parser_store_struct p_final name field_count field_names field_types start_line start_column)
+        } else { (print "") }
+        
+        /* Parse field name */
+        if (not (== tok.token_type (token_identifier))) {
+            return (parser_with_error p_work true)
         } else {
-            let tok: LexerToken = (parser_current p)
-
-            if (== tok.token_type (token_rbrace)) {
-                let p1: Parser = (parser_advance p)  /* consume '}' */
-                return (parser_store_struct p1 name field_count start_line start_column)
+            let field_name: string = tok.value
+            let p1: Parser = (parser_advance p_work)  /* consume field name */
+            
+            /* Expect colon */
+            let p2: Parser = (parser_expect p1 (token_colon))
+            if (parser_has_error p2) {
+                return p2
             } else {
-                if (== tok.token_type (token_identifier)) {
-                    let p1: Parser = (parser_advance p)  /* consume field name */
-                    let p2: Parser = (parser_expect p1 (token_colon))
-                    if (parser_has_error p2) {
-                        return p2
-                    } else {
-                        let t: TypeParseResult = (parse_type_string p2)
-                        if (not t.ok) {
-                            return (parser_with_error t.p true)
-                        } else {
-                            let p3: Parser = t.p
-
-                            if (parser_is_at_end p3) {
-                                return (parser_with_error p3 true)
-                            } else {
-                                let tok2: LexerToken = (parser_current p3)
-                                if (== tok2.token_type (token_comma)) {
-                                    let p4: Parser = (parser_advance p3)
-                                    return (parse_struct_fields p4 (+ field_count 1) name start_line start_column)
-                                } else {
-                                    return (parse_struct_fields p3 (+ field_count 1) name start_line start_column)
-                                }
-                            }
-                        }
-                    }
+                /* Parse field type */
+                let t: TypeParseResult = (parse_type_string p2)
+                if (not t.ok) {
+                    return (parser_with_error t.p true)
                 } else {
-                    return (parser_with_error p true)
+                    let field_type: string = t.type_name
+                    
+                    /* Add field to arrays */
+                    set field_names (array_push field_names field_name)
+                    set field_types (array_push field_types field_type)
+                    set field_count (+ field_count 1)
+                    
+                    /* Optional comma */
+                    let mut p3: Parser = t.p
+                    if (not (parser_is_at_end p3)) {
+                        let tok2: LexerToken = (parser_current p3)
+                        if (== tok2.token_type (token_comma)) {
+                            set p3 (parser_advance p3)
+                        } else { (print "") }
+                    } else { (print "") }
+                    
+                    set p_work p3
                 }
             }
         }
     }
+    
+    /* If we get here, we hit EOF without finding '}' */
+    return (parser_with_error p_work true)
 }
 
 shadow parse_struct_fields {
@@ -5815,7 +5830,7 @@ fn parse_struct_definition(p: Parser) -> Parser {
                     if (parser_has_error p3) {
                         return p3
                     } else {
-                        return (parse_struct_fields p3 0 name tok.line tok.column)
+                        return (parse_struct_fields p3 name tok.line tok.column)
                     }
                 } else {
                     return (parser_with_error p1 true)
