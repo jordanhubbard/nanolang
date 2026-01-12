@@ -1285,9 +1285,31 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                 if (verbose) {
                     printf("[Modules] Also compiling nanolang parts of C module '%s'\n", meta->name);
                 }
-                
+
+                /*
+                 * IMPORTANT:
+                 * A single C-backed module directory (e.g. modules/std/) can contain multiple
+                 * NanoLang source files that may be imported independently (env.nano, fs.nano,
+                 * binary.nano, etc).
+                 *
+                 * If we always emit to obj/nano_modules/<module>_nano.o, later imports overwrite
+                 * earlier ones and we end up linking only the last compiled Nano object, causing
+                 * undefined references on strict linkers (Linux CI).
+                 */
+                system("mkdir -p obj/nano_modules 2>/dev/null");
+
+                const char *last_slash = strrchr(module_path, '/');
+                const char *base_name = last_slash ? last_slash + 1 : module_path;
+
+                char base_without_ext[256];
+                snprintf(base_without_ext, sizeof(base_without_ext), "%s", base_name);
+                char *dot = strrchr(base_without_ext, '.');
+                if (dot && strcmp(dot, ".nano") == 0) {
+                    *dot = '\0';
+                }
+
                 char nano_obj[512];
-                snprintf(nano_obj, sizeof(nano_obj), "obj/nano_modules/%s_nano.o", meta->name);
+                snprintf(nano_obj, sizeof(nano_obj), "obj/nano_modules/%s_nano_%s.o", meta->name, base_without_ext);
                 
                 if (!compile_module_to_object(module_path, nano_obj, env, verbose)) {
                     fprintf(stderr, "Error: Failed to compile nanolang parts of module '%s'\n", meta->name);
