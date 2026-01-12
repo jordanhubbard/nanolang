@@ -87,7 +87,7 @@ jobs:
       - name: Test basic examples
         shell: bash
         run: |
-          ./bin/nanoc examples/nl_hello.nano -o hello_test
+          ./bin/nanoc examples/language/nl_hello.nano -o hello_test
           ./hello_test
           ./bin/nanoc examples/nl_factorial.nano -o factorial_test
           ./factorial_test
