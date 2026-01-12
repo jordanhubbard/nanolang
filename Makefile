@@ -235,7 +235,7 @@ test-impl: test-units
 	@echo ""
 	@echo "To build examples, run: make examples"
 
-# Default test: Use most evolved compiler available
+# Default test: Use most evolved compiler available (no bd dependency)
 test: build
 	@echo ""
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
@@ -243,6 +243,23 @@ test: build
 		echo "   Bootstrap complete - using fully evolved version"; \
 	else \
 		echo "🎯 Testing with C REFERENCE compiler (nanoc_c)"; \
+		echo "   Bootstrap not complete - using baseline version"; \
+	fi
+	@echo ""
+	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
+		$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
+	fi
+	@$(MAKE) test-impl
+
+# Test with beads integration (requires bd CLI to be installed)
+# Use this for local development when you want automatic issue tracking
+test-with-beads: build
+	@echo ""
+	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
+		echo "🎯 Testing with SELF-HOSTED compiler (nanoc_stage2) + Beads tracking"; \
+		echo "   Bootstrap complete - using fully evolved version"; \
+	else \
+		echo "🎯 Testing with C REFERENCE compiler (nanoc_c) + Beads tracking"; \
 		echo "   Bootstrap not complete - using baseline version"; \
 	fi
 	@echo ""
@@ -944,9 +961,8 @@ help:
 	@echo ""
 	@echo "After bootstrap: bin/nanoc → nanoc_stage2 (self-hosted compiler)"
 
-# Auto-create/update Beads issues for failures
-test-beads:
-	@python3 scripts/autobeads.py --tests
+# Legacy aliases for test-with-beads (kept for backwards compatibility)
+test-beads: test-with-beads
 
 examples-beads:
 	@python3 scripts/autobeads.py --examples
