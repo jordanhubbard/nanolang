@@ -6525,6 +6525,11 @@ pub fn parser_get_while_count(p: Parser) -> int {
     return (list_ASTWhile_length p.whiles)
 }
 
+/* Get an unsafe block by index */
+pub fn parser_get_unsafe_block(p: Parser, idx: int) -> ASTUnsafeBlock {
+    return (list_ASTUnsafeBlock_get p.unsafe_blocks idx)
+}
+
 /* Get a call by index */
 pub fn parser_get_call(p: Parser, idx: int) -> ASTCall {
     return (list_ASTCall_get p.calls idx)

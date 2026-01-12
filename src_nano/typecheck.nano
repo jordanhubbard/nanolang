@@ -2020,11 +2020,49 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                     if (== node_type ParseNodeType.PNODE_MATCH) {
                                         return (check_match_expr parser node_id symbols diags file_name)
                                     } else {
-                                        /* Check for if, block, tuple, unsafe - treat as void for now */
-                                        if (or (or (or (== node_type ParseNodeType.PNODE_IF) (== node_type ParseNodeType.PNODE_BLOCK)) (== node_type ParseNodeType.PNODE_TUPLE_LITERAL)) (== node_type ParseNodeType.PNODE_UNSAFE_BLOCK)) {
+                                        /* Check for unsafe block - type-check as a block */
+                                        if (== node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
+                                            let unsafe_block: ASTUnsafeBlock = (parser_get_unsafe_block parser node_id)
+                                            /* Type-check statements with block context */
+                                            /* Create a mini block structure and check it */
+                                            let mut local_symbols: array<Symbol> = symbols
+                                            let mut i: int = 0
+                                            while (< i unsafe_block.statement_count) {
+                                                let stmt: ASTStmtRef = (parser_get_block_statement parser (+ unsafe_block.statement_start i))
+                                                
+                                                if (== stmt.node_type ParseNodeType.PNODE_LET) {
+                                                    let let_node: ASTLet = (parser_get_let parser stmt.node_id)
+                                                    set local_symbols (check_let_statement parser let_node local_symbols diags file_name)
+                                                } else { if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
+                                                    /* Return statement - check the return value expression */
+                                                    let ret_node: ASTReturn = (parser_get_return parser stmt.node_id)
+                                                    if (>= ret_node.value 0) {
+                                                        let _t: NSType = (check_expr_node parser ret_node.value ret_node.value_type local_symbols diags file_name)
+                                                        (print "")
+                                                    } else {
+                                                        (print "")
+                                                    }
+                                                } else {
+                                                    /* Other statements - check as expressions */
+                                                    let kind: int = (expr_kind_from_pnode stmt.node_type)
+                                                    if (>= kind 0) {
+                                                        let _t: NSType = (check_expr_node parser stmt.node_id kind local_symbols diags file_name)
+                                                        (print "")
+                                                    } else {
+                                                        (print "")
+                                                    }
+                                                } }
+                                                
+                                                set i (+ i 1)
+                                            }
+                                            return (type_void)
+                                        } else {
+                                        /* Check for if, block, tuple - treat as void for now */
+                                        if (or (or (== node_type ParseNodeType.PNODE_IF) (== node_type ParseNodeType.PNODE_BLOCK)) (== node_type ParseNodeType.PNODE_TUPLE_LITERAL)) {
                                             return (type_void)
                                     } else {
                                         return (type_unknown_named "unknown_node_type")
+                                        }
                                         }
                                     }
                                             }
@@ -2370,6 +2408,34 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
                 (Diagnostics.diag_list_add diags diag)
                 set ok false
             } else { (print "") }
+        } else { if (== stmt.node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
+            /* Unsafe block - check its statements */
+            let unsafe_block: ASTUnsafeBlock = (parser_get_unsafe_block parser stmt.node_id)
+            let mut j: int = 0
+            while (< j unsafe_block.statement_count) {
+                let unsafe_stmt: ASTStmtRef = (parser_get_block_statement parser (+ unsafe_block.statement_start j))
+                
+                if (== unsafe_stmt.node_type ParseNodeType.PNODE_LET) {
+                    let let_node: ASTLet = (parser_get_let parser unsafe_stmt.node_id)
+                    set local_symbols (check_let_statement parser let_node local_symbols diags file_name)
+                } else { if (== unsafe_stmt.node_type ParseNodeType.PNODE_RETURN) {
+                    let ret_node: ASTReturn = (parser_get_return parser unsafe_stmt.node_id)
+                    if (not (check_return_statement parser ret_node expected_return local_symbols diags file_name current_function)) {
+                        set ok false
+                    } else { (print "") }
+                } else {
+                    /* Other statements */
+                    let kind: int = (expr_kind_from_pnode unsafe_stmt.node_type)
+                    if (>= kind 0) {
+                        let _t: NSType = (check_expr_node parser unsafe_stmt.node_id kind local_symbols diags file_name)
+                        (print "")
+                    } else {
+                        (print "")
+                    }
+                } }
+                
+                set j (+ j 1)
+            }
         } else {
             /* Expression statement */
             let kind: int = (expr_kind_from_pnode stmt.node_type)
@@ -2379,7 +2445,7 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
             } else {
                 (print "")
             }
-        } } } } } }
+        } } } } } } }
 
         set i (+ i 1)
     }
@@ -2434,7 +2500,7 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
         /* extern fn */
         return true
     } else {
-    return (check_block parser func.body func_symbols return_type diags file_name func.name)
+        return (check_block parser func.body func_symbols return_type diags file_name func.name)
     }
 }
 
