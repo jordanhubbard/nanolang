@@ -770,6 +770,24 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             let tc: TypecheckPhaseOutput = (typecheck_phase parser source_to_compile)
             if tc.had_error {
                 (println "NSType checking failed")
+                (println "Diagnostics:")
+                let diag_count: int = (Diagnostics.diag_list_count tc.diagnostics)
+                let mut diag_i: int = 0
+                while (< diag_i diag_count) {
+                    let diag: CompilerDiagnostic = (Diagnostics.diag_list_get tc.diagnostics diag_i)
+                    (print "  [")
+                    (print diag.code)
+                    (print "] ")
+                    (print diag.message)
+                    (print " (")
+                    (print diag.location.file)
+                    (print ":")
+                    (print (int_to_string diag.location.line))
+                    (print ":")
+                    (print (int_to_string diag.location.column))
+                    (println ")")
+                    set diag_i (+ diag_i 1)
+                }
                 if (not (str_equals llm_diags_json_path "")) {
                     (llm_write_diags_json llm_diags_json_path input_file output_file 1 tc.diagnostics)
                 } else { (print "") }
