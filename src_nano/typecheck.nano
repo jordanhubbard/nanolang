@@ -1718,6 +1718,17 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                         let lookup: OptionType = (env_get_type symbols id_node.name)
 
                         if (not lookup.has_value) {
+                            /* DEBUG: Log undefined identifier with context */
+                            (print "DEBUG: Undefined identifier '")
+                            (print id_node.name)
+                            (print "' at line ")
+                            (print (int_to_string id_node.line))
+                            (print ", column ")
+                            (print (int_to_string id_node.column))
+                            (print " - symbol table has ")
+                            (print (int_to_string (array_length symbols)))
+                            (println " symbols")
+                            
                             let msg: string = (encode_undefined_name_message id_node.name)
                             let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name id_node.line id_node.column))
                             (Diagnostics.diag_list_add diags diag)
