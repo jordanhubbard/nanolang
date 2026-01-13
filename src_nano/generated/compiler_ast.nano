@@ -146,16 +146,14 @@ extern struct ASTBlock {
     node_type: int,
     line: int,
     column: int,
-    statement_start: int,
-    statement_count: int
+    statements: List<ASTStmtRef>
 }
 
 extern struct ASTUnsafeBlock {
     node_type: int,
     line: int,
     column: int,
-    statement_start: int,
-    statement_count: int
+    statements: List<ASTStmtRef>
 }
 
 extern struct ASTPrint {
@@ -330,7 +328,6 @@ extern struct Parser {
     returns: List<ASTReturn>,
     blocks: List<ASTBlock>,
     unsafe_blocks: List<ASTUnsafeBlock>,
-    block_statements: List<ASTStmtRef>,
     prints: List<ASTPrint>,
     asserts: List<ASTAssert>,
     functions: List<ASTFunction>,
@@ -362,7 +359,6 @@ extern struct Parser {
     returns_count: int,
     blocks_count: int,
     unsafe_blocks_count: int,
-    block_statements_count: int,
     prints_count: int,
     asserts_count: int,
     functions_count: int,

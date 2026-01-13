@@ -38,7 +38,6 @@ fn parser_init_ast_lists() -> Parser {
     let returns: List<ASTReturn> = (list_ASTReturn_new)
     let blocks: List<ASTBlock> = (list_ASTBlock_new)
     let unsafe_blocks: List<ASTUnsafeBlock> = (list_ASTUnsafeBlock_new)
-    let block_statements: List<ASTStmtRef> = (list_ASTStmtRef_new)
     let prints: List<ASTPrint> = (list_ASTPrint_new)
     let asserts: List<ASTAssert> = (list_ASTAssert_new)
     let functions: List<ASTFunction> = (list_ASTFunction_new)
@@ -83,7 +82,6 @@ fn parser_init_ast_lists() -> Parser {
         returns: returns,
         blocks: blocks,
         unsafe_blocks: unsafe_blocks,
-        block_statements: block_statements,
         prints: prints,
         asserts: asserts,
         functions: functions,
@@ -115,7 +113,6 @@ fn parser_init_ast_lists() -> Parser {
         returns_count: 0,
         blocks_count: 0,
         unsafe_blocks_count: 0,
-        block_statements_count: 0,
         prints_count: 0,
         asserts_count: 0,
         functions_count: 0,
@@ -173,7 +170,6 @@ fn parser_new(tokens: List<LexerToken>, token_count: int, file_name: string) -> 
         returns: init_parser.returns,
         blocks: init_parser.blocks,
         unsafe_blocks: init_parser.unsafe_blocks,
-        block_statements: init_parser.block_statements,
         prints: init_parser.prints,
         asserts: init_parser.asserts,
         functions: init_parser.functions,
@@ -205,7 +201,6 @@ fn parser_new(tokens: List<LexerToken>, token_count: int, file_name: string) -> 
         returns_count: 0,
         blocks_count: 0,
         unsafe_blocks_count: 0,
-        block_statements_count: 0,
         prints_count: 0,
         asserts_count: 0,
         functions_count: 0,
@@ -289,7 +284,6 @@ fn parser_with_position(p: Parser, new_position: int) -> Parser {
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -321,7 +315,6 @@ fn parser_with_position(p: Parser, new_position: int) -> Parser {
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -470,7 +463,6 @@ fn parser_with_error(p: Parser, error: bool) -> Parser {
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -502,7 +494,6 @@ fn parser_with_error(p: Parser, error: bool) -> Parser {
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -1015,7 +1006,6 @@ fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Pars
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -1047,7 +1037,6 @@ fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Pars
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -1110,7 +1099,6 @@ fn parser_store_string(p: Parser, value: string, line: int, column: int) -> Pars
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -1142,7 +1130,6 @@ fn parser_store_string(p: Parser, value: string, line: int, column: int) -> Pars
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -1204,7 +1191,6 @@ fn parser_store_bool(p: Parser, value: bool, line: int, column: int) -> Parser {
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -1236,7 +1222,6 @@ fn parser_store_bool(p: Parser, value: bool, line: int, column: int) -> Parser {
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -1298,7 +1283,6 @@ fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> P
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -1330,7 +1314,6 @@ fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> P
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -1397,7 +1380,6 @@ fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -1429,7 +1411,6 @@ fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -1496,7 +1477,6 @@ fn parser_store_call(p: Parser, function_id: int, arg_start: int, arg_count: int
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -1528,7 +1508,6 @@ fn parser_store_call(p: Parser, function_id: int, arg_start: int, arg_count: int
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -1586,7 +1565,6 @@ fn parser_store_call_arg(p: Parser, node_id: int, node_type: int) -> Parser {
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -1618,7 +1596,6 @@ fn parser_store_call_arg(p: Parser, node_id: int, node_type: int) -> Parser {
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -1677,7 +1654,6 @@ fn parser_store_array_element(p: Parser, node_id: int, node_type: int) -> Parser
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -1709,7 +1685,6 @@ fn parser_store_array_element(p: Parser, node_id: int, node_type: int) -> Parser
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -1927,13 +1902,17 @@ fn parse_cond_clauses(p: Parser, line: int, column: int) -> Parser {
                                     let else_id: int = p_rest.last_expr_node_id
                                     let else_type: int = p_rest.last_expr_node_type
                                     /* Build if expression with single-statement blocks */
-                                    let then_start: int = p_rest.block_statements_count
-                                    let p_then_stmt: Parser = (parser_store_block_statement p_rest val_id val_type)
-                                    let p_then_block: Parser = (parser_store_block p_then_stmt then_start 1 line column)
+                                    /* Create single-statement blocks for then and else */
+                                    let then_stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+                                    let then_stmt: ASTStmtRef = ASTStmtRef { node_id: val_id, node_type: val_type }
+                                    (list_ASTStmtRef_push then_stmts then_stmt)
+                                    let p_then_block: Parser = (parser_store_block p_rest then_stmts line column)
                                     let then_id: int = p_then_block.last_expr_node_id
-                                    let else_start: int = p_then_block.block_statements_count
-                                    let p_else_stmt: Parser = (parser_store_block_statement p_then_block else_id else_type)
-                                    let p_else_block: Parser = (parser_store_block p_else_stmt else_start 1 line column)
+                                    
+                                    let else_stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+                                    let else_stmt: ASTStmtRef = ASTStmtRef { node_id: else_id, node_type: else_type }
+                                    (list_ASTStmtRef_push else_stmts else_stmt)
+                                    let p_else_block: Parser = (parser_store_block p_then_block else_stmts line column)
                                     let else_block_id: int = p_else_block.last_expr_node_id
                                     return (parser_store_if p_else_block cond_id cond_type then_id else_block_id line column)
                                 }
@@ -2586,7 +2565,6 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -2618,7 +2596,6 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -2683,7 +2660,6 @@ fn parser_store_set(p: Parser, target: string, value_id: int, value_type: int, l
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -2715,7 +2691,6 @@ fn parser_store_set(p: Parser, target: string, value_id: int, value_type: int, l
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -2781,7 +2756,6 @@ fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -2813,7 +2787,6 @@ fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -2878,7 +2851,6 @@ fn parser_store_while(p: Parser, condition_id: int, condition_type: int, body_id
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -2910,7 +2882,6 @@ fn parser_store_while(p: Parser, condition_id: int, condition_type: int, body_id
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -2974,7 +2945,6 @@ fn parser_store_for(p: Parser, var_name: string, iterable_id: int, iterable_type
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -3006,7 +2976,6 @@ fn parser_store_for(p: Parser, var_name: string, iterable_id: int, iterable_type
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -3066,7 +3035,6 @@ fn parser_store_array_literal(p: Parser, element_start: int, element_count: int,
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -3098,7 +3066,6 @@ fn parser_store_array_literal(p: Parser, element_start: int, element_count: int,
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -3157,7 +3124,6 @@ fn parser_store_import(p: Parser, module_path: string, module_name: string, line
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -3189,7 +3155,6 @@ fn parser_store_import(p: Parser, module_path: string, module_name: string, line
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -3247,7 +3212,6 @@ fn parser_store_opaque_type(p: Parser, type_name: string, line: int, column: int
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -3279,7 +3243,6 @@ fn parser_store_opaque_type(p: Parser, type_name: string, line: int, column: int
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -3338,7 +3301,6 @@ fn parser_store_shadow(p: Parser, target_name: string, body_id: int, line: int, 
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -3370,7 +3332,6 @@ fn parser_store_shadow(p: Parser, target_name: string, body_id: int, line: int, 
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -3430,7 +3391,6 @@ fn parser_store_field_access(p: Parser, object_id: int, object_type: int, field_
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -3462,7 +3422,6 @@ fn parser_store_field_access(p: Parser, object_id: int, object_type: int, field_
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -3520,7 +3479,6 @@ fn parser_store_float(p: Parser, value: string, line: int, column: int) -> Parse
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -3552,7 +3510,6 @@ fn parser_store_float(p: Parser, value: string, line: int, column: int) -> Parse
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -3617,7 +3574,6 @@ fn parser_store_return(p: Parser, value_id: int, value_type: int, line: int, col
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -3649,7 +3605,6 @@ fn parser_store_return(p: Parser, value_id: int, value_type: int, line: int, col
         returns_count: (+ p.returns_count 1),
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -3711,7 +3666,6 @@ fn parser_store_assert(p: Parser, condition_id: int, condition_type: int, line: 
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -3743,7 +3697,6 @@ fn parser_store_assert(p: Parser, condition_id: int, condition_type: int, line: 
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: (+ p.asserts_count 1),
         functions_count: p.functions_count,
@@ -3769,105 +3722,16 @@ shadow parser_store_assert {
     assert (== 1 1)
 }
 
-/* Helper: Store a statement reference for the current block */
-fn parser_store_block_statement(p: Parser, node_id: int, node_type: int) -> Parser {
-    let r: ASTStmtRef = ASTStmtRef {
-        node_id: node_id,
-        node_type: node_type
-    }
-    (list_ASTStmtRef_push p.block_statements r)
-
-    return Parser {
-        tokens: p.tokens, file_name: p.file_name, 
-        
-        position: p.position,
-        token_count: p.token_count,
-        has_error: p.has_error,
-        diagnostics: p.diagnostics,
-        numbers: p.numbers,
-        floats: p.floats,
-        strings: p.strings,
-        bools: p.bools,
-        identifiers: p.identifiers,
-        binary_ops: p.binary_ops,
-        calls: p.calls,
-        call_args: p.call_args,
-        array_elements: p.array_elements,
-        array_literals: p.array_literals,
-        lets: p.lets,
-        sets: p.sets,
-        ifs: p.ifs,
-        whiles: p.whiles,
-        fors: p.fors,
-        returns: p.returns,
-        blocks: p.blocks,
-        unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
-        prints: p.prints,
-        asserts: p.asserts,
-        functions: p.functions,
-        shadows: p.shadows,
-        structs: p.structs,
-        struct_literals: p.struct_literals,
-        field_accesses: p.field_accesses,
-        enums: p.enums,
-        unions: p.unions,
-        union_constructs: p.union_constructs,
-        matches: p.matches,
-        imports: p.imports,
-        opaque_types: p.opaque_types,
-        tuple_literals: p.tuple_literals,
-        tuple_indices: p.tuple_indices,
-        numbers_count: p.numbers_count,
-        floats_count: p.floats_count,
-        strings_count: p.strings_count,
-        bools_count: p.bools_count,
-        identifiers_count: p.identifiers_count,
-        binary_ops_count: p.binary_ops_count,
-        calls_count: p.calls_count,
-        array_literals_count: p.array_literals_count,
-        lets_count: p.lets_count,
-        sets_count: p.sets_count,
-        ifs_count: p.ifs_count,
-        whiles_count: p.whiles_count,
-        fors_count: p.fors_count,
-        returns_count: p.returns_count,
-        blocks_count: p.blocks_count,
-        unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: (+ p.block_statements_count 1),
-        prints_count: p.prints_count,
-        asserts_count: p.asserts_count,
-        functions_count: p.functions_count,
-        shadows_count: p.shadows_count,
-        structs_count: p.structs_count,
-        struct_literals_count: p.struct_literals_count,
-        field_accesses_count: p.field_accesses_count,
-        enums_count: p.enums_count,
-        unions_count: p.unions_count,
-        union_constructs_count: p.union_constructs_count,
-        matches_count: p.matches_count,
-        imports_count: p.imports_count,
-        opaque_types_count: p.opaque_types_count,
-        tuple_literals_count: p.tuple_literals_count,
-        tuple_indices_count: p.tuple_indices_count,
-        next_node_id: p.next_node_id,
-        last_expr_node_id: p.last_expr_node_id,
-        last_expr_node_type: p.last_expr_node_type
-    }
-}
-
-shadow parser_store_block_statement {
-    assert (== 1 1)
-}
+/* NOTE: parser_store_block_statement has been removed.
+ * Blocks now store statements directly - use list_ASTStmtRef_push on the block's statements list. */
 
 /* Helper: Store block node */
-fn parser_store_block(p: Parser, statement_start: int, statement_count: int, line: int, column: int) -> Parser {
+fn parser_store_block(p: Parser, stmts: List<ASTStmtRef>, line: int, column: int) -> Parser {
     let node: ASTBlock = ASTBlock {
         node_type: ParseNodeType.PNODE_BLOCK,
         line: line,
         column: column,
-        statement_start: statement_start,
-        statement_count: statement_count
+        statements: stmts
     }
     let node_id: int = p.blocks_count
     (list_ASTBlock_push p.blocks node)
@@ -3897,7 +3761,6 @@ fn parser_store_block(p: Parser, statement_start: int, statement_count: int, lin
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -3929,7 +3792,6 @@ fn parser_store_block(p: Parser, statement_start: int, statement_count: int, lin
         returns_count: p.returns_count,
         blocks_count: (+ p.blocks_count 1),
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -3967,7 +3829,7 @@ fn expr_kind_to_pnode(kind: int) -> int {
     else { return kind } } } } } } }
 }
 
-fn parse_block_recursive(p: Parser, statement_start: int, statement_count: int, start_line: int, start_column: int) -> Parser {
+fn parse_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: int, start_column: int) -> Parser {
     if (parser_has_error p) {
         return p
     } else {
@@ -3979,21 +3841,7 @@ fn parse_block_recursive(p: Parser, statement_start: int, statement_count: int, 
             if (== tok.token_type (token_rbrace)) {
                 /* End of block */
                 let p1: Parser = (parser_advance p)  /* consume '}' */
-                
-                /* DEBUG: Log block storage for explanation_for_code */
-                if (> p1.functions_count 0) {
-                    let last_func: ASTFunction = (parser_get_function p1 (- p1.functions_count 1))
-                    if (str_equals last_func.name "explanation_for_code") {
-                        (print "DEBUG parse_block END: statement_start=")
-                        (print (int_to_string statement_start))
-                        (print ", count=")
-                        (print (int_to_string statement_count))
-                        (print ", block will be ID ")
-                        (println (int_to_string p1.blocks_count))
-                    } else { (print "") }
-                } else { (print "") }
-                
-                return (parser_store_block p1 statement_start statement_count start_line start_column)
+                return (parser_store_block p1 stmts start_line start_column)
             } else {
                 /* Parse statement */
                 let p2: Parser = (parse_statement p)
@@ -4003,22 +3851,15 @@ fn parse_block_recursive(p: Parser, statement_start: int, statement_count: int, 
                     let stmt_id: int = p2.last_expr_node_id
                     let stmt_type: int = p2.last_expr_node_type
 
-                    /* DEBUG: Log statement type for explanation_for_code block */
-                    if (> p2.functions_count 0) {
-                        let last_func: ASTFunction = (parser_get_function p2 (- p2.functions_count 1))
-                        if (str_equals last_func.name "explanation_for_code") {
-                            (print "DEBUG parse_block: stmt_id=")
-                            (print (int_to_string stmt_id))
-                            (print ", stmt_type=")
-                            (println (int_to_string stmt_type))
-                        } else { (print "") }
-                    } else { (print "") }
+                    /* Add statement to this block's list */
+                    let stmt: ASTStmtRef = ASTStmtRef {
+                        node_id: stmt_id,
+                        node_type: stmt_type
+                    }
+                    (list_ASTStmtRef_push stmts stmt)
 
-                    /* last_expr_node_type is already a ParseNodeType value, no conversion needed */
-
-                    let p3: Parser = (parser_store_block_statement p2 stmt_id stmt_type)
                     /* Continue parsing more statements */
-                    return (parse_block_recursive p3 statement_start (+ statement_count 1) start_line start_column)
+                    return (parse_block_recursive p2 stmts start_line start_column)
                 }
             }
         }
@@ -4033,8 +3874,8 @@ fn parse_block(p: Parser) -> Parser {
         
         if (== tok.token_type (token_lbrace)) {
             let p1: Parser = (parser_advance p)  /* consume '{' */
-            let start: int = p1.block_statements_count
-            return (parse_block_recursive p1 start 0 tok.line tok.column)
+            let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+            return (parse_block_recursive p1 stmts tok.line tok.column)
         } else {
             return (parser_with_error p true)
         }
@@ -4050,13 +3891,12 @@ shadow parse_block {
 }
 
 /* Helper: Store unsafe block node */
-fn parser_store_unsafe_block(p: Parser, statement_start: int, statement_count: int, line: int, column: int) -> Parser {
+fn parser_store_unsafe_block(p: Parser, stmts: List<ASTStmtRef>, line: int, column: int) -> Parser {
     let node: ASTUnsafeBlock = ASTUnsafeBlock {
         node_type: ParseNodeType.PNODE_UNSAFE_BLOCK,
         line: line,
         column: column,
-        statement_start: statement_start,
-        statement_count: statement_count
+        statements: stmts
     }
     let node_id: int = p.unsafe_blocks_count
     (list_ASTUnsafeBlock_push p.unsafe_blocks node)
@@ -4086,7 +3926,6 @@ fn parser_store_unsafe_block(p: Parser, statement_start: int, statement_count: i
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -4118,7 +3957,6 @@ fn parser_store_unsafe_block(p: Parser, statement_start: int, statement_count: i
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: (+ p.unsafe_blocks_count 1),
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -4143,8 +3981,8 @@ shadow parser_store_unsafe_block {
     assert (== 1 1)
 }
 
-/* Parse unsafe block recursively: unsafe { statements } */
-fn parse_unsafe_block_recursive(p: Parser, statement_start: int, statement_count: int, start_line: int, start_column: int) -> Parser {
+/* Parse unsafe block recursively */
+fn parse_unsafe_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: int, start_column: int) -> Parser {
     if (parser_has_error p) {
         return p
     } else {
@@ -4154,20 +3992,18 @@ fn parse_unsafe_block_recursive(p: Parser, statement_start: int, statement_count
             let tok: LexerToken = (parser_current p)
             
             if (== tok.token_type (token_rbrace)) {
-                /* End of unsafe block */
-                let p1: Parser = (parser_advance p)  /* consume '}' */
-                return (parser_store_unsafe_block p1 statement_start statement_count start_line start_column)
+                let p1: Parser = (parser_advance p)
+                return (parser_store_unsafe_block p1 stmts start_line start_column)
             } else {
-                /* Parse statement */
                 let p2: Parser = (parse_statement p)
                 if (parser_has_error p2) {
                     return p2
                 } else {
                     let stmt_id: int = p2.last_expr_node_id
                     let stmt_type: int = p2.last_expr_node_type
-                    let p3: Parser = (parser_store_block_statement p2 stmt_id stmt_type)
-                    /* Continue parsing more statements */
-                    return (parse_unsafe_block_recursive p3 statement_start (+ statement_count 1) start_line start_column)
+                    let stmt: ASTStmtRef = ASTStmtRef { node_id: stmt_id, node_type: stmt_type }
+                    (list_ASTStmtRef_push stmts stmt)
+                    return (parse_unsafe_block_recursive p2 stmts start_line start_column)
                 }
             }
         }
@@ -4191,8 +4027,8 @@ fn parse_unsafe_block(p: Parser) -> Parser {
                 let tok2: LexerToken = (parser_current p1)
                 if (== tok2.token_type (token_lbrace)) {
                     let p2: Parser = (parser_advance p1)  /* consume '{' */
-                    let start: int = p2.block_statements_count
-                    return (parse_unsafe_block_recursive p2 start 0 tok.line tok.column)
+                    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+                    return (parse_unsafe_block_recursive p2 stmts tok.line tok.column)
                 } else {
                     return (parser_with_error p1 true)
                 }
@@ -4644,7 +4480,6 @@ fn parser_store_function(p: Parser, name: string, param_start: int, param_count:
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -4676,7 +4511,6 @@ fn parser_store_function(p: Parser, name: string, param_start: int, param_count:
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: (+ p.functions_count 1),
@@ -4743,7 +4577,6 @@ fn parser_store_struct(p: Parser, name: string, field_count: int, field_names: a
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -4775,7 +4608,6 @@ fn parser_store_struct(p: Parser, name: string, field_count: int, field_names: a
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -4839,7 +4671,6 @@ fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, col
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -4871,7 +4702,6 @@ fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, col
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -4935,7 +4765,6 @@ fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, co
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -4967,7 +4796,6 @@ fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, co
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -5033,7 +4861,6 @@ fn parser_store_union_construct(p: Parser, union_name: string, variant_name: str
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -5065,7 +4892,6 @@ fn parser_store_union_construct(p: Parser, union_name: string, variant_name: str
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -5127,7 +4953,6 @@ fn parser_store_struct_literal(p: Parser, type_name: string, field_names: array<
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -5159,7 +4984,6 @@ fn parser_store_struct_literal(p: Parser, type_name: string, field_names: array<
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -5223,7 +5047,6 @@ fn parser_store_match(p: Parser, scrutinee_id: int, scrutinee_type: int, arm_var
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -5255,7 +5078,6 @@ fn parser_store_match(p: Parser, scrutinee_id: int, scrutinee_type: int, arm_var
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -5315,7 +5137,6 @@ fn parser_store_tuple_literal(p: Parser, element_ids: array<int>, element_types:
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -5347,7 +5168,6 @@ fn parser_store_tuple_literal(p: Parser, element_ids: array<int>, element_types:
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -5407,7 +5227,6 @@ fn parser_store_tuple_index(p: Parser, tuple_id: int, tuple_type: int, index: in
         returns: p.returns,
         blocks: p.blocks,
         unsafe_blocks: p.unsafe_blocks,
-        block_statements: p.block_statements,
         prints: p.prints,
         asserts: p.asserts,
         functions: p.functions,
@@ -5439,7 +5258,6 @@ fn parser_store_tuple_index(p: Parser, tuple_id: int, tuple_type: int, index: in
         returns_count: p.returns_count,
         blocks_count: p.blocks_count,
         unsafe_blocks_count: p.unsafe_blocks_count,
-        block_statements_count: p.block_statements_count,
         prints_count: p.prints_count,
         asserts_count: p.asserts_count,
         functions_count: p.functions_count,
@@ -5725,26 +5543,28 @@ fn parse_function_definition(p: Parser) -> Parser {
                                     if (> (array_length precondition_asserts) 0) {
                                         let body_block: ASTBlock = (parser_get_block final_parser body_id)
                                         let mut p_with_contracts: Parser = final_parser
-                                        let statement_start: int = p_with_contracts.block_statements_count
-
+                                        /* Build new statement list with preconditions + body statements */
+                                        let combined_stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+                                        
+                                        /* Add precondition asserts */
                                         let mut idx: int = 0
                                         while (< idx (array_length precondition_asserts)) {
                                             let assert_id: int = (at precondition_asserts idx)
-                                            let p_stmt: Parser = (parser_store_block_statement p_with_contracts assert_id ParseNodeType.PNODE_ASSERT)
-                                            set p_with_contracts p_stmt
+                                            let stmt: ASTStmtRef = ASTStmtRef { node_id: assert_id, node_type: ParseNodeType.PNODE_ASSERT }
+                                            (list_ASTStmtRef_push combined_stmts stmt)
                                             set idx (+ idx 1)
                                         }
 
+                                        /* Add original body statements */
                                         let mut stmt_idx: int = 0
-                                        while (< stmt_idx body_block.statement_count) {
-                                            let stmt: ASTStmtRef = (parser_get_block_statement final_parser (+ body_block.statement_start stmt_idx))
-                                            let p_stmt: Parser = (parser_store_block_statement p_with_contracts stmt.node_id stmt.node_type)
-                                            set p_with_contracts p_stmt
+                                        let body_stmts_count: int = (list_ASTStmtRef_length body_block.statements)
+                                        while (< stmt_idx body_stmts_count) {
+                                            let stmt: ASTStmtRef = (list_ASTStmtRef_get body_block.statements stmt_idx)
+                                            (list_ASTStmtRef_push combined_stmts stmt)
                                             set stmt_idx (+ stmt_idx 1)
                                         }
 
-                                        let new_count: int = (+ (array_length precondition_asserts) body_block.statement_count)
-                                        let p_block: Parser = (parser_store_block p_with_contracts statement_start new_count body_block.line body_block.column)
+                                        let p_block: Parser = (parser_store_block p_with_contracts combined_stmts body_block.line body_block.column)
                                         set final_parser p_block
                                         set body_id p_block.last_expr_node_id
                                     }
@@ -6534,17 +6354,7 @@ pub fn parser_get_block_count(p: Parser) -> int {
 
 /* Get a block by index */
 pub fn parser_get_block(p: Parser, idx: int) -> ASTBlock {
-    let block: ASTBlock = (list_ASTBlock_get p.blocks idx)
-    
-    /* DEBUG: Log block 1312 retrieval */
-    if (== idx 1312) {
-        (print "DEBUG parser_get_block(1312): statement_start=")
-        (print (int_to_string block.statement_start))
-        (print ", count=")
-        (println (int_to_string block.statement_count))
-    } else { (print "") }
-    
-    return block
+    return (list_ASTBlock_get p.blocks idx)
 }
 
 /* Get an if statement by index */
@@ -6632,15 +6442,9 @@ pub fn parser_get_assert(p: Parser, idx: int) -> ASTAssert {
     return (list_ASTAssert_get p.asserts idx)
 }
 
-/* Get number of block statement refs */
-pub fn parser_get_block_statement_count(p: Parser) -> int {
-    return (list_ASTStmtRef_length p.block_statements)
-}
-
-/* Get a block statement ref by index */
-pub fn parser_get_block_statement(p: Parser, idx: int) -> ASTStmtRef {
-    return (list_ASTStmtRef_get p.block_statements idx)
-}
+/* NOTE: Blocks now store their statements directly.
+ * Use parser_get_block(p, block_id).statements to access them.
+ * The old parser_get_block_statement function has been removed. */
 
 /* Get number of field accesses */
 pub fn parser_get_field_access_count(p: Parser) -> int {

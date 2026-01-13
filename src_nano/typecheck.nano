@@ -2040,8 +2040,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                             /* Create a mini block structure and check it */
                                             let mut local_symbols: array<Symbol> = symbols
                                             let mut i: int = 0
-                                            while (< i unsafe_block.statement_count) {
-                                                let stmt: ASTStmtRef = (parser_get_block_statement parser (+ unsafe_block.statement_start i))
+                                            let stmt_count: int = (list_ASTStmtRef_length unsafe_block.statements)
+                                            while (< i stmt_count) {
+                                                let stmt: ASTStmtRef = (list_ASTStmtRef_get unsafe_block.statements i)
                                                 
                                                 if (== stmt.node_type ParseNodeType.PNODE_LET) {
                                                     let let_node: ASTLet = (parser_get_let parser stmt.node_id)
@@ -2375,11 +2376,12 @@ fn expr_kind_from_pnode(pnode_type: int) -> int {
 fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> bool {
     let block: ASTBlock = (parser_get_block parser block_id)
     
+    let stmt_count: int = (list_ASTStmtRef_length block.statements)
     if (== block_id 1304) {
         (print "DEBUG: Block 1304 for ")
         (print current_function)
         (print " has ")
-        (print (int_to_string block.statement_count))
+        (print (int_to_string stmt_count))
         (println " statements")
     } else { (print "") }
     
@@ -2387,8 +2389,8 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
     let mut ok: bool = true
 
     let mut i: int = 0
-    while (< i block.statement_count) {
-        let stmt: ASTStmtRef = (parser_get_block_statement parser (+ block.statement_start i))
+    while (< i stmt_count) {
+        let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
         
         if (== block_id 1304) {
             (print "  DEBUG: Statement ")
@@ -2466,8 +2468,9 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
             /* Unsafe block - check its statements */
             let unsafe_block: ASTUnsafeBlock = (parser_get_unsafe_block parser stmt.node_id)
             let mut j: int = 0
-            while (< j unsafe_block.statement_count) {
-                let unsafe_stmt: ASTStmtRef = (parser_get_block_statement parser (+ unsafe_block.statement_start j))
+            let unsafe_stmt_count: int = (list_ASTStmtRef_length unsafe_block.statements)
+            while (< j unsafe_stmt_count) {
+                let unsafe_stmt: ASTStmtRef = (list_ASTStmtRef_get unsafe_block.statements j)
                 
                 if (== unsafe_stmt.node_type ParseNodeType.PNODE_LET) {
                     let let_node: ASTLet = (parser_get_let parser unsafe_stmt.node_id)

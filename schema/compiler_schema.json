@@ -622,12 +622,8 @@
           "int"
         ],
         [
-          "statement_start",
-          "int"
-        ],
-        [
-          "statement_count",
-          "int"
+          "statements",
+          "List<ASTStmtRef>"
         ]
       ],
       "emit_c": true
@@ -648,12 +644,8 @@
           "int"
         ],
         [
-          "statement_start",
-          "int"
-        ],
-        [
-          "statement_count",
-          "int"
+          "statements",
+          "List<ASTStmtRef>"
         ]
       ],
       "emit_c": true
@@ -1250,10 +1242,6 @@
           "List<ASTUnsafeBlock>"
         ],
         [
-          "block_statements",
-          "List<ASTStmtRef>"
-        ],
-        [
           "prints",
           "List<ASTPrint>"
         ],
@@ -1375,10 +1363,6 @@
         ],
         [
           "unsafe_blocks_count",
-          "int"
-        ],
-        [
-          "block_statements_count",
           "int"
         ],
         [

@@ -497,8 +497,7 @@ typedef struct nl_ASTBlock {
     int node_type;
     int line;
     int column;
-    int statement_start;
-    int statement_count;
+    List_ASTStmtRef * statements;
 } nl_ASTBlock;
 typedef nl_ASTBlock ASTBlock;
 #endif
@@ -509,8 +508,7 @@ typedef struct nl_ASTUnsafeBlock {
     int node_type;
     int line;
     int column;
-    int statement_start;
-    int statement_count;
+    List_ASTStmtRef * statements;
 } nl_ASTUnsafeBlock;
 typedef nl_ASTUnsafeBlock ASTUnsafeBlock;
 #endif
@@ -753,7 +751,6 @@ typedef struct nl_Parser {
     List_ASTReturn * returns;
     List_ASTBlock * blocks;
     List_ASTUnsafeBlock * unsafe_blocks;
-    List_ASTStmtRef * block_statements;
     List_ASTPrint * prints;
     List_ASTAssert * asserts;
     List_ASTFunction * functions;
@@ -785,7 +782,6 @@ typedef struct nl_Parser {
     int returns_count;
     int blocks_count;
     int unsafe_blocks_count;
-    int block_statements_count;
     int prints_count;
     int asserts_count;
     int functions_count;

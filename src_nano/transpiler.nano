@@ -1475,8 +1475,9 @@ fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>
     let mut result: array<string> = list_types
     
     let mut i: int = 0
-    while (< i block.statement_count) {
-        let stmt: ASTStmtRef = (parser_get_block_statement parser (+ block.statement_start i))
+    let stmt_count: int = (list_ASTStmtRef_length block.statements)
+    while (< i stmt_count) {
+        let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
         
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let let_node: ASTLet = (parser_get_let parser stmt.node_id)
@@ -2707,8 +2708,9 @@ fn generate_block(parser: Parser, block_id: int, indent: int, env: GenEnv, retur
         let mut code: string = ""
         let mut env_cur: GenEnv = env
         let mut i: int = 0
-        while (< i block.statement_count) {
-            let stmt: ASTStmtRef = (parser_get_block_statement parser (+ block.statement_start i))
+        let stmt_count: int = (list_ASTStmtRef_length block.statements)
+        while (< i stmt_count) {
+            let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
             let res: StmtGenResult = (generate_statement parser stmt indent env_cur return_type)
             set code (str_concat code res.code)
             set env_cur res.env
