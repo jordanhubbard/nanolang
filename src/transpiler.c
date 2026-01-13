@@ -360,6 +360,16 @@ static void clear_module_headers(void) {
     g_module_headers_capacity = 0;
 }
 
+static bool module_headers_contain(const char *substr) {
+    if (!substr || substr[0] == '\0') return false;
+    for (size_t i = 0; i < g_module_headers_count; i++) {
+        if (g_module_headers[i].name && strstr(g_module_headers[i].name, substr)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static void collect_headers_from_module(const char *module_path) {
     if (!module_path) return;
     
@@ -2701,6 +2711,24 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                 c_name = get_c_func_name_with_module(mi->as.function.name, NULL, mi->as.function.is_extern);
             }
 
+            /* If the generated C file includes the relevant system headers, don't redeclare system APIs. */
+            if (mi->as.function.is_extern && g_module_headers_count > 0) {
+                if (strncmp(c_name, "SDL_", 4) == 0 && module_headers_contain("SDL.h")) continue;
+                if (strncmp(c_name, "TTF_", 4) == 0 && module_headers_contain("SDL_ttf.h")) continue;
+                if (strncmp(c_name, "IMG_", 4) == 0 && module_headers_contain("SDL_image.h")) continue;
+                if (strncmp(c_name, "Mix_", 4) == 0 && module_headers_contain("SDL_mixer.h")) continue;
+                if (strncmp(c_name, "sqlite3_", 8) == 0 && module_headers_contain("sqlite3.h")) continue;
+                if (strncmp(c_name, "curl_", 5) == 0 && module_headers_contain("curl")) continue;
+                if (strncmp(c_name, "glfw", 4) == 0 && module_headers_contain("glfw")) continue;
+            }
+
+            /* If the module's own header is included, don't redeclare its exported wrapper functions. */
+            if (mi->as.function.is_extern && g_module_headers_count > 0 && module_name && strncmp(c_name, "nl_", 3) == 0) {
+                char module_header_needle[300];
+                snprintf(module_header_needle, sizeof(module_header_needle), "%s.h", module_name);
+                if (module_headers_contain(module_header_needle)) continue;
+            }
+
             /* De-dupe */
             bool seen = false;
             for (int k = 0; k < emitted_count; k++) {
@@ -3673,6 +3701,17 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
         } \
         \
         if (extern_decl_set_contains(emitted, emitted_count, func_name)) break; \
+        \
+        /* If we have the relevant system headers in the generated C file, don't redeclare system APIs. */ \
+        if (g_module_headers_count > 0) { \
+            if (strncmp(func_name, "SDL_", 4) == 0 && module_headers_contain("SDL.h")) break; \
+            if (strncmp(func_name, "TTF_", 4) == 0 && module_headers_contain("SDL_ttf.h")) break; \
+            if (strncmp(func_name, "IMG_", 4) == 0 && module_headers_contain("SDL_image.h")) break; \
+            if (strncmp(func_name, "Mix_", 4) == 0 && module_headers_contain("SDL_mixer.h")) break; \
+            if (strncmp(func_name, "sqlite3_", 8) == 0 && module_headers_contain("sqlite3.h")) break; \
+            if (strncmp(func_name, "curl_", 5) == 0 && module_headers_contain("curl")) break; \
+            if (strncmp(func_name, "glfw", 4) == 0 && module_headers_contain("glfw")) break; \
+        } \
         \
         sb_append(sb, "extern "); \
         \

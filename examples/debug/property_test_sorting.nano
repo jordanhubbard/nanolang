@@ -1,17 +1,17 @@
 # Property-based testing example: Sorting algorithm validation
 # Demonstrates how to test sorting with universal properties
 
-from "modules/proptest/proptest.nano" import proptest_int_array
+from "modules/proptest/proptest.nano" import int_range, int_array, forall_int_array, prop_pass, prop_fail, report_passed, report_summary, PropertyReport, IntArrayGenerator, IntRangeGenerator
 
 # Simple bubble sort implementation for testing
 fn bubble_sort(arr: array<int>) -> array<int> {
     let len: int = (array_length arr)
     if (<= len 1) { return arr }
     
-    let mut result: array<int> = []
+    let mut result: array<int> = (array_new len 0)
     let mut i: int = 0
     while (< i len) {
-        set result (array_push result (at arr i))
+        (array_set result i (at arr i))
         set i (+ i 1)
     }
     
@@ -24,8 +24,8 @@ fn bubble_sort(arr: array<int>) -> array<int> {
             let next: int = (at result (+ i 1))
             if (> current next) {
                 # Swap
-                set result (array_set result i next)
-                set result (array_set result (+ i 1) current)
+                (array_set result i next)
+                (array_set result (+ i 1) current)
                 set swapped true
             }
             set i (+ i 1)
@@ -85,6 +85,43 @@ shadow arrays_have_same_elements {
     assert (not (arrays_have_same_elements [1, 2] [1, 2, 3]))
 }
 
+fn prop_length_preserved(arr: array<int>) -> string {
+    let sorted: array<int> = (bubble_sort arr)
+    if (== (array_length arr) (array_length sorted)) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "length")
+    }
+}
+
+fn prop_output_is_sorted(arr: array<int>) -> string {
+    let sorted: array<int> = (bubble_sort arr)
+    if (is_sorted_ascending sorted) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "sorted")
+    }
+}
+
+fn prop_same_elements(arr: array<int>) -> string {
+    let sorted: array<int> = (bubble_sort arr)
+    if (arrays_have_same_elements arr sorted) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "perm")
+    }
+}
+
+fn prop_idempotent(arr: array<int>) -> string {
+    let sorted_once: array<int> = (bubble_sort arr)
+    let sorted_twice: array<int> = (bubble_sort sorted_once)
+    if (arrays_have_same_elements sorted_once sorted_twice) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "idempotent")
+    }
+}
+
 # Example-based tests (traditional approach)
 shadow bubble_sort {
     # Test empty array
@@ -115,34 +152,23 @@ shadow bubble_sort {
     assert (== (at result3 0) 1)
     assert (== (at result3 4) 3)
     
+    let gen: IntArrayGenerator = (int_array (int_range -50 50) 20)
+
     # PROPERTY 1: Output length equals input length
-    (proptest_int_array "length_preserved" 100
-        (fn (arr: array<int>) -> bool {
-            let sorted: array<int> = (bubble_sort arr)
-            return (== (array_length arr) (array_length sorted))
-        }))
-    
+    let r1: PropertyReport = (forall_int_array "length_preserved" gen prop_length_preserved)
+    assert (report_passed r1)
+
     # PROPERTY 2: Output is actually sorted
-    (proptest_int_array "output_is_sorted" 100
-        (fn (arr: array<int>) -> bool {
-            let sorted: array<int> = (bubble_sort arr)
-            return (is_sorted_ascending sorted)
-        }))
-    
+    let r2: PropertyReport = (forall_int_array "output_is_sorted" gen prop_output_is_sorted)
+    assert (report_passed r2)
+
     # PROPERTY 3: Output contains same elements (is permutation)
-    (proptest_int_array "same_elements" 100
-        (fn (arr: array<int>) -> bool {
-            let sorted: array<int> = (bubble_sort arr)
-            return (arrays_have_same_elements arr sorted)
-        }))
-    
+    let r3: PropertyReport = (forall_int_array "same_elements" gen prop_same_elements)
+    assert (report_passed r3)
+
     # PROPERTY 4: Sorting is idempotent (sorting twice = sorting once)
-    (proptest_int_array "idempotent" 100
-        (fn (arr: array<int>) -> bool {
-            let sorted_once: array<int> = (bubble_sort arr)
-            let sorted_twice: array<int> = (bubble_sort sorted_once)
-            return (arrays_have_same_elements sorted_once sorted_twice)
-        }))
+    let r4: PropertyReport = (forall_int_array "idempotent" gen prop_idempotent)
+    assert (report_passed r4)
 }
 
 fn main() -> int {

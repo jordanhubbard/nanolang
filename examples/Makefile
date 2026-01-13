@@ -232,11 +232,26 @@ $(INTERPRETER):
 
 # === Build Rules ===
 
+# Debugging & validation examples (in debug/ subdirectory)
+$(BIN_DIR)/logging_%: debug/logging_%.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
+
+$(BIN_DIR)/coverage_demo: debug/coverage_demo.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
+
+$(BIN_DIR)/property_test_%: debug/property_test_%.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
+
+# OPL toolchain CLI (in opl/ subdirectory)
+$(BIN_DIR)/opl: opl/opl_cli.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
+
 # Nanolang-only examples (now in language/ subdirectory)
 $(BIN_DIR)/nl_%: language/nl_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
 	@echo "Building $@..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
@@ -245,6 +260,10 @@ $(BIN_DIR)/sdl_asteroids: games/sdl_asteroids.nano $(COMPILER)
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
 $(BIN_DIR)/sdl_checkers: games/sdl_checkers.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
+
+$(BIN_DIR)/sdl_pong: games/sdl_pong.nano $(COMPILER)
 	@echo "Building $@..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
