@@ -3979,6 +3979,20 @@ fn parse_block_recursive(p: Parser, statement_start: int, statement_count: int, 
             if (== tok.token_type (token_rbrace)) {
                 /* End of block */
                 let p1: Parser = (parser_advance p)  /* consume '}' */
+                
+                /* DEBUG: Log block storage for explanation_for_code */
+                if (> p1.functions_count 0) {
+                    let last_func: ASTFunction = (parser_get_function p1 (- p1.functions_count 1))
+                    if (str_equals last_func.name "explanation_for_code") {
+                        (print "DEBUG parse_block END: statement_start=")
+                        (print (int_to_string statement_start))
+                        (print ", count=")
+                        (print (int_to_string statement_count))
+                        (print ", block will be ID ")
+                        (println (int_to_string p1.blocks_count))
+                    } else { (print "") }
+                } else { (print "") }
+                
                 return (parser_store_block p1 statement_start statement_count start_line start_column)
             } else {
                 /* Parse statement */
@@ -3988,6 +4002,17 @@ fn parse_block_recursive(p: Parser, statement_start: int, statement_count: int, 
                 } else {
                     let stmt_id: int = p2.last_expr_node_id
                     let stmt_type: int = p2.last_expr_node_type
+
+                    /* DEBUG: Log statement type for explanation_for_code block */
+                    if (> p2.functions_count 0) {
+                        let last_func: ASTFunction = (parser_get_function p2 (- p2.functions_count 1))
+                        if (str_equals last_func.name "explanation_for_code") {
+                            (print "DEBUG parse_block: stmt_id=")
+                            (print (int_to_string stmt_id))
+                            (print ", stmt_type=")
+                            (println (int_to_string stmt_type))
+                        } else { (print "") }
+                    } else { (print "") }
 
                     /* last_expr_node_type is already a ParseNodeType value, no conversion needed */
 
@@ -4572,7 +4597,14 @@ shadow parse_statement {
 fn parser_store_function(p: Parser, name: string, param_start: int, param_count: int, return_type: string, body_id: int, line: int, column: int) -> Parser {
     let lets_count_now: int = (list_ASTLet_length p.lets)
     if (> param_start 150) {
-        (println (+ "DEBUG store_function: name=" (+ name (+ ", param_start=" (+ (int_to_string param_start) (+ ", lets_count=" (int_to_string lets_count_now)))))))
+        (print "DEBUG store_function: name=")
+        (print name)
+        (print ", param_start=")
+        (print (int_to_string param_start))
+        (print ", body=")
+        (print (int_to_string body_id))
+        (print ", lets_count=")
+        (println (int_to_string lets_count_now))
     } else { (print "") }
     let node: ASTFunction = ASTFunction {
         node_type: ParseNodeType.PNODE_FUNCTION,
@@ -6502,7 +6534,17 @@ pub fn parser_get_block_count(p: Parser) -> int {
 
 /* Get a block by index */
 pub fn parser_get_block(p: Parser, idx: int) -> ASTBlock {
-    return (list_ASTBlock_get p.blocks idx)
+    let block: ASTBlock = (list_ASTBlock_get p.blocks idx)
+    
+    /* DEBUG: Log block 1312 retrieval */
+    if (== idx 1312) {
+        (print "DEBUG parser_get_block(1312): statement_start=")
+        (print (int_to_string block.statement_start))
+        (print ", count=")
+        (println (int_to_string block.statement_count))
+    } else { (print "") }
+    
+    return block
 }
 
 /* Get an if statement by index */
