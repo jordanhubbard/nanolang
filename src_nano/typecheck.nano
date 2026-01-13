@@ -2310,6 +2310,13 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
             return false
         }
     } else {
+        if (str_equals current_function "explanation_for_code") {
+            (print "  DEBUG check_return: value node_id=")
+            (print (int_to_string ret_node.value))
+            (print ", value_type=")
+            (println (int_to_string ret_node.value_type))
+        } else { (print "") }
+        
         let expr_t: NSType = (check_expr_node parser ret_node.value ret_node.value_type symbols diags file_name)
         if (not (types_equal expr_t expected_type)) {
             let detail: string = (+ "Return value of " current_function)
@@ -2389,7 +2396,13 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
             (print " type ")
             (print (int_to_string stmt.node_type))
             (print " id ")
-            (println (int_to_string stmt.node_id))
+            (print (int_to_string stmt.node_id))
+            (print " - PNODE_FLOAT=")
+            (print (int_to_string ParseNodeType.PNODE_FLOAT))
+            (print ", PNODE_LET=")
+            (print (int_to_string ParseNodeType.PNODE_LET))
+            (print ", PNODE_RETURN=")
+            (println (int_to_string ParseNodeType.PNODE_RETURN))
         } else { (print "") }
 
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
@@ -2428,6 +2441,16 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
             let ret_node: ASTReturn = (parser_get_return parser stmt.node_id)
+            
+            if (== block_id 1304) {
+                (print "  DEBUG: Calling check_return_statement for function '")
+                (print current_function)
+                (print "', ret_node.value=")
+                (print (int_to_string ret_node.value))
+                (print ", ret_node.value_type=")
+                (println (int_to_string ret_node.value_type))
+            } else { (print "") }
+            
             if (not (check_return_statement parser ret_node expected_return local_symbols diags file_name current_function)) {
                 set ok false
             } else { (print "") }
