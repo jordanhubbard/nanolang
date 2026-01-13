@@ -1721,7 +1721,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                             /* DEBUG: Log undefined identifier with context */
                             (print "DEBUG: Undefined identifier '")
                             (print id_node.name)
-                            (print "' at line ")
+                            (print "' (node ID ")
+                            (print (int_to_string node_id))
+                            (print ") at line ")
                             (print (int_to_string id_node.line))
                             (print ", column ")
                             (print (int_to_string id_node.column))
@@ -2365,12 +2367,30 @@ fn expr_kind_from_pnode(pnode_type: int) -> int {
 
 fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> bool {
     let block: ASTBlock = (parser_get_block parser block_id)
+    
+    if (== block_id 1304) {
+        (print "DEBUG: Block 1304 for ")
+        (print current_function)
+        (print " has ")
+        (print (int_to_string block.statement_count))
+        (println " statements")
+    } else { (print "") }
+    
     let mut local_symbols: array<Symbol> = symbols
     let mut ok: bool = true
 
     let mut i: int = 0
     while (< i block.statement_count) {
         let stmt: ASTStmtRef = (parser_get_block_statement parser (+ block.statement_start i))
+        
+        if (== block_id 1304) {
+            (print "  DEBUG: Statement ")
+            (print (int_to_string i))
+            (print " type ")
+            (print (int_to_string stmt.node_type))
+            (print " id ")
+            (println (int_to_string stmt.node_id))
+        } else { (print "") }
 
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let let_node: ASTLet = (parser_get_let parser stmt.node_id)
@@ -2479,7 +2499,12 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
  */
 fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
     (print "NSType checking function ")
-    (println func.name)
+    (print func.name)
+    (print " (line ")
+    (print (int_to_string func.line))
+    (print ", body block ID ")
+    (print (int_to_string func.body))
+    (println ")")
 
     let return_type: NSType = (type_from_string func.return_type)
     
