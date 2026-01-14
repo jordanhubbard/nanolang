@@ -711,7 +711,7 @@ fn main() -> int {
             
             (nl_ui_label renderer font "Source Code:" (+ RIGHT_PANEL_X 30) (+ source_y 10) 200 200 220 255) 
             
-            # Use new syntax-highlighted code display widget
+            # Use syntax-highlighted code display widget
             # Clamp scroll to valid range
             if (< source_scroll 0) {
                 set source_scroll 0
@@ -722,7 +722,7 @@ fn main() -> int {
             let code_display_w: int = (- RIGHT_PANEL_WIDTH 40)
             let code_display_h: int = (- source_h 65)
             
-                 code_display_x code_display_y code_display_w code_display_h 
+            (nl_ui_code_display renderer font source_code code_display_x code_display_y code_display_w code_display_h source_scroll 18)
             
             # Draw scroll indicator if scrolled
             if (> source_scroll 0) {
