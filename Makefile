@@ -157,7 +157,7 @@ $(GENERATE_MODULE_INDEX): tools/generate_module_index.c modules/std/fs.c src/cJS
 		src/runtime/gc_struct.c \
 		-o $(GENERATE_MODULE_INDEX)
 
-.PHONY: modules-index
+.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
 modules-index: $(GENERATE_MODULE_INDEX)
 	@echo "[modules] Generating module index from manifests..."
 	@./$(GENERATE_MODULE_INDEX)
@@ -173,7 +173,7 @@ PREFIX ?= /usr/local
 
 .DEFAULT_GOAL := build
 
-.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps status modules-index
+.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
 
 # Build: 3-stage bootstrap (uses sentinels to skip completed stages)
 build: schema modules-index $(SENTINEL_STAGE3)
@@ -992,4 +992,25 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index
+.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
+
+# ============================================================================
+# RELEASE AUTOMATION
+# ============================================================================
+
+# Create a new release (default: patch version bump)
+# Usage:
+#   make release              # Bump patch version (x.y.Z)
+#   make release-minor        # Bump minor version (x.Y.0)
+#   make release-major        # Bump major version (X.0.0)
+release:
+	@echo "Creating patch release..."
+	@./scripts/release.sh patch
+
+release-minor:
+	@echo "Creating minor release..."
+	@./scripts/release.sh minor
+
+release-major:
+	@echo "Creating major release..."
+	@./scripts/release.sh major
