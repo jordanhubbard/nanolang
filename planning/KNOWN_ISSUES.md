@@ -64,53 +64,50 @@ Add validation in typechecker for expression statements:
 
 ---
 
-### 3. For-In Loops Not Transpiled (P0)
+### 3. For-In Loops Not Transpiled (P0) - ✅ FIXED
 
 **Severity:** P0 - Critical  
 **Component:** Transpiler (transpiler_iterative_v3_twopass.c)  
-**Discovered:** 2026-01-14
+**Discovered:** 2026-01-14  
+**Fixed:** 2026-01-14
 
 **Description:**
-The `for x in (range ...)` loop construct is not properly transpiled to C. Instead of generating actual loop code, the transpiler emits `/* unsupported expr type 14 */`, causing:
-- Loop bodies to be completely skipped
-- Variables declared in the loop to appear unused
-- Functions containing for-in loops to have all parameters appear unused
+The `for x in (range ...)` loop construct was not properly transpiled to C. Instead of generating actual loop code, the transpiler emitted `/* unsupported expr type 14 */`, causing loop bodies to be completely skipped.
 
-**Example:**
-```nano
-fn check_self_collision(snake_x: array<int>, snake_y: array<int>) -> bool {
-    let head_x: int = (at snake_x 0)
-    let head_y: int = (at snake_y 0)
-    
-    for i in (range 1 (array_length snake_x)) {
-        if (and (== head_x (at snake_x i)) (== head_y (at snake_y i))) {
-            return true
-        }
-    }
-    return false
-}
-```
+**Fix Applied:**
+Added AST_FOR case to `build_stmt()` in `src/transpiler_iterative_v3_twopass.c` at line 2554. The transpiler now properly converts `for i in (range start end)` to standard C for loops: `for (int64_t i = start; i < end; i++)`.
 
-**Generated C:**
+**Before (broken):**
 ```c
-static bool nl_check_self_collision(DynArray* snake_x, DynArray* snake_y) {
-    int64_t head_x = nl_array_at_int(snake_x, 0LL);
-    int64_t head_y = nl_array_at_int(snake_y, 0LL);
-    /* unsupported expr type 14 */;  // <-- FOR-IN LOOP MISSING!
-    return false;
+static int64_t nl_sum_range(int64_t n) {
+    int64_t sum = 0LL;
+    /* unsupported expr type 14 */;  // Loop missing!
+    return sum;  // Always returns 0
 }
 ```
 
-**Impact:**
-- ~140 unused-const-variable warnings (constants only used in for-in loops)
-- ~58 unused-function warnings (functions only called from for-in loops)
-- ~17 unused-variable warnings (loop variables)
-- Multiple examples have broken functionality (snake games, game of life, etc.)
+**After (working):**
+```c
+static int64_t nl_sum_range(int64_t n) {
+    int64_t sum = 0LL;
+    for (int64_t i = 0LL; i < n; i++) {
+        sum = (sum + i);
+    }
+    return sum;  // Correctly computes sum
+}
+```
 
-**Files Involved:**
-- `src/transpiler_iterative_v3_twopass.c` line 2148: emits "unsupported expr type 14"
+**Verification:**
+- ✅ All 148 tests pass
+- ✅ Created comprehensive `test_for_in_loops.nano` with 5 test functions
+- ✅ Tests cover: simple ranges, nested loops, array iteration, custom start/end
+- ✅ Runtime verification: sum_range(5)=10, nested_loops(3)=18, range_start_end()=35
 
-**Priority:** P0 - This breaks core language functionality
+**Files Modified:**
+- `src/transpiler_iterative_v3_twopass.c`: Added AST_FOR case with proper C for-loop generation
+- `tests/test_for_in_loops.nano`: Comprehensive regression test suite
+
+**Status:** RESOLVED in v2.0.5
 
 ---
 

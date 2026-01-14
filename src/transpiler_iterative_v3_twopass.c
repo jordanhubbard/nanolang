@@ -2551,6 +2551,39 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             build_stmt(list, stmt->as.while_stmt.body, indent, env, fn_registry);
             break;
             
+        case AST_FOR: {
+            /* for i in (range start end) { body } 
+             * Transpiles to: for (int64_t i = start; i < end; i++) { body } 
+             */
+            const char *var = stmt->as.for_stmt.var_name;
+            ASTNode *range = stmt->as.for_stmt.range_expr;
+            
+            /* Expecting range_expr to be (range start end) call */
+            if (range && range->type == AST_CALL && 
+                range->as.call.name && strcmp(range->as.call.name, "range") == 0 &&
+                range->as.call.arg_count == 2) {
+                
+                emit_indent_item(list, indent);
+                emit_literal(list, "for (int64_t ");
+                emit_literal(list, var);
+                emit_literal(list, " = ");
+                build_expr(list, range->as.call.args[0], env);
+                emit_literal(list, "; ");
+                emit_literal(list, var);
+                emit_literal(list, " < ");
+                build_expr(list, range->as.call.args[1], env);
+                emit_literal(list, "; ");
+                emit_literal(list, var);
+                emit_literal(list, "++) ");
+                build_stmt(list, stmt->as.for_stmt.body, indent, env, fn_registry);
+            } else {
+                /* Fallback for non-range for loops */
+                emit_indent_item(list, indent);
+                emit_literal(list, "/* unsupported for-in pattern */;\n");
+            }
+            break;
+        }
+            
         case AST_IF:
             emit_indent_item(list, indent);
             emit_literal(list, "if (");
