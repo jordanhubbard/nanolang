@@ -391,7 +391,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    /* Safety: Bound string scan to 1MB */\n");
     sb_append(sb, "    size_t len1 = strnlen(s1, 1024*1024);\n");
     sb_append(sb, "    size_t len2 = strnlen(s2, 1024*1024);\n");
-    sb_append(sb, "    char* result = malloc(len1 + len2 + 1);\n");
+    sb_append(sb, "    char* result = gc_alloc_string(len1 + len2);\n");
     sb_append(sb, "    if (!result) return \"\";\n");
     sb_append(sb, "    memcpy(result, s1, len1);\n");
     sb_append(sb, "    memcpy(result + len1, s2, len2);\n");
@@ -405,7 +405,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    int64_t str_len = strnlen(str, 1024*1024);\n");
     sb_append(sb, "    if (start < 0 || start >= str_len || length < 0) return \"\";\n");
     sb_append(sb, "    if (start + length > str_len) length = str_len - start;\n");
-    sb_append(sb, "    char* result = malloc(length + 1);\n");
+    sb_append(sb, "    char* result = gc_alloc_string(length);\n");
     sb_append(sb, "    if (!result) return \"\";\n");
     sb_append(sb, "    strncpy(result, str + start, length);\n");
     sb_append(sb, "    result[length] = '\\0';\n");
@@ -439,7 +439,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    if (dyn_array_get_elem_type(bytes) != ELEM_U8) return \"\";\n");
     sb_append(sb, "    int64_t len = dyn_array_length(bytes);\n");
     sb_append(sb, "    if (len < 0) return \"\";\n");
-    sb_append(sb, "    char* out = malloc((size_t)len + 1);\n");
+    sb_append(sb, "    char* out = gc_alloc_string((size_t)len);\n");
     sb_append(sb, "    if (!out) return \"\";\n");
     sb_append(sb, "    for (int64_t i = 0; i < len; i++) {\n");
     sb_append(sb, "        out[i] = (char)dyn_array_get_u8(bytes, i);\n");
@@ -535,7 +535,7 @@ void generate_string_operations(StringBuilder *sb) {
     
     /* string_from_char */
     sb_append(sb, "static char* string_from_char(int64_t c) {\n");
-    sb_append(sb, "    char* buffer = malloc(2);\n");
+    sb_append(sb, "    char* buffer = gc_alloc_string(1);\n");
     sb_append(sb, "    if (!buffer) return \"\";\n");
     sb_append(sb, "    buffer[0] = (char)c;\n");
     sb_append(sb, "    buffer[1] = '\\0';\n");
@@ -569,14 +569,14 @@ void generate_string_operations(StringBuilder *sb) {
     
     /* Type conversions */
     sb_append(sb, "static char* int_to_string(int64_t n) {\n");
-    sb_append(sb, "    char* buffer = malloc(32);\n");
+    sb_append(sb, "    char* buffer = gc_alloc_string(31);\n");
     sb_append(sb, "    if (!buffer) return \"\";\n");
     sb_append(sb, "    snprintf(buffer, 32, \"%lld\", (long long)n);\n");
     sb_append(sb, "    return buffer;\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static char* float_to_string(double x) {\n");
-    sb_append(sb, "    char* buffer = malloc(64);\n");
+    sb_append(sb, "    char* buffer = gc_alloc_string(63);\n");
     sb_append(sb, "    if (!buffer) return \"\";\n");
     sb_append(sb, "    snprintf(buffer, 64, \"%g\", x);\n");
     sb_append(sb, "    return buffer;\n");
