@@ -79,7 +79,7 @@ fn StringBuilder_append(sb: StringBuilder, text: string) -> StringBuilder {
     }
     
     /* Concatenate strings */
-    let new_buffer: string = (str_concat sb.buffer text)
+    let new_buffer: string = (+ sb.buffer text)
     
     /* Create new StringBuilder with appended text */
     return StringBuilder {

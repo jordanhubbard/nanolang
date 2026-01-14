@@ -75,9 +75,9 @@ fn compile_file(input: string, output: string) -> int {
     
     /* Actually compile using C compiler */
     let cmd: string = "bin/nanoc "
-    let cmd2: string = (str_concat cmd input)
-    let cmd3: string = (str_concat cmd2 " -o ")
-    let cmd4: string = (str_concat cmd3 output)
+    let cmd2: string = (+ cmd input)
+    let cmd3: string = (+ cmd2 " -o ")
+    let cmd4: string = (+ cmd3 output)
     
     let result: int = (system cmd4)
     

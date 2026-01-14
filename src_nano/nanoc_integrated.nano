@@ -4332,7 +4332,7 @@ fn gen_indent(level: int) -> string {
     if (<= level 0) {
         return ""
     } else {
-        return (str_concat "    " (gen_indent (- level 1)))
+        return (+ "    " (gen_indent (- level 1)))
     }
 }
 
@@ -4344,7 +4344,7 @@ shadow gen_indent {
 /* Generate a fresh temporary variable name */
 fn gen_temp_var(state: CodeGenState) -> string {
     let counter_str: string = (int_to_string state.temp_counter)
-    return (str_concat "_t" counter_str)
+    return (+ "_t" counter_str)
 }
 
 shadow gen_temp_var {
@@ -4417,7 +4417,7 @@ shadow gen_number {
 /* Generate code for a string literal */
 fn gen_string(value: string) -> string {
     /* For now, return as-is. In production, need to escape special chars */
-    return (str_concat "\"" (str_concat value "\""))
+    return (+ "\"" (+ value "\""))
 }
 
 shadow gen_string {
@@ -4442,7 +4442,7 @@ shadow gen_bool {
 /* Generate code for an identifier */
 fn gen_identifier(name: string) -> string {
     /* Add nl_ prefix for namespacing */
-    return (str_concat "nl_" name)
+    return (+ "nl_" name)
 }
 
 shadow gen_identifier {
@@ -4469,12 +4469,12 @@ fn gen_binary_op(op: string, left: string, right: string) -> string {
     }
     
     let mut result: string = "("
-    set result (str_concat result left)
-    set result (str_concat result " ")
-    set result (str_concat result c_op)
-    set result (str_concat result " ")
-    set result (str_concat result right)
-    set result (str_concat result ")")
+    set result (+ result left)
+    set result (+ result " ")
+    set result (+ result c_op)
+    set result (+ result " ")
+    set result (+ result right)
+    set result (+ result ")")
     
     return result
 }
@@ -4487,8 +4487,8 @@ shadow gen_binary_op {
 /* Generate code for a function call */
 fn gen_call(func_name: string, args: array<string>) -> string {
     let mut result: string = "nl_"
-    set result (str_concat result func_name)
-    set result (str_concat result "(")
+    set result (+ result func_name)
+    set result (+ result "(")
     
     /* Add arguments */
     let arg_count: int = (array_length args)
@@ -4496,17 +4496,17 @@ fn gen_call(func_name: string, args: array<string>) -> string {
     
     while (< i arg_count) {
         if (> i 0) {
-            set result (str_concat result ", ")
+            set result (+ result ", ")
         } else {
             (print "")
         }
         
         /* Directly use (at args i) to avoid type inference issue */
-        set result (str_concat result (at args i))
+        set result (+ result (at args i))
         set i (+ i 1)
     }
     
-    set result (str_concat result ")")
+    set result (+ result ")")
     return result
 }
 
@@ -4533,12 +4533,12 @@ fn gen_let(name: string, type_name: string, value_expr: string, indent: int) -> 
     /* Convert nanolang type to C type using helper */
     let c_type: string = (type_to_c type_name)
     
-    set result (str_concat result c_type)
-    set result (str_concat result " nl_")
-    set result (str_concat result name)
-    set result (str_concat result " = ")
-    set result (str_concat result value_expr)
-    set result (str_concat result ";\n")
+    set result (+ result c_type)
+    set result (+ result " nl_")
+    set result (+ result name)
+    set result (+ result " = ")
+    set result (+ result value_expr)
+    set result (+ result ";\n")
     
     return result
 }
@@ -4552,24 +4552,24 @@ shadow gen_let {
 /* Generate code for an if statement */
 fn gen_if(condition: string, then_body: string, else_body: string, indent: int) -> string {
     let mut result: string = (gen_indent indent)
-    set result (str_concat result "if (")
-    set result (str_concat result condition)
-    set result (str_concat result ") {\n")
-    set result (str_concat result then_body)
-    set result (str_concat result (gen_indent indent))
-    set result (str_concat result "}")
+    set result (+ result "if (")
+    set result (+ result condition)
+    set result (+ result ") {\n")
+    set result (+ result then_body)
+    set result (+ result (gen_indent indent))
+    set result (+ result "}")
     
     /* Add else clause if present */
     if (!= else_body "") {
-        set result (str_concat result " else {\n")
-        set result (str_concat result else_body)
-        set result (str_concat result (gen_indent indent))
-        set result (str_concat result "}")
+        set result (+ result " else {\n")
+        set result (+ result else_body)
+        set result (+ result (gen_indent indent))
+        set result (+ result "}")
     } else {
         (print "")
     }
     
-    set result (str_concat result "\n")
+    set result (+ result "\n")
     return result
 }
 
@@ -4582,12 +4582,12 @@ shadow gen_if {
 /* Generate code for a while loop */
 fn gen_while(condition: string, body: string, indent: int) -> string {
     let mut result: string = (gen_indent indent)
-    set result (str_concat result "while (")
-    set result (str_concat result condition)
-    set result (str_concat result ") {\n")
-    set result (str_concat result body)
-    set result (str_concat result (gen_indent indent))
-    set result (str_concat result "}\n")
+    set result (+ result "while (")
+    set result (+ result condition)
+    set result (+ result ") {\n")
+    set result (+ result body)
+    set result (+ result (gen_indent indent))
+    set result (+ result "}\n")
     
     return result
 }
@@ -4601,9 +4601,9 @@ shadow gen_while {
 /* Generate code for a return statement */
 fn gen_return(value_expr: string, indent: int) -> string {
     let mut result: string = (gen_indent indent)
-    set result (str_concat result "return ")
-    set result (str_concat result value_expr)
-    set result (str_concat result ";\n")
+    set result (+ result "return ")
+    set result (+ result value_expr)
+    set result (+ result ";\n")
     
     return result
 }
@@ -4625,10 +4625,10 @@ fn gen_function_signature(name: string, params: array<string>, param_types: arra
     /* Convert return type using helper */
     let c_ret_type: string = (type_to_c return_type)
     
-    set result (str_concat result c_ret_type)
-    set result (str_concat result " nl_")
-    set result (str_concat result name)
-    set result (str_concat result "(")
+    set result (+ result c_ret_type)
+    set result (+ result " nl_")
+    set result (+ result name)
+    set result (+ result "(")
     
     /* Add parameters */
     let param_count: int = (array_length params)
@@ -4636,22 +4636,22 @@ fn gen_function_signature(name: string, params: array<string>, param_types: arra
     
     while (< i param_count) {
         if (> i 0) {
-            set result (str_concat result ", ")
+            set result (+ result ", ")
         } else {
             (print "")
         }
         
         /* Use param type directly - caller should pre-convert to C types */
         /* This avoids array<string> type inference issues */
-        set result (str_concat result (at param_types i))
-        set result (str_concat result " nl_")
+        set result (+ result (at param_types i))
+        set result (+ result " nl_")
         /* Use param name directly */
-        set result (str_concat result (at params i))
+        set result (+ result (at params i))
         
         set i (+ i 1)
     }
     
-    set result (str_concat result ")")
+    set result (+ result ")")
     return result
 }
 
@@ -4669,9 +4669,9 @@ shadow gen_function_signature {
 /* Generate complete function definition */
 fn gen_function(name: string, params: array<string>, param_types: array<string>, return_type: string, body: string) -> string {
     let mut result: string = (gen_function_signature name params param_types return_type)
-    set result (str_concat result " {\n")
-    set result (str_concat result body)
-    set result (str_concat result "}\n\n")
+    set result (+ result " {\n")
+    set result (+ result body)
+    set result (+ result "}\n\n")
     
     return result
 }
@@ -4691,11 +4691,11 @@ shadow gen_function {
 /* Generate C includes and runtime support */
 fn gen_c_includes() -> string {
     let mut result: string = "/* Generated by nanolang self-hosted compiler */\n"
-    set result (str_concat result "#include <stdio.h>\n")
-    set result (str_concat result "#include <stdlib.h>\n")
-    set result (str_concat result "#include <stdint.h>\n")
-    set result (str_concat result "#include <string.h>\n")
-    set result (str_concat result "\n")
+    set result (+ result "#include <stdio.h>\n")
+    set result (+ result "#include <stdlib.h>\n")
+    set result (+ result "#include <stdint.h>\n")
+    set result (+ result "#include <string.h>\n")
+    set result (+ result "\n")
     
     return result
 }
@@ -4711,21 +4711,21 @@ fn gen_c_runtime() -> string {
     let mut result: string = "/* Runtime helper functions */\n"
     
     /* print function */
-    set result (str_concat result "void nl_print(char* s) {\n")
-    set result (str_concat result "    printf(\"%s\", s);\n")
-    set result (str_concat result "}\n\n")
+    set result (+ result "void nl_print(char* s) {\n")
+    set result (+ result "    printf(\"%s\", s);\n")
+    set result (+ result "}\n\n")
     
     /* println function */
-    set result (str_concat result "void nl_println(char* s) {\n")
-    set result (str_concat result "    printf(\"%s\\n\", s);\n")
-    set result (str_concat result "}\n\n")
+    set result (+ result "void nl_println(char* s) {\n")
+    set result (+ result "    printf(\"%s\\n\", s);\n")
+    set result (+ result "}\n\n")
     
     /* int_to_string function */
-    set result (str_concat result "char* nl_int_to_string(int64_t n) {\n")
-    set result (str_concat result "    char* buf = malloc(32);\n")
-    set result (str_concat result "    snprintf(buf, 32, \"%lld\", n);\n")
-    set result (str_concat result "    return buf;\n")
-    set result (str_concat result "}\n\n")
+    set result (+ result "char* nl_int_to_string(int64_t n) {\n")
+    set result (+ result "    char* buf = malloc(32);\n")
+    set result (+ result "    snprintf(buf, 32, \"%lld\", n);\n")
+    set result (+ result "    return buf;\n")
+    set result (+ result "}\n\n")
     
     return result
 }
@@ -4739,9 +4739,9 @@ shadow gen_c_runtime {
 /* Generate complete C program */
 fn gen_c_program(functions: string) -> string {
     let mut result: string = (gen_c_includes)
-    set result (str_concat result (gen_c_runtime))
-    set result (str_concat result "/* User functions */\n")
-    set result (str_concat result functions)
+    set result (+ result (gen_c_runtime))
+    set result (+ result "/* User functions */\n")
+    set result (+ result functions)
     
     return result
 }
@@ -4842,7 +4842,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int) -> string {
             /* Identifier */
             let id: ASTIdentifier = (parser_get_identifier parser node_id)
             /* Prefix with nl_ for nanolang identifiers */
-            return (str_concat "nl_" id.name)
+            return (+ "nl_" id.name)
         } else {
             if (== node_type 2) {
                 /* Binary operation - RECURSIVE! */
@@ -4859,12 +4859,12 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int) -> string {
                 
                 /* Build expression: (left op right) */
                 let mut result: string = "("
-                set result (str_concat result left_code)
-                set result (str_concat result " ")
-                set result (str_concat result op_str)
-                set result (str_concat result " ")
-                set result (str_concat result right_code)
-                set result (str_concat result ")")
+                set result (+ result left_code)
+                set result (+ result " ")
+                set result (+ result op_str)
+                set result (+ result " ")
+                set result (+ result right_code)
+                set result (+ result ")")
                 
                 return result
             } else {
@@ -4878,13 +4878,13 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int) -> string {
                     
                     /* Build call: nl_funcname(args...) */
                     let mut result: string = "nl_"
-                    set result (str_concat result func_name)
-                    set result (str_concat result "(")
+                    set result (+ result func_name)
+                    set result (+ result "(")
                     
                     /* TODO: Generate arguments */
                     /* For now, generate with no arguments */
                     
-                    set result (str_concat result ")")
+                    set result (+ result ")")
                     return result
                 } else {
                     /* Unknown type - return 0 */
@@ -4906,19 +4906,19 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int) -> string {
  */
 fn generate_return_stmt(parser: Parser, ret: ASTReturn, indent: int) -> string {
     let mut code: string = (gen_indent indent)
-    set code (str_concat code "return")
+    set code (+ code "return")
     
     if (< ret.value 0) {
         /* No return value - void return */
-        set code (str_concat code "")
+        set code (+ code "")
     } else {
         /* Has return value - generate expression */
-        set code (str_concat code " ")
+        set code (+ code " ")
         let expr_code: string = (generate_expression parser ret.value ret.value_type)
-        set code (str_concat code expr_code)
+        set code (+ code expr_code)
     }
     
-    set code (str_concat code ";\n")
+    set code (+ code ";\n")
     return code
 }
 
@@ -4936,24 +4936,24 @@ fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int) -> string {
     
     /* TODO: Get actual type from let_stmt - currently defaults to int64_t */
     /* Workaround: Cannot access struct field from function parameter during transpilation */
-    set code (str_concat code "int64_t ")
+    set code (+ code "int64_t ")
     
     /* Add variable name with nl_ prefix */
-    set code (str_concat code "nl_")
-    set code (str_concat code let_stmt.name)
-    set code (str_concat code " = ")
+    set code (+ code "nl_")
+    set code (+ code let_stmt.name)
+    set code (+ code " = ")
     
     /* Generate initialization expression */
     if (< let_stmt.value 0) {
         /* No initialization - use default */
-        set code (str_concat code "0")
+        set code (+ code "0")
     } else {
         /* Generate expression */
         let expr_code: string = (generate_expression parser let_stmt.value let_stmt.value_type)
-        set code (str_concat code expr_code)
+        set code (+ code expr_code)
     }
     
-    set code (str_concat code ";\n")
+    set code (+ code ";\n")
     return code
 }
 
@@ -4970,15 +4970,15 @@ fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int) -> string {
     let mut code: string = (gen_indent indent)
     
     /* Add target variable with nl_ prefix */
-    set code (str_concat code "nl_")
-    set code (str_concat code set_stmt.target)
-    set code (str_concat code " = ")
+    set code (+ code "nl_")
+    set code (+ code set_stmt.target)
+    set code (+ code " = ")
     
     /* Generate value expression */
     let expr_code: string = (generate_expression parser set_stmt.value set_stmt.value_type)
-    set code (str_concat code expr_code)
+    set code (+ code expr_code)
     
-    set code (str_concat code ";\n")
+    set code (+ code ";\n")
     return code
 }
 
@@ -4993,29 +4993,29 @@ fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int) -> string {
  */
 fn generate_if_stmt(parser: Parser, if_stmt: ASTIf, indent: int) -> string {
     let mut code: string = (gen_indent indent)
-    set code (str_concat code "if (")
+    set code (+ code "if (")
     
     /* Generate condition expression */
     let cond_code: string = (generate_expression parser if_stmt.condition if_stmt.condition_type)
-    set code (str_concat code cond_code)
-    set code (str_concat code ") {\n")
+    set code (+ code cond_code)
+    set code (+ code ") {\n")
     
     /* TODO: Generate then body */
-    set code (str_concat code (gen_indent (+ indent 1)))
-    set code (str_concat code "/* then body */\n")
+    set code (+ code (gen_indent (+ indent 1)))
+    set code (+ code "/* then body */\n")
     
-    set code (str_concat code (gen_indent indent))
-    set code (str_concat code "}")
+    set code (+ code (gen_indent indent))
+    set code (+ code "}")
     
     /* Generate else if present */
     if (< if_stmt.else_body 0) {
-        set code (str_concat code "\n")
+        set code (+ code "\n")
     } else {
-        set code (str_concat code " else {\n")
-        set code (str_concat code (gen_indent (+ indent 1)))
-        set code (str_concat code "/* else body */\n")
-        set code (str_concat code (gen_indent indent))
-        set code (str_concat code "}\n")
+        set code (+ code " else {\n")
+        set code (+ code (gen_indent (+ indent 1)))
+        set code (+ code "/* else body */\n")
+        set code (+ code (gen_indent indent))
+        set code (+ code "}\n")
     }
     
     return code
@@ -5032,19 +5032,19 @@ fn generate_if_stmt(parser: Parser, if_stmt: ASTIf, indent: int) -> string {
  */
 fn generate_while_stmt(parser: Parser, while_stmt: ASTWhile, indent: int) -> string {
     let mut code: string = (gen_indent indent)
-    set code (str_concat code "while (")
+    set code (+ code "while (")
     
     /* Generate condition expression */
     let cond_code: string = (generate_expression parser while_stmt.condition while_stmt.condition_type)
-    set code (str_concat code cond_code)
-    set code (str_concat code ") {\n")
+    set code (+ code cond_code)
+    set code (+ code ") {\n")
     
     /* TODO: Generate body */
-    set code (str_concat code (gen_indent (+ indent 1)))
-    set code (str_concat code "/* loop body */\n")
+    set code (+ code (gen_indent (+ indent 1)))
+    set code (+ code "/* loop body */\n")
     
-    set code (str_concat code (gen_indent indent))
-    set code (str_concat code "}\n")
+    set code (+ code (gen_indent indent))
+    set code (+ code "}\n")
     
     return code
 }
@@ -5063,7 +5063,7 @@ fn generate_statements_simple(parser: Parser, indent: int) -> string {
     let mut i: int = 0
     while (< i let_count) {
         let let_stmt: ASTLet = (parser_get_let parser i)
-        set code (str_concat code (generate_let_stmt parser let_stmt indent))
+        set code (+ code (generate_let_stmt parser let_stmt indent))
         set i (+ i 1)
     }
     
@@ -5072,7 +5072,7 @@ fn generate_statements_simple(parser: Parser, indent: int) -> string {
     set i 0
     while (< i set_count) {
         let set_stmt: ASTSet = (parser_get_set parser i)
-        set code (str_concat code (generate_set_stmt parser set_stmt indent))
+        set code (+ code (generate_set_stmt parser set_stmt indent))
         set i (+ i 1)
     }
     
@@ -5081,7 +5081,7 @@ fn generate_statements_simple(parser: Parser, indent: int) -> string {
     set i 0
     while (< i if_count) {
         let if_stmt: ASTIf = (parser_get_if parser i)
-        set code (str_concat code (generate_if_stmt parser if_stmt indent))
+        set code (+ code (generate_if_stmt parser if_stmt indent))
         set i (+ i 1)
     }
     
@@ -5090,7 +5090,7 @@ fn generate_statements_simple(parser: Parser, indent: int) -> string {
     set i 0
     while (< i while_count) {
         let while_stmt: ASTWhile = (parser_get_while parser i)
-        set code (str_concat code (generate_while_stmt parser while_stmt indent))
+        set code (+ code (generate_while_stmt parser while_stmt indent))
         set i (+ i 1)
     }
     
@@ -5099,7 +5099,7 @@ fn generate_statements_simple(parser: Parser, indent: int) -> string {
     set i 0
     while (< i ret_count) {
         let ret: ASTReturn = (parser_get_return parser i)
-        set code (str_concat code (generate_return_stmt parser ret indent))
+        set code (+ code (generate_return_stmt parser ret indent))
         set i (+ i 1)
     }
     
@@ -5159,8 +5159,8 @@ fn transpile_parser(parser: Parser) -> string {
         let types: array<string> = []
         let func_code: string = (gen_function func.name params types func.return_type body)
         
-        set all_functions (str_concat all_functions func_code)
-        set all_functions (str_concat all_functions "\n")
+        set all_functions (+ all_functions func_code)
+        set all_functions (+ all_functions "\n")
         set i (+ i 1)
     }
     
@@ -5177,34 +5177,34 @@ fn transpile_with_count(func_count: int) -> string {
     
     /* Generate main function that demonstrates successful compilation */
     let mut body: string = ""
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"========================================\");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"  nanolang Self-Hosted Compiler\");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"  Successfully compiled and generated!\");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"========================================\");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"\");\n")
-    set body (str_concat body (gen_indent 1))
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"========================================\");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"  nanolang Self-Hosted Compiler\");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"  Successfully compiled and generated!\");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"========================================\");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"\");\n")
+    set body (+ body (gen_indent 1))
     
     /* Show compilation stats */
-    set body (str_concat body "nl_print(\"Functions parsed: \");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_print(nl_int_to_string(")
-    set body (str_concat body (int_to_string func_count))
-    set body (str_concat body "));\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"\");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"NSType checking: PASSED\");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"Code generation: COMPLETE\");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"\");\n")
+    set body (+ body "nl_print(\"Functions parsed: \");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_print(nl_int_to_string(")
+    set body (+ body (int_to_string func_count))
+    set body (+ body "));\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"\");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"NSType checking: PASSED\");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"Code generation: COMPLETE\");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"\");\n")
     
-    set body (str_concat body (gen_return "0" 1))
+    set body (+ body (gen_return "0" 1))
     
     let params: array<string> = []
     let types: array<string> = []
@@ -5244,9 +5244,9 @@ fn main() -> int {
     
     # Generate a simple hello world program
     let mut body: string = ""
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"Hello, World!\");\n")
-    set body (str_concat body (gen_return "0" 1))
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"Hello, World!\");\n")
+    set body (+ body (gen_return "0" 1))
     
     let params: array<string> = []
     let types: array<string> = []
@@ -5439,7 +5439,7 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
     if verbose {
         (println "Step 5: Generating C code...")
     }
-    let c_file: string = (str_concat output ".c")
+    let c_file: string = (+ output ".c")
     let transpile_output: TranspilePhaseOutput = (transpile_phase_run parser c_file)
     if (phase_failed "Transpiler" transpile_output.had_error transpile_output.diagnostics) {
         return 1
@@ -5465,10 +5465,10 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
     }
     
     let gcc_cmd: string = "gcc "
-    let gcc_cmd2: string = (str_concat gcc_cmd c_file)
-    let gcc_cmd3: string = (str_concat gcc_cmd2 " -o ")
-    let gcc_cmd4: string = (str_concat gcc_cmd3 output)
-    let gcc_cmd5: string = (str_concat gcc_cmd4 " -lm")
+    let gcc_cmd2: string = (+ gcc_cmd c_file)
+    let gcc_cmd3: string = (+ gcc_cmd2 " -o ")
+    let gcc_cmd4: string = (+ gcc_cmd3 output)
+    let gcc_cmd5: string = (+ gcc_cmd4 " -lm")
     
     /* TODO: Execute gcc when system() is ready */
     /* let result: int = (system gcc_cmd5) */

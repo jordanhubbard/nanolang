@@ -54,7 +54,7 @@ fn gen_indent(level: int) -> string {
     if (<= level 0) {
         return ""
     } else {
-        return (str_concat "    " (gen_indent (- level 1)))
+        return (+ "    " (gen_indent (- level 1)))
     }
 }
 
@@ -66,7 +66,7 @@ shadow gen_indent {
 /* Generate a fresh temporary variable name */
 fn gen_temp_var(state: CodeGenState) -> string {
     let counter_str: string = (int_to_string state.temp_var_counter)
-    return (str_concat "_t" counter_str)
+    return (+ "_t" counter_str)
 }
 
 shadow gen_temp_var {
@@ -104,18 +104,18 @@ fn mangle_name(name: string) -> string {
         if (and (str_equals ch ":") (< (+ i 1) len)) {
             let ch2: string = (str_substring name (+ i 1) 1)
             if (str_equals ch2 ":") {
-                set out (str_concat out "_")
+                set out (+ out "_")
                 set i (+ i 2)
             } else {
-                set out (str_concat out "_")
+                set out (+ out "_")
                 set i (+ i 1)
             }
         } else {
             if (or (or (str_equals ch ".") (str_equals ch "<"))
                     (or (str_equals ch ">") (str_equals ch ","))) {
-                set out (str_concat out "_")
+                set out (+ out "_")
             } else {
-                set out (str_concat out ch)
+                set out (+ out ch)
             }
             set i (+ i 1)
         }
@@ -218,24 +218,24 @@ fn mangle_module_ident(name: string) -> string {
         if (and (str_equals ch ":") (< (+ i 1) len)) {
             let ch2: string = (str_substring name (+ i 1) 1)
             if (str_equals ch2 ":") {
-                set out (str_concat out "__")
+                set out (+ out "__")
                 set i (+ i 2)
             } else {
-                set out (str_concat out "_")
+                set out (+ out "_")
                 set i (+ i 1)
             }
         } else {
             if (str_equals ch ".") {
-                set out (str_concat out "__")
+                set out (+ out "__")
             } else {
                 if (or (or (str_equals ch "<") (str_equals ch ">"))
                         (or (str_equals ch ",") (str_equals ch "("))) {
-                    set out (str_concat out "_")
+                    set out (+ out "_")
                 } else {
                     if (str_equals ch ")") {
-                        set out (str_concat out "_")
+                        set out (+ out "_")
                     } else {
-                        set out (str_concat out ch)
+                        set out (+ out ch)
                     }
                 }
             }
@@ -261,14 +261,14 @@ fn c_name_for_qualified_function(func_name: string) -> string {
         let mod_part: string = (str_substring func_name 0 dc)
         let base: string = (str_substring func_name (+ dc 2) (- len (+ dc 2)))
         let mm: string = (mangle_module_ident mod_part)
-        return (str_concat (str_concat mm "__") (mangle_name base))
+        return (+ (+ mm "__") (mangle_name base))
     } else {
         let dot: int = (last_dot_index func_name)
         if (>= dot 0) {
             let mod_part: string = (str_substring func_name 0 dot)
             let base: string = (str_substring func_name (+ dot 1) (- len (+ dot 1)))
             let mm: string = (mangle_module_ident mod_part)
-            return (str_concat (str_concat mm "__") (mangle_name base))
+            return (+ (+ mm "__") (mangle_name base))
         } else {
             return func_name
         }
@@ -280,12 +280,12 @@ fn c_func_name_for_call(func_name: string) -> string {
         return func_name
     } else {
         if (is_generic_list_runtime_fn func_name) {
-            return (str_concat "nl_" func_name)
+            return (+ "nl_" func_name)
         } else {
             if (or (str_contains func_name "::") (str_contains func_name ".")) {
                 return (c_name_for_qualified_function func_name)
             } else {
-                return (str_concat "nl_" (mangle_name func_name))
+                return (+ "nl_" (mangle_name func_name))
             }
         }
     }
@@ -295,7 +295,7 @@ fn c_func_name_for_definition(func_name: string) -> string {
     if (or (str_contains func_name "::") (str_contains func_name ".")) {
         return (c_name_for_qualified_function func_name)
     } else {
-        return (str_concat "nl_" (mangle_name func_name))
+        return (+ "nl_" (mangle_name func_name))
     }
 }
 
@@ -363,7 +363,7 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
                     let elem: string = t2.value
                     if (str_equals elem "LexerToken") { return TypeCParseResult { ok: true, c_type: "List_LexerToken*", next_pos: (+ start_pos 4) } } else { (print "") }
                     if (str_equals elem "CompilerDiagnostic") { return TypeCParseResult { ok: true, c_type: "List_CompilerDiagnostic*", next_pos: (+ start_pos 4) } } else { (print "") }
-                    return TypeCParseResult { ok: true, c_type: (str_concat (str_concat "List_" (mangle_type_name elem)) "*"), next_pos: (+ start_pos 4) }
+                    return TypeCParseResult { ok: true, c_type: (+ (+ "List_" (mangle_type_name elem)) "*"), next_pos: (+ start_pos 4) }
                 } else { (print "") }
             } else { (print "") }
         } else { (print "") }
@@ -374,7 +374,7 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
         } else { (print "") }
 
         /* Fallback: treat as user-defined struct */
-        return TypeCParseResult { ok: true, c_type: (str_concat "nl_" (mangle_name name)), next_pos: (+ start_pos 1) }
+        return TypeCParseResult { ok: true, c_type: (+ "nl_" (mangle_name name)), next_pos: (+ start_pos 1) }
     } else { (print "") }
 
     return TypeCParseResult { ok: false, c_type: "", next_pos: start_pos }
@@ -417,7 +417,7 @@ fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
                     continue
                 } else { (print "") }
 
-                let c_name: string = (str_concat "nl_" (mangle_name sname))
+                let c_name: string = (+ "nl_" (mangle_name sname))
                 let mut fields: string = ""
 
                 let mut j: int = (+ i 3)
@@ -439,11 +439,11 @@ fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
                         let fname: string = tcur.value
                         let tr: TypeCParseResult = (parse_type_c_from_tokens parser (+ j 2))
                         if tr.ok {
-                            set fields (str_concat fields "    ")
-                            set fields (str_concat fields tr.c_type)
-                            set fields (str_concat fields " ")
-                            set fields (str_concat fields (mangle_name fname))
-                            set fields (str_concat fields ";\n")
+                            set fields (+ fields "    ")
+                            set fields (+ fields tr.c_type)
+                            set fields (+ fields " ")
+                            set fields (+ fields (mangle_name fname))
+                            set fields (+ fields ";\n")
                             set j tr.next_pos
 
                             if (< j n) {
@@ -460,21 +460,21 @@ fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
                     }
                 }
 
-                set out (str_concat out "\n/* Struct definition: ")
-                set out (str_concat out sname)
-                set out (str_concat out " */\n")
-                set out (str_concat out "typedef struct ")
-                set out (str_concat out c_name)
-                set out (str_concat out " {\n")
-                set out (str_concat out fields)
-                set out (str_concat out "} ")
-                set out (str_concat out c_name)
-                set out (str_concat out ";\n")
-                set out (str_concat out "typedef ")
-                set out (str_concat out c_name)
-                set out (str_concat out " ")
-                set out (str_concat out (mangle_name sname))
-                set out (str_concat out ";\n")
+                set out (+ out "\n/* Struct definition: ")
+                set out (+ out sname)
+                set out (+ out " */\n")
+                set out (+ out "typedef struct ")
+                set out (+ out c_name)
+                set out (+ out " {\n")
+                set out (+ out fields)
+                set out (+ out "} ")
+                set out (+ out c_name)
+                set out (+ out ";\n")
+                set out (+ out "typedef ")
+                set out (+ out c_name)
+                set out (+ out " ")
+                set out (+ out (mangle_name sname))
+                set out (+ out ";\n")
 
                 set i j
             } else { (print "") }
@@ -530,13 +530,13 @@ fn generate_function_prototypes(parser: Parser) -> string {
         }
 
         let sig: string = (gen_function_signature f.name names ctypes f.return_type)
-        set out (str_concat out sig)
-        set out (str_concat out ";\n")
+        set out (+ out sig)
+        set out (+ out ";\n")
 
         set i (+ i 1)
     }
 
-    set out (str_concat out "\n")
+    set out (+ out "\n")
     return out
 }
 
@@ -677,10 +677,10 @@ fn mangle_type_name(name: string) -> string {
         if (and (str_equals ch ":") (< (+ i 1) len)) {
             let ch2: string = (str_substring name (+ i 1) 1)
             if (str_equals ch2 ":") {
-                set out (str_concat out "_")
+                set out (+ out "_")
                 set i (+ i 2)
             } else {
-                set out (str_concat out "_")
+                set out (+ out "_")
                 set i (+ i 1)
             }
         } else {
@@ -691,9 +691,9 @@ fn mangle_type_name(name: string) -> string {
                                 (or (str_equals ch "(")
                                     (or (str_equals ch ")")
                                         (str_equals ch " "))))))) {
-                set out (str_concat out "_")
+                set out (+ out "_")
             } else {
-                set out (str_concat out ch)
+                set out (+ out ch)
             }
             set i (+ i 1)
         }
@@ -708,7 +708,7 @@ fn tuple_typedef_name(tuple_type: string) -> string {
         return "Tuple"
     } else {
         let inner: string = (str_substring tuple_type 1 (- len 2))
-        return (str_concat "Tuple_" (mangle_type_name inner))
+        return (+ "Tuple_" (mangle_type_name inner))
     }
 }
 
@@ -749,7 +749,7 @@ fn type_to_c(nano_type: string) -> string {
                                         if (or (str_equals elem "token") (str_equals elem "Token")) {
                                             return "List_Token*"
                                         } else {
-                                            return (str_concat (str_concat "List_" (mangle_type_name elem)) "*")
+                                            return (+ (+ "List_" (mangle_type_name elem)) "*")
                                         }
                                     }
                                 }
@@ -761,7 +761,7 @@ fn type_to_c(nano_type: string) -> string {
                             if (is_tuple_type nano_type) {
                                 return (tuple_typedef_name nano_type)
                             } else {
-                                return (str_concat "nl_" (mangle_name nano_type))
+                                return (+ "nl_" (mangle_name nano_type))
                             }
                         }
                         }
@@ -820,7 +820,7 @@ fn tuple_split_types(tuple_type: string) -> array<string> {
             }
 
             if (not is_sep) {
-                set cur (str_concat cur ch)
+                set cur (+ cur ch)
             } else { (print "") }
             set i (+ i 1)
         }
@@ -859,19 +859,19 @@ fn gen_tuple_typedef(tuple_type: string) -> string {
     let mut i: int = 0
     while (< i (array_length elems)) {
         if (> i 0) {
-            set out (str_concat out "; ")
+            set out (+ out "; ")
         } else { (print "") }
 
         let ct: string = (type_to_c (at elems i))
-        set out (str_concat out ct)
-        set out (str_concat out " _")
-        set out (str_concat out (int_to_string i))
+        set out (+ out ct)
+        set out (+ out " _")
+        set out (+ out (int_to_string i))
         set i (+ i 1)
     }
 
-    set out (str_concat out "; } ")
-    set out (str_concat out name)
-    set out (str_concat out ";\n")
+    set out (+ out "; } ")
+    set out (+ out name)
+    set out (+ out ";\n")
     return out
 }
 
@@ -899,14 +899,14 @@ fn gen_tuple_typedefs(parser: Parser) -> string {
     let mut out: string = ""
     let mut k: int = 0
     while (< k (array_length tuple_types)) {
-        set out (str_concat out (gen_tuple_typedef (at tuple_types k)))
+        set out (+ out (gen_tuple_typedef (at tuple_types k)))
         set k (+ k 1)
     }
 
     if (== out "") {
         return ""
     } else {
-        return (str_concat "/* Tuple typedefs */\n" out)
+        return (+ "/* Tuple typedefs */\n" out)
     }
 }
 
@@ -929,7 +929,7 @@ shadow gen_number {
 /* Generate code for a string literal */
 fn gen_string(value: string) -> string {
     /* For now, return as-is. In production, need to escape special chars */
-    return (str_concat "\"" (str_concat value "\""))
+    return (+ "\"" (+ value "\""))
 }
 
 shadow gen_string {
@@ -954,7 +954,7 @@ shadow gen_bool {
 /* Generate code for an identifier */
 fn gen_identifier(name: string) -> string {
     /* Add nl_ prefix for namespacing */
-    return (str_concat "nl_" (mangle_name name))
+    return (+ "nl_" (mangle_name name))
 }
 
 shadow gen_identifier {
@@ -981,12 +981,12 @@ fn gen_binary_op(op: string, left: string, right: string) -> string {
     }
     
     let mut result: string = "("
-    set result (str_concat result left)
-    set result (str_concat result " ")
-    set result (str_concat result c_op)
-    set result (str_concat result " ")
-    set result (str_concat result right)
-    set result (str_concat result ")")
+    set result (+ result left)
+    set result (+ result " ")
+    set result (+ result c_op)
+    set result (+ result " ")
+    set result (+ result right)
+    set result (+ result ")")
     
     return result
 }
@@ -999,8 +999,8 @@ shadow gen_binary_op {
 /* Generate code for a function call */
 fn gen_call(func_name: string, args: array<string>) -> string {
     let mut result: string = "nl_"
-    set result (str_concat result (mangle_name func_name))
-    set result (str_concat result "(")
+    set result (+ result (mangle_name func_name))
+    set result (+ result "(")
     
     /* Add arguments */
     let arg_count: int = (array_length args)
@@ -1008,17 +1008,17 @@ fn gen_call(func_name: string, args: array<string>) -> string {
     
     while (< i arg_count) {
         if (> i 0) {
-            set result (str_concat result ", ")
+            set result (+ result ", ")
         } else {
             (print "")
         }
         
         /* Directly use (at args i) to avoid type inference issue */
-        set result (str_concat result (at args i))
+        set result (+ result (at args i))
         set i (+ i 1)
     }
     
-    set result (str_concat result ")")
+    set result (+ result ")")
     return result
 }
 
@@ -1045,12 +1045,12 @@ fn gen_let(name: string, type_name: string, value_expr: string, indent: int) -> 
     /* Convert nanolang type to C type using helper */
     let c_type: string = (type_to_c type_name)
     
-    set result (str_concat result c_type)
-    set result (str_concat result " nl_")
-    set result (str_concat result name)
-    set result (str_concat result " = ")
-    set result (str_concat result value_expr)
-    set result (str_concat result ";\n")
+    set result (+ result c_type)
+    set result (+ result " nl_")
+    set result (+ result name)
+    set result (+ result " = ")
+    set result (+ result value_expr)
+    set result (+ result ";\n")
     
     return result
 }
@@ -1064,24 +1064,24 @@ shadow gen_let {
 /* Generate code for an if statement */
 fn gen_if(condition: string, then_body: string, else_body: string, indent: int) -> string {
     let mut result: string = (gen_indent indent)
-    set result (str_concat result "if (")
-    set result (str_concat result condition)
-    set result (str_concat result ") {\n")
-    set result (str_concat result then_body)
-    set result (str_concat result (gen_indent indent))
-    set result (str_concat result "}")
+    set result (+ result "if (")
+    set result (+ result condition)
+    set result (+ result ") {\n")
+    set result (+ result then_body)
+    set result (+ result (gen_indent indent))
+    set result (+ result "}")
     
     /* Add else clause if present */
     if (!= else_body "") {
-        set result (str_concat result " else {\n")
-        set result (str_concat result else_body)
-        set result (str_concat result (gen_indent indent))
-        set result (str_concat result "}")
+        set result (+ result " else {\n")
+        set result (+ result else_body)
+        set result (+ result (gen_indent indent))
+        set result (+ result "}")
     } else {
         (print "")
     }
     
-    set result (str_concat result "\n")
+    set result (+ result "\n")
     return result
 }
 
@@ -1094,12 +1094,12 @@ shadow gen_if {
 /* Generate code for a while loop */
 fn gen_while(condition: string, body: string, indent: int) -> string {
     let mut result: string = (gen_indent indent)
-    set result (str_concat result "while (")
-    set result (str_concat result condition)
-    set result (str_concat result ") {\n")
-    set result (str_concat result body)
-    set result (str_concat result (gen_indent indent))
-    set result (str_concat result "}\n")
+    set result (+ result "while (")
+    set result (+ result condition)
+    set result (+ result ") {\n")
+    set result (+ result body)
+    set result (+ result (gen_indent indent))
+    set result (+ result "}\n")
     
     return result
 }
@@ -1113,9 +1113,9 @@ shadow gen_while {
 /* Generate code for a return statement */
 fn gen_return(value_expr: string, indent: int) -> string {
     let mut result: string = (gen_indent indent)
-    set result (str_concat result "return ")
-    set result (str_concat result value_expr)
-    set result (str_concat result ";\n")
+    set result (+ result "return ")
+    set result (+ result value_expr)
+    set result (+ result ";\n")
     
     return result
 }
@@ -1137,10 +1137,10 @@ fn gen_function_signature(name: string, params: array<string>, param_types: arra
     /* Convert return type using helper */
     let c_ret_type: string = (type_to_c return_type)
     
-    set result (str_concat result c_ret_type)
-    set result (str_concat result " nl_")
-    set result (str_concat result (mangle_name name))
-    set result (str_concat result "(")
+    set result (+ result c_ret_type)
+    set result (+ result " nl_")
+    set result (+ result (mangle_name name))
+    set result (+ result "(")
     
     /* Add parameters */
     let param_count: int = (array_length params)
@@ -1148,22 +1148,22 @@ fn gen_function_signature(name: string, params: array<string>, param_types: arra
     
     while (< i param_count) {
         if (> i 0) {
-            set result (str_concat result ", ")
+            set result (+ result ", ")
         } else {
             (print "")
         }
         
         /* Use param type directly - caller should pre-convert to C types */
         /* This avoids array<string> type inference issues */
-        set result (str_concat result (at param_types i))
-        set result (str_concat result " nl_")
+        set result (+ result (at param_types i))
+        set result (+ result " nl_")
         /* Use param name directly */
-        set result (str_concat result (mangle_name (at params i)))
+        set result (+ result (mangle_name (at params i)))
         
         set i (+ i 1)
     }
     
-    set result (str_concat result ")")
+    set result (+ result ")")
     return result
 }
 
@@ -1181,9 +1181,9 @@ shadow gen_function_signature {
 /* Generate complete function definition */
 fn gen_function(name: string, params: array<string>, param_types: array<string>, return_type: string, body: string) -> string {
     let mut result: string = (gen_function_signature name params param_types return_type)
-    set result (str_concat result " {\n")
-    set result (str_concat result body)
-    set result (str_concat result "}\n\n")
+    set result (+ result " {\n")
+    set result (+ result body)
+    set result (+ result "}\n\n")
     
     return result
 }
@@ -1203,55 +1203,55 @@ shadow gen_function {
 /* Generate C includes and runtime support */
 fn gen_c_includes() -> string {
     let mut result: string = "/* Generated by nanolang self-hosted compiler */\n"
-    set result (str_concat result "#include <stdio.h>\n")
-    set result (str_concat result "#include <stdlib.h>\n")
-    set result (str_concat result "#include <stdint.h>\n")
-    set result (str_concat result "#include <stdbool.h>\n")
-    set result (str_concat result "#include <string.h>\n")
-    set result (str_concat result "#include <assert.h>\n")
-    set result (str_concat result "#include \"nanolang.h\"\n")
-    set result (str_concat result "#include \"runtime/dyn_array.h\"\n")
-    set result (str_concat result "#include \"runtime/list_int.h\"\n")
-    set result (str_concat result "#include \"runtime/list_string.h\"\n")
-    set result (str_concat result "#include \"runtime/list_token.h\"\n")
-    set result (str_concat result "#include \"runtime/list_LexerToken.h\"\n")
-    set result (str_concat result "#include \"runtime/list_CompilerDiagnostic.h\"\n")
-    set result (str_concat result "#include \"runtime/list_CompilerSourceLocation.h\"\n")
-    set result (str_concat result "#include \"runtime/token_helpers.h\"\n")
+    set result (+ result "#include <stdio.h>\n")
+    set result (+ result "#include <stdlib.h>\n")
+    set result (+ result "#include <stdint.h>\n")
+    set result (+ result "#include <stdbool.h>\n")
+    set result (+ result "#include <string.h>\n")
+    set result (+ result "#include <assert.h>\n")
+    set result (+ result "#include \"nanolang.h\"\n")
+    set result (+ result "#include \"runtime/dyn_array.h\"\n")
+    set result (+ result "#include \"runtime/list_int.h\"\n")
+    set result (+ result "#include \"runtime/list_string.h\"\n")
+    set result (+ result "#include \"runtime/list_token.h\"\n")
+    set result (+ result "#include \"runtime/list_LexerToken.h\"\n")
+    set result (+ result "#include \"runtime/list_CompilerDiagnostic.h\"\n")
+    set result (+ result "#include \"runtime/list_CompilerSourceLocation.h\"\n")
+    set result (+ result "#include \"runtime/token_helpers.h\"\n")
     /* Include all AST list type headers for compiler support */
-    set result (str_concat result "#include \"runtime/list_ASTLet.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTFunction.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTNumber.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTFloat.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTString.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTBool.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTIdentifier.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTBinaryOp.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTCall.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTArrayLiteral.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTSet.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTIf.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTWhile.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTFor.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTReturn.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTStmtRef.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTBlock.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTUnsafeBlock.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTPrint.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTAssert.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTShadow.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTStruct.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTStructLiteral.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTFieldAccess.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTEnum.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTUnion.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTUnionConstruct.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTMatch.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTImport.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTOpaqueType.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTTupleLiteral.h\"\n")
-    set result (str_concat result "#include \"runtime/list_ASTTupleIndex.h\"\n")
-    set result (str_concat result "\n")
+    set result (+ result "#include \"runtime/list_ASTLet.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTFunction.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTNumber.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTFloat.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTString.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTBool.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTIdentifier.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTBinaryOp.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTCall.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTArrayLiteral.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTSet.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTIf.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTWhile.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTFor.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTReturn.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTStmtRef.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTBlock.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTUnsafeBlock.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTPrint.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTAssert.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTShadow.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTStruct.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTStructLiteral.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTFieldAccess.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTEnum.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTUnion.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTUnionConstruct.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTMatch.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTImport.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTOpaqueType.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTTupleLiteral.h\"\n")
+    set result (+ result "#include \"runtime/list_ASTTupleIndex.h\"\n")
+    set result (+ result "\n")
     
     return result
 }
@@ -1267,76 +1267,76 @@ fn gen_c_runtime() -> string {
     let mut result: string = "/* Runtime helper functions */\n"
     
     /* print function */
-    set result (str_concat result "void nl_print(char* s) {\n")
-    set result (str_concat result "    printf(\"%s\", s);\n")
-    set result (str_concat result "}\n\n")
+    set result (+ result "void nl_print(char* s) {\n")
+    set result (+ result "    printf(\"%s\", s);\n")
+    set result (+ result "}\n\n")
     
     /* println function */
-    set result (str_concat result "void nl_println(char* s) {\n")
-    set result (str_concat result "    printf(\"%s\\n\", s);\n")
-    set result (str_concat result "}\n\n")
+    set result (+ result "void nl_println(char* s) {\n")
+    set result (+ result "    printf(\"%s\\n\", s);\n")
+    set result (+ result "}\n\n")
     
     /* int_to_string function */
-    set result (str_concat result "char* nl_int_to_string(int64_t n) {\n")
-    set result (str_concat result "    char* buf = malloc(32);\n")
-    set result (str_concat result "    snprintf(buf, 32, \"%lld\", n);\n")
-    set result (str_concat result "    return buf;\n")
-    set result (str_concat result "}\n\n")
+    set result (+ result "char* nl_int_to_string(int64_t n) {\n")
+    set result (+ result "    char* buf = malloc(32);\n")
+    set result (+ result "    snprintf(buf, 32, \"%lld\", n);\n")
+    set result (+ result "    return buf;\n")
+    set result (+ result "}\n\n")
 
     /* string concat helper */
-    set result (str_concat result "char* nl_str_concat(const char* a, const char* b) {\n")
-    set result (str_concat result "    size_t la = strlen(a);\n")
-    set result (str_concat result "    size_t lb = strlen(b);\n")
-    set result (str_concat result "    char* out = (char*)malloc(la + lb + 1);\n")
-    set result (str_concat result "    memcpy(out, a, la);\n")
-    set result (str_concat result "    memcpy(out + la, b, lb);\n")
-    set result (str_concat result "    out[la + lb] = 0;\n")
-    set result (str_concat result "    return out;\n")
-    set result (str_concat result "}\n\n")
+    set result (+ result "char* nl_str_concat(const char* a, const char* b) {\n")
+    set result (+ result "    size_t la = strlen(a);\n")
+    set result (+ result "    size_t lb = strlen(b);\n")
+    set result (+ result "    char* out = (char*)malloc(la + lb + 1);\n")
+    set result (+ result "    memcpy(out, a, la);\n")
+    set result (+ result "    memcpy(out + la, b, lb);\n")
+    set result (+ result "    out[la + lb] = 0;\n")
+    set result (+ result "    return out;\n")
+    set result (+ result "}\n\n")
     
     /* string length function */
-    set result (str_concat result "int64_t nl_str_length(const char* s) {\n")
-    set result (str_concat result "    return (int64_t)strlen(s);\n")
-    set result (str_concat result "}\n\n")
+    set result (+ result "int64_t nl_str_length(const char* s) {\n")
+    set result (+ result "    return (int64_t)strlen(s);\n")
+    set result (+ result "}\n\n")
 
     /* char_at: return byte at index (ASCII-safe) */
-    set result (str_concat result "int64_t nl_char_at(const char* s, int64_t i) {\n")
-    set result (str_concat result "    return (int64_t)((unsigned char)s[i]);\n")
-    set result (str_concat result "}\n\n")
+    set result (+ result "int64_t nl_char_at(const char* s, int64_t i) {\n")
+    set result (+ result "    return (int64_t)((unsigned char)s[i]);\n")
+    set result (+ result "}\n\n")
 
     /* substring: allocate a new null-terminated slice */
-    set result (str_concat result "char* nl_str_substring(const char* s, int64_t start, int64_t len) {\n")
-    set result (str_concat result "    if (!s) return NULL;\n")
-    set result (str_concat result "    int64_t n = (int64_t)strlen(s);\n")
-    set result (str_concat result "    if (start < 0) start = 0;\n")
-    set result (str_concat result "    if (len < 0) len = 0;\n")
-    set result (str_concat result "    if (start > n) start = n;\n")
-    set result (str_concat result "    if (start + len > n) len = n - start;\n")
-    set result (str_concat result "    char* out = (char*)malloc((size_t)len + 1);\n")
-    set result (str_concat result "    if (!out) return NULL;\n")
-    set result (str_concat result "    memcpy(out, s + start, (size_t)len);\n")
-    set result (str_concat result "    out[len] = 0;\n")
-    set result (str_concat result "    return out;\n")
-    set result (str_concat result "}\n\n")
+    set result (+ result "char* nl_str_substring(const char* s, int64_t start, int64_t len) {\n")
+    set result (+ result "    if (!s) return NULL;\n")
+    set result (+ result "    int64_t n = (int64_t)strlen(s);\n")
+    set result (+ result "    if (start < 0) start = 0;\n")
+    set result (+ result "    if (len < 0) len = 0;\n")
+    set result (+ result "    if (start > n) start = n;\n")
+    set result (+ result "    if (start + len > n) len = n - start;\n")
+    set result (+ result "    char* out = (char*)malloc((size_t)len + 1);\n")
+    set result (+ result "    if (!out) return NULL;\n")
+    set result (+ result "    memcpy(out, s + start, (size_t)len);\n")
+    set result (+ result "    out[len] = 0;\n")
+    set result (+ result "    return out;\n")
+    set result (+ result "}\n\n")
 
     /* Module std_fs FFI (unprefixed symbols when sources are merged directly) */
-    set result (str_concat result "/* std_fs externs (provided by modules/std/fs.c) */\n")
-    set result (str_concat result "extern DynArray* fs_walkdir(const char* root);\n")
-    set result (str_concat result "extern const char* path_normalize(const char* path);\n")
-    set result (str_concat result "extern const char* path_join(const char* a, const char* b);\n")
-    set result (str_concat result "extern const char* path_basename(const char* path);\n")
-    set result (str_concat result "extern const char* path_dirname(const char* path);\n")
-    set result (str_concat result "extern char* file_read(const char* path);\n")
-    set result (str_concat result "extern int64_t file_write(const char* path, const char* content);\n")
-    set result (str_concat result "extern int64_t file_append(const char* path, const char* content);\n")
-    set result (str_concat result "extern bool file_exists(const char* path);\n")
-    set result (str_concat result "extern int64_t file_delete(const char* path);\n\n")
+    set result (+ result "/* std_fs externs (provided by modules/std/fs.c) */\n")
+    set result (+ result "extern DynArray* fs_walkdir(const char* root);\n")
+    set result (+ result "extern const char* path_normalize(const char* path);\n")
+    set result (+ result "extern const char* path_join(const char* a, const char* b);\n")
+    set result (+ result "extern const char* path_basename(const char* path);\n")
+    set result (+ result "extern const char* path_dirname(const char* path);\n")
+    set result (+ result "extern char* file_read(const char* path);\n")
+    set result (+ result "extern int64_t file_write(const char* path, const char* content);\n")
+    set result (+ result "extern int64_t file_append(const char* path, const char* content);\n")
+    set result (+ result "extern bool file_exists(const char* path);\n")
+    set result (+ result "extern int64_t file_delete(const char* path);\n\n")
     
     /* min function */
-    set result (str_concat result "#define nl_min(a, b) ((a) < (b) ? (a) : (b))\n\n")
+    set result (+ result "#define nl_min(a, b) ((a) < (b) ? (a) : (b))\n\n")
     
     /* max function */
-    set result (str_concat result "#define nl_max(a, b) ((a) > (b) ? (a) : (b))\n\n")
+    set result (+ result "#define nl_max(a, b) ((a) > (b) ? (a) : (b))\n\n")
     
     return result
 }
@@ -1384,9 +1384,9 @@ fn generate_module_forward_declarations(parser: Parser) -> string {
 /* Generate complete C program */
 fn gen_c_program(functions: string) -> string {
     let mut result: string = (gen_c_includes)
-    set result (str_concat result (gen_c_runtime))
-    set result (str_concat result "/* User functions */\n")
-    set result (str_concat result functions)
+    set result (+ result (gen_c_runtime))
+    set result (+ result "/* User functions */\n")
+    set result (+ result functions)
     
     return result
 }
@@ -1394,43 +1394,43 @@ fn gen_c_program(functions: string) -> string {
 /* Generate complete C program with module forward declarations */
 fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
     let mut result: string = (gen_c_includes)
-    set result (str_concat result (gen_c_runtime))
-    set result (str_concat result (generate_module_forward_declarations parser))
+    set result (+ result (gen_c_runtime))
+    set result (+ result (generate_module_forward_declarations parser))
     
     /* Generate union definitions */
     let union_defs: string = (generate_union_definitions parser)
-    set result (str_concat result union_defs)
+    set result (+ result union_defs)
     
     /* Generate List<T> specializations */
     let list_specs: string = (generate_list_specializations parser)
-    set result (str_concat result list_specs)
+    set result (+ result list_specs)
 
     /* Generate user-defined struct definitions by scanning tokens */
     let struct_defs: string = (generate_struct_definitions_from_tokens parser)
-    set result (str_concat result struct_defs)
+    set result (+ result struct_defs)
     
     /* Forward declarations for all functions (avoid implicit declarations in C99) */
     let protos: string = (generate_function_prototypes parser)
-    set result (str_concat result protos)
+    set result (+ result protos)
 
-    set result (str_concat result "/* User functions */\n")
-    set result (str_concat result functions)
+    set result (+ result "/* User functions */\n")
+    set result (+ result functions)
 
     /* If module has no Nano main(), provide a stub so the C wrapper can link. */
     if (not (has_function_named parser "main")) {
-        set result (str_concat result "\nint64_t nl_main() { return 0; }\n")
+        set result (+ result "\nint64_t nl_main() { return 0; }\n")
     } else { (print "") }
     
     /* Add C main() wrapper that calls nl_main() */
-    set result (str_concat result "\n/* C main() entry point - calls nanolang main */\n")
-    set result (str_concat result "/* Global argc/argv for CLI runtime support */\n")
-    set result (str_concat result "int g_argc = 0;\n")
-    set result (str_concat result "char **g_argv = NULL;\n\n")
-    set result (str_concat result "int main(int argc, char **argv) {\n")
-    set result (str_concat result "    g_argc = argc;\n")
-    set result (str_concat result "    g_argv = argv;\n")
-    set result (str_concat result "    return (int)nl_main();\n")
-    set result (str_concat result "}\n")
+    set result (+ result "\n/* C main() entry point - calls nanolang main */\n")
+    set result (+ result "/* Global argc/argv for CLI runtime support */\n")
+    set result (+ result "int g_argc = 0;\n")
+    set result (+ result "char **g_argv = NULL;\n\n")
+    set result (+ result "int main(int argc, char **argv) {\n")
+    set result (+ result "    g_argc = argc;\n")
+    set result (+ result "    g_argv = argv;\n")
+    set result (+ result "    return (int)nl_main();\n")
+    set result (+ result "}\n")
     
     return result
 }
@@ -1564,14 +1564,14 @@ fn generate_list_specializations(parser: Parser) -> string {
             if (or (== elem_type "int") (or (== elem_type "string") (== elem_type "LexerToken"))) {
                 (print "")
             } else {
-                set result (str_concat result (generate_list_for_type elem_type))
-                set result (str_concat result "\n")
+                set result (+ result (generate_list_for_type elem_type))
+                set result (+ result "\n")
             }
             
             set i (+ i 1)
         }
         
-        set result (str_concat result "/* ========== End Generic List Specializations ========== */\n\n")
+        set result (+ result "/* ========== End Generic List Specializations ========== */\n\n")
         return result
     }
 }
@@ -1579,82 +1579,82 @@ fn generate_list_specializations(parser: Parser) -> string {
 /* Generate List<T> struct and functions for a specific type T */
 fn generate_list_for_type(elem_type: string) -> string {
     let c_elem_type: string = (type_to_c elem_type)
-    let list_name: string = (str_concat "List_" elem_type)
+    let list_name: string = (+ "List_" elem_type)
     
     let mut code: string = ""
     
     /* Struct definition */
-    set code (str_concat code "typedef struct ")
-    set code (str_concat code list_name)
-    set code (str_concat code " {\n")
-    set code (str_concat code "    ")
-    set code (str_concat code c_elem_type)
-    set code (str_concat code " *data;\n")
-    set code (str_concat code "    int count;\n")
-    set code (str_concat code "    int capacity;\n")
-    set code (str_concat code "} ")
-    set code (str_concat code list_name)
-    set code (str_concat code ";\n\n")
+    set code (+ code "typedef struct ")
+    set code (+ code list_name)
+    set code (+ code " {\n")
+    set code (+ code "    ")
+    set code (+ code c_elem_type)
+    set code (+ code " *data;\n")
+    set code (+ code "    int count;\n")
+    set code (+ code "    int capacity;\n")
+    set code (+ code "} ")
+    set code (+ code list_name)
+    set code (+ code ";\n\n")
     
     /* Constructor: list_T_new() */
-    set code (str_concat code list_name)
-    set code (str_concat code "* list_")
-    set code (str_concat code elem_type)
-    set code (str_concat code "_new() {\n")
-    set code (str_concat code "    ")
-    set code (str_concat code list_name)
-    set code (str_concat code " *list = malloc(sizeof(")
-    set code (str_concat code list_name)
-    set code (str_concat code "));\n")
-    set code (str_concat code "    if (!list) return NULL;\n")
-    set code (str_concat code "    list->data = malloc(sizeof(")
-    set code (str_concat code c_elem_type)
-    set code (str_concat code ") * 4);\n")
-    set code (str_concat code "    if (!list->data) { free(list); return NULL; }\n")
-    set code (str_concat code "    list->count = 0;\n")
-    set code (str_concat code "    list->capacity = 4;\n")
-    set code (str_concat code "    return list;\n")
-    set code (str_concat code "}\n\n")
+    set code (+ code list_name)
+    set code (+ code "* list_")
+    set code (+ code elem_type)
+    set code (+ code "_new() {\n")
+    set code (+ code "    ")
+    set code (+ code list_name)
+    set code (+ code " *list = malloc(sizeof(")
+    set code (+ code list_name)
+    set code (+ code "));\n")
+    set code (+ code "    if (!list) return NULL;\n")
+    set code (+ code "    list->data = malloc(sizeof(")
+    set code (+ code c_elem_type)
+    set code (+ code ") * 4);\n")
+    set code (+ code "    if (!list->data) { free(list); return NULL; }\n")
+    set code (+ code "    list->count = 0;\n")
+    set code (+ code "    list->capacity = 4;\n")
+    set code (+ code "    return list;\n")
+    set code (+ code "}\n\n")
     
     /* Push: list_T_push(list, value) */
-    set code (str_concat code "void list_")
-    set code (str_concat code elem_type)
-    set code (str_concat code "_push(")
-    set code (str_concat code list_name)
-    set code (str_concat code " *list, ")
-    set code (str_concat code c_elem_type)
-    set code (str_concat code " value) {\n")
-    set code (str_concat code "    if (list->count >= list->capacity) {\n")
-    set code (str_concat code "        list->capacity *= 2;\n")
-    set code (str_concat code "        ")
-    set code (str_concat code c_elem_type)
-    set code (str_concat code " *new_data = realloc(list->data, sizeof(")
-    set code (str_concat code c_elem_type)
-    set code (str_concat code ") * list->capacity);\n")
-    set code (str_concat code "        if (!new_data) return;\n")
-    set code (str_concat code "        list->data = new_data;\n")
-    set code (str_concat code "    }\n")
-    set code (str_concat code "    list->data[list->count++] = value;\n")
-    set code (str_concat code "}\n\n")
+    set code (+ code "void list_")
+    set code (+ code elem_type)
+    set code (+ code "_push(")
+    set code (+ code list_name)
+    set code (+ code " *list, ")
+    set code (+ code c_elem_type)
+    set code (+ code " value) {\n")
+    set code (+ code "    if (list->count >= list->capacity) {\n")
+    set code (+ code "        list->capacity *= 2;\n")
+    set code (+ code "        ")
+    set code (+ code c_elem_type)
+    set code (+ code " *new_data = realloc(list->data, sizeof(")
+    set code (+ code c_elem_type)
+    set code (+ code ") * list->capacity);\n")
+    set code (+ code "        if (!new_data) return;\n")
+    set code (+ code "        list->data = new_data;\n")
+    set code (+ code "    }\n")
+    set code (+ code "    list->data[list->count++] = value;\n")
+    set code (+ code "}\n\n")
     
     /* Get: list_T_get(list, index) */
-    set code (str_concat code c_elem_type)
-    set code (str_concat code " list_")
-    set code (str_concat code elem_type)
-    set code (str_concat code "_get(")
-    set code (str_concat code list_name)
-    set code (str_concat code " *list, int index) {\n")
-    set code (str_concat code "    return list->data[index];\n")
-    set code (str_concat code "}\n\n")
+    set code (+ code c_elem_type)
+    set code (+ code " list_")
+    set code (+ code elem_type)
+    set code (+ code "_get(")
+    set code (+ code list_name)
+    set code (+ code " *list, int index) {\n")
+    set code (+ code "    return list->data[index];\n")
+    set code (+ code "}\n\n")
     
     /* Length: list_T_length(list) */
-    set code (str_concat code "int list_")
-    set code (str_concat code elem_type)
-    set code (str_concat code "_length(")
-    set code (str_concat code list_name)
-    set code (str_concat code " *list) {\n")
-    set code (str_concat code "    return list->count;\n")
-    set code (str_concat code "}\n")
+    set code (+ code "int list_")
+    set code (+ code elem_type)
+    set code (+ code "_length(")
+    set code (+ code list_name)
+    set code (+ code " *list) {\n")
+    set code (+ code "    return list->count;\n")
+    set code (+ code "}\n")
     
     return code
 }
@@ -1738,7 +1738,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
         } else {
         if (== node_type ParseNodeType.PNODE_STRING) {
             let s: ASTString = (parser_get_string parser node_id)
-            return (str_concat "\"" (str_concat s.value "\""))
+            return (+ "\"" (+ s.value "\""))
         } else {
         if (== node_type ParseNodeType.PNODE_BOOL) {
             let b: ASTBool = (parser_get_bool parser node_id)
@@ -1752,7 +1752,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
             /* Identifier */
             let id: ASTIdentifier = (parser_get_identifier parser node_id)
             /* Prefix with nl_ for nanolang identifiers */
-            return (str_concat "nl_" (mangle_name id.name))
+            return (+ "nl_" (mangle_name id.name))
         } else {
             if (== node_type ParseNodeType.PNODE_BINARY_OP) {
                 /* Binary operation - RECURSIVE! */
@@ -1800,36 +1800,36 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                     if (and left_is_arr right_is_arr) {
                         let mut result: string = "({ DynArray* _a = "
-                        set result (str_concat result left_code)
-                        set result (str_concat result "; DynArray* _b = ")
-                        set result (str_concat result right_code)
-                        set result (str_concat result "; assert(dyn_array_length(_a) == dyn_array_length(_b)); DynArray* _out = dyn_array_new(")
-                        set result (str_concat result elem_enum)
-                        set result (str_concat result "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
-                        set result (str_concat result c_elem)
-                        set result (str_concat result " _x = ")
-                        set result (str_concat result get_fn)
-                        set result (str_concat result "(_a, _i); ")
-                        set result (str_concat result c_elem)
-                        set result (str_concat result " _y = ")
-                        set result (str_concat result get_fn)
-                        set result (str_concat result "(_b, _i); ")
-                        set result (str_concat result push_fn)
-                        set result (str_concat result "(_out, ")
+                        set result (+ result left_code)
+                        set result (+ result "; DynArray* _b = ")
+                        set result (+ result right_code)
+                        set result (+ result "; assert(dyn_array_length(_a) == dyn_array_length(_b)); DynArray* _out = dyn_array_new(")
+                        set result (+ result elem_enum)
+                        set result (+ result "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
+                        set result (+ result c_elem)
+                        set result (+ result " _x = ")
+                        set result (+ result get_fn)
+                        set result (+ result "(_a, _i); ")
+                        set result (+ result c_elem)
+                        set result (+ result " _y = ")
+                        set result (+ result get_fn)
+                        set result (+ result "(_b, _i); ")
+                        set result (+ result push_fn)
+                        set result (+ result "(_out, ")
 
                         if (== elem_t "string") {
                             if (== binop.op LexerTokenType.TOKEN_PLUS) {
-                                set result (str_concat result "nl_str_concat(_x, _y)")
+                                set result (+ result "nl_str_concat(_x, _y)")
                             } else {
-                                set result (str_concat result "0")
+                                set result (+ result "0")
                             }
                         } else {
-                            set result (str_concat result "(_x ")
-                            set result (str_concat result op_str2)
-                            set result (str_concat result " _y)")
+                            set result (+ result "(_x ")
+                            set result (+ result op_str2)
+                            set result (+ result " _y)")
                         }
 
-                        set result (str_concat result "); } _out; })")
+                        set result (+ result "); } _out; })")
                         return result
                     } else {
                         (print "")
@@ -1837,63 +1837,63 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                     if (and left_is_arr (not right_is_arr)) {
                         let mut result: string = "({ DynArray* _a = "
-                        set result (str_concat result left_code)
-                        set result (str_concat result "; ")
-                        set result (str_concat result c_elem)
-                        set result (str_concat result " _s = ")
-                        set result (str_concat result right_code)
-                        set result (str_concat result "; DynArray* _out = dyn_array_new(")
-                        set result (str_concat result elem_enum)
-                        set result (str_concat result "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
-                        set result (str_concat result c_elem)
-                        set result (str_concat result " _x = ")
-                        set result (str_concat result get_fn)
-                        set result (str_concat result "(_a, _i); ")
-                        set result (str_concat result push_fn)
-                        set result (str_concat result "(_out, ")
+                        set result (+ result left_code)
+                        set result (+ result "; ")
+                        set result (+ result c_elem)
+                        set result (+ result " _s = ")
+                        set result (+ result right_code)
+                        set result (+ result "; DynArray* _out = dyn_array_new(")
+                        set result (+ result elem_enum)
+                        set result (+ result "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
+                        set result (+ result c_elem)
+                        set result (+ result " _x = ")
+                        set result (+ result get_fn)
+                        set result (+ result "(_a, _i); ")
+                        set result (+ result push_fn)
+                        set result (+ result "(_out, ")
                         if (== elem_t "string") {
                             if (== binop.op LexerTokenType.TOKEN_PLUS) {
-                                set result (str_concat result "nl_str_concat(_x, _s)")
+                                set result (+ result "nl_str_concat(_x, _s)")
                             } else {
-                                set result (str_concat result "0")
+                                set result (+ result "0")
                             }
                         } else {
-                            set result (str_concat result "(_x ")
-                            set result (str_concat result op_str2)
-                            set result (str_concat result " _s)")
+                            set result (+ result "(_x ")
+                            set result (+ result op_str2)
+                            set result (+ result " _s)")
                         }
-                        set result (str_concat result "); } _out; })")
+                        set result (+ result "); } _out; })")
                         return result
                     } else { (print "") }
 
                     if (and (not left_is_arr) right_is_arr) {
                         let mut result: string = "({ DynArray* _a = "
-                        set result (str_concat result right_code)
-                        set result (str_concat result "; ")
-                        set result (str_concat result c_elem)
-                        set result (str_concat result " _s = ")
-                        set result (str_concat result left_code)
-                        set result (str_concat result "; DynArray* _out = dyn_array_new(")
-                        set result (str_concat result elem_enum)
-                        set result (str_concat result "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
-                        set result (str_concat result c_elem)
-                        set result (str_concat result " _x = ")
-                        set result (str_concat result get_fn)
-                        set result (str_concat result "(_a, _i); ")
-                        set result (str_concat result push_fn)
-                        set result (str_concat result "(_out, ")
+                        set result (+ result right_code)
+                        set result (+ result "; ")
+                        set result (+ result c_elem)
+                        set result (+ result " _s = ")
+                        set result (+ result left_code)
+                        set result (+ result "; DynArray* _out = dyn_array_new(")
+                        set result (+ result elem_enum)
+                        set result (+ result "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
+                        set result (+ result c_elem)
+                        set result (+ result " _x = ")
+                        set result (+ result get_fn)
+                        set result (+ result "(_a, _i); ")
+                        set result (+ result push_fn)
+                        set result (+ result "(_out, ")
                         if (== elem_t "string") {
                             if (== binop.op LexerTokenType.TOKEN_PLUS) {
-                                set result (str_concat result "nl_str_concat(_s, _x)")
+                                set result (+ result "nl_str_concat(_s, _x)")
                             } else {
-                                set result (str_concat result "0")
+                                set result (+ result "0")
                             }
                         } else {
-                            set result (str_concat result "(_s ")
-                            set result (str_concat result op_str2)
-                            set result (str_concat result " _x)")
+                            set result (+ result "(_s ")
+                            set result (+ result op_str2)
+                            set result (+ result " _x)")
                         }
-                        set result (str_concat result "); } _out; })")
+                        set result (+ result "); } _out; })")
                         return result
                     } else { (print "") }
                 } else {
@@ -1909,10 +1909,10 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     /* Only emit nl_str_concat when string context is expected. */
                     if (or (str_equals expected_type "string") (or left_is_str right_is_str)) {
                         let mut result: string = "nl_str_concat("
-                        set result (str_concat result left_code)
-                        set result (str_concat result ", ")
-                        set result (str_concat result right_code)
-                        set result (str_concat result ")")
+                        set result (+ result left_code)
+                        set result (+ result ", ")
+                        set result (+ result right_code)
+                        set result (+ result ")")
                         return result
                     } else {
                         (print "")
@@ -1926,12 +1926,12 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 
                 /* Build expression: (left op right) */
                 let mut result: string = "("
-                set result (str_concat result left_code)
-                set result (str_concat result " ")
-                set result (str_concat result op_str)
-                set result (str_concat result " ")
-                set result (str_concat result right_code)
-                set result (str_concat result ")")
+                set result (+ result left_code)
+                set result (+ result " ")
+                set result (+ result op_str)
+                set result (+ result " ")
+                set result (+ result right_code)
+                set result (+ result ")")
                 
                 return result
             } else {
@@ -1948,7 +1948,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         if (== call.arg_count 1) {
                             let a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                             let a0_code: string = (generate_expression parser a0.node_id a0.node_type env "")
-                            return (str_concat "(!" (str_concat a0_code ")"))
+                            return (+ "(!" (+ a0_code ")"))
                         } else {
                             return "(!0)"
                         }
@@ -1961,7 +1961,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         if (== call.arg_count 1) {
                             let a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                             let a0_code: string = (generate_expression parser a0.node_id a0.node_type env "")
-                            return (str_concat "dyn_array_length(" (str_concat a0_code ")"))
+                            return (+ "dyn_array_length(" (+ a0_code ")"))
                         } else {
                             return "0"
                         }
@@ -1976,10 +1976,10 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             let a0_code: string = (generate_expression parser a0.node_id a0.node_type env "")
                             let a1_code: string = (generate_expression parser a1.node_id a1.node_type env "")
                             let mut out: string = "dyn_array_remove_at("
-                            set out (str_concat out a0_code)
-                            set out (str_concat out ", ")
-                            set out (str_concat out a1_code)
-                            set out (str_concat out ")")
+                            set out (+ out a0_code)
+                            set out (+ out ", ")
+                            set out (+ out a1_code)
+                            set out (+ out ")")
                             return out
                         } else {
                             return "0"
@@ -2007,14 +2007,14 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             let push_fn: string = (push_fn_from_elem_type elem_t)
 
                             let mut out: string = "({ DynArray* _arr = dyn_array_new("
-                            set out (str_concat out elem_enum)
-                            set out (str_concat out "); int64_t _n = ")
-                            set out (str_concat out size_code)
-                            set out (str_concat out "; for (int64_t _i = 0; _i < _n; _i++) { ")
-                            set out (str_concat out push_fn)
-                            set out (str_concat out "(_arr, ")
-                            set out (str_concat out def_code)
-                            set out (str_concat out "); } _arr; })")
+                            set out (+ out elem_enum)
+                            set out (+ out "); int64_t _n = ")
+                            set out (+ out size_code)
+                            set out (+ out "; for (int64_t _i = 0; _i < _n; _i++) { ")
+                            set out (+ out push_fn)
+                            set out (+ out "(_arr, ")
+                            set out (+ out def_code)
+                            set out (+ out "); } _arr; })")
                             return out
                         } else {
                             return "0"
@@ -2047,12 +2047,12 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             let push_fn: string = (push_fn_from_elem_type elem_t)
 
                             let mut out: string = ""
-                            set out (str_concat out push_fn)
-                            set out (str_concat out "(")
-                            set out (str_concat out arr_code)
-                            set out (str_concat out ", ")
-                            set out (str_concat out val_code)
-                            set out (str_concat out ")")
+                            set out (+ out push_fn)
+                            set out (+ out "(")
+                            set out (+ out arr_code)
+                            set out (+ out ", ")
+                            set out (+ out val_code)
+                            set out (+ out ")")
                             return out
                         } else {
                             return "0"
@@ -2082,14 +2082,14 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                             let set_fn: string = (set_fn_from_elem_type elem_t)
                             let mut out: string = ""
-                            set out (str_concat out set_fn)
-                            set out (str_concat out "(")
-                            set out (str_concat out arr_code)
-                            set out (str_concat out ", ")
-                            set out (str_concat out idx_code)
-                            set out (str_concat out ", ")
-                            set out (str_concat out val_code)
-                            set out (str_concat out ")")
+                            set out (+ out set_fn)
+                            set out (+ out "(")
+                            set out (+ out arr_code)
+                            set out (+ out ", ")
+                            set out (+ out idx_code)
+                            set out (+ out ", ")
+                            set out (+ out val_code)
+                            set out (+ out ")")
                             return out
                         } else {
                             return "0"
@@ -2127,12 +2127,12 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                             let get_fn: string = (get_fn_from_elem_type elem_t)
                             let mut out: string = ""
-                            set out (str_concat out get_fn)
-                            set out (str_concat out "(")
-                            set out (str_concat out a0_code)
-                            set out (str_concat out ", ")
-                            set out (str_concat out a1_code)
-                            set out (str_concat out ")")
+                            set out (+ out get_fn)
+                            set out (+ out "(")
+                            set out (+ out a0_code)
+                            set out (+ out ", ")
+                            set out (+ out a1_code)
+                            set out (+ out ")")
                             return out
                         } else {
                             return "0"
@@ -2148,13 +2148,13 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     )
                     
                     let mut result: string = c_func_name
-                    set result (str_concat result "(")
+                    set result (+ result "(")
 
                     /* Generate arguments */
                     let mut i: int = 0
                     while (< i call.arg_count) {
                         if (> i 0) {
-                            set result (str_concat result ", ")
+                            set result (+ result ", ")
                         } else {
                             (print "")
                         }
@@ -2165,11 +2165,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             set arg_expected "string"
                         } else { (print "") }
                         let arg_code: string = (generate_expression parser aref.node_id aref.node_type env arg_expected)
-                        set result (str_concat result arg_code)
+                        set result (+ result arg_code)
                         set i (+ i 1)
                     }
                     
-                    set result (str_concat result ")")
+                    set result (+ result ")")
                     return result
                 } else {
                     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
@@ -2191,9 +2191,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                         let obj_code: string = (generate_expression parser fa.object fa.object_type env "")
                         let mut result: string = "("
-                        set result (str_concat result obj_code)
-                        set result (str_concat result ").")
-                        set result (str_concat result (mangle_name fa.field_name))
+                        set result (+ result obj_code)
+                        set result (+ result ").")
+                        set result (+ result (mangle_name fa.field_name))
                         return result
                     } else {
                         if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
@@ -2244,36 +2244,36 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             }
 
                             let mut result: string = "({ DynArray* _arr = dyn_array_new("
-                            set result (str_concat result elem_enum)
-                            set result (str_concat result "); ")
+                            set result (+ result elem_enum)
+                            set result (+ result "); ")
 
                             let mut i: int = 0
                             while (< i arr.element_count) {
                                 let eref: ASTStmtRef = (parser_get_array_element parser (+ arr.element_start i))
                                 let ecode: string = (generate_expression parser eref.node_id eref.node_type env "")
 
-                                set result (str_concat result push_fn)
-                                set result (str_concat result "(_arr, ")
-                                set result (str_concat result ecode)
-                                set result (str_concat result "); ")
+                                set result (+ result push_fn)
+                                set result (+ result "(_arr, ")
+                                set result (+ result ecode)
+                                set result (+ result "); ")
                                 set i (+ i 1)
                             }
 
-                            set result (str_concat result "_arr; })")
+                            set result (+ result "_arr; })")
                             return result
                         } else {
                             if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
                                 /* Struct literal -> compound literal */
                                 let sl: ASTStructLiteral = (parser_get_struct_literal parser node_id)
-                                let c_type: string = (str_concat "nl_" (mangle_name sl.struct_name))
+                                let c_type: string = (+ "nl_" (mangle_name sl.struct_name))
                                 let mut result: string = "(("
-                                set result (str_concat result c_type)
-                                set result (str_concat result "){ ")
+                                set result (+ result c_type)
+                                set result (+ result "){ ")
 
                                 let mut i: int = 0
                                 while (< i sl.field_count) {
                                     if (> i 0) {
-                                        set result (str_concat result ", ")
+                                        set result (+ result ", ")
                                     } else { (print "") }
 
                                     let fname: string = (at sl.field_names i)
@@ -2281,39 +2281,39 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                     let vty: int = (at sl.field_value_types i)
                                     let vcode: string = (generate_expression parser vid vty env "")
 
-                                    set result (str_concat result ".")
-                                    set result (str_concat result (mangle_name fname))
-                                    set result (str_concat result " = ")
-                                    set result (str_concat result vcode)
+                                    set result (+ result ".")
+                                    set result (+ result (mangle_name fname))
+                                    set result (+ result " = ")
+                                    set result (+ result vcode)
 
                                     set i (+ i 1)
                                 }
 
-                                set result (str_concat result " })")
+                                set result (+ result " })")
                                 return result
                             } else {
                                 if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
                                     /* Union construction -> compound literal */
                                     let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
-                                    let union_c: string = (str_concat "nl_" (mangle_name uc.union_name))
-                                    let tag_name: string = (str_concat (str_concat "nl_" (mangle_name uc.union_name)) (str_concat "_TAG_" uc.variant_name))
+                                    let union_c: string = (+ "nl_" (mangle_name uc.union_name))
+                                    let tag_name: string = (+ (+ "nl_" (mangle_name uc.union_name)) (+ "_TAG_" uc.variant_name))
 
                                     let mut result: string = "(("
-                                    set result (str_concat result union_c)
-                                    set result (str_concat result "){ .tag = ")
-                                    set result (str_concat result tag_name)
-                                    set result (str_concat result ", .data.")
-                                    set result (str_concat result uc.variant_name)
-                                    set result (str_concat result " = ")
+                                    set result (+ result union_c)
+                                    set result (+ result "){ .tag = ")
+                                    set result (+ result tag_name)
+                                    set result (+ result ", .data.")
+                                    set result (+ result uc.variant_name)
+                                    set result (+ result " = ")
 
                                     if (== uc.field_count 0) {
-                                        set result (str_concat result "{0}")
+                                        set result (+ result "{0}")
                                     } else {
-                                        set result (str_concat result "{")
+                                        set result (+ result "{")
                                         let mut i: int = 0
                                         while (< i uc.field_count) {
                                             if (> i 0) {
-                                                set result (str_concat result ", ")
+                                                set result (+ result ", ")
                                             } else { (print "") }
 
                                             let fname: string = (at uc.field_names i)
@@ -2321,16 +2321,16 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                             let vty: int = (at uc.field_value_types i)
                                             let vcode: string = (generate_expression parser vid vty env "")
 
-                                            set result (str_concat result ".")
-                                            set result (str_concat result (mangle_name fname))
-                                            set result (str_concat result " = ")
-                                            set result (str_concat result vcode)
+                                            set result (+ result ".")
+                                            set result (+ result (mangle_name fname))
+                                            set result (+ result " = ")
+                                            set result (+ result vcode)
                                             set i (+ i 1)
                                         }
-                                        set result (str_concat result "}")
+                                        set result (+ result "}")
                                     }
 
-                                    set result (str_concat result " })")
+                                    set result (+ result " })")
                                     return result
                                 } else {
                                     if (== node_type ParseNodeType.PNODE_MATCH) {
@@ -2350,13 +2350,13 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                             let elem_expected: array<string> = (tuple_split_types tuple_t)
 
                                             let mut result: string = "(("
-                                            set result (str_concat result tuple_name)
-                                            set result (str_concat result "){ ")
+                                            set result (+ result tuple_name)
+                                            set result (+ result "){ ")
 
                                             let mut i: int = 0
                                             while (< i tl.element_count) {
                                                 if (> i 0) {
-                                                    set result (str_concat result ", ")
+                                                    set result (+ result ", ")
                                                 } else { (print "") }
 
                                                 let vid: int = (at tl.element_ids i)
@@ -2367,24 +2367,24 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                                 } else { (print "") }
 
                                                 let vcode: string = (generate_expression parser vid vty env exp_i)
-                                                set result (str_concat result "._")
-                                                set result (str_concat result (int_to_string i))
-                                                set result (str_concat result " = ")
-                                                set result (str_concat result vcode)
+                                                set result (+ result "._")
+                                                set result (+ result (int_to_string i))
+                                                set result (+ result " = ")
+                                                set result (+ result vcode)
                                                 set i (+ i 1)
                                             }
 
-                                            set result (str_concat result " })")
+                                            set result (+ result " })")
                                             return result
                                         } else {
                                             if (== node_type ParseNodeType.PNODE_TUPLE_INDEX) {
                                                 let ti: ASTTupleIndex = (parser_get_tuple_index parser node_id)
                                                 let tcode: string = (generate_expression parser ti.tuple ti.tuple_type env "")
                                                 let mut result: string = "(("
-                                                set result (str_concat result tcode)
-                                                set result (str_concat result ")._")
-                                                set result (str_concat result (int_to_string ti.index))
-                                                set result (str_concat result ")")
+                                                set result (+ result tcode)
+                                                set result (+ result ")._")
+                                                set result (+ result (int_to_string ti.index))
+                                                set result (+ result ")")
                                                 return result
                                             } else {
                                                 /* Unknown type - return 0 */
@@ -2416,19 +2416,19 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
  */
 fn generate_return_stmt(parser: Parser, ret: ASTReturn, indent: int, env: GenEnv, expected_type: string) -> string {
     let mut code: string = (gen_indent indent)
-    set code (str_concat code "return")
+    set code (+ code "return")
     
     if (< ret.value 0) {
         /* No return value - void return */
-        set code (str_concat code "")
+        set code (+ code "")
     } else {
         /* Has return value - generate expression */
-        set code (str_concat code " ")
+        set code (+ code " ")
         let expr_code: string = (generate_expression parser ret.value ret.value_type env expected_type)
-        set code (str_concat code expr_code)
+        set code (+ code expr_code)
     }
     
-    set code (str_concat code ";\n")
+    set code (+ code ";\n")
     return code
 }
 
@@ -2445,34 +2445,34 @@ fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int, env: GenEnv)
     let mut code: string = (gen_indent indent)
 
     let c_type: string = (type_to_c let_stmt.var_type)
-    set code (str_concat code c_type)
-    set code (str_concat code " ")
+    set code (+ code c_type)
+    set code (+ code " ")
     
     /* Add variable name with nl_ prefix */
-    set code (str_concat code "nl_")
-    set code (str_concat code (mangle_name let_stmt.name))
-    set code (str_concat code " = ")
+    set code (+ code "nl_")
+    set code (+ code (mangle_name let_stmt.name))
+    set code (+ code " = ")
     
     /* Generate initialization expression */
     if (< let_stmt.value 0) {
         /* No initialization - use default */
-        set code (str_concat code "0")
+        set code (+ code "0")
     } else {
         /* Generate expression */
         let expr_code: string = (generate_expression parser let_stmt.value let_stmt.value_type env let_stmt.var_type)
-        set code (str_concat code expr_code)
+        set code (+ code expr_code)
     }
     
-    set code (str_concat code ";\n")
+    set code (+ code ";\n")
     return code
 }
 
 fn generate_assert_stmt(parser: Parser, a: ASTAssert, indent: int, env: GenEnv) -> string {
     let mut code: string = (gen_indent indent)
     let cond_code: string = (generate_expression parser a.condition a.condition_type env "bool")
-    set code (str_concat code "assert(")
-    set code (str_concat code cond_code)
-    set code (str_concat code ");\n")
+    set code (+ code "assert(")
+    set code (+ code cond_code)
+    set code (+ code ");\n")
     return code
 }
 
@@ -2497,19 +2497,19 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         set union_name "UNKNOWN"
     } else { (print "") }
 
-    let union_c: string = (str_concat "nl_" (mangle_name union_name))
+    let union_c: string = (+ "nl_" (mangle_name union_name))
     let mut out_c: string = "int64_t"
     if (!= expected_type "") {
         set out_c (type_to_c expected_type)
     } else { (print "") }
 
     let mut code: string = "({ "
-    set code (str_concat code union_c)
-    set code (str_concat code " _m = ")
-    set code (str_concat code scr_code)
-    set code (str_concat code "; ")
-    set code (str_concat code out_c)
-    set code (str_concat code " _out = 0; switch (_m.tag) { ")
+    set code (+ code union_c)
+    set code (+ code " _m = ")
+    set code (+ code scr_code)
+    set code (+ code "; ")
+    set code (+ code out_c)
+    set code (+ code " _out = 0; switch (_m.tag) { ")
 
     let mut i: int = 0
     while (< i m.arm_count) {
@@ -2518,37 +2518,37 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         let body_id: int = (at m.arm_body_ids i)
         let body_type: int = (at m.arm_body_types i)
 
-        let tag_name: string = (str_concat (str_concat "nl_" (mangle_name union_name)) (str_concat "_TAG_" variant))
-        let variant_type: string = (str_concat (str_concat "nl_" (mangle_name union_name)) (str_concat "_" variant))
+        let tag_name: string = (+ (+ "nl_" (mangle_name union_name)) (+ "_TAG_" variant))
+        let variant_type: string = (+ (+ "nl_" (mangle_name union_name)) (+ "_" variant))
 
-        set code (str_concat code "case ")
-        set code (str_concat code tag_name)
-        set code (str_concat code ": { ")
+        set code (+ code "case ")
+        set code (+ code tag_name)
+        set code (+ code ": { ")
 
-        set code (str_concat code variant_type)
-        set code (str_concat code " ")
-        set code (str_concat code (mangle_name binding))
-        set code (str_concat code " = _m.data.")
-        set code (str_concat code variant)
-        set code (str_concat code "; ")
+        set code (+ code variant_type)
+        set code (+ code " ")
+        set code (+ code (mangle_name binding))
+        set code (+ code " = _m.data.")
+        set code (+ code variant)
+        set code (+ code "; ")
 
-        let env_arm: GenEnv = (genenv_put env binding (str_concat union_name (str_concat "." variant)))
+        let env_arm: GenEnv = (genenv_put env binding (+ union_name (+ "." variant)))
 
         if (== body_type ParseNodeType.PNODE_BLOCK) {
             /* Block bodies in expression match aren't supported here; assume they return */
-            set code (str_concat code "/* unsupported match arm block */ ")
+            set code (+ code "/* unsupported match arm block */ ")
         } else {
             let expr_code: string = (generate_expression parser body_id body_type env_arm expected_type)
-            set code (str_concat code "_out = ")
-            set code (str_concat code expr_code)
-            set code (str_concat code "; ")
+            set code (+ code "_out = ")
+            set code (+ code expr_code)
+            set code (+ code "; ")
         }
 
-        set code (str_concat code "break; } ")
+        set code (+ code "break; } ")
         set i (+ i 1)
     }
 
-    set code (str_concat code "} _out; })")
+    set code (+ code "} _out; })")
     return code
 }
 
@@ -2573,18 +2573,18 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
         set union_name "UNKNOWN"
     } else { (print "") }
 
-    let union_c: string = (str_concat "nl_" (mangle_name union_name))
+    let union_c: string = (+ "nl_" (mangle_name union_name))
 
     let mut code: string = (gen_indent indent)
-    set code (str_concat code "{\n")
-    set code (str_concat code (gen_indent (+ indent 1)))
-    set code (str_concat code union_c)
-    set code (str_concat code " _m = ")
-    set code (str_concat code scr_code)
-    set code (str_concat code ";\n")
+    set code (+ code "{\n")
+    set code (+ code (gen_indent (+ indent 1)))
+    set code (+ code union_c)
+    set code (+ code " _m = ")
+    set code (+ code scr_code)
+    set code (+ code ";\n")
 
-    set code (str_concat code (gen_indent (+ indent 1)))
-    set code (str_concat code "switch (_m.tag) {\n")
+    set code (+ code (gen_indent (+ indent 1)))
+    set code (+ code "switch (_m.tag) {\n")
 
     let mut i: int = 0
     while (< i m.arm_count) {
@@ -2593,45 +2593,45 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
         let body_id: int = (at m.arm_body_ids i)
         let body_type: int = (at m.arm_body_types i)
 
-        let tag_name: string = (str_concat (str_concat "nl_" (mangle_name union_name)) (str_concat "_TAG_" variant))
-        let variant_type: string = (str_concat (str_concat "nl_" (mangle_name union_name)) (str_concat "_" variant))
+        let tag_name: string = (+ (+ "nl_" (mangle_name union_name)) (+ "_TAG_" variant))
+        let variant_type: string = (+ (+ "nl_" (mangle_name union_name)) (+ "_" variant))
 
-        set code (str_concat code (gen_indent (+ indent 2)))
-        set code (str_concat code "case ")
-        set code (str_concat code tag_name)
-        set code (str_concat code ": {\n")
+        set code (+ code (gen_indent (+ indent 2)))
+        set code (+ code "case ")
+        set code (+ code tag_name)
+        set code (+ code ": {\n")
 
-        set code (str_concat code (gen_indent (+ indent 3)))
-        set code (str_concat code variant_type)
-        set code (str_concat code " nl_")
-        set code (str_concat code (mangle_name binding))
-        set code (str_concat code " = _m.data.")
-        set code (str_concat code variant)
-        set code (str_concat code ";\n")
+        set code (+ code (gen_indent (+ indent 3)))
+        set code (+ code variant_type)
+        set code (+ code " nl_")
+        set code (+ code (mangle_name binding))
+        set code (+ code " = _m.data.")
+        set code (+ code variant)
+        set code (+ code ";\n")
 
-        let env_arm: GenEnv = (genenv_put env binding (str_concat union_name (str_concat "." variant)))
+        let env_arm: GenEnv = (genenv_put env binding (+ union_name (+ "." variant)))
 
         if (== body_type ParseNodeType.PNODE_BLOCK) {
-            set code (str_concat code (generate_block parser body_id (+ indent 3) env_arm return_type))
+            set code (+ code (generate_block parser body_id (+ indent 3) env_arm return_type))
         } else {
             let expr_code: string = (generate_expression parser body_id body_type env_arm "")
-            set code (str_concat code (gen_indent (+ indent 3)))
-            set code (str_concat code expr_code)
-            set code (str_concat code ";\n")
+            set code (+ code (gen_indent (+ indent 3)))
+            set code (+ code expr_code)
+            set code (+ code ";\n")
         }
 
-        set code (str_concat code (gen_indent (+ indent 3)))
-        set code (str_concat code "break;\n")
+        set code (+ code (gen_indent (+ indent 3)))
+        set code (+ code "break;\n")
 
-        set code (str_concat code (gen_indent (+ indent 2)))
-        set code (str_concat code "}\n")
+        set code (+ code (gen_indent (+ indent 2)))
+        set code (+ code "}\n")
         set i (+ i 1)
     }
 
-    set code (str_concat code (gen_indent (+ indent 1)))
-    set code (str_concat code "}\n")
-    set code (str_concat code (gen_indent indent))
-    set code (str_concat code "}\n")
+    set code (+ code (gen_indent (+ indent 1)))
+    set code (+ code "}\n")
+    set code (+ code (gen_indent indent))
+    set code (+ code "}\n")
     return code
 }
 
@@ -2681,14 +2681,14 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
                             if (== stmt.node_type ParseNodeType.PNODE_CALL) {
                                 let expr_code: string = (generate_expression parser stmt.node_id stmt.node_type env "")
                                 let mut code: string = (gen_indent indent)
-                                set code (str_concat code expr_code)
-                                set code (str_concat code ";\n")
+                                set code (+ code expr_code)
+                                set code (+ code ";\n")
                                 return StmtGenResult { code: code, env: env }
                             } else {
                                 let mut code: string = (gen_indent indent)
-                                set code (str_concat code "/* unsupported stmt: ")
-                                set code (str_concat code (int_to_string stmt.node_type))
-                                set code (str_concat code " */\n")
+                                set code (+ code "/* unsupported stmt: ")
+                                set code (+ code (int_to_string stmt.node_type))
+                                set code (+ code " */\n")
                                 return StmtGenResult { code: code, env: env }
                             }
                             }
@@ -2712,7 +2712,7 @@ fn generate_block(parser: Parser, block_id: int, indent: int, env: GenEnv, retur
         while (< i stmt_count) {
             let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
             let res: StmtGenResult = (generate_statement parser stmt indent env_cur return_type)
-            set code (str_concat code res.code)
+            set code (+ code res.code)
             set env_cur res.env
             set i (+ i 1)
         }
@@ -2733,16 +2733,16 @@ fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int, env: GenEnv)
     let mut code: string = (gen_indent indent)
     
     /* Add target variable with nl_ prefix */
-    set code (str_concat code "nl_")
-    set code (str_concat code (mangle_name set_stmt.target))
-    set code (str_concat code " = ")
+    set code (+ code "nl_")
+    set code (+ code (mangle_name set_stmt.target))
+    set code (+ code " = ")
     
     /* Generate value expression */
     let target_t: string = (genenv_get env set_stmt.target)
     let expr_code: string = (generate_expression parser set_stmt.value set_stmt.value_type env target_t)
-    set code (str_concat code expr_code)
+    set code (+ code expr_code)
     
-    set code (str_concat code ";\n")
+    set code (+ code ";\n")
     return code
 }
 
@@ -2757,26 +2757,26 @@ fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int, env: GenEnv)
  */
 fn generate_if_stmt(parser: Parser, if_stmt: ASTIf, indent: int, env: GenEnv, return_type: string) -> string {
     let mut code: string = (gen_indent indent)
-    set code (str_concat code "if (")
+    set code (+ code "if (")
     
     /* Generate condition expression */
     let cond_code: string = (generate_expression parser if_stmt.condition if_stmt.condition_type env "bool")
-    set code (str_concat code cond_code)
-    set code (str_concat code ") {\n")
+    set code (+ code cond_code)
+    set code (+ code ") {\n")
 
-    set code (str_concat code (generate_block parser if_stmt.then_body (+ indent 1) env return_type))
+    set code (+ code (generate_block parser if_stmt.then_body (+ indent 1) env return_type))
     
-    set code (str_concat code (gen_indent indent))
-    set code (str_concat code "}")
+    set code (+ code (gen_indent indent))
+    set code (+ code "}")
     
     /* Generate else if present */
     if (< if_stmt.else_body 0) {
-        set code (str_concat code "\n")
+        set code (+ code "\n")
     } else {
-        set code (str_concat code " else {\n")
-        set code (str_concat code (generate_block parser if_stmt.else_body (+ indent 1) env return_type))
-        set code (str_concat code (gen_indent indent))
-        set code (str_concat code "}\n")
+        set code (+ code " else {\n")
+        set code (+ code (generate_block parser if_stmt.else_body (+ indent 1) env return_type))
+        set code (+ code (gen_indent indent))
+        set code (+ code "}\n")
     }
     
     return code
@@ -2793,17 +2793,17 @@ fn generate_if_stmt(parser: Parser, if_stmt: ASTIf, indent: int, env: GenEnv, re
  */
 fn generate_while_stmt(parser: Parser, while_stmt: ASTWhile, indent: int, env: GenEnv, return_type: string) -> string {
     let mut code: string = (gen_indent indent)
-    set code (str_concat code "while (")
+    set code (+ code "while (")
     
     /* Generate condition expression */
     let cond_code: string = (generate_expression parser while_stmt.condition while_stmt.condition_type env "bool")
-    set code (str_concat code cond_code)
-    set code (str_concat code ") {\n")
+    set code (+ code cond_code)
+    set code (+ code ") {\n")
 
-    set code (str_concat code (generate_block parser while_stmt.body (+ indent 1) env return_type))
+    set code (+ code (generate_block parser while_stmt.body (+ indent 1) env return_type))
     
-    set code (str_concat code (gen_indent indent))
-    set code (str_concat code "}\n")
+    set code (+ code (gen_indent indent))
+    set code (+ code "}\n")
     
     return code
 }
@@ -2862,7 +2862,7 @@ pub fn transpile_parser(parser: Parser) -> string {
         let mut func_code: string = ""
         if (< func.body 0) {
             let sig: string = (gen_function_signature func.name params types func.return_type)
-            set func_code (str_concat sig ";\n\n")
+            set func_code (+ sig ";\n\n")
         } else {
             let mut env0: GenEnv = (genenv_new)
             /* Seed env with parameters */
@@ -2877,8 +2877,8 @@ pub fn transpile_parser(parser: Parser) -> string {
             set func_code (gen_function func.name params types func.return_type body)
         }
 
-        set all_functions (str_concat all_functions func_code)
-        set all_functions (str_concat all_functions "\n")
+        set all_functions (+ all_functions func_code)
+        set all_functions (+ all_functions "\n")
         set i (+ i 1)
     }
     
@@ -2920,34 +2920,34 @@ fn transpile_with_count(func_count: int) -> string {
     
     /* Generate main function that demonstrates successful compilation */
     let mut body: string = ""
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"========================================\");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"  nanolang Self-Hosted Compiler\");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"  Successfully compiled and generated!\");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"========================================\");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"\");\n")
-    set body (str_concat body (gen_indent 1))
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"========================================\");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"  nanolang Self-Hosted Compiler\");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"  Successfully compiled and generated!\");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"========================================\");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"\");\n")
+    set body (+ body (gen_indent 1))
     
     /* Show compilation stats */
-    set body (str_concat body "nl_print(\"Functions parsed: \");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_print(nl_int_to_string(")
-    set body (str_concat body (int_to_string func_count))
-    set body (str_concat body "));\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"\");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"NSType checking: PASSED\");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"Code generation: COMPLETE\");\n")
-    set body (str_concat body (gen_indent 1))
-    set body (str_concat body "nl_println(\"\");\n")
+    set body (+ body "nl_print(\"Functions parsed: \");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_print(nl_int_to_string(")
+    set body (+ body (int_to_string func_count))
+    set body (+ body "));\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"\");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"NSType checking: PASSED\");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"Code generation: COMPLETE\");\n")
+    set body (+ body (gen_indent 1))
+    set body (+ body "nl_println(\"\");\n")
     
-    set body (str_concat body (gen_return "0" 1))
+    set body (+ body (gen_return "0" 1))
     
     let params: array<string> = []
     let types: array<string> = []

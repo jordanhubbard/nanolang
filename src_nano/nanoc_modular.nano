@@ -204,17 +204,17 @@ fn compile_file(input: string, output: string, verbose: bool, keep_c: bool) -> i
      * if verbose {
      *     (println "[6/6] Compiling C code...")
      * }
-     * let c_file: string = (str_concat output ".c")
+     * let c_file: string = (+ output ".c")
      * let write_result: int = (file_write c_file c_code)
      * if (!= write_result 0) {
      *     (println "Failed to write C file!")
      *     return 1
      * }
      * 
-     * let gcc_cmd: string = (str_concat "gcc " c_file)
-     * let gcc_cmd2: string = (str_concat gcc_cmd " -o ")
-     * let gcc_cmd3: string = (str_concat gcc_cmd2 output)
-     * let gcc_cmd4: string = (str_concat gcc_cmd3 " -lm")
+     * let gcc_cmd: string = (+ "gcc " c_file)
+     * let gcc_cmd2: string = (+ gcc_cmd " -o ")
+     * let gcc_cmd3: string = (+ gcc_cmd2 output)
+     * let gcc_cmd4: string = (+ gcc_cmd3 " -lm")
      * let result: int = (system gcc_cmd4)
      * 
      * if (!= result 0) {
@@ -233,12 +233,12 @@ fn compile_file(input: string, output: string, verbose: bool, keep_c: bool) -> i
         (print "")
     }
     
-    let cmd1: string = (str_concat "bin/nanoc " input)
-    let cmd2: string = (str_concat cmd1 " -o ")
-    let cmd: string = (str_concat cmd2 output)
+    let cmd1: string = (+ "bin/nanoc " input)
+    let cmd2: string = (+ cmd1 " -o ")
+    let cmd: string = (+ cmd2 output)
     
     if keep_c {
-        set cmd (str_concat cmd " --keep-c")
+        set cmd (+ cmd " --keep-c")
     } else {
         (print "")
     }

@@ -746,8 +746,8 @@ fn parse_qualified_name(p: Parser) -> NameParseResult {
                         if (!= tid.token_type (token_identifier)) {
                             return NameParseResult { p: p_dc, name: name, ok: false }
                         } else {
-                            set name (str_concat name "::")
-                            set name (str_concat name tid.value)
+                            set name (+ name "::")
+                            set name (+ name tid.value)
                             set cur (parser_advance p_dc)
                         }
                     }
@@ -790,8 +790,8 @@ fn parse_call_name(p: Parser) -> NameParseResult {
                         if (!= tid.token_type (token_identifier)) {
                             return NameParseResult { p: p_dc, name: name, ok: false }
                         } else {
-                            set name (str_concat name "::")
-                            set name (str_concat name tid.value)
+                            set name (+ name "::")
+                            set name (+ name tid.value)
                             set cur (parser_advance p_dc)
                         }
                     }
@@ -806,8 +806,8 @@ fn parse_call_name(p: Parser) -> NameParseResult {
                                 /* Do not consume tuple index (t.0) or invalid call target */
                                 return NameParseResult { p: cur, name: name, ok: true }
                             } else {
-                                set name (str_concat name ".")
-                                set name (str_concat name tid.value)
+                                set name (+ name ".")
+                                set name (+ name tid.value)
                                 set cur (parser_advance p_dot)
                             }
                         }
@@ -876,25 +876,25 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
                 if (not arg1.ok) {
                     return TypeParseResult { p: arg1.p, type_name: type_name, ok: false }
                 } else {
-                    set type_name (str_concat type_name arg1.type_name)
+                    set type_name (+ type_name arg1.type_name)
                     set cur arg1.p
                 }
 
                 while (not (parser_is_at_end cur)) {
                     let tc: LexerToken = (parser_current cur)
                     if (== tc.token_type (token_comma)) {
-                        set type_name (str_concat type_name ",")
+                        set type_name (+ type_name ",")
                         set cur (parser_advance cur)
                         let argn: TypeParseResult = (parse_type_string cur)
                         if (not argn.ok) {
                             return TypeParseResult { p: argn.p, type_name: type_name, ok: false }
                         } else {
-                            set type_name (str_concat type_name argn.type_name)
+                            set type_name (+ type_name argn.type_name)
                             set cur argn.p
                         }
                     } else {
                         if (== tc.token_type (token_rparen)) {
-                            set type_name (str_concat type_name ")")
+                            set type_name (+ type_name ")")
                             set cur (parser_advance cur)
                             return TypeParseResult { p: cur, type_name: type_name, ok: true }
                         } else {
@@ -922,34 +922,34 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
             if (not (parser_is_at_end cur)) {
                 let tgen: LexerToken = (parser_current cur)
                 if (== tgen.token_type (token_lt)) {
-                    set type_name (str_concat type_name "<")
+                    set type_name (+ type_name "<")
                     let mut cur2: Parser = (parser_advance cur)
 
                     let arg1: TypeParseResult = (parse_type_string cur2)
                     if (not arg1.ok) {
                         return TypeParseResult { p: arg1.p, type_name: type_name, ok: false }
                     } else {
-                        set type_name (str_concat type_name arg1.type_name)
+                        set type_name (+ type_name arg1.type_name)
                         set cur2 arg1.p
                     }
 
                     while (not (parser_is_at_end cur2)) {
                         let tc: LexerToken = (parser_current cur2)
                         if (== tc.token_type (token_comma)) {
-                            set type_name (str_concat type_name ",")
+                            set type_name (+ type_name ",")
                             set cur2 (parser_advance cur2)
                             let argn: TypeParseResult = (parse_type_string cur2)
                             if (not argn.ok) {
                                 return TypeParseResult { p: argn.p, type_name: type_name, ok: false }
                             } else {
-                                set type_name (str_concat type_name argn.type_name)
+                                set type_name (+ type_name argn.type_name)
                                 set cur2 argn.p
                             }
                         } else {
                             /* Done with args */
                             let tg: LexerToken = tc
                             if (== tg.token_type (token_gt)) {
-                                set type_name (str_concat type_name ">")
+                                set type_name (+ type_name ">")
                                 set cur2 (parser_advance cur2)
                                 return TypeParseResult { p: cur2, type_name: type_name, ok: true }
                             } else {

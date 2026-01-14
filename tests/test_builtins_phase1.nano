@@ -1,7 +1,7 @@
 fn test_string_ops() -> int {
     let s1: string = "hello"
     let s2: string = " world"
-    let concat: string = (str_concat s1 s2)
+    let concat: string = (+ s1 s2)
     let len: int = (str_length concat)
     (println concat)
     return len

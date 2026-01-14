@@ -675,7 +675,7 @@ shadow main {
  *    return CompilationResult { success: true, ... }
  * 
  * 5. Update run_transpiler():
- *    let c_file: string = (str_concat output_file ".c")
+ *    let c_file: string = (+ output_file ".c")
  *    let transpile_output: TranspilePhaseOutput = (Transpile.transpile_phase ast c_file)
  *    if transpile_output.had_error { ... error handling ... }
  *    return CompilationResult { success: true, output: c_file, ... }

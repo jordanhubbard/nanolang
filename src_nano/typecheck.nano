@@ -1280,10 +1280,10 @@ fn type_to_string(t: NSType) -> string {
                     } else {
                         if (== t.kind TypeKind.TYPE_ARRAY) {
                             let elem_str: string = (type_kind_to_string t.element_type_kind t.element_type_name)
-                            return (str_concat "array<" (str_concat elem_str ">"))
+                            return (+ "array<" (+ elem_str ">"))
                         } else {
                             if (== t.kind TypeKind.TYPE_LIST_GENERIC) {
-                                return (str_concat "List<" (str_concat t.element_type_name ">"))
+                                return (+ "List<" (+ t.element_type_name ">"))
                             } else {
                                 if (== t.kind TypeKind.TYPE_STRUCT) {
                                     return t.name

@@ -173,16 +173,16 @@ fn ast_to_string(node: AST) -> string {
     let node_type: ASTNodeType = node.node_type
     
     if (== node_type ASTNodeType.IntLiteral) {
-        return (str_concat "Int(" (str_concat node.value ")"))
+        return (+ "Int(" (+ node.value ")"))
     } else {
         if (== node_type ASTNodeType.StringLiteral) {
-            return (str_concat "String(" (str_concat node.value ")"))
+            return (+ "String(" (+ node.value ")"))
         } else {
             if (== node_type ASTNodeType.Identifier) {
-                return (str_concat "Id(" (str_concat node.name ")"))
+                return (+ "Id(" (+ node.name ")"))
             } else {
                 if (== node_type ASTNodeType.Call) {
-                    return (str_concat "Call(" (str_concat node.name ")"))
+                    return (+ "Call(" (+ node.name ")"))
                 } else {
                     return (ast_type_name node)
                 }

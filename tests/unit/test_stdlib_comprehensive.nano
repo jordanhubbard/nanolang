@@ -103,7 +103,7 @@ shadow test_str_length {
 }
 
 fn test_str_concat() -> bool {
-    let result: string = (str_concat "hello" " world")
+    let result: string = (+ "hello" " world")
     return (str_equals result "hello world")
 }
 
