@@ -79,3 +79,4 @@ fn main() -> int {
 
 shadow main {
     assert (== (main) 0)
+}
