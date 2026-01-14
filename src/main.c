@@ -3,11 +3,11 @@
 #include "module_builder.h"
 #include "interpreter_ffi.h"
 #include "runtime/list_CompilerDiagnostic.h"
+#include <unistd.h>  /* For getpid() on all POSIX systems */
 
 #ifdef __APPLE__
 #include <mach-o/loader.h>
 #include <fcntl.h>
-#include <unistd.h>
 #endif
 
 /* Global argc/argv for runtime access by transpiled programs */
