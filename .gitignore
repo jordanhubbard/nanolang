@@ -88,3 +88,4 @@ src_nano/*.genC
 
 # Compiled binaries
 bin/
+modules/index.json
