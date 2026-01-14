@@ -3827,6 +3827,12 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* Generate headers */
     generate_c_headers(sb);
 
+    /* Suppress unused function warnings for runtime library - not all functions used in every program */
+    sb_append(sb, "#pragma GCC diagnostic push\n");
+    sb_append(sb, "#pragma GCC diagnostic ignored \"-Wunused-function\"\n");
+    sb_append(sb, "#pragma GCC diagnostic ignored \"-Wunneeded-internal-declaration\"\n");
+    sb_append(sb, "#pragma GCC diagnostic ignored \"-Wunused-const-variable\"\n\n");
+
     /* OS stdlib runtime library */
     sb_append(sb, "/* ========== OS Standard Library ========== */\n\n");
 
@@ -3872,6 +3878,9 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
 
     /* Generate to_string helpers for user-defined types */
     generate_to_string_helpers(env, sb);
+
+    /* Re-enable warnings after runtime library and generated helpers */
+    sb_append(sb, "#pragma GCC diagnostic pop\n\n");
 
     /* ========== Function Type Typedefs ========== */
     /* Collect all function signatures and tuple types used in the program */
