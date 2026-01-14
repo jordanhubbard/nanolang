@@ -12,7 +12,10 @@ void nl_bullet_cleanup(void);
 void nl_bullet_step(double time_step);
 
 int64_t nl_bullet_create_soft_sphere(double x, double y, double z,
-                                     double radius, int resolution);
+                                     double radius, int64_t resolution);
+
+int64_t nl_bullet_create_rigid_sphere(double x, double y, double z,
+                                      double radius, double mass, double restitution);
 
 int64_t nl_bullet_create_rigid_box(double x, double y, double z,
                                    double half_width, double half_height, double half_depth,

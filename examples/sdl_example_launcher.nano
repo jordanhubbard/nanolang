@@ -302,16 +302,23 @@ fn main() -> int {
     set example_names (array_push example_names "Bullet Towers")
     set example_descs (array_push example_descs "384-block mega stack collapse")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "./bin/nanoc examples/bullet_rigid_megastacks.nano -o bin/bullet_rigid_megastacks && ./bin/bullet_rigid_megastacks")
+    set example_commands (array_push example_commands "./bin/nanoc examples/physics/bullet_rigid_megastacks.nano -o bin/bullet_rigid_megastacks && ./bin/bullet_rigid_megastacks")
     set example_files (array_push example_files "examples/physics/bullet_rigid_megastacks.nano")
     set example_icons (array_push example_icons "examples/icons/sdl_fire.png")
 
     set example_names (array_push example_names "Bullet Hourglass")
     set example_descs (array_push example_descs "Soft-body hourglass particle flood")
     set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "./bin/nanoc examples/bullet_softbody_hourglass.nano -o bin/bullet_softbody_hourglass && ./bin/bullet_softbody_hourglass")
+    set example_commands (array_push example_commands "./bin/nanoc examples/physics/bullet_softbody_hourglass.nano -o bin/bullet_softbody_hourglass && ./bin/bullet_softbody_hourglass")
     set example_files (array_push example_files "examples/physics/bullet_softbody_hourglass.nano")
     set example_icons (array_push example_icons "examples/icons/sdl_particles.png")
+
+    set example_names (array_push example_names "Bouncy Balls")
+    set example_descs (array_push example_descs "Interactive ball spawner with physics")
+    set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
+    set example_commands (array_push example_commands "./bin/nanoc examples/physics/bullet_bouncy_balls.nano -o bin/bullet_bouncy_balls && ./bin/bullet_bouncy_balls")
+    set example_files (array_push example_files "examples/physics/bullet_bouncy_balls.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_glass_sphere.png")
 
     # === Audio (SDL) ===
     set example_names (array_push example_names "NanoAmp")
@@ -324,14 +331,14 @@ fn main() -> int {
     set example_names (array_push example_names "MOD Viz")
     set example_descs (array_push example_descs "MOD music visualizer")
     set example_categories (array_push example_categories ExampleCategory.AUDIO)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_mod_visualizer && ./bin/sdl_mod_visualizer examples/gabba-studies-12.mod")
+    set example_commands (array_push example_commands "make -C examples ../bin/sdl_mod_visualizer && ./bin/sdl_mod_visualizer examples/audio/gabba-studies-12.mod")
     set example_files (array_push example_files "examples/audio/sdl_mod_visualizer.nano")
     set example_icons (array_push example_icons "examples/icons/sdl_mod_visualizer.png")
 
     set example_names (array_push example_names "Tracker")
     set example_descs (array_push example_descs "ProTracker-style shell")
     set example_categories (array_push example_categories ExampleCategory.AUDIO)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_tracker_shell && ./bin/sdl_tracker_shell")
+    set example_commands (array_push example_commands "make -C examples ../bin/sdl_tracker_shell && cd examples/audio && ../../bin/sdl_tracker_shell")
     set example_files (array_push example_files "examples/audio/sdl_tracker_shell.nano")
     set example_icons (array_push example_icons "examples/icons/sdl_tracker_shell.png")
 
@@ -350,41 +357,7 @@ fn main() -> int {
     set example_files (array_push example_files "examples/opengl/opengl_cube.nano")
     set example_icons (array_push example_icons "examples/icons/sdl_glass_sphere.png")
 
-    # === Debugging & Validation ===
-    set example_names (array_push example_names "Log Levels")
-    set example_descs (array_push example_descs "Structured logging with 6 levels")
-    set example_categories (array_push example_categories ExampleCategory.DEBUG)
-    set example_commands (array_push example_commands "make -C examples ../bin/logging_levels_demo && ./bin/logging_levels_demo")
-    set example_files (array_push example_files "examples/debug/logging_levels_demo.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_fire.png")
 
-    set example_names (array_push example_names "Log Categories")
-    set example_descs (array_push example_descs "Category-based logging workflow")
-    set example_categories (array_push example_categories ExampleCategory.DEBUG)
-    set example_commands (array_push example_commands "make -C examples ../bin/logging_categories_demo && ./bin/logging_categories_demo")
-    set example_files (array_push example_files "examples/debug/logging_categories_demo.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_fire.png")
-
-    set example_names (array_push example_names "Coverage")
-    set example_descs (array_push example_descs "Runtime instrumentation & tracing")
-    set example_categories (array_push example_categories ExampleCategory.DEBUG)
-    set example_commands (array_push example_commands "make -C examples ../bin/coverage_demo && ./bin/coverage_demo")
-    set example_files (array_push example_files "examples/debug/coverage_demo.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_particles.png")
-
-    set example_names (array_push example_names "Prop: Sorting")
-    set example_descs (array_push example_descs "Property-based testing for algorithms")
-    set example_categories (array_push example_categories ExampleCategory.DEBUG)
-    set example_commands (array_push example_commands "make -C examples ../bin/property_test_sorting && ./bin/property_test_sorting")
-    set example_files (array_push example_files "examples/debug/property_test_sorting.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_boids.png")
-
-    set example_names (array_push example_names "Prop: Math")
-    set example_descs (array_push example_descs "Property-based testing for math")
-    set example_categories (array_push example_categories ExampleCategory.DEBUG)
-    set example_commands (array_push example_commands "make -C examples ../bin/property_test_math && ./bin/property_test_math")
-    set example_files (array_push example_files "examples/debug/property_test_math.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_boids.png")
 
     # Load all icon textures
     let icon_count: int = (array_length example_icons)
@@ -403,6 +376,7 @@ fn main() -> int {
     let mut selected_index: int = -1
     let mut source_code: string = ""
     let mut source_scroll: int = 0
+    let mut icon_scroll: int = 0
 
     let mut running: bool = true
     let mut launch_cmd: string = ""
@@ -429,18 +403,36 @@ fn main() -> int {
         
         # Mouse wheel / trackpad scrolling
         let wheel: int = (nl_sdl_poll_mouse_wheel)
+        let mouse_state: int = (nl_sdl_poll_mouse_state)
+        let mouse_x: int = (/ mouse_state 10000)
+        let left_panel_right: int = (+ LEFT_PANEL_X LEFT_PANEL_WIDTH)
+        
         if (> wheel 0) {
             # Scroll up (wheel up or trackpad two-finger swipe up)
-            if (> source_scroll 0) {
-                set source_scroll (- source_scroll 3)  # Scroll 3 lines at a time for smoother trackpad feel
-                if (< source_scroll 0) {
-                    set source_scroll 0
+            if (< mouse_x left_panel_right) {
+                # Mouse over left panel - scroll icon grid
+                if (> icon_scroll 0) {
+                    set icon_scroll (- icon_scroll 1)
                 } else {}
-            } else {}
+            } else {
+                # Mouse over right panel - scroll source code
+                if (> source_scroll 0) {
+                    set source_scroll (- source_scroll 3)
+                    if (< source_scroll 0) {
+                        set source_scroll 0
+                    } else {}
+                } else {}
+            }
         } else {}
         if (< wheel 0) {
             # Scroll down (wheel down or trackpad two-finger swipe down)
-            set source_scroll (+ source_scroll 3)  # Scroll 3 lines at a time
+            if (< mouse_x left_panel_right) {
+                # Mouse over left panel - scroll icon grid
+                set icon_scroll (+ icon_scroll 1)
+            } else {
+                # Mouse over right panel - scroll source code
+                set source_scroll (+ source_scroll 3)
+            }
         } else {}
 
         # Enter launches the selected example
@@ -473,18 +465,21 @@ fn main() -> int {
             if (and (>= click_x all_btn_x) (and (< click_x (+ all_btn_x all_btn_w)) (and (>= click_y cat_tab_y) (< click_y (+ cat_tab_y cat_tab_h))))) {
             set selected_category ExampleCategory.ALL
             set selected_index -1
+            set icon_scroll 0
         } else {}
             
             # Check Games button
             if (and (>= click_x games_btn_x) (and (< click_x (+ games_btn_x games_btn_w)) (and (>= click_y cat_tab_y) (< click_y (+ cat_tab_y cat_tab_h))))) {
             set selected_category ExampleCategory.GAMES
             set selected_index -1
+            set icon_scroll 0
         } else {}
             
             # Check Gfx button
             if (and (>= click_x gfx_btn_x) (and (< click_x (+ gfx_btn_x gfx_btn_w)) (and (>= click_y cat_tab_y) (< click_y (+ cat_tab_y cat_tab_h))))) {
                 set selected_category ExampleCategory.GRAPHICS
                 set selected_index -1
+                set icon_scroll 0
             } else {}
             
             # Check Debug button (row 2)
@@ -494,6 +489,7 @@ fn main() -> int {
             if (and (>= click_x debug_btn_x_click) (and (< click_x (+ debug_btn_x_click debug_btn_w_click)) (and (>= click_y cat_tab_y2_click) (< click_y (+ cat_tab_y2_click cat_tab_h))))) {
                 set selected_category ExampleCategory.DEBUG
                 set selected_index -1
+                set icon_scroll 0
             } else {}
             
             # Check Quit button
@@ -510,16 +506,19 @@ fn main() -> int {
             let mut check_idx: int = 0
             let cat_tab_y_click: int = (+ LEFT_PANEL_Y 10)
             let grid_start_y_click: int = (+ cat_tab_y_click 68)
+            let scroll_offset_px: int = (* icon_scroll (+ ICON_TOTAL_SIZE ICON_MARGIN))
             while (< check_idx (array_length indices)) {
                 let row: int = (/ check_idx ICONS_PER_ROW)
                 let col: int = (% check_idx ICONS_PER_ROW)
                 let icon_x: int = (+ LEFT_PANEL_X (+ 15 (* col (+ ICON_SIZE ICON_MARGIN))))
-                let icon_y: int = (+ grid_start_y_click (* row (+ ICON_TOTAL_SIZE ICON_MARGIN)))
+                let icon_y: int = (- (+ grid_start_y_click (* row (+ ICON_TOTAL_SIZE ICON_MARGIN))) scroll_offset_px)
                 
-                # Check if click is within icon bounds
-                if (and (>= click_x icon_x) (and (< click_x (+ icon_x ICON_SIZE)) (and (>= click_y icon_y) (< click_y (+ icon_y ICON_SIZE))))) {
-                    set clicked_icon check_idx
-                    set check_idx 9999  # Break loop
+                # Check if click is within icon bounds and icon is visible
+                if (and (>= icon_y grid_start_y_click) (< icon_y (- WINDOW_HEIGHT 20))) {
+                    if (and (>= click_x icon_x) (and (< click_x (+ icon_x ICON_SIZE)) (and (>= click_y icon_y) (< click_y (+ icon_y ICON_SIZE))))) {
+                        set clicked_icon check_idx
+                        set check_idx 9999  # Break loop
+                    } else {}
                 } else {}
                 
                 set check_idx (+ check_idx 1)
@@ -630,6 +629,7 @@ fn main() -> int {
 
         # Icon grid (adjusted for second row of category buttons)
         let grid_start_y: int = (+ cat_tab_y 68)
+        let scroll_offset_px: int = (* icon_scroll (+ ICON_TOTAL_SIZE ICON_MARGIN))
         let mut grid_idx: int = 0
         
         while (< grid_idx item_count) {
@@ -638,39 +638,42 @@ fn main() -> int {
             let col: int = (% grid_idx ICONS_PER_ROW)
             
             let icon_x: int = (+ LEFT_PANEL_X (+ 15 (* col (+ ICON_SIZE ICON_MARGIN))))
-            let icon_y: int = (+ grid_start_y (* row (+ ICON_TOTAL_SIZE ICON_MARGIN)))
+            let icon_y: int = (- (+ grid_start_y (* row (+ ICON_TOTAL_SIZE ICON_MARGIN))) scroll_offset_px)
             
-            # Draw selection border if selected
-            if (== grid_idx selected_index) {
-                # Selected: white glow border
-                (SDL_SetRenderDrawColor renderer 255 255 255 255) 
-                (nl_sdl_render_fill_rect renderer (- icon_x 3) (- icon_y 3) (+ ICON_SIZE 6) (+ ICON_SIZE 6)) 
-            } else {}
-            
-            # Get example name for label
-            let name: string = (at example_names ex_idx)
-            
-            # Draw PNG icon
-            let icon_texture: int = (at icon_textures ex_idx)
-            if (!= icon_texture 0) {
-                (nl_img_render_texture renderer icon_texture icon_x icon_y ICON_SIZE ICON_SIZE) 
-            } else {
-                # Fallback to colored square if icon failed to load
-                let color: int = (get_icon_color ex_idx)
-                let r: int = (/ color 65536)
-                let g: int = (% (/ color 256) 256)
-                let b: int = (% color 256)
-                (SDL_SetRenderDrawColor renderer r g b 255) 
-                (nl_sdl_render_fill_rect renderer icon_x icon_y ICON_SIZE ICON_SIZE) 
+            # Only render icons that are visible in the left panel
+            if (and (>= icon_y (- grid_start_y 20)) (< icon_y (- WINDOW_HEIGHT 20))) {
+                # Draw selection border if selected
+                if (== grid_idx selected_index) {
+                    # Selected: white glow border
+                    (SDL_SetRenderDrawColor renderer 255 255 255 255) 
+                    (nl_sdl_render_fill_rect renderer (- icon_x 3) (- icon_y 3) (+ ICON_SIZE 6) (+ ICON_SIZE 6)) 
+                } else {}
                 
-                # Draw first letter as fallback
-                let first_letter: string = (str_substring name 0 1)
-                (nl_draw_text_blended renderer title_font first_letter (+ icon_x 30) (+ icon_y 28) 255 255 255 255) 
-            }
-            
-            # Draw label below icon
-            let truncated: string = (str_truncate name 10)
-            (nl_draw_text_blended renderer small_font truncated (+ icon_x 5) (+ icon_y (+ ICON_SIZE 4)) 220 220 240 255) 
+                # Get example name for label
+                let name: string = (at example_names ex_idx)
+                
+                # Draw PNG icon
+                let icon_texture: int = (at icon_textures ex_idx)
+                if (!= icon_texture 0) {
+                    (nl_img_render_texture renderer icon_texture icon_x icon_y ICON_SIZE ICON_SIZE) 
+                } else {
+                    # Fallback to colored square if icon failed to load
+                    let color: int = (get_icon_color ex_idx)
+                    let r: int = (/ color 65536)
+                    let g: int = (% (/ color 256) 256)
+                    let b: int = (% color 256)
+                    (SDL_SetRenderDrawColor renderer r g b 255) 
+                    (nl_sdl_render_fill_rect renderer icon_x icon_y ICON_SIZE ICON_SIZE) 
+                    
+                    # Draw first letter as fallback
+                    let first_letter: string = (str_substring name 0 1)
+                    (nl_draw_text_blended renderer title_font first_letter (+ icon_x 30) (+ icon_y 28) 255 255 255 255) 
+                }
+                
+                # Draw label below icon
+                let truncated: string = (str_truncate name 10)
+                (nl_draw_text_blended renderer small_font truncated (+ icon_x 5) (+ icon_y (+ ICON_SIZE 4)) 220 220 240 255) 
+            } else {}
             
             set grid_idx (+ grid_idx 1)
         }

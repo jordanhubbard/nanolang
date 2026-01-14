@@ -75,7 +75,7 @@ extern "C" int64_t nl_bullet_init(void) {
 extern "C" int64_t nl_bullet_create_soft_sphere(
     double x, double y, double z,    /* position */
     double radius,                    /* size */
-    int resolution                    /* subdivision count */
+    int64_t resolution                /* subdivision count */
 ) {
     if (!g_dynamicsWorld || g_numSoftBodies >= MAX_OBJECTS) {
         return -1;
@@ -124,6 +124,52 @@ extern "C" int64_t nl_bullet_create_soft_sphere(
     g_softBodies[g_numSoftBodies] = sphere;
     
     return g_numSoftBodies++;
+}
+
+/*
+ * Create a rigid body sphere
+ * Returns handle (index) to the rigid body
+ */
+extern "C" int64_t nl_bullet_create_rigid_sphere(
+    double x, double y, double z,        /* position */
+    double radius,                       /* sphere radius */
+    double mass,                         /* 0 = static */
+    double restitution                   /* bounciness 0-1 */
+) {
+    if (!g_dynamicsWorld || g_numRigidBodies >= MAX_OBJECTS) {
+        return -1;
+    }
+    
+    /* Create sphere shape */
+    btCollisionShape* sphereShape = new btSphereShape(radius);
+    
+    /* Transform */
+    btTransform transform;
+    transform.setIdentity();
+    transform.setOrigin(btVector3(x, y, z));
+    
+    /* Mass and inertia */
+    btVector3 localInertia(0, 0, 0);
+    if (mass > 0) {
+        sphereShape->calculateLocalInertia(mass, localInertia);
+    }
+    
+    /* Motion state */
+    btDefaultMotionState* motionState = new btDefaultMotionState(transform);
+    
+    /* Create rigid body */
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(
+        mass, motionState, sphereShape, localInertia);
+    rbInfo.m_restitution = restitution;
+    rbInfo.m_friction = 0.3;
+    
+    btRigidBody* body = new btRigidBody(rbInfo);
+    
+    /* Add to world */
+    g_dynamicsWorld->addRigidBody(body);
+    g_rigidBodies[g_numRigidBodies] = body;
+    
+    return g_numRigidBodies++;
 }
 
 /*

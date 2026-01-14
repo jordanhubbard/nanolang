@@ -18,6 +18,13 @@ extern fn nl_bullet_create_soft_sphere(
 ) -> int
 
 /* Rigid Body Creation */
+extern fn nl_bullet_create_rigid_sphere(
+    _x: float, _y: float, _z: float,
+    _radius: float,
+    _mass: float,
+    _restitution: float
+) -> int
+
 extern fn nl_bullet_create_rigid_box(
     _x: float, _y: float, _z: float,
     _half_width: float, _half_height: float, _half_depth: float,

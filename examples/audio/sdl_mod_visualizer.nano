@@ -23,7 +23,7 @@ fn main() -> int {
     let mut mod_file: string = ""
     if (< argc 2) {
         # Use default MOD file for instant gratification!
-        set mod_file "examples/gabba-studies-12.mod"
+        set mod_file "examples/audio/gabba-studies-12.mod"
         (println "")
         (println "╔════════════════════════════════════════════════════════╗")
         (println "║  NANOLANG MOD PLAYER WITH VISUALIZER                  ║")
@@ -33,7 +33,7 @@ fn main() -> int {
         (println "  📀 gabba-studies-12.mod")
         (println "")
         (println "Usage: sdl_mod_player [path/to/file.mod]")
-        (println "       (defaults to examples/gabba-studies-12.mod)")
+        (println "       (defaults to examples/audio/gabba-studies-12.mod)")
         (println "")
     } else {
         set mod_file (get_argv 1) 

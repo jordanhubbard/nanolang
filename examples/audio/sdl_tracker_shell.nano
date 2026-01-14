@@ -696,6 +696,19 @@ fn main() -> int {
                                 set pos_row 0
                                 set pos_speed 6
                                 set pos_bpm 125
+                                set pos_accum_ms 0.0
+                                
+                                # Load music into SDL_mixer for playback
+                                set loaded_path full_path
+                                set music (Mix_LoadMUS loaded_path) 
+                                if (!= music 0) {
+                                    set has_music true
+                                    (Mix_VolumeMusic (cast_int (* volume 128.0))) 
+                                    (Mix_PlayMusic music -1) 
+                                    set play_last_update_ms (SDL_GetTicks)
+                                } else {
+                                    set has_music false
+                                }
                                 
                                 (println (+ "Loaded: " mod_name))
                             } else {
