@@ -14,7 +14,10 @@ fn main() -> int {
     let result: int = (Math.add 5 3)
     (print "Math.add(5, 3) = ")
     (println (int_to_string result))
-    (assert (== result 8))
+    if (!= result 8) {
+        (println "ERROR: Expected 8")
+        return 1
+    }
     
     # Test module safety flags
     let is_unsafe: bool = (___module_is_unsafe_simple_math)
@@ -22,25 +25,37 @@ fn main() -> int {
     
     (print "Module is unsafe: ")
     (println (cond (is_unsafe "true") (else "false")))
-    (assert (not is_unsafe))
+    if is_unsafe {
+        (println "ERROR: Expected module to be safe")
+        return 1
+    }
     
     (print "Module has FFI: ")
     (println (cond (has_ffi "true") (else "false")))
-    (assert (not has_ffi))
+    if has_ffi {
+        (println "ERROR: Expected module to have no FFI")
+        return 1
+    }
     
     # Test exported functions count
     let func_count: int = (___module_function_count_simple_math)
     (print "Exported functions count: ")
     (println (int_to_string func_count))
     (println "Expected: 4 functions (add, subtract, multiply, double)")
-    (assert (== func_count 4))
+    if (!= func_count 4) {
+        (println "ERROR: Expected 4 functions")
+        return 1
+    }
 
     # Test exported structs count
     let struct_count: int = (___module_struct_count_simple_math)
     (print "Exported structs count: ")
     (println (int_to_string struct_count))
     (println "Expected: 2 structs (Point, Rectangle)")
-    (assert (== struct_count 2))
+    if (!= struct_count 2) {
+        (println "ERROR: Expected 2 structs")
+        return 1
+    }
     
     (println "✓ All module introspection import tests passed!")
     
