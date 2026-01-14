@@ -163,17 +163,10 @@ fn main() -> int {
             let mut separation_x: float = 0.0
             let mut separation_y: float = 0.0
             let mut neighbor_count: int = 0
-            let mut cohesion_x: float = (+ x separation_x)
-            let mut cohesion_y: float = (+ y separation_y)
-            let mut alignment_x: float = (- (+ vx cohesion_x) cohesion_x)
-            let mut alignment_y: float = (- (+ vy cohesion_y) cohesion_y)
-            
-            # Reset accumulators to 0 (dummy read to avoid unused warnings)
-            let _dummy: float = (+ (+ cohesion_x cohesion_y) (+ alignment_x alignment_y))
-            set cohesion_x 0.0
-            set cohesion_y 0.0
-            set alignment_x 0.0
-            set alignment_y 0.0
+            let mut cohesion_x: float = 0.0
+            let mut cohesion_y: float = 0.0
+            let mut alignment_x: float = 0.0
+            let mut alignment_y: float = 0.0
             
             # Check all other boids
             let mut j: int = 0

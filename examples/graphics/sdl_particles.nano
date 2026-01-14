@@ -163,7 +163,6 @@ fn main() -> int {
     let dt: float = 0.016
     let mut frame: int = 0
     let mut running: bool = true
-    let _dt_check: float = (* dt 1.0)  # Force usage to avoid warning
     
     # Adjustable gravity (slider controls this)
     let mut gravity: float = 100.0

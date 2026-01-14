@@ -3,14 +3,12 @@
 
 fn test_char_access() -> int {
     let text: string = "Hello"
-    let h: int = (char_at text 0)
-    assert (== h 72)
+    assert (== (char_at text 0) 72)
     return 0
 }
 
 fn test_string_building() -> int {
-    let a: string = (string_from_char 65)
-    assert (str_equals a "A")
+    assert (str_equals (string_from_char 65) "A")
     return 0
 }
 
@@ -23,8 +21,7 @@ fn test_classification() -> int {
 }
 
 fn test_conversions() -> int {
-    let s: string = (int_to_string 42)
-    assert (str_equals s "42")
+    assert (str_equals (int_to_string 42) "42")
     assert (== (string_to_int "123") 123)
     assert (== (digit_value 53) 5)
     assert (== (char_to_lower 65) 97)

@@ -58,13 +58,13 @@ fn main() -> int {
     
     (log_info "main" "=== Processing Examples ===")
     
-    let _r1: int = (process_with_logging 10)
+    (process_with_logging 10)
     (println "")
     
-    let _r2: int = (process_with_logging -5)
+    (process_with_logging -5)
     (println "")
     
-    let _r3: int = (process_with_logging 0)
+    (process_with_logging 0)
     (println "")
     
     (log_info "main" "Demonstration complete")

@@ -138,7 +138,7 @@ fn main() -> int {
     let failure2: bool = (register_user "Grace" -10 "grace@example.com")
     (println "")
     
-    if (and success (not failure)) {
+    if (and success (and (not failure) (not failure2))) {
         (log_info "app" "Demonstration complete - categories help trace execution flow")
         return 0
     } else {

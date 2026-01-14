@@ -701,9 +701,7 @@ fn main() -> int {
         let quit: int = (nl_sdl_poll_event_quit)
         if (== quit 1) {
             set running false
-        } else {
-            let _dummy: int = 0
-        }
+        } else {}
         
         # Handle keyboard input
         let key: int = (nl_sdl_poll_keypress)
