@@ -498,7 +498,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                     unique_count++;
                     
                     /* Add -I flag for this directory */
-                    char temp[512];
+                    char temp[1024];
                     snprintf(temp, sizeof(temp), " -I%s", dir_path);
                     strncat(include_flags, temp, sizeof(include_flags) - strlen(include_flags) - 1);
                     

@@ -1370,7 +1370,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                         /* Must be followed by .Variant for union construction */
                         if (!match(p, TOKEN_DOT)) {
                             fprintf(stderr, "Error at line %d, column %d: Generic type instantiation '%s<...>' must be followed by '.Variant' for union construction\n",
-                                    line, column, name_parts[0]);
+                                    line, column, node->as.identifier);
                             free(node->as.identifier);
                             free(node);
                             /* TODO: free generic_type_info */

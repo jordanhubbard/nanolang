@@ -1865,7 +1865,7 @@ const char *module_generate_forward_declarations(const char *module_path) {
             sb_append(sb, "void");  /* Fallback */
         }
         
-        char name_buf[512];
+        char name_buf[1024];
         snprintf(name_buf, sizeof(name_buf), " %s(", c_name);
         sb_append(sb, name_buf);
         

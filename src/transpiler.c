@@ -3827,10 +3827,12 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* Generate headers */
     generate_c_headers(sb);
 
-    /* Suppress unused function warnings for runtime library - not all functions used in every program */
+    /* Suppress unused warnings for runtime library and generated code */
+    /* These pragmas work on both Clang and GCC */
     sb_append(sb, "#pragma GCC diagnostic push\n");
     sb_append(sb, "#pragma GCC diagnostic ignored \"-Wunused-function\"\n");
-    sb_append(sb, "#pragma GCC diagnostic ignored \"-Wunneeded-internal-declaration\"\n");
+    sb_append(sb, "#pragma GCC diagnostic ignored \"-Wunused-variable\"\n");
+    sb_append(sb, "#pragma GCC diagnostic ignored \"-Wunused-parameter\"\n");
     sb_append(sb, "#pragma GCC diagnostic ignored \"-Wunused-const-variable\"\n\n");
 
     /* OS stdlib runtime library */
@@ -3879,9 +3881,6 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* Generate to_string helpers for user-defined types */
     generate_to_string_helpers(env, sb);
 
-    /* Re-enable warnings after runtime library and generated helpers */
-    sb_append(sb, "#pragma GCC diagnostic pop\n\n");
-
     /* ========== Function Type Typedefs ========== */
     /* Collect all function signatures and tuple types used in the program */
     FunctionTypeRegistry *fn_registry = create_fn_type_registry();
@@ -3916,6 +3915,9 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     if (env && env->emit_c_main) {
         generate_main_wrapper(sb, program, env);
     }
+
+    /* Re-enable warnings after all generated code */
+    sb_append(sb, "\n#pragma GCC diagnostic pop\n");
 
     /* Cleanup */
     free_fn_type_registry(fn_registry);
