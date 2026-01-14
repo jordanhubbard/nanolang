@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.5] - 2026-01-14
+
+### Added
+- **Beads module** (`stdlib/beads.nano`) - Programmatic issue tracking API
+  - Type-safe wrappers for bd command-line tool
+  - Query beads by status, priority, type
+  - Create and close issues from code
+  - Get project statistics
+  - **Killer feature**: `assert_with_bead()` - automatically create bugs from failing assertions
+  - Enhanced `assert_with_bead_context()` with file/line information
+  - Complete API: `bd_list`, `bd_open`, `bd_ready`, `bd_by_priority`, `bd_create`, `bd_close`, `bd_stats`
+- **Process module** (`stdlib/process.nano`) - Command execution helpers
+- Comprehensive beads module documentation (`stdlib/README_BEADS.md`)
+- Three practical examples:
+  - `examples/advanced/beads_basic_usage.nano` - Basic querying and creation
+  - `examples/advanced/beads_assert_with_bead.nano` - Automatic issue creation
+  - `examples/advanced/beads_workflow_automation.nano` - Workflow automation and triage
+- Complete test suite (`tests/test_beads_module.nano`) with 10 test functions
+
+### Fixed
+- **P0: For-in loop transpilation** - Loops now properly transpile to C
+  - Fixed missing `AST_FOR` case in transpiler that caused loops to be replaced with `/* unsupported expr type 14 */`
+  - Added proper C for-loop generation: `for (int64_t i = start; i < end; i++)`
+  - Created comprehensive test suite (`tests/test_for_in_loops.nano`) with 5 test functions
+  - All 148 tests pass with working loops
+  - Examples: sum_range, nested loops, array iteration, custom ranges
+- **P0: Boolean operator parentheses** (from v2.0.4 session continuation)
+  - Added `TOKEN_AND` and `TOKEN_OR` to parentheses logic in transpiler
+  - Eliminates `-Wlogical-op-parentheses` warnings
+  - Ensures correct precedence: `((a && b) || c)` instead of `a && b || c`
+
+### Changed
+- Closed 2 completed in-progress beads (examples organization, match arm scoping verification)
+- Updated KNOWN_ISSUES.md to mark both P0 transpiler bugs as FIXED
+
+### Testing
+- All 149 tests passing (148 existing + 1 new for-in loop test)
+- Zero P0 bugs remaining
+- Build system clean with `-Werror`
+
+### Documentation
+- Complete beads module documentation with API reference and examples
+- Updated KNOWN_ISSUES.md with resolution details for P0 bugs
+
 ## [2.0.4] - 2026-01-14
 
 ### Added
