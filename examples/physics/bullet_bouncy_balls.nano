@@ -34,9 +34,9 @@ let BALL_RESTITUTION: float = 0.85  # High bounce (rubber-like)
 
 /* Ball pit properties */
 let PIT_BOTTOM_Y: float = (- 0.0 25.0)
-let PIT_WALL_THICKNESS: float = 2.0
+let PIT_WALL_THICKNESS: float = 8.0  # Thick bottom to prevent tunneling
 let PIT_WIDTH: float = 60.0
-let PIT_HEIGHT: float = 10.0
+let PIT_HEIGHT: float = 15.0  # Taller walls to contain more balls
 
 /* Spawn timing */
 let SPAWN_DELAY_MS: int = 50  # Spawn every 50ms when holding mouse
@@ -190,8 +190,8 @@ fn main() -> int {
     (println "✓ Physics engine initialized")
     
     /* Create ball pit */
-    # Bottom
-    (nl_bullet_create_rigid_box 0.0 PIT_BOTTOM_Y 0.0 
+    # Bottom (thick to prevent fast balls from tunneling through)
+    (nl_bullet_create_rigid_box 0.0 (- PIT_BOTTOM_Y PIT_WALL_THICKNESS) 0.0 
                                  (/ PIT_WIDTH 2.0) PIT_WALL_THICKNESS (/ PIT_WIDTH 2.0) 
                                  0.0 0.6)
     
