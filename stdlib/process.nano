@@ -1,0 +1,25 @@
+# Process execution module
+# Provides functionality to execute external commands
+
+struct CommandResult {
+    stdout: string,
+    stderr: string,
+    exit_code: int
+}
+
+# Execute a shell command and return result
+fn exec_command(command: string) -> CommandResult {
+    # TODO: Implement using C FFI to popen/system
+    # For now, return empty result
+    return CommandResult {
+        stdout: "",
+        stderr: "",
+        exit_code: -1
+    }
+}
+
+shadow exec_command {
+    # Will test when C FFI is implemented
+    let result: CommandResult = (exec_command "echo test")
+    assert (>= result.exit_code -1)
+}

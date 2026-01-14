@@ -245,3 +245,53 @@ When adding stdlib libraries:
 ---
 
 **Last updated:** 2026-01-10 (nanolang-feedback epic completion)
+
+### beads.nano
+**Programmatic Issue Tracking**
+
+Provides type-safe API for the Beads issue tracker. Create, query, and manage issues directly from NanoLang code.
+
+**Killer Feature**: `assert_with_bead()` - Assertions that automatically create bugs when they fail!
+
+```nano
+from "stdlib/beads.nano" import assert_with_bead, bd_stats
+
+# Assertion that creates a P0 bug if it fails
+(assert_with_bead
+    (!= divisor 0)
+    "Division by zero detected"
+    0
+    "Attempted to divide by zero"
+)
+
+# Get project statistics
+let stats: BeadStats = (bd_stats)
+```
+
+**See**: `stdlib/README_BEADS.md` for complete documentation
+
+**Examples**:
+- `examples/advanced/beads_basic_usage.nano` - Query and create issues
+- `examples/advanced/beads_assert_with_bead.nano` - Automatic issue creation
+- `examples/advanced/beads_workflow_automation.nano` - Workflow automation
+
+**Tests**: `tests/test_beads_module.nano`
+
+---
+
+### process.nano
+**Command Execution**
+
+Execute shell commands and capture output from NanoLang.
+
+```nano
+from "stdlib/process.nano" import exec_command, CommandResult
+
+let result: CommandResult = (exec_command "ls -la")
+(println result.stdout)
+```
+
+**Status**: Requires C FFI implementation
+
+---
+

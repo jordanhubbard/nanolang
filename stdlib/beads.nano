@@ -1,0 +1,299 @@
+# Beads Issue Tracker Module
+# Provides programmatic access to bd (beads) command-line tool
+# Enables creating, querying, and managing issues from NanoLang code
+
+from "stdlib/process.nano" import exec_command, CommandResult
+from "stdlib/json.nano" import parse_json, JsonValue
+
+# Core Bead structure matching bd JSON output
+struct Bead {
+    id: string,
+    title: string,
+    description: string,
+    status: string,           # open, in_progress, blocked, closed
+    priority: int,            # 0=P0, 1=P1, 2=P2, 3=P3, 4=P4
+    issue_type: string,       # bug, feature, task, chore, epic
+    created_at: string,
+    updated_at: string,
+    labels: array<string>,
+    close_reason: string,
+    dependency_count: int,
+    dependent_count: int
+}
+
+struct BeadStats {
+    total: int,
+    open: int,
+    in_progress: int,
+    blocked: int,
+    closed: int,
+    ready_to_work: int
+}
+
+struct BeadCreateOptions {
+    title: string,
+    description: string,
+    priority: int,
+    issue_type: string,
+    labels: array<string>
+}
+
+# === Core Functions ===
+
+# List beads with optional filtering
+fn bd_list(status: string) -> array<Bead> {
+    let mut cmd: string = "bd list --json"
+    
+    if (!= status "") {
+        set cmd (+ cmd (+ " --status=" status))
+    }
+    
+    let result: CommandResult = (exec_command cmd)
+    
+    if (!= result.exit_code 0) {
+        (println (+ "Error running bd list: " result.stderr))
+        return (array_new 0 (bead_empty))
+    }
+    
+    # Parse JSON output
+    let json_val: JsonValue = (parse_json result.stdout)
+    return (beads_from_json json_val)
+}
+
+# Get all open beads
+fn bd_open() -> array<Bead> {
+    return (bd_list "open")
+}
+
+# Get all ready-to-work beads
+fn bd_ready() -> array<Bead> {
+    let result: CommandResult = (exec_command "bd ready --json")
+    
+    if (!= result.exit_code 0) {
+        return (array_new 0 (bead_empty))
+    }
+    
+    let json_val: JsonValue = (parse_json result.stdout)
+    return (beads_from_json json_val)
+}
+
+# Get beads by priority
+fn bd_by_priority(priority: int) -> array<Bead> {
+    let cmd: string = (+ "bd list --priority=" (int_to_string priority))
+    set cmd (+ cmd " --json")
+    
+    let result: CommandResult = (exec_command cmd)
+    
+    if (!= result.exit_code 0) {
+        return (array_new 0 (bead_empty))
+    }
+    
+    let json_val: JsonValue = (parse_json result.stdout)
+    return (beads_from_json json_val)
+}
+
+# Show a specific bead by ID
+fn bd_show(id: string) -> Bead {
+    let cmd: string = (+ "bd show " id)
+    let result: CommandResult = (exec_command cmd)
+    
+    if (!= result.exit_code 0) {
+        (println (+ "Error showing bead: " result.stderr))
+        return (bead_empty)
+    }
+    
+    # Parse plain text output (bd show doesn't support --json yet)
+    return (bead_from_text result.stdout)
+}
+
+# Create a new bead
+fn bd_create(title: string, description: string, priority: int, issue_type: string) -> string {
+    let mut cmd: string = "bd create"
+    set cmd (+ cmd (+ " --title=\"" (+ title "\"")))
+    set cmd (+ cmd (+ " --description=\"" (+ description "\"")))
+    set cmd (+ cmd (+ " --priority=" (int_to_string priority)))
+    set cmd (+ cmd (+ " --type=" issue_type))
+    
+    let result: CommandResult = (exec_command cmd)
+    
+    if (!= result.exit_code 0) {
+        (println (+ "Error creating bead: " result.stderr))
+        return ""
+    }
+    
+    # Extract bead ID from output (format: "Created nanolang-xxxx")
+    return (extract_bead_id result.stdout)
+}
+
+# Create bead with full options
+fn bd_create_with_options(opts: BeadCreateOptions) -> string {
+    let mut cmd: string = "bd create"
+    set cmd (+ cmd (+ " --title=\"" (+ opts.title "\"")))
+    set cmd (+ cmd (+ " --description=\"" (+ opts.description "\"")))
+    set cmd (+ cmd (+ " --priority=" (int_to_string opts.priority)))
+    set cmd (+ cmd (+ " --type=" opts.issue_type))
+    
+    # Add labels if provided
+    if (> (array_length opts.labels) 0) {
+        set cmd (+ cmd " --labels=")
+        for i in (range 0 (array_length opts.labels)) {
+            if (> i 0) {
+                set cmd (+ cmd ",")
+            }
+            set cmd (+ cmd (at opts.labels i))
+        }
+    }
+    
+    let result: CommandResult = (exec_command cmd)
+    
+    if (!= result.exit_code 0) {
+        (println (+ "Error creating bead: " result.stderr))
+        return ""
+    }
+    
+    return (extract_bead_id result.stdout)
+}
+
+# Close a bead
+fn bd_close(id: string, reason: string) -> bool {
+    let mut cmd: string = (+ "bd close " id)
+    
+    if (!= reason "") {
+        set cmd (+ cmd (+ " --reason=\"" (+ reason "\"")))
+    }
+    
+    let result: CommandResult = (exec_command cmd)
+    return (== result.exit_code 0)
+}
+
+# Get statistics
+fn bd_stats() -> BeadStats {
+    let result: CommandResult = (exec_command "bd stats")
+    
+    if (!= result.exit_code 0) {
+        return (bead_stats_empty)
+    }
+    
+    # Parse stats from output
+    return (parse_bead_stats result.stdout)
+}
+
+# === Helper Functions ===
+
+fn bead_empty() -> Bead {
+    return Bead {
+        id: "",
+        title: "",
+        description: "",
+        status: "",
+        priority: 0,
+        issue_type: "",
+        created_at: "",
+        updated_at: "",
+        labels: (array_new 0 ""),
+        close_reason: "",
+        dependency_count: 0,
+        dependent_count: 0
+    }
+}
+
+fn bead_stats_empty() -> BeadStats {
+    return BeadStats {
+        total: 0,
+        open: 0,
+        in_progress: 0,
+        blocked: 0,
+        closed: 0,
+        ready_to_work: 0
+    }
+}
+
+fn beads_from_json(json_val: JsonValue) -> array<Bead> {
+    # TODO: Implement JSON array parsing when json module is complete
+    # For now, return empty array
+    return (array_new 0 (bead_empty))
+}
+
+fn bead_from_text(text: string) -> Bead {
+    # TODO: Parse bd show text output
+    # For now, return empty bead
+    return (bead_empty)
+}
+
+fn extract_bead_id(output: string) -> string {
+    # Extract ID from "Created nanolang-xxxx" or "✓ Created nanolang-xxxx"
+    # TODO: Implement string parsing
+    return ""
+}
+
+fn parse_bead_stats(output: string) -> BeadStats {
+    # TODO: Parse bd stats output
+    return (bead_stats_empty)
+}
+
+# === Future: assert_with_bead ===
+# This will be the killer feature - automatically create beads from failing assertions
+
+fn assert_with_bead(condition: bool, title: string, priority: int, description: string) -> bool {
+    if (not condition) {
+        # Create a bead for this failing assertion
+        let bead_id: string = (bd_create title description priority "bug")
+        
+        (println (+ "Assertion failed - created bead: " bead_id))
+        (println (+ "  Title: " title))
+        (println (+ "  Priority: P" (int_to_string priority)))
+    }
+    
+    return condition
+}
+
+# Enhanced version that auto-captures context
+fn assert_with_bead_context(
+    condition: bool,
+    title: string,
+    priority: int,
+    file: string,
+    line: int,
+    context: string
+) -> bool {
+    if (not condition) {
+        let mut desc: string = (+ "Assertion failed at " file)
+        set desc (+ desc (+ ":" (int_to_string line)))
+        set desc (+ desc (+ "\n\nContext:\n" context))
+        
+        let bead_id: string = (bd_create title desc priority "bug")
+        
+        (println (+ "🐛 Assertion failed - created bead: " bead_id))
+        (println (+ "   Location: " (+ file (+ ":" (int_to_string line)))))
+        (println (+ "   Priority: P" (int_to_string priority)))
+    }
+    
+    return condition
+}
+
+# === Shadow Tests ===
+
+shadow bead_empty {
+    let empty: Bead = (bead_empty)
+    assert (== empty.id "")
+    assert (== empty.priority 0)
+    assert (== (array_length empty.labels) 0)
+}
+
+shadow bead_stats_empty {
+    let stats: BeadStats = (bead_stats_empty)
+    assert (== stats.total 0)
+    assert (== stats.open 0)
+    assert (== stats.closed 0)
+}
+
+shadow assert_with_bead {
+    # Test that true conditions don't create beads
+    let result: bool = (assert_with_bead true "Should not create" 0 "Test")
+    assert (== result true)
+    
+    # Test that false conditions return false
+    # (Note: This will actually create a bead if bd is available)
+    let result2: bool = (assert_with_bead false "Test assertion" 4 "Testing bead creation")
+    assert (== result2 false)
+}
