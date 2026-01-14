@@ -62,6 +62,115 @@ Add validation in typechecker for expression statements:
 
 ---
 
+---
+
+### 3. For-In Loops Not Transpiled (P0)
+
+**Severity:** P0 - Critical  
+**Component:** Transpiler (transpiler_iterative_v3_twopass.c)  
+**Discovered:** 2026-01-14
+
+**Description:**
+The `for x in (range ...)` loop construct is not properly transpiled to C. Instead of generating actual loop code, the transpiler emits `/* unsupported expr type 14 */`, causing:
+- Loop bodies to be completely skipped
+- Variables declared in the loop to appear unused
+- Functions containing for-in loops to have all parameters appear unused
+
+**Example:**
+```nano
+fn check_self_collision(snake_x: array<int>, snake_y: array<int>) -> bool {
+    let head_x: int = (at snake_x 0)
+    let head_y: int = (at snake_y 0)
+    
+    for i in (range 1 (array_length snake_x)) {
+        if (and (== head_x (at snake_x i)) (== head_y (at snake_y i))) {
+            return true
+        }
+    }
+    return false
+}
+```
+
+**Generated C:**
+```c
+static bool nl_check_self_collision(DynArray* snake_x, DynArray* snake_y) {
+    int64_t head_x = nl_array_at_int(snake_x, 0LL);
+    int64_t head_y = nl_array_at_int(snake_y, 0LL);
+    /* unsupported expr type 14 */;  // <-- FOR-IN LOOP MISSING!
+    return false;
+}
+```
+
+**Impact:**
+- ~140 unused-const-variable warnings (constants only used in for-in loops)
+- ~58 unused-function warnings (functions only called from for-in loops)
+- ~17 unused-variable warnings (loop variables)
+- Multiple examples have broken functionality (snake games, game of life, etc.)
+
+**Files Involved:**
+- `src/transpiler_iterative_v3_twopass.c` line 2148: emits "unsupported expr type 14"
+
+**Priority:** P0 - This breaks core language functionality
+
+---
+
+### 4. Missing Parentheses in Boolean Expression Transpilation (P0)
+
+**Severity:** P0 - Critical  
+**Component:** Transpiler  
+**Discovered:** 2026-01-14
+
+**Description:**
+When transpiling nested `and`/`or` expressions, the transpiler doesn't add parentheses to preserve the intended precedence, causing C compiler warnings and potential logic errors.
+
+**Example:**
+```nano
+fn complex_logic(a: bool, b: bool, c: bool) -> bool {
+    return (or (and a b) c)  # Intended: (a && b) || c
+}
+
+fn xor_sim(a: bool, b: bool) -> bool {
+    return (and (or a b) (not (and a b)))  # Intended: (a || b) && (!(a && b))
+}
+```
+
+**Generated C:**
+```c
+static bool nl_complex_logic(bool a, bool b, bool c) {
+    return a && b || c;  // WARNING: '&&' within '||' [-Wlogical-op-parentheses]
+}
+
+static bool nl_xor_sim(bool a, bool b) {
+    return a || b && (!a && b);  // WARNING: '&&' within '||'
+}
+```
+
+**Correct Generated C should be:**
+```c
+static bool nl_complex_logic(bool a, bool b, bool c) {
+    return ((a && b) || c);
+}
+
+static bool nl_xor_sim(bool a, bool b) {
+    return ((a || b) && (!(a && b)));
+}
+```
+
+**Impact:**
+- 4 `-Wlogical-op-parentheses` warnings currently
+- Potential for incorrect logic if C precedence differs from intent
+- Code clarity issues
+
+**Files Involved:**
+- `src/transpiler.c` or `src/transpiler_iterative_v3_twopass.c`: binary operator transpilation
+
+**Fix:**
+Always wrap `&&` and `||` subexpressions in parentheses when nested.
+
+**Priority:** P0 - Can cause incorrect program behavior
+
+---
+
 ## Self-Hosted Compiler Gaps
 
 ### 2. Self-Hosted Typechecker Misses Function Argument Type Errors
