@@ -53,7 +53,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
 
     /* println function - uses _Generic for type dispatch */
     sb_append(sb, "static void nl_println(void* value_ptr) {\n");
-    sb_append(sb, "    /* This is a placeholder - actual implementation uses type info from checker */\n");
+    sb_append(sb, "    (void)value_ptr; /* Unused - actual implementation uses type info from checker */\n");
     sb_append(sb, "}\n\n");
 
     /* Specialized print functions for each type (no newline) */
@@ -1233,6 +1233,10 @@ void generate_file_operations(StringBuilder *sb) {
 void generate_stdlib_runtime(StringBuilder *sb) {
     /* OS stdlib runtime library */
     sb_append(sb, "/* ========== OS Standard Library ========== */\n\n");
+    
+    /* Disable unused-function warnings - not all stdlib functions used in every program */
+    sb_append(sb, "#pragma GCC diagnostic push\n");
+    sb_append(sb, "#pragma GCC diagnostic ignored \"-Wunused-function\"\n\n");
 
     /* File operations */
     generate_file_operations(sb);
@@ -1275,6 +1279,9 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     sb_append(sb, "static bool file_exists(const char* path) {\n");
     sb_append(sb, "    return nl_os_file_exists(path);\n");
     sb_append(sb, "}\n\n");
+    
+    /* Re-enable warnings after stdlib functions */
+    sb_append(sb, "#pragma GCC diagnostic pop\n\n");
 
     sb_append(sb, "/* ========== End OS Standard Library ========== */\n\n");
 

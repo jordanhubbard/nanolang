@@ -21,7 +21,7 @@
 # ============================================================================
 
 CC = cc
-CFLAGS = -Wall -Wextra -std=c99 -g -Isrc
+CFLAGS = -Wall -Wextra -Werror -std=c99 -g -Isrc
 LDFLAGS = -lm
 
 # On Linux, dlopened module shared libraries rely on host-exported runtime symbols
