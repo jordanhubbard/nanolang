@@ -700,7 +700,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 } else {
                     /* Regular binary operator */
                     bool needs_parens = (op == TOKEN_PLUS || op == TOKEN_MINUS || 
-                                       op == TOKEN_STAR || op == TOKEN_SLASH || op == TOKEN_PERCENT);
+                                       op == TOKEN_STAR || op == TOKEN_SLASH || op == TOKEN_PERCENT ||
+                                       op == TOKEN_AND || op == TOKEN_OR);
                     
                     if (needs_parens) emit_literal(list, "(");
                     build_expr(list, expr->as.prefix_op.args[0], env);

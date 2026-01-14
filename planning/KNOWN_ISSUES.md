@@ -114,60 +114,30 @@ static bool nl_check_self_collision(DynArray* snake_x, DynArray* snake_y) {
 
 ---
 
-### 4. Missing Parentheses in Boolean Expression Transpilation (P0)
+### 4. Missing Parentheses in Boolean Expression Transpilation (P0) - ✅ FIXED
 
 **Severity:** P0 - Critical  
 **Component:** Transpiler  
-**Discovered:** 2026-01-14
+**Discovered:** 2026-01-14  
+**Fixed:** 2026-01-14
 
 **Description:**
-When transpiling nested `and`/`or` expressions, the transpiler doesn't add parentheses to preserve the intended precedence, causing C compiler warnings and potential logic errors.
+When transpiling nested `and`/`or` expressions, the transpiler didn't add parentheses to preserve the intended precedence, causing C compiler warnings and potential logic errors.
 
-**Example:**
-```nano
-fn complex_logic(a: bool, b: bool, c: bool) -> bool {
-    return (or (and a b) c)  # Intended: (a && b) || c
-}
+**Fix Applied:**
+Modified `src/transpiler_iterative_v3_twopass.c` line 702-703 to add `TOKEN_AND` and `TOKEN_OR` to the `needs_parens` check, ensuring all boolean operators are wrapped in parentheses when nested.
 
-fn xor_sim(a: bool, b: bool) -> bool {
-    return (and (or a b) (not (and a b)))  # Intended: (a || b) && (!(a && b))
-}
-```
+**Verification:**
+- ✅ All 148 tests pass (including new `test_boolean_precedence.nano`)
+- ✅ Zero `-Wlogical-op-parentheses` warnings (was 4)
+- ✅ XOR simulation and complex logic tests work correctly
+- ✅ Generated C code now has proper parentheses: `((a && b) || c)`
 
-**Generated C:**
-```c
-static bool nl_complex_logic(bool a, bool b, bool c) {
-    return a && b || c;  // WARNING: '&&' within '||' [-Wlogical-op-parentheses]
-}
+**Files Modified:**
+- `src/transpiler_iterative_v3_twopass.c`: Added `TOKEN_AND` and `TOKEN_OR` to parentheses logic
+- `tests/test_boolean_precedence.nano`: Comprehensive regression test
 
-static bool nl_xor_sim(bool a, bool b) {
-    return a || b && (!a && b);  // WARNING: '&&' within '||'
-}
-```
-
-**Correct Generated C should be:**
-```c
-static bool nl_complex_logic(bool a, bool b, bool c) {
-    return ((a && b) || c);
-}
-
-static bool nl_xor_sim(bool a, bool b) {
-    return ((a || b) && (!(a && b)));
-}
-```
-
-**Impact:**
-- 4 `-Wlogical-op-parentheses` warnings currently
-- Potential for incorrect logic if C precedence differs from intent
-- Code clarity issues
-
-**Files Involved:**
-- `src/transpiler.c` or `src/transpiler_iterative_v3_twopass.c`: binary operator transpilation
-
-**Fix:**
-Always wrap `&&` and `||` subexpressions in parentheses when nested.
-
-**Priority:** P0 - Can cause incorrect program behavior
+**Status:** RESOLVED in v2.0.5
 
 ---
 
