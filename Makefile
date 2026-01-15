@@ -18,17 +18,26 @@
 # Sentinel files track build progress (.stage*.built) to avoid rebuilds.
 # Use "make clean" to remove all build artifacts and start fresh.
 #
-# NOTE: This Makefile requires GNU make. On BSD systems (FreeBSD, OpenBSD,
-#       NetBSD), use 'gmake' instead of 'make'.
-#       Install: pkg install gmake (FreeBSD) or pkg_add gmake (OpenBSD)
+# ============================================================================
+# IMPORTANT: This Makefile requires GNU make
+# ============================================================================
+#
+# On Linux/macOS: 'make' is GNU make (works as-is)
+# On BSD systems (FreeBSD/OpenBSD/NetBSD): use 'gmake' instead of 'make'
+#
+# Install GNU make on BSD:
+#   FreeBSD:  pkg install gmake
+#   OpenBSD:  pkg_add gmake
+#   NetBSD:   pkgin install gmake
+#
+# This Makefile uses GNU make features:
+#   - $(shell ...) for command execution
+#   - $(patsubst ...) for path transformations
+#   - ifeq/ifneq conditionals
+#
+# If you see syntax errors, you're using BSD make. Use 'gmake' instead.
 #
 # ============================================================================
-
-# Check for GNU make - this will error on BSD make with a helpful message
-# The check looks for "GNU" in the make version output
-ifeq (,$(findstring GNU,$(shell $(MAKE) --version 2>/dev/null)))
-$(error This Makefile requires GNU make. On BSD systems, please use 'gmake' instead of 'make'. Install with: pkg install gmake (FreeBSD) or pkg_add gmake (OpenBSD))
-endif
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -std=c99 -g -Isrc
