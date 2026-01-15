@@ -11,6 +11,9 @@ int64_t nl_bullet_init(void);
 void nl_bullet_cleanup(void);
 void nl_bullet_step(double time_step);
 
+/* Set gravity vector for the world (rigid + soft). Units: m/s^2 */
+void nl_bullet_set_gravity(double gx, double gy, double gz);
+
 int64_t nl_bullet_create_soft_sphere(double x, double y, double z,
                                      double radius, int64_t resolution);
 

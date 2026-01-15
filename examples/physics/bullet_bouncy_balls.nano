@@ -32,6 +32,11 @@ let BALL_RADIUS: float = 0.8
 let BALL_MASS: float = 1.0
 let BALL_RESTITUTION: float = 0.85  # High bounce (rubber-like)
 
+/* Gravity */
+let BASE_GRAVITY_Y: float = (- 0.0 9.8)
+let GRAVITY_MIN: float = (- 0.0 10.0)
+let GRAVITY_MAX: float = 10.0
+
 /* Ball pit properties */
 let PIT_BOTTOM_Y: float = (- 0.0 25.0)
 let PIT_WALL_THICKNESS: float = 8.0  # Thick bottom to prevent tunneling
@@ -102,6 +107,55 @@ shadow clamp_int {
     assert (== (clamp_int 99 0 10) 10)
 }
 
+fn clamp_float(v: float, lo: float, hi: float) -> float {
+    if (< v lo) {
+        return lo
+    } else {
+        if (> v hi) {
+            return hi
+        } else {
+            return v
+        }
+    }
+}
+
+shadow clamp_float {
+    assert (== (clamp_float 1.0 0.0 2.0) 1.0)
+    assert (== (clamp_float (- 0.0 1.0) 0.0 2.0) 0.0)
+    assert (== (clamp_float 99.0 0.0 2.0) 2.0)
+}
+
+fn slider_to_gravity_multiplier(s: float) -> float {
+    let t: float = (clamp_float s 0.0 1.0)
+    return (- (* t 20.0) 10.0)
+}
+
+shadow slider_to_gravity_multiplier {
+    assert (== (slider_to_gravity_multiplier 0.0) (- 0.0 10.0))
+    assert (== (slider_to_gravity_multiplier 0.5) 0.0)
+    assert (== (slider_to_gravity_multiplier 1.0) 10.0)
+}
+
+fn gravity_multiplier_to_slider(g: float) -> float {
+    let gg: float = (clamp_float g GRAVITY_MIN GRAVITY_MAX)
+    return (/ (+ gg 10.0) 20.0)
+}
+
+shadow gravity_multiplier_to_slider {
+    assert (== (gravity_multiplier_to_slider (- 0.0 10.0)) 0.0)
+    assert (== (gravity_multiplier_to_slider 0.0) 0.5)
+    assert (== (gravity_multiplier_to_slider 10.0) 1.0)
+}
+
+fn float_to_string_simple(f: float) -> string {
+    return (+ (int_to_string (cast_int f)) ".0")
+}
+
+shadow float_to_string_simple {
+    assert (> (str_length (float_to_string_simple 1.0)) 0)
+    assert (> (str_length (float_to_string_simple (- 0.0 1.0))) 0)
+}
+
 /* Draw filled circle for ball */
 fn draw_filled_circle(r: SDL_Renderer, cx: int, cy: int, radius: int) -> void {
     let mut y: int = (- radius)
@@ -161,6 +215,7 @@ fn main() -> int {
     (println "  • Click and hold mouse to spawn bouncy balls")
     (println "  • SPACE to clear all balls")
     (println "  • ESC to quit")
+    (println "  • Gravity slider: -10 (up) to +10 (down), default +1")
     (println "")
     
     /* Init SDL */
@@ -206,6 +261,27 @@ fn main() -> int {
     (nl_bullet_create_rigid_box right_x (+ PIT_BOTTOM_Y (/ PIT_HEIGHT 2.0)) 0.0 
                                  PIT_WALL_THICKNESS (/ PIT_HEIGHT 2.0) PIT_WALL_THICKNESS 
                                  0.0 0.6)
+
+    # === Bottom obstacles (polygonal-ish shapes using rotated boxes) ===
+    # These create ramps and wedges to make ball interactions less uniform.
+    let obstacle_restitution: float = 0.25
+    let obstacle_depth: float = PIT_WALL_THICKNESS
+    let base_y: float = (+ PIT_BOTTOM_Y 2.0)
+
+    # Center "V" funnel
+    (nl_bullet_create_rigid_box_rotated (- 0.0 6.0) (+ base_y 4.5) 0.0 6.0 0.6 obstacle_depth 25.0 0.0 obstacle_restitution)
+    (nl_bullet_create_rigid_box_rotated 6.0 (+ base_y 4.5) 0.0 6.0 0.6 obstacle_depth (- 0.0 25.0) 0.0 obstacle_restitution)
+
+    # Left ramp
+    (nl_bullet_create_rigid_box_rotated (- 18.0) (+ base_y 3.0) 0.0 7.0 0.6 obstacle_depth 18.0 0.0 obstacle_restitution)
+
+    # Right ramp
+    (nl_bullet_create_rigid_box_rotated 18.0 (+ base_y 3.0) 0.0 7.0 0.6 obstacle_depth (- 0.0 18.0) 0.0 obstacle_restitution)
+
+    # Pegs (small bumpers)
+    (nl_bullet_create_rigid_box (- 10.0) (+ base_y 7.0) 0.0 1.0 1.0 obstacle_depth 0.0 obstacle_restitution)
+    (nl_bullet_create_rigid_box 0.0 (+ base_y 7.5) 0.0 1.0 1.0 obstacle_depth 0.0 obstacle_restitution)
+    (nl_bullet_create_rigid_box 10.0 (+ base_y 7.0) 0.0 1.0 1.0 obstacle_depth 0.0 obstacle_restitution)
     
     (println "✓ Ball pit created")
     (println "")
@@ -217,11 +293,18 @@ fn main() -> int {
     let mut last_spawn_time: int = 0
     let mut current_color: int = (random_color)
     let mut last_click_state: bool = false
+
+    /* Gravity UI state */
+    let mut gravity_mult: float = 1.0
+    let mut gravity_slider: float = (gravity_multiplier_to_slider gravity_mult)
     
     /* Main loop */
     let mut running: bool = true
     
     while running {
+        # Update UI mouse state once per frame (for slider interaction)
+        (nl_ui_update_mouse_state)
+
         /* Event handling */
         if (== (nl_sdl_poll_event_quit) 1) {
             set running false
@@ -242,11 +325,11 @@ fn main() -> int {
             set ball_colors []
         } else {}
         
-        /* Mouse input */
+        /* Mouse input (hold to spawn) */
         let mouse_state: int = (nl_sdl_poll_mouse_state)
         let mouse_x: int = (/ mouse_state 10000)
         let mouse_y: int = (% mouse_state 10000)
-        let mouse_down: bool = (> (% mouse_state 2) 0)
+        let mouse_down: bool = (!= mouse_state (- 1))
         
         let now: int = (SDL_GetTicks)
         let time_since_spawn: int = (- now last_spawn_time)
@@ -276,6 +359,11 @@ fn main() -> int {
         } else {}
         
         set last_click_state mouse_down
+
+        /* Gravity slider (-10..+10), default +1 */
+        set gravity_slider (nl_ui_slider renderer 10 55 200 18 gravity_slider)
+        set gravity_mult (slider_to_gravity_multiplier gravity_slider)
+        (nl_bullet_set_gravity 0.0 (* BASE_GRAVITY_Y gravity_mult) 0.0)
         
         /* Physics step */
         (nl_bullet_step FRAME_TIME)
@@ -337,6 +425,8 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer 240 240 255 255)
         (nl_ui_label renderer font (+ "Balls: " (int_to_string ball_count)) 10 10 240 240 255 255)
         (nl_ui_label renderer font "Click to spawn • SPACE to clear • ESC to quit" 10 30 200 200 220 255)
+        (nl_ui_label renderer font (+ "Gravity: " (float_to_string_simple gravity_mult)) 220 50 200 220 255 255)
+        (nl_ui_label renderer font "(-10..+10, +1 default)" 220 68 140 160 190 255)
         
         if mouse_down {
             (nl_ui_label renderer font "SPAWNING!" (- WINDOW_WIDTH 120) 10 100 255 100 255)

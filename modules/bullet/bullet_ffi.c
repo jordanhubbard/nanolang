@@ -69,6 +69,16 @@ extern "C" int64_t nl_bullet_init(void) {
 }
 
 /*
+ * Set gravity vector for both rigid and soft body worlds.
+ */
+extern "C" void nl_bullet_set_gravity(double gx, double gy, double gz) {
+    if (!g_dynamicsWorld) return;
+    btVector3 g((btScalar)gx, (btScalar)gy, (btScalar)gz);
+    g_dynamicsWorld->setGravity(g);
+    g_softBodyWorldInfo.m_gravity = g;
+}
+
+/*
  * Create a soft body sphere (bead)
  * Returns handle (index) to the soft body
  */
