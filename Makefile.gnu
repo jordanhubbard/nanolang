@@ -53,6 +53,9 @@ UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 LDFLAGS += -rdynamic
 endif
+ifeq ($(UNAME_S),FreeBSD)
+LDFLAGS += -Wl,-E
+endif
 SANITIZE_FLAGS = -fsanitize=address,undefined -fno-omit-frame-pointer
 COVERAGE_FLAGS = -fprofile-arcs -ftest-coverage
 
