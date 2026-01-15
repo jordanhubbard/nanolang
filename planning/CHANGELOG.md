@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+[0;34mℹ️  Generating changelog from v2.0.5 to HEAD...[0m
+## [2.0.6] - 2026-01-14
+
+### Added
+- Implement working exec_command() in process module
+- Add automated release system with make release targets
+
+### Fixed
+- Fix awk error when updating CHANGELOG with multi-line entries
+- Fix three P0 test failures across platforms
+- Only define _POSIX_C_SOURCE if not already defined
+- Use $(MAKE) instead of 'make' in version check
+- Split Makefile to properly detect BSD make
+- Accept reality - BSD make detection impossible
+- Add proper GNU make detection for BSD systems
+- Remove broken GNU make guard, add clear documentation instead
+- Add unistd.h include for getpid()
+- Remove Clang-only warning flags for GCC compatibility
+- Fix Ubuntu build and eliminate all C compiler warnings
+- Add stub implementations for beads module dependencies
+
 ## [2.0.5] - 2026-01-14
 
 ### Added
