@@ -283,6 +283,14 @@ int64_t nl_sdl_poll_mouse_state(void) {
     return -1;
 }
 
+/* Get current mouse position (always available, independent of button state).
+ * Returns packed coordinates: x * 10000 + y */
+int64_t nl_sdl_get_mouse_pos(void) {
+    int x, y;
+    (void)SDL_GetMouseState(&x, &y);
+    return (int64_t)x * 10000 + (int64_t)y;
+}
+
 /* Helper to poll for mouse button up
  * Returns x * 10000 + y if left button was released, -1 otherwise
  */

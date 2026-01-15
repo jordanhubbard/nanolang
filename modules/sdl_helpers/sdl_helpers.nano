@@ -25,6 +25,10 @@ extern fn nl_sdl_poll_mouse_click() -> int
 # Use this for drag operations and continuous drawing
 extern fn nl_sdl_poll_mouse_state() -> int
 
+# Helper to get current mouse position (independent of button state)
+# Returns x * 10000 + y always
+extern fn nl_sdl_get_mouse_pos() -> int
+
 # Helper to poll for mouse button up
 # Returns x * 10000 + y if left button was released, -1 otherwise
 extern fn nl_sdl_poll_mouse_up() -> int

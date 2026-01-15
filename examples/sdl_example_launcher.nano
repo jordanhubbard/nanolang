@@ -404,8 +404,8 @@ fn main() -> int {
         
         # Mouse wheel / trackpad scrolling
         let wheel: int = (nl_sdl_poll_mouse_wheel)
-        let mouse_state: int = (nl_sdl_poll_mouse_state)
-        let mouse_x: int = (/ mouse_state 10000)
+        let mouse_pos: int = (nl_sdl_get_mouse_pos)
+        let mouse_x: int = (/ mouse_pos 10000)
         let left_panel_right: int = (+ LEFT_PANEL_X LEFT_PANEL_WIDTH)
         
         if (> wheel 0) {

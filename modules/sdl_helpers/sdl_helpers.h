@@ -18,6 +18,9 @@ int64_t nl_sdl_poll_mouse_click(void);
 /* Poll for mouse state (holding) */
 int64_t nl_sdl_poll_mouse_state(void);
 
+/* Get current mouse position (always returns x * 10000 + y) */
+int64_t nl_sdl_get_mouse_pos(void);
+
 /* Poll for mouse button up */
 int64_t nl_sdl_poll_mouse_up(void);
 
