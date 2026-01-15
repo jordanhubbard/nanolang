@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+[0;34mℹ️  Generating changelog from v2.0.6 to HEAD...[0m
+## [2.0.7] - 2026-01-15
+
+### Added
+- modern GL wrappers + LearnOpenGL demos
+- add advanced OpenGL demos + launcher entries
+- bouncy balls absolute gravity slider
+- bouncy balls obstacles + gravity slider
+- add pybridge helper-process Python interop module
+
+### Fixed
+- restore source viewer scrolling in SDL launcher
+- repair launcher build; remove generated .genC artifacts
+- Use __builtin_unreachable() in exhaustive match default case
+
 [0;34mℹ️  Generating changelog from v2.0.5 to HEAD...[0m
 ## [2.0.6] - 2026-01-14
 
