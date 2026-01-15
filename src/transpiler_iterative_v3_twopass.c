@@ -2296,9 +2296,11 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                 emit_literal(list, "}\n");
             }
 
-            /* No default case needed for exhaustive match - all variants are covered
-             * This avoids "control reaches end of non-void function" warnings when
-             * all match arms return a value */
+            /* Add default case with __builtin_unreachable() for exhaustive matches
+             * This tells the compiler that all variants are covered, avoiding
+             * "control reaches end of non-void function" warnings on GCC */
+            emit_indent_item(list, indent + 2);
+            emit_literal(list, "default: __builtin_unreachable();\n");
             emit_indent_item(list, indent + 1);
             emit_literal(list, "}\n");
             emit_indent_item(list, indent);
