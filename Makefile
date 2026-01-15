@@ -16,7 +16,7 @@
 .PHONY: all build test examples clean help
 
 all:
-	@if make --version 2>/dev/null | grep -q 'GNU Make' 2>/dev/null; then \
+	@if $(MAKE) --version 2>/dev/null | grep -q 'GNU Make' 2>/dev/null; then \
 		$(MAKE) -f Makefile.gnu all; \
 	else \
 		printf '\n'; \
@@ -44,7 +44,7 @@ all:
 	fi
 
 build test examples clean help install uninstall:
-	@if make --version 2>/dev/null | grep -q 'GNU Make' 2>/dev/null; then \
+	@if $(MAKE) --version 2>/dev/null | grep -q 'GNU Make' 2>/dev/null; then \
 		$(MAKE) -f Makefile.gnu $@; \
 	else \
 		printf '\n❌ ERROR: This requires GNU make. Use "gmake" instead of "make".\n\n'; \
@@ -53,7 +53,7 @@ build test examples clean help install uninstall:
 
 # Catch-all for any other targets
 %:
-	@if make --version 2>/dev/null | grep -q 'GNU Make' 2>/dev/null; then \
+	@if $(MAKE) --version 2>/dev/null | grep -q 'GNU Make' 2>/dev/null; then \
 		$(MAKE) -f Makefile.gnu $@; \
 	else \
 		printf '\n❌ ERROR: This requires GNU make. Use "gmake" instead of "make".\n\n'; \
