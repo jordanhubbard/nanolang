@@ -32,8 +32,7 @@ let BALL_RADIUS: float = 0.8
 let BALL_MASS: float = 1.0
 let BALL_RESTITUTION: float = 0.85  # High bounce (rubber-like)
 
-/* Gravity */
-let BASE_GRAVITY_Y: float = (- 0.0 9.8)
+/* Gravity (absolute, user-facing: + pulls down, - pulls up) */
 let GRAVITY_MIN: float = (- 0.0 10.0)
 let GRAVITY_MAX: float = 10.0
 
@@ -125,26 +124,26 @@ shadow clamp_float {
     assert (== (clamp_float 99.0 0.0 2.0) 2.0)
 }
 
-fn slider_to_gravity_multiplier(s: float) -> float {
+fn slider_to_gravity_value(s: float) -> float {
     let t: float = (clamp_float s 0.0 1.0)
     return (- (* t 20.0) 10.0)
 }
 
-shadow slider_to_gravity_multiplier {
-    assert (== (slider_to_gravity_multiplier 0.0) (- 0.0 10.0))
-    assert (== (slider_to_gravity_multiplier 0.5) 0.0)
-    assert (== (slider_to_gravity_multiplier 1.0) 10.0)
+shadow slider_to_gravity_value {
+    assert (== (slider_to_gravity_value 0.0) (- 0.0 10.0))
+    assert (== (slider_to_gravity_value 0.5) 0.0)
+    assert (== (slider_to_gravity_value 1.0) 10.0)
 }
 
-fn gravity_multiplier_to_slider(g: float) -> float {
+fn gravity_value_to_slider(g: float) -> float {
     let gg: float = (clamp_float g GRAVITY_MIN GRAVITY_MAX)
     return (/ (+ gg 10.0) 20.0)
 }
 
-shadow gravity_multiplier_to_slider {
-    assert (== (gravity_multiplier_to_slider (- 0.0 10.0)) 0.0)
-    assert (== (gravity_multiplier_to_slider 0.0) 0.5)
-    assert (== (gravity_multiplier_to_slider 10.0) 1.0)
+shadow gravity_value_to_slider {
+    assert (== (gravity_value_to_slider (- 0.0 10.0)) 0.0)
+    assert (== (gravity_value_to_slider 0.0) 0.5)
+    assert (== (gravity_value_to_slider 10.0) 1.0)
 }
 
 fn float_to_string_simple(f: float) -> string {
@@ -215,7 +214,7 @@ fn main() -> int {
     (println "  • Click and hold mouse to spawn bouncy balls")
     (println "  • SPACE to clear all balls")
     (println "  • ESC to quit")
-    (println "  • Gravity slider: -10 (up) to +10 (down), default +1")
+    (println "  • Gravity slider (absolute): -10 (up) to +10 (down), default +1")
     (println "")
     
     /* Init SDL */
@@ -294,9 +293,9 @@ fn main() -> int {
     let mut current_color: int = (random_color)
     let mut last_click_state: bool = false
 
-    /* Gravity UI state */
-    let mut gravity_mult: float = 1.0
-    let mut gravity_slider: float = (gravity_multiplier_to_slider gravity_mult)
+    /* Gravity UI state (absolute) */
+    let mut gravity_value: float = 1.0
+    let mut gravity_slider: float = (gravity_value_to_slider gravity_value)
     
     /* Main loop */
     let mut running: bool = true
@@ -360,10 +359,10 @@ fn main() -> int {
         
         set last_click_state mouse_down
 
-        /* Gravity slider (-10..+10), default +1 */
+        /* Gravity slider (absolute -10..+10), default +1 */
         set gravity_slider (nl_ui_slider renderer 10 55 200 18 gravity_slider)
-        set gravity_mult (slider_to_gravity_multiplier gravity_slider)
-        (nl_bullet_set_gravity 0.0 (* BASE_GRAVITY_Y gravity_mult) 0.0)
+        set gravity_value (slider_to_gravity_value gravity_slider)
+        (nl_bullet_set_gravity 0.0 (- 0.0 gravity_value) 0.0)
         
         /* Physics step */
         (nl_bullet_step FRAME_TIME)
@@ -425,8 +424,8 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer 240 240 255 255)
         (nl_ui_label renderer font (+ "Balls: " (int_to_string ball_count)) 10 10 240 240 255 255)
         (nl_ui_label renderer font "Click to spawn • SPACE to clear • ESC to quit" 10 30 200 200 220 255)
-        (nl_ui_label renderer font (+ "Gravity: " (float_to_string_simple gravity_mult)) 220 50 200 220 255 255)
-        (nl_ui_label renderer font "(-10..+10, +1 default)" 220 68 140 160 190 255)
+        (nl_ui_label renderer font (+ "Gravity: " (float_to_string_simple gravity_value)) 220 50 200 220 255 255)
+        (nl_ui_label renderer font "(-10..+10, +1 down)" 220 68 140 160 190 255)
         
         if mouse_down {
             (nl_ui_label renderer font "SPAWNING!" (- WINDOW_WIDTH 120) 10 100 255 100 255)
