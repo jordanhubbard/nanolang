@@ -730,8 +730,18 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             } else if (arg_count == 1) {
                 /* Unary operator */
                 if (op == TOKEN_NOT) {
+                    ASTNode *arg = expr->as.prefix_op.args[0];
+                    bool arg_is_binary_op = (arg && arg->type == AST_PREFIX_OP && arg->as.prefix_op.arg_count == 2);
+                    
                     emit_literal(list, "(!");
-                    build_expr(list, expr->as.prefix_op.args[0], env);
+                    /* Add extra parentheses around binary operations to fix precedence */
+                    if (arg_is_binary_op) {
+                        emit_literal(list, "(");
+                    }
+                    build_expr(list, arg, env);
+                    if (arg_is_binary_op) {
+                        emit_literal(list, ")");
+                    }
                     emit_literal(list, ")");
                 } else if (op == TOKEN_MINUS) {
                     Type t = check_expression(expr->as.prefix_op.args[0], env);
@@ -2286,8 +2296,9 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                 emit_literal(list, "}\n");
             }
 
-            emit_indent_item(list, indent + 2);
-            emit_literal(list, "default: break;\n");
+            /* No default case needed for exhaustive match - all variants are covered
+             * This avoids "control reaches end of non-void function" warnings when
+             * all match arms return a value */
             emit_indent_item(list, indent + 1);
             emit_literal(list, "}\n");
             emit_indent_item(list, indent);
@@ -2521,6 +2532,20 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
         }
         
         case AST_SET:
+            /* Detect self-assignment (set x x) and skip generating code */
+            if (stmt->as.set.value &&
+                stmt->as.set.value->type == AST_IDENTIFIER &&
+                strcmp(stmt->as.set.value->as.identifier, stmt->as.set.name) == 0) {
+                /* Self-assignment detected: skip code generation to avoid -Wself-assign warning */
+                emit_indent_item(list, indent);
+                emit_literal(list, "/* self-assignment elided: ");
+                emit_literal(list, stmt->as.set.name);
+                emit_literal(list, " = ");
+                emit_literal(list, stmt->as.set.name);
+                emit_literal(list, " */\n");
+                break;
+            }
+            
             emit_indent_item(list, indent);
             emit_literal(list, stmt->as.set.name);
             emit_literal(list, " = ");
