@@ -163,21 +163,30 @@ update_changelog() {
         error "CHANGELOG.md not found at $changelog_file"
     fi
     
-    # Create temp file with new entry
+    # Create temp files
     local temp_file=$(mktemp)
+    local entry_file=$(mktemp)
+    
+    # Write the entry to a file (handles multi-line strings with emoji)
+    echo -e "$changelog_entry" > "$entry_file"
     
     # Read changelog and insert new entry after ## [Unreleased]
-    awk -v entry="$changelog_entry" '
+    awk '
         /^## \[Unreleased\]/ {
             print $0
             print ""
-            print entry
+            # Read and insert the new entry from file
+            while ((getline line < "'"$entry_file"'") > 0) {
+                print line
+            }
+            close("'"$entry_file"'")
             next
         }
         { print }
     ' "$changelog_file" > "$temp_file"
     
     mv "$temp_file" "$changelog_file"
+    rm "$entry_file"
     
     success "CHANGELOG.md updated"
 }
