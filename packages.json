@@ -3,6 +3,24 @@
   "version": "1.0.0",
   "description": "Central registry of system package mappings for NanoLang modules",
   "packages": {
+    "freeglut": {
+      "description": "OpenGL Utility Toolkit (FreeGLUT) development files",
+      "version": ">=2.0.0",
+      "detection": {
+        "pkg-config": "glut",
+        "headers": ["GL/glut.h", "GL/freeglut.h"]
+      },
+      "install": {
+        "apt": { "package": "freeglut3-dev" },
+        "dnf": { "package": "freeglut-devel" },
+        "yum": { "package": "freeglut-devel" },
+        "pacman": { "package": "freeglut" },
+        "zypper": { "package": "freeglut-devel" },
+        "apk": { "package": "freeglut-dev" },
+        "brew": { "package": "freeglut" },
+        "pkg": { "package": "freeglut" }
+      }
+    },
     "sdl2": {
       "description": "Simple DirectMedia Layer 2 - cross-platform multimedia library",
       "homepage": "https://www.libsdl.org/",
