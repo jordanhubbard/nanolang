@@ -1,7 +1,11 @@
 #ifndef NANOLANG_H
 #define NANOLANG_H
 
+// Define _POSIX_C_SOURCE only if not already defined
+// Some systems (like Ubuntu) define this in their headers
+#ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200809L
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
