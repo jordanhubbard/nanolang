@@ -167,7 +167,8 @@ shadow clamp_int {
 }
 
 fn str_truncate(s: string, max_len: int) -> string {
-    if (<= (str_length s) max_len) {
+    let len: int = (str_length s)
+    if (<= len max_len) {
         return s
     } else {
         return (+ (str_substring s 0 max_len) "...")
