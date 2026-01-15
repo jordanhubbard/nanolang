@@ -118,7 +118,9 @@ NCURSES_EXAMPLES = \
 
 OPENGL_EXAMPLES = \
 	$(BIN_DIR)/opengl_cube \
-	$(BIN_DIR)/opengl_teapot
+	$(BIN_DIR)/opengl_teapot \
+	$(BIN_DIR)/opengl_solar_system \
+	$(BIN_DIR)/opengl_particle_fountain
 
 # === All Default Examples ===
 # These are known to compile and work
@@ -304,6 +306,14 @@ $(BIN_DIR)/opengl_teapot: opengl/opengl_teapot.nano $(COMPILER)
 	@echo "Building OpenGL Teapot..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/opengl_teapot
 	@echo "✓ OpenGL Teapot built: $@"
+
+$(BIN_DIR)/opengl_solar_system: opengl/opengl_solar_system.nano $(COMPILER)
+	@echo "Building OpenGL Solar System..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/opengl_solar_system
+
+$(BIN_DIR)/opengl_particle_fountain: opengl/opengl_particle_fountain.nano $(COMPILER)
+	@echo "Building OpenGL Particle Fountain..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/opengl_particle_fountain
 
 # === Clean ===
 

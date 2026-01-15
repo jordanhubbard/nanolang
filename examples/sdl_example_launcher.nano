@@ -358,6 +358,20 @@ fn main() -> int {
     set example_files (array_push example_files "examples/opengl/opengl_cube.nano")
     set example_icons (array_push example_icons "examples/icons/sdl_glass_sphere.png")
 
+    set example_names (array_push example_names "Solar System")
+    set example_descs (array_push example_descs "Hierarchical transforms + lighting (OpenGL)")
+    set example_categories (array_push example_categories ExampleCategory.OPENGL)
+    set example_commands (array_push example_commands "make -C examples ../bin/opengl_solar_system && ./bin/opengl_solar_system")
+    set example_files (array_push example_files "examples/opengl/opengl_solar_system.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_starfield.png")
+
+    set example_names (array_push example_names "Particle Fountain")
+    set example_descs (array_push example_descs "Blended point sprites (OpenGL)")
+    set example_categories (array_push example_categories ExampleCategory.OPENGL)
+    set example_commands (array_push example_commands "make -C examples ../bin/opengl_particle_fountain && ./bin/opengl_particle_fountain")
+    set example_files (array_push example_files "examples/opengl/opengl_particle_fountain.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_particles.png")
+
 
 
     # Load all icon textures
