@@ -39,9 +39,9 @@
 #
 # ============================================================================
 
-# Early check: Detect BSD make and show helpful error before syntax errors occur
-# This uses only portable make syntax that both BSD and GNU make understand
-_CHECK_MAKE := $(shell sh scripts/check_make.sh || echo BADMAKE)
+#Human: we cannot easily detect bsd make because it doesn't understand $(shell), ifeq, etc.
+# The documentation at the top of this file is sufficient - BSD users will see
+# clear syntax errors and can read the instructions at the top.
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -std=c99 -g -Isrc
