@@ -312,8 +312,10 @@ bool ffi_load_module(const char *module_name, const char *module_path,
         return false;  /* Not an error - module may not have C code */
     }
     
-    /* Load the shared library */
-    void *handle = dlopen(lib_path, RTLD_LAZY | RTLD_LOCAL);
+    /* Load the shared library.
+     * Use RTLD_GLOBAL so module-to-module symbol dependencies can resolve
+     * (e.g. adapter modules calling into base modules). */
+    void *handle = dlopen(lib_path, RTLD_LAZY | RTLD_GLOBAL);
     if (!handle) {
         if (verbose) {
             fprintf(stderr, "[FFI] Failed to load %s: %s\n", lib_path, dlerror());
