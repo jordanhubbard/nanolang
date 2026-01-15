@@ -120,7 +120,9 @@ OPENGL_EXAMPLES = \
 	$(BIN_DIR)/opengl_cube \
 	$(BIN_DIR)/opengl_teapot \
 	$(BIN_DIR)/opengl_solar_system \
-	$(BIN_DIR)/opengl_particle_fountain
+	$(BIN_DIR)/opengl_particle_fountain \
+	$(BIN_DIR)/opengl_modern_hello_triangle \
+	$(BIN_DIR)/opengl_modern_postprocess
 
 # === All Default Examples ===
 # These are known to compile and work
@@ -314,6 +316,14 @@ $(BIN_DIR)/opengl_solar_system: opengl/opengl_solar_system.nano $(COMPILER)
 $(BIN_DIR)/opengl_particle_fountain: opengl/opengl_particle_fountain.nano $(COMPILER)
 	@echo "Building OpenGL Particle Fountain..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/opengl_particle_fountain
+
+$(BIN_DIR)/opengl_modern_hello_triangle: opengl/opengl_modern_hello_triangle.nano $(COMPILER)
+	@echo "Building Modern OpenGL Hello Triangle..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/opengl_modern_hello_triangle
+
+$(BIN_DIR)/opengl_modern_postprocess: opengl/opengl_modern_postprocess.nano $(COMPILER)
+	@echo "Building Modern OpenGL Postprocess..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/opengl_modern_postprocess
 
 # === Clean ===
 

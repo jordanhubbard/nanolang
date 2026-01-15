@@ -20,6 +20,40 @@ let GLEW_OK: int = 0
 # OpenGL error codes
 let GL_NO_ERROR: int = 0
 
+# === Modern OpenGL constants (LearnOpenGL-style) ===
+
+# Buffer targets / usage
+let GL_ARRAY_BUFFER: int = 34962
+let GL_ELEMENT_ARRAY_BUFFER: int = 34963
+let GL_STATIC_DRAW: int = 35044
+let GL_DYNAMIC_DRAW: int = 35048
+
+# Data types
+let GL_FLOAT: int = 5126
+
+# Shaders
+let GL_VERTEX_SHADER: int = 35633
+let GL_FRAGMENT_SHADER: int = 35632
+let GL_COMPILE_STATUS: int = 35713
+let GL_LINK_STATUS: int = 35714
+let GL_INFO_LOG_LENGTH: int = 35716
+
+# Textures
+let GL_TEXTURE_2D: int = 3553
+let GL_TEXTURE0: int = 33984
+let GL_TEXTURE_MIN_FILTER: int = 10241
+let GL_TEXTURE_MAG_FILTER: int = 10240
+let GL_TEXTURE_WRAP_S: int = 10242
+let GL_TEXTURE_WRAP_T: int = 10243
+let GL_LINEAR: int = 9729
+let GL_NEAREST: int = 9728
+let GL_REPEAT: int = 10497
+
+# Framebuffers
+let GL_FRAMEBUFFER: int = 36160
+let GL_COLOR_ATTACHMENT0: int = 36064
+let GL_FRAMEBUFFER_COMPLETE: int = 36053
+
 # Capability constants
 let GL_DEPTH_TEST: int = 2929
 let GL_LIGHTING: int = 2896
@@ -175,6 +209,40 @@ extern fn nlg_glNormal3f(_nx: float, _ny: float, _nz: float) -> void
 extern fn nl_glLightfv4(_light: int, _pname: int, _x: float, _y: float, _z: float, _w: float) -> void
 extern fn nl_glMaterialfv4(_face: int, _pname: int, _x: float, _y: float, _z: float, _w: float) -> void
 extern fn nlg_glMaterialf(_face: int, _pname: int, _param: float) -> void
+
+# === Modern OpenGL helpers (implemented in glew.c wrappers) ===
+
+extern fn nl_gl3_create_program_from_sources(_vertex_src: string, _fragment_src: string) -> int
+extern fn nl_gl3_use_program(_program: int) -> void
+extern fn nl_gl3_delete_program(_program: int) -> void
+extern fn nl_gl3_get_uniform_location(_program: int, _name: string) -> int
+extern fn nl_gl3_uniform1f(_location: int, _v: float) -> void
+extern fn nl_gl3_uniform2f(_location: int, _x: float, _y: float) -> void
+extern fn nl_gl3_uniform1i(_location: int, _v: int) -> void
+
+extern fn nl_gl3_gen_vertex_array() -> int
+extern fn nl_gl3_bind_vertex_array(_vao: int) -> void
+extern fn nl_gl3_gen_buffer() -> int
+extern fn nl_gl3_bind_buffer(_target: int, _buffer: int) -> void
+extern fn nl_gl3_buffer_data_f32(_target: int, _data: array<float>, _usage: int) -> void
+extern fn nl_gl3_buffer_data_u32(_target: int, _data: array<int>, _usage: int) -> void
+extern fn nl_gl3_enable_vertex_attrib_array(_index: int) -> void
+extern fn nl_gl3_vertex_attrib_pointer_f32(_index: int, _size: int, _normalized: int, _stride_bytes: int, _offset_bytes: int) -> void
+extern fn nl_gl3_vertex_attrib_divisor(_index: int, _divisor: int) -> void
+
+extern fn nl_gl3_draw_arrays(_mode: int, _first: int, _count: int) -> void
+extern fn nl_gl3_draw_arrays_instanced(_mode: int, _first: int, _count: int, _instance_count: int) -> void
+
+extern fn nl_gl3_gen_texture() -> int
+extern fn nl_gl3_bind_texture(_target: int, _texture: int) -> void
+extern fn nl_gl3_active_texture(_texture_unit: int) -> void
+extern fn nl_gl3_tex_parami(_target: int, _pname: int, _param: int) -> void
+extern fn nl_gl3_tex_image_2d_checker_rgba8(_target: int, _width: int, _height: int, _squares: int) -> void
+
+extern fn nl_gl3_gen_framebuffer() -> int
+extern fn nl_gl3_bind_framebuffer(_target: int, _fbo: int) -> void
+extern fn nl_gl3_framebuffer_texture_2d(_target: int, _attachment: int, _textarget: int, _texture: int, _level: int) -> void
+extern fn nl_gl3_check_framebuffer_status(_target: int) -> int
 
 # Depth testing
 extern fn glDepthFunc(_func: int) -> void

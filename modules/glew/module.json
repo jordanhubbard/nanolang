@@ -4,7 +4,7 @@
   "description": "GLEW - OpenGL Extension Wrangler for loading OpenGL functions and extensions",
   "headers": [],
   "header_priority": 1000,
-  "cflags": ["-Imodules/glew"],
+  "cflags": ["-Imodules/glew", "-Isrc", "-Isrc/runtime"],
   "c_sources": ["glew.c"],
   "pkg_config": ["glew"],
   "frameworks": ["OpenGL"],

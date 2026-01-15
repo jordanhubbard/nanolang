@@ -372,6 +372,20 @@ fn main() -> int {
     set example_files (array_push example_files "examples/opengl/opengl_particle_fountain.nano")
     set example_icons (array_push example_icons "examples/icons/sdl_particles.png")
 
+    set example_names (array_push example_names "Modern: Hello Triangle")
+    set example_descs (array_push example_descs "Shaders + VAO/VBO (OpenGL)")
+    set example_categories (array_push example_categories ExampleCategory.OPENGL)
+    set example_commands (array_push example_commands "make -C examples ../bin/opengl_modern_hello_triangle && ./bin/opengl_modern_hello_triangle")
+    set example_files (array_push example_files "examples/opengl/opengl_modern_hello_triangle.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_glass_sphere.png")
+
+    set example_names (array_push example_names "Modern: Postprocess")
+    set example_descs (array_push example_descs "FBO + fullscreen shader (OpenGL)")
+    set example_categories (array_push example_categories ExampleCategory.OPENGL)
+    set example_commands (array_push example_commands "make -C examples ../bin/opengl_modern_postprocess && ./bin/opengl_modern_postprocess")
+    set example_files (array_push example_files "examples/opengl/opengl_modern_postprocess.nano")
+    set example_icons (array_push example_icons "examples/icons/sdl_fire.png")
+
 
 
     # Load all icon textures
