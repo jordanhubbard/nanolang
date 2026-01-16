@@ -113,7 +113,7 @@ These platforms should work but are not actively tested in CI:
 
 ### Learning Path
 
-0. **[User Guide](userguide/README.md)** - Progressive tutorial + executable snippets
+0. **[User Guide (HTML)](https://jordanhubbard.github.io/nanolang/)** - Progressive tutorial + executable snippets
 1. **[Getting Started](docs/GETTING_STARTED.md)** - 15-minute tutorial
 2. **[Quick Reference](docs/QUICK_REFERENCE.md)** - Syntax cheat sheet  
 3. **[Language Specification](docs/SPECIFICATION.md)** - Complete reference
@@ -288,6 +288,9 @@ make userguide-check
 
 # Build static HTML for the user guide
 make userguide-html
+
+# Serve the user guide locally (dev)
+make -C userguide serve
 
 # Clean build
 make clean

@@ -1,0 +1,52 @@
+name: User Guide (GitHub Pages)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "userguide/**"
+      - "scripts/userguide_build_html.py"
+      - "scripts/userguide_snippets_check.py"
+      - "Makefile.gnu"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "userguide-pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Validate user guide snippets
+        run: make userguide-check
+
+      - name: Build user guide HTML
+        run: make userguide-html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/userguide/html
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

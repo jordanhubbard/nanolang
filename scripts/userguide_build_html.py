@@ -4,6 +4,7 @@ import html
 import re
 import shutil
 from pathlib import Path
+from os import path as ospath
 
 
 FENCE_START_RE = re.compile(r"^```\s*(\w+)?\s*$")
@@ -13,6 +14,10 @@ LINK_RE = re.compile(r"\[([^\]]+)\]\(([^\)]+)\)")
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
+
+
+def rel_href(target: Path, from_dir: Path) -> str:
+    return Path(ospath.relpath(str(target), str(from_dir))).as_posix()
 
 
 def md_to_html(md_text: str) -> str:
@@ -102,6 +107,9 @@ def main() -> int:
         out_path = (out_dir / rel).with_suffix(".html")
         out_path.parent.mkdir(parents=True, exist_ok=True)
 
+        css_href = rel_href(out_dir / "assets" / "style.css", out_path.parent)
+        home_href = rel_href(out_dir / "index.html", out_path.parent)
+
         pages.append((title, rel.with_suffix(".html").as_posix()))
 
         out_path.write_text(
@@ -113,11 +121,11 @@ def main() -> int:
                     "  <meta charset=\"utf-8\">",
                     f"  <title>{html.escape(title)}</title>",
                     "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
-                    "  <link rel=\"stylesheet\" href=\"/assets/style.css\">",
+                    f"  <link rel=\"stylesheet\" href=\"{html.escape(css_href)}\">",
                     "</head>",
                     "<body>",
                     "<nav>",
-                    "  <a href=\"/index.html\">NanoLang User Guide</a>",
+                    f"  <a href=\"{html.escape(home_href)}\">NanoLang User Guide</a>",
                     "</nav>",
                     "<main>",
                     body,
@@ -130,9 +138,8 @@ def main() -> int:
         )
 
     # Generate a simple index.
-    links = "\n".join(
-        f"<li><a href=\"/{html.escape(path)}\">{html.escape(title)}</a></li>" for title, path in pages
-    )
+    links = "\n".join(f"<li><a href=\"{html.escape(path)}\">{html.escape(title)}</a></li>" for title, path in pages)
+    css_href = rel_href(out_dir / "assets" / "style.css", out_dir)
     (out_dir / "index.html").write_text(
         "\n".join(
             [
@@ -142,11 +149,11 @@ def main() -> int:
                 "  <meta charset=\"utf-8\">",
                 "  <title>NanoLang User Guide</title>",
                 "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
-                "  <link rel=\"stylesheet\" href=\"/assets/style.css\">",
+                f"  <link rel=\"stylesheet\" href=\"{html.escape(css_href)}\">",
                 "</head>",
                 "<body>",
                 "<nav>",
-                "  <a href=\"/index.html\">NanoLang User Guide</a>",
+                "  <a href=\"index.html\">NanoLang User Guide</a>",
                 "</nav>",
                 "<main>",
                 "<h1>NanoLang User Guide</h1>",
