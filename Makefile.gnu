@@ -137,11 +137,12 @@ SELFHOST_COMPONENTS = \
 # Header dependencies
 SCHEMA_JSON = schema/compiler_schema.json
 SCHEMA_OUTPUTS = $(SRC_NANO_DIR)/generated/compiler_schema.nano $(SRC_NANO_DIR)/generated/compiler_ast.nano $(SRC_DIR)/generated/compiler_schema.h
+SCHEMA_STAMP = $(BUILD_DIR)/schema.stamp
 
 HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(SRC_DIR)/module_builder.h
 
 .PHONY: schema schema-check
-schema: $(SCHEMA_OUTPUTS)
+schema: $(SCHEMA_STAMP)
 
 schema-check:
 	@./scripts/check_compiler_schema.sh
@@ -156,7 +157,7 @@ bin/gen_compiler_schema: scripts/gen_compiler_schema.nano
 		touch bin/gen_compiler_schema; \
 	fi
 
-$(SCHEMA_OUTPUTS): $(SCHEMA_JSON) scripts/gen_compiler_schema.py scripts/gen_compiler_schema.nano
+$(SCHEMA_STAMP): $(SCHEMA_JSON) scripts/gen_compiler_schema.py scripts/gen_compiler_schema.nano | $(BUILD_DIR)
 	@echo "[schema] Generating compiler schema artifacts..."
 	@if [ -f ./bin/gen_compiler_schema ] && [ -x ./bin/gen_compiler_schema ]; then \
 		echo "[schema] Using NanoLang version..."; \
@@ -165,6 +166,7 @@ $(SCHEMA_OUTPUTS): $(SCHEMA_JSON) scripts/gen_compiler_schema.py scripts/gen_com
 		echo "[schema] Using Python version (bootstrap)..."; \
 		python3 scripts/gen_compiler_schema.py; \
 	fi
+	@touch $(SCHEMA_STAMP)
 
 # ============================================================================
 # Module Index Generation
@@ -440,6 +442,7 @@ clean:
 	rm -f *.out *.out.c tests/*.out tests/*.out.c
 	rm -f $(SENTINEL_STAGE1) $(SENTINEL_STAGE2) $(SENTINEL_STAGE3)
 	rm -f $(SENTINEL_BOOTSTRAP0) $(SENTINEL_BOOTSTRAP1) $(SENTINEL_BOOTSTRAP2) $(SENTINEL_BOOTSTRAP3)
+	rm -f $(SCHEMA_STAMP)
 	rm -f *.gcda *.gcno *.gcov coverage.info
 	rm -f test.nano test_output.c test_program
 	rm -rf .test_output
