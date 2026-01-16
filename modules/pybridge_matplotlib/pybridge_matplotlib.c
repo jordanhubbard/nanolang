@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cJSON.h"
-
 typedef int64_t (*nl_pybridge_init_fn)(const char*, int64_t);
 typedef const char* (*nl_pybridge_request_fn)(const char*, const char*);
 typedef void (*nl_pybridge_shutdown_fn)(void);
@@ -47,23 +45,12 @@ int64_t mpl_init(int64_t privileged) {
 const char* mpl_render_png(const char* spec_json, int64_t inline_base64) {
     pybridge_matplotlib_ensure_pybridge_loaded();
     if (!g_nl_pybridge_request) return "";
-
-    cJSON *params_obj = cJSON_CreateObject();
-    if (!params_obj) return "";
-
-    cJSON *spec = NULL;
-    if (spec_json && spec_json[0]) {
-        spec = cJSON_Parse(spec_json);
-    }
-    if (!spec) {
-        spec = cJSON_CreateNull();
-    }
-    cJSON_AddItemToObject(params_obj, "spec", spec);
-    cJSON_AddBoolToObject(params_obj, "inline", inline_base64 ? 1 : 0);
-
-    char *params = cJSON_PrintUnformatted(params_obj);
-    cJSON_Delete(params_obj);
+    const char *spec = (spec_json && spec_json[0]) ? spec_json : "null";
+    const char *inline_val = inline_base64 ? "true" : "false";
+    size_t len = (size_t)snprintf(NULL, 0, "{\"spec\":%s,\"inline\":%s}", spec, inline_val);
+    char *params = malloc(len + 1);
     if (!params) return "";
+    snprintf(params, len + 1, "{\"spec\":%s,\"inline\":%s}", spec, inline_val);
 
     const char* response = g_nl_pybridge_request("mpl_render_png", params);
     free(params);

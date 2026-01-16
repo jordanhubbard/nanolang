@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "description": "Matplotlib adapter for pybridge",
   "headers": [],
-  "c_sources": ["pybridge_matplotlib.c", "../../src/cJSON.c"],
+  "c_sources": ["pybridge_matplotlib.c"],
   "cflags": ["-Imodules/pybridge", "-Isrc"]
 }

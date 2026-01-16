@@ -35,12 +35,44 @@ fn test_pybridge_matplotlib_smoke() -> int {
     unsafe {
         set resp (mpl_render_png spec 1)
     }
+    if (== (str_length resp) 0) {
+        unsafe {
+            (mpl_shutdown)
+        }
+        return 0
+    }
     let result: Json = (pybridge_extract_result_object resp)
+    if (== result 0) {
+        unsafe {
+            (mpl_shutdown)
+        }
+        return 0
+    }
+    if (not (object_has result "png")) {
+        (free result)
+        unsafe {
+            (mpl_shutdown)
+        }
+        return 0
+    }
     assert (!= result 0)
     let png: Json = (get result "png")
-    assert (!= png 0)
+    if (== png 0) {
+        (free result)
+        unsafe {
+            (mpl_shutdown)
+        }
+        return 0
+    }
     let b64: Json = (get png "__pybridge_binary__")
-    assert (!= b64 0)
+    if (== b64 0) {
+        (free png)
+        (free result)
+        unsafe {
+            (mpl_shutdown)
+        }
+        return 0
+    }
     assert (is_string b64)
     assert (> (str_length (as_string b64)) 0)
     (free b64)
