@@ -65,6 +65,9 @@ jobs:
       - name: Run test suite
         run: make test
 
+      - name: Validate user guide snippets
+        run: make userguide-check
+
       - name: Show error logs on failure
         if: failure()
         shell: bash

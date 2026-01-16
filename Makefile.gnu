@@ -384,6 +384,15 @@ test-unit: build
 test-quick: build
 	@./tests/run_all_tests.sh --lang
 
+# User guide: validate executable snippets extracted from userguide/*.md
+.PHONY: userguide-check
+userguide-check: build
+	@python3 scripts/userguide_snippets_check.py
+
+.PHONY: userguide-html
+userguide-html:
+	@python3 scripts/userguide_build_html.py
+
 # Build all examples (primary examples target)
 examples: build check-deps-sdl
 	@echo ""
