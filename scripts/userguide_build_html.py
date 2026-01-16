@@ -15,6 +15,18 @@ LINK_RE = re.compile(r"\[([^\]]+)\]\(([^\)]+)\)")
 SNIPPET_MARKER_RE = re.compile(r"^\s*<!--\s*nl-snippet\b")
 
 HIGHLIGHT_TOOL = Path("tools") / "nano_highlight.nano"
+MASCOT_NAME = "Nanolang_Mascot.png"
+
+PAGE_THEMES: dict[str, str] = {
+    "01_getting_started": "#7aa2f7",
+    "02_control_flow": "#9ece6a",
+    "03_basic_types": "#f7768e",
+    "04_higher_level_patterns": "#e0af68",
+    "05_modules": "#7dcfff",
+    "06_canonical_syntax": "#bb9af7",
+    "README": "#a1a1aa",
+    "index": "#7aa2f7",
+}
 
 
 def repo_root() -> Path:
@@ -61,6 +73,35 @@ def render_inline(text: str) -> str:
     return "".join(out)
 
 
+def extract_title(md_text: str, fallback: str) -> str:
+    for line in md_text.splitlines():
+        if line.startswith("#"):
+            level = len(line) - len(line.lstrip("#"))
+            if level >= 1:
+                return line[level:].strip()
+    return fallback
+
+
+def extract_summary(md_text: str) -> str:
+    lines = md_text.splitlines()
+    in_code = False
+    for line in lines:
+        if FENCE_START_RE.match(line):
+            in_code = True
+            continue
+        if in_code:
+            if FENCE_END_RE.match(line):
+                in_code = False
+            continue
+        if SNIPPET_MARKER_RE.match(line):
+            continue
+        if line.startswith("#"):
+            continue
+        if line.strip():
+            return line.strip()
+    return ""
+
+
 def ensure_highlighter(root: Path, tool_dir: Path) -> Path | None:
     nanoc = root / "bin" / "nanoc"
     if not nanoc.exists():
@@ -97,12 +138,14 @@ def highlight_nano(code: str, root: Path, tool_dir: Path) -> str:
         except FileNotFoundError:
             pass
 
-def md_to_html(md_text: str, *, root: Path, out_dir: Path, tool_dir: Path) -> str:
+def md_to_html(md_text: str, *, root: Path, out_dir: Path, tool_dir: Path, summary: str) -> str:
     lines = md_text.splitlines()
     out: list[str] = []
     in_code = False
     code_lang = ""
     in_list = False
+    seen_h1 = False
+    skipped_summary = False
 
     def close_list():
         nonlocal in_list
@@ -129,6 +172,9 @@ def md_to_html(md_text: str, *, root: Path, out_dir: Path, tool_dir: Path) -> st
                 level = len(line) - len(line.lstrip("#"))
                 level = max(1, min(level, 6))
                 text = line[level:].strip()
+                if level == 1 and not seen_h1:
+                    seen_h1 = True
+                    continue
                 out.append(f"<h{level}>{render_inline(text)}</h{level}>")
                 continue
 
@@ -146,6 +192,9 @@ def md_to_html(md_text: str, *, root: Path, out_dir: Path, tool_dir: Path) -> st
                 continue
 
             close_list()
+            if summary and not skipped_summary and line.strip() == summary:
+                skipped_summary = True
+                continue
             out.append(f"<p>{render_inline(line)}</p>")
         else:
             if FENCE_END_RE.match(line):
@@ -171,15 +220,6 @@ def md_to_html(md_text: str, *, root: Path, out_dir: Path, tool_dir: Path) -> st
     return "\n".join(out)
 
 
-def extract_title(md_text: str, fallback: str) -> str:
-    for line in md_text.splitlines():
-        if line.startswith("#"):
-            level = len(line) - len(line.lstrip("#"))
-            if level >= 1:
-                return line[level:].strip()
-    return fallback
-
-
 def main() -> int:
     root = repo_root()
     src_dir = root / "userguide"
@@ -192,6 +232,10 @@ def main() -> int:
     assets_out = out_dir / "assets"
     if assets_src.exists():
         shutil.copytree(assets_src, assets_out, dirs_exist_ok=True)
+    mascot_src = src_dir / MASCOT_NAME
+    if mascot_src.exists():
+        assets_out.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(mascot_src, assets_out / MASCOT_NAME)
 
     md_files = sorted(p for p in src_dir.rglob("*.md") if p.is_file())
     pages: list[tuple[str, str]] = []
@@ -200,12 +244,15 @@ def main() -> int:
         rel = md.relative_to(src_dir)
         md_text = md.read_text(encoding="utf-8")
         title = extract_title(md_text, rel.stem.replace("_", " "))
-        body = md_to_html(md_text, root=root, out_dir=out_dir, tool_dir=out_dir.parent)
+        summary = extract_summary(md_text)
+        body = md_to_html(md_text, root=root, out_dir=out_dir, tool_dir=out_dir.parent, summary=summary)
         out_path = (out_dir / rel).with_suffix(".html")
         out_path.parent.mkdir(parents=True, exist_ok=True)
 
         css_href = rel_href(out_dir / "assets" / "style.css", out_path.parent)
         home_href = rel_href(out_dir / "index.html", out_path.parent)
+        mascot_href = rel_href(out_dir / "assets" / MASCOT_NAME, out_path.parent)
+        accent = PAGE_THEMES.get(rel.stem, "#7aa2f7")
 
         pages.append((title, rel.with_suffix(".html").as_posix()))
 
@@ -220,12 +267,21 @@ def main() -> int:
                     "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
                     f"  <link rel=\"stylesheet\" href=\"{html.escape(css_href)}\">",
                     "</head>",
-                    "<body>",
+                    f"<body style=\"--accent: {html.escape(accent)};\">",
                     "<nav>",
                     f"  <a href=\"{html.escape(home_href)}\">NanoLang User Guide</a>",
                     "</nav>",
-                    "<main>",
+                    "<header class=\"hero\">",
+                    "  <div class=\"hero-text\">",
+                    f"    <h1>{html.escape(title)}</h1>",
+                    f"    <p>{render_inline(summary)}</p>" if summary else "    <p></p>",
+                    "  </div>",
+                    f"  <img class=\"hero-mascot\" src=\"{html.escape(mascot_href)}\" alt=\"NanoLang Mascot\">",
+                    "</header>",
+                    "<main class=\"content\">",
+                    "  <div class=\"page-card\">",
                     body,
+                    "  </div>",
                     "</main>",
                     "</body>",
                     "</html>",
@@ -238,6 +294,8 @@ def main() -> int:
         f"<li><a href=\"{html.escape(path)}\">{render_inline(title)}</a></li>" for title, path in pages
     )
     css_href = rel_href(out_dir / "assets" / "style.css", out_dir)
+    mascot_href = rel_href(out_dir / "assets" / MASCOT_NAME, out_dir)
+    accent = PAGE_THEMES.get("index", "#7aa2f7")
     (out_dir / "index.html").write_text(
         "\n".join(
             [
@@ -249,15 +307,24 @@ def main() -> int:
                 "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
                 f"  <link rel=\"stylesheet\" href=\"{html.escape(css_href)}\">",
                 "</head>",
-                "<body>",
+                f"<body style=\"--accent: {html.escape(accent)};\">",
                 "<nav>",
                 "  <a href=\"index.html\">NanoLang User Guide</a>",
                 "</nav>",
-                "<main>",
-                "<h1>NanoLang User Guide</h1>",
-                "<ul>",
+                "<header class=\"hero\">",
+                "  <div class=\"hero-text\">",
+                "    <h1>NanoLang User Guide</h1>",
+                "    <p>Learn the canonical NanoLang style with runnable snippets and module walk-throughs.</p>",
+                "  </div>",
+                f"  <img class=\"hero-mascot\" src=\"{html.escape(mascot_href)}\" alt=\"NanoLang Mascot\">",
+                "</header>",
+                "<main class=\"content\">",
+                "  <div class=\"page-card\">",
+                "    <h2>Guide chapters</h2>",
+                "    <ul class=\"toc\">",
                 links,
-                "</ul>",
+                "    </ul>",
+                "  </div>",
                 "</main>",
                 "</body>",
                 "</html>",

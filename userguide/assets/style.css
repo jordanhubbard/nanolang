@@ -24,7 +24,7 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.5;
-  background: var(--bg);
+  background: radial-gradient(circle at top, color-mix(in srgb, var(--accent) 20%, transparent), transparent 55%), var(--bg);
   color: var(--fg);
 }
 
@@ -34,6 +34,7 @@ nav {
   background: var(--card);
   border-bottom: 1px solid var(--border);
   padding: 12px 16px;
+  z-index: 2;
 }
 
 nav a {
@@ -95,4 +96,66 @@ code .tok-text { color: var(--fg); }
 
 .spacer {
   height: 10px;
+}
+
+.hero {
+  max-width: 1000px;
+  margin: 32px auto 16px auto;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 25%, transparent), var(--card));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.hero-text h1 {
+  margin: 0 0 8px 0;
+  font-size: 2rem;
+}
+
+.hero-text p {
+  margin: 0;
+  color: var(--muted);
+  max-width: 520px;
+}
+
+.hero-mascot {
+  width: min(280px, 40vw);
+  height: auto;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
+}
+
+.content {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.page-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+h2 {
+  border-left: 4px solid var(--accent);
+  padding-left: 12px;
+}
+
+.toc {
+  list-style: none;
+  padding-left: 0;
+}
+
+.toc li {
+  margin: 10px 0;
+}
+
+.toc a {
+  font-weight: 600;
 }
