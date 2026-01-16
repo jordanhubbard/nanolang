@@ -116,7 +116,7 @@ fn output_result(lib_name: string, include_dir: string, lib_dir: string) -> int 
         let include_line: string = (+ "    \"" include_part)
         (println include_line)
     } else {
-        set include_dir include_dir
+        (print "")
     }
     (println "  ],")
     
@@ -126,7 +126,7 @@ fn output_result(lib_name: string, include_dir: string, lib_dir: string) -> int 
         let lib_dir_line: string = (+ "    \"" lib_dir_part)
         (println lib_dir_line)
     } else {
-        set lib_dir lib_dir
+        (print "")
     }
     (println "  ],")
     
@@ -136,7 +136,7 @@ fn output_result(lib_name: string, include_dir: string, lib_dir: string) -> int 
         let lib_line: string = (+ "    \"" lib_part)
         (println lib_line)
     } else {
-        set lib_dir lib_dir
+        (print "")
     }
     (println "  ]")
     (println "}")

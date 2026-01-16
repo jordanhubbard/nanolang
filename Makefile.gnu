@@ -183,7 +183,7 @@ $(GENERATE_MODULE_INDEX): tools/generate_module_index.c modules/std/fs.c src/cJS
 		src/runtime/gc_struct.c \
 		-o $(GENERATE_MODULE_INDEX)
 
-.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
+.PHONY: all build test test-docs examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
 modules-index: $(GENERATE_MODULE_INDEX)
 	@echo "[modules] Generating module index from manifests..."
 	@./$(GENERATE_MODULE_INDEX)
@@ -199,7 +199,7 @@ PREFIX ?= /usr/local
 
 .DEFAULT_GOAL := build
 
-.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
+.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch userguide-snippets userguide-html
 
 # Build: 3-stage bootstrap (uses sentinels to skip completed stages)
 build: schema modules-index $(SENTINEL_STAGE3)
@@ -276,6 +276,10 @@ test: build
 		$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
 	fi
 	@$(MAKE) test-impl
+
+# Doc tests: compile + run user guide snippets
+test-docs: build
+	@python3 scripts/userguide_snippets.py --run
 
 # Test with beads integration (requires bd CLI to be installed)
 # Use this for local development when you want automatic issue tracking
@@ -927,6 +931,15 @@ valgrind: $(COMPILER)
 	done
 	@echo "Valgrind checks complete"
 
+# User guide
+userguide-snippets:
+	@echo "[userguide] Extracting and running snippets..."
+	@python3 scripts/userguide_snippets.py --run
+
+userguide-html:
+	@echo "[userguide] Building HTML..."
+	@$(MAKE) -C userguide html
+
 # Help
 help:
 	@echo "Nanolang Makefile - Build & Bootstrap Targets"
@@ -1027,7 +1040,8 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
+.PHONY: all build test test-docs examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
+.PHONY: all build test test-docs examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
 
 # ============================================================================
 # RELEASE AUTOMATION

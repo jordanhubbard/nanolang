@@ -2,7 +2,7 @@
   "name": "uv",
   "version": "1.0.0",
   "description": "libuv - Cross-platform asynchronous I/O library (powers Node.js event loop)",
-  "headers": ["uv.h"],
+  "headers": ["uv.h", "uv_helpers.h"],
   "c_sources": ["uv_helpers.c"],
   "pkg_config": ["libuv"],
   "install": {

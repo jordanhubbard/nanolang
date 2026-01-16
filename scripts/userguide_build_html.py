@@ -56,7 +56,10 @@ def md_to_html(md_text: str) -> str:
                     out.append("<ul>")
                     in_list = True
                 item = line[2:].strip()
-                item = LINK_RE.sub(lambda m: f"<a href=\"{html.escape(m.group(2))}\">{html.escape(m.group(1))}</a>", item)
+                item = LINK_RE.sub(
+                    lambda m: f"<a href=\"{html.escape(m.group(2))}\">{html.escape(m.group(1))}</a>",
+                    item,
+                )
                 out.append(f"<li>{item}</li>")
                 continue
 
@@ -67,7 +70,10 @@ def md_to_html(md_text: str) -> str:
 
             close_list()
             escaped = html.escape(line)
-            escaped = LINK_RE.sub(lambda m: f"<a href=\"{html.escape(m.group(2))}\">{html.escape(m.group(1))}</a>", escaped)
+            escaped = LINK_RE.sub(
+                lambda m: f"<a href=\"{html.escape(m.group(2))}\">{html.escape(m.group(1))}</a>",
+                escaped,
+            )
             out.append(f"<p>{escaped}</p>")
         else:
             if FENCE_END_RE.match(line):
@@ -137,8 +143,9 @@ def main() -> int:
             encoding="utf-8",
         )
 
-    # Generate a simple index.
-    links = "\n".join(f"<li><a href=\"{html.escape(path)}\">{html.escape(title)}</a></li>" for title, path in pages)
+    links = "\n".join(
+        f"<li><a href=\"{html.escape(path)}\">{html.escape(title)}</a></li>" for title, path in pages
+    )
     css_href = rel_href(out_dir / "assets" / "style.css", out_dir)
     (out_dir / "index.html").write_text(
         "\n".join(

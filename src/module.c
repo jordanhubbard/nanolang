@@ -1438,6 +1438,16 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                 free(link_flags[i]);
                 continue;
             }
+
+            // Skip direct .tbd inputs (macOS text stubs) to avoid linker warnings
+            size_t flag_len = strlen(link_flags[i]);
+            if (flag_len > 4 && strcmp(link_flags[i] + flag_len - 4, ".tbd") == 0) {
+                if (verbose) {
+                    fprintf(stderr, "[Modules] Warning: Skipping direct .tbd link input %s\n", link_flags[i]);
+                }
+                free(link_flags[i]);
+                continue;
+            }
             
             // Validate flag is printable ASCII (no UTF-8 or binary garbage)
             bool valid = true;
