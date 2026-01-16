@@ -10,7 +10,7 @@
 
 NanoLang transpiles to C for native performance while providing a clean, modern syntax optimized for both human readability and AI code generation.
 
-> **Self-hosting:** the compiler is being incrementally self-hosted; see [planning/SELF_HOSTING.md](planning/SELF_HOSTING.md) for design notes and current status.
+> **Self-hosting:** NanoLang supports true self-hosting via a Stage 0 → Stage 1 → Stage 2 bootstrap (`make bootstrap`); see [planning/SELF_HOSTING.md](planning/SELF_HOSTING.md).
 
 ## Quick Start
 
@@ -64,6 +64,7 @@ NanoLang is actively tested and supported on:
 - **Ubuntu 22.04+** (x86_64)
 - **Ubuntu 24.04** (ARM64) - Raspberry Pi, AWS Graviton, etc.
 - **macOS 14+** (ARM64/Apple Silicon)
+- **FreeBSD**
 
 ### Tier 2: Windows via WSL 🪟
 **Windows 10/11 users:** NanoLang runs perfectly on Windows via WSL2 (Windows Subsystem for Linux).
@@ -94,7 +95,7 @@ These platforms should work but are not actively tested in CI:
 
 - macOS Intel (via Rosetta 2 on Apple Silicon, or native on older Macs)
 - Other Linux distributions (Arch, Fedora, Debian, etc.)
-- FreeBSD/OpenBSD (requires manual dependency installation)
+- OpenBSD (requires manual dependency installation)
 
 ## Key Features
 
