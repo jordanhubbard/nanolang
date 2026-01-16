@@ -83,6 +83,16 @@ code {
   font-size: 0.95em;
 }
 
+code .tok-keyword { color: rgb(220, 120, 255); }
+code .tok-type { color: rgb(100, 200, 255); }
+code .tok-string { color: rgb(255, 200, 100); }
+code .tok-number { color: rgb(150, 255, 150); }
+code .tok-comment { color: rgb(120, 120, 120); }
+code .tok-operator { color: rgb(255, 180, 180); }
+code .tok-paren { color: rgb(200, 200, 100); }
+code .tok-identifier { color: rgb(220, 220, 240); }
+code .tok-text { color: var(--fg); }
+
 .spacer {
   height: 10px;
 }

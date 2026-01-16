@@ -1,0 +1,335 @@
+module nano_highlight
+
+struct HighlightToken {
+    kind: int,
+    text: string
+}
+
+let HL_TOKEN_KEYWORD: int = 0
+let HL_TOKEN_TYPE: int = 1
+let HL_TOKEN_STRING: int = 2
+let HL_TOKEN_NUMBER: int = 3
+let HL_TOKEN_COMMENT: int = 4
+let HL_TOKEN_OPERATOR: int = 5
+let HL_TOKEN_PAREN: int = 6
+let HL_TOKEN_IDENTIFIER: int = 7
+let HL_TOKEN_WHITESPACE: int = 8
+let HL_TOKEN_TEXT: int = 9
+
+fn is_digit_char(c: int) -> bool {
+    return (and (>= c 48) (<= c 57))
+}
+
+shadow is_digit_char {
+    assert (is_digit_char 48)
+    assert (is_digit_char 57)
+    assert (not (is_digit_char 65))
+}
+
+fn is_letter_char(c: int) -> bool {
+    return (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122)))
+}
+
+shadow is_letter_char {
+    assert (is_letter_char 65)
+    assert (is_letter_char 122)
+    assert (not (is_letter_char 48))
+}
+
+fn is_ident_char(c: int) -> bool {
+    return (or (is_letter_char c) (or (is_digit_char c) (== c 95)))
+}
+
+shadow is_ident_char {
+    assert (is_ident_char 65)
+    assert (is_ident_char 95)
+    assert (is_ident_char 48)
+    assert (not (is_ident_char 32))
+}
+
+fn is_whitespace_char(c: int) -> bool {
+    return (or (== c 32) (or (== c 9) (or (== c 10) (== c 13))))
+}
+
+shadow is_whitespace_char {
+    assert (is_whitespace_char 32)
+    assert (is_whitespace_char 10)
+    assert (not (is_whitespace_char 65))
+}
+
+fn is_keyword(word: string) -> bool {
+    let keywords: array<string> = [
+        "fn", "let", "mut", "if", "else", "while", "for", "return",
+        "unsafe", "extern", "import", "from", "module", "struct", "enum",
+        "pub", "assert", "shadow", "cond", "and", "or", "not", "set"
+    ]
+    let mut i: int = 0
+    while (< i (array_length keywords)) {
+        if (str_equals (at keywords i) word) {
+            return true
+        } else {}
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow is_keyword {
+    assert (is_keyword "fn")
+    assert (is_keyword "shadow")
+    assert (not (is_keyword "hello"))
+}
+
+fn is_type_word(word: string) -> bool {
+    let types: array<string> = [
+        "int", "float", "string", "bool", "void", "u8", "u16", "u32", "u64",
+        "i8", "i16", "i32", "i64", "f32", "f64", "array"
+    ]
+    let mut i: int = 0
+    while (< i (array_length types)) {
+        if (str_equals (at types i) word) {
+            return true
+        } else {}
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow is_type_word {
+    assert (is_type_word "int")
+    assert (is_type_word "array")
+    assert (not (is_type_word "option"))
+}
+
+fn token_class(kind: int) -> string {
+    return (cond
+        ((== kind HL_TOKEN_KEYWORD) "tok-keyword")
+        ((== kind HL_TOKEN_TYPE) "tok-type")
+        ((== kind HL_TOKEN_STRING) "tok-string")
+        ((== kind HL_TOKEN_NUMBER) "tok-number")
+        ((== kind HL_TOKEN_COMMENT) "tok-comment")
+        ((== kind HL_TOKEN_OPERATOR) "tok-operator")
+        ((== kind HL_TOKEN_PAREN) "tok-paren")
+        ((== kind HL_TOKEN_IDENTIFIER) "tok-identifier")
+        (else "tok-text")
+    )
+}
+
+shadow token_class {
+    assert (str_equals (token_class HL_TOKEN_KEYWORD) "tok-keyword")
+    assert (str_equals (token_class HL_TOKEN_TEXT) "tok-text")
+}
+
+fn is_paren_char(c: int) -> bool {
+    return (or (== c 40)
+        (or (== c 41)
+            (or (== c 91)
+                (or (== c 93)
+                    (or (== c 123) (== c 125))))))
+}
+
+shadow is_paren_char {
+    assert (is_paren_char 40)
+    assert (is_paren_char 125)
+    assert (not (is_paren_char 65))
+}
+
+fn is_operator_char(c: int) -> bool {
+    return (or (== c 43)
+        (or (== c 45)
+            (or (== c 42)
+                (or (== c 47)
+                    (or (== c 37)
+                        (or (== c 61)
+                            (or (== c 33)
+                                (or (== c 60)
+                                    (or (== c 62)
+                                        (or (== c 58)
+                                            (or (== c 44)
+                                                (or (== c 46) (== c 59)))))))))))))
+}
+
+shadow is_operator_char {
+    assert (is_operator_char 43)
+    assert (is_operator_char 61)
+    assert (not (is_operator_char 95))
+}
+
+fn escape_html(text: string) -> string {
+    let mut out: string = ""
+    let mut i: int = 0
+    let n: int = (str_length text)
+    while (< i n) {
+        let c: int = (char_at text i)
+        if (== c 38) {
+            set out (+ out "&amp;")
+        } else {
+            if (== c 60) {
+                set out (+ out "&lt;")
+            } else {
+                if (== c 62) {
+                    set out (+ out "&gt;")
+                } else {
+                    if (== c 34) {
+                        set out (+ out "&quot;")
+                    } else {
+                        set out (+ out (string_from_char c))
+                    }
+                }
+            }
+        }
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow escape_html {
+    assert (str_equals (escape_html "<>&\"") "&lt;&gt;&amp;&quot;")
+}
+
+fn tokenize(code: string) -> array<HighlightToken> {
+    let mut out: array<HighlightToken> = []
+    let len: int = (str_length code)
+    let mut pos: int = 0
+
+    while (< pos len) {
+        let c: int = (char_at code pos)
+
+        if (is_whitespace_char c) {
+            let start: int = pos
+            while (and (< pos len) (is_whitespace_char (char_at code pos))) {
+                set pos (+ pos 1)
+            }
+            let text: string = (str_substring code start (- pos start))
+            set out (array_push out HighlightToken { kind: HL_TOKEN_WHITESPACE, text: text })
+        } else {
+            if (== c 35) {
+                let start: int = pos
+                while (and (< pos len) (!= (char_at code pos) 10)) {
+                    set pos (+ pos 1)
+                }
+                let text: string = (str_substring code start (- pos start))
+                set out (array_push out HighlightToken { kind: HL_TOKEN_COMMENT, text: text })
+            } else {
+                if (== c 34) {
+                    let start: int = pos
+                    set pos (+ pos 1)
+                    while (< pos len) {
+                        if (== (char_at code pos) 92) {
+                            if (< (+ pos 1) len) {
+                                set pos (+ pos 2)
+                            } else {
+                                set pos (+ pos 1)
+                            }
+                        } else {
+                            if (== (char_at code pos) 34) {
+                                set pos (+ pos 1)
+                                break
+                            } else {
+                                set pos (+ pos 1)
+                            }
+                        }
+                    }
+                    let text: string = (str_substring code start (- pos start))
+                    set out (array_push out HighlightToken { kind: HL_TOKEN_STRING, text: text })
+                } else {
+                    if (or (is_digit_char c) (and (== c 45) (and (< (+ pos 1) len) (is_digit_char (char_at code (+ pos 1)))))) {
+                        let start: int = pos
+                        if (== c 45) {
+                            set pos (+ pos 1)
+                        } else {}
+                        while (and (< pos len) (is_digit_char (char_at code pos))) {
+                            set pos (+ pos 1)
+                        }
+                        if (and (< pos len) (== (char_at code pos) 46)) {
+                            set pos (+ pos 1)
+                            while (and (< pos len) (is_digit_char (char_at code pos))) {
+                                set pos (+ pos 1)
+                            }
+                        } else {}
+                        let text: string = (str_substring code start (- pos start))
+                        set out (array_push out HighlightToken { kind: HL_TOKEN_NUMBER, text: text })
+                    } else {
+                        if (is_paren_char c) {
+                            let text: string = (str_substring code pos 1)
+                            set pos (+ pos 1)
+                            set out (array_push out HighlightToken { kind: HL_TOKEN_PAREN, text: text })
+                        } else {
+                            if (is_operator_char c) {
+                                let start: int = pos
+                                let next: int = (cond
+                                    ((< (+ pos 1) len) (char_at code (+ pos 1)))
+                                    (else 0)
+                                )
+                                if (or (and (== c 61) (== next 61))
+                                    (or (and (== c 33) (== next 61))
+                                        (or (and (== c 60) (== next 61))
+                                            (or (and (== c 62) (== next 61))
+                                                (and (== c 45) (== next 62)))))) {
+                                    set pos (+ pos 2)
+                                } else {
+                                    set pos (+ pos 1)
+                                }
+                                let text: string = (str_substring code start (- pos start))
+                                set out (array_push out HighlightToken { kind: HL_TOKEN_OPERATOR, text: text })
+                            } else {
+                                if (or (is_letter_char c) (== c 95)) {
+                                    let start: int = pos
+                                    while (and (< pos len) (is_ident_char (char_at code pos))) {
+                                        set pos (+ pos 1)
+                                    }
+                                    let word: string = (str_substring code start (- pos start))
+                                    let kind: int = (cond
+                                        ((is_keyword word) HL_TOKEN_KEYWORD)
+                                        ((is_type_word word) HL_TOKEN_TYPE)
+                                        (else HL_TOKEN_IDENTIFIER)
+                                    )
+                                    set out (array_push out HighlightToken { kind: kind, text: word })
+                                } else {
+                                    let text: string = (str_substring code pos 1)
+                                    set pos (+ pos 1)
+                                    set out (array_push out HighlightToken { kind: HL_TOKEN_TEXT, text: text })
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return out
+}
+
+shadow tokenize {
+    let tokens: array<HighlightToken> = (tokenize "fn main")
+    assert (== (array_length tokens) 3)
+    assert (== (at tokens 0).kind HL_TOKEN_KEYWORD)
+    assert (str_equals (at tokens 0).text "fn")
+    assert (== (at tokens 2).kind HL_TOKEN_IDENTIFIER)
+}
+
+pub fn highlight_html(code: string) -> string {
+    let tokens: array<HighlightToken> = (tokenize code)
+    let mut out: string = ""
+    let mut i: int = 0
+    while (< i (array_length tokens)) {
+        let tok: HighlightToken = (at tokens i)
+        let escaped: string = (escape_html tok.text)
+        if (== tok.kind HL_TOKEN_WHITESPACE) {
+            set out (+ out escaped)
+        } else {
+            let cls: string = (token_class tok.kind)
+            set out (+ out (+ "<span class=\"" (+ cls "\">")))
+            set out (+ out escaped)
+            set out (+ out "</span>")
+        }
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow highlight_html {
+    let html: string = (highlight_html "fn main() -> int")
+    assert (str_contains html "tok-keyword")
+    assert (str_contains html "tok-type")
+}
