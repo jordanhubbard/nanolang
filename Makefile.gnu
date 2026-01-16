@@ -201,7 +201,7 @@ PREFIX ?= /usr/local
 
 .DEFAULT_GOAL := build
 
-.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch userguide-snippets userguide-html
+.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch userguide-html
 
 # Build: 3-stage bootstrap (uses sentinels to skip completed stages)
 build: schema modules-index $(SENTINEL_STAGE3)
@@ -933,15 +933,6 @@ valgrind: $(COMPILER)
 			$(COMPILER) $$example -o .test_output/valgrind_test 2>&1 | grep -v "Conditional jump" || true; \
 	done
 	@echo "Valgrind checks complete"
-
-# User guide
-userguide-snippets:
-	@echo "[userguide] Extracting and running snippets..."
-	@python3 scripts/userguide_snippets.py --run
-
-userguide-html:
-	@echo "[userguide] Building HTML..."
-	@$(MAKE) -C userguide html
 
 # Help
 help:
