@@ -28,6 +28,8 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Validate user guide snippets
         run: make userguide-check
