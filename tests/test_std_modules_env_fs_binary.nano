@@ -66,22 +66,18 @@ shadow std_fs_walkdir_glob_normalize {
 
 fn std_binary_int_and_string() -> int {
     let bi: array<u8> = (encode_int (- 0 12))
-    match (decode_int bi) {
-        Ok(v) => { assert (== v.value (- 0 12)) }
-        Err(e) => { assert false }
-    }
+    let ri: Result<int, string> = (decode_int bi)
+    assert (result_is_ok ri)
+    assert (== (result_unwrap ri) (- 0 12))
 
     let bs: array<u8> = (encode_string "hello")
-    match (decode_string bs) {
-        Ok(v) => { assert (str_equals v.value "hello") }
-        Err(e) => { assert false }
-    }
+    let rs: Result<string, string> = (decode_string bs)
+    assert (result_is_ok rs)
+    assert (str_equals (result_unwrap rs) "hello")
 
     let trunc: array<u8> = (array_slice bs 0 (- (array_length bs) 1))
-    match (decode_string trunc) {
-        Ok(v) => { assert false }
-        Err(e) => { assert true }
-    }
+    let rs_trunc: Result<string, string> = (decode_string trunc)
+    assert (result_is_err rs_trunc)
     return 0
 }
 
@@ -92,15 +88,13 @@ shadow std_binary_int_and_string {
 fn std_binary_int_array() -> int {
     let a: array<int> = [1, (- 0 2), 300]
     let b: array<u8> = (encode_int_array a)
-    match (decode_int_array b) {
-        Ok(v) => {
-            assert (== (array_length v.value) 3)
-            assert (== (at v.value 0) 1)
-            assert (== (at v.value 1) (- 0 2))
-            assert (== (at v.value 2) 300)
-        }
-        Err(e) => { assert false }
-    }
+    let ra: Result<array<int>, string> = (decode_int_array b)
+    assert (result_is_ok ra)
+    let out: array<int> = (result_unwrap ra)
+    assert (== (array_length out) 3)
+    assert (== (at out 0) 1)
+    assert (== (at out 1) (- 0 2))
+    assert (== (at out 2) 300)
     return 0
 }
 

@@ -234,14 +234,23 @@ def gen_c(schema: dict) -> str:
     return "\n".join(lines)
 
 
+def write_if_changed(path: Path, content: str) -> bool:
+    if path.exists():
+        current = path.read_text()
+        if current == content:
+            return False
+    path.write_text(content)
+    return True
+
+
 def main() -> None:
     schema = load_schema()
     NANO_SCHEMA_OUT.parent.mkdir(parents=True, exist_ok=True)
     C_OUT.parent.mkdir(parents=True, exist_ok=True)
-    NANO_SCHEMA_OUT.write_text(gen_nano_schema(schema))
-    NANO_AST_OUT.write_text(gen_nano_ast(schema))
-    NANO_CONTRACTS_OUT.write_text(gen_contracts(schema))
-    C_OUT.write_text(gen_c(schema))
+    write_if_changed(NANO_SCHEMA_OUT, gen_nano_schema(schema))
+    write_if_changed(NANO_AST_OUT, gen_nano_ast(schema))
+    write_if_changed(NANO_CONTRACTS_OUT, gen_contracts(schema))
+    write_if_changed(C_OUT, gen_c(schema))
 
 
 if __name__ == "__main__":

@@ -2,11 +2,29 @@
 # Generate shared compiler schema artifacts for NanoLang
 # Replaces gen_compiler_schema.py for Python-free bootstrap
 
-from "std/fs.nano" import read, write, join
+from "std/fs.nano" import read, write, join, file_delete
 from "std/json/json.nano" import parse, free, get, is_string, is_object, is_array, array_size, get_index, as_string, as_int, object_has, object_keys
 
 let HEADER_COMMENT: string = "/* AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY. */"
 let C_GUARD: string = "NANOLANG_GENERATED_COMPILER_SCHEMA_H"
+
+fn write_if_changed(path: string, content: string) -> int {
+    let current: string = (read path)
+    if (str_equals current content) {
+        return 0
+    }
+    return (write path content)
+}
+
+shadow write_if_changed {
+    let test_path: string = "/tmp/nanolang_schema_write_if_changed.txt"
+    let content: string = "same"
+    assert (== (write_if_changed test_path content) 0)
+    assert (== (write_if_changed test_path content) 0)
+    let content2: string = "different"
+    assert (== (write_if_changed test_path content2) 0)
+    (file_delete test_path)
+}
 
 # Get token count
 fn get_token_count(tokens_json: Json) -> int {
@@ -586,7 +604,7 @@ fn main() -> int {
     
     # Write files
     (println "Writing src_nano/generated/compiler_schema.nano...")
-    let result1: int = (write "src_nano/generated/compiler_schema.nano" nano_schema)
+    let result1: int = (write_if_changed "src_nano/generated/compiler_schema.nano" nano_schema)
     if (!= result1 0) {
         (println "Error writing compiler_schema.nano")
         (free schema)
@@ -594,7 +612,7 @@ fn main() -> int {
     } else {}
     
     (println "Writing src_nano/generated/compiler_ast.nano...")
-    let result2: int = (write "src_nano/generated/compiler_ast.nano" nano_ast)
+    let result2: int = (write_if_changed "src_nano/generated/compiler_ast.nano" nano_ast)
     if (!= result2 0) {
         (println "Error writing compiler_ast.nano")
         (free schema)
@@ -602,7 +620,7 @@ fn main() -> int {
     } else {}
 
     (println "Writing src_nano/generated/compiler_contracts.nano...")
-    let result_contracts: int = (write "src_nano/generated/compiler_contracts.nano" nano_contracts)
+    let result_contracts: int = (write_if_changed "src_nano/generated/compiler_contracts.nano" nano_contracts)
     if (!= result_contracts 0) {
         (println "Error writing compiler_contracts.nano")
         (free schema)
@@ -610,7 +628,7 @@ fn main() -> int {
     } else {}
     
     (println "Writing src/generated/compiler_schema.h...")
-    let result3: int = (write "src/generated/compiler_schema.h" c_header)
+    let result3: int = (write_if_changed "src/generated/compiler_schema.h" c_header)
     if (!= result3 0) {
         (println "Error writing compiler_schema.h")
         (free schema)
