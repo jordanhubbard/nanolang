@@ -1,10 +1,7 @@
 # nanolang
 
 [![CI](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml/badge.svg)](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml)
-![Tests](https://img.shields.io/badge/tests-92%2F92%20passing-brightgreen.svg)
-![Coverage](https://img.shields.io/badge/coverage-52.2%25-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Bootstrap](https://img.shields.io/badge/bootstrap-100%25%20self--hosting-success.svg)
 ![Type System](https://img.shields.io/badge/type%20system-100%25%20functional-success.svg)
 ![Language](https://img.shields.io/badge/language-compiled-success.svg)
@@ -22,7 +19,7 @@ NanoLang transpiles to C for native performance while providing a clean, modern 
 ```bash
 git clone https://github.com/jordanhubbard/nanolang.git
 cd nanolang
-make
+make build
 ```
 
 This builds the compiler:
@@ -33,22 +30,21 @@ This builds the compiler:
 Create `hello.nano`:
 
 ```nano
-fn greet(name: string) -> void {
-    (println (str_concat "Hello, " name))
+fn greet(name: string) -> string {
+    return (+ "Hello, " name)
 }
 
 shadow greet {
-    greet "World"
-    greet "NanoLang"
+    assert (str_equals (greet "World") "Hello, World")
 }
 
 fn main() -> int {
-    greet "World"
+    (println (greet "World"))
     return 0
 }
 
 shadow main {
-    assert (== (main) 0)
+    assert true
 }
 ```
 
@@ -116,6 +112,7 @@ These platforms should work but are not actively tested in CI:
 
 ### Learning Path
 
+0. **[User Guide](userguide/README.md)** - Progressive tutorial + executable snippets
 1. **[Getting Started](docs/GETTING_STARTED.md)** - 15-minute tutorial
 2. **[Quick Reference](docs/QUICK_REFERENCE.md)** - Syntax cheat sheet  
 3. **[Language Specification](docs/SPECIFICATION.md)** - Complete reference
@@ -270,21 +267,35 @@ Modules automatically install dependencies via package managers (Homebrew, apt, 
 ## Building & Testing
 
 ```bash
-# Build compiler
-make
+# Build (3-stage component bootstrap)
+make build
 
-# Run test suite
+# Run full test suite
 make test
+
+# Quick test (language tests only)
+make test-quick
 
 # Build all examples
 make examples
 
+# Launch the examples browser
+make examples-launcher
+
+# Validate user guide snippets (extract → compile → run)
+make userguide-check
+
+# Build static HTML for the user guide
+make userguide-html
+
 # Clean build
 make clean
 
-# Install to /usr/local/bin
+# Install to /usr/local/bin (override with PREFIX=...)
 sudo make install
 ```
+
+On BSD systems (FreeBSD/OpenBSD/NetBSD), use GNU make: `gmake build`, `gmake test`, etc.
 
 ## Teaching LLMs NanoLang
 
