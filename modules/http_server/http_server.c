@@ -262,10 +262,18 @@ static void serve_static_file(http_server_t* server, http_request_t* req, http_r
         http_response_text(res, "404 Not Found");
         return;
     }
-    
+
     /* Build file path */
     char filepath[MAX_PATH * 2];
-    snprintf(filepath, sizeof(filepath), "%s%s", server->static_dir, req->path);
+    const char* req_path = req->path;
+    if (strcmp(req->path, "/") == 0) {
+        req_path = "/index.html";
+    } else if (req->path[0] != '\0' && req->path[strlen(req->path) - 1] == '/') {
+        static char with_index[MAX_PATH];
+        snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+        req_path = with_index;
+    }
+    snprintf(filepath, sizeof(filepath), "%s%s", server->static_dir, req_path);
     
     /* Security: prevent directory traversal */
     if (strstr(filepath, "..") != NULL) {

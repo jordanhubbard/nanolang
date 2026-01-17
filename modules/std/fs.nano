@@ -11,11 +11,15 @@ extern fn path_normalize(_path: string) -> string
 extern fn path_join(_a: string, _b: string) -> string
 extern fn path_basename(_path: string) -> string
 extern fn path_dirname(_path: string) -> string
+extern fn path_relpath(_target: string, _base: string) -> string
 extern fn file_read(_path: string) -> string
 extern fn file_write(_path: string, _content: string) -> int
 extern fn file_append(_path: string, _content: string) -> int
 extern fn file_exists(_path: string) -> bool
 extern fn file_delete(_path: string) -> int
+extern fn fs_mkdir_p(_path: string) -> int
+extern fn file_copy(_src: string, _dst: string) -> int
+extern fn dir_copy(_src: string, _dst: string) -> int
 
 pub fn walkdir(root: string) -> array<string> {
     unsafe {
@@ -72,6 +76,17 @@ pub fn dirname(path: string) -> string {
 shadow dirname {
     assert (== (dirname "/foo/bar/baz.txt") "/foo/bar")
     assert (== (dirname "foo/bar") "foo")
+}
+
+
+pub fn relpath(target: string, base: string) -> string {
+    unsafe {
+        return (path_relpath target base)
+    }
+}
+
+shadow relpath {
+    assert (== (relpath "/a/b/c" "/a") "b/c")
 }
 
 fn glob_match_impl(pattern: string, pi: int, text: string, ti: int) -> bool {
@@ -237,4 +252,51 @@ shadow delete {
     assert (exists test_path)
     (delete test_path)
     assert (not (exists test_path))
+}
+
+
+pub fn mkdir_p(path: string) -> int {
+    unsafe {
+        return (fs_mkdir_p path)
+    }
+}
+
+shadow mkdir_p {
+    let code: int = (mkdir_p "/tmp/nanolang_fs_test_dir")
+    assert (== code 0)
+}
+
+pub fn copy_file(src: string, dst: string) -> int {
+    unsafe {
+        return (file_copy src dst)
+    }
+}
+
+shadow copy_file {
+    let src: string = "/tmp/nanolang_copy_src.txt"
+    let dst: string = "/tmp/nanolang_copy_dst.txt"
+    (write src "hello")
+    let code: int = (copy_file src dst)
+    assert (== code 0)
+    assert (str_equals (read dst) "hello")
+    (file_delete src)
+    (file_delete dst)
+}
+
+pub fn copy_dir(src: string, dst: string) -> int {
+    unsafe {
+        return (dir_copy src dst)
+    }
+}
+
+shadow copy_dir {
+    let src: string = "/tmp/nanolang_copy_dir_src"
+    let dst: string = "/tmp/nanolang_copy_dir_dst"
+    (mkdir_p src)
+    (write (+ src "/file.txt") "ok")
+    let code: int = (copy_dir src dst)
+    assert (== code 0)
+    assert (exists (+ dst "/file.txt"))
+    (file_delete (+ src "/file.txt"))
+    (file_delete (+ dst "/file.txt"))
 }

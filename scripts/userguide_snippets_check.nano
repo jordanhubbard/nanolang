@@ -1,0 +1,569 @@
+from "modules/std/fs.nano" import walkdir, read, write, exists, mkdir_p
+from "modules/std/process.nano" import run, exec, Output
+from "modules/std/result.nano" import Result
+
+extern fn get_argc() -> int
+from "modules/std/json/json.nano" import Json, parse, free, object_has, get, is_bool, is_number, is_string, as_bool, as_int, as_string
+
+
+
+
+struct Snippet {
+    name: string
+    source_path: string
+    code: string
+    check: bool
+    expect_stdout: string
+    has_expect: bool
+    compile_timeout_s: int
+    run_timeout_s: int
+}
+
+fn str_starts_with(s: string, prefix: string) -> bool {
+    let ls: int = (str_length s)
+    let lp: int = (str_length prefix)
+    if (< ls lp) { return false }
+    return (str_equals (str_substring s 0 lp) prefix)
+}
+
+shadow str_starts_with { assert (str_starts_with "hello" "he") }
+
+fn str_ends_with(s: string, suffix: string) -> bool {
+    let ls: int = (str_length s)
+    let lf: int = (str_length suffix)
+    if (< ls lf) { return false }
+    return (str_equals (str_substring s (- ls lf) lf) suffix)
+}
+
+shadow str_ends_with { assert (str_ends_with "hello" "lo") }
+
+fn str_index_of(s: string, needle: string, start: int) -> int {
+    let ls: int = (str_length s)
+    let ln: int = (str_length needle)
+    if (== ln 0) { return start }
+    let mut i: int = start
+    while (<= (+ i ln) ls) {
+        if (str_equals (str_substring s i ln) needle) { return i }
+        set i (+ i 1)
+    }
+    return -1
+}
+
+shadow str_index_of { assert (== (str_index_of "hello" "ll" 0) 2) }
+
+fn char_is_space(c: int) -> bool {
+    return (or (== c 32) (or (== c 9) (or (== c 10) (== c 13))))
+}
+
+shadow char_is_space { assert (char_is_space 32) }
+
+fn trim_left(s: string) -> string {
+    let len: int = (str_length s)
+    let mut i: int = 0
+    while (and (< i len) (char_is_space (char_at s i))) { set i (+ i 1) }
+    return (str_substring s i (- len i))
+}
+
+shadow trim_left { assert (str_equals (trim_left "  hi") "hi") }
+
+fn trim_right(s: string) -> string {
+    let mut end: int = (str_length s)
+    while (and (> end 0) (char_is_space (char_at s (- end 1)))) {
+        set end (- end 1)
+    }
+    return (str_substring s 0 end)
+}
+
+shadow trim_right { assert (str_equals (trim_right "hi  ") "hi") }
+
+fn trim(s: string) -> string {
+    return (trim_right (trim_left s))
+}
+
+shadow trim { assert (str_equals (trim "  hi  ") "hi") }
+
+fn split_lines(s: string) -> array<string> {
+    let mut out: array<string> = []
+    let len: int = (str_length s)
+    let mut start: int = 0
+    let mut i: int = 0
+    while (< i len) {
+        if (== (char_at s i) 10) {
+            set out (array_push out (str_substring s start (- i start)))
+            set start (+ i 1)
+        }
+        set i (+ i 1)
+    }
+    if (< start len) {
+        let last_char: int = (char_at s (- len 1))
+        if (and (not (== last_char 10)) (not (== last_char 0))) {
+            set out (array_push out (str_substring s start (- len start)))
+        }
+    }
+    return out
+}
+
+shadow split_lines {
+    let nl: string = (string_from_char 10)
+    let s: string = (+ "a" (+ nl (+ "b" nl)))
+    let parts: array<string> = (split_lines s)
+    assert (== (array_length parts) 2)
+    assert (str_equals (at parts 0) "a")
+    assert (str_equals (at parts 1) "b")
+}
+fn join_lines(lines: array<string>) -> string {
+    let mut out: string = ""
+    let n: int = (array_length lines)
+    let mut i: int = 0
+    while (< i n) {
+        set out (+ out (at lines i))
+        if (< (+ i 1) n) {
+            set out (+ out "\n")
+        }
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow join_lines {
+    assert (str_equals (join_lines ["a", "b"]) "a\nb")
+}
+fn strip_quotes(s: string) -> string {
+    let n: int = (str_length s)
+    if (and (and (>= n 2) (== (char_at s 0) 34)) (== (char_at s (- n 1)) 34)) {
+        return (str_substring s 1 (- n 2))
+    }
+    return s
+}
+
+shadow strip_quotes {
+    let q: string = (string_from_char 34)
+    let s: string = (+ q (+ "x" q))
+    assert (str_equals (strip_quotes s) "x")
+}
+fn unescape_literal(s: string) -> string {
+    let mut out: string = ""
+    let n: int = (str_length s)
+    let mut i: int = 0
+    while (< i n) {
+        let c: int = (char_at s i)
+        if (and (== c 92) (< (+ i 1) n)) {
+            let next: int = (char_at s (+ i 1))
+            if (or (== next 34) (== next 92)) {
+                set out (+ out (string_from_char next))
+                set i (+ i 2)
+                continue
+            }
+        }
+        set out (+ out (string_from_char c))
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow unescape_literal {
+    let bs: string = (string_from_char 92)
+    let q: string = (string_from_char 34)
+    let s: string = (+ bs (+ q (+ "x" (+ bs q))))
+    let expected: string = (+ q (+ "x" q))
+    assert (str_equals (unescape_literal s) expected)
+}
+
+
+
+
+
+
+
+fn is_fence_start(line: string) -> bool { return (str_starts_with line "```") }
+fn is_fence_end(line: string) -> bool { return (str_equals (trim line) "```") }
+
+shadow is_fence_start { assert (is_fence_start "```nano") }
+shadow is_fence_end { assert (is_fence_end "```") }
+
+fn is_snippet_marker(line: string) -> bool {
+    return (and (str_contains line "<!--") (str_contains line "nl-snippet"))
+}
+
+shadow is_snippet_marker { assert (is_snippet_marker "<!--nl-snippet {}-->") }
+
+fn parse_fence_lang(line: string) -> string {
+    if (not (str_starts_with line "```")) { return "" }
+    let raw: string = (str_substring line 3 (- (str_length line) 3))
+    return (trim raw)
+}
+
+shadow parse_fence_lang {
+    assert (str_equals (parse_fence_lang "```nano") "nano")
+}
+
+fn extract_json_from_marker(line: string) -> Result<string, string> {
+    let start: int = (str_index_of line "{" 0)
+    let end: int = (str_index_of line "}" 0)
+    if (or (== start -1) (== end -1)) {
+        return Result.Err { error: "missing JSON object" }
+    }
+    return Result.Ok { value: (str_substring line start (+ (- end start) 1)) }
+}
+
+shadow extract_json_from_marker {
+    match (extract_json_from_marker "<!--nl-snippet {\"name\":\"x\"}-->") {
+        Ok(v) => { assert (str_contains v.value "\"name\"") }
+        Err(e) => { assert false }
+    }
+}
+
+fn json_get_bool_default(obj_text: string, key: string, default_val: bool) -> bool {
+    let root: Json = (parse obj_text)
+    if (== root 0) { return default_val }
+    if (not (object_has root key)) {
+        (free root)
+        return default_val
+    }
+    let node: Json = (get root key)
+    let mut val: bool = default_val
+    if (and (!= node 0) (is_bool node)) {
+        set val (as_bool node)
+    }
+    if (!= node 0) { (free node) }
+    (free root)
+    return val
+}
+
+shadow json_get_bool_default {
+    assert (json_get_bool_default "{\"check\":true}" "check" false)
+}
+
+fn json_get_int_default(obj_text: string, key: string, default_val: int) -> int {
+    let root: Json = (parse obj_text)
+    if (== root 0) { return default_val }
+    if (not (object_has root key)) {
+        (free root)
+        return default_val
+    }
+    let node: Json = (get root key)
+    let mut val: int = default_val
+    if (and (!= node 0) (is_number node)) {
+        set val (as_int node)
+    }
+    if (!= node 0) { (free node) }
+    (free root)
+    return val
+}
+
+shadow json_get_int_default {
+    assert (== (json_get_int_default "{\"n\":4}" "n" 1) 4)
+}
+
+fn json_get_string_optional(obj_text: string, key: string) -> Result<string, string> {
+    let root: Json = (parse obj_text)
+    if (== root 0) { return Result.Err { error: "invalid json" } }
+    if (not (object_has root key)) {
+        (free root)
+        return Result.Err { error: "missing" }
+    }
+    let node: Json = (get root key)
+    if (== node 0) {
+        (free root)
+        return Result.Err { error: "missing" }
+    }
+    let value_raw: string = (as_string node)
+    let value_unescaped: string = (unescape_literal value_raw)
+    let value_stripped: string = (strip_quotes value_unescaped)
+    let value: string = (trim value_stripped)
+    (free node)
+    (free root)
+    return Result.Ok { value: value }
+}
+
+shadow json_get_string_optional {
+    match (json_get_string_optional "{\"name\":\"x\"}" "name") {
+        Ok(v) => { assert (> (str_length v.value) 0) }
+        Err(e) => { assert false }
+    }
+}
+
+fn parse_snippets(md_path: string) -> Result<array<Snippet>, string> {
+    let lines: array<string> = (split_lines (read md_path))
+    let mut out: array<Snippet> = []
+    let mut i: int = 0
+    let n: int = (array_length lines)
+    while (< i n) {
+        let line: string = (at lines i)
+        if (is_snippet_marker line) {
+            let marker: Result<string, string> = (extract_json_from_marker line)
+            match marker {
+                Err(e) => { return Result.Err { error: (+ "Invalid nl-snippet JSON in " (+ md_path ": missing object")) } }
+                Ok(m) => {
+                    let meta: string = m.value
+                    let name_res: Result<string, string> = (json_get_string_optional meta "name")
+                    match name_res {
+                        Err(e2) => { return Result.Err { error: (+ "Missing snippet name in " md_path) } }
+                        Ok(nv) => {
+                            let name: string = (trim nv.value)
+                            if (== (str_length name) 0) {
+                                return Result.Err { error: (+ "Missing snippet name in " md_path) }
+                            }
+                            let check: bool = (json_get_bool_default meta "check" true)
+                            let compile_timeout_s: int = (json_get_int_default meta "compile_timeout_s" 30)
+                            let run_timeout_s: int = (json_get_int_default meta "run_timeout_s" 5)
+                            let expect_res: Result<string, string> = (json_get_string_optional meta "expect_stdout")
+                            let mut has_expect: bool = false
+                            let mut expect_stdout: string = ""
+                            match expect_res {
+                                Ok(ev) => {
+                                    set has_expect true
+                                    set expect_stdout ev.value
+                                }
+                                Err(e3) => { set has_expect false }
+                            }
+
+                            let mut j: int = (+ i 1)
+                            while (and (< j n) (not (is_fence_start (at lines j)))) {
+                                set j (+ j 1)
+                            }
+                            if (>= j n) {
+                                return Result.Err { error: (+ "Snippet missing fenced code block in " md_path) }
+                            }
+                            let fence_lang: string = (str_lower (parse_fence_lang (at lines j)))
+                            if (and (!= fence_lang "nano") (!= fence_lang "nanolang")) {
+                                return Result.Err { error: (+ "Snippet must use ```nano in " md_path) }
+                            }
+                            set j (+ j 1)
+                            let mut code_lines: array<string> = []
+                            while (and (< j n) (not (is_fence_end (at lines j)))) {
+                                set code_lines (array_push code_lines (at lines j))
+                                set j (+ j 1)
+                            }
+                            if (>= j n) {
+                                return Result.Err { error: (+ "Snippet missing closing ``` in " md_path) }
+                            }
+                            let code: string = (join_lines code_lines)
+                            set out (array_push out Snippet {
+                                name: name,
+                                source_path: md_path,
+                                code: (+ code "\n"),
+                                check: check,
+                                expect_stdout: expect_stdout,
+                                has_expect: has_expect,
+                                compile_timeout_s: compile_timeout_s,
+                                run_timeout_s: run_timeout_s
+                            })
+                            set i j
+                        }
+                    }
+                }
+            }
+        }
+        set i (+ i 1)
+    }
+    return Result.Ok { value: out }
+}
+
+shadow parse_snippets {
+    let nl: string = (string_from_char 10)
+    let md: string = (+ "<!--nl-snippet {\"name\":\"x\",\"check\":true}-->" (+ nl (+ "```nano" (+ nl (+ "fn main() -> int { return 0 }" (+ nl (+ "```" nl)))))))
+    let tmp: string = "/tmp/nano_snip_test.md"
+    (write tmp md)
+    match (parse_snippets tmp) {
+        Ok(v) => { assert true }
+        Err(e) => { assert false }
+    }
+}
+
+fn str_lower(s: string) -> string {
+    let n: int = (str_length s)
+    let mut i: int = 0
+    let mut out: string = ""
+    while (< i n) {
+        let c: int = (char_at s i)
+        if (and (>= c 65) (<= c 90)) {
+            set out (+ out (string_from_char (+ c 32)))
+        } else {
+            set out (+ out (string_from_char c))
+        }
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow str_lower { assert (str_equals (str_lower "NaNo") "nano") }
+
+fn sanitize_name(name: string) -> string {
+    let mut out: string = ""
+    let n: int = (str_length name)
+    let mut i: int = 0
+    while (< i n) {
+        let c: int = (char_at name i)
+        let is_alnum: bool = (or (and (>= c 48) (<= c 57)) (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122))))
+        if (or is_alnum (or (== c 45) (== c 95))) {
+            set out (+ out (string_from_char c))
+        } else {
+            set out (+ out "_")
+        }
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow sanitize_name {
+    assert (str_equals (sanitize_name "a b") "a_b")
+}
+
+fn shell_escape(s: string) -> string {
+    let mut out: string = "\""
+    let n: int = (str_length s)
+    let mut i: int = 0
+    while (< i n) {
+        let c: int = (char_at s i)
+        if (== c 34) {
+            set out (+ out "\\\"")
+        } else {
+            if (== c 92) {
+                set out (+ out "\\\\")
+            } else {
+                if (== c 36) {
+                    set out (+ out "\\$")
+                } else {
+                    set out (+ out (string_from_char c))
+                }
+            }
+        }
+        set i (+ i 1)
+    }
+    set out (+ out "\"")
+    return out
+}
+
+shadow shell_escape {
+    assert (str_contains (shell_escape "a\"b") "\\\"")
+}
+
+fn run_with_timeout(cmd: string, timeout_s: int) -> Output {
+    let prefix: string = (+ "perl -e 'alarm " (+ (int_to_string timeout_s) "; exec @ARGV' "))
+    return (run (+ prefix cmd))
+}
+
+shadow run_with_timeout {
+    let out: Output = (run_with_timeout "true" 2)
+    assert (== out.code 0)
+}
+
+fn main() -> int {
+    if (< (get_argc) 1) { return 1 }
+    let md_files: array<string> = (walkdir "userguide")
+    let mut markdowns: array<string> = []
+    let m_len: int = (array_length md_files)
+    let mut i: int = 0
+    while (< i m_len) {
+        let p: string = (at md_files i)
+        if (str_ends_with p ".md") { set markdowns (array_push markdowns p) }
+        set i (+ i 1)
+    }
+    if (== (array_length markdowns) 0) {
+        (println "userguide/: no markdown files found")
+        return 1
+    }
+
+    let mut snippets: array<Snippet> = []
+    let mut mi: int = 0
+    while (< mi (array_length markdowns)) {
+        let md_path: string = (at markdowns mi)
+        let parsed: Result<array<Snippet>, string> = (parse_snippets md_path)
+        match parsed {
+            Ok(v) => {
+                let arr: array<Snippet> = v.value
+                let mut si: int = 0
+                while (< si (array_length arr)) {
+                    set snippets (array_push snippets (at arr si))
+                    set si (+ si 1)
+                }
+            }
+            Err(e) => {
+                (println e.error)
+                return 1
+            }
+        }
+        set mi (+ mi 1)
+    }
+
+    let mut runnable: array<Snippet> = []
+    let s_len: int = (array_length snippets)
+    let mut s_idx: int = 0
+    while (< s_idx s_len) {
+        let sn: Snippet = (at snippets s_idx)
+        if sn.check { set runnable (array_push runnable sn) }
+        set s_idx (+ s_idx 1)
+    }
+    if (== (array_length runnable) 0) {
+        (println "userguide/: no runnable snippets found (all snippets have check=false)")
+        return 1
+    }
+
+    let out_dir: string = "build/userguide/snippets"
+    let bin_dir: string = "build/userguide/snippets/bin"
+    if (exists out_dir) { (exec (+ "rm -rf " out_dir)) }
+    (mkdir_p bin_dir)
+
+    if (not (exists "bin/nanoc")) {
+        (println "Missing compiler at bin/nanoc; run `make build` first")
+        return 1
+    }
+
+    let mut failures: array<string> = []
+    let mut ri: int = 0
+    while (< ri (array_length runnable)) {
+        let snip: Snippet = (at runnable ri)
+        let safe_name: string = (sanitize_name snip.name)
+        let src: string = (+ out_dir (+ "/" (+ safe_name ".nano")))
+        let exe: string = (+ bin_dir (+ "/" safe_name))
+        (write src snip.code)
+        let compile_cmd: string = (+ (shell_escape "bin/nanoc") (+ " " (+ (shell_escape src) (+ " -o " (shell_escape exe)))))
+        let compile_res: Output = (run_with_timeout compile_cmd snip.compile_timeout_s)
+        if (!= compile_res.code 0) {
+            set failures (array_push failures (+ "[FAIL] compile: " (+ snip.name (+ " (" (+ snip.source_path ")")))))
+            set failures (array_push failures compile_res.stdout)
+            set failures (array_push failures compile_res.stderr)
+            set ri (+ ri 1)
+            continue
+        }
+        let run_cmd: string = (shell_escape exe)
+        let run_res: Output = (run_with_timeout run_cmd snip.run_timeout_s)
+        if (!= run_res.code 0) {
+            set failures (array_push failures (+ "[FAIL] run: " (+ snip.name (+ " (" (+ snip.source_path ")")))))
+            set failures (array_push failures run_res.stdout)
+            set failures (array_push failures run_res.stderr)
+            set ri (+ ri 1)
+            continue
+        }
+        if snip.has_expect {
+            let actual_norm: string = (trim_right run_res.stdout)
+            let expect_norm: string = (trim_right snip.expect_stdout)
+            if (not (str_equals actual_norm expect_norm)) {
+                set failures (array_push failures (+ "[FAIL] stdout mismatch: " (+ snip.name (+ " (" (+ snip.source_path ")")))))
+                set failures (array_push failures "--- expected ---")
+                set failures (array_push failures snip.expect_stdout)
+                set failures (array_push failures "--- got ---")
+                set failures (array_push failures run_res.stdout)
+            }
+        }
+        set ri (+ ri 1)
+    }
+
+    if (> (array_length failures) 0) {
+        let mut out_text: string = ""
+        let mut fi: int = 0
+        while (< fi (array_length failures)) {
+            set out_text (+ out_text (at failures fi))
+            set out_text (+ out_text "\n")
+            set fi (+ fi 1)
+        }
+        (println out_text)
+        (println (+ "userguide-check: " (+ (int_to_string (array_length failures)) " snippet(s) failed")))
+        return 1
+    }
+    (println (+ "userguide-check: " (+ (int_to_string (array_length runnable)) " snippet(s) passed")))
+    return 0
+}
+
+shadow main { assert true }

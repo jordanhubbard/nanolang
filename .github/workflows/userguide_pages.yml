@@ -5,8 +5,8 @@ on:
     branches: [ main ]
     paths:
       - "userguide/**"
-      - "scripts/userguide_build_html.py"
-      - "scripts/userguide_snippets_check.py"
+      - "scripts/userguide_build_html.nano"
+      - "scripts/userguide_snippets_check.nano"
       - "Makefile.gnu"
   workflow_dispatch:
 

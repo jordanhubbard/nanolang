@@ -1,0 +1,765 @@
+from "modules/std/fs.nano" import walkdir, read, write, exists, dirname, basename, join, mkdir_p, copy_dir, copy_file, relpath
+from "modules/std/process.nano" import exec
+from "modules/std/collections/stringbuilder.nano" import sb_new, sb_append, sb_append_line, sb_to_string, sb_join
+from "modules/std/collections/hashmap.nano" import HashMap, map_new, map_put, map_has, map_get
+from "modules/std/collections/array_utils.nano" import array_sort_strings
+from "modules/nano_highlight/nano_highlight.nano" import highlight_html
+
+struct PageMeta {
+    rel: string
+    title: string
+    summary: string
+    md_text: string
+}
+
+struct PageLink {
+    title: string
+    rel_html: string
+}
+
+fn str_starts_with(s: string, prefix: string) -> bool {
+    let ls: int = (str_length s)
+    let lp: int = (str_length prefix)
+    if (< ls lp) { return false }
+    return (str_equals (str_substring s 0 lp) prefix)
+}
+
+shadow str_starts_with {
+    assert (str_starts_with "hello" "he")
+    assert (not (str_starts_with "hello" "hi"))
+}
+
+fn str_ends_with(s: string, suffix: string) -> bool {
+    let ls: int = (str_length s)
+    let lf: int = (str_length suffix)
+    if (< ls lf) { return false }
+    return (str_equals (str_substring s (- ls lf) lf) suffix)
+}
+
+shadow str_ends_with {
+    assert (str_ends_with "hello" "lo")
+    assert (not (str_ends_with "hello" "la"))
+}
+
+fn str_index_of(s: string, needle: string, start: int) -> int {
+    let ls: int = (str_length s)
+    let ln: int = (str_length needle)
+    if (== ln 0) { return start }
+    let mut i: int = start
+    while (<= (+ i ln) ls) {
+        if (str_equals (str_substring s i ln) needle) {
+            return i
+        }
+        set i (+ i 1)
+    }
+    return -1
+}
+
+shadow str_index_of {
+    assert (== (str_index_of "hello" "ll" 0) 2)
+    assert (== (str_index_of "hello" "zz" 0) -1)
+}
+
+fn strip_prefix(s: string, prefix: string) -> string {
+    if (str_starts_with s prefix) {
+        return (str_substring s (str_length prefix) (- (str_length s) (str_length prefix)))
+    }
+    return s
+}
+
+shadow strip_prefix {
+    assert (str_equals (strip_prefix "userguide/foo.md" "userguide/") "foo.md")
+}
+
+fn rel_from_src(path: string, src_dir: string) -> string {
+    let prefix: string = (+ src_dir "/")
+    if (str_starts_with path prefix) {
+        return (str_substring path (str_length prefix) (- (str_length path) (str_length prefix)))
+    }
+    let marker: string = (+ "/" prefix)
+    let idx: int = (str_index_of path marker 0)
+    if (!= idx -1) {
+        let start: int = (+ idx (str_length marker))
+        return (str_substring path start (- (str_length path) start))
+    }
+    return path
+}
+
+shadow rel_from_src {
+    assert (str_equals (rel_from_src "/tmp/userguide/a.md" "userguide") "a.md")
+}
+
+fn char_is_space(c: int) -> bool {
+    return (or (== c 32) (or (== c 9) (or (== c 10) (== c 13))))
+}
+
+shadow char_is_space { assert (char_is_space 32) }
+
+fn trim_left(s: string) -> string {
+    let len: int = (str_length s)
+    let mut i: int = 0
+    while (and (< i len) (char_is_space (char_at s i))) {
+        set i (+ i 1)
+    }
+    return (str_substring s i (- len i))
+}
+
+shadow trim_left {
+    assert (str_equals (trim_left "  hi") "hi")
+}
+
+fn trim_right(s: string) -> string {
+    let mut end: int = (str_length s)
+    while (and (> end 0) (char_is_space (char_at s (- end 1)))) {
+        set end (- end 1)
+    }
+    return (str_substring s 0 end)
+}
+
+shadow trim_right {
+    assert (str_equals (trim_right "hi  ") "hi")
+}
+
+fn trim(s: string) -> string {
+    return (trim_right (trim_left s))
+}
+
+shadow trim {
+    assert (str_equals (trim "  hi  ") "hi")
+}
+
+fn split_lines(s: string) -> array<string> {
+    let mut out: array<string> = []
+    let len: int = (str_length s)
+    let mut start: int = 0
+    let mut i: int = 0
+    while (< i len) {
+        if (== (char_at s i) 10) {
+            set out (array_push out (str_substring s start (- i start)))
+            set start (+ i 1)
+        }
+        set i (+ i 1)
+    }
+    if (< start len) {
+        set out (array_push out (str_substring s start (- len start)))
+    }
+    return out
+}
+
+shadow split_lines {
+    let nl: string = (string_from_char 10)
+    let s: string = (+ "a" (+ nl (+ "b" nl)))
+    let parts: array<string> = (split_lines s)
+    assert (== (array_length parts) 2)
+    assert (str_equals (at parts 0) "a")
+    assert (str_equals (at parts 1) "b")
+}
+
+fn html_escape(text: string) -> string {
+    let mut out: string = ""
+    let n: int = (str_length text)
+    let mut i: int = 0
+    while (< i n) {
+        let c: int = (char_at text i)
+        if (== c 38) {
+            set out (+ out "&amp;")
+        } else {
+            if (== c 60) {
+                set out (+ out "&lt;")
+            } else {
+                if (== c 62) {
+                    set out (+ out "&gt;")
+                } else {
+                    if (== c 34) {
+                        set out (+ out "&quot;")
+                    } else {
+                        set out (+ out (string_from_char c))
+                    }
+                }
+            }
+        }
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow html_escape {
+    let lt: string = (string_from_char 60)
+    let gt: string = (string_from_char 62)
+    let amp: string = (string_from_char 38)
+    let quote: string = (string_from_char 34)
+    let s: string = (+ lt (+ gt (+ amp quote)))
+    assert (str_equals (html_escape s) "&lt;&gt;&amp;&quot;")
+}
+
+fn inline_code(text: string) -> string {
+    let mut out: string = ""
+    let mut in_tick: bool = false
+    let mut buf: string = ""
+    let n: int = (str_length text)
+    let mut i: int = 0
+    while (< i n) {
+        let c: int = (char_at text i)
+        if (== c 96) {
+            if in_tick {
+                set out (+ out "<code>")
+                set out (+ out (html_escape buf))
+                set out (+ out "</code>")
+                set buf ""
+                set in_tick false
+            } else {
+                set out (+ out (html_escape buf))
+                set buf ""
+                set in_tick true
+            }
+        } else {
+            set buf (+ buf (string_from_char c))
+        }
+        set i (+ i 1)
+    }
+    if in_tick {
+        set out (+ out "`")
+        set out (+ out (html_escape buf))
+    } else {
+        set out (+ out (html_escape buf))
+    }
+    return out
+}
+
+shadow inline_code {
+    assert (str_contains (inline_code "`x`") "<code>")
+}
+
+fn render_inline(text: string) -> string {
+    let mut out: string = ""
+    let mut i: int = 0
+    let n: int = (str_length text)
+    while (< i n) {
+        let open_idx: int = (str_index_of text "[" i)
+        if (== open_idx -1) {
+            set out (+ out (inline_code (str_substring text i (- n i))))
+            return out
+        }
+        set out (+ out (inline_code (str_substring text i (- open_idx i))))
+        let close_idx: int = (str_index_of text "](" (+ open_idx 1))
+        if (== close_idx -1) {
+            set out (+ out (inline_code (str_substring text open_idx (- n open_idx))))
+            return out
+        }
+        let end_idx: int = (str_index_of text ")" (+ close_idx 2))
+        if (== end_idx -1) {
+            set out (+ out (inline_code (str_substring text open_idx (- n open_idx))))
+            return out
+        }
+        let link_text: string = (str_substring text (+ open_idx 1) (- close_idx (+ open_idx 1)))
+        let link_href: string = (str_substring text (+ close_idx 2) (- end_idx (+ close_idx 2)))
+        set out (+ out "<a href=\"")
+        set out (+ out (html_escape link_href))
+        set out (+ out "\">")
+        set out (+ out (inline_code link_text))
+        set out (+ out "</a>")
+        set i (+ end_idx 1)
+    }
+    return out
+}
+
+shadow render_inline {
+    let r: string = (render_inline "See [x](y)")
+    assert (str_contains r "<a href=")
+}
+
+fn parse_fence_lang(line: string) -> string {
+    if (not (str_starts_with line "```")) { return "" }
+    let raw: string = (str_substring line 3 (- (str_length line) 3))
+    return (trim raw)
+}
+
+shadow parse_fence_lang {
+    assert (str_equals (parse_fence_lang "```nano") "nano")
+}
+
+fn is_fence_start(line: string) -> bool { return (str_starts_with line "```") }
+fn is_fence_end(line: string) -> bool { return (str_equals (trim line) "```") }
+
+shadow is_fence_start { assert (is_fence_start "```") }
+shadow is_fence_end { assert (is_fence_end "```") }
+
+fn is_snippet_marker(line: string) -> bool {
+    return (and (str_contains line "<!--") (str_contains line "nl-snippet"))
+}
+
+shadow is_snippet_marker {
+    assert (is_snippet_marker "<!--nl-snippet {}-->")
+}
+
+fn extract_title(md_text: string, fallback: string) -> string {
+    let lines: array<string> = (split_lines md_text)
+    let mut i: int = 0
+    let n: int = (array_length lines)
+    while (< i n) {
+        let line: string = (at lines i)
+        if (str_starts_with line "#") {
+            let mut level: int = 0
+            let len: int = (str_length line)
+            while (and (< level len) (== (char_at line level) 35)) {
+                set level (+ level 1)
+            }
+            if (> level 0) {
+                return (trim (str_substring line level (- len level)))
+            }
+        }
+        set i (+ i 1)
+    }
+    return fallback
+}
+
+shadow extract_title {
+    let nl: string = (string_from_char 10)
+    let s: string = (+ "# Hi" nl)
+    assert (str_equals (extract_title s "fallback") "Hi")
+}
+
+fn extract_summary(md_text: string) -> string {
+    let lines: array<string> = (split_lines md_text)
+    let mut in_code: bool = false
+    let n: int = (array_length lines)
+    let mut i: int = 0
+    while (< i n) {
+        let line: string = (at lines i)
+        if (is_fence_start line) {
+            set in_code true
+            set i (+ i 1)
+            continue
+        }
+        if in_code {
+            if (is_fence_end line) { set in_code false }
+            set i (+ i 1)
+            continue
+        }
+        if (is_snippet_marker line) {
+            set i (+ i 1)
+            continue
+        }
+        if (str_starts_with line "#") {
+            set i (+ i 1)
+            continue
+        }
+        if (> (str_length (trim line)) 0) {
+            return (trim line)
+        }
+        set i (+ i 1)
+    }
+    return ""
+}
+
+shadow extract_summary {
+    let nl: string = (string_from_char 10)
+    let s: string = (+ "# T" (+ nl (+ nl (+ "Hello" nl))))
+    assert (str_equals (extract_summary s) "Hello")
+}
+
+fn heading_level(line: string) -> int {
+    let mut level: int = 0
+    let len: int = (str_length line)
+    while (and (< level len) (== (char_at line level) 35)) {
+        set level (+ level 1)
+    }
+    return level
+}
+
+shadow heading_level { assert (== (heading_level "## hi") 2) }
+fn heading_html(level: int, text: string) -> string {
+    let lvl: string = (int_to_string level)
+    return (sb_join ["<h", lvl, ">", (render_inline text), "</h", lvl, ">"] "")
+}
+
+shadow heading_html {
+    let h: string = (heading_html 2 "Hi")
+    assert (str_contains h "<h2>")
+}
+
+
+
+fn join_lines(lines: array<string>) -> string {
+    return (sb_join lines "\n")
+}
+
+shadow join_lines {
+    let v: string = (join_lines ["a", "b"])
+    assert (str_equals v "a\nb")
+}
+
+fn str_lower(s: string) -> string {
+    let n: int = (str_length s)
+    let mut i: int = 0
+    let mut out: string = ""
+    while (< i n) {
+        let c: int = (char_at s i)
+        if (and (>= c 65) (<= c 90)) {
+            set out (+ out (string_from_char (+ c 32)))
+        } else {
+            set out (+ out (string_from_char c))
+        }
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow str_lower { assert (str_equals (str_lower "NaNo") "nano") }
+
+fn is_nano_lang(lang: string) -> bool {
+    let l: string = (str_lower (trim lang))
+    return (or (str_equals l "nano") (str_equals l "nanolang"))
+}
+
+shadow is_nano_lang { assert (is_nano_lang "Nano") }
+
+fn md_to_html(md_text: string, summary: string) -> string {
+    let lines: array<string> = (split_lines md_text)
+    let mut out: array<string> = []
+    let mut in_code: bool = false
+    let mut code_lang: string = ""
+    let mut in_list: bool = false
+    let mut seen_h1: bool = false
+    let mut skipped_summary: bool = false
+    let mut code_lines: array<string> = []
+    let n: int = (array_length lines)
+    let mut i: int = 0
+    while (< i n) {
+        let line: string = (at lines i)
+        if (and (not in_code) (is_snippet_marker line)) {
+            set i (+ i 1)
+            continue
+        }
+        if (not in_code) {
+            if (is_fence_start line) {
+                if in_list {
+                    set out (array_push out "</ul>")
+                    set in_list false
+                }
+                set in_code true
+                set code_lang (parse_fence_lang line)
+                set out (array_push out (+ "<pre><code class=\"language-" (+ (html_escape code_lang) "\">")))
+                set code_lines []
+                set i (+ i 1)
+                continue
+            }
+            if (str_starts_with line "#") {
+                if in_list {
+                    set out (array_push out "</ul>")
+                    set in_list false
+                }
+                let mut level: int = (heading_level line)
+                if (< level 1) { set level 1 }
+                if (> level 6) { set level 6 }
+                let text: string = (trim (str_substring line level (- (str_length line) level)))
+                if (and (== level 1) (not seen_h1)) {
+                    set seen_h1 true
+                    set i (+ i 1)
+                    continue
+                }
+                set out (array_push out (heading_html level text))
+                set i (+ i 1)
+                continue
+            }
+            if (str_starts_with line "- ") {
+                if (not in_list) {
+                    set out (array_push out "<ul>")
+                    set in_list true
+                }
+                let item: string = (trim (str_substring line 2 (- (str_length line) 2)))
+                set out (array_push out (+ "<li>" (+ (render_inline item) "</li>")))
+                set i (+ i 1)
+                continue
+            }
+            if (== (str_length (trim line)) 0) {
+                if in_list {
+                    set out (array_push out "</ul>")
+                    set in_list false
+                }
+                set out (array_push out "<div class=\"spacer\"></div>")
+                set i (+ i 1)
+                continue
+            }
+            if in_list {
+                set out (array_push out "</ul>")
+                set in_list false
+            }
+            if (and (> (str_length summary) 0) (and (not skipped_summary) (str_equals (trim line) summary))) {
+                set skipped_summary true
+                set i (+ i 1)
+                continue
+            }
+            set out (array_push out (+ "<p>" (+ (render_inline line) "</p>")))
+            set i (+ i 1)
+        } else {
+            if (is_fence_end line) {
+                let code_text: string = (join_lines code_lines)
+                if (is_nano_lang code_lang) {
+                    set out (array_push out (highlight_html code_text))
+                } else {
+                    set out (array_push out (html_escape code_text))
+                }
+                set out (array_push out "</code></pre>")
+                set in_code false
+                set code_lang ""
+                set i (+ i 1)
+                continue
+            }
+            set code_lines (array_push code_lines line)
+            set i (+ i 1)
+        }
+    }
+    if in_list {
+        set out (array_push out "</ul>")
+    }
+    if in_code {
+        let code_text: string = (join_lines code_lines)
+        if (is_nano_lang code_lang) {
+            set out (array_push out (highlight_html code_text))
+        } else {
+            set out (array_push out (html_escape code_text))
+        }
+        set out (array_push out "</code></pre>")
+    }
+    return (sb_join out "\n")
+}
+
+shadow md_to_html {
+    let nl: string = (string_from_char 10)
+    let s: string = (+ "# Hi" (+ nl (+ nl (+ "Hello" nl))))
+    let html: string = (md_to_html s "Hello")
+    assert (str_contains html "<p>")
+}
+
+
+
+
+
+
+
+
+
+fn init_theme_map() -> HashMap {
+    let mut hm: HashMap = (map_new)
+    set hm (map_put hm "01_getting_started" "#7aa2f7")
+    set hm (map_put hm "02_control_flow" "#9ece6a")
+    set hm (map_put hm "03_basic_types" "#f7768e")
+    set hm (map_put hm "04_higher_level_patterns" "#e0af68")
+    set hm (map_put hm "05_modules" "#7dcfff")
+    set hm (map_put hm "06_canonical_syntax" "#bb9af7")
+    set hm (map_put hm "README" "#a1a1aa")
+    set hm (map_put hm "index" "#7aa2f7")
+    return hm
+}
+
+shadow init_theme_map {
+    let hm: HashMap = (init_theme_map)
+    assert (map_has hm "index")
+}
+
+
+
+
+
+fn build_toc(pages: array<PageLink>, active: string, out_dir: string, page_dir: string) -> string {
+    let mut items: array<string> = []
+    let n: int = (array_length pages)
+    let mut i: int = 0
+    while (< i n) {
+        let p: PageLink = (at pages i)
+        let href: string = (relpath (join out_dir p.rel_html) page_dir)
+        let mut class_name: string = "toc-item"
+        if (str_equals p.rel_html active) {
+            set class_name "toc-item active"
+        }
+        let item: string = (sb_join ["<li class=\"", class_name, "\"><a href=\"", (html_escape href), "\">", (render_inline p.title), "</a></li>"] "")
+        set items (array_push items item)
+        set i (+ i 1)
+    }
+    return (sb_join ["<aside class=\"sidebar\">", "<h2>Chapters</h2>", "<ul class=\"toc\">", (sb_join items "\n"), "</ul></aside>"] "\n")
+}
+
+shadow build_toc {
+    let mut pages: array<PageLink> = []
+    set pages (array_push pages PageLink { title: "A", rel_html: "a.html" })
+    let toc: string = (build_toc pages "a.html" "out" "out")
+    assert (str_contains toc "sidebar")
+}
+
+fn main() -> int {
+    let theme_map: HashMap = (init_theme_map)
+    let src_dir: string = "userguide"
+    let out_dir: string = "build/userguide/html"
+    let assets_dir: string = (+ out_dir "/assets")
+    if (exists out_dir) {
+        (exec (+ "rm -rf " out_dir))
+    }
+    (mkdir_p out_dir)
+    if (exists (+ src_dir "/assets")) {
+        (copy_dir (+ src_dir "/assets") assets_dir)
+    }
+    if (exists (+ src_dir "/Nanolang_Mascot.png")) {
+        (mkdir_p assets_dir)
+        (copy_file (+ src_dir "/Nanolang_Mascot.png") (+ assets_dir "/Nanolang_Mascot.png"))
+    }
+
+    let mut md_files: array<string> = []
+    let files: array<string> = (walkdir src_dir)
+    let f_len: int = (array_length files)
+    let mut fi: int = 0
+    while (< fi f_len) {
+        let p: string = (at files fi)
+        if (str_ends_with p ".md") {
+            set md_files (array_push md_files p)
+        }
+        set fi (+ fi 1)
+    }
+    set md_files (array_sort_strings md_files)
+
+    let mut page_meta: array<PageMeta> = []
+    let mut page_links: array<PageLink> = []
+    let md_len: int = (array_length md_files)
+    let mut mi: int = 0
+    while (< mi md_len) {
+        let md_path: string = (at md_files mi)
+        let rel: string = (rel_from_src md_path src_dir)
+        let md_text: string = (read md_path)
+        let base: string = (basename rel)
+        let stem: string = (strip_prefix base "")
+        let title: string = (extract_title md_text (str_substring stem 0 (- (str_length stem) 3)))
+        let summary: string = (extract_summary md_text)
+        set page_meta (array_push page_meta PageMeta { rel: rel, title: title, summary: summary, md_text: md_text })
+        let html_rel: string = (str_substring rel 0 (- (str_length rel) 3))
+        set page_links (array_push page_links PageLink { title: title, rel_html: (+ html_rel ".html") })
+        set mi (+ mi 1)
+    }
+
+    let meta_len: int = (array_length page_meta)
+    let mut idx: int = 0
+    while (< idx meta_len) {
+        let meta: PageMeta = (at page_meta idx)
+        let rel: string = meta.rel
+        let title: string = meta.title
+        let summary: string = meta.summary
+        let body: string = (md_to_html meta.md_text summary)
+        let html_rel: string = (+ (str_substring rel 0 (- (str_length rel) 3)) ".html")
+        let out_path: string = (join out_dir html_rel)
+        let page_dir: string = (dirname out_path)
+        (mkdir_p page_dir)
+
+        let css_href: string = (relpath (join out_dir "assets/style.css") page_dir)
+        let home_href: string = (relpath (join out_dir "index.html") page_dir)
+        let mascot_href: string = (relpath (join out_dir "assets/Nanolang_Mascot.png") page_dir)
+        let mut accent: string = "#7aa2f7"
+        if (map_has theme_map (str_substring (basename rel) 0 (- (str_length (basename rel)) 3))) {
+            set accent (map_get theme_map (str_substring (basename rel) 0 (- (str_length (basename rel)) 3)))
+        }
+
+        let mut prev_html: string = ""
+        if (> idx 0) {
+            let prev: PageLink = (at page_links (- idx 1))
+            let prev_href: string = (relpath (join out_dir prev.rel_html) page_dir)
+            set prev_html (sb_join ["<a class=\"chapter-link prev\" href=\"", (html_escape prev_href), "\"><span class=\"label\">&#8592; Previous</span><span class=\"title\">", (html_escape prev.title), "</span></a>"] "")
+        } else {
+            set prev_html "<span class=\"chapter-link prev disabled\"><span class=\"label\">&#8592; Previous</span><span class=\"title\">Start</span></span>"
+        }
+
+        let mut next_html: string = ""
+        if (< (+ idx 1) meta_len) {
+            let next: PageLink = (at page_links (+ idx 1))
+            let next_href: string = (relpath (join out_dir next.rel_html) page_dir)
+            set next_html (sb_join ["<a class=\"chapter-link next\" href=\"", (html_escape next_href), "\"><span class=\"label\">Next &#8594;</span><span class=\"title\">", (html_escape next.title), "</span></a>"] "")
+        } else {
+            set next_html "<span class=\"chapter-link next disabled\"><span class=\"label\">Next &#8594;</span><span class=\"title\">End</span></span>"
+        }
+
+        let nav_html: string = (sb_join [ "<div class=\"chapter-nav\">", prev_html, (+ "<a class=\"chapter-link home\" href=\"" (+ (html_escape home_href) "\" aria-label=\"Back to guide index\">&#8962;</a>")), next_html, "</div>" ] "\n")
+        let toc_html: string = (build_toc page_links html_rel out_dir page_dir)
+
+        let mut page_out: array<string> = []
+        set page_out (array_push page_out "<!doctype html>")
+        set page_out (array_push page_out "<html>")
+        set page_out (array_push page_out "<head>")
+        set page_out (array_push page_out "  <meta charset=\"utf-8\">")
+        set page_out (array_push page_out (+ "  <title>" (+ (html_escape title) "</title>")))
+        set page_out (array_push page_out "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">")
+        set page_out (array_push page_out (+ "  <link rel=\"stylesheet\" href=\"" (+ (html_escape css_href) "\">")))
+        set page_out (array_push page_out "</head>")
+        set page_out (array_push page_out (+ "<body style=\"--accent: " (+ (html_escape accent) ";\">")))
+        set page_out (array_push page_out "<nav>")
+        set page_out (array_push page_out (+ "  <a href=\"" (+ (html_escape home_href) "\" class=\"nav-home\" aria-label=\"Back to guide index\">&#8962;</a>")))
+        set page_out (array_push page_out (+ "  <a href=\"" (+ (html_escape home_href) "\">NanoLang User Guide</a>")))
+        set page_out (array_push page_out "</nav>")
+        set page_out (array_push page_out "<header class=\"hero\">")
+        set page_out (array_push page_out "  <div class=\"hero-text\">")
+        set page_out (array_push page_out (+ "    <h1>" (+ (html_escape title) "</h1>")))
+        if (> (str_length summary) 0) {
+            set page_out (array_push page_out (+ "    <p>" (+ (render_inline summary) "</p>")))
+        } else {
+            set page_out (array_push page_out "    <p></p>")
+        }
+        set page_out (array_push page_out "  </div>")
+        set page_out (array_push page_out (+ "  <img class=\"hero-mascot\" src=\"" (+ (html_escape mascot_href) "\" alt=\"NanoLang Mascot\">")))
+        set page_out (array_push page_out "</header>")
+        set page_out (array_push page_out "<main class=\"content with-sidebar\">")
+        set page_out (array_push page_out toc_html)
+        set page_out (array_push page_out "  <div class=\"content-body\">")
+        set page_out (array_push page_out "    <div class=\"page-card\">")
+        set page_out (array_push page_out body)
+        set page_out (array_push page_out "    </div>")
+        set page_out (array_push page_out nav_html)
+        set page_out (array_push page_out "  </div>")
+        set page_out (array_push page_out "</main>")
+        set page_out (array_push page_out "</body>")
+        set page_out (array_push page_out "</html>")
+        (write out_path (sb_join page_out "\n"))
+        set idx (+ idx 1)
+    }
+
+    let css_href_index: string = "assets/style.css"
+    let mascot_href_index: string = "assets/Nanolang_Mascot.png"
+    let mut links: array<string> = []
+    let p_len: int = (array_length page_links)
+    let mut pi: int = 0
+    while (< pi p_len) {
+        let link: PageLink = (at page_links pi)
+        set links (array_push links (+ "<li><a href=\"" (+ (html_escape link.rel_html) (+ "\">" (+ (render_inline link.title) "</a></li>")))))
+        set pi (+ pi 1)
+    }
+    let mut index_out: array<string> = []
+    set index_out (array_push index_out "<!doctype html>")
+    set index_out (array_push index_out "<html>")
+    set index_out (array_push index_out "<head>")
+    set index_out (array_push index_out "  <meta charset=\"utf-8\">")
+    set index_out (array_push index_out "  <title>NanoLang User Guide</title>")
+    set index_out (array_push index_out "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">")
+    set index_out (array_push index_out (+ "  <link rel=\"stylesheet\" href=\"" (+ (html_escape css_href_index) "\">")))
+    set index_out (array_push index_out "</head>")
+    set index_out (array_push index_out "<body style=\"--accent: #7aa2f7;\">")
+    set index_out (array_push index_out "<nav>")
+    set index_out (array_push index_out "  <a href=\"index.html\">NanoLang User Guide</a>")
+    set index_out (array_push index_out "</nav>")
+    set index_out (array_push index_out "<header class=\"hero\">")
+    set index_out (array_push index_out "  <div class=\"hero-text\">")
+    set index_out (array_push index_out "    <h1>NanoLang User Guide</h1>")
+    set index_out (array_push index_out "    <p>Learn the canonical NanoLang style with runnable snippets and module walk-throughs.</p>")
+    set index_out (array_push index_out "  </div>")
+    set index_out (array_push index_out (+ "  <img class=\"hero-mascot\" src=\"" (+ (html_escape mascot_href_index) "\" alt=\"NanoLang Mascot\">")))
+    set index_out (array_push index_out "</header>")
+    set index_out (array_push index_out "<main class=\"content\">")
+    set index_out (array_push index_out "  <div class=\"page-card\">")
+    set index_out (array_push index_out "    <h2>Guide chapters</h2>")
+    set index_out (array_push index_out "    <ul class=\"toc\">")
+    set index_out (array_push index_out (sb_join links "\n"))
+    set index_out (array_push index_out "    </ul>")
+    set index_out (array_push index_out "  </div>")
+    set index_out (array_push index_out "</main>")
+    set index_out (array_push index_out "</body>")
+    set index_out (array_push index_out "</html>")
+    (write (join out_dir "index.html") (sb_join index_out "\n"))
+    (println (+ "Built HTML to " out_dir))
+    return 0
+}
+
+shadow main { assert true }

@@ -66,6 +66,11 @@ BIN_DIR = bin
 BUILD_DIR = build_bootstrap
 COV_DIR = coverage
 RUNTIME_DIR = $(SRC_DIR)/runtime
+USERGUIDE_DIR = build/userguide
+USERGUIDE_BUILD_TOOL_SRC = scripts/userguide_build_html.nano
+USERGUIDE_BUILD_TOOL = $(USERGUIDE_DIR)/userguide_build_html
+USERGUIDE_CHECK_TOOL_SRC = scripts/userguide_snippets_check.nano
+USERGUIDE_CHECK_TOOL = $(USERGUIDE_DIR)/userguide_snippets_check
 
 # Binaries
 COMPILER = $(BIN_DIR)/nanoc
@@ -280,8 +285,8 @@ test: build
 	@$(MAKE) test-impl
 
 # Doc tests: compile + run user guide snippets
-test-docs: build
-	@python3 scripts/userguide_snippets.py --run
+test-docs: build $(USERGUIDE_CHECK_TOOL)
+	@$(USERGUIDE_CHECK_TOOL)
 
 # Test with beads integration (requires bd CLI to be installed)
 # Use this for local development when you want automatic issue tracking
@@ -392,12 +397,21 @@ test-quick: build
 
 # User guide: validate executable snippets extracted from userguide/*.md
 .PHONY: userguide-check
-userguide-check: build
-	@python3 scripts/userguide_snippets_check.py
+userguide-check: build $(USERGUIDE_CHECK_TOOL)
+	@$(USERGUIDE_CHECK_TOOL)
 
 .PHONY: userguide-html
-userguide-html:
-	@python3 scripts/userguide_build_html.py
+userguide-html: build $(USERGUIDE_BUILD_TOOL)
+	@$(USERGUIDE_BUILD_TOOL)
+
+$(USERGUIDE_DIR):
+	@mkdir -p $(USERGUIDE_DIR)
+
+$(USERGUIDE_BUILD_TOOL): $(USERGUIDE_BUILD_TOOL_SRC) | $(USERGUIDE_DIR)
+	@$(COMPILER) $(USERGUIDE_BUILD_TOOL_SRC) -o $(USERGUIDE_BUILD_TOOL)
+
+$(USERGUIDE_CHECK_TOOL): $(USERGUIDE_CHECK_TOOL_SRC) | $(USERGUIDE_DIR)
+	@$(COMPILER) $(USERGUIDE_CHECK_TOOL_SRC) -o $(USERGUIDE_CHECK_TOOL)
 
 # Build all examples (primary examples target)
 examples: build check-deps-sdl

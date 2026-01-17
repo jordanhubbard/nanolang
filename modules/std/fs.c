@@ -9,6 +9,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <libgen.h>
+#include <errno.h>
 
 /* Forward declarations */
 extern char* nl_str_concat(const char* s1, const char* s2);
@@ -192,8 +193,80 @@ const char* path_dirname(const char* path) {
     return result;
 }
 
+
+
+static void path_append(char* out, size_t out_size, const char* part) {
+    if (!out || !part) return;
+    if (out[0] != '\0') {
+        strncat(out, "/", out_size - strlen(out) - 1);
+    }
+    strncat(out, part, out_size - strlen(out) - 1);
+}
+
+/* Compute relative path from base to target */
+const char* path_relpath(const char* target, const char* base) {
+    static char result[4096];
+
+    if (!target || !base) {
+        snprintf(result, sizeof(result), ".");
+        return result;
+    }
+
+    char target_norm[2048];
+    char base_norm[2048];
+    snprintf(target_norm, sizeof(target_norm), "%s", path_normalize(target));
+    snprintf(base_norm, sizeof(base_norm), "%s", path_normalize(base));
+
+    char target_copy[2048];
+    char base_copy[2048];
+    snprintf(target_copy, sizeof(target_copy), "%s", target_norm);
+    snprintf(base_copy, sizeof(base_copy), "%s", base_norm);
+
+    char* target_parts[256];
+    char* base_parts[256];
+    int target_count = 0;
+    int base_count = 0;
+
+    char* saveptr = NULL;
+    char* token = strtok_r(target_copy, "/", &saveptr);
+    while (token && target_count < 256) {
+        target_parts[target_count++] = token;
+        token = strtok_r(NULL, "/", &saveptr);
+    }
+
+    saveptr = NULL;
+    token = strtok_r(base_copy, "/", &saveptr);
+    while (token && base_count < 256) {
+        base_parts[base_count++] = token;
+        token = strtok_r(NULL, "/", &saveptr);
+    }
+
+    int common = 0;
+    while (common < target_count && common < base_count &&
+           strcmp(target_parts[common], base_parts[common]) == 0) {
+        common++;
+    }
+
+    result[0] = '\0';
+
+    for (int i = common; i < base_count; i++) {
+        path_append(result, sizeof(result), "..");
+    }
+
+    for (int i = common; i < target_count; i++) {
+        path_append(result, sizeof(result), target_parts[i]);
+    }
+
+    if (result[0] == '\0') {
+        snprintf(result, sizeof(result), ".");
+    }
+
+    return result;
+}
+
+
 /* Read file content as string */
-char* file_read(const char* path) {
+const char* file_read(const char* path) {
     FILE* f = fopen(path, "r");
     if (!f) return "";
     
@@ -244,5 +317,114 @@ bool file_exists(const char* path) {
 /* Delete file */
 int64_t file_delete(const char* path) {
     return remove(path);
+}
+
+
+/* Create directory and parents (mkdir -p) */
+int64_t fs_mkdir_p(const char* path) {
+    if (!path || path[0] == '\0') return -1;
+
+    char tmp[2048];
+    snprintf(tmp, sizeof(tmp), "%s", path);
+    size_t len = strlen(tmp);
+
+    if (len == 0) return -1;
+    if (tmp[len - 1] == '/') {
+        tmp[len - 1] = '\0';
+    }
+
+    for (char* p = tmp + 1; *p; p++) {
+        if (*p == '/') {
+            *p = '\0';
+            if (mkdir(tmp, 0755) != 0 && errno != EEXIST) {
+                *p = '/';
+                return -1;
+            }
+            *p = '/';
+        }
+    }
+
+    if (mkdir(tmp, 0755) != 0 && errno != EEXIST) {
+        return -1;
+    }
+    return 0;
+}
+
+/* Copy a single file (binary-safe) */
+int64_t file_copy(const char* src, const char* dst) {
+    FILE* in = fopen(src, "rb");
+    if (!in) return -1;
+    FILE* out = fopen(dst, "wb");
+    if (!out) {
+        fclose(in);
+        return -1;
+    }
+
+    char buffer[8192];
+    size_t n = 0;
+    while ((n = fread(buffer, 1, sizeof(buffer), in)) > 0) {
+        if (fwrite(buffer, 1, n, out) != n) {
+            fclose(in);
+            fclose(out);
+            return -1;
+        }
+    }
+
+    if (ferror(in)) {
+        fclose(in);
+        fclose(out);
+        return -1;
+    }
+
+    fclose(in);
+    fclose(out);
+    return 0;
+}
+
+/* Copy a directory tree recursively */
+int64_t dir_copy(const char* src, const char* dst) {
+    struct stat st;
+    if (stat(src, &st) != 0 || !S_ISDIR(st.st_mode)) {
+        return -1;
+    }
+
+    if (fs_mkdir_p(dst) != 0) {
+        return -1;
+    }
+
+    DIR* dir = opendir(src);
+    if (!dir) return -1;
+
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+
+        char src_path[2048];
+        char dst_path[2048];
+        snprintf(src_path, sizeof(src_path), "%s/%s", src, entry->d_name);
+        snprintf(dst_path, sizeof(dst_path), "%s/%s", dst, entry->d_name);
+
+        if (stat(src_path, &st) != 0) {
+            closedir(dir);
+            return -1;
+        }
+
+        if (S_ISDIR(st.st_mode)) {
+            if (dir_copy(src_path, dst_path) != 0) {
+                closedir(dir);
+                return -1;
+            }
+        } else if (S_ISREG(st.st_mode)) {
+            if (file_copy(src_path, dst_path) != 0) {
+                closedir(dir);
+                return -1;
+            }
+        }
+    }
+
+    closedir(dir);
+    return 0;
 }
 

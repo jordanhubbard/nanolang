@@ -5,14 +5,14 @@ OUT_DIR := $(ROOT)/build/userguide/html
 SERVER_BIN := $(ROOT)/build/userguide/serve_userguide
 
 html:
-	python3 $(ROOT)/scripts/userguide_build_html.py
+	$(MAKE) -C $(ROOT) userguide-html
 
 check:
-	python3 $(ROOT)/scripts/userguide_snippets_check.py
+	$(MAKE) -C $(ROOT) userguide-check
 
 serve: html
-	$(ROOT)/bin/nanoc serve.nano -o $(SERVER_BIN)
-	$(SERVER_BIN)
+	cd $(ROOT) && ./bin/nanoc userguide/serve.nano -o build/userguide/serve_userguide
+	cd $(ROOT) && ./build/userguide/serve_userguide
 
 clean:
 	rm -rf $(ROOT)/build/userguide
