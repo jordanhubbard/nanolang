@@ -88,6 +88,16 @@ fn rel_from_src(path: string, src_dir: string) -> string {
 shadow rel_from_src {
     assert (str_equals (rel_from_src "/tmp/userguide/a.md" "userguide") "a.md")
 }
+fn relpath_copy(target: string, base: string) -> string {
+    return (+ "" (relpath target base))
+}
+
+shadow relpath_copy {
+    let p: string = (relpath_copy "a/b" "a")
+    assert (str_equals p "b")
+}
+
+
 
 fn char_is_space(c: int) -> bool {
     return (or (== c 32) (or (== c 9) (or (== c 10) (== c 13))))
@@ -568,7 +578,7 @@ fn build_toc(pages: array<PageLink>, active: string, out_dir: string, page_dir: 
     let mut i: int = 0
     while (< i n) {
         let p: PageLink = (at pages i)
-        let href: string = (relpath (join out_dir p.rel_html) page_dir)
+        let href: string = (relpath_copy (join out_dir p.rel_html) page_dir)
         let mut class_name: string = "toc-item"
         if (str_equals p.rel_html active) {
             set class_name "toc-item active"
@@ -648,9 +658,9 @@ fn main() -> int {
         let page_dir: string = (dirname out_path)
         (mkdir_p page_dir)
 
-        let css_href: string = (relpath (join out_dir "assets/style.css") page_dir)
-        let home_href: string = (relpath (join out_dir "index.html") page_dir)
-        let mascot_href: string = (relpath (join out_dir "assets/Nanolang_Mascot.png") page_dir)
+        let css_href: string = (relpath_copy (join out_dir "assets/style.css") page_dir)
+        let home_href: string = (relpath_copy (join out_dir "index.html") page_dir)
+        let mascot_href: string = (relpath_copy (join out_dir "assets/Nanolang_Mascot.png") page_dir)
         let mut accent: string = "#7aa2f7"
         if (map_has theme_map (str_substring (basename rel) 0 (- (str_length (basename rel)) 3))) {
             set accent (map_get theme_map (str_substring (basename rel) 0 (- (str_length (basename rel)) 3)))
@@ -659,7 +669,7 @@ fn main() -> int {
         let mut prev_html: string = ""
         if (> idx 0) {
             let prev: PageLink = (at page_links (- idx 1))
-            let prev_href: string = (relpath (join out_dir prev.rel_html) page_dir)
+            let prev_href: string = (relpath_copy (join out_dir prev.rel_html) page_dir)
             set prev_html (sb_join ["<a class=\"chapter-link prev\" href=\"", (html_escape prev_href), "\"><span class=\"label\">&#8592; Previous</span><span class=\"title\">", (html_escape prev.title), "</span></a>"] "")
         } else {
             set prev_html "<span class=\"chapter-link prev disabled\"><span class=\"label\">&#8592; Previous</span><span class=\"title\">Start</span></span>"
@@ -668,7 +678,7 @@ fn main() -> int {
         let mut next_html: string = ""
         if (< (+ idx 1) meta_len) {
             let next: PageLink = (at page_links (+ idx 1))
-            let next_href: string = (relpath (join out_dir next.rel_html) page_dir)
+            let next_href: string = (relpath_copy (join out_dir next.rel_html) page_dir)
             set next_html (sb_join ["<a class=\"chapter-link next\" href=\"", (html_escape next_href), "\"><span class=\"label\">Next &#8594;</span><span class=\"title\">", (html_escape next.title), "</span></a>"] "")
         } else {
             set next_html "<span class=\"chapter-link next disabled\"><span class=\"label\">Next &#8594;</span><span class=\"title\">End</span></span>"
