@@ -3,6 +3,7 @@
 #include "module_builder.h"
 #include "interpreter_ffi.h"
 #include "runtime/list_CompilerDiagnostic.h"
+#include "toon_output.h"
 #include <unistd.h>  /* For getpid() on all POSIX systems */
 
 #ifdef __APPLE__
@@ -21,6 +22,7 @@ typedef struct {
     bool save_asm;            /* -S flag: save generated C to .genC file */
     bool json_errors;         /* Output errors in JSON format for tooling */
     const char *llm_diags_json_path; /* --llm-diags-json <path> (agent-only): write diagnostics as JSON */
+    const char *llm_diags_toon_path; /* --llm-diags-toon <path> (agent-only): write diagnostics as TOON (~40% fewer tokens) */
     const char *llm_shadow_json_path; /* --llm-shadow-json <path> (agent-only): write shadow failure summary as JSON */
     char **include_paths;      /* -I flags */
     int include_count;
@@ -115,6 +117,41 @@ static void llm_emit_diags_json(
     fclose(f);
 }
 
+static void llm_emit_diags_toon(
+    const char *path,
+    const char *input_file,
+    const char *output_file,
+    int exit_code,
+    List_CompilerDiagnostic *diags
+) {
+    if (!path || path[0] == '\0') return;
+    if (!toon_diagnostics_enabled()) return;
+
+    /* Populate TOON diagnostics from compiler diagnostics list */
+    int n = diags ? nl_list_CompilerDiagnostic_length(diags) : 0;
+    for (int i = 0; i < n; i++) {
+        CompilerDiagnostic d = nl_list_CompilerDiagnostic_get(diags, i);
+        toon_diagnostics_add(
+            severity_name(d.severity),
+            d.code,
+            d.message,
+            d.location.file,
+            d.location.line,
+            d.location.column
+        );
+    }
+
+    /* Output to file */
+    if (!toon_diagnostics_output_to_file(path)) {
+        /* best-effort, ignore failure */
+    }
+
+    toon_diagnostics_cleanup();
+    (void)input_file;
+    (void)output_file;
+    (void)exit_code;
+}
+
 static void diags_push_simple(List_CompilerDiagnostic *diags, int phase, int severity, const char *code, const char *message) {
     if (!diags) return;
     CompilerDiagnostic d;
@@ -199,6 +236,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         fprintf(stderr, "Error: Could not open file '%s'\n", input_file);
         diags_push_simple(diags, CompilerPhase_PHASE_LEXER, DiagnosticSeverity_DIAG_ERROR, "CIO01", "Could not open input file");
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
@@ -222,6 +260,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         diags_push_simple(diags, CompilerPhase_PHASE_LEXER, DiagnosticSeverity_DIAG_ERROR, "CLEX01", "Lexing failed");
         free(source);
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
@@ -235,6 +274,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free(source);
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
@@ -260,6 +300,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_module_list(modules);
         free(source);
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
@@ -281,6 +322,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_module_list(modules);
         free(source);
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
@@ -299,6 +341,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             free_module_list(modules);
             free(source);
             llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+            llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
             nl_list_CompilerDiagnostic_free(diags);
             return 1;
         }
@@ -352,6 +395,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(source);
         ffi_cleanup();
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
         unsetenv("NANO_LLM_SHADOW_JSON");
         return 1;
@@ -391,6 +435,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(source);
         ffi_cleanup();
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
@@ -791,6 +836,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             remove(temp_c_file);
         }
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
@@ -820,6 +866,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             remove(temp_c_file);
         }
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
         return 1;  /* Return error if C compilation failed */
     }
@@ -830,6 +877,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     }
 
     llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 0, diags);
+    llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 0, diags);
     nl_list_CompilerDiagnostic_free(diags);
 
     /* Cleanup */
@@ -880,6 +928,7 @@ int main(int argc, char *argv[]) {
         printf("  --forbid-unsafe        Error (not warn) on unsafe module imports\n");
         printf("\nAgent Options:\n");
         printf("  --llm-diags-json <p>   Write machine-readable diagnostics JSON (agent-only)\n");
+        printf("  --llm-diags-toon <p>   Write diagnostics in TOON format (~40%% fewer tokens)\n");
         printf("  --llm-shadow-json <p>  Write machine-readable shadow failure summary JSON (agent-only)\n");
         printf("\nExamples:\n");
         printf("  %s hello.nano -o hello\n", argv[0]);
@@ -903,6 +952,7 @@ int main(int argc, char *argv[]) {
         .save_asm = false,
         .json_errors = false,
         .llm_diags_json_path = NULL,
+        .llm_diags_toon_path = NULL,
         .llm_shadow_json_path = NULL,
         .include_paths = NULL,
         .include_count = 0,
@@ -977,6 +1027,10 @@ int main(int argc, char *argv[]) {
             opts.forbid_unsafe = true;
         } else if (strcmp(argv[i], "--llm-diags-json") == 0 && i + 1 < argc) {
             opts.llm_diags_json_path = argv[i + 1];
+            i++;
+        } else if (strcmp(argv[i], "--llm-diags-toon") == 0 && i + 1 < argc) {
+            opts.llm_diags_toon_path = argv[i + 1];
+            toon_diagnostics_enable();
             i++;
         } else if (strcmp(argv[i], "--llm-shadow-json") == 0 && i + 1 < argc) {
             opts.llm_shadow_json_path = argv[i + 1];

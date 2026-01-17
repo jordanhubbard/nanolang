@@ -249,6 +249,96 @@ if [ "$RUN_UNIT" = true ]; then
 fi
 
 # ============================================================================
+# CATEGORY 4: Integration Tests (compiler flags, tooling)
+# ============================================================================
+if [ "$RUN_APP" = true ]; then
+    echo -e "${CYAN}=== INTEGRATION TESTS ===${NC}"
+    echo ""
+    
+    INTEG_PASS=0
+    INTEG_FAIL=0
+    
+    # LLM Diagnostic Flags Tests
+    INTEG_TEMP=$(mktemp -d)
+    trap "rm -rf $INTEG_TEMP" EXIT
+    
+    # Create test fixtures
+    cat > "$INTEG_TEMP/error.nano" << 'FIXTURE'
+fn main() -> int {
+    return "not an int"
+}
+FIXTURE
+    
+    cat > "$INTEG_TEMP/success.nano" << 'FIXTURE'
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+FIXTURE
+    
+    # Test: --llm-diags-json (error case)
+    ./bin/nanoc "$INTEG_TEMP/error.nano" --llm-diags-json "$INTEG_TEMP/d.json" >/dev/null 2>&1 || true
+    if [ -f "$INTEG_TEMP/d.json" ] && grep -q '"success":false' "$INTEG_TEMP/d.json"; then
+        echo -e "${GREEN}✅${NC} --llm-diags-json (error)"
+        INTEG_PASS=$((INTEG_PASS + 1))
+        TOTAL_PASS=$((TOTAL_PASS + 1))
+    else
+        echo -e "${RED}❌${NC} --llm-diags-json (error)"
+        INTEG_FAIL=$((INTEG_FAIL + 1))
+        TOTAL_FAIL=$((TOTAL_FAIL + 1))
+    fi
+    
+    # Test: --llm-diags-json (success case)
+    ./bin/nanoc "$INTEG_TEMP/success.nano" -o "$INTEG_TEMP/out" --llm-diags-json "$INTEG_TEMP/ok.json" >/dev/null 2>&1
+    if [ -f "$INTEG_TEMP/ok.json" ] && grep -q '"success":true' "$INTEG_TEMP/ok.json"; then
+        echo -e "${GREEN}✅${NC} --llm-diags-json (success)"
+        INTEG_PASS=$((INTEG_PASS + 1))
+        TOTAL_PASS=$((TOTAL_PASS + 1))
+    else
+        echo -e "${RED}❌${NC} --llm-diags-json (success)"
+        INTEG_FAIL=$((INTEG_FAIL + 1))
+        TOTAL_FAIL=$((TOTAL_FAIL + 1))
+    fi
+    
+    # Test: --llm-diags-toon (error case with content verification)
+    ./bin/nanoc "$INTEG_TEMP/error.nano" --llm-diags-toon "$INTEG_TEMP/d.toon" >/dev/null 2>&1 || true
+    # Verify: file exists, has header with count, has column headers, has data row with error code
+    if [ -f "$INTEG_TEMP/d.toon" ] && \
+       grep -q 'diagnostics\[1\]:' "$INTEG_TEMP/d.toon" && \
+       grep -q 'severity.*code.*message.*file.*line.*column' "$INTEG_TEMP/d.toon" && \
+       grep -q 'error.*CTYPE01' "$INTEG_TEMP/d.toon" && \
+       grep -q 'error_count: 1' "$INTEG_TEMP/d.toon"; then
+        echo -e "${GREEN}✅${NC} --llm-diags-toon (error)"
+        INTEG_PASS=$((INTEG_PASS + 1))
+        TOTAL_PASS=$((TOTAL_PASS + 1))
+    else
+        echo -e "${RED}❌${NC} --llm-diags-toon (error)"
+        INTEG_FAIL=$((INTEG_FAIL + 1))
+        TOTAL_FAIL=$((TOTAL_FAIL + 1))
+    fi
+    
+    # Test: --llm-diags-toon (success case)
+    ./bin/nanoc "$INTEG_TEMP/success.nano" -o "$INTEG_TEMP/out2" --llm-diags-toon "$INTEG_TEMP/ok.toon" >/dev/null 2>&1
+    if [ -f "$INTEG_TEMP/ok.toon" ] && grep -q 'error_count: 0' "$INTEG_TEMP/ok.toon"; then
+        echo -e "${GREEN}✅${NC} --llm-diags-toon (success)"
+        INTEG_PASS=$((INTEG_PASS + 1))
+        TOTAL_PASS=$((TOTAL_PASS + 1))
+    else
+        echo -e "${RED}❌${NC} --llm-diags-toon (success)"
+        INTEG_FAIL=$((INTEG_FAIL + 1))
+        TOTAL_FAIL=$((TOTAL_FAIL + 1))
+    fi
+    
+    rm -rf "$INTEG_TEMP"
+    echo ""
+    echo -e "${CYAN}Integration Tests: ${GREEN}$INTEG_PASS passed${NC}, ${RED}$INTEG_FAIL failed${NC}"
+    echo ""
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 echo -e "${BOLD}========================================"

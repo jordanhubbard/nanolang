@@ -19,6 +19,7 @@ Flags prefixed with **`--llm-`** are reserved for automated agents and may chang
 ### Implemented
 
 - **`--llm-diags-json <path>`**: Emit machine-readable diagnostics as JSON (best-effort; does not fail compilation if the file cannot be written).
+- **`--llm-diags-toon <path>`**: Emit diagnostics in TOON format (~40% fewer tokens than JSON). See https://toonformat.dev/
 - **`--llm-shadow-json <path>`**: Emit a machine-readable summary of shadow-test failures as JSON (best-effort).
 
 Schema (stable keys):
