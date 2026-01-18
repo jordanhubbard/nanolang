@@ -86,6 +86,65 @@ fn main() -> int {
 shadow main { assert true }
 ```
 
+## Unsafe and extern calls
+
+Extern functions must be called inside `unsafe { ... }` blocks.
+
+<!--nl-snippet {"name":"ug_patterns_unsafe_extern","check":true}-->
+```nano
+extern fn get_argc() -> int
+
+fn argc_safe() -> int {
+    let mut n: int = 0
+    unsafe {
+        set n (get_argc)
+    }
+    return n
+}
+
+shadow argc_safe {
+    let n: int = (argc_safe)
+    assert (> n 0)
+}
+
+fn main() -> int {
+    assert (> (argc_safe) 0)
+    return 0
+}
+
+shadow main { assert true }
+```
+
+## First-class functions
+
+Functions can be passed as arguments using `fn(...) -> ...` types.
+
+<!--nl-snippet {"name":"ug_patterns_first_class","check":true}-->
+```nano
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+shadow double {
+    assert (== (double 5) 10)
+}
+
+fn apply_twice(x: int, f: fn(int) -> int) -> int {
+    return (f (f x))
+}
+
+shadow apply_twice {
+    assert (== (apply_twice 3 double) 12)
+}
+
+fn main() -> int {
+    assert (== (apply_twice 4 double) 16)
+    return 0
+}
+
+shadow main { assert true }
+```
+
 ## Fold (reduce)
 
 <!--nl-snippet {"name":"ug_patterns_fold","check":true}-->
@@ -112,6 +171,39 @@ shadow fold_sum {
 fn main() -> int {
     let xs: array<int> = (array_new 0 0)
     assert (== (fold_sum xs) 0)
+    return 0
+}
+
+shadow main { assert true }
+```
+
+## Logging, tracing, and coverage
+
+The stdlib includes structured logging plus lightweight tracing/coverage hooks.
+
+<!--nl-snippet {"name":"ug_patterns_logging_trace_coverage","check":true}-->
+```nano
+from "stdlib/log.nano" import log_info
+from "stdlib/coverage.nano" import coverage_init, coverage_record, coverage_report
+from "stdlib/coverage.nano" import trace_init, trace_record, trace_report
+
+fn add_one(x: int) -> int {
+    (trace_record "CALL" "add_one" (int_to_string x))
+    (coverage_record "userguide" 1 1)
+    return (+ x 1)
+}
+
+shadow add_one {
+    assert (== (add_one 4) 5)
+}
+
+fn main() -> int {
+    (coverage_init)
+    (trace_init)
+    (log_info "demo" "instrumentation demo")
+    assert (== (add_one 9) 10)
+    (coverage_report)
+    (trace_report)
     return 0
 }
 
