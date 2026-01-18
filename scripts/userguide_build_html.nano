@@ -727,6 +727,82 @@ shadow modules_mvp_markdown {
     assert true
 }
 
+/* Transform 07_examples.md to inline code for language/ examples only */
+fn expand_examples_inline(md_text: string) -> string {
+    let lines: array<string> = (split_lines md_text)
+    let mut out: array<string> = []
+    let n: int = (array_length lines)
+    let mut i: int = 0
+    
+    while (< i n) {
+        let line: string = (at lines i)
+        let trimmed: string = (trim line)
+        
+        /* Only inline examples from language/ directory (core tutorials) */
+        /* Skip SDL, games, audio - those are demonstrations, not tutorials */
+        if (str_starts_with trimmed "- [language/") {
+            if (str_contains line ".nano](https://") {
+                /* Extract path from link: - [language/file.nano](URL) */
+                let bracket_pos: int = (str_index_of line "[language/" 0)
+                if (> bracket_pos -1) {
+                    let paren_pos: int = (str_index_of line "](" bracket_pos)
+                    if (> paren_pos -1) {
+                        let path_len: int = (- (- paren_pos bracket_pos) 1)
+                        let local_path: string = (str_substring line (+ bracket_pos 1) path_len)
+                        let full_path: string = (+ "examples/" local_path)
+                        
+                        if (exists full_path) {
+                            let code: string = (read full_path)
+                            let code_len: int = (str_length code)
+                            
+                            /*  Only inline if under 5KB */
+                            if (< code_len 5000) {
+                                /* Extract just filename */
+                                let slash_pos: int = (str_index_of local_path "/" 0)
+                                let fname_start: int = (+ slash_pos 1)
+                                let fname_len: int = (- (str_length local_path) fname_start)
+                                let filename: string = (str_substring local_path fname_start fname_len)
+                                
+                                /* Generate inline block */
+                                set out (array_push out (+ "### " filename))
+                                set out (array_push out "")
+                                set out (array_push out "```nano")
+                                set out (array_push out code)
+                                set out (array_push out "```")
+                                set out (array_push out "")
+                                
+                                /* Keep GitHub link */
+                                let url_start: int = (+ paren_pos 2)
+                                let url_end: int = (str_index_of line ")" url_start)
+                                let url_len: int = (- url_end url_start)
+                                let gh_url: string = (str_substring line url_start url_len)
+                                set out (array_push out (+ "[View on GitHub](" (+ gh_url ")")))
+                                set out (array_push out "")
+                                
+                                set i (+ i 1)
+                                continue
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        /* Default: keep line unchanged */
+        set out (array_push out line)
+        set i (+ i 1)
+    }
+    
+    return (join_lines out)
+}
+
+shadow expand_examples_inline {
+    let input: string = "# Test\n\n- [test.nano](https://github.com/user/repo/blob/main/examples/test.nano)\n"
+    let result: string = (expand_examples_inline input)
+    /* Should contain heading, not fail */
+    assert (str_contains result "# Test")
+}
+
 fn main() -> int {
     if (coverage_enabled) { (coverage_init) }
     if (trace_enabled) {
@@ -811,6 +887,19 @@ fn main() -> int {
             let mvp_text: string = (modules_mvp_markdown)
             if (> (str_length mvp_text) 0) {
                 set md_text (+ md_text (+ "\n\n" mvp_text))
+            }
+        }
+        /* TODO(nanolang-xed3): Inline example rendering disabled due to performance issues
+         * The expand_examples_inline function causes the build to hang/timeout.
+         * Root cause appears to be string buffer limits or infinite loop in parsing logic.
+         * For now, examples remain as GitHub links which works well enough.
+         * Future: investigate StringBuilder or pagination approach for large content.
+         */
+        if false {
+            if (or (str_contains rel "/07_examples.md") (str_ends_with rel "07_examples.md")) {
+                (append "/tmp/userguide_build_html.log" "userguide-html: expanding language examples inline\n")
+                set md_text (expand_examples_inline md_text)
+                (append "/tmp/userguide_build_html.log" "userguide-html: language examples expansion done\n")
             }
         }
         (append "/tmp/userguide_build_html.log" (+ "userguide-html: render " (+ rel "\n")))
