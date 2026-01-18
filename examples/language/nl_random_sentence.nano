@@ -71,10 +71,10 @@ fn get_word_at_index(content: string, index: int) -> string {
 
 shadow get_word_at_index {
     let test_content: string = "apple\nbanana\ncherry\ndate\n"
-    assert (str_equals (get_word_at_index test_content 0) "apple")
-    assert (str_equals (get_word_at_index test_content 1) "banana")
-    assert (str_equals (get_word_at_index test_content 2) "cherry")
-    assert (str_equals (get_word_at_index test_content 3) "date")
+    assert (== (get_word_at_index test_content 0) "apple")
+    assert (== (get_word_at_index test_content 1) "banana")
+    assert (== (get_word_at_index test_content 2) "cherry")
+    assert (== (get_word_at_index test_content 3) "date")
 }
 
 # Count words in content (count newlines)

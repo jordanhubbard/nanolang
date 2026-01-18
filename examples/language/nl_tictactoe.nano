@@ -58,11 +58,11 @@ fn get_cell_display(board: array<int>, pos: int) -> string {
 
 shadow get_cell_display {
     let board: array<int> = (create_board)
-    assert (str_equals (get_cell_display board 0) " ")
+    assert (== (get_cell_display board 0) " ")
     (array_set board 0 1)
-    assert (str_equals (get_cell_display board 0) "X")
+    assert (== (get_cell_display board 0) "X")
     (array_set board 1 2)
-    assert (str_equals (get_cell_display board 1) "O")
+    assert (== (get_cell_display board 1) "O")
 }
 
 # Check if position is valid and empty using cond
@@ -180,8 +180,8 @@ fn get_player_name(player: int) -> string {
 }
 
 shadow get_player_name {
-    assert (str_equals (get_player_name 1) "X")
-    assert (str_equals (get_player_name 2) "O")
+    assert (== (get_player_name 1) "X")
+    assert (== (get_player_name 2) "O")
 }
 
 # Simple AI: pick first available move

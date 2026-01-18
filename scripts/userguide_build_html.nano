@@ -26,7 +26,7 @@ fn str_starts_with(s: string, prefix: string) -> bool {
     let lp: int = (str_length prefix)
     if (== lp 0) { return true }
     if (< ls lp) { return false }
-    return (str_equals (str_substring s 0 lp) prefix)
+    return (== (str_substring s 0 lp) prefix)
 }
 
 shadow str_starts_with {
@@ -40,7 +40,7 @@ fn str_ends_with(s: string, suffix: string) -> bool {
     let lf: int = (str_length suffix)
     if (== lf 0) { return true }
     if (< ls lf) { return false }
-    return (str_equals (str_substring s (- ls lf) lf) suffix)
+    return (== (str_substring s (- ls lf) lf) suffix)
 }
 
 shadow str_ends_with {
@@ -55,7 +55,7 @@ fn str_index_of(s: string, needle: string, start: int) -> int {
     if (== ln 0) { return start }
     let mut i: int = start
     while (<= (+ i ln) ls) {
-        if (str_equals (str_substring s i ln) needle) {
+        if (== (str_substring s i ln) needle) {
             return i
         }
         set i (+ i 1)
@@ -76,7 +76,7 @@ fn strip_prefix(s: string, prefix: string) -> string {
 }
 
 shadow strip_prefix {
-    assert (str_equals (strip_prefix "userguide/foo.md" "userguide/") "foo.md")
+    assert (== (strip_prefix "userguide/foo.md" "userguide/") "foo.md")
 }
 
 fn rel_from_src(path: string, src_dir: string) -> string {
@@ -94,7 +94,7 @@ fn rel_from_src(path: string, src_dir: string) -> string {
 }
 
 shadow rel_from_src {
-    assert (str_equals (rel_from_src "/tmp/userguide/a.md" "userguide") "a.md")
+    assert (== (rel_from_src "/tmp/userguide/a.md" "userguide") "a.md")
 }
 fn relpath_copy(target: string, base: string) -> string {
     return (+ "" (relpath target base))
@@ -102,12 +102,12 @@ fn relpath_copy(target: string, base: string) -> string {
 
 shadow relpath_copy {
     let p: string = (relpath_copy "a/b" "a")
-    assert (str_equals p "b")
+    assert (== p "b")
 }
 
 fn trace_enabled() -> bool {
     let flag: string = (get "NANO_USERGUIDE_TRACE")
-    if (or (str_equals flag "1") (str_equals flag "true")) {
+    if (or (== flag "1") (== flag "true")) {
         return true
     } else {
         return false
@@ -118,7 +118,7 @@ shadow trace_enabled { assert true }
 
 fn coverage_enabled() -> bool {
     let flag: string = (get "NANO_USERGUIDE_COVERAGE")
-    if (or (str_equals flag "1") (str_equals flag "true")) {
+    if (or (== flag "1") (== flag "true")) {
         return true
     } else {
         return false
@@ -160,7 +160,7 @@ fn trim_left(s: string) -> string {
 }
 
 shadow trim_left {
-    assert (str_equals (trim_left "  hi") "hi")
+    assert (== (trim_left "  hi") "hi")
 }
 
 fn trim_right(s: string) -> string {
@@ -173,7 +173,7 @@ fn trim_right(s: string) -> string {
 }
 
 shadow trim_right {
-    assert (str_equals (trim_right "hi  ") "hi")
+    assert (== (trim_right "hi  ") "hi")
 }
 
 fn trim(s: string) -> string {
@@ -181,7 +181,7 @@ fn trim(s: string) -> string {
 }
 
 shadow trim {
-    assert (str_equals (trim "  hi  ") "hi")
+    assert (== (trim "  hi  ") "hi")
 }
 
 fn split_lines(s: string) -> array<string> {
@@ -208,8 +208,8 @@ shadow split_lines {
     let s: string = (+ "a" (+ nl (+ "b" nl)))
     let parts: array<string> = (split_lines s)
     assert (== (array_length parts) 2)
-    assert (str_equals (at parts 0) "a")
-    assert (str_equals (at parts 1) "b")
+    assert (== (at parts 0) "a")
+    assert (== (at parts 1) "b")
 }
 
 fn html_escape(text: string) -> string {
@@ -247,7 +247,7 @@ shadow html_escape {
     let amp: string = (string_from_char 38)
     let quote: string = (string_from_char 34)
     let s: string = (+ lt (+ gt (+ amp quote)))
-    assert (str_equals (html_escape s) "&lt;&gt;&amp;&quot;")
+    assert (== (html_escape s) "&lt;&gt;&amp;&quot;")
 }
 
 fn inline_code(text: string) -> string {
@@ -300,7 +300,7 @@ fn debug_substring(s: string, start: int, length: int, ctx: string) -> string {
 }
 
 shadow debug_substring {
-    assert (str_equals (debug_substring "abc" 0 1 "test") "a")
+    assert (== (debug_substring "abc" 0 1 "test") "a")
 }
 
 fn render_inline(text: string) -> string {
@@ -351,12 +351,12 @@ fn parse_fence_lang(line: string) -> string {
 }
 
 shadow parse_fence_lang {
-    assert (str_equals (parse_fence_lang "```nano") "nano")
-    assert (str_equals (parse_fence_lang "```") "")
+    assert (== (parse_fence_lang "```nano") "nano")
+    assert (== (parse_fence_lang "```") "")
 }
 
 fn is_fence_start(line: string) -> bool { return (str_starts_with line "```") }
-fn is_fence_end(line: string) -> bool { return (str_equals (trim line) "```") }
+fn is_fence_end(line: string) -> bool { return (== (trim line) "```") }
 
 shadow is_fence_start { assert (is_fence_start "```") }
 shadow is_fence_end { assert (is_fence_end "```") }
@@ -394,7 +394,7 @@ fn extract_title(md_text: string, fallback: string) -> string {
 shadow extract_title {
     let nl: string = (string_from_char 10)
     let s: string = (+ "# Hi" nl)
-    assert (str_equals (extract_title s "fallback") "Hi")
+    assert (== (extract_title s "fallback") "Hi")
 }
 
 fn extract_summary(md_text: string) -> string {
@@ -434,7 +434,7 @@ fn extract_summary(md_text: string) -> string {
 shadow extract_summary {
     let nl: string = (string_from_char 10)
     let s: string = (+ "# T" (+ nl (+ nl (+ "Hello" nl))))
-    assert (str_equals (extract_summary s) "Hello")
+    assert (== (extract_summary s) "Hello")
 }
 
 fn heading_level(line: string) -> int {
@@ -465,7 +465,7 @@ fn join_lines(lines: array<string>) -> string {
 
 shadow join_lines {
     let v: string = (join_lines ["a", "b"])
-    assert (str_equals v "a\nb")
+    assert (== v "a\nb")
 }
 
 fn str_lower(s: string) -> string {
@@ -484,11 +484,11 @@ fn str_lower(s: string) -> string {
     return out
 }
 
-shadow str_lower { assert (str_equals (str_lower "NaNo") "nano") }
+shadow str_lower { assert (== (str_lower "NaNo") "nano") }
 
 fn is_nano_lang(lang: string) -> bool {
     let l: string = (str_lower (trim lang))
-    return (or (str_equals l "nano") (str_equals l "nanolang"))
+    return (or (== l "nano") (== l "nanolang"))
 }
 
 shadow is_nano_lang { assert (is_nano_lang "Nano") }
@@ -565,7 +565,7 @@ fn md_to_html(md_text: string, summary: string) -> string {
                 set out (array_push out "</ul>")
                 set in_list false
             }
-            if (and (> (str_length summary) 0) (and (not skipped_summary) (str_equals (trim line) summary))) {
+            if (and (> (str_length summary) 0) (and (not skipped_summary) (== (trim line) summary))) {
                 set skipped_summary true
                 set i (+ i 1)
                 continue
@@ -657,7 +657,7 @@ fn build_toc(titles: array<string>, rels: array<string>, active: string, out_dir
         let rel_html: string = (at rels i)
         let href: string = (relpath_copy (join out_dir rel_html) page_dir)
         let mut class_name: string = "toc-item"
-        if (str_equals rel_html active) {
+        if (== rel_html active) {
             set class_name "toc-item active"
         }
         let item: string = (sb_join ["<li class=\"", class_name, "\"><a href=\"", (html_escape href), "\">", (render_inline title), "</a></li>"] "")
@@ -705,7 +705,7 @@ fn modules_mvp_markdown() -> string {
     while (< j (array_length names)) {
         let name: string = (at names j)
         let mut path: string = (+ "modules/" (+ name "/mvp.md"))
-        if (str_equals name "log") {
+        if (== name "log") {
             set path "modules/std/log/mvp.md"
         }
         if (exists path) {

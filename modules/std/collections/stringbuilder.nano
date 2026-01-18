@@ -60,7 +60,7 @@ shadow sb_append {
     let sb1: StringBuilder = (sb_new)
     let sb2: StringBuilder = (sb_append sb1 "Hello")
     assert (== (sb_length sb2) 5)
-    assert (== (str_equals (sb_to_string sb2) "Hello") true)
+    assert (== (== (sb_to_string sb2) "Hello") true)
 }
 
 /* Append a string with a newline */

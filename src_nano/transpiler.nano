@@ -65,7 +65,7 @@ fn resolve_module_alias(name: string) -> string {
     let mut i: int = 0
     let n: int = (array_length module_aliases)
     while (< i n) {
-        if (str_equals (at module_aliases i) name) {
+        if (== (at module_aliases i) name) {
             return (at module_alias_targets i)
         } else { (print "") }
         set i (+ i 1)
@@ -77,7 +77,7 @@ fn resolve_func_alias(name: string) -> string {
     let mut i: int = 0
     let n: int = (array_length func_aliases)
     while (< i n) {
-        if (str_equals (at func_aliases i) name) {
+        if (== (at func_aliases i) name) {
             return (at func_alias_targets i)
         } else { (print "") }
         set i (+ i 1)
@@ -154,9 +154,9 @@ fn mangle_name(name: string) -> string {
     while (< i len) {
         let ch: string = (str_substring name i 1)
 
-        if (and (str_equals ch ":") (< (+ i 1) len)) {
+        if (and (== ch ":") (< (+ i 1) len)) {
             let ch2: string = (str_substring name (+ i 1) 1)
-            if (str_equals ch2 ":") {
+            if (== ch2 ":") {
                 set out (+ out "_")
                 set i (+ i 2)
             } else {
@@ -164,8 +164,8 @@ fn mangle_name(name: string) -> string {
                 set i (+ i 1)
             }
         } else {
-            if (or (or (str_equals ch ".") (str_equals ch "<"))
-                    (or (str_equals ch ">") (str_equals ch ","))) {
+            if (or (or (== ch ".") (== ch "<"))
+                    (or (== ch ">") (== ch ","))) {
                 set out (+ out "_")
             } else {
                 set out (+ out ch)
@@ -188,7 +188,7 @@ fn transp_str_starts_with(s: string, prefix: string) -> bool {
     if (< ls lp) {
         return false
     } else {
-        return (str_equals (str_substring s 0 lp) prefix)
+        return (== (str_substring s 0 lp) prefix)
     }
 }
 
@@ -226,7 +226,7 @@ fn str_ends_with(s: string, suffix: string) -> bool {
     if (< ls lf) {
         return false
     } else {
-        return (str_equals (str_substring s (- ls lf) lf) suffix)
+        return (== (str_substring s (- ls lf) lf) suffix)
     }
 }
 
@@ -237,7 +237,7 @@ fn last_double_colon_index(s: string) -> int {
     while (< (+ i 1) len) {
         let c1: string = (str_substring s i 1)
         let c2: string = (str_substring s (+ i 1) 1)
-        if (and (str_equals c1 ":") (str_equals c2 ":")) {
+        if (and (== c1 ":") (== c2 ":")) {
             set last i
             set i (+ i 2)
         } else {
@@ -252,7 +252,7 @@ fn last_dot_index(s: string) -> int {
     let mut i: int = 0
     let mut last: int = -1
     while (< i len) {
-        if (str_equals (str_substring s i 1) ".") {
+        if (== (str_substring s i 1) ".") {
             set last i
         } else { (print "") }
         set i (+ i 1)
@@ -265,7 +265,7 @@ fn last_slash_index(s: string) -> int {
     let mut i: int = 0
     let mut last: int = -1
     while (< i len) {
-        if (str_equals (str_substring s i 1) "/") {
+        if (== (str_substring s i 1) "/") {
             set last i
         } else { (print "") }
         set i (+ i 1)
@@ -331,9 +331,9 @@ fn mangle_module_ident(name: string) -> string {
     while (< i len) {
         let ch: string = (str_substring name i 1)
 
-        if (and (str_equals ch ":") (< (+ i 1) len)) {
+        if (and (== ch ":") (< (+ i 1) len)) {
             let ch2: string = (str_substring name (+ i 1) 1)
-            if (str_equals ch2 ":") {
+            if (== ch2 ":") {
                 set out (+ out "__")
                 set i (+ i 2)
             } else {
@@ -341,14 +341,14 @@ fn mangle_module_ident(name: string) -> string {
                 set i (+ i 1)
             }
         } else {
-            if (str_equals ch ".") {
+            if (== ch ".") {
                 set out (+ out "__")
             } else {
-                if (or (or (str_equals ch "<") (str_equals ch ">"))
-                        (or (str_equals ch ",") (str_equals ch "("))) {
+                if (or (or (== ch "<") (== ch ">"))
+                        (or (== ch ",") (== ch "("))) {
                     set out (+ out "_")
                 } else {
-                    if (str_equals ch ")") {
+                    if (== ch ")") {
                         set out (+ out "_")
                     } else {
                         set out (+ out ch)
@@ -437,15 +437,15 @@ struct TypeCParseResult {
 }
 
 fn is_schema_struct_name(name: string) -> bool {
-    if (str_equals name "Parser") { return true } else { (print "") }
-    if (str_equals name "NSType") { return true } else { (print "") }
-    if (str_equals name "OptionType") { return true } else { (print "") }
-    if (str_equals name "CompilerSourceLocation") { return true } else { (print "") }
-    if (str_equals name "CompilerDiagnostic") { return true } else { (print "") }
-    if (str_equals name "LexPhaseOutput") { return true } else { (print "") }
-    if (str_equals name "TypeEnvironment") { return true } else { (print "") }
-    if (str_equals name "TypecheckPhaseOutput") { return true } else { (print "") }
-    if (str_equals name "TranspilePhaseOutput") { return true } else { (print "") }
+    if (== name "Parser") { return true } else { (print "") }
+    if (== name "NSType") { return true } else { (print "") }
+    if (== name "OptionType") { return true } else { (print "") }
+    if (== name "CompilerSourceLocation") { return true } else { (print "") }
+    if (== name "CompilerDiagnostic") { return true } else { (print "") }
+    if (== name "LexPhaseOutput") { return true } else { (print "") }
+    if (== name "TypeEnvironment") { return true } else { (print "") }
+    if (== name "TypecheckPhaseOutput") { return true } else { (print "") }
+    if (== name "TranspilePhaseOutput") { return true } else { (print "") }
     return false
 }
 
@@ -476,15 +476,15 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
         let name: string = t0.value
 
         /* List<T> */
-        if (str_equals name "List") {
+        if (== name "List") {
             if (< (+ start_pos 3) n) {
                 let t1: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 1))
                 let t2: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 2))
                 let t3: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 3))
                 if (and (== t1.token_type LexerTokenType.TOKEN_LT) (and (== t2.token_type LexerTokenType.TOKEN_IDENTIFIER) (== t3.token_type LexerTokenType.TOKEN_GT))) {
                     let elem: string = t2.value
-                    if (str_equals elem "LexerToken") { return TypeCParseResult { ok: true, c_type: "List_LexerToken*", next_pos: (+ start_pos 4) } } else { (print "") }
-                    if (str_equals elem "CompilerDiagnostic") { return TypeCParseResult { ok: true, c_type: "List_CompilerDiagnostic*", next_pos: (+ start_pos 4) } } else { (print "") }
+                    if (== elem "LexerToken") { return TypeCParseResult { ok: true, c_type: "List_LexerToken*", next_pos: (+ start_pos 4) } } else { (print "") }
+                    if (== elem "CompilerDiagnostic") { return TypeCParseResult { ok: true, c_type: "List_CompilerDiagnostic*", next_pos: (+ start_pos 4) } } else { (print "") }
                     return TypeCParseResult { ok: true, c_type: (+ (+ "List_" (mangle_type_name elem)) "*"), next_pos: (+ start_pos 4) }
                 } else { (print "") }
             } else { (print "") }
@@ -621,7 +621,7 @@ fn has_function_named(parser: Parser, name: string) -> bool {
     let mut i: int = 0
     while (< i n) {
         let f: ASTFunction = (parser_get_function parser i)
-        if (str_equals f.name name) { return true } else { (print "") }
+        if (== f.name name) { return true } else { (print "") }
         set i (+ i 1)
     }
     return false
@@ -674,7 +674,7 @@ fn is_extern_function(parser: Parser, name: string) -> bool {
     let mut i: int = 0
     while (< i n) {
         let f: ASTFunction = (parser_get_function parser i)
-        if (and (str_equals f.name name) (< f.body 0)) { return true } else { (print "") }
+        if (and (== f.name name) (< f.body 0)) { return true } else { (print "") }
         set i (+ i 1)
     }
     return false
@@ -784,7 +784,7 @@ fn is_tuple_type(nano_type: string) -> bool {
     } else {
         let first: string = (str_substring nano_type 0 1)
         let last: string = (str_substring nano_type (- len 1) 1)
-        return (and (str_equals first "(") (str_equals last ")"))
+        return (and (== first "(") (== last ")"))
     }
 }
 
@@ -796,9 +796,9 @@ fn mangle_type_name(name: string) -> string {
     while (< i len) {
         let ch: string = (str_substring name i 1)
 
-        if (and (str_equals ch ":") (< (+ i 1) len)) {
+        if (and (== ch ":") (< (+ i 1) len)) {
             let ch2: string = (str_substring name (+ i 1) 1)
-            if (str_equals ch2 ":") {
+            if (== ch2 ":") {
                 set out (+ out "_")
                 set i (+ i 2)
             } else {
@@ -806,13 +806,13 @@ fn mangle_type_name(name: string) -> string {
                 set i (+ i 1)
             }
         } else {
-            if (or (str_equals ch ".")
-                    (or (str_equals ch "<")
-                        (or (str_equals ch ">")
-                            (or (str_equals ch ",")
-                                (or (str_equals ch "(")
-                                    (or (str_equals ch ")")
-                                        (str_equals ch " "))))))) {
+            if (or (== ch ".")
+                    (or (== ch "<")
+                        (or (== ch ">")
+                            (or (== ch ",")
+                                (or (== ch "(")
+                                    (or (== ch ")")
+                                        (== ch " "))))))) {
                 set out (+ out "_")
             } else {
                 set out (+ out ch)
@@ -835,40 +835,40 @@ fn tuple_typedef_name(tuple_type: string) -> string {
 }
 
 fn type_to_c(nano_type: string) -> string {
-    if (str_equals nano_type "int") {
+    if (== nano_type "int") {
         return "int64_t"
     } else {
-        if (str_equals nano_type "float") {
+        if (== nano_type "float") {
             return "double"
         } else {
-            if (str_equals nano_type "bool") {
+            if (== nano_type "bool") {
                 return "int"
             } else {
-                if (str_equals nano_type "string") {
+                if (== nano_type "string") {
                     return "char*"
                 } else {
-                    if (str_equals nano_type "void") {
+                    if (== nano_type "void") {
                         return "void"
                     } else {
                         /* Schema enums are not nl_-prefixed in generated/compiler_schema.h */
-                        if (str_equals nano_type "DiagnosticSeverity") { return "DiagnosticSeverity" } else { (print "") }
-                        if (str_equals nano_type "CompilerPhase") { return "CompilerPhase" } else { (print "") }
-                        if (str_equals nano_type "ParseNodeType") { return "ParseNodeType" } else { (print "") }
+                        if (== nano_type "DiagnosticSeverity") { return "DiagnosticSeverity" } else { (print "") }
+                        if (== nano_type "CompilerPhase") { return "CompilerPhase" } else { (print "") }
+                        if (== nano_type "ParseNodeType") { return "ParseNodeType" } else { (print "") }
                         /* Token enum is named TokenType in C schema; Nano uses LexerTokenType in places */
-                        if (or (str_equals nano_type "LexerTokenType") (str_equals nano_type "TokenType")) { return "TokenType" } else { (print "") }
+                        if (or (== nano_type "LexerTokenType") (== nano_type "TokenType")) { return "TokenType" } else { (print "") }
 
                         if (transp_str_starts_with nano_type "List<") {
                             let elem: string = (str_substring nano_type 5 (- (str_length nano_type) 6))
-                            if (str_equals elem "int") {
+                            if (== elem "int") {
                                 return "List_int*"
                             } else {
-                                if (str_equals elem "string") {
+                                if (== elem "string") {
                                     return "List_string*"
                                 } else {
-                                    if (str_equals elem "LexerToken") {
+                                    if (== elem "LexerToken") {
                                         return "List_LexerToken*"
                                     } else {
-                                        if (or (str_equals elem "token") (str_equals elem "Token")) {
+                                        if (or (== elem "token") (== elem "Token")) {
                                             return "List_Token*"
                                         } else {
                                             return (+ (+ "List_" (mangle_type_name elem)) "*")
@@ -917,19 +917,19 @@ fn tuple_split_types(tuple_type: string) -> array<string> {
         while (< i inner_len) {
             let ch: string = (str_substring inner i 1)
             let mut is_sep: bool = false
-            if (str_equals ch "<") {
+            if (== ch "<") {
                 set depth_angle (+ depth_angle 1)
             } else {
-                if (str_equals ch ">") {
+                if (== ch ">") {
                     set depth_angle (- depth_angle 1)
                 } else {
-                    if (str_equals ch "(") {
+                    if (== ch "(") {
                         set depth_paren (+ depth_paren 1)
                     } else {
-                        if (str_equals ch ")") {
+                        if (== ch ")") {
                             set depth_paren (- depth_paren 1)
                         } else {
-                            if (and (str_equals ch ",") (and (== depth_angle 0) (== depth_paren 0))) {
+                            if (and (== ch ",") (and (== depth_angle 0) (== depth_paren 0))) {
                                 set parts (array_push parts cur)
                                 set cur ""
                                 set is_sep true
@@ -2029,7 +2029,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     let right_is_str: bool = (and (> (str_length right_code) 0) (== (char_at right_code 0) 34))
 
                     /* Only emit nl_str_concat when string context is expected. */
-                    if (or (str_equals expected_type "string") (or left_is_str right_is_str)) {
+                    if (or (== expected_type "string") (or left_is_str right_is_str)) {
                         let mut result: string = "nl_str_concat("
                         set result (+ result left_code)
                         set result (+ result ", ")
@@ -2283,7 +2283,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                         let aref: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
                         let mut arg_expected: string = ""
-                        if (or (str_equals func_name "print") (str_equals func_name "println")) {
+                        if (or (== func_name "print") (== func_name "println")) {
                             set arg_expected "string"
                         } else { (print "") }
                         let arg_code: string = (generate_expression parser aref.node_id aref.node_type env arg_expected)
@@ -2302,10 +2302,10 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         if (== fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
                             let ident: ASTIdentifier = (parser_get_identifier parser fa.object)
                             /* Self-hosted MVP: recognize schema enums by name. */
-                            if (or (str_equals ident.name "DiagnosticSeverity") (str_equals ident.name "CompilerPhase")) {
+                            if (or (== ident.name "DiagnosticSeverity") (== ident.name "CompilerPhase")) {
                                 return (+ ident.name (+ "_" (mangle_name fa.field_name)))
                             } else {
-                                if (or (str_equals ident.name "TokenType") (or (str_equals ident.name "ParseNodeType") (str_equals ident.name "LexerTokenType"))) {
+                                if (or (== ident.name "TokenType") (or (== ident.name "ParseNodeType") (== ident.name "LexerTokenType"))) {
                                     return (mangle_name fa.field_name)
                                 } else { (print "") }
                             }

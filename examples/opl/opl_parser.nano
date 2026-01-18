@@ -621,13 +621,13 @@ shadow tok_col {
 
 shadow tok_text {
     let lr: OplTokensResult = (opl_lex "x")
-    assert (str_equals (tok_text lr 0) "x")
+    assert (== (tok_text lr 0) "x")
 }
 
 shadow make_parse_error {
     let lr: OplTokensResult = (opl_lex "x")
     let e: OplError = (make_parse_error "E" "m" lr 0)
-    assert (str_equals e.code "E")
+    assert (== e.code "E")
 }
 
 shadow skip_newlines {
@@ -652,7 +652,7 @@ shadow jp_err {
 
 shadow expr_lit_null {
     let j: Json = (expr_lit_null 1 2)
-    assert (str_equals (as_string (get j "kind")) "lit")
+    assert (== (as_string (get j "kind")) "lit")
     (free j)
 }
 
@@ -664,13 +664,13 @@ shadow expr_lit_int {
 
 shadow expr_lit_str {
     let j: Json = (expr_lit_str "x" 1 2)
-    assert (str_equals (as_string (get j "v")) "x")
+    assert (== (as_string (get j "v")) "x")
     (free j)
 }
 
 shadow expr_id {
     let j: Json = (expr_id "x" 1 2)
-    assert (str_equals (as_string (get j "name")) "x")
+    assert (== (as_string (get j "name")) "x")
     (free j)
 }
 
@@ -678,7 +678,7 @@ shadow expr_bin {
     let a: Json = (expr_id "a" 1 1)
     let b: Json = (expr_lit_null 1 2)
     let j: Json = (expr_bin "!=" a b 1 3)
-    assert (str_equals (as_string (get j "op")) "!=")
+    assert (== (as_string (get j "op")) "!=")
     (free j)
 }
 
@@ -705,7 +705,7 @@ shadow parse_expr_simple {
 
 shadow parse_type_obj {
     let j: Json = (parse_type_obj "int")
-    assert (str_equals (as_string (get j "t")) "int")
+    assert (== (as_string (get j "t")) "int")
     (free j)
 }
 

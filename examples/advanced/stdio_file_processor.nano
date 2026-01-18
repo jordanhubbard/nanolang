@@ -48,9 +48,9 @@ fn to_uppercase(text: string) -> string {
 }
 
 shadow to_uppercase {
-    assert (str_equals (to_uppercase "hello") "HELLO")
-    assert (str_equals (to_uppercase "World") "WORLD")
-    assert (str_equals (to_uppercase "123abc") "123ABC")
+    assert (== (to_uppercase "hello") "HELLO")
+    assert (== (to_uppercase "World") "WORLD")
+    assert (== (to_uppercase "123abc") "123ABC")
 }
 
 fn main() -> int {

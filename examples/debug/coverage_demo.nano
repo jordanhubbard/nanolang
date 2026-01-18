@@ -54,9 +54,9 @@ fn classify_number(x: int) -> string {
 }
 
 shadow classify_number {
-    assert (str_equals (classify_number -3) "negative")
-    assert (str_equals (classify_number 0) "zero")
-    assert (str_equals (classify_number 4) "positive")
+    assert (== (classify_number -3) "negative")
+    assert (== (classify_number 0) "zero")
+    assert (== (classify_number 4) "positive")
 }
 
 # Function with loop coverage

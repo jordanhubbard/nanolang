@@ -1840,7 +1840,7 @@ fn parse_cond_expression(p: Parser) -> Parser {
     } else {
         let tok2: LexerToken = (parser_current p1)
         /* Verify 'cond' keyword */
-        if (or (!= tok2.token_type (token_identifier)) (not (str_equals tok2.value "cond"))) {
+        if (or (!= tok2.token_type (token_identifier)) (not (== tok2.value "cond"))) {
             return (parser_with_error p1 true)
         } else {
             let p2: Parser = (parser_advance p1)  /* consume 'cond' */
@@ -2066,7 +2066,7 @@ fn parse_primary(p: Parser) -> Parser {
             let p_lookahead: Parser = (parser_advance p)  /* consume '(' */
             if (not (parser_is_at_end p_lookahead)) {
                 let tok_next: LexerToken = (parser_current p_lookahead)
-                if (and (== tok_next.token_type (token_identifier)) (str_equals tok_next.value "cond")) {
+                if (and (== tok_next.token_type (token_identifier)) (== tok_next.value "cond")) {
                     /* This is a cond expression */
                     return (parse_cond_expression p)
                 } else {
@@ -6057,7 +6057,7 @@ fn parse_opaque_type(p: Parser) -> Parser {
     /* Optional "type" keyword (tokenizes as identifier) */
     if (not (parser_is_at_end p1)) {
         let t: LexerToken = (parser_current p1)
-        if (and (== t.token_type (token_identifier)) (str_equals t.value "type")) {
+        if (and (== t.token_type (token_identifier)) (== t.value "type")) {
             set p2 (parser_advance p1)
         } else {
             set p2 p1

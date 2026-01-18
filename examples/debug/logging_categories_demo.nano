@@ -12,7 +12,7 @@ struct User {
 fn validate_user(user: User) -> bool {
     (log_info "validation" (+ "Validating user: " user.name))
     
-    if (str_equals user.name "") {
+    if (== user.name "") {
         (log_error "validation" "Username cannot be empty")
         return false
     }
@@ -27,7 +27,7 @@ fn validate_user(user: User) -> bool {
         return false
     }
     
-    if (str_equals user.email "") {
+    if (== user.email "") {
         (log_error "validation" "Email cannot be empty")
         return false
     }
@@ -73,7 +73,7 @@ shadow save_user {
 fn send_welcome_email(user: User) -> bool {
     (log_info "email" (+ "Sending welcome email to: " user.email))
     
-    if (str_equals user.email "") {
+    if (== user.email "") {
         (log_error "email" "Cannot send email: empty email address")
         return false
     }

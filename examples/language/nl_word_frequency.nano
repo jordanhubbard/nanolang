@@ -91,25 +91,25 @@ fn normalize_word(word: string) -> string {
     let result1: string = (normalize_word "Hello")
     let result2: string = (normalize_word "WORLD")
     let result3: string = (normalize_word "Test123")
-    assert (str_equals result1 "hello")
-    assert (str_equals result2 "world")
-    assert (str_equals result3 "test")
+    assert (== result1 "hello")
+    assert (== result2 "world")
+    assert (== result3 "test")
 } */
 
 fn is_stopword(word: string) -> bool {
     /* Check if word is a common stopword (articles, prepositions, etc.) */
-    return (or (str_equals word "the")
-           (or (str_equals word "a")
-           (or (str_equals word "an")
-           (or (str_equals word "is")
-           (or (str_equals word "it")
-           (or (str_equals word "to")
-           (or (str_equals word "of")
-           (or (str_equals word "and")
-           (or (str_equals word "in")
-           (or (str_equals word "on")
-           (or (str_equals word "at")
-           (or (str_equals word "for")
+    return (or (== word "the")
+           (or (== word "a")
+           (or (== word "an")
+           (or (== word "is")
+           (or (== word "it")
+           (or (== word "to")
+           (or (== word "of")
+           (or (== word "and")
+           (or (== word "in")
+           (or (== word "on")
+           (or (== word "at")
+           (or (== word "for")
                false))))))))))))
 }
 
@@ -138,7 +138,7 @@ fn find_word_index(words: array<WordCount>, word: string) -> int {
     
     while (< i words_len) {
         let wc: WordCount = (at words i)
-        if (str_equals wc.word word) {
+        if (== wc.word word) {
             return i
         } else {}
         set i (+ i 1)
@@ -182,7 +182,7 @@ shadow increment_word_count {
     assert (== (array_length with_hello) 1)
     
     let wc: WordCount = (at with_hello 0)
-    assert (str_equals wc.word "hello")
+    assert (== wc.word "hello")
     assert (== wc.count 1)
     
     /* Increment existing */
@@ -230,9 +230,9 @@ shadow split_into_words {
     let text: string = "hello world test"
     let words: array<string> = (split_into_words text)
     assert (== (array_length words) 3)
-    assert (str_equals (at words 0) "hello")
-    assert (str_equals (at words 1) "world")
-    assert (str_equals (at words 2) "test")
+    assert (== (at words 0) "hello")
+    assert (== (at words 1) "world")
+    assert (== (at words 2) "test")
 }
 
 fn count_words(text: string) -> array<WordCount> {
@@ -347,11 +347,11 @@ shadow get_top_words {
     assert (== (array_length top2) 2)
     
     let first: WordCount = (at top2 0)
-    assert (str_equals first.word "cherry")
+    assert (== first.word "cherry")
     assert (== first.count 8)
     
     let second: WordCount = (at top2 1)
-    assert (str_equals second.word "apple")
+    assert (== second.word "apple")
 }
 
 /* =============================================================================

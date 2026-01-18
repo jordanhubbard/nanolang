@@ -177,8 +177,8 @@ fn str_truncate(s: string, max_len: int) -> string {
 }
 
 shadow str_truncate {
-    assert (str_equals (str_truncate "hello" 10) "hello")
-    assert (str_equals (str_truncate "hello world" 5) "hello...")
+    assert (== (str_truncate "hello" 10) "hello")
+    assert (== (str_truncate "hello world" 5) "hello...")
 }
 
 fn main() -> int {

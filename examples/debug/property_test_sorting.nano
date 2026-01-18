@@ -123,19 +123,19 @@ fn prop_idempotent(arr: array<int>) -> string {
 }
 
 shadow prop_length_preserved {
-    assert (str_equals (prop_length_preserved [3, 1, 2]) (prop_pass))
+    assert (== (prop_length_preserved [3, 1, 2]) (prop_pass))
 }
 
 shadow prop_output_is_sorted {
-    assert (str_equals (prop_output_is_sorted [3, 1, 2]) (prop_pass))
+    assert (== (prop_output_is_sorted [3, 1, 2]) (prop_pass))
 }
 
 shadow prop_same_elements {
-    assert (str_equals (prop_same_elements [3, 1, 2]) (prop_pass))
+    assert (== (prop_same_elements [3, 1, 2]) (prop_pass))
 }
 
 shadow prop_idempotent {
-    assert (str_equals (prop_idempotent [3, 1, 2]) (prop_pass))
+    assert (== (prop_idempotent [3, 1, 2]) (prop_pass))
 }
 
 # Example-based tests (traditional approach)

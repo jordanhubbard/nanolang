@@ -494,15 +494,15 @@ fn capitalize_first(s: string) -> string {
             /* Convert lowercase to uppercase (a=97 → A=65, difference = 32) */
             if (and (>= first 97) (<= first 122)) {
                 /* We can't easily modify strings, so try common patterns */
-                if (str_equals s "parser") { return "Parser" } else {
-                if (str_equals s "func") { return "ASTFunction" } else {
-                if (str_equals s "let_node") { return "ASTLet" } else {
-                if (str_equals s "ident") { return "ASTIdentifier" } else {
-                if (str_equals s "call") { return "ASTCall" } else {
-                if (str_equals s "binop") { return "ASTBinaryOp" } else {
-                if (str_equals s "fa") { return "ASTFieldAccess" } else {
-                if (str_equals s "tok") { return "LexerToken" } else {
-                if (str_equals s "token") { return "LexerToken" } else {
+                if (== s "parser") { return "Parser" } else {
+                if (== s "func") { return "ASTFunction" } else {
+                if (== s "let_node") { return "ASTLet" } else {
+                if (== s "ident") { return "ASTIdentifier" } else {
+                if (== s "call") { return "ASTCall" } else {
+                if (== s "binop") { return "ASTBinaryOp" } else {
+                if (== s "fa") { return "ASTFieldAccess" } else {
+                if (== s "tok") { return "LexerToken" } else {
+                if (== s "token") { return "LexerToken" } else {
                     return s
                 }}}}}}}}}
             } else {
@@ -568,7 +568,7 @@ fn lookup_field_type_kind(metadata: array<FieldMetadata>, struct_name: string, f
     let mut i: int = 0
     while (< i (array_length metadata)) {
         let entry: FieldMetadata = (at metadata i)
-        if (and (str_equals entry.struct_name struct_name) (str_equals entry.field_name field_name)) {
+        if (and (== entry.struct_name struct_name) (== entry.field_name field_name)) {
             return entry.field_type_kind
         } else {
             (print "")
@@ -581,7 +581,7 @@ fn lookup_field_type_kind(metadata: array<FieldMetadata>, struct_name: string, f
     set i 0
     while (< i (array_length metadata)) {
         let entry: FieldMetadata = (at metadata i)
-        if (and (str_equals entry.struct_name capitalized) (str_equals entry.field_name field_name)) {
+        if (and (== entry.struct_name capitalized) (== entry.field_name field_name)) {
             return entry.field_type_kind
         } else {
             (print "")
@@ -608,11 +608,11 @@ fn option_type_none() -> OptionType {
 
 /* Create array type */
 fn type_kind_from_string(type_str: string) -> int {
-    if (str_equals type_str "int") { return TypeKind.TYPE_INT }
-    else { if (str_equals type_str "float") { return TypeKind.TYPE_FLOAT }
-    else { if (str_equals type_str "bool") { return TypeKind.TYPE_BOOL }
-    else { if (str_equals type_str "string") { return TypeKind.TYPE_STRING }
-    else { if (str_equals type_str "void") { return TypeKind.TYPE_VOID }
+    if (== type_str "int") { return TypeKind.TYPE_INT }
+    else { if (== type_str "float") { return TypeKind.TYPE_FLOAT }
+    else { if (== type_str "bool") { return TypeKind.TYPE_BOOL }
+    else { if (== type_str "string") { return TypeKind.TYPE_STRING }
+    else { if (== type_str "void") { return TypeKind.TYPE_VOID }
     else { return TypeKind.TYPE_STRUCT } } } } }
 }
 
@@ -649,7 +649,7 @@ fn type_list_generic(elem_name: string) -> NSType {
 shadow type_list_generic {
     let t: NSType = (type_list_generic "Point")
     assert (== t.kind TypeKind.TYPE_LIST_GENERIC)
-    assert (str_equals t.element_type_name "Point")
+    assert (== t.element_type_name "Point")
 }
 
 /* Create union type */
@@ -665,7 +665,7 @@ fn type_union(union_name: string) -> NSType {
 shadow type_union {
     let t: NSType = (type_union "Result")
     assert (== t.kind TypeKind.TYPE_UNION)
-    assert (str_equals t.name "Result")
+    assert (== t.name "Result")
 }
 
 /* Create tuple type */
@@ -690,7 +690,7 @@ fn types_equal(t1: NSType, t2: NSType) -> bool {
     } else {
         /* For struct/union types, also check name */
         if (or (== t1.kind TypeKind.TYPE_STRUCT) (== t1.kind TypeKind.TYPE_UNION)) {
-            return (str_equals t1.name t2.name)
+            return (== t1.name t2.name)
         } else {
             /* For array types, check element type */
             if (== t1.kind TypeKind.TYPE_ARRAY) {
@@ -703,7 +703,7 @@ fn types_equal(t1: NSType, t2: NSType) -> bool {
                 } else {
                     /* If element is struct, check name */
                     if (== t1.element_type_kind TypeKind.TYPE_STRUCT) {
-                        return (str_equals t1.element_type_name t2.element_type_name)
+                        return (== t1.element_type_name t2.element_type_name)
                     } else {
                         return true
                     }
@@ -711,7 +711,7 @@ fn types_equal(t1: NSType, t2: NSType) -> bool {
             } else {
                 /* For List<T>, check element type name */
                 if (== t1.kind TypeKind.TYPE_LIST_GENERIC) {
-                    return (str_equals t1.element_type_name t2.element_type_name)
+                    return (== t1.element_type_name t2.element_type_name)
                 } else {
                     return true
                 }
@@ -731,35 +731,35 @@ shadow types_equal {
 
 /* Create type from string representation */
 fn type_from_string(s: string) -> NSType {
-    if (str_equals s "int") {
+    if (== s "int") {
         return (type_int)
     } else {
-        if (str_equals s "float") {
+        if (== s "float") {
             return (type_float)
         } else {
-            if (str_equals s "bool") {
+            if (== s "bool") {
                 return (type_bool)
             } else {
-                if (str_equals s "string") {
+                if (== s "string") {
                     return (type_string)
                 } else {
-                    if (str_equals s "void") {
+                    if (== s "void") {
                         return (type_void)
                     } else {
                         /* Check for array<T> syntax */
                         if (str_contains s "array<") {
                             /* Parse element type from array<int>, array<string>, etc. */
                             let elem_type_str: string = (array_elem_type_from_array_decl s)
-                            if (str_equals elem_type_str "int") {
+                            if (== elem_type_str "int") {
                                 return (type_array TypeKind.TYPE_INT "")
                             } else {
-                                if (str_equals elem_type_str "string") {
+                                if (== elem_type_str "string") {
                                     return (type_array TypeKind.TYPE_STRING "")
                                 } else {
-                                    if (str_equals elem_type_str "float") {
+                                    if (== elem_type_str "float") {
                                         return (type_array TypeKind.TYPE_FLOAT "")
                                     } else {
-                                        if (str_equals elem_type_str "bool") {
+                                        if (== elem_type_str "bool") {
                                             return (type_array TypeKind.TYPE_BOOL "")
                                         } else {
                                             /* Struct element type */
@@ -912,131 +912,131 @@ fn check_list_function_call(fn_name: string, arg_count: int) -> NSType {
  */
 fn is_builtin_function(fn_name: string) -> bool {
     /* Core */
-    if (str_equals fn_name "range") { return true } else { (print "") }
-    if (str_equals fn_name "print") { return true } else { (print "") }
-    if (str_equals fn_name "println") { return true } else { (print "") }
-    if (str_equals fn_name "assert") { return true } else { (print "") }
+    if (== fn_name "range") { return true } else { (print "") }
+    if (== fn_name "print") { return true } else { (print "") }
+    if (== fn_name "println") { return true } else { (print "") }
+    if (== fn_name "assert") { return true } else { (print "") }
     
     /* Math */
-    if (str_equals fn_name "abs") { return true } else { (print "") }
-    if (str_equals fn_name "min") { return true } else { (print "") }
-    if (str_equals fn_name "max") { return true } else { (print "") }
-    if (str_equals fn_name "sqrt") { return true } else { (print "") }
-    if (str_equals fn_name "pow") { return true } else { (print "") }
-    if (str_equals fn_name "floor") { return true } else { (print "") }
-    if (str_equals fn_name "ceil") { return true } else { (print "") }
-    if (str_equals fn_name "round") { return true } else { (print "") }
+    if (== fn_name "abs") { return true } else { (print "") }
+    if (== fn_name "min") { return true } else { (print "") }
+    if (== fn_name "max") { return true } else { (print "") }
+    if (== fn_name "sqrt") { return true } else { (print "") }
+    if (== fn_name "pow") { return true } else { (print "") }
+    if (== fn_name "floor") { return true } else { (print "") }
+    if (== fn_name "ceil") { return true } else { (print "") }
+    if (== fn_name "round") { return true } else { (print "") }
     
     /* String operations */
-    if (str_equals fn_name "str_length") { return true } else { (print "") }
-    if (str_equals fn_name "str_concat") { return true } else { (print "") }
-    if (str_equals fn_name "str_substring") { return true } else { (print "") }
-    if (str_equals fn_name "str_contains") { return true } else { (print "") }
-    if (str_equals fn_name "str_equals") { return true } else { (print "") }
-    if (str_equals fn_name "char_at") { return true } else { (print "") }
-    if (str_equals fn_name "string_from_char") { return true } else { (print "") }
-    if (str_equals fn_name "str_starts_with") { return true } else { (print "") }
-    if (str_equals fn_name "str_ends_with") { return true } else { (print "") }
-    if (str_equals fn_name "str_index_of") { return true } else { (print "") }
-    if (str_equals fn_name "str_last_index_of") { return true } else { (print "") }
+    if (== fn_name "str_length") { return true } else { (print "") }
+    if (== fn_name "str_concat") { return true } else { (print "") }
+    if (== fn_name "str_substring") { return true } else { (print "") }
+    if (== fn_name "str_contains") { return true } else { (print "") }
+    if (== fn_name "str_equals") { return true } else { (print "") }
+    if (== fn_name "char_at") { return true } else { (print "") }
+    if (== fn_name "string_from_char") { return true } else { (print "") }
+    if (== fn_name "str_starts_with") { return true } else { (print "") }
+    if (== fn_name "str_ends_with") { return true } else { (print "") }
+    if (== fn_name "str_index_of") { return true } else { (print "") }
+    if (== fn_name "str_last_index_of") { return true } else { (print "") }
     
     /* NSType conversions */
-    if (str_equals fn_name "int_to_string") { return true } else { (print "") }
-    if (str_equals fn_name "string_to_int") { return true } else { (print "") }
-    if (str_equals fn_name "cast_int") { return true } else { (print "") }
-    if (str_equals fn_name "cast_float") { return true } else { (print "") }
-    if (str_equals fn_name "cast_bool") { return true } else { (print "") }
-    if (str_equals fn_name "cast_string") { return true } else { (print "") }
-    if (str_equals fn_name "to_string") { return true } else { (print "") }
+    if (== fn_name "int_to_string") { return true } else { (print "") }
+    if (== fn_name "string_to_int") { return true } else { (print "") }
+    if (== fn_name "cast_int") { return true } else { (print "") }
+    if (== fn_name "cast_float") { return true } else { (print "") }
+    if (== fn_name "cast_bool") { return true } else { (print "") }
+    if (== fn_name "cast_string") { return true } else { (print "") }
+    if (== fn_name "to_string") { return true } else { (print "") }
     
     /* Array operations */
-    if (str_equals fn_name "at") { return true } else { (print "") }
-    if (str_equals fn_name "array_get") { return true } else { (print "") }
-    if (str_equals fn_name "array_length") { return true } else { (print "") }
-    if (str_equals fn_name "array_new") { return true } else { (print "") }
-    if (str_equals fn_name "array_set") { return true } else { (print "") }
-    if (str_equals fn_name "array_push") { return true } else { (print "") }
-    if (str_equals fn_name "array_slice") { return true } else { (print "") }
-    if (str_equals fn_name "map") { return true } else { (print "") }
-    if (str_equals fn_name "reduce") { return true } else { (print "") }
+    if (== fn_name "at") { return true } else { (print "") }
+    if (== fn_name "array_get") { return true } else { (print "") }
+    if (== fn_name "array_length") { return true } else { (print "") }
+    if (== fn_name "array_new") { return true } else { (print "") }
+    if (== fn_name "array_set") { return true } else { (print "") }
+    if (== fn_name "array_push") { return true } else { (print "") }
+    if (== fn_name "array_slice") { return true } else { (print "") }
+    if (== fn_name "map") { return true } else { (print "") }
+    if (== fn_name "reduce") { return true } else { (print "") }
     
     /* OS operations */
-    if (str_equals fn_name "getcwd") { return true } else { (print "") }
-    if (str_equals fn_name "getenv") { return true } else { (print "") }
-    if (str_equals fn_name "exit") { return true } else { (print "") }
-    if (str_equals fn_name "system") { return true } else { (print "") }
+    if (== fn_name "getcwd") { return true } else { (print "") }
+    if (== fn_name "getenv") { return true } else { (print "") }
+    if (== fn_name "exit") { return true } else { (print "") }
+    if (== fn_name "system") { return true } else { (print "") }
     
     /* File I/O operations */
-    if (str_equals fn_name "file_read") { return true } else { (print "") }
-    if (str_equals fn_name "file_read_bytes") { return true } else { (print "") }
-    if (str_equals fn_name "file_write") { return true } else { (print "") }
-    if (str_equals fn_name "file_append") { return true } else { (print "") }
-    if (str_equals fn_name "file_remove") { return true } else { (print "") }
-    if (str_equals fn_name "file_rename") { return true } else { (print "") }
-    if (str_equals fn_name "file_exists") { return true } else { (print "") }
-    if (str_equals fn_name "file_size") { return true } else { (print "") }
+    if (== fn_name "file_read") { return true } else { (print "") }
+    if (== fn_name "file_read_bytes") { return true } else { (print "") }
+    if (== fn_name "file_write") { return true } else { (print "") }
+    if (== fn_name "file_append") { return true } else { (print "") }
+    if (== fn_name "file_remove") { return true } else { (print "") }
+    if (== fn_name "file_rename") { return true } else { (print "") }
+    if (== fn_name "file_exists") { return true } else { (print "") }
+    if (== fn_name "file_size") { return true } else { (print "") }
 
     /* Self-hosting helpers: diagnostics list queries (used heavily during bootstrap) */
-    if (str_equals fn_name "diag_list_count") { return true } else { (print "") }
-    if (str_equals fn_name "diag_list_has_errors") { return true } else { (print "") }
+    if (== fn_name "diag_list_count") { return true } else { (print "") }
+    if (== fn_name "diag_list_has_errors") { return true } else { (print "") }
     
     /* Directory operations */
-    if (str_equals fn_name "dir_create") { return true } else { (print "") }
-    if (str_equals fn_name "dir_remove") { return true } else { (print "") }
-    if (str_equals fn_name "dir_list") { return true } else { (print "") }
-    if (str_equals fn_name "dir_exists") { return true } else { (print "") }
-    if (str_equals fn_name "chdir") { return true } else { (print "") }
+    if (== fn_name "dir_create") { return true } else { (print "") }
+    if (== fn_name "dir_remove") { return true } else { (print "") }
+    if (== fn_name "dir_list") { return true } else { (print "") }
+    if (== fn_name "dir_exists") { return true } else { (print "") }
+    if (== fn_name "chdir") { return true } else { (print "") }
     
     /* Path operations */
-    if (str_equals fn_name "path_isfile") { return true } else { (print "") }
-    if (str_equals fn_name "path_isdir") { return true } else { (print "") }
-    if (str_equals fn_name "path_join") { return true } else { (print "") }
-    if (str_equals fn_name "path_basename") { return true } else { (print "") }
-    if (str_equals fn_name "path_dirname") { return true } else { (print "") }
+    if (== fn_name "path_isfile") { return true } else { (print "") }
+    if (== fn_name "path_isdir") { return true } else { (print "") }
+    if (== fn_name "path_join") { return true } else { (print "") }
+    if (== fn_name "path_basename") { return true } else { (print "") }
+    if (== fn_name "path_dirname") { return true } else { (print "") }
     
     /* Temp helpers */
-    if (str_equals fn_name "tmp_dir") { return true } else { (print "") }
-    if (str_equals fn_name "mktemp") { return true } else { (print "") }
-    if (str_equals fn_name "mktemp_dir") { return true } else { (print "") }
+    if (== fn_name "tmp_dir") { return true } else { (print "") }
+    if (== fn_name "mktemp") { return true } else { (print "") }
+    if (== fn_name "mktemp_dir") { return true } else { (print "") }
     
     /* Character classification */
-    if (str_equals fn_name "is_digit") { return true } else { (print "") }
-    if (str_equals fn_name "is_alpha") { return true } else { (print "") }
-    if (str_equals fn_name "is_alnum") { return true } else { (print "") }
-    if (str_equals fn_name "is_whitespace") { return true } else { (print "") }
-    if (str_equals fn_name "is_upper") { return true } else { (print "") }
-    if (str_equals fn_name "is_lower") { return true } else { (print "") }
-    if (str_equals fn_name "digit_value") { return true } else { (print "") }
-    if (str_equals fn_name "char_to_lower") { return true } else { (print "") }
-    if (str_equals fn_name "char_to_upper") { return true } else { (print "") }
+    if (== fn_name "is_digit") { return true } else { (print "") }
+    if (== fn_name "is_alpha") { return true } else { (print "") }
+    if (== fn_name "is_alnum") { return true } else { (print "") }
+    if (== fn_name "is_whitespace") { return true } else { (print "") }
+    if (== fn_name "is_upper") { return true } else { (print "") }
+    if (== fn_name "is_lower") { return true } else { (print "") }
+    if (== fn_name "digit_value") { return true } else { (print "") }
+    if (== fn_name "char_to_lower") { return true } else { (print "") }
+    if (== fn_name "char_to_upper") { return true } else { (print "") }
     
     /* Binary string operations */
-    if (str_equals fn_name "bstr_new") { return true } else { (print "") }
-    if (str_equals fn_name "bstr_new_binary") { return true } else { (print "") }
-    if (str_equals fn_name "bstr_length") { return true } else { (print "") }
-    if (str_equals fn_name "bstr_concat") { return true } else { (print "") }
-    if (str_equals fn_name "bstr_substring") { return true } else { (print "") }
-    if (str_equals fn_name "bstr_equals") { return true } else { (print "") }
-    if (str_equals fn_name "bstr_byte_at") { return true } else { (print "") }
-    if (str_equals fn_name "bstr_validate_utf8") { return true } else { (print "") }
-    if (str_equals fn_name "bstr_utf8_length") { return true } else { (print "") }
-    if (str_equals fn_name "bstr_utf8_char_at") { return true } else { (print "") }
-    if (str_equals fn_name "bstr_to_cstr") { return true } else { (print "") }
-    if (str_equals fn_name "bstr_free") { return true } else { (print "") }
+    if (== fn_name "bstr_new") { return true } else { (print "") }
+    if (== fn_name "bstr_new_binary") { return true } else { (print "") }
+    if (== fn_name "bstr_length") { return true } else { (print "") }
+    if (== fn_name "bstr_concat") { return true } else { (print "") }
+    if (== fn_name "bstr_substring") { return true } else { (print "") }
+    if (== fn_name "bstr_equals") { return true } else { (print "") }
+    if (== fn_name "bstr_byte_at") { return true } else { (print "") }
+    if (== fn_name "bstr_validate_utf8") { return true } else { (print "") }
+    if (== fn_name "bstr_utf8_length") { return true } else { (print "") }
+    if (== fn_name "bstr_utf8_char_at") { return true } else { (print "") }
+    if (== fn_name "bstr_to_cstr") { return true } else { (print "") }
+    if (== fn_name "bstr_free") { return true } else { (print "") }
     
     /* Bytes operations */
-    if (str_equals fn_name "bytes_from_string") { return true } else { (print "") }
-    if (str_equals fn_name "string_from_bytes") { return true } else { (print "") }
+    if (== fn_name "bytes_from_string") { return true } else { (print "") }
+    if (== fn_name "string_from_bytes") { return true } else { (print "") }
     
     /* Math operations (trig) */
-    if (str_equals fn_name "sin") { return true } else { (print "") }
-    if (str_equals fn_name "cos") { return true } else { (print "") }
-    if (str_equals fn_name "tan") { return true } else { (print "") }
-    if (str_equals fn_name "atan2") { return true } else { (print "") }
+    if (== fn_name "sin") { return true } else { (print "") }
+    if (== fn_name "cos") { return true } else { (print "") }
+    if (== fn_name "tan") { return true } else { (print "") }
+    if (== fn_name "atan2") { return true } else { (print "") }
     
     /* Additional type casts */
-    if (str_equals fn_name "cast_bstring") { return true } else { (print "") }
-    if (str_equals fn_name "null_opaque") { return true } else { (print "") }
+    if (== fn_name "cast_bstring") { return true } else { (print "") }
+    if (== fn_name "null_opaque") { return true } else { (print "") }
     
     return false
 }
@@ -1053,131 +1053,131 @@ shadow is_builtin_function {
  */
 fn check_builtin_function(fn_name: string, arg_count: int) -> NSType {
     /* Core functions */
-    if (str_equals fn_name "print") { return (type_void) } else { (print "") }
-    if (str_equals fn_name "println") { return (type_void) } else { (print "") }
-    if (str_equals fn_name "assert") { return (type_void) } else { (print "") }
+    if (== fn_name "print") { return (type_void) } else { (print "") }
+    if (== fn_name "println") { return (type_void) } else { (print "") }
+    if (== fn_name "assert") { return (type_void) } else { (print "") }
     
     /* Math functions */
-    if (str_equals fn_name "abs") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "min") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "max") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "sqrt") { return (type_float) } else { (print "") }
-    if (str_equals fn_name "pow") { return (type_float) } else { (print "") }
-    if (str_equals fn_name "floor") { return (type_float) } else { (print "") }
-    if (str_equals fn_name "ceil") { return (type_float) } else { (print "") }
-    if (str_equals fn_name "round") { return (type_float) } else { (print "") }
+    if (== fn_name "abs") { return (type_int) } else { (print "") }
+    if (== fn_name "min") { return (type_int) } else { (print "") }
+    if (== fn_name "max") { return (type_int) } else { (print "") }
+    if (== fn_name "sqrt") { return (type_float) } else { (print "") }
+    if (== fn_name "pow") { return (type_float) } else { (print "") }
+    if (== fn_name "floor") { return (type_float) } else { (print "") }
+    if (== fn_name "ceil") { return (type_float) } else { (print "") }
+    if (== fn_name "round") { return (type_float) } else { (print "") }
     
     /* String operations */
-    if (str_equals fn_name "str_length") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "str_concat") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "str_substring") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "str_contains") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "str_equals") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "char_at") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "string_from_char") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "str_starts_with") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "str_ends_with") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "str_index_of") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "str_last_index_of") { return (type_int) } else { (print "") }
+    if (== fn_name "str_length") { return (type_int) } else { (print "") }
+    if (== fn_name "str_concat") { return (type_string) } else { (print "") }
+    if (== fn_name "str_substring") { return (type_string) } else { (print "") }
+    if (== fn_name "str_contains") { return (type_bool) } else { (print "") }
+    if (== fn_name "str_equals") { return (type_bool) } else { (print "") }
+    if (== fn_name "char_at") { return (type_int) } else { (print "") }
+    if (== fn_name "string_from_char") { return (type_string) } else { (print "") }
+    if (== fn_name "str_starts_with") { return (type_bool) } else { (print "") }
+    if (== fn_name "str_ends_with") { return (type_bool) } else { (print "") }
+    if (== fn_name "str_index_of") { return (type_int) } else { (print "") }
+    if (== fn_name "str_last_index_of") { return (type_int) } else { (print "") }
     
     /* NSType conversions */
-    if (str_equals fn_name "int_to_string") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "string_to_int") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "cast_int") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "cast_float") { return (type_float) } else { (print "") }
-    if (str_equals fn_name "cast_bool") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "cast_string") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "to_string") { return (type_string) } else { (print "") }
+    if (== fn_name "int_to_string") { return (type_string) } else { (print "") }
+    if (== fn_name "string_to_int") { return (type_int) } else { (print "") }
+    if (== fn_name "cast_int") { return (type_int) } else { (print "") }
+    if (== fn_name "cast_float") { return (type_float) } else { (print "") }
+    if (== fn_name "cast_bool") { return (type_bool) } else { (print "") }
+    if (== fn_name "cast_string") { return (type_string) } else { (print "") }
+    if (== fn_name "to_string") { return (type_string) } else { (print "") }
     
     /* Array operations */
-    if (str_equals fn_name "array_length") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "array_set") { return (type_void) } else { (print "") }
-    if (str_equals fn_name "array_push") { return (type_array 0 "") } else { (print "") }
-    if (str_equals fn_name "at") { return (type_unknown_named "array_elem") } else { (print "") }
-    if (str_equals fn_name "array_get") { return (type_unknown_named "array_elem") } else { (print "") }
+    if (== fn_name "array_length") { return (type_int) } else { (print "") }
+    if (== fn_name "array_set") { return (type_void) } else { (print "") }
+    if (== fn_name "array_push") { return (type_array 0 "") } else { (print "") }
+    if (== fn_name "at") { return (type_unknown_named "array_elem") } else { (print "") }
+    if (== fn_name "array_get") { return (type_unknown_named "array_elem") } else { (print "") }
     
     /* OS operations */
-    if (str_equals fn_name "getcwd") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "getenv") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "exit") { return (type_void) } else { (print "") }
-    if (str_equals fn_name "system") { return (type_int) } else { (print "") }
+    if (== fn_name "getcwd") { return (type_string) } else { (print "") }
+    if (== fn_name "getenv") { return (type_string) } else { (print "") }
+    if (== fn_name "exit") { return (type_void) } else { (print "") }
+    if (== fn_name "system") { return (type_int) } else { (print "") }
     
     /* File I/O operations */
-    if (str_equals fn_name "file_read") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "file_read_bytes") { return (type_array TypeKind.TYPE_INT "u8") } else { (print "") }
-    if (str_equals fn_name "file_write") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "file_append") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "file_remove") { return (type_void) } else { (print "") }
-    if (str_equals fn_name "file_rename") { return (type_void) } else { (print "") }
-    if (str_equals fn_name "file_exists") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "file_size") { return (type_int) } else { (print "") }
+    if (== fn_name "file_read") { return (type_string) } else { (print "") }
+    if (== fn_name "file_read_bytes") { return (type_array TypeKind.TYPE_INT "u8") } else { (print "") }
+    if (== fn_name "file_write") { return (type_int) } else { (print "") }
+    if (== fn_name "file_append") { return (type_int) } else { (print "") }
+    if (== fn_name "file_remove") { return (type_void) } else { (print "") }
+    if (== fn_name "file_rename") { return (type_void) } else { (print "") }
+    if (== fn_name "file_exists") { return (type_bool) } else { (print "") }
+    if (== fn_name "file_size") { return (type_int) } else { (print "") }
     
     /* Directory operations */
-    if (str_equals fn_name "dir_create") { return (type_void) } else { (print "") }
-    if (str_equals fn_name "dir_remove") { return (type_void) } else { (print "") }
-    if (str_equals fn_name "dir_list") { return (type_array TypeKind.TYPE_STRING "string") } else { (print "") }
-    if (str_equals fn_name "dir_exists") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "chdir") { return (type_void) } else { (print "") }
+    if (== fn_name "dir_create") { return (type_void) } else { (print "") }
+    if (== fn_name "dir_remove") { return (type_void) } else { (print "") }
+    if (== fn_name "dir_list") { return (type_array TypeKind.TYPE_STRING "string") } else { (print "") }
+    if (== fn_name "dir_exists") { return (type_bool) } else { (print "") }
+    if (== fn_name "chdir") { return (type_void) } else { (print "") }
     
     /* Path operations */
-    if (str_equals fn_name "path_isfile") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "path_isdir") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "path_join") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "path_basename") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "path_dirname") { return (type_string) } else { (print "") }
+    if (== fn_name "path_isfile") { return (type_bool) } else { (print "") }
+    if (== fn_name "path_isdir") { return (type_bool) } else { (print "") }
+    if (== fn_name "path_join") { return (type_string) } else { (print "") }
+    if (== fn_name "path_basename") { return (type_string) } else { (print "") }
+    if (== fn_name "path_dirname") { return (type_string) } else { (print "") }
     
     /* Temp helpers */
-    if (str_equals fn_name "tmp_dir") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "mktemp") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "mktemp_dir") { return (type_string) } else { (print "") }
+    if (== fn_name "tmp_dir") { return (type_string) } else { (print "") }
+    if (== fn_name "mktemp") { return (type_string) } else { (print "") }
+    if (== fn_name "mktemp_dir") { return (type_string) } else { (print "") }
     
     /* Character classification */
-    if (str_equals fn_name "is_digit") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "is_alpha") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "is_alnum") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "is_whitespace") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "is_upper") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "is_lower") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "digit_value") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "char_to_lower") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "char_to_upper") { return (type_int) } else { (print "") }
+    if (== fn_name "is_digit") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_alpha") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_alnum") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_whitespace") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_upper") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_lower") { return (type_bool) } else { (print "") }
+    if (== fn_name "digit_value") { return (type_int) } else { (print "") }
+    if (== fn_name "char_to_lower") { return (type_int) } else { (print "") }
+    if (== fn_name "char_to_upper") { return (type_int) } else { (print "") }
     
     /* Binary string operations */
-    if (str_equals fn_name "bstr_new") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "bstr_new_binary") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "bstr_length") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "bstr_concat") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "bstr_substring") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "bstr_equals") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "bstr_byte_at") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "bstr_validate_utf8") { return (type_bool) } else { (print "") }
-    if (str_equals fn_name "bstr_utf8_length") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "bstr_utf8_char_at") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "bstr_to_cstr") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "bstr_free") { return (type_void) } else { (print "") }
+    if (== fn_name "bstr_new") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_new_binary") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_length") { return (type_int) } else { (print "") }
+    if (== fn_name "bstr_concat") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_substring") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_equals") { return (type_bool) } else { (print "") }
+    if (== fn_name "bstr_byte_at") { return (type_int) } else { (print "") }
+    if (== fn_name "bstr_validate_utf8") { return (type_bool) } else { (print "") }
+    if (== fn_name "bstr_utf8_length") { return (type_int) } else { (print "") }
+    if (== fn_name "bstr_utf8_char_at") { return (type_int) } else { (print "") }
+    if (== fn_name "bstr_to_cstr") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_free") { return (type_void) } else { (print "") }
     
     /* Bytes operations */
-    if (str_equals fn_name "bytes_from_string") { return (type_array TypeKind.TYPE_INT "u8") } else { (print "") }
-    if (str_equals fn_name "string_from_bytes") { return (type_string) } else { (print "") }
+    if (== fn_name "bytes_from_string") { return (type_array TypeKind.TYPE_INT "u8") } else { (print "") }
+    if (== fn_name "string_from_bytes") { return (type_string) } else { (print "") }
     
     /* Math operations (trig) */
-    if (str_equals fn_name "sin") { return (type_float) } else { (print "") }
-    if (str_equals fn_name "cos") { return (type_float) } else { (print "") }
-    if (str_equals fn_name "tan") { return (type_float) } else { (print "") }
-    if (str_equals fn_name "atan2") { return (type_float) } else { (print "") }
+    if (== fn_name "sin") { return (type_float) } else { (print "") }
+    if (== fn_name "cos") { return (type_float) } else { (print "") }
+    if (== fn_name "tan") { return (type_float) } else { (print "") }
+    if (== fn_name "atan2") { return (type_float) } else { (print "") }
     
     /* Additional type casts */
-    if (str_equals fn_name "cast_bstring") { return (type_string) } else { (print "") }
-    if (str_equals fn_name "null_opaque") { return (type_int) } else { (print "") }
+    if (== fn_name "cast_bstring") { return (type_string) } else { (print "") }
+    if (== fn_name "null_opaque") { return (type_int) } else { (print "") }
     
     /* Diagnostics module functions (workaround for module qualification) */
-    if (str_equals fn_name "diag_typecheck_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
-    if (str_equals fn_name "diag_transpiler_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
-    if (str_equals fn_name "diag_location") { return (type_from_string "CompilerSourceLocation") } else { (print "") }
-    if (str_equals fn_name "diag_list_new") { return (type_unknown_named "list") } else { (print "") }
-    if (str_equals fn_name "diag_list_add") { return (type_void) } else { (print "") }
-    if (str_equals fn_name "diag_list_count") { return (type_int) } else { (print "") }
-    if (str_equals fn_name "diag_list_has_errors") { return (type_bool) } else { (print "") }
+    if (== fn_name "diag_typecheck_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
+    if (== fn_name "diag_transpiler_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
+    if (== fn_name "diag_location") { return (type_from_string "CompilerSourceLocation") } else { (print "") }
+    if (== fn_name "diag_list_new") { return (type_unknown_named "list") } else { (print "") }
+    if (== fn_name "diag_list_add") { return (type_void) } else { (print "") }
+    if (== fn_name "diag_list_count") { return (type_int) } else { (print "") }
+    if (== fn_name "diag_list_has_errors") { return (type_bool) } else { (print "") }
     
     /* Default: unknown */
     return (type_unknown_named "builtin")
@@ -1209,26 +1209,26 @@ fn extract_list_type_from_function(fn_name: string) -> string {
 }
 
 shadow extract_list_type_from_function {
-    assert (str_equals (extract_list_type_from_function "list_Point_new") "Point")
-    assert (str_equals (extract_list_type_from_function "list_int_push") "int")
-    assert (str_equals (extract_list_type_from_function "list_string_get") "string")
+    assert (== (extract_list_type_from_function "list_Point_new") "Point")
+    assert (== (extract_list_type_from_function "list_int_push") "int")
+    assert (== (extract_list_type_from_function "list_string_get") "string")
 }
 
 /* Create type from element name (for list element types) */
 fn type_from_element_name(elem_name: string) -> NSType {
-    if (str_equals elem_name "CompilerDiagnostic") {
+    if (== elem_name "CompilerDiagnostic") {
         (println "DBG type_from_element_name: CompilerDiagnostic")
     } else { (print "") }
-    if (str_equals elem_name "int") {
+    if (== elem_name "int") {
         return (type_int)
     } else {
-        if (str_equals elem_name "string") {
+        if (== elem_name "string") {
             return (type_string)
         } else {
-            if (str_equals elem_name "float") {
+            if (== elem_name "float") {
                 return (type_float)
             } else {
-                if (str_equals elem_name "bool") {
+                if (== elem_name "bool") {
                     return (type_bool)
                 } else {
                     /* Struct type */
@@ -1238,7 +1238,7 @@ fn type_from_element_name(elem_name: string) -> NSType {
                         element_type_kind: TypeKind.TYPE_UNKNOWN,
                         element_type_name: ""
                     }
-                    if (str_equals elem_name "CompilerDiagnostic") {
+                    if (== elem_name "CompilerDiagnostic") {
                         (println (+ "DBG type_from_element_name kind=" (int_to_string t.kind)))
                         (println (+ "DBG type_from_element_name name=" t.name))
                     } else { (print "") }
@@ -1398,7 +1398,7 @@ fn env_lookup(symbols: array<Symbol>, name: string) -> int {
     
     while (>= i 0) {
         let sym: Symbol = (at symbols i)
-        if (str_equals sym.name name) {
+        if (== sym.name name) {
             return i
         } else {
             (print "")
@@ -1451,9 +1451,9 @@ fn module_qualified_suffix(name: string) -> string {
 }
 
 shadow module_qualified_suffix {
-    assert (str_equals (module_qualified_suffix "x") "x")
-    assert (str_equals (module_qualified_suffix "A.B") "B")
-    assert (str_equals (module_qualified_suffix "Diagnostics.diag_typecheck_error") "diag_typecheck_error")
+    assert (== (module_qualified_suffix "x") "x")
+    assert (== (module_qualified_suffix "A.B") "B")
+    assert (== (module_qualified_suffix "Diagnostics.diag_typecheck_error") "diag_typecheck_error")
 }
 
 fn tc_str_ends_with(s: string, suffix: string) -> bool {
@@ -1467,7 +1467,7 @@ fn tc_str_ends_with(s: string, suffix: string) -> bool {
         } else {
             let start: int = (- n m)
             let tail: string = (str_substring s start m)
-            return (str_equals tail suffix)
+            return (== tail suffix)
         }
     }
 }
@@ -1548,7 +1548,7 @@ shadow check_bool_literal {
 /* Check if operator is valid for given types */
 fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType {
     /* Special case: + for string concatenation */
-    if (str_equals op "+") {
+    if (== op "+") {
         if (and (== left_type.kind TypeKind.TYPE_STRING) (== right_type.kind TypeKind.TYPE_STRING)) {
             return (type_string)
         } else {
@@ -1567,7 +1567,7 @@ fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType 
     }
     
     /* Arithmetic ops: +, -, *, /, % */
-    if (or (or (or (or (str_equals op "+") (str_equals op "-")) (str_equals op "*")) (str_equals op "/")) (str_equals op "%")) {
+    if (or (or (or (or (== op "+") (== op "-")) (== op "*")) (== op "/")) (== op "%")) {
         /* Both operands must be int or float */
         if (and (== left_type.kind TypeKind.TYPE_INT) (== right_type.kind TypeKind.TYPE_INT)) {
             return (type_int)
@@ -1581,7 +1581,7 @@ fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType 
         }
     } else {
         /* Comparison ops: ==, !=, <, >, <=, >= */
-        if (or (or (or (or (or (str_equals op "==") (str_equals op "!=")) (str_equals op "<")) (str_equals op ">")) (str_equals op "<=")) (str_equals op ">=")) {
+        if (or (or (or (or (or (== op "==") (== op "!=")) (== op "<")) (== op ">")) (== op "<=")) (== op ">=")) {
             /* Types must match, result is bool */
             if (types_equal left_type right_type) {
                 return (type_bool)
@@ -1590,7 +1590,7 @@ fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType 
             }
         } else {
             /* Logical ops: and, or */
-            if (or (str_equals op "and") (str_equals op "or")) {
+            if (or (== op "and") (== op "or")) {
                 /* Both must be bool */
                 if (and (== left_type.kind TypeKind.TYPE_BOOL) (== right_type.kind TypeKind.TYPE_BOOL)) {
                     return (type_bool)
@@ -1766,7 +1766,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                 /* Special-case: array_push returns the same array type as its first argument.
                                  * This preserves element type and avoids collapsing to array<int>.
                                  */
-                                if (str_equals fn_name "array_push") {
+                                if (== fn_name "array_push") {
                                     if (> call.arg_count 0) {
                                         let base: NSType = (at arg_types 0)
                                         /* If base is an untyped array (e.g. []), infer element type from pushed value. */
@@ -1790,7 +1790,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                     }
                                 } else { (print "") }
                                 /* Special-case: at/array_get return element type of the array. */
-                                if (or (str_equals fn_name "at") (str_equals fn_name "array_get")) {
+                                if (or (== fn_name "at") (== fn_name "array_get")) {
                                     if (> call.arg_count 0) {
                                         let arr_t: NSType = (at arg_types 0)
                                         if (== arr_t.kind TypeKind.TYPE_ARRAY) {
@@ -1918,7 +1918,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                 if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
                                     let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
                                     /* Use propagated element_type if available */
-                                    if (not (str_equals arr.element_type "")) {
+                                    if (not (== arr.element_type "")) {
                                         /* Convert element_type string to TypeKind */
                                         let elem_kind: int = (type_kind_from_string arr.element_type)
                                         return (type_array elem_kind arr.element_type)
@@ -1938,15 +1938,15 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                             let obj_lookup: OptionType = (env_get_type symbols obj_ident.name)
                                             if obj_lookup.has_value {
                                                 let obj_type: NSType = obj_lookup.value
-                                                if (str_equals obj_type.name "LexPhaseOutput") {
-                                                    if (str_equals fa.field_name "tokens") { return (type_list_generic "LexerToken") } else { (print "") }
-                                                    if (str_equals fa.field_name "diagnostics") { return (type_list_generic "CompilerDiagnostic") } else { (print "") }
-                                                    if (str_equals fa.field_name "token_count") { return (type_int) } else { (print "") }
-                                                    if (str_equals fa.field_name "had_error") { return (type_bool) } else { (print "") }
+                                                if (== obj_type.name "LexPhaseOutput") {
+                                                    if (== fa.field_name "tokens") { return (type_list_generic "LexerToken") } else { (print "") }
+                                                    if (== fa.field_name "diagnostics") { return (type_list_generic "CompilerDiagnostic") } else { (print "") }
+                                                    if (== fa.field_name "token_count") { return (type_int) } else { (print "") }
+                                                    if (== fa.field_name "had_error") { return (type_bool) } else { (print "") }
                                                 } else { (print "") }
-                                                if (str_equals obj_type.name "ParsePhaseOutput") {
-                                                    if (str_equals fa.field_name "diagnostics") { return (type_list_generic "CompilerDiagnostic") } else { (print "") }
-                                                    if (str_equals fa.field_name "had_error") { return (type_bool) } else { (print "") }
+                                                if (== obj_type.name "ParsePhaseOutput") {
+                                                    if (== fa.field_name "diagnostics") { return (type_list_generic "CompilerDiagnostic") } else { (print "") }
+                                                    if (== fa.field_name "had_error") { return (type_bool) } else { (print "") }
                                                 } else { (print "") }
                                             } else { (print "") }
                                         } else { (print "") }
@@ -2282,9 +2282,9 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>,
     /* If initializer is an empty array literal, propagate element_type from declared type */
     if (and (>= let_node.value 0) (== let_node.value_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
         let arr: ASTArrayLiteral = (parser_get_array_literal parser let_node.value)
-        if (and (== arr.element_count 0) (str_equals arr.element_type "")) {
+        if (and (== arr.element_count 0) (== arr.element_type "")) {
             let elem_t: string = (array_elem_type_from_array_decl let_node.var_type)
-            if (not (str_equals elem_t "")) {
+            if (not (== elem_t "")) {
                 (parser_set_array_literal_element_type parser let_node.value elem_t)
             } else { (print "") }
         } else { (print "") }
@@ -2329,7 +2329,7 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
             return false
         }
     } else {
-        if (str_equals current_function "explanation_for_code") {
+        if (== current_function "explanation_for_code") {
             (print "  DEBUG check_return: value node_id=")
             (print (int_to_string ret_node.value))
             (print ", value_type=")

@@ -253,7 +253,7 @@ fn main() -> int {
     /* Test type names */
     (println "Testing type names...")
     let prog_name: string = (ast_type_name prog_node)
-    if (== (str_equals prog_name "Program") true) {
+    if (== (== prog_name "Program") true) {
         (println "✓ Program type name")
     } else {
         (println "✗ FAIL: Program type name")
@@ -261,7 +261,7 @@ fn main() -> int {
     }
     
     let func_name: string = (ast_type_name func_node)
-    if (== (str_equals func_name "Function") true) {
+    if (== (== func_name "Function") true) {
         (println "✓ Function type name")
     } else {
         (println "✗ FAIL: Function type name")

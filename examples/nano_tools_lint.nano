@@ -12,7 +12,7 @@ fn lint_and_report(source: string) -> string {
 
 shadow lint_and_report {
     let src: string = "fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n"
-    assert (str_equals (lint_and_report src) "ok")
+    assert (== (lint_and_report src) "ok")
 }
 
 fn main() -> int {

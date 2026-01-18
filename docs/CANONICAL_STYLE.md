@@ -100,6 +100,19 @@ let full_path: string = (+ (+ base "/") filename)
 
 **Rule:** Always use `(+ string1 string2)` for concatenation.
 
+### ✅ Canonical: String `==`
+```nano
+if (== name "Alice") { (println "Hello Alice!") }
+let same: bool = (== str1 str2)
+```
+
+### ❌ Deprecated: `str_equals`
+```nano
+(str_equals name "Alice")  # OLD WAY - still works but avoid
+```
+
+**Rule:** Always use `(== string1 string2)` for comparison.
+
 ---
 
 ## Arithmetic

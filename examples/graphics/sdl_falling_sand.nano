@@ -306,8 +306,8 @@ fn read_material_name(mat: Material) -> string {
 }
 
 shadow read_material_name {
-    assert (str_equals (read_material_name Material.SAND) "SAND")
-    assert (str_equals (read_material_name Material.WATER) "WATER")
+    assert (== (read_material_name Material.SAND) "SAND")
+    assert (== (read_material_name Material.WATER) "WATER")
 }
 
 fn render_ui(renderer: SDL_Renderer, font: TTF_Font, current_material: Material, paused: bool) -> void {

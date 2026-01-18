@@ -67,7 +67,7 @@ fn is_keyword(word: string) -> bool {
     ]
     let mut i: int = 0
     while (< i (array_length keywords)) {
-        if (str_equals (at keywords i) word) {
+        if (== (at keywords i) word) {
             return true
         } else {}
         set i (+ i 1)
@@ -88,7 +88,7 @@ fn is_type_word(word: string) -> bool {
     ]
     let mut i: int = 0
     while (< i (array_length types)) {
-        if (str_equals (at types i) word) {
+        if (== (at types i) word) {
             return true
         } else {}
         set i (+ i 1)
@@ -117,8 +117,8 @@ fn token_class(kind: int) -> string {
 }
 
 shadow token_class {
-    assert (str_equals (token_class HL_TOKEN_KEYWORD) "tok-keyword")
-    assert (str_equals (token_class HL_TOKEN_TEXT) "tok-text")
+    assert (== (token_class HL_TOKEN_KEYWORD) "tok-keyword")
+    assert (== (token_class HL_TOKEN_TEXT) "tok-text")
 }
 
 fn is_paren_char(c: int) -> bool {
@@ -185,7 +185,7 @@ fn escape_html(text: string) -> string {
 }
 
 shadow escape_html {
-    assert (str_equals (escape_html "<>&\"") "&lt;&gt;&amp;&quot;")
+    assert (== (escape_html "<>&\"") "&lt;&gt;&amp;&quot;")
 }
 
 fn tokenize(code: string) -> array<HighlightToken> {

@@ -32,12 +32,12 @@ shadow create_sample_data {
     let employees: array<Employee> = (create_sample_data)
     assert (== (array_length employees) 5)
     let first: Employee = (array_get employees 0)
-    assert (str_equals first.name "Alice")
+    assert (== first.name "Alice")
 }
 
 # Filter: Keep only employees in a specific department
 fn is_in_department(emp: Employee, dept: string) -> bool {
-    return (str_equals emp.department dept)
+    return (== emp.department dept)
 }
 
 shadow is_in_department {
@@ -69,7 +69,7 @@ shadow apply_raise {
     let emp: Employee = Employee { name: "Alice", age: 30, salary: 100000, department: "Engineering" }
     let raised: Employee = (apply_raise emp 10)
     assert (== raised.salary 110000)
-    assert (str_equals raised.name "Alice")
+    assert (== raised.name "Alice")
 }
 
 # Fold: Sum all salaries

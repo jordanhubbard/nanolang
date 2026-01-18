@@ -79,7 +79,7 @@ fn repeat_string(s: string, count: int) -> string {
 }
 
 shadow repeat_string {
-    assert (str_equals (repeat_string "ab" 2) "abab")
+    assert (== (repeat_string "ab" 2) "abab")
 }
 
 fn pad_right(s: string, target_len: int) -> string {
@@ -91,7 +91,7 @@ fn pad_right(s: string, target_len: int) -> string {
 }
 
 shadow pad_right {
-    assert (str_equals (pad_right "hi" 4) "hi  ")
+    assert (== (pad_right "hi" 4) "hi  ")
 }
 
 fn wrap_backticks(value: string) -> string {
@@ -99,7 +99,7 @@ fn wrap_backticks(value: string) -> string {
 }
 
 shadow wrap_backticks {
-    assert (str_equals (wrap_backticks "value") "`value`")
+    assert (== (wrap_backticks "value") "`value`")
 }
 
 fn get_line_from_source(source: string, target_line: int) -> string {
@@ -189,11 +189,11 @@ pub fn format_error_elm_style(err: ErrorMessage, source: string) -> string {
 
 fn explanation_for_code(code: string) -> string {
     return (cond
-        ((str_equals code "E0001") "NanoLang enforces explicit types, so the expression must match the expected annotation.")
-        ((str_equals code "E0002") "The compiler could not find a declaration with this name in the current scope.")
-        ((str_equals code "E0003") "Functions require the exact number of arguments specified in their signature.")
-        ((str_equals code "E0004") "Each argument must match the corresponding parameter type declared in the function signature.")
-        ((str_equals code "E0005") "Bindings are immutable unless declared with `mut`, so you cannot reassign them.")
+        ((== code "E0001") "NanoLang enforces explicit types, so the expression must match the expected annotation.")
+        ((== code "E0002") "The compiler could not find a declaration with this name in the current scope.")
+        ((== code "E0003") "Functions require the exact number of arguments specified in their signature.")
+        ((== code "E0004") "Each argument must match the corresponding parameter type declared in the function signature.")
+        ((== code "E0005") "Bindings are immutable unless declared with `mut`, so you cannot reassign them.")
         (else "")
     )
 }
@@ -204,11 +204,11 @@ shadow explanation_for_code {
 
 fn suggestion_for_code(code: string) -> string {
     return (cond
-        ((str_equals code "E0001") "Convert the expression to the expected type or change the annotation.")
-        ((str_equals code "E0002") "Check for typos or declare the identifier with `let` before using it.")
-        ((str_equals code "E0003") "Add the missing arguments or remove extras so the call arity matches the definition.")
-        ((str_equals code "E0004") "Convert the argument to the required type or update the function signature if the annotation is wrong.")
-        ((str_equals code "E0005") "Declare the variable with `mut` or create a new binding instead of reassigning.")
+        ((== code "E0001") "Convert the expression to the expected type or change the annotation.")
+        ((== code "E0002") "Check for typos or declare the identifier with `let` before using it.")
+        ((== code "E0003") "Add the missing arguments or remove extras so the call arity matches the definition.")
+        ((== code "E0004") "Convert the argument to the required type or update the function signature if the annotation is wrong.")
+        ((== code "E0005") "Declare the variable with `mut` or create a new binding instead of reassigning.")
         (else "")
     )
 }
@@ -219,8 +219,8 @@ shadow suggestion_for_code {
 
 pub fn diagnostic_to_elm_error(diag: CompilerDiagnostic) -> ErrorMessage {
     let mut title: string = (cond
-        ((str_equals diag.code "E0001") "TYPE MISMATCH")
-        ((str_equals diag.code "E0002") "UNDEFINED IDENTIFIER")
+        ((== diag.code "E0001") "TYPE MISMATCH")
+        ((== diag.code "E0002") "UNDEFINED IDENTIFIER")
         ((== diag.severity 2) "ERROR")
         ((== diag.severity 1) "WARNING")
         (else "INFO")
@@ -243,7 +243,7 @@ shadow diagnostic_to_elm_error {
     let loc: CompilerSourceLocation = CompilerSourceLocation { file: "test.nano", line: 2, column: 5 }
     let diag: CompilerDiagnostic = CompilerDiagnostic { severity: DiagnosticSeverity.DIAG_ERROR, phase: CompilerPhase.PHASE_TYPECHECK, code: "E0002", message: "Undefined identifier", location: loc }
     let err: ErrorMessage = (diagnostic_to_elm_error diag)
-    assert (str_equals err.title "UNDEFINED IDENTIFIER")
+    assert (== err.title "UNDEFINED IDENTIFIER")
     assert (str_contains err.explanation "declaration")
 }
 

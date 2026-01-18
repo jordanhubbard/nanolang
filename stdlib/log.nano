@@ -39,9 +39,9 @@ fn log_level_name(level: int) -> string {
 }
 
 shadow log_level_name {
-    assert (str_equals (log_level_name LogLevel.TRACE) "TRACE")
-    assert (str_equals (log_level_name LogLevel.INFO) "INFO")
-    assert (str_equals (log_level_name LogLevel.ERROR) "ERROR")
+    assert (== (log_level_name LogLevel.TRACE) "TRACE")
+    assert (== (log_level_name LogLevel.INFO) "INFO")
+    assert (== (log_level_name LogLevel.ERROR) "ERROR")
 }
 
 # Core logging function - checks level and outputs formatted message

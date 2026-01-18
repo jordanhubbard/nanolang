@@ -66,7 +66,7 @@ fn parse_args() -> CompileOptions {
     while (< i argc) {
         let arg: string = (get_argv i)
         
-        if (str_equals arg "-h") {
+        if (== arg "-h") {
             set opts CompileOptions {
                 input_file: opts.input_file,
                 output_file: opts.output_file,
@@ -77,7 +77,7 @@ fn parse_args() -> CompileOptions {
                 show_help: true
             }
         } else {
-            if (str_equals arg "--help") {
+            if (== arg "--help") {
                 set opts CompileOptions {
                     input_file: opts.input_file,
                     output_file: opts.output_file,
@@ -88,7 +88,7 @@ fn parse_args() -> CompileOptions {
                     show_help: true
                 }
             } else {
-                if (str_equals arg "-v") {
+                if (== arg "-v") {
                     set opts CompileOptions {
                         input_file: opts.input_file,
                         output_file: opts.output_file,
@@ -99,7 +99,7 @@ fn parse_args() -> CompileOptions {
                         show_help: opts.show_help
                     }
                 } else {
-                    if (str_equals arg "--verbose") {
+                    if (== arg "--verbose") {
                         set opts CompileOptions {
                             input_file: opts.input_file,
                             output_file: opts.output_file,
@@ -110,7 +110,7 @@ fn parse_args() -> CompileOptions {
                             show_help: opts.show_help
                         }
                     } else {
-                        if (str_equals arg "-k") {
+                        if (== arg "-k") {
                             set opts CompileOptions {
                                 input_file: opts.input_file,
                                 output_file: opts.output_file,
@@ -121,7 +121,7 @@ fn parse_args() -> CompileOptions {
                                 show_help: opts.show_help
                             }
                         } else {
-                            if (str_equals arg "--keep-c") {
+                            if (== arg "--keep-c") {
                                 set opts CompileOptions {
                                     input_file: opts.input_file,
                                     output_file: opts.output_file,
@@ -132,7 +132,7 @@ fn parse_args() -> CompileOptions {
                                     show_help: opts.show_help
                                 }
                             } else {
-                                if (str_equals arg "-fshow-intermediate-code") {
+                                if (== arg "-fshow-intermediate-code") {
                                     set opts CompileOptions {
                                         input_file: opts.input_file,
                                         output_file: opts.output_file,
@@ -143,7 +143,7 @@ fn parse_args() -> CompileOptions {
                                         show_help: opts.show_help
                                     }
                                 } else {
-                                if (str_equals arg "--llm-diags-json") {
+                                if (== arg "--llm-diags-json") {
                                     if (< (+ i 1) argc) {
                                         set i (+ i 1)
                                         let p: string = (get_argv i)
@@ -158,7 +158,7 @@ fn parse_args() -> CompileOptions {
                                         }
                                     } else { (print "") }
                                 } else {
-                                if (str_equals arg "-o") {
+                                if (== arg "-o") {
                                     if (< (+ i 1) argc) {
                                         set i (+ i 1)
                                         let output: string = (get_argv i)
@@ -233,7 +233,7 @@ fn nlc_str_starts_with(s: string, prefix: string) -> bool {
     if (< len_s len_p) {
         return false
     } else {
-        return (str_equals (str_substring s 0 len_p) prefix)
+        return (== (str_substring s 0 len_p) prefix)
     }
 }
 
@@ -243,7 +243,7 @@ fn nlc_str_ends_with(s: string, suffix: string) -> bool {
     if (< len_s len_x) {
         return false
     } else {
-        return (str_equals (str_substring s (- len_s len_x) len_x) suffix)
+        return (== (str_substring s (- len_s len_x) len_x) suffix)
     }
 }
 
@@ -255,7 +255,7 @@ fn nlc_str_index_of(s: string, needle: string) -> int {
     } else {
         let mut i: int = 0
         while (<= (+ i len_n) len_s) {
-            if (str_equals (str_substring s i len_n) needle) {
+            if (== (str_substring s i len_n) needle) {
                 return i
             } else {
                 (print "")
@@ -274,7 +274,7 @@ fn nlc_str_last_index_of(s: string, needle: string) -> int {
     } else {
         let mut i: int = (- len_s len_n)
         while (>= i 0) {
-            if (str_equals (str_substring s i len_n) needle) {
+            if (== (str_substring s i len_n) needle) {
                 return i
             } else {
                 set i (- i 1)
@@ -287,7 +287,7 @@ fn nlc_str_last_index_of(s: string, needle: string) -> int {
 fn nlc_array_contains_string(arr: array<string>, needle: string) -> bool {
     let mut i: int = 0
     while (< i (array_length arr)) {
-        if (str_equals (at arr i) needle) {
+        if (== (at arr i) needle) {
             return true
         } else {
             (print "")
@@ -355,7 +355,7 @@ fn split_lines(s: string) -> array<string> {
     let mut i: int = 0
 
     while (< i len) {
-        if (str_equals (str_substring s i 1) "\n") {
+        if (== (str_substring s i 1) "\n") {
             set out (array_push out (str_substring s start (- i start)))
             set start (+ i 1)
         } else { (print "") }
@@ -728,7 +728,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     
     if (== token_count 0) {
         (println "Error: Failed to tokenize input file")
-        if (not (str_equals llm_diags_json_path "")) {
+        if (not (== llm_diags_json_path "")) {
             (llm_write_diags_json llm_diags_json_path input_file output_file 1 diags)
         } else { (print "") }
         return 1
@@ -760,7 +760,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print ": unexpected token '")
                 (print tok.value)
                 (println "'")
-                if (not (str_equals llm_diags_json_path "")) {
+                if (not (== llm_diags_json_path "")) {
                     let msg: string = (+ "Parse error: unexpected token " tok.value)
                     let loc: CompilerSourceLocation = (Diagnostics.diag_location source_to_compile tok.line tok.column)
                     let diag: CompilerDiagnostic = (Diagnostics.diag_parser_error "P0001" msg loc)
@@ -811,7 +811,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                     (println ")")
                     set diag_i (+ diag_i 1)
                 }
-                if (not (str_equals llm_diags_json_path "")) {
+                if (not (== llm_diags_json_path "")) {
                     (llm_write_diags_json llm_diags_json_path input_file output_file 1 tc.diagnostics)
                 } else { (print "") }
                 return 1
@@ -849,7 +849,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             let write_result: int = (file_write c_file c_code)
             if (!= write_result 0) {
                 (println "Error: Failed to write C file")
-                if (not (str_equals llm_diags_json_path "")) {
+                if (not (== llm_diags_json_path "")) {
                     let msg: string = "Failed to write temporary C file"
                     let loc: CompilerSourceLocation = (Diagnostics.diag_location source_to_compile 0 0)
                     let diag: CompilerDiagnostic = (Diagnostics.diag_transpiler_error "C0001" msg loc)
@@ -986,7 +986,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 }
             }
             
-            if (not (str_equals llm_diags_json_path "")) {
+            if (not (== llm_diags_json_path "")) {
                 (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
             } else { (print "") }
 

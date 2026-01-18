@@ -13,8 +13,8 @@ fn indent(n: int) -> string {
 }
 
 shadow indent {
-    assert (str_equals (indent 0) "")
-    assert (str_equals (indent 2) "        ")
+    assert (== (indent 0) "")
+    assert (== (indent 2) "        ")
 }
 
 fn dq() -> string {
@@ -31,7 +31,7 @@ fn q(s: string) -> string {
 }
 
 shadow q {
-    assert (str_equals (q "x") "\"x\"")
+    assert (== (q "x") "\"x\"")
 }
 
 fn escape_nano_string(s: string) -> string {
@@ -59,8 +59,8 @@ fn escape_nano_string(s: string) -> string {
 }
 
 shadow escape_nano_string {
-    assert (str_equals (escape_nano_string "a\"b") "a\\\"b")
-    assert (str_equals (escape_nano_string "a\\b") "a\\\\b")
+    assert (== (escape_nano_string "a\"b") "a\\\"b")
+    assert (== (escape_nano_string "a\\b") "a\\\\b")
 }
 
 fn emit_line(sb: string, line: string) -> string {
@@ -68,7 +68,7 @@ fn emit_line(sb: string, line: string) -> string {
 }
 
 shadow emit_line {
-    assert (str_equals (emit_line "" "x") (+ "x" (string_from_char 10)))
+    assert (== (emit_line "" "x") (+ "x" (string_from_char 10)))
 }
 
 fn gen_expr_ir_as_string(expr: Json) -> string {
@@ -98,7 +98,7 @@ fn gen_program_from_plan(plan: Json) -> string {
     set out (emit_line out "fn json_equals(a: Json, b: Json) -> bool {")
     set out (emit_line out (+ (indent 1) "let sa: string = (stringify a)"))
     set out (emit_line out (+ (indent 1) "let sb: string = (stringify b)"))
-    set out (emit_line out (+ (indent 1) "return (str_equals sa sb)"))
+    set out (emit_line out (+ (indent 1) "return (== sa sb)"))
     set out (emit_line out "}")
     set out (emit_line out "shadow json_equals {")
     set out (emit_line out (+ (indent 1) "let a: Json = (new_int 1)"))
@@ -125,19 +125,19 @@ fn gen_program_from_plan(plan: Json) -> string {
 
     set out (emit_line out "fn eval_expr(env: Json, expr: Json) -> Json {")
     set out (emit_line out (+ (indent 1) (+ "let k: string = (get_string expr " (+ (q "kind") ")"))))
-    set out (emit_line out (+ (indent 1) (+ "if (str_equals k " (+ (q "id") ") {"))))
+    set out (emit_line out (+ (indent 1) (+ "if (== k " (+ (q "id") ") {"))))
     set out (emit_line out (+ (indent 2) (+ "return (get env (get_string expr " (+ (q "name") "))"))))
     set out (emit_line out (+ (indent 1) "} else {}"))
-    set out (emit_line out (+ (indent 1) (+ "if (str_equals k " (+ (q "lit") ") {"))))
+    set out (emit_line out (+ (indent 1) (+ "if (== k " (+ (q "lit") ") {"))))
     set out (emit_line out (+ (indent 2) (+ "return (get expr " (+ (q "v") ")"))))
     set out (emit_line out (+ (indent 1) "} else {}"))
-    set out (emit_line out (+ (indent 1) (+ "if (str_equals k " (+ (q "bin") ") {"))))
+    set out (emit_line out (+ (indent 1) (+ "if (== k " (+ (q "bin") ") {"))))
     set out (emit_line out (+ (indent 2) (+ "let op: string = (get_string expr " (+ (q "op") ")"))))
     set out (emit_line out (+ (indent 2) (+ "let a: Json = (eval_expr env (get expr " (+ (q "a") "))"))))
     set out (emit_line out (+ (indent 2) (+ "let b: Json = (eval_expr env (get expr " (+ (q "b") "))"))))
     set out (emit_line out (+ (indent 2) "let mut res: bool = false"))
-    set out (emit_line out (+ (indent 2) (+ "if (str_equals op " (+ (q "==") ") { set res (json_equals a b) } else {}"))))
-    set out (emit_line out (+ (indent 2) (+ "if (str_equals op " (+ (q "!=") ") { set res (not (json_equals a b)) } else {}"))))
+    set out (emit_line out (+ (indent 2) (+ "if (== op " (+ (q "==") ") { set res (json_equals a b) } else {}"))))
+    set out (emit_line out (+ (indent 2) (+ "if (== op " (+ (q "!=") ") { set res (not (json_equals a b)) } else {}"))))
     set out (emit_line out (+ (indent 2) "(free a)"))
     set out (emit_line out (+ (indent 2) "(free b)"))
     set out (emit_line out (+ (indent 2) "return (new_bool res)"))
@@ -182,7 +182,7 @@ fn gen_program_from_plan(plan: Json) -> string {
     set out (emit_line out (+ (indent 2) "while (< si sn) {"))
     set out (emit_line out (+ (indent 3) "let st: Json = (get_index steps si)"))
     set out (emit_line out (+ (indent 3) (+ "let op: string = (get_string st " (+ (q "op") ")"))))
-    set out (emit_line out (+ (indent 3) (+ "if (str_equals op " (+ (q "call") ") {"))))
+    set out (emit_line out (+ (indent 3) (+ "if (== op " (+ (q "call") ") {"))))
     set out (emit_line out (+ (indent 4) (+ "let tool: string = (get_string st " (+ (q "tool") ")"))))
     set out (emit_line out (+ (indent 4) (+ "let args_obj: Json = (get st " (+ (q "args") ")"))))
     set out (emit_line out (+ (indent 4) "let args_out: Json = (new_object)"))
@@ -206,7 +206,7 @@ fn gen_program_from_plan(plan: Json) -> string {
     set out (emit_line out (+ (indent 4) "(free args_out)"))
     set out (emit_line out (+ (indent 4) "(free args_obj)"))
     set out (emit_line out (+ (indent 3) "} else {}"))
-    set out (emit_line out (+ (indent 3) (+ "if (str_equals op " (+ (q "assert") ") {"))))
+    set out (emit_line out (+ (indent 3) (+ "if (== op " (+ (q "assert") ") {"))))
     set out (emit_line out (+ (indent 4) (+ "let csrc: Json = (get st " (+ (q "cond") ")"))))
     set out (emit_line out (+ (indent 4) "let c: Json = (eval_value env csrc)"))
     set out (emit_line out (+ (indent 4) "(free csrc)"))
@@ -217,7 +217,7 @@ fn gen_program_from_plan(plan: Json) -> string {
     set out (emit_line out (+ (indent 5) "return 1"))
     set out (emit_line out (+ (indent 4) "} else {}"))
     set out (emit_line out (+ (indent 3) "} else {}"))
-    set out (emit_line out (+ (indent 3) (+ "if (str_equals op " (+ (q "emit") ") {"))))
+    set out (emit_line out (+ (indent 3) (+ "if (== op " (+ (q "emit") ") {"))))
     set out (emit_line out (+ (indent 4) (+ "let nm: string = (get_string st " (+ (q "name") ")"))))
     set out (emit_line out (+ (indent 4) (+ "let vsrc: Json = (get st " (+ (q "value") ")"))))
     set out (emit_line out (+ (indent 4) "let v: Json = (eval_value env vsrc)"))
@@ -226,7 +226,7 @@ fn gen_program_from_plan(plan: Json) -> string {
     set out (emit_line out (+ (indent 4) "(println (stringify v))"))
     set out (emit_line out (+ (indent 4) "(free v)"))
     set out (emit_line out (+ (indent 3) "} else {}"))
-    set out (emit_line out (+ (indent 3) (+ "if (str_equals op " (+ (q "if") ") {"))))
+    set out (emit_line out (+ (indent 3) (+ "if (== op " (+ (q "if") ") {"))))
     set out (emit_line out (+ (indent 4) (+ "let csrc: Json = (get st " (+ (q "cond") ")"))))
     set out (emit_line out (+ (indent 4) "let c: Json = (eval_value env csrc)"))
     set out (emit_line out (+ (indent 4) "(free csrc)"))

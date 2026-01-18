@@ -34,7 +34,7 @@ fn coverage_record(file: string, line: int, column: int) -> void {
         let mut i: int = 0
         while (< i (array_length g_coverage_points)) {
             let point: CoveragePoint = (at g_coverage_points i)
-            if (and (str_equals point.file file)
+            if (and (== point.file file)
                     (and (== point.line line) (== point.column column))) {
                 # Increment hit count (struct values are immutable; rebuild the struct)
                 let updated: CoveragePoint = {
@@ -83,7 +83,7 @@ fn coverage_get_line_hits(file: string, line: int) -> int {
     let mut i: int = 0
     while (< i (array_length g_coverage_points)) {
         let point: CoveragePoint = (at g_coverage_points i)
-        if (and (str_equals point.file file) (== point.line line)) {
+        if (and (== point.file file) (== point.line line)) {
             return point.hit_count
         }
         set i (+ i 1)
@@ -187,7 +187,7 @@ fn timing_end(label: string, start_time: int) -> void {
     let mut i: int = 0
     while (< i (array_length g_timing_points)) {
         let point: TimingPoint = (at g_timing_points i)
-        if (str_equals point.label label) {
+        if (== point.label label) {
             let updated: TimingPoint = {
                 label: point.label,
                 start_time_ms: point.start_time_ms,

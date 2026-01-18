@@ -698,8 +698,8 @@ shadow draw_status_overlay { assert true }
 shadow setup_opengl { assert true }
 
 shadow get_shader_name {
-    assert (str_equals (get_shader_name SHADER_SMOOTH_PHONG) "1: Smooth Phong")
-    assert (str_equals (get_shader_name SHADER_WIREFRAME) "3: Wireframe")
+    assert (== (get_shader_name SHADER_SMOOTH_PHONG) "1: Smooth Phong")
+    assert (== (get_shader_name SHADER_WIREFRAME) "3: Wireframe")
 }
 
 shadow main {

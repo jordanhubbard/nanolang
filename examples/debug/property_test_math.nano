@@ -158,63 +158,63 @@ fn prop_max_equals_input(a: int, b: int) -> string {
 }
 
 shadow prop_add_commutative {
-    assert (str_equals (prop_add_commutative 2 5) (prop_pass))
+    assert (== (prop_add_commutative 2 5) (prop_pass))
 }
 
 shadow prop_add_identity {
-    assert (str_equals (prop_add_identity 7) (prop_pass))
+    assert (== (prop_add_identity 7) (prop_pass))
 }
 
 shadow prop_add_inverse {
-    assert (str_equals (prop_add_inverse -9) (prop_pass))
+    assert (== (prop_add_inverse -9) (prop_pass))
 }
 
 shadow prop_multiply_commutative {
-    assert (str_equals (prop_multiply_commutative 3 4) (prop_pass))
+    assert (== (prop_multiply_commutative 3 4) (prop_pass))
 }
 
 shadow prop_multiply_identity {
-    assert (str_equals (prop_multiply_identity -6) (prop_pass))
+    assert (== (prop_multiply_identity -6) (prop_pass))
 }
 
 shadow prop_multiply_zero {
-    assert (str_equals (prop_multiply_zero 11) (prop_pass))
+    assert (== (prop_multiply_zero 11) (prop_pass))
 }
 
 shadow prop_multiply_distributivity_simple {
-    assert (str_equals (prop_multiply_distributivity_simple 2 3) (prop_pass))
+    assert (== (prop_multiply_distributivity_simple 2 3) (prop_pass))
 }
 
 shadow prop_abs_non_negative {
-    assert (str_equals (prop_abs_non_negative -5) (prop_pass))
+    assert (== (prop_abs_non_negative -5) (prop_pass))
 }
 
 shadow prop_abs_symmetric {
-    assert (str_equals (prop_abs_symmetric 12) (prop_pass))
+    assert (== (prop_abs_symmetric 12) (prop_pass))
 }
 
 shadow prop_abs_idempotent {
-    assert (str_equals (prop_abs_idempotent -7) (prop_pass))
+    assert (== (prop_abs_idempotent -7) (prop_pass))
 }
 
 shadow prop_abs_triangle_inequality {
-    assert (str_equals (prop_abs_triangle_inequality 3 4) (prop_pass))
+    assert (== (prop_abs_triangle_inequality 3 4) (prop_pass))
 }
 
 shadow prop_max_commutative {
-    assert (str_equals (prop_max_commutative 8 2) (prop_pass))
+    assert (== (prop_max_commutative 8 2) (prop_pass))
 }
 
 shadow prop_max_idempotent {
-    assert (str_equals (prop_max_idempotent 5) (prop_pass))
+    assert (== (prop_max_idempotent 5) (prop_pass))
 }
 
 shadow prop_max_bounds {
-    assert (str_equals (prop_max_bounds 2 9) (prop_pass))
+    assert (== (prop_max_bounds 2 9) (prop_pass))
 }
 
 shadow prop_max_equals_input {
-    assert (str_equals (prop_max_equals_input 2 9) (prop_pass))
+    assert (== (prop_max_equals_input 2 9) (prop_pass))
 }
 
 shadow add {

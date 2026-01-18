@@ -44,10 +44,10 @@ fn decode_outcome(encoded: string) -> PropOutcome {
         ((> payload_len 0) (str_substring encoded 1 payload_len))
         (else "")
     )
-    if (str_equals kind_text "P") {
+    if (== kind_text "P") {
         return PropOutcome { kind: PROP_OUTCOME_PASS, message: payload }
     } else {
-        if (str_equals kind_text "D") {
+        if (== kind_text "D") {
             return PropOutcome { kind: PROP_OUTCOME_DISCARD, message: payload }
         } else {
             return PropOutcome { kind: PROP_OUTCOME_FAIL, message: payload }
@@ -60,7 +60,7 @@ shadow decode_outcome {
     assert (== pass_outcome.kind PROP_OUTCOME_PASS)
     let discard_outcome: PropOutcome = (decode_outcome (+ "D" "skip"))
     assert (== discard_outcome.kind PROP_OUTCOME_DISCARD)
-    assert (str_equals discard_outcome.message "skip")
+    assert (== discard_outcome.message "skip")
 }
 
 fn prop_is_pass(outcome: PropOutcome) -> bool {
@@ -108,7 +108,7 @@ pub fn prop_fail(message: string) -> string {
 shadow prop_fail {
     let outcome: PropOutcome = (decode_outcome (prop_fail "boom"))
     assert (prop_is_fail outcome)
-    assert (str_equals outcome.message "boom")
+    assert (== outcome.message "boom")
     assert (not (prop_is_pass outcome))
 }
 
@@ -119,7 +119,7 @@ pub fn prop_discard(reason: string) -> string {
 shadow prop_discard {
     let outcome: PropOutcome = (decode_outcome (prop_discard "skip"))
     assert (prop_is_discard outcome)
-    assert (str_equals outcome.message "skip")
+    assert (== outcome.message "skip")
     assert (not (prop_is_pass outcome))
 }
 
@@ -768,7 +768,7 @@ fn format_int_array(values: array<int>) -> string {
 shadow format_int_array {
     let arr: array<int> = (array_push [] 3)
     let text: string = (format_int_array arr)
-    assert (str_equals text "[3]")
+    assert (== text "[3]")
 }
 
 fn unary_failure_message(name: string, value: int, message: string) -> string {

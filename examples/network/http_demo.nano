@@ -6,8 +6,8 @@ fn bool_to_string(b: bool) -> string {
 }
 
 shadow bool_to_string {
-    assert (str_equals (bool_to_string true) "true")
-    assert (str_equals (bool_to_string false) "false")
+    assert (== (bool_to_string true) "true")
+    assert (== (bool_to_string false) "false")
 }
 
 fn simple_get_example() -> void {

@@ -20,7 +20,7 @@ pub fn format_with_wrap(source: string, max_width: int) -> string {
         let c: string = (str_substring source i 1)  # FIX: length=1, not end=i+1
         
         # Always break on existing newlines
-        if (str_equals c "\n") {
+        if (== c "\n") {
             set result (+ result line)
             set result (+ result "\n")
             set line ""
@@ -60,13 +60,13 @@ pub fn format_pretty(source: string) -> string {
         let c: string = (str_substring source i 1)  # FIX: length=1
         
         # Opening brace: add space, brace, newline, increase indent
-        if (str_equals c "{") {
+        if (== c "{") {
             set result (+ result " {\n")
             set indent_level (+ indent_level 1)
             set at_line_start true
         } else {
             # Closing brace: decrease indent, add indent, brace, newline
-            if (str_equals c "}") {
+            if (== c "}") {
                 set indent_level (- indent_level 1)
                 if (< indent_level 0) {
                     set indent_level 0
@@ -76,12 +76,12 @@ pub fn format_pretty(source: string) -> string {
                 set at_line_start true
             } else {
                 # Newline: add it and mark line start
-                if (str_equals c "\n") {
+                if (== c "\n") {
                     set result (+ result "\n")
                     set at_line_start true
                 } else {
                     # Skip multiple whitespace
-                    if (or (str_equals c " ") (or (str_equals c "\t") (str_equals c "\r"))) {
+                    if (or (== c " ") (or (== c "\t") (== c "\r"))) {
                         # Skip whitespace at line start
                         if (not at_line_start) {
                             set result (+ result " ")
@@ -117,9 +117,9 @@ fn make_indent(level: int, size: int) -> string {
 }
 
 shadow make_indent {
-    assert (str_equals (make_indent 0 4) "")
-    assert (str_equals (make_indent 1 4) "    ")
-    assert (str_equals (make_indent 2 4) "        ")
+    assert (== (make_indent 0 4) "")
+    assert (== (make_indent 1 4) "    ")
+    assert (== (make_indent 2 4) "        ")
     let indent3: string = (make_indent 3 4)
     assert (== (str_length indent3) 12)
 }
@@ -128,7 +128,7 @@ shadow format {
     # Test passthrough (currently just returns input)
     let input1: string = "fn test() -> int { return 42 }"
     let output1: string = (format input1)
-    assert (str_equals input1 output1)
+    assert (== input1 output1)
 }
 
 shadow format_with_wrap {

@@ -870,13 +870,13 @@ See `examples/nl_checked_math_demo.nano` for a complete demonstration.
 module "modules/stdlib/checked_math.nano"
 
 fn safe_calculator(a: int, op: string, b: int) -> Result<int, string> {
-    if (str_equals op "+") {
+    if (== op "+") {
         return (checked_add a b)
-    } else { if (str_equals op "-") {
+    } else { if (== op "-") {
         return (checked_sub a b)
-    } else { if (str_equals op "*") {
+    } else { if (== op "*") {
         return (checked_mul a b)
-    } else { if (str_equals op "/") {
+    } else { if (== op "/") {
         return (checked_div a b)
     } else {
         return Result.Err { error: "Unknown operator" }

@@ -1,0 +1,14 @@
+fn hello_message() -> string {
+    return "Hello, NanoLang!"
+}
+
+shadow hello_message {
+    assert (str_equals (hello_message) "Hello, NanoLang!")
+}
+
+fn main() -> int {
+    (println (hello_message))
+    return 0
+}
+
+shadow main { assert true }

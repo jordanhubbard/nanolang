@@ -112,11 +112,11 @@ fn level_to_string(level: int) -> string {
 }
 
 shadow level_to_string {
-    assert (str_equals (level_to_string LOG_LEVEL_DEBUG) "DEBUG")
-    assert (str_equals (level_to_string LOG_LEVEL_INFO) "INFO")
-    assert (str_equals (level_to_string LOG_LEVEL_WARN) "WARN")
-    assert (str_equals (level_to_string LOG_LEVEL_ERROR) "ERROR")
-    assert (str_equals (level_to_string LOG_LEVEL_FATAL) "FATAL")
+    assert (== (level_to_string LOG_LEVEL_DEBUG) "DEBUG")
+    assert (== (level_to_string LOG_LEVEL_INFO) "INFO")
+    assert (== (level_to_string LOG_LEVEL_WARN) "WARN")
+    assert (== (level_to_string LOG_LEVEL_ERROR) "ERROR")
+    assert (== (level_to_string LOG_LEVEL_FATAL) "FATAL")
 }
 
 fn format_log_text(level: int, message: string) -> string {
@@ -316,5 +316,5 @@ pub fn log_version() -> string {
 
 shadow log_version {
     let version: string = (log_version)
-    assert (str_equals version "1.0.0")
+    assert (== version "1.0.0")
 }

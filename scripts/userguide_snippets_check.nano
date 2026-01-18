@@ -24,7 +24,7 @@ fn str_starts_with(s: string, prefix: string) -> bool {
     let ls: int = (str_length s)
     let lp: int = (str_length prefix)
     if (< ls lp) { return false }
-    return (str_equals (str_substring s 0 lp) prefix)
+    return (== (str_substring s 0 lp) prefix)
 }
 
 shadow str_starts_with { assert (str_starts_with "hello" "he") }
@@ -33,7 +33,7 @@ fn str_ends_with(s: string, suffix: string) -> bool {
     let ls: int = (str_length s)
     let lf: int = (str_length suffix)
     if (< ls lf) { return false }
-    return (str_equals (str_substring s (- ls lf) lf) suffix)
+    return (== (str_substring s (- ls lf) lf) suffix)
 }
 
 shadow str_ends_with { assert (str_ends_with "hello" "lo") }
@@ -44,7 +44,7 @@ fn str_index_of(s: string, needle: string, start: int) -> int {
     if (== ln 0) { return start }
     let mut i: int = start
     while (<= (+ i ln) ls) {
-        if (str_equals (str_substring s i ln) needle) { return i }
+        if (== (str_substring s i ln) needle) { return i }
         set i (+ i 1)
     }
     return -1
@@ -65,7 +65,7 @@ fn trim_left(s: string) -> string {
     return (str_substring s i (- len i))
 }
 
-shadow trim_left { assert (str_equals (trim_left "  hi") "hi") }
+shadow trim_left { assert (== (trim_left "  hi") "hi") }
 
 fn trim_right(s: string) -> string {
     let mut end: int = (str_length s)
@@ -75,13 +75,13 @@ fn trim_right(s: string) -> string {
     return (str_substring s 0 end)
 }
 
-shadow trim_right { assert (str_equals (trim_right "hi  ") "hi") }
+shadow trim_right { assert (== (trim_right "hi  ") "hi") }
 
 fn trim(s: string) -> string {
     return (trim_right (trim_left s))
 }
 
-shadow trim { assert (str_equals (trim "  hi  ") "hi") }
+shadow trim { assert (== (trim "  hi  ") "hi") }
 
 fn split_lines(s: string) -> array<string> {
     let mut out: array<string> = []
@@ -109,8 +109,8 @@ shadow split_lines {
     let s: string = (+ "a" (+ nl (+ "b" nl)))
     let parts: array<string> = (split_lines s)
     assert (== (array_length parts) 2)
-    assert (str_equals (at parts 0) "a")
-    assert (str_equals (at parts 1) "b")
+    assert (== (at parts 0) "a")
+    assert (== (at parts 1) "b")
 }
 fn join_lines(lines: array<string>) -> string {
     let mut out: string = ""
@@ -127,7 +127,7 @@ fn join_lines(lines: array<string>) -> string {
 }
 
 shadow join_lines {
-    assert (str_equals (join_lines ["a", "b"]) "a\nb")
+    assert (== (join_lines ["a", "b"]) "a\nb")
 }
 fn strip_quotes(s: string) -> string {
     let n: int = (str_length s)
@@ -140,7 +140,7 @@ fn strip_quotes(s: string) -> string {
 shadow strip_quotes {
     let q: string = (string_from_char 34)
     let s: string = (+ q (+ "x" q))
-    assert (str_equals (strip_quotes s) "x")
+    assert (== (strip_quotes s) "x")
 }
 fn unescape_literal(s: string) -> string {
     let mut out: string = ""
@@ -167,7 +167,7 @@ shadow unescape_literal {
     let q: string = (string_from_char 34)
     let s: string = (+ bs (+ q (+ "x" (+ bs q))))
     let expected: string = (+ q (+ "x" q))
-    assert (str_equals (unescape_literal s) expected)
+    assert (== (unescape_literal s) expected)
 }
 
 
@@ -177,7 +177,7 @@ shadow unescape_literal {
 
 
 fn is_fence_start(line: string) -> bool { return (str_starts_with line "```") }
-fn is_fence_end(line: string) -> bool { return (str_equals (trim line) "```") }
+fn is_fence_end(line: string) -> bool { return (== (trim line) "```") }
 
 shadow is_fence_start { assert (is_fence_start "```nano") }
 shadow is_fence_end { assert (is_fence_end "```") }
@@ -195,7 +195,7 @@ fn parse_fence_lang(line: string) -> string {
 }
 
 shadow parse_fence_lang {
-    assert (str_equals (parse_fence_lang "```nano") "nano")
+    assert (== (parse_fence_lang "```nano") "nano")
 }
 
 fn extract_json_from_marker(line: string) -> Result<string, string> {
@@ -388,7 +388,7 @@ fn str_lower(s: string) -> string {
     return out
 }
 
-shadow str_lower { assert (str_equals (str_lower "NaNo") "nano") }
+shadow str_lower { assert (== (str_lower "NaNo") "nano") }
 
 fn sanitize_name(name: string) -> string {
     let mut out: string = ""
@@ -408,7 +408,7 @@ fn sanitize_name(name: string) -> string {
 }
 
 shadow sanitize_name {
-    assert (str_equals (sanitize_name "a b") "a_b")
+    assert (== (sanitize_name "a b") "a_b")
 }
 
 fn shell_escape(s: string) -> string {
@@ -477,7 +477,7 @@ fn main() -> int {
     let mut ai: int = 0
     while (< ai argc) {
         let arg: string = (get_argv ai)
-        if (and (str_equals arg "--export") (< (+ ai 1) argc)) {
+        if (and (== arg "--export") (< (+ ai 1) argc)) {
             set export_dir (get_argv (+ ai 1))
             set do_export true
         }
@@ -581,7 +581,7 @@ fn main() -> int {
         if snip.has_expect {
             let actual_norm: string = (trim_right run_res.stdout)
             let expect_norm: string = (trim_right snip.expect_stdout)
-            if (not (str_equals actual_norm expect_norm)) {
+            if (not (== actual_norm expect_norm)) {
                 set failures (array_push failures (+ "[FAIL] stdout mismatch: " (+ snip.name (+ " (" (+ snip.source_path ")")))))
                 set failures (array_push failures "--- expected ---")
                 set failures (array_push failures snip.expect_stdout)

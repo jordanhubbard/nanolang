@@ -96,7 +96,7 @@ fn format_percent(value: float) -> string {
 }
 
 shadow format_percent {
-    assert (str_equals (format_percent 0.25) "25%")
+    assert (== (format_percent 0.25) "25%")
 }
 
 fn main() -> int {

@@ -141,7 +141,7 @@ shadow opl_tokens_result_err {
     let err: OplError = OplError { code: "E", msg: "m", loc: OplLoc { line: 2, col: 3 }, path: "/x" }
     let r: OplTokensResult = (opl_tokens_result_err err)
     assert (not r.ok)
-    assert (str_equals r.error.code "E")
+    assert (== r.error.code "E")
     assert (== (array_length r.kinds) 0)
 }
 
@@ -169,7 +169,7 @@ shadow opl_tokens_len {
 
 fn opl_ast_smoke() -> int {
     let e: OplError = OplError { code: "E_X", msg: "m", loc: OplLoc { line: 1, col: 2 }, path: "/x" }
-    assert (str_equals e.code "E_X")
+    assert (== e.code "E_X")
 
     let mut kinds: array<int> = []
     let mut starts: array<int> = []
