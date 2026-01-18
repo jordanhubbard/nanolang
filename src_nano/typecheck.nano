@@ -51,7 +51,8 @@ struct Symbol {
     is_function: bool,
     param_count: int,
     defined: bool,
-    param_types: array<NSType>
+    param_types: array<NSType>,
+    return_type: NSType  /* Return type for functions - enables proper type inference */
 }
 
 /* Global storage for symbols - using arrays for Phase 1 */
@@ -1348,7 +1349,7 @@ shadow env_new {
 }
 
 /* Create a new symbol */
-fn symbol_new(name: string, sym_type: NSType, is_mut: bool, is_fn: bool, param_count: int, param_types: array<NSType>) -> Symbol {
+fn symbol_new(name: string, sym_type: NSType, is_mut: bool, is_fn: bool, param_count: int, param_types: array<NSType>, ret_type: NSType) -> Symbol {
     return Symbol {
         name: name,
         sym_type: sym_type,
@@ -1356,13 +1357,14 @@ fn symbol_new(name: string, sym_type: NSType, is_mut: bool, is_fn: bool, param_c
         is_function: is_fn,
         param_count: param_count,
         defined: true,
-        param_types: param_types
+        param_types: param_types,
+        return_type: ret_type
     }
 }
 
 shadow symbol_new {
     let empty_params: array<NSType> = []
-    let sym: Symbol = (symbol_new "x" (type_int) true false 0 empty_params)
+    let sym: Symbol = (symbol_new "x" (type_int) true false 0 empty_params (type_void))
     assert (== sym.is_mutable true)
     assert (== sym.is_function false)
 }
@@ -1836,7 +1838,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                             let idx2: int = (env_lookup symbols suffix)
                                             if (>= idx2 0) {
                                                 let sym: Symbol = (at symbols idx2)
-                                                return sym.sym_type
+                                                /* Use return_type for functions, sym_type for variables */
+                                                if sym.is_function {
+                                                    return sym.return_type
+                                                } else {
+                                                    return sym.sym_type
+                                                }
                                             } else {
                                                 (print "")
                                             }
@@ -1881,7 +1888,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                             (print "")
                                         }
 
-                                        return sym.sym_type
+                                        /* Use return_type for functions, sym_type for variables */
+                                        if sym.is_function {
+                                            return sym.return_type
+                                        } else {
+                                            return sym.sym_type
+                                        }
                                     }
                                 }
                             }
@@ -2156,7 +2168,7 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
                     element_type_kind: TypeKind.TYPE_UNKNOWN,
                     element_type_name: ""
                 }
-                let binding_sym: Symbol = (symbol_new binding_name binding_type false false 0 (empty_param_types))
+                let binding_sym: Symbol = (symbol_new binding_name binding_type false false 0 (empty_param_types) (type_void))
                 set arm_symbols (env_add_symbol (env_new) arm_symbols binding_sym)
             } else {
                 (print "")
@@ -2295,7 +2307,7 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>,
         (print "")
     }
 
-    let sym: Symbol = (symbol_new let_node.name declared_type let_node.is_mut false 0 (empty_param_types))
+    let sym: Symbol = (symbol_new let_node.name declared_type let_node.is_mut false 0 (empty_param_types) (type_void))
     return (env_add_symbol (env_new) symbols sym)
 }
 
@@ -2559,7 +2571,7 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
     while (< i func.param_count) {
         let param_let: ASTLet = (parser_get_let parser (+ func.param_start i))
         let ptype: NSType = (type_from_string param_let.var_type)
-        let psym: Symbol = (symbol_new param_let.name ptype param_let.is_mut false 0 (empty_param_types))
+        let psym: Symbol = (symbol_new param_let.name ptype param_let.is_mut false 0 (empty_param_types) (type_void))
         set func_symbols (env_add_symbol (env_new) func_symbols psym)
         set i (+ i 1)
     }
@@ -2614,23 +2626,23 @@ pub fn typecheck_phase(parser: Parser, file_name: string) -> TypecheckPhaseOutpu
     }
     
     /* Add built-in functions to symbol table */
-    let println_sym: Symbol = (symbol_new "println" (type_void) false true (- 0 1) (empty_param_types))
+    let println_sym: Symbol = (symbol_new "println" (type_void) false true (- 0 1) (empty_param_types) (type_void))
     set symbols (env_add_symbol env symbols println_sym)
-    let print_sym: Symbol = (symbol_new "print" (type_void) false true (- 0 1) (empty_param_types))
+    let print_sym: Symbol = (symbol_new "print" (type_void) false true (- 0 1) (empty_param_types) (type_void))
     set symbols (env_add_symbol env symbols print_sym)
 
     /* Minimal builtins used by nanoc_v06 */
-    let system_sym: Symbol = (symbol_new "system" (type_int) false true (- 0 1) (empty_param_types))
+    let system_sym: Symbol = (symbol_new "system" (type_int) false true (- 0 1) (empty_param_types) (type_int))
     set symbols (env_add_symbol env symbols system_sym)
-    let str_concat_sym: Symbol = (symbol_new "str_concat" (type_string) false true (- 0 1) (empty_param_types))
+    let str_concat_sym: Symbol = (symbol_new "str_concat" (type_string) false true (- 0 1) (empty_param_types) (type_string))
     set symbols (env_add_symbol env symbols str_concat_sym)
-    let str_equals_sym: Symbol = (symbol_new "str_equals" (type_bool) false true (- 0 1) (empty_param_types))
+    let str_equals_sym: Symbol = (symbol_new "str_equals" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
     set symbols (env_add_symbol env symbols str_equals_sym)
-    let not_sym: Symbol = (symbol_new "not" (type_bool) false true (- 0 1) (empty_param_types))
+    let not_sym: Symbol = (symbol_new "not" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
     set symbols (env_add_symbol env symbols not_sym)
-    let and_sym: Symbol = (symbol_new "and" (type_bool) false true (- 0 1) (empty_param_types))
+    let and_sym: Symbol = (symbol_new "and" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
     set symbols (env_add_symbol env symbols and_sym)
-    let or_sym: Symbol = (symbol_new "or" (type_bool) false true (- 0 1) (empty_param_types))
+    let or_sym: Symbol = (symbol_new "or" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
     set symbols (env_add_symbol env symbols or_sym)
     
     /* Phase 1: Add all user function signatures to symbol table */
@@ -2653,7 +2665,7 @@ pub fn typecheck_phase(parser: Parser, file_name: string) -> TypecheckPhaseOutpu
             (print "")
         }
 
-        let func_sym: Symbol = (symbol_new func.name return_type false true func.param_count param_types)
+        let func_sym: Symbol = (symbol_new func.name return_type false true func.param_count param_types return_type)
         set symbols (env_add_symbol env symbols func_sym)
         set i (+ i 1)
     }
