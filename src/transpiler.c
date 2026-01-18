@@ -776,6 +776,7 @@ static const char *type_to_c(Type type) {
         case TYPE_LIST_STRING: return "List_string*";
         case TYPE_LIST_TOKEN: return "List_Token*";
         case TYPE_LIST_GENERIC: return ""; /* Will be handled specially with type_name */
+        case TYPE_HASHMAP: return "void*"; /* Specialized as HashMap_K_V* when TypeInfo is available */
         case TYPE_OPAQUE: return "void*"; /* Opaque pointers stored as void* */
         default: return "void";
     }
@@ -1334,6 +1335,295 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
     }
     
     free(detected_list_types);
+}
+
+static void generate_hashmap_specializations(Environment *env, StringBuilder *sb) {
+    if (!env || !env->generic_instances) return;
+
+    bool emitted = false;
+    for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        if (!inst || !inst->generic_name) continue;
+        if (strcmp(inst->generic_name, "HashMap") != 0) continue;
+        if (!inst->concrete_name || inst->type_arg_count != 2) continue;
+
+        if (!emitted) {
+            sb_append(sb, "/* ========== HashMap Forward Declarations ========== */\n");
+            emitted = true;
+        }
+        sb_appendf(sb, "typedef struct %s %s;\n", inst->concrete_name, inst->concrete_name);
+    }
+
+    if (emitted) {
+        sb_append(sb, "/* ========== End HashMap Forward Declarations ========== */\n\n");
+    }
+}
+
+static void generate_hashmap_implementations(Environment *env, StringBuilder *sb) {
+    if (!env || !env->generic_instances) return;
+
+    bool emitted_any = false;
+
+    /* Shared helpers */
+    sb_append(sb, "/* ========== HashMap Runtime (Generated) ========== */\n\n");
+    sb_append(sb, "static uint64_t nl_hashmap_hash_string(const char *s) {\n");
+    sb_append(sb, "    if (!s) return 0;\n");
+    sb_append(sb, "    uint64_t hash = 1469598103934665603ULL;\n");
+    sb_append(sb, "    while (*s) { hash ^= (uint8_t)(*s++); hash *= 1099511628211ULL; }\n");
+    sb_append(sb, "    return hash;\n");
+    sb_append(sb, "}\n\n");
+    sb_append(sb, "static uint64_t nl_hashmap_hash_int(int64_t x) {\n");
+    sb_append(sb, "    uint64_t z = (uint64_t)x;\n");
+    sb_append(sb, "    z ^= z >> 33;\n");
+    sb_append(sb, "    z *= 0xff51afd7ed558ccdULL;\n");
+    sb_append(sb, "    z ^= z >> 33;\n");
+    sb_append(sb, "    z *= 0xc4ceb9fe1a85ec53ULL;\n");
+    sb_append(sb, "    z ^= z >> 33;\n");
+    sb_append(sb, "    return z;\n");
+    sb_append(sb, "}\n\n");
+    sb_append(sb, "static bool nl_hashmap_key_eq_string(const char *a, const char *b) {\n");
+    sb_append(sb, "    if (a == b) return true;\n");
+    sb_append(sb, "    if (!a || !b) return false;\n");
+    sb_append(sb, "    return strcmp(a, b) == 0;\n");
+    sb_append(sb, "}\n\n");
+
+    for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        if (!inst || !inst->generic_name) continue;
+        if (strcmp(inst->generic_name, "HashMap") != 0) continue;
+        if (!inst->concrete_name || !inst->type_arg_names || inst->type_arg_count != 2) continue;
+
+        const char *key = inst->type_arg_names[0];
+        const char *val = inst->type_arg_names[1];
+        if (!key || !val) continue;
+
+        if (!(strcmp(key, "int") == 0 || strcmp(key, "string") == 0)) continue;
+        if (!(strcmp(val, "int") == 0 || strcmp(val, "string") == 0)) continue;
+
+        const char *struct_name = inst->concrete_name;
+        const char *suffix = struct_name;
+        if (strncmp(struct_name, "HashMap_", 8) == 0) suffix = struct_name + 8;
+
+        const char *key_param_type = (strcmp(key, "string") == 0) ? "const char*" : "int64_t";
+        const char *key_store_type = (strcmp(key, "string") == 0) ? "char*" : "int64_t";
+        const char *val_param_type = (strcmp(val, "string") == 0) ? "const char*" : "int64_t";
+        const char *val_store_type = (strcmp(val, "string") == 0) ? "char*" : "int64_t";
+        const char *val_ret_type = (strcmp(val, "string") == 0) ? "const char*" : "int64_t";
+
+        const char *keys_elem = (strcmp(key, "string") == 0) ? "ELEM_STRING" : "ELEM_INT";
+        const char *values_elem = (strcmp(val, "string") == 0) ? "ELEM_STRING" : "ELEM_INT";
+        const char *keys_push = (strcmp(key, "string") == 0) ? "string" : "int";
+        const char *values_push = (strcmp(val, "string") == 0) ? "string" : "int";
+
+        const char *hash_fn = (strcmp(key, "string") == 0) ? "nl_hashmap_hash_string" : "nl_hashmap_hash_int";
+        const char *eq_fn = (strcmp(key, "string") == 0) ? "nl_hashmap_key_eq_string" : NULL;
+
+        emitted_any = true;
+
+        sb_appendf(sb, "typedef struct %s_Entry {\n", struct_name);
+        sb_append(sb, "    uint8_t state; /* 0=empty, 1=filled, 2=tombstone */\n");
+        sb_appendf(sb, "    %s key;\n", key_store_type);
+        sb_appendf(sb, "    %s value;\n", val_store_type);
+        sb_appendf(sb, "} %s_Entry;\n\n", struct_name);
+
+        sb_appendf(sb, "struct %s {\n", struct_name);
+        sb_append(sb, "    int64_t capacity;\n");
+        sb_append(sb, "    int64_t size;\n");
+        sb_append(sb, "    int64_t tombstones;\n");
+        sb_appendf(sb, "    %s_Entry *entries;\n", struct_name);
+        sb_append(sb, "};\n\n");
+
+        sb_appendf(sb, "static %s* nl_hashmap_%s_alloc(int64_t cap) {\n", struct_name, suffix);
+        sb_appendf(sb, "    %s *hm = (%s*)malloc(sizeof(%s));\n", struct_name, struct_name, struct_name);
+        sb_append(sb, "    if (!hm) return NULL;\n");
+        sb_append(sb, "    hm->capacity = cap;\n");
+        sb_append(sb, "    hm->size = 0;\n");
+        sb_append(sb, "    hm->tombstones = 0;\n");
+        sb_appendf(sb, "    hm->entries = (%s_Entry*)calloc((size_t)cap, sizeof(%s_Entry));\n", struct_name, struct_name);
+        sb_append(sb, "    if (!hm->entries) { free(hm); return NULL; }\n");
+        sb_append(sb, "    return hm;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "static int64_t nl_hashmap_%s_find_slot(%s *hm, %s key, bool *out_found) {\n", suffix, struct_name, key_param_type);
+        sb_append(sb, "    if (out_found) *out_found = false;\n");
+        sb_append(sb, "    if (!hm || hm->capacity <= 0) return -1;\n");
+        sb_appendf(sb, "    uint64_t h = %s(key);\n", hash_fn);
+        sb_append(sb, "    int64_t mask = hm->capacity - 1;\n");
+        sb_append(sb, "    int64_t idx = (int64_t)(h & (uint64_t)mask);\n");
+        sb_append(sb, "    int64_t first_tomb = -1;\n");
+        sb_append(sb, "    for (int64_t probe = 0; probe < hm->capacity; probe++) {\n");
+        sb_appendf(sb, "        %s_Entry *e = &hm->entries[idx];\n", struct_name);
+        sb_append(sb, "        if (e->state == 0) {\n");
+        sb_append(sb, "            if (first_tomb != -1) idx = first_tomb;\n");
+        sb_append(sb, "            return idx;\n");
+        sb_append(sb, "        }\n");
+        sb_append(sb, "        if (e->state == 2) {\n");
+        sb_append(sb, "            if (first_tomb == -1) first_tomb = idx;\n");
+        sb_append(sb, "        } else {\n");
+        if (strcmp(key, "string") == 0) {
+            sb_appendf(sb, "            if (%s(e->key, key)) { if (out_found) *out_found = true; return idx; }\n", eq_fn);
+        } else {
+            sb_append(sb, "            if (e->key == key) { if (out_found) *out_found = true; return idx; }\n");
+        }
+        sb_append(sb, "        }\n");
+        sb_append(sb, "        idx = (idx + 1) & mask;\n");
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    return first_tomb;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "static void nl_hashmap_%s_rehash(%s *hm, int64_t new_cap) {\n", suffix, struct_name);
+        sb_append(sb, "    if (!hm) return;\n");
+        sb_append(sb, "    if (new_cap < 8) new_cap = 8;\n");
+        sb_append(sb, "    /* Ensure power-of-two capacity */\n");
+        sb_append(sb, "    int64_t cap = 1;\n");
+        sb_append(sb, "    while (cap < new_cap) cap <<= 1;\n");
+        sb_appendf(sb, "    %s_Entry *old_entries = hm->entries;\n", struct_name);
+        sb_append(sb, "    int64_t old_cap = hm->capacity;\n");
+        sb_appendf(sb, "    hm->entries = (%s_Entry*)calloc((size_t)cap, sizeof(%s_Entry));\n", struct_name, struct_name);
+        sb_append(sb, "    if (!hm->entries) { hm->entries = old_entries; return; }\n");
+        sb_append(sb, "    hm->capacity = cap;\n");
+        sb_append(sb, "    hm->size = 0;\n");
+        sb_append(sb, "    hm->tombstones = 0;\n");
+        sb_append(sb, "    for (int64_t i2 = 0; i2 < old_cap; i2++) {\n");
+        sb_appendf(sb, "        %s_Entry *e = &old_entries[i2];\n", struct_name);
+        sb_append(sb, "        if (e->state != 1) continue;\n");
+        sb_append(sb, "        bool found = false;\n");
+        sb_appendf(sb, "        int64_t idx = nl_hashmap_%s_find_slot(hm, e->key, &found);\n", suffix);
+        sb_append(sb, "        if (idx >= 0) { hm->entries[idx] = *e; hm->entries[idx].state = 1; hm->size++; }\n");
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    free(old_entries);\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "%s* nl_hashmap_%s_new(void) {\n", struct_name, suffix);
+        sb_appendf(sb, "    return nl_hashmap_%s_alloc(16);\n", suffix);
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "void nl_hashmap_%s_put(%s *hm, %s key, %s value) {\n", suffix, struct_name, key_param_type, val_param_type);
+        sb_append(sb, "    if (!hm) return;\n");
+        sb_append(sb, "    if ((hm->size + hm->tombstones) * 10 >= hm->capacity * 7) {\n");
+        sb_appendf(sb, "        nl_hashmap_%s_rehash(hm, hm->capacity * 2);\n", suffix);
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    bool found = false;\n");
+        sb_appendf(sb, "    int64_t idx = nl_hashmap_%s_find_slot(hm, key, &found);\n", suffix);
+        sb_append(sb, "    if (idx < 0) return;\n");
+        sb_appendf(sb, "    %s_Entry *e = &hm->entries[idx];\n", struct_name);
+        sb_append(sb, "    if (found) {\n");
+        if (strcmp(val, "string") == 0) {
+            sb_append(sb, "        if (e->value) free(e->value);\n");
+            sb_append(sb, "        e->value = value ? strdup(value) : strdup(\"\");\n");
+        } else {
+            sb_append(sb, "        e->value = value;\n");
+        }
+        sb_append(sb, "        return;\n");
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    if (e->state == 2) { hm->tombstones--; }\n");
+        sb_append(sb, "    e->state = 1;\n");
+        if (strcmp(key, "string") == 0) {
+            sb_append(sb, "    e->key = key ? strdup(key) : strdup(\"\");\n");
+        } else {
+            sb_append(sb, "    e->key = key;\n");
+        }
+        if (strcmp(val, "string") == 0) {
+            sb_append(sb, "    e->value = value ? strdup(value) : strdup(\"\");\n");
+        } else {
+            sb_append(sb, "    e->value = value;\n");
+        }
+        sb_append(sb, "    hm->size++;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "bool nl_hashmap_%s_has(%s *hm, %s key) {\n", suffix, struct_name, key_param_type);
+        sb_append(sb, "    if (!hm) return false;\n");
+        sb_append(sb, "    bool found = false;\n");
+        sb_appendf(sb, "    int64_t idx = nl_hashmap_%s_find_slot(hm, key, &found);\n", suffix);
+        sb_append(sb, "    (void)idx;\n");
+        sb_append(sb, "    return found;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "%s nl_hashmap_%s_get(%s *hm, %s key) {\n", val_ret_type, suffix, struct_name, key_param_type);
+        sb_append(sb, "    if (!hm) ");
+        if (strcmp(val, "string") == 0) sb_append(sb, "return \"\";\n"); else sb_append(sb, "return 0;\n");
+        sb_append(sb, "    bool found = false;\n");
+        sb_appendf(sb, "    int64_t idx = nl_hashmap_%s_find_slot(hm, key, &found);\n", suffix);
+        sb_append(sb, "    if (!found || idx < 0) ");
+        if (strcmp(val, "string") == 0) sb_append(sb, "return \"\";\n"); else sb_append(sb, "return 0;\n");
+        sb_appendf(sb, "    %s_Entry *e = &hm->entries[idx];\n", struct_name);
+        sb_append(sb, "    return e->value ? e->value : ");
+        if (strcmp(val, "string") == 0) sb_append(sb, "\"\";\n"); else sb_append(sb, "0;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "void nl_hashmap_%s_remove(%s *hm, %s key) {\n", suffix, struct_name, key_param_type);
+        sb_append(sb, "    if (!hm) return;\n");
+        sb_append(sb, "    bool found = false;\n");
+        sb_appendf(sb, "    int64_t idx = nl_hashmap_%s_find_slot(hm, key, &found);\n", suffix);
+        sb_append(sb, "    if (!found || idx < 0) return;\n");
+        sb_appendf(sb, "    %s_Entry *e = &hm->entries[idx];\n", struct_name);
+        if (strcmp(key, "string") == 0) {
+            sb_append(sb, "    if (e->key) free(e->key);\n");
+        }
+        if (strcmp(val, "string") == 0) {
+            sb_append(sb, "    if (e->value) free(e->value);\n");
+        }
+        sb_append(sb, "    e->state = 2;\n");
+        sb_append(sb, "    hm->size--;\n");
+        sb_append(sb, "    hm->tombstones++;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "int64_t nl_hashmap_%s_length(%s *hm) {\n", suffix, struct_name);
+        sb_append(sb, "    return hm ? hm->size : 0;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "void nl_hashmap_%s_clear(%s *hm) {\n", suffix, struct_name);
+        sb_append(sb, "    if (!hm) return;\n");
+        sb_append(sb, "    for (int64_t i2 = 0; i2 < hm->capacity; i2++) {\n");
+        sb_appendf(sb, "        %s_Entry *e = &hm->entries[i2];\n", struct_name);
+        sb_append(sb, "        if (e->state != 1) { e->state = 0; continue; }\n");
+        if (strcmp(key, "string") == 0) {
+            sb_append(sb, "        if (e->key) free(e->key);\n");
+        }
+        if (strcmp(val, "string") == 0) {
+            sb_append(sb, "        if (e->value) free(e->value);\n");
+        }
+        sb_append(sb, "        e->state = 0;\n");
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    hm->size = 0;\n");
+        sb_append(sb, "    hm->tombstones = 0;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "void nl_hashmap_%s_free(%s *hm) {\n", suffix, struct_name);
+        sb_append(sb, "    if (!hm) return;\n");
+        sb_appendf(sb, "    nl_hashmap_%s_clear(hm);\n", suffix);
+        sb_append(sb, "    free(hm->entries);\n");
+        sb_append(sb, "    free(hm);\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "DynArray* nl_hashmap_%s_keys(%s *hm) {\n", suffix, struct_name);
+        sb_appendf(sb, "    DynArray* out = dyn_array_new(%s);\n", keys_elem);
+        sb_append(sb, "    if (!hm) return out;\n");
+        sb_append(sb, "    for (int64_t i2 = 0; i2 < hm->capacity; i2++) {\n");
+        sb_appendf(sb, "        %s_Entry *e = &hm->entries[i2];\n", struct_name);
+        sb_append(sb, "        if (e->state != 1) continue;\n");
+        sb_appendf(sb, "        dyn_array_push_%s(out, e->key);\n", keys_push);
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    return out;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "DynArray* nl_hashmap_%s_values(%s *hm) {\n", suffix, struct_name);
+        sb_appendf(sb, "    DynArray* out = dyn_array_new(%s);\n", values_elem);
+        sb_append(sb, "    if (!hm) return out;\n");
+        sb_append(sb, "    for (int64_t i2 = 0; i2 < hm->capacity; i2++) {\n");
+        sb_appendf(sb, "        %s_Entry *e = &hm->entries[i2];\n", struct_name);
+        sb_append(sb, "        if (e->state != 1) continue;\n");
+        sb_appendf(sb, "        dyn_array_push_%s(out, e->value);\n", values_push);
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    return out;\n");
+        sb_append(sb, "}\n\n");
+    }
+
+    if (!emitted_any) {
+        sb_append(sb, "/* (no HashMap instantiations) */\n\n");
+    }
+
+    sb_append(sb, "/* ========== End HashMap Runtime (Generated) ========== */\n\n");
 }
 
 /* Generate enum definitions */
@@ -2778,6 +3068,24 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                 }
             } else if (mi->as.function.return_type == TYPE_LIST_GENERIC && mi->as.function.return_struct_type_name) {
                 sb_appendf(sb, "List_%s*", mi->as.function.return_struct_type_name);
+            } else if (mi->as.function.return_type == TYPE_HASHMAP) {
+                if (mi->as.function.return_type_info &&
+                    mi->as.function.return_type_info->generic_name &&
+                    strcmp(mi->as.function.return_type_info->generic_name, "HashMap") == 0 &&
+                    mi->as.function.return_type_info->type_param_count == 2) {
+                    char monomorphized_name[256];
+                    if (build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            mi->as.function.return_type_info->generic_name,
+                            mi->as.function.return_type_info->type_params,
+                            mi->as.function.return_type_info->type_param_count)) {
+                        sb_appendf(sb, "%s*", monomorphized_name);
+                    } else {
+                        sb_append(sb, "void*");
+                    }
+                } else {
+                    sb_append(sb, "void*");
+                }
             } else if (mi->as.function.return_type == TYPE_FUNCTION) {
                 /* Avoid emitting incorrect prototypes (not needed for current stdlib) */
                 continue;
@@ -2802,6 +3110,23 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                     sb_append(sb, get_prefixed_type_name(param->struct_type_name));
                 } else if (param->type == TYPE_LIST_GENERIC && param->struct_type_name) {
                     sb_appendf(sb, "List_%s*", param->struct_type_name);
+                } else if (param->type == TYPE_HASHMAP) {
+                    if (param->type_info && param->type_info->generic_name &&
+                        strcmp(param->type_info->generic_name, "HashMap") == 0 &&
+                        param->type_info->type_param_count == 2) {
+                        char monomorphized_name[256];
+                        if (build_monomorphized_name_from_typeinfo(
+                                monomorphized_name, sizeof(monomorphized_name),
+                                param->type_info->generic_name,
+                                param->type_info->type_params,
+                                param->type_info->type_param_count)) {
+                            sb_appendf(sb, "%s*", monomorphized_name);
+                        } else {
+                            sb_append(sb, "void*");
+                        }
+                    } else {
+                        sb_append(sb, "void*");
+                    }
                 } else if (param->type == TYPE_FUNCTION && param->fn_sig && fn_registry) {
                     const char *typedef_name = register_function_signature(fn_registry, param->fn_sig);
                     sb_append(sb, typedef_name);
@@ -2863,6 +3188,24 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
             } else if (item->as.function.return_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
                 /* Generic list return type: List<ElementType> -> List_ElementType* */
                 sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
+            } else if (item->as.function.return_type == TYPE_HASHMAP) {
+                if (item->as.function.return_type_info &&
+                    item->as.function.return_type_info->generic_name &&
+                    strcmp(item->as.function.return_type_info->generic_name, "HashMap") == 0 &&
+                    item->as.function.return_type_info->type_param_count == 2) {
+                    char monomorphized_name[256];
+                    if (build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            item->as.function.return_type_info->generic_name,
+                            item->as.function.return_type_info->type_params,
+                            item->as.function.return_type_info->type_param_count)) {
+                        sb_appendf(sb, "%s*", monomorphized_name);
+                    } else {
+                        sb_append(sb, "void*");
+                    }
+                } else {
+                    sb_append(sb, "void*");
+                }
             } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
                 /* Check if this is an opaque type */
                 OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.return_struct_type_name);
@@ -2933,6 +3276,24 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                     sb_appendf(sb, "List_%s* %s",
                               item->as.function.params[j].struct_type_name,
                               item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_HASHMAP) {
+                    if (item->as.function.params[j].type_info &&
+                        item->as.function.params[j].type_info->generic_name &&
+                        strcmp(item->as.function.params[j].type_info->generic_name, "HashMap") == 0 &&
+                        item->as.function.params[j].type_info->type_param_count == 2) {
+                        char monomorphized_name[256];
+                        if (build_monomorphized_name_from_typeinfo(
+                                monomorphized_name, sizeof(monomorphized_name),
+                                item->as.function.params[j].type_info->generic_name,
+                                item->as.function.params[j].type_info->type_params,
+                                item->as.function.params[j].type_info->type_param_count)) {
+                            sb_appendf(sb, "%s* %s", monomorphized_name, item->as.function.params[j].name);
+                        } else {
+                            sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                        }
+                    } else {
+                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                    }
                 } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
                     /* Check if this is an opaque type */
                     OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
@@ -3014,6 +3375,24 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
             } else if (item->as.function.return_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
                 /* Generic list return type: List<ElementType> -> List_ElementType* */
                 sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
+            } else if (item->as.function.return_type == TYPE_HASHMAP) {
+                if (item->as.function.return_type_info &&
+                    item->as.function.return_type_info->generic_name &&
+                    strcmp(item->as.function.return_type_info->generic_name, "HashMap") == 0 &&
+                    item->as.function.return_type_info->type_param_count == 2) {
+                    char monomorphized_name[256];
+                    if (build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            item->as.function.return_type_info->generic_name,
+                            item->as.function.return_type_info->type_params,
+                            item->as.function.return_type_info->type_param_count)) {
+                        sb_appendf(sb, "%s*", monomorphized_name);
+                    } else {
+                        sb_append(sb, "void*");
+                    }
+                } else {
+                    sb_append(sb, "void*");
+                }
             } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
                 /* Check if this is an opaque type */
                 OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.return_struct_type_name);
@@ -3084,6 +3463,24 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                     sb_appendf(sb, "List_%s* %s",
                               item->as.function.params[j].struct_type_name,
                               item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_HASHMAP) {
+                    if (item->as.function.params[j].type_info &&
+                        item->as.function.params[j].type_info->generic_name &&
+                        strcmp(item->as.function.params[j].type_info->generic_name, "HashMap") == 0 &&
+                        item->as.function.params[j].type_info->type_param_count == 2) {
+                        char monomorphized_name[256];
+                        if (build_monomorphized_name_from_typeinfo(
+                                monomorphized_name, sizeof(monomorphized_name),
+                                item->as.function.params[j].type_info->generic_name,
+                                item->as.function.params[j].type_info->type_params,
+                                item->as.function.params[j].type_info->type_param_count)) {
+                            sb_appendf(sb, "%s* %s", monomorphized_name, item->as.function.params[j].name);
+                        } else {
+                            sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                        }
+                    } else {
+                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                    }
                 } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
                     /* Check if this is an opaque type */
                     OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
@@ -3347,7 +3744,24 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
         if (!item->as.let.is_mut && is_const_init) {
             /* Emit true constants as C constants */
             sb_append(sb, "static const ");
-            sb_append(sb, type_to_c(item->as.let.var_type));
+            if (item->as.let.var_type == TYPE_HASHMAP &&
+                item->as.let.type_info &&
+                item->as.let.type_info->generic_name &&
+                strcmp(item->as.let.type_info->generic_name, "HashMap") == 0 &&
+                item->as.let.type_info->type_param_count == 2) {
+                char monomorphized_name[256];
+                if (build_monomorphized_name_from_typeinfo(
+                        monomorphized_name, sizeof(monomorphized_name),
+                        item->as.let.type_info->generic_name,
+                        item->as.let.type_info->type_params,
+                        item->as.let.type_info->type_param_count)) {
+                    sb_appendf(sb, "%s*", monomorphized_name);
+                } else {
+                    sb_append(sb, "void*");
+                }
+            } else {
+                sb_append(sb, type_to_c(item->as.let.var_type));
+            }
             sb_appendf(sb, " %s = ", item->as.let.name);
             transpile_expression(sb, item->as.let.value, env);
             sb_append(sb, ";\n");
@@ -3356,7 +3770,24 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
 
         /* Emit as a normal global (mutable or runtime-initialized constant) */
         sb_append(sb, "static ");
-        sb_append(sb, type_to_c(item->as.let.var_type));
+        if (item->as.let.var_type == TYPE_HASHMAP &&
+            item->as.let.type_info &&
+            item->as.let.type_info->generic_name &&
+            strcmp(item->as.let.type_info->generic_name, "HashMap") == 0 &&
+            item->as.let.type_info->type_param_count == 2) {
+            char monomorphized_name[256];
+            if (build_monomorphized_name_from_typeinfo(
+                    monomorphized_name, sizeof(monomorphized_name),
+                    item->as.let.type_info->generic_name,
+                    item->as.let.type_info->type_params,
+                    item->as.let.type_info->type_param_count)) {
+                sb_appendf(sb, "%s*", monomorphized_name);
+            } else {
+                sb_append(sb, "void*");
+            }
+        } else {
+            sb_append(sb, type_to_c(item->as.let.var_type));
+        }
         sb_appendf(sb, " %s", item->as.let.name);
         if (is_const_init) {
             sb_append(sb, " = ");
@@ -3747,6 +4178,23 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
             } \
         } else if ((_return_type) == TYPE_LIST_GENERIC && (_return_struct_name)) { \
             sb_appendf(sb, "List_%s*", (_return_struct_name)); \
+        } else if ((_return_type) == TYPE_HASHMAP) { \
+            if ((_return_type_info) && (_return_type_info)->generic_name && \
+                strcmp((_return_type_info)->generic_name, "HashMap") == 0 && \
+                (_return_type_info)->type_param_count == 2) { \
+                char monomorphized_name[256]; \
+                if (build_monomorphized_name_from_typeinfo( \
+                        monomorphized_name, sizeof(monomorphized_name), \
+                        (_return_type_info)->generic_name, \
+                        (_return_type_info)->type_params, \
+                        (_return_type_info)->type_param_count)) { \
+                    sb_appendf(sb, "%s*", monomorphized_name); \
+                } else { \
+                    sb_append(sb, "void*"); \
+                } \
+            } else { \
+                sb_append(sb, "void*"); \
+            } \
         } else if ((_return_type) == TYPE_INT && \
                    (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "TTF_", 4) == 0)) { \
             if (strstr(func_name, "GetTicks")) { \
@@ -3777,6 +4225,23 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
                 sb_append(sb, prefixed_name); \
             } else if ((_params)[j].type == TYPE_LIST_GENERIC && (_params)[j].struct_type_name) { \
                 sb_appendf(sb, "List_%s*", (_params)[j].struct_type_name); \
+            } else if ((_params)[j].type == TYPE_HASHMAP) { \
+                if ((_params)[j].type_info && (_params)[j].type_info->generic_name && \
+                    strcmp((_params)[j].type_info->generic_name, "HashMap") == 0 && \
+                    (_params)[j].type_info->type_param_count == 2) { \
+                    char monomorphized_name[256]; \
+                    if (build_monomorphized_name_from_typeinfo( \
+                            monomorphized_name, sizeof(monomorphized_name), \
+                            (_params)[j].type_info->generic_name, \
+                            (_params)[j].type_info->type_params, \
+                            (_params)[j].type_info->type_param_count)) { \
+                        sb_appendf(sb, "%s*", monomorphized_name); \
+                    } else { \
+                        sb_append(sb, "void*"); \
+                    } \
+                } else { \
+                    sb_append(sb, "void*"); \
+                } \
             } else { \
                 sb_append(sb, type_to_c((_params)[j].type)); \
             } \
@@ -3864,6 +4329,9 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* Forward declare List types BEFORE structs */
     generate_list_specializations(env, sb);
 
+    /* Forward declare HashMap types BEFORE structs */
+    generate_hashmap_specializations(env, sb);
+
     /* Generate struct + union definitions in dependency-safe order */
     generate_struct_and_union_definitions_ordered(env, sb);
 
@@ -3877,6 +4345,9 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
 
     /* Generate List implementations and includes */
     generate_list_implementations(env, sb);
+
+    /* Generate HashMap implementations */
+    generate_hashmap_implementations(env, sb);
 
     /* Generate to_string helpers for user-defined types */
     generate_to_string_helpers(env, sb);

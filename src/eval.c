@@ -26,6 +26,226 @@ typedef struct {
     int fail_count;
 } ShadowFailure;
 
+/* ============================ Core HashMap<K,V> (Interpreter Only) ============================ */
+
+typedef enum {
+    NL_HM_KEY_INT,
+    NL_HM_KEY_STRING,
+} NLHashMapKeyType;
+
+typedef enum {
+    NL_HM_VAL_INT,
+    NL_HM_VAL_STRING,
+} NLHashMapValType;
+
+typedef struct {
+    uint8_t state; /* 0=empty, 1=filled, 2=tombstone */
+    union {
+        int64_t i;
+        char *s;
+    } key;
+    union {
+        int64_t i;
+        char *s;
+    } value;
+} NLHashMapEntry;
+
+typedef struct {
+    NLHashMapKeyType key_type;
+    NLHashMapValType val_type;
+    int64_t capacity;
+    int64_t size;
+    int64_t tombstones;
+    NLHashMapEntry *entries;
+} NLHashMapCore;
+
+static uint64_t nl_hm_hash_string(const char *s) {
+    if (!s) return 0;
+    uint64_t h = 1469598103934665603ULL;
+    for (const unsigned char *p = (const unsigned char*)s; *p; p++) {
+        h ^= (uint64_t)(*p);
+        h *= 1099511628211ULL;
+    }
+    return h;
+}
+
+static uint64_t nl_hm_hash_int(int64_t x) {
+    uint64_t z = (uint64_t)x;
+    z ^= z >> 33;
+    z *= 0xff51afd7ed558ccdULL;
+    z ^= z >> 33;
+    z *= 0xc4ceb9fe1a85ec53ULL;
+    z ^= z >> 33;
+    return z;
+}
+
+static bool nl_hm_parse_monomorph(const char *mono, NLHashMapKeyType *out_k, NLHashMapValType *out_v) {
+    if (out_k) *out_k = NL_HM_KEY_INT;
+    if (out_v) *out_v = NL_HM_VAL_INT;
+    if (!mono) return false;
+    if (strncmp(mono, "HashMap_", 8) != 0) return false;
+
+    const char *rest = mono + 8;
+    const char *sep = strchr(rest, '_');
+    if (!sep) return false;
+
+    size_t klen = (size_t)(sep - rest);
+    const char *vstr = sep + 1;
+
+    NLHashMapKeyType kt;
+    if (klen == 3 && strncmp(rest, "int", 3) == 0) {
+        kt = NL_HM_KEY_INT;
+    } else if (klen == 6 && strncmp(rest, "string", 6) == 0) {
+        kt = NL_HM_KEY_STRING;
+    } else {
+        return false;
+    }
+
+    NLHashMapValType vt;
+    if (strcmp(vstr, "int") == 0) {
+        vt = NL_HM_VAL_INT;
+    } else if (strcmp(vstr, "string") == 0) {
+        vt = NL_HM_VAL_STRING;
+    } else {
+        return false;
+    }
+
+    if (out_k) *out_k = kt;
+    if (out_v) *out_v = vt;
+    return true;
+}
+
+static const char *nl_hm_typeinfo_arg_name(const TypeInfo *ti) {
+    if (!ti) return NULL;
+    switch (ti->base_type) {
+        case TYPE_INT: return "int";
+        case TYPE_STRING: return "string";
+        default: return NULL;
+    }
+}
+
+static NLHashMapCore *nl_hm_alloc(NLHashMapKeyType kt, NLHashMapValType vt, int64_t capacity) {
+    if (capacity < 16) capacity = 16;
+    int64_t cap = 1;
+    while (cap < capacity) cap <<= 1;
+
+    NLHashMapCore *hm = (NLHashMapCore*)calloc(1, sizeof(NLHashMapCore));
+    if (!hm) return NULL;
+    hm->key_type = kt;
+    hm->val_type = vt;
+    hm->capacity = cap;
+    hm->entries = (NLHashMapEntry*)calloc((size_t)cap, sizeof(NLHashMapEntry));
+    if (!hm->entries) {
+        free(hm);
+        return NULL;
+    }
+    return hm;
+}
+
+static bool nl_hm_key_equals(const NLHashMapCore *hm, const NLHashMapEntry *e, const Value *key) {
+    if (!hm || !e || !key) return false;
+    if (hm->key_type == NL_HM_KEY_INT) {
+        return key->type == VAL_INT && e->key.i == key->as.int_val;
+    }
+    return key->type == VAL_STRING && e->key.s && key->as.string_val && strcmp(e->key.s, key->as.string_val) == 0;
+}
+
+static uint64_t nl_hm_hash_key(const NLHashMapCore *hm, const Value *key) {
+    if (!hm || !key) return 0;
+    if (hm->key_type == NL_HM_KEY_INT) return nl_hm_hash_int(key->as.int_val);
+    return nl_hm_hash_string(key->as.string_val);
+}
+
+static int64_t nl_hm_find_slot(const NLHashMapCore *hm, const Value *key, bool *out_found) {
+    if (out_found) *out_found = false;
+    if (!hm || !hm->entries || hm->capacity <= 0) return -1;
+
+    uint64_t h = nl_hm_hash_key(hm, key);
+    int64_t mask = hm->capacity - 1;
+    int64_t idx = (int64_t)(h & (uint64_t)mask);
+    int64_t first_tomb = -1;
+
+    for (int64_t probe = 0; probe < hm->capacity; probe++) {
+        NLHashMapEntry *e = &hm->entries[idx];
+        if (e->state == 0) {
+            if (first_tomb != -1) idx = first_tomb;
+            return idx;
+        }
+        if (e->state == 2) {
+            if (first_tomb == -1) first_tomb = idx;
+        } else if (nl_hm_key_equals(hm, e, key)) {
+            if (out_found) *out_found = true;
+            return idx;
+        }
+        idx = (idx + 1) & mask;
+    }
+    return first_tomb;
+}
+
+static void nl_hm_free_entry(NLHashMapCore *hm, NLHashMapEntry *e) {
+    if (!hm || !e) return;
+    if (e->state != 1) return;
+    if (hm->key_type == NL_HM_KEY_STRING && e->key.s) free(e->key.s);
+    if (hm->val_type == NL_HM_VAL_STRING && e->value.s) free(e->value.s);
+    e->key.s = NULL;
+    e->value.s = NULL;
+}
+
+static void nl_hm_rehash(NLHashMapCore *hm, int64_t new_cap) {
+    if (!hm) return;
+    NLHashMapCore *next = nl_hm_alloc(hm->key_type, hm->val_type, new_cap);
+    if (!next) return;
+
+    for (int64_t i = 0; i < hm->capacity; i++) {
+        NLHashMapEntry *e = &hm->entries[i];
+        if (e->state != 1) continue;
+
+        Value key;
+        key.is_return = false; key.is_break = false; key.is_continue = false;
+        if (hm->key_type == NL_HM_KEY_INT) {
+            key.type = VAL_INT;
+            key.as.int_val = e->key.i;
+        } else {
+            key.type = VAL_STRING;
+            key.as.string_val = e->key.s;
+        }
+
+        bool found = false;
+        int64_t idx = nl_hm_find_slot(next, &key, &found);
+        if (idx >= 0) {
+            next->entries[idx] = *e; /* move ownership */
+            next->entries[idx].state = 1;
+            next->size++;
+        }
+        e->key.s = NULL;
+        e->value.s = NULL;
+    }
+
+    free(hm->entries);
+    hm->entries = next->entries;
+    hm->capacity = next->capacity;
+    hm->size = next->size;
+    hm->tombstones = 0;
+    free(next);
+}
+
+static void nl_hm_clear(NLHashMapCore *hm) {
+    if (!hm || !hm->entries) return;
+    for (int64_t i = 0; i < hm->capacity; i++) {
+        nl_hm_free_entry(hm, &hm->entries[i]);
+        hm->entries[i].state = 0;
+    }
+    hm->size = 0;
+    hm->tombstones = 0;
+}
+
+static void nl_hm_free(NLHashMapCore *hm) {
+    if (!hm) return;
+    nl_hm_clear(hm);
+    free(hm->entries);
+    free(hm);
+}
+
 static FunctionSignature *copy_function_signature(const FunctionSignature *sig) {
     if (!sig) return NULL;
 
@@ -4008,6 +4228,226 @@ static Value eval_call(ASTNode *node, Environment *env) {
 
     /* Get user-defined function */
     Function *func = env_get_function(env, name);
+
+    /* HashMap<K,V> core built-ins (only when not shadowed by a user-defined function) */
+    if (!func) {
+        if (strcmp(name, "map_new") == 0) {
+            if (node->as.call.arg_count != 0) {
+                fprintf(stderr, "Error: map_new requires 0 arguments\n");
+                return create_void();
+            }
+
+            NLHashMapKeyType kt;
+            NLHashMapValType vt;
+            const char *mono = node->as.call.return_struct_type_name;
+            if (!nl_hm_parse_monomorph(mono, &kt, &vt)) {
+                fprintf(stderr, "Error: map_new requires HashMap<K,V> type context\n");
+                return create_void();
+            }
+
+            NLHashMapCore *hm = nl_hm_alloc(kt, vt, 16);
+            return create_int((long long)hm);
+        }
+
+        if (strcmp(name, "map_put") == 0 || strcmp(name, "map_set") == 0) {
+            if (node->as.call.arg_count != 3) {
+                fprintf(stderr, "Error: %s requires 3 arguments\n", name);
+                return create_void();
+            }
+            if (args[0].type != VAL_INT) {
+                fprintf(stderr, "Error: %s expects HashMap as first argument\n", name);
+                return create_void();
+            }
+            NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
+            if (!hm) return create_void();
+
+            /* Resize */
+            if ((hm->size + hm->tombstones) * 10 >= hm->capacity * 7) {
+                nl_hm_rehash(hm, hm->capacity * 2);
+            }
+
+            /* Type checks */
+            if (hm->key_type == NL_HM_KEY_INT && args[1].type != VAL_INT) {
+                fprintf(stderr, "Error: %s expects int key\n", name);
+                return create_void();
+            }
+            if (hm->key_type == NL_HM_KEY_STRING && args[1].type != VAL_STRING) {
+                fprintf(stderr, "Error: %s expects string key\n", name);
+                return create_void();
+            }
+            if (hm->val_type == NL_HM_VAL_INT && args[2].type != VAL_INT) {
+                fprintf(stderr, "Error: %s expects int value\n", name);
+                return create_void();
+            }
+            if (hm->val_type == NL_HM_VAL_STRING && args[2].type != VAL_STRING) {
+                fprintf(stderr, "Error: %s expects string value\n", name);
+                return create_void();
+            }
+
+            bool found = false;
+            int64_t idx = nl_hm_find_slot(hm, &args[1], &found);
+            if (idx < 0) return create_void();
+            NLHashMapEntry *e = &hm->entries[idx];
+
+            if (found) {
+                if (hm->val_type == NL_HM_VAL_STRING) {
+                    if (e->value.s) free(e->value.s);
+                    e->value.s = args[2].as.string_val ? strdup(args[2].as.string_val) : strdup("");
+                } else {
+                    e->value.i = args[2].as.int_val;
+                }
+                return create_void();
+            }
+
+            if (e->state == 2) hm->tombstones--;
+            e->state = 1;
+            if (hm->key_type == NL_HM_KEY_STRING) {
+                e->key.s = args[1].as.string_val ? strdup(args[1].as.string_val) : strdup("");
+            } else {
+                e->key.i = args[1].as.int_val;
+            }
+            if (hm->val_type == NL_HM_VAL_STRING) {
+                e->value.s = args[2].as.string_val ? strdup(args[2].as.string_val) : strdup("");
+            } else {
+                e->value.i = args[2].as.int_val;
+            }
+            hm->size++;
+            return create_void();
+        }
+
+        if (strcmp(name, "map_get") == 0) {
+            if (node->as.call.arg_count != 2) {
+                fprintf(stderr, "Error: map_get requires 2 arguments\n");
+                return create_void();
+            }
+            if (args[0].type != VAL_INT) {
+                fprintf(stderr, "Error: map_get expects HashMap as first argument\n");
+                return create_void();
+            }
+            NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
+            if (!hm) {
+                return (Value){ .type = VAL_VOID };
+            }
+            bool found = false;
+            int64_t idx = nl_hm_find_slot(hm, &args[1], &found);
+            if (!found || idx < 0) {
+                if (hm->val_type == NL_HM_VAL_STRING) return create_string("");
+                return create_int(0);
+            }
+            NLHashMapEntry *e = &hm->entries[idx];
+            if (hm->val_type == NL_HM_VAL_STRING) return create_string(e->value.s ? e->value.s : "");
+            return create_int(e->value.i);
+        }
+
+        if (strcmp(name, "map_has") == 0) {
+            if (node->as.call.arg_count != 2) {
+                fprintf(stderr, "Error: map_has requires 2 arguments\n");
+                return create_void();
+            }
+            if (args[0].type != VAL_INT) {
+                fprintf(stderr, "Error: map_has expects HashMap as first argument\n");
+                return create_void();
+            }
+            NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
+            if (!hm) return create_bool(false);
+            bool found = false;
+            (void)nl_hm_find_slot(hm, &args[1], &found);
+            return create_bool(found);
+        }
+
+        if (strcmp(name, "map_remove") == 0) {
+            if (node->as.call.arg_count != 2) {
+                fprintf(stderr, "Error: map_remove requires 2 arguments\n");
+                return create_void();
+            }
+            if (args[0].type != VAL_INT) {
+                fprintf(stderr, "Error: map_remove expects HashMap as first argument\n");
+                return create_void();
+            }
+            NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
+            if (!hm) return create_void();
+            bool found = false;
+            int64_t idx = nl_hm_find_slot(hm, &args[1], &found);
+            if (!found || idx < 0) return create_void();
+            NLHashMapEntry *e = &hm->entries[idx];
+            nl_hm_free_entry(hm, e);
+            e->state = 2;
+            hm->size--;
+            hm->tombstones++;
+            return create_void();
+        }
+
+        if (strcmp(name, "map_length") == 0 || strcmp(name, "map_size") == 0) {
+            if (node->as.call.arg_count != 1) {
+                fprintf(stderr, "Error: %s requires 1 argument\n", name);
+                return create_void();
+            }
+            if (args[0].type != VAL_INT) {
+                fprintf(stderr, "Error: %s expects HashMap as first argument\n", name);
+                return create_void();
+            }
+            NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
+            return create_int(hm ? hm->size : 0);
+        }
+
+        if (strcmp(name, "map_clear") == 0 || strcmp(name, "map_free") == 0) {
+            if (node->as.call.arg_count != 1) {
+                fprintf(stderr, "Error: %s requires 1 argument\n", name);
+                return create_void();
+            }
+            if (args[0].type != VAL_INT) {
+                fprintf(stderr, "Error: %s expects HashMap as first argument\n", name);
+                return create_void();
+            }
+            NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
+            if (!hm) return create_void();
+            if (strcmp(name, "map_free") == 0) {
+                nl_hm_free(hm);
+            } else {
+                nl_hm_clear(hm);
+            }
+            return create_void();
+        }
+
+        if (strcmp(name, "map_keys") == 0 || strcmp(name, "map_values") == 0) {
+            if (node->as.call.arg_count != 1) {
+                fprintf(stderr, "Error: %s requires 1 argument\n", name);
+                return create_void();
+            }
+            if (args[0].type != VAL_INT) {
+                fprintf(stderr, "Error: %s expects HashMap as first argument\n", name);
+                return create_void();
+            }
+            NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
+            if (!hm) return create_array(VAL_INT, 0, 0);
+
+            bool is_keys = (strcmp(name, "map_keys") == 0);
+            ValueType elem_type;
+            if (is_keys) {
+                elem_type = (hm->key_type == NL_HM_KEY_STRING) ? VAL_STRING : VAL_INT;
+            } else {
+                elem_type = (hm->val_type == NL_HM_VAL_STRING) ? VAL_STRING : VAL_INT;
+            }
+
+            Value out = create_array(elem_type, (int)hm->size, (int)hm->size);
+            int out_idx = 0;
+            for (int64_t i = 0; i < hm->capacity; i++) {
+                NLHashMapEntry *e = &hm->entries[i];
+                if (e->state != 1) continue;
+                if (elem_type == VAL_STRING) {
+                    char *s = NULL;
+                    if (is_keys) s = e->key.s; else s = e->value.s;
+                    ((char**)out.as.array_val->data)[out_idx++] = s;
+                } else {
+                    int64_t v = 0;
+                    if (is_keys) v = e->key.i; else v = e->value.i;
+                    ((long long*)out.as.array_val->data)[out_idx++] = v;
+                }
+            }
+            out.as.array_val->length = out_idx;
+            return out;
+        }
+    }
     
     /* Check if this is a generic list function (List_TypeName_new, List_TypeName_push, etc.) */
     /* This check happens before checking func->body because generic list functions are registered as extern */
@@ -4716,8 +5156,34 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
     switch (stmt->type) {
         case AST_LET: {
+            /* For HashMap<K,V>, ensure (map_new) has concrete type context during interpretation. */
+            if (stmt->as.let.var_type == TYPE_HASHMAP &&
+                stmt->as.let.type_info &&
+                stmt->as.let.value &&
+                stmt->as.let.value->type == AST_CALL &&
+                stmt->as.let.value->as.call.name &&
+                strcmp(stmt->as.let.value->as.call.name, "map_new") == 0 &&
+                stmt->as.let.value->as.call.return_struct_type_name == NULL) {
+                TypeInfo *info = stmt->as.let.type_info;
+                if (info->generic_name && strcmp(info->generic_name, "HashMap") == 0 && info->type_param_count == 2) {
+                    const char *k = nl_hm_typeinfo_arg_name(info->type_params[0]);
+                    const char *v = nl_hm_typeinfo_arg_name(info->type_params[1]);
+                    if (k && v) {
+                        char mono[128];
+                        snprintf(mono, sizeof(mono), "HashMap_%s_%s", k, v);
+                        stmt->as.let.value->as.call.return_struct_type_name = strdup(mono);
+                    }
+                }
+            }
+
             Value value = eval_expression(stmt->as.let.value, env);
-            env_define_var(env, stmt->as.let.name, stmt->as.let.var_type, stmt->as.let.is_mut, value);
+            env_define_var_with_type_info(env,
+                                         stmt->as.let.name,
+                                         stmt->as.let.var_type,
+                                         stmt->as.let.element_type,
+                                         stmt->as.let.type_info,
+                                         stmt->as.let.is_mut,
+                                         value);
             
             /* Trace variable declaration */
 #ifdef TRACING_ENABLED

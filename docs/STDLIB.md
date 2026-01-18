@@ -1,6 +1,6 @@
 # nanolang Standard Library Reference
 
-Complete reference for all 37 built-in functions in nanolang.
+Complete reference for built-in functions in nanolang.
 
 ---
 
@@ -459,6 +459,64 @@ let mut nums: array<int> = [1, 2, 3]
 # Bounds checking enforced
 # (array_set nums 10 99)      # ERROR: index out of bounds!
 ```
+
+---
+
+## HashMap Operations (10)
+
+**HashMap<K,V>** is a key-value collection with **O(1)** average lookup.
+
+**Current constraints:**
+- **Key type:** `int` or `string`
+- **Value type:** `int` or `string`
+- Requires explicit type annotation: `HashMap<K,V>`
+
+### `map_new() -> HashMap<K,V>`
+Creates a new hash map. **Requires a type annotation** on the variable.
+
+```nano
+let hm: HashMap<string, int> = (map_new)
+```
+
+### `map_put(map: HashMap<K,V>, key: K, value: V) -> void`
+Inserts or updates a key/value pair.
+
+```nano
+(map_put hm "alice" 10)
+(map_put hm "bob" 20)
+```
+
+### `map_get(map: HashMap<K,V>, key: K) -> V`
+Returns the value for a key, or a default (`0` or `""`) if missing.
+
+```nano
+let score: int = (map_get hm "alice")
+```
+
+### `map_has(map: HashMap<K,V>, key: K) -> bool`
+Checks if a key exists.
+
+```nano
+if (map_has hm "alice") { (println "found") }
+```
+
+### `map_remove(map: HashMap<K,V>, key: K) -> void`
+Removes a key/value pair if present.
+
+### `map_length(map: HashMap<K,V>) -> int`
+Returns the number of entries. Alias: `map_size`.
+
+### `map_clear(map: HashMap<K,V>) -> void`
+Removes all entries without freeing the map. Alias: `map_free` frees memory.
+
+### `map_free(map: HashMap<K,V>) -> void`
+Frees the hash map and its internal storage.
+
+### `map_keys(map: HashMap<K,V>) -> array<K>`
+Returns all keys as an array.
+
+### `map_values(map: HashMap<K,V>) -> array<V>`
+Returns all values as an array.
 
 **Safety:** 
 - Requires array to be declared `mut`

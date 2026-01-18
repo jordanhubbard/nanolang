@@ -1,0 +1,34 @@
+fn main() -> int { return 0 }
+
+shadow main {
+    let hm_si: HashMap<string, int> = (map_new)
+    (map_put hm_si "a" 1)
+    (map_put hm_si "b" 2)
+    assert (== (map_size hm_si) 2)
+    assert (== (map_has hm_si "a") true)
+    assert (== (map_get hm_si "a") 1)
+    assert (== (map_get hm_si "b") 2)
+
+    (map_remove hm_si "a")
+    assert (== (map_has hm_si "a") false)
+    assert (== (map_size hm_si) 1)
+
+    let ks: array<string> = (map_keys hm_si)
+    assert (== (array_length ks) (map_size hm_si))
+    let mut i: int = 0
+    while (< i (array_length ks)) {
+        let k: string = (at ks i)
+        assert (== (map_has hm_si k) true)
+        set i (+ i 1)
+    }
+
+    (map_free hm_si)
+
+    let hm_is: HashMap<int, string> = (map_new)
+    (map_put hm_is 10 "x")
+    (map_put hm_is 20 "y")
+    assert (== (map_size hm_is) 2)
+    assert (== (map_get hm_is 10) "x")
+    assert (== (map_get hm_is 20) "y")
+    (map_free hm_is)
+}

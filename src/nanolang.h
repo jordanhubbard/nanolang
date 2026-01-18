@@ -100,6 +100,7 @@ typedef enum {
     TYPE_LIST_STRING,
     TYPE_LIST_TOKEN,
     TYPE_LIST_GENERIC, /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
+    TYPE_HASHMAP,      /* Generic HashMap<K,V> */
     TYPE_FUNCTION,     /* Function type: fn(int, int) -> int */
     TYPE_TUPLE,        /* Tuple type: (int, string, bool) */
     TYPE_OPAQUE,       /* Opaque C pointer type: GLFWwindow, SDL_Window, etc. */
@@ -680,6 +681,7 @@ void env_add_module_exported_struct(Environment *env, const char *module_name, c
 void env_define_enum(Environment *env, EnumDef enum_def);
 EnumDef *env_get_enum(Environment *env, const char *name);
 void env_register_list_instantiation(Environment *env, const char *element_type);
+void env_register_hashmap_instantiation(Environment *env, const char *key_type, const char *value_type);
 void env_register_union_instantiation(Environment *env, const char *union_name,
                                       const char **type_args, int type_arg_count);
 int env_get_enum_variant(Environment *env, const char *variant_name);

@@ -253,6 +253,7 @@ const char *type_to_string(Type type) {
         case TYPE_FUNCTION: return "function";
         case TYPE_LIST_INT: return "list_int";
         case TYPE_LIST_STRING: return "list_string";
+        case TYPE_HASHMAP: return "HashMap";
         case TYPE_UNKNOWN: return "unknown";
         default: return "unknown";
     }
@@ -334,6 +335,7 @@ static bool contains_extern_calls(ASTNode *node, Environment *env) {
 }
 
 /* Check if types are compatible */
+static Type type_from_typeinfo(TypeInfo *info, const char **out_struct_name);
 static bool types_match(Type t1, Type t2) {
     if (t1 == t2) return true;
 
@@ -369,6 +371,18 @@ static bool types_match(Type t1, Type t2) {
     }
     
     return false;
+}
+
+static bool hashmap_extract_kv(TypeInfo *hm_info, Type *out_key, Type *out_value) {
+    if (out_key) *out_key = TYPE_UNKNOWN;
+    if (out_value) *out_value = TYPE_UNKNOWN;
+    if (!hm_info || !hm_info->generic_name) return false;
+    if (strcmp(hm_info->generic_name, "HashMap") != 0) return false;
+    if (hm_info->type_param_count != 2 || !hm_info->type_params) return false;
+
+    if (out_key) *out_key = type_from_typeinfo(hm_info->type_params[0], NULL);
+    if (out_value) *out_value = type_from_typeinfo(hm_info->type_params[1], NULL);
+    return true;
 }
 
 /* Helper: Get the struct type name from an expression (returns NULL if not a struct) */
@@ -1279,6 +1293,183 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         check_expression(expr->as.call.args[0], env);
                     }
                     return TYPE_INT;
+                }
+
+                /* HashMap<K,V> core built-ins (only if no user-defined function with same name exists) */
+                if (strcmp(expr->as.call.name, "map_new") == 0) {
+                    if (expr->as.call.arg_count != 0) {
+                        fprintf(stderr, "Error at line %d, column %d: map_new requires 0 arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+
+                    /* Requires type context (e.g., let hm: HashMap<K,V> = (map_new)) */
+                    if (!expr->as.call.return_struct_type_name) {
+                        fprintf(stderr, "Error at line %d, column %d: map_new requires a HashMap<K,V> type annotation\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    return TYPE_HASHMAP;
+                }
+
+                if (strcmp(expr->as.call.name, "map_put") == 0 || strcmp(expr->as.call.name, "map_set") == 0) {
+                    if (expr->as.call.arg_count != 3) {
+                        fprintf(stderr, "Error at line %d, column %d: %s requires 3 arguments\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    Type hm_t = check_expression(expr->as.call.args[0], env);
+                    Type key_t = check_expression(expr->as.call.args[1], env);
+                    Type val_t = check_expression(expr->as.call.args[2], env);
+                    if (hm_t != TYPE_HASHMAP) {
+                        fprintf(stderr, "Error at line %d, column %d: %s expects HashMap as first argument\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    TypeInfo *hm_info = try_get_expr_type_info(expr->as.call.args[0], env);
+                    Type exp_k = TYPE_UNKNOWN;
+                    Type exp_v = TYPE_UNKNOWN;
+                    if (!hashmap_extract_kv(hm_info, &exp_k, &exp_v)) {
+                        fprintf(stderr, "Error at line %d, column %d: Cannot infer HashMap<K,V> type arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    if (!types_match(key_t, exp_k) || !types_match(val_t, exp_v)) {
+                        fprintf(stderr, "Error at line %d, column %d: %s expects key %s and value %s\n",
+                                expr->line, expr->column, expr->as.call.name, type_to_string(exp_k), type_to_string(exp_v));
+                        return TYPE_UNKNOWN;
+                    }
+                    return TYPE_VOID;
+                }
+
+                if (strcmp(expr->as.call.name, "map_get") == 0) {
+                    if (expr->as.call.arg_count != 2) {
+                        fprintf(stderr, "Error at line %d, column %d: map_get requires 2 arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    Type hm_t = check_expression(expr->as.call.args[0], env);
+                    Type key_t = check_expression(expr->as.call.args[1], env);
+                    if (hm_t != TYPE_HASHMAP) {
+                        fprintf(stderr, "Error at line %d, column %d: map_get expects HashMap as first argument\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    TypeInfo *hm_info = try_get_expr_type_info(expr->as.call.args[0], env);
+                    Type exp_k = TYPE_UNKNOWN;
+                    Type exp_v = TYPE_UNKNOWN;
+                    if (!hashmap_extract_kv(hm_info, &exp_k, &exp_v)) {
+                        fprintf(stderr, "Error at line %d, column %d: Cannot infer HashMap<K,V> type arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    if (!types_match(key_t, exp_k)) {
+                        fprintf(stderr, "Error at line %d, column %d: map_get expects key type %s\n",
+                                expr->line, expr->column, type_to_string(exp_k));
+                        return TYPE_UNKNOWN;
+                    }
+                    return exp_v;
+                }
+
+                if (strcmp(expr->as.call.name, "map_has") == 0) {
+                    if (expr->as.call.arg_count != 2) {
+                        fprintf(stderr, "Error at line %d, column %d: map_has requires 2 arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    Type hm_t = check_expression(expr->as.call.args[0], env);
+                    Type key_t = check_expression(expr->as.call.args[1], env);
+                    if (hm_t != TYPE_HASHMAP) {
+                        fprintf(stderr, "Error at line %d, column %d: map_has expects HashMap as first argument\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    TypeInfo *hm_info = try_get_expr_type_info(expr->as.call.args[0], env);
+                    Type exp_k = TYPE_UNKNOWN;
+                    if (!hashmap_extract_kv(hm_info, &exp_k, NULL)) {
+                        fprintf(stderr, "Error at line %d, column %d: Cannot infer HashMap<K,V> type arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    if (!types_match(key_t, exp_k)) {
+                        fprintf(stderr, "Error at line %d, column %d: map_has expects key type %s\n",
+                                expr->line, expr->column, type_to_string(exp_k));
+                        return TYPE_UNKNOWN;
+                    }
+                    return TYPE_BOOL;
+                }
+
+                if (strcmp(expr->as.call.name, "map_remove") == 0) {
+                    if (expr->as.call.arg_count != 2) {
+                        fprintf(stderr, "Error at line %d, column %d: map_remove requires 2 arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    Type hm_t = check_expression(expr->as.call.args[0], env);
+                    Type key_t = check_expression(expr->as.call.args[1], env);
+                    if (hm_t != TYPE_HASHMAP) {
+                        fprintf(stderr, "Error at line %d, column %d: map_remove expects HashMap as first argument\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    TypeInfo *hm_info = try_get_expr_type_info(expr->as.call.args[0], env);
+                    Type exp_k = TYPE_UNKNOWN;
+                    if (!hashmap_extract_kv(hm_info, &exp_k, NULL)) {
+                        fprintf(stderr, "Error at line %d, column %d: Cannot infer HashMap<K,V> type arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    if (!types_match(key_t, exp_k)) {
+                        fprintf(stderr, "Error at line %d, column %d: map_remove expects key type %s\n",
+                                expr->line, expr->column, type_to_string(exp_k));
+                        return TYPE_UNKNOWN;
+                    }
+                    return TYPE_VOID;
+                }
+
+                if (strcmp(expr->as.call.name, "map_length") == 0 || strcmp(expr->as.call.name, "map_size") == 0) {
+                    if (expr->as.call.arg_count != 1) {
+                        fprintf(stderr, "Error at line %d, column %d: %s requires 1 argument\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    Type hm_t = check_expression(expr->as.call.args[0], env);
+                    if (hm_t != TYPE_HASHMAP) {
+                        fprintf(stderr, "Error at line %d, column %d: %s expects HashMap as first argument\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    return TYPE_INT;
+                }
+
+                if (strcmp(expr->as.call.name, "map_clear") == 0 || strcmp(expr->as.call.name, "map_free") == 0) {
+                    if (expr->as.call.arg_count != 1) {
+                        fprintf(stderr, "Error at line %d, column %d: %s requires 1 argument\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    Type hm_t = check_expression(expr->as.call.args[0], env);
+                    if (hm_t != TYPE_HASHMAP) {
+                        fprintf(stderr, "Error at line %d, column %d: %s expects HashMap as first argument\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    return TYPE_VOID;
+                }
+
+                if (strcmp(expr->as.call.name, "map_keys") == 0 || strcmp(expr->as.call.name, "map_values") == 0) {
+                    if (expr->as.call.arg_count != 1) {
+                        fprintf(stderr, "Error at line %d, column %d: %s requires 1 argument\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    Type hm_t = check_expression(expr->as.call.args[0], env);
+                    if (hm_t != TYPE_HASHMAP) {
+                        fprintf(stderr, "Error at line %d, column %d: %s expects HashMap as first argument\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    return TYPE_ARRAY;
                 }
                 
                 /* Special handling for generic list functions: list_TypeName_operation */
@@ -2605,6 +2796,61 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         }
                         free(type_names);
                     }
+                }
+            }
+
+            /* Handle HashMap<K,V> (register instantiation for code generation) */
+            if (declared_type == TYPE_HASHMAP && stmt->as.let.type_info) {
+                TypeInfo *info = stmt->as.let.type_info;
+                if (!info->generic_name || strcmp(info->generic_name, "HashMap") != 0) {
+                    fprintf(stderr, "Error at line %d, column %d: Invalid HashMap type annotation\n",
+                            stmt->line, stmt->column);
+                    tc->has_error = true;
+                } else if (info->type_param_count != 2) {
+                    fprintf(stderr, "Error at line %d, column %d: HashMap expects 2 type parameter(s), got %d\n",
+                            stmt->line, stmt->column, info->type_param_count);
+                    tc->has_error = true;
+                } else {
+                    Type key_t = TYPE_UNKNOWN;
+                    Type val_t = TYPE_UNKNOWN;
+                    if (!hashmap_extract_kv(info, &key_t, &val_t)) {
+                        fprintf(stderr, "Error at line %d, column %d: Invalid HashMap type annotation\n",
+                                stmt->line, stmt->column);
+                        tc->has_error = true;
+                    }
+
+                    /* Current runtime supports hashing for int and string keys only */
+                    if (!(key_t == TYPE_INT || key_t == TYPE_STRING)) {
+                        fprintf(stderr, "Error at line %d, column %d: HashMap key type must be int or string (got %s)\n",
+                                stmt->line, stmt->column, type_to_string(key_t));
+                        tc->has_error = true;
+                    }
+                    if (!(val_t == TYPE_INT || val_t == TYPE_STRING)) {
+                        fprintf(stderr, "Error at line %d, column %d: HashMap value type must be int or string (got %s)\n",
+                                stmt->line, stmt->column, type_to_string(val_t));
+                        tc->has_error = true;
+                    }
+
+                    /* Register instantiation for codegen */
+                    char *key_name = typeinfo_to_generic_arg_name(info->type_params[0]);
+                    char *val_name = typeinfo_to_generic_arg_name(info->type_params[1]);
+                    env_register_hashmap_instantiation(tc->env, key_name, val_name);
+
+                    /* If RHS is (map_new), annotate call with monomorphized return type for transpiler */
+                    if (stmt->as.let.value && stmt->as.let.value->type == AST_CALL &&
+                        stmt->as.let.value->as.call.name &&
+                        strcmp(stmt->as.let.value->as.call.name, "map_new") == 0 &&
+                        env_get_function(tc->env, "map_new") == NULL) {
+                        char mono[512];
+                        snprintf(mono, sizeof(mono), "HashMap_%s_%s", key_name, val_name);
+                        if (stmt->as.let.value->as.call.return_struct_type_name) {
+                            free(stmt->as.let.value->as.call.return_struct_type_name);
+                        }
+                        stmt->as.let.value->as.call.return_struct_type_name = strdup(mono);
+                    }
+
+                    free(key_name);
+                    free(val_name);
                 }
             }
             
@@ -4959,6 +5205,37 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                 free(type_names);
             }
 
+            /* Register HashMap<K,V> instantiation for function return type */
+            if (item->as.function.return_type == TYPE_HASHMAP &&
+                item->as.function.return_type_info) {
+                TypeInfo *info = item->as.function.return_type_info;
+                Type key_t = TYPE_UNKNOWN;
+                Type val_t = TYPE_UNKNOWN;
+                if (!hashmap_extract_kv(info, &key_t, &val_t)) {
+                    fprintf(stderr, "Error at line %d, column %d: Invalid HashMap return type annotation\n",
+                            item->line, item->column);
+                    tc.has_error = true;
+                } else {
+                    if (!(key_t == TYPE_INT || key_t == TYPE_STRING)) {
+                        fprintf(stderr, "Error at line %d, column %d: HashMap key type must be int or string (got %s)\n",
+                                item->line, item->column, type_to_string(key_t));
+                        tc.has_error = true;
+                    }
+                    if (!(val_t == TYPE_INT || val_t == TYPE_STRING)) {
+                        fprintf(stderr, "Error at line %d, column %d: HashMap value type must be int or string (got %s)\n",
+                                item->line, item->column, type_to_string(val_t));
+                        tc.has_error = true;
+                    }
+                    if (!tc.has_error) {
+                        char *key_name = typeinfo_to_generic_arg_name(info->type_params[0]);
+                        char *val_name = typeinfo_to_generic_arg_name(info->type_params[1]);
+                        env_register_hashmap_instantiation(tc.env, key_name, val_name);
+                        free(key_name);
+                        free(val_name);
+                    }
+                }
+            }
+
             /* Save current symbol count for scope restoration */
             int saved_symbol_count = env->symbol_count;
 
@@ -4968,6 +5245,35 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                 Type param_type = item->as.function.params[j].type;
                 Type element_type = item->as.function.params[j].element_type;  /* Get actual element type from parameter */
                 TypeInfo *param_type_info = item->as.function.params[j].type_info;  /* Get TypeInfo for generic types */
+
+                /* Register HashMap<K,V> instantiation for parameters */
+                if (param_type == TYPE_HASHMAP && param_type_info) {
+                    Type key_t = TYPE_UNKNOWN;
+                    Type val_t = TYPE_UNKNOWN;
+                    if (!hashmap_extract_kv(param_type_info, &key_t, &val_t)) {
+                        fprintf(stderr, "Error at line %d, column %d: Invalid HashMap parameter type annotation\n",
+                                item->line, item->column);
+                        tc.has_error = true;
+                    } else {
+                        if (!(key_t == TYPE_INT || key_t == TYPE_STRING)) {
+                            fprintf(stderr, "Error at line %d, column %d: HashMap key type must be int or string (got %s)\n",
+                                    item->line, item->column, type_to_string(key_t));
+                            tc.has_error = true;
+                        }
+                        if (!(val_t == TYPE_INT || val_t == TYPE_STRING)) {
+                            fprintf(stderr, "Error at line %d, column %d: HashMap value type must be int or string (got %s)\n",
+                                    item->line, item->column, type_to_string(val_t));
+                            tc.has_error = true;
+                        }
+                        if (!tc.has_error) {
+                            char *key_name = typeinfo_to_generic_arg_name(param_type_info->type_params[0]);
+                            char *val_name = typeinfo_to_generic_arg_name(param_type_info->type_params[1]);
+                            env_register_hashmap_instantiation(tc.env, key_name, val_name);
+                            free(key_name);
+                            free(val_name);
+                        }
+                    }
+                }
                 
                 /* For array parameters, use the element type from the parameter definition */
                 if (param_type == TYPE_ARRAY && element_type == TYPE_UNKNOWN) {
@@ -5573,6 +5879,37 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                     free(type_names);
                 }
             }
+
+            /* Register HashMap<K,V> instantiation for function return type */
+            if (item->as.function.return_type == TYPE_HASHMAP &&
+                item->as.function.return_type_info) {
+                TypeInfo *info = item->as.function.return_type_info;
+                Type key_t = TYPE_UNKNOWN;
+                Type val_t = TYPE_UNKNOWN;
+                if (!hashmap_extract_kv(info, &key_t, &val_t)) {
+                    fprintf(stderr, "Error at line %d, column %d: Invalid HashMap return type annotation\n",
+                            item->line, item->column);
+                    tc.has_error = true;
+                } else {
+                    if (!(key_t == TYPE_INT || key_t == TYPE_STRING)) {
+                        fprintf(stderr, "Error at line %d, column %d: HashMap key type must be int or string (got %s)\n",
+                                item->line, item->column, type_to_string(key_t));
+                        tc.has_error = true;
+                    }
+                    if (!(val_t == TYPE_INT || val_t == TYPE_STRING)) {
+                        fprintf(stderr, "Error at line %d, column %d: HashMap value type must be int or string (got %s)\n",
+                                item->line, item->column, type_to_string(val_t));
+                        tc.has_error = true;
+                    }
+                    if (!tc.has_error) {
+                        char *key_name = typeinfo_to_generic_arg_name(info->type_params[0]);
+                        char *val_name = typeinfo_to_generic_arg_name(info->type_params[1]);
+                        env_register_hashmap_instantiation(env, key_name, val_name);
+                        free(key_name);
+                        free(val_name);
+                    }
+                }
+            }
             
             /* Add function parameters to environment */
             for (int j = 0; j < item->as.function.param_count; j++) {
@@ -5580,6 +5917,35 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                 Type element_type = item->as.function.params[j].element_type;
                 TypeInfo *param_type_info = item->as.function.params[j].type_info;
                 Value val;
+
+                /* Register HashMap<K,V> instantiation for parameters */
+                if (param_type == TYPE_HASHMAP && param_type_info) {
+                    Type key_t = TYPE_UNKNOWN;
+                    Type val_t = TYPE_UNKNOWN;
+                    if (!hashmap_extract_kv(param_type_info, &key_t, &val_t)) {
+                        fprintf(stderr, "Error at line %d, column %d: Invalid HashMap parameter type annotation\n",
+                                item->line, item->column);
+                        tc.has_error = true;
+                    } else {
+                        if (!(key_t == TYPE_INT || key_t == TYPE_STRING)) {
+                            fprintf(stderr, "Error at line %d, column %d: HashMap key type must be int or string (got %s)\n",
+                                    item->line, item->column, type_to_string(key_t));
+                            tc.has_error = true;
+                        }
+                        if (!(val_t == TYPE_INT || val_t == TYPE_STRING)) {
+                            fprintf(stderr, "Error at line %d, column %d: HashMap value type must be int or string (got %s)\n",
+                                    item->line, item->column, type_to_string(val_t));
+                            tc.has_error = true;
+                        }
+                        if (!tc.has_error) {
+                            char *key_name = typeinfo_to_generic_arg_name(param_type_info->type_params[0]);
+                            char *val_name = typeinfo_to_generic_arg_name(param_type_info->type_params[1]);
+                            env_register_hashmap_instantiation(env, key_name, val_name);
+                            free(key_name);
+                            free(val_name);
+                        }
+                    }
+                }
                 if (param_type == TYPE_INT) val = create_int(0);
                 else if (param_type == TYPE_FLOAT) val = create_float(0.0);
                 else if (param_type == TYPE_BOOL) val = create_bool(false);

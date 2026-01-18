@@ -1126,6 +1126,46 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     env_define_function(env, func);
 }
 
+/* Register a HashMap<K,V> instantiation for code generation
+ * Example: HashMap<string, int> -> HashMap_string_int
+ */
+void env_register_hashmap_instantiation(Environment *env, const char *key_type, const char *value_type) {
+    if (!env || !key_type || !value_type) return;
+
+    /* Check if already registered */
+    for (int i = 0; i < env->generic_instance_count; i++) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        if (safe_strcmp(inst->generic_name, "HashMap") == 0 &&
+            inst->type_arg_count == 2 && inst->type_arg_names &&
+            safe_strcmp(inst->type_arg_names[0], key_type) == 0 &&
+            safe_strcmp(inst->type_arg_names[1], value_type) == 0) {
+            return;
+        }
+    }
+
+    if (env->generic_instance_count >= env->generic_instance_capacity) {
+        env->generic_instance_capacity *= 2;
+        env->generic_instances = realloc(env->generic_instances,
+            sizeof(GenericInstantiation) * env->generic_instance_capacity);
+    }
+
+    GenericInstantiation inst;
+    inst.generic_name = strdup("HashMap");
+    inst.type_arg_count = 2;
+    inst.type_args = malloc(sizeof(Type) * 2);
+    inst.type_arg_names = malloc(sizeof(char*) * 2);
+    inst.type_args[0] = TYPE_UNKNOWN;
+    inst.type_args[1] = TYPE_UNKNOWN;
+    inst.type_arg_names[0] = strdup(key_type);
+    inst.type_arg_names[1] = strdup(value_type);
+
+    char specialized[512];
+    snprintf(specialized, sizeof(specialized), "HashMap_%s_%s", key_type, value_type);
+    inst.concrete_name = strdup(specialized);
+
+    env->generic_instances[env->generic_instance_count++] = inst;
+}
+
 /* Register a generic union instantiation for code generation
  * Example: Result<int, string> -> Result_int_string
  */

@@ -78,6 +78,27 @@ static bool build_monomorphized_name_from_typeinfo_iter(char *dest, size_t dest_
     return true;
 }
 
+static const char *hashmap_suffix_from_typeinfo(TypeInfo *hm_info, char *buf, size_t buf_size) {
+    if (!hm_info || !buf || buf_size == 0) return NULL;
+    if (!hm_info->generic_name || strcmp(hm_info->generic_name, "HashMap") != 0) return NULL;
+    if (hm_info->type_param_count != 2) return NULL;
+
+    if (!build_monomorphized_name_from_typeinfo_iter(buf, buf_size, hm_info)) return NULL;
+    if (strncmp(buf, "HashMap_", 8) == 0) return buf + 8;
+    return buf;
+}
+
+static const char *hashmap_suffix_from_expr(ASTNode *hm_expr, Environment *env, char *buf, size_t buf_size) {
+    if (!hm_expr || !env) return NULL;
+    if (hm_expr->type == AST_IDENTIFIER) {
+        Symbol *sym = env_get_var_visible_at(env, hm_expr->as.identifier, hm_expr->line, hm_expr->column);
+        if (sym && sym->type_info) {
+            return hashmap_suffix_from_typeinfo(sym->type_info, buf, buf_size);
+        }
+    }
+    return NULL;
+}
+
 __attribute__((unused))
 static const char *match_union_c_name(ASTNode *match, Environment *env, char *buf, size_t buf_size) {
     if (!match || !env) return NULL;
@@ -963,6 +984,115 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 emit_literal(list, "; __auto_type _f = ");
                 build_expr(list, expr->as.call.args[1], env);
                 emit_literal(list, "; (_r.tag == 0) ? _f(_r.data.Ok.value) : _r; })");
+            }
+
+            /* HashMap<K,V> core built-ins (only if no user-defined function exists) */
+            else if (env_get_function(env, func_name) == NULL && strcmp(func_name, "map_new") == 0 && expr->as.call.arg_count == 0) {
+                const char *mono = expr->as.call.return_struct_type_name;
+                if (!mono) {
+                    emit_literal(list, "({ assert(false && \"map_new requires HashMap<K,V> type context\"); (void*)0; })");
+                } else {
+                    const char *suffix = mono;
+                    if (strncmp(mono, "HashMap_", 8) == 0) suffix = mono + 8;
+                    emit_formatted(list, "nl_hashmap_%s_new()", suffix);
+                }
+            }
+            else if (env_get_function(env, func_name) == NULL &&
+                     (strcmp(func_name, "map_put") == 0 || strcmp(func_name, "map_set") == 0) &&
+                     expr->as.call.arg_count == 3) {
+                char buf[256];
+                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
+                if (!suffix) {
+                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_put\"); (void)0; })");
+                } else {
+                    emit_formatted(list, "nl_hashmap_%s_put(", suffix);
+                    build_expr(list, expr->as.call.args[0], env);
+                    emit_literal(list, ", ");
+                    build_expr(list, expr->as.call.args[1], env);
+                    emit_literal(list, ", ");
+                    build_expr(list, expr->as.call.args[2], env);
+                    emit_literal(list, ")");
+                }
+            }
+            else if (env_get_function(env, func_name) == NULL && strcmp(func_name, "map_get") == 0 && expr->as.call.arg_count == 2) {
+                char buf[256];
+                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
+                if (!suffix) {
+                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_get\"); 0; })");
+                } else {
+                    emit_formatted(list, "nl_hashmap_%s_get(", suffix);
+                    build_expr(list, expr->as.call.args[0], env);
+                    emit_literal(list, ", ");
+                    build_expr(list, expr->as.call.args[1], env);
+                    emit_literal(list, ")");
+                }
+            }
+            else if (env_get_function(env, func_name) == NULL && strcmp(func_name, "map_has") == 0 && expr->as.call.arg_count == 2) {
+                char buf[256];
+                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
+                if (!suffix) {
+                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_has\"); false; })");
+                } else {
+                    emit_formatted(list, "nl_hashmap_%s_has(", suffix);
+                    build_expr(list, expr->as.call.args[0], env);
+                    emit_literal(list, ", ");
+                    build_expr(list, expr->as.call.args[1], env);
+                    emit_literal(list, ")");
+                }
+            }
+            else if (env_get_function(env, func_name) == NULL && strcmp(func_name, "map_remove") == 0 && expr->as.call.arg_count == 2) {
+                char buf[256];
+                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
+                if (!suffix) {
+                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_remove\"); (void)0; })");
+                } else {
+                    emit_formatted(list, "nl_hashmap_%s_remove(", suffix);
+                    build_expr(list, expr->as.call.args[0], env);
+                    emit_literal(list, ", ");
+                    build_expr(list, expr->as.call.args[1], env);
+                    emit_literal(list, ")");
+                }
+            }
+            else if (env_get_function(env, func_name) == NULL &&
+                     (strcmp(func_name, "map_length") == 0 || strcmp(func_name, "map_size") == 0) &&
+                     expr->as.call.arg_count == 1) {
+                char buf[256];
+                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
+                if (!suffix) {
+                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_length\"); 0; })");
+                } else {
+                    emit_formatted(list, "nl_hashmap_%s_length(", suffix);
+                    build_expr(list, expr->as.call.args[0], env);
+                    emit_literal(list, ")");
+                }
+            }
+            else if (env_get_function(env, func_name) == NULL &&
+                     (strcmp(func_name, "map_clear") == 0 || strcmp(func_name, "map_free") == 0) &&
+                     expr->as.call.arg_count == 1) {
+                char buf[256];
+                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
+                if (!suffix) {
+                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_clear\"); (void)0; })");
+                } else {
+                    const char *op = (strcmp(func_name, "map_free") == 0) ? "free" : "clear";
+                    emit_formatted(list, "nl_hashmap_%s_%s(", suffix, op);
+                    build_expr(list, expr->as.call.args[0], env);
+                    emit_literal(list, ")");
+                }
+            }
+            else if (env_get_function(env, func_name) == NULL &&
+                     (strcmp(func_name, "map_keys") == 0 || strcmp(func_name, "map_values") == 0) &&
+                     expr->as.call.arg_count == 1) {
+                char buf[256];
+                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
+                if (!suffix) {
+                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_keys\"); (DynArray*)0; })");
+                } else {
+                    const char *op = (strcmp(func_name, "map_values") == 0) ? "values" : "keys";
+                    emit_formatted(list, "nl_hashmap_%s_%s(", suffix, op);
+                    build_expr(list, expr->as.call.args[0], env);
+                    emit_literal(list, ")");
+                }
             }
 
             /* Special handling for filter() - compiled lowering */
@@ -2360,6 +2490,22 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             /* Handle List<T> (generic lists) */
             else if (stmt->as.let.var_type == TYPE_LIST_GENERIC && stmt->as.let.type_name) {
                 emit_formatted(list, "List_%s* %s", stmt->as.let.type_name, stmt->as.let.name);
+                if (stmt->as.let.value) {
+                    emit_literal(list, " = ");
+                    build_expr(list, stmt->as.let.value, env);
+                }
+                emit_literal(list, ";\n");
+            }
+            /* Handle HashMap<K,V> */
+            else if (stmt->as.let.var_type == TYPE_HASHMAP && stmt->as.let.type_info &&
+                     stmt->as.let.type_info->generic_name && stmt->as.let.type_info->type_param_count == 2) {
+                char monomorphized_name[256];
+                if (!build_monomorphized_name_from_typeinfo_iter(monomorphized_name, sizeof(monomorphized_name),
+                                                                stmt->as.let.type_info)) {
+                    snprintf(monomorphized_name, sizeof(monomorphized_name), "HashMap");
+                }
+
+                emit_formatted(list, "%s* %s", monomorphized_name, stmt->as.let.name);
                 if (stmt->as.let.value) {
                     emit_literal(list, " = ");
                     build_expr(list, stmt->as.let.value, env);

@@ -386,6 +386,220 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                         free(type_name);
                     return type;
                 }
+
+                    /* HashMap<K, V> (core generic type) */
+                    if (strcmp(type_name, "HashMap") == 0) {
+                        if (type_info_out) {
+                            TypeInfo *info = calloc(1, sizeof(TypeInfo));
+                            if (!info) {
+                                fprintf(stderr, "Error: Out of memory allocating HashMap TypeInfo\n");
+                                free(type_name);
+                                return TYPE_UNKNOWN;
+                            }
+                            info->base_type = TYPE_HASHMAP;
+                            info->generic_name = type_name;  /* Transfer ownership */
+                            info->type_param_count = 0;
+
+                            int capacity = 2;
+                            info->type_params = malloc(sizeof(TypeInfo*) * capacity);
+                            if (!info->type_params) {
+                                fprintf(stderr, "Error: Out of memory allocating HashMap type params\n");
+                                free(info->generic_name);
+                                free(info);
+                                return TYPE_UNKNOWN;
+                            }
+
+                            /* Parse exactly 2 type parameters: K, V */
+                            while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
+                                if (info->type_param_count >= capacity) {
+                                    fprintf(stderr, "Error at line %d, column %d: HashMap expects exactly 2 type parameters\n",
+                                            current_token(p)->line, current_token(p)->column);
+                                    /* Cleanup */
+                                    for (int i = 0; i < info->type_param_count; i++) {
+                                        free(info->type_params[i]);
+                                    }
+                                    free(info->type_params);
+                                    free(info->generic_name);
+                                    free(info);
+                                    return TYPE_UNKNOWN;
+                                }
+
+                                TypeInfo *param_info = calloc(1, sizeof(TypeInfo));
+                                if (!param_info) {
+                                    fprintf(stderr, "Error: Out of memory allocating HashMap param TypeInfo\n");
+                                    for (int i = 0; i < info->type_param_count; i++) {
+                                        free(info->type_params[i]);
+                                    }
+                                    free(info->type_params);
+                                    free(info->generic_name);
+                                    free(info);
+                                    return TYPE_UNKNOWN;
+                                }
+
+                                Token *param_tok = current_token(p);
+                                if (param_tok->token_type == TOKEN_TYPE_INT) {
+                                    param_info->base_type = TYPE_INT;
+                                    advance(p);
+                                } else if (param_tok->token_type == TOKEN_TYPE_U8) {
+                                    param_info->base_type = TYPE_U8;
+                                    advance(p);
+                                } else if (param_tok->token_type == TOKEN_TYPE_STRING) {
+                                    param_info->base_type = TYPE_STRING;
+                                    advance(p);
+                                } else if (param_tok->token_type == TOKEN_TYPE_BOOL) {
+                                    param_info->base_type = TYPE_BOOL;
+                                    advance(p);
+                                } else if (param_tok->token_type == TOKEN_TYPE_FLOAT) {
+                                    param_info->base_type = TYPE_FLOAT;
+                                    advance(p);
+                                } else if (param_tok->token_type == TOKEN_IDENTIFIER) {
+                                    param_info->base_type = TYPE_STRUCT;
+                                    param_info->generic_name = strdup(param_tok->value);
+                                    advance(p);
+                                } else if (param_tok->token_type == TOKEN_ARRAY) {
+                                    /* Support array<T> as a type parameter */
+                                    param_info->base_type = TYPE_ARRAY;
+                                    advance(p);
+                                    if (!expect(p, TOKEN_LT, "Expected '<' after 'array' in HashMap type parameter")) {
+                                        free(param_info);
+                                        for (int i = 0; i < info->type_param_count; i++) {
+                                            free(info->type_params[i]);
+                                        }
+                                        free(info->type_params);
+                                        free(info->generic_name);
+                                        free(info);
+                                        return TYPE_UNKNOWN;
+                                    }
+
+                                    TypeInfo *elem_info = calloc(1, sizeof(TypeInfo));
+                                    if (!elem_info) {
+                                        fprintf(stderr, "Error: Out of memory allocating array elem TypeInfo\n");
+                                        free(param_info);
+                                        for (int i = 0; i < info->type_param_count; i++) {
+                                            free(info->type_params[i]);
+                                        }
+                                        free(info->type_params);
+                                        free(info->generic_name);
+                                        free(info);
+                                        return TYPE_UNKNOWN;
+                                    }
+
+                                    Token *elem_tok = current_token(p);
+                                    if (elem_tok->token_type == TOKEN_TYPE_INT) {
+                                        elem_info->base_type = TYPE_INT;
+                                        advance(p);
+                                    } else if (elem_tok->token_type == TOKEN_TYPE_U8) {
+                                        elem_info->base_type = TYPE_U8;
+                                        advance(p);
+                                    } else if (elem_tok->token_type == TOKEN_TYPE_STRING) {
+                                        elem_info->base_type = TYPE_STRING;
+                                        advance(p);
+                                    } else if (elem_tok->token_type == TOKEN_TYPE_BOOL) {
+                                        elem_info->base_type = TYPE_BOOL;
+                                        advance(p);
+                                    } else if (elem_tok->token_type == TOKEN_TYPE_FLOAT) {
+                                        elem_info->base_type = TYPE_FLOAT;
+                                        advance(p);
+                                    } else if (elem_tok->token_type == TOKEN_IDENTIFIER) {
+                                        elem_info->base_type = TYPE_STRUCT;
+                                        elem_info->generic_name = strdup(elem_tok->value);
+                                        advance(p);
+                                    } else {
+                                        fprintf(stderr, "Error at line %d, column %d: Expected array element type in HashMap type parameter\n",
+                                                elem_tok->line, elem_tok->column);
+                                        if (elem_info->generic_name) free(elem_info->generic_name);
+                                        free(elem_info);
+                                        free(param_info);
+                                        for (int i = 0; i < info->type_param_count; i++) {
+                                            free(info->type_params[i]);
+                                        }
+                                        free(info->type_params);
+                                        free(info->generic_name);
+                                        free(info);
+                                        return TYPE_UNKNOWN;
+                                    }
+
+                                    if (!expect(p, TOKEN_GT, "Expected '>' after array element type in HashMap type parameter")) {
+                                        if (elem_info->generic_name) free(elem_info->generic_name);
+                                        free(elem_info);
+                                        free(param_info);
+                                        for (int i = 0; i < info->type_param_count; i++) {
+                                            free(info->type_params[i]);
+                                        }
+                                        free(info->type_params);
+                                        free(info->generic_name);
+                                        free(info);
+                                        return TYPE_UNKNOWN;
+                                    }
+
+                                    param_info->element_type = elem_info;
+                                } else {
+                                    fprintf(stderr, "Error at line %d, column %d: Expected HashMap type parameter\n",
+                                            param_tok->line, param_tok->column);
+                                    free(param_info);
+                                    for (int i = 0; i < info->type_param_count; i++) {
+                                        free(info->type_params[i]);
+                                    }
+                                    free(info->type_params);
+                                    free(info->generic_name);
+                                    free(info);
+                                    return TYPE_UNKNOWN;
+                                }
+
+                                info->type_params[info->type_param_count++] = param_info;
+
+                                if (match(p, TOKEN_COMMA)) {
+                                    advance(p);
+                                } else if (!match(p, TOKEN_GT)) {
+                                    fprintf(stderr, "Error at line %d, column %d: Expected ',' or '>' in HashMap type parameters\n",
+                                            current_token(p)->line, current_token(p)->column);
+                                    for (int i = 0; i < info->type_param_count; i++) {
+                                        free(info->type_params[i]);
+                                    }
+                                    free(info->type_params);
+                                    free(info->generic_name);
+                                    free(info);
+                                    return TYPE_UNKNOWN;
+                                }
+                            }
+
+                            if (!expect(p, TOKEN_GT, "Expected '>' after HashMap type parameters")) {
+                                for (int i = 0; i < info->type_param_count; i++) {
+                                    free(info->type_params[i]);
+                                }
+                                free(info->type_params);
+                                free(info->generic_name);
+                                free(info);
+                                return TYPE_UNKNOWN;
+                            }
+
+                            if (info->type_param_count != 2) {
+                                fprintf(stderr, "Error at line %d, column %d: HashMap expects exactly 2 type parameters\n",
+                                        tok->line, tok->column);
+                                for (int i = 0; i < info->type_param_count; i++) {
+                                    free(info->type_params[i]);
+                                }
+                                free(info->type_params);
+                                free(info->generic_name);
+                                free(info);
+                                return TYPE_UNKNOWN;
+                            }
+
+                            *type_info_out = info;
+                            return TYPE_HASHMAP;
+                        } else {
+                            /* No type_info_out provided: consume params and return TYPE_HASHMAP */
+                            while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
+                                advance(p);
+                            }
+                            if (!expect(p, TOKEN_GT, "Expected '>' after HashMap type parameters")) {
+                                free(type_name);
+                                return TYPE_UNKNOWN;
+                            }
+                            free(type_name);
+                            return TYPE_HASHMAP;
+                        }
+                    }
                     
                     /* Generic union/struct types: Result<int, string>, Option<T>, etc. */
                     if (type_info_out) {
