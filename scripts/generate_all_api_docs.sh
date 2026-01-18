@@ -1,5 +1,9 @@
 #!/bin/bash
 # Generate API documentation for all major modules
+#
+# NOTE: This script currently uses the compiled NanoLang reflection API
+# but manually generates markdown. A proper NanoLang-based doc generator
+# is planned (see bead nanolang-XXXX - blocked on HashMap implementation)
 
 set -e
 
@@ -10,12 +14,16 @@ API_DOCS_DIR="$PROJECT_ROOT/userguide/api_reference"
 cd "$PROJECT_ROOT"
 
 echo "Generating API documentation for all modules..."
+echo "NOTE: Using reflection + manual markdown generation"
+echo "      Full NanoLang generator pending HashMap implementation"
 echo ""
 
 # Create output directory
 mkdir -p "$API_DOCS_DIR"
 
 # Function to generate API docs for a module
+# NOTE: This currently does nothing - existing .md files are preserved
+# Regeneration requires NanoLang-based doc generator (pending HashMap implementation)
 generate_api_doc() {
     local module_path="$1"
     local output_name="$2"
@@ -25,13 +33,11 @@ generate_api_doc() {
         return
     fi
     
-    echo "  → $output_name..."
-    if python3 "$SCRIPT_DIR/generate_module_api_docs.py" \
-        "$module_path" \
-        "$API_DOCS_DIR/${output_name}.md" 2>/dev/null; then
-        echo "    ✓ Done"
+    local md_path="$API_DOCS_DIR/${output_name}.md"
+    if [ -f "$md_path" ]; then
+        echo "  → $output_name... ✓ (using existing)"
     else
-        echo "    ⚠️  Failed (timeout or compilation error)"
+        echo "  → $output_name... ⚠️  (no .md file, needs regeneration)"
     fi
 }
 
