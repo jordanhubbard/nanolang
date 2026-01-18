@@ -9,6 +9,7 @@ unsafe module "modules/sdl_image/sdl_image.nano"
 module "modules/ui_widgets/ui_widgets.nano"
 from "modules/std/fs.nano" import file_read
 from "modules/std/process.nano" import spawn
+from "modules/nano_tools/nano_tools.nano" import pretty_print_ansi
 
 # Forward declare extern to avoid module issues
 extern fn file_read(_path: string) -> string
@@ -565,7 +566,8 @@ fn main() -> int {
                     set selected_index clicked_icon
                     let ex_idx: int = (at indices clicked_icon)
                     let file_path: string = (at example_files ex_idx)
-                    set source_code (file_read file_path)
+                    let raw_source: string = (file_read file_path)
+                    set source_code (pretty_print_ansi raw_source)
                     set source_scroll 0
                 }
             } else {}
@@ -751,7 +753,7 @@ fn main() -> int {
             let code_display_w: int = (- RIGHT_PANEL_WIDTH 40)
             let code_display_h: int = (- source_h 65)
             
-            (nl_ui_code_display renderer font source_code code_display_x code_display_y code_display_w code_display_h source_scroll 18)
+            (nl_ui_code_display_ansi renderer font source_code code_display_x code_display_y code_display_w code_display_h source_scroll 18)
             
             # Draw scroll indicator if scrolled
             if (> source_scroll 0) {
