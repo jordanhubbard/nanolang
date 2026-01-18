@@ -6,8 +6,6 @@ https://github.com/jordanhubbard/nanolang/tree/main/examples
 
 ## Top-level examples
 
-- [.DS_Store](https://github.com/jordanhubbard/nanolang/blob/main/examples/.DS_Store)
-- [.gitignore](https://github.com/jordanhubbard/nanolang/blob/main/examples/.gitignore)
 - [Makefile](https://github.com/jordanhubbard/nanolang/blob/main/examples/Makefile)
 - [PROTRACKER_CLONE.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/PROTRACKER_CLONE.md)
 - [README.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/README.md)
@@ -183,7 +181,6 @@ https://github.com/jordanhubbard/nanolang/tree/main/examples
 - [opl/bundle/TESTS.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/TESTS.md)
 - [opl/bundle/TOKENS.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/TOKENS.md)
 - [opl/bundle/VALIDATION.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/VALIDATION.md)
-- [opl/examples/.gitignore](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/.gitignore)
 - [opl/examples/Makefile](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/Makefile)
 - [opl/examples/README.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/README.md)
 - [opl/examples/conditional.opl](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/conditional.opl)
