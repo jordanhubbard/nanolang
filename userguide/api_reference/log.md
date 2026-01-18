@@ -13,7 +13,6 @@
 #### `fn log_trace(category: string, message: string) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `category` | `string` |
@@ -25,7 +24,6 @@
 #### `fn log_debug(category: string, message: string) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `category` | `string` |
@@ -37,7 +35,6 @@
 #### `fn log_info(category: string, message: string) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `category` | `string` |
@@ -49,7 +46,6 @@
 #### `fn log_warn(category: string, message: string) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `category` | `string` |
@@ -61,7 +57,6 @@
 #### `fn log_error(category: string, message: string) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `category` | `string` |
@@ -73,7 +68,6 @@
 #### `fn log_fatal(category: string, message: string) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `category` | `string` |
@@ -85,7 +79,6 @@
 #### `fn trace(message: string) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `message` | `string` |
@@ -96,7 +89,6 @@
 #### `fn debug(message: string) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `message` | `string` |
@@ -107,7 +99,6 @@
 #### `fn info(message: string) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `message` | `string` |
@@ -118,7 +109,6 @@
 #### `fn warn(message: string) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `message` | `string` |
@@ -129,7 +119,6 @@
 #### `fn error(message: string) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `message` | `string` |
@@ -140,7 +129,6 @@
 #### `fn fatal(message: string) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `message` | `string` |
@@ -166,4 +154,7 @@
 
 ### Constants
 
-*No constants*
+| Name | Type | Value |
+|------|------|-------|
+| `default_log_level` | `int` | `2` |
+

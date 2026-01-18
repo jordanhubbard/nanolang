@@ -25,4 +25,8 @@
 
 ### Constants
 
-*No constants*
+| Name | Type | Value |
+|------|------|-------|
+| `STRINGBUILDER_INITIAL_CAPACITY` | `int` | `256` |
+| `STRINGBUILDER_GROWTH_FACTOR` | `int` | `2` |
+

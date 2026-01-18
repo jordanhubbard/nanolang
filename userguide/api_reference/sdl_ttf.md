@@ -20,36 +20,33 @@
 **Returns:** `int`
 
 
-#### `extern fn TTF_OpenFont(_file: string, _ptsize: int) -> struct<TTF_Font>`
+#### `extern fn TTF_OpenFont(_file: string, _ptsize: int) -> TTF_Font`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_file` | `string` |
 | `_ptsize` | `int` |
 
-**Returns:** `struct`
+**Returns:** `TTF_Font`
 
 
-#### `extern fn TTF_CloseFont(_font: struct<TTF_Font>) -> void`
+#### `extern fn TTF_CloseFont(_font: TTF_Font) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
-| `_font` | `struct<TTF_Font>` |
+| `_font` | `TTF_Font` |
 
 **Returns:** `void`
 
 
-#### `extern fn TTF_RenderText_Solid(_font: struct<TTF_Font>, _text: string, _r: int, _g: int, _b: int, _a: int) -> int`
+#### `extern fn TTF_RenderText_Solid(_font: TTF_Font, _text: string, _r: int, _g: int, _b: int, _a: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
-| `_font` | `struct<TTF_Font>` |
+| `_font` | `TTF_Font` |
 | `_text` | `string` |
 | `_r` | `int` |
 | `_g` | `int` |
@@ -59,13 +56,12 @@
 **Returns:** `int`
 
 
-#### `extern fn TTF_RenderText_Blended(_font: struct<TTF_Font>, _text: string, _r: int, _g: int, _b: int, _a: int) -> int`
+#### `extern fn TTF_RenderText_Blended(_font: TTF_Font, _text: string, _r: int, _g: int, _b: int, _a: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
-| `_font` | `struct<TTF_Font>` |
+| `_font` | `TTF_Font` |
 | `_text` | `string` |
 | `_r` | `int` |
 | `_g` | `int` |
@@ -75,13 +71,12 @@
 **Returns:** `int`
 
 
-#### `extern fn TTF_RenderText_Shaded(_font: struct<TTF_Font>, _text: string, _fg_r: int, _fg_g: int, _fg_b: int, _fg_a: int, _bg_r: int, _bg_g: int, _bg_b: int, _bg_a: int) -> int`
+#### `extern fn TTF_RenderText_Shaded(_font: TTF_Font, _text: string, _fg_r: int, _fg_g: int, _fg_b: int, _fg_a: int, _bg_r: int, _bg_g: int, _bg_b: int, _bg_a: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
-| `_font` | `struct<TTF_Font>` |
+| `_font` | `TTF_Font` |
 | `_text` | `string` |
 | `_fg_r` | `int` |
 | `_fg_g` | `int` |
@@ -95,57 +90,52 @@
 **Returns:** `int`
 
 
-#### `extern fn TTF_FontHeight(_font: struct<TTF_Font>) -> int`
+#### `extern fn TTF_FontHeight(_font: TTF_Font) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
-| `_font` | `struct<TTF_Font>` |
+| `_font` | `TTF_Font` |
 
 **Returns:** `int`
 
 
-#### `extern fn TTF_FontAscent(_font: struct<TTF_Font>) -> int`
+#### `extern fn TTF_FontAscent(_font: TTF_Font) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
-| `_font` | `struct<TTF_Font>` |
+| `_font` | `TTF_Font` |
 
 **Returns:** `int`
 
 
-#### `extern fn TTF_FontDescent(_font: struct<TTF_Font>) -> int`
+#### `extern fn TTF_FontDescent(_font: TTF_Font) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
-| `_font` | `struct<TTF_Font>` |
+| `_font` | `TTF_Font` |
 
 **Returns:** `int`
 
 
-#### `extern fn TTF_FontLineSkip(_font: struct<TTF_Font>) -> int`
+#### `extern fn TTF_FontLineSkip(_font: TTF_Font) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
-| `_font` | `struct<TTF_Font>` |
+| `_font` | `TTF_Font` |
 
 **Returns:** `int`
 
 
-#### `extern fn TTF_SizeText(_font: struct<TTF_Font>, _text: string, _w_out: int, _h_out: int) -> int`
+#### `extern fn TTF_SizeText(_font: TTF_Font, _text: string, _w_out: int, _h_out: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
-| `_font` | `struct<TTF_Font>` |
+| `_font` | `TTF_Font` |
 | `_text` | `string` |
 | `_w_out` | `int` |
 | `_h_out` | `int` |
@@ -153,24 +143,22 @@
 **Returns:** `int`
 
 
-#### `extern fn TTF_GetFontStyle(_font: struct<TTF_Font>) -> int`
+#### `extern fn TTF_GetFontStyle(_font: TTF_Font) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
-| `_font` | `struct<TTF_Font>` |
+| `_font` | `TTF_Font` |
 
 **Returns:** `int`
 
 
-#### `extern fn TTF_SetFontStyle(_font: struct<TTF_Font>, _style: int) -> void`
+#### `extern fn TTF_SetFontStyle(_font: TTF_Font, _style: int) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
-| `_font` | `struct<TTF_Font>` |
+| `_font` | `TTF_Font` |
 | `_style` | `int` |
 
 **Returns:** `void`
@@ -204,4 +192,11 @@
 
 ### Constants
 
-*No constants*
+| Name | Type | Value |
+|------|------|-------|
+| `TTF_STYLE_NORMAL` | `int` | `0` |
+| `TTF_STYLE_BOLD` | `int` | `1` |
+| `TTF_STYLE_ITALIC` | `int` | `2` |
+| `TTF_STYLE_UNDERLINE` | `int` | `4` |
+| `TTF_STYLE_STRIKETHROUGH` | `int` | `8` |
+

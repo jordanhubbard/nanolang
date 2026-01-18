@@ -5,28 +5,26 @@
 
 ### Functions
 
-#### `extern fn nl_prefs_save_playlist(_filename: string, _items: array, _count: int) -> int`
+#### `extern fn nl_prefs_save_playlist(_filename: string, _items: array<string>, _count: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_filename` | `string` |
-| `_items` | `array` |
+| `_items` | `array<string>` |
 | `_count` | `int` |
 
 **Returns:** `int`
 
 
-#### `extern fn nl_prefs_load_playlist(_filename: string) -> array`
+#### `extern fn nl_prefs_load_playlist(_filename: string) -> array<string>`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_filename` | `string` |
 
-**Returns:** `array`
+**Returns:** `array<string>`
 
 
 #### `extern fn nl_prefs_get_home() -> string`
@@ -37,7 +35,6 @@
 #### `extern fn nl_prefs_get_path(_app_name: string) -> string`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_app_name` | `string` |
@@ -64,3 +61,4 @@
 ### Constants
 
 *No constants*
+

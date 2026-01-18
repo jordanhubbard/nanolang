@@ -28,7 +28,6 @@
 #### `extern fn nl_uv_loop_close(_loop: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_loop` | `int` |
@@ -39,7 +38,6 @@
 #### `extern fn nl_uv_run(_loop: int, _mode: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_loop` | `int` |
@@ -51,7 +49,6 @@
 #### `extern fn nl_uv_stop(_loop: int) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_loop` | `int` |
@@ -62,7 +59,6 @@
 #### `extern fn nl_uv_loop_alive(_loop: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_loop` | `int` |
@@ -73,7 +69,6 @@
 #### `extern fn nl_uv_loop_get_active_handles(_loop: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_loop` | `int` |
@@ -84,7 +79,6 @@
 #### `extern fn nl_uv_now(_loop: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_loop` | `int` |
@@ -95,7 +89,6 @@
 #### `extern fn nl_uv_update_time(_loop: int) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_loop` | `int` |
@@ -111,7 +104,6 @@
 #### `extern fn nl_uv_sleep(_msec: int) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_msec` | `int` |
@@ -122,7 +114,6 @@
 #### `extern fn nl_uv_backend_timeout(_loop: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_loop` | `int` |
@@ -133,7 +124,6 @@
 #### `extern fn nl_uv_strerror(_err: int) -> string`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_err` | `int` |
@@ -144,7 +134,6 @@
 #### `extern fn nl_uv_err_name(_err: int) -> string`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_err` | `int` |
@@ -155,7 +144,6 @@
 #### `extern fn nl_uv_translate_sys_error(_sys_errno: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_sys_errno` | `int` |
@@ -222,3 +210,4 @@
 ### Constants
 
 *No constants*
+

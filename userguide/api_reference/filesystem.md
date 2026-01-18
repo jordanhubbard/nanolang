@@ -5,45 +5,41 @@
 
 ### Functions
 
-#### `extern fn nl_fs_list_files(_path: string, _extension: string) -> array`
+#### `extern fn nl_fs_list_files(_path: string, _extension: string) -> array<string>`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_path` | `string` |
 | `_extension` | `string` |
 
-**Returns:** `array`
+**Returns:** `array<string>`
 
 
-#### `extern fn nl_fs_list_files_ci(_path: string, _extension: string) -> array`
+#### `extern fn nl_fs_list_files_ci(_path: string, _extension: string) -> array<string>`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_path` | `string` |
 | `_extension` | `string` |
 
-**Returns:** `array`
+**Returns:** `array<string>`
 
 
-#### `extern fn nl_fs_list_dirs(_path: string) -> array`
+#### `extern fn nl_fs_list_dirs(_path: string) -> array<string>`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_path` | `string` |
 
-**Returns:** `array`
+**Returns:** `array<string>`
 
 
 #### `extern fn nl_fs_parent_dir(_path: string) -> string`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_path` | `string` |
@@ -54,7 +50,6 @@
 #### `extern fn nl_fs_is_directory(_path: string) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_path` | `string` |
@@ -65,7 +60,6 @@
 #### `extern fn nl_fs_file_exists(_path: string) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_path` | `string` |
@@ -76,7 +70,6 @@
 #### `extern fn nl_fs_file_size(_path: string) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_path` | `string` |
@@ -87,7 +80,6 @@
 #### `extern fn nl_fs_join_path(_dir: string, _filename: string) -> string`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_dir` | `string` |
@@ -115,3 +107,4 @@
 ### Constants
 
 *No constants*
+

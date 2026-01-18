@@ -13,7 +13,6 @@
 #### `extern fn nl_event_base_free(_base: int) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_base` | `int` |
@@ -24,7 +23,6 @@
 #### `extern fn nl_event_base_dispatch(_base: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_base` | `int` |
@@ -35,7 +33,6 @@
 #### `extern fn nl_event_base_loop(_base: int, _flags: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_base` | `int` |
@@ -47,7 +44,6 @@
 #### `extern fn nl_event_base_loopexit(_base: int, _timeout_secs: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_base` | `int` |
@@ -59,7 +55,6 @@
 #### `extern fn nl_event_base_loopbreak(_base: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_base` | `int` |
@@ -70,7 +65,6 @@
 #### `extern fn nl_event_base_get_method(_base: int) -> string`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_base` | `int` |
@@ -81,7 +75,6 @@
 #### `extern fn nl_event_base_get_num_events(_base: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_base` | `int` |
@@ -102,7 +95,6 @@
 #### `extern fn nl_evtimer_new(_base: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_base` | `int` |
@@ -113,7 +105,6 @@
 #### `extern fn nl_event_free(_event: int) -> void`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_event` | `int` |
@@ -124,7 +115,6 @@
 #### `extern fn nl_evtimer_add_timeout(_event: int, _timeout_secs: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_event` | `int` |
@@ -136,7 +126,6 @@
 #### `extern fn nl_event_del(_event: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_event` | `int` |
@@ -152,7 +141,6 @@
 #### `extern fn nl_event_sleep(_base: int, _seconds: int) -> int`
 
 **Parameters:**
-
 | Name | Type |
 |------|------|
 | `_base` | `int` |
@@ -180,3 +168,4 @@
 ### Constants
 
 *No constants*
+

@@ -55,7 +55,7 @@ This directory contains complete API references for all NanoLang modules, automa
 
 ## About This Documentation
 
-These API references are generated automatically using the NanoLang compiler's `--reflect` flag, which extracts complete module metadata including:
+These API references are generated automatically using the NanoLang compiler's `--reflect` flag and a **NanoLang-based generator**, which extracts complete module metadata including:
 
 - Function signatures with parameter types
 - Struct definitions with field information
@@ -67,6 +67,7 @@ These API references are generated automatically using the NanoLang compiler's `
 To regenerate this documentation:
 
 ```bash
+perl -e 'alarm 60; exec @ARGV' ./bin/nanoc scripts/generate_module_api_docs.nano -o build/userguide/generate_module_api_docs
 bash scripts/generate_all_api_docs.sh
 ```
 
