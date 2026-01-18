@@ -2,6 +2,7 @@
 #include "version.h"
 #include "module_builder.h"
 #include "interpreter_ffi.h"
+#include "reflection.h"
 #include "runtime/list_CompilerDiagnostic.h"
 #include <unistd.h>  /* For getpid() on all POSIX systems */
 
@@ -23,6 +24,7 @@ typedef struct {
     bool json_errors;         /* Output errors in JSON format for tooling */
     const char *llm_diags_json_path; /* --llm-diags-json <path> (agent-only): write diagnostics as JSON */
     const char *llm_shadow_json_path; /* --llm-shadow-json <path> (agent-only): write shadow failure summary as JSON */
+    const char *reflect_output_path;  /* --reflect <path>: emit module API as JSON */
     char **include_paths;      /* -I flags */
     int include_count;
     char **library_paths;     /* -L flags */
@@ -274,7 +276,12 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     /* Phase 4: Type Checking */
     typecheck_set_current_file(input_file);
-    if (!type_check(program, env)) {
+    /* Use type_check_module if reflection is requested (modules don't need main) */
+    bool typecheck_success = opts->reflect_output_path ? 
+        type_check_module(program, env) : 
+        type_check(program, env);
+    
+    if (!typecheck_success) {
         fprintf(stderr, "Type checking failed\n");
         diags_push_simple(diags, CompilerPhase_PHASE_TYPECHECK, DiagnosticSeverity_DIAG_ERROR, "CTYPE01", "Type checking failed");
         free_ast(program);
@@ -287,6 +294,46 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         return 1;
     }
     if (opts->verbose) printf("✓ Type checking complete\n");
+
+    /* Phase 4.4: Module Reflection (if requested) */
+    if (opts->reflect_output_path) {
+        /* Extract module name from input file */
+        const char *module_name = strrchr(input_file, '/');
+        module_name = module_name ? module_name + 1 : input_file;
+        /* Remove .nano extension if present */
+        char *name_copy = strdup(module_name);
+        char *dot = strrchr(name_copy, '.');
+        if (dot && strcmp(dot, ".nano") == 0) {
+            *dot = '\0';
+        }
+        
+        if (opts->verbose) printf("→ Emitting module reflection to %s\n", opts->reflect_output_path);
+        
+        if (!emit_module_reflection(opts->reflect_output_path, env, name_copy)) {
+            fprintf(stderr, "Error: Failed to emit module reflection\n");
+            free(name_copy);
+            free_ast(program);
+            free_tokens(tokens, token_count);
+            free_environment(env);
+            free_module_list(modules);
+            free(source);
+            llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+            nl_list_CompilerDiagnostic_free(diags);
+            return 1;
+        }
+        
+        if (opts->verbose) printf("✓ Module reflection complete\n");
+        free(name_copy);
+        
+        /* Clean up and exit - no need to compile when reflecting */
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return 0;
+    }
 
     /* Phase 4.5: Build imported modules (object + shared libs) */
     if (modules->count > 0) {
@@ -876,6 +923,7 @@ int main(int argc, char *argv[]) {
         printf("  -fshow-intermediate-code  Print generated C to stdout\n");
         printf("  -S             Save generated C to <input>.genC (for inspection)\n");
         printf("  --json-errors  Output errors in JSON format for tool integration\n");
+        printf("  --reflect <path>  Emit module API as JSON (for documentation generation)\n");
         printf("  -I <path>      Add include path for C compilation\n");
         printf("  -L <path>      Add library path for C linking\n");
         printf("  -l <lib>       Link against library (e.g., -lSDL2)\n");
@@ -913,6 +961,7 @@ int main(int argc, char *argv[]) {
         .json_errors = false,
         .llm_diags_json_path = NULL,
         .llm_shadow_json_path = NULL,
+        .reflect_output_path = NULL,
         .include_paths = NULL,
         .include_count = 0,
         .library_paths = NULL,
@@ -991,6 +1040,9 @@ int main(int argc, char *argv[]) {
             i++;
         } else if (strcmp(argv[i], "--llm-shadow-json") == 0 && i + 1 < argc) {
             opts.llm_shadow_json_path = argv[i + 1];
+            i++;
+        } else if (strcmp(argv[i], "--reflect") == 0 && i + 1 < argc) {
+            opts.reflect_output_path = argv[i + 1];
             i++;
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
