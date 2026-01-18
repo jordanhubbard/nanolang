@@ -895,6 +895,27 @@ fn main() -> int {
 
     let css_href_index: string = "assets/style.css"
     let mascot_href_index: string = "assets/Nanolang_Mascot.png"
+    let toc_html_index: string = (build_toc link_titles link_rels "index.html" out_dir out_dir)
+    let mut nav_html_index: string = ""
+    if (> (array_length link_rels) 0) {
+        let first_title: string = (at link_titles 0)
+        let first_rel: string = (at link_rels 0)
+        set nav_html_index (sb_join [
+            "<div class=\"chapter-nav\">",
+            "<span class=\"chapter-link prev disabled\"><span class=\"label\">&#8592; Previous</span><span class=\"title\">Start</span></span>",
+            "<a class=\"chapter-link home\" href=\"index.html\" aria-label=\"Back to guide index\">&#8962;</a>",
+            (sb_join ["<a class=\"chapter-link next\" href=\"", (html_escape first_rel), "\"><span class=\"label\">Next &#8594;</span><span class=\"title\">", (html_escape first_title), "</span></a>"] ""),
+            "</div>"
+        ] "\n")
+    } else {
+        set nav_html_index (sb_join [
+            "<div class=\"chapter-nav\">",
+            "<span class=\"chapter-link prev disabled\"><span class=\"label\">&#8592; Previous</span><span class=\"title\">Start</span></span>",
+            "<a class=\"chapter-link home\" href=\"index.html\" aria-label=\"Back to guide index\">&#8962;</a>",
+            "<span class=\"chapter-link next disabled\"><span class=\"label\">Next &#8594;</span><span class=\"title\">End</span></span>",
+            "</div>"
+        ] "\n")
+    }
     let mut links: array<string> = []
     let p_len: int = (array_length link_rels)
     let mut pi: int = 0
@@ -915,6 +936,7 @@ fn main() -> int {
     set index_out (array_push index_out "</head>")
     set index_out (array_push index_out "<body style=\"--accent: #7aa2f7;\">")
     set index_out (array_push index_out "<nav>")
+    set index_out (array_push index_out "  <a href=\"index.html\" class=\"nav-home\" aria-label=\"Back to guide index\">&#8962;</a>")
     set index_out (array_push index_out "  <a href=\"index.html\">NanoLang User Guide</a>")
     set index_out (array_push index_out "</nav>")
     set index_out (array_push index_out "<header class=\"hero\">")
@@ -924,12 +946,16 @@ fn main() -> int {
     set index_out (array_push index_out "  </div>")
     set index_out (array_push index_out (+ "  <img class=\"hero-mascot\" src=\"" (+ (html_escape mascot_href_index) "\" alt=\"NanoLang Mascot\">")))
     set index_out (array_push index_out "</header>")
-    set index_out (array_push index_out "<main class=\"content\">")
-    set index_out (array_push index_out "  <div class=\"page-card\">")
-    set index_out (array_push index_out "    <h2>Guide chapters</h2>")
-    set index_out (array_push index_out "    <ul class=\"toc\">")
+    set index_out (array_push index_out "<main class=\"content with-sidebar\">")
+    set index_out (array_push index_out toc_html_index)
+    set index_out (array_push index_out "  <div class=\"content-body\">")
+    set index_out (array_push index_out "    <div class=\"page-card\">")
+    set index_out (array_push index_out "      <h2>Guide chapters</h2>")
+    set index_out (array_push index_out "      <ul class=\"toc\">")
     set index_out (array_push index_out (sb_join links "\n"))
-    set index_out (array_push index_out "    </ul>")
+    set index_out (array_push index_out "      </ul>")
+    set index_out (array_push index_out "    </div>")
+    set index_out (array_push index_out nav_html_index)
     set index_out (array_push index_out "  </div>")
     set index_out (array_push index_out "</main>")
     set index_out (array_push index_out "</body>")
