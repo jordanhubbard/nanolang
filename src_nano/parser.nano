@@ -3088,13 +3088,20 @@ fn parser_store_array_literal(p: Parser, element_start: int, element_count: int,
 }
 
 /* Helper: Store import node */
-fn parser_store_import(p: Parser, module_path: string, module_name: string, line: int, column: int) -> Parser {
+fn parser_store_import(p: Parser, module_path: string, module_name: string, is_unsafe: bool, is_selective: bool, is_wildcard: bool, import_symbols: array<string>, import_aliases: array<string>, import_symbol_count: int, line: int, column: int) -> Parser {
     let node: ASTImport = ASTImport {
         node_type: ParseNodeType.PNODE_IMPORT,
         line: line,
         column: column,
         module_path: module_path,
-        module_name: module_name
+        module_name: module_name,
+        is_unsafe: is_unsafe,
+        is_selective: is_selective,
+        is_wildcard: is_wildcard,
+        is_pub_use: false,
+        import_symbols: import_symbols,
+        import_aliases: import_aliases,
+        import_symbol_count: import_symbol_count
     }
     let node_id: int = p.imports_count
     (list_ASTImport_push p.imports node)
@@ -5942,14 +5949,14 @@ fn parse_import(p: Parser) -> Parser {
                     if (== tok4.token_type (token_identifier)) {
                         let module_name: string = tok4.value
                         let p4: Parser = (parser_advance p3)
-                        return (parser_store_import p4 module_path module_name tok.line tok.column)
+                        return (parser_store_import p4 module_path module_name false false false [] [] 0 tok.line tok.column)
                     } else {
                         return (parser_with_error p3 true)
                     }
                 }
             } else {
                 /* No 'as' clause - store with empty module_name */
-                return (parser_store_import p2 module_path "" tok.line tok.column)
+                return (parser_store_import p2 module_path "" false false false [] [] 0 tok.line tok.column)
             }
         } else {
             return (parser_with_error p1 true)
@@ -5977,37 +5984,66 @@ fn parse_from_import(p: Parser) -> Parser {
                 return (parser_with_error p2 true)
             } else {
                 let tok3: LexerToken = (parser_current p2)
+                let mut p_work: Parser = p2
+                let mut is_wildcard: bool = false
+                let mut symbols: array<string> = []
+                let mut aliases: array<string> = []
+                let mut symbol_count: int = 0
+                
                 if (!= tok3.token_type (token_import)) {
                     return (parser_with_error p2 true)
                 } else {
-                    let mut p_work: Parser = (parser_advance p2)
-                    
-                    /* Parse symbol list: sym1, sym2, sym3 or * */
-                    /* For now, we just consume the symbols without storing them */
-                    /* (Full selective import would require extending parser_store_import) */
+                    set p_work (parser_advance p2)
                     
                     let mut done: bool = false
                     while (and (not (parser_is_at_end p_work)) (not done)) {
                         let cur_tok: LexerToken = (parser_current p_work)
                         
                         /* Check for identifier or * */
-                        if (or (== cur_tok.token_type (token_identifier)) (== cur_tok.token_type (token_star))) {
+                        if (== cur_tok.token_type (token_star)) {
+                            set is_wildcard true
                             set p_work (parser_advance p_work)
-                            
-                            /* Check for comma (more symbols) */
-                            if (and (not (parser_is_at_end p_work)) (== (parser_current p_work).token_type (token_comma))) {
-                                set p_work (parser_advance p_work)  /* consume comma */
+                            set done true
+                        } else {
+                            if (or (== cur_tok.token_type (token_identifier)) (== cur_tok.token_type (token_set))) {
+                                let sym_name: string = cur_tok.value
+                                let mut alias_name: string = ""
+                                set p_work (parser_advance p_work)
+                                
+                                if (and (not (parser_is_at_end p_work)) (== (parser_current p_work).token_type (token_as))) {
+                                    let p_alias: Parser = (parser_advance p_work)
+                                    if (parser_is_at_end p_alias) {
+                                        return (parser_with_error p_alias true)
+                                    } else {
+                                        let alias_tok: LexerToken = (parser_current p_alias)
+                                        if (== alias_tok.token_type (token_identifier)) {
+                                            set alias_name alias_tok.value
+                                            set p_work (parser_advance p_alias)
+                                        } else {
+                                            return (parser_with_error p_alias true)
+                                        }
+                                    }
+                                }
+                                
+                                set symbols (array_push symbols sym_name)
+                                set aliases (array_push aliases alias_name)
+                                set symbol_count (+ symbol_count 1)
+                                
+                                /* Check for comma (more symbols) */
+                                if (and (not (parser_is_at_end p_work)) (== (parser_current p_work).token_type (token_comma))) {
+                                    set p_work (parser_advance p_work)  /* consume comma */
+                                } else {
+                                    set done true
+                                }
                             } else {
                                 set done true
                             }
-                        } else {
-                            set done true
                         }
                     }
-                    
-                    /* Store as regular import (AST doesn't distinguish selective imports yet) */
-                    return (parser_store_import p_work module_path "" tok.line tok.column)
                 }
+                
+                /* Store selective import */
+                return (parser_store_import p_work module_path "" false true is_wildcard symbols aliases symbol_count tok.line tok.column)
             }
         }
     }

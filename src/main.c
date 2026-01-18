@@ -18,6 +18,7 @@ char **g_argv = NULL;
 typedef struct {
     bool verbose;
     bool keep_c;
+    bool show_intermediate_code;
     bool save_asm;            /* -S flag: save generated C to .genC file */
     bool json_errors;         /* Output errors in JSON format for tooling */
     const char *llm_diags_json_path; /* --llm-diags-json <path> (agent-only): write diagnostics as JSON */
@@ -272,6 +273,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char module_compile_flags[2048] = "";
 
     /* Phase 4: Type Checking */
+    typecheck_set_current_file(input_file);
     if (!type_check(program, env)) {
         fprintf(stderr, "Type checking failed\n");
         diags_push_simple(diags, CompilerPhase_PHASE_TYPECHECK, DiagnosticSeverity_DIAG_ERROR, "CTYPE01", "Type checking failed");
@@ -404,6 +406,11 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     if (opts->verbose) {
         printf("✓ Transpilation complete (%d lines of C, %zu bytes)\n", c_code_lines, c_code_size);
+    }
+
+    if (opts->show_intermediate_code) {
+        fwrite(c_code, 1, c_code_size, stdout);
+        fflush(stdout);
     }
     
     /* Save generated C to .genC file if -S flag is set */
@@ -866,6 +873,7 @@ int main(int argc, char *argv[]) {
         printf("  -o <file>      Specify output file (default: /tmp/nanoc_a.out)\n");
         printf("  --verbose      Show detailed compilation steps and commands\n");
         printf("  --keep-c       Keep generated C file (saves to output dir instead of /tmp)\n");
+        printf("  -fshow-intermediate-code  Print generated C to stdout\n");
         printf("  -S             Save generated C to <input>.genC (for inspection)\n");
         printf("  --json-errors  Output errors in JSON format for tool integration\n");
         printf("  -I <path>      Add include path for C compilation\n");
@@ -900,6 +908,7 @@ int main(int argc, char *argv[]) {
     CompilerOptions opts = {
         .verbose = false,
         .keep_c = false,
+        .show_intermediate_code = false,
         .save_asm = false,
         .json_errors = false,
         .llm_diags_json_path = NULL,
@@ -933,6 +942,8 @@ int main(int argc, char *argv[]) {
             opts.verbose = true;
         } else if (strcmp(argv[i], "--keep-c") == 0) {
             opts.keep_c = true;
+        } else if (strcmp(argv[i], "-fshow-intermediate-code") == 0) {
+            opts.show_intermediate_code = true;
         } else if (strcmp(argv[i], "-S") == 0) {
             opts.save_asm = true;
         } else if (strcmp(argv[i], "--json-errors") == 0) {

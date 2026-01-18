@@ -1,0 +1,84 @@
+import "modules/std/fs.nano" import read, exists
+import "src_nano/compiler/diagnostics.nano" as Diagnostics
+import "modules/nano_tools/nano_tools.nano" as nano_tools
+
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+struct LintOptions {
+    input_file: string,
+    show_help: bool
+}
+
+fn default_options() -> LintOptions {
+    return LintOptions {
+        input_file: "",
+        show_help: false
+    }
+}
+
+fn parse_args() -> LintOptions {
+    let argc: int = (get_argc)
+    let mut opts: LintOptions = (default_options)
+    let mut i: int = 1
+    while (< i argc) {
+        let arg: string = (get_argv i)
+        if (or (str_equals arg "-h") (str_equals arg "--help")) {
+            set opts LintOptions {
+                input_file: opts.input_file,
+                show_help: true
+            }
+        } else {
+            if (== opts.input_file "") {
+                set opts LintOptions {
+                    input_file: arg,
+                    show_help: opts.show_help
+                }
+            } else { (print "") }
+        }
+        set i (+ i 1)
+    }
+    return opts
+}
+
+shadow parse_args {
+    assert true
+}
+
+fn print_usage() -> void {
+    (println "nano-lint - NanoLang linter (syntax + style)")
+    (println "")
+    (println "Usage: nano-lint <file.nano>")
+    (println "")
+    (println "Checks:")
+    (println "  - Syntax errors (lexer + parser)")
+    (println "  - Missing shadow tests for functions")
+}
+
+fn main() -> int {
+    let opts: LintOptions = (parse_args)
+    if (or opts.show_help (== opts.input_file "")) {
+        (print_usage)
+        return 0
+    } else { (print "") }
+
+    let diags: List<CompilerDiagnostic> = (nano_tools.lint_file opts.input_file)
+    let count: int = (Diagnostics.diag_list_count diags)
+    if (== count 0) {
+        (println "nano-lint: ok")
+        return 0
+    } else {
+        let mut source: string = ""
+        if (exists opts.input_file) {
+            set source (read opts.input_file)
+        } else { (print "") }
+        let output: string = (nano_tools.lint_format diags source)
+        (print output)
+        (println (+ "nano-lint: " (+ (int_to_string count) " issue(s)")))
+        return 1
+    }
+}
+
+shadow main {
+    assert true
+}

@@ -6,6 +6,7 @@ NanoLang is an LLM-first language, so `nanoc` supports (and will continue to gro
 
 - **`-v`, `--verbose`**: More verbose compiler output (phase prints, extra debug artifacts).
 - **`-k`, `--keep-c`**: Keep the generated C output.
+- **`-fshow-intermediate-code`**: Print generated C to stdout.
 - **`-h`, `--help`**: Help.
 
 ## Always-on debug artifacts (today)

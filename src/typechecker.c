@@ -2,6 +2,15 @@
 #include "tracing.h"
 #include "resource_tracking.h"
 
+static void emit_context_error(
+    const char *title,
+    int line,
+    int column,
+    int caret_len,
+    const char *message,
+    const char *hint
+);
+
 /* Type checking context */
 typedef struct {
     Environment *env;
@@ -598,8 +607,16 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     /* Function name used as value (for passing/returning) */
                     return TYPE_FUNCTION;
                 }
-                fprintf(stderr, "Error at line %d, column %d: Undefined variable '%s'\n",
-                        expr->line, expr->column, expr->as.identifier);
+                char message[256];
+                snprintf(message, sizeof(message), "I cannot find a variable named `%s`.", expr->as.identifier);
+                emit_context_error(
+                    "UNDEFINED VARIABLE",
+                    expr->line,
+                    expr->column,
+                    (int)safe_strlen(expr->as.identifier),
+                    message,
+                    "Check spelling or ensure the variable is in scope."
+                );
                 return TYPE_UNKNOWN;
             }
             sym->is_used = true;  /* Mark variable as used */
@@ -651,8 +668,17 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return sym->type;
                 }
                 
-                fprintf(stderr, "Error at line %d, column %d: Undefined symbol '%s' in module '%s'\n",
-                        expr->line, expr->column, symbol_name, module_name);
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "I cannot find `%s` in module `%s`.", symbol_name, module_name);
+                emit_context_error(
+                    "UNDEFINED SYMBOL",
+                    expr->line,
+                    expr->column,
+                    (int)safe_strlen(symbol_name),
+                    message,
+                    "Check the module name and exported symbols."
+                );
                 return TYPE_UNKNOWN;
             }
             
@@ -689,7 +715,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 
                 /* Binary arithmetic operations */
                 if (arg_count != 2) {
-                    fprintf(stderr, "Error at line %d, column %d: Binary arithmetic operators require 2 arguments\n", expr->line, expr->column);
+                    emit_context_error(
+                        "ARITY MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "Binary arithmetic operators require exactly 2 arguments.",
+                        "Provide two numeric operands."
+                    );
                     return TYPE_UNKNOWN;
                 }
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
@@ -735,8 +768,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     if (left_elem == TYPE_INT && right_elem == TYPE_INT) return TYPE_ARRAY;
                     if (left_elem == TYPE_FLOAT && right_elem == TYPE_FLOAT) return TYPE_ARRAY;
 
-                    fprintf(stderr, "Error at line %d, column %d: Type mismatch in array arithmetic operation\n", expr->line, expr->column);
-                    fprintf(stderr, "  Got: %s and %s\n", type_to_string(left), type_to_string(right));
+                    char message[256];
+                    snprintf(message, sizeof(message),
+                            "Array arithmetic requires matching numeric element types (got %s and %s).",
+                            type_to_string(left), type_to_string(right));
+                    emit_context_error(
+                        "TYPE MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        message,
+                        "Use matching numeric types or convert elements before arithmetic."
+                    );
                     return TYPE_UNKNOWN;
                 }
 
@@ -759,27 +802,50 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     (right == TYPE_INT || right == TYPE_ENUM || right == TYPE_U8)) return TYPE_INT;
                 if (left == TYPE_FLOAT && right == TYPE_FLOAT) return TYPE_FLOAT;
 
-                fprintf(stderr, "Error at line %d, column %d: Type mismatch in arithmetic operation\n", expr->line, expr->column);
-                fprintf(stderr, "  Expected: numeric types (int, u8, or float) or strings (for + only)\n");
-                fprintf(stderr, "  Got: %s and %s\n", type_to_string(left), type_to_string(right));
-                fprintf(stderr, "  Hint: Both operands must be the same numeric type, or both strings for concatenation\n");
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "Arithmetic expects numeric types or string concatenation with + (got %s and %s).",
+                        type_to_string(left), type_to_string(right));
+                emit_context_error(
+                    "TYPE MISMATCH",
+                    expr->line,
+                    expr->column,
+                    1,
+                    message,
+                    "Use matching numeric types, or use + with two strings."
+                );
                 return TYPE_UNKNOWN;
             }
 
             /* Comparison operators */
             if (op == TOKEN_LT || op == TOKEN_LE || op == TOKEN_GT || op == TOKEN_GE) {
                 if (arg_count != 2) {
-                    fprintf(stderr, "Error at line %d, column %d: Comparison operators require 2 arguments\n", expr->line, expr->column);
+                    emit_context_error(
+                        "ARITY MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "Comparison operators require exactly 2 arguments.",
+                        "Provide two comparable operands."
+                    );
                     return TYPE_UNKNOWN;
                 }
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
                 Type right = check_expression(expr->as.prefix_op.args[1], env);
 
                 if (!types_match(left, right)) {
-                    fprintf(stderr, "Error at line %d, column %d: Type mismatch in comparison\n", expr->line, expr->column);
-                    fprintf(stderr, "  Left operand: %s\n", type_to_string(left));
-                    fprintf(stderr, "  Right operand: %s\n", type_to_string(right));
-                    fprintf(stderr, "  Hint: Comparison requires both operands to be the same type\n");
+                    char message[256];
+                    snprintf(message, sizeof(message),
+                            "Comparison requires both operands to be the same type (got %s and %s).",
+                            type_to_string(left), type_to_string(right));
+                    emit_context_error(
+                        "TYPE MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        message,
+                        "Convert operands to the same type before comparing."
+                    );
                 }
                 return TYPE_BOOL;
             }
@@ -787,7 +853,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Equality operators */
             if (op == TOKEN_EQ || op == TOKEN_NE) {
                 if (arg_count != 2) {
-                    fprintf(stderr, "Error at line %d, column %d: Equality operators require 2 arguments\n", expr->line, expr->column);
+                    emit_context_error(
+                        "ARITY MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "Equality operators require exactly 2 arguments.",
+                        "Provide two operands to compare."
+                    );
                     return TYPE_UNKNOWN;
                 }
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
@@ -804,7 +877,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
                 
                 if (!types_ok) {
-                    fprintf(stderr, "Error at line %d, column %d: Type mismatch in equality check\n", expr->line, expr->column);
+                    char message[256];
+                    snprintf(message, sizeof(message),
+                            "Equality requires both operands to be the same type (got %s and %s).",
+                            type_to_string(left), type_to_string(right));
+                    emit_context_error(
+                        "TYPE MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        message,
+                        "Convert operands to the same type before checking equality."
+                    );
                 }
                 return TYPE_BOOL;
             }
@@ -812,26 +896,54 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Logical operators */
             if (op == TOKEN_AND || op == TOKEN_OR) {
                 if (arg_count != 2) {
-                    fprintf(stderr, "Error at line %d, column %d: Logical operators require 2 arguments\n", expr->line, expr->column);
+                    emit_context_error(
+                        "ARITY MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "Logical operators require exactly 2 arguments.",
+                        "Provide two boolean operands."
+                    );
                     return TYPE_UNKNOWN;
                 }
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
                 Type right = check_expression(expr->as.prefix_op.args[1], env);
 
                 if (left != TYPE_BOOL || right != TYPE_BOOL) {
-                    fprintf(stderr, "Error at line %d, column %d: Logical operators require bool operands\n", expr->line, expr->column);
+                    emit_context_error(
+                        "TYPE MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "Logical operators require bool operands.",
+                        "Convert operands to bool before using and/or."
+                    );
                 }
                 return TYPE_BOOL;
             }
 
             if (op == TOKEN_NOT) {
                 if (arg_count != 1) {
-                    fprintf(stderr, "Error at line %d, column %d: 'not' requires 1 argument\n", expr->line, expr->column);
+                    emit_context_error(
+                        "ARITY MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "`not` requires exactly 1 argument.",
+                        "Provide a single boolean operand."
+                    );
                     return TYPE_UNKNOWN;
                 }
                 Type arg = check_expression(expr->as.prefix_op.args[0], env);
                 if (arg != TYPE_BOOL) {
-                    fprintf(stderr, "Error at line %d, column %d: 'not' requires bool operand\n", expr->line, expr->column);
+                    emit_context_error(
+                        "TYPE MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "`not` requires a bool operand.",
+                        "Convert the operand to bool before using not."
+                    );
                 }
                 return TYPE_BOOL;
             }
@@ -1225,11 +1337,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 }
                             } else {
                                 /* Better error message: list function for unknown type */
-                                safe_fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
-                                        expr->line, expr->column, safe_format_string(expr->as.call.name));
-                                safe_fprintf(stderr, "  Note: struct or enum '%s' is not defined\n", type_name);
-                                safe_fprintf(stderr, "  Hint: Define 'struct %s { ... }' before using List<%s>\n", 
-                                        type_name, type_name);
+                                char message[256];
+                                snprintf(message, sizeof(message),
+                                        "Unknown list element type `%s` in `%s`.",
+                                        type_name, expr->as.call.name);
+                                emit_context_error(
+                                    "UNDEFINED IDENTIFIER",
+                                    expr->line,
+                                    expr->column,
+                                    (int)safe_strlen(expr->as.call.name),
+                                    message,
+                                    "Define the struct/enum before using it in List<T>."
+                                );
                                 free(type_name);
                                 return TYPE_UNKNOWN;
                             }
@@ -1237,15 +1356,35 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
                 }
                 
-                safe_fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
-                        expr->line, expr->column, safe_format_string(expr->as.call.name));
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "I cannot find a function named `%s`.",
+                        safe_format_string(expr->as.call.name));
+                emit_context_error(
+                    "UNDEFINED FUNCTION",
+                    expr->line,
+                    expr->column,
+                    (int)safe_strlen(expr->as.call.name),
+                    message,
+                    "Check spelling or ensure the function is defined/imported."
+                );
                 return TYPE_UNKNOWN;
             }
 
             /* Check argument count */
             if (expr->as.call.arg_count != func->param_count) {
-                safe_fprintf(stderr, "Error at line %d, column %d: Function '%s' expects %d arguments, got %d\n",
-                        expr->line, expr->column, safe_format_string(expr->as.call.name), func->param_count, expr->as.call.arg_count);
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "Function `%s` expects %d argument(s), but got %d.",
+                        safe_format_string(expr->as.call.name), func->param_count, expr->as.call.arg_count);
+                emit_context_error(
+                    "ARITY MISMATCH",
+                    expr->line,
+                    expr->column,
+                    (int)safe_strlen(expr->as.call.name),
+                    message,
+                    "Add or remove arguments to match the function signature."
+                );
                 return TYPE_UNKNOWN;
             }
 
@@ -1258,8 +1397,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     if (func->params[i].type == TYPE_FUNCTION) {
                         /* Argument must be an identifier (function name or function-typed variable) */
                         if (arg->type != AST_IDENTIFIER) {
-                            fprintf(stderr, "Error at line %d, column %d: Function parameter expects a function name\n",
-                                    arg->line, arg->column);
+                            emit_context_error(
+                                "TYPE MISMATCH",
+                                arg->line,
+                                arg->column,
+                                1,
+                                "Function parameter expects a function name.",
+                                "Pass a function identifier or a function-typed variable."
+                            );
                             return TYPE_UNKNOWN;
                         }
                         
@@ -1275,8 +1420,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         /* Look up the function */
                         Function *passed_func = env_get_function(env, arg->as.identifier);
                         if (!passed_func) {
-                            fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
-                                    arg->line, arg->column, arg->as.identifier);
+                            char message[256];
+                            snprintf(message, sizeof(message),
+                                    "I cannot find a function named `%s`.",
+                                    arg->as.identifier);
+                            emit_context_error(
+                                "UNDEFINED FUNCTION",
+                                arg->line,
+                                arg->column,
+                                (int)safe_strlen(arg->as.identifier),
+                                message,
+                                "Check spelling or ensure the function is defined/imported."
+                            );
                             return TYPE_UNKNOWN;
                         }
                         
@@ -1294,9 +1449,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         
                         /* Compare signatures */
                         if (!function_signatures_equal(func->params[i].fn_sig, &passed_sig)) {
-                            fprintf(stderr, "Error at line %d, column %d: Function signature mismatch for argument %d in call to '%s'\n",
-                                    arg->line, arg->column, i + 1, expr->as.call.name);
-                            fprintf(stderr, "  Expected function with different signature\n");
+                            char message[256];
+                            snprintf(message, sizeof(message),
+                                    "Argument %d expects a function with a different signature.",
+                                    i + 1);
+                            emit_context_error(
+                                "TYPE MISMATCH",
+                                arg->line,
+                                arg->column,
+                                (int)safe_strlen(arg->as.identifier),
+                                message,
+                                "Match the parameter's expected function signature."
+                            );
                             free(passed_sig.param_types);
                             free(passed_sig.param_struct_names);
                             return TYPE_UNKNOWN;
@@ -1328,10 +1492,20 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 is_opaque_param = true;
                                 /* For opaque types, allow TYPE_INT (for passing 0 as NULL) */
                                 if (arg_type != TYPE_INT && arg_type != TYPE_STRUCT) {
-                                    fprintf(stderr, "Error at line %d, column %d: Argument %d type mismatch in call to '%s'\n",
-                                            expr->line, expr->column, i + 1, expr->as.call.name);
-                                    fprintf(stderr, "  Expected opaque type '%s' or 0 (null), got %s\n",
-                                            func->params[i].struct_type_name, type_to_string(arg_type));
+                                    char message[256];
+                                    snprintf(message, sizeof(message),
+                                            "Argument %d expects opaque type `%s` or 0 (null), got %s.",
+                                            i + 1,
+                                            func->params[i].struct_type_name,
+                                            type_to_string(arg_type));
+                                    emit_context_error(
+                                        "TYPE MISMATCH",
+                                        expr->line,
+                                        expr->column,
+                                        1,
+                                        message,
+                                        "Pass the opaque handle or 0 (null)."
+                                    );
                                 }
                             }
                         }
@@ -1363,8 +1537,20 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                         
                         if (!is_opaque_param && !is_opaque_arg && !types_match(arg_type, func->params[i].type)) {
-                            fprintf(stderr, "Error at line %d, column %d: Argument %d type mismatch in call to '%s'\n",
-                                    expr->line, expr->column, i + 1, expr->as.call.name);
+                            char message[256];
+                            snprintf(message, sizeof(message),
+                                    "Argument %d expects %s, got %s.",
+                                    i + 1,
+                                    type_to_string(func->params[i].type),
+                                    type_to_string(arg_type));
+                            emit_context_error(
+                                "TYPE MISMATCH",
+                                expr->line,
+                                expr->column,
+                                1,
+                                message,
+                                "Convert the argument to the expected type."
+                            );
                         }
                     }
                 }
@@ -1558,8 +1744,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Look up function in environment */
             Function *func = env_get_function(env, qualified_name);
             if (!func) {
-                fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
-                        expr->line, expr->column, qualified_name);
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "I cannot find a function named `%s`.",
+                        qualified_name);
+                emit_context_error(
+                    "UNDEFINED FUNCTION",
+                    expr->line,
+                    expr->column,
+                    (int)safe_strlen(qualified_name),
+                    message,
+                    "Check the module alias and exported functions."
+                );
                 free(qualified_name);
                 return TYPE_UNKNOWN;
             }
@@ -1586,9 +1782,19 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             
             /* Type check arguments (basic check - just verify count and type check expressions) */
             if (expr->as.module_qualified_call.arg_count != func->param_count) {
-                fprintf(stderr, "Error at line %d, column %d: Function '%s.%s' expects %d arguments, got %d\n",
-                        expr->line, expr->column, module_alias, function_name,
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "Function `%s.%s` expects %d argument(s), but got %d.",
+                        module_alias, function_name,
                         func->param_count, expr->as.module_qualified_call.arg_count);
+                emit_context_error(
+                    "ARITY MISMATCH",
+                    expr->line,
+                    expr->column,
+                    (int)safe_strlen(function_name),
+                    message,
+                    "Add or remove arguments to match the function signature."
+                );
                 return TYPE_UNKNOWN;
             }
             
@@ -1619,8 +1825,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             for (int i = 1; i < element_count; i++) {
                 Type elem_type = check_expression(expr->as.array_literal.elements[i], env);
                 if (elem_type != first_type) {
-                    fprintf(stderr, "Error at line %d, column %d: Array elements must all have the same type. Expected %d, got %d\n",
-                            expr->line, expr->column, first_type, elem_type);
+                    char message[256];
+                    snprintf(message, sizeof(message),
+                            "Array elements must all have the same type (expected %s, got %s).",
+                            type_to_string(first_type), type_to_string(elem_type));
+                    emit_context_error(
+                        "TYPE MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        message,
+                        "Use consistent element types or convert values."
+                    );
                     return TYPE_UNKNOWN;
                 }
             }
@@ -1634,7 +1850,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         case AST_IF: {
             Type cond_type = check_expression(expr->as.if_stmt.condition, env);
             if (cond_type != TYPE_BOOL) {
-                fprintf(stderr, "Error at line %d, column %d: If condition must be bool\n", expr->line, expr->column);
+                emit_context_error(
+                    "TYPE MISMATCH",
+                    expr->line,
+                    expr->column,
+                    1,
+                    "If condition must be a bool.",
+                    "Ensure the condition expression evaluates to bool."
+                );
             }
 
             /* For if expressions, we need to infer the type from the blocks */
@@ -1648,8 +1871,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             for (int i = 0; i < expr->as.cond_expr.clause_count; i++) {
                 Type cond_type = check_expression(expr->as.cond_expr.conditions[i], env);
                 if (cond_type != TYPE_BOOL) {
-                    fprintf(stderr, "Error at line %d, column %d: Cond clause condition must be bool\n", 
-                            expr->line, expr->column);
+                    emit_context_error(
+                        "TYPE MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "Cond clause condition must be a bool.",
+                        "Ensure each cond clause condition is boolean."
+                    );
                 }
             }
             
@@ -2490,7 +2719,18 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     /* dealing with function-typed parameters where we don't have full signature info */
                 }
             } else if (!types_match(value_type, declared_type)) {
-                fprintf(stderr, "Error at line %d, column %d: Type mismatch in let statement\n", stmt->line, stmt->column);
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "Let binding expects %s but got %s.",
+                        type_to_string(declared_type), type_to_string(value_type));
+                emit_context_error(
+                    "TYPE MISMATCH",
+                    stmt->line,
+                    stmt->column,
+                    1,
+                    message,
+                    "Ensure the assigned expression matches the declared type."
+                );
                 tc->has_error = true;
             }
 
@@ -2622,8 +2862,16 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         case AST_SET: {
             Symbol *sym = env_get_var_visible_at(tc->env, stmt->as.set.name, stmt->line, stmt->column);
             if (!sym) {
-                fprintf(stderr, "Error at line %d, column %d: Undefined variable '%s'\n",
-                        stmt->line, stmt->column, stmt->as.set.name);
+                char message[256];
+                snprintf(message, sizeof(message), "I cannot find a variable named `%s`.", stmt->as.set.name);
+                emit_context_error(
+                    "UNDEFINED VARIABLE",
+                    stmt->line,
+                    stmt->column,
+                    (int)safe_strlen(stmt->as.set.name),
+                    message,
+                    "Check spelling or ensure the variable is in scope."
+                );
                 tc->has_error = true;
                 return TYPE_VOID;
             }
@@ -2645,7 +2893,18 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
 
             if (!types_match(value_type, sym->type)) {
-                fprintf(stderr, "Error at line %d, column %d: Type mismatch in assignment\n", stmt->line, stmt->column);
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "Assignment expects %s but got %s.",
+                        type_to_string(sym->type), type_to_string(value_type));
+                emit_context_error(
+                    "TYPE MISMATCH",
+                    stmt->line,
+                    stmt->column,
+                    1,
+                    message,
+                    "Convert the value to the variable's type before assignment."
+                );
                 tc->has_error = true;
             }
 
@@ -2655,7 +2914,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         case AST_WHILE: {
             Type cond_type = check_expression(stmt->as.while_stmt.condition, tc->env);
             if (cond_type != TYPE_BOOL) {
-                fprintf(stderr, "Error at line %d, column %d: While condition must be bool\n", stmt->line, stmt->column);
+                emit_context_error(
+                    "TYPE MISMATCH",
+                    stmt->line,
+                    stmt->column,
+                    1,
+                    "While condition must be a bool.",
+                    "Ensure the loop condition evaluates to bool."
+                );
                 tc->has_error = true;
             }
 
@@ -2784,8 +3050,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* Type check if statement */
             Type cond_type = check_expression(stmt->as.if_stmt.condition, tc->env);
             if (cond_type != TYPE_BOOL) {
-                fprintf(stderr, "Error at line %d, column %d: If condition must be bool\n", 
-                        stmt->line, stmt->column);
+                emit_context_error(
+                    "TYPE MISMATCH",
+                    stmt->line,
+                    stmt->column,
+                    1,
+                    "If condition must be a bool.",
+                    "Ensure the condition expression evaluates to bool."
+                );
                 tc->has_error = true;
             }
             
@@ -2816,8 +3088,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
              */
             Type match_type = check_expression(stmt->as.match_expr.expr, tc->env);
             if (match_type != TYPE_UNION) {
-                fprintf(stderr, "Error at line %d, column %d: Match expression must be a union type\n",
-                        stmt->line, stmt->column);
+                emit_context_error(
+                    "TYPE MISMATCH",
+                    stmt->line,
+                    stmt->column,
+                    1,
+                    "Match expression must be a union type.",
+                    "Ensure the scrutinee is a union value."
+                );
                 tc->has_error = true;
                 return TYPE_VOID;
             }
@@ -3027,6 +3305,115 @@ static const char *builtin_function_names[] = {
 };
 
 static const int builtin_function_name_count = sizeof(builtin_function_names) / sizeof(char*);
+
+static const char *g_typecheck_current_file = NULL;
+
+void typecheck_set_current_file(const char *path) {
+    g_typecheck_current_file = path;
+}
+
+static void emit_context_error(
+    const char *title,
+    int line,
+    int column,
+    int caret_len,
+    const char *message,
+    const char *hint
+);
+
+static bool read_source_line(const char *path, int target_line, char *buffer, size_t buffer_size) {
+    if (!path || target_line <= 0 || !buffer || buffer_size == 0) {
+        return false;
+    }
+    FILE *f = fopen(path, "r");
+    if (!f) {
+        return false;
+    }
+    int line = 1;
+    while (fgets(buffer, (int)buffer_size, f)) {
+        if (line == target_line) {
+            fclose(f);
+            return true;
+        }
+        line++;
+    }
+    fclose(f);
+    return false;
+}
+
+static void print_error_header(const char *title, const char *file_path) {
+    const char *file = file_path ? file_path : "";
+    fprintf(stderr, "-- %s ", title);
+    int title_len = (int)strlen(title);
+    int file_len = (int)strlen(file);
+    int dash_count = 54 - title_len - file_len;
+    if (dash_count < 3) {
+        dash_count = 3;
+    }
+    for (int i = 0; i < dash_count; i++) {
+        fputc('-', stderr);
+    }
+    if (file_len > 0) {
+        fprintf(stderr, " %s", file);
+    }
+    fputc('\n', stderr);
+}
+
+static void print_error_context_line(int line, int column, int caret_len, const char *line_text) {
+    if (!line_text) {
+        return;
+    }
+    char line_prefix[32];
+    int prefix_len = snprintf(line_prefix, sizeof(line_prefix), "%d| ", line);
+    fprintf(stderr, "%s%s", line_prefix, line_text);
+    size_t line_len = strlen(line_text);
+    if (line_len == 0 || line_text[line_len - 1] != '\n') {
+        fputc('\n', stderr);
+    }
+
+    if (column < 1) {
+        column = 1;
+    }
+    if (caret_len < 1) {
+        caret_len = 1;
+    }
+
+    for (int i = 0; i < prefix_len + column - 1; i++) {
+        fputc(' ', stderr);
+    }
+    for (int i = 0; i < caret_len; i++) {
+        fputc('^', stderr);
+    }
+    fputc('\n', stderr);
+}
+
+static void emit_context_error(
+    const char *title,
+    int line,
+    int column,
+    int caret_len,
+    const char *message,
+    const char *hint
+) {
+    if (g_typecheck_current_file) {
+        print_error_header(title, g_typecheck_current_file);
+    } else {
+        fprintf(stderr, "Error at line %d, column %d: %s\n", line, column, message);
+        if (hint && hint[0] != '\0') {
+            fprintf(stderr, "Hint: %s\n", hint);
+        }
+        return;
+    }
+
+    fprintf(stderr, "%s\n\n", message);
+    char source_line[1024];
+    if (read_source_line(g_typecheck_current_file, line, source_line, sizeof(source_line))) {
+        print_error_context_line(line, column, caret_len, source_line);
+    }
+    if (hint && hint[0] != '\0') {
+        fprintf(stderr, "Hint: %s\n", hint);
+    }
+}
 
 /* Check if a function name is a built-in */
 static bool is_builtin_name(const char *name) {
@@ -4317,7 +4704,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                 /* If both are extern and signatures match, it's fine (idempotent) */
                 if (item->as.function.is_extern && existing->is_extern) {
                     /* Create a temporary function object for matching */
-                    Function current;
+                    Function current = (Function){0};
                     current.param_count = item->as.function.param_count;
                     current.params = item->as.function.params;
                     current.return_type = item->as.function.return_type;
@@ -4388,7 +4775,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                 }
             }
             
-            Function func;
+            Function func = (Function){0};
             func.name = strdup(func_name);  /* Create copy to avoid const qualifier warning */
             func.params = item->as.function.params;
             func.param_count = item->as.function.param_count;
@@ -5029,7 +5416,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             }
             
             /* Register function signature */
-            Function f;
+            Function f = (Function){0};
             f.name = strdup(func_name);
             f.param_count = item->as.function.param_count;
             f.params = malloc(sizeof(Parameter) * f.param_count);

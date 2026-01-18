@@ -9,9 +9,6 @@ extern fn asin(_x: float) -> float
 extern fn acos(_x: float) -> float
 extern fn atan(_x: float) -> float
 
-# Two-argument arctangent (critical for vector-to-angle conversion)
-extern fn atan2(_y: float, _x: float) -> float
-
 # Logarithmic and exponential functions
 extern fn log(_x: float) -> float    # Natural logarithm (base e)
 extern fn log10(_x: float) -> float  # Base-10 logarithm

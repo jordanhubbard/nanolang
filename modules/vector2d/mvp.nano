@@ -1,0 +1,12 @@
+from "modules/vector2d/vector2d.nano" import Vector2D, vec_new, vec_add
+
+fn main() -> int {
+    let a: Vector2D = (vec_new 1.0 2.0)
+    let b: Vector2D = (vec_new 3.0 4.0)
+    let c: Vector2D = (vec_add a b)
+    assert (== c.x 4.0)
+    assert (== c.y 6.0)
+    return 0
+}
+
+shadow main { assert true }

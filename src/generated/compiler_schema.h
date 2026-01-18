@@ -683,6 +683,13 @@ typedef struct nl_ASTImport {
     int column;
     const char * module_path;
     const char * module_name;
+    bool is_unsafe;
+    bool is_selective;
+    bool is_wildcard;
+    bool is_pub_use;
+    DynArray * import_symbols;
+    DynArray * import_aliases;
+    int import_symbol_count;
 } nl_ASTImport;
 typedef nl_ASTImport ASTImport;
 #endif

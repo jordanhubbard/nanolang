@@ -1534,13 +1534,21 @@ static Value builtin_str_substring(Value *args) {
     long long length = args[2].as.int_val;
     long long str_len = safe_strlen(str);
     
-    if (start < 0 || start >= str_len) {
+    if (start < 0 || start > str_len) {
         fprintf(stderr, "Error: str_substring start index out of bounds\n");
         return create_void();
     }
     
     if (length < 0) {
         fprintf(stderr, "Error: str_substring length cannot be negative\n");
+        return create_void();
+    }
+    
+    if (start == str_len) {
+        if (length == 0) {
+            return create_string("");
+        }
+        fprintf(stderr, "Error: str_substring start index out of bounds\n");
         return create_void();
     }
     

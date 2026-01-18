@@ -322,6 +322,14 @@ static const char *map_function_name(const char *name, Environment *env) {
     /* Handle legacy module-qualified names with dot notation */
     const char *dot = strchr(name, '.');
     if (dot) {
+        /* Try module-qualified lookup first to preserve module scoping */
+        Function *qualified_func = env_get_function(env, name);
+        if (qualified_func) {
+            const char *resolved_name = qualified_func->alias_of ? qualified_func->alias_of : qualified_func->name;
+            extern const char *get_c_func_name_with_module(const char *nano_name, const char *module_name, bool is_extern);
+            return get_c_func_name_with_module(resolved_name, qualified_func->module_name, qualified_func->is_extern);
+        }
+        /* Fallback: treat as unqualified for builtins/mappings */
         name = dot + 1;
     }
     
@@ -337,8 +345,9 @@ static const char *map_function_name(const char *name, Environment *env) {
     
     if (func) {
         /* Use get_c_func_name_with_module for namespace mangling */
+        const char *resolved_name = func->alias_of ? func->alias_of : func->name;
         extern const char *get_c_func_name_with_module(const char *nano_name, const char *module_name, bool is_extern);
-        return get_c_func_name_with_module(name, func->module_name, func->is_extern);
+        return get_c_func_name_with_module(resolved_name, func->module_name, func->is_extern);
     }
     
     return name;

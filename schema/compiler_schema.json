@@ -1056,6 +1056,34 @@
         [
           "module_name",
           "string"
+        ],
+        [
+          "is_unsafe",
+          "bool"
+        ],
+        [
+          "is_selective",
+          "bool"
+        ],
+        [
+          "is_wildcard",
+          "bool"
+        ],
+        [
+          "is_pub_use",
+          "bool"
+        ],
+        [
+          "import_symbols",
+          "array<string>"
+        ],
+        [
+          "import_aliases",
+          "array<string>"
+        ],
+        [
+          "import_symbol_count",
+          "int"
         ]
       ],
       "emit_c": true

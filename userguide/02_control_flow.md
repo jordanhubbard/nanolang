@@ -54,3 +54,4 @@ fn main() -> int {
 
 shadow main { assert true }
 ```
+

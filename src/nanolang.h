@@ -394,6 +394,7 @@ struct ASTNode {
             bool is_wildcard;       /* true for "from...import *" syntax */
             bool is_pub_use;        /* true for "pub use" (re-export) */
             char **import_symbols;  /* NULL or array of symbol names for selective import */
+            char **import_aliases;  /* NULL or array of alias names (aligned with import_symbols) */
             int import_symbol_count;/* Number of symbols in selective import */
         } import_stmt;
         /* Module declaration: module module_name */
@@ -467,6 +468,7 @@ typedef struct {
     bool is_extern;  /* Mark external C functions */
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     char *module_name;  /* Module this function belongs to (NULL for global) */
+    char *alias_of;  /* For import aliases: original function name (NULL if not alias) */
 } Function;
 
 /* Struct definition entry */
@@ -636,6 +638,7 @@ void free_ast(ASTNode *node);
 /* Type Checker */
 bool type_check(ASTNode *program, Environment *env);
 bool type_check_module(ASTNode *program, Environment *env);  /* Type check without requiring main */
+void typecheck_set_current_file(const char *path);
 Type check_expression(ASTNode *expr, Environment *env);
 
 /* Shadow-Test Runner */

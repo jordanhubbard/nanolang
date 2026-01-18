@@ -48,3 +48,8 @@ At a minimum, a module consists of:
 - NanoLang entrypoints (usually `*.nano` files)
 
 For real modules, see the existing folders under `modules/`.
+
+## Module catalog
+Every built-in module includes a minimal, runnable MVP snippet.
+
+Module MVP snippets live in `modules/*/mvp.md` and are appended to this page during HTML build.

@@ -233,6 +233,20 @@ if [ "$RUN_APP" = true ]; then
 fi
 
 # ============================================================================
+# CATEGORY 3: User Guide Snippets
+# ============================================================================
+if [ "$RUN_APP" = true ] && [ -d tests/user_guide ]; then
+    echo -e "${CYAN}=== USER GUIDE SNIPPETS ===${NC}"
+    echo ""
+    for f in tests/user_guide/*.nano; do
+        [ -f "$f" ] && run_test "$f" "app"
+    done
+    echo ""
+    echo -e "${CYAN}User Guide Snippets: ${GREEN}$APP_PASS passed${NC}, ${RED}$APP_FAIL failed${NC}"
+    echo ""
+fi
+
+# ============================================================================
 # CATEGORY 3: Unit Tests (comprehensive feature tests)
 # ============================================================================
 if [ "$RUN_UNIT" = true ]; then

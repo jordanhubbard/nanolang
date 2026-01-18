@@ -3407,6 +3407,7 @@ static ASTNode *parse_import(Stage1Parser *p) {
     bool is_selective = false;
     bool is_wildcard = false;
     char **import_symbols = NULL;
+    char **import_aliases = NULL;
     int import_symbol_count = 0;
 
     if (is_from) {
@@ -3426,6 +3427,7 @@ static ASTNode *parse_import(Stage1Parser *p) {
             is_selective = true;
             int capacity = 8;
             import_symbols = malloc(sizeof(char*) * capacity);
+            import_aliases = malloc(sizeof(char*) * capacity);
             
             while (true) {
                 if (!(match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_SET))) {
@@ -3434,17 +3436,46 @@ static ASTNode *parse_import(Stage1Parser *p) {
                     free(module_path);
                     for (int i = 0; i < import_symbol_count; i++) {
                         free(import_symbols[i]);
+                        if (import_aliases && import_aliases[i]) {
+                            free(import_aliases[i]);
+                        }
                     }
                     free(import_symbols);
+                    free(import_aliases);
                     return NULL;
                 }
 
                 if (import_symbol_count >= capacity) {
                     capacity *= 2;
                     import_symbols = realloc(import_symbols, sizeof(char*) * capacity);
+                    import_aliases = realloc(import_aliases, sizeof(char*) * capacity);
                 }
-                import_symbols[import_symbol_count++] = strdup(current_token(p)->value);
+                import_symbols[import_symbol_count] = strdup(current_token(p)->value);
                 advance(p);
+
+                /* Optional alias: from "module" import symbol as alias */
+                if (match(p, TOKEN_AS)) {
+                    advance(p);  /* consume "as" */
+                    if (!match(p, TOKEN_IDENTIFIER)) {
+                        fprintf(stderr, "Error at line %d, column %d: Expected alias name after 'as'\n",
+                                current_token(p)->line, current_token(p)->column);
+                        free(module_path);
+                        for (int i = 0; i < import_symbol_count; i++) {
+                            free(import_symbols[i]);
+                            if (import_aliases && import_aliases[i]) {
+                                free(import_aliases[i]);
+                            }
+                        }
+                        free(import_symbols);
+                        free(import_aliases);
+                        return NULL;
+                    }
+                    import_aliases[import_symbol_count] = strdup(current_token(p)->value);
+                    advance(p);
+                } else {
+                    import_aliases[import_symbol_count] = NULL;
+                }
+                import_symbol_count++;
 
                 if (!match(p, TOKEN_COMMA)) {
                     break;
@@ -3474,6 +3505,7 @@ static ASTNode *parse_import(Stage1Parser *p) {
     node->as.import_stmt.is_wildcard = is_wildcard;
     node->as.import_stmt.is_pub_use = false;  /* Set by caller if 'pub use' */
     node->as.import_stmt.import_symbols = import_symbols;
+    node->as.import_stmt.import_aliases = import_aliases;
     node->as.import_stmt.import_symbol_count = import_symbol_count;
     return node;
 }
@@ -3837,8 +3869,12 @@ void free_ast(ASTNode *node) {
             if (node->as.import_stmt.import_symbols) {
                 for (int i = 0; i < node->as.import_stmt.import_symbol_count; i++) {
                     free(node->as.import_stmt.import_symbols[i]);
+                    if (node->as.import_stmt.import_aliases && node->as.import_stmt.import_aliases[i]) {
+                        free(node->as.import_stmt.import_aliases[i]);
+                    }
                 }
                 free(node->as.import_stmt.import_symbols);
+                free(node->as.import_stmt.import_aliases);
             }
             break;
         case AST_MODULE_DECL:

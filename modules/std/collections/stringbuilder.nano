@@ -122,10 +122,11 @@ pub fn sb_from_parts(parts: array<string>) -> string {
     let count: int = (array_length parts)
     let mut sb: StringBuilder = sb_start
     let mut part_val: string = ""
-    
-    for idx in (range 0 count) {
+    let mut idx: int = 0
+    while (< idx count) {
         set part_val (at parts idx)
         set sb (sb_append sb part_val)
+        set idx (+ idx 1)
     }
     
     return (sb_to_string sb)
@@ -137,13 +138,14 @@ pub fn sb_join(parts: array<string>, separator: string) -> string {
     let count: int = (array_length parts)
     let mut sb: StringBuilder = sb_start
     let mut part_val: string = ""
-    
-    for idx in (range 0 count) {
+    let mut idx: int = 0
+    while (< idx count) {
         if (!= idx 0) {
             set sb (sb_append sb separator)
         }
         set part_val (at parts idx)
         set sb (sb_append sb part_val)
+        set idx (+ idx 1)
     }
     
     return (sb_to_string sb)
@@ -153,9 +155,10 @@ pub fn sb_join(parts: array<string>, separator: string) -> string {
 pub fn sb_repeat(text: string, n: int) -> string {
     let sb_start: StringBuilder = (sb_new)
     let mut sb: StringBuilder = sb_start
-    
-    for i in (range 0 n) {
+    let mut i: int = 0
+    while (< i n) {
         set sb (sb_append sb text)
+        set i (+ i 1)
     }
     
     return (sb_to_string sb)

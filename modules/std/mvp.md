@@ -1,0 +1,16 @@
+# std module MVP
+
+<!--nl-snippet {"name":"module_std_mvp","check":false}-->
+```nano
+from "modules/std/fs.nano" import write, read, file_delete
+
+fn main() -> int {
+    let path: string = "/tmp/nl_std_demo.txt"
+    (write path "ok")
+    assert (str_equals (read path) "ok")
+    unsafe { (file_delete path) }
+    return 0
+}
+
+shadow main { assert true }
+```

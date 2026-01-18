@@ -32,6 +32,59 @@ struct CodeGenState {
     has_error: bool
 }
 
+let mut module_aliases: array<string> = []
+let mut module_alias_targets: array<string> = []
+let mut func_aliases: array<string> = []
+let mut func_alias_targets: array<string> = []
+
+fn reset_module_aliases() -> int {
+    set module_aliases []
+    set module_alias_targets []
+    return 0
+}
+
+fn reset_func_aliases() -> int {
+    set func_aliases []
+    set func_alias_targets []
+    return 0
+}
+
+fn add_module_alias(alias: string, module_name: string) -> int {
+    set module_aliases (array_push module_aliases alias)
+    set module_alias_targets (array_push module_alias_targets module_name)
+    return 0
+}
+
+fn add_func_alias(alias: string, target: string) -> int {
+    set func_aliases (array_push func_aliases alias)
+    set func_alias_targets (array_push func_alias_targets target)
+    return 0
+}
+
+fn resolve_module_alias(name: string) -> string {
+    let mut i: int = 0
+    let n: int = (array_length module_aliases)
+    while (< i n) {
+        if (str_equals (at module_aliases i) name) {
+            return (at module_alias_targets i)
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return name
+}
+
+fn resolve_func_alias(name: string) -> string {
+    let mut i: int = 0
+    let n: int = (array_length func_aliases)
+    while (< i n) {
+        if (str_equals (at func_aliases i) name) {
+            return (at func_alias_targets i)
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return ""
+}
+
 fn codegen_new() -> CodeGenState {
     return CodeGenState {
         indent_level: 0,
@@ -207,6 +260,69 @@ fn last_dot_index(s: string) -> int {
     return last
 }
 
+fn last_slash_index(s: string) -> int {
+    let len: int = (str_length s)
+    let mut i: int = 0
+    let mut last: int = -1
+    while (< i len) {
+        if (str_equals (str_substring s i 1) "/") {
+            set last i
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return last
+}
+
+fn module_name_from_path(path: string) -> string {
+    let last_slash: int = (last_slash_index path)
+    let last_dot: int = (last_dot_index path)
+    let start: int = (cond ((>= last_slash 0) (+ last_slash 1)) (else 0))
+    let end: int = (cond ((>= last_dot 0) last_dot) (else (str_length path)))
+    let len: int = (- end start)
+    if (<= len 0) {
+        return path
+    } else {
+        return (str_substring path start len)
+    }
+}
+
+fn build_module_alias_map(parser: Parser) -> int {
+    (reset_module_aliases)
+    (reset_func_aliases)
+    let import_count: int = (parser_get_import_count parser)
+    let mut i: int = 0
+    while (< i import_count) {
+        let imp: ASTImport = (parser_get_import parser i)
+        if (> (str_length imp.module_name) 0) {
+            let module_name: string = (module_name_from_path imp.module_path)
+            (add_module_alias imp.module_name module_name)
+        } else { (print "") }
+        if (and imp.is_selective (not imp.is_wildcard)) {
+            if (> imp.import_symbol_count 0) {
+                let module_name: string = (module_name_from_path imp.module_path)
+                let mut si: int = 0
+                while (< si imp.import_symbol_count) {
+                    let sym: string = (at imp.import_symbols si)
+                    let mut alias_name: string = ""
+                    if (< si (array_length imp.import_aliases)) {
+                        set alias_name (at imp.import_aliases si)
+                    } else { (print "") }
+                    if (== (str_length alias_name) 0) {
+                        set alias_name sym
+                    } else { (print "") }
+                    if (> (str_length alias_name) 0) {
+                        let target: string = (+ module_name (+ "." sym))
+                        (add_func_alias alias_name target)
+                    } else { (print "") }
+                    set si (+ si 1)
+                }
+            } else { (print "") }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return 0
+}
+
 fn mangle_module_ident(name: string) -> string {
     let mut out: string = ""
     let len: int = (str_length name)
@@ -260,14 +376,16 @@ fn c_name_for_qualified_function(func_name: string) -> string {
     if (>= dc 0) {
         let mod_part: string = (str_substring func_name 0 dc)
         let base: string = (str_substring func_name (+ dc 2) (- len (+ dc 2)))
-        let mm: string = (mangle_module_ident mod_part)
+        let resolved: string = (resolve_module_alias mod_part)
+        let mm: string = (mangle_module_ident resolved)
         return (+ (+ mm "__") (mangle_name base))
     } else {
         let dot: int = (last_dot_index func_name)
         if (>= dot 0) {
             let mod_part: string = (str_substring func_name 0 dot)
             let base: string = (str_substring func_name (+ dot 1) (- len (+ dot 1)))
-            let mm: string = (mangle_module_ident mod_part)
+            let resolved: string = (resolve_module_alias mod_part)
+            let mm: string = (mangle_module_ident resolved)
             return (+ (+ mm "__") (mangle_name base))
         } else {
             return func_name
@@ -276,6 +394,10 @@ fn c_name_for_qualified_function(func_name: string) -> string {
 }
 
 fn c_func_name_for_call(func_name: string) -> string {
+    let alias_target: string = (resolve_func_alias func_name)
+    if (> (str_length alias_target) 0) {
+        return (c_name_for_qualified_function alias_target)
+    } else { (print "") }
     if (is_builtin_list_runtime_fn func_name) {
         return func_name
     } else {
@@ -2830,6 +2952,7 @@ fn generate_function_body(parser: Parser, body_id: int, env: GenEnv, return_type
  */
 pub fn transpile_parser(parser: Parser) -> string {
     (println "=== Code Generation (Full AST Walk) ===")
+    (build_module_alias_map parser)
     
     /* Get function count using accessor */
     let func_count: int = (parser_get_function_count parser)

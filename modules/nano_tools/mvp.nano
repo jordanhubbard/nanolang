@@ -1,0 +1,26 @@
+import "modules/nano_tools/nano_tools.nano" as tools
+import "src_nano/compiler/diagnostics.nano" as Diagnostics
+
+fn lint_ok(source: string) -> bool {
+    let diags: List<CompilerDiagnostic> = (tools.lint_source source "mvp.nano")
+    return (== (Diagnostics.diag_list_count diags) 0)
+}
+
+shadow lint_ok {
+    let src: string = "fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n"
+    assert (lint_ok src)
+}
+
+fn main() -> int {
+    let src: string = "fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n"
+    if (lint_ok src) {
+        (println "nano_tools: ok")
+        return 0
+    } else {
+        return 1
+    }
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -190,7 +190,7 @@ $(GENERATE_MODULE_INDEX): tools/generate_module_index.c modules/std/fs.c src/cJS
 		src/runtime/gc_struct.c \
 		-o $(GENERATE_MODULE_INDEX)
 
-.PHONY: all build test test-docs examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
+.PHONY: all build test test-docs module-mvp examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
 modules-index: $(GENERATE_MODULE_INDEX)
 	@echo "[modules] Generating module index from manifests..."
 	@./$(GENERATE_MODULE_INDEX)
@@ -269,7 +269,9 @@ test-impl: test-units
 	@echo "To build examples, run: make examples"
 
 # Default test: Use most evolved compiler available (no bd dependency)
-test: build
+# NOTE: Wrap test runs with a timeout to avoid infinite compiler loops.
+TEST_TIMEOUT ?= 1800
+test: build userguide-export
 	@echo ""
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
 		echo "🎯 Testing with SELF-HOSTED compiler (nanoc_stage2)"; \
@@ -282,11 +284,15 @@ test: build
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
 		$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
 	fi
-	@$(MAKE) test-impl
+	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(MAKE) test-impl
 
 # Doc tests: compile + run user guide snippets
 test-docs: build $(USERGUIDE_CHECK_TOOL)
-	@$(USERGUIDE_CHECK_TOOL)
+	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL)
+
+# Export user guide snippets into tests/user_guide
+userguide-export: build $(USERGUIDE_CHECK_TOOL)
+	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL) --export tests/user_guide
 
 # Test with beads integration (requires bd CLI to be installed)
 # Use this for local development when you want automatic issue tracking
@@ -402,7 +408,7 @@ userguide-check: build $(USERGUIDE_CHECK_TOOL)
 
 .PHONY: userguide-html
 userguide-html: build $(USERGUIDE_BUILD_TOOL)
-	@$(USERGUIDE_BUILD_TOOL)
+	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_BUILD_TOOL)
 
 $(USERGUIDE_DIR):
 	@mkdir -p $(USERGUIDE_DIR)
@@ -447,6 +453,21 @@ examples-no-sdl: build
 	@echo "  macOS:         brew install sdl2 sdl2_mixer sdl2_ttf"
 	@echo ""
 	@echo "✅ Build complete (SDL examples skipped)"
+
+# Module MVP smoke tests (compile-only)
+module-mvp: build
+	@echo ""
+	@echo "=========================================="
+	@echo "Module MVP Smoke Tests"
+	@echo "=========================================="
+	@mkdir -p build/module_mvp
+	@find modules -name mvp.nano -print0 | while IFS= read -r -d '' file; do \
+		rel=$${file#modules/}; \
+		name=$$(echo $$rel | sed 's#/mvp.nano##; s#/#_#g'); \
+		out=build/module_mvp/$$name; \
+		echo "[module-mvp] $$file -> $$out"; \
+		perl -e 'alarm 30; exec @ARGV' ./bin/nanoc $$file -o $$out; \
+	done
 
 # Clean: Remove all build artifacts and sentinels
 clean:

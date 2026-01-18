@@ -24,6 +24,27 @@ fn main() -> int {
 shadow main { assert true }
 ```
 
+## Booleans
+
+<!--nl-snippet {"name":"ug_types_bools","check":true}-->
+```nano
+fn both_true(a: bool, b: bool) -> bool {
+    return (and a b)
+}
+
+shadow both_true {
+    assert (both_true true true)
+    assert (not (both_true true false))
+}
+
+fn main() -> int {
+    assert (or (both_true true true) (both_true false true))
+    return 0
+}
+
+shadow main { assert true }
+```
+
 ## Arrays
 
 <!--nl-snippet {"name":"ug_types_arrays","check":true}-->
@@ -46,6 +67,81 @@ fn main() -> int {
     (array_set xs 1 2)
     (array_set xs 2 3)
     assert (== (sum_first_three xs) 6)
+    return 0
+}
+
+shadow main { assert true }
+```
+
+## Tuples
+
+<!--nl-snippet {"name":"ug_types_tuples","check":true}-->
+```nano
+fn sum_pair() -> int {
+    let t: (int, int) = (4, 6)
+    return (+ t.0 t.1)
+}
+
+shadow sum_pair {
+    assert (== (sum_pair) 10)
+}
+
+fn main() -> int {
+    assert (== (sum_pair) 10)
+    return 0
+}
+
+shadow main { assert true }
+```
+
+## Structs
+
+<!--nl-snippet {"name":"ug_types_structs","check":true}-->
+```nano
+struct Point2D {
+    x: int,
+    y: int
+}
+
+fn origin_distance(p: Point2D) -> int {
+    return (+ p.x p.y)
+}
+
+shadow origin_distance {
+    let p: Point2D = Point2D { x: 2, y: 3 }
+    assert (== (origin_distance p) 5)
+}
+
+fn main() -> int {
+    let p: Point2D = Point2D { x: 1, y: 1 }
+    assert (== (origin_distance p) 2)
+    return 0
+}
+
+shadow main { assert true }
+```
+
+## Enums
+
+<!--nl-snippet {"name":"ug_types_enums","check":true}-->
+```nano
+enum Status {
+    IDLE = 0,
+    RUNNING = 1,
+    DONE = 2
+}
+
+fn is_running(s: Status) -> bool {
+    return (== s Status.RUNNING)
+}
+
+shadow is_running {
+    assert (is_running Status.RUNNING)
+    assert (not (is_running Status.IDLE))
+}
+
+fn main() -> int {
+    assert (is_running Status.RUNNING)
     return 0
 }
 

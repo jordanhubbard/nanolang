@@ -1,9 +1,12 @@
-from "modules/std/fs.nano" import walkdir, read, write, exists, dirname, basename, join, mkdir_p, copy_dir, copy_file, relpath
+from "modules/std/fs.nano" import walkdir, read, write, append, exists, dirname, basename, join, mkdir_p, copy_dir, copy_file, relpath
 from "modules/std/process.nano" import exec
 from "modules/std/collections/stringbuilder.nano" import sb_new, sb_append, sb_append_line, sb_to_string, sb_join
 from "modules/std/collections/hashmap.nano" import HashMap, map_new, map_put, map_has, map_get
 from "modules/std/collections/array_utils.nano" import array_sort_strings
-from "modules/nano_highlight/nano_highlight.nano" import highlight_html
+from "modules/std/env.nano" import get
+from "modules/std/log/log.nano" import set_log_level, LOG_LEVEL_DEBUG, log_debug
+from "stdlib/coverage.nano" import coverage_init, coverage_record, coverage_report
+from "modules/nano_tools/nano_tools.nano" import pretty_print_html
 
 struct PageMeta {
     rel: string
@@ -18,8 +21,10 @@ struct PageLink {
 }
 
 fn str_starts_with(s: string, prefix: string) -> bool {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 20 5) }
     let ls: int = (str_length s)
     let lp: int = (str_length prefix)
+    if (== lp 0) { return true }
     if (< ls lp) { return false }
     return (str_equals (str_substring s 0 lp) prefix)
 }
@@ -30,8 +35,10 @@ shadow str_starts_with {
 }
 
 fn str_ends_with(s: string, suffix: string) -> bool {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 34 5) }
     let ls: int = (str_length s)
     let lf: int = (str_length suffix)
+    if (== lf 0) { return true }
     if (< ls lf) { return false }
     return (str_equals (str_substring s (- ls lf) lf) suffix)
 }
@@ -42,6 +49,7 @@ shadow str_ends_with {
 }
 
 fn str_index_of(s: string, needle: string, start: int) -> int {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 44 5) }
     let ls: int = (str_length s)
     let ln: int = (str_length needle)
     if (== ln 0) { return start }
@@ -97,6 +105,42 @@ shadow relpath_copy {
     assert (str_equals p "b")
 }
 
+fn trace_enabled() -> bool {
+    let flag: string = (get "NANO_USERGUIDE_TRACE")
+    if (or (str_equals flag "1") (str_equals flag "true")) {
+        return true
+    } else {
+        return false
+    }
+}
+
+shadow trace_enabled { assert true }
+
+fn coverage_enabled() -> bool {
+    let flag: string = (get "NANO_USERGUIDE_COVERAGE")
+    if (or (str_equals flag "1") (str_equals flag "true")) {
+        return true
+    } else {
+        return false
+    }
+}
+
+shadow coverage_enabled { assert true }
+fn read_module_mvp(module_dir: string) -> string {
+    let md_path: string = (+ module_dir "/mvp.md")
+    if (exists md_path) {
+        return (read md_path)
+    } else {
+        return ""
+    }
+}
+
+shadow read_module_mvp {
+    assert true
+}
+
+
+
 
 
 fn char_is_space(c: int) -> bool {
@@ -106,6 +150,7 @@ fn char_is_space(c: int) -> bool {
 shadow char_is_space { assert (char_is_space 32) }
 
 fn trim_left(s: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 122 5) }
     let len: int = (str_length s)
     let mut i: int = 0
     while (and (< i len) (char_is_space (char_at s i))) {
@@ -119,6 +164,7 @@ shadow trim_left {
 }
 
 fn trim_right(s: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 136 5) }
     let mut end: int = (str_length s)
     while (and (> end 0) (char_is_space (char_at s (- end 1)))) {
         set end (- end 1)
@@ -139,6 +185,7 @@ shadow trim {
 }
 
 fn split_lines(s: string) -> array<string> {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 155 5) }
     let mut out: array<string> = []
     let len: int = (str_length s)
     let mut start: int = 0
@@ -166,31 +213,32 @@ shadow split_lines {
 }
 
 fn html_escape(text: string) -> string {
-    let mut out: string = ""
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 185 5) }
+    let sb: StringBuilder = (sb_new)
     let n: int = (str_length text)
     let mut i: int = 0
     while (< i n) {
         let c: int = (char_at text i)
         if (== c 38) {
-            set out (+ out "&amp;")
+            (sb_append sb "&amp;")
         } else {
             if (== c 60) {
-                set out (+ out "&lt;")
+                (sb_append sb "&lt;")
             } else {
                 if (== c 62) {
-                    set out (+ out "&gt;")
+                    (sb_append sb "&gt;")
                 } else {
                     if (== c 34) {
-                        set out (+ out "&quot;")
+                        (sb_append sb "&quot;")
                     } else {
-                        set out (+ out (string_from_char c))
+                        (sb_append sb (string_from_char c))
                     }
                 }
             }
         }
         set i (+ i 1)
     }
-    return out
+    return (sb_to_string sb)
 }
 
 shadow html_escape {
@@ -203,6 +251,7 @@ shadow html_escape {
 }
 
 fn inline_code(text: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 227 5) }
     let mut out: string = ""
     let mut in_tick: bool = false
     let mut buf: string = ""
@@ -240,29 +289,44 @@ shadow inline_code {
     assert (str_contains (inline_code "`x`") "<code>")
 }
 
+fn debug_substring(s: string, start: int, length: int, ctx: string) -> string {
+    if (trace_enabled) {
+        let s_len: int = (str_length s)
+        if (or (< start 0) (or (< length 0) (> (+ start length) s_len))) {
+            (log_debug (+ "userguide: bad substring " (+ ctx (+ " start=" (+ (int_to_string start) (+ " len=" (+ (int_to_string length) (+ " s_len=" (int_to_string s_len)))))))))
+        }
+    }
+    return (str_substring s start length)
+}
+
+shadow debug_substring {
+    assert (str_equals (debug_substring "abc" 0 1 "test") "a")
+}
+
 fn render_inline(text: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 254 5) }
     let mut out: string = ""
     let mut i: int = 0
     let n: int = (str_length text)
     while (< i n) {
         let open_idx: int = (str_index_of text "[" i)
         if (== open_idx -1) {
-            set out (+ out (inline_code (str_substring text i (- n i))))
+            set out (+ out (inline_code (debug_substring text i (- n i) "render_inline tail")))
             return out
         }
-        set out (+ out (inline_code (str_substring text i (- open_idx i))))
+        set out (+ out (inline_code (debug_substring text i (- open_idx i) "render_inline before_link")))
         let close_idx: int = (str_index_of text "](" (+ open_idx 1))
         if (== close_idx -1) {
-            set out (+ out (inline_code (str_substring text open_idx (- n open_idx))))
+            set out (+ out (inline_code (debug_substring text open_idx (- n open_idx) "render_inline missing_close")))
             return out
         }
         let end_idx: int = (str_index_of text ")" (+ close_idx 2))
         if (== end_idx -1) {
-            set out (+ out (inline_code (str_substring text open_idx (- n open_idx))))
+            set out (+ out (inline_code (debug_substring text open_idx (- n open_idx) "render_inline missing_end")))
             return out
         }
-        let link_text: string = (str_substring text (+ open_idx 1) (- close_idx (+ open_idx 1)))
-        let link_href: string = (str_substring text (+ close_idx 2) (- end_idx (+ close_idx 2)))
+        let link_text: string = (debug_substring text (+ open_idx 1) (- close_idx (+ open_idx 1)) "render_inline link_text")
+        let link_href: string = (debug_substring text (+ close_idx 2) (- end_idx (+ close_idx 2)) "render_inline link_href")
         set out (+ out "<a href=\"")
         set out (+ out (html_escape link_href))
         set out (+ out "\">")
@@ -280,12 +344,15 @@ shadow render_inline {
 
 fn parse_fence_lang(line: string) -> string {
     if (not (str_starts_with line "```")) { return "" }
-    let raw: string = (str_substring line 3 (- (str_length line) 3))
+    let len: int = (str_length line)
+    if (<= len 3) { return "" }
+    let raw: string = (str_substring line 3 (- len 3))
     return (trim raw)
 }
 
 shadow parse_fence_lang {
     assert (str_equals (parse_fence_lang "```nano") "nano")
+    assert (str_equals (parse_fence_lang "```") "")
 }
 
 fn is_fence_start(line: string) -> bool { return (str_starts_with line "```") }
@@ -303,6 +370,7 @@ shadow is_snippet_marker {
 }
 
 fn extract_title(md_text: string, fallback: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 296 5) }
     let lines: array<string> = (split_lines md_text)
     let mut i: int = 0
     let n: int = (array_length lines)
@@ -315,7 +383,7 @@ fn extract_title(md_text: string, fallback: string) -> string {
                 set level (+ level 1)
             }
             if (> level 0) {
-                return (trim (str_substring line level (- len level)))
+                return (trim (debug_substring line level (- len level) "extract_title"))
             }
         }
         set i (+ i 1)
@@ -330,6 +398,7 @@ shadow extract_title {
 }
 
 fn extract_summary(md_text: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 330 5) }
     let lines: array<string> = (split_lines md_text)
     let mut in_code: bool = false
     let n: int = (array_length lines)
@@ -425,6 +494,7 @@ fn is_nano_lang(lang: string) -> bool {
 shadow is_nano_lang { assert (is_nano_lang "Nano") }
 
 fn md_to_html(md_text: string, summary: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 397 5) }
     let lines: array<string> = (split_lines md_text)
     let mut out: array<string> = []
     let mut in_code: bool = false
@@ -505,10 +575,15 @@ fn md_to_html(md_text: string, summary: string) -> string {
         } else {
             if (is_fence_end line) {
                 let code_text: string = (join_lines code_lines)
+                (append "/tmp/userguide_build_html.log" (+ "userguide-html: codeblock len=" (+ (int_to_string (str_length code_text)) "\n")))
                 if (is_nano_lang code_lang) {
-                    set out (array_push out (highlight_html code_text))
+                    (append "/tmp/userguide_build_html.log" (+ "userguide-html: highlight start (" (+ code_lang (+ ") len=" (+ (int_to_string (str_length code_text)) "\n")))))
+                    set out (array_push out (pretty_print_html code_text))
+                    (append "/tmp/userguide_build_html.log" "userguide-html: highlight done\n")
                 } else {
+                    (append "/tmp/userguide_build_html.log" "userguide-html: escape start\n")
                     set out (array_push out (html_escape code_text))
+                    (append "/tmp/userguide_build_html.log" "userguide-html: escape done\n")
                 }
                 set out (array_push out "</code></pre>")
                 set in_code false
@@ -526,7 +601,7 @@ fn md_to_html(md_text: string, summary: string) -> string {
     if in_code {
         let code_text: string = (join_lines code_lines)
         if (is_nano_lang code_lang) {
-            set out (array_push out (highlight_html code_text))
+            set out (array_push out (pretty_print_html code_text))
         } else {
             set out (array_push out (html_escape code_text))
         }
@@ -538,7 +613,7 @@ fn md_to_html(md_text: string, summary: string) -> string {
 shadow md_to_html {
     let nl: string = (string_from_char 10)
     let s: string = (+ "# Hi" (+ nl (+ nl (+ "Hello" nl))))
-    let html: string = (md_to_html s "Hello")
+    let html: string = (md_to_html s "")
     assert (str_contains html "<p>")
 }
 
@@ -572,18 +647,20 @@ shadow init_theme_map {
 
 
 
-fn build_toc(pages: array<PageLink>, active: string, out_dir: string, page_dir: string) -> string {
+fn build_toc(titles: array<string>, rels: array<string>, active: string, out_dir: string, page_dir: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 585 5) }
     let mut items: array<string> = []
-    let n: int = (array_length pages)
+    let n: int = (array_length titles)
     let mut i: int = 0
     while (< i n) {
-        let p: PageLink = (at pages i)
-        let href: string = (relpath_copy (join out_dir p.rel_html) page_dir)
+        let title: string = (at titles i)
+        let rel_html: string = (at rels i)
+        let href: string = (relpath_copy (join out_dir rel_html) page_dir)
         let mut class_name: string = "toc-item"
-        if (str_equals p.rel_html active) {
+        if (str_equals rel_html active) {
             set class_name "toc-item active"
         }
-        let item: string = (sb_join ["<li class=\"", class_name, "\"><a href=\"", (html_escape href), "\">", (render_inline p.title), "</a></li>"] "")
+        let item: string = (sb_join ["<li class=\"", class_name, "\"><a href=\"", (html_escape href), "\">", (render_inline title), "</a></li>"] "")
         set items (array_push items item)
         set i (+ i 1)
     }
@@ -591,13 +668,72 @@ fn build_toc(pages: array<PageLink>, active: string, out_dir: string, page_dir: 
 }
 
 shadow build_toc {
-    let mut pages: array<PageLink> = []
-    set pages (array_push pages PageLink { title: "A", rel_html: "a.html" })
-    let toc: string = (build_toc pages "a.html" "out" "out")
+    let titles: array<string> = ["A"]
+    let rels: array<string> = ["a.html"]
+    let toc: string = (build_toc titles rels "a.html" "out" "out")
     assert (str_contains toc "sidebar")
 }
 
+fn modules_mvp_markdown() -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 650 5) }
+    let index_path: string = "modules/index.json"
+    if (not (exists index_path)) { return "" }
+    let text: string = (read index_path)
+    let lines: array<string> = (split_lines text)
+    let mut names: array<string> = []
+    let mut i: int = 0
+    let n: int = (array_length lines)
+    while (< i n) {
+        let line: string = (trim (at lines i))
+        if (str_starts_with line "\"name\"") {
+            let colon: int = (str_index_of line ":" 0)
+            if (>= colon 0) {
+                let rest: string = (trim (str_substring line (+ colon 1) (- (str_length line) (+ colon 1))))
+                if (and (> (str_length rest) 1) (== (char_at rest 0) 34)) {
+                    let end: int = (str_index_of rest "\"" 1)
+                    if (> end 1) {
+                        let name: string = (str_substring rest 1 (- end 1))
+                        set names (array_push names name)
+                    }
+                }
+            }
+        }
+        set i (+ i 1)
+    }
+    let mut mvps: array<string> = []
+    let mut j: int = 0
+    while (< j (array_length names)) {
+        let name: string = (at names j)
+        let mut path: string = (+ "modules/" (+ name "/mvp.md"))
+        if (str_equals name "log") {
+            set path "modules/std/log/mvp.md"
+        }
+        if (exists path) {
+            let mvp_text: string = (read path)
+            if (> (str_length mvp_text) 0) {
+                set mvps (array_push mvps mvp_text)
+            }
+        }
+        set j (+ j 1)
+    }
+    set mvps (array_sort_strings mvps)
+    if (trace_enabled) {
+        (log_debug (+ "userguide: MVP snippets: " (int_to_string (array_length mvps))))
+    }
+    return (sb_join mvps "\n\n")
+}
+
+shadow modules_mvp_markdown {
+    assert true
+}
+
 fn main() -> int {
+    if (coverage_enabled) { (coverage_init) }
+    if (trace_enabled) {
+        (set_log_level LOG_LEVEL_DEBUG)
+        (log_debug "userguide: Starting userguide build")
+    }
+    (append "/tmp/userguide_build_html.log" "userguide-html: start\n")
     let theme_map: HashMap = (init_theme_map)
     let src_dir: string = "userguide"
     let out_dir: string = "build/userguide/html"
@@ -619,6 +755,7 @@ fn main() -> int {
     let f_len: int = (array_length files)
     let mut fi: int = 0
     while (< fi f_len) {
+        if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 730 9) }
         let p: string = (at files fi)
         if (str_ends_with p ".md") {
             set md_files (array_push md_files p)
@@ -626,12 +763,20 @@ fn main() -> int {
         set fi (+ fi 1)
     }
     set md_files (array_sort_strings md_files)
+    if (trace_enabled) {
+        (log_debug (+ "userguide: Markdown files: " (int_to_string (array_length md_files))))
+    }
 
-    let mut page_meta: array<PageMeta> = []
-    let mut page_links: array<PageLink> = []
+    let mut meta_rel: array<string> = []
+    let mut meta_title: array<string> = []
+    let mut meta_summary: array<string> = []
+    let mut meta_text: array<string> = []
+    let mut link_titles: array<string> = []
+    let mut link_rels: array<string> = []
     let md_len: int = (array_length md_files)
     let mut mi: int = 0
     while (< mi md_len) {
+        if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 750 9) }
         let md_path: string = (at md_files mi)
         let rel: string = (rel_from_src md_path src_dir)
         let md_text: string = (read md_path)
@@ -639,20 +784,38 @@ fn main() -> int {
         let stem: string = (strip_prefix base "")
         let title: string = (extract_title md_text (str_substring stem 0 (- (str_length stem) 3)))
         let summary: string = (extract_summary md_text)
-        set page_meta (array_push page_meta PageMeta { rel: rel, title: title, summary: summary, md_text: md_text })
+        set meta_rel (array_push meta_rel rel)
+        set meta_title (array_push meta_title title)
+        set meta_summary (array_push meta_summary summary)
+        set meta_text (array_push meta_text md_text)
         let html_rel: string = (str_substring rel 0 (- (str_length rel) 3))
-        set page_links (array_push page_links PageLink { title: title, rel_html: (+ html_rel ".html") })
+        set link_titles (array_push link_titles title)
+        set link_rels (array_push link_rels (+ html_rel ".html"))
         set mi (+ mi 1)
     }
+    if (trace_enabled) {
+        (log_debug (+ "userguide: Pages: " (int_to_string (array_length meta_rel))))
+    }
 
-    let meta_len: int = (array_length page_meta)
+    let meta_len: int = (array_length meta_rel)
     let mut idx: int = 0
     while (< idx meta_len) {
-        let meta: PageMeta = (at page_meta idx)
-        let rel: string = meta.rel
-        let title: string = meta.title
-        let summary: string = meta.summary
-        let body: string = (md_to_html meta.md_text summary)
+        if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 770 9) }
+        let rel: string = (at meta_rel idx)
+        let title: string = (at meta_title idx)
+        let summary: string = (at meta_summary idx)
+        let mut md_text: string = (at meta_text idx)
+        (append "/tmp/userguide_build_html.log" (+ "userguide-html: page " (+ rel "\n")))
+        if (or (str_contains rel "/05_modules.md") (str_ends_with rel "05_modules.md")) {
+            if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 780 13) }
+            let mvp_text: string = (modules_mvp_markdown)
+            if (> (str_length mvp_text) 0) {
+                set md_text (+ md_text (+ "\n\n" mvp_text))
+            }
+        }
+        (append "/tmp/userguide_build_html.log" (+ "userguide-html: render " (+ rel "\n")))
+        let body: string = (md_to_html md_text summary)
+        (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n")))
         let html_rel: string = (+ (str_substring rel 0 (- (str_length rel) 3)) ".html")
         let out_path: string = (join out_dir html_rel)
         let page_dir: string = (dirname out_path)
@@ -668,24 +831,26 @@ fn main() -> int {
 
         let mut prev_html: string = ""
         if (> idx 0) {
-            let prev: PageLink = (at page_links (- idx 1))
-            let prev_href: string = (relpath_copy (join out_dir prev.rel_html) page_dir)
-            set prev_html (sb_join ["<a class=\"chapter-link prev\" href=\"", (html_escape prev_href), "\"><span class=\"label\">&#8592; Previous</span><span class=\"title\">", (html_escape prev.title), "</span></a>"] "")
+            let prev_title: string = (at link_titles (- idx 1))
+            let prev_rel: string = (at link_rels (- idx 1))
+            let prev_href: string = (relpath_copy (join out_dir prev_rel) page_dir)
+            set prev_html (sb_join ["<a class=\"chapter-link prev\" href=\"", (html_escape prev_href), "\"><span class=\"label\">&#8592; Previous</span><span class=\"title\">", (html_escape prev_title), "</span></a>"] "")
         } else {
             set prev_html "<span class=\"chapter-link prev disabled\"><span class=\"label\">&#8592; Previous</span><span class=\"title\">Start</span></span>"
         }
 
         let mut next_html: string = ""
         if (< (+ idx 1) meta_len) {
-            let next: PageLink = (at page_links (+ idx 1))
-            let next_href: string = (relpath_copy (join out_dir next.rel_html) page_dir)
-            set next_html (sb_join ["<a class=\"chapter-link next\" href=\"", (html_escape next_href), "\"><span class=\"label\">Next &#8594;</span><span class=\"title\">", (html_escape next.title), "</span></a>"] "")
+            let next_title: string = (at link_titles (+ idx 1))
+            let next_rel: string = (at link_rels (+ idx 1))
+            let next_href: string = (relpath_copy (join out_dir next_rel) page_dir)
+            set next_html (sb_join ["<a class=\"chapter-link next\" href=\"", (html_escape next_href), "\"><span class=\"label\">Next &#8594;</span><span class=\"title\">", (html_escape next_title), "</span></a>"] "")
         } else {
             set next_html "<span class=\"chapter-link next disabled\"><span class=\"label\">Next &#8594;</span><span class=\"title\">End</span></span>"
         }
 
         let nav_html: string = (sb_join [ "<div class=\"chapter-nav\">", prev_html, (+ "<a class=\"chapter-link home\" href=\"" (+ (html_escape home_href) "\" aria-label=\"Back to guide index\">&#8962;</a>")), next_html, "</div>" ] "\n")
-        let toc_html: string = (build_toc page_links html_rel out_dir page_dir)
+        let toc_html: string = (build_toc link_titles link_rels html_rel out_dir page_dir)
 
         let mut page_out: array<string> = []
         set page_out (array_push page_out "<!doctype html>")
@@ -724,17 +889,19 @@ fn main() -> int {
         set page_out (array_push page_out "</body>")
         set page_out (array_push page_out "</html>")
         (write out_path (sb_join page_out "\n"))
+        (append "/tmp/userguide_build_html.log" (+ "userguide-html: wrote " (+ rel "\n")))
         set idx (+ idx 1)
     }
 
     let css_href_index: string = "assets/style.css"
     let mascot_href_index: string = "assets/Nanolang_Mascot.png"
     let mut links: array<string> = []
-    let p_len: int = (array_length page_links)
+    let p_len: int = (array_length link_rels)
     let mut pi: int = 0
     while (< pi p_len) {
-        let link: PageLink = (at page_links pi)
-        set links (array_push links (+ "<li><a href=\"" (+ (html_escape link.rel_html) (+ "\">" (+ (render_inline link.title) "</a></li>")))))
+        let rel_html: string = (at link_rels pi)
+        let title: string = (at link_titles pi)
+        set links (array_push links (+ "<li><a href=\"" (+ (html_escape rel_html) (+ "\">" (+ (render_inline title) "</a></li>")))))
         set pi (+ pi 1)
     }
     let mut index_out: array<string> = []
@@ -769,6 +936,7 @@ fn main() -> int {
     set index_out (array_push index_out "</html>")
     (write (join out_dir "index.html") (sb_join index_out "\n"))
     (println (+ "Built HTML to " out_dir))
+    if (coverage_enabled) { (coverage_report) }
     return 0
 }
 

@@ -420,6 +420,41 @@ const char *resolve_module_path(const char *module_path, const char *current_fil
     return strdup(module_path);
 }
 
+static char *module_name_from_path(const char *module_path) {
+    if (!module_path) {
+        return NULL;
+    }
+    const char *last_slash = strrchr(module_path, '/');
+    const char *last_dot = strrchr(module_path, '.');
+    if (last_slash && last_dot && last_dot > last_slash) {
+        size_t name_len = last_dot - (last_slash + 1);
+        return strndup(last_slash + 1, name_len);
+    }
+    if (last_slash) {
+        return strdup(last_slash + 1);
+    }
+    if (last_dot) {
+        size_t name_len = last_dot - module_path;
+        return strndup(module_path, name_len);
+    }
+    return strdup(module_path);
+}
+
+static Function *find_module_function(Environment *env, const char *module_name, const char *func_name) {
+    if (!env || !func_name) {
+        return NULL;
+    }
+    for (int i = 0; i < env->function_count; i++) {
+        if (safe_strcmp(env->functions[i].name, func_name) == 0) {
+            if (!module_name || !env->functions[i].module_name ||
+                strcmp(env->functions[i].module_name, module_name) == 0) {
+                return &env->functions[i];
+            }
+        }
+    }
+    return NULL;
+}
+
 /* Load and parse a module file */
 static ASTNode *load_module_internal(const char *module_path, Environment *env, bool use_cache, ModuleList *modules_to_track) {
     if (!module_path) return NULL;
@@ -788,21 +823,25 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 }
             }
             
+            char *orig_module_name = NULL;
+            for (int j = 0; j < module_ast->as.program.count; j++) {
+                ASTNode *node = module_ast->as.program.items[j];
+                if (node->type == AST_MODULE_DECL && !orig_module_name) {
+                    orig_module_name = node->as.module_decl.name;
+                }
+            }
+            
             /* Register namespace if module has an alias */
             if (module_alias) {
                 /* Extract function names, struct names, enum names, union names from module */
                 /* Count them first */
                 int func_count = 0, struct_count = 0, enum_count = 0, union_count = 0;
-                char *orig_module_name = NULL;
                 for (int j = 0; j < module_ast->as.program.count; j++) {
                     ASTNode *node = module_ast->as.program.items[j];
                     if (node->type == AST_FUNCTION) func_count++;
                     else if (node->type == AST_STRUCT_DEF) struct_count++;
                     else if (node->type == AST_ENUM_DEF) enum_count++;
                     else if (node->type == AST_UNION_DEF) union_count++;
-                    else if (node->type == AST_MODULE_DECL && !orig_module_name) {
-                        orig_module_name = node->as.module_decl.name;
-                    }
                 }
                 
                 /* Allocate arrays */
@@ -832,6 +871,64 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                                       struct_names, struct_count,
                                       enum_names, enum_count,
                                       union_names, union_count);
+            }
+
+            /* Apply import aliases for selective imports: from "module" import foo as bar */
+            if (item->as.import_stmt.is_selective &&
+                item->as.import_stmt.import_symbols &&
+                item->as.import_stmt.import_symbol_count > 0) {
+                char *module_name_for_alias = NULL;
+                if (orig_module_name) {
+                    module_name_for_alias = strdup(orig_module_name);
+                } else {
+                    module_name_for_alias = module_name_from_path(module_path);
+                }
+                
+                for (int j = 0; j < item->as.import_stmt.import_symbol_count; j++) {
+                    const char *symbol = item->as.import_stmt.import_symbols[j];
+                    const char *alias = item->as.import_stmt.import_aliases
+                        ? item->as.import_stmt.import_aliases[j]
+                        : NULL;
+                    
+                    if (!alias || alias[0] == '\0' || strcmp(alias, symbol) == 0) {
+                        continue;
+                    }
+                    
+                    if (env_get_function(env, alias)) {
+                        fprintf(stderr, "Error at line %d, column %d: Import alias '%s' conflicts with existing function\n",
+                                item->line, item->column, alias);
+                        free(module_name_for_alias);
+                        free(module_path);
+                        for (int k = 0; k < unpacked_count; k++) {
+                            free(unpacked_dirs[k]);
+                        }
+                        free(unpacked_dirs);
+                        return false;
+                    }
+                    
+                    Function *func = find_module_function(env, module_name_for_alias, symbol);
+                    if (!func) {
+                        fprintf(stderr, "Error at line %d, column %d: Symbol '%s' not found in module for alias '%s'\n",
+                                item->line, item->column, symbol, alias);
+                        free(module_name_for_alias);
+                        free(module_path);
+                        for (int k = 0; k < unpacked_count; k++) {
+                            free(unpacked_dirs[k]);
+                        }
+                        free(unpacked_dirs);
+                        return false;
+                    }
+                    
+                    Function alias_func = *func;
+                    alias_func.name = strdup(alias);
+                    const char *orig_name = func->alias_of ? func->alias_of : func->name;
+                    alias_func.alias_of = orig_name ? strdup(orig_name) : NULL;
+                    env_define_function(env, alias_func);
+                }
+                
+                if (module_name_for_alias) {
+                    free(module_name_for_alias);
+                }
             }
             
             /* Execute module definitions (functions, structs, etc.) */

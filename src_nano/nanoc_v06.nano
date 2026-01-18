@@ -41,6 +41,7 @@ struct CompileOptions {
     output_file: string,
     verbose: bool,
     keep_c: bool,
+    show_intermediate_code: bool,
     llm_diags_json_path: string,
     show_help: bool
 }
@@ -51,6 +52,7 @@ fn default_options() -> CompileOptions {
         output_file: "a.out",
         verbose: false,
         keep_c: false,
+        show_intermediate_code: false,
         llm_diags_json_path: "",
         show_help: false
     }
@@ -70,6 +72,7 @@ fn parse_args() -> CompileOptions {
                 output_file: opts.output_file,
                 verbose: opts.verbose,
                 keep_c: opts.keep_c,
+                show_intermediate_code: opts.show_intermediate_code,
                 llm_diags_json_path: opts.llm_diags_json_path,
                 show_help: true
             }
@@ -80,6 +83,7 @@ fn parse_args() -> CompileOptions {
                     output_file: opts.output_file,
                     verbose: opts.verbose,
                     keep_c: opts.keep_c,
+                    show_intermediate_code: opts.show_intermediate_code,
                     llm_diags_json_path: opts.llm_diags_json_path,
                     show_help: true
                 }
@@ -90,6 +94,7 @@ fn parse_args() -> CompileOptions {
                         output_file: opts.output_file,
                         verbose: true,
                         keep_c: opts.keep_c,
+                        show_intermediate_code: opts.show_intermediate_code,
                         llm_diags_json_path: opts.llm_diags_json_path,
                         show_help: opts.show_help
                     }
@@ -100,6 +105,7 @@ fn parse_args() -> CompileOptions {
                             output_file: opts.output_file,
                             verbose: true,
                             keep_c: opts.keep_c,
+                            show_intermediate_code: opts.show_intermediate_code,
                             llm_diags_json_path: opts.llm_diags_json_path,
                             show_help: opts.show_help
                         }
@@ -110,6 +116,7 @@ fn parse_args() -> CompileOptions {
                                 output_file: opts.output_file,
                                 verbose: opts.verbose,
                                 keep_c: true,
+                                show_intermediate_code: opts.show_intermediate_code,
                                 llm_diags_json_path: opts.llm_diags_json_path,
                                 show_help: opts.show_help
                             }
@@ -120,10 +127,22 @@ fn parse_args() -> CompileOptions {
                                     output_file: opts.output_file,
                                     verbose: opts.verbose,
                                     keep_c: true,
+                                    show_intermediate_code: opts.show_intermediate_code,
                                     llm_diags_json_path: opts.llm_diags_json_path,
                                     show_help: opts.show_help
                                 }
                             } else {
+                                if (str_equals arg "-fshow-intermediate-code") {
+                                    set opts CompileOptions {
+                                        input_file: opts.input_file,
+                                        output_file: opts.output_file,
+                                        verbose: opts.verbose,
+                                        keep_c: opts.keep_c,
+                                        show_intermediate_code: true,
+                                        llm_diags_json_path: opts.llm_diags_json_path,
+                                        show_help: opts.show_help
+                                    }
+                                } else {
                                 if (str_equals arg "--llm-diags-json") {
                                     if (< (+ i 1) argc) {
                                         set i (+ i 1)
@@ -133,6 +152,7 @@ fn parse_args() -> CompileOptions {
                                             output_file: opts.output_file,
                                             verbose: opts.verbose,
                                             keep_c: opts.keep_c,
+                                            show_intermediate_code: opts.show_intermediate_code,
                                             llm_diags_json_path: p,
                                             show_help: opts.show_help
                                         }
@@ -147,6 +167,7 @@ fn parse_args() -> CompileOptions {
                                             output_file: output,
                                             verbose: opts.verbose,
                                             keep_c: opts.keep_c,
+                                            show_intermediate_code: opts.show_intermediate_code,
                                             llm_diags_json_path: opts.llm_diags_json_path,
                                             show_help: opts.show_help
                                         }
@@ -161,12 +182,14 @@ fn parse_args() -> CompileOptions {
                                             output_file: opts.output_file,
                                             verbose: opts.verbose,
                                             keep_c: opts.keep_c,
+                                            show_intermediate_code: opts.show_intermediate_code,
                                             llm_diags_json_path: opts.llm_diags_json_path,
                                             show_help: opts.show_help
                                         }
                                     } else {
                                         (print "")
                                     }
+                                }
                                 }
                                 }
                             }
@@ -636,7 +659,7 @@ fn llm_write_diags_json(path: string, input_file: string, output_file: string, e
     return (file_write path s)
 }
 
-fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, llm_diags_json_path: string) -> int {
+fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string) -> int {
     if verbose {
         (println "")
         (println "╔══════════════════════════════════════════════════════════════╗")
@@ -816,6 +839,10 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             } else {
                 (print "")
             }
+
+            if show_intermediate_code {
+                (print c_code)
+            } else { (print "") }
             
             /* Write C code to temporary file */
             let c_file: string = "/tmp/nanolang_temp.c"
@@ -983,6 +1010,7 @@ fn show_usage() -> int {
     (println "  -o <file>        Output executable (default: a.out)")
     (println "  -v, --verbose    Verbose compilation output")
     (println "  -k, --keep-c     Keep generated C file")
+    (println "  -fshow-intermediate-code  Print generated C to stdout")
     (println "  -h, --help       Show this help")
     (println "  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)")
     (println "")
@@ -1017,7 +1045,7 @@ fn main() -> int {
         (print "")
     }
     
-    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.llm_diags_json_path)
+    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path)
 }
 
 shadow main {

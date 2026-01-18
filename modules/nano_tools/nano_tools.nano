@@ -1,0 +1,347 @@
+module nano_tools
+
+from "modules/std/fs.nano" import read, exists
+from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
+import "modules/nano_highlight/nano_highlight.nano" as nano_highlight
+import "src_nano/compiler/ir.nano"
+import "src_nano/compiler/diagnostics.nano" as Diagnostics
+from "src_nano/compiler/error_messages.nano" import format_diagnostics_elm_style
+from "src_nano/compiler/lexer.nano" import tokenize_string, list_LexerToken_length
+from "src_nano/parser.nano" import parse_phase_run, parser_get_function_count, parser_get_function, parser_init_ast_lists
+from "src_nano/generated/compiler_ast.nano" import ASTShadow, ASTFunction
+
+extern fn eval(_source: string) -> int
+
+fn lex_phase_run(source: string, file_name: string) -> LexPhaseOutput {
+    let diagnostics: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string source file_name diagnostics)
+    let token_count: int = (list_LexerToken_length tokens)
+    let had_error: bool = (Diagnostics.diag_list_has_errors diagnostics)
+    return LexPhaseOutput {
+        tokens: tokens,
+        token_count: token_count,
+        diagnostics: diagnostics,
+        had_error: had_error
+    }
+}
+
+shadow lex_phase_run {
+    let output: LexPhaseOutput = (lex_phase_run "fn main() -> int { return 0 }" "test.nano")
+    assert (== output.had_error false)
+    assert (> output.token_count 0)
+}
+
+fn string_in_array(values: array<string>, target: string) -> bool {
+    let mut i: int = 0
+    let n: int = (array_length values)
+    while (< i n) {
+        if (str_equals (at values i) target) {
+            return true
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow string_in_array {
+    let items: array<string> = ["a", "b"]
+    assert (string_in_array items "a")
+    assert (not (string_in_array items "c"))
+}
+
+fn collect_shadow_names(parser: Parser) -> array<string> {
+    let mut names: array<string> = []
+    let count: int = (list_ASTShadow_length parser.shadows)
+    let mut i: int = 0
+    while (< i count) {
+        let shadow_item: ASTShadow = (list_ASTShadow_get parser.shadows i)
+        set names (array_push names shadow_item.target_name)
+        set i (+ i 1)
+    }
+    return names
+}
+
+shadow collect_shadow_names {
+    let parser: Parser = (parser_init_ast_lists)
+    let names: array<string> = (collect_shadow_names parser)
+    assert (== (array_length names) 0)
+}
+
+fn append_diags(dst: List<CompilerDiagnostic>, src: List<CompilerDiagnostic>) -> void {
+    let count: int = (Diagnostics.diag_list_count src)
+    let mut i: int = 0
+    while (< i count) {
+        (Diagnostics.diag_list_add dst (Diagnostics.diag_list_get src i))
+        set i (+ i 1)
+    }
+}
+
+shadow append_diags {
+    let dst: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let src: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    (Diagnostics.diag_list_add src (Diagnostics.diag_error_simple CompilerPhase.PHASE_PARSER "E0001" "err"))
+    (append_diags dst src)
+    assert (== (Diagnostics.diag_list_count dst) 1)
+}
+
+pub fn lint_source(source: string, file_name: string) -> List<CompilerDiagnostic> {
+    let diags: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let lex_out: LexPhaseOutput = (lex_phase_run source file_name)
+    (append_diags diags lex_out.diagnostics)
+    if lex_out.had_error {
+        return diags
+    } else { (print "") }
+
+    let parse_out: ParsePhaseOutput = (parse_phase_run lex_out file_name)
+    (append_diags diags parse_out.diagnostics)
+    if parse_out.had_error {
+        return diags
+    } else { (print "") }
+
+    let names_list: array<string> = (collect_shadow_names parse_out.parser)
+    let mut fn_names: array<string> = []
+    let fn_count: int = (parser_get_function_count parse_out.parser)
+    let mut i: int = 0
+    while (< i fn_count) {
+        let func: ASTFunction = (parser_get_function parse_out.parser i)
+        set fn_names (array_push fn_names func.name)
+        if (func.body != (- 0 1)) {
+            if (not (string_in_array names_list func.name)) {
+                let msg: string = (+ "Missing shadow test for function `" (+ func.name "`"))
+                let loc: CompilerSourceLocation = (Diagnostics.diag_location file_name func.line func.column)
+                let diag: CompilerDiagnostic = (Diagnostics.diag_warning CompilerPhase.PHASE_TYPECHECK "L0001" msg loc)
+                (Diagnostics.diag_list_add diags diag)
+            } else { (print "") }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+
+    return diags
+}
+
+shadow lint_source {
+    let src: string = "fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n"
+    let diags: List<CompilerDiagnostic> = (lint_source src "test.nano")
+    assert (== (Diagnostics.diag_list_count diags) 0)
+}
+
+pub fn syntax_check_source(source: string, file_name: string) -> List<CompilerDiagnostic> {
+    let diags: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let lex_out: LexPhaseOutput = (lex_phase_run source file_name)
+    (append_diags diags lex_out.diagnostics)
+    if lex_out.had_error {
+        return diags
+    } else { (print "") }
+
+    let parse_out: ParsePhaseOutput = (parse_phase_run lex_out file_name)
+    (append_diags diags parse_out.diagnostics)
+    return diags
+}
+
+shadow syntax_check_source {
+    let src: string = "fn main() -> int { return 0 }"
+    let diags: List<CompilerDiagnostic> = (syntax_check_source src "test.nano")
+    assert (== (Diagnostics.diag_list_count diags) 0)
+}
+
+pub fn lint_file(path: string) -> List<CompilerDiagnostic> {
+    let diags: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    if (not (exists path)) {
+        let loc: CompilerSourceLocation = (Diagnostics.diag_location path 0 0)
+        let diag: CompilerDiagnostic = (Diagnostics.diag_error CompilerPhase.PHASE_LEXER "L0003" "File not found" loc)
+        (Diagnostics.diag_list_add diags diag)
+        return diags
+    } else { (print "") }
+    let source: string = (read path)
+    return (lint_source source path)
+}
+
+shadow lint_file {
+    let diags: List<CompilerDiagnostic> = (lint_file "missing.nano")
+    assert (== (Diagnostics.diag_list_count diags) 1)
+}
+
+pub fn syntax_check_file(path: string) -> List<CompilerDiagnostic> {
+    let diags: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    if (not (exists path)) {
+        let loc: CompilerSourceLocation = (Diagnostics.diag_location path 0 0)
+        let diag: CompilerDiagnostic = (Diagnostics.diag_error CompilerPhase.PHASE_LEXER "L0004" "File not found" loc)
+        (Diagnostics.diag_list_add diags diag)
+        return diags
+    } else { (print "") }
+    let source: string = (read path)
+    return (syntax_check_source source path)
+}
+
+shadow syntax_check_file {
+    let diags: List<CompilerDiagnostic> = (syntax_check_file "missing.nano")
+    assert (== (Diagnostics.diag_list_count diags) 1)
+}
+
+pub fn lint_format(diags: List<CompilerDiagnostic>, source: string) -> string {
+    return (format_diagnostics_elm_style diags source)
+}
+
+shadow lint_format {
+    let diags: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let loc: CompilerSourceLocation = (Diagnostics.diag_location "t.nano" 1 1)
+    let diag: CompilerDiagnostic = (Diagnostics.diag_error CompilerPhase.PHASE_PARSER "P0001" "Syntax error" loc)
+    (Diagnostics.diag_list_add diags diag)
+    let out: string = (lint_format diags "let x: int = 0")
+    assert (str_contains out "ERROR")
+}
+
+fn eval_internal(source: string) -> int {
+    unsafe {
+        return (eval source)
+    }
+}
+
+shadow eval_internal {
+    let src: string = "fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n"
+    assert (== (eval_internal src) 0)
+}
+
+fn ansi_escape(code: string) -> string {
+    let esc: string = (string_from_char 27)
+    return (+ esc (+ "[" (+ code "m")))
+}
+
+shadow ansi_escape {
+    assert (str_contains (ansi_escape "31") "[31m")
+}
+
+fn html_entity_to_char(entity: string) -> string {
+    return (cond
+        ((str_equals entity "&lt;") "<")
+        ((str_equals entity "&gt;") ">")
+        ((str_equals entity "&amp;") "&")
+        ((str_equals entity "&quot;") "\"")
+        (else entity)
+    )
+}
+
+shadow html_entity_to_char {
+    assert (str_equals (html_entity_to_char "&lt;") "<")
+    assert (str_equals (html_entity_to_char "&amp;") "&")
+}
+
+fn ansi_for_class(cls: string) -> string {
+    return (cond
+        ((str_equals cls "tok-keyword") "35")
+        ((str_equals cls "tok-type") "36")
+        ((str_equals cls "tok-string") "32")
+        ((str_equals cls "tok-number") "33")
+        ((str_equals cls "tok-comment") "90")
+        ((str_equals cls "tok-operator") "37")
+        ((str_equals cls "tok-paren") "37")
+        ((str_equals cls "tok-identifier") "0")
+        (else "")
+    )
+}
+
+shadow ansi_for_class {
+    assert (str_equals (ansi_for_class "tok-keyword") "35")
+}
+
+fn starts_with_at(text: string, start: int, needle: string) -> bool {
+    let n: int = (str_length needle)
+    if (< (str_length text) (+ start n)) {
+        return false
+    } else { (print "") }
+    let slice: string = (str_substring text start n)
+    return (str_equals slice needle)
+}
+
+shadow starts_with_at {
+    assert (starts_with_at "hello" 0 "he")
+    assert (not (starts_with_at "hello" 1 "he"))
+}
+
+fn highlight_html_to_ansi(html: string) -> string {
+    let sb: StringBuilder = (sb_new)
+    let n: int = (str_length html)
+    let mut i: int = 0
+    let reset: string = (ansi_escape "0")
+    let span_prefix: string = "<span class=\""
+    let span_close: string = "</span>"
+
+    while (< i n) {
+        let c: int = (char_at html i)
+        if (== c 60) {
+            if (starts_with_at html i span_close) {
+                (sb_append sb reset)
+                set i (+ i (str_length span_close))
+            } else {
+                if (starts_with_at html i span_prefix) {
+                    let mut cls_start: int = (+ i (str_length span_prefix))
+                    let mut cls_end: int = cls_start
+                    while (and (< cls_end n) (!= (char_at html cls_end) 34)) {
+                        set cls_end (+ cls_end 1)
+                    }
+                    let cls: string = (str_substring html cls_start (- cls_end cls_start))
+                    let mut tag_end: int = cls_end
+                    while (and (< tag_end n) (!= (char_at html tag_end) 62)) {
+                        set tag_end (+ tag_end 1)
+                    }
+                    if (< tag_end n) {
+                        set tag_end (+ tag_end 1)
+                    } else { (print "") }
+                    let code: string = (ansi_for_class cls)
+                    if (!= code "") {
+                        (sb_append sb (ansi_escape code))
+                    } else { (print "") }
+                    set i tag_end
+                } else {
+                    (sb_append sb "<")
+                    set i (+ i 1)
+                }
+            }
+        } else {
+            if (== c 38) {
+                let mut end: int = (+ i 1)
+                while (and (< end n) (!= (char_at html end) 59)) {
+                    set end (+ end 1)
+                }
+                if (< end n) {
+                    let entity: string = (str_substring html i (+ (- end i) 1))
+                    (sb_append sb (html_entity_to_char entity))
+                    set i (+ end 1)
+                } else {
+                    (sb_append sb "&")
+                    set i (+ i 1)
+                }
+            } else {
+                (sb_append sb (string_from_char c))
+                set i (+ i 1)
+            }
+        }
+    }
+    (sb_append sb reset)
+    return (sb_to_string sb)
+}
+
+shadow highlight_html_to_ansi {
+    let html: string = "<span class=\"tok-keyword\">fn</span>"
+    let out: string = (highlight_html_to_ansi html)
+    assert (str_contains out "[35m")
+}
+
+pub fn pretty_print_html(source: string) -> string {
+    return (nano_highlight.highlight_html source)
+}
+
+shadow pretty_print_html {
+    let out: string = (pretty_print_html "fn main")
+    assert (str_contains out "tok-keyword")
+}
+
+pub fn pretty_print_ansi(source: string) -> string {
+    let html: string = (nano_highlight.highlight_html source)
+    return (highlight_html_to_ansi html)
+}
+
+shadow pretty_print_ansi {
+    let out: string = (pretty_print_ansi "fn main")
+    assert (str_contains out "[35m")
+}

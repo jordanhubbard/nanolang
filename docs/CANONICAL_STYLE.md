@@ -30,6 +30,26 @@ function arg1 arg2    # Haskell-style - DOES NOT EXIST
 
 ---
 
+## Imports and Qualified Calls
+
+### ✅ Canonical: Module Alias + Qualified Call
+```nano
+import "modules/std/json/json.nano" as json
+
+let value: string = (json.get_string obj "name")
+```
+
+### ✅ Canonical: Import Alias for a Specific Function
+```nano
+from "modules/std/json/json.nano" import parse as json_parse
+
+let data: Json = (json_parse payload)
+```
+
+**Rule:** Prefer module aliases and qualified calls to avoid global name collisions.
+
+---
+
 ## Conditionals
 
 ### For Expressions: Use `cond`

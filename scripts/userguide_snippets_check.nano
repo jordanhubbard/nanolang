@@ -3,6 +3,7 @@ from "modules/std/process.nano" import run, exec, Output
 from "modules/std/result.nano" import Result
 
 extern fn get_argc() -> int
+extern fn get_argv(_index: int) -> string
 from "modules/std/json/json.nano" import Json, parse, free, object_has, get, is_bool, is_number, is_string, as_bool, as_int, as_string
 
 
@@ -449,8 +450,39 @@ shadow run_with_timeout {
     assert (== out.code 0)
 }
 
+fn export_snippets(snippets: array<Snippet>, out_dir: string) -> int {
+    if (exists out_dir) { (exec (+ "rm -rf " out_dir)) }
+    (mkdir_p out_dir)
+    let mut i: int = 0
+    let n: int = (array_length snippets)
+    while (< i n) {
+        let snip: Snippet = (at snippets i)
+        if snip.check {
+            let safe_name: string = (sanitize_name snip.name)
+            let path: string = (+ out_dir (+ "/" (+ safe_name ".nano")))
+            (write path snip.code)
+        }
+        set i (+ i 1)
+    }
+    return 0
+}
+
+shadow export_snippets { assert true }
+
 fn main() -> int {
     if (< (get_argc) 1) { return 1 }
+    let mut export_dir: string = ""
+    let mut do_export: bool = false
+    let argc: int = (get_argc)
+    let mut ai: int = 0
+    while (< ai argc) {
+        let arg: string = (get_argv ai)
+        if (and (str_equals arg "--export") (< (+ ai 1) argc)) {
+            set export_dir (get_argv (+ ai 1))
+            set do_export true
+        }
+        set ai (+ ai 1)
+    }
     let md_files: array<string> = (walkdir "userguide")
     let mut markdowns: array<string> = []
     let m_len: int = (array_length md_files)
@@ -485,6 +517,16 @@ fn main() -> int {
             }
         }
         set mi (+ mi 1)
+    }
+
+    if do_export {
+        if (== (str_length export_dir) 0) {
+            (println "userguide-export: missing output directory")
+            return 1
+        }
+        (export_snippets snippets export_dir)
+        (println (+ "userguide-export: wrote snippets to " export_dir))
+        return 0
     }
 
     let mut runnable: array<Snippet> = []

@@ -384,9 +384,15 @@ fn init_struct_metadata() -> array<FieldMetadata> {
     set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
     
     /* ASTImport fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "path", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "alias", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "module_path", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "module_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_unsafe", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_selective", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_wildcard", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_pub_use", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "import_symbols", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "import_aliases", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "import_symbol_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
 
     /* ASTPrint fields */
     set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })

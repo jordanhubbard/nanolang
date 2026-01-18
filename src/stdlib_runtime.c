@@ -403,7 +403,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "static const char* nl_str_substring(const char* str, int64_t start, int64_t length) {\n");
     sb_append(sb, "    /* Safety: Bound string scan to 1MB */\n");
     sb_append(sb, "    int64_t str_len = strnlen(str, 1024*1024);\n");
-    sb_append(sb, "    if (start < 0 || start >= str_len || length < 0) return \"\";\n");
+    sb_append(sb, "    if (start < 0 || start > str_len || length < 0) return \"\";\n");
+    sb_append(sb, "    if (start == str_len) return \"\";\n");
     sb_append(sb, "    if (start + length > str_len) length = str_len - start;\n");
     sb_append(sb, "    char* result = gc_alloc_string(length);\n");
     sb_append(sb, "    if (!result) return \"\";\n");
