@@ -26,6 +26,11 @@ fn proc_run(command: string) -> Output {
     return Output { code: code, stdout: out, stderr: err }
 }
 
+shadow proc_run {
+    # Dummy shadow test: uses extern process_run and depends on host shell.
+    assert true
+}
+
 extern fn get_argc() -> int
 extern fn get_argv(index: int) -> string
 

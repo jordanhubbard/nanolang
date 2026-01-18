@@ -21,6 +21,11 @@ fn coverage_init() -> void {
     set g_coverage_points []
 }
 
+shadow coverage_init {
+    (coverage_init)
+    assert g_coverage_enabled
+}
+
 # Record a coverage point hit
 fn coverage_record(file: string, line: int, column: int) -> void {
     if g_coverage_enabled {
@@ -57,9 +62,20 @@ fn coverage_record(file: string, line: int, column: int) -> void {
     }
 }
 
+shadow coverage_record {
+    (coverage_init)
+    (coverage_record "shadow" 1 1)
+    assert (== (coverage_get_hit_count) 1)
+}
+
 # Get total number of coverage points hit
 fn coverage_get_hit_count() -> int {
     return (array_length g_coverage_points)
+}
+
+shadow coverage_get_hit_count {
+    (coverage_init)
+    assert (== (coverage_get_hit_count) 0)
 }
 
 # Get number of times a specific line was executed
@@ -73,6 +89,12 @@ fn coverage_get_line_hits(file: string, line: int) -> int {
         set i (+ i 1)
     }
     return 0
+}
+
+shadow coverage_get_line_hits {
+    (coverage_init)
+    (coverage_record "shadow" 10 5)
+    assert (== (coverage_get_line_hits "shadow" 10) 1)
 }
 
 # Print coverage report
@@ -102,14 +124,35 @@ fn coverage_report() -> void {
     (println "========================================")
 }
 
+shadow coverage_report {
+    (coverage_init)
+    (coverage_record "shadow" 2 3)
+    (coverage_report)
+    assert true
+}
+
 # Reset coverage data
 fn coverage_reset() -> void {
     set g_coverage_points []
 }
 
+shadow coverage_reset {
+    (coverage_init)
+    (coverage_record "shadow" 3 4)
+    (coverage_reset)
+    assert (== (coverage_get_hit_count) 0)
+}
+
 # Disable coverage tracking
 fn coverage_disable() -> void {
     set g_coverage_enabled false
+}
+
+shadow coverage_disable {
+    (coverage_init)
+    (coverage_disable)
+    (coverage_record "shadow" 4 5)
+    assert (== (coverage_get_hit_count) 0)
 }
 
 # Performance instrumentation
@@ -127,6 +170,11 @@ let mut g_timing_points: array<TimingPoint> = []
 fn timing_start(label: string) -> int {
     # Return current time in milliseconds (placeholder - needs runtime support)
     return 0  # TODO: Implement with actual clock
+}
+
+shadow timing_start {
+    let t: int = (timing_start "shadow")
+    assert (>= t 0)
 }
 
 # End timing a labeled section
@@ -163,6 +211,12 @@ fn timing_end(label: string, start_time: int) -> void {
     }
 }
 
+shadow timing_end {
+    let t: int = (timing_start "shadow")
+    (timing_end "shadow" t)
+    assert true
+}
+
 # Print timing report
 fn timing_report() -> void {
     (println "========================================")
@@ -192,9 +246,19 @@ fn timing_report() -> void {
     (println "========================================")
 }
 
+shadow timing_report {
+    (timing_report)
+    assert true
+}
+
 # Reset timing data
 fn timing_reset() -> void {
     set g_timing_points []
+}
+
+shadow timing_reset {
+    (timing_reset)
+    assert (== (array_length g_timing_points) 0)
 }
 
 # Execution trace
@@ -216,10 +280,21 @@ fn trace_init() -> void {
     set g_trace_events []
 }
 
+shadow trace_init {
+    (trace_init)
+    assert g_trace_enabled
+}
+
 fn trace_init_with_limit(max_events: int) -> void {
     set g_trace_enabled true
     set g_trace_events []
     set g_trace_max_events max_events
+}
+
+shadow trace_init_with_limit {
+    (trace_init_with_limit 2)
+    assert g_trace_enabled
+    assert (== g_trace_max_events 2)
 }
 
 # Record a trace event
@@ -235,6 +310,12 @@ fn trace_record(event_type: string, location: string, details: string) -> void {
             set g_trace_events (array_push g_trace_events event)
         }
     }
+}
+
+shadow trace_record {
+    (trace_init)
+    (trace_record "CALL" "shadow" "test")
+    assert (== (array_length g_trace_events) 1)
 }
 
 # Print trace
@@ -266,14 +347,31 @@ fn trace_report() -> void {
     (println "========================================")
 }
 
+shadow trace_report {
+    (trace_init)
+    (trace_record "CALL" "shadow" "test")
+    (trace_report)
+    assert true
+}
+
 # Disable tracing
 fn trace_disable() -> void {
     set g_trace_enabled false
 }
 
+shadow trace_disable {
+    (trace_disable)
+    assert (not g_trace_enabled)
+}
+
 # Reset trace
 fn trace_reset() -> void {
     set g_trace_events []
+}
+
+shadow trace_reset {
+    (trace_reset)
+    assert (== (array_length g_trace_events) 0)
 }
 
 # Utility: Manual instrumentation macros (for LLM code generation)
