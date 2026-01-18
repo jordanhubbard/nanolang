@@ -407,8 +407,13 @@ userguide-check: build $(USERGUIDE_CHECK_TOOL)
 	@$(USERGUIDE_CHECK_TOOL)
 
 .PHONY: userguide-html
-userguide-html: build $(USERGUIDE_BUILD_TOOL)
+userguide-html: build $(USERGUIDE_BUILD_TOOL) userguide-api-docs
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_BUILD_TOOL)
+
+.PHONY: userguide-api-docs
+userguide-api-docs: build
+	@echo "Generating API documentation..."
+	@bash scripts/generate_all_api_docs.sh
 
 $(USERGUIDE_DIR):
 	@mkdir -p $(USERGUIDE_DIR)

@@ -309,7 +309,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         
         if (opts->verbose) printf("→ Emitting module reflection to %s\n", opts->reflect_output_path);
         
-        if (!emit_module_reflection(opts->reflect_output_path, env, name_copy)) {
+        if (!emit_module_reflection(opts->reflect_output_path, program, env, name_copy)) {
             fprintf(stderr, "Error: Failed to emit module reflection\n");
             free(name_copy);
             free_ast(program);
