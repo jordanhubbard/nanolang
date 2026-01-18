@@ -13,7 +13,7 @@ fn greeting() -> string {
 }
 
 shadow greeting {
-    assert (str_equals (greeting) "hello world")
+    assert (== (greeting) "hello world")
 }
 
 fn main() -> int {

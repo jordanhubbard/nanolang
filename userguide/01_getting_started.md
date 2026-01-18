@@ -11,7 +11,7 @@ fn hello_message() -> string {
 }
 
 shadow hello_message {
-    assert (str_equals (hello_message) "Hello, NanoLang!")
+    assert (== (hello_message) "Hello, NanoLang!")
 }
 
 fn main() -> int {

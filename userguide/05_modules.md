@@ -27,12 +27,12 @@ fn extract_name(json_text: string) -> string {
 }
 
 shadow extract_name {
-    assert (str_equals (extract_name "{\"name\":\"nano\"}") "nano")
-    assert (str_equals (extract_name "{\"x\":1}") "")
+    assert (== (extract_name "{\"name\":\"nano\"}") "nano")
+    assert (== (extract_name "{\"x\":1}") "")
 }
 
 fn main() -> int {
-    assert (str_equals (extract_name "{\"name\":\"NanoLang\"}") "NanoLang")
+    assert (== (extract_name "{\"name\":\"NanoLang\"}") "NanoLang")
     return 0
 }
 
