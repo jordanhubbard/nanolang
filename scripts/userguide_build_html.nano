@@ -1109,7 +1109,8 @@ fn main() -> int {
         }
 
         if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: render " (+ rel "\n"))) } else { (print "") }
-        let fast_inline: bool = (str_contains rel "api_reference/")
+        let ci_flag: string = (get "CI")
+        let fast_inline: bool = (and (str_contains rel "api_reference/") (== ci_flag "true"))
         let body: string = (md_to_html md_text summary fast_inline)
         if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n"))) } else { (print "") }
 
