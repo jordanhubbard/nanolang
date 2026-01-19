@@ -454,7 +454,11 @@ examples: build check-deps-sdl
 	@echo "=========================================="
 	@echo "Building Examples"
 	@echo "=========================================="
-	@$(TIMEOUT_CMD) $(MAKE) -C examples build
+	@if [ "$$NANOLANG_AUTOBEADS_EXAMPLES" = "1" ]; then \
+		$(TIMEOUT_CMD) $(MAKE) -C examples build; \
+	else \
+		NANOLANG_AUTOBEADS_EXAMPLES=1 $(TIMEOUT_CMD) python3 scripts/autobeads.py --examples; \
+	fi
 
 # Launch example browser
 examples-launcher: build check-deps-sdl

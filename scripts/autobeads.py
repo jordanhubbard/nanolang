@@ -55,7 +55,7 @@ class Failure:
     summary: str
 
 
-def _run(cmd: list[str], *, cwd: Path, timeout_s: int | None = None) -> subprocess.CompletedProcess[str]:
+def _run(cmd: list[str], *, cwd: Path, timeout_s: int | None = None, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         cmd,
         cwd=str(cwd),
@@ -64,6 +64,7 @@ def _run(cmd: list[str], *, cwd: Path, timeout_s: int | None = None) -> subproce
         stderr=subprocess.STDOUT,
         timeout=timeout_s,
         check=False,
+        env=env,
     )
 
 
@@ -380,7 +381,9 @@ def _run_examples(timeout_s: int, *, dry_run: bool) -> int:
     if dry_run:
         print("[dry-run] " + " ".join(cmd))
         return 0
-    proc = _run(cmd, cwd=PROJECT_ROOT, timeout_s=timeout_s)
+    env = dict(os.environ)
+    env["NANOLANG_AUTOBEADS_EXAMPLES"] = "1"
+    proc = _run(cmd, cwd=PROJECT_ROOT, timeout_s=timeout_s, env=env)
     (TEST_OUTPUT_DIR / "make_examples.log").write_text(proc.stdout, encoding="utf-8", errors="replace")
     return proc.returncode
 
