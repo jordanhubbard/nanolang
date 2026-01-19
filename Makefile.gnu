@@ -538,12 +538,12 @@ $(COMPILER_C): $(COMPILER_OBJECTS) | $(BIN_DIR)
 	@# If objects were built with sanitizers/coverage, ensure we link with matching flags.
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
 		echo "  (Sanitizer instrumentation detected in objects - linking with sanitizer flags)"; \
-		$(TIMEOUT_CMD) $(CC) $(CFLAGS) $(SANITIZE_FLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS) $(SANITIZE_FLAGS); \
+		$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS) $(SANITIZE_FLAGS); \
 	elif ls obj/*.gcno >/dev/null 2>&1; then \
 		echo "  (Coverage instrumentation detected in objects - linking with coverage flags)"; \
-		$(TIMEOUT_CMD) $(CC) $(CFLAGS) $(COVERAGE_FLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS) $(COVERAGE_FLAGS); \
+		$(CC) $(CFLAGS) $(COVERAGE_FLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS) $(COVERAGE_FLAGS); \
 	else \
-		$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS); \
+		$(CC) $(CFLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS); \
 	fi
 	@echo "✓ C Compiler: $(COMPILER_C)"
 
@@ -560,7 +560,7 @@ $(COMPILER): $(COMPILER_C) | $(BIN_DIR)
 # Interpreter removed - NanoLang is a compiled language
 
 $(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o | $(BIN_DIR)
-	$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o $(LDFLAGS)
 
 $(BIN_DIR)/nano_lint: tools/nano_lint.nano | $(BIN_DIR)
 	@$(TIMEOUT_CMD) $(COMPILER) tools/nano_lint.nano -o $(BIN_DIR)/nano_lint
@@ -569,17 +569,17 @@ $(BIN_DIR)/nano_lint: tools/nano_lint.nano | $(BIN_DIR)
 $(COMPILER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime
 
 $(OBJ_DIR)/ffi_bindgen.o: src/ffi_bindgen.c | $(OBJ_DIR)
-	$(TIMEOUT_CMD) $(CC) $(CFLAGS) -c src/ffi_bindgen.c -o $(OBJ_DIR)/ffi_bindgen.o
+	$(CC) $(CFLAGS) -c src/ffi_bindgen.c -o $(OBJ_DIR)/ffi_bindgen.o
 
 # Special dependency: transpiler.o depends on transpiler_iterative_v3_twopass.c (which is #included)
 $(OBJ_DIR)/transpiler.o: $(SRC_DIR)/transpiler.c $(SRC_DIR)/transpiler_iterative_v3_twopass.c $(HEADERS) | $(OBJ_DIR)
-	$(TIMEOUT_CMD) $(CC) $(CFLAGS) -c $(SRC_DIR)/transpiler.c -o $@
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/transpiler.c -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS) | $(OBJ_DIR)
-	$(TIMEOUT_CMD) $(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/runtime/%.o: $(RUNTIME_DIR)/%.c $(HEADERS) | $(OBJ_DIR) $(OBJ_DIR)/runtime
-	$(TIMEOUT_CMD) $(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # ============================================================================
 # Stage 2: Self-Hosted Components (compile and test with stage1)
@@ -917,13 +917,13 @@ stage1.5: $(HYBRID_COMPILER)
 	@echo "✓ Stage 1.5 hybrid compiler built: $(HYBRID_COMPILER)"
 
 $(HYBRID_COMPILER): $(HYBRID_OBJECTS) | $(BIN_DIR)
-	$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o $(HYBRID_COMPILER) $(HYBRID_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(HYBRID_COMPILER) $(HYBRID_OBJECTS) $(LDFLAGS)
 
 $(OBJ_DIR)/lexer_nano.o: src_nano/lexer_main.nano $(COMPILER) | $(OBJ_DIR)
 	@echo "Compiling nanolang lexer..."
 	$(TIMEOUT_CMD) $(COMPILER) src_nano/lexer_main.nano -o $(OBJ_DIR)/lexer_nano.tmp --keep-c
 	$(TIMEOUT_CMD) sed -e '/\/\* C main() entry point/,/^}/d' $(OBJ_DIR)/lexer_nano.tmp.c > $(OBJ_DIR)/lexer_nano_noMain.c
-	$(TIMEOUT_CMD) $(CC) $(CFLAGS) -c $(OBJ_DIR)/lexer_nano_noMain.c -o $@
+	$(CC) $(CFLAGS) -c $(OBJ_DIR)/lexer_nano_noMain.c -o $@
 	@rm -f $(OBJ_DIR)/lexer_nano.tmp $(OBJ_DIR)/lexer_nano.tmp.c $(OBJ_DIR)/lexer_nano_noMain.c
 
 # Dependency checking
