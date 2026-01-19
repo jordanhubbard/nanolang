@@ -274,6 +274,7 @@ TEST_TIMEOUT ?= 1800
 USERGUIDE_TIMEOUT ?= 600
 USERGUIDE_API_TIMEOUT ?= 600
 SHADOW_CHECK_TIMEOUT ?= 120
+USERGUIDE_BUILD_API_DOCS ?= 0
 test: build shadow-check userguide-export
 	@echo ""
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
@@ -410,7 +411,12 @@ userguide-check: build $(USERGUIDE_CHECK_TOOL)
 	@$(USERGUIDE_CHECK_TOOL)
 
 .PHONY: userguide-html
-userguide-html: build shadow-check $(USERGUIDE_BUILD_TOOL) userguide-api-docs
+userguide-html: build shadow-check $(USERGUIDE_BUILD_TOOL)
+	@if [ "$$CI" = "true" ] || [ "$(USERGUIDE_BUILD_API_DOCS)" = "1" ]; then \
+		$(MAKE) userguide-api-docs; \
+	else \
+		echo "userguide-html: skipping API doc generation (set USERGUIDE_BUILD_API_DOCS=1 to enable)"; \
+	fi
 	@perl -e 'alarm $(USERGUIDE_TIMEOUT); exec @ARGV' $(USERGUIDE_BUILD_TOOL)
 
 .PHONY: userguide-api-docs

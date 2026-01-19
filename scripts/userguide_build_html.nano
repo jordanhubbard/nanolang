@@ -823,7 +823,7 @@ fn append_examples_body(out_path: string, md_text: string) -> void {
             }
             let link: ExampleLink = (parse_example_link line)
             if link.ok {
-                if (> inlined 5) {
+                if (> inlined 25) {
                     if (not limit_hit) {
                         (append "/tmp/userguide_build_html.log" "userguide-html: inline limit reached\n")
                         set limit_hit true
@@ -1073,16 +1073,9 @@ fn main() -> int {
             continue
         }
 
-        let mut body: string = ""
-        if (str_starts_with rel "api_reference/") {
-            (append "/tmp/userguide_build_html.log" (+ "userguide-html: render api_reference " (+ rel "\n")))
-            set body (+ "<pre><code class=\"language-nano\">" (+ (html_escape md_text) "</code></pre>"))
-            (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n")))
-        } else {
-            (append "/tmp/userguide_build_html.log" (+ "userguide-html: render " (+ rel "\n")))
-            set body (md_to_html md_text summary)
-            (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n")))
-        }
+        (append "/tmp/userguide_build_html.log" (+ "userguide-html: render " (+ rel "\n")))
+        let body: string = (md_to_html md_text summary)
+        (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n")))
 
         let mut page_out: array<string> = []
         set page_out (array_push page_out "<!doctype html>")
