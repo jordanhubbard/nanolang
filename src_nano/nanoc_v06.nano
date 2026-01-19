@@ -289,15 +289,15 @@ fn nlc_hashset_new_string() -> HashMap<string, int> {
     return s
 }
 
-fn nlc_hashset_has_string(set: HashMap<string, int>, key: string) -> bool {
-    return (map_has set key)
+fn nlc_hashset_has_string(hset: HashMap<string, int>, key: string) -> bool {
+    return (map_has hset key)
 }
 
-fn nlc_hashset_add_string(set: HashMap<string, int>, key: string) -> HashMap<string, int> {
-    if (not (map_has set key)) {
-        (map_put set key 1)
+fn nlc_hashset_add_string(hset: HashMap<string, int>, key: string) -> HashMap<string, int> {
+    if (not (map_has hset key)) {
+        (map_put hset key 1)
     } else { (print "") }
-    return set
+    return hset
 }
 
 shadow nlc_hashset_add_string {
