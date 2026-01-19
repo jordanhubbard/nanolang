@@ -109,6 +109,10 @@ BOOTSTRAP_VERBOSE ?= 1
 ifeq ($(BOOTSTRAP_VERBOSE),1)
 BOOTSTRAP_ENV += NANO_VERBOSE_BUILD=1
 endif
+BOOTSTRAP_VERBOSE_FLAG :=
+ifeq ($(BOOTSTRAP_VERBOSE),1)
+BOOTSTRAP_VERBOSE_FLAG := -v
+endif
 
 # Source files
 COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c
@@ -766,7 +770,7 @@ $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
 	@echo "Bootstrap Stage 2: Recompilation"
 	@echo "=========================================="
 	@echo "Compiling nanoc_v06.nano with stage 1 compiler..."
-	@$(TIMEOUT_CMD) $(BOOTSTRAP_ENV) $(NANOC_STAGE1) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
+	@$(TIMEOUT_CMD) $(BOOTSTRAP_ENV) $(NANOC_STAGE1) $(BOOTSTRAP_VERBOSE_FLAG) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
 	@echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)"
 	@echo ""
 	@echo "Testing stage 2 compiler..."
