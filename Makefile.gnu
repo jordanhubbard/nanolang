@@ -271,7 +271,10 @@ test-impl: test-units
 # Default test: Use most evolved compiler available (no bd dependency)
 # NOTE: Wrap test runs with a timeout to avoid infinite compiler loops.
 TEST_TIMEOUT ?= 1800
-test: build userguide-export
+USERGUIDE_TIMEOUT ?= 300
+USERGUIDE_API_TIMEOUT ?= 300
+SHADOW_CHECK_TIMEOUT ?= 120
+test: build shadow-check userguide-export
 	@echo ""
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
 		echo "🎯 Testing with SELF-HOSTED compiler (nanoc_stage2)"; \
@@ -407,13 +410,27 @@ userguide-check: build $(USERGUIDE_CHECK_TOOL)
 	@$(USERGUIDE_CHECK_TOOL)
 
 .PHONY: userguide-html
-userguide-html: build $(USERGUIDE_BUILD_TOOL) userguide-api-docs
-	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_BUILD_TOOL)
+userguide-html: build shadow-check $(USERGUIDE_BUILD_TOOL) userguide-api-docs
+	@perl -e 'alarm $(USERGUIDE_TIMEOUT); exec @ARGV' $(USERGUIDE_BUILD_TOOL)
 
 .PHONY: userguide-api-docs
 userguide-api-docs: build
 	@echo "Generating API documentation..."
-	@bash scripts/generate_all_api_docs.sh
+	@perl -e 'alarm $(USERGUIDE_API_TIMEOUT); exec @ARGV' bash scripts/generate_all_api_docs.sh
+
+.PHONY: shadow-check
+shadow-check: build $(BIN_DIR)/nano_lint
+	@files=$$(git diff --name-only --diff-filter=AM HEAD -- '*.nano'); \
+	if [ -z "$$files" ]; then \
+		echo "shadow-check: no changed NanoLang files"; \
+	else \
+		echo "$$files" | while read -r file; do \
+			if [ -f "$$file" ]; then \
+				echo "nano-lint $$file"; \
+				perl -e 'alarm $(SHADOW_CHECK_TIMEOUT); exec @ARGV' ./bin/nano_lint "$$file"; \
+			fi; \
+		done; \
+	fi
 
 $(USERGUIDE_DIR):
 	@mkdir -p $(USERGUIDE_DIR)
@@ -534,6 +551,9 @@ $(COMPILER): $(COMPILER_C) | $(BIN_DIR)
 
 $(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o $(LDFLAGS)
+
+$(BIN_DIR)/nano_lint: tools/nano_lint.nano | $(BIN_DIR)
+	@$(COMPILER) tools/nano_lint.nano -o $(BIN_DIR)/nano_lint
 
 # Object file compilation
 $(COMPILER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime
