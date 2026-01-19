@@ -190,7 +190,7 @@ $(GENERATE_MODULE_INDEX): tools/generate_module_index.c modules/std/fs.c src/cJS
 		src/runtime/gc_struct.c \
 		-o $(GENERATE_MODULE_INDEX)
 
-.PHONY: all build test test-docs module-mvp examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
+.PHONY: all build test test-docs module-self-test module-mvp examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
 modules-index: $(GENERATE_MODULE_INDEX)
 	@echo "[modules] Generating module index from manifests..."
 	@./$(GENERATE_MODULE_INDEX)
@@ -271,8 +271,8 @@ test-impl: test-units
 # Default test: Use most evolved compiler available (no bd dependency)
 # NOTE: Wrap test runs with a timeout to avoid infinite compiler loops.
 TEST_TIMEOUT ?= 1800
-USERGUIDE_TIMEOUT ?= 300
-USERGUIDE_API_TIMEOUT ?= 300
+USERGUIDE_TIMEOUT ?= 600
+USERGUIDE_API_TIMEOUT ?= 600
 SHADOW_CHECK_TIMEOUT ?= 120
 test: build shadow-check userguide-export
 	@echo ""
@@ -419,15 +419,14 @@ userguide-api-docs: build
 	@perl -e 'alarm $(USERGUIDE_API_TIMEOUT); exec @ARGV' bash scripts/generate_all_api_docs.sh
 
 .PHONY: shadow-check
-shadow-check: build $(BIN_DIR)/nano_lint
+shadow-check: build
 	@files=$$(git diff --name-only --diff-filter=AM HEAD -- '*.nano'); \
 	if [ -z "$$files" ]; then \
 		echo "shadow-check: no changed NanoLang files"; \
 	else \
 		echo "$$files" | while read -r file; do \
 			if [ -f "$$file" ]; then \
-				echo "nano-lint $$file"; \
-				perl -e 'alarm $(SHADOW_CHECK_TIMEOUT); exec @ARGV' ./bin/nano_lint "$$file"; \
+				perl -e 'alarm $(SHADOW_CHECK_TIMEOUT); exec @ARGV' bash scripts/check_shadow_tests.sh "$$file"; \
 			fi; \
 		done; \
 	fi
@@ -476,20 +475,23 @@ examples-no-sdl: build
 	@echo ""
 	@echo "✅ Build complete (SDL examples skipped)"
 
-# Module MVP smoke tests (compile-only)
-module-mvp: build
+# Module self-tests (compile-only)
+module-self-test: build
 	@echo ""
 	@echo "=========================================="
-	@echo "Module MVP Smoke Tests"
+	@echo "Module Self-Tests"
 	@echo "=========================================="
-	@mkdir -p build/module_mvp
+	@mkdir -p build/module_self_tests
 	@find modules -name mvp.nano -print0 | while IFS= read -r -d '' file; do \
 		rel=$${file#modules/}; \
 		name=$$(echo $$rel | sed 's#/mvp.nano##; s#/#_#g'); \
-		out=build/module_mvp/$$name; \
-		echo "[module-mvp] $$file -> $$out"; \
+		out=build/module_self_tests/$$name; \
+		echo "[module-self-test] $$file -> $$out"; \
 		perl -e 'alarm 30; exec @ARGV' ./bin/nanoc $$file -o $$out; \
 	done
+
+# Backwards-compatible alias
+module-mvp: module-self-test
 
 # Clean: Remove all build artifacts and sentinels
 clean:

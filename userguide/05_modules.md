@@ -49,7 +49,8 @@ At a minimum, a module consists of:
 
 For real modules, see the existing folders under `modules/`.
 
-## Module catalog
-Every built-in module includes a minimal, runnable MVP snippet.
+## Module self-tests
 
-Module MVP snippets live in `modules/*/mvp.md` and are appended to this page during HTML build.
+Modules ship with minimal self-tests used as smoke checks during development. These live alongside
+each module and are exercised by `make module-mvp` and other build targets. They are not part of the
+user guide; use the API reference and the examples chapter for learning and exploration.

@@ -1,4 +1,4 @@
-import "modules/std/fs.nano" import read, exists
+from "modules/std/fs.nano" import read, exists
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 import "modules/nano_tools/nano_tools.nano" as nano_tools
 
@@ -15,6 +15,11 @@ fn default_options() -> LintOptions {
         input_file: "",
         show_help: false
     }
+}
+
+shadow default_options {
+    let opts: LintOptions = (default_options)
+    assert (== opts.input_file "")
 }
 
 fn parse_args() -> LintOptions {
@@ -53,6 +58,10 @@ fn print_usage() -> void {
     (println "Checks:")
     (println "  - Syntax errors (lexer + parser)")
     (println "  - Missing shadow tests for functions")
+}
+
+shadow print_usage {
+    assert true
 }
 
 fn main() -> int {

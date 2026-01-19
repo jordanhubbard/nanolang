@@ -105,7 +105,7 @@ pub fn lint_source(source: string, file_name: string) -> List<CompilerDiagnostic
     while (< i fn_count) {
         let func: ASTFunction = (parser_get_function parse_out.parser i)
         set fn_names (array_push fn_names func.name)
-        if (func.body != (- 0 1)) {
+        if (!= func.body (- 0 1)) {
             if (not (string_in_array names_list func.name)) {
                 let msg: string = (+ "Missing shadow test for function `" (+ func.name "`"))
                 let loc: CompilerSourceLocation = (Diagnostics.diag_location file_name func.line func.column)

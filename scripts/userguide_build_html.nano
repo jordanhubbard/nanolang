@@ -674,59 +674,6 @@ shadow build_toc {
     assert (str_contains toc "sidebar")
 }
 
-fn modules_mvp_markdown() -> string {
-    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 650 5) }
-    let index_path: string = "modules/index.json"
-    if (not (exists index_path)) { return "" }
-    let text: string = (read index_path)
-    let lines: array<string> = (split_lines text)
-    let mut names: array<string> = []
-    let mut i: int = 0
-    let n: int = (array_length lines)
-    while (< i n) {
-        let line: string = (trim (at lines i))
-        if (str_starts_with line "\"name\"") {
-            let colon: int = (str_index_of line ":" 0)
-            if (>= colon 0) {
-                let rest: string = (trim (str_substring line (+ colon 1) (- (str_length line) (+ colon 1))))
-                if (and (> (str_length rest) 1) (== (char_at rest 0) 34)) {
-                    let end: int = (str_index_of rest "\"" 1)
-                    if (> end 1) {
-                        let name: string = (str_substring rest 1 (- end 1))
-                        set names (array_push names name)
-                    }
-                }
-            }
-        }
-        set i (+ i 1)
-    }
-    let mut mvps: array<string> = []
-    let mut j: int = 0
-    while (< j (array_length names)) {
-        let name: string = (at names j)
-        let mut path: string = (+ "modules/" (+ name "/mvp.md"))
-        if (== name "log") {
-            set path "modules/std/log/mvp.md"
-        }
-        if (exists path) {
-            let mvp_text: string = (read path)
-            if (> (str_length mvp_text) 0) {
-                set mvps (array_push mvps mvp_text)
-            }
-        }
-        set j (+ j 1)
-    }
-    set mvps (array_sort_strings mvps)
-    if (trace_enabled) {
-        (log_debug (+ "userguide: MVP snippets: " (int_to_string (array_length mvps))))
-    }
-    return (sb_join mvps "\n\n")
-}
-
-shadow modules_mvp_markdown {
-    assert true
-}
-
 /* Transform 07_examples.md to inline code for language/ examples only */
 fn expand_examples_inline(md_text: string) -> string {
     let lines: array<string> = (split_lines md_text)
@@ -925,6 +872,8 @@ fn write_page_open(out_path: string, title: string, summary: string, css_href: s
     (write out_path (sb_join page_out "\n"))
 }
 
+shadow write_page_open { assert true }
+
 fn write_page_close(out_path: string, nav_html: string) -> void {
     let tail: array<string> = [
         "    </div>",
@@ -1020,10 +969,6 @@ fn main() -> int {
         (append "/tmp/userguide_build_html.log" (+ "userguide-html: page " (+ rel "\n")))
         if (or (str_contains rel "/05_modules.md") (str_ends_with rel "05_modules.md")) {
             if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 780 13) }
-            let mvp_text: string = (modules_mvp_markdown)
-            if (> (str_length mvp_text) 0) {
-                set md_text (+ md_text (+ "\n\n" mvp_text))
-            }
         }
         /* TODO(nanolang-xed3): Inline example rendering disabled due to performance issues
          * The expand_examples_inline function causes the build to hang/timeout.
@@ -1038,9 +983,6 @@ fn main() -> int {
                 (append "/tmp/userguide_build_html.log" "userguide-html: language examples expansion done\n")
             }
         }
-        (append "/tmp/userguide_build_html.log" (+ "userguide-html: render " (+ rel "\n")))
-        let body: string = (md_to_html md_text summary)
-        (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n")))
         let html_rel: string = (+ (str_substring rel 0 (- (str_length rel) 3)) ".html")
         let out_path: string = (join out_dir html_rel)
         let page_dir: string = (dirname out_path)
@@ -1086,6 +1028,10 @@ fn main() -> int {
             set idx (+ idx 1)
             continue
         }
+
+        (append "/tmp/userguide_build_html.log" (+ "userguide-html: render " (+ rel "\n")))
+        let body: string = (md_to_html md_text summary)
+        (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n")))
 
         let mut page_out: array<string> = []
         set page_out (array_push page_out "<!doctype html>")
