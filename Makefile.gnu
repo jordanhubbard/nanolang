@@ -150,13 +150,13 @@ HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(RUNTIME
 schema: $(SCHEMA_STAMP)
 
 schema-check:
-	@./scripts/check_compiler_schema.sh
+	@$(TIMEOUT_CMD) ./scripts/check_compiler_schema.sh
 
 # Schema generation: Use NanoLang if compiler exists, fallback to Python for bootstrap
 bin/gen_compiler_schema: scripts/gen_compiler_schema.nano
 	@if [ -f ./bin/nanoc ]; then \
 		echo "[schema] Compiling schema generator (NanoLang)..."; \
-		./bin/nanoc scripts/gen_compiler_schema.nano -o bin/gen_compiler_schema; \
+		$(TIMEOUT_CMD) ./bin/nanoc scripts/gen_compiler_schema.nano -o bin/gen_compiler_schema; \
 	else \
 		echo "[schema] Compiler not built yet, will use Python for bootstrap"; \
 		touch bin/gen_compiler_schema; \
@@ -169,7 +169,7 @@ $(SCHEMA_STAMP): $(SCHEMA_JSON) scripts/gen_compiler_schema.py scripts/gen_compi
 		./bin/gen_compiler_schema; \
 	else \
 		echo "[schema] Using Python version (bootstrap)..."; \
-		python3 scripts/gen_compiler_schema.py; \
+		$(TIMEOUT_CMD) python3 scripts/gen_compiler_schema.py; \
 	fi
 	@touch $(SCHEMA_STAMP)
 
@@ -252,7 +252,7 @@ test-units:
 # Core test implementation (used by all test variants)
 .PHONY: test-impl
 test-impl: test-units
-	@./scripts/check_compiler_schema.sh
+	@$(TIMEOUT_CMD) ./scripts/check_compiler_schema.sh
 	@echo ""
 	@echo "=========================================="
 	@echo "Running Complete Test Suite"
@@ -274,6 +274,8 @@ TEST_TIMEOUT ?= 1800
 USERGUIDE_TIMEOUT ?= 600
 USERGUIDE_API_TIMEOUT ?= 600
 SHADOW_CHECK_TIMEOUT ?= 120
+CMD_TIMEOUT ?= 600
+TIMEOUT_CMD ?= perl -e 'alarm $(CMD_TIMEOUT); exec @ARGV'
 USERGUIDE_BUILD_API_DOCS ?= 0
 test: build shadow-check userguide-export
 	@echo ""
@@ -286,7 +288,7 @@ test: build shadow-check userguide-export
 	fi
 	@echo ""
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
-		$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
+		$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
 	fi
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(MAKE) test-impl
 
@@ -311,14 +313,14 @@ test-with-beads: build
 	fi
 	@echo ""
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
-		$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
+		$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
 	fi
 	@echo ""
 	@# Auto-file beads on failures.
 	@# Local default: per-failure beads. CI default: summary bead.
 	@MODE=per; \
 	if [ -n "$$CI" ]; then MODE=summary; fi; \
-	python3 scripts/autobeads.py --tests --mode $$MODE --close-on-success --timeout-seconds $${NANOLANG_TEST_TIMEOUT_SECONDS:-480}
+	$(TIMEOUT_CMD) python3 scripts/autobeads.py --tests --mode $$MODE --close-on-success --timeout-seconds $${NANOLANG_TEST_TIMEOUT_SECONDS:-480}
 
 # Alias for backwards compatibility
 test-full: test
@@ -330,7 +332,7 @@ check-schema:
 # Performance benchmarking
 benchmark:
 	@echo "Running performance benchmarks..."
-	@./scripts/benchmark.sh
+	@$(TIMEOUT_CMD) ./scripts/benchmark.sh
 
 .PHONY: benchmark
 
@@ -343,7 +345,7 @@ test-stage1: stage1
 	@# Temporarily ensure nanoc points to nanoc_c
 	@rm -f $(COMPILER)
 	@ln -sf nanoc_c $(COMPILER)
-	@$(MAKE) test-impl
+	@$(TIMEOUT_CMD) $(MAKE) test-impl
 	@# Restore proper link based on bootstrap status
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
 		rm -f $(COMPILER); \
@@ -359,7 +361,7 @@ test-stage2: bootstrap1
 	@# Temporarily point nanoc to nanoc_stage1
 	@rm -f $(COMPILER)
 	@ln -sf nanoc_stage1 $(COMPILER)
-	@$(MAKE) test-impl
+	@$(TIMEOUT_CMD) $(MAKE) test-impl
 	@# Restore proper link based on bootstrap status
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
 		rm -f $(COMPILER); \
@@ -375,7 +377,7 @@ test-bootstrap: bootstrap
 	@echo "🎯 Testing with FULLY BOOTSTRAPPED compiler (nanoc_stage2)"
 	@echo "   Using self-hosted compiler (stage1 → nanoc_stage2)"
 	@echo ""
-	@$(MAKE) test-impl
+	@$(TIMEOUT_CMD) $(MAKE) test-impl
 
 # Test only core language features (nl_* tests)
 test-lang: build
@@ -441,10 +443,10 @@ $(USERGUIDE_DIR):
 	@mkdir -p $(USERGUIDE_DIR)
 
 $(USERGUIDE_BUILD_TOOL): $(USERGUIDE_BUILD_TOOL_SRC) | $(USERGUIDE_DIR)
-	@$(COMPILER) $(USERGUIDE_BUILD_TOOL_SRC) -o $(USERGUIDE_BUILD_TOOL)
+	@$(TIMEOUT_CMD) $(COMPILER) $(USERGUIDE_BUILD_TOOL_SRC) -o $(USERGUIDE_BUILD_TOOL)
 
 $(USERGUIDE_CHECK_TOOL): $(USERGUIDE_CHECK_TOOL_SRC) | $(USERGUIDE_DIR)
-	@$(COMPILER) $(USERGUIDE_CHECK_TOOL_SRC) -o $(USERGUIDE_CHECK_TOOL)
+	@$(TIMEOUT_CMD) $(COMPILER) $(USERGUIDE_CHECK_TOOL_SRC) -o $(USERGUIDE_CHECK_TOOL)
 
 # Build all examples (primary examples target)
 examples: build check-deps-sdl
@@ -452,7 +454,7 @@ examples: build check-deps-sdl
 	@echo "=========================================="
 	@echo "Building Examples"
 	@echo "=========================================="
-	@$(MAKE) -C examples build
+	@$(TIMEOUT_CMD) $(MAKE) -C examples build
 
 # Launch example browser
 examples-launcher: build check-deps-sdl
@@ -460,7 +462,7 @@ examples-launcher: build check-deps-sdl
 	@echo "=========================================="
 	@echo "🚀 Launching Example Browser"
 	@echo "=========================================="
-	@$(MAKE) -C examples launcher
+	@$(TIMEOUT_CMD) $(MAKE) -C examples launcher
 	@echo "✅ Examples built successfully!"
 
 # Examples without SDL: Build only non-SDL examples  
@@ -493,7 +495,7 @@ module-self-test: build
 		name=$$(echo $$rel | sed 's#/mvp.nano##; s#/#_#g'); \
 		out=build/module_self_tests/$$name; \
 		echo "[module-self-test] $$file -> $$out"; \
-		perl -e 'alarm 30; exec @ARGV' ./bin/nanoc $$file -o $$out; \
+		$(TIMEOUT_CMD) ./bin/nanoc $$file -o $$out; \
 	done
 
 # Backwards-compatible alias
@@ -512,7 +514,7 @@ clean:
 	rm -f test.nano test_output.c test_program
 	rm -rf .test_output
 	find tests -name "*.out" -o -name "*.out.c" 2>/dev/null | xargs rm -f || true
-	@$(MAKE) -C examples clean 2>/dev/null || true
+	@$(TIMEOUT_CMD) $(MAKE) -C examples clean 2>/dev/null || true
 	@echo "✅ Clean complete - ready for fresh build"
 
 # Rebuild: Clean and build from scratch
@@ -536,12 +538,12 @@ $(COMPILER_C): $(COMPILER_OBJECTS) | $(BIN_DIR)
 	@# If objects were built with sanitizers/coverage, ensure we link with matching flags.
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
 		echo "  (Sanitizer instrumentation detected in objects - linking with sanitizer flags)"; \
-		$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS) $(SANITIZE_FLAGS); \
+		$(TIMEOUT_CMD) $(CC) $(CFLAGS) $(SANITIZE_FLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS) $(SANITIZE_FLAGS); \
 	elif ls obj/*.gcno >/dev/null 2>&1; then \
 		echo "  (Coverage instrumentation detected in objects - linking with coverage flags)"; \
-		$(CC) $(CFLAGS) $(COVERAGE_FLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS) $(COVERAGE_FLAGS); \
+		$(TIMEOUT_CMD) $(CC) $(CFLAGS) $(COVERAGE_FLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS) $(COVERAGE_FLAGS); \
 	else \
-		$(CC) $(CFLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS); \
+		$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o $(COMPILER_C) $(COMPILER_OBJECTS) $(LDFLAGS); \
 	fi
 	@echo "✓ C Compiler: $(COMPILER_C)"
 
@@ -558,26 +560,26 @@ $(COMPILER): $(COMPILER_C) | $(BIN_DIR)
 # Interpreter removed - NanoLang is a compiled language
 
 $(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o $(LDFLAGS)
+	$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o $(LDFLAGS)
 
 $(BIN_DIR)/nano_lint: tools/nano_lint.nano | $(BIN_DIR)
-	@$(COMPILER) tools/nano_lint.nano -o $(BIN_DIR)/nano_lint
+	@$(TIMEOUT_CMD) $(COMPILER) tools/nano_lint.nano -o $(BIN_DIR)/nano_lint
 
 # Object file compilation
 $(COMPILER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime
 
 $(OBJ_DIR)/ffi_bindgen.o: src/ffi_bindgen.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c src/ffi_bindgen.c -o $(OBJ_DIR)/ffi_bindgen.o
+	$(TIMEOUT_CMD) $(CC) $(CFLAGS) -c src/ffi_bindgen.c -o $(OBJ_DIR)/ffi_bindgen.o
 
 # Special dependency: transpiler.o depends on transpiler_iterative_v3_twopass.c (which is #included)
 $(OBJ_DIR)/transpiler.o: $(SRC_DIR)/transpiler.c $(SRC_DIR)/transpiler_iterative_v3_twopass.c $(HEADERS) | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/transpiler.c -o $@
+	$(TIMEOUT_CMD) $(CC) $(CFLAGS) -c $(SRC_DIR)/transpiler.c -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS) | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(TIMEOUT_CMD) $(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/runtime/%.o: $(RUNTIME_DIR)/%.c $(HEADERS) | $(OBJ_DIR) $(OBJ_DIR)/runtime
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(TIMEOUT_CMD) $(CC) $(CFLAGS) -c $< -o $@
 
 # ============================================================================
 # Stage 2: Self-Hosted Components (compile and test with stage1)
@@ -610,31 +612,24 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1)
 		log="/tmp/nanolang_stage2_$$comp.log"; \
 		echo "  Building $$comp..."; \
 		rm -f "$$out" "$$log"; \
-		if $(COMPILER) "$(SRC_NANO_DIR)/$$src.nano" -o "$$out" >"$$log" 2>&1; then \
+		if $(TIMEOUT_CMD) $(COMPILER) "$(SRC_NANO_DIR)/$$src.nano" -o "$$out" >"$$log" 2>&1; then \
 			if [ -x "$$out" ]; then \
 				echo "    ✓ $$comp compiled successfully"; \
 				success=$$((success + 1)); \
 			else \
 				echo "    ❌ $$comp: compiler returned success but binary missing/not executable: $$out"; \
 				tail -80 "$$log" || true; \
-				fail=$$((fail + 1)); \
+				exit 1; \
 			fi; \
 		else \
 			echo "    ❌ $$comp compilation failed"; \
 			tail -80 "$$log" || true; \
-			fail=$$((fail + 1)); \
+			exit 1; \
 		fi; \
 		echo ""; \
 	done; \
-	if [ $$fail -eq 0 ] && [ $$success -eq 3 ]; then \
-		echo "✓ Stage 2: $$success/3 components built successfully"; \
-		touch $(SENTINEL_STAGE2); \
-	else \
-		echo "❌ Stage 2: FAILED - $$success/3 components built (failures: $$fail)"; \
-		echo ""; \
-		echo "Fix the failing component(s) above (see /tmp/nanolang_stage2_<component>.log)."; \
-		exit 1; \
-	fi
+	echo "✓ Stage 2: $$success/3 components built successfully"; \
+	touch $(SENTINEL_STAGE2)
 
 # ============================================================================
 # Stage 3: Bootstrap Validation (re-compile with stage2, verify working)
@@ -662,21 +657,21 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 			continue; \
 		fi; \
 		echo "  Testing $$comp..."; \
-		if "$$bin" >"$$log" 2>&1; then \
+		if $(TIMEOUT_CMD) "$$bin" >"$$log" 2>&1; then \
 			echo "    ✓ $$comp tests passed"; \
 			success=$$((success + 1)); \
 		else \
 			echo "    ❌ $$comp tests failed"; \
 			tail -120 "$$log" || true; \
-			fail=$$((fail + 1)); \
+			exit 1; \
 		fi; \
 	done; \
 	echo ""; \
-	if [ $$missing -eq 0 ] && [ $$fail -eq 0 ] && [ $$success -eq 3 ]; then \
+	if [ $$missing -eq 0 ] && [ $$success -eq 3 ]; then \
 		echo "✓ Stage 3: $$success/3 components validated"; \
 		touch $(SENTINEL_STAGE3); \
 	else \
-		echo "❌ Stage 3: FAILED - validated $$success/3 (missing: $$missing, failures: $$fail)"; \
+		echo "❌ Stage 3: FAILED - validated $$success/3 (missing: $$missing)"; \
 		echo "See /tmp/nanolang_stage3_<component>.log for details."; \
 		exit 1; \
 	fi
@@ -734,7 +729,7 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 	@echo "=========================================="
 	@echo "Compiling nanoc_v06.nano with C compiler..."
 	@if [ -f $(NANOC_SOURCE) ]; then \
-		$(BOOTSTRAP_ENV) $(COMPILER_C) $(NANOC_SOURCE) -o $(NANOC_STAGE1) && \
+		$(TIMEOUT_CMD) $(BOOTSTRAP_ENV) $(COMPILER_C) $(NANOC_SOURCE) -o $(NANOC_STAGE1) && \
 		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
 		echo "" && \
 		echo "Testing stage 1 compiler..." && \
@@ -794,10 +789,10 @@ verify-bootstrap: bootstrap
 .PHONY: verify-no-nanoc_c verify-no-nanoc_c-check
 
 verify-no-nanoc_c: $(SENTINEL_BOOTSTRAP3)
-	@$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
+	@$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
 
 verify-no-nanoc_c-check:
-	@$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
+	@$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
 
 # Bootstrap Stage 3: Verify reproducible build
 bootstrap3: $(SENTINEL_BOOTSTRAP3)
@@ -845,7 +840,7 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 	echo "✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)"; \
 	echo ""; \
 	echo "Smoke test: installed bin/nanoc compiles + runs nl_hello.nano..."; \
-	if $(COMPILER) examples/language/nl_hello.nano -o /tmp/bootstrap_installed_test && /tmp/bootstrap_installed_test >/dev/null 2>&1; then \
+	if $(TIMEOUT_CMD) $(COMPILER) examples/language/nl_hello.nano -o /tmp/bootstrap_installed_test && $(TIMEOUT_CMD) /tmp/bootstrap_installed_test >/dev/null 2>&1; then \
 		echo "✓ installed compiler works"; \
 	else \
 		echo "❌ installed compiler smoke test failed"; \
@@ -853,7 +848,7 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 	fi; \
 	echo ""; \
 	echo "Verifying bin/nanoc does not depend on bin/nanoc_c..."; \
-	$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
+	$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
 	echo ""; \
 	echo "All subsequent builds (test, examples) will use the self-hosted compiler!"; \
 	echo ""; \
@@ -926,7 +921,7 @@ $(HYBRID_COMPILER): $(HYBRID_OBJECTS) | $(BIN_DIR)
 
 $(OBJ_DIR)/lexer_nano.o: src_nano/lexer_main.nano $(COMPILER) | $(OBJ_DIR)
 	@echo "Compiling nanolang lexer..."
-	$(COMPILER) src_nano/lexer_main.nano -o $(OBJ_DIR)/lexer_nano.tmp --keep-c
+	$(TIMEOUT_CMD) $(COMPILER) src_nano/lexer_main.nano -o $(OBJ_DIR)/lexer_nano.tmp --keep-c
 	sed -e '/\/\* C main() entry point/,/^}/d' $(OBJ_DIR)/lexer_nano.tmp.c > $(OBJ_DIR)/lexer_nano_noMain.c
 	$(CC) $(CFLAGS) -c $(OBJ_DIR)/lexer_nano_noMain.c -o $@
 	@rm -f $(OBJ_DIR)/lexer_nano.tmp $(OBJ_DIR)/lexer_nano.tmp.c $(OBJ_DIR)/lexer_nano_noMain.c
@@ -998,7 +993,7 @@ valgrind: $(COMPILER)
 	@for example in examples/*.nano; do \
 		echo "Checking $$example..."; \
 		valgrind --leak-check=full --error-exitcode=1 --quiet \
-			$(COMPILER) $$example -o .test_output/valgrind_test 2>&1 | grep -v "Conditional jump" || true; \
+			$(TIMEOUT_CMD) $(COMPILER) $$example -o .test_output/valgrind_test 2>&1 | grep -v "Conditional jump" || true; \
 	done
 	@echo "Valgrind checks complete"
 
@@ -1075,14 +1070,14 @@ help:
 test-beads: test-with-beads
 
 examples-beads:
-	@python3 scripts/autobeads.py --examples
+	@$(TIMEOUT_CMD) python3 scripts/autobeads.py --examples
 
 # CI-friendly: one summary bead per run (per branch), auto-closed when green
 test-beads-ci:
-	@python3 scripts/autobeads.py --tests --mode summary --close-on-success
+	@$(TIMEOUT_CMD) python3 scripts/autobeads.py --tests --mode summary --close-on-success
 
 examples-beads-ci:
-	@python3 scripts/autobeads.py --examples --mode summary --close-on-success
+	@$(TIMEOUT_CMD) python3 scripts/autobeads.py --examples --mode summary --close-on-success
 	@echo ""
 	@echo "Sentinels:"
 	@echo "  .stage{1,2,3}.built - Component build"
@@ -1116,12 +1111,12 @@ $(BUILD_DIR):
 #   make release-major        # Bump major version (X.0.0)
 release:
 	@echo "Creating patch release..."
-	@./scripts/release.sh patch
+	@$(TIMEOUT_CMD) ./scripts/release.sh patch
 
 release-minor:
 	@echo "Creating minor release..."
-	@./scripts/release.sh minor
+	@$(TIMEOUT_CMD) ./scripts/release.sh minor
 
 release-major:
 	@echo "Creating major release..."
-	@./scripts/release.sh major
+	@$(TIMEOUT_CMD) ./scripts/release.sh major
