@@ -2013,7 +2013,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                             if (>= idx2 0) {
                                                 let sym: Symbol = (at symbols idx2)
                                                 /* Use return_type for functions, sym_type for variables */
-                                                if sym.is_function {
+                                                if (sym.is_function) {
                                                     return sym.return_type
                                                 } else {
                                                     return sym.sym_type
@@ -2039,7 +2039,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                         }
 
                                         let expected_param_len: int = (array_length sym.param_types)
-                                        if (and sym.is_function (> expected_param_len 0)) {
+                                        if (and (sym.is_function) (> expected_param_len 0)) {
                                             let mut j: int = 0
                                             let mut limit: int = expected_param_len
                                             if (< call.arg_count limit) {
@@ -2063,7 +2063,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                         }
 
                                         /* Use return_type for functions, sym_type for variables */
-                                        if sym.is_function {
+                                        if (sym.is_function) {
                                             return sym.return_type
                                         } else {
                                             return sym.sym_type
@@ -2785,7 +2785,7 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
     let mut j: int = 0
     while (< j (array_length symbols)) {
         let sym: Symbol = (at symbols j)
-        if sym.is_function {
+        if (sym.is_function) {
             set func_symbols (array_push func_symbols sym)
         } else {
             (print "")
