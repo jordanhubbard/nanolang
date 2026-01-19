@@ -126,6 +126,23 @@ fn coverage_enabled() -> bool {
 }
 
 shadow coverage_enabled { assert true }
+
+fn highlight_enabled() -> bool {
+    let flag: string = (get "NANO_USERGUIDE_HIGHLIGHT")
+    if (or (== flag "1") (== flag "true")) {
+        return true
+    } else {
+        if (or (== flag "0") (== flag "false")) {
+            return false
+        } else {
+            let ci: string = (get "CI")
+            if (== ci "true") { return false }
+            return true
+        }
+    }
+}
+
+shadow highlight_enabled { assert true }
 fn read_module_mvp(module_dir: string) -> string {
     let md_path: string = (+ module_dir "/mvp.md")
     if (exists md_path) {
@@ -450,13 +467,23 @@ fn heading_level(line: string) -> int {
 }
 
 shadow heading_level { assert (== (heading_level "## hi") 2) }
-fn heading_html(level: int, text: string) -> string {
+fn render_inline_mode(text: string, fast_inline: bool) -> string {
+    if fast_inline { return (html_escape text) }
+    return (render_inline text)
+}
+
+shadow render_inline_mode {
+    assert (str_contains (render_inline_mode "`x`" false) "<code>")
+    assert (str_contains (render_inline_mode "`x`" true) "`x`")
+}
+
+fn heading_html(level: int, text: string, fast_inline: bool) -> string {
     let lvl: string = (int_to_string level)
-    return (sb_join ["<h", lvl, ">", (render_inline text), "</h", lvl, ">"] "")
+    return (sb_join ["<h", lvl, ">", (render_inline_mode text fast_inline), "</h", lvl, ">"] "")
 }
 
 shadow heading_html {
-    let h: string = (heading_html 2 "Hi")
+    let h: string = (heading_html 2 "Hi" false)
     assert (str_contains h "<h2>")
 }
 
@@ -496,7 +523,7 @@ fn is_nano_lang(lang: string) -> bool {
 
 shadow is_nano_lang { assert (is_nano_lang "Nano") }
 
-fn md_to_html(md_text: string, summary: string) -> string {
+fn md_to_html(md_text: string, summary: string, fast_inline: bool) -> string {
     if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 397 5) }
     let lines: array<string> = (split_lines md_text)
     let mut out: array<string> = []
@@ -541,7 +568,7 @@ fn md_to_html(md_text: string, summary: string) -> string {
                     set i (+ i 1)
                     continue
                 }
-                set out (array_push out (heading_html level text))
+                set out (array_push out (heading_html level text fast_inline))
                 set i (+ i 1)
                 continue
             }
@@ -551,7 +578,7 @@ fn md_to_html(md_text: string, summary: string) -> string {
                     set in_list true
                 }
                 let item: string = (trim (str_substring line 2 (- (str_length line) 2)))
-                set out (array_push out (+ "<li>" (+ (render_inline item) "</li>")))
+                set out (array_push out (+ "<li>" (+ (render_inline_mode item fast_inline) "</li>")))
                 set i (+ i 1)
                 continue
             }
@@ -573,26 +600,34 @@ fn md_to_html(md_text: string, summary: string) -> string {
                 set i (+ i 1)
                 continue
             }
-            set out (array_push out (+ "<p>" (+ (render_inline line) "</p>")))
+            set out (array_push out (+ "<p>" (+ (render_inline_mode line fast_inline) "</p>")))
             set i (+ i 1)
         } else {
             if (is_fence_end line) {
                 let code_text: string = (join_lines code_lines)
-                (append "/tmp/userguide_build_html.log" (+ "userguide-html: codeblock len=" (+ (int_to_string (str_length code_text)) "\n")))
+                if (trace_enabled) {
+                    (append "/tmp/userguide_build_html.log" (+ "userguide-html: codeblock len=" (+ (int_to_string (str_length code_text)) "\n")))
+                } else { (print "") }
                 if (is_nano_lang code_lang) {
                     let code_len: int = (str_length code_text)
-                    (append "/tmp/userguide_build_html.log" (+ "userguide-html: highlight start (" (+ code_lang (+ ") len=" (+ (int_to_string code_len) "\n")))))
-                    if (> code_len 8000) {
-                        (append "/tmp/userguide_build_html.log" "userguide-html: highlight skipped (large block)\n")
+                    if (trace_enabled) {
+                        (append "/tmp/userguide_build_html.log" (+ "userguide-html: highlight start (" (+ code_lang (+ ") len=" (+ (int_to_string code_len) "\n")))))
+                    } else { (print "") }
+                    if (or (> code_len 8000) (not (highlight_enabled))) {
+                        if (trace_enabled) {
+                            (append "/tmp/userguide_build_html.log" "userguide-html: highlight skipped\n")
+                        } else { (print "") }
                         set out (array_push out (html_escape code_text))
                     } else {
-                    set out (array_push out (pretty_print_html code_text))
-                    (append "/tmp/userguide_build_html.log" "userguide-html: highlight done\n")
+                        set out (array_push out (pretty_print_html code_text))
+                        if (trace_enabled) {
+                            (append "/tmp/userguide_build_html.log" "userguide-html: highlight done\n")
+                        } else { (print "") }
                     }
                 } else {
-                    (append "/tmp/userguide_build_html.log" "userguide-html: escape start\n")
+                    if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: escape start\n") } else { (print "") }
                     set out (array_push out (html_escape code_text))
-                    (append "/tmp/userguide_build_html.log" "userguide-html: escape done\n")
+                    if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: escape done\n") } else { (print "") }
                 }
                 set out (array_push out "</code></pre>")
                 set in_code false
@@ -611,7 +646,7 @@ fn md_to_html(md_text: string, summary: string) -> string {
         let code_text: string = (join_lines code_lines)
         if (is_nano_lang code_lang) {
             let code_len: int = (str_length code_text)
-            if (> code_len 8000) {
+            if (or (> code_len 8000) (not (highlight_enabled))) {
                 set out (array_push out (html_escape code_text))
             } else {
             set out (array_push out (pretty_print_html code_text))
@@ -627,7 +662,7 @@ fn md_to_html(md_text: string, summary: string) -> string {
 shadow md_to_html {
     let nl: string = (string_from_char 10)
     let s: string = (+ "# Hi" (+ nl (+ nl (+ "Hello" nl))))
-    let html: string = (md_to_html s "")
+    let html: string = (md_to_html s "" false)
     assert (str_contains html "<p>")
 }
 
@@ -817,7 +852,7 @@ fn append_examples_body(out_path: string, md_text: string) -> void {
         let line: string = (at lines i)
         if (is_example_link_line line) {
             if (> (array_length chunk) 0) {
-                let chunk_html: string = (md_to_html (join_lines chunk) "")
+                let chunk_html: string = (md_to_html (join_lines chunk) "" false)
                 (append out_path (+ chunk_html "\n"))
                 set chunk []
             }
@@ -875,7 +910,7 @@ fn append_examples_body(out_path: string, md_text: string) -> void {
         set i (+ i 1)
     }
     if (> (array_length chunk) 0) {
-        let chunk_html: string = (md_to_html (join_lines chunk) "")
+        let chunk_html: string = (md_to_html (join_lines chunk) "" false)
         (append out_path (+ chunk_html "\n"))
     }
 }
@@ -938,7 +973,7 @@ fn main() -> int {
         (set_log_level LOG_LEVEL_DEBUG)
         (log_debug "userguide: Starting userguide build")
     }
-    (append "/tmp/userguide_build_html.log" "userguide-html: start\n")
+    if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: start\n") } else { (print "") }
     let theme_map: HashMap = (init_theme_map)
     let src_dir: string = "userguide"
     let out_dir: string = "build/userguide/html"
@@ -1010,7 +1045,7 @@ fn main() -> int {
         let title: string = (at meta_title idx)
         let summary: string = (at meta_summary idx)
         let mut md_text: string = (at meta_text idx)
-        (append "/tmp/userguide_build_html.log" (+ "userguide-html: page " (+ rel "\n")))
+        if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: page " (+ rel "\n"))) } else { (print "") }
         if (or (str_contains rel "/05_modules.md") (str_ends_with rel "05_modules.md")) {
             if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 780 13) }
         }
@@ -1064,18 +1099,19 @@ fn main() -> int {
         let toc_html: string = (build_toc link_titles link_rels html_rel out_dir page_dir)
 
         if (or (str_contains rel "/07_examples.md") (str_ends_with rel "07_examples.md")) {
-            (append "/tmp/userguide_build_html.log" "userguide-html: streaming examples page\n")
+            if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: streaming examples page\n") } else { (print "") }
             (write_page_open out_path title summary css_href home_href mascot_href accent toc_html nav_html)
             (append_examples_body out_path md_text)
             (write_page_close out_path nav_html)
-            (append "/tmp/userguide_build_html.log" "userguide-html: examples page done\n")
+            if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: examples page done\n") } else { (print "") }
             set idx (+ idx 1)
             continue
         }
 
-        (append "/tmp/userguide_build_html.log" (+ "userguide-html: render " (+ rel "\n")))
-        let body: string = (md_to_html md_text summary)
-        (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n")))
+        if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: render " (+ rel "\n"))) } else { (print "") }
+        let fast_inline: bool = (str_contains rel "api_reference/")
+        let body: string = (md_to_html md_text summary fast_inline)
+        if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n"))) } else { (print "") }
 
         let mut page_out: array<string> = []
         set page_out (array_push page_out "<!doctype html>")
@@ -1095,7 +1131,7 @@ fn main() -> int {
         set page_out (array_push page_out "  <div class=\"hero-text\">")
         set page_out (array_push page_out (+ "    <h1>" (+ (html_escape title) "</h1>")))
         if (> (str_length summary) 0) {
-            set page_out (array_push page_out (+ "    <p>" (+ (render_inline summary) "</p>")))
+            set page_out (array_push page_out (+ "    <p>" (+ (render_inline_mode summary fast_inline) "</p>")))
         } else {
             set page_out (array_push page_out "    <p></p>")
         }
@@ -1115,7 +1151,7 @@ fn main() -> int {
         set page_out (array_push page_out "</body>")
         set page_out (array_push page_out "</html>")
         (write out_path (sb_join page_out "\n"))
-        (append "/tmp/userguide_build_html.log" (+ "userguide-html: wrote " (+ rel "\n")))
+        if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: wrote " (+ rel "\n"))) } else { (print "") }
         set idx (+ idx 1)
     }
 
