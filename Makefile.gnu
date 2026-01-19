@@ -43,6 +43,9 @@
 # The documentation at the top of this file is sufficient - BSD users will see
 # clear syntax errors and can read the instructions at the top.
 
+SHELL := /usr/bin/env bash
+.SHELLFLAGS := -e -o pipefail -c
+
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -std=c99 -g -Isrc
 LDFLAGS = -lm
