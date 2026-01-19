@@ -824,6 +824,7 @@ fn type_from_string(s: string) -> NSType {
             }
         }
     }
+}
 
 fn split_tuple_type_names(type_str: string) -> array<string> {
     let mut parts: array<string> = []
@@ -883,10 +884,9 @@ fn tuple_type_string_from_literal(parser: Parser, tl: ASTTupleLiteral, symbols: 
 shadow tuple_type_string_from_literal {
     assert true
 }
-}
 
 fn base_type_name(type_str: string) -> string {
-    let lt: int = (str_index_of type_str "<" 0)
+    let lt: int = (str_index_of type_str "<")
     if (== lt -1) {
         return type_str
     } else {
@@ -1648,7 +1648,7 @@ fn env_get_type(symbols: array<Symbol>, name: string) -> OptionType {
     let idx: int = (env_lookup symbols name)
     if (>= idx 0) {
         let sym: Symbol = (at symbols idx)
-        if (sym.is_function) {
+        if (== sym.is_function true) {
             let mut i: int = 0
             let mut sig: string = "fn("
             while (< i (array_length sym.param_types)) {
@@ -1876,465 +1876,6 @@ fn ensure_known_expr_node(node_type: int) -> bool {
     return false
 }
 
-fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
-    if (not (ensure_known_expr_node node_type)) {
-        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "T0001" "Unknown expression node type" (Diagnostics.diag_location file_name 0 0))
-        (Diagnostics.diag_list_add diags diag)
-        return (type_unknown_named "unknown_expr_node")
-    }
-    /* Use ParseNodeType enum values */
-    if (== node_type ParseNodeType.PNODE_NUMBER) {
-        return (type_int)
-    } else {
-        if (== node_type ParseNodeType.PNODE_STRING) {
-            return (type_string)
-        } else {
-            if (== node_type ParseNodeType.PNODE_BOOL) {
-                return (type_bool)
-            } else {
-                if (== node_type ParseNodeType.PNODE_FLOAT) {
-                    return (type_float)
-                } else {
-                    if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
-                        let id_node: ASTIdentifier = (parser_get_identifier parser node_id)
-                        let lookup: OptionType = (env_get_type symbols id_node.name)
-
-                        if (not lookup.has_value) {
-                            /* DEBUG: Log undefined identifier with context */
-                            (print "DEBUG: Undefined identifier '")
-                            (print id_node.name)
-                            (print "' (node ID ")
-                            (print (int_to_string node_id))
-                            (print ") at line ")
-                            (print (int_to_string id_node.line))
-                            (print ", column ")
-                            (print (int_to_string id_node.column))
-                            (print " - symbol table has ")
-                            (print (int_to_string (array_length symbols)))
-                            (println " symbols")
-                            
-                            let msg: string = (encode_undefined_name_message id_node.name)
-                            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name id_node.line id_node.column))
-                            (Diagnostics.diag_list_add diags diag)
-                            return (type_unknown_named "undefined_identifier")
-                        } else {
-                            let var_type: NSType = lookup.value
-                            return var_type
-                        }
-                    } else {
-                        if (== node_type ParseNodeType.PNODE_CALL) {
-                            let call: ASTCall = (parser_get_call parser node_id)
-                            let fn_id: ASTIdentifier = (parser_get_identifier parser call.function)
-                            let fn_name: string = fn_id.name
-                            let mut arg_types: array<NSType> = []
-                            let mut arg_index: int = 0
-                            while (< arg_index call.arg_count) {
-                                let arg_ref: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start arg_index))
-                                let arg_type: NSType = (check_expr_node parser arg_ref.node_id arg_ref.node_type symbols diags file_name)
-                                set arg_types (array_push arg_types arg_type)
-                                set arg_index (+ arg_index 1)
-                            }
-                            
-                            /* Check for built-in functions first */
-                            if (is_builtin_function fn_name) {
-                                /* Special-case: array_push returns the same array type as its first argument.
-                                 * This preserves element type and avoids collapsing to array<int>.
-                                 */
-                                if (== fn_name "array_push") {
-                                    if (> call.arg_count 0) {
-                                        let base: NSType = (at arg_types 0)
-                                        /* If base is an untyped array (e.g. []), infer element type from pushed value. */
-                                        if (and (== base.kind TypeKind.TYPE_ARRAY) (== base.element_type_kind TypeKind.TYPE_UNKNOWN)) {
-                                            if (>= call.arg_count 2) {
-                                                let pushed: NSType = (at arg_types 1)
-                                                if (== pushed.kind TypeKind.TYPE_INT) { return (type_array TypeKind.TYPE_INT "") }
-                                                else { if (== pushed.kind TypeKind.TYPE_STRING) { return (type_array TypeKind.TYPE_STRING "") }
-                                                else { if (== pushed.kind TypeKind.TYPE_FLOAT) { return (type_array TypeKind.TYPE_FLOAT "") }
-                                                else { if (== pushed.kind TypeKind.TYPE_BOOL) { return (type_array TypeKind.TYPE_BOOL "") }
-                                                else { if (== pushed.kind TypeKind.TYPE_STRUCT) { return (type_array TypeKind.TYPE_STRUCT pushed.name) }
-                                                else { return base }}}}}
-                                            } else {
-                                                return base
-                                            }
-                                        } else {
-                                            return base
-                                        }
-                                    } else {
-                                        return (type_unknown_named "array")
-                                    }
-                                } else { (print "") }
-                                /* Special-case: at/array_get return element type of the array. */
-                                if (or (== fn_name "at") (== fn_name "array_get")) {
-                                    if (> call.arg_count 0) {
-                                        let arr_t: NSType = (at arg_types 0)
-                                        if (== arr_t.kind TypeKind.TYPE_ARRAY) {
-                                            if (== arr_t.element_type_kind TypeKind.TYPE_INT) { return (type_int) }
-                                            else { if (== arr_t.element_type_kind TypeKind.TYPE_STRING) { return (type_string) }
-                                            else { if (== arr_t.element_type_kind TypeKind.TYPE_FLOAT) { return (type_float) }
-                                            else { if (== arr_t.element_type_kind TypeKind.TYPE_BOOL) { return (type_bool) }
-                                            else { if (== arr_t.element_type_kind TypeKind.TYPE_STRUCT) {
-                                                return NSType { kind: TypeKind.TYPE_STRUCT, name: arr_t.element_type_name, element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
-                                            } else {
-                                                return (type_unknown_named "array_elem")
-                                            }}}}}
-                                        } else {
-                                            return (type_unknown_named "array_elem")
-                                        }
-                                    } else {
-                                        return (type_unknown_named "array_elem")
-                                    }
-                                } else { (print "") }
-                                return (check_builtin_function fn_name call.arg_count)
-                            } else {
-                                /* Check for generic list functions: list_TypeName_operation */
-                                if (str_contains fn_name "list_") {
-                                    /* Prefer deriving element type from the list value itself when possible. */
-                                    if (and (tc_str_ends_with fn_name "_get") (> call.arg_count 0)) {
-                                        let list_t: NSType = (at arg_types 0)
-                                        if (== list_t.kind TypeKind.TYPE_LIST_GENERIC) {
-                                            return (type_from_element_name list_t.element_type_name)
-                                        } else { (print "") }
-                                    } else { (print "") }
-                                    return (check_list_function_call fn_name call.arg_count)
-                                } else {
-                                    let idx: int = (env_lookup symbols fn_name)
-
-                                    if (< idx 0) {
-                                        /* Module-qualified call fallback: allow Alias.fn to resolve as fn
-                                         * (useful while self-hosted module namespace resolution is incomplete).
-                                         */
-                                        if (str_contains fn_name ".") {
-                                            let suffix: string = (module_qualified_suffix fn_name)
-                                            /* If the suffix is a builtin, treat it as such. */
-                                            if (is_builtin_function suffix) {
-                                                return (check_builtin_function suffix call.arg_count)
-                                            } else { (print "") }
-                                            let idx2: int = (env_lookup symbols suffix)
-                                            if (>= idx2 0) {
-                                                let sym: Symbol = (at symbols idx2)
-                                                /* Use return_type for functions, sym_type for variables */
-                                                if (sym.is_function) {
-                                                    return sym.return_type
-                                                } else {
-                                                    return sym.sym_type
-                                                }
-                                            } else {
-                                                (print "")
-                                            }
-                                        } else { (print "") }
-
-                                        let msg: string = (encode_undefined_name_message fn_name)
-                                        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name fn_id.line fn_id.column))
-                                        (Diagnostics.diag_list_add diags diag)
-                                        return (type_unknown_named "undefined_fn")
-                                    } else {
-                                        let sym: Symbol = (at symbols idx)
-
-                                        if (and (>= sym.param_count 0) (!= sym.param_count call.arg_count)) {
-                                            let msg: string = (encode_wrong_arg_count_message fn_name sym.param_count call.arg_count)
-                                            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0003" msg (Diagnostics.diag_location file_name call.line call.column))
-                                            (Diagnostics.diag_list_add diags diag)
-                                        } else {
-                                            (print "")
-                                        }
-
-                                        let expected_param_len: int = (array_length sym.param_types)
-                                        if (and (sym.is_function) (> expected_param_len 0)) {
-                                            let mut j: int = 0
-                                            let mut limit: int = expected_param_len
-                                            if (< call.arg_count limit) {
-                                                set limit call.arg_count
-                                            } else { (print "") }
-                                            while (< j limit) {
-                                                let expected_type: NSType = (at sym.param_types j)
-                                                let actual_type: NSType = (at arg_types j)
-                                                if (not (types_equal actual_type expected_type)) {
-                                                    let detail: string = (+ "Argument " (+ (int_to_string (+ j 1)) (+ " of " fn_name)))
-                                                    let msg: string = (encode_type_mismatch_message "function_argument" (type_to_string expected_type) (type_to_string actual_type) detail)
-                                                    let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0004" msg (Diagnostics.diag_location file_name call.line call.column))
-                                                    (Diagnostics.diag_list_add diags diag)
-                                                } else {
-                                                    (print "")
-                                                }
-                                                set j (+ j 1)
-                                            }
-                                        } else {
-                                            (print "")
-                                        }
-
-                                        /* Use return_type for functions, sym_type for variables */
-                                        if (sym.is_function) {
-                                            return sym.return_type
-                                        } else {
-                                            return sym.sym_type
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            if (== node_type ParseNodeType.PNODE_BINARY_OP) {
-                                let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
-                                let left_t: NSType = (check_expr_node parser binop.left binop.left_type symbols diags file_name)
-                                let right_t: NSType = (check_expr_node parser binop.right binop.right_type symbols diags file_name)
-                                let op_str: string = (op_token_to_string binop.op)
-                                let result: NSType = (check_binary_op op_str left_t right_t)
-
-                                if (== result.kind TypeKind.TYPE_UNKNOWN) {
-                                    let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "Invalid binary operation" (Diagnostics.diag_location file_name binop.line binop.column))
-                                    (Diagnostics.diag_list_add diags diag)
-                                } else {
-                                    (print "")
-                                }
-
-                                return result
-                            } else {
-                                /* Check for tuple literal */
-                                if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) {
-                                    let tl: ASTTupleLiteral = (parser_get_tuple_literal parser node_id)
-                                    let tuple_name: string = (tuple_type_string_from_literal parser tl symbols diags file_name)
-                                    return NSType {
-                                        kind: TypeKind.TYPE_TUPLE,
-                                        name: tuple_name,
-                                        element_type_kind: TypeKind.TYPE_UNKNOWN,
-                                        element_type_name: ""
-                                    }
-                                } else {
-                                /* Check for tuple index */
-                                if (== node_type ParseNodeType.PNODE_TUPLE_INDEX) {
-                                    let ti: ASTTupleIndex = (parser_get_tuple_index parser node_id)
-                                    let tuple_t: NSType = (check_expr_node parser ti.tuple ti.tuple_type symbols diags file_name)
-                                    if (!= tuple_t.kind TypeKind.TYPE_TUPLE) {
-                                        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "Tuple index access on non-tuple type" (Diagnostics.diag_location file_name ti.line ti.column))
-                                        (Diagnostics.diag_list_add diags diag)
-                                        return (type_unknown_named "tuple_index")
-                                    } else { (print "") }
-
-                                    if (== ti.tuple_type ParseNodeType.PNODE_TUPLE_LITERAL) {
-                                        let tl2: ASTTupleLiteral = (parser_get_tuple_literal parser ti.tuple)
-                                        if (or (< ti.index 0) (>= ti.index tl2.element_count)) {
-                                            let diag2: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "Tuple index out of bounds" (Diagnostics.diag_location file_name ti.line ti.column))
-                                            (Diagnostics.diag_list_add diags diag2)
-                                            return (type_unknown_named "tuple_index")
-                                        } else {
-                                            let elem_id: int = (at tl2.element_ids ti.index)
-                                            let elem_type: int = (at tl2.element_types ti.index)
-                                            return (check_expr_node parser elem_id elem_type symbols diags file_name)
-                                        }
-                                    } else {
-                                        if (!= tuple_t.name "") {
-                                            let parts: array<string> = (split_tuple_type_names tuple_t.name)
-                                            if (and (>= ti.index 0) (< ti.index (array_length parts))) {
-                                                let elem_name: string = (at parts ti.index)
-                                                return (type_from_string_with_parser parser elem_name)
-                                            } else {
-                                                let diag3: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "Tuple index out of bounds" (Diagnostics.diag_location file_name ti.line ti.column))
-                                                (Diagnostics.diag_list_add diags diag3)
-                                                return (type_unknown_named "tuple_index")
-                                            }
-                                        } else {
-                                            return (type_unknown_named "tuple_index")
-                                        }
-                                    }
-                                } else {
-                                /* Check for array literal */
-                                if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
-                                    let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
-                                    /* Use propagated element_type if available */
-                                    if (not (== arr.element_type "")) {
-                                        /* Convert element_type string to TypeKind */
-                                        let elem_kind: int = (type_kind_from_string arr.element_type)
-                                        return (type_array elem_kind arr.element_type)
-                                    } else {
-                                        /* For empty arrays without type info, keep element type unknown so array_push can infer it. */
-                                        return (type_array TypeKind.TYPE_UNKNOWN "")
-                                    }
-                                } else {
-                                    /* Check for field access */
-                                    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
-                                        /* Field access type inference with struct metadata */
-                                        let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
-                                        
-                                        /* Special-case: phase output structs carry List<T> fields that metadata cannot fully represent yet. */
-                                        if (== fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
-                                            let obj_ident: ASTIdentifier = (parser_get_identifier parser fa.object)
-                                            let obj_lookup: OptionType = (env_get_type symbols obj_ident.name)
-                                            if obj_lookup.has_value {
-                                                let obj_type: NSType = obj_lookup.value
-                                                if (== obj_type.name "LexPhaseOutput") {
-                                                    if (== fa.field_name "tokens") { return (type_list_generic "LexerToken") } else { (print "") }
-                                                    if (== fa.field_name "diagnostics") { return (type_list_generic "CompilerDiagnostic") } else { (print "") }
-                                                    if (== fa.field_name "token_count") { return (type_int) } else { (print "") }
-                                                    if (== fa.field_name "had_error") { return (type_bool) } else { (print "") }
-                                                } else { (print "") }
-                                                if (== obj_type.name "ParsePhaseOutput") {
-                                                    if (== fa.field_name "diagnostics") { return (type_list_generic "CompilerDiagnostic") } else { (print "") }
-                                                    if (== fa.field_name "had_error") { return (type_bool) } else { (print "") }
-                                                } else { (print "") }
-                                            } else { (print "") }
-                                        } else { (print "") }
-
-                                        /* Check if object is an enum type (e.g., DiagnosticSeverity.ERROR) */
-                                        if (== fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
-                                            let ident: ASTIdentifier = (parser_get_identifier parser fa.object)
-                                            let first_char: int = (char_at ident.name 0)
-                                            let is_uppercase: bool = (and (>= first_char 65) (<= first_char 90))
-                                            let is_variable: bool = (env_has_symbol symbols ident.name)
-                                            
-                                            if (and is_uppercase (not is_variable)) {
-                                                /* Enum type - enum values are ints */
-                                                return (type_int)
-                                            } else {
-                                                /* Variable - lookup its TYPE in symbol table */
-                                                let var_lookup: OptionType = (env_get_type symbols ident.name)
-                                                
-                                                if var_lookup.has_value {
-                                                    let var_type: NSType = var_lookup.value
-                                                    /* Use the variable's TYPE name (e.g., "ASTIdentifier") for field lookup */
-                                                    let struct_type_name: string = var_type.name
-                                                    
-                                                    if (!= struct_type_name "") {
-                                                        let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
-                                                        let metadata_index: HashMap<string, int> = (build_field_metadata_index metadata)
-                                                        let field_kind: int = (lookup_field_type_kind metadata_index struct_type_name fa.field_name)
-                                                        
-                                                        if (== field_kind TypeKind.TYPE_INT) {
-                                                            return (type_int)
-                                                        } else { if (== field_kind TypeKind.TYPE_STRING) {
-                                                            return (type_string)
-                                                        } else { if (== field_kind TypeKind.TYPE_BOOL) {
-                                                            return (type_bool)
-                                                        } else { if (== field_kind TypeKind.TYPE_VOID) {
-                                                            return (type_void)
-                                                        } else {
-                                                            /* Unknown field - return void */
-                                                            return (type_void)
-                                                        }}}}
-                                                    } else {
-                                                        /* No struct name - try capitalizing variable name as fallback */
-                                                        let capitalized: string = (capitalize_first ident.name)
-                                                        let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
-                                                        let metadata_index: HashMap<string, int> = (build_field_metadata_index metadata)
-                                                        let field_kind: int = (lookup_field_type_kind metadata_index capitalized fa.field_name)
-                                                        
-                                                        if (== field_kind TypeKind.TYPE_INT) {
-                                                            return (type_int)
-                                                        } else { if (== field_kind TypeKind.TYPE_STRING) {
-                                                            return (type_string)
-                                                        } else { if (== field_kind TypeKind.TYPE_BOOL) {
-                                                            return (type_bool)
-                                                        } else {
-                                                            return (type_void)
-                                                        }}}
-                                                    }
-                                                } else {
-                                                    /* Variable not found - return void */
-                                                    return (type_void)
-                                                }
-                                            }
-                                        } else {
-                                            /* Complex expression field access */
-                                            /* Get object type recursively */
-                                            let obj_type: NSType = (check_expr_node parser fa.object fa.object_type symbols diags file_name)
-                                            
-                                            /* Try to lookup field type using struct name from object type */
-                                            if (!= obj_type.name "") {
-                                                let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
-                                                let metadata_index: HashMap<string, int> = (build_field_metadata_index metadata)
-                                                let field_kind: int = (lookup_field_type_kind metadata_index obj_type.name fa.field_name)
-                                                
-                                                if (== field_kind TypeKind.TYPE_INT) {
-                                                    return (type_int)
-                                                } else { if (== field_kind TypeKind.TYPE_STRING) {
-                                                    return (type_string)
-                                                } else { if (== field_kind TypeKind.TYPE_BOOL) {
-                                                    return (type_bool)
-                                                } else {
-                                                    return (type_void)
-                                                }}}
-                                            } else {
-                                                return (type_void)
-                                            }
-                                        }
-                                    } else {
-                                        /* Check for struct literal */
-                                        if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
-                                            /* Get struct literal from parser */
-                                            let struct_lit: ASTStructLiteral = (parser_get_struct_literal parser node_id)
-                                            /* Return struct type with the struct name */
-                                            return NSType { 
-                                                kind: TypeKind.TYPE_STRUCT, 
-                                                name: struct_lit.struct_name, 
-                                                element_type_kind: TypeKind.TYPE_UNKNOWN, 
-                                                element_type_name: "" 
-                                            }
-                                        } else {
-                                            /* Check for union construction */
-                                            if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
-                                                return (check_union_construct parser node_id)
-                                            } else {
-                                    /* Check for match expression */
-                                    if (== node_type ParseNodeType.PNODE_MATCH) {
-                                        return (check_match_expr parser node_id symbols diags file_name)
-                                    } else {
-                                        /* Check for unsafe block - type-check as a block */
-                                        if (== node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
-                                            let unsafe_block: ASTUnsafeBlock = (parser_get_unsafe_block parser node_id)
-                                            /* Type-check statements with block context */
-                                            /* Create a mini block structure and check it */
-                                            let mut local_symbols: array<Symbol> = symbols
-                                            let mut i: int = 0
-                                            let stmt_count: int = (list_ASTStmtRef_length unsafe_block.statements)
-                                            while (< i stmt_count) {
-                                                let stmt: ASTStmtRef = (list_ASTStmtRef_get unsafe_block.statements i)
-                                                
-                                                if (== stmt.node_type ParseNodeType.PNODE_LET) {
-                                                    let let_node: ASTLet = (parser_get_let parser stmt.node_id)
-                                                    set local_symbols (check_let_statement parser let_node local_symbols diags file_name)
-                                                } else { if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
-                                                    /* Return statement - check the return value expression */
-                                                    let ret_node: ASTReturn = (parser_get_return parser stmt.node_id)
-                                                    if (>= ret_node.value 0) {
-                                                        let _t: NSType = (check_expr_node parser ret_node.value ret_node.value_type local_symbols diags file_name)
-                                                        (print "")
-                                                    } else {
-                                                        (print "")
-                                                    }
-                                                } else {
-                                                    /* Other statements - check as expressions */
-                                                    let kind: int = (expr_kind_from_pnode stmt.node_type)
-                                                    if (>= kind 0) {
-                                                        let _t: NSType = (check_expr_node parser stmt.node_id kind local_symbols diags file_name)
-                                                        (print "")
-                                                    } else {
-                                                        (print "")
-                                                    }
-                                                } }
-                                                
-                                                set i (+ i 1)
-                                            }
-                                            return (type_void)
-                                        } else {
-                                        /* Check for if, block, tuple - treat as void for now */
-                                        if (or (or (== node_type ParseNodeType.PNODE_IF) (== node_type ParseNodeType.PNODE_BLOCK)) (== node_type ParseNodeType.PNODE_TUPLE_LITERAL)) {
-                                            return (type_void)
-                                    } else {
-                                        return (type_unknown_named "unknown_node_type")
-                                        }
-                                        }
-                                    }
-                                            } }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 /* Check union construction expression
  * Example: Option.Some { value: 42 }
  * Returns: The union type (TYPE_UNION with union name)
@@ -2422,6 +1963,22 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
     }
 
     return first_arm_type
+}
+
+fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (== node_type ParseNodeType.PNODE_NUMBER) { return (type_int) } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_STRING) { return (type_string) } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_BOOL) { return (type_bool) } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_FLOAT) { return (type_float) } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
+        let id_node: ASTIdentifier = (parser_get_identifier parser node_id)
+        let lookup: OptionType = (env_get_type symbols id_node.name)
+        if lookup.has_value { return lookup.value } else { return (type_unknown_named id_node.name) }
+    } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_CALL) { return (type_unknown_named "call") } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (check_union_construct parser node_id) } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_MATCH) { return (check_match_expr parser node_id symbols diags file_name) } else { (print "") }
+    return (type_unknown_named "expr")
 }
 
 /* NSType check a return statement expression
@@ -2785,7 +2342,7 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
     let mut j: int = 0
     while (< j (array_length symbols)) {
         let sym: Symbol = (at symbols j)
-        if (sym.is_function) {
+        if (== sym.is_function true) {
             set func_symbols (array_push func_symbols sym)
         } else {
             (print "")
