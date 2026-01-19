@@ -803,6 +803,142 @@ shadow expand_examples_inline {
     assert (str_contains result "# Test")
 }
 
+struct ExampleLink {
+    ok: bool
+    local_path: string
+    url: string
+    filename: string
+}
+
+fn is_example_link_line(line: string) -> bool {
+    let trimmed: string = (trim line)
+    if (not (str_starts_with trimmed "- [")) { return false }
+    if (== (str_index_of trimmed ".nano](" 0) -1) { return false }
+    return true
+}
+
+shadow is_example_link_line {
+    assert (is_example_link_line "- [language/nl_hello.nano](https://example)")
+    assert (not (is_example_link_line "not a link"))
+}
+
+fn parse_example_link(line: string) -> ExampleLink {
+    let open_idx: int = (str_index_of line "[" 0)
+    let close_idx: int = (str_index_of line "](" open_idx)
+    if (or (== open_idx -1) (== close_idx -1)) {
+        return ExampleLink { ok: false, local_path: "", url: "", filename: "" }
+    }
+    let local_path: string = (str_substring line (+ open_idx 1) (- close_idx (+ open_idx 1)))
+    let url_start: int = (+ close_idx 2)
+    let url_end: int = (str_index_of line ")" url_start)
+    if (== url_end -1) {
+        return ExampleLink { ok: false, local_path: "", url: "", filename: "" }
+    }
+    let url: string = (str_substring line url_start (- url_end url_start))
+    let filename: string = (basename local_path)
+    return ExampleLink { ok: true, local_path: local_path, url: url, filename: filename }
+}
+
+shadow parse_example_link {
+    let link: ExampleLink = (parse_example_link "- [language/nl_hello.nano](https://example)")
+    assert link.ok
+    assert (== link.local_path "language/nl_hello.nano")
+    assert (== link.filename "nl_hello.nano")
+}
+
+fn append_examples_body(out_path: string, md_text: string) -> void {
+    let lines: array<string> = (split_lines md_text)
+    let mut chunk: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length lines)) {
+        let line: string = (at lines i)
+        if (is_example_link_line line) {
+            if (> (array_length chunk) 0) {
+                let chunk_html: string = (md_to_html (join_lines chunk) "")
+                (append out_path (+ chunk_html "\n"))
+                set chunk []
+            }
+            let link: ExampleLink = (parse_example_link line)
+            if link.ok {
+                let full_path: string = (+ "examples/" link.local_path)
+                if (exists full_path) {
+                    let code: string = (read full_path)
+                    let snippet_md: string = (join_lines [
+                        (+ "### " link.filename),
+                        "",
+                        "```nano",
+                        code,
+                        "```",
+                        "",
+                        (+ "[View on GitHub](" (+ link.url ")")),
+                        ""
+                    ])
+                    let snippet_html: string = (md_to_html snippet_md "")
+                    (append out_path (+ snippet_html "\n"))
+                    set i (+ i 1)
+                    continue
+                }
+            }
+        }
+        set chunk (array_push chunk line)
+        set i (+ i 1)
+    }
+    if (> (array_length chunk) 0) {
+        let chunk_html: string = (md_to_html (join_lines chunk) "")
+        (append out_path (+ chunk_html "\n"))
+    }
+}
+
+shadow append_examples_body { assert true }
+
+fn write_page_open(out_path: string, title: string, summary: string, css_href: string, home_href: string, mascot_href: string, accent: string, toc_html: string, nav_html: string) -> void {
+    let mut page_out: array<string> = []
+    set page_out (array_push page_out "<!doctype html>")
+    set page_out (array_push page_out "<html>")
+    set page_out (array_push page_out "<head>")
+    set page_out (array_push page_out "  <meta charset=\"utf-8\">")
+    set page_out (array_push page_out (+ "  <title>" (+ (html_escape title) "</title>")))
+    set page_out (array_push page_out "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">")
+    set page_out (array_push page_out (+ "  <link rel=\"stylesheet\" href=\"" (+ (html_escape css_href) "\">")))
+    set page_out (array_push page_out "</head>")
+    set page_out (array_push page_out (+ "<body style=\"--accent: " (+ (html_escape accent) ";\">")))
+    set page_out (array_push page_out "<nav>")
+    set page_out (array_push page_out (+ "  <a href=\"" (+ (html_escape home_href) "\" class=\"nav-home\" aria-label=\"Back to guide index\">&#8962;</a>")))
+    set page_out (array_push page_out (+ "  <a href=\"" (+ (html_escape home_href) "\">NanoLang User Guide</a>")))
+    set page_out (array_push page_out "</nav>")
+    set page_out (array_push page_out "<header class=\"hero\">")
+    set page_out (array_push page_out "  <div class=\"hero-text\">")
+    set page_out (array_push page_out (+ "    <h1>" (+ (html_escape title) "</h1>")))
+    if (!= summary "") {
+        set page_out (array_push page_out (+ "    <p>" (+ (render_inline summary) "</p>")))
+    } else {
+        set page_out (array_push page_out "    <p></p>")
+    }
+    set page_out (array_push page_out "  </div>")
+    set page_out (array_push page_out (+ "  <img class=\"hero-mascot\" src=\"" (+ (html_escape mascot_href) "\" alt=\"NanoLang Mascot\">")))
+    set page_out (array_push page_out "</header>")
+    set page_out (array_push page_out "<main class=\"content with-sidebar\">")
+    set page_out (array_push page_out toc_html)
+    set page_out (array_push page_out "  <div class=\"content-body\">")
+    set page_out (array_push page_out nav_html)
+    set page_out (array_push page_out "    <div class=\"page-card\">")
+    (write out_path (sb_join page_out "\n"))
+}
+
+fn write_page_close(out_path: string, nav_html: string) -> void {
+    let tail: array<string> = [
+        "    </div>",
+        nav_html,
+        "  </div>",
+        "</main>",
+        "</body>",
+        "</html>"
+    ]
+    (append out_path (sb_join tail "\n"))
+}
+
+shadow write_page_close { assert true }
+
 fn main() -> int {
     if (coverage_enabled) { (coverage_init) }
     if (trace_enabled) {
@@ -940,6 +1076,16 @@ fn main() -> int {
 
         let nav_html: string = (sb_join [ "<div class=\"chapter-nav\">", prev_html, (+ "<a class=\"chapter-link home\" href=\"" (+ (html_escape home_href) "\" aria-label=\"Back to guide index\">&#8962;</a>")), next_html, "</div>" ] "\n")
         let toc_html: string = (build_toc link_titles link_rels html_rel out_dir page_dir)
+
+        if (or (str_contains rel "/07_examples.md") (str_ends_with rel "07_examples.md")) {
+            (append "/tmp/userguide_build_html.log" "userguide-html: streaming examples page\n")
+            (write_page_open out_path title summary css_href home_href mascot_href accent toc_html nav_html)
+            (append_examples_body out_path md_text)
+            (write_page_close out_path nav_html)
+            (append "/tmp/userguide_build_html.log" "userguide-html: examples page done\n")
+            set idx (+ idx 1)
+            continue
+        }
 
         let mut page_out: array<string> = []
         set page_out (array_push page_out "<!doctype html>")
