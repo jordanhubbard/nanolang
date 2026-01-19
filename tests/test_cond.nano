@@ -13,10 +13,10 @@ fn classify_number(n: int) -> string {
 }
 
 shadow classify_number {
-    assert (str_equals (classify_number -5) "negative")
-    assert (str_equals (classify_number 0) "zero")
-    assert (str_equals (classify_number 5) "small")
-    assert (str_equals (classify_number 100) "large")
+    assert (== (classify_number -5) "negative")
+    assert (== (classify_number 0) "zero")
+    assert (== (classify_number 5) "small")
+    assert (== (classify_number 100) "large")
 }
 
 fn letter_grade(score: int) -> string {
@@ -29,11 +29,11 @@ fn letter_grade(score: int) -> string {
 }
 
 shadow letter_grade {
-    assert (str_equals (letter_grade 95) "A")
-    assert (str_equals (letter_grade 85) "B")
-    assert (str_equals (letter_grade 75) "C")
-    assert (str_equals (letter_grade 65) "D")
-    assert (str_equals (letter_grade 55) "F")
+    assert (== (letter_grade 95) "A")
+    assert (== (letter_grade 85) "B")
+    assert (== (letter_grade 75) "C")
+    assert (== (letter_grade 65) "D")
+    assert (== (letter_grade 55) "F")
 }
 
 /* ==== PART 2: Cond with Int Results ==== */
@@ -119,11 +119,11 @@ fn categorize(x: int, y: int) -> string {
 }
 
 shadow categorize {
-    assert (str_equals (categorize 5 5) "quadrant_1")
-    assert (str_equals (categorize -5 5) "quadrant_2")
-    assert (str_equals (categorize -5 -5) "quadrant_3")
-    assert (str_equals (categorize 5 -5) "quadrant_4")
-    assert (str_equals (categorize 0 0) "origin")
+    assert (== (categorize 5 5) "quadrant_1")
+    assert (== (categorize -5 5) "quadrant_2")
+    assert (== (categorize -5 -5) "quadrant_3")
+    assert (== (categorize 5 -5) "quadrant_4")
+    assert (== (categorize 0 0) "origin")
 }
 
 /* ==== PART 5: Cond with Multiple Clauses ==== */
@@ -141,11 +141,11 @@ fn day_of_week(n: int) -> string {
 }
 
 shadow day_of_week {
-    assert (str_equals (day_of_week 0) "Sunday")
-    assert (str_equals (day_of_week 1) "Monday")
-    assert (str_equals (day_of_week 3) "Wednesday")
-    assert (str_equals (day_of_week 6) "Saturday")
-    assert (str_equals (day_of_week 7) "Invalid")
+    assert (== (day_of_week 0) "Sunday")
+    assert (== (day_of_week 1) "Monday")
+    assert (== (day_of_week 3) "Wednesday")
+    assert (== (day_of_week 6) "Saturday")
+    assert (== (day_of_week 7) "Invalid")
 }
 
 /* ==== PART 6: Cond in Complex Expressions ==== */

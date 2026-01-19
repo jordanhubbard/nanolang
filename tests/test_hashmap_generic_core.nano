@@ -8,6 +8,8 @@ shadow main {
     assert (== (map_has hm_si "a") true)
     assert (== (map_get hm_si "a") 1)
     assert (== (map_get hm_si "b") 2)
+    (map_put hm_si "a" 3)
+    assert (== (map_get hm_si "a") 3)
 
     (map_remove hm_si "a")
     assert (== (map_has hm_si "a") false)
@@ -30,5 +32,9 @@ shadow main {
     assert (== (map_size hm_is) 2)
     assert (== (map_get hm_is 10) "x")
     assert (== (map_get hm_is 20) "y")
+    let vals: array<string> = (map_values hm_is)
+    assert (== (array_length vals) 2)
+    (map_clear hm_is)
+    assert (== (map_size hm_is) 0)
     (map_free hm_is)
 }

@@ -11,7 +11,7 @@ shadow main {
     assert (== (file_exists path) true)
     assert (== (file_write path "hello") 0)
     let s: string = (file_read path)
-    assert (str_equals s "hello")
+    assert (== s "hello")
     assert (== (file_remove path) 0)
 
     let dpath: string = (mktemp_dir "nanolang_dir_")

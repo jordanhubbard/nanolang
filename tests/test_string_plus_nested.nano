@@ -3,7 +3,7 @@ fn nested_concat(a: string, b: string, c: string) -> string {
 }
 
 shadow nested_concat {
-    assert (str_equals (nested_concat "a" "b" "c") "abc")
+    assert (== (nested_concat "a" "b" "c") "abc")
 }
 
 fn main() -> int {

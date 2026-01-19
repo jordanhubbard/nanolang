@@ -1494,11 +1494,11 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "    free(old_entries);\n");
         sb_append(sb, "}\n\n");
 
-        sb_appendf(sb, "%s* nl_hashmap_%s_new(void) {\n", struct_name, suffix);
+        sb_appendf(sb, "static %s* nl_hashmap_%s_new(void) {\n", struct_name, suffix);
         sb_appendf(sb, "    return nl_hashmap_%s_alloc(16);\n", suffix);
         sb_append(sb, "}\n\n");
 
-        sb_appendf(sb, "void nl_hashmap_%s_put(%s *hm, %s key, %s value) {\n", suffix, struct_name, key_param_type, val_param_type);
+        sb_appendf(sb, "static void nl_hashmap_%s_put(%s *hm, %s key, %s value) {\n", suffix, struct_name, key_param_type, val_param_type);
         sb_append(sb, "    if (!hm) return;\n");
         sb_append(sb, "    if ((hm->size + hm->tombstones) * 10 >= hm->capacity * 7) {\n");
         sb_appendf(sb, "        nl_hashmap_%s_rehash(hm, hm->capacity * 2);\n", suffix);
@@ -1531,7 +1531,7 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "    hm->size++;\n");
         sb_append(sb, "}\n\n");
 
-        sb_appendf(sb, "bool nl_hashmap_%s_has(%s *hm, %s key) {\n", suffix, struct_name, key_param_type);
+        sb_appendf(sb, "static bool nl_hashmap_%s_has(%s *hm, %s key) {\n", suffix, struct_name, key_param_type);
         sb_append(sb, "    if (!hm) return false;\n");
         sb_append(sb, "    bool found = false;\n");
         sb_appendf(sb, "    int64_t idx = nl_hashmap_%s_find_slot(hm, key, &found);\n", suffix);
@@ -1539,7 +1539,7 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "    return found;\n");
         sb_append(sb, "}\n\n");
 
-        sb_appendf(sb, "%s nl_hashmap_%s_get(%s *hm, %s key) {\n", val_ret_type, suffix, struct_name, key_param_type);
+        sb_appendf(sb, "static %s nl_hashmap_%s_get(%s *hm, %s key) {\n", val_ret_type, suffix, struct_name, key_param_type);
         sb_append(sb, "    if (!hm) ");
         if (strcmp(val, "string") == 0) sb_append(sb, "return \"\";\n"); else sb_append(sb, "return 0;\n");
         sb_append(sb, "    bool found = false;\n");
@@ -1551,7 +1551,7 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         if (strcmp(val, "string") == 0) sb_append(sb, "\"\";\n"); else sb_append(sb, "0;\n");
         sb_append(sb, "}\n\n");
 
-        sb_appendf(sb, "void nl_hashmap_%s_remove(%s *hm, %s key) {\n", suffix, struct_name, key_param_type);
+        sb_appendf(sb, "static void nl_hashmap_%s_remove(%s *hm, %s key) {\n", suffix, struct_name, key_param_type);
         sb_append(sb, "    if (!hm) return;\n");
         sb_append(sb, "    bool found = false;\n");
         sb_appendf(sb, "    int64_t idx = nl_hashmap_%s_find_slot(hm, key, &found);\n", suffix);
@@ -1568,11 +1568,11 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "    hm->tombstones++;\n");
         sb_append(sb, "}\n\n");
 
-        sb_appendf(sb, "int64_t nl_hashmap_%s_length(%s *hm) {\n", suffix, struct_name);
+        sb_appendf(sb, "static int64_t nl_hashmap_%s_length(%s *hm) {\n", suffix, struct_name);
         sb_append(sb, "    return hm ? hm->size : 0;\n");
         sb_append(sb, "}\n\n");
 
-        sb_appendf(sb, "void nl_hashmap_%s_clear(%s *hm) {\n", suffix, struct_name);
+        sb_appendf(sb, "static void nl_hashmap_%s_clear(%s *hm) {\n", suffix, struct_name);
         sb_append(sb, "    if (!hm) return;\n");
         sb_append(sb, "    for (int64_t i2 = 0; i2 < hm->capacity; i2++) {\n");
         sb_appendf(sb, "        %s_Entry *e = &hm->entries[i2];\n", struct_name);
@@ -1589,14 +1589,14 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "    hm->tombstones = 0;\n");
         sb_append(sb, "}\n\n");
 
-        sb_appendf(sb, "void nl_hashmap_%s_free(%s *hm) {\n", suffix, struct_name);
+        sb_appendf(sb, "static void nl_hashmap_%s_free(%s *hm) {\n", suffix, struct_name);
         sb_append(sb, "    if (!hm) return;\n");
         sb_appendf(sb, "    nl_hashmap_%s_clear(hm);\n", suffix);
         sb_append(sb, "    free(hm->entries);\n");
         sb_append(sb, "    free(hm);\n");
         sb_append(sb, "}\n\n");
 
-        sb_appendf(sb, "DynArray* nl_hashmap_%s_keys(%s *hm) {\n", suffix, struct_name);
+        sb_appendf(sb, "static DynArray* nl_hashmap_%s_keys(%s *hm) {\n", suffix, struct_name);
         sb_appendf(sb, "    DynArray* out = dyn_array_new(%s);\n", keys_elem);
         sb_append(sb, "    if (!hm) return out;\n");
         sb_append(sb, "    for (int64_t i2 = 0; i2 < hm->capacity; i2++) {\n");
@@ -1607,7 +1607,7 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "    return out;\n");
         sb_append(sb, "}\n\n");
 
-        sb_appendf(sb, "DynArray* nl_hashmap_%s_values(%s *hm) {\n", suffix, struct_name);
+        sb_appendf(sb, "static DynArray* nl_hashmap_%s_values(%s *hm) {\n", suffix, struct_name);
         sb_appendf(sb, "    DynArray* out = dyn_array_new(%s);\n", values_elem);
         sb_append(sb, "    if (!hm) return out;\n");
         sb_append(sb, "    for (int64_t i2 = 0; i2 < hm->capacity; i2++) {\n");

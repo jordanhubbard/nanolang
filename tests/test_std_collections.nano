@@ -23,14 +23,14 @@ shadow stringbuilder_basic {
     let sb1: StringBuilder = (sb_append sb0 "hi")
     let sb2: StringBuilder = (sb_append sb1 "!")
     assert (== (sb_length sb2) 3)
-    assert (str_equals (sb_to_string sb2) "hi!")
+    assert (== (sb_to_string sb2) "hi!")
 }
 
 shadow hashmap_basic {
     let hm0: HashMap = (map_new)
     let hm1: HashMap = (map_put hm0 "k" "v")
     assert (map_has hm1 "k")
-    assert (str_equals (map_get hm1 "k") "v")
+    assert (== (map_get hm1 "k") "v")
     assert (== (map_size hm1) 1)
 
     let hm2: HashMap = (map_remove hm1 "k")

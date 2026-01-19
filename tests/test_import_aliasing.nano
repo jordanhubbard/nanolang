@@ -7,7 +7,7 @@ fn joined_alias(parts: array<string>) -> string {
 
 shadow joined_alias {
     let parts: array<string> = ["a", "b", "c"]
-    assert (str_equals (joined_alias parts) "a,b,c")
+    assert (== (joined_alias parts) "a,b,c")
 }
 
 fn joined_module(parts: array<string>) -> string {
@@ -16,13 +16,13 @@ fn joined_module(parts: array<string>) -> string {
 
 shadow joined_module {
     let parts: array<string> = ["x", "y"]
-    assert (str_equals (joined_module parts) "x,y")
+    assert (== (joined_module parts) "x,y")
 }
 
 fn main() -> int {
     let parts: array<string> = ["ok"]
     let value: string = (joined_module parts)
-    if (str_equals value "ok") {
+    if (== value "ok") {
         return 0
     } else {
         return 1

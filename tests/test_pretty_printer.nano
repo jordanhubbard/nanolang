@@ -7,19 +7,19 @@ from "stdlib/tidy.nano" import format, format_with_wrap, format_pretty
 fn test_format() -> bool {
     let input1: string = "hello world"
     let output1: string = (format input1)
-    if (not (str_equals input1 output1)) {
+    if (not (== input1 output1)) {
         return false
     } else {}
     
     let input2: string = "fn test() -> int { return 42 }"
     let output2: string = (format input2)
-    if (not (str_equals input2 output2)) {
+    if (not (== input2 output2)) {
         return false
     } else {}
     
     let empty: string = ""
     let output_empty: string = (format empty)
-    if (not (str_equals empty output_empty)) {
+    if (not (== empty output_empty)) {
         return false
     } else {}
     
@@ -31,7 +31,7 @@ fn test_format_with_wrap_basic() -> bool {
     # Test that short lines don't get wrapped
     let short_text: string = "hello"
     let wrapped_short: string = (format_with_wrap short_text 80)
-    if (not (str_equals short_text wrapped_short)) {
+    if (not (== short_text wrapped_short)) {
         return false
     } else {}
     

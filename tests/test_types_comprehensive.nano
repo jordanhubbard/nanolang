@@ -161,7 +161,7 @@ shadow test_tuple_int_bool {
 /* Test 3.4: Tuple (int, string) */
 fn test_tuple_int_string() -> bool {
     let t: (int, string) = (7, "test")
-    return (and (== t.0 7) (str_equals t.1 "test"))
+    return (and (== t.0 7) (== t.1 "test"))
 }
 
 shadow test_tuple_int_string {
@@ -205,7 +205,7 @@ shadow test_tuple_bool_bool {
 /* Test 3.8: Tuple (string, string) */
 fn test_tuple_string_string() -> bool {
     let t: (string, string) = ("hello", "world")
-    return (and (str_equals t.0 "hello") (str_equals t.1 "world"))
+    return (and (== t.0 "hello") (== t.1 "world"))
 }
 
 shadow test_tuple_string_string {
@@ -249,7 +249,7 @@ shadow test_tuple_4_int {
 /* Test 3.12: 4-tuple mixed types */
 fn test_tuple_4_mixed() -> bool {
     let t: (int, float, bool, string) = (42, 3.14, true, "test")
-    return (and (and (== t.0 42) t.2) (str_equals t.3 "test"))
+    return (and (and (== t.0 42) t.2) (== t.3 "test"))
 }
 
 shadow test_tuple_4_mixed {
@@ -301,7 +301,7 @@ struct Person {
 
 fn test_struct_mixed() -> bool {
     let p: Person = Person { age: 30, height: 5.9, active: true, name: "Alice" }
-    return (and (and (== p.age 30) p.active) (str_equals p.name "Alice"))
+    return (and (and (== p.age 30) p.active) (== p.name "Alice"))
 }
 
 shadow test_struct_mixed {

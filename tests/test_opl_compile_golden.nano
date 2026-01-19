@@ -17,7 +17,7 @@ fn main() -> int {
     let exp_json: Json = (parse exp_src)
     let exp: string = (stringify exp_json)
 
-    if (str_equals got exp) {
+    if (== got exp) {
         (free exp_json)
         (free plan)
         return 0

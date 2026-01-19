@@ -187,15 +187,43 @@ pub fn format_error_elm_style(err: ErrorMessage, source: string) -> string {
  * CONVERT DIAGNOSTICS TO ELM ERRORS
  * ============================================================================= */
 
+fn build_error_explanations() -> HashMap<string, string> {
+    let m: HashMap<string, string> = (map_new)
+    (map_put m "E0001" "NanoLang enforces explicit types, so the expression must match the expected annotation.")
+    (map_put m "E0002" "The compiler could not find a declaration with this name in the current scope.")
+    (map_put m "E0003" "Functions require the exact number of arguments specified in their signature.")
+    (map_put m "E0004" "Each argument must match the corresponding parameter type declared in the function signature.")
+    (map_put m "E0005" "Bindings are immutable unless declared with `mut`, so you cannot reassign them.")
+    return m
+}
+
+shadow build_error_explanations {
+    let m: HashMap<string, string> = (build_error_explanations)
+    assert (map_has m "E0002")
+}
+
+fn build_error_suggestions() -> HashMap<string, string> {
+    let m: HashMap<string, string> = (map_new)
+    (map_put m "E0001" "Convert the expression to the expected type or change the annotation.")
+    (map_put m "E0002" "Check for typos or declare the identifier with `let` before using it.")
+    (map_put m "E0003" "Add the missing arguments or remove extras so the call arity matches the definition.")
+    (map_put m "E0004" "Convert the argument to the required type or update the function signature if the annotation is wrong.")
+    (map_put m "E0005" "Declare the variable with `mut` or create a new binding instead of reassigning.")
+    return m
+}
+
+shadow build_error_suggestions {
+    let m: HashMap<string, string> = (build_error_suggestions)
+    assert (map_has m "E0005")
+}
+
 fn explanation_for_code(code: string) -> string {
-    return (cond
-        ((== code "E0001") "NanoLang enforces explicit types, so the expression must match the expected annotation.")
-        ((== code "E0002") "The compiler could not find a declaration with this name in the current scope.")
-        ((== code "E0003") "Functions require the exact number of arguments specified in their signature.")
-        ((== code "E0004") "Each argument must match the corresponding parameter type declared in the function signature.")
-        ((== code "E0005") "Bindings are immutable unless declared with `mut`, so you cannot reassign them.")
-        (else "")
-    )
+    let explanations: HashMap<string, string> = (build_error_explanations)
+    if (map_has explanations code) {
+        return (map_get explanations code)
+    } else {
+        return ""
+    }
 }
 
 shadow explanation_for_code {
@@ -203,14 +231,12 @@ shadow explanation_for_code {
 }
 
 fn suggestion_for_code(code: string) -> string {
-    return (cond
-        ((== code "E0001") "Convert the expression to the expected type or change the annotation.")
-        ((== code "E0002") "Check for typos or declare the identifier with `let` before using it.")
-        ((== code "E0003") "Add the missing arguments or remove extras so the call arity matches the definition.")
-        ((== code "E0004") "Convert the argument to the required type or update the function signature if the annotation is wrong.")
-        ((== code "E0005") "Declare the variable with `mut` or create a new binding instead of reassigning.")
-        (else "")
-    )
+    let suggestions: HashMap<string, string> = (build_error_suggestions)
+    if (map_has suggestions code) {
+        return (map_get suggestions code)
+    } else {
+        return ""
+    }
 }
 
 shadow suggestion_for_code {

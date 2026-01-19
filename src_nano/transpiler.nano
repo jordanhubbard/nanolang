@@ -952,7 +952,7 @@ fn tuple_split_types(tuple_type: string) -> array<string> {
     }
 }
 
-fn collect_tuple_types_from_type(t: string, acc: array<string>) -> array<string> {
+fn collect_tuple_types_from_type(t: string, acc: array<string>, seen: HashMap<string, int>) -> array<string> {
     if (not (is_tuple_type t)) {
         return acc
     } else {
@@ -961,13 +961,14 @@ fn collect_tuple_types_from_type(t: string, acc: array<string>) -> array<string>
 
         let mut i: int = 0
         while (< i (array_length elems)) {
-            set acc2 (collect_tuple_types_from_type (at elems i) acc2)
+            set acc2 (collect_tuple_types_from_type (at elems i) acc2 seen)
             set i (+ i 1)
         }
 
-        if (array_contains_string acc2 t) {
+        if (map_has seen t) {
             return acc2
         } else {
+            (map_put seen t 1)
             return (array_push acc2 t)
         }
     }
@@ -999,13 +1000,14 @@ fn gen_tuple_typedef(tuple_type: string) -> string {
 
 fn gen_tuple_typedefs(parser: Parser) -> string {
     let mut tuple_types: array<string> = []
+    let tuple_seen: HashMap<string, int> = (hashset_new_string)
 
     /* Walk all lets (params and locals) */
     let let_count: int = (parser_get_let_count parser)
     let mut i: int = 0
     while (< i let_count) {
         let l: ASTLet = (parser_get_let parser i)
-        set tuple_types (collect_tuple_types_from_type l.var_type tuple_types)
+        set tuple_types (collect_tuple_types_from_type l.var_type tuple_types tuple_seen)
         set i (+ i 1)
     }
 
@@ -1014,7 +1016,7 @@ fn gen_tuple_typedefs(parser: Parser) -> string {
     let mut j: int = 0
     while (< j fn_count) {
         let f: ASTFunction = (parser_get_function parser j)
-        set tuple_types (collect_tuple_types_from_type f.return_type tuple_types)
+        set tuple_types (collect_tuple_types_from_type f.return_type tuple_types tuple_seen)
         set j (+ j 1)
     }
 
@@ -1574,6 +1576,7 @@ shadow gen_c_program {
  */
 fn detect_list_types(parser: Parser) -> array<string> {
     let mut list_types: array<string> = []
+    let list_seen: HashMap<string, int> = (hashset_new_string)
     let func_count: int = (parser_get_function_count parser)
     
     let mut i: int = 0
@@ -1582,7 +1585,7 @@ fn detect_list_types(parser: Parser) -> array<string> {
         
         /* Scan function body for let statements with List<T> types */
         if (>= func.body 0) {
-            set list_types (scan_block_for_lists parser func.body list_types)
+            set list_types (scan_block_for_lists parser func.body list_types list_seen)
         }
         
         set i (+ i 1)
@@ -1592,7 +1595,7 @@ fn detect_list_types(parser: Parser) -> array<string> {
 }
 
 /* Recursively scan a block for List<T> declarations */
-fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>) -> array<string> {
+fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>, list_seen: HashMap<string, int>) -> array<string> {
     let block: ASTBlock = (parser_get_block parser block_id)
     let mut result: array<string> = list_types
     
@@ -1609,7 +1612,8 @@ fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>
                 let elem_type: string = (transp_extract_list_element_type let_node.var_type)
                 
                 /* Add to list if not already present */
-                if (not (array_contains_string result elem_type)) {
+                if (not (map_has list_seen elem_type)) {
+                    (map_put list_seen elem_type 1)
                     set result (array_push result elem_type)
                 } else {
                     (print "")
@@ -1622,16 +1626,16 @@ fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>
             if (== stmt.node_type ParseNodeType.PNODE_IF) {
                 let if_node: ASTIf = (parser_get_if parser stmt.node_id)
                 if (>= if_node.then_body 0) {
-                    set result (scan_block_for_lists parser if_node.then_body result)
+                    set result (scan_block_for_lists parser if_node.then_body result list_seen)
                 } else { (print "") }
                 if (>= if_node.else_body 0) {
-                    set result (scan_block_for_lists parser if_node.else_body result)
+                    set result (scan_block_for_lists parser if_node.else_body result list_seen)
                 } else { (print "") }
             } else {
                 if (== stmt.node_type ParseNodeType.PNODE_WHILE) {
                     let while_node: ASTWhile = (parser_get_while parser stmt.node_id)
                     if (>= while_node.body 0) {
-                        set result (scan_block_for_lists parser while_node.body result)
+                        set result (scan_block_for_lists parser while_node.body result list_seen)
                     } else { (print "") }
                 } else {
                     (print "")
@@ -1645,27 +1649,20 @@ fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>
     return result
 }
 
-/* Check if array contains a string */
-fn array_contains_string(arr: array<string>, s: string) -> bool {
-    let len: int = (array_length arr)
-    let mut i: int = 0
-    
-    while (< i len) {
-        if (== (at arr i) s) {
-            return true
-        } else {
-            (print "")
-        }
-        set i (+ i 1)
-    }
-    
-    return false
+fn hashset_new_string() -> HashMap<string, int> {
+    let s: HashMap<string, int> = (map_new)
+    return s
 }
 
-shadow array_contains_string {
-    let arr: array<string> = ["hello", "world"]
-    assert (array_contains_string arr "hello")
-    assert (not (array_contains_string arr "foo"))
+fn hashset_has_string(set: HashMap<string, int>, key: string) -> bool {
+    return (map_has set key)
+}
+
+fn hashset_add_string(set: HashMap<string, int>, key: string) -> HashMap<string, int> {
+    if (not (map_has set key)) {
+        (map_put set key 1)
+    } else { (print "") }
+    return set
 }
 
 /* Generate List<T> specializations for all detected types */

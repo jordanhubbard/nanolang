@@ -8,7 +8,7 @@ fn array_contains_string(a: array<string>, needle: string) -> bool {
     let n: int = (array_length a)
     let mut i: int = 0
     while (< i n) {
-        if (str_equals (at a i) needle) {
+        if (== (at a i) needle) {
             return true
         }
         set i (+ i 1)
@@ -26,9 +26,9 @@ shadow array_contains_string {
 fn std_env_get_set_unset() -> int {
     let k: string = "NANOLANG_TEST_ENV"
     assert (== (set_env k "abc") 0)
-    assert (str_equals (get k) "abc")
+    assert (== (get k) "abc")
     assert (== (unset k) 0)
-    assert (str_equals (get k) "")
+    assert (== (get k) "")
     return 0
 }
 
@@ -51,7 +51,7 @@ shadow std_env_args {
 
 fn std_fs_walkdir_glob_normalize() -> int {
     # Test normalize (doesn't require file creation)
-    assert (str_equals (normalize "./a/../b") "b")
+    assert (== (normalize "./a/../b") "b")
     
     # Test walkdir on existing directory
     let files: array<string> = (walkdir "modules")
@@ -73,7 +73,7 @@ fn std_binary_int_and_string() -> int {
     let bs: array<u8> = (encode_string "hello")
     let rs: Result<string, string> = (decode_string bs)
     assert (result_is_ok rs)
-    assert (str_equals (result_unwrap rs) "hello")
+    assert (== (result_unwrap rs) "hello")
 
     let trunc: array<u8> = (array_slice bs 0 (- (array_length bs) 1))
     let rs_trunc: Result<string, string> = (decode_string trunc)

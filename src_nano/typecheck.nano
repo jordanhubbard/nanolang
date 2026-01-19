@@ -473,12 +473,13 @@ fn init_struct_metadata() -> array<FieldMetadata> {
 
 shadow init_struct_metadata {
     let m: array<FieldMetadata> = (init_struct_metadata)
+    let idx: HashMap<string, int> = (build_field_metadata_index m)
     assert (> (array_length m) 0)
-    assert (== (lookup_field_type_kind m "ASTMatchArm" "body_id") TypeKind.TYPE_INT)
-    assert (== (lookup_field_type_kind m "ASTPrint" "value") TypeKind.TYPE_INT)
-    assert (== (lookup_field_type_kind m "ASTShadow" "target_name") TypeKind.TYPE_STRING)
-    assert (== (lookup_field_type_kind m "ASTOpaqueType" "type_name") TypeKind.TYPE_STRING)
-    assert (== (lookup_field_type_kind m "Parser" "prints_count") TypeKind.TYPE_INT)
+    assert (== (lookup_field_type_kind idx "ASTMatchArm" "body_id") TypeKind.TYPE_INT)
+    assert (== (lookup_field_type_kind idx "ASTPrint" "value") TypeKind.TYPE_INT)
+    assert (== (lookup_field_type_kind idx "ASTShadow" "target_name") TypeKind.TYPE_STRING)
+    assert (== (lookup_field_type_kind idx "ASTOpaqueType" "type_name") TypeKind.TYPE_STRING)
+    assert (== (lookup_field_type_kind idx "Parser" "prints_count") TypeKind.TYPE_INT)
 }
 
 /* Capitalize first letter of string (parser → Parser) */
@@ -562,31 +563,44 @@ fn merge_struct_metadata(parser: Parser) -> array<FieldMetadata> {
     return merged
 }
 
-/* Lookup field type given struct name and field name */
-fn lookup_field_type_kind(metadata: array<FieldMetadata>, struct_name: string, field_name: string) -> int {
-    /* Try exact match first */
+fn field_metadata_key(struct_name: string, field_name: string) -> string {
+    return (+ struct_name (+ "." field_name))
+}
+
+shadow field_metadata_key {
+    assert (== (field_metadata_key "Parser" "tokens") "Parser.tokens")
+}
+
+fn build_field_metadata_index(metadata: array<FieldMetadata>) -> HashMap<string, int> {
+    let idx: HashMap<string, int> = (map_new)
     let mut i: int = 0
     while (< i (array_length metadata)) {
         let entry: FieldMetadata = (at metadata i)
-        if (and (== entry.struct_name struct_name) (== entry.field_name field_name)) {
-            return entry.field_type_kind
-        } else {
-            (print "")
-        }
+        let key: string = (field_metadata_key entry.struct_name entry.field_name)
+        (map_put idx key entry.field_type_kind)
         set i (+ i 1)
+    }
+    return idx
+}
+
+shadow build_field_metadata_index {
+    let m: array<FieldMetadata> = (init_struct_metadata)
+    let idx: HashMap<string, int> = (build_field_metadata_index m)
+    assert (== (map_has idx "Parser.tokens") true)
+}
+
+/* Lookup field type given struct name and field name */
+fn lookup_field_type_kind(index: HashMap<string, int>, struct_name: string, field_name: string) -> int {
+    let key: string = (field_metadata_key struct_name field_name)
+    if (map_has index key) {
+        return (map_get index key)
     }
     
     /* Try capitalized version (parser → Parser) */
     let capitalized: string = (capitalize_first struct_name)
-    set i 0
-    while (< i (array_length metadata)) {
-        let entry: FieldMetadata = (at metadata i)
-        if (and (== entry.struct_name capitalized) (== entry.field_name field_name)) {
-            return entry.field_type_kind
-        } else {
-            (print "")
-        }
-        set i (+ i 1)
+    let cap_key: string = (field_metadata_key capitalized field_name)
+    if (map_has index cap_key) {
+        return (map_get index cap_key)
     }
     
     return TypeKind.TYPE_UNKNOWN
@@ -1972,7 +1986,8 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                                     
                                                     if (!= struct_type_name "") {
                                                         let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
-                                                        let field_kind: int = (lookup_field_type_kind metadata struct_type_name fa.field_name)
+                                                        let metadata_index: HashMap<string, int> = (build_field_metadata_index metadata)
+                                                        let field_kind: int = (lookup_field_type_kind metadata_index struct_type_name fa.field_name)
                                                         
                                                         if (== field_kind TypeKind.TYPE_INT) {
                                                             return (type_int)
@@ -1990,7 +2005,8 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                                         /* No struct name - try capitalizing variable name as fallback */
                                                         let capitalized: string = (capitalize_first ident.name)
                                                         let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
-                                                        let field_kind: int = (lookup_field_type_kind metadata capitalized fa.field_name)
+                                                        let metadata_index: HashMap<string, int> = (build_field_metadata_index metadata)
+                                                        let field_kind: int = (lookup_field_type_kind metadata_index capitalized fa.field_name)
                                                         
                                                         if (== field_kind TypeKind.TYPE_INT) {
                                                             return (type_int)
@@ -2015,7 +2031,8 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                             /* Try to lookup field type using struct name from object type */
                                             if (!= obj_type.name "") {
                                                 let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
-                                                let field_kind: int = (lookup_field_type_kind metadata obj_type.name fa.field_name)
+                                                let metadata_index: HashMap<string, int> = (build_field_metadata_index metadata)
+                                                let field_kind: int = (lookup_field_type_kind metadata_index obj_type.name fa.field_name)
                                                 
                                                 if (== field_kind TypeKind.TYPE_INT) {
                                                     return (type_int)

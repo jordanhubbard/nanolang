@@ -23,7 +23,7 @@ fn parse_args() -> LintOptions {
     let mut i: int = 1
     while (< i argc) {
         let arg: string = (get_argv i)
-        if (or (str_equals arg "-h") (str_equals arg "--help")) {
+        if (or (== arg "-h") (== arg "--help")) {
             set opts LintOptions {
                 input_file: opts.input_file,
                 show_help: true

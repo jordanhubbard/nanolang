@@ -284,17 +284,27 @@ fn nlc_str_last_index_of(s: string, needle: string) -> int {
     }
 }
 
-fn nlc_array_contains_string(arr: array<string>, needle: string) -> bool {
-    let mut i: int = 0
-    while (< i (array_length arr)) {
-        if (== (at arr i) needle) {
-            return true
-        } else {
-            (print "")
-        }
-        set i (+ i 1)
-    }
-    return false
+fn nlc_hashset_new_string() -> HashMap<string, int> {
+    let s: HashMap<string, int> = (map_new)
+    return s
+}
+
+fn nlc_hashset_has_string(set: HashMap<string, int>, key: string) -> bool {
+    return (map_has set key)
+}
+
+fn nlc_hashset_add_string(set: HashMap<string, int>, key: string) -> HashMap<string, int> {
+    if (not (map_has set key)) {
+        (map_put set key 1)
+    } else { (print "") }
+    return set
+}
+
+shadow nlc_hashset_add_string {
+    let s: HashMap<string, int> = (nlc_hashset_new_string)
+    assert (not (nlc_hashset_has_string s "a"))
+    let s2: HashMap<string, int> = (nlc_hashset_add_string s "a")
+    assert (nlc_hashset_has_string s2 "a")
 }
 
 /* =============================================================================
@@ -428,19 +438,22 @@ fn resolve_import_path(current_file: string, import_path: string, repo_root: str
 
 struct CollectResult {
     visited: array<string>,
+    visited_set: HashMap<string, int>,
     order: array<string>,
     ok: bool
 }
 
-fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, order: array<string>, ok: bool) -> CollectResult {
+fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, visited_set: HashMap<string, int>, order: array<string>, ok: bool) -> CollectResult {
     if (not ok) {
-        return CollectResult { visited: visited, order: order, ok: false }
+        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: false }
     } else { (print "") }
 
-    if (nlc_array_contains_string visited path) {
-        return CollectResult { visited: visited, order: order, ok: true }
+    if (nlc_hashset_has_string visited_set path) {
+        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: true }
     } else {
         let mut visited2: array<string> = (array_push visited path)
+        let mut visited_set2: HashMap<string, int> = visited_set
+        set visited_set2 (nlc_hashset_add_string visited_set2 path)
         let src: string = (file_read path)
         let lines: array<string> = (split_lines src)
 
@@ -457,8 +470,9 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, or
                     set ok2 false
                 } else {
                     if (file_exists dep) {
-                        let res: CollectResult = (collect_files_dfs dep repo_root visited2 order2 ok2)
+                        let res: CollectResult = (collect_files_dfs dep repo_root visited2 visited_set2 order2 ok2)
                         set visited2 res.visited
+                        set visited_set2 res.visited_set
                         set order2 res.order
                         set ok2 res.ok
                     } else {
@@ -474,7 +488,7 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, or
         if ok2 {
             set order2 (array_push order2 path)
         } else { (print "") }
-        return CollectResult { visited: visited2, order: order2, ok: ok2 }
+        return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: ok2 }
     }
 }
 
@@ -483,8 +497,9 @@ fn merge_with_imports(input_file: string) -> string {
     let start: string = input_file
 
     let visited0: array<string> = []
+    let visited_set0: HashMap<string, int> = (nlc_hashset_new_string)
     let order0: array<string> = []
-    let res: CollectResult = (collect_files_dfs start repo_root visited0 order0 true)
+    let res: CollectResult = (collect_files_dfs start repo_root visited0 visited_set0 order0 true)
     let files: array<string> = res.order
     if (not res.ok) {
         return ""

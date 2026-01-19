@@ -146,7 +146,7 @@ pub fn quick_replace(pattern: string, text: string, replacement: string) -> stri
 }
 
 shadow quick_replace {
-    assert (str_equals (quick_replace "b" "abc" "X") "aXc")
+    assert (== (quick_replace "b" "abc" "X") "aXc")
 }
 
 pub fn quick_split(pattern: string, text: string) -> array<string> {
@@ -162,9 +162,9 @@ pub fn quick_split(pattern: string, text: string) -> array<string> {
 shadow quick_split {
     let parts: array<string> = (quick_split "[,;]" "a,b;c")
     assert (== (array_length parts) 3)
-    assert (str_equals (array_get parts 0) "a")
-    assert (str_equals (array_get parts 1) "b")
-    assert (str_equals (array_get parts 2) "c")
+    assert (== (array_get parts 0) "a")
+    assert (== (array_get parts 1) "b")
+    assert (== (array_get parts 2) "c")
 }
 
 /* Backwards-compatible name used by some tests/examples */
@@ -209,29 +209,29 @@ shadow groups {
     let r: opaque = (compile "(a)(b)")
     let gs: array<string> = (groups r "ab")
     assert (>= (array_length gs) 3)
-    assert (str_equals (array_get gs 0) "ab")
-    assert (str_equals (array_get gs 1) "a")
-    assert (str_equals (array_get gs 2) "b")
+    assert (== (array_get gs 0) "ab")
+    assert (== (array_get gs 1) "a")
+    assert (== (array_get gs 2) "b")
     (free r)
 }
 
 shadow replace {
     let r: opaque = (compile "b")
-    assert (str_equals (replace r "abc" "X") "aXc")
+    assert (== (replace r "abc" "X") "aXc")
     (free r)
 }
 
 shadow replace_all {
     let r: opaque = (compile "b")
-    assert (str_equals (replace_all r "abbb" "X") "aXXX")
+    assert (== (replace_all r "abbb" "X") "aXXX")
     (free r)
 }shadow split {
     let r: opaque = (compile "[,;]")
     let parts: array<string> = (split r "a,b;c")
     assert (== (array_length parts) 3)
-    assert (str_equals (array_get parts 0) "a")
-    assert (str_equals (array_get parts 1) "b")
-    assert (str_equals (array_get parts 2) "c")
+    assert (== (array_get parts 0) "a")
+    assert (== (array_get parts 1) "b")
+    assert (== (array_get parts 2) "c")
     (free r)
 }
 

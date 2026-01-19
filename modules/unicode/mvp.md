@@ -9,7 +9,7 @@ fn main() -> int {
     let mut len: int = 0
     unsafe { set upper (nl_str_to_uppercase "nano") }
     unsafe { set len (nl_str_grapheme_length "na") }
-    assert (str_equals upper "NANO")
+    assert (== upper "NANO")
     assert (== len 2)
     return 0
 }

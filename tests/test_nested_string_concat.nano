@@ -14,7 +14,7 @@ fn main() -> int {
     let msg: string = (test_nested_concat)
     (println msg)
     
-    if (str_equals msg "Hello World") {
+    if (== msg "Hello World") {
         (println "✓ Test passed")
         return 0
     } else {
