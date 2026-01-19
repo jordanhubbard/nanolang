@@ -289,6 +289,7 @@ make userguide-check
 # Build static HTML for the user guide
 make userguide-html
 # Options:
+#   CMD_TIMEOUT=600              # per-command timeout (seconds)
 #   USERGUIDE_TIMEOUT=600        # build timeout (seconds)
 #   USERGUIDE_BUILD_API_DOCS=1   # regenerate API reference
 #   NANO_USERGUIDE_HIGHLIGHT=0   # disable highlighting (CI default)

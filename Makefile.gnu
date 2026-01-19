@@ -733,7 +733,7 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
 		echo "" && \
 		echo "Testing stage 1 compiler..." && \
-		if $(NANOC_STAGE1) examples/language/nl_hello.nano -o /tmp/bootstrap_test && /tmp/bootstrap_test >/dev/null 2>&1; then \
+		if $(TIMEOUT_CMD) $(NANOC_STAGE1) examples/language/nl_hello.nano -o /tmp/bootstrap_test && $(TIMEOUT_CMD) /tmp/bootstrap_test >/dev/null 2>&1; then \
 			echo "✓ Stage 1 compiler works!"; \
 			touch $(SENTINEL_BOOTSTRAP1); \
 		else \
@@ -755,11 +755,11 @@ $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
 	@echo "Bootstrap Stage 2: Recompilation"
 	@echo "=========================================="
 	@echo "Compiling nanoc_v06.nano with stage 1 compiler..."
-	@$(BOOTSTRAP_ENV) $(NANOC_STAGE1) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
+	@$(TIMEOUT_CMD) $(BOOTSTRAP_ENV) $(NANOC_STAGE1) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
 	@echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)"
 	@echo ""
 	@echo "Testing stage 2 compiler..."
-	@if $(NANOC_STAGE2) examples/language/nl_hello.nano -o /tmp/bootstrap_test2 && /tmp/bootstrap_test2 >/dev/null 2>&1; then \
+	@if $(TIMEOUT_CMD) $(NANOC_STAGE2) examples/language/nl_hello.nano -o /tmp/bootstrap_test2 && $(TIMEOUT_CMD) /tmp/bootstrap_test2 >/dev/null 2>&1; then \
 		echo "✓ Stage 2 compiler works!"; \
 		touch $(SENTINEL_BOOTSTRAP2); \
 	else \
@@ -780,10 +780,10 @@ verify-bootstrap: bootstrap
 	@ls -lh $(NANOC_STAGE1) $(NANOC_STAGE2)
 	@echo ""
 	@echo "Smoke test: stage1 compiles + runs nl_hello.nano..."
-	@$(NANOC_STAGE1) examples/language/nl_hello.nano -o /tmp/bootstrap_verify_stage1 && /tmp/bootstrap_verify_stage1 >/dev/null
+	@$(TIMEOUT_CMD) $(NANOC_STAGE1) examples/language/nl_hello.nano -o /tmp/bootstrap_verify_stage1 && $(TIMEOUT_CMD) /tmp/bootstrap_verify_stage1 >/dev/null
 	@echo "✓ stage1 ok"
 	@echo "Smoke test: stage2 compiles + runs nl_hello.nano..."
-	@$(NANOC_STAGE2) examples/language/nl_hello.nano -o /tmp/bootstrap_verify_stage2 && /tmp/bootstrap_verify_stage2 >/dev/null
+	@$(TIMEOUT_CMD) $(NANOC_STAGE2) examples/language/nl_hello.nano -o /tmp/bootstrap_verify_stage2 && $(TIMEOUT_CMD) /tmp/bootstrap_verify_stage2 >/dev/null
 	@echo "✓ stage2 ok"
 
 .PHONY: verify-no-nanoc_c verify-no-nanoc_c-check
@@ -917,13 +917,13 @@ stage1.5: $(HYBRID_COMPILER)
 	@echo "✓ Stage 1.5 hybrid compiler built: $(HYBRID_COMPILER)"
 
 $(HYBRID_COMPILER): $(HYBRID_OBJECTS) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(HYBRID_COMPILER) $(HYBRID_OBJECTS) $(LDFLAGS)
+	$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o $(HYBRID_COMPILER) $(HYBRID_OBJECTS) $(LDFLAGS)
 
 $(OBJ_DIR)/lexer_nano.o: src_nano/lexer_main.nano $(COMPILER) | $(OBJ_DIR)
 	@echo "Compiling nanolang lexer..."
 	$(TIMEOUT_CMD) $(COMPILER) src_nano/lexer_main.nano -o $(OBJ_DIR)/lexer_nano.tmp --keep-c
-	sed -e '/\/\* C main() entry point/,/^}/d' $(OBJ_DIR)/lexer_nano.tmp.c > $(OBJ_DIR)/lexer_nano_noMain.c
-	$(CC) $(CFLAGS) -c $(OBJ_DIR)/lexer_nano_noMain.c -o $@
+	$(TIMEOUT_CMD) sed -e '/\/\* C main() entry point/,/^}/d' $(OBJ_DIR)/lexer_nano.tmp.c > $(OBJ_DIR)/lexer_nano_noMain.c
+	$(TIMEOUT_CMD) $(CC) $(CFLAGS) -c $(OBJ_DIR)/lexer_nano_noMain.c -o $@
 	@rm -f $(OBJ_DIR)/lexer_nano.tmp $(OBJ_DIR)/lexer_nano.tmp.c $(OBJ_DIR)/lexer_nano_noMain.c
 
 # Dependency checking
@@ -972,9 +972,9 @@ coverage: rebuild
 # Coverage report
 coverage-report: coverage test
 	@echo "Generating coverage report..."
-	@lcov --capture --directory . --output-file coverage.info
-	@lcov --remove coverage.info '/usr/*' --output-file coverage.info --ignore-errors unused
-	@genhtml coverage.info --output-directory $(COV_DIR)
+	@$(TIMEOUT_CMD) lcov --capture --directory . --output-file coverage.info
+	@$(TIMEOUT_CMD) lcov --remove coverage.info '/usr/*' --output-file coverage.info --ignore-errors unused
+	@$(TIMEOUT_CMD) genhtml coverage.info --output-directory $(COV_DIR)
 	@echo "Coverage report generated in $(COV_DIR)/index.html"
 
 # Install binaries
