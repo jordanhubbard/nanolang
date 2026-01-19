@@ -287,6 +287,8 @@ USERGUIDE_API_TIMEOUT ?= 600
 SHADOW_CHECK_TIMEOUT ?= 120
 CMD_TIMEOUT ?= 600
 TIMEOUT_CMD ?= perl -e 'alarm $(CMD_TIMEOUT); exec @ARGV'
+BOOTSTRAP2_TIMEOUT ?= $(CMD_TIMEOUT)
+BOOTSTRAP2_TIMEOUT_CMD ?= perl -e 'alarm $(BOOTSTRAP2_TIMEOUT); exec @ARGV'
 USERGUIDE_BUILD_API_DOCS ?= 0
 test: build shadow-check userguide-export
 	@echo ""
@@ -770,7 +772,7 @@ $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
 	@echo "Bootstrap Stage 2: Recompilation"
 	@echo "=========================================="
 	@echo "Compiling nanoc_v06.nano with stage 1 compiler..."
-	@$(BOOTSTRAP_ENV) $(TIMEOUT_CMD) $(NANOC_STAGE1) $(BOOTSTRAP_VERBOSE_FLAG) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
+	@$(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(NANOC_STAGE1) $(BOOTSTRAP_VERBOSE_FLAG) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
 	@echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)"
 	@echo ""
 	@echo "Testing stage 2 compiler..."
