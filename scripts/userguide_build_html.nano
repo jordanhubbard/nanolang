@@ -696,9 +696,29 @@ shadow init_theme_map {
 
 
 
+fn build_toc_group(title: string, items: array<string>, open_default: bool) -> string {
+    let open_attr: string = (cond (open_default " open") (else ""))
+    let header: string = (sb_join ["<details class=\"toc-group\"", open_attr, ">"] "")
+    return (sb_join [
+        header,
+        (sb_join ["<summary>", (html_escape title), "</summary>"] ""),
+        "<ul class=\"toc\">",
+        (sb_join items "\n"),
+        "</ul>",
+        "</details>"
+    ] "\n")
+}
+
+shadow build_toc_group {
+    let g: string = (build_toc_group "Guide" ["<li>Item</li>"] true)
+    assert (str_contains g "toc-group")
+}
+
 fn build_toc(titles: array<string>, rels: array<string>, active: string, out_dir: string, page_dir: string) -> string {
     if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 585 5) }
-    let mut items: array<string> = []
+    let mut guide_items: array<string> = []
+    let mut example_items: array<string> = []
+    let mut api_items: array<string> = []
     let n: int = (array_length titles)
     let mut i: int = 0
     while (< i n) {
@@ -710,15 +730,34 @@ fn build_toc(titles: array<string>, rels: array<string>, active: string, out_dir
             set class_name "toc-item active"
         }
         let item: string = (sb_join ["<li class=\"", class_name, "\"><a href=\"", (html_escape href), "\">", (render_inline title), "</a></li>"] "")
-        set items (array_push items item)
+        if (str_contains rel_html "api_reference/") {
+            set api_items (array_push api_items item)
+        } else { if (str_contains rel_html "07_examples") {
+            set example_items (array_push example_items item)
+        } else {
+            set guide_items (array_push guide_items item)
+        } }
         set i (+ i 1)
     }
-    return (sb_join ["<aside class=\"sidebar\">", "<h2>Chapters</h2>", "<ul class=\"toc\">", (sb_join items "\n"), "</ul></aside>"] "\n")
+    let mut groups: array<string> = []
+    let guide_open: bool = (and (not (== (array_length guide_items) 0)) (and (not (str_contains active "api_reference/")) (not (str_contains active "07_examples"))))
+    let examples_open: bool = (and (not (== (array_length example_items) 0)) (str_contains active "07_examples"))
+    let api_open: bool = (and (not (== (array_length api_items) 0)) (str_contains active "api_reference/"))
+    if (not (== (array_length guide_items) 0)) {
+        set groups (array_push groups (build_toc_group "User Guide" guide_items guide_open))
+    } else { (print "") }
+    if (not (== (array_length example_items) 0)) {
+        set groups (array_push groups (build_toc_group "Examples" example_items examples_open))
+    } else { (print "") }
+    if (not (== (array_length api_items) 0)) {
+        set groups (array_push groups (build_toc_group "Module API Reference" api_items api_open))
+    } else { (print "") }
+    return (sb_join ["<aside class=\"sidebar\">", "<h2>Chapters</h2>", (sb_join groups "\n"), "</aside>"] "\n")
 }
 
 shadow build_toc {
-    let titles: array<string> = ["A"]
-    let rels: array<string> = ["a.html"]
+    let titles: array<string> = ["A", "Examples", "API"]
+    let rels: array<string> = ["a.html", "07_examples.html", "api_reference/x.html"]
     let toc: string = (build_toc titles rels "a.html" "out" "out")
     assert (str_contains toc "sidebar")
 }

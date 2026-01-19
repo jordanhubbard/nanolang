@@ -261,6 +261,44 @@ h2 {
   padding-left: 0;
 }
 
+.toc-group {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 10px;
+  margin: 10px 0;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.toc-group summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--fg);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toc-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.toc-group summary::before {
+  content: "▸";
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+
+.toc-group[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.toc-group .toc {
+  margin: 8px 0 0 12px;
+  border-left: 2px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  padding-left: 12px;
+}
+
 .toc li {
   margin: 10px 0;
 }
