@@ -1,7 +1,7 @@
 # Regular Expression Library
 # Wraps POSIX regex for nanolang
 
-pub opaque type Regex
+opaque type Regex
 
 # Compile a regex pattern
 # Returns opaque handle to compiled regex, or null on error

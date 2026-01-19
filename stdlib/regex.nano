@@ -3,7 +3,7 @@
 
 # Compile a regex pattern
 # Returns opaque handle to compiled regex, or null on error
-pub opaque type Regex
+opaque type Regex
 
 extern fn nl_regex_compile(pattern: string) -> Regex
 

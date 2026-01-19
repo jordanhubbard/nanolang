@@ -832,6 +832,8 @@ fn is_type_start_token_type(token_type: int) -> bool {
     return (or
         (== token_type (token_identifier))
         (or
+            (== token_type (token_fn))
+            (or
             (== token_type (token_array))
             (or
                 (== token_type (token_type_int))
@@ -852,6 +854,7 @@ fn is_type_start_token_type(token_type: int) -> bool {
                     )
                 )
             )
+            )
         )
     )
 }
@@ -867,6 +870,70 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
             let mut type_name: string = ""
             let mut cur: Parser = p
 
+            if (== tok.token_type (token_fn)) {
+                /* Function type: fn(T1,T2)->R */
+                set type_name "fn"
+                let p1: Parser = (parser_advance p)
+                let p2: Parser = (parser_expect p1 (token_lparen))
+                if (parser_has_error p2) {
+                    return TypeParseResult { p: p2, type_name: type_name, ok: false }
+                } else {
+                    set type_name (+ type_name "(")
+                    let mut cur2: Parser = p2
+                    if (not (parser_is_at_end cur2)) {
+                        let maybe_rparen: LexerToken = (parser_current cur2)
+                        if (== maybe_rparen.token_type (token_rparen)) {
+                            /* No params */
+                            set type_name (+ type_name ")")
+                            set cur2 (parser_advance cur2)
+                        } else {
+                            let arg1: TypeParseResult = (parse_type_string cur2)
+                            if (not arg1.ok) {
+                                return TypeParseResult { p: arg1.p, type_name: type_name, ok: false }
+                            } else {
+                                set type_name (+ type_name arg1.type_name)
+                                set cur2 arg1.p
+                            }
+
+                            while (not (parser_is_at_end cur2)) {
+                                let tc: LexerToken = (parser_current cur2)
+                                if (== tc.token_type (token_comma)) {
+                                    set type_name (+ type_name ",")
+                                    set cur2 (parser_advance cur2)
+                                    let argn: TypeParseResult = (parse_type_string cur2)
+                                    if (not argn.ok) {
+                                        return TypeParseResult { p: argn.p, type_name: type_name, ok: false }
+                                    } else {
+                                        set type_name (+ type_name argn.type_name)
+                                        set cur2 argn.p
+                                    }
+                                } else {
+                                    if (== tc.token_type (token_rparen)) {
+                                        set type_name (+ type_name ")")
+                                        set cur2 (parser_advance cur2)
+                                        break
+                                    } else {
+                                        return TypeParseResult { p: cur2, type_name: type_name, ok: false }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    let p_arrow: Parser = (parser_expect cur2 (token_arrow))
+                    if (parser_has_error p_arrow) {
+                        return TypeParseResult { p: p_arrow, type_name: type_name, ok: false }
+                    } else {
+                        let ret: TypeParseResult = (parse_type_string p_arrow)
+                        if (not ret.ok) {
+                            return TypeParseResult { p: ret.p, type_name: type_name, ok: false }
+                        } else {
+                            set type_name (+ type_name "->")
+                            set type_name (+ type_name ret.type_name)
+                            return TypeParseResult { p: ret.p, type_name: type_name, ok: true }
+                        }
+                    }
+                }
+            } else {
             if (== tok.token_type (token_lparen)) {
                 /* Tuple type: (T1,T2,...) */
                 let mut type_name: string = "("
@@ -916,6 +983,7 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
             } else {
                 set type_name tok.value
                 set cur (parser_advance p)
+            }
             }
 
             /* Parse optional generic args: NSType<Arg1,Arg2> */
