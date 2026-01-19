@@ -214,6 +214,9 @@ shadow split_lines {
 
 fn html_escape(text: string) -> string {
     if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 185 5) }
+    if (and (not (str_contains text "&")) (and (not (str_contains text "<")) (and (not (str_contains text ">")) (not (str_contains text "\""))))) {
+        return text
+    }
     let sb: StringBuilder = (sb_new)
     let n: int = (str_length text)
     let mut i: int = 0
@@ -577,9 +580,15 @@ fn md_to_html(md_text: string, summary: string) -> string {
                 let code_text: string = (join_lines code_lines)
                 (append "/tmp/userguide_build_html.log" (+ "userguide-html: codeblock len=" (+ (int_to_string (str_length code_text)) "\n")))
                 if (is_nano_lang code_lang) {
-                    (append "/tmp/userguide_build_html.log" (+ "userguide-html: highlight start (" (+ code_lang (+ ") len=" (+ (int_to_string (str_length code_text)) "\n")))))
+                    let code_len: int = (str_length code_text)
+                    (append "/tmp/userguide_build_html.log" (+ "userguide-html: highlight start (" (+ code_lang (+ ") len=" (+ (int_to_string code_len) "\n")))))
+                    if (> code_len 8000) {
+                        (append "/tmp/userguide_build_html.log" "userguide-html: highlight skipped (large block)\n")
+                        set out (array_push out (html_escape code_text))
+                    } else {
                     set out (array_push out (pretty_print_html code_text))
                     (append "/tmp/userguide_build_html.log" "userguide-html: highlight done\n")
+                    }
                 } else {
                     (append "/tmp/userguide_build_html.log" "userguide-html: escape start\n")
                     set out (array_push out (html_escape code_text))
@@ -601,7 +610,12 @@ fn md_to_html(md_text: string, summary: string) -> string {
     if in_code {
         let code_text: string = (join_lines code_lines)
         if (is_nano_lang code_lang) {
+            let code_len: int = (str_length code_text)
+            if (> code_len 8000) {
+                set out (array_push out (html_escape code_text))
+            } else {
             set out (array_push out (pretty_print_html code_text))
+            }
         } else {
             set out (array_push out (html_escape code_text))
         }
@@ -796,6 +810,8 @@ shadow parse_example_link {
 fn append_examples_body(out_path: string, md_text: string) -> void {
     let lines: array<string> = (split_lines md_text)
     let mut chunk: array<string> = []
+    let mut inlined: int = 0
+    let mut limit_hit: bool = false
     let mut i: int = 0
     while (< i (array_length lines)) {
         let line: string = (at lines i)
@@ -807,21 +823,49 @@ fn append_examples_body(out_path: string, md_text: string) -> void {
             }
             let link: ExampleLink = (parse_example_link line)
             if link.ok {
+                if (> inlined 5) {
+                    if (not limit_hit) {
+                        (append "/tmp/userguide_build_html.log" "userguide-html: inline limit reached\n")
+                        set limit_hit true
+                    } else { (print "") }
+                    let link_html: string = (sb_join [
+                        "<p><a href=\"",
+                        (html_escape link.url),
+                        "\">",
+                        (html_escape link.filename),
+                        " (View on GitHub)</a></p>\n"
+                    ] "")
+                    (append out_path link_html)
+                    set i (+ i 1)
+                    continue
+                }
                 let full_path: string = (+ "examples/" link.local_path)
                 if (exists full_path) {
                     let code: string = (read full_path)
-                    let snippet_md: string = (join_lines [
-                        (+ "### " link.filename),
-                        "",
-                        "```nano",
-                        code,
-                        "```",
-                        "",
-                        (+ "[View on GitHub](" (+ link.url ")")),
-                        ""
-                    ])
-                    let snippet_html: string = (md_to_html snippet_md "")
-                    (append out_path (+ snippet_html "\n"))
+                    let code_len: int = (str_length code)
+                    if (> code_len 8000) {
+                        (append "/tmp/userguide_build_html.log" (+ "userguide-html: example skipped (large) " (+ link.local_path "\n")))
+                        let link_html: string = (sb_join [
+                            "<p><a href=\"",
+                            (html_escape link.url),
+                            "\">",
+                            (html_escape link.filename),
+                            " (View on GitHub)</a></p>\n"
+                        ] "")
+                        (append out_path link_html)
+                    } else {
+                        let snippet_html: string = (sb_join [
+                            "<h3>",
+                            (html_escape link.filename),
+                            "</h3>\n<pre><code class=\"language-nano\">",
+                            (html_escape code),
+                            "</code></pre>\n<p><a href=\"",
+                            (html_escape link.url),
+                            "\">View on GitHub</a></p>\n"
+                        ] "")
+                        (append out_path snippet_html)
+                        set inlined (+ inlined 1)
+                    }
                     set i (+ i 1)
                     continue
                 }
@@ -1029,9 +1073,16 @@ fn main() -> int {
             continue
         }
 
-        (append "/tmp/userguide_build_html.log" (+ "userguide-html: render " (+ rel "\n")))
-        let body: string = (md_to_html md_text summary)
-        (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n")))
+        let mut body: string = ""
+        if (str_starts_with rel "api_reference/") {
+            (append "/tmp/userguide_build_html.log" (+ "userguide-html: render api_reference " (+ rel "\n")))
+            set body (+ "<pre><code class=\"language-nano\">" (+ (html_escape md_text) "</code></pre>"))
+            (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n")))
+        } else {
+            (append "/tmp/userguide_build_html.log" (+ "userguide-html: render " (+ rel "\n")))
+            set body (md_to_html md_text summary)
+            (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n")))
+        }
 
         let mut page_out: array<string> = []
         set page_out (array_push page_out "<!doctype html>")
