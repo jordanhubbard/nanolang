@@ -806,6 +806,48 @@ fn type_from_string(s: string) -> NSType {
     }
 }
 
+fn base_type_name(type_str: string) -> string {
+    let lt: int = (str_index_of type_str "<" 0)
+    if (== lt -1) {
+        return type_str
+    } else {
+        return (str_substring type_str 0 lt)
+    }
+}
+
+shadow base_type_name {
+    assert (== (base_type_name "Result<int, string>") "Result")
+    assert (== (base_type_name "Point") "Point")
+}
+
+fn is_union_name(parser: Parser, name: string) -> bool {
+    let mut i: int = 0
+    let count: int = (list_ASTUnion_length parser.unions)
+    while (< i count) {
+        let u: ASTUnion = (list_ASTUnion_get parser.unions i)
+        if (== u.name name) {
+            return true
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow is_union_name { assert true }
+
+fn type_from_string_with_parser(parser: Parser, s: string) -> NSType {
+    let t: NSType = (type_from_string s)
+    if (== t.kind TypeKind.TYPE_STRUCT) {
+        let base: string = (base_type_name s)
+        if (is_union_name parser base) {
+            return (type_union base)
+        } else { (print "") }
+    } else { (print "") }
+    return t
+}
+
+shadow type_from_string_with_parser { assert true }
+
 /* Find first occurrence of character in string */
 fn str_index_of(s: string, ch: string) -> int {
     let len: int = (str_length s)
@@ -2308,7 +2350,7 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>,
     } else { (print "") }
 
     /* Get declared type */
-    let declared_type: NSType = (type_from_string let_node.var_type)
+    let declared_type: NSType = (type_from_string_with_parser parser let_node.var_type)
 
     if (>= let_node.value 0) {
         let init_type: NSType = (check_expr_node parser let_node.value let_node.value_type symbols diags file_name)
@@ -2567,7 +2609,7 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
     (print (int_to_string func.body))
     (println ")")
 
-    let return_type: NSType = (type_from_string func.return_type)
+    let return_type: NSType = (type_from_string_with_parser parser func.return_type)
     
     /* Create a fresh symbol table for this function */
     /* Copy only function and built-in symbols (those with is_function = true) */
@@ -2587,7 +2629,7 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
     let mut i: int = 0
     while (< i func.param_count) {
         let param_let: ASTLet = (parser_get_let parser (+ func.param_start i))
-        let ptype: NSType = (type_from_string param_let.var_type)
+        let ptype: NSType = (type_from_string_with_parser parser param_let.var_type)
         let psym: Symbol = (symbol_new param_let.name ptype param_let.is_mut false 0 (empty_param_types) (type_void))
         set func_symbols (env_add_symbol (env_new) func_symbols psym)
         set i (+ i 1)
@@ -2668,13 +2710,13 @@ pub fn typecheck_phase(parser: Parser, file_name: string) -> TypecheckPhaseOutpu
         let func: ASTFunction = (parser_get_function parser i)
         (println "  Registering function...")
         
-        let return_type: NSType = (type_from_string func.return_type)
+        let return_type: NSType = (type_from_string_with_parser parser func.return_type)
         let mut param_types: array<NSType> = []
         if (and (> func.param_count 0) (>= func.param_start 0)) {
             let mut pidx: int = 0
             while (< pidx func.param_count) {
                 let param_let: ASTLet = (parser_get_let parser (+ func.param_start pidx))
-                let param_type: NSType = (type_from_string param_let.var_type)
+                let param_type: NSType = (type_from_string_with_parser parser param_let.var_type)
                 set param_types (array_push param_types param_type)
                 set pidx (+ pidx 1)
             }
