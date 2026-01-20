@@ -714,7 +714,7 @@ shadow build_toc_group {
     assert (str_contains g "toc-group")
 }
 
-fn build_toc(titles: array<string>, rels: array<string>, active: string, out_dir: string, page_dir: string) -> string {
+fn build_toc(titles: array<string>, rels: array<string>, active: string, out_dir: string, page_dir: string, example_names: array<string>) -> string {
     if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 585 5) }
     let mut guide_items: array<string> = []
     let mut example_items: array<string> = []
@@ -734,9 +734,21 @@ fn build_toc(titles: array<string>, rels: array<string>, active: string, out_dir
             set api_items (array_push api_items item)
         } else { if (str_contains rel_html "07_examples") {
             set example_items (array_push example_items item)
+            if (> (array_length example_names) 0) {
+                let examples_href: string = href
+                let mut ex_i: int = 0
+                while (< ex_i (array_length example_names)) {
+                    let ex_name: string = (at example_names ex_i)
+                    let anchor_id: string = (make_anchor_id ex_name)
+                    let ex_href: string = (+ examples_href (+ "#" anchor_id))
+                    let ex_item: string = (sb_join ["<li class=\"toc-item toc-sub-item\"><a href=\"", (html_escape ex_href), "\">", (html_escape ex_name), "</a></li>"] "")
+                    set example_items (array_push example_items ex_item)
+                    set ex_i (+ ex_i 1)
+                }
+            }
         } else {
             set guide_items (array_push guide_items item)
-        } }
+} }
         set i (+ i 1)
     }
     let mut groups: array<string> = []
@@ -758,7 +770,7 @@ fn build_toc(titles: array<string>, rels: array<string>, active: string, out_dir
 shadow build_toc {
     let titles: array<string> = ["A", "Examples", "API"]
     let rels: array<string> = ["a.html", "07_examples.html", "api_reference/x.html"]
-    let toc: string = (build_toc titles rels "a.html" "out" "out")
+    let toc: string = (build_toc titles rels "a.html" "out" "out" [])
     assert (str_contains toc "sidebar")
 }
 
@@ -881,7 +893,64 @@ shadow parse_example_link {
     assert (== link.filename "nl_hello.nano")
 }
 
-fn append_examples_body(out_path: string, md_text: string) -> void {
+fn make_anchor_id(filename: string) -> string {
+    let mut anchor: string = ""
+    let n: int = (str_length filename)
+    let mut i: int = 0
+    while (< i n) {
+        let c: int = (char_at filename i)
+        if (or (and (>= c 97) (<= c 122)) (or (and (>= c 48) (<= c 57)) (== c 95))) {
+            set anchor (+ anchor (string_from_char c))
+        } else { if (or (and (>= c 65) (<= c 90)) (== c 45)) {
+            set anchor (+ anchor (string_from_char c))
+        } else { if (== c 46) {
+            set anchor (+ anchor "-")
+        } else {
+            set anchor (+ anchor "_")
+        }}}
+        set i (+ i 1)
+    }
+    return anchor
+}
+
+shadow make_anchor_id {
+    assert (== (make_anchor_id "hello.nano") "hello-nano")
+    assert (== (make_anchor_id "nl_test.nano") "nl_test-nano")
+}
+
+fn extract_example_names(md_text: string) -> array<string> {
+    let lines: array<string> = (split_lines md_text)
+    let mut names: array<string> = []
+    let mut inlined: int = 0
+    let mut i: int = 0
+    while (< i (array_length lines)) {
+        let line: string = (at lines i)
+        if (is_example_link_line line) {
+            let link: ExampleLink = (parse_example_link line)
+            if link.ok {
+                if (<= inlined 25) {
+                    let full_path: string = (+ "examples/" link.local_path)
+                    if (exists full_path) {
+                        let code: string = (read full_path)
+                        let code_len: int = (str_length code)
+                        if (<= code_len 8000) {
+                            set names (array_push names link.filename)
+                            set inlined (+ inlined 1)
+                        }
+                    }
+                }
+            }
+        }
+        set i (+ i 1)
+    }
+    return names
+}
+
+shadow extract_example_names {
+    assert true
+}
+
+fn append_examples_body(out_path: string, md_text: string, skip_highlight: bool) -> void {
     let lines: array<string> = (split_lines md_text)
     let mut chunk: array<string> = []
     let mut inlined: int = 0
@@ -928,11 +997,15 @@ fn append_examples_body(out_path: string, md_text: string) -> void {
                         ] "")
                         (append out_path link_html)
                     } else {
+                        let anchor_id: string = (make_anchor_id link.filename)
+                        let code_html: string = (cond (skip_highlight (html_escape code)) (else (pretty_print_html code)))
                         let snippet_html: string = (sb_join [
-                            "<h3>",
+                            "<h3 id=\"",
+                            (html_escape anchor_id),
+                            "\">",
                             (html_escape link.filename),
                             "</h3>\n<pre><code class=\"language-nano\">",
-                            (pretty_print_html code),
+                            code_html,
                             "</code></pre>\n<p><a href=\"",
                             (html_escape link.url),
                             "\">View on GitHub</a></p>\n"
@@ -1135,12 +1208,15 @@ fn main() -> int {
         }
 
         let nav_html: string = (sb_join [ "<div class=\"chapter-nav\">", prev_html, (+ "<a class=\"chapter-link home\" href=\"" (+ (html_escape home_href) "\" aria-label=\"Back to guide index\">&#8962;</a>")), next_html, "</div>" ] "\n")
-        let toc_html: string = (build_toc link_titles link_rels html_rel out_dir page_dir)
+        let example_names: array<string> = (cond ((or (str_contains rel "/07_examples.md") (str_ends_with rel "07_examples.md")) (extract_example_names md_text)) (else []))
+        let toc_html: string = (build_toc link_titles link_rels html_rel out_dir page_dir example_names)
 
         if (or (str_contains rel "/07_examples.md") (str_ends_with rel "07_examples.md")) {
             if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: streaming examples page\n") } else { (print "") }
+            let ci_flag: string = (get "CI")
+            let skip_highlight: bool = (== ci_flag "true")
             (write_page_open out_path title summary css_href home_href mascot_href accent toc_html nav_html)
-            (append_examples_body out_path md_text)
+            (append_examples_body out_path md_text skip_highlight)
             (write_page_close out_path nav_html)
             if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: examples page done\n") } else { (print "") }
             set idx (+ idx 1)
@@ -1197,7 +1273,7 @@ fn main() -> int {
 
     let css_href_index: string = "assets/style.css"
     let mascot_href_index: string = "assets/Nanolang_Mascot.png"
-    let toc_html_index: string = (build_toc link_titles link_rels "index.html" out_dir out_dir)
+    let toc_html_index: string = (build_toc link_titles link_rels "index.html" out_dir out_dir [])
     let mut nav_html_index: string = ""
     if (> (array_length link_rels) 0) {
         let first_title: string = (at link_titles 0)

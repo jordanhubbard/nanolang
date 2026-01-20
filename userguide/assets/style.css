@@ -318,6 +318,16 @@ h2 {
   padding-left: 10px;
 }
 
+.toc-sub-item {
+  margin-left: 16px;
+  font-size: 0.9em;
+}
+
+.toc-sub-item a {
+  font-weight: 500;
+  opacity: 0.85;
+}
+
 @media (max-width: 960px) {
   .content.with-sidebar {
     grid-template-columns: 1fr;
