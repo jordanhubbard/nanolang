@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+[0;34mℹ️  Generating changelog from v2.0.7 to HEAD...[0m
+## [2.0.8] - 2026-01-19
+
+### Added
+- add batch mode to release script
+- add process management to example launcher (PID tracking, force quit)
+- NanoLang API doc generator + regenerated docs
+- add core HashMap<K,V> type and map_* builtins
+- add auto-generated API documentation for all modules
+- add module reflection API (--reflect flag)
+- add header and footer navigation to userguide pages
+- use == for string comparison (replace str_equals)
+- implement nano_tools eval
+- use nano_tools formatting in launcher
+- expand tooling and module MVPs
+- add user guide hero styling
+- add nanolang highlighter for user guide
+- publish HTML via GitHub Pages
+- add executable user guide + snippet checks
+
+### Changed
+- rename hashset param
+- adopt HashMap helpers in selfhost
+
+### Fixed
+- for-in-range loop variable scope in nested contexts
+- auto-install deps, snake game loop, and launcher UX
+- stream make examples output instead of silently capturing it
+- bootstrap env ordering
+- autobeads for make examples
+- stage2 typecheck build
+- selfhost if syntax in typecheck
+- fast inline only for API refs in CI
+- speed userguide HTML in CI
+- tuple and fn types in selfhost
+- generic union typing in selfhost
+- remove Python API doc generator, file bead for NanoLang rewrite
+- stabilize userguide asset links
+- userguide tooling and local serve
+- avoid redundant schema rebuilds
+- avoid cjson duplication in pybridge matplotlib
+- stabilize module builds and userguide tooling
+- make selfhost tests /bin/sh compatible
+- export runtime symbols for module dlopen
+- make GLUT portable (no -framework on Linux)
+
 [0;34mℹ️  Generating changelog from v2.0.6 to HEAD...[0m
 ## [2.0.7] - 2026-01-15
 
