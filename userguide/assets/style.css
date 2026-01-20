@@ -87,17 +87,21 @@ a {
 
 pre {
   background: var(--code);
-  color: var(--fg);
   border: 1px solid var(--border);
   padding: 12px;
   overflow-x: auto;
   border-radius: 8px;
 }
 
+pre code {
+  color: var(--fg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.95em;
+}
+
 code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 0.95em;
-  color: inherit;
 }
 
 code .tok-keyword { color: rgb(220, 120, 255); }
