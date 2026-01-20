@@ -24,6 +24,22 @@ make release-minor
 make release-major
 ```
 
+### Batch Mode (Non-Interactive)
+
+For CI/CD automation, use batch mode to skip all prompts:
+
+```bash
+# Non-interactive releases (requires clean state and passing tests)
+BATCH=yes make release
+BATCH=yes make release-minor
+BATCH=yes make release-major
+```
+
+**Batch mode behavior:**
+- Skips all confirmation prompts
+- Fails fast on errors (wrong branch, dirty repo, test failures)
+- Useful for CI/CD pipelines and automated releases
+
 ## Prerequisites
 
 ### Required Tools
@@ -189,10 +205,12 @@ make test
 ```
 
 ### "Not on main branch"
-The script will warn you but allow you to proceed. This is useful for:
+The script will warn you but allow you to proceed (interactive mode only). This is useful for:
 - Release branches
 - Hotfix branches
 - Testing the release process
+
+**Note:** In batch mode (`BATCH=yes`), the script will fail if not on main branch.
 
 ### Manual Release
 
