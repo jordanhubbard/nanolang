@@ -932,7 +932,7 @@ fn append_examples_body(out_path: string, md_text: string) -> void {
                             "<h3>",
                             (html_escape link.filename),
                             "</h3>\n<pre><code class=\"language-nano\">",
-                            (html_escape code),
+                            (pretty_print_html code),
                             "</code></pre>\n<p><a href=\"",
                             (html_escape link.url),
                             "\">View on GitHub</a></p>\n"
