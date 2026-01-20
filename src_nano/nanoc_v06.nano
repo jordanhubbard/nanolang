@@ -337,10 +337,34 @@ fn nl_path_join(dir: string, rel: string) -> string {
     }
 }
 
+fn parse_env_int(name: string, default_val: int) -> int {
+    let raw: string = (getenv name)
+    if (== raw "") {
+        return default_val
+    } else {
+        let n: int = (string_to_int raw)
+        if (<= n 0) {
+            return default_val
+        } else {
+            return n
+        }
+    }
+}
+
+shadow parse_env_int {
+    assert (== (parse_env_int "___NANOLANG_TEST_ENV_INT___" 123) 123)
+}
+
 fn find_repo_root(start_dir: string) -> string {
     let mut dir: string = start_dir
     let mut i: int = 0
+    let trace_env: string = (getenv "NANO_IMPORT_TRACE")
+    let trace: bool = (!= trace_env "")
     while (< i 25) {
+        if trace {
+            (print "[import] find_repo_root: ")
+            (println dir)
+        } else { (print "") }
         let marker1: string = (nl_path_join dir ".beads/issues.jsonl")
         let marker2: string = (nl_path_join dir "src_nano/nanoc_v06.nano")
         if (or (file_exists marker1) (file_exists marker2)) {
@@ -440,27 +464,59 @@ struct CollectResult {
     visited: array<string>,
     visited_set: HashMap<string, int>,
     order: array<string>,
-    ok: bool
+    ok: bool,
+    lines_scanned: int
 }
 
-fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, visited_set: HashMap<string, int>, order: array<string>, ok: bool) -> CollectResult {
+fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, visited_set: HashMap<string, int>, order: array<string>, ok: bool, max_files: int, max_lines: int, max_lines_per_file: int, lines_scanned: int, trace: bool) -> CollectResult {
     if (not ok) {
-        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: false }
+        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: false, lines_scanned: lines_scanned }
     } else { (print "") }
 
     if (nlc_hashset_has_string visited_set path) {
-        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: true }
+        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: true, lines_scanned: lines_scanned }
     } else {
         let mut visited2: array<string> = (array_push visited path)
         let mut visited_set2: HashMap<string, int> = visited_set
         set visited_set2 (nlc_hashset_add_string visited_set2 path)
+        if (> (array_length visited2) max_files) {
+            (print "Error: import scan exceeded max files (")
+            (print max_files)
+            (print "): ")
+            (println path)
+            return CollectResult { visited: visited2, visited_set: visited_set2, order: order, ok: false, lines_scanned: lines_scanned }
+        } else { (print "") }
         let src: string = (file_read path)
         let lines: array<string> = (split_lines src)
 
         let mut order2: array<string> = order
         let mut ok2: bool = true
         let mut i: int = 0
+        let mut lines_scanned2: int = lines_scanned
+        if trace {
+            (print "[import] ")
+            (println path)
+        } else { (print "") }
         while (< i (array_length lines)) {
+            set lines_scanned2 (+ lines_scanned2 1)
+            if (> lines_scanned2 max_lines) {
+                (print "Error: import scan exceeded max lines (")
+                (print max_lines)
+                (print ") while scanning: ")
+                (println path)
+                return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: false, lines_scanned: lines_scanned2 }
+            } else { (print "") }
+            if (> i max_lines_per_file) {
+                (print "Error: import scan exceeded max lines per file (")
+                (print max_lines_per_file)
+                (print ") while scanning: ")
+                (println path)
+                return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: false, lines_scanned: lines_scanned2 }
+            } else { (print "") }
+            if (and trace (== (% lines_scanned2 500) 0)) {
+                (print "[import] scanned lines: ")
+                (println lines_scanned2)
+            } else { (print "") }
             let imp: string = (parse_import_path_from_line (at lines i))
             if (!= imp "") {
                 let dep: string = (resolve_import_path path imp repo_root)
@@ -470,11 +526,12 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
                     set ok2 false
                 } else {
                     if (file_exists dep) {
-                        let res: CollectResult = (collect_files_dfs dep repo_root visited2 visited_set2 order2 ok2)
+                        let res: CollectResult = (collect_files_dfs dep repo_root visited2 visited_set2 order2 ok2 max_files max_lines max_lines_per_file lines_scanned2 trace)
                         set visited2 res.visited
                         set visited_set2 res.visited_set
                         set order2 res.order
                         set ok2 res.ok
+                        set lines_scanned2 res.lines_scanned
                     } else {
                         (print "Error: import not found: ")
                         (println dep)
@@ -488,18 +545,29 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
         if ok2 {
             set order2 (array_push order2 path)
         } else { (print "") }
-        return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: ok2 }
+        return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: ok2, lines_scanned: lines_scanned2 }
     }
 }
 
 fn merge_with_imports(input_file: string) -> string {
     let repo_root: string = (find_repo_root (nl_path_dirname input_file))
     let start: string = input_file
+    let max_files: int = (parse_env_int "NANO_IMPORT_MAX_FILES" 5000)
+    let max_lines: int = (parse_env_int "NANO_IMPORT_MAX_LINES" 50000)
+    let max_lines_per_file: int = (parse_env_int "NANO_IMPORT_MAX_LINES_PER_FILE" 20000)
+    let trace_env: string = (getenv "NANO_IMPORT_TRACE")
+    let trace: bool = (!= trace_env "")
+    if trace {
+        (print "[import] repo_root: ")
+        (println repo_root)
+        (print "[import] start: ")
+        (println start)
+    } else { (print "") }
 
     let visited0: array<string> = []
     let visited_set0: HashMap<string, int> = (nlc_hashset_new_string)
     let order0: array<string> = []
-    let res: CollectResult = (collect_files_dfs start repo_root visited0 visited_set0 order0 true)
+    let res: CollectResult = (collect_files_dfs start repo_root visited0 visited_set0 order0 true max_files max_lines max_lines_per_file 0 trace)
     let files: array<string> = res.order
     if (not res.ok) {
         return ""
@@ -701,7 +769,10 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     let temp_source_file: string = "/tmp/nanolang_merged.nano"
     let mut source_to_compile: string = input_file
     
-    if (!= merged_source "") {
+    if (== merged_source "") {
+        (println "Error: import resolution failed")
+        return 1
+    } else {
         /* Imports resolved - use merged file */
         if verbose {
             (print "  ✓ Merged source: ")
@@ -718,13 +789,6 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             set source_to_compile temp_source_file
         } else {
             set source_to_compile input_file
-        }
-    } else {
-        /* No imports or merge failed - use original file */
-        if verbose {
-            (println "  ✓ No imports to resolve")
-        } else {
-            (print "")
         }
     }
     
