@@ -1128,12 +1128,12 @@ $(BUILD_DIR):
 #   make release-major        # Bump major version (X.0.0)
 release:
 	@echo "Creating patch release..."
-	@$(TIMEOUT_CMD) ./scripts/release.sh patch
+	@BATCH=$(BATCH) $(TIMEOUT_CMD) ./scripts/release.sh patch
 
 release-minor:
 	@echo "Creating minor release..."
-	@$(TIMEOUT_CMD) ./scripts/release.sh minor
+	@BATCH=$(BATCH) $(TIMEOUT_CMD) ./scripts/release.sh minor
 
 release-major:
 	@echo "Creating major release..."
-	@$(TIMEOUT_CMD) ./scripts/release.sh major
+	@BATCH=$(BATCH) $(TIMEOUT_CMD) ./scripts/release.sh major

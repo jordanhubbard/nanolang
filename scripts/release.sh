@@ -1,8 +1,12 @@
 #!/bin/bash
 # Automated release script for NanoLang
 # Usage: ./scripts/release.sh [major|minor|patch]
+# Batch mode: BATCH=yes ./scripts/release.sh [major|minor|patch]
 
 set -e  # Exit on error
+
+# Batch mode detection
+BATCH_MODE="${BATCH:-no}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -52,6 +56,9 @@ check_prerequisites() {
     CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
     if [[ "$CURRENT_BRANCH" != "main" ]]; then
         warn "Not on main branch (currently on: $CURRENT_BRANCH)"
+        if [[ "$BATCH_MODE" == "yes" ]]; then
+            error "Not on main branch in batch mode. Switch to main first."
+        fi
         read -p "Continue anyway? (y/n) " -n 1 -r
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -264,6 +271,10 @@ main() {
     echo "╚═══════════════════════════════════════╝"
     echo ""
     
+    if [[ "$BATCH_MODE" == "yes" ]]; then
+        info "Running in BATCH mode (non-interactive)"
+    fi
+    
     # Check prerequisites
     check_prerequisites
     
@@ -292,11 +303,15 @@ main() {
     echo ""
     
     # Confirm
-    read -p "Proceed with release v$NEXT_VERSION? (y/n) " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        warn "Release cancelled by user"
-        exit 0
+    if [[ "$BATCH_MODE" == "yes" ]]; then
+        info "Batch mode: proceeding with release v$NEXT_VERSION"
+    else
+        read -p "Proceed with release v$NEXT_VERSION? (y/n) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            warn "Release cancelled by user"
+            exit 0
+        fi
     fi
     
     # Generate changelog entry
@@ -309,11 +324,15 @@ main() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
     
-    read -p "Does this look correct? (y/n) " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        warn "Please edit planning/CHANGELOG.md manually and re-run"
-        exit 0
+    if [[ "$BATCH_MODE" == "yes" ]]; then
+        info "Batch mode: accepting changelog entry"
+    else
+        read -p "Does this look correct? (y/n) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            warn "Please edit planning/CHANGELOG.md manually and re-run"
+            exit 0
+        fi
     fi
     
     # Update changelog
@@ -322,6 +341,9 @@ main() {
     # Run tests before release
     info "Running tests..."
     if ! make test > /dev/null 2>&1; then
+        if [[ "$BATCH_MODE" == "yes" ]]; then
+            error "Tests failed in batch mode. Fix tests before releasing."
+        fi
         warn "Tests failed! Continue anyway?"
         read -p "(y/n) " -n 1 -r
         echo
