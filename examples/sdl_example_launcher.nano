@@ -8,7 +8,7 @@ unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 unsafe module "modules/sdl_image/sdl_image.nano"
 module "modules/ui_widgets/ui_widgets.nano"
 from "modules/std/fs.nano" import file_read
-from "modules/std/process.nano" import spawn
+from "modules/std/process.nano" import spawn, is_running, exec
 from "modules/nano_tools/nano_tools.nano" import pretty_print_ansi
 
 # Forward declare extern to avoid module issues
@@ -387,7 +387,8 @@ fn main() -> int {
     set example_files (array_push example_files "examples/opengl/opengl_modern_postprocess.nano")
     set example_icons (array_push example_icons "examples/icons/sdl_fire.png")
 
-
+    # PID tracking
+    let mut example_pids: array<int> = (array_new (array_length example_names) 0)
 
     # Load all icon textures
     let icon_count: int = (array_length example_icons)
@@ -409,10 +410,24 @@ fn main() -> int {
     let mut icon_scroll: int = 0
 
     let mut running: bool = true
-    let mut launch_cmd: string = ""
-    let mut should_launch: bool = false
+    let mut launch_request_idx: int = -1
+    let mut kill_request_idx: int = -1
 
     while running {
+        # Poll running examples to update status
+        let mut poll_idx: int = 0
+        let poll_count: int = (array_length example_pids)
+        while (< poll_idx poll_count) {
+            let pid: int = (at example_pids poll_idx)
+            if (> pid 0) {
+                if (== (is_running pid) 0) {
+                    # Process exited
+                    (array_set example_pids poll_idx 0)
+                } else {}
+            } else {}
+            set poll_idx (+ poll_idx 1)
+        }
+
         if (== (nl_sdl_poll_event_quit) 1) {
             set running false
         } else {}
@@ -469,8 +484,11 @@ fn main() -> int {
         if (or (== key 40) (== key 88)) {  # Return / KP Enter
             if (>= selected_index 0) {
                 let ex_idx: int = (at indices selected_index)
-                set launch_cmd (at example_commands ex_idx)
-                set should_launch true
+                # Only launch if not running
+                let pid: int = (at example_pids ex_idx)
+                if (== pid 0) {
+                    set launch_request_idx ex_idx
+                } else {}
             } else {}
         } else {}
 
@@ -575,8 +593,12 @@ fn main() -> int {
                 
                 if (and (>= click_x launch_btn_x) (and (< click_x (+ launch_btn_x launch_btn_w)) (and (>= click_y launch_btn_y) (< click_y (+ launch_btn_y launch_btn_h))))) {
                     let ex_idx: int = (at indices selected_index)
-                    set launch_cmd (at example_commands ex_idx)
-                    set should_launch true
+                    let pid: int = (at example_pids ex_idx)
+                    if (> pid 0) {
+                        set kill_request_idx ex_idx
+                    } else {
+                        set launch_request_idx ex_idx
+                    }
                 } else {}
             } else {}
         } else {}
@@ -763,9 +785,21 @@ fn main() -> int {
             let launch_btn_y: int = (+ RIGHT_PANEL_Y 14)
             let launch_btn_w: int = 160
             let launch_btn_h: int = 28
-            (SDL_SetRenderDrawColor renderer 50 100 50 255) 
-            (nl_sdl_render_fill_rect renderer launch_btn_x launch_btn_y launch_btn_w launch_btn_h) 
-            (nl_draw_text_blended renderer font "Launch Example" (+ launch_btn_x 15) (+ launch_btn_y 6) 220 240 220 255) 
+            
+            let ex_idx_draw: int = (at indices selected_index)
+            let pid_draw: int = (at example_pids ex_idx_draw)
+            
+            if (> pid_draw 0) {
+                 # Force Quit (Red)
+                 (SDL_SetRenderDrawColor renderer 180 50 50 255) 
+                 (nl_sdl_render_fill_rect renderer launch_btn_x launch_btn_y launch_btn_w launch_btn_h) 
+                 (nl_draw_text_blended renderer font "Force Quit" (+ launch_btn_x 35) (+ launch_btn_y 6) 255 255 255 255) 
+            } else {
+                 # Launch (Green)
+                 (SDL_SetRenderDrawColor renderer 50 100 50 255) 
+                 (nl_sdl_render_fill_rect renderer launch_btn_x launch_btn_y launch_btn_w launch_btn_h) 
+                 (nl_draw_text_blended renderer font "Launch Example" (+ launch_btn_x 15) (+ launch_btn_y 6) 220 240 220 255) 
+            } 
         } else {
             # No selection message
             (nl_ui_label renderer font "Select an example from the left panel" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 100) 180 180 200 255) 
@@ -774,17 +808,36 @@ fn main() -> int {
 
         (SDL_RenderPresent renderer) 
         
-        # Launch example if requested (non-blocking spawn so launcher stays responsive)
-        if should_launch {
-            (println (+ "🚀 Launching: " launch_cmd))
-            let pid: int = (spawn launch_cmd)
-            if (> pid 0) {
-                let pid_str: string = (int_to_string pid)
-                (println (+ "✅ Launched with PID: " pid_str))
+        # Launch example if requested
+        if (>= launch_request_idx 0) {
+            let cmd: string = (at example_commands launch_request_idx)
+            # double check not running
+            let pid: int = (at example_pids launch_request_idx)
+            if (== pid 0) {
+                (println (+ "🚀 Launching: " cmd))
+                let new_pid: int = (spawn cmd)
+                if (> new_pid 0) {
+                    (array_set example_pids launch_request_idx new_pid)
+                    (println (+ "✅ Launched with PID: " (int_to_string new_pid)))
+                } else {
+                    (println "❌ Failed to launch example")
+                }
             } else {
-                (println "❌ Failed to launch example")
+                (println "⚠️  Example is already running")
             }
-            set should_launch false
+            set launch_request_idx -1
+        } else {}
+
+        # Kill example if requested
+        if (>= kill_request_idx 0) {
+            let pid: int = (at example_pids kill_request_idx)
+            if (> pid 0) {
+                (println (+ "🛑 Force quitting PID: " (int_to_string pid)))
+                let kill_cmd: string = (+ "kill -9 " (int_to_string pid))
+                (exec kill_cmd)
+                # We can assume it will die, or wait for next poll
+            } else {}
+            set kill_request_idx -1
         } else {}
     }
 
