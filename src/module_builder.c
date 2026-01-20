@@ -476,27 +476,75 @@ static bool install_system_packages(ModuleBuildMetadata *meta) {
     return all_installed;
 }
 
+// Track whether we've already attempted to install pkg-config
+static bool pkg_config_install_attempted = false;
+
+// Find pkg-config executable path, or NULL if not found
+static const char* find_pkg_config(void) {
+    // Check common locations
+    if (access("/opt/homebrew/bin/pkg-config", X_OK) == 0) {
+        return "/opt/homebrew/bin/pkg-config";
+    }
+    if (access("/usr/local/bin/pkg-config", X_OK) == 0) {
+        return "/usr/local/bin/pkg-config";
+    }
+    if (access("/usr/bin/pkg-config", X_OK) == 0) {
+        return "/usr/bin/pkg-config";
+    }
+    // Try PATH
+    if (system("command -v pkg-config >/dev/null 2>&1") == 0) {
+        return "pkg-config";
+    }
+    return NULL;
+}
+
+// Ensure pkg-config is installed, auto-installing if needed
+static const char* ensure_pkg_config(void) {
+    const char *pkg_config_path = find_pkg_config();
+    if (pkg_config_path) {
+        return pkg_config_path;
+    }
+    
+    // pkg-config not found - try to auto-install it (once)
+    if (!pkg_config_install_attempted) {
+        pkg_config_install_attempted = true;
+        
+        PackageManager pm = detect_package_manager();
+        if (pm != PKG_MGR_UNKNOWN) {
+            const char *pkg_name = lookup_package_name("pkg-config", pm);
+            if (pkg_name) {
+                printf("[Module] pkg-config not found, installing...\n");
+                if (install_single_package(pkg_name, pm)) {
+                    // Try to find it again after installation
+                    pkg_config_path = find_pkg_config();
+                    if (pkg_config_path) {
+                        return pkg_config_path;
+                    }
+                }
+            }
+        }
+        
+        fprintf(stderr, "[Module] Warning: pkg-config not available. Install it manually:\n");
+        fprintf(stderr, "[Module]   macOS: brew install pkg-config\n");
+        fprintf(stderr, "[Module]   Linux: sudo apt-get install pkg-config\n");
+    }
+    
+    return NULL;
+}
+
 // Get pkg-config flags, with automatic package installation on failure
 static char* get_pkg_config_flags(const char *package, const char *flag_type) {
     char cmd[512];
     
-    // Try standard pkg-config first
-    snprintf(cmd, sizeof(cmd), "pkg-config %s %s 2>/dev/null", flag_type, package);
+    // Ensure pkg-config is available (auto-install if needed)
+    const char *pkg_config_path = ensure_pkg_config();
+    if (!pkg_config_path) {
+        return NULL;
+    }
+    
+    // Run pkg-config with the found path
+    snprintf(cmd, sizeof(cmd), "%s %s %s 2>/dev/null", pkg_config_path, flag_type, package);
     char *result = run_command(cmd);
-    
-    // If that failed, try Homebrew's pkg-config on macOS
-    if (!result || strlen(result) == 0) {
-        free(result);
-        snprintf(cmd, sizeof(cmd), "/opt/homebrew/bin/pkg-config %s %s 2>/dev/null", flag_type, package);
-        result = run_command(cmd);
-    }
-    
-    // If still failed, try /usr/local/bin (Intel Mac Homebrew)
-    if (!result || strlen(result) == 0) {
-        free(result);
-        snprintf(cmd, sizeof(cmd), "/usr/local/bin/pkg-config %s %s 2>/dev/null", flag_type, package);
-        result = run_command(cmd);
-    }
     
     
     // If result is empty or only whitespace, return NULL instead
@@ -956,7 +1004,7 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         }
 
         // Install system package dependencies (only when rebuilding)
-        if (meta->apt_packages_count > 0 || meta->dnf_packages_count > 0 || meta->brew_packages_count > 0) {
+        if (meta->system_packages_count > 0 || meta->apt_packages_count > 0 || meta->dnf_packages_count > 0 || meta->brew_packages_count > 0) {
             if (!install_system_packages(meta)) {
                 fprintf(stderr, "[Module] Warning: Some system packages failed to install for '%s'\n", meta->name);
                 fprintf(stderr, "[Module] Continuing anyway - build may fail if dependencies are missing\n");

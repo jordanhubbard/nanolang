@@ -556,28 +556,23 @@ fn main() -> int {
             
             # Handle click on icon
             if (>= clicked_icon 0) {
-                if (== selected_index clicked_icon) {
-                    # Double-click: launch example
-                    let ex_idx: int = (at indices clicked_icon)
-                    set launch_cmd (at example_commands ex_idx)
-                    set should_launch true
-                } else {
-                    # First click: select and load source
-                    set selected_index clicked_icon
-                    let ex_idx: int = (at indices clicked_icon)
-                    let file_path: string = (at example_files ex_idx)
-                    let raw_source: string = (file_read file_path)
-                    set source_code (pretty_print_ansi raw_source)
-                    set source_scroll 0
-                }
+                # Select and load source
+                set selected_index clicked_icon
+                let ex_idx: int = (at indices clicked_icon)
+                let file_path: string = (at example_files ex_idx)
+                let raw_source: string = (file_read file_path)
+                set source_code (pretty_print_ansi raw_source)
+                set source_scroll 0
             } else {}
             
             # Check Launch button (only if an example is selected)
             if (>= selected_index 0) {
-                let launch_btn_x: int = (+ RIGHT_PANEL_X 20)
-                let launch_btn_y: int = (- WINDOW_HEIGHT 60)
-                let launch_btn_w: int = 180
-                let launch_btn_h: int = 36
+                # Launch button at top right (next to Quit)
+                let launch_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 260)
+                let launch_btn_y: int = (+ RIGHT_PANEL_Y 14)
+                let launch_btn_w: int = 160
+                let launch_btn_h: int = 28
+                
                 if (and (>= click_x launch_btn_x) (and (< click_x (+ launch_btn_x launch_btn_w)) (and (>= click_y launch_btn_y) (< click_y (+ launch_btn_y launch_btn_h))))) {
                     let ex_idx: int = (at indices selected_index)
                     set launch_cmd (at example_commands ex_idx)
@@ -763,19 +758,18 @@ fn main() -> int {
                 (nl_draw_text_blended renderer small_font scroll_text scroll_x scroll_y 180 180 200 255) 
             } else {}
             
-            # Launch button - drawn manually
-            let launch_btn_x: int = (+ RIGHT_PANEL_X 20)
-            let launch_btn_y: int = (- WINDOW_HEIGHT 60)
-            let launch_btn_w: int = 180
-            let launch_btn_h: int = 36
+            # Launch button - drawn manually at top
+            let launch_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 260)
+            let launch_btn_y: int = (+ RIGHT_PANEL_Y 14)
+            let launch_btn_w: int = 160
+            let launch_btn_h: int = 28
             (SDL_SetRenderDrawColor renderer 50 100 50 255) 
             (nl_sdl_render_fill_rect renderer launch_btn_x launch_btn_y launch_btn_w launch_btn_h) 
-            (nl_draw_text_blended renderer font "Launch Example" (+ launch_btn_x 15) (+ launch_btn_y 8) 220 240 220 255) 
+            (nl_draw_text_blended renderer font "Launch Example" (+ launch_btn_x 15) (+ launch_btn_y 6) 220 240 220 255) 
         } else {
             # No selection message
             (nl_ui_label renderer font "Select an example from the left panel" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 100) 180 180 200 255) 
             (nl_ui_label renderer font "to preview its source code." (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 124) 160 160 180 255) 
-            (nl_ui_label renderer font "Click again to launch!" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 160) 140 140 160 255) 
         }
 
         (SDL_RenderPresent renderer) 

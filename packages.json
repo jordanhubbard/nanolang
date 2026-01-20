@@ -215,6 +215,21 @@
         "chocolatey": {"package": "bullet"},
         "apk": {"package": "bullet-dev"}
       }
+    },
+    "pkg-config": {
+      "description": "Package configuration tool for library detection",
+      "version": ">=0.29",
+      "detection": {
+        "command": "pkg-config --version"
+      },
+      "install": {
+        "apt": {"package": "pkg-config"},
+        "dnf": {"package": "pkgconf-pkg-config"},
+        "pacman": {"package": "pkgconf"},
+        "brew": {"package": "pkg-config"},
+        "apk": {"package": "pkgconf"},
+        "zypper": {"package": "pkg-config"}
+      }
     }
   }
 }
