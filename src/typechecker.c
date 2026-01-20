@@ -3179,12 +3179,16 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
 
         case AST_FOR: {
-            /* Save current symbol count to restore after loop */
-            int old_symbol_count = tc->env->symbol_count;
-
             /* For loop variable has type int */
             Value val = create_void();
             env_define_var(tc->env, stmt->as.for_stmt.var_name, TYPE_INT, false, val);
+
+            /* Set definition location for visibility checking */
+            Symbol *loop_var_sym = env_get_var(tc->env, stmt->as.for_stmt.var_name);
+            if (loop_var_sym) {
+                loop_var_sym->def_line = stmt->line;
+                loop_var_sym->def_column = stmt->column;
+            }
 
             /* Range expression should return a range */
             check_expression(stmt->as.for_stmt.range_expr, tc->env);
@@ -3194,15 +3198,19 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             check_statement(tc, stmt->as.for_stmt.body);
             tc->loop_depth--;
 
-            /* Restore symbol count (remove loop variable and any vars declared in body) */
-            /* Free the names that were allocated */
-            for (int i = old_symbol_count; i < tc->env->symbol_count; i++) {
-                free(tc->env->symbols[i].name);
-                if (tc->env->symbols[i].value.type == VAL_STRING) {
-                    free(tc->env->symbols[i].value.as.string_val);
-                }
-            }
-            tc->env->symbol_count = old_symbol_count;
+            /* DON'T restore environment - transpiler needs loop variable symbols! */
+            /* The old code removed loop variables after typechecking:
+             *   int old_symbol_count = tc->env->symbol_count;
+             *   ...
+             *   for (int i = old_symbol_count; i < tc->env->symbol_count; i++) {
+             *       free(tc->env->symbols[i].name);
+             *       ...
+             *   }
+             *   tc->env->symbol_count = old_symbol_count;
+             * This caused undefined variable warnings when transpiler/post-processing
+             * needed to look up loop variables. Loop variables are scoped by C's block
+             * scope rules, so keeping them in the environment doesn't cause collisions.
+             */
 
             return TYPE_VOID;
         }
