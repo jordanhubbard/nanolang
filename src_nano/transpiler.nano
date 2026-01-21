@@ -2235,6 +2235,115 @@ shadow operator_to_string {
     assert (== (operator_to_string LexerTokenType.TOKEN_AND) "&&")
 }
 
+/* Helper to build array binary operation expressions using StringBuilder */
+fn build_array_binop_expr(left_code: string, right_code: string, elem_t: string, elem_enum: string, get_fn: string, push_fn: string, c_elem: string, op_str2: string, left_is_arr: bool, right_is_arr: bool, is_plus: bool, is_string: bool) -> string {
+    let mut sb: array<string> = []
+    
+    if (and left_is_arr right_is_arr) {
+        set sb (sb_append sb "({ DynArray* _a = ")
+        set sb (sb_append sb left_code)
+        set sb (sb_append sb "; DynArray* _b = ")
+        set sb (sb_append sb right_code)
+        set sb (sb_append sb "; assert(dyn_array_length(_a) == dyn_array_length(_b)); DynArray* _out = dyn_array_new(")
+        set sb (sb_append sb elem_enum)
+        set sb (sb_append sb "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
+        set sb (sb_append sb c_elem)
+        set sb (sb_append sb " _x = ")
+        set sb (sb_append sb get_fn)
+        set sb (sb_append sb "(_a, _i); ")
+        set sb (sb_append sb c_elem)
+        set sb (sb_append sb " _y = ")
+        set sb (sb_append sb get_fn)
+        set sb (sb_append sb "(_b, _i); ")
+        set sb (sb_append sb push_fn)
+        set sb (sb_append sb "(_out, ")
+        
+        if is_string {
+            if is_plus {
+                set sb (sb_append sb "nl_str_concat(_x, _y)")
+            } else {
+                set sb (sb_append sb "0")
+            }
+        } else {
+            set sb (sb_append sb "(_x ")
+            set sb (sb_append sb op_str2)
+            set sb (sb_append sb " _y)")
+        }
+        
+        set sb (sb_append sb "); } _out; })")
+        return (sb_build sb)
+    } else {
+        if (and left_is_arr (not right_is_arr)) {
+            set sb (sb_append sb "({ DynArray* _a = ")
+            set sb (sb_append sb left_code)
+            set sb (sb_append sb "; ")
+            set sb (sb_append sb c_elem)
+            set sb (sb_append sb " _s = ")
+            set sb (sb_append sb right_code)
+            set sb (sb_append sb "; DynArray* _out = dyn_array_new(")
+            set sb (sb_append sb elem_enum)
+            set sb (sb_append sb "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
+            set sb (sb_append sb c_elem)
+            set sb (sb_append sb " _x = ")
+            set sb (sb_append sb get_fn)
+            set sb (sb_append sb "(_a, _i); ")
+            set sb (sb_append sb push_fn)
+            set sb (sb_append sb "(_out, ")
+            if is_string {
+                if is_plus {
+                    set sb (sb_append sb "nl_str_concat(_x, _s)")
+                } else {
+                    set sb (sb_append sb "0")
+                }
+            } else {
+                set sb (sb_append sb "(_x ")
+                set sb (sb_append sb op_str2)
+                set sb (sb_append sb " _s)")
+            }
+            set sb (sb_append sb "); } _out; })")
+            return (sb_build sb)
+        } else {
+            if (and (not left_is_arr) right_is_arr) {
+                set sb (sb_append sb "({ DynArray* _a = ")
+                set sb (sb_append sb right_code)
+                set sb (sb_append sb "; ")
+                set sb (sb_append sb c_elem)
+                set sb (sb_append sb " _s = ")
+                set sb (sb_append sb left_code)
+                set sb (sb_append sb "; DynArray* _out = dyn_array_new(")
+                set sb (sb_append sb elem_enum)
+                set sb (sb_append sb "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
+                set sb (sb_append sb c_elem)
+                set sb (sb_append sb " _x = ")
+                set sb (sb_append sb get_fn)
+                set sb (sb_append sb "(_a, _i); ")
+                set sb (sb_append sb push_fn)
+                set sb (sb_append sb "(_out, ")
+                if is_string {
+                    if is_plus {
+                        set sb (sb_append sb "nl_str_concat(_s, _x)")
+                    } else {
+                        set sb (sb_append sb "0")
+                    }
+                } else {
+                    set sb (sb_append sb "(_s ")
+                    set sb (sb_append sb op_str2)
+                    set sb (sb_append sb " _x)")
+                }
+                set sb (sb_append sb "); } _out; })")
+                return (sb_build sb)
+            } else {
+                return ""
+            }
+        }
+    }
+}
+
+shadow build_array_binop_expr {
+    let result: string = (build_array_binop_expr "a" "b" "int" "ELEM_INT" "get" "push" "int64_t" "+" true true false false)
+    assert (> (str_length result) 0)
+}
+
 /* Generate C code for an expression node (RECURSIVE)
  * 
  * Args:
@@ -2316,104 +2425,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     let c_elem: string = (c_type_from_elem_type elem_t)
                     let op_str2: string = (operator_to_string binop.op)
 
-                    if (and left_is_arr right_is_arr) {
-                        let mut result: string = "({ DynArray* _a = "
-                        set result (+ result left_code)
-                        set result (+ result "; DynArray* _b = ")
-                        set result (+ result right_code)
-                        set result (+ result "; assert(dyn_array_length(_a) == dyn_array_length(_b)); DynArray* _out = dyn_array_new(")
-                        set result (+ result elem_enum)
-                        set result (+ result "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
-                        set result (+ result c_elem)
-                        set result (+ result " _x = ")
-                        set result (+ result get_fn)
-                        set result (+ result "(_a, _i); ")
-                        set result (+ result c_elem)
-                        set result (+ result " _y = ")
-                        set result (+ result get_fn)
-                        set result (+ result "(_b, _i); ")
-                        set result (+ result push_fn)
-                        set result (+ result "(_out, ")
-
-                        if (== elem_t "string") {
-                            if (== binop.op LexerTokenType.TOKEN_PLUS) {
-                                set result (+ result "nl_str_concat(_x, _y)")
-                            } else {
-                                set result (+ result "0")
-                            }
-                        } else {
-                            set result (+ result "(_x ")
-                            set result (+ result op_str2)
-                            set result (+ result " _y)")
-                        }
-
-                        set result (+ result "); } _out; })")
-                        return result
-                    } else {
-                        (print "")
-                    }
-
-                    if (and left_is_arr (not right_is_arr)) {
-                        let mut result: string = "({ DynArray* _a = "
-                        set result (+ result left_code)
-                        set result (+ result "; ")
-                        set result (+ result c_elem)
-                        set result (+ result " _s = ")
-                        set result (+ result right_code)
-                        set result (+ result "; DynArray* _out = dyn_array_new(")
-                        set result (+ result elem_enum)
-                        set result (+ result "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
-                        set result (+ result c_elem)
-                        set result (+ result " _x = ")
-                        set result (+ result get_fn)
-                        set result (+ result "(_a, _i); ")
-                        set result (+ result push_fn)
-                        set result (+ result "(_out, ")
-                        if (== elem_t "string") {
-                            if (== binop.op LexerTokenType.TOKEN_PLUS) {
-                                set result (+ result "nl_str_concat(_x, _s)")
-                            } else {
-                                set result (+ result "0")
-                            }
-                        } else {
-                            set result (+ result "(_x ")
-                            set result (+ result op_str2)
-                            set result (+ result " _s)")
-                        }
-                        set result (+ result "); } _out; })")
-                        return result
-                    } else { (print "") }
-
-                    if (and (not left_is_arr) right_is_arr) {
-                        let mut result: string = "({ DynArray* _a = "
-                        set result (+ result right_code)
-                        set result (+ result "; ")
-                        set result (+ result c_elem)
-                        set result (+ result " _s = ")
-                        set result (+ result left_code)
-                        set result (+ result "; DynArray* _out = dyn_array_new(")
-                        set result (+ result elem_enum)
-                        set result (+ result "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
-                        set result (+ result c_elem)
-                        set result (+ result " _x = ")
-                        set result (+ result get_fn)
-                        set result (+ result "(_a, _i); ")
-                        set result (+ result push_fn)
-                        set result (+ result "(_out, ")
-                        if (== elem_t "string") {
-                            if (== binop.op LexerTokenType.TOKEN_PLUS) {
-                                set result (+ result "nl_str_concat(_s, _x)")
-                            } else {
-                                set result (+ result "0")
-                            }
-                        } else {
-                            set result (+ result "(_s ")
-                            set result (+ result op_str2)
-                            set result (+ result " _x)")
-                        }
-                        set result (+ result "); } _out; })")
-                        return result
-                    } else { (print "") }
+                    let is_plus: bool = (== binop.op LexerTokenType.TOKEN_PLUS)
+                    let is_string: bool = (== elem_t "string")
+                    return (build_array_binop_expr left_code right_code elem_t elem_enum get_fn push_fn c_elem op_str2 left_is_arr right_is_arr is_plus is_string)
                 } else {
                     (print "")
                 }
