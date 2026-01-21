@@ -662,7 +662,8 @@ fn merge_with_imports(input_file: string) -> string {
         return ""
     } else { (print "") }
 
-    let mut merged: string = ""
+    /* Use StringBuilder pattern for O(n) instead of O(n²) string concatenation */
+    let mut parts: array<string> = []
     let mut i: int = 0
     while (< i (array_length files)) {
         let src: string = (file_read (at files i))
@@ -672,8 +673,8 @@ fn merge_with_imports(input_file: string) -> string {
             let line: string = (at lines j)
             let imp: string = (parse_import_path_from_line line)
             if (== imp "") {
-                set merged (+ merged (strip_pub_decl line))
-                set merged (+ merged "\n")
+                set parts (sb_append parts (strip_pub_decl line))
+                set parts (sb_append parts "\n")
             } else {
                 (print "")
             }
@@ -681,7 +682,7 @@ fn merge_with_imports(input_file: string) -> string {
         }
         set i (+ i 1)
     }
-    return merged
+    return (sb_build parts)
 }
 
 /* =============================================================================
