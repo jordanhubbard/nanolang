@@ -1930,12 +1930,13 @@ fn generate_module_forward_declarations(parser: Parser) -> string {
 
 /* Generate complete C program */
 fn gen_c_program(functions: string) -> string {
-    let mut result: string = (gen_c_includes)
-    set result (+ result (gen_c_runtime))
-    set result (+ result "/* User functions */\n")
-    set result (+ result functions)
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_c_includes))
+    set parts (sb_append parts (gen_c_runtime))
+    set parts (sb_append parts "/* User functions */\n")
+    set parts (sb_append parts functions)
     
-    return result
+    return (sb_build parts)
 }
 
 /* Generate complete C program with module forward declarations */
@@ -2100,7 +2101,8 @@ fn generate_list_specializations(parser: Parser) -> string {
     if (<= type_count 0) {
         return ""
     } else {
-        let mut result: string = "\n/* ========== Generic List Specializations ========== */\n\n"
+        let mut parts: array<string> = []
+        set parts (sb_append parts "\n/* ========== Generic List Specializations ========== */\n\n")
         
         let mut i: int = 0
         while (< i type_count) {
@@ -2110,15 +2112,15 @@ fn generate_list_specializations(parser: Parser) -> string {
             if (or (== elem_type "int") (or (== elem_type "string") (== elem_type "LexerToken"))) {
                 (print "")
             } else {
-                set result (+ result (generate_list_for_type elem_type))
-                set result (+ result "\n")
+                set parts (sb_append parts (generate_list_for_type elem_type))
+                set parts (sb_append parts "\n")
             }
             
             set i (+ i 1)
         }
         
-        set result (+ result "/* ========== End Generic List Specializations ========== */\n\n")
-        return result
+        set parts (sb_append parts "/* ========== End Generic List Specializations ========== */\n\n")
+        return (sb_build parts)
     }
 }
 
@@ -2934,22 +2936,23 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                     set tag_parts (sb_append tag_parts uc.variant_name)
                                     let tag_name: string = (sb_build tag_parts)
 
-                                    let mut result: string = "(("
-                                    set result (+ result union_c)
-                                    set result (+ result "){ .tag = ")
-                                    set result (+ result tag_name)
-                                    set result (+ result ", .data.")
-                                    set result (+ result uc.variant_name)
-                                    set result (+ result " = ")
+                                    let mut union_construct_parts: array<string> = []
+                                    set union_construct_parts (sb_append union_construct_parts "((")
+                                    set union_construct_parts (sb_append union_construct_parts union_c)
+                                    set union_construct_parts (sb_append union_construct_parts "){ .tag = ")
+                                    set union_construct_parts (sb_append union_construct_parts tag_name)
+                                    set union_construct_parts (sb_append union_construct_parts ", .data.")
+                                    set union_construct_parts (sb_append union_construct_parts uc.variant_name)
+                                    set union_construct_parts (sb_append union_construct_parts " = ")
 
                                     if (== uc.field_count 0) {
-                                        set result (+ result "{0}")
+                                        set union_construct_parts (sb_append union_construct_parts "{0}")
                                     } else {
-                                        set result (+ result "{")
+                                        set union_construct_parts (sb_append union_construct_parts "{")
                                         let mut i: int = 0
                                         while (< i uc.field_count) {
                                             if (> i 0) {
-                                                set result (+ result ", ")
+                                                set union_construct_parts (sb_append union_construct_parts ", ")
                                             } else { (print "") }
 
                                             let fname: string = (at uc.field_names i)
@@ -2957,17 +2960,17 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                             let vty: int = (at uc.field_value_types i)
                                             let vcode: string = (generate_expression parser vid vty env "")
 
-                                            set result (+ result ".")
-                                            set result (+ result (mangle_name fname))
-                                            set result (+ result " = ")
-                                            set result (+ result vcode)
+                                            set union_construct_parts (sb_append union_construct_parts ".")
+                                            set union_construct_parts (sb_append union_construct_parts (mangle_name fname))
+                                            set union_construct_parts (sb_append union_construct_parts " = ")
+                                            set union_construct_parts (sb_append union_construct_parts vcode)
                                             set i (+ i 1)
                                         }
-                                        set result (+ result "}")
+                                        set union_construct_parts (sb_append union_construct_parts "}")
                                     }
 
-                                    set result (+ result " })")
-                                    return result
+                                    set union_construct_parts (sb_append union_construct_parts " })")
+                                    return (sb_build union_construct_parts)
                                 } else {
                                     if (== node_type ParseNodeType.PNODE_MATCH) {
                                         let m: ASTMatch = (parser_get_match parser node_id)
@@ -2985,14 +2988,15 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                                             let elem_expected: array<string> = (tuple_split_types tuple_t)
 
-                                            let mut result: string = "(("
-                                            set result (+ result tuple_name)
-                                            set result (+ result "){ ")
+                                            let mut tuple_parts: array<string> = []
+                                            set tuple_parts (sb_append tuple_parts "((")
+                                            set tuple_parts (sb_append tuple_parts tuple_name)
+                                            set tuple_parts (sb_append tuple_parts "){ ")
 
                                             let mut i: int = 0
                                             while (< i tl.element_count) {
                                                 if (> i 0) {
-                                                    set result (+ result ", ")
+                                                    set tuple_parts (sb_append tuple_parts ", ")
                                                 } else { (print "") }
 
                                                 let vid: int = (at tl.element_ids i)
@@ -3003,25 +3007,26 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                                 } else { (print "") }
 
                                                 let vcode: string = (generate_expression parser vid vty env exp_i)
-                                                set result (+ result "._")
-                                                set result (+ result (int_to_string i))
-                                                set result (+ result " = ")
-                                                set result (+ result vcode)
+                                                set tuple_parts (sb_append tuple_parts "._")
+                                                set tuple_parts (sb_append tuple_parts (int_to_string i))
+                                                set tuple_parts (sb_append tuple_parts " = ")
+                                                set tuple_parts (sb_append tuple_parts vcode)
                                                 set i (+ i 1)
                                             }
 
-                                            set result (+ result " })")
-                                            return result
+                                            set tuple_parts (sb_append tuple_parts " })")
+                                            return (sb_build tuple_parts)
                                         } else {
                                             if (== node_type ParseNodeType.PNODE_TUPLE_INDEX) {
                                                 let ti: ASTTupleIndex = (parser_get_tuple_index parser node_id)
                                                 let tcode: string = (generate_expression parser ti.tuple ti.tuple_type env "")
-                                                let mut result: string = "(("
-                                                set result (+ result tcode)
-                                                set result (+ result ")._")
-                                                set result (+ result (int_to_string ti.index))
-                                                set result (+ result ")")
-                                                return result
+                                                let mut tuple_index_parts: array<string> = []
+                                                set tuple_index_parts (sb_append tuple_index_parts "((")
+                                                set tuple_index_parts (sb_append tuple_index_parts tcode)
+                                                set tuple_index_parts (sb_append tuple_index_parts ")._")
+                                                set tuple_index_parts (sb_append tuple_index_parts (int_to_string ti.index))
+                                                set tuple_index_parts (sb_append tuple_index_parts ")")
+                                                return (sb_build tuple_index_parts)
                                             } else {
                                                 /* Unknown type - return 0 */
                                                 return "0"
