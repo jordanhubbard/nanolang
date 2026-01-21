@@ -231,6 +231,12 @@ fn transp_extract_list_element_type(s: string) -> string {
     }
 }
 
+shadow transp_extract_list_element_type {
+    assert (== (transp_extract_list_element_type "List<Point>") "Point")
+    assert (== (transp_extract_list_element_type "List<int>") "int")
+    assert (== (transp_extract_list_element_type "invalid") "")
+}
+
 fn str_ends_with(s: string, suffix: string) -> bool {
     let ls: int = (str_length s)
     let lf: int = (str_length suffix)
@@ -382,8 +388,20 @@ fn is_builtin_list_runtime_fn(name: string) -> bool {
     return (or (transp_str_starts_with name "list_int_") (transp_str_starts_with name "list_string_"))
 }
 
+shadow is_builtin_list_runtime_fn {
+    assert (is_builtin_list_runtime_fn "list_int_new")
+    assert (is_builtin_list_runtime_fn "list_string_push")
+    assert (not (is_builtin_list_runtime_fn "list_Point_new"))
+}
+
 fn is_generic_list_runtime_fn(name: string) -> bool {
     return (and (transp_str_starts_with name "list_") (not (is_builtin_list_runtime_fn name)))
+}
+
+shadow is_generic_list_runtime_fn {
+    assert (is_generic_list_runtime_fn "list_Point_new")
+    assert (not (is_generic_list_runtime_fn "list_int_new"))
+    assert (not (is_generic_list_runtime_fn "some_other_fn"))
 }
 
 fn c_name_for_qualified_function(func_name: string) -> string {
@@ -751,6 +769,13 @@ fn is_array_type(t: string) -> bool {
     return (str_contains t "array<")
 }
 
+shadow is_array_type {
+    assert (is_array_type "array<int>")
+    assert (is_array_type "array<Point>")
+    assert (not (is_array_type "int"))
+    assert (not (is_array_type "List<int>"))
+}
+
 fn array_elem_type_from_array_type(t: string) -> string {
     if (str_contains t "array<int>") {
         return "int"
@@ -775,12 +800,28 @@ fn array_elem_type_from_array_type(t: string) -> string {
     }
 }
 
+shadow array_elem_type_from_array_type {
+    assert (== (array_elem_type_from_array_type "array<int>") "int")
+    assert (== (array_elem_type_from_array_type "array<float>") "float")
+    assert (== (array_elem_type_from_array_type "array<string>") "string")
+    assert (== (array_elem_type_from_array_type "array<bool>") "bool")
+    assert (== (array_elem_type_from_array_type "array<array<int>>") "array")
+}
+
 fn elem_enum_from_elem_type(elem_type: string) -> string {
     if (== elem_type "float") { return "ELEM_FLOAT" }
     else { if (== elem_type "string") { return "ELEM_STRING" }
     else { if (== elem_type "bool") { return "ELEM_BOOL" }
     else { if (== elem_type "array") { return "ELEM_ARRAY" }
     else { return "ELEM_INT" } } } }
+}
+
+shadow elem_enum_from_elem_type {
+    assert (== (elem_enum_from_elem_type "float") "ELEM_FLOAT")
+    assert (== (elem_enum_from_elem_type "string") "ELEM_STRING")
+    assert (== (elem_enum_from_elem_type "bool") "ELEM_BOOL")
+    assert (== (elem_enum_from_elem_type "array") "ELEM_ARRAY")
+    assert (== (elem_enum_from_elem_type "int") "ELEM_INT")
 }
 
 fn get_fn_from_elem_type(elem_type: string) -> string {
@@ -791,12 +832,24 @@ fn get_fn_from_elem_type(elem_type: string) -> string {
     else { return "dyn_array_get_int" } } } }
 }
 
+shadow get_fn_from_elem_type {
+    assert (== (get_fn_from_elem_type "float") "dyn_array_get_float")
+    assert (== (get_fn_from_elem_type "string") "dyn_array_get_string")
+    assert (== (get_fn_from_elem_type "int") "dyn_array_get_int")
+}
+
 fn push_fn_from_elem_type(elem_type: string) -> string {
     if (== elem_type "float") { return "dyn_array_push_float" }
     else { if (== elem_type "string") { return "dyn_array_push_string" }
     else { if (== elem_type "bool") { return "dyn_array_push_bool" }
     else { if (== elem_type "array") { return "dyn_array_push_array" }
     else { return "dyn_array_push_int" } } } }
+}
+
+shadow push_fn_from_elem_type {
+    assert (== (push_fn_from_elem_type "float") "dyn_array_push_float")
+    assert (== (push_fn_from_elem_type "bool") "dyn_array_push_bool")
+    assert (== (push_fn_from_elem_type "int") "dyn_array_push_int")
 }
 
 fn set_fn_from_elem_type(elem_type: string) -> string {
@@ -807,12 +860,25 @@ fn set_fn_from_elem_type(elem_type: string) -> string {
     else { return "dyn_array_set_int" } } } }
 }
 
+shadow set_fn_from_elem_type {
+    assert (== (set_fn_from_elem_type "string") "dyn_array_set_string")
+    assert (== (set_fn_from_elem_type "array") "dyn_array_set_array")
+    assert (== (set_fn_from_elem_type "int") "dyn_array_set_int")
+}
+
 fn c_type_from_elem_type(elem_type: string) -> string {
     if (== elem_type "float") { return "double" }
     else { if (== elem_type "string") { return "const char*" }
     else { if (== elem_type "bool") { return "bool" }
     else { if (== elem_type "array") { return "DynArray*" }
     else { return "int64_t" } } } }
+}
+
+shadow c_type_from_elem_type {
+    assert (== (c_type_from_elem_type "float") "double")
+    assert (== (c_type_from_elem_type "string") "const char*")
+    assert (== (c_type_from_elem_type "bool") "bool")
+    assert (== (c_type_from_elem_type "int") "int64_t")
 }
 
 /* Helper: convert nanolang type to C type */
@@ -825,6 +891,13 @@ fn is_tuple_type(nano_type: string) -> bool {
         let last: string = (str_substring nano_type (- len 1) 1)
         return (and (== first "(") (== last ")"))
     }
+}
+
+shadow is_tuple_type {
+    assert (is_tuple_type "(int, string)")
+    assert (is_tuple_type "()")
+    assert (not (is_tuple_type "int"))
+    assert (not (is_tuple_type "("))
 }
 
 fn mangle_type_name(name: string) -> string {
