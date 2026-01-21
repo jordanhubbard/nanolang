@@ -1896,6 +1896,15 @@ fn ensure_known_expr_node(node_type: int) -> bool {
     return false
 }
 
+shadow ensure_known_expr_node {
+    assert (ensure_known_expr_node ParseNodeType.PNODE_NUMBER)
+    assert (ensure_known_expr_node ParseNodeType.PNODE_STRING)
+    assert (ensure_known_expr_node ParseNodeType.PNODE_BOOL)
+    assert (ensure_known_expr_node ParseNodeType.PNODE_CALL)
+    assert (ensure_known_expr_node ParseNodeType.PNODE_BINARY_OP)
+    assert (not (ensure_known_expr_node ParseNodeType.PNODE_FUNCTION))
+}
+
 /* Check union construction expression
  * Example: Option.Some { value: 42 }
  * Returns: The union type (TYPE_UNION with union name)

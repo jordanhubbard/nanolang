@@ -690,10 +690,24 @@ fn genenv_new() -> GenEnv {
     return GenEnv { names: [], types: [] }
 }
 
+shadow genenv_new {
+    let env: GenEnv = (genenv_new)
+    assert (== (array_length env.names) 0)
+    assert (== (array_length env.types) 0)
+}
+
 fn genenv_put(env: GenEnv, name: string, t: string) -> GenEnv {
     let new_names: array<string> = (array_push env.names name)
     let new_types: array<string> = (array_push env.types t)
     return GenEnv { names: new_names, types: new_types }
+}
+
+shadow genenv_put {
+    let env: GenEnv = (genenv_new)
+    let env2: GenEnv = (genenv_put env "x" "int")
+    assert (== (array_length env2.names) 1)
+    assert (== (at env2.names 0) "x")
+    assert (== (at env2.types 0) "int")
 }
 
 fn genenv_get(env: GenEnv, name: string) -> string {
@@ -706,6 +720,15 @@ fn genenv_get(env: GenEnv, name: string) -> string {
         }
     }
     return ""
+}
+
+shadow genenv_get {
+    let env: GenEnv = (genenv_new)
+    let env2: GenEnv = (genenv_put env "x" "int")
+    let env3: GenEnv = (genenv_put env2 "y" "bool")
+    assert (== (genenv_get env3 "x") "int")
+    assert (== (genenv_get env3 "y") "bool")
+    assert (== (genenv_get env3 "unknown") "")
 }
 
 fn is_array_type(t: string) -> bool {
@@ -1652,6 +1675,12 @@ fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>
 fn hashset_new_string() -> HashMap<string, int> {
     let s: HashMap<string, int> = (map_new)
     return s
+}
+
+shadow hashset_new_string {
+    let s: HashMap<string, int> = (hashset_new_string)
+    assert (!= s 0)  /* HashMap is a valid pointer */
+    assert (not (hashset_has_string s "test"))
 }
 
 fn hashset_has_string(set: HashMap<string, int>, key: string) -> bool {

@@ -58,6 +58,13 @@ fn default_options() -> CompileOptions {
     }
 }
 
+shadow default_options {
+    let opts: CompileOptions = (default_options)
+    assert (== opts.output_file "a.out")
+    assert (not opts.verbose)
+    assert (not opts.show_help)
+}
+
 fn parse_args() -> CompileOptions {
     let argc: int = (get_argc)
     let mut opts: CompileOptions = (default_options)
@@ -223,6 +230,12 @@ fn resolve_cc_binary() -> string {
     }
 }
 
+shadow resolve_cc_binary {
+    let cc: string = (resolve_cc_binary)
+    /* Should return a valid string (at minimum "cc") */
+    assert (> (str_length cc) 0)
+}
+
 /* =============================================================================
  * STRING HELPERS
  * ============================================================================= */
@@ -289,8 +302,20 @@ fn nlc_hashset_new_string() -> HashMap<string, int> {
     return s
 }
 
+shadow nlc_hashset_new_string {
+    let s: HashMap<string, int> = (nlc_hashset_new_string)
+    assert (!= s 0)  /* HashMap is a valid pointer */
+}
+
 fn nlc_hashset_has_string(hset: HashMap<string, int>, key: string) -> bool {
     return (map_has hset key)
+}
+
+shadow nlc_hashset_has_string {
+    let s: HashMap<string, int> = (nlc_hashset_new_string)
+    assert (not (nlc_hashset_has_string s "test"))
+    (map_put s "test" 1)
+    assert (nlc_hashset_has_string s "test")
 }
 
 fn nlc_hashset_add_string(hset: HashMap<string, int>, key: string) -> HashMap<string, int> {
@@ -1097,6 +1122,11 @@ fn show_usage() -> int {
     (println "Pipeline: Lex → Parse → Typecheck → Transpile → Compile")
     (println "")
     return 0
+}
+
+shadow show_usage {
+    let result: int = (show_usage)
+    assert (== result 0)  /* show_usage always returns 0 */
 }
 
 fn main() -> int {
