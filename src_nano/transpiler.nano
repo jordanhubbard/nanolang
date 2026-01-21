@@ -435,7 +435,11 @@ fn build_module_alias_map(parser: Parser) -> int {
                         set alias_name sym
                     } else { (print "") }
                     if (> (str_length alias_name) 0) {
-                        let target: string = (+ module_name (+ "." sym))
+                        let mut target_parts: array<string> = []
+                        set target_parts (sb_append target_parts module_name)
+                        set target_parts (sb_append target_parts ".")
+                        set target_parts (sb_append target_parts sym)
+                        let target: string = (sb_build target_parts)
                         (add_func_alias alias_name target)
                     } else { (print "") }
                     set si (+ si 1)
@@ -1368,7 +1372,11 @@ shadow gen_number {
 /* Generate code for a string literal */
 fn gen_string(value: string) -> string {
     /* For now, return as-is. In production, need to escape special chars */
-    return (+ "\"" (+ value "\""))
+    let mut parts: array<string> = []
+    set parts (sb_append parts "\"")
+    set parts (sb_append parts value)
+    set parts (sb_append parts "\"")
+    return (sb_build parts)
 }
 
 shadow gen_string {
@@ -3257,7 +3265,11 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
         set code (+ code variant)
         set code (+ code ";\n")
 
-        let env_arm: GenEnv = (genenv_put env binding (+ union_name (+ "." variant)))
+        let mut type_name_parts: array<string> = []
+        set type_name_parts (sb_append type_name_parts union_name)
+        set type_name_parts (sb_append type_name_parts ".")
+        set type_name_parts (sb_append type_name_parts variant)
+        let env_arm: GenEnv = (genenv_put env binding (sb_build type_name_parts))
 
         if (== body_type ParseNodeType.PNODE_BLOCK) {
             set code (+ code (generate_block parser body_id (+ indent 3) env_arm return_type))
