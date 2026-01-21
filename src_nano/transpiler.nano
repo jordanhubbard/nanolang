@@ -2709,7 +2709,37 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     set parts (sb_append parts ")")
                     return (sb_build parts)
                 } else {
-                    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+                    if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+                        /* Module-qualified function call: Module.function(args...) */
+                        let mqc: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
+                        
+                        /* Build qualified name for C function lookup */
+                        let qualified_name: string = (+ mqc.module_name (+ "." mqc.function_name))
+                        let c_func_name: string = (c_name_for_qualified_function qualified_name)
+                        
+                        let mut parts: array<string> = []
+                        set parts (sb_append parts c_func_name)
+                        set parts (sb_append parts "(")
+                        
+                        /* Generate arguments */
+                        let mut i: int = 0
+                        while (< i mqc.arg_count) {
+                            if (> i 0) {
+                                set parts (sb_append parts ", ")
+                            } else {
+                                (print "")
+                            }
+                            
+                            let aref: ASTStmtRef = (parser_get_call_arg parser (+ mqc.arg_start i))
+                            let arg_code: string = (generate_expression parser aref.node_id aref.node_type env "")
+                            set parts (sb_append parts arg_code)
+                            set i (+ i 1)
+                        }
+                        
+                        set parts (sb_append parts ")")
+                        return (sb_build parts)
+                    } else {
+                        if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
                         /* Field access */
                         let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
                         /* If the object is an enum identifier (e.g. DiagnosticSeverity.DIAG_ERROR),
@@ -3219,7 +3249,7 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
                                 return StmtGenResult { code: code, env: env }
                             } else {
                             /* Expression statement (e.g. call) */
-                            if (== stmt.node_type ParseNodeType.PNODE_CALL) {
+                            if (or (== stmt.node_type ParseNodeType.PNODE_CALL) (== stmt.node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
                                 let expr_code: string = (generate_expression parser stmt.node_id stmt.node_type env "")
                                 let mut parts: array<string> = []
                                 set parts (sb_append parts (gen_indent indent))

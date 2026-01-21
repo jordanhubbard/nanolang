@@ -1918,6 +1918,7 @@ fn ensure_known_expr_node(node_type: int) -> bool {
     if (== node_type ParseNodeType.PNODE_FLOAT) { return true }
     if (== node_type ParseNodeType.PNODE_IDENTIFIER) { return true }
     if (== node_type ParseNodeType.PNODE_CALL) { return true }
+    if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) { return true }
     if (== node_type ParseNodeType.PNODE_BINARY_OP) { return true }
     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) { return true }
     if (== node_type ParseNodeType.PNODE_MATCH) { return true }
@@ -2084,6 +2085,23 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                     return (type_unknown_named fn_name)
                 }
             }
+        }
+    } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+        let mqc_node: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
+        /* Build qualified name: Module.function */
+        let qualified_name: string = (+ mqc_node.module_name (+ "." mqc_node.function_name))
+        /* Look up function in symbol table using qualified name */
+        let idx: int = (env_lookup symbols qualified_name)
+        if (>= idx 0) {
+            let sym: Symbol = (at symbols idx)
+            if sym.is_function {
+                return sym.return_type
+            } else {
+                return sym.sym_type
+            }
+        } else {
+            return (type_unknown_named qualified_name)
         }
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (check_union_construct parser node_id) } else { (print "") }
