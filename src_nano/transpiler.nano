@@ -43,10 +43,20 @@ fn reset_module_aliases() -> int {
     return 0
 }
 
+shadow reset_module_aliases {
+    (reset_module_aliases)
+    assert (== (array_length module_aliases) 0)
+}
+
 fn reset_func_aliases() -> int {
     set func_aliases []
     set func_alias_targets []
     return 0
+}
+
+shadow reset_func_aliases {
+    (reset_func_aliases)
+    assert (== (array_length func_aliases) 0)
 }
 
 fn add_module_alias(alias: string, module_name: string) -> int {
@@ -73,6 +83,13 @@ fn resolve_module_alias(name: string) -> string {
     return name
 }
 
+shadow resolve_module_alias {
+    (reset_module_aliases)
+    (add_module_alias "io" "std/io")
+    assert (== (resolve_module_alias "io") "std/io")
+    assert (== (resolve_module_alias "unknown") "unknown")
+}
+
 fn resolve_func_alias(name: string) -> string {
     let mut i: int = 0
     let n: int = (array_length func_aliases)
@@ -83,6 +100,13 @@ fn resolve_func_alias(name: string) -> string {
         set i (+ i 1)
     }
     return ""
+}
+
+shadow resolve_func_alias {
+    (reset_func_aliases)
+    (add_func_alias "f" "module::func")
+    assert (== (resolve_func_alias "f") "module::func")
+    assert (== (resolve_func_alias "unknown") "")
 }
 
 fn codegen_new() -> CodeGenState {
@@ -269,6 +293,12 @@ fn last_double_colon_index(s: string) -> int {
     return last
 }
 
+shadow last_double_colon_index {
+    assert (== (last_double_colon_index "module::function") 6)
+    assert (== (last_double_colon_index "a::b::c") 4)
+    assert (== (last_double_colon_index "test") -1)
+}
+
 fn last_dot_index(s: string) -> int {
     let len: int = (str_length s)
     let mut i: int = 0
@@ -280,6 +310,12 @@ fn last_dot_index(s: string) -> int {
         set i (+ i 1)
     }
     return last
+}
+
+shadow last_dot_index {
+    assert (== (last_dot_index "file.nano") 4)
+    assert (== (last_dot_index "a.b.c") 3)
+    assert (== (last_dot_index "test") -1)
 }
 
 fn last_slash_index(s: string) -> int {
@@ -295,6 +331,12 @@ fn last_slash_index(s: string) -> int {
     return last
 }
 
+shadow last_slash_index {
+    assert (== (last_slash_index "/path/to/file.nano") 8)
+    assert (== (last_slash_index "dir/file") 3)
+    assert (== (last_slash_index "test") -1)
+}
+
 fn module_name_from_path(path: string) -> string {
     let last_slash: int = (last_slash_index path)
     let last_dot: int = (last_dot_index path)
@@ -306,6 +348,12 @@ fn module_name_from_path(path: string) -> string {
     } else {
         return (str_substring path start len)
     }
+}
+
+shadow module_name_from_path {
+    assert (== (module_name_from_path "src/lexer.nano") "lexer")
+    assert (== (module_name_from_path "file.nano") "file")
+    assert (== (module_name_from_path "test") "test")
 }
 
 fn build_module_alias_map(parser: Parser) -> int {
@@ -384,6 +432,12 @@ fn mangle_module_ident(name: string) -> string {
     return out
 }
 
+shadow mangle_module_ident {
+    assert (== (mangle_module_ident "module::function") "module__function")
+    assert (== (mangle_module_ident "std.io") "std__io")
+    assert (== (mangle_module_ident "List<int>") "List_int_")
+}
+
 fn is_builtin_list_runtime_fn(name: string) -> bool {
     return (or (transp_str_starts_with name "list_int_") (transp_str_starts_with name "list_string_"))
 }
@@ -425,6 +479,12 @@ fn c_name_for_qualified_function(func_name: string) -> string {
             return func_name
         }
     }
+}
+
+shadow c_name_for_qualified_function {
+    (reset_module_aliases)
+    assert (== (c_name_for_qualified_function "std::io::print") "std__io__nl_print")
+    assert (== (c_name_for_qualified_function "file.read") "file__nl_read")
 }
 
 fn c_func_name_for_call(func_name: string) -> string {
@@ -934,6 +994,12 @@ fn mangle_type_name(name: string) -> string {
     }
 
     return out
+}
+
+shadow mangle_type_name {
+    assert (== (mangle_type_name "List<Point>") "List_Point_")
+    assert (== (mangle_type_name "Option::Some") "Option_Some")
+    assert (== (mangle_type_name "(int, string)") "_int__string_")
 }
 
 fn tuple_typedef_name(tuple_type: string) -> string {
