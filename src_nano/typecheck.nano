@@ -2070,8 +2070,19 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 return list_type
             } else {
                 /* Check if it's a user-defined function */
-                let lookup: OptionType = (env_get_type symbols fn_name)
-                if lookup.has_value { return lookup.value } else { return (type_unknown_named fn_name) }
+                let idx: int = (env_lookup symbols fn_name)
+                if (>= idx 0) {
+                    let sym: Symbol = (at symbols idx)
+                    if sym.is_function {
+                        /* For function calls, return the return type, not the function type */
+                        return sym.return_type
+                    } else {
+                        /* Not a function - return variable type */
+                        return sym.sym_type
+                    }
+                } else {
+                    return (type_unknown_named fn_name)
+                }
             }
         }
     } else { (print "") }
