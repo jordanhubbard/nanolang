@@ -1192,6 +1192,26 @@ fn check_builtin_function(fn_name: string, arg_count: int) -> NSType {
     if (== fn_name "println") { return (type_void) } else { (print "") }
     if (== fn_name "assert") { return (type_void) } else { (print "") }
     
+    /* Arithmetic operators */
+    if (== fn_name "+") { return (type_int) } else { (print "") }
+    if (== fn_name "-") { return (type_int) } else { (print "") }
+    if (== fn_name "*") { return (type_int) } else { (print "") }
+    if (== fn_name "/") { return (type_int) } else { (print "") }
+    if (== fn_name "%") { return (type_int) } else { (print "") }
+    
+    /* Comparison operators */
+    if (== fn_name "==") { return (type_bool) } else { (print "") }
+    if (== fn_name "!=") { return (type_bool) } else { (print "") }
+    if (== fn_name "<") { return (type_bool) } else { (print "") }
+    if (== fn_name "<=") { return (type_bool) } else { (print "") }
+    if (== fn_name ">") { return (type_bool) } else { (print "") }
+    if (== fn_name ">=") { return (type_bool) } else { (print "") }
+    
+    /* Logical operators */
+    if (== fn_name "and") { return (type_bool) } else { (print "") }
+    if (== fn_name "or") { return (type_bool) } else { (print "") }
+    if (== fn_name "not") { return (type_bool) } else { (print "") }
+    
     /* Math functions */
     if (== fn_name "abs") { return (type_int) } else { (print "") }
     if (== fn_name "min") { return (type_int) } else { (print "") }
@@ -1975,7 +1995,41 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         let lookup: OptionType = (env_get_type symbols id_node.name)
         if lookup.has_value { return lookup.value } else { return (type_unknown_named id_node.name) }
     } else { (print "") }
-    if (== node_type ParseNodeType.PNODE_CALL) { return (type_unknown_named "call") } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_BINARY_OP) {
+        let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
+        /* Arithmetic operators return int */
+        if (or (== binop.op 57) (or (== binop.op 58) (or (== binop.op 59) (or (== binop.op 60) (== binop.op 61))))) {
+            return (type_int)
+        } else {
+            /* Comparison and logical operators return bool */
+            if (or (or (or (== binop.op 62) (== binop.op 63)) (or (== binop.op 64) (== binop.op 65))) (or (or (== binop.op 66) (== binop.op 67)) (or (== binop.op 68) (== binop.op 69)))) {
+                return (type_bool)
+            } else {
+                return (type_unknown_named "binop")
+            }
+        }
+    } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_CALL) {
+        let call_node: ASTCall = (parser_get_call parser node_id)
+        /* Get function name from identifier node */
+        let fn_id_node: ASTIdentifier = (parser_get_identifier parser call_node.function)
+        let fn_name: string = fn_id_node.name
+        /* Check if it's a builtin function/operator */
+        let builtin_type: NSType = (check_builtin_function fn_name call_node.arg_count)
+        if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
+            return builtin_type
+        } else {
+            /* Check if it's a List<T> function */
+            let list_type: NSType = (check_list_function_call fn_name call_node.arg_count)
+            if (!= list_type.kind TypeKind.TYPE_UNKNOWN) {
+                return list_type
+            } else {
+                /* Check if it's a user-defined function */
+                let lookup: OptionType = (env_get_type symbols fn_name)
+                if lookup.has_value { return lookup.value } else { return (type_unknown_named fn_name) }
+            }
+        }
+    } else { (print "") }
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (check_union_construct parser node_id) } else { (print "") }
     if (== node_type ParseNodeType.PNODE_MATCH) { return (check_match_expr parser node_id symbols diags file_name) } else { (print "") }
     return (type_unknown_named "expr")
