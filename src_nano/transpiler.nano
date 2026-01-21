@@ -2713,8 +2713,8 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         /* Module-qualified function call: Module.function(args...) */
                         let mqc: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
                         
-                        /* Build qualified name for C function lookup */
-                        let qualified_name: string = (+ mqc.module_name (+ "." mqc.function_name))
+                        /* Use function_name which contains full qualified name */
+                        let qualified_name: string = mqc.function_name
                         let c_func_name: string = (c_name_for_qualified_function qualified_name)
                         
                         let mut parts: array<string> = []

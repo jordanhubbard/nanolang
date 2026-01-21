@@ -1721,45 +1721,6 @@ shadow name_contains_dot {
     assert (== (name_contains_dot "Diagnostics.diag_error") true)
 }
 
-/* Helper: Split Module.function into module and function parts */
-fn split_module_function(name: string) -> ModuleFunctionPair {
-    let mut dot_pos: int = (- 0 1)
-    let mut i: int = 0
-    let len: int = (str_length name)
-    while (< i len) {
-        if (== (char_at name i) 46) {  /* 46 is ASCII '.' */
-            set dot_pos i
-        } else {
-            (print "")
-        }
-        set i (+ i 1)
-    }
-    
-    if (< dot_pos 0) {
-        /* No dot found, return empty module */
-        return ModuleFunctionPair { module_name: "", function_name: name }
-    } else {
-        let module_name: string = (str_slice name 0 dot_pos)
-        let function_name: string = (str_slice name (+ dot_pos 1) len)
-        return ModuleFunctionPair { module_name: module_name, function_name: function_name }
-    }
-}
-
-shadow split_module_function {
-    let pair1: ModuleFunctionPair = (split_module_function "Module.function")
-    assert (== pair1.module_name "Module")
-    assert (== pair1.function_name "function")
-    
-    let pair2: ModuleFunctionPair = (split_module_function "simple_function")
-    assert (== pair2.module_name "")
-    assert (== pair2.function_name "simple_function")
-}
-
-struct ModuleFunctionPair {
-    module_name: string,
-    function_name: string
-}
-
 /* Helper: Store a call argument reference (expression node id + expression kind) */
 fn parser_store_call_arg(p: Parser, node_id: int, node_type: int) -> Parser {
     let r: ASTStmtRef = ASTStmtRef {
@@ -2496,8 +2457,9 @@ fn parse_primary(p: Parser) -> Parser {
                                                         }
                                                         /* Store appropriate call type */
                                                         if is_module_call {
-                                                            let pair: ModuleFunctionPair = (split_module_function func_name)
-                                                            return (parser_store_module_qualified_call p4 pair.module_name pair.function_name arg_start arg_count tok.line tok.column)
+                                                            /* For now, store full qualified name in function_name, empty module_name */
+                                                            /* String splitting will be handled in C where proper string functions exist */
+                                                            return (parser_store_module_qualified_call p4 "" func_name arg_start arg_count tok.line tok.column)
                                                         } else {
                                                             return (parser_store_call p4 func_id arg_start arg_count tok.line tok.column)
                                                         }

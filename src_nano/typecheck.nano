@@ -2089,8 +2089,8 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
         let mqc_node: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
-        /* Build qualified name: Module.function */
-        let qualified_name: string = (+ mqc_node.module_name (+ "." mqc_node.function_name))
+        /* Use function_name which contains full qualified name (Module.function) */
+        let qualified_name: string = mqc_node.function_name
         /* Look up function in symbol table using qualified name */
         let idx: int = (env_lookup symbols qualified_name)
         if (>= idx 0) {
