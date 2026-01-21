@@ -1630,61 +1630,155 @@ shadow gen_c_includes {
 
 /* Generate runtime helper functions */
 fn gen_c_runtime() -> string {
-    let mut result: string = "/* Runtime helper functions */\n"
+    let mut result: string = "/* ========== Math and Utility Built-in Functions ========== */\n\n"
     
-    /* print function */
+    /* Math macros (abs, min, max) - use _Generic for type safety */
+    set result (+ result "#define nl_abs(x) _Generic((x), \\\n")
+    set result (+ result "    double: (double)((x) < 0.0 ? -(x) : (x)), \\\n")
+    set result (+ result "    default: (int64_t)((x) < 0 ? -(x) : (x)))\n\n")
+    
+    set result (+ result "#define nl_min(a, b) _Generic((a), \\\n")
+    set result (+ result "    double: (double)((a) < (b) ? (a) : (b)), \\\n")
+    set result (+ result "    default: (int64_t)((a) < (b) ? (a) : (b)))\n\n")
+    
+    set result (+ result "#define nl_max(a, b) _Generic((a), \\\n")
+    set result (+ result "    double: (double)((a) > (b) ? (a) : (b)), \\\n")
+    set result (+ result "    default: (int64_t)((a) > (b) ? (a) : (b)))\n\n")
+    
+    /* Print functions */
+    set result (+ result "/* Print functions */\n")
     set result (+ result "void nl_print(char* s) {\n")
     set result (+ result "    printf(\"%s\", s);\n")
     set result (+ result "}\n\n")
     
-    /* println function */
     set result (+ result "void nl_println(char* s) {\n")
     set result (+ result "    printf(\"%s\\n\", s);\n")
     set result (+ result "}\n\n")
     
-    /* int_to_string function */
+    /* Type conversion functions */
+    set result (+ result "/* Type conversions */\n")
     set result (+ result "char* nl_int_to_string(int64_t n) {\n")
-    set result (+ result "    char* buf = malloc(32);\n")
-    set result (+ result "    snprintf(buf, 32, \"%lld\", n);\n")
-    set result (+ result "    return buf;\n")
+    set result (+ result "    char* buffer = malloc(32);\n")
+    set result (+ result "    if (!buffer) return \"\";\n")
+    set result (+ result "    snprintf(buffer, 32, \"%lld\", (long long)n);\n")
+    set result (+ result "    return buffer;\n")
     set result (+ result "}\n\n")
-
-    /* string concat helper */
+    
+    set result (+ result "char* nl_float_to_string(double x) {\n")
+    set result (+ result "    char* buffer = malloc(64);\n")
+    set result (+ result "    if (!buffer) return \"\";\n")
+    set result (+ result "    snprintf(buffer, 64, \"%g\", x);\n")
+    set result (+ result "    return buffer;\n")
+    set result (+ result "}\n\n")
+    
+    set result (+ result "char* nl_bool_to_string(bool b) {\n")
+    set result (+ result "    return b ? \"true\" : \"false\";\n")
+    set result (+ result "}\n\n")
+    
+    set result (+ result "int64_t nl_string_to_int(const char* s) {\n")
+    set result (+ result "    return strtoll(s, NULL, 10);\n")
+    set result (+ result "}\n\n")
+    
+    set result (+ result "double nl_string_to_float(const char* s) {\n")
+    set result (+ result "    return strtod(s, NULL);\n")
+    set result (+ result "}\n\n")
+    
+    /* String operations */
+    set result (+ result "/* String operations */\n")
     set result (+ result "char* nl_str_concat(const char* a, const char* b) {\n")
     set result (+ result "    size_t la = strlen(a);\n")
     set result (+ result "    size_t lb = strlen(b);\n")
     set result (+ result "    char* out = (char*)malloc(la + lb + 1);\n")
+    set result (+ result "    if (!out) return \"\";\n")
     set result (+ result "    memcpy(out, a, la);\n")
     set result (+ result "    memcpy(out + la, b, lb);\n")
     set result (+ result "    out[la + lb] = 0;\n")
     set result (+ result "    return out;\n")
     set result (+ result "}\n\n")
     
-    /* string length function */
-    set result (+ result "int64_t nl_str_length(const char* s) {\n")
-    set result (+ result "    return (int64_t)strlen(s);\n")
-    set result (+ result "}\n\n")
-
-    /* char_at: return byte at index (ASCII-safe) */
-    set result (+ result "int64_t nl_char_at(const char* s, int64_t i) {\n")
-    set result (+ result "    return (int64_t)((unsigned char)s[i]);\n")
-    set result (+ result "}\n\n")
-
-    /* substring: allocate a new null-terminated slice */
     set result (+ result "char* nl_str_substring(const char* s, int64_t start, int64_t len) {\n")
-    set result (+ result "    if (!s) return NULL;\n")
+    set result (+ result "    if (!s) return \"\";\n")
     set result (+ result "    int64_t n = (int64_t)strlen(s);\n")
     set result (+ result "    if (start < 0) start = 0;\n")
     set result (+ result "    if (len < 0) len = 0;\n")
     set result (+ result "    if (start > n) start = n;\n")
     set result (+ result "    if (start + len > n) len = n - start;\n")
     set result (+ result "    char* out = (char*)malloc((size_t)len + 1);\n")
-    set result (+ result "    if (!out) return NULL;\n")
+    set result (+ result "    if (!out) return \"\";\n")
     set result (+ result "    memcpy(out, s + start, (size_t)len);\n")
     set result (+ result "    out[len] = 0;\n")
     set result (+ result "    return out;\n")
     set result (+ result "}\n\n")
-
+    
+    set result (+ result "bool nl_str_contains(const char* str, const char* substr) {\n")
+    set result (+ result "    return strstr(str, substr) != NULL;\n")
+    set result (+ result "}\n\n")
+    
+    set result (+ result "bool nl_str_equals(const char* s1, const char* s2) {\n")
+    set result (+ result "    return strcmp(s1, s2) == 0;\n")
+    set result (+ result "}\n\n")
+    
+    /* Character operations */
+    set result (+ result "/* Character operations */\n")
+    set result (+ result "int64_t nl_char_at(const char* s, int64_t i) {\n")
+    set result (+ result "    return (int64_t)((unsigned char)s[i]);\n")
+    set result (+ result "}\n\n")
+    
+    set result (+ result "char* nl_string_from_char(int64_t c) {\n")
+    set result (+ result "    char* buffer = malloc(2);\n")
+    set result (+ result "    if (!buffer) return \"\";\n")
+    set result (+ result "    buffer[0] = (char)c;\n")
+    set result (+ result "    buffer[1] = 0;\n")
+    set result (+ result "    return buffer;\n")
+    set result (+ result "}\n\n")
+    
+    /* Character classification */
+    set result (+ result "/* Character classification */\n")
+    set result (+ result "bool nl_is_digit(int64_t c) {\n")
+    set result (+ result "    return c >= '0' && c <= '9';\n")
+    set result (+ result "}\n\n")
+    
+    set result (+ result "bool nl_is_alpha(int64_t c) {\n")
+    set result (+ result "    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');\n")
+    set result (+ result "}\n\n")
+    
+    set result (+ result "bool nl_is_alnum(int64_t c) {\n")
+    set result (+ result "    return nl_is_digit(c) || nl_is_alpha(c);\n")
+    set result (+ result "}\n\n")
+    
+    set result (+ result "bool nl_is_whitespace(int64_t c) {\n")
+    set result (+ result "    return c == ' ' || c == '\\t' || c == '\\n' || c == '\\r';\n")
+    set result (+ result "}\n\n")
+    
+    set result (+ result "bool nl_is_upper(int64_t c) {\n")
+    set result (+ result "    return c >= 'A' && c <= 'Z';\n")
+    set result (+ result "}\n\n")
+    
+    set result (+ result "bool nl_is_lower(int64_t c) {\n")
+    set result (+ result "    return c >= 'a' && c <= 'z';\n")
+    set result (+ result "}\n\n")
+    
+    set result (+ result "int64_t nl_digit_value(int64_t c) {\n")
+    set result (+ result "    if (c >= '0' && c <= '9') {\n")
+    set result (+ result "        return c - '0';\n")
+    set result (+ result "    }\n")
+    set result (+ result "    return -1;\n")
+    set result (+ result "}\n\n")
+    
+    set result (+ result "int64_t nl_char_to_lower(int64_t c) {\n")
+    set result (+ result "    if (c >= 'A' && c <= 'Z') {\n")
+    set result (+ result "        return c + 32;\n")
+    set result (+ result "    }\n")
+    set result (+ result "    return c;\n")
+    set result (+ result "}\n\n")
+    
+    set result (+ result "int64_t nl_char_to_upper(int64_t c) {\n")
+    set result (+ result "    if (c >= 'a' && c <= 'z') {\n")
+    set result (+ result "        return c - 32;\n")
+    set result (+ result "    }\n")
+    set result (+ result "    return c;\n")
+    set result (+ result "}\n\n")
+    
     /* Module std_fs FFI (unprefixed symbols when sources are merged directly) */
     set result (+ result "/* std_fs externs (provided by modules/std/fs.c) */\n")
     set result (+ result "extern DynArray* fs_walkdir(const char* root);\n")
@@ -1698,11 +1792,7 @@ fn gen_c_runtime() -> string {
     set result (+ result "extern bool file_exists(const char* path);\n")
     set result (+ result "extern int64_t file_delete(const char* path);\n\n")
     
-    /* min function */
-    set result (+ result "#define nl_min(a, b) ((a) < (b) ? (a) : (b))\n\n")
-    
-    /* max function */
-    set result (+ result "#define nl_max(a, b) ((a) > (b) ? (a) : (b))\n\n")
+    set result (+ result "/* ========== End Math and Utility Built-in Functions ========== */\n\n")
     
     return result
 }
