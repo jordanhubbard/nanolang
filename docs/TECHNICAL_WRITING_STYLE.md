@@ -512,7 +512,7 @@ For more complex pattern matching, use the `regex` module.
 - `str_starts_with()` - Check if string starts with prefix
 - `str_ends_with()` - Check if string ends with suffix
 - `str_index_of()` - Find position of substring
-- [Chapter 13: regex](../part3_modules/13_text_processing/regex.md) - Pattern matching
+- [Chapter 13: Text Processing](../userguide/part3_modules/13_text_processing/index.md) - Pattern matching with regex
 
 **Common Pitfalls:**
 - ⚠️ Case-sensitive: `"Hello"` does not contain `"hello"`
