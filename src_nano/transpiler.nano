@@ -1427,15 +1427,16 @@ fn gen_binary_op(op: string, left: string, right: string) -> string {
         }
     }
     
-    let mut result: string = "("
-    set result (+ result left)
-    set result (+ result " ")
-    set result (+ result c_op)
-    set result (+ result " ")
-    set result (+ result right)
-    set result (+ result ")")
+    let mut parts: array<string> = []
+    set parts (sb_append parts "(")
+    set parts (sb_append parts left)
+    set parts (sb_append parts " ")
+    set parts (sb_append parts c_op)
+    set parts (sb_append parts " ")
+    set parts (sb_append parts right)
+    set parts (sb_append parts ")")
     
-    return result
+    return (sb_build parts)
 }
 
 shadow gen_binary_op {
@@ -1445,9 +1446,10 @@ shadow gen_binary_op {
 
 /* Generate code for a function call */
 fn gen_call(func_name: string, args: array<string>) -> string {
-    let mut result: string = "nl_"
-    set result (+ result (mangle_name func_name))
-    set result (+ result "(")
+    let mut parts: array<string> = []
+    set parts (sb_append parts "nl_")
+    set parts (sb_append parts (mangle_name func_name))
+    set parts (sb_append parts "(")
     
     /* Add arguments */
     let arg_count: int = (array_length args)
@@ -1455,18 +1457,18 @@ fn gen_call(func_name: string, args: array<string>) -> string {
     
     while (< i arg_count) {
         if (> i 0) {
-            set result (+ result ", ")
+            set parts (sb_append parts ", ")
         } else {
             (print "")
         }
         
         /* Directly use (at args i) to avoid type inference issue */
-        set result (+ result (at args i))
+        set parts (sb_append parts (at args i))
         set i (+ i 1)
     }
     
-    set result (+ result ")")
-    return result
+    set parts (sb_append parts ")")
+    return (sb_build parts)
 }
 
 shadow gen_call {
@@ -1487,19 +1489,20 @@ shadow gen_call {
 
 /* Generate code for a let statement */
 fn gen_let(name: string, type_name: string, value_expr: string, indent: int) -> string {
-    let mut result: string = (gen_indent indent)
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
     
     /* Convert nanolang type to C type using helper */
     let c_type: string = (type_to_c type_name)
     
-    set result (+ result c_type)
-    set result (+ result " nl_")
-    set result (+ result name)
-    set result (+ result " = ")
-    set result (+ result value_expr)
-    set result (+ result ";\n")
+    set parts (sb_append parts c_type)
+    set parts (sb_append parts " nl_")
+    set parts (sb_append parts name)
+    set parts (sb_append parts " = ")
+    set parts (sb_append parts value_expr)
+    set parts (sb_append parts ";\n")
     
-    return result
+    return (sb_build parts)
 }
 
 shadow gen_let {
@@ -1510,26 +1513,27 @@ shadow gen_let {
 
 /* Generate code for an if statement */
 fn gen_if(condition: string, then_body: string, else_body: string, indent: int) -> string {
-    let mut result: string = (gen_indent indent)
-    set result (+ result "if (")
-    set result (+ result condition)
-    set result (+ result ") {\n")
-    set result (+ result then_body)
-    set result (+ result (gen_indent indent))
-    set result (+ result "}")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "if (")
+    set parts (sb_append parts condition)
+    set parts (sb_append parts ") {\n")
+    set parts (sb_append parts then_body)
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "}")
     
     /* Add else clause if present */
     if (!= else_body "") {
-        set result (+ result " else {\n")
-        set result (+ result else_body)
-        set result (+ result (gen_indent indent))
-        set result (+ result "}")
+        set parts (sb_append parts " else {\n")
+        set parts (sb_append parts else_body)
+        set parts (sb_append parts (gen_indent indent))
+        set parts (sb_append parts "}")
     } else {
         (print "")
     }
     
-    set result (+ result "\n")
-    return result
+    set parts (sb_append parts "\n")
+    return (sb_build parts)
 }
 
 shadow gen_if {
@@ -3130,13 +3134,14 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         set out_c (type_to_c expected_type)
     } else { (print "") }
 
-    let mut code: string = "({ "
-    set code (+ code union_c)
-    set code (+ code " _m = ")
-    set code (+ code scr_code)
-    set code (+ code "; ")
-    set code (+ code out_c)
-    set code (+ code " _out = 0; switch (_m.tag) { ")
+    let mut parts: array<string> = []
+    set parts (sb_append parts "({ ")
+    set parts (sb_append parts union_c)
+    set parts (sb_append parts " _m = ")
+    set parts (sb_append parts scr_code)
+    set parts (sb_append parts "; ")
+    set parts (sb_append parts out_c)
+    set parts (sb_append parts " _out = 0; switch (_m.tag) { ")
 
     let mut i: int = 0
     while (< i m.arm_count) {
@@ -3159,16 +3164,16 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         set var_type_parts (sb_append var_type_parts variant)
         let variant_type: string = (sb_build var_type_parts)
 
-        set code (+ code "case ")
-        set code (+ code tag_name)
-        set code (+ code ": { ")
+        set parts (sb_append parts "case ")
+        set parts (sb_append parts tag_name)
+        set parts (sb_append parts ": { ")
 
-        set code (+ code variant_type)
-        set code (+ code " ")
-        set code (+ code (mangle_name binding))
-        set code (+ code " = _m.data.")
-        set code (+ code variant)
-        set code (+ code "; ")
+        set parts (sb_append parts variant_type)
+        set parts (sb_append parts " ")
+        set parts (sb_append parts (mangle_name binding))
+        set parts (sb_append parts " = _m.data.")
+        set parts (sb_append parts variant)
+        set parts (sb_append parts "; ")
 
         let mut type_name_parts: array<string> = []
         set type_name_parts (sb_append type_name_parts union_name)
@@ -3178,20 +3183,20 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
 
         if (== body_type ParseNodeType.PNODE_BLOCK) {
             /* Block bodies in expression match aren't supported here; assume they return */
-            set code (+ code "/* unsupported match arm block */ ")
+            set parts (sb_append parts "/* unsupported match arm block */ ")
         } else {
             let expr_code: string = (generate_expression parser body_id body_type env_arm expected_type)
-            set code (+ code "_out = ")
-            set code (+ code expr_code)
-            set code (+ code "; ")
+            set parts (sb_append parts "_out = ")
+            set parts (sb_append parts expr_code)
+            set parts (sb_append parts "; ")
         }
 
-        set code (+ code "break; } ")
+        set parts (sb_append parts "break; } ")
         set i (+ i 1)
     }
 
-    set code (+ code "} _out; })")
-    return code
+    set parts (sb_append parts "} _out; })")
+    return (sb_build parts)
 }
 
 fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, return_type: string) -> string {
@@ -3220,16 +3225,17 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
     set union_parts (sb_append union_parts (mangle_name union_name))
     let union_c: string = (sb_build union_parts)
 
-    let mut code: string = (gen_indent indent)
-    set code (+ code "{\n")
-    set code (+ code (gen_indent (+ indent 1)))
-    set code (+ code union_c)
-    set code (+ code " _m = ")
-    set code (+ code scr_code)
-    set code (+ code ";\n")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "{\n")
+    set parts (sb_append parts (gen_indent (+ indent 1)))
+    set parts (sb_append parts union_c)
+    set parts (sb_append parts " _m = ")
+    set parts (sb_append parts scr_code)
+    set parts (sb_append parts ";\n")
 
-    set code (+ code (gen_indent (+ indent 1)))
-    set code (+ code "switch (_m.tag) {\n")
+    set parts (sb_append parts (gen_indent (+ indent 1)))
+    set parts (sb_append parts "switch (_m.tag) {\n")
 
     let mut i: int = 0
     while (< i m.arm_count) {
@@ -3252,18 +3258,18 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
         set var_type_parts (sb_append var_type_parts variant)
         let variant_type: string = (sb_build var_type_parts)
 
-        set code (+ code (gen_indent (+ indent 2)))
-        set code (+ code "case ")
-        set code (+ code tag_name)
-        set code (+ code ": {\n")
+        set parts (sb_append parts (gen_indent (+ indent 2)))
+        set parts (sb_append parts "case ")
+        set parts (sb_append parts tag_name)
+        set parts (sb_append parts ": {\n")
 
-        set code (+ code (gen_indent (+ indent 3)))
-        set code (+ code variant_type)
-        set code (+ code " nl_")
-        set code (+ code (mangle_name binding))
-        set code (+ code " = _m.data.")
-        set code (+ code variant)
-        set code (+ code ";\n")
+        set parts (sb_append parts (gen_indent (+ indent 3)))
+        set parts (sb_append parts variant_type)
+        set parts (sb_append parts " nl_")
+        set parts (sb_append parts (mangle_name binding))
+        set parts (sb_append parts " = _m.data.")
+        set parts (sb_append parts variant)
+        set parts (sb_append parts ";\n")
 
         let mut type_name_parts: array<string> = []
         set type_name_parts (sb_append type_name_parts union_name)
@@ -3272,27 +3278,27 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
         let env_arm: GenEnv = (genenv_put env binding (sb_build type_name_parts))
 
         if (== body_type ParseNodeType.PNODE_BLOCK) {
-            set code (+ code (generate_block parser body_id (+ indent 3) env_arm return_type))
+            set parts (sb_append parts (generate_block parser body_id (+ indent 3) env_arm return_type))
         } else {
             let expr_code: string = (generate_expression parser body_id body_type env_arm "")
-            set code (+ code (gen_indent (+ indent 3)))
-            set code (+ code expr_code)
-            set code (+ code ";\n")
+            set parts (sb_append parts (gen_indent (+ indent 3)))
+            set parts (sb_append parts expr_code)
+            set parts (sb_append parts ";\n")
         }
 
-        set code (+ code (gen_indent (+ indent 3)))
-        set code (+ code "break;\n")
+        set parts (sb_append parts (gen_indent (+ indent 3)))
+        set parts (sb_append parts "break;\n")
 
-        set code (+ code (gen_indent (+ indent 2)))
-        set code (+ code "}\n")
+        set parts (sb_append parts (gen_indent (+ indent 2)))
+        set parts (sb_append parts "}\n")
         set i (+ i 1)
     }
 
-    set code (+ code (gen_indent (+ indent 1)))
-    set code (+ code "}\n")
-    set code (+ code (gen_indent indent))
-    set code (+ code "}\n")
-    return code
+    set parts (sb_append parts (gen_indent (+ indent 1)))
+    set parts (sb_append parts "}\n")
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "}\n")
+    return (sb_build parts)
 }
 
 struct StmtGenResult {
