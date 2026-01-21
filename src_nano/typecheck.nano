@@ -142,6 +142,12 @@ fn type_unknown_named(label: string) -> NSType {
     }
 }
 
+shadow type_unknown_named {
+    let t: NSType = (type_unknown_named "test")
+    assert (== t.kind TypeKind.TYPE_UNKNOWN)
+    assert (== t.name "test")
+}
+
 /* =============================================================================
  * STRUCT METADATA REGISTRY - For accurate field type inference
  * ============================================================================= */
@@ -513,6 +519,12 @@ fn capitalize_first(s: string) -> string {
     }
 }
 
+shadow capitalize_first {
+    assert (== (capitalize_first "parser") "Parser")
+    assert (== (capitalize_first "Parser") "Parser")
+    assert (== (capitalize_first "tok") "LexerToken")
+}
+
 /* Extract user-defined struct metadata from parser */
 fn extract_user_struct_metadata(parser: Parser) -> array<FieldMetadata> {
     let mut metadata: array<FieldMetadata> = []
@@ -613,11 +625,23 @@ fn option_type_some(value: NSType) -> OptionType {
     }
 }
 
+shadow option_type_some {
+    let t: NSType = (type_int)
+    let opt: OptionType = (option_type_some t)
+    assert opt.has_value
+    assert (== opt.value.kind TypeKind.TYPE_INT)
+}
+
 fn option_type_none() -> OptionType {
     return OptionType {
         has_value: false,
         value: (type_unknown_named "none")
     }
+}
+
+shadow option_type_none {
+    let opt: OptionType = (option_type_none)
+    assert (not opt.has_value)
 }
 
 /* Create array type */
@@ -1490,6 +1514,12 @@ fn type_kind_to_string(kind: int, name: string) -> string {
     else { if (== kind TypeKind.TYPE_TUPLE) { return "tuple" }
     else { if (== kind TypeKind.TYPE_FUNCTION) { return "fn" }
     else { return "unknown" } } } } } } } }
+}
+
+shadow type_kind_to_string {
+    assert (== (type_kind_to_string TypeKind.TYPE_INT "") "int")
+    assert (== (type_kind_to_string TypeKind.TYPE_BOOL "") "bool")
+    assert (== (type_kind_to_string TypeKind.TYPE_STRUCT "Point") "Point")
 }
 
 shadow type_to_string {
