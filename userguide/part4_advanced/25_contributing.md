@@ -1,46 +1,86 @@
-# Chapter 25: Contributing & Extending
+# Chapter 25: Contributing
 
-**Create FFI modules, work with C interop, and contribute to NanoLang.**
+**How to contribute to NanoLang.**
 
-## 25.1 Creating FFI Modules
+Contributions are welcome! Follow these guidelines.
 
-### What is FFI?
+## 25.1 Development Setup
 
-### Module Structure
+```bash
+# Clone repository
+git clone https://github.com/yourusername/nanolang.git
+cd nanolang
 
-### Writing Bindings
+# Build
+make clean
+make
 
-### Complete Example
+# Run tests
+make test
+```
 
-## 25.2 C Interop Patterns
+## 25.2 Code Standards
 
-### Calling C from NanoLang
+**All changes must:**
+- ✅ Compile with `-Wall -Wextra -Werror`
+- ✅ Pass all existing tests
+- ✅ Include shadow tests for new functions
+- ✅ Follow canonical style
+- ✅ Update documentation
 
-### Data Type Mapping
+## 25.3 Adding Features
 
-### Memory Management Across Boundaries
+**Before proposing language features, consider:**
+- Is it worth 2× implementation cost? (C + NanoLang)
+- Can it be a library function instead?
+- Does it maintain LLM-first design?
 
-### Error Handling
+**Prefer:**
+- ✅ Library functions
+- ✅ Simple, regular grammar
+- ✅ Explicit constructs
 
-## 25.3 Module Packaging
+**Avoid:**
+- ❌ Syntax sugar
+- ❌ Complex type inference
+- ❌ Multiple ways to do same thing
 
-### Module Manifest Files
+## 25.4 Pull Request Process
 
-### Dependencies
+1. Create feature branch
+2. Make changes
+3. Add tests
+4. Update docs
+5. Commit with descriptive message
+6. Open PR with summary
 
-### Publishing Modules
+## 25.5 Testing Requirements
 
-## 25.4 Contributing to NanoLang
+```nano
+# ✅ Every function needs shadow tests
+fn new_feature(x: int) -> int {
+    return (* x 2)
+}
 
-### Development Setup
+shadow new_feature {
+    assert (== (new_feature 5) 10)
+    assert (== (new_feature 0) 0)
+    assert (== (new_feature -3) -6)
+}
+```
 
-### The Dual Implementation Requirement
+## Summary
 
-### Testing Requirements
+**Contributing checklist:**
+- ✅ Follow code standards
+- ✅ Include shadow tests
+- ✅ Update documentation
+- ✅ Consider 2× implementation cost
+- ✅ Maintain LLM-first design
 
-### Pull Request Process
+**See also:** `CONTRIBUTING.md`, `.factory/PROJECT_RULES.md`
 
 ---
 
-**Previous:** [Chapter 24: Performance & Optimization](24_performance.md)  
+**Previous:** [Chapter 24: Self-Hosting](24_self_hosting.md)  
 **Next:** [Appendix A: Examples Gallery](../appendices/a_examples_gallery.md)

@@ -1,66 +1,65 @@
 # Appendix D: Glossary
 
-**Technical terms and NanoLang-specific concepts.**
+**Key terms and concepts.**
 
 ## A
 
-**Array** - Fixed-size, immutable collection of elements.
+**AST (Abstract Syntax Tree)** - Tree representation of source code structure
 
-**AST** - Abstract Syntax Tree. Internal representation of parsed code.
-
-## B
-
-**Binding** - Association of a name with a value using `let`.
+**Array** - Fixed-size, ordered collection of same-type elements
 
 ## C
 
-**Canonical Form** - The one true way to write a particular construct in NanoLang.
+**Canonical Style** - The ONE correct way to write each NanoLang construct
 
-**cond** - Multi-way conditional expression.
+**cond** - Expression-level conditional (returns value)
+
+**Coverage** - Measurement of code execution during testing
 
 ## E
 
-**Extern** - Function declared in C that can be called from NanoLang.
+**Extern** - Function defined in C, callable from NanoLang
 
 ## F
 
-**FFI** - Foreign Function Interface. Mechanism for calling C functions.
+**FFI (Foreign Function Interface)** - Mechanism to call C functions
+
+## H
+
+**HashMap** - Key-value collection with O(1) lookup
 
 ## L
 
-**LLM-First** - Design philosophy prioritizing deterministic code generation by AI.
-
-**List<T>** - Dynamic, growable collection of elements.
-
-## M
-
-**Module** - Unit of code organization in NanoLang.
-
-**mut** - Keyword for declaring mutable variables.
+**LLM-First** - Design principle optimizing for AI code generation
 
 ## O
 
-**Opaque Type** - Type whose internal structure is hidden.
+**Opaque Type** - Type whose internal structure is hidden
 
 ## P
 
-**Prefix Notation** - Syntax where operators come before operands: `(+ a b)`.
+**Prefix Notation** - Function calls of form `(f x y)` instead of `f(x, y)`
+
+**Property Testing** - Testing with randomly generated inputs
 
 ## S
 
-**Shadow Test** - Compile-time test embedded in source code.
+**Self-Hosting** - Compiler written in the language it compiles
 
-**Struct** - Product type grouping multiple fields.
+**Shadow Test** - Compile-time test block attached to function
+
+**stdlib** - Standard library (built-in modules)
 
 ## T
 
-**Transpile** - Convert NanoLang source to C source code.
+**Transpiler** - Compiler that converts NanoLang to C
+
+**TUI (Text User Interface)** - Terminal-based user interface
 
 ## U
 
-**Union** - Tagged union (sum type) representing one of several alternatives.
+**Unsafe Block** - Code region that can call extern functions
 
 ---
 
-**Previous:** [Appendix C: Troubleshooting Guide](c_troubleshooting.md)  
-**Back to:** [User Guide Index](../index.md)
+**Previous:** [Appendix C: Migration Guide](c_migration_guide.md)

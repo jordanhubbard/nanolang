@@ -1,64 +1,49 @@
 # Appendix A: Examples Gallery
 
-**Complete, runnable programs organized by topic.**
+**Complete working programs organized by category.**
 
-## Basic Programs
-
-### Hello World
-
-### Command Line Arguments
-
-### File I/O
+## Getting Started
+- `examples/nl_hello.nano` - Hello World
+- `examples/nl_factorial.nano` - Recursive functions
+- `examples/nl_fibonacci.nano` - Classic algorithm
 
 ## Data Structures
+- `examples/array_operations.nano` - Array manipulation
+- `examples/struct_example.nano` - Custom types
+- `examples/enum_example.nano` - Enumerations
 
-### Linked Lists
+## Text Processing
+- `examples/logging_demo.nano` - Structured logging
+- `examples/string_builder_demo.nano` - Efficient string building
+- `examples/regex_matching.nano` - Pattern matching
 
-### Binary Trees
+## File I/O
+- `examples/file_read_write.nano` - File operations
+- `examples/directory_walker.nano` - File system traversal
+- `examples/config_loader.nano` - Configuration files
 
-### Hash Tables
+## Database
+- `examples/sqlite_basics.nano` - Database creation
+- `examples/sqlite_query.nano` - SQL queries
+- `examples/data/json_demo.nano` - JSON parsing
 
-## Algorithms
+## Graphics
+- `examples/sdl_basic.nano` - Window creation
+- `examples/sdl_particles.nano` - Particle system
+- `examples/sdl_boids.nano` - Flocking simulation
 
-### Sorting
+## Terminal UI
+- `examples/ncurses_menu.nano` - Text menus
+- `examples/ncurses_colors.nano` - Colored output
 
-### Searching
+## Advanced
+- `examples/coverage_demo.nano` - Coverage tracking
+- `examples/property_testing.nano` - Property-based tests
+- `examples/opl/opl_parser.nano` - Language parser
 
-### Graph Algorithms
-
-## Web & Networking
-
-### HTTP Client
-
-### Simple Web Server
-
-### REST API
-
-## Graphics & Games
-
-### 2D Graphics
-
-### Simple Game
-
-### Particle System
-
-## System Programming
-
-### File System Walker
-
-### Process Management
-
-### Network Socket
-
-## Complete Applications
-
-### Text Editor
-
-### JSON Parser
-
-### Database Query Tool
+**All examples include shadow tests and compile successfully.**
 
 ---
 
-**Previous:** [Chapter 25: Contributing & Extending](../part4_advanced/25_contributing.md)  
-**Next:** [Appendix B: Quick Reference](b_quick_reference.md)
+**Previous:** [Chapter 25: Contributing](../part4_advanced/25_contributing.md)  
+**Next:** [Appendix B: Error Reference](b_error_reference.md)

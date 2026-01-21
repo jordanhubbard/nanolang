@@ -1,44 +1,150 @@
-# Chapter 22: Canonical Style Guide
+# Chapter 22: Canonical Style
 
-**The LLM-First design philosophy and the One True Way™ to write NanoLang.**
+**The One True Way™ to write NanoLang code.**
 
-## 22.1 The LLM-First Design Philosophy
+NanoLang has exactly ONE canonical way to write each construct. This eliminates ambiguity and improves LLM code generation.
 
-### Why LLMs Need Canonical Forms
+## 22.1 Core Principle
 
-### The 50% Guessing Problem
+**ONE syntax per operation. No alternatives, no sugar, no shortcuts.**
 
-### Design Principles
+When LLMs see multiple equivalent forms, they guess wrong ~50% of the time. NanoLang solves this by having exactly one way to write everything.
 
-## 22.2 Canonical Forms (Why One Way Matters)
+## 22.2 Prefix Notation ONLY
 
-### One Syntax Per Operation
+```nano
+# ✅ ALWAYS DO THIS
+(+ a b)
+(* x 2)
+(== result 42)
 
-### Prefix Notation Always
+# ❌ NEVER DO THIS
+a + b       # No infix operators!
+x * 2       # Infix doesn't exist
+result == 42  # No infix comparison
+```
 
-### No Syntactic Sugar
+**Rule:** ALL operations use prefix notation `(operator arg1 arg2 ...)`
 
-### Examples of Canonical vs Non-Canonical
+## 22.3 Expressions vs Statements
 
-## 22.3 The Core 50-Primitive Subset
+### Expressions: Use `cond`
 
-### Core Types
+```nano
+# ✅ Expressions return values - use cond
+let result: int = (cond
+    ((< x 0) -1)
+    ((> x 0) 1)
+    (else 0)
+)
+```
 
-### Core Operations
+### Statements: Use `if/else`
 
-### Core Control Flow
+```nano
+# ✅ Statements have side effects - use if/else
+if (< x 0) {
+    (println "negative")
+} else {
+    (println "non-negative")
+}
+```
 
-### When to Use Advanced Features
+**Never mix them up!**
 
-## 22.4 Style Checklist
+## 22.4 String Concatenation
 
-### Before Writing Code
+```nano
+# ✅ ALWAYS use + operator
+let greeting: string = (+ "Hello, " name)
 
-### Code Review Checklist
+# ❌ NEVER use str_concat (deprecated)
+let bad: string = (str_concat "Hello, " name)
+```
 
-### Common Violations
+## 22.5 Array Access
+
+```nano
+# ✅ ALWAYS use array_get
+let value: int = (array_get arr 0)
+
+# ❌ NO subscript syntax (doesn't exist)
+# let value: int = arr[0]  # This is not valid!
+```
+
+## 22.6 Type Annotations
+
+```nano
+# ✅ ALWAYS annotate types explicitly
+let x: int = 42
+let name: string = "Alice"
+let items: array<int> = [1, 2, 3]
+
+# ❌ NEVER omit types
+# let x = 42  # Type inference is minimal!
+```
+
+## 22.7 Function Calls
+
+```nano
+# ✅ ALWAYS use prefix notation
+(my_function arg1 arg2)
+
+# ❌ NO parentheses-free calls
+# my_function arg1 arg2  # Invalid!
+```
+
+## 22.8 Loops
+
+```nano
+# ✅ for-in-range
+for i in (range 0 10) {
+    (println i)
+}
+
+# ✅ while loops
+while (< i 10) {
+    set i (+ i 1)
+}
+
+# ❌ NO foreach, do-while, or other loop forms
+```
+
+## 22.9 Complete Example
+
+```nano
+# ✅ Canonical NanoLang
+fn calculate_sum(numbers: array<int>) -> int {
+    let len: int = (array_length numbers)
+    let mut sum: int = 0
+    
+    for i in (range 0 len) {
+        let value: int = (array_get numbers i)
+        set sum (+ sum value)
+    }
+    
+    return sum
+}
+
+shadow calculate_sum {
+    let nums: array<int> = [1, 2, 3, 4, 5]
+    assert (== (calculate_sum nums) 15)
+}
+```
+
+## Summary
+
+**Canonical Rules:**
+- ✅ Prefix notation ONLY
+- ✅ `cond` for expressions, `if/else` for statements
+- ✅ `+` for string concatenation
+- ✅ Explicit type annotations
+- ✅ `array_get`, never subscripts
+- ✅ ONE way per operation
+
+**See also:** `docs/CANONICAL_STYLE.md` for complete reference
 
 ---
 
-**Previous:** [Chapter 21: Configuration](../part3_modules/21_configuration/preferences.md)  
-**Next:** [Chapter 23: Higher-Level Patterns](23_patterns.md)
+**Previous:** [Chapter 21: Configuration](../part3_modules/21_configuration/index.md)  
+**Next:** [Chapter 23: LLM Code Generation](23_llm_generation.md)
