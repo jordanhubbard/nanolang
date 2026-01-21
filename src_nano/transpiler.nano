@@ -1544,15 +1544,16 @@ shadow gen_if {
 
 /* Generate code for a while loop */
 fn gen_while(condition: string, body: string, indent: int) -> string {
-    let mut result: string = (gen_indent indent)
-    set result (+ result "while (")
-    set result (+ result condition)
-    set result (+ result ") {\n")
-    set result (+ result body)
-    set result (+ result (gen_indent indent))
-    set result (+ result "}\n")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "while (")
+    set parts (sb_append parts condition)
+    set parts (sb_append parts ") {\n")
+    set parts (sb_append parts body)
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "}\n")
     
-    return result
+    return (sb_build parts)
 }
 
 shadow gen_while {
@@ -1563,12 +1564,13 @@ shadow gen_while {
 
 /* Generate code for a return statement */
 fn gen_return(value_expr: string, indent: int) -> string {
-    let mut result: string = (gen_indent indent)
-    set result (+ result "return ")
-    set result (+ result value_expr)
-    set result (+ result ";\n")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "return ")
+    set parts (sb_append parts value_expr)
+    set parts (sb_append parts ";\n")
     
-    return result
+    return (sb_build parts)
 }
 
 shadow gen_return {
@@ -1583,15 +1585,15 @@ shadow gen_return {
 
 /* Generate function signature */
 fn gen_function_signature(name: string, params: array<string>, param_types: array<string>, return_type: string) -> string {
-    let mut result: string = ""
+    let mut parts: array<string> = []
     
     /* Convert return type using helper */
     let c_ret_type: string = (type_to_c return_type)
     
-    set result (+ result c_ret_type)
-    set result (+ result " nl_")
-    set result (+ result (mangle_name name))
-    set result (+ result "(")
+    set parts (sb_append parts c_ret_type)
+    set parts (sb_append parts " nl_")
+    set parts (sb_append parts (mangle_name name))
+    set parts (sb_append parts "(")
     
     /* Add parameters */
     let param_count: int = (array_length params)
@@ -1599,23 +1601,23 @@ fn gen_function_signature(name: string, params: array<string>, param_types: arra
     
     while (< i param_count) {
         if (> i 0) {
-            set result (+ result ", ")
+            set parts (sb_append parts ", ")
         } else {
             (print "")
         }
         
         /* Use param type directly - caller should pre-convert to C types */
         /* This avoids array<string> type inference issues */
-        set result (+ result (at param_types i))
-        set result (+ result " nl_")
+        set parts (sb_append parts (at param_types i))
+        set parts (sb_append parts " nl_")
         /* Use param name directly */
-        set result (+ result (mangle_name (at params i)))
+        set parts (sb_append parts (mangle_name (at params i)))
         
         set i (+ i 1)
     }
     
-    set result (+ result ")")
-    return result
+    set parts (sb_append parts ")")
+    return (sb_build parts)
 }
 
 shadow gen_function_signature {
@@ -2858,37 +2860,44 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 }
                             }
 
-                            let mut result: string = "({ DynArray* _arr = dyn_array_new("
-                            set result (+ result elem_enum)
-                            set result (+ result "); ")
+                            let mut arr_parts: array<string> = []
+                            set arr_parts (sb_append arr_parts "({ DynArray* _arr = dyn_array_new(")
+                            set arr_parts (sb_append arr_parts elem_enum)
+                            set arr_parts (sb_append arr_parts "); ")
 
                             let mut i: int = 0
                             while (< i arr.element_count) {
                                 let eref: ASTStmtRef = (parser_get_array_element parser (+ arr.element_start i))
                                 let ecode: string = (generate_expression parser eref.node_id eref.node_type env "")
 
-                                set result (+ result push_fn)
-                                set result (+ result "(_arr, ")
-                                set result (+ result ecode)
-                                set result (+ result "); ")
+                                set arr_parts (sb_append arr_parts push_fn)
+                                set arr_parts (sb_append arr_parts "(_arr, ")
+                                set arr_parts (sb_append arr_parts ecode)
+                                set arr_parts (sb_append arr_parts "); ")
                                 set i (+ i 1)
                             }
 
-                            set result (+ result "_arr; })")
-                            return result
+                            set arr_parts (sb_append arr_parts "_arr; })")
+                            return (sb_build arr_parts)
                         } else {
                             if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
                                 /* Struct literal -> compound literal */
                                 let sl: ASTStructLiteral = (parser_get_struct_literal parser node_id)
-                                let c_type: string = (+ "nl_" (mangle_name sl.struct_name))
-                                let mut result: string = "(("
-                                set result (+ result c_type)
-                                set result (+ result "){ ")
+                                
+                                let mut c_type_parts: array<string> = []
+                                set c_type_parts (sb_append c_type_parts "nl_")
+                                set c_type_parts (sb_append c_type_parts (mangle_name sl.struct_name))
+                                let c_type: string = (sb_build c_type_parts)
+                                
+                                let mut struct_parts: array<string> = []
+                                set struct_parts (sb_append struct_parts "((")
+                                set struct_parts (sb_append struct_parts c_type)
+                                set struct_parts (sb_append struct_parts "){ ")
 
                                 let mut i: int = 0
                                 while (< i sl.field_count) {
                                     if (> i 0) {
-                                        set result (+ result ", ")
+                                        set struct_parts (sb_append struct_parts ", ")
                                     } else { (print "") }
 
                                     let fname: string = (at sl.field_names i)
@@ -2896,16 +2905,16 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                     let vty: int = (at sl.field_value_types i)
                                     let vcode: string = (generate_expression parser vid vty env "")
 
-                                    set result (+ result ".")
-                                    set result (+ result (mangle_name fname))
-                                    set result (+ result " = ")
-                                    set result (+ result vcode)
+                                    set struct_parts (sb_append struct_parts ".")
+                                    set struct_parts (sb_append struct_parts (mangle_name fname))
+                                    set struct_parts (sb_append struct_parts " = ")
+                                    set struct_parts (sb_append struct_parts vcode)
 
                                     set i (+ i 1)
                                 }
 
-                                set result (+ result " })")
-                                return result
+                                set struct_parts (sb_append struct_parts " })")
+                                return (sb_build struct_parts)
                             } else {
                                 if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
                                     /* Union construction -> compound literal */
