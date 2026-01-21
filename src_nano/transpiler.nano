@@ -192,6 +192,11 @@ fn transp_str_starts_with(s: string, prefix: string) -> bool {
     }
 }
 
+shadow transp_str_starts_with {
+    assert (transp_str_starts_with "array<int>" "array")
+    assert (not (transp_str_starts_with "int" "array"))
+}
+
 fn transp_str_index_of(s: string, ch: string) -> int {
     let len: int = (str_length s)
     let mut i: int = 0
@@ -207,6 +212,12 @@ fn transp_str_index_of(s: string, ch: string) -> int {
     }
     
     return -1
+}
+
+shadow transp_str_index_of {
+    assert (== (transp_str_index_of "array<int>" "<") 5)
+    assert (== (transp_str_index_of "test" "e") 1)
+    assert (== (transp_str_index_of "test" "z") -1)
 }
 
 fn transp_extract_list_element_type(s: string) -> string {
@@ -228,6 +239,11 @@ fn str_ends_with(s: string, suffix: string) -> bool {
     } else {
         return (== (str_substring s (- ls lf) lf) suffix)
     }
+}
+
+shadow str_ends_with {
+    assert (str_ends_with "hello.nano" ".nano")
+    assert (not (str_ends_with "test.c" ".nano"))
 }
 
 fn last_double_colon_index(s: string) -> int {

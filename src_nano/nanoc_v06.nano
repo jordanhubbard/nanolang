@@ -250,6 +250,12 @@ fn nlc_str_starts_with(s: string, prefix: string) -> bool {
     }
 }
 
+shadow nlc_str_starts_with {
+    assert (nlc_str_starts_with "hello world" "hello")
+    assert (not (nlc_str_starts_with "hello" "hello world"))
+    assert (not (nlc_str_starts_with "world" "hello"))
+}
+
 fn nlc_str_ends_with(s: string, suffix: string) -> bool {
     let len_s: int = (str_length s)
     let len_x: int = (str_length suffix)
@@ -258,6 +264,12 @@ fn nlc_str_ends_with(s: string, suffix: string) -> bool {
     } else {
         return (== (str_substring s (- len_s len_x) len_x) suffix)
     }
+}
+
+shadow nlc_str_ends_with {
+    assert (nlc_str_ends_with "hello world" "world")
+    assert (not (nlc_str_ends_with "world" "hello world"))
+    assert (not (nlc_str_ends_with "hello" "world"))
 }
 
 fn nlc_str_index_of(s: string, needle: string) -> int {
@@ -279,6 +291,13 @@ fn nlc_str_index_of(s: string, needle: string) -> int {
     }
 }
 
+shadow nlc_str_index_of {
+    assert (== (nlc_str_index_of "hello world" "world") 6)
+    assert (== (nlc_str_index_of "hello" "ll") 2)
+    assert (== (nlc_str_index_of "test" "xyz") -1)
+    assert (== (nlc_str_index_of "test" "") 0)
+}
+
 fn nlc_str_last_index_of(s: string, needle: string) -> int {
     let len_s: int = (str_length s)
     let len_n: int = (str_length needle)
@@ -295,6 +314,13 @@ fn nlc_str_last_index_of(s: string, needle: string) -> int {
         }
         return -1
     }
+}
+
+shadow nlc_str_last_index_of {
+    assert (== (nlc_str_last_index_of "hello world hello" "hello") 12)
+    assert (== (nlc_str_last_index_of "test test" "test") 5)
+    assert (== (nlc_str_last_index_of "test" "xyz") -1)
+    assert (== (nlc_str_last_index_of "test" "") 4)
 }
 
 fn nlc_hashset_new_string() -> HashMap<string, int> {
@@ -427,6 +453,12 @@ fn split_lines(s: string) -> array<string> {
     return out
 }
 
+shadow split_lines {
+    let lines: array<string> = (split_lines "hello")
+    assert (== (array_length lines) 1)
+    assert (== (at lines 0) "hello")
+}
+
 fn parse_import_path_from_line(line: string) -> string {
     /* Handle both: import "path" and from "path" import ... */
     let has_import: bool = (nlc_str_starts_with line "import \"")
@@ -463,6 +495,13 @@ fn strip_pub_decl(line: string) -> string {
             }
         }
     }
+}
+
+shadow strip_pub_decl {
+    assert (== (strip_pub_decl "pub fn test() -> int") "fn test() -> int")
+    assert (== (strip_pub_decl "pub struct Point") "struct Point")
+    assert (== (strip_pub_decl "pub enum Color") "enum Color")
+    assert (== (strip_pub_decl "let x: int = 5") "let x: int = 5")
 }
 
 fn resolve_import_path(current_file: string, import_path: string, repo_root: string) -> string {
@@ -656,6 +695,11 @@ fn llm_escape_json(s: string) -> string {
         set i (+ i 1)
     }
     return out
+}
+
+shadow llm_escape_json {
+    let result: string = (llm_escape_json "test")
+    assert (== result "test")
 }
 
 fn llm_write_diags_json(path: string, input_file: string, output_file: string, exit_code: int, diags: List<CompilerDiagnostic>) -> int {

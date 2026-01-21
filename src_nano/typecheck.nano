@@ -1002,12 +1002,10 @@ fn str_last_index_of(s: string, ch: string) -> int {
     return -1
 }
 
-/* Temporarily disabled - assertion fails in merged version
 shadow str_last_index_of {
-    assert (== (str_last_index_of "list_Point_new" "_") 11)
+    assert (== (str_last_index_of "list_Point_new" "_") 10)  /* Fixed: last _ is at index 10, not 11 */
     assert (== (str_last_index_of "hello" "x") -1)
 }
-*/
 
 /* Check type of a generic list function call
  * Handles: list_T_new, list_T_push, list_T_get, list_T_length
@@ -1860,6 +1858,14 @@ fn op_token_to_string(op: int) -> string {
             }
         }
     }
+}
+
+shadow op_token_to_string {
+    assert (== (op_token_to_string LexerTokenType.TOKEN_PLUS) "+")
+    assert (== (op_token_to_string LexerTokenType.TOKEN_MINUS) "-")
+    assert (== (op_token_to_string LexerTokenType.TOKEN_STAR) "*")
+    assert (== (op_token_to_string LexerTokenType.TOKEN_EQ) "==")
+    assert (== (op_token_to_string LexerTokenType.TOKEN_AND) "and")
 }
 
 /* NSType check an expression node by ID
