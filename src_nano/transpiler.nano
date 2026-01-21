@@ -487,7 +487,71 @@ shadow c_name_for_qualified_function {
     assert (== (c_name_for_qualified_function "file.read") "file__nl_read")
 }
 
+/* Map builtin function names to their C implementation names */
+fn map_builtin_func_name(func_name: string) -> string {
+    /* Math builtins that need nl_ prefix */
+    if (== func_name "abs") { return "nl_abs" } else { (print "") }
+    if (== func_name "min") { return "nl_min" } else { (print "") }
+    if (== func_name "max") { return "nl_max" } else { (print "") }
+    
+    /* C math library functions (no prefix) */
+    if (== func_name "sqrt") { return "sqrt" } else { (print "") }
+    if (== func_name "pow") { return "pow" } else { (print "") }
+    if (== func_name "floor") { return "floor" } else { (print "") }
+    if (== func_name "ceil") { return "ceil" } else { (print "") }
+    if (== func_name "round") { return "round" } else { (print "") }
+    if (== func_name "sin") { return "sin" } else { (print "") }
+    if (== func_name "cos") { return "cos" } else { (print "") }
+    if (== func_name "tan") { return "tan" } else { (print "") }
+    if (== func_name "atan2") { return "atan2" } else { (print "") }
+    
+    /* String builtins */
+    if (== func_name "str_length") { return "strlen" } else { (print "") }
+    if (== func_name "str_concat") { return "nl_str_concat" } else { (print "") }
+    if (== func_name "str_substring") { return "nl_str_substring" } else { (print "") }
+    if (== func_name "str_contains") { return "nl_str_contains" } else { (print "") }
+    if (== func_name "str_equals") { return "nl_str_equals" } else { (print "") }
+    
+    /* Character/string conversion builtins (runtime functions with nl_ prefix) */
+    if (== func_name "char_at") { return "nl_char_at" } else { (print "") }
+    if (== func_name "string_from_char") { return "nl_string_from_char" } else { (print "") }
+    if (== func_name "int_to_string") { return "nl_int_to_string" } else { (print "") }
+    if (== func_name "string_to_int") { return "nl_string_to_int" } else { (print "") }
+    if (== func_name "float_to_string") { return "nl_float_to_string" } else { (print "") }
+    if (== func_name "string_to_float") { return "nl_string_to_float" } else { (print "") }
+    if (== func_name "bool_to_string") { return "nl_bool_to_string" } else { (print "") }
+    
+    /* Character classification builtins (runtime functions with nl_ prefix) */
+    if (== func_name "is_digit") { return "nl_is_digit" } else { (print "") }
+    if (== func_name "is_alpha") { return "nl_is_alpha" } else { (print "") }
+    if (== func_name "is_alnum") { return "nl_is_alnum" } else { (print "") }
+    if (== func_name "is_whitespace") { return "nl_is_whitespace" } else { (print "") }
+    if (== func_name "is_upper") { return "nl_is_upper" } else { (print "") }
+    if (== func_name "is_lower") { return "nl_is_lower" } else { (print "") }
+    if (== func_name "digit_value") { return "nl_digit_value" } else { (print "") }
+    if (== func_name "char_to_lower") { return "nl_char_to_lower" } else { (print "") }
+    if (== func_name "char_to_upper") { return "nl_char_to_upper" } else { (print "") }
+    
+    /* No mapping found - return empty string */
+    return ""
+}
+
+shadow map_builtin_func_name {
+    assert (== (map_builtin_func_name "abs") "nl_abs")
+    assert (== (map_builtin_func_name "sqrt") "sqrt")
+    assert (== (map_builtin_func_name "str_length") "strlen")
+    assert (== (map_builtin_func_name "int_to_string") "nl_int_to_string")
+    assert (== (map_builtin_func_name "is_digit") "nl_is_digit")
+    assert (== (map_builtin_func_name "unknown_func") "")
+}
+
 fn c_func_name_for_call(func_name: string) -> string {
+    /* Check for builtin function mapping first */
+    let builtin_mapped: string = (map_builtin_func_name func_name)
+    if (!= builtin_mapped "") {
+        return builtin_mapped
+    } else { (print "") }
+    
     let alias_target: string = (resolve_func_alias func_name)
     if (> (str_length alias_target) 0) {
         return (c_name_for_qualified_function alias_target)
