@@ -140,6 +140,60 @@ shadow gen_indent {
     assert (== (gen_indent 1) "    ")
 }
 
+/* =============================================================================
+ * STRINGBUILDER - O(n) string accumulation instead of O(n²) concatenation
+ * ============================================================================= */
+
+/* StringBuilder: Array-based string accumulator for O(n) performance
+ * Instead of: set result (+ result "text")  // O(n²) - copies entire string each time
+ * Use: (sb_append parts "text")              // O(n) - just appends to array
+ */
+fn sb_append(parts: array<string>, text: string) -> array<string> {
+    (array_push parts text)
+    return parts
+}
+
+fn sb_build(parts: array<string>) -> string {
+    /* Join all parts with empty separator */
+    let count: int = (array_length parts)
+    if (== count 0) {
+        return ""
+    } else {
+        if (== count 1) {
+            return (at parts 0)
+        } else {
+            /* Iteratively join all parts */
+            let mut result: string = (at parts 0)
+            let mut i: int = 1
+            while (< i count) {
+                set result (+ result (at parts i))
+                set i (+ i 1)
+            }
+            return result
+        }
+    }
+}
+
+shadow sb_append {
+    let mut parts: array<string> = []
+    set parts (sb_append parts "hello")
+    set parts (sb_append parts " ")
+    set parts (sb_append parts "world")
+    assert (== (array_length parts) 3)
+    assert (== (at parts 0) "hello")
+    assert (== (at parts 1) " ")
+    assert (== (at parts 2) "world")
+}
+
+shadow sb_build {
+    let mut parts: array<string> = []
+    set parts (sb_append parts "hello")
+    set parts (sb_append parts " ")
+    set parts (sb_append parts "world")
+    let result: string = (sb_build parts)
+    assert (== result "hello world")
+}
+
 /* Generate a fresh temporary variable name */
 fn gen_temp_var(state: CodeGenState) -> string {
     let counter_str: string = (int_to_string state.temp_var_counter)
