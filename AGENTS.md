@@ -503,6 +503,79 @@ perl -e 'alarm 30; exec @ARGV' ./bin/nanoc bouncing_ball.nano -o bin/bouncing_ba
 6. **Never invent syntax** - Verify in docs
 7. **Minimal fixes** - One error at a time
 8. **Deterministic builds** - Log all installs
+9. **Always create beads for issues** - Any bug, technical debt, or future work you identify must be documented as a bead using `bd create`. Never just mention issues in responses - track them systematically
+
+---
+
+## Issue Tracking Protocol (CRITICAL)
+
+**MANDATORY RULE:** Every issue you discover, defer, or recommend for later MUST be tracked as a bead.
+
+### When to Create Beads
+
+**ALWAYS create a bead for:**
+- Bugs you discover but don't fix immediately
+- Pre-existing issues you identify during work
+- Technical debt you notice
+- Performance problems
+- Missing features or improvements
+- Follow-up work needed after current task
+- Architectural limitations
+- Code that needs refactoring
+- Missing tests or documentation
+- Any "TODO" or "FIXME" items
+
+**NEVER:**
+- Just mention issues in responses without creating beads
+- Say "this should be fixed later" without filing a bead
+- Document issues only in commit messages
+- Leave issues untracked for "someone else" to handle
+
+### How to Create Beads
+
+```bash
+~/.local/bin/bd create \
+  --title "Clear, actionable title" \
+  --description "Detailed description with:
+  - Root cause analysis
+  - Impact/symptoms
+  - Technical scope
+  - Evidence/logs/line numbers
+  - Suggested approach (if known)" \
+  --type [bug|feature|task|chore] \
+  --priority [0-4] \
+  --labels "relevant,tags,here"
+```
+
+### Priority Guidelines
+
+- **P0 (Critical):** Blocks all work, data loss, security
+- **P1 (High):** Blocks major features, significant bugs
+- **P2 (Medium):** Important but not blocking (default for most issues)
+- **P3 (Low):** Nice-to-have improvements
+- **P4 (Backlog):** Future considerations
+
+### Example: Good Issue Documentation
+
+```bash
+# ❌ BAD: Just mentioning in response
+"The module system has transitive visibility issues that prevent 
+self-hosting, but we can work around it for now."
+
+# ✅ GOOD: Creating a bead
+~/.local/bin/bd create \
+  --title "Fix module system transitive type visibility for self-hosted compiler" \
+  --description "Detailed root cause, impact, scope, evidence..." \
+  --type bug --priority 2 --labels "self-hosting,modules,typechecker"
+```
+
+### After Creating Beads
+
+1. Run `bd sync` to push to remote
+2. Reference the bead ID in your response: "Created nanolang-abc123 to track this"
+3. Continue with current work - the issue is now tracked
+
+**Remember:** If you think it, document it. Beads are cheap, lost context is expensive.
 
 ---
 
