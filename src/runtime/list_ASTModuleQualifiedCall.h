@@ -6,8 +6,8 @@
 
 /* Dynamic list of ASTModuleQualifiedCall */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef DEFINED_List_ASTModuleQualifiedCall
-#define DEFINED_List_ASTModuleQualifiedCall
+#ifndef FORWARD_DEFINED_List_ASTModuleQualifiedCall
+#define FORWARD_DEFINED_List_ASTModuleQualifiedCall
 typedef struct List_ASTModuleQualifiedCall {
     struct nl_ASTModuleQualifiedCall *data;      /* Array of elements */
     int length;                       /* Current number of elements */

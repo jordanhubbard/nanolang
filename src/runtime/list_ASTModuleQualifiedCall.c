@@ -1,4 +1,5 @@
 #include "list_ASTModuleQualifiedCall.h"
+#include "../generated/compiler_schema.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

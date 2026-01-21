@@ -124,6 +124,7 @@ RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_ASTString.c $(RUNTIME_DIR)/list_ASTBool.c \
 	$(RUNTIME_DIR)/list_ASTIdentifier.c \
 	$(RUNTIME_DIR)/list_ASTBinaryOp.c $(RUNTIME_DIR)/list_ASTCall.c \
+	$(RUNTIME_DIR)/list_ASTModuleQualifiedCall.c \
 	$(RUNTIME_DIR)/list_ASTArrayLiteral.c $(RUNTIME_DIR)/list_ASTLet.c \
 	$(RUNTIME_DIR)/list_ASTSet.c $(RUNTIME_DIR)/list_ASTStmtRef.c \
 	$(RUNTIME_DIR)/list_ASTIf.c $(RUNTIME_DIR)/list_ASTWhile.c \
