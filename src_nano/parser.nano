@@ -27,6 +27,7 @@ fn parser_init_ast_lists() -> Parser {
     let identifiers: List<ASTIdentifier> = (list_ASTIdentifier_new)
     let binary_ops: List<ASTBinaryOp> = (list_ASTBinaryOp_new)
     let calls: List<ASTCall> = (list_ASTCall_new)
+    let module_qualified_calls: List<ASTModuleQualifiedCall> = (list_ASTModuleQualifiedCall_new)
     let call_args: List<ASTStmtRef> = (list_ASTStmtRef_new)
     let array_elements: List<ASTStmtRef> = (list_ASTStmtRef_new)
     let array_literals: List<ASTArrayLiteral> = (list_ASTArrayLiteral_new)
@@ -71,6 +72,7 @@ fn parser_init_ast_lists() -> Parser {
         identifiers: identifiers,
         binary_ops: binary_ops,
         calls: calls,
+        module_qualified_calls: module_qualified_calls,
         call_args: call_args,
         array_elements: array_elements,
         array_literals: array_literals,
@@ -104,6 +106,7 @@ fn parser_init_ast_lists() -> Parser {
         identifiers_count: 0,
         binary_ops_count: 0,
         calls_count: 0,
+        module_qualified_calls_count: 0,
         array_literals_count: 0,
         lets_count: 0,
         sets_count: 0,
@@ -192,6 +195,7 @@ fn parser_new(tokens: List<LexerToken>, token_count: int, file_name: string) -> 
         identifiers_count: 0,
         binary_ops_count: 0,
         calls_count: 0,
+        module_qualified_calls_count: 0,
         array_literals_count: 0,
         lets_count: 0,
         sets_count: 0,
@@ -1600,6 +1604,162 @@ shadow parser_store_call {
     assert (== 1 1)
 }
 
+/* Helper: Store module-qualified call node */
+fn parser_store_module_qualified_call(p: Parser, module_name: string, function_name: string, arg_start: int, arg_count: int, line: int, column: int) -> Parser {
+    let node: ASTModuleQualifiedCall = ASTModuleQualifiedCall {
+        node_type: ParseNodeType.PNODE_MODULE_QUALIFIED_CALL,
+        line: line,
+        column: column,
+        module_name: module_name,
+        function_name: function_name,
+        arg_start: arg_start,
+        arg_count: arg_count
+    }
+    let node_id: int = p.module_qualified_calls_count
+    (list_ASTModuleQualifiedCall_push p.module_qualified_calls node)
+    
+    return Parser {
+        tokens: p.tokens, file_name: p.file_name, 
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        diagnostics: p.diagnostics,
+        numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
+        call_args: p.call_args,
+        array_elements: p.array_elements,
+        array_literals: p.array_literals,
+        lets: p.lets,
+        sets: p.sets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        fors: p.fors,
+        returns: p.returns,
+        blocks: p.blocks,
+        unsafe_blocks: p.unsafe_blocks,
+        prints: p.prints,
+        asserts: p.asserts,
+        functions: p.functions,
+        shadows: p.shadows,
+        structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
+        enums: p.enums,
+        unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
+        numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        module_qualified_calls_count: (+ p.module_qualified_calls_count 1),
+        array_literals_count: p.array_literals_count,
+        lets_count: p.lets_count,
+        sets_count: p.sets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        unsafe_blocks_count: p.unsafe_blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
+        functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
+        structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
+        next_node_id: (+ p.next_node_id 1),
+        last_expr_node_id: node_id,
+        last_expr_node_type: ParseNodeType.PNODE_MODULE_QUALIFIED_CALL
+    }
+}
+
+shadow parser_store_module_qualified_call {
+    assert (== 1 1)
+}
+
+/* Helper: Check if a name contains a dot (Module.function pattern) */
+fn name_contains_dot(name: string) -> bool {
+    let mut i: int = 0
+    let len: int = (str_length name)
+    while (< i len) {
+        if (== (char_at name i) 46) {  /* 46 is ASCII '.' */
+            return true
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow name_contains_dot {
+    assert (== (name_contains_dot "Module.function") true)
+    assert (== (name_contains_dot "simple_function") false)
+    assert (== (name_contains_dot "Diagnostics.diag_error") true)
+}
+
+/* Helper: Split Module.function into module and function parts */
+fn split_module_function(name: string) -> ModuleFunctionPair {
+    let mut dot_pos: int = (- 0 1)
+    let mut i: int = 0
+    let len: int = (str_length name)
+    while (< i len) {
+        if (== (char_at name i) 46) {  /* 46 is ASCII '.' */
+            set dot_pos i
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    
+    if (< dot_pos 0) {
+        /* No dot found, return empty module */
+        return ModuleFunctionPair { module_name: "", function_name: name }
+    } else {
+        let module_name: string = (str_slice name 0 dot_pos)
+        let function_name: string = (str_slice name (+ dot_pos 1) len)
+        return ModuleFunctionPair { module_name: module_name, function_name: function_name }
+    }
+}
+
+shadow split_module_function {
+    let pair1: ModuleFunctionPair = (split_module_function "Module.function")
+    assert (== pair1.module_name "Module")
+    assert (== pair1.function_name "function")
+    
+    let pair2: ModuleFunctionPair = (split_module_function "simple_function")
+    assert (== pair2.module_name "")
+    assert (== pair2.function_name "simple_function")
+}
+
+struct ModuleFunctionPair {
+    module_name: string,
+    function_name: string
+}
+
 /* Helper: Store a call argument reference (expression node id + expression kind) */
 fn parser_store_call_arg(p: Parser, node_id: int, node_type: int) -> Parser {
     let r: ASTStmtRef = ASTStmtRef {
@@ -2304,8 +2464,19 @@ fn parse_primary(p: Parser) -> Parser {
                                             } else {
                                                 let func_name: string = name_res.name
                                                 let p_after_name: Parser = name_res.p
-                                                let p2: Parser = (parser_store_identifier p_after_name func_name tok2.line tok2.column)
-                                                let func_id: int = p2.last_expr_node_id
+                                                
+                                                /* Check if this is a module-qualified call (Module.function) */
+                                                let is_module_call: bool = (name_contains_dot func_name)
+                                                
+                                                /* For regular calls, store identifier; for module calls, don't need identifier */
+                                                let mut p2: Parser = p_after_name
+                                                let mut func_id: int = (- 0 1)
+                                                if (not is_module_call) {
+                                                    set p2 (parser_store_identifier p_after_name func_name tok2.line tok2.column)
+                                                    set func_id p2.last_expr_node_id
+                                                } else {
+                                                    (print "")
+                                                }
                                                 
                                                 /* arg_start will be set after parsing first argument */
                                                 let mut arg_start: int = (- 0 1)
@@ -2323,7 +2494,13 @@ fn parse_primary(p: Parser) -> Parser {
                                                         } else {
                                                             (print "")
                                                         }
-                                                        return (parser_store_call p4 func_id arg_start arg_count tok.line tok.column)
+                                                        /* Store appropriate call type */
+                                                        if is_module_call {
+                                                            let pair: ModuleFunctionPair = (split_module_function func_name)
+                                                            return (parser_store_module_qualified_call p4 pair.module_name pair.function_name arg_start arg_count tok.line tok.column)
+                                                        } else {
+                                                            return (parser_store_call p4 func_id arg_start arg_count tok.line tok.column)
+                                                        }
                                                     } else {
                                                         let parg: Parser = (parse_expression pcur)
                                                         if (parser_has_error parg) {
@@ -6494,6 +6671,14 @@ pub fn parser_get_call(p: Parser, idx: int) -> ASTCall {
 /* Get number of calls */
 pub fn parser_get_call_count(p: Parser) -> int {
     return (list_ASTCall_length p.calls)
+}
+
+pub fn parser_get_module_qualified_call(p: Parser, idx: int) -> ASTModuleQualifiedCall {
+    return (list_ASTModuleQualifiedCall_get p.module_qualified_calls idx)
+}
+
+pub fn parser_get_module_qualified_call_count(p: Parser) -> int {
+    return (list_ASTModuleQualifiedCall_length p.module_qualified_calls)
 }
 
 /* Get number of call argument refs */

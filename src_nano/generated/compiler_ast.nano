@@ -71,6 +71,16 @@ extern struct ASTCall {
     arg_count: int
 }
 
+extern struct ASTModuleQualifiedCall {
+    node_type: int,
+    line: int,
+    column: int,
+    module_name: string,
+    function_name: string,
+    arg_start: int,
+    arg_count: int
+}
+
 extern struct ASTArrayLiteral {
     node_type: int,
     line: int,
