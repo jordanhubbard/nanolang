@@ -2440,12 +2440,13 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                     /* Only emit nl_str_concat when string context is expected. */
                     if (or (== expected_type "string") (or left_is_str right_is_str)) {
-                        let mut result: string = "nl_str_concat("
-                        set result (+ result left_code)
-                        set result (+ result ", ")
-                        set result (+ result right_code)
-                        set result (+ result ")")
-                        return result
+                        let mut parts: array<string> = []
+                        set parts (sb_append parts "nl_str_concat(")
+                        set parts (sb_append parts left_code)
+                        set parts (sb_append parts ", ")
+                        set parts (sb_append parts right_code)
+                        set parts (sb_append parts ")")
+                        return (sb_build parts)
                     } else {
                         (print "")
                     }
@@ -2457,15 +2458,16 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 let op_str: string = (operator_to_string binop.op)
                 
                 /* Build expression: (left op right) */
-                let mut result: string = "("
-                set result (+ result left_code)
-                set result (+ result " ")
-                set result (+ result op_str)
-                set result (+ result " ")
-                set result (+ result right_code)
-                set result (+ result ")")
+                let mut parts: array<string> = []
+                set parts (sb_append parts "(")
+                set parts (sb_append parts left_code)
+                set parts (sb_append parts " ")
+                set parts (sb_append parts op_str)
+                set parts (sb_append parts " ")
+                set parts (sb_append parts right_code)
+                set parts (sb_append parts ")")
                 
-                return result
+                return (sb_build parts)
             } else {
                 if (== node_type ParseNodeType.PNODE_CALL) {
                     /* Function call */
@@ -2507,12 +2509,13 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             let a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
                             let a0_code: string = (generate_expression parser a0.node_id a0.node_type env "")
                             let a1_code: string = (generate_expression parser a1.node_id a1.node_type env "")
-                            let mut out: string = "dyn_array_remove_at("
-                            set out (+ out a0_code)
-                            set out (+ out ", ")
-                            set out (+ out a1_code)
-                            set out (+ out ")")
-                            return out
+                            let mut parts: array<string> = []
+                            set parts (sb_append parts "dyn_array_remove_at(")
+                            set parts (sb_append parts a0_code)
+                            set parts (sb_append parts ", ")
+                            set parts (sb_append parts a1_code)
+                            set parts (sb_append parts ")")
+                            return (sb_build parts)
                         } else {
                             return "0"
                         }
@@ -2538,16 +2541,17 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             let elem_enum: string = (elem_enum_from_elem_type elem_t)
                             let push_fn: string = (push_fn_from_elem_type elem_t)
 
-                            let mut out: string = "({ DynArray* _arr = dyn_array_new("
-                            set out (+ out elem_enum)
-                            set out (+ out "); int64_t _n = ")
-                            set out (+ out size_code)
-                            set out (+ out "; for (int64_t _i = 0; _i < _n; _i++) { ")
-                            set out (+ out push_fn)
-                            set out (+ out "(_arr, ")
-                            set out (+ out def_code)
-                            set out (+ out "); } _arr; })")
-                            return out
+                            let mut parts: array<string> = []
+                            set parts (sb_append parts "({ DynArray* _arr = dyn_array_new(")
+                            set parts (sb_append parts elem_enum)
+                            set parts (sb_append parts "); int64_t _n = ")
+                            set parts (sb_append parts size_code)
+                            set parts (sb_append parts "; for (int64_t _i = 0; _i < _n; _i++) { ")
+                            set parts (sb_append parts push_fn)
+                            set parts (sb_append parts "(_arr, ")
+                            set parts (sb_append parts def_code)
+                            set parts (sb_append parts "); } _arr; })")
+                            return (sb_build parts)
                         } else {
                             return "0"
                         }
@@ -2578,14 +2582,14 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             if (== elem_t "") { set elem_t "int" } else { (print "") }
                             let push_fn: string = (push_fn_from_elem_type elem_t)
 
-                            let mut out: string = ""
-                            set out (+ out push_fn)
-                            set out (+ out "(")
-                            set out (+ out arr_code)
-                            set out (+ out ", ")
-                            set out (+ out val_code)
-                            set out (+ out ")")
-                            return out
+                            let mut parts: array<string> = []
+                            set parts (sb_append parts push_fn)
+                            set parts (sb_append parts "(")
+                            set parts (sb_append parts arr_code)
+                            set parts (sb_append parts ", ")
+                            set parts (sb_append parts val_code)
+                            set parts (sb_append parts ")")
+                            return (sb_build parts)
                         } else {
                             return "0"
                         }
@@ -2613,16 +2617,16 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             }
 
                             let set_fn: string = (set_fn_from_elem_type elem_t)
-                            let mut out: string = ""
-                            set out (+ out set_fn)
-                            set out (+ out "(")
-                            set out (+ out arr_code)
-                            set out (+ out ", ")
-                            set out (+ out idx_code)
-                            set out (+ out ", ")
-                            set out (+ out val_code)
-                            set out (+ out ")")
-                            return out
+                            let mut parts: array<string> = []
+                            set parts (sb_append parts set_fn)
+                            set parts (sb_append parts "(")
+                            set parts (sb_append parts arr_code)
+                            set parts (sb_append parts ", ")
+                            set parts (sb_append parts idx_code)
+                            set parts (sb_append parts ", ")
+                            set parts (sb_append parts val_code)
+                            set parts (sb_append parts ")")
+                            return (sb_build parts)
                         } else {
                             return "0"
                         }
@@ -2658,14 +2662,14 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             }
 
                             let get_fn: string = (get_fn_from_elem_type elem_t)
-                            let mut out: string = ""
-                            set out (+ out get_fn)
-                            set out (+ out "(")
-                            set out (+ out a0_code)
-                            set out (+ out ", ")
-                            set out (+ out a1_code)
-                            set out (+ out ")")
-                            return out
+                            let mut parts: array<string> = []
+                            set parts (sb_append parts get_fn)
+                            set parts (sb_append parts "(")
+                            set parts (sb_append parts a0_code)
+                            set parts (sb_append parts ", ")
+                            set parts (sb_append parts a1_code)
+                            set parts (sb_append parts ")")
+                            return (sb_build parts)
                         } else {
                             return "0"
                         }
@@ -2679,14 +2683,15 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         (else (c_func_name_for_call func_name))
                     )
                     
-                    let mut result: string = c_func_name
-                    set result (+ result "(")
+                    let mut parts: array<string> = []
+                    set parts (sb_append parts c_func_name)
+                    set parts (sb_append parts "(")
 
                     /* Generate arguments */
                     let mut i: int = 0
                     while (< i call.arg_count) {
                         if (> i 0) {
-                            set result (+ result ", ")
+                            set parts (sb_append parts ", ")
                         } else {
                             (print "")
                         }
@@ -2697,12 +2702,12 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             set arg_expected "string"
                         } else { (print "") }
                         let arg_code: string = (generate_expression parser aref.node_id aref.node_type env arg_expected)
-                        set result (+ result arg_code)
+                        set parts (sb_append parts arg_code)
                         set i (+ i 1)
                     }
                     
-                    set result (+ result ")")
-                    return result
+                    set parts (sb_append parts ")")
+                    return (sb_build parts)
                 } else {
                     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
                         /* Field access */
@@ -2722,11 +2727,12 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         } else { (print "") }
 
                         let obj_code: string = (generate_expression parser fa.object fa.object_type env "")
-                        let mut result: string = "("
-                        set result (+ result obj_code)
-                        set result (+ result ").")
-                        set result (+ result (mangle_name fa.field_name))
-                        return result
+                        let mut parts: array<string> = []
+                        set parts (sb_append parts "(")
+                        set parts (sb_append parts obj_code)
+                        set parts (sb_append parts ").")
+                        set parts (sb_append parts (mangle_name fa.field_name))
+                        return (sb_build parts)
                     } else {
                         if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
                             /* Array literal -> DynArray* */
@@ -2947,21 +2953,22 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
  * Returns: C code for return statement with indentation
  */
 fn generate_return_stmt(parser: Parser, ret: ASTReturn, indent: int, env: GenEnv, expected_type: string) -> string {
-    let mut code: string = (gen_indent indent)
-    set code (+ code "return")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "return")
     
     if (< ret.value 0) {
         /* No return value - void return */
-        set code (+ code "")
+        (print "")
     } else {
         /* Has return value - generate expression */
-        set code (+ code " ")
+        set parts (sb_append parts " ")
         let expr_code: string = (generate_expression parser ret.value ret.value_type env expected_type)
-        set code (+ code expr_code)
+        set parts (sb_append parts expr_code)
     }
     
-    set code (+ code ";\n")
-    return code
+    set parts (sb_append parts ";\n")
+    return (sb_build parts)
 }
 
 /* Generate C code for a let statement
@@ -2974,38 +2981,40 @@ fn generate_return_stmt(parser: Parser, ret: ASTReturn, indent: int, env: GenEnv
  * Returns: C code for variable declaration with initialization
  */
 fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int, env: GenEnv) -> string {
-    let mut code: string = (gen_indent indent)
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
 
     let c_type: string = (type_to_c let_stmt.var_type)
-    set code (+ code c_type)
-    set code (+ code " ")
+    set parts (sb_append parts c_type)
+    set parts (sb_append parts " ")
     
     /* Add variable name with nl_ prefix */
-    set code (+ code "nl_")
-    set code (+ code (mangle_name let_stmt.name))
-    set code (+ code " = ")
+    set parts (sb_append parts "nl_")
+    set parts (sb_append parts (mangle_name let_stmt.name))
+    set parts (sb_append parts " = ")
     
     /* Generate initialization expression */
     if (< let_stmt.value 0) {
         /* No initialization - use default */
-        set code (+ code "0")
+        set parts (sb_append parts "0")
     } else {
         /* Generate expression */
         let expr_code: string = (generate_expression parser let_stmt.value let_stmt.value_type env let_stmt.var_type)
-        set code (+ code expr_code)
+        set parts (sb_append parts expr_code)
     }
     
-    set code (+ code ";\n")
-    return code
+    set parts (sb_append parts ";\n")
+    return (sb_build parts)
 }
 
 fn generate_assert_stmt(parser: Parser, a: ASTAssert, indent: int, env: GenEnv) -> string {
-    let mut code: string = (gen_indent indent)
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
     let cond_code: string = (generate_expression parser a.condition a.condition_type env "bool")
-    set code (+ code "assert(")
-    set code (+ code cond_code)
-    set code (+ code ");\n")
-    return code
+    set parts (sb_append parts "assert(")
+    set parts (sb_append parts cond_code)
+    set parts (sb_append parts ");\n")
+    return (sb_build parts)
 }
 
 fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: string) -> string {
@@ -3212,16 +3221,18 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
                             /* Expression statement (e.g. call) */
                             if (== stmt.node_type ParseNodeType.PNODE_CALL) {
                                 let expr_code: string = (generate_expression parser stmt.node_id stmt.node_type env "")
-                                let mut code: string = (gen_indent indent)
-                                set code (+ code expr_code)
-                                set code (+ code ";\n")
-                                return StmtGenResult { code: code, env: env }
+                                let mut parts: array<string> = []
+                                set parts (sb_append parts (gen_indent indent))
+                                set parts (sb_append parts expr_code)
+                                set parts (sb_append parts ";\n")
+                                return StmtGenResult { code: (sb_build parts), env: env }
                             } else {
-                                let mut code: string = (gen_indent indent)
-                                set code (+ code "/* unsupported stmt: ")
-                                set code (+ code (int_to_string stmt.node_type))
-                                set code (+ code " */\n")
-                                return StmtGenResult { code: code, env: env }
+                                let mut parts: array<string> = []
+                                set parts (sb_append parts (gen_indent indent))
+                                set parts (sb_append parts "/* unsupported stmt: ")
+                                set parts (sb_append parts (int_to_string stmt.node_type))
+                                set parts (sb_append parts " */\n")
+                                return StmtGenResult { code: (sb_build parts), env: env }
                             }
                             }
                         }
@@ -3237,18 +3248,18 @@ fn generate_block(parser: Parser, block_id: int, indent: int, env: GenEnv, retur
         return ""
     } else {
         let block: ASTBlock = (parser_get_block parser block_id)
-        let mut code: string = ""
+        let mut parts: array<string> = []
         let mut env_cur: GenEnv = env
         let mut i: int = 0
         let stmt_count: int = (list_ASTStmtRef_length block.statements)
         while (< i stmt_count) {
             let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
             let res: StmtGenResult = (generate_statement parser stmt indent env_cur return_type)
-            set code (+ code res.code)
+            set parts (sb_append parts res.code)
             set env_cur res.env
             set i (+ i 1)
         }
-        return code
+        return (sb_build parts)
     }
 }
 
@@ -3262,20 +3273,21 @@ fn generate_block(parser: Parser, block_id: int, indent: int, env: GenEnv, retur
  * Returns: C code for assignment statement
  */
 fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int, env: GenEnv) -> string {
-    let mut code: string = (gen_indent indent)
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
     
     /* Add target variable with nl_ prefix */
-    set code (+ code "nl_")
-    set code (+ code (mangle_name set_stmt.target))
-    set code (+ code " = ")
+    set parts (sb_append parts "nl_")
+    set parts (sb_append parts (mangle_name set_stmt.target))
+    set parts (sb_append parts " = ")
     
     /* Generate value expression */
     let target_t: string = (genenv_get env set_stmt.target)
     let expr_code: string = (generate_expression parser set_stmt.value set_stmt.value_type env target_t)
-    set code (+ code expr_code)
+    set parts (sb_append parts expr_code)
     
-    set code (+ code ";\n")
-    return code
+    set parts (sb_append parts ";\n")
+    return (sb_build parts)
 }
 
 /* Generate C code for an if statement
@@ -3288,30 +3300,31 @@ fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int, env: GenEnv)
  * Returns: C code for if/else statement
  */
 fn generate_if_stmt(parser: Parser, if_stmt: ASTIf, indent: int, env: GenEnv, return_type: string) -> string {
-    let mut code: string = (gen_indent indent)
-    set code (+ code "if (")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "if (")
     
     /* Generate condition expression */
     let cond_code: string = (generate_expression parser if_stmt.condition if_stmt.condition_type env "bool")
-    set code (+ code cond_code)
-    set code (+ code ") {\n")
+    set parts (sb_append parts cond_code)
+    set parts (sb_append parts ") {\n")
 
-    set code (+ code (generate_block parser if_stmt.then_body (+ indent 1) env return_type))
+    set parts (sb_append parts (generate_block parser if_stmt.then_body (+ indent 1) env return_type))
     
-    set code (+ code (gen_indent indent))
-    set code (+ code "}")
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "}")
     
     /* Generate else if present */
     if (< if_stmt.else_body 0) {
-        set code (+ code "\n")
+        set parts (sb_append parts "\n")
     } else {
-        set code (+ code " else {\n")
-        set code (+ code (generate_block parser if_stmt.else_body (+ indent 1) env return_type))
-        set code (+ code (gen_indent indent))
-        set code (+ code "}\n")
+        set parts (sb_append parts " else {\n")
+        set parts (sb_append parts (generate_block parser if_stmt.else_body (+ indent 1) env return_type))
+        set parts (sb_append parts (gen_indent indent))
+        set parts (sb_append parts "}\n")
     }
     
-    return code
+    return (sb_build parts)
 }
 
 /* Generate C code for a while loop
@@ -3324,20 +3337,21 @@ fn generate_if_stmt(parser: Parser, if_stmt: ASTIf, indent: int, env: GenEnv, re
  * Returns: C code for while loop
  */
 fn generate_while_stmt(parser: Parser, while_stmt: ASTWhile, indent: int, env: GenEnv, return_type: string) -> string {
-    let mut code: string = (gen_indent indent)
-    set code (+ code "while (")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "while (")
     
     /* Generate condition expression */
     let cond_code: string = (generate_expression parser while_stmt.condition while_stmt.condition_type env "bool")
-    set code (+ code cond_code)
-    set code (+ code ") {\n")
+    set parts (sb_append parts cond_code)
+    set parts (sb_append parts ") {\n")
 
-    set code (+ code (generate_block parser while_stmt.body (+ indent 1) env return_type))
+    set parts (sb_append parts (generate_block parser while_stmt.body (+ indent 1) env return_type))
     
-    set code (+ code (gen_indent indent))
-    set code (+ code "}\n")
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "}\n")
     
-    return code
+    return (sb_build parts)
 }
 
 fn generate_function_body(parser: Parser, body_id: int, env: GenEnv, return_type: string) -> string {
