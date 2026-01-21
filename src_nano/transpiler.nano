@@ -520,7 +520,11 @@ fn c_name_for_qualified_function(func_name: string) -> string {
         let base: string = (str_substring func_name (+ dc 2) (- len (+ dc 2)))
         let resolved: string = (resolve_module_alias mod_part)
         let mm: string = (mangle_module_ident resolved)
-        return (+ (+ mm "__") (mangle_name base))
+        let mut parts: array<string> = []
+        set parts (sb_append parts mm)
+        set parts (sb_append parts "__")
+        set parts (sb_append parts (mangle_name base))
+        return (sb_build parts)
     } else {
         let dot: int = (last_dot_index func_name)
         if (>= dot 0) {
@@ -528,7 +532,11 @@ fn c_name_for_qualified_function(func_name: string) -> string {
             let base: string = (str_substring func_name (+ dot 1) (- len (+ dot 1)))
             let resolved: string = (resolve_module_alias mod_part)
             let mm: string = (mangle_module_ident resolved)
-            return (+ (+ mm "__") (mangle_name base))
+            let mut parts: array<string> = []
+            set parts (sb_append parts mm)
+            set parts (sb_append parts "__")
+            set parts (sb_append parts (mangle_name base))
+            return (sb_build parts)
         } else {
             return func_name
         }
@@ -697,7 +705,11 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
                     let elem: string = t2.value
                     if (== elem "LexerToken") { return TypeCParseResult { ok: true, c_type: "List_LexerToken*", next_pos: (+ start_pos 4) } } else { (print "") }
                     if (== elem "CompilerDiagnostic") { return TypeCParseResult { ok: true, c_type: "List_CompilerDiagnostic*", next_pos: (+ start_pos 4) } } else { (print "") }
-                    return TypeCParseResult { ok: true, c_type: (+ (+ "List_" (mangle_type_name elem)) "*"), next_pos: (+ start_pos 4) }
+                    let mut list_parts: array<string> = []
+                    set list_parts (sb_append list_parts "List_")
+                    set list_parts (sb_append list_parts (mangle_type_name elem))
+                    set list_parts (sb_append list_parts "*")
+                    return TypeCParseResult { ok: true, c_type: (sb_build list_parts), next_pos: (+ start_pos 4) }
                 } else { (print "") }
             } else { (print "") }
         } else { (print "") }
@@ -708,7 +720,10 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
         } else { (print "") }
 
         /* Fallback: treat as user-defined struct */
-        return TypeCParseResult { ok: true, c_type: (+ "nl_" (mangle_name name)), next_pos: (+ start_pos 1) }
+        let mut struct_parts: array<string> = []
+        set struct_parts (sb_append struct_parts "nl_")
+        set struct_parts (sb_append struct_parts (mangle_name name))
+        return TypeCParseResult { ok: true, c_type: (sb_build struct_parts), next_pos: (+ start_pos 1) }
     } else { (print "") }
 
     return TypeCParseResult { ok: false, c_type: "", next_pos: start_pos }
@@ -1167,7 +1182,11 @@ fn type_to_c(nano_type: string) -> string {
                                         if (or (== elem "token") (== elem "Token")) {
                                             return "List_Token*"
                                         } else {
-                                            return (+ (+ "List_" (mangle_type_name elem)) "*")
+                                            let mut list_parts: array<string> = []
+                                            set list_parts (sb_append list_parts "List_")
+                                            set list_parts (sb_append list_parts (mangle_type_name elem))
+                                            set list_parts (sb_append list_parts "*")
+                                            return (sb_build list_parts)
                                         }
                                     }
                                 }
@@ -2365,7 +2384,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
         } else {
         if (== node_type ParseNodeType.PNODE_STRING) {
             let s: ASTString = (parser_get_string parser node_id)
-            return (+ "\"" (+ s.value "\""))
+            let mut parts: array<string> = []
+            set parts (sb_append parts "\"")
+            set parts (sb_append parts s.value)
+            set parts (sb_append parts "\"")
+            return (sb_build parts)
         } else {
         if (== node_type ParseNodeType.PNODE_BOOL) {
             let b: ASTBool = (parser_get_bool parser node_id)
@@ -2482,7 +2505,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         if (== call.arg_count 1) {
                             let a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                             let a0_code: string = (generate_expression parser a0.node_id a0.node_type env "")
-                            return (+ "(!" (+ a0_code ")"))
+                            let mut parts: array<string> = []
+                            set parts (sb_append parts "(!")
+                            set parts (sb_append parts a0_code)
+                            set parts (sb_append parts ")")
+                            return (sb_build parts)
                         } else {
                             return "(!0)"
                         }
@@ -2495,7 +2522,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         if (== call.arg_count 1) {
                             let a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                             let a0_code: string = (generate_expression parser a0.node_id a0.node_type env "")
-                            return (+ "dyn_array_length(" (+ a0_code ")"))
+                            let mut parts: array<string> = []
+                            set parts (sb_append parts "dyn_array_length(")
+                            set parts (sb_append parts a0_code)
+                            set parts (sb_append parts ")")
+                            return (sb_build parts)
                         } else {
                             return "0"
                         }
@@ -2748,7 +2779,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             let ident: ASTIdentifier = (parser_get_identifier parser fa.object)
                             /* Self-hosted MVP: recognize schema enums by name. */
                             if (or (== ident.name "DiagnosticSeverity") (== ident.name "CompilerPhase")) {
-                                return (+ ident.name (+ "_" (mangle_name fa.field_name)))
+                                let mut parts: array<string> = []
+                                set parts (sb_append parts ident.name)
+                                set parts (sb_append parts "_")
+                                set parts (sb_append parts (mangle_name fa.field_name))
+                                return (sb_build parts)
                             } else {
                                 if (or (== ident.name "TokenType") (or (== ident.name "ParseNodeType") (== ident.name "LexerTokenType"))) {
                                     return (mangle_name fa.field_name)
@@ -2863,8 +2898,18 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
                                     /* Union construction -> compound literal */
                                     let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
-                                    let union_c: string = (+ "nl_" (mangle_name uc.union_name))
-                                    let tag_name: string = (+ (+ "nl_" (mangle_name uc.union_name)) (+ "_TAG_" uc.variant_name))
+                                    
+                                    let mut union_parts: array<string> = []
+                                    set union_parts (sb_append union_parts "nl_")
+                                    set union_parts (sb_append union_parts (mangle_name uc.union_name))
+                                    let union_c: string = (sb_build union_parts)
+                                    
+                                    let mut tag_parts: array<string> = []
+                                    set tag_parts (sb_append tag_parts "nl_")
+                                    set tag_parts (sb_append tag_parts (mangle_name uc.union_name))
+                                    set tag_parts (sb_append tag_parts "_TAG_")
+                                    set tag_parts (sb_append tag_parts uc.variant_name)
+                                    let tag_name: string = (sb_build tag_parts)
 
                                     let mut result: string = "(("
                                     set result (+ result union_c)
@@ -3068,7 +3113,10 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         set union_name "UNKNOWN"
     } else { (print "") }
 
-    let union_c: string = (+ "nl_" (mangle_name union_name))
+    let mut union_parts: array<string> = []
+    set union_parts (sb_append union_parts "nl_")
+    set union_parts (sb_append union_parts (mangle_name union_name))
+    let union_c: string = (sb_build union_parts)
     let mut out_c: string = "int64_t"
     if (!= expected_type "") {
         set out_c (type_to_c expected_type)
@@ -3089,8 +3137,19 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         let body_id: int = (at m.arm_body_ids i)
         let body_type: int = (at m.arm_body_types i)
 
-        let tag_name: string = (+ (+ "nl_" (mangle_name union_name)) (+ "_TAG_" variant))
-        let variant_type: string = (+ (+ "nl_" (mangle_name union_name)) (+ "_" variant))
+        let mut tag_parts: array<string> = []
+        set tag_parts (sb_append tag_parts "nl_")
+        set tag_parts (sb_append tag_parts (mangle_name union_name))
+        set tag_parts (sb_append tag_parts "_TAG_")
+        set tag_parts (sb_append tag_parts variant)
+        let tag_name: string = (sb_build tag_parts)
+        
+        let mut var_type_parts: array<string> = []
+        set var_type_parts (sb_append var_type_parts "nl_")
+        set var_type_parts (sb_append var_type_parts (mangle_name union_name))
+        set var_type_parts (sb_append var_type_parts "_")
+        set var_type_parts (sb_append var_type_parts variant)
+        let variant_type: string = (sb_build var_type_parts)
 
         set code (+ code "case ")
         set code (+ code tag_name)
@@ -3103,7 +3162,11 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         set code (+ code variant)
         set code (+ code "; ")
 
-        let env_arm: GenEnv = (genenv_put env binding (+ union_name (+ "." variant)))
+        let mut type_name_parts: array<string> = []
+        set type_name_parts (sb_append type_name_parts union_name)
+        set type_name_parts (sb_append type_name_parts ".")
+        set type_name_parts (sb_append type_name_parts variant)
+        let env_arm: GenEnv = (genenv_put env binding (sb_build type_name_parts))
 
         if (== body_type ParseNodeType.PNODE_BLOCK) {
             /* Block bodies in expression match aren't supported here; assume they return */
@@ -3144,7 +3207,10 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
         set union_name "UNKNOWN"
     } else { (print "") }
 
-    let union_c: string = (+ "nl_" (mangle_name union_name))
+    let mut union_parts: array<string> = []
+    set union_parts (sb_append union_parts "nl_")
+    set union_parts (sb_append union_parts (mangle_name union_name))
+    let union_c: string = (sb_build union_parts)
 
     let mut code: string = (gen_indent indent)
     set code (+ code "{\n")
@@ -3164,8 +3230,19 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
         let body_id: int = (at m.arm_body_ids i)
         let body_type: int = (at m.arm_body_types i)
 
-        let tag_name: string = (+ (+ "nl_" (mangle_name union_name)) (+ "_TAG_" variant))
-        let variant_type: string = (+ (+ "nl_" (mangle_name union_name)) (+ "_" variant))
+        let mut tag_parts: array<string> = []
+        set tag_parts (sb_append tag_parts "nl_")
+        set tag_parts (sb_append tag_parts (mangle_name union_name))
+        set tag_parts (sb_append tag_parts "_TAG_")
+        set tag_parts (sb_append tag_parts variant)
+        let tag_name: string = (sb_build tag_parts)
+        
+        let mut var_type_parts: array<string> = []
+        set var_type_parts (sb_append var_type_parts "nl_")
+        set var_type_parts (sb_append var_type_parts (mangle_name union_name))
+        set var_type_parts (sb_append var_type_parts "_")
+        set var_type_parts (sb_append var_type_parts variant)
+        let variant_type: string = (sb_build var_type_parts)
 
         set code (+ code (gen_indent (+ indent 2)))
         set code (+ code "case ")
