@@ -287,7 +287,9 @@ USERGUIDE_API_TIMEOUT ?= 600
 SHADOW_CHECK_TIMEOUT ?= 120
 CMD_TIMEOUT ?= 600
 TIMEOUT_CMD ?= perl -e 'alarm $(CMD_TIMEOUT); exec @ARGV'
-BOOTSTRAP2_TIMEOUT ?= $(CMD_TIMEOUT)
+# Bootstrap2 needs extended timeout due to self-hosted compiler performance
+# See docs/BOOTSTRAP_PROFILING_2026-01-21.md for analysis
+BOOTSTRAP2_TIMEOUT ?= 3600
 BOOTSTRAP2_TIMEOUT_CMD ?= perl -e 'alarm $(BOOTSTRAP2_TIMEOUT); exec @ARGV'
 USERGUIDE_BUILD_API_DOCS ?= 0
 test: build shadow-check userguide-export
