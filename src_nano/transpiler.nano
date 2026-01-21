@@ -2020,6 +2020,13 @@ fn operator_to_string(op: int) -> string {
     }}}}}}}}}}}}
 }
 
+shadow operator_to_string {
+    assert (== (operator_to_string LexerTokenType.TOKEN_PLUS) "+")
+    assert (== (operator_to_string LexerTokenType.TOKEN_MINUS) "-")
+    assert (== (operator_to_string LexerTokenType.TOKEN_EQ) "==")
+    assert (== (operator_to_string LexerTokenType.TOKEN_AND) "&&")
+}
+
 /* Generate C code for an expression node (RECURSIVE)
  * 
  * Args:
