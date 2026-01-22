@@ -2527,10 +2527,15 @@ fn typecheck_output(diagnostics: List<CompilerDiagnostic>, error_count: int, had
 
 /* Typecheck a parsed program with full AST walking */
 pub fn typecheck_phase(parser: Parser, file_name: string) -> TypecheckPhaseOutput {
+    return (typecheck_phase_with_symbols parser file_name [])
+}
+
+/* NSType check with initial symbol table (for transitive imports) */
+pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_symbols: array<Symbol>) -> TypecheckPhaseOutput {
     (println "=== NSType Checking (Full AST Walk) ===")
     
     let env: TypeEnvironment = (env_new)
-    let mut symbols: array<Symbol> = []
+    let mut symbols: array<Symbol> = initial_symbols
     let mut error_count: int = 0
     
     /* Get function count using accessor */

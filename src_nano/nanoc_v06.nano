@@ -19,6 +19,7 @@ import "src_nano/parser.nano"
 import "src_nano/typecheck.nano"
 import "src_nano/transpiler.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
+import "src_nano/compiler/module_loader.nano"
 
 /* CLI argument access */
 extern fn get_argc() -> int
@@ -957,6 +958,25 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
+            /* Step 2.5: Process imports recursively - CRITICAL FOR TRANSITIVE TYPE VISIBILITY */
+            if verbose {
+                (println "[2.5/5] Processing imports...")
+            } else {
+                (print "")
+            }
+            
+            let cache: ModuleCache = (module_cache_new)
+            let imported_symbols: array<Symbol> = (process_imports_recursive parser [] cache source_to_compile diags)
+            let imported_count: int = (array_length imported_symbols)
+            
+            if verbose {
+                (print "  ✓ Loaded ")
+                (print (int_to_string imported_count))
+                (println " type symbols from imports")
+            } else {
+                (print "")
+            }
+            
             /* Step 3: Typechecker - Verify semantics */
             if verbose {
                 (println "[3/5] NSType checking...")
@@ -964,7 +984,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
-            let tc: TypecheckPhaseOutput = (typecheck_phase parser source_to_compile)
+            let tc: TypecheckPhaseOutput = (typecheck_phase_with_symbols parser source_to_compile imported_symbols)
             if tc.had_error {
                 (println "NSType checking failed")
                 (println "Diagnostics:")
