@@ -185,6 +185,10 @@ $(SCHEMA_STAMP): $(SCHEMA_JSON) scripts/gen_compiler_schema.py scripts/gen_compi
 	fi
 	@touch $(SCHEMA_STAMP)
 
+# Ensure generated schema headers are created before compilation
+$(SRC_DIR)/generated/compiler_schema.h: $(SCHEMA_STAMP)
+	@# Schema stamp ensures this file exists
+
 # ============================================================================
 # Module Index Generation
 # ============================================================================
