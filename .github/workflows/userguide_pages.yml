@@ -36,6 +36,8 @@ jobs:
 
       - name: Build user guide HTML
         run: make userguide-html
+        env:
+          USERGUIDE_TIMEOUT: 1800
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
