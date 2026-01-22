@@ -315,6 +315,43 @@ shadow transp_extract_list_element_type {
     assert (== (transp_extract_list_element_type "invalid") "")
 }
 
+fn hashset_new_string() -> HashMap<string, int> {
+    let s: HashMap<string, int> = (map_new)
+    return s
+}
+
+shadow hashset_new_string {
+    let s: HashMap<string, int> = (hashset_new_string)
+    assert (!= s 0)
+    assert (not (hashset_has_string s "test"))
+}
+
+fn hashset_has_string(map: HashMap<string, int>, key: string) -> bool {
+    return (map_has map key)
+}
+
+shadow hashset_has_string {
+    let m: HashMap<string, int> = (hashset_new_string)
+    assert (not (hashset_has_string m "a"))
+    (map_put m "a" 1)
+    assert (hashset_has_string m "a")
+}
+
+fn hashset_add_string(map: HashMap<string, int>, key: string) -> HashMap<string, int> {
+    if (not (map_has map key)) {
+        (map_put map key 1)
+    } else { (print "") }
+    return map
+}
+
+shadow hashset_add_string {
+    let m: HashMap<string, int> = (hashset_new_string)
+    let m2: HashMap<string, int> = (hashset_add_string m "a")
+    assert (hashset_has_string m2 "a")
+    let m3: HashMap<string, int> = (hashset_add_string m2 "a")
+    assert (hashset_has_string m3 "a")
+}
+
 fn str_ends_with(s: string, suffix: string) -> bool {
     let ls: int = (str_length s)
     let lf: int = (str_length suffix)
@@ -2071,28 +2108,6 @@ fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>
     return result
 }
 
-fn hashset_new_string() -> HashMap<string, int> {
-    let s: HashMap<string, int> = (map_new)
-    return s
-}
-
-shadow hashset_new_string {
-    let s: HashMap<string, int> = (hashset_new_string)
-    assert (!= s 0)  /* HashMap is a valid pointer */
-    assert (not (hashset_has_string s "test"))
-}
-
-fn hashset_has_string(set: HashMap<string, int>, key: string) -> bool {
-    return (map_has set key)
-}
-
-fn hashset_add_string(set: HashMap<string, int>, key: string) -> HashMap<string, int> {
-    if (not (map_has set key)) {
-        (map_put set key 1)
-    } else { (print "") }
-    return set
-}
-
 /* Generate List<T> specializations for all detected types */
 fn generate_list_specializations(parser: Parser) -> string {
     let list_types: array<string> = (detect_list_types parser)
@@ -3044,6 +3059,8 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
         }
         }
     }
+}
+
 }
 
 /* Generate C code for a return statement

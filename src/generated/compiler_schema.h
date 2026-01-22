@@ -32,10 +32,6 @@ typedef struct List_ASTBool List_ASTBool;
 #define FORWARD_DEFINED_List_ASTCall
 typedef struct List_ASTCall List_ASTCall;
 #endif
-#ifndef FORWARD_DEFINED_List_ASTModuleQualifiedCall
-#define FORWARD_DEFINED_List_ASTModuleQualifiedCall
-typedef struct List_ASTModuleQualifiedCall List_ASTModuleQualifiedCall;
-#endif
 #ifndef FORWARD_DEFINED_List_ASTEnum
 #define FORWARD_DEFINED_List_ASTEnum
 typedef struct List_ASTEnum List_ASTEnum;
@@ -75,6 +71,10 @@ typedef struct List_ASTLet List_ASTLet;
 #ifndef FORWARD_DEFINED_List_ASTMatch
 #define FORWARD_DEFINED_List_ASTMatch
 typedef struct List_ASTMatch List_ASTMatch;
+#endif
+#ifndef FORWARD_DEFINED_List_ASTModuleQualifiedCall
+#define FORWARD_DEFINED_List_ASTModuleQualifiedCall
+typedef struct List_ASTModuleQualifiedCall List_ASTModuleQualifiedCall;
 #endif
 #ifndef FORWARD_DEFINED_List_ASTNumber
 #define FORWARD_DEFINED_List_ASTNumber

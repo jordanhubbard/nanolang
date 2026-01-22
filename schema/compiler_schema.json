@@ -113,7 +113,8 @@
     "PNODE_STRUCT",
     "PNODE_ENUM",
     "PNODE_UNION",
-    "PNODE_UNSAFE_BLOCK"
+    "PNODE_UNSAFE_BLOCK",
+    "PNODE_MODULE_QUALIFIED_CALL"
   ],
   "nano_enums": [
     {
@@ -358,6 +359,40 @@
         [
           "function",
           "int"
+        ],
+        [
+          "arg_start",
+          "int"
+        ],
+        [
+          "arg_count",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTModuleQualifiedCall",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "module_name",
+          "string"
+        ],
+        [
+          "function_name",
+          "string"
         ],
         [
           "arg_start",
@@ -1226,6 +1261,10 @@
           "List<ASTCall>"
         ],
         [
+          "module_qualified_calls",
+          "List<ASTModuleQualifiedCall>"
+        ],
+        [
           "call_args",
           "List<ASTStmtRef>"
         ],
@@ -1355,6 +1394,10 @@
         ],
         [
           "calls_count",
+          "int"
+        ],
+        [
+          "module_qualified_calls_count",
           "int"
         ],
         [
