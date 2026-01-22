@@ -38,6 +38,7 @@ jobs:
         run: make userguide-html
         env:
           USERGUIDE_TIMEOUT: 1800
+          NANO_USERGUIDE_HIGHLIGHT: 0
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
