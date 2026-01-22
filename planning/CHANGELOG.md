@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+[0;34mℹ️  Generating changelog from v2.0.8 to HEAD...[0m
+## [2.0.9] - 2026-01-21
+
+### Added
+- Implement recursive import processing for type visibility
+- Add module-qualified call support
+- Sync C compiler with module-qualified call support
+- Add module-qualified call support (part 1)
+- add StringBuilder pattern for O(n) string accumulation
+- BREAKTHROUGH - Stage1 compiles real programs!
+- add builtin function mapping to transpiler
+- Add shadow test for operator_to_string (transpiler)
+- Add shadow tests for array/expr utility functions (2 functions)
+- Add shadow tests for typechecker helper functions (5 functions)
+- Add shadow tests for module/path resolution functions (13 functions)
+- Add shadow tests for type and list helper functions (11 functions)
+- Add shadow tests for string utility functions (11 functions)
+- Add shadow tests for hashset/genenv/CLI utils (8 functions)
+- OPL AST builder functions for JSON-based AST construction
+- add syntax highlighting to inline examples on Examples page
+
+### Fixed
+- Update Parser struct initializations for module-qualified calls
+- Add module_qualified_calls fields to all Parser struct initializations
+- Simplify module-qualified call parsing
+- Increase BOOTSTRAP2_TIMEOUT to 3600s (1 hour)
+- Correct broken markdown link in TECHNICAL_WRITING_STYLE.md
+- function calls now return return_type not function_type
+- self-hosted typechecker now infers types for binary operators
+- proper contrast for code blocks (explicit light color for pre code)
+- userguide examples page code visibility (CSS color inheritance)
+
 [0;34mℹ️  Generating changelog from v2.0.7 to HEAD...[0m
 ## [2.0.8] - 2026-01-19
 
