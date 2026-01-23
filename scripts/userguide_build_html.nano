@@ -1127,14 +1127,16 @@ fn main() -> int {
         (log_debug (+ "userguide: Markdown files: " (int_to_string (array_length md_files))))
     }
 
-    let mut meta_rel: array<string> = []
-    let mut meta_title: array<string> = []
-    let mut meta_summary: array<string> = []
-    let mut meta_text: array<string> = []
-    let mut link_titles: array<string> = []
-    let mut link_rels: array<string> = []
     let md_len: int = (array_length md_files)
+    (println (+ "Pre-allocating arrays for " (+ (int_to_string md_len) " pages")))
+    let mut meta_rel: array<string> = (array_new md_len "")
+    let mut meta_title: array<string> = (array_new md_len "")
+    let mut meta_summary: array<string> = (array_new md_len "")
+    let mut meta_text: array<string> = (array_new md_len "")
+    let mut link_titles: array<string> = (array_new md_len "")
+    let mut link_rels: array<string> = (array_new md_len "")
     let mut mi: int = 0
+    (println "Reading and processing markdown files...")
     while (< mi md_len) {
         if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 750 9) }
         let md_path: string = (at md_files mi)
@@ -1144,15 +1146,16 @@ fn main() -> int {
         let stem: string = (strip_prefix base "")
         let title: string = (extract_title md_text (str_substring stem 0 (- (str_length stem) 3)))
         let summary: string = (extract_summary md_text)
-        set meta_rel (array_push meta_rel rel)
-        set meta_title (array_push meta_title title)
-        set meta_summary (array_push meta_summary summary)
-        set meta_text (array_push meta_text md_text)
+        (array_set meta_rel mi rel)
+        (array_set meta_title mi title)
+        (array_set meta_summary mi summary)
+        (array_set meta_text mi md_text)
         let html_rel: string = (str_substring rel 0 (- (str_length rel) 3))
-        set link_titles (array_push link_titles title)
-        set link_rels (array_push link_rels (+ html_rel ".html"))
+        (array_set link_titles mi title)
+        (array_set link_rels mi (+ html_rel ".html"))
         set mi (+ mi 1)
     }
+    (println "Metadata collection complete")
     if (trace_enabled) {
         (log_debug (+ "userguide: Pages: " (int_to_string (array_length meta_rel))))
     }
