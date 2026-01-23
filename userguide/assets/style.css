@@ -5,6 +5,7 @@
   --card: #121826;
   --link: #7aa2f7;
   --code: #0f172a;
+  --code-fg: var(--fg);
   --border: #263244;
 }
 
@@ -16,6 +17,7 @@
     --card: #f8fafc;
     --link: #2563eb;
     --code: #0b1220;
+    --code-fg: #e6edf3;
     --border: #e5e7eb;
   }
 }
@@ -94,7 +96,7 @@ pre {
 }
 
 pre code {
-  color: var(--fg);
+  color: var(--code-fg);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 0.95em;
 }
@@ -112,7 +114,7 @@ code .tok-comment { color: rgb(120, 120, 120); }
 code .tok-operator { color: rgb(255, 180, 180); }
 code .tok-paren { color: rgb(200, 200, 100); }
 code .tok-identifier { color: rgb(220, 220, 240); }
-code .tok-text { color: var(--fg); }
+code .tok-text { color: var(--code-fg); }
 
 .spacer {
   height: 10px;
