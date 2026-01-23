@@ -2079,17 +2079,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_BINARY_OP) {
         let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
-        /* Arithmetic operators return int */
-        if (or (== binop.op 57) (or (== binop.op 58) (or (== binop.op 59) (or (== binop.op 60) (== binop.op 61))))) {
-            return (type_int)
-        } else {
-            /* Comparison and logical operators return bool */
-            if (or (or (or (== binop.op 62) (== binop.op 63)) (or (== binop.op 64) (== binop.op 65))) (or (or (== binop.op 66) (== binop.op 67)) (or (== binop.op 68) (== binop.op 69)))) {
-                return (type_bool)
-            } else {
-                return (type_unknown_named "binop")
-            }
-        }
+        let left_t: NSType = (check_expr_node parser binop.left binop.left_type symbols diags file_name)
+        let right_t: NSType = (check_expr_node parser binop.right binop.right_type symbols diags file_name)
+        let op_str: string = (op_token_to_string binop.op)
+        return (check_binary_op op_str left_t right_t)
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_CALL) {
         let call_node: ASTCall = (parser_get_call parser node_id)
@@ -2143,6 +2136,30 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (check_union_construct parser node_id) } else { (print "") }
     if (== node_type ParseNodeType.PNODE_MATCH) { return (check_match_expr parser node_id symbols diags file_name) } else { (print "") }
     return (type_unknown_named "expr")
+}
+
+shadow check_expr_node {
+    let p0: Parser = (parser_init_ast_lists)
+    let p1: Parser = (parser_store_identifier p0 "var_name" 1 1)
+    let var_id: int = p1.last_expr_node_id
+    let var_type: int = p1.last_expr_node_type
+    let p2: Parser = (parser_store_string p1 "not found" 1 1)
+    let msg_id: int = p2.last_expr_node_id
+    let msg_type: int = p2.last_expr_node_type
+    let p3: Parser = (parser_store_binary_op p2 LexerTokenType.TOKEN_PLUS var_id msg_id var_type msg_type 1 1)
+    let inner_id: int = p3.last_expr_node_id
+    let inner_type: int = p3.last_expr_node_type
+    let p4: Parser = (parser_store_string p3 "Error: " 1 1)
+    let err_id: int = p4.last_expr_node_id
+    let err_type: int = p4.last_expr_node_type
+    let p5: Parser = (parser_store_binary_op p4 LexerTokenType.TOKEN_PLUS err_id inner_id err_type inner_type 1 1)
+    let env: TypeEnvironment = (env_new)
+    let mut symbols: array<Symbol> = []
+    let sym: Symbol = (symbol_new "var_name" (type_string) false false 0 (empty_param_types) (type_void))
+    set symbols (env_add_symbol env symbols sym)
+    let diags: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let result: NSType = (check_expr_node p5 p5.last_expr_node_id p5.last_expr_node_type symbols diags "test.nano")
+    assert (== result.kind TypeKind.TYPE_STRING)
 }
 
 /* NSType check a return statement expression
