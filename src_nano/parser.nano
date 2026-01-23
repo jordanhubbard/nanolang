@@ -6871,6 +6871,554 @@ pub fn parser_get_import(p: Parser, idx: int) -> ASTImport {
     return (list_ASTImport_get p.imports idx)
 }
 
+shadow parser_store_array_literal {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_array_literal p 0 0 "" 1 1)
+    let lit: ASTArrayLiteral = (parser_get_array_literal p2 0)
+    assert (== lit.element_count 0)
+}
+
+shadow parser_store_field_access {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_field_access p 0 ParseNodeType.PNODE_IDENTIFIER "field" 1 1)
+    let fa: ASTFieldAccess = (parser_get_field_access p2 0)
+    assert (== fa.field_name "field")
+}
+
+shadow parser_store_float {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_float p "1.5" 1 1)
+    let f: ASTFloat = (parser_get_float p2 0)
+    assert (== f.value "1.5")
+}
+
+shadow parser_store_for {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_for p "i" 0 ParseNodeType.PNODE_NUMBER -1 1 1)
+    let f: ASTFor = (list_ASTFor_get p2.fors 0)
+    assert (== f.var_name "i")
+}
+
+shadow parser_store_import {
+    let p: Parser = (parser_init_ast_lists)
+    let syms: array<string> = []
+    let aliases: array<string> = []
+    let p2: Parser = (parser_store_import p "modules/std/fs.nano" "fs" false false false syms aliases 0 1 1)
+    let imp: ASTImport = (parser_get_import p2 0)
+    assert (== imp.module_name "fs")
+}
+
+shadow parser_store_match {
+    let p: Parser = (parser_init_ast_lists)
+    let variants: array<string> = []
+    let bindings: array<string> = []
+    let body_ids: array<int> = []
+    let body_types: array<int> = []
+    let p2: Parser = (parser_store_match p 0 ParseNodeType.PNODE_IDENTIFIER variants bindings body_ids body_types 0 1 1)
+    let m: ASTMatch = (parser_get_match p2 0)
+    assert (== m.arm_count 0)
+}
+
+shadow parser_store_opaque_type {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_opaque_type p "Foo" 1 1)
+    let t: ASTOpaqueType = (list_ASTOpaqueType_get p2.opaque_types 0)
+    assert (== t.type_name "Foo")
+}
+
+shadow parser_store_shadow {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_shadow p "target" -1 1 1)
+    let s: ASTShadow = (list_ASTShadow_get p2.shadows 0)
+    assert (== s.target_name "target")
+}
+
+shadow parser_store_struct_literal {
+    let p: Parser = (parser_init_ast_lists)
+    let names: array<string> = []
+    set names (array_push names "x")
+    let ids: array<int> = []
+    set ids (array_push ids 0)
+    let types: array<int> = []
+    set types (array_push types ParseNodeType.PNODE_NUMBER)
+    let p2: Parser = (parser_store_struct_literal p "Point" names ids types 1 1 1)
+    let lit: ASTStructLiteral = (parser_get_struct_literal p2 0)
+    assert (== lit.struct_name "Point")
+}
+
+shadow parser_store_tuple_index {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_tuple_index p 0 ParseNodeType.PNODE_TUPLE_LITERAL 1 1 1)
+    let idx: ASTTupleIndex = (parser_get_tuple_index p2 0)
+    assert (== idx.index 1)
+}
+
+shadow parser_store_tuple_literal {
+    let p: Parser = (parser_init_ast_lists)
+    let ids: array<int> = []
+    set ids (array_push ids 0)
+    let types: array<int> = []
+    set types (array_push types ParseNodeType.PNODE_NUMBER)
+    let p2: Parser = (parser_store_tuple_literal p ids types 1 1 1)
+    let lit: ASTTupleLiteral = (parser_get_tuple_literal p2 0)
+    assert (== lit.element_count 1)
+}
+
+shadow parser_store_union_construct {
+    let p: Parser = (parser_init_ast_lists)
+    let names: array<string> = []
+    let ids: array<int> = []
+    let types: array<int> = []
+    let p2: Parser = (parser_store_union_construct p "Option" "Some" names ids types 0 1 1)
+    let uc: ASTUnionConstruct = (parser_get_union_construct p2 0)
+    assert (== uc.union_name "Option")
+}
+
+shadow parser_get_function {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_function p "main" 0 0 "int" -1 1 1)
+    let f: ASTFunction = (parser_get_function p2 0)
+    assert (== f.name "main")
+}
+
+shadow parser_get_let_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_let_count p) 0)
+    let p2: Parser = (parser_store_let p "x" "int" -1 -1 false 1 1)
+    assert (== (parser_get_let_count p2) 1)
+}
+
+shadow parser_get_let {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_let p "x" "int" -1 -1 false 1 1)
+    let l: ASTLet = (parser_get_let p2 0)
+    assert (== l.name "x")
+}
+
+shadow parser_get_identifier_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_identifier_count p) 0)
+    let p2: Parser = (parser_store_identifier p "x" 1 1)
+    assert (== (parser_get_identifier_count p2) 1)
+}
+
+shadow parser_get_identifier {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_identifier p "x" 1 1)
+    let id: ASTIdentifier = (parser_get_identifier p2 0)
+    assert (== id.name "x")
+}
+
+shadow parser_get_number_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_number_count p) 0)
+    let p2: Parser = (parser_store_number p "5" 1 1)
+    assert (== (parser_get_number_count p2) 1)
+}
+
+shadow parser_get_number {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_number p "5" 1 1)
+    let n: ASTNumber = (parser_get_number p2 0)
+    assert (== n.value "5")
+}
+
+shadow parser_get_float_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_float_count p) 0)
+    let p2: Parser = (parser_store_float p "1.5" 1 1)
+    assert (== (parser_get_float_count p2) 1)
+}
+
+shadow parser_get_float {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_float p "1.5" 1 1)
+    let f: ASTFloat = (parser_get_float p2 0)
+    assert (== f.value "1.5")
+}
+
+shadow parser_get_binary_op_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_binary_op_count p) 0)
+    let p1: Parser = (parser_store_number p "1" 1 1)
+    let id: int = p1.last_expr_node_id
+    let ty: int = p1.last_expr_node_type
+    let p2: Parser = (parser_store_binary_op p1 LexerTokenType.TOKEN_PLUS id id ty ty 1 1)
+    assert (== (parser_get_binary_op_count p2) 1)
+}
+
+shadow parser_get_binary_op {
+    let p: Parser = (parser_init_ast_lists)
+    let p1: Parser = (parser_store_number p "1" 1 1)
+    let id: int = p1.last_expr_node_id
+    let ty: int = p1.last_expr_node_type
+    let p2: Parser = (parser_store_binary_op p1 LexerTokenType.TOKEN_PLUS id id ty ty 1 1)
+    let op: ASTBinaryOp = (parser_get_binary_op p2 0)
+    assert (== op.op LexerTokenType.TOKEN_PLUS)
+}
+
+shadow parser_get_return_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_return_count p) 0)
+    let p1: Parser = (parser_store_number p "1" 1 1)
+    let p2: Parser = (parser_store_return p1 p1.last_expr_node_id p1.last_expr_node_type 1 1)
+    assert (== (parser_get_return_count p2) 1)
+}
+
+shadow parser_get_return {
+    let p: Parser = (parser_init_ast_lists)
+    let p1: Parser = (parser_store_number p "1" 1 1)
+    let p2: Parser = (parser_store_return p1 p1.last_expr_node_id p1.last_expr_node_type 1 1)
+    let r: ASTReturn = (parser_get_return p2 0)
+    assert (== r.value p1.last_expr_node_id)
+}
+
+shadow parser_get_block_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_block_count p) 0)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p2: Parser = (parser_store_block p stmts 1 1)
+    assert (== (parser_get_block_count p2) 1)
+}
+
+shadow parser_get_block {
+    let p: Parser = (parser_init_ast_lists)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p2: Parser = (parser_store_block p stmts 1 1)
+    let b: ASTBlock = (parser_get_block p2 0)
+    assert (== (list_ASTStmtRef_length b.statements) 0)
+}
+
+shadow parser_get_if_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_if_count p) 0)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p1: Parser = (parser_store_block p stmts 1 1)
+    let block_id: int = p1.last_expr_node_id
+    let p2: Parser = (parser_store_bool p1 true 1 1)
+    let p3: Parser = (parser_store_if p2 p2.last_expr_node_id p2.last_expr_node_type block_id -1 1 1)
+    assert (== (parser_get_if_count p3) 1)
+}
+
+shadow parser_get_if {
+    let p: Parser = (parser_init_ast_lists)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p1: Parser = (parser_store_block p stmts 1 1)
+    let block_id: int = p1.last_expr_node_id
+    let p2: Parser = (parser_store_bool p1 true 1 1)
+    let p3: Parser = (parser_store_if p2 p2.last_expr_node_id p2.last_expr_node_type block_id -1 1 1)
+    let node: ASTIf = (parser_get_if p3 0)
+    assert (== node.then_body block_id)
+}
+
+shadow parser_get_while_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_while_count p) 0)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p1: Parser = (parser_store_block p stmts 1 1)
+    let block_id: int = p1.last_expr_node_id
+    let p2: Parser = (parser_store_bool p1 true 1 1)
+    let p3: Parser = (parser_store_while p2 p2.last_expr_node_id p2.last_expr_node_type block_id 1 1)
+    assert (== (parser_get_while_count p3) 1)
+}
+
+shadow parser_get_while {
+    let p: Parser = (parser_init_ast_lists)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p1: Parser = (parser_store_block p stmts 1 1)
+    let block_id: int = p1.last_expr_node_id
+    let p2: Parser = (parser_store_bool p1 true 1 1)
+    let p3: Parser = (parser_store_while p2 p2.last_expr_node_id p2.last_expr_node_type block_id 1 1)
+    let node: ASTWhile = (parser_get_while p3 0)
+    assert (== node.body block_id)
+}
+
+shadow parser_get_unsafe_block {
+    let p: Parser = (parser_init_ast_lists)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p2: Parser = (parser_store_unsafe_block p stmts 1 1)
+    let ub: ASTUnsafeBlock = (parser_get_unsafe_block p2 0)
+    assert (== (list_ASTStmtRef_length ub.statements) 0)
+}
+
+shadow parser_get_call_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_call_count p) 0)
+    let p1: Parser = (parser_store_identifier p "foo" 1 1)
+    let fid: int = p1.last_expr_node_id
+    let p2: Parser = (parser_store_call p1 fid 0 0 1 1)
+    assert (== (parser_get_call_count p2) 1)
+}
+
+shadow parser_get_call {
+    let p: Parser = (parser_init_ast_lists)
+    let p1: Parser = (parser_store_identifier p "foo" 1 1)
+    let fid: int = p1.last_expr_node_id
+    let p2: Parser = (parser_store_call p1 fid 0 0 1 1)
+    let c: ASTCall = (parser_get_call p2 0)
+    assert (== c.function fid)
+}
+
+shadow parser_get_module_qualified_call_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_module_qualified_call_count p) 0)
+    let p2: Parser = (parser_store_module_qualified_call p "mod" "func" 0 0 1 1)
+    assert (== (parser_get_module_qualified_call_count p2) 1)
+}
+
+shadow parser_get_module_qualified_call {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_module_qualified_call p "mod" "func" 0 0 1 1)
+    let c: ASTModuleQualifiedCall = (parser_get_module_qualified_call p2 0)
+    assert (== c.module_name "mod")
+}
+
+shadow parser_get_call_arg_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_call_arg_count p) 0)
+    let p2: Parser = (parser_store_call_arg p 0 ParseNodeType.PNODE_NUMBER)
+    assert (== (parser_get_call_arg_count p2) 1)
+}
+
+shadow parser_get_call_arg {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_call_arg p 0 ParseNodeType.PNODE_NUMBER)
+    let arg: ASTStmtRef = (parser_get_call_arg p2 0)
+    assert (== arg.node_id 0)
+}
+
+shadow parser_get_set_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_set_count p) 0)
+    let p1: Parser = (parser_store_number p "1" 1 1)
+    let p2: Parser = (parser_store_set p1 "x" p1.last_expr_node_id p1.last_expr_node_type 1 1)
+    assert (== (parser_get_set_count p2) 1)
+}
+
+shadow parser_get_set {
+    let p: Parser = (parser_init_ast_lists)
+    let p1: Parser = (parser_store_number p "1" 1 1)
+    let p2: Parser = (parser_store_set p1 "x" p1.last_expr_node_id p1.last_expr_node_type 1 1)
+    let s: ASTSet = (parser_get_set p2 0)
+    assert (== s.target "x")
+}
+
+shadow parser_get_string_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_string_count p) 0)
+    let p2: Parser = (parser_store_string p "hi" 1 1)
+    assert (== (parser_get_string_count p2) 1)
+}
+
+shadow parser_get_string {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_string p "hi" 1 1)
+    let s: ASTString = (parser_get_string p2 0)
+    assert (== s.value "hi")
+}
+
+shadow parser_get_bool_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_bool_count p) 0)
+    let p2: Parser = (parser_store_bool p true 1 1)
+    assert (== (parser_get_bool_count p2) 1)
+}
+
+shadow parser_get_bool {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_bool p true 1 1)
+    let b: ASTBool = (parser_get_bool p2 0)
+    assert (== b.value true)
+}
+
+shadow parser_get_assert_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_assert_count p) 0)
+    let p1: Parser = (parser_store_bool p true 1 1)
+    let p2: Parser = (parser_store_assert p1 p1.last_expr_node_id p1.last_expr_node_type 1 1)
+    assert (== (parser_get_assert_count p2) 1)
+}
+
+shadow parser_get_assert {
+    let p: Parser = (parser_init_ast_lists)
+    let p1: Parser = (parser_store_bool p true 1 1)
+    let p2: Parser = (parser_store_assert p1 p1.last_expr_node_id p1.last_expr_node_type 1 1)
+    let a: ASTAssert = (parser_get_assert p2 0)
+    assert (== a.condition p1.last_expr_node_id)
+}
+
+shadow parser_get_field_access_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_field_access_count p) 0)
+    let p2: Parser = (parser_store_field_access p 0 ParseNodeType.PNODE_IDENTIFIER "field" 1 1)
+    assert (== (parser_get_field_access_count p2) 1)
+}
+
+shadow parser_get_field_access {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_field_access p 0 ParseNodeType.PNODE_IDENTIFIER "field" 1 1)
+    let fa: ASTFieldAccess = (parser_get_field_access p2 0)
+    assert (== fa.field_name "field")
+}
+
+shadow parser_get_array_literal_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_array_literal_count p) 0)
+    let p2: Parser = (parser_store_array_literal p 0 0 "" 1 1)
+    assert (== (parser_get_array_literal_count p2) 1)
+}
+
+shadow parser_get_array_literal {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_array_literal p 0 0 "" 1 1)
+    let lit: ASTArrayLiteral = (parser_get_array_literal p2 0)
+    assert (== lit.element_type "")
+}
+
+shadow parser_set_array_literal_element_type {
+    let p: Parser = (parser_init_ast_lists)
+    let p1: Parser = (parser_store_array_literal p 0 0 "" 1 1)
+    let p2: Parser = (parser_set_array_literal_element_type p1 0 "int")
+    let lit: ASTArrayLiteral = (parser_get_array_literal p2 0)
+    assert (== lit.element_type "int")
+}
+
+shadow parser_get_array_element_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_array_element_count p) 0)
+    let p2: Parser = (parser_store_array_element p 2 ParseNodeType.PNODE_NUMBER)
+    assert (== (parser_get_array_element_count p2) 1)
+}
+
+shadow parser_get_array_element {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_array_element p 2 ParseNodeType.PNODE_NUMBER)
+    let elem: ASTStmtRef = (parser_get_array_element p2 0)
+    assert (== elem.node_id 2)
+}
+
+shadow parser_get_struct_literal_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_struct_literal_count p) 0)
+    let names: array<string> = []
+    set names (array_push names "x")
+    let ids: array<int> = []
+    set ids (array_push ids 0)
+    let types: array<int> = []
+    set types (array_push types ParseNodeType.PNODE_NUMBER)
+    let p2: Parser = (parser_store_struct_literal p "Point" names ids types 1 1 1)
+    assert (== (parser_get_struct_literal_count p2) 1)
+}
+
+shadow parser_get_struct_literal {
+    let p: Parser = (parser_init_ast_lists)
+    let names: array<string> = []
+    set names (array_push names "x")
+    let ids: array<int> = []
+    set ids (array_push ids 0)
+    let types: array<int> = []
+    set types (array_push types ParseNodeType.PNODE_NUMBER)
+    let p2: Parser = (parser_store_struct_literal p "Point" names ids types 1 1 1)
+    let lit: ASTStructLiteral = (parser_get_struct_literal p2 0)
+    assert (== lit.struct_name "Point")
+}
+
+shadow parser_get_union_construct_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_union_construct_count p) 0)
+    let names: array<string> = []
+    let ids: array<int> = []
+    let types: array<int> = []
+    let p2: Parser = (parser_store_union_construct p "Option" "Some" names ids types 0 1 1)
+    assert (== (parser_get_union_construct_count p2) 1)
+}
+
+shadow parser_get_union_construct {
+    let p: Parser = (parser_init_ast_lists)
+    let names: array<string> = []
+    let ids: array<int> = []
+    let types: array<int> = []
+    let p2: Parser = (parser_store_union_construct p "Option" "Some" names ids types 0 1 1)
+    let uc: ASTUnionConstruct = (parser_get_union_construct p2 0)
+    assert (== uc.union_name "Option")
+}
+
+shadow parser_get_match_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_match_count p) 0)
+    let variants: array<string> = []
+    let bindings: array<string> = []
+    let body_ids: array<int> = []
+    let body_types: array<int> = []
+    let p2: Parser = (parser_store_match p 0 ParseNodeType.PNODE_IDENTIFIER variants bindings body_ids body_types 0 1 1)
+    assert (== (parser_get_match_count p2) 1)
+}
+
+shadow parser_get_match {
+    let p: Parser = (parser_init_ast_lists)
+    let variants: array<string> = []
+    let bindings: array<string> = []
+    let body_ids: array<int> = []
+    let body_types: array<int> = []
+    let p2: Parser = (parser_store_match p 0 ParseNodeType.PNODE_IDENTIFIER variants bindings body_ids body_types 0 1 1)
+    let m: ASTMatch = (parser_get_match p2 0)
+    assert (== m.arm_count 0)
+}
+
+shadow parser_get_tuple_literal_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_tuple_literal_count p) 0)
+    let ids: array<int> = []
+    set ids (array_push ids 0)
+    let types: array<int> = []
+    set types (array_push types ParseNodeType.PNODE_NUMBER)
+    let p2: Parser = (parser_store_tuple_literal p ids types 1 1 1)
+    assert (== (parser_get_tuple_literal_count p2) 1)
+}
+
+shadow parser_get_tuple_literal {
+    let p: Parser = (parser_init_ast_lists)
+    let ids: array<int> = []
+    set ids (array_push ids 0)
+    let types: array<int> = []
+    set types (array_push types ParseNodeType.PNODE_NUMBER)
+    let p2: Parser = (parser_store_tuple_literal p ids types 1 1 1)
+    let lit: ASTTupleLiteral = (parser_get_tuple_literal p2 0)
+    assert (== lit.element_count 1)
+}
+
+shadow parser_get_tuple_index_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_tuple_index_count p) 0)
+    let p2: Parser = (parser_store_tuple_index p 0 ParseNodeType.PNODE_TUPLE_LITERAL 1 1 1)
+    assert (== (parser_get_tuple_index_count p2) 1)
+}
+
+shadow parser_get_tuple_index {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_tuple_index p 0 ParseNodeType.PNODE_TUPLE_LITERAL 1 1 1)
+    let idx: ASTTupleIndex = (parser_get_tuple_index p2 0)
+    assert (== idx.index 1)
+}
+
+shadow parser_get_import_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_import_count p) 0)
+    let syms: array<string> = []
+    let aliases: array<string> = []
+    let p2: Parser = (parser_store_import p "modules/std/fs.nano" "fs" false false false syms aliases 0 1 1)
+    assert (== (parser_get_import_count p2) 1)
+}
+
+shadow parser_get_import {
+    let p: Parser = (parser_init_ast_lists)
+    let syms: array<string> = []
+    let aliases: array<string> = []
+    let p2: Parser = (parser_store_import p "modules/std/fs.nano" "fs" false false false syms aliases 0 1 1)
+    let imp: ASTImport = (parser_get_import p2 0)
+    assert (== imp.module_name "fs")
+}
+
 /* =============================================================================
  * PHASE WRAPPER for Driver Integration
  * ============================================================================= */

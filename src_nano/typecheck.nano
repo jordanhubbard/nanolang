@@ -148,6 +148,30 @@ shadow type_unknown_named {
     assert (== t.name "test")
 }
 
+fn type_from_kind(kind: int) -> NSType {
+    if (== kind TypeKind.TYPE_INT) { return (type_int) }
+    else { if (== kind TypeKind.TYPE_FLOAT) { return (type_float) }
+    else { if (== kind TypeKind.TYPE_BOOL) { return (type_bool) }
+    else { if (== kind TypeKind.TYPE_STRING) { return (type_string) }
+    else { if (== kind TypeKind.TYPE_VOID) { return (type_void) }
+    else {
+        return NSType {
+            kind: kind,
+            name: "",
+            element_type_kind: TypeKind.TYPE_UNKNOWN,
+            element_type_name: ""
+        }
+    } } } } }
+}
+
+shadow type_from_kind {
+    let t1: NSType = (type_from_kind TypeKind.TYPE_INT)
+    assert (== t1.kind TypeKind.TYPE_INT)
+
+    let t2: NSType = (type_from_kind TypeKind.TYPE_STRUCT)
+    assert (== t2.kind TypeKind.TYPE_STRUCT)
+}
+
 /* =============================================================================
  * STRUCT METADATA REGISTRY - For accurate field type inference
  * ============================================================================= */
@@ -616,6 +640,18 @@ fn lookup_field_type_kind(index: HashMap<string, int>, struct_name: string, fiel
     }
     
     return TypeKind.TYPE_UNKNOWN
+}
+
+fn lookup_field_type(metadata: array<FieldMetadata>, struct_name: string, field_name: string) -> NSType {
+    let idx: HashMap<string, int> = (build_field_metadata_index metadata)
+    let kind: int = (lookup_field_type_kind idx struct_name field_name)
+    return (type_from_kind kind)
+}
+
+shadow lookup_field_type {
+    let m: array<FieldMetadata> = (init_struct_metadata)
+    let t: NSType = (lookup_field_type m "ASTPrint" "value")
+    assert (== t.kind TypeKind.TYPE_INT)
 }
 
 fn option_type_some(value: NSType) -> OptionType {
