@@ -1030,37 +1030,35 @@ fn append_examples_body(out_path: string, md_text: string, skip_highlight: bool)
 shadow append_examples_body { assert true }
 
 fn write_page_open(out_path: string, title: string, summary: string, css_href: string, home_href: string, mascot_href: string, accent: string, toc_html: string, nav_html: string) -> void {
-    let mut page_out: array<string> = []
-    set page_out (array_push page_out "<!doctype html>")
-    set page_out (array_push page_out "<html>")
-    set page_out (array_push page_out "<head>")
-    set page_out (array_push page_out "  <meta charset=\"utf-8\">")
-    set page_out (array_push page_out (+ "  <title>" (+ (html_escape title) "</title>")))
-    set page_out (array_push page_out "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">")
-    set page_out (array_push page_out (+ "  <link rel=\"stylesheet\" href=\"" (+ (html_escape css_href) "\">")))
-    set page_out (array_push page_out "</head>")
-    set page_out (array_push page_out (+ "<body style=\"--accent: " (+ (html_escape accent) ";\">")))
-    set page_out (array_push page_out "<nav>")
-    set page_out (array_push page_out (+ "  <a href=\"" (+ (html_escape home_href) "\" class=\"nav-home\" aria-label=\"Back to guide index\">&#8962;</a>")))
-    set page_out (array_push page_out (+ "  <a href=\"" (+ (html_escape home_href) "\">NanoLang User Guide</a>")))
-    set page_out (array_push page_out "</nav>")
-    set page_out (array_push page_out "<header class=\"hero\">")
-    set page_out (array_push page_out "  <div class=\"hero-text\">")
-    set page_out (array_push page_out (+ "    <h1>" (+ (html_escape title) "</h1>")))
-    if (!= summary "") {
-        set page_out (array_push page_out (+ "    <p>" (+ (render_inline summary) "</p>")))
-    } else {
-        set page_out (array_push page_out "    <p></p>")
-    }
-    set page_out (array_push page_out "  </div>")
-    set page_out (array_push page_out (+ "  <img class=\"hero-mascot\" src=\"" (+ (html_escape mascot_href) "\" alt=\"NanoLang Mascot\">")))
-    set page_out (array_push page_out "</header>")
-    set page_out (array_push page_out "<main class=\"content with-sidebar\">")
-    set page_out (array_push page_out toc_html)
-    set page_out (array_push page_out "  <div class=\"content-body\">")
-    set page_out (array_push page_out nav_html)
-    set page_out (array_push page_out "    <div class=\"page-card\">")
-    (write out_path (sb_join page_out "\n"))
+    let summary_html: string = (cond ((!= summary "") (+ "    <p>" (+ (render_inline summary) "</p>"))) (else "    <p></p>"))
+    let page_html: string = (sb_join [
+        "<!doctype html>",
+        "<html>",
+        "<head>",
+        "  <meta charset=\"utf-8\">",
+        (+ "  <title>" (+ (html_escape title) "</title>")),
+        "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+        (+ "  <link rel=\"stylesheet\" href=\"" (+ (html_escape css_href) "\">")),
+        "</head>",
+        (+ "<body style=\"--accent: " (+ (html_escape accent) ";\">")),
+        "<nav>",
+        (+ "  <a href=\"" (+ (html_escape home_href) "\" class=\"nav-home\" aria-label=\"Back to guide index\">&#8962;</a>")),
+        (+ "  <a href=\"" (+ (html_escape home_href) "\">NanoLang User Guide</a>")),
+        "</nav>",
+        "<header class=\"hero\">",
+        "  <div class=\"hero-text\">",
+        (+ "    <h1>" (+ (html_escape title) "</h1>")),
+        summary_html,
+        "  </div>",
+        (+ "  <img class=\"hero-mascot\" src=\"" (+ (html_escape mascot_href) "\" alt=\"NanoLang Mascot\">")),
+        "</header>",
+        "<main class=\"content with-sidebar\">",
+        toc_html,
+        "  <div class=\"content-body\">",
+        nav_html,
+        "    <div class=\"page-card\">"
+    ] "\n")
+    (write out_path page_html)
 }
 
 shadow write_page_open { assert true }
@@ -1149,6 +1147,10 @@ fn main() -> int {
         (log_debug (+ "userguide: Pages: " (int_to_string (array_length meta_rel))))
     }
 
+    (println "Building TOC HTML once for all pages...")
+    let toc_base_html: string = (build_toc link_titles link_rels "" out_dir out_dir [])
+    (println (+ "TOC built (" (+ (int_to_string (str_length toc_base_html)) " chars)")))
+
     let meta_len: int = (array_length meta_rel)
     let mut idx: int = 0
     while (< idx meta_len) {
@@ -1157,6 +1159,7 @@ fn main() -> int {
         let title: string = (at meta_title idx)
         let summary: string = (at meta_summary idx)
         let mut md_text: string = (at meta_text idx)
+        (println (+ "Processing page " (+ (int_to_string idx) (+ "/" (+ (int_to_string meta_len) (+ ": " rel))))))
         if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: page " (+ rel "\n"))) } else { (print "") }
         if (or (str_contains rel "/05_modules.md") (str_ends_with rel "05_modules.md")) {
             if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 780 13) }
@@ -1208,8 +1211,7 @@ fn main() -> int {
         }
 
         let nav_html: string = (sb_join [ "<div class=\"chapter-nav\">", prev_html, (+ "<a class=\"chapter-link home\" href=\"" (+ (html_escape home_href) "\" aria-label=\"Back to guide index\">&#8962;</a>")), next_html, "</div>" ] "\n")
-        let example_names: array<string> = (cond ((or (str_contains rel "/07_examples.md") (str_ends_with rel "07_examples.md")) (extract_example_names md_text)) (else []))
-        let toc_html: string = (build_toc link_titles link_rels html_rel out_dir page_dir example_names)
+        let toc_html: string = toc_base_html
 
         if (or (str_contains rel "/07_examples.md") (str_ends_with rel "07_examples.md")) {
             if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: streaming examples page\n") } else { (print "") }
@@ -1229,44 +1231,42 @@ fn main() -> int {
         let body: string = (md_to_html md_text summary fast_inline)
         if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n"))) } else { (print "") }
 
-        let mut page_out: array<string> = []
-        set page_out (array_push page_out "<!doctype html>")
-        set page_out (array_push page_out "<html>")
-        set page_out (array_push page_out "<head>")
-        set page_out (array_push page_out "  <meta charset=\"utf-8\">")
-        set page_out (array_push page_out (+ "  <title>" (+ (html_escape title) "</title>")))
-        set page_out (array_push page_out "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">")
-        set page_out (array_push page_out (+ "  <link rel=\"stylesheet\" href=\"" (+ (html_escape css_href) "\">")))
-        set page_out (array_push page_out "</head>")
-        set page_out (array_push page_out (+ "<body style=\"--accent: " (+ (html_escape accent) ";\">")))
-        set page_out (array_push page_out "<nav>")
-        set page_out (array_push page_out (+ "  <a href=\"" (+ (html_escape home_href) "\" class=\"nav-home\" aria-label=\"Back to guide index\">&#8962;</a>")))
-        set page_out (array_push page_out (+ "  <a href=\"" (+ (html_escape home_href) "\">NanoLang User Guide</a>")))
-        set page_out (array_push page_out "</nav>")
-        set page_out (array_push page_out "<header class=\"hero\">")
-        set page_out (array_push page_out "  <div class=\"hero-text\">")
-        set page_out (array_push page_out (+ "    <h1>" (+ (html_escape title) "</h1>")))
-        if (> (str_length summary) 0) {
-            set page_out (array_push page_out (+ "    <p>" (+ (render_inline_mode summary fast_inline) "</p>")))
-        } else {
-            set page_out (array_push page_out "    <p></p>")
-        }
-        set page_out (array_push page_out "  </div>")
-        set page_out (array_push page_out (+ "  <img class=\"hero-mascot\" src=\"" (+ (html_escape mascot_href) "\" alt=\"NanoLang Mascot\">")))
-        set page_out (array_push page_out "</header>")
-        set page_out (array_push page_out "<main class=\"content with-sidebar\">")
-        set page_out (array_push page_out toc_html)
-        set page_out (array_push page_out "  <div class=\"content-body\">")
-        set page_out (array_push page_out nav_html)
-        set page_out (array_push page_out "    <div class=\"page-card\">")
-        set page_out (array_push page_out body)
-        set page_out (array_push page_out "    </div>")
-        set page_out (array_push page_out nav_html)
-        set page_out (array_push page_out "  </div>")
-        set page_out (array_push page_out "</main>")
-        set page_out (array_push page_out "</body>")
-        set page_out (array_push page_out "</html>")
-        (write out_path (sb_join page_out "\n"))
+        let summary_html: string = (cond ((> (str_length summary) 0) (+ "    <p>" (+ (render_inline_mode summary fast_inline) "</p>"))) (else "    <p></p>"))
+        let page_html: string = (sb_join [
+            "<!doctype html>",
+            "<html>",
+            "<head>",
+            "  <meta charset=\"utf-8\">",
+            (+ "  <title>" (+ (html_escape title) "</title>")),
+            "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+            (+ "  <link rel=\"stylesheet\" href=\"" (+ (html_escape css_href) "\">")),
+            "</head>",
+            (+ "<body style=\"--accent: " (+ (html_escape accent) ";\">")),
+            "<nav>",
+            (+ "  <a href=\"" (+ (html_escape home_href) "\" class=\"nav-home\" aria-label=\"Back to guide index\">&#8962;</a>")),
+            (+ "  <a href=\"" (+ (html_escape home_href) "\">NanoLang User Guide</a>")),
+            "</nav>",
+            "<header class=\"hero\">",
+            "  <div class=\"hero-text\">",
+            (+ "    <h1>" (+ (html_escape title) "</h1>")),
+            summary_html,
+            "  </div>",
+            (+ "  <img class=\"hero-mascot\" src=\"" (+ (html_escape mascot_href) "\" alt=\"NanoLang Mascot\">")),
+            "</header>",
+            "<main class=\"content with-sidebar\">",
+            toc_html,
+            "  <div class=\"content-body\">",
+            nav_html,
+            "    <div class=\"page-card\">",
+            body,
+            "    </div>",
+            nav_html,
+            "  </div>",
+            "</main>",
+            "</body>",
+            "</html>"
+        ] "\n")
+        (write out_path page_html)
         if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: wrote " (+ rel "\n"))) } else { (print "") }
         set idx (+ idx 1)
     }
@@ -1303,43 +1303,44 @@ fn main() -> int {
         set links (array_push links (+ "<li><a href=\"" (+ (html_escape rel_html) (+ "\">" (+ (render_inline title) "</a></li>")))))
         set pi (+ pi 1)
     }
-    let mut index_out: array<string> = []
-    set index_out (array_push index_out "<!doctype html>")
-    set index_out (array_push index_out "<html>")
-    set index_out (array_push index_out "<head>")
-    set index_out (array_push index_out "  <meta charset=\"utf-8\">")
-    set index_out (array_push index_out "  <title>NanoLang User Guide</title>")
-    set index_out (array_push index_out "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">")
-    set index_out (array_push index_out (+ "  <link rel=\"stylesheet\" href=\"" (+ (html_escape css_href_index) "\">")))
-    set index_out (array_push index_out "</head>")
-    set index_out (array_push index_out "<body style=\"--accent: #7aa2f7;\">")
-    set index_out (array_push index_out "<nav>")
-    set index_out (array_push index_out "  <a href=\"index.html\" class=\"nav-home\" aria-label=\"Back to guide index\">&#8962;</a>")
-    set index_out (array_push index_out "  <a href=\"index.html\">NanoLang User Guide</a>")
-    set index_out (array_push index_out "</nav>")
-    set index_out (array_push index_out "<header class=\"hero\">")
-    set index_out (array_push index_out "  <div class=\"hero-text\">")
-    set index_out (array_push index_out "    <h1>NanoLang User Guide</h1>")
-    set index_out (array_push index_out "    <p>Learn the canonical NanoLang style with runnable snippets and module walk-throughs.</p>")
-    set index_out (array_push index_out "  </div>")
-    set index_out (array_push index_out (+ "  <img class=\"hero-mascot\" src=\"" (+ (html_escape mascot_href_index) "\" alt=\"NanoLang Mascot\">")))
-    set index_out (array_push index_out "</header>")
-    set index_out (array_push index_out "<main class=\"content with-sidebar\">")
-    set index_out (array_push index_out toc_html_index)
-    set index_out (array_push index_out "  <div class=\"content-body\">")
-    set index_out (array_push index_out nav_html_index)
-    set index_out (array_push index_out "    <div class=\"page-card\">")
-    set index_out (array_push index_out "      <h2>Guide chapters</h2>")
-    set index_out (array_push index_out "      <ul class=\"toc\">")
-    set index_out (array_push index_out (sb_join links "\n"))
-    set index_out (array_push index_out "      </ul>")
-    set index_out (array_push index_out "    </div>")
-    set index_out (array_push index_out nav_html_index)
-    set index_out (array_push index_out "  </div>")
-    set index_out (array_push index_out "</main>")
-    set index_out (array_push index_out "</body>")
-    set index_out (array_push index_out "</html>")
-    (write (join out_dir "index.html") (sb_join index_out "\n"))
+    let index_html: string = (sb_join [
+        "<!doctype html>",
+        "<html>",
+        "<head>",
+        "  <meta charset=\"utf-8\">",
+        "  <title>NanoLang User Guide</title>",
+        "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+        (+ "  <link rel=\"stylesheet\" href=\"" (+ (html_escape css_href_index) "\">")),
+        "</head>",
+        "<body style=\"--accent: #7aa2f7;\">",
+        "<nav>",
+        "  <a href=\"index.html\" class=\"nav-home\" aria-label=\"Back to guide index\">&#8962;</a>",
+        "  <a href=\"index.html\">NanoLang User Guide</a>",
+        "</nav>",
+        "<header class=\"hero\">",
+        "  <div class=\"hero-text\">",
+        "    <h1>NanoLang User Guide</h1>",
+        "    <p>Learn the canonical NanoLang style with runnable snippets and module walk-throughs.</p>",
+        "  </div>",
+        (+ "  <img class=\"hero-mascot\" src=\"" (+ (html_escape mascot_href_index) "\" alt=\"NanoLang Mascot\">")),
+        "</header>",
+        "<main class=\"content with-sidebar\">",
+        toc_html_index,
+        "  <div class=\"content-body\">",
+        nav_html_index,
+        "    <div class=\"page-card\">",
+        "      <h2>Guide chapters</h2>",
+        "      <ul class=\"toc\">",
+        (sb_join links "\n"),
+        "      </ul>",
+        "    </div>",
+        nav_html_index,
+        "  </div>",
+        "</main>",
+        "</body>",
+        "</html>"
+    ] "\n")
+    (write (join out_dir "index.html") index_html)
     (println (+ "Built HTML to " out_dir))
     if (coverage_enabled) { (coverage_report) }
     return 0
