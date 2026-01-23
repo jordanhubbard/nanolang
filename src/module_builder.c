@@ -1126,88 +1126,97 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                  meta->module_dir, meta->name);
         #endif
         
-        /* Build shared library command */
-        char lib_cmd[4096];
-        size_t lib_pos = 0;
-        
-        #ifdef __APPLE__
-        /* On macOS, allow unresolved symbols so modules can reference symbols
-         * provided by the host process (compiler/interpreter) at dlopen() time.
-         */
-        lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                           "%s -dynamiclib -undefined dynamic_lookup -fPIC -o %s",
-                           cc, shared_lib);
-        #else
-        lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                           "%s -shared -fPIC -o %s", cc, shared_lib);
-        #endif
-        
-        /* Link the shared library from the module object (supports multi-source modules) */
-        lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", object_file);
-        
-        /* Add pkg-config flags (deduplicated) */
-        char *shared_cflags[1024] = {0};
-        size_t shared_cflags_count = 0;
-        for (size_t i = 0; i < meta->pkg_config_count; i++) {
-            char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
-            if (pkg_cflags) {
-                append_split_flags_move_to_end(shared_cflags, &shared_cflags_count, 1024, pkg_cflags);
-                free(pkg_cflags);
-            }
-        }
-        for (size_t i = 0; i < shared_cflags_count; i++) {
-            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", shared_cflags[i]);
-            free(shared_cflags[i]);
+        char shared_dir[1024];
+        snprintf(shared_dir, sizeof(shared_dir), "%s/.build", meta->module_dir);
+        bool shared_dir_ok = dir_exists(shared_dir) || mkdir_p(shared_dir);
+        if (!shared_dir_ok) {
+            fprintf(stderr, "Warning: Failed to create shared library directory for %s\n", meta->name);
         }
 
-        char *shared_ldflags[1024] = {0};
-        size_t shared_ldflags_count = 0;
-        for (size_t i = 0; i < meta->pkg_config_count; i++) {
-            char *pkg_libs = get_pkg_config_flags(meta->pkg_config[i], "--libs");
-            if (pkg_libs) {
-                append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, pkg_libs);
-                free(pkg_libs);
-            }
-        }
-        for (size_t i = 0; i < meta->system_libs_count; i++) {
-            char buf[256];
-            snprintf(buf, sizeof(buf), "-l%s", meta->system_libs[i]);
-            append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, buf);
-        }
-        for (size_t i = 0; i < meta->ldflags_count; i++) {
-            append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, meta->ldflags[i]);
-        }
-        #ifdef __APPLE__
-        for (size_t i = 0; i < meta->frameworks_count; i++) {
-            append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, "-framework");
-            append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, meta->frameworks[i]);
-        }
-        #endif
-
-        for (size_t i = 0; i < shared_ldflags_count; i++) {
-            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", shared_ldflags[i]);
-            free(shared_ldflags[i]);
-        }
-        
-        /* Add custom cflags */
-        for (size_t i = 0; i < meta->cflags_count; i++) {
+        if (shared_dir_ok) {
+            /* Build shared library command */
+            char lib_cmd[4096];
+            size_t lib_pos = 0;
+            
+            #ifdef __APPLE__
+            /* On macOS, allow unresolved symbols so modules can reference symbols
+             * provided by the host process (compiler/interpreter) at dlopen() time.
+             */
             lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                               " %s", meta->cflags[i]);
-        }
-        
-        /* Note: ldflags/system libs/frameworks are included above via shared_ldflags */
-        
-        /* Build shared library */
-        if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-            printf("[Module] Building shared library: %s\n", lib_cmd);
-        }
-        
-        int lib_result = system(lib_cmd);
-        if (lib_result != 0) {
-            fprintf(stderr, "Warning: Failed to build shared library for %s (interpreter FFI unavailable)\n", 
-                    meta->name);
-        } else if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-            printf("[Module] ✓ Built shared library %s\n", shared_lib);
+                               "%s -dynamiclib -undefined dynamic_lookup -fPIC -o %s",
+                               cc, shared_lib);
+            #else
+            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                               "%s -shared -fPIC -o %s", cc, shared_lib);
+            #endif
+            
+            /* Link the shared library from the module object (supports multi-source modules) */
+            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", object_file);
+            
+            /* Add pkg-config flags (deduplicated) */
+            char *shared_cflags[1024] = {0};
+            size_t shared_cflags_count = 0;
+            for (size_t i = 0; i < meta->pkg_config_count; i++) {
+                char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+                if (pkg_cflags) {
+                    append_split_flags_move_to_end(shared_cflags, &shared_cflags_count, 1024, pkg_cflags);
+                    free(pkg_cflags);
+                }
+            }
+            for (size_t i = 0; i < shared_cflags_count; i++) {
+                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", shared_cflags[i]);
+                free(shared_cflags[i]);
+            }
+
+            char *shared_ldflags[1024] = {0};
+            size_t shared_ldflags_count = 0;
+            for (size_t i = 0; i < meta->pkg_config_count; i++) {
+                char *pkg_libs = get_pkg_config_flags(meta->pkg_config[i], "--libs");
+                if (pkg_libs) {
+                    append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, pkg_libs);
+                    free(pkg_libs);
+                }
+            }
+            for (size_t i = 0; i < meta->system_libs_count; i++) {
+                char buf[256];
+                snprintf(buf, sizeof(buf), "-l%s", meta->system_libs[i]);
+                append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, buf);
+            }
+            for (size_t i = 0; i < meta->ldflags_count; i++) {
+                append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, meta->ldflags[i]);
+            }
+            #ifdef __APPLE__
+            for (size_t i = 0; i < meta->frameworks_count; i++) {
+                append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, "-framework");
+                append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, meta->frameworks[i]);
+            }
+            #endif
+
+            for (size_t i = 0; i < shared_ldflags_count; i++) {
+                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", shared_ldflags[i]);
+                free(shared_ldflags[i]);
+            }
+            
+            /* Add custom cflags */
+            for (size_t i = 0; i < meta->cflags_count; i++) {
+                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                                   " %s", meta->cflags[i]);
+            }
+            
+            /* Note: ldflags/system libs/frameworks are included above via shared_ldflags */
+            
+            /* Build shared library */
+            if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+                printf("[Module] Building shared library: %s\n", lib_cmd);
+            }
+            
+            int lib_result = system(lib_cmd);
+            if (lib_result != 0) {
+                fprintf(stderr, "Warning: Failed to build shared library for %s (interpreter FFI unavailable)\n", 
+                        meta->name);
+            } else if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+                printf("[Module] ✓ Built shared library %s\n", shared_lib);
+            }
         }
     } else {
         if (module_builder_verbose) {
