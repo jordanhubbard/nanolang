@@ -203,19 +203,29 @@ shadow trim {
 
 fn split_lines(s: string) -> array<string> {
     if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 155 5) }
-    let mut out: array<string> = []
     let len: int = (str_length s)
-    let mut start: int = 0
+    let mut line_count: int = 1
     let mut i: int = 0
     while (< i len) {
         if (== (char_at s i) 10) {
-            set out (array_push out (str_substring s start (- i start)))
+            set line_count (+ line_count 1)
+        }
+        set i (+ i 1)
+    }
+    let mut out: array<string> = (array_new line_count "")
+    let mut line_idx: int = 0
+    let mut start: int = 0
+    set i 0
+    while (< i len) {
+        if (== (char_at s i) 10) {
+            (array_set out line_idx (str_substring s start (- i start)))
+            set line_idx (+ line_idx 1)
             set start (+ i 1)
         }
         set i (+ i 1)
     }
     if (< start len) {
-        set out (array_push out (str_substring s start (- len start)))
+        (array_set out line_idx (str_substring s start (- len start)))
     }
     return out
 }
@@ -224,7 +234,7 @@ shadow split_lines {
     let nl: string = (string_from_char 10)
     let s: string = (+ "a" (+ nl (+ "b" nl)))
     let parts: array<string> = (split_lines s)
-    assert (== (array_length parts) 2)
+    assert (== (array_length parts) 3)
     assert (== (at parts 0) "a")
     assert (== (at parts 1) "b")
 }
