@@ -1844,6 +1844,10 @@ static Value builtin_at(Value *args) {
                 return create_bool(((bool*)arr->data)[index]);
             case VAL_STRING:
                 return create_string(((char**)arr->data)[index]);
+            case VAL_STRUCT: {
+                StructValue *sv = ((StructValue**)arr->data)[index];
+                return create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+            }
             default:
                 fprintf(stderr, "Error: Unsupported array element type\n");
                 return create_void();
@@ -1875,6 +1879,12 @@ static Value builtin_at(Value *args) {
                 return create_string(dyn_array_get_string(arr, index));
             case ELEM_ARRAY:
                 return create_dyn_array(dyn_array_get_array(arr, index));
+            case ELEM_STRUCT: {
+                void *raw = dyn_array_get_struct(arr, index);
+                if (!raw) return create_void();
+                StructValue *sv = *(StructValue**)raw;
+                return create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+            }
             default:
                 fprintf(stderr, "Error: Unsupported array element type\n");
                 return create_void();
@@ -1929,6 +1939,14 @@ static Value builtin_array_new(Value *args) {
             case VAL_STRING:
                 ((char**)arr.as.array_val->data)[i] = strdup(args[1].as.string_val);
                 break;
+            case VAL_STRUCT: {
+                Value copy = create_struct(args[1].as.struct_val->struct_name,
+                    args[1].as.struct_val->field_names,
+                    args[1].as.struct_val->field_values,
+                    args[1].as.struct_val->field_count);
+                ((StructValue**)arr.as.array_val->data)[i] = copy.as.struct_val;
+                break;
+            }
             default:
                 break;
         }
@@ -1992,6 +2010,19 @@ static Value builtin_array_set(Value *args) {
             }
             ((char**)arr->data)[index] = strdup(args[2].as.string_val);
             break;
+        case VAL_STRUCT:
+            if (args[2].type != VAL_STRUCT) {
+                fprintf(stderr, "Error: Type mismatch in array_set\n");
+                return create_void();
+            }
+            {
+                Value copy = create_struct(args[2].as.struct_val->struct_name,
+                    args[2].as.struct_val->field_names,
+                    args[2].as.struct_val->field_values,
+                    args[2].as.struct_val->field_count);
+                ((StructValue**)arr->data)[index] = copy.as.struct_val;
+            }
+            break;
         default:
             fprintf(stderr, "Error: Unsupported array element type\n");
             break;
@@ -2042,6 +2073,13 @@ static Value builtin_array_slice(Value *args) {
                     ((char**)out.as.array_val->data)[i] = strdup(((char**)arr->data)[start + i]);
                 }
                 break;
+            case VAL_STRUCT:
+                for (int64_t i = 0; i < out_len; i++) {
+                    StructValue *sv = ((StructValue**)arr->data)[start + i];
+                    Value copy = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                    ((StructValue**)out.as.array_val->data)[i] = copy.as.struct_val;
+                }
+                break;
             default:
                 break;
         }
@@ -2065,6 +2103,18 @@ static Value builtin_array_slice(Value *args) {
                 case ELEM_BOOL: dyn_array_push_bool(out, dyn_array_get_bool(arr, i)); break;
                 case ELEM_STRING: dyn_array_push_string(out, dyn_array_get_string(arr, i)); break;
                 case ELEM_ARRAY: dyn_array_push_array(out, dyn_array_get_array(arr, i)); break;
+                case ELEM_STRUCT: {
+                    void *raw = dyn_array_get_struct(arr, i);
+                    if (!raw) {
+                        fprintf(stderr, "Error: array_slice unsupported element type\n");
+                        return create_void();
+                    }
+                    StructValue *sv = *(StructValue**)raw;
+                    Value copy = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                    StructValue *sv_copy = copy.as.struct_val;
+                    dyn_array_push_struct(out, &sv_copy, sizeof(StructValue*));
+                    break;
+                }
                 default:
                     fprintf(stderr, "Error: array_slice unsupported element type\n");
                     return create_void();
@@ -2135,6 +2185,15 @@ static Value builtin_array_push(Value *args) {
             case VAL_DYN_ARRAY:
                 dyn_array_push_array(arr, args[1].as.dyn_array_val);
                 break;
+            case VAL_STRUCT: {
+                Value copy = create_struct(args[1].as.struct_val->struct_name,
+                    args[1].as.struct_val->field_names,
+                    args[1].as.struct_val->field_values,
+                    args[1].as.struct_val->field_count);
+                StructValue *sv_copy = copy.as.struct_val;
+                dyn_array_push_struct(arr, &sv_copy, sizeof(StructValue*));
+                break;
+            }
             default:
                 fprintf(stderr, "Error: Unsupported array element type\n");
                 gc_release(arr);
@@ -2178,6 +2237,15 @@ static Value builtin_array_push(Value *args) {
         case VAL_DYN_ARRAY:
             dyn_array_push_array(arr, args[1].as.dyn_array_val);
             break;
+        case VAL_STRUCT: {
+            Value copy = create_struct(args[1].as.struct_val->struct_name,
+                args[1].as.struct_val->field_names,
+                args[1].as.struct_val->field_values,
+                args[1].as.struct_val->field_count);
+            StructValue *sv_copy = copy.as.struct_val;
+            dyn_array_push_struct(arr, &sv_copy, sizeof(StructValue*));
+            break;
+        }
         default:
             fprintf(stderr, "Error: Unsupported array element type\n");
             return create_void();
@@ -2224,6 +2292,12 @@ static Value builtin_array_pop(Value *args) {
         case ELEM_ARRAY: {
             DynArray *val = dyn_array_pop_array(arr, &success);
             return success ? create_dyn_array(val) : create_void();
+        }
+        case ELEM_STRUCT: {
+            StructValue *sv = NULL;
+            dyn_array_pop_struct(arr, &sv, sizeof(StructValue*), &success);
+            if (!success || !sv) return create_void();
+            return create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
         }
         default:
             fprintf(stderr, "Error: Unsupported array element type\n");

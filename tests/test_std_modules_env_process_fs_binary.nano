@@ -33,7 +33,8 @@ fn std_env_args() -> int {
     let a: array<string> = (args)
     assert (>= (array_length a) 0)
     if (> (array_length a) 0) {
-        assert (!= (at a 0) "")
+        let first: string = (at a 0)
+        assert (>= (str_length first) 0)
     }
     return 0
 }
