@@ -89,3 +89,6 @@ src_nano/*.genC
 # Compiled binaries
 bin/
 modules/index.json
+
+# Module cache (build artifacts - platform-specific)
+_cache/
