@@ -1,0 +1,47 @@
+# Timing and Benchmarking Utilities for Nanolang
+# Provides high-resolution timing for performance measurement
+
+# External C functions for high-resolution timing
+extern fn nl_timing_get_microseconds() -> int
+extern fn nl_timing_get_nanoseconds() -> int
+
+# Public API
+
+# Get current time in microseconds since epoch
+pub fn get_microseconds() -> int {
+    return (nl_timing_get_microseconds)
+}
+
+# Get current time in nanoseconds (uses best available clock)
+pub fn get_nanoseconds() -> int {
+    return (nl_timing_get_nanoseconds)
+}
+
+# Format microseconds as seconds with 4 decimal places
+pub fn format_microseconds(microseconds: int) -> string {
+    let seconds: int = (/ microseconds 1000000)
+    let remaining: int = (% microseconds 1000000)
+    let decimals: int = (/ remaining 100)  # 100 us = 0.0001 s
+
+    let sec_str: string = (int_to_string seconds)
+    let dec_str: string = (int_to_string decimals)
+    let dec_len: int = (str_length dec_str)
+
+    # Pad to 4 digits
+    let mut padded: string = ""
+    let needed_zeros: int = (- 4 dec_len)
+    let mut i: int = 0
+    while (< i needed_zeros) {
+        set padded (str_concat padded "0")
+        set i (+ i 1)
+    }
+    set padded (str_concat padded dec_str)
+
+    return (str_concat sec_str (str_concat "." padded))
+}
+
+# Format nanoseconds as seconds with 4 decimal places
+pub fn format_nanoseconds(nanoseconds: int) -> string {
+    let microseconds: int = (/ nanoseconds 1000)
+    return (format_microseconds microseconds)
+}

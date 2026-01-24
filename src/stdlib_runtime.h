@@ -76,10 +76,16 @@ void generate_math_utility_builtins(StringBuilder *sb);
 void generate_stdlib_runtime(StringBuilder *sb);
 
 /* generate_module_system_stubs: Generate stub implementations for module functions
- * 
+ *
  * Provides fallback implementations when module system isn't linked.
  */
 void generate_module_system_stubs(StringBuilder *sb);
+
+/**
+ * @brief Generate C code for timing utilities (microseconds, nanoseconds)
+ * @param sb StringBuilder to append generated code to
+ */
+void generate_timing_utilities(StringBuilder *sb);
 
 #endif /* STDLIB_RUNTIME_H */
 

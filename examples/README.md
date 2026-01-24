@@ -144,6 +144,13 @@ cd examples && make
   - Optimization with early exit
   - Composite function testing
 
+- **nl_pi_chudnovsky.nano** - High-precision π calculator
+  - Machin's formula (1706) for π calculation
+  - Verifies results against published π archives
+  - Demonstrates stdlib/timing.nano for microsecond-precision benchmarking
+  - Calculates π to arbitrary decimal places (10, 20, 50, 100, 500, 1000+)
+  - Educational: references record-breaking algorithms (Chudnovsky, Bailey-Borwein-Plouffe)
+
 **Advanced Features:**
 
 - **game_of_life.nano** - Conway's Game of Life

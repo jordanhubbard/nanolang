@@ -44,6 +44,7 @@ NL_EXAMPLES = \
 	$(BIN_DIR)/nl_extern_math \
 	$(BIN_DIR)/nl_extern_string \
 	$(BIN_DIR)/nl_advanced_math \
+	$(BIN_DIR)/nl_pi_chudnovsky \
 	$(BIN_DIR)/nl_string_operations \
 	$(BIN_DIR)/nl_matrix_operations \
 	$(BIN_DIR)/nl_filter_map_fold \

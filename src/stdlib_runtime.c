@@ -1289,6 +1289,10 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     /* String operations */
     generate_string_operations(sb);
 
+    /* Timing utilities */
+    generate_timing_utilities(sb);
+
+
     /* Math and utility built-in functions */
     generate_math_utility_builtins(sb);
 }
@@ -1329,3 +1333,45 @@ void generate_module_system_stubs(StringBuilder *sb) {
     sb_append(sb, "/* ========== End Module System Stubs ========== */\n\n");
 }
 
+/* =============================================================================
+ * Timing utilities for performance measurement
+ * =============================================================================
+ */
+
+void generate_timing_utilities(StringBuilder *sb) {
+    sb_append(sb, "/* ========== Timing Utilities ========== */\n\n");
+
+    sb_append(sb, "#include <sys/time.h>\n");
+    sb_append(sb, "#ifdef __MACH__\n");
+    sb_append(sb, "#include <mach/mach_time.h>\n");
+    sb_append(sb, "#endif\n\n");
+
+    sb_append(sb, "/* Get current time in microseconds since epoch */\n");
+    sb_append(sb, "static int64_t nl_timing_get_microseconds(void) {\n");
+    sb_append(sb, "    struct timeval tv;\n");
+    sb_append(sb, "    gettimeofday(&tv, NULL);\n");
+    sb_append(sb, "    return ((int64_t)tv.tv_sec * 1000000LL) + (int64_t)tv.tv_usec;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* Get high-resolution time in nanoseconds */\n");
+    sb_append(sb, "static int64_t nl_timing_get_nanoseconds(void) {\n");
+    sb_append(sb, "#ifdef __MACH__\n");
+    sb_append(sb, "    static mach_timebase_info_data_t timebase;\n");
+    sb_append(sb, "    static int initialized = 0;\n");
+    sb_append(sb, "    if (!initialized) {\n");
+    sb_append(sb, "        mach_timebase_info(&timebase);\n");
+    sb_append(sb, "        initialized = 1;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    uint64_t mach_time = mach_absolute_time();\n");
+    sb_append(sb, "    return (int64_t)((mach_time * timebase.numer) / timebase.denom);\n");
+    sb_append(sb, "#elif defined(CLOCK_MONOTONIC)\n");
+    sb_append(sb, "    struct timespec ts;\n");
+    sb_append(sb, "    clock_gettime(CLOCK_MONOTONIC, &ts);\n");
+    sb_append(sb, "    return ((int64_t)ts.tv_sec * 1000000000LL) + (int64_t)ts.tv_nsec;\n");
+    sb_append(sb, "#else\n");
+    sb_append(sb, "    return nl_timing_get_microseconds() * 1000LL;\n");
+    sb_append(sb, "#endif\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* ========== End Timing Utilities ========== */\n\n");
+}

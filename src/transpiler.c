@@ -4320,6 +4320,10 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* String operations */
     generate_string_operations(sb);
 
+    /* Timing utilities */
+    generate_timing_utilities(sb);
+
+
     /* Math and utility built-in functions */
     generate_math_utility_builtins(sb);
 
