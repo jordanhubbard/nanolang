@@ -22,6 +22,8 @@ cd nanolang
 make build
 ```
 
+**Note for FreeBSD/BSD users:** Use `gmake` instead of `make` (requires GNU Make).
+
 This builds the compiler:
 - `bin/nanoc` - NanoLang compiler (transpiles to C)
 
