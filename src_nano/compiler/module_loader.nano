@@ -17,6 +17,8 @@ import "src_nano/generated/compiler_schema.nano"
 import "src_nano/generated/compiler_ast.nano"
 import "src_nano/parser.nano"
 import "src_nano/compiler/lexer.nano"
+from "src_nano/typecheck.nano" import str_starts_with, symbol_new, Symbol, NSType, TypeKind, type_void
+from "src_nano/transpiler.nano" import str_ends_with
 
 /* =============================================================================
  * MODULE CACHE - Prevent duplicate loading
@@ -201,104 +203,11 @@ fn resolve_module_path(import_path: string, current_file: string) -> string {
     return ""
 }
 
-/* Helper: Check if string ends with suffix */
-fn str_ends_with(s: string, suffix: string) -> bool {
-    let s_len: int = (str_length s)
-    let suffix_len: int = (str_length suffix)
-    if (< s_len suffix_len) {
-        return false
-    } else {
-        let start: int = (- s_len suffix_len)
-        let ending: string = (str_substring s start suffix_len)
-        return (== ending suffix)
-    }
-}
-
-shadow str_ends_with {
-    assert (str_ends_with "test.nano" ".nano")
-    assert (not (str_ends_with "test" ".nano"))
-    assert (str_ends_with "abc" "c")
-}
-
-/* Helper: Check if string starts with prefix */
-fn str_starts_with(s: string, prefix: string) -> bool {
-    let prefix_len: int = (str_length prefix)
-    if (> prefix_len (str_length s)) {
-        return false
-    } else {
-        let sub: string = (str_substring s 0 prefix_len)
-        return (== sub prefix)
-    }
-}
-
-shadow str_starts_with {
-    assert (str_starts_with "test.nano" "test")
-    assert (not (str_starts_with "test" "testing"))
-    assert (str_starts_with "/abs/path" "/")
-}
-
 /* =============================================================================
  * SYMBOL EXTRACTION - Build symbol table from Parser AST
  * ============================================================================= */
 
-/* Symbol representation (matches typecheck.nano) */
-struct Symbol {
-    name: string,
-    sym_type: NSType,
-    is_mutable: bool,
-    is_function: bool,
-    param_count: int,
-    param_types: array<NSType>,
-    return_type: NSType
-}
-
-fn symbol_new(name: string, sym_type: NSType, is_mutable: bool, is_function: bool, param_count: int, param_types: array<NSType>, return_type: NSType) -> Symbol {
-    return Symbol {
-        name: name,
-        sym_type: sym_type,
-        is_mutable: is_mutable,
-        is_function: is_function,
-        param_count: param_count,
-        param_types: param_types,
-        return_type: return_type
-    }
-}
-
-shadow symbol_new {
-    let sym: Symbol = (symbol_new "test" (type_int) false false 0 [] (type_void))
-    assert (== sym.name "test")
-    assert (not sym.is_function)
-}
-
-/* NSType helpers (simplified versions) */
-fn type_int() -> NSType {
-    return NSType {
-        kind: TypeKind.TYPE_INT,
-        name: "int",
-        element_type_kind: TypeKind.TYPE_UNKNOWN,
-        element_type_name: ""
-    }
-}
-
-shadow type_int {
-    let t: NSType = (type_int)
-    assert (== t.kind TypeKind.TYPE_INT)
-}
-
-fn type_void() -> NSType {
-    return NSType {
-        kind: TypeKind.TYPE_VOID,
-        name: "void",
-        element_type_kind: TypeKind.TYPE_UNKNOWN,
-        element_type_name: ""
-    }
-}
-
-shadow type_void {
-    let t: NSType = (type_void)
-    assert (== t.kind TypeKind.TYPE_VOID)
-}
-
+/* NSType helper for struct types */
 fn type_struct(name: string) -> NSType {
     return NSType {
         kind: TypeKind.TYPE_STRUCT,

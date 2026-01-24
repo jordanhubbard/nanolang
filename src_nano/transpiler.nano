@@ -352,7 +352,7 @@ shadow hashset_add_string {
     assert (hashset_has_string m3 "a")
 }
 
-fn str_ends_with(s: string, suffix: string) -> bool {
+pub fn str_ends_with(s: string, suffix: string) -> bool {
     let ls: int = (str_length s)
     let lf: int = (str_length suffix)
     if (< ls lf) {
