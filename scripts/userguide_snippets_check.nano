@@ -294,12 +294,12 @@ fn parse_snippets(md_path: string) -> Result<array<Snippet>, string> {
         if (is_snippet_marker line) {
             let marker: Result<string, string> = (extract_json_from_marker line)
             match marker {
-                Err(e) => { return Result.Err { error: (+ "Invalid nl-snippet JSON in " (+ md_path ": missing object")) } }
+                Err(_) => { return Result.Err { error: (+ "Invalid nl-snippet JSON in " (+ md_path ": missing object")) } }
                 Ok(m) => {
                     let meta: string = m.value
                     let name_res: Result<string, string> = (json_get_string_optional meta "name")
                     match name_res {
-                        Err(e2) => { return Result.Err { error: (+ "Missing snippet name in " md_path) } }
+                        Err(_) => { return Result.Err { error: (+ "Missing snippet name in " md_path) } }
                         Ok(nv) => {
                             let name: string = (trim nv.value)
                             if (== (str_length name) 0) {
@@ -316,7 +316,7 @@ fn parse_snippets(md_path: string) -> Result<array<Snippet>, string> {
                                     set has_expect true
                                     set expect_stdout ev.value
                                 }
-                                Err(e3) => { set has_expect false }
+                                Err(_) => { set has_expect false }
                             }
 
                             let mut j: int = (+ i 1)

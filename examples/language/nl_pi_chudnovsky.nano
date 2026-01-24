@@ -8,7 +8,7 @@
 #
 # Timing: Uses stdlib/timing.nano for high-resolution timing measurements
 
-from "stdlib/timing.nano" import get_microseconds, format_microseconds
+from "stdlib/timing.nano" import get_nanoseconds
 
 # Convert int to float (needed for Machin's formula calculations)
 fn to_float(n: int) -> float {
@@ -93,6 +93,31 @@ shadow calculate_pi_machin_float {
     assert (< pi 3.15)
 }
 
+fn format_microseconds_precise(microseconds: int) -> string {
+    let seconds: int = (/ microseconds 1000000)
+    let remaining: int = (% microseconds 1000000)
+    let sec_str: string = (int_to_string seconds)
+    let dec_str: string = (int_to_string remaining)
+    let dec_len: int = (str_length dec_str)
+
+    let mut padded: string = ""
+    let needed_zeros: int = (- 6 dec_len)
+    let mut i: int = 0
+    while (< i needed_zeros) {
+        set padded (+ padded "0")
+        set i (+ i 1)
+    }
+    set padded (+ padded dec_str)
+
+    return (+ sec_str (+ "." padded))
+}
+
+shadow format_microseconds_precise {
+    assert (str_equals (format_microseconds_precise 0) "0.000000")
+    assert (str_equals (format_microseconds_precise 1) "0.000001")
+    assert (str_equals (format_microseconds_precise 1000000) "1.000000")
+}
+
 # Get π to specified decimal places
 # Uses computed value for ≤15 digits, known archive values for more
 fn calculate_pi(decimal_places: int) -> string {
@@ -157,17 +182,21 @@ fn run_pi_calculation(decimal_places: int) -> int {
     (print " decimal places... ")
 
     # Start timing (after initial I/O, before calculation)
-    let start_time: int = (get_microseconds)
+    let start_time: int = (get_nanoseconds)
 
     # Calculate π
     let pi_result: string = (calculate_pi decimal_places)
 
     # End timing (before result I/O)
-    let end_time: int = (get_microseconds)
+    let end_time: int = (get_nanoseconds)
 
     # Calculate elapsed time and format
-    let elapsed_us: int = (- end_time start_time)
-    let time_str: string = (format_microseconds elapsed_us)
+    let mut elapsed_ns: int = (- end_time start_time)
+    if (<= elapsed_ns 0) {
+        set elapsed_ns 1
+    }
+    let elapsed_us: int = (/ (+ elapsed_ns 999) 1000)
+    let time_str: string = (format_microseconds_precise elapsed_us)
 
     # Verify result
     let is_correct: bool = (verify_pi pi_result decimal_places)
@@ -191,12 +220,12 @@ fn run_pi_calculation(decimal_places: int) -> int {
     (println " seconds")
     (println "")
 
-    return 0
+    return elapsed_us
 }
 
 shadow run_pi_calculation {
-    # Skip shadow test to avoid slowness
-    assert true
+    let elapsed: int = (run_pi_calculation 10)
+    assert (> elapsed 0)
 }
 
 fn main() -> int {
