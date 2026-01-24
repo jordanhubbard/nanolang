@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+[0;34mℹ️  Generating changelog from v2.0.10 to HEAD...[0m
+## [2.0.11] - 2026-01-23
+
+### Added
+- Add stdlib/timing module and high-precision π calculator example
+
 [0;34mℹ️  Generating changelog from v2.0.9 to HEAD...[0m
 ## [2.0.10] - 2026-01-23
 
