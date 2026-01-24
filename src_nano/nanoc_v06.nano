@@ -20,6 +20,7 @@ import "src_nano/typecheck.nano"
 import "src_nano/transpiler.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 import "src_nano/compiler/module_loader.nano"
+from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new
 
 /* CLI argument access */
 extern fn get_argc() -> int
@@ -966,7 +967,13 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             }
             
             let cache: ModuleCache = (module_cache_new)
-            let imported_symbols: array<Symbol> = (process_imports_recursive parser [] cache source_to_compile diags)
+            let import_count: int = (parser_get_import_count parser)
+            let mut imported_symbols: array<Symbol> = []
+            if (> import_count 0) {
+                set imported_symbols (process_imports_recursive parser [] cache source_to_compile diags)
+            } else {
+                (print "")
+            }
             let imported_count: int = (array_length imported_symbols)
             
             if verbose {

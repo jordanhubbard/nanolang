@@ -20,6 +20,7 @@ extern fn file_delete(_path: string) -> int
 extern fn fs_mkdir_p(_path: string) -> int
 extern fn file_copy(_src: string, _dst: string) -> int
 extern fn dir_copy(_src: string, _dst: string) -> int
+/* Note: getcwd is a builtin and doesn't need extern declaration */
 
 pub fn walkdir(root: string) -> array<string> {
     unsafe {
@@ -87,6 +88,17 @@ pub fn relpath(target: string, base: string) -> string {
 
 shadow relpath {
     assert (== (relpath "/a/b/c" "/a") "b/c")
+}
+
+pub fn cwd() -> string {
+    unsafe {
+        return (getcwd)
+    }
+}
+
+shadow cwd {
+    let dir: string = (cwd)
+    assert (> (str_length dir) 0)
 }
 
 fn glob_match_impl(pattern: string, pi: int, text: string, ti: int) -> bool {

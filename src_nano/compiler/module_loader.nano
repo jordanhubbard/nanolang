@@ -19,23 +19,13 @@ import "src_nano/parser.nano"
 import "src_nano/compiler/lexer.nano"
 from "src_nano/typecheck.nano" import str_starts_with, symbol_new, Symbol, NSType, TypeKind, type_void
 from "src_nano/transpiler.nano" import str_ends_with
-
-/* =============================================================================
- * FILE SYSTEM OPERATIONS
- * =============================================================================
- * Note: These functions are provided by the C runtime.
- * The underscore prefix on parameters indicates they're passed through to C.
- */
-
-extern fn nl_os_file_exists(_path: string) -> bool
-extern fn nl_os_file_read(_path: string) -> string
-extern fn nl_os_getcwd() -> string
+from "std/fs.nano" import exists, read, cwd
 
 /* =============================================================================
  * MODULE CACHE - Prevent duplicate loading
  * ============================================================================= */
 
-struct ModuleCache {
+pub struct ModuleCache {
     paths: array<string>,
     parsers: array<Parser>,
     count: int
@@ -175,47 +165,36 @@ shadow module_path_join {
 fn resolve_module_path(import_path: string, current_file: string) -> string {
     /* Case 1: Absolute path starting with / */
     if (str_starts_with import_path "/") {
-        unsafe {
-            if (nl_os_file_exists import_path) {
-                return import_path
-            } else {
-                return ""
-            }
+        if (exists import_path) {
+            return import_path
+        } else {
+            return ""
         }
     } else { (print "") }
 
     /* Case 2: Relative to current file */
     let current_dir: string = (module_path_dirname current_file)
     let relative_path: string = (module_path_join current_dir import_path)
-    unsafe {
-        if (nl_os_file_exists relative_path) {
-            return relative_path
-        } else { (print "") }
-    }
+    if (exists relative_path) {
+        return relative_path
+    } else { (print "") }
 
     /* Case 3: Try adding .nano extension if not present */
     if (not (str_ends_with import_path ".nano")) {
         let with_ext: string = (+ import_path ".nano")
         let relative_with_ext: string = (module_path_join current_dir with_ext)
-        unsafe {
-            if (nl_os_file_exists relative_with_ext) {
-                return relative_with_ext
-            } else { (print "") }
-        }
+        if (exists relative_with_ext) {
+            return relative_with_ext
+        } else { (print "") }
     } else { (print "") }
 
     /* Case 4: Relative to current working directory */
-    let mut cwd: string = ""
-    unsafe {
-        set cwd (nl_os_getcwd)
-    }
-    let from_cwd: string = (module_path_join cwd import_path)
-    unsafe {
-        if (nl_os_file_exists from_cwd) {
-            return from_cwd
-        } else { (print "") }
-    }
-    
+    let working_dir: string = (cwd)
+    let from_cwd: string = (module_path_join working_dir import_path)
+    if (exists from_cwd) {
+        return from_cwd
+    } else { (print "") }
+
     /* Not found */
     return ""
 }
@@ -315,10 +294,7 @@ pub fn process_imports_recursive(parser: Parser, symbols: array<Symbol>, cache: 
                 set updated_symbols (extract_type_symbols cached_parser updated_symbols)
             } else {
                 /* Load and parse module */
-                let mut module_source: string = ""
-                unsafe {
-                    set module_source (nl_os_file_read module_path)
-                }
+                let module_source: string = (read module_path)
                 let module_tokens: List<LexerToken> = (tokenize_file module_source diags)
                 let token_count: int = (list_LexerToken_length module_tokens)
                 
