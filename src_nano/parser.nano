@@ -144,7 +144,7 @@ shadow parser_init_ast_lists {
 
 /* Create new parser from token list */
 /* Note: token_count is calculated externally to avoid generic instantiation issues */
-fn parser_new(tokens: List<LexerToken>, token_count: int, file_name: string) -> Parser {
+pub fn parser_new(tokens: List<LexerToken>, token_count: int, file_name: string) -> Parser {
     /* Initialize AST lists using helper (triggers generic instantiation) */
     let init_parser: Parser = (parser_init_ast_lists)
     
