@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+[0;34mℹ️  Generating changelog from v2.0.9 to HEAD...[0m
+## [2.0.10] - 2026-01-23
+
+### Fixed
+- Make utility functions public and fix transpiler string concat
+- Make parser_new public for module_loader access
+- Force userguide tools to use C compiler and add module caching
+- Add missing dependency for compiler_schema.h
+
 [0;34mℹ️  Generating changelog from v2.0.8 to HEAD...[0m
 ## [2.0.9] - 2026-01-21
 
