@@ -856,8 +856,9 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     }
     
     /* Step 0: Merge imports into single source */
-    /* Find repository root for absolute paths to runtime sources */
-    let mut repo_root: string = (find_repo_root (nl_path_dirname input_file))
+    /* Find repository root for absolute paths to runtime sources  */
+    /* Start search from current working directory, not input file location */
+    let mut repo_root: string = (find_repo_root (getcwd))
     if (== repo_root "") {
         /* Fallback: use current working directory */
         set repo_root (getcwd)
