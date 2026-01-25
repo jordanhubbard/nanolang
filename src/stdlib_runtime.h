@@ -87,5 +87,11 @@ void generate_module_system_stubs(StringBuilder *sb);
  */
 void generate_timing_utilities(StringBuilder *sb);
 
+/**
+ * @brief Generate C code for console I/O utilities (readline, etc.)
+ * @param sb StringBuilder to append generated code to
+ */
+void generate_console_io_utilities(StringBuilder *sb);
+
 #endif /* STDLIB_RUNTIME_H */
 

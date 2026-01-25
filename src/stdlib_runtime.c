@@ -1292,6 +1292,8 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     /* Timing utilities */
     generate_timing_utilities(sb);
 
+    /* Console I/O utilities */
+    generate_console_io_utilities(sb);
 
     /* Math and utility built-in functions */
     generate_math_utility_builtins(sb);
@@ -1374,4 +1376,36 @@ void generate_timing_utilities(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "/* ========== End Timing Utilities ========== */\n\n");
+}
+
+/* =============================================================================
+ * Console I/O utilities for REPL and interactive programs
+ * =============================================================================
+ */
+
+void generate_console_io_utilities(StringBuilder *sb) {
+    sb_append(sb, "/* ========== Console I/O Utilities ========== */\n\n");
+
+    sb_append(sb, "/* Read a line from stdin, returns heap-allocated string */\n");
+    sb_append(sb, "/* Static to avoid duplicate symbols when linking multiple modules */\n");
+    sb_append(sb, "static const char* nl_read_line(void) {\n");
+    sb_append(sb, "    char buffer[4096];\n");
+    sb_append(sb, "    if (fgets(buffer, sizeof(buffer), stdin) == NULL) {\n");
+    sb_append(sb, "        char* empty = malloc(1);\n");
+    sb_append(sb, "        if (empty) empty[0] = '\\0';\n");
+    sb_append(sb, "        return empty ? empty : \"\";\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    /* Remove trailing newline if present */\n");
+    sb_append(sb, "    size_t len = strlen(buffer);\n");
+    sb_append(sb, "    if (len > 0 && buffer[len-1] == '\\n') {\n");
+    sb_append(sb, "        buffer[len-1] = '\\0';\n");
+    sb_append(sb, "        len--;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    char* result = malloc(len + 1);\n");
+    sb_append(sb, "    if (!result) return \"\";\n");
+    sb_append(sb, "    memcpy(result, buffer, len + 1);\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* ========== End Console I/O Utilities ========== */\n\n");
 }

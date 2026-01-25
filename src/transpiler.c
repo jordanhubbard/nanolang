@@ -4323,6 +4323,8 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* Timing utilities */
     generate_timing_utilities(sb);
 
+    /* Console I/O utilities (for REPL, interactive programs) */
+    generate_console_io_utilities(sb);
 
     /* Math and utility built-in functions */
     generate_math_utility_builtins(sb);

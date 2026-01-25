@@ -1,0 +1,183 @@
+# Simple REPL - Read-Eval-Print Loop for NanoLang
+#
+# This demonstrates using the eval function to dynamically evaluate
+# NanoLang expressions at runtime.
+#
+# Since NanoLang doesn't have built-in stdin readline support,
+# this example demonstrates eval with predefined expressions.
+# A full interactive REPL would require readline/linenoise integration.
+#
+# The eval function compiles and runs NanoLang source code at runtime,
+# returning the result of main().
+
+from "modules/nano_tools/nano_tools.nano" import eval_internal
+from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
+
+# External C function to read a line from stdin
+extern fn nl_read_line() -> string
+
+fn read_line_safe() -> string {
+    unsafe {
+        return (nl_read_line)
+    }
+}
+
+shadow read_line_safe {
+    # Can't test stdin in shadow test
+    assert true
+}
+
+fn print_banner() -> void {
+    (println "")
+    (println "  NanoLang Simple REPL")
+    (println "  ====================")
+    (println "  Enter expressions to evaluate them.")
+    (println "  Type 'quit' or 'exit' to exit.")
+    (println "")
+}
+
+shadow print_banner {
+    # Just verify it doesn't crash
+    (print_banner)
+}
+
+fn wrap_expression(expr: string) -> string {
+    # Wrap an expression in a main function that prints and returns its value
+    # The eval function only returns success/failure, so we print the result
+    let nl: string = (string_from_char 10)
+    let sb: StringBuilder = (sb_new)
+    (sb_append sb "fn main() -> int {")
+    (sb_append sb nl)
+    (sb_append sb "    let _result: int = ")
+    (sb_append sb expr)
+    (sb_append sb nl)
+    (sb_append sb "    (println (int_to_string _result))")
+    (sb_append sb nl)
+    (sb_append sb "    return 0")
+    (sb_append sb nl)
+    (sb_append sb "}")
+    (sb_append sb nl)
+    (sb_append sb "shadow main { assert true }")
+    (sb_append sb nl)
+    return (sb_to_string sb)
+}
+
+shadow wrap_expression {
+    let result: string = (wrap_expression "(+ 2 3)")
+    assert (str_contains result "fn main")
+    assert (str_contains result "let _result")
+    assert (str_contains result "println")
+}
+
+fn str_trim(s: string) -> string {
+    # Simple trim - remove leading and trailing whitespace
+    let len: int = (str_length s)
+    if (== len 0) {
+        return s
+    } else { (print "") }
+    
+    let mut start: int = 0
+    while (and (< start len) (is_whitespace (char_at s start))) {
+        set start (+ start 1)
+    }
+    
+    let mut end: int = (- len 1)
+    while (and (> end start) (is_whitespace (char_at s end))) {
+        set end (- end 1)
+    }
+    
+    if (>= start end) {
+        return ""
+    } else { (print "") }
+    
+    return (str_substring s start (+ (- end start) 1))
+}
+
+shadow str_trim {
+    assert (== (str_trim "  hello  ") "hello")
+    assert (== (str_trim "test") "test")
+    assert (== (str_trim "   ") "")
+}
+
+fn is_quit_command(input: string) -> bool {
+    let trimmed: string = (str_trim input)
+    return (or (== trimmed "quit") (== trimmed "exit"))
+}
+
+shadow is_quit_command {
+    assert (is_quit_command "quit")
+    assert (is_quit_command "exit")
+    assert (is_quit_command "  quit  ")
+    assert (not (is_quit_command "(+ 1 2)"))
+}
+
+fn is_empty(input: string) -> bool {
+    let trimmed: string = (str_trim input)
+    return (== (str_length trimmed) 0)
+}
+
+shadow is_empty {
+    assert (is_empty "")
+    assert (is_empty "   ")
+    assert (not (is_empty "hello"))
+}
+
+fn eval_expression(expr: string) -> int {
+    # Returns 0 on success, 1 on failure
+    # The actual result is printed to stdout by the eval'd program
+    let source: string = (wrap_expression expr)
+    unsafe {
+        return (eval_internal source)
+    }
+}
+
+shadow eval_expression {
+    # eval returns 0 on success
+    assert (== (eval_expression "(+ 2 3)") 0)
+    assert (== (eval_expression "(* 6 7)") 0)
+    assert (== (eval_expression "(- 10 3)") 0)
+}
+
+fn run_repl() -> int {
+    (print_banner)
+    
+    let mut running: bool = true
+    let mut count: int = 0
+    
+    while running {
+        (print "nano> ")
+        let input: string = (read_line_safe)
+        
+        if (is_quit_command input) {
+            set running false
+            (println "Goodbye!")
+        } else {
+            if (not (is_empty input)) {
+                let trimmed: string = (str_trim input)
+                (print "=> ")
+                let status: int = (eval_expression trimmed)
+                if (!= status 0) {
+                    (println "Error: evaluation failed")
+                } else { (print "") }
+                set count (+ count 1)
+            } else { (print "") }
+        }
+    }
+    
+    (println (+ "Evaluated " (+ (int_to_string count) " expressions.")))
+    return 0
+}
+
+shadow run_repl {
+    # Can't test interactive REPL in shadow test
+    assert true
+}
+
+fn main() -> int {
+    return (run_repl)
+}
+
+shadow main {
+    # REPL requires interactive input, shadow test just validates compilation
+    assert true
+}
