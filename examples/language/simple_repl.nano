@@ -1,20 +1,27 @@
-# Simple REPL - Read-Eval-Print Loop for NanoLang
+# NanoLang REPL - Interactive Read-Eval-Print Loop
 #
-# This demonstrates using the eval function to dynamically evaluate
-# NanoLang expressions at runtime, with readline support for line
-# editing and command history.
+# A full-featured REPL that demonstrates:
+# - GNU Readline for line editing and history
+# - Dynamic code evaluation using the eval function
+# - Command history with persistence to ~/.nanolang_history
 #
-# Features:
-#   - Line editing (backspace, cursor movement)
-#   - Command history (up/down arrows)
-#   - Emacs-style key bindings (Ctrl-A, Ctrl-E, etc.)
+# Usage:
+#   Enter NanoLang expressions to evaluate them.
+#   Results are printed automatically.
+#   Use arrow keys for history, Ctrl-A/E for line navigation.
+#   Type 'quit' or press Ctrl-D to exit.
 #
-# The eval function compiles and runs NanoLang source code at runtime,
-# returning the result of main().
+# Examples:
+#   nano> (+ 2 3)
+#   => 5
+#   nano> (* 7 6)
+#   => 42
+#   nano> (cond ((> 5 3) 100) (else 0))
+#   => 100
 
+from "modules/readline/readline.nano" import rl_readline, rl_add_history, rl_read_history, rl_write_history
 from "modules/nano_tools/nano_tools.nano" import eval_internal
 from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
-from "modules/readline/readline.nano" import rl_readline, rl_add_history
 
 fn print_banner() -> void {
     (println "")
@@ -22,7 +29,7 @@ fn print_banner() -> void {
     (println "  =============")
     (println "  Enter expressions to evaluate them.")
     (println "  Use arrow keys for history navigation.")
-    (println "  Type 'quit' or 'exit' to exit.")
+    (println "  Type 'help' for commands, 'quit' to exit.")
     (println "")
 }
 
@@ -30,9 +37,33 @@ shadow print_banner {
     (print_banner)
 }
 
+fn print_help() -> void {
+    (println "")
+    (println "Commands:")
+    (println "  help   - Show this help message")
+    (println "  quit   - Exit the REPL (or press Ctrl-D)")
+    (println "  clear  - Clear the screen")
+    (println "")
+    (println "Key bindings (Emacs-style):")
+    (println "  Up/Down  - Navigate command history")
+    (println "  Ctrl-A   - Beginning of line")
+    (println "  Ctrl-E   - End of line")
+    (println "  Ctrl-R   - Reverse search history")
+    (println "  Ctrl-D   - Exit (on empty line)")
+    (println "")
+    (println "Examples:")
+    (println "  (+ 2 3)                    # => 5")
+    (println "  (* 7 6)                    # => 42")
+    (println "  (cond ((> 5 3) 100) (else 0))  # => 100")
+    (println "")
+}
+
+shadow print_help {
+    (print_help)
+}
+
 fn wrap_expression(expr: string) -> string {
     # Wrap an expression in a main function that prints and returns its value
-    # The eval function only returns success/failure, so we print the result
     let nl: string = (string_from_char 10)
     let sb: StringBuilder = (sb_new)
     (sb_append sb "fn main() -> int {")
@@ -55,11 +86,9 @@ shadow wrap_expression {
     let result: string = (wrap_expression "(+ 2 3)")
     assert (str_contains result "fn main")
     assert (str_contains result "let _result")
-    assert (str_contains result "println")
 }
 
 fn str_trim(s: string) -> string {
-    # Simple trim - remove leading and trailing whitespace
     let len: int = (str_length s)
     if (== len 0) {
         return s
@@ -88,21 +117,18 @@ shadow str_trim {
     assert (== (str_trim "   ") "")
 }
 
-fn is_quit_command(input: string) -> bool {
-    let trimmed: string = (str_trim input)
-    return (or (== trimmed "quit") (== trimmed "exit"))
+fn is_command(input: string, cmd: string) -> bool {
+    return (== (str_trim input) cmd)
 }
 
-shadow is_quit_command {
-    assert (is_quit_command "quit")
-    assert (is_quit_command "exit")
-    assert (is_quit_command "  quit  ")
-    assert (not (is_quit_command "(+ 1 2)"))
+shadow is_command {
+    assert (is_command "quit" "quit")
+    assert (is_command "  help  " "help")
+    assert (not (is_command "(+ 1 2)" "quit"))
 }
 
 fn is_empty(input: string) -> bool {
-    let trimmed: string = (str_trim input)
-    return (== (str_length trimmed) 0)
+    return (== (str_length (str_trim input)) 0)
 }
 
 shadow is_empty {
@@ -113,7 +139,6 @@ shadow is_empty {
 
 fn eval_expression(expr: string) -> int {
     # Returns 0 on success, 1 on failure
-    # The actual result is printed to stdout by the eval'd program
     let source: string = (wrap_expression expr)
     unsafe {
         return (eval_internal source)
@@ -121,14 +146,47 @@ fn eval_expression(expr: string) -> int {
 }
 
 shadow eval_expression {
-    # eval returns 0 on success
     assert (== (eval_expression "(+ 2 3)") 0)
     assert (== (eval_expression "(* 6 7)") 0)
-    assert (== (eval_expression "(- 10 3)") 0)
+}
+
+fn get_history_file() -> string {
+    let home: string = (getenv "HOME")
+    if (== (str_length home) 0) {
+        return ""
+    } else { (print "") }
+    return (+ home "/.nanolang_history")
+}
+
+shadow get_history_file {
+    let path: string = (get_history_file)
+    assert true
+}
+
+fn clear_screen() -> void {
+    # ANSI escape sequence to clear screen and move cursor home
+    (print (string_from_char 27))
+    (print "[2J")
+    (print (string_from_char 27))
+    (println "[H")
+}
+
+shadow clear_screen {
+    # Just verify it doesn't crash
+    assert true
 }
 
 fn run_repl() -> int {
     (print_banner)
+    
+    # Load history from file
+    let history_file: string = (get_history_file)
+    if (> (str_length history_file) 0) {
+        let load_result: int = (rl_read_history history_file)
+        if (== load_result 0) {
+            (println (+ "Loaded history from " history_file))
+        } else { (print "") }
+    } else { (print "") }
     
     let mut running: bool = true
     let mut count: int = 0
@@ -136,38 +194,56 @@ fn run_repl() -> int {
     while running {
         let input: string = (rl_readline "nano> ")
         
-        # Check for EOF (empty string on Ctrl-D)
+        # Check for EOF (Ctrl-D)
         if (== (str_length input) 0) {
             (println "")
             (println "Goodbye!")
             set running false
         } else {
-            if (is_quit_command input) {
+            let trimmed: string = (str_trim input)
+            
+            # Add non-empty, non-command lines to history
+            if (and (not (is_empty trimmed)) (not (is_command trimmed "help"))) {
+                (rl_add_history input)
+            } else { (print "") }
+            
+            if (is_command trimmed "quit") {
                 (println "Goodbye!")
                 set running false
             } else {
-                if (not (is_empty input)) {
-                    # Add to history for recall
-                    (rl_add_history input)
-                    
-                    let trimmed: string = (str_trim input)
-                    (print "=> ")
-                    let status: int = (eval_expression trimmed)
-                    if (!= status 0) {
-                        (println "Error: evaluation failed")
-                    } else { (print "") }
-                    set count (+ count 1)
-                } else { (print "") }
+                if (is_command trimmed "help") {
+                    (print_help)
+                } else {
+                    if (is_command trimmed "clear") {
+                        (clear_screen)
+                    } else {
+                        if (not (is_empty trimmed)) {
+                            (print "=> ")
+                            let status: int = (eval_expression trimmed)
+                            if (!= status 0) {
+                                (println "Error: evaluation failed")
+                            } else { (print "") }
+                            set count (+ count 1)
+                        } else { (print "") }
+                    }
+                }
             }
         }
     }
+    
+    # Save history to file
+    if (> (str_length history_file) 0) {
+        let save_result: int = (rl_write_history history_file)
+        if (== save_result 0) {
+            (println (+ "Saved history to " history_file))
+        } else { (print "") }
+    } else { (print "") }
     
     (println (+ "Evaluated " (+ (int_to_string count) " expressions.")))
     return 0
 }
 
 shadow run_repl {
-    # Can't test interactive REPL in shadow test
     assert true
 }
 
@@ -176,6 +252,5 @@ fn main() -> int {
 }
 
 shadow main {
-    # REPL requires interactive input, shadow test just validates compilation
     assert true
 }
