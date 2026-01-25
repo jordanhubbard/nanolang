@@ -1,43 +1,32 @@
 # Simple REPL - Read-Eval-Print Loop for NanoLang
 #
 # This demonstrates using the eval function to dynamically evaluate
-# NanoLang expressions at runtime.
+# NanoLang expressions at runtime, with readline support for line
+# editing and command history.
 #
-# Since NanoLang doesn't have built-in stdin readline support,
-# this example demonstrates eval with predefined expressions.
-# A full interactive REPL would require readline/linenoise integration.
+# Features:
+#   - Line editing (backspace, cursor movement)
+#   - Command history (up/down arrows)
+#   - Emacs-style key bindings (Ctrl-A, Ctrl-E, etc.)
 #
 # The eval function compiles and runs NanoLang source code at runtime,
 # returning the result of main().
 
 from "modules/nano_tools/nano_tools.nano" import eval_internal
 from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
-
-# External C function to read a line from stdin
-extern fn nl_read_line() -> string
-
-fn read_line_safe() -> string {
-    unsafe {
-        return (nl_read_line)
-    }
-}
-
-shadow read_line_safe {
-    # Can't test stdin in shadow test
-    assert true
-}
+from "modules/readline/readline.nano" import rl_readline, rl_add_history
 
 fn print_banner() -> void {
     (println "")
-    (println "  NanoLang Simple REPL")
-    (println "  ====================")
+    (println "  NanoLang REPL")
+    (println "  =============")
     (println "  Enter expressions to evaluate them.")
+    (println "  Use arrow keys for history navigation.")
     (println "  Type 'quit' or 'exit' to exit.")
     (println "")
 }
 
 shadow print_banner {
-    # Just verify it doesn't crash
     (print_banner)
 }
 
@@ -145,22 +134,31 @@ fn run_repl() -> int {
     let mut count: int = 0
     
     while running {
-        (print "nano> ")
-        let input: string = (read_line_safe)
+        let input: string = (rl_readline "nano> ")
         
-        if (is_quit_command input) {
-            set running false
+        # Check for EOF (empty string on Ctrl-D)
+        if (== (str_length input) 0) {
+            (println "")
             (println "Goodbye!")
+            set running false
         } else {
-            if (not (is_empty input)) {
-                let trimmed: string = (str_trim input)
-                (print "=> ")
-                let status: int = (eval_expression trimmed)
-                if (!= status 0) {
-                    (println "Error: evaluation failed")
+            if (is_quit_command input) {
+                (println "Goodbye!")
+                set running false
+            } else {
+                if (not (is_empty input)) {
+                    # Add to history for recall
+                    (rl_add_history input)
+                    
+                    let trimmed: string = (str_trim input)
+                    (print "=> ")
+                    let status: int = (eval_expression trimmed)
+                    if (!= status 0) {
+                        (println "Error: evaluation failed")
+                    } else { (print "") }
+                    set count (+ count 1)
                 } else { (print "") }
-                set count (+ count 1)
-            } else { (print "") }
+            }
         }
     }
     
