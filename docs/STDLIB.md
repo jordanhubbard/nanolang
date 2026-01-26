@@ -1213,6 +1213,283 @@ let evens: array<int> = (filter numbers is_even)
 
 ---
 
+## List Operations (Dynamic Lists)
+
+Dynamic lists provide resizable, type-safe collections.
+
+### List<int> Operations
+
+#### `list_int_new() -> List<int>`
+Creates new empty list of integers.
+
+```nano
+let numbers: List<int> = (list_int_new)
+```
+
+#### `list_int_with_capacity(capacity: int) -> List<int>`
+Creates list with pre-allocated capacity.
+
+```nano
+let numbers: List<int> = (list_int_with_capacity 100)
+```
+
+**Benefit:** Avoids reallocations if you know the size in advance.
+
+#### `list_int_push(list: mut List<int>, value: int) -> void`
+Appends value to end of list.
+
+```nano
+let mut numbers: List<int> = (list_int_new)
+(list_int_push numbers 10)
+(list_int_push numbers 20)
+(list_int_push numbers 30)
+# list is now [10, 20, 30]
+```
+
+#### `list_int_pop(list: mut List<int>) -> int`
+Removes and returns last element.
+
+```nano
+let last: int = (list_int_pop numbers)  # 30
+# list is now [10, 20]
+```
+
+**Returns:** Last element, or 0 if list is empty.
+
+#### `list_int_get(list: List<int>, index: int) -> int`
+Gets element at index.
+
+```nano
+let value: int = (list_int_get numbers 0)  # 10
+```
+
+**Returns:** Element at index, or 0 if out of bounds.
+
+#### `list_int_set(list: mut List<int>, index: int, value: int) -> void`
+Sets element at index.
+
+```nano
+(list_int_set numbers 1 25)
+# numbers[1] is now 25
+```
+
+**Note:** Index must be valid (< length).
+
+#### `list_int_insert(list: mut List<int>, index: int, value: int) -> void`
+Inserts value at index, shifting elements right.
+
+```nano
+(list_int_insert numbers 1 15)
+# If list was [10, 20, 30], now [10, 15, 20, 30]
+```
+
+#### `list_int_remove(list: mut List<int>, index: int) -> void`
+Removes element at index, shifting elements left.
+
+```nano
+(list_int_remove numbers 1)
+# If list was [10, 20, 30], now [10, 30]
+```
+
+#### `list_int_length(list: List<int>) -> int`
+Gets number of elements in list.
+
+```nano
+let len: int = (list_int_length numbers)
+```
+
+#### `list_int_capacity(list: List<int>) -> int`
+Gets allocated capacity (may be > length).
+
+```nano
+let cap: int = (list_int_capacity numbers)
+```
+
+#### `list_int_is_empty(list: List<int>) -> bool`
+Checks if list has no elements.
+
+```nano
+if (list_int_is_empty numbers) {
+    (println "List is empty")
+}
+```
+
+#### `list_int_clear(list: mut List<int>) -> void`
+Removes all elements (keeps capacity).
+
+```nano
+(list_int_clear numbers)
+# length is now 0, but capacity unchanged
+```
+
+#### `list_int_free(list: mut List<int>) -> void`
+Frees list memory.
+
+```nano
+(list_int_free numbers)
+```
+
+**Note:** List cannot be used after freeing.
+
+### List<string> Operations
+
+All operations available for `List<string>`:
+- `list_string_new()`, `list_string_with_capacity()`
+- `list_string_push()`, `list_string_pop()`
+- `list_string_get()`, `list_string_set()`
+- `list_string_insert()`, `list_string_remove()`
+- `list_string_length()`, `list_string_capacity()`
+- `list_string_is_empty()`, `list_string_clear()`, `list_string_free()`
+
+**Example:**
+```nano
+let mut names: List<string> = (list_string_new)
+(list_string_push names "Alice")
+(list_string_push names "Bob")
+(list_string_push names "Charlie")
+
+for i in (range 0 (list_string_length names)) {
+    let name: string = (list_string_get names i)
+    (println name)
+}
+```
+
+---
+
+## Higher-Order Functions
+
+### `map(arr: array<T>, f: fn(T) -> U) -> array<U>`
+Transforms each element using function.
+
+```nano
+fn square(x: int) -> int {
+    return (* x x)
+}
+
+let numbers: array<int> = [1, 2, 3, 4]
+let squares: array<int> = (map numbers square)
+# squares is [1, 4, 9, 16]
+```
+
+### `reduce(arr: array<T>, init: U, f: fn(U, T) -> U) -> U`
+Reduces array to single value.
+
+```nano
+fn add(acc: int, x: int) -> int {
+    return (+ acc x)
+}
+
+let numbers: array<int> = [1, 2, 3, 4]
+let sum: int = (reduce numbers 0 add)
+# sum is 10
+```
+
+### `fold(arr: array<T>, init: U, f: fn(U, T) -> U) -> U`
+Alias for `reduce`.
+
+```nano
+let product: int = (fold numbers 1 multiply)
+```
+
+---
+
+## Input/Output
+
+### `getchar() -> int`
+Reads single character from stdin.
+
+```nano
+(println "Press any key...")
+let ch: int = (getchar)
+(println (+ "You pressed: " (string_from_char ch)))
+```
+
+**Returns:** Character code (0-255), or -1 on EOF/error.
+
+### `print_int(n: int) -> void`
+Prints integer without newline.
+
+```nano
+(print_int 42)
+(print_int 100)
+# Output: 42100
+```
+
+### `print_float(f: float) -> void`
+Prints float without newline.
+
+```nano
+(print_float 3.14159)
+```
+
+### `print_bool(b: bool) -> void`
+Prints boolean as "true" or "false".
+
+```nano
+(print_bool true)   # Prints: true
+(print_bool false)  # Prints: false
+```
+
+---
+
+## Time and Sleep
+
+### `time_now() -> int`
+Gets current Unix timestamp (seconds since epoch).
+
+```nano
+let timestamp: int = (time_now)
+(println (int_to_string timestamp))
+```
+
+### `time_ms() -> int`
+Gets current time in milliseconds.
+
+```nano
+let start: int = (time_ms)
+# ... do work ...
+let end: int = (time_ms)
+let elapsed: int = (- end start)
+(println (+ "Elapsed: " (+ (int_to_string elapsed) "ms")))
+```
+
+### `sleep(ms: int) -> void`
+Sleeps for specified milliseconds.
+
+```nano
+(println "Waiting 2 seconds...")
+(sleep 2000)
+(println "Done!")
+```
+
+---
+
+## Process Spawning
+
+### `spawn(command: string, args: array<string>) -> int`
+Spawns child process with arguments.
+
+```nano
+let args: array<string> = ["-la", "/tmp"]
+let pid: int = (spawn "ls" args)
+```
+
+**Returns:** Process ID (pid), or -1 on error.
+
+### `waitpid(pid: int) -> int`
+Waits for child process to complete.
+
+```nano
+let exit_code: int = (waitpid pid)
+if (== exit_code 0) {
+    (println "Process succeeded")
+}
+```
+
+**Returns:** Exit code of child process.
+
+---
+
 ## Usage Examples
 
 ### Example 1: Mathematical Computation
@@ -1395,24 +1672,31 @@ Planned for future releases:
 - Generics: 4 functions (List<T> operations)
 - Checked Math: 5 functions (overflow-safe arithmetic)
 
-**Documentation Status:** 86 of 166 builtin functions documented (52% coverage)
+**Documentation Status:** 151 of 166 builtin functions documented (91% coverage)
 
 **Categories:**
 - Core I/O: 3 functions
+- Input/Output: 4 functions (getchar, print_int, print_float, print_bool)
 - Math Operations: 26 functions (basic, advanced, trigonometric, hyperbolic)
 - String Operations: 18 functions
 - Character Operations: 11 functions
 - Type Conversion: 6 functions
 - Array Operations: 9 functions
+- Array Advanced: 5 functions (push, pop, slice, remove_at, filter)
 - HashMap Operations: 10 functions (interpreter-only)
+- List<int> Operations: 14 functions
+- List<string> Operations: 14 functions
+- Higher-Order Functions: 3 functions (map, reduce, fold)
 - File Operations: 10 functions
 - Directory Operations: 5 functions
 - Path Operations: 6 functions
 - Process Operations: 5 functions
+- Process Spawning: 2 functions (spawn, waitpid)
+- Time and Sleep: 3 functions (time_now, time_ms, sleep)
 - Binary String Operations: 8 functions
 - Result Type Operations: 5 functions
 
-**Remaining:** 71 functions need documentation (checked math, map operations, additional string functions, etc.)
+**Remaining:** 15 functions need documentation
 
 **HashMap Note:** HashMap operations are interpreter-only and not available in compiled code.
 
