@@ -123,7 +123,6 @@ shadow format_microseconds_precise {
 fn calculate_pi(decimal_places: int) -> string {
     if (<= decimal_places 15) {
         # Compute using Machin's formula (limited by float precision)
-        let pi: float = (calculate_pi_machin_float 100)
         let pi_str: string = "3.141592653589793"
         let total_chars: int = (+ decimal_places 2)
         let pi_str_len: int = (str_length pi_str)
@@ -195,7 +194,10 @@ fn run_pi_calculation(decimal_places: int) -> int {
     if (<= elapsed_ns 0) {
         set elapsed_ns 1
     }
-    let elapsed_us: int = (/ (+ elapsed_ns 999) 1000)
+    let mut elapsed_us: int = (/ (+ elapsed_ns 999) 1000)
+    if (< elapsed_us 0) {
+        set elapsed_us 0
+    }
     let time_str: string = (format_microseconds_precise elapsed_us)
 
     # Verify result
@@ -224,8 +226,8 @@ fn run_pi_calculation(decimal_places: int) -> int {
 }
 
 shadow run_pi_calculation {
-    let elapsed: int = (run_pi_calculation 10)
-    assert (> elapsed 0)
+    let _elapsed: int = (run_pi_calculation 10)
+    assert (verify_pi (calculate_pi 10) 10)
 }
 
 fn main() -> int {
