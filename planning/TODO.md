@@ -194,10 +194,10 @@ These improvements will make Phase 2 easier and more pleasant:
 - **Impact:** Self-hosted compiler can now use clean `List<Token>`, `List<ASTNode>` syntax!
 
 ### B. First-Class Functions (Without User-Visible Pointers)
-- **Status:** ✅ Phase B1 COMPLETE! (B2/B3 pending)
+- **Status:** ⚠️ Phase B1 COMPLETE, B2/B3 BLOCKED (parser/typechecker bugs)
 - **Priority:** HIGH (Required before self-hosting)
-- **Time Invested:** 6 hours (B1)
-- **Time Remaining:** 10-18 hours (B2/B3)
+- **Time Invested:** 6 hours (B1) + 2 hours (B2/B3 bug investigation)
+- **Time Remaining:** 12-24 hours (B2/B3 bug fixes + completion)
 - **Benefit:** Enables functional programming patterns without pointers in user code!
 - **Philosophy:** Functions as values WITHOUT exposing pointers - clean syntax, C implementation
 - **Description:**
@@ -246,13 +246,17 @@ let result: int = (apply_twice 5 double)  /* = 20 */
 ```
 
 #### B2. Functions as Return Values (5-8 hours)
+- **Status:** ⚠️ BLOCKED - Parser bug (examples exist but don't compile)
 - **Priority:** HIGH
 - **Benefit:** Function factories, strategy pattern
+- **Bug:** Parser treats `fn(int,int)->int` as struct type name instead of TYPE_FUNCTION
+  - Generates invalid C: `nl_fn(int_int)-_int` instead of proper typedef
+  - Root cause: src/parser.c:3436 parse_type_with_element() misclassification
 - **Tasks:**
-  1. Parser: Handle function types in return position (1h)
-  2. Type Checker: Validate returned function signatures (2h)
-  3. Transpiler: Generate correct return type (function pointer) (2h)
-  4. Testing: Function factory examples (2h)
+  1. ❌ Parser: Handle function types in return position (BUGGY - needs fix)
+  2. ❌ Type Checker: Validate returned function signatures (depends on parser fix)
+  3. ❌ Transpiler: Generate correct return type (function pointer) (blocked)
+  4. ❌ Testing: Function factory examples (examples exist but fail compilation)
   
 **Example:**
 ```nano
@@ -264,13 +268,18 @@ let result: int = (op 5 3)  /* Calls multiply */
 ```
 
 #### B3. Function Variables (5-10 hours)
+- **Status:** ⚠️ BLOCKED - Type checker bug (examples exist but fail type checking)
 - **Priority:** MEDIUM-HIGH
 - **Benefit:** Function dispatch tables, cleaner code organization
+- **Bug:** Type checker returns function type instead of return type when calling function variables
+  - `let op: fn(int,int)->int = add; (op 5 3)` returns `fn(int,int)->int` instead of `int`
+  - Root cause: src/typechecker.c function call resolution doesn't handle function variables
+- **Dependencies:** Requires B2 to be fixed first
 - **Tasks:**
-  1. Type Checker: Allow function type in let statements (2h)
-  2. Transpiler: Generate function pointer variables (2h)
-  3. Integration: Works with generics (future: `fn map<T,U>(f: fn(T)->U)`) (3h)
-  4. Testing: Comprehensive examples (3h)
+  1. ❌ Type Checker: Allow function type in let statements (BUGGY - needs fix)
+  2. ❌ Transpiler: Generate function pointer variables (depends on type checker fix)
+  3. ❌ Integration: Works with generics (blocked)
+  4. ❌ Testing: Comprehensive examples (examples exist but fail type checking)
   
 **Example:**
 ```nano
