@@ -504,6 +504,7 @@ perl -e 'alarm 30; exec @ARGV' ./bin/nanoc bouncing_ball.nano -o bin/bouncing_ba
 7. **Minimal fixes** - One error at a time
 8. **Deterministic builds** - Log all installs
 9. **Always create beads for issues** - Any bug, technical debt, or future work you identify must be documented as a bead using `bd create`. Never just mention issues in responses - track them systematically
+10. **Documentation is MANDATORY** - Features are not complete until documented. Update all relevant docs when behavior changes
 
 ---
 
@@ -579,6 +580,91 @@ self-hosting, but we can work around it for now."
 
 ---
 
+## Documentation Hygiene (MANDATORY)
+
+**CRITICAL RULE:** Documentation must be updated whenever behavior changes or features are added.
+
+### When to Update Documentation
+
+**ALWAYS update docs when:**
+- Adding new features or capabilities
+- Changing existing behavior
+- Adding new modules or examples
+- Modifying command-line flags or compiler options
+- Adding new standard library functions
+- Changing syntax or language semantics
+- Adding new error messages or diagnostics
+
+**NEVER:**
+- Add features without documenting them
+- Change behavior without updating affected docs
+- Leave documentation stale after implementation
+- Document features that don't exist yet (docs reflect reality)
+
+### Which Documents to Update
+
+**For Language Features:**
+- `docs/QUICK_REFERENCE.md` - Syntax cheat sheet
+- `docs/SPECIFICATION.md` - Complete language reference
+- `MEMORY.md` - Patterns and idioms for LLMs
+- `spec.json` - Formal specification (if types/stdlib changed)
+
+**For User-Facing Features:**
+- `README.md` - Main entry point, quick start, key features
+- `docs/GETTING_STARTED.md` - Tutorial walkthrough
+- `userguide/` - Progressive tutorial with examples
+- Relevant topic-specific docs in `docs/`
+
+**For Standard Library:**
+- `docs/STDLIB.md` - Complete function reference
+- `spec.json` - Function signatures and metadata
+- Module-specific README files
+
+**For Modules:**
+- `modules/<name>/README.md` - Module documentation
+- `modules/<name>/mvp.md` - Minimal viable snippet
+- `docs/MODULE_SYSTEM.md` - If module system changed
+
+**For Development:**
+- `AGENTS.md` - If agent protocols changed
+- `CONTRIBUTING.md` - If contribution process changed
+- `docs/ROADMAP.md` - If project direction changed
+
+### Documentation Standards
+
+**Example Quality:**
+- Every code example must compile and run
+- Examples should be minimal but complete
+- Include expected output where relevant
+- Test examples during CI builds
+
+**Clarity:**
+- Use concrete examples, not just abstract descriptions
+- Show both correct usage and common mistakes
+- Include "Why?" context for non-obvious decisions
+- Cross-reference related documentation
+
+**Completeness:**
+- Document all parameters and return values
+- Include type signatures
+- Note error conditions and edge cases
+- Link to working examples in `examples/`
+
+### Documentation Workflow
+
+```bash
+# After implementing feature:
+1. Identify affected docs (see "Which Documents" above)
+2. Update each relevant file
+3. Test examples: make userguide-check
+4. Commit docs with implementation
+5. Never leave docs for "later"
+```
+
+**Rule:** Features are not complete until documented. Documentation is part of the feature, not an afterthought.
+
+---
+
 ## Quick Reference Card
 
 ```
@@ -609,6 +695,7 @@ Working program ✓
 6. ✅ Copies examples rather than writing from scratch
 7. ✅ Makes minimal fixes (no large refactors per error)
 8. ✅ Produces reproducible builds (logs deps)
+9. ✅ Updates documentation with every feature (docs are part of the feature)
 
 ---
 
