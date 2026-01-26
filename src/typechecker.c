@@ -2594,7 +2594,58 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             expr->line, expr->column);
                 }
             }
-            
+
+            /* Exhaustiveness check: warn if any variants are not covered */
+            if (union_base_name) {
+                UnionDef *union_def = env_get_union(env, union_base_name);
+                if (union_def) {
+                    /* Build set of covered variants */
+                    bool *covered = calloc(union_def->variant_count, sizeof(bool));
+
+                    for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                        const char *pattern_variant = expr->as.match_expr.pattern_variants[i];
+
+                        /* Find which variant this pattern covers */
+                        for (int j = 0; j < union_def->variant_count; j++) {
+                            if (strcmp(union_def->variant_names[j], pattern_variant) == 0) {
+                                covered[j] = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    /* Check for uncovered variants */
+                    int uncovered_count = 0;
+                    for (int i = 0; i < union_def->variant_count; i++) {
+                        if (!covered[i]) {
+                            uncovered_count++;
+                        }
+                    }
+
+                    if (uncovered_count > 0) {
+                        /* Emit warning with list of uncovered variants */
+                        fprintf(stderr, "%sWarning at line %d, column %d:%s Non-exhaustive match - missing pattern",
+                                CSTART_WARNING, expr->line, expr->column, CEND);
+                        if (uncovered_count == 1) {
+                            fprintf(stderr, " for variant:");
+                        } else {
+                            fprintf(stderr, "s for variants:");
+                        }
+
+                        for (int i = 0; i < union_def->variant_count; i++) {
+                            if (!covered[i]) {
+                                fprintf(stderr, " %s", union_def->variant_names[i]);
+                            }
+                        }
+                        fprintf(stderr, "\n");
+                        fprintf(stderr, "%sHint:%s Add missing pattern(s) or use a catch-all pattern\n",
+                                CSTART_HINT, CEND);
+                    }
+
+                    free(covered);
+                }
+            }
+
             return return_type;
         }
 
