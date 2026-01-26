@@ -518,10 +518,131 @@ Returns all keys as an array.
 ### `map_values(map: HashMap<K,V>) -> array<V>`
 Returns all values as an array.
 
-**Safety:** 
+**Safety:**
 - Requires array to be declared `mut`
 - Runtime bounds checking prevents buffer overflows
 - Type checking ensures homogeneous arrays
+
+---
+
+## Result Type Operations (5)
+
+The Result<T, E> type represents success (Ok) or failure (Err) values.
+
+### `result_is_ok(r: Result<T, E>) -> bool`
+Checks if Result is Ok variant.
+
+```nano
+let r: Result<int, string> = (divide 10 2)
+if (result_is_ok r) {
+    (println "Success!")
+}
+```
+
+### `result_is_err(r: Result<T, E>) -> bool`
+Checks if Result is Err variant.
+
+```nano
+let r: Result<int, string> = (divide 10 0)
+if (result_is_err r) {
+    (println "Error occurred")
+}
+```
+
+### `result_unwrap(r: Result<T, E>) -> T`
+Extracts Ok value, panics if Err.
+
+```nano
+let r: Result<int, string> = (divide 10 2)
+let value: int = (result_unwrap r)  # 5
+```
+
+**Warning:** Panics if Result is Err. Use `result_is_ok` check first.
+
+### `result_unwrap_or(r: Result<T, E>, default: T) -> T`
+Extracts Ok value, or returns default if Err.
+
+```nano
+let r: Result<int, string> = (divide 10 0)
+let value: int = (result_unwrap_or r 0)  # Returns 0 (default)
+```
+
+**Safe alternative to `result_unwrap`.**
+
+### `result_unwrap_err(r: Result<T, E>) -> E`
+Extracts Err value, panics if Ok.
+
+```nano
+let r: Result<int, string> = (divide 10 0)
+if (result_is_err r) {
+    let error: string = (result_unwrap_err r)
+    (println error)
+}
+```
+
+---
+
+## Binary String Operations (8)
+
+Binary strings (bstring) handle raw binary data.
+
+### `bytes_from_string(s: string) -> bstring`
+Converts string to binary string.
+
+```nano
+let bs: bstring = (bytes_from_string "Hello")
+```
+
+### `string_from_bytes(bs: bstring) -> string`
+Converts binary string to regular string.
+
+```nano
+let s: string = (string_from_bytes bs)
+```
+
+### `bstring_length(bs: bstring) -> int`
+Gets binary string length in bytes.
+
+```nano
+let len: int = (bstring_length bs)
+```
+
+### `bstring_at(bs: bstring, index: int) -> int`
+Gets byte value at index.
+
+```nano
+let byte: int = (bstring_at bs 0)  # Returns 0-255
+```
+
+### `bstring_slice(bs: bstring, start: int, length: int) -> bstring`
+Extracts portion of binary string.
+
+```nano
+let subset: bstring = (bstring_slice bs 0 10)
+```
+
+### `bstring_concat(bs1: bstring, bs2: bstring) -> bstring`
+Concatenates two binary strings.
+
+```nano
+let combined: bstring = (bstring_concat bs1 bs2)
+```
+
+### `bstring_new(size: int) -> bstring`
+Creates new binary string of specified size (zero-filled).
+
+```nano
+let bs: bstring = (bstring_new 1024)
+```
+
+### `bstring_set(bs: mut bstring, index: int, value: int) -> void`
+Sets byte at index (value 0-255).
+
+```nano
+(bstring_set bs 0 65)  # Sets first byte to 'A'
+```
+
+**Safety:** Bounds checking prevents buffer overflows.
 
 ---
 
@@ -553,6 +674,542 @@ for i in (range 0 10) {
 ```
 
 **Note:** `range` can only be used in for-loop contexts, not as a regular function call.
+
+---
+
+## File Operations (10)
+
+### `file_read(path: string) -> string`
+Reads entire file contents as a string.
+
+```nano
+let content: string = (file_read "data.txt")
+(println content)
+```
+
+**Returns:** File contents as string. Empty string on error.
+
+### `file_read_bytes(path: string) -> bstring`
+Reads file contents as binary string (bstring).
+
+```nano
+let data: bstring = (file_read_bytes "image.png")
+let size: int = (bstring_length data)
+```
+
+**Use for:** Binary files, images, non-text data.
+
+### `file_write(path: string, content: string) -> int`
+Writes string content to file, overwriting if exists.
+
+```nano
+let status: int = (file_write "output.txt" "Hello, World!")
+if (== status 0) {
+    (println "Write successful")
+} else {
+    (println "Write failed")
+}
+```
+
+**Returns:** 0 on success, 1 on failure.
+
+### `file_append(path: string, content: string) -> int`
+Appends string content to end of file.
+
+```nano
+let status: int = (file_append "log.txt" "New log entry\n")
+```
+
+**Returns:** 0 on success, 1 on failure.
+
+### `file_exists(path: string) -> bool`
+Checks if file exists and is accessible.
+
+```nano
+if (file_exists "config.json") {
+    let config: string = (file_read "config.json")
+} else {
+    (println "Config file not found")
+}
+```
+
+### `file_remove(path: string) -> int`
+Deletes a file.
+
+```nano
+let status: int = (file_remove "temp.txt")
+```
+
+**Returns:** 0 on success, 1 on failure.
+
+**Warning:** Permanent deletion. No confirmation or undo.
+
+### `file_rename(old_path: string, new_path: string) -> int`
+Renames or moves a file.
+
+```nano
+let status: int = (file_rename "old.txt" "new.txt")
+```
+
+**Returns:** 0 on success, 1 on failure.
+
+### `file_size(path: string) -> int`
+Gets file size in bytes.
+
+```nano
+let size: int = (file_size "data.bin")
+(println (+ "File size: " (int_to_string size)))
+```
+
+**Returns:** File size in bytes, or -1 on error.
+
+### `file_copy(src: string, dst: string) -> int`
+Copies file from source to destination.
+
+```nano
+let status: int = (file_copy "original.txt" "backup.txt")
+```
+
+**Returns:** 0 on success, 1 on failure.
+
+### `file_chmod(path: string, mode: int) -> int`
+Changes file permissions (Unix mode bits).
+
+```nano
+# Make file executable: chmod +x
+let status: int = (file_chmod "script.sh" 493)  # 0755 in octal
+```
+
+**Returns:** 0 on success, 1 on failure.
+
+---
+
+## Directory Operations (5)
+
+### `dir_exists(path: string) -> bool`
+Checks if directory exists.
+
+```nano
+if (not (dir_exists "output")) {
+    (dir_create "output")
+}
+```
+
+### `dir_create(path: string) -> int`
+Creates a directory. Parent directories must exist.
+
+```nano
+let status: int = (dir_create "build/output")
+```
+
+**Returns:** 0 on success, 1 on failure.
+
+**Note:** Does not create parent directories. Use `dir_create_all` for that.
+
+### `dir_remove(path: string) -> int`
+Removes an empty directory.
+
+```nano
+let status: int = (dir_remove "temp")
+```
+
+**Returns:** 0 on success, 1 on failure.
+
+**Warning:** Directory must be empty. Use recursion for non-empty directories.
+
+### `dir_list(path: string) -> array<string>`
+Lists all entries in a directory.
+
+```nano
+let entries: array<string> = (dir_list ".")
+for entry in entries {
+    (println entry)
+}
+```
+
+**Returns:** Array of filenames (not full paths). Empty array on error.
+
+### `chdir(path: string) -> int`
+Changes current working directory.
+
+```nano
+let status: int = (chdir "/tmp")
+let cwd: string = (getcwd)
+(println cwd)  # Prints "/tmp"
+```
+
+**Returns:** 0 on success, 1 on failure.
+
+---
+
+## Path Operations (6)
+
+### `path_join(a: string, b: string) -> string`
+Joins two path components with proper separator.
+
+```nano
+let full_path: string = (path_join "/home/user" "documents")
+# Result: "/home/user/documents"
+```
+
+**Platform-aware:** Uses `/` on Unix, `\` on Windows.
+
+### `path_basename(path: string) -> string`
+Extracts filename from path.
+
+```nano
+let filename: string = (path_basename "/path/to/file.txt")
+# Result: "file.txt"
+```
+
+### `path_dirname(path: string) -> string`
+Extracts directory path.
+
+```nano
+let dir: string = (path_dirname "/path/to/file.txt")
+# Result: "/path/to"
+```
+
+### `path_extension(path: string) -> string`
+Extracts file extension.
+
+```nano
+let ext: string = (path_extension "document.pdf")
+# Result: "pdf"
+```
+
+### `path_normalize(path: string) -> string`
+Normalizes path (removes `.`, `..`, redundant separators).
+
+```nano
+let clean: string = (path_normalize "./foo/../bar/./baz")
+# Result: "bar/baz"
+```
+
+### `path_absolute(path: string) -> string`
+Converts relative path to absolute path.
+
+```nano
+let abs: string = (path_absolute "file.txt")
+# Result: "/current/working/dir/file.txt"
+```
+
+---
+
+## Process Operations (5)
+
+### `system(command: string) -> int`
+Executes shell command and waits for completion.
+
+```nano
+let status: int = (system "ls -la")
+```
+
+**Returns:** Exit code from command (0 typically means success).
+
+**Warning:** Use with caution. Command injection risk with user input.
+
+### `exit(code: int) -> void`
+Terminates program with exit code.
+
+```nano
+if (not (file_exists "required.txt")) {
+    (println "Error: required.txt not found")
+    (exit 1)
+}
+```
+
+**Note:** Does not return. Exits immediately.
+
+### `getenv(name: string) -> string`
+Gets environment variable value.
+
+```nano
+let home: string = (getenv "HOME")
+let user: string = (getenv "USER")
+```
+
+**Returns:** Variable value, or empty string if not set.
+
+### `setenv(name: string, value: string) -> int`
+Sets environment variable for current process.
+
+```nano
+let status: int = (setenv "MY_VAR" "my_value")
+```
+
+**Returns:** 0 on success, 1 on failure.
+
+**Scope:** Only affects current process and child processes.
+
+### `unsetenv(name: string) -> int`
+Removes environment variable.
+
+```nano
+let status: int = (unsetenv "MY_VAR")
+```
+
+**Returns:** 0 on success, 1 on failure.
+
+---
+
+## Advanced Math Functions (15)
+
+### Exponential and Logarithmic
+
+#### `exp(x: float) -> float`
+Returns e^x (exponential function).
+
+```nano
+let result: float = (exp 2.0)  # e^2 ≈ 7.389
+```
+
+#### `log(x: float) -> float`
+Natural logarithm (base e).
+
+```nano
+let result: float = (log 10.0)  # ln(10) ≈ 2.303
+```
+
+#### `log10(x: float) -> float`
+Base-10 logarithm.
+
+```nano
+let result: float = (log10 100.0)  # Result: 2.0
+```
+
+#### `log2(x: float) -> float`
+Base-2 logarithm.
+
+```nano
+let result: float = (log2 8.0)  # Result: 3.0
+```
+
+### Hyperbolic Functions
+
+#### `sinh(x: float) -> float`
+Hyperbolic sine.
+
+```nano
+let result: float = (sinh 1.0)
+```
+
+#### `cosh(x: float) -> float`
+Hyperbolic cosine.
+
+```nano
+let result: float = (cosh 1.0)
+```
+
+#### `tanh(x: float) -> float`
+Hyperbolic tangent.
+
+```nano
+let result: float = (tanh 0.5)
+```
+
+#### `asinh(x: float) -> float`
+Inverse hyperbolic sine.
+
+#### `acosh(x: float) -> float`
+Inverse hyperbolic cosine.
+
+#### `atanh(x: float) -> float`
+Inverse hyperbolic tangent.
+
+### Advanced Operations
+
+#### `cbrt(x: float) -> float`
+Cube root.
+
+```nano
+let result: float = (cbrt 27.0)  # Result: 3.0
+```
+
+#### `hypot(x: float, y: float) -> float`
+Hypotenuse: sqrt(x² + y²).
+
+```nano
+let dist: float = (hypot 3.0 4.0)  # Result: 5.0
+```
+
+#### `fmod(x: float, y: float) -> float`
+Floating-point remainder.
+
+```nano
+let remainder: float = (fmod 5.5 2.0)  # Result: 1.5
+```
+
+#### `copysign(x: float, y: float) -> float`
+Returns x with sign of y.
+
+```nano
+let result: float = (copysign 3.0 -1.0)  # Result: -3.0
+```
+
+#### `fmax(x: float, y: float) -> float`
+Maximum of two floats (handles NaN correctly).
+
+```nano
+let max_val: float = (fmax 3.5 2.1)  # Result: 3.5
+```
+
+#### `fmin(x: float, y: float) -> float`
+Minimum of two floats (handles NaN correctly).
+
+```nano
+let min_val: float = (fmin 3.5 2.1)  # Result: 2.1
+```
+
+---
+
+## Type Conversion (6)
+
+### `int_to_string(n: int) -> string`
+Converts integer to string.
+
+```nano
+let s: string = (int_to_string 42)  # "42"
+```
+
+### `float_to_string(f: float) -> string`
+Converts float to string.
+
+```nano
+let s: string = (float_to_string 3.14)  # "3.14"
+```
+
+### `string_to_int(s: string) -> int`
+Parses string to integer.
+
+```nano
+let n: int = (string_to_int "123")  # 123
+```
+
+**Returns:** Parsed integer, or 0 if parsing fails.
+
+### `string_to_float(s: string) -> float`
+Parses string to float.
+
+```nano
+let f: float = (string_to_float "3.14")  # 3.14
+```
+
+**Returns:** Parsed float, or 0.0 if parsing fails.
+
+### `bool_to_string(b: bool) -> string`
+Converts boolean to string.
+
+```nano
+let s: string = (bool_to_string true)  # "true"
+```
+
+### `char_to_string(c: int) -> string`
+Converts character code to string.
+
+```nano
+let s: string = (char_to_string 65)  # "A"
+```
+
+---
+
+## Character Operations (5)
+
+### `char_at(s: string, index: int) -> int`
+Gets character code at index.
+
+```nano
+let code: int = (char_at "Hello" 0)  # 72 ('H')
+```
+
+**Returns:** Character code (0-127 for ASCII), or 0 if index out of bounds.
+
+### `char_to_lower(c: int) -> int`
+Converts character code to lowercase.
+
+```nano
+let lower: int = (char_to_lower 65)  # 97 ('a')
+```
+
+### `char_to_upper(c: int) -> int`
+Converts character code to uppercase.
+
+```nano
+let upper: int = (char_to_upper 97)  # 65 ('A')
+```
+
+### `digit_value(c: int) -> int`
+Converts digit character to numeric value.
+
+```nano
+let val: int = (digit_value 53)  # 5 (from '5')
+```
+
+**Returns:** Digit value (0-9), or -1 if not a digit.
+
+### `string_from_char(c: int) -> string`
+Creates single-character string from code.
+
+```nano
+let s: string = (string_from_char 65)  # "A"
+```
+
+---
+
+## Array Advanced Operations (5)
+
+### `array_push(arr: mut array<T>, value: T) -> void`
+Appends element to end of array.
+
+```nano
+let mut numbers: array<int> = [1, 2, 3]
+(array_push numbers 4)
+# numbers is now [1, 2, 3, 4]
+```
+
+**Requires:** Array must be declared `mut`.
+
+### `array_pop(arr: mut array<int>) -> int`
+Removes and returns last element.
+
+```nano
+let mut stack: array<int> = [1, 2, 3]
+let last: int = (array_pop stack)  # 3
+# stack is now [1, 2]
+```
+
+**Returns:** Last element, or 0 if array empty.
+
+### `array_slice(arr: array<T>, start: int, length: int) -> array<T>`
+Creates sub-array from portion of array.
+
+```nano
+let numbers: array<int> = [1, 2, 3, 4, 5]
+let subset: array<int> = (array_slice numbers 1 3)
+# subset is [2, 3, 4]
+```
+
+### `array_remove_at(arr: mut array<T>, index: int) -> void`
+Removes element at index, shifting remaining elements.
+
+```nano
+let mut items: array<int> = [10, 20, 30, 40]
+(array_remove_at items 1)
+# items is now [10, 30, 40]
+```
+
+### `filter(arr: array<T>, predicate: fn(T) -> bool) -> array<T>`
+Creates new array with elements matching predicate.
+
+```nano
+fn is_even(n: int) -> bool {
+    return (== (% n 2) 0)
+}
+
+let numbers: array<int> = [1, 2, 3, 4, 5, 6]
+let evens: array<int> = (filter numbers is_even)
+# evens is [2, 4, 6]
+```
 
 ---
 
@@ -728,7 +1385,36 @@ Planned for future releases:
 - Type checking happens at compile time
 - Shadow tests execute during compilation to verify stdlib correctness
 
-**Total Functions:** 24 (3 I/O + 11 Math + 5 String + 4 Array + 3 OS)  
-**Test Coverage:** 100%  
-**Documentation:** Complete
+**Total Functions:** 72 across 9 categories (see spec.json for authoritative list)
+- I/O: 3 functions (print, println, assert)
+- Math: 11 functions (abs, min, max, sqrt, pow, floor, ceil, round, sin, cos, tan)
+- String: 18 functions (char operations, classification, conversions)
+- Binary String: 12 functions (bstring operations for binary data)
+- Array: 10 functions (at, length, new, set, push, pop, remove_at, filter, map, reduce)
+- OS: 3 functions (getcwd, getenv, range)
+- Generics: 4 functions (List<T> operations)
+- Checked Math: 5 functions (overflow-safe arithmetic)
+
+**Documentation Status:** 86 of 166 builtin functions documented (52% coverage)
+
+**Categories:**
+- Core I/O: 3 functions
+- Math Operations: 26 functions (basic, advanced, trigonometric, hyperbolic)
+- String Operations: 18 functions
+- Character Operations: 11 functions
+- Type Conversion: 6 functions
+- Array Operations: 9 functions
+- HashMap Operations: 10 functions (interpreter-only)
+- File Operations: 10 functions
+- Directory Operations: 5 functions
+- Path Operations: 6 functions
+- Process Operations: 5 functions
+- Binary String Operations: 8 functions
+- Result Type Operations: 5 functions
+
+**Remaining:** 71 functions need documentation (checked math, map operations, additional string functions, etc.)
+
+**HashMap Note:** HashMap operations are interpreter-only and not available in compiled code.
+
+**Test Coverage:** All functions have shadow tests in their implementation
 
