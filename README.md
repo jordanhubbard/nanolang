@@ -58,11 +58,35 @@ Run it:
 ./hello
 ```
 
-## Interactive REPL 🎮
+## Interactive Development 🎮
 
-NanoLang includes a **full-featured REPL** (Read-Eval-Print Loop) for interactive development, experimentation, and learning.
+NanoLang includes **two interactive development tools** for learning and experimentation:
 
-### Quick Start
+### 1. Web Playground (Recommended for Beginners)
+
+Browser-based playground inspired by Swift Playgrounds:
+
+```bash
+# Build and start the playground server
+./bin/nanoc examples/playground/playground_server.nano -o bin/playground
+./bin/playground
+
+# Open in your browser
+open http://localhost:8080
+```
+
+**Features:**
+- 📝 Interactive code editor
+- 📚 10+ example programs
+- ⚡ Real-time syntax validation
+- 📋 Copy/download functionality
+- 🎨 Beautiful modern UI
+
+See **[examples/playground/README.md](examples/playground/README.md)** for full documentation.
+
+### 2. Terminal REPL
+
+Full-featured command-line REPL:
 
 ```bash
 # Build the REPL
