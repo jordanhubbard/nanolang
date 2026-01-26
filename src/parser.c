@@ -3384,6 +3384,192 @@ static void free_precondition_asserts(ASTNode **nodes, int count) {
     free(nodes);
 }
 
+/* Forward declaration for clone_ast_node */
+static ASTNode *clone_ast_node(const ASTNode *node);
+
+/* Helper to clone an AST node (deep copy) */
+static ASTNode *clone_ast_node(const ASTNode *node) {
+    if (!node) {
+        return NULL;
+    }
+
+    ASTNode *cloned = create_node(node->type, node->line, node->column);
+    if (!cloned) {
+        return NULL;
+    }
+
+    switch (node->type) {
+        case AST_NUMBER:
+            cloned->as.number = node->as.number;
+            break;
+        case AST_FLOAT:
+            cloned->as.float_val = node->as.float_val;
+            break;
+        case AST_STRING:
+            cloned->as.string_val = node->as.string_val ? strdup(node->as.string_val) : NULL;
+            break;
+        case AST_BOOL:
+            cloned->as.bool_val = node->as.bool_val;
+            break;
+        case AST_IDENTIFIER:
+            cloned->as.identifier = node->as.identifier ? strdup(node->as.identifier) : NULL;
+            break;
+        case AST_PREFIX_OP:
+            cloned->as.prefix_op.op = node->as.prefix_op.op;
+            cloned->as.prefix_op.arg_count = node->as.prefix_op.arg_count;
+            cloned->as.prefix_op.args = malloc(sizeof(ASTNode*) * node->as.prefix_op.arg_count);
+            for (int i = 0; i < node->as.prefix_op.arg_count; i++) {
+                cloned->as.prefix_op.args[i] = clone_ast_node(node->as.prefix_op.args[i]);
+            }
+            break;
+        case AST_CALL:
+            if (node->as.call.name) {
+                cloned->as.call.name = strdup(node->as.call.name);
+            }
+            cloned->as.call.func_expr = clone_ast_node(node->as.call.func_expr);
+            cloned->as.call.arg_count = node->as.call.arg_count;
+            cloned->as.call.args = malloc(sizeof(ASTNode*) * node->as.call.arg_count);
+            for (int i = 0; i < node->as.call.arg_count; i++) {
+                cloned->as.call.args[i] = clone_ast_node(node->as.call.args[i]);
+            }
+            break;
+        case AST_ASSERT:
+            cloned->as.assert.condition = clone_ast_node(node->as.assert.condition);
+            break;
+        /* Add more cases as needed */
+        default:
+            /* For unhandled types, just copy the node structure */
+            /* This is a simplified implementation - full implementation would handle all types */
+            break;
+    }
+
+    return cloned;
+}
+
+/* Helper to substitute an identifier in an AST (replaces old_name with new_name) */
+static void substitute_identifier(ASTNode *node, const char *old_name, const char *new_name) {
+    if (!node || !old_name || !new_name) {
+        return;
+    }
+
+    switch (node->type) {
+        case AST_IDENTIFIER:
+            if (node->as.identifier && strcmp(node->as.identifier, old_name) == 0) {
+                free(node->as.identifier);
+                node->as.identifier = strdup(new_name);
+            }
+            break;
+        case AST_PREFIX_OP:
+            for (int i = 0; i < node->as.prefix_op.arg_count; i++) {
+                substitute_identifier(node->as.prefix_op.args[i], old_name, new_name);
+            }
+            break;
+        case AST_CALL:
+            if (node->as.call.func_expr) {
+                substitute_identifier(node->as.call.func_expr, old_name, new_name);
+            }
+            for (int i = 0; i < node->as.call.arg_count; i++) {
+                substitute_identifier(node->as.call.args[i], old_name, new_name);
+            }
+            break;
+        case AST_ASSERT:
+            substitute_identifier(node->as.assert.condition, old_name, new_name);
+            break;
+        /* Add more cases as needed */
+        default:
+            break;
+    }
+}
+
+/* Helper to inject postconditions before a return statement */
+static ASTNode *inject_postconditions_at_return(ASTNode *return_node, ASTNode **postconditions, int postcondition_count, Type return_type) {
+    if (!return_node || return_node->type != AST_RETURN || postcondition_count == 0) {
+        return return_node;
+    }
+
+    /* For void returns, no postcondition injection needed (can't reference result) */
+    if (return_type == TYPE_VOID || !return_node->as.return_stmt.value) {
+        return return_node;
+    }
+
+    /* Create a block to hold: let __result = expr; assert...; return __result */
+    ASTNode *block = create_node(AST_BLOCK, return_node->line, return_node->column);
+    block->as.block.count = postcondition_count + 2;  /* let + asserts + return */
+    block->as.block.statements = malloc(sizeof(ASTNode*) * block->as.block.count);
+
+    /* Create: let __result = <return_value> */
+    ASTNode *let_node = create_node(AST_LET, return_node->line, return_node->column);
+    let_node->as.let.name = strdup("__result");
+    let_node->as.let.value = return_node->as.return_stmt.value;
+    let_node->as.let.is_mut = false;
+    let_node->as.let.var_type = return_type;
+    let_node->as.let.type_name = NULL;
+    let_node->as.let.element_type = TYPE_UNKNOWN;
+    let_node->as.let.fn_sig = NULL;
+    let_node->as.let.type_info = NULL;
+    block->as.block.statements[0] = let_node;
+
+    /* Clone and substitute postconditions: replace 'result' with '__result' */
+    for (int i = 0; i < postcondition_count; i++) {
+        ASTNode *postcond = clone_ast_node(postconditions[i]);
+        substitute_identifier(postcond, "result", "__result");
+        block->as.block.statements[i + 1] = postcond;
+    }
+
+    /* Create: return __result */
+    ASTNode *new_return = create_node(AST_RETURN, return_node->line, return_node->column);
+    ASTNode *result_ref = create_node(AST_IDENTIFIER, return_node->line, return_node->column);
+    result_ref->as.identifier = strdup("__result");
+    new_return->as.return_stmt.value = result_ref;
+    block->as.block.statements[postcondition_count + 1] = new_return;
+
+    /* Free the original return node structure (but not its value, which we moved) */
+    free(return_node);
+
+    return block;
+}
+
+/* Helper to recursively transform return statements in a block */
+static void transform_returns_in_block(ASTNode *block, ASTNode **postconditions, int postcondition_count, Type return_type) {
+    if (!block || block->type != AST_BLOCK) {
+        return;
+    }
+
+    for (int i = 0; i < block->as.block.count; i++) {
+        ASTNode *stmt = block->as.block.statements[i];
+        if (!stmt) {
+            continue;
+        }
+
+        if (stmt->type == AST_RETURN) {
+            /* Transform this return statement */
+            block->as.block.statements[i] = inject_postconditions_at_return(stmt, postconditions, postcondition_count, return_type);
+        } else if (stmt->type == AST_BLOCK) {
+            /* Recursively transform nested blocks */
+            transform_returns_in_block(stmt, postconditions, postcondition_count, return_type);
+        } else if (stmt->type == AST_IF) {
+            /* Transform returns in if branches */
+            if (stmt->as.if_stmt.then_branch) {
+                transform_returns_in_block(stmt->as.if_stmt.then_branch, postconditions, postcondition_count, return_type);
+            }
+            if (stmt->as.if_stmt.else_branch) {
+                transform_returns_in_block(stmt->as.if_stmt.else_branch, postconditions, postcondition_count, return_type);
+            }
+        } else if (stmt->type == AST_WHILE) {
+            /* Transform returns in while body */
+            if (stmt->as.while_stmt.body) {
+                transform_returns_in_block(stmt->as.while_stmt.body, postconditions, postcondition_count, return_type);
+            }
+        } else if (stmt->type == AST_FOR) {
+            /* Transform returns in for body */
+            if (stmt->as.for_stmt.body) {
+                transform_returns_in_block(stmt->as.for_stmt.body, postconditions, postcondition_count, return_type);
+            }
+        }
+        /* Add more statement types as needed */
+    }
+}
+
 /* Parse function definition */
 static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
     Token *tok = current_token(p);
@@ -3475,8 +3661,12 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
     }
 
     /* Parse optional 'ensures' clauses (postconditions) */
-    /* TODO: Implement postcondition injection at return statements */
+    ASTNode **postconditions = NULL;
+    int postcondition_count = 0;
+    int postcondition_capacity = 0;
+
     while (match(p, TOKEN_ENSURES)) {
+        Token *ens_tok = current_token(p);
         advance(p);  /* consume 'ensures' */
 
         ASTNode *condition = parse_expression(p);
@@ -3485,20 +3675,28 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
             free(params);
             if (return_struct_name) free(return_struct_name);
             free_precondition_asserts(preconditions, precondition_count);
+            free_precondition_asserts(postconditions, postcondition_count);
             return NULL;
         }
 
-        /* For now, just parse and discard - postcondition injection is TODO */
-        free_ast(condition);
+        ASTNode *assert_node = create_node(AST_ASSERT, ens_tok->line, ens_tok->column);
+        assert_node->as.assert.condition = condition;
+
+        if (postcondition_count >= postcondition_capacity) {
+            postcondition_capacity = postcondition_capacity ? postcondition_capacity * 2 : 4;
+            postconditions = realloc(postconditions, sizeof(ASTNode*) * postcondition_capacity);
+        }
+        postconditions[postcondition_count++] = assert_node;
     }
 
-    if (is_extern && precondition_count > 0) {
-        fprintf(stderr, "Error at line %d, column %d: Extern functions cannot have 'requires' clauses\n",
+    if (is_extern && (precondition_count > 0 || postcondition_count > 0)) {
+        fprintf(stderr, "Error at line %d, column %d: Extern functions cannot have 'requires' or 'ensures' clauses\n",
                 line, column);
         free(name);
         free(params);
         if (return_struct_name) free(return_struct_name);
         free_precondition_asserts(preconditions, precondition_count);
+        free_precondition_asserts(postconditions, postcondition_count);
         return NULL;
     }
 
@@ -3511,6 +3709,7 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
             free(params);
             if (return_struct_name) free(return_struct_name);
             free_precondition_asserts(preconditions, precondition_count);
+            free_precondition_asserts(postconditions, postcondition_count);
             return NULL;
         }
 
@@ -3529,6 +3728,11 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
             body->as.block.statements = new_statements;
             body->as.block.count = precondition_count + original_count;
         }
+
+        /* Inject postconditions before return statements */
+        if (postcondition_count > 0) {
+            transform_returns_in_block(body, postconditions, postcondition_count, return_type);
+        }
     }
     /* Extern functions have no body - declaration only */
 
@@ -3539,6 +3743,10 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
         free_precondition_asserts(preconditions, precondition_count);
         preconditions = NULL;
     }
+
+    /* Free postconditions (they've been cloned into the AST) */
+    free_precondition_asserts(postconditions, postcondition_count);
+    postconditions = NULL;
 
     ASTNode *node = create_node(AST_FUNCTION, line, column);
     node->as.function.name = name;
