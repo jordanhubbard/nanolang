@@ -1,0 +1,179 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "NanoLang",
+  "scopeName": "source.nanolang",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#types"
+    },
+    {
+      "include": "#storage"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#functions"
+    },
+    {
+      "include": "#constants"
+    },
+    {
+      "include": "#variables"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.nanolang",
+          "match": "#.*$"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.nanolang",
+          "match": "\\b(if|else|while|for|in|match|return|break|continue|cond)\\b"
+        },
+        {
+          "name": "keyword.other.nanolang",
+          "match": "\\b(fn|struct|enum|union|let|mut|set|import|from|export|pub|extern|unsafe|shadow|assert|static)\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "storage.type.primitive.nanolang",
+          "match": "\\b(int|float|string|bool|void|bstring)\\b"
+        },
+        {
+          "name": "storage.type.generic.nanolang",
+          "match": "\\b(array|List|HashMap|Option|Result)\\b"
+        },
+        {
+          "name": "storage.type.user.nanolang",
+          "match": "\\b[A-Z][A-Za-z0-9_]*\\b"
+        }
+      ]
+    },
+    "storage": {
+      "patterns": [
+        {
+          "name": "storage.modifier.nanolang",
+          "match": "\\b(mut|pub|extern|unsafe|static)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.nanolang",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.nanolang",
+              "match": "\\\\(n|t|r|\\\\|\"|'|x[0-9a-fA-F]{2}|u\\{[0-9a-fA-F]+\\})"
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.nanolang",
+          "match": "\\b\\d+\\.\\d+([eE][+-]?\\d+)?\\b"
+        },
+        {
+          "name": "constant.numeric.integer.nanolang",
+          "match": "\\b\\d+\\b"
+        },
+        {
+          "name": "constant.numeric.hex.nanolang",
+          "match": "\\b0x[0-9a-fA-F]+\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.arithmetic.nanolang",
+          "match": "\\b(\\+|-|\\*|/|%)\\b"
+        },
+        {
+          "name": "keyword.operator.comparison.nanolang",
+          "match": "\\b(==|!=|<|>|<=|>=)\\b"
+        },
+        {
+          "name": "keyword.operator.logical.nanolang",
+          "match": "\\b(and|or|not)\\b"
+        },
+        {
+          "name": "keyword.operator.other.nanolang",
+          "match": "\\b(at|cast|sizeof)\\b"
+        }
+      ]
+    },
+    "functions": {
+      "patterns": [
+        {
+          "name": "entity.name.function.definition.nanolang",
+          "match": "\\b(fn)\\s+([a-z_][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.nanolang"
+            },
+            "2": {
+              "name": "entity.name.function.nanolang"
+            }
+          }
+        },
+        {
+          "name": "entity.name.function.call.nanolang",
+          "match": "\\(([a-z_][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.nanolang"
+            }
+          }
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.nanolang",
+          "match": "\\b(true|false)\\b"
+        },
+        {
+          "name": "constant.language.null.nanolang",
+          "match": "\\bnull\\b"
+        }
+      ]
+    },
+    "variables": {
+      "patterns": [
+        {
+          "name": "variable.other.nanolang",
+          "match": "\\b[a-z_][a-zA-Z0-9_]*\\b"
+        }
+      ]
+    }
+  }
+}
