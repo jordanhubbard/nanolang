@@ -140,6 +140,38 @@ Returns the tangent of x (in radians).
 (tan 0.7854)    # Returns ≈1.0 (π/4)
 ```
 
+#### `asin(x: float) -> float`
+Returns the arcsine of x (inverse sine) in radians.
+
+```nano
+(asin 1.0)      # Returns ≈1.5708 (π/2)
+(asin 0.5)      # Returns ≈0.5236 (π/6)
+```
+
+**Domain:** -1.0 to 1.0
+**Range:** -π/2 to π/2
+
+#### `acos(x: float) -> float`
+Returns the arccosine of x (inverse cosine) in radians.
+
+```nano
+(acos 1.0)      # Returns 0.0
+(acos 0.0)      # Returns ≈1.5708 (π/2)
+```
+
+**Domain:** -1.0 to 1.0
+**Range:** 0 to π
+
+#### `atan(x: float) -> float`
+Returns the arctangent of x (inverse tangent) in radians.
+
+```nano
+(atan 1.0)      # Returns ≈0.7854 (π/4)
+(atan 0.0)      # Returns 0.0
+```
+
+**Range:** -π/2 to π/2
+
 ---
 
 ## String Operations (18)
@@ -302,6 +334,20 @@ Returns true if the character is a lowercase letter (a-z).
 (is_lower 65)   # Returns false ('A')
 (is_lower 48)   # Returns false ('0')
 ```
+
+**C-Style Aliases:** The following C standard library function names are also available as aliases:
+- `isdigit` (alias for `is_digit`)
+- `isalpha` (alias for `is_alpha`)
+- `isalnum` (alias for `is_alnum`)
+- `isspace` (alias for `is_whitespace`)
+- `isupper` (alias for `is_upper`)
+- `islower` (alias for `is_lower`)
+- `isprint` (returns true for printable characters)
+- `ispunct` (returns true for punctuation characters)
+- `tolower` (alias for `char_to_lower`)
+- `toupper` (alias for `char_to_upper`)
+
+These aliases exist for compatibility with C code and familiarity. Prefer the `is_*` style in new code.
 
 ### Type Conversions (5)
 
@@ -840,6 +886,20 @@ let cwd: string = (getcwd)
 
 **Returns:** 0 on success, 1 on failure.
 
+### `fs_walkdir(path: string, callback: fn(string) -> void) -> void`
+Recursively walks directory tree, calling callback for each file.
+
+```nano
+fn print_file(filepath: string) -> void {
+    (println filepath)
+}
+
+# Print all files in current directory recursively
+(fs_walkdir "." print_file)
+```
+
+**Use case:** Find all files matching a pattern, calculate total size, etc.
+
 ---
 
 ## Path Operations (6)
@@ -1061,9 +1121,18 @@ Minimum of two floats (handles NaN correctly).
 let min_val: float = (fmin 3.5 2.1)  # Result: 2.1
 ```
 
+#### `fabs(x: float) -> float`
+Absolute value for floats.
+
+```nano
+let val: float = (fabs -3.5)  # Result: 3.5
+```
+
+**Note:** For integers, use `abs`.
+
 ---
 
-## Type Conversion (6)
+## Type Conversion (10)
 
 ### `int_to_string(n: int) -> string`
 Converts integer to string.
@@ -1110,6 +1179,45 @@ Converts character code to string.
 ```nano
 let s: string = (char_to_string 65)  # "A"
 ```
+
+### `cast_int(value: any) -> int`
+Casts value to integer.
+
+```nano
+let i: int = (cast_int 3.14)  # 3
+let i2: int = (cast_int "42")  # 42
+```
+
+**Note:** Truncates floats, parses strings.
+
+### `cast_float(value: any) -> float`
+Casts value to float.
+
+```nano
+let f: float = (cast_float 42)  # 42.0
+let f2: float = (cast_float "3.14")  # 3.14
+```
+
+### `cast_string(value: any) -> string`
+Casts value to string.
+
+```nano
+let s: string = (cast_string 42)  # "42"
+let s2: string = (cast_string 3.14)  # "3.14"
+let s3: string = (cast_string true)  # "true"
+```
+
+### `cast_bool(value: any) -> bool`
+Casts value to boolean.
+
+```nano
+let b: bool = (cast_bool 1)  # true
+let b2: bool = (cast_bool 0)  # false
+let b3: bool = (cast_bool "")  # false
+let b4: bool = (cast_bool "hello")  # true
+```
+
+**Rules:** 0, empty string, null → false; everything else → true
 
 ---
 
@@ -1672,7 +1780,7 @@ Planned for future releases:
 - Generics: 4 functions (List<T> operations)
 - Checked Math: 5 functions (overflow-safe arithmetic)
 
-**Documentation Status:** 151 of 166 builtin functions documented (91% coverage)
+**Documentation Status:** 160+ of 166 builtin functions documented (96%+ coverage)
 
 **Categories:**
 - Core I/O: 3 functions
