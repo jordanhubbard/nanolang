@@ -13,7 +13,7 @@
 # Check if GNU make is being used and delegate to Makefile.gnu
 # This uses only portable syntax that both BSD make and GNU make understand
 
-.PHONY: all build test test-docs examples clean help
+.PHONY: all build test test-docs examples clean help coverage coverage-report
 
 all:
 	@if $(MAKE) --version 2>/dev/null | grep -q 'GNU Make' 2>/dev/null; then \
@@ -43,7 +43,7 @@ all:
 		exit 1; \
 	fi
 
-build test test-docs examples clean help install uninstall:
+build test test-docs examples clean help install uninstall coverage coverage-report:
 	@if $(MAKE) --version 2>/dev/null | grep -q 'GNU Make' 2>/dev/null; then \
 		$(MAKE) -f Makefile.gnu $@; \
 	else \

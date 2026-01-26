@@ -42,7 +42,18 @@ Complete language documentation:
    - First-class functions
    - Module system
 
-5.5. **Arrays & Memory**
+5.5. **Type System Deep Dives**
+   - [Type Inference Rules](TYPE_INFERENCE.md) - What can/cannot be inferred
+   - [Generics Deep Dive](GENERICS_DEEP_DIVE.md) - Monomorphization explained
+   - [Error Messages Guide](ERROR_MESSAGES.md) - Understanding compiler errors
+
+5.6. **Strings & Text**
+   - [Unicode Support](UNICODE.md) - UTF-8, string vs bstring, limitations
+
+5.7. **Performance**
+   - [Performance Characteristics](PERFORMANCE.md) - Speed, memory, optimization
+
+5.8. **Arrays & Memory**
    - [Array Safety](ARRAY_SAFETY.md)
    - [Dynamic Arrays](DYNAMIC_ARRAYS.md)
    - [Memory Management](MEMORY_MANAGEMENT.md)
@@ -59,22 +70,26 @@ Understanding nanolang's testing philosophy:
    - Writing good tests
    - Best practices
 
-8. **[Feature Coverage](../tests/FEATURE_COVERAGE.md)** - Test suite overview
+8. **[Code Coverage](COVERAGE.md)** - Coverage reporting and tracking
+   - Generating coverage reports
+   - Coverage targets by component
+   - Interpreting results
+   - [Coverage Status](COVERAGE_STATUS.md)
+
+9. **[Feature Coverage](../tests/FEATURE_COVERAGE.md)** - Test suite overview
 
 ### 🏗️ Architecture & Design
 
 For contributors and language designers:
 
-9. **Design + implementation notes**
-   - Maintainer-facing design docs live in [planning/](../planning/)
+10. **Design + implementation notes**
+    - Maintainer-facing design docs live in [planning/](../planning/)
 
-10. **[Language Design Review](LANGUAGE_DESIGN_REVIEW.md)** - Design philosophy
+11. **[Language Design Review](LANGUAGE_DESIGN_REVIEW.md)** - Design philosophy
     - Why prefix notation?
     - LLM-friendly design
     - Comparison to other languages
     - Design trade-offs
-
-11. (See also: [Language Design Review](LANGUAGE_DESIGN_REVIEW.md))
 
 ### 🔧 Advanced Topics
 
@@ -85,6 +100,7 @@ For experienced users:
     - FFI (Foreign Function Interface)
     - Building C extensions
     - Automatic module building
+    - [Namespace Usage](NAMESPACE_USAGE.md) - Import patterns and best practices
 
 13. **[Platform Compatibility](PLATFORM_COMPATIBILITY.md)** - Cross-platform guide
     - macOS and Linux support
@@ -93,6 +109,8 @@ For experienced users:
     - Known limitations
 
 14. **[Extern FFI](EXTERN_FFI.md)** - Calling C functions from nanolang
+    - FFI safety guidelines
+    - Common vulnerabilities and fixes
 
 15. **[Building Hybrid Apps](BUILDING_HYBRID_APPS.md)** - Combining nanolang with C
 
@@ -101,8 +119,10 @@ For experienced users:
 Project status and future plans:
 
 16. **[Roadmap](ROADMAP.md)** - Future development plans
-17. **[Spec / Coverage Audit](../SPEC_AUDIT.md)** - Gaps tracked for LLM/implementation parity
-18. **[Self-Hosting Checklist](../planning/SELF_HOSTING_CHECKLIST.md)** - Path to self-hosting
+17. **[RFC Process](RFC_PROCESS.md)** - Language evolution process
+18. **[Package Manager Design](PACKAGE_MANAGER_DESIGN.md)** - Package manager proposal
+19. **[Spec / Coverage Audit](../SPEC_AUDIT.md)** - Gaps tracked for LLM/implementation parity
+20. **[Self-Hosting Checklist](../planning/SELF_HOSTING_CHECKLIST.md)** - Path to self-hosting
 
 ### 🤝 Contributing
 

@@ -124,9 +124,11 @@ These platforms should work but are not actively tested in CI:
 ### Key Topics
 
 - **[Standard Library](docs/STDLIB.md)** - Built-in functions
+- **[Type Inference](docs/TYPE_INFERENCE.md)** - What can/cannot be inferred
 - **[Module System](docs/MODULE_SYSTEM.md)** - Creating and using modules
 - **[FFI Guide](docs/EXTERN_FFI.md)** - Calling C functions
 - **[Shadow Tests](docs/SHADOW_TESTS.md)** - Testing philosophy
+- **[Code Coverage](docs/COVERAGE.md)** - Coverage reporting
 - **[All Documentation](docs/DOCS_INDEX.md)** - Complete index
 
 ## Language Overview
@@ -285,6 +287,9 @@ make examples
 # Launch the examples browser
 make examples-launcher
 
+# Generate code coverage report (requires: brew install lcov)
+make coverage-report
+
 # Validate user guide snippets (extract → compile → run)
 make userguide-check
 
@@ -349,7 +354,7 @@ See **[CONTRIBUTING.md](CONTRIBUTING.md)** for guidelines.
 - ✅ Static typing with inference
 - ✅ Structs, enums, unions, generics
 - ✅ Module system with auto-dependency management
-- ✅ 49+ standard library functions
+- ✅ 72 standard library functions (see spec.json)
 - ✅ 90+ working examples
 - ✅ Shadow-test framework
 - ✅ FFI support for C libraries

@@ -375,6 +375,34 @@
         "module": "modules/stdlib/checked_math.nano",
         "errors": ["Modulo by zero"]
       }
+    },
+    "hashmap": {
+      "map_new": {
+        "signature": "map_new() -> HashMap<K,V>",
+        "description": "Create empty hash map (type inferred from context)",
+        "types": "K,V can be int or string",
+        "note": "Supported in both interpreter and compiled modes"
+      },
+      "map_put": {
+        "signature": "map_put(HashMap<K,V>, K, V) -> void",
+        "description": "Insert or update key-value pair"
+      },
+      "map_get": {
+        "signature": "map_get(HashMap<K,V>, K) -> V",
+        "description": "Retrieve value by key (returns 0/empty for missing keys)"
+      },
+      "map_has": {
+        "signature": "map_has(HashMap<K,V>, K) -> bool",
+        "description": "Check if key exists in map"
+      },
+      "map_size": {
+        "signature": "map_size(HashMap<K,V>) -> int",
+        "description": "Get number of key-value pairs"
+      },
+      "map_free": {
+        "signature": "map_free(HashMap<K,V>) -> void",
+        "description": "Free hash map memory"
+      }
     }
   },
   
@@ -785,7 +813,7 @@
       "Generics (List<T>) with monomorphization for all types",
       "First-class functions",
       "Mutability tracking (mut keyword)",
-      "Standard library (55+ functions: 3 I/O, 11 math, 18 string, 12 bstring, 10 array, 4 generics)",
+      "Standard library (72 functions: 3 I/O, 11 math, 18 string, 12 bstring, 10 array, 3 OS, 4 generics, 5 checked math, 6 hashmap)",
       "C transpilation with nl_ namespacing",
       "Module system with FFI support",
       "Import system for code organization",
