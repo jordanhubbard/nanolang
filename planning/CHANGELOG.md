@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+[0;34mℹ️  Generating changelog from v2.0.11 to HEAD...[0m
+## [2.0.12] - 2026-01-26
+
+### Added
+- Complete Full-Featured REPL with functions and imports
+- Add multi-line input support to REPL
+- Add multi-type REPL with support for int, float, string, bool
+- Add REPL implementations with persistent variable support
+- Add exhaustiveness checking for match expressions
+- Add color support to error messages
+- Add VS Code extension for NanoLang
+- Add fuzzing infrastructure for compiler robustness
+- Add readline module and REPL examples
+
+### Changed
+- Modularize interpreter and enhance test infrastructure
+- Consolidate REPL into single full-featured example
+- Update simple_repl to use readline module
+
+### Fixed
+- stabilize pi example timing shadow test
+- improve pi timing precision and test
+
 [0;34mℹ️  Generating changelog from v2.0.10 to HEAD...[0m
 ## [2.0.11] - 2026-01-23
 
