@@ -361,13 +361,13 @@ shadow contains {
 
 ## 5.4 for-in-range Loops
 
-The `for` loop is designed for counting iterations.
+The `for` loop uses range iteration for counting.
 
 ### Basic for Loop
 
 ```nano
 fn print_numbers() -> void {
-    for (let i: int = 0) (< i 5) (set i (+ i 1)) {
+    for i in (range 0 5) {
         (println (int_to_string i))
     }
 }
@@ -377,13 +377,19 @@ shadow print_numbers {
 }
 ```
 
-**Syntax:** `for (init) (condition) (update) { body }`
+**Syntax:** `for var in (range start end) { body }`
 
 **Components:**
-1. **init** - Initialize counter: `let i: int = 0`
-2. **condition** - Continue while true: `(< i 5)`
-3. **update** - Increment counter: `(set i (+ i 1))`
-4. **body** - Code to execute
+1. **var** - Loop variable name (immutable within loop)
+2. **range** - Built-in function: `(range start end)`
+3. **start** - First value (inclusive)
+4. **end** - Last value (exclusive)
+5. **body** - Code to execute each iteration
+
+**Range behavior:**
+- `(range 0 5)` yields: 0, 1, 2, 3, 4
+- `(range 1 4)` yields: 1, 2, 3
+- `(range 0 0)` yields nothing (no iterations)
 
 ### Range Iteration
 
@@ -392,7 +398,7 @@ Common pattern: iterate from 0 to n-1:
 ```nano
 fn sum_range(n: int) -> int {
     let mut sum: int = 0
-    for (let i: int = 0) (< i n) (set i (+ i 1)) {
+    for i in (range 0 n) {
         set sum (+ sum i)
     }
     return sum
@@ -406,12 +412,12 @@ shadow sum_range {
 
 ### Loop Variables
 
-The loop variable is scoped to the loop:
+The loop variable is automatically declared and scoped to the loop:
 
 ```nano
 fn use_loop_variable() -> int {
     let mut result: int = 0
-    for (let i: int = 1) (<= i 10) (set i (+ i 1)) {
+    for i in (range 1 11) {
         set result (+ result i)
     }
     # i is not accessible here
@@ -419,16 +425,20 @@ fn use_loop_variable() -> int {
 }
 
 shadow use_loop_variable {
-    assert (== (use_loop_variable) 55)
+    assert (== (use_loop_variable) 55)  # 1+2+3+...+10
 }
 ```
 
 ### Counting Backwards
 
+For descending ranges, use a while loop (range only goes forward):
+
 ```nano
 fn countdown(n: int) -> void {
-    for (let i: int = n) (> i 0) (set i (- i 1)) {
+    let mut i: int = n
+    while (> i 0) {
         (println (int_to_string i))
+        set i (- i 1)
     }
 }
 
@@ -437,28 +447,14 @@ shadow countdown {
 }
 ```
 
-### Stepping by Different Amounts
-
-```nano
-fn sum_evens(n: int) -> int {
-    let mut sum: int = 0
-    for (let i: int = 0) (< i n) (set i (+ i 2)) {
-        set sum (+ sum i)
-    }
-    return sum
-}
-
-shadow sum_evens {
-    assert (== (sum_evens 10) 20)  # 0+2+4+6+8
-}
-```
-
 ### Array Iteration
+
+Iterate over array indices with range:
 
 ```nano
 fn process_array(arr: array<int>) -> int {
     let mut sum: int = 0
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 0 (array_length arr)) {
         set sum (+ sum (array_get arr i))
     }
     return sum
@@ -466,6 +462,26 @@ fn process_array(arr: array<int>) -> int {
 
 shadow process_array {
     assert (== (process_array [10, 20, 30]) 60)
+}
+```
+
+### Custom Step Sizes
+
+For non-unit steps, use while loops:
+
+```nano
+fn sum_evens(n: int) -> int {
+    let mut sum: int = 0
+    let mut i: int = 0
+    while (< i n) {
+        set sum (+ sum i)
+        set i (+ i 2)  # Step by 2
+    }
+    return sum
+}
+
+shadow sum_evens {
+    assert (== (sum_evens 10) 20)  # 0+2+4+6+8
 }
 ```
 
@@ -480,7 +496,7 @@ Building up a result:
 ```nano
 fn multiply_array(arr: array<int>) -> int {
     let mut product: int = 1
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 0 (array_length arr)) {
         set product (* product (array_get arr i))
     }
     return product
@@ -498,7 +514,7 @@ Processing each element:
 
 ```nano
 fn print_array(arr: array<int>) -> void {
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 0 (array_length arr)) {
         (println (int_to_string (array_get arr i)))
     }
 }
@@ -515,7 +531,7 @@ Counting elements that match a condition:
 ```nano
 fn count_positives(arr: array<int>) -> int {
     let mut count: int = 0
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 0 (array_length arr)) {
         if (> (array_get arr i) 0) {
             set count (+ count 1)
         }
@@ -534,7 +550,7 @@ Searching for an element:
 
 ```nano
 fn find_index(arr: array<int>, target: int) -> int {
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 0 (array_length arr)) {
         if (== (array_get arr i) target) {
             return i
         }
@@ -555,7 +571,7 @@ Building a new result based on each element:
 ```nano
 fn double_sum(arr: array<int>) -> int {
     let mut sum: int = 0
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 0 (array_length arr)) {
         let doubled: int = (* (array_get arr i) 2)
         set sum (+ sum doubled)
     }
@@ -573,8 +589,8 @@ Processing multi-dimensional data:
 
 ```nano
 fn multiplication_table(n: int) -> void {
-    for (let i: int = 1) (<= i n) (set i (+ i 1)) {
-        for (let j: int = 1) (<= j n) (set j (+ j 1)) {
+    for i in (range 1 (+ n 1)) {
+        for j in (range 1 (+ n 1)) {
             let product: int = (* i j)
             (println (int_to_string product))
         }
@@ -593,7 +609,7 @@ shadow multiplication_table {
 ```nano
 # Use for when you know the iteration count
 fn count_up(n: int) -> void {
-    for (let i: int = 0) (< i n) (set i (+ i 1)) {
+    for i in (range 0 n) {
         (println (int_to_string i))
     }
 }
@@ -619,7 +635,7 @@ shadow read_until_negative {
 ✅ Good: Extract complex logic into functions
 fn is_prime(n: int) -> bool {
     if (< n 2) { return false }
-    for (let i: int = 2) (< i n) (set i (+ i 1)) {
+    for i in (range 2 n) {
         if (== (% n i) 0) {
             return false
         }
@@ -629,7 +645,7 @@ fn is_prime(n: int) -> bool {
 
 fn count_primes(arr: array<int>) -> int {
     let mut count: int = 0
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 0 (array_length arr)) {
         if (is_prime (array_get arr i)) {
             set count (+ count 1)
         }
@@ -653,7 +669,7 @@ shadow count_primes {
 # ✅ Correct: < for array indices
 fn correct_iteration(arr: array<int>) -> int {
     let mut sum: int = 0
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 0 (array_length arr)) {
         set sum (+ sum (array_get arr i))
     }
     return sum
@@ -662,7 +678,7 @@ fn correct_iteration(arr: array<int>) -> int {
 # ❌ Wrong: <= would go past end
 # fn wrong_iteration(arr: array<int>) -> int {
 #     let mut sum: int = 0
-#     for (let i: int = 0) (<= i (array_length arr)) (set i (+ i 1)) {
+#     for i in (range 0 (+ (array_length arr) 1)) {
 #         set sum (+ sum (array_get arr i))  # Error on last iteration
 #     }
 #     return sum
@@ -688,7 +704,7 @@ In this chapter, you learned:
 # 1. Find maximum using for loop
 fn find_max(arr: array<int>) -> int {
     let mut max: int = (array_get arr 0)
-    for (let i: int = 1) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 1 (array_length arr)) {
         let val: int = (array_get arr i)
         if (> val max) {
             set max val
@@ -703,7 +719,7 @@ shadow find_max {
 
 # 2. Check if all elements are positive
 fn all_positive(arr: array<int>) -> bool {
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 0 (array_length arr)) {
         if (<= (array_get arr i) 0) {
             return false
         }
