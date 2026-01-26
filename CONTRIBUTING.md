@@ -258,6 +258,89 @@ YES / NO - if yes, describe migration path
 - [ ] Self-hosted components updated (if needed)
 ```
 
+## RFC Process for Major Changes
+
+### When to Use an RFC
+
+Use the RFC (Request for Comments) process for **major language changes**:
+
+✅ **Requires RFC:**
+- New language features (new syntax, operators, types)
+- Breaking changes to existing features
+- Major standard library additions
+- Architectural changes to the compiler
+- Changes that affect backward compatibility
+
+❌ **No RFC Needed:**
+- Bug fixes
+- Documentation improvements
+- Performance optimizations (non-breaking)
+- New examples or test cases
+- Minor standard library functions
+
+### RFC Workflow
+
+1. **Draft Phase**
+   ```bash
+   # Create a new RFC using the template
+   cp docs/rfcs/0000-template.md docs/rfcs/0000-my-feature.md
+   # Edit and fill out all sections
+   ```
+
+2. **Proposal Phase**
+   - Open a Pull Request with your RFC
+   - Title: `RFC: Brief description`
+   - Label: `rfc`
+   - Engage with community feedback
+
+3. **Discussion Phase** (typically 1-2 weeks)
+   - Community provides feedback
+   - RFC author addresses concerns
+   - Design is refined through iteration
+
+4. **Final Comment Period (FCP)** (1 week)
+   - RFC enters FCP when design is stable
+   - Last chance for major concerns
+   - Maintainer announces FCP start
+
+5. **Decision**
+   - **Accepted**: Move to `docs/rfcs/accepted/`, implement the feature
+   - **Rejected**: Move to `docs/rfcs/rejected/` with rationale
+   - **Postponed**: Move to `docs/rfcs/postponed/` for future consideration
+
+### RFC Template Sections
+
+Your RFC should include:
+
+- **Summary**: One-paragraph explanation
+- **Motivation**: Why this change is needed
+- **Detailed Design**: Complete specification with examples
+- **Drawbacks**: Potential downsides
+- **Alternatives**: Other approaches considered
+- **Unresolved Questions**: Open issues to discuss
+
+### RFC Best Practices
+
+- **Start small**: Focus on one feature per RFC
+- **Show examples**: Include code examples of the proposed feature
+- **Be specific**: Vague RFCs are hard to evaluate
+- **Consider impact**: How does this affect existing code?
+- **Listen to feedback**: RFCs often improve through discussion
+
+### Example RFC Flow
+
+```
+1. Author creates RFC draft
+2. Opens PR with RFC markdown file
+3. Community discusses (1-2 weeks)
+4. RFC enters FCP (1 week)
+5. Maintainer accepts RFC
+6. Author implements feature
+7. Feature is released in next version
+```
+
+**See also**: `docs/RFC_PROCESS.md` for complete process documentation
+
 ## Questions?
 
 Open an issue or discussion. We're here to help!

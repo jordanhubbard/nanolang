@@ -115,7 +115,7 @@ BOOTSTRAP_VERBOSE_FLAG := -v
 endif
 
 # Source files
-COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c
+COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
 RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_LexerToken.c $(RUNTIME_DIR)/list_token.c \
@@ -605,6 +605,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS) | $(OBJ_DIR)
 $(OBJ_DIR)/runtime/%.o: $(RUNTIME_DIR)/%.c $(HEADERS) | $(OBJ_DIR) $(OBJ_DIR)/runtime
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(OBJ_DIR)/eval/%.o: $(SRC_DIR)/eval/%.c $(HEADERS) | $(OBJ_DIR) $(OBJ_DIR)/eval
+	$(CC) $(CFLAGS) -c $< -o $@
+
 # ============================================================================
 # Stage 2: Self-Hosted Components (compile and test with stage1)
 # ============================================================================
@@ -1070,12 +1073,16 @@ help:
 	@echo "  make verify-no-nanoc_c - Ensure self-hosted compiler never shells out to nanoc_c"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "Development:"
+	@echo "Development & Quality:"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "  make sanitize    - Build with sanitizers"
-	@echo "  make coverage    - Build with coverage"
-	@echo "  make valgrind    - Run memory checks"
-	@echo "  make install     - Install to $(PREFIX)/bin"
+	@echo "  make sanitize        - Build with sanitizers (AddressSanitizer + UBSan)"
+	@echo "  make coverage        - Build with coverage instrumentation"
+	@echo "  make coverage-report - Generate HTML coverage report (requires lcov)"
+	@echo "  make valgrind        - Run memory checks with valgrind"
+	@echo "  make install         - Install to $(PREFIX)/bin"
+	@echo ""
+	@echo "Coverage: Requires lcov (brew install lcov / apt-get install lcov)"
+	@echo "Report generated in: coverage/index.html"
 	@echo ""
 	@echo "Component Build Process:"
 	@echo "  Stage 1: C sources → nanoc + nano"
@@ -1114,6 +1121,9 @@ $(OBJ_DIR):
 
 $(OBJ_DIR)/runtime: | $(OBJ_DIR)
 	mkdir -p $(OBJ_DIR)/runtime
+
+$(OBJ_DIR)/eval: | $(OBJ_DIR)
+	mkdir -p $(OBJ_DIR)/eval
 
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)

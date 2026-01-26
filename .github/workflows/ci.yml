@@ -65,6 +65,11 @@ jobs:
       - name: Run test suite
         run: make test
 
+      - name: Run negative tests
+        run: |
+          cd tests/negative
+          ./run_negative_tests.sh
+
       - name: Validate user guide snippets
         run: make userguide-check
 
@@ -146,6 +151,12 @@ jobs:
           export ASAN_OPTIONS=detect_leaks=0
           make test-units  # Run only unit tests, skip slow integration tests
 
+      - name: Run negative tests with sanitizers
+        run: |
+          export ASAN_OPTIONS=detect_leaks=0
+          cd tests/negative
+          ./run_negative_tests.sh
+
       - name: Show sanitizer error logs on failure
         if: failure()
         shell: bash
@@ -189,6 +200,11 @@ jobs:
 
       - name: Run tests
         run: make test
+
+      - name: Run negative tests
+        run: |
+          cd tests/negative
+          ./run_negative_tests.sh
 
       - name: Show error logs on failure
         if: failure()
