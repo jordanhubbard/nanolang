@@ -311,6 +311,250 @@ Output:
 47
 ```
 
+## 1.6 Interactive REPL
+
+NanoLang includes a **full-featured REPL** (Read-Eval-Print Loop) for interactive development, experimentation, and learning. The REPL is perfect for trying out code, prototyping functions, and learning the language.
+
+### Building the REPL
+
+First, compile the REPL from source:
+
+```bash
+./bin/nanoc examples/language/full_repl.nano -o bin/repl
+```
+
+### Launching the REPL
+
+```bash
+./bin/repl
+```
+
+You'll see the welcome banner:
+
+```
+NanoLang Full-Featured REPL
+============================
+Variables: let x: int = 42
+Functions: fn double(x: int) -> int { return (* x 2) }
+Imports: from "std/math" import sqrt
+Types: :int, :float, :string, :bool
+Commands: :vars, :funcs, :imports, :clear, :quit
+
+nano>
+```
+
+### Basic Usage
+
+#### Variables
+
+Variables you define persist throughout your REPL session:
+
+```nano
+nano> let x: int = 42
+Defined: x
+
+nano> let y: int = 10
+Defined: y
+
+nano> (+ x y)
+=> 52
+
+nano> (* x 2)
+=> 84
+```
+
+#### Functions
+
+Define functions that remain available in the session:
+
+```nano
+nano> fn double(n: int) -> int {
+....>     return (* n 2)
+....> }
+Defined: double(n: int) -> int
+
+nano> (double 21)
+=> 42
+
+nano> (double x)
+=> 84
+```
+
+#### Multi-Line Input
+
+The REPL automatically detects incomplete input and shows a continuation prompt (`....>`):
+
+```nano
+nano> fn factorial(n: int) -> int {
+....>     if (<= n 1) {
+....>         return 1
+....>     } else {
+....>         return (* n (factorial (- n 1)))
+....>     }
+....> }
+Defined: factorial(n: int) -> int
+
+nano> (factorial 5)
+=> 120
+```
+
+Notice how the REPL continues prompting with `....>` until you close all braces.
+
+#### Type-Specific Evaluation
+
+By default, expressions are evaluated as integers. Use type prefixes for other types:
+
+```nano
+nano> let pi: float = 3.14159
+Defined: pi
+
+nano> :float (* pi 2.0)
+=> 6.28318
+
+nano> :string (+ "Hello, " "World")
+=> Hello, World
+
+nano> :bool (> x 40)
+=> true
+```
+
+### REPL Commands
+
+The REPL supports several commands to inspect and manage your session:
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `:vars` | List all defined variables | Shows: `x, y, pi` |
+| `:funcs` | List all defined functions | Shows: `double(n: int) -> int, factorial(n: int) -> int` |
+| `:imports` | List imported modules | Shows modules you've imported |
+| `:clear` | Clear entire session | Removes all variables, functions, imports |
+| `:quit` | Exit REPL | Same as pressing Ctrl-D |
+
+Example:
+
+```nano
+nano> :vars
+Defined variables: x, y, pi
+
+nano> :funcs
+Defined functions: double(n: int) -> int, factorial(n: int) -> int
+
+nano> :clear
+Session cleared
+
+nano> :vars
+(no variables defined)
+```
+
+### Module Imports
+
+You can import modules interactively:
+
+```nano
+nano> from "std/math" import sqrt
+Imported: std/math
+
+nano> :imports
+Imported modules: std/math
+```
+
+**Note:** Module imports in the REPL are experimental. Not all modules may work correctly when imported interactively.
+
+### Practical Examples
+
+#### Example 1: Quick Calculator
+
+```nano
+nano> let price: float = 29.99
+Defined: price
+
+nano> let quantity: int = 5
+Defined: quantity
+
+nano> :float (* price (int_to_float quantity))
+=> 149.95
+```
+
+#### Example 2: String Manipulation
+
+```nano
+nano> let first_name: string = "Alice"
+Defined: first_name
+
+nano> let last_name: string = "Smith"
+Defined: last_name
+
+nano> :string (+ (+ first_name " ") last_name)
+=> Alice Smith
+```
+
+#### Example 3: Testing a Function
+
+```nano
+nano> fn is_even(n: int) -> bool {
+....>     return (== (% n 2) 0)
+....> }
+Defined: is_even(n: int) -> bool
+
+nano> :bool (is_even 4)
+=> true
+
+nano> :bool (is_even 7)
+=> false
+```
+
+#### Example 4: Recursive Functions
+
+```nano
+nano> fn sum_to_n(n: int) -> int {
+....>     if (<= n 0) {
+....>         return 0
+....>     } else {
+....>         return (+ n (sum_to_n (- n 1)))
+....>     }
+....> }
+Defined: sum_to_n(n: int) -> int
+
+nano> (sum_to_n 10)
+=> 55
+
+nano> (sum_to_n 100)
+=> 5050
+```
+
+### Tips & Tricks
+
+**1. Use the REPL for Learning**
+- Try out syntax features before writing full programs
+- Experiment with functions from the standard library
+- Test edge cases interactively
+
+**2. Prototype Functions**
+- Define functions in the REPL first
+- Test them with various inputs
+- Copy working code into your source files
+
+**3. Debug with the REPL**
+- Paste problematic code into the REPL
+- Test it with different inputs
+- Identify the issue interactively
+
+**4. History Navigation**
+- Use Up/Down arrow keys to navigate command history
+- Ctrl-R for reverse search (if using readline)
+- History persists across sessions
+
+### Limitations
+
+The REPL has some known limitations:
+
+1. **Performance** - Each evaluation recompiles all definitions (~100-500ms)
+2. **No variable reassignment** - Variables cannot be changed once defined
+3. **Type specification required** - Must use `:type` prefix for non-integer expressions
+4. **Import limitations** - Some modules may not work when imported interactively
+
+Despite these limitations, the REPL is an excellent tool for learning, prototyping, and quick experiments.
+
 ### Next Steps
 
 Now that you have NanoLang installed and understand the basics, you're ready to learn:

@@ -58,6 +58,132 @@ Run it:
 ./hello
 ```
 
+## Interactive REPL 🎮
+
+NanoLang includes a **full-featured REPL** (Read-Eval-Print Loop) for interactive development, experimentation, and learning.
+
+### Quick Start
+
+```bash
+# Build the REPL
+./bin/nanoc examples/language/full_repl.nano -o bin/repl
+
+# Launch it
+./bin/repl
+```
+
+### Features
+
+- ✅ **Persistent variables** - Define variables that persist across evaluations
+- ✅ **Function definitions** - Define functions with support for recursion
+- ✅ **Module imports** - Import and use modules interactively
+- ✅ **Multi-line input** - Smart continuation prompts for complex code
+- ✅ **Multi-type support** - Evaluate int, float, string, and bool expressions
+- ✅ **Session management** - Commands to inspect and manage your session
+
+### Example Session
+
+```nano
+$ ./bin/repl
+
+NanoLang Full-Featured REPL
+============================
+Variables: let x: int = 42
+Functions: fn double(x: int) -> int { return (* x 2) }
+Imports: from "std/math" import sqrt
+Types: :int, :float, :string, :bool
+Commands: :vars, :funcs, :imports, :clear, :quit
+
+nano> let x: int = 42
+Defined: x
+
+nano> let y: float = 3.14159
+Defined: y
+
+nano> (+ x 10)
+=> 52
+
+nano> :float (* y 2.0)
+=> 6.28318
+
+nano> fn factorial(n: int) -> int {
+....>     if (<= n 1) {
+....>         return 1
+....>     } else {
+....>         return (* n (factorial (- n 1)))
+....>     }
+....> }
+Defined: factorial(n: int) -> int
+
+nano> (factorial 5)
+=> 120
+
+nano> :vars
+Defined variables: x, y
+
+nano> :funcs
+Defined functions: factorial(n: int) -> int
+
+nano> :quit
+Goodbye!
+```
+
+### REPL Commands
+
+| Command | Description |
+|---------|-------------|
+| `:vars` | List all defined variables |
+| `:funcs` | List all defined functions |
+| `:imports` | List all imported modules |
+| `:clear` | Clear entire session (variables, functions, imports) |
+| `:quit` | Exit REPL (or press Ctrl-D) |
+
+### Type-Specific Evaluation
+
+By default, expressions are evaluated as integers. Use type prefixes for other types:
+
+```nano
+nano> (+ 1 2)           # Default: int
+=> 3
+
+nano> :float (* 3.14 2.0)
+=> 6.28
+
+nano> :string (+ "Hello, " "World")
+=> Hello, World
+
+nano> :bool (> 5 3)
+=> true
+```
+
+### Multi-Line Input
+
+The REPL automatically detects incomplete input and shows a continuation prompt:
+
+```nano
+nano> fn double(x: int) -> int {
+....>     return (* x 2)
+....> }
+Defined: double(x: int) -> int
+
+nano> if (> x 10) {
+....>     (println "big")
+....> } else {
+....>     (println "small")
+....> }
+=> ...
+```
+
+### Use Cases
+
+- **Learning NanoLang** - Try syntax and features interactively
+- **Quick calculations** - Use as a calculator with variables
+- **Prototyping** - Test ideas before writing full programs
+- **Debugging** - Experiment with expressions and functions
+- **Teaching** - Demonstrate language features live
+
+See `examples/language/` for REPL source code and implementation details.
+
 ## Platform Support
 
 ### Tier 1: Fully Supported ✅
