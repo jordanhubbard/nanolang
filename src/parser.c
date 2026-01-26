@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "colors.h"
 #include <stdint.h>
 
 /* Maximum recursion depth to prevent stack overflow */
@@ -85,14 +86,14 @@ static bool expect(Stage1Parser *p, TokenType type, const char *msg) {
     if (!match(p, type)) {
         Token *tok = current_token(p);
         if (!tok || !p || p->count == 0) {
-            fprintf(stderr, "Error: Stage1Parser state invalid\n");
+            fprintf(stderr, "%sError:%s Stage1Parser state invalid\n", CSTART_ERROR, CEND);
             return false;
         }
         const char *msg_safe = msg ? msg : "(null message)";
         const char *token_name = token_type_name(tok->token_type);
         const char *token_name_safe = token_name ? token_name : "UNKNOWN";
-        fprintf(stderr, "Error at line %d, column %d: %s (got %s)\n",
-                tok->line, tok->column, msg_safe, token_name_safe);
+        fprintf(stderr, "%sError at line %d, column %d:%s %s (got %s)\n",
+                CSTART_ERROR, tok->line, tok->column, CEND, msg_safe, token_name_safe);
         return false;
     }
     advance(p);

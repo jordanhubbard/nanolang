@@ -1,6 +1,7 @@
 #include "nanolang.h"
 #include "tracing.h"
 #include "resource_tracking.h"
+#include "colors.h"
 
 static void emit_context_error(
     const char *title,
@@ -3597,7 +3598,16 @@ static bool read_source_line(const char *path, int target_line, char *buffer, si
 
 static void print_error_header(const char *title, const char *file_path) {
     const char *file = file_path ? file_path : "";
-    fprintf(stderr, "-- %s ", title);
+    /* Use red for errors, yellow for warnings */
+    const char *color_start = CSTART_ERROR;
+    const char *color_end = CEND;
+
+    /* Check if this is a warning */
+    if (strstr(title, "WARNING") || strstr(title, "Warning")) {
+        color_start = CSTART_WARNING;
+    }
+
+    fprintf(stderr, "%s-- %s %s", color_start, title, color_end);
     int title_len = (int)strlen(title);
     int file_len = (int)strlen(file);
     int dash_count = 54 - title_len - file_len;
@@ -3608,7 +3618,7 @@ static void print_error_header(const char *title, const char *file_path) {
         fputc('-', stderr);
     }
     if (file_len > 0) {
-        fprintf(stderr, " %s", file);
+        fprintf(stderr, " %s%s%s", CSTART_DIM, file, CEND);
     }
     fputc('\n', stderr);
 }
@@ -3619,7 +3629,8 @@ static void print_error_context_line(int line, int column, int caret_len, const 
     }
     char line_prefix[32];
     int prefix_len = snprintf(line_prefix, sizeof(line_prefix), "%d| ", line);
-    fprintf(stderr, "%s%s", line_prefix, line_text);
+    /* Print line number in dim color */
+    fprintf(stderr, "%s%s%s%s", CSTART_DIM, line_prefix, CEND, line_text);
     size_t line_len = strlen(line_text);
     if (line_len == 0 || line_text[line_len - 1] != '\n') {
         fputc('\n', stderr);
@@ -3632,13 +3643,16 @@ static void print_error_context_line(int line, int column, int caret_len, const 
         caret_len = 1;
     }
 
+    /* Print spacing before caret */
     for (int i = 0; i < prefix_len + column - 1; i++) {
         fputc(' ', stderr);
     }
+    /* Print caret in red */
+    fprintf(stderr, "%s", CSTART_ERROR);
     for (int i = 0; i < caret_len; i++) {
         fputc('^', stderr);
     }
-    fputc('\n', stderr);
+    fprintf(stderr, "%s\n", CEND);
 }
 
 static void emit_context_error(
@@ -3652,9 +3666,10 @@ static void emit_context_error(
     if (g_typecheck_current_file) {
         print_error_header(title, g_typecheck_current_file);
     } else {
-        fprintf(stderr, "Error at line %d, column %d: %s\n", line, column, message);
+        fprintf(stderr, "%sError at line %d, column %d:%s %s\n",
+                CSTART_ERROR, line, column, CEND, message);
         if (hint && hint[0] != '\0') {
-            fprintf(stderr, "Hint: %s\n", hint);
+            fprintf(stderr, "%sHint:%s %s\n", CSTART_HINT, CEND, hint);
         }
         return;
     }
@@ -3665,7 +3680,7 @@ static void emit_context_error(
         print_error_context_line(line, column, caret_len, source_line);
     }
     if (hint && hint[0] != '\0') {
-        fprintf(stderr, "Hint: %s\n", hint);
+        fprintf(stderr, "%sHint:%s %s\n", CSTART_HINT, CEND, hint);
     }
 }
 
@@ -5344,8 +5359,8 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                 /* Check if function body uses extern functions - if so, shadow test is optional */
                 bool uses_extern = func->body && contains_extern_calls(func->body, env);
                 if (!uses_extern) {
-                    fprintf(stderr, "Warning: Function '%s' is missing a shadow test\n",
-                            item->as.function.name);
+                    fprintf(stderr, "%sWarning:%s Function '%s' is missing a shadow test\n",
+                            CSTART_WARNING, CEND, item->as.function.name);
                     /* Don't fail - just warn */
                     /* tc.has_error = true; */
                 }
@@ -6024,8 +6039,8 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                 /* Check if function body uses extern functions - if so, shadow test is optional */
                 bool uses_extern = func->body && contains_extern_calls(func->body, env);
                 if (!uses_extern) {
-                    fprintf(stderr, "Warning: Function '%s' is missing a shadow test\n",
-                            item->as.function.name);
+                    fprintf(stderr, "%sWarning:%s Function '%s' is missing a shadow test\n",
+                            CSTART_WARNING, CEND, item->as.function.name);
                     /* Don't fail - just warn */
                     /* tc.has_error = true; */
                 }

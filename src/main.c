@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "colors.h"
 #include "version.h"
 #include "module_builder.h"
 #include "interpreter_ffi.h"
