@@ -1024,6 +1024,29 @@ valgrind: $(COMPILER)
 	done
 	@echo "Valgrind checks complete"
 
+# Fuzzing targets
+fuzz-build:
+	@echo "Building fuzzing targets..."
+	@mkdir -p tests/fuzzing
+	@echo "Building simple lexer fuzzer..."
+	@gcc -g -O1 -fsanitize=address \
+		-Isrc \
+		tests/fuzzing/simple_fuzz_lexer.c src/lexer.c \
+		-o tests/fuzzing/simple_fuzz_lexer
+	@echo "✓ Fuzzer binaries built in tests/fuzzing/"
+	@echo "Note: For advanced fuzzing with libFuzzer or AFL++, see tests/fuzzing/README.md"
+
+fuzz-lexer: fuzz-build
+	@echo "Running lexer fuzzer on corpus..."
+	@for f in tests/fuzzing/corpus_lexer/*.nano; do \
+		echo "Testing $$f..."; \
+		tests/fuzzing/simple_fuzz_lexer "$$f" || exit 1; \
+	done
+	@echo "✓ Lexer fuzzing complete (all seed files passed)"
+
+fuzz: fuzz-lexer
+	@echo "All fuzzing runs complete"
+
 # Help
 help:
 	@echo "Nanolang Makefile - Build & Bootstrap Targets"
@@ -1052,6 +1075,8 @@ help:
 	@echo "  make test-app          - Test only application/integration tests"
 	@echo "  make test-unit         - Test only unit tests"
 	@echo "  make test-quick        - Quick test (language tests only)"
+	@echo "  make fuzz              - Run fuzzing on seed corpus"
+	@echo "  make fuzz-lexer        - Fuzz lexer with AddressSanitizer"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "Component Build (Stage Targets):"

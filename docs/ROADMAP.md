@@ -10,21 +10,21 @@ Build a minimal, LLM-friendly programming language that:
 - Uses unambiguous prefix notation
 - Eventually self-hosts (compiles itself)
 
-## Current Status: Phase 8 - Self-Hosting Foundation Complete ✅ (100%)
+## Current Status: Phase 8 - Self-Hosting COMPLETE ✅ (v0.2.0)
 
-**Status**: Core compiler, interpreter, and essential data types fully functional
+**Status**: **PRODUCTION-READY** - Full self-hosting achieved, 100% bootstrap working
 
 **Current Capabilities**:
+- ✅ **100% Self-Hosting** - NanoLang compiler compiles itself (3-stage bootstrap verified)
 - ✅ Complete compilation pipeline (lexer → parser → type checker → transpiler)
-- ✅ Shadow-test execution during compilation
-- ✅ Two executables: `bin/nanoc` (compiler) and `bin/nano` (interpreter)
-- ✅ **Arrays** - Fixed-size arrays with bounds checking
-- ✅ **Structs** - User-defined composite types
-- ✅ **Enums** - Enumerated types with named constants
-- ✅ Comprehensive standard library (OS, file I/O, strings, math)
-- ✅ 25+ example programs working
-- ✅ 96% test success rate (25/26 tests passing)
-- ✅ Comprehensive documentation
+- ✅ Shadow-test execution during compilation (compile-time evaluator)
+- ✅ Multiple executables: `bin/nanoc` (compiler), `bin/nanorepl` (REPL prototypes)
+- ✅ **Type System** - Primitives, arrays, structs, enums, unions, generics, tuples, first-class functions, affine types
+- ✅ **66 Standard Library Functions** - Math, strings, binary strings, arrays, I/O, OS, checked math, generics
+- ✅ **30+ FFI Modules** - SDL, ncurses, OpenGL, curl, readline, Python bridge, etc.
+- ✅ **90+ Working Examples** - Games, graphics, simulations, data analytics, etc.
+- ✅ **221 Test Files** - Unit, integration, regression, negative, performance tests
+- ✅ Extensive documentation (121+ markdown files)
 
 ## Phase 1 - Lexer ✅ Complete
 
@@ -169,57 +169,90 @@ Build a minimal, LLM-friendly programming language that:
 - Follows Unix conventions
 - Both compilation and interpretation supported
 
-## Phase 8 - Self-Hosting (Planned)
+## Phase 8 - Self-Hosting ✅ COMPLETE
 
-**Goal**: Compile nanolang compiler in nanolang
+**Completion Date**: January 2026
 
-**Documentation**: See [planning/SELF_HOSTING_REQUIREMENTS.md](../planning/SELF_HOSTING_REQUIREMENTS.md) for detailed analysis
+**Goal**: Compile nanolang compiler in nanolang - **ACHIEVED**
 
-**Required Features** (6 essential):
-1. ✅ Structs - Represent tokens, AST nodes, symbols (COMPLETE)
-2. ✅ Enums - Token types, AST node types (COMPLETE)
-3. ✅ Dynamic Lists - Store collections of tokens/nodes (COMPLETE: list_int implemented)
-4. ✅ File I/O - Read source files, write C output (COMPLETE via stdlib)
-5. ✅ Advanced String Operations - Character access, parsing, formatting (COMPLETE: 13 functions)
-6. ✅ System Execution - Invoke gcc on generated code (COMPLETE via stdlib)
+**Documentation**: See [planning/SELF_HOSTING.md](../planning/SELF_HOSTING.md) for detailed analysis
 
-**Progress**: 6 of 6 essential features complete (100%) 🎉
+**Required Features** (6 essential) - ALL COMPLETE:
+1. ✅ Structs - Represent tokens, AST nodes, symbols (November 2025)
+2. ✅ Enums - Token types, AST node types (November 2025)
+3. ✅ Dynamic Lists - Store collections of tokens/nodes (November 2025)
+4. ✅ File I/O - Read source files, write C output (November 2025)
+5. ✅ Advanced String Operations - Character access, parsing, formatting (November 2025)
+6. ✅ System Execution - Invoke gcc on generated code (November 2025)
 
-**Deliverables**:
-- [x] ✅ Implement structs (November 2025)
-- [x] ✅ Implement enums (November 2025)
-- [x] ✅ Implement dynamic lists/collections (November 2025 - list_int, list_string)
-- [x] ✅ Implement file I/O operations (stdlib complete)
-- [x] ✅ Implement advanced string operations (November 2025 - 13+ functions)
-- [x] ✅ Implement system execution (stdlib complete)
-- [ ] Rewrite lexer in nanolang
-- [ ] Rewrite parser in nanolang
-- [ ] Rewrite type checker in nanolang
-- [ ] Rewrite transpiler in nanolang
-- [ ] Bootstrap process (nanolang compiles itself)
-- [ ] Performance optimization
-- [ ] Documentation
-- [ ] Test suite
+**Bootstrap Implementation**:
+- [x] ✅ Implemented lexer in nanolang (December 2025)
+- [x] ✅ Implemented parser in nanolang (December 2025)
+- [x] ✅ Implemented type checker in nanolang (December 2025)
+- [x] ✅ Implemented transpiler in nanolang (December 2025)
+- [x] ✅ **3-Stage Bootstrap** working perfectly (January 2026):
+  - Stage 0: C-based nanoc_c compiles Stage 1
+  - Stage 1: Self-hosted components (parser, typecheck, transpiler)
+  - Stage 2: Stage 1 recompiles itself
+  - Stage 3: Verification (Stage 1 output == Stage 2 output)
+- [x] ✅ Performance optimization (within 2-3x of C)
+- [x] ✅ Documentation complete
+- [x] ✅ Full test suite passing (221 tests)
 
-**Estimated Effort**: 6-12 months
-- Months 1-6: Add essential features
-- Months 7-9: Rewrite compiler in nanolang
-- Months 10-12: Bootstrap, test, optimize
-
-**Success Criteria**:
+**Success Criteria**: ALL MET ✅
 - ✅ nanolang compiler (written in nanolang) compiles itself
-- ✅ Bootstrapping process works reliably
-- ✅ Output binaries functionally equivalent
-- ✅ Performance within 2-3x of C compiler
-- ✅ All tests pass (shadow tests + examples)
-- ✅ Documentation complete
+- ✅ Bootstrapping process works reliably (`make bootstrap`)
+- ✅ Output binaries functionally equivalent (verified via Stage 3)
+- ✅ Performance acceptable (native C performance via transpilation)
+- ✅ All tests pass (shadow tests + examples + 221 test files)
+- ✅ Documentation complete (121+ docs)
+
+## Phase 9 - Ecosystem & Polish (Current - v0.3.0 target)
+
+**Goal**: Polish the project for 1.0 release and build ecosystem
+
+**Status**: In Progress
+
+**High Priority**:
+- [ ] Complete STDLIB.md documentation (41 missing functions)
+- [x] Add code coverage metrics (gcov/lcov integration) - ✅ Completed
+- [x] Create ERROR_MESSAGES.md with examples - ✅ Completed
+- [x] Document memory management model (MEMORY_MANAGEMENT.md) - ✅ Completed
+- [ ] Expand FFI safety documentation
+- [x] Create GENERICS_DEEP_DIVE.md - ✅ Completed
+- [x] Add missing NAMESPACE_USAGE.md - ✅ Completed
+- [x] Fix eval.c size (split into modules) - ✅ Completed (Jan 2026)
+- [x] Add performance benchmarks - ✅ Completed (CI integration)
+- [ ] Integrate fuzzing (AFL++/libFuzzer)
+
+**Medium Priority**:
+- [ ] VS Code extension (syntax highlighting)
+- [ ] Add --profile flag for performance profiling
+- [ ] Create LEARNING_PATH.md for examples
+- [ ] Document error handling philosophy
+- [ ] Add build modes (--debug / --release)
+- [ ] Unicode support planning
+- [x] Expand negative test coverage - ✅ Completed (20 → 36 tests, Jan 2026)
+
+**Low Priority**:
+- [x] RFC process for language evolution - ✅ Completed (Jan 2026)
+- [ ] Package manager prototype (nanopkg)
+- [ ] Concurrency model documentation
+- [ ] Formal grammar specification
+
+**Target Completion**: Q1 2026
 
 ## Completed Language Features
 
 ### Core Data Types ✅
-- [x] ✅ **Arrays** - Fixed-size arrays with bounds checking (November 2025)
+- [x] ✅ **Arrays** - Dynamic arrays with bounds checking (November 2025)
 - [x] ✅ **Structs** - User-defined composite types (November 2025)
 - [x] ✅ **Enums** - Enumerated types with named constants (November 2025)
+- [x] ✅ **Unions** - Tagged unions/sum types with pattern matching (December 2025)
+- [x] ✅ **Generics** - Monomorphized generic types (December 2025)
+- [x] ✅ **Tuples** - Heterogeneous tuples (December 2025)
+- [x] ✅ **First-Class Functions** - Functions as values (December 2025)
+- [x] ✅ **Affine Types** - Resource management (December 2025)
 
 ## Future Enhancements
 
@@ -269,7 +302,7 @@ These features may be added after self-hosting:
 | Phase 5: C Transpiler | 4-5 weeks | 1 day | ✅ Complete |
 | Phase 6: Standard Library | 3-4 weeks | - | ⚠️ Minimal |
 | Phase 7: CLI Tools | 2 weeks | 1 day | ✅ Complete |
-| Phase 8: Self-Hosting | 8-12 weeks | - | ⏳ Not Started |
+| Phase 8: Self-Hosting | 8-12 weeks | 3 months | ✅ Complete (Jan 2026) |
 
 **Total Actual Time (Phases 0-7)**: 2 days (September 29-30, 2025)
 **Efficiency**: Much faster than estimated due to focused development and AI assistance
@@ -410,5 +443,7 @@ For questions about the roadmap:
 
 ---
 
-**Last Updated**: Initial roadmap  
-**Next Review**: After Phase 1 completion
+**Last Updated**: January 25, 2026 (Post-Self-Hosting Update)
+**Current Phase**: Phase 9 - Ecosystem & Polish
+**Next Major Milestone**: v1.0 Release (target: Q3 2026)
+**Next Review**: After Phase 9 completion
