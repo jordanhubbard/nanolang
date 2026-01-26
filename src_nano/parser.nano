@@ -667,6 +667,9 @@ shadow token_assert { assert (== (token_assert) LexerTokenType.TOKEN_ASSERT) }
 fn token_requires() -> int { return LexerTokenType.TOKEN_REQUIRES }
 shadow token_requires { assert (== (token_requires) LexerTokenType.TOKEN_REQUIRES) }
 
+fn token_ensures() -> int { return LexerTokenType.TOKEN_ENSURES }
+shadow token_ensures { assert (== (token_ensures) LexerTokenType.TOKEN_ENSURES) }
+
 fn token_unsafe() -> int { return LexerTokenType.TOKEN_UNSAFE }
 shadow token_unsafe { assert (== (token_unsafe) LexerTokenType.TOKEN_UNSAFE) }
 
@@ -5811,6 +5814,25 @@ fn parse_function_definition(p: Parser) -> Parser {
                                         let p_assert: Parser = (parser_store_assert p_expr cond_id cond_type req_tok.line req_tok.column)
                                         let assert_id: int = p_assert.last_expr_node_id
                                         set precondition_asserts (array_push precondition_asserts assert_id)
+                                        set p_contract p_assert
+                                    }
+                                }
+
+                                /* Parse optional 'ensures' clauses */
+                                let mut postcondition_asserts: array<int> = []
+
+                                while (and (not (parser_is_at_end p_contract)) (== (parser_current p_contract).token_type (token_ensures))) {
+                                    let ens_tok: LexerToken = (parser_current p_contract)
+                                    let p_after_kw: Parser = (parser_advance p_contract)
+                                    let p_expr: Parser = (parse_expression p_after_kw)
+                                    if (parser_has_error p_expr) {
+                                        return p_expr
+                                    } else {
+                                        let cond_id: int = p_expr.last_expr_node_id
+                                        let cond_type: int = p_expr.last_expr_node_type
+                                        let p_assert: Parser = (parser_store_assert p_expr cond_id cond_type ens_tok.line ens_tok.column)
+                                        let assert_id: int = p_assert.last_expr_node_id
+                                        set postcondition_asserts (array_push postcondition_asserts assert_id)
                                         set p_contract p_assert
                                     }
                                 }

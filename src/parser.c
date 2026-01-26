@@ -3474,6 +3474,24 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
         preconditions[precondition_count++] = assert_node;
     }
 
+    /* Parse optional 'ensures' clauses (postconditions) */
+    /* TODO: Implement postcondition injection at return statements */
+    while (match(p, TOKEN_ENSURES)) {
+        advance(p);  /* consume 'ensures' */
+
+        ASTNode *condition = parse_expression(p);
+        if (!condition) {
+            free(name);
+            free(params);
+            if (return_struct_name) free(return_struct_name);
+            free_precondition_asserts(preconditions, precondition_count);
+            return NULL;
+        }
+
+        /* For now, just parse and discard - postcondition injection is TODO */
+        free_ast(condition);
+    }
+
     if (is_extern && precondition_count > 0) {
         fprintf(stderr, "Error at line %d, column %d: Extern functions cannot have 'requires' clauses\n",
                 line, column);
