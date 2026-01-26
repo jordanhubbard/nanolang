@@ -85,6 +85,57 @@ nano> (* x 2)
 => 84
 ```
 
+### 4. `examples/language/multi_type_repl.nano`
+**Status:** ✅ Working (Proof of Concept)
+
+**Features:**
+- All features from vars_repl PLUS:
+- **Multi-type expression evaluation**
+- Type-specific commands: `:int`, `:float`, `:string`, `:bool`
+- Variables can be any type: int, float, string, bool
+- Default evaluation as int (backwards compatible)
+
+**Architecture:**
+- Extends vars_repl with type-specific wrapper functions
+- Each type has its own wrap and eval function
+- Commands like `:float EXPR` evaluate expression as float type
+- Default behavior (no :type prefix) evaluates as int
+
+**Type-Specific Wrappers:**
+- `wrap_with_context_float` - wraps result as `let _result: float`
+- `wrap_with_context_string` - wraps result as `let _result: string`
+- `wrap_with_context_bool` - wraps result as `let _result: bool`
+
+**Usage:**
+```bash
+./bin/nanoc examples/language/multi_type_repl.nano -o bin/multi_type_repl
+./bin/multi_type_repl
+```
+
+**Example Session:**
+```
+nano> let x: int = 42
+Defined: x
+nano> let y: float = 3.14159
+Defined: y
+nano> let name: string = "Alice"
+Defined: name
+nano> :vars
+Defined variables: x, y, name
+
+nano> (+ x 10)              # Default: int
+=> 52
+
+nano> :float (* y 2.0)
+=> 6.28318
+
+nano> :string (+ "Hello, " name)
+=> Hello, Alice
+
+nano> :bool (> x 40)
+=> true
+```
+
 ## Technical Discoveries
 
 ### 1. Static Mut Variables Not Supported
@@ -172,9 +223,16 @@ The vars_repl implementation validates the **compile-and-execute** architecture 
   - Implemented using StringBuilder-based preamble approach
   - Demonstrates architecture for maintaining state across evaluations
 
-- ⏳ **Task #2:** Support persistent variable definitions (In Progress)
+- ✅ **Task #2:** Support persistent variable definitions
   - Proof of concept working in vars_repl.nano
-  - Limitations remain (reassignment, parsing, types)
+  - Variables persist across evaluations
+  - Limitations: no reassignment, basic parsing
+
+- ✅ **Task #4:** Support all type expressions (not just int)
+  - Implemented in multi_type_repl.nano
+  - Supports int, float, string, bool types
+  - Type-specific commands: :float, :string, :bool
+  - Variables can be any type
 
 ## Remaining Tasks
 
@@ -274,7 +332,9 @@ For the MVP and proof-of-concept, the compile-and-execute approach is acceptable
 
 - `examples/language/readline_repl.nano` - Basic REPL with readline
 - `examples/language/vars_repl.nano` - REPL with persistent variables (POC)
+- `examples/language/multi_type_repl.nano` - REPL with multi-type support (POC)
 - `planning/REPL_IMPLEMENTATION_PLAN.md` - Full implementation plan
+- `planning/MULTI_TYPE_REPL_DESIGN.md` - Multi-type design document
 - `planning/REPL_PROGRESS.md` - This file
 
 ## Files Removed
