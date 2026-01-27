@@ -20,19 +20,19 @@ Work through these 5 examples in order:
    - Demonstrates: prefix notation, multiple functions, parameters
    - Time: 10 minutes
 
-3. **[nl_variables.nano](language/nl_variables.nano)**
-   - Variable declarations and types
+3. **[nl_mutable.nano](language/nl_mutable.nano)**
+   - Variable declarations and mutability
    - Demonstrates: `let`, `mut`, type annotations, reassignment
    - Time: 10 minutes
 
-4. **[nl_control_flow.nano](language/nl_control_flow.nano)**
+4. **[nl_control_if_while.nano](language/nl_control_if_while.nano)**
    - Conditional logic
-   - Demonstrates: `if/else`, comparison operators, boolean logic
+   - Demonstrates: `if/else`, comparison operators, boolean logic, `while`
    - Time: 15 minutes
 
-5. **[nl_loops.nano](language/nl_loops.nano)**
+5. **[nl_control_for.nano](language/nl_control_for.nano)**
    - Iteration fundamentals
-   - Demonstrates: `while` loops, `for` loops, `range`
+   - Demonstrates: `for` loops, `range`
    - Time: 15 minutes
 
 **After these 5:** You understand NanoLang basics! ✅
@@ -41,11 +41,11 @@ Work through these 5 examples in order:
 
 Once comfortable with Level 1, explore these:
 
-6. **[nl_functions.nano](language/nl_functions.nano)**
+6. **[nl_functions_basic.nano](language/nl_functions_basic.nano)**
    - Function definitions and calls
    - Return values, multiple parameters
 
-7. **[nl_arrays.nano](language/nl_arrays.nano)**
+7. **[nl_array_complete.nano](language/nl_array_complete.nano)**
    - Array literals and operations
    - Indexing with `at`, `array_length`
 
@@ -71,7 +71,7 @@ Ready for more? Try these next:
     - Union types and pattern matching
     - Result<T,E> for error handling
 
-12. **[nl_generics.nano](language/nl_generics.nano)**
+12. **[nl_generics_demo.nano](language/nl_generics_demo.nano)**
     - Generic types (List<T>)
     - Type parameters and monomorphization
 
@@ -79,11 +79,11 @@ Ready for more? Try these next:
     - Hash maps for key-value storage
     - HashMap<K,V> operations
 
-14. **[nl_modules.nano](language/nl_modules.nano)**
+14. **[namespace_demo.nano](advanced/namespace_demo.nano)**
     - Code organization with modules
-    - Imports and exports
+    - Module declarations and visibility
 
-15. **[nl_extern_ffi.nano](language/nl_extern_ffi.nano)**
+15. **[nl_extern_string.nano](language/nl_extern_string.nano)**
     - Calling C functions
     - FFI basics
 

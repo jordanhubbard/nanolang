@@ -176,9 +176,9 @@ Modify `public/style.css` to customize:
 ## 📚 Learning Resources
 
 - [NanoLang Documentation](https://jordanhubbard.github.io/nanolang/)
-- [Quick Reference](../../../docs/QUICK_REFERENCE.md)
-- [Getting Started Guide](../../../docs/GETTING_STARTED.md)
-- [Language Specification](../../../docs/SPECIFICATION.md)
+- [Quick Reference](../../docs/QUICK_REFERENCE.md)
+- [Getting Started Guide](../../docs/GETTING_STARTED.md)
+- [Language Specification](../../docs/SPECIFICATION.md)
 
 ## 🤝 Contributing
 
