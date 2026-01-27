@@ -221,10 +221,7 @@ fn main() -> int {
                                             (Mix_PlayMusic music -1) 
                                             (println "⏮ Restarted")
                                         } else {}
-                                    } else {
-                                            set running false
-                                        } else {}
-                                    }
+                                    } else {}
                                 }
                             }
                         }

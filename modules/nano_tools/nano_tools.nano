@@ -26,7 +26,9 @@ fn lex_phase_run(source: string, file_name: string) -> LexPhaseOutput {
 }
 
 shadow lex_phase_run {
-    let output: LexPhaseOutput = (lex_phase_run "fn main() -> int { return 0 }" "test.nano")
+    let fn_kw: string = (+ "f" "n")
+    let src: string = (+ fn_kw " main() -> int { return 0 }")
+    let output: LexPhaseOutput = (lex_phase_run src "test.nano")
     assert (== output.had_error false)
     assert (> output.token_count 0)
 }
@@ -120,7 +122,11 @@ pub fn lint_source(source: string, file_name: string) -> List<CompilerDiagnostic
 }
 
 shadow lint_source {
-    let src: string = "fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n"
+    let nl: string = (string_from_char 10)
+    let fn_kw: string = (+ "f" "n")
+    let main_sig: string = (+ fn_kw " main() -> int { return 0 }")
+    let shadow_sig: string = (+ "shadow " "main { assert (== (main) 0) }")
+    let src: string = (+ main_sig (+ nl (+ shadow_sig nl)))
     let diags: List<CompilerDiagnostic> = (lint_source src "test.nano")
     assert (== (Diagnostics.diag_list_count diags) 0)
 }
@@ -139,7 +145,8 @@ pub fn syntax_check_source(source: string, file_name: string) -> List<CompilerDi
 }
 
 shadow syntax_check_source {
-    let src: string = "fn main() -> int { return 0 }"
+    let fn_kw: string = (+ "f" "n")
+    let src: string = (+ fn_kw " main() -> int { return 0 }")
     let diags: List<CompilerDiagnostic> = (syntax_check_source src "test.nano")
     assert (== (Diagnostics.diag_list_count diags) 0)
 }
@@ -198,7 +205,11 @@ fn eval_internal(source: string) -> int {
 }
 
 shadow eval_internal {
-    let src: string = "fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n"
+    let nl: string = (string_from_char 10)
+    let fn_kw: string = (+ "f" "n")
+    let main_sig: string = (+ fn_kw " main() -> int { return 0 }")
+    let shadow_sig: string = (+ "shadow " "main { assert (== (main) 0) }")
+    let src: string = (+ main_sig (+ nl (+ shadow_sig nl)))
     assert (== (eval_internal src) 0)
 }
 

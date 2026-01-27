@@ -35,6 +35,18 @@ extern fn nl_regex_split(_regex: Regex, _text: string) -> array<string>
 # Free compiled regex
 extern fn nl_regex_free(_regex: Regex) -> void
 
+fn is_null(regex: Regex) -> bool {
+    let mut result: int = 0
+    unsafe {
+        set result (nl_regex_match regex "")
+    }
+    return (== result (- 1))
+}
+
+shadow is_null {
+    assert true
+}
+
 # High-level convenience API
 
 pub fn compile(pattern: string) -> Regex {
@@ -109,7 +121,7 @@ pub fn free(regex: Regex) -> void {
 
 pub fn quick_match(pattern: string, text: string) -> bool {
     let regex: Regex = (compile pattern)
-    if (== regex (null_opaque)) {
+    if (is_null regex) {
         return false
     }
     let result: bool = (matches regex text)
@@ -124,7 +136,7 @@ shadow quick_match {
 
 pub fn quick_find(pattern: string, text: string) -> int {
     let regex: Regex = (compile pattern)
-    if (== regex (null_opaque)) {
+    if (is_null regex) {
         return (- 1)
     }
     let result: int = (find regex text)
@@ -139,7 +151,7 @@ shadow quick_find {
 
 pub fn quick_replace(pattern: string, text: string, replacement: string) -> string {
     let regex: Regex = (compile pattern)
-    if (== regex (null_opaque)) {
+    if (is_null regex) {
         return text
     }
     let result: string = (replace regex text replacement)
@@ -153,7 +165,7 @@ shadow quick_replace {
 
 pub fn quick_split(pattern: string, text: string) -> array<string> {
     let regex: Regex = (compile pattern)
-    if (== regex (null_opaque)) {
+    if (is_null regex) {
         return []
     }
     let result: array<string> = (split regex text)
@@ -183,7 +195,7 @@ shadow regex_split {
 
 shadow compile {
     let r: Regex = (compile "a.c")
-    assert (!= r (null_opaque))
+    assert (not (is_null r))
     (free r)
 }
 

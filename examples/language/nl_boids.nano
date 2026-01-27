@@ -39,6 +39,14 @@ shadow wrap_position {
     assert (== wrapped2 50.0)
 }
 
+fn float_to_string(f: float) -> string {
+    return (+ (int_to_string (cast_int f)) ".0")
+}
+
+shadow float_to_string {
+    assert (> (str_length (float_to_string 3.14)) 0)
+}
+
 fn main() -> int {
     (println "\n╔════════════════════════════════════╗")
     (println "║    BOIDS - Flocking Simulation    ║")
@@ -112,8 +120,8 @@ fn main() -> int {
             let to_y: float = (- center_y y)
             
             # Apply cohesion force
-            let new_vx_val: float = (+ vx (* to_x 0.08))
-            let new_vy_val: float = (+ vy (* to_y 0.08))
+            let mut new_vx_val: float = (+ vx (* to_x 0.08))
+            let mut new_vy_val: float = (+ vy (* to_y 0.08))
             
             # Speed limiting using constant
             let speed: float = (vec_length (vec_new new_vx_val new_vy_val))

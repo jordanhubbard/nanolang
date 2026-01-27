@@ -27,6 +27,14 @@ from "modules/math_ext/math_ext.nano" import fabs, fmod
 
 /* Note: sin, cos, tan, atan2, pow, sqrt, ceil, floor, round are built-ins */
 
+fn float_to_string(value: float) -> string {
+    return (+ (int_to_string (cast_int value)) ".0")
+}
+
+shadow float_to_string {
+    assert (> (str_length (float_to_string 3.14)) 0)
+}
+
 /* =============================================================================
  * Example 1: Projectile Motion (Physics)
  * =============================================================================

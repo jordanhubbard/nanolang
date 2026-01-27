@@ -9,6 +9,11 @@ enum CellState {
     VISITED = 2
 }
 
+struct Path {
+    x: array<int>,
+    y: array<int>
+}
+
 # === CONSTANTS ===
 let MAZE_WIDTH: int = 25
 let MAZE_HEIGHT: int = 15
@@ -157,7 +162,7 @@ shadow generate_maze {
 
 # === PATHFINDING (SIMPLE BFS) ===
 
-fn find_path(maze: array<int>, start_x: int, start_y: int, end_x: int, end_y: int, width: int, height: int) -> array<int> {
+fn find_path(maze: array<int>, start_x: int, start_y: int, end_x: int, end_y: int, width: int, height: int) -> Path {
     # Simple pathfinding: try moving towards goal
     let mut path_x: array<int> = []
     let mut path_y: array<int> = []
@@ -174,7 +179,7 @@ fn find_path(maze: array<int>, start_x: int, start_y: int, end_x: int, end_y: in
         # Reached goal?
         if (== current_x end_x) {
             if (== current_y end_y) {
-                return path_x
+                return Path { x: path_x, y: path_y }
             } else {
                 (print "")
             }
@@ -252,7 +257,7 @@ fn find_path(maze: array<int>, start_x: int, start_y: int, end_x: int, end_y: in
         # If couldn't move, stuck
         if (not moved) {
             (println "Path blocked, stopping search")
-            return path_x
+            return Path { x: path_x, y: path_y }
         } else {
             (print "")
         }
@@ -260,13 +265,13 @@ fn find_path(maze: array<int>, start_x: int, start_y: int, end_x: int, end_y: in
         set steps (+ steps 1)
     }
     
-    return path_x
+    return Path { x: path_x, y: path_y }
 }
 
 shadow find_path {
     let m: array<int> = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    let p: array<int> = (find_path m 0 0 5 0 10 1)
-    assert (> (array_length p) 0)
+    let p: Path = (find_path m 0 0 5 0 10 1)
+    assert (> (array_length p.x) 0)
 }
 
 # === MAIN ===
@@ -310,14 +315,14 @@ fn main() -> int {
     (print end_y)
     (println ")...")
     
-    let path_x: array<int> = (find_path maze start_x start_y end_x end_y MAZE_WIDTH MAZE_HEIGHT)
+    let path: Path = (find_path maze start_x start_y end_x end_y MAZE_WIDTH MAZE_HEIGHT)
     
     (print "✓ Path found with ")
-    (print (array_length path_x))
+    (print (array_length path.x))
     (println " steps")
     (println "")
     (println "Maze with path (•):")
-    (print_maze maze MAZE_WIDTH MAZE_HEIGHT path_x empty_path_y)
+    (print_maze maze MAZE_WIDTH MAZE_HEIGHT path.x path.y)
     (println "")
     
     (println "╔════════════════════════════════════════════╗")

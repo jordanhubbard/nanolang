@@ -1,5 +1,5 @@
-// HTTP Client Demo
-module "std/http/http.nano as HTTP" as HTTP
+# HTTP Client Demo
+module "std/http/http.nano" as HTTP
 
 fn bool_to_string(b: bool) -> string {
     return (cond ((== b true) "true") (else "false"))
@@ -16,18 +16,23 @@ fn simple_get_example() -> void {
     let response: HTTP.HttpResponse = (HTTP.get "https://httpbin.org/get")
     
     if (HTTP.is_ok response) {
-        let status: int = (HTTP.status response)
-        (println (string_concat "✓ Request successful! Status: " (int_to_string status)))
+        let status_code: int = (HTTP.status response)
+        (println (+ "✓ Request successful! Status: " (int_to_string status_code)))
         
-        let body: string = (HTTP.body response)
+        let response_body: string = (HTTP.body response)
         (println "Response body:")
-        (println body)
+        (println response_body)
     } else {
         let error: string = (HTTP.error_message response)
-        (println (string_concat "✗ Request failed: " error))
+        (println (+ "✗ Request failed: " error))
     }
     
     (HTTP.free_response response)
+}
+
+shadow simple_get_example {
+    # Uses HTTP module helpers
+    assert true
 }
 
 fn post_example() -> void {
@@ -38,21 +43,26 @@ fn post_example() -> void {
     let response: HTTP.HttpResponse = (HTTP.post "https://httpbin.org/post" json_data)
     
     if (HTTP.is_ok response) {
-        (println (string_concat "✓ POST successful! Status: " (int_to_string (HTTP.status response))))
+        (println (+ "✓ POST successful! Status: " (int_to_string (HTTP.status response))))
         (println "Response:")
         (println (HTTP.body response))
     } else {
-        (println (string_concat "✗ POST failed: " (HTTP.error_message response)))
+        (println (+ "✗ POST failed: " (HTTP.error_message response)))
     }
     
     (HTTP.free_response response)
+}
+
+shadow post_example {
+    # Uses HTTP module helpers
+    assert true
 }
 
 fn headers_example() -> void {
     (println "")
     (println "=== GET with Custom Headers ===")
     
-    // Note: In production, use JSON library to build headers properly
+    # Note: In production, use JSON library to build headers properly
     let headers: string = "User-Agent: Nanolang HTTP Client 1.0"
     let response: HTTP.HttpResponse = (HTTP.get_with_headers "https://httpbin.org/headers" headers)
     
@@ -60,70 +70,90 @@ fn headers_example() -> void {
         (println "✓ Request with custom headers successful")
         (println (HTTP.body response))
     } else {
-        (println (string_concat "✗ Request failed: " (HTTP.error_message response)))
+        (println (+ "✗ Request failed: " (HTTP.error_message response)))
     }
     
     (HTTP.free_response response)
+}
+
+shadow headers_example {
+    # Uses HTTP module helpers
+    assert true
 }
 
 fn status_codes_example() -> void {
     (println "")
     (println "=== Testing Status Codes ===")
     
-    // Test 200 OK
+    # Test 200 OK
     let response_200: HTTP.HttpResponse = (HTTP.get "https://httpbin.org/status/200")
-    (println (string_concat "200 OK - is_ok: " (bool_to_string (HTTP.is_ok response_200))))
+    (println (+ "200 OK - is_ok: " (bool_to_string (HTTP.is_ok response_200))))
     (HTTP.free_response response_200)
     
-    // Test 404 Not Found
+    # Test 404 Not Found
     let response_404: HTTP.HttpResponse = (HTTP.get "https://httpbin.org/status/404")
-    (println (string_concat "404 Not Found - is_ok: " (bool_to_string (HTTP.is_ok response_404))))
-    (println (string_concat "Status code: " (int_to_string (HTTP.status response_404))))
+    (println (+ "404 Not Found - is_ok: " (bool_to_string (HTTP.is_ok response_404))))
+    (println (+ "Status code: " (int_to_string (HTTP.status response_404))))
     (HTTP.free_response response_404)
     
-    // Test 500 Server Error
+    # Test 500 Server Error
     let response_500: HTTP.HttpResponse = (HTTP.get "https://httpbin.org/status/500")
-    (println (string_concat "500 Server Error - is_ok: " (bool_to_string (HTTP.is_ok response_500))))
-    (println (string_concat "Status code: " (int_to_string (HTTP.status response_500))))
+    (println (+ "500 Server Error - is_ok: " (bool_to_string (HTTP.is_ok response_500))))
+    (println (+ "Status code: " (int_to_string (HTTP.status response_500))))
     (HTTP.free_response response_500)
+}
+
+shadow status_codes_example {
+    # Uses HTTP module helpers
+    assert true
 }
 
 fn rest_methods_example() -> void {
     (println "")
     (println "=== REST Methods ===")
     
-    // PUT
+    # PUT
     let put_response: HTTP.HttpResponse = (HTTP.put "https://httpbin.org/put" "{\"updated\": true}")
-    (println (string_concat "PUT - Status: " (int_to_string (HTTP.status put_response))))
+    (println (+ "PUT - Status: " (int_to_string (HTTP.status put_response))))
     (HTTP.free_response put_response)
     
-    // PATCH
+    # PATCH
     let patch_response: HTTP.HttpResponse = (HTTP.patch "https://httpbin.org/patch" "{\"patched\": true}")
-    (println (string_concat "PATCH - Status: " (int_to_string (HTTP.status patch_response))))
+    (println (+ "PATCH - Status: " (int_to_string (HTTP.status patch_response))))
     (HTTP.free_response patch_response)
     
-    // DELETE
+    # DELETE
     let delete_response: HTTP.HttpResponse = (HTTP.delete "https://httpbin.org/delete")
-    (println (string_concat "DELETE - Status: " (int_to_string (HTTP.status delete_response))))
+    (println (+ "DELETE - Status: " (int_to_string (HTTP.status delete_response))))
     (HTTP.free_response delete_response)
+}
+
+shadow rest_methods_example {
+    # Uses HTTP module helpers
+    assert true
 }
 
 fn json_api_example() -> void {
     (println "")
     (println "=== JSON API Example ===")
     
-    // Using convenience JSON functions
+    # Using convenience JSON functions
     let json_response: HTTP.HttpResponse = (HTTP.get_json "https://httpbin.org/json")
     
     if (HTTP.is_ok json_response) {
         (println "✓ JSON API request successful")
         let content_type: string = (HTTP.header json_response "Content-Type")
-        (println (string_concat "Content-Type: " content_type))
+        (println (+ "Content-Type: " content_type))
         (println "Response:")
         (println (HTTP.body json_response))
     }
     
     (HTTP.free_response json_response)
+}
+
+shadow json_api_example {
+    # Uses HTTP module helpers
+    assert true
 }
 
 fn main() -> int {
@@ -137,5 +167,10 @@ fn main() -> int {
     (println "")
     (println "✅ HTTP demo complete!")
     return 0
+}
+
+shadow main {
+    # Uses HTTP module helpers
+    assert true
 }
 

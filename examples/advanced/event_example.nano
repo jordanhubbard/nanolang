@@ -39,7 +39,7 @@
 # - Build async HTTP client
 # - Compare with libuv approach
 
-module "modules/event/event.nano"
+unsafe module "modules/event/event.nano"
 
 fn show_version() -> void {
     (println "=== libevent Version ===")
@@ -174,7 +174,7 @@ fn test_loop_modes() -> void {
     
     # Test non-blocking loop (should return immediately with no events)
     (println "Running non-blocking loop...")
-    let result: int = (nl_event_base_loop base 1)
+    let mut result: int = (nl_event_base_loop base 1)
     (print "Result: ")
     (println result)
     
@@ -197,11 +197,11 @@ fn main() -> int {
     (println "==============================")
     (println "")
     
-    show_version
-    test_event_base
-    test_timer_event
-    test_sleep
-    test_loop_modes
+    (show_version)
+    (test_event_base)
+    (test_timer_event)
+    (test_sleep)
+    (test_loop_modes)
     
     (println "All tests completed!")
     (println "")

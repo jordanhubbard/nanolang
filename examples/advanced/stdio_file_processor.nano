@@ -16,8 +16,9 @@ shadow count_chars {
 fn count_lines(text: string) -> int {
     let mut count: int = 1
     let mut i: int = 0
-    while (< i (str_length text)) {
-        if (== (char_at text i) '\n') {
+    let length: int = (str_length text)
+    while (< i length) {
+        if (== (char_at text i) 10) {  # 10 is '\n'
             set count (+ count 1)
         } else {}
         set i (+ i 1)
@@ -27,14 +28,18 @@ fn count_lines(text: string) -> int {
 
 shadow count_lines {
     assert (== (count_lines "hello") 1)
-    assert (== (count_lines "hello\nworld") 2)
-    assert (== (count_lines "a\nb\nc") 3)
+    let newline: string = (string_from_char 10)
+    let two_line: string = (+ "hello" (+ newline "world"))
+    let three_line: string = (+ "a" (+ newline (+ "b" (+ newline "c"))))
+    assert (== (count_lines two_line) 2)
+    assert (== (count_lines three_line) 3)
 }
 
 fn to_uppercase(text: string) -> string {
     let mut result: string = ""
     let mut i: int = 0
-    while (< i (str_length text)) {
+    let length: int = (str_length text)
+    while (< i length) {
         let ch: int = (char_at text i)
         if (and (>= ch 97) (<= ch 122)) {
             # lowercase letter (a-z), convert to uppercase
@@ -78,7 +83,8 @@ fn main() -> int {
         (println "✓ File statistics computed successfully!")
     } else {
         (println "ℹ README.md not found, using sample text")
-        let sample: string = "Hello\nWorld\nNanoLang"
+        let newline: string = (string_from_char 10)
+        let sample: string = (+ "Hello" (+ newline (+ "World" (+ newline "NanoLang"))))
         let lines: int = (count_lines sample)
         let chars: int = (count_chars sample)
         let upper: string = (to_uppercase sample)

@@ -32,7 +32,7 @@ extern fn cos(x: float) -> float
 extern fn strlen(s: string) -> int
 
 # Memory functions from <stdlib.h>
-extern fn abs(x: int) -> int
+extern fn llabs(x: int) -> int
 
 # ==================================================================
 # Part 2: Wrapper Functions (Add Shadow Tests)
@@ -77,7 +77,7 @@ shadow power {
 
 fn demonstrate_type_mapping() -> int {
     # int → int64_t
-    let i: int = (abs -42)
+    let i: int = (llabs -42)
     (println i)  # 42
     
     # float → double

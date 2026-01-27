@@ -38,7 +38,7 @@
  * =============================================================================
  */
 
-module "test_modules/math_helper.nano as Math" as Math
+module "examples/advanced/math_helper.nano" as Math
 
 fn fibonacci(n: int) -> int {
     if (< n 2) {
@@ -101,7 +101,7 @@ fn main() -> int {
     (println "")
     (println "This program uses IMPORT ALIASES to compose modular code!")
     (println "")
-    (println "Imported: test_modules/math_helper.nano as Math")
+    (println "Imported: examples/advanced/math_helper.nano as Math")
     (println "")
     
     /* Test basic math operations */

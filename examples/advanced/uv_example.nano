@@ -239,7 +239,9 @@ fn example_timing() -> void {
     # Measure sleep accuracy
     let start: int = (nl_uv_hrtime)
     (println "  Sleeping for 100ms...")
-    (nl_uv_sleep 100)
+    unsafe {
+        (nl_uv_sleep 100)
+    }
     let end: int = (nl_uv_hrtime)
     
     let elapsed_ns: int = (- end start)
@@ -250,7 +252,9 @@ fn example_timing() -> void {
     
     # Short precision test
     let start2: int = (nl_uv_hrtime)
-    (nl_uv_sleep 1)
+    unsafe {
+        (nl_uv_sleep 1)
+    }
     let end2: int = (nl_uv_hrtime)
     let elapsed2_us: int = (/ (- end2 start2) 1000)
     (print "  1ms sleep actual: ")

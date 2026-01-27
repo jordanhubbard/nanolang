@@ -55,6 +55,20 @@
 
 unsafe module "modules/curl/curl.nano"
 
+extern fn nl_curl_simple_get(_url: string) -> string
+extern fn nl_curl_simple_post(_url: string, _data: string) -> string
+extern fn nl_curl_download_file(_url: string, _output_path: string) -> int
+extern fn nl_curl_global_init() -> int
+extern fn nl_curl_global_cleanup() -> void
+extern fn nl_curl_easy_init() -> int
+extern fn nl_curl_easy_cleanup(_handle: int) -> void
+extern fn nl_curl_easy_setopt_url(_handle: int, _url: string) -> int
+extern fn nl_curl_easy_setopt_follow_location(_handle: int, _follow: int) -> int
+extern fn nl_curl_easy_setopt_timeout(_handle: int, _timeout_secs: int) -> int
+extern fn nl_curl_easy_setopt_useragent(_handle: int, _useragent: string) -> int
+extern fn nl_curl_easy_perform(_handle: int) -> int
+extern fn nl_curl_easy_getinfo_response_code(_handle: int) -> int
+
 # =============================================================================
 # Example 1: Simple GET Request
 # =============================================================================
@@ -103,7 +117,7 @@ fn example_put_request() -> void {
     (println "=== Example 3: PUT Request (Update) ===")
     (println "Updating resource...")
     
-    let json_update: string = "{\"id\": 42, \"status\": \"updated\", \"timestamp\": 1234567890}"
+    let _json_update: string = "{\"id\": 42, \"status\": \"updated\", \"timestamp\": 1234567890}"
     
     # Initialize curl
     let init_result: int = (nl_curl_global_init)
@@ -300,7 +314,7 @@ fn example_error_handling() -> void {
     # Test 2: Invalid URL
     (println "")
     (println "Test 2: Invalid URL handling...")
-    let init2: int = (nl_curl_global_init)
+    let _init2: int = (nl_curl_global_init)
     let curl2: int = (nl_curl_easy_init)
     if (!= curl2 0) {
         (nl_curl_easy_setopt_url curl2 "not-a-valid-url")
@@ -317,7 +331,7 @@ fn example_error_handling() -> void {
     # Test 3: Non-existent domain
     (println "")
     (println "Test 3: DNS resolution failure...")
-    let init3: int = (nl_curl_global_init)
+    let _init3: int = (nl_curl_global_init)
     let curl3: int = (nl_curl_easy_init)
     if (!= curl3 0) {
         (nl_curl_easy_setopt_url curl3 "https://this-domain-does-not-exist-12345.com")
@@ -441,7 +455,7 @@ fn example_rate_limiting() -> void {
         # In production: add sleep between requests
         # Example: (nl_sleep_ms 1000) for 1 second delay
         
-        (set i (+ i 1))
+        set i (+ i 1)
     }
     
     (nl_curl_global_cleanup)
@@ -476,19 +490,19 @@ fn example_rest_api_client() -> void {
     # CREATE (POST)
     (println "1. CREATE - POST /api/users")
     let create_data: string = "{\"username\": \"john_doe\", \"email\": \"john@example.com\"}"
-    let create_response: string = (nl_curl_simple_post "https://httpbin.org/post" create_data)
+    let _create_response: string = (nl_curl_simple_post "https://httpbin.org/post" create_data)
     (println "   ✓ User created")
     
     # READ (GET)
     (println "")
     (println "2. READ - GET /api/users/123")
-    let read_response: string = (nl_curl_simple_get "https://httpbin.org/get")
+    let _read_response: string = (nl_curl_simple_get "https://httpbin.org/get")
     (println "   ✓ User retrieved")
     
     # UPDATE (PUT)
     (println "")
     (println "3. UPDATE - PUT /api/users/123")
-    let update_data: string = "{\"email\": \"john.doe@example.com\"}"
+    let _update_data: string = "{\"email\": \"john.doe@example.com\"}"
     (println "   ✓ User updated")
     
     # DELETE

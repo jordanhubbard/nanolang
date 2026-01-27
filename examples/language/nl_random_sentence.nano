@@ -1,6 +1,8 @@
 # Example 24: Random Nonsense Sentence Generator
 # Reads words from /usr/share/dict/words and generates random sentences
 
+from "modules/std/fs.nano" import file_read
+
 # External C functions for random numbers and time
 extern fn rand() -> int
 extern fn srand(seed: int) -> void
@@ -139,7 +141,7 @@ fn generate_sentence(content: string, word_count: int) -> string {
 
 shadow generate_sentence {
     let test_content: string = "apple\nbanana\ncherry\ndate\negg\nfig\n"
-    (srand 42)
+    unsafe { (srand 42) }
     let sentence: string = (generate_sentence test_content 5)
     assert (> (strlen sentence) 0)
     # Sentence should end with period
@@ -156,7 +158,7 @@ fn main() -> int {
     
     # Initialize random seed with current time
     let seed: int = (time 0)
-    (srand seed)
+    unsafe { (srand seed) }
     
     # Try to read dictionary file
     let dict_path: string = "/usr/share/dict/words"

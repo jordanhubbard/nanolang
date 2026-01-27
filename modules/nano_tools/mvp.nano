@@ -7,12 +7,14 @@ fn lint_ok(source: string) -> bool {
 }
 
 shadow lint_ok {
-    let src: string = "fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n"
+    let nl: string = (string_from_char 10)
+    let src: string = (+ "fn main() -> int { return 0 }" (+ nl (+ "shadow main { assert (== (main) 0) }" nl)))
     assert (lint_ok src)
 }
 
 fn main() -> int {
-    let src: string = "fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n"
+    let nl: string = (string_from_char 10)
+    let src: string = (+ "fn main() -> int { return 0 }" (+ nl (+ "shadow main { assert (== (main) 0) }" nl)))
     if (lint_ok src) {
         (println "nano_tools: ok")
         return 0

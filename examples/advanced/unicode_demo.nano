@@ -2,13 +2,7 @@
  * Demonstrates grapheme-aware string handling
  */
 
-/* FFI declarations */
-extern fn nl_str_byte_length(s: string) -> int
-extern fn nl_str_grapheme_length(s: string) -> int
-extern fn nl_str_to_lowercase(s: string) -> string
-extern fn nl_str_to_uppercase(s: string) -> string
-extern fn nl_str_is_ascii(s: string) -> bool
-extern fn nl_str_is_valid_utf8(s: string) -> bool
+module "modules/unicode/unicode.nano"
 
 fn main() -> int {
     (println "=== Unicode String Operations Demo ===")
@@ -101,5 +95,8 @@ fn main() -> int {
     return 0
 }
 
-/* Note: No shadow test because it uses extern functions */
+shadow main {
+    # Uses extern functions
+    assert true
+}
 

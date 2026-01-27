@@ -698,68 +698,71 @@ fn run_repl() -> int {
                                     (sb_clear import_paths_sb)
                                     (println "Session cleared")
                                 } else {
-                            # Handle :float EXPR
-                            if (str_starts_with trimmed ":float ") {
-                                let expr: string = (str_trim (str_substring trimmed 7 (- (str_length trimmed) 7)))
-                                (print "=> ")
-                                let preamble: string = (sb_to_string preamble_sb)
-                                let status: int = (eval_with_preamble_float preamble expr)
-                                if (!= status 0) {
-                                    (println "Error: evaluation failed")
-                                } else { (print "") }
-                                set count (+ count 1)
-                            } else {
-                                # Handle :string EXPR
-                                if (str_starts_with trimmed ":string ") {
-                                    let expr: string = (str_trim (str_substring trimmed 8 (- (str_length trimmed) 8)))
-                                    (print "=> ")
-                                    let preamble: string = (sb_to_string preamble_sb)
-                                    let status: int = (eval_with_preamble_string preamble expr)
-                                    if (!= status 0) {
-                                        (println "Error: evaluation failed")
-                                    } else { (print "") }
-                                    set count (+ count 1)
-                                } else {
-                                    # Handle :bool EXPR
-                                    if (str_starts_with trimmed ":bool ") {
-                                        let expr: string = (str_trim (str_substring trimmed 6 (- (str_length trimmed) 6)))
+                                    # Handle :float EXPR
+                                    if (str_starts_with trimmed ":float ") {
+                                        let expr: string = (str_trim (str_substring trimmed 7 (- (str_length trimmed) 7)))
                                         (print "=> ")
                                         let preamble: string = (sb_to_string preamble_sb)
-                                        let status: int = (eval_with_preamble_bool preamble expr)
+                                        let status: int = (eval_with_preamble_float preamble expr)
                                         if (!= status 0) {
                                             (println "Error: evaluation failed")
                                         } else { (print "") }
                                         set count (+ count 1)
                                     } else {
-                                        # Handle let statement
-                                        if (is_let_statement trimmed) {
-                                            let status: int = (handle_let preamble_sb var_names_sb trimmed)
+                                        # Handle :string EXPR
+                                        if (str_starts_with trimmed ":string ") {
+                                            let expr: string = (str_trim (str_substring trimmed 8 (- (str_length trimmed) 8)))
+                                            (print "=> ")
+                                            let preamble: string = (sb_to_string preamble_sb)
+                                            let status: int = (eval_with_preamble_string preamble expr)
                                             if (!= status 0) {
-                                                (println "Error: Failed to define variable")
+                                                (println "Error: evaluation failed")
                                             } else { (print "") }
+                                            set count (+ count 1)
                                         } else {
-                                            # Handle function definition
-                                            if (is_fn_definition trimmed) {
-                                                let status: int = (handle_fn preamble_sb fn_names_sb trimmed)
+                                            # Handle :bool EXPR
+                                            if (str_starts_with trimmed ":bool ") {
+                                                let expr: string = (str_trim (str_substring trimmed 6 (- (str_length trimmed) 6)))
+                                                (print "=> ")
+                                                let preamble: string = (sb_to_string preamble_sb)
+                                                let status: int = (eval_with_preamble_bool preamble expr)
                                                 if (!= status 0) {
-                                                    (println "Error: Failed to define function")
+                                                    (println "Error: evaluation failed")
                                                 } else { (print "") }
+                                                set count (+ count 1)
                                             } else {
-                                                # Handle import statement
-                                                if (is_import_statement trimmed) {
-                                                    let status: int = (handle_import preamble_sb import_paths_sb trimmed)
+                                                # Handle let statement
+                                                if (is_let_statement trimmed) {
+                                                    let status: int = (handle_let preamble_sb var_names_sb trimmed)
                                                     if (!= status 0) {
-                                                        (println "Error: Failed to import module")
+                                                        (println "Error: Failed to define variable")
                                                     } else { (print "") }
                                                 } else {
-                                                    # Evaluate expression (default: int)
-                                                    (print "=> ")
-                                                    let preamble: string = (sb_to_string preamble_sb)
-                                                    let status: int = (eval_with_preamble preamble trimmed)
-                                                    if (!= status 0) {
-                                                        (println "Error: evaluation failed")
-                                                    } else { (print "") }
-                                                    set count (+ count 1)
+                                                    # Handle function definition
+                                                    if (is_fn_definition trimmed) {
+                                                        let status: int = (handle_fn
+                                                            preamble_sb fn_names_sb trimmed)
+                                                        if (!= status 0) {
+                                                            (println "Error: Failed to define function")
+                                                        } else { (print "") }
+                                                    } else {
+                                                        # Handle import statement
+                                                        if (is_import_statement trimmed) {
+                                                            let status: int = (handle_import preamble_sb import_paths_sb trimmed)
+                                                            if (!= status 0) {
+                                                                (println "Error: Failed to import module")
+                                                            } else { (print "") }
+                                                        } else {
+                                                            # Evaluate expression (default: int)
+                                                            (print "=> ")
+                                                            let preamble: string = (sb_to_string preamble_sb)
+                                                            let status: int = (eval_with_preamble preamble trimmed)
+                                                            if (!= status 0) {
+                                                                (println "Error: evaluation failed")
+                                                            } else { (print "") }
+                                                            set count (+ count 1)
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }

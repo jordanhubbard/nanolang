@@ -1,26 +1,31 @@
-// Datetime Library Demo
-module "std/datetime/datetime.nano as DT" as DT
+# Datetime Library Demo
+module "std/datetime/datetime.nano" as DT
 
 fn current_time_example() -> void {
     (println "=== Current Time Example ===")
     
-    let now: DT.DateTime = (DT.now)
-    let iso_str: string = (DT.to_iso now)
-    (println (string_concat "Current time (ISO): " iso_str))
+    let current_dt: DT.DateTime = (DT.now)
+    let iso_str: string = (DT.to_iso current_dt)
+    (println (+ "Current time (ISO): " iso_str))
     
-    let formatted: string = (DT.format now "%A, %B %d, %Y at %I:%M %p")
-    (println (string_concat "Formatted: " formatted))
+    let formatted: string = (DT.format current_dt "%A, %B %d, %Y at %I:%M %p")
+    (println (+ "Formatted: " formatted))
     
-    let year: int = (DT.year now)
-    let month: int = (DT.month now)
-    let day: int = (DT.day now)
+    let year_val: int = (DT.year current_dt)
+    let month_val: int = (DT.month current_dt)
+    let day_val: int = (DT.day current_dt)
     
-    (println (string_concat "Year: " (int_to_string year)))
-    (println (string_concat "Month: " (string_concat (DT.month_name month) (string_concat " (" (string_concat (int_to_string month) ")")))))
-    (println (string_concat "Day: " (int_to_string day)))
-    (println (string_concat "Weekday: " (DT.weekday_name now)))
+    (println (+ "Year: " (int_to_string year_val)))
+    (println (+ "Month: " (+ (DT.month_name month_val) (+ " (" (+ (int_to_string month_val) ")")))))
+    (println (+ "Day: " (int_to_string day_val)))
+    (println (+ "Weekday: " (DT.weekday_name current_dt)))
     
-    (DT.free now)
+    (DT.free current_dt)
+}
+
+shadow current_time_example {
+    (current_time_example)
+    assert true
 }
 
 fn parsing_example() -> void {
@@ -29,16 +34,16 @@ fn parsing_example() -> void {
     
     let iso_date: string = "2024-12-17T15:30:00"
     let parsed: DT.DateTime = (DT.parse_iso iso_date)
-    
-    if (!= parsed (cast 0 DT.DateTime)) {
-        (println (string_concat "Parsed: " (DT.to_iso parsed)))
-        (println (string_concat "Year: " (int_to_string (DT.year parsed))))
-        (println (string_concat "Month: " (int_to_string (DT.month parsed))))
-        (println (string_concat "Day: " (int_to_string (DT.day parsed))))
-        (DT.free parsed)
-    } else {
-        (println "Failed to parse date")
-    }
+    (println (+ "Parsed: " (DT.to_iso parsed)))
+    (println (+ "Year: " (int_to_string (DT.year parsed))))
+    (println (+ "Month: " (int_to_string (DT.month parsed))))
+    (println (+ "Day: " (int_to_string (DT.day parsed))))
+    (DT.free parsed)
+}
+
+shadow parsing_example {
+    (parsing_example)
+    assert true
 }
 
 fn arithmetic_example() -> void {
@@ -46,20 +51,25 @@ fn arithmetic_example() -> void {
     (println "=== Arithmetic Example ===")
     
     let base: DT.DateTime = (DT.create 2024 1 1 12 0 0)
-    (println (string_concat "Base date: " (DT.to_iso base)))
+    (println (+ "Base date: " (DT.to_iso base)))
     
     let plus_days: DT.DateTime = (DT.add_days base 30)
-    (println (string_concat "Plus 30 days: " (DT.to_iso plus_days)))
+    (println (+ "Plus 30 days: " (DT.to_iso plus_days)))
     
     let plus_hours: DT.DateTime = (DT.add_hours base 48)
-    (println (string_concat "Plus 48 hours: " (DT.to_iso plus_hours)))
+    (println (+ "Plus 48 hours: " (DT.to_iso plus_hours)))
     
     let diff: int = (DT.diff_seconds plus_days base)
-    (println (string_concat "Difference: " (string_concat (int_to_string diff) " seconds")))
+    (println (+ "Difference: " (+ (int_to_string diff) " seconds")))
     
     (DT.free base)
     (DT.free plus_days)
     (DT.free plus_hours)
+}
+
+shadow arithmetic_example {
+    (arithmetic_example)
+    assert true
 }
 
 fn comparison_example() -> void {
@@ -69,8 +79,8 @@ fn comparison_example() -> void {
     let dt1: DT.DateTime = (DT.create 2024 6 15 12 0 0)
     let dt2: DT.DateTime = (DT.create 2024 12 25 12 0 0)
     
-    (println (string_concat "Date 1: " (DT.to_iso dt1)))
-    (println (string_concat "Date 2: " (DT.to_iso dt2)))
+    (println (+ "Date 1: " (DT.to_iso dt1)))
+    (println (+ "Date 2: " (DT.to_iso dt2)))
     
     if (DT.before dt1 dt2) {
         (println "✓ Date 1 is before Date 2")
@@ -90,40 +100,55 @@ fn comparison_example() -> void {
     (DT.free dt3)
 }
 
+shadow comparison_example {
+    (comparison_example)
+    assert true
+}
+
 fn utilities_example() -> void {
     (println "")
     (println "=== Utilities Example ===")
     
-    let year: int = 2024
-    if (DT.is_leap_year year) {
-        (println (string_concat (int_to_string year) " is a leap year"))
+    let year_val: int = 2024
+    if (DT.is_leap_year year_val) {
+        (println (+ (int_to_string year_val) " is a leap year"))
     } else {
-        (println (string_concat (int_to_string year) " is not a leap year"))
+        (println (+ (int_to_string year_val) " is not a leap year"))
     }
     
     (println "")
     (println "Days in each month of 2024:")
-    let mut month: int = 1
-    while (<= month 12) {
-        let days: int = (DT.days_in_month year month)
-        (println (string_concat (DT.month_name month) (string_concat ": " (string_concat (int_to_string days) " days"))))
-        set month (+ month 1)
+    let mut month_val: int = 1
+    while (<= month_val 12) {
+        let days: int = (DT.days_in_month year_val month_val)
+        (println (+ (DT.month_name month_val) (+ ": " (+ (int_to_string days) " days"))))
+        set month_val (+ month_val 1)
     }
+}
+
+shadow utilities_example {
+    (utilities_example)
+    assert true
 }
 
 fn timestamp_example() -> void {
     (println "")
     (println "=== Timestamp Example ===")
     
-    let now: DT.DateTime = (DT.now)
-    let timestamp: int = (DT.to_timestamp now)
-    (println (string_concat "Current timestamp: " (int_to_string timestamp)))
+    let current_dt: DT.DateTime = (DT.now)
+    let timestamp: int = (DT.to_timestamp current_dt)
+    (println (+ "Current timestamp: " (int_to_string timestamp)))
     
     let from_ts: DT.DateTime = (DT.from_timestamp timestamp)
-    (println (string_concat "Converted back: " (DT.to_iso from_ts)))
+    (println (+ "Converted back: " (DT.to_iso from_ts)))
     
-    (DT.free now)
+    (DT.free current_dt)
     (DT.free from_ts)
+}
+
+shadow timestamp_example {
+    (timestamp_example)
+    assert true
 }
 
 fn main() -> int {
@@ -137,5 +162,9 @@ fn main() -> int {
     (println "")
     (println "✅ Datetime demo complete!")
     return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }
 

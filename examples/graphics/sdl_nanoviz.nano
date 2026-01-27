@@ -48,6 +48,7 @@
 
 unsafe module "modules/glfw/glfw.nano"
 unsafe module "modules/glew/glew.nano"
+unsafe module "modules/opengl/opengl.nano"
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_mixer/sdl_mixer.nano"
 module "modules/audio_viz/audio_viz.nano"

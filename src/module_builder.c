@@ -1343,6 +1343,11 @@ char** module_get_link_flags(ModuleBuildInfo **modules, size_t count, size_t *ou
         if (modules[i]) {
             for (size_t j = 0; j < modules[i]->link_flags_count; j++) {
                 const char *flag = modules[i]->link_flags[j];
+                bool is_framework_flag = (strcmp(flag, "-framework") == 0);
+                bool is_framework_value = false;
+                if (j > 0 && modules[i]->link_flags[j - 1]) {
+                    is_framework_value = (strcmp(modules[i]->link_flags[j - 1], "-framework") == 0);
+                }
                 
                 // Skip NULL or empty flags
                 if (!flag || flag[0] == '\0') {
@@ -1350,14 +1355,16 @@ char** module_get_link_flags(ModuleBuildInfo **modules, size_t count, size_t *ou
                 }
                 
                 // De-duplicate by keeping the LAST occurrence (helps link order for dependent libs)
-                for (size_t k = 0; k < pos; k++) {
-                    if (strcmp(all_flags[k], flag) == 0) {
-                        free(all_flags[k]);
-                        for (size_t m = k; m + 1 < pos; m++) {
-                            all_flags[m] = all_flags[m + 1];
+                if (!is_framework_flag && !is_framework_value) {
+                    for (size_t k = 0; k < pos; k++) {
+                        if (strcmp(all_flags[k], flag) == 0) {
+                            free(all_flags[k]);
+                            for (size_t m = k; m + 1 < pos; m++) {
+                                all_flags[m] = all_flags[m + 1];
+                            }
+                            pos--;
+                            break;
                         }
-                        pos--;
-                        break;
                     }
                 }
 
