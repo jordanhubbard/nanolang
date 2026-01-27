@@ -1,9 +1,13 @@
 # Example 25: Pi Calculator to 500 Decimal Places
 # Uses the Spigot algorithm for computing pi digit by digit
 
+from "stdlib/timing.nano" import get_nanoseconds, format_nanoseconds
+
 # External C functions
 extern fn strlen(s: string) -> int
 extern fn atan(x: float) -> float
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
 
 # Helper to convert int to float
 fn int_to_float(n: int) -> float {
@@ -88,6 +92,32 @@ shadow compute_pi_digit {
     let digit: int = (compute_pi_digit arr 20 0)
     assert (>= digit 0)
     assert (<= digit 9)
+}
+
+# Calculate pi digits using the spigot algorithm
+fn calculate_pi_spigot(decimal_places: int) -> string {
+    if (<= decimal_places 0) {
+        return "3"
+    } else {
+        let arr_len: int = (+ (/ (* decimal_places 10) 3) 1)
+        let arr: array<int> = (init_spigot_array arr_len)
+        let mut result: string = "3."
+        let mut i: int = 0
+        while (< i decimal_places) {
+            let digit: int = (compute_pi_digit arr arr_len i)
+            set result (+ result (int_to_string digit))
+            set i (+ i 1)
+        }
+        return result
+    }
+}
+
+shadow calculate_pi_spigot {
+    let pi0: string = (calculate_pi_spigot 0)
+    assert (str_equals pi0 "3")
+
+    let pi5: string = (calculate_pi_spigot 5)
+    assert (== (str_length pi5) 7)
 }
 
 # Simple pi calculation using Leibniz formula (slower but simpler)
@@ -203,8 +233,49 @@ shadow print_pi_digits {
     assert (== (print_pi_digits) 0)
 }
 
+fn run_single_calculation(decimal_places: int) -> int {
+    (println "========================================")
+    (print "Calculating pi to ")
+    (print (int_to_string decimal_places))
+    (println " decimal places")
+    (println "========================================")
+    (println "")
+
+    let start_time: int = (get_nanoseconds)
+    let pi_value: string = (calculate_pi_spigot decimal_places)
+    let end_time: int = (get_nanoseconds)
+
+    let mut elapsed_ns: int = (- end_time start_time)
+    if (<= elapsed_ns 0) {
+        set elapsed_ns 1
+    }
+    let time_str: string = (format_nanoseconds elapsed_ns)
+
+    (print "Result: ")
+    (println pi_value)
+    (println "")
+    (print "Time spent: ")
+    (print time_str)
+    (println " seconds")
+    (println "")
+
+    return 0
+}
+
+shadow run_single_calculation {
+    assert (== (run_single_calculation 5) 0)
+}
+
 # Main function
 fn main() -> int {
+    let argc: int = (get_argc)
+    if (>= argc 2) {
+        let arg_value: string = (get_argv 1)
+        let mut decimal_places: int = (string_to_int arg_value)
+        if (< decimal_places 0) { set decimal_places (- 0 decimal_places) } else {}
+        return (run_single_calculation decimal_places)
+    }
+
     (println "========================================")
     (println "Pi Calculator")
     (println "========================================")

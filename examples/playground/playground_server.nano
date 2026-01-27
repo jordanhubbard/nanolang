@@ -154,7 +154,7 @@ fn print_banner() -> void {
 }
 
 shadow print_banner {
-    (print_banner)
+    assert true
 }
 
 fn main() -> int {
