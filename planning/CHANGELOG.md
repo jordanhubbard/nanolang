@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+[0;34mℹ️  Generating changelog from v2.0.12 to HEAD...[0m
+## [2.0.13] - 2026-01-26
+
+### Added
+- Implement postcondition injection for ensures clauses
+- Add ensures clause parsing and playground accessibility improvements
+- Add NanoLang Playground - Interactive web-based REPL
+
+### Fixed
+- stabilize coverage arrays and add shadow tests
+
 [0;34mℹ️  Generating changelog from v2.0.11 to HEAD...[0m
 ## [2.0.12] - 2026-01-26
 
