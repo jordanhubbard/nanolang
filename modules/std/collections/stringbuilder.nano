@@ -69,10 +69,28 @@ pub fn sb_append_line(sb: StringBuilder, text: string) -> StringBuilder {
     return (sb_append sb2 "\n")
 }
 
+shadow sb_append_line {
+    let sb1: StringBuilder = (sb_new)
+    let sb2: StringBuilder = (sb_append_line sb1 "Line 1")
+    let sb3: StringBuilder = (sb_append_line sb2 "Line 2")
+    assert (== (sb_length sb3) 14)
+    assert (== (== (sb_to_string sb3) "Line 1\nLine 2\n") true)
+}
+
 /* Append an integer (converted to string) */
 pub fn sb_append_int(sb: StringBuilder, n: int) -> StringBuilder {
     let s: string = (int_to_string n)
     return (sb_append sb s)
+}
+
+shadow sb_append_int {
+    let sb1: StringBuilder = (sb_new)
+    let sb2: StringBuilder = (sb_append_int sb1 42)
+    assert (== (== (sb_to_string sb2) "42") true)
+
+    let sb3: StringBuilder = (sb_append sb2 " and ")
+    let sb4: StringBuilder = (sb_append_int sb3 100)
+    assert (== (== (sb_to_string sb4) "42 and 100") true)
 }
 
 /* Append a character (ASCII value) */
@@ -81,6 +99,13 @@ pub fn sb_append_char(sb: StringBuilder, c: int) -> StringBuilder {
         (nl_sb_append_char sb.handle c)
     }
     return sb
+}
+
+shadow sb_append_char {
+    let sb1: StringBuilder = (sb_new)
+    let sb2: StringBuilder = (sb_append_char sb1 'H')
+    let sb3: StringBuilder = (sb_append_char sb2 'i')
+    assert (== (== (sb_to_string sb3) "Hi") true)
 }
 
 /* Get the current content as a string */
@@ -105,15 +130,38 @@ pub fn sb_clear(sb: StringBuilder) -> StringBuilder {
     return sb
 }
 
+shadow sb_clear {
+    let sb1: StringBuilder = (sb_new)
+    let sb2: StringBuilder = (sb_append sb1 "Hello")
+    let sb3: StringBuilder = (sb_clear sb2)
+    assert (== (sb_length sb3) 0)
+    assert (== (== (sb_to_string sb3) "") true)
+}
+
 /* Check if StringBuilder is empty */
 pub fn sb_is_empty(sb: StringBuilder) -> bool {
     return (== (sb_length sb) 0)
+}
+
+shadow sb_is_empty {
+    let sb1: StringBuilder = (sb_new)
+    assert (sb_is_empty sb1)
+
+    let sb2: StringBuilder = (sb_append sb1 "X")
+    assert (not (sb_is_empty sb2))
 }
 
 pub fn sb_free(sb: StringBuilder) -> void {
     unsafe {
         (nl_sb_free sb.handle)
     }
+}
+
+shadow sb_free {
+    let sb1: StringBuilder = (sb_new)
+    let sb2: StringBuilder = (sb_append sb1 "Bye")
+    (sb_free sb2)
+    assert true
 }
 
 /* Build a string from multiple parts efficiently */
@@ -130,6 +178,15 @@ pub fn sb_from_parts(parts: array<string>) -> string {
     }
     
     return (sb_to_string sb)
+}
+
+shadow sb_from_parts {
+    let parts: array<string> = (array_new 3 "")
+    (array_set parts 0 "Hello")
+    (array_set parts 1 " ")
+    (array_set parts 2 "World")
+    let result: string = (sb_from_parts parts)
+    assert (== (== result "Hello World") true)
 }
 
 /* Join strings with a separator */
@@ -151,6 +208,15 @@ pub fn sb_join(parts: array<string>, separator: string) -> string {
     return (sb_to_string sb)
 }
 
+shadow sb_join {
+    let parts: array<string> = (array_new 3 "")
+    (array_set parts 0 "one")
+    (array_set parts 1 "two")
+    (array_set parts 2 "three")
+    let result: string = (sb_join parts ", ")
+    assert (== (== result "one, two, three") true)
+}
+
 /* Repeat a string n times */
 pub fn sb_repeat(text: string, n: int) -> string {
     let sb_start: StringBuilder = (sb_new)
@@ -164,9 +230,25 @@ pub fn sb_repeat(text: string, n: int) -> string {
     return (sb_to_string sb)
 }
 
+shadow sb_repeat {
+    let result: string = (sb_repeat "ab" 3)
+    assert (== (== result "ababab") true)
+}
+
 /* Build indentation string (spaces) */
 pub fn sb_indent(level: int, spaces_per_level: int) -> string {
     let total_spaces: int = (* level spaces_per_level)
     return (sb_repeat " " total_spaces)
+}
+
+shadow sb_indent {
+    let indent0: string = (sb_indent 0 4)
+    assert (== (== indent0 "") true)
+
+    let indent1: string = (sb_indent 1 4)
+    assert (== (== indent1 "    ") true)
+
+    let indent2: string = (sb_indent 2 4)
+    assert (== (== indent2 "        ") true)
 }
 

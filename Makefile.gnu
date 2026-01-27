@@ -590,7 +590,7 @@ $(BIN_DIR)/nano_lint: tools/nano_lint.nano | $(BIN_DIR)
 	@$(TIMEOUT_CMD) $(COMPILER) tools/nano_lint.nano -o $(BIN_DIR)/nano_lint
 
 # Object file compilation
-$(COMPILER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime
+$(COMPILER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime $(OBJ_DIR)/eval
 
 $(OBJ_DIR)/ffi_bindgen.o: src/ffi_bindgen.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c src/ffi_bindgen.c -o $(OBJ_DIR)/ffi_bindgen.o

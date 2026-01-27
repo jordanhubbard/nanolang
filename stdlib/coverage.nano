@@ -29,9 +29,10 @@ shadow coverage_init {
 # Record a coverage point hit
 fn coverage_record(file: string, line: int, column: int) -> void {
     if g_coverage_enabled {
-        # Find existing point or create new
+        # Find existing point or create new (rebuild array to avoid array_set on dynamic arrays)
         let mut found: bool = false
         let mut i: int = 0
+        let mut updated_points: array<CoveragePoint> = []
         while (< i (array_length g_coverage_points)) {
             let point: CoveragePoint = (at g_coverage_points i)
             if (and (== point.file file)
@@ -43,8 +44,10 @@ fn coverage_record(file: string, line: int, column: int) -> void {
                     column: point.column,
                     hit_count: (+ point.hit_count 1)
                 }
-                (array_set g_coverage_points i updated)
+                set updated_points (array_push updated_points updated)
                 set found true
+            } else {
+                set updated_points (array_push updated_points point)
             }
             set i (+ i 1)
         }
@@ -57,8 +60,10 @@ fn coverage_record(file: string, line: int, column: int) -> void {
                 column: column,
                 hit_count: 1
             }
-            set g_coverage_points (array_push g_coverage_points new_point)
+            set updated_points (array_push updated_points new_point)
         }
+
+        set g_coverage_points updated_points
     }
 }
 
@@ -169,6 +174,7 @@ let mut g_timing_points: array<TimingPoint> = []
 # Start timing a labeled section
 fn timing_start(label: string) -> int {
     # Return current time in milliseconds (placeholder - needs runtime support)
+    let _label: string = label
     return 0  # TODO: Implement with actual clock
 }
 
@@ -182,9 +188,10 @@ fn timing_end(label: string, start_time: int) -> void {
     let end_time: int = 0  # TODO: Get actual time
     let elapsed: int = (- end_time start_time)
     
-    # Find or create timing point
+    # Find or create timing point (rebuild array to avoid array_set on dynamic arrays)
     let mut found: bool = false
     let mut i: int = 0
+    let mut updated_points: array<TimingPoint> = []
     while (< i (array_length g_timing_points)) {
         let point: TimingPoint = (at g_timing_points i)
         if (== point.label label) {
@@ -194,8 +201,10 @@ fn timing_end(label: string, start_time: int) -> void {
                 total_time_ms: (+ point.total_time_ms elapsed),
                 call_count: (+ point.call_count 1)
             }
-            (array_set g_timing_points i updated)
+            set updated_points (array_push updated_points updated)
             set found true
+        } else {
+            set updated_points (array_push updated_points point)
         }
         set i (+ i 1)
     }
@@ -207,8 +216,10 @@ fn timing_end(label: string, start_time: int) -> void {
             total_time_ms: elapsed,
             call_count: 1
         }
-        set g_timing_points (array_push g_timing_points new_point)
+        set updated_points (array_push updated_points new_point)
     }
+
+    set g_timing_points updated_points
 }
 
 shadow timing_end {

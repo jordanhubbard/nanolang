@@ -319,6 +319,9 @@ pub fn error_type_mismatch(
     context: string
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "TYPE MISMATCH" file line column)
+    let _expected: string = expected
+    let _found: string = found
+    let _context: string = context
     
     # TODO: Build problem string with expected vs found
     # "I expected a value of type `int`, but found `string`"
@@ -349,6 +352,8 @@ pub fn error_undefined_variable(
     similar_names: List<string>
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "UNDEFINED VARIABLE" file line column)
+    let _var_name: string = var_name
+    let _similar_names: List<string> = similar_names
     
     # TODO: Build problem string
     # "I cannot find a variable named `countr`"
@@ -380,6 +385,9 @@ pub fn error_arity_mismatch(
     found_args: int
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "WRONG NUMBER OF ARGUMENTS" file line column)
+    let _function_name: string = function_name
+    let _expected_args: int = expected_args
+    let _found_args: int = found_args
     
     # TODO: Build problem string
     # "The function `add` expects 2 arguments, but I see 3"
@@ -411,6 +419,8 @@ pub fn error_missing_return(
     expected_type: string
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "MISSING RETURN" file line column)
+    let _function_name: string = function_name
+    let _expected_type: string = expected_type
     
     # TODO: Build problem string
     # "The function `calculate` is declared to return `int`, but some branches don't return a value"
@@ -441,6 +451,7 @@ pub fn error_immutable_assignment(
     var_name: string
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "CANNOT ASSIGN TO IMMUTABLE VARIABLE" file line column)
+    let _var_name: string = var_name
     
     # TODO: Build problem string
     # "I cannot assign to `count` because it was declared as immutable"
@@ -525,6 +536,7 @@ pub fn error_unsafe_required(
     function_name: string
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "UNSAFE OPERATION" file line column)
+    let _function_name: string = function_name
     
     # TODO: Build problem string
     # "The function `malloc` is marked as unsafe and must be called inside an unsafe block"
@@ -556,6 +568,8 @@ pub fn error_use_after_consume(
     consumed_at_line: int
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "USE AFTER CONSUME" file line column)
+    let _resource_name: string = resource_name
+    let _consumed_at_line: int = consumed_at_line
     
     # TODO: Build problem string
     # "I cannot use `file` because it was already consumed at line 42"
@@ -586,6 +600,8 @@ pub fn error_resource_leak(
     resource_type: string
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "RESOURCE LEAK" file line column)
+    let _resource_name: string = resource_name
+    let _resource_type: string = resource_type
     
     # TODO: Build problem string
     # "The resource `file` of type `FileHandle` was not consumed before the function returns"
@@ -612,6 +628,7 @@ shadow error_resource_leak {
 
 /* Get a friendly error template for common mistakes */
 pub fn get_error_template(error_code: string) -> string {
+    let _error_code: string = error_code
     # TODO: Return helpful templates for common errors
     # E0001: NSType mismatch
     # E0002: Undefined variable
