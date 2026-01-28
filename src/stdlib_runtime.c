@@ -1350,9 +1350,15 @@ void generate_timing_utilities(StringBuilder *sb) {
 
     sb_append(sb, "/* Get current time in microseconds since epoch */\n");
     sb_append(sb, "static int64_t nl_timing_get_microseconds(void) {\n");
+    sb_append(sb, "#ifdef CLOCK_REALTIME\n");
+    sb_append(sb, "    struct timespec ts;\n");
+    sb_append(sb, "    clock_gettime(CLOCK_REALTIME, &ts);\n");
+    sb_append(sb, "    return ((int64_t)ts.tv_sec * 1000000LL) + (int64_t)(ts.tv_nsec / 1000);\n");
+    sb_append(sb, "#else\n");
     sb_append(sb, "    struct timeval tv;\n");
     sb_append(sb, "    gettimeofday(&tv, NULL);\n");
     sb_append(sb, "    return ((int64_t)tv.tv_sec * 1000000LL) + (int64_t)tv.tv_usec;\n");
+    sb_append(sb, "#endif\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "/* Get high-resolution time in nanoseconds */\n");

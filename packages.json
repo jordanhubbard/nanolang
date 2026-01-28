@@ -117,6 +117,23 @@
       },
       "notes": "Windows: Use PDCurses or Windows Terminal API instead"
     },
+    "readline": {
+      "description": "GNU Readline line editing library",
+      "version": ">=6.0",
+      "detection": {
+        "headers": ["readline/readline.h"]
+      },
+      "install": {
+        "apt": {"package": "libreadline-dev"},
+        "dnf": {"package": "readline-devel"},
+        "yum": {"package": "readline-devel"},
+        "pacman": {"package": "readline"},
+        "brew": {"package": "readline"},
+        "apk": {"package": "readline-dev"},
+        "zypper": {"package": "readline-devel"},
+        "pkg": {"package": "readline"}
+      }
+    },
     "sqlite3": {
       "description": "Embedded SQL database",
       "version": ">=3.0",

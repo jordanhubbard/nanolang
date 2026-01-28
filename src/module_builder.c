@@ -29,6 +29,7 @@ typedef enum {
     PKG_MGR_PACMAN,     // Arch Linux
     PKG_MGR_ZYPPER,     // openSUSE
     PKG_MGR_APK,        // Alpine Linux
+    PKG_MGR_PKG,        // FreeBSD pkg
     PKG_MGR_BREW,       // macOS Homebrew
     PKG_MGR_CHOCOLATEY, // Windows Chocolatey
     PKG_MGR_WINGET,     // Windows Package Manager
@@ -119,8 +120,11 @@ static PackageManager detect_package_manager(void) {
         detected_pkg_manager = PKG_MGR_BREW;
     }
     #else
-    // Linux: Try apt, dnf, yum, pacman, zypper, apk (in preference order)
-    if (access("/usr/bin/apt-get", F_OK) == 0 || access("/usr/bin/apt", F_OK) == 0) {
+    // Unix: Try FreeBSD pkg, then Linux managers (in preference order)
+    if (access("/usr/sbin/pkg", F_OK) == 0 || access("/usr/local/sbin/pkg", F_OK) == 0 ||
+        system("command -v pkg >/dev/null 2>&1") == 0) {
+        detected_pkg_manager = PKG_MGR_PKG;
+    } else if (access("/usr/bin/apt-get", F_OK) == 0 || access("/usr/bin/apt", F_OK) == 0) {
         detected_pkg_manager = PKG_MGR_APT;
     } else if (access("/usr/bin/dnf", F_OK) == 0) {
         detected_pkg_manager = PKG_MGR_DNF;
@@ -136,7 +140,7 @@ static PackageManager detect_package_manager(void) {
     #endif
 
     if (module_builder_verbose && detected_pkg_manager != PKG_MGR_UNKNOWN) {
-        const char *names[] = {"unknown", "apt", "dnf", "yum", "pacman", "zypper", "apk", "brew", "chocolatey", "winget", "scoop"};
+        const char *names[] = {"unknown", "apt", "dnf", "yum", "pacman", "zypper", "apk", "pkg", "brew", "chocolatey", "winget", "scoop"};
         printf("[PackageRegistry] Detected package manager: %s\n", names[detected_pkg_manager]);
     }
 
@@ -152,6 +156,7 @@ static const char* get_package_manager_name(PackageManager pm) {
         case PKG_MGR_PACMAN: return "pacman";
         case PKG_MGR_ZYPPER: return "zypper";
         case PKG_MGR_APK: return "apk";
+        case PKG_MGR_PKG: return "pkg";
         case PKG_MGR_BREW: return "brew";
         case PKG_MGR_CHOCOLATEY: return "chocolatey";
         case PKG_MGR_WINGET: return "winget";
@@ -378,6 +383,16 @@ static bool install_single_package(const char *package_name, PackageManager pm) 
                 return true;
             }
             snprintf(cmd, sizeof(cmd), "brew install %s", package_name);
+            break;
+
+        case PKG_MGR_PKG:
+            snprintf(cmd, sizeof(cmd), "pkg info -e %s >/dev/null 2>&1", package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
+            }
+            snprintf(cmd, sizeof(cmd), "sudo pkg install -y %s", package_name);
+            printf("[Module]   Running: sudo pkg install -y %s\n", package_name);
             break;
 
         case PKG_MGR_CHOCOLATEY:
