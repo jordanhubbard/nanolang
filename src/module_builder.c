@@ -348,10 +348,27 @@ static char* run_command(const char *cmd) {
     return output;
 }
 
+static const char* module_builder_sudo_prefix(void) {
+    static bool initialized = false;
+    static const char *prefix = "sudo";
+
+    if (!initialized) {
+        bool interactive = isatty(STDIN_FILENO) && isatty(STDOUT_FILENO);
+        if (!interactive) {
+            prefix = "sudo -n";
+            printf("[Module]   Non-interactive shell detected; using sudo -n\n");
+        }
+        initialized = true;
+    }
+
+    return prefix;
+}
+
 // Install a single package using the detected package manager
 static bool install_single_package(const char *package_name, PackageManager pm) {
     char cmd[2048];
     int result;
+    const char *sudo_cmd = module_builder_sudo_prefix();
 
     switch (pm) {
         case PKG_MGR_APT:
@@ -361,8 +378,8 @@ static bool install_single_package(const char *package_name, PackageManager pm) 
                 printf("[Module]   ✓ %s already installed\n", package_name);
                 return true;
             }
-            snprintf(cmd, sizeof(cmd), "sudo apt-get update -qq && sudo apt-get install -y %s", package_name);
-            printf("[Module]   Running: sudo apt-get install -y %s\n", package_name);
+            snprintf(cmd, sizeof(cmd), "%s apt-get update -qq && %s apt-get install -y %s", sudo_cmd, sudo_cmd, package_name);
+            printf("[Module]   Running: %s apt-get install -y %s\n", sudo_cmd, package_name);
             break;
 
         case PKG_MGR_DNF:
@@ -372,8 +389,8 @@ static bool install_single_package(const char *package_name, PackageManager pm) 
                 printf("[Module]   ✓ %s already installed\n", package_name);
                 return true;
             }
-            snprintf(cmd, sizeof(cmd), "sudo %s install -y %s", 
-                     pm == PKG_MGR_DNF ? "dnf" : "yum", package_name);
+            snprintf(cmd, sizeof(cmd), "%s %s install -y %s", 
+                     sudo_cmd, pm == PKG_MGR_DNF ? "dnf" : "yum", package_name);
             break;
 
         case PKG_MGR_BREW:
@@ -391,8 +408,8 @@ static bool install_single_package(const char *package_name, PackageManager pm) 
                 printf("[Module]   ✓ %s already installed\n", package_name);
                 return true;
             }
-            snprintf(cmd, sizeof(cmd), "sudo pkg install -y %s", package_name);
-            printf("[Module]   Running: sudo pkg install -y %s\n", package_name);
+            snprintf(cmd, sizeof(cmd), "%s pkg install -y %s", sudo_cmd, package_name);
+            printf("[Module]   Running: %s pkg install -y %s\n", sudo_cmd, package_name);
             break;
 
         case PKG_MGR_CHOCOLATEY:
