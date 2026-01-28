@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.14] - 2026-01-28
+
+### Fixed
+- deep-copy struct string fields in interpreter
+- avoid sudo prompts in non-interactive installs
+- add FreeBSD pkg mappings for SDL2
+- use unsafe srand in random sentence shadow test
+- map sdl2_image dependencies
+- expose strptime in datetime impl
+- add utf8proc package mapping
+- include stdint in sqlite helpers
+- remove llabs from ffi tutorial
+- add select headers for readline
+- add pkg-config for readline
+- support pkg installs and timing fallback
+- stabilize example builds and module linkage
+- add pi cli override and quiet playground banner
+
 [0;34mℹ️  Generating changelog from v2.0.12 to HEAD...[0m
 ## [2.0.13] - 2026-01-26
 
