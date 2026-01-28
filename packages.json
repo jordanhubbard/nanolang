@@ -134,6 +134,24 @@
         "pkg": {"package": "readline"}
       }
     },
+    "utf8proc": {
+      "description": "Unicode processing library",
+      "version": ">=2.0.0",
+      "detection": {
+        "pkg-config": "libutf8proc",
+        "headers": ["utf8proc.h"]
+      },
+      "install": {
+        "apt": {"package": "libutf8proc-dev"},
+        "dnf": {"package": "utf8proc-devel"},
+        "yum": {"package": "utf8proc-devel"},
+        "pacman": {"package": "utf8proc"},
+        "brew": {"package": "utf8proc"},
+        "apk": {"package": "utf8proc-dev"},
+        "zypper": {"package": "libutf8proc-devel"},
+        "pkg": {"package": "utf8proc"}
+      }
+    },
     "sqlite3": {
       "description": "Embedded SQL database",
       "version": ">=3.0",
