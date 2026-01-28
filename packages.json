@@ -62,6 +62,9 @@
         },
         "zypper": {
           "package": "libSDL2-devel"
+        },
+        "pkg": {
+          "package": "sdl2"
         }
       }
     },
@@ -99,7 +102,8 @@
         "chocolatey": {"package": "sdl2-mixer"},
         "winget": {"package": "SDL2_mixer"},
         "apk": {"package": "sdl2_mixer-dev"},
-        "zypper": {"package": "libSDL2_mixer-devel"}
+        "zypper": {"package": "libSDL2_mixer-devel"},
+        "pkg": {"package": "sdl2_mixer"}
       }
     },
     "sdl2_ttf": {
@@ -115,7 +119,8 @@
         "brew": {"package": "sdl2_ttf"},
         "chocolatey": {"package": "sdl2-ttf"},
         "apk": {"package": "sdl2_ttf-dev"},
-        "zypper": {"package": "libSDL2_ttf-devel"}
+        "zypper": {"package": "libSDL2_ttf-devel"},
+        "pkg": {"package": "sdl2_ttf"}
       }
     },
     "ncurses": {
