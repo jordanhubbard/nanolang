@@ -22,7 +22,7 @@ fn random_range(min: int, max: int) -> int {
 
 shadow random_range {
     # Seed for consistent testing
-    (srand 12345)
+    unsafe { (srand 12345) }
     let r1: int = (random_range 0 10)
     let r2: int = (random_range 5 15)
     assert (>= r1 0)
