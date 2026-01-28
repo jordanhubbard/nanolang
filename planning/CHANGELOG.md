@@ -25,7 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - stabilize example builds and module linkage
 - add pi cli override and quiet playground banner
 
-[0;34mℹ️  Generating changelog from v2.0.12 to HEAD...[0m
 ## [2.0.13] - 2026-01-26
 
 ### Added
@@ -36,7 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - stabilize coverage arrays and add shadow tests
 
-[0;34mℹ️  Generating changelog from v2.0.11 to HEAD...[0m
 ## [2.0.12] - 2026-01-26
 
 ### Added
@@ -59,13 +57,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - stabilize pi example timing shadow test
 - improve pi timing precision and test
 
-[0;34mℹ️  Generating changelog from v2.0.10 to HEAD...[0m
 ## [2.0.11] - 2026-01-23
 
 ### Added
 - Add stdlib/timing module and high-precision π calculator example
 
-[0;34mℹ️  Generating changelog from v2.0.9 to HEAD...[0m
 ## [2.0.10] - 2026-01-23
 
 ### Fixed
@@ -74,7 +70,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Force userguide tools to use C compiler and add module caching
 - Add missing dependency for compiler_schema.h
 
-[0;34mℹ️  Generating changelog from v2.0.8 to HEAD...[0m
 ## [2.0.9] - 2026-01-21
 
 ### Added
@@ -106,7 +101,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - proper contrast for code blocks (explicit light color for pre code)
 - userguide examples page code visibility (CSS color inheritance)
 
-[0;34mℹ️  Generating changelog from v2.0.7 to HEAD...[0m
 ## [2.0.8] - 2026-01-19
 
 ### Added
@@ -152,7 +146,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - export runtime symbols for module dlopen
 - make GLUT portable (no -framework on Linux)
 
-[0;34mℹ️  Generating changelog from v2.0.6 to HEAD...[0m
 ## [2.0.7] - 2026-01-15
 
 ### Added
@@ -167,7 +160,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - repair launcher build; remove generated .genC artifacts
 - Use __builtin_unreachable() in exhaustive match default case
 
-[0;34mℹ️  Generating changelog from v2.0.5 to HEAD...[0m
 ## [2.0.6] - 2026-01-14
 
 ### Added

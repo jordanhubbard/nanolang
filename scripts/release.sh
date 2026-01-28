@@ -109,7 +109,7 @@ generate_changelog_entry() {
     local new_version=$2
     local date=$(date +%Y-%m-%d)
     
-    info "Generating changelog from v$prev_version to HEAD..."
+    info "Generating changelog from v$prev_version to HEAD..." >&2
     
     # Get commits since last version
     local commits=$(git log "v$prev_version"..HEAD --pretty=format:"%h %s" --no-merges)
