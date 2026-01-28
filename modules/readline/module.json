@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "GNU Readline bindings for interactive line editing with history",
     "headers": ["readline_helpers.h"],
+    "pkg_config": ["readline"],
     "cflags": ["-Imodules/readline"],
     "c_sources": ["readline_helpers.c"],
     "ldflags": ["-lreadline"],
