@@ -127,6 +127,9 @@ static void env_free_value(Value v) {
         free(sv->struct_name);
         for (int j = 0; j < sv->field_count; j++) {
             free(sv->field_names[j]);
+            if (sv->field_values[j].type == VAL_STRING) {
+                free(sv->field_values[j].as.string_val);
+            }
         }
         free(sv->field_names);
         free(sv->field_values);
@@ -637,7 +640,12 @@ Value create_struct(const char *struct_name, char **field_names, Value *field_va
     /* Allocate and copy field values */
     v.as.struct_val->field_values = malloc(sizeof(Value) * field_count);
     for (int i = 0; i < field_count; i++) {
-        v.as.struct_val->field_values[i] = field_values[i];
+        if (field_values[i].type == VAL_STRING) {
+            const char *src = field_values[i].as.string_val ? field_values[i].as.string_val : "";
+            v.as.struct_val->field_values[i] = create_string(src);
+        } else {
+            v.as.struct_val->field_values[i] = field_values[i];
+        }
     }
     
     return v;
