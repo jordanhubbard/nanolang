@@ -31,9 +31,6 @@ extern fn cos(x: float) -> float
 # String functions from <string.h>
 extern fn strlen(s: string) -> int
 
-# Memory functions from <stdlib.h>
-extern fn llabs(x: int) -> int
-
 # ==================================================================
 # Part 2: Wrapper Functions (Add Shadow Tests)
 # ==================================================================
@@ -76,10 +73,6 @@ shadow power {
 # struct Foo    → nl_Foo (with nl_ prefix)
 
 fn demonstrate_type_mapping() -> int {
-    # int → int64_t
-    let i: int = (llabs -42)
-    (println i)  # 42
-    
     # float → double
     let f: float = (sqrt 16.0)
     (println f)  # 4.0
