@@ -183,13 +183,11 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo ""
 	@echo "To launch the example browser:"
 	@echo "  cd examples && make launcher"
-	@echo "  # or from repo root: make examples-launcher"
+	@echo "  # or from repo root: make launcher"
 	@echo ""
 
 # Example launcher (SDL app-store style)
-launcher: $(COMPILER)
-	@echo "Building SDL example launcher..."
-	@cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_example_launcher.nano -o bin/sdl_example_launcher
+launcher: $(COMPILER) $(BIN_DIR)/sdl_example_launcher
 	@echo "Launching... (ESC or Quit to exit)"
 	@cd .. && ./bin/sdl_example_launcher
 
