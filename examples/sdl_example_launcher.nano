@@ -581,10 +581,9 @@ fn main() -> int {
                 let raw_source: string = (file_read file_path)
                 set source_code (pretty_print_ansi raw_source)
                 set source_scroll 0
-            } else {}
-            
-            # Check Launch button (only if an example is selected)
-            if (>= selected_index 0) {
+            } else {
+                # Check Launch button (only if an example is selected and we didn't just click an icon)
+                if (>= selected_index 0) {
                 # Launch button at top right (next to Quit)
                 let launch_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 260)
                 let launch_btn_y: int = (+ RIGHT_PANEL_Y 14)
@@ -600,7 +599,8 @@ fn main() -> int {
                         set launch_request_idx ex_idx
                     }
                 } else {}
-            } else {}
+                } else {}
+            }
         } else {}
 
         (nl_ui_update_mouse_state) 
