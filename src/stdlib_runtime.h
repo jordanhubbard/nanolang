@@ -94,15 +94,15 @@ void generate_timing_utilities(StringBuilder *sb);
 void generate_console_io_utilities(StringBuilder *sb);
 
 /**
- * @brief Generate C code for gprof profiling analysis
+ * @brief Generate C code for cross-platform profiling system
  * @param sb StringBuilder to append generated code to
  *
  * When profiling is enabled (-pg flag), this generates code that:
- * 1. Runs gprof as a subprocess after program exit
- * 2. Parses the flat profile output
- * 3. Outputs LLM-friendly JSON analysis of performance hotspots
+ * - macOS: Uses 'sample' command on child process
+ * - Linux: Uses 'gprofng collect' to wrap execution
+ * Both output OS-neutral JSON analysis of performance hotspots
  */
-void generate_gprof_analysis(StringBuilder *sb);
+void generate_profiling_system(StringBuilder *sb);
 
 #endif /* STDLIB_RUNTIME_H */
 

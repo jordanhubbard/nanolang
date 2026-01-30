@@ -3692,26 +3692,28 @@ static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environme
     sb_append(sb, "/* Global argc/argv for CLI runtime support */\n");
     sb_append(sb, "int g_argc = 0;\n");
     sb_append(sb, "char **g_argv = NULL;\n\n");
-    sb_append(sb, "int main(int argc, char **argv) {\n");
-    sb_append(sb, "    g_argc = argc;\n");
-    sb_append(sb, "    g_argv = argv;\n");
     
-    /* If profiling is enabled, set up gprof analysis on exit */
-    if (env && env->profile_gprof) {
-        sb_append(sb, "    /* Set binary path for gprof analysis */\n");
-        sb_append(sb, "    _nl_profile_binary_path = argv[0];\n");
-        sb_append(sb, "    atexit(_nl_gprof_analyze);\n");
-    }
-    
-    if (has_local_main) {
-        /* Get the mangled name for main (could be module__main) */
+    /* If profiling is enabled, use fork/exec wrapper */
+    if (env && env->profile_gprof && has_local_main) {
         const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name, main_func->is_extern);
-        sb_appendf(sb, "    return (int)%s();\n", c_main_name);
+        sb_append(sb, "int main(int argc, char **argv) {\n");
+        sb_append(sb, "    g_argc = argc;\n");
+        sb_append(sb, "    g_argv = argv;\n");
+        sb_appendf(sb, "    return _nl_run_with_profiling(argc, argv, %s);\n", c_main_name);
+        sb_append(sb, "}\n");
     } else {
-        /* Shadow tests are executed by the compiler; some test files intentionally omit main(). */
-        sb_append(sb, "    return 0;\n");
+        /* Normal main without profiling */
+        sb_append(sb, "int main(int argc, char **argv) {\n");
+        sb_append(sb, "    g_argc = argc;\n");
+        sb_append(sb, "    g_argv = argv;\n");
+        if (has_local_main) {
+            const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name, main_func->is_extern);
+            sb_appendf(sb, "    return (int)%s();\n", c_main_name);
+        } else {
+            sb_append(sb, "    return 0;\n");
+        }
+        sb_append(sb, "}\n");
     }
-    sb_append(sb, "}\n");
 }
 
 static bool is_c_constant_initializer(ASTNode *expr) {
@@ -4334,9 +4336,9 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* Console I/O utilities (for REPL, interactive programs) */
     generate_console_io_utilities(sb);
 
-    /* Gprof profiling analysis (only when -pg flag is used) */
+    /* Cross-platform profiling system (only when -pg flag is used) */
     if (env && env->profile_gprof) {
-        generate_gprof_analysis(sb);
+        generate_profiling_system(sb);
     }
 
     /* Math and utility built-in functions */

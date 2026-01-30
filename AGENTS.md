@@ -210,38 +210,52 @@ fn main() -> int {
 
 **See:** `stdlib/README.md`, `examples/coverage_demo.nano`
 
-#### Layer 4: Performance Profiling (gprof)
+#### Layer 4: Performance Profiling (-pg flag)
 Use when you need to identify performance bottlenecks or optimize slow code.
 
-**Platform note:** gprof is primarily a Linux tool. On macOS, use Instruments instead.
-
-**Compile with profiling enabled (Linux):**
+**Cross-platform profiling with `-pg` flag:**
 ```bash
-# Compile with -pg flag to enable gprof profiling
+# Compile with -pg to enable automatic profiling
 ./bin/nanoc myprogram.nano -o bin/myprogram -pg
 
-# Run the program - gprof analysis runs AUTOMATICALLY at exit!
+# Run the program - profiling runs AUTOMATICALLY!
 ./bin/myprogram
 
-# Output includes LLM-ready JSON analysis:
+# Output is OS-neutral JSON suitable for LLM analysis:
 # {
-#   "profile_type": "gprof_flat",
-#   "binary": "./bin/myprogram",
+#   "profile_type": "sampling",
+#   "platform": "Linux",  # or "macOS"
+#   "tool": "gprofng",    # or "sample"
 #   "hotspots": [
-#     {"function": "expensive_work", "pct_time": 45.2, "self_seconds": 1.23, "calls": 1000},
+#     {"function": "expensive_work", "samples": 452, "pct_time": 45.2},
 #     ...
 #   ],
-#   "analysis_hints": ["Functions with high pct_time are hot spots", ...]
+#   "analysis_hints": [...]
 # }
 ```
 
+**Platform-specific tools used:**
+- **Linux:** `gprofng collect` (from binutils) - automatic, no special permissions
+- **macOS:** `sample` command - requires sudo or developer entitlements
+
+**macOS permissions note:**
+Due to System Integrity Protection, profiling on macOS requires elevated privileges:
+```bash
+# Option 1: Run with sudo
+sudo ./bin/myprogram
+
+# Option 2: Use Instruments GUI
+open -a Instruments
+
+# Option 3: Manual sample (in another terminal while program runs)
+sample <pid> 10 -file /tmp/profile.txt
+```
+
 **The `-pg` flag adds these C compiler flags:**
-- `-pg` - Enable gprof instrumentation
+- `-pg` - Enable profiling instrumentation
 - `-g` - Debug symbols for readable function names
 - `-fno-omit-frame-pointer` - Accurate stack traces
-- `-fno-optimize-sibling-calls` - Prevent tail call optimization (clearer traces)
-
-**Automatic analysis:** When compiled with `-pg`, programs automatically run gprof at exit and output LLM-friendly JSON. No manual gprof invocation needed!
+- `-fno-optimize-sibling-calls` - Clearer call traces
 
 **When to use profiling:**
 - UI freezes or beachballs (blocking main thread)
@@ -250,19 +264,10 @@ Use when you need to identify performance bottlenecks or optimize slow code.
 - Before/after optimization verification
 
 **Common patterns to look for in output:**
-- Functions with high `pct_time` - direct time consumers
-- Functions with high `calls` count in tight loops
-- Unexpected functions appearing in hot paths
+- Functions with high `pct_time` or `samples` - direct time consumers
+- Functions appearing frequently in hot paths
 - `nl_str_*` and `nl_array_*` functions often indicate algorithmic issues
-
-**macOS alternative:** Use Instruments.app with Time Profiler template:
-```bash
-# Compile without -pg (not supported on macOS)
-./bin/nanoc myprogram.nano -o bin/myprogram
-
-# Profile with Instruments
-xcrun xctrace record --template "Time Profiler" --launch ./bin/myprogram
-```
+- Deep nesting in call stacks may indicate recursion problems
 
 **See:** `docs/DEBUGGING_GUIDE.md` for complete profiling workflow
 
