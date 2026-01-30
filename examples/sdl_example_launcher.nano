@@ -585,10 +585,17 @@ fn main() -> int {
                 # Check if source is already cached
                 let cached: string = (at source_cache ex_idx)
                 if (== (str_length cached) 0) {
-                    # Not cached - load and highlight (this is the slow part)
+                    # Not cached - load file
                     let file_path: string = (at example_files ex_idx)
                     let raw_source: string = (file_read file_path)
-                    let highlighted: string = (pretty_print_ansi raw_source)
+                    let source_len: int = (str_length raw_source)
+                    
+                    # Only highlight small/medium files (< 40000 chars) to avoid UI freeze
+                    # Large files get displayed without syntax highlighting
+                    let highlighted: string = (cond
+                        ((< source_len 40000) (pretty_print_ansi raw_source))
+                        (else raw_source)
+                    )
                     # Store in cache
                     (array_set source_cache ex_idx highlighted)
                     set source_code highlighted
