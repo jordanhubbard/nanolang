@@ -1154,7 +1154,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test test-docs examples launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
+.PHONY: all build test test-docs examples launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index release release-major release-minor release-patch
 
 # ============================================================================
 # RELEASE AUTOMATION
