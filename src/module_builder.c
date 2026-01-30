@@ -564,6 +564,37 @@ static const char* ensure_pkg_config(void) {
     return NULL;
 }
 
+// Check if a pkg-config package is available (returns true if installed)
+static bool check_pkg_config_package(const char *package) {
+    const char *pkg_config_path = ensure_pkg_config();
+    if (!pkg_config_path) {
+        return false;
+    }
+    
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "%s --exists %s 2>/dev/null", pkg_config_path, package);
+    int result = system(cmd);
+    return (result == 0);
+}
+
+// Check all pkg-config dependencies for a module, return true if all available
+// If missing_pkg is not NULL, it will be set to the name of first missing package
+static bool check_module_pkg_dependencies(ModuleBuildMetadata *meta, const char **missing_pkg) {
+    if (!meta || meta->pkg_config_count == 0) {
+        return true;  // No dependencies to check
+    }
+    
+    for (size_t i = 0; i < meta->pkg_config_count; i++) {
+        if (!check_pkg_config_package(meta->pkg_config[i])) {
+            if (missing_pkg) {
+                *missing_pkg = meta->pkg_config[i];
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
 // Get pkg-config flags, with automatic package installation on failure
 static char* get_pkg_config_flags(const char *package, const char *flag_type) {
     char cmd[512];
@@ -782,6 +813,27 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
         meta->header_priority = 0;  // Default priority
     }
 
+    // Parse install object (for dependency auto-installation)
+    cJSON *install = cJSON_GetObjectItem(json, "install");
+    if (install && cJSON_IsObject(install)) {
+        // Parse macOS install info
+        cJSON *macos = cJSON_GetObjectItem(install, "macos");
+        if (macos && cJSON_IsObject(macos)) {
+            cJSON *brew = cJSON_GetObjectItem(macos, "brew");
+            if (brew && cJSON_IsString(brew)) {
+                meta->install_brew = strdup(brew->valuestring);
+            }
+        }
+        // Parse Linux install info
+        cJSON *linux_obj = cJSON_GetObjectItem(install, "linux");
+        if (linux_obj && cJSON_IsObject(linux_obj)) {
+            cJSON *apt = cJSON_GetObjectItem(linux_obj, "apt");
+            if (apt && cJSON_IsString(apt)) {
+                meta->install_apt = strdup(apt->valuestring);
+            }
+        }
+    }
+
     meta->module_dir = strdup(module_dir);
 
     cJSON_Delete(json);
@@ -796,6 +848,8 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
     free(meta->description);
     free(meta->module_dir);
     free(meta->c_compiler);
+    free(meta->install_brew);
+    free(meta->install_apt);
 
     #define FREE_STRING_ARRAY(arr, count) do { \
         for (size_t i = 0; i < meta->count; i++) { \
@@ -1033,6 +1087,48 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
     if (needs_rebuild) {
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
             printf("[Module] Building %s...\n", meta->name);
+        }
+
+        // Check pkg-config dependencies BEFORE attempting to compile
+        const char *missing_pkg = NULL;
+        if (!check_module_pkg_dependencies(meta, &missing_pkg)) {
+            // Try to install the missing package
+            fprintf(stderr, "[Module] Package '%s' not found for module '%s'\n", missing_pkg, meta->name);
+            
+            // Check if we have install info in module.json
+            if (meta->install_brew || meta->install_apt) {
+                #ifdef __APPLE__
+                if (meta->install_brew) {
+                    fprintf(stderr, "[Module] Attempting: brew install %s\n", meta->install_brew);
+                    char install_cmd[256];
+                    snprintf(install_cmd, sizeof(install_cmd), "brew install %s 2>&1", meta->install_brew);
+                    int install_result = system(install_cmd);
+                    if (install_result == 0 && check_pkg_config_package(missing_pkg)) {
+                        fprintf(stderr, "[Module] Successfully installed %s\n", meta->install_brew);
+                    } else {
+                        fprintf(stderr, "[Module] Failed to install %s. Install manually with: brew install %s\n", 
+                                meta->install_brew, meta->install_brew);
+                        free(build_dir);
+                        return NULL;
+                    }
+                } else {
+                    fprintf(stderr, "[Module] No brew package specified. Skipping module '%s'\n", meta->name);
+                    free(build_dir);
+                    return NULL;
+                }
+                #else
+                if (meta->install_apt) {
+                    fprintf(stderr, "[Module] Install with: sudo apt-get install %s\n", meta->install_apt);
+                }
+                fprintf(stderr, "[Module] Skipping module '%s' due to missing dependencies\n", meta->name);
+                free(build_dir);
+                return NULL;
+                #endif
+            } else {
+                fprintf(stderr, "[Module] Skipping module '%s' - install '%s' manually\n", meta->name, missing_pkg);
+                free(build_dir);
+                return NULL;
+            }
         }
 
         // Install system package dependencies (only when rebuilding)

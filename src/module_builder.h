@@ -78,6 +78,10 @@ typedef struct {
     // Module directory path
     char *module_dir;
 
+    // Install commands (from module.json "install" object)
+    char *install_brew;    // brew package name (macOS)
+    char *install_apt;     // apt package name (Linux)
+
     // FFI ownership metadata (optional)
     // Functions listed here return heap-allocated strings that the interpreter should free
     // after copying into a nanolang Value.
