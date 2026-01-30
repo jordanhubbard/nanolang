@@ -3,7 +3,8 @@
 # Demonstrates NanoLang's dynamic array capabilities
 #
 # Controls:
-#   Arrow keys: Rotate camera
+#   Mouse click/drag: Move light position
+#   Arrow keys: Rotate camera (yaw/pitch)
 #   R: Reset camera
 #   ESC: Quit
 

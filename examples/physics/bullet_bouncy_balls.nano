@@ -5,9 +5,11 @@
  * Balls have rubber-like physics and fall into a ball pit at the bottom.
  * 
  * Controls:
- *   MOUSE - Click and hold to spawn balls at cursor
- *   SPACE - Clear all balls
- *   ESC   - Quit
+ *   MOUSE      - Click and hold to spawn balls at cursor
+ *   UP/DOWN    - Increase/decrease gravity (+/- 1.0)
+ *   LEFT/RIGHT - Fine gravity adjustment (+/- 0.1)
+ *   SPACE      - Clear all balls
+ *   ESC        - Quit
  */
 
 unsafe module "modules/sdl/sdl.nano"
@@ -32,9 +34,9 @@ let BALL_RADIUS: float = 0.8
 let BALL_MASS: float = 1.0
 let BALL_RESTITUTION: float = 0.85  # High bounce (rubber-like)
 
-/* Gravity (absolute, user-facing: + pulls down, - pulls up) */
-let GRAVITY_MIN: float = (- 0.0 10.0)
-let GRAVITY_MAX: float = 10.0
+/* Gravity (absolute, user-facing: + pulls down, - pulls up, NO LIMIT) */
+let GRAVITY_MIN: float = (- 0.0 10.0)  # Only used for slider range display
+let GRAVITY_MAX: float = 10.0           # Arrow keys can go beyond this!
 
 /* Ball pit properties */
 let PIT_BOTTOM_Y: float = (- 0.0 25.0)
@@ -190,6 +192,19 @@ shadow random_int {
     assert (!= r1 r2)
 }
 
+/* Random float in range [min, max] */
+fn random_float(min: float, max: float) -> float {
+    let r: int = (random_int 10000)
+    let t: float = (/ (cast_float r) 10000.0)
+    return (+ min (* t (- max min)))
+}
+
+shadow random_float {
+    let r1: float = (random_float 0.0 10.0)
+    assert (>= r1 0.0)
+    assert (<= r1 10.0)
+}
+
 /* Generate random color */
 fn random_color() -> int {
     let r: int = (+ 100 (random_int 156))
@@ -212,9 +227,11 @@ fn main() -> int {
     (println "")
     (println "Controls:")
     (println "  • Click and hold mouse to spawn bouncy balls")
+    (println "  • UP/DOWN arrows: change gravity by +/-1.0")
+    (println "  • LEFT/RIGHT arrows: fine adjustment +/-0.1")
     (println "  • SPACE to clear all balls")
     (println "  • ESC to quit")
-    (println "  • Gravity slider (absolute): -10 (up) to +10 (down), default +1")
+    (println "  • Gravity: negative = up, positive = down (no limit!)")
     (println "")
     
     /* Init SDL */
@@ -261,28 +278,57 @@ fn main() -> int {
                                  PIT_WALL_THICKNESS (/ PIT_HEIGHT 2.0) PIT_WALL_THICKNESS 
                                  0.0 0.6)
 
-    # === Bottom obstacles (polygonal-ish shapes using rotated boxes) ===
-    # These create ramps and wedges to make ball interactions less uniform.
+    # === Bottom obstacles (RANDOMIZED each run!) ===
+    # Seed RNG with current time for different layouts each run
+    set rng_state (SDL_GetTicks)
+    
     let obstacle_restitution: float = 0.25
     let obstacle_depth: float = PIT_WALL_THICKNESS
     let base_y: float = (+ PIT_BOTTOM_Y 2.0)
 
-    # Center "V" funnel
-    (nl_bullet_create_rigid_box_rotated (- 0.0 6.0) (+ base_y 4.5) 0.0 6.0 0.6 obstacle_depth 25.0 0.0 obstacle_restitution)
-    (nl_bullet_create_rigid_box_rotated 6.0 (+ base_y 4.5) 0.0 6.0 0.6 obstacle_depth (- 0.0 25.0) 0.0 obstacle_restitution)
-
-    # Left ramp
-    (nl_bullet_create_rigid_box_rotated (- 18.0) (+ base_y 3.0) 0.0 7.0 0.6 obstacle_depth 18.0 0.0 obstacle_restitution)
-
-    # Right ramp
-    (nl_bullet_create_rigid_box_rotated 18.0 (+ base_y 3.0) 0.0 7.0 0.6 obstacle_depth (- 0.0 18.0) 0.0 obstacle_restitution)
-
-    # Pegs (small bumpers)
-    (nl_bullet_create_rigid_box (- 10.0) (+ base_y 7.0) 0.0 1.0 1.0 obstacle_depth 0.0 obstacle_restitution)
-    (nl_bullet_create_rigid_box 0.0 (+ base_y 7.5) 0.0 1.0 1.0 obstacle_depth 0.0 obstacle_restitution)
-    (nl_bullet_create_rigid_box 10.0 (+ base_y 7.0) 0.0 1.0 1.0 obstacle_depth 0.0 obstacle_restitution)
+    # Randomize V-funnel parameters
+    let v_height_offset: float = (random_float 3.0 7.0)
+    let v_angle: float = (random_float 15.0 40.0)
+    let v_spread: float = (random_float 4.0 10.0)
+    let v_length: float = (random_float 4.0 8.0)
     
-    (println "✓ Ball pit created")
+    # Randomize ramp parameters
+    let ramp_height_offset: float = (random_float 2.0 5.0)
+    let ramp_angle: float = (random_float 10.0 30.0)
+    let ramp_x_offset: float = (random_float 14.0 22.0)
+    let ramp_length: float = (random_float 5.0 9.0)
+    
+    # Randomize peg parameters
+    let peg_height_offset: float = (random_float 5.0 10.0)
+    let peg1_x: float = (- 0.0 (random_float 8.0 14.0))
+    let peg2_x: float = (random_float (- 0.0 3.0) 3.0)
+    let peg3_x: float = (random_float 8.0 14.0)
+    let peg_size: float = (random_float 0.8 1.5)
+
+    # Center "V" funnel (randomized)
+    (nl_bullet_create_rigid_box_rotated (- 0.0 v_spread) (+ base_y v_height_offset) 0.0 
+                                         v_length 0.6 obstacle_depth v_angle 0.0 obstacle_restitution)
+    (nl_bullet_create_rigid_box_rotated v_spread (+ base_y v_height_offset) 0.0 
+                                         v_length 0.6 obstacle_depth (- 0.0 v_angle) 0.0 obstacle_restitution)
+
+    # Left ramp (randomized)
+    (nl_bullet_create_rigid_box_rotated (- 0.0 ramp_x_offset) (+ base_y ramp_height_offset) 0.0 
+                                         ramp_length 0.6 obstacle_depth ramp_angle 0.0 obstacle_restitution)
+
+    # Right ramp (randomized)
+    (nl_bullet_create_rigid_box_rotated ramp_x_offset (+ base_y ramp_height_offset) 0.0 
+                                         ramp_length 0.6 obstacle_depth (- 0.0 ramp_angle) 0.0 obstacle_restitution)
+
+    # Pegs (randomized)
+    (nl_bullet_create_rigid_box peg1_x (+ base_y peg_height_offset) 0.0 
+                                 peg_size peg_size obstacle_depth 0.0 obstacle_restitution)
+    (nl_bullet_create_rigid_box peg2_x (+ base_y (+ peg_height_offset 0.5)) 0.0 
+                                 peg_size peg_size obstacle_depth 0.0 obstacle_restitution)
+    (nl_bullet_create_rigid_box peg3_x (+ base_y peg_height_offset) 0.0 
+                                 peg_size peg_size obstacle_depth 0.0 obstacle_restitution)
+    
+    (println "✓ Ball pit created with RANDOMIZED obstacles!")
+    (println "  (Restart for a different layout)")
     (println "")
     (println "Ready! Click to start spawning balls...")
     
@@ -322,6 +368,30 @@ fn main() -> int {
             (println (+ "Clearing " (+ (int_to_string ball_count) " balls...")))
             set ball_handles []
             set ball_colors []
+        } else {}
+        
+        # UP arrow - increase gravity (more down = positive)
+        if (== key 82) {
+            set gravity_value (+ gravity_value 1.0)
+            set gravity_slider (gravity_value_to_slider gravity_value)
+        } else {}
+        
+        # DOWN arrow - decrease gravity (less down = negative)
+        if (== key 81) {
+            set gravity_value (- gravity_value 1.0)
+            set gravity_slider (gravity_value_to_slider gravity_value)
+        } else {}
+        
+        # RIGHT arrow - fine increase (+0.1)
+        if (== key 79) {
+            set gravity_value (+ gravity_value 0.1)
+            set gravity_slider (gravity_value_to_slider gravity_value)
+        } else {}
+        
+        # LEFT arrow - fine decrease (-0.1)
+        if (== key 80) {
+            set gravity_value (- gravity_value 0.1)
+            set gravity_slider (gravity_value_to_slider gravity_value)
         } else {}
         
         /* Mouse input (hold to spawn) */
@@ -395,6 +465,45 @@ fn main() -> int {
         (nl_sdl_render_fill_rect renderer right_wall_x left_wall_y 
                                  (* pit_thickness_screen 2) pit_height_screen)
         
+        # Draw obstacles (using same randomized positions as physics)
+        (SDL_SetRenderDrawColor renderer 100 90 120 255)
+        
+        # Center V funnel - draw as simple rectangles (approximation of angled boxes)
+        let v_left_cx: int = (project_x (- 0.0 v_spread))
+        let v_left_cy: int = (project_y (+ base_y v_height_offset))
+        let v_right_cx: int = (project_x v_spread)
+        let v_right_cy: int = (project_y (+ base_y v_height_offset))
+        let v_draw_width: int = (cast_int (* (* v_length 2.0) CAMERA_SCALE))
+        let v_draw_height: int = (cast_int (* 1.2 CAMERA_SCALE))
+        (nl_sdl_render_fill_rect renderer (- v_left_cx (/ v_draw_width 2)) (- v_left_cy (/ v_draw_height 2)) v_draw_width v_draw_height)
+        (nl_sdl_render_fill_rect renderer (- v_right_cx (/ v_draw_width 2)) (- v_right_cy (/ v_draw_height 2)) v_draw_width v_draw_height)
+        
+        # Left ramp
+        let ramp_left_cx: int = (project_x (- 0.0 ramp_x_offset))
+        let ramp_left_cy: int = (project_y (+ base_y ramp_height_offset))
+        let ramp_draw_width: int = (cast_int (* (* ramp_length 2.0) CAMERA_SCALE))
+        let ramp_draw_height: int = (cast_int (* 1.2 CAMERA_SCALE))
+        (nl_sdl_render_fill_rect renderer (- ramp_left_cx (/ ramp_draw_width 2)) (- ramp_left_cy (/ ramp_draw_height 2)) ramp_draw_width ramp_draw_height)
+        
+        # Right ramp
+        let ramp_right_cx: int = (project_x ramp_x_offset)
+        let ramp_right_cy: int = (project_y (+ base_y ramp_height_offset))
+        (nl_sdl_render_fill_rect renderer (- ramp_right_cx (/ ramp_draw_width 2)) (- ramp_right_cy (/ ramp_draw_height 2)) ramp_draw_width ramp_draw_height)
+        
+        # Pegs (using randomized positions and sizes)
+        let peg_draw_size: int = (cast_int (* (* peg_size 2.0) CAMERA_SCALE))
+        let peg1_cx: int = (project_x peg1_x)
+        let peg1_cy: int = (project_y (+ base_y peg_height_offset))
+        (nl_sdl_render_fill_rect renderer (- peg1_cx (/ peg_draw_size 2)) (- peg1_cy (/ peg_draw_size 2)) peg_draw_size peg_draw_size)
+        
+        let peg2_cx: int = (project_x peg2_x)
+        let peg2_cy: int = (project_y (+ base_y (+ peg_height_offset 0.5)))
+        (nl_sdl_render_fill_rect renderer (- peg2_cx (/ peg_draw_size 2)) (- peg2_cy (/ peg_draw_size 2)) peg_draw_size peg_draw_size)
+        
+        let peg3_cx: int = (project_x peg3_x)
+        let peg3_cy: int = (project_y (+ base_y peg_height_offset))
+        (nl_sdl_render_fill_rect renderer (- peg3_cx (/ peg_draw_size 2)) (- peg3_cy (/ peg_draw_size 2)) peg_draw_size peg_draw_size)
+        
         # Draw balls
         let ball_count: int = (array_length ball_handles)
         let mut i: int = 0
@@ -425,7 +534,7 @@ fn main() -> int {
         (nl_ui_label renderer font (+ "Balls: " (int_to_string ball_count)) 10 10 240 240 255 255)
         (nl_ui_label renderer font "Click to spawn • SPACE to clear • ESC to quit" 10 30 200 200 220 255)
         (nl_ui_label renderer font (+ "Gravity: " (float_to_string_simple gravity_value)) 220 50 200 220 255 255)
-        (nl_ui_label renderer font "(-10..+10, +1 down)" 220 68 140 160 190 255)
+        (nl_ui_label renderer font "UP/DOWN +/-1 • LEFT/RIGHT +/-0.1" 220 68 140 160 190 255)
         
         if mouse_down {
             (nl_ui_label renderer font "SPAWNING!" (- WINDOW_WIDTH 120) 10 100 255 100 255)

@@ -228,10 +228,75 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer COLOR_BG_R COLOR_BG_G COLOR_BG_B 255)
         (SDL_RenderClear renderer)
 
+        /* Draw hourglass structure (matching physics boxes) */
         (SDL_SetRenderDrawColor renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
-        /* Simple funnel visualization */
-        let funnel_top_y: int = (project_y 0.0)
-        (nl_sdl_render_fill_rect renderer 0 (+ funnel_top_y 120) WINDOW_WIDTH 10)
+        
+        # Floor
+        let floor_y: int = (project_y (- 0.0 48.0))
+        let floor_left: int = (project_x (- 0.0 40.0))
+        let floor_right: int = (project_x 40.0)
+        (nl_sdl_render_fill_rect renderer floor_left floor_y (- floor_right floor_left) 30)
+        
+        # Upper funnel - left side (angled wall from top-left to center)
+        # Physics: box at (-14, 0) with length 24, rotated 25 degrees
+        let ul_top_x: int = (project_x (- 0.0 32.0))
+        let ul_top_y: int = (project_y 10.0)
+        let ul_bot_x: int = (project_x (- 0.0 4.0))
+        let ul_bot_y: int = (project_y (- 0.0 8.0))
+        (SDL_RenderDrawLine renderer ul_top_x ul_top_y ul_bot_x ul_bot_y)
+        (SDL_RenderDrawLine renderer (+ ul_top_x 1) ul_top_y (+ ul_bot_x 1) ul_bot_y)
+        (SDL_RenderDrawLine renderer (+ ul_top_x 2) ul_top_y (+ ul_bot_x 2) ul_bot_y)
+        (SDL_RenderDrawLine renderer (- ul_top_x 1) ul_top_y (- ul_bot_x 1) ul_bot_y)
+        (SDL_RenderDrawLine renderer (- ul_top_x 2) ul_top_y (- ul_bot_x 2) ul_bot_y)
+        
+        # Upper funnel - right side (angled wall from top-right to center)
+        let ur_top_x: int = (project_x 32.0)
+        let ur_top_y: int = (project_y 10.0)
+        let ur_bot_x: int = (project_x 4.0)
+        let ur_bot_y: int = (project_y (- 0.0 8.0))
+        (SDL_RenderDrawLine renderer ur_top_x ur_top_y ur_bot_x ur_bot_y)
+        (SDL_RenderDrawLine renderer (+ ur_top_x 1) ur_top_y (+ ur_bot_x 1) ur_bot_y)
+        (SDL_RenderDrawLine renderer (+ ur_top_x 2) ur_top_y (+ ur_bot_x 2) ul_bot_y)
+        (SDL_RenderDrawLine renderer (- ur_top_x 1) ur_top_y (- ur_bot_x 1) ur_bot_y)
+        (SDL_RenderDrawLine renderer (- ur_top_x 2) ur_top_y (- ur_bot_x 2) ur_bot_y)
+        
+        # Neck (narrow passage in the middle)
+        let neck_left: int = (project_x (- 0.0 4.0))
+        let neck_right: int = (project_x 4.0)
+        let neck_top: int = (project_y (- 0.0 20.0))
+        let neck_bot: int = (project_y (- 0.0 40.0))
+        (nl_sdl_render_fill_rect renderer (- neck_left 4) neck_top 8 (- neck_bot neck_top))
+        (nl_sdl_render_fill_rect renderer (- neck_right 4) neck_top 8 (- neck_bot neck_top))
+        
+        # Lower funnel - left side (angled wall from center down-left)
+        let ll_top_x: int = (project_x (- 0.0 4.0))
+        let ll_top_y: int = (project_y (- 0.0 8.0))
+        let ll_bot_x: int = (project_x (- 0.0 24.0))
+        let ll_bot_y: int = (project_y (- 0.0 28.0))
+        (SDL_RenderDrawLine renderer ll_top_x ll_top_y ll_bot_x ll_bot_y)
+        (SDL_RenderDrawLine renderer (+ ll_top_x 1) ll_top_y (+ ll_bot_x 1) ll_bot_y)
+        (SDL_RenderDrawLine renderer (+ ll_top_x 2) ll_top_y (+ ll_bot_x 2) ll_bot_y)
+        (SDL_RenderDrawLine renderer (- ll_top_x 1) ll_top_y (- ll_bot_x 1) ll_bot_y)
+        (SDL_RenderDrawLine renderer (- ll_top_x 2) ll_top_y (- ll_bot_x 2) ll_bot_y)
+        
+        # Lower funnel - right side (angled wall from center down-right)
+        let lr_top_x: int = (project_x 4.0)
+        let lr_top_y: int = (project_y (- 0.0 8.0))
+        let lr_bot_x: int = (project_x 24.0)
+        let lr_bot_y: int = (project_y (- 0.0 28.0))
+        (SDL_RenderDrawLine renderer lr_top_x lr_top_y lr_bot_x lr_bot_y)
+        (SDL_RenderDrawLine renderer (+ lr_top_x 1) lr_top_y (+ lr_bot_x 1) lr_bot_y)
+        (SDL_RenderDrawLine renderer (+ lr_top_x 2) lr_top_y (+ lr_bot_x 2) lr_bot_y)
+        (SDL_RenderDrawLine renderer (- lr_top_x 1) lr_top_y (- lr_bot_x 1) lr_bot_y)
+        (SDL_RenderDrawLine renderer (- lr_top_x 2) lr_top_y (- lr_bot_x 2) lr_bot_y)
+        
+        # Outer walls (vertical sides of hourglass)
+        let wall_left: int = (project_x (- 0.0 32.0))
+        let wall_right: int = (project_x 32.0)
+        let wall_top: int = (project_y 10.0)
+        let wall_bottom: int = (project_y (- 0.0 28.0))
+        (nl_sdl_render_fill_rect renderer (- wall_left 4) wall_top 8 (- wall_bottom wall_top))
+        (nl_sdl_render_fill_rect renderer (- wall_right 4) wall_top 8 (- wall_bottom wall_top))
 
         (SDL_SetRenderDrawColor renderer COLOR_PARTICLE_R COLOR_PARTICLE_G COLOR_PARTICLE_B 255)
         let mut draw_index: int = 0
