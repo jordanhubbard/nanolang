@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.15] - 2026-01-30
+
+### Added
+- add pkg-config dependency checking with auto-install
+- Auto-invoke sudo for macOS profiling with helpful message
+- Cross-platform profiling with fork/exec wrapper
+- Auto-run gprof analysis with LLM-friendly JSON output
+- Add -pg profiling flag and optimize syntax highlighting
+
+### Fixed
+- Skip syntax highlighting for large files in example launcher
+- Cache syntax-highlighted source code in example launcher
+- prevent icon clicks from triggering launch
+- keep release logs out of changelog
+
 ## [2.0.14] - 2026-01-28
 
 ### Fixed
