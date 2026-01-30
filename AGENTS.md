@@ -210,6 +210,44 @@ fn main() -> int {
 
 **See:** `stdlib/README.md`, `examples/coverage_demo.nano`
 
+#### Layer 4: Performance Profiling (gprof)
+Use when you need to identify performance bottlenecks or optimize slow code.
+
+**Compile with profiling enabled:**
+```bash
+# Compile with -pg flag to enable gprof profiling
+./bin/nanoc myprogram.nano -o bin/myprogram -pg
+
+# Run the program (creates gmon.out in current directory)
+./bin/myprogram
+
+# Analyze with gprof
+gprof ./bin/myprogram gmon.out > profile.txt
+
+# View top time consumers
+head -50 profile.txt
+```
+
+**The `-pg` flag adds these C compiler flags:**
+- `-pg` - Enable gprof instrumentation
+- `-g` - Debug symbols for readable function names
+- `-fno-omit-frame-pointer` - Accurate stack traces
+- `-fno-optimize-sibling-calls` - Prevent tail call optimization (clearer traces)
+
+**When to use profiling:**
+- UI freezes or beachballs (blocking main thread)
+- Unexpectedly slow operations
+- O(n²) or worse algorithmic complexity suspicion
+- Before/after optimization verification
+
+**Common patterns to look for in gprof output:**
+- Functions with high `% time` - direct time consumers
+- Functions with high `calls` count in tight loops
+- Unexpected functions appearing in hot paths
+- String operations like `str_substring`, `str_matches_at` in inner loops
+
+**See:** `docs/DEBUGGING_GUIDE.md` for complete profiling workflow
+
 ### Error Recovery Protocol
 
 When compilation fails:

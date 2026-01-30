@@ -255,18 +255,34 @@ shadow ansi_for_class {
     assert (== (ansi_for_class "tok-keyword") "35")
 }
 
-fn starts_with_at(text: string, start: int, needle: string) -> bool {
-    let n: int = (str_length needle)
-    if (< (str_length text) (+ start n)) {
+# Efficient in-place string comparison without substring allocation
+# Compares pattern against text starting at position pos
+# O(pattern_length) instead of O(text_length)
+fn str_matches_at(text: string, pos: int, pattern: string) -> bool {
+    let pattern_len: int = (str_length pattern)
+    let text_len: int = (str_length text)
+    # Check if pattern would extend past end of text
+    if (> (+ pos pattern_len) text_len) {
         return false
     } else { (print "") }
-    let slice: string = (str_substring text start n)
-    return (== slice needle)
+    # Compare character by character - no substring allocation
+    let mut i: int = 0
+    while (< i pattern_len) {
+        if (!= (char_at text (+ pos i)) (char_at pattern i)) {
+            return false
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return true
 }
 
-shadow starts_with_at {
-    assert (starts_with_at "hello" 0 "he")
-    assert (not (starts_with_at "hello" 1 "he"))
+shadow str_matches_at {
+    assert (str_matches_at "hello" 0 "he")
+    assert (str_matches_at "hello" 0 "hello")
+    assert (str_matches_at "hello" 2 "llo")
+    assert (not (str_matches_at "hello" 1 "he"))
+    assert (not (str_matches_at "hello" 3 "llo"))
+    assert (not (str_matches_at "hi" 0 "hello"))
 }
 
 fn highlight_html_to_ansi(html: string) -> string {
@@ -274,18 +290,22 @@ fn highlight_html_to_ansi(html: string) -> string {
     let n: int = (str_length html)
     let mut i: int = 0
     let reset: string = (ansi_escape "0")
+    # Pre-compute pattern lengths to avoid repeated str_length calls
     let span_prefix: string = "<span class=\""
+    let span_prefix_len: int = (str_length span_prefix)
     let span_close: string = "</span>"
+    let span_close_len: int = (str_length span_close)
 
     while (< i n) {
         let c: int = (char_at html i)
         if (== c 60) {
-            if (starts_with_at html i span_close) {
+            # Use efficient in-place comparison (no substring allocation)
+            if (str_matches_at html i span_close) {
                 (sb_append sb reset)
-                set i (+ i (str_length span_close))
+                set i (+ i span_close_len)
             } else {
-                if (starts_with_at html i span_prefix) {
-                    let mut cls_start: int = (+ i (str_length span_prefix))
+                if (str_matches_at html i span_prefix) {
+                    let mut cls_start: int = (+ i span_prefix_len)
                     let mut cls_end: int = cls_start
                     while (and (< cls_end n) (!= (char_at html cls_end) 34)) {
                         set cls_end (+ cls_end 1)

@@ -23,6 +23,7 @@ typedef struct {
     bool show_intermediate_code;
     bool save_asm;            /* -S flag: save generated C to .genC file */
     bool json_errors;         /* Output errors in JSON format for tooling */
+    bool profile_gprof;       /* -pg flag: enable gprof profiling support */
     const char *llm_diags_json_path; /* --llm-diags-json <path> (agent-only): write diagnostics as JSON */
     const char *llm_shadow_json_path; /* --llm-shadow-json <path> (agent-only): write shadow failure summary as JSON */
     const char *reflect_output_path;  /* --reflect <path>: emit module API as JSON */
@@ -828,9 +829,18 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     export_dynamic_flag = "-Wl,-E";
 #endif
 
+    /* Profiling flags for gprof support (-pg option) */
+    const char *profile_flags = "";
+    if (opts->profile_gprof) {
+        profile_flags = "-pg -g -fno-omit-frame-pointer -fno-optimize-sibling-calls";
+        if (opts->verbose) {
+            printf("Profiling enabled: adding %s\n", profile_flags);
+        }
+    }
+
     int cmd_len = snprintf(compile_cmd, sizeof(compile_cmd),
-            "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s -o %s %s %s %s %s %s",
-            cc, include_flags_with_tmp, export_dynamic_flag, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
+            "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s -o %s %s %s %s %s %s",
+            cc, profile_flags, include_flags_with_tmp, export_dynamic_flag, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
     
     if (cmd_len >= (int)sizeof(compile_cmd)) {
         fprintf(stderr, "Error: Compile command too long (%d bytes, max %zu)\n", cmd_len, sizeof(compile_cmd));
@@ -928,6 +938,7 @@ int main(int argc, char *argv[]) {
         printf("  -I <path>      Add include path for C compilation\n");
         printf("  -L <path>      Add library path for C linking\n");
         printf("  -l <lib>       Link against library (e.g., -lSDL2)\n");
+        printf("  -pg            Enable gprof profiling (adds -g -fno-omit-frame-pointer)\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
         printf("\nSafety Options:\n");
@@ -960,6 +971,7 @@ int main(int argc, char *argv[]) {
         .show_intermediate_code = false,
         .save_asm = false,
         .json_errors = false,
+        .profile_gprof = false,
         .llm_diags_json_path = NULL,
         .llm_shadow_json_path = NULL,
         .reflect_output_path = NULL,
@@ -998,6 +1010,8 @@ int main(int argc, char *argv[]) {
             opts.save_asm = true;
         } else if (strcmp(argv[i], "--json-errors") == 0) {
             opts.json_errors = true;
+        } else if (strcmp(argv[i], "-pg") == 0) {
+            opts.profile_gprof = true;
         } else if (strcmp(argv[i], "-I") == 0 && i + 1 < argc) {
             if (include_count < 32) {
                 include_paths[include_count++] = argv[i + 1];
