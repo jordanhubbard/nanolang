@@ -616,6 +616,7 @@ typedef struct {
     bool warn_unsafe_calls;    /* Warn when calling functions from unsafe modules */
     bool warn_ffi;             /* Warn on any FFI call */
     bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
+    bool profile_gprof;        /* Enable gprof profiling analysis at exit */
 } Environment;
 
 /* Function declarations */

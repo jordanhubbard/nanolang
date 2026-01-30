@@ -213,19 +213,26 @@ fn main() -> int {
 #### Layer 4: Performance Profiling (gprof)
 Use when you need to identify performance bottlenecks or optimize slow code.
 
-**Compile with profiling enabled:**
+**Platform note:** gprof is primarily a Linux tool. On macOS, use Instruments instead.
+
+**Compile with profiling enabled (Linux):**
 ```bash
 # Compile with -pg flag to enable gprof profiling
 ./bin/nanoc myprogram.nano -o bin/myprogram -pg
 
-# Run the program (creates gmon.out in current directory)
+# Run the program - gprof analysis runs AUTOMATICALLY at exit!
 ./bin/myprogram
 
-# Analyze with gprof
-gprof ./bin/myprogram gmon.out > profile.txt
-
-# View top time consumers
-head -50 profile.txt
+# Output includes LLM-ready JSON analysis:
+# {
+#   "profile_type": "gprof_flat",
+#   "binary": "./bin/myprogram",
+#   "hotspots": [
+#     {"function": "expensive_work", "pct_time": 45.2, "self_seconds": 1.23, "calls": 1000},
+#     ...
+#   ],
+#   "analysis_hints": ["Functions with high pct_time are hot spots", ...]
+# }
 ```
 
 **The `-pg` flag adds these C compiler flags:**
@@ -234,17 +241,28 @@ head -50 profile.txt
 - `-fno-omit-frame-pointer` - Accurate stack traces
 - `-fno-optimize-sibling-calls` - Prevent tail call optimization (clearer traces)
 
+**Automatic analysis:** When compiled with `-pg`, programs automatically run gprof at exit and output LLM-friendly JSON. No manual gprof invocation needed!
+
 **When to use profiling:**
 - UI freezes or beachballs (blocking main thread)
 - Unexpectedly slow operations
 - O(n²) or worse algorithmic complexity suspicion
 - Before/after optimization verification
 
-**Common patterns to look for in gprof output:**
-- Functions with high `% time` - direct time consumers
+**Common patterns to look for in output:**
+- Functions with high `pct_time` - direct time consumers
 - Functions with high `calls` count in tight loops
 - Unexpected functions appearing in hot paths
-- String operations like `str_substring`, `str_matches_at` in inner loops
+- `nl_str_*` and `nl_array_*` functions often indicate algorithmic issues
+
+**macOS alternative:** Use Instruments.app with Time Profiler template:
+```bash
+# Compile without -pg (not supported on macOS)
+./bin/nanoc myprogram.nano -o bin/myprogram
+
+# Profile with Instruments
+xcrun xctrace record --template "Time Profiler" --launch ./bin/myprogram
+```
 
 **See:** `docs/DEBUGGING_GUIDE.md` for complete profiling workflow
 

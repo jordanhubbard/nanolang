@@ -1415,3 +1415,128 @@ void generate_console_io_utilities(StringBuilder *sb) {
 
     sb_append(sb, "/* ========== End Console I/O Utilities ========== */\n\n");
 }
+
+/* =============================================================================
+ * Gprof Profiling Analysis - Auto-runs gprof and outputs LLM-friendly JSON
+ * =============================================================================
+ */
+
+void generate_gprof_analysis(StringBuilder *sb) {
+    sb_append(sb, "/* ========== Gprof Profiling Analysis ========== */\n\n");
+    
+    sb_append(sb, "/* Global to store binary path for gprof analysis */\n");
+    sb_append(sb, "static const char* _nl_profile_binary_path = NULL;\n\n");
+
+    sb_append(sb, "/* Parse a single line from gprof flat profile output */\n");
+    sb_append(sb, "static void _nl_parse_gprof_line(const char* line, FILE* out, int* count) {\n");
+    sb_append(sb, "    /* Skip header lines and empty lines */\n");
+    sb_append(sb, "    if (!line || strlen(line) < 10) return;\n");
+    sb_append(sb, "    if (strstr(line, \"% time\") || strstr(line, \"cumulative\") ||\n");
+    sb_append(sb, "        strstr(line, \"-----\") || strstr(line, \"granularity\")) return;\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Parse: %time cumul self calls self/call total/call name */\n");
+    sb_append(sb, "    double pct_time, cumul_sec, self_sec, self_per_call, total_per_call;\n");
+    sb_append(sb, "    long long calls;\n");
+    sb_append(sb, "    char name[256] = {0};\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Try parsing with calls field */\n");
+    sb_append(sb, "    int parsed = sscanf(line, \" %lf %lf %lf %lld %lf %lf %255s\",\n");
+    sb_append(sb, "                        &pct_time, &cumul_sec, &self_sec, &calls,\n");
+    sb_append(sb, "                        &self_per_call, &total_per_call, name);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    if (parsed < 3) {\n");
+    sb_append(sb, "        /* Try parsing without per-call fields (spontaneous) */\n");
+    sb_append(sb, "        parsed = sscanf(line, \" %lf %lf %lf %255s\",\n");
+    sb_append(sb, "                        &pct_time, &cumul_sec, &self_sec, name);\n");
+    sb_append(sb, "        if (parsed >= 4) {\n");
+    sb_append(sb, "            calls = 0; self_per_call = 0; total_per_call = 0;\n");
+    sb_append(sb, "        } else {\n");
+    sb_append(sb, "            return;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    if (strlen(name) == 0) return;\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Output JSON entry */\n");
+    sb_append(sb, "    if (*count > 0) fprintf(out, \",\\n\");\n");
+    sb_append(sb, "    fprintf(out, \"    {\\\"function\\\": \\\"%s\\\", \", name);\n");
+    sb_append(sb, "    fprintf(out, \"\\\"pct_time\\\": %.2f, \", pct_time);\n");
+    sb_append(sb, "    fprintf(out, \"\\\"self_seconds\\\": %.4f, \", self_sec);\n");
+    sb_append(sb, "    fprintf(out, \"\\\"calls\\\": %lld\", calls);\n");
+    sb_append(sb, "    if (calls > 0) {\n");
+    sb_append(sb, "        fprintf(out, \", \\\"us_per_call\\\": %.2f\", self_per_call * 1000000.0);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    fprintf(out, \"}\");\n");
+    sb_append(sb, "    (*count)++;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* Run gprof and output LLM-friendly JSON analysis */\n");
+    sb_append(sb, "static void _nl_gprof_analyze(void) {\n");
+    sb_append(sb, "    if (!_nl_profile_binary_path) {\n");
+    sb_append(sb, "        fprintf(stderr, \"[profile] No binary path set for gprof analysis\\n\");\n");
+    sb_append(sb, "        return;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Check if gmon.out exists */\n");
+    sb_append(sb, "    FILE* gmon_check = fopen(\"gmon.out\", \"r\");\n");
+    sb_append(sb, "    if (!gmon_check) {\n");
+    sb_append(sb, "        fprintf(stderr, \"[profile] No gmon.out found - did the program run long enough?\\n\");\n");
+    sb_append(sb, "        return;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    fclose(gmon_check);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Build gprof command */\n");
+    sb_append(sb, "    char cmd[1024];\n");
+    sb_append(sb, "    snprintf(cmd, sizeof(cmd), \"gprof -b '%s' gmon.out 2>/dev/null\", _nl_profile_binary_path);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    FILE* pipe = popen(cmd, \"r\");\n");
+    sb_append(sb, "    if (!pipe) {\n");
+    sb_append(sb, "        fprintf(stderr, \"[profile] Failed to run gprof - is it installed?\\n\");\n");
+    sb_append(sb, "        return;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Output JSON header */\n");
+    sb_append(sb, "    printf(\"\\n========== PROFILE ANALYSIS (LLM-READY JSON) ==========\\n\");\n");
+    sb_append(sb, "    printf(\"{\\n\");\n");
+    sb_append(sb, "    printf(\"  \\\"profile_type\\\": \\\"gprof_flat\\\",\\n\");\n");
+    sb_append(sb, "    printf(\"  \\\"binary\\\": \\\"%s\\\",\\n\", _nl_profile_binary_path);\n");
+    sb_append(sb, "    printf(\"  \\\"hotspots\\\": [\\n\");\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Parse gprof output */\n");
+    sb_append(sb, "    char line[1024];\n");
+    sb_append(sb, "    int in_flat_profile = 0;\n");
+    sb_append(sb, "    int count = 0;\n");
+    sb_append(sb, "    int max_entries = 20;  /* Limit to top 20 hotspots */\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    while (fgets(line, sizeof(line), pipe) && count < max_entries) {\n");
+    sb_append(sb, "        /* Detect flat profile section */\n");
+    sb_append(sb, "        if (strstr(line, \"Flat profile:\")) {\n");
+    sb_append(sb, "            in_flat_profile = 1;\n");
+    sb_append(sb, "            continue;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        /* Stop at call graph section */\n");
+    sb_append(sb, "        if (strstr(line, \"Call graph\") || strstr(line, \"Index by function\")) {\n");
+    sb_append(sb, "            break;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        \n");
+    sb_append(sb, "        if (in_flat_profile) {\n");
+    sb_append(sb, "            _nl_parse_gprof_line(line, stdout, &count);\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    pclose(pipe);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Close JSON */\n");
+    sb_append(sb, "    printf(\"\\n  ],\\n\");\n");
+    sb_append(sb, "    printf(\"  \\\"analysis_hints\\\": [\\n\");\n");
+    sb_append(sb, "    printf(\"    \\\"Functions with high pct_time are hot spots\\\",\\n\");\n");
+    sb_append(sb, "    printf(\"    \\\"High calls + low us_per_call may indicate tight loops\\\",\\n\");\n");
+    sb_append(sb, "    printf(\"    \\\"Look for nl_ prefixed functions (NanoLang generated)\\\",\\n\");\n");
+    sb_append(sb, "    printf(\"    \\\"str_ and array_ functions often indicate algorithmic issues\\\"\\n\");\n");
+    sb_append(sb, "    printf(\"  ]\\n\");\n");
+    sb_append(sb, "    printf(\"}\\n\");\n");
+    sb_append(sb, "    printf(\"========== END PROFILE ANALYSIS ==========\\n\\n\");\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "/* ========== End Gprof Profiling Analysis ========== */\n\n");
+}

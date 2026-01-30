@@ -254,6 +254,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     env->warn_unsafe_calls = opts->warn_unsafe_calls;
     env->warn_ffi = opts->warn_ffi;
     env->forbid_unsafe = opts->forbid_unsafe;
+    env->profile_gprof = opts->profile_gprof;
     
     ModuleList *modules = create_module_list();
     if (!process_imports(program, env, modules, input_file)) {
