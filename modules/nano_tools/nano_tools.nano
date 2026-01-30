@@ -289,6 +289,7 @@ fn highlight_html_to_ansi(html: string) -> string {
     let sb: StringBuilder = (sb_new)
     let n: int = (str_length html)
     let mut i: int = 0
+    let mut batch_start: int = 0
     let reset: string = (ansi_escape "0")
     # Pre-compute pattern lengths to avoid repeated str_length calls
     let span_prefix: string = "<span class=\""
@@ -299,6 +300,10 @@ fn highlight_html_to_ansi(html: string) -> string {
     while (< i n) {
         let c: int = (char_at html i)
         if (== c 60) {
+            # Flush batched regular characters before handling tag
+            if (> i batch_start) {
+                (sb_append sb (str_substring html batch_start (- i batch_start)))
+            } else {}
             # Use efficient in-place comparison (no substring allocation)
             if (str_matches_at html i span_close) {
                 (sb_append sb reset)
@@ -328,8 +333,13 @@ fn highlight_html_to_ansi(html: string) -> string {
                     set i (+ i 1)
                 }
             }
+            set batch_start i
         } else {
             if (== c 38) {
+                # Flush batched regular characters before handling entity
+                if (> i batch_start) {
+                    (sb_append sb (str_substring html batch_start (- i batch_start)))
+                } else {}
                 let mut end: int = (+ i 1)
                 while (and (< end n) (!= (char_at html end) 59)) {
                     set end (+ end 1)
@@ -342,12 +352,17 @@ fn highlight_html_to_ansi(html: string) -> string {
                     (sb_append sb "&")
                     set i (+ i 1)
                 }
+                set batch_start i
             } else {
-                (sb_append sb (string_from_char c))
+                # Regular character - just advance (will be batched)
                 set i (+ i 1)
             }
         }
     }
+    # Flush any remaining batched characters
+    if (> n batch_start) {
+        (sb_append sb (str_substring html batch_start (- n batch_start)))
+    } else {}
     (sb_append sb reset)
     return (sb_to_string sb)
 }
@@ -368,8 +383,8 @@ shadow pretty_print_html {
 }
 
 pub fn pretty_print_ansi(source: string) -> string {
-    let html: string = (nano_highlight.highlight_html source)
-    return (highlight_html_to_ansi html)
+    # Use direct ANSI highlighting (skips HTML intermediate for better performance)
+    return (nano_highlight.highlight_ansi source)
 }
 
 shadow pretty_print_ansi {

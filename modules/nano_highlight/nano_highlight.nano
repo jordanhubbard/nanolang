@@ -157,31 +157,43 @@ shadow is_operator_char {
 }
 
 fn escape_html(text: string) -> string {
-    let mut out: string = ""
-    let mut i: int = 0
+    # Optimized: batch regular characters, only create strings for special chars
+    let sb: StringBuilder = (sb_new)
     let n: int = (str_length text)
+    let mut i: int = 0
+    let mut batch_start: int = 0
+    
     while (< i n) {
         let c: int = (char_at text i)
-        if (== c 38) {
-            set out (+ out "&amp;")
-        } else {
-            if (== c 60) {
-                set out (+ out "&lt;")
+        # Check if this is a special character that needs escaping
+        if (or (== c 38) (or (== c 60) (or (== c 62) (== c 34)))) {
+            # Flush any batched regular characters
+            if (> i batch_start) {
+                (sb_append sb (str_substring text batch_start (- i batch_start)))
+            } else {}
+            # Append the escape sequence
+            if (== c 38) {
+                (sb_append sb "&amp;")
             } else {
-                if (== c 62) {
-                    set out (+ out "&gt;")
+                if (== c 60) {
+                    (sb_append sb "&lt;")
                 } else {
-                    if (== c 34) {
-                        set out (+ out "&quot;")
+                    if (== c 62) {
+                        (sb_append sb "&gt;")
                     } else {
-                        set out (+ out (string_from_char c))
+                        (sb_append sb "&quot;")
                     }
                 }
             }
-        }
+            set batch_start (+ i 1)
+        } else {}
         set i (+ i 1)
     }
-    return out
+    # Flush remaining regular characters
+    if (> n batch_start) {
+        (sb_append sb (str_substring text batch_start (- n batch_start)))
+    } else {}
+    return (sb_to_string sb)
 }
 
 shadow escape_html {
@@ -328,4 +340,65 @@ pub fn highlight_html(code: string) -> string {
 
 shadow highlight_html {
     assert true
+}
+
+fn ansi_for_token_kind(kind: int) -> string {
+    # Return ANSI color code for token kind (empty string means no color)
+    return (cond
+        ((== kind HL_TOKEN_KEYWORD) "35")    # Magenta
+        ((== kind HL_TOKEN_TYPE) "36")        # Cyan
+        ((== kind HL_TOKEN_STRING) "32")      # Green
+        ((== kind HL_TOKEN_NUMBER) "33")      # Yellow
+        ((== kind HL_TOKEN_COMMENT) "90")     # Bright black (gray)
+        ((== kind HL_TOKEN_OPERATOR) "37")    # White
+        ((== kind HL_TOKEN_PAREN) "37")       # White
+        ((== kind HL_TOKEN_IDENTIFIER) "0")   # Reset (default)
+        (else "")
+    )
+}
+
+shadow ansi_for_token_kind {
+    assert (== (ansi_for_token_kind HL_TOKEN_KEYWORD) "35")
+    assert (== (ansi_for_token_kind HL_TOKEN_WHITESPACE) "")
+}
+
+fn ansi_esc(code: string) -> string {
+    # Build ANSI escape sequence: ESC[<code>m
+    return (+ (string_from_char 27) (+ "[" (+ code "m")))
+}
+
+shadow ansi_esc {
+    let esc: string = (ansi_esc "35")
+    assert (== (str_length esc) 5)
+}
+
+# Direct ANSI highlighting - skips HTML intermediate for much better performance
+pub fn highlight_ansi(code: string) -> string {
+    let tokens: array<HighlightToken> = (tokenize code)
+    let sb: StringBuilder = (sb_new)
+    let reset: string = (ansi_esc "0")
+    let mut i: int = 0
+    while (< i (array_length tokens)) {
+        let tok: HighlightToken = (at tokens i)
+        if (== tok.kind HL_TOKEN_WHITESPACE) {
+            # Whitespace: output directly, no coloring
+            (sb_append sb tok.text)
+        } else {
+            let color: string = (ansi_for_token_kind tok.kind)
+            if (!= color "") {
+                (sb_append sb (ansi_esc color))
+                (sb_append sb tok.text)
+                (sb_append sb reset)
+            } else {
+                (sb_append sb tok.text)
+            }
+        }
+        set i (+ i 1)
+    }
+    return (sb_to_string sb)
+}
+
+shadow highlight_ansi {
+    let out: string = (highlight_ansi "fn main")
+    assert (str_contains out "[35m")
 }
