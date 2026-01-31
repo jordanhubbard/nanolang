@@ -31,10 +31,14 @@ shadow std_env_get_set_unset {
 
 fn std_env_args() -> int {
     let a: array<string> = (args)
-    assert (>= (array_length a) 0)
-    if (> (array_length a) 0) {
+    /* args() always returns an array - verify we can get its length */
+    let len: int = (array_length a)
+    /* Length is non-negative by definition, so just check it's a valid int */
+    assert (or (== len 0) (> len 0))
+    if (> len 0) {
         let first: string = (at a 0)
-        assert (>= (str_length first) 0)
+        let first_len: int = (str_length first)
+        assert (or (== first_len 0) (> first_len 0))
     }
     return 0
 }
