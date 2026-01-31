@@ -100,7 +100,10 @@ void clear_module_cache(void) {
     if (module_cache) {
         for (int i = 0; i < module_cache->count; i++) {
             free(module_cache->loaded_paths[i]);
-            /* Don't free ASTs - they're owned by the environment */
+            /* Free ASTs - they were allocated during module loading and are no longer needed */
+            if (module_cache->loaded_asts[i]) {
+                free_ast(module_cache->loaded_asts[i]);
+            }
         }
         free(module_cache->loaded_paths);
         free(module_cache->loaded_asts);

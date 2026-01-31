@@ -137,6 +137,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        clear_module_cache();
         free(source);
         return 1;
     }
@@ -155,6 +156,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        clear_module_cache();
         free(source);
         return 1;
     }
@@ -170,6 +172,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             free_tokens(tokens, token_count);
             free_environment(env);
             free_module_list(modules);
+            clear_module_cache();
             free(source);
             return 1;
         }
@@ -214,6 +217,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        clear_module_cache();
         free(source);
         ffi_cleanup();
         return 1;
@@ -229,6 +233,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        clear_module_cache();
         free(source);
         return 1;
     }
@@ -279,6 +284,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        clear_module_cache();
         free(source);
         return 1;
     }
@@ -481,6 +487,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        clear_module_cache();
         free(source);
         if (!opts->keep_c) {
             remove(temp_c_file);
@@ -506,6 +513,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        clear_module_cache();
         free(source);
         /* Remove temporary C file unless --keep-c */
         if (!opts->keep_c) {
@@ -525,6 +533,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     free_tokens(tokens, token_count);
     free_environment(env);
     free_module_list(modules);
+    clear_module_cache();  /* Free all cached module ASTs */
     free(source);
 
     return 0;  /* Success */
