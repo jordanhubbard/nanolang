@@ -1,0 +1,91 @@
+# SDL Drawing Primitives Demo
+# Demonstrates SDL_RenderDrawRect and other drawing functions
+
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+
+fn main() -> int {
+    # Initialize
+    (SDL_Init SDL_INIT_VIDEO) 
+    (TTF_Init) 
+    let window: SDL_Window = (SDL_CreateWindow "Drawing Primitives" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+    let font: TTF_Font = (nl_open_font_portable "Arial" 12)
+    
+    # Main loop
+    let mut running: bool = true
+    let mut frame: int = 0
+    
+    while running {
+        # Events
+        let quit_event: int = (nl_sdl_poll_event_quit)
+        (nl_sdl_poll_keypress) 
+        let should_quit: bool = (cond
+            ((!= quit_event 0) true)
+            (else false)
+        )
+        if should_quit {
+            set running false
+        } else {}
+        
+        # Clear
+        (SDL_SetRenderDrawColor renderer 20 20 30 255) 
+        (SDL_RenderClear renderer) 
+        
+        # Draw filled rectangles (using nl_sdl_render_fill_rect)
+        (SDL_SetRenderDrawColor renderer 255 0 0 255) 
+        (nl_sdl_render_fill_rect renderer 50 50 100 80) 
+        
+        (SDL_SetRenderDrawColor renderer 0 255 0 255) 
+        (nl_sdl_render_fill_rect renderer 200 50 100 80) 
+        
+        (SDL_SetRenderDrawColor renderer 0 0 255 255) 
+        (nl_sdl_render_fill_rect renderer 350 50 100 80) 
+        
+        # Draw lines
+        (SDL_SetRenderDrawColor renderer 255 255 0 255) 
+        (SDL_RenderDrawLine renderer 50 200 750 200) 
+        (SDL_RenderDrawLine renderer 50 250 750 250) 
+        
+        # Draw animated line
+        let angle: float = (* 0.05 (cast_float frame))
+        let x2: int = (+ 400 (cast_int (* 200.0 (cos angle))))
+        let y2: int = (+ 400 (cast_int (* 200.0 (sin angle))))
+        (SDL_SetRenderDrawColor renderer 0 255 255 255) 
+        (SDL_RenderDrawLine renderer 400 400 x2 y2) 
+        
+        # Draw points in a circle
+        (SDL_SetRenderDrawColor renderer 255 128 0 255) 
+        let mut i: int = 0
+        while (< i 360) {
+            let rad: float = (* 0.017453 (cast_float i))  # deg to rad
+            let px: int = (+ 600 (cast_int (* 80.0 (cos rad))))
+            let py: int = (+ 400 (cast_int (* 80.0 (sin rad))))
+            (SDL_RenderDrawPoint renderer px py) 
+            set i (+ i 10)
+        }
+        
+        # Draw on-screen help
+        
+        # Present
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
+        set frame (+ frame 1)
+    }
+    
+    # Cleanup
+    (TTF_CloseFont font) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (TTF_Quit) 
+    (SDL_Quit) 
+    
+    return 0
+}
+
+shadow main { assert true }

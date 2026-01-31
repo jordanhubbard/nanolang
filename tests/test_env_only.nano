@@ -1,0 +1,10 @@
+from "modules/std/env.nano" import get, set_env
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

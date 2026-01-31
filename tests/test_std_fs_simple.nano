@@ -1,0 +1,62 @@
+/* Simple test for std::fs FFI functions */
+
+/* FFI declarations */
+extern fn fs_walkdir(root: string) -> array<string>
+extern fn path_normalize(path: string) -> string
+extern fn path_join(a: string, b: string) -> string
+extern fn path_basename(path: string) -> string
+extern fn path_dirname(path: string) -> string
+
+fn main() -> int {
+    (println "=== Testing std::fs FFI ===")
+    (println "")
+    
+    unsafe {
+        /* Test path_normalize */
+        let p1: string = (path_normalize "/foo/./bar/../baz")
+        (print "normalize /foo/./bar/../baz = ")
+        (println p1)
+        
+        /* Test path_join */
+        let p2: string = (path_join "foo" "bar")
+        (print "join foo bar = ")
+        (println p2)
+        
+        /* Test path_basename */
+        let p3: string = (path_basename "/foo/bar/baz.txt")
+        (print "basename /foo/bar/baz.txt = ")
+        (println p3)
+        
+        /* Test path_dirname */
+        let p4: string = (path_dirname "/foo/bar/baz.txt")
+        (print "dirname /foo/bar/baz.txt = ")
+        (println p4)
+        
+        (println "")
+        
+        /* Test fs_walkdir */
+        (println "Walking modules/std:")
+        let files: array<string> = (fs_walkdir "modules/std")
+        let n: int = (array_length files)
+        (print "  Found ")
+        (print (int_to_string n))
+        (println " files")
+        
+        /* Show first few files */
+        let mut i: int = 0
+        while (and (< i n) (< i 5)) {
+            (print "  - ")
+            (println (at files i))
+            set i (+ i 1)
+        }
+    }
+    
+    (println "")
+    (println "All tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

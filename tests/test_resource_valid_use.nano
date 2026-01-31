@@ -1,0 +1,37 @@
+/* Test: valid resource usage should work */
+
+resource struct FileHandle {
+    fd: int
+}
+
+fn open_file(path: string) -> FileHandle {
+    (println path)
+    return FileHandle { fd: 42 }
+}
+
+shadow open_file {
+    let f: FileHandle = (open_file "test.txt")
+    (close_file f)
+}
+
+fn close_file(f: FileHandle) -> void {
+    (println "File closed")
+}
+
+shadow close_file {
+    let f: FileHandle = FileHandle { fd: 1 }
+    (close_file f)
+}
+
+fn main() -> int {
+    (println "Testing valid resource usage")
+    let f: FileHandle = (open_file "data.txt")
+    (close_file f)
+    (println "Success!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

@@ -1,0 +1,460 @@
+/* =============================================================================
+ * Result-like Pattern for Self-Hosted Compiler
+ * =============================================================================
+ * Simple result types for error handling without full generics.
+ * These provide ergonomic error propagation for the self-hosted compiler.
+ */
+
+import "src_nano/compiler/ir.nano"
+import "src_nano/compiler/diagnostics.nano"
+
+/* =============================================================================
+ * SIMPLE RESULT PATTERNS (non-generic)
+ * =============================================================================
+ * Since we don't have full generics yet, we provide concrete Result types
+ * for common cases in the compiler.
+ */
+
+/* Result for operations that return int or error */
+union ResultInt {
+    Ok { value: int },
+    Err { error: string }
+}
+
+/* Result for operations that return bool or error */
+union ResultBool {
+    Ok { value: bool },
+    Err { error: string }
+}
+
+/* Result for operations that return string or error */
+union ResultString {
+    Ok { value: string },
+    Err { error: string }
+}
+
+/* Result for operations that return NSType or error */
+union ResultType {
+    Ok { value: NSType },
+    Err { error: string }
+}
+
+/* Result for operations that succeed with no value or error */
+union ResultVoid {
+    Ok { success: bool },
+    Err { error: string }
+}
+
+/* =============================================================================
+ * RESULT CONSTRUCTORS
+ * ============================================================================= */
+
+pub fn result_int_ok(value: int) -> ResultInt {
+    return ResultInt.Ok { value: value }
+}
+
+pub fn result_int_err(error: string) -> ResultInt {
+    return ResultInt.Err { error: error }
+}
+
+pub fn result_bool_ok(value: bool) -> ResultBool {
+    return ResultBool.Ok { value: value }
+}
+
+shadow result_bool_ok {
+    let r: ResultBool = (result_bool_ok true)
+    match r {
+        Ok(v) => {
+            assert v.value
+        }
+        Err(e) => {
+            assert false
+        }
+    }
+}
+
+pub fn result_bool_err(error: string) -> ResultBool {
+    return ResultBool.Err { error: error }
+}
+
+shadow result_bool_err {
+    let r: ResultBool = (result_bool_err "test error")
+    match r {
+        Ok(v) => {
+            assert false
+        }
+        Err(e) => {
+            assert (== e.error "test error")
+        }
+    }
+}
+
+pub fn result_string_ok(value: string) -> ResultString {
+    return ResultString.Ok { value: value }
+}
+
+shadow result_string_ok {
+    let r: ResultString = (result_string_ok "hello")
+    match r {
+        Ok(v) => {
+            assert (== v.value "hello")
+        }
+        Err(e) => {
+            assert false
+        }
+    }
+}
+
+pub fn result_string_err(error: string) -> ResultString {
+    return ResultString.Err { error: error }
+}
+
+shadow result_string_err {
+    let r: ResultString = (result_string_err "test error")
+    match r {
+        Ok(v) => {
+            assert false
+        }
+        Err(e) => {
+            assert (== e.error "test error")
+        }
+    }
+}
+
+pub fn result_type_ok(value: NSType) -> ResultType {
+    return ResultType.Ok { value: value }
+}
+
+shadow result_type_ok {
+    let t: NSType = NSType { kind: TypeKind.TYPE_INT, name: "", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+    let r: ResultType = (result_type_ok t)
+    match r {
+        Ok(v) => {
+            assert (== v.value.kind TypeKind.TYPE_INT)
+        }
+        Err(e) => {
+            assert false
+        }
+    }
+}
+
+pub fn result_type_err(error: string) -> ResultType {
+    return ResultType.Err { error: error }
+}
+
+shadow result_type_err {
+    let r: ResultType = (result_type_err "test error")
+    match r {
+        Ok(v) => {
+            assert false
+        }
+        Err(e) => {
+            assert (== e.error "test error")
+        }
+    }
+}
+
+pub fn result_void_ok() -> ResultVoid {
+    return ResultVoid.Ok { success: true }
+}
+
+shadow result_void_ok {
+    let r: ResultVoid = (result_void_ok)
+    match r {
+        Ok(v) => {
+            assert v.success
+        }
+        Err(e) => {
+            assert false
+        }
+    }
+}
+
+pub fn result_void_err(error: string) -> ResultVoid {
+    return ResultVoid.Err { error: error }
+}
+
+shadow result_void_err {
+    let r: ResultVoid = (result_void_err "test error")
+    match r {
+        Ok(v) => {
+            assert false
+        }
+        Err(e) => {
+            assert (== e.error "test error")
+        }
+    }
+}
+
+shadow result_int_ok {
+    let r: ResultInt = (result_int_ok 42)
+    match r {
+        Ok(v) => {
+            assert (== v.value 42)
+        }
+        Err(e) => {
+            assert false
+        }
+    }
+}
+
+shadow result_int_err {
+    let r: ResultInt = (result_int_err "test error")
+    match r {
+        Ok(v) => {
+            assert false
+        }
+        Err(e) => {
+            assert (== e.error "test error")
+        }
+    }
+}
+
+/* =============================================================================
+ * RESULT HELPERS
+ * ============================================================================= */
+
+/* Check if result is Ok */
+pub fn result_int_is_ok(r: ResultInt) -> bool {
+    match r {
+        Ok(v) => {
+            return true
+        }
+        Err(e) => {
+            return false
+        }
+    }
+}
+
+/* Check if result is Err */
+pub fn result_int_is_err(r: ResultInt) -> bool {
+    match r {
+        Ok(v) => {
+            return false
+        }
+        Err(e) => {
+            return true
+        }
+    }
+}
+
+shadow result_int_is_err {
+    let r1: ResultInt = (result_int_ok 10)
+    assert (not (result_int_is_err r1))
+    
+    let r2: ResultInt = (result_int_err "error")
+    assert (result_int_is_err r2)
+}
+
+/* Unwrap with default value */
+pub fn result_int_unwrap_or(r: ResultInt, default_value: int) -> int {
+    match r {
+        Ok(v) => {
+            return v.value
+        }
+        Err(e) => {
+            return default_value
+        }
+    }
+}
+
+/* Similar helpers for ResultBool */
+pub fn result_bool_is_ok(r: ResultBool) -> bool {
+    match r {
+        Ok(v) => {
+            return true
+        }
+        Err(e) => {
+            return false
+        }
+    }
+}
+
+pub fn result_bool_is_err(r: ResultBool) -> bool {
+    match r {
+        Ok(v) => {
+            return false
+        }
+        Err(e) => {
+            return true
+        }
+    }
+}
+
+pub fn result_bool_unwrap_or(r: ResultBool, default_value: bool) -> bool {
+    match r {
+        Ok(v) => {
+            return v.value
+        }
+        Err(e) => {
+            return default_value
+        }
+    }
+}
+
+/* Similar helpers for ResultString */
+pub fn result_string_is_ok(r: ResultString) -> bool {
+    match r {
+        Ok(v) => {
+            return true
+        }
+        Err(e) => {
+            return false
+        }
+    }
+}
+
+pub fn result_string_is_err(r: ResultString) -> bool {
+    match r {
+        Ok(v) => {
+            return false
+        }
+        Err(e) => {
+            return true
+        }
+    }
+}
+
+pub fn result_string_unwrap_or(r: ResultString, default_value: string) -> string {
+    match r {
+        Ok(v) => {
+            return v.value
+        }
+        Err(e) => {
+            return default_value
+        }
+    }
+}
+
+/* Similar helpers for ResultType */
+pub fn result_type_is_ok(r: ResultType) -> bool {
+    match r {
+        Ok(v) => {
+            return true
+        }
+        Err(e) => {
+            return false
+        }
+    }
+}
+
+pub fn result_type_is_err(r: ResultType) -> bool {
+    match r {
+        Ok(v) => {
+            return false
+        }
+        Err(e) => {
+            return true
+        }
+    }
+}
+
+/* Similar helpers for ResultVoid */
+pub fn result_void_is_ok(r: ResultVoid) -> bool {
+    match r {
+        Ok(v) => {
+            return true
+        }
+        Err(e) => {
+            return false
+        }
+    }
+}
+
+pub fn result_void_is_err(r: ResultVoid) -> bool {
+    match r {
+        Ok(v) => {
+            return false
+        }
+        Err(e) => {
+            return true
+        }
+    }
+}
+
+shadow result_int_is_ok {
+    let r1: ResultInt = (result_int_ok 10)
+    assert (result_int_is_ok r1)
+    assert (not (result_int_is_err r1))
+    
+    let r2: ResultInt = (result_int_err "error")
+    assert (not (result_int_is_ok r2))
+    assert (result_int_is_err r2)
+}
+
+shadow result_int_unwrap_or {
+    let r1: ResultInt = (result_int_ok 42)
+    assert (== (result_int_unwrap_or r1 0) 42)
+    
+    let r2: ResultInt = (result_int_err "error")
+    assert (== (result_int_unwrap_or r2 99) 99)
+}
+
+/* Shadow tests for functions missing them */
+shadow result_bool_is_ok {
+    let r1: ResultBool = (result_bool_ok true)
+    assert (result_bool_is_ok r1)
+}
+
+shadow result_bool_is_err {
+    let r2: ResultBool = (result_bool_err "error")
+    assert (result_bool_is_err r2)
+}
+
+shadow result_bool_unwrap_or {
+    let r1: ResultBool = (result_bool_ok true)
+    assert (result_bool_unwrap_or r1 false)
+}
+
+shadow result_string_is_ok {
+    let r1: ResultString = (result_string_ok "hello")
+    assert (result_string_is_ok r1)
+}
+
+shadow result_string_is_err {
+    let r2: ResultString = (result_string_err "error")
+    assert (result_string_is_err r2)
+}
+
+shadow result_string_unwrap_or {
+    let r1: ResultString = (result_string_ok "hello")
+    assert (== (result_string_unwrap_or r1 "default") "hello")
+}
+
+shadow result_type_is_ok {
+    let t: NSType = NSType { kind: TypeKind.TYPE_INT, name: "", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+    let r1: ResultType = (result_type_ok t)
+    assert (result_type_is_ok r1)
+}
+
+shadow result_type_is_err {
+    let r2: ResultType = (result_type_err "error")
+    assert (result_type_is_err r2)
+}
+
+shadow result_void_is_ok {
+    let r1: ResultVoid = (result_void_ok)
+    assert (result_void_is_ok r1)
+}
+
+shadow result_void_is_err {
+    let r2: ResultVoid = (result_void_err "error")
+    assert (result_void_is_err r2)
+}
+
+/* =============================================================================
+ * INTEGRATION WITH DIAGNOSTICS
+ * ============================================================================= */
+
+/* Convert Result error to Diagnostic */
+pub fn result_to_diagnostic(phase: int, code: string, error_msg: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
+    return (diag_error phase code error_msg location)
+}
+
+shadow result_to_diagnostic {
+    let loc: CompilerSourceLocation = (diag_location "test.nano" 10 5)
+    let diag: CompilerDiagnostic = (result_to_diagnostic CompilerPhase.PHASE_PARSER "P001" "Parse error" loc)
+    assert (== diag.phase CompilerPhase.PHASE_PARSER)
+    assert (== diag.severity DiagnosticSeverity.DIAG_ERROR)
+}
+

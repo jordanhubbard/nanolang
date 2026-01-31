@@ -1,0 +1,31 @@
+# Test Module.StructName qualification
+
+module "test_modules/simple_math.nano" as Math
+
+fn main() -> int {
+    # Test using module-qualified struct type
+    let p: Math.Point = Math.Point { x: 10, y: 20 }
+    
+    (print "Point x: ")
+    (println (int_to_string p.x))
+    
+    (print "Point y: ")
+    (println (int_to_string p.y))
+    
+    # Test in function call
+    let sum: int = (Math.add p.x p.y)
+    (print "Sum: ")
+    (println (int_to_string sum))
+    
+    if (== sum 30) {
+        (println "✓ Module.StructName test passed!")
+        return 0
+    } else {
+        (println "✗ Test failed")
+        return 1
+    }
+}
+
+shadow main {
+    assert (== (main) 0)
+}

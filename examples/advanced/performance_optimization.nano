@@ -1,0 +1,337 @@
+# Example: Performance Optimization Techniques
+# Purpose: Demonstrate performance best practices in NanoLang
+# Features: Algorithm complexity, memory efficiency, profiling tips
+# Difficulty: Advanced
+# Usage: ./bin/nanoc examples/advanced/performance_optimization.nano -o /tmp/perf && /tmp/perf
+# Expected Output: Compares fast vs slow implementations
+#
+# Learning Objectives:
+# 1. Understand time complexity (O(n), O(n²), O(log n))
+# 2. Choose efficient algorithms and data structures
+# 3. Minimize allocations and copies
+# 4. Use iterative instead of recursive when appropriate
+# 5. Profile and measure performance
+#
+# Performance Philosophy:
+# - Correctness first, optimization second
+# - Measure before optimizing (don't guess!)
+# - Big-O matters more than micro-optimizations
+# - Shadow tests ensure optimizations don't break correctness
+
+# ==================================================================
+# Technique 1: Algorithm Complexity Matters
+# ==================================================================
+
+# SLOW: O(n²) - nested loops
+fn sum_slow(n: int) -> int {
+    let mut sum: int = 0
+    let mut i: int = 0
+    
+    while (< i n) {
+        let mut j: int = 0
+        while (< j n) {
+            set sum (+ sum 1)
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    
+    return sum
+}
+
+shadow sum_slow {
+    assert (== (sum_slow 1) 1)
+    assert (== (sum_slow 2) 4)
+    assert (== (sum_slow 3) 9)
+    assert (== (sum_slow 10) 100)
+}
+
+# FAST: O(1) - mathematical formula
+fn sum_fast(n: int) -> int {
+    return (* n n)  # n² computed directly!
+}
+
+shadow sum_fast {
+    assert (== (sum_fast 1) 1)
+    assert (== (sum_fast 2) 4)
+    assert (== (sum_fast 3) 9)
+    assert (== (sum_fast 10) 100)
+    assert (== (sum_fast 1000) 1000000)  # Still instant!
+}
+
+# Lesson: Think about the math! O(1) >> O(n) >> O(n²)
+
+# ==================================================================
+# Technique 2: Iterative vs Recursive
+# ==================================================================
+
+# SLOW: Recursive Fibonacci - O(2^n) exponential!
+fn fib_recursive(n: int) -> int {
+    if (<= n 1) {
+        return n
+    } else {}
+    return (+ (fib_recursive (- n 1)) (fib_recursive (- n 2)))
+}
+
+shadow fib_recursive {
+    assert (== (fib_recursive 0) 0)
+    assert (== (fib_recursive 1) 1)
+    assert (== (fib_recursive 5) 5)
+    assert (== (fib_recursive 10) 55)
+    # fib_recursive(30) would be very slow!
+}
+
+# FAST: Iterative Fibonacci - O(n) linear
+fn fib_iterative(n: int) -> int {
+    if (<= n 1) {
+        return n
+    } else {}
+    
+    let mut prev: int = 0
+    let mut curr: int = 1
+    let mut i: int = 2
+    
+    while (<= i n) {
+        let next: int = (+ prev curr)
+        set prev curr
+        set curr next
+        set i (+ i 1)
+    }
+    
+    return curr
+}
+
+shadow fib_iterative {
+    assert (== (fib_iterative 0) 0)
+    assert (== (fib_iterative 1) 1)
+    assert (== (fib_iterative 5) 5)
+    assert (== (fib_iterative 10) 55)
+    assert (== (fib_iterative 30) 832040)  # Fast even for large n!
+}
+
+# Lesson: Iterative is often faster than recursive
+
+# ==================================================================
+# Technique 3: Minimize Array Operations
+# ==================================================================
+
+# SLOW: Multiple passes over array
+fn process_array_slow(arr: array<int>) -> int {
+    let len: int = (array_length arr)
+    
+    # Pass 1: Find max
+    let mut max_val: int = (at arr 0)
+    let mut i: int = 1
+    while (< i len) {
+        let val: int = (at arr i)
+        if (> val max_val) {
+            set max_val val
+        } else {}
+        set i (+ i 1)
+    }
+    
+    # Pass 2: Find min
+    let mut min_val: int = (at arr 0)
+    set i 1
+    while (< i len) {
+        let val: int = (at arr i)
+        if (< val min_val) {
+            set min_val val
+        } else {}
+        set i (+ i 1)
+    }
+    
+    # Pass 3: Compute sum
+    let mut sum: int = 0
+    set i 0
+    while (< i len) {
+        set sum (+ sum (at arr i))
+        set i (+ i 1)
+    }
+    
+    return (+ (+ max_val min_val) sum)
+}
+
+shadow process_array_slow {
+    let test: array<int> = [1, 2, 3, 4, 5]
+    assert (== (process_array_slow test) 21)  # max(5) + min(1) + sum(15) = 21
+}
+
+# FAST: Single pass over array
+fn process_array_fast(arr: array<int>) -> int {
+    let len: int = (array_length arr)
+    
+    let mut max_val: int = (at arr 0)
+    let mut min_val: int = (at arr 0)
+    let mut sum: int = 0
+    let mut i: int = 0
+    
+    # Single pass: compute all three at once!
+    while (< i len) {
+        let val: int = (at arr i)
+        
+        if (> val max_val) {
+            set max_val val
+        } else {}
+        
+        if (< val min_val) {
+            set min_val val
+        } else {}
+        
+        set sum (+ sum val)
+        set i (+ i 1)
+    }
+    
+    return (+ (+ max_val min_val) sum)
+}
+
+shadow process_array_fast {
+    let test: array<int> = [1, 2, 3, 4, 5]
+    assert (== (process_array_fast test) 21)  # Same result, one pass!
+}
+
+# Lesson: Combine operations to reduce passes over data
+
+# ==================================================================
+# Technique 4: Early Exit Optimization
+# ==================================================================
+
+# SLOW: Always checks entire array
+fn contains_slow(arr: array<int>, target: int) -> bool {
+    let len: int = (array_length arr)
+    let mut found: bool = false
+    let mut i: int = 0
+    
+    while (< i len) {
+        if (== (at arr i) target) {
+            set found true
+        } else {}
+        set i (+ i 1)
+    }
+    
+    return found
+}
+
+shadow contains_slow {
+    let test: array<int> = [1, 2, 3, 4, 5]
+    assert (== (contains_slow test 3) true)
+    assert (== (contains_slow test 99) false)
+}
+
+# FAST: Returns immediately when found
+fn contains_fast(arr: array<int>, target: int) -> bool {
+    let len: int = (array_length arr)
+    let mut i: int = 0
+    
+    while (< i len) {
+        if (== (at arr i) target) {
+            return true  # Early exit!
+        } else {}
+        set i (+ i 1)
+    }
+    
+    return false
+}
+
+shadow contains_fast {
+    let test: array<int> = [1, 2, 3, 4, 5]
+    assert (== (contains_fast test 3) true)
+    assert (== (contains_fast test 99) false)
+}
+
+# Lesson: Return early when you have the answer
+
+# ==================================================================
+# Technique 5: Avoid Redundant Computations
+# ==================================================================
+
+# SLOW: Recomputes array length every iteration
+fn sum_array_slow(arr: array<int>) -> int {
+    let mut sum: int = 0
+    let mut i: int = 0
+    
+    while (< i (array_length arr)) {  # Computed every iteration!
+        set sum (+ sum (at arr i))
+        set i (+ i 1)
+    }
+    
+    return sum
+}
+
+shadow sum_array_slow {
+    let test: array<int> = [1, 2, 3, 4, 5]
+    assert (== (sum_array_slow test) 15)
+}
+
+# FAST: Computes array length once
+fn sum_array_fast(arr: array<int>) -> int {
+    let len: int = (array_length arr)  # Computed once!
+    let mut sum: int = 0
+    let mut i: int = 0
+    
+    while (< i len) {
+        set sum (+ sum (at arr i))
+        set i (+ i 1)
+    }
+    
+    return sum
+}
+
+shadow sum_array_fast {
+    let test: array<int> = [1, 2, 3, 4, 5]
+    assert (== (sum_array_fast test) 15)
+}
+
+# Lesson: Hoist invariant computations out of loops
+
+# ==================================================================
+# Performance Best Practices Summary
+# ==================================================================
+
+# 1. ✅ Choose the right algorithm (O(1) > O(log n) > O(n) > O(n²))
+# 2. ✅ Use iterative instead of recursive for hot paths
+# 3. ✅ Minimize passes over data (combine operations)
+# 4. ✅ Return early when possible
+# 5. ✅ Hoist invariant computations out of loops
+# 6. ✅ Measure performance before optimizing
+# 7. ✅ Keep shadow tests to ensure correctness
+# 8. ✅ Profile to find actual bottlenecks
+# 9. ✅ Optimize the algorithm, not the syntax
+# 10. ✅ Readable code > micro-optimizations
+
+fn main() -> int {
+    (println "Performance Optimization Demo")
+    (println "")
+    
+    (println "Technique 1: Algorithm Complexity")
+    (println "sum_fast(100) = ")
+    (println (sum_fast 100))  # Instant
+    (println "")
+    
+    (println "Technique 2: Iterative vs Recursive")
+    (println "fib_iterative(30) = ")
+    (println (fib_iterative 30))  # Fast
+    (println "")
+    
+    (println "Technique 3: Single Pass")
+    let test_arr: array<int> = [1, 2, 3, 4, 5]
+    (println "process_array_fast = ")
+    (println (process_array_fast test_arr))
+    (println "")
+    
+    (println "Technique 4: Early Exit")
+    (println "contains_fast(3) = ")
+    (println (contains_fast test_arr 3))
+    (println "")
+    
+    (println "Technique 5: Hoist Invariants")
+    (println "sum_array_fast = ")
+    (println (sum_array_fast test_arr))
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

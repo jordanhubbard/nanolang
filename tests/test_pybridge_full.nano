@@ -1,0 +1,108 @@
+from "modules/pybridge/pybridge.nano" import pybridge_init, pybridge_import, pybridge_call, pybridge_get, pybridge_set, pybridge_release, pybridge_sysinfo, pybridge_deps, pybridge_shutdown
+from "modules/std/json/json.nano" import Json, parse, free, get, object_has, is_array, is_number, as_string, array_size, new_null, is_null
+
+fn pybridge_extract_result_object(response_json: string) -> Json {
+    let root: Json = (parse response_json)
+    if (== root 0) {
+        return (new_null)
+    }
+    if (object_has root "error") {
+        (free root)
+        return (new_null)
+    }
+    let result: Json = (get root "result")
+    (free root)
+    return result
+}
+
+shadow pybridge_extract_result_object {
+    let ok: Json = (pybridge_extract_result_object "{\"v\":1,\"id\":1,\"result\":{\"ok\":true}}")
+    assert (!= ok 0)
+    (free ok)
+
+    let bad: Json = (pybridge_extract_result_object "{\"v\":1,\"id\":1,\"error\":{\"code\":1,\"message\":\"x\",\"traceback\":\"\"}}")
+    assert (is_null bad)
+    (free bad)
+}
+
+fn test_pybridge_full() -> int {
+    let reqs: array<string> = (array_new 0 "")
+    let ok: bool = (pybridge_init reqs false)
+    if (not ok) {
+        return 0
+    }
+
+    let handle: int = (pybridge_import "math")
+    assert (> handle 0)
+
+    let call_resp: string = (pybridge_call handle "sqrt" "[9]" "{}")
+    let call_result: Json = (pybridge_extract_result_object call_resp)
+    assert (!= call_result 0)
+    assert (object_has call_result "value")
+    let call_value: Json = (get call_result "value")
+    assert (!= call_value 0)
+    assert (is_number call_value)
+    (free call_value)
+    (free call_result)
+
+    let get_resp: string = (pybridge_get handle "pi")
+    let get_result: Json = (pybridge_extract_result_object get_resp)
+    assert (!= get_result 0)
+    let get_value: Json = (get get_result "value")
+    assert (!= get_value 0)
+    assert (is_number get_value)
+    (free get_value)
+    (free get_result)
+
+    let types_handle: int = (pybridge_import "types")
+    assert (> types_handle 0)
+    let set_ok: bool = (pybridge_set types_handle "nanolang_pybridge_test" "123")
+    assert set_ok
+    let got: string = (pybridge_get types_handle "nanolang_pybridge_test")
+    let got_result: Json = (pybridge_extract_result_object got)
+    assert (!= got_result 0)
+    let got_value: Json = (get got_result "value")
+    assert (!= got_value 0)
+    assert (is_number got_value)
+    (free got_value)
+    (free got_result)
+
+    let rel_ok: bool = (pybridge_release handle)
+    assert rel_ok
+
+    let info: string = (pybridge_sysinfo)
+    let info_result: Json = (pybridge_extract_result_object info)
+    assert (!= info_result 0)
+    let info_value: Json = (get info_result "executable")
+    assert (!= info_value 0)
+    assert (> (str_length (as_string info_value)) 0)
+    (free info_value)
+    (free info_result)
+
+    let deps: string = (pybridge_deps)
+    let deps_result: Json = (pybridge_extract_result_object deps)
+    assert (!= deps_result 0)
+    let deps_value: Json = (get deps_result "packages")
+    assert (!= deps_value 0)
+    assert (is_array deps_value)
+    assert (>= (array_size deps_value) 0)
+    (free deps_value)
+    (free deps_result)
+
+    (pybridge_shutdown)
+    return 0
+}
+
+shadow test_pybridge_full {
+    assert (== (test_pybridge_full) 0)
+}
+
+fn main() -> int {
+    assert (== (test_pybridge_full) 0)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

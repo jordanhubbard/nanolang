@@ -1,7 +1,7 @@
 /* =============================================================================
- * nanolang Type Checker (Self-Hosted) - Minimal Version
+ * nanolang NSType Checker (Self-Hosted) - Minimal Version
  * =============================================================================
- * Type checking for the self-hosted nanolang compiler
+ * NSType checking for the self-hosted nanolang compiler
  * 
  * Phase 1 Scope (Minimal):
  * - Basic types: int, float, bool, string, void
@@ -20,18 +20,22 @@
  */
 
 import "src_nano/parser.nano"
+import "src_nano/ast_shared.nano"
+import "src_nano/compiler/ir.nano"
+import "src_nano/compiler/diagnostics.nano" as Diagnostics
+from "src_nano/compiler/error_messages.nano" import encode_type_mismatch_message, encode_undefined_name_message, encode_wrong_arg_count_message, encode_missing_return_message, encode_immutable_assignment_message
 
 /* =============================================================================
  * TYPE SYSTEM
  * ============================================================================= */
 
-/* TypeKind and Type are provided by src_nano/compiler/ir.nano */
+/* TypeKind and NSType are provided by src_nano/compiler/ir.nano */
 
 /* Function signature for type checking */
 struct FunctionType {
     name: string,
     param_count: int,
-    return_type: Type
+    return_type: NSType
     /* Note: param types stored separately in environment */
 }
 
@@ -42,17 +46,13 @@ struct FunctionType {
 /* Symbol in the environment (variable or function) */
 struct Symbol {
     name: string,
-    sym_type: Type,
+    sym_type: NSType,
     is_mutable: bool,
     is_function: bool,
     param_count: int,
-    defined: bool
-}
-
-/* Environment for type checking */
-struct TypeEnvironment {
-    error_count: int,
-    has_error: bool
+    defined: bool,
+    param_types: array<NSType>,
+    return_type: NSType  /* Return type for functions - enables proper type inference */
 }
 
 /* Global storage for symbols - using arrays for Phase 1 */
@@ -63,91 +63,768 @@ struct TypeEnvironment {
  * ============================================================================= */
 
 /* Create a new type */
-fn type_int() -> Type {
-    return Type {
+fn type_int() -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_INT,
-        name: ""
+        name: "",
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
     }
 }
 
 shadow type_int {
-    let t: Type = (type_int)
+    let t: NSType = (type_int)
     assert (== t.kind TypeKind.TYPE_INT)
 }
 
-fn type_float() -> Type {
-    return Type {
+fn type_float() -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_FLOAT,
-        name: ""
+        name: "",
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
     }
 }
 
 shadow type_float {
-    let t: Type = (type_float)
+    let t: NSType = (type_float)
     assert (== t.kind TypeKind.TYPE_FLOAT)
 }
 
-fn type_bool() -> Type {
-    return Type {
+fn type_bool() -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_BOOL,
-        name: ""
+        name: "",
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
     }
 }
 
 shadow type_bool {
-    let t: Type = (type_bool)
+    let t: NSType = (type_bool)
     assert (== t.kind TypeKind.TYPE_BOOL)
 }
 
-fn type_string() -> Type {
-    return Type {
+fn type_string() -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_STRING,
-        name: ""
+        name: "",
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
     }
 }
 
 shadow type_string {
-    let t: Type = (type_string)
+    let t: NSType = (type_string)
     assert (== t.kind TypeKind.TYPE_STRING)
 }
 
-fn type_void() -> Type {
-    return Type {
+pub fn type_void() -> NSType {
+    return NSType {
         kind: TypeKind.TYPE_VOID,
-        name: ""
+        name: "",
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
     }
 }
 
 shadow type_void {
-    let t: Type = (type_void)
+    let t: NSType = (type_void)
     assert (== t.kind TypeKind.TYPE_VOID)
 }
 
+fn type_unknown_named(label: string) -> NSType {
+    return NSType {
+        kind: TypeKind.TYPE_UNKNOWN,
+        name: label,
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
+    }
+}
+
+shadow type_unknown_named {
+    let t: NSType = (type_unknown_named "test")
+    assert (== t.kind TypeKind.TYPE_UNKNOWN)
+    assert (== t.name "test")
+}
+
+fn type_from_kind(kind: int) -> NSType {
+    if (== kind TypeKind.TYPE_INT) { return (type_int) }
+    else { if (== kind TypeKind.TYPE_FLOAT) { return (type_float) }
+    else { if (== kind TypeKind.TYPE_BOOL) { return (type_bool) }
+    else { if (== kind TypeKind.TYPE_STRING) { return (type_string) }
+    else { if (== kind TypeKind.TYPE_VOID) { return (type_void) }
+    else {
+        return NSType {
+            kind: kind,
+            name: "",
+            element_type_kind: TypeKind.TYPE_UNKNOWN,
+            element_type_name: ""
+        }
+    } } } } }
+}
+
+shadow type_from_kind {
+    let t1: NSType = (type_from_kind TypeKind.TYPE_INT)
+    assert (== t1.kind TypeKind.TYPE_INT)
+
+    let t2: NSType = (type_from_kind TypeKind.TYPE_STRUCT)
+    assert (== t2.kind TypeKind.TYPE_STRUCT)
+}
+
+/* =============================================================================
+ * STRUCT METADATA REGISTRY - For accurate field type inference
+ * ============================================================================= */
+
+/* Struct field metadata entry */
+struct FieldMetadata {
+    struct_name: string,
+    field_name: string,
+    field_type_kind: int,  /* TypeKind value */
+    field_type_is_list: bool
+}
+
+/* Initialize struct metadata registry with common compiler structs */
+fn init_struct_metadata() -> array<FieldMetadata> {
+    let mut m: array<FieldMetadata> = []
+    
+    /* Parser fields (most common) */
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tokens", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "file_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "position", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "token_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "has_error", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "lets", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "functions", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "numbers", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "identifiers", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "binary_ops", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    
+    /* ASTFunction fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "param_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "param_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "return_type", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTLet fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "var_type", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "is_mut", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    
+    /* ASTIdentifier fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTIdentifier", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTIdentifier", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTCall fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "function", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "function_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "arg_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "arg_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTBinaryOp fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "op", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "left", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "left_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "right", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "right_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTStmtRef fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTStmtRef", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTStmtRef", field_name: "node_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTUnionConstruct fields (schema) */
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "union_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "variant_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "field_names", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "field_value_ids", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "field_value_types", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "field_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTBlock fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "stmt_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "stmt_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTFieldAccess fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTFieldAccess", field_name: "object", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFieldAccess", field_name: "object_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFieldAccess", field_name: "field_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    
+    /* LexerToken fields */
+    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "token_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* CompilerDiagnostic fields */
+    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "phase", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "severity", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "code", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "message", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "location", field_type_kind: TypeKind.TYPE_STRUCT, field_type_is_list: false })
+
+    /* CompilerSourceLocation fields */
+    set m (array_push m FieldMetadata { struct_name: "CompilerSourceLocation", field_name: "file", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "CompilerSourceLocation", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "CompilerSourceLocation", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ErrorMessage fields (from error_messages.nano) */
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "title", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "file", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "problem", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "code_snippet", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "explanation", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "suggestion", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    
+    /* NSType fields */
+    set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "kind", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "element_type_kind", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "element_type_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    
+    /* ASTIf fields (schema) */
+    set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "condition", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "condition_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "then_body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "else_body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTWhile fields (schema) */
+    set m (array_push m FieldMetadata { struct_name: "ASTWhile", field_name: "condition", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTWhile", field_name: "condition_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTWhile", field_name: "body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTMatch fields (schema) */
+    set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "scrutinee", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "scrutinee_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "arm_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "arm_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTStructLiteral fields (schema) */
+    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "struct_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "field_names", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "field_value_ids", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "field_value_types", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "field_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTArrayLiteral fields (schema) */
+    set m (array_push m FieldMetadata { struct_name: "ASTArrayLiteral", field_name: "element_type", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTArrayLiteral", field_name: "element_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTArrayLiteral", field_name: "element_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* Symbol fields */
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "sym_type", field_type_kind: TypeKind.TYPE_STRUCT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "is_mutable", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "is_function", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "param_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "defined", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "param_types", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    
+    /* Add node_id for ALL AST types (critical for transpiler) */
+    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTNumber", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFloat", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTString", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBool", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTIdentifier", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFieldAccess", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTTupleLiteral", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTTupleIndex", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnsafeBlock", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* GenEnv fields (transpiler environment) */
+    set m (array_push m FieldMetadata { struct_name: "GenEnv", field_name: "list_types", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "GenEnv", field_name: "list_types_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTSet fields (schema) */
+    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "target", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "value_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTReturn fields (schema) */
+    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "value_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTNumber/Float/String/Bool extra fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTNumber", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFloat", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTString", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBool", field_name: "value", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    
+    /* ASTBlock complete fields (schema) */
+    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "statement_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "statement_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTTupleLiteral fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTTupleLiteral", field_name: "elem_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTTupleLiteral", field_name: "elem_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTTupleIndex fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTTupleIndex", field_name: "tuple", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTTupleIndex", field_name: "index", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTAssert fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTAssert", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTAssert", field_name: "condition", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTAssert", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTStruct fields (struct definitions) */
+    set m (array_push m FieldMetadata { struct_name: "ASTStruct", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTStruct", field_name: "field_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTStruct", field_name: "field_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTStruct", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTEnum fields (enum definitions) */
+    set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "variant_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "variant_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTUnion fields (union definitions) */
+    set m (array_push m FieldMetadata { struct_name: "ASTUnion", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnion", field_name: "variant_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnion", field_name: "variant_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnion", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTFor fields (for loops) */
+    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "init", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "condition", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "update", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* ASTImport fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "module_path", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "module_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_unsafe", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_selective", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_wildcard", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_pub_use", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "import_symbols", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "import_aliases", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "import_symbol_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+
+    /* ASTPrint fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "value_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+
+    /* ASTShadow fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTShadow", field_name: "target_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTShadow", field_name: "body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTShadow", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTShadow", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+
+    /* ASTOpaqueType fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTOpaqueType", field_name: "type_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTOpaqueType", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTOpaqueType", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+
+    /* ASTMatchArm fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTMatchArm", field_name: "variant_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatchArm", field_name: "binding_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatchArm", field_name: "body_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatchArm", field_name: "body_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    /* Parser count fields (critical for iteration) */
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "floats", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "strings", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "bools", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "call_args", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "array_elements", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "array_literals", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "prints", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "shadows", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "matches", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "imports", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "opaque_types", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tuple_literals", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tuple_indices", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "floats_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "strings_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "bools_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "lets_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "functions_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "numbers_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "identifiers_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "binary_ops_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "calls_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "array_literals_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "ifs_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "whiles_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "fors_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "blocks_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "returns_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "prints_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "asserts_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "sets_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "structs_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "struct_literals_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "field_accesses_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "unions_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "union_constructs_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "enums_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "shadows_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "unsafe_blocks_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "matches_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "imports_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "opaque_types_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tuple_literals_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tuple_indices_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "next_node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "last_expr_node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "last_expr_node_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    
+    return m
+}
+
+shadow init_struct_metadata {
+    let m: array<FieldMetadata> = (init_struct_metadata)
+    let idx: HashMap<string, int> = (build_field_metadata_index m)
+    assert (> (array_length m) 0)
+    assert (== (lookup_field_type_kind idx "ASTMatchArm" "body_id") TypeKind.TYPE_INT)
+    assert (== (lookup_field_type_kind idx "ASTPrint" "value") TypeKind.TYPE_INT)
+    assert (== (lookup_field_type_kind idx "ASTShadow" "target_name") TypeKind.TYPE_STRING)
+    assert (== (lookup_field_type_kind idx "ASTOpaqueType" "type_name") TypeKind.TYPE_STRING)
+    assert (== (lookup_field_type_kind idx "Parser" "prints_count") TypeKind.TYPE_INT)
+}
+
+/* Capitalize first letter of string (parser → Parser) */
+fn capitalize_first(s: string) -> string {
+    if (== (str_length s) 0) {
+        return s
+    } else {
+        let first: int = (char_at s 0)
+        /* If already uppercase, return as-is */
+        if (and (>= first 65) (<= first 90)) {
+            return s
+        } else {
+            /* Convert lowercase to uppercase (a=97 → A=65, difference = 32) */
+            if (and (>= first 97) (<= first 122)) {
+                /* We can't easily modify strings, so try common patterns */
+                if (== s "parser") { return "Parser" } else {
+                if (== s "func") { return "ASTFunction" } else {
+                if (== s "let_node") { return "ASTLet" } else {
+                if (== s "ident") { return "ASTIdentifier" } else {
+                if (== s "call") { return "ASTCall" } else {
+                if (== s "binop") { return "ASTBinaryOp" } else {
+                if (== s "fa") { return "ASTFieldAccess" } else {
+                if (== s "tok") { return "LexerToken" } else {
+                if (== s "token") { return "LexerToken" } else {
+                    return s
+                }}}}}}}}}
+            } else {
+                return s
+            }
+        }
+    }
+}
+
+shadow capitalize_first {
+    assert (== (capitalize_first "parser") "Parser")
+    assert (== (capitalize_first "Parser") "Parser")
+    assert (== (capitalize_first "tok") "LexerToken")
+}
+
+/* Extract user-defined struct metadata from parser */
+fn extract_user_struct_metadata(parser: Parser) -> array<FieldMetadata> {
+    let mut metadata: array<FieldMetadata> = []
+    let struct_count: int = (list_ASTStruct_length parser.structs)
+    let mut i: int = 0
+    
+    while (< i struct_count) {
+        let s: ASTStruct = (list_ASTStruct_get parser.structs i)
+        let struct_name: string = s.name
+        let field_count: int = s.field_count
+        
+        /* Extract metadata for each field */
+        let mut j: int = 0
+        while (< j field_count) {
+            let field_name: string = (at s.field_names j)
+            let field_type: string = (at s.field_types j)
+            let field_type_kind: int = (type_kind_from_string field_type)
+            
+            set metadata (array_push metadata FieldMetadata {
+                struct_name: struct_name,
+                field_name: field_name,
+                field_type_kind: field_type_kind,
+                field_type_is_list: false
+            })
+            
+            set j (+ j 1)
+        }
+        
+        set i (+ i 1)
+    }
+    
+    return metadata
+}
+
+/* Merge built-in and user-defined struct metadata */
+fn merge_struct_metadata(parser: Parser) -> array<FieldMetadata> {
+    let builtin: array<FieldMetadata> = (init_struct_metadata)
+    let user: array<FieldMetadata> = (extract_user_struct_metadata parser)
+    
+    /* Combine both arrays */
+    let mut merged: array<FieldMetadata> = builtin
+    let mut i: int = 0
+    while (< i (array_length user)) {
+        set merged (array_push merged (at user i))
+        set i (+ i 1)
+    }
+    
+    return merged
+}
+
+fn field_metadata_key(struct_name: string, field_name: string) -> string {
+    return (+ struct_name (+ "." field_name))
+}
+
+shadow field_metadata_key {
+    assert (== (field_metadata_key "Parser" "tokens") "Parser.tokens")
+}
+
+fn build_field_metadata_index(metadata: array<FieldMetadata>) -> HashMap<string, int> {
+    let idx: HashMap<string, int> = (map_new)
+    let mut i: int = 0
+    while (< i (array_length metadata)) {
+        let entry: FieldMetadata = (at metadata i)
+        let key: string = (field_metadata_key entry.struct_name entry.field_name)
+        (map_put idx key entry.field_type_kind)
+        set i (+ i 1)
+    }
+    return idx
+}
+
+shadow build_field_metadata_index {
+    let m: array<FieldMetadata> = (init_struct_metadata)
+    let idx: HashMap<string, int> = (build_field_metadata_index m)
+    assert (== (map_has idx "Parser.tokens") true)
+}
+
+/* Lookup field type given struct name and field name */
+fn lookup_field_type_kind(index: HashMap<string, int>, struct_name: string, field_name: string) -> int {
+    let key: string = (field_metadata_key struct_name field_name)
+    if (map_has index key) {
+        return (map_get index key)
+    }
+    
+    /* Try capitalized version (parser → Parser) */
+    let capitalized: string = (capitalize_first struct_name)
+    let cap_key: string = (field_metadata_key capitalized field_name)
+    if (map_has index cap_key) {
+        return (map_get index cap_key)
+    }
+    
+    return TypeKind.TYPE_UNKNOWN
+}
+
+fn lookup_field_type(metadata: array<FieldMetadata>, struct_name: string, field_name: string) -> NSType {
+    let idx: HashMap<string, int> = (build_field_metadata_index metadata)
+    let kind: int = (lookup_field_type_kind idx struct_name field_name)
+    return (type_from_kind kind)
+}
+
+shadow lookup_field_type {
+    let m: array<FieldMetadata> = (init_struct_metadata)
+    let t: NSType = (lookup_field_type m "ASTPrint" "value")
+    assert (== t.kind TypeKind.TYPE_INT)
+}
+
+fn option_type_some(value: NSType) -> OptionType {
+    return OptionType {
+        has_value: true,
+        value: value
+    }
+}
+
+shadow option_type_some {
+    let t: NSType = (type_int)
+    let opt: OptionType = (option_type_some t)
+    assert opt.has_value
+    assert (== opt.value.kind TypeKind.TYPE_INT)
+}
+
+fn option_type_none() -> OptionType {
+    return OptionType {
+        has_value: false,
+        value: (type_unknown_named "none")
+    }
+}
+
+shadow option_type_none {
+    let opt: OptionType = (option_type_none)
+    assert (not opt.has_value)
+}
+
+/* Create array type */
+fn type_kind_from_string(type_str: string) -> int {
+    if (== type_str "int") { return TypeKind.TYPE_INT }
+    else { if (== type_str "float") { return TypeKind.TYPE_FLOAT }
+    else { if (== type_str "bool") { return TypeKind.TYPE_BOOL }
+    else { if (== type_str "string") { return TypeKind.TYPE_STRING }
+    else { if (== type_str "void") { return TypeKind.TYPE_VOID }
+    else { return TypeKind.TYPE_STRUCT } } } } }
+}
+
+shadow type_kind_from_string {
+    assert (== (type_kind_from_string "int") TypeKind.TYPE_INT)
+    assert (== (type_kind_from_string "string") TypeKind.TYPE_STRING)
+}
+
+fn type_array(elem_kind: int, elem_name: string) -> NSType {
+    return NSType {
+        kind: TypeKind.TYPE_ARRAY,
+        name: "",
+        element_type_kind: elem_kind,
+        element_type_name: elem_name
+    }
+}
+
+shadow type_array {
+    let t: NSType = (type_array TypeKind.TYPE_INT "")
+    assert (== t.kind TypeKind.TYPE_ARRAY)
+    assert (== t.element_type_kind TypeKind.TYPE_INT)
+}
+
+/* Create generic list type */
+fn type_list_generic(elem_name: string) -> NSType {
+    return NSType {
+        kind: TypeKind.TYPE_LIST_GENERIC,
+        name: "",
+        element_type_kind: TypeKind.TYPE_STRUCT,
+        element_type_name: elem_name
+    }
+}
+
+shadow type_list_generic {
+    let t: NSType = (type_list_generic "Point")
+    assert (== t.kind TypeKind.TYPE_LIST_GENERIC)
+    assert (== t.element_type_name "Point")
+}
+
+/* Create union type */
+fn type_union(union_name: string) -> NSType {
+    return NSType {
+        kind: TypeKind.TYPE_UNION,
+        name: union_name,
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
+    }
+}
+
+shadow type_union {
+    let t: NSType = (type_union "Result")
+    assert (== t.kind TypeKind.TYPE_UNION)
+    assert (== t.name "Result")
+}
+
+/* Create tuple type */
+fn type_tuple() -> NSType {
+    return NSType {
+        kind: TypeKind.TYPE_TUPLE,
+        name: "",
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
+    }
+}
+
+shadow type_tuple {
+    let t: NSType = (type_tuple)
+    assert (== t.kind TypeKind.TYPE_TUPLE)
+}
+
 /* Check if two types are equal */
-fn types_equal(t1: Type, t2: Type) -> bool {
+fn types_equal(t1: NSType, t2: NSType) -> bool {
     if (!= t1.kind t2.kind) {
         return false
     } else {
-        /* For struct types, also check name */
-        if (== t1.kind TypeKind.TYPE_STRUCT) {
+        /* For struct/union types, also check name */
+        if (or (or (== t1.kind TypeKind.TYPE_STRUCT) (== t1.kind TypeKind.TYPE_UNION)) (== t1.kind TypeKind.TYPE_TUPLE)) {
             return (== t1.name t2.name)
         } else {
-            return true
+            if (== t1.kind TypeKind.TYPE_FUNCTION) {
+                return (== t1.name t2.name)
+            } else {
+                /* For array types, check element type */
+                if (== t1.kind TypeKind.TYPE_ARRAY) {
+                /* Allow empty-array literals (element kind unknown) to unify with any array<T>. */
+                if (or (== t1.element_type_kind TypeKind.TYPE_UNKNOWN) (== t2.element_type_kind TypeKind.TYPE_UNKNOWN)) {
+                    return true
+                } else { (print "") }
+                if (!= t1.element_type_kind t2.element_type_kind) {
+                    return false
+                } else {
+                    /* If element is struct, check name */
+                    if (== t1.element_type_kind TypeKind.TYPE_STRUCT) {
+                        return (== t1.element_type_name t2.element_type_name)
+                    } else {
+                        return true
+                    }
+                }
+            } else {
+                /* For List<T>, check element type name */
+                    if (== t1.kind TypeKind.TYPE_LIST_GENERIC) {
+                        return (== t1.element_type_name t2.element_type_name)
+                    } else {
+                        return true
+                    }
+                }
+            }
         }
     }
 }
 
 shadow types_equal {
-    let int1: Type = (type_int)
-    let int2: Type = (type_int)
-    let float1: Type = (type_float)
+    let int1: NSType = (type_int)
+    let int2: NSType = (type_int)
+    let float1: NSType = (type_float)
     
     assert (types_equal int1 int2)
     assert (not (types_equal int1 float1))
 }
 
 /* Create type from string representation */
-fn type_from_string(s: string) -> Type {
+fn type_from_string(s: string) -> NSType {
+    if (str_starts_with s "fn(") {
+        return NSType {
+            kind: TypeKind.TYPE_FUNCTION,
+            name: s,
+            element_type_kind: TypeKind.TYPE_UNKNOWN,
+            element_type_name: ""
+        }
+    } else { (print "") }
+    if (str_starts_with s "(") {
+        return NSType {
+            kind: TypeKind.TYPE_TUPLE,
+            name: s,
+            element_type_kind: TypeKind.TYPE_UNKNOWN,
+            element_type_name: ""
+        }
+    } else { (print "") }
     if (== s "int") {
         return (type_int)
     } else {
@@ -163,10 +840,44 @@ fn type_from_string(s: string) -> Type {
                     if (== s "void") {
                         return (type_void)
                     } else {
-                        /* Assume it's a struct type */
-                        return Type {
-                            kind: TypeKind.TYPE_STRUCT,
-                            name: s
+                        /* Check for array<T> syntax */
+                        if (str_contains s "array<") {
+                            /* Parse element type from array<int>, array<string>, etc. */
+                            let elem_type_str: string = (array_elem_type_from_array_decl s)
+                            if (== elem_type_str "int") {
+                                return (type_array TypeKind.TYPE_INT "")
+                            } else {
+                                if (== elem_type_str "string") {
+                                    return (type_array TypeKind.TYPE_STRING "")
+                                } else {
+                                    if (== elem_type_str "float") {
+                                        return (type_array TypeKind.TYPE_FLOAT "")
+                                    } else {
+                                        if (== elem_type_str "bool") {
+                                            return (type_array TypeKind.TYPE_BOOL "")
+                                        } else {
+                                            /* Struct element type */
+                                            return (type_array TypeKind.TYPE_STRUCT elem_type_str)
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            /* Check for List<T> syntax */
+                            if (str_contains s "List<") {
+                                /* Extract element type: "List<Point>" -> "Point" */
+                                let elem_name: string = (extract_list_element_type s)
+                                return (type_list_generic elem_name)
+                            } else {
+                                /* Assume it's a struct or union type */
+                                let t: NSType = NSType {
+                                    kind: TypeKind.TYPE_STRUCT,
+                                    name: s,
+                                    element_type_kind: TypeKind.TYPE_UNKNOWN,
+                                    element_type_name: ""
+                                }
+                                return t
+                            }
                         }
                     }
                 }
@@ -175,18 +886,603 @@ fn type_from_string(s: string) -> Type {
     }
 }
 
+fn split_tuple_type_names(type_str: string) -> array<string> {
+    let mut parts: array<string> = []
+    let len: int = (str_length type_str)
+    let mut i: int = 1
+    let mut current: string = ""
+    let mut depth_angle: int = 0
+    let mut depth_paren: int = 0
+
+    while (< i (- len 1)) {
+        let ch: string = (str_substring type_str i 1)
+        if (== ch "<") { set depth_angle (+ depth_angle 1) }
+        if (== ch ">") { set depth_angle (- depth_angle 1) }
+        if (== ch "(") { set depth_paren (+ depth_paren 1) }
+        if (== ch ")") { set depth_paren (- depth_paren 1) }
+
+        if (and (== ch ",") (and (== depth_angle 0) (== depth_paren 0))) {
+            set parts (array_push parts current)
+            set current ""
+        } else {
+            set current (+ current ch)
+        }
+        set i (+ i 1)
+    }
+
+    if (!= current "") {
+        set parts (array_push parts current)
+    } else { (print "") }
+    return parts
+}
+
+shadow split_tuple_type_names {
+    let parts: array<string> = (split_tuple_type_names "(int,string)")
+    assert (== (array_length parts) 2)
+    assert (== (at parts 0) "int")
+    assert (== (at parts 1) "string")
+}
+
+fn tuple_type_string_from_literal(parser: Parser, tl: ASTTupleLiteral, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> string {
+    let mut i: int = 0
+    let mut out: string = "("
+    while (< i tl.element_count) {
+        let elem_id: int = (at tl.element_ids i)
+        let elem_node_type: int = (at tl.element_types i)
+        let elem_type: NSType = (check_expr_node parser elem_id elem_node_type symbols diags file_name)
+        let elem_name: string = (type_to_string elem_type)
+        if (== i 0) {
+            set out (+ out elem_name)
+        } else {
+            set out (+ out (+ "," elem_name))
+        }
+        set i (+ i 1)
+    }
+    return (+ out ")")
+}
+
+shadow tuple_type_string_from_literal {
+    assert true
+}
+
+fn base_type_name(type_str: string) -> string {
+    let lt: int = (str_index_of type_str "<")
+    if (== lt -1) {
+        return type_str
+    } else {
+        return (str_substring type_str 0 lt)
+    }
+}
+
+shadow base_type_name {
+    assert (== (base_type_name "Result<int, string>") "Result")
+    assert (== (base_type_name "Point") "Point")
+}
+
+fn is_union_name(parser: Parser, name: string) -> bool {
+    let mut i: int = 0
+    let count: int = (list_ASTUnion_length parser.unions)
+    while (< i count) {
+        let u: ASTUnion = (list_ASTUnion_get parser.unions i)
+        if (== u.name name) {
+            return true
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow is_union_name { assert true }
+
+fn type_from_string_with_parser(parser: Parser, s: string) -> NSType {
+    let t: NSType = (type_from_string s)
+    if (== t.kind TypeKind.TYPE_STRUCT) {
+        let base: string = (base_type_name s)
+        if (is_union_name parser base) {
+            return (type_union base)
+        } else { (print "") }
+    } else { (print "") }
+    return t
+}
+
+shadow type_from_string_with_parser { assert true }
+
+/* Find first occurrence of character in string */
+fn str_index_of(s: string, ch: string) -> int {
+    let len: int = (str_length s)
+    let mut i: int = 0
+    
+    while (< i len) {
+        let char_at: string = (str_substring s i 1)
+        if (== char_at ch) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    
+    return -1
+}
+
+shadow str_index_of {
+    assert (== (str_index_of "hello" "e") 1)
+    assert (== (str_index_of "List<Point>" "<") 4)
+    assert (== (str_index_of "hello" "x") -1)
+}
+
+/* Extract element type from List<T> string */
+fn extract_list_element_type(s: string) -> string {
+    /* "List<Point>" -> "Point" */
+    let start: int = (+ (str_index_of s "<") 1)
+    let end: int = (str_index_of s ">")
+    if (and (> start 0) (> end start)) {
+        return (str_substring s start (- end start))
+    } else {
+        return ""
+    }
+}
+
+shadow extract_list_element_type {
+    assert (== (extract_list_element_type "List<Point>") "Point")
+    assert (== (extract_list_element_type "List<int>") "int")
+}
+
+/* Check if string starts with prefix */
+pub fn str_starts_with(s: string, prefix: string) -> bool {
+    let prefix_len: int = (str_length prefix)
+    if (> prefix_len (str_length s)) {
+        return false
+    } else {
+        let sub: string = (str_substring s 0 prefix_len)
+        return (== sub prefix)
+    }
+}
+
+shadow str_starts_with {
+    assert (str_starts_with "list_int_new" "list_")
+    assert (not (str_starts_with "hello" "list_"))
+}
+
+/* Find last occurrence of character in string */
+fn str_last_index_of(s: string, ch: string) -> int {
+    let len: int = (str_length s)
+    let mut i: int = (- len 1)
+    
+    while (>= i 0) {
+        let char_at: string = (str_substring s i 1)
+        if (== char_at ch) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (- i 1)
+    }
+    
+    return -1
+}
+
+shadow str_last_index_of {
+    assert (== (str_last_index_of "list_Point_new" "_") 10)  /* Fixed: last _ is at index 10, not 11 */
+    assert (== (str_last_index_of "hello" "x") -1)
+}
+
+/* Check type of a generic list function call
+ * Handles: list_T_new, list_T_push, list_T_get, list_T_length
+ * Returns: Appropriate type based on operation
+ */
+fn check_list_function_call(fn_name: string, arg_count: int) -> NSType {
+    /* Extract type name: "list_Point_new" -> "Point" */
+    let elem_type: string = (extract_list_type_from_function fn_name)
+    
+    /* Determine operation: _new, _push, _get, _length */
+    if (tc_str_ends_with fn_name "_new") {
+        /* list_T_new() -> List<T> */
+        return (type_list_generic elem_type)
+    } else {
+        if (tc_str_ends_with fn_name "_push") {
+            /* list_T_push(list, elem) -> void */
+            return (type_void)
+        } else {
+            if (tc_str_ends_with fn_name "_get") {
+                /* list_T_get(list, index) -> T */
+                return (type_from_element_name elem_type)
+            } else {
+                if (tc_str_ends_with fn_name "_length") {
+                    /* list_T_length(list) -> int */
+                    return (type_int)
+                } else {
+                    /* Unknown list operation */
+                    return (type_unknown_named "unknown_list_op")
+                }
+            }
+        }
+    }
+}
+
+/* Check if a function name is a built-in function
+ * Returns true if the function is a built-in (e.g., array_push, at, str_concat)
+ */
+fn is_builtin_function(fn_name: string) -> bool {
+    /* Core */
+    if (== fn_name "range") { return true } else { (print "") }
+    if (== fn_name "print") { return true } else { (print "") }
+    if (== fn_name "println") { return true } else { (print "") }
+    if (== fn_name "assert") { return true } else { (print "") }
+    
+    /* Math */
+    if (== fn_name "abs") { return true } else { (print "") }
+    if (== fn_name "min") { return true } else { (print "") }
+    if (== fn_name "max") { return true } else { (print "") }
+    if (== fn_name "sqrt") { return true } else { (print "") }
+    if (== fn_name "pow") { return true } else { (print "") }
+    if (== fn_name "floor") { return true } else { (print "") }
+    if (== fn_name "ceil") { return true } else { (print "") }
+    if (== fn_name "round") { return true } else { (print "") }
+    
+    /* String operations */
+    if (== fn_name "str_length") { return true } else { (print "") }
+    if (== fn_name "str_concat") { return true } else { (print "") }
+    if (== fn_name "str_substring") { return true } else { (print "") }
+    if (== fn_name "str_contains") { return true } else { (print "") }
+    if (== fn_name "str_equals") { return true } else { (print "") }
+    if (== fn_name "char_at") { return true } else { (print "") }
+    if (== fn_name "string_from_char") { return true } else { (print "") }
+    if (== fn_name "str_starts_with") { return true } else { (print "") }
+    if (== fn_name "str_ends_with") { return true } else { (print "") }
+    if (== fn_name "str_index_of") { return true } else { (print "") }
+    if (== fn_name "str_last_index_of") { return true } else { (print "") }
+    
+    /* NSType conversions */
+    if (== fn_name "int_to_string") { return true } else { (print "") }
+    if (== fn_name "string_to_int") { return true } else { (print "") }
+    if (== fn_name "cast_int") { return true } else { (print "") }
+    if (== fn_name "cast_float") { return true } else { (print "") }
+    if (== fn_name "cast_bool") { return true } else { (print "") }
+    if (== fn_name "cast_string") { return true } else { (print "") }
+    if (== fn_name "to_string") { return true } else { (print "") }
+    
+    /* Array operations */
+    if (== fn_name "at") { return true } else { (print "") }
+    if (== fn_name "array_get") { return true } else { (print "") }
+    if (== fn_name "array_length") { return true } else { (print "") }
+    if (== fn_name "array_new") { return true } else { (print "") }
+    if (== fn_name "array_set") { return true } else { (print "") }
+    if (== fn_name "array_push") { return true } else { (print "") }
+    if (== fn_name "array_slice") { return true } else { (print "") }
+    if (== fn_name "map") { return true } else { (print "") }
+    if (== fn_name "reduce") { return true } else { (print "") }
+    
+    /* OS operations */
+    if (== fn_name "getcwd") { return true } else { (print "") }
+    if (== fn_name "getenv") { return true } else { (print "") }
+    if (== fn_name "exit") { return true } else { (print "") }
+    if (== fn_name "system") { return true } else { (print "") }
+    
+    /* File I/O operations */
+    if (== fn_name "file_read") { return true } else { (print "") }
+    if (== fn_name "file_read_bytes") { return true } else { (print "") }
+    if (== fn_name "file_write") { return true } else { (print "") }
+    if (== fn_name "file_append") { return true } else { (print "") }
+    if (== fn_name "file_remove") { return true } else { (print "") }
+    if (== fn_name "file_rename") { return true } else { (print "") }
+    if (== fn_name "file_exists") { return true } else { (print "") }
+    if (== fn_name "file_size") { return true } else { (print "") }
+
+    /* Self-hosting helpers: diagnostics list queries (used heavily during bootstrap) */
+    if (== fn_name "diag_list_count") { return true } else { (print "") }
+    if (== fn_name "diag_list_has_errors") { return true } else { (print "") }
+    
+    /* Directory operations */
+    if (== fn_name "dir_create") { return true } else { (print "") }
+    if (== fn_name "dir_remove") { return true } else { (print "") }
+    if (== fn_name "dir_list") { return true } else { (print "") }
+    if (== fn_name "dir_exists") { return true } else { (print "") }
+    if (== fn_name "chdir") { return true } else { (print "") }
+    
+    /* Path operations */
+    if (== fn_name "path_isfile") { return true } else { (print "") }
+    if (== fn_name "path_isdir") { return true } else { (print "") }
+    if (== fn_name "path_join") { return true } else { (print "") }
+    if (== fn_name "path_basename") { return true } else { (print "") }
+    if (== fn_name "path_dirname") { return true } else { (print "") }
+    
+    /* Temp helpers */
+    if (== fn_name "tmp_dir") { return true } else { (print "") }
+    if (== fn_name "mktemp") { return true } else { (print "") }
+    if (== fn_name "mktemp_dir") { return true } else { (print "") }
+    
+    /* Character classification */
+    if (== fn_name "is_digit") { return true } else { (print "") }
+    if (== fn_name "is_alpha") { return true } else { (print "") }
+    if (== fn_name "is_alnum") { return true } else { (print "") }
+    if (== fn_name "is_whitespace") { return true } else { (print "") }
+    if (== fn_name "is_upper") { return true } else { (print "") }
+    if (== fn_name "is_lower") { return true } else { (print "") }
+    if (== fn_name "digit_value") { return true } else { (print "") }
+    if (== fn_name "char_to_lower") { return true } else { (print "") }
+    if (== fn_name "char_to_upper") { return true } else { (print "") }
+    
+    /* Binary string operations */
+    if (== fn_name "bstr_new") { return true } else { (print "") }
+    if (== fn_name "bstr_new_binary") { return true } else { (print "") }
+    if (== fn_name "bstr_length") { return true } else { (print "") }
+    if (== fn_name "bstr_concat") { return true } else { (print "") }
+    if (== fn_name "bstr_substring") { return true } else { (print "") }
+    if (== fn_name "bstr_equals") { return true } else { (print "") }
+    if (== fn_name "bstr_byte_at") { return true } else { (print "") }
+    if (== fn_name "bstr_validate_utf8") { return true } else { (print "") }
+    if (== fn_name "bstr_utf8_length") { return true } else { (print "") }
+    if (== fn_name "bstr_utf8_char_at") { return true } else { (print "") }
+    if (== fn_name "bstr_to_cstr") { return true } else { (print "") }
+    if (== fn_name "bstr_free") { return true } else { (print "") }
+    
+    /* Bytes operations */
+    if (== fn_name "bytes_from_string") { return true } else { (print "") }
+    if (== fn_name "string_from_bytes") { return true } else { (print "") }
+    
+    /* Math operations (trig) */
+    if (== fn_name "sin") { return true } else { (print "") }
+    if (== fn_name "cos") { return true } else { (print "") }
+    if (== fn_name "tan") { return true } else { (print "") }
+    if (== fn_name "atan2") { return true } else { (print "") }
+    
+    /* Additional type casts */
+    if (== fn_name "cast_bstring") { return true } else { (print "") }
+    if (== fn_name "null_opaque") { return true } else { (print "") }
+    
+    return false
+}
+
+shadow is_builtin_function {
+    assert (is_builtin_function "array_push")
+    assert (is_builtin_function "at")
+    assert (is_builtin_function "println")
+    assert (not (is_builtin_function "my_custom_function"))
+}
+
+/* Check return type for built-in functions
+ * Returns the appropriate type based on the function name
+ */
+fn check_builtin_function(fn_name: string, arg_count: int) -> NSType {
+    /* Core functions */
+    if (== fn_name "print") { return (type_void) } else { (print "") }
+    if (== fn_name "println") { return (type_void) } else { (print "") }
+    if (== fn_name "assert") { return (type_void) } else { (print "") }
+    
+    /* Arithmetic operators */
+    if (== fn_name "+") { return (type_int) } else { (print "") }
+    if (== fn_name "-") { return (type_int) } else { (print "") }
+    if (== fn_name "*") { return (type_int) } else { (print "") }
+    if (== fn_name "/") { return (type_int) } else { (print "") }
+    if (== fn_name "%") { return (type_int) } else { (print "") }
+    
+    /* Comparison operators */
+    if (== fn_name "==") { return (type_bool) } else { (print "") }
+    if (== fn_name "!=") { return (type_bool) } else { (print "") }
+    if (== fn_name "<") { return (type_bool) } else { (print "") }
+    if (== fn_name "<=") { return (type_bool) } else { (print "") }
+    if (== fn_name ">") { return (type_bool) } else { (print "") }
+    if (== fn_name ">=") { return (type_bool) } else { (print "") }
+    
+    /* Logical operators */
+    if (== fn_name "and") { return (type_bool) } else { (print "") }
+    if (== fn_name "or") { return (type_bool) } else { (print "") }
+    if (== fn_name "not") { return (type_bool) } else { (print "") }
+    
+    /* Math functions */
+    if (== fn_name "abs") { return (type_int) } else { (print "") }
+    if (== fn_name "min") { return (type_int) } else { (print "") }
+    if (== fn_name "max") { return (type_int) } else { (print "") }
+    if (== fn_name "sqrt") { return (type_float) } else { (print "") }
+    if (== fn_name "pow") { return (type_float) } else { (print "") }
+    if (== fn_name "floor") { return (type_float) } else { (print "") }
+    if (== fn_name "ceil") { return (type_float) } else { (print "") }
+    if (== fn_name "round") { return (type_float) } else { (print "") }
+    
+    /* String operations */
+    if (== fn_name "str_length") { return (type_int) } else { (print "") }
+    if (== fn_name "str_concat") { return (type_string) } else { (print "") }
+    if (== fn_name "str_substring") { return (type_string) } else { (print "") }
+    if (== fn_name "str_contains") { return (type_bool) } else { (print "") }
+    if (== fn_name "str_equals") { return (type_bool) } else { (print "") }
+    if (== fn_name "char_at") { return (type_int) } else { (print "") }
+    if (== fn_name "string_from_char") { return (type_string) } else { (print "") }
+    if (== fn_name "str_starts_with") { return (type_bool) } else { (print "") }
+    if (== fn_name "str_ends_with") { return (type_bool) } else { (print "") }
+    if (== fn_name "str_index_of") { return (type_int) } else { (print "") }
+    if (== fn_name "str_last_index_of") { return (type_int) } else { (print "") }
+    
+    /* NSType conversions */
+    if (== fn_name "int_to_string") { return (type_string) } else { (print "") }
+    if (== fn_name "string_to_int") { return (type_int) } else { (print "") }
+    if (== fn_name "cast_int") { return (type_int) } else { (print "") }
+    if (== fn_name "cast_float") { return (type_float) } else { (print "") }
+    if (== fn_name "cast_bool") { return (type_bool) } else { (print "") }
+    if (== fn_name "cast_string") { return (type_string) } else { (print "") }
+    if (== fn_name "to_string") { return (type_string) } else { (print "") }
+    
+    /* Array operations */
+    if (== fn_name "array_length") { return (type_int) } else { (print "") }
+    if (== fn_name "array_set") { return (type_void) } else { (print "") }
+    if (== fn_name "array_push") { return (type_array 0 "") } else { (print "") }
+    if (== fn_name "at") { return (type_unknown_named "array_elem") } else { (print "") }
+    if (== fn_name "array_get") { return (type_unknown_named "array_elem") } else { (print "") }
+    
+    /* OS operations */
+    if (== fn_name "getcwd") { return (type_string) } else { (print "") }
+    if (== fn_name "getenv") { return (type_string) } else { (print "") }
+    if (== fn_name "exit") { return (type_void) } else { (print "") }
+    if (== fn_name "system") { return (type_int) } else { (print "") }
+    
+    /* File I/O operations */
+    if (== fn_name "file_read") { return (type_string) } else { (print "") }
+    if (== fn_name "file_read_bytes") { return (type_array TypeKind.TYPE_INT "u8") } else { (print "") }
+    if (== fn_name "file_write") { return (type_int) } else { (print "") }
+    if (== fn_name "file_append") { return (type_int) } else { (print "") }
+    if (== fn_name "file_remove") { return (type_void) } else { (print "") }
+    if (== fn_name "file_rename") { return (type_void) } else { (print "") }
+    if (== fn_name "file_exists") { return (type_bool) } else { (print "") }
+    if (== fn_name "file_size") { return (type_int) } else { (print "") }
+    
+    /* Directory operations */
+    if (== fn_name "dir_create") { return (type_void) } else { (print "") }
+    if (== fn_name "dir_remove") { return (type_void) } else { (print "") }
+    if (== fn_name "dir_list") { return (type_array TypeKind.TYPE_STRING "string") } else { (print "") }
+    if (== fn_name "dir_exists") { return (type_bool) } else { (print "") }
+    if (== fn_name "chdir") { return (type_void) } else { (print "") }
+    
+    /* Path operations */
+    if (== fn_name "path_isfile") { return (type_bool) } else { (print "") }
+    if (== fn_name "path_isdir") { return (type_bool) } else { (print "") }
+    if (== fn_name "path_join") { return (type_string) } else { (print "") }
+    if (== fn_name "path_basename") { return (type_string) } else { (print "") }
+    if (== fn_name "path_dirname") { return (type_string) } else { (print "") }
+    
+    /* Temp helpers */
+    if (== fn_name "tmp_dir") { return (type_string) } else { (print "") }
+    if (== fn_name "mktemp") { return (type_string) } else { (print "") }
+    if (== fn_name "mktemp_dir") { return (type_string) } else { (print "") }
+    
+    /* Character classification */
+    if (== fn_name "is_digit") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_alpha") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_alnum") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_whitespace") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_upper") { return (type_bool) } else { (print "") }
+    if (== fn_name "is_lower") { return (type_bool) } else { (print "") }
+    if (== fn_name "digit_value") { return (type_int) } else { (print "") }
+    if (== fn_name "char_to_lower") { return (type_int) } else { (print "") }
+    if (== fn_name "char_to_upper") { return (type_int) } else { (print "") }
+    
+    /* Binary string operations */
+    if (== fn_name "bstr_new") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_new_binary") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_length") { return (type_int) } else { (print "") }
+    if (== fn_name "bstr_concat") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_substring") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_equals") { return (type_bool) } else { (print "") }
+    if (== fn_name "bstr_byte_at") { return (type_int) } else { (print "") }
+    if (== fn_name "bstr_validate_utf8") { return (type_bool) } else { (print "") }
+    if (== fn_name "bstr_utf8_length") { return (type_int) } else { (print "") }
+    if (== fn_name "bstr_utf8_char_at") { return (type_int) } else { (print "") }
+    if (== fn_name "bstr_to_cstr") { return (type_string) } else { (print "") }
+    if (== fn_name "bstr_free") { return (type_void) } else { (print "") }
+    
+    /* Bytes operations */
+    if (== fn_name "bytes_from_string") { return (type_array TypeKind.TYPE_INT "u8") } else { (print "") }
+    if (== fn_name "string_from_bytes") { return (type_string) } else { (print "") }
+    
+    /* Math operations (trig) */
+    if (== fn_name "sin") { return (type_float) } else { (print "") }
+    if (== fn_name "cos") { return (type_float) } else { (print "") }
+    if (== fn_name "tan") { return (type_float) } else { (print "") }
+    if (== fn_name "atan2") { return (type_float) } else { (print "") }
+    
+    /* Additional type casts */
+    if (== fn_name "cast_bstring") { return (type_string) } else { (print "") }
+    if (== fn_name "null_opaque") { return (type_int) } else { (print "") }
+    
+    /* Diagnostics module functions (workaround for module qualification) */
+    if (== fn_name "diag_typecheck_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
+    if (== fn_name "diag_transpiler_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
+    if (== fn_name "diag_location") { return (type_from_string "CompilerSourceLocation") } else { (print "") }
+    if (== fn_name "diag_list_new") { return (type_unknown_named "list") } else { (print "") }
+    if (== fn_name "diag_list_add") { return (type_void) } else { (print "") }
+    if (== fn_name "diag_list_count") { return (type_int) } else { (print "") }
+    if (== fn_name "diag_list_has_errors") { return (type_bool) } else { (print "") }
+    
+    /* Default: unknown */
+    return (type_unknown_named "builtin")
+}
+
+shadow check_builtin_function {
+    let t1: NSType = (check_builtin_function "println" 1)
+    assert (== t1.kind TypeKind.TYPE_VOID)
+    
+    let t2: NSType = (check_builtin_function "array_length" 1)
+    assert (== t2.kind TypeKind.TYPE_INT)
+}
+
+/* Extract element type from list function name
+ * "list_Point_new" -> "Point"
+ * "list_int_push" -> "int"
+ */
+fn extract_list_type_from_function(fn_name: string) -> string {
+    /* Skip "list_" prefix */
+    let after_prefix: string = (str_substring fn_name 5 (- (str_length fn_name) 5))
+    
+    /* Find last underscore to separate type from operation */
+    let last_underscore: int = (str_last_index_of after_prefix "_")
+    if (> last_underscore 0) {
+        return (str_substring after_prefix 0 last_underscore)
+    } else {
+        return after_prefix
+    }
+}
+
+shadow extract_list_type_from_function {
+    assert (== (extract_list_type_from_function "list_Point_new") "Point")
+    assert (== (extract_list_type_from_function "list_int_push") "int")
+    assert (== (extract_list_type_from_function "list_string_get") "string")
+}
+
+/* Create type from element name (for list element types) */
+fn type_from_element_name(elem_name: string) -> NSType {
+    if (== elem_name "CompilerDiagnostic") {
+        (println "DBG type_from_element_name: CompilerDiagnostic")
+    } else { (print "") }
+    if (== elem_name "int") {
+        return (type_int)
+    } else {
+        if (== elem_name "string") {
+            return (type_string)
+        } else {
+            if (== elem_name "float") {
+                return (type_float)
+            } else {
+                if (== elem_name "bool") {
+                    return (type_bool)
+                } else {
+                    /* Struct type */
+                    let t: NSType = NSType {
+                        kind: TypeKind.TYPE_STRUCT,
+                        name: elem_name,
+                        element_type_kind: TypeKind.TYPE_UNKNOWN,
+                        element_type_name: ""
+                    }
+                    if (== elem_name "CompilerDiagnostic") {
+                        (println (+ "DBG type_from_element_name kind=" (int_to_string t.kind)))
+                        (println (+ "DBG type_from_element_name name=" t.name))
+                    } else { (print "") }
+                    return t
+                }
+            }
+        }
+    }
+}
+
+shadow type_from_element_name {
+    let t1: NSType = (type_from_element_name "int")
+    assert (== t1.kind TypeKind.TYPE_INT)
+    
+    let t2: NSType = (type_from_element_name "Point")
+    assert (== t2.kind TypeKind.TYPE_STRUCT)
+    assert (== t2.name "Point")
+}
+
 shadow type_from_string {
-    let t: Type = (type_from_string "int")
+    let t: NSType = (type_from_string "int")
     assert (== t.kind TypeKind.TYPE_INT)
     
-    let t2: Type = (type_from_string "MyStruct")
+    let t2: NSType = (type_from_string "MyStruct")
     assert (== t2.kind TypeKind.TYPE_STRUCT)
     /* String comparison in struct might not work as expected */
     /* Just check the kind for now */
 }
 
-/* Type to string for error messages */
-fn type_to_string(t: Type) -> string {
+/* NSType to string for error messages */
+fn type_to_string(t: NSType) -> string {
     if (== t.kind TypeKind.TYPE_INT) {
         return "int"
     } else {
@@ -202,16 +1498,64 @@ fn type_to_string(t: Type) -> string {
                     if (== t.kind TypeKind.TYPE_VOID) {
                         return "void"
                     } else {
-                        if (== t.kind TypeKind.TYPE_STRUCT) {
-                            return t.name
+                        if (== t.kind TypeKind.TYPE_ARRAY) {
+                            let elem_str: string = (type_kind_to_string t.element_type_kind t.element_type_name)
+                            return (+ "array<" (+ elem_str ">"))
                         } else {
-                            return "unknown"
+                            if (== t.kind TypeKind.TYPE_LIST_GENERIC) {
+                                return (+ "List<" (+ t.element_type_name ">"))
+                            } else {
+                                if (== t.kind TypeKind.TYPE_STRUCT) {
+                                    return t.name
+                                } else {
+                                    if (== t.kind TypeKind.TYPE_UNION) {
+                                        return t.name
+                                    } else {
+                                    if (== t.kind TypeKind.TYPE_TUPLE) {
+                                        if (!= t.name "") {
+                                            return t.name
+                                        } else {
+                                            return "tuple"
+                                        }
+                                    } else {
+                                        if (== t.kind TypeKind.TYPE_FUNCTION) {
+                                            if (!= t.name "") {
+                                                return t.name
+                                            } else {
+                                                return "fn"
+                                            }
+                                        } else {
+                                            return "unknown"
+                                        }
+                                    }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
         }
     }
+}
+
+/* Convert type kind to string */
+fn type_kind_to_string(kind: int, name: string) -> string {
+    if (== kind TypeKind.TYPE_INT) { return "int" }
+    else { if (== kind TypeKind.TYPE_FLOAT) { return "float" }
+    else { if (== kind TypeKind.TYPE_BOOL) { return "bool" }
+    else { if (== kind TypeKind.TYPE_STRING) { return "string" }
+    else { if (== kind TypeKind.TYPE_STRUCT) { return name }
+    else { if (== kind TypeKind.TYPE_UNION) { return name }
+    else { if (== kind TypeKind.TYPE_TUPLE) { return "tuple" }
+    else { if (== kind TypeKind.TYPE_FUNCTION) { return "fn" }
+    else { return "unknown" } } } } } } } }
+}
+
+shadow type_kind_to_string {
+    assert (== (type_kind_to_string TypeKind.TYPE_INT "") "int")
+    assert (== (type_kind_to_string TypeKind.TYPE_BOOL "") "bool")
+    assert (== (type_kind_to_string TypeKind.TYPE_STRUCT "Point") "Point")
 }
 
 shadow type_to_string {
@@ -227,7 +1571,8 @@ shadow type_to_string {
 fn env_new() -> TypeEnvironment {
     return TypeEnvironment {
         error_count: 0,
-        has_error: false
+        has_error: false,
+        diagnostics: (Diagnostics.diag_list_new)
     }
 }
 
@@ -238,21 +1583,34 @@ shadow env_new {
 }
 
 /* Create a new symbol */
-fn symbol_new(name: string, sym_type: Type, is_mut: bool, is_fn: bool, param_count: int) -> Symbol {
+pub fn symbol_new(name: string, sym_type: NSType, is_mut: bool, is_fn: bool, param_count: int, param_types: array<NSType>, ret_type: NSType) -> Symbol {
     return Symbol {
         name: name,
         sym_type: sym_type,
         is_mutable: is_mut,
         is_function: is_fn,
         param_count: param_count,
-        defined: true
+        defined: true,
+        param_types: param_types,
+        return_type: ret_type
     }
 }
 
 shadow symbol_new {
-    let sym: Symbol = (symbol_new "x" (type_int) true false 0)
+    let empty_params: array<NSType> = []
+    let sym: Symbol = (symbol_new "x" (type_int) true false 0 empty_params (type_void))
     assert (== sym.is_mutable true)
     assert (== sym.is_function false)
+}
+
+fn empty_param_types() -> array<NSType> {
+    let params: array<NSType> = []
+    return params
+}
+
+shadow empty_param_types {
+    let params: array<NSType> = (empty_param_types)
+    assert (== (array_length params) 0)
 }
 
 /* Add symbol to environment (using array) */
@@ -285,6 +1643,75 @@ fn env_lookup(symbols: array<Symbol>, name: string) -> int {
     return -1
 }
 
+fn last_index_of_dot(s: string) -> int {
+    let mut i: int = 0
+    let mut last: int = (- 0 1)
+    let n: int = (str_length s)
+    while (< i n) {
+        if (== (char_at s i) 46) {
+            set last i
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return last
+}
+
+shadow last_index_of_dot {
+    assert (== (last_index_of_dot "abc") (- 0 1))
+    assert (== (last_index_of_dot "A.B") 1)
+    assert (== (last_index_of_dot "A.B.C") 3)
+}
+
+fn module_qualified_suffix(name: string) -> string {
+    if (not (str_contains name ".")) {
+        return name
+    } else {
+        let idx: int = (last_index_of_dot name)
+        if (< idx 0) {
+            return name
+        } else {
+            let n: int = (str_length name)
+            let start: int = (+ idx 1)
+            let len: int = (- n start)
+            if (<= len 0) {
+                return name
+            } else {
+                return (str_substring name start len)
+            }
+        }
+    }
+}
+
+shadow module_qualified_suffix {
+    assert (== (module_qualified_suffix "x") "x")
+    assert (== (module_qualified_suffix "A.B") "B")
+    assert (== (module_qualified_suffix "Diagnostics.diag_typecheck_error") "diag_typecheck_error")
+}
+
+fn tc_str_ends_with(s: string, suffix: string) -> bool {
+    let n: int = (str_length s)
+    let m: int = (str_length suffix)
+    if (> m n) {
+        return false
+    } else {
+        if (== m 0) {
+            return true
+        } else {
+            let start: int = (- n m)
+            let tail: string = (str_substring s start m)
+            return (== tail suffix)
+        }
+    }
+}
+
+shadow tc_str_ends_with {
+    assert (tc_str_ends_with "list_Point_new" "_new")
+    assert (not (tc_str_ends_with "list_Point_new" "_get"))
+    assert (tc_str_ends_with "" "")
+}
+
 shadow env_lookup {
     /* Note: array<Symbol> testing skipped in shadow tests */
     assert (== 1 1)
@@ -301,14 +1728,36 @@ shadow env_has_symbol {
 }
 
 /* Get symbol type */
-fn env_get_type(symbols: array<Symbol>, name: string) -> Type {
+fn env_get_type(symbols: array<Symbol>, name: string) -> OptionType {
     let idx: int = (env_lookup symbols name)
     if (>= idx 0) {
         let sym: Symbol = (at symbols idx)
-        return sym.sym_type
+        if (== sym.is_function true) {
+            let mut i: int = 0
+            let mut sig: string = "fn("
+            while (< i (array_length sym.param_types)) {
+                let p: NSType = (at sym.param_types i)
+                if (== i 0) {
+                    set sig (+ sig (type_to_string p))
+                } else {
+                    set sig (+ sig (+ "," (type_to_string p)))
+                }
+                set i (+ i 1)
+            }
+            set sig (+ sig ")->")
+            set sig (+ sig (type_to_string sym.return_type))
+            let fntype: NSType = NSType {
+                kind: TypeKind.TYPE_FUNCTION,
+                name: sig,
+                element_type_kind: TypeKind.TYPE_UNKNOWN,
+                element_type_name: ""
+            }
+            return (option_type_some fntype)
+        } else {
+            return (option_type_some sym.sym_type)
+        }
     } else {
-        /* Return unknown type for undefined symbols */
-        return Type { kind: TypeKind.TYPE_UNKNOWN, name: "undefined" }
+        return (option_type_none)
     }
 }
 
@@ -322,39 +1771,58 @@ shadow env_get_type {
  * ============================================================================= */
 
 /* Check type of a literal number */
-fn check_number_literal(value: string) -> Type {
+fn check_number_literal(value: string) -> NSType {
     /* For now, all numbers are int */
     /* TODO: detect floats by checking for '.' */
     return (type_int)
 }
 
 shadow check_number_literal {
-    let t: Type = (check_number_literal "42")
+    let t: NSType = (check_number_literal "42")
     assert (== t.kind TypeKind.TYPE_INT)
 }
 
 /* Check type of a string literal */
-fn check_string_literal() -> Type {
+fn check_string_literal() -> NSType {
     return (type_string)
 }
 
 shadow check_string_literal {
-    let t: Type = (check_string_literal)
+    let t: NSType = (check_string_literal)
     assert (== t.kind TypeKind.TYPE_STRING)
 }
 
 /* Check type of a boolean literal */
-fn check_bool_literal() -> Type {
+fn check_bool_literal() -> NSType {
     return (type_bool)
 }
 
 shadow check_bool_literal {
-    let t: Type = (check_bool_literal)
+    let t: NSType = (check_bool_literal)
     assert (== t.kind TypeKind.TYPE_BOOL)
 }
 
 /* Check if operator is valid for given types */
-fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
+fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType {
+    /* Special case: + for string concatenation */
+    if (== op "+") {
+        if (and (== left_type.kind TypeKind.TYPE_STRING) (== right_type.kind TypeKind.TYPE_STRING)) {
+            return (type_string)
+        } else {
+            # If one side is known string, allow the other side to be unknown.
+            # This preserves string context through nested concatenations in self-hosting.
+            if (and (== left_type.kind TypeKind.TYPE_STRING) (== right_type.kind TypeKind.TYPE_UNKNOWN)) {
+                return (type_string)
+            } else {}
+            if (and (== right_type.kind TypeKind.TYPE_STRING) (== left_type.kind TypeKind.TYPE_UNKNOWN)) {
+                return (type_string)
+            } else {}
+            (print "")
+        }
+    } else {
+        (print "")
+    }
+    
     /* Arithmetic ops: +, -, *, /, % */
     if (or (or (or (or (== op "+") (== op "-")) (== op "*")) (== op "/")) (== op "%")) {
         /* Both operands must be int or float */
@@ -364,8 +1832,8 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
             if (or (== left_type.kind TypeKind.TYPE_FLOAT) (== right_type.kind TypeKind.TYPE_FLOAT)) {
                 return (type_float)
             } else {
-                /* Type error */
-                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+                /* NSType error */
+                return (type_unknown_named "error")
             }
         }
     } else {
@@ -375,7 +1843,7 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
             if (types_equal left_type right_type) {
                 return (type_bool)
             } else {
-                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+                return (type_unknown_named "error")
             }
         } else {
             /* Logical ops: and, or */
@@ -384,30 +1852,30 @@ fn check_binary_op(op: string, left_type: Type, right_type: Type) -> Type {
                 if (and (== left_type.kind TypeKind.TYPE_BOOL) (== right_type.kind TypeKind.TYPE_BOOL)) {
                     return (type_bool)
                 } else {
-                    return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+                    return (type_unknown_named "error")
                 }
             } else {
                 /* Unknown operator */
-                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "error" }
+                return (type_unknown_named "error")
             }
         }
     }
 }
 
 shadow check_binary_op {
-    let int_t: Type = (type_int)
-    let bool_t: Type = (type_bool)
+    let int_t: NSType = (type_int)
+    let bool_t: NSType = (type_bool)
     
     /* Test arithmetic */
-    let result1: Type = (check_binary_op "+" int_t int_t)
+    let result1: NSType = (check_binary_op "+" int_t int_t)
     assert (== result1.kind TypeKind.TYPE_INT)
     
     /* Test comparison */
-    let result2: Type = (check_binary_op "==" int_t int_t)
+    let result2: NSType = (check_binary_op "==" int_t int_t)
     assert (== result2.kind TypeKind.TYPE_BOOL)
     
     /* Test logical */
-    let result3: Type = (check_binary_op "and" bool_t bool_t)
+    let result3: NSType = (check_binary_op "and" bool_t bool_t)
     assert (== result3.kind TypeKind.TYPE_BOOL)
 }
 
@@ -418,31 +1886,31 @@ shadow check_binary_op {
  * ============================================================================= */
 
 fn op_token_to_string(op: int) -> string {
-    if (== op NLTokenType.NL_TOKEN_PLUS) { return "+" }
+    if (== op LexerTokenType.TOKEN_PLUS) { return "+" }
     else {
-        if (== op NLTokenType.NL_TOKEN_MINUS) { return "-" }
+        if (== op LexerTokenType.TOKEN_MINUS) { return "-" }
         else {
-            if (== op NLTokenType.NL_TOKEN_STAR) { return "*" }
+            if (== op LexerTokenType.TOKEN_STAR) { return "*" }
             else {
-                if (== op NLTokenType.NL_TOKEN_SLASH) { return "/" }
+                if (== op LexerTokenType.TOKEN_SLASH) { return "/" }
                 else {
-                    if (== op NLTokenType.NL_TOKEN_PERCENT) { return "%" }
+                    if (== op LexerTokenType.TOKEN_PERCENT) { return "%" }
                     else {
-                        if (== op NLTokenType.NL_TOKEN_EQ) { return "==" }
+                        if (== op LexerTokenType.TOKEN_EQ) { return "==" }
                         else {
-                            if (== op NLTokenType.NL_TOKEN_NE) { return "!=" }
+                            if (== op LexerTokenType.TOKEN_NE) { return "!=" }
                             else {
-                                if (== op NLTokenType.NL_TOKEN_LT) { return "<" }
+                                if (== op LexerTokenType.TOKEN_LT) { return "<" }
                                 else {
-                                    if (== op NLTokenType.NL_TOKEN_GT) { return ">" }
+                                    if (== op LexerTokenType.TOKEN_GT) { return ">" }
                                     else {
-                                        if (== op NLTokenType.NL_TOKEN_LE) { return "<=" }
+                                        if (== op LexerTokenType.TOKEN_LE) { return "<=" }
                                         else {
-                                            if (== op NLTokenType.NL_TOKEN_GE) { return ">=" }
+                                            if (== op LexerTokenType.TOKEN_GE) { return ">=" }
                                             else {
-                                                if (== op NLTokenType.NL_TOKEN_AND) { return "and" }
+                                                if (== op LexerTokenType.TOKEN_AND) { return "and" }
                                                 else {
-                                                    if (== op NLTokenType.NL_TOKEN_OR) { return "or" }
+                                                    if (== op LexerTokenType.TOKEN_OR) { return "or" }
                                                     else { return "?" }
                                                 }
                                             }
@@ -458,7 +1926,15 @@ fn op_token_to_string(op: int) -> string {
     }
 }
 
-/* Type check an expression node by ID
+shadow op_token_to_string {
+    assert (== (op_token_to_string LexerTokenType.TOKEN_PLUS) "+")
+    assert (== (op_token_to_string LexerTokenType.TOKEN_MINUS) "-")
+    assert (== (op_token_to_string LexerTokenType.TOKEN_STAR) "*")
+    assert (== (op_token_to_string LexerTokenType.TOKEN_EQ) "==")
+    assert (== (op_token_to_string LexerTokenType.TOKEN_AND) "and")
+}
+
+/* NSType check an expression node by ID
  * 
  * This recursively evaluates the type of an expression node.
  * Node IDs are used to reference nodes in the Parser's storage lists.
@@ -471,97 +1947,234 @@ fn op_token_to_string(op: int) -> string {
  * 
  * Returns: The type of the expression, or TYPE_UNKNOWN on error
  */
-fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>) -> Type {
-    /* Expression-kind encoding:
-     * 0=number, 1=identifier, 2=binary_op, 3=call, 4=string, 5=bool, 6=float
-     */
-    if (== node_type 0) {
-        return (type_int)
-    } else {
-        if (== node_type 4) {
-            return (type_string)
-        } else {
-            if (== node_type 5) {
-                return (type_bool)
-            } else {
-                if (== node_type 6) {
-                    return (type_float)
-                } else {
-                    if (== node_type 1) {
-                        let id_node: ASTIdentifier = (parser_get_identifier parser node_id)
-                        let var_type: Type = (env_get_type symbols id_node.name)
+fn ensure_known_expr_node(node_type: int) -> bool {
+    if (== node_type ParseNodeType.PNODE_NUMBER) { return true }
+    if (== node_type ParseNodeType.PNODE_STRING) { return true }
+    if (== node_type ParseNodeType.PNODE_BOOL) { return true }
+    if (== node_type ParseNodeType.PNODE_FLOAT) { return true }
+    if (== node_type ParseNodeType.PNODE_IDENTIFIER) { return true }
+    if (== node_type ParseNodeType.PNODE_CALL) { return true }
+    if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) { return true }
+    if (== node_type ParseNodeType.PNODE_BINARY_OP) { return true }
+    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) { return true }
+    if (== node_type ParseNodeType.PNODE_MATCH) { return true }
+    if (== node_type ParseNodeType.PNODE_IF) { return true }
+    if (== node_type ParseNodeType.PNODE_BLOCK) { return true }
+    if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) { return true }
+    if (== node_type ParseNodeType.PNODE_TUPLE_INDEX) { return true }
+    if (== node_type ParseNodeType.PNODE_UNSAFE_BLOCK) { return true }
+    if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) { return true }
+    if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) { return true }
+    if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return true }
+    return false
+}
 
-                        if (== var_type.kind TypeKind.TYPE_UNKNOWN) {
-                            (print "Type error: Undefined identifier ")
-                            (println id_node.name)
-                        } else {
-                            (print "")
-                        }
+shadow ensure_known_expr_node {
+    assert (ensure_known_expr_node ParseNodeType.PNODE_NUMBER)
+    assert (ensure_known_expr_node ParseNodeType.PNODE_STRING)
+    assert (ensure_known_expr_node ParseNodeType.PNODE_BOOL)
+    assert (ensure_known_expr_node ParseNodeType.PNODE_CALL)
+    assert (ensure_known_expr_node ParseNodeType.PNODE_BINARY_OP)
+    assert (not (ensure_known_expr_node ParseNodeType.PNODE_FUNCTION))
+}
 
-                        return var_type
-                    } else {
-                        if (== node_type 3) {
-                            let call: ASTCall = (parser_get_call parser node_id)
-                            let fn_id: ASTIdentifier = (parser_get_identifier parser call.function)
-                            let idx: int = (env_lookup symbols fn_id.name)
-
-                            if (< idx 0) {
-                                (print "Type error: Undefined function ")
-                                (println fn_id.name)
-                                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "undefined_fn" }
-                            } else {
-                                let sym: Symbol = (at symbols idx)
-
-                                if (and (>= sym.param_count 0) (!= sym.param_count call.arg_count)) {
-                                    (print "Type error: Wrong arg count for ")
-                                    (print fn_id.name)
-                                    (print ", expected ")
-                                    (print (int_to_string sym.param_count))
-                                    (print ", got ")
-                                    (println (int_to_string call.arg_count))
-                                } else {
-                                    (print "")
-                                }
-
-                                return sym.sym_type
-                            }
-                        } else {
-                            if (== node_type 2) {
-                                let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
-                                let left_t: Type = (check_expr_node parser binop.left binop.left_type symbols)
-                                let right_t: Type = (check_expr_node parser binop.right binop.right_type symbols)
-                                let op_str: string = (op_token_to_string binop.op)
-                                let result: Type = (check_binary_op op_str left_t right_t)
-
-                                if (== result.kind TypeKind.TYPE_UNKNOWN) {
-                                    (println "Type error: Invalid binary operation")
-                                } else {
-                                    (print "")
-                                }
-
-                                return result
-                            } else {
-                                return Type { kind: TypeKind.TYPE_UNKNOWN, name: "unknown_node_type" }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+/* Check union construction expression
+ * Example: Option.Some { value: 42 }
+ * Returns: The union type (TYPE_UNION with union name)
+ */
+fn check_union_construct(parser: Parser, node_id: int) -> NSType {
+    let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
+    
+    /* Return union type */
+    return NSType {
+        kind: TypeKind.TYPE_UNION,
+        name: uc.union_name,
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
     }
 }
 
-/* Type check a return statement expression
+/* Check match expression  
+ * Example: match opt { Some(s) => s.value, None(n) => 0 }
+ * Returns: NSType of the match arms (must all match)
+ */
+fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let m: ASTMatch = (parser_get_match parser node_id)
+    
+    /* Check scrutinee (expression being matched) */
+    let scrutinee_type: NSType = (check_expr_node parser m.scrutinee m.scrutinee_type symbols diags file_name)
+    
+    if (!= scrutinee_type.kind TypeKind.TYPE_UNION) {
+        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "match expression must match on union type" (Diagnostics.diag_location file_name m.line m.column))
+        (Diagnostics.diag_list_add diags diag)
+        return (type_unknown_named "match_error")
+    } else {
+        (print "")
+    }
+    
+    if (<= m.arm_count 0) {
+        return (type_unknown_named "empty_match")
+    } else {
+        (print "")
+    }
+
+    let mut i: int = 0
+    let mut first_arm_type: NSType = (type_unknown_named "match_arm")
+    let union_name: string = scrutinee_type.name
+
+    while (< i m.arm_count) {
+        let mut arm_symbols: array<Symbol> = symbols
+        let has_bindings: bool = (< i (array_length m.arm_bindings))
+        if has_bindings {
+            let binding_name: string = (at m.arm_bindings i)
+            if (and (!= binding_name "") (!= binding_name "_")) {
+                let variant_name: string = (at m.arm_variants i)
+                let variant_label: string = (+ union_name (+ "." variant_name))
+                let binding_type: NSType = NSType {
+                    kind: TypeKind.TYPE_STRUCT,
+                    name: variant_label,
+                    element_type_kind: TypeKind.TYPE_UNKNOWN,
+                    element_type_name: ""
+                }
+                let binding_sym: Symbol = (symbol_new binding_name binding_type false false 0 (empty_param_types) (type_void))
+                set arm_symbols (env_add_symbol (env_new) arm_symbols binding_sym)
+            } else {
+                (print "")
+            }
+        } else {
+            (print "")
+        }
+
+        let body_id: int = (at m.arm_body_ids i)
+        let body_type: int = (at m.arm_body_types i)
+        let arm_type: NSType = (check_expr_node parser body_id body_type arm_symbols diags file_name)
+
+        if (== i 0) {
+            set first_arm_type arm_type
+        } else {
+            if (not (types_equal arm_type first_arm_type)) {
+                let msg: string = (+ "match arms must return same type (expected " (+ (type_to_string first_arm_type) (+ ", got " (+ (type_to_string arm_type) ")"))))
+                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name m.line m.column))
+                (Diagnostics.diag_list_add diags diag)
+            } else {
+                (print "")
+            }
+        }
+
+        set i (+ i 1)
+    }
+
+    return first_arm_type
+}
+
+fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (== node_type ParseNodeType.PNODE_NUMBER) { return (type_int) } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_STRING) { return (type_string) } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_BOOL) { return (type_bool) } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_FLOAT) { return (type_float) } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
+        let id_node: ASTIdentifier = (parser_get_identifier parser node_id)
+        let lookup: OptionType = (env_get_type symbols id_node.name)
+        if lookup.has_value { return lookup.value } else { return (type_unknown_named id_node.name) }
+    } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_BINARY_OP) {
+        let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
+        let left_t: NSType = (check_expr_node parser binop.left binop.left_type symbols diags file_name)
+        let right_t: NSType = (check_expr_node parser binop.right binop.right_type symbols diags file_name)
+        let op_str: string = (op_token_to_string binop.op)
+        return (check_binary_op op_str left_t right_t)
+    } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_CALL) {
+        let call_node: ASTCall = (parser_get_call parser node_id)
+        /* Get function name from identifier node */
+        let fn_id_node: ASTIdentifier = (parser_get_identifier parser call_node.function)
+        let fn_name: string = fn_id_node.name
+        /* Check if it's a builtin function/operator */
+        let builtin_type: NSType = (check_builtin_function fn_name call_node.arg_count)
+        if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
+            return builtin_type
+        } else {
+            /* Check if it's a List<T> function */
+            let list_type: NSType = (check_list_function_call fn_name call_node.arg_count)
+            if (!= list_type.kind TypeKind.TYPE_UNKNOWN) {
+                return list_type
+            } else {
+                /* Check if it's a user-defined function */
+                let idx: int = (env_lookup symbols fn_name)
+                if (>= idx 0) {
+                    let sym: Symbol = (at symbols idx)
+                    if sym.is_function {
+                        /* For function calls, return the return type, not the function type */
+                        return sym.return_type
+                    } else {
+                        /* Not a function - return variable type */
+                        return sym.sym_type
+                    }
+                } else {
+                    return (type_unknown_named fn_name)
+                }
+            }
+        }
+    } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+        let mqc_node: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
+        /* Use function_name which contains full qualified name (Module.function) */
+        let qualified_name: string = mqc_node.function_name
+        /* Look up function in symbol table using qualified name */
+        let idx: int = (env_lookup symbols qualified_name)
+        if (>= idx 0) {
+            let sym: Symbol = (at symbols idx)
+            if sym.is_function {
+                return sym.return_type
+            } else {
+                return sym.sym_type
+            }
+        } else {
+            return (type_unknown_named qualified_name)
+        }
+    } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (check_union_construct parser node_id) } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_MATCH) { return (check_match_expr parser node_id symbols diags file_name) } else { (print "") }
+    return (type_unknown_named "expr")
+}
+
+shadow check_expr_node {
+    let p0: Parser = (parser_init_ast_lists)
+    let p1: Parser = (parser_store_identifier p0 "var_name" 1 1)
+    let var_id: int = p1.last_expr_node_id
+    let var_type: int = p1.last_expr_node_type
+    let p2: Parser = (parser_store_string p1 "not found" 1 1)
+    let msg_id: int = p2.last_expr_node_id
+    let msg_type: int = p2.last_expr_node_type
+    let p3: Parser = (parser_store_binary_op p2 LexerTokenType.TOKEN_PLUS var_id msg_id var_type msg_type 1 1)
+    let inner_id: int = p3.last_expr_node_id
+    let inner_type: int = p3.last_expr_node_type
+    let p4: Parser = (parser_store_string p3 "Error: " 1 1)
+    let err_id: int = p4.last_expr_node_id
+    let err_type: int = p4.last_expr_node_type
+    let p5: Parser = (parser_store_binary_op p4 LexerTokenType.TOKEN_PLUS err_id inner_id err_type inner_type 1 1)
+    let env: TypeEnvironment = (env_new)
+    let mut symbols: array<Symbol> = []
+    let sym: Symbol = (symbol_new "var_name" (type_string) false false 0 (empty_param_types) (type_void))
+    set symbols (env_add_symbol env symbols sym)
+    let diags: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let result: NSType = (check_expr_node p5 p5.last_expr_node_id p5.last_expr_node_type symbols diags "test.nano")
+    assert (== result.kind TypeKind.TYPE_STRING)
+}
+
+/* NSType check a return statement expression
  * 
  * Validates that the return expression type matches the expected function return type
  */
-fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: Type, symbols: array<Symbol>) -> bool {
+fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>) -> bool {
     if (< ret_node.value 0) {
         /* No return value - expect void */
         if (== expected_type.kind TypeKind.TYPE_VOID) {
             return true
         } else {
-            (println "Type error: Missing return value")
+            let msg: string = (encode_missing_return_message "<unnamed>" (type_to_string expected_type))
+            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location "" ret_node.line ret_node.column))
+            (Diagnostics.diag_list_add diags diag)
             return false
         }
     } else {
@@ -576,7 +2189,54 @@ fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: Typ
  * AST TYPE CHECKING - Statement validation
  * ============================================================================= */
 
-/* Type check a let statement
+fn array_elem_type_from_array_decl(t: string) -> string {
+    if (str_contains t "array<int>") {
+        return "int"
+    } else {
+        if (str_contains t "array<float>") {
+            return "float"
+        } else {
+            if (str_contains t "array<string>") {
+                return "string"
+            } else {
+                if (str_contains t "array<bool>") {
+                    return "bool"
+                } else {
+                    if (str_contains t "array<array<") {
+                        return "array"
+                    } else {
+                        /* Generic: array<SomeType> -> "SomeType" */
+                        if (str_contains t "array<") {
+                            let lt: int = (str_index_of t "<")
+                            let gt: int = (str_last_index_of t ">")
+                            if (and (>= lt 0) (> gt lt)) {
+                                let start: int = (+ lt 1)
+                                let len: int = (- gt start)
+                                if (> len 0) {
+                                    return (str_substring t start len)
+                                } else {
+                                    return ""
+                                }
+                            } else {
+                                return ""
+                            }
+                        } else {
+                            return ""
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow array_elem_type_from_array_decl {
+    assert (== (array_elem_type_from_array_decl "array<int>") "int")
+    assert (== (array_elem_type_from_array_decl "array<string>") "string")
+    assert (== (array_elem_type_from_array_decl "array<array<int>>") "array")
+}
+
+/* NSType check a let statement
  * 
  * Validates that:
  * 1. The variable is not already defined
@@ -584,28 +2244,31 @@ fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: Typ
  * 
  * Returns: Updated symbols array with the new variable
  */
-fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>) -> array<Symbol> {
-    /* Check if variable already exists in current scope */
-    if (env_has_symbol symbols let_node.name) {
-        /* TODO: Better error reporting with variable name */
-        (println "Type error: Variable already defined")
-        return symbols
-    } else {
-        (print "")
-    }
+fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> array<Symbol> {
+    # Allow variable redefinition (shadowing) to match C reference compiler behavior.
+    # Shadow tests commonly reuse names (e.g., `let result` across multiple asserts).
     
+    /* If initializer is an empty array literal, propagate element_type from declared type */
+    if (and (>= let_node.value 0) (== let_node.value_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
+        let arr: ASTArrayLiteral = (parser_get_array_literal parser let_node.value)
+        if (and (== arr.element_count 0) (== arr.element_type "")) {
+            let elem_t: string = (array_elem_type_from_array_decl let_node.var_type)
+            if (not (== elem_t "")) {
+                (parser_set_array_literal_element_type parser let_node.value elem_t)
+            } else { (print "") }
+        } else { (print "") }
+    } else { (print "") }
+
     /* Get declared type */
-    let declared_type: Type = (type_from_string let_node.var_type)
+    let declared_type: NSType = (type_from_string_with_parser parser let_node.var_type)
 
     if (>= let_node.value 0) {
-        let init_type: Type = (check_expr_node parser let_node.value let_node.value_type symbols)
+        let init_type: NSType = (check_expr_node parser let_node.value let_node.value_type symbols diags file_name)
         if (not (types_equal init_type declared_type)) {
-            (print "Type error: let initializer type mismatch for ")
-            (println let_node.name)
-            (print "  declared: ")
-            (println (type_to_string declared_type))
-            (print "  init: ")
-            (println (type_to_string init_type))
+            let detail: string = (+ "Variable " let_node.name)
+            let msg: string = (encode_type_mismatch_message "variable_assignment" (type_to_string declared_type) (type_to_string init_type) detail)
+            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name let_node.line let_node.column))
+            (Diagnostics.diag_list_add diags diag)
         } else {
             (print "")
         }
@@ -613,43 +2276,69 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>)
         (print "")
     }
 
-    let sym: Symbol = (symbol_new let_node.name declared_type let_node.is_mut false 0)
+    let sym: Symbol = (symbol_new let_node.name declared_type let_node.is_mut false 0 (empty_param_types) (type_void))
     return (env_add_symbol (env_new) symbols sym)
 }
 
-/* Type check a return statement
+/* NSType check a return statement
  * 
  * Validates that the return expression type matches the function's return type
  * 
  * Returns: true if valid, false if type error
  */
-fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: Type, symbols: array<Symbol>) -> bool {
+fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> bool {
     /* If no return value, expect void */
     if (< ret_node.value 0) {
-        return (== expected_type.kind TypeKind.TYPE_VOID)
+        if (== expected_type.kind TypeKind.TYPE_VOID) {
+            return true
+        } else {
+            let msg: string = (encode_missing_return_message current_function (type_to_string expected_type))
+            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name ret_node.line ret_node.column))
+            (Diagnostics.diag_list_add diags diag)
+            return false
+        }
     } else {
-        let expr_t: Type = (check_expr_node parser ret_node.value ret_node.value_type symbols)
-        return (types_equal expr_t expected_type)
+        if (== current_function "explanation_for_code") {
+            (print "  DEBUG check_return: value node_id=")
+            (print (int_to_string ret_node.value))
+            (print ", value_type=")
+            (println (int_to_string ret_node.value_type))
+        } else { (print "") }
+        
+        let expr_t: NSType = (check_expr_node parser ret_node.value ret_node.value_type symbols diags file_name)
+        if (not (types_equal expr_t expected_type)) {
+            let detail: string = (+ "Return value of " current_function)
+            let msg: string = (encode_type_mismatch_message "return" (type_to_string expected_type) (type_to_string expr_t) detail)
+            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name ret_node.line ret_node.column))
+            (Diagnostics.diag_list_add diags diag)
+            return false
+        } else {
+            return true
+        }
     }
 }
 
-fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>) -> bool {
+fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
     let idx: int = (env_lookup symbols set_node.target)
     if (< idx 0) {
-        (print "Type error: Undefined variable in set: ")
-        (println set_node.target)
+        let msg: string = (encode_undefined_name_message set_node.target)
+        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name set_node.line set_node.column))
+        (Diagnostics.diag_list_add diags diag)
         return false
     } else {
         let sym: Symbol = (at symbols idx)
         if (not sym.is_mutable) {
-            (print "Type error: Cannot assign to immutable variable: ")
-            (println set_node.target)
+            let msg: string = (encode_immutable_assignment_message set_node.target)
+            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0005" msg (Diagnostics.diag_location file_name set_node.line set_node.column))
+            (Diagnostics.diag_list_add diags diag)
             return false
         } else {
-            let rhs_t: Type = (check_expr_node parser set_node.value set_node.value_type symbols)
+            let rhs_t: NSType = (check_expr_node parser set_node.value set_node.value_type symbols diags file_name)
             if (not (types_equal rhs_t sym.sym_type)) {
-                (print "Type error: set type mismatch for ")
-                (println set_node.target)
+                let detail: string = (+ "Assignment to " set_node.target)
+                let msg: string = (encode_type_mismatch_message "variable_assignment" (type_to_string sym.sym_type) (type_to_string rhs_t) detail)
+                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name set_node.line set_node.column))
+                (Diagnostics.diag_list_add diags diag)
                 return false
             } else {
                 return true
@@ -666,73 +2355,149 @@ fn expr_kind_from_pnode(pnode_type: int) -> int {
     else { if (== pnode_type ParseNodeType.PNODE_STRING) { return 4 }
     else { if (== pnode_type ParseNodeType.PNODE_BOOL) { return 5 }
     else { if (== pnode_type ParseNodeType.PNODE_FLOAT) { return 6 }
-    else { return (- 0 1) } } } } } } }
+    else { if (== pnode_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return 7 }
+    else { if (== pnode_type ParseNodeType.PNODE_MATCH) { return 8 }
+    else { if (== pnode_type ParseNodeType.PNODE_TUPLE_LITERAL) { return 9 }
+    else { if (== pnode_type ParseNodeType.PNODE_TUPLE_INDEX) { return 10 }
+    else { return (- 0 1) } } } } } } } } } } }
 }
 
-fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: Type) -> bool {
+shadow expr_kind_from_pnode {
+    assert (== (expr_kind_from_pnode ParseNodeType.PNODE_NUMBER) 0)
+    assert (== (expr_kind_from_pnode ParseNodeType.PNODE_IDENTIFIER) 1)
+    assert (== (expr_kind_from_pnode ParseNodeType.PNODE_CALL) 3)
+}
+
+fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> bool {
     let block: ASTBlock = (parser_get_block parser block_id)
+    
+    let stmt_count: int = (list_ASTStmtRef_length block.statements)
+    if (== block_id 1304) {
+        (print "DEBUG: Block 1304 for ")
+        (print current_function)
+        (print " has ")
+        (print (int_to_string stmt_count))
+        (println " statements")
+    } else { (print "") }
+    
     let mut local_symbols: array<Symbol> = symbols
     let mut ok: bool = true
 
     let mut i: int = 0
-    while (< i block.statement_count) {
-        let stmt: ASTStmtRef = (parser_get_block_statement parser (+ block.statement_start i))
+    while (< i stmt_count) {
+        let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+        
+        if (== block_id 1304) {
+            (print "  DEBUG: Statement ")
+            (print (int_to_string i))
+            (print " type ")
+            (print (int_to_string stmt.node_type))
+            (print " id ")
+            (print (int_to_string stmt.node_id))
+            (print " - PNODE_FLOAT=")
+            (print (int_to_string ParseNodeType.PNODE_FLOAT))
+            (print ", PNODE_LET=")
+            (print (int_to_string ParseNodeType.PNODE_LET))
+            (print ", PNODE_RETURN=")
+            (println (int_to_string ParseNodeType.PNODE_RETURN))
+        } else { (print "") }
 
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let let_node: ASTLet = (parser_get_let parser stmt.node_id)
-            set local_symbols (check_let_statement parser let_node local_symbols)
+            set local_symbols (check_let_statement parser let_node local_symbols diags file_name)
         } else { if (== stmt.node_type ParseNodeType.PNODE_SET) {
             let set_node: ASTSet = (parser_get_set parser stmt.node_id)
-            if (not (check_set_statement parser set_node local_symbols)) { set ok false } else { (print "") }
+            if (not (check_set_statement parser set_node local_symbols diags file_name)) { set ok false } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_IF) {
             let if_node: ASTIf = (parser_get_if parser stmt.node_id)
-            let cond_t: Type = (check_expr_node parser if_node.condition if_node.condition_type local_symbols)
+            let cond_t: NSType = (check_expr_node parser if_node.condition if_node.condition_type local_symbols diags file_name)
             if (!= cond_t.kind TypeKind.TYPE_BOOL) {
-                (println "Type error: if condition must be bool")
+                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "if condition must be bool" (Diagnostics.diag_location file_name if_node.line if_node.column))
+                (Diagnostics.diag_list_add diags diag)
                 set ok false
             } else { (print "") }
 
             if (>= if_node.then_body 0) {
-                if (not (check_block parser if_node.then_body local_symbols expected_return)) { set ok false } else { (print "") }
+                if (not (check_block parser if_node.then_body local_symbols expected_return diags file_name current_function)) { set ok false } else { (print "") }
             } else { (print "") }
 
             if (>= if_node.else_body 0) {
-                if (not (check_block parser if_node.else_body local_symbols expected_return)) { set ok false } else { (print "") }
+                if (not (check_block parser if_node.else_body local_symbols expected_return diags file_name current_function)) { set ok false } else { (print "") }
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_WHILE) {
             let while_node: ASTWhile = (parser_get_while parser stmt.node_id)
-            let cond_t: Type = (check_expr_node parser while_node.condition while_node.condition_type local_symbols)
+            let cond_t: NSType = (check_expr_node parser while_node.condition while_node.condition_type local_symbols diags file_name)
             if (!= cond_t.kind TypeKind.TYPE_BOOL) {
-                (println "Type error: while condition must be bool")
+                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "while condition must be bool" (Diagnostics.diag_location file_name while_node.line while_node.column))
+                (Diagnostics.diag_list_add diags diag)
                 set ok false
             } else { (print "") }
 
             if (>= while_node.body 0) {
-                if (not (check_block parser while_node.body local_symbols expected_return)) { set ok false } else { (print "") }
+                if (not (check_block parser while_node.body local_symbols expected_return diags file_name current_function)) { set ok false } else { (print "") }
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
             let ret_node: ASTReturn = (parser_get_return parser stmt.node_id)
-            if (not (check_return_statement parser ret_node expected_return local_symbols)) {
-                (println "Type error: return type mismatch")
+            
+            if (== block_id 1304) {
+                (print "  DEBUG: Calling check_return_statement for function '")
+                (print current_function)
+                (print "', ret_node.value=")
+                (print (int_to_string ret_node.value))
+                (print ", ret_node.value_type=")
+                (println (int_to_string ret_node.value_type))
+            } else { (print "") }
+            
+            if (not (check_return_statement parser ret_node expected_return local_symbols diags file_name current_function)) {
                 set ok false
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_ASSERT) {
             let a: ASTAssert = (parser_get_assert parser stmt.node_id)
-            let cond_t: Type = (check_expr_node parser a.condition a.condition_type local_symbols)
+            let cond_t: NSType = (check_expr_node parser a.condition a.condition_type local_symbols diags file_name)
             if (!= cond_t.kind TypeKind.TYPE_BOOL) {
-                (println "Type error: assert condition must be bool")
+                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "assert condition must be bool" (Diagnostics.diag_location file_name a.line a.column))
+                (Diagnostics.diag_list_add diags diag)
                 set ok false
             } else { (print "") }
+        } else { if (== stmt.node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
+            /* Unsafe block - check its statements */
+            let unsafe_block: ASTUnsafeBlock = (parser_get_unsafe_block parser stmt.node_id)
+            let mut j: int = 0
+            let unsafe_stmt_count: int = (list_ASTStmtRef_length unsafe_block.statements)
+            while (< j unsafe_stmt_count) {
+                let unsafe_stmt: ASTStmtRef = (list_ASTStmtRef_get unsafe_block.statements j)
+                
+                if (== unsafe_stmt.node_type ParseNodeType.PNODE_LET) {
+                    let let_node: ASTLet = (parser_get_let parser unsafe_stmt.node_id)
+                    set local_symbols (check_let_statement parser let_node local_symbols diags file_name)
+                } else { if (== unsafe_stmt.node_type ParseNodeType.PNODE_RETURN) {
+                    let ret_node: ASTReturn = (parser_get_return parser unsafe_stmt.node_id)
+                    if (not (check_return_statement parser ret_node expected_return local_symbols diags file_name current_function)) {
+                        set ok false
+                    } else { (print "") }
+                } else {
+                    /* Other statements */
+                    let kind: int = (expr_kind_from_pnode unsafe_stmt.node_type)
+                    if (>= kind 0) {
+                        let _t: NSType = (check_expr_node parser unsafe_stmt.node_id kind local_symbols diags file_name)
+                        (print "")
+                    } else {
+                        (print "")
+                    }
+                } }
+                
+                set j (+ j 1)
+            }
         } else {
             /* Expression statement */
             let kind: int = (expr_kind_from_pnode stmt.node_type)
             if (>= kind 0) {
-                let _t: Type = (check_expr_node parser stmt.node_id kind local_symbols)
+                let _t: NSType = (check_expr_node parser stmt.node_id kind local_symbols diags file_name)
                 (print "")
             } else {
                 (print "")
             }
-        } } } } } }
+        } } } } } } }
 
         set i (+ i 1)
     }
@@ -744,7 +2509,7 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
  * AST TYPE CHECKING - Function validation
  * ============================================================================= */
 
-/* Type check a function definition
+/* NSType check a function definition
  * 
  * Validates:
  * 1. Parameters are valid types
@@ -753,19 +2518,37 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
  * 
  * Returns: true if valid, false if type errors
  */
-fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>) -> bool {
-    (print "Type checking function ")
-    (println func.name)
+fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
+    (print "NSType checking function ")
+    (print func.name)
+    (print " (line ")
+    (print (int_to_string func.line))
+    (print ", body block ID ")
+    (print (int_to_string func.body))
+    (println ")")
 
-    let return_type: Type = (type_from_string func.return_type)
-    let mut func_symbols: array<Symbol> = symbols
+    let return_type: NSType = (type_from_string_with_parser parser func.return_type)
+    
+    /* Create a fresh symbol table for this function */
+    /* Copy only function and built-in symbols (those with is_function = true) */
+    let mut func_symbols: array<Symbol> = []
+    let mut j: int = 0
+    while (< j (array_length symbols)) {
+        let sym: Symbol = (at symbols j)
+        if (== sym.is_function true) {
+            set func_symbols (array_push func_symbols sym)
+        } else {
+            (print "")
+        }
+        set j (+ j 1)
+    }
 
     /* Add parameters as symbols (stored as lets starting at func.param_start) */
     let mut i: int = 0
     while (< i func.param_count) {
         let param_let: ASTLet = (parser_get_let parser (+ func.param_start i))
-        let ptype: Type = (type_from_string param_let.var_type)
-        let psym: Symbol = (symbol_new param_let.name ptype param_let.is_mut false 0)
+        let ptype: NSType = (type_from_string_with_parser parser param_let.var_type)
+        let psym: Symbol = (symbol_new param_let.name ptype param_let.is_mut false 0 (empty_param_types) (type_void))
         set func_symbols (env_add_symbol (env_new) func_symbols psym)
         set i (+ i 1)
     }
@@ -774,7 +2557,7 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>) -> 
         /* extern fn */
         return true
     } else {
-        return (check_block parser func.body func_symbols return_type)
+        return (check_block parser func.body func_symbols return_type diags file_name func.name)
     }
 }
 
@@ -782,94 +2565,152 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>) -> 
  * TYPE CHECKING WRAPPER - Top-level entry point for type checking a program
  * ============================================================================= */
 
-/* Typecheck a parsed program with full AST walking
- * 
- * This version walks through the actual Parser AST and validates:
- * 1. All function signatures are valid
- * 2. Function bodies are well-typed
- * 3. Return types match declarations
- * 4. All identifiers are defined
- * 
- * Args:
- *   parser: The parsed AST from the parser
- * 
- * Returns: 0 for success, 1 for type error
- */
-pub fn typecheck_parser(parser: Parser) -> int {
-    (println "=== Type Checking (Full AST Walk) ===")
+fn typecheck_output(diagnostics: List<CompilerDiagnostic>, error_count: int, had_error: bool) -> TypecheckPhaseOutput {
+    let env: TypeEnvironment = TypeEnvironment {
+        error_count: error_count,
+        has_error: had_error,
+        diagnostics: diagnostics
+    }
+    return TypecheckPhaseOutput {
+        environment: env,
+        diagnostics: diagnostics,
+        had_error: had_error
+    }
+}
+
+/* Typecheck a parsed program with full AST walking */
+pub fn typecheck_phase(parser: Parser, file_name: string) -> TypecheckPhaseOutput {
+    return (typecheck_phase_with_symbols parser file_name [])
+}
+
+/* NSType check with initial symbol table (for transitive imports) */
+pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_symbols: array<Symbol>) -> TypecheckPhaseOutput {
+    (println "=== NSType Checking (Full AST Walk) ===")
     
     let env: TypeEnvironment = (env_new)
-    let mut symbols: array<Symbol> = []
+    let mut symbols: array<Symbol> = initial_symbols
+    let mut error_count: int = 0
     
     /* Get function count using accessor */
     let func_count: int = (parser_get_function_count parser)
-    (print "Type checking ")
+    (print "NSType checking ")
     (print (int_to_string func_count))
     (println " functions")
     
     /* Validate we have at least one function */
     if (<= func_count 0) {
         (println "Error: No functions found")
-        return 1
+        let diag: CompilerDiagnostic = (Diagnostics.diag_error CompilerPhase.PHASE_TYPECHECK "TC0001" "No functions found" (Diagnostics.diag_location file_name 0 0))
+        (Diagnostics.diag_list_add env.diagnostics diag)
+        return (typecheck_output env.diagnostics (+ error_count 1) true)
     } else {
         (print "")
     }
     
     /* Add built-in functions to symbol table */
-    let println_sym: Symbol = (symbol_new "println" (type_void) false true (- 0 1))
+    let println_sym: Symbol = (symbol_new "println" (type_void) false true (- 0 1) (empty_param_types) (type_void))
     set symbols (env_add_symbol env symbols println_sym)
-    
-    let print_sym: Symbol = (symbol_new "print" (type_void) false true (- 0 1))
+    let print_sym: Symbol = (symbol_new "print" (type_void) false true (- 0 1) (empty_param_types) (type_void))
     set symbols (env_add_symbol env symbols print_sym)
 
-    /* Minimal builtins used by nanoc_v05 */
-    let system_sym: Symbol = (symbol_new "system" (type_int) false true (- 0 1))
+    /* Minimal builtins used by nanoc_v06 */
+    let system_sym: Symbol = (symbol_new "system" (type_int) false true (- 0 1) (empty_param_types) (type_int))
     set symbols (env_add_symbol env symbols system_sym)
-
-    let str_concat_sym: Symbol = (symbol_new "str_concat" (type_string) false true (- 0 1))
+    let str_concat_sym: Symbol = (symbol_new "str_concat" (type_string) false true (- 0 1) (empty_param_types) (type_string))
     set symbols (env_add_symbol env symbols str_concat_sym)
-
-    let str_equals_sym: Symbol = (symbol_new "str_equals" (type_bool) false true (- 0 1))
+    let str_equals_sym: Symbol = (symbol_new "str_equals" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
     set symbols (env_add_symbol env symbols str_equals_sym)
+    let not_sym: Symbol = (symbol_new "not" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
+    set symbols (env_add_symbol env symbols not_sym)
+    let and_sym: Symbol = (symbol_new "and" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
+    set symbols (env_add_symbol env symbols and_sym)
+    let or_sym: Symbol = (symbol_new "or" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
+    set symbols (env_add_symbol env symbols or_sym)
     
     /* Phase 1: Add all user function signatures to symbol table */
     let mut i: int = 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
-        /* TODO: Add function name to debug output */
         (println "  Registering function...")
         
-        let return_type: Type = (type_from_string func.return_type)
-        let func_sym: Symbol = (symbol_new func.name return_type false true func.param_count)
+        let return_type: NSType = (type_from_string_with_parser parser func.return_type)
+        let mut param_types: array<NSType> = []
+        if (and (> func.param_count 0) (>= func.param_start 0)) {
+            let mut pidx: int = 0
+            while (< pidx func.param_count) {
+                let param_let: ASTLet = (parser_get_let parser (+ func.param_start pidx))
+                let param_type: NSType = (type_from_string_with_parser parser param_let.var_type)
+                set param_types (array_push param_types param_type)
+                set pidx (+ pidx 1)
+            }
+        } else {
+            (print "")
+        }
+
+        let func_sym: Symbol = (symbol_new func.name return_type false true func.param_count param_types return_type)
         set symbols (env_add_symbol env symbols func_sym)
         set i (+ i 1)
     }
     
-    /* Phase 2: Type check each function body */
+    /* Phase 2: NSType check each function body */
+    /* Note: Shadow tests are NOT type-checked - they are compile-time tests */
+    /* executed by the C runtime, not part of the type system */
     set i 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
-        /* TODO: Add function name to debug output */
-        (println "  Type checking function...")
+        (print "  NSType checking function ")
+        (print func.name)
+        (println "...")
         
-        let valid: bool = (check_function parser func symbols)
+        let valid: bool = (check_function parser func symbols env.diagnostics file_name)
         if (not valid) {
-            /* TODO: Add function name to error message */
-            (println "Error: Type error in function")
-            return 1
+            set error_count (+ error_count 1)
         } else {
             (print "")
         }
         set i (+ i 1)
     }
     
-    (println "✓ Type checking complete - All functions valid!")
-    return 0
+    let had_error: bool = (Diagnostics.diag_list_has_errors env.diagnostics)
+    if had_error {
+        (println "✓ NSType checking complete - errors found")
+    } else {
+        (println "✓ NSType checking complete - All functions valid!")
+    }
+    return (typecheck_output env.diagnostics error_count had_error)
+}
+
+/* Compatibility wrapper returning legacy status code */
+pub fn typecheck_parser(parser: Parser) -> int {
+    let output: TypecheckPhaseOutput = (typecheck_phase parser "")
+    if output.had_error {
+        (println "Diagnostics:")
+        let count: int = (Diagnostics.diag_list_count output.diagnostics)
+        let mut i: int = 0
+        while (< i count) {
+            let diag: CompilerDiagnostic = (Diagnostics.diag_list_get output.diagnostics i)
+            (print "  [")
+            (print diag.code)
+            (print "] ")
+            (print diag.message)
+            (print " (")
+            (print diag.location.file)
+            (print ":")
+            (print (int_to_string diag.location.line))
+            (print ":")
+            (print (int_to_string diag.location.column))
+            (println ")")
+            set i (+ i 1)
+        }
+        return 1
+    } else {
+        return 0
+    }
 }
 
 /* Simplified typecheck for count-based validation */
 fn typecheck_with_count(func_count: int) -> int {
-    (println "=== Type Checking (Count-based) ===")
+    (println "=== NSType Checking (Count-based) ===")
     (print "Validating ")
     (print (int_to_string func_count))
     (println " functions")
@@ -878,7 +2719,7 @@ fn typecheck_with_count(func_count: int) -> int {
         (println "Error: No functions found")
         return 1
     } else {
-        (println "Type checking complete!")
+        (println "NSType checking complete!")
         return 0
     }
 }

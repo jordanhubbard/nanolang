@@ -1,82 +1,127 @@
-// Regular Expression Library
-// Wraps POSIX regex for nanolang
+# Regular Expression Library
+# Wraps POSIX regex for nanolang
 
-// Compile a regex pattern
-// Returns opaque handle to compiled regex, or null on error
-extern fn nl_regex_compile(pattern: string) -> opaque
+opaque type Regex
 
-// Test if string matches pattern
-// Returns 1 if match, 0 if no match, -1 on error
-extern fn nl_regex_match(regex: opaque, text: string) -> int
+# Compile a regex pattern
+# Returns opaque handle to compiled regex, or null on error
+extern fn nl_regex_compile(_pattern: string) -> Regex
 
-// Find first match in text
-// Returns match position or -1 if not found
-extern fn nl_regex_find(regex: opaque, text: string) -> int
+# Test if string matches pattern
+# Returns 1 if match, 0 if no match, -1 on error
+extern fn nl_regex_match(_regex: Regex, _text: string) -> int
 
-// Find all matches in text
-// Returns array of match positions
-extern fn nl_regex_find_all(regex: opaque, text: string) -> array<int>
+# Find first match in text
+# Returns match position or -1 if not found
+extern fn nl_regex_find(_regex: Regex, _text: string) -> int
 
-// Extract capture groups from last match
-// Returns array of captured strings
-extern fn nl_regex_groups(regex: opaque, text: string) -> array<string>
+# Find all matches in text
+# Returns array of match positions
+extern fn nl_regex_find_all(_regex: Regex, _text: string) -> array<int>
 
-// Replace first occurrence
-extern fn nl_regex_replace(regex: opaque, text: string, replacement: string) -> string
+# Extract capture groups from last match
+# Returns array of captured strings
+extern fn nl_regex_groups(_regex: Regex, _text: string) -> array<string>
 
-// Replace all occurrences
-extern fn nl_regex_replace_all(regex: opaque, text: string, replacement: string) -> string
+# Replace first occurrence
+extern fn nl_regex_replace(_regex: Regex, _text: string, _replacement: string) -> string
 
-// Split string by regex pattern
-extern fn nl_regex_split(regex: opaque, text: string) -> array<string>
+# Replace all occurrences
+extern fn nl_regex_replace_all(_regex: Regex, _text: string, _replacement: string) -> string
 
-// Free compiled regex
-extern fn nl_regex_free(regex: opaque) -> void
+# Split string by regex pattern
+extern fn nl_regex_split(_regex: Regex, _text: string) -> array<string>
 
-// High-level convenience API
+# Free compiled regex
+extern fn nl_regex_free(_regex: Regex) -> void
 
-pub fn compile(pattern: string) -> opaque {
-    return (nl_regex_compile pattern)
+fn is_null(regex: Regex) -> bool {
+    let mut result: int = 0
+    unsafe {
+        set result (nl_regex_match regex "")
+    }
+    return (== result (- 1))
 }
 
-pub fn matches(regex: opaque, text: string) -> bool {
-    let result: int = (nl_regex_match regex text)
+shadow is_null {
+    assert true
+}
+
+# High-level convenience API
+
+pub fn compile(pattern: string) -> Regex {
+    unsafe {
+        return (nl_regex_compile pattern)
+    }
+}
+
+pub fn matches(regex: Regex, text: string) -> bool {
+    let mut result: int = 0
+    unsafe {
+        set result (nl_regex_match regex text)
+    }
     return (== result 1)
 }
 
-pub fn find(regex: opaque, text: string) -> int {
-    return (nl_regex_find regex text)
+pub fn find(regex: Regex, text: string) -> int {
+    let mut out: int = 0
+    unsafe {
+        set out (nl_regex_find regex text)
+    }
+    return out
 }
 
-pub fn find_all(regex: opaque, text: string) -> array<int> {
-    return (nl_regex_find_all regex text)
+pub fn find_all(regex: Regex, text: string) -> array<int> {
+    let mut out: array<int> = []
+    unsafe {
+        set out (nl_regex_find_all regex text)
+    }
+    return out
 }
 
-pub fn groups(regex: opaque, text: string) -> array<string> {
-    return (nl_regex_groups regex text)
+pub fn groups(regex: Regex, text: string) -> array<string> {
+    let mut out: array<string> = []
+    unsafe {
+        set out (nl_regex_groups regex text)
+    }
+    return out
 }
 
-pub fn replace(regex: opaque, text: string, replacement: string) -> string {
-    return (nl_regex_replace regex text replacement)
+pub fn replace(regex: Regex, text: string, replacement: string) -> string {
+    let mut out: string = ""
+    unsafe {
+        set out (nl_regex_replace regex text replacement)
+    }
+    return out
 }
 
-pub fn replace_all(regex: opaque, text: string, replacement: string) -> string {
-    return (nl_regex_replace_all regex text replacement)
+pub fn replace_all(regex: Regex, text: string, replacement: string) -> string {
+    let mut out: string = ""
+    unsafe {
+        set out (nl_regex_replace_all regex text replacement)
+    }
+    return out
 }
 
-pub fn split(regex: opaque, text: string) -> array<string> {
-    return (nl_regex_split regex text)
+pub fn split(regex: Regex, text: string) -> array<string> {
+    let mut out: array<string> = []
+    unsafe {
+        set out (nl_regex_split regex text)
+    }
+    return out
 }
 
-pub fn free(regex: opaque) -> void {
-    (nl_regex_free regex)
+pub fn free(regex: Regex) -> void {
+    unsafe {
+        (nl_regex_free regex)
+    }
 }
 
-// One-shot convenience functions (compile, use, free in one call)
+# One-shot convenience functions (compile, use, free in one call)
 
 pub fn quick_match(pattern: string, text: string) -> bool {
-    let regex: opaque = (compile pattern)
-    if (== regex (cast 0 opaque)) {
+    let regex: Regex = (compile pattern)
+    if (is_null regex) {
         return false
     }
     let result: bool = (matches regex text)
@@ -84,9 +129,14 @@ pub fn quick_match(pattern: string, text: string) -> bool {
     return result
 }
 
+shadow quick_match {
+    assert (quick_match "a.c" "abc")
+    assert (not (quick_match "a.c" "ac"))
+}
+
 pub fn quick_find(pattern: string, text: string) -> int {
-    let regex: opaque = (compile pattern)
-    if (== regex (cast 0 opaque)) {
+    let regex: Regex = (compile pattern)
+    if (is_null regex) {
         return (- 1)
     }
     let result: int = (find regex text)
@@ -94,9 +144,14 @@ pub fn quick_find(pattern: string, text: string) -> int {
     return result
 }
 
+shadow quick_find {
+    assert (== (quick_find "b" "abc") 1)
+    assert (== (quick_find "z" "abc") (- 1))
+}
+
 pub fn quick_replace(pattern: string, text: string, replacement: string) -> string {
-    let regex: opaque = (compile pattern)
-    if (== regex (cast 0 opaque)) {
+    let regex: Regex = (compile pattern)
+    if (is_null regex) {
         return text
     }
     let result: string = (replace regex text replacement)
@@ -104,9 +159,13 @@ pub fn quick_replace(pattern: string, text: string, replacement: string) -> stri
     return result
 }
 
+shadow quick_replace {
+    assert (== (quick_replace "b" "abc" "X") "aXc")
+}
+
 pub fn quick_split(pattern: string, text: string) -> array<string> {
-    let regex: opaque = (compile pattern)
-    if (== regex (cast 0 opaque)) {
+    let regex: Regex = (compile pattern)
+    if (is_null regex) {
         return []
     }
     let result: array<string> = (split regex text)
@@ -114,3 +173,85 @@ pub fn quick_split(pattern: string, text: string) -> array<string> {
     return result
 }
 
+shadow quick_split {
+    let parts: array<string> = (quick_split "[,;]" "a,b;c")
+    assert (== (array_length parts) 3)
+    assert (== (array_get parts 0) "a")
+    assert (== (array_get parts 1) "b")
+    assert (== (array_get parts 2) "c")
+}
+
+/* Backwards-compatible name used by some tests/examples */
+pub fn regex_split(pattern: string, text: string) -> array<string> {
+    return (quick_split pattern text)
+}
+
+shadow regex_split {
+    let parts: array<string> = (regex_split "[,;]" "a,b;c")
+    assert (== (array_length parts) 3)
+}
+
+# Added regression + completeness shadows (examples are stress tests)
+
+shadow compile {
+    let r: Regex = (compile "a.c")
+    assert (not (is_null r))
+    (free r)
+}
+
+shadow matches {
+    let r: Regex = (compile "a.c")
+    assert (matches r "abc")
+    assert (not (matches r "ac"))
+    (free r)
+}
+
+shadow find {
+    let r: Regex = (compile "b")
+    assert (== (find r "abc") 1)
+    (free r)
+}
+
+shadow find_all {
+    let r: Regex = (compile "b")
+    let xs: array<int> = (find_all r "abbb")
+    assert (>= (array_length xs) 1)
+    (free r)
+}
+
+shadow groups {
+    let r: Regex = (compile "(a)(b)")
+    let gs: array<string> = (groups r "ab")
+    assert (>= (array_length gs) 3)
+    assert (== (array_get gs 0) "ab")
+    assert (== (array_get gs 1) "a")
+    assert (== (array_get gs 2) "b")
+    (free r)
+}
+
+shadow replace {
+    let r: Regex = (compile "b")
+    assert (== (replace r "abc" "X") "aXc")
+    (free r)
+}
+
+shadow replace_all {
+    let r: Regex = (compile "b")
+    assert (== (replace_all r "abbb" "X") "aXXX")
+    (free r)
+}
+
+shadow split {
+    let r: Regex = (compile "[,;]")
+    let parts: array<string> = (split r "a,b;c")
+    assert (== (array_length parts) 3)
+    assert (== (array_get parts 0) "a")
+    assert (== (array_get parts 1) "b")
+    assert (== (array_get parts 2) "c")
+    (free r)
+}
+
+shadow free {
+    let r: Regex = (compile "a")
+    (free r)
+}

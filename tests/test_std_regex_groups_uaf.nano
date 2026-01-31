@@ -1,0 +1,29 @@
+from "std/regex/regex.nano" import compile, groups, free, Regex
+
+fn regex_groups_uaf_regression() -> int {
+    let re: Regex = (compile "(a)(b)")
+    if (== re (null_opaque)) {
+        return 1
+    }
+
+    let gs: array<string> = (groups re "ab")
+    assert (>= (array_length gs) 3)
+    assert (== (at gs 0) "ab")
+    assert (== (at gs 1) "a")
+    assert (== (at gs 2) "b")
+
+    (free re)
+    return 0
+}
+
+shadow regex_groups_uaf_regression {
+    assert (== (regex_groups_uaf_regression) 0)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

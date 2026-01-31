@@ -1,0 +1,57 @@
+import "examples/opl/opl_parser.nano"
+import "examples/opl/opl_lexer.nano"
+
+module "modules/std/fs.nano"
+module "modules/std/json/json.nano"
+
+fn main() -> int {
+    let src: string = (read "examples/opl/bundle/EXAMPLES.opl")
+    let r: OplParseResult = (opl_parse src)
+    if (not r.ok) {
+        (println (+ "PARSE_ERROR " r.error.code))
+        (println r.error.msg)
+        return 1
+    } else {}
+
+    let got: string = (stringify r.ast)
+
+    let exp_src: string = (read "examples/opl/bundle/EXAMPLES.expected_ast.json")
+    let exp_json: Json = (parse exp_src)
+    let exp: string = (stringify exp_json)
+
+    if (== got exp) {
+        (free exp_json)
+        (free r.ast)
+        return 0
+    } else {
+        (println "AST_MISMATCH")
+        (println got)
+        (println exp)
+
+        let lr: OplTokensResult = (opl_lex src)
+        if lr.ok {
+            let mut i: int = 0
+            while (< i 20) {
+                if (< i (array_length lr.kinds)) {
+                    let start: int = (at lr.text_starts i)
+                    let ln: int = (at lr.text_lens i)
+                    let txt: string = (+ "" (str_substring lr.text_buf start ln))
+                    (println (+ (int_to_string (at lr.kinds i)) (+ ":" txt)))
+                } else {
+                    (println "<eof>")
+                }
+                set i (+ i 1)
+            }
+        } else {
+            (println (+ "LEX_ERR " lr.error.code))
+        }
+
+        (free exp_json)
+        (free r.ast)
+        return 2
+    }
+}
+
+shadow main {
+    assert (== (main) 0)
+}

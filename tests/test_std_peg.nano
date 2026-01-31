@@ -29,5 +29,5 @@ shadow peg_choice {
 shadow peg_class_plus_capture {
     let caps: array<string> = (quick_captures "(\"a\" [0-9]+) \"z\"" "a123z")
     assert (== (array_length caps) 1)
-    assert (str_equals (at caps 0) "a123")
+    assert (== (at caps 0) "a123")
 }

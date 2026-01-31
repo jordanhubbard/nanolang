@@ -1,0 +1,9 @@
+fn main() -> int {
+    (println "Hello from self-hosted NanoLang!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

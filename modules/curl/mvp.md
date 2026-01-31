@@ -1,0 +1,18 @@
+# curl module MVP
+
+<!--nl-snippet {"name":"module_curl_mvp","check":false}-->
+```nano
+from "modules/curl/curl.nano" import curl_global_init_safe, curl_global_cleanup_safe, curl_easy_init_safe, curl_easy_cleanup_safe
+
+fn main() -> int {
+    let _code: int = (curl_global_init_safe)
+    let handle: int = (curl_easy_init_safe)
+    if (!= handle 0) {
+        (curl_easy_cleanup_safe handle)
+    }
+    (curl_global_cleanup_safe)
+    return 0
+}
+
+shadow main { assert true }
+```

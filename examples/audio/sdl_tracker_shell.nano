@@ -1,0 +1,963 @@
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_mixer/sdl_mixer.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+module "modules/filesystem/filesystem.nano"
+module "modules/ui_widgets/ui_widgets.nano"
+module "modules/audio_viz/audio_viz.nano"
+module "modules/pt2_module/pt2_module.nano"
+
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+let WINDOW_WIDTH: int = 1280
+let WINDOW_HEIGHT: int = 720
+
+let PANEL_MARGIN: int = 12
+let TOPBAR_H: int = 26
+let LEFT_W: int = 310
+
+let LIST_ITEM_H: int = 22
+
+
+# --- PT-ish palette ---
+let PT_BG_R: int = 10
+let PT_BG_G: int = 20
+let PT_BG_B: int = 60
+
+let PT_PANEL_R: int = 18
+let PT_PANEL_G: int = 28
+let PT_PANEL_B: int = 76
+
+let PT_INNER_R: int = 10
+let PT_INNER_G: int = 16
+let PT_INNER_B: int = 44
+
+let PT_BEVEL_LIGHT_R: int = 90
+let PT_BEVEL_LIGHT_G: int = 120
+let PT_BEVEL_LIGHT_B: int = 210
+
+let PT_BEVEL_DARK_R: int = 6
+let PT_BEVEL_DARK_G: int = 10
+let PT_BEVEL_DARK_B: int = 28
+
+fn clamp_int(v: int, lo: int, hi: int) -> int {
+    if (< v lo) {
+        return lo
+    } else {
+        if (> v hi) {
+            return hi
+        } else {
+            return v
+        }
+    }
+}
+
+shadow clamp_int {
+    assert (== (clamp_int 5 0 10) 5)
+    assert (== (clamp_int (- 1) 0 10) 0)
+    assert (== (clamp_int 99 0 10) 10)
+}
+
+fn pt_fill(renderer: SDL_Renderer, x: int, y: int, w: int, h: int, r: int, g: int, b: int) -> void {
+    (SDL_SetRenderDrawColor renderer r g b 255) 
+    (nl_sdl_render_fill_rect renderer x y w h) 
+}
+
+shadow pt_fill {
+    # SKIPPED: uses extern SDL functions
+}
+
+fn pt_panel(renderer: SDL_Renderer, x: int, y: int, w: int, h: int) -> void {
+    (pt_fill renderer x y w h PT_PANEL_R PT_PANEL_G PT_PANEL_B)
+
+    # Bevel (light top/left, dark bottom/right)
+    (SDL_SetRenderDrawColor renderer PT_BEVEL_LIGHT_R PT_BEVEL_LIGHT_G PT_BEVEL_LIGHT_B 255) 
+    (SDL_RenderDrawLine renderer x y (+ x (- w 1)) y) 
+    (SDL_RenderDrawLine renderer x y x (+ y (- h 1))) 
+
+    (SDL_SetRenderDrawColor renderer PT_BEVEL_DARK_R PT_BEVEL_DARK_G PT_BEVEL_DARK_B 255) 
+    (SDL_RenderDrawLine renderer x (+ y (- h 1)) (+ x (- w 1)) (+ y (- h 1))) 
+    (SDL_RenderDrawLine renderer (+ x (- w 1)) y (+ x (- w 1)) (+ y (- h 1))) 
+}
+
+shadow pt_panel {
+    # SKIPPED: uses extern SDL functions
+}
+
+fn build_browser_items(current_dir: string) -> array<string> {
+    let mut out: array<string> = []
+
+    let parent: string = (nl_fs_parent_dir current_dir)
+    if (!= parent current_dir) {
+        set out (array_push out "[..]")
+    } else {}
+
+    let dirs: array<string> = (nl_fs_list_dirs current_dir)
+    let files: array<string> = (nl_fs_list_files_ci current_dir ".mod")
+
+    let mut i: int = 0
+    while (< i (array_length dirs)) {
+        let name: string = (at dirs i)
+        set out (array_push out (+ "[D] " name))
+        set i (+ i 1)
+    }
+
+    set i 0
+    while (< i (array_length files)) {
+        let name: string = (at files i)
+        set out (array_push out name)
+        set i (+ i 1)
+    }
+
+    return out
+}
+
+fn hex_digit(n: int) -> string {
+    if (== n 0) { return "0" } else {}
+    if (== n 1) { return "1" } else {}
+    if (== n 2) { return "2" } else {}
+    if (== n 3) { return "3" } else {}
+    if (== n 4) { return "4" } else {}
+    if (== n 5) { return "5" } else {}
+    if (== n 6) { return "6" } else {}
+    if (== n 7) { return "7" } else {}
+    if (== n 8) { return "8" } else {}
+    if (== n 9) { return "9" } else {}
+    if (== n 10) { return "A" } else {}
+    if (== n 11) { return "B" } else {}
+    if (== n 12) { return "C" } else {}
+    if (== n 13) { return "D" } else {}
+    if (== n 14) { return "E" } else {}
+    if (== n 15) { return "F" } else {}
+    return "?"
+}
+
+shadow hex_digit {
+    assert (== (hex_digit 0) "0")
+    assert (== (hex_digit 5) "5")
+    assert (== (hex_digit 9) "9")
+    assert (== (hex_digit 10) "A")
+    assert (== (hex_digit 15) "F")
+    assert (== (hex_digit 16) "?")
+}
+
+fn byte_to_hex(b: int) -> string {
+    let hi: int = (/ b 16)
+    let lo: int = (% b 16)
+    return (+ (hex_digit hi) (hex_digit lo))
+}
+
+shadow byte_to_hex {
+    assert (== (byte_to_hex 0) "00")
+    assert (== (byte_to_hex 15) "0F")
+    assert (== (byte_to_hex 16) "10")
+    assert (== (byte_to_hex 255) "FF")
+    assert (== (byte_to_hex 171) "AB")
+}
+
+# Unused constant - commented out to avoid transpiler limitation
+# let NOTE_NAMES: array<string> = ["C-","C#","D-","D#","E-","F-","F#","G-","G#","A-","A#","B-"]
+
+fn period_to_note(per: int) -> string {
+    if (== per 0) { return "---" } else {}
+    if (== per 1712) { return "C-1" } else {}
+    if (== per 1616) { return "C#1" } else {}
+    if (== per 1525) { return "D-1" } else {}
+    if (== per 1440) { return "D#1" } else {}
+    if (== per 1357) { return "E-1" } else {}
+    if (== per 1281) { return "F-1" } else {}
+    if (== per 1209) { return "F#1" } else {}
+    if (== per 1141) { return "G-1" } else {}
+    if (== per 1077) { return "G#1" } else {}
+    if (== per 1017) { return "A-1" } else {}
+    if (== per 961) { return "A#1" } else {}
+    if (== per 907) { return "B-1" } else {}
+    if (== per 856) { return "C-2" } else {}
+    if (== per 808) { return "C#2" } else {}
+    if (== per 762) { return "D-2" } else {}
+    if (== per 720) { return "D#2" } else {}
+    if (== per 678) { return "E-2" } else {}
+    if (== per 640) { return "F-2" } else {}
+    if (== per 604) { return "F#2" } else {}
+    if (== per 570) { return "G-2" } else {}
+    if (== per 538) { return "G#2" } else {}
+    if (== per 508) { return "A-2" } else {}
+    if (== per 480) { return "A#2" } else {}
+    if (== per 453) { return "B-2" } else {}
+    if (== per 428) { return "C-3" } else {}
+    if (== per 404) { return "C#3" } else {}
+    if (== per 381) { return "D-3" } else {}
+    if (== per 360) { return "D#3" } else {}
+    if (== per 339) { return "E-3" } else {}
+    if (== per 320) { return "F-3" } else {}
+    if (== per 302) { return "F#3" } else {}
+    if (== per 285) { return "G-3" } else {}
+    if (== per 269) { return "G#3" } else {}
+    if (== per 254) { return "A-3" } else {}
+    if (== per 240) { return "A#3" } else {}
+    if (== per 226) { return "B-3" } else {}
+    if (== per 214) { return "C-4" } else {}
+    return "???"
+}
+
+shadow period_to_note {
+    assert (== (period_to_note 0) "---")
+    assert (== (period_to_note 1712) "C-1")
+    assert (== (period_to_note 428) "C-3")
+}
+
+# Visualization rendering functions
+fn draw_waveform_oscilloscope(renderer: SDL_Renderer, x: int, y: int, w: int, h: int, _frame: int) -> void {
+    let waveform_size: int = (nl_audio_viz_get_waveform_size)
+    let mut i: int = 0
+    let waveform_step: int = (/ waveform_size w)
+    
+    # Draw waveform with glow effect
+    (SDL_SetRenderDrawColor renderer 0 255 255 200)   # Cyan
+    while (< i w) {
+        let sample_idx: int = (* i waveform_step)
+        # Mix left and right channels for full audio representation
+        let left: float = (nl_audio_viz_get_waveform_sample 0 sample_idx)
+        let right: float = (nl_audio_viz_get_waveform_sample 1 sample_idx)
+        let mixed: float = (* (+ left right) 0.5)
+        let py: int = (+ y (+ (/ h 2) (cast_int (* mixed (cast_float (/ h 3))))))
+        
+        # Draw thicker line for visibility
+        (SDL_RenderDrawPoint renderer (+ x i) py) 
+        (SDL_RenderDrawPoint renderer (+ x i) (+ py 1)) 
+        set i (+ i 1)
+    }
+}
+
+shadow draw_waveform_oscilloscope { assert true }
+
+fn draw_viz_circular(renderer: SDL_Renderer, center_x: int, center_y: int, waveform_size: int, frame: int) -> void {
+    let mut angle: int = 0
+    while (< angle 360) {
+        let idx: int = (* angle 2)
+        if (< idx waveform_size) {
+            let left_sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
+            let right_sample: float = (nl_audio_viz_get_waveform_sample 1 idx)
+            let amplitude: float = (+ (abs left_sample) (abs right_sample))
+            let radius: int = (+ 50 (cast_int (* amplitude 60.0)))
+            
+            let angle_float: float = (cast_float angle)
+            let rad: float = (* angle_float 0.01745)
+            let x: int = (+ center_x (cast_int (* (cast_float radius) (cos rad))))
+            let y: int = (+ center_y (cast_int (* (cast_float radius) (sin rad))))
+            
+            let color_offset: int = (+ angle frame)
+            let r: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float color_offset) 0.05)))))
+            let g: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 120)) 0.05)))))
+            let b: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 240)) 0.05)))))
+            
+            (SDL_SetRenderDrawColor renderer r g b 255) 
+            (SDL_RenderDrawPoint renderer x y) 
+            (SDL_RenderDrawPoint renderer (+ x 1) y) 
+        } else {}
+        set angle (+ angle 3)
+    }
+}
+
+shadow draw_viz_circular { assert true }
+
+fn draw_viz_bars(renderer: SDL_Renderer, x: int, y: int, w: int, h: int, waveform_size: int, frame: int) -> void {
+    let num_bars: int = 48
+    let bar_width: int = (/ w num_bars)
+    let mut bar: int = 0
+    while (< bar num_bars) {
+        let idx: int = (* bar (/ waveform_size num_bars))
+        let left_sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
+        let right_sample: float = (nl_audio_viz_get_waveform_sample 1 idx)
+        let amplitude: float = (+ (abs left_sample) (abs right_sample))
+        let bar_h: int = (+ 10 (cast_int (* amplitude (cast_float (- h 20)))))
+        
+        let bar_x: int = (+ x (* bar bar_width))
+        let bar_y: int = (- (+ y h) bar_h)
+        
+        # Color based on height
+        let color_val: int = (+ bar frame)
+        let r: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float color_val) 0.1)))))
+        let g: int = (+ 128 (cast_int (* 127.0 (cos (* (cast_float color_val) 0.08)))))
+        let b: int = 255
+        
+        (SDL_SetRenderDrawColor renderer r g b 255) 
+        (nl_sdl_render_fill_rect renderer bar_x bar_y bar_width bar_h) 
+        set bar (+ bar 1)
+    }
+}
+
+shadow draw_viz_bars { assert true }
+
+fn draw_viz_spiral(renderer: SDL_Renderer, center_x: int, center_y: int, waveform_size: int, frame: int) -> void {
+    let mut angle: int = 0
+    while (< angle 540) {
+        let idx: int = (% (* angle 3) waveform_size)
+        let sample: float = (nl_audio_viz_get_waveform_sample 0 idx)
+        let amplitude: float = (abs sample)
+        
+        # Spiral grows outward
+        let spiral_radius: float = (+ 20.0 (* 0.15 (cast_float angle)))
+        let spiral_amp: float = (+ spiral_radius (* amplitude 50.0))
+        
+        let angle_float: float = (cast_float angle)
+        let rad: float = (* angle_float 0.01745)
+        let x: int = (+ center_x (cast_int (* spiral_amp (cos rad))))
+        let y: int = (+ center_y (cast_int (* spiral_amp (sin rad))))
+        
+        let color_offset: int = (+ angle frame)
+        let r: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float color_offset) 0.03)))))
+        let g: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 90)) 0.03)))))
+        let b: int = (+ 128 (cast_int (* 127.0 (sin (* (cast_float (+ color_offset 180)) 0.03)))))
+        
+        (SDL_SetRenderDrawColor renderer r g b 255) 
+        (SDL_RenderDrawPoint renderer x y) 
+        (SDL_RenderDrawPoint renderer (+ x 1) y) 
+        (SDL_RenderDrawPoint renderer x (+ y 1)) 
+        set angle (+ angle 5)
+    }
+}
+
+shadow draw_viz_spiral { assert true }
+
+fn main() -> int {
+    let mut current_dir: string = "."
+    let argc: int = (get_argc)
+    if (> argc 1) {
+        set current_dir (get_argv 1)
+    } else {}
+
+    (SDL_Init (+ SDL_INIT_VIDEO SDL_INIT_AUDIO)) 
+    (Mix_Init 2) 
+    (Mix_OpenAudio 44100 32784 2 2048) 
+    
+    # Initialize audio visualization
+    (nl_audio_viz_init 32784 2)   # MIX_DEFAULT_FORMAT, stereo
+
+    let window: SDL_Window = (SDL_CreateWindow "NANOLANG PROTRACKER CLONE" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+
+    (TTF_Init) 
+    let font: TTF_Font = (nl_open_font_portable "Arial" 11)
+    let title_font: TTF_Font = (nl_open_font_portable "Arial" 14)
+
+    let mut browser_items: array<string> = (build_browser_items current_dir)
+    let mut selected_idx: int = 0
+    let mut scroll_offset: int = 0
+    
+    # Double-click detection for directory navigation
+    let mut last_click_time: int = 0
+    let mut last_click_idx: int = -1
+    let double_click_threshold_ms: int = 500
+
+    let mut music: Mix_Music = (Mix_LoadMUS "")
+    let mut has_music: bool = false
+    let mut loaded_path: string = ""
+
+    let mut volume: float = 0.8
+
+    let mut mod_loaded: bool = false
+    let mut mod_name: string = ""
+    let mut song_length: int = 0
+    let mut pattern_count: int = 0
+
+    let mut pos_order: int = 0
+    let mut pos_row: int = 0
+    let mut pos_speed: int = 6
+    let mut pos_bpm: int = 125
+    let mut pos_accum_ms: float = 0.0
+    let mut play_last_update_ms: int = 0
+
+    let mut viz_mode: int = 0  # 0=Circular, 1=Bars, 2=Spiral
+    let num_viz_modes: int = 3
+    let mut viz_frame: int = 0
+
+    let mut running: bool = true
+    while running {
+        # Update mouse state FIRST (required for UI widgets to work!)
+        (nl_ui_update_mouse_state) 
+        
+        # Poll events
+        let event_quit: int = (nl_sdl_poll_event_quit)
+        if (== event_quit 1) { set running false } else {}
+
+        let key: int = (nl_sdl_poll_keypress)
+        let mouse_wheel: int = (nl_sdl_poll_mouse_wheel)
+
+        if (> mouse_wheel 0) {
+            set selected_idx (clamp_int (- selected_idx mouse_wheel) 0 (- (array_length browser_items) 1))
+        } else {
+            if (< mouse_wheel 0) {
+                set selected_idx (clamp_int (- selected_idx mouse_wheel) 0 (- (array_length browser_items) 1))
+            } else {}
+        }
+
+        if (> key -1) {
+            # Up
+            if (== key 82) {
+                set selected_idx (clamp_int (- selected_idx 1) 0 (- (array_length browser_items) 1))
+            } else {
+                # Down
+                if (== key 81) {
+                    set selected_idx (clamp_int (+ selected_idx 1) 0 (- (array_length browser_items) 1))
+                } else {
+                    # Tab - cycle visualization mode
+                    if (== key 43) {
+                        set viz_mode (% (+ viz_mode 1) num_viz_modes)
+                    } else {
+                        # Enter
+                        if (== key 40) {
+                                let parent: string = (nl_fs_parent_dir current_dir)
+                                let show_parent: bool = (!= parent current_dir)
+                                let dirs: array<string> = (nl_fs_list_dirs current_dir)
+                                let files: array<string> = (nl_fs_list_files_ci current_dir ".mod")
+                                let dir_count: int = (array_length dirs)
+                                let file_count: int = (array_length files)
+
+                                let idx: int = selected_idx
+                                if (and show_parent (== idx 0)) {
+                                    set current_dir parent
+                                    set browser_items (build_browser_items current_dir)
+                                    set selected_idx 0
+                                    set scroll_offset 0
+                                } else {
+                                    let mut base: int = 0
+                                    if show_parent { set base 1 } else {}
+                                    if (< idx (+ base dir_count)) {
+                                        let dir_idx: int = (- idx base)
+                                        let dir_name: string = (at dirs dir_idx)
+                                        set current_dir (nl_fs_join_path current_dir dir_name)
+                                        set browser_items (build_browser_items current_dir)
+                                        set selected_idx 0
+                                        set scroll_offset 0
+                                    } else {
+                                        let file_idx: int = (- idx (+ base dir_count))
+                                        if (and (>= file_idx 0) (< file_idx file_count)) {
+                                            let file_name: string = (at files file_idx)
+                                            let full_path: string = (nl_fs_join_path current_dir file_name)
+
+                                            if has_music {
+                                                (Mix_HaltMusic) 
+                                                (Mix_FreeMusic music) 
+                                                set has_music false
+                                            } else {}
+
+                                            (pt2_module_free) 
+                                            set mod_loaded false
+                                            if (== (pt2_module_load full_path) 0) {
+                                                set mod_loaded true
+                                                set mod_name (pt2_module_get_name)
+                                                set song_length (pt2_module_get_song_length)
+                                                set pattern_count (pt2_module_get_pattern_count)
+                                                set pos_order 0
+                                                set pos_row 0
+                                                set pos_speed 6
+                                                set pos_bpm 125
+                                                set pos_accum_ms 0.0
+                                            } else {}
+
+                                            set loaded_path full_path
+                                            set music (Mix_LoadMUS loaded_path) 
+                                            if (!= music 0) {
+                                                set has_music true
+                                                (Mix_VolumeMusic (cast_int (* volume 128.0))) 
+                                                (Mix_PlayMusic music -1) 
+                                                set play_last_update_ms (SDL_GetTicks)
+                                            } else {
+                                                set has_music false
+                                            }
+                                        } else {}
+                                    }
+                                }
+                            } else {
+                                # Space: play/pause
+                                if (== key 44) {
+                                    if has_music {
+                                        let mut paused: int = 0
+                                        set paused (Mix_PausedMusic) 
+                                        if (== paused 1) {
+                                            (Mix_ResumeMusic) 
+                                            set play_last_update_ms (SDL_GetTicks)
+                                        } else {
+                                            let mut playing: int = 0
+                                            set playing (Mix_PlayingMusic) 
+                                            if (== playing 1) {
+                                                (Mix_PauseMusic) 
+                                            } else {
+                                                set pos_order 0
+                                                set pos_row 0
+                                                set pos_accum_ms 0.0
+                                                (Mix_PlayMusic music -1) 
+                                                set play_last_update_ms (SDL_GetTicks)
+                                            }
+                                        }
+                                    } else {}
+                                } else {
+                                    # S: stop
+                                    if (== key 22) {
+                                        if has_music {
+                                            (Mix_HaltMusic) 
+                                            set pos_order 0
+                                            set pos_row 0
+                                            set pos_accum_ms 0.0
+                                            set play_last_update_ms (SDL_GetTicks)
+                                        } else {}
+                                    } else {}
+                                }
+                            }
+                        }
+                    }
+                }
+        } else {}
+
+        # Keep selection visible
+        let visible_h: int = (- (- WINDOW_HEIGHT TOPBAR_H) (* PANEL_MARGIN 2))
+        let list_h: int = (- visible_h 12)
+        let visible_count: int = (/ list_h LIST_ITEM_H)
+        let item_count: int = (array_length browser_items)
+        let mut max_scroll: int = (- item_count visible_count)
+        if (< max_scroll 0) { set max_scroll 0 } else {}
+
+        if (< selected_idx scroll_offset) {
+            set scroll_offset selected_idx
+        } else {
+            if (> selected_idx (+ scroll_offset (- visible_count 1))) {
+                set scroll_offset (clamp_int (- selected_idx (- visible_count 1)) 0 max_scroll)
+            } else {}
+        }
+        set scroll_offset (clamp_int scroll_offset 0 max_scroll)
+
+        # Update position tracker while playing (based on module pattern data)
+        let now_ms: int = (SDL_GetTicks)
+        let mut playing: int = 0
+        set playing (Mix_PlayingMusic) 
+        if (and has_music (== playing 1)) {
+            let mut paused: int = 0
+            set paused (Mix_PausedMusic) 
+            if (and (== paused 0) mod_loaded) {
+                let dt_ms: int = (- now_ms play_last_update_ms)
+                if (> dt_ms 0) {
+                    set pos_accum_ms (+ pos_accum_ms (cast_float dt_ms))
+                } else {}
+
+                let tick_ms: float = (/ 2500.0 (cast_float pos_bpm))
+                let row_ms: float = (* tick_ms (cast_float pos_speed))
+
+                while (>= pos_accum_ms row_ms) {
+                    set pos_accum_ms (- pos_accum_ms row_ms)
+
+                    let pat: int = (pt2_module_get_pattern_table pos_order)
+
+                    # Effects on current row
+                    let mut new_speed: int = -1
+                    let mut new_bpm: int = -1
+                    let mut jump_order: int = -1
+                    let mut break_row: int = -1
+
+                    let mut ch: int = 0
+                    while (< ch 4) {
+                        let cmd: int = (pt2_module_get_note_command pat pos_row ch)
+                        let par: int = (pt2_module_get_note_param pat pos_row ch)
+
+                        # Fxx: set speed (1..31) or BPM (32..255)
+                        if (== cmd 15) {
+                            if (and (> par 0) (< par 32)) { set new_speed par } else {}
+                            if (>= par 32) { set new_bpm par } else {}
+                        } else {}
+
+                        # Bxx: position jump
+                        if (== cmd 11) { set jump_order par } else {}
+
+                        # Dxx: pattern break (BCD)
+                        if (== cmd 13) {
+                            let tens: int = (/ par 16)
+                            let ones: int = (% par 16)
+                            set break_row (+ (* tens 10) ones)
+                        } else {}
+
+                        set ch (+ ch 1)
+                    }
+
+                    if (> new_speed 0) { set pos_speed new_speed } else {}
+                    if (> new_bpm 0) { set pos_bpm new_bpm } else {}
+
+                    # Advance row/order
+                    if (>= break_row 0) {
+                        set pos_order (+ pos_order 1)
+                        set pos_row (clamp_int break_row 0 63)
+                    } else {
+                        if (>= jump_order 0) {
+                            set pos_order jump_order
+                            set pos_row 0
+                        } else {
+                            set pos_row (+ pos_row 1)
+                        }
+                    }
+
+                    if (>= pos_row 64) {
+                        set pos_row 0
+                        set pos_order (+ pos_order 1)
+                    } else {}
+
+                    if (>= pos_order song_length) {
+                        set pos_order 0
+                        set pos_row 0
+                    } else {}
+                }
+            } else {}
+        } else {}
+
+        set play_last_update_ms now_ms
+
+        # --- Render ---
+        (SDL_SetRenderDrawColor renderer PT_BG_R PT_BG_G PT_BG_B 255) 
+        (SDL_RenderClear renderer) 
+
+        # Top bar
+        (pt_fill renderer 0 0 WINDOW_WIDTH TOPBAR_H 30 50 120)
+        (nl_draw_text_blended renderer title_font "NANOLANG PROTRACKER CLONE" 12 4 240 240 255 255) 
+
+        # Left file browser
+        let left_x: int = PANEL_MARGIN
+        let left_y: int = (+ TOPBAR_H PANEL_MARGIN)
+        let left_h: int = (- (- WINDOW_HEIGHT TOPBAR_H) (* PANEL_MARGIN 2))
+        (pt_panel renderer left_x left_y LEFT_W left_h)
+
+        (nl_ui_label renderer font "Browser" (+ left_x 10) (+ left_y 8) 230 230 255 255) 
+        (nl_ui_label renderer font (+ "Dir: " current_dir) (+ left_x 10) (+ left_y 28) 180 180 220 255) 
+
+        let list_x: int = (+ left_x 10)
+        let list_y: int = (+ left_y 52)
+        let list_w: int = (- LEFT_W 20)
+
+        # List backdrop
+        (pt_fill renderer list_x list_y list_w (- left_h 62) PT_INNER_R PT_INNER_G PT_INNER_B)
+
+        let clicked: int = (nl_ui_scrollable_list renderer font
+                                                 browser_items (array_length browser_items)
+                                                 list_x list_y list_w (- left_h 62)
+                                                 scroll_offset selected_idx)
+        if (>= clicked 0) {
+            # Detect double-click for mouse-based directory navigation
+            let current_time: int = (SDL_GetTicks)
+            let is_double_click: bool = (and (== clicked last_click_idx) 
+                                             (< (- current_time last_click_time) double_click_threshold_ms))
+            
+            if is_double_click {
+                # Double-click detected - navigate into directory or load file
+                let parent: string = (nl_fs_parent_dir current_dir)
+                let show_parent: bool = (!= parent current_dir)
+                let dirs: array<string> = (nl_fs_list_dirs current_dir)
+                let files: array<string> = (nl_fs_list_files_ci current_dir ".mod")
+                let dir_count: int = (array_length dirs)
+                let file_count: int = (array_length files)
+                
+                let idx: int = clicked
+                if (and show_parent (== idx 0)) {
+                    # Double-clicked on ".." - go up
+                    set current_dir parent
+                    set browser_items (build_browser_items current_dir)
+                    set selected_idx 0
+                    set scroll_offset 0
+                } else {
+                    let mut base: int = 0
+                    if show_parent { set base 1 } else {}
+                    if (< idx (+ base dir_count)) {
+                        # Double-clicked on directory - navigate into it
+                        let dir_idx: int = (- idx base)
+                        let dir_name: string = (at dirs dir_idx)
+                        set current_dir (nl_fs_join_path current_dir dir_name)
+                        set browser_items (build_browser_items current_dir)
+                        set selected_idx 0
+                        set scroll_offset 0
+                    } else {
+                        # Double-clicked on file - load it
+                        let file_idx: int = (- idx (+ base dir_count))
+                        if (and (>= file_idx 0) (< file_idx file_count)) {
+                            let file_name: string = (at files file_idx)
+                            let full_path: string = (nl_fs_join_path current_dir file_name)
+                            
+                            if has_music {
+                                (Mix_HaltMusic) 
+                                (Mix_FreeMusic music) 
+                                set has_music false
+                            } else {}
+                            
+                            (pt2_module_free) 
+                            set mod_loaded false
+                            if (== (pt2_module_load full_path) 0) {
+                                set mod_loaded true
+                                set mod_name (pt2_module_get_name)
+                                set song_length (pt2_module_get_song_length)
+                                set pattern_count (pt2_module_get_pattern_count)
+                                set pos_order 0
+                                set pos_row 0
+                                set pos_speed 6
+                                set pos_bpm 125
+                                set pos_accum_ms 0.0
+                                
+                                # Load music into SDL_mixer for playback
+                                set loaded_path full_path
+                                set music (Mix_LoadMUS loaded_path) 
+                                if (!= music 0) {
+                                    set has_music true
+                                    (Mix_VolumeMusic (cast_int (* volume 128.0))) 
+                                    (Mix_PlayMusic music -1) 
+                                    set play_last_update_ms (SDL_GetTicks)
+                                } else {
+                                    set has_music false
+                                }
+                                
+                                (println (+ "Loaded: " mod_name))
+                            } else {
+                                (println (+ "Failed to load MOD file: " full_path))
+                            }
+                        } else {}
+                    }
+                }
+                
+                # Reset double-click tracking after action
+                set last_click_idx -1
+                set last_click_time 0
+            } else {
+                # Single click - just update selection and track for double-click
+                set selected_idx clicked
+                set last_click_idx clicked
+                set last_click_time current_time
+            }
+        } else {}
+
+        # Right main area
+        let main_x: int = (+ (+ left_x LEFT_W) 12)
+        let main_y: int = left_y
+        let main_w: int = (- (- WINDOW_WIDTH main_x) PANEL_MARGIN)
+        let main_h: int = left_h
+        (pt_panel renderer main_x main_y main_w main_h)
+
+        (nl_ui_label renderer font "Player" (+ main_x 10) (+ main_y 8) 230 230 255 255) 
+        let mut status: string = "Stopped"
+        if has_music {
+            let mut playing: int = 0
+            set playing (Mix_PlayingMusic) 
+            if (== playing 1) {
+                let mut paused: int = 0
+                set paused (Mix_PausedMusic) 
+                if (== paused 1) { set status "Paused" } else { set status "Playing" }
+            } else {
+                set status "Stopped"
+            }
+        } else {
+            set status "No file loaded"
+        }
+
+        (nl_ui_label renderer font (+ "Status: " status) (+ main_x 10) (+ main_y 30) 200 200 240 255) 
+        if mod_loaded {
+            (nl_ui_label renderer font (+ "Song: " mod_name) (+ main_x 10) (+ main_y 52) 230 230 255 255) 
+            (nl_ui_label renderer font (+ "Len: " (int_to_string song_length)) (+ main_x 10) (+ main_y 72) 180 180 220 255) 
+            (nl_ui_label renderer font (+ "Patterns: " (int_to_string pattern_count)) (+ main_x 160) (+ main_y 72) 180 180 220 255) 
+        } else {
+            if (!= loaded_path "") {
+                (nl_ui_label renderer font (+ "File: " loaded_path) (+ main_x 10) (+ main_y 52) 180 180 220 255) 
+            } else {}
+        }
+
+        # Transport buttons
+        let btn_y: int = (+ main_y 94)
+        let play_clicked: int = (nl_ui_button renderer font "Play" (+ main_x 10) btn_y 70 28)
+        let pause_clicked: int = (nl_ui_button renderer font "Pause" (+ main_x 90) btn_y 70 28)
+        let stop_clicked: int = (nl_ui_button renderer font "Stop" (+ main_x 170) btn_y 70 28)
+
+        if (and (== play_clicked 1) has_music) {
+            set pos_order 0
+            set pos_row 0
+            set pos_accum_ms 0.0
+            (Mix_PlayMusic music -1) 
+            set play_last_update_ms (SDL_GetTicks)
+        } else {}
+        if (and (== pause_clicked 1) has_music) {
+            let mut paused: int = 0
+            set paused (Mix_PausedMusic) 
+            if (== paused 1) { unsafe { (Mix_ResumeMusic) } } else { unsafe { (Mix_PauseMusic) } }
+            set play_last_update_ms (SDL_GetTicks)
+        } else {}
+        if (and (== stop_clicked 1) has_music) {
+            (Mix_HaltMusic) 
+            set pos_order 0
+            set pos_row 0
+            set pos_accum_ms 0.0
+            set play_last_update_ms (SDL_GetTicks)
+        } else {}
+
+        # Volume
+        (nl_ui_label renderer font "Vol" (+ main_x 260) (+ main_y 100) 180 180 220 255) 
+        let new_vol: float = (nl_ui_slider renderer (+ main_x 300) (+ main_y 98) 160 22 volume)
+        if (!= new_vol volume) {
+            set volume new_vol
+            (Mix_VolumeMusic (cast_int (* volume 128.0))) 
+        } else {}
+
+        # Position + meters
+        (pt_fill renderer (+ main_x 10) (+ main_y 132) (- main_w 20) 100 PT_INNER_R PT_INNER_G PT_INNER_B)
+        (nl_ui_label renderer font "Position (read-only)" (+ main_x 18) (+ main_y 140) 220 220 255 255) 
+
+        let cur_pat: int = (pt2_module_get_pattern_table pos_order)
+        (nl_draw_text_blended renderer title_font (+ "ORD " (int_to_string pos_order)) (+ main_x 18) (+ main_y 162) 240 240 255 255) 
+        (nl_draw_text_blended renderer title_font (+ "PAT " (int_to_string cur_pat)) (+ main_x 150) (+ main_y 162) 240 240 255 255) 
+        (nl_draw_text_blended renderer title_font (+ "ROW " (int_to_string pos_row)) (+ main_x 280) (+ main_y 162) 240 240 255 255) 
+        (nl_ui_label renderer font (+ "SPD " (int_to_string pos_speed)) (+ main_x 410) (+ main_y 168) 180 180 220 255) 
+        (nl_ui_label renderer font (+ "BPM " (int_to_string pos_bpm)) (+ main_x 500) (+ main_y 168) 180 180 220 255) 
+
+        # 4-channel meters (improved)
+        let mut c: int = 0
+        while (< c 4) {
+            let v: int = (nl_audio_viz_get_channel_volume_int c)
+            let bar_w: int = 90
+            let x: int = (+ (+ main_x 18) (* c (+ bar_w 10)))
+            let y: int = (+ main_y 196)
+            (pt_fill renderer x y bar_w 16 30 40 90)
+            let vu_w: int = (clamp_int (/ (* bar_w v) 100) 0 bar_w)
+            # Color based on volume level
+            if (> v 70) {
+                (pt_fill renderer x y vu_w 16 255 0 0)  # Red - HOT!
+            } else {
+                if (> v 40) {
+                    (pt_fill renderer x y vu_w 16 255 200 0)  # Yellow - Warm
+                } else {
+                    (pt_fill renderer x y vu_w 16 80 200 120)  # Green - Good
+                }
+            }
+            set c (+ c 1)
+        }
+
+        # === VISUALIZATION PANEL ===
+        let viz_x: int = (+ main_x 10)
+        let viz_y: int = (+ main_y 242)
+        let viz_w: int = (- main_w 20)
+        let viz_h: int = 200
+        (pt_fill renderer viz_x viz_y viz_w viz_h PT_INNER_R PT_INNER_G PT_INNER_B)
+        
+        # Viz mode indicator
+        let mut viz_mode_name: string = "Circular Spectrum"
+        if (== viz_mode 1) { set viz_mode_name "Frequency Bars" } else {}
+        if (== viz_mode 2) { set viz_mode_name "Spiral Vortex" } else {}
+        (nl_ui_label renderer font (+ "Visualizer: " viz_mode_name) (+ viz_x 8) (+ viz_y 6) 220 220 255 255) 
+        (nl_ui_label renderer font "(Tab to cycle)" (+ viz_x (- viz_w 140)) (+ viz_y 6) 160 160 200 255) 
+        
+        # Waveform oscilloscope at top
+        (draw_waveform_oscilloscope renderer (+ viz_x 8) (+ viz_y 26) (- viz_w 16) 40 viz_frame)
+        
+        # Main visualization
+        let waveform_size: int = (nl_audio_viz_get_waveform_size)
+        if (== viz_mode 0) {
+            let center_x: int = (+ viz_x (/ viz_w 2))
+            let center_y: int = (+ viz_y 120)
+            (draw_viz_circular renderer center_x center_y waveform_size viz_frame)
+        } else {}
+        
+        if (== viz_mode 1) {
+            (draw_viz_bars renderer (+ viz_x 8) (+ viz_y 76) (- viz_w 16) 116 waveform_size viz_frame)
+        } else {}
+        
+        if (== viz_mode 2) {
+            let center_x: int = (+ viz_x (/ viz_w 2))
+            let center_y: int = (+ viz_y 120)
+            (draw_viz_spiral renderer center_x center_y waveform_size viz_frame)
+        } else {}
+        
+        set viz_frame (+ viz_frame 1)
+
+        # Pattern view (compact, read-only)
+        let bottom_y: int = (+ main_y main_h)
+        let pat_x: int = (+ main_x 10)
+        let pat_y: int = (+ (+ viz_y viz_h) 10)
+        let pat_w: int = (- main_w 20)
+        let pat_h: int = (- (- bottom_y 30) pat_y)
+
+        (pt_fill renderer pat_x pat_y pat_w pat_h PT_INNER_R PT_INNER_G PT_INNER_B)
+        (nl_ui_label renderer font "Pattern (read-only)" (+ pat_x 8) (+ pat_y 6) 220 220 255 255) 
+
+        if mod_loaded {
+            let line_h: int = 14
+            let mut rows_visible: int = (/ (- pat_h 26) line_h)
+            set rows_visible (clamp_int rows_visible 6 16)
+
+            let mut max_start: int = (- 64 rows_visible)
+            if (< max_start 0) { set max_start 0 } else {}
+            let mut start_row: int = (- pos_row (/ rows_visible 2))
+            set start_row (clamp_int start_row 0 max_start)
+
+            (nl_ui_label renderer font "Row  CH1            CH2            CH3            CH4" (+ pat_x 8) (+ pat_y 22) 180 180 220 255) 
+
+            let mut i: int = 0
+            while (< i rows_visible) {
+                let row: int = (+ start_row i)
+                let y: int = (+ pat_y (+ 36 (* i line_h)))
+
+                if (== row pos_row) {
+                    (pt_fill renderer (+ pat_x 2) (- y 2) (- pat_w 4) (+ line_h 1) 58 90 200)
+                } else {}
+
+                let row_txt: string = (byte_to_hex row)
+                (nl_ui_label renderer font (+ row_txt ":") (+ pat_x 8) y 230 230 255 255) 
+
+                let mut ch: int = 0
+                while (< ch 4) {
+                    let period: int = (pt2_module_get_note_period cur_pat row ch)
+                    let sample: int = (pt2_module_get_note_sample cur_pat row ch)
+                    let cmd: int = (pt2_module_get_note_command cur_pat row ch)
+                    let par: int = (pt2_module_get_note_param cur_pat row ch)
+
+                    let note_s: string = (period_to_note period)
+                    let mut samp_s: string = ".."
+                    if (!= sample 0) { set samp_s (byte_to_hex sample) } else {}
+
+                    let mut eff_s: string = "..."
+                    if (or (!= cmd 0) (!= par 0)) {
+                        set eff_s (+ (hex_digit cmd) (byte_to_hex par))
+                    } else {}
+
+                    let t1: string = (+ note_s " ")
+                    let t2: string = (+ t1 samp_s)
+                    let t3: string = (+ t2 " ")
+                    let cell: string = (+ t3 eff_s)
+
+                    let col_x: int = (+ (+ pat_x 52) (* ch 140))
+                    (nl_ui_label renderer font cell col_x y 230 230 255 255) 
+                    set ch (+ ch 1)
+                }
+
+                set i (+ i 1)
+            }
+        } else {
+            (nl_ui_label renderer font "Load a MOD to view pattern data" (+ pat_x 8) (+ pat_y 28) 180 180 220 255) 
+        }
+
+        let key_y: int = (- bottom_y 18)
+        (nl_ui_label renderer font "Keys: Up/Down select | Enter open/load | Tab cycle viz | Space pause | S stop | Esc quit" (+ main_x 10) key_y 160 160 200 255) 
+
+        (SDL_RenderPresent renderer) 
+    }
+
+    if has_music {
+        (Mix_HaltMusic) 
+        (Mix_FreeMusic music) 
+    } else {}
+
+    (pt2_module_free)
+    (nl_audio_viz_shutdown)
+
+    (TTF_CloseFont font)
+    (TTF_CloseFont title_font)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (Mix_CloseAudio)
+    (Mix_Quit)
+    (TTF_Quit)
+    (SDL_Quit)
+    
+    return 0
+}
+
+shadow main { assert true }

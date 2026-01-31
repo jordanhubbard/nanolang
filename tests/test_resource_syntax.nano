@@ -1,0 +1,19 @@
+/* Test resource struct syntax */
+
+resource struct FileHandle {
+    fd: int
+}
+
+resource struct Socket {
+    sockfd: int
+}
+
+fn main() -> int {
+    (println "Resource struct syntax test passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

@@ -11,7 +11,7 @@
 # Make sure to import sdl before sdl_helpers: import "modules/sdl/sdl.nano"
 
 # Helper to render a filled rectangle (wraps SDL_RenderFillRect with SDL_Rect)
-extern fn nl_sdl_render_fill_rect(renderer: SDL_Renderer, x: int, y: int, w: int, h: int) -> int
+extern fn nl_sdl_render_fill_rect(_renderer: SDL_Renderer, _x: int, _y: int, _w: int, _h: int) -> int
 
 # Helper to poll SDL events and return 1 if quit event, 0 otherwise
 extern fn nl_sdl_poll_event_quit() -> int
@@ -24,6 +24,10 @@ extern fn nl_sdl_poll_mouse_click() -> int
 # Returns x * 10000 + y if left button is held, -1 otherwise
 # Use this for drag operations and continuous drawing
 extern fn nl_sdl_poll_mouse_state() -> int
+
+# Helper to get current mouse position (independent of button state)
+# Returns x * 10000 + y always
+extern fn nl_sdl_get_mouse_pos() -> int
 
 # Helper to poll for mouse button up
 # Returns x * 10000 + y if left button was released, -1 otherwise
@@ -47,15 +51,23 @@ extern fn nl_sdl_poll_mouse_wheel() -> int
 # Returns 1 if key is held, 0 otherwise
 # Use this for continuous input (thrust, rotation) instead of nl_sdl_poll_keypress
 # Common scancodes: UP=82, DOWN=81, LEFT=80, RIGHT=79, SPACE=44, ESC=41
-extern fn nl_sdl_key_state(scancode: int) -> int
+extern fn nl_sdl_key_state(_scancode: int) -> int
 
 # Helper to render text using SDL_ttf (solid rendering - faster, no anti-aliasing)
-extern fn nl_sdl_render_text_solid(renderer: SDL_Renderer, font: int, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int
+extern fn nl_sdl_render_text_solid(_renderer: SDL_Renderer, _font: int, _text: string, _x: int, _y: int, _r: int, _g: int, _b: int, _a: int) -> int
 
 # Helper to render text using SDL_ttf (blended rendering - slower, anti-aliased)
-extern fn nl_sdl_render_text_blended(renderer: SDL_Renderer, font: int, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int
+extern fn nl_sdl_render_text_blended(_renderer: SDL_Renderer, _font: int, _text: string, _x: int, _y: int, _r: int, _g: int, _b: int, _a: int) -> int
+
+# Save the current renderer output to a BMP file.
+# Returns 0 on success, non-zero on failure.
+extern fn nl_sdl_save_bmp(_renderer: SDL_Renderer, _w: int, _h: int, _path: string) -> int
+
+# Save the current renderer output to a PNG file.
+# Returns 0 on success, non-zero on failure.
+extern fn nl_sdl_save_png(_renderer: SDL_Renderer, _w: int, _h: int, _path: string) -> int
 
 # Process execution helper
 # Wrapper around libc system(3) with a nanolang-friendly ABI.
-extern fn nl_system(cmd: string) -> int
+extern fn nl_system(_cmd: string) -> int
 

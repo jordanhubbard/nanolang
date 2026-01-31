@@ -5,6 +5,13 @@
 
 module std_process
 
+/* FFI declarations */
+extern fn nl_os_process_run(_command: string) -> array<string>
+extern fn nl_os_system(_command: string) -> int
+extern fn nl_os_process_spawn(_command: string) -> int
+extern fn nl_os_process_is_running(_pid: int) -> int
+extern fn nl_os_process_wait(_pid: int) -> int
+
 pub struct Output {
     code: int
     stdout: string
@@ -12,7 +19,10 @@ pub struct Output {
 }
 
 pub fn run(command: string) -> Output {
-    let raw: array<string> = (process_run command)
+    let mut raw: array<string> = []
+    unsafe {
+        set raw (nl_os_process_run command)
+    }
     let code_s: string = (at raw 0)
     let out: string = (at raw 1)
     let err: string = (at raw 2)
@@ -20,6 +30,79 @@ pub fn run(command: string) -> Output {
     return Output { code: code, stdout: out, stderr: err }
 }
 
-pub fn exec(command: string) -> int {
-    return (system command)
+shadow run {
+    let result: Output = (run "echo hello")
+    assert (== result.code 0)
 }
+
+pub fn exec(command: string) -> int {
+    let mut code: int = 0
+    unsafe {
+        set code (nl_os_system command)
+    }
+    return code
+}
+
+shadow exec {
+    let code: int = (exec "true")
+    assert (== code 0)
+}
+
+# Non-blocking process spawning functions
+
+/* Spawn a process non-blocking
+ * Returns process ID (pid) or -1 on error
+ */
+pub fn spawn(command: string) -> int {
+    let mut pid: int = 0
+    unsafe {
+        set pid (nl_os_process_spawn command)
+    }
+    return pid
+}
+
+shadow spawn {
+    let pid: int = (spawn "sleep 0.1")
+    assert (> pid 0)
+    let result: int = (wait pid)
+    assert (== result 0)
+}
+
+/* Check if a process is still running
+ * Returns 1 if running, 0 if exited, -1 on error
+ */
+pub fn is_running(pid: int) -> int {
+    let mut status: int = 0
+    unsafe {
+        set status (nl_os_process_is_running pid)
+    }
+    return status
+}
+
+shadow is_running {
+    let pid: int = (spawn "sleep 0.2")
+    assert (> pid 0)
+    let running: int = (is_running pid)
+    assert (>= running 0)
+    let result: int = (wait pid)
+    assert (== result 0)
+}
+
+/* Wait for a process to complete
+ * Returns exit code of the process, or -1 on error
+ */
+pub fn wait(pid: int) -> int {
+    let mut exit_code: int = 0
+    unsafe {
+        set exit_code (nl_os_process_wait pid)
+    }
+    return exit_code
+}
+
+shadow wait {
+    let pid: int = (spawn "exit 42")
+    assert (> pid 0)
+    let result: int = (wait pid)
+    assert (== result 42)
+}
+

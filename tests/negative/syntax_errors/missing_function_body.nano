@@ -1,0 +1,16 @@
+# Expected error: Missing function body
+# Function declaration without implementation
+
+fn incomplete(x: int) -> int;
+
+shadow incomplete {
+    assert (== (incomplete 5) 5)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

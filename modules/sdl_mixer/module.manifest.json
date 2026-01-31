@@ -1,0 +1,22 @@
+{
+  "name": "sdl_mixer",
+  "version": "1.0.0",
+  "stability": "stable",
+  "summary": "SDL audio mixing for music and sound effects.",
+  "use_when": [
+    "User needs audio playback",
+    "User says 'play music', 'sound effects', 'audio mixing'",
+    "User is building a game with audio"
+  ],
+  "avoid_when": ["User only needs video (use sdl)"],
+  "capabilities": ["play_music", "play_sound", "audio_mixing", "multiple_channels"],
+  "keywords": ["audio", "sound", "music", "mixer", "sdl"],
+  "examples": ["examples/sdl_audio_player.nano"],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["sdl"],
+    "system": [{"id": "sdl2_mixer", "install": {"apt": "libsdl2-mixer-dev", "brew": "sdl2_mixer"}}]
+  },
+  "io_surfaces": ["audio"],
+  "alternatives": []
+}

@@ -1,0 +1,14 @@
+# Expected Error: Type mismatch in comparison
+
+fn main() -> int {
+    let x: int = 5
+    let y: string = "5"
+    if (== x y) {  # Error: comparing int with string
+        return 1
+    }
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -78,9 +78,9 @@ fn compile_with_c_compiler(input: string, output: string, verbose: bool) -> int 
         /* quiet */
     }
     
-    let cmd1: string = (str_concat "bin/nanoc " input)
-    let cmd2: string = (str_concat cmd1 " -o ")
-    let cmd3: string = (str_concat cmd2 output)
+    let cmd1: string = (+ "bin/nanoc " input)
+    let cmd2: string = (+ cmd1 " -o ")
+    let cmd3: string = (+ cmd2 output)
     
     if verbose {
         (println "Command: ")

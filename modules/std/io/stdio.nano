@@ -53,31 +53,31 @@ let SEEK_END: int = 2
 /* Open a file
  * Returns: file handle (FILE* as int) or 0 on failure
  */
-pub extern fn fopen(filename: string, mode: string) -> int
+pub extern fn fopen(_filename: string, _mode: string) -> int
 
 /* Close a file
  * Returns: 0 on success
  */
-pub extern fn fclose(file: int) -> int
+pub extern fn fclose(_file: int) -> int
 
 /* Read data from file into buffer
  * size: size of each element
  * count: number of elements to read
  * Returns: number of elements successfully read
  */
-pub extern fn fread(ptr: int, size: int, count: int, file: int) -> int
+pub extern fn fread(_ptr: int, _size: int, _count: int, _file: int) -> int
 
 /* Write data to file from buffer
  * size: size of each element
  * count: number of elements to write
  * Returns: number of elements successfully written
  */
-pub extern fn fwrite(ptr: int, size: int, count: int, file: int) -> int
+pub extern fn fwrite(_ptr: int, _size: int, _count: int, _file: int) -> int
 
 /* Flush file buffer
  * Returns: 0 on success
  */
-pub extern fn fflush(file: int) -> int
+pub extern fn fflush(_file: int) -> int
 
 /* =============================================================================
  * File Position Operations
@@ -89,15 +89,15 @@ pub extern fn fflush(file: int) -> int
  * whence: SEEK_SET, SEEK_CUR, or SEEK_END
  * Returns: 0 on success
  */
-pub extern fn fseek(file: int, offset: int, whence: int) -> int
+pub extern fn fseek(_file: int, _offset: int, _whence: int) -> int
 
 /* Get current file position
  * Returns: current position or -1 on error
  */
-pub extern fn ftell(file: int) -> int
+pub extern fn ftell(_file: int) -> int
 
 /* Rewind file to beginning */
-pub extern fn rewind(file: int) -> int
+pub extern fn rewind(_file: int) -> int
 
 /* =============================================================================
  * File Status Operations
@@ -107,15 +107,15 @@ pub extern fn rewind(file: int) -> int
 /* Check for end of file
  * Returns: non-zero if EOF reached
  */
-pub extern fn feof(file: int) -> int
+pub extern fn feof(_file: int) -> int
 
 /* Check for file error
  * Returns: non-zero if error occurred
  */
-pub extern fn ferror(file: int) -> int
+pub extern fn ferror(_file: int) -> int
 
 /* Clear EOF and error indicators */
-pub extern fn clearerr(file: int) -> int
+pub extern fn clearerr(_file: int) -> int
 
 /* =============================================================================
  * Character I/O Operations
@@ -125,17 +125,17 @@ pub extern fn clearerr(file: int) -> int
 /* Read a single character
  * Returns: character as int, or -1 on EOF
  */
-pub extern fn fgetc(file: int) -> int
+pub extern fn fgetc(_file: int) -> int
 
 /* Write a single character
  * Returns: character written, or -1 on error
  */
-pub extern fn fputc(c: int, file: int) -> int
+pub extern fn fputc(_c: int, _file: int) -> int
 
 /* Put character back to stream
  * Returns: character pushed back, or -1 on error
  */
-pub extern fn ungetc(c: int, file: int) -> int
+pub extern fn ungetc(_c: int, _file: int) -> int
 
 /* =============================================================================
  * Helper Functions

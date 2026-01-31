@@ -1,0 +1,331 @@
+/* =============================================================================
+ * Module Loader - Recursive Import Processing for Self-Hosted Compiler
+ * =============================================================================
+ * 
+ * Implements recursive import loading to match C compiler behavior.
+ * Critical for proper transitive type visibility.
+ * 
+ * Key functions:
+ * - process_imports_recursive() - Main entry point for recursive loading
+ * - resolve_module_path() - Find .nano files from import paths
+ * - extract_type_symbols() - Build symbol table from Parser AST
+ * 
+ * Related: nanolang-zmwa
+ */
+
+import "src_nano/generated/compiler_schema.nano"
+import "src_nano/generated/compiler_ast.nano"
+import "src_nano/parser.nano"
+import "src_nano/compiler/lexer.nano"
+from "src_nano/typecheck.nano" import str_starts_with, symbol_new, Symbol, NSType, TypeKind, type_void
+from "src_nano/transpiler.nano" import str_ends_with
+from "std/fs.nano" import exists, read, cwd
+
+/* =============================================================================
+ * MODULE CACHE - Prevent duplicate loading
+ * ============================================================================= */
+
+pub struct ModuleCache {
+    paths: array<string>,
+    parsers: array<Parser>,
+    count: int
+}
+
+pub fn module_cache_new() -> ModuleCache {
+    return ModuleCache {
+        paths: [],
+        parsers: [],
+        count: 0
+    }
+}
+
+shadow module_cache_new {
+    let cache: ModuleCache = (module_cache_new)
+    assert (== cache.count 0)
+}
+
+fn module_cache_contains(cache: ModuleCache, path: string) -> bool {
+    let mut i: int = 0
+    while (< i cache.count) {
+        if (== (at cache.paths i) path) {
+            return true
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow module_cache_contains {
+    let mut cache: ModuleCache = (module_cache_new)
+    assert (not (module_cache_contains cache "test.nano"))
+    set cache ModuleCache {
+        paths: ["test.nano"],
+        parsers: cache.parsers,
+        count: 1
+    }
+    assert (module_cache_contains cache "test.nano")
+}
+
+fn module_cache_add(cache: ModuleCache, path: string, parser: Parser) -> ModuleCache {
+    let mut new_paths: array<string> = cache.paths
+    set new_paths (array_push new_paths path)
+    
+    let mut new_parsers: array<Parser> = cache.parsers
+    set new_parsers (array_push new_parsers parser)
+    
+    return ModuleCache {
+        paths: new_paths,
+        parsers: new_parsers,
+        count: (+ cache.count 1)
+    }
+}
+
+shadow module_cache_add {
+    let cache: ModuleCache = (module_cache_new)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let dummy_parser: Parser = (parser_new empty_tokens 0 "test")
+    let updated: ModuleCache = (module_cache_add cache "test.nano" dummy_parser)
+    assert (== updated.count 1)
+    assert (module_cache_contains updated "test.nano")
+}
+
+fn module_cache_get(cache: ModuleCache, path: string) -> Parser {
+    let mut i: int = 0
+    while (< i cache.count) {
+        if (== (at cache.paths i) path) {
+            return (at cache.parsers i)
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    /* Return empty parser if not found */
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    return (parser_new empty_tokens 0 "")
+}
+
+shadow module_cache_get {
+    let cache: ModuleCache = (module_cache_new)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let dummy_parser: Parser = (parser_new empty_tokens 10 "test")
+    let updated: ModuleCache = (module_cache_add cache "test.nano" dummy_parser)
+    let retrieved: Parser = (module_cache_get updated "test.nano")
+    assert (== retrieved.token_count 10)
+}
+
+/* =============================================================================
+ * PATH RESOLUTION - Find .nano files from import paths
+ * ============================================================================= */
+
+/* Extract directory from file path */
+fn module_path_dirname(path: string) -> string {
+    let len: int = (str_length path)
+    let mut i: int = (- len 1)
+    
+    /* Find last '/' */
+    while (>= i 0) {
+        let ch: string = (str_substring path i 1)
+        if (== ch "/") {
+            return (str_substring path 0 i)
+        } else { (print "") }
+        set i (- i 1)
+    }
+    
+    /* No slash found - return "." for current directory */
+    return "."
+}
+
+shadow module_path_dirname {
+    assert (== (module_path_dirname "src/module.nano") "src")
+    assert (== (module_path_dirname "test.nano") ".")
+    assert (== (module_path_dirname "a/b/c.nano") "a/b")
+}
+
+/* Join two paths */
+fn module_path_join(dir: string, file: string) -> string {
+    if (== dir "") { return file }
+    if (== dir ".") { return file }
+    
+    /* Check if dir already ends with / */
+    let dir_len: int = (str_length dir)
+    let last_char: string = (str_substring dir (- dir_len 1) 1)
+    if (== last_char "/") {
+        return (+ dir file)
+    } else {
+        return (+ (+ dir "/") file)
+    }
+}
+
+shadow module_path_join {
+    assert (== (module_path_join "src" "module.nano") "src/module.nano")
+    assert (== (module_path_join "src/" "module.nano") "src/module.nano")
+    assert (== (module_path_join "." "test.nano") "test.nano")
+    assert (== (module_path_join "" "test.nano") "test.nano")
+}
+
+/* Resolve module import path to actual file path */
+fn resolve_module_path(import_path: string, current_file: string) -> string {
+    /* Case 1: Absolute path starting with / */
+    if (str_starts_with import_path "/") {
+        if (exists import_path) {
+            return import_path
+        } else {
+            return ""
+        }
+    } else { (print "") }
+
+    /* Case 2: Relative to current file */
+    let current_dir: string = (module_path_dirname current_file)
+    let relative_path: string = (module_path_join current_dir import_path)
+    if (exists relative_path) {
+        return relative_path
+    } else { (print "") }
+
+    /* Case 3: Try adding .nano extension if not present */
+    if (not (str_ends_with import_path ".nano")) {
+        let with_ext: string = (+ import_path ".nano")
+        let relative_with_ext: string = (module_path_join current_dir with_ext)
+        if (exists relative_with_ext) {
+            return relative_with_ext
+        } else { (print "") }
+    } else { (print "") }
+
+    /* Case 4: Relative to current working directory */
+    let working_dir: string = (cwd)
+    let from_cwd: string = (module_path_join working_dir import_path)
+    if (exists from_cwd) {
+        return from_cwd
+    } else { (print "") }
+
+    /* Not found */
+    return ""
+}
+
+/* =============================================================================
+ * SYMBOL EXTRACTION - Build symbol table from Parser AST
+ * ============================================================================= */
+
+/* NSType helper for struct types */
+fn type_struct(name: string) -> NSType {
+    return NSType {
+        kind: TypeKind.TYPE_STRUCT,
+        name: name,
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
+    }
+}
+
+shadow type_struct {
+    let t: NSType = (type_struct "Parser")
+    assert (== t.name "Parser")
+    assert (== t.kind TypeKind.TYPE_STRUCT)
+}
+
+/* Extract struct/enum/union type definitions from Parser */
+fn extract_type_symbols(parser: Parser, existing_symbols: array<Symbol>) -> array<Symbol> {
+    let mut symbols: array<Symbol> = existing_symbols
+    
+    /* Extract struct definitions */
+    let struct_count: int = parser.structs_count
+    let mut i: int = 0
+    while (< i struct_count) {
+        let s: ASTStruct = (list_ASTStruct_get parser.structs i)
+        let struct_type: NSType = (type_struct s.name)
+        let sym: Symbol = (symbol_new s.name struct_type false false 0 [] (type_void))
+        set symbols (array_push symbols sym)
+        set i (+ i 1)
+    }
+    
+    /* Extract enum definitions */
+    let enum_count: int = parser.enums_count
+    set i 0
+    while (< i enum_count) {
+        let e: ASTEnum = (list_ASTEnum_get parser.enums i)
+        let enum_type: NSType = (type_struct e.name)
+        let sym: Symbol = (symbol_new e.name enum_type false false 0 [] (type_void))
+        set symbols (array_push symbols sym)
+        set i (+ i 1)
+    }
+    
+    /* Extract union definitions */
+    let union_count: int = parser.unions_count
+    set i 0
+    while (< i union_count) {
+        let u: ASTUnion = (list_ASTUnion_get parser.unions i)
+        let union_type: NSType = (type_struct u.name)
+        let sym: Symbol = (symbol_new u.name union_type false false 0 [] (type_void))
+        set symbols (array_push symbols sym)
+        set i (+ i 1)
+    }
+    
+    return symbols
+}
+
+shadow extract_type_symbols {
+    /* Test with empty parser */
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let empty_parser: Parser = (parser_new empty_tokens 0 "")
+    let symbols: array<Symbol> = (extract_type_symbols empty_parser [])
+    assert (== (array_length symbols) 0)
+}
+
+/* =============================================================================
+ * RECURSIVE IMPORT PROCESSING - Main entry point
+ * ============================================================================= */
+
+/* Process all imports recursively, returning updated symbol table */
+pub fn process_imports_recursive(parser: Parser, symbols: array<Symbol>, cache: ModuleCache, current_file: string, diags: List<CompilerDiagnostic>) -> array<Symbol> {
+    let import_count: int = (parser_get_import_count parser)
+    let mut updated_symbols: array<Symbol> = symbols
+    let mut updated_cache: ModuleCache = cache
+    let mut i: int = 0
+    
+    while (< i import_count) {
+        let import_node: ASTImport = (parser_get_import parser i)
+        let module_path: string = (resolve_module_path import_node.module_path current_file)
+        
+        if (== module_path "") {
+            /* Module not found - add diagnostic but continue */
+            (println (+ "Warning: Could not resolve import: " import_node.module_path))
+            set i (+ i 1)
+        } else {
+            /* Check if already loaded */
+            if (module_cache_contains updated_cache module_path) {
+                /* Use cached parser symbols */
+                let cached_parser: Parser = (module_cache_get updated_cache module_path)
+                set updated_symbols (extract_type_symbols cached_parser updated_symbols)
+            } else {
+                /* Load and parse module */
+                let module_source: string = (read module_path)
+                let module_tokens: List<LexerToken> = (tokenize_file module_source diags)
+                let token_count: int = (list_LexerToken_length module_tokens)
+                
+                if (> token_count 0) {
+                    let module_parser: Parser = (parse_program module_tokens token_count module_source)
+                    
+                    /* Cache module BEFORE recursing to prevent infinite loops */
+                    set updated_cache (module_cache_add updated_cache module_path module_parser)
+                    
+                    /* RECURSIVELY process module's imports */
+                    set updated_symbols (process_imports_recursive module_parser updated_symbols updated_cache module_path diags)
+                    
+                    /* Extract types from this module */
+                    set updated_symbols (extract_type_symbols module_parser updated_symbols)
+                } else {
+                    (println (+ "Warning: Failed to tokenize: " module_path))
+                }
+            }
+            set i (+ i 1)
+        }
+    }
+    
+    return updated_symbols
+}
+
+shadow process_imports_recursive {
+    /* Test with parser that has no imports */
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let empty_parser: Parser = (parser_new empty_tokens 0 "")
+    let cache: ModuleCache = (module_cache_new)
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let symbols: array<Symbol> = (process_imports_recursive empty_parser [] cache "test.nano" diags)
+    assert (== (array_length symbols) 0)
+}

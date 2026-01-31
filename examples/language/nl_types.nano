@@ -1,0 +1,139 @@
+# All Types
+# This example demonstrates all data types in nanolang
+
+fn return_int() -> int {
+    return 42
+}
+
+shadow return_int {
+    assert (== (return_int) 42)
+}
+
+fn return_float() -> float {
+    return 3.14159
+}
+
+shadow return_float {
+    assert (== (return_float) 3.14159)
+}
+
+fn return_bool() -> bool {
+    return true
+}
+
+shadow return_bool {
+    assert (== (return_bool) true)
+}
+
+fn return_string() -> string {
+    return "Hello, nanolang!"
+}
+
+shadow return_string {
+    assert (== (return_string) "Hello, nanolang!")
+}
+
+fn void_function() -> void {
+    (println "This function returns void")
+    return
+}
+
+shadow void_function {
+    (void_function)
+}
+
+fn process_int(n: int) -> int {
+    return (* n 2)
+}
+
+shadow process_int {
+    assert (== (process_int 10) 20)
+    assert (== (process_int 0) 0)
+    assert (== (process_int (- 0 5)) (- 0 10))
+}
+
+fn process_float(f: float) -> float {
+    return (/ f 2.0)
+}
+
+shadow process_float {
+    assert (== (process_float 10.0) 5.0)
+    assert (== (process_float 7.5) 3.75)
+}
+
+fn process_bool(b: bool) -> bool {
+    return (not b)
+}
+
+shadow process_bool {
+    assert (== (process_bool true) false)
+    assert (== (process_bool false) true)
+}
+
+fn process_string(s: string) -> string {
+    return s
+}
+
+shadow process_string {
+    assert (== (process_string "test") "test")
+    assert (== (process_string "") "")
+}
+
+fn mixed_types(i: int, _f: float, b: bool, _s: string) -> int {
+    if b {
+        return i
+    } else {
+        return 0
+    }
+}
+
+shadow mixed_types {
+    assert (== (mixed_types 10 3.14 true "hello") 10)
+    assert (== (mixed_types 10 3.14 false "hello") 0)
+}
+
+fn bool_to_string(b: bool) -> string {
+    return (cond ((== b true) "true") (else "false"))
+}
+
+shadow bool_to_string {
+    assert (== (bool_to_string true) "true")
+    assert (== (bool_to_string false) "false")
+}
+
+fn float_to_string(f: float) -> string {
+    return (+ (int_to_string (cast_int f)) ".0")
+}
+
+shadow float_to_string {
+    assert (> (str_length (float_to_string 3.14)) 0)
+}
+
+fn main() -> int {
+    (println "=== Type Demonstration ===")
+    
+    let my_int: int = 100
+    let my_float: float = 2.718
+    let my_bool: bool = true
+    let my_string: string = "nanolang"
+
+    (println (+ "int: " (int_to_string my_int)))
+    (println (+ "float: " (float_to_string my_float)))
+    (println (+ "bool: " (bool_to_string my_bool)))
+    (println (+ "string: " my_string))
+
+    (println (+ "\nprocess_int(25) = " (int_to_string (process_int 25))))
+    (println (+ "process_float(50.0) = " (float_to_string (process_float 50.0))))
+    (println (+ "process_bool(false) = " (bool_to_string (process_bool false))))
+    (println (+ "process_string(\"types\") = " (process_string "types")))
+
+    (println "")
+    (void_function)
+    
+    (println "\n✓ All type operations working!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

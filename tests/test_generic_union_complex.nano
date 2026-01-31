@@ -1,0 +1,21 @@
+/* Test generic union with complex type parameters */
+
+union Either<L, R> {
+    Left { value: L },
+    Right { value: R }
+}
+
+fn main() -> int {
+    /* Test with different type combinations */
+    let e1: Either<int, string> = Either<int, string>.Left { value: 42 }
+    let e2: Either<int, string> = Either<int, string>.Right { value: "hello" }
+    let e3: Either<bool, int> = Either<bool, int>.Left { value: true }
+    let e4: Either<bool, int> = Either<bool, int>.Right { value: 99 }
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

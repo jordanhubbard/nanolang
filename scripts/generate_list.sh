@@ -14,7 +14,7 @@ fi
 
 TYPE_NAME="$1"
 OUTPUT_DIR="$2"
-TYPE_DEF="${3:-nl_$TYPE_NAME}"  # Default to nl_TypeName if not provided
+TYPE_DEF="${3:-$TYPE_NAME}"  # Default to TypeName if not provided
 TYPE_NAME_UPPER=$(echo "$TYPE_NAME" | tr '[:lower:]' '[:upper:]')
 
 HEADER_FILE="$OUTPUT_DIR/list_$TYPE_NAME.h"
@@ -28,24 +28,14 @@ cat > "$HEADER_FILE" << EOF
 #include <stdint.h>
 #include <stdbool.h>
 
-/* Forward declaration - actual struct defined elsewhere */
-/* Note: Using 'struct nl_$TYPE_NAME' to avoid typedef conflicts */
-struct nl_$TYPE_NAME;
-
-/* Guard typedef to prevent redefinition warnings */
-#ifndef NL_${TYPE_NAME_UPPER}_DEFINED
-#define NL_${TYPE_NAME_UPPER}_DEFINED
-typedef struct nl_$TYPE_NAME nl_$TYPE_NAME;
-#endif
-
 /* Dynamic list of $TYPE_NAME */
 /* Guard typedef to prevent redefinition warnings */
-#ifndef LIST_${TYPE_NAME_UPPER}_TYPE_DEFINED
-#define LIST_${TYPE_NAME_UPPER}_TYPE_DEFINED
+#ifndef DEFINED_List_$TYPE_NAME
+#define DEFINED_List_$TYPE_NAME
 typedef struct List_$TYPE_NAME {
-    nl_$TYPE_NAME *data;      /* Array of elements */
-    int length;               /* Current number of elements */
-    int capacity;             /* Allocated capacity */
+    $TYPE_DEF *data;      /* Array of elements */
+    int length;                       /* Current number of elements */
+    int capacity;                     /* Allocated capacity */
 } List_$TYPE_NAME;
 #endif
 
@@ -56,22 +46,22 @@ List_$TYPE_NAME* nl_list_${TYPE_NAME}_new(void);
 List_$TYPE_NAME* nl_list_${TYPE_NAME}_with_capacity(int capacity);
 
 /* Append an element to the end of the list */
-void nl_list_${TYPE_NAME}_push(List_$TYPE_NAME *list, nl_$TYPE_NAME value);
+void nl_list_${TYPE_NAME}_push(List_$TYPE_NAME *list, $TYPE_DEF value);
 
 /* Remove and return the last element */
-nl_$TYPE_NAME nl_list_${TYPE_NAME}_pop(List_$TYPE_NAME *list);
+$TYPE_DEF nl_list_${TYPE_NAME}_pop(List_$TYPE_NAME *list);
 
 /* Insert an element at the specified index */
-void nl_list_${TYPE_NAME}_insert(List_$TYPE_NAME *list, int index, nl_$TYPE_NAME value);
+void nl_list_${TYPE_NAME}_insert(List_$TYPE_NAME *list, int index, $TYPE_DEF value);
 
 /* Remove and return the element at the specified index */
-nl_$TYPE_NAME nl_list_${TYPE_NAME}_remove(List_$TYPE_NAME *list, int index);
+$TYPE_DEF nl_list_${TYPE_NAME}_remove(List_$TYPE_NAME *list, int index);
 
 /* Set the value at the specified index */
-void nl_list_${TYPE_NAME}_set(List_$TYPE_NAME *list, int index, nl_$TYPE_NAME value);
+void nl_list_${TYPE_NAME}_set(List_$TYPE_NAME *list, int index, $TYPE_DEF value);
 
 /* Get the value at the specified index */
-nl_$TYPE_NAME nl_list_${TYPE_NAME}_get(List_$TYPE_NAME *list, int index);
+$TYPE_DEF nl_list_${TYPE_NAME}_get(List_$TYPE_NAME *list, int index);
 
 /* Clear all elements from the list */
 void nl_list_${TYPE_NAME}_clear(List_$TYPE_NAME *list);
@@ -105,7 +95,7 @@ cat > "$SOURCE_FILE" << 'EOF'
 #define GROWTH_FACTOR 2
 
 /* Helper: Ensure the list has enough capacity */
-static void ensure_capacity(List_TYPENAME *list, int min_capacity) {
+static void ensure_capacity_TYPENAME(List_TYPENAME *list, int min_capacity) {
     if (list->capacity >= min_capacity) {
         return;
     }
@@ -119,7 +109,7 @@ static void ensure_capacity(List_TYPENAME *list, int min_capacity) {
         new_capacity *= GROWTH_FACTOR;
     }
     
-    nl_TYPENAME *new_data = realloc(list->data, sizeof(nl_TYPENAME) * new_capacity);
+    $TYPE_DEF *new_data = realloc(list->data, sizeof($TYPE_DEF) * new_capacity);
     if (!new_data) {
         fprintf(stderr, "Error: Failed to allocate memory for list\n");
         exit(1);
@@ -142,7 +132,7 @@ List_TYPENAME* nl_list_TYPENAME_with_capacity(int capacity) {
         exit(1);
     }
     
-    list->data = malloc(sizeof(nl_TYPENAME) * capacity);
+    list->data = malloc(sizeof($TYPE_DEF) * capacity);
     if (!list->data) {
         fprintf(stderr, "Error: Failed to allocate memory for list data\n");
         exit(1);
@@ -155,14 +145,14 @@ List_TYPENAME* nl_list_TYPENAME_with_capacity(int capacity) {
 }
 
 /* Append an element to the end of the list */
-void nl_list_TYPENAME_push(List_TYPENAME *list, nl_TYPENAME value) {
-    ensure_capacity(list, list->length + 1);
+void nl_list_TYPENAME_push(List_TYPENAME *list, $TYPE_DEF value) {
+    ensure_capacity_TYPENAME(list, list->length + 1);
     list->data[list->length] = value;
     list->length++;
 }
 
 /* Remove and return the last element */
-nl_TYPENAME nl_list_TYPENAME_pop(List_TYPENAME *list) {
+$TYPE_DEF nl_list_TYPENAME_pop(List_TYPENAME *list) {
     if (list->length == 0) {
         fprintf(stderr, "Error: Cannot pop from empty list\n");
         exit(1);
@@ -173,43 +163,43 @@ nl_TYPENAME nl_list_TYPENAME_pop(List_TYPENAME *list) {
 }
 
 /* Insert an element at the specified index */
-void nl_list_TYPENAME_insert(List_TYPENAME *list, int index, nl_TYPENAME value) {
+void nl_list_TYPENAME_insert(List_TYPENAME *list, int index, $TYPE_DEF value) {
     if (index < 0 || index > list->length) {
         fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
         exit(1);
     }
     
-    ensure_capacity(list, list->length + 1);
+    ensure_capacity_TYPENAME(list, list->length + 1);
     
     /* Shift elements to the right */
     memmove(&list->data[index + 1], &list->data[index], 
-            sizeof(nl_TYPENAME) * (list->length - index));
+            sizeof($TYPE_DEF) * (list->length - index));
     
     list->data[index] = value;
     list->length++;
 }
 
 /* Remove and return the element at the specified index */
-nl_TYPENAME nl_list_TYPENAME_remove(List_TYPENAME *list, int index) {
+$TYPE_DEF nl_list_TYPENAME_remove(List_TYPENAME *list, int index) {
     if (index < 0 || index >= list->length) {
         fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
         exit(1);
     }
     
-    nl_TYPENAME value = list->data[index];
+    $TYPE_DEF value = list->data[index];
     
     /* Shift elements to the left */
     memmove(&list->data[index], &list->data[index + 1], 
-            sizeof(nl_TYPENAME) * (list->length - index - 1));
+            sizeof($TYPE_DEF) * (list->length - index - 1));
     
     list->length--;
     return value;
 }
 
 /* Set the value at the specified index */
-void nl_list_TYPENAME_set(List_TYPENAME *list, int index, nl_TYPENAME value) {
+void nl_list_TYPENAME_set(List_TYPENAME *list, int index, $TYPE_DEF value) {
     if (index < 0 || index >= list->length) {
         fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
@@ -220,7 +210,7 @@ void nl_list_TYPENAME_set(List_TYPENAME *list, int index, nl_TYPENAME value) {
 }
 
 /* Get the value at the specified index */
-nl_TYPENAME nl_list_TYPENAME_get(List_TYPENAME *list, int index) {
+$TYPE_DEF nl_list_TYPENAME_get(List_TYPENAME *list, int index) {
     if (index < 0 || index >= list->length) {
         fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
                 index, list->length);
@@ -259,8 +249,11 @@ void nl_list_TYPENAME_free(List_TYPENAME *list) {
 }
 EOF
 
-# Replace TYPENAME with actual type name
-sed -i.bak "s/TYPENAME/$TYPE_NAME/g" "$SOURCE_FILE"
-rm -f "$SOURCE_FILE.bak"
+# Replace TYPENAME and TYPE_DEF with actual values
+sed -i.bak "s|TYPENAME|$TYPE_NAME|g" "$SOURCE_FILE"
+sed -i.bak "s|\$TYPE_DEF|$TYPE_DEF|g" "$SOURCE_FILE"
+sed -i.bak "s|\$TYPE_NAME|$TYPE_NAME|g" "$HEADER_FILE"
+sed -i.bak "s|\$TYPE_DEF|$TYPE_DEF|g" "$HEADER_FILE"
+rm -f "$SOURCE_FILE.bak" "$HEADER_FILE.bak"
 
 echo "Generated list_$TYPE_NAME.h and list_$TYPE_NAME.c in $OUTPUT_DIR"

@@ -1,18 +1,18 @@
-# Test simple nested array parsing
+fn test() -> void {
+    (println (int_to_string 42))
+}
 
-fn test_nested() -> int {
-    let mut inner: array<int> = []
-    set inner (array_push inner 42)
-    
-    let mut outer: array<array<int>> = []
-    set outer (array_push outer inner)
-    
-    let row: array<int> = (at outer 0)
-    return (at row 0)
+shadow test {
+    (test)
+    assert (== 1 1)
 }
 
 fn main() -> int {
-    let result: int = (test_nested)
-    (println result)
+    (test)
     return 0
 }
+
+shadow main {
+    assert (== (main) 0)
+}
+

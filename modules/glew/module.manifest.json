@@ -1,0 +1,22 @@
+{
+  "name": "glew",
+  "version": "1.0.0",
+  "stability": "stable",
+  "summary": "OpenGL Extension Wrangler for loading OpenGL extensions.",
+  "use_when": [
+    "User needs OpenGL extensions",
+    "User says 'glew', 'opengl extensions', 'modern opengl'",
+    "User wants OpenGL 3.0+ features"
+  ],
+  "avoid_when": ["User using legacy OpenGL 1.x/2.x only"],
+  "capabilities": ["load_gl_extensions", "gl_version_check"],
+  "keywords": ["opengl", "extensions", "glew", "modern opengl"],
+  "examples": [],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["opengl"],
+    "system": [{"id": "glew", "install": {"apt": "libglew-dev", "brew": "glew"}}]
+  },
+  "io_surfaces": [],
+  "alternatives": []
+}

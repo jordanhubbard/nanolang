@@ -1,8 +1,0 @@
-fn main() -> int {
-    (println "Hello from NanoLang!")
-    return 0
-}
-
-shadow main {
-    assert (== (main) 0)
-}

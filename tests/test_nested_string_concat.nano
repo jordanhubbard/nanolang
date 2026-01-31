@@ -1,0 +1,28 @@
+# Test nested string concatenation type inference
+
+fn test_nested_concat() -> string {
+    let s1: string = "Hello"
+    let s2: string = " "
+    let s3: string = "World"
+    
+    # This should infer as string
+    let result: string = (+ s1 (+ s2 s3))
+    return result
+}
+
+fn main() -> int {
+    let msg: string = (test_nested_concat)
+    (println msg)
+    
+    if (== msg "Hello World") {
+        (println "✓ Test passed")
+        return 0
+    } else {
+        (println "✗ Test failed")
+        return 1
+    }
+}
+
+shadow main {
+    assert (== (main) 0)
+}

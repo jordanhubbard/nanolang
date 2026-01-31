@@ -1,0 +1,20 @@
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+shadow double {
+    let result: int = (double 5)
+    assert (== result 10)
+
+    let result: int = (double 10)
+    assert (== result 20)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

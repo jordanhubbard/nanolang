@@ -62,22 +62,22 @@ fn compile_file(input: string, output: string) -> int {
     /* Step 1: Parser (NanoLang implementation!) */
     (println "[1/5] Parsing (using NanoLang parser_mvp)...")
     /* TODO: When parser can be called as library:
-    let tokens: List<Token> = (lex input)
+    let tokens: List<LexerToken> = (lex input)
     let ast: AST = (parse tokens)
     */
     (println "      ✓ Parser ready (see bin/parser_mvp)")
     
     /* Step 2-5: Delegate to C compiler (temporary) */
-    (println "[2/5] Type checking (C backend)...")
+    (println "[2/5] NSType checking (C backend)...")
     (println "[3/5] Code generation (C backend)...")
     (println "[4/5] C compilation...")
     (println "[5/5] Linking...")
     
     /* Actually compile using C compiler */
     let cmd: string = "bin/nanoc "
-    let cmd2: string = (str_concat cmd input)
-    let cmd3: string = (str_concat cmd2 " -o ")
-    let cmd4: string = (str_concat cmd3 output)
+    let cmd2: string = (+ cmd input)
+    let cmd3: string = (+ cmd2 " -o ")
+    let cmd4: string = (+ cmd3 output)
     
     let result: int = (system cmd4)
     

@@ -1,0 +1,13 @@
+# service_spec.opl - Service specification example
+
+service authentication {
+  doc "Authentication service specification"
+  input username:string, password:string
+  output token:string, expires_at:string
+}
+
+service database {
+  doc "Database query service"
+  input query:string, params:string
+  output rows:string, count:int
+}

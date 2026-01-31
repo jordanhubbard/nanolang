@@ -1,0 +1,17 @@
+fn main() -> int {
+    let strs: array<string> = ["hello", "world", "test"]
+    (println (at strs 0))
+    (println (at strs 1))
+    (println (at strs 2))
+    
+    let bools: array<bool> = [true, false, true]
+    assert (at bools 0)
+    assert (not (at bools 1))
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

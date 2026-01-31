@@ -2,6 +2,8 @@
  * Dynamic Array Implementation
  */
 
+#define _POSIX_C_SOURCE 200809L  /* For strdup() */
+
 #include "dyn_array.h"
 #include <stdlib.h>
 #include <string.h>
@@ -34,6 +36,38 @@ DynArray* dyn_array_new(ElementType elem_type) {
     
     arr->length = 0;
     arr->capacity = INITIAL_CAPACITY;
+    arr->elem_type = elem_type;
+    arr->elem_size = get_element_size(elem_type);
+    
+    /* For structs, we don't know the size yet - delay allocation */
+    if (elem_type == ELEM_STRUCT) {
+        arr->elem_size = 0;  /* Will be set on first push */
+        arr->data = NULL;     /* Allocate on first push */
+    } else {
+        arr->data = malloc(arr->capacity * arr->elem_size);
+        if (arr->data == NULL) {
+            gc_release(arr);
+            return NULL;
+        }
+    }
+    
+    return arr;
+}
+
+/* Create new dynamic array with custom initial capacity */
+DynArray* dyn_array_new_with_capacity(ElementType elem_type, int64_t initial_capacity) {
+    DynArray* arr = (DynArray*)gc_alloc(sizeof(DynArray), GC_TYPE_ARRAY);
+    if (arr == NULL) {
+        return NULL;
+    }
+    
+    /* Use at least INITIAL_CAPACITY */
+    if (initial_capacity < INITIAL_CAPACITY) {
+        initial_capacity = INITIAL_CAPACITY;
+    }
+    
+    arr->length = 0;
+    arr->capacity = initial_capacity;
     arr->elem_type = elem_type;
     arr->elem_size = get_element_size(elem_type);
     
@@ -140,6 +174,26 @@ DynArray* dyn_array_push_string(DynArray* arr, const char* value) {
     arr->length++;
     
     return arr;
+}
+
+/* Push string (makes a copy with strdup) */
+DynArray* dyn_array_push_string_copy(DynArray* arr, const char* value) {
+    assert(arr != NULL && "DynArray: NULL array");
+    assert(arr->elem_type == ELEM_STRING && "DynArray: Type mismatch");
+    
+    if (value == NULL) {
+        return arr;  /* Silently ignore NULL strings */
+    }
+    
+    /* Duplicate the string */
+    char* copy = strdup(value);
+    if (copy == NULL) {
+        fprintf(stderr, "DynArray: Out of memory duplicating string\n");
+        return arr;
+    }
+    
+    /* Use regular push with the copy */
+    return dyn_array_push_string(arr, copy);
 }
 
 DynArray* dyn_array_push_array(DynArray* arr, DynArray* value) {

@@ -1,0 +1,59 @@
+/* =============================================================================
+ * std::collections::array_utils - Array helpers
+ * =============================================================================
+ */
+
+module std_collections_array_utils
+
+fn str_compare(a: string, b: string) -> int {
+    let la: int = (str_length a)
+    let lb: int = (str_length b)
+    let mut i: int = 0
+    let min_len: int = (cond
+        ((< la lb) la)
+        (else lb)
+    )
+    while (< i min_len) {
+        let ca: int = (char_at a i)
+        let cb: int = (char_at b i)
+        if (< ca cb) { return -1 }
+        if (> ca cb) { return 1 }
+        set i (+ i 1)
+    }
+    if (< la lb) { return -1 }
+    if (> la lb) { return 1 }
+    return 0
+}
+
+shadow str_compare {
+    assert (== (str_compare "a" "b") -1)
+    assert (== (str_compare "b" "a") 1)
+    assert (== (str_compare "a" "a") 0)
+}
+
+pub fn array_sort_strings(items: array<string>) -> array<string> {
+    let mut out: array<string> = items
+    let n: int = (array_length out)
+    let mut i: int = 0
+    while (< i n) {
+        let mut j: int = 0
+        while (< j (- n 1)) {
+            let a: string = (at out j)
+            let b: string = (at out (+ j 1))
+            if (> (str_compare a b) 0) {
+                (array_set out j b)
+                (array_set out (+ j 1) a)
+            }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow array_sort_strings {
+    let sorted: array<string> = (array_sort_strings ["b", "a", "c"])
+    assert (== (at sorted 0) "a")
+    assert (== (at sorted 1) "b")
+    assert (== (at sorted 2) "c")
+}

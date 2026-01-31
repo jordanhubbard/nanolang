@@ -1,0 +1,155 @@
+# OpenGL Solar System (Classic Hierarchical Transform Demo)
+# Demonstrates:
+# - Perspective projection
+# - Lighting + materials
+# - Hierarchical transforms (sun/planet/moon orbits)
+#
+# Controls:
+#   ESC - Quit
+
+unsafe module "modules/glfw/glfw.nano"
+unsafe module "modules/glew/glew.nano"
+unsafe module "modules/opengl/opengl.nano"
+module "modules/glut/glut.nano"
+
+let WINDOW_WIDTH: int = 1000
+let WINDOW_HEIGHT: int = 800
+
+fn setup_opengl() -> void {
+    (glEnable GL_DEPTH_TEST)
+    (glDepthFunc GL_LESS)
+
+    (glEnable GL_LIGHTING)
+    (glEnable GL_LIGHT0)
+    (glEnable GL_COLOR_MATERIAL)
+    (glColorMaterial GL_FRONT_AND_BACK GL_AMBIENT_AND_DIFFUSE)
+    (glEnable GL_NORMALIZE)
+
+    (glMatrixMode GL_PROJECTION)
+    (glLoadIdentity)
+    let aspect: float = (/ (cast_float WINDOW_WIDTH) (cast_float WINDOW_HEIGHT))
+    (glFrustum (* -0.6 aspect) (* 0.6 aspect) -0.6 0.6 1.0 200.0)
+    (glMatrixMode GL_MODELVIEW)
+
+    (glClearColor 0.02 0.02 0.05 1.0)
+}
+
+shadow setup_opengl { assert true }
+
+fn setup_lighting(time_s: float) -> void {
+    # Animate light a bit for drama
+    let lx: float = (* 10.0 (cos (* time_s 0.6)))
+    let lz: float = (* 10.0 (sin (* time_s 0.6)))
+    (nl_glLightfv4 GL_LIGHT0 GL_POSITION lx 12.0 lz 1.0)
+    (nl_glLightfv4 GL_LIGHT0 GL_AMBIENT 0.15 0.15 0.15 1.0)
+    (nl_glLightfv4 GL_LIGHT0 GL_DIFFUSE 1.0 1.0 1.0 1.0)
+    (nl_glLightfv4 GL_LIGHT0 GL_SPECULAR 1.0 1.0 1.0 1.0)
+}
+
+shadow setup_lighting { assert true }
+
+fn draw_solar_system(time_s: float) -> void {
+    (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
+    (glLoadIdentity)
+    (glTranslatef 0.0 0.0 -55.0)
+
+    (setup_lighting time_s)
+
+    # Sun
+    (glPushMatrix)
+    (glColor3f 1.0 0.75 0.1)
+    (nl_glMaterialfv4 GL_FRONT GL_SPECULAR 0.9 0.9 0.7 1.0)
+    (glMaterialf GL_FRONT GL_SHININESS 64.0)
+    (glutSolidSphere 6.0 32 24)
+    (glPopMatrix)
+
+    # Earth orbit
+    let earth_orbit: float = (* time_s 25.0)
+    (glPushMatrix)
+    (glRotatef earth_orbit 0.0 1.0 0.0)
+    (glTranslatef 20.0 0.0 0.0)
+
+    # Earth
+    (glColor3f 0.2 0.4 1.0)
+    (nl_glMaterialfv4 GL_FRONT GL_SPECULAR 0.5 0.5 0.7 1.0)
+    (glMaterialf GL_FRONT GL_SHININESS 32.0)
+    (glutSolidSphere 2.5 24 18)
+
+    # Moon orbit around earth
+    let moon_orbit: float = (* time_s 80.0)
+    (glPushMatrix)
+    (glRotatef moon_orbit 0.0 1.0 0.0)
+    (glTranslatef 5.0 0.0 0.0)
+    (glColor3f 0.75 0.75 0.8)
+    (nl_glMaterialfv4 GL_FRONT GL_SPECULAR 0.2 0.2 0.25 1.0)
+    (glMaterialf GL_FRONT GL_SHININESS 8.0)
+    (glutSolidSphere 1.0 18 14)
+    (glPopMatrix)
+
+    (glPopMatrix)
+
+    # Saturn-style ring planet
+    let sat_orbit: float = (* time_s 14.0)
+    (glPushMatrix)
+    (glRotatef sat_orbit 0.0 1.0 0.0)
+    (glTranslatef -34.0 0.0 0.0)
+    (glColor3f 0.8 0.6 0.3)
+    (glutSolidSphere 3.2 24 18)
+
+    (glRotatef 25.0 1.0 0.0 0.0)
+    (glColor4f 0.7 0.7 0.8 0.7)
+    (glEnable GL_BLEND)
+    (glBlendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA)
+    (glutSolidTorus 0.25 5.2 18 40)
+    (glDisable GL_BLEND)
+
+    (glPopMatrix)
+}
+
+shadow draw_solar_system { assert true }
+
+fn main() -> int {
+    if (== (glfwInit) 0) {
+        (println "✗ Failed to initialize GLFW")
+        return 1
+    } else {}
+
+    let window: GLFWwindow = (glfwCreateWindow WINDOW_WIDTH WINDOW_HEIGHT "OpenGL Solar System - NanoLang" 0 0)
+    if (== window 0) {
+        (println "✗ Failed to create window")
+        (glfwTerminate)
+        return 1
+    } else {}
+
+    (glfwMakeContextCurrent window)
+    (glfwSwapInterval 1)
+
+    let glew_status: int = (glewInit)
+    if (!= glew_status GLEW_OK) {
+        (println "✗ Failed to initialize GLEW")
+        (glfwTerminate)
+        return 1
+    } else {}
+
+    (setup_opengl)
+    (println "✓ Running Solar System demo (ESC to quit)")
+
+    while (== (glfwWindowShouldClose window) 0) {
+        if (== (glfwGetKey window GLFW_KEY_ESCAPE) 1) {
+            (glfwSetWindowShouldClose window 1)
+        } else {}
+
+        let t: float = (glfwGetTime)
+        (draw_solar_system t)
+
+        (glfwSwapBuffers window)
+        (glfwPollEvents)
+    }
+
+    (glfwDestroyWindow window)
+    (glfwTerminate)
+    return 0
+}
+
+shadow main { assert true }
+

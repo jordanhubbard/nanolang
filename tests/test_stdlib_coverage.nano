@@ -1,0 +1,511 @@
+# Comprehensive tests for stdlib functions to improve code coverage
+# Tests basic stdlib operations that may not be covered elsewhere
+
+# Test string operations
+fn test_string_ops() -> bool {
+    # Test str_length
+    let empty: string = ""
+    let empty_len: int = (str_length empty)
+    if (!= empty_len 0) {
+        return false
+    } else {}
+    
+    let hello: string = "hello"
+    let hello_len: int = (str_length hello)
+    if (!= hello_len 5) {
+        return false
+    } else {}
+    
+    # Test str_equals
+    let equals_result: bool = (== hello "hello")
+    if (not equals_result) {
+        return false
+    } else {}
+    
+    if (== hello "world") {
+        return false
+    } else {}
+    
+    # Test str_contains
+    let contains_result: bool = (str_contains hello "ell")
+    if (not contains_result) {
+        return false
+    } else {}
+    
+    if (str_contains hello "xyz") {
+        return false
+    } else {}
+    
+    # Test string concatenation
+    let world: string = "world"
+    let combined: string = (+ hello world)
+    let concat_result: bool = (== combined "helloworld")
+    if (not concat_result) {
+        return false
+    } else {}
+    
+    # Test str_substring
+    let sub: string = (str_substring hello 1 3)
+    let sub_result: bool = (== sub "ell")
+    if (not sub_result) {
+        return false
+    } else {}
+    
+    return true
+}
+
+# Test array operations
+fn test_array_ops() -> bool {
+    # Test array_new
+    let arr: array<int> = (array_new 5 0)
+    let arr_len: int = (array_length arr)
+    if (!= arr_len 5) {
+        return false
+    } else {}
+    
+    # Test array_set and array_get (using 'at')
+    (array_set arr 0 10)
+    (array_set arr 1 20)
+    (array_set arr 2 30)
+    (array_set arr 3 40)
+    (array_set arr 4 50)
+    
+    let val0: int = (at arr 0)
+    if (!= val0 10) {
+        return false
+    } else {}
+    
+    let val1: int = (at arr 1)
+    if (!= val1 20) {
+        return false
+    } else {}
+    
+    let val2: int = (at arr 2)
+    if (!= val2 30) {
+        return false
+    } else {}
+    
+    let val3: int = (at arr 3)
+    if (!= val3 40) {
+        return false
+    } else {}
+    
+    let val4: int = (at arr 4)
+    if (!= val4 50) {
+        return false
+    } else {}
+    
+    return true
+}
+
+# Test array of strings
+fn test_array_strings() -> bool {
+    let arr: array<string> = (array_new 3 "")
+    (array_set arr 0 "first")
+    (array_set arr 1 "second")
+    (array_set arr 2 "third")
+    
+    if (not (== (at arr 0) "first")) {
+        return false
+    } else {}
+    
+    if (not (== (at arr 1) "second")) {
+        return false
+    } else {}
+    
+    if (not (== (at arr 2) "third")) {
+        return false
+    } else {}
+    
+    return true
+}
+
+# Test array of booleans
+fn test_array_bools() -> bool {
+    let arr: array<bool> = (array_new 3 false)
+    (array_set arr 0 true)
+    (array_set arr 1 false)
+    (array_set arr 2 true)
+    
+    if (not (== (at arr 0) true)) {
+        return false
+    } else {}
+    
+    if (not (== (at arr 1) false)) {
+        return false
+    } else {}
+    
+    if (not (== (at arr 2) true)) {
+        return false
+    } else {}
+    
+    return true
+}
+
+# Test int_to_string
+fn test_int_to_string() -> bool {
+    let s0: string = (int_to_string 0)
+    if (not (== s0 "0")) {
+        return false
+    } else {}
+    
+    let s42: string = (int_to_string 42)
+    if (not (== s42 "42")) {
+        return false
+    } else {}
+    
+    let sneg: string = (int_to_string -123)
+    if (not (== sneg "-123")) {
+        return false
+    } else {}
+    
+    return true
+}
+
+# Test arithmetic operations
+fn test_arithmetic() -> bool {
+    # Addition
+    let add_result: int = (+ 5 3)
+    if (!= add_result 8) {
+        return false
+    } else {}
+    
+    # Subtraction
+    let sub_result: int = (- 10 4)
+    if (!= sub_result 6) {
+        return false
+    } else {}
+    
+    # Multiplication
+    let mul_result: int = (* 7 6)
+    if (!= mul_result 42) {
+        return false
+    } else {}
+    
+    # Division
+    let div_result: int = (/ 20 5)
+    if (!= div_result 4) {
+        return false
+    } else {}
+    
+    # Modulo
+    let mod_result: int = (% 17 5)
+    if (!= mod_result 2) {
+        return false
+    } else {}
+    
+    return true
+}
+
+# Test comparison operations
+fn test_comparisons() -> bool {
+    # Equality - use positive assertions
+    let eq_result: bool = (== 5 5)
+    if (not eq_result) {
+        return false
+    } else {}
+    
+    if (== 5 6) {
+        return false
+    } else {}
+    
+    # Inequality
+    let ne_result: bool = (!= 5 6)
+    if (not ne_result) {
+        return false
+    } else {}
+    
+    if (!= 5 5) {
+        return false
+    } else {}
+    
+    # Less than
+    let lt_result: bool = (< 3 5)
+    if (not lt_result) {
+        return false
+    } else {}
+    
+    if (< 5 3) {
+        return false
+    } else {}
+    
+    # Greater than
+    let gt_result: bool = (> 7 3)
+    if (not gt_result) {
+        return false
+    } else {}
+    
+    if (> 3 7) {
+        return false
+    } else {}
+    
+    # Less than or equal
+    let le1_result: bool = (<= 3 5)
+    if (not le1_result) {
+        return false
+    } else {}
+    
+    let le2_result: bool = (<= 5 5)
+    if (not le2_result) {
+        return false
+    } else {}
+    
+    if (<= 7 5) {
+        return false
+    } else {}
+    
+    # Greater than or equal
+    let ge1_result: bool = (>= 7 5)
+    if (not ge1_result) {
+        return false
+    } else {}
+    
+    let ge2_result: bool = (>= 5 5)
+    if (not ge2_result) {
+        return false
+    } else {}
+    
+    if (>= 3 5) {
+        return false
+    } else {}
+    
+    return true
+}
+
+# Test logical operations
+fn test_logical() -> bool {
+    # AND
+    let and1: bool = (and true true)
+    if (not and1) {
+        return false
+    } else {}
+    
+    if (and true false) {
+        return false
+    } else {}
+    
+    if (and false true) {
+        return false
+    } else {}
+    
+    if (and false false) {
+        return false
+    } else {}
+    
+    # OR
+    let or1: bool = (or true true)
+    if (not or1) {
+        return false
+    } else {}
+    
+    let or2: bool = (or true false)
+    if (not or2) {
+        return false
+    } else {}
+    
+    let or3: bool = (or false true)
+    if (not or3) {
+        return false
+    } else {}
+    
+    if (or false false) {
+        return false
+    } else {}
+    
+    # NOT
+    let not1: bool = (not false)
+    if (not not1) {
+        return false
+    } else {}
+    
+    if (not true) {
+        return false
+    } else {}
+    
+    return true
+}
+
+# Test float operations
+fn test_float_ops() -> bool {
+    let f1: float = 3.14
+    let f2: float = 2.0
+    
+    # Float addition
+    let sum: float = (+ f1 f2)
+    if (< sum 5.0) {
+        return false
+    } else {}
+    if (> sum 5.2) {
+        return false
+    } else {}
+    
+    # Float multiplication
+    let prod: float = (* f1 f2)
+    if (< prod 6.0) {
+        return false
+    } else {}
+    if (> prod 6.5) {
+        return false
+    } else {}
+    
+    # Float comparisons
+    let cmp1: bool = (> 5.5 3.3)
+    if (not cmp1) {
+        return false
+    } else {}
+    
+    let cmp2: bool = (< 2.1 4.7)
+    if (not cmp2) {
+        return false
+    } else {}
+    
+    return true
+}
+
+# Test type casts
+fn test_casts() -> bool {
+    # int to float
+    let i: int = 42
+    let f: float = (cast_float i)
+    if (< f 41.9) {
+        return false
+    } else {}
+    if (> f 42.1) {
+        return false
+    } else {}
+    
+    # float to int
+    let fi: float = 3.7
+    let ii: int = (cast_int fi)
+    if (!= ii 3) {
+        return false
+    } else {}
+    
+    return true
+}
+
+# Shadow tests for all functions
+shadow test_string_ops {
+    assert (test_string_ops)
+}
+
+shadow test_array_ops {
+    assert (test_array_ops)
+}
+
+shadow test_array_strings {
+    assert (test_array_strings)
+}
+
+shadow test_array_bools {
+    assert (test_array_bools)
+}
+
+shadow test_int_to_string {
+    assert (test_int_to_string)
+}
+
+shadow test_arithmetic {
+    assert (test_arithmetic)
+}
+
+shadow test_comparisons {
+    assert (test_comparisons)
+}
+
+shadow test_logical {
+    assert (test_logical)
+}
+
+shadow test_float_ops {
+    assert (test_float_ops)
+}
+
+shadow test_casts {
+    assert (test_casts)
+}
+
+# Main function to run all tests
+fn main() -> int {
+    (println "=== Stdlib Coverage Tests ===")
+    (println "")
+    
+    if (not (test_string_ops)) {
+        (println "❌ test_string_ops failed")
+        return 1
+    } else {
+        (println "✅ test_string_ops passed")
+    }
+    
+    if (not (test_array_ops)) {
+        (println "❌ test_array_ops failed")
+        return 1
+    } else {
+        (println "✅ test_array_ops passed")
+    }
+    
+    if (not (test_array_strings)) {
+        (println "❌ test_array_strings failed")
+        return 1
+    } else {
+        (println "✅ test_array_strings passed")
+    }
+    
+    if (not (test_array_bools)) {
+        (println "❌ test_array_bools failed")
+        return 1
+    } else {
+        (println "✅ test_array_bools passed")
+    }
+    
+    if (not (test_int_to_string)) {
+        (println "❌ test_int_to_string failed")
+        return 1
+    } else {
+        (println "✅ test_int_to_string passed")
+    }
+    
+    if (not (test_arithmetic)) {
+        (println "❌ test_arithmetic failed")
+        return 1
+    } else {
+        (println "✅ test_arithmetic passed")
+    }
+    
+    if (not (test_comparisons)) {
+        (println "❌ test_comparisons failed")
+        return 1
+    } else {
+        (println "✅ test_comparisons passed")
+    }
+    
+    if (not (test_logical)) {
+        (println "❌ test_logical failed")
+        return 1
+    } else {
+        (println "✅ test_logical passed")
+    }
+    
+    if (not (test_float_ops)) {
+        (println "❌ test_float_ops failed")
+        return 1
+    } else {
+        (println "✅ test_float_ops passed")
+    }
+    
+    if (not (test_casts)) {
+        (println "❌ test_casts failed")
+        return 1
+    } else {
+        (println "✅ test_casts passed")
+    }
+    
+    (println "")
+    (println "🎉 All stdlib coverage tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

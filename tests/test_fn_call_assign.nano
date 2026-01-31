@@ -4,8 +4,19 @@ fn double(x: int) -> int {
     return (* x 2)
 }
 
+shadow double {
+    assert (== (double 5) 10)
+    assert (== (double 0) 0)
+    assert (== (double -3) -6)
+}
+
 fn get_double() -> fn(int) -> int {
     return double
+}
+
+shadow get_double {
+    let f: fn(int) -> int = (get_double)
+    assert (== (f 5) 10)
 }
 
 fn main() -> int {
@@ -13,5 +24,9 @@ fn main() -> int {
     let result: int = (f 5)
     (print "Result: ")
     (println result)
-    return result
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }

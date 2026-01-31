@@ -1,0 +1,212 @@
+# OpenGL Rotating Cube Demo
+# Demonstrates GLFW + GLEW integration with 3D graphics
+#
+# Installation:
+#   macOS:  brew install glfw glew
+#   Linux:  sudo apt install libglfw3-dev libglew-dev
+
+unsafe module "modules/glfw/glfw.nano"
+unsafe module "modules/glew/glew.nano"
+unsafe module "modules/opengl/opengl.nano"
+
+# Note: OpenGL/GLFW constants are provided by the modules.
+
+# Window dimensions
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+
+# === Helper Functions ===
+
+fn check_gl_error(operation: string) -> void {
+    let error: int = (glGetError)
+    if (!= error GL_NO_ERROR) {
+        (print "OpenGL Error after ")
+        (print operation)
+        (print ": ")
+        (println error)
+    } else {}
+}
+
+fn print_gl_info() -> void {
+    (println "OpenGL context initialized successfully")
+    # Note: glGetString calls removed to avoid pointer type warnings
+    # The OpenGL info would normally be printed here
+}
+
+fn setup_opengl() -> void {
+    # Enable depth testing for 3D
+    (glEnable GL_DEPTH_TEST)
+        
+    # Set up projection matrix
+    (glMatrixMode GL_PROJECTION)
+    (glLoadIdentity)
+        
+    # Orthographic projection (symmetric cube view)
+    (glOrtho -2.0 2.0 -2.0 2.0 0.1 100.0)
+        
+    # Switch to modelview matrix
+    (glMatrixMode GL_MODELVIEW)
+}
+
+fn draw_cube(rotation: float) -> void {
+    # Clear buffers
+    (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
+        
+    # Reset modelview matrix
+    (glLoadIdentity)
+        
+    # Move cube away from camera (same as teapot)
+    (glTranslatef 0.0 0.0 -5.0)
+        
+    # Rotate cube on two axes like teapot
+    (glRotatef rotation 0.0 1.0 0.0)
+    (glRotatef (* rotation 0.5) 1.0 0.0 0.0)
+        
+    # Draw cube with colored faces
+    (glBegin GL_QUADS)
+        
+    # Front face (red)
+    (glColor3f 1.0 0.0 0.0)
+    (glVertex3f -1.0 -1.0 1.0)
+    (glVertex3f 1.0 -1.0 1.0)
+    (glVertex3f 1.0 1.0 1.0)
+    (glVertex3f -1.0 1.0 1.0)
+        
+    # Back face (green)
+    (glColor3f 0.0 1.0 0.0)
+    (glVertex3f -1.0 -1.0 -1.0)
+    (glVertex3f -1.0 1.0 -1.0)
+    (glVertex3f 1.0 1.0 -1.0)
+    (glVertex3f 1.0 -1.0 -1.0)
+        
+    # Top face (blue)
+    (glColor3f 0.0 0.0 1.0)
+    (glVertex3f -1.0 1.0 -1.0)
+    (glVertex3f -1.0 1.0 1.0)
+    (glVertex3f 1.0 1.0 1.0)
+    (glVertex3f 1.0 1.0 -1.0)
+        
+    # Bottom face (yellow)
+    (glColor3f 1.0 1.0 0.0)
+    (glVertex3f -1.0 -1.0 -1.0)
+    (glVertex3f 1.0 -1.0 -1.0)
+    (glVertex3f 1.0 -1.0 1.0)
+    (glVertex3f -1.0 -1.0 1.0)
+        
+    # Right face (magenta)
+    (glColor3f 1.0 0.0 1.0)
+    (glVertex3f 1.0 -1.0 -1.0)
+    (glVertex3f 1.0 1.0 -1.0)
+    (glVertex3f 1.0 1.0 1.0)
+    (glVertex3f 1.0 -1.0 1.0)
+        
+    # Left face (cyan)
+    (glColor3f 0.0 1.0 1.0)
+    (glVertex3f -1.0 -1.0 -1.0)
+    (glVertex3f -1.0 -1.0 1.0)
+    (glVertex3f -1.0 1.0 1.0)
+    (glVertex3f -1.0 1.0 -1.0)
+        
+    (glEnd)
+}
+
+fn main() -> int {
+    # Initialize GLFW
+    if (== (glfwInit) 0) {
+        (println "Failed to initialize GLFW!")
+        return 1
+    } else {
+        (println "✓ GLFW initialized")
+    }
+        
+    # Create window  
+    let window: GLFWwindow = (glfwCreateWindow WINDOW_WIDTH WINDOW_HEIGHT "OpenGL Rotating Cube - nanolang" 0 0)
+    if (== window 0) {
+        (println "Failed to create GLFW window!")
+        (glfwTerminate)
+        return 1
+    } else {
+        (println "✓ Window created")
+    }
+        
+    # Make OpenGL context current
+    (glfwMakeContextCurrent window)
+        
+    # Initialize GLEW (AFTER making context current!)
+    let glew_status: int = (glewInit)
+    if (!= glew_status GLEW_OK) {
+        (println "Failed to initialize GLEW!")
+        (glfwTerminate)
+        return 1
+    } else {
+        (println "✓ GLEW initialized")
+    }
+        
+    # Print OpenGL diagnostics
+    (println "")
+    (println "=== OpenGL Diagnostics ===")
+    (print_gl_info)
+    (check_gl_error "after GLEW init")
+    (println "")
+        
+    # Set up OpenGL
+    (setup_opengl)
+    (check_gl_error "setup_opengl")
+        
+    # Set clear color (dark blue background)
+    (glClearColor 0.1 0.1 0.15 1.0)
+    (check_gl_error "glClearColor")
+        
+    (println "✓ OpenGL setup complete")
+    (println "✓ Starting render loop...")
+    (println "")
+        
+    # Animation state
+    let mut rotation: float = 0.0
+    let mut frame_count: int = 0
+        
+    # Main loop
+    while (== (glfwWindowShouldClose window) 0) {
+        # Update rotation (same speed as teapot)
+        set rotation (+ rotation 0.8)
+        if (>= rotation 360.0) {
+            set rotation (- rotation 360.0)
+        } else {}
+            
+        # Draw scene
+        (draw_cube rotation)
+            
+        # Swap buffers and poll events
+        (glfwSwapBuffers window)
+        (glfwPollEvents)
+            
+        # Frame counter
+        set frame_count (+ frame_count 1)
+    }
+        
+    (println "")
+    (print "Rendered ")
+    (print frame_count)
+    (println " frames")
+        
+    # Cleanup
+    (glfwDestroyWindow window)
+    (glfwTerminate)
+    (println "✓ Cleanup complete")
+        
+    return 0
+}
+
+shadow check_gl_error { assert true }
+
+shadow print_gl_info { assert true }
+
+shadow setup_opengl { assert true }
+
+shadow draw_cube { assert true }
+
+shadow main {
+    # Can't test GLFW in interpreter (requires window system)
+    # assert (== (main) 0)
+}
+

@@ -1,0 +1,230 @@
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+
+extern fn rand() -> int
+extern fn srand(seed: int) -> void
+extern fn time(t: int) -> int
+
+let WINDOW_WIDTH: int = 960
+let WINDOW_HEIGHT: int = 720
+let CELL_SIZE: int = 4
+let GRID_WIDTH: int = (/ WINDOW_WIDTH CELL_SIZE)
+let GRID_HEIGHT: int = (/ WINDOW_HEIGHT CELL_SIZE)
+let COLOR_CYCLE_STEPS: int = 10
+
+fn grid_index(x: int, y: int) -> int {
+    return (+ (* y GRID_WIDTH) x)
+}
+
+shadow grid_index {
+    assert (== (grid_index 0 0) 0)
+    assert (== (grid_index 5 2) (+ (* 2 GRID_WIDTH) 5))
+}
+
+fn apply_rules(current: int, neighbors: int) -> int {
+    if (== current 1) {
+        if (or (< neighbors 2) (> neighbors 3)) {
+            return 0
+        } else {
+            return 1
+        }
+    } else {
+        if (== neighbors 3) {
+            return 1
+        } else {
+            return 0
+        }
+    }
+}
+
+shadow apply_rules {
+    assert (== (apply_rules 1 1) 0)
+    assert (== (apply_rules 1 3) 1)
+    assert (== (apply_rules 0 3) 1)
+    assert (== (apply_rules 0 2) 0)
+}
+
+fn count_neighbors(grid: array<int>, x: int, y: int) -> int {
+    let mut total: int = 0
+    let mut dy: int = -1
+    while (<= dy 1) {
+        let mut dx: int = -1
+        while (<= dx 1) {
+            if (or (!= dx 0) (!= dy 0)) {
+                let nx: int = (+ x dx)
+                let ny: int = (+ y dy)
+                if (and (>= nx 0) (< nx GRID_WIDTH)) {
+                    if (and (>= ny 0) (< ny GRID_HEIGHT)) {
+                        let idx: int = (grid_index nx ny)
+                        set total (+ total (at grid idx))
+                    } else {}
+                } else {}
+            } else {}
+            set dx (+ dx 1)
+        }
+        set dy (+ dy 1)
+    }
+    return total
+}
+
+shadow count_neighbors {
+    assert true
+}
+
+fn randomize_grid(grid: array<int>) -> array<int> {
+    let mut i: int = 0
+    while (< i (array_length grid)) {
+        let value: int = (% (rand) 3)
+        if (== value 0) {
+            (array_set grid i 1)
+        } else {
+            (array_set grid i 0)
+        }
+        set i (+ i 1)
+    }
+    return grid
+}
+
+shadow randomize_grid {
+    let mut grid: array<int> = [0, 0, 0]
+    set grid (randomize_grid grid)
+    let sum: int = (+ (+ (at grid 0) (at grid 1)) (at grid 2))
+    assert (>= sum 0)
+}
+
+fn step_generation(current: array<int>) -> array<int> {
+    let mut next: array<int> = (array_new (array_length current) 0)
+    let mut y: int = 0
+    while (< y GRID_HEIGHT) {
+        let mut x: int = 0
+        while (< x GRID_WIDTH) {
+            let idx: int = (grid_index x y)
+            let cell: int = (at current idx)
+            let neighbors: int = (count_neighbors current x y)
+            let new_state: int = (apply_rules cell neighbors)
+            (array_set next idx new_state)
+            set x (+ x 1)
+        }
+        set y (+ y 1)
+    }
+    return next
+}
+
+shadow step_generation { assert true }
+
+fn get_palette_index(step: int, palette: array<int>) -> int {
+    let palette_count: int = (/ (array_length palette) 3)
+    if (== palette_count 0) {
+        return 0
+    }
+    return (% step palette_count)
+}
+
+shadow get_palette_index {
+    let palette: array<int> = [1, 2, 3, 4, 5, 6]
+    assert (== (get_palette_index 0 palette) 0)
+    assert (== (get_palette_index 7 palette) 1)
+}
+
+fn render_grid(renderer: SDL_Renderer, grid: array<int>, color_step: int, palette: array<int>) -> void {
+    let palette_index: int = (get_palette_index color_step palette)
+    let r: int = (at palette (* palette_index 3))
+    let g: int = (at palette (+ (* palette_index 3) 1))
+    let b: int = (at palette (+ (* palette_index 3) 2))
+
+    let mut y: int = 0
+    while (< y GRID_HEIGHT) {
+        let mut x: int = 0
+        while (< x GRID_WIDTH) {
+            let idx: int = (grid_index x y)
+            if (== (at grid idx) 1) {
+                (SDL_SetRenderDrawColor renderer r g b 255) 
+                (nl_sdl_render_fill_rect renderer (* x CELL_SIZE) (* y CELL_SIZE) CELL_SIZE CELL_SIZE) 
+            } else {}
+            set x (+ x 1)
+        }
+        set y (+ y 1)
+    }
+}
+
+shadow render_grid { assert true }
+
+fn main() -> int {
+    (SDL_Init SDL_INIT_VIDEO) 
+    (TTF_Init) 
+
+    let window: SDL_Window = (SDL_CreateWindow "SDL Game of Life" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 14)
+
+    let t: int = (time 0)
+    (srand t) 
+
+    let mut grid: array<int> = []
+    let mut init_i: int = 0
+    while (< init_i (* GRID_WIDTH GRID_HEIGHT)) {
+        set grid (array_push grid 0)
+        set init_i (+ init_i 1)
+    }
+    set grid (randomize_grid grid)
+
+    let color_palette: array<int> = [
+        194, 178, 128,
+        64, 164, 223,
+        120, 200, 140,
+        255, 120, 160,
+        250, 250, 210
+    ]
+
+    let mut running: bool = true
+    let mut generation: int = 0
+    let mut color_step: int = 0
+
+    while running {
+        if (== (nl_sdl_poll_event_quit) 1) {
+            set running false
+        } else {
+            let mut key: int = -1
+            set key (nl_sdl_poll_keypress) 
+            if (== key 41) {
+                set running false
+            } else {
+                if (== key 21) {
+                    set grid (randomize_grid grid)
+                    set generation 0
+                    set color_step 0
+                } else {}
+            }
+        }
+
+        set grid (step_generation grid)
+        set generation (+ generation 1)
+        if (== (% generation COLOR_CYCLE_STEPS) 0) {
+            set color_step (+ color_step 1)
+        } else {}
+
+        (SDL_SetRenderDrawColor renderer 4 4 8 255) 
+        (SDL_RenderClear renderer) 
+        (render_grid renderer grid color_step color_palette)
+
+        let hud_text: string = (+ "Generation: " (+ (int_to_string generation) " (press Q to re-seed)"))
+        (nl_draw_text_blended renderer font hud_text 10 10 230 230 240 255) 
+
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 60) 
+    }
+
+    (TTF_CloseFont font)
+    (TTF_Quit)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+
+    return 0
+}
+
+shadow main {
+    assert true
+}

@@ -1,0 +1,170 @@
+# GNU Readline FFI Bindings
+# Interactive line editing with history support
+#
+# This module provides line editing capabilities including:
+# - Line editing (Emacs and vi modes)
+# - Command history with search
+# - Programmable completion
+# - Customizable key bindings
+#
+# Usage:
+#   from "modules/readline/readline.nano" import rl_readline, rl_add_history
+
+module readline
+
+# === EXTERNAL C WRAPPERS ===
+
+# Core readline function - reads a line with editing and prompt
+# Returns empty string on EOF (Ctrl-D)
+extern fn rl_readline_wrapper(_prompt: string) -> string
+
+# History management
+extern fn rl_add_history_wrapper(_line: string) -> void
+extern fn rl_clear_history_wrapper() -> void
+extern fn rl_history_length_wrapper() -> int
+extern fn rl_history_get_wrapper(_index: int) -> string
+
+# Readline state control
+extern fn rl_initialize_wrapper() -> int
+extern fn rl_cleanup_wrapper() -> void
+
+# Check if input is available (non-blocking check)
+extern fn rl_input_available_wrapper() -> int
+
+# Set readline variables
+extern fn rl_set_prompt_wrapper(_prompt: string) -> void
+
+# History file operations
+extern fn rl_read_history_wrapper(_filename: string) -> int
+extern fn rl_write_history_wrapper(_filename: string) -> int
+
+# === PUBLIC API ===
+
+# Read a line with the given prompt
+# Returns the input string (without newline)
+# Returns empty string on EOF (user pressed Ctrl-D)
+pub fn rl_readline(prompt: string) -> string {
+    unsafe {
+        return (rl_readline_wrapper prompt)
+    }
+}
+
+shadow rl_readline {
+    # Can't test interactive input in shadow test
+    assert true
+}
+
+# Add a line to the history
+pub fn rl_add_history(line: string) -> void {
+    unsafe {
+        (rl_add_history_wrapper line)
+    }
+}
+
+shadow rl_add_history {
+    # Add to history (no visible effect to test)
+    (rl_add_history "test")
+    assert true
+}
+
+# Clear all history entries
+pub fn rl_clear_history() -> void {
+    unsafe {
+        (rl_clear_history_wrapper)
+    }
+}
+
+shadow rl_clear_history {
+    (rl_clear_history)
+    assert true
+}
+
+# Get the number of history entries
+pub fn rl_history_length() -> int {
+    unsafe {
+        return (rl_history_length_wrapper)
+    }
+}
+
+shadow rl_history_length {
+    let len: int = (rl_history_length)
+    assert (>= len 0)
+}
+
+# Get a history entry by index (0 = oldest)
+pub fn rl_history_get(index: int) -> string {
+    unsafe {
+        return (rl_history_get_wrapper index)
+    }
+}
+
+shadow rl_history_get {
+    # Can't reliably test without adding history first
+    assert true
+}
+
+# Initialize readline (called automatically, but can be explicit)
+pub fn rl_initialize() -> int {
+    unsafe {
+        return (rl_initialize_wrapper)
+    }
+}
+
+shadow rl_initialize {
+    let result: int = (rl_initialize)
+    assert (== result 0)
+}
+
+# Cleanup readline resources
+pub fn rl_cleanup() -> void {
+    unsafe {
+        (rl_cleanup_wrapper)
+    }
+}
+
+shadow rl_cleanup {
+    (rl_cleanup)
+    assert true
+}
+
+# Read history from a file
+# Returns 0 on success, non-zero on error
+pub fn rl_read_history(filename: string) -> int {
+    unsafe {
+        return (rl_read_history_wrapper filename)
+    }
+}
+
+shadow rl_read_history {
+    # Reading non-existent file returns error
+    let result: int = (rl_read_history "/nonexistent/path")
+    assert (!= result 0)
+}
+
+# Write history to a file
+# Returns 0 on success, non-zero on error
+pub fn rl_write_history(filename: string) -> int {
+    unsafe {
+        return (rl_write_history_wrapper filename)
+    }
+}
+
+shadow rl_write_history {
+    # Can't test without a valid writable path
+    assert true
+}
+
+# === CONVENIENCE FUNCTIONS ===
+
+# Simple REPL loop helper - reads lines until EOF
+# Returns true if a line was read, false on EOF
+pub fn rl_has_input() -> bool {
+    unsafe {
+        return (> (rl_input_available_wrapper) 0)
+    }
+}
+
+shadow rl_has_input {
+    # Can't test interactively
+    assert true
+}

@@ -1,0 +1,35 @@
+# HTTP Hello World - Minimal Server Example
+# The simplest possible HTTP server in NanoLang
+#
+# Usage:
+#   ./bin/nanoc examples/http_hello_world.nano -o bin/http_hello_world
+#   ./bin/http_hello_world
+#
+# Visit: http://localhost:3000
+
+from "modules/http_server/http_server.nano" import HttpServer, create, set_static_dir, start, free_server
+
+fn main() -> int {
+    (println "🚀 Starting NanoLang HTTP Server...")
+    
+    let server: HttpServer = (create 3000)
+    
+    # For now, create a simple index.html to serve
+    # Full programmatic route handlers coming soon!
+    (set_static_dir server "./examples/network/hello_public")
+    
+    (println "")
+    (println "✓ Server running at http://localhost:3000")
+    (println "  Create examples/network/hello_public/index.html to see your page")
+    (println "  Or visit any path to see 404 handling")
+    (println "")
+    (println "Press Ctrl+C to stop")
+    
+    let result: int = (start server)
+    
+    (free_server server)
+    return result
+}
+
+shadow main { assert true }
+

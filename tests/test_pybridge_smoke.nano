@@ -1,0 +1,25 @@
+from "modules/pybridge/pybridge.nano" import pybridge_init, pybridge_ping, pybridge_shutdown
+
+fn test_pybridge_smoke() -> int {
+    let reqs: array<string> = (array_new 0 "")
+    let ok: bool = (pybridge_init reqs false)
+    if ok {
+        let pong: string = (pybridge_ping)
+        assert (> (str_length pong) 0)
+        (pybridge_shutdown)
+    }
+    return 0
+}
+
+shadow test_pybridge_smoke {
+    assert (== (test_pybridge_smoke) 0)
+}
+
+fn main() -> int {
+    assert (== (test_pybridge_smoke) 0)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

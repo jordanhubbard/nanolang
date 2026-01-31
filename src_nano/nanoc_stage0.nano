@@ -61,9 +61,9 @@ fn main() -> int {
     (println "  (Using NanoLang compiler infrastructure)")
     
     (println "[3/4] Compiling via C backend...")
-    let cmd1: string = (str_concat "bin/nanoc " input)
-    let cmd2: string = (str_concat cmd1 " -o ")
-    let cmd: string = (str_concat cmd2 output)
+    let cmd1: string = (+ "bin/nanoc " input)
+    let cmd2: string = (+ cmd1 " -o ")
+    let cmd: string = (+ cmd2 output)
     
     let result: int = (system cmd)
     

@@ -11,13 +11,42 @@ static const char* nl_strdup_or_empty(const char* s) {
     return out ? out : strdup("");
 }
 
-static char* nl_unescape_basic(const char* s) {
+/* Detect whether this looks like NanoLang-literal-escaped JSON (quotes escaped as \") */
+static bool nl_json_needs_literal_unescape(const char *s) {
+    if (!s) return false;
+    size_t raw_len = strnlen(s, 1024ULL * 1024ULL);
+
+    bool in_string = false;
+    int backslashes = 0;
+
+    for (size_t i = 0; i < raw_len; i++) {
+        char c = s[i];
+        if (!in_string && c == '\\' && (i + 1) < raw_len && s[i + 1] == '"') {
+            /* \" outside a JSON string: this is invalid JSON unless unescaped */
+            return true;
+        }
+
+        if (c == '\\') {
+            backslashes++;
+        } else {
+            if (c == '"' && (backslashes % 2) == 0) {
+                in_string = !in_string;
+            }
+            backslashes = 0;
+        }
+    }
+    return false;
+}
+
+/* Unescape NanoLang-literal JSON: turn \" -> " and \\ -> \ everywhere. */
+static char* nl_unescape_nanolang_literal_json(const char* s) {
     if (!s) return NULL;
-    int64_t raw_len = (int64_t)strnlen(s, 1024ULL * 1024ULL);
-    char* out = (char*)malloc((size_t)raw_len + 1);
+    size_t raw_len = strnlen(s, 1024ULL * 1024ULL);
+    char* out = (char*)malloc(raw_len + 1);
     if (!out) return NULL;
-    int64_t j = 0;
-    for (int64_t i = 0; i < raw_len; i++) {
+
+    size_t j = 0;
+    for (size_t i = 0; i < raw_len; i++) {
         char c = s[i];
         if (c == '\\' && (i + 1) < raw_len) {
             char n = s[i + 1];
@@ -35,13 +64,16 @@ static char* nl_unescape_basic(const char* s) {
 
 void* nl_json_parse(const char* text) {
     if (!text) return NULL;
-    /* Nanolang string literals preserve backslashes, so JSON text like
-     * "{\"a\": 1}" arrives with literal '\\' characters.
-     */
-    char* unescaped = nl_unescape_basic(text);
-    if (!unescaped) return NULL;
-    cJSON* out = cJSON_Parse(unescaped);
-    free(unescaped);
+    cJSON* out = NULL;
+    if (nl_json_needs_literal_unescape(text)) {
+        char* normalized = nl_unescape_nanolang_literal_json(text);
+        if (!normalized) return NULL;
+        out = cJSON_Parse(normalized);
+        free(normalized);
+    } else {
+        /* Treat as normal JSON text (e.g., from a file) */
+        out = cJSON_Parse(text);
+    }
     return (void*)out;
 }
 
@@ -109,7 +141,8 @@ DynArray* nl_json_object_keys(void* obj) {
 
     for (cJSON* it = ((cJSON*)obj)->child; it; it = it->next) {
         if (it->string) {
-            dyn_array_push_string(out, it->string);
+            /* Copy: key strings are owned by cJSON and become invalid after nl_json_free(obj). */
+            dyn_array_push_string_copy(out, it->string);
         }
     }
     return out;

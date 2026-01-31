@@ -1,0 +1,21 @@
+/* Test ensures clause with result */
+
+fn add(a: int, b: int) -> int
+requires (>= a 0)
+requires (>= b 0)
+ensures (>= result 0)
+{
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+    assert (== (add 0 0) 0)
+}
+
+fn main() -> int {
+    (println (int_to_string (add 5 10)))
+    return 0
+}
+
+shadow main { assert true }
