@@ -8,17 +8,33 @@ extern fn nl_timing_get_nanoseconds() -> int
 # Public API
 
 # Get current time in microseconds since epoch
-pub fn get_microseconds() -> int {
+pub fn get_microseconds() -> int
+ensures (>= result 0)
+{
     return (nl_timing_get_microseconds)
 }
 
+shadow get_microseconds {
+    let us: int = (get_microseconds)
+    assert (>= us 0)
+}
+
 # Get current time in nanoseconds (uses best available clock)
-pub fn get_nanoseconds() -> int {
+pub fn get_nanoseconds() -> int
+ensures (>= result 0)
+{
     return (nl_timing_get_nanoseconds)
 }
 
+shadow get_nanoseconds {
+    let ns: int = (get_nanoseconds)
+    assert (>= ns 0)
+}
+
 # Format microseconds as seconds with 4 decimal places
-pub fn format_microseconds(microseconds: int) -> string {
+pub fn format_microseconds(microseconds: int) -> string
+requires (>= microseconds 0)
+{
     let seconds: int = (/ microseconds 1000000)
     let remaining: int = (% microseconds 1000000)
     let decimals: int = (/ remaining 100)  # 100 us = 0.0001 s
@@ -62,7 +78,9 @@ shadow format_microseconds {
 }
 
 # Format nanoseconds as seconds with 4 decimal places
-pub fn format_nanoseconds(nanoseconds: int) -> string {
+pub fn format_nanoseconds(nanoseconds: int) -> string
+requires (>= nanoseconds 0)
+{
     let microseconds: int = (/ nanoseconds 1000)
     return (format_microseconds microseconds)
 }

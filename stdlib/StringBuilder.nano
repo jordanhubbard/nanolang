@@ -46,7 +46,9 @@ shadow StringBuilder_new {
 }
 
 /* Create a new StringBuilder with specific initial capacity */
-fn StringBuilder_with_capacity(capacity: int) -> StringBuilder {
+fn StringBuilder_with_capacity(capacity: int) -> StringBuilder
+requires (> capacity 0)
+{
     return StringBuilder {
         buffer: "",
         length: 0,
@@ -158,7 +160,9 @@ shadow StringBuilder_to_string {
 }
 
 /* Get current length */
-fn StringBuilder_length(sb: StringBuilder) -> int {
+fn StringBuilder_length(sb: StringBuilder) -> int
+ensures (>= result 0)
+{
     return sb.length
 }
 
@@ -255,7 +259,9 @@ shadow StringBuilder_join {
 }
 
 /* Repeat a string n times */
-fn StringBuilder_repeat(text: string, n: int) -> string {
+fn StringBuilder_repeat(text: string, n: int) -> string
+requires (>= n 0)
+{
     let sb_start: StringBuilder = (StringBuilder_new)
     let mut sb: StringBuilder = sb_start
     
@@ -272,7 +278,10 @@ shadow StringBuilder_repeat {
 }
 
 /* Build indentation string (spaces) */
-fn StringBuilder_indent(level: int, spaces_per_level: int) -> string {
+fn StringBuilder_indent(level: int, spaces_per_level: int) -> string
+requires (>= level 0)
+requires (>= spaces_per_level 0)
+{
     let total_spaces: int = (* level spaces_per_level)
     return (StringBuilder_repeat " " total_spaces)
 }
