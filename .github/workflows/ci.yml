@@ -100,15 +100,19 @@ jobs:
           sudo apt-get install -y build-essential
 
       - name: Build with AddressSanitizer
-        run: make sanitize
+        run: |
+          # Disable leak detection for exit-time leaks in short-lived compiler process
+          # AddressSanitizer still catches real memory issues (use-after-free, buffer overflow, etc.)
+          export ASAN_OPTIONS=detect_leaks=0
+          make sanitize
 
       - name: Complete 3-stage bootstrap with sanitizers
-        run: make build
+        run: |
+          export ASAN_OPTIONS=detect_leaks=0
+          make build
 
       - name: Run tests with sanitizers
         run: |
-          # Disable leak detection for exit-time leaks in short-lived compiler process
-          # AddressSanitizer still catches real memory issues (use-after-free, etc.)
           export ASAN_OPTIONS=detect_leaks=0
           make test
 
