@@ -13,5 +13,5 @@ This directory is the progressive NanoLang user guide.
 
 - `USERGUIDE_TIMEOUT=600` sets the HTML build timeout (seconds).
 - `USERGUIDE_BUILD_API_DOCS=1` forces API reference regeneration.
-- `NANO_USERGUIDE_HIGHLIGHT=0` disables syntax highlighting (default in CI).
+- `NANO_USERGUIDE_HIGHLIGHT=0` disables syntax highlighting (enabled by default after 26x speedup).
 - `NANO_USERGUIDE_TRACE=1` enables detailed build logging.

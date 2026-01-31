@@ -21,14 +21,14 @@ This guide is organized into four main parts:
 ### Part I: Language Fundamentals
 Learn the core NanoLang language, one concept at a time. Start here if you're new to NanoLang.
 
-- **Chapter 1:** Getting Started
-- **Chapter 2:** Basic Syntax & Types
-- **Chapter 3:** Variables & Bindings
-- **Chapter 4:** Functions
-- **Chapter 5:** Control Flow
-- **Chapter 6:** Collections
-- **Chapter 7:** Data Structures
-- **Chapter 8:** Modules & Imports
+- **Chapter 1:** [Getting Started](01_getting_started.md)
+- **Chapter 2:** [Control Flow](02_control_flow.md)
+- **Chapter 3:** [Basic Types](03_basic_types.md)
+- **Chapter 4:** [Higher-Level Patterns](04_higher_level_patterns.md)
+- **Chapter 5:** [Modules](05_modules.md)
+- **Chapter 6:** [Canonical Syntax](06_canonical_syntax.md)
+- **Chapter 7:** [Examples](07_examples.md)
+- **Chapter 8:** [LLM-Powered Profiling](08_profiling.md) ⭐ NEW
 
 ### Part II: Standard Library
 The batteries included with NanoLang - built-in utilities available in every program.
