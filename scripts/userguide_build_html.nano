@@ -128,18 +128,13 @@ fn coverage_enabled() -> bool {
 shadow coverage_enabled { assert true }
 
 fn highlight_enabled() -> bool {
+    # Syntax highlighting is now fast enough (26x speedup via direct ANSI generation)
+    # to enable everywhere, including CI. The 8KB limit in md_to_html is still a safety net.
     let flag: string = (get "NANO_USERGUIDE_HIGHLIGHT")
-    if (or (== flag "1") (== flag "true")) {
-        return true
-    } else {
-        if (or (== flag "0") (== flag "false")) {
-            return false
-        } else {
-            let ci: string = (get "CI")
-            if (== ci "true") { return false }
-            return true
-        }
+    if (or (== flag "0") (== flag "false")) {
+        return false
     }
+    return true
 }
 
 shadow highlight_enabled { assert true }
@@ -1228,8 +1223,8 @@ fn main() -> int {
 
         if (or (str_contains rel "/07_examples.md") (str_ends_with rel "07_examples.md")) {
             if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: streaming examples page\n") } else { (print "") }
-            let ci_flag: string = (get "CI")
-            let skip_highlight: bool = (== ci_flag "true")
+            # Syntax highlighting is now fast enough (26x speedup) to enable everywhere
+            let skip_highlight: bool = false
             (write_page_open out_path title summary css_href home_href mascot_href accent toc_html nav_html)
             (append_examples_body out_path md_text skip_highlight)
             (write_page_close out_path nav_html)
@@ -1239,8 +1234,8 @@ fn main() -> int {
         }
 
         if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: render " (+ rel "\n"))) } else { (print "") }
-        let ci_flag: string = (get "CI")
-        let fast_inline: bool = (and (str_contains rel "api_reference/") (== ci_flag "true"))
+        # Syntax highlighting is now fast enough (26x speedup) to enable for all pages
+        let fast_inline: bool = false
         let body: string = (md_to_html md_text summary fast_inline)
         if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n"))) } else { (print "") }
 
