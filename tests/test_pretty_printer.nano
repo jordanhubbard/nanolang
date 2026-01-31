@@ -1,0 +1,307 @@
+# Comprehensive tests for stdlib/tidy.nano pretty printer
+# Tests only PUBLIC functions (pub fn) from tidy.nano
+
+from "stdlib/tidy.nano" import format, format_with_wrap, format_pretty
+
+# Test format() - passthrough function
+fn test_format() -> bool {
+    let input1: string = "hello world"
+    let output1: string = (format input1)
+    if (not (== input1 output1)) {
+        return false
+    } else {}
+    
+    let input2: string = "fn test() -> int { return 42 }"
+    let output2: string = (format input2)
+    if (not (== input2 output2)) {
+        return false
+    } else {}
+    
+    let empty: string = ""
+    let output_empty: string = (format empty)
+    if (not (== empty output_empty)) {
+        return false
+    } else {}
+    
+    return true
+}
+
+# Test format_with_wrap() - line wrapping at max width
+fn test_format_with_wrap_basic() -> bool {
+    # Test that short lines don't get wrapped
+    let short_text: string = "hello"
+    let wrapped_short: string = (format_with_wrap short_text 80)
+    if (not (== short_text wrapped_short)) {
+        return false
+    } else {}
+    
+    # Test that long lines DO get wrapped
+    let long_text: string = "This is a very long line that should definitely be wrapped when we apply a maximum width of only forty characters to it"
+    let wrapped_long: string = (format_with_wrap long_text 40)
+    if (< (str_length wrapped_long) (str_length long_text)) {
+        return false  # Should be longer (newlines added)
+    } else {
+        if (== (str_length wrapped_long) (str_length long_text)) {
+            return false  # Should be longer
+        } else {}
+    }
+    
+    return true
+}
+
+fn test_format_with_wrap_newlines() -> bool {
+    # Test that existing newlines are preserved
+    let with_newlines: string = "line1\nline2\nline3"
+    let wrapped: string = (format_with_wrap with_newlines 80)
+    
+    # Should at least contain a newline
+    if (not (str_contains wrapped "\n")) {
+        return false
+    } else {}
+    
+    # Output should contain the original content
+    if (not (str_contains wrapped "line1")) {
+        return false
+    } else {}
+    if (not (str_contains wrapped "line2")) {
+        return false
+    } else {}
+    if (not (str_contains wrapped "line3")) {
+        return false
+    } else {}
+    
+    return true
+}
+
+fn test_format_with_wrap_exact_width() -> bool {
+    # Test edge case: line exactly at max width
+    let exact: string = "12345678901234567890"  # 20 chars
+    let wrapped: string = (format_with_wrap exact 20)
+    # Should break at exactly 20 chars
+    if (<= (str_length wrapped) 20) {
+        return false
+    } else {}
+    
+    return true
+}
+
+# Test format_pretty() - brace-aware formatting
+fn test_format_pretty_braces() -> bool {
+    let input: string = "fn test() -> int { return 42 }"
+    let output: string = (format_pretty input)
+    
+    # Output should contain braces
+    if (not (str_contains output "{")) {
+        return false
+    } else {}
+    if (not (str_contains output "}")) {
+        return false
+    } else {}
+    
+    # Output should be longer (added newlines and indentation)
+    if (<= (str_length output) (str_length input)) {
+        return false
+    } else {}
+    
+    # Output should contain newlines
+    if (not (str_contains output "\n")) {
+        return false
+    } else {}
+    
+    return true
+}
+
+fn test_format_pretty_nested() -> bool {
+    # Test nested braces
+    let nested: string = "fn outer() { fn inner() { return 42 } }"
+    let formatted: string = (format_pretty nested)
+    
+    # Should format and contain the original content
+    if (<= (str_length formatted) (str_length nested)) {
+        return false
+    } else {}
+    
+    # Should still contain the content
+    if (not (str_contains formatted "outer")) {
+        return false
+    } else {}
+    if (not (str_contains formatted "inner")) {
+        return false
+    } else {}
+    if (not (str_contains formatted "return")) {
+        return false
+    } else {}
+    
+    return true
+}
+
+fn test_format_pretty_whitespace() -> bool {
+    # Test that extra whitespace is normalized
+    let messy: string = "fn   test()    ->   int   {   return   42   }"
+    let formatted: string = (format_pretty messy)
+    
+    # Should still format correctly
+    if (not (str_contains formatted "{")) {
+        return false
+    } else {}
+    if (not (str_contains formatted "}")) {
+        return false
+    } else {}
+    
+    return true
+}
+
+fn test_format_pretty_empty_braces() -> bool {
+    # Test empty function body
+    let empty_body: string = "fn test() {}"
+    let formatted: string = (format_pretty empty_body)
+    
+    # Should handle empty braces gracefully
+    if (not (str_contains formatted "{")) {
+        return false
+    } else {}
+    if (not (str_contains formatted "}")) {
+        return false
+    } else {}
+    
+    return true
+}
+
+fn test_format_pretty_multiple_statements() -> bool {
+    # Test multiple statements in a block
+    let multi: string = "fn test() { let x: int = 10 let y: int = 20 return (+ x y) }"
+    let formatted: string = (format_pretty multi)
+    
+    # Should separate statements (via indentation and newlines)
+    if (<= (str_length formatted) (str_length multi)) {
+        return false
+    } else {}
+    
+    # Should contain the content
+    if (not (str_contains formatted "let")) {
+        return false
+    } else {}
+    if (not (str_contains formatted "return")) {
+        return false
+    } else {}
+    
+    return true
+}
+
+# Shadow tests for all functions
+shadow test_format {
+    assert (test_format)
+}
+
+shadow test_format_with_wrap_basic {
+    assert (test_format_with_wrap_basic)
+}
+
+shadow test_format_with_wrap_newlines {
+    assert (test_format_with_wrap_newlines)
+}
+
+shadow test_format_with_wrap_exact_width {
+    assert (test_format_with_wrap_exact_width)
+}
+
+shadow test_format_pretty_braces {
+    assert (test_format_pretty_braces)
+}
+
+shadow test_format_pretty_nested {
+    assert (test_format_pretty_nested)
+}
+
+shadow test_format_pretty_whitespace {
+    assert (test_format_pretty_whitespace)
+}
+
+shadow test_format_pretty_empty_braces {
+    assert (test_format_pretty_empty_braces)
+}
+
+shadow test_format_pretty_multiple_statements {
+    assert (test_format_pretty_multiple_statements)
+}
+
+fn run_all_tests() -> int {
+    (println "=== Pretty Printer Comprehensive Tests ===")
+    (println "")
+    
+    if (not (test_format)) {
+        (println "❌ test_format failed")
+        return 1
+    } else {
+        (println "✅ test_format passed")
+    }
+    
+    if (not (test_format_with_wrap_basic)) {
+        (println "❌ test_format_with_wrap_basic failed")
+        return 1
+    } else {
+        (println "✅ test_format_with_wrap_basic passed")
+    }
+    
+    if (not (test_format_with_wrap_newlines)) {
+        (println "❌ test_format_with_wrap_newlines failed")
+        return 1
+    } else {
+        (println "✅ test_format_with_wrap_newlines passed")
+    }
+    
+    if (not (test_format_with_wrap_exact_width)) {
+        (println "❌ test_format_with_wrap_exact_width failed")
+        return 1
+    } else {
+        (println "✅ test_format_with_wrap_exact_width passed")
+    }
+    
+    if (not (test_format_pretty_braces)) {
+        (println "❌ test_format_pretty_braces failed")
+        return 1
+    } else {
+        (println "✅ test_format_pretty_braces passed")
+    }
+    
+    if (not (test_format_pretty_nested)) {
+        (println "❌ test_format_pretty_nested failed")
+        return 1
+    } else {
+        (println "✅ test_format_pretty_nested passed")
+    }
+    
+    if (not (test_format_pretty_whitespace)) {
+        (println "❌ test_format_pretty_whitespace failed")
+        return 1
+    } else {
+        (println "✅ test_format_pretty_whitespace passed")
+    }
+    
+    if (not (test_format_pretty_empty_braces)) {
+        (println "❌ test_format_pretty_empty_braces failed")
+        return 1
+    } else {
+        (println "✅ test_format_pretty_empty_braces passed")
+    }
+    
+    if (not (test_format_pretty_multiple_statements)) {
+        (println "❌ test_format_pretty_multiple_statements failed")
+        return 1
+    } else {
+        (println "✅ test_format_pretty_multiple_statements passed")
+    }
+    
+    (println "")
+    (println "🎉 All pretty printer tests passed!")
+    return 0
+}
+
+shadow run_all_tests {
+    assert (== (run_all_tests) 0)
+}
+
+# Note: This test file relies on shadow tests only.
+# It does not define its own main() to avoid conflicts with stdlib/tidy.nano's main().
+# The test runner will execute the shadow tests, which is sufficient for coverage.
+

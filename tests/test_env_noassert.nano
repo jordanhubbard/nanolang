@@ -1,0 +1,33 @@
+from "modules/std/env.nano" import set_env, get
+
+fn test_it() -> int {
+    let k: string = "NANOLANG_TEST_ENV"
+    let code: int = (set_env k "abc")
+    if (!= code 0) {
+        (println "set_env failed!")
+        return 1
+    }
+    let val: string = (get k)
+    if (!= val "abc") {
+        (println "get returned wrong value!")
+        return 2
+    }
+    return 0
+}
+
+shadow test_it {
+    let result: int = (test_it)
+    if (!= result 0) {
+        (println (+ "test_it returned: " (int_to_string result)))
+    }
+    assert (== result 0)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

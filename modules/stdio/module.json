@@ -1,5 +1,6 @@
 {
   "name": "stdio",
-  "c_sources": [],
+  "c_sources": ["stdio.c"],
+  "cflags": ["-Imodules/stdio"],
   "dependencies": []
 }

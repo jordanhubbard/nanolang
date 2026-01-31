@@ -102,6 +102,7 @@ static bool build_monomorphized_name_from_typeinfo(char *dest, size_t dest_size,
     
     /* Extract type names from TypeInfo structures */
     const char *type_names[32];  /* Max 32 type parameters */
+    char tmp_names[32][128];
     if (type_param_count > 32) return false;
     
     for (int i = 0; i < type_param_count; i++) {
@@ -121,6 +122,20 @@ static bool build_monomorphized_name_from_typeinfo(char *dest, size_t dest_size,
             type_names[i] = "bool";
         } else if (param->base_type == TYPE_FLOAT) {
             type_names[i] = "float";
+        } else if (param->base_type == TYPE_ARRAY) {
+            /* Name arrays as array_<elem>, e.g. array_int, array_u8, array_Point */
+            const char *elem = "unknown";
+            if (param->element_type) {
+                TypeInfo *et = param->element_type;
+                if (et->base_type == TYPE_INT) elem = "int";
+                else if (et->base_type == TYPE_U8) elem = "u8";
+                else if (et->base_type == TYPE_STRING) elem = "string";
+                else if (et->base_type == TYPE_BOOL) elem = "bool";
+                else if (et->base_type == TYPE_FLOAT) elem = "float";
+                else if ((et->base_type == TYPE_STRUCT || et->base_type == TYPE_UNION || et->base_type == TYPE_ENUM) && et->generic_name) elem = et->generic_name;
+            }
+            snprintf(tmp_names[i], sizeof(tmp_names[i]), "array_%s", elem);
+            type_names[i] = tmp_names[i];
         } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
             type_names[i] = param->generic_name;
         } else {
@@ -147,22 +162,76 @@ static void emit_indent(StringBuilder *sb, int indent) {
 /* Check if a struct/enum name is a runtime-provided typedef (not a user-defined type) */
 static bool is_runtime_typedef(const char *name) {
     /* Runtime typedefs that don't use 'struct' keyword */
-    return strcmp(name, "List_int") == 0 ||
-           strcmp(name, "List_string") == 0 ||
-           strcmp(name, "List_token") == 0;
+    if (strncmp(name, "List_", 5) == 0) {
+        return true;
+    }
+    
+    if (strcmp(name, "LexerToken") == 0) {
+        return true;
+    }
+    
+    /* Schema types defined in compiler_schema.h are also considered runtime typedefs
+     * to avoid redefinition errors when self-hosting. */
+    if (strncmp(name, "AST", 3) == 0 ||
+        strcmp(name, "ParseNode") == 0 ||
+        strcmp(name, "Parser") == 0 ||
+        strcmp(name, "CompilerPhase") == 0 ||
+        strncmp(name, "Compiler", 8) == 0 ||
+        strcmp(name, "Token") == 0 ||
+        strcmp(name, "Type") == 0 ||
+        strcmp(name, "NSType") == 0 ||
+        strcmp(name, "DiagnosticSeverity") == 0 ||
+        strcmp(name, "OptionType") == 0 ||
+        strstr(name, "PhaseOutput") != NULL) {
+        return true;
+    }
+    
+    return false;
+}
+
+/* Schema-defined list element types have dedicated runtime list implementations */
+static bool is_schema_list_type(const char *name) {
+    if (!name) return false;
+    if (strncmp(name, "AST", 3) == 0) {
+        return true;
+    }
+    if (strcmp(name, "LexerToken") == 0) {
+        return true;
+    }
+    if (strcmp(name, "CompilerDiagnostic") == 0) {
+        return true;
+    }
+    return false;
 }
 
 /* Check if an enum/struct name would conflict with C runtime types */
 static bool conflicts_with_runtime(const char *name) {
     /* These are defined in nanolang.h and would cause conflicts */
-    return strcmp(name, "TokenType") == 0 ||
-           strcmp(name, "Token") == 0;
+    if (strcmp(name, "TokenType") == 0 ||
+        strcmp(name, "Token") == 0) {
+        return true;
+    }
+    
+    /* Schema types should also avoid nl_ prefix to match compiler_schema.h */
+    return is_runtime_typedef(name);
 }
 
 /* Get prefixed type name for user-defined types */
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_type_name(const char *name) {
     static _Thread_local char buffer[512];
+    
+    /* Native types */
+    if (strcmp(name, "int") == 0) return "int64_t";
+    if (strcmp(name, "u8") == 0) return "uint8_t";
+    if (strcmp(name, "float") == 0) return "double";
+    if (strcmp(name, "bool") == 0) return "bool";
+    if (strcmp(name, "string") == 0) return "const char *";
+    if (strcmp(name, "void") == 0) return "void";
+    
+    /* Special mappings for runtime types */
+    if (strcmp(name, "Token") == 0) return "Token";
+    if (strcmp(name, "NSType") == 0) return "NSType";
     
     /* Runtime types: no prefix */
     if (is_runtime_typedef(name) || conflicts_with_runtime(name)) {
@@ -178,7 +247,11 @@ static const char *get_prefixed_type_name(const char *name) {
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_variant_name(const char *enum_name, const char *variant_name) {
     static _Thread_local char buffer[512];
-    snprintf(buffer, sizeof(buffer), "nl_%s_%s", enum_name, variant_name);
+    if (is_runtime_typedef(enum_name)) {
+        snprintf(buffer, sizeof(buffer), "%s_%s", enum_name, variant_name);
+    } else {
+        snprintf(buffer, sizeof(buffer), "nl_%s_%s", enum_name, variant_name);
+    }
     return buffer;
 }
 
@@ -187,6 +260,18 @@ static const char *get_prefixed_variant_name(const char *enum_name, const char *
 static const char *get_prefixed_variant_struct_name(const char *union_name, const char *variant_name) {
     static _Thread_local char buffer[512];
     snprintf(buffer, sizeof(buffer), "nl_%s_%s", union_name, variant_name);
+    return buffer;
+}
+
+/* Get prefixed union tag name: nl_UnionName_TAG_Variant */
+/* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
+static const char *get_prefixed_tag_name(const char *union_name, const char *variant_name) {
+    static _Thread_local char buffer[512];
+    if (is_runtime_typedef(union_name)) {
+        snprintf(buffer, sizeof(buffer), "%s_TAG_%s", union_name, variant_name);
+    } else {
+        snprintf(buffer, sizeof(buffer), "nl_%s_TAG_%s", union_name, variant_name);
+    }
     return buffer;
 }
 
@@ -273,6 +358,16 @@ static void clear_module_headers(void) {
     g_module_headers = NULL;
     g_module_headers_count = 0;
     g_module_headers_capacity = 0;
+}
+
+static bool module_headers_contain(const char *substr) {
+    if (!substr || substr[0] == '\0') return false;
+    for (size_t i = 0; i < g_module_headers_count; i++) {
+        if (g_module_headers[i].name && strstr(g_module_headers[i].name, substr)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 static void collect_headers_from_module(const char *module_path) {
@@ -679,8 +774,9 @@ static const char *type_to_c(Type type) {
         case TYPE_FUNCTION: return ""; /* Will be handled with typedef */
         case TYPE_LIST_INT: return "List_int*";
         case TYPE_LIST_STRING: return "List_string*";
-        case TYPE_LIST_TOKEN: return "List_token*";
+        case TYPE_LIST_TOKEN: return "List_Token*";
         case TYPE_LIST_GENERIC: return ""; /* Will be handled specially with type_name */
+        case TYPE_HASHMAP: return "void*"; /* Specialized as HashMap_K_V* when TypeInfo is available */
         case TYPE_OPAQUE: return "void*"; /* Opaque pointers stored as void* */
         default: return "void";
     }
@@ -721,14 +817,19 @@ static void mangle_module_name(char *dest, size_t dest_size, const char *module_
 }
 
 /* Helper: Get C function name with namespace mangling support */
-static const char *get_c_func_name_with_module(const char *nano_name, const char *module_name) {
+static const char *get_c_func_name_with_module(const char *nano_name, const char *module_name, bool is_extern) {
     /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
     static _Thread_local char buffer[512];
+    
+    /* Extern functions use their original name without any mangling or nl_ prefix */
+    if (is_extern) {
+        return nano_name;
+    }
     
     /* Don't prefix list runtime functions */
     if (strncmp(nano_name, "list_int_", 9) == 0 || 
         strncmp(nano_name, "list_string_", 12) == 0 ||
-        strncmp(nano_name, "list_token_", 11) == 0) {
+        strncmp(nano_name, "nl_list_Token_", 11) == 0) {
         return nano_name;
     }
     
@@ -902,6 +1003,14 @@ static void collect_tuple_types_from_expr(ASTNode *expr, TupleTypeRegistry *reg)
             }
             break;
 
+        case AST_COND:
+            for (int i = 0; i < expr->as.cond_expr.clause_count; i++) {
+                collect_tuple_types_from_expr(expr->as.cond_expr.conditions[i], reg);
+                collect_tuple_types_from_expr(expr->as.cond_expr.values[i], reg);
+            }
+            collect_tuple_types_from_expr(expr->as.cond_expr.else_value, reg);
+            break;
+
         default:
             break;
     }
@@ -935,6 +1044,13 @@ static void collect_tuple_types_from_stmt(ASTNode *stmt, TupleTypeRegistry *reg)
             if (stmt->as.if_stmt.else_branch) {
                 collect_tuple_types_from_stmt(stmt->as.if_stmt.else_branch, reg);
             }
+            break;
+        case AST_COND:
+            for (int i = 0; i < stmt->as.cond_expr.clause_count; i++) {
+                collect_tuple_types_from_expr(stmt->as.cond_expr.conditions[i], reg);
+                collect_tuple_types_from_expr(stmt->as.cond_expr.values[i], reg);
+            }
+            collect_tuple_types_from_expr(stmt->as.cond_expr.else_value, reg);
             break;
         case AST_WHILE:
             if (stmt->as.while_stmt.condition) {
@@ -970,6 +1086,9 @@ static void collect_fn_sigs(ASTNode *stmt, FunctionTypeRegistry *reg) {
                 collect_fn_sigs(stmt->as.if_stmt.else_branch, reg);
             }
             break;
+        case AST_COND:
+            /* Cond values are expressions, not statements, so no function signatures to collect */
+            break;
         case AST_WHILE:
             collect_fn_sigs(stmt->as.while_stmt.body, reg);
             break;
@@ -995,6 +1114,7 @@ static void generate_c_headers(StringBuilder *sb) {
     sb_append(sb, "#include \"runtime/nl_string.h\"\n");
     sb_append(sb, "#include \"runtime/gc.h\"\n");
     sb_append(sb, "#include \"runtime/dyn_array.h\"\n");
+    sb_append(sb, "#include \"nanolang.h\"\n");
     
     /* Include headers from imported modules (generic C library support) */
     if (g_module_headers_count > 0) {
@@ -1069,15 +1189,8 @@ static void generate_list_specializations(Environment *env, StringBuilder *sb) {
     if (detected_list_count_early > 0) {
         sb_append(sb, "/* ========== Generic List Forward Declarations ========== */\n");
         for (int i = 0; i < detected_list_count_early; i++) {
-            /* Convert type name to uppercase for guard macro */
-            char type_upper[128];
-            strncpy(type_upper, detected_list_types_early[i], sizeof(type_upper) - 1);
-            type_upper[sizeof(type_upper) - 1] = '\0';
-            for (char *p = type_upper; *p; p++) {
-                *p = (char)toupper((unsigned char)*p);
-            }
-            sb_appendf(sb, "#ifndef LIST_%s_TYPE_DEFINED\n", type_upper);
-            sb_appendf(sb, "#define LIST_%s_TYPE_DEFINED\n", type_upper);
+            sb_appendf(sb, "#ifndef FORWARD_DEFINED_List_%s\n", detected_list_types_early[i]);
+            sb_appendf(sb, "#define FORWARD_DEFINED_List_%s\n", detected_list_types_early[i]);
             sb_appendf(sb, "typedef struct List_%s List_%s;\n", detected_list_types_early[i], detected_list_types_early[i]);
             sb_append(sb, "#endif\n");
         }
@@ -1130,89 +1243,387 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
         }
     }
     
-    /* Emit includes and function forward declarations */
     if (detected_list_count > 0) {
-        /* Emit includes */
-        sb_append(sb, "/* ========== Generic List Includes (Auto-Generated) ========== */\n");
-        for (int i = 0; i < detected_list_count; i++) {
-            sb_appendf(sb, "#include \"/tmp/list_%s.h\"\n", detected_list_types[i]);
-        }
-        sb_append(sb, "\n/* Function forward declarations */\n");
+        bool emitted_runtime_includes = false;
         for (int i = 0; i < detected_list_count; i++) {
             const char *type_name = detected_list_types[i];
-            sb_appendf(sb, "List_%s* nl_list_%s_new(void);\n", type_name, type_name);
-            sb_appendf(sb, "void nl_list_%s_push(List_%s *list, nl_%s value);\n", type_name, type_name, type_name);
-            sb_appendf(sb, "nl_%s nl_list_%s_get(List_%s *list, int index);\n", type_name, type_name, type_name);
-            sb_appendf(sb, "int nl_list_%s_length(List_%s *list);\n", type_name, type_name);
+            if (is_schema_list_type(type_name)) {
+                if (!emitted_runtime_includes) {
+                    sb_append(sb, "/* ========== Schema List Runtime Includes ========== */\n");
+                    emitted_runtime_includes = true;
+                }
+                sb_appendf(sb, "#include \"runtime/list_%s.h\"\n", type_name);
+            }
         }
-        sb_append(sb, "/* ========== End Generic List Includes ========== */\n\n");
-    }
+        if (emitted_runtime_includes) {
+            sb_append(sb, "/* ========== End Schema List Runtime Includes ========== */\n\n");
+        }
 
-    /* Generate specialized generic list types (skip if using external files) */
-    if (detected_list_count == 0) {
-        /* Only generate inline if no external list files are being used */
-        sb_append(sb, "/* ========== Generic List Specializations ========== */\n\n");
-        for (int i = 0; i < env->generic_instance_count; i++) {
-            GenericInstantiation *inst = &env->generic_instances[i];
-            if (strcmp(inst->generic_name, "List") == 0 && inst->type_arg_names) {
-            const char *elem_type = inst->type_arg_names[0];
-            const char *specialized_name = inst->concrete_name;
-            
-            /* Get prefixed struct name (adds nl_ prefix for user types) */
-            const char *prefixed_elem_type = get_prefixed_type_name(elem_type);
-            
-            /* Generate struct definition */
-            sb_appendf(sb, "typedef struct {\n");
+        bool emitted_specializations = false;
+        for (int i = 0; i < detected_list_count; i++) {
+            const char *type_name = detected_list_types[i];
+            if (is_schema_list_type(type_name)) {
+                continue;
+            }
+
+            if (!emitted_specializations) {
+                sb_append(sb, "/* ========== Generic List Specializations ========== */\n\n");
+                emitted_specializations = true;
+            }
+
+            const char *prefixed = get_prefixed_type_name(type_name);
+            char *prefixed_elem_type = prefixed ? strdup(prefixed) : NULL;
+            if (!prefixed_elem_type) {
+                fprintf(stderr, "Error: Out of memory duplicating prefixed list type for %s\n", type_name);
+                exit(1);
+            }
+            char specialized_name[256];
+            snprintf(specialized_name, sizeof(specialized_name), "List_%s", type_name);
+
+            sb_appendf(sb, "struct %s {\n", specialized_name);
             sb_appendf(sb, "    %s *data;\n", prefixed_elem_type);
             sb_appendf(sb, "    int count;\n");
             sb_appendf(sb, "    int capacity;\n");
-            sb_appendf(sb, "} %s;\n\n", specialized_name);
-            
-            /* Generate constructor */
-            sb_appendf(sb, "%s* %s_new() {\n", specialized_name, specialized_name);
+            sb_appendf(sb, "};\n\n");
+
+            sb_appendf(sb, "List_%s* nl_list_%s_new(void) {\n", type_name, type_name);
             sb_appendf(sb, "    %s *list = malloc(sizeof(%s));\n", specialized_name, specialized_name);
             sb_appendf(sb, "    if (!list) return NULL;\n");
-            sb_appendf(sb, "    list->data = malloc(sizeof(%s) * 4);\n", prefixed_elem_type);
-            sb_appendf(sb, "    if (!list->data) { free(list); return NULL; }\n");
-            sb_appendf(sb, "    list->count = 0;\n");
             sb_appendf(sb, "    list->capacity = 4;\n");
+            sb_appendf(sb, "    list->count = 0;\n");
+            sb_appendf(sb, "    list->data = malloc(sizeof(%s) * list->capacity);\n", prefixed_elem_type);
+            sb_appendf(sb, "    if (!list->data) { free(list); return NULL; }\n");
             sb_appendf(sb, "    return list;\n");
             sb_appendf(sb, "}\n\n");
-            
-            /* Generate push function */
-            sb_appendf(sb, "void %s_push(%s *list, %s value) {\n",
-                      specialized_name, specialized_name, prefixed_elem_type);
+
+            sb_appendf(sb, "void nl_list_%s_push(List_%s *list, %s value) {\n",
+                      type_name, type_name, prefixed_elem_type);
+            sb_appendf(sb, "    if (!list) return;\n");
             sb_appendf(sb, "    if (list->count >= list->capacity) {\n");
-            sb_appendf(sb, "        list->capacity *= 2;\n");
-            sb_appendf(sb, "        %s *new_data = realloc(list->data, sizeof(%s) * list->capacity);\n",
+            sb_appendf(sb, "        int new_capacity = list->capacity * 2;\n");
+            sb_appendf(sb, "        %s *new_data = realloc(list->data, sizeof(%s) * new_capacity);\n",
                       prefixed_elem_type, prefixed_elem_type);
-            sb_appendf(sb, "        if (!new_data) return; /* Out of memory */\n");
+            sb_appendf(sb, "        if (!new_data) return;\n");
             sb_appendf(sb, "        list->data = new_data;\n");
+            sb_appendf(sb, "        list->capacity = new_capacity;\n");
             sb_appendf(sb, "    }\n");
             sb_appendf(sb, "    list->data[list->count++] = value;\n");
             sb_appendf(sb, "}\n\n");
-            
-            /* Generate get function */
-            sb_appendf(sb, "%s %s_get(%s *list, int index) {\n",
-                      prefixed_elem_type, specialized_name, specialized_name);
+
+            sb_appendf(sb, "%s nl_list_%s_get(List_%s *list, int index) {\n",
+                      prefixed_elem_type, type_name, type_name);
             sb_appendf(sb, "    return list->data[index];\n");
             sb_appendf(sb, "}\n\n");
-            
-            /* Generate length function */
-            sb_appendf(sb, "int %s_length(%s *list) {\n", specialized_name, specialized_name);
-            sb_appendf(sb, "    return list->count;\n");
+
+            sb_appendf(sb, "void nl_list_%s_set(List_%s *list, int index, %s value) {\n",
+                      type_name, type_name, prefixed_elem_type);
+            sb_appendf(sb, "    if (!list) return;\n");
+            sb_appendf(sb, "    if (index < 0 || index >= list->count) return;\n");
+            sb_appendf(sb, "    list->data[index] = value;\n");
             sb_appendf(sb, "}\n\n");
-            }
+
+            sb_appendf(sb, "int nl_list_%s_length(List_%s *list) {\n", type_name, type_name);
+            sb_appendf(sb, "    return list ? list->count : 0;\n");
+            sb_appendf(sb, "}\n\n");
+
+            free(prefixed_elem_type);
         }
-        sb_append(sb, "/* ========== End Generic List Specializations ========== */\n\n");
-    } else {
-        /* Using external list implementations */
-        sb_append(sb, "/* ========== Generic List Specializations ========== */\n");
-        sb_append(sb, "/* (Using external implementations from /tmp/list_*.h) */\n");
-        sb_append(sb, "/* ========== End Generic List Specializations ========== */\n\n");
+
+        if (emitted_specializations) {
+            sb_append(sb, "/* ========== End Generic List Specializations ========== */\n\n");
+        }
     }
     
     free(detected_list_types);
+}
+
+static void generate_hashmap_specializations(Environment *env, StringBuilder *sb) {
+    if (!env || !env->generic_instances) return;
+
+    bool emitted = false;
+    for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        if (!inst || !inst->generic_name) continue;
+        if (strcmp(inst->generic_name, "HashMap") != 0) continue;
+        if (!inst->concrete_name || inst->type_arg_count != 2) continue;
+
+        if (!emitted) {
+            sb_append(sb, "/* ========== HashMap Forward Declarations ========== */\n");
+            emitted = true;
+        }
+        sb_appendf(sb, "typedef struct %s %s;\n", inst->concrete_name, inst->concrete_name);
+    }
+
+    if (emitted) {
+        sb_append(sb, "/* ========== End HashMap Forward Declarations ========== */\n\n");
+    }
+}
+
+static void generate_hashmap_implementations(Environment *env, StringBuilder *sb) {
+    if (!env || !env->generic_instances) return;
+
+    bool emitted_any = false;
+
+    /* Shared helpers */
+    sb_append(sb, "/* ========== HashMap Runtime (Generated) ========== */\n\n");
+    sb_append(sb, "static uint64_t nl_hashmap_hash_string(const char *s) {\n");
+    sb_append(sb, "    if (!s) return 0;\n");
+    sb_append(sb, "    uint64_t hash = 1469598103934665603ULL;\n");
+    sb_append(sb, "    while (*s) { hash ^= (uint8_t)(*s++); hash *= 1099511628211ULL; }\n");
+    sb_append(sb, "    return hash;\n");
+    sb_append(sb, "}\n\n");
+    sb_append(sb, "static uint64_t nl_hashmap_hash_int(int64_t x) {\n");
+    sb_append(sb, "    uint64_t z = (uint64_t)x;\n");
+    sb_append(sb, "    z ^= z >> 33;\n");
+    sb_append(sb, "    z *= 0xff51afd7ed558ccdULL;\n");
+    sb_append(sb, "    z ^= z >> 33;\n");
+    sb_append(sb, "    z *= 0xc4ceb9fe1a85ec53ULL;\n");
+    sb_append(sb, "    z ^= z >> 33;\n");
+    sb_append(sb, "    return z;\n");
+    sb_append(sb, "}\n\n");
+    sb_append(sb, "static bool nl_hashmap_key_eq_string(const char *a, const char *b) {\n");
+    sb_append(sb, "    if (a == b) return true;\n");
+    sb_append(sb, "    if (!a || !b) return false;\n");
+    sb_append(sb, "    return strcmp(a, b) == 0;\n");
+    sb_append(sb, "}\n\n");
+
+    for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        if (!inst || !inst->generic_name) continue;
+        if (strcmp(inst->generic_name, "HashMap") != 0) continue;
+        if (!inst->concrete_name || !inst->type_arg_names || inst->type_arg_count != 2) continue;
+
+        const char *key = inst->type_arg_names[0];
+        const char *val = inst->type_arg_names[1];
+        if (!key || !val) continue;
+
+        if (!(strcmp(key, "int") == 0 || strcmp(key, "string") == 0)) continue;
+        if (!(strcmp(val, "int") == 0 || strcmp(val, "string") == 0)) continue;
+
+        const char *struct_name = inst->concrete_name;
+        const char *suffix = struct_name;
+        if (strncmp(struct_name, "HashMap_", 8) == 0) suffix = struct_name + 8;
+
+        const char *key_param_type = (strcmp(key, "string") == 0) ? "const char*" : "int64_t";
+        const char *key_store_type = (strcmp(key, "string") == 0) ? "char*" : "int64_t";
+        const char *val_param_type = (strcmp(val, "string") == 0) ? "const char*" : "int64_t";
+        const char *val_store_type = (strcmp(val, "string") == 0) ? "char*" : "int64_t";
+        const char *val_ret_type = (strcmp(val, "string") == 0) ? "const char*" : "int64_t";
+
+        const char *keys_elem = (strcmp(key, "string") == 0) ? "ELEM_STRING" : "ELEM_INT";
+        const char *values_elem = (strcmp(val, "string") == 0) ? "ELEM_STRING" : "ELEM_INT";
+        const char *keys_push = (strcmp(key, "string") == 0) ? "string" : "int";
+        const char *values_push = (strcmp(val, "string") == 0) ? "string" : "int";
+
+        const char *hash_fn = (strcmp(key, "string") == 0) ? "nl_hashmap_hash_string" : "nl_hashmap_hash_int";
+        const char *eq_fn = (strcmp(key, "string") == 0) ? "nl_hashmap_key_eq_string" : NULL;
+
+        emitted_any = true;
+
+        sb_appendf(sb, "typedef struct %s_Entry {\n", struct_name);
+        sb_append(sb, "    uint8_t state; /* 0=empty, 1=filled, 2=tombstone */\n");
+        sb_appendf(sb, "    %s key;\n", key_store_type);
+        sb_appendf(sb, "    %s value;\n", val_store_type);
+        sb_appendf(sb, "} %s_Entry;\n\n", struct_name);
+
+        sb_appendf(sb, "struct %s {\n", struct_name);
+        sb_append(sb, "    int64_t capacity;\n");
+        sb_append(sb, "    int64_t size;\n");
+        sb_append(sb, "    int64_t tombstones;\n");
+        sb_appendf(sb, "    %s_Entry *entries;\n", struct_name);
+        sb_append(sb, "};\n\n");
+
+        sb_appendf(sb, "static %s* nl_hashmap_%s_alloc(int64_t cap) {\n", struct_name, suffix);
+        sb_appendf(sb, "    %s *hm = (%s*)malloc(sizeof(%s));\n", struct_name, struct_name, struct_name);
+        sb_append(sb, "    if (!hm) return NULL;\n");
+        sb_append(sb, "    hm->capacity = cap;\n");
+        sb_append(sb, "    hm->size = 0;\n");
+        sb_append(sb, "    hm->tombstones = 0;\n");
+        sb_appendf(sb, "    hm->entries = (%s_Entry*)calloc((size_t)cap, sizeof(%s_Entry));\n", struct_name, struct_name);
+        sb_append(sb, "    if (!hm->entries) { free(hm); return NULL; }\n");
+        sb_append(sb, "    return hm;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "static int64_t nl_hashmap_%s_find_slot(%s *hm, %s key, bool *out_found) {\n", suffix, struct_name, key_param_type);
+        sb_append(sb, "    if (out_found) *out_found = false;\n");
+        sb_append(sb, "    if (!hm || hm->capacity <= 0) return -1;\n");
+        sb_appendf(sb, "    uint64_t h = %s(key);\n", hash_fn);
+        sb_append(sb, "    int64_t mask = hm->capacity - 1;\n");
+        sb_append(sb, "    int64_t idx = (int64_t)(h & (uint64_t)mask);\n");
+        sb_append(sb, "    int64_t first_tomb = -1;\n");
+        sb_append(sb, "    for (int64_t probe = 0; probe < hm->capacity; probe++) {\n");
+        sb_appendf(sb, "        %s_Entry *e = &hm->entries[idx];\n", struct_name);
+        sb_append(sb, "        if (e->state == 0) {\n");
+        sb_append(sb, "            if (first_tomb != -1) idx = first_tomb;\n");
+        sb_append(sb, "            return idx;\n");
+        sb_append(sb, "        }\n");
+        sb_append(sb, "        if (e->state == 2) {\n");
+        sb_append(sb, "            if (first_tomb == -1) first_tomb = idx;\n");
+        sb_append(sb, "        } else {\n");
+        if (strcmp(key, "string") == 0) {
+            sb_appendf(sb, "            if (%s(e->key, key)) { if (out_found) *out_found = true; return idx; }\n", eq_fn);
+        } else {
+            sb_append(sb, "            if (e->key == key) { if (out_found) *out_found = true; return idx; }\n");
+        }
+        sb_append(sb, "        }\n");
+        sb_append(sb, "        idx = (idx + 1) & mask;\n");
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    return first_tomb;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "static void nl_hashmap_%s_rehash(%s *hm, int64_t new_cap) {\n", suffix, struct_name);
+        sb_append(sb, "    if (!hm) return;\n");
+        sb_append(sb, "    if (new_cap < 8) new_cap = 8;\n");
+        sb_append(sb, "    /* Ensure power-of-two capacity */\n");
+        sb_append(sb, "    int64_t cap = 1;\n");
+        sb_append(sb, "    while (cap < new_cap) cap <<= 1;\n");
+        sb_appendf(sb, "    %s_Entry *old_entries = hm->entries;\n", struct_name);
+        sb_append(sb, "    int64_t old_cap = hm->capacity;\n");
+        sb_appendf(sb, "    hm->entries = (%s_Entry*)calloc((size_t)cap, sizeof(%s_Entry));\n", struct_name, struct_name);
+        sb_append(sb, "    if (!hm->entries) { hm->entries = old_entries; return; }\n");
+        sb_append(sb, "    hm->capacity = cap;\n");
+        sb_append(sb, "    hm->size = 0;\n");
+        sb_append(sb, "    hm->tombstones = 0;\n");
+        sb_append(sb, "    for (int64_t i2 = 0; i2 < old_cap; i2++) {\n");
+        sb_appendf(sb, "        %s_Entry *e = &old_entries[i2];\n", struct_name);
+        sb_append(sb, "        if (e->state != 1) continue;\n");
+        sb_append(sb, "        bool found = false;\n");
+        sb_appendf(sb, "        int64_t idx = nl_hashmap_%s_find_slot(hm, e->key, &found);\n", suffix);
+        sb_append(sb, "        if (idx >= 0) { hm->entries[idx] = *e; hm->entries[idx].state = 1; hm->size++; }\n");
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    free(old_entries);\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "static %s* nl_hashmap_%s_new(void) {\n", struct_name, suffix);
+        sb_appendf(sb, "    return nl_hashmap_%s_alloc(16);\n", suffix);
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "static void nl_hashmap_%s_put(%s *hm, %s key, %s value) {\n", suffix, struct_name, key_param_type, val_param_type);
+        sb_append(sb, "    if (!hm) return;\n");
+        sb_append(sb, "    if ((hm->size + hm->tombstones) * 10 >= hm->capacity * 7) {\n");
+        sb_appendf(sb, "        nl_hashmap_%s_rehash(hm, hm->capacity * 2);\n", suffix);
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    bool found = false;\n");
+        sb_appendf(sb, "    int64_t idx = nl_hashmap_%s_find_slot(hm, key, &found);\n", suffix);
+        sb_append(sb, "    if (idx < 0) return;\n");
+        sb_appendf(sb, "    %s_Entry *e = &hm->entries[idx];\n", struct_name);
+        sb_append(sb, "    if (found) {\n");
+        if (strcmp(val, "string") == 0) {
+            sb_append(sb, "        if (e->value) free(e->value);\n");
+            sb_append(sb, "        e->value = value ? strdup(value) : strdup(\"\");\n");
+        } else {
+            sb_append(sb, "        e->value = value;\n");
+        }
+        sb_append(sb, "        return;\n");
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    if (e->state == 2) { hm->tombstones--; }\n");
+        sb_append(sb, "    e->state = 1;\n");
+        if (strcmp(key, "string") == 0) {
+            sb_append(sb, "    e->key = key ? strdup(key) : strdup(\"\");\n");
+        } else {
+            sb_append(sb, "    e->key = key;\n");
+        }
+        if (strcmp(val, "string") == 0) {
+            sb_append(sb, "    e->value = value ? strdup(value) : strdup(\"\");\n");
+        } else {
+            sb_append(sb, "    e->value = value;\n");
+        }
+        sb_append(sb, "    hm->size++;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "static bool nl_hashmap_%s_has(%s *hm, %s key) {\n", suffix, struct_name, key_param_type);
+        sb_append(sb, "    if (!hm) return false;\n");
+        sb_append(sb, "    bool found = false;\n");
+        sb_appendf(sb, "    int64_t idx = nl_hashmap_%s_find_slot(hm, key, &found);\n", suffix);
+        sb_append(sb, "    (void)idx;\n");
+        sb_append(sb, "    return found;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "static %s nl_hashmap_%s_get(%s *hm, %s key) {\n", val_ret_type, suffix, struct_name, key_param_type);
+        sb_append(sb, "    if (!hm) ");
+        if (strcmp(val, "string") == 0) sb_append(sb, "return \"\";\n"); else sb_append(sb, "return 0;\n");
+        sb_append(sb, "    bool found = false;\n");
+        sb_appendf(sb, "    int64_t idx = nl_hashmap_%s_find_slot(hm, key, &found);\n", suffix);
+        sb_append(sb, "    if (!found || idx < 0) ");
+        if (strcmp(val, "string") == 0) sb_append(sb, "return \"\";\n"); else sb_append(sb, "return 0;\n");
+        sb_appendf(sb, "    %s_Entry *e = &hm->entries[idx];\n", struct_name);
+        sb_append(sb, "    return e->value ? e->value : ");
+        if (strcmp(val, "string") == 0) sb_append(sb, "\"\";\n"); else sb_append(sb, "0;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "static void nl_hashmap_%s_remove(%s *hm, %s key) {\n", suffix, struct_name, key_param_type);
+        sb_append(sb, "    if (!hm) return;\n");
+        sb_append(sb, "    bool found = false;\n");
+        sb_appendf(sb, "    int64_t idx = nl_hashmap_%s_find_slot(hm, key, &found);\n", suffix);
+        sb_append(sb, "    if (!found || idx < 0) return;\n");
+        sb_appendf(sb, "    %s_Entry *e = &hm->entries[idx];\n", struct_name);
+        if (strcmp(key, "string") == 0) {
+            sb_append(sb, "    if (e->key) free(e->key);\n");
+        }
+        if (strcmp(val, "string") == 0) {
+            sb_append(sb, "    if (e->value) free(e->value);\n");
+        }
+        sb_append(sb, "    e->state = 2;\n");
+        sb_append(sb, "    hm->size--;\n");
+        sb_append(sb, "    hm->tombstones++;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "static int64_t nl_hashmap_%s_length(%s *hm) {\n", suffix, struct_name);
+        sb_append(sb, "    return hm ? hm->size : 0;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "static void nl_hashmap_%s_clear(%s *hm) {\n", suffix, struct_name);
+        sb_append(sb, "    if (!hm) return;\n");
+        sb_append(sb, "    for (int64_t i2 = 0; i2 < hm->capacity; i2++) {\n");
+        sb_appendf(sb, "        %s_Entry *e = &hm->entries[i2];\n", struct_name);
+        sb_append(sb, "        if (e->state != 1) { e->state = 0; continue; }\n");
+        if (strcmp(key, "string") == 0) {
+            sb_append(sb, "        if (e->key) free(e->key);\n");
+        }
+        if (strcmp(val, "string") == 0) {
+            sb_append(sb, "        if (e->value) free(e->value);\n");
+        }
+        sb_append(sb, "        e->state = 0;\n");
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    hm->size = 0;\n");
+        sb_append(sb, "    hm->tombstones = 0;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "static void nl_hashmap_%s_free(%s *hm) {\n", suffix, struct_name);
+        sb_append(sb, "    if (!hm) return;\n");
+        sb_appendf(sb, "    nl_hashmap_%s_clear(hm);\n", suffix);
+        sb_append(sb, "    free(hm->entries);\n");
+        sb_append(sb, "    free(hm);\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "static DynArray* nl_hashmap_%s_keys(%s *hm) {\n", suffix, struct_name);
+        sb_appendf(sb, "    DynArray* out = dyn_array_new(%s);\n", keys_elem);
+        sb_append(sb, "    if (!hm) return out;\n");
+        sb_append(sb, "    for (int64_t i2 = 0; i2 < hm->capacity; i2++) {\n");
+        sb_appendf(sb, "        %s_Entry *e = &hm->entries[i2];\n", struct_name);
+        sb_append(sb, "        if (e->state != 1) continue;\n");
+        sb_appendf(sb, "        dyn_array_push_%s(out, e->key);\n", keys_push);
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    return out;\n");
+        sb_append(sb, "}\n\n");
+
+        sb_appendf(sb, "static DynArray* nl_hashmap_%s_values(%s *hm) {\n", suffix, struct_name);
+        sb_appendf(sb, "    DynArray* out = dyn_array_new(%s);\n", values_elem);
+        sb_append(sb, "    if (!hm) return out;\n");
+        sb_append(sb, "    for (int64_t i2 = 0; i2 < hm->capacity; i2++) {\n");
+        sb_appendf(sb, "        %s_Entry *e = &hm->entries[i2];\n", struct_name);
+        sb_append(sb, "        if (e->state != 1) continue;\n");
+        sb_appendf(sb, "        dyn_array_push_%s(out, e->value);\n", values_push);
+        sb_append(sb, "    }\n");
+        sb_append(sb, "    return out;\n");
+        sb_append(sb, "}\n\n");
+    }
+
+    if (!emitted_any) {
+        sb_append(sb, "/* (no HashMap instantiations) */\n\n");
+    }
+
+    sb_append(sb, "/* ========== End HashMap Runtime (Generated) ========== */\n\n");
 }
 
 /* Generate enum definitions */
@@ -1220,6 +1631,11 @@ static void generate_enum_definitions(Environment *env, StringBuilder *sb) {
     sb_append(sb, "/* ========== Enum Definitions ========== */\n\n");
     for (int i = 0; i < env->enum_count; i++) {
         EnumDef *edef = &env->enums[i];
+        
+        /* Skip external C types */
+        if (edef->is_extern) {
+            continue;
+        }
         
         /* Skip runtime-provided enums - they're already defined in nanolang.h */
         if (is_runtime_typedef(edef->name)) {
@@ -1251,6 +1667,13 @@ static void __attribute__((unused)) generate_struct_definitions(Environment *env
     for (int i = 0; i < env->struct_count; i++) {
         StructDef *sdef = &env->structs[i];
         
+        /* Skip external C types */
+        if (sdef->is_extern) {
+            printf("Skipping extern struct: %s\n", sdef->name);
+            continue;
+        }
+        printf("Emitting struct: %s (is_extern=%d)\n", sdef->name, sdef->is_extern);
+        
         /* Get prefixed name (adds nl_ for user types, keeps runtime types as-is) */
         /* IMPORTANT: Save a copy since get_prefixed_type_name uses a static buffer */
         const char *prefixed_name = strdup(get_prefixed_type_name(sdef->name));
@@ -1259,7 +1682,9 @@ static void __attribute__((unused)) generate_struct_definitions(Environment *env
             exit(1);
         }
         
-        /* Generate typedef struct */
+        /* Generate typedef struct with guards to prevent redefinition errors with compiler_schema.h */
+        sb_appendf(sb, "#ifndef DEFINED_%s\n", prefixed_name);
+        sb_appendf(sb, "#define DEFINED_%s\n", prefixed_name);
         sb_appendf(sb, "typedef struct %s {\n", prefixed_name);
         for (int j = 0; j < sdef->field_count; j++) {
             sb_append(sb, "    ");
@@ -1285,7 +1710,8 @@ static void __attribute__((unused)) generate_struct_definitions(Environment *env
             }
             sb_appendf(sb, " %s;\n", sdef->field_names[j]);
         }
-        sb_appendf(sb, "} %s;\n\n", prefixed_name);
+        sb_appendf(sb, "} %s;\n", prefixed_name);
+        sb_append(sb, "#endif\n\n");
         free((void*)prefixed_name);  /* Free the duplicated name */
     }
     sb_append(sb, "/* ========== End Struct Definitions ========== */\n\n");
@@ -1296,6 +1722,11 @@ static void __attribute__((unused)) generate_union_definitions(Environment *env,
     sb_append(sb, "/* ========== Union Definitions ========== */\n\n");
     for (int i = 0; i < env->union_count; i++) {
         UnionDef *udef = &env->unions[i];
+        
+        /* Skip external C types */
+        if (udef->is_extern) {
+            continue;
+        }
         
         /* Skip generic union definitions - they'll be generated as instantiations */
         if (udef->generic_param_count > 0) {
@@ -1440,12 +1871,16 @@ static void __attribute__((unused)) generate_union_definitions(Environment *env,
                                         /* Map to C type */
                                         if (strcmp(concrete_type, "int") == 0) {
                                             sb_append(sb, "int64_t");
+                                        } else if (strcmp(concrete_type, "u8") == 0) {
+                                            sb_append(sb, "uint8_t");
                                         } else if (strcmp(concrete_type, "string") == 0) {
                                             sb_append(sb, "const char*");
                                         } else if (strcmp(concrete_type, "bool") == 0) {
                                             sb_append(sb, "bool");
                                         } else if (strcmp(concrete_type, "float") == 0) {
                                             sb_append(sb, "double");
+                                        } else if (strcmp(concrete_type, "array") == 0 || strncmp(concrete_type, "array_", 6) == 0) {
+                                            sb_append(sb, "DynArray*");
                                         } else {
                                             /* User-defined type */
                                             const char *prefixed_type = get_prefixed_type_name(concrete_type);
@@ -1567,6 +2002,12 @@ static void emit_struct_definition_single(Environment *env, StringBuilder *sb, S
         exit(1);
     }
 
+    /* Generate typedef struct with guards to prevent redefinition errors */
+    sb_appendf(sb, "#ifndef DEFINED_%s\n", prefixed_name_dup);
+    sb_appendf(sb, "#define DEFINED_%s\n", prefixed_name_dup);
+    
+    /* For runtime types, use the name without struct keyword if possible, 
+     * but we need to define it if it's not already defined. */
     sb_appendf(sb, "typedef struct %s {\n", prefixed_name_dup);
     for (int j = 0; j < sdef->field_count; j++) {
         sb_append(sb, "    ");
@@ -1593,7 +2034,8 @@ static void emit_struct_definition_single(Environment *env, StringBuilder *sb, S
         }
         sb_appendf(sb, " %s;\n", sdef->field_names[j]);
     }
-    sb_appendf(sb, "} %s;\n\n", prefixed_name_dup);
+    sb_appendf(sb, "} %s;\n", prefixed_name_dup);
+    sb_append(sb, "#endif\n\n");
     free((void*)prefixed_name_dup);
 }
 
@@ -1693,12 +2135,16 @@ static void emit_generic_union_instantiation(Environment *env, StringBuilder *sb
                             const char *concrete_type = inst->type_arg_names[p];
                             if (strcmp(concrete_type, "int") == 0) {
                                 sb_append(sb, "int64_t");
+                            } else if (strcmp(concrete_type, "u8") == 0) {
+                                sb_append(sb, "uint8_t");
                             } else if (strcmp(concrete_type, "string") == 0) {
                                 sb_append(sb, "const char*");
                             } else if (strcmp(concrete_type, "bool") == 0) {
                                 sb_append(sb, "bool");
                             } else if (strcmp(concrete_type, "float") == 0) {
                                 sb_append(sb, "double");
+                            } else if (strcmp(concrete_type, "array") == 0 || strncmp(concrete_type, "array_", 6) == 0) {
+                                sb_append(sb, "DynArray*");
                             } else {
                                 const char *prefixed_type = get_prefixed_type_name(concrete_type);
                                 sb_append(sb, prefixed_type);
@@ -1771,6 +2217,7 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
 
     for (int i = 0; i < env->struct_count; i++) {
         if (!env->structs[i].name) continue;
+        if (env->structs[i].is_extern) continue;
         items[count++] = (NLCompositeTypeItem){ .kind = NL_CT_STRUCT, .name = env->structs[i].name, .index = i, .generic_union_def = NULL };
     }
 
@@ -1778,6 +2225,7 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
         UnionDef *udef = &env->unions[i];
         if (!udef || !udef->name) continue;
         if (udef->generic_param_count > 0) continue;
+        if (udef->is_extern) continue;
         items[count++] = (NLCompositeTypeItem){ .kind = NL_CT_UNION, .name = udef->name, .index = i, .generic_union_def = NULL };
     }
 
@@ -1899,8 +2347,10 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
                     }
 
                     if (!concrete_type) continue;
-                    if (strcmp(concrete_type, "int") == 0 || strcmp(concrete_type, "float") == 0 ||
-                        strcmp(concrete_type, "bool") == 0 || strcmp(concrete_type, "string") == 0) {
+                    if (strcmp(concrete_type, "int") == 0 || strcmp(concrete_type, "u8") == 0 ||
+                        strcmp(concrete_type, "float") == 0 || strcmp(concrete_type, "bool") == 0 ||
+                        strcmp(concrete_type, "string") == 0 || strcmp(concrete_type, "array") == 0 ||
+                        strncmp(concrete_type, "array_", 6) == 0) {
                         continue;
                     }
 
@@ -1975,6 +2425,239 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
     free(emitted);
 }
 
+/* Generate compile-time struct metadata reflection functions */
+static void generate_struct_metadata(Environment *env, StringBuilder *sb) {
+    if (!env || !sb) return;
+    
+    sb_append(sb, "/* ========== Auto-Generated Struct Metadata ========== */\n\n");
+    
+    for (int i = 0; i < env->struct_count; i++) {
+        StructDef *sdef = &env->structs[i];
+        if (!sdef || !sdef->name) continue;
+        if (sdef->is_extern) continue;  /* Skip extern structs */
+        
+        const char *struct_name = sdef->name;
+        int field_count = sdef->field_count;
+        
+        /* Function: __reflect_<StructName>_field_count() -> int */
+        sb_appendf(sb, "inline int64_t ___reflect_%s_field_count(void) {\n", struct_name);
+        sb_appendf(sb, "    return %d;\n", field_count);
+        sb_append(sb, "}\n\n");
+        
+        /* Function: __reflect_<StructName>_field_name(index) -> string */
+        sb_appendf(sb, "inline const char* ___reflect_%s_field_name(int64_t index) {\n", struct_name);
+        for (int j = 0; j < field_count; j++) {
+            if (j == 0) {
+                sb_appendf(sb, "    if (index == %d) { return \"%s\"; }\n", 
+                          j, sdef->field_names[j]);
+            } else {
+                sb_appendf(sb, "    else if (index == %d) { return \"%s\"; }\n", 
+                          j, sdef->field_names[j]);
+            }
+        }
+        sb_append(sb, "    else { return \"\"; }\n");
+        sb_append(sb, "}\n\n");
+        
+        /* Function: __reflect_<StructName>_field_type(index) -> string */
+        sb_appendf(sb, "inline const char* ___reflect_%s_field_type(int64_t index) {\n", struct_name);
+        for (int j = 0; j < field_count; j++) {
+            const char *type_str = NULL;
+            switch (sdef->field_types[j]) {
+                case TYPE_INT: type_str = "int"; break;
+                case TYPE_FLOAT: type_str = "float"; break;
+                case TYPE_STRING: type_str = "string"; break;
+                case TYPE_BOOL: type_str = "bool"; break;
+                case TYPE_VOID: type_str = "void"; break;
+                case TYPE_STRUCT:
+                    type_str = sdef->field_type_names[j] ? sdef->field_type_names[j] : "struct";
+                    break;
+                case TYPE_ARRAY: {
+                    /* Construct "array<T>" type string */
+                    static char array_type_buf[256];
+                    const char *elem_type = "unknown";
+                    if (sdef->field_element_types && sdef->field_element_types[j] == TYPE_INT) {
+                        elem_type = "int";
+                    } else if (sdef->field_element_types && sdef->field_element_types[j] == TYPE_STRING) {
+                        elem_type = "string";
+                    } else if (sdef->field_element_types && sdef->field_element_types[j] == TYPE_STRUCT) {
+                        elem_type = sdef->field_type_names[j] ? sdef->field_type_names[j] : "struct";
+                    }
+                    snprintf(array_type_buf, sizeof(array_type_buf), "array<%s>", elem_type);
+                    type_str = array_type_buf;
+                    break;
+                }
+                default: type_str = "unknown"; break;
+            }
+            
+            if (j == 0) {
+                sb_appendf(sb, "    if (index == %d) { return \"%s\"; }\n", j, type_str);
+            } else {
+                sb_appendf(sb, "    else if (index == %d) { return \"%s\"; }\n", j, type_str);
+            }
+        }
+        sb_append(sb, "    else { return \"\"; }\n");
+        sb_append(sb, "}\n\n");
+        
+        /* Function: __reflect_<StructName>_has_field(name) -> bool */
+        sb_appendf(sb, "inline bool ___reflect_%s_has_field(const char* name) {\n", struct_name);
+        for (int j = 0; j < field_count; j++) {
+            if (j == 0) {
+                sb_appendf(sb, "    if (strcmp(name, \"%s\") == 0) { return 1; }\n", 
+                          sdef->field_names[j]);
+            } else {
+                sb_appendf(sb, "    else if (strcmp(name, \"%s\") == 0) { return 1; }\n", 
+                          sdef->field_names[j]);
+            }
+        }
+        sb_append(sb, "    else { return 0; }\n");
+        sb_append(sb, "}\n\n");
+        
+        /* Function: __reflect_<StructName>_field_type_by_name(name) -> string */
+        sb_appendf(sb, "inline const char* ___reflect_%s_field_type_by_name(const char* name) {\n", struct_name);
+        for (int j = 0; j < field_count; j++) {
+            const char *type_str = NULL;
+            switch (sdef->field_types[j]) {
+                case TYPE_INT: type_str = "int"; break;
+                case TYPE_FLOAT: type_str = "float"; break;
+                case TYPE_STRING: type_str = "string"; break;
+                case TYPE_BOOL: type_str = "bool"; break;
+                case TYPE_VOID: type_str = "void"; break;
+                case TYPE_STRUCT:
+                    type_str = sdef->field_type_names[j] ? sdef->field_type_names[j] : "struct";
+                    break;
+                case TYPE_ARRAY: {
+                    static char array_type_buf2[256];
+                    const char *elem_type = "unknown";
+                    if (sdef->field_element_types && sdef->field_element_types[j] == TYPE_INT) {
+                        elem_type = "int";
+                    } else if (sdef->field_element_types && sdef->field_element_types[j] == TYPE_STRING) {
+                        elem_type = "string";
+                    } else if (sdef->field_element_types && sdef->field_element_types[j] == TYPE_STRUCT) {
+                        elem_type = sdef->field_type_names[j] ? sdef->field_type_names[j] : "struct";
+                    }
+                    snprintf(array_type_buf2, sizeof(array_type_buf2), "array<%s>", elem_type);
+                    type_str = array_type_buf2;
+                    break;
+                }
+                default: type_str = "unknown"; break;
+            }
+            
+            if (j == 0) {
+                sb_appendf(sb, "    if (strcmp(name, \"%s\") == 0) { return \"%s\"; }\n", 
+                          sdef->field_names[j], type_str);
+            } else {
+                sb_appendf(sb, "    else if (strcmp(name, \"%s\") == 0) { return \"%s\"; }\n", 
+                          sdef->field_names[j], type_str);
+            }
+        }
+        sb_append(sb, "    else { return \"\"; }\n");
+        sb_append(sb, "}\n\n");
+    }
+    
+    sb_append(sb, "/* ========== End Struct Metadata ========== */\n\n");
+}
+
+/* Generate compile-time module metadata introspection functions */
+static void generate_module_metadata(Environment *env, StringBuilder *sb) {
+    if (!env || !sb) return;
+    
+    sb_append(sb, "/* ========== Auto-Generated Module Metadata ========== */\n\n");
+    
+    #ifdef DEBUG_MODULE_INTROSPECTION
+    fprintf(stderr, "DEBUG: Generating metadata for %d modules\n", env->module_count);
+    #endif
+    
+    for (int i = 0; i < env->module_count; i++) {
+        ModuleInfo *mod = &env->modules[i];
+        if (!mod || !mod->name) continue;
+        
+        const char *module_name = mod->name;
+        
+        #ifdef DEBUG_MODULE_INTROSPECTION
+        fprintf(stderr, "DEBUG: Generating functions for module '%s' (unsafe=%d, has_ffi=%d)\n",
+                module_name, mod->is_unsafe, mod->has_ffi);
+        #endif
+        
+        /* Function: ___module_info_<NAME>() -> struct with module metadata */
+        sb_appendf(sb, "/* Module: %s (path: %s, unsafe: %s, has_ffi: %s) */\n",
+                  module_name, 
+                  mod->path ? mod->path : "unknown",
+                  mod->is_unsafe ? "yes" : "no",
+                  mod->has_ffi ? "yes" : "no");
+        
+        /* For now, generate simple metadata functions */
+        /* These can be called from NanoLang to introspect modules at compile-time */
+        
+        /* Function: ___module_is_unsafe_<NAME>() -> bool */
+        sb_appendf(sb, "static inline bool ___module_is_unsafe_%s(void) {\n", module_name);
+        sb_appendf(sb, "    return %s;\n", mod->is_unsafe ? "1" : "0");
+        sb_append(sb, "}\n\n");
+        
+        /* Function: ___module_has_ffi_<NAME>() -> bool */
+        sb_appendf(sb, "static inline bool ___module_has_ffi_%s(void) {\n", module_name);
+        sb_appendf(sb, "    return %s;\n", mod->has_ffi ? "1" : "0");
+        sb_append(sb, "}\n\n");
+        
+        /* Function: ___module_name_<NAME>() -> string */
+        sb_appendf(sb, "static inline const char* ___module_name_%s(void) {\n", module_name);
+        sb_appendf(sb, "    return \"%s\";\n", module_name);
+        sb_append(sb, "}\n\n");
+        
+        /* Function: ___module_path_<NAME>() -> string */
+        sb_appendf(sb, "static inline const char* ___module_path_%s(void) {\n", module_name);
+        sb_appendf(sb, "    return \"%s\";\n", mod->path ? mod->path : "");
+        sb_append(sb, "}\n\n");
+
+        /* Function: ___module_function_count_<NAME>() -> int */
+        sb_appendf(sb, "int64_t ___module_function_count_%s(void) {\n", module_name);
+        sb_appendf(sb, "    return %d;\n", mod->function_count);
+        sb_append(sb, "}\n\n");
+
+        /* Function: ___module_function_name_<NAME>(idx: int) -> string */
+        sb_appendf(sb, "const char* ___module_function_name_%s(int64_t idx) {\n", module_name);
+        if (mod->function_count > 0 && mod->exported_functions) {
+            for (int j = 0; j < mod->function_count; j++) {
+                const char *fname = mod->exported_functions[j] ? mod->exported_functions[j] : "";
+                if (j == 0) {
+                    sb_appendf(sb, "    if (idx == %d) { return \"%s\"; }\n", j, fname);
+                } else {
+                    sb_appendf(sb, "    else if (idx == %d) { return \"%s\"; }\n", j, fname);
+                }
+            }
+            sb_append(sb, "    else { return \"\"; }\n");
+        } else {
+            sb_append(sb, "    (void)idx;\n");
+            sb_append(sb, "    return \"\";\n");
+        }
+        sb_append(sb, "}\n\n");
+
+        /* Function: ___module_struct_count_<NAME>() -> int */
+        sb_appendf(sb, "int64_t ___module_struct_count_%s(void) {\n", module_name);
+        sb_appendf(sb, "    return %d;\n", mod->struct_count);
+        sb_append(sb, "}\n\n");
+
+        /* Function: ___module_struct_name_<NAME>(idx: int) -> string */
+        sb_appendf(sb, "const char* ___module_struct_name_%s(int64_t idx) {\n", module_name);
+        if (mod->struct_count > 0 && mod->exported_structs) {
+            for (int j = 0; j < mod->struct_count; j++) {
+                const char *sname = mod->exported_structs[j] ? mod->exported_structs[j] : "";
+                if (j == 0) {
+                    sb_appendf(sb, "    if (idx == %d) { return \"%s\"; }\n", j, sname);
+                } else {
+                    sb_appendf(sb, "    else if (idx == %d) { return \"%s\"; }\n", j, sname);
+                }
+            }
+            sb_append(sb, "    else { return \"\"; }\n");
+        } else {
+            sb_append(sb, "    (void)idx;\n");
+            sb_append(sb, "    return \"\";\n");
+        }
+        sb_append(sb, "}\n\n");
+    }
+    
+    sb_append(sb, "/* ========== End Module Metadata ========== */\n\n");
+}
+
 static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     sb_append(sb, "/* ========== To-String Helpers ========== */\n\n");
 
@@ -1984,7 +2667,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->enum_count; i++) {
         EnumDef *edef = &env->enums[i];
         if (!edef || !edef->name) continue;
-        if (is_runtime_typedef(edef->name)) continue;
+        if (edef->is_extern) continue;
         const char *prefixed_enum = get_prefixed_type_name(edef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s v);\n", edef->name, prefixed_enum);
     }
@@ -1992,7 +2675,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->struct_count; i++) {
         StructDef *sdef = &env->structs[i];
         if (!sdef || !sdef->name) continue;
-        if (is_runtime_typedef(sdef->name)) continue;
+        if (sdef->is_extern) continue;
         const char *prefixed_struct = get_prefixed_type_name(sdef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s v);\n", sdef->name, prefixed_struct);
     }
@@ -2000,8 +2683,8 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->union_count; i++) {
         UnionDef *udef = &env->unions[i];
         if (!udef || !udef->name) continue;
-        if (is_runtime_typedef(udef->name)) continue;
         if (udef->generic_param_count > 0) continue;
+        if (udef->is_extern) continue;
         const char *prefixed_union = get_prefixed_type_name(udef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s u);\n", udef->name, prefixed_union);
     }
@@ -2034,14 +2717,15 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->enum_count; i++) {
         EnumDef *edef = &env->enums[i];
         if (!edef || !edef->name) continue;
-        if (is_runtime_typedef(edef->name)) continue;
+        if (edef->is_extern) continue;
 
         const char *prefixed_enum = get_prefixed_type_name(edef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s v) {\n", edef->name, prefixed_enum);
         sb_append(sb, "    switch (v) {\n");
         for (int j = 0; j < edef->variant_count; j++) {
-            sb_appendf(sb, "        case nl_%s_%s: return \"%s.%s\";\n",
-                       edef->name, edef->variant_names[j], edef->name, edef->variant_names[j]);
+            const char *prefixed_variant = get_prefixed_variant_name(edef->name, edef->variant_names[j]);
+            sb_appendf(sb, "        case %s: return \"%s.%s\";\n",
+                       prefixed_variant, edef->name, edef->variant_names[j]);
         }
         sb_appendf(sb, "        default: return \"%s.<unknown>\";\n", edef->name);
         sb_append(sb, "    }\n");
@@ -2052,7 +2736,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
     for (int i = 0; i < env->struct_count; i++) {
         StructDef *sdef = &env->structs[i];
         if (!sdef || !sdef->name) continue;
-        if (is_runtime_typedef(sdef->name)) continue;
+        if (sdef->is_extern) continue;
 
         const char *prefixed_struct = get_prefixed_type_name(sdef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s v) {\n", sdef->name, prefixed_struct);
@@ -2090,8 +2774,14 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
                     if (opaque) {
                         sb_append(sb, "    nl_fmt_sb_append_cstr(&sb, \"<opaque>\");\n");
                     } else {
-                        sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, nl_to_string_%s(v.%s));\n",
-                                   sdef->field_type_names[j], sdef->field_names[j]);
+                        StructDef *field_sdef = env_get_struct(env, sdef->field_type_names[j]);
+                        UnionDef *field_udef = env_get_union(env, sdef->field_type_names[j]);
+                        if ((field_sdef && field_sdef->is_extern) || (field_udef && field_udef->is_extern)) {
+                            sb_append(sb, "    nl_fmt_sb_append_cstr(&sb, \"<extern>\");\n");
+                        } else {
+                            sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, nl_to_string_%s(v.%s));\n",
+                                       sdef->field_type_names[j], sdef->field_names[j]);
+                        }
                     }
                 } else {
                     sb_append(sb, "    nl_fmt_sb_append_cstr(&sb, \"<struct>\");\n");
@@ -2111,7 +2801,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
         UnionDef *udef = &env->unions[i];
         if (!udef || !udef->name) continue;
         if (udef->generic_param_count > 0) continue;
-        if (is_runtime_typedef(udef->name)) continue;
+        if (udef->is_extern) continue;
 
         const char *prefixed_union = get_prefixed_type_name(udef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s u) {\n", udef->name, prefixed_union);
@@ -2119,7 +2809,8 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
         sb_append(sb, "    switch (u.tag) {\n");
 
         for (int j = 0; j < udef->variant_count; j++) {
-            sb_appendf(sb, "        case nl_%s_TAG_%s: {\n", udef->name, udef->variant_names[j]);
+            const char *prefixed_tag = get_prefixed_tag_name(udef->name, udef->variant_names[j]);
+            sb_appendf(sb, "        case %s: {\n", prefixed_tag);
             sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, \"%s.%s\");\n", udef->name, udef->variant_names[j]);
             if (udef->variant_field_counts[j] > 0) {
                 sb_append(sb, "            nl_fmt_sb_append_cstr(&sb, \" { \");\n");
@@ -2163,10 +2854,16 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
                             if (opaque) {
                                 sb_append(sb, "            nl_fmt_sb_append_cstr(&sb, \"<opaque>\");\n");
                             } else {
-                                sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, nl_to_string_%s(u.data.%s.%s));\n",
-                                           udef->variant_field_type_names[j][k],
-                                           udef->variant_names[j],
-                                           udef->variant_field_names[j][k]);
+                                StructDef *field_sdef = env_get_struct(env, udef->variant_field_type_names[j][k]);
+                                UnionDef *field_udef = env_get_union(env, udef->variant_field_type_names[j][k]);
+                                if ((field_sdef && field_sdef->is_extern) || (field_udef && field_udef->is_extern)) {
+                                    sb_append(sb, "            nl_fmt_sb_append_cstr(&sb, \"<extern>\");\n");
+                                } else {
+                                    sb_appendf(sb, "            nl_fmt_sb_append_cstr(&sb, nl_to_string_%s(u.data.%s.%s));\n",
+                                               udef->variant_field_type_names[j][k],
+                                               udef->variant_names[j],
+                                               udef->variant_field_names[j][k]);
+                                }
                             }
                         } else {
                             sb_append(sb, "            nl_fmt_sb_append_cstr(&sb, \"<struct>\");\n");
@@ -2226,7 +2923,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
 /* Generate forward declarations for functions defined in imported nanolang modules.
  * These modules are compiled into separate .o files (see compile_modules()), so the
  * main translation unit needs prototypes to avoid implicit-declaration errors. */
-static void generate_module_function_declarations(StringBuilder *sb, ASTNode *program, Environment *env) {
+static void generate_module_function_declarations(StringBuilder *sb, ASTNode *program, Environment *env, const char *current_file, FunctionTypeRegistry *fn_registry) {
     if (!program || program->type != AST_PROGRAM) return;
 
     sb_append(sb, "/* Forward declarations for imported module functions */\n");
@@ -2244,13 +2941,22 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
         ASTNode *item = program->as.program.items[i];
         if (!item || item->type != AST_IMPORT) continue;
 
-        const char *resolved = resolve_module_path(item->as.import_stmt.module_path, NULL);
+        const char *resolved = resolve_module_path(item->as.import_stmt.module_path, current_file);
         if (!resolved) continue;
+
+        /* Extract module name from file path BEFORE freeing resolved */
+        char module_name_from_path[256];
+        const char *last_slash = strrchr(resolved, '/');
+        const char *base_name = last_slash ? last_slash + 1 : resolved;
+        snprintf(module_name_from_path, sizeof(module_name_from_path), "%s", base_name);
+        char *dot = strrchr(module_name_from_path, '.');
+        if (dot) *dot = '\0';
 
         ASTNode *module_ast = get_cached_module_ast(resolved);
         free((char*)resolved);  /* Cast away const for free() */
         if (!module_ast || module_ast->type != AST_PROGRAM) continue;
 
+        /* Check if module has an explicit module declaration */
         const char *module_name = NULL;
         for (int j = 0; j < module_ast->as.program.count; j++) {
             ASTNode *mi = module_ast->as.program.items[j];
@@ -2259,21 +2965,58 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                 break;
             }
         }
+        
+        /* If no module declaration, use name extracted from file path */
+        if (!module_name) {
+            module_name = module_name_from_path;
+        }
 
+        /* Check if module has a main function (if not, all functions are implicitly public) */
+        bool module_has_main = false;
+        for (int j = 0; j < module_ast->as.program.count; j++) {
+            ASTNode *check = module_ast->as.program.items[j];
+            if (check && check->type == AST_FUNCTION && strcmp(check->as.function.name, "main") == 0) {
+                module_has_main = true;
+                break;
+            }
+        }
+        
         for (int j = 0; j < module_ast->as.program.count; j++) {
             ASTNode *mi = module_ast->as.program.items[j];
             if (!mi || mi->type != AST_FUNCTION) continue;
-            if (!mi->as.function.is_pub) continue;
-            if (mi->as.function.is_extern) continue;
+            /* In modules (no main), all functions are implicitly public */
+            if (!mi->as.function.is_pub && module_has_main) continue;
+            /* main is always entry point, not a module function to be imported */
             if (strcmp(mi->as.function.name, "main") == 0) continue;
 
             const char *c_name = NULL;
             char c_name_buf[512];
-            if (module_name) {
+            if (mi->as.function.is_extern) {
+                /* Extern functions use their literal name */
+                c_name = mi->as.function.name;
+            } else if (module_name) {
                 snprintf(c_name_buf, sizeof(c_name_buf), "%s__%s", module_name, mi->as.function.name);
                 c_name = c_name_buf;
             } else {
-                c_name = get_c_func_name_with_module(mi->as.function.name, NULL);
+                c_name = get_c_func_name_with_module(mi->as.function.name, NULL, mi->as.function.is_extern);
+            }
+
+            /* If the generated C file includes the relevant system headers, don't redeclare system APIs. */
+            if (mi->as.function.is_extern && g_module_headers_count > 0) {
+                if (strncmp(c_name, "SDL_", 4) == 0 && module_headers_contain("SDL.h")) continue;
+                if (strncmp(c_name, "TTF_", 4) == 0 && module_headers_contain("SDL_ttf.h")) continue;
+                if (strncmp(c_name, "IMG_", 4) == 0 && module_headers_contain("SDL_image.h")) continue;
+                if (strncmp(c_name, "Mix_", 4) == 0 && module_headers_contain("SDL_mixer.h")) continue;
+                if (strncmp(c_name, "sqlite3_", 8) == 0 && module_headers_contain("sqlite3.h")) continue;
+                if (strncmp(c_name, "curl_", 5) == 0 && module_headers_contain("curl")) continue;
+                if (strncmp(c_name, "glfw", 4) == 0 && module_headers_contain("glfw")) continue;
+            }
+
+            /* If the module's own header is included, don't redeclare its exported wrapper functions. */
+            if (mi->as.function.is_extern && g_module_headers_count > 0 && module_name && strncmp(c_name, "nl_", 3) == 0) {
+                char module_header_needle[300];
+                snprintf(module_header_needle, sizeof(module_header_needle), "%s.h", module_name);
+                if (module_headers_contain(module_header_needle)) continue;
             }
 
             /* De-dupe */
@@ -2325,6 +3068,24 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                 }
             } else if (mi->as.function.return_type == TYPE_LIST_GENERIC && mi->as.function.return_struct_type_name) {
                 sb_appendf(sb, "List_%s*", mi->as.function.return_struct_type_name);
+            } else if (mi->as.function.return_type == TYPE_HASHMAP) {
+                if (mi->as.function.return_type_info &&
+                    mi->as.function.return_type_info->generic_name &&
+                    strcmp(mi->as.function.return_type_info->generic_name, "HashMap") == 0 &&
+                    mi->as.function.return_type_info->type_param_count == 2) {
+                    char monomorphized_name[256];
+                    if (build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            mi->as.function.return_type_info->generic_name,
+                            mi->as.function.return_type_info->type_params,
+                            mi->as.function.return_type_info->type_param_count)) {
+                        sb_appendf(sb, "%s*", monomorphized_name);
+                    } else {
+                        sb_append(sb, "void*");
+                    }
+                } else {
+                    sb_append(sb, "void*");
+                }
             } else if (mi->as.function.return_type == TYPE_FUNCTION) {
                 /* Avoid emitting incorrect prototypes (not needed for current stdlib) */
                 continue;
@@ -2349,6 +3110,26 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                     sb_append(sb, get_prefixed_type_name(param->struct_type_name));
                 } else if (param->type == TYPE_LIST_GENERIC && param->struct_type_name) {
                     sb_appendf(sb, "List_%s*", param->struct_type_name);
+                } else if (param->type == TYPE_HASHMAP) {
+                    if (param->type_info && param->type_info->generic_name &&
+                        strcmp(param->type_info->generic_name, "HashMap") == 0 &&
+                        param->type_info->type_param_count == 2) {
+                        char monomorphized_name[256];
+                        if (build_monomorphized_name_from_typeinfo(
+                                monomorphized_name, sizeof(monomorphized_name),
+                                param->type_info->generic_name,
+                                param->type_info->type_params,
+                                param->type_info->type_param_count)) {
+                            sb_appendf(sb, "%s*", monomorphized_name);
+                        } else {
+                            sb_append(sb, "void*");
+                        }
+                    } else {
+                        sb_append(sb, "void*");
+                    }
+                } else if (param->type == TYPE_FUNCTION && param->fn_sig && fn_registry) {
+                    const char *typedef_name = register_function_signature(fn_registry, param->fn_sig);
+                    sb_append(sb, typedef_name);
                 } else {
                     sb_append(sb, type_to_c(param->type));
                 }
@@ -2375,6 +3156,10 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                                                     Environment *env,
                                                     FunctionTypeRegistry *fn_registry,
                                                     TupleTypeRegistry *tuple_registry) {
+    /* Check if we're compiling a module (no main function) */
+    Function *main_func = env_get_function(env, "main");
+    bool is_module = (main_func == NULL);
+    
     /* Forward declare functions from current program */
     sb_append(sb, "/* Forward declarations for program functions */\n");
     for (int i = 0; i < program->as.program.count; i++) {
@@ -2385,8 +3170,11 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                 continue;
             }
             
-            /* Add static for private functions */
-            if (!item->as.function.is_pub) {
+            /* Add static for private functions 
+             * BUT: When compiling modules, export all functions by default
+             * (static functions can't be linked from other compilation units)
+             */
+            if (!item->as.function.is_pub && !is_module) {
                 sb_append(sb, "static ");
             }
             
@@ -2400,6 +3188,24 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
             } else if (item->as.function.return_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
                 /* Generic list return type: List<ElementType> -> List_ElementType* */
                 sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
+            } else if (item->as.function.return_type == TYPE_HASHMAP) {
+                if (item->as.function.return_type_info &&
+                    item->as.function.return_type_info->generic_name &&
+                    strcmp(item->as.function.return_type_info->generic_name, "HashMap") == 0 &&
+                    item->as.function.return_type_info->type_param_count == 2) {
+                    char monomorphized_name[256];
+                    if (build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            item->as.function.return_type_info->generic_name,
+                            item->as.function.return_type_info->type_params,
+                            item->as.function.return_type_info->type_param_count)) {
+                        sb_appendf(sb, "%s*", monomorphized_name);
+                    } else {
+                        sb_append(sb, "void*");
+                    }
+                } else {
+                    sb_append(sb, "void*");
+                }
             } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
                 /* Check if this is an opaque type */
                 OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.return_struct_type_name);
@@ -2453,7 +3259,7 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                 module_name = func->module_name;
             }
             /* Use namespace-aware function name (handles module::function -> module__function) */
-            const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name);
+            const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name, item->as.function.is_extern);
             sb_appendf(sb, " %s(", c_func_name);
             
             /* Function parameters */
@@ -2470,6 +3276,24 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                     sb_appendf(sb, "List_%s* %s",
                               item->as.function.params[j].struct_type_name,
                               item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_HASHMAP) {
+                    if (item->as.function.params[j].type_info &&
+                        item->as.function.params[j].type_info->generic_name &&
+                        strcmp(item->as.function.params[j].type_info->generic_name, "HashMap") == 0 &&
+                        item->as.function.params[j].type_info->type_param_count == 2) {
+                        char monomorphized_name[256];
+                        if (build_monomorphized_name_from_typeinfo(
+                                monomorphized_name, sizeof(monomorphized_name),
+                                item->as.function.params[j].type_info->generic_name,
+                                item->as.function.params[j].type_info->type_params,
+                                item->as.function.params[j].type_info->type_param_count)) {
+                            sb_appendf(sb, "%s* %s", monomorphized_name, item->as.function.params[j].name);
+                        } else {
+                            sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                        }
+                    } else {
+                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                    }
                 } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
                     /* Check if this is an opaque type */
                     OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
@@ -2481,10 +3305,30 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                         const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
                         sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
                     }
+                } else if (item->as.function.params[j].type == TYPE_UNION &&
+                           item->as.function.params[j].type_info &&
+                           item->as.function.params[j].type_info->generic_name &&
+                           item->as.function.params[j].type_info->type_param_count > 0) {
+                    /* Generic union parameter: Result<int, string> -> Result_int_string */
+                    char monomorphized_name[256];
+                    if (!build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            item->as.function.params[j].type_info->generic_name,
+                            item->as.function.params[j].type_info->type_params,
+                            item->as.function.params[j].type_info->type_param_count)) {
+                        sb_appendf(sb, "int64_t %s", item->as.function.params[j].name);
+                    } else {
+                        const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
+                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                    }
                 } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
                     /* Use prefixed union name */
                     const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
                     sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_TUPLE && item->as.function.params[j].type_info) {
+                    /* Tuple parameter: use typedef name */
+                    const char *typedef_name = register_tuple_type(tuple_registry, item->as.function.params[j].type_info);
+                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
                 } else {
                     sb_appendf(sb, "%s %s",
                               type_to_c(item->as.function.params[j].type),
@@ -2501,6 +3345,10 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
 /* Generate function implementations from program AST */
 static void generate_function_implementations(StringBuilder *sb, ASTNode *program, Environment *env,
                                               FunctionTypeRegistry *fn_registry, TupleTypeRegistry *tuple_registry) {
+    /* Check if we're compiling a module (no main function) */
+    Function *main_func = env_get_function(env, "main");
+    bool is_module = (main_func == NULL);
+    
     /* Transpile all functions (skip shadow tests and extern functions) */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -2510,8 +3358,11 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                 continue;
             }
             
-            /* Add static for private functions */
-            if (!item->as.function.is_pub) {
+            /* Add static for private functions 
+             * BUT: When compiling modules, export all functions by default
+             * (static functions can't be linked from other compilation units)
+             */
+            if (!item->as.function.is_pub && !is_module) {
                 sb_append(sb, "static ");
             }
             
@@ -2524,6 +3375,24 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
             } else if (item->as.function.return_type == TYPE_LIST_GENERIC && item->as.function.return_struct_type_name) {
                 /* Generic list return type: List<ElementType> -> List_ElementType* */
                 sb_appendf(sb, "List_%s*", item->as.function.return_struct_type_name);
+            } else if (item->as.function.return_type == TYPE_HASHMAP) {
+                if (item->as.function.return_type_info &&
+                    item->as.function.return_type_info->generic_name &&
+                    strcmp(item->as.function.return_type_info->generic_name, "HashMap") == 0 &&
+                    item->as.function.return_type_info->type_param_count == 2) {
+                    char monomorphized_name[256];
+                    if (build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            item->as.function.return_type_info->generic_name,
+                            item->as.function.return_type_info->type_params,
+                            item->as.function.return_type_info->type_param_count)) {
+                        sb_appendf(sb, "%s*", monomorphized_name);
+                    } else {
+                        sb_append(sb, "void*");
+                    }
+                } else {
+                    sb_append(sb, "void*");
+                }
             } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
                 /* Check if this is an opaque type */
                 OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.return_struct_type_name);
@@ -2577,7 +3446,7 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                 module_name = func->module_name;
             }
             /* Use namespace-aware function name (handles module::function -> module__function) */
-            const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name);
+            const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name, item->as.function.is_extern);
             sb_appendf(sb, " %s(", c_func_name);
             
             /* Function parameters */
@@ -2594,6 +3463,24 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                     sb_appendf(sb, "List_%s* %s",
                               item->as.function.params[j].struct_type_name,
                               item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_HASHMAP) {
+                    if (item->as.function.params[j].type_info &&
+                        item->as.function.params[j].type_info->generic_name &&
+                        strcmp(item->as.function.params[j].type_info->generic_name, "HashMap") == 0 &&
+                        item->as.function.params[j].type_info->type_param_count == 2) {
+                        char monomorphized_name[256];
+                        if (build_monomorphized_name_from_typeinfo(
+                                monomorphized_name, sizeof(monomorphized_name),
+                                item->as.function.params[j].type_info->generic_name,
+                                item->as.function.params[j].type_info->type_params,
+                                item->as.function.params[j].type_info->type_param_count)) {
+                            sb_appendf(sb, "%s* %s", monomorphized_name, item->as.function.params[j].name);
+                        } else {
+                            sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                        }
+                    } else {
+                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                    }
                 } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
                     /* Check if this is an opaque type */
                     OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
@@ -2605,10 +3492,30 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                         const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
                         sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
                     }
+                } else if (item->as.function.params[j].type == TYPE_UNION &&
+                           item->as.function.params[j].type_info &&
+                           item->as.function.params[j].type_info->generic_name &&
+                           item->as.function.params[j].type_info->type_param_count > 0) {
+                    /* Generic union parameter: Result<int, string> -> Result_int_string */
+                    char monomorphized_name[256];
+                    if (!build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            item->as.function.params[j].type_info->generic_name,
+                            item->as.function.params[j].type_info->type_params,
+                            item->as.function.params[j].type_info->type_param_count)) {
+                        sb_appendf(sb, "int64_t %s", item->as.function.params[j].name);
+                    } else {
+                        const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
+                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                    }
                 } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
                     /* Use prefixed union name */
                     const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
                     sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                } else if (item->as.function.params[j].type == TYPE_TUPLE && item->as.function.params[j].type_info) {
+                    /* Tuple parameter: use typedef name */
+                    const char *typedef_name = register_tuple_type(tuple_registry, item->as.function.params[j].type_info);
+                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
                 } else {
                     sb_appendf(sb, "%s %s",
                               type_to_c(item->as.function.params[j].type),
@@ -2668,9 +3575,14 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "    exit((int)code);\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "static char* nl_os_getenv(const char* name) {\n");
+    sb_append(sb, "static const char* nl_os_getenv(const char* name) {\n");
     sb_append(sb, "    const char* value = getenv(name);\n");
-    sb_append(sb, "    return value ? (char*)value : \"\";\n");
+    sb_append(sb, "    return value ? value : \"\";\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* system() wrapper - stdlib system() available via stdlib.h */\n");
+    sb_append(sb, "static inline int64_t nl_exec_shell(const char* cmd) {\n");
+    sb_append(sb, "    return (int64_t)system(cmd);\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static char* nl_os_read_all_fd(int fd) {\n");
@@ -2752,49 +3664,185 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 }
 
-/* Generate C main() wrapper that calls nanolang main() */
-static void generate_main_wrapper(StringBuilder *sb, Environment *env) {
-    /* Only generate if there's a non-extern main function */
-    Function *main_func = env_get_function(env, "main");
-    if (!main_func || main_func->is_extern) {
+/* Generate C main() wrapper that calls nanolang main().
+ * Important: Only emit this if THIS compilation unit defines a main().
+ * (If "main" only exists in an imported module, emitting a wrapper here causes
+ * undeclared-call/linkage issues and breaks test files that intentionally omit main.)
+ */
+static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environment *env) {
+    bool has_local_main = false;
+    if (program && program->type == AST_PROGRAM) {
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
+            if (!item || item->type != AST_FUNCTION) continue;
+            if (!item->as.function.name) continue;
+            if (strcmp(item->as.function.name, "main") != 0) continue;
+            if (item->as.function.is_extern) continue;
+            has_local_main = true;
+            break;
+        }
+    }
+    Function *main_func = has_local_main ? env_get_function(env, "main") : NULL;
+    if (has_local_main && (!main_func || main_func->is_extern)) {
+        /* If the program defines main(), it must resolve to a real function. */
         return;
     }
-    
-    /* Get the mangled name for main (could be module__main) */
-    const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name);
     
     sb_append(sb, "\n/* C main() entry point - calls nanolang main */\n");
     sb_append(sb, "/* Global argc/argv for CLI runtime support */\n");
     sb_append(sb, "int g_argc = 0;\n");
     sb_append(sb, "char **g_argv = NULL;\n\n");
-    sb_append(sb, "int main(int argc, char **argv) {\n");
-    sb_append(sb, "    g_argc = argc;\n");
-    sb_append(sb, "    g_argv = argv;\n");
-    sb_appendf(sb, "    return (int)%s();\n", c_main_name);
-    sb_append(sb, "}\n");
+    
+    /* If profiling is enabled, use fork/exec wrapper */
+    if (env && env->profile_gprof && has_local_main) {
+        const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name, main_func->is_extern);
+        sb_append(sb, "int main(int argc, char **argv) {\n");
+        sb_append(sb, "    g_argc = argc;\n");
+        sb_append(sb, "    g_argv = argv;\n");
+        sb_appendf(sb, "    return _nl_run_with_profiling(argc, argv, %s);\n", c_main_name);
+        sb_append(sb, "}\n");
+    } else {
+        /* Normal main without profiling */
+        sb_append(sb, "int main(int argc, char **argv) {\n");
+        sb_append(sb, "    g_argc = argc;\n");
+        sb_append(sb, "    g_argv = argv;\n");
+        if (has_local_main) {
+            const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name, main_func->is_extern);
+            sb_appendf(sb, "    return (int)%s();\n", c_main_name);
+        } else {
+            sb_append(sb, "    return 0;\n");
+        }
+        sb_append(sb, "}\n");
+    }
 }
 
-/* Generate top-level constants */
-static void generate_toplevel_constants(StringBuilder *sb, ASTNode *program, Environment *env) {
-    sb_append(sb, "/* Top-level constants */\n");
+static bool is_c_constant_initializer(ASTNode *expr) {
+    if (!expr) return false;
+    switch (expr->type) {
+        case AST_NUMBER:
+        case AST_FLOAT:
+        case AST_BOOL:
+        case AST_STRING:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/* Generate top-level globals (constants + mutable globals).
+ * For non-constant initializers, emit a small runtime initializer.
+ */
+static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Environment *env) {
+    sb_append(sb, "/* Top-level globals */\n");
+
+    ASTNode **runtime_inits = NULL;
+    int runtime_init_count = 0;
+    int runtime_init_cap = 0;
+
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_LET && !item->as.let.is_mut) {
-            /* Skip constants that come from C headers - they're already defined in the headers */
-            Symbol *sym = env_get_var(env, item->as.let.name);
-            if (sym && sym->from_c_header) {
-                continue;  /* Skip - defined in C header */
-            }
-            
-            /* Emit as C constant */
+        if (item->type != AST_LET) continue;
+
+        /* Skip constants that come from C headers - they're already defined in the headers */
+        Symbol *sym = env_get_var(env, item->as.let.name);
+        if (sym && sym->from_c_header) {
+            continue;
+        }
+
+        bool is_const_init = is_c_constant_initializer(item->as.let.value);
+
+        if (!item->as.let.is_mut && is_const_init) {
+            /* Emit true constants as C constants */
             sb_append(sb, "static const ");
-            sb_append(sb, type_to_c(item->as.let.var_type));
+            if (item->as.let.var_type == TYPE_HASHMAP &&
+                item->as.let.type_info &&
+                item->as.let.type_info->generic_name &&
+                strcmp(item->as.let.type_info->generic_name, "HashMap") == 0 &&
+                item->as.let.type_info->type_param_count == 2) {
+                char monomorphized_name[256];
+                if (build_monomorphized_name_from_typeinfo(
+                        monomorphized_name, sizeof(monomorphized_name),
+                        item->as.let.type_info->generic_name,
+                        item->as.let.type_info->type_params,
+                        item->as.let.type_info->type_param_count)) {
+                    sb_appendf(sb, "%s*", monomorphized_name);
+                } else {
+                    sb_append(sb, "void*");
+                }
+            } else {
+                sb_append(sb, type_to_c(item->as.let.var_type));
+            }
             sb_appendf(sb, " %s = ", item->as.let.name);
             transpile_expression(sb, item->as.let.value, env);
             sb_append(sb, ";\n");
+            continue;
+        }
+
+        /* Emit as a normal global (mutable or runtime-initialized constant) */
+        sb_append(sb, "static ");
+        if (item->as.let.var_type == TYPE_HASHMAP &&
+            item->as.let.type_info &&
+            item->as.let.type_info->generic_name &&
+            strcmp(item->as.let.type_info->generic_name, "HashMap") == 0 &&
+            item->as.let.type_info->type_param_count == 2) {
+            char monomorphized_name[256];
+            if (build_monomorphized_name_from_typeinfo(
+                    monomorphized_name, sizeof(monomorphized_name),
+                    item->as.let.type_info->generic_name,
+                    item->as.let.type_info->type_params,
+                    item->as.let.type_info->type_param_count)) {
+                sb_appendf(sb, "%s*", monomorphized_name);
+            } else {
+                sb_append(sb, "void*");
+            }
+        } else {
+            sb_append(sb, type_to_c(item->as.let.var_type));
+        }
+        sb_appendf(sb, " %s", item->as.let.name);
+        if (is_const_init) {
+            sb_append(sb, " = ");
+            transpile_expression(sb, item->as.let.value, env);
+        }
+        sb_append(sb, ";\n");
+
+        if (!is_const_init) {
+            if (runtime_init_count >= runtime_init_cap) {
+                int new_cap = runtime_init_cap == 0 ? 8 : runtime_init_cap * 2;
+                ASTNode **new_arr = realloc(runtime_inits, sizeof(ASTNode*) * (size_t)new_cap);
+                if (!new_arr) {
+                    fprintf(stderr, "Error: Out of memory collecting top-level initializers\n");
+                    exit(1);
+                }
+                runtime_inits = new_arr;
+                runtime_init_cap = new_cap;
+            }
+            runtime_inits[runtime_init_count++] = item;
         }
     }
+
     sb_append(sb, "\n");
+
+    if (runtime_init_count > 0) {
+        sb_append(sb, "/* Top-level runtime initialization */\n");
+        sb_append(sb, "static bool nl_toplevel_initialized = false;\n");
+        sb_append(sb, "static void nl_init_toplevel(void) {\n");
+        sb_append(sb, "    if (nl_toplevel_initialized) return;\n");
+        sb_append(sb, "    nl_toplevel_initialized = true;\n");
+        for (int i = 0; i < runtime_init_count; i++) {
+            ASTNode *item = runtime_inits[i];
+            sb_appendf(sb, "    %s = ", item->as.let.name);
+            transpile_expression(sb, item->as.let.value, env);
+            sb_append(sb, ";\n");
+        }
+        sb_append(sb, "}\n");
+
+        sb_append(sb, "#if defined(__GNUC__) || defined(__clang__)\n");
+        sb_append(sb, "__attribute__((constructor))\n");
+        sb_append(sb, "#endif\n");
+        sb_append(sb, "static void nl_init_toplevel_ctor(void) { nl_init_toplevel(); }\n\n");
+    }
+
+    free(runtime_inits);
 }
 
 /* Collect module headers from all import statements */
@@ -2871,6 +3919,39 @@ static void collect_function_and_tuple_types(ASTNode *program, FunctionTypeRegis
             /* Collect from function body */
             collect_fn_sigs(item->as.function.body, fn_registry);
             collect_tuple_types_from_stmt(item->as.function.body, tuple_registry);
+        }
+    }
+}
+
+/* Collect function type signatures referenced by imported modules so their typedefs
+ * are available before emitting module forward declarations. */
+static void collect_module_function_types(ASTNode *program, FunctionTypeRegistry *fn_registry, const char *current_file) {
+    if (!program || !fn_registry) return;
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (!item || item->type != AST_IMPORT) continue;
+
+        const char *resolved = resolve_module_path(item->as.import_stmt.module_path, current_file);
+        if (!resolved) continue;
+
+        ASTNode *module_ast = get_cached_module_ast(resolved);
+        free((char*)resolved);  /* Cast away const for free() */
+        if (!module_ast || module_ast->type != AST_PROGRAM) continue;
+
+        for (int j = 0; j < module_ast->as.program.count; j++) {
+            ASTNode *mi = module_ast->as.program.items[j];
+            if (!mi || mi->type != AST_FUNCTION) continue;
+            if (!mi->as.function.is_pub) continue;
+
+            for (int p = 0; p < mi->as.function.param_count; p++) {
+                if (mi->as.function.params[p].type == TYPE_FUNCTION && mi->as.function.params[p].fn_sig) {
+                    register_function_signature(fn_registry, mi->as.function.params[p].fn_sig);
+                }
+            }
+
+            if (mi->as.function.return_type == TYPE_FUNCTION && mi->as.function.return_fn_sig) {
+                register_function_signature(fn_registry, mi->as.function.return_fn_sig);
+            }
         }
     }
 }
@@ -3030,7 +4111,7 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
         /* Skip runtime list functions - they're declared in runtime headers */ \
         if (strncmp(func_name, "list_int_", 9) == 0 || \
             strncmp(func_name, "list_string_", 12) == 0 || \
-            strncmp(func_name, "list_token_", 11) == 0) { \
+            strncmp(func_name, "nl_list_Token_", 11) == 0) { \
             break; \
         } \
         \
@@ -3041,6 +4122,8 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
             strcmp(func_name, "fprintf") == 0 || strcmp(func_name, "sprintf") == 0 || \
             strcmp(func_name, "strlen") == 0 || strcmp(func_name, "strcmp") == 0 || \
             strcmp(func_name, "strncmp") == 0 || strcmp(func_name, "strchr") == 0 || \
+            strcmp(func_name, "getenv") == 0 || strcmp(func_name, "setenv") == 0 || \
+            strcmp(func_name, "unsetenv") == 0 || \
             strcmp(func_name, "getchar") == 0 || strcmp(func_name, "putchar") == 0 || \
             strcmp(func_name, "isalpha") == 0 || strcmp(func_name, "isdigit") == 0 || \
             strcmp(func_name, "isalnum") == 0 || strcmp(func_name, "islower") == 0 || \
@@ -3059,6 +4142,17 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
         } \
         \
         if (extern_decl_set_contains(emitted, emitted_count, func_name)) break; \
+        \
+        /* If we have the relevant system headers in the generated C file, don't redeclare system APIs. */ \
+        if (g_module_headers_count > 0) { \
+            if (strncmp(func_name, "SDL_", 4) == 0 && module_headers_contain("SDL.h")) break; \
+            if (strncmp(func_name, "TTF_", 4) == 0 && module_headers_contain("SDL_ttf.h")) break; \
+            if (strncmp(func_name, "IMG_", 4) == 0 && module_headers_contain("SDL_image.h")) break; \
+            if (strncmp(func_name, "Mix_", 4) == 0 && module_headers_contain("SDL_mixer.h")) break; \
+            if (strncmp(func_name, "sqlite3_", 8) == 0 && module_headers_contain("sqlite3.h")) break; \
+            if (strncmp(func_name, "curl_", 5) == 0 && module_headers_contain("curl")) break; \
+            if (strncmp(func_name, "glfw", 4) == 0 && module_headers_contain("glfw")) break; \
+        } \
         \
         sb_append(sb, "extern "); \
         \
@@ -3094,6 +4188,23 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
             } \
         } else if ((_return_type) == TYPE_LIST_GENERIC && (_return_struct_name)) { \
             sb_appendf(sb, "List_%s*", (_return_struct_name)); \
+        } else if ((_return_type) == TYPE_HASHMAP) { \
+            if ((_return_type_info) && (_return_type_info)->generic_name && \
+                strcmp((_return_type_info)->generic_name, "HashMap") == 0 && \
+                (_return_type_info)->type_param_count == 2) { \
+                char monomorphized_name[256]; \
+                if (build_monomorphized_name_from_typeinfo( \
+                        monomorphized_name, sizeof(monomorphized_name), \
+                        (_return_type_info)->generic_name, \
+                        (_return_type_info)->type_params, \
+                        (_return_type_info)->type_param_count)) { \
+                    sb_appendf(sb, "%s*", monomorphized_name); \
+                } else { \
+                    sb_append(sb, "void*"); \
+                } \
+            } else { \
+                sb_append(sb, "void*"); \
+            } \
         } else if ((_return_type) == TYPE_INT && \
                    (strncmp(func_name, "SDL_", 4) == 0 || strncmp(func_name, "TTF_", 4) == 0)) { \
             if (strstr(func_name, "GetTicks")) { \
@@ -3124,6 +4235,23 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
                 sb_append(sb, prefixed_name); \
             } else if ((_params)[j].type == TYPE_LIST_GENERIC && (_params)[j].struct_type_name) { \
                 sb_appendf(sb, "List_%s*", (_params)[j].struct_type_name); \
+            } else if ((_params)[j].type == TYPE_HASHMAP) { \
+                if ((_params)[j].type_info && (_params)[j].type_info->generic_name && \
+                    strcmp((_params)[j].type_info->generic_name, "HashMap") == 0 && \
+                    (_params)[j].type_info->type_param_count == 2) { \
+                    char monomorphized_name[256]; \
+                    if (build_monomorphized_name_from_typeinfo( \
+                            monomorphized_name, sizeof(monomorphized_name), \
+                            (_params)[j].type_info->generic_name, \
+                            (_params)[j].type_info->type_params, \
+                            (_params)[j].type_info->type_param_count)) { \
+                        sb_appendf(sb, "%s*", monomorphized_name); \
+                    } else { \
+                        sb_append(sb, "void*"); \
+                    } \
+                } else { \
+                    sb_append(sb, "void*"); \
+                } \
             } else { \
                 sb_append(sb, type_to_c((_params)[j].type)); \
             } \
@@ -3153,7 +4281,7 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
 }
 
 /* Transpile program to C */
-char *transpile_to_c(ASTNode *program, Environment *env) {
+char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file) {
     if (!program || program->type != AST_PROGRAM) {
         return NULL;
     }
@@ -3173,6 +4301,14 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
 
     /* Generate headers */
     generate_c_headers(sb);
+
+    /* Suppress unused warnings for runtime library and generated code */
+    /* These pragmas work on both Clang and GCC */
+    sb_append(sb, "#pragma GCC diagnostic push\n");
+    sb_append(sb, "#pragma GCC diagnostic ignored \"-Wunused-function\"\n");
+    sb_append(sb, "#pragma GCC diagnostic ignored \"-Wunused-variable\"\n");
+    sb_append(sb, "#pragma GCC diagnostic ignored \"-Wunused-parameter\"\n");
+    sb_append(sb, "#pragma GCC diagnostic ignored \"-Wunused-const-variable\"\n\n");
 
     /* OS stdlib runtime library */
     sb_append(sb, "/* ========== OS Standard Library ========== */\n\n");
@@ -3194,6 +4330,17 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     /* String operations */
     generate_string_operations(sb);
 
+    /* Timing utilities */
+    generate_timing_utilities(sb);
+
+    /* Console I/O utilities (for REPL, interactive programs) */
+    generate_console_io_utilities(sb);
+
+    /* Cross-platform profiling system (only when -pg flag is used) */
+    if (env && env->profile_gprof) {
+        generate_profiling_system(sb);
+    }
+
     /* Math and utility built-in functions */
     generate_math_utility_builtins(sb);
 
@@ -3203,11 +4350,25 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     /* Forward declare List types BEFORE structs */
     generate_list_specializations(env, sb);
 
+    /* Forward declare HashMap types BEFORE structs */
+    generate_hashmap_specializations(env, sb);
+
     /* Generate struct + union definitions in dependency-safe order */
     generate_struct_and_union_definitions_ordered(env, sb);
 
+    /* Generate compile-time struct metadata reflection functions */
+    generate_struct_metadata(env, sb);
+
+    /* Generate compile-time module metadata introspection functions */
+    if (env->emit_module_metadata) {
+        generate_module_metadata(env, sb);
+    }
+
     /* Generate List implementations and includes */
     generate_list_implementations(env, sb);
+
+    /* Generate HashMap implementations */
+    generate_hashmap_implementations(env, sb);
 
     /* Generate to_string helpers for user-defined types */
     generate_to_string_helpers(env, sb);
@@ -3218,6 +4379,7 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     TupleTypeRegistry *tuple_registry = create_tuple_type_registry();
     g_tuple_registry = tuple_registry;  /* Set global registry for expression transpilation */
     
+    collect_module_function_types(program, fn_registry, input_file);
     collect_function_and_tuple_types(program, fn_registry, tuple_registry);
     
     /* Generate typedef declarations */
@@ -3230,10 +4392,10 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     generate_module_extern_declarations(sb, program, env);
 
     /* Forward declare imported module functions */
-    generate_module_function_declarations(sb, program, env);
+    generate_module_function_declarations(sb, program, env, input_file, fn_registry);
     
-    /* Emit top-level constants */
-    generate_toplevel_constants(sb, program, env);
+    /* Emit top-level globals */
+    generate_toplevel_globals(sb, program, env);
     
     /* Forward declare functions from current program */
     generate_program_function_declarations(sb, program, env, fn_registry, tuple_registry);
@@ -3241,8 +4403,13 @@ char *transpile_to_c(ASTNode *program, Environment *env) {
     /* Generate function implementations */
     generate_function_implementations(sb, program, env, fn_registry, tuple_registry);
 
-    /* Add C main() wrapper that calls nl_main() for standalone executables */
-    generate_main_wrapper(sb, env);
+    /* Add C main() wrapper for standalone executables (skip for module objects) */
+    if (env && env->emit_c_main) {
+        generate_main_wrapper(sb, program, env);
+    }
+
+    /* Re-enable warnings after all generated code */
+    sb_append(sb, "\n#pragma GCC diagnostic pop\n");
 
     /* Cleanup */
     free_fn_type_registry(fn_registry);

@@ -1,0 +1,50 @@
+# Process execution module
+# Provides functionality to execute external commands
+
+# FFI declaration - uses existing C implementation in transpiler
+# nl_os_process_run returns array<string> with [exit_code, stdout, stderr]
+extern fn nl_os_process_run(_command: string) -> array<string>
+
+struct CommandResult {
+    stdout: string,
+    stderr: string,
+    exit_code: int
+}
+
+# Execute a shell command and capture output
+# Returns CommandResult with stdout, stderr, and exit code
+pub fn exec_command(command: string) -> CommandResult {
+    let mut raw: array<string> = (array_new 3 "")
+    
+    unsafe {
+        set raw (nl_os_process_run command)
+    }
+    
+    # nl_os_process_run returns [exit_code_str, stdout, stderr]
+    let code_str: string = (at raw 0)
+    let stdout_str: string = (at raw 1)
+    let stderr_str: string = (at raw 2)
+    let code: int = (string_to_int code_str)
+    
+    return CommandResult {
+        stdout: stdout_str,
+        stderr: stderr_str,
+        exit_code: code
+    }
+}
+
+shadow exec_command {
+    # Test successful command
+    let result: CommandResult = (exec_command "echo test")
+    assert (== result.exit_code 0)
+    assert (> (str_length result.stdout) 0)
+    
+    # Test command with non-zero exit
+    let fail: CommandResult = (exec_command "false")
+    assert (!= fail.exit_code 0)
+    
+    # Test capturing output
+    let hello: CommandResult = (exec_command "echo hello")
+    assert (== hello.exit_code 0)
+    # Note: stdout includes trailing newline from echo
+}

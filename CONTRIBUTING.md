@@ -4,23 +4,22 @@
 
 These rules ensure the long-term maintainability and self-hosting capability of NanoLang.
 
-### 1. **Interpreter/Compiler Feature Parity**
+### 1. **Compiled Language - Single Implementation**
 
-**RULE**: The interpreter and compiler must ALWAYS support the same features.
+**RULE**: NanoLang is a compiled language. All features are implemented in the compiler.
 
-**Why**: Shadow tests run in the interpreter to validate code correctness. If the interpreter doesn't support a feature that the compiler does, shadow tests will fail and we lose our testing infrastructure.
+**Why**: NanoLang transpiles to C for native performance. The interpreter was removed to eliminate the dual implementation burden (80 hours/year maintenance cost).
 
 **Implementation**:
-- When adding a new language feature (operators, types, built-ins), implement it in BOTH:
+- When adding a new language feature (operators, types, built-ins), implement it in:
   - Compiler (`src/transpiler.c`, `src/parser.c`, `src/typechecker.c`)
-  - Interpreter (`src/eval.c`)
-- Before marking a feature complete, verify shadow tests work for that feature
-- Shadow tests are NOT optional - they're our quality guarantee
+- Shadow tests compile into the final binary and execute at runtime
+- Before marking a feature complete, verify shadow tests compile and pass
 
 **Example**: Generic `List<T>` support
 - ✅ Compiler: Generates C code with `list_TypeName_*` functions
-- ✅ Interpreter: Generic handler in `eval.c` delegates to `list_int_*` as backing store
-- ✅ Result: Shadow tests work, feature parity achieved
+- ✅ Shadow tests: Compile into binary, validate at runtime
+- ✅ Result: Clean, single implementation
 
 ### 2. **Warning-Free, Clean Sources**
 
@@ -64,7 +63,6 @@ src/          - C reference implementation (bootstrap compiler)
   parser.c    - C parser
   typechecker.c - C typechecker
   transpiler.c  - C transpiler
-  eval.c      - C interpreter
 
 src_nano/     - NanoLang self-hosted implementation
   parser_mvp.nano - Parser in NanoLang
@@ -72,12 +70,33 @@ src_nano/     - NanoLang self-hosted implementation
   transpiler_minimal.nano - Transpiler in NanoLang
 ```
 
-### 4. **Test-First Development**
+### 4. **Test-First Development: Shadow Tests Are MANDATORY**
 
 **RULE**: Every feature must have tests BEFORE being marked complete.
 
+**⚠️ CRITICAL: Shadow Tests Are NOT Optional ⚠️**
+
+Shadow tests are a **core design principle** of NanoLang, not a "nice to have". They must be included for:
+
+- ✅ **ALL functions in library code**
+- ✅ **ALL functions in application code**  
+- ✅ **ALL functions in example code**
+- ✅ **ALL utility/helper functions**
+- ✅ **ALL demonstration programs**
+- ❌ **ONLY EXCEPTION:** `extern` functions (C FFI)
+
+**Why This Matters:**
+- Shadow tests validate correctness at compile time
+- They serve as executable documentation
+- They enable self-hosting (the compiler validates itself)
+- They force proper design (functions that are hard to test are poorly designed)
+
+**For Contributors:** When you see "missing shadow test" warnings, these are NOT false positives. Add the tests.
+
+**For LLMs:** When generating any NanoLang code, include shadow tests for every function. No exceptions.
+
 **Test Hierarchy**:
-1. **Shadow Tests** (inline tests in NanoLang functions)
+1. **Shadow Tests** (inline tests in NanoLang functions) - **MANDATORY**
    - Unit tests for individual functions
    - Run in interpreter during compilation
    - Mandatory for all exported functions
@@ -222,7 +241,6 @@ Brief description of the feature/fix
 ## Implementation
 - C Reference: <files modified>
 - NanoLang Self-Hosted: <files modified>
-- Interpreter Parity: ✅ YES / ❌ NO / ⚠️ N/A
 
 ## Testing
 - Shadow tests: ✅ Added / ⚠️ Updated / ❌ None
@@ -235,10 +253,93 @@ YES / NO - if yes, describe migration path
 ## Checklist
 - [ ] Builds warning-free
 - [ ] All tests pass (100%)
-- [ ] Interpreter/compiler parity maintained
+- [ ] Shadow tests compile and pass
 - [ ] Documentation updated (if needed)
 - [ ] Self-hosted components updated (if needed)
 ```
+
+## RFC Process for Major Changes
+
+### When to Use an RFC
+
+Use the RFC (Request for Comments) process for **major language changes**:
+
+✅ **Requires RFC:**
+- New language features (new syntax, operators, types)
+- Breaking changes to existing features
+- Major standard library additions
+- Architectural changes to the compiler
+- Changes that affect backward compatibility
+
+❌ **No RFC Needed:**
+- Bug fixes
+- Documentation improvements
+- Performance optimizations (non-breaking)
+- New examples or test cases
+- Minor standard library functions
+
+### RFC Workflow
+
+1. **Draft Phase**
+   ```bash
+   # Create a new RFC using the template
+   cp docs/rfcs/0000-template.md docs/rfcs/0000-my-feature.md
+   # Edit and fill out all sections
+   ```
+
+2. **Proposal Phase**
+   - Open a Pull Request with your RFC
+   - Title: `RFC: Brief description`
+   - Label: `rfc`
+   - Engage with community feedback
+
+3. **Discussion Phase** (typically 1-2 weeks)
+   - Community provides feedback
+   - RFC author addresses concerns
+   - Design is refined through iteration
+
+4. **Final Comment Period (FCP)** (1 week)
+   - RFC enters FCP when design is stable
+   - Last chance for major concerns
+   - Maintainer announces FCP start
+
+5. **Decision**
+   - **Accepted**: Move to `docs/rfcs/accepted/`, implement the feature
+   - **Rejected**: Move to `docs/rfcs/rejected/` with rationale
+   - **Postponed**: Move to `docs/rfcs/postponed/` for future consideration
+
+### RFC Template Sections
+
+Your RFC should include:
+
+- **Summary**: One-paragraph explanation
+- **Motivation**: Why this change is needed
+- **Detailed Design**: Complete specification with examples
+- **Drawbacks**: Potential downsides
+- **Alternatives**: Other approaches considered
+- **Unresolved Questions**: Open issues to discuss
+
+### RFC Best Practices
+
+- **Start small**: Focus on one feature per RFC
+- **Show examples**: Include code examples of the proposed feature
+- **Be specific**: Vague RFCs are hard to evaluate
+- **Consider impact**: How does this affect existing code?
+- **Listen to feedback**: RFCs often improve through discussion
+
+### Example RFC Flow
+
+```
+1. Author creates RFC draft
+2. Opens PR with RFC markdown file
+3. Community discusses (1-2 weeks)
+4. RFC enters FCP (1 week)
+5. Maintainer accepts RFC
+6. Author implements feature
+7. Feature is released in next version
+```
+
+**See also**: `docs/RFC_PROCESS.md` for complete process documentation
 
 ## Questions?
 

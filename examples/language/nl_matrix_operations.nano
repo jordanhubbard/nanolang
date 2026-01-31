@@ -1,0 +1,199 @@
+/* =============================================================================
+ * Matrix Operations with Nested Arrays
+ * =============================================================================
+ * Demonstrates nested arrays (2D matrices) - a new nanolang feature!
+ */
+
+/* ============================================================================
+ * Matrix Creation
+ * ============================================================================
+ */
+
+fn create_matrix_2x3() -> array<array<int>> {
+    let mut matrix: array<array<int>> = []
+    
+    # Create first row [1, 2, 3]
+    let mut row1: array<int> = []
+    set row1 (array_push row1 1)
+    set row1 (array_push row1 2)
+    set row1 (array_push row1 3)
+    
+    # Create second row [4, 5, 6]
+    let mut row2: array<int> = []
+    set row2 (array_push row2 4)
+    set row2 (array_push row2 5)
+    set row2 (array_push row2 6)
+    
+    # Build matrix
+    set matrix (array_push matrix row1)
+    set matrix (array_push matrix row2)
+    
+    return matrix
+}
+
+shadow create_matrix_2x3 {
+    let m: array<array<int>> = (create_matrix_2x3)
+    let row0: array<int> = (at m 0)
+    let row1: array<int> = (at m 1)
+    assert (== (at row0 0) 1)
+    assert (== (at row0 2) 3)
+    assert (== (at row1 0) 4)
+    assert (== (at row1 2) 6)
+}
+
+/* ============================================================================
+ * Matrix Access
+ * ============================================================================
+ */
+
+fn matrix_get(matrix: array<array<int>>, row: int, col: int) -> int {
+    let row_data: array<int> = (at matrix row)
+    return (at row_data col)
+}
+
+shadow matrix_get {
+    let m: array<array<int>> = (create_matrix_2x3)
+    assert (== (matrix_get m 0 0) 1)
+    assert (== (matrix_get m 0 2) 3)
+    assert (== (matrix_get m 1 0) 4)
+    assert (== (matrix_get m 1 2) 6)
+}
+
+/* ============================================================================
+ * Matrix Display
+ * ============================================================================
+ */
+
+fn print_matrix(matrix: array<array<int>>) -> int {
+    let rows: int = (array_length matrix)
+    let mut i: int = 0
+    
+    while (< i rows) {
+        let row: array<int> = (at matrix i)
+        let cols: int = (array_length row)
+        let mut j: int = 0
+        
+        (print "[")
+        while (< j cols) {
+            (print (at row j))
+            if (< j (- cols 1)) {
+                (print ", ")
+            } else {}
+            set j (+ j 1)
+        }
+        (println "]")
+        
+        set i (+ i 1)
+    }
+    return 0
+}
+
+shadow print_matrix {
+    let m: array<array<int>> = (create_matrix_2x3)
+    assert (== (print_matrix m) 0)
+}
+
+/* ============================================================================
+ * Matrix Operations
+ * ============================================================================
+ */
+
+fn matrix_sum(matrix: array<array<int>>) -> int {
+    let mut total: int = 0
+    let rows: int = (array_length matrix)
+    let mut i: int = 0
+    
+    while (< i rows) {
+        let row: array<int> = (at matrix i)
+        let cols: int = (array_length row)
+        let mut j: int = 0
+        
+        while (< j cols) {
+            set total (+ total (at row j))
+            set j (+ j 1)
+        }
+        
+        set i (+ i 1)
+    }
+    return total
+}
+
+shadow matrix_sum {
+    let m: array<array<int>> = (create_matrix_2x3)
+    # 1+2+3+4+5+6 = 21
+    assert (== (matrix_sum m) 21)
+}
+
+fn matrix_scale(matrix: array<array<int>>, factor: int) -> array<array<int>> {
+    let mut result: array<array<int>> = []
+    let rows: int = (array_length matrix)
+    let mut i: int = 0
+    
+    while (< i rows) {
+        let old_row: array<int> = (at matrix i)
+        let mut new_row: array<int> = []
+        let cols: int = (array_length old_row)
+        let mut j: int = 0
+        
+        while (< j cols) {
+            let scaled: int = (* (at old_row j) factor)
+            set new_row (array_push new_row scaled)
+            set j (+ j 1)
+        }
+        
+        set result (array_push result new_row)
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow matrix_scale {
+    let m: array<array<int>> = (create_matrix_2x3)
+    let scaled: array<array<int>> = (matrix_scale m 2)
+    assert (== (matrix_get scaled 0 0) 2)
+    assert (== (matrix_get scaled 0 2) 6)
+    assert (== (matrix_get scaled 1 0) 8)
+    assert (== (matrix_get scaled 1 2) 12)
+}
+
+/* ============================================================================
+ * Main Program
+ * ============================================================================
+ */
+
+fn main() -> int {
+    (println "Matrix Operations with Nested Arrays")
+    (println "=====================================")
+    (println "")
+    
+    # Create a 2x3 matrix
+    (println "Creating 2x3 matrix:")
+    let matrix: array<array<int>> = (create_matrix_2x3)
+    (print_matrix matrix)
+    (println "")
+    
+    # Access individual elements
+    (println "Element access:")
+    (println (+ "matrix[0][0] = " (int_to_string (matrix_get matrix 0 0))))
+    (println (+ "matrix[1][2] = " (int_to_string (matrix_get matrix 1 2))))
+    (println "")
+    
+    # Sum all elements
+    (println "Matrix operations:")
+    let sum: int = (matrix_sum matrix)
+    (println (+ "Sum of all elements: " (int_to_string sum)))
+    (println "")
+    
+    # Scale matrix
+    (println "Scaling matrix by 3:")
+    let scaled: array<array<int>> = (matrix_scale matrix 3)
+    (print_matrix scaled)
+    (println "")
+    
+    (println "✓ Nested arrays enable powerful 2D data structures!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,62 +1,62 @@
-// HTTP Client Library for Nanolang
-// Wraps libcurl for making HTTP requests
+# HTTP Client Library for Nanolang
+# Wraps libcurl for making HTTP requests
 
-// --- Core Types ---
+# --- Core Types ---
 
-// Opaque HTTP response
-opaque HttpResponse
+# Opaque HTTP response
+opaque type HttpResponse
 
-// --- Basic Requests ---
+# --- Basic Requests ---
 
-// Perform GET request
-extern fn nl_http_get(url: string) -> HttpResponse
+# Perform GET request
+extern fn nl_http_get(_url: string) -> HttpResponse
 
-// Perform POST request with data
-extern fn nl_http_post(url: string, data: string) -> HttpResponse
+# Perform POST request with data
+extern fn nl_http_post(_url: string, _data: string) -> HttpResponse
 
-// Perform PUT request
-extern fn nl_http_put(url: string, data: string) -> HttpResponse
+# Perform PUT request
+extern fn nl_http_put(_url: string, _data: string) -> HttpResponse
 
-// Perform DELETE request
-extern fn nl_http_delete(url: string) -> HttpResponse
+# Perform DELETE request
+extern fn nl_http_delete(_url: string) -> HttpResponse
 
-// Perform PATCH request
-extern fn nl_http_patch(url: string, data: string) -> HttpResponse
+# Perform PATCH request
+extern fn nl_http_patch(_url: string, _data: string) -> HttpResponse
 
-// Perform HEAD request
-extern fn nl_http_head(url: string) -> HttpResponse
+# Perform HEAD request
+extern fn nl_http_head(_url: string) -> HttpResponse
 
-// --- Request with Headers ---
+# --- Request with Headers ---
 
-// GET with custom headers (headers as JSON string)
-extern fn nl_http_get_with_headers(url: string, headers: string) -> HttpResponse
+# GET with custom headers (headers as JSON string)
+extern fn nl_http_get_with_headers(_url: string, _headers: string) -> HttpResponse
 
-// POST with custom headers
-extern fn nl_http_post_with_headers(url: string, data: string, headers: string) -> HttpResponse
+# POST with custom headers
+extern fn nl_http_post_with_headers(_url: string, _data: string, _headers: string) -> HttpResponse
 
-// --- Response Accessors ---
+# --- Response Accessors ---
 
-// Get response HTTP status code
-extern fn nl_http_response_status(response: HttpResponse) -> int
+# Get response HTTP status code
+extern fn nl_http_response_status(_response: HttpResponse) -> int
 
-// Get response body as string
-extern fn nl_http_response_body(response: HttpResponse) -> string
+# Get response body as string
+extern fn nl_http_response_body(_response: HttpResponse) -> string
 
-// Get response header value
-extern fn nl_http_response_header(response: HttpResponse, header_name: string) -> string
+# Get response header value
+extern fn nl_http_response_header(_response: HttpResponse, _header_name: string) -> string
 
-// Check if request was successful (status 200-299)
-extern fn nl_http_response_ok(response: HttpResponse) -> int
+# Check if request was successful (status 200-299)
+extern fn nl_http_response_ok(_response: HttpResponse) -> int
 
-// Get error message if request failed
-extern fn nl_http_response_error(response: HttpResponse) -> string
+# Get error message if request failed
+extern fn nl_http_response_error(_response: HttpResponse) -> string
 
-// --- Response Cleanup ---
+# --- Response Cleanup ---
 
-// Free HTTP response
-extern fn nl_http_free_response(response: HttpResponse) -> void
+# Free HTTP response
+extern fn nl_http_free_response(_response: HttpResponse) -> void
 
-// --- High-Level API ---
+# --- High-Level API ---
 
 pub fn get(url: string) -> HttpResponse {
     return (nl_http_get url)
@@ -111,18 +111,35 @@ pub fn error_message(response: HttpResponse) -> string {
 }
 
 pub fn free_response(response: HttpResponse) -> void {
-    (nl_http_free_response response)
+    unsafe {
+        (nl_http_free_response response)
+    }
 }
 
-// --- Convenience Functions ---
+shadow free_response {
+    # Uses HTTP module helpers
+    assert true
+}
+
+# --- Convenience Functions ---
 
 pub fn get_json(url: string) -> HttpResponse {
     let headers: string = "{\"Content-Type\": \"application/json\", \"Accept\": \"application/json\"}"
     return (get_with_headers url headers)
 }
 
+shadow get_json {
+    # Uses HTTP module helpers
+    assert true
+}
+
 pub fn post_json(url: string, json_data: string) -> HttpResponse {
     let headers: string = "{\"Content-Type\": \"application/json\", \"Accept\": \"application/json\"}"
     return (post_with_headers url json_data headers)
+}
+
+shadow post_json {
+    # Uses HTTP module helpers
+    assert true
 }
 

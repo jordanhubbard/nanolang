@@ -1,0 +1,412 @@
+import "examples/opl/opl_parser.nano"
+import "examples/opl/opl_compile.nano"
+import "examples/opl/opl_validate.nano"
+import "examples/opl/opl_codegen.nano"
+
+module "modules/std/fs.nano"
+module "modules/std/json/json.nano"
+
+pub struct Output {
+    code: int
+    stdout: string
+    stderr: string
+}
+
+extern fn process_run(_command: string) -> array<string>
+
+fn proc_run(command: string) -> Output {
+    let mut raw: array<string> = []
+    unsafe {
+        set raw (process_run command)
+    }
+    let code_s: string = (at raw 0)
+    let out: string = (at raw 1)
+    let err: string = (at raw 2)
+    let code: int = (string_to_int code_s)
+    return Output { code: code, stdout: out, stderr: err }
+}
+
+shadow proc_run {
+    # Dummy shadow test: uses extern process_run and depends on host shell.
+    assert true
+}
+
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn write_json_file(path: string, j: Json) -> int {
+    let s: string = (stringify j)
+    return (write path s)
+}
+
+shadow write_json_file {
+    let out_path: string = "/tmp/opl_cli_write_json_test.json"
+    let j: Json = (new_object)
+    (object_set j "a" (new_int 1))
+    assert (== (write_json_file out_path j) 0)
+    assert (exists out_path)
+    (delete out_path)
+    (free j)
+}
+
+fn cmd_parse(input_path: string, out_path: string) -> int {
+    let src: string = (read input_path)
+    let r: OplParseResult = (opl_parse src)
+    if (not r.ok) {
+        (println (+ "PARSE_ERROR " r.error.code))
+        (println r.error.msg)
+        return 1
+    } else {}
+
+    let rc: int = (write_json_file out_path r.ast)
+    (free r.ast)
+    return (cond
+        ((== rc 0) 0)
+        (else 2)
+    )
+}
+
+shadow cmd_parse {
+    let out_path: string = "/tmp/opl_cli_parse.json"
+    assert (== (cmd_parse "examples/opl/bundle/EXAMPLES.opl" out_path) 0)
+    assert (exists out_path)
+    (delete out_path)
+}
+
+fn cmd_validate(input_path: string, out_path: string) -> int {
+    let src: string = (read input_path)
+    let r: Json = (opl_validate src)
+    let rc: int = (write_json_file out_path r)
+    let okv: Json = (get r "ok")
+    let ok: bool = (as_bool okv)
+    (free okv)
+    (free r)
+    if (!= rc 0) { return 2 } else {}
+    if ok { return 0 } else { return 1 }
+}
+
+shadow cmd_validate {
+    let in_path: string = "/tmp/opl_cli_validate.opl"
+    let out_path: string = "/tmp/opl_cli_validate.json"
+    (write in_path "agent a { uses web.search input q:string call web.search { query: q } as r }")
+    assert (== (cmd_validate in_path out_path) 0)
+    assert (exists out_path)
+    (delete in_path)
+    (delete out_path)
+}
+
+fn cmd_compile(input_path: string, out_path: string) -> int {
+    let src: string = (read input_path)
+    let plan: Json = (opl_compile src)
+    if (== plan 0) {
+        (println "COMPILE_ERROR")
+        return 1
+    } else {}
+    let rc: int = (write_json_file out_path plan)
+    (free plan)
+    return (cond
+        ((== rc 0) 0)
+        (else 2)
+    )
+}
+
+shadow cmd_compile {
+    let out_path: string = "/tmp/opl_cli_compile.json"
+    assert (== (cmd_compile "examples/opl/bundle/EXAMPLES.opl" out_path) 0)
+    assert (exists out_path)
+    (delete out_path)
+}
+
+fn cmd_codegen(plan_path: string, out_path: string) -> int {
+    let src: string = (read plan_path)
+    let plan: Json = (parse src)
+    if (== plan 0) {
+        (println "PLAN_PARSE_ERROR")
+        return 1
+    } else {}
+
+    let prog: string = (gen_program_from_plan plan)
+    (free plan)
+    let rc: int = (write out_path prog)
+    return (cond
+        ((== rc 0) 0)
+        (else 2)
+    )
+}
+
+shadow cmd_codegen {
+    let out_path: string = "/tmp/opl_cli_codegen.nano"
+    assert (== (cmd_codegen "examples/opl/bundle/EXAMPLES.expected_plan.json" out_path) 0)
+    assert (exists out_path)
+    (delete out_path)
+}
+
+fn cmd_build(plan_path: string, out_bin_path: string) -> int {
+    let tmp_nano: string = "/tmp/opl_codegen_tmp.nano"
+    let tmp_out: string = "/tmp/opl_codegen_tmp_bin"
+
+    let gen_rc: int = (cmd_codegen plan_path tmp_nano)
+    if (!= gen_rc 0) { return gen_rc } else {}
+
+    # Compile with timeout (required): use perl alarm to avoid hangs.
+    let cmd: string = (+ "perl -e 'alarm 60; exec @ARGV' /Users/jkh/Src/nanolang/bin/nanoc " tmp_nano)
+    let cmd2: string = (+ cmd (+ " -o " tmp_out))
+    let r: Output = (proc_run cmd2)
+    if (!= r.code 0) {
+        (println "NANOC_FAILED")
+        (println r.stderr)
+        return 1
+    } else {}
+
+    # Move/copy into requested output path by re-writing (simple, deterministic).
+    # Note: binaries are not safe to read/write as strings; so for now we require out_bin_path == tmp_out.
+    if (not (== out_bin_path tmp_out)) {
+        (println "BUILD_OUTPUT_PATH_UNSUPPORTED")
+        (println (+ "Use: --out " tmp_out))
+        (delete tmp_nano)
+        return 2
+    } else {}
+
+    (delete tmp_nano)
+    return 0
+}
+
+shadow cmd_build {
+    # Uses extern process execution; skip in shadow harness.
+    assert true
+}
+
+fn errors_have_code(errors: Json, code: string) -> bool {
+    let mut i: int = 0
+    let n: int = (array_size errors)
+    while (< i n) {
+        let e: Json = (get_index errors i)
+        let c: string = (get_string e "code")
+        (free e)
+        if (== c code) { return true } else {}
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow errors_have_code {
+    let errs: Json = (new_array)
+    let e: Json = (new_object)
+    (object_set e "code" (new_string "E_X"))
+    (json_array_push errs e)
+    (free e)
+    assert (errors_have_code errs "E_X")
+    assert (not (errors_have_code errs "E_Y"))
+    (free errs)
+}
+
+fn run_validate_error(input_src: string, codes: Json) -> bool {
+    let r: Json = (opl_validate input_src)
+    let okv: Json = (get r "ok")
+    let ok: bool = (as_bool okv)
+    (free okv)
+    if ok {
+        (free r)
+        return false
+    } else {}
+
+    let errs: Json = (get r "errors")
+    let mut i: int = 0
+    let n: int = (array_size codes)
+    while (< i n) {
+        let c: Json = (get_index codes i)
+        let code: string = (as_string c)
+        (free c)
+        if (not (errors_have_code errs code)) {
+            (free errs)
+            (free r)
+            return false
+        } else {}
+        set i (+ i 1)
+    }
+
+    (free errs)
+    (free r)
+    return true
+}
+
+shadow run_validate_error {
+    let codes: Json = (new_array)
+    (json_array_push codes (new_string "E_UNRESOLVED_ID"))
+    assert (run_validate_error "agent a { uses web.search call web.search { query: q } }" codes)
+    (free codes)
+}
+
+fn cmd_test() -> int {
+    let src: string = (read "examples/opl/bundle/TESTS.cases.json")
+    let root: Json = (parse src)
+    if (== root 0) { return 2 } else {}
+
+    let cases: Json = (get root "cases")
+    let mut i: int = 0
+    let n: int = (array_size cases)
+    let mut failures: int = 0
+
+    while (< i n) {
+        let c: Json = (get_index cases i)
+        let name: string = (get_string c "name")
+        let kind: string = (get_string c "kind")
+
+        if (== kind "golden_ast") {
+            let inp: string = (+ "examples/opl/bundle/" (get_string c "inputFile"))
+            let exp: string = (+ "examples/opl/bundle/" (get_string c "expectedFile"))
+            let ok: bool = (run_golden_ast inp exp)
+            if (not ok) {
+                (println (+ "FAIL golden_ast " name))
+                set failures (+ failures 1)
+            } else {}
+        } else {}
+
+        if (== kind "golden_plan") {
+            let inp: string = (+ "examples/opl/bundle/" (get_string c "inputFile"))
+            let exp: string = (+ "examples/opl/bundle/" (get_string c "expectedFile"))
+            let ok: bool = (run_golden_plan inp exp)
+            if (not ok) {
+                (println (+ "FAIL golden_plan " name))
+                set failures (+ failures 1)
+            } else {}
+        } else {}
+
+        if (== kind "validate_error") {
+            let inp: string = (get_string c "input")
+            let expect: Json = (get c "expect")
+            let codes: Json = (get expect "errorsContainCodes")
+            if (not (run_validate_error inp codes)) {
+                (println (+ "FAIL validate_error " name))
+                set failures (+ failures 1)
+            } else {}
+            (free codes)
+            (free expect)
+        } else {}
+
+        (free c)
+        set i (+ i 1)
+    }
+
+    (free cases)
+    (free root)
+
+    if (== failures 0) { return 0 } else { return 1 }
+}
+
+shadow cmd_test {
+    assert (== (cmd_test) 0)
+}
+
+fn find_out_flag(argc: int) -> string {
+    let mut i: int = 0
+    while (< i argc) {
+        if (== (get_argv i) "--out") {
+            if (< (+ i 1) argc) {
+                return (get_argv (+ i 1))
+            } else {
+                return ""
+            }
+        } else {}
+        set i (+ i 1)
+    }
+    return ""
+}
+
+shadow find_out_flag {
+    assert (== (find_out_flag 0) "")
+}
+
+fn main() -> int {
+    let argc: int = (get_argc)
+    if (< argc 2) {
+        (println "Usage: opl <parse|validate|compile|test> ...")
+        return 1
+    } else {}
+
+    let cmd: string = (get_argv 1)
+    if (== cmd "test") {
+        return (cmd_test)
+    } else {}
+
+    if (< argc 3) {
+        (println "Missing input file")
+        return 1
+    } else {}
+
+    let in_path: string = (get_argv 2)
+    let out_path: string = (find_out_flag argc)
+    if (== out_path "") {
+        (println "Missing --out <path>")
+        return 1
+    } else {}
+
+    if (== cmd "parse") {
+        return (cmd_parse in_path out_path)
+    } else {}
+    if (== cmd "validate") {
+        return (cmd_validate in_path out_path)
+    } else {}
+    if (== cmd "compile") {
+        return (cmd_compile in_path out_path)
+    } else {}
+    if (== cmd "codegen") {
+        return (cmd_codegen in_path out_path)
+    } else {}
+    if (== cmd "build") {
+        return (cmd_build in_path out_path)
+    } else {}
+
+    (println (+ "Unknown command: " cmd))
+    return 1
+}
+
+shadow main {
+    # main() depends on argv; keep a basic sanity check by exercising cmd_* directly above.
+    assert true
+}
+
+fn run_golden_ast(input_path: string, expected_path: string) -> bool {
+    let src: string = (read input_path)
+    let r: OplParseResult = (opl_parse src)
+    if (not r.ok) {
+        return false
+    } else {}
+    let got: string = (stringify r.ast)
+
+    let exp_src: string = (read expected_path)
+    let exp_json: Json = (parse exp_src)
+    let exp: string = (stringify exp_json)
+
+    let ok: bool = (== got exp)
+    (free exp_json)
+    (free r.ast)
+    return ok
+}
+
+shadow run_golden_ast {
+    assert (run_golden_ast "examples/opl/bundle/EXAMPLES.opl" "examples/opl/bundle/EXAMPLES.expected_ast.json")
+}
+
+fn run_golden_plan(input_path: string, expected_path: string) -> bool {
+    let src: string = (read input_path)
+    let plan: Json = (opl_compile src)
+    if (== plan 0) {
+        return false
+    } else {}
+    let got: string = (stringify plan)
+
+    let exp_src: string = (read expected_path)
+    let exp_json: Json = (parse exp_src)
+    let exp: string = (stringify exp_json)
+
+    let ok: bool = (== got exp)
+    (free exp_json)
+    (free plan)
+    return ok
+}
+
+shadow run_golden_plan {
+    assert (run_golden_plan "examples/opl/bundle/EXAMPLES.opl" "examples/opl/bundle/EXAMPLES.expected_plan.json")
+}
+

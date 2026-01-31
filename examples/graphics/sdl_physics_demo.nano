@@ -1,0 +1,424 @@
+# 2D Physics Simulation Demo
+# Real-time bouncing balls with gravity, collisions, and elasticity
+# Demonstrates: Physics simulation, particle systems, vector math
+
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+
+# === CONSTANTS ===
+let WINDOW_WIDTH: int = 1200
+let WINDOW_HEIGHT: int = 800
+let MAX_BALLS: int = 100
+let BALL_RADIUS: int = 15
+let GRAVITY: float = 0.5
+let DAMPING: float = 0.85
+let FRICTION: float = 0.98
+
+# === BALL STRUCTURE ===
+struct Ball {
+    x: float,
+    y: float,
+    vx: float,
+    vy: float,
+    r: int,
+    g: int,
+    b: int,
+    active: bool
+}
+
+# === PHYSICS FUNCTIONS ===
+
+fn create_ball(x: float, y: float, vx: float, vy: float, r: int, g: int, b: int) -> Ball {
+    return Ball {
+        x: x,
+        y: y,
+        vx: vx,
+        vy: vy,
+        r: r,
+        g: g,
+        b: b,
+        active: true
+    }
+}
+
+shadow create_ball {
+    let ball: Ball = (create_ball 100.0 100.0 5.0 5.0 255 0 0)
+    assert (== ball.x 100.0)
+    assert (== ball.active true)
+}
+
+fn apply_gravity(ball: Ball) -> Ball {
+    return Ball {
+        x: ball.x,
+        y: ball.y,
+        vx: ball.vx,
+        vy: (+ ball.vy GRAVITY),
+        r: ball.r,
+        g: ball.g,
+        b: ball.b,
+        active: ball.active
+    }
+}
+
+shadow apply_gravity {
+    let ball: Ball = (create_ball 0.0 0.0 0.0 0.0 255 0 0)
+    let updated: Ball = (apply_gravity ball)
+    assert (== updated.vy GRAVITY)
+}
+
+fn update_position(ball: Ball) -> Ball {
+    return Ball {
+        x: (+ ball.x ball.vx),
+        y: (+ ball.y ball.vy),
+        vx: ball.vx,
+        vy: ball.vy,
+        r: ball.r,
+        g: ball.g,
+        b: ball.b,
+        active: ball.active
+    }
+}
+
+shadow update_position {
+    let ball: Ball = (create_ball 100.0 100.0 5.0 10.0 255 0 0)
+    let updated: Ball = (update_position ball)
+    assert (== updated.x 105.0)
+    assert (== updated.y 110.0)
+}
+
+fn bounce_walls(ball: Ball, width: int, height: int, radius: int) -> Ball {
+    let mut new_x: float = ball.x
+    let mut new_y: float = ball.y
+    let mut new_vx: float = ball.vx
+    let mut new_vy: float = ball.vy
+    
+    let fwidth: float = (cast_float width)
+    let fheight: float = (cast_float height)
+    let fradius: float = (cast_float radius)
+    
+    # Left wall
+    if (< new_x fradius) {
+        set new_x fradius
+        set new_vx (* (* (- 0.0 new_vx) DAMPING) FRICTION)
+    } else {}
+    
+    # Right wall
+    if (> new_x (- fwidth fradius)) {
+        set new_x (- fwidth fradius)
+        set new_vx (* (* (- 0.0 new_vx) DAMPING) FRICTION)
+    } else {}
+    
+    # Bottom wall (floor)
+    if (> new_y (- fheight fradius)) {
+        set new_y (- fheight fradius)
+        set new_vy (* (* (- 0.0 new_vy) DAMPING) FRICTION)
+        set new_vx (* new_vx FRICTION)
+    } else {}
+    
+    # Top wall (ceiling)
+    if (< new_y fradius) {
+        set new_y fradius
+        set new_vy (* (* (- 0.0 new_vy) DAMPING) FRICTION)
+    } else {}
+    
+    return Ball {
+        x: new_x,
+        y: new_y,
+        vx: new_vx,
+        vy: new_vy,
+        r: ball.r,
+        g: ball.g,
+        b: ball.b,
+        active: ball.active
+    }
+}
+
+shadow bounce_walls {
+    let ball: Ball = (create_ball 1190.0 100.0 5.0 0.0 255 0 0)
+    let bounced: Ball = (bounce_walls ball 1200 800 15)
+    assert (< bounced.vx 0.0)
+}
+
+fn distance_squared(x1: float, y1: float, x2: float, y2: float) -> float {
+    let dx: float = (- x2 x1)
+    let dy: float = (- y2 y1)
+    return (+ (* dx dx) (* dy dy))
+}
+
+shadow distance_squared {
+    let dist_sq: float = (distance_squared 0.0 0.0 3.0 4.0)
+    assert (== dist_sq 25.0)
+}
+
+fn collide_balls(b1: Ball, b2: Ball, radius: int) -> Ball {
+    if (not b1.active) {
+        return b1
+    } else {}
+    if (not b2.active) {
+        return b1
+    } else {}
+    
+    let dist_sq: float = (distance_squared b1.x b1.y b2.x b2.y)
+    let fradius: float = (cast_float radius)
+    let collision_dist: float = (* (* fradius 2.0) (* fradius 2.0))
+    
+    if (> dist_sq collision_dist) {
+        return b1
+    } else {}
+    
+    # Simple elastic collision (swap velocities)
+    let dx: float = (- b2.x b1.x)
+    let dy: float = (- b2.y b1.y)
+    let dist: float = (sqrt (+ (* dx dx) (* dy dy)))
+    
+    if (< dist 0.001) {
+        return b1
+    } else {}
+    
+    # Normalized collision normal
+    let nx: float = (/ dx dist)
+    let ny: float = (/ dy dist)
+    
+    # Relative velocity
+    let dvx: float = (- b1.vx b2.vx)
+    let dvy: float = (- b1.vy b2.vy)
+    
+    # Velocity along collision normal
+    let dot: float = (+ (* dvx nx) (* dvy ny))
+    
+    # Update velocity (simplified elastic collision)
+    let new_vx: float = (- b1.vx (* dot nx))
+    let new_vy: float = (- b1.vy (* dot ny))
+    
+    return Ball {
+        x: b1.x,
+        y: b1.y,
+        vx: (* new_vx 0.95),
+        vy: (* new_vy 0.95),
+        r: b1.r,
+        g: b1.g,
+        b: b1.b,
+        active: b1.active
+    }
+}
+
+shadow collide_balls {
+    let b1: Ball = (create_ball 100.0 100.0 5.0 0.0 255 0 0)
+    let b2: Ball = (create_ball 110.0 100.0 -5.0 0.0 0 255 0)
+    let collided: Ball = (collide_balls b1 b2 15)
+    assert (< collided.vx 5.0)
+}
+
+# === RENDERING ===
+
+fn draw_ball(renderer: SDL_Renderer, ball: Ball, radius: int) -> void {
+    if (not ball.active) {
+        (print "")
+    } else {
+        let ix: int = (cast_int ball.x)
+        let iy: int = (cast_int ball.y)
+        
+        (SDL_SetRenderDrawColor renderer ball.r ball.g ball.b 255) 
+        
+        # Draw filled circle using midpoint circle algorithm
+        let mut dy: int = (- 0 radius)
+        while (<= dy radius) {
+            let mut dx: int = (- 0 radius)
+            while (<= dx radius) {
+                let dist_sq: int = (+ (* dx dx) (* dy dy))
+                if (<= dist_sq (* radius radius)) {
+                    (SDL_RenderDrawPoint renderer (+ ix dx) (+ iy dy)) 
+                } else {}
+                set dx (+ dx 1)
+            }
+            set dy (+ dy 1)
+        }
+    }
+}
+
+shadow draw_ball {
+    (print "")
+}
+
+# === MAIN ===
+
+fn main() -> int {
+    (println "")
+    (println "╔════════════════════════════════════════════════════════╗")
+    (println "║  2D PHYSICS SIMULATION                                  ║")
+    (println "╚════════════════════════════════════════════════════════╝")
+    (println "")
+    (println "Controls:")
+    (println "  • Click to spawn balls")
+    (println "  • SPACE to spawn random ball")
+    (println "  • C to clear all balls")
+    (println "  • ESC or Q to quit")
+    (println "")
+    
+    # Initialize SDL
+    (SDL_Init SDL_INIT_VIDEO) 
+    (TTF_Init) 
+    
+    let window: SDL_Window = (SDL_CreateWindow "2D Physics Demo"
+                                               SDL_WINDOWPOS_CENTERED
+                                               SDL_WINDOWPOS_CENTERED
+                                               WINDOW_WIDTH WINDOW_HEIGHT
+                                               SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 
+                                                     (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+    
+    let font: TTF_Font = (nl_open_font_portable "Arial" 16)
+    
+    # Initialize ball array
+    let mut balls: array<Ball> = []
+    let mut i: int = 0
+    let inactive_ball: Ball = (create_ball 0.0 0.0 0.0 0.0 0 0 0)
+    while (< i MAX_BALLS) {
+        set balls (array_push balls inactive_ball)
+        set i (+ i 1)
+    }
+    
+    let mut ball_count: int = 0
+    let mut running: bool = true
+    let mut frame: int = 0
+    
+    (println "✓ Physics simulation started")
+    (println "")
+    
+    # Main loop
+    while running {
+        # Update mouse state for UI widgets
+        set frame (+ frame 1)
+        
+        # Poll keyboard
+        let key: int = (nl_sdl_poll_keypress)
+        if (> key -1) {
+            if (== key 41) {
+                # ESC key
+                set running false
+            } else {
+                if (== key 20) {
+                    # Q key
+                    set running false
+                } else {
+                    if (== key 44) {
+                        # SPACE key - spawn random ball
+                        if (< ball_count MAX_BALLS) {
+                            let spawn_x: float = (+ 100.0 (* (cast_float (% frame 800)) 1.0))
+                            let spawn_y: float = 50.0
+                            let spawn_vx: float = (- (* (cast_float (% frame 20)) 0.5) 5.0)
+                            let spawn_vy: float = 0.0
+                            let color_r: int = (+ 50 (% (* frame 7) 200))
+                            let color_g: int = (+ 50 (% (* frame 11) 200))
+                            let color_b: int = (+ 50 (% (* frame 13) 200))
+                            
+                            let new_ball: Ball = (create_ball spawn_x spawn_y spawn_vx spawn_vy color_r color_g color_b)
+                            (array_set balls ball_count new_ball)
+                            set ball_count (+ ball_count 1)
+                        } else {}
+                    } else {
+                        if (== key 6) {
+                            # C key - clear all balls
+                            set ball_count 0
+                        } else {}
+                    }
+                }
+            }
+        } else {}
+        
+        # Check for quit event
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) {
+            set running false
+        } else {}
+        
+        # Handle mouse click to spawn ball
+        let mouse: int = (nl_sdl_poll_mouse_click)
+        if (> mouse -1) {
+            if (< ball_count MAX_BALLS) {
+                let mouse_x: int = (/ mouse 10000)
+                let mouse_y: int = (% mouse 10000)
+                let spawn_vx: float = (- (* (cast_float (% frame 20)) 0.5) 5.0)
+                let spawn_vy: float = (- (* (cast_float (% (/ frame 2) 20)) 0.5) 5.0)
+                let color_r: int = (+ 50 (% (* frame 7) 200))
+                let color_g: int = (+ 50 (% (* frame 11) 200))
+                let color_b: int = (+ 50 (% (* frame 13) 200))
+                
+                let clicked_ball: Ball = (create_ball (cast_float mouse_x) (cast_float mouse_y) spawn_vx spawn_vy color_r color_g color_b)
+                (array_set balls ball_count clicked_ball)
+                set ball_count (+ ball_count 1)
+            } else {}
+        } else {}
+        
+        # Update physics
+        let mut b: int = 0
+        while (< b ball_count) {
+            let mut ball: Ball = (at balls b)
+            if ball.active {
+                # Apply gravity
+                set ball (apply_gravity ball)
+                
+                # Update position
+                set ball (update_position ball)
+                
+                # Bounce off walls
+                set ball (bounce_walls ball WINDOW_WIDTH WINDOW_HEIGHT BALL_RADIUS)
+                
+                # Check collisions with other balls
+                let mut other: int = 0
+                while (< other ball_count) {
+                    if (!= other b) {
+                        let other_ball: Ball = (at balls other)
+                        set ball (collide_balls ball other_ball BALL_RADIUS)
+                    } else {}
+                    set other (+ other 1)
+                }
+                
+                (array_set balls b ball)
+            } else {}
+            set b (+ b 1)
+        }
+        
+        # Clear screen
+        (SDL_SetRenderDrawColor renderer 15 15 25 255) 
+        (SDL_RenderClear renderer) 
+        
+        # Draw all balls
+        let mut d: int = 0
+        while (< d ball_count) {
+            let ball: Ball = (at balls d)
+            (draw_ball renderer ball BALL_RADIUS)
+            set d (+ d 1)
+        }
+        
+        # Draw UI
+        (nl_draw_text_blended renderer font "2D Physics Simulation" 10 10 200 200 255 255) 
+        (nl_draw_text_blended renderer font (+ "Balls: " (+ (int_to_string ball_count) (+ "/" (int_to_string MAX_BALLS)))) 10 35 150 200 150 255) 
+        (nl_draw_text_blended renderer font "Click to spawn | SPACE for random | C to clear | ESC to quit" 10 60 150 150 200 255) 
+        
+        # Present
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
+    }
+    
+    # Cleanup
+    (TTF_CloseFont font) 
+    (TTF_Quit) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (SDL_Quit) 
+    
+    (println "")
+    (println "✅ Physics simulation complete!")
+    (print "Final ball count: ")
+    (println ball_count)
+    
+    return 0
+}
+
+shadow main {
+    (print "")
+}
+

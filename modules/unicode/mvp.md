@@ -1,0 +1,18 @@
+# unicode module MVP
+
+<!--nl-snippet {"name":"module_unicode_mvp","check":false}-->
+```nano
+from "modules/unicode/unicode.nano" import nl_str_to_uppercase, nl_str_grapheme_length
+
+fn main() -> int {
+    let mut upper: string = ""
+    let mut len: int = 0
+    unsafe { set upper (nl_str_to_uppercase "nano") }
+    unsafe { set len (nl_str_grapheme_length "na") }
+    assert (== upper "NANO")
+    assert (== len 2)
+    return 0
+}
+
+shadow main { assert true }
+```

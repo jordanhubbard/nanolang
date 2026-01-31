@@ -1,0 +1,33 @@
+{
+  "name": "http_server",
+  "version": "1.0.0",
+  "description": "HTTP/1.1 server with routing, static files, and REST API support",
+  "author": "NanoLang Contributors",
+  "license": "MIT",
+  "dependencies": {
+    "system": ["libuv"]
+  },
+  "headers": ["http_server.h"],
+  "c_sources": ["http_server.c"],
+  "cflags": ["-Imodules/http_server", "-I/opt/homebrew/include", "-I/usr/local/include"],
+  "ldflags": ["-L/opt/homebrew/lib", "-L/usr/local/lib", "-luv"],
+  "exports": [
+    "nl_http_server_create",
+    "nl_http_server_set_static",
+    "nl_http_server_add_route",
+    "nl_http_server_start",
+    "nl_http_server_stop",
+    "nl_http_server_free",
+    "nl_http_request_method",
+    "nl_http_request_path",
+    "nl_http_request_query",
+    "nl_http_request_body",
+    "nl_http_response_status",
+    "nl_http_response_header",
+    "nl_http_response_send_json",
+    "nl_http_response_send_html",
+    "nl_http_response_send_text"
+  ],
+  "tags": ["http", "server", "web", "rest", "api"]
+}
+

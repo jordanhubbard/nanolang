@@ -34,12 +34,16 @@ typedef struct {
 /* Create new empty dynamic array */
 DynArray* dyn_array_new(ElementType elem_type);
 
+/* Create new dynamic array with custom initial capacity */
+DynArray* dyn_array_new_with_capacity(ElementType elem_type, int64_t initial_capacity);
+
 /* Push element to end of array */
 DynArray* dyn_array_push_int(DynArray* arr, int64_t value);
 DynArray* dyn_array_push_u8(DynArray* arr, uint8_t value);
 DynArray* dyn_array_push_float(DynArray* arr, double value);
 DynArray* dyn_array_push_bool(DynArray* arr, bool value);
 DynArray* dyn_array_push_string(DynArray* arr, const char* value);
+DynArray* dyn_array_push_string_copy(DynArray* arr, const char* value);  /* Copies string (strdup) */
 DynArray* dyn_array_push_array(DynArray* arr, DynArray* value);  /* For nested arrays */
 
 /* Pop element from end of array */

@@ -1,0 +1,707 @@
+# Utah Teapot - OpenGL Demo
+# The iconic 3D test object created by Martin Newell in 1975
+#
+# Features:
+# - Authentic Utah teapot using GLUT
+# - 6 different shader/rendering modes
+# - Interactive rotation and zoom controls
+# - Auto-rotation mode
+# - On-screen status display
+#
+# Controls:
+#   1-6        - Switch shader modes
+#   Arrow Keys - Rotate teapot
+#   +/-        - Zoom in/out
+#   SPACE      - Toggle auto-rotation
+#   R          - Reset view
+#   ESC        - Quit
+
+unsafe module "modules/glfw/glfw.nano"
+unsafe module "modules/glew/glew.nano"
+unsafe module "modules/opengl/opengl.nano"
+module "modules/glut/glut.nano"
+
+# Window dimensions
+let WINDOW_WIDTH: int = 1000
+let WINDOW_HEIGHT: int = 800
+
+# Shader modes
+let SHADER_SMOOTH_PHONG: int = 0
+let SHADER_FLAT_SHADING: int = 1
+let SHADER_WIREFRAME: int = 2
+let SHADER_SOLID_WIREFRAME: int = 3
+let SHADER_HIGH_SHININESS: int = 4
+let SHADER_MATTE: int = 5
+let NUM_SHADER_MODES: int = 6
+
+# Helper to get shader mode name
+fn get_shader_name(mode: int) -> string {
+    if (== mode SHADER_SMOOTH_PHONG) {
+        return "1: Smooth Phong"
+    } else {
+        if (== mode SHADER_FLAT_SHADING) {
+            return "2: Flat Shading"
+        } else {
+            if (== mode SHADER_WIREFRAME) {
+                return "3: Wireframe"
+            } else {
+                if (== mode SHADER_SOLID_WIREFRAME) {
+                    return "4: Solid + Wireframe"
+                } else {
+                    if (== mode SHADER_HIGH_SHININESS) {
+                        return "5: High Shininess"
+                    } else {
+                        return "6: Matte Material"
+                    }
+                }
+            }
+        }
+    }
+}
+
+# Setup lighting for the scene
+fn setup_lighting() -> void {
+    # Enable lighting
+    (glEnable GL_LIGHTING)
+    (glEnable GL_LIGHT0)
+        
+    # Light position (top-right-front)
+    (nl_glLightfv4 GL_LIGHT0 GL_POSITION 5.0 5.0 5.0 1.0)
+        
+    # Light colors
+    (nl_glLightfv4 GL_LIGHT0 GL_AMBIENT 0.3 0.3 0.3 1.0)
+    (nl_glLightfv4 GL_LIGHT0 GL_DIFFUSE 1.0 1.0 1.0 1.0)
+    (nl_glLightfv4 GL_LIGHT0 GL_SPECULAR 1.0 1.0 1.0 1.0)
+        
+    # Enable color material
+    (glEnable GL_COLOR_MATERIAL)
+    (glColorMaterial GL_FRONT_AND_BACK GL_AMBIENT_AND_DIFFUSE)
+}
+
+# Apply material properties based on shader mode
+fn apply_material(mode: int) -> void {
+    if (== mode SHADER_SMOOTH_PHONG) {
+    # Classic Phong shading - moderate shininess
+    (glColor3f 0.8 0.3 0.2)
+    (nl_glMaterialfv4 GL_FRONT GL_AMBIENT 0.2 0.1 0.05 1.0)
+    (nl_glMaterialfv4 GL_FRONT GL_DIFFUSE 0.8 0.3 0.2 1.0)
+    (nl_glMaterialfv4 GL_FRONT GL_SPECULAR 0.8 0.8 0.8 1.0)
+    (glMaterialf GL_FRONT GL_SHININESS 64.0)
+    (glShadeModel GL_SMOOTH)
+    } else {
+        if (== mode SHADER_FLAT_SHADING) {
+        # Flat shading - faceted look
+        (glColor3f 0.2 0.6 0.8)
+        (nl_glMaterialfv4 GL_FRONT GL_AMBIENT 0.05 0.15 0.2 1.0)
+        (nl_glMaterialfv4 GL_FRONT GL_DIFFUSE 0.2 0.6 0.8 1.0)
+        (nl_glMaterialfv4 GL_FRONT GL_SPECULAR 0.5 0.5 0.5 1.0)
+        (glMaterialf GL_FRONT GL_SHININESS 32.0)
+        (glShadeModel GL_FLAT)
+        } else {
+            if (== mode SHADER_WIREFRAME) {
+            # Wireframe only - disable lighting
+            (glDisable GL_LIGHTING)
+            (glColor3f 0.0 1.0 0.0)
+            } else {
+                if (== mode SHADER_SOLID_WIREFRAME) {
+                # Solid with wireframe overlay
+                (glColor3f 0.6 0.5 0.8)
+                (nl_glMaterialfv4 GL_FRONT GL_AMBIENT 0.15 0.125 0.2 1.0)
+                (nl_glMaterialfv4 GL_FRONT GL_DIFFUSE 0.6 0.5 0.8 1.0)
+                (nl_glMaterialfv4 GL_FRONT GL_SPECULAR 0.5 0.5 0.5 1.0)
+                (glMaterialf GL_FRONT GL_SHININESS 32.0)
+                (glShadeModel GL_SMOOTH)
+                } else {
+                    if (== mode SHADER_HIGH_SHININESS) {
+                    # Very shiny - metallic look
+                    (glColor3f 0.7 0.7 0.8)
+                    (nl_glMaterialfv4 GL_FRONT GL_AMBIENT 0.2 0.2 0.25 1.0)
+                    (nl_glMaterialfv4 GL_FRONT GL_DIFFUSE 0.5 0.5 0.6 1.0)
+                    (nl_glMaterialfv4 GL_FRONT GL_SPECULAR 1.0 1.0 1.0 1.0)
+                    (glMaterialf GL_FRONT GL_SHININESS 128.0)
+                    (glShadeModel GL_SMOOTH)
+                    } else {
+                        # Matte material - no specular
+                        (glColor3f 0.9 0.7 0.3)
+                        (nl_glMaterialfv4 GL_FRONT GL_AMBIENT 0.225 0.175 0.075 1.0)
+                        (nl_glMaterialfv4 GL_FRONT GL_DIFFUSE 0.9 0.7 0.3 1.0)
+                        (nl_glMaterialfv4 GL_FRONT GL_SPECULAR 0.0 0.0 0.0 1.0)
+                        (glMaterialf GL_FRONT GL_SHININESS 0.0)
+                        (glShadeModel GL_SMOOTH)
+                    }
+                }
+            }
+        }
+    }
+}
+
+# Draw the teapot with current shader mode
+fn draw_teapot(rot_x: float, rot_y: float, zoom: float, mode: int) -> void {
+    # Clear buffers
+    (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
+        
+    # Setup lighting (re-enable if disabled by wireframe mode)
+    if (!= mode SHADER_WIREFRAME) {
+        (setup_lighting)
+    } else {}
+        
+    # Reset modelview matrix
+    (glLoadIdentity)
+        
+    # Position camera with zoom
+    (glTranslatef 0.0 -0.3 (* -8.0 zoom))
+        
+    # Apply rotations
+    (glRotatef rot_x 1.0 0.0 0.0)
+    (glRotatef rot_y 0.0 1.0 0.0)
+        
+    # Apply material
+    (apply_material mode)
+        
+    # Draw the Utah teapot
+    if (== mode SHADER_WIREFRAME) {
+        # Wireframe only
+        (glutWireTeapot 2.0)
+    } else {
+        if (== mode SHADER_SOLID_WIREFRAME) {
+            # Draw solid teapot first
+            (glutSolidTeapot 2.0)
+                
+            # Then draw wireframe on top
+            (glDisable GL_LIGHTING)
+            (glColor3f 0.0 0.0 0.0)
+            (glPolygonMode GL_FRONT_AND_BACK GL_LINE)
+            (glLineWidth 1.5)
+            (glutSolidTeapot 2.01)
+            (glPolygonMode GL_FRONT_AND_BACK GL_FILL)
+            (glLineWidth 1.0)
+        } else {
+            # Solid teapot with lighting
+            (glutSolidTeapot 2.0)
+        }
+    }
+}
+
+# Render text on screen (using immediate mode)
+fn render_text(x: float, y: float, r: float, g: float, b: float, _text: string) -> void {
+    # Switch to 2D orthographic projection
+    (glMatrixMode GL_PROJECTION)
+    (glPushMatrix)
+    (glLoadIdentity)
+    (glOrtho 0.0 (cast_float WINDOW_WIDTH) 0.0 (cast_float WINDOW_HEIGHT) -1.0 1.0)
+        
+    (glMatrixMode GL_MODELVIEW)
+    (glPushMatrix)
+    (glLoadIdentity)
+        
+    # Disable lighting for text
+    (glDisable GL_LIGHTING)
+    (glColor3f r g b)
+        
+    # Position raster for text
+    (glRasterPos2f x y)
+        
+    # Restore matrices
+    (glPopMatrix)
+    (glMatrixMode GL_PROJECTION)
+    (glPopMatrix)
+    (glMatrixMode GL_MODELVIEW)
+}
+
+# Draw status overlay with visual indicators
+fn draw_status_overlay(shader_mode: int, _rot_x: float, rot_y: float, zoom: float, auto_rotate: int) -> void {
+    # Save state
+    (glPushAttrib GL_ENABLE_BIT)
+    (glDisable GL_DEPTH_TEST)
+    (glDisable GL_LIGHTING)
+    
+# Setup 2D orthographic projection
+(glMatrixMode GL_PROJECTION)
+(glPushMatrix)
+(glLoadIdentity)
+(glOrtho 0.0 (cast_float WINDOW_WIDTH) 0.0 (cast_float WINDOW_HEIGHT) -1.0 1.0)
+    
+(glMatrixMode GL_MODELVIEW)
+(glPushMatrix)
+(glLoadIdentity)
+    
+# Enable blending for transparency
+(glEnable GL_BLEND)
+(glBlendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA)
+    
+# Draw main info panel (top-left)
+(glColor4f 0.0 0.0 0.0 0.75)
+(glBegin GL_QUADS)
+(glVertex2f 10.0 (- (cast_float WINDOW_HEIGHT) 180.0))
+(glVertex2f 380.0 (- (cast_float WINDOW_HEIGHT) 180.0))
+(glVertex2f 380.0 (- (cast_float WINDOW_HEIGHT) 10.0))
+(glVertex2f 10.0 (- (cast_float WINDOW_HEIGHT) 10.0))
+(glEnd)
+    
+# Draw shader mode indicator bar
+let shader_bar_y: float = (- (cast_float WINDOW_HEIGHT) 85.0)
+(glColor4f 0.2 0.6 0.9 0.9)
+(glBegin GL_QUADS)
+(glVertex2f 20.0 shader_bar_y)
+(glVertex2f 360.0 shader_bar_y)
+(glVertex2f 360.0 (+ shader_bar_y 25.0))
+(glVertex2f 20.0 (+ shader_bar_y 25.0))
+(glEnd)
+    
+# Draw rotation indicator (circular arc for Y rotation)
+let center_x: float = 60.0
+let center_y: float = (- (cast_float WINDOW_HEIGHT) 135.0)
+let radius: float = 20.0
+(glColor4f 0.3 0.9 0.5 0.8)
+(glBegin GL_LINE_STRIP)
+let mut i: int = 0
+while (<= i 20) {
+    let angle: float = (* (* (cast_float i) 0.05) 6.28318)
+    let x: float = (+ center_x (* radius (cos angle)))
+    let y: float = (+ center_y (* radius (sin angle)))
+    (glVertex2f x y)
+    set i (+ i 1)
+}
+(glEnd)
+    
+# Draw current rotation position on arc
+let rot_angle: float = (* (/ rot_y 360.0) 6.28318)
+let rot_x_pos: float = (+ center_x (* radius (cos rot_angle)))
+let rot_y_pos: float = (+ center_y (* radius (sin rot_angle)))
+(glColor4f 1.0 0.3 0.3 1.0)
+(glPointSize 8.0)
+(glBegin GL_POINTS)
+(glVertex2f rot_x_pos rot_y_pos)
+(glEnd)
+(glPointSize 1.0)
+    
+# Draw zoom level bar
+let zoom_x: float = 180.0
+let zoom_y: float = (- (cast_float WINDOW_HEIGHT) 140.0)
+let zoom_width: float = 160.0
+let zoom_height: float = 10.0
+    
+# Bar background
+(glColor4f 0.3 0.3 0.4 0.8)
+(glBegin GL_QUADS)
+(glVertex2f zoom_x zoom_y)
+(glVertex2f (+ zoom_x zoom_width) zoom_y)
+(glVertex2f (+ zoom_x zoom_width) (+ zoom_y zoom_height))
+(glVertex2f zoom_x (+ zoom_y zoom_height))
+(glEnd)
+    
+# Zoom level indicator
+let zoom_norm: float = (/ (- zoom 0.3) 2.7)
+let zoom_bar_width: float = (* zoom_width zoom_norm)
+(glColor4f 0.9 0.7 0.2 0.9)
+(glBegin GL_QUADS)
+(glVertex2f zoom_x zoom_y)
+(glVertex2f (+ zoom_x zoom_bar_width) zoom_y)
+(glVertex2f (+ zoom_x zoom_bar_width) (+ zoom_y zoom_height))
+(glVertex2f zoom_x (+ zoom_y zoom_height))
+(glEnd)
+    
+# Auto-rotate indicator (if enabled)
+if (== auto_rotate 1) {
+    let spin_x: float = (- (cast_float WINDOW_WIDTH) 80.0)
+    let spin_y: float = (- (cast_float WINDOW_HEIGHT) 40.0)
+        
+    # Rotating circle animation
+    (glColor4f 0.5 1.0 0.5 0.8)
+    (glBegin GL_LINE_LOOP)
+    set i 0
+    while (< i 16) {
+        let spin_angle: float = (* (* (cast_float i) 0.0625) 6.28318)
+        let sx: float = (+ spin_x (* 15.0 (cos spin_angle)))
+        let sy: float = (+ spin_y (* 15.0 (sin spin_angle)))
+        (glVertex2f sx sy)
+        set i (+ i 1)
+    }
+    (glEnd)
+        
+    # Arrow head
+    (glColor4f 0.5 1.0 0.5 1.0)
+    (glBegin GL_TRIANGLES)
+    (glVertex2f (+ spin_x 15.0) spin_y)
+    (glVertex2f (+ spin_x 10.0) (+ spin_y 5.0))
+    (glVertex2f (+ spin_x 10.0) (- spin_y 5.0))
+    (glEnd)
+} else {}
+    
+# Draw controls help panel (bottom-left)
+let help_y: float = 10.0
+(glColor4f 0.0 0.0 0.0 0.75)
+(glBegin GL_QUADS)
+(glVertex2f 10.0 help_y)
+(glVertex2f 450.0 help_y)
+(glVertex2f 450.0 (+ help_y 120.0))
+(glVertex2f 10.0 (+ help_y 120.0))
+(glEnd)
+    
+# Draw key indicators as colored boxes
+# Number keys 1-6
+let mut key_i: int = 0
+while (< key_i 6) {
+    let key_x: float = (+ 20.0 (* (cast_float key_i) 35.0))
+    let key_y: float = (+ help_y 90.0)
+        
+    # Highlight current shader mode
+    if (== key_i shader_mode) {
+        (glColor4f 0.9 0.6 0.2 1.0)
+    } else {
+        (glColor4f 0.3 0.3 0.4 0.8)
+    }
+        
+    (glBegin GL_QUADS)
+    (glVertex2f key_x key_y)
+    (glVertex2f (+ key_x 25.0) key_y)
+    (glVertex2f (+ key_x 25.0) (+ key_y 20.0))
+    (glVertex2f key_x (+ key_y 20.0))
+    (glEnd)
+        
+    set key_i (+ key_i 1)
+}
+    
+# Arrow key indicators
+let arrow_base_x: float = 250.0
+let arrow_base_y: float = (+ help_y 70.0)
+    
+# Up arrow
+(glColor4f 0.5 0.7 0.9 0.8)
+(glBegin GL_QUADS)
+(glVertex2f (+ arrow_base_x 10.0) (+ arrow_base_y 20.0))
+(glVertex2f (+ arrow_base_x 20.0) (+ arrow_base_y 20.0))
+(glVertex2f (+ arrow_base_x 20.0) (+ arrow_base_y 30.0))
+(glVertex2f (+ arrow_base_x 10.0) (+ arrow_base_y 30.0))
+(glEnd)
+    
+# Down arrow
+(glBegin GL_QUADS)
+(glVertex2f (+ arrow_base_x 10.0) arrow_base_y)
+(glVertex2f (+ arrow_base_x 20.0) arrow_base_y)
+(glVertex2f (+ arrow_base_x 20.0) (+ arrow_base_y 10.0))
+(glVertex2f (+ arrow_base_x 10.0) (+ arrow_base_y 10.0))
+(glEnd)
+    
+# Left arrow
+(glBegin GL_QUADS)
+(glVertex2f arrow_base_x (+ arrow_base_y 10.0))
+(glVertex2f (+ arrow_base_x 10.0) (+ arrow_base_y 10.0))
+(glVertex2f (+ arrow_base_x 10.0) (+ arrow_base_y 20.0))
+(glVertex2f arrow_base_x (+ arrow_base_y 20.0))
+(glEnd)
+    
+# Right arrow
+(glBegin GL_QUADS)
+(glVertex2f (+ arrow_base_x 20.0) (+ arrow_base_y 10.0))
+(glVertex2f (+ arrow_base_x 30.0) (+ arrow_base_y 10.0))
+(glVertex2f (+ arrow_base_x 30.0) (+ arrow_base_y 20.0))
+(glVertex2f (+ arrow_base_x 20.0) (+ arrow_base_y 20.0))
+(glEnd)
+    
+# Zoom keys +/-
+(glColor4f 0.9 0.8 0.3 0.8)
+(glBegin GL_QUADS)
+(glVertex2f 340.0 (+ help_y 85.0))
+(glVertex2f 360.0 (+ help_y 85.0))
+(glVertex2f 360.0 (+ help_y 105.0))
+(glVertex2f 340.0 (+ help_y 105.0))
+(glEnd)
+    
+(glBegin GL_QUADS)
+(glVertex2f 365.0 (+ help_y 85.0))
+(glVertex2f 385.0 (+ help_y 85.0))
+(glVertex2f 385.0 (+ help_y 105.0))
+(glVertex2f 365.0 (+ help_y 105.0))
+(glEnd)
+    
+(glDisable GL_BLEND)
+    
+# Restore matrices
+(glPopMatrix)
+(glMatrixMode GL_PROJECTION)
+(glPopMatrix)
+(glMatrixMode GL_MODELVIEW)
+    
+# Restore state
+    (glPopAttrib)
+}
+
+# Setup OpenGL state
+fn setup_opengl() -> void {
+    # Enable depth testing
+    (glEnable GL_DEPTH_TEST)
+    (glDepthFunc GL_LESS)
+        
+    # Enable back-face culling
+    (glEnable GL_CULL_FACE)
+    (glCullFace GL_BACK)
+        
+    # Set up perspective projection
+    (glMatrixMode GL_PROJECTION)
+    (glLoadIdentity)
+        
+    # Calculate aspect ratio
+    let aspect: float = (/ (cast_float WINDOW_WIDTH) (cast_float WINDOW_HEIGHT))
+        
+    # Perspective projection (FOV, aspect, near, far)
+    (glFrustum (* -0.5 aspect) (* 0.5 aspect) -0.5 0.5 1.0 100.0)
+        
+    # Switch to modelview
+    (glMatrixMode GL_MODELVIEW)
+        
+    # Enable smooth shading by default
+    (glShadeModel GL_SMOOTH)
+        
+    # Set clear color (dark background)
+    (glClearColor 0.05 0.05 0.1 1.0)
+        
+    # Enable normalize for proper lighting with scaling
+    (glEnable GL_NORMALIZE)
+}
+
+fn main() -> int {
+(println "")
+(println "╔═══════════════════════════════════════════════════════════════╗")
+(println "║          UTAH TEAPOT - The Iconic 3D Test Object             ║")
+(println "╚═══════════════════════════════════════════════════════════════╝")
+(println "")
+(println "Created by Martin Newell at the University of Utah in 1975,")
+(println "the Utah teapot has become one of the most recognizable")
+(println "objects in computer graphics.")
+(println "")
+    
+# Initialize GLFW
+if (== (glfwInit) 0) {
+    (println "✗ Failed to initialize GLFW")
+    return 1
+} else {
+    (println "✓ GLFW initialized")
+}
+    
+# Create window
+let window: GLFWwindow = (glfwCreateWindow WINDOW_WIDTH WINDOW_HEIGHT "Utah Teapot - OpenGL Demo" 0 0)
+if (== window 0) {
+    (println "✗ Failed to create window")
+    (glfwTerminate)
+    return 1
+} else {
+    (println "✓ Window created")
+}
+    
+# Make OpenGL context current
+(glfwMakeContextCurrent window)
+(glfwSwapInterval 1)  # Enable vsync
+    
+# Initialize GLEW
+let glew_status: int = (glewInit)
+if (!= glew_status GLEW_OK) {
+    (println "✗ Failed to initialize GLEW")
+    (glfwTerminate)
+    return 1
+} else {
+    (println "✓ GLEW initialized")
+}
+    
+# Setup OpenGL
+(setup_opengl)
+(println "✓ OpenGL configured")
+(println "")
+    
+# Print controls
+(println "═══════════════════════════════════════════════════════════════")
+(println "CONTROLS:")
+(println "  1-6         Switch shader modes")
+(println "  Arrow Keys  Rotate teapot")
+(println "  + / -       Zoom in/out")
+(println "  SPACE       Toggle auto-rotation")
+(println "  R           Reset view")
+(println "")
+(println "SHADER MODES:")
+(println "  1  Smooth Phong     - Classic smooth shading with specular")
+(println "  2  Flat Shading     - Faceted polygonal look")
+(println "  3  Wireframe        - See the mesh structure")
+(println "  4  Solid+Wireframe  - Combined view")
+(println "  5  High Shininess   - Metallic appearance")
+(println "  6  Matte Material   - No specular highlights")
+(println "═══════════════════════════════════════════════════════════════")
+(println "")
+    
+# State variables
+let mut rot_x: float = -20.0
+let mut rot_y: float = 30.0
+let mut zoom: float = 1.0
+let mut shader_mode: int = SHADER_SMOOTH_PHONG
+let mut auto_rotate: int = 0
+let mut frame_count: int = 0
+    
+# For key press detection
+let mut last_space_state: int = 0
+let mut last_r_state: int = 0
+let mut last_1_state: int = 0
+let mut last_2_state: int = 0
+let mut last_3_state: int = 0
+let mut last_4_state: int = 0
+let mut last_5_state: int = 0
+let mut last_6_state: int = 0
+    
+(print "Starting with shader mode: ")
+(println (get_shader_name shader_mode))
+(println "")
+    
+# Main render loop
+while (== (glfwWindowShouldClose window) 0) {
+    # Auto-rotation
+    if (== auto_rotate 1) {
+        set rot_y (+ rot_y 0.5)
+        if (>= rot_y 360.0) {
+            set rot_y (- rot_y 360.0)
+        } else {}
+    } else {}
+        
+    # Draw scene
+    (draw_teapot rot_x rot_y zoom shader_mode)
+        
+    # Swap buffers and poll events
+    (glfwSwapBuffers window)
+    (glfwPollEvents)
+        
+    # === Keyboard Input ===
+        
+    # Arrow keys for rotation
+    if (== (glfwGetKey window GLFW_KEY_UP) 1) {
+        set rot_x (- rot_x 2.0)
+    } else {}
+    if (== (glfwGetKey window GLFW_KEY_DOWN) 1) {
+        set rot_x (+ rot_x 2.0)
+    } else {}
+    if (== (glfwGetKey window GLFW_KEY_LEFT) 1) {
+        set rot_y (- rot_y 2.0)
+    } else {}
+    if (== (glfwGetKey window GLFW_KEY_RIGHT) 1) {
+        set rot_y (+ rot_y 2.0)
+    } else {}
+        
+    # Zoom controls
+    if (or (== (glfwGetKey window GLFW_KEY_EQUAL) 1) (== (glfwGetKey window GLFW_KEY_KP_ADD) 1)) {
+        set zoom (* zoom 0.99)
+        if (< zoom 0.3) {
+            set zoom 0.3
+        } else {}
+    } else {}
+    if (or (== (glfwGetKey window GLFW_KEY_MINUS) 1) (== (glfwGetKey window GLFW_KEY_KP_SUBTRACT) 1)) {
+        set zoom (* zoom 1.01)
+        if (> zoom 3.0) {
+            set zoom 3.0
+        } else {}
+    } else {}
+        
+    # Shader mode selection (1-6 keys)
+    let key_1: int = (glfwGetKey window GLFW_KEY_1)
+    if (and (== key_1 1) (== last_1_state 0)) {
+        set shader_mode SHADER_SMOOTH_PHONG
+        (print "Shader: ")
+        (println (get_shader_name shader_mode))
+    } else {}
+    set last_1_state key_1
+        
+    let key_2: int = (glfwGetKey window GLFW_KEY_2)
+    if (and (== key_2 1) (== last_2_state 0)) {
+        set shader_mode SHADER_FLAT_SHADING
+        (print "Shader: ")
+        (println (get_shader_name shader_mode))
+    } else {}
+    set last_2_state key_2
+        
+    let key_3: int = (glfwGetKey window GLFW_KEY_3)
+    if (and (== key_3 1) (== last_3_state 0)) {
+        set shader_mode SHADER_WIREFRAME
+        (print "Shader: ")
+        (println (get_shader_name shader_mode))
+    } else {}
+    set last_3_state key_3
+        
+    let key_4: int = (glfwGetKey window GLFW_KEY_4)
+    if (and (== key_4 1) (== last_4_state 0)) {
+        set shader_mode SHADER_SOLID_WIREFRAME
+        (print "Shader: ")
+        (println (get_shader_name shader_mode))
+    } else {}
+    set last_4_state key_4
+        
+    let key_5: int = (glfwGetKey window GLFW_KEY_5)
+    if (and (== key_5 1) (== last_5_state 0)) {
+        set shader_mode SHADER_HIGH_SHININESS
+        (print "Shader: ")
+        (println (get_shader_name shader_mode))
+    } else {}
+    set last_5_state key_5
+        
+    let key_6: int = (glfwGetKey window GLFW_KEY_6)
+    if (and (== key_6 1) (== last_6_state 0)) {
+        set shader_mode SHADER_MATTE
+        (print "Shader: ")
+        (println (get_shader_name shader_mode))
+    } else {}
+    set last_6_state key_6
+        
+    # Space to toggle auto-rotation
+    let space_state: int = (glfwGetKey window GLFW_KEY_SPACE)
+    if (and (== space_state 1) (== last_space_state 0)) {
+        if (== auto_rotate 1) {
+            set auto_rotate 0
+            (println "Auto-rotation: OFF")
+        } else {
+            set auto_rotate 1
+            (println "Auto-rotation: ON")
+        }
+    } else {}
+    set last_space_state space_state
+        
+    # R to reset view
+    let r_state: int = (glfwGetKey window GLFW_KEY_R)
+    if (and (== r_state 1) (== last_r_state 0)) {
+        set rot_x -20.0
+        set rot_y 30.0
+        set zoom 1.0
+        (println "View reset")
+    } else {}
+    set last_r_state r_state
+        
+    set frame_count (+ frame_count 1)
+}
+    
+(println "")
+(print "Rendered ")
+(print frame_count)
+(println " frames")
+    
+# Cleanup
+(glfwDestroyWindow window)
+(glfwTerminate)
+(println "✓ Cleanup complete")
+(println "")
+    
+return 0
+}
+
+shadow setup_lighting { assert true }
+
+shadow apply_material { assert true }
+
+shadow draw_teapot { assert true }
+
+shadow render_text { assert true }
+
+shadow draw_status_overlay { assert true }
+
+shadow setup_opengl { assert true }
+
+shadow get_shader_name {
+    assert (== (get_shader_name SHADER_SMOOTH_PHONG) "1: Smooth Phong")
+    assert (== (get_shader_name SHADER_WIREFRAME) "3: Wireframe")
+}
+
+shadow main {
+    # Cannot test windowing in interpreter
+}

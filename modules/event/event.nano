@@ -18,18 +18,18 @@
 # ============================================================================
 
 extern fn nl_event_base_new() -> int
-extern fn nl_event_base_free(base: int) -> void
-extern fn nl_event_base_dispatch(base: int) -> int
-extern fn nl_event_base_loop(base: int, flags: int) -> int
-extern fn nl_event_base_loopexit(base: int, timeout_secs: int) -> int
-extern fn nl_event_base_loopbreak(base: int) -> int
+extern fn nl_event_base_free(_base: int) -> void
+extern fn nl_event_base_dispatch(_base: int) -> int
+extern fn nl_event_base_loop(_base: int, _flags: int) -> int
+extern fn nl_event_base_loopexit(_base: int, _timeout_secs: int) -> int
+extern fn nl_event_base_loopbreak(_base: int) -> int
 
 # ============================================================================
 # Event base information
 # ============================================================================
 
-extern fn nl_event_base_get_method(base: int) -> string
-extern fn nl_event_base_get_num_events(base: int) -> int
+extern fn nl_event_base_get_method(_base: int) -> string
+extern fn nl_event_base_get_num_events(_base: int) -> int
 extern fn nl_event_get_version() -> string
 extern fn nl_event_get_version_number() -> int
 
@@ -37,14 +37,14 @@ extern fn nl_event_get_version_number() -> int
 # Timer events
 # ============================================================================
 
-extern fn nl_evtimer_new(base: int) -> int
-extern fn nl_event_free(event: int) -> void
-extern fn nl_evtimer_add_timeout(event: int, timeout_secs: int) -> int
-extern fn nl_event_del(event: int) -> int
+extern fn nl_evtimer_new(_base: int) -> int
+extern fn nl_event_free(_event: int) -> void
+extern fn nl_evtimer_add_timeout(_event: int, _timeout_secs: int) -> int
+extern fn nl_event_del(_event: int) -> int
 
 # ============================================================================
 # Utilities
 # ============================================================================
 
 extern fn nl_event_enable_debug_mode() -> void
-extern fn nl_event_sleep(base: int, seconds: int) -> int
+extern fn nl_event_sleep(_base: int, _seconds: int) -> int

@@ -1,0 +1,20 @@
+/* Test that extern functions require unsafe blocks */
+
+extern fn getenv(name: string) -> string
+
+fn test_without_unsafe() -> string {
+    /* This should ERROR - calling extern without unsafe block */
+    let home: string = (getenv "HOME")
+    return home
+}
+
+fn main() -> int {
+    let result: string = (test_without_unsafe)
+    (println result)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

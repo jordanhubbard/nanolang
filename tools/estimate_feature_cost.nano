@@ -1,0 +1,42 @@
+# Estimate implementation cost for dual implementation (C + NanoLang)
+# This tool helps assess whether new language features are worth 2x effort
+
+fn main() -> int {
+    (println "╔════════════════════════════════════════════════════════╗")
+    (println "║  FEATURE COST ESTIMATOR                                ║")
+    (println "╚════════════════════════════════════════════════════════╝")
+    (println "")
+    (println "Dual Implementation Constraint:")
+    (println "  Every language feature requires TWICE the work:")
+    (println "  • C reference compiler implementation")
+    (println "  • NanoLang self-hosted implementation")
+    (println "")
+    (println "Example Cost Analysis:")
+    (println "")
+    (println "Adding [Type; size] array syntax:")
+    (println "  Component         C Lines    NanoLang Lines   Total")
+    (println "  ────────────────  ─────────  ───────────────  ─────")
+    (println "  Lexer             50         40               90")
+    (println "  Parser            100        80               180")
+    (println "  Type Checker      150        120              270")
+    (println "  Transpiler        200        160              360")
+    (println "  ────────────────  ─────────  ───────────────  ─────")
+    (println "  TOTAL             500        400              900 lines")
+    (println "")
+    (println "  Estimated effort: 8-10 days (2x normal)")
+    (println "")
+    (println "Design Principle:")
+    (println "  ✅ Prefer library functions over new syntax")
+    (println "  ✅ Simple, regular grammar")
+    (println "  ✅ Explicit over implicit")
+    (println "  ❌ Avoid syntax sugar requiring parser changes")
+    (println "")
+    (println "Before proposing language features, ask:")
+    (println "  \"Is it worth 2x the implementation cost?\"")
+    (println "")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

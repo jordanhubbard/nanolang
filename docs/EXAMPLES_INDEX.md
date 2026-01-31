@@ -1,8 +1,8 @@
 # NanoLang Examples Index
-## Complete Guide to All 78 Examples
+## Complete Guide to All 79 Examples
 
-**Last Updated**: 2025-12-20  
-**Total Examples**: 78  
+**Last Updated**: 2026-01-23
+**Total Examples**: 79  
 **Organization**: By difficulty and topic
 
 ---
@@ -94,6 +94,7 @@ For advanced language features and metaprogramming:
 | `nl_factorial.nano` | ⭐⭐ Intermediate | Recursion | 15 min |
 | `nl_fibonacci.nano` | ⭐⭐ Intermediate | Recursion, memoization | 20 min |
 | `nl_primes.nano` | ⭐⭐ Intermediate | Algorithms | 20 min |
+| `nl_pi_chudnovsky.nano` | ⭐⭐⭐ Advanced | Machin's formula, timing, verification | 30 min |
 
 #### Language Features
 | Example | Difficulty | Topics | Time |

@@ -1,0 +1,683 @@
+# FALLING SAND - Cellular Automata Physics Sandbox
+# Interactive particle simulation with SDL UI engine
+# Demonstrates: Cellular automata, state machines, pixel manipulation, optimization
+
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+module "modules/ui_widgets/ui_widgets.nano"
+
+# === ENUMS ===
+enum Material {
+    EMPTY = 0,
+    SAND = 1,
+    WATER = 2,
+    STONE = 3,
+    WOOD = 4,
+    FIRE = 5,
+    SMOKE = 6
+}
+
+# === STRUCTS ===
+struct Cell {
+    material: Material,
+    updated: bool
+}
+
+struct MaterialRenderColor {
+    r: int,
+    g: int,
+    b: int
+}
+
+# === CONSTANTS ===
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+let CELL_SIZE: int = 1
+let GRID_WIDTH: int = (/ WINDOW_WIDTH CELL_SIZE)
+let GRID_HEIGHT: int = (/ WINDOW_HEIGHT CELL_SIZE)
+let BRUSH_RADIUS: int = 2
+let FIRE_LIFETIME: int = 30
+let PHYSICS_STEPS_PER_FRAME: int = 3
+let FRAME_DELAY_MS: int = 8
+
+# === GRID OPERATIONS ===
+
+fn grid_index(x: int, y: int) -> int {
+    return (+ (* y GRID_WIDTH) x)
+}
+
+shadow grid_index {
+    assert (== (grid_index 0 0) 0)
+    assert (== (grid_index 10 5) (+ (* 5 GRID_WIDTH) 10))
+}
+
+fn is_valid_pos(x: int, y: int) -> bool {
+    return (and (and (>= x 0) (< x GRID_WIDTH))
+                (and (>= y 0) (< y GRID_HEIGHT)))
+}
+
+shadow is_valid_pos {
+    assert (== (is_valid_pos 10 10) true)
+    assert (== (is_valid_pos -1 10) false)
+    assert (== (is_valid_pos GRID_WIDTH 10) false)
+}
+
+fn read_material(grid: array<int>, x: int, y: int) -> Material {
+    if (not (is_valid_pos x y)) {
+        return Material.STONE
+    } else {
+        return (at grid (grid_index x y))
+    }
+}
+
+shadow read_material {
+    let grid: array<int> = []
+    let mut i: int = 0
+    while (< i (* GRID_WIDTH GRID_HEIGHT)) {
+        set grid (array_push grid Material.EMPTY)
+        set i (+ i 1)
+    }
+    assert (== (read_material grid 0 0) Material.EMPTY)
+}
+
+fn write_material(grid: array<int>, x: int, y: int, mat: Material) -> array<int> {
+    if (is_valid_pos x y) {
+        let idx: int = (grid_index x y)
+        (array_set grid idx mat)
+        return grid
+    } else {
+        return grid
+    }
+}
+
+shadow write_material {
+    # Uses array operations, can't test fully
+    (print "")
+}
+
+# === CELLULAR AUTOMATA RULES ===
+
+fn update_sand(grid_in: array<int>, x: int, y: int) -> bool {
+    # Sand falls down, or diagonally if blocked
+    let mut grid: array<int> = grid_in
+    let below: Material = (read_material grid x (+ y 1))
+    
+    if (== below Material.EMPTY) {
+        set grid (write_material grid x y Material.EMPTY)
+        set grid (write_material grid x (+ y 1) Material.SAND)
+        return true
+    } else {
+        if (== below Material.WATER) {
+            # Sand falls through water (swap)
+            set grid (write_material grid x y Material.WATER)
+            set grid (write_material grid x (+ y 1) Material.SAND)
+            return true
+        } else {
+            # Try diagonal
+            let left_below: Material = (read_material grid (- x 1) (+ y 1))
+            let right_below: Material = (read_material grid (+ x 1) (+ y 1))
+            
+            if (== left_below Material.EMPTY) {
+                set grid (write_material grid x y Material.EMPTY)
+                set grid (write_material grid (- x 1) (+ y 1) Material.SAND)
+                return true
+            } else {
+                if (== right_below Material.EMPTY) {
+                    set grid (write_material grid x y Material.EMPTY)
+                    set grid (write_material grid (+ x 1) (+ y 1) Material.SAND)
+                    return true
+                } else {
+                    return false
+                }
+            }
+        }
+    }
+}
+
+shadow update_sand {
+    # Uses grid mutations, can't test in isolation
+    (print "")
+}
+
+fn update_water(grid_in: array<int>, x: int, y: int) -> bool {
+    # Water falls down, then spreads sideways
+    let mut grid: array<int> = grid_in
+    let below: Material = (read_material grid x (+ y 1))
+    
+    if (== below Material.EMPTY) {
+        set grid (write_material grid x y Material.EMPTY)
+        set grid (write_material grid x (+ y 1) Material.WATER)
+        return true
+    } else {
+        # Try spreading sideways
+        let left: Material = (read_material grid (- x 1) y)
+        let right: Material = (read_material grid (+ x 1) y)
+        
+        if (== left Material.EMPTY) {
+            set grid (write_material grid x y Material.EMPTY)
+            set grid (write_material grid (- x 1) y Material.WATER)
+            return true
+        } else {
+            if (== right Material.EMPTY) {
+                set grid (write_material grid x y Material.EMPTY)
+                set grid (write_material grid (+ x 1) y Material.WATER)
+                return true
+            } else {
+                return false
+            }
+        }
+    }
+}
+
+shadow update_water {
+    # Uses grid mutations, can't test in isolation
+    (print "")
+}
+
+fn update_fire(grid_in: array<int>, x: int, y: int, fire_life: array<int>) -> bool {
+    # Fire burns wood, creates smoke, has lifetime
+    let mut grid: array<int> = grid_in
+    let idx: int = (grid_index x y)
+    let life: int = (at fire_life idx)
+    
+    if (<= life 0) {
+        # Fire died, become smoke
+        set grid (write_material grid x y Material.SMOKE)
+        return true
+    } else {
+        # Decrease lifetime
+        (array_set fire_life idx (- life 1))
+        
+        # Spread to adjacent wood
+        let mut spread: bool = false
+        
+        # Check all 4 directions
+        if (== (read_material grid (- x 1) y) Material.WOOD) {
+            set grid (write_material grid (- x 1) y Material.FIRE)
+            (array_set fire_life (grid_index (- x 1) y) FIRE_LIFETIME)
+            set spread true
+        } else {
+            (print "")
+        }
+        
+        if (== (read_material grid (+ x 1) y) Material.WOOD) {
+            set grid (write_material grid (+ x 1) y Material.FIRE)
+            (array_set fire_life (grid_index (+ x 1) y) FIRE_LIFETIME)
+            set spread true
+        } else {
+            (print "")
+        }
+        
+        if (== (read_material grid x (- y 1)) Material.WOOD) {
+            set grid (write_material grid x (- y 1) Material.FIRE)
+            (array_set fire_life (grid_index x (- y 1)) FIRE_LIFETIME)
+            set spread true
+        } else {
+            (print "")
+        }
+        
+        if (== (read_material grid x (+ y 1)) Material.WOOD) {
+            set grid (write_material grid x (+ y 1) Material.FIRE)
+            (array_set fire_life (grid_index x (+ y 1)) FIRE_LIFETIME)
+            set spread true
+        } else {
+            (print "")
+        }
+        
+        return spread
+    }
+}
+
+shadow update_fire {
+    # Uses grid mutations and external state, can't test in isolation
+    (print "")
+}
+
+fn update_smoke(grid_in: array<int>, x: int, y: int) -> bool {
+    # Smoke rises and disperses horizontally
+    let mut grid: array<int> = grid_in
+    let above: Material = (read_material grid x (- y 1))
+    
+    # Try to rise
+    if (== above Material.EMPTY) {
+        set grid (write_material grid x y Material.EMPTY)
+        set grid (write_material grid x (- y 1) Material.SMOKE)
+        return true
+    } else {
+        # Can't rise, try to spread horizontally
+        let left: Material = (read_material grid (- x 1) y)
+        let right: Material = (read_material grid (+ x 1) y)
+        
+        if (== left Material.EMPTY) {
+            set grid (write_material grid x y Material.EMPTY)
+            set grid (write_material grid (- x 1) y Material.SMOKE)
+            return true
+        } else {
+            if (== right Material.EMPTY) {
+                set grid (write_material grid x y Material.EMPTY)
+                set grid (write_material grid (+ x 1) y Material.SMOKE)
+                return true
+            } else {
+                # Can't move, slowly dissipate (1 in 10 chance)
+                # For now, just stay put - dissipation could be added later
+                return false
+            }
+        }
+    }
+}
+
+shadow update_smoke {
+    # Uses grid mutations, can't test in isolation
+    (print "")
+}
+
+# === RENDERING ===
+
+fn read_material_color(mat: Material) -> int {
+    return (cond
+        ((== mat Material.SAND) 1)
+        ((== mat Material.WATER) 2)
+        ((== mat Material.STONE) 3)
+        ((== mat Material.WOOD) 4)
+        ((== mat Material.FIRE) 5)
+        ((== mat Material.SMOKE) 6)
+        (else 0)
+    )
+}
+
+shadow read_material_color {
+    assert (== (read_material_color Material.SAND) 1)
+    assert (== (read_material_color Material.EMPTY) 0)
+}
+
+fn read_material_name(mat: Material) -> string {
+    return (cond
+        ((== mat Material.EMPTY) "EMPTY")
+        ((== mat Material.SAND) "SAND")
+        ((== mat Material.WATER) "WATER")
+        ((== mat Material.STONE) "STONE")
+        ((== mat Material.WOOD) "WOOD")
+        ((== mat Material.FIRE) "FIRE")
+        ((== mat Material.SMOKE) "SMOKE")
+        (else "UNKNOWN")
+    )
+}
+
+shadow read_material_name {
+    assert (== (read_material_name Material.SAND) "SAND")
+    assert (== (read_material_name Material.WATER) "WATER")
+}
+
+fn render_ui(renderer: SDL_Renderer, font: TTF_Font, current_material: Material, paused: bool) -> void {
+    # Draw semi-transparent overlay at top
+    (SDL_SetRenderDrawColor renderer 0 0 0 180) 
+    (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH 50) 
+    
+    # Draw material name using SDL_ttf
+    let material_name: string = (read_material_name current_material)
+    (nl_draw_text_blended renderer font material_name 10 10 255 255 255 255) 
+    
+    # Draw help text
+    (nl_draw_text_blended renderer font "ESC or Q to quit | SPACE to pause | 1-6 select material" 10 28 180 180 200 255) 
+    
+    # Draw pause indicator if paused
+    if paused {
+        (nl_draw_text_blended renderer font "PAUSED" (- WINDOW_WIDTH 80) 10 255 200 0 255) 
+    } else {
+        (print "")
+    }
+}
+
+shadow render_ui {
+    # Uses SDL rendering, can't test
+    (print "")
+}
+
+fn material_render_color(mat: Material) -> MaterialRenderColor {
+    return (cond
+        ((== mat Material.SAND) MaterialRenderColor { r: 194, g: 178, b: 128 })
+        ((== mat Material.WATER) MaterialRenderColor { r: 64, g: 164, b: 223 })
+        ((== mat Material.STONE) MaterialRenderColor { r: 128, g: 128, b: 128 })
+        ((== mat Material.WOOD) MaterialRenderColor { r: 139, g: 69, b: 19 })
+        ((== mat Material.FIRE) MaterialRenderColor { r: 255, g: 100, b: 0 })
+        ((== mat Material.SMOKE) MaterialRenderColor { r: 64, g: 64, b: 64 })
+        (else MaterialRenderColor { r: 0, g: 0, b: 0 })
+    )
+}
+
+shadow material_render_color {
+    let sand: MaterialRenderColor = (material_render_color Material.SAND)
+    assert (== sand.r 194)
+    assert (== sand.g 178)
+    assert (== sand.b 128)
+}
+
+fn render_grid(renderer: SDL_Renderer, grid: array<int>) -> void {
+    let mut y: int = 0
+    while (< y GRID_HEIGHT) {
+        let mut x: int = 0
+        while (< x GRID_WIDTH) {
+            let mat: Material = (read_material grid x y)
+            
+            # Only render non-empty cells for performance
+            if (!= mat Material.EMPTY) {
+                let color: MaterialRenderColor = (material_render_color mat)
+                (SDL_SetRenderDrawColor renderer color.r color.g color.b 255) 
+                
+                # Draw cell
+                let pixel_x: int = (* x CELL_SIZE)
+                let pixel_y: int = (* y CELL_SIZE)
+                (nl_sdl_render_fill_rect renderer pixel_x pixel_y CELL_SIZE CELL_SIZE) 
+            } else {}
+            
+            set x (+ x 1)
+        }
+        set y (+ y 1)
+    }
+}
+
+shadow render_grid {
+    assert true
+}
+
+# === MAIN ===
+
+fn main() -> int {
+    # Initialize SDL
+    if (< (SDL_Init 32) 0) {
+        (println "SDL initialization failed")
+        return 1
+    } else {
+        (print "")
+    }
+    
+    # Create window
+    let window: SDL_Window = (SDL_CreateWindow "Falling Sand" 536805376 536805376 WINDOW_WIDTH WINDOW_HEIGHT 4)
+    if (== window 0) {
+        (println "Window creation failed")
+        (SDL_Quit) 
+        return 1
+    } else {
+        (print "")
+    }
+    
+    # Create renderer
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
+    if (== renderer 0) {
+        (println "Renderer creation failed")
+        (SDL_DestroyWindow window) 
+        (SDL_Quit) 
+        return 1
+    } else {
+        (print "")
+    }
+    
+    # Initialize SDL_ttf
+    (TTF_Init) 
+    
+    # Load font
+    let font: TTF_Font = (nl_open_font_portable "Arial" 16)
+    if (== font 0) {
+        (println "Failed to load font")
+        (SDL_DestroyRenderer renderer) 
+        (SDL_DestroyWindow window) 
+        (SDL_Quit) 
+        return 1
+    } else {
+        (print "")
+    }
+    
+    # Disable mouse motion events to prevent event queue flooding
+    # SDL_MOUSEMOTION = 0x400 = 1024
+    (SDL_EventState 1024 0) 
+    
+    # Initialize grid
+    let grid_size: int = (* GRID_WIDTH GRID_HEIGHT)
+    let mut grid: array<int> = []
+    let mut fire_life: array<int> = []
+    let mut i: int = 0
+    
+    while (< i grid_size) {
+        set grid (array_push grid Material.EMPTY)
+        set fire_life (array_push fire_life 0)
+        set i (+ i 1)
+    }
+    
+    (println "✓ Grid initialized")
+    (print "Grid size: ")
+    (print GRID_WIDTH)
+    (print "x")
+    (println GRID_HEIGHT)
+    (println "")
+    
+    # Game state
+    let mut running: bool = true
+    let mut paused: bool = false
+    let mut current_material: Material = Material.SAND
+    let mut frame_count: int = 0
+    
+    (println "Starting simulation...")
+    (println "")
+    
+    # Main loop
+    while running {
+        # Update mouse state FIRST (required for UI widgets to work!)
+        (nl_ui_update_mouse_state) 
+        
+        # Handle keyboard input
+        let key: int = (nl_sdl_poll_keypress)
+        if (> key -1) {
+            # ESC or Q key to quit
+            if (== key 41) {
+                # ESC key
+                set running false
+            } else {
+                if (== key 20) {
+                    # Q key (also handles Cmd+Q on macOS)
+                    set running false
+                } else {
+                    # Material selection: 1=30, 2=31, 3=32, 4=33, 5=34, 6=35
+                    if (== key 30) {
+                        set current_material Material.SAND
+                    } else {
+                        if (== key 31) {
+                            set current_material Material.WATER
+                        } else {
+                            if (== key 32) {
+                                set current_material Material.STONE
+                            } else {
+                                if (== key 33) {
+                                    set current_material Material.WOOD
+                                } else {
+                                    if (== key 34) {
+                                        set current_material Material.FIRE
+                                    } else {
+                                        if (== key 35) {
+                                            set current_material Material.SMOKE
+                                        } else {
+                                            if (== key 44) {
+                                                # SPACE = toggle pause
+                                                set paused (not paused)
+                                            } else {
+                                                if (== key 6) {
+                                                    # C = clear
+                                                    let mut clear_i: int = 0
+                                                    while (< clear_i grid_size) {
+                                                        (array_set grid clear_i Material.EMPTY)
+                                                        (array_set fire_life clear_i 0)
+                                                        set clear_i (+ clear_i 1)
+                                                    }
+                                                } else {
+                                                    (print "")
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            (print "")
+        }
+        
+        # Check for quit event (window close button or menu Quit)
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) {
+            set running false
+        } else {}
+        
+        # Material selector using radio buttons - now in a panel!
+        (nl_ui_panel renderer 40 545 550 50 20 20 30 200) 
+        
+        # Radio buttons for material selection (convert bool to int for selected state)
+        let mut sand_selected: int = 0
+        if (== current_material Material.SAND) { set sand_selected 1 } else {}
+        if (== (nl_ui_radio_button renderer font "Sand" 50 560 sand_selected) 1) {
+            set current_material Material.SAND
+        } else {}
+        
+        let mut water_selected: int = 0
+        if (== current_material Material.WATER) { set water_selected 1 } else {}
+        if (== (nl_ui_radio_button renderer font "Water" 130 560 water_selected) 1) {
+            set current_material Material.WATER
+        } else {}
+        
+        let mut stone_selected: int = 0
+        if (== current_material Material.STONE) { set stone_selected 1 } else {}
+        if (== (nl_ui_radio_button renderer font "Stone" 220 560 stone_selected) 1) {
+            set current_material Material.STONE
+        } else {}
+        
+        let mut wood_selected: int = 0
+        if (== current_material Material.WOOD) { set wood_selected 1 } else {}
+        if (== (nl_ui_radio_button renderer font "Wood" 310 560 wood_selected) 1) {
+            set current_material Material.WOOD
+        } else {}
+        
+        let mut fire_selected: int = 0
+        if (== current_material Material.FIRE) { set fire_selected 1 } else {}
+        if (== (nl_ui_radio_button renderer font "Fire" 400 560 fire_selected) 1) {
+            set current_material Material.FIRE
+        } else {}
+        
+        let mut smoke_selected: int = 0
+        if (== current_material Material.SMOKE) { set smoke_selected 1 } else {}
+        if (== (nl_ui_radio_button renderer font "Smoke" 480 560 smoke_selected) 1) {
+            set current_material Material.SMOKE
+        } else {}
+        
+        # Clear button separate
+        if (== (nl_ui_button renderer font "Clear" 680 560 70 30) 1) {
+            let mut clear_i: int = 0
+            while (< clear_i grid_size) {
+                (array_set grid clear_i Material.EMPTY)
+                (array_set fire_life clear_i 0)
+                set clear_i (+ clear_i 1)
+            }
+        } else {}
+        
+        # Handle mouse input (continuous drawing while held)
+        let mouse_state: int = (nl_sdl_poll_mouse_state)
+        if (> mouse_state -1) {
+            # Mouse state returns x * 10000 + y, decode it
+            let mouse_x: int = (/ mouse_state 10000)
+            let mouse_y: int = (% mouse_state 10000)
+            
+            # Convert to grid coordinates
+            let grid_x: int = (/ mouse_x CELL_SIZE)
+            let grid_y: int = (/ mouse_y CELL_SIZE)
+            
+            # Draw brush
+            let mut dy: int = (- 0 BRUSH_RADIUS)
+            while (< dy BRUSH_RADIUS) {
+                let mut dx: int = (- 0 BRUSH_RADIUS)
+                while (< dx BRUSH_RADIUS) {
+                    set grid (write_material grid (+ grid_x dx) (+ grid_y dy) current_material)
+                    
+                    # Initialize fire lifetime if placing fire
+                    if (== current_material Material.FIRE) {
+                        let idx: int = (grid_index (+ grid_x dx) (+ grid_y dy))
+                        (array_set fire_life idx FIRE_LIFETIME)
+                    } else {}
+                    
+                    set dx (+ dx 1)
+                }
+                set dy (+ dy 1)
+            }
+        } else {}
+        
+        # Update simulation (if not paused)
+        if (not paused) {
+            let mut step: int = 0
+            while (< step PHYSICS_STEPS_PER_FRAME) {
+                # Update from bottom to top to avoid double-updates
+                let mut y: int = (- GRID_HEIGHT 1)
+                while (>= y 0) {
+                    let mut x: int = 0
+                    while (< x GRID_WIDTH) {
+                        let mat: Material = (read_material grid x y)
+                        
+                        # Skip empty cells for performance
+                        if (!= mat Material.EMPTY) {
+                            if (== mat Material.SAND) {
+                                (update_sand grid x y)
+                            } else {
+                                if (== mat Material.WATER) {
+                                    (update_water grid x y)
+                                } else {
+                                    if (== mat Material.FIRE) {
+                                        (update_fire grid x y fire_life)
+                                    } else {
+                                        if (== mat Material.SMOKE) {
+                                            (update_smoke grid x y)
+                                        } else {}
+                                    }
+                                }
+                            }
+                        } else {}
+                        
+                        set x (+ x 1)
+                    }
+                    set y (- y 1)
+                }
+                set step (+ step 1)
+            }
+        } else {}
+        
+        # Render
+        (SDL_SetRenderDrawColor renderer 0 0 0 255) 
+        (SDL_RenderClear renderer) 
+        (render_grid renderer grid)
+        (render_ui renderer font current_material paused)
+        (SDL_RenderPresent renderer) 
+        
+        # Frame delay (faster animation)
+        (SDL_Delay FRAME_DELAY_MS) 
+        set frame_count (+ frame_count 1)
+    }
+    
+    # Cleanup
+    (TTF_CloseFont font) 
+    (TTF_Quit) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (SDL_Quit) 
+    
+    (println "")
+    (println "✅ Simulation complete!")
+    (print "Total frames: ")
+    (println frame_count)
+    
+    return 0
+}
+
+shadow main {
+    # Main uses SDL, can't test in interpreter
+    (print "")
+}
+

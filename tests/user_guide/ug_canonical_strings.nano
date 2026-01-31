@@ -1,0 +1,15 @@
+fn greet(name: string) -> string {
+    return (+ "Hello, " (+ name "!"))
+}
+
+shadow greet {
+    assert (== (greet "World") "Hello, World!")
+    assert (== (greet "NanoLang") "Hello, NanoLang!")
+}
+
+fn main() -> int {
+    (println (greet "User"))
+    return 0
+}
+
+shadow main { assert true }

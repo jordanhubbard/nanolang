@@ -1,0 +1,12 @@
+from "modules/std/fs.nano" import walkdir
+
+fn main() -> int {
+    let files: array<string> = (walkdir "modules")
+    (println (+ "Found " (+ (int_to_string (array_length files)) " files")))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

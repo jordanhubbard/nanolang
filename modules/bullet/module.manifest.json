@@ -1,0 +1,21 @@
+{
+  "name": "bullet",
+  "version": "1.0.0",
+  "stability": "experimental",
+  "summary": "Bullet Physics SDK integration for rigid body and soft body simulation.",
+  "use_when": [
+    "User needs physics simulation",
+    "User says 'physics', 'collision', 'rigid body', 'soft body'",
+    "User is building a physics-based game or simulation"
+  ],
+  "avoid_when": ["User wants simple collision only (implement manually)"],
+  "capabilities": ["rigid_body", "soft_body", "collision_detection", "physics_simulation"],
+  "keywords": ["physics", "bullet", "collision", "simulation", "rigid body"],
+  "examples": ["examples/bullet_soft_body.nano"],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "system": [{"id": "bullet", "install": {"apt": "libbullet-dev", "brew": "bullet"}}]
+  },
+  "io_surfaces": [],
+  "alternatives": []
+}

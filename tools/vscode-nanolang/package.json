@@ -1,0 +1,60 @@
+{
+  "name": "nanolang",
+  "displayName": "NanoLang",
+  "description": "Language support for NanoLang - a minimal, LLM-friendly programming language",
+  "version": "0.1.0",
+  "publisher": "nanolang",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jordanhubbard/nanolang"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "nanolang",
+    "nano",
+    "lisp",
+    "prefix notation",
+    "compiled",
+    "transpiler"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "nanolang",
+        "aliases": [
+          "NanoLang",
+          "nanolang",
+          "nano"
+        ],
+        "extensions": [
+          ".nano"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/nanolang-icon.png",
+          "dark": "./icons/nanolang-icon.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "nanolang",
+        "scopeName": "source.nanolang",
+        "path": "./syntaxes/nanolang.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "nanolang",
+        "path": "./snippets/nanolang.json"
+      }
+    ]
+  },
+  "icon": "icons/nanolang-icon.png",
+  "license": "MIT"
+}

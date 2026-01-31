@@ -1,0 +1,656 @@
+# NANOVIZ - 3D Music Visualizer
+# The "Best of All Modules" Integration Demo
+#
+# Concept: 3D music visualization combining multiple modules
+# Topics: SDL, OpenGL, audio, 3D graphics, FFT, real-time visualization
+# Difficulty: Advanced
+#
+# Description:
+# Comprehensive demo integrating SDL2, OpenGL, audio analysis, and UI widgets.
+# Shows how multiple NanoLang modules work together to create a complete
+# application. "Best of all modules" showcase with demoscene aesthetics.
+#
+# Key Modules Integrated:
+#  - SDL2: Window management, events, audio playback (SDL_mixer)
+#  - OpenGL (GLFW/GLEW): 3D graphics and effects
+#  - audio_viz: Real-time FFT audio analysis
+#  - ui_widgets: Interactive control panel
+#
+# Key Features Demonstrated:
+# - Multi-module integration (SDL + OpenGL + Audio)
+# - Real-time 3D audio visualization
+# - Advanced graphics rendering
+# - Event handling (keyboard, mouse)
+# - Interactive UI controls
+# - Performance optimization
+# - FFT frequency analysis
+#
+# Real-World Applications:
+# - Music players with 3D visualization
+# - Live performance visuals (VJing)
+# - Audio analysis and monitoring tools
+# - Educational audio-visual tools
+# - Demoscene productions
+#
+# Cultural Context:
+# Inspired by: Winamp + MilkDrop, G-Force, VJing software
+# Golden age of PC demoscene and media players
+#
+# Prerequisites:
+# - sdl_audio_wav.nano - Basic audio
+# - opengl_cube.nano - OpenGL basics
+# - nl_advanced_math.nano - 3D math
+#
+# Next Steps:
+# - sdl_nanoamp.nano - Advanced audio player
+# - Add more visualization presets
+# - Implement beat detection
+
+unsafe module "modules/glfw/glfw.nano"
+unsafe module "modules/glew/glew.nano"
+unsafe module "modules/opengl/opengl.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_mixer/sdl_mixer.nano"
+module "modules/audio_viz/audio_viz.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+module "modules/ui_widgets/ui_widgets.nano"
+
+# Window dimensions
+let WINDOW_WIDTH: int = 1280
+let WINDOW_HEIGHT: int = 720
+
+# Visualization modes
+let VIZ_TUNNEL: int = 0
+let VIZ_SPECTRUM_SPHERE: int = 1
+let VIZ_PARTICLES: int = 2
+let VIZ_WAVEFORM_3D: int = 3
+let VIZ_FREQUENCY_CUBES: int = 4
+
+# Command-line argument support
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn get_viz_name(mode: int) -> string {
+    if (== mode VIZ_TUNNEL) {
+        return "Tunnel"
+    } else {
+        if (== mode VIZ_SPECTRUM_SPHERE) {
+            return "Spectrum Sphere"
+        } else {
+            if (== mode VIZ_PARTICLES) {
+                return "Particles"
+            } else {
+                if (== mode VIZ_WAVEFORM_3D) {
+                    return "3D Waveform"
+                } else {
+                    return "Frequency Cubes"
+                }
+            }
+        }
+    }
+}
+
+shadow get_viz_name {
+    assert (== (get_viz_name VIZ_TUNNEL) "Tunnel")
+    assert (== (get_viz_name VIZ_SPECTRUM_SPHERE) "Spectrum Sphere")
+    assert (== (get_viz_name VIZ_PARTICLES) "Particles")
+    assert (== (get_viz_name VIZ_WAVEFORM_3D) "3D Waveform")
+    assert (== (get_viz_name VIZ_FREQUENCY_CUBES) "Frequency Cubes")
+}
+
+# Initialize OpenGL for 3D rendering
+fn setup_opengl_3d() -> void {
+    # Enable depth testing
+    (glEnable GL_DEPTH_TEST) 
+    (glDepthFunc GL_LESS) 
+    
+    # Enable blending for transparency effects
+    (glEnable GL_BLEND) 
+    # glBlendFunc not currently available in GLEW bindings
+    
+    # Set up projection matrix (perspective)
+    (glMatrixMode GL_PROJECTION) 
+    (glLoadIdentity) 
+    
+    # Perspective projection for 3D
+    let fov: float = 60.0
+    let aspect: float = (/ (cast_float WINDOW_WIDTH) (cast_float WINDOW_HEIGHT))
+    let near_plane: float = 0.1
+    let far_plane: float = 100.0
+    
+    # Use simple orthographic for now (glFrustum has issues)
+    (glOrtho -5.0 5.0 -5.0 5.0 0.1 100.0) 
+    
+    # Switch to modelview
+    (glMatrixMode GL_MODELVIEW) 
+    (glLoadIdentity) 
+}
+
+# Draw Tunnel visualization (classic demoscene effect)
+fn draw_tunnel(time: float, audio_bass: float, audio_mid: float) -> void {
+    (glLoadIdentity) 
+    
+    # Camera position
+    (glTranslatef 0.0 0.0 -5.0) 
+    
+    # Rotate based on time and audio
+    (glRotatef (* time 20.0) 0.0 0.0 1.0) 
+    (glRotatef (* audio_bass 30.0) 1.0 0.0 0.0) 
+    
+    # Draw concentric rings
+    let mut ring: int = 0
+    while (< ring 20) {
+        let mut z: float = (- (cast_float ring) (* time 10.0))
+        # Wrap z in range 0-20
+        while (< z 0.0) {
+            set z (+ z 20.0)
+        }
+        while (>= z 20.0) {
+            set z (- z 20.0)
+        }
+        let radius: float = (+ 1.0 (* 0.1 (cast_float ring)))
+        
+        # Color based on audio and ring position
+        let hue: float = (+ (* (cast_float ring) 0.1) (* time 0.5))
+        let r: float = (+ 0.5 (* 0.5 (sin hue)))
+        let g: float = (+ 0.5 (* 0.5 (sin (+ hue 2.0))))
+        let b: float = (+ 0.5 (* 0.5 (sin (+ hue 4.0))))
+        
+        # Brightness modulated by audio
+        let brightness: float = (+ 0.5 (* audio_mid 0.5))
+        (glColor4f (* r brightness) (* g brightness) (* b brightness) 0.8) 
+        
+        # Draw ring
+        (glBegin GL_QUAD_STRIP) 
+        let mut angle: int = 0
+        while (<= angle 360) {
+            let rad: float = (* (cast_float angle) 0.0174533)
+            let x1: float = (* radius (cos rad))
+            let y1: float = (* radius (sin rad))
+            let x2: float = (* (+ radius 0.2) (cos rad))
+            let y2: float = (* (+ radius 0.2) (sin rad))
+            
+            (glVertex3f x1 y1 z) 
+            (glVertex3f x2 y2 z) 
+            
+            set angle (+ angle 20)
+        }
+        (glEnd) 
+        
+        set ring (+ ring 1)
+    }
+}
+
+# Draw Spectrum Sphere - audio frequencies mapped to sphere surface
+fn draw_spectrum_sphere(time: float, rotation: float) -> void {
+    (glLoadIdentity) 
+    (glTranslatef 0.0 0.0 -8.0) 
+    (glRotatef rotation 0.0 1.0 0.0) 
+    (glRotatef (* rotation 0.5) 1.0 0.0 0.0) 
+    
+    # Get waveform data
+    let waveform_size: int = (nl_audio_viz_get_waveform_size)
+    
+    # Draw sphere with frequency data
+    let lat_bands: int = 20
+    let long_bands: int = 40
+    
+    let mut lat: int = 0
+    while (< lat lat_bands) {
+        let lat1: float = (* (/ (cast_float lat) (cast_float lat_bands)) 3.14159)
+        let lat2: float = (* (/ (cast_float (+ lat 1)) (cast_float lat_bands)) 3.14159)
+        
+        (glBegin GL_QUAD_STRIP) 
+        
+        let mut lon: int = 0
+        while (<= lon long_bands) {
+            let lon_rad: float = (* (/ (cast_float lon) (cast_float long_bands)) 6.28318)
+            
+            # Sample audio at this longitude
+            let sample_idx: int = (% (* lon 16) waveform_size)
+            let left: float = (nl_audio_viz_get_waveform_sample 0 sample_idx)
+            let right: float = (nl_audio_viz_get_waveform_sample 1 sample_idx)
+            let amplitude: float = (+ (abs left) (abs right))
+            
+            # Radius varies with audio
+            let radius: float = (+ 2.0 (* amplitude 1.5))
+            
+            # Color based on position and audio
+            let hue: float = (+ lon_rad (* time 0.5))
+            let r: float = (+ 0.5 (* 0.5 (sin hue)))
+            let g: float = (+ 0.5 (* 0.5 (cos hue)))
+            let b: float = (+ 0.5 (* 0.5 (sin (* hue 2.0))))
+            (glColor4f r g b 0.9) 
+            
+            # Calculate sphere coordinates
+            let x1: float = (* radius (* (sin lat1) (cos lon_rad)))
+            let y1: float = (* radius (cos lat1))
+            let z1: float = (* radius (* (sin lat1) (sin lon_rad)))
+            
+            let x2: float = (* radius (* (sin lat2) (cos lon_rad)))
+            let y2: float = (* radius (cos lat2))
+            let z2: float = (* radius (* (sin lat2) (sin lon_rad)))
+            
+            (glVertex3f x1 y1 z1) 
+            (glVertex3f x2 y2 z2) 
+            
+            set lon (+ lon 1)
+        }
+        (glEnd) 
+        
+        set lat (+ lat 1)
+    }
+}
+
+# Draw Particle System reacting to audio
+fn draw_audio_particles(time: float, bass: float, mid: float, treble: float) -> void {
+    (glLoadIdentity) 
+    (glTranslatef 0.0 0.0 -10.0) 
+    
+    # Draw particles in 3D space
+    # glPointSize not available - use small quads instead
+    (glBegin GL_POINTS) 
+    
+    let mut i: int = 0
+    while (< i 500) {
+        let angle1: float = (* (cast_float i) 0.1)
+        let angle2: float = (* (cast_float i) 0.05)
+        let radius: float = (+ 3.0 (* bass 2.0))
+        
+        # Spiral pattern
+        let x: float = (* radius (* (cos angle1) (cos angle2)))
+        let y: float = (* radius (sin angle2))
+        let z: float = (* radius (* (sin angle1) (cos angle2)))
+        
+        # Color varies with treble
+        let hue: float = (+ (* (cast_float i) 0.01) (* time 0.3))
+        let r: float = (+ 0.5 (* 0.5 (sin hue)))
+        let g: float = (+ 0.5 (* 0.5 (cos hue)))
+        let b: float = (+ 0.5 (* 0.5 (sin (* hue 1.5))))
+        let alpha: float = (+ 0.6 (* treble 0.4))
+        
+        (glColor4f r g b alpha) 
+        (glVertex3f x y z) 
+        
+        set i (+ i 1)
+    }
+    (glEnd) 
+}
+
+# Draw 3D Waveform
+fn draw_waveform_3d(time: float, rotation: float) -> void {
+    (glLoadIdentity) 
+    (glTranslatef 0.0 0.0 -8.0) 
+    (glRotatef rotation 0.0 1.0 0.0) 
+    
+    let waveform_size: int = (nl_audio_viz_get_waveform_size)
+    
+    # Draw waveform as 3D ribbon
+    (glBegin GL_LINE_STRIP) 
+    
+    let mut i: int = 0
+    while (< i waveform_size) {
+        let t: float = (/ (cast_float i) (cast_float waveform_size))
+        let left: float = (nl_audio_viz_get_waveform_sample 0 i)
+        let right: float = (nl_audio_viz_get_waveform_sample 1 i)
+        
+        # Position along a spiral
+        let angle: float = (* t 12.56636)  # 4 * PI
+        let radius: float = 2.0
+        let x: float = (* radius (cos angle))
+        let z: float = (* radius (sin angle))
+        let y: float = (* (+ left right) 2.0)
+        
+        # Color based on position
+        let hue: float = (+ t (* time 0.2))
+        let r: float = (+ 0.5 (* 0.5 (sin (* hue 6.28))))
+        let g: float = (+ 0.5 (* 0.5 (cos (* hue 6.28))))
+        let b: float = 1.0
+        (glColor4f r g b 1.0) 
+        
+        (glVertex3f x y z) 
+        
+        set i (+ i 4)
+    }
+    (glEnd) 
+}
+
+# Draw Frequency Cubes - frequency bars as 3D cubes
+fn draw_frequency_cubes(time: float, rotation: float) -> void {
+    (glLoadIdentity) 
+    (glTranslatef 0.0 0.0 -15.0) 
+    (glRotatef rotation 0.0 1.0 0.0) 
+    (glRotatef 20.0 1.0 0.0 0.0) 
+    
+    let waveform_size: int = (nl_audio_viz_get_waveform_size)
+    let num_cubes: int = 32
+    
+    let mut i: int = 0
+    while (< i num_cubes) {
+        let sample_idx: int = (* i (/ waveform_size num_cubes))
+        let left: float = (nl_audio_viz_get_waveform_sample 0 sample_idx)
+        let right: float = (nl_audio_viz_get_waveform_sample 1 sample_idx)
+        let amplitude: float = (+ (abs left) (abs right))
+        let height: float = (+ 0.5 (* amplitude 4.0))
+        
+        # Position in a circle
+        let angle: float = (* (/ (cast_float i) (cast_float num_cubes)) 6.28318)
+        let radius: float = 5.0
+        let x: float = (* radius (cos angle))
+        let z: float = (* radius (sin angle))
+        
+        # Color
+        let hue: float = (+ angle (* time 0.3))
+        let r: float = (+ 0.5 (* 0.5 (sin hue)))
+        let g: float = (+ 0.5 (* 0.5 (cos hue)))
+        let b: float = (+ 0.5 (* 0.5 (sin (* hue 2.0))))
+        (glColor4f r g b 0.9) 
+        
+        # Draw cube
+        (glPushMatrix) 
+        (glTranslatef x 0.0 z) 
+        (glScalef 0.5 height 0.5) 
+        
+        # Draw cube manually (6 faces)
+        (glBegin GL_QUADS) 
+        # Front
+        (glVertex3f -0.5 -0.5 0.5) 
+        (glVertex3f 0.5 -0.5 0.5) 
+        (glVertex3f 0.5 0.5 0.5) 
+        (glVertex3f -0.5 0.5 0.5) 
+        # Back
+        (glVertex3f -0.5 -0.5 -0.5) 
+        (glVertex3f -0.5 0.5 -0.5) 
+        (glVertex3f 0.5 0.5 -0.5) 
+        (glVertex3f 0.5 -0.5 -0.5) 
+        # Top
+        (glVertex3f -0.5 0.5 -0.5) 
+        (glVertex3f -0.5 0.5 0.5) 
+        (glVertex3f 0.5 0.5 0.5) 
+        (glVertex3f 0.5 0.5 -0.5) 
+        # Bottom
+        (glVertex3f -0.5 -0.5 -0.5) 
+        (glVertex3f 0.5 -0.5 -0.5) 
+        (glVertex3f 0.5 -0.5 0.5) 
+        (glVertex3f -0.5 -0.5 0.5) 
+        # Right
+        (glVertex3f 0.5 -0.5 -0.5) 
+        (glVertex3f 0.5 0.5 -0.5) 
+        (glVertex3f 0.5 0.5 0.5) 
+        (glVertex3f 0.5 -0.5 0.5) 
+        # Left
+        (glVertex3f -0.5 -0.5 -0.5) 
+        (glVertex3f -0.5 -0.5 0.5) 
+        (glVertex3f -0.5 0.5 0.5) 
+        (glVertex3f -0.5 0.5 -0.5) 
+        (glEnd) 
+        
+        (glPopMatrix) 
+        
+        set i (+ i 1)
+    }
+}
+
+fn main() -> int {
+    (println "")
+    (println "╔═══════════════════════════════════════════════════════════════╗")
+    (println "║  NANOVIZ - 3D Music Visualizer                                ║")
+    (println "║  Combining SDL + OpenGL + Audio + UI Widgets                  ║")
+    (println "╚═══════════════════════════════════════════════════════════════╝")
+    (println "")
+    (println "A tribute to Winamp, MilkDrop, and the demoscene")
+    (println "")
+    
+    # Get audio file from command line
+    let argc: int = (get_argc)
+    let mut audio_file: string = ""
+    
+    if (< argc 2) {
+        set audio_file "examples/audio/demo.mp3"
+        (println "Usage: nanoviz [path/to/audio.mp3]")
+        (println "Using default: examples/audio/demo.mp3")
+        (println "")
+    } else {
+        set audio_file (get_argv 1) 
+        (print "Loading: ")
+        (println audio_file)
+        (println "")
+    }
+    
+    # Initialize GLFW for OpenGL
+    if (== (glfwInit) 0) {
+        (println "✗ Failed to initialize GLFW")
+        return 1
+    } else {
+        (println "✓ GLFW initialized")
+    }
+    
+    # Create OpenGL window
+    let window: GLFWwindow = (glfwCreateWindow WINDOW_WIDTH WINDOW_HEIGHT "NanoViz - 3D Music Visualizer" 0 0)
+    if (== window 0) {
+        (println "✗ Failed to create GLFW window")
+        (glfwTerminate) 
+        return 1
+    } else {
+        (println "✓ OpenGL window created")
+    }
+    
+    (glfwMakeContextCurrent window) 
+    
+    # Initialize GLEW
+    let glew_status: int = (glewInit)
+    if (!= glew_status GLEW_OK) {
+        (println "✗ Failed to initialize GLEW")
+        (glfwTerminate) 
+        return 1
+    } else {
+        (println "✓ GLEW initialized")
+    }
+    
+    # Setup OpenGL
+    (setup_opengl_3d)
+    # Note: glClearColor is not available in current OpenGL bindings
+    # unsafe {     (glClearColor 0.0 0.0 0.0 1.0) }
+    (println "✓ OpenGL 3D setup complete")
+    
+    # Initialize SDL for audio
+    (SDL_Init SDL_INIT_AUDIO) 
+    
+    # Initialize SDL_mixer
+    let mixer_init: int = (Mix_Init 8)  # MP3 support
+    if (!= mixer_init 8) {
+        (println "✗ SDL_mixer initialization failed")
+        (glfwTerminate) 
+        (SDL_Quit) 
+        return 1
+    } else {
+        (println "✓ SDL_mixer initialized")
+    }
+    
+    let audio_result: int = (Mix_OpenAudio 44100 32784 2 2048)
+    if (!= audio_result 0) {
+        (println "✗ Failed to open audio device")
+        (Mix_Quit) 
+        (glfwTerminate) 
+        (SDL_Quit) 
+        return 1
+    } else {
+        (println "✓ Audio device opened")
+    }
+    
+    # Initialize audio visualization
+    (nl_audio_viz_init 32784 2) 
+    (println "✓ Audio visualization initialized")
+    
+    # Initialize SDL_TTF for UI
+    (TTF_Init) 
+    
+    # Load font (needed for UI even though we're using OpenGL)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 14)
+    if (== font 0) {
+        (println "✗ Failed to load font")
+    } else {
+        (println "✓ Font loaded")
+    }
+    
+    # Load music
+    let music: Mix_Music = (Mix_LoadMUS audio_file)
+    let has_music: bool = (!= music 0)
+    
+    if has_music {
+        (println "✓ Audio file loaded")
+        (println "")
+        (println "Controls:")
+        (println "  SPACE - Play/Pause")
+        (println "  1-5   - Switch visualization modes")
+        (println "")
+    } else {
+        (println "✗ Failed to load audio file")
+        (println "Running in demo mode (no audio)")
+        (println "")
+    }
+    
+    # Set volume
+    (Mix_VolumeMusic 80) 
+    
+    # State variables
+    let mut running: bool = true
+    let mut is_playing: bool = false
+    let mut viz_mode: int = VIZ_TUNNEL
+    let mut rotation: float = 0.0
+    let mut time: float = 0.0
+    let mut frame: int = 0
+    let mut space_was_pressed: bool = false
+    
+    (println "Starting visualization...")
+    (println "")
+    
+    # Main loop
+    while (== (glfwWindowShouldClose window) 0) {
+        if (not running) {
+            (glfwSetWindowShouldClose window 1) 
+        } else {}
+        
+        # Poll GLFW events
+        (glfwPollEvents) 
+        
+        # Space to play/pause (with debounce)
+        let space_pressed: bool = (== (glfwGetKey window GLFW_KEY_SPACE) 1)
+        if space_pressed {
+            if (not space_was_pressed) {
+                if has_music {
+                    if is_playing {
+                        (Mix_PauseMusic) 
+                        set is_playing false
+                        (println "Paused")
+                    } else {
+                        if (== frame 0) {
+                            (Mix_PlayMusic music -1) 
+                        } else {
+                            (Mix_ResumeMusic) 
+                        }
+                        set is_playing true
+                        (println "Playing")
+                    }
+                } else {}
+            } else {}
+        } else {}
+        set space_was_pressed space_pressed
+        
+        # Number keys to switch modes
+        if (== (glfwGetKey window GLFW_KEY_1) 1) {
+            set viz_mode VIZ_TUNNEL
+            (println "Mode: Tunnel")
+            (SDL_Delay 200) 
+        } else {}
+        if (== (glfwGetKey window GLFW_KEY_2) 1) {
+            set viz_mode VIZ_SPECTRUM_SPHERE
+            (println "Mode: Spectrum Sphere")
+            (SDL_Delay 200) 
+        } else {}
+        if (== (glfwGetKey window GLFW_KEY_3) 1) {
+            set viz_mode VIZ_PARTICLES
+            (println "Mode: Particles")
+            (SDL_Delay 200) 
+        } else {}
+        if (== (glfwGetKey window GLFW_KEY_4) 1) {
+            set viz_mode VIZ_WAVEFORM_3D
+            (println "Mode: 3D Waveform")
+            (SDL_Delay 200) 
+        } else {}
+        if (== (glfwGetKey window GLFW_KEY_5) 1) {
+            set viz_mode VIZ_FREQUENCY_CUBES
+            (println "Mode: Frequency Cubes")
+            (SDL_Delay 200) 
+        } else {}
+        
+        # Update rotation and time
+        set rotation (+ rotation 0.5)
+        if (>= rotation 360.0) {
+            set rotation (- rotation 360.0)
+        } else {}
+        set time (+ time 0.016)
+        
+        # Get audio levels
+        let bass: float = (/ (cast_float (nl_audio_viz_get_channel_volume_int 0)) 100.0)
+        let mid: float = (/ (cast_float (nl_audio_viz_get_channel_volume_int 1)) 100.0)
+        let treble: float = (/ (cast_float (nl_audio_viz_get_channel_volume_int 2)) 100.0)
+        
+        # Clear buffers
+        (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT)) 
+        
+        # Render current visualization
+        if (== viz_mode VIZ_TUNNEL) {
+            (draw_tunnel time bass mid)
+        } else {
+            if (== viz_mode VIZ_SPECTRUM_SPHERE) {
+                (draw_spectrum_sphere time rotation)
+            } else {
+                if (== viz_mode VIZ_PARTICLES) {
+                    (draw_audio_particles time bass mid treble)
+                } else {
+                    if (== viz_mode VIZ_WAVEFORM_3D) {
+                        (draw_waveform_3d time rotation)
+                    } else {
+                        if (== viz_mode VIZ_FREQUENCY_CUBES) {
+                            (draw_frequency_cubes time rotation)
+                        } else {}
+                    }
+                }
+            }
+        }
+        
+        # Swap buffers
+        (glfwSwapBuffers window) 
+        
+        set frame (+ frame 1)
+    }
+    
+    # Cleanup
+    (println "")
+    (println "Shutting down...")
+    if has_music {
+        (Mix_HaltMusic) 
+        (Mix_FreeMusic music) 
+    } else {}
+    (nl_audio_viz_shutdown) 
+    (TTF_CloseFont font) 
+    (TTF_Quit) 
+    (Mix_CloseAudio) 
+    (Mix_Quit) 
+    (glfwDestroyWindow window) 
+    (glfwTerminate) 
+    (SDL_Quit) 
+    
+    (println "✓ Cleanup complete")
+    (print "Total frames rendered: ")
+    (println frame)
+    (println "")
+    (println "Thank you for using NanoViz!")
+    (println "")
+    
+    return 0
+}
+
+shadow main { assert true }

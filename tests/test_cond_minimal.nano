@@ -1,0 +1,20 @@
+/* Minimal cond test */
+
+fn test1(n: int) -> int {
+    return (cond
+        ((< n 0) 1)
+        (else 2))
+}
+
+fn main() -> int {
+    let r: int = (test1 -1)
+    (print "test1(-1) = ")
+    (println r)
+    
+    let r2: int = (test1 5)
+    (print "test1(5) = ")
+    (println r2)
+    
+    return 0
+}
+

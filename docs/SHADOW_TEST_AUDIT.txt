@@ -1,0 +1,239 @@
+╔════════════════════════════════════════════════════════════════╗
+║        COMPREHENSIVE SHADOW TEST AUDIT                        ║
+╚════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════
+SUMMARY BY CATEGORY:
+═══════════════════════════════════════════════════════════════
+
+📚 EXAMPLES:
+   Functions:    627
+   With shadows: 657
+   Missing:      61
+   Coverage:     104%
+
+🔧 MODULES:
+   Functions:    289
+   With shadows: 139
+   Missing:      151
+   Coverage:     48%
+
+✅ TESTS:
+   Functions:    544
+   With shadows: 584
+   Missing:      75
+   Coverage:     107%
+
+📦 STDLIB:
+   Functions:    238
+   With shadows: 41
+   Missing:      199
+   Coverage:     17%
+
+🏗️  SRC_NANO:
+   Functions:    670
+   With shadows: 440
+   Missing:      247
+   Coverage:     65%
+
+🛠️  TOOLS:
+   Functions:    8
+   With shadows: 8
+   Missing:      4
+   Coverage:     100%
+
+═══════════════════════════════════════════════════════════════
+OVERALL TOTALS:
+═══════════════════════════════════════════════════════════════
+
+Total functions:          2376
+Functions with shadows:   1869
+Functions missing shadows: 737
+Overall coverage:         78%
+
+═══════════════════════════════════════════════════════════════
+TOP 20 FILES WITH MOST MISSING SHADOW TESTS:
+═══════════════════════════════════════════════════════════════
+
+ 75 missing: ./src_nano/parser.nano
+           - expr_kind_to_pnode
+           - is_type_start_token_type
+           - parse_call_name
+           - parse_import
+           - parse_match
+           ... and 70 more
+
+ 51 missing: ./src_nano/transpiler.nano
+           - array_elem_type_from_array_type
+           - c_func_name_for_call
+           - c_func_name_for_definition
+           - c_name_for_qualified_function
+           - c_type_from_elem_type
+           ... and 46 more
+
+ 42 missing: ./src_nano/nanoc_integrated.nano
+           - check_expr_node
+           - check_function
+           - check_let_statement
+           - check_return_statement
+           - compile_file
+           ... and 37 more
+
+ 28 missing: ./std/datetime/datetime.nano
+           - add_days
+           - add_hours
+           - add_minutes
+           - add_seconds
+           - after
+           ... and 23 more
+
+ 27 missing: ./modules/std/json/json.nano
+           - array_push
+           - array_size
+           - as_bool
+           - as_int
+           - as_string
+           ... and 22 more
+
+ 24 missing: ./stdlib/lalr.nano
+           - action_accept
+           - action_error
+           - action_reduce
+           - action_shift
+           - closure
+           ... and 19 more
+
+ 23 missing: ./std/json/json.nano
+           - add_field
+           - add_to_array
+           - array_get
+           - array_length
+           - free
+           ... and 18 more
+
+ 22 missing: ./src_nano/typecheck.nano
+           - array_elem_type_from_array_decl
+           - check_block
+           - check_expr_node
+           - check_function
+           - check_let_statement
+           ... and 17 more
+
+ 19 missing: ./src_nano/nanoc_v06.nano
+           - collect_files_dfs
+           - compile_program
+           - default_options
+           - find_repo_root
+           - merge_with_imports
+           ... and 14 more
+
+ 17 missing: ./modules/std/math/array_ops.nano
+           - array_add_scalar
+           - array_distance
+           - array_distance_squared
+           - array_div
+           - array_lerp
+           ... and 12 more
+
+ 17 missing: ./stdlib/std/math/array_ops.nano
+           - array_add_scalar
+           - array_distance
+           - array_distance_squared
+           - array_div
+           - array_lerp
+           ... and 12 more
+
+ 16 missing: ./std/http/http.nano
+           - body
+           - delete
+           - error_message
+           - free_response
+           - get
+           ... and 11 more
+
+ 15 missing: ./modules/std/binary.nano
+           - decode_bool
+           - decode_int
+           - decode_int_array
+           - decode_string
+           - encode_bool
+           ... and 10 more
+
+ 15 missing: ./src_nano/compiler/lexer.nano
+           - is_digit_char
+           - is_identifier_char
+           - is_identifier_start
+           - is_whitespace_char
+           - keyword_group1
+           ... and 10 more
+
+ 15 missing: ./stdlib/ast.nano
+           - ast_block
+           - ast_call
+           - ast_empty
+           - ast_function
+           - ast_identifier
+           ... and 10 more
+
+ 14 missing: ./stdlib/std/math/vector3d.nano
+           - vec3_add
+           - vec3_clamp_length
+           - vec3_cross
+           - vec3_distance
+           - vec3_dot
+           ... and 9 more
+
+ 13 missing: ./modules/opengl/opengl.nano
+           - glClearColor
+           - glColor3f
+           - glColor4f
+           - glLineWidth
+           - glMaterialf
+           ... and 8 more
+
+ 13 missing: ./modules/std/collections/stringbuilder.nano
+           - sb_append_char
+           - sb_append_int
+           - sb_append_line
+           - sb_capacity
+           - sb_clear
+           ... and 8 more
+
+ 13 missing: ./std/regex/regex.nano
+           - compile
+           - find
+           - find_all
+           - free
+           - groups
+           ... and 8 more
+
+ 12 missing: ./modules/std/math/matrix4.nano
+           - mat4_get
+           - mat4_identity
+           - mat4_mul
+           - mat4_mul_vec4
+           - mat4_rotation_x
+           ... and 7 more
+
+═══════════════════════════════════════════════════════════════
+RECOMMENDATIONS:
+═══════════════════════════════════════════════════════════════
+
+📦 CRITICAL (Must fix):
+   - stdlib/ functions: 100% coverage required
+   - modules/ public APIs: Shadow tests mandatory
+
+⚠️  HIGH PRIORITY:
+   - src_nano/ compiler: Critical for self-hosting
+   - modules/ internals: Important for reliability
+
+✅ MEDIUM PRIORITY:
+   - tests/ helpers: Improves test reliability
+   - examples/ logic functions: Good practice
+
+ℹ️  OK TO SKIP:
+   - I/O heavy functions (file/network/graphics)
+   - main() functions
+   - Simple render/draw helpers
+   - FFI wrappers (tested via integration)
+

@@ -75,6 +75,38 @@ Current schema version: **1.0.0**
 - **Example**: `["sdl"]`
 - **Note**: Dependencies are processed recursively
 
+### System Package Dependencies
+
+#### `system_packages` (array of strings) **[RECOMMENDED]**
+- **Required**: No (recommended for cross-platform modules)
+- **Description**: Logical package names for auto-installation via package registry
+- **Example**: `["sdl2", "sqlite3", "ncurses"]`
+- **How it works**:
+  1. Module specifies logical names: `"system_packages": ["sdl2"]`
+  2. Build system detects platform package manager (apt, brew, choco, etc.)
+  3. Looks up actual package name in `packages.json`: `"sdl2"` → `"libsdl2-dev"` (Ubuntu) or `"sdl2"` (macOS)
+  4. Installs using detected package manager
+- **Benefits**: Single source of truth, Windows support automatic, DRY principle
+- **Note**: See `packages.json` in repo root for available packages
+
+#### `apt_packages` (array of strings) **[DEPRECATED]**
+- **Required**: No
+- **Description**: Debian/Ubuntu package names (legacy format)
+- **Example**: `["libsdl2-dev"]`
+- **Note**: Prefer `system_packages` for new modules. Still supported for backward compatibility.
+
+#### `dnf_packages` (array of strings) **[DEPRECATED]**
+- **Required**: No
+- **Description**: Fedora/RHEL package names (legacy format)
+- **Example**: `["SDL2-devel"]`
+- **Note**: Prefer `system_packages` for new modules. Still supported for backward compatibility.
+
+#### `brew_packages` (array of strings) **[DEPRECATED]**
+- **Required**: No
+- **Description**: macOS Homebrew package names (legacy format)
+- **Example**: `["sdl2"]`
+- **Note**: Prefer `system_packages` for new modules. Still supported for backward compatibility.
+
 ### Platform-Specific Fields
 
 #### `frameworks` (array of strings)
@@ -153,9 +185,12 @@ When determining build flags, the following priority applies (later overrides ea
   "version": "1.0.0",
   "description": "SDL2 library bindings",
   "headers": ["SDL.h"],
-  "pkg_config": ["sdl2"]
+  "pkg_config": ["sdl2"],
+  "system_packages": ["sdl2"]
 }
 ```
+
+**Note**: `system_packages` enables automatic cross-platform installation. The logical name `"sdl2"` is looked up in `packages.json` to get platform-specific names: `libsdl2-dev` (Ubuntu), `SDL2-devel` (Fedora), `sdl2` (macOS/Windows).
 
 ### Module with C Implementation
 

@@ -1,0 +1,1692 @@
+{
+  "tokens": [
+    "TOKEN_EOF",
+    "TOKEN_NUMBER",
+    "TOKEN_FLOAT",
+    "TOKEN_STRING",
+    "TOKEN_IDENTIFIER",
+    "TOKEN_TRUE",
+    "TOKEN_FALSE",
+    "TOKEN_LPAREN",
+    "TOKEN_RPAREN",
+    "TOKEN_LBRACE",
+    "TOKEN_RBRACE",
+    "TOKEN_LBRACKET",
+    "TOKEN_RBRACKET",
+    "TOKEN_COMMA",
+    "TOKEN_COLON",
+    "TOKEN_DOUBLE_COLON",
+    "TOKEN_ARROW",
+    "TOKEN_ASSIGN",
+    "TOKEN_DOT",
+    "TOKEN_MODULE",
+    "TOKEN_PUB",
+    "TOKEN_FROM",
+    "TOKEN_USE",
+    "TOKEN_EXTERN",
+    "TOKEN_FN",
+    "TOKEN_LET",
+    "TOKEN_MUT",
+    "TOKEN_SET",
+    "TOKEN_IF",
+    "TOKEN_ELSE",
+    "TOKEN_COND",
+    "TOKEN_WHILE",
+    "TOKEN_FOR",
+    "TOKEN_IN",
+    "TOKEN_RETURN",
+    "TOKEN_BREAK",
+    "TOKEN_CONTINUE",
+    "TOKEN_ASSERT",
+    "TOKEN_SHADOW",
+    "TOKEN_REQUIRES",
+    "TOKEN_ENSURES",
+    "TOKEN_PRINT",
+    "TOKEN_ARRAY",
+    "TOKEN_STRUCT",
+    "TOKEN_ENUM",
+    "TOKEN_UNION",
+    "TOKEN_MATCH",
+    "TOKEN_IMPORT",
+    "TOKEN_AS",
+    "TOKEN_OPAQUE",
+    "TOKEN_TYPE_INT",
+    "TOKEN_TYPE_U8",
+    "TOKEN_TYPE_FLOAT",
+    "TOKEN_TYPE_BOOL",
+    "TOKEN_TYPE_STRING",
+    "TOKEN_TYPE_BSTRING",
+    "TOKEN_TYPE_VOID",
+    "TOKEN_PLUS",
+    "TOKEN_MINUS",
+    "TOKEN_STAR",
+    "TOKEN_SLASH",
+    "TOKEN_PERCENT",
+    "TOKEN_EQ",
+    "TOKEN_NE",
+    "TOKEN_LT",
+    "TOKEN_LE",
+    "TOKEN_GT",
+    "TOKEN_GE",
+    "TOKEN_AND",
+    "TOKEN_OR",
+    "TOKEN_NOT",
+    "TOKEN_RANGE",
+    "TOKEN_UNSAFE",
+    "TOKEN_RESOURCE"
+  ],
+  "parse_nodes": [
+    "PNODE_NUMBER",
+    "PNODE_FLOAT",
+    "PNODE_STRING",
+    "PNODE_BOOL",
+    "PNODE_IDENTIFIER",
+    "PNODE_BINARY_OP",
+    "PNODE_CALL",
+    "PNODE_ARRAY_LITERAL",
+    "PNODE_LET",
+    "PNODE_SET",
+    "PNODE_IF",
+    "PNODE_COND",
+    "PNODE_WHILE",
+    "PNODE_FOR",
+    "PNODE_RETURN",
+    "PNODE_BREAK",
+    "PNODE_CONTINUE",
+    "PNODE_BLOCK",
+    "PNODE_PRINT",
+    "PNODE_ASSERT",
+    "PNODE_PROGRAM",
+    "PNODE_FUNCTION",
+    "PNODE_SHADOW",
+    "PNODE_STRUCT_DEF",
+    "PNODE_STRUCT_LITERAL",
+    "PNODE_FIELD_ACCESS",
+    "PNODE_ENUM_DEF",
+    "PNODE_UNION_DEF",
+    "PNODE_UNION_CONSTRUCT",
+    "PNODE_MATCH",
+    "PNODE_IMPORT",
+    "PNODE_OPAQUE_TYPE",
+    "PNODE_TUPLE_LITERAL",
+    "PNODE_TUPLE_INDEX",
+    "PNODE_STRUCT",
+    "PNODE_ENUM",
+    "PNODE_UNION",
+    "PNODE_UNSAFE_BLOCK",
+    "PNODE_MODULE_QUALIFIED_CALL"
+  ],
+  "nano_enums": [
+    {
+      "name": "TypeKind",
+      "contracts": true,
+      "values": [
+        "TYPE_INT",
+        "TYPE_FLOAT",
+        "TYPE_BOOL",
+        "TYPE_STRING",
+        "TYPE_VOID",
+        "TYPE_ARRAY",
+        "TYPE_STRUCT",
+        "TYPE_ENUM",
+        "TYPE_UNION",
+        "TYPE_GENERIC",
+            "TYPE_LIST_INT",
+            "TYPE_LIST_STRING",
+            "TYPE_LIST_TOKEN",
+            "TYPE_LIST_GENERIC",
+        "TYPE_FUNCTION",
+        "TYPE_TUPLE",
+        "TYPE_OPAQUE",
+        "TYPE_UNKNOWN"
+      ]
+    },
+    {
+      "name": "DiagnosticSeverity",
+      "contracts": true,
+      "emit_c": true,
+      "values": [
+        "DIAG_INFO",
+        "DIAG_WARNING",
+        "DIAG_ERROR"
+      ]
+    },
+    {
+      "name": "CompilerPhase",
+      "contracts": true,
+      "emit_c": true,
+      "values": [
+        "PHASE_LEXER",
+        "PHASE_PARSER",
+        "PHASE_TYPECHECK",
+        "PHASE_TRANSPILER",
+        "PHASE_RUNTIME"
+      ]
+    }
+  ],
+  "nano_structs": [
+    {
+      "name": "LexerToken",
+      "fields": [
+        ["token_type", "int"],
+        ["value", "string"],
+        ["line", "int"],
+        ["column", "int"]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ParseNode",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTNumber",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "value",
+          "string"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTFloat",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "value",
+          "string"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTString",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "value",
+          "string"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTBool",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "value",
+          "bool"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTIdentifier",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "name",
+          "string"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTBinaryOp",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "op",
+          "int"
+        ],
+        [
+          "left",
+          "int"
+        ],
+        [
+          "right",
+          "int"
+        ],
+        [
+          "left_type",
+          "int"
+        ],
+        [
+          "right_type",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTCall",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "function",
+          "int"
+        ],
+        [
+          "arg_start",
+          "int"
+        ],
+        [
+          "arg_count",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTModuleQualifiedCall",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "module_name",
+          "string"
+        ],
+        [
+          "function_name",
+          "string"
+        ],
+        [
+          "arg_start",
+          "int"
+        ],
+        [
+          "arg_count",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTArrayLiteral",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "element_type",
+          "string"
+        ],
+        [
+          "element_start",
+          "int"
+        ],
+        [
+          "element_count",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTLet",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "name",
+          "string"
+        ],
+        [
+          "var_type",
+          "string"
+        ],
+        [
+          "value",
+          "int"
+        ],
+        [
+          "value_type",
+          "int"
+        ],
+        [
+          "is_mut",
+          "bool"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTSet",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "target",
+          "string"
+        ],
+        [
+          "value",
+          "int"
+        ],
+        [
+          "value_type",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTStmtRef",
+      "fields": [
+        [
+          "node_id",
+          "int"
+        ],
+        [
+          "node_type",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTIf",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "condition",
+          "int"
+        ],
+        [
+          "condition_type",
+          "int"
+        ],
+        [
+          "then_body",
+          "int"
+        ],
+        [
+          "else_body",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTWhile",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "condition",
+          "int"
+        ],
+        [
+          "condition_type",
+          "int"
+        ],
+        [
+          "body",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTFor",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "var_name",
+          "string"
+        ],
+        [
+          "iterable",
+          "int"
+        ],
+        [
+          "iterable_type",
+          "int"
+        ],
+        [
+          "body",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTReturn",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "value",
+          "int"
+        ],
+        [
+          "value_type",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTBlock",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "statements",
+          "List<ASTStmtRef>"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTUnsafeBlock",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "statements",
+          "List<ASTStmtRef>"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTPrint",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "value",
+          "int"
+        ],
+        [
+          "value_type",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTAssert",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "condition",
+          "int"
+        ],
+        [
+          "condition_type",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTFunction",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "name",
+          "string"
+        ],
+        [
+          "param_start",
+          "int"
+        ],
+        [
+          "param_count",
+          "int"
+        ],
+        [
+          "return_type",
+          "string"
+        ],
+        [
+          "body",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTShadow",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "target_name",
+          "string"
+        ],
+        [
+          "body",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTStruct",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "name",
+          "string"
+        ],
+        [
+          "field_start",
+          "int"
+        ],
+        [
+          "field_count",
+          "int"
+        ],
+        [
+          "field_names",
+          "array<string>"
+        ],
+        [
+          "field_types",
+          "array<string>"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTStructLiteral",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "struct_name",
+          "string"
+        ],
+        [
+          "field_names",
+          "array<string>"
+        ],
+        [
+          "field_value_ids",
+          "array<int>"
+        ],
+        [
+          "field_value_types",
+          "array<int>"
+        ],
+        [
+          "field_count",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTFieldAccess",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "object",
+          "int"
+        ],
+        [
+          "object_type",
+          "int"
+        ],
+        [
+          "field_name",
+          "string"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTEnum",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "name",
+          "string"
+        ],
+        [
+          "variant_count",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTUnion",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "name",
+          "string"
+        ],
+        [
+          "variant_count",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTUnionConstruct",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "union_name",
+          "string"
+        ],
+        [
+          "variant_name",
+          "string"
+        ],
+        [
+          "field_names",
+          "array<string>"
+        ],
+        [
+          "field_value_ids",
+          "array<int>"
+        ],
+        [
+          "field_value_types",
+          "array<int>"
+        ],
+        [
+          "field_count",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTMatchArm",
+      "fields": [
+        [
+          "variant_name",
+          "string"
+        ],
+        [
+          "binding_name",
+          "string"
+        ],
+        [
+          "body_id",
+          "int"
+        ],
+        [
+          "body_type",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTMatch",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "scrutinee",
+          "int"
+        ],
+        [
+          "scrutinee_type",
+          "int"
+        ],
+        [
+          "arm_variants",
+          "array<string>"
+        ],
+        [
+          "arm_bindings",
+          "array<string>"
+        ],
+        [
+          "arm_body_ids",
+          "array<int>"
+        ],
+        [
+          "arm_body_types",
+          "array<int>"
+        ],
+        [
+          "arm_count",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTImport",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "module_path",
+          "string"
+        ],
+        [
+          "module_name",
+          "string"
+        ],
+        [
+          "is_unsafe",
+          "bool"
+        ],
+        [
+          "is_selective",
+          "bool"
+        ],
+        [
+          "is_wildcard",
+          "bool"
+        ],
+        [
+          "is_pub_use",
+          "bool"
+        ],
+        [
+          "import_symbols",
+          "array<string>"
+        ],
+        [
+          "import_aliases",
+          "array<string>"
+        ],
+        [
+          "import_symbol_count",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTOpaqueType",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "type_name",
+          "string"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTTupleLiteral",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "element_ids",
+          "array<int>"
+        ],
+        [
+          "element_types",
+          "array<int>"
+        ],
+        [
+          "element_count",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTTupleIndex",
+      "emit_c": true,
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "tuple",
+          "int"
+        ],
+        [
+          "tuple_type",
+          "int"
+        ],
+        [
+          "index",
+          "int"
+        ]
+      ]
+    },
+    {
+      "name": "Parser",
+      "fields": [
+        [
+          "tokens",
+          "List<LexerToken>"
+        ],
+        [
+          "file_name",
+          "string"
+        ],
+        [
+          "position",
+          "int"
+        ],
+        [
+          "token_count",
+          "int"
+        ],
+        [
+          "has_error",
+          "bool"
+        ],
+        [
+          "diagnostics",
+          "List<CompilerDiagnostic>"
+        ],
+        [
+          "numbers",
+          "List<ASTNumber>"
+        ],
+        [
+          "floats",
+          "List<ASTFloat>"
+        ],
+        [
+          "strings",
+          "List<ASTString>"
+        ],
+        [
+          "bools",
+          "List<ASTBool>"
+        ],
+        [
+          "identifiers",
+          "List<ASTIdentifier>"
+        ],
+        [
+          "binary_ops",
+          "List<ASTBinaryOp>"
+        ],
+        [
+          "calls",
+          "List<ASTCall>"
+        ],
+        [
+          "module_qualified_calls",
+          "List<ASTModuleQualifiedCall>"
+        ],
+        [
+          "call_args",
+          "List<ASTStmtRef>"
+        ],
+        [
+          "array_elements",
+          "List<ASTStmtRef>"
+        ],
+        [
+          "array_literals",
+          "List<ASTArrayLiteral>"
+        ],
+        [
+          "lets",
+          "List<ASTLet>"
+        ],
+        [
+          "sets",
+          "List<ASTSet>"
+        ],
+        [
+          "ifs",
+          "List<ASTIf>"
+        ],
+        [
+          "whiles",
+          "List<ASTWhile>"
+        ],
+        [
+          "fors",
+          "List<ASTFor>"
+        ],
+        [
+          "returns",
+          "List<ASTReturn>"
+        ],
+        [
+          "blocks",
+          "List<ASTBlock>"
+        ],
+        [
+          "unsafe_blocks",
+          "List<ASTUnsafeBlock>"
+        ],
+        [
+          "prints",
+          "List<ASTPrint>"
+        ],
+        [
+          "asserts",
+          "List<ASTAssert>"
+        ],
+        [
+          "functions",
+          "List<ASTFunction>"
+        ],
+        [
+          "shadows",
+          "List<ASTShadow>"
+        ],
+        [
+          "structs",
+          "List<ASTStruct>"
+        ],
+        [
+          "struct_literals",
+          "List<ASTStructLiteral>"
+        ],
+        [
+          "field_accesses",
+          "List<ASTFieldAccess>"
+        ],
+        [
+          "enums",
+          "List<ASTEnum>"
+        ],
+        [
+          "unions",
+          "List<ASTUnion>"
+        ],
+        [
+          "union_constructs",
+          "List<ASTUnionConstruct>"
+        ],
+        [
+          "matches",
+          "List<ASTMatch>"
+        ],
+        [
+          "imports",
+          "List<ASTImport>"
+        ],
+        [
+          "opaque_types",
+          "List<ASTOpaqueType>"
+        ],
+        [
+          "tuple_literals",
+          "List<ASTTupleLiteral>"
+        ],
+        [
+          "tuple_indices",
+          "List<ASTTupleIndex>"
+        ],
+        [
+          "numbers_count",
+          "int"
+        ],
+        [
+          "floats_count",
+          "int"
+        ],
+        [
+          "strings_count",
+          "int"
+        ],
+        [
+          "bools_count",
+          "int"
+        ],
+        [
+          "identifiers_count",
+          "int"
+        ],
+        [
+          "binary_ops_count",
+          "int"
+        ],
+        [
+          "calls_count",
+          "int"
+        ],
+        [
+          "module_qualified_calls_count",
+          "int"
+        ],
+        [
+          "array_literals_count",
+          "int"
+        ],
+        [
+          "lets_count",
+          "int"
+        ],
+        [
+          "sets_count",
+          "int"
+        ],
+        [
+          "ifs_count",
+          "int"
+        ],
+        [
+          "whiles_count",
+          "int"
+        ],
+        [
+          "fors_count",
+          "int"
+        ],
+        [
+          "returns_count",
+          "int"
+        ],
+        [
+          "blocks_count",
+          "int"
+        ],
+        [
+          "unsafe_blocks_count",
+          "int"
+        ],
+        [
+          "prints_count",
+          "int"
+        ],
+        [
+          "asserts_count",
+          "int"
+        ],
+        [
+          "functions_count",
+          "int"
+        ],
+        [
+          "shadows_count",
+          "int"
+        ],
+        [
+          "structs_count",
+          "int"
+        ],
+        [
+          "struct_literals_count",
+          "int"
+        ],
+        [
+          "field_accesses_count",
+          "int"
+        ],
+        [
+          "enums_count",
+          "int"
+        ],
+        [
+          "unions_count",
+          "int"
+        ],
+        [
+          "union_constructs_count",
+          "int"
+        ],
+        [
+          "matches_count",
+          "int"
+        ],
+        [
+          "imports_count",
+          "int"
+        ],
+        [
+          "opaque_types_count",
+          "int"
+        ],
+        [
+          "tuple_literals_count",
+          "int"
+        ],
+        [
+          "tuple_indices_count",
+          "int"
+        ],
+        [
+          "next_node_id",
+          "int"
+        ],
+        [
+          "last_expr_node_id",
+          "int"
+        ],
+        [
+          "last_expr_node_type",
+          "int"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "NSType",
+      "contracts": true,
+      "fields": [
+        [
+          "kind",
+          "int"
+        ],
+        [
+          "name",
+          "string"
+        ],
+        [
+          "element_type_kind",
+          "int"
+        ],
+        [
+          "element_type_name",
+          "string"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "OptionType",
+      "contracts": true,
+      "fields": [
+        [
+          "has_value",
+          "bool"
+        ],
+        [
+          "value",
+          "NSType"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "CompilerSourceLocation",
+      "emit_c": true,
+      "contracts": true,
+      "fields": [
+        [
+          "file",
+          "string"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ]
+      ]
+    },
+    {
+      "name": "CompilerDiagnostic",
+      "emit_c": true,
+      "contracts": true,
+      "fields": [
+        [
+          "phase",
+          "int"
+        ],
+        [
+          "severity",
+          "int"
+        ],
+        [
+          "code",
+          "string"
+        ],
+        [
+          "message",
+          "string"
+        ],
+        [
+          "location",
+          "CompilerSourceLocation"
+        ]
+      ]
+    },
+    {
+      "name": "LexPhaseOutput",
+      "contracts": true,
+      "fields": [
+        [
+          "tokens",
+          "List<LexerToken>"
+        ],
+        [
+          "token_count",
+          "int"
+        ],
+        [
+          "diagnostics",
+          "List<CompilerDiagnostic>"
+        ],
+        [
+          "had_error",
+          "bool"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ParsePhaseOutput",
+      "contracts": true,
+      "fields": [
+        [
+          "parser",
+          "Parser"
+        ],
+        [
+          "diagnostics",
+          "List<CompilerDiagnostic>"
+        ],
+        [
+          "had_error",
+          "bool"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "TypeEnvironment",
+      "fields": [
+        ["error_count", "int"],
+        ["has_error", "bool"],
+        ["diagnostics", "List<CompilerDiagnostic>"]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "TypecheckPhaseOutput",
+      "contracts": true,
+      "fields": [
+        [
+          "environment",
+          "TypeEnvironment"
+        ],
+        [
+          "diagnostics",
+          "List<CompilerDiagnostic>"
+        ],
+        [
+          "had_error",
+          "bool"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "TranspilePhaseOutput",
+      "contracts": true,
+      "fields": [
+        [
+          "c_source",
+          "string"
+        ],
+        [
+          "diagnostics",
+          "List<CompilerDiagnostic>"
+        ],
+        [
+          "had_error",
+          "bool"
+        ],
+        [
+          "output_path",
+          "string"
+        ]
+      ],
+      "emit_c": true
+    }
+  ]
+}

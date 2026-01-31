@@ -10,6 +10,9 @@
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();
 
+// Set UI scale factor used for input hit-testing (mouse coordinates are divided by this value).
+void nl_ui_set_scale(double scale);
+
 // Create a button and check for mouse interaction
 // Returns: 1 if clicked (mouse released over button), 0 otherwise
 // Uses SDL mouse state internally
@@ -97,5 +100,39 @@ int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
                              DynArray* files, int64_t file_count,
                              int64_t x, int64_t y, int64_t w, int64_t h,
                              int64_t scroll_offset, int64_t selected_index);
+
+// Image button widget - clickable button with image texture
+// Returns: 1 if button was clicked (mouse released over button), 0 otherwise
+// Handles hover effect and click detection
+// Parameters:
+//   renderer: SDL renderer
+//   texture_id: SDL texture ID (from SDL_image, cast to int64_t)
+//   x, y: button position
+//   w, h: button size (image will be scaled to fit)
+//   hover_brightness: brightness multiplier on hover (1.0 = normal, 1.2 = 20% brighter)
+int64_t nl_ui_image_button(SDL_Renderer* renderer, int64_t texture_id,
+                             int64_t x, int64_t y, int64_t w, int64_t h,
+                             double hover_brightness);
+
+// Code display widget - syntax-highlighted code viewer
+// Shows NanoLang source code with syntax highlighting and scrolling
+// Parameters:
+//   renderer: SDL renderer
+//   font: TTF font for text rendering
+//   code: source code string to display
+//   x, y, w, h: display area rectangle
+//   scroll_offset: number of lines to scroll from top
+//   line_height: height of each line in pixels (typically font size + 4-6px)
+void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
+                         const char* code, int64_t x, int64_t y,
+                         int64_t w, int64_t h, int64_t scroll_offset,
+                         int64_t line_height);
+
+// Code display widget - ANSI-colored code viewer
+// Expects ANSI color codes (e.g., "\x1b[35m") in the input string.
+void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
+                             const char* code, int64_t x, int64_t y,
+                             int64_t w, int64_t h, int64_t scroll_offset,
+                             int64_t line_height);
 
 #endif // UI_WIDGETS_H

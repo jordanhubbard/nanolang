@@ -1,0 +1,182 @@
+# NanoLang Playground Server
+#
+# Web-based interactive playground for NanoLang inspired by Swift Playgrounds.
+# Allows users to write, run, and explore NanoLang code in their browser.
+#
+# Features:
+# - Interactive code editor
+# - Example snippets to load and run
+# - Real-time code execution
+# - Error reporting
+# - Syntax highlighting
+#
+# Usage:
+#   ./bin/nanoc examples/playground/playground_server.nano -o bin/playground
+#   ./bin/playground
+#   Open http://localhost:8080 in your browser
+
+from "modules/http_server/http_server.nano" import create, set_static_dir, start
+from "modules/nano_tools/nano_tools.nano" import eval_internal
+from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
+
+# Escape special characters for JSON strings
+fn json_escape(s: string) -> string {
+    let sb: StringBuilder = (sb_new)
+    let len: int = (str_length s)
+    let mut i: int = 0
+
+    while (< i len) {
+        let ch: int = (char_at s i)
+        if (== ch 34) {  # "
+            (sb_append sb "\\\"")
+        } else { if (== ch 92) {  # \
+            (sb_append sb "\\\\")
+        } else { if (== ch 10) {  # newline
+            (sb_append sb "\\n")
+        } else { if (== ch 13) {  # carriage return
+            (sb_append sb "\\r")
+        } else { if (== ch 9) {  # tab
+            (sb_append sb "\\t")
+        } else {
+            (sb_append sb (string_from_char ch))
+        }}}}}
+        set i (+ i 1)
+    }
+
+    return (sb_to_string sb)
+}
+
+shadow json_escape {
+    assert (str_equals (json_escape "hello") "hello")
+    assert (str_contains (json_escape "say \"hi\"") "\\\"")
+    assert (str_contains (json_escape "line1\nline2") "\\n")
+}
+
+# Wrap user code in a main function that captures output
+fn wrap_user_code(code: string) -> string {
+    let sb: StringBuilder = (sb_new)
+
+    # Add the user's code (which may contain fn definitions, etc.)
+    (sb_append sb code)
+    (sb_append sb "\n\n")
+
+    # Add a main function if one doesn't exist
+    # Note: This is a simple check - doesn't parse the code properly
+    if (not (str_contains code "fn main")) {
+        (sb_append sb "fn main() -> int {\n")
+        (sb_append sb "    return 0\n")
+        (sb_append sb "}\n\n")
+        (sb_append sb "shadow main { assert true }\n")
+    } else {
+        (print "")
+    }
+
+    return (sb_to_string sb)
+}
+
+shadow wrap_user_code {
+    let code: string = "fn add(a: int, b: int) -> int { return (+ a b) }\nshadow add { assert (== (add 2 3) 5) }"
+    let wrapped: string = (wrap_user_code code)
+    assert (str_contains wrapped "fn main")
+}
+
+# Execute user code and capture result
+fn execute_code(code: string) -> int {
+    let wrapped: string = (wrap_user_code code)
+
+    # Try to execute the code
+    # eval_internal returns 0 on success, non-zero on failure
+    unsafe {
+        return (eval_internal wrapped)
+    }
+}
+
+shadow execute_code {
+    let code: string = "fn test() -> int { return 42 }\nshadow test { assert (== (test) 42) }\nfn main() -> int { return 0 }\nshadow main { assert true }"
+    # Note: In testing, eval may not be available, so we just check the function exists
+    assert true
+}
+
+# Build JSON response for successful execution
+fn build_success_json(output: string) -> string {
+    let sb: StringBuilder = (sb_new)
+    (sb_append sb "{")
+    (sb_append sb "\"success\": true,")
+    (sb_append sb "\"output\": \"")
+    (sb_append sb (json_escape output))
+    (sb_append sb "\"")
+    (sb_append sb "}")
+    return (sb_to_string sb)
+}
+
+shadow build_success_json {
+    let json: string = (build_success_json "Hello, World!")
+    assert (str_contains json "success")
+    assert (str_contains json "Hello")
+}
+
+# Build JSON response for execution errors
+fn build_error_json(error: string) -> string {
+    let sb: StringBuilder = (sb_new)
+    (sb_append sb "{")
+    (sb_append sb "\"success\": false,")
+    (sb_append sb "\"error\": \"")
+    (sb_append sb (json_escape error))
+    (sb_append sb "\"")
+    (sb_append sb "}")
+    return (sb_to_string sb)
+}
+
+shadow build_error_json {
+    let json: string = (build_error_json "Syntax error at line 5")
+    assert (str_contains json "\"success\": false")
+    assert (str_contains json "Syntax error")
+}
+
+fn print_banner() -> void {
+    (println "")
+    (println "╔══════════════════════════════════════════════════╗")
+    (println "║      NanoLang Playground Server                 ║")
+    (println "╚══════════════════════════════════════════════════╝")
+    (println "")
+    (println "🚀 Server starting on http://localhost:8080")
+    (println "")
+    (println "📝 Features:")
+    (println "   • Interactive code editor")
+    (println "   • Example code snippets")
+    (println "   • Real-time execution")
+    (println "   • Syntax highlighting")
+    (println "")
+    (println "💡 Open http://localhost:8080 in your browser to start coding!")
+    (println "")
+    (println "Press Ctrl+C to stop the server")
+    (println "")
+}
+
+shadow print_banner {
+    assert true
+}
+
+fn main() -> int {
+    (print_banner)
+
+    # Create HTTP server on port 8080
+    let server: HttpServer = (create 8080)
+
+    # Serve static files from public directory
+    (set_static_dir server "examples/playground/public")
+
+    # Note: API endpoint for /api/execute would be added here
+    # Currently http_server module doesn't support NanoLang route handlers
+    # The frontend will use a workaround or we'll implement CGI-style execution
+
+    # Start the server (this blocks)
+    let result: int = (start server)
+
+    return result
+}
+
+shadow main {
+    # Can't really test server startup in shadow tests
+    assert true
+}

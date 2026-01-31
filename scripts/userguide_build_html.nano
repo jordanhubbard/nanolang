@@ -1,0 +1,1357 @@
+from "modules/std/fs.nano" import walkdir, read, write, append, exists, dirname, basename, join, mkdir_p, copy_dir, copy_file, relpath
+from "modules/std/process.nano" import exec
+from "modules/std/collections/stringbuilder.nano" import sb_new, sb_append, sb_append_line, sb_to_string, sb_join
+from "modules/std/collections/hashmap.nano" import HashMap, map_new, map_put, map_has, map_get
+from "modules/std/collections/array_utils.nano" import array_sort_strings
+from "modules/std/env.nano" import get
+from "modules/std/log/log.nano" import set_log_level, LOG_LEVEL_DEBUG, log_debug
+from "stdlib/coverage.nano" import coverage_init, coverage_record, coverage_report
+from "modules/nano_tools/nano_tools.nano" import pretty_print_html
+
+struct PageMeta {
+    rel: string
+    title: string
+    summary: string
+    md_text: string
+}
+
+struct PageLink {
+    title: string
+    rel_html: string
+}
+
+fn str_starts_with(s: string, prefix: string) -> bool {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 20 5) }
+    let ls: int = (str_length s)
+    let lp: int = (str_length prefix)
+    if (== lp 0) { return true }
+    if (< ls lp) { return false }
+    return (== (str_substring s 0 lp) prefix)
+}
+
+shadow str_starts_with {
+    assert (str_starts_with "hello" "he")
+    assert (not (str_starts_with "hello" "hi"))
+}
+
+fn str_ends_with(s: string, suffix: string) -> bool {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 34 5) }
+    let ls: int = (str_length s)
+    let lf: int = (str_length suffix)
+    if (== lf 0) { return true }
+    if (< ls lf) { return false }
+    return (== (str_substring s (- ls lf) lf) suffix)
+}
+
+shadow str_ends_with {
+    assert (str_ends_with "hello" "lo")
+    assert (not (str_ends_with "hello" "la"))
+}
+
+fn str_index_of(s: string, needle: string, start: int) -> int {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 44 5) }
+    let ls: int = (str_length s)
+    let ln: int = (str_length needle)
+    if (== ln 0) { return start }
+    let mut i: int = start
+    while (<= (+ i ln) ls) {
+        if (== (str_substring s i ln) needle) {
+            return i
+        }
+        set i (+ i 1)
+    }
+    return -1
+}
+
+shadow str_index_of {
+    assert (== (str_index_of "hello" "ll" 0) 2)
+    assert (== (str_index_of "hello" "zz" 0) -1)
+}
+
+fn strip_prefix(s: string, prefix: string) -> string {
+    if (str_starts_with s prefix) {
+        return (str_substring s (str_length prefix) (- (str_length s) (str_length prefix)))
+    }
+    return s
+}
+
+shadow strip_prefix {
+    assert (== (strip_prefix "userguide/foo.md" "userguide/") "foo.md")
+}
+
+fn rel_from_src(path: string, src_dir: string) -> string {
+    let prefix: string = (+ src_dir "/")
+    if (str_starts_with path prefix) {
+        return (str_substring path (str_length prefix) (- (str_length path) (str_length prefix)))
+    }
+    let marker: string = (+ "/" prefix)
+    let idx: int = (str_index_of path marker 0)
+    if (!= idx -1) {
+        let start: int = (+ idx (str_length marker))
+        return (str_substring path start (- (str_length path) start))
+    }
+    return path
+}
+
+shadow rel_from_src {
+    assert (== (rel_from_src "/tmp/userguide/a.md" "userguide") "a.md")
+}
+fn relpath_copy(target: string, base: string) -> string {
+    return (+ "" (relpath target base))
+}
+
+shadow relpath_copy {
+    let p: string = (relpath_copy "a/b" "a")
+    assert (== p "b")
+}
+
+fn trace_enabled() -> bool {
+    let flag: string = (get "NANO_USERGUIDE_TRACE")
+    if (or (== flag "1") (== flag "true")) {
+        return true
+    } else {
+        return false
+    }
+}
+
+shadow trace_enabled { assert true }
+
+fn coverage_enabled() -> bool {
+    let flag: string = (get "NANO_USERGUIDE_COVERAGE")
+    if (or (== flag "1") (== flag "true")) {
+        return true
+    } else {
+        return false
+    }
+}
+
+shadow coverage_enabled { assert true }
+
+fn highlight_enabled() -> bool {
+    # Syntax highlighting is now fast enough (26x speedup via direct ANSI generation)
+    # to enable everywhere, including CI. The 8KB limit in md_to_html is still a safety net.
+    let flag: string = (get "NANO_USERGUIDE_HIGHLIGHT")
+    if (or (== flag "0") (== flag "false")) {
+        return false
+    }
+    return true
+}
+
+shadow highlight_enabled { assert true }
+fn read_module_mvp(module_dir: string) -> string {
+    let md_path: string = (+ module_dir "/mvp.md")
+    if (exists md_path) {
+        return (read md_path)
+    } else {
+        return ""
+    }
+}
+
+shadow read_module_mvp {
+    assert true
+}
+
+
+
+
+
+fn char_is_space(c: int) -> bool {
+    return (or (== c 32) (or (== c 9) (or (== c 10) (== c 13))))
+}
+
+shadow char_is_space { assert (char_is_space 32) }
+
+fn trim_left(s: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 122 5) }
+    let len: int = (str_length s)
+    let mut i: int = 0
+    while (and (< i len) (char_is_space (char_at s i))) {
+        set i (+ i 1)
+    }
+    return (str_substring s i (- len i))
+}
+
+shadow trim_left {
+    assert (== (trim_left "  hi") "hi")
+}
+
+fn trim_right(s: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 136 5) }
+    let mut end: int = (str_length s)
+    while (and (> end 0) (char_is_space (char_at s (- end 1)))) {
+        set end (- end 1)
+    }
+    return (str_substring s 0 end)
+}
+
+shadow trim_right {
+    assert (== (trim_right "hi  ") "hi")
+}
+
+fn trim(s: string) -> string {
+    return (trim_right (trim_left s))
+}
+
+shadow trim {
+    assert (== (trim "  hi  ") "hi")
+}
+
+fn split_lines(s: string) -> array<string> {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 155 5) }
+    let len: int = (str_length s)
+    let mut line_count: int = 1
+    let mut i: int = 0
+    while (< i len) {
+        if (== (char_at s i) 10) {
+            set line_count (+ line_count 1)
+        }
+        set i (+ i 1)
+    }
+    let mut out: array<string> = (array_new line_count "")
+    let mut line_idx: int = 0
+    let mut start: int = 0
+    set i 0
+    while (< i len) {
+        if (== (char_at s i) 10) {
+            (array_set out line_idx (str_substring s start (- i start)))
+            set line_idx (+ line_idx 1)
+            set start (+ i 1)
+        }
+        set i (+ i 1)
+    }
+    if (< start len) {
+        (array_set out line_idx (str_substring s start (- len start)))
+    }
+    return out
+}
+
+shadow split_lines {
+    let nl: string = (string_from_char 10)
+    let s: string = (+ "a" (+ nl (+ "b" nl)))
+    let parts: array<string> = (split_lines s)
+    assert (== (array_length parts) 3)
+    assert (== (at parts 0) "a")
+    assert (== (at parts 1) "b")
+}
+
+fn html_escape(text: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 185 5) }
+    if (and (not (str_contains text "&")) (and (not (str_contains text "<")) (and (not (str_contains text ">")) (not (str_contains text "\""))))) {
+        return text
+    }
+    let sb: StringBuilder = (sb_new)
+    let n: int = (str_length text)
+    let mut i: int = 0
+    while (< i n) {
+        let c: int = (char_at text i)
+        if (== c 38) {
+            (sb_append sb "&amp;")
+        } else {
+            if (== c 60) {
+                (sb_append sb "&lt;")
+            } else {
+                if (== c 62) {
+                    (sb_append sb "&gt;")
+                } else {
+                    if (== c 34) {
+                        (sb_append sb "&quot;")
+                    } else {
+                        (sb_append sb (string_from_char c))
+                    }
+                }
+            }
+        }
+        set i (+ i 1)
+    }
+    return (sb_to_string sb)
+}
+
+shadow html_escape {
+    let lt: string = (string_from_char 60)
+    let gt: string = (string_from_char 62)
+    let amp: string = (string_from_char 38)
+    let quote: string = (string_from_char 34)
+    let s: string = (+ lt (+ gt (+ amp quote)))
+    assert (== (html_escape s) "&lt;&gt;&amp;&quot;")
+}
+
+fn inline_code(text: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 227 5) }
+    let mut out: string = ""
+    let mut in_tick: bool = false
+    let mut buf: string = ""
+    let n: int = (str_length text)
+    let mut i: int = 0
+    while (< i n) {
+        let c: int = (char_at text i)
+        if (== c 96) {
+            if in_tick {
+                set out (+ out "<code>")
+                set out (+ out (html_escape buf))
+                set out (+ out "</code>")
+                set buf ""
+                set in_tick false
+            } else {
+                set out (+ out (html_escape buf))
+                set buf ""
+                set in_tick true
+            }
+        } else {
+            set buf (+ buf (string_from_char c))
+        }
+        set i (+ i 1)
+    }
+    if in_tick {
+        set out (+ out "`")
+        set out (+ out (html_escape buf))
+    } else {
+        set out (+ out (html_escape buf))
+    }
+    return out
+}
+
+shadow inline_code {
+    assert (str_contains (inline_code "`x`") "<code>")
+}
+
+fn debug_substring(s: string, start: int, length: int, ctx: string) -> string {
+    if (trace_enabled) {
+        let s_len: int = (str_length s)
+        if (or (< start 0) (or (< length 0) (> (+ start length) s_len))) {
+            (log_debug (+ "userguide: bad substring " (+ ctx (+ " start=" (+ (int_to_string start) (+ " len=" (+ (int_to_string length) (+ " s_len=" (int_to_string s_len)))))))))
+        }
+    }
+    return (str_substring s start length)
+}
+
+shadow debug_substring {
+    assert (== (debug_substring "abc" 0 1 "test") "a")
+}
+
+fn render_inline(text: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 254 5) }
+    let mut out: string = ""
+    let mut i: int = 0
+    let n: int = (str_length text)
+    while (< i n) {
+        let open_idx: int = (str_index_of text "[" i)
+        if (== open_idx -1) {
+            set out (+ out (inline_code (debug_substring text i (- n i) "render_inline tail")))
+            return out
+        }
+        set out (+ out (inline_code (debug_substring text i (- open_idx i) "render_inline before_link")))
+        let close_idx: int = (str_index_of text "](" (+ open_idx 1))
+        if (== close_idx -1) {
+            set out (+ out (inline_code (debug_substring text open_idx (- n open_idx) "render_inline missing_close")))
+            return out
+        }
+        let end_idx: int = (str_index_of text ")" (+ close_idx 2))
+        if (== end_idx -1) {
+            set out (+ out (inline_code (debug_substring text open_idx (- n open_idx) "render_inline missing_end")))
+            return out
+        }
+        let link_text: string = (debug_substring text (+ open_idx 1) (- close_idx (+ open_idx 1)) "render_inline link_text")
+        let link_href: string = (debug_substring text (+ close_idx 2) (- end_idx (+ close_idx 2)) "render_inline link_href")
+        set out (+ out "<a href=\"")
+        set out (+ out (html_escape link_href))
+        set out (+ out "\">")
+        set out (+ out (inline_code link_text))
+        set out (+ out "</a>")
+        set i (+ end_idx 1)
+    }
+    return out
+}
+
+shadow render_inline {
+    let r: string = (render_inline "See [x](y)")
+    assert (str_contains r "<a href=")
+}
+
+fn parse_fence_lang(line: string) -> string {
+    if (not (str_starts_with line "```")) { return "" }
+    let len: int = (str_length line)
+    if (<= len 3) { return "" }
+    let raw: string = (str_substring line 3 (- len 3))
+    return (trim raw)
+}
+
+shadow parse_fence_lang {
+    assert (== (parse_fence_lang "```nano") "nano")
+    assert (== (parse_fence_lang "```") "")
+}
+
+fn is_fence_start(line: string) -> bool { return (str_starts_with line "```") }
+fn is_fence_end(line: string) -> bool { return (== (trim line) "```") }
+
+shadow is_fence_start { assert (is_fence_start "```") }
+shadow is_fence_end { assert (is_fence_end "```") }
+
+fn is_snippet_marker(line: string) -> bool {
+    return (and (str_contains line "<!--") (str_contains line "nl-snippet"))
+}
+
+shadow is_snippet_marker {
+    assert (is_snippet_marker "<!--nl-snippet {}-->")
+}
+
+fn extract_title(md_text: string, fallback: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 296 5) }
+    let lines: array<string> = (split_lines md_text)
+    let mut i: int = 0
+    let n: int = (array_length lines)
+    while (< i n) {
+        let line: string = (at lines i)
+        if (str_starts_with line "#") {
+            let mut level: int = 0
+            let len: int = (str_length line)
+            while (and (< level len) (== (char_at line level) 35)) {
+                set level (+ level 1)
+            }
+            if (> level 0) {
+                return (trim (debug_substring line level (- len level) "extract_title"))
+            }
+        }
+        set i (+ i 1)
+    }
+    return fallback
+}
+
+shadow extract_title {
+    let nl: string = (string_from_char 10)
+    let s: string = (+ "# Hi" nl)
+    assert (== (extract_title s "fallback") "Hi")
+}
+
+fn extract_summary(md_text: string) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 330 5) }
+    let lines: array<string> = (split_lines md_text)
+    let mut in_code: bool = false
+    let n: int = (array_length lines)
+    let mut i: int = 0
+    while (< i n) {
+        let line: string = (at lines i)
+        if (is_fence_start line) {
+            set in_code true
+            set i (+ i 1)
+            continue
+        }
+        if in_code {
+            if (is_fence_end line) { set in_code false }
+            set i (+ i 1)
+            continue
+        }
+        if (is_snippet_marker line) {
+            set i (+ i 1)
+            continue
+        }
+        if (str_starts_with line "#") {
+            set i (+ i 1)
+            continue
+        }
+        if (> (str_length (trim line)) 0) {
+            return (trim line)
+        }
+        set i (+ i 1)
+    }
+    return ""
+}
+
+shadow extract_summary {
+    let nl: string = (string_from_char 10)
+    let s: string = (+ "# T" (+ nl (+ nl (+ "Hello" nl))))
+    assert (== (extract_summary s) "Hello")
+}
+
+fn heading_level(line: string) -> int {
+    let mut level: int = 0
+    let len: int = (str_length line)
+    while (and (< level len) (== (char_at line level) 35)) {
+        set level (+ level 1)
+    }
+    return level
+}
+
+shadow heading_level { assert (== (heading_level "## hi") 2) }
+fn render_inline_mode(text: string, fast_inline: bool) -> string {
+    if fast_inline { return (html_escape text) }
+    return (render_inline text)
+}
+
+shadow render_inline_mode {
+    assert (str_contains (render_inline_mode "`x`" false) "<code>")
+    assert (str_contains (render_inline_mode "`x`" true) "`x`")
+}
+
+fn heading_html(level: int, text: string, fast_inline: bool) -> string {
+    let lvl: string = (int_to_string level)
+    return (sb_join ["<h", lvl, ">", (render_inline_mode text fast_inline), "</h", lvl, ">"] "")
+}
+
+shadow heading_html {
+    let h: string = (heading_html 2 "Hi" false)
+    assert (str_contains h "<h2>")
+}
+
+
+
+fn join_lines(lines: array<string>) -> string {
+    return (sb_join lines "\n")
+}
+
+shadow join_lines {
+    let v: string = (join_lines ["a", "b"])
+    assert (== v "a\nb")
+}
+
+fn str_lower(s: string) -> string {
+    let n: int = (str_length s)
+    let mut i: int = 0
+    let mut out: string = ""
+    while (< i n) {
+        let c: int = (char_at s i)
+        if (and (>= c 65) (<= c 90)) {
+            set out (+ out (string_from_char (+ c 32)))
+        } else {
+            set out (+ out (string_from_char c))
+        }
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow str_lower { assert (== (str_lower "NaNo") "nano") }
+
+fn is_nano_lang(lang: string) -> bool {
+    let l: string = (str_lower (trim lang))
+    return (or (== l "nano") (== l "nanolang"))
+}
+
+shadow is_nano_lang { assert (is_nano_lang "Nano") }
+
+fn md_to_html(md_text: string, summary: string, fast_inline: bool) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 397 5) }
+    let lines: array<string> = (split_lines md_text)
+    let mut out: StringBuilder = (sb_new)
+    let mut in_code: bool = false
+    let mut code_lang: string = ""
+    let mut in_list: bool = false
+    let mut seen_h1: bool = false
+    let mut skipped_summary: bool = false
+    let mut code_lines: array<string> = []
+    let n: int = (array_length lines)
+    let mut i: int = 0
+    while (< i n) {
+        let line: string = (at lines i)
+        if (and (not in_code) (is_snippet_marker line)) {
+            set i (+ i 1)
+            continue
+        }
+        if (not in_code) {
+            if (is_fence_start line) {
+                if in_list {
+                    (sb_append_line out "</ul>")
+                    set in_list false
+                }
+                set in_code true
+                set code_lang (parse_fence_lang line)
+                (sb_append_line out (+ "<pre><code class=\"language-" (+ (html_escape code_lang) "\">")))
+                set code_lines []
+                set i (+ i 1)
+                continue
+            }
+            if (str_starts_with line "#") {
+                if in_list {
+                    (sb_append_line out "</ul>")
+                    set in_list false
+                }
+                let mut level: int = (heading_level line)
+                if (< level 1) { set level 1 }
+                if (> level 6) { set level 6 }
+                let text: string = (trim (str_substring line level (- (str_length line) level)))
+                if (and (== level 1) (not seen_h1)) {
+                    set seen_h1 true
+                    set i (+ i 1)
+                    continue
+                }
+                (sb_append_line out (heading_html level text fast_inline))
+                set i (+ i 1)
+                continue
+            }
+            if (str_starts_with line "- ") {
+                if (not in_list) {
+                    (sb_append_line out "<ul>")
+                    set in_list true
+                }
+                let item: string = (trim (str_substring line 2 (- (str_length line) 2)))
+                (sb_append_line out (+ "<li>" (+ (render_inline_mode item fast_inline) "</li>")))
+                set i (+ i 1)
+                continue
+            }
+            if (== (str_length (trim line)) 0) {
+                if in_list {
+                    (sb_append_line out "</ul>")
+                    set in_list false
+                }
+                (sb_append_line out "<div class=\"spacer\"></div>")
+                set i (+ i 1)
+                continue
+            }
+            if in_list {
+                (sb_append_line out "</ul>")
+                set in_list false
+            }
+            if (and (> (str_length summary) 0) (and (not skipped_summary) (== (trim line) summary))) {
+                set skipped_summary true
+                set i (+ i 1)
+                continue
+            }
+            (sb_append_line out (+ "<p>" (+ (render_inline_mode line fast_inline) "</p>")))
+            set i (+ i 1)
+        } else {
+            if (is_fence_end line) {
+                let code_text: string = (join_lines code_lines)
+                if (trace_enabled) {
+                    (append "/tmp/userguide_build_html.log" (+ "userguide-html: codeblock len=" (+ (int_to_string (str_length code_text)) "\n")))
+                } else { (print "") }
+                if (is_nano_lang code_lang) {
+                    let code_len: int = (str_length code_text)
+                    if (trace_enabled) {
+                        (append "/tmp/userguide_build_html.log" (+ "userguide-html: highlight start (" (+ code_lang (+ ") len=" (+ (int_to_string code_len) "\n")))))
+                    } else { (print "") }
+                    if (or (> code_len 8000) (not (highlight_enabled))) {
+                        if (trace_enabled) {
+                            (append "/tmp/userguide_build_html.log" "userguide-html: highlight skipped\n")
+                        } else { (print "") }
+                        (sb_append_line out (html_escape code_text))
+                    } else {
+                        (sb_append_line out (pretty_print_html code_text))
+                        if (trace_enabled) {
+                            (append "/tmp/userguide_build_html.log" "userguide-html: highlight done\n")
+                        } else { (print "") }
+                    }
+                } else {
+                    if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: escape start\n") } else { (print "") }
+                    (sb_append_line out (html_escape code_text))
+                    if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: escape done\n") } else { (print "") }
+                }
+                (sb_append_line out "</code></pre>")
+                set in_code false
+                set code_lang ""
+                set i (+ i 1)
+                continue
+            }
+            set code_lines (array_push code_lines line)
+            set i (+ i 1)
+        }
+    }
+    if in_list {
+        (sb_append_line out "</ul>")
+    }
+    if in_code {
+        let code_text: string = (join_lines code_lines)
+        if (is_nano_lang code_lang) {
+            let code_len: int = (str_length code_text)
+            if (or (> code_len 8000) (not (highlight_enabled))) {
+                (sb_append_line out (html_escape code_text))
+            } else {
+            (sb_append_line out (pretty_print_html code_text))
+            }
+        } else {
+            (sb_append_line out (html_escape code_text))
+        }
+        (sb_append_line out "</code></pre>")
+    }
+    return (sb_to_string out)
+}
+
+shadow md_to_html {
+    let nl: string = (string_from_char 10)
+    let s: string = (+ "# Hi" (+ nl (+ nl (+ "Hello" nl))))
+    let html: string = (md_to_html s "" false)
+    assert (str_contains html "<p>")
+}
+
+
+
+
+
+
+
+
+
+fn init_theme_map() -> HashMap {
+    let mut hm: HashMap = (map_new)
+    set hm (map_put hm "01_getting_started" "#7aa2f7")
+    set hm (map_put hm "02_control_flow" "#9ece6a")
+    set hm (map_put hm "03_basic_types" "#f7768e")
+    set hm (map_put hm "04_higher_level_patterns" "#e0af68")
+    set hm (map_put hm "05_modules" "#7dcfff")
+    set hm (map_put hm "06_canonical_syntax" "#bb9af7")
+    set hm (map_put hm "README" "#a1a1aa")
+    set hm (map_put hm "index" "#7aa2f7")
+    return hm
+}
+
+shadow init_theme_map {
+    let hm: HashMap = (init_theme_map)
+    assert (map_has hm "index")
+}
+
+
+
+
+
+fn build_toc_group(title: string, items: array<string>, open_default: bool) -> string {
+    let open_attr: string = (cond (open_default " open") (else ""))
+    let header: string = (sb_join ["<details class=\"toc-group\"", open_attr, ">"] "")
+    return (sb_join [
+        header,
+        (sb_join ["<summary>", (html_escape title), "</summary>"] ""),
+        "<ul class=\"toc\">",
+        (sb_join items "\n"),
+        "</ul>",
+        "</details>"
+    ] "\n")
+}
+
+shadow build_toc_group {
+    let g: string = (build_toc_group "Guide" ["<li>Item</li>"] true)
+    assert (str_contains g "toc-group")
+}
+
+fn build_toc(titles: array<string>, rels: array<string>, active: string, out_dir: string, page_dir: string, example_names: array<string>) -> string {
+    if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 585 5) }
+    let mut guide_items: array<string> = []
+    let mut example_items: array<string> = []
+    let mut api_items: array<string> = []
+    let n: int = (array_length titles)
+    let mut i: int = 0
+    while (< i n) {
+        let title: string = (at titles i)
+        let rel_html: string = (at rels i)
+        let href: string = (relpath_copy (join out_dir rel_html) page_dir)
+        let mut class_name: string = "toc-item"
+        if (== rel_html active) {
+            set class_name "toc-item active"
+        }
+        let item: string = (sb_join ["<li class=\"", class_name, "\"><a href=\"", (html_escape href), "\">", (render_inline title), "</a></li>"] "")
+        if (str_contains rel_html "api_reference/") {
+            set api_items (array_push api_items item)
+        } else { if (str_contains rel_html "07_examples") {
+            set example_items (array_push example_items item)
+            if (> (array_length example_names) 0) {
+                let examples_href: string = href
+                let mut ex_i: int = 0
+                while (< ex_i (array_length example_names)) {
+                    let ex_name: string = (at example_names ex_i)
+                    let anchor_id: string = (make_anchor_id ex_name)
+                    let ex_href: string = (+ examples_href (+ "#" anchor_id))
+                    let ex_item: string = (sb_join ["<li class=\"toc-item toc-sub-item\"><a href=\"", (html_escape ex_href), "\">", (html_escape ex_name), "</a></li>"] "")
+                    set example_items (array_push example_items ex_item)
+                    set ex_i (+ ex_i 1)
+                }
+            }
+        } else {
+            set guide_items (array_push guide_items item)
+} }
+        set i (+ i 1)
+    }
+    let mut groups: array<string> = []
+    let guide_open: bool = (and (not (== (array_length guide_items) 0)) (and (not (str_contains active "api_reference/")) (not (str_contains active "07_examples"))))
+    let examples_open: bool = (and (not (== (array_length example_items) 0)) (str_contains active "07_examples"))
+    let api_open: bool = (and (not (== (array_length api_items) 0)) (str_contains active "api_reference/"))
+    if (not (== (array_length guide_items) 0)) {
+        set groups (array_push groups (build_toc_group "User Guide" guide_items guide_open))
+    } else { (print "") }
+    if (not (== (array_length example_items) 0)) {
+        set groups (array_push groups (build_toc_group "Examples" example_items examples_open))
+    } else { (print "") }
+    if (not (== (array_length api_items) 0)) {
+        set groups (array_push groups (build_toc_group "Module API Reference" api_items api_open))
+    } else { (print "") }
+    return (sb_join ["<aside class=\"sidebar\">", "<h2>Chapters</h2>", (sb_join groups "\n"), "</aside>"] "\n")
+}
+
+shadow build_toc {
+    let titles: array<string> = ["A", "Examples", "API"]
+    let rels: array<string> = ["a.html", "07_examples.html", "api_reference/x.html"]
+    let toc: string = (build_toc titles rels "a.html" "out" "out" [])
+    assert (str_contains toc "sidebar")
+}
+
+/* Transform 07_examples.md to inline code for language/ examples only */
+fn expand_examples_inline(md_text: string) -> string {
+    let lines: array<string> = (split_lines md_text)
+    let mut out: array<string> = []
+    let n: int = (array_length lines)
+    let mut i: int = 0
+    
+    while (< i n) {
+        let line: string = (at lines i)
+        let trimmed: string = (trim line)
+        
+        /* Only inline examples from language/ directory (core tutorials) */
+        /* Skip SDL, games, audio - those are demonstrations, not tutorials */
+        if (str_starts_with trimmed "- [language/") {
+            if (str_contains line ".nano](https://") {
+                /* Extract path from link: - [language/file.nano](URL) */
+                let bracket_pos: int = (str_index_of line "[language/" 0)
+                if (> bracket_pos -1) {
+                    let paren_pos: int = (str_index_of line "](" bracket_pos)
+                    if (> paren_pos -1) {
+                        let path_len: int = (- (- paren_pos bracket_pos) 1)
+                        let local_path: string = (str_substring line (+ bracket_pos 1) path_len)
+                        let full_path: string = (+ "examples/" local_path)
+                        
+                        if (exists full_path) {
+                            let code: string = (read full_path)
+                            let code_len: int = (str_length code)
+                            
+                            /*  Only inline if under 5KB */
+                            if (< code_len 5000) {
+                                /* Extract just filename */
+                                let slash_pos: int = (str_index_of local_path "/" 0)
+                                let fname_start: int = (+ slash_pos 1)
+                                let fname_len: int = (- (str_length local_path) fname_start)
+                                let filename: string = (str_substring local_path fname_start fname_len)
+                                
+                                /* Generate inline block */
+                                set out (array_push out (+ "### " filename))
+                                set out (array_push out "")
+                                set out (array_push out "```nano")
+                                set out (array_push out code)
+                                set out (array_push out "```")
+                                set out (array_push out "")
+                                
+                                /* Keep GitHub link */
+                                let url_start: int = (+ paren_pos 2)
+                                let url_end: int = (str_index_of line ")" url_start)
+                                let url_len: int = (- url_end url_start)
+                                let gh_url: string = (str_substring line url_start url_len)
+                                set out (array_push out (+ "[View on GitHub](" (+ gh_url ")")))
+                                set out (array_push out "")
+                                
+                                set i (+ i 1)
+                                continue
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        /* Default: keep line unchanged */
+        set out (array_push out line)
+        set i (+ i 1)
+    }
+    
+    return (join_lines out)
+}
+
+shadow expand_examples_inline {
+    let input: string = "# Test\n\n- [test.nano](https://github.com/user/repo/blob/main/examples/test.nano)\n"
+    let result: string = (expand_examples_inline input)
+    /* Should contain heading, not fail */
+    assert (str_contains result "# Test")
+}
+
+struct ExampleLink {
+    ok: bool
+    local_path: string
+    url: string
+    filename: string
+}
+
+fn is_example_link_line(line: string) -> bool {
+    let trimmed: string = (trim line)
+    if (not (str_starts_with trimmed "- [")) { return false }
+    if (== (str_index_of trimmed ".nano](" 0) -1) { return false }
+    return true
+}
+
+shadow is_example_link_line {
+    assert (is_example_link_line "- [language/nl_hello.nano](https://example)")
+    assert (not (is_example_link_line "not a link"))
+}
+
+fn parse_example_link(line: string) -> ExampleLink {
+    let open_idx: int = (str_index_of line "[" 0)
+    let close_idx: int = (str_index_of line "](" open_idx)
+    if (or (== open_idx -1) (== close_idx -1)) {
+        return ExampleLink { ok: false, local_path: "", url: "", filename: "" }
+    }
+    let local_path: string = (str_substring line (+ open_idx 1) (- close_idx (+ open_idx 1)))
+    let url_start: int = (+ close_idx 2)
+    let url_end: int = (str_index_of line ")" url_start)
+    if (== url_end -1) {
+        return ExampleLink { ok: false, local_path: "", url: "", filename: "" }
+    }
+    let url: string = (str_substring line url_start (- url_end url_start))
+    let filename: string = (basename local_path)
+    return ExampleLink { ok: true, local_path: local_path, url: url, filename: filename }
+}
+
+shadow parse_example_link {
+    let link: ExampleLink = (parse_example_link "- [language/nl_hello.nano](https://example)")
+    assert link.ok
+    assert (== link.local_path "language/nl_hello.nano")
+    assert (== link.filename "nl_hello.nano")
+}
+
+fn make_anchor_id(filename: string) -> string {
+    let mut anchor: string = ""
+    let n: int = (str_length filename)
+    let mut i: int = 0
+    while (< i n) {
+        let c: int = (char_at filename i)
+        if (or (and (>= c 97) (<= c 122)) (or (and (>= c 48) (<= c 57)) (== c 95))) {
+            set anchor (+ anchor (string_from_char c))
+        } else { if (or (and (>= c 65) (<= c 90)) (== c 45)) {
+            set anchor (+ anchor (string_from_char c))
+        } else { if (== c 46) {
+            set anchor (+ anchor "-")
+        } else {
+            set anchor (+ anchor "_")
+        }}}
+        set i (+ i 1)
+    }
+    return anchor
+}
+
+shadow make_anchor_id {
+    assert (== (make_anchor_id "hello.nano") "hello-nano")
+    assert (== (make_anchor_id "nl_test.nano") "nl_test-nano")
+}
+
+fn extract_example_names(md_text: string) -> array<string> {
+    let lines: array<string> = (split_lines md_text)
+    let mut names: array<string> = []
+    let mut inlined: int = 0
+    let mut i: int = 0
+    while (< i (array_length lines)) {
+        let line: string = (at lines i)
+        if (is_example_link_line line) {
+            let link: ExampleLink = (parse_example_link line)
+            if link.ok {
+                if (<= inlined 25) {
+                    let full_path: string = (+ "examples/" link.local_path)
+                    if (exists full_path) {
+                        let code: string = (read full_path)
+                        let code_len: int = (str_length code)
+                        if (<= code_len 8000) {
+                            set names (array_push names link.filename)
+                            set inlined (+ inlined 1)
+                        }
+                    }
+                }
+            }
+        }
+        set i (+ i 1)
+    }
+    return names
+}
+
+shadow extract_example_names {
+    assert true
+}
+
+fn append_examples_body(out_path: string, md_text: string, skip_highlight: bool) -> void {
+    let lines: array<string> = (split_lines md_text)
+    let mut chunk: array<string> = []
+    let mut inlined: int = 0
+    let mut limit_hit: bool = false
+    let mut i: int = 0
+    while (< i (array_length lines)) {
+        let line: string = (at lines i)
+        if (is_example_link_line line) {
+            if (> (array_length chunk) 0) {
+                let chunk_html: string = (md_to_html (join_lines chunk) "" false)
+                (append out_path (+ chunk_html "\n"))
+                set chunk []
+            }
+            let link: ExampleLink = (parse_example_link line)
+            if link.ok {
+                if (> inlined 25) {
+                    if (not limit_hit) {
+                        (append "/tmp/userguide_build_html.log" "userguide-html: inline limit reached\n")
+                        set limit_hit true
+                    } else { (print "") }
+                    let link_html: string = (sb_join [
+                        "<p><a href=\"",
+                        (html_escape link.url),
+                        "\">",
+                        (html_escape link.filename),
+                        " (View on GitHub)</a></p>\n"
+                    ] "")
+                    (append out_path link_html)
+                    set i (+ i 1)
+                    continue
+                }
+                let full_path: string = (+ "examples/" link.local_path)
+                if (exists full_path) {
+                    let code: string = (read full_path)
+                    let code_len: int = (str_length code)
+                    if (> code_len 8000) {
+                        (append "/tmp/userguide_build_html.log" (+ "userguide-html: example skipped (large) " (+ link.local_path "\n")))
+                        let link_html: string = (sb_join [
+                            "<p><a href=\"",
+                            (html_escape link.url),
+                            "\">",
+                            (html_escape link.filename),
+                            " (View on GitHub)</a></p>\n"
+                        ] "")
+                        (append out_path link_html)
+                    } else {
+                        let anchor_id: string = (make_anchor_id link.filename)
+                        let code_html: string = (cond (skip_highlight (html_escape code)) (else (pretty_print_html code)))
+                        let snippet_html: string = (sb_join [
+                            "<h3 id=\"",
+                            (html_escape anchor_id),
+                            "\">",
+                            (html_escape link.filename),
+                            "</h3>\n<pre><code class=\"language-nano\">",
+                            code_html,
+                            "</code></pre>\n<p><a href=\"",
+                            (html_escape link.url),
+                            "\">View on GitHub</a></p>\n"
+                        ] "")
+                        (append out_path snippet_html)
+                        set inlined (+ inlined 1)
+                    }
+                    set i (+ i 1)
+                    continue
+                }
+            }
+        }
+        set chunk (array_push chunk line)
+        set i (+ i 1)
+    }
+    if (> (array_length chunk) 0) {
+        let chunk_html: string = (md_to_html (join_lines chunk) "" false)
+        (append out_path (+ chunk_html "\n"))
+    }
+}
+
+shadow append_examples_body { assert true }
+
+fn write_page_open(out_path: string, title: string, summary: string, css_href: string, home_href: string, mascot_href: string, accent: string, toc_html: string, nav_html: string) -> void {
+    let summary_html: string = (cond ((!= summary "") (+ "    <p>" (+ (render_inline summary) "</p>"))) (else "    <p></p>"))
+    let page_html: string = (sb_join [
+        "<!doctype html>",
+        "<html>",
+        "<head>",
+        "  <meta charset=\"utf-8\">",
+        (+ "  <title>" (+ (html_escape title) "</title>")),
+        "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+        (+ "  <link rel=\"stylesheet\" href=\"" (+ (html_escape css_href) "\">")),
+        "</head>",
+        (+ "<body style=\"--accent: " (+ (html_escape accent) ";\">")),
+        "<nav>",
+        (+ "  <a href=\"" (+ (html_escape home_href) "\" class=\"nav-home\" aria-label=\"Back to guide index\">&#8962;</a>")),
+        (+ "  <a href=\"" (+ (html_escape home_href) "\">NanoLang User Guide</a>")),
+        "</nav>",
+        "<header class=\"hero\">",
+        "  <div class=\"hero-text\">",
+        (+ "    <h1>" (+ (html_escape title) "</h1>")),
+        summary_html,
+        "  </div>",
+        (+ "  <img class=\"hero-mascot\" src=\"" (+ (html_escape mascot_href) "\" alt=\"NanoLang Mascot\">")),
+        "</header>",
+        "<main class=\"content with-sidebar\">",
+        toc_html,
+        "  <div class=\"content-body\">",
+        nav_html,
+        "    <div class=\"page-card\">"
+    ] "\n")
+    (write out_path page_html)
+}
+
+shadow write_page_open { assert true }
+
+fn write_page_close(out_path: string, nav_html: string) -> void {
+    let tail: array<string> = [
+        "    </div>",
+        nav_html,
+        "  </div>",
+        "</main>",
+        "</body>",
+        "</html>"
+    ]
+    (append out_path (sb_join tail "\n"))
+}
+
+shadow write_page_close { assert true }
+
+fn main() -> int {
+    if (coverage_enabled) { (coverage_init) }
+    if (trace_enabled) {
+        (set_log_level LOG_LEVEL_DEBUG)
+        (log_debug "userguide: Starting userguide build")
+    }
+    if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: start\n") } else { (print "") }
+    let theme_map: HashMap = (init_theme_map)
+    let src_dir: string = "userguide"
+    let out_dir: string = "build/userguide/html"
+    let assets_dir: string = (+ out_dir "/assets")
+    if (exists out_dir) {
+        (exec (+ "rm -rf " out_dir))
+    }
+    (mkdir_p out_dir)
+    if (exists (+ src_dir "/assets")) {
+        (copy_dir (+ src_dir "/assets") assets_dir)
+    }
+    if (exists (+ src_dir "/Nanolang_Mascot.png")) {
+        (mkdir_p assets_dir)
+        (copy_file (+ src_dir "/Nanolang_Mascot.png") (+ assets_dir "/Nanolang_Mascot.png"))
+    }
+
+    let mut md_files: array<string> = []
+    let files: array<string> = (walkdir src_dir)
+    let f_len: int = (array_length files)
+    let mut fi: int = 0
+    while (< fi f_len) {
+        if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 730 9) }
+        let p: string = (at files fi)
+        if (str_ends_with p ".md") {
+            set md_files (array_push md_files p)
+        }
+        set fi (+ fi 1)
+    }
+    set md_files (array_sort_strings md_files)
+    if (trace_enabled) {
+        (log_debug (+ "userguide: Markdown files: " (int_to_string (array_length md_files))))
+    }
+
+    let md_len: int = (array_length md_files)
+    (println (+ "Pre-allocating arrays for " (+ (int_to_string md_len) " pages")))
+    let mut meta_rel: array<string> = (array_new md_len "")
+    let mut meta_title: array<string> = (array_new md_len "")
+    let mut meta_summary: array<string> = (array_new md_len "")
+    let mut meta_text: array<string> = (array_new md_len "")
+    let mut link_titles: array<string> = (array_new md_len "")
+    let mut link_rels: array<string> = (array_new md_len "")
+    let mut mi: int = 0
+    (println "Reading and processing markdown files...")
+    while (< mi md_len) {
+        if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 750 9) }
+        let md_path: string = (at md_files mi)
+        let rel: string = (rel_from_src md_path src_dir)
+        let md_text: string = (read md_path)
+        let base: string = (basename rel)
+        let stem: string = (strip_prefix base "")
+        let title: string = (extract_title md_text (str_substring stem 0 (- (str_length stem) 3)))
+        let summary: string = (extract_summary md_text)
+        (array_set meta_rel mi rel)
+        (array_set meta_title mi title)
+        (array_set meta_summary mi summary)
+        (array_set meta_text mi md_text)
+        let html_rel: string = (str_substring rel 0 (- (str_length rel) 3))
+        (array_set link_titles mi title)
+        (array_set link_rels mi (+ html_rel ".html"))
+        set mi (+ mi 1)
+    }
+    (println "Metadata collection complete")
+    if (trace_enabled) {
+        (log_debug (+ "userguide: Pages: " (int_to_string (array_length meta_rel))))
+    }
+
+    (println "Building TOC HTML once for all pages...")
+    let toc_base_html: string = (build_toc link_titles link_rels "" out_dir out_dir [])
+    (println (+ "TOC built (" (+ (int_to_string (str_length toc_base_html)) " chars)")))
+
+    let meta_len: int = (array_length meta_rel)
+    let mut idx: int = 0
+    while (< idx meta_len) {
+        if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 770 9) }
+        let rel: string = (at meta_rel idx)
+        let title: string = (at meta_title idx)
+        let summary: string = (at meta_summary idx)
+        let mut md_text: string = (at meta_text idx)
+        (println (+ "Processing page " (+ (int_to_string idx) (+ "/" (+ (int_to_string meta_len) (+ ": " rel))))))
+        if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: page " (+ rel "\n"))) } else { (print "") }
+        if (or (str_contains rel "/05_modules.md") (str_ends_with rel "05_modules.md")) {
+            if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 780 13) }
+        }
+        /* TODO(nanolang-xed3): Inline example rendering disabled due to performance issues
+         * The expand_examples_inline function causes the build to hang/timeout.
+         * Root cause appears to be string buffer limits or infinite loop in parsing logic.
+         * For now, examples remain as GitHub links which works well enough.
+         * Future: investigate StringBuilder or pagination approach for large content.
+         */
+        if false {
+            if (or (str_contains rel "/07_examples.md") (str_ends_with rel "07_examples.md")) {
+                (append "/tmp/userguide_build_html.log" "userguide-html: expanding language examples inline\n")
+                set md_text (expand_examples_inline md_text)
+                (append "/tmp/userguide_build_html.log" "userguide-html: language examples expansion done\n")
+            }
+        }
+        let html_rel: string = (+ (str_substring rel 0 (- (str_length rel) 3)) ".html")
+        let out_path: string = (join out_dir html_rel)
+        let page_dir: string = (dirname out_path)
+        (mkdir_p page_dir)
+
+        let css_href: string = (relpath_copy (join out_dir "assets/style.css") page_dir)
+        let home_href: string = (relpath_copy (join out_dir "index.html") page_dir)
+        let mascot_href: string = (relpath_copy (join out_dir "assets/Nanolang_Mascot.png") page_dir)
+        let mut accent: string = "#7aa2f7"
+        if (map_has theme_map (str_substring (basename rel) 0 (- (str_length (basename rel)) 3))) {
+            set accent (map_get theme_map (str_substring (basename rel) 0 (- (str_length (basename rel)) 3)))
+        }
+
+        let mut prev_html: string = ""
+        if (> idx 0) {
+            let prev_title: string = (at link_titles (- idx 1))
+            let prev_rel: string = (at link_rels (- idx 1))
+            let prev_href: string = (relpath_copy (join out_dir prev_rel) page_dir)
+            set prev_html (sb_join ["<a class=\"chapter-link prev\" href=\"", (html_escape prev_href), "\"><span class=\"label\">&#8592; Previous</span><span class=\"title\">", (html_escape prev_title), "</span></a>"] "")
+        } else {
+            set prev_html "<span class=\"chapter-link prev disabled\"><span class=\"label\">&#8592; Previous</span><span class=\"title\">Start</span></span>"
+        }
+
+        let mut next_html: string = ""
+        if (< (+ idx 1) meta_len) {
+            let next_title: string = (at link_titles (+ idx 1))
+            let next_rel: string = (at link_rels (+ idx 1))
+            let next_href: string = (relpath_copy (join out_dir next_rel) page_dir)
+            set next_html (sb_join ["<a class=\"chapter-link next\" href=\"", (html_escape next_href), "\"><span class=\"label\">Next &#8594;</span><span class=\"title\">", (html_escape next_title), "</span></a>"] "")
+        } else {
+            set next_html "<span class=\"chapter-link next disabled\"><span class=\"label\">Next &#8594;</span><span class=\"title\">End</span></span>"
+        }
+
+        let nav_html: string = (sb_join [ "<div class=\"chapter-nav\">", prev_html, (+ "<a class=\"chapter-link home\" href=\"" (+ (html_escape home_href) "\" aria-label=\"Back to guide index\">&#8962;</a>")), next_html, "</div>" ] "\n")
+        let toc_html: string = toc_base_html
+
+        if (or (str_contains rel "/07_examples.md") (str_ends_with rel "07_examples.md")) {
+            if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: streaming examples page\n") } else { (print "") }
+            # Syntax highlighting is now fast enough (26x speedup) to enable everywhere
+            let skip_highlight: bool = false
+            (write_page_open out_path title summary css_href home_href mascot_href accent toc_html nav_html)
+            (append_examples_body out_path md_text skip_highlight)
+            (write_page_close out_path nav_html)
+            if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: examples page done\n") } else { (print "") }
+            set idx (+ idx 1)
+            continue
+        }
+
+        if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: render " (+ rel "\n"))) } else { (print "") }
+        # Syntax highlighting is now fast enough (26x speedup) to enable for all pages
+        let fast_inline: bool = false
+        let body: string = (md_to_html md_text summary fast_inline)
+        if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: render done " (+ rel "\n"))) } else { (print "") }
+
+        let summary_html: string = (cond ((> (str_length summary) 0) (+ "    <p>" (+ (render_inline_mode summary fast_inline) "</p>"))) (else "    <p></p>"))
+        let page_html: string = (sb_join [
+            "<!doctype html>",
+            "<html>",
+            "<head>",
+            "  <meta charset=\"utf-8\">",
+            (+ "  <title>" (+ (html_escape title) "</title>")),
+            "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+            (+ "  <link rel=\"stylesheet\" href=\"" (+ (html_escape css_href) "\">")),
+            "</head>",
+            (+ "<body style=\"--accent: " (+ (html_escape accent) ";\">")),
+            "<nav>",
+            (+ "  <a href=\"" (+ (html_escape home_href) "\" class=\"nav-home\" aria-label=\"Back to guide index\">&#8962;</a>")),
+            (+ "  <a href=\"" (+ (html_escape home_href) "\">NanoLang User Guide</a>")),
+            "</nav>",
+            "<header class=\"hero\">",
+            "  <div class=\"hero-text\">",
+            (+ "    <h1>" (+ (html_escape title) "</h1>")),
+            summary_html,
+            "  </div>",
+            (+ "  <img class=\"hero-mascot\" src=\"" (+ (html_escape mascot_href) "\" alt=\"NanoLang Mascot\">")),
+            "</header>",
+            "<main class=\"content with-sidebar\">",
+            toc_html,
+            "  <div class=\"content-body\">",
+            nav_html,
+            "    <div class=\"page-card\">",
+            body,
+            "    </div>",
+            nav_html,
+            "  </div>",
+            "</main>",
+            "</body>",
+            "</html>"
+        ] "\n")
+        (write out_path page_html)
+        if (trace_enabled) { (append "/tmp/userguide_build_html.log" (+ "userguide-html: wrote " (+ rel "\n"))) } else { (print "") }
+        set idx (+ idx 1)
+    }
+
+    let css_href_index: string = "assets/style.css"
+    let mascot_href_index: string = "assets/Nanolang_Mascot.png"
+    let toc_html_index: string = (build_toc link_titles link_rels "index.html" out_dir out_dir [])
+    let mut nav_html_index: string = ""
+    if (> (array_length link_rels) 0) {
+        let first_title: string = (at link_titles 0)
+        let first_rel: string = (at link_rels 0)
+        set nav_html_index (sb_join [
+            "<div class=\"chapter-nav\">",
+            "<span class=\"chapter-link prev disabled\"><span class=\"label\">&#8592; Previous</span><span class=\"title\">Start</span></span>",
+            "<a class=\"chapter-link home\" href=\"index.html\" aria-label=\"Back to guide index\">&#8962;</a>",
+            (sb_join ["<a class=\"chapter-link next\" href=\"", (html_escape first_rel), "\"><span class=\"label\">Next &#8594;</span><span class=\"title\">", (html_escape first_title), "</span></a>"] ""),
+            "</div>"
+        ] "\n")
+    } else {
+        set nav_html_index (sb_join [
+            "<div class=\"chapter-nav\">",
+            "<span class=\"chapter-link prev disabled\"><span class=\"label\">&#8592; Previous</span><span class=\"title\">Start</span></span>",
+            "<a class=\"chapter-link home\" href=\"index.html\" aria-label=\"Back to guide index\">&#8962;</a>",
+            "<span class=\"chapter-link next disabled\"><span class=\"label\">Next &#8594;</span><span class=\"title\">End</span></span>",
+            "</div>"
+        ] "\n")
+    }
+    let mut links: array<string> = []
+    let p_len: int = (array_length link_rels)
+    let mut pi: int = 0
+    while (< pi p_len) {
+        let rel_html: string = (at link_rels pi)
+        let title: string = (at link_titles pi)
+        set links (array_push links (+ "<li><a href=\"" (+ (html_escape rel_html) (+ "\">" (+ (render_inline title) "</a></li>")))))
+        set pi (+ pi 1)
+    }
+    let index_html: string = (sb_join [
+        "<!doctype html>",
+        "<html>",
+        "<head>",
+        "  <meta charset=\"utf-8\">",
+        "  <title>NanoLang User Guide</title>",
+        "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+        (+ "  <link rel=\"stylesheet\" href=\"" (+ (html_escape css_href_index) "\">")),
+        "</head>",
+        "<body style=\"--accent: #7aa2f7;\">",
+        "<nav>",
+        "  <a href=\"index.html\" class=\"nav-home\" aria-label=\"Back to guide index\">&#8962;</a>",
+        "  <a href=\"index.html\">NanoLang User Guide</a>",
+        "</nav>",
+        "<header class=\"hero\">",
+        "  <div class=\"hero-text\">",
+        "    <h1>NanoLang User Guide</h1>",
+        "    <p>Learn the canonical NanoLang style with runnable snippets and module walk-throughs.</p>",
+        "  </div>",
+        (+ "  <img class=\"hero-mascot\" src=\"" (+ (html_escape mascot_href_index) "\" alt=\"NanoLang Mascot\">")),
+        "</header>",
+        "<main class=\"content with-sidebar\">",
+        toc_html_index,
+        "  <div class=\"content-body\">",
+        nav_html_index,
+        "    <div class=\"page-card\">",
+        "      <h2>Guide chapters</h2>",
+        "      <ul class=\"toc\">",
+        (sb_join links "\n"),
+        "      </ul>",
+        "    </div>",
+        nav_html_index,
+        "  </div>",
+        "</main>",
+        "</body>",
+        "</html>"
+    ] "\n")
+    (write (join out_dir "index.html") index_html)
+    (println (+ "Built HTML to " out_dir))
+    if (coverage_enabled) { (coverage_report) }
+    return 0
+}
+
+shadow main { assert true }

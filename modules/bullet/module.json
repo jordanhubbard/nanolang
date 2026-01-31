@@ -1,0 +1,30 @@
+{
+  "name": "bullet",
+  "version": "0.1.0",
+  "description": "Bullet Physics SDK - soft body and rigid body physics simulation",
+  "author": "NanoLang Team",
+  "license": "MIT",
+  "headers": ["bullet_bindings.h"],
+  "c_sources": ["bullet_ffi.c"],
+  "c_compiler": "c++",
+  "pkg_config": ["bullet"],
+  "ldflags": ["-lc++"],
+  "install": {
+    "macos": {
+      "brew": "bullet",
+      "command": "brew install bullet"
+    },
+    "linux": {
+      "apt": "libbullet-dev",
+      "command": "sudo apt-get install libbullet-dev"
+    }
+  },
+  "features": [
+    "soft_body_physics",
+    "rigid_body_physics",
+    "collision_detection",
+    "constraints",
+    "vehicle_dynamics"
+  ]
+}
+

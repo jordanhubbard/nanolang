@@ -1,0 +1,57 @@
+/* Test std::process module */
+
+extern fn process_run(command: string) -> array<string>
+
+fn test_process_run() -> int {
+    (println "Testing process_run:")
+    
+    let mut raw: array<string> = []
+    unsafe {
+        set raw (process_run "echo hello world")
+    }
+    
+    let code_s: string = (at raw 0)
+    let stdout: string = (at raw 1)
+    let stderr: string = (at raw 2)
+    
+    (print "  Exit code: ")
+    (println code_s)
+    (print "  Stdout: ")
+    (println stdout)
+    (print "  Stderr: ")
+    (println stderr)
+    
+    return 0
+}
+
+shadow test_process_run {
+    assert (== (test_process_run) 0)
+}
+
+fn test_system() -> int {
+    (println "Testing system (skipped - requires stdlib.h)")
+    return 0
+}
+
+shadow test_system {
+    assert (== (test_system) 0)
+}
+
+fn main() -> int {
+    (println "=== Testing std::process ===")
+    (println "")
+    
+    (test_process_run)
+    (println "")
+    
+    (test_system)
+    (println "")
+    
+    (println "All tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

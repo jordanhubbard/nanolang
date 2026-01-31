@@ -2,13 +2,11 @@
   "name": "sdl_ttf",
   "version": "1.0.0",
   "description": "TrueType font rendering for SDL - professional text rendering",
-  "headers": ["SDL_ttf.h", "sdl_ttf_helpers.h"],
+  "headers": ["SDL2/SDL_ttf.h"],
   "cflags": ["-Imodules/sdl_ttf"],
   "c_sources": ["sdl_ttf_helpers.c"],
   "pkg_config": ["SDL2_ttf"],
-  "apt_packages": ["libsdl2-dev", "libsdl2-ttf-dev"],
-  "dnf_packages": ["SDL2-devel", "SDL2_ttf-devel"],
-  "brew_packages": ["sdl2", "sdl2_ttf"],
+  "system_packages": ["sdl2", "sdl2_ttf"],
   "dependencies": ["sdl"]
 }
 

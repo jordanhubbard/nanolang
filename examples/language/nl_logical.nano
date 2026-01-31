@@ -1,0 +1,100 @@
+# Example: Logical Operators
+# Purpose: Demonstrate boolean logic operators (and, or, not)
+# Features: and, or, not operators, bool type, short-circuit evaluation
+# Difficulty: Beginner
+# Usage: ./bin/nanoc examples/nl_logical.nano -o /tmp/logic && /tmp/logic
+# Expected Output: Results of logical operations
+#
+# Learning Objectives:
+# 1. Use and, or, not in prefix notation
+# 2. Understand short-circuit evaluation (and/or stop early)
+# 3. Combine multiple boolean conditions
+# 4. Write complex predicates with boolean logic
+
+fn and_op(a: bool, b: bool) -> bool {
+    return (and a b)
+}
+
+shadow and_op {
+    assert (== (and_op true true) true)
+    assert (== (and_op true false) false)
+    assert (== (and_op false true) false)
+    assert (== (and_op false false) false)
+}
+
+fn or_op(a: bool, b: bool) -> bool {
+    return (or a b)
+}
+
+shadow or_op {
+    assert (== (or_op true true) true)
+    assert (== (or_op true false) true)
+    assert (== (or_op false true) true)
+    assert (== (or_op false false) false)
+}
+
+fn not_op(a: bool) -> bool {
+    return (not a)
+}
+
+shadow not_op {
+    assert (== (not_op true) false)
+    assert (== (not_op false) true)
+}
+
+fn complex_logic(a: bool, b: bool, c: bool) -> bool {
+    return (or (and a b) c)
+}
+
+shadow complex_logic {
+    assert (== (complex_logic true true false) true)
+    assert (== (complex_logic false false true) true)
+    assert (== (complex_logic false false false) false)
+}
+
+fn is_in_range(x: int, low: int, high: int) -> bool {
+    return (and (>= x low) (<= x high))
+}
+
+shadow is_in_range {
+    assert (== (is_in_range 5 1 10) true)
+    assert (== (is_in_range 0 1 10) false)
+    assert (== (is_in_range 15 1 10) false)
+    assert (== (is_in_range 1 1 10) true)
+    assert (== (is_in_range 10 1 10) true)
+}
+
+fn xor_sim(a: bool, b: bool) -> bool {
+    return (and (or a b) (not (and a b)))
+}
+
+shadow xor_sim {
+    assert (== (xor_sim true false) true)
+    assert (== (xor_sim false true) true)
+    assert (== (xor_sim true true) false)
+    assert (== (xor_sim false false) false)
+}
+
+fn bool_to_string(b: bool) -> string {
+    return (cond ((== b true) "true") (else "false"))
+}
+
+shadow bool_to_string {
+    assert (== (bool_to_string true) "true")
+    assert (== (bool_to_string false) "false")
+}
+
+fn main() -> int {
+    (println "=== Logical Operations ===")
+    (println (+ "and(true, false): " (bool_to_string (and_op true false))))
+    (println (+ "or(true, false): " (bool_to_string (or_op true false))))
+    (println (+ "not(true): " (bool_to_string (not_op true))))
+    (println (+ "complex_logic(true, true, false): " (bool_to_string (complex_logic true true false))))
+    (println (+ "is_in_range(7, 5, 10): " (bool_to_string (is_in_range 7 5 10))))
+    (println (+ "xor_sim(true, false): " (bool_to_string (xor_sim true false))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

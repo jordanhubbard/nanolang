@@ -1,0 +1,155 @@
+# Regular Expression Demo - Pythonic One-Shot API
+# No opaque handle management needed!
+
+module "std/regex/regex.nano" as Re
+
+fn quick_replace_all(pattern: string, text: string, replacement: string) -> string {
+    let parts: array<string> = (Re.regex_split pattern text)
+    if (== (array_length parts) 0) {
+        return text
+    }
+    let mut out: string = ""
+    let mut i: int = 0
+    let last_index: int = (- (array_length parts) 1)
+    while (< i (array_length parts)) {
+        set out (+ out (at parts i))
+        if (< i last_index) {
+            set out (+ out replacement)
+        }
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow quick_replace_all {
+    (quick_replace_all "b" "abbb" "X")
+    assert true
+}
+
+fn match_example() -> void {
+    (println "=== Pattern Matching ===")
+    
+    # Validate phone number - one line, no handles!
+    if (Re.quick_match "[0-9]{3}-[0-9]{3}-[0-9]{4}" "555-123-4567") {
+        (println "✓ Valid phone number: 555-123-4567")
+    }
+    
+    # Validate email
+    if (Re.quick_match "[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-z]+" "user@example.com") {
+        (println "✓ Valid email: user@example.com")
+    }
+    
+    if (not (Re.quick_match "[0-9]{3}-[0-9]{3}-[0-9]{4}" "invalid")) {
+        (println "✗ Invalid phone number: invalid")
+    }
+}
+
+shadow match_example {
+    (match_example)
+    assert true
+}
+
+fn replace_example() -> void {
+    (println "")
+    (println "=== Find and Replace ===")
+    
+    # Replace first number
+    let text1: string = "I have 3 apples and 5 oranges"
+    let result1: string = (Re.quick_replace "[0-9]+" text1 "X")
+    (println (+ "Original:  " text1))
+    (println (+ "Replace 1st: " result1))
+    
+    # Replace all numbers
+    let result2: string = (quick_replace_all "[0-9]+" text1 "X")
+    (println (+ "Replace all: " result2))
+}
+
+shadow replace_example {
+    (replace_example)
+    assert true
+}
+
+fn split_example() -> void {
+    (println "")
+    (println "=== Split by Pattern ===")
+    
+    let text: string = "apple,banana;cherry,date;elderberry"
+    let parts: array<string> = (Re.regex_split "[,;]" text)
+    
+    (println (+ "Input: " text))
+    (println (+ "Split into " (+ (int_to_string (array_length parts)) " parts:")))
+    
+    let mut i: int = 0
+    while (< i (array_length parts)) {
+        (println (+ "  [" (+ (int_to_string i) (+ "]: " (at parts i)))))
+        set i (+ i 1)
+    }
+}
+
+shadow split_example {
+    (split_example)
+    assert true
+}
+
+fn find_example() -> void {
+    (println "")
+    (println "=== Find Pattern Position ===")
+    
+    let text: string = "The answer is 42 and the year is 2024"
+    let pos: int = (Re.quick_find "[0-9]+" text)
+    
+    (println (+ "Text: " text))
+    if (>= pos 0) {
+        (println (+ "First number starts at position: " (int_to_string pos)))
+    } else {
+        (println "No numbers found")
+    }
+}
+
+shadow find_example {
+    (find_example)
+    assert true
+}
+
+fn sanitize_example() -> void {
+    (println "")
+    (println "=== Sanitize User Input ===")
+    
+    # Remove all non-alphanumeric characters
+    let unsafe_text: string = "Hello<script>alert('xss')</script>World"
+    let safe: string = (quick_replace_all "<[^>]*>" unsafe_text "")
+    
+    (println (+ "Unsafe: " unsafe_text))
+    (println (+ "Safe:   " safe))
+}
+
+shadow sanitize_example {
+    (sanitize_example)
+    assert true
+}
+
+fn main() -> int {
+    (println "╔════════════════════════════════════════════════════════╗")
+    (println "║  NanoLang Regex - Pythonic One-Shot API               ║")
+    (println "║  No opaque handles. No free(). Just works!            ║")
+    (println "╚════════════════════════════════════════════════════════╝")
+    (println "")
+    
+    (match_example)
+    (replace_example)
+    (split_example)
+    (find_example)
+    (sanitize_example)
+    
+    (println "")
+    (println "✓ All operations completed successfully!")
+    (println "  No memory management needed - handled automatically!")
+    
+    return 0
+}
+
+shadow main {
+    (main)
+    assert true
+}
+

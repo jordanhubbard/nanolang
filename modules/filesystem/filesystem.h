@@ -7,8 +7,14 @@
 // List files in directory with optional extension filter
 DynArray* nl_fs_list_files(const char* path, const char* extension);
 
+// List files in directory with optional extension filter (case-insensitive)
+DynArray* nl_fs_list_files_ci(const char* path, const char* extension);
+
 // List directories in directory
 DynArray* nl_fs_list_dirs(const char* path);
+
+// Get parent directory of path. Returns a pointer to an internal static buffer.
+const char* nl_fs_parent_dir(const char* path);
 
 // Check if path is a directory
 int64_t nl_fs_is_directory(const char* path);

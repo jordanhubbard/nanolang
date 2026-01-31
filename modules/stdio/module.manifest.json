@@ -1,0 +1,30 @@
+{
+  "name": "stdio",
+  "version": "1.0.0",
+  "stability": "stable",
+  "summary": "Standard I/O operations (print, println, read_line).",
+  "use_when": [
+    "User needs console I/O",
+    "User says 'print', 'read input', 'console', 'terminal I/O'",
+    "User is building command-line tools"
+  ],
+  "avoid_when": [
+    "User needs file I/O (use std module)",
+    "User needs GUI (use sdl or ncurses)"
+  ],
+  "capabilities": [
+    "print_text",
+    "read_line",
+    "console_io"
+  ],
+  "keywords": ["io", "stdio", "console", "terminal", "print", "input"],
+  "examples": ["examples/nl_hello.nano", "examples/nl_calculator.nano"],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "system": []
+  },
+  "io_surfaces": ["terminal"],
+  "alternatives": [
+    {"when": "file operations", "module": "std"}
+  ]
+}

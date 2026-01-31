@@ -16,6 +16,209 @@
 
 bool module_builder_verbose = false;
 
+// ============================================================================
+// Package Registry System - Central database of system package mappings
+// ============================================================================
+
+// Package manager enumeration
+typedef enum {
+    PKG_MGR_UNKNOWN = 0,
+    PKG_MGR_APT,        // Debian/Ubuntu
+    PKG_MGR_DNF,        // Fedora/RHEL (modern)
+    PKG_MGR_YUM,        // Fedora/RHEL (legacy)
+    PKG_MGR_PACMAN,     // Arch Linux
+    PKG_MGR_ZYPPER,     // openSUSE
+    PKG_MGR_APK,        // Alpine Linux
+    PKG_MGR_PKG,        // FreeBSD pkg
+    PKG_MGR_BREW,       // macOS Homebrew
+    PKG_MGR_CHOCOLATEY, // Windows Chocolatey
+    PKG_MGR_WINGET,     // Windows Package Manager
+    PKG_MGR_SCOOP       // Windows Scoop
+} PackageManager;
+
+// Cached package registry (loaded once from packages.json)
+static cJSON *package_registry = NULL;
+static PackageManager detected_pkg_manager = PKG_MGR_UNKNOWN;
+
+// Load packages.json into memory (cached)
+static cJSON* load_package_registry(void) {
+    if (package_registry) {
+        return package_registry;
+    }
+
+    // Try to find packages.json
+    const char* paths[] = {
+        "packages.json",
+        "../packages.json",
+        "../../packages.json",
+        NULL
+    };
+
+    FILE *fp = NULL;
+    for (int i = 0; paths[i]; i++) {
+        fp = fopen(paths[i], "r");
+        if (fp) break;
+    }
+
+    if (!fp) {
+        if (module_builder_verbose) {
+            fprintf(stderr, "[PackageRegistry] Warning: packages.json not found, falling back to legacy package names\n");
+        }
+        return NULL;
+    }
+
+    // Read file
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    char *content = malloc(size + 1);
+    if (!content) {
+        fclose(fp);
+        return NULL;
+    }
+
+    fread(content, 1, size, fp);
+    content[size] = '\0';
+    fclose(fp);
+
+    // Parse JSON
+    cJSON *root = cJSON_Parse(content);
+    free(content);
+
+    if (!root) {
+        fprintf(stderr, "[PackageRegistry] Error: Failed to parse packages.json\n");
+        return NULL;
+    }
+
+    package_registry = root;
+    if (module_builder_verbose) {
+        printf("[PackageRegistry] Loaded packages.json\n");
+    }
+
+    return package_registry;
+}
+
+// Detect which package manager is available on this system
+static PackageManager detect_package_manager(void) {
+    if (detected_pkg_manager != PKG_MGR_UNKNOWN) {
+        return detected_pkg_manager;
+    }
+
+    #ifdef _WIN32
+    // Windows: Try chocolatey, winget, scoop
+    if (access("C:\\ProgramData\\chocolatey\\bin\\choco.exe", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_CHOCOLATEY;
+    } else if (system("where winget >nul 2>&1") == 0) {
+        detected_pkg_manager = PKG_MGR_WINGET;
+    } else if (system("where scoop >nul 2>&1") == 0) {
+        detected_pkg_manager = PKG_MGR_SCOOP;
+    }
+    #elif defined(__APPLE__)
+    // macOS: Homebrew
+    if (access("/opt/homebrew/bin/brew", F_OK) == 0 || access("/usr/local/bin/brew", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_BREW;
+    }
+    #else
+    // Unix: Try FreeBSD pkg, then Linux managers (in preference order)
+    if (access("/usr/sbin/pkg", F_OK) == 0 || access("/usr/local/sbin/pkg", F_OK) == 0 ||
+        system("command -v pkg >/dev/null 2>&1") == 0) {
+        detected_pkg_manager = PKG_MGR_PKG;
+    } else if (access("/usr/bin/apt-get", F_OK) == 0 || access("/usr/bin/apt", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_APT;
+    } else if (access("/usr/bin/dnf", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_DNF;
+    } else if (access("/usr/bin/yum", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_YUM;
+    } else if (access("/usr/bin/pacman", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_PACMAN;
+    } else if (access("/usr/bin/zypper", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_ZYPPER;
+    } else if (access("/sbin/apk", F_OK) == 0) {
+        detected_pkg_manager = PKG_MGR_APK;
+    }
+    #endif
+
+    if (module_builder_verbose && detected_pkg_manager != PKG_MGR_UNKNOWN) {
+        const char *names[] = {"unknown", "apt", "dnf", "yum", "pacman", "zypper", "apk", "pkg", "brew", "chocolatey", "winget", "scoop"};
+        printf("[PackageRegistry] Detected package manager: %s\n", names[detected_pkg_manager]);
+    }
+
+    return detected_pkg_manager;
+}
+
+// Get package manager name string (for JSON lookup)
+static const char* get_package_manager_name(PackageManager pm) {
+    switch (pm) {
+        case PKG_MGR_APT: return "apt";
+        case PKG_MGR_DNF: return "dnf";
+        case PKG_MGR_YUM: return "yum";
+        case PKG_MGR_PACMAN: return "pacman";
+        case PKG_MGR_ZYPPER: return "zypper";
+        case PKG_MGR_APK: return "apk";
+        case PKG_MGR_PKG: return "pkg";
+        case PKG_MGR_BREW: return "brew";
+        case PKG_MGR_CHOCOLATEY: return "chocolatey";
+        case PKG_MGR_WINGET: return "winget";
+        case PKG_MGR_SCOOP: return "scoop";
+        default: return NULL;
+    }
+}
+
+// Look up a package name in the registry for the current platform
+// Returns NULL if not found or registry not available
+static const char* lookup_package_name(const char *logical_name, PackageManager pm) {
+    cJSON *registry = load_package_registry();
+    if (!registry) {
+        // No registry - return logical name as-is (legacy fallback)
+        return logical_name;
+    }
+
+    cJSON *packages = cJSON_GetObjectItem(registry, "packages");
+    if (!packages) {
+        return logical_name;
+    }
+
+    cJSON *package = cJSON_GetObjectItem(packages, logical_name);
+    if (!package) {
+        if (module_builder_verbose) {
+            fprintf(stderr, "[PackageRegistry] Warning: Package '%s' not found in registry\n", logical_name);
+        }
+        return logical_name;
+    }
+
+    cJSON *install = cJSON_GetObjectItem(package, "install");
+    if (!install) {
+        return logical_name;
+    }
+
+    const char *pm_name = get_package_manager_name(pm);
+    if (!pm_name) {
+        return logical_name;
+    }
+
+    cJSON *pm_entry = cJSON_GetObjectItem(install, pm_name);
+    if (!pm_entry) {
+        // Package not available for this package manager
+        if (module_builder_verbose) {
+            fprintf(stderr, "[PackageRegistry] Warning: Package '%s' not available for %s\n", logical_name, pm_name);
+        }
+        return NULL;
+    }
+
+    // Can be either a string or an object with "package" field
+    if (cJSON_IsString(pm_entry)) {
+        return pm_entry->valuestring;
+    } else if (cJSON_IsObject(pm_entry)) {
+        cJSON *pkg_name = cJSON_GetObjectItem(pm_entry, "package");
+        if (pkg_name && cJSON_IsString(pkg_name)) {
+            return pkg_name->valuestring;
+        }
+    }
+
+    return logical_name;
+}
+
 static void append_flag_move_to_end(char **out_flags, size_t *out_count, size_t out_cap, const char *flag) {
     if (!flag || flag[0] == '\0' || !out_flags || !out_count) return;
 
@@ -145,143 +348,266 @@ static char* run_command(const char *cmd) {
     return output;
 }
 
-// Install system packages from module metadata
-static bool install_system_packages(ModuleBuildMetadata *meta) {
-    bool all_installed = true;
-    char cmd[2048];
-    
-    #ifdef __APPLE__
-    // macOS: Install Homebrew packages
-    if (meta->brew_packages_count > 0) {
-        if (access("/opt/homebrew/bin/brew", F_OK) == 0 || access("/usr/local/bin/brew", F_OK) == 0) {
-            printf("[Module] Installing Homebrew packages for '%s'...\n", meta->name);
-            for (size_t i = 0; i < meta->brew_packages_count; i++) {
-                // Check if already installed
-                snprintf(cmd, sizeof(cmd), "brew list %s >/dev/null 2>&1", meta->brew_packages[i]);
-                if (system(cmd) == 0) {
-                    printf("[Module]   ✓ %s already installed\n", meta->brew_packages[i]);
-                    continue;
-                }
-                
-                // Install package
-                snprintf(cmd, sizeof(cmd), "brew install %s", meta->brew_packages[i]);
-                printf("[Module]   Installing %s...\n", meta->brew_packages[i]);
-                int result = system(cmd);
-                if (result == 0) {
-                    printf("[Module]   ✓ Successfully installed %s\n", meta->brew_packages[i]);
-                } else {
-                    fprintf(stderr, "[Module]   ❌ Failed to install %s\n", meta->brew_packages[i]);
-                    all_installed = false;
-                }
-            }
-        } else {
-            fprintf(stderr, "[Module] ⚠️  Homebrew not found, cannot auto-install packages\n");
-            fprintf(stderr, "[Module]    Install Homebrew: /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\n");
-            all_installed = false;
+static const char* module_builder_sudo_prefix(void) {
+    static bool initialized = false;
+    static const char *prefix = "sudo";
+
+    if (!initialized) {
+        bool interactive = isatty(STDIN_FILENO) && isatty(STDOUT_FILENO);
+        if (!interactive) {
+            prefix = "sudo -n";
+            printf("[Module]   Non-interactive shell detected; using sudo -n\n");
         }
+        initialized = true;
     }
-    #else
-    // Linux: Install apt or dnf packages
-    if (access("/usr/bin/apt-get", F_OK) == 0 || access("/usr/bin/apt", F_OK) == 0) {
-        // Debian/Ubuntu
-        if (meta->apt_packages_count > 0) {
-            printf("[Module] Installing apt packages for '%s'...\n", meta->name);
-            
-            // Build list of packages to install
-            char packages[1024] = "";
-            for (size_t i = 0; i < meta->apt_packages_count; i++) {
-                // Check if already installed
-                snprintf(cmd, sizeof(cmd), "dpkg -l %s 2>/dev/null | grep -q '^ii'", meta->apt_packages[i]);
-                if (system(cmd) == 0) {
-                    printf("[Module]   ✓ %s already installed\n", meta->apt_packages[i]);
-                    continue;
-                }
-                
-                // Add to install list
-                if (strlen(packages) > 0) strcat(packages, " ");
-                strncat(packages, meta->apt_packages[i], sizeof(packages) - strlen(packages) - 1);
+
+    return prefix;
+}
+
+// Install a single package using the detected package manager
+static bool install_single_package(const char *package_name, PackageManager pm) {
+    char cmd[2048];
+    int result;
+    const char *sudo_cmd = module_builder_sudo_prefix();
+
+    switch (pm) {
+        case PKG_MGR_APT:
+            // Check if already installed
+            snprintf(cmd, sizeof(cmd), "dpkg -l %s 2>/dev/null | grep -q '^ii'", package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
             }
-            
-            // Install all needed packages at once
-            if (strlen(packages) > 0) {
-                snprintf(cmd, sizeof(cmd), "sudo apt-get update -qq && sudo apt-get install -y %s", packages);
-                printf("[Module]   Running: sudo apt-get install -y %s\n", packages);
-                printf("[Module]   (You may be prompted for your password)\n");
-                int result = system(cmd);
-                if (result == 0) {
-                    printf("[Module]   ✓ Successfully installed packages\n");
-                } else {
-                    fprintf(stderr, "[Module]   ❌ Failed to install packages\n");
-                    all_installed = false;
-                }
+            snprintf(cmd, sizeof(cmd), "%s apt-get update -qq && %s apt-get install -y %s", sudo_cmd, sudo_cmd, package_name);
+            printf("[Module]   Running: %s apt-get install -y %s\n", sudo_cmd, package_name);
+            break;
+
+        case PKG_MGR_DNF:
+        case PKG_MGR_YUM:
+            snprintf(cmd, sizeof(cmd), "rpm -q %s >/dev/null 2>&1", package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
             }
+            snprintf(cmd, sizeof(cmd), "%s %s install -y %s", 
+                     sudo_cmd, pm == PKG_MGR_DNF ? "dnf" : "yum", package_name);
+            break;
+
+        case PKG_MGR_BREW:
+            snprintf(cmd, sizeof(cmd), "brew list %s >/dev/null 2>&1", package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
+            }
+            snprintf(cmd, sizeof(cmd), "brew install %s", package_name);
+            break;
+
+        case PKG_MGR_PKG:
+            snprintf(cmd, sizeof(cmd), "pkg info -e %s >/dev/null 2>&1", package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
+            }
+            snprintf(cmd, sizeof(cmd), "%s pkg install -y %s", sudo_cmd, package_name);
+            printf("[Module]   Running: %s pkg install -y %s\n", sudo_cmd, package_name);
+            break;
+
+        case PKG_MGR_CHOCOLATEY:
+            snprintf(cmd, sizeof(cmd), "choco list --local-only %s 2>nul | findstr /C:\"%s\" >nul", package_name, package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
+            }
+            snprintf(cmd, sizeof(cmd), "choco install -y %s", package_name);
+            break;
+
+        case PKG_MGR_WINGET:
+            snprintf(cmd, sizeof(cmd), "winget list %s >nul 2>&1", package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
+            }
+            snprintf(cmd, sizeof(cmd), "winget install --silent %s", package_name);
+            break;
+
+        default:
+            fprintf(stderr, "[Module]   ❌ Unknown package manager\n");
+            return false;
+    }
+
+    printf("[Module]   Installing %s...\n", package_name);
+    result = system(cmd);
+    if (result == 0) {
+        printf("[Module]   ✓ Successfully installed %s\n", package_name);
+        return true;
+    } else {
+        fprintf(stderr, "[Module]   ❌ Failed to install %s\n", package_name);
+        return false;
+    }
+}
+
+// Install system packages from module metadata (with registry support)
+static bool install_system_packages(ModuleBuildMetadata *meta) {
+    PackageManager pm = detect_package_manager();
+    
+    if (pm == PKG_MGR_UNKNOWN) {
+        if (meta->system_packages_count > 0 || meta->apt_packages_count > 0 || 
+            meta->dnf_packages_count > 0 || meta->brew_packages_count > 0) {
+            fprintf(stderr, "[Module] ⚠️  No supported package manager found\n");
+            fprintf(stderr, "[Module]    Please install system packages manually for module '%s'\n", meta->name);
+            return false;
         }
-    } else if (access("/usr/bin/dnf", F_OK) == 0) {
-        // Fedora/RHEL
-        if (meta->dnf_packages_count > 0) {
-            printf("[Module] Installing dnf packages for '%s'...\n", meta->name);
-            
-            // Build list of packages to install
-            char packages[1024] = "";
-            for (size_t i = 0; i < meta->dnf_packages_count; i++) {
-                // Check if already installed
-                snprintf(cmd, sizeof(cmd), "rpm -q %s >/dev/null 2>&1", meta->dnf_packages[i]);
-                if (system(cmd) == 0) {
-                    printf("[Module]   ✓ %s already installed\n", meta->dnf_packages[i]);
-                    continue;
-                }
-                
-                // Add to install list
-                if (strlen(packages) > 0) strcat(packages, " ");
-                strncat(packages, meta->dnf_packages[i], sizeof(packages) - strlen(packages) - 1);
-            }
-            
-            // Install all needed packages at once
-            if (strlen(packages) > 0) {
-                snprintf(cmd, sizeof(cmd), "sudo dnf install -y %s", packages);
-                printf("[Module]   Running: sudo dnf install -y %s\n", packages);
-                printf("[Module]   (You may be prompted for your password)\n");
-                int result = system(cmd);
-                if (result == 0) {
-                    printf("[Module]   ✓ Successfully installed packages\n");
-                } else {
-                    fprintf(stderr, "[Module]   ❌ Failed to install packages\n");
-                    all_installed = false;
-                }
-            }
+        return true;
+    }
+
+    bool all_installed = true;
+
+    // Collect all package names (logical names for registry lookup)
+    const char *pkg_names[256];
+    size_t pkg_count = 0;
+
+    // Priority 1: Use new unified system_packages format (preferred)
+    if (meta->system_packages_count > 0) {
+        for (size_t i = 0; i < meta->system_packages_count && pkg_count < 256; i++) {
+            pkg_names[pkg_count++] = meta->system_packages[i];
         }
     } else {
-        if (meta->apt_packages_count > 0 || meta->dnf_packages_count > 0) {
-            fprintf(stderr, "[Module] ⚠️  No supported package manager found (apt-get/dnf)\n");
-            all_installed = false;
+        // Priority 2: Fall back to legacy platform-specific arrays (deprecated)
+        for (size_t i = 0; i < meta->apt_packages_count && pkg_count < 256; i++) {
+            pkg_names[pkg_count++] = meta->apt_packages[i];
+        }
+        for (size_t i = 0; i < meta->dnf_packages_count && pkg_count < 256; i++) {
+            pkg_names[pkg_count++] = meta->dnf_packages[i];
+        }
+        for (size_t i = 0; i < meta->brew_packages_count && pkg_count < 256; i++) {
+            pkg_names[pkg_count++] = meta->brew_packages[i];
         }
     }
-    #endif
-    
+
+    if (pkg_count > 0) {
+        printf("[Module] Installing system packages for '%s'...\n", meta->name);
+        
+        for (size_t i = 0; i < pkg_count; i++) {
+            const char *logical_name = pkg_names[i];
+            
+            // Look up actual package name for this platform in registry
+            const char *actual_name = lookup_package_name(logical_name, pm);
+            
+            if (!actual_name) {
+                fprintf(stderr, "[Module]   ⚠️  Package '%s' not available for this platform\n", logical_name);
+                all_installed = false;
+                continue;
+            }
+
+            if (!install_single_package(actual_name, pm)) {
+                all_installed = false;
+            }
+        }
+    }
+
     return all_installed;
+}
+
+// Track whether we've already attempted to install pkg-config
+static bool pkg_config_install_attempted = false;
+
+// Find pkg-config executable path, or NULL if not found
+static const char* find_pkg_config(void) {
+    // Check common locations
+    if (access("/opt/homebrew/bin/pkg-config", X_OK) == 0) {
+        return "/opt/homebrew/bin/pkg-config";
+    }
+    if (access("/usr/local/bin/pkg-config", X_OK) == 0) {
+        return "/usr/local/bin/pkg-config";
+    }
+    if (access("/usr/bin/pkg-config", X_OK) == 0) {
+        return "/usr/bin/pkg-config";
+    }
+    // Try PATH
+    if (system("command -v pkg-config >/dev/null 2>&1") == 0) {
+        return "pkg-config";
+    }
+    return NULL;
+}
+
+// Ensure pkg-config is installed, auto-installing if needed
+static const char* ensure_pkg_config(void) {
+    const char *pkg_config_path = find_pkg_config();
+    if (pkg_config_path) {
+        return pkg_config_path;
+    }
+    
+    // pkg-config not found - try to auto-install it (once)
+    if (!pkg_config_install_attempted) {
+        pkg_config_install_attempted = true;
+        
+        PackageManager pm = detect_package_manager();
+        if (pm != PKG_MGR_UNKNOWN) {
+            const char *pkg_name = lookup_package_name("pkg-config", pm);
+            if (pkg_name) {
+                printf("[Module] pkg-config not found, installing...\n");
+                if (install_single_package(pkg_name, pm)) {
+                    // Try to find it again after installation
+                    pkg_config_path = find_pkg_config();
+                    if (pkg_config_path) {
+                        return pkg_config_path;
+                    }
+                }
+            }
+        }
+        
+        fprintf(stderr, "[Module] Warning: pkg-config not available. Install it manually:\n");
+        fprintf(stderr, "[Module]   macOS: brew install pkg-config\n");
+        fprintf(stderr, "[Module]   Linux: sudo apt-get install pkg-config\n");
+    }
+    
+    return NULL;
+}
+
+// Check if a pkg-config package is available (returns true if installed)
+static bool check_pkg_config_package(const char *package) {
+    const char *pkg_config_path = ensure_pkg_config();
+    if (!pkg_config_path) {
+        return false;
+    }
+    
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "%s --exists %s 2>/dev/null", pkg_config_path, package);
+    int result = system(cmd);
+    return (result == 0);
+}
+
+// Check all pkg-config dependencies for a module, return true if all available
+// If missing_pkg is not NULL, it will be set to the name of first missing package
+static bool check_module_pkg_dependencies(ModuleBuildMetadata *meta, const char **missing_pkg) {
+    if (!meta || meta->pkg_config_count == 0) {
+        return true;  // No dependencies to check
+    }
+    
+    for (size_t i = 0; i < meta->pkg_config_count; i++) {
+        if (!check_pkg_config_package(meta->pkg_config[i])) {
+            if (missing_pkg) {
+                *missing_pkg = meta->pkg_config[i];
+            }
+            return false;
+        }
+    }
+    return true;
 }
 
 // Get pkg-config flags, with automatic package installation on failure
 static char* get_pkg_config_flags(const char *package, const char *flag_type) {
     char cmd[512];
     
-    // Try standard pkg-config first
-    snprintf(cmd, sizeof(cmd), "pkg-config %s %s 2>/dev/null", flag_type, package);
+    // Ensure pkg-config is available (auto-install if needed)
+    const char *pkg_config_path = ensure_pkg_config();
+    if (!pkg_config_path) {
+        return NULL;
+    }
+    
+    // Run pkg-config with the found path
+    snprintf(cmd, sizeof(cmd), "%s %s %s 2>/dev/null", pkg_config_path, flag_type, package);
     char *result = run_command(cmd);
-    
-    // If that failed, try Homebrew's pkg-config on macOS
-    if (!result || strlen(result) == 0) {
-        free(result);
-        snprintf(cmd, sizeof(cmd), "/opt/homebrew/bin/pkg-config %s %s 2>/dev/null", flag_type, package);
-        result = run_command(cmd);
-    }
-    
-    // If still failed, try /usr/local/bin (Intel Mac Homebrew)
-    if (!result || strlen(result) == 0) {
-        free(result);
-        snprintf(cmd, sizeof(cmd), "/usr/local/bin/pkg-config %s %s 2>/dev/null", flag_type, package);
-        result = run_command(cmd);
-    }
     
     
     // If result is empty or only whitespace, return NULL instead
@@ -465,6 +791,7 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
     PARSE_STRING_ARRAY("ldflags", ldflags, ldflags_count);
     PARSE_STRING_ARRAY("frameworks", frameworks, frameworks_count);
     PARSE_STRING_ARRAY("dependencies", dependencies, dependencies_count);
+    PARSE_STRING_ARRAY("system_packages", system_packages, system_packages_count);
     PARSE_STRING_ARRAY("apt_packages", apt_packages, apt_packages_count);
     PARSE_STRING_ARRAY("dnf_packages", dnf_packages, dnf_packages_count);
     PARSE_STRING_ARRAY("brew_packages", brew_packages, brew_packages_count);
@@ -472,12 +799,39 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
 
     #undef PARSE_STRING_ARRAY
 
+    // Parse c_compiler (optional)
+    cJSON *c_compiler = cJSON_GetObjectItem(json, "c_compiler");
+    if (c_compiler && cJSON_IsString(c_compiler)) {
+        meta->c_compiler = strdup(c_compiler->valuestring);
+    }
+
     // Parse header_priority (default = 0)
     cJSON *header_priority = cJSON_GetObjectItem(json, "header_priority");
     if (header_priority && cJSON_IsNumber(header_priority)) {
         meta->header_priority = header_priority->valueint;
     } else {
         meta->header_priority = 0;  // Default priority
+    }
+
+    // Parse install object (for dependency auto-installation)
+    cJSON *install = cJSON_GetObjectItem(json, "install");
+    if (install && cJSON_IsObject(install)) {
+        // Parse macOS install info
+        cJSON *macos = cJSON_GetObjectItem(install, "macos");
+        if (macos && cJSON_IsObject(macos)) {
+            cJSON *brew = cJSON_GetObjectItem(macos, "brew");
+            if (brew && cJSON_IsString(brew)) {
+                meta->install_brew = strdup(brew->valuestring);
+            }
+        }
+        // Parse Linux install info
+        cJSON *linux_obj = cJSON_GetObjectItem(install, "linux");
+        if (linux_obj && cJSON_IsObject(linux_obj)) {
+            cJSON *apt = cJSON_GetObjectItem(linux_obj, "apt");
+            if (apt && cJSON_IsString(apt)) {
+                meta->install_apt = strdup(apt->valuestring);
+            }
+        }
     }
 
     meta->module_dir = strdup(module_dir);
@@ -493,6 +847,9 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
     free(meta->version);
     free(meta->description);
     free(meta->module_dir);
+    free(meta->c_compiler);
+    free(meta->install_brew);
+    free(meta->install_apt);
 
     #define FREE_STRING_ARRAY(arr, count) do { \
         for (size_t i = 0; i < meta->count; i++) { \
@@ -510,6 +867,7 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
     FREE_STRING_ARRAY(ldflags, ldflags_count);
     FREE_STRING_ARRAY(frameworks, frameworks_count);
     FREE_STRING_ARRAY(dependencies, dependencies_count);
+    FREE_STRING_ARRAY(system_packages, system_packages_count);
     FREE_STRING_ARRAY(apt_packages, apt_packages_count);
     FREE_STRING_ARRAY(dnf_packages, dnf_packages_count);
     FREE_STRING_ARRAY(brew_packages, brew_packages_count);
@@ -731,17 +1089,60 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
             printf("[Module] Building %s...\n", meta->name);
         }
 
+        // Check pkg-config dependencies BEFORE attempting to compile
+        const char *missing_pkg = NULL;
+        if (!check_module_pkg_dependencies(meta, &missing_pkg)) {
+            // Try to install the missing package
+            fprintf(stderr, "[Module] Package '%s' not found for module '%s'\n", missing_pkg, meta->name);
+            
+            // Check if we have install info in module.json
+            if (meta->install_brew || meta->install_apt) {
+                #ifdef __APPLE__
+                if (meta->install_brew) {
+                    fprintf(stderr, "[Module] Attempting: brew install %s\n", meta->install_brew);
+                    char install_cmd[256];
+                    snprintf(install_cmd, sizeof(install_cmd), "brew install %s 2>&1", meta->install_brew);
+                    int install_result = system(install_cmd);
+                    if (install_result == 0 && check_pkg_config_package(missing_pkg)) {
+                        fprintf(stderr, "[Module] Successfully installed %s\n", meta->install_brew);
+                    } else {
+                        fprintf(stderr, "[Module] Failed to install %s. Install manually with: brew install %s\n", 
+                                meta->install_brew, meta->install_brew);
+                        free(build_dir);
+                        return NULL;
+                    }
+                } else {
+                    fprintf(stderr, "[Module] No brew package specified. Skipping module '%s'\n", meta->name);
+                    free(build_dir);
+                    return NULL;
+                }
+                #else
+                if (meta->install_apt) {
+                    fprintf(stderr, "[Module] Install with: sudo apt-get install %s\n", meta->install_apt);
+                }
+                fprintf(stderr, "[Module] Skipping module '%s' due to missing dependencies\n", meta->name);
+                free(build_dir);
+                return NULL;
+                #endif
+            } else {
+                fprintf(stderr, "[Module] Skipping module '%s' - install '%s' manually\n", meta->name, missing_pkg);
+                free(build_dir);
+                return NULL;
+            }
+        }
+
         // Install system package dependencies (only when rebuilding)
-        if (meta->apt_packages_count > 0 || meta->dnf_packages_count > 0 || meta->brew_packages_count > 0) {
+        if (meta->system_packages_count > 0 || meta->apt_packages_count > 0 || meta->dnf_packages_count > 0 || meta->brew_packages_count > 0) {
             if (!install_system_packages(meta)) {
                 fprintf(stderr, "[Module] Warning: Some system packages failed to install for '%s'\n", meta->name);
                 fprintf(stderr, "[Module] Continuing anyway - build may fail if dependencies are missing\n");
             }
         }
 
-        // Get CC from environment or use POSIX cc
+        // Get CC from environment, module.json, or use POSIX cc
         const char *cc = getenv("NANO_CC");
         if (!cc) cc = getenv("CC");
+        if (!cc && meta->c_compiler) cc = meta->c_compiler;
         if (!cc) cc = "cc";
 
         // Build a reusable compile prefix (flags only)
@@ -853,88 +1254,97 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                  meta->module_dir, meta->name);
         #endif
         
-        /* Build shared library command */
-        char lib_cmd[4096];
-        size_t lib_pos = 0;
-        
-        #ifdef __APPLE__
-        /* On macOS, allow unresolved symbols so modules can reference symbols
-         * provided by the host process (compiler/interpreter) at dlopen() time.
-         */
-        lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                           "%s -dynamiclib -undefined dynamic_lookup -fPIC -o %s",
-                           cc, shared_lib);
-        #else
-        lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                           "%s -shared -fPIC -o %s", cc, shared_lib);
-        #endif
-        
-        /* Link the shared library from the module object (supports multi-source modules) */
-        lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", object_file);
-        
-        /* Add pkg-config flags (deduplicated) */
-        char *shared_cflags[1024] = {0};
-        size_t shared_cflags_count = 0;
-        for (size_t i = 0; i < meta->pkg_config_count; i++) {
-            char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
-            if (pkg_cflags) {
-                append_split_flags_move_to_end(shared_cflags, &shared_cflags_count, 1024, pkg_cflags);
-                free(pkg_cflags);
-            }
-        }
-        for (size_t i = 0; i < shared_cflags_count; i++) {
-            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", shared_cflags[i]);
-            free(shared_cflags[i]);
+        char shared_dir[1024];
+        snprintf(shared_dir, sizeof(shared_dir), "%s/.build", meta->module_dir);
+        bool shared_dir_ok = dir_exists(shared_dir) || mkdir_p(shared_dir);
+        if (!shared_dir_ok) {
+            fprintf(stderr, "Warning: Failed to create shared library directory for %s\n", meta->name);
         }
 
-        char *shared_ldflags[1024] = {0};
-        size_t shared_ldflags_count = 0;
-        for (size_t i = 0; i < meta->pkg_config_count; i++) {
-            char *pkg_libs = get_pkg_config_flags(meta->pkg_config[i], "--libs");
-            if (pkg_libs) {
-                append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, pkg_libs);
-                free(pkg_libs);
-            }
-        }
-        for (size_t i = 0; i < meta->system_libs_count; i++) {
-            char buf[256];
-            snprintf(buf, sizeof(buf), "-l%s", meta->system_libs[i]);
-            append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, buf);
-        }
-        for (size_t i = 0; i < meta->ldflags_count; i++) {
-            append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, meta->ldflags[i]);
-        }
-        #ifdef __APPLE__
-        for (size_t i = 0; i < meta->frameworks_count; i++) {
-            append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, "-framework");
-            append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, meta->frameworks[i]);
-        }
-        #endif
-
-        for (size_t i = 0; i < shared_ldflags_count; i++) {
-            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", shared_ldflags[i]);
-            free(shared_ldflags[i]);
-        }
-        
-        /* Add custom cflags */
-        for (size_t i = 0; i < meta->cflags_count; i++) {
+        if (shared_dir_ok) {
+            /* Build shared library command */
+            char lib_cmd[4096];
+            size_t lib_pos = 0;
+            
+            #ifdef __APPLE__
+            /* On macOS, allow unresolved symbols so modules can reference symbols
+             * provided by the host process (compiler/interpreter) at dlopen() time.
+             */
             lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                               " %s", meta->cflags[i]);
-        }
-        
-        /* Note: ldflags/system libs/frameworks are included above via shared_ldflags */
-        
-        /* Build shared library */
-        if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-            printf("[Module] Building shared library: %s\n", lib_cmd);
-        }
-        
-        int lib_result = system(lib_cmd);
-        if (lib_result != 0) {
-            fprintf(stderr, "Warning: Failed to build shared library for %s (interpreter FFI unavailable)\n", 
-                    meta->name);
-        } else if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-            printf("[Module] ✓ Built shared library %s\n", shared_lib);
+                               "%s -dynamiclib -undefined dynamic_lookup -fPIC -o %s",
+                               cc, shared_lib);
+            #else
+            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                               "%s -shared -fPIC -o %s", cc, shared_lib);
+            #endif
+            
+            /* Link the shared library from the module object (supports multi-source modules) */
+            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", object_file);
+            
+            /* Add pkg-config flags (deduplicated) */
+            char *shared_cflags[1024] = {0};
+            size_t shared_cflags_count = 0;
+            for (size_t i = 0; i < meta->pkg_config_count; i++) {
+                char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+                if (pkg_cflags) {
+                    append_split_flags_move_to_end(shared_cflags, &shared_cflags_count, 1024, pkg_cflags);
+                    free(pkg_cflags);
+                }
+            }
+            for (size_t i = 0; i < shared_cflags_count; i++) {
+                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", shared_cflags[i]);
+                free(shared_cflags[i]);
+            }
+
+            char *shared_ldflags[1024] = {0};
+            size_t shared_ldflags_count = 0;
+            for (size_t i = 0; i < meta->pkg_config_count; i++) {
+                char *pkg_libs = get_pkg_config_flags(meta->pkg_config[i], "--libs");
+                if (pkg_libs) {
+                    append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, pkg_libs);
+                    free(pkg_libs);
+                }
+            }
+            for (size_t i = 0; i < meta->system_libs_count; i++) {
+                char buf[256];
+                snprintf(buf, sizeof(buf), "-l%s", meta->system_libs[i]);
+                append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, buf);
+            }
+            for (size_t i = 0; i < meta->ldflags_count; i++) {
+                append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, meta->ldflags[i]);
+            }
+            #ifdef __APPLE__
+            for (size_t i = 0; i < meta->frameworks_count; i++) {
+                append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, "-framework");
+                append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, meta->frameworks[i]);
+            }
+            #endif
+
+            for (size_t i = 0; i < shared_ldflags_count; i++) {
+                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", shared_ldflags[i]);
+                free(shared_ldflags[i]);
+            }
+            
+            /* Add custom cflags */
+            for (size_t i = 0; i < meta->cflags_count; i++) {
+                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                                   " %s", meta->cflags[i]);
+            }
+            
+            /* Note: ldflags/system libs/frameworks are included above via shared_ldflags */
+            
+            /* Build shared library */
+            if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+                printf("[Module] Building shared library: %s\n", lib_cmd);
+            }
+            
+            int lib_result = system(lib_cmd);
+            if (lib_result != 0) {
+                fprintf(stderr, "Warning: Failed to build shared library for %s (interpreter FFI unavailable)\n", 
+                        meta->name);
+            } else if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+                printf("[Module] ✓ Built shared library %s\n", shared_lib);
+            }
         }
     } else {
         if (module_builder_verbose) {
@@ -1061,6 +1471,11 @@ char** module_get_link_flags(ModuleBuildInfo **modules, size_t count, size_t *ou
         if (modules[i]) {
             for (size_t j = 0; j < modules[i]->link_flags_count; j++) {
                 const char *flag = modules[i]->link_flags[j];
+                bool is_framework_flag = (strcmp(flag, "-framework") == 0);
+                bool is_framework_value = false;
+                if (j > 0 && modules[i]->link_flags[j - 1]) {
+                    is_framework_value = (strcmp(modules[i]->link_flags[j - 1], "-framework") == 0);
+                }
                 
                 // Skip NULL or empty flags
                 if (!flag || flag[0] == '\0') {
@@ -1068,14 +1483,16 @@ char** module_get_link_flags(ModuleBuildInfo **modules, size_t count, size_t *ou
                 }
                 
                 // De-duplicate by keeping the LAST occurrence (helps link order for dependent libs)
-                for (size_t k = 0; k < pos; k++) {
-                    if (strcmp(all_flags[k], flag) == 0) {
-                        free(all_flags[k]);
-                        for (size_t m = k; m + 1 < pos; m++) {
-                            all_flags[m] = all_flags[m + 1];
+                if (!is_framework_flag && !is_framework_value) {
+                    for (size_t k = 0; k < pos; k++) {
+                        if (strcmp(all_flags[k], flag) == 0) {
+                            free(all_flags[k]);
+                            for (size_t m = k; m + 1 < pos; m++) {
+                                all_flags[m] = all_flags[m + 1];
+                            }
+                            pos--;
+                            break;
                         }
-                        pos--;
-                        break;
                     }
                 }
 

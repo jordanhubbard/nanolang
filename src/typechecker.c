@@ -1,13 +1,96 @@
 #include "nanolang.h"
 #include "tracing.h"
+#include "resource_tracking.h"
+#include "colors.h"
+
+static void emit_context_error(
+    const char *title,
+    int line,
+    int column,
+    int caret_len,
+    const char *message,
+    const char *hint
+);
 
 /* Type checking context */
 typedef struct {
     Environment *env;
     Type current_function_return_type;
+    const char *current_function_return_struct_name;  /* For struct return types */
     bool has_error;
     bool warnings_enabled;
+    bool in_unsafe_block;   /* Track if we're inside an unsafe block */
+    int loop_depth;         /* Track if we're inside a loop (for break/continue validation) */
 } TypeChecker;
+
+static char *typeinfo_to_generic_arg_name(TypeInfo *param) {
+    if (!param) return strdup("unknown");
+
+    switch (param->base_type) {
+        case TYPE_INT:
+            return strdup("int");
+        case TYPE_U8:
+            return strdup("u8");
+        case TYPE_STRING:
+            return strdup("string");
+        case TYPE_BOOL:
+            return strdup("bool");
+        case TYPE_FLOAT:
+            return strdup("float");
+        case TYPE_STRUCT:
+        case TYPE_UNION:
+        case TYPE_ENUM:
+            if (param->generic_name) return strdup(param->generic_name);
+            return strdup("unknown");
+        case TYPE_ARRAY: {
+            char *elem = typeinfo_to_generic_arg_name(param->element_type);
+            if (!elem) return strdup("array_unknown");
+            size_t n = strlen(elem) + 7;
+            char *out = malloc(n);
+            if (!out) {
+                free(elem);
+                return strdup("array_unknown");
+            }
+            snprintf(out, n, "array_%s", elem);
+            free(elem);
+            return out;
+        }
+        default:
+            return strdup("unknown");
+    }
+}
+
+static char *typeinfo_to_monomorphized_generic_name(TypeInfo *info) {
+    if (!info || !info->generic_name) return NULL;
+    if (info->type_param_count <= 0) return strdup(info->generic_name);
+
+    size_t cap = 256;
+    char *out = malloc(cap);
+    if (!out) return NULL;
+    out[0] = '\0';
+
+    snprintf(out, cap, "%s", info->generic_name);
+    for (int i = 0; i < info->type_param_count; i++) {
+        char *arg = typeinfo_to_generic_arg_name(info->type_params[i]);
+        if (!arg) arg = strdup("unknown");
+        size_t need = strlen(out) + 1 + strlen(arg) + 1;
+        if (need > cap) {
+            cap = need * 2;
+            char *bigger = realloc(out, cap);
+            if (!bigger) {
+                free(arg);
+                free(out);
+                return NULL;
+            }
+            out = bigger;
+        }
+        strcat(out, "_");
+        strcat(out, arg);
+        free(arg);
+    }
+
+    return out;
+}
 
 /* Helper: Check if symbol was explicitly imported via selective import
  * NOTE: Currently unused - reserved for future selective import enforcement
@@ -171,6 +254,7 @@ const char *type_to_string(Type type) {
         case TYPE_FUNCTION: return "function";
         case TYPE_LIST_INT: return "list_int";
         case TYPE_LIST_STRING: return "list_string";
+        case TYPE_HASHMAP: return "HashMap";
         case TYPE_UNKNOWN: return "unknown";
         default: return "unknown";
     }
@@ -216,6 +300,13 @@ static bool contains_extern_calls(ASTNode *node, Environment *env) {
             if (contains_extern_calls(node->as.if_stmt.then_branch, env)) return true;
             if (node->as.if_stmt.else_branch && contains_extern_calls(node->as.if_stmt.else_branch, env)) return true;
             return false;
+        case AST_COND:
+            for (int i = 0; i < node->as.cond_expr.clause_count; i++) {
+                if (contains_extern_calls(node->as.cond_expr.conditions[i], env)) return true;
+                if (contains_extern_calls(node->as.cond_expr.values[i], env)) return true;
+            }
+            if (contains_extern_calls(node->as.cond_expr.else_value, env)) return true;
+            return false;
         case AST_WHILE:
             if (contains_extern_calls(node->as.while_stmt.condition, env)) return true;
             if (contains_extern_calls(node->as.while_stmt.body, env)) return true;
@@ -245,6 +336,7 @@ static bool contains_extern_calls(ASTNode *node, Environment *env) {
 }
 
 /* Check if types are compatible */
+static Type type_from_typeinfo(TypeInfo *info, const char **out_struct_name);
 static bool types_match(Type t1, Type t2) {
     if (t1 == t2) return true;
 
@@ -280,6 +372,18 @@ static bool types_match(Type t1, Type t2) {
     }
     
     return false;
+}
+
+static bool hashmap_extract_kv(TypeInfo *hm_info, Type *out_key, Type *out_value) {
+    if (out_key) *out_key = TYPE_UNKNOWN;
+    if (out_value) *out_value = TYPE_UNKNOWN;
+    if (!hm_info || !hm_info->generic_name) return false;
+    if (strcmp(hm_info->generic_name, "HashMap") != 0) return false;
+    if (hm_info->type_param_count != 2 || !hm_info->type_params) return false;
+
+    if (out_key) *out_key = type_from_typeinfo(hm_info->type_params[0], NULL);
+    if (out_value) *out_value = type_from_typeinfo(hm_info->type_params[1], NULL);
+    return true;
 }
 
 /* Helper: Get the struct type name from an expression (returns NULL if not a struct) */
@@ -343,6 +447,67 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             /* Get the struct type of the object */
             const char *object_struct_name = get_struct_type_name(expr->as.field_access.object, env);
             if (!object_struct_name) return NULL;
+
+            /* Union variant field access (object type name format: "UnionName.VariantName") */
+            const char *dot = strchr(object_struct_name, '.');
+            if (dot) {
+                int union_name_len = (int)(dot - object_struct_name);
+                char *union_name = malloc((size_t)union_name_len + 1);
+                strncpy(union_name, object_struct_name, (size_t)union_name_len);
+                union_name[union_name_len] = '\0';
+                const char *variant_name = dot + 1;
+
+                UnionDef *udef = env_get_union(env, union_name);
+                if (udef) {
+                    int variant_idx = env_get_union_variant_index(env, union_name, variant_name);
+                    if (variant_idx >= 0) {
+                        const char *field_name = expr->as.field_access.field_name;
+                        for (int i = 0; i < udef->variant_field_counts[variant_idx]; i++) {
+                            if (strcmp(udef->variant_field_names[variant_idx][i], field_name) != 0) {
+                                continue;
+                            }
+
+                            Type field_type = udef->variant_field_types[variant_idx][i];
+                            const char *field_type_name = NULL;
+                            if (udef->variant_field_type_names) {
+                                field_type_name = udef->variant_field_type_names[variant_idx][i];
+                            }
+
+                            /* For generic unions, resolve concrete struct/union type name from TypeInfo */
+                            if (udef->generic_param_count > 0 && field_type_name &&
+                                expr->as.field_access.object->type == AST_IDENTIFIER) {
+                                ASTNode *obj = expr->as.field_access.object;
+                                Symbol *obj_sym = env_get_var_visible_at(env, obj->as.identifier, obj->line, obj->column);
+                                if (obj_sym && obj_sym->type_info && obj_sym->type_info->type_param_count > 0) {
+                                    for (int g = 0; g < udef->generic_param_count; g++) {
+                                        if (strcmp(udef->generic_params[g], field_type_name) == 0) {
+                                            if (g < obj_sym->type_info->type_param_count) {
+                                                TypeInfo *concrete = obj_sym->type_info->type_params[g];
+                                                if (concrete) {
+                                                    if ((concrete->base_type == TYPE_STRUCT || concrete->base_type == TYPE_UNION) &&
+                                                        concrete->generic_name) {
+                                                        free(union_name);
+                                                        return strdup(concrete->generic_name);
+                                                    }
+                                                }
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            /* Non-generic union (or unresolved generic): return declared struct/union name when available */
+                            if ((field_type == TYPE_STRUCT || field_type == TYPE_UNION) && field_type_name) {
+                                free(union_name);
+                                return strdup(field_type_name);
+                            }
+                        }
+                    }
+                }
+
+                free(union_name);
+            }
             
             /* Look up the struct definition */
             StructDef *sdef = env_get_struct(env, object_struct_name);
@@ -457,11 +622,28 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     /* Function name used as value (for passing/returning) */
                     return TYPE_FUNCTION;
                 }
-                fprintf(stderr, "Error at line %d, column %d: Undefined variable '%s'\n",
-                        expr->line, expr->column, expr->as.identifier);
+                char message[256];
+                snprintf(message, sizeof(message), "I cannot find a variable named `%s`.", expr->as.identifier);
+                emit_context_error(
+                    "UNDEFINED VARIABLE",
+                    expr->line,
+                    expr->column,
+                    (int)safe_strlen(expr->as.identifier),
+                    message,
+                    "Check spelling or ensure the variable is in scope."
+                );
                 return TYPE_UNKNOWN;
             }
             sym->is_used = true;  /* Mark variable as used */
+            
+            /* Track resource usage - this is a READ/USE (not consumption) */
+            /* Note: We'll track consumption separately when passing to functions */
+            /* For now, just mark as used to detect use-after-consume */
+            if (sym->is_resource) {
+                bool dummy_error = false;  /* We'll get the real error flag from context later */
+                check_resource_use(env, expr->as.identifier, expr->line, expr->column, &dummy_error);
+            }
+            
             return sym->type;
         }
 
@@ -501,8 +683,17 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return sym->type;
                 }
                 
-                fprintf(stderr, "Error at line %d, column %d: Undefined symbol '%s' in module '%s'\n",
-                        expr->line, expr->column, symbol_name, module_name);
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "I cannot find `%s` in module `%s`.", symbol_name, module_name);
+                emit_context_error(
+                    "UNDEFINED SYMBOL",
+                    expr->line,
+                    expr->column,
+                    (int)safe_strlen(symbol_name),
+                    message,
+                    "Check the module name and exported symbols."
+                );
                 return TYPE_UNKNOWN;
             }
             
@@ -539,7 +730,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 
                 /* Binary arithmetic operations */
                 if (arg_count != 2) {
-                    fprintf(stderr, "Error at line %d, column %d: Binary arithmetic operators require 2 arguments\n", expr->line, expr->column);
+                    emit_context_error(
+                        "ARITY MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "Binary arithmetic operators require exactly 2 arguments.",
+                        "Provide two numeric operands."
+                    );
                     return TYPE_UNKNOWN;
                 }
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
@@ -585,9 +783,33 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     if (left_elem == TYPE_INT && right_elem == TYPE_INT) return TYPE_ARRAY;
                     if (left_elem == TYPE_FLOAT && right_elem == TYPE_FLOAT) return TYPE_ARRAY;
 
-                    fprintf(stderr, "Error at line %d, column %d: Type mismatch in array arithmetic operation\n", expr->line, expr->column);
-                    fprintf(stderr, "  Got: %s and %s\n", type_to_string(left), type_to_string(right));
+                    char message[256];
+                    snprintf(message, sizeof(message),
+                            "Array arithmetic requires matching numeric element types (got %s and %s).",
+                            type_to_string(left), type_to_string(right));
+                    emit_context_error(
+                        "TYPE MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        message,
+                        "Use matching numeric types or convert elements before arithmetic."
+                    );
                     return TYPE_UNKNOWN;
+                }
+
+                /* String concatenation with + operator
+                 *
+                 * Self-hosting uses nested concatenations heavily. If one side is
+                 * already known to be a string, allow the other side to be
+                 * TYPE_UNKNOWN and still treat the result as TYPE_STRING. This
+                 * preserves the "string context" through nested (+ a (+ b c)).
+                 */
+                if (op == TOKEN_PLUS) {
+                    if ((left == TYPE_STRING && (right == TYPE_STRING || right == TYPE_UNKNOWN)) ||
+                        (right == TYPE_STRING && (left == TYPE_STRING || left == TYPE_UNKNOWN))) {
+                        return TYPE_STRING;
+                    }
                 }
 
                 /* Enums are compatible with ints in arithmetic */
@@ -595,27 +817,50 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     (right == TYPE_INT || right == TYPE_ENUM || right == TYPE_U8)) return TYPE_INT;
                 if (left == TYPE_FLOAT && right == TYPE_FLOAT) return TYPE_FLOAT;
 
-                fprintf(stderr, "Error at line %d, column %d: Type mismatch in arithmetic operation\n", expr->line, expr->column);
-                fprintf(stderr, "  Expected: numeric types (int, u8, or float)\n");
-                fprintf(stderr, "  Got: %s and %s\n", type_to_string(left), type_to_string(right));
-                fprintf(stderr, "  Hint: Both operands must be the same numeric type\n");
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "Arithmetic expects numeric types or string concatenation with + (got %s and %s).",
+                        type_to_string(left), type_to_string(right));
+                emit_context_error(
+                    "TYPE MISMATCH",
+                    expr->line,
+                    expr->column,
+                    1,
+                    message,
+                    "Use matching numeric types, or use + with two strings."
+                );
                 return TYPE_UNKNOWN;
             }
 
             /* Comparison operators */
             if (op == TOKEN_LT || op == TOKEN_LE || op == TOKEN_GT || op == TOKEN_GE) {
                 if (arg_count != 2) {
-                    fprintf(stderr, "Error at line %d, column %d: Comparison operators require 2 arguments\n", expr->line, expr->column);
+                    emit_context_error(
+                        "ARITY MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "Comparison operators require exactly 2 arguments.",
+                        "Provide two comparable operands."
+                    );
                     return TYPE_UNKNOWN;
                 }
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
                 Type right = check_expression(expr->as.prefix_op.args[1], env);
 
                 if (!types_match(left, right)) {
-                    fprintf(stderr, "Error at line %d, column %d: Type mismatch in comparison\n", expr->line, expr->column);
-                    fprintf(stderr, "  Left operand: %s\n", type_to_string(left));
-                    fprintf(stderr, "  Right operand: %s\n", type_to_string(right));
-                    fprintf(stderr, "  Hint: Comparison requires both operands to be the same type\n");
+                    char message[256];
+                    snprintf(message, sizeof(message),
+                            "Comparison requires both operands to be the same type (got %s and %s).",
+                            type_to_string(left), type_to_string(right));
+                    emit_context_error(
+                        "TYPE MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        message,
+                        "Convert operands to the same type before comparing."
+                    );
                 }
                 return TYPE_BOOL;
             }
@@ -623,7 +868,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Equality operators */
             if (op == TOKEN_EQ || op == TOKEN_NE) {
                 if (arg_count != 2) {
-                    fprintf(stderr, "Error at line %d, column %d: Equality operators require 2 arguments\n", expr->line, expr->column);
+                    emit_context_error(
+                        "ARITY MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "Equality operators require exactly 2 arguments.",
+                        "Provide two operands to compare."
+                    );
                     return TYPE_UNKNOWN;
                 }
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
@@ -640,7 +892,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
                 
                 if (!types_ok) {
-                    fprintf(stderr, "Error at line %d, column %d: Type mismatch in equality check\n", expr->line, expr->column);
+                    char message[256];
+                    snprintf(message, sizeof(message),
+                            "Equality requires both operands to be the same type (got %s and %s).",
+                            type_to_string(left), type_to_string(right));
+                    emit_context_error(
+                        "TYPE MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        message,
+                        "Convert operands to the same type before checking equality."
+                    );
                 }
                 return TYPE_BOOL;
             }
@@ -648,26 +911,54 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Logical operators */
             if (op == TOKEN_AND || op == TOKEN_OR) {
                 if (arg_count != 2) {
-                    fprintf(stderr, "Error at line %d, column %d: Logical operators require 2 arguments\n", expr->line, expr->column);
+                    emit_context_error(
+                        "ARITY MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "Logical operators require exactly 2 arguments.",
+                        "Provide two boolean operands."
+                    );
                     return TYPE_UNKNOWN;
                 }
                 Type left = check_expression(expr->as.prefix_op.args[0], env);
                 Type right = check_expression(expr->as.prefix_op.args[1], env);
 
                 if (left != TYPE_BOOL || right != TYPE_BOOL) {
-                    fprintf(stderr, "Error at line %d, column %d: Logical operators require bool operands\n", expr->line, expr->column);
+                    emit_context_error(
+                        "TYPE MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "Logical operators require bool operands.",
+                        "Convert operands to bool before using and/or."
+                    );
                 }
                 return TYPE_BOOL;
             }
 
             if (op == TOKEN_NOT) {
                 if (arg_count != 1) {
-                    fprintf(stderr, "Error at line %d, column %d: 'not' requires 1 argument\n", expr->line, expr->column);
+                    emit_context_error(
+                        "ARITY MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "`not` requires exactly 1 argument.",
+                        "Provide a single boolean operand."
+                    );
                     return TYPE_UNKNOWN;
                 }
                 Type arg = check_expression(expr->as.prefix_op.args[0], env);
                 if (arg != TYPE_BOOL) {
-                    fprintf(stderr, "Error at line %d, column %d: 'not' requires bool operand\n", expr->line, expr->column);
+                    emit_context_error(
+                        "TYPE MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "`not` requires a bool operand.",
+                        "Convert the operand to bool before using not."
+                    );
                 }
                 return TYPE_BOOL;
             }
@@ -1004,6 +1295,183 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
                     return TYPE_INT;
                 }
+
+                /* HashMap<K,V> core built-ins (only if no user-defined function with same name exists) */
+                if (strcmp(expr->as.call.name, "map_new") == 0) {
+                    if (expr->as.call.arg_count != 0) {
+                        fprintf(stderr, "Error at line %d, column %d: map_new requires 0 arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+
+                    /* Requires type context (e.g., let hm: HashMap<K,V> = (map_new)) */
+                    if (!expr->as.call.return_struct_type_name) {
+                        fprintf(stderr, "Error at line %d, column %d: map_new requires a HashMap<K,V> type annotation\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    return TYPE_HASHMAP;
+                }
+
+                if (strcmp(expr->as.call.name, "map_put") == 0 || strcmp(expr->as.call.name, "map_set") == 0) {
+                    if (expr->as.call.arg_count != 3) {
+                        fprintf(stderr, "Error at line %d, column %d: %s requires 3 arguments\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    Type hm_t = check_expression(expr->as.call.args[0], env);
+                    Type key_t = check_expression(expr->as.call.args[1], env);
+                    Type val_t = check_expression(expr->as.call.args[2], env);
+                    if (hm_t != TYPE_HASHMAP) {
+                        fprintf(stderr, "Error at line %d, column %d: %s expects HashMap as first argument\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    TypeInfo *hm_info = try_get_expr_type_info(expr->as.call.args[0], env);
+                    Type exp_k = TYPE_UNKNOWN;
+                    Type exp_v = TYPE_UNKNOWN;
+                    if (!hashmap_extract_kv(hm_info, &exp_k, &exp_v)) {
+                        fprintf(stderr, "Error at line %d, column %d: Cannot infer HashMap<K,V> type arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    if (!types_match(key_t, exp_k) || !types_match(val_t, exp_v)) {
+                        fprintf(stderr, "Error at line %d, column %d: %s expects key %s and value %s\n",
+                                expr->line, expr->column, expr->as.call.name, type_to_string(exp_k), type_to_string(exp_v));
+                        return TYPE_UNKNOWN;
+                    }
+                    return TYPE_VOID;
+                }
+
+                if (strcmp(expr->as.call.name, "map_get") == 0) {
+                    if (expr->as.call.arg_count != 2) {
+                        fprintf(stderr, "Error at line %d, column %d: map_get requires 2 arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    Type hm_t = check_expression(expr->as.call.args[0], env);
+                    Type key_t = check_expression(expr->as.call.args[1], env);
+                    if (hm_t != TYPE_HASHMAP) {
+                        fprintf(stderr, "Error at line %d, column %d: map_get expects HashMap as first argument\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    TypeInfo *hm_info = try_get_expr_type_info(expr->as.call.args[0], env);
+                    Type exp_k = TYPE_UNKNOWN;
+                    Type exp_v = TYPE_UNKNOWN;
+                    if (!hashmap_extract_kv(hm_info, &exp_k, &exp_v)) {
+                        fprintf(stderr, "Error at line %d, column %d: Cannot infer HashMap<K,V> type arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    if (!types_match(key_t, exp_k)) {
+                        fprintf(stderr, "Error at line %d, column %d: map_get expects key type %s\n",
+                                expr->line, expr->column, type_to_string(exp_k));
+                        return TYPE_UNKNOWN;
+                    }
+                    return exp_v;
+                }
+
+                if (strcmp(expr->as.call.name, "map_has") == 0) {
+                    if (expr->as.call.arg_count != 2) {
+                        fprintf(stderr, "Error at line %d, column %d: map_has requires 2 arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    Type hm_t = check_expression(expr->as.call.args[0], env);
+                    Type key_t = check_expression(expr->as.call.args[1], env);
+                    if (hm_t != TYPE_HASHMAP) {
+                        fprintf(stderr, "Error at line %d, column %d: map_has expects HashMap as first argument\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    TypeInfo *hm_info = try_get_expr_type_info(expr->as.call.args[0], env);
+                    Type exp_k = TYPE_UNKNOWN;
+                    if (!hashmap_extract_kv(hm_info, &exp_k, NULL)) {
+                        fprintf(stderr, "Error at line %d, column %d: Cannot infer HashMap<K,V> type arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    if (!types_match(key_t, exp_k)) {
+                        fprintf(stderr, "Error at line %d, column %d: map_has expects key type %s\n",
+                                expr->line, expr->column, type_to_string(exp_k));
+                        return TYPE_UNKNOWN;
+                    }
+                    return TYPE_BOOL;
+                }
+
+                if (strcmp(expr->as.call.name, "map_remove") == 0) {
+                    if (expr->as.call.arg_count != 2) {
+                        fprintf(stderr, "Error at line %d, column %d: map_remove requires 2 arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    Type hm_t = check_expression(expr->as.call.args[0], env);
+                    Type key_t = check_expression(expr->as.call.args[1], env);
+                    if (hm_t != TYPE_HASHMAP) {
+                        fprintf(stderr, "Error at line %d, column %d: map_remove expects HashMap as first argument\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    TypeInfo *hm_info = try_get_expr_type_info(expr->as.call.args[0], env);
+                    Type exp_k = TYPE_UNKNOWN;
+                    if (!hashmap_extract_kv(hm_info, &exp_k, NULL)) {
+                        fprintf(stderr, "Error at line %d, column %d: Cannot infer HashMap<K,V> type arguments\n",
+                                expr->line, expr->column);
+                        return TYPE_UNKNOWN;
+                    }
+                    if (!types_match(key_t, exp_k)) {
+                        fprintf(stderr, "Error at line %d, column %d: map_remove expects key type %s\n",
+                                expr->line, expr->column, type_to_string(exp_k));
+                        return TYPE_UNKNOWN;
+                    }
+                    return TYPE_VOID;
+                }
+
+                if (strcmp(expr->as.call.name, "map_length") == 0 || strcmp(expr->as.call.name, "map_size") == 0) {
+                    if (expr->as.call.arg_count != 1) {
+                        fprintf(stderr, "Error at line %d, column %d: %s requires 1 argument\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    Type hm_t = check_expression(expr->as.call.args[0], env);
+                    if (hm_t != TYPE_HASHMAP) {
+                        fprintf(stderr, "Error at line %d, column %d: %s expects HashMap as first argument\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    return TYPE_INT;
+                }
+
+                if (strcmp(expr->as.call.name, "map_clear") == 0 || strcmp(expr->as.call.name, "map_free") == 0) {
+                    if (expr->as.call.arg_count != 1) {
+                        fprintf(stderr, "Error at line %d, column %d: %s requires 1 argument\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    Type hm_t = check_expression(expr->as.call.args[0], env);
+                    if (hm_t != TYPE_HASHMAP) {
+                        fprintf(stderr, "Error at line %d, column %d: %s expects HashMap as first argument\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    return TYPE_VOID;
+                }
+
+                if (strcmp(expr->as.call.name, "map_keys") == 0 || strcmp(expr->as.call.name, "map_values") == 0) {
+                    if (expr->as.call.arg_count != 1) {
+                        fprintf(stderr, "Error at line %d, column %d: %s requires 1 argument\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    Type hm_t = check_expression(expr->as.call.args[0], env);
+                    if (hm_t != TYPE_HASHMAP) {
+                        fprintf(stderr, "Error at line %d, column %d: %s expects HashMap as first argument\n",
+                                expr->line, expr->column, expr->as.call.name);
+                        return TYPE_UNKNOWN;
+                    }
+                    return TYPE_ARRAY;
+                }
                 
                 /* Special handling for generic list functions: list_TypeName_operation */
                 const char *func_name = expr->as.call.name;
@@ -1034,6 +1502,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 
                                 /* Return appropriate type based on operation */
                                 if (strcmp(operation, "new") == 0 || strcmp(operation, "with_capacity") == 0) {
+                                    /* Register this instantiation for code generation */
+                                    env_register_list_instantiation(env, type_name);
                                     free(type_name);
                                     return TYPE_LIST_GENERIC;  /* Returns List<Type> */
                                 } else if (strcmp(operation, "get") == 0) {
@@ -1059,11 +1529,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 }
                             } else {
                                 /* Better error message: list function for unknown type */
-                                safe_fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
-                                        expr->line, expr->column, safe_format_string(expr->as.call.name));
-                                safe_fprintf(stderr, "  Note: struct or enum '%s' is not defined\n", type_name);
-                                safe_fprintf(stderr, "  Hint: Define 'struct %s { ... }' before using List<%s>\n", 
-                                        type_name, type_name);
+                                char message[256];
+                                snprintf(message, sizeof(message),
+                                        "Unknown list element type `%s` in `%s`.",
+                                        type_name, expr->as.call.name);
+                                emit_context_error(
+                                    "UNDEFINED IDENTIFIER",
+                                    expr->line,
+                                    expr->column,
+                                    (int)safe_strlen(expr->as.call.name),
+                                    message,
+                                    "Define the struct/enum before using it in List<T>."
+                                );
                                 free(type_name);
                                 return TYPE_UNKNOWN;
                             }
@@ -1071,15 +1548,35 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
                 }
                 
-                safe_fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
-                        expr->line, expr->column, safe_format_string(expr->as.call.name));
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "I cannot find a function named `%s`.",
+                        safe_format_string(expr->as.call.name));
+                emit_context_error(
+                    "UNDEFINED FUNCTION",
+                    expr->line,
+                    expr->column,
+                    (int)safe_strlen(expr->as.call.name),
+                    message,
+                    "Check spelling or ensure the function is defined/imported."
+                );
                 return TYPE_UNKNOWN;
             }
 
             /* Check argument count */
             if (expr->as.call.arg_count != func->param_count) {
-                safe_fprintf(stderr, "Error at line %d, column %d: Function '%s' expects %d arguments, got %d\n",
-                        expr->line, expr->column, safe_format_string(expr->as.call.name), func->param_count, expr->as.call.arg_count);
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "Function `%s` expects %d argument(s), but got %d.",
+                        safe_format_string(expr->as.call.name), func->param_count, expr->as.call.arg_count);
+                emit_context_error(
+                    "ARITY MISMATCH",
+                    expr->line,
+                    expr->column,
+                    (int)safe_strlen(expr->as.call.name),
+                    message,
+                    "Add or remove arguments to match the function signature."
+                );
                 return TYPE_UNKNOWN;
             }
 
@@ -1092,8 +1589,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     if (func->params[i].type == TYPE_FUNCTION) {
                         /* Argument must be an identifier (function name or function-typed variable) */
                         if (arg->type != AST_IDENTIFIER) {
-                            fprintf(stderr, "Error at line %d, column %d: Function parameter expects a function name\n",
-                                    arg->line, arg->column);
+                            emit_context_error(
+                                "TYPE MISMATCH",
+                                arg->line,
+                                arg->column,
+                                1,
+                                "Function parameter expects a function name.",
+                                "Pass a function identifier or a function-typed variable."
+                            );
                             return TYPE_UNKNOWN;
                         }
                         
@@ -1109,8 +1612,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         /* Look up the function */
                         Function *passed_func = env_get_function(env, arg->as.identifier);
                         if (!passed_func) {
-                            fprintf(stderr, "Error at line %d, column %d: Undefined function '%s'\n",
-                                    arg->line, arg->column, arg->as.identifier);
+                            char message[256];
+                            snprintf(message, sizeof(message),
+                                    "I cannot find a function named `%s`.",
+                                    arg->as.identifier);
+                            emit_context_error(
+                                "UNDEFINED FUNCTION",
+                                arg->line,
+                                arg->column,
+                                (int)safe_strlen(arg->as.identifier),
+                                message,
+                                "Check spelling or ensure the function is defined/imported."
+                            );
                             return TYPE_UNKNOWN;
                         }
                         
@@ -1128,9 +1641,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         
                         /* Compare signatures */
                         if (!function_signatures_equal(func->params[i].fn_sig, &passed_sig)) {
-                            fprintf(stderr, "Error at line %d, column %d: Function signature mismatch for argument %d in call to '%s'\n",
-                                    arg->line, arg->column, i + 1, expr->as.call.name);
-                            fprintf(stderr, "  Expected function with different signature\n");
+                            char message[256];
+                            snprintf(message, sizeof(message),
+                                    "Argument %d expects a function with a different signature.",
+                                    i + 1);
+                            emit_context_error(
+                                "TYPE MISMATCH",
+                                arg->line,
+                                arg->column,
+                                (int)safe_strlen(arg->as.identifier),
+                                message,
+                                "Match the parameter's expected function signature."
+                            );
                             free(passed_sig.param_types);
                             free(passed_sig.param_struct_names);
                             return TYPE_UNKNOWN;
@@ -1143,6 +1665,17 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         /* Regular argument type checking */
                         Type arg_type = check_expression(arg, env);
                         
+                        /* Track resource consumption when passing to functions */
+                        /* If argument is a resource variable passed by value, mark as consumed */
+                        if (arg->type == AST_IDENTIFIER) {
+                            Symbol *arg_sym = env_get_var_visible_at(env, arg->as.identifier, arg->line, arg->column);
+                            if (arg_sym && arg_sym->is_resource) {
+                                /* Resource is being passed to function - mark as consumed */
+                                bool dummy_error = false;
+                                check_resource_consume(env, arg->as.identifier, arg->line, arg->column, &dummy_error);
+                            }
+                        }
+                        
                         /* Check for opaque type parameters - allow 0 (null) as argument */
                         bool is_opaque_param = false;
                         if (func->params[i].type == TYPE_STRUCT && func->params[i].struct_type_name) {
@@ -1151,10 +1684,20 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 is_opaque_param = true;
                                 /* For opaque types, allow TYPE_INT (for passing 0 as NULL) */
                                 if (arg_type != TYPE_INT && arg_type != TYPE_STRUCT) {
-                                    fprintf(stderr, "Error at line %d, column %d: Argument %d type mismatch in call to '%s'\n",
-                                            expr->line, expr->column, i + 1, expr->as.call.name);
-                                    fprintf(stderr, "  Expected opaque type '%s' or 0 (null), got %s\n",
-                                            func->params[i].struct_type_name, type_to_string(arg_type));
+                                    char message[256];
+                                    snprintf(message, sizeof(message),
+                                            "Argument %d expects opaque type `%s` or 0 (null), got %s.",
+                                            i + 1,
+                                            func->params[i].struct_type_name,
+                                            type_to_string(arg_type));
+                                    emit_context_error(
+                                        "TYPE MISMATCH",
+                                        expr->line,
+                                        expr->column,
+                                        1,
+                                        message,
+                                        "Pass the opaque handle or 0 (null)."
+                                    );
                                 }
                             }
                         }
@@ -1186,8 +1729,20 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                         
                         if (!is_opaque_param && !is_opaque_arg && !types_match(arg_type, func->params[i].type)) {
-                            fprintf(stderr, "Error at line %d, column %d: Argument %d type mismatch in call to '%s'\n",
-                                    expr->line, expr->column, i + 1, expr->as.call.name);
+                            char message[256];
+                            snprintf(message, sizeof(message),
+                                    "Argument %d expects %s, got %s.",
+                                    i + 1,
+                                    type_to_string(func->params[i].type),
+                                    type_to_string(arg_type));
+                            emit_context_error(
+                                "TYPE MISMATCH",
+                                expr->line,
+                                expr->column,
+                                1,
+                                message,
+                                "Convert the argument to the expected type."
+                            );
                         }
                     }
                 }
@@ -1368,6 +1923,81 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             return func->return_type;
         }
 
+        case AST_MODULE_QUALIFIED_CALL: {
+            /* Module-qualified function call: (Module.function args...) */
+            const char *module_alias = expr->as.module_qualified_call.module_alias;
+            const char *function_name = expr->as.module_qualified_call.function_name;
+            
+            /* For now, construct a qualified name "Module.function" and look it up */
+            /* TODO: Use proper module namespace lookup */
+            char *qualified_name = malloc(strlen(module_alias) + strlen(function_name) + 2);
+            sprintf(qualified_name, "%s.%s", module_alias, function_name);
+            
+            /* Look up function in environment */
+            Function *func = env_get_function(env, qualified_name);
+            if (!func) {
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "I cannot find a function named `%s`.",
+                        qualified_name);
+                emit_context_error(
+                    "UNDEFINED FUNCTION",
+                    expr->line,
+                    expr->column,
+                    (int)safe_strlen(qualified_name),
+                    message,
+                    "Check the module alias and exported functions."
+                );
+                free(qualified_name);
+                return TYPE_UNKNOWN;
+            }
+            
+            /* Phase 3: Warn on calls to functions from unsafe modules if --warn-unsafe-calls is set */
+            if (env->warn_unsafe_calls && func->module_name) {
+                /* Check if the function's module is unsafe */
+                ModuleInfo *mod = env_get_module(env, func->module_name);
+                if (mod && mod->is_unsafe) {
+                    fprintf(stderr, "Warning at line %d, column %d: Calling function '%s.%s' from unsafe module '%s'\n",
+                            expr->line, expr->column, module_alias, function_name, func->module_name);
+                    fprintf(stderr, "  Note: Functions from unsafe modules may have safety implications\n");
+                }
+            }
+            
+            /* Phase 3: Warn on FFI calls if --warn-ffi is set */
+            if (func->is_extern && env->warn_ffi) {
+                fprintf(stderr, "Warning at line %d, column %d: FFI call to extern function '%s.%s'\n",
+                        expr->line, expr->column, module_alias, function_name);
+                fprintf(stderr, "  Note: Extern functions perform arbitrary operations\n");
+            }
+            
+            free(qualified_name);
+            
+            /* Type check arguments (basic check - just verify count and type check expressions) */
+            if (expr->as.module_qualified_call.arg_count != func->param_count) {
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "Function `%s.%s` expects %d argument(s), but got %d.",
+                        module_alias, function_name,
+                        func->param_count, expr->as.module_qualified_call.arg_count);
+                emit_context_error(
+                    "ARITY MISMATCH",
+                    expr->line,
+                    expr->column,
+                    (int)safe_strlen(function_name),
+                    message,
+                    "Add or remove arguments to match the function signature."
+                );
+                return TYPE_UNKNOWN;
+            }
+            
+            /* Type check each argument expression */
+            for (int i = 0; i < expr->as.module_qualified_call.arg_count; i++) {
+                check_expression(expr->as.module_qualified_call.args[i], env);
+            }
+            
+            return func->return_type;
+        }
+
         case AST_ARRAY_LITERAL: {
             /* Type check array literal */
             int element_count = expr->as.array_literal.element_count;
@@ -1387,8 +2017,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             for (int i = 1; i < element_count; i++) {
                 Type elem_type = check_expression(expr->as.array_literal.elements[i], env);
                 if (elem_type != first_type) {
-                    fprintf(stderr, "Error at line %d, column %d: Array elements must all have the same type. Expected %d, got %d\n",
-                            expr->line, expr->column, first_type, elem_type);
+                    char message[256];
+                    snprintf(message, sizeof(message),
+                            "Array elements must all have the same type (expected %s, got %s).",
+                            type_to_string(first_type), type_to_string(elem_type));
+                    emit_context_error(
+                        "TYPE MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        message,
+                        "Use consistent element types or convert values."
+                    );
                     return TYPE_UNKNOWN;
                 }
             }
@@ -1402,7 +2042,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         case AST_IF: {
             Type cond_type = check_expression(expr->as.if_stmt.condition, env);
             if (cond_type != TYPE_BOOL) {
-                fprintf(stderr, "Error at line %d, column %d: If condition must be bool\n", expr->line, expr->column);
+                emit_context_error(
+                    "TYPE MISMATCH",
+                    expr->line,
+                    expr->column,
+                    1,
+                    "If condition must be a bool.",
+                    "Ensure the condition expression evaluates to bool."
+                );
             }
 
             /* For if expressions, we need to infer the type from the blocks */
@@ -1411,13 +2058,148 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             return TYPE_UNKNOWN;
         }
 
+        case AST_COND: {
+            /* Type check all conditions (must be bool) */
+            for (int i = 0; i < expr->as.cond_expr.clause_count; i++) {
+                Type cond_type = check_expression(expr->as.cond_expr.conditions[i], env);
+                if (cond_type != TYPE_BOOL) {
+                    emit_context_error(
+                        "TYPE MISMATCH",
+                        expr->line,
+                        expr->column,
+                        1,
+                        "Cond clause condition must be a bool.",
+                        "Ensure each cond clause condition is boolean."
+                    );
+                }
+            }
+            
+            /* Type check all values and ensure they have the same type */
+            Type result_type = TYPE_UNKNOWN;
+            if (expr->as.cond_expr.clause_count > 0) {
+                result_type = check_expression(expr->as.cond_expr.values[0], env);
+                for (int i = 1; i < expr->as.cond_expr.clause_count; i++) {
+                    Type val_type = check_expression(expr->as.cond_expr.values[i], env);
+                    if (val_type != result_type && result_type != TYPE_UNKNOWN && val_type != TYPE_UNKNOWN) {
+                        fprintf(stderr, "Error at line %d, column %d: All cond clause values must have the same type\n",
+                                expr->line, expr->column);
+                    }
+                }
+            }
+            
+            /* Type check else value (must match clause values) */
+            Type else_type = check_expression(expr->as.cond_expr.else_value, env);
+            if (else_type != result_type && result_type != TYPE_UNKNOWN && else_type != TYPE_UNKNOWN) {
+                fprintf(stderr, "Error at line %d, column %d: Cond else value must have the same type as clause values\n",
+                        expr->line, expr->column);
+            }
+            
+            return result_type != TYPE_UNKNOWN ? result_type : else_type;
+        }
+
         case AST_STRUCT_LITERAL: {
+            /* Check if struct name was inferred (should happen in let/return/call context) */
+            if (expr->as.struct_literal.struct_name == NULL) {
+                fprintf(stderr, "Error at line %d, column %d: Anonymous struct literal requires type context\n",
+                        expr->line, expr->column);
+                return TYPE_UNKNOWN;
+            }
+            
+            /* Check if this is a union variant construction (format: "UnionName.VariantName") */
+            const char *dot = strchr(expr->as.struct_literal.struct_name, '.');
+            if (dot) {
+                /* This may be a union variant construction OR a module-qualified struct literal.
+                 * Only treat it as a union if the prefix is a known union type.
+                 */
+                int union_name_len = dot - expr->as.struct_literal.struct_name;
+                char *union_name = malloc(union_name_len + 1);
+                strncpy(union_name, expr->as.struct_literal.struct_name, union_name_len);
+                union_name[union_name_len] = '\0';
+                const char *variant_name = dot + 1;
+                
+                /* Look up union definition */
+                UnionDef *udef = env_get_union(env, union_name);
+                if (!udef) {
+                    free(union_name);
+                    goto not_a_union_variant;
+                }
+                
+                /* Find the variant index */
+                int variant_idx = env_get_union_variant_index(env, union_name, variant_name);
+                if (variant_idx < 0) {
+                    fprintf(stderr, "Error at line %d, column %d: Unknown variant '%s' in union '%s'\n",
+                            expr->line, expr->column, variant_name, union_name);
+                    free(union_name);
+                    return TYPE_UNKNOWN;
+                }
+                
+                /* Verify field count matches */
+                if (expr->as.struct_literal.field_count != udef->variant_field_counts[variant_idx]) {
+                    fprintf(stderr, "Error at line %d, column %d: Variant '%s.%s' expects %d fields, got %d\n",
+                            expr->line, expr->column, union_name, variant_name,
+                            udef->variant_field_counts[variant_idx], expr->as.struct_literal.field_count);
+                    free(union_name);
+                    return TYPE_UNKNOWN;
+                }
+                
+                /* Type check fields */
+                for (int i = 0; i < expr->as.struct_literal.field_count; i++) {
+                    Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
+                    Type expected = udef->variant_field_types[variant_idx][i];
+
+                    /* If the expected field type refers to a generic parameter name (T, E, etc.),
+                     * treat it as a wildcard here. This struct-literal path does not carry the
+                     * concrete instantiation needed for substitution.
+                     */
+                    if (udef->generic_param_count > 0 &&
+                        udef->variant_field_type_names &&
+                        udef->variant_field_type_names[variant_idx] &&
+                        udef->variant_field_type_names[variant_idx][i]) {
+                        const char *expected_name = udef->variant_field_type_names[variant_idx][i];
+                        for (int gp = 0; gp < udef->generic_param_count; gp++) {
+                            if (udef->generic_params && udef->generic_params[gp] &&
+                                strcmp(expected_name, udef->generic_params[gp]) == 0) {
+                                goto next_union_field;
+                            }
+                        }
+                    }
+
+                    /* Generic unions (e.g., Result<T, E>) store TYPE_GENERIC for variant fields.
+                     * If we don't have concrete substitution info at this node, treat TYPE_GENERIC
+                     * as a wildcard to avoid spurious type mismatch errors.
+                     */
+                    if (expected == TYPE_GENERIC) {
+                        goto next_union_field;
+                    }
+
+                    if (!types_match(field_type, expected)) {
+                        fprintf(stderr, "Error at line %d, column %d: Field type mismatch in variant '%s.%s'\n",
+                                expr->line, expr->column, union_name, variant_name);
+                    }
+
+                next_union_field:
+                    ;
+                }
+                
+                free(union_name);
+                return TYPE_UNION;
+            }
+
+        not_a_union_variant:
+            ;
+            
             /* Check that struct is defined */
             StructDef *sdef = env_get_struct(env, expr->as.struct_literal.struct_name);
             if (!sdef) {
                 fprintf(stderr, "Error at line %d, column %d: Undefined struct '%s'\n",
                         expr->line, expr->column, expr->as.struct_literal.struct_name);
                 return TYPE_UNKNOWN;
+            }
+            
+            /* Normalize qualified name (Math.Point) to actual struct name (Point) */
+            if (strcmp(expr->as.struct_literal.struct_name, sdef->name) != 0) {
+                free(expr->as.struct_literal.struct_name);
+                expr->as.struct_literal.struct_name = strdup(sdef->name);
             }
             
             /* Check that all fields are provided and types match */
@@ -1444,14 +2226,20 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 if (field_index == -1) {
                     fprintf(stderr, "Error at line %d, column %d: Unknown field '%s' in struct '%s'\n",
                             expr->line, expr->column, field_name, expr->as.struct_literal.struct_name);
+                    fprintf(stderr, "  Known fields:");
+                    for (int j = 0; j < sdef->field_count; j++) {
+                        fprintf(stderr, "%s%s", (j == 0 ? " " : ", "), sdef->field_names[j]);
+                    }
+                    fprintf(stderr, "\n");
                     continue;
                 }
                 
                 /* Check field type */
                 Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
                 if (!types_match(field_type, sdef->field_types[field_index])) {
-                    fprintf(stderr, "Error at line %d, column %d: Field '%s' type mismatch in struct '%s'\n",
-                            expr->line, expr->column, field_name, expr->as.struct_literal.struct_name);
+                    fprintf(stderr, "Error at line %d, column %d: Field '%s' type mismatch in struct '%s' (expected %s, got %s)\n",
+                            expr->line, expr->column, field_name, expr->as.struct_literal.struct_name,
+                            type_to_string(sdef->field_types[field_index]), type_to_string(field_type));
                 }
             }
             
@@ -1532,10 +2320,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Look up the union definition */
                 UnionDef *udef = env_get_union(env, union_name);
                 if (!udef) {
-                    fprintf(stderr, "Error at line %d, column %d: Undefined union '%s'\n",
-                            expr->line, expr->column, union_name);
+                    /* Likely a module-qualified struct name (e.g., Math.Point). */
                     free(union_name);
-                    return TYPE_UNKNOWN;
+                    goto not_a_union_variant_field_access;
                 }
                 
                 /* Find the variant */
@@ -1552,6 +2339,33 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 for (int i = 0; i < udef->variant_field_counts[variant_idx]; i++) {
                     if (strcmp(udef->variant_field_names[variant_idx][i], field_name) == 0) {
                         Type field_type = udef->variant_field_types[variant_idx][i];
+                        
+                        /* For generic unions, resolve the concrete type using TypeInfo */
+                        if (udef->generic_param_count > 0 && expr->as.field_access.object->type == AST_IDENTIFIER) {
+                            Symbol *obj_sym = env_get_var_visible_at(env, expr->as.field_access.object->as.identifier,
+                                                                      expr->as.field_access.object->line,
+                                                                      expr->as.field_access.object->column);
+                            if (obj_sym && obj_sym->type_info && obj_sym->type_info->type_param_count > 0) {
+                                /* Check if the field type is a generic parameter (e.g., "T", "E") */
+                                const char *field_type_name = udef->variant_field_type_names[variant_idx][i];
+                                if (field_type_name) {
+                                    /* Try to match it to a generic parameter name */
+                                    for (int g = 0; g < udef->generic_param_count; g++) {
+                                        if (strcmp(udef->generic_params[g], field_type_name) == 0) {
+                                            /* Found a match - use the concrete type from TypeInfo */
+                                            if (g < obj_sym->type_info->type_param_count) {
+                                                TypeInfo *concrete_type_info = obj_sym->type_info->type_params[g];
+                                                if (concrete_type_info) {
+                                                    field_type = concrete_type_info->base_type;
+                                                }
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
                         free(union_name);
                         return field_type;
                     }
@@ -1563,6 +2377,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 free(union_name);
                 return TYPE_UNKNOWN;
             }
+
+        not_a_union_variant_field_access:
+            ;
             
             /* Look up the struct definition */
             StructDef *sdef = env_get_struct(env, struct_name);
@@ -1670,13 +2487,22 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
             
             /* Infer and store union type name for transpiler */
-            const char *union_type_name = NULL;
+            const char *union_type_name = NULL;      /* base name for variant-field lookup: Result */
+            const char *union_base_name = NULL;      /* kept for binding metadata */
+            char *union_concrete_name = NULL;        /* for transpiler: Result_int_string */
+            TypeInfo *union_type_info = NULL;        /* For generic unions: Result<int, string> */
             ASTNode *match_expr_node = expr->as.match_expr.expr;
             
             if (match_expr_node->type == AST_IDENTIFIER) {
                 Symbol *sym = env_get_var_visible_at(env, match_expr_node->as.identifier, match_expr_node->line, match_expr_node->column);
                 if (sym && sym->struct_type_name) {
                     union_type_name = sym->struct_type_name;
+                }
+                /* For generic unions, also extract TypeInfo */
+                if (sym && sym->type_info) {
+                    union_type_info = sym->type_info;
+                    /* Prefer the generic name as the base for variant lookup */
+                    if (union_type_info->generic_name) union_type_name = union_type_info->generic_name;
                 }
             } else if (match_expr_node->type == AST_UNION_CONSTRUCT) {
                 union_type_name = match_expr_node->as.union_construct.union_name;
@@ -1704,43 +2530,61 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
                 }
             }
+
+            union_base_name = union_type_name;
+            if (union_type_info && union_type_info->generic_name && union_type_info->type_param_count > 0) {
+                union_base_name = union_type_info->generic_name;
+                union_concrete_name = typeinfo_to_monomorphized_generic_name(union_type_info);
+            }
             
-            if (union_type_name) {
-                expr->as.match_expr.union_type_name = strdup(union_type_name);
+            if (expr->as.match_expr.union_type_name) {
+                free(expr->as.match_expr.union_type_name);
+                expr->as.match_expr.union_type_name = NULL;
+            }
+            if (union_concrete_name) {
+                expr->as.match_expr.union_type_name = union_concrete_name;
+            } else if (union_base_name) {
+                expr->as.match_expr.union_type_name = strdup(union_base_name);
             }
             
             /* Check each arm and infer return type from first arm */
             Type return_type = TYPE_UNKNOWN;
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                 /* Save symbol count for scope */
-                int saved_symbol_count = env->symbol_count;
+                int saved_symbol_count __attribute__((unused)) = env->symbol_count;
                 
                 /* Add pattern binding to environment - bind as STRUCT type with "UnionName.VariantName"
                  * This allows us to distinguish union variant fields from regular struct fields
                  */
                 Value binding_val = create_void();
-                env_define_var_with_element_type(env, 
+                env_define_var_with_type_info(env, 
                     expr->as.match_expr.pattern_bindings[i],
-                    TYPE_STRUCT, TYPE_UNKNOWN, false, binding_val);
+                    TYPE_STRUCT, TYPE_UNKNOWN, union_type_info, false, binding_val);
                 
                 /* Store "UnionName.VariantName" as the struct type name for the binding
                  * This will be used by field access type checking to look up variant fields
                  */
-                if (union_type_name && env->symbol_count > 0) {
+                if (union_base_name && env->symbol_count > 0) {
                     Symbol *binding_sym = &env->symbols[env->symbol_count - 1];
                     const char *variant_name = expr->as.match_expr.pattern_variants[i];
                     /* Format: "UnionName.VariantName" */
-                    char *type_name = malloc(strlen(union_type_name) + strlen(variant_name) + 2);
-                    sprintf(type_name, "%s.%s", union_type_name, variant_name);
+                    char *type_name = malloc(strlen(union_base_name) + strlen(variant_name) + 2);
+                    sprintf(type_name, "%s.%s", union_base_name, variant_name);
                     binding_sym->struct_type_name = type_name;
+
+                    /* Ensure bindings participate in visibility disambiguation */
+                    binding_sym->def_line = expr->line;
+                    binding_sym->def_column = expr->column;
                 }
                 
                 /* Type check arm body (which is now an expression) */
                 Type arm_type = check_expression(expr->as.match_expr.arm_bodies[i], env);
                 
-                /* Restore scope */
-                /* Note: Symbols added here will be leaked, but typechecker is short-lived */
-                env->symbol_count = saved_symbol_count;
+                /* NOTE: We do NOT restore symbol_count here because the transpiler needs these bindings
+                 * later when it re-typechecks expressions for code generation. Match arm bindings need
+                 * to remain in the environment for the lifetime of the compilation unit.
+                 * This is safe because each arm's binding uses a unique name from the source code.
+                 */
                 
                 /* First arm determines return type */
                 if (i == 0) {
@@ -1750,7 +2594,58 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             expr->line, expr->column);
                 }
             }
-            
+
+            /* Exhaustiveness check: warn if any variants are not covered */
+            if (union_base_name) {
+                UnionDef *union_def = env_get_union(env, union_base_name);
+                if (union_def) {
+                    /* Build set of covered variants */
+                    bool *covered = calloc(union_def->variant_count, sizeof(bool));
+
+                    for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                        const char *pattern_variant = expr->as.match_expr.pattern_variants[i];
+
+                        /* Find which variant this pattern covers */
+                        for (int j = 0; j < union_def->variant_count; j++) {
+                            if (strcmp(union_def->variant_names[j], pattern_variant) == 0) {
+                                covered[j] = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    /* Check for uncovered variants */
+                    int uncovered_count = 0;
+                    for (int i = 0; i < union_def->variant_count; i++) {
+                        if (!covered[i]) {
+                            uncovered_count++;
+                        }
+                    }
+
+                    if (uncovered_count > 0) {
+                        /* Emit warning with list of uncovered variants */
+                        fprintf(stderr, "%sWarning at line %d, column %d:%s Non-exhaustive match - missing pattern",
+                                CSTART_WARNING, expr->line, expr->column, CEND);
+                        if (uncovered_count == 1) {
+                            fprintf(stderr, " for variant:");
+                        } else {
+                            fprintf(stderr, "s for variants:");
+                        }
+
+                        for (int i = 0; i < union_def->variant_count; i++) {
+                            if (!covered[i]) {
+                                fprintf(stderr, " %s", union_def->variant_names[i]);
+                            }
+                        }
+                        fprintf(stderr, "\n");
+                        fprintf(stderr, "%sHint:%s Add missing pattern(s) or use a catch-all pattern\n",
+                                CSTART_HINT, CEND);
+                    }
+
+                    free(covered);
+                }
+            }
+
             return return_type;
         }
 
@@ -1764,6 +2659,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             TypeChecker temp_tc;
             temp_tc.env = env;
             temp_tc.has_error = false;
+            temp_tc.loop_depth = 0;
             
             for (int i = 0; i < expr->as.block.count; i++) {
                 ASTNode *stmt = expr->as.block.statements[i];
@@ -1938,22 +2834,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         /* Build concrete type names for registration */
                         char **type_names = malloc(sizeof(char*) * info->type_param_count);
                         for (int i = 0; i < info->type_param_count; i++) {
-                            TypeInfo *param = info->type_params[i];
-                            if (param->base_type == TYPE_INT) {
-                                type_names[i] = strdup("int");
-                            } else if (param->base_type == TYPE_U8) {
-                                type_names[i] = strdup("u8");
-                            } else if (param->base_type == TYPE_STRING) {
-                                type_names[i] = strdup("string");
-                            } else if (param->base_type == TYPE_BOOL) {
-                                type_names[i] = strdup("bool");
-                            } else if (param->base_type == TYPE_FLOAT) {
-                                type_names[i] = strdup("float");
-                            } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
-                                type_names[i] = strdup(param->generic_name);
-                            } else {
-                                type_names[i] = strdup("unknown");
-                            }
+                            type_names[i] = typeinfo_to_generic_arg_name(info->type_params[i]);
                         }
                         
                         /* Register this instantiation for code generation */
@@ -1969,12 +2850,90 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     }
                 }
             }
+
+            /* Handle HashMap<K,V> (register instantiation for code generation) */
+            if (declared_type == TYPE_HASHMAP && stmt->as.let.type_info) {
+                TypeInfo *info = stmt->as.let.type_info;
+                if (!info->generic_name || strcmp(info->generic_name, "HashMap") != 0) {
+                    fprintf(stderr, "Error at line %d, column %d: Invalid HashMap type annotation\n",
+                            stmt->line, stmt->column);
+                    tc->has_error = true;
+                } else if (info->type_param_count != 2) {
+                    fprintf(stderr, "Error at line %d, column %d: HashMap expects 2 type parameter(s), got %d\n",
+                            stmt->line, stmt->column, info->type_param_count);
+                    tc->has_error = true;
+                } else {
+                    Type key_t = TYPE_UNKNOWN;
+                    Type val_t = TYPE_UNKNOWN;
+                    if (!hashmap_extract_kv(info, &key_t, &val_t)) {
+                        fprintf(stderr, "Error at line %d, column %d: Invalid HashMap type annotation\n",
+                                stmt->line, stmt->column);
+                        tc->has_error = true;
+                    }
+
+                    /* Current runtime supports hashing for int and string keys only */
+                    if (!(key_t == TYPE_INT || key_t == TYPE_STRING)) {
+                        fprintf(stderr, "Error at line %d, column %d: HashMap key type must be int or string (got %s)\n",
+                                stmt->line, stmt->column, type_to_string(key_t));
+                        tc->has_error = true;
+                    }
+                    if (!(val_t == TYPE_INT || val_t == TYPE_STRING)) {
+                        fprintf(stderr, "Error at line %d, column %d: HashMap value type must be int or string (got %s)\n",
+                                stmt->line, stmt->column, type_to_string(val_t));
+                        tc->has_error = true;
+                    }
+
+                    /* Register instantiation for codegen */
+                    char *key_name = typeinfo_to_generic_arg_name(info->type_params[0]);
+                    char *val_name = typeinfo_to_generic_arg_name(info->type_params[1]);
+                    env_register_hashmap_instantiation(tc->env, key_name, val_name);
+
+                    /* If RHS is (map_new), annotate call with monomorphized return type for transpiler */
+                    if (stmt->as.let.value && stmt->as.let.value->type == AST_CALL &&
+                        stmt->as.let.value->as.call.name &&
+                        strcmp(stmt->as.let.value->as.call.name, "map_new") == 0 &&
+                        env_get_function(tc->env, "map_new") == NULL) {
+                        char mono[512];
+                        snprintf(mono, sizeof(mono), "HashMap_%s_%s", key_name, val_name);
+                        if (stmt->as.let.value->as.call.return_struct_type_name) {
+                            free(stmt->as.let.value->as.call.return_struct_type_name);
+                        }
+                        stmt->as.let.value->as.call.return_struct_type_name = strdup(mono);
+                    }
+
+                    free(key_name);
+                    free(val_name);
+                }
+            }
+            
+            /* Handle anonymous struct literals: infer struct name from declared type */
+            if (stmt->as.let.value && stmt->as.let.value->type == AST_STRUCT_LITERAL) {
+                ASTNode *struct_lit = stmt->as.let.value;
+                if (struct_lit->as.struct_literal.struct_name == NULL) {
+                    /* Anonymous struct literal - infer name from declared type */
+                    if (declared_type == TYPE_STRUCT && stmt->as.let.type_name) {
+                        /* Fill in the struct name for type checking */
+                        struct_lit->as.struct_literal.struct_name = strdup(stmt->as.let.type_name);
+                    } else {
+                        fprintf(stderr, "Error at line %d, column %d: Cannot infer struct type for anonymous literal\n",
+                                struct_lit->line, struct_lit->column);
+                        tc->has_error = true;
+                    }
+                }
+            }
             
             /* Now check the expression - the specialized functions are registered */
             Type value_type = check_expression(stmt->as.let.value, tc->env);
             
             /* If declared type is STRUCT, check if it's actually an enum or union */
             if (declared_type == TYPE_STRUCT && stmt->as.let.type_name) {
+                /* Normalize qualified name (Math.Point) to actual struct name (Point) */
+                StructDef *sdef = env_get_struct(tc->env, stmt->as.let.type_name);
+                if (sdef && strcmp(stmt->as.let.type_name, sdef->name) != 0) {
+                    free((char*)stmt->as.let.type_name);
+                    stmt->as.let.type_name = strdup(sdef->name);
+                }
+                
                 /* Check if this is actually a union */
                 if (env_get_union(tc->env, stmt->as.let.type_name)) {
                     declared_type = TYPE_UNION;
@@ -2058,7 +3017,18 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     /* dealing with function-typed parameters where we don't have full signature info */
                 }
             } else if (!types_match(value_type, declared_type)) {
-                fprintf(stderr, "Error at line %d, column %d: Type mismatch in let statement\n", stmt->line, stmt->column);
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "Let binding expects %s but got %s.",
+                        type_to_string(declared_type), type_to_string(value_type));
+                emit_context_error(
+                    "TYPE MISMATCH",
+                    stmt->line,
+                    stmt->column,
+                    1,
+                    message,
+                    "Ensure the assigned expression matches the declared type."
+                );
                 tc->has_error = true;
             }
 
@@ -2154,6 +3124,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     /* Use the declared type name */
                     if (sym->struct_type_name) free(sym->struct_type_name);  /* Free old value if any */
                     sym->struct_type_name = strdup(stmt->as.let.type_name);
+                    
+                    /* Mark as resource if the struct type is a resource */
+                    mark_variable_as_resource_if_needed(tc->env, stmt->as.let.name, stmt->as.let.type_name);
                 }
             }
             
@@ -2164,8 +3137,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 const char *struct_name = get_struct_type_name(stmt->as.let.value, tc->env);
                 if (struct_name) {
                     sym->struct_type_name = strdup(struct_name);
-                    /* Free the temporary string returned by get_struct_type_name */
-                    free((void*)struct_name);
                 }
             }
             
@@ -2189,8 +3160,16 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         case AST_SET: {
             Symbol *sym = env_get_var_visible_at(tc->env, stmt->as.set.name, stmt->line, stmt->column);
             if (!sym) {
-                fprintf(stderr, "Error at line %d, column %d: Undefined variable '%s'\n",
-                        stmt->line, stmt->column, stmt->as.set.name);
+                char message[256];
+                snprintf(message, sizeof(message), "I cannot find a variable named `%s`.", stmt->as.set.name);
+                emit_context_error(
+                    "UNDEFINED VARIABLE",
+                    stmt->line,
+                    stmt->column,
+                    (int)safe_strlen(stmt->as.set.name),
+                    message,
+                    "Check spelling or ensure the variable is in scope."
+                );
                 tc->has_error = true;
                 return TYPE_VOID;
             }
@@ -2212,7 +3191,18 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
 
             if (!types_match(value_type, sym->type)) {
-                fprintf(stderr, "Error at line %d, column %d: Type mismatch in assignment\n", stmt->line, stmt->column);
+                char message[256];
+                snprintf(message, sizeof(message),
+                        "Assignment expects %s but got %s.",
+                        type_to_string(sym->type), type_to_string(value_type));
+                emit_context_error(
+                    "TYPE MISMATCH",
+                    stmt->line,
+                    stmt->column,
+                    1,
+                    message,
+                    "Convert the value to the variable's type before assignment."
+                );
                 tc->has_error = true;
             }
 
@@ -2222,43 +3212,95 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         case AST_WHILE: {
             Type cond_type = check_expression(stmt->as.while_stmt.condition, tc->env);
             if (cond_type != TYPE_BOOL) {
-                fprintf(stderr, "Error at line %d, column %d: While condition must be bool\n", stmt->line, stmt->column);
+                emit_context_error(
+                    "TYPE MISMATCH",
+                    stmt->line,
+                    stmt->column,
+                    1,
+                    "While condition must be a bool.",
+                    "Ensure the loop condition evaluates to bool."
+                );
                 tc->has_error = true;
             }
 
+            /* Increment loop depth for break/continue validation */
+            tc->loop_depth++;
             check_statement(tc, stmt->as.while_stmt.body);
+            tc->loop_depth--;
             return TYPE_VOID;
         }
 
         case AST_FOR: {
-            /* Save current symbol count to restore after loop */
-            int old_symbol_count = tc->env->symbol_count;
-
             /* For loop variable has type int */
             Value val = create_void();
             env_define_var(tc->env, stmt->as.for_stmt.var_name, TYPE_INT, false, val);
 
+            /* Set definition location for visibility checking */
+            Symbol *loop_var_sym = env_get_var(tc->env, stmt->as.for_stmt.var_name);
+            if (loop_var_sym) {
+                loop_var_sym->def_line = stmt->line;
+                loop_var_sym->def_column = stmt->column;
+            }
+
             /* Range expression should return a range */
             check_expression(stmt->as.for_stmt.range_expr, tc->env);
 
-            /* Check the loop body */
+            /* Check the loop body (increment loop depth for break/continue validation) */
+            tc->loop_depth++;
             check_statement(tc, stmt->as.for_stmt.body);
+            tc->loop_depth--;
 
-            /* Restore symbol count (remove loop variable and any vars declared in body) */
-            /* Free the names that were allocated */
-            for (int i = old_symbol_count; i < tc->env->symbol_count; i++) {
-                free(tc->env->symbols[i].name);
-                if (tc->env->symbols[i].value.type == VAL_STRING) {
-                    free(tc->env->symbols[i].value.as.string_val);
-                }
+            /* DON'T restore environment - transpiler needs loop variable symbols! */
+            /* The old code removed loop variables after typechecking:
+             *   int old_symbol_count = tc->env->symbol_count;
+             *   ...
+             *   for (int i = old_symbol_count; i < tc->env->symbol_count; i++) {
+             *       free(tc->env->symbols[i].name);
+             *       ...
+             *   }
+             *   tc->env->symbol_count = old_symbol_count;
+             * This caused undefined variable warnings when transpiler/post-processing
+             * needed to look up loop variables. Loop variables are scoped by C's block
+             * scope rules, so keeping them in the environment doesn't cause collisions.
+             */
+
+            return TYPE_VOID;
+        }
+
+        case AST_BREAK: {
+            if (tc->loop_depth == 0) {
+                fprintf(stderr, "Error at line %d, column %d: 'break' outside loop\n", stmt->line, stmt->column);
+                tc->has_error = true;
             }
-            tc->env->symbol_count = old_symbol_count;
+            return TYPE_VOID;
+        }
 
+        case AST_CONTINUE: {
+            if (tc->loop_depth == 0) {
+                fprintf(stderr, "Error at line %d, column %d: 'continue' outside loop\n", stmt->line, stmt->column);
+                tc->has_error = true;
+            }
             return TYPE_VOID;
         }
 
         case AST_RETURN: {
             if (stmt->as.return_stmt.value) {
+                /* Handle anonymous struct literals: infer struct name from function return type */
+                if (stmt->as.return_stmt.value->type == AST_STRUCT_LITERAL) {
+                    ASTNode *struct_lit = stmt->as.return_stmt.value;
+                    if (struct_lit->as.struct_literal.struct_name == NULL) {
+                        /* Anonymous struct literal - infer name from function return type */
+                        if (tc->current_function_return_type == TYPE_STRUCT && tc->current_function_return_struct_name) {
+                            /* Fill in the struct name for type checking */
+                            struct_lit->as.struct_literal.struct_name = strdup(tc->current_function_return_struct_name);
+                        } else {
+                            fprintf(stderr, "Error at line %d, column %d: Cannot infer struct type for anonymous literal in return\n",
+                                    struct_lit->line, struct_lit->column);
+                            tc->has_error = true;
+                        }
+                    }
+                }
+                
                 Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
                 if (!types_match(return_type, tc->current_function_return_type)) {
                     fprintf(stderr, "Error at line %d, column %d: Return type mismatch\n", stmt->line, stmt->column);
@@ -2295,12 +3337,33 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             return TYPE_VOID;
         }
 
+        case AST_UNSAFE_BLOCK: {
+            /* Mark that we're entering an unsafe block */
+            bool prev_unsafe = tc->in_unsafe_block;
+            tc->in_unsafe_block = true;
+            
+            /* Type check all statements in the unsafe block */
+            for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
+                check_statement(tc, stmt->as.unsafe_block.statements[i]);
+            }
+            
+            /* Restore previous unsafe state */
+            tc->in_unsafe_block = prev_unsafe;
+            return TYPE_VOID;
+        }
+
         case AST_IF: {
             /* Type check if statement */
             Type cond_type = check_expression(stmt->as.if_stmt.condition, tc->env);
             if (cond_type != TYPE_BOOL) {
-                fprintf(stderr, "Error at line %d, column %d: If condition must be bool\n", 
-                        stmt->line, stmt->column);
+                emit_context_error(
+                    "TYPE MISMATCH",
+                    stmt->line,
+                    stmt->column,
+                    1,
+                    "If condition must be a bool.",
+                    "Ensure the condition expression evaluates to bool."
+                );
                 tc->has_error = true;
             }
             
@@ -2317,6 +3380,12 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             return TYPE_VOID;
         }
 
+        case AST_COND: {
+            /* Type check cond statement (just check as expression) */
+            check_expression(stmt, tc->env);
+            return TYPE_VOID;
+        }
+
         case AST_MATCH: {
             /* Match used as a statement: type check arms as statements so return statements
              * inside match arms are checked against the current function's return type.
@@ -2325,20 +3394,34 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
              */
             Type match_type = check_expression(stmt->as.match_expr.expr, tc->env);
             if (match_type != TYPE_UNION) {
-                fprintf(stderr, "Error at line %d, column %d: Match expression must be a union type\n",
-                        stmt->line, stmt->column);
+                emit_context_error(
+                    "TYPE MISMATCH",
+                    stmt->line,
+                    stmt->column,
+                    1,
+                    "Match expression must be a union type.",
+                    "Ensure the scrutinee is a union value."
+                );
                 tc->has_error = true;
                 return TYPE_VOID;
             }
 
             /* Infer and store union type name for transpiler + variant binding metadata */
-            const char *union_type_name = NULL;
+            const char *union_type_name = NULL;      /* base name for variant-field lookup */
+            const char *union_base_name = NULL;      /* kept for binding metadata */
+            char *union_concrete_name = NULL;        /* for transpiler: Result_int_string */
+            TypeInfo *union_type_info = NULL;        /* For generic unions: Result<int, string> */
             ASTNode *match_expr_node = stmt->as.match_expr.expr;
 
             if (match_expr_node->type == AST_IDENTIFIER) {
                 Symbol *sym = env_get_var(tc->env, match_expr_node->as.identifier);
                 if (sym && sym->struct_type_name) {
                     union_type_name = sym->struct_type_name;
+                }
+                /* For generic unions, also extract TypeInfo */
+                if (sym && sym->type_info) {
+                    union_type_info = sym->type_info;
+                    if (union_type_info->generic_name) union_type_name = union_type_info->generic_name;
                 }
             } else if (match_expr_node->type == AST_UNION_CONSTRUCT) {
                 union_type_name = match_expr_node->as.union_construct.union_name;
@@ -2365,27 +3448,38 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
             }
 
-            if (union_type_name) {
-                if (stmt->as.match_expr.union_type_name) {
-                    free(stmt->as.match_expr.union_type_name);
-                }
-                stmt->as.match_expr.union_type_name = strdup(union_type_name);
+            union_base_name = union_type_name;
+            if (union_type_info && union_type_info->generic_name && union_type_info->type_param_count > 0) {
+                union_base_name = union_type_info->generic_name;
+                union_concrete_name = typeinfo_to_monomorphized_generic_name(union_type_info);
+            }
+
+            if (stmt->as.match_expr.union_type_name) {
+                free(stmt->as.match_expr.union_type_name);
+                stmt->as.match_expr.union_type_name = NULL;
+            }
+            if (union_concrete_name) {
+                stmt->as.match_expr.union_type_name = union_concrete_name;
+            } else if (union_base_name) {
+                stmt->as.match_expr.union_type_name = strdup(union_base_name);
             }
 
             for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
-                int saved_symbol_count = tc->env->symbol_count;
-
                 Value binding_val = create_void();
-                env_define_var_with_element_type(tc->env,
+                env_define_var_with_type_info(tc->env,
                     stmt->as.match_expr.pattern_bindings[i],
-                    TYPE_STRUCT, TYPE_UNKNOWN, false, binding_val);
+                    TYPE_STRUCT, TYPE_UNKNOWN, union_type_info, false, binding_val);
 
-                if (union_type_name && tc->env->symbol_count > 0) {
+                if (union_base_name && tc->env->symbol_count > 0) {
                     Symbol *binding_sym = &tc->env->symbols[tc->env->symbol_count - 1];
                     const char *variant_name = stmt->as.match_expr.pattern_variants[i];
-                    char *type_name = malloc(strlen(union_type_name) + strlen(variant_name) + 2);
-                    sprintf(type_name, "%s.%s", union_type_name, variant_name);
+                    char *type_name = malloc(strlen(union_base_name) + strlen(variant_name) + 2);
+                    sprintf(type_name, "%s.%s", union_base_name, variant_name);
                     binding_sym->struct_type_name = type_name;
+
+                    /* Ensure bindings participate in visibility disambiguation */
+                    binding_sym->def_line = stmt->line;
+                    binding_sym->def_column = stmt->column;
                 }
 
                 ASTNode *arm = stmt->as.match_expr.arm_bodies[i];
@@ -2395,17 +3489,60 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     check_expression(arm, tc->env);
                 }
 
-                tc->env->symbol_count = saved_symbol_count;
+                /* NOTE: We do NOT restore symbol_count here because the transpiler needs these bindings
+                 * later when it re-typechecks expressions for code generation. Match arm bindings need
+                 * to remain in the environment for the lifetime of the compilation unit.
+                 * This is safe because each arm's binding uses a unique name from the source code.
+                 */
             }
 
             return TYPE_VOID;
         }
         
         case AST_PREFIX_OP:
-        case AST_CALL:
-            /* Expression statements */
+            /* Expression statement */
             check_expression(stmt, tc->env);
             return TYPE_VOID;
+            
+        case AST_CALL: {
+            /* Check if this is a call to an extern function outside unsafe context */
+            if (stmt->as.call.name) {
+                Function *func = env_get_function(tc->env, stmt->as.call.name);
+                if (func) {
+                    /* Phase 3: Warn on calls to functions from unsafe modules if --warn-unsafe-calls is set */
+                    if (tc->env->warn_unsafe_calls && func->module_name) {
+                        /* Check if the function's module is unsafe */
+                        ModuleInfo *mod = env_get_module(tc->env, func->module_name);
+                        if (mod && mod->is_unsafe) {
+                            fprintf(stderr, "Warning at line %d, column %d: Calling function '%s' from unsafe module '%s'\n",
+                                    stmt->line, stmt->column, stmt->as.call.name, func->module_name);
+                            fprintf(stderr, "  Note: Functions from unsafe modules may have safety implications\n");
+                        }
+                    }
+                    
+                    if (func->is_extern) {
+                        /* Phase 3: Warn on FFI calls if --warn-ffi is set */
+                        if (tc->env->warn_ffi) {
+                            fprintf(stderr, "Warning at line %d, column %d: FFI call to extern function '%s'\n",
+                                    stmt->line, stmt->column, stmt->as.call.name);
+                            fprintf(stderr, "  Note: Extern functions perform arbitrary operations\n");
+                        }
+                        
+                        /* Check if unsafe context is required */
+                        if (!tc->in_unsafe_block && !tc->env->current_module_is_unsafe) {
+                            fprintf(stderr, "Error at line %d, column %d: Call to extern function '%s' requires unsafe block or unsafe module\n",
+                                    stmt->line, stmt->column, stmt->as.call.name);
+                            fprintf(stderr, "  Note: Extern functions can perform arbitrary operations.\n");
+                            fprintf(stderr, "  Hint: Either wrap the call in 'unsafe { ... }' or declare the module as 'unsafe module name { ... }'\n");
+                            tc->has_error = true;
+                        }
+                    }
+                }
+            }
+            /* Type check the call expression */
+            check_expression(stmt, tc->env);
+            return TYPE_VOID;
+        }
 
         default:
             /* Literals and identifiers as statements */
@@ -2423,7 +3560,7 @@ static const char *builtin_function_names[] = {
     "abs", "min", "max", "sqrt", "pow", "floor", "ceil", "round",
     "sin", "cos", "tan", "atan2",
     /* Type casting */
-    "cast_int", "cast_float", "cast_bool", "cast_string", "cast_bstring", "to_string",
+    "cast_int", "cast_float", "cast_bool", "cast_string", "cast_bstring", "to_string", "null_opaque",
     /* String (C strings) */
     "str_length", "str_concat", "str_substring", "str_contains", "str_equals",
     /* Bytes (array<u8>) */
@@ -2466,14 +3603,137 @@ static const char *builtin_function_names[] = {
     "list_string_get", "list_string_set", "list_string_insert", "list_string_remove",
     "list_string_length", "list_string_capacity", "list_string_is_empty", "list_string_clear",
     "list_string_free",
-    /* List operations - list_token */
-    "list_token_new", "list_token_with_capacity", "list_token_push", "list_token_pop",
-    "list_token_get", "list_token_set", "list_token_insert", "list_token_remove",
-    "list_token_length", "list_token_capacity", "list_token_is_empty", "list_token_clear",
-    "list_token_free"
+    /* List operations - list_Token */
+    "nl_list_Token_new", "nl_list_Token_with_capacity", "nl_list_Token_push", "nl_list_Token_pop",
+    "nl_list_Token_get", "nl_list_Token_set", "nl_list_Token_insert", "nl_list_Token_remove",
+    "nl_list_Token_length", "nl_list_Token_capacity", "nl_list_Token_is_empty", "nl_list_Token_clear",
+    "nl_list_Token_free"
 };
 
 static const int builtin_function_name_count = sizeof(builtin_function_names) / sizeof(char*);
+
+static const char *g_typecheck_current_file = NULL;
+
+void typecheck_set_current_file(const char *path) {
+    g_typecheck_current_file = path;
+}
+
+static void emit_context_error(
+    const char *title,
+    int line,
+    int column,
+    int caret_len,
+    const char *message,
+    const char *hint
+);
+
+static bool read_source_line(const char *path, int target_line, char *buffer, size_t buffer_size) {
+    if (!path || target_line <= 0 || !buffer || buffer_size == 0) {
+        return false;
+    }
+    FILE *f = fopen(path, "r");
+    if (!f) {
+        return false;
+    }
+    int line = 1;
+    while (fgets(buffer, (int)buffer_size, f)) {
+        if (line == target_line) {
+            fclose(f);
+            return true;
+        }
+        line++;
+    }
+    fclose(f);
+    return false;
+}
+
+static void print_error_header(const char *title, const char *file_path) {
+    const char *file = file_path ? file_path : "";
+    /* Use red for errors, yellow for warnings */
+    const char *color_start = CSTART_ERROR;
+    const char *color_end = CEND;
+
+    /* Check if this is a warning */
+    if (strstr(title, "WARNING") || strstr(title, "Warning")) {
+        color_start = CSTART_WARNING;
+    }
+
+    fprintf(stderr, "%s-- %s %s", color_start, title, color_end);
+    int title_len = (int)strlen(title);
+    int file_len = (int)strlen(file);
+    int dash_count = 54 - title_len - file_len;
+    if (dash_count < 3) {
+        dash_count = 3;
+    }
+    for (int i = 0; i < dash_count; i++) {
+        fputc('-', stderr);
+    }
+    if (file_len > 0) {
+        fprintf(stderr, " %s%s%s", CSTART_DIM, file, CEND);
+    }
+    fputc('\n', stderr);
+}
+
+static void print_error_context_line(int line, int column, int caret_len, const char *line_text) {
+    if (!line_text) {
+        return;
+    }
+    char line_prefix[32];
+    int prefix_len = snprintf(line_prefix, sizeof(line_prefix), "%d| ", line);
+    /* Print line number in dim color */
+    fprintf(stderr, "%s%s%s%s", CSTART_DIM, line_prefix, CEND, line_text);
+    size_t line_len = strlen(line_text);
+    if (line_len == 0 || line_text[line_len - 1] != '\n') {
+        fputc('\n', stderr);
+    }
+
+    if (column < 1) {
+        column = 1;
+    }
+    if (caret_len < 1) {
+        caret_len = 1;
+    }
+
+    /* Print spacing before caret */
+    for (int i = 0; i < prefix_len + column - 1; i++) {
+        fputc(' ', stderr);
+    }
+    /* Print caret in red */
+    fprintf(stderr, "%s", CSTART_ERROR);
+    for (int i = 0; i < caret_len; i++) {
+        fputc('^', stderr);
+    }
+    fprintf(stderr, "%s\n", CEND);
+}
+
+static void emit_context_error(
+    const char *title,
+    int line,
+    int column,
+    int caret_len,
+    const char *message,
+    const char *hint
+) {
+    if (g_typecheck_current_file) {
+        print_error_header(title, g_typecheck_current_file);
+    } else {
+        fprintf(stderr, "%sError at line %d, column %d:%s %s\n",
+                CSTART_ERROR, line, column, CEND, message);
+        if (hint && hint[0] != '\0') {
+            fprintf(stderr, "%sHint:%s %s\n", CSTART_HINT, CEND, hint);
+        }
+        return;
+    }
+
+    fprintf(stderr, "%s\n\n", message);
+    char source_line[1024];
+    if (read_source_line(g_typecheck_current_file, line, source_line, sizeof(source_line))) {
+        print_error_context_line(line, column, caret_len, source_line);
+    }
+    if (hint && hint[0] != '\0') {
+        fprintf(stderr, "%sHint:%s %s\n", CSTART_HINT, CEND, hint);
+    }
+}
 
 /* Check if a function name is a built-in */
 static bool is_builtin_name(const char *name) {
@@ -2487,9 +3747,14 @@ static bool is_builtin_name(const char *name) {
 
 /* Register built-in functions in environment */
 static void register_builtin_functions(Environment *env) {
-    /* Important: zero-init so visibility/module_name pointers don't contain garbage.
-     * Module-aware typechecking calls strcmp() on module_name. */
+    /* Check if already initialized to avoid duplicate registration */
+    if (env->builtins_registered) {
+        return;
+    }
+    env->builtins_registered = true;
+
     Function func = (Function){0};
+    /* Important: zero-init so visibility/module_name pointers don't contain garbage. */
     func.is_pub = true;      /* Builtins are always accessible */
     func.module_name = NULL; /* Builtins are global */
     
@@ -2788,6 +4053,37 @@ static void register_builtin_functions(Environment *env) {
     env_define_function(env, func);
     
     func.name = "getenv";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    /* Temp helpers */
+    func.name = "tmp_dir";
+    func.params = NULL;
+    func.param_count = 0;
+    func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "mktemp";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "mktemp_dir";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_STRING;
@@ -3192,8 +4488,8 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    /* list_token operations */
-    func.name = "list_token_new";
+    /* list_Token operations */
+    func.name = "nl_list_Token_new";
     func.params = NULL;
     func.param_count = 0;
     func.return_type = TYPE_LIST_TOKEN;
@@ -3203,7 +4499,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_with_capacity";
+    func.name = "nl_list_Token_with_capacity";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_LIST_TOKEN;
@@ -3213,7 +4509,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_push";
+    func.name = "nl_list_Token_push";
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_VOID;
@@ -3223,7 +4519,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_pop";
+    func.name = "nl_list_Token_pop";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_STRUCT;  /* Returns Token struct */
@@ -3233,7 +4529,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_get";
+    func.name = "nl_list_Token_get";
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_STRUCT;  /* Returns Token struct */
@@ -3243,7 +4539,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_set";
+    func.name = "nl_list_Token_set";
     func.params = NULL;
     func.param_count = 3;
     func.return_type = TYPE_VOID;
@@ -3253,7 +4549,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_insert";
+    func.name = "nl_list_Token_insert";
     func.params = NULL;
     func.param_count = 3;
     func.return_type = TYPE_VOID;
@@ -3263,7 +4559,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_remove";
+    func.name = "nl_list_Token_remove";
     func.params = NULL;
     func.param_count = 2;
     func.return_type = TYPE_STRUCT;  /* Returns Token struct */
@@ -3273,7 +4569,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_length";
+    func.name = "nl_list_Token_length";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
@@ -3283,7 +4579,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_capacity";
+    func.name = "nl_list_Token_capacity";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_INT;
@@ -3293,7 +4589,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_is_empty";
+    func.name = "nl_list_Token_is_empty";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_BOOL;
@@ -3303,7 +4599,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_clear";
+    func.name = "nl_list_Token_clear";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_VOID;
@@ -3313,7 +4609,7 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
-    func.name = "list_token_free";
+    func.name = "nl_list_Token_free";
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_VOID;
@@ -3322,6 +4618,18 @@ static void register_builtin_functions(Environment *env) {
     func.shadow_test = NULL;
     func.is_extern = false;
     env_define_function(env, func);
+}
+
+/* Check if two functions have matching signatures */
+static bool functions_match(Function *f1, Function *f2) {
+    if (f1->param_count != f2->param_count) return false;
+    if (f1->return_type != f2->return_type) return false;
+    
+    for (int i = 0; i < f1->param_count; i++) {
+        if (f1->params[i].type != f2->params[i].type) return false;
+    }
+    
+    return true;
 }
 
 bool type_check(ASTNode *program, Environment *env) {
@@ -3334,9 +4642,71 @@ bool type_check(ASTNode *program, Environment *env) {
     tc.env = env;
     tc.has_error = false;
     tc.warnings_enabled = true;  /* Enable unused variable warnings */
+    tc.in_unsafe_block = false;  /* Start outside unsafe blocks */
+    tc.loop_depth = 0;           /* Start outside loops */
+    tc.current_function_return_type = TYPE_VOID;
+    tc.current_function_return_struct_name = NULL;
 
     /* Register built-in functions */
     register_builtin_functions(env);
+
+    /* Pre-pass: Process imports and register modules for introspection */
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        
+        if (item->type == AST_IMPORT) {
+            /* Extract module name from path (e.g., "modules/sdl/sdl.nano" -> "sdl") */
+            const char *path = item->as.import_stmt.module_path;
+            char *module_name = NULL;
+            
+            /* Find last '/' and last '.' */
+            const char *last_slash = strrchr(path, '/');
+            const char *last_dot = strrchr(path, '.');
+            
+            if (last_slash && last_dot && last_dot > last_slash) {
+                /* Extract between last slash and last dot */
+                size_t name_len = last_dot - (last_slash + 1);
+                module_name = strndup(last_slash + 1, name_len);
+            } else if (last_slash) {
+                /* No extension, use everything after last slash */
+                module_name = strdup(last_slash + 1);
+            } else if (last_dot) {
+                /* No slash, use everything before dot */
+                size_t name_len = last_dot - path;
+                module_name = strndup(path, name_len);
+            } else {
+                /* No slash or dot, use entire path */
+                module_name = strdup(path);
+            }
+            
+            /* Register module for introspection */
+            env_register_module(env, module_name, path, item->as.import_stmt.is_unsafe);
+            
+            /* Phase 3: Check warning flags for unsafe imports */
+            if (item->as.import_stmt.is_unsafe) {
+                if (env->forbid_unsafe) {
+                    /* --forbid-unsafe: Error on unsafe module imports */
+                    fprintf(stderr, "Error at line %d, column %d: Unsafe module import forbidden: '%s'\n",
+                            item->line, item->column, path);
+                    fprintf(stderr, "  Note: Compiled with --forbid-unsafe flag\n");
+                    fprintf(stderr, "  Hint: Remove --forbid-unsafe or use safe modules only\n");
+                    tc.has_error = true;
+                } else if (env->warn_unsafe_imports) {
+                    /* --warn-unsafe-imports: Warn on unsafe module imports */
+                    fprintf(stderr, "Warning at line %d, column %d: Importing unsafe module: '%s'\n",
+                            item->line, item->column, path);
+                    fprintf(stderr, "  Note: This module requires unsafe context for FFI calls\n");
+                }
+            }
+            
+            free(module_name);
+            
+            /* Mark current context as unsafe if we're importing unsafe modules */
+            if (item->as.import_stmt.is_unsafe) {
+                env->current_module_is_unsafe = true;
+            }
+        }
+    }
 
     /* First pass: collect all struct, enum, and function definitions */
     for (int i = 0; i < program->as.program.count; i++) {
@@ -3349,10 +4719,11 @@ bool type_check(ASTNode *program, Environment *env) {
                 free(env->current_module);
             }
             env->current_module = strdup(item->as.module_decl.name);
+            /* TODO: Check if module is declared as unsafe */
             continue;
         }
         
-        /* Skip imports - they're handled separately */
+        /* Skip imports - they're handled in pre-pass */
         if (item->type == AST_IMPORT) {
             continue;
         }
@@ -3418,7 +4789,17 @@ bool type_check(ASTNode *program, Environment *env) {
                 }
             }
             
+            sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
+            sdef.is_extern = item->as.struct_def.is_extern;      /* Propagate extern flag */
+sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
+            sdef.module_name = env->current_module ? strdup(env->current_module) : NULL;  /* Set module context */
+            
             env_define_struct(env, sdef);
+
+            /* Module introspection: track exported structs (public only) */
+            if (sdef.is_pub && env->current_module) {
+                env_add_module_exported_struct(env, env->current_module, struct_name);
+            }
             
         } else if (item->type == AST_UNION_DEF) {
             const char *union_name = item->as.union_def.name;
@@ -3496,6 +4877,7 @@ bool type_check(ASTNode *program, Environment *env) {
             /* Set module visibility */
             udef.is_pub = item->as.union_def.is_pub;
             udef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            udef.is_extern = item->as.union_def.is_extern;
             
             env_define_union(env, udef);
             
@@ -3616,6 +4998,11 @@ bool type_check(ASTNode *program, Environment *env) {
                 }
             }
             
+            /* Set module visibility */
+            edef.is_pub = item->as.enum_def.is_pub;
+            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.is_extern = item->as.enum_def.is_extern;
+            
             env_define_enum(env, edef);
             
         } else if (item->type == AST_FUNCTION) {
@@ -3634,6 +5021,20 @@ bool type_check(ASTNode *program, Environment *env) {
             /* Check if function is already defined */
             Function *existing = env_get_function(env, func_name);
             if (existing) {
+                /* If both are extern and signatures match, it's fine (idempotent) */
+                if (item->as.function.is_extern && existing->is_extern) {
+                    /* Create a temporary function object for matching */
+                    Function current = (Function){0};
+                    current.param_count = item->as.function.param_count;
+                    current.params = item->as.function.params;
+                    current.return_type = item->as.function.return_type;
+                    /* Note: return_struct_type_name match not fully implemented here */
+                    
+                    if (functions_match(&current, existing)) {
+                        continue; /* Skip registration, already there and matches */
+                    }
+                }
+
                 /* Extern functions cannot be redefined or shadowed */
                 if (existing->is_extern) {
                     fprintf(stderr, "Error at line %d, column %d: Extern function '%s' cannot be redefined\n",
@@ -3694,7 +5095,7 @@ bool type_check(ASTNode *program, Environment *env) {
                 }
             }
             
-            Function func;
+            Function func = (Function){0};
             func.name = strdup(func_name);  /* Create copy to avoid const qualifier warning */
             func.params = item->as.function.params;
             func.param_count = item->as.function.param_count;
@@ -3747,6 +5148,11 @@ bool type_check(ASTNode *program, Environment *env) {
             }
 
             env_define_function(env, func);
+
+            /* Module introspection: track exported functions (public only) */
+            if (item->as.function.is_pub && env->current_module) {
+                env_add_module_exported_function(env, env->current_module, func_name);
+            }
             
             /* Trace function definition */
             if (!func.is_extern) {
@@ -3784,7 +5190,7 @@ bool type_check(ASTNode *program, Environment *env) {
         }
     }
     
-    /* Process top-level constants (before type checking functions) */
+    /* Process top-level constants/variables (before type checking functions) */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET) {
@@ -3804,7 +5210,33 @@ bool type_check(ASTNode *program, Environment *env) {
             
             /* Add constant to environment */
             Value val = create_void();  /* Placeholder value for type checking */
-            env_define_var(env, item->as.let.name, item->as.let.var_type, false, val);
+
+            /* Preserve element type / generic type info for arrays and other complex types */
+            env_define_var_with_type_info(env,
+                                         item->as.let.name,
+                                         item->as.let.var_type,
+                                         item->as.let.element_type,
+                                         item->as.let.type_info,
+                                         item->as.let.is_mut,
+                                         val);
+
+            /* Preserve struct/union type name metadata for globals */
+            Symbol *sym = env_get_var(env, item->as.let.name);
+            if (sym) {
+                sym->def_line = item->line;
+                sym->def_column = item->column;
+            }
+            if (sym && item->as.let.type_name) {
+                if (sym->struct_type_name) free(sym->struct_type_name);
+                sym->struct_type_name = NULL;
+
+                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION) {
+                    sym->struct_type_name = strdup(item->as.let.type_name);
+                    mark_variable_as_resource_if_needed(env, item->as.let.name, item->as.let.type_name);
+                } else if (item->as.let.var_type == TYPE_ARRAY && item->as.let.element_type == TYPE_STRUCT) {
+                    sym->struct_type_name = strdup(item->as.let.type_name);
+                }
+            }
         }
     }
 
@@ -3820,6 +5252,7 @@ bool type_check(ASTNode *program, Environment *env) {
             /* Get the resolved return type from the function definition in env */
             Function *func_def = env_get_function(env, item->as.function.name);
             tc.current_function_return_type = func_def ? func_def->return_type : item->as.function.return_type;
+            tc.current_function_return_struct_name = func_def ? func_def->return_struct_type_name : NULL;
             
             /* Register generic union instantiation for function return type */
             if (item->as.function.return_type == TYPE_UNION &&
@@ -3831,20 +5264,7 @@ bool type_check(ASTNode *program, Environment *env) {
                 char **type_names = malloc(sizeof(char*) * info->type_param_count);
                 
                 for (int ti = 0; ti < info->type_param_count; ti++) {
-                    TypeInfo *param = info->type_params[ti];
-                    if (param->base_type == TYPE_INT) {
-                        type_names[ti] = strdup("int");
-                    } else if (param->base_type == TYPE_STRING) {
-                        type_names[ti] = strdup("string");
-                    } else if (param->base_type == TYPE_BOOL) {
-                        type_names[ti] = strdup("bool");
-                    } else if (param->base_type == TYPE_FLOAT) {
-                        type_names[ti] = strdup("float");
-                    } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
-                        type_names[ti] = strdup(param->generic_name);
-                    } else {
-                        type_names[ti] = strdup("unknown");
-                    }
+                    type_names[ti] = typeinfo_to_generic_arg_name(info->type_params[ti]);
                 }
                 
                 /* Register this instantiation for code generation */
@@ -3859,6 +5279,37 @@ bool type_check(ASTNode *program, Environment *env) {
                 free(type_names);
             }
 
+            /* Register HashMap<K,V> instantiation for function return type */
+            if (item->as.function.return_type == TYPE_HASHMAP &&
+                item->as.function.return_type_info) {
+                TypeInfo *info = item->as.function.return_type_info;
+                Type key_t = TYPE_UNKNOWN;
+                Type val_t = TYPE_UNKNOWN;
+                if (!hashmap_extract_kv(info, &key_t, &val_t)) {
+                    fprintf(stderr, "Error at line %d, column %d: Invalid HashMap return type annotation\n",
+                            item->line, item->column);
+                    tc.has_error = true;
+                } else {
+                    if (!(key_t == TYPE_INT || key_t == TYPE_STRING)) {
+                        fprintf(stderr, "Error at line %d, column %d: HashMap key type must be int or string (got %s)\n",
+                                item->line, item->column, type_to_string(key_t));
+                        tc.has_error = true;
+                    }
+                    if (!(val_t == TYPE_INT || val_t == TYPE_STRING)) {
+                        fprintf(stderr, "Error at line %d, column %d: HashMap value type must be int or string (got %s)\n",
+                                item->line, item->column, type_to_string(val_t));
+                        tc.has_error = true;
+                    }
+                    if (!tc.has_error) {
+                        char *key_name = typeinfo_to_generic_arg_name(info->type_params[0]);
+                        char *val_name = typeinfo_to_generic_arg_name(info->type_params[1]);
+                        env_register_hashmap_instantiation(tc.env, key_name, val_name);
+                        free(key_name);
+                        free(val_name);
+                    }
+                }
+            }
+
             /* Save current symbol count for scope restoration */
             int saved_symbol_count = env->symbol_count;
 
@@ -3867,14 +5318,48 @@ bool type_check(ASTNode *program, Environment *env) {
                 Value val = create_void();
                 Type param_type = item->as.function.params[j].type;
                 Type element_type = item->as.function.params[j].element_type;  /* Get actual element type from parameter */
+                TypeInfo *param_type_info = item->as.function.params[j].type_info;  /* Get TypeInfo for generic types */
+
+                /* Register HashMap<K,V> instantiation for parameters */
+                if (param_type == TYPE_HASHMAP && param_type_info) {
+                    Type key_t = TYPE_UNKNOWN;
+                    Type val_t = TYPE_UNKNOWN;
+                    if (!hashmap_extract_kv(param_type_info, &key_t, &val_t)) {
+                        fprintf(stderr, "Error at line %d, column %d: Invalid HashMap parameter type annotation\n",
+                                item->line, item->column);
+                        tc.has_error = true;
+                    } else {
+                        if (!(key_t == TYPE_INT || key_t == TYPE_STRING)) {
+                            fprintf(stderr, "Error at line %d, column %d: HashMap key type must be int or string (got %s)\n",
+                                    item->line, item->column, type_to_string(key_t));
+                            tc.has_error = true;
+                        }
+                        if (!(val_t == TYPE_INT || val_t == TYPE_STRING)) {
+                            fprintf(stderr, "Error at line %d, column %d: HashMap value type must be int or string (got %s)\n",
+                                    item->line, item->column, type_to_string(val_t));
+                            tc.has_error = true;
+                        }
+                        if (!tc.has_error) {
+                            char *key_name = typeinfo_to_generic_arg_name(param_type_info->type_params[0]);
+                            char *val_name = typeinfo_to_generic_arg_name(param_type_info->type_params[1]);
+                            env_register_hashmap_instantiation(tc.env, key_name, val_name);
+                            free(key_name);
+                            free(val_name);
+                        }
+                    }
+                }
                 
                 /* For array parameters, use the element type from the parameter definition */
                 if (param_type == TYPE_ARRAY && element_type == TYPE_UNKNOWN) {
                     element_type = TYPE_INT;  /* Fallback to TYPE_INT if not specified */
                 }
                 
+                /* For parameters with TypeInfo (generics, function types, etc.), use full type info */
+                if (param_type_info) {
+                    env_define_var_with_type_info(env, item->as.function.params[j].name, param_type, element_type, param_type_info, false, val);
+                }
                 /* For function parameters, create TypeInfo with signature */
-                if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
+                else if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
                     TypeInfo *type_info = malloc(sizeof(TypeInfo));
                     memset(type_info, 0, sizeof(TypeInfo));
                     type_info->base_type = TYPE_FUNCTION;
@@ -3897,6 +5382,10 @@ bool type_check(ASTNode *program, Environment *env) {
                     if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION) && 
                         item->as.function.params[j].struct_type_name) {
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
+                    }
+                    /* For generic unions with TypeInfo, use the generic_name as struct_type_name */
+                    else if (param_type == TYPE_UNION && param_type_info && param_type_info->generic_name) {
+                        param_sym->struct_type_name = strdup(param_type_info->generic_name);
                     }
                 }
             }
@@ -3921,8 +5410,8 @@ bool type_check(ASTNode *program, Environment *env) {
                 /* Check if function body uses extern functions - if so, shadow test is optional */
                 bool uses_extern = func->body && contains_extern_calls(func->body, env);
                 if (!uses_extern) {
-                    fprintf(stderr, "Warning: Function '%s' is missing a shadow test\n",
-                            item->as.function.name);
+                    fprintf(stderr, "%sWarning:%s Function '%s' is missing a shadow test\n",
+                            CSTART_WARNING, CEND, item->as.function.name);
                     /* Don't fail - just warn */
                     /* tc.has_error = true; */
                 }
@@ -3930,6 +5419,22 @@ bool type_check(ASTNode *program, Environment *env) {
         }
     }
 
+    /* Post-pass: Update module FFI tracking based on loaded functions */
+    for (int i = 0; i < env->module_count; i++) {
+        ModuleInfo *mod = &env->modules[i];
+        if (!mod || !mod->name) continue;
+        
+        /* Check if any functions in this module are extern */
+        for (int f = 0; f < env->function_count; f++) {
+            Function *func = &env->functions[f];
+            if (func->is_extern && func->module_name && 
+                strcmp(func->module_name, mod->name) == 0) {
+                mod->has_ffi = true;
+                break;
+            }
+        }
+    }
+    
     /* Verify main function exists */
     Function *main_func = env_get_function(env, "main");
     if (!main_func) {
@@ -3954,6 +5459,8 @@ bool type_check_module(ASTNode *program, Environment *env) {
     tc.env = env;
     tc.has_error = false;
     tc.warnings_enabled = true;
+    tc.in_unsafe_block = false;  /* Start outside unsafe blocks */
+    tc.loop_depth = 0;           /* Start outside loops */
 
     /* Register built-in functions */
     register_builtin_functions(env);
@@ -4038,7 +5545,17 @@ bool type_check_module(ASTNode *program, Environment *env) {
                 }
             }
             
+            sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
+            sdef.is_extern = item->as.struct_def.is_extern;      /* Propagate extern flag */
+sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
+            sdef.module_name = env->current_module ? strdup(env->current_module) : NULL;  /* Set module context */
+            
             env_define_struct(env, sdef);
+
+            /* Module introspection: track exported structs (public only) */
+            if (sdef.is_pub && env->current_module) {
+                env_add_module_exported_struct(env, env->current_module, struct_name);
+            }
             
         } else if (item->type == AST_UNION_DEF) {
             const char *union_name = item->as.union_def.name;
@@ -4116,6 +5633,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
             /* Set module visibility */
             udef.is_pub = item->as.union_def.is_pub;
             udef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            udef.is_extern = item->as.union_def.is_extern;
             
             env_define_union(env, udef);
             
@@ -4225,6 +5743,11 @@ bool type_check_module(ASTNode *program, Environment *env) {
                 }
             }
             
+            /* Set module visibility */
+            edef.is_pub = item->as.enum_def.is_pub;
+            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.is_extern = item->as.enum_def.is_extern;
+            
             env_define_enum(env, edef);
             
         } else if (item->type == AST_FUNCTION) {
@@ -4233,6 +5756,18 @@ bool type_check_module(ASTNode *program, Environment *env) {
             /* Check for duplicate function definitions */
             Function *existing = env_get_function(env, func_name);
             if (existing) {
+                /* If both are extern and signatures match, it's fine (idempotent) */
+                if (item->as.function.is_extern && existing->is_extern) {
+                    Function current;
+                    current.param_count = item->as.function.param_count;
+                    current.params = item->as.function.params;
+                    current.return_type = item->as.function.return_type;
+                    
+                    if (functions_match(&current, existing)) {
+                        continue; /* Skip registration, already there and matches */
+                    }
+                }
+
                 /* Extern functions cannot be redefined or shadowed */
                 if (existing->is_extern) {
                     fprintf(stderr, "Error at line %d, column %d: Extern function '%s' cannot be redefined\n",
@@ -4261,7 +5796,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
             }
             
             /* Register function signature */
-            Function f;
+            Function f = (Function){0};
             f.name = strdup(func_name);
             f.param_count = item->as.function.param_count;
             f.params = malloc(sizeof(Parameter) * f.param_count);
@@ -4285,6 +5820,11 @@ bool type_check_module(ASTNode *program, Environment *env) {
             f.module_name = env->current_module ? strdup(env->current_module) : NULL;
             
             env_define_function(env, f);
+
+            /* Module introspection: track exported functions (public only) */
+            if (item->as.function.is_pub && env->current_module) {
+                env_add_module_exported_function(env, env->current_module, func_name);
+            }
         }
     }
 
@@ -4318,7 +5858,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
         }
     }
 
-    /* Process top-level constants (before type checking functions) */
+    /* Process top-level constants/variables (before type checking functions) */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET) {
@@ -4338,7 +5878,33 @@ bool type_check_module(ASTNode *program, Environment *env) {
             
             /* Add constant to environment */
             Value val = create_void();  /* Placeholder value for type checking */
-            env_define_var(env, item->as.let.name, item->as.let.var_type, false, val);
+
+            /* Preserve element type / generic type info for arrays and other complex types */
+            env_define_var_with_type_info(env,
+                                         item->as.let.name,
+                                         item->as.let.var_type,
+                                         item->as.let.element_type,
+                                         item->as.let.type_info,
+                                         item->as.let.is_mut,
+                                         val);
+
+            /* Preserve struct/union type name metadata for globals */
+            Symbol *sym = env_get_var(env, item->as.let.name);
+            if (sym) {
+                sym->def_line = item->line;
+                sym->def_column = item->column;
+            }
+            if (sym && item->as.let.type_name) {
+                if (sym->struct_type_name) free(sym->struct_type_name);
+                sym->struct_type_name = NULL;
+
+                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION) {
+                    sym->struct_type_name = strdup(item->as.let.type_name);
+                    mark_variable_as_resource_if_needed(env, item->as.let.name, item->as.let.type_name);
+                } else if (item->as.let.var_type == TYPE_ARRAY && item->as.let.element_type == TYPE_STRUCT) {
+                    sym->struct_type_name = strdup(item->as.let.type_name);
+                }
+            }
         }
     }
 
@@ -4374,22 +5940,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
                 if (udef && udef->generic_param_count == info->type_param_count) {
                     char **type_names = malloc(sizeof(char*) * info->type_param_count);
                     for (int ti = 0; ti < info->type_param_count; ti++) {
-                        TypeInfo *param = info->type_params[ti];
-                        if (param->base_type == TYPE_INT) {
-                            type_names[ti] = strdup("int");
-                        } else if (param->base_type == TYPE_U8) {
-                            type_names[ti] = strdup("u8");
-                        } else if (param->base_type == TYPE_STRING) {
-                            type_names[ti] = strdup("string");
-                        } else if (param->base_type == TYPE_BOOL) {
-                            type_names[ti] = strdup("bool");
-                        } else if (param->base_type == TYPE_FLOAT) {
-                            type_names[ti] = strdup("float");
-                        } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
-                            type_names[ti] = strdup(param->generic_name);
-                        } else {
-                            type_names[ti] = strdup("unknown");
-                        }
+                        type_names[ti] = typeinfo_to_generic_arg_name(info->type_params[ti]);
                     }
 
                     env_register_union_instantiation(env, info->generic_name,
@@ -4402,12 +5953,73 @@ bool type_check_module(ASTNode *program, Environment *env) {
                     free(type_names);
                 }
             }
+
+            /* Register HashMap<K,V> instantiation for function return type */
+            if (item->as.function.return_type == TYPE_HASHMAP &&
+                item->as.function.return_type_info) {
+                TypeInfo *info = item->as.function.return_type_info;
+                Type key_t = TYPE_UNKNOWN;
+                Type val_t = TYPE_UNKNOWN;
+                if (!hashmap_extract_kv(info, &key_t, &val_t)) {
+                    fprintf(stderr, "Error at line %d, column %d: Invalid HashMap return type annotation\n",
+                            item->line, item->column);
+                    tc.has_error = true;
+                } else {
+                    if (!(key_t == TYPE_INT || key_t == TYPE_STRING)) {
+                        fprintf(stderr, "Error at line %d, column %d: HashMap key type must be int or string (got %s)\n",
+                                item->line, item->column, type_to_string(key_t));
+                        tc.has_error = true;
+                    }
+                    if (!(val_t == TYPE_INT || val_t == TYPE_STRING)) {
+                        fprintf(stderr, "Error at line %d, column %d: HashMap value type must be int or string (got %s)\n",
+                                item->line, item->column, type_to_string(val_t));
+                        tc.has_error = true;
+                    }
+                    if (!tc.has_error) {
+                        char *key_name = typeinfo_to_generic_arg_name(info->type_params[0]);
+                        char *val_name = typeinfo_to_generic_arg_name(info->type_params[1]);
+                        env_register_hashmap_instantiation(env, key_name, val_name);
+                        free(key_name);
+                        free(val_name);
+                    }
+                }
+            }
             
             /* Add function parameters to environment */
             for (int j = 0; j < item->as.function.param_count; j++) {
                 Type param_type = item->as.function.params[j].type;
                 Type element_type = item->as.function.params[j].element_type;
+                TypeInfo *param_type_info = item->as.function.params[j].type_info;
                 Value val;
+
+                /* Register HashMap<K,V> instantiation for parameters */
+                if (param_type == TYPE_HASHMAP && param_type_info) {
+                    Type key_t = TYPE_UNKNOWN;
+                    Type val_t = TYPE_UNKNOWN;
+                    if (!hashmap_extract_kv(param_type_info, &key_t, &val_t)) {
+                        fprintf(stderr, "Error at line %d, column %d: Invalid HashMap parameter type annotation\n",
+                                item->line, item->column);
+                        tc.has_error = true;
+                    } else {
+                        if (!(key_t == TYPE_INT || key_t == TYPE_STRING)) {
+                            fprintf(stderr, "Error at line %d, column %d: HashMap key type must be int or string (got %s)\n",
+                                    item->line, item->column, type_to_string(key_t));
+                            tc.has_error = true;
+                        }
+                        if (!(val_t == TYPE_INT || val_t == TYPE_STRING)) {
+                            fprintf(stderr, "Error at line %d, column %d: HashMap value type must be int or string (got %s)\n",
+                                    item->line, item->column, type_to_string(val_t));
+                            tc.has_error = true;
+                        }
+                        if (!tc.has_error) {
+                            char *key_name = typeinfo_to_generic_arg_name(param_type_info->type_params[0]);
+                            char *val_name = typeinfo_to_generic_arg_name(param_type_info->type_params[1]);
+                            env_register_hashmap_instantiation(env, key_name, val_name);
+                            free(key_name);
+                            free(val_name);
+                        }
+                    }
+                }
                 if (param_type == TYPE_INT) val = create_int(0);
                 else if (param_type == TYPE_FLOAT) val = create_float(0.0);
                 else if (param_type == TYPE_BOOL) val = create_bool(false);
@@ -4416,10 +6028,18 @@ bool type_check_module(ASTNode *program, Environment *env) {
                     val = create_array((ValueType)element_type, 0, 0);
                 } else if (param_type == TYPE_STRUCT) {
                     val = create_struct(item->as.function.params[j].struct_type_name, NULL, NULL, 0);
+                } else if (param_type == TYPE_UNION) {
+                    /* For union parameters, create empty union value */
+                    val = create_void();  /* Placeholder */
                 } else val = create_void();
                 
+                /* For function parameters with TypeInfo (generics, function types, etc.), use full type info */
+                if (param_type_info) {
+                    /* Already have TypeInfo from parser - use it directly */
+                    env_define_var_with_type_info(env, item->as.function.params[j].name, param_type, element_type, param_type_info, false, val);
+                }
                 /* For function parameters, create TypeInfo with signature */
-                if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
+                else if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
                     TypeInfo *type_info = malloc(sizeof(TypeInfo));
                     memset(type_info, 0, sizeof(TypeInfo));
                     type_info->base_type = TYPE_FUNCTION;
@@ -4442,6 +6062,10 @@ bool type_check_module(ASTNode *program, Environment *env) {
                     if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION) && 
                         item->as.function.params[j].struct_type_name) {
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
+                    }
+                    /* For generic unions with TypeInfo, use the generic_name as struct_type_name */
+                    else if (param_type == TYPE_UNION && param_type_info && param_type_info->generic_name) {
+                        param_sym->struct_type_name = strdup(param_type_info->generic_name);
                     }
                 }
             }
@@ -4466,8 +6090,8 @@ bool type_check_module(ASTNode *program, Environment *env) {
                 /* Check if function body uses extern functions - if so, shadow test is optional */
                 bool uses_extern = func->body && contains_extern_calls(func->body, env);
                 if (!uses_extern) {
-                    fprintf(stderr, "Warning: Function '%s' is missing a shadow test\n",
-                            item->as.function.name);
+                    fprintf(stderr, "%sWarning:%s Function '%s' is missing a shadow test\n",
+                            CSTART_WARNING, CEND, item->as.function.name);
                     /* Don't fail - just warn */
                     /* tc.has_error = true; */
                 }

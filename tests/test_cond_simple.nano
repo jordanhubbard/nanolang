@@ -1,0 +1,40 @@
+/* Simple cond test for debugging */
+
+fn test1(n: int) -> int {
+    return (cond
+        ((< n 0) 1)
+        ((== n 0) 2)
+        (else 3))
+}
+
+shadow test1 {
+    let r1: int = (test1 -1)
+    (print "test1(-1) = ")
+    (println r1)
+    assert (== r1 1)
+    
+    let r2: int = (test1 0)
+    (print "test1(0) = ")
+    (println r2)
+    assert (== r2 2)
+    
+    let r3: int = (test1 5)
+    (print "test1(5) = ")
+    (println r3)
+    assert (== r3 3)
+}
+
+fn main() -> int {
+    let r1: int = (test1 -1)
+    (println r1)
+    let r2: int = (test1 0)
+    (println r2)
+    let r3: int = (test1 5)
+    (println r3)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

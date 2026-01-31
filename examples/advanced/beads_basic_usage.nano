@@ -1,0 +1,69 @@
+# Basic usage example for the beads module
+# Demonstrates querying and creating beads programmatically
+
+from "stdlib/beads.nano" import 
+    Bead, BeadStats, BeadCreateOptions,
+    bd_open, bd_ready, bd_stats, bd_create, bd_close
+
+fn main() -> int {
+    (println "=== Beads Module Basic Usage ===")
+    (println "")
+    
+    # Get project statistics
+    (println "1. Getting project statistics...")
+    let stats: BeadStats = (bd_stats)
+    (println (+ "   Total issues: " (int_to_string stats.total)))
+    (println (+ "   Open: " (int_to_string stats.open)))
+    (println (+ "   In Progress: " (int_to_string stats.in_progress)))
+    (println (+ "   Closed: " (int_to_string stats.closed)))
+    (println (+ "   Ready to work: " (int_to_string stats.ready_to_work)))
+    (println "")
+    
+    # List open beads
+    (println "2. Listing open beads...")
+    let open_beads: array<Bead> = (bd_open)
+    (println (+ "   Found " (+ (int_to_string (array_length open_beads)) " open beads")))
+    (println "")
+    
+    # List ready-to-work beads
+    (println "3. Listing ready-to-work beads...")
+    let ready_beads: array<Bead> = (bd_ready)
+    (println (+ "   Found " (+ (int_to_string (array_length ready_beads)) " ready beads")))
+    (println "")
+    
+    # Create a new bead
+    (println "4. Creating a new test bead...")
+    let bead_id: string = (bd_create
+        "Example bead created from NanoLang"
+        "This bead was created programmatically using stdlib/beads.nano"
+        4
+        "task"
+    )
+    
+    if (!= bead_id "") {
+        (println (+ "   ✓ Created bead: " bead_id))
+        (println "")
+        
+        # Close the test bead
+        (println "5. Closing the test bead...")
+        let closed: bool = (bd_close bead_id "Example completed - cleaning up test bead")
+        
+        if closed {
+            (println "   ✓ Bead closed successfully")
+        } else {
+            (println "   ✗ Failed to close bead")
+        }
+    } else {
+        (println "   ✗ Failed to create bead")
+        (println "   (Note: bd command might not be available)")
+    }
+    
+    (println "")
+    (println "Example complete!")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

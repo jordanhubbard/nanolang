@@ -1,0 +1,11 @@
+# Expected Error: Array index out of bounds (negative)
+
+fn main() -> int {
+    let arr: array<int> = [1, 2, 3]
+    let x: int = (at arr -1)  # Error: negative index
+    return x
+}
+
+shadow main {
+    assert (== (main) 0)
+}

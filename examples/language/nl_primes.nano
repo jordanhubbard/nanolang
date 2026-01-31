@@ -1,0 +1,95 @@
+# Prime number checker and lister
+# Demonstrates loops, conditionals, and modulo operations
+
+fn is_prime(n: int) -> bool {
+    # Early returns for simple cases
+    if (< n 2) {
+        return false
+    }
+    if (== n 2) {
+        return true
+    }
+    if (== (% n 2) 0) {
+        return false
+    }
+    
+    # Check odd divisors up to sqrt(n)
+    let mut i: int = 3
+    while (<= (* i i) n) {
+        if (== (% n i) 0) {
+            return false
+        }
+        set i (+ i 2)
+    }
+    return true
+}
+
+shadow is_prime {
+    # Test small numbers
+    assert (== (is_prime 0) false)
+    assert (== (is_prime 1) false)
+    assert (== (is_prime 2) true)
+    assert (== (is_prime 3) true)
+    assert (== (is_prime 4) false)
+    
+    # Test more primes
+    assert (== (is_prime 5) true)
+    assert (== (is_prime 7) true)
+    assert (== (is_prime 11) true)
+    assert (== (is_prime 13) true)
+    assert (== (is_prime 17) true)
+    
+    # Test composite numbers
+    assert (== (is_prime 6) false)
+    assert (== (is_prime 9) false)
+    assert (== (is_prime 15) false)
+    assert (== (is_prime 21) false)
+    assert (== (is_prime 100) false)
+    
+    # Test larger primes
+    assert (== (is_prime 97) true)
+    assert (== (is_prime 101) true)
+}
+
+fn count_primes(limit: int) -> int {
+    let mut count: int = 0
+    let mut i: int = 2
+
+    while (< i limit) {
+        if (is_prime i) {
+            set count (+ count 1)
+        }
+        set i (+ i 1)
+    }
+
+    return count
+}
+
+shadow count_primes {
+    assert (== (count_primes 2) 0)
+    assert (== (count_primes 3) 1)
+    assert (== (count_primes 10) 4)
+    assert (== (count_primes 20) 8)
+    assert (== (count_primes 100) 25)
+}
+
+fn main() -> int {
+    (println "Prime numbers up to 50:")
+
+    let mut n: int = 2
+    while (< n 51) {
+        if (is_prime n) {
+            (println (+ "  " (int_to_string n)))
+        }
+        set n (+ n 1)
+    }
+
+    (println "")
+    (println (+ "Total primes up to 100: " (int_to_string (count_primes 100))))
+
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

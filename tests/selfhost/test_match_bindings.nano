@@ -1,0 +1,55 @@
+/* Test match bindings visibility in self-hosted typechecker */
+
+union Option {
+    Some { value: int },
+    None { }
+}
+
+fn double_option(opt: Option) -> int {
+    match opt {
+        Some(s) => {
+            return (* s.value 2)
+        }
+        None(n) => {
+            return 0
+        }
+    }
+}
+
+shadow double_option {
+    let some_val: Option = Option.Some { value: 21 }
+    let none_val: Option = Option.None { }
+    assert (== (double_option some_val) 42)
+    assert (== (double_option none_val) 0)
+}
+
+fn match_in_expression(opt: Option) -> int {
+    let doubled: int = (match opt {
+        Some(s) => {
+            return (* s.value 2)
+        }
+        None(n) => {
+            return 0
+        }
+    })
+    return doubled
+}
+
+shadow match_in_expression {
+    let opt: Option = Option.Some { value: 5 }
+    assert (== (match_in_expression opt) 10)
+}
+
+fn main() -> int {
+    let opt: Option = Option.Some { value: 7 }
+    let result: int = (double_option opt)
+    if (== result 14) {
+        return 0
+    } else {
+        return 1
+    }
+}
+
+shadow main {
+    assert (== (main) 0)
+}

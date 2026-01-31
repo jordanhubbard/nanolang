@@ -1,0 +1,59 @@
+# Example: Fibonacci Sequence (Recursion)
+# Purpose: Classic recursive algorithm demonstration
+# Features: Recursion, multiple base cases, exponential complexity
+# Difficulty: Beginner
+# Usage: ./bin/nanoc examples/nl_fibonacci.nano -o /tmp/fib && /tmp/fib
+# Expected Output: Prints Fibonacci numbers: 0, 1, 1, 2, 3, 5, 8, 13...
+#
+# Learning Objectives:
+# 1. Implement algorithm with TWO base cases (n==0 and n==1)
+# 2. Understand exponential time complexity of naive recursion
+# 3. See classic Computer Science example in NanoLang
+# 4. Practice shadow testing with multiple assertions
+#
+# Note: This is the simple recursive version. For large n, consider
+# iterative or memoized versions for better performance.
+
+fn fib(n: int) -> int {
+    if (<= n 1) {
+        return n
+    }
+    return (+ (fib (- n 1)) (fib (- n 2)))
+}
+
+shadow fib {
+    # Test base cases
+    assert (== (fib 0) 0)
+    assert (== (fib 1) 1)
+    
+    # Test sequence: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55
+    assert (== (fib 2) 1)
+    assert (== (fib 3) 2)
+    assert (== (fib 4) 3)
+    assert (== (fib 5) 5)
+    assert (== (fib 6) 8)
+    assert (== (fib 7) 13)
+    assert (== (fib 8) 21)
+    assert (== (fib 9) 34)
+    assert (== (fib 10) 55)
+}
+
+fn main() -> int {
+    (println "Fibonacci sequence (first 15 numbers):")
+    (println "")
+
+    let mut i: int = 0
+    while (< i 15) {
+        # Modern string concatenation using +
+        let result: int = (fib i)
+        let msg: string = (+ (+ "fib(" (int_to_string i)) (+ ") = " (int_to_string result)))
+        (println msg)
+        set i (+ i 1)
+    }
+
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

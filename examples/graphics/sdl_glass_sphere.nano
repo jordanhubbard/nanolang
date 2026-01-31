@@ -1,0 +1,647 @@
+# Glass Sphere Raytracer - Canonical Computer Graphics Example
+# Features: Refraction (Snell's law), Fresnel reflections, checkerboard plane
+# Demonstrates: Math built-ins, recursion, material system, realistic optics
+#
+# Controls:
+#   Arrow keys: Rotate camera
+#   W/S: Move forward/back
+#   A/D: Strafe left/right
+#   R: Reset camera
+#   ESC: Quit
+
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+
+from "std/math/extended.nano" import deg_to_rad, clamp
+
+# Note: sqrt, sin, cos, tan, min, max, pow, abs are built-ins (now working!)
+
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+let RENDER_SCALE: int = 2  # Half resolution for real-time
+let RENDER_W: int = (/ WINDOW_WIDTH RENDER_SCALE)
+let RENDER_H: int = (/ WINDOW_HEIGHT RENDER_SCALE)
+
+let MAX_DEPTH: int = 8  # Deep recursion for glass refraction
+let AIR_IOR: float = 1.0
+let GLASS_IOR: float = 1.5
+
+# Material types
+let MAT_DIFFUSE: int = 0
+let MAT_METAL: int = 1
+let MAT_GLASS: int = 2
+
+# === 3D Vector Math ===
+struct Vec3 {
+    x: float,
+    y: float,
+    z: float
+}
+
+fn vec3(x: float, y: float, z: float) -> Vec3 {
+    return Vec3 { x: x, y: y, z: z }
+}
+
+shadow vec3 {
+    let v: Vec3 = (vec3 1.0 2.0 3.0)
+    assert (== v.x 1.0)
+}
+
+fn vec_add(a: Vec3, b: Vec3) -> Vec3 {
+    return (vec3 (+ a.x b.x) (+ a.y b.y) (+ a.z b.z))
+}
+
+shadow vec_add { assert true }
+
+fn vec_sub(a: Vec3, b: Vec3) -> Vec3 {
+    return (vec3 (- a.x b.x) (- a.y b.y) (- a.z b.z))
+}
+
+shadow vec_sub { assert true }
+
+fn vec_scale(v: Vec3, s: float) -> Vec3 {
+    return (vec3 (* v.x s) (* v.y s) (* v.z s))
+}
+
+shadow vec_scale { assert true }
+
+fn vec_dot(a: Vec3, b: Vec3) -> float {
+    return (+ (+ (* a.x b.x) (* a.y b.y)) (* a.z b.z))
+}
+
+shadow vec_dot { assert true }
+
+fn vec_length(v: Vec3) -> float {
+    return (sqrt (vec_dot v v))
+}
+
+shadow vec_length { assert true }
+
+fn vec_normalize(v: Vec3) -> Vec3 {
+    let len: float = (vec_length v)
+    if (< len 0.0001) {
+        return (vec3 0.0 1.0 0.0)
+    }
+    return (vec_scale v (/ 1.0 len))
+}
+
+shadow vec_normalize { assert true }
+
+fn vec_reflect(v: Vec3, n: Vec3) -> Vec3 {
+    let dot2: float = (* 2.0 (vec_dot v n))
+    return (vec_sub v (vec_scale n dot2))
+}
+
+shadow vec_reflect { assert true }
+
+fn vec_refract(v: Vec3, n: Vec3, eta: float) -> Vec3 {
+    # Snell's law: refract ray through material interface
+    # eta = refractive_index_from / refractive_index_to
+    let cos_theta: float = (min (- 0.0 (vec_dot v n)) 1.0)
+    let sin_theta_sq: float = (* eta (* eta (- 1.0 (* cos_theta cos_theta))))
+    
+    # Total internal reflection check
+    if (> sin_theta_sq 1.0) {
+        return (vec_reflect v n)
+    }
+    
+    # Compute refracted ray components
+    let r_perp: Vec3 = (vec_scale (vec_add v (vec_scale n cos_theta)) eta)
+    let r_parallel_mag: float = (- 0.0 (sqrt (abs (- 1.0 sin_theta_sq))))
+    let r_parallel: Vec3 = (vec_scale n r_parallel_mag)
+    return (vec_add r_perp r_parallel)
+}
+
+shadow vec_refract { assert true }
+
+fn fresnel_schlick(cos_theta: float, ior: float) -> float {
+    # Schlick's approximation for Fresnel reflectance
+    let r0_base: float = (/ (- 1.0 ior) (+ 1.0 ior))
+    let r0: float = (* r0_base r0_base)
+    let one_minus_cos: float = (- 1.0 cos_theta)
+    let pow5: float = (pow one_minus_cos 5.0)
+    return (+ r0 (* (- 1.0 r0) pow5))
+}
+
+shadow fresnel_schlick { assert true }
+
+# === Material System ===
+struct Material {
+    mat_type: int,
+    r: float,
+    g: float,
+    b: float,
+    ior: float,
+    roughness: float
+}
+
+fn make_diffuse(r: float, g: float, b: float) -> Material {
+    return Material {
+        mat_type: MAT_DIFFUSE,
+        r: r, g: g, b: b,
+        ior: 1.0,
+        roughness: 1.0
+    }
+}
+
+shadow make_diffuse { assert true }
+
+fn make_metal(r: float, g: float, b: float, roughness: float) -> Material {
+    return Material {
+        mat_type: MAT_METAL,
+        r: r, g: g, b: b,
+        ior: 1.0,
+        roughness: roughness
+    }
+}
+
+shadow make_metal { assert true }
+
+fn make_glass(r: float, g: float, b: float, ior: float) -> Material {
+    return Material {
+        mat_type: MAT_GLASS,
+        r: r, g: g, b: b,
+        ior: ior,
+        roughness: 0.0
+    }
+}
+
+shadow make_glass { assert true }
+
+# === Scene Geometry ===
+struct Ray {
+    origin: Vec3,
+    direction: Vec3
+}
+
+struct Sphere {
+    center: Vec3,
+    radius: float,
+    material: Material
+}
+
+struct Plane {
+    point: Vec3,
+    normal: Vec3,
+    material: Material,
+    checkerboard: int
+}
+
+struct Hit {
+    hit: int,
+    t: float,
+    point: Vec3,
+    normal: Vec3,
+    material: Material,
+    front_face: int
+}
+
+fn make_miss() -> Hit {
+    return Hit {
+        hit: 0, t: 0.0,
+        point: (vec3 0.0 0.0 0.0),
+        normal: (vec3 0.0 1.0 0.0),
+        material: (make_diffuse 0.0 0.0 0.0),
+        front_face: 1
+    }
+}
+
+shadow make_miss { assert true }
+
+# === Scene Creation ===
+fn create_scene() -> array<Sphere> {
+    let mut spheres: array<Sphere> = []
+    
+    # Center glass sphere (the star!)
+    set spheres (array_push spheres Sphere {
+        center: (vec3 0.0 0.0 -3.5),
+        radius: 0.7,
+        material: (make_glass 0.95 0.95 1.0 GLASS_IOR)
+    })
+    
+    # Left red diffuse
+    set spheres (array_push spheres Sphere {
+        center: (vec3 -1.5 -0.2 -3.0),
+        radius: 0.5,
+        material: (make_diffuse 0.95 0.3 0.2)
+    })
+    
+    # Right gold metal
+    set spheres (array_push spheres Sphere {
+        center: (vec3 1.4 -0.1 -3.2),
+        radius: 0.6,
+        material: (make_metal 0.95 0.85 0.3 0.1)
+    })
+    
+    # Small chrome sphere
+    set spheres (array_push spheres Sphere {
+        center: (vec3 -0.4 -0.5 -2.0),
+        radius: 0.2,
+        material: (make_metal 0.95 0.95 0.95 0.05)
+    })
+    
+    return spheres
+}
+
+shadow create_scene { assert true }
+
+fn create_ground() -> Plane {
+    return Plane {
+        point: (vec3 0.0 -0.7 0.0),
+        normal: (vec3 0.0 1.0 0.0),
+        material: (make_diffuse 0.8 0.8 0.8),
+        checkerboard: 1
+    }
+}
+
+shadow create_ground { assert true }
+
+# === Ray Intersection ===
+fn intersect_sphere(ray: Ray, sphere: Sphere) -> Hit {
+    let oc: Vec3 = (vec_sub ray.origin sphere.center)
+    let a: float = (vec_dot ray.direction ray.direction)
+    let half_b: float = (vec_dot oc ray.direction)
+    let c: float = (- (vec_dot oc oc) (* sphere.radius sphere.radius))
+    let discriminant: float = (- (* half_b half_b) (* a c))
+    
+    if (< discriminant 0.0) {
+        return (make_miss)
+    }
+    
+    let sqrt_disc: float = (sqrt discriminant)
+    let mut root: float = (/ (- (- 0.0 half_b) sqrt_disc) a)
+    
+    if (< root 0.001) {
+        set root (/ (+ (- 0.0 half_b) sqrt_disc) a)
+    }
+    
+    if (< root 0.001) {
+        return (make_miss)
+    }
+    
+    let point: Vec3 = (vec_add ray.origin (vec_scale ray.direction root))
+    let outward_normal: Vec3 = (vec_normalize (vec_sub point sphere.center))
+    
+    # Determine front face (ray hitting from outside or inside)
+    let front_face: int = (cond
+        ((< (vec_dot ray.direction outward_normal) 0.0) 1)
+        (else 0))
+    
+    let normal: Vec3 = (cond
+        ((== front_face 1) outward_normal)
+        (else (vec_scale outward_normal -1.0)))
+    
+    return Hit {
+        hit: 1, t: root,
+        point: point,
+        normal: normal,
+        material: sphere.material,
+        front_face: front_face
+    }
+}
+
+shadow intersect_sphere { assert true }
+
+fn intersect_plane(ray: Ray, plane: Plane) -> Hit {
+    let denom: float = (vec_dot plane.normal ray.direction)
+    
+    if (< (abs denom) 0.0001) {
+        return (make_miss)
+    }
+    
+    let diff: Vec3 = (vec_sub plane.point ray.origin)
+    let t: float = (/ (vec_dot diff plane.normal) denom)
+    
+    if (< t 0.001) {
+        return (make_miss)
+    }
+    
+    let point: Vec3 = (vec_add ray.origin (vec_scale ray.direction t))
+    
+    # Apply checkerboard pattern
+    let mut material: Material = plane.material
+    
+    if (== plane.checkerboard 1) {
+        let px: int = (cast_int (+ (* point.x 2.0) 1000.0))
+        let pz: int = (cast_int (+ (* point.z 2.0) 1000.0))
+        let checker: int = (% (+ px pz) 2)
+        
+        set material (cond
+            ((== checker 0) (make_diffuse 0.9 0.9 0.9))
+            (else (make_diffuse 0.2 0.2 0.2)))
+    }
+    
+    return Hit {
+        hit: 1, t: t,
+        point: point,
+        normal: plane.normal,
+        material: material,
+        front_face: 1
+    }
+}
+
+shadow intersect_plane { assert true }
+
+fn intersect_scene(ray: Ray, spheres: array<Sphere>, ground: Plane) -> Hit {
+    let mut closest: Hit = Hit {
+        hit: 0, t: 999999.0,
+        point: (vec3 0.0 0.0 0.0),
+        normal: (vec3 0.0 1.0 0.0),
+        material: (make_diffuse 0.0 0.0 0.0),
+        front_face: 1
+    }
+    
+    # Test ground plane
+    let plane_hit: Hit = (intersect_plane ray ground)
+    if (== plane_hit.hit 1) {
+        if (< plane_hit.t closest.t) {
+            set closest plane_hit
+        }
+    }
+    
+    # Test all spheres
+    let count: int = (array_length spheres)
+    let mut i: int = 0
+    while (< i count) {
+        let sphere: Sphere = (at spheres i)
+        let hit: Hit = (intersect_sphere ray sphere)
+        
+        if (== hit.hit 1) {
+            if (< hit.t closest.t) {
+                set closest hit
+            }
+        }
+        
+        set i (+ i 1)
+    }
+    
+    return closest
+}
+
+shadow intersect_scene { assert true }
+
+fn in_shadow(point: Vec3, light: Vec3, spheres: array<Sphere>, ground: Plane) -> int {
+    let to_light: Vec3 = (vec_sub light point)
+    let distance: float = (vec_length to_light)
+    let direction: Vec3 = (vec_normalize to_light)
+    
+    let shadow_ray: Ray = Ray {
+        origin: (vec_add point (vec_scale direction 0.001)),
+        direction: direction
+    }
+    
+    let hit: Hit = (intersect_scene shadow_ray spheres ground)
+    
+    return (cond
+        ((== hit.hit 0) 0)
+        ((< hit.t distance) 1)
+        (else 0))
+}
+
+shadow in_shadow { assert true }
+
+# === Rendering ===
+fn shade_diffuse(hit: Hit, light: Vec3, spheres: array<Sphere>, ground: Plane) -> Vec3 {
+    let to_light: Vec3 = (vec_normalize (vec_sub light hit.point))
+    let mut diffuse: float = (max 0.0 (vec_dot hit.normal to_light))
+    
+    let shadowed: int = (in_shadow hit.point light spheres ground)
+    if (== shadowed 1) {
+        set diffuse (* diffuse 0.3)
+    }
+    
+    let ambient: float = 0.15
+    let lit: float = (+ ambient (* 0.85 diffuse))
+    
+    return (vec3 (* hit.material.r lit) (* hit.material.g lit) (* hit.material.b lit))
+}
+
+shadow shade_diffuse { assert true }
+
+fn shade_metal(ray: Ray, hit: Hit, light: Vec3, spheres: array<Sphere>, ground: Plane, depth: int) -> Vec3 {
+    let to_light: Vec3 = (vec_normalize (vec_sub light hit.point))
+    let diffuse: float = (max 0.0 (vec_dot hit.normal to_light))
+    
+    let refl_dir: Vec3 = (vec_reflect ray.direction hit.normal)
+    let refl_ray: Ray = Ray {
+        origin: (vec_add hit.point (vec_scale hit.normal 0.001)),
+        direction: refl_dir
+    }
+    let refl_color: Vec3 = (trace refl_ray spheres ground light (+ depth 1))
+    
+    let mix: float = (- 1.0 hit.material.roughness)
+    return (vec3
+        (+ (* hit.material.r (* diffuse (- 1.0 mix))) (* refl_color.x mix))
+        (+ (* hit.material.g (* diffuse (- 1.0 mix))) (* refl_color.y mix))
+        (+ (* hit.material.b (* diffuse (- 1.0 mix))) (* refl_color.z mix)))
+}
+
+shadow shade_metal { assert true }
+
+fn shade_glass(ray: Ray, hit: Hit, light: Vec3, spheres: array<Sphere>, ground: Plane, depth: int) -> Vec3 {
+    # Compute refraction ratio
+    let eta: float = (cond
+        ((== hit.front_face 1) (/ AIR_IOR hit.material.ior))
+        (else (/ hit.material.ior AIR_IOR)))
+    
+    let cos_theta: float = (min (- 0.0 (vec_dot ray.direction hit.normal)) 1.0)
+    let fresnel: float = (fresnel_schlick cos_theta hit.material.ior)
+    
+    # Refracted ray
+    let refr_dir: Vec3 = (vec_refract ray.direction hit.normal eta)
+    let refr_ray: Ray = Ray {
+        origin: (vec_add hit.point (vec_scale hit.normal -0.001)),
+        direction: refr_dir
+    }
+    let refr_color: Vec3 = (trace refr_ray spheres ground light (+ depth 1))
+    
+    # Reflected ray
+    let refl_dir: Vec3 = (vec_reflect ray.direction hit.normal)
+    let refl_ray: Ray = Ray {
+        origin: (vec_add hit.point (vec_scale hit.normal 0.001)),
+        direction: refl_dir
+    }
+    let refl_color: Vec3 = (trace refl_ray spheres ground light (+ depth 1))
+    
+    # Mix based on Fresnel
+    return (vec3
+        (* hit.material.r (+ (* refr_color.x (- 1.0 fresnel)) (* refl_color.x fresnel)))
+        (* hit.material.g (+ (* refr_color.y (- 1.0 fresnel)) (* refl_color.y fresnel)))
+        (* hit.material.b (+ (* refr_color.z (- 1.0 fresnel)) (* refl_color.z fresnel))))
+}
+
+shadow shade_glass { assert true }
+
+fn trace(ray: Ray, spheres: array<Sphere>, ground: Plane, light: Vec3, depth: int) -> Vec3 {
+    if (>= depth MAX_DEPTH) {
+        return (vec3 0.0 0.0 0.0)
+    }
+    
+    let hit: Hit = (intersect_scene ray spheres ground)
+    
+    if (== hit.hit 0) {
+        # Sky gradient
+        let t: float = (* 0.5 (+ 1.0 ray.direction.y))
+        return (vec3
+            (+ (* (- 1.0 t) 0.6) (* t 0.8))
+            (+ (* (- 1.0 t) 0.7) (* t 0.9))
+            (+ (* (- 1.0 t) 1.0) (* t 1.0)))
+    }
+    
+    # Material-based shading
+    let mat_type: int = hit.material.mat_type
+    
+    if (== mat_type MAT_DIFFUSE) {
+        return (shade_diffuse hit light spheres ground)
+    }
+    
+    if (== mat_type MAT_METAL) {
+        return (shade_metal ray hit light spheres ground depth)
+    }
+    
+    if (== mat_type MAT_GLASS) {
+        return (shade_glass ray hit light spheres ground depth)
+    }
+    
+    return (vec3 1.0 0.0 1.0)
+}
+
+shadow trace { assert true }
+
+# === Camera ===
+fn get_camera_ray(x: int, y: int, cam_pos: Vec3, cam_forward: Vec3, cam_right: Vec3, cam_up: Vec3) -> Ray {
+    let ndc_x: float = (/ (- (* (cast_float x) 2.0) (cast_float RENDER_W)) (cast_float RENDER_W))
+    let ndc_y: float = (/ (- (cast_float RENDER_H) (* (cast_float y) 2.0)) (cast_float RENDER_H))
+    
+    let aspect: float = (/ (cast_float RENDER_W) (cast_float RENDER_H))
+    let fov_scale: float = (tan (deg_to_rad 35.0))
+    
+    let screen_x: float = (* (* ndc_x aspect) fov_scale)
+    let screen_y: float = (* ndc_y fov_scale)
+    
+    let dir: Vec3 = (vec_normalize (vec_add (vec_add cam_forward (vec_scale cam_right screen_x)) (vec_scale cam_up screen_y)))
+    
+    return Ray { origin: cam_pos, direction: dir }
+}
+
+shadow get_camera_ray { assert true }
+
+fn compute_camera_basis(yaw: float, pitch: float) -> Vec3 {
+    let yaw_rad: float = (deg_to_rad yaw)
+    let pitch_rad: float = (deg_to_rad pitch)
+    
+    let cos_yaw: float = (cos yaw_rad)
+    let sin_yaw: float = (sin yaw_rad)
+    let cos_pitch: float = (cos pitch_rad)
+    let sin_pitch: float = (sin pitch_rad)
+    
+    return (vec3 (* sin_yaw cos_pitch) sin_pitch (* (- 0.0 cos_yaw) cos_pitch))
+}
+
+shadow compute_camera_basis { assert true }
+
+# === Main ===
+fn main() -> int {
+    (SDL_Init SDL_INIT_VIDEO) 
+    (TTF_Init) 
+    
+    let window: SDL_Window = (SDL_CreateWindow "Glass Sphere Raytracer" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 12)
+    
+    let spheres: array<Sphere> = (create_scene)
+    let ground: Plane = (create_ground)
+    
+    let mut cam_pos: Vec3 = (vec3 0.0 0.2 3.0)
+    let mut yaw: float = 0.0
+    let mut pitch: float = 0.0
+    
+    let light_pos: Vec3 = (vec3 3.0 4.0 0.0)
+    
+    let mut running: int = 1
+    let mut frame: int = 0
+    
+    while (== running 1) {
+        (SDL_SetRenderDrawColor renderer 40 50 70 255) 
+        (SDL_RenderClear renderer) 
+        
+        let key: int = (nl_sdl_poll_keypress)
+        if (== key 21) {  # R
+            set cam_pos (vec3 0.0 0.2 3.0)
+            set yaw 0.0
+            set pitch 0.0
+        }
+        
+        # Arrow keys
+        if (== (nl_sdl_key_state 79) 1) { set yaw (- yaw 1.5) }
+        if (== (nl_sdl_key_state 80) 1) { set yaw (+ yaw 1.5) }
+        if (== (nl_sdl_key_state 82) 1) { set pitch (+ pitch 1.0) }
+        if (== (nl_sdl_key_state 81) 1) { set pitch (- pitch 1.0) }
+        
+        set pitch (clamp pitch -89.0 89.0)
+        
+        # Camera basis
+        let cam_forward: Vec3 = (compute_camera_basis yaw pitch)
+        let cam_right: Vec3 = (vec_normalize (vec3 (- 0.0 cam_forward.z) 0.0 cam_forward.x))
+        let cam_up: Vec3 = (vec3 0.0 1.0 0.0)
+        
+        # WASD movement
+        let move_speed: float = 0.04
+        if (== (nl_sdl_key_state 26) 1) {  # W
+            set cam_pos (vec_add cam_pos (vec_scale cam_forward move_speed))
+        }
+        if (== (nl_sdl_key_state 22) 1) {  # S
+            set cam_pos (vec_sub cam_pos (vec_scale cam_forward move_speed))
+        }
+        if (== (nl_sdl_key_state 4) 1) {   # A
+            set cam_pos (vec_sub cam_pos (vec_scale cam_right move_speed))
+        }
+        if (== (nl_sdl_key_state 7) 1) {   # D
+            set cam_pos (vec_add cam_pos (vec_scale cam_right move_speed))
+        }
+        
+        # Render
+        let mut y: int = 0
+        while (< y RENDER_H) {
+            let mut x: int = 0
+            while (< x RENDER_W) {
+                let ray: Ray = (get_camera_ray x y cam_pos cam_forward cam_right cam_up)
+                let color: Vec3 = (trace ray spheres ground light_pos 0)
+                
+                # Gamma correction
+                let gamma_inv: float = 0.4545  # 1/2.2
+                let r: int = (cast_int (clamp (* (pow color.x gamma_inv) 255.0) 0.0 255.0))
+                let g: int = (cast_int (clamp (* (pow color.y gamma_inv) 255.0) 0.0 255.0))
+                let b: int = (cast_int (clamp (* (pow color.z gamma_inv) 255.0) 0.0 255.0))
+                
+                (SDL_SetRenderDrawColor renderer r g b 255) 
+                (nl_sdl_render_fill_rect renderer (* x RENDER_SCALE) (* y RENDER_SCALE) RENDER_SCALE RENDER_SCALE) 
+                
+                set x (+ x 1)
+            }
+            set y (+ y 1)
+        }
+        
+        # HUD
+        let frame_str: string = (+ "Glass Sphere Raytracer | Frame: " (int_to_string frame))
+        (nl_draw_text_blended renderer font frame_str 10 10 255 255 200 255) 
+        
+        (SDL_RenderPresent renderer) 
+        
+        if (== (nl_sdl_poll_event_quit) 1) { set running 0 }
+        set frame (+ frame 1)
+    }
+    
+    (TTF_CloseFont font) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (TTF_Quit) 
+    (SDL_Quit) 
+    
+    return 0
+}
+
+shadow main { assert true }
+

@@ -1,0 +1,51 @@
+{
+  "version": "opl-tests-0.1",
+  "cases": [
+    {
+      "name": "parse_examples_golden",
+      "kind": "golden_ast",
+      "inputFile": "EXAMPLES.opl",
+      "expectedFile": "EXAMPLES.expected_ast.json"
+    },
+    {
+      "name": "compile_examples_golden",
+      "kind": "golden_plan",
+      "inputFile": "EXAMPLES.opl",
+      "expectedFile": "EXAMPLES.expected_plan.json",
+      "note": "Compiler may compile all blocks; golden checks only those in expected file."
+    },
+    {
+      "name": "missing_uses_rejected",
+      "kind": "validate_error",
+      "input": "agent a {\n  call web.search { query: \"x\" }\n}\n",
+      "expect": {
+        "ok": false,
+        "errorsContainCodes": [
+          "E_CALL_NOT_ALLOWED"
+        ]
+      }
+    },
+    {
+      "name": "unresolved_identifier",
+      "kind": "validate_error",
+      "input": "agent a {\n  uses web.search\n  call web.search { query: q }\n}\n",
+      "expect": {
+        "ok": false,
+        "errorsContainCodes": [
+          "E_UNRESOLVED_ID"
+        ]
+      }
+    },
+    {
+      "name": "duplicate_map_key",
+      "kind": "validate_error",
+      "input": "agent a {\n  uses web.search\n  input q:string\n  call web.search { query: q, query: q }\n}\n",
+      "expect": {
+        "ok": false,
+        "errorsContainCodes": [
+          "E_DUPLICATE_KEY"
+        ]
+      }
+    }
+  ]
+}

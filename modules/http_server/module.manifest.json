@@ -1,0 +1,61 @@
+{
+  "name": "http_server",
+  "version": "1.0.0",
+  "stability": "stable",
+  "summary": "HTTP/1.1 server for serving web assets and REST APIs.",
+  "use_when": [
+    "User wants to serve web pages, HTML, CSS, JavaScript files",
+    "User says 'web server', 'HTTP server', 'REST API', 'web service'",
+    "User needs to handle GET/POST/PUT/DELETE requests",
+    "User wants to build a backend or microservice"
+  ],
+  "avoid_when": [
+    "User wants HTTP client to make requests (use curl instead)",
+    "User needs WebSocket support (not yet implemented)",
+    "User needs HTTPS/TLS (not yet implemented)"
+  ],
+  "capabilities": [
+    "create_http_server",
+    "serve_static_files",
+    "handle_get_request",
+    "handle_post_request",
+    "parse_request_headers",
+    "send_response",
+    "set_content_type",
+    "route_requests"
+  ],
+  "keywords": [
+    "http",
+    "server",
+    "web",
+    "rest",
+    "api",
+    "backend",
+    "microservice",
+    "web service",
+    "serve files"
+  ],
+  "examples": [
+    "examples/http_server_basic.nano",
+    "examples/http_server_static.nano"
+  ],
+  "dependencies": {
+    "nanolang": [],
+    "system": [
+      {
+        "id": "libuv",
+        "install": {
+          "apt": "libuv1-dev",
+          "brew": "libuv",
+          "pacman": "libuv"
+        },
+        "version": ">=1.0"
+      }
+    ]
+  },
+  "io_surfaces": ["network"],
+  "alternatives": [
+    {"when": "HTTP client (make requests)", "module": "curl"}
+  ]
+}
+

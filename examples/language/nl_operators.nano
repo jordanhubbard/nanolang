@@ -1,0 +1,89 @@
+# Example: Arithmetic Operators
+# Purpose: Demonstrate all arithmetic operations in prefix notation
+# Features: +, -, *, /, % operators, prefix notation, shadow tests
+# Difficulty: Beginner
+# Usage: ./bin/nanoc examples/nl_operators.nano -o /tmp/ops && /tmp/ops
+# Expected Output: Results of various arithmetic operations
+#
+# Learning Objectives:
+# 1. Master prefix notation: (+ a b) instead of a + b
+# 2. Understand operator precedence is explicit in prefix notation
+# 3. See all five arithmetic operators in action
+# 4. Learn how nested operations work: (+ (* a b) (/ c d))
+#
+# Key Point: NO operator precedence rules needed! Parentheses make everything explicit.
+
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+    assert (== (add 0 0) 0)
+    assert (== (add (- 0 5) 5) 0)
+}
+
+fn subtract(a: int, b: int) -> int {
+    return (- a b)
+}
+
+shadow subtract {
+    assert (== (subtract 10 3) 7)
+    assert (== (subtract 5 5) 0)
+    assert (== (subtract 0 10) (- 0 10))
+}
+
+fn multiply(a: int, b: int) -> int {
+    return (* a b)
+}
+
+shadow multiply {
+    assert (== (multiply 4 5) 20)
+    assert (== (multiply 0 100) 0)
+    assert (== (multiply (- 0 3) 4) (- 0 12))
+}
+
+fn divide(a: int, b: int) -> int {
+    return (/ a b)
+}
+
+shadow divide {
+    assert (== (divide 20 4) 5)
+    assert (== (divide 7 2) 3)
+    assert (== (divide 100 10) 10)
+}
+
+fn modulo(a: int, b: int) -> int {
+    return (% a b)
+}
+
+shadow modulo {
+    assert (== (modulo 10 3) 1)
+    assert (== (modulo 20 5) 0)
+    assert (== (modulo 7 2) 1)
+}
+
+fn complex_expr(x: int, y: int, z: int) -> int {
+    return (+ (* x y) (/ z 2))
+}
+
+shadow complex_expr {
+    assert (== (complex_expr 2 3 10) 11)
+    assert (== (complex_expr 5 5 20) 35)
+}
+
+fn main() -> int {
+    (println "=== Arithmetic Operations ===")
+    (println (+ "10 + 20 = " (int_to_string (add 10 20))))
+    (println (+ "50 - 15 = " (int_to_string (subtract 50 15))))
+    (println (+ "7 * 8 = " (int_to_string (multiply 7 8))))
+    (println (+ "100 / 4 = " (int_to_string (divide 100 4))))
+    (println (+ "17 % 5 = " (int_to_string (modulo 17 5))))
+    (println (+ "Complex: (3*4) + (8/2) = " (int_to_string (complex_expr 3 4 8))))
+    (println (+ "Absolute value of -42: " (int_to_string (abs (subtract 0 42)))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
