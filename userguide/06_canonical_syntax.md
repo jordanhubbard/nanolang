@@ -345,27 +345,27 @@ shadow main { assert true }
 <!--nl-snippet {"name":"ug_canonical_enum","check":true}-->
 ```nano
 enum Color {
-    Red
-    Green
-    Blue
+    Red = 0
+    Green = 1
+    Blue = 2
 }
 
-fn color_code(c: Color) -> int {
-    return (match c {
-        Color::Red => 1
-        Color::Green => 2
-        Color::Blue => 3
-    })
+fn color_name(c: Color) -> string {
+    return (cond
+        ((== c Color.Red) "red")
+        ((== c Color.Green) "green")
+        (else "blue")
+    )
 }
 
-shadow color_code {
-    assert (== (color_code Color::Red) 1)
-    assert (== (color_code Color::Green) 2)
-    assert (== (color_code Color::Blue) 3)
+shadow color_name {
+    assert (== (color_name Color.Red) "red")
+    assert (== (color_name Color.Green) "green")
+    assert (== (color_name Color.Blue) "blue")
 }
 
 fn main() -> int {
-    (println (int_to_string (color_code Color::Blue)))
+    (println (color_name Color.Green))
     return 0
 }
 

@@ -3481,6 +3481,43 @@ static void substitute_identifier(ASTNode *node, const char *old_name, const cha
     }
 }
 
+/* Helper to recursively update line/column in an AST (for postcondition injection) */
+static void update_ast_location(ASTNode *node, int line, int column) {
+    if (!node) return;
+    
+    node->line = line;
+    node->column = column;
+    
+    switch (node->type) {
+        case AST_PREFIX_OP:
+            for (int i = 0; i < node->as.prefix_op.arg_count; i++) {
+                update_ast_location(node->as.prefix_op.args[i], line, column);
+            }
+            break;
+        case AST_CALL:
+            if (node->as.call.func_expr) {
+                update_ast_location(node->as.call.func_expr, line, column);
+            }
+            for (int i = 0; i < node->as.call.arg_count; i++) {
+                update_ast_location(node->as.call.args[i], line, column);
+            }
+            break;
+        case AST_ASSERT:
+            update_ast_location(node->as.assert.condition, line, column);
+            break;
+        case AST_IDENTIFIER:
+        case AST_NUMBER:
+        case AST_FLOAT:
+        case AST_STRING:
+        case AST_BOOL:
+            /* Leaf nodes - just update the location (already done above) */
+            break;
+        default:
+            /* For other node types, location is already updated */
+            break;
+    }
+}
+
 /* Helper to inject postconditions before a return statement */
 static ASTNode *inject_postconditions_at_return(ASTNode *return_node, ASTNode **postconditions, int postcondition_count, Type return_type) {
     if (!return_node || return_node->type != AST_RETURN || postcondition_count == 0) {
@@ -3509,10 +3546,18 @@ static ASTNode *inject_postconditions_at_return(ASTNode *return_node, ASTNode **
     let_node->as.let.type_info = NULL;
     block->as.block.statements[0] = let_node;
 
-    /* Clone and substitute postconditions: replace 'result' with '__result' */
+    /* Clone, substitute, and update line numbers for postconditions */
     for (int i = 0; i < postcondition_count; i++) {
         ASTNode *postcond = clone_ast_node(postconditions[i]);
         substitute_identifier(postcond, "result", "__result");
+        /* Update line/column to match return statement location, so typechecker 
+         * visibility checks work correctly (__result is defined at return's line) */
+        postcond->line = return_node->line;
+        postcond->column = return_node->column;
+        if (postcond->as.assert.condition) {
+            /* Also update the condition's source location */
+            update_ast_location(postcond->as.assert.condition, return_node->line, return_node->column);
+        }
         block->as.block.statements[i + 1] = postcond;
     }
 

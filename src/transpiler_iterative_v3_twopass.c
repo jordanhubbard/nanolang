@@ -2833,6 +2833,16 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             break;
         }
             
+        case AST_ASSERT: {
+            /* Generate runtime assertion check */
+            emit_indent_item(list, indent);
+            emit_formatted(list, "if (!(");
+            build_expr(list, stmt->as.assert.condition, env);
+            emit_formatted(list, ")) { fprintf(stderr, \"Assertion failed at line %d\\n\"); exit(1); }\n",
+                          stmt->line);
+            break;
+        }
+            
         default:
             /* Expression statement */
             emit_indent_item(list, indent);

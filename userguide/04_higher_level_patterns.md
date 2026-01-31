@@ -15,13 +15,13 @@ shadow double {
     assert (== (double 3) 6)
 }
 
-fn is_even(x: int) -> bool {
-    return (== (% x 2) 0)
+fn is_positive(x: int) -> bool {
+    return (> x 5)
 }
 
-shadow is_even {
-    assert (is_even 4)
-    assert (not (is_even 5))
+shadow is_positive {
+    assert (is_positive 6)
+    assert (not (is_positive 5))
 }
 
 fn sum(a: int, b: int) -> int {
@@ -40,13 +40,15 @@ fn main() -> int {
     (array_set xs 3 4)
 
     let doubled: array<int> = (map xs double)
-    let evens: array<int> = (filter doubled is_even)
-    let total: int = (reduce evens 0 sum)
+    # doubled = [2, 4, 6, 8]
+    let large: array<int> = (filter doubled is_positive)
+    # large = [6, 8] (only elements > 5)
+    let total: int = (reduce large 0 sum)
 
     assert (== (at doubled 0) 2)
     assert (== (at doubled 3) 8)
-    assert (== (array_length evens) 2)
-    assert (== total 12)
+    assert (== (array_length large) 2)
+    assert (== total 14)  # 6 + 8 = 14
     return 0
 }
 

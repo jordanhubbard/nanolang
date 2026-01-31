@@ -1,0 +1,26 @@
+enum Color {
+    Red
+    Green
+    Blue
+}
+
+fn color_code(c: Color) -> int {
+    return (match c {
+        Color::Red => 1
+        Color::Green => 2
+        Color::Blue => 3
+    })
+}
+
+shadow color_code {
+    assert (== (color_code Color::Red) 1)
+    assert (== (color_code Color::Green) 2)
+    assert (== (color_code Color::Blue) 3)
+}
+
+fn main() -> int {
+    (println (int_to_string (color_code Color::Blue)))
+    return 0
+}
+
+shadow main { assert true }
