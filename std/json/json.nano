@@ -3,44 +3,44 @@
 
 // Parse JSON string into nanolang value
 // Returns opaque handle to JSON object, or null on error
-extern fn cJSON_Parse(_json_string: string) -> opaque
+extern fn cJSON_Parse(json_string: string) -> opaque
 
 // Generate JSON string from JSON object
 // Returns formatted JSON string
-extern fn cJSON_Print(_json_object: opaque) -> string
+extern fn cJSON_Print(json_object: opaque) -> string
 
 // Delete JSON object (free memory)
-extern fn cJSON_Delete(_json_object: opaque) -> void
+extern fn cJSON_Delete(json_object: opaque) -> void
 
 // Object/Array access
-extern fn cJSON_GetObjectItem(_object: opaque, _key: string) -> opaque
-extern fn cJSON_GetArraySize(_array: opaque) -> int
-extern fn cJSON_GetArrayItem(_array: opaque, _index: int) -> opaque
+extern fn cJSON_GetObjectItem(object: opaque, key: string) -> opaque
+extern fn cJSON_GetArraySize(array: opaque) -> int
+extern fn cJSON_GetArrayItem(array: opaque, index: int) -> opaque
 
 // Type checking
-extern fn cJSON_IsNull(_item: opaque) -> bool
-extern fn cJSON_IsBool(_item: opaque) -> bool
-extern fn cJSON_IsNumber(_item: opaque) -> bool
-extern fn cJSON_IsString(_item: opaque) -> bool
-extern fn cJSON_IsArray(_item: opaque) -> bool
-extern fn cJSON_IsObject(_item: opaque) -> bool
+extern fn cJSON_IsNull(item: opaque) -> bool
+extern fn cJSON_IsBool(item: opaque) -> bool
+extern fn cJSON_IsNumber(item: opaque) -> bool
+extern fn cJSON_IsString(item: opaque) -> bool
+extern fn cJSON_IsArray(item: opaque) -> bool
+extern fn cJSON_IsObject(item: opaque) -> bool
 
 // Value extraction
-extern fn nl_cjson_get_number_value(_item: opaque) -> float
-extern fn nl_cjson_get_string_value(_item: opaque) -> string
-extern fn nl_cjson_get_bool_value(_item: opaque) -> bool
+extern fn nl_cjson_get_number_value(item: opaque) -> float
+extern fn nl_cjson_get_string_value(item: opaque) -> string
+extern fn nl_cjson_get_bool_value(item: opaque) -> bool
 
 // Object creation
 extern fn cJSON_CreateObject() -> opaque
 extern fn cJSON_CreateArray() -> opaque
-extern fn cJSON_CreateString(_value: string) -> opaque
-extern fn cJSON_CreateNumber(_value: float) -> opaque
-extern fn cJSON_CreateBool(_value: bool) -> opaque
+extern fn cJSON_CreateString(value: string) -> opaque
+extern fn cJSON_CreateNumber(value: float) -> opaque
+extern fn cJSON_CreateBool(value: bool) -> opaque
 extern fn cJSON_CreateNull() -> opaque
 
 // Object manipulation
-extern fn cJSON_AddItemToObject(_object: opaque, _key: string, _item: opaque) -> void
-extern fn cJSON_AddItemToArray(_array: opaque, _item: opaque) -> void
+extern fn cJSON_AddItemToObject(object: opaque, key: string, item: opaque) -> void
+extern fn cJSON_AddItemToArray(array: opaque, item: opaque) -> void
 
 // High-level API
 

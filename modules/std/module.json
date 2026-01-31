@@ -1,7 +1,0 @@
-{
-  "name": "std",
-  "version": "0.1.0",
-  "description": "NanoLang standard library",
-  "c_sources": ["fs.c", "process.c"],
-  "headers": ["fs.h", "process.h"]
-}

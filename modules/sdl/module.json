@@ -2,7 +2,9 @@
   "name": "sdl",
   "version": "1.0.0",
   "description": "SDL2 windowing, rendering, events, and input - cross-platform UI engine",
-  "headers": ["SDL2/SDL.h"],
+  "headers": ["SDL.h"],
   "pkg_config": ["sdl2"],
-  "system_packages": ["sdl2"]
+  "apt_packages": ["libsdl2-dev"],
+  "dnf_packages": ["SDL2-devel"],
+  "brew_packages": ["sdl2"]
 }

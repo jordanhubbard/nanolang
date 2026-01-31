@@ -8,7 +8,7 @@ shadow main {
     assert (== (at bytes 0) 72)
     assert (== (at bytes 1) 105)
     let s: string = (string_from_bytes bytes)
-    assert (== s "Hi")
+    assert (str_equals s "Hi")
 
     let path: string = (mktemp "nanolang_bytes_")
     assert (!= path "")

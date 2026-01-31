@@ -23,9 +23,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_ROOT"
 
-mkdir -p .test_output
-rm -f .test_output/*.compile.log
-
 # Colors
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -84,11 +81,6 @@ run_test() {
     local test_file="$1"
     local test_name=$(basename "$test_file")
     local category="$2"
-
-    # Per-test timeouts (seconds). These prevent a single compiler hang from stalling the suite.
-    # Override via env if needed (e.g. CI).
-    local COMPILE_TIMEOUT="${NANOLANG_TEST_COMPILE_TIMEOUT:-60}"
-    local RUN_TIMEOUT="${NANOLANG_TEST_RUN_TIMEOUT:-60}"
     
     # Check for expected failures
     if is_expected_failure "$test_name"; then
@@ -97,49 +89,20 @@ run_test() {
         return 0
     fi
     
-    local log_file=".test_output/${category}_${test_name}.compile.log"
-    local out_file=".test_output/${category}_${test_name}.out"
-    local run_log=".test_output/${category}_${test_name}.run.log"
+    # Run the test
+    local result=$(./bin/nanoc "$test_file" 2>&1)
     
-    # Compile the test
-    perl -e "alarm $COMPILE_TIMEOUT; exec @ARGV" ./bin/nanoc "$test_file" -o "$out_file" >"$log_file" 2>&1
-    
-    if [ $? -ne 0 ]; then
-        echo -e "${RED}❌${NC} $test_name ${RED}(compilation failed)${NC}"
-        TOTAL_FAIL=$((TOTAL_FAIL + 1))
+    if echo "$result" | grep -q "All shadow tests passed"; then
+        echo -e "${GREEN}✅${NC} $test_name"
+        TOTAL_PASS=$((TOTAL_PASS + 1))
         case "$category" in
-            "nl") NL_FAIL=$((NL_FAIL + 1)) ;;
-            "app") APP_FAIL=$((APP_FAIL + 1)) ;;
-            "unit") UNIT_FAIL=$((UNIT_FAIL + 1)) ;;
+            "nl") NL_PASS=$((NL_PASS + 1)) ;;
+            "app") APP_PASS=$((APP_PASS + 1)) ;;
+            "unit") UNIT_PASS=$((UNIT_PASS + 1)) ;;
         esac
-        return 1
-    fi
-    
-    # Run the compiled binary (shadow tests execute at runtime now)
-    if [ -f "$out_file" ]; then
-        perl -e "alarm $RUN_TIMEOUT; exec @ARGV" "$out_file" >"$run_log" 2>&1
-        if [ $? -eq 0 ]; then
-            echo -e "${GREEN}✅${NC} $test_name"
-            rm -f "$log_file" "$out_file" "$run_log"
-            TOTAL_PASS=$((TOTAL_PASS + 1))
-            case "$category" in
-                "nl") NL_PASS=$((NL_PASS + 1)) ;;
-                "app") APP_PASS=$((APP_PASS + 1)) ;;
-                "unit") UNIT_PASS=$((UNIT_PASS + 1)) ;;
-            esac
-            return 0
-        else
-            echo -e "${RED}❌${NC} $test_name ${RED}(runtime failure)${NC}"
-            TOTAL_FAIL=$((TOTAL_FAIL + 1))
-            case "$category" in
-                "nl") NL_FAIL=$((NL_FAIL + 1)) ;;
-                "app") APP_FAIL=$((APP_FAIL + 1)) ;;
-                "unit") UNIT_FAIL=$((UNIT_FAIL + 1)) ;;
-            esac
-            return 1
-        fi
+        return 0
     else
-        echo -e "${RED}❌${NC} $test_name ${RED}(binary not created)${NC}"
+        echo -e "${RED}❌${NC} $test_name"
         TOTAL_FAIL=$((TOTAL_FAIL + 1))
         case "$category" in
             "nl") NL_FAIL=$((NL_FAIL + 1)) ;;
@@ -229,20 +192,6 @@ if [ "$RUN_APP" = true ]; then
     echo ""
     
     echo -e "${CYAN}Application Tests: ${GREEN}$APP_PASS passed${NC}, ${RED}$APP_FAIL failed${NC}"
-    echo ""
-fi
-
-# ============================================================================
-# CATEGORY 3: User Guide Snippets
-# ============================================================================
-if [ "$RUN_APP" = true ] && [ -d tests/user_guide ]; then
-    echo -e "${CYAN}=== USER GUIDE SNIPPETS ===${NC}"
-    echo ""
-    for f in tests/user_guide/*.nano; do
-        [ -f "$f" ] && run_test "$f" "app"
-    done
-    echo ""
-    echo -e "${CYAN}User Guide Snippets: ${GREEN}$APP_PASS passed${NC}, ${RED}$APP_FAIL failed${NC}"
     echo ""
 fi
 

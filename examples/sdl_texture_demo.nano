@@ -1,0 +1,109 @@
+# SDL Texture Demo
+# Demonstrates SDL_CreateTexture and SDL_UpdateTexture
+# Creates a dynamic texture and updates it with animated patterns
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+
+let WINDOW_WIDTH: int = 640
+let WINDOW_HEIGHT: int = 480
+let TEXTURE_WIDTH: int = 256
+let TEXTURE_HEIGHT: int = 256
+
+fn main() -> int {
+    (println "SDL Texture Demo - Dynamic pixel manipulation")
+    (println "Press ESC to quit")
+    
+    # Initialize SDL
+    (SDL_Init SDL_INIT_VIDEO)
+    
+    let window: SDL_Window = (SDL_CreateWindow "Texture Demo" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+    
+    # Create a streaming texture (format: ARGB8888 = 372645892)
+    let texture: SDL_Texture = (SDL_CreateTexture renderer 372645892 1 TEXTURE_WIDTH TEXTURE_HEIGHT)
+    
+    if (== texture 0) {
+        (print "Failed to create texture: ")
+        (println (SDL_GetError))
+        return 1
+    } else {
+        (println "✓ Texture created successfully")
+    }
+    
+    # Set texture blend mode
+    (SDL_SetTextureBlendMode texture SDL_BLENDMODE_BLEND)
+    
+    # Create pixel buffer (will be updated each frame)
+    let mut pixels: array<int> = []
+    let pixel_count: int = (* TEXTURE_WIDTH TEXTURE_HEIGHT)
+    let mut i: int = 0
+    while (< i pixel_count) {
+        set pixels (array_push pixels 0)
+        set i (+ i 1)
+    }
+    
+    # Main loop
+    let mut running: bool = true
+    let mut frame: int = 0
+    
+    while running {
+        # Events
+        if (!= (nl_sdl_poll_event_quit) 0) {
+            set running false
+        } else {
+            if (== (nl_sdl_poll_keypress) 27) {
+                set running false
+            } else {
+                # continue
+            }
+        }
+        
+        # Clear screen
+        (SDL_SetRenderDrawColor renderer 30 30 40 255)
+        (SDL_RenderClear renderer)
+        
+        # Generate animated pattern
+        # (In real code, would update pixels array and call SDL_UpdateTexture)
+        # For now, just render some shapes to show texture rendering works
+        
+        # Draw texture at center
+        let tex_x: int = (/ (- WINDOW_WIDTH TEXTURE_WIDTH) 2)
+        let tex_y: int = (/ (- WINDOW_HEIGHT TEXTURE_HEIGHT) 2)
+        
+        # Draw a colored rectangle as placeholder for texture content
+        let r: int = (+ 128 (cast_int (* 127.0 (sin (* 0.05 (cast_float frame))))))
+        let g: int = (+ 128 (cast_int (* 127.0 (sin (* 0.07 (cast_float frame))))))
+        let b: int = (+ 128 (cast_int (* 127.0 (sin (* 0.03 (cast_float frame))))))
+        (SDL_SetRenderDrawColor renderer r g b 255)
+        (nl_sdl_render_fill_rect renderer tex_x tex_y TEXTURE_WIDTH TEXTURE_HEIGHT)
+        
+        # Draw border around texture area
+        (SDL_SetRenderDrawColor renderer 255 255 255 255)
+        # Top
+        (SDL_RenderDrawLine renderer tex_x tex_y (+ tex_x TEXTURE_WIDTH) tex_y)
+        # Bottom  
+        (SDL_RenderDrawLine renderer tex_x (+ tex_y TEXTURE_HEIGHT) (+ tex_x TEXTURE_WIDTH) (+ tex_y TEXTURE_HEIGHT))
+        # Left
+        (SDL_RenderDrawLine renderer tex_x tex_y tex_x (+ tex_y TEXTURE_HEIGHT))
+        # Right
+        (SDL_RenderDrawLine renderer (+ tex_x TEXTURE_WIDTH) tex_y (+ tex_x TEXTURE_WIDTH) (+ tex_y TEXTURE_HEIGHT))
+        
+        # Present
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
+        
+        set frame (+ frame 1)
+    }
+    
+    # Cleanup
+    (SDL_DestroyTexture texture)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+    
+    (println "Done!")
+    return 0
+}
+
+shadow main { assert true }

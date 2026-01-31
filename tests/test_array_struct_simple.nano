@@ -1,0 +1,22 @@
+# Test array<struct> compilation
+
+struct Point {
+    x: int,
+    y: int
+}
+
+fn main() -> int {
+    let mut points: array<Point> = []
+    
+    let p1: Point = Point { x: 10, y: 20 }
+    set points (array_push points p1)
+    
+    let p2: Point = (at points 0)
+    (println p2.x)
+    
+    return 0
+}
+
+shadow main {
+    assert true
+}

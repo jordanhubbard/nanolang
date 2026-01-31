@@ -100,9 +100,7 @@ pub fn array_dot(a: array<float>, b: array<float>) -> float {
     return acc
 }
 
-pub fn array_norm(a: array<float>) -> float
-ensures (>= result 0.0)
-{
+pub fn array_norm(a: array<float>) -> float {
     return (sqrt (array_dot a a))
 }
 
@@ -147,10 +145,9 @@ pub fn array_mean(a: array<float>) -> float {
     return (/ (array_sum a) (cast_float n))
 }
 
-pub fn array_min(a: array<float>) -> float
-requires (> (array_length a) 0)
-{
+pub fn array_min(a: array<float>) -> float {
     let n: int = (array_length a)
+    assert (> n 0)
     let mut m: float = (at a 0)
     let mut i: int = 1
     while (< i n) {
@@ -161,10 +158,9 @@ requires (> (array_length a) 0)
     return m
 }
 
-pub fn array_max(a: array<float>) -> float
-requires (> (array_length a) 0)
-{
+pub fn array_max(a: array<float>) -> float {
     let n: int = (array_length a)
+    assert (> n 0)
     let mut m: float = (at a 0)
     let mut i: int = 1
     while (< i n) {
@@ -203,10 +199,9 @@ pub fn array_sum_int(a: array<int>) -> int {
     return acc
 }
 
-pub fn array_min_int(a: array<int>) -> int
-requires (> (array_length a) 0)
-{
+pub fn array_min_int(a: array<int>) -> int {
     let n: int = (array_length a)
+    assert (> n 0)
     let mut m: int = (at a 0)
     let mut i: int = 1
     while (< i n) {
@@ -217,10 +212,9 @@ requires (> (array_length a) 0)
     return m
 }
 
-pub fn array_max_int(a: array<int>) -> int
-requires (> (array_length a) 0)
-{
+pub fn array_max_int(a: array<int>) -> int {
     let n: int = (array_length a)
+    assert (> n 0)
     let mut m: int = (at a 0)
     let mut i: int = 1
     while (< i n) {

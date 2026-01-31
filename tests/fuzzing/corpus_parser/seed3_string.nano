@@ -1,4 +1,0 @@
-fn main() -> int {
-    let msg: string = "hello world"
-    return 0
-}

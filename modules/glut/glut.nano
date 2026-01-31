@@ -35,33 +35,33 @@ let GLUT_BITMAP_HELVETICA_18: int = 8
 
 # === GLUT Initialization ===
 
-extern fn glutInit(_argcp: int, _argv: int) -> void
-extern fn glutInitDisplayMode(_mode: int) -> void
-extern fn glutInitWindowSize(_width: int, _height: int) -> void
-extern fn glutInitWindowPosition(_x: int, _y: int) -> void
-extern fn glutCreateWindow(_title: string) -> int
+extern fn glutInit(argcp: int, argv: int) -> void
+extern fn glutInitDisplayMode(mode: int) -> void
+extern fn glutInitWindowSize(width: int, height: int) -> void
+extern fn glutInitWindowPosition(x: int, y: int) -> void
+extern fn glutCreateWindow(title: string) -> int
 
 # === 3D Solid Shapes ===
 
 # The famous Utah Teapot!
-extern fn glutSolidTeapot(_size: float) -> void
-extern fn glutWireTeapot(_size: float) -> void
+extern fn glutSolidTeapot(size: float) -> void
+extern fn glutWireTeapot(size: float) -> void
 
 # Sphere
-extern fn glutSolidSphere(_radius: float, _slices: int, _stacks: int) -> void
-extern fn glutWireSphere(_radius: float, _slices: int, _stacks: int) -> void
+extern fn glutSolidSphere(radius: float, slices: int, stacks: int) -> void
+extern fn glutWireSphere(radius: float, slices: int, stacks: int) -> void
 
 # Cube
-extern fn glutSolidCube(_size: float) -> void
-extern fn glutWireCube(_size: float) -> void
+extern fn glutSolidCube(size: float) -> void
+extern fn glutWireCube(size: float) -> void
 
 # Cone
-extern fn glutSolidCone(_base: float, _height: float, _slices: int, _stacks: int) -> void
-extern fn glutWireCone(_base: float, _height: float, _slices: int, _stacks: int) -> void
+extern fn glutSolidCone(base: float, height: float, slices: int, stacks: int) -> void
+extern fn glutWireCone(base: float, height: float, slices: int, stacks: int) -> void
 
 # Torus (donut)
-extern fn glutSolidTorus(_innerRadius: float, _outerRadius: float, _sides: int, _rings: int) -> void
-extern fn glutWireTorus(_innerRadius: float, _outerRadius: float, _sides: int, _rings: int) -> void
+extern fn glutSolidTorus(innerRadius: float, outerRadius: float, sides: int, rings: int) -> void
+extern fn glutWireTorus(innerRadius: float, outerRadius: float, sides: int, rings: int) -> void
 
 # Dodecahedron (12-sided)
 extern fn glutSolidDodecahedron() -> void
@@ -83,13 +83,13 @@ extern fn glutWireIcosahedron() -> void
 
 # Bitmap text rendering (fast, simple)
 # Note: font parameter is an integer representing the font type
-extern fn glutBitmapCharacter(_font: int, _character: int) -> void
-extern fn glutBitmapWidth(_font: int, _character: int) -> int
-extern fn glutBitmapLength(_font: int, _str: string) -> int
+extern fn glutBitmapCharacter(font: int, character: int) -> void
+extern fn glutBitmapWidth(font: int, character: int) -> int
+extern fn glutBitmapLength(font: int, str: string) -> int
 
 # === Utility Functions ===
 
-extern fn glutGet(_state: int) -> int
+extern fn glutGet(state: int) -> int
 extern fn glutSwapBuffers() -> void
 extern fn glutPostRedisplay() -> void
 extern fn glutMainLoop() -> void

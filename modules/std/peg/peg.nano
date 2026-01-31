@@ -15,10 +15,10 @@ module std_peg
 
 opaque type NlPeg
 
-extern fn nl_peg_compile(_pattern: string) -> NlPeg
-extern fn nl_peg_match(_peg: NlPeg, _input: string) -> int
-extern fn nl_peg_captures(_peg: NlPeg, _input: string) -> array<string>
-extern fn nl_peg_free(_peg: NlPeg) -> void
+extern fn nl_peg_compile(pattern: string) -> NlPeg
+extern fn nl_peg_match(peg: NlPeg, input: string) -> int
+extern fn nl_peg_captures(peg: NlPeg, input: string) -> array<string>
+extern fn nl_peg_free(peg: NlPeg) -> void
 
 pub fn compile(pattern: string) -> NlPeg {
     return (nl_peg_compile pattern)
@@ -33,9 +33,7 @@ pub fn captures(peg: NlPeg, input: string) -> array<string> {
 }
 
 pub fn free(peg: NlPeg) -> void {
-    unsafe {
-        (nl_peg_free peg)
-    }
+    (nl_peg_free peg)
 }
 
 pub fn quick_match(pattern: string, input: string) -> bool {

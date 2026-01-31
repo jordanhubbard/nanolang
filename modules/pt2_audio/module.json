@@ -9,10 +9,6 @@
     "pt2_audio_wrapper.c"
   ],
   "headers": [
-    "pt2_math.h",
-    "pt2_unicode.h",
-    "pt2_header.h",
-    "pt2_palette.h",
     "pt2_paula.h",
     "pt2_blep.h", 
     "pt2_rcfilters.h",
@@ -20,6 +16,5 @@
     "pt2_replayer.h"
   ],
   "cflags": ["-Imodules/pt2_audio", "-O2", "-Wno-unused-variable"],
-  "pkg_config": ["sdl2"],
-  "system_packages": ["sdl2"]
+  "pkg_config": []
 }

@@ -420,41 +420,6 @@ const char *resolve_module_path(const char *module_path, const char *current_fil
     return strdup(module_path);
 }
 
-static char *module_name_from_path(const char *module_path) {
-    if (!module_path) {
-        return NULL;
-    }
-    const char *last_slash = strrchr(module_path, '/');
-    const char *last_dot = strrchr(module_path, '.');
-    if (last_slash && last_dot && last_dot > last_slash) {
-        size_t name_len = last_dot - (last_slash + 1);
-        return strndup(last_slash + 1, name_len);
-    }
-    if (last_slash) {
-        return strdup(last_slash + 1);
-    }
-    if (last_dot) {
-        size_t name_len = last_dot - module_path;
-        return strndup(module_path, name_len);
-    }
-    return strdup(module_path);
-}
-
-static Function *find_module_function(Environment *env, const char *module_name, const char *func_name) {
-    if (!env || !func_name) {
-        return NULL;
-    }
-    for (int i = 0; i < env->function_count; i++) {
-        if (safe_strcmp(env->functions[i].name, func_name) == 0) {
-            if (!module_name || !env->functions[i].module_name ||
-                strcmp(env->functions[i].module_name, module_name) == 0) {
-                return &env->functions[i];
-            }
-        }
-    }
-    return NULL;
-}
-
 /* Load and parse a module file */
 static ASTNode *load_module_internal(const char *module_path, Environment *env, bool use_cache, ModuleList *modules_to_track) {
     if (!module_path) return NULL;
@@ -519,35 +484,10 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     /* Type check module (without requiring main) */
     /* Save current module context before processing imported module */
     char *saved_current_module = env->current_module;
-    
-    /* Extract module name from path for function tagging */
-    /* e.g., "modules/sdl/sdl.nano" -> "sdl" */
-    char *module_name = NULL;
-    const char *last_slash = strrchr(module_path, '/');
-    const char *last_dot = strrchr(module_path, '.');
-    if (last_slash && last_dot && last_dot > last_slash) {
-        size_t name_len = last_dot - (last_slash + 1);
-        module_name = strndup(last_slash + 1, name_len);
-    } else if (last_slash) {
-        module_name = strdup(last_slash + 1);
-    } else if (last_dot) {
-        size_t name_len = last_dot - module_path;
-        module_name = strndup(module_path, name_len);
-    } else {
-        module_name = strdup(module_path);
-    }
-    
-    env->current_module = module_name;  /* Set module context for function tagging */
-    
-    /* Register module for introspection BEFORE type checking so functions can be tracked */
-    env_register_module(env, module_name, module_path, false);  /* is_unsafe will be updated later */
+    env->current_module = NULL;  /* Reset to process module with its own context */
     
     if (!type_check_module(module_ast, env)) {
         fprintf(stderr, "Error: Type checking failed for module '%s'\n", module_path);
-        /* NOTE: module_name may have been freed/overwritten by the module's own
-         * `module <name>` declaration handler in the typechecker, so we must not
-         * free it here.
-         */
         env->current_module = saved_current_module;  /* Restore context */
         free_ast(module_ast);
         free_tokens(tokens, token_count);
@@ -556,7 +496,7 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     }
     
     /* Restore original module context */
-    /* NOTE: We intentionally DON'T free module_name here because:
+    /* NOTE: We intentionally DON'T free env->current_module here because:
      * 1. Functions registered during type_check have module_name pointers that reference it
      * 2. Those pointers are just shallow copies from the struct assignment
      * 3. Freeing would create dangling pointers
@@ -823,14 +763,6 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 }
             }
             
-            char *orig_module_name = NULL;
-            for (int j = 0; j < module_ast->as.program.count; j++) {
-                ASTNode *node = module_ast->as.program.items[j];
-                if (node->type == AST_MODULE_DECL && !orig_module_name) {
-                    orig_module_name = node->as.module_decl.name;
-                }
-            }
-            
             /* Register namespace if module has an alias */
             if (module_alias) {
                 /* Extract function names, struct names, enum names, union names from module */
@@ -866,69 +798,11 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 }
                 
                 /* Register the namespace */
-                env_register_namespace(env, module_alias, orig_module_name,
+                env_register_namespace(env, module_alias,
                                       func_names, func_count,
                                       struct_names, struct_count,
                                       enum_names, enum_count,
                                       union_names, union_count);
-            }
-
-            /* Apply import aliases for selective imports: from "module" import foo as bar */
-            if (item->as.import_stmt.is_selective &&
-                item->as.import_stmt.import_symbols &&
-                item->as.import_stmt.import_symbol_count > 0) {
-                char *module_name_for_alias = NULL;
-                if (orig_module_name) {
-                    module_name_for_alias = strdup(orig_module_name);
-                } else {
-                    module_name_for_alias = module_name_from_path(module_path);
-                }
-                
-                for (int j = 0; j < item->as.import_stmt.import_symbol_count; j++) {
-                    const char *symbol = item->as.import_stmt.import_symbols[j];
-                    const char *alias = item->as.import_stmt.import_aliases
-                        ? item->as.import_stmt.import_aliases[j]
-                        : NULL;
-                    
-                    if (!alias || alias[0] == '\0' || strcmp(alias, symbol) == 0) {
-                        continue;
-                    }
-                    
-                    if (env_get_function(env, alias)) {
-                        fprintf(stderr, "Error at line %d, column %d: Import alias '%s' conflicts with existing function\n",
-                                item->line, item->column, alias);
-                        free(module_name_for_alias);
-                        free(module_path);
-                        for (int k = 0; k < unpacked_count; k++) {
-                            free(unpacked_dirs[k]);
-                        }
-                        free(unpacked_dirs);
-                        return false;
-                    }
-                    
-                    Function *func = find_module_function(env, module_name_for_alias, symbol);
-                    if (!func) {
-                        fprintf(stderr, "Error at line %d, column %d: Symbol '%s' not found in module for alias '%s'\n",
-                                item->line, item->column, symbol, alias);
-                        free(module_name_for_alias);
-                        free(module_path);
-                        for (int k = 0; k < unpacked_count; k++) {
-                            free(unpacked_dirs[k]);
-                        }
-                        free(unpacked_dirs);
-                        return false;
-                    }
-                    
-                    Function alias_func = *func;
-                    alias_func.name = strdup(alias);
-                    const char *orig_name = func->alias_of ? func->alias_of : func->name;
-                    alias_func.alias_of = orig_name ? strdup(orig_name) : NULL;
-                    env_define_function(env, alias_func);
-                }
-                
-                if (module_name_for_alias) {
-                    free(module_name_for_alias);
-                }
             }
             
             /* Execute module definitions (functions, structs, etc.) */
@@ -1020,8 +894,6 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
         module_cache = saved_cache;
         return false;
     }
-    module_env->emit_module_metadata = false;
-    module_env->emit_c_main = false;
 
     /* Use a fresh module cache per module compilation to avoid cross-env AST reuse */
 
@@ -1059,7 +931,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
         saved_main->is_extern = true;
     }
 
-    char *c_code = transpile_to_c(module_ast, module_env, module_path);
+    char *c_code = transpile_to_c(module_ast, module_env);
 
     if (saved_main) {
         saved_main->is_extern = saved_main_is_extern;
@@ -1159,14 +1031,10 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
                     detected_types[detected_count][63] = '\0';
                     detected_count++;
 
-                    const char *c_type = type_name;
-                    if (strcmp(type_name, "LexerToken") == 0) c_type = "Token";
-                    else if (strcmp(type_name, "NSType") == 0) c_type = "NSType";
-
                     char gen_cmd[512];
                     snprintf(gen_cmd, sizeof(gen_cmd),
-                             "./scripts/generate_list.sh %s /tmp %s > /dev/null 2>&1",
-                             type_name, c_type);
+                             "./scripts/generate_list.sh %s /tmp > /dev/null 2>&1",
+                             type_name);
                     if (verbose) {
                         printf("[Modules] Generating List<%s> runtime...\n", type_name);
                     }
@@ -1195,7 +1063,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
 
     char compile_cmd[1024];
     snprintf(compile_cmd, sizeof(compile_cmd),
-            "%s -std=c99 -Isrc -Imodules/std -Imodules/std/collections -Imodules/std/json -Imodules/std/io -Imodules/std/math -Imodules/std/peg -Imodules/std/string -Imodules/sdl_helpers %s -c -o %s %s",
+            "%s -std=c99 -Isrc -Imodules/std/collections -Imodules/std/json -Imodules/std/io -Imodules/std/math -Imodules/std/peg -Imodules/std/string -Imodules/sdl_helpers %s -c -o %s %s",
             cc, sdl_flags, output_obj, temp_c_file);
     
     if (verbose) {
@@ -1232,11 +1100,10 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     }
     
     /* Clean up temporary C file */
-    if (!verbose) {
-        remove(temp_c_file);
-    } else {
+    remove(temp_c_file);
+    
+    if (verbose) {
         printf("✓ Compiled module to object file: %s\n", output_obj);
-        printf("  C source kept at: %s\n", temp_c_file);
     }
     
     free(c_code);
@@ -1371,77 +1238,11 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                 return false;
             }
             
+            /* Note: object file is included in link_flags, so we don't add it here */
+            /* It will be added below when we collect all link flags */
+            
             build_infos[build_info_count++] = info;
             c_modules_built++;
-
-            /* 
-             * IMPORTANT: If the module ALSO has a .nano file with implementations 
-             * (not just externs), we must compile it too!
-             */
-            if (!is_ffi_only_module(module_path)) {
-                if (verbose) {
-                    printf("[Modules] Also compiling nanolang parts of C module '%s'\n", meta->name);
-                }
-
-                /*
-                 * IMPORTANT:
-                 * A single C-backed module directory (e.g. modules/std/) can contain multiple
-                 * NanoLang source files that may be imported independently (env.nano, fs.nano,
-                 * binary.nano, etc).
-                 *
-                 * If we always emit to obj/nano_modules/<module>_nano.o, later imports overwrite
-                 * earlier ones and we end up linking only the last compiled Nano object, causing
-                 * undefined references on strict linkers (Linux CI).
-                 */
-                system("mkdir -p obj/nano_modules 2>/dev/null");
-
-                const char *last_slash = strrchr(module_path, '/');
-                const char *base_name = last_slash ? last_slash + 1 : module_path;
-
-                char base_without_ext[256];
-                snprintf(base_without_ext, sizeof(base_without_ext), "%s", base_name);
-                char *dot = strrchr(base_without_ext, '.');
-                if (dot && strcmp(dot, ".nano") == 0) {
-                    *dot = '\0';
-                }
-
-                char nano_obj[512];
-                snprintf(nano_obj, sizeof(nano_obj), "obj/nano_modules/%s_nano_%s.o", meta->name, base_without_ext);
-                
-                if (!compile_module_to_object(module_path, nano_obj, env, verbose)) {
-                    fprintf(stderr, "Error: Failed to compile nanolang parts of module '%s'\n", meta->name);
-                    module_metadata_free(meta);
-                    free(module_dir);
-                    module_builder_free(builder);
-                    for (int j = 0; j < build_info_count; j++) {
-                        module_build_info_free(build_infos[j]);
-                    }
-                    free(build_infos);
-                    return false;
-                }
-                
-                /* Check if this object file is already in the buffer (avoid duplicates) */
-                bool already_added = false;
-                if (module_objs_buffer[0] != '\0') {
-                    char *found = strstr(module_objs_buffer, nano_obj);
-                    if (found) {
-                        /* Verify it's a complete match, not a substring */
-                        size_t nano_obj_len = strlen(nano_obj);
-                        if ((found == module_objs_buffer || found[-1] == ' ') &&
-                            (found[nano_obj_len] == '\0' || found[nano_obj_len] == ' ')) {
-                            already_added = true;
-                        }
-                    }
-                }
-                
-                if (!already_added && strlen(module_objs_buffer) + strlen(nano_obj) + 2 < buffer_size) {
-                    if (module_objs_buffer[0] != '\0') {
-                        strcat(module_objs_buffer, " ");
-                    }
-                    strcat(module_objs_buffer, nano_obj);
-                }
-            }
-            
             module_metadata_free(meta);
         } else {
             /* No module.json - check if it's FFI-only (just extern declarations) */
@@ -1498,21 +1299,8 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
             
             nanolang_compiled++;
             
-            /* Add to module_objs buffer (check for duplicates) */
-            bool already_added = false;
-            if (module_objs_buffer[0] != '\0') {
-                char *found = strstr(module_objs_buffer, obj_file);
-                if (found) {
-                    /* Verify it's a complete match, not a substring */
-                    size_t obj_file_len = strlen(obj_file);
-                    if ((found == module_objs_buffer || found[-1] == ' ') &&
-                        (found[obj_file_len] == '\0' || found[obj_file_len] == ' ')) {
-                        already_added = true;
-                    }
-                }
-            }
-            
-            if (!already_added && strlen(module_objs_buffer) + strlen(obj_file) + 2 < buffer_size) {
+            /* Add to module_objs buffer */
+            if (strlen(module_objs_buffer) + strlen(obj_file) + 2 < buffer_size) {
                 if (module_objs_buffer[0] != '\0') {
                     strcat(module_objs_buffer, " ");
                 }
@@ -1532,16 +1320,6 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
         for (size_t i = 0; i < link_flags_count; i++) {
             // Skip NULL or empty flags
             if (!link_flags[i] || link_flags[i][0] == '\0') {
-                free(link_flags[i]);
-                continue;
-            }
-
-            // Skip direct .tbd inputs (macOS text stubs) to avoid linker warnings
-            size_t flag_len = strlen(link_flags[i]);
-            if (flag_len > 4 && strcmp(link_flags[i] + flag_len - 4, ".tbd") == 0) {
-                if (verbose) {
-                    fprintf(stderr, "[Modules] Warning: Skipping direct .tbd link input %s\n", link_flags[i]);
-                }
                 free(link_flags[i]);
                 continue;
             }
@@ -1972,7 +1750,7 @@ const char *module_generate_forward_declarations(const char *module_path) {
             sb_append(sb, "void");  /* Fallback */
         }
         
-        char name_buf[1024];
+        char name_buf[512];
         snprintf(name_buf, sizeof(name_buf), " %s(", c_name);
         sb_append(sb, name_buf);
         

@@ -1,0 +1,84 @@
+# Basic Arithmetic Operators
+# This example demonstrates all arithmetic operations in prefix notation
+
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+    assert (== (add 0 0) 0)
+    assert (== (add (- 0 5) 5) 0)
+}
+
+fn subtract(a: int, b: int) -> int {
+    return (- a b)
+}
+
+shadow subtract {
+    assert (== (subtract 10 3) 7)
+    assert (== (subtract 5 5) 0)
+    assert (== (subtract 0 10) (- 0 10))
+}
+
+fn multiply(a: int, b: int) -> int {
+    return (* a b)
+}
+
+shadow multiply {
+    assert (== (multiply 4 5) 20)
+    assert (== (multiply 0 100) 0)
+    assert (== (multiply (- 0 3) 4) (- 0 12))
+}
+
+fn divide(a: int, b: int) -> int {
+    return (/ a b)
+}
+
+shadow divide {
+    assert (== (divide 20 4) 5)
+    assert (== (divide 7 2) 3)
+    assert (== (divide 100 10) 10)
+}
+
+fn modulo(a: int, b: int) -> int {
+    return (% a b)
+}
+
+shadow modulo {
+    assert (== (modulo 10 3) 1)
+    assert (== (modulo 20 5) 0)
+    assert (== (modulo 7 2) 1)
+}
+
+fn complex_expr(x: int, y: int, z: int) -> int {
+    return (+ (* x y) (/ z 2))
+}
+
+shadow complex_expr {
+    assert (== (complex_expr 2 3 10) 11)
+    assert (== (complex_expr 5 5 20) 35)
+}
+
+fn main() -> int {
+    (println "=== Arithmetic Operations ===")
+    (println "10 + 20 =")
+    (println (add 10 20))
+    (println "50 - 15 =")
+    (println (subtract 50 15))
+    (println "7 * 8 =")
+    (println (multiply 7 8))
+    (println "100 / 4 =")
+    (println (divide 100 4))
+    (println "17 % 5 =")
+    (println (modulo 17 5))
+    (println "Complex: (3*4) + (8/2) =")
+    (println (complex_expr 3 4 8))
+    (println "Absolute value of -42:")
+    (println (abs (subtract 0 42)))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

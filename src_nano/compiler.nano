@@ -21,12 +21,22 @@
  */
 
 /* Import the nanolang compiler components */
+/* TODO: Once import aliases work, use:
+import "src_nano/ast_shared.nano"
+import "src_nano/file_io.nano" as IO
+import "src_nano/cli_args.nano" as CLI  
+import "src_nano/lexer_main.nano" as Lexer
+import "src_nano/parser.nano" as Parser
+import "src_nano/typecheck.nano" as TypeChecker
+import "src_nano/transpiler.nano" as Transpiler
+*/
+
+/* For now, import without aliases until we fix the type checker issue */
 import "src_nano/file_io.nano"
 import "src_nano/cli_args.nano"
 
-/* Note: This is a proof-of-concept compiler that demonstrates self-hosting.
- * For full self-hosted compilation, see nanoc_v06.nano which uses the actual
- * lexer, parser, typechecker, and transpiler components. */
+/* TODO: Import the actual components once we resolve struct conflicts */
+/* For now, write a minimal version that demonstrates the concept */
 
 /* Compilation result codes */
 let SUCCESS: int = 0
@@ -84,14 +94,14 @@ fn parse_args() -> CompilerArgs {
     } else {
         set input (get_argv 1)
         
-        if (== input "--help") {
+        if (str_equals input "--help") {
             set help true
         } else {
             /* Parse remaining options */
             let mut i: int = 2
             while (< i argc) {
                 let arg: string = (get_argv i)
-                if (== arg "-o") {
+                if (str_equals arg "-o") {
                     set i (+ i 1)
                     if (< i argc) {
                         set output (get_argv i)
@@ -99,10 +109,10 @@ fn parse_args() -> CompilerArgs {
                         set error true
                     }
                 } else {
-                    if (== arg "--keep-c") {
+                    if (str_equals arg "--keep-c") {
                         set keep_c true
                     } else {
-                        if (== arg "--verbose") {
+                        if (str_equals arg "--verbose") {
                             set verbose true
                         } else {
                             set error true
@@ -168,7 +178,7 @@ fn compile(input: string, output: string, keep_c: bool, verbose: bool) -> int {
     let parser = (Parser.parse_program tokens token_count)
     
     if verbose {
-        (println "Step 4: NSType checking...")
+        (println "Step 4: Type checking...")
     }
     let result = (TypeChecker.typecheck_parser parser)
     
@@ -189,12 +199,18 @@ fn compile(input: string, output: string, keep_c: bool, verbose: bool) -> int {
     }
     
     /* Build command to use C compiler */
-    let base_cmd: string = (+ (+ (+ "bin/nanoc " input) " -o ") output)
-    let final_cmd: string = (cond
-        (keep_c (+ base_cmd " --keep-c"))
-        (else base_cmd))
+    let cmd: string = (str_concat "bin/nanoc " input)
+    let cmd2: string = (str_concat cmd " -o ")
+    let cmd3: string = (str_concat cmd2 output)
     
-    return (system final_cmd)
+    if keep_c {
+        let cmd4: string = (str_concat cmd3 " --keep-c")
+        let result: int = (system cmd4)
+        return result
+    } else {
+        let result: int = (system cmd3)
+        return result
+    }
 }
 
 /* Main entry point */

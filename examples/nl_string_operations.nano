@@ -1,0 +1,63 @@
+# Advanced String Operations Example
+# Demonstrates character access, classification, and conversion functions
+
+fn test_char_access() -> int {
+    let text: string = "Hello"
+    let h: int = (char_at text 0)
+    assert (== h 72)
+    return 0
+}
+
+fn test_string_building() -> int {
+    let a: string = (string_from_char 65)
+    assert (str_equals a "A")
+    return 0
+}
+
+fn test_classification() -> int {
+    assert (== (is_digit 48) true)
+    assert (== (is_alpha 65) true)
+    assert (== (is_alnum 48) true)
+    assert (== (is_whitespace 32) true)
+    return 0
+}
+
+fn test_conversions() -> int {
+    let s: string = (int_to_string 42)
+    assert (str_equals s "42")
+    assert (== (string_to_int "123") 123)
+    assert (== (digit_value 53) 5)
+    assert (== (char_to_lower 65) 97)
+    assert (== (char_to_upper 97) 65)
+    return 0
+}
+
+fn main() -> int {
+    (test_char_access)
+    (test_string_building)
+    (test_classification)
+    (test_conversions)
+    print "All string operations working"
+    return 0
+}
+
+shadow test_char_access {
+    assert (== (test_char_access) 0)
+}
+
+shadow test_string_building {
+    assert (== (test_string_building) 0)
+}
+
+shadow test_classification {
+    assert (== (test_classification) 0)
+}
+
+shadow test_conversions {
+    assert (== (test_conversions) 0)
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

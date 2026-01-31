@@ -1,0 +1,312 @@
+# Example 26: Text-Based Tic-Tac-Toe Game
+# Two-player game with input validation and win detection
+
+# External C functions for I/O
+extern fn getchar() -> int
+extern fn strlen(s: string) -> int
+extern fn strcmp(s1: string, s2: string) -> int
+
+# Board representation: flat array of 9 positions
+# 0 = empty, 1 = X, 2 = O
+fn create_board() -> array<int> {
+    return (array_new 9 0)
+}
+
+shadow create_board {
+    let board: array<int> = (create_board)
+    assert (== (array_length board) 9)
+    assert (== (at board 0) 0)
+    assert (== (at board 8) 0)
+}
+
+# Display the board (simplified for println-only)
+fn display_board(board: array<int>) -> void {
+    (println "")
+    (println "Board State:")
+    (println (get_cell_display board 0))
+    (println (get_cell_display board 1))
+    (println (get_cell_display board 2))
+    (println (get_cell_display board 3))
+    (println (get_cell_display board 4))
+    (println (get_cell_display board 5))
+    (println (get_cell_display board 6))
+    (println (get_cell_display board 7))
+    (println (get_cell_display board 8))
+    (println "")
+}
+
+shadow display_board {
+    let board: array<int> = (create_board)
+    (display_board board)
+    # Just verify it doesn't crash
+    assert true
+}
+
+# Get display character for a cell
+fn get_cell_display(board: array<int>, pos: int) -> string {
+    let cell: int = (at board pos)
+    if (== cell 0) {
+        return " "
+    } else {
+        if (== cell 1) {
+            return "X"
+        } else {
+            return "O"
+        }
+    }
+}
+
+shadow get_cell_display {
+    let board: array<int> = (create_board)
+    assert (str_equals (get_cell_display board 0) " ")
+    (array_set board 0 1)
+    assert (str_equals (get_cell_display board 0) "X")
+    (array_set board 1 2)
+    assert (str_equals (get_cell_display board 1) "O")
+}
+
+# Check if position is valid and empty
+fn is_valid_move(board: array<int>, pos: int) -> bool {
+    if (< pos 0) {
+        return false
+    } else {
+        if (> pos 8) {
+            return false
+        } else {
+            let cell: int = (at board pos)
+            return (== cell 0)
+        }
+    }
+}
+
+shadow is_valid_move {
+    let board: array<int> = (create_board)
+    assert (is_valid_move board 0)
+    assert (is_valid_move board 8)
+    assert (not (is_valid_move board -1))
+    assert (not (is_valid_move board 9))
+    (array_set board 0 1)
+    assert (not (is_valid_move board 0))
+}
+
+# Make a move
+fn make_move(board: array<int>, pos: int, player: int) -> void {
+    (array_set board pos player)
+}
+
+shadow make_move {
+    let board: array<int> = (create_board)
+    (make_move board 0 1)
+    assert (== (at board 0) 1)
+    (make_move board 4 2)
+    assert (== (at board 4) 2)
+}
+
+# Check if player has won
+fn check_win(board: array<int>, player: int) -> bool {
+    # Check rows
+    let row1: bool = (and (and (== (at board 0) player) (== (at board 1) player)) (== (at board 2) player))
+    let row2: bool = (and (and (== (at board 3) player) (== (at board 4) player)) (== (at board 5) player))
+    let row3: bool = (and (and (== (at board 6) player) (== (at board 7) player)) (== (at board 8) player))
+    
+    # Check columns
+    let col1: bool = (and (and (== (at board 0) player) (== (at board 3) player)) (== (at board 6) player))
+    let col2: bool = (and (and (== (at board 1) player) (== (at board 4) player)) (== (at board 7) player))
+    let col3: bool = (and (and (== (at board 2) player) (== (at board 5) player)) (== (at board 8) player))
+    
+    # Check diagonals
+    let diag1: bool = (and (and (== (at board 0) player) (== (at board 4) player)) (== (at board 8) player))
+    let diag2: bool = (and (and (== (at board 2) player) (== (at board 4) player)) (== (at board 6) player))
+    
+    return (or (or (or (or (or (or (or row1 row2) row3) col1) col2) col3) diag1) diag2)
+}
+
+shadow check_win {
+    let board: array<int> = (create_board)
+    
+    # Test row win
+    (array_set board 0 1)
+    (array_set board 1 1)
+    (array_set board 2 1)
+    assert (check_win board 1)
+    
+    # Test column win
+    let board2: array<int> = (create_board)
+    (array_set board2 0 2)
+    (array_set board2 3 2)
+    (array_set board2 6 2)
+    assert (check_win board2 2)
+    
+    # Test diagonal win
+    let board3: array<int> = (create_board)
+    (array_set board3 0 1)
+    (array_set board3 4 1)
+    (array_set board3 8 1)
+    assert (check_win board3 1)
+}
+
+# Check if board is full (draw)
+fn is_board_full(board: array<int>) -> bool {
+    let mut i: int = 0
+    let mut empty_found: bool = false
+    
+    while (< i 9) {
+        if (== (at board i) 0) {
+            set empty_found true
+        } else {
+            # Continue
+        }
+        set i (+ i 1)
+    }
+    
+    return (not empty_found)
+}
+
+shadow is_board_full {
+    let board: array<int> = (create_board)
+    assert (not (is_board_full board))
+    
+    # Fill board
+    let mut i: int = 0
+    while (< i 9) {
+        (array_set board i 1)
+        set i (+ i 1)
+    }
+    assert (is_board_full board)
+}
+
+# Get player name
+fn get_player_name(player: int) -> string {
+    if (== player 1) {
+        return "X"
+    } else {
+        return "O"
+    }
+}
+
+shadow get_player_name {
+    assert (str_equals (get_player_name 1) "X")
+    assert (str_equals (get_player_name 2) "O")
+}
+
+# Simple AI: pick first available move
+fn ai_move(board: array<int>) -> int {
+    let mut i: int = 0
+    while (< i 9) {
+        if (== (at board i) 0) {
+            return i
+        } else {
+            # Continue
+        }
+        set i (+ i 1)
+    }
+    return -1  # Should never happen if board isn't full
+}
+
+shadow ai_move {
+    let board: array<int> = (create_board)
+    assert (== (ai_move board) 0)
+    
+    (array_set board 0 1)
+    assert (== (ai_move board) 1)
+    
+    # Fill first 3
+    (array_set board 1 1)
+    (array_set board 2 1)
+    assert (== (ai_move board) 3)
+}
+
+# Play game (automated for demonstration)
+fn play_game_demo() -> int {
+    (println "Automated Demo Game:")
+    (println "")
+    
+    let board: array<int> = (create_board)
+    let mut current_player: int = 1
+    let mut moves: int = 0
+    let mut game_over: bool = false
+    
+    # Predefined moves for demo: 0, 4, 1, 3, 2 (X wins)
+    let demo_moves: array<int> = [0, 4, 1, 3, 2]
+    
+    while (and (< moves 5) (not game_over)) {
+        let pos: int = (at demo_moves moves)
+        
+        (println "Player:")
+        (println (get_player_name current_player))
+        (println "Position:")
+        (println (+ pos 1))
+        
+        (make_move board pos current_player)
+        (display_board board)
+        
+        # Check for win
+        if (check_win board current_player) {
+            (println "Winner:")
+            (println (get_player_name current_player))
+            set game_over true
+        } else {
+            # Check for draw
+            if (is_board_full board) {
+                (println "It's a draw!")
+                set game_over true
+            } else {
+                # Switch player
+                if (== current_player 1) {
+                    set current_player 2
+                } else {
+                    set current_player 1
+                }
+            }
+        }
+        
+        set moves (+ moves 1)
+    }
+    
+    return 0
+}
+
+shadow play_game_demo {
+    assert (== (play_game_demo) 0)
+}
+
+# Main function
+fn main() -> int {
+    (println "========================================")
+    (println "Text-Based Tic-Tac-Toe")
+    (println "========================================")
+    (println "")
+    (println "Board positions:")
+    (println " 1 | 2 | 3 ")
+    (println "---|---|---")
+    (println " 4 | 5 | 6 ")
+    (println "---|---|---")
+    (println " 7 | 8 | 9 ")
+    (println "")
+    (println "Players: X and O")
+    (println "X goes first")
+    (println "")
+    (println "========================================")
+    (println "")
+    
+    let result: int = (play_game_demo)
+    
+    (println "")
+    (println "========================================")
+    (println "Game Complete!")
+    (println "")
+    (println "Note: This is a demonstration with")
+    (println "pre-programmed moves. For interactive")
+    (println "gameplay, nanolang would need:")
+    (println "1. stdin input functions (scanf, fgets)")
+    (println "2. String parsing for move validation")
+    (println "3. These can be added via extern C FFI")
+    (println "========================================")
+    
+    return result
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

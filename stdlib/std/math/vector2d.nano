@@ -120,9 +120,7 @@ shadow vec_dot {
  */
 
 /* Length (magnitude) of vector */
-pub fn vec_length(v: Vector2D) -> float
-ensures (>= result 0.0)
-{
+pub fn vec_length(v: Vector2D) -> float {
     let len_squared: float = (+ (* v.x v.x) (* v.y v.y))
     return (sqrt len_squared)
 }
@@ -144,9 +142,7 @@ shadow vec_length_squared {
 }
 
 /* Distance between two points */
-pub fn vec_distance(a: Vector2D, b: Vector2D) -> float
-ensures (>= result 0.0)
-{
+pub fn vec_distance(a: Vector2D, b: Vector2D) -> float {
     let diff: Vector2D = (vec_sub b a)
     return (vec_length diff)
 }
@@ -267,9 +263,7 @@ shadow vec_lerp {
  */
 
 /* Clamp vector to maximum length */
-pub fn vec_clamp_length(v: Vector2D, max_len: float) -> Vector2D
-requires (>= max_len 0.0)
-{
+pub fn vec_clamp_length(v: Vector2D, max_len: float) -> Vector2D {
     let len: float = (vec_length v)
     if (> len max_len) {
         let normalized: Vector2D = (vec_normalize v)

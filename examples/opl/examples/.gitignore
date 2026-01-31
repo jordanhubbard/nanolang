@@ -1,5 +1,0 @@
-# Ignore generated output files
-output/
-
-# Ignore compiled CLI binary (it's generated)
-/tmp/opl_cli

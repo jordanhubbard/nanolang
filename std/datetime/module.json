@@ -1,7 +1,0 @@
-{
-  "name": "std_datetime",
-  "version": "0.1.0",
-  "description": "Datetime parsing, formatting, and manipulation utilities",
-  "c_sources": ["datetime_impl.c"],
-  "owned_string_returns": ["nl_datetime_to_iso", "nl_datetime_format"]
-}

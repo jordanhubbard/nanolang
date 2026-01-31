@@ -8,15 +8,15 @@ module std_collections_hashmap
 opaque type NLHashMap
 
 extern fn nl_hm_new() -> NLHashMap
-extern fn nl_hm_put(_hm: NLHashMap, _key: string, _value: string) -> void
-extern fn nl_hm_has(_hm: NLHashMap, _key: string) -> bool
-extern fn nl_hm_get(_hm: NLHashMap, _key: string) -> string
-extern fn nl_hm_size(_hm: NLHashMap) -> int
-extern fn nl_hm_keys(_hm: NLHashMap) -> array<string>
-extern fn nl_hm_values(_hm: NLHashMap) -> array<string>
-extern fn nl_hm_remove(_hm: NLHashMap, _key: string) -> void
-extern fn nl_hm_clear(_hm: NLHashMap) -> void
-extern fn nl_hm_free(_hm: NLHashMap) -> void
+extern fn nl_hm_put(hm: NLHashMap, key: string, value: string) -> void
+extern fn nl_hm_has(hm: NLHashMap, key: string) -> bool
+extern fn nl_hm_get(hm: NLHashMap, key: string) -> string
+extern fn nl_hm_size(hm: NLHashMap) -> int
+extern fn nl_hm_keys(hm: NLHashMap) -> array<string>
+extern fn nl_hm_values(hm: NLHashMap) -> array<string>
+extern fn nl_hm_remove(hm: NLHashMap, key: string) -> void
+extern fn nl_hm_clear(hm: NLHashMap) -> void
+extern fn nl_hm_free(hm: NLHashMap) -> void
 
 pub struct HashMap {
     handle: NLHashMap
@@ -27,9 +27,7 @@ pub fn map_new() -> HashMap {
 }
 
 pub fn map_put(hm: HashMap, key: string, value: string) -> HashMap {
-    unsafe {
-        (nl_hm_put hm.handle key value)
-    }
+    (nl_hm_put hm.handle key value)
     return hm
 }
 
@@ -55,23 +53,17 @@ pub fn map_values(hm: HashMap) -> array<string> {
 }
 
 pub fn map_remove(hm: HashMap, key: string) -> HashMap {
-    unsafe {
-        (nl_hm_remove hm.handle key)
-    }
+    (nl_hm_remove hm.handle key)
     return hm
 }
 
 pub fn map_clear(hm: HashMap) -> HashMap {
-    unsafe {
-        (nl_hm_clear hm.handle)
-    }
+    (nl_hm_clear hm.handle)
     return hm
 }
 
 pub fn map_free(hm: HashMap) -> void {
-    unsafe {
-        (nl_hm_free hm.handle)
-    }
+    (nl_hm_free hm.handle)
 }
 
 shadow map_new {

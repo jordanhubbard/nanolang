@@ -7,37 +7,37 @@
 # Initialization and cleanup
 extern fn initscr_wrapper() -> int
 extern fn endwin_wrapper() -> int
-extern fn curs_set_wrapper(_visibility: int) -> int
+extern fn curs_set_wrapper(visibility: int) -> int
 
 # Output functions
 extern fn clear_wrapper() -> int
 extern fn refresh_wrapper() -> int
 extern fn erase_wrapper() -> int
-extern fn move_wrapper(_y: int, _x: int) -> int
+extern fn move_wrapper(y: int, x: int) -> int
 
 # Text output
-extern fn mvprintw_wrapper(_y: int, _x: int, _str: string) -> int
-extern fn mvaddch_wrapper(_y: int, _x: int, _ch: int) -> int
-extern fn mvaddstr_wrapper(_y: int, _x: int, _str: string) -> int
-extern fn addch_wrapper(_ch: int) -> int
-extern fn addstr_wrapper(_str: string) -> int
+extern fn mvprintw_wrapper(y: int, x: int, str: string) -> int
+extern fn mvaddch_wrapper(y: int, x: int, ch: int) -> int
+extern fn mvaddstr_wrapper(y: int, x: int, str: string) -> int
+extern fn addch_wrapper(ch: int) -> int
+extern fn addstr_wrapper(str: string) -> int
 
 # Input functions
 extern fn getch_wrapper() -> int
-extern fn nl_nodelay(_win: int, _bf: int) -> int
-extern fn nl_keypad(_win: int, _bf: int) -> int
-extern fn timeout_wrapper(_delay: int) -> void
+extern fn nl_nodelay(win: int, bf: int) -> int
+extern fn nl_keypad(win: int, bf: int) -> int
+extern fn timeout_wrapper(delay: int) -> void
 
 # Color functions
 extern fn start_color_wrapper() -> int
 extern fn has_colors_wrapper() -> int
-extern fn init_pair_wrapper(_pair: int, _fg: int, _bg: int) -> int
-extern fn attron_wrapper(_attrs: int) -> int
-extern fn attroff_wrapper(_attrs: int) -> int
+extern fn init_pair_wrapper(pair: int, fg: int, bg: int) -> int
+extern fn attron_wrapper(attrs: int) -> int
+extern fn attroff_wrapper(attrs: int) -> int
 
 # Screen info
-extern fn getmaxx_wrapper(_win: int) -> int
-extern fn getmaxy_wrapper(_win: int) -> int
+extern fn getmaxx_wrapper(win: int) -> int
+extern fn getmaxy_wrapper(win: int) -> int
 extern fn stdscr_wrapper() -> int
 
 # Input mode control
@@ -47,7 +47,7 @@ extern fn cbreak_wrapper() -> int
 extern fn nocbreak_wrapper() -> int
 
 # Box drawing
-extern fn box_wrapper(_win: int, _verch: int, _horch: int) -> int
+extern fn box_wrapper(win: int, verch: int, horch: int) -> int
 
 # === CONSTANTS ===
 
